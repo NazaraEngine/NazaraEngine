@@ -57,6 +57,7 @@ class NAZARA_API NzRenderer
 		bool SetShader(NzShader* shader);
 		bool SetTarget(NzRenderTarget* target);
 		bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
+		bool SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
 
 		void Uninitialize();
 

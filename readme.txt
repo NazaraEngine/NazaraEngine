@@ -12,7 +12,7 @@ Authors
 -------
 
 Jérôme "Lynix" Leclercq - main developper (Lynix680@gmail.com)
-Rémi "overdrivr" Begues - developper & helper (remi.beges@laposte.net)
+Rémi "overdrivr" Bèges - developper & helper (remi.beges@laposte.net)
 
 Install
 -------
