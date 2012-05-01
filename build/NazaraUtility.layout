@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="ReleaseDLL" />
+	<File name="..\src\Nazara\Utility\Win32\WindowImpl.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="4321" topLine="161" />
+	</File>
+	<File name="..\src\Nazara\Utility\Win32\InputImpl.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="5177" topLine="172" />
+	</File>
+	<File name="..\include\Nazara\Utility\Window.hpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1469" topLine="30" />
+	</File>
+	<File name="..\src\Nazara\Utility\Window.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="3931" topLine="185" />
+	</File>
+	<File name="..\include\Nazara\Utility\VideoMode.hpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="0" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Utility\Tuple.hpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="256" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Utility\Resource.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="417" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Utility\Resource.hpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="0" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Utility\Mouse.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1096" topLine="14" />
+	</File>
+	<File name="..\src\Nazara\Utility\Keyboard.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="567" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Utility\Mouse.hpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="896" topLine="3" />
+	</File>
+	<File name="..\src\Nazara\Utility\Win32\WindowImpl.hpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2700" topLine="65" />
+	</File>
+	<File name="..\src\Nazara\Utility\Win32\InputImpl.hpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="730" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Utility\Tuple.inl" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="875" topLine="7" />
+	</File>
+</CodeBlocks_layout_file>

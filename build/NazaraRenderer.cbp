@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="NazaraRenderer" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="DebugStatic">
+				<Option output="..\lib\libNazaraRendererd-s.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj\DebugStatic\NazaraRenderer" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DNAZARA_BUILD" />
+					<Add option="-DNAZARA_DEBUG" />
+					<Add option="-DNAZARA_STATIC" />
+					<Add option="-DNAZARA_RENDERER_OPENGL" />
+					<Add directory="..\include" />
+					<Add directory="..\src" />
+				</Compiler>
+				<Linker>
+					<Add library="gdi32" />
+					<Add library="opengl32" />
+					<Add library="winmm" />
+					<Add library="NazaraCored-s" />
+					<Add library="NazaraUtilityd-s" />
+					<Add directory="..\lib" />
+				</Linker>
+			</Target>
+			<Target title="ReleaseStatic">
+				<Option output="..\lib\libNazaraRenderer-s.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj\ReleaseStatic\NazaraRenderer" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-O3" />
+					<Add option="-DNAZARA_BUILD" />
+					<Add option="-DNAZARA_STATIC" />
+					<Add option="-DNAZARA_RENDERER_OPENGL" />
+					<Add directory="..\include" />
+					<Add directory="..\src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="gdi32" />
+					<Add library="opengl32" />
+					<Add library="winmm" />
+					<Add library="NazaraCore-s" />
+					<Add library="NazaraUtility-s" />
+					<Add directory="..\lib" />
+				</Linker>
+			</Target>
+			<Target title="DebugDLL">
+				<Option output="..\lib\NazaraRendererd.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj\DebugDLL\NazaraRenderer" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DNAZARA_BUILD" />
+					<Add option="-DNAZARA_DEBUG" />
+					<Add option="-DNAZARA_RENDERER_OPENGL" />
+					<Add directory="..\include" />
+					<Add directory="..\src" />
+				</Compiler>
+				<Linker>
+					<Add option="-shared" />
+					<Add option='-Wl,--out-implib=&quot;../lib/libNazaraRendererd.a&quot;' />
+					<Add library="gdi32" />
+					<Add library="opengl32" />
+					<Add library="winmm" />
+					<Add library="NazaraCored" />
+					<Add library="NazaraUtilityd" />
+					<Add directory="..\lib" />
+				</Linker>
+			</Target>
+			<Target title="ReleaseDLL">
+				<Option output="..\lib\NazaraRenderer.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj\ReleaseDLL\NazaraRenderer" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-DNAZARA_BUILD" />
+					<Add option="-DNAZARA_RENDERER_OPENGL" />
+					<Add directory="..\include" />
+					<Add directory="..\src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-shared" />
+					<Add option='-Wl,--out-implib=&quot;../lib/libNazaraRenderer.a&quot;' />
+					<Add library="gdi32" />
+					<Add library="opengl32" />
+					<Add library="winmm" />
+					<Add library="NazaraCore" />
+					<Add library="NazaraUtility" />
+					<Add directory="..\lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="..\include\Nazara\Renderer\Buffer.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\Config.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\Context.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\ContextParameters.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\Debug.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\DebugOff.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\IndexBuffer.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\OpenGL.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\RenderTarget.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\RenderTargetParameters.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\RenderWindow.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\Renderer.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\Shader.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\VertexBuffer.hpp" />
+		<Unit filename="..\include\Nazara\Renderer\VertexDeclaration.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\Buffer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\BufferImpl.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\BufferImpl.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\Context.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\ContextParameters.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\Debug\Leaks.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\GLSLShader.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\GLSLShader.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\HardwareBuffer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\HardwareBuffer.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\IndexBuffer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\OpenGL.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\RenderTarget.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\RenderWindow.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\Renderer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\Shader.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\ShaderImpl.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\ShaderImpl.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\SoftwareBuffer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\SoftwareBuffer.hpp" />
+		<Unit filename="..\src\Nazara\Renderer\VertexBuffer.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\VertexDeclaration.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\Win32\ContextImpl.cpp" />
+		<Unit filename="..\src\Nazara\Renderer\Win32\ContextImpl.hpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

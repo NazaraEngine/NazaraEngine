@@ -1,0 +1,686 @@
+# depslib dependency file v1.0
+1334324905 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.cpp
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+	<cstdio>
+	<windowsx.h>
+	<Nazara/Utility/Debug.hpp>
+
+1334313580 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/Window.hpp>
+	<windows.h>
+
+1333794423 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1329769188 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1325573352 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1332429717 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1334410813 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329768326 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329768566 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1334772468 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\vector2.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.inl>
+
+1334861874 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\config.hpp
+
+1334772466 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\vector2.inl
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Math/Basic.hpp>
+	<cmath>
+	<cstdlib>
+	<stdexcept>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1335459002 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<string>
+	<vector>
+
+1335517151 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1331674200 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329933502 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1330631838 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1330715244 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\keyboard.hpp
+	<Nazara/Prerequesites.hpp>
+
+1334326021 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\mouse.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Math/Vector2.hpp>
+
+1329408522 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\videomode.hpp
+	<Nazara/Prerequesites.hpp>
+	<vector>
+
+1332336268 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\window.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Event.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/WindowHandle.hpp>
+	<queue>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+
+1331039152 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\event.hpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1330966870 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\windowhandle.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329930704 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1331679934 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328217374 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328217378 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332008740 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329944648 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1329933512 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327876196 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1327875186 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1330694346 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\videomodeimpl.cpp
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<algorithm>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1329408376 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\videomodeimpl.hpp
+	<vector>
+
+1334327014 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.cpp
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Window.hpp>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1334326179 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.hpp
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1329944564 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\debug\leaks.cpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1334249419 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\window.cpp
+	<Nazara/Utility/Window.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Lock.hpp>
+	<stdexcept>
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Utility/Linux/WindowImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1329933674 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\videomode.cpp
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<algorithm>
+	<Nazara/Utility/Debug.hpp>
+
+1332918105 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\resource.cpp
+	<Nazara/Utility/Resource.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Config.hpp>
+
+1330634000 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\resource.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1334394002 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\mouse.cpp
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1330992228 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\utility\keyboard.cpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1330630392 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\resource.cpp
+	<Nazara/Utility/Resource.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Config.hpp>
+
+1330630400 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\resource.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329765588 e:\programmation\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1329764966 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329927104 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1330819758 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1325569752 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1330587992 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1331468620 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329764726 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1330628238 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1330988624 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\mouse.cpp
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1329593638 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\mouse.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Math/Vector2.hpp>
+
+1329588004 e:\programmation\digitalpulse software\nazara engine\include\nazara\math\vector2.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Config.hpp>
+	<Nazara/Math/Vector2.inl>
+
+1329588840 e:\programmation\digitalpulse software\nazara engine\include\nazara\math\config.hpp
+
+1329593976 e:\programmation\digitalpulse software\nazara engine\include\nazara\math\vector2.inl
+	<Nazara/Core/StringStream.hpp>
+	<cmath>
+	<cstdlib>
+	<limits>
+	<stdexcept>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1329765574 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<string>
+	<vector>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1329941040 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1331670600 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329929902 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1330046070 e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.hpp
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1330711644 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\keyboard.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329941048 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1330988628 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\keyboard.cpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1331107190 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.cpp
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+	<cstdio>
+	<windowsx.h>
+	<Nazara/Utility/Debug.hpp>
+
+1330983934 e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/Window.hpp>
+	<windows.h>
+
+1329404922 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\videomode.hpp
+	<Nazara/Prerequesites.hpp>
+	<vector>
+
+1330983882 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\window.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Event.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/WindowHandle.hpp>
+	<queue>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+
+1331035552 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\event.hpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1330963270 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\windowhandle.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1331676334 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328213774 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328213778 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332005140 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329929912 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327872596 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1327871586 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1330690746 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\videomodeimpl.cpp
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<algorithm>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1329404776 e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\videomodeimpl.hpp
+	<vector>
+
+1330051962 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.cpp
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1329940964 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\debug\leaks.cpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1330988890 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\window.cpp
+	<Nazara/Utility/Window.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Utility/Linux/WindowImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1329930074 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\utility\videomode.cpp
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<algorithm>
+	<Nazara/Utility/Debug.hpp>
+
+1329944564 source:e:\digitalpulse software\nazara engine\src\nazara\utility\debug\leaks.cpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1330631838 e:\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1331674200 e:\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329769188 e:\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1334249419 source:e:\digitalpulse software\nazara engine\src\nazara\utility\window.cpp
+	<Nazara/Utility/Window.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Lock.hpp>
+	<stdexcept>
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Utility/Linux/WindowImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1332336268 e:\digitalpulse software\nazara engine\include\nazara\utility\window.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Event.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/WindowHandle.hpp>
+	<queue>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+
+1333794423 e:\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1325573352 e:\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1332429717 e:\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1334410813 e:\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329768326 e:\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329768566 e:\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1334772468 e:\digitalpulse software\nazara engine\include\nazara\math\vector2.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.inl>
+
+1334861597 e:\digitalpulse software\nazara engine\include\nazara\math\config.hpp
+
+1334772466 e:\digitalpulse software\nazara engine\include\nazara\math\vector2.inl
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Math/Basic.hpp>
+	<cmath>
+	<cstdlib>
+	<stdexcept>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1332508516 e:\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<string>
+	<vector>
+
+1329944640 e:\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1329933502 e:\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1331039152 e:\digitalpulse software\nazara engine\include\nazara\utility\event.hpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1330715244 e:\digitalpulse software\nazara engine\include\nazara\utility\keyboard.hpp
+	<Nazara/Prerequesites.hpp>
+
+1334326021 e:\digitalpulse software\nazara engine\include\nazara\utility\mouse.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Math/Vector2.hpp>
+
+1329408522 e:\digitalpulse software\nazara engine\include\nazara\utility\videomode.hpp
+	<Nazara/Prerequesites.hpp>
+	<vector>
+
+1330966870 e:\digitalpulse software\nazara engine\include\nazara\utility\windowhandle.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329930704 e:\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1334313580 e:\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.hpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/Window.hpp>
+	<windows.h>
+
+1329944648 e:\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1329933674 source:e:\digitalpulse software\nazara engine\src\nazara\utility\videomode.cpp
+	<Nazara/Utility/VideoMode.hpp>
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<algorithm>
+	<Nazara/Utility/Debug.hpp>
+
+1329408376 e:\digitalpulse software\nazara engine\src\nazara\utility\videomodeimpl.hpp
+	<vector>
+
+1332918105 source:e:\digitalpulse software\nazara engine\src\nazara\utility\resource.cpp
+	<Nazara/Utility/Resource.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Config.hpp>
+
+1330634000 e:\digitalpulse software\nazara engine\include\nazara\utility\resource.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1334394002 source:e:\digitalpulse software\nazara engine\src\nazara\utility\mouse.cpp
+	<Nazara/Utility/Mouse.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1334326179 e:\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.hpp
+	<Nazara/Math/Vector2.hpp>
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Mouse.hpp>
+
+1330992228 source:e:\digitalpulse software\nazara engine\src\nazara\utility\keyboard.cpp
+	<Nazara/Utility/Keyboard.hpp>
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Utility/Linux/InputImpl.hpp>
+	<Nazara/Utility/Debug.hpp>
+
+1334324905 source:e:\digitalpulse software\nazara engine\src\nazara\utility\win32\windowimpl.cpp
+	<Nazara/Utility/Win32/WindowImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/ThreadCondition.hpp>
+	<cstdio>
+	<windowsx.h>
+	<Nazara/Utility/Debug.hpp>
+
+1331679934 e:\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328217374 e:\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328217378 e:\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332008740 e:\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329933512 e:\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327876196 e:\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1327875186 e:\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1330694346 source:e:\digitalpulse software\nazara engine\src\nazara\utility\win32\videomodeimpl.cpp
+	<Nazara/Utility/VideoModeImpl.hpp>
+	<Nazara/Utility/VideoMode.hpp>
+	<algorithm>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1334327014 source:e:\digitalpulse software\nazara engine\src\nazara\utility\win32\inputimpl.cpp
+	<Nazara/Utility/Win32/InputImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Window.hpp>
+	<windows.h>
+	<Nazara/Utility/Debug.hpp>
+
+1334778394 e:\digitalpulse software\nazara engine\include\nazara\math\basic.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Basic.inl>
+
+1334780246 e:\digitalpulse software\nazara engine\include\nazara\math\basic.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Math/Config.hpp>
+	<algorithm>
+	<cmath>
+	<cstring>
+	<Nazara/Core/DebugOff.hpp>
+
+1334778394 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Basic.inl>
+
+1335518274 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.inl
+	<Nazara/Core/Error.hpp>
+	<Nazara/Math/Config.hpp>
+	<algorithm>
+	<cmath>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+

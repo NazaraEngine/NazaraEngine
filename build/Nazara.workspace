@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Nazara">
+		<Project filename="NazaraAudio.cbp">
+			<Depends filename="NazaraCore.cbp" />
+		</Project>
+		<Project filename="NazaraCore.cbp" />
+		<Project filename="NazaraNetwork.cbp">
+			<Depends filename="NazaraCore.cbp" />
+		</Project>
+		<Project filename="NazaraRenderer.cbp" active="1">
+			<Depends filename="NazaraCore.cbp" />
+			<Depends filename="NazaraUtility.cbp" />
+		</Project>
+		<Project filename="NazaraUtility.cbp">
+			<Depends filename="NazaraCore.cbp" />
+		</Project>
+		<Project filename="../NazaraTest/NazaraTest.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>
