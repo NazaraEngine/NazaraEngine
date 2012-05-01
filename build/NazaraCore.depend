@@ -1,0 +1,1412 @@
+# depslib dependency file v1.0
+1332488351 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\dynlib.cpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/Posix/DynLibImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\dynlib.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329769188 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1333794423 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1325573352 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1332429717 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1334410813 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329768326 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329768566 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329930704 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.hpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1335517151 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1331674200 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329768780 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.cpp
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<ctime>
+	<windows.h>
+	<Nazara/Core/Debug.hpp>
+
+1326188760 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329930704 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\directory.cpp
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Posix/DirectoryImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329606008 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\directory.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\file.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\endianness.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Endianness.inl>
+
+1325274850 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\endianness.inl
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hashdigest.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<ostream>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1326930896 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\whirlpool.cpp
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326891916 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\whirlpool.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331674556 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hashimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1327870024 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\clock.cpp
+	<Nazara/Core/Clock.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Posix/ClockImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328636550 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\clock.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1325580126 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\md5.cpp
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\md5.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331655234 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\application.cpp
+	<Nazara/Core/Application.hpp>
+	<Nazara/Core/Error.hpp>
+	<stdexcept>
+
+1331634878 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\application.hpp
+	<Nazara/Prerequesites.hpp>
+	<map>
+
+1325573480 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\fletcher16.cpp
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329768326 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\fletcher16.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/String.hpp>
+
+1325580188 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\crc32.cpp
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329768790 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\crc32.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331674228 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\debug\memoryleaktracker.cpp
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<cstdio>
+	<cstdlib>
+	<ctime>
+	<stdexcept>
+
+1329944544 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\debug\leaks.cpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1329930704 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\unicode.cpp
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/UnicodeData.hpp>
+
+1326821310 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\unicode.hpp
+	<Nazara/Prerequesites.hpp>
+
+1331473196 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\unicodedata.hpp
+
+1326890300 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\threadcondition.cpp
+	<Nazara/Core/ThreadCondition.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Posix/ThreadConditionImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326821312 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326551158 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1329930704 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\thread.cpp
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Posix/ThreadImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1331679934 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328217374 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328217378 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332008740 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329944648 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1330631838 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1329933512 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327876196 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1327875186 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1329933502 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1326788360 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Thread.hpp>
+	<windows.h>
+
+1333725386 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\stringstream.cpp
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1335459002 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<string>
+	<vector>
+
+1335518293 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\string.cpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Math/Basic.hpp>
+	<algorithm>
+	<cstdio>
+	<cstring>
+	<sstream>
+	<Utfcpp/utf8.h>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1334778394 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Basic.inl>
+
+1335518274 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.inl
+	<Nazara/Core/Error.hpp>
+	<Nazara/Math/Config.hpp>
+	<algorithm>
+	<cmath>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1325273794 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8.h
+	"utf8/checked.h"
+	"utf8/unchecked.h"
+
+1298226532 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\checked.h
+	"core.h"
+	<stdexcept>
+
+1324483486 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\core.h
+	<iterator>
+
+1260152496 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\unchecked.h
+	"core.h"
+
+1326890198 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\semaphore.cpp
+	<Nazara/Core/Semaphore.hpp>
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Posix/SemaphoreImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\semaphore.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326556328 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1326890178 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\mutex.cpp
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Posix/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1325681400 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.hpp
+	<windows.h>
+
+1333969839 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\log.cpp
+	<Nazara/Core/Log.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Math/Basic.hpp>
+	<ctime>
+	<cstdio>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\log.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1328217338 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.cpp
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<process.h>
+	<Nazara/Core/Debug.hpp>
+
+1326890152 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\lock.cpp
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329571312 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.cpp
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329930704 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hashdigest.cpp
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/Error.hpp>
+	<cstdio>
+	<cstring>
+	<utility>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1331575516 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.cpp
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<limits>
+	<Nazara/Core/Debug.hpp>
+
+1326890140 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hashable.cpp
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\core\hash.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329768530 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.cpp
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326890110 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\hash.cpp
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1333003901 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.cpp
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/Time.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<ctime>
+	<windows.h>
+
+1325277876 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\time.hpp
+	<ctime>
+	<windows.h>
+
+1333796158 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\file.cpp
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<cstring>
+	<utility>
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Posix/FileImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1332582703 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.cpp
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1332017958 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\error.cpp
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Log.hpp>
+	<cstdlib>
+	<windows.h>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1329768696 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.cpp
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329932008 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.cpp
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/Time.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<ctime>
+	<windows.h>
+
+1329765588 e:\programmation\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\file.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329602408 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\directory.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1330819758 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1325569752 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1330587992 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1331468620 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329764726 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329764966 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\endianness.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Endianness.inl>
+
+1325271250 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\endianness.inl
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hashdigest.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<ostream>
+
+1329927104 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1325274276 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\time.hpp
+	<ctime>
+	<windows.h>
+
+1329941040 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1331670600 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\file.cpp
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<cstring>
+	<utility>
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Posix/FileImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hash.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1331670956 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hashimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329765574 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<string>
+	<vector>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1327888168 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.cpp
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.hpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\dynlib.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1332014358 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\error.cpp
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Log.hpp>
+	<cstdlib>
+	<windows.h>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\log.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329765096 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.cpp
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\dynlib.cpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/Posix/DynLibImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329765180 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.cpp
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<ctime>
+	<windows.h>
+	<Nazara/Core/Debug.hpp>
+
+1326185160 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\directory.cpp
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Posix/DirectoryImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326927296 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\whirlpool.cpp
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326888316 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\whirlpool.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1327866424 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\clock.cpp
+	<Nazara/Core/Clock.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Posix/ClockImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328632950 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\clock.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1325576526 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\md5.cpp
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\md5.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331655234 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\application.cpp
+	<Nazara/Core/Application.hpp>
+	<Nazara/Core/Error.hpp>
+	<stdexcept>
+
+1331634878 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\application.hpp
+	<Nazara/Prerequesites.hpp>
+	<map>
+
+1325569880 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\fletcher16.cpp
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329764726 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\fletcher16.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/String.hpp>
+
+1325576588 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hash\crc32.cpp
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329765190 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\hash\crc32.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331670628 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\debug\memoryleaktracker.cpp
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<cstdio>
+	<cstdlib>
+	<ctime>
+	<stdexcept>
+
+1329940944 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\debug\leaks.cpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\unicode.cpp
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/UnicodeData.hpp>
+
+1326817710 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\unicode.hpp
+	<Nazara/Prerequesites.hpp>
+
+1331469596 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\unicodedata.hpp
+
+1326886700 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\threadcondition.cpp
+	<Nazara/Core/ThreadCondition.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Posix/ThreadConditionImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326817712 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326547558 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\thread.cpp
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Posix/ThreadImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1331676334 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328213774 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328213778 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332005140 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329941048 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1330628238 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1329929912 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327872596 e:\programmation\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1327871586 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1329929902 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1326784760 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Thread.hpp>
+	<windows.h>
+
+1327888640 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\stringstream.cpp
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1332155160 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\string.cpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Math/Basic.hpp>
+	<algorithm>
+	<cstdio>
+	<cstring>
+	<sstream>
+	<Utfcpp/utf8.h>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329927104 e:\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<algorithm>
+	<cmath>
+	<cstring>
+	<Nazara/Math/Basic.inl>
+
+1329927104 e:\programmation\digitalpulse software\nazara engine\include\nazara\math\basic.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1325270194 e:\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8.h
+	"utf8/checked.h"
+	"utf8/unchecked.h"
+
+1298222932 e:\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\checked.h
+	"core.h"
+	<stdexcept>
+
+1324479886 e:\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\core.h
+	<iterator>
+
+1260148896 e:\programmation\digitalpulse software\nazara engine\include\utfcpp\utf8\unchecked.h
+	"core.h"
+
+1326886598 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\semaphore.cpp
+	<Nazara/Core/Semaphore.hpp>
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Posix/SemaphoreImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 e:\programmation\digitalpulse software\nazara engine\include\nazara\core\semaphore.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326552728 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1326886578 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\mutex.cpp
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Posix/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1325677800 e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.hpp
+	<windows.h>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\log.cpp
+	<Nazara/Core/Log.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<ctime>
+	<cstdio>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328213738 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.cpp
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<process.h>
+	<Nazara/Core/Debug.hpp>
+
+1326886552 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\lock.cpp
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329567712 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.cpp
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329927104 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hashdigest.cpp
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/Error.hpp>
+	<cstdio>
+	<cstring>
+	<utility>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1331571916 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.cpp
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<limits>
+	<Nazara/Core/Debug.hpp>
+
+1326886540 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hashable.cpp
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329764930 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.cpp
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326886510 source:e:\programmation\digitalpulse software\nazara engine\src\nazara\core\hash.cpp
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.cpp
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<process.h>
+	<Nazara/Core/Debug.hpp>
+
+1326788360 e:\digitalpulse software\nazara engine\src\nazara\core\win32\threadimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Thread.hpp>
+	<windows.h>
+
+1329769188 e:\digitalpulse software\nazara engine\include\nazara\prerequesites.hpp
+	<cstdint>
+
+1331679934 e:\digitalpulse software\nazara engine\include\nazara\core\thread.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/Functor.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<Nazara/Core/Thread.inl>
+
+1328217374 e:\digitalpulse software\nazara engine\include\nazara\utility\functor.hpp
+	<Nazara/Utility/Tuple.hpp>
+	<Nazara/Utility/Functor.inl>
+
+1328217378 e:\digitalpulse software\nazara engine\include\nazara\utility\tuple.hpp
+	<tuple>
+	<Nazara/Utility/Tuple.inl>
+
+1332008740 e:\digitalpulse software\nazara engine\include\nazara\utility\tuple.inl
+	<Nazara/Utility/Debug.hpp>
+	<Nazara/Utility/DebugOff.hpp>
+
+1329944648 e:\digitalpulse software\nazara engine\include\nazara\utility\debug.hpp
+	<Nazara/Utility/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1330631838 e:\digitalpulse software\nazara engine\include\nazara\utility\config.hpp
+
+1331674200 e:\digitalpulse software\nazara engine\include\nazara\core\debug\memoryleaktracker.hpp
+	<Nazara/Prerequesites.hpp>
+	<cstdio>
+	<cstring>
+
+1329933512 e:\digitalpulse software\nazara engine\include\nazara\utility\debugoff.hpp
+
+1327876196 e:\digitalpulse software\nazara engine\include\nazara\utility\functor.inl
+
+1329768566 e:\digitalpulse software\nazara engine\include\nazara\utility\noncopyable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1327875186 e:\digitalpulse software\nazara engine\include\nazara\core\thread.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/DebugOff.hpp>
+
+1329944640 e:\digitalpulse software\nazara engine\include\nazara\core\debug.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+
+1334410813 e:\digitalpulse software\nazara engine\include\nazara\core\config.hpp
+
+1329933502 e:\digitalpulse software\nazara engine\include\nazara\core\debugoff.hpp
+
+1329930704 e:\digitalpulse software\nazara engine\include\nazara\core\error.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+
+1333794423 e:\digitalpulse software\nazara engine\include\nazara\core\string.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<istream>
+	<ostream>
+	<string>
+	<vector>
+
+1325573352 e:\digitalpulse software\nazara engine\include\nazara\core\hashable.hpp
+	<Nazara/Prerequesites.hpp>
+
+1332429717 e:\digitalpulse software\nazara engine\include\nazara\core\threadsafety.hpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\lock.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329768326 e:\digitalpulse software\nazara engine\include\nazara\core\mutex.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329571312 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.cpp
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326551158 e:\digitalpulse software\nazara engine\src\nazara\core\win32\threadconditionimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1325681400 e:\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.hpp
+	<windows.h>
+
+1331575516 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.cpp
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<limits>
+	<Nazara/Core/Debug.hpp>
+
+1326556328 e:\digitalpulse software\nazara engine\src\nazara\core\win32\semaphoreimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<windows.h>
+
+1329768530 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\muteximpl.cpp
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1333003901 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.cpp
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/Time.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\src\nazara\core\win32\fileimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<ctime>
+	<windows.h>
+
+1328217338 e:\digitalpulse software\nazara engine\include\nazara\core\file.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329606008 e:\digitalpulse software\nazara engine\include\nazara\core\directory.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\endianness.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Endianness.inl>
+
+1325274850 e:\digitalpulse software\nazara engine\include\nazara\core\endianness.inl
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\hashdigest.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<ostream>
+
+1325277876 e:\digitalpulse software\nazara engine\src\nazara\core\win32\time.hpp
+	<ctime>
+	<windows.h>
+
+1332582703 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.cpp
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\src\nazara\core\win32\dynlibimpl.hpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1328217338 e:\digitalpulse software\nazara engine\include\nazara\core\dynlib.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1329768696 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.cpp
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\src\nazara\core\win32\directoryimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+	<windows.h>
+
+1329768780 source:e:\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.cpp
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Error.hpp>
+	<ctime>
+	<windows.h>
+	<Nazara/Core/Debug.hpp>
+
+1326188760 e:\digitalpulse software\nazara engine\src\nazara\core\win32\clockimpl.hpp
+	<Nazara/Prerequesites.hpp>
+
+1326930896 source:e:\digitalpulse software\nazara engine\src\nazara\core\hash\whirlpool.cpp
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326891916 e:\digitalpulse software\nazara engine\include\nazara\core\hash\whirlpool.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331674556 e:\digitalpulse software\nazara engine\include\nazara\core\hashimpl.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1325580126 source:e:\digitalpulse software\nazara engine\src\nazara\core\hash\md5.cpp
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\hash\md5.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1325573480 source:e:\digitalpulse software\nazara engine\src\nazara\core\hash\fletcher16.cpp
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329768326 e:\digitalpulse software\nazara engine\include\nazara\core\hash\fletcher16.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/String.hpp>
+
+1325580188 source:e:\digitalpulse software\nazara engine\src\nazara\core\hash\crc32.cpp
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Endianness.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329768790 e:\digitalpulse software\nazara engine\include\nazara\core\hash\crc32.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+
+1331674228 source:e:\digitalpulse software\nazara engine\src\nazara\core\debug\memoryleaktracker.cpp
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<cstdio>
+	<cstdlib>
+	<ctime>
+	<stdexcept>
+
+1329944544 source:e:\digitalpulse software\nazara engine\src\nazara\core\debug\leaks.cpp
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	<new>
+
+1329930704 source:e:\digitalpulse software\nazara engine\src\nazara\core\unicode.cpp
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/UnicodeData.hpp>
+
+1326821310 e:\digitalpulse software\nazara engine\include\nazara\core\unicode.hpp
+	<Nazara/Prerequesites.hpp>
+
+1331473196 e:\digitalpulse software\nazara engine\src\nazara\core\unicodedata.hpp
+
+1326890300 source:e:\digitalpulse software\nazara engine\src\nazara\core\threadcondition.cpp
+	<Nazara/Core/ThreadCondition.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/ThreadConditionImpl.hpp>
+	<Nazara/Core/Posix/ThreadConditionImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326821312 e:\digitalpulse software\nazara engine\include\nazara\core\threadcondition.hpp
+	<Nazara/Prerequesites.hpp>
+
+1329930704 source:e:\digitalpulse software\nazara engine\src\nazara\core\thread.cpp
+	<Nazara/Core/Thread.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ThreadImpl.hpp>
+	<Nazara/Core/Posix/ThreadImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1333725386 source:e:\digitalpulse software\nazara engine\src\nazara\core\stringstream.cpp
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1332508516 e:\digitalpulse software\nazara engine\include\nazara\core\stringstream.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<string>
+	<vector>
+
+1333967060 source:e:\digitalpulse software\nazara engine\src\nazara\core\string.cpp
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/Unicode.hpp>
+	<Nazara/Math/Basic.hpp>
+	<algorithm>
+	<cstdio>
+	<cstring>
+	<sstream>
+	<Utfcpp/utf8.h>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1334778394 e:\digitalpulse software\nazara engine\include\nazara\math\basic.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Math/Basic.inl>
+
+1334780246 e:\digitalpulse software\nazara engine\include\nazara\math\basic.inl
+	<Nazara/Core/Debug.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Math/Config.hpp>
+	<algorithm>
+	<cmath>
+	<cstring>
+	<Nazara/Core/DebugOff.hpp>
+
+1325273794 e:\digitalpulse software\nazara engine\include\utfcpp\utf8.h
+	"utf8/checked.h"
+	"utf8/unchecked.h"
+
+1298226532 e:\digitalpulse software\nazara engine\include\utfcpp\utf8\checked.h
+	"core.h"
+	<stdexcept>
+
+1324483486 e:\digitalpulse software\nazara engine\include\utfcpp\utf8\core.h
+	<iterator>
+
+1260152496 e:\digitalpulse software\nazara engine\include\utfcpp\utf8\unchecked.h
+	"core.h"
+
+1326890198 source:e:\digitalpulse software\nazara engine\src\nazara\core\semaphore.cpp
+	<Nazara/Core/Semaphore.hpp>
+	<Nazara/Core/Win32/SemaphoreImpl.hpp>
+	<Nazara/Core/Posix/SemaphoreImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\include\nazara\core\semaphore.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326890178 source:e:\digitalpulse software\nazara engine\src\nazara\core\mutex.cpp
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Win32/MutexImpl.hpp>
+	<Nazara/Core/Posix/MutexImpl.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1333969839 source:e:\digitalpulse software\nazara engine\src\nazara\core\log.cpp
+	<Nazara/Core/Log.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<Nazara/Math/Basic.hpp>
+	<ctime>
+	<cstdio>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\include\nazara\core\log.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/String.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326890152 source:e:\digitalpulse software\nazara engine\src\nazara\core\lock.cpp
+	<Nazara/Core/Lock.hpp>
+	<Nazara/Core/Mutex.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329930704 source:e:\digitalpulse software\nazara engine\src\nazara\core\hashdigest.cpp
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/Error.hpp>
+	<cstdio>
+	<cstring>
+	<utility>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1326890140 source:e:\digitalpulse software\nazara engine\src\nazara\core\hashable.cpp
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328217338 e:\digitalpulse software\nazara engine\include\nazara\core\hash.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/Hashable.hpp>
+	<Nazara/Core/HashDigest.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Utility/NonCopyable.hpp>
+
+1326890110 source:e:\digitalpulse software\nazara engine\src\nazara\core\hash.cpp
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/Hash/CRC32.hpp>
+	<Nazara/Core/Hash/Fletcher16.hpp>
+	<Nazara/Core/Hash/MD5.hpp>
+	<Nazara/Core/Hash/Whirlpool.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1333796158 source:e:\digitalpulse software\nazara engine\src\nazara\core\file.cpp
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Hash.hpp>
+	<Nazara/Core/HashImpl.hpp>
+	<Nazara/Core/StringStream.hpp>
+	<cstring>
+	<utility>
+	<Nazara/Core/Win32/FileImpl.hpp>
+	<Nazara/Core/Posix/FileImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1332017958 source:e:\digitalpulse software\nazara engine\src\nazara\core\error.cpp
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Log.hpp>
+	<cstdlib>
+	<windows.h>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1332488351 source:e:\digitalpulse software\nazara engine\src\nazara\core\dynlib.cpp
+	<Nazara/Core/DynLib.hpp>
+	<Nazara/Core/Config.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/DynLibImpl.hpp>
+	<Nazara/Core/Posix/DynLibImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1329930704 source:e:\digitalpulse software\nazara engine\src\nazara\core\directory.cpp
+	<Nazara/Core/Directory.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/File.hpp>
+	<Nazara/Core/Win32/DirectoryImpl.hpp>
+	<Nazara/Core/Posix/DirectoryImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1327870024 source:e:\digitalpulse software\nazara engine\src\nazara\core\clock.cpp
+	<Nazara/Core/Clock.hpp>
+	<Nazara/Core/Error.hpp>
+	<Nazara/Core/Win32/ClockImpl.hpp>
+	<Nazara/Core/Posix/ClockImpl.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+	<Nazara/Core/Debug.hpp>
+
+1328636550 e:\digitalpulse software\nazara engine\include\nazara\core\clock.hpp
+	<Nazara/Prerequesites.hpp>
+	<Nazara/Core/ThreadSafety.hpp>
+
+1331655234 source:e:\digitalpulse software\nazara engine\src\nazara\core\application.cpp
+	<Nazara/Core/Application.hpp>
+	<Nazara/Core/Error.hpp>
+	<stdexcept>
+
+1331634878 e:\digitalpulse software\nazara engine\include\nazara\core\application.hpp
+	<Nazara/Prerequesites.hpp>
+	<map>
+
+1332582732 source:e:\digitalpulse software\nazara engine\src\nazara\core\bytearray.cpp
+	<algorithm>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1332582732 source:c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\src\nazara\core\bytearray.cpp
+	<algorithm>
+	<cstring>
+	<Nazara/Core/Debug.hpp>
+
+1334861597 e:\digitalpulse software\nazara engine\include\nazara\math\config.hpp
+
+1334861874 c:\users\lynix\documents\programmation\digitalpulse software\nazara engine\include\nazara\math\config.hpp
+

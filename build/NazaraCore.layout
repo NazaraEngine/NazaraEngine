@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="DebugDLL" />
+	<File name="..\include\Nazara\Core\String.hpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="324" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector4.inl" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="241" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Core\ThreadCondition.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="933" topLine="20" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector4.hpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="272" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Core\ByteArray.hpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1447" topLine="29" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector3.inl" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="465" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Core\Log.hpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1036" topLine="27" />
+	</File>
+	<File name="..\src\Nazara\Core\StringStream.cpp" open="0" top="0" tabpos="37" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="4036" topLine="3" />
+	</File>
+	<File name="..\include\Nazara\Core\Clock.hpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="238" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector3.hpp" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="272" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Core\String.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="374" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Core\Config.hpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1452" topLine="33" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector2.inl" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="241" topLine="2" />
+	</File>
+	<File name="..\include\Nazara\Core\Hashable.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="491" topLine="11" />
+	</File>
+	<File name="..\include\Nazara\Core\Debug.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="435" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Vector2.hpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="277" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Quaternion.inl" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="3754" topLine="163" />
+	</File>
+	<File name="..\src\Nazara\Core\Log.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="430" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Quaternion.hpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1402" topLine="21" />
+	</File>
+	<File name="..\include\Nazara\Math\Matrix4.inl" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="15783" topLine="518" />
+	</File>
+	<File name="..\include\Nazara\Core\DynLib.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="885" topLine="17" />
+	</File>
+	<File name="..\include\Nazara\Math\Matrix4.hpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2811" topLine="54" />
+	</File>
+	<File name="..\include\Nazara\Math\EulerAngles.inl" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2845" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Core\HashDigest.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="3421" topLine="137" />
+	</File>
+	<File name="..\include\Nazara\Math\EulerAngles.hpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="321" topLine="6" />
+	</File>
+	<File name="..\include\Nazara\Core\Error.hpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="878" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Math\Config.hpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1596" topLine="4" />
+	</File>
+	<File name="..\src\Nazara\Core\Win32\MutexImpl.cpp" open="0" top="0" tabpos="36" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="491" topLine="0" />
+	</File>
+	<File name="..\src\Nazara\Core\File.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="11384" topLine="592" />
+	</File>
+	<File name="..\include\Nazara\Core\File.hpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2102" topLine="61" />
+	</File>
+	<File name="..\include\Nazara\Math\Basic.inl" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="331" topLine="253" />
+	</File>
+	<File name="..\src\Nazara\Core\Error.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="908" topLine="18" />
+	</File>
+	<File name="..\include\Nazara\Math\Basic.hpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="625" topLine="22" />
+	</File>
+	<File name="..\src\Nazara\Core\Win32\FileImpl.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2049" topLine="88" />
+	</File>
+	<File name="..\src\Nazara\Core\DynLib.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1522" topLine="58" />
+	</File>
+	<File name="..\include\Nazara\Core\HashDigest.hpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="831" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Core\ThreadSafety.hpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1353" topLine="8" />
+	</File>
+	<File name="..\src\Nazara\Core\Win32\DynLibImpl.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="636" topLine="3" />
+	</File>
+	<File name="..\include\Nazara\Core\ThreadCondition.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="640" topLine="7" />
+	</File>
+	<File name="..\src\Nazara\Core\Clock.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="469" topLine="66" />
+	</File>
+	<File name="..\include\Nazara\Core\Thread.hpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1400" topLine="27" />
+	</File>
+	<File name="..\src\Nazara\Core\ByteArray.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="714" topLine="0" />
+	</File>
+	<File name="..\include\Nazara\Core\StringStream.hpp" open="0" top="0" tabpos="38" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1633" topLine="18" />
+	</File>
+	<File name="..\src\Nazara\Core\Win32\ClockImpl.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="747" topLine="14" />
+	</File>
+	<File name="..\include\Nazara\Prerequesites.hpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="1733" topLine="40" />
+	</File>
+</CodeBlocks_layout_file>
