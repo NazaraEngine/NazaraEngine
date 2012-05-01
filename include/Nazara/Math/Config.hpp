@@ -2,7 +2,7 @@
 	Nazara Engine
 
 	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
-	                   Rémi "overdrivr" Begues (remi.beges@laposte.net)
+	                   Rémi "overdrivr" Bèges (remi.beges@laposte.net)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in

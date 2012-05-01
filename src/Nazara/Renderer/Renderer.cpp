@@ -219,6 +219,17 @@ bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 	return true;
 }
 
+bool NzRenderer::SetVertexDeclaration(const NzVertexBuffer* vertexBuffer)
+{
+	if (m_vertexBuffer == vertexBuffer)
+		return true;
+
+	m_vertexBuffer = vertexBuffer;
+	m_vertexBufferUpdated = false;
+
+	return true;
+}
+
 void NzRenderer::Uninitialize()
 {
 	NzOpenGL::Uninitialize();
