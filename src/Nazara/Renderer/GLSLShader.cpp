@@ -6,14 +6,52 @@
 #include <Nazara/Renderer/GLSLShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Renderer/BufferImpl.hpp>
+#include <Nazara/Renderer/VertexBuffer.hpp>
+#include <Nazara/Renderer/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
-	GLenum shaderType[nzShaderType_Count] = {
+	nzUInt8 attribIndex[] =
+	{
+		2,	// nzElementUsage_Diffuse
+		1,	// nzElementUsage_Normal
+		0,	// nzElementUsage_Position
+		3,	// nzElementUsage_Tangent
+		4	// nzElementUsage_TexCoord
+	};
+
+	const GLenum shaderType[nzShaderType_Count] = {
 		GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
 		GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
 		GL_VERTEX_SHADER	// nzShaderType_Vertex
+	};
+
+	const nzUInt8 size[] =
+	{
+		4, // nzElementType_Color
+		1, // nzElementType_Double1
+		2, // nzElementType_Double2
+		3, // nzElementType_Double3
+		4, // nzElementType_Double4
+		1, // nzElementType_Float1
+		2, // nzElementType_Float2
+		3, // nzElementType_Float3
+		4  // nzElementType_Float4
+	};
+
+	const GLenum type[] =
+	{
+		GL_UNSIGNED_BYTE, // nzElementType_Color
+		GL_DOUBLE,		  // nzElementType_Double1
+		GL_DOUBLE,		  // nzElementType_Double2
+		GL_DOUBLE,		  // nzElementType_Double3
+		GL_DOUBLE,		  // nzElementType_Double4
+		GL_FLOAT,		  // nzElementType_Float1
+		GL_FLOAT,		  // nzElementType_Float2
+		GL_FLOAT,		  // nzElementType_Float3
+		GL_FLOAT		  // nzElementType_Float4
 	};
 }
 
@@ -80,15 +118,16 @@ bool NzGLSLShader::Create()
 		return false;
 	}
 
-	glBindAttribLocation(m_program, 0, "Position");
-	glBindAttribLocation(m_program, 1, "Normal");
-	//glBindAttribLocation(m_program, 2, "Diffuse");
-	glBindAttribLocation(m_program, 3, "Tangent");
+	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Position], "Position");
+	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Normal], "Normal");
+	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
+	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
+	NzString uniformName = "TexCoord0";
 	for (unsigned int i = 0; i < 8; ++i)
 	{
-		NzString uniformName = "TexCoord" + NzString::Number(i);
-		glBindAttribLocation(m_program, 4+i, uniformName.GetConstBuffer());
+		uniformName[8] = '0'+i;
+		glBindAttribLocation(m_program, attribIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
 	}
 
 	for (int i = 0; i < nzShaderType_Count; ++i)
@@ -251,4 +290,30 @@ bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 void NzGLSLShader::Unbind()
 {
 	glUseProgram(0);
+}
+
+bool NzGLSLShader::UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration)
+{
+	vertexBuffer->GetBuffer()->GetImpl()->Bind();
+	const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(vertexBuffer->GetBufferPtr());
+
+	///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
+	for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
+		glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
+
+	unsigned int stride = vertexDeclaration->GetStride();
+	unsigned int elementCount = vertexDeclaration->GetElementCount();
+	for (unsigned int i = 0; i < elementCount; ++i)
+	{
+		const NzVertexDeclaration::Element* element = vertexDeclaration->GetElement(i);
+		glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
+		glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
+							  size[element->type],
+							  type[element->type],
+							  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+							  stride,
+							  &buffer[element->offset]);
+	}
+
+	return true;
 }

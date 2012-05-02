@@ -67,6 +67,16 @@ NzBuffer* NzVertexBuffer::GetBuffer() const
 	return m_buffer;
 }
 
+void* NzVertexBuffer::GetBufferPtr()
+{
+	return reinterpret_cast<nzUInt8*>(m_buffer->GetBufferPtr()) + m_startVertex*m_buffer->GetTypeSize();
+}
+
+const void* NzVertexBuffer::GetBufferPtr() const
+{
+	return reinterpret_cast<const nzUInt8*>(m_buffer->GetBufferPtr()) + m_startVertex*m_buffer->GetTypeSize();
+}
+
 unsigned int NzVertexBuffer::GetStartVertex() const
 {
 	return m_startVertex;

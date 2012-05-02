@@ -50,7 +50,8 @@ NzMemoryManager::~NzMemoryManager()
 
 void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, unsigned int line)
 {
-	EnsureInitialization();
+	if (!initialized)
+		Initialize();
 
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
@@ -121,21 +122,6 @@ void NzMemoryManager::NextFree(const char* file, unsigned int line)
 	nextFreeLine = line;
 }
 
-void NzMemoryManager::EnsureInitialization()
-{
-	if (!initialized)
-	{
-		Initialize();
-
-		if (std::atexit(Uninitialize) != 0)
-		{
-			static NzMemoryManager manager;
-		}
-
-		initialized = true;
-	}
-}
-
 void NzMemoryManager::Initialize()
 {
 	char* time = TimeInfo();
@@ -147,6 +133,13 @@ void NzMemoryManager::Initialize()
 	std::fclose(file);
 
 	std::free(time);
+
+	if (std::atexit(Uninitialize) != 0)
+	{
+		static NzMemoryManager manager;
+	}
+
+	initialized = true;
 }
 
 char* NzMemoryManager::TimeInfo()

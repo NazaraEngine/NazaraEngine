@@ -11,6 +11,14 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
+namespace
+{
+	nzRendererCap storageToCapability[] = {
+		nzRendererCap_HardwareBuffer, // nzBufferStorage_Hardware
+		nzRendererCap_SoftwareBuffer, // nzBufferStorage_Software
+	};
+}
+
 NzBuffer::NzBuffer(nzBufferType type) :
 m_type(type),
 m_typeSize(0),
@@ -25,7 +33,7 @@ m_impl(nullptr)
 {
 	Create(length, typeSize, usage);
 
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (!m_impl)
 	{
 		NazaraError("Failed to create buffer");
@@ -44,14 +52,14 @@ bool NzBuffer::CopyContent(NzBuffer& buffer)
 	void* ptr = buffer.Lock(nzBufferLock_ReadOnly);
 	if (!ptr)
 	{
-		NazaraError("Unable to lock buffer");
+		NazaraError("Unable to lock source buffer");
 		return false;
 	}
 
 	bool r = Fill(ptr, 0, m_length);
 
 	if (!buffer.Unlock())
-		NazaraWarning("Unable to unlock buffer");
+		NazaraWarning("Unable to unlock source buffer");
 
 	return r;
 }
@@ -64,7 +72,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage
 	if (NazaraRenderer->HasCapability(nzRendererCap_HardwareBuffer))
 	{
 		m_impl = new NzHardwareBuffer(this, m_type);
-		if (!m_impl->Create(length, typeSize, usage))
+		if (!m_impl->Create(length*typeSize, usage))
 		{
 			NazaraWarning("Failed to create hardware buffer, trying to create software buffer...");
 
@@ -76,7 +84,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage
 	if (!m_impl)
 	{
 		m_impl = new NzSoftwareBuffer(this, m_type);
-		if (!m_impl->Create(length, typeSize, usage))
+		if (!m_impl->Create(length*typeSize, usage))
 		{
 			NazaraError("Failed to create software buffer");
 			delete m_impl;
@@ -120,7 +128,38 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 	}
 	#endif
 
-	return m_impl->Fill(data, offset, length);
+	return m_impl->Fill(data, offset*m_typeSize, length*m_typeSize);
+}
+
+void* NzBuffer::GetBufferPtr()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->GetBufferPtr();
+}
+
+const void* NzBuffer::GetBufferPtr() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->GetBufferPtr();
+}
+
+NzBufferImpl* NzBuffer::GetImpl() const
+{
+	return m_impl;
 }
 
 unsigned int NzBuffer::GetLength() const
@@ -174,7 +213,7 @@ void* NzBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length
 	}
 	#endif
 
-	return m_impl->Lock(lock, offset, length);
+	return m_impl->Lock(lock, offset*m_typeSize, length*m_typeSize);
 }
 
 bool NzBuffer::Unlock()
@@ -190,7 +229,7 @@ bool NzBuffer::Unlock()
 	return m_impl->Unlock();
 }
 
-bool NzBuffer::IsHardwareSupported()
+bool NzBuffer::IsSupported(nzBufferStorage storage)
 {
-	return NazaraRenderer->HasCapability(nzRendererCap_HardwareBuffer);
+	return NazaraRenderer->HasCapability(storageToCapability[storage]);
 }

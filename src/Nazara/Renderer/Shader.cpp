@@ -25,7 +25,7 @@ m_compiled(false)
 {
 	Create(language);
 
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (!m_impl)
 	{
 		NazaraError("Failed to create shader");

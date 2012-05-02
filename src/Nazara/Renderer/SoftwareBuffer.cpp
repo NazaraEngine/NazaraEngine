@@ -32,14 +32,14 @@ void NzSoftwareBuffer::Bind()
 	glBindBuffer(bufferTarget[m_type], 0);
 }
 
-bool NzSoftwareBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage)
+bool NzSoftwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 {
 	NazaraUnused(usage);
 
 	// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 	try
 	{
-		m_buffer = new nzUInt8[length*typeSize];
+		m_buffer = new nzUInt8[size];
 	}
 	catch (const std::exception& e)
 	{
@@ -47,9 +47,7 @@ bool NzSoftwareBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsa
 		return false;
 	}
 
-	m_length = length;
 	m_locked = false;
-	m_typeSize = typeSize;
 
 	return true;
 }
@@ -59,7 +57,7 @@ void NzSoftwareBuffer::Destroy()
 	delete[] m_buffer;
 }
 
-bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
+bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (m_locked)
@@ -69,9 +67,14 @@ bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	}
 	#endif
 
-	std::memcpy(&m_buffer[offset*m_typeSize], data, length*m_typeSize);
+	std::memcpy(&m_buffer[offset], data, size);
 
 	return true;
+}
+
+void* NzSoftwareBuffer::GetBufferPtr()
+{
+	return m_buffer;
 }
 
 bool NzSoftwareBuffer::IsHardware() const
@@ -79,10 +82,10 @@ bool NzSoftwareBuffer::IsHardware() const
 	return false;
 }
 
-void* NzSoftwareBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length)
+void* NzSoftwareBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int size)
 {
-	NazaraUnused(length);
 	NazaraUnused(lock);
+	NazaraUnused(size);
 
 	#if NAZARA_RENDERER_SAFE
 	if (m_locked)
@@ -94,7 +97,7 @@ void* NzSoftwareBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned in
 
 	m_locked = true;
 
-	return &m_buffer[offset*m_typeSize];
+	return &m_buffer[offset];
 }
 
 bool NzSoftwareBuffer::Unlock()

@@ -6,14 +6,33 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/BufferImpl.hpp>
+#include <Nazara/Renderer/IndexBuffer.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
+#include <Nazara/Renderer/VertexBuffer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
+
+namespace
+{
+	GLenum openglPrimitive[] = {
+		GL_LINES,		   // nzPrimitiveType_LineList,
+		GL_LINE_STRIP,	   // nzPrimitiveType_LineStrip,
+		GL_POINTS,		   // nzPrimitiveType_PointList,
+		GL_TRIANGLES,	   // nzPrimitiveType_TriangleList,
+		GL_TRIANGLE_STRIP, // nzPrimitiveType_TriangleStrip,
+		GL_TRIANGLE_FAN	   // nzPrimitiveType_TriangleFan
+	};
+}
 
 NzRenderer::NzRenderer() :
 m_indexBuffer(nullptr),
 m_target(nullptr),
-m_shader(nullptr)
+m_shader(nullptr),
+m_vertexBuffer(nullptr),
+m_vertexDeclaration(nullptr),
+m_vertexBufferUpdated(false)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (s_instance)
@@ -32,7 +51,7 @@ NzRenderer::~NzRenderer()
 
 void NzRenderer::Clear(nzRendererClear flags)
 {
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
 	{
 		NazaraError("No active context");
@@ -55,6 +74,64 @@ void NzRenderer::Clear(nzRendererClear flags)
 
 		glClear(mask);
 	}
+}
+
+void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount)
+{
+	#ifdef NAZARA_DEBUG
+	if (!m_indexBuffer)
+	{
+		UngineError("No index buffer");
+		return;
+	}
+	#endif
+
+	if (!m_vertexBufferUpdated)
+	{
+		if (!UpdateVertexBuffer())
+		{
+			NazaraError("Failed to update vertex buffer");
+			return;
+		}
+	}
+
+	nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
+
+	GLenum type;
+	switch (indexSize)
+	{
+		case 1:
+			type = GL_UNSIGNED_BYTE;
+			break;
+
+		case 2:
+			type = GL_UNSIGNED_SHORT;
+			break;
+
+		case 4:
+			type = GL_UNSIGNED_INT;
+			break;
+
+		default:
+			NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
+			return;
+	}
+
+	glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(m_indexBuffer->GetBufferPtr()) + firstIndex*indexSize);
+}
+
+void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
+{
+	if (!m_vertexBufferUpdated)
+	{
+		if (!UpdateVertexBuffer())
+		{
+			NazaraError("Failed to update vertex buffer");
+			return;
+		}
+	}
+
+	glDrawArrays(openglPrimitive[primitive], firstVertex, vertexCount);
 }
 
 NzShader* NzRenderer::GetShader() const
@@ -80,6 +157,7 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
 		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 2.0
 		m_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
+		m_capabilities[nzRendererCap_SoftwareBuffer] = NzOpenGL::GetVersion() <= 310; // Déprécié en OpenGL 3.1
 		m_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
@@ -93,7 +171,7 @@ bool NzRenderer::Initialize()
 
 void NzRenderer::SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a)
 {
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
 	{
 		NazaraError("No active context");
@@ -106,7 +184,7 @@ void NzRenderer::SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a)
 
 void NzRenderer::SetClearDepth(double depth)
 {
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
 	{
 		NazaraError("No active context");
@@ -119,7 +197,7 @@ void NzRenderer::SetClearDepth(double depth)
 
 void NzRenderer::SetClearStencil(unsigned int value)
 {
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
 	{
 		NazaraError("No active context");
@@ -164,6 +242,7 @@ bool NzRenderer::SetShader(NzShader* shader)
 		}
 
 		m_shader = shader;
+		m_vertexBufferUpdated = false;
 	}
 	else if (m_shader)
 	{
@@ -213,18 +292,20 @@ bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 	if (m_vertexBuffer == vertexBuffer)
 		return true;
 
+	if (m_vertexBuffer && vertexBuffer)
+	{
+		// Si l'ancien buffer et le nouveau sont hardware, pas besoin de mettre à jour la déclaration
+		if (!m_vertexBuffer->IsHardware() || !vertexBuffer->IsHardware())
+			m_vertexBufferUpdated = false;
+	}
 	m_vertexBuffer = vertexBuffer;
-	m_vertexBufferUpdated = false;
 
 	return true;
 }
 
-bool NzRenderer::SetVertexDeclaration(const NzVertexBuffer* vertexBuffer)
+bool NzRenderer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration)
 {
-	if (m_vertexBuffer == vertexBuffer)
-		return true;
-
-	m_vertexBuffer = vertexBuffer;
+	m_vertexDeclaration = vertexDeclaration;
 	m_vertexBufferUpdated = false;
 
 	return true;
@@ -254,6 +335,36 @@ NzRenderer* NzRenderer::Instance()
 	#endif
 
 	return s_instance;
+}
+
+bool NzRenderer::UpdateVertexBuffer()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_shader)
+	{
+		NazaraError("No shader");
+		return false;
+	}
+
+	if (!m_vertexBuffer)
+	{
+		NazaraError("No vertex buffer");
+		return false;
+	}
+
+	if (!m_vertexDeclaration)
+	{
+		NazaraError("No vertex declaration");
+		return false;
+	}
+	#endif
+
+	if (!m_shader->m_impl->UpdateVertexBuffer(m_vertexBuffer, m_vertexDeclaration))
+		return false;
+
+	m_vertexBufferUpdated = true;
+
+	return true;
 }
 
 NzRenderer* NzRenderer::s_instance = nullptr;

@@ -21,6 +21,8 @@ class NAZARA_API NzVertexBuffer
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
 		NzBuffer* GetBuffer() const;
+		void* GetBufferPtr();
+		const void* GetBufferPtr() const;
 		unsigned int GetStartVertex() const;
 		nzUInt8 GetTypeSize() const;
 		unsigned int GetVertexCount() const;

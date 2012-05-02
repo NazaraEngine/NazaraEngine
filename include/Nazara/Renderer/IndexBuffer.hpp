@@ -21,6 +21,8 @@ class NAZARA_API NzIndexBuffer
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
 		NzBuffer* GetBuffer() const;
+		void* GetBufferPtr();
+		const void* GetBufferPtr() const;
 		nzUInt8 GetIndexSize() const;
 		unsigned int GetIndexCount() const;
 		unsigned int GetStartIndex() const;

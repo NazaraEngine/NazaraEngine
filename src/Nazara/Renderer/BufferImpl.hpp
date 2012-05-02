@@ -17,14 +17,16 @@ class NzBufferImpl
 
 		virtual void Bind() = 0;
 
-		virtual bool Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage = nzBufferUsage_Static) = 0;
+		virtual bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static) = 0;
 		virtual void Destroy() = 0;
 
-		virtual bool Fill(const void* data, unsigned int offset, unsigned int length) = 0;
+		virtual bool Fill(const void* data, unsigned int offset, unsigned int size) = 0;
+
+		virtual void* GetBufferPtr() = 0;
 
 		virtual bool IsHardware() const = 0;
 
-		virtual void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int length = 0) = 0;
+		virtual void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int size = 0) = 0;
 		virtual bool Unlock() = 0;
 };
 
