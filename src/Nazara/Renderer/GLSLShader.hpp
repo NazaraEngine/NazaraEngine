@@ -45,6 +45,8 @@ class NzGLSLShader : public NzShaderImpl
 		void Unbind();
 
 	private:
+		bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration);
+
 		mutable std::map<NzString, GLint> m_idCache;
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Count];

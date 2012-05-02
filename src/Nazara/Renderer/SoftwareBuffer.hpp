@@ -18,10 +18,12 @@ class NzSoftwareBuffer : public NzBufferImpl
 
 		void Bind();
 
-		bool Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage = nzBufferUsage_Static);
+		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
+
+		void* GetBufferPtr();
 
 		bool IsHardware() const;
 
@@ -30,10 +32,8 @@ class NzSoftwareBuffer : public NzBufferImpl
 
 	private:
 		nzBufferType m_type;
-		nzUInt8 m_typeSize;
 		nzUInt8* m_buffer;
 		bool m_locked;
-		unsigned int m_length;
 };
 
 #endif // NAZARA_SOFTWAREBUFFER_HPP

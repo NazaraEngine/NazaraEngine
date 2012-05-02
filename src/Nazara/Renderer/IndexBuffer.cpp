@@ -13,7 +13,20 @@ m_indexCount(indexCount),
 m_startIndex(startIndex)
 {
 	if (m_buffer)
+	{
+		#ifdef NAZARA_DEBUG
+		nzUInt8 indexSize = m_buffer->GetSize();
+		if (indexSize != 1 && indexSize != 2 && indexSize != 4)
+		{
+			NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
+			m_buffer = nullptr;
+
+			throw std::runtime_error("Constructor failed");
+		}
+		#endif
+
 		m_buffer->AddResourceReference();
+	}
 }
 
 NzIndexBuffer::NzIndexBuffer(unsigned int length, nzUInt8 indexSize, nzBufferUsage usage) :
@@ -21,6 +34,16 @@ m_ownsBuffer(true),
 m_indexCount(length),
 m_startIndex(0)
 {
+	#ifdef NAZARA_DEBUG
+	if (indexSize != 1 && indexSize != 2 && indexSize != 4)
+	{
+		NazaraError("Invalid index size");
+		m_buffer = nullptr;
+
+		throw std::runtime_error("Constructor failed");
+	}
+	#endif
+
 	m_buffer = new NzBuffer(nzBufferType_Index, length, indexSize, usage);
 	m_buffer->AddResourceReference();
 	m_buffer->SetPersistent(false);
@@ -78,6 +101,32 @@ bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int len
 NzBuffer* NzIndexBuffer::GetBuffer() const
 {
 	return m_buffer;
+}
+
+void* NzIndexBuffer::GetBufferPtr()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("Sequential index buffer: Buffer has no pointer");
+		return nullptr;
+	}
+	#endif
+
+	return reinterpret_cast<nzUInt8*>(m_buffer->GetBufferPtr()) + m_startIndex*m_buffer->GetTypeSize();
+}
+
+const void* NzIndexBuffer::GetBufferPtr() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("Sequential index buffer: Buffer has no pointer");
+		return nullptr;
+	}
+	#endif
+
+	return reinterpret_cast<const nzUInt8*>(m_buffer->GetBufferPtr()) + m_startIndex*m_buffer->GetTypeSize();
 }
 
 nzUInt8 NzIndexBuffer::GetIndexSize() const

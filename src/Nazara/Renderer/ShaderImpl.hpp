@@ -9,8 +9,14 @@
 
 #include <Nazara/Renderer/Shader.hpp>
 
+class NzRenderer;
+class NzVertexBuffer;
+class NzVertexDeclaration;
+
 class NzShaderImpl
 {
+	friend class NzRenderer;
+
 	public:
 		NzShaderImpl() = default;
 		virtual ~NzShaderImpl();
@@ -38,6 +44,9 @@ class NzShaderImpl
 		virtual bool SendMatrix(const NzString& name, const NzMatrix4f& matrix) = 0;
 
 		virtual void Unbind() = 0;
+
+	protected:
+		virtual bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration) = 0;
 };
 
 #endif // NAZARA_SHADERIMPL_HPP

@@ -19,10 +19,12 @@ class NzHardwareBuffer : public NzBufferImpl
 
 		void Bind();
 
-		bool Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage = nzBufferUsage_Static);
+		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
+
+		void* GetBufferPtr();
 
 		bool IsHardware() const;
 

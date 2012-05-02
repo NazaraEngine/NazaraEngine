@@ -23,11 +23,11 @@ enum nzElementType
 
 enum nzElementUsage
 {
-	nzElementType_Diffuse,
-	nzElementType_Normal,
-	nzElementType_Position,
-	nzElementType_Tangent,
-	nzElementType_TexCoord
+	nzElementUsage_Diffuse,
+	nzElementUsage_Normal,
+	nzElementUsage_Position,
+	nzElementUsage_Tangent,
+	nzElementUsage_TexCoord
 };
 
 struct NzVertexElement

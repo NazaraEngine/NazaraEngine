@@ -55,6 +55,9 @@ class NAZARA_API NzBuffer : public NzResource
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
+		void* GetBufferPtr();
+		const void* GetBufferPtr() const;
+		NzBufferImpl* GetImpl() const;
 		unsigned int GetLength() const;
 		unsigned int GetSize() const;
 		nzBufferStorage GetStorage() const;
@@ -67,7 +70,7 @@ class NAZARA_API NzBuffer : public NzResource
 		void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int length = 0);
 		bool Unlock();
 
-		static bool IsHardwareSupported();
+		static bool IsSupported(nzBufferStorage storage);
 
 	private:
 		nzBufferStorage m_storage;

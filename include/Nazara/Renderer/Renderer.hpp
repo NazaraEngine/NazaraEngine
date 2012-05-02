@@ -8,12 +8,18 @@
 #define NAZARA_RENDERER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Renderer/IndexBuffer.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/VertexBuffer.hpp>
 
 #define NazaraRenderer NzRenderer::Instance()
+
+enum nzPrimitiveType
+{
+	nzPrimitiveType_LineList,
+	nzPrimitiveType_LineStrip,
+	nzPrimitiveType_PointList,
+	nzPrimitiveType_TriangleList,
+	nzPrimitiveType_TriangleStrip,
+	nzPrimitiveType_TriangleFan
+};
 
 enum nzRendererCap
 {
@@ -21,6 +27,7 @@ enum nzRendererCap
 	nzRendererCap_FP64,
 	nzRendererCap_HardwareBuffer,
 	nzRendererCap_MultipleRenderTargets,
+	nzRendererCap_SoftwareBuffer,
 	nzRendererCap_Texture3D,
 	nzRendererCap_TextureCubemap,
 	nzRendererCap_TextureMulti,
@@ -36,6 +43,12 @@ enum nzRendererClear
 	nzRendererClear_Stencil = 0x04
 };
 
+class NzRenderTarget;
+class NzIndexBuffer;
+class NzShader;
+class NzVertexBuffer;
+class NzVertexDeclaration;
+
 class NAZARA_API NzRenderer
 {
 	public:
@@ -43,6 +56,9 @@ class NAZARA_API NzRenderer
 		~NzRenderer();
 
 		void Clear(nzRendererClear flags);
+
+		void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
+		void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
 
 		NzShader* GetShader() const;
 		NzRenderTarget* GetTarget() const;
@@ -67,12 +83,15 @@ class NAZARA_API NzRenderer
 		static NzRenderer* Instance();
 
 	private:
+		bool UpdateVertexBuffer();
+
 		static NzRenderer* s_instance;
 
 		const NzIndexBuffer* m_indexBuffer;
 		NzRenderTarget* m_target;
 		NzShader* m_shader;
 		const NzVertexBuffer* m_vertexBuffer;
+		const NzVertexDeclaration* m_vertexDeclaration;
 		bool m_capabilities[nzRendererCap_Count];
 		bool m_vertexBufferUpdated;
 };

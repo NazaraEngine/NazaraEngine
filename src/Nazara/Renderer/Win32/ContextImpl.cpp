@@ -12,6 +12,7 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
 #include <iostream>
+#include <Nazara/Renderer/Debug.hpp>
 
 NzContextImpl::NzContextImpl()
 {

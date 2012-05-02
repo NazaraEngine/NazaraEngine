@@ -64,7 +64,7 @@ m_impl(nullptr)
 {
 	Create(handle);
 
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (!m_impl)
 	{
 		NazaraError("Failed to create window");

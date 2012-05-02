@@ -43,11 +43,11 @@ namespace
 		GL_STATIC_DRAW  // nzBufferUsage_Static
 	};
 
-	typedef nzUInt8* (*LockRoutine)(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int length);
+	typedef nzUInt8* (*LockRoutine)(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int size);
 
-	nzUInt8* LockBuffer(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int length)
+	nzUInt8* LockBuffer(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int size)
 	{
-		NazaraUnused(length);
+		NazaraUnused(size);
 
 		if (lock == nzBufferLock_DiscardAndWrite)
 		{
@@ -68,22 +68,24 @@ namespace
 			return nullptr;
 	}
 
-	nzUInt8* LockBufferRange(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int length)
+	nzUInt8* LockBufferRange(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int size)
 	{
-		return reinterpret_cast<nzUInt8*>(glMapBufferRange(bufferTarget[type], offset, length, bufferLockRange[lock]));
+		return reinterpret_cast<nzUInt8*>(glMapBufferRange(bufferTarget[type], offset, size, bufferLockRange[lock]));
 	}
 
-	nzUInt8* LockBufferFirstRun(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int length)
+	nzUInt8* LockBufferFirstRun(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int size);
+
+	LockRoutine lockBuffer = LockBufferFirstRun;
+
+	nzUInt8* LockBufferFirstRun(nzBufferType type, nzBufferLock lock, unsigned int offset, unsigned int size)
 	{
 		if (glMapBufferRange)
 			lockBuffer = LockBufferRange;
 		else
 			lockBuffer = LockBuffer;
 
-		return lockBuffer(type, lock, offset, length);
+		return lockBuffer(type, lock, offset, size);
 	}
-
-	LockRoutine lockBuffer = LockBufferFirstRun;
 }
 
 NzHardwareBuffer::NzHardwareBuffer(NzBuffer* parent, nzBufferType type) :
@@ -101,7 +103,7 @@ void NzHardwareBuffer::Bind()
 	glBindBuffer(bufferTarget[m_type], m_buffer);
 }
 
-bool NzHardwareBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage)
+bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 {
 	m_buffer = 0;
 	glGenBuffers(1, &m_buffer);
@@ -116,7 +118,7 @@ bool NzHardwareBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsa
 	glGetIntegerv(bufferTargetBinding[m_type], &previous);
 
 	glBindBuffer(bufferTarget[m_type], m_buffer);
-	glBufferData(bufferTarget[m_type], length*typeSize, nullptr, bufferUsage[usage]);
+	glBufferData(bufferTarget[m_type], size, nullptr, bufferUsage[usage]);
 
 	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
 	if (previous != 0)
@@ -130,7 +132,7 @@ void NzHardwareBuffer::Destroy()
 	glDeleteBuffers(1, &m_buffer);
 }
 
-bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
+bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size)
 {
 	GLuint previous;
 	glGetIntegerv(bufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
@@ -139,26 +141,24 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 		glBindBuffer(bufferTarget[m_type], m_buffer);
 
 	// Il semblerait que glBufferSubData soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
-	if (length < 32*1024)
+	/*if (size < 32*1024)
 	{
-		if (length == m_parent->GetLength())
+		if (size == m_parent->GetLength())
 			glBufferData(bufferTarget[m_type], m_parent->GetSize(), data, bufferUsage[m_parent->GetStorage()]);
 		else
-		{
-			nzUInt8 typeSize = m_parent->GetTypeSize();
-			glBufferSubData(bufferTarget[m_type], offset*typeSize, length*typeSize, data);
-		}
+			glBufferSubData(bufferTarget[m_type], offset, size, data);
 	}
-	else
+	else*/
 	{
-		nzUInt8* ptr = lockBuffer(m_type, (length == m_parent->GetLength()) ? nzBufferLock_DiscardAndWrite : nzBufferLock_WriteOnly, offset, length);
-		if (ptr)
+		// La longueur que nous recevons est en fait la taille
+		nzUInt8* ptr = lockBuffer(m_type, (size == m_parent->GetSize()) ? nzBufferLock_DiscardAndWrite : nzBufferLock_WriteOnly, offset, size);
+		if (!ptr)
 		{
 			NazaraError("Failed to lock buffer");
 			return false;
 		}
 
-		std::memcpy(ptr, data, length*m_parent->GetTypeSize());
+		std::memcpy(ptr, data, size);
 
 		if (glUnmapBuffer(bufferTarget[m_type]) != GL_TRUE)
 		{
@@ -176,6 +176,11 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 		glBindBuffer(bufferTarget[m_type], previous);
 
 	return true;
+}
+
+void* NzHardwareBuffer::GetBufferPtr()
+{
+	return nullptr;
 }
 
 bool NzHardwareBuffer::IsHardware() const

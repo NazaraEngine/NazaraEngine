@@ -39,7 +39,6 @@ template<typename T> class NzEulerAngles
 		template<typename U> void Set(const NzEulerAngles<U>& angles);
 		void SetZero();
 
-		//NzEulerAngles<T> ToEulerAngles() const;
 		//NzMatrix3<T> ToRotationMatrix() const;
 		NzQuaternion<T> ToQuaternion() const;
 		NzString ToString() const;

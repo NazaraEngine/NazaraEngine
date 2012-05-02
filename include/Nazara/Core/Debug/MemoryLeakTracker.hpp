@@ -24,7 +24,6 @@ class NAZARA_API NzMemoryManager
 		static void NextFree(const char* file, unsigned int line);
 
 	private:
-		static void EnsureInitialization();
 		static void Initialize();
 		static char* TimeInfo();
 		static void Uninitialize();
