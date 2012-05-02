@@ -140,15 +140,17 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	if (previous != m_buffer)
 		glBindBuffer(bufferTarget[m_type], m_buffer);
 
-	// Il semblerait que glBufferSubData soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
-	/*if (size < 32*1024)
+	// Il semblerait que glBuffer(Sub)Data soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
+	// http://www.stevestreeting.com/2007/03/17/glmapbuffer-vs-glbuffersubdata-the-return/
+	if (size < 32*1024)
 	{
-		if (size == m_parent->GetLength())
-			glBufferData(bufferTarget[m_type], m_parent->GetSize(), data, bufferUsage[m_parent->GetStorage()]);
-		else
-			glBufferSubData(bufferTarget[m_type], offset, size, data);
+		// http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
+		if (size == m_parent->GetLength()) // Discard
+			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
+
+		glBufferSubData(bufferTarget[m_type], offset, size, data);
 	}
-	else*/
+	else
 	{
 		nzUInt8* ptr = lockBuffer(m_type, (size == m_parent->GetSize()) ? nzBufferLock_DiscardAndWrite : nzBufferLock_WriteOnly, offset, size);
 		if (!ptr)
