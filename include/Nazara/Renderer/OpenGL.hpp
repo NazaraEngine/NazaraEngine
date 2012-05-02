@@ -36,7 +36,6 @@ class NAZARA_API NzOpenGL
 			AnisotropicFilter,
 			FP64,
 			Framebuffer_Object,
-			Occlusion_Query,
 			Texture3D,
 
 			Count

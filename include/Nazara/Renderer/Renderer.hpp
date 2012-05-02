@@ -27,6 +27,7 @@ enum nzRendererCap
 	nzRendererCap_FP64,
 	nzRendererCap_HardwareBuffer,
 	nzRendererCap_MultipleRenderTargets,
+	nzRendererCap_OcclusionQuery,
 	nzRendererCap_SoftwareBuffer,
 	nzRendererCap_Texture3D,
 	nzRendererCap_TextureCubemap,

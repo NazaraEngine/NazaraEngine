@@ -135,6 +135,7 @@ bool NzOpenGL::Initialize()
 	{
 		glActiveTexture = reinterpret_cast<PFNGLACTIVETEXTUREPROC>(LoadEntry("glActiveTexture"));
 		glAttachShader = reinterpret_cast<PFNGLATTACHSHADERPROC>(LoadEntry("glAttachShader"));
+		glBeginQuery = reinterpret_cast<PFNGLBEGINQUERYPROC>(LoadEntry("glBeginQuery"));
 		glBindAttribLocation = reinterpret_cast<PFNGLBINDATTRIBLOCATIONPROC>(LoadEntry("glBindAttribLocation"));
 		glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(LoadEntry("glBindBuffer"));
 		glBindTexture = reinterpret_cast<PFNGLBINDTEXTUREPROC>(LoadEntry("glBindTexture"));
@@ -151,6 +152,7 @@ bool NzOpenGL::Initialize()
 		glCullFace = reinterpret_cast<PFNGLCULLFACEPROC>(LoadEntry("glCullFace"));
 		glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(LoadEntry("glCompileShader"));
 		glDeleteBuffers = reinterpret_cast<PFNGLDELETEBUFFERSPROC>(LoadEntry("glDeleteBuffers"));
+		glDeleteQueries = reinterpret_cast<PFNGLDELETEQUERIESPROC>(LoadEntry("glDeleteQueries"));
 		glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(LoadEntry("glDeleteProgram"));
 		glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(LoadEntry("glDeleteShader"));
 		glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(LoadEntry("glDeleteTextures"));
@@ -165,10 +167,15 @@ bool NzOpenGL::Initialize()
 		glFlush = reinterpret_cast<PFNGLFLUSHPROC>(LoadEntry("glFlush"));
 		glEnable = reinterpret_cast<PFNGLENABLEPROC>(LoadEntry("glEnable"));
 		glEnableVertexAttribArray = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(LoadEntry("glEnableVertexAttribArray"));
+		glEndQuery = reinterpret_cast<PFNGLENDQUERYPROC>(LoadEntry("glEndQuery"));
 		glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(LoadEntry("glGenBuffers"));
+		glGenQueries = reinterpret_cast<PFNGLGENQUERIESPROC>(LoadEntry("glGenQueries"));
 		glGenTextures = reinterpret_cast<PFNGLGENTEXTURESPROC>(LoadEntry("glGenTextures"));
 		glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(LoadEntry("glGetBufferParameteriv"));
 		glGetError = reinterpret_cast<PFNGLGETERRORPROC>(LoadEntry("glGetError"));
+		glGetQueryiv = reinterpret_cast<PFNGLGETQUERYIVPROC>(LoadEntry("glGetQueryiv"));
+		glGetQueryObjectiv = reinterpret_cast<PFNGLGETQUERYOBJECTIVPROC>(LoadEntry("glGetQueryObjectiv"));
+		glGetQueryObjectuiv = reinterpret_cast<PFNGLGETQUERYOBJECTUIVPROC>(LoadEntry("glGetQueryObjectuiv"));
 		glGetIntegerv = reinterpret_cast<PFNGLGETINTEGERVPROC>(LoadEntry("glGetIntegerv"));
 		glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(LoadEntry("glGetProgramiv"));
 		glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(LoadEntry("glGetProgramInfoLog"));
@@ -350,45 +357,6 @@ bool NzOpenGL::Initialize()
 			catch (const std::exception& e)
 			{
 				NazaraError("Failed to load EXT_framebuffer_object: " + NzString(e.what()));
-			}
-		}
-	}
-
-	// Occlusion_Query
-	try
-	{
-		glBeginQuery = reinterpret_cast<PFNGLBEGINQUERYPROC>(LoadEntry("glBeginQuery"));
-		glDeleteQueries = reinterpret_cast<PFNGLDELETEQUERIESPROC>(LoadEntry("glDeleteQueries"));
-		glEndQuery = reinterpret_cast<PFNGLENDQUERYPROC>(LoadEntry("glEndQuery"));
-		glGenQueries = reinterpret_cast<PFNGLGENQUERIESPROC>(LoadEntry("glGenQueries"));
-		glGetQueryiv = reinterpret_cast<PFNGLGETQUERYIVPROC>(LoadEntry("glGetQueryiv"));
-		glGetQueryObjectiv = reinterpret_cast<PFNGLGETQUERYOBJECTIVPROC>(LoadEntry("glGetQueryObjectiv"));
-		glGetQueryObjectuiv = reinterpret_cast<PFNGLGETQUERYOBJECTUIVPROC>(LoadEntry("glGetQueryObjectuiv"));
-
-		openGLextensions[NzOpenGL::Occlusion_Query] = true;
-	}
-	catch (const std::exception& e)
-	{
-		if (openGLversion >= 150)
-			NazaraWarning("Failed to load core Occlusion Queries (" + NzString(e.what()) + "), loading ARB_occlusion_query...");
-
-		if (IsSupported("GL_ARB_occlusion_query"))
-		{
-			try
-			{
-				glBeginQuery = reinterpret_cast<PFNGLBEGINQUERYARBPROC>(LoadEntry("glBeginQueryARB"));
-				glDeleteQueries = reinterpret_cast<PFNGLDELETEQUERIESARBPROC>(LoadEntry("glDeleteQueriesARB"));
-				glEndQuery = reinterpret_cast<PFNGLENDQUERYARBPROC>(LoadEntry("glEndQueryARB"));
-				glGenQueries = reinterpret_cast<PFNGLGENQUERIESARBPROC>(LoadEntry("glGenQueriesARB"));
-				glGetQueryiv = reinterpret_cast<PFNGLGETQUERYIVARBPROC>(LoadEntry("glGetQueryivARB"));
-				glGetQueryObjectiv = reinterpret_cast<PFNGLGETQUERYOBJECTIVARBPROC>(LoadEntry("glGetQueryObjectivARB"));
-				glGetQueryObjectuiv = reinterpret_cast<PFNGLGETQUERYOBJECTUIVARBPROC>(LoadEntry("glGetQueryObjectuivARB"));
-
-				openGLextensions[NzOpenGL::Occlusion_Query] = true;
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError("Failed to load ARB_occlusion_query: " + NzString(e.what()));
 			}
 		}
 	}

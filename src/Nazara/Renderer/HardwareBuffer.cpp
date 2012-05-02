@@ -150,7 +150,6 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	}
 	else*/
 	{
-		// La longueur que nous recevons est en fait la taille
 		nzUInt8* ptr = lockBuffer(m_type, (size == m_parent->GetSize()) ? nzBufferLock_DiscardAndWrite : nzBufferLock_WriteOnly, offset, size);
 		if (!ptr)
 		{
