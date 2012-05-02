@@ -155,9 +155,10 @@ bool NzRenderer::Initialize()
 	{
 		m_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter);
 		m_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
-		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 2.0
+		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
 		m_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
-		m_capabilities[nzRendererCap_SoftwareBuffer] = NzOpenGL::GetVersion() <= 310; // Déprécié en OpenGL 3.1
+		m_capabilities[nzRendererCap_OcclusionQuery] = // Natif depuis OpenGL 1.5
+		m_capabilities[nzRendererCap_SoftwareBuffer] = NzOpenGL::GetVersion() <= 300; // Déprécié en OpenGL 3
 		m_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
