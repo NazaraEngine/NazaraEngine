@@ -8,6 +8,12 @@
 #include <ctime>
 #include <stdexcept>
 
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <windows.h>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <pthread.h>
+#endif
+
 namespace
 {
 	struct Block
@@ -27,7 +33,7 @@ namespace
 	const char* nextFreeFile = "Internal error";
 	unsigned int nextFreeLine = 0;
 
-	static Block ptrList =
+	Block ptrList =
 	{
 		0,
 		nullptr,
@@ -37,6 +43,12 @@ namespace
 		0,
 		magic
 	};
+
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	CRITICAL_SECTION mutex;
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	#endif
 }
 
 NzMemoryManager::NzMemoryManager()
@@ -53,6 +65,12 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	if (!initialized)
 		Initialize();
 
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	EnterCriticalSection(&mutex);
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_lock(&mutex);
+	#endif
+
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
 		return nullptr;
@@ -68,6 +86,12 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	ptrList.prev->next = ptr;
 	ptrList.prev = ptr;
 
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	LeaveCriticalSection(&mutex);
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_unlock(&mutex);
+	#endif
+
 	return reinterpret_cast<char*>(ptr)+sizeof(Block);
 }
 
@@ -79,6 +103,12 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 	Block* ptr = reinterpret_cast<Block*>(reinterpret_cast<char*>(pointer)-sizeof(Block));
 	if (ptr->magic != magic)
 		return;
+
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	EnterCriticalSection(&mutex);
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_lock(&mutex);
+	#endif
 
 	if (ptr->array != multi)
 	{
@@ -114,6 +144,12 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 	ptr->next->prev = ptr->prev;
 
 	std::free(ptr);
+
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	LeaveCriticalSection(&mutex);
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_unlock(&mutex);
+	#endif
 }
 
 void NzMemoryManager::NextFree(const char* file, unsigned int line)
@@ -139,6 +175,10 @@ void NzMemoryManager::Initialize()
 		static NzMemoryManager manager;
 	}
 
+	#ifdef NAZARA_PLATFORM_WINDOWS
+	InitializeCriticalSection(&mutex);
+	#endif
+
 	initialized = true;
 }
 
@@ -154,6 +194,10 @@ char* NzMemoryManager::TimeInfo()
 
 void NzMemoryManager::Uninitialize()
 {
+	#ifdef NAZARA_PLATFORM_WINDOWS
+	DeleteCriticalSection(&mutex);
+	#endif
+
 	FILE* log = std::fopen(MLTFileName, "a");
 
 	char* time = TimeInfo();
