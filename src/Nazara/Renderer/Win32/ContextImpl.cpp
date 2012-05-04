@@ -11,7 +11,6 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
-#include <iostream>
 #include <Nazara/Renderer/Debug.hpp>
 
 NzContextImpl::NzContextImpl()
@@ -33,14 +32,14 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 	else
 	{
 		m_window = CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-		ShowWindow(m_window, SW_HIDE);
-		m_ownsWindow = true;
-
 		if (!m_window)
 		{
 			NazaraError("Failed to create window");
 			return false;
 		}
+
+		ShowWindow(m_window, SW_HIDE);
+		m_ownsWindow = true;
 	}
 
 	m_deviceContext = GetDC(m_window);
@@ -130,7 +129,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		return false;
 	}
 
-	// Arrivé ici, tout est créé, nous récupérons donc les paramètres actuels du contexte
+	// Arrivé ici, le format de pixel est choisi, nous récupérons donc les paramètres réels du futur contexte
 	if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
 	{
 		parameters.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;
@@ -142,21 +141,9 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 
 	HGLRC shareContext = (parameters.shared) ? static_cast<NzContextImpl*>(parameters.shareContext->m_impl)->m_context : nullptr;
 
-	std::cout << "Context version: " << (int) parameters.majorVersion << '.' << (int) parameters.minorVersion << std::endl;
-	std::cout << "Active context: " << wglGetCurrentContext() << std::endl;
-
 	m_context = nullptr;
 	if (wglCreateContextAttribs)
 	{
-		std::cout << "wglCreateContextAttribs" << std::endl;
-
-		/*int attributes[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, parameters.majorVersion,
-			WGL_CONTEXT_MINOR_VERSION_ARB, parameters.minorVersion,
-			WGL_CONTEXT_FLAGS_ARB,		   (parameters.compatibilityProfile) ? 0 : WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			WGL_CONTEXT_PROFILE_MASK_ARB,  (parameters.compatibilityProfile) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0
-		};*/
 		int attributes[4*2+1];
 		int* attrib = attributes;
 
@@ -183,37 +170,20 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		*attrib++ = 0;
 
 		m_context = wglCreateContextAttribs(m_deviceContext, shareContext, attributes);
-
-		if (m_context)
-			std::cout << "Context created with success ! Pointer: " << m_context << std::endl;
-		else
-			std::cout << "wglCreateContextAttribs failed ! (glGetError(): " << glGetError() << ") " << std::endl;
 	}
 
 	if (!m_context)
 	{
-		std::cout << "wglCreateContext" << std::endl;
-
 		m_context = wglCreateContext(m_deviceContext);
-		if (m_context)
-			std::cout << "Context created with success ! Pointer: " << m_context << std::endl;
-		else
-			std::cout << "wglCreateContext failed ! (glGetError(): " << glGetError() << ") " << std::endl;
 
 		if (shareContext)
 		{
-			std::cout << "Sharing context with context " << shareContext << std::endl;
 			// wglShareLists n'est pas thread-safe (source: SFML)
 			static NzMutex mutex;
 			NzLock lock(mutex);
 
-			if (wglShareLists(shareContext, m_context))
-				std::cout << "Success !" << std::endl;
-			else
-			{
-				std::cout << "Failed !" << std::endl;
+			if (!wglShareLists(shareContext, m_context))
 				NazaraWarning("Failed to share the context: " + NzGetLastSystemError());
-			}
 		}
 	}
 
@@ -223,8 +193,6 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		Destroy();
 		return false;
 	}
-
-	std::cout << std::endl;
 
 	return true;
 }
