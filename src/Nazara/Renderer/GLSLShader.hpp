@@ -34,6 +34,7 @@ class NzGLSLShader : public NzShaderImpl
 		bool IsLoaded(nzShaderType type) const;
 
 		bool Load(nzShaderType type, const NzString& source);
+		bool Lock() const;
 
 		bool SendBoolean(const NzString& name, bool value);
 		bool SendDouble(const NzString& name, double value);
@@ -43,13 +44,16 @@ class NzGLSLShader : public NzShaderImpl
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
 
 		void Unbind();
+		void Unlock() const;
 
 	private:
 		bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration);
 
 		mutable std::map<NzString, GLint> m_idCache;
+		mutable GLuint m_lockedPrevious;
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Count];
+		mutable nzUInt8 m_lockedLevel;
 		NzShader* m_parent;
 		NzString m_log;
 };
