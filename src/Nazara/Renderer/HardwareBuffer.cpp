@@ -31,12 +31,12 @@ namespace
 	};
 
 	GLenum bufferTargetBinding[] = {
-		GL_ELEMENT_ARRAY_BUFFER_BINDING, // BufferType_Index,
-		GL_ARRAY_BUFFER_BINDING,		 // BufferType_Vertex
+		GL_ELEMENT_ARRAY_BUFFER_BINDING, // nzBufferType_Index,
+		GL_ARRAY_BUFFER_BINDING,		 // nzBufferType_Vertex
 	};
 
 	GLenum bufferUsage[] = {
-		// J'ai choisi DYNAMIC_DRAW à la place de STREAM_DRAW car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
+		// J'ai choisi DYNAMIC à la place de STREAM car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
 		// Ce qui est je pense le scénario qui arrivera le plus souvent (Prévoir une option pour permettre d'utiliser le STREAM_DRAW ?)
 		// Source: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=160839
 		GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
@@ -145,8 +145,8 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	if (size < 32*1024)
 	{
 		// http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
-		if (size == m_parent->GetLength()) // Discard
-			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
+		if (size == m_parent->GetLength())
+			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]); // Discard
 
 		glBufferSubData(bufferTarget[m_type], offset, size, data);
 	}

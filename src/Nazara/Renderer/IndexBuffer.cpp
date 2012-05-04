@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 NzIndexBuffer::NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount) :

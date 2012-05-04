@@ -209,11 +209,6 @@ void NzContextImpl::Destroy()
 		DestroyWindow(m_window);
 }
 
-bool NzContextImpl::IsActive() const
-{
-	return wglGetCurrentContext() == m_context;
-}
-
 void NzContextImpl::SwapBuffers()
 {
 	::SwapBuffers(m_deviceContext);

@@ -6,6 +6,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/BufferImpl.hpp>
+#include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/IndexBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
@@ -81,7 +82,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	#ifdef NAZARA_DEBUG
 	if (!m_indexBuffer)
 	{
-		UngineError("No index buffer");
+		NazaraError("No index buffer");
 		return;
 	}
 	#endif
@@ -132,6 +133,20 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 	}
 
 	glDrawArrays(openglPrimitive[primitive], firstVertex, vertexCount);
+}
+
+unsigned int NzRenderer::GetMaxTextureUnits() const
+{
+	static int maxTextureUnits = -1;
+	if (maxTextureUnits == -1)
+	{
+		if (m_capabilities[nzRendererCap_TextureMulti])
+			glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+		else
+			maxTextureUnits = 1;
+	}
+
+	return maxTextureUnits;
 }
 
 NzShader* NzRenderer::GetShader() const

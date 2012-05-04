@@ -61,6 +61,7 @@ class NAZARA_API NzRenderer
 		void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
 		void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
 
+		unsigned int GetMaxTextureUnits() const;
 		NzShader* GetShader() const;
 		NzRenderTarget* GetTarget() const;
 
