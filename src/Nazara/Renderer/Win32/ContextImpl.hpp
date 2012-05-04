@@ -18,7 +18,6 @@ class NzContextImpl
 		bool Activate();
 		bool Create(NzContextParameters& parameters);
 		void Destroy();
-		bool IsActive() const;
 		void SwapBuffers();
 
 		static bool Desactivate();

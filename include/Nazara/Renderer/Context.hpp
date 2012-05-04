@@ -31,6 +31,7 @@ class NAZARA_API NzContext
 
 		static const NzContext* GetCurrent();
 		static const NzContext* GetReference();
+		static const NzContext* GetThreadContext();
 		static bool InitializeReference();
 		static void UninitializeReference();
 

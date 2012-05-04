@@ -19,7 +19,9 @@
 
 namespace
 {
-
+	///TODO: Thread-local
+	NzContext* currentContext = nullptr;
+	NzContext* threadContext = nullptr;
 }
 
 NzContext::NzContext() :
@@ -31,7 +33,7 @@ NzContext::~NzContext()
 {
 	if (m_impl)
 	{
-		if (m_impl->IsActive())
+		if (currentContext == this)
 			NzContextImpl::Desactivate();
 
 		m_impl->Destroy();
@@ -92,7 +94,7 @@ bool NzContext::IsActive() const
 	}
 	#endif
 
-	return m_impl->IsActive();
+	return currentContext == this;
 }
 
 bool NzContext::SetActive(bool active)
@@ -105,13 +107,24 @@ bool NzContext::SetActive(bool active)
 	}
 	#endif
 
+	// Si le contexte est déjà activé/désactivé
+	if ((currentContext == this) == active)
+		return true;
+
 	if (active)
 	{
-		if (!m_impl->IsActive())
-			return m_impl->Activate();
+		if (!m_impl->Activate())
+			return false;
+
+		currentContext = this;
 	}
-	else if (m_impl->IsActive())
-		return NzContextImpl::Desactivate();
+	else
+	{
+		if (!NzContextImpl::Desactivate())
+			return false;
+
+		currentContext = nullptr;
+	}
 
 	return true;
 }
@@ -135,9 +148,19 @@ void NzContext::SwapBuffers()
 	m_impl->SwapBuffers();
 }
 
+const NzContext* NzContext::GetCurrent()
+{
+	return currentContext;
+}
+
 const NzContext* NzContext::GetReference()
 {
 	return s_reference;
+}
+
+const NzContext* NzContext::GetThreadContext()
+{
+	return threadContext;
 }
 
 bool NzContext::InitializeReference()
