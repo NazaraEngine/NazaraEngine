@@ -83,6 +83,13 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage
 
 	if (!m_impl)
 	{
+		if (!NazaraRenderer->HasCapability(nzRendererCap_SoftwareBuffer))
+		{
+			// Ne devrait jamais arriver
+			NazaraError("Software buffer not supported");
+			return false;
+		}
+
 		m_impl = new NzSoftwareBuffer(this, m_type);
 		if (!m_impl->Create(length*typeSize, usage))
 		{
