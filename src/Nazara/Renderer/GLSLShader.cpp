@@ -245,44 +245,72 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 	}
 }
 
+bool NzGLSLShader::Lock() const
+{
+	if (m_lockedLevel++ == 0)
+	{
+		GLint previous;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &previous);
+
+		m_lockedPrevious = previous;
+
+		if (m_lockedPrevious != m_program)
+			glUseProgram(m_program);
+	}
+
+	return true;
+}
+
 bool NzGLSLShader::SendBoolean(const NzString& name, bool value)
 {
+	Lock();
 	glUniform1i(GetUniformLocation(name), value);
+	Unlock();
 
 	return true;
 }
 
 bool NzGLSLShader::SendDouble(const NzString& name, double value)
 {
+	Lock();
 	glUniform1d(GetUniformLocation(name), value);
+	Unlock();
 
 	return true;
 }
 
 bool NzGLSLShader::SendFloat(const NzString& name, float value)
 {
+	Lock();
 	glUniform1f(GetUniformLocation(name), value);
+	Unlock();
 
 	return true;
 }
 
 bool NzGLSLShader::SendInteger(const NzString& name, int value)
 {
+	Lock();
 	glUniform1i(GetUniformLocation(name), value);
+	Unlock();
 
 	return true;
 }
 
 bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4d& matrix)
 {
+	Lock();
 	glUniformMatrix4dv(GetUniformLocation(name), 1, GL_FALSE, matrix);
+	Unlock();
 
 	return true;
 }
 
 bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 {
+	Lock();
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, matrix);
+	Unlock();
 
 	return true;
 }
@@ -290,6 +318,18 @@ bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 void NzGLSLShader::Unbind()
 {
 	glUseProgram(0);
+}
+
+void NzGLSLShader::Unlock() const
+{
+	if (m_lockedLevel == 0)
+	{
+		NazaraWarning("Unlock called on non-locked texture");
+		return;
+	}
+
+	if (--m_lockedLevel == 0 && m_lockedPrevious != m_program)
+		glUseProgram(m_lockedPrevious);
 }
 
 bool NzGLSLShader::UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration)

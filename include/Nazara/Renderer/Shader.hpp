@@ -55,6 +55,8 @@ class NAZARA_API NzShader
 		bool Load(nzShaderType type, const NzString& source);
 		bool LoadFromFile(nzShaderType type, const NzString& source);
 
+		bool Lock();
+
 		bool SendBoolean(const NzString& name, bool value);
 		bool SendDouble(const NzString& name, double value);
 		bool SendFloat(const NzString& name, float value);
@@ -62,12 +64,12 @@ class NAZARA_API NzShader
 		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
 
+		void Unlock();
+
 		static bool IsLanguageSupported(nzShaderLanguage language);
 		static bool IsTypeSupported(nzShaderType type);
 
 	private:
-		bool CommitUniforms();
-
 		NzShaderImpl* m_impl;
 		bool m_compiled;
 };

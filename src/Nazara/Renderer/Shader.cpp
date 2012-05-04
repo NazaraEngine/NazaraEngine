@@ -267,6 +267,19 @@ bool NzShader::LoadFromFile(nzShaderType type, const NzString& filePath)
 	return m_impl->Load(type, source);
 }
 
+bool NzShader::Lock()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->Lock();
+}
+
 bool NzShader::SendBoolean(const NzString& name, bool value)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -355,6 +368,19 @@ bool NzShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 	#endif
 
 	return m_impl->SendMatrix(name, matrix);
+}
+
+void NzShader::Unlock()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return;
+	}
+	#endif
+
+	return m_impl->Unlock();
 }
 
 bool NzShader::IsLanguageSupported(nzShaderLanguage language)
