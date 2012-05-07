@@ -56,18 +56,18 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_CORE_SAFE 1
 
-// Protége le noyau des accès concurrentiels
+// Protége le module des accès concurrentiels
 #define NAZARA_CORE_THREADSAFE 1
 
 #if NAZARA_CORE_THREADSAFE
-	#define NAZARA_THREADSAFETY_APPLICATION 1  // NzApplication
-	#define NAZARA_THREADSAFETY_CLOCK 0		   // NzClock
-	#define NAZARA_THREADSAFETY_DIRECTORY 1	   // NzDirectory
-	#define NAZARA_THREADSAFETY_DYNLIB 1	   // NzDynLib
-	#define NAZARA_THREADSAFETY_FILE 1		   // NzFile
+	#define NAZARA_THREADSAFETY_BYTEARRAY 1    // NzByteArray (COW)
+	#define NAZARA_THREADSAFETY_CLOCK 0        // NzClock
+	#define NAZARA_THREADSAFETY_DIRECTORY 1    // NzDirectory
+	#define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
+	#define NAZARA_THREADSAFETY_FILE 1         // NzFile
 	#define NAZARA_THREADSAFETY_HASHDIGEST 0   // NzHashDigest
-	#define NAZARA_THREADSAFETY_LOG 1		   // NzLog
-	#define NAZARA_THREADSAFETY_STRING 1	   // NzString
+	#define NAZARA_THREADSAFETY_LOG 1          // NzLog
+	#define NAZARA_THREADSAFETY_STRING 1       // NzString (COW)
 	#define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
 #endif
 

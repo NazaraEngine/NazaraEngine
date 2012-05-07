@@ -4177,9 +4177,12 @@ NzString& NzString::operator=(const NzString& string)
 	ReleaseString();
 
 	m_sharedString = string.m_sharedString;
-	NazaraMutexLock(m_sharedString->mutex);
-	m_sharedString->refCount++;
-	NazaraMutexUnlock(m_sharedString->mutex);
+	if (m_sharedString != &emptyString)
+	{
+		NazaraMutexLock(m_sharedString->mutex);
+		m_sharedString->refCount++;
+		NazaraMutexUnlock(m_sharedString->mutex);
+	}
 
 	return *this;
 }
@@ -5026,6 +5029,9 @@ bool operator>=(const std::string& string, const NzString& nstring)
 
 void NzString::EnsureOwnership()
 {
+	if (m_sharedString == &emptyString)
+		return;
+
 	NazaraLock(m_sharedString->mutex);
 	if (m_sharedString->refCount > 1)
 	{
@@ -5051,15 +5057,13 @@ void NzString::ReleaseString()
 		return;
 
 	NazaraMutexLock(m_sharedString->mutex);
-	if (--m_sharedString->refCount == 0)
+	m_sharedString->refCount--;
+	NazaraMutexUnlock(m_sharedString->mutex);
+
+	if (m_sharedString->refCount == 0)
 	{
-		NazaraMutexUnlock(m_sharedString->mutex);
 		delete[] m_sharedString->string;
 		delete m_sharedString;
-	}
-	else
-	{
-		NazaraMutexUnlock(m_sharedString->mutex);
 	}
 
 	m_sharedString = &emptyString;
