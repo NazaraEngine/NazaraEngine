@@ -39,4 +39,12 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_MATH_SAFE 1
 
+// Protége le module des accès concurrentiels
+#define NAZARA_MATH_THREADSAFE 1
+
+#if NAZARA_MATH_THREADSAFE
+	#define NAZARA_THREADSAFETY_MATRIX3 1  // NzMatrix3 (COW)
+	#define NAZARA_THREADSAFETY_MATRIX4 1  // NzMatrix4 (COW)
+#endif
+
 #endif // NAZARA_CONFIG_MATH_HPP

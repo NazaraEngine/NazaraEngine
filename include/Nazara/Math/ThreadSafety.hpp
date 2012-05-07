@@ -4,7 +4,7 @@
 
 // Pas de header guard
 
-#include <Nazara/Core/Config.hpp>
+#include <Nazara/Math/Config.hpp>
 
 // Ces macros peuvent changer pour n'importe quel fichier qui l'utilise, dans une même unité de compilation
 #undef NazaraLock
@@ -14,16 +14,9 @@
 #undef NazaraMutexUnlock
 #undef NazaraNamedLock
 
-#if NAZARA_CORE_THREADSAFE && (\
-	(NAZARA_THREADSAFETY_BYTEARRAY	  && (defined(NAZARA_BYTEARRAY)	   || defined(NAZARA_BYTEARRAY_CPP))) || \
-	(NAZARA_THREADSAFETY_CLOCK		  && (defined(NAZARA_CLOCK)		   || defined(NAZARA_CLOCK_CPP))) || \
-	(NAZARA_THREADSAFETY_DIRECTORY	  && (defined(NAZARA_DIRECTORY)	   || defined(NAZARA_DIRECTORY_CPP))) || \
-	(NAZARA_THREADSAFETY_DYNLIB		  && (defined(NAZARA_DYNLIB)	   || defined(NAZARA_DYNLIB_CPP))) || \
-	(NAZARA_THREADSAFETY_FILE		  && (defined(NAZARA_FILE)		   || defined(NAZARA_FILE_CPP))) || \
-	(NAZARA_THREADSAFETY_HASHDIGEST	  && (defined(NAZARA_HASHDIGEST)   || defined(NAZARA_HASHDIGEST_CPP))) || \
-	(NAZARA_THREADSAFETY_LOG		  && (defined(NAZARA_LOG)		   || defined(NAZARA_LOG_CPP))) || \
-	(NAZARA_THREADSAFETY_STRING		  && (defined(NAZARA_STRING)	   || defined(NAZARA_STRING_CPP))) || \
-	(NAZARA_THREADSAFETY_STRINGSTREAM && (defined(NAZARA_STRINGSTREAM) || defined(NAZARA_STRINGSTREAM_CPP))))
+#if NAZARA_MATH_THREADSAFE && (\
+	(NAZARA_THREADSAFETY_MATRIX3      && (defined(NAZARA_MATRIX3)      || defined(NAZARA_MATRIX3_CPP))) || \
+	(NAZARA_THREADSAFETY_MATRIX4      && (defined(NAZARA_MATRIX4)      || defined(NAZARA_MATRIX4_CPP))))
 
 	#include <Nazara/Core/Lock.hpp>
 	#include <Nazara/Core/Mutex.hpp>
