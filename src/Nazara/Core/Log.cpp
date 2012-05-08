@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_LOG_CPP
-
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringStream.hpp>
@@ -14,6 +12,7 @@
 #include <cstdio>
 #endif
 
+#define NAZARA_CLASS_LOG
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 

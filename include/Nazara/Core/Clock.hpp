@@ -7,9 +7,9 @@
 #ifndef NAZARA_CLOCK_HPP
 #define NAZARA_CLOCK_HPP
 
-#define NAZARA_CLOCK
-
 #include <Nazara/Prerequesites.hpp>
+
+#define NAZARA_CLASS_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>
 
 class NAZARA_API NzClock
@@ -40,6 +40,6 @@ typedef nzUInt64 (*NzClockFunction)();
 extern NAZARA_API NzClockFunction NzGetMicroseconds;
 extern NAZARA_API NzClockFunction NzGetMilliseconds;
 
-#undef NAZARA_CLOCK
+#undef NAZARA_CLASS_CLOCK
 
 #endif // NAZARA_CLOCK_HPP

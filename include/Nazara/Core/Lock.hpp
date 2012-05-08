@@ -7,8 +7,6 @@
 #ifndef NAZARA_LOCK_HPP
 #define NAZARA_LOCK_HPP
 
-#define NAZARA_LOCK
-
 #include <Nazara/Prerequesites.hpp>
 
 class NzMutex;
@@ -22,7 +20,5 @@ class NAZARA_API NzLock
 	private:
 		NzMutex& m_mutex;
 };
-
-#undef NAZARA_LOCK
 
 #endif // NAZARA_LOCK_HPP

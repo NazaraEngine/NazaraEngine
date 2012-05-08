@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASHIMPL_HPP
 #define NAZARA_HASHIMPL_HPP
 
-#define NAZARA_HASHIMPL
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
 
@@ -24,7 +22,5 @@ class NAZARA_API NzHashImpl : NzNonCopyable
 		virtual void Begin() = 0;
 		virtual NzHashDigest End() = 0;
 };
-
-#undef NAZARA_HASHIMPL
 
 #endif // NAZARA_HASHIMPL_HPP

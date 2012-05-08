@@ -7,16 +7,16 @@
 #ifndef NAZARA_FILE_HPP
 #define NAZARA_FILE_HPP
 
-#define NAZARA_FILE
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
+
+#define NAZARA_CLASS_FILE
+#include <Nazara/Core/ThreadSafety.hpp>
 
 class NzFileImpl;
 
@@ -115,6 +115,6 @@ class NAZARA_API NzFile : public NzHashable, NzNonCopyable
 		unsigned int m_openMode;
 };
 
-#undef NAZARA_FILE
+#undef NAZARA_CLASS_FILE
 
 #endif // NAZARA_FILE_HPP

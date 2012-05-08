@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASHDIGEST_HPP
 #define NAZARA_HASHDIGEST_HPP
 
-#define NAZARA_HASHDIGEST
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <ostream>
@@ -49,7 +47,5 @@ class NAZARA_API NzHashDigest
 		nzUInt8* m_digest;
 		unsigned short m_digestLength;
 };
-
-#undef NAZARA_HASHDIGEST
 
 #endif // NAZARA_HASHDIGEST_HPP

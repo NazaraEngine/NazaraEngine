@@ -7,15 +7,15 @@
 #ifndef NAZARA_STRING_HPP
 #define NAZARA_STRING_HPP
 
-#define NAZARA_STRING
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <istream>
 #include <ostream>
 #include <string>
 #include <vector>
+
+#define NAZARA_CLASS_STRING
+#include <Nazara/Core/ThreadSafety.hpp>
 
 class NzAbstractHash;
 class NzHashDigest;
@@ -317,7 +317,6 @@ namespace std
 	NAZARA_API void swap(NzString& lhs, NzString& rhs);
 }
 
-#undef NAZARA_STRING
+#undef NAZARA_CLASS_STRING
 
 #endif // NAZARA_STRING_HPP
-

@@ -9,6 +9,9 @@
 
 #include <Nazara/Core/String.hpp>
 
+#define NAZARA_CLASS_MATRIX4
+#include <Nazara/Math/ThreadSafety.hpp>
+
 template<typename T> class NzEulerAngles;
 template<typename T> class NzQuaternion;
 template<typename T> class NzVector2;
@@ -51,6 +54,7 @@ template<typename T> class NzMatrix4
 		template<typename U> void Set(const NzMatrix4<U>& matrix);
 		void SetIdentity();
 		void SetLookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up);
+		void SetOrtho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
 		void SetPerspective(T angle, T ratio, T zNear, T zFar);
 		void SetRotation(const NzQuaternion<T>& rotation);
 		void SetScale(const NzVector3<T>& scale);
@@ -84,6 +88,7 @@ template<typename T> class NzMatrix4
 		NzMatrix4& operator*=(T scalar);
 
 		static NzMatrix4 LookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up);
+		static NzMatrix4 Ortho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
 		static NzMatrix4 Perspective(T angle, T ratio, T zNear, T zFar);
 		static NzMatrix4 Rotate(const NzQuaternion<T>& rotation);
 		static NzMatrix4 Scale(const NzVector3<T>& scale);
@@ -96,10 +101,10 @@ template<typename T> class NzMatrix4
 			{
 			}
 
-			T m11, m12, m13, m14,
-			  m21, m22, m23, m24,
-			  m31, m32, m33, m34,
-			  m41, m42, m43, m44;
+			T m11, m12, m13, m14;
+			T m21, m22, m23, m24;
+			T m31, m32, m33, m34;
+			T m41, m42, m43, m44;
 
 			unsigned int refCount;
 
@@ -117,6 +122,8 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const NzMatrix4
 
 typedef NzMatrix4<double> NzMatrix4d;
 typedef NzMatrix4<float> NzMatrix4f;
+
+#undef NAZARA_CLASS_MATRIX4
 
 #include <Nazara/Math/Matrix4.inl>
 

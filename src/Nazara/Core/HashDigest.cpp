@@ -2,14 +2,11 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_HASHDIGEST_CPP
-
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstdio>
 #include <cstring>
 #include <utility>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 NzHashDigest::NzHashDigest() :

@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_THREADCONDITION_CPP
-
 #include <Nazara/Core/ThreadCondition.hpp>
 #include <Nazara/Core/Mutex.hpp>
 

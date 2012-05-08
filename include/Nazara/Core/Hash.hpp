@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASH_HPP
 #define NAZARA_HASH_HPP
 
-#define NAZARA_HASH
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
@@ -27,7 +25,5 @@ class NAZARA_API NzHash : NzNonCopyable
 	private:
 		NzHashImpl* m_impl;
 };
-
-#undef NAZARA_HASH
 
 #endif // NAZARA_HASH_HPP

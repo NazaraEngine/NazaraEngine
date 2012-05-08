@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_CLOCK_CPP
-
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 
@@ -15,6 +13,7 @@
 	#error OS not handled
 #endif
 
+#define NAZARA_CLASS_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 

@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_STRING_CPP
-
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -15,6 +13,8 @@
 #include <cstring>
 #include <sstream>
 #include <Utfcpp/utf8.h>
+
+#define NAZARA_CLASS_STRING
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 

@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_FILE_CPP
-
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -21,6 +19,7 @@
 	#error OS not handled
 #endif
 
+#define NAZARA_CLASS_FILE
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 

@@ -14,6 +14,9 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
+
+#define NAZARA_CLASS_MATRIX4
+#include <Nazara/Math/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
@@ -290,6 +293,22 @@ void NzMatrix4<T>::SetIdentity()
 }
 
 template<typename T>
+void NzMatrix4<T>::SetOrtho(T left, T top, T width, T height, T zNear, T zFar)
+{
+	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
+	Set(2.0/(width-left), 0.0, 0.0, -(width+left)/(width-left),
+	    0.0, 2.0/(top-height), 0.0, -(top+height)/(top-height),
+		0.0, 0.0, -2.0/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
+		0.0, 0.0, 0.0, 1.0);
+	#else
+	Set(2.0/(width-left), 0.0, 0.0, 0.0,
+	    0.0, 2.0/(top-height), 0.0, 0.0,
+		0.0, 0.0, -2.0/(zFar-zNear), 0.0,
+		-(width+left)/(width-left), -(top+height)/(top-height), -(zFar+zNear)/(zFar-zNear), 1.0);
+	#endif
+}
+
+template<typename T>
 void NzMatrix4<T>::SetLookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up)
 {
 	NzVector3<T> f = center - eye;
@@ -320,7 +339,7 @@ void NzMatrix4<T>::SetPerspective(T angle, T ratio, T zNear, T zFar)
 	angle = NzDegreeToRadian(angle/2);
 	#endif
 
-	T f = 1 / std::tan(angle);
+	auto f = 1 / std::tan(angle);
 
 	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	Set(f / ratio, 0.0, 0.0, 0.0,
@@ -714,6 +733,15 @@ NzMatrix4<T> NzMatrix4<T>::LookAt(const NzVector3<T>& eye, const NzVector3<T>& c
 }
 
 template<typename T>
+NzMatrix4<T> NzMatrix4<T>::Ortho(T left, T top, T width, T height, T zNear, T zFar)
+{
+	NzMatrix4 matrix;
+	matrix.SetOrtho(left, top, width, height, zNear, zFar);
+
+	return matrix;
+}
+
+template<typename T>
 NzMatrix4<T> NzMatrix4<T>::Perspective(T angle, T ratio, T zNear, T zFar)
 {
 	NzMatrix4 matrix;
@@ -789,5 +817,6 @@ void NzMatrix4<T>::ReleaseMatrix()
 	m_sharedMatrix = nullptr;
 }
 
+#undef NAZARA_MATRIX4_INL
 
 #include <Nazara/Core/DebugOff.hpp>
