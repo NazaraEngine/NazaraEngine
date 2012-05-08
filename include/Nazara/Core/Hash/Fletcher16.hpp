@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASH_FLETCHER16_HPP
 #define NAZARA_HASH_FLETCHER16_HPP
 
-#define NAZARA_HASH_FLETCHER16
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/HashImpl.hpp>
@@ -32,7 +30,5 @@ class NAZARA_API NzHashFletcher16 : public NzHashImpl
 	private:
 		NzHashFletcher16_state* m_state;
 };
-
-#undef NAZARA_HASH_FLETCHER16
 
 #endif // NAZARA_HASH_FLETCHER16_HPP

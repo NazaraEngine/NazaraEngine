@@ -7,8 +7,6 @@
 #ifndef NAZARA_UNICODE_HPP
 #define NAZARA_UNICODE_HPP
 
-#define NAZARA_UNICODE
-
 #include <Nazara/Prerequesites.hpp>
 
 namespace NzUnicode
@@ -104,7 +102,5 @@ namespace NzUnicode
 	char32_t GetTitlecase(char32_t character);
 	char32_t GetUppercase(char32_t character);
 }
-
-#undef NAZARA_UNICODE
 
 #endif // NAZARA_UNICODE_HPP

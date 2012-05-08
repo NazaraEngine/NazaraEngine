@@ -7,8 +7,6 @@
 #ifndef NAZARA_DEBUG_MEMORYLEAKTRACKER_HPP
 #define NAZARA_DEBUG_MEMORYLEAKTRACKER_HPP
 
-#define NAZARA_DEBUG_MEMORYLEAKTRACKER
-
 #include <Nazara/Prerequesites.hpp>
 #include <cstdio>
 #include <cstring>
@@ -33,7 +31,5 @@ NAZARA_API void* operator new(std::size_t size, const char* file, unsigned int l
 NAZARA_API void* operator new[](std::size_t size, const char* file, unsigned int line);
 NAZARA_API void operator delete(void* ptr, const char* file, unsigned int line) throw();
 NAZARA_API void operator delete[](void* ptr, const char* file, unsigned int line) throw();
-
-#undef NAZARA_DEBUG_MEMORYLEAKTRACKER
 
 #endif // NAZARA_DEBUG_MEMORYLEAKTRACKER_HPP

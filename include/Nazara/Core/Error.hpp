@@ -7,8 +7,6 @@
 #ifndef NAZARA_ERROR_HPP
 #define NAZARA_ERROR_HPP
 
-#define NAZARA_ERROR
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
@@ -33,7 +31,5 @@ enum nzErrorType
 NAZARA_API void NzError(nzErrorType type, const NzString& error, unsigned int line, const char* file, const char* function);
 NAZARA_API unsigned int NzGetLastSystemErrorCode();
 NAZARA_API NzString NzGetLastSystemError(unsigned int code = NzGetLastSystemErrorCode());
-
-#undef NAZARA_ERROR
 
 #endif // NAZARA_ERROR_HPP

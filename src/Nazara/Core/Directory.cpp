@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_DIRECTORY_CPP
-
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -17,6 +15,7 @@
 	#error OS not handled
 #endif
 
+#define NAZARA_CLASS_DIRECTORY
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 

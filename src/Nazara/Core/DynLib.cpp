@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_DYNLIB_CPP
-
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -18,6 +16,8 @@
 
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
+
+#define NAZARA_DYNLIB_CPP
 
 NzDynLib::NzDynLib(const NzString& libraryPath) :
 m_path(libraryPath),

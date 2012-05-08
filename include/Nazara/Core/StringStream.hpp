@@ -7,13 +7,13 @@
 #ifndef NAZARA_STRINGSTREAM_HPP
 #define NAZARA_STRINGSTREAM_HPP
 
-#define NAZARA_STRINGSTREAM
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <string>
 #include <vector>
+
+#define NAZARA_CLASS_STRINGSTREAM
+#include <Nazara/Core/ThreadSafety.hpp>
 
 class NAZARA_API NzStringStream
 {
@@ -51,6 +51,6 @@ class NAZARA_API NzStringStream
 		unsigned int m_bufferSize;
 };
 
-#undef NAZARA_STRINGSTREAM
+#undef NAZARA_CLASS_STRINGSTREAM
 
 #endif // NAZARA_STRINGSTREAM_HPP

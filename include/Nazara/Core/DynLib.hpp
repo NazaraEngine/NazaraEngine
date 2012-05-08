@@ -7,12 +7,12 @@
 #ifndef NAZARA_DYNLIB_HPP
 #define NAZARA_DYNLIB_HPP
 
-#define NAZARA_DYNLIB
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
+
+#define NAZARA_DYNLIB
+#include <Nazara/Core/ThreadSafety.hpp>
 
 class NzDynLibImpl;
 typedef int (*NzDynLibFunc)(); // Type "générique" de pointeur sur fonction

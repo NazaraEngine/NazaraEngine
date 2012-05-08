@@ -7,10 +7,10 @@
 #ifndef NAZARA_BYTEARRAY_HPP
 #define NAZARA_BYTEARRAY_HPP
 
-#define NAZARA_BYTEARRAY
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
+
+#define NAZARA_CLASS_BYTEARRAY
 #include <Nazara/Core/ThreadSafety.hpp>
 
 class NzAbstractHash;
@@ -119,6 +119,6 @@ namespace std
 	NAZARA_API void swap(NzByteArray& lhs, NzByteArray& rhs);
 }
 
-#undef NAZARA_BYTEARRAY
+#undef NAZARA_CLASS_BYTEARRAY
 
 #endif // NAZARA_BYTEARRAY_HPP

@@ -7,13 +7,13 @@
 #ifndef NAZARA_LOG_HPP
 #define NAZARA_LOG_HPP
 
-#define NAZARA_LOG
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
+
+#define NAZARA_CLASS_LOG
+#include <Nazara/Core/ThreadSafety.hpp>
 
 #define NazaraLog NzLog::Instance()
 
@@ -50,6 +50,6 @@ class NAZARA_API NzLog : NzNonCopyable
 		bool m_writeTime;
 };
 
-#undef NAZARA_LOGGER
+#undef NAZARA_CLASS_LOG
 
 #endif // NAZARA_LOGGER_HPP

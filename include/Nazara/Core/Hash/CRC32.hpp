@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASH_CRC32_HPP
 #define NAZARA_HASH_CRC32_HPP
 
-#define NAZARA_HASH_CRC32
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/HashImpl.hpp>
@@ -31,7 +29,5 @@ class NAZARA_API NzHashCRC32 : public NzHashImpl
 	private:
 		NzHashCRC32_state* m_state;
 };
-
-#undef NAZARA_HASH_CRC32
 
 #endif // NAZARA_HASH_CRC32_HPP

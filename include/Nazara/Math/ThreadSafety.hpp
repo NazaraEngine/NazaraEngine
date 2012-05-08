@@ -15,8 +15,8 @@
 #undef NazaraNamedLock
 
 #if NAZARA_MATH_THREADSAFE && (\
-	(NAZARA_THREADSAFETY_MATRIX3      && (defined(NAZARA_MATRIX3)      || defined(NAZARA_MATRIX3_CPP))) || \
-	(NAZARA_THREADSAFETY_MATRIX4      && (defined(NAZARA_MATRIX4)      || defined(NAZARA_MATRIX4_CPP))))
+	(NAZARA_THREADSAFETY_MATRIX3 && (defined(NAZARA_MATRIX3) || defined(NAZARA_MATRIX3_INL))) || \
+	(NAZARA_THREADSAFETY_MATRIX4 && (defined(NAZARA_MATRIX4) || defined(NAZARA_MATRIX4_INL))))
 
 	#include <Nazara/Core/Lock.hpp>
 	#include <Nazara/Core/Mutex.hpp>

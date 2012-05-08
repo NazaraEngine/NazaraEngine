@@ -9,8 +9,6 @@
 #ifndef NAZARA_THREAD_HPP
 #define NAZARA_THREAD_HPP
 
-#define NAZARA_THREAD
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/Functor.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
@@ -63,7 +61,5 @@ class NAZARA_API NzThread : NzNonCopyable
 };
 
 #include <Nazara/Core/Thread.inl>
-
-#undef NAZARA_THREAD
 
 #endif // NAZARA_THREAD_HPP

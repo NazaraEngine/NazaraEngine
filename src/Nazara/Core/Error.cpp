@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_ERROR_CPP
-
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <cstdlib>

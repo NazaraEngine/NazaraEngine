@@ -7,8 +7,6 @@
 #ifndef NAZARA_MUTEX_HPP
 #define NAZARA_MUTEX_HPP
 
-#define NAZARA_MUTEX
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
 
@@ -30,7 +28,5 @@ class NAZARA_API NzMutex : NzNonCopyable
 	private:
 		NzMutexImpl* m_impl;
 };
-
-#undef NAZARA_MUTEX
 
 #endif // NAZARA_MUTEX_HPP

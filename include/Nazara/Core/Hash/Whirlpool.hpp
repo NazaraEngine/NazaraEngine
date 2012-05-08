@@ -5,8 +5,6 @@
 #ifndef NAZARA_HASH_WHIRLPOOL_HPP
 #define NAZARA_HASH_WHIRLPOOL_HPP
 
-#define NAZARA_HASH_WHIRLPOOL
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/HashImpl.hpp>
@@ -29,7 +27,5 @@ class NAZARA_API NzHashWhirlpool : public NzHashImpl
 	private:
 		NzHashWhirlpool_state* m_state;
 };
-
-#undef NAZARA_HASH_WHIRLPOOL
 
 #endif // NAZARA_HASH_WHIRLPOOL_HPP

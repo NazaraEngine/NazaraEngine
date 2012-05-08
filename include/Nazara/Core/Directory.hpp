@@ -7,11 +7,8 @@
 #ifndef NAZARA_DIRECTORY_HPP
 #define NAZARA_DIRECTORY_HPP
 
-#define NAZARA_DIRECTORY
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/ThreadSafety.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#define NAZARA_DIRECTORY_SEPARATOR '\\'
@@ -21,6 +18,9 @@
 	#error OS not handled
 	#define NAZARA_DIRECTORY_SEPARATOR '/'
 #endif
+
+#define NAZARA_CLASS_DIRECTORY
+#include <Nazara/Core/ThreadSafety.hpp>
 
 class NzDirectoryImpl;
 
@@ -59,6 +59,6 @@ class NAZARA_API NzDirectory
 		NzDirectoryImpl* m_impl;
 };
 
-#undef NAZARA_DIRECTORY
+#undef NAZARA_CLASS_DIRECTORY
 
 #endif // NAZARA_DIRECTORY_HPP

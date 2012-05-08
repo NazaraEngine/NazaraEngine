@@ -7,8 +7,6 @@
 #ifndef NAZARA_ENDIANNESS_HPP
 #define NAZARA_ENDIANNESS_HPP
 
-#define NAZARA_ENDIANNESS
-
 #include <Nazara/Prerequesites.hpp>
 
 #if defined(NAZARA_ENDIANNESS_BIGENDIAN)
@@ -44,7 +42,5 @@ inline void NzByteSwap(void* buffer, unsigned int size);
 inline nzEndianness NzGetPlatformEndianness();
 
 #include <Nazara/Core/Endianness.inl>
-
-#undef NAZARA_ENDIANNESS
 
 #endif // NAZARA_ENDIANNESS_HPP

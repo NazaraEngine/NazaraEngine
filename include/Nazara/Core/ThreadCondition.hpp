@@ -7,8 +7,6 @@
 #ifndef NAZARA_THREADCONDITION_HPP
 #define NAZARA_THREADCONDITION_HPP
 
-#define NAZARA_THREADCONDITION
-
 #include <Nazara/Prerequesites.hpp>
 
 class NzMutex;
@@ -29,7 +27,5 @@ class NAZARA_API NzThreadCondition
 	private:
 		NzThreadConditionImpl* m_impl;
 };
-
-#undef NAZARA_THREADCONDITION
 
 #endif // NAZARA_THREADCONDITION_HPP

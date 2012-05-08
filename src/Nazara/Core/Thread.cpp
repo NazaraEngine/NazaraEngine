@@ -4,8 +4,6 @@
 
 // Inspiré du code de la SFML par Laurent Gomila
 
-#define NAZARA_THREAD_CPP
-
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/Error.hpp>
 

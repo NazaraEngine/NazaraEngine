@@ -7,8 +7,6 @@
 #ifndef NAZARA_SEMAPHORE_HPP
 #define NAZARA_SEMAPHORE_HPP
 
-#define NAZARA_SEMAPHORE
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
 
@@ -28,7 +26,5 @@ class NAZARA_API NzSemaphore : NzNonCopyable
 	private:
 		NzSemaphoreImpl* m_impl;
 };
-
-#undef NAZARA_SEMAPHORE
 
 #endif // NAZARA_SEMAPHORE_HPP

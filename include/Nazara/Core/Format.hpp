@@ -7,12 +7,8 @@
 #ifndef NAZARA_FORMAT_HPP
 #define NAZARA_FORMAT_HPP
 
-#define NAZARA_FORMAT
-
 #include <Nazara/Core/String.hpp>
 
 template<typename... Args> NzString NzFormat(const NzString& str, Args... args);
-
-#undef NAZARA_FORMAT
 
 #endif // NAZARA_FORMAT_HPP

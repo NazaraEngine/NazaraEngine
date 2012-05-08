@@ -7,8 +7,6 @@
 #ifndef NAZARA_HASH_MD5_HPP
 #define NAZARA_HASH_MD5_HPP
 
-#define NAZARA_HASH_MD5
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/HashImpl.hpp>
@@ -31,7 +29,5 @@ class NAZARA_API NzHashMD5 : public NzHashImpl
 	private:
 		NzHashMD5_state* m_state;
 };
-
-#undef NAZARA_HASH_MD5
 
 #endif // NAZARA_HASH_MD5_HPP
