@@ -144,7 +144,7 @@ void NzLog::WriteError(nzErrorType type, const NzString& error, unsigned int lin
 	stream += " (";
 	stream += file;
 	stream += ':';
-	stream += line;
+	stream += NzString::Number(line);
 	stream += ": ";
 	stream += func;
 	stream += ')';
