@@ -2,6 +2,9 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <algorithm>
+#include <Nazara/Core/Debug.hpp>
+
 inline void NzByteSwap(void* buffer, unsigned int size)
 {
 	nzUInt8* bytes = reinterpret_cast<nzUInt8*>(buffer);
@@ -36,3 +39,5 @@ inline nzEndianness NzGetPlatformEndianness()
 	return endianness;
 #endif
 }
+
+#include <Nazara/Core/DebugOff.hpp>

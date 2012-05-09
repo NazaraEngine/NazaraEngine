@@ -14,10 +14,9 @@
 	#error No implementation for this platform
 #endif
 
+#define NAZARA_CLASS_DYNLIB
 #include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
-
-#define NAZARA_DYNLIB_CPP
 
 NzDynLib::NzDynLib(const NzString& libraryPath) :
 m_path(libraryPath),

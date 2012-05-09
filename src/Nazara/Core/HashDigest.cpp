@@ -15,7 +15,7 @@ m_digestLength(0)
 {
 }
 
-NzHashDigest::NzHashDigest(NzString hashName, const nzUInt8* digest, unsigned int length) :
+NzHashDigest::NzHashDigest(const NzString& hashName, const nzUInt8* digest, unsigned int length) :
 m_hashName(hashName),
 m_digestLength(length)
 {
