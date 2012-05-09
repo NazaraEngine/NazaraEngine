@@ -1,6 +1,8 @@
 project "NazaraNetwork"
 
-links "ws2_32"
+if (os.is("windows")) then
+	links "ws2_32"
+end
 
 files
 {

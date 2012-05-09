@@ -11,7 +11,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
 
-#define NAZARA_DYNLIB
+#define NAZARA_CLASS_DYNLIB
 #include <Nazara/Core/ThreadSafety.hpp>
 
 class NzDynLibImpl;
@@ -40,6 +40,6 @@ class NzDynLib : NzNonCopyable
 		NzDynLibImpl* m_impl;
 };
 
-#undef NAZARA_DYNLIB
+#undef NAZARA_CLASS_DYNLIB
 
 #endif // NAZARA_DYNLIB_HPP

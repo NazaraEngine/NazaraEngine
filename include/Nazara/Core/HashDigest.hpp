@@ -15,7 +15,7 @@ class NAZARA_API NzHashDigest
 {
 	public:
 		NzHashDigest();
-		NzHashDigest(NzString hashName, const nzUInt8* digest, unsigned int length);
+		NzHashDigest(const NzString& hashName, const nzUInt8* digest, unsigned int length);
 		NzHashDigest(const NzHashDigest& rhs);
 		NzHashDigest(NzHashDigest&& rhs);
 		~NzHashDigest();

@@ -5,6 +5,7 @@
 #include <Nazara/Core/Config.hpp>
 #if NAZARA_CORE_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
 	#include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
+	#include <Nazara/Core/Error.hpp>
 
 	#define delete NzMemoryManager::NextFree(__FILE__, __LINE__), delete
 	#define new new(__FILE__, __LINE__)

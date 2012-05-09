@@ -5,8 +5,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-#define NAZARA_STRINGSTREAM_CPP
-
 NzStringStream::NzStringStream() :
 m_bufferSize(0)
 {
