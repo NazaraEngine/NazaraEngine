@@ -39,7 +39,7 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_MATH_SAFE 1
 
-// Protége le module des accès concurrentiels
+// Protège le module des accès concurrentiels
 #define NAZARA_MATH_THREADSAFE 1
 
 #if NAZARA_MATH_THREADSAFE
