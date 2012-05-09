@@ -6,7 +6,7 @@
 
 #include <Nazara/Math/Config.hpp>
 
-// Ces macros peuvent changer pour n'importe quel fichier qui l'utilise, dans une même unité de compilation
+// Ces macros peuvent changer pour n'importe quel fichier qui l'utilise dans une même unité de compilation
 #undef NazaraLock
 #undef NazaraMutex
 #undef NazaraMutexAttrib
