@@ -71,6 +71,9 @@
 	#define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
 #endif
 
+// Optimise certaines parties du code avec les avancées venues de Windows Vista (Nécessite Vista ou supérieur et compilateur compatible)
+#define NAZARA_CORE_WINDOWS_VISTA 0
+
 /*
 // Règle le temps entre le réveil du thread des timers et l'activation d'un timer (En millisecondes)
 #define NAZARA_CORE_TIMER_WAKEUPTIME 10

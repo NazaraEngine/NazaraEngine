@@ -12,6 +12,7 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
+#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/NonCopyable.hpp>
 
@@ -20,7 +21,7 @@
 
 class NzFileImpl;
 
-class NAZARA_API NzFile : public NzHashable, NzNonCopyable
+class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 {
 	public:
 		enum CursorPosition
@@ -74,6 +75,7 @@ class NAZARA_API NzFile : public NzHashable, NzNonCopyable
 
 		bool Open(unsigned long openMode = Current);
 
+		std::size_t Read(void* buffer, std::size_t size);
 		std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
 		bool Rename(const NzString& newFilePath);
 

@@ -5,6 +5,7 @@
 // Inspiré du code de la SFML par Laurent Gomila
 
 #include <Nazara/Core/Thread.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
