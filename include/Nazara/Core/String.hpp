@@ -283,19 +283,19 @@ class NAZARA_API NzString : public NzHashable
 			{
 			}
 
-			SharedString(unsigned int bufferSize, unsigned int stringSize, unsigned short referenceCount, char* str) :
+			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
 			allocatedSize(bufferSize),
 			size(stringSize),
-			refCount(referenceCount),
-			string(str)
+			string(str),
+			refCount(referenceCount)
 			{
 			}
 
 			unsigned int allocatedSize;
 			unsigned int size;
-			unsigned short refCount;
 			char* string;
 
+			unsigned short refCount;
 			NazaraMutex(mutex)
 		};
 

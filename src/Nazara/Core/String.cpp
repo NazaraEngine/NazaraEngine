@@ -3269,7 +3269,7 @@ NzString NzString::Resized(int size, char character) const
 
 	str[newSize] = '\0';
 
-	return NzString(new SharedString(newSize, newSize, 1, str));
+	return NzString(new SharedString(1, newSize, newSize, str));
 }
 
 NzString& NzString::Reverse()
@@ -3302,7 +3302,7 @@ NzString NzString::Reversed() const
 
 	str[m_sharedString->size] = '\0';
 
-	return NzString(new SharedString(m_sharedString->size, m_sharedString->size, 1, str));
+	return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
 }
 
 NzString NzString::Simplified(nzUInt32 flags) const
@@ -3360,7 +3360,7 @@ NzString NzString::Simplified(nzUInt32 flags) const
 
 	*p = '\0';
 
-	return NzString(new SharedString(m_sharedString->size, p-str, 1, str));
+	return NzString(new SharedString(1, m_sharedString->size, p-str, str));
 }
 
 NzString& NzString::Simplify(nzUInt32 flags)
@@ -3691,7 +3691,7 @@ NzString NzString::Substr(int startPos, int endPos) const
 	std::memcpy(str, &m_sharedString->string[start], size*sizeof(char));
 	str[size] = '\0';
 
-	return NzString(new SharedString(size, size, 1, str));
+	return NzString(new SharedString(1, size, size, str));
 }
 
 NzString NzString::SubstrFrom(char character, int startPos, bool fromLast, bool include, nzUInt32 flags) const
@@ -3890,7 +3890,7 @@ NzString NzString::ToLower(nzUInt32 flags) const
 
 		*s = '\0';
 
-		return NzString(new SharedString(m_sharedString->size, m_sharedString->size, 1, str));
+		return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
 	}
 }
 
@@ -3922,7 +3922,7 @@ NzString NzString::ToUpper(nzUInt32 flags) const
 
 		*s = '\0';
 
-		return NzString(new SharedString(m_sharedString->size, m_sharedString->size, 1, str));
+		return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
 	}
 }
 
@@ -4206,7 +4206,7 @@ NzString NzString::operator+(char character) const
 	str[m_sharedString->size] = character;
 	str[totalSize] = '\0';
 
-	return NzString(new SharedString(totalSize, totalSize, 1, str));
+	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
 
 NzString NzString::operator+(const char* string) const
@@ -4226,7 +4226,7 @@ NzString NzString::operator+(const char* string) const
 	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
 	std::strcpy(&str[m_sharedString->size], string);
 
-	return NzString(new SharedString(totalSize, totalSize, 1, str));
+	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
 
 NzString NzString::operator+(const std::string& string) const
@@ -4242,7 +4242,7 @@ NzString NzString::operator+(const std::string& string) const
 	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
 	std::strcpy(&str[m_sharedString->size], string.c_str());
 
-	return NzString(new SharedString(totalSize, totalSize, 1, str));
+	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
 
 NzString NzString::operator+(const NzString& string) const
@@ -4258,7 +4258,7 @@ NzString NzString::operator+(const NzString& string) const
 	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
 	std::strcpy(&str[m_sharedString->size], string.m_sharedString->string);
 
-	return NzString(new SharedString(totalSize, totalSize, 1, str));
+	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
 
 NzString& NzString::operator+=(char character)
@@ -4610,7 +4610,7 @@ NzString NzString::Boolean(bool boolean)
 	char* str = new char[size+1];
 	std::strcpy(str, (boolean) ? "true" : "false");
 
-	return NzString(new SharedString(size, size, 1, str));
+	return NzString(new SharedString(1, size, size, str));
 }
 
 int NzString::Compare(const NzString& first, const NzString& second)
@@ -4707,7 +4707,7 @@ NzString NzString::Pointer(const void* ptr)
 	char* str = new char[size+1];
 	std::sprintf(str, "%p", ptr);
 
-	return NzString(new SharedString(size, size, 1, str));
+	return NzString(new SharedString(1, size, size, str));
 }
 
 NzString NzString::Unicode(char32_t character)
@@ -4729,7 +4729,7 @@ NzString NzString::Unicode(char32_t character)
 	utf8::append(character, str);
 	str[count] = '\0';
 
-	return NzString(new SharedString(count, count, 1, str));
+	return NzString(new SharedString(1, count, count, str));
 }
 
 NzString NzString::Unicode(const char* u8String)
@@ -4754,7 +4754,7 @@ NzString NzString::Unicode(const char16_t* u16String)
 	char* r = utf8::utf16to8(u16String, ptr, str);
 	*r = '\0';
 
-	return NzString(new SharedString(count, r-str, 1, str));
+	return NzString(new SharedString(1, count, r-str, str));
 }
 
 NzString NzString::Unicode(const char32_t* u32String)
@@ -4782,7 +4782,7 @@ NzString NzString::Unicode(const char32_t* u32String)
 	char* r = utf8::utf32to8(u32String, ptr, str);
 	*r = '\0';
 
-	return NzString(new SharedString(count, count, 1, str));
+	return NzString(new SharedString(1, count, count, str));
 }
 
 NzString NzString::Unicode(const wchar_t* wString)
@@ -4810,7 +4810,7 @@ NzString NzString::Unicode(const wchar_t* wString)
 	char* r = utf8::utf32to8(wString, ptr, str);
 	*r = '\0';
 
-	return NzString(new SharedString(count, count, 1, str));
+	return NzString(new SharedString(1, count, count, str));
 }
 
 std::istream& operator>>(std::istream& is, NzString& str)
@@ -4859,7 +4859,7 @@ NzString operator+(char character, const NzString& string)
 	str[0] = character;
 	std::strcpy(str, string.m_sharedString->string);
 
-	return NzString(new NzString::SharedString(totalSize, totalSize, 1, str));
+	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
 
 NzString operator+(const char* string, const NzString& nstring)
@@ -4876,7 +4876,7 @@ NzString operator+(const char* string, const NzString& nstring)
 	std::memcpy(str, string, size*sizeof(char));
 	std::strcpy(&str[size], nstring.m_sharedString->string);
 
-	return NzString(new NzString::SharedString(totalSize, totalSize, 1, str));
+	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
 
 NzString operator+(const std::string& string, const NzString& nstring)
@@ -4892,7 +4892,7 @@ NzString operator+(const std::string& string, const NzString& nstring)
 	std::memcpy(str, string.c_str(), string.size()*sizeof(char));
 	std::strcpy(&str[string.size()], nstring.m_sharedString->string);
 
-	return NzString(new NzString::SharedString(totalSize, totalSize, 1, str));
+	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
 
 bool operator==(const NzString& first, const NzString& second)
@@ -5040,7 +5040,7 @@ void NzString::EnsureOwnership()
 		char* string = new char[m_sharedString->allocatedSize+1];
 		std::strcpy(string, m_sharedString->string);
 
-		m_sharedString = new SharedString(m_sharedString->allocatedSize, m_sharedString->size, 1, string);
+		m_sharedString = new SharedString(1, m_sharedString->allocatedSize, m_sharedString->size, string);
 	}
 }
 

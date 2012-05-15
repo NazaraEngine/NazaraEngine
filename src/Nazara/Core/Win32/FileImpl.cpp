@@ -151,19 +151,15 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 {
 	wchar_t* path = sourcePath.GetWideBuffer();
 	wchar_t* newPath = targetPath.GetWideBuffer();
+	bool success = CopyFileW(path, newPath, false);
+	delete[] path;
+	delete[] newPath;
 
-	if (CopyFileW(path, newPath, false))
-	{
-		delete[] path;
-		delete[] newPath;
-
+	if (success)
 		return true;
-	}
 	else
 	{
 		NazaraError("Unable to copy file: " + NzGetLastSystemError());
-		delete[] path;
-		delete[] newPath;
 
 		return false;
 	}
@@ -172,17 +168,14 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 bool NzFileImpl::Delete(const NzString& filePath)
 {
 	wchar_t* path = filePath.GetWideBuffer();
+	bool success = DeleteFileW(path);
+	delete[] path;
 
-	if (DeleteFileW(path))
-	{
-		delete[] path;
-
+	if (success)
 		return true;
-	}
 	else
 	{
 		NazaraError("Unable to delete file (" + filePath + "): " + NzGetLastSystemError());
-		delete[] path;
 
 		return false;
 	}

@@ -42,6 +42,8 @@
 #ifndef NAZARA_HASH_SHA2_INTERNAL_HPP
 #define NAZARA_HASH_SHA2_INTERNAL_HPP
 
+#include <Nazara/Prerequesites.hpp>
+
 /* Digest lengths for SHA-1/224/256/384/512 */
 #define   SHA1_DIGEST_LENGTH          20
 #define   SHA1_DIGEST_STRING_LENGTH  (SHA1_DIGEST_LENGTH   * 2 + 1)
@@ -53,8 +55,6 @@
 #define SHA384_DIGEST_STRING_LENGTH  (SHA384_DIGEST_LENGTH * 2 + 1)
 #define SHA512_DIGEST_LENGTH          64
 #define SHA512_DIGEST_STRING_LENGTH  (SHA512_DIGEST_LENGTH * 2 + 1)
-
-#include <Nazara/Prerequesites.hpp>
 
 union SHA_CTX
 {

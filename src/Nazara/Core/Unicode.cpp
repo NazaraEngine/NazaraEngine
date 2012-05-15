@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace NzUnicode

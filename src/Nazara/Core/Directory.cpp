@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Directory.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 //#include <Nazara/ThreadLocalVar.h>

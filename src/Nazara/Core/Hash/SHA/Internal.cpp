@@ -761,15 +761,18 @@ void SHA256_End(SHA_CTX* context, nzUInt8* digest)
 
 
 /*** SHA-224: *********************************************************/
-void SHA224_Init(SHA_CTX* context) {
+void SHA224_Init(SHA_CTX* context)
+{
 	SHA256_Internal_Init(context, sha224_initial_hash_value);
 }
 
-void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data) {
+void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
+{
 	SHA256_Internal_Transform(context, data);
 }
 
-void SHA224_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len) {
+void SHA224_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)
+{
 	SHA256_Update(context, data, len);
 }
 
@@ -807,7 +810,8 @@ void SHA512_Internal_Init(SHA_CTX* context, const nzUInt64* ihv)
 	context->s512.bitcount[0] = context->s512.bitcount[1] =  0;
 }
 
-void SHA512_Init(SHA_CTX* context) {
+void SHA512_Init(SHA_CTX* context)
+{
 	SHA512_Internal_Init(context, sha512_initial_hash_value);
 }
 

@@ -270,7 +270,7 @@ bool NzFile::IsOpen() const
 	return m_impl != nullptr;
 }
 
-std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
+std::size_t NzFile::Read(void* buffer, std::size_t size)
 {
 	NazaraLock(m_mutex)
 
@@ -288,14 +288,28 @@ std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
 	}
 	#endif
 
-	if (!buffer || count == 0 || typeSize == 0)
+	if (size == 0)
 		return 0;
 
-	std::size_t byteRead = m_impl->Read(buffer, typeSize*count);
+	if (buffer)
+		return m_impl->Read(buffer, size);
+	else
+	{
+		nzUInt64 currentPos = m_impl->GetCursorPos();
+
+		m_impl->SetCursorPos(NzFile::AtCurrent, size);
+
+		return m_impl->GetCursorPos()-currentPos;
+	}
+}
+
+std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
+{
+	std::size_t byteRead = Read(buffer, typeSize*count);
 	if (byteRead == 0)
 		return 0;
 
-	if (m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness() && typeSize != 1)
+	if (buffer && m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness() && typeSize != 1)
 	{
 		unsigned int typeCount = byteRead/typeSize;
 		for (unsigned int i = 0; i < typeCount; ++i)
