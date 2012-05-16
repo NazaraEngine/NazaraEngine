@@ -1,7 +1,7 @@
 /*
 	Nazara Engine
 
-	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2012 AUTHORS (EMAIL)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -31,5 +31,8 @@
 
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_MODULENAME_MEMORYLEAKTRACKER 0
+
+// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+#define NAZARA_MODULENAME_SAFE 1
 
 #endif // NAZARA_CONFIG_MODULENAME_HPP
