@@ -5,6 +5,7 @@
 #include <Nazara/ModuleName/ModuleName.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/ModuleName/Config.hpp>
+#include <Nazara/ModuleName/Debug.hpp>
 
 NzModuleName::NzModuleName()
 {
@@ -26,6 +27,10 @@ bool NzModuleName::Initialize()
 	}
 	#endif
 
+	// Initialisation du module
+
+	s_initialized = true;
+
 	return true;
 }
 
@@ -38,6 +43,10 @@ void NzModuleName::Uninitialize()
 		return;
 	}
 	#endif
+
+	// Libération du module
+
+	s_initialized = false;
 }
 
 bool NzModuleName::IsInitialized()

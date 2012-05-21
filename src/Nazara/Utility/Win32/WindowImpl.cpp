@@ -9,6 +9,7 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/ThreadCondition.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <windowsx.h>
 #include <Nazara/Utility/Debug.hpp>

@@ -8,12 +8,12 @@
 #define NAZARA_RESOURCE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 
-class NAZARA_API NzResource : NzNonCopyable
+class NAZARA_API NzResource
 {
 	public:
 		NzResource(bool persistent = true);
+		NzResource(const NzResource& resource);
 		virtual ~NzResource();
 
 		void AddResourceReference() const;

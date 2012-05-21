@@ -14,8 +14,12 @@ class NzInputStream
 	public:
 		virtual ~NzInputStream();
 
-		virtual bool EndOfFile() const = 0;
+		virtual nzUInt64 GetCursorPos() const = 0;
+		virtual nzUInt64 GetSize() const = 0;
+
 		virtual std::size_t Read(void* buffer, std::size_t size) = 0;
+
+		virtual bool SetCursorPos(nzUInt64 offset) = 0;
 };
 
 #endif // NAZARA_INPUTSTREAM_HPP

@@ -284,14 +284,14 @@ class NAZARA_API NzString : public NzHashable
 			}
 
 			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
-			allocatedSize(bufferSize),
+			capacity(bufferSize),
 			size(stringSize),
 			string(str),
 			refCount(referenceCount)
 			{
 			}
 
-			unsigned int allocatedSize;
+			unsigned int capacity;
 			unsigned int size;
 			char* string;
 

@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Buffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/SoftwareBuffer.hpp>

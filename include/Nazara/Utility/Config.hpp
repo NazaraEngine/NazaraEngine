@@ -35,7 +35,7 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_UTILITY_SAFE 1
 
-// Fait tourner chaque fenêtre dans un thread séparé
+// Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
 #define NAZARA_UTILITY_THREADED_WINDOW 1
 
 #endif // NAZARA_CONFIG_UTILITY_HPP

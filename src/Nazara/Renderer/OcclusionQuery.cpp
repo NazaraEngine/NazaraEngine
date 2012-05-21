@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/OcclusionQuery.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>

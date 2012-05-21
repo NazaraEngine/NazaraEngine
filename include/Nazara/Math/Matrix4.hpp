@@ -106,8 +106,7 @@ template<typename T> class NzMatrix4
 			T m31, m32, m33, m34;
 			T m41, m42, m43, m44;
 
-			unsigned int refCount;
-
+			unsigned short refCount;
 			NazaraMutex(mutex)
 		};
 

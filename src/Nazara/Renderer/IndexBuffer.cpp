@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 

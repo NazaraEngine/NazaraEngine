@@ -8,7 +8,6 @@
 #define NAZARA_BASIC_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/String.hpp>
 
 #ifndef M_PI

@@ -8,6 +8,7 @@
 #define NAZARA_RENDERTARGET_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 
 class NzRenderer;

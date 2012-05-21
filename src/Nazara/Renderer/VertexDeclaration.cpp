@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/VertexDeclaration.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
