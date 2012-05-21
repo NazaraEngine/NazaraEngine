@@ -5,9 +5,16 @@
 #include <Nazara/Utility/Resource.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 NzResource::NzResource(bool persistent) :
 m_resourcePersistent(persistent),
+m_resourceReferenceCount(0)
+{
+}
+
+NzResource::NzResource(const NzResource& resource) :
+m_resourcePersistent(resource.m_resourcePersistent),
 m_resourceReferenceCount(0)
 {
 }

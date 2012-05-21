@@ -6,12 +6,14 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/BufferImpl.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/IndexBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
 #include <Nazara/Renderer/VertexBuffer.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -45,7 +47,8 @@ m_vertexBufferUpdated(false)
 
 NzRenderer::~NzRenderer()
 {
-	Uninitialize();
+	if (s_initialized)
+		Uninitialize();
 
 	s_instance = nullptr;
 }
@@ -166,6 +169,21 @@ bool NzRenderer::HasCapability(nzRendererCap capability) const
 
 bool NzRenderer::Initialize()
 {
+	#if NAZARA_RENDERER_SAFE
+	if (s_initialized)
+	{
+		NazaraError("Renderer already initialized");
+		return true;
+	}
+	#endif
+
+	// Initialisation du module Utility
+	if (!NzUtility::IsInitialized())
+	{
+		m_utilityModule = new NzUtility;
+		m_utilityModule->Initialize();
+	}
+
 	if (NzOpenGL::Initialize())
 	{
 		m_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter);
@@ -178,6 +196,8 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
+
+		s_initialized = true;
 
 		return true;
 	}
@@ -329,28 +349,38 @@ bool NzRenderer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclarati
 
 void NzRenderer::Uninitialize()
 {
-	NzOpenGL::Uninitialize();
-}
+	#if NAZARA_RENDERER_SAFE
+	if (!s_initialized)
+	{
+		NazaraError("Renderer not initialized");
+		return;
+	}
+	#endif
 
-#if NAZARA_RENDERER_SINGLETON
-void NzRenderer::Destroy()
-{
-	delete s_instance;
-	s_instance = nullptr;
+	NzOpenGL::Uninitialize();
+
+	s_initialized = false;
+
+	if (m_utilityModule)
+	{
+		delete m_utilityModule;
+		m_utilityModule = nullptr;
+	}
 }
-#endif
 
 NzRenderer* NzRenderer::Instance()
 {
-	#if NAZARA_RENDERER_SINGLETON
-	if (!s_instance)
-		s_instance = new NzRenderer;
-	#elif defined(NAZARA_DEBUG)
+	#if defined(NAZARA_DEBUG)
 	if (!s_instance)
 		NazaraError("Renderer not instanced");
 	#endif
 
 	return s_instance;
+}
+
+bool NzRenderer::IsInitialized()
+{
+	return s_initialized;
 }
 
 bool NzRenderer::UpdateVertexBuffer()
@@ -384,3 +414,4 @@ bool NzRenderer::UpdateVertexBuffer()
 }
 
 NzRenderer* NzRenderer::s_instance = nullptr;
+bool NzRenderer::s_initialized = false;

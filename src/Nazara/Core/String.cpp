@@ -91,7 +91,7 @@ NzString::NzString(char character)
 	else
 	{
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = 1;
+		m_sharedString->capacity = 1;
 		m_sharedString->size = 1;
 		m_sharedString->string = new char[2];
 		m_sharedString->string[0] = character;
@@ -107,7 +107,7 @@ NzString::NzString(const char* string)
 		if (size > 0)
 		{
 			m_sharedString = new SharedString;
-			m_sharedString->allocatedSize = size;
+			m_sharedString->capacity = size;
 			m_sharedString->size = size;
 			m_sharedString->string = new char[size+1];
 			std::strcpy(m_sharedString->string, string);
@@ -124,7 +124,7 @@ NzString::NzString(const std::string& string)
 	if (string.size() > 0)
 	{
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = string.capacity();
+		m_sharedString->capacity = string.capacity();
 		m_sharedString->size = string.size();
 		m_sharedString->string = new char[string.capacity()+1];
 		std::strcpy(m_sharedString->string, string.c_str());
@@ -165,10 +165,10 @@ NzString& NzString::Append(char character)
 	if (character == '\0')
 		return *this;
 
-	if (m_sharedString->size == 0 && m_sharedString->allocatedSize == 0)
+	if (m_sharedString->size == 0 && m_sharedString->capacity == 0)
 		return operator=(character);
 
-	if (m_sharedString->allocatedSize > m_sharedString->size)
+	if (m_sharedString->capacity > m_sharedString->size)
 	{
 		EnsureOwnership();
 
@@ -188,7 +188,7 @@ NzString& NzString::Append(char character)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -205,7 +205,7 @@ NzString& NzString::Append(const char* string)
 	if (length == 0)
 		return *this;
 
-	if (m_sharedString->allocatedSize >= m_sharedString->size + length)
+	if (m_sharedString->capacity >= m_sharedString->size + length)
 	{
 		EnsureOwnership();
 
@@ -223,7 +223,7 @@ NzString& NzString::Append(const char* string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -236,10 +236,10 @@ NzString& NzString::Append(const NzString& string)
 	if (string.m_sharedString->size == 0)
 		return *this;
 
-	if (m_sharedString->size == 0 && m_sharedString->allocatedSize < string.m_sharedString->size)
+	if (m_sharedString->size == 0 && m_sharedString->capacity < string.m_sharedString->size)
 		return operator=(string);
 
-	if (m_sharedString->allocatedSize >= m_sharedString->size + string.m_sharedString->size)
+	if (m_sharedString->capacity >= m_sharedString->size + string.m_sharedString->size)
 	{
 		EnsureOwnership();
 
@@ -257,7 +257,7 @@ NzString& NzString::Append(const NzString& string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -2231,7 +2231,7 @@ char* NzString::GetBuffer()
 
 unsigned int NzString::GetCapacity() const
 {
-	return m_sharedString->allocatedSize;
+	return m_sharedString->capacity;
 }
 
 const char* NzString::GetConstBuffer() const
@@ -2464,7 +2464,7 @@ NzString& NzString::Insert(int pos, char character)
 	if (character == '\0')
 		return *this;
 
-	if (m_sharedString->size == 0 && m_sharedString->allocatedSize == 0)
+	if (m_sharedString->size == 0 && m_sharedString->capacity == 0)
 		return operator=(character);
 
 	if (pos < 0)
@@ -2473,7 +2473,7 @@ NzString& NzString::Insert(int pos, char character)
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
 	// Si le buffer est déjà suffisamment grand
-	if (m_sharedString->allocatedSize >= m_sharedString->size+1)
+	if (m_sharedString->capacity >= m_sharedString->size+1)
 	{
 		EnsureOwnership();
 
@@ -2499,7 +2499,7 @@ NzString& NzString::Insert(int pos, char character)
 		ReleaseString();
 
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -2519,7 +2519,7 @@ NzString& NzString::Insert(int pos, const char* string)
 
 	// Si le buffer est déjà suffisamment grand
 	unsigned int len = std::strlen(string);
-	if (m_sharedString->allocatedSize >= m_sharedString->size+len)
+	if (m_sharedString->capacity >= m_sharedString->size+len)
 	{
 		EnsureOwnership();
 
@@ -2547,7 +2547,7 @@ NzString& NzString::Insert(int pos, const char* string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -2560,7 +2560,7 @@ NzString& NzString::Insert(int pos, const NzString& string)
 	if (string.m_sharedString->size == 0)
 		return *this;
 
-	if (m_sharedString->size == 0 && m_sharedString->allocatedSize < string.m_sharedString->size)
+	if (m_sharedString->size == 0 && m_sharedString->capacity < string.m_sharedString->size)
 		return operator=(string);
 
 	if (pos < 0)
@@ -2569,7 +2569,7 @@ NzString& NzString::Insert(int pos, const NzString& string)
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
 	// Si le buffer est déjà suffisamment grand
-	if (m_sharedString->allocatedSize >= m_sharedString->size + string.m_sharedString->size)
+	if (m_sharedString->capacity >= m_sharedString->size + string.m_sharedString->size)
 	{
 		EnsureOwnership();
 
@@ -2597,7 +2597,7 @@ NzString& NzString::Insert(int pos, const NzString& string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -2870,7 +2870,7 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -2940,7 +2940,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -3180,7 +3180,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 */
 void NzString::Reserve(unsigned int bufferSize)
 {
-	if (m_sharedString->allocatedSize >= bufferSize)
+	if (m_sharedString->capacity >= bufferSize)
 		return;
 
 	char* ptr = new char[bufferSize+1];
@@ -3191,7 +3191,7 @@ void NzString::Reserve(unsigned int bufferSize)
 
 	ReleaseString();
 	m_sharedString = new SharedString;
-	m_sharedString->allocatedSize = bufferSize;
+	m_sharedString->capacity = bufferSize;
 	m_sharedString->size = size;
 	m_sharedString->string = ptr;
 }
@@ -3203,7 +3203,7 @@ NzString& NzString::Resize(int size, char character)
 
 	unsigned int newSize = static_cast<unsigned int>(size);
 
-	if (m_sharedString->allocatedSize >= newSize)
+	if (m_sharedString->capacity >= newSize)
 	{
 		EnsureOwnership();
 
@@ -3232,7 +3232,7 @@ NzString& NzString::Resize(int size, char character)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = newSize;
+		m_sharedString->capacity = newSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
@@ -4103,13 +4103,13 @@ NzString& NzString::operator=(char character)
 {
 	if (character != '\0')
 	{
-		if (m_sharedString->allocatedSize >= 1)
+		if (m_sharedString->capacity >= 1)
 			EnsureOwnership();
 		else
 		{
 			ReleaseString();
 			m_sharedString = new SharedString;
-			m_sharedString->allocatedSize = 1;
+			m_sharedString->capacity = 1;
 			m_sharedString->string = new char[2];
 		}
 
@@ -4128,14 +4128,14 @@ NzString& NzString::operator=(const char* string)
 	if (string && string[0] != '\0')
 	{
 		unsigned int size = std::strlen(string);
-		if (m_sharedString->allocatedSize >= size)
+		if (m_sharedString->capacity >= size)
 			EnsureOwnership();
 		else
 		{
 			ReleaseString();
 
 			m_sharedString = new SharedString;
-			m_sharedString->allocatedSize = size;
+			m_sharedString->capacity = size;
 			m_sharedString->string = new char[size+1];
 		}
 
@@ -4152,14 +4152,14 @@ NzString& NzString::operator=(const std::string& string)
 {
 	if (string.size() > 0)
 	{
-		if (m_sharedString->allocatedSize >= string.size())
+		if (m_sharedString->capacity >= string.size())
 			EnsureOwnership();
 		else
 		{
 			ReleaseString();
 
 			m_sharedString = new SharedString;
-			m_sharedString->allocatedSize = string.size();
+			m_sharedString->capacity = string.size();
 			m_sharedString->string = new char[string.size()+1];
 		}
 
@@ -4269,7 +4269,7 @@ NzString& NzString::operator+=(char character)
 	if (m_sharedString->size == 0)
 		return operator=(character);
 
-	if (m_sharedString->allocatedSize > m_sharedString->size)
+	if (m_sharedString->capacity > m_sharedString->size)
 	{
 		EnsureOwnership();
 
@@ -4289,7 +4289,7 @@ NzString& NzString::operator+=(char character)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -4309,7 +4309,7 @@ NzString& NzString::operator+=(const char* string)
 	if (length == 0)
 		return *this;
 
-	if (m_sharedString->allocatedSize >= m_sharedString->size + length)
+	if (m_sharedString->capacity >= m_sharedString->size + length)
 	{
 		EnsureOwnership();
 
@@ -4327,7 +4327,7 @@ NzString& NzString::operator+=(const char* string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -4343,7 +4343,7 @@ NzString& NzString::operator+=(const std::string& string)
 	if (m_sharedString->size == 0)
 		return operator=(string);
 
-	if (m_sharedString->allocatedSize >= m_sharedString->size + string.size())
+	if (m_sharedString->capacity >= m_sharedString->size + string.size())
 	{
 		EnsureOwnership();
 
@@ -4361,7 +4361,7 @@ NzString& NzString::operator+=(const std::string& string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -4377,7 +4377,7 @@ NzString& NzString::operator+=(const NzString& string)
 	if (m_sharedString->size == 0)
 		return operator=(string);
 
-	if (m_sharedString->allocatedSize >= m_sharedString->size + string.m_sharedString->size)
+	if (m_sharedString->capacity >= m_sharedString->size + string.m_sharedString->size)
 	{
 		EnsureOwnership();
 
@@ -4395,7 +4395,7 @@ NzString& NzString::operator+=(const NzString& string)
 
 		ReleaseString();
 		m_sharedString = new SharedString;
-		m_sharedString->allocatedSize = bufferSize;
+		m_sharedString->capacity = bufferSize;
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
@@ -5037,10 +5037,10 @@ void NzString::EnsureOwnership()
 	{
 		m_sharedString->refCount--;
 
-		char* string = new char[m_sharedString->allocatedSize+1];
+		char* string = new char[m_sharedString->capacity+1];
 		std::strcpy(string, m_sharedString->string);
 
-		m_sharedString = new SharedString(1, m_sharedString->allocatedSize, m_sharedString->size, string);
+		m_sharedString = new SharedString(1, m_sharedString->capacity, m_sharedString->size, string);
 	}
 }
 

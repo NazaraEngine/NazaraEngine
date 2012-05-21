@@ -1,5 +1,7 @@
 project "NazaraUtility"
 
+defines "STBI_NO_STDIO"
+
 files
 {
 	"../include/Nazara/Utility/**.hpp",

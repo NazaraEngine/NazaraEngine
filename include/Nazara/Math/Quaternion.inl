@@ -5,6 +5,7 @@
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Core/Debug.hpp>

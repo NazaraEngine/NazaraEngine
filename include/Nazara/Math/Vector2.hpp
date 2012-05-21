@@ -74,6 +74,7 @@ template<typename T> NzVector2<T> operator/(T scale, const NzVector2<T>& vec);
 typedef NzVector2<double> NzVector2d;
 typedef NzVector2<float> NzVector2f;
 typedef NzVector2<int> NzVector2i;
+typedef NzVector2<unsigned int> NzVector2ui;
 
 #include <Nazara/Math/Vector2.inl>
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
 #include <cmath>

@@ -44,9 +44,10 @@ enum nzRendererClear
 	nzRendererClear_Stencil = 0x04
 };
 
-class NzRenderTarget;
 class NzIndexBuffer;
+class NzRenderTarget;
 class NzShader;
+class NzUtility;
 class NzVertexBuffer;
 class NzVertexDeclaration;
 
@@ -79,23 +80,23 @@ class NAZARA_API NzRenderer
 
 		void Uninitialize();
 
-		#if NAZARA_RENDERER_SINGLETON
-		static void Destroy();
-		#endif
 		static NzRenderer* Instance();
+		static bool IsInitialized();
 
 	private:
 		bool UpdateVertexBuffer();
 
-		static NzRenderer* s_instance;
-
 		const NzIndexBuffer* m_indexBuffer;
 		NzRenderTarget* m_target;
 		NzShader* m_shader;
+		NzUtility* m_utilityModule;
 		const NzVertexBuffer* m_vertexBuffer;
 		const NzVertexDeclaration* m_vertexDeclaration;
 		bool m_capabilities[nzRendererCap_Count];
 		bool m_vertexBufferUpdated;
+
+		static NzRenderer* s_instance;
+		static bool s_initialized;
 };
 
 #endif // NAZARA_RENDERER_HPP

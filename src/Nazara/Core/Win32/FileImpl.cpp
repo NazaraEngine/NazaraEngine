@@ -7,6 +7,8 @@
 #include <Nazara/Core/Win32/Time.hpp>
 #include <Nazara/Core/Debug.hpp>
 
+///TODO: Faire en sorte que le EOF corresponde aux autres EOF de Nazara
+
 NzFileImpl::NzFileImpl(const NzFile* parent) :
 m_endOfFile(false)
 {

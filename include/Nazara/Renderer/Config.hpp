@@ -41,7 +41,4 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_RENDERER_SAFE 1
 
-// Fait en sorte que le Renderer soit un singleton plutôt qu'une instance globale
-#define NAZARA_RENDERER_SINGLETON 0
-
 #endif // NAZARA_CONFIG_MODULENAME_HPP

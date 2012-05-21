@@ -10,6 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Utility/Resource.hpp>
 
 enum nzShaderLanguage
 {
@@ -31,7 +33,7 @@ enum nzShaderType
 class NzRenderer;
 class NzShaderImpl;
 
-class NAZARA_API NzShader
+class NAZARA_API NzShader : public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
 

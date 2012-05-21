@@ -8,6 +8,7 @@
 #define NAZARA_BUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Utility/NonCopyable.hpp>
 #include <Nazara/Utility/Resource.hpp>
 
 enum nzBufferLock
@@ -39,7 +40,7 @@ enum nzBufferUsage
 class NzBufferImpl;
 class NzRenderer;
 
-class NAZARA_API NzBuffer : public NzResource
+class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
 

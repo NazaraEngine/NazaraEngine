@@ -5,14 +5,16 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-// Version du moteur
-#define NAZARA_VERSION_MAJOR 0
-#define NAZARA_VERSION_MINOR 1
-
 // (Commenté en attendant GCC 4.7)
 /*#if __cplusplus < 201103L
 #error Nazara requires a C++11 compliant compiler
 #endif*/
+
+// Version du moteur
+#define NAZARA_VERSION_MAJOR 0
+#define NAZARA_VERSION_MINOR 1
+
+#include <Nazara/Core/Config.hpp>
 
 ///TODO: Rajouter des tests d'identification de compilateurs
 #if defined(_MSC_VER)
@@ -59,11 +61,25 @@
 			#define NOMINMAX
 		#endif
 
-		#ifndef _WIN32_WINNT
-			#ifdef NAZARA_PLATFORM_WINDOWSVISTA
-				#define _WIN32_WINNT 0x0600 // Version de Windows minimale : Vista
+		#if NAZARA_CORE_WINDOWS_VISTA
+			// Version de Windows minimale : Vista
+			#if defined(_WIN32_WINNT)
+				#if _WIN32_WINNT < 0x0600
+					#undef _WIN32_WINNT
+					#define _WIN32_WINNT 0x0600
+				#endif
 			#else
-				#define _WIN32_WINNT 0x0501 // Version de Windows minimale : XP
+				#define _WIN32_WINNT 0x0600
+			#endif
+		#else
+			// Version de Windows minimale : XP
+			#if defined(_WIN32_WINNT)
+				#if _WIN32_WINNT < 0x0501
+					#undef _WIN32_WINNT
+					#define _WIN32_WINNT 0x0501
+				#endif
+			#else
+				#define _WIN32_WINNT 0x0501
 			#endif
 		#endif
 	#endif

@@ -11,6 +11,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Window.hpp>
 
 #ifndef NAZARA_RENDERER_COMMON

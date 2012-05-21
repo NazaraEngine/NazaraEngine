@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/GLSLShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>

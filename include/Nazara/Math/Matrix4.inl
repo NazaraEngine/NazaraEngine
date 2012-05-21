@@ -5,6 +5,7 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -267,10 +268,7 @@ void NzMatrix4<T>::Set(const NzMatrix4& matrix)
 template<typename T>
 void NzMatrix4<T>::Set(NzMatrix4&& matrix)
 {
-	ReleaseMatrix();
-
-	m_sharedMatrix = matrix.m_sharedMatrix;
-	matrix.m_sharedMatrix = nullptr;
+	std::swap(m_sharedMatrix, matrix.m_sharedMatrix);
 }
 
 template<typename T>

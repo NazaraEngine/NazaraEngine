@@ -28,11 +28,13 @@ class NAZARA_API NzByteArray : public NzHashable
 		NzByteArray(SharedArray* sharedArray);
 		~NzByteArray();
 
-		unsigned int Capacity() const;
+		NzByteArray& Append(const NzByteArray& byteArray);
 
 		void Clear();
 
-		const nzUInt8* GetBuffer() const;
+		nzUInt8* GetBuffer();
+		unsigned int GetCapacity() const;
+		const nzUInt8* GetConstBuffer() const;
 		unsigned int GetSize() const;
 
 		NzByteArray& Insert(int pos, const nzUInt8* buffer, unsigned int bufferLength);
@@ -42,10 +44,10 @@ class NAZARA_API NzByteArray : public NzHashable
 
 		void Reserve(unsigned int bufferSize);
 
-		NzByteArray& Resize(int size, nzUInt8 byte = '\0');
-		NzByteArray Resized(int size, nzUInt8 byte = '\0') const;
+		NzByteArray& Resize(int size, nzUInt8 byte = 0);
+		NzByteArray Resized(int size, nzUInt8 byte = 0) const;
 
-		NzByteArray SubArray(int startPos, int endPos = -1) const;
+		NzByteArray Subarray(int startPos, int endPos = -1) const;
 
 		void Swap(NzByteArray& byteArray);
 
@@ -88,15 +90,15 @@ class NAZARA_API NzByteArray : public NzHashable
 			{
 			}
 
-			SharedArray(unsigned int bufferSize, unsigned int arraySize, unsigned short referenceCount, nzUInt8* ptr) :
-			allocatedSize(bufferSize),
+			SharedArray(unsigned short referenceCount, unsigned int bufferSize, unsigned int arraySize, nzUInt8* ptr) :
+			capacity(bufferSize),
 			size(arraySize),
 			refCount(referenceCount),
 			buffer(ptr)
 			{
 			}
 
-			unsigned int allocatedSize;
+			unsigned int capacity;
 			unsigned int size;
 			unsigned short refCount;
 			nzUInt8* buffer;
@@ -105,6 +107,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		};
 
 		static SharedArray emptyArray;
+		static unsigned int npos;
 
 	private:
 		void EnsureOwnership();
