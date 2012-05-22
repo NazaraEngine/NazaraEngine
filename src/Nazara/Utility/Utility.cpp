@@ -52,6 +52,8 @@ void NzUtility::Uninitialize()
 
 	NzLoaders_STB_Unregister();
 	NzLoaders_PCX_Unregister();
+
+	s_initialized = false;
 }
 
 bool NzUtility::IsInitialized()

@@ -7,10 +7,9 @@
 #include <Nazara/Core/Win32/Time.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-///TODO: Faire en sorte que le EOF corresponde aux autres EOF de Nazara
-
 NzFileImpl::NzFileImpl(const NzFile* parent) :
-m_endOfFile(false)
+m_endOfFile(false),
+m_endOfFileUpdated(true)
 {
 	NazaraUnused(parent);
 }
@@ -26,6 +25,16 @@ void NzFileImpl::Close()
 
 bool NzFileImpl::EndOfFile() const
 {
+	if (!m_endOfFileUpdated)
+	{
+		LARGE_INTEGER fileSize;
+		if (!GetFileSizeEx(m_handle, &fileSize))
+			fileSize.QuadPart = 0;
+
+		m_endOfFile = (GetCursorPos() >= static_cast<nzUInt64>(fileSize.QuadPart));
+		m_endOfFileUpdated = true;
+	}
+
 	return m_endOfFile;
 }
 
@@ -95,11 +104,37 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 
 std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
 {
+	//nzUInt64 oldCursorPos = GetCursorPos();
+
 	DWORD read = 0;
 	if (ReadFile(m_handle, buffer, size, &read, nullptr))
 	{
-		m_endOfFile = (size != read);
+		m_endOfFile = (read != size);
+		m_endOfFileUpdated = true;
+
 		return read;
+		///FIXME: D'après la documenation, read vaut 0 si ReadFile atteint la fin du fichier
+		///       D'après les tests, ce n'est pas le cas, la taille lue est inférieure à la taille en argument, mais pas nulle
+		///       Peut-être ais-je mal compris la documentation
+		///       Le correctif (dans le cas où la doc serait vraie) est commenté en début de fonction et après ce commentaire
+		///       Il est cependant plus lourd, et ne fonctionne pas selon les tests...
+		/*
+		if (read == 0)
+		{
+			// Si nous atteignons la fin du fichier, la taille lue vaut 0
+			// pour renvoyer le nombre d'octets lus nous comparons la position du curseur
+			// http://msdn.microsoft.com/en-us/library/windows/desktop/aa365690(v=vs.85).aspx
+			m_endOfFile = true;
+			m_endOfFileUpdated = true;
+
+			return GetCursorPos()-oldCursorPos;
+		}
+		else
+		{
+			m_endOfFileUpdated = false;
+			return read;
+		}
+		*/
 	}
 	else
 		return 0;
@@ -127,10 +162,10 @@ bool NzFileImpl::SetCursorPos(NzFile::CursorPosition pos, nzInt64 offset)
 			return false;
 	}
 
-	m_endOfFile = false;
-
 	LARGE_INTEGER distance;
 	distance.QuadPart = offset;
+
+	m_endOfFileUpdated = false;
 
 	return SetFilePointerEx(m_handle, distance, nullptr, moveMethod) != 0;
 }
@@ -145,6 +180,8 @@ std::size_t NzFileImpl::Write(const void* buffer, std::size_t size)
 	LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
 	WriteFile(m_handle, buffer, size, &written, nullptr);
 	UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
+
+	m_endOfFileUpdated = false;
 
 	return written;
 }
@@ -161,7 +198,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 		return true;
 	else
 	{
-		NazaraError("Unable to copy file: " + NzGetLastSystemError());
+		NazaraError("Failed to copy file: " + NzGetLastSystemError());
 
 		return false;
 	}
@@ -177,7 +214,7 @@ bool NzFileImpl::Delete(const NzString& filePath)
 		return true;
 	else
 	{
-		NazaraError("Unable to delete file (" + filePath + "): " + NzGetLastSystemError());
+		NazaraError("Failed to delete file (" + filePath + "): " + NzGetLastSystemError());
 
 		return false;
 	}

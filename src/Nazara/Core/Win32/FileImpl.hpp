@@ -42,7 +42,8 @@ class NzFileImpl : NzNonCopyable
 
 	private:
 		HANDLE m_handle;
-		bool m_endOfFile;
+		mutable bool m_endOfFile;
+		mutable bool m_endOfFileUpdated;
 };
 
 #endif // NAZARA_FILEIMPL_HPP
