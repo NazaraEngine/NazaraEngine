@@ -74,6 +74,21 @@ namespace
 			return false;
 		}
 
+		#if NAZARA_ENDIANNESS_BIGENDIAN
+		// Les fichiers PCX sont en little endian
+		NzByteSwap(&header.xmin, sizeof(nzUInt16));
+		NzByteSwap(&header.ymin, sizeof(nzUInt16));
+		NzByteSwap(&header.xmax, sizeof(nzUInt16));
+		NzByteSwap(&header.ymax, sizeof(nzUInt16));
+		NzByteSwap(&header.horzRes, sizeof(nzUInt16));
+		NzByteSwap(&header.vertRes, sizeof(nzUInt16));
+
+		NzByteSwap(&header.bytesPerScanLine, sizeof(nzUInt16));
+		NzByteSwap(&header.paletteType, sizeof(nzUInt16));
+		NzByteSwap(&header.horzSize, sizeof(nzUInt16));
+		NzByteSwap(&header.vertSize, sizeof(nzUInt16));
+		#endif
+
 		unsigned int bitCount = header.bitsPerPixel * header.numColorPlanes;
 		unsigned int width = header.xmax - header.xmin+1;
 		unsigned int height = header.ymax - header.ymin+1;
@@ -361,5 +376,7 @@ void NzLoaders_PCX_Register()
 
 void NzLoaders_PCX_Unregister()
 {
-	///TODO
+	NzImage::UnregisterStreamLoader(NzLoader_PCX_IsStreamLoadingSupported, NzLoader_PCX_LoadStream);
+	NzImage::UnregisterMemoryLoader(NzLoader_PCX_IsMemoryLoadingSupported, NzLoader_PCX_LoadMemory);
+	NzImage::UnregisterFileLoader("pcx", NzLoader_PCX_LoadFile);
 }
