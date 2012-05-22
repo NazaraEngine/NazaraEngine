@@ -17,11 +17,11 @@
 #include <Nazara/Core/String.hpp>
 
 // Il semblerait qu'il ne soit pas conseillé d'inclure gl3.h t glext.h en même temps, mais je ne vois pas oomment gérer les extensions autrement...
-#include <GLext/glext.h>
+#include <GL3/glext.h>
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <GLext/wglext.h>
+	#include <GL3/wglext.h>
 #elif defined(NAZARA_PLATFORM_LINUX)
-	#include <GLext/glxext.h>
+	#include <GL3/glxext.h>
 #else
 	#error OS not handled
 #endif
