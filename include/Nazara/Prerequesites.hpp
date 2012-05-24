@@ -23,9 +23,8 @@
 	#define NAZARA_FUNCTION __FUNCSIG__
 #elif defined(__GNUC__)
 	#define NAZARA_COMPILER_GCC
-	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
-
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
+	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 #elif defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
 	#define NAZARA_DEPRECATED(txt)

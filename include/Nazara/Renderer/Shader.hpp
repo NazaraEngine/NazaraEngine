@@ -8,9 +8,9 @@
 #define NAZARA_SHADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 #include <Nazara/Utility/Resource.hpp>
 
 enum nzShaderLanguage

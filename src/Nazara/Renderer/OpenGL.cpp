@@ -383,10 +383,6 @@ bool NzOpenGL::Initialize()
 	NzContextParameters::defaultMajorVersion = openGLversion/100;
 	NzContextParameters::defaultMinorVersion = (openGLversion%100)/10;
 
-/*
-	NzContextParameters::defaultMajorVersion = std::min(openGLversion/100, 2U);
-	NzContextParameters::defaultMinorVersion = std::min((openGLversion%100)/10, 1U);
-*/
 	if (!NzContext::InitializeReference())
 	{
 		NazaraError("Failed to initialize reference context");

@@ -17,27 +17,11 @@ inline void NzByteSwap(void* buffer, unsigned int size)
 
 inline nzEndianness NzGetPlatformEndianness()
 {
-#if NAZARA_ENDIANNESS_DETECTED
-	return NazaraEndianness;
-#else
-	static nzEndianness endianness = nzEndianness_Unknown;
-	static bool tested = false;
-	if (!tested)
-	{
-		nzUInt32 i = 1;
-		nzUInt8* p = reinterpret_cast<nzUInt8*>(&i);
-
-		// Méthode de récupération de l'endianness au runtime
-		if (p[0] == 1)
-			endianness = nzEndianness_LittleEndian;
-		else if (p[3] == 1)
-			endianness = nzEndianness_BigEndian;
-
-		tested = true;
-	}
-
-	return endianness;
-#endif
+	#if defined(NAZARA_BIG_ENDIAN)
+	return nzEndianness_BigEndian;
+	#elif defined(NAZARA_LITTLE_ENDIAN)
+	return nzEndianness_LittleEndian;
+	#endif
 }
 
 #include <Nazara/Core/DebugOff.hpp>

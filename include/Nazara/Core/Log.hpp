@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 
 #define NAZARA_CLASS_LOG
 #include <Nazara/Core/ThreadSafety.hpp>

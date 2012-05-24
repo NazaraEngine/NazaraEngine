@@ -36,6 +36,79 @@ NzImage::~NzImage()
 	ReleaseImage();
 }
 
+bool NzImage::Convert(nzPixelFormat format)
+{
+	if (format == m_sharedImage->format)
+		return true;
+
+	#if NAZARA_UTILITY_SAFE
+	if (!IsValid())
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+
+	if (!NzPixelFormat::IsValid(format))
+	{
+		NazaraError("Invalid pixel format");
+		return false;
+	}
+	#endif
+
+	EnsureOwnership();
+
+	unsigned int depth = (IsCubemap()) ? 6 : m_sharedImage->depth;
+	unsigned int pixelsPerFace = m_sharedImage->width*m_sharedImage->height;
+
+	nzUInt8* buffer;
+	if (depth > 1)
+	{
+		// Les images 3D sont un empilement d'images 2D
+		// Quant aux cubemaps, ils sont stockés côte à côte, ce qui revient au même
+		buffer = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBPP(format)];
+
+		nzUInt8* ptr = buffer;
+		nzUInt8* pixels = m_sharedImage->pixels;
+		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBPP(m_sharedImage->format);
+		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBPP(format);
+
+		for (unsigned int i = 0; i < depth; ++i)
+		{
+			if (!NzPixelFormat::Convert(m_sharedImage->format, format, pixels, &pixels[srcStride], ptr))
+			{
+				NazaraError("Failed to convert image");
+				delete[] buffer;
+
+				return false;
+			}
+
+			pixels += srcStride;
+			ptr += dstStride;
+		}
+
+		delete[] buffer;
+	}
+	else
+	{
+		buffer = new nzUInt8[pixelsPerFace*NzPixelFormat::GetBPP(format)];
+
+		if (!NzPixelFormat::Convert(m_sharedImage->format, format, m_sharedImage->pixels, &m_sharedImage->pixels[pixelsPerFace*NzPixelFormat::GetBPP(m_sharedImage->format)], buffer))
+		{
+			NazaraError("Failed to convert image");
+			delete[] buffer;
+
+			return false;
+		}
+	}
+
+	delete[] m_sharedImage->pixels;
+
+	m_sharedImage->format = format;
+	m_sharedImage->pixels = buffer;
+
+	return true;
+}
+
 bool NzImage::Copy(const NzImage& source, const NzRectui& srcRect, const NzVector2ui& dstPos)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -77,6 +150,14 @@ bool NzImage::CopyToFace(nzCubemapFace face, const NzImage& source, const NzRect
 bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth)
 {
 	ReleaseImage();
+
+	#if NAZARA_UTILITY_SAFE
+	if (!NzPixelFormat::IsValid(format))
+	{
+		NazaraError("Invalid pixel format");
+		return false;
+	}
+	#endif
 
 	unsigned int size = width*height*depth*NzPixelFormat::GetBPP(format);
 	if (size == 0)
@@ -131,7 +212,19 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		size *= 6; // Les cubemaps ont six faces
 	#endif
 
-	m_sharedImage = new SharedImage(1, type, format, new nzUInt8[size], width, height, depth);
+	// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
+	nzUInt8* buffer;
+	try
+	{
+		buffer = new nzUInt8[size];
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to allocate image buffer (" + NzString(e.what()) + ')');
+		return false;
+	}
+
+	m_sharedImage = new SharedImage(1, type, format, buffer, width, height, depth);
 
 	return true;
 }
@@ -472,4 +565,4 @@ void NzImage::ReleaseImage()
 	m_sharedImage = &emptyImage;
 }
 
-NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_R8G8B8, nullptr, 0, 0, 0);
+NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, nullptr, 0, 0, 0);

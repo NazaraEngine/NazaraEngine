@@ -114,7 +114,7 @@ namespace
 		nzUInt32 d = state->abcd[3];
 		nzUInt32 t;
 
-		#ifdef NAZARA_ENDIANNESS_BIGENDIAN
+		#ifdef NAZARA_BIG_ENDIAN
 		/* Define storage only for big-endian CPUs. */
 		nzUInt32 X[16];
 

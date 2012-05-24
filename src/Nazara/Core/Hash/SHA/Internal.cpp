@@ -42,7 +42,7 @@
 #include <cstring>
 
 /*** ENDIAN REVERSAL MACROS *******************************************/
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 
 #define REVERSE32(w,x)	{ \
 	nzUInt32 tmp = (w); \
@@ -272,7 +272,7 @@ void SHA1_Init(SHA_CTX* context)
 	context->s1.bitcount = 0;
 }
 
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 
 #define ROUND1_0_TO_15(a,b,c,d,e)				\
 	REVERSE32(*data++, W1[j]);				\
@@ -281,7 +281,7 @@ void SHA1_Init(SHA_CTX* context)
 	(b) = ROTL32(30, (b));		\
 	j++;
 
-#else // NAZARA_ENDIANNESS_LITTLEENDIAN
+#else // NAZARA_LITTLE_ENDIAN
 
 #define ROUND1_0_TO_15(a,b,c,d,e)				\
 	(e) = ROTL32(5, (a)) + Ch((b), (c), (d)) + (e) +	\
@@ -289,7 +289,7 @@ void SHA1_Init(SHA_CTX* context)
 	(b) = ROTL32(30, (b));	\
 	j++;
 
-#endif // NAZARA_ENDIANNESS_LITTLEENDIAN
+#endif // NAZARA_LITTLE_ENDIAN
 
 #define ROUND1_16_TO_19(a,b,c,d,e)	\
 	T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];	\
@@ -512,7 +512,7 @@ void SHA1_End(SHA_CTX* context, nzUInt8* digest)
 		}
 	}
 	/* Set the bit count: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 	/* Convert FROM host byte order */
 	REVERSE64(context->s1.bitcount,context->s1.bitcount);
 #endif
@@ -523,7 +523,7 @@ void SHA1_End(SHA_CTX* context, nzUInt8* digest)
 	SHA1_Internal_Transform(context, reinterpret_cast<nzUInt32*>(context->s1.buffer));
 
 	/* Save the hash data for output: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 	{
 		/* Convert TO host byte order */
 		for (int j = 0; j < (SHA1_DIGEST_LENGTH >> 2); j++)
@@ -551,7 +551,7 @@ void SHA256_Init(SHA_CTX* context)
 	SHA256_Internal_Init(context, sha256_initial_hash_value);
 }
 
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 
 #define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
 	REVERSE32(*data++, W256[j]); \
@@ -561,7 +561,7 @@ void SHA256_Init(SHA_CTX* context)
 	(h) = T1 + Sigma0_256(a) + Maj((a), (b), (c)); \
 	j++
 
-#else // NAZARA_ENDIANNESS_LITTLEENDIAN
+#else // NAZARA_LITTLE_ENDIAN
 
 #define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
 	T1 = (h) + Sigma1_256(e) + Ch((e), (f), (g)) + \
@@ -570,7 +570,7 @@ void SHA256_Init(SHA_CTX* context)
 	(h) = T1 + Sigma0_256(a) + Maj((a), (b), (c)); \
 	j++
 
-#endif // NAZARA_ENDIANNESS_LITTLEENDIAN
+#endif // NAZARA_LITTLE_ENDIAN
 
 #define ROUND256(a,b,c,d,e,f,g,h)	\
 	s0 = W256[(j+1)&0x0f]; \
@@ -693,7 +693,7 @@ void SHA256_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)
 void SHA256_Internal_Last(SHA_CTX* context)
 {
 	unsigned int usedspace = (context->s256.bitcount >> 3) % 64;
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 	/* Convert FROM host byte order */
 	REVERSE64(context->s256.bitcount,context->s256.bitcount);
 #endif
@@ -744,7 +744,7 @@ void SHA256_End(SHA_CTX* context, nzUInt8* digest)
 		SHA256_Internal_Last(context);
 
 		/* Save the hash data for output: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			for (int j = 0; j < (SHA256_DIGEST_LENGTH >> 2); j++)
@@ -786,7 +786,7 @@ void SHA224_End(SHA_CTX* context, nzUInt8* digest)
 		SHA256_Internal_Last(context);
 
 		/* Save the hash data for output: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			for (int j = 0; j < (SHA224_DIGEST_LENGTH >> 2); j++)
@@ -816,7 +816,7 @@ void SHA512_Init(SHA_CTX* context)
 }
 
 /* Unrolled SHA-512 round macros: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 
 #define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
 	REVERSE64(*data++, W512[j]); \
@@ -827,7 +827,7 @@ void SHA512_Init(SHA_CTX* context)
 	j++
 
 
-#else // NAZARA_ENDIANNESS_LITTLEENDIAN
+#else // NAZARA_LITTLE_ENDIAN
 
 #define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
 	T1 = (h) + Sigma1_512(e) + Ch((e), (f), (g)) + \
@@ -836,7 +836,7 @@ void SHA512_Init(SHA_CTX* context)
 	(h) = T1 + Sigma0_512(a) + Maj((a), (b), (c)); \
 	j++
 
-#endif // NAZARA_ENDIANNESS_LITTLEENDIAN
+#endif // NAZARA_LITTLE_ENDIAN
 
 #define ROUND512(a,b,c,d,e,f,g,h)	\
 	s0 = W512[(j+1)&0x0f]; \
@@ -958,7 +958,7 @@ void SHA512_Internal_Last(SHA_CTX* context)
 	unsigned int usedspace;
 
 	usedspace = (context->s512.bitcount[0] >> 3) % 128;
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 	/* Convert FROM host byte order */
 	REVERSE64(context->s512.bitcount[0],context->s512.bitcount[0]);
 	REVERSE64(context->s512.bitcount[1],context->s512.bitcount[1]);
@@ -1011,7 +1011,7 @@ void SHA512_End(SHA_CTX* context, nzUInt8* digest)
 		SHA512_Internal_Last(context);
 
 		/* Save the hash data for output: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			for (int j = 0; j < (SHA512_DIGEST_LENGTH >> 3); j++)
@@ -1051,7 +1051,7 @@ void SHA384_End(SHA_CTX* context, nzUInt8* digest)
 		SHA512_Internal_Last(context);
 
 		/* Save the hash data for output: */
-#ifdef NAZARA_ENDIANNESS_LITTLEENDIAN
+#ifdef NAZARA_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			for (int j = 0; j < (SHA384_DIGEST_LENGTH >> 3); j++)

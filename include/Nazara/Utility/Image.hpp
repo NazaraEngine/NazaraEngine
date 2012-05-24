@@ -35,12 +35,21 @@ enum nzImageType
 
 struct NzImageParams
 {
+	// GCC 4.7 je te veux
+	NzImageParams() :
+	loadFormat(nzPixelFormat_Undefined)
+	{
+	}
+
+	nzPixelFormat loadFormat;
+
 	bool IsValid() const
 	{
-		return true;
+		return loadFormat == nzPixelFormat_Undefined || NzPixelFormat::IsValid(loadFormat);
 	}
 };
 
+///TODO: Animations ?
 ///TODO: Filtres
 ///TODO: Mipmaps
 
@@ -54,6 +63,8 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		NzImage(NzImage&& image);
 		NzImage(SharedImage* sharedImage);
 		~NzImage();
+
+		bool Convert(nzPixelFormat format);
 
 		bool Copy(const NzImage& source, const NzRectui& srcRect, const NzVector2ui& dstPos);
 		bool CopyToFace(nzCubemapFace face, const NzImage& source, const NzRectui& srcRect, const NzVector2ui& dstPos);
