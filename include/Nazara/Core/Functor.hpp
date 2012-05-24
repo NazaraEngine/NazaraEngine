@@ -7,7 +7,7 @@
 #ifndef NAZARA_FUNCTOR_HPP
 #define NAZARA_FUNCTOR_HPP
 
-#include <Nazara/Utility/Tuple.hpp>
+#include <Nazara/Core/Tuple.hpp>
 
 // Inspiré du code de la SFML par Laurent Gomila
 
@@ -40,6 +40,6 @@ template<typename F, typename... Args> struct NzFunctorWithArgs : NzFunctor
 template<typename F> struct NzFunctorWithoutArgs;
 template<typename F, typename... Args> struct NzFunctorWithArgs;
 
-#include <Nazara/Utility/Functor.inl>
+#include <Nazara/Core/Functor.inl>
 
 #endif // NAZARA_FUNCTOR_HPP

@@ -9,12 +9,12 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/Window.hpp>
 #include <windows.h>

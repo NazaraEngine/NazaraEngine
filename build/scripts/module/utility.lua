@@ -7,6 +7,7 @@ files
 	"../include/Nazara/Utility/**.hpp",
 	"../include/Nazara/Utility/**.inl",
 	"../src/Nazara/Utility/**.hpp",
+	"../src/Nazara/Utility/**.c",
 	"../src/Nazara/Utility/**.cpp"
 }
 

@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <ctime>
 #include <windows.h>
 

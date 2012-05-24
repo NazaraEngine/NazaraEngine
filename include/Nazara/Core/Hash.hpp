@@ -11,7 +11,7 @@
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/HashImpl.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 
 class NAZARA_API NzHash : NzNonCopyable
 {

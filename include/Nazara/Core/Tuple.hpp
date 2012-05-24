@@ -11,6 +11,6 @@
 
 template<typename F, typename... ArgsT> void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t);
 
-#include <Nazara/Utility/Tuple.inl>
+#include <Nazara/Core/Tuple.inl>
 
 #endif // NAZARA_TUPLE_HPP

@@ -6,7 +6,7 @@
 
 #include <Nazara/Core/Win32/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/Functor.hpp>
+#include <Nazara/Core/Functor.hpp>
 #include <process.h>
 #include <Nazara/Core/Debug.hpp>
 
