@@ -298,7 +298,7 @@ bool NzImage::Update(const nzUInt8* pixels)
 		return false;
 	}
 
-	if (IsCubemap())
+	if (m_sharedImage->type == nzImageType_Cubemap)
 	{
 		NazaraError("Update is not designed for cubemaps, use UpdateFace instead");
 		return false;
@@ -327,7 +327,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect)
 		return false;
 	}
 
-	if (IsCubemap())
+	if (m_sharedImage->type == nzImageType_Cubemap)
 	{
 		NazaraError("Update is not designed for cubemaps, use UpdateFace instead");
 		return false;
@@ -380,7 +380,7 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels)
 		return false;
 	}
 
-	if (!IsCubemap())
+	if (m_sharedImage->type != nzImageType_Cubemap)
 	{
 		NazaraError("Update is only designed for cubemaps, use Update instead");
 		return false;
@@ -410,7 +410,7 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRect
 		return false;
 	}
 
-	if (!IsCubemap())
+	if (m_sharedImage->type != nzImageType_Cubemap)
 	{
 		NazaraError("Update is only designed for cubemaps, use Update instead");
 		return false;

@@ -25,7 +25,6 @@ namespace
 {
 	const wchar_t* className = L"Nazara Window";
 	NzWindowImpl* fullscreenWindow = nullptr;
-	unsigned int windowCount = 0;
 }
 
 NzWindowImpl::NzWindowImpl(NzWindow* parent) :
@@ -62,19 +61,10 @@ void NzWindowImpl::Close()
 	}
 	else
 		SetEventListener(false);
-
-	if (--windowCount == 0)
-		Uninitialize();
 }
 
 bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
-	if (windowCount++ == 0 && !Initialize())
-	{
-		NazaraError("Unable to initialize window implementation");
-		return false;
-	}
-
 	bool fullscreen = (style & NzWindow::Fullscreen) != 0;
 	DWORD win32Style, win32StyleEx;
 	unsigned int x, y;
@@ -165,15 +155,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	m_eventListener = true;
 	m_ownsWindow = true;
 
-	if (m_handle != nullptr)
-		return true;
-	else
-	{
-		if (--windowCount == 0)
-			Uninitialize();
-
-		return false;
-	}
+	return m_handle != nullptr;
 }
 
 bool NzWindowImpl::Create(NzWindowHandle handle)
@@ -776,6 +758,30 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 	return false;
 }
 
+bool NzWindowImpl::Initialize()
+{
+	// Nous devons faire un type Unicode pour que la fenêtre le soit également
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
+	WNDCLASSW windowClass;
+	windowClass.cbClsExtra = 0;
+	windowClass.cbWndExtra = 0;
+	windowClass.hbrBackground = nullptr;
+	windowClass.hCursor = nullptr; // Le curseur est définit dynamiquement
+	windowClass.hIcon = nullptr; // L'icône est définie dynamiquement
+	windowClass.hInstance = GetModuleHandle(nullptr);
+	windowClass.lpfnWndProc = MessageHandler;
+	windowClass.lpszClassName = className;
+	windowClass.lpszMenuName = nullptr;
+	windowClass.style = CS_DBLCLKS; // Gestion du double-clic
+
+	return RegisterClassW(&windowClass);
+}
+
+void NzWindowImpl::Uninitialize()
+{
+	UnregisterClassW(className, GetModuleHandle(nullptr));
+}
+
 LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	NzWindowImpl* me;
@@ -796,25 +802,6 @@ LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM 
 	}
 
 	return DefWindowProcW(window, message, wParam, lParam);
-}
-
-bool NzWindowImpl::Initialize()
-{
-	// Nous devons faire un type Unicode pour que la fenêtre le soit également
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
-	WNDCLASSW windowClass;
-	windowClass.cbClsExtra = 0;
-	windowClass.cbWndExtra = 0;
-	windowClass.hbrBackground = nullptr;
-	windowClass.hCursor = nullptr; // Le curseur est définit dynamiquement
-	windowClass.hIcon = nullptr; // L'icône est définie dynamiquement
-	windowClass.hInstance = GetModuleHandle(nullptr);
-	windowClass.lpfnWndProc = MessageHandler;
-	windowClass.lpszClassName = className;
-	windowClass.lpszMenuName = nullptr;
-	windowClass.style = CS_DBLCLKS; // Gestion du double-clic
-
-	return RegisterClassW(&windowClass);
 }
 
 NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
@@ -947,11 +934,6 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 		default:
 			return NzKeyboard::Key(NzKeyboard::Undefined);
 	}
-}
-
-void NzWindowImpl::Uninitialize()
-{
-	UnregisterClassW(className, GetModuleHandle(nullptr));
 }
 
 #if NAZARA_UTILITY_THREADED_WINDOW

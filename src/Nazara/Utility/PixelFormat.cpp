@@ -14,22 +14,22 @@ namespace
 {
 	inline nzUInt8 c4to8(nzUInt8 c)
 	{
-		return c * 255.f/15.f;
+		return c * (255.f/15.f);
 	}
 
 	inline nzUInt8 c5to8(nzUInt8 c)
 	{
-		return c * 255.f/31.f;
+		return c * (255.f/31.f);
 	}
 
 	inline nzUInt8 c8to4(nzUInt8 c)
 	{
-		return c * 15.f/255.f;
+		return c * (15.f/255.f);
 	}
 
 	inline nzUInt8 c8to5(nzUInt8 c)
 	{
-		return c * 31.f/255.f;
+		return c * (31.f/255.f);
 	}
 
 	template<nzPixelFormat from, nzPixelFormat to>
@@ -215,7 +215,7 @@ namespace
 			*ptr++ = (static_cast<nzUInt16>(c8to5(start[2])) << 11) |
 			         (static_cast<nzUInt16>(c8to5(start[1])) << 6)  |
 			         (static_cast<nzUInt16>(c8to5(start[0])) << 1)  |
-					 ((start[3] == 0xFF) ? 1 : 0);
+			         ((start[3] == 0xFF) ? 1 : 0);
 
 			start += 4;
 		}

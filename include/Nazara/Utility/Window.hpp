@@ -24,10 +24,12 @@
 #include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
+class NzUtility;
 class NzWindowImpl;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {
+	friend class NzUtility;
 	friend class NzWindowImpl;
 
 	public:
@@ -98,6 +100,9 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 	private:
 		void PushEvent(const NzEvent& event);
+
+		static bool Initialize();
+		static void Uninitialize();
 
 		std::queue<NzEvent> m_events;
 		#if NAZARA_UTILITY_THREADED_WINDOW

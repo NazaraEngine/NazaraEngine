@@ -8,6 +8,7 @@
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 NzUtility::NzUtility()
@@ -36,6 +37,14 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
+	if (!NzWindow::Initialize())
+	{
+		NazaraError("Failed to initialize window's system");
+		NzPixelFormat::Uninitialize();
+
+		return false;
+	}
+
 	// Loaders spécialisés
 	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
 
@@ -59,6 +68,8 @@ void NzUtility::Uninitialize()
 
 	NzLoaders_STB_Unregister();
 	NzLoaders_PCX_Unregister();
+
+	NzWindow::Uninitialize();
 
 	NzPixelFormat::Uninitialize();
 
