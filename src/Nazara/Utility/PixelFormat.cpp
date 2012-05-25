@@ -800,8 +800,6 @@ namespace
 		nzUInt16* ptr = reinterpret_cast<nzUInt16*>(dst);
 		while (start < end)
 		{
-			NazaraWarning("r: " + NzString::Number(c8to5(start[0])));
-
 			*ptr++ = (static_cast<nzUInt16>(c8to5(start[0])) << 11) |
 			         (static_cast<nzUInt16>(c8to5(start[1])) << 6)  |
 			         (static_cast<nzUInt16>(c8to5(start[2])) << 1)  |
