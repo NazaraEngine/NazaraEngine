@@ -473,3 +473,13 @@ void NzWindow::PushEvent(const NzEvent& event)
 	}
 	#endif
 }
+
+bool NzWindow::Initialize()
+{
+	return NzWindowImpl::Initialize();
+}
+
+void NzWindow::Uninitialize()
+{
+	NzWindowImpl::Uninitialize();
+}

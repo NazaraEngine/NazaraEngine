@@ -24,6 +24,7 @@ class NzMutex;
 class NzThread;
 class NzThreadCondition;
 #endif
+class NzWindow;
 
 #undef IsMinimized // Conflit avec la méthode du même nom
 
@@ -67,13 +68,14 @@ class NzWindowImpl : NzNonCopyable
 		void ShowMouseCursor(bool show);
 		void StayOnTop(bool stayOnTop);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 	private:
 		bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
-		static bool Initialize();
 		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 		static NzKeyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
-		static void Uninitialize();
 		#if NAZARA_UTILITY_THREADED_WINDOW
 		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzThreadCondition* condition);
 		#endif
