@@ -38,9 +38,6 @@ NzImage::~NzImage()
 
 bool NzImage::Convert(nzPixelFormat format)
 {
-	if (format == m_sharedImage->format)
-		return true;
-
 	#if NAZARA_UTILITY_SAFE
 	if (!IsValid())
 	{
@@ -55,56 +52,37 @@ bool NzImage::Convert(nzPixelFormat format)
 	}
 	#endif
 
-	EnsureOwnership();
+	if (format == m_sharedImage->format)
+		return true;
 
-	unsigned int depth = (IsCubemap()) ? 6 : m_sharedImage->depth;
+	// Les images 3D et cubemaps sont stockés de la même façon
+	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	unsigned int pixelsPerFace = m_sharedImage->width*m_sharedImage->height;
 
-	nzUInt8* buffer;
-	if (depth > 1)
+	nzUInt8* buffer = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBPP(format)];
+	nzUInt8* ptr = buffer;
+	nzUInt8* pixels = m_sharedImage->pixels;
+	unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBPP(m_sharedImage->format);
+	unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBPP(format);
+
+	for (unsigned int i = 0; i < depth; ++i)
 	{
-		// Les images 3D sont un empilement d'images 2D
-		// Quant aux cubemaps, ils sont stockés côte à côte, ce qui revient au même
-		buffer = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBPP(format)];
-
-		nzUInt8* ptr = buffer;
-		nzUInt8* pixels = m_sharedImage->pixels;
-		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBPP(m_sharedImage->format);
-		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBPP(format);
-
-		for (unsigned int i = 0; i < depth; ++i)
-		{
-			if (!NzPixelFormat::Convert(m_sharedImage->format, format, pixels, &pixels[srcStride], ptr))
-			{
-				NazaraError("Failed to convert image");
-				delete[] buffer;
-
-				return false;
-			}
-
-			pixels += srcStride;
-			ptr += dstStride;
-		}
-
-		delete[] buffer;
-	}
-	else
-	{
-		buffer = new nzUInt8[pixelsPerFace*NzPixelFormat::GetBPP(format)];
-
-		if (!NzPixelFormat::Convert(m_sharedImage->format, format, m_sharedImage->pixels, &m_sharedImage->pixels[pixelsPerFace*NzPixelFormat::GetBPP(m_sharedImage->format)], buffer))
+		if (!NzPixelFormat::Convert(m_sharedImage->format, format, pixels, &pixels[srcStride], ptr))
 		{
 			NazaraError("Failed to convert image");
 			delete[] buffer;
 
 			return false;
 		}
+
+		pixels += srcStride;
+		ptr += dstStride;
 	}
 
-	delete[] m_sharedImage->pixels;
+	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, format, buffer, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 
-	m_sharedImage->format = format;
-	m_sharedImage->pixels = buffer;
+	ReleaseImage();
+	m_sharedImage = newImage;
 
 	return true;
 }
