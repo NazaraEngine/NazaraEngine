@@ -8,6 +8,7 @@
 #define NAZARA_IMAGE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/ResourceLoader.hpp>
@@ -77,6 +78,8 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		unsigned int GetDepth() const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight() const;
+		NzColor GetPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
+		NzColor GetPixelFace(nzCubemapFace face, unsigned int x, unsigned int y) const;
 		nzUInt8* GetPixels();
 		unsigned int GetSize() const;
 		nzImageType GetType() const;
@@ -90,8 +93,12 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
 
+		bool SetPixel(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
+		bool SetPixelFace(const NzColor& color, nzCubemapFace face, unsigned int x, unsigned int y);
+
 		bool Update(const nzUInt8* pixels);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect);
+		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0);
+		//bool Update(const nzUInt8* pixels, const NzCubeui& cube);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect);
 

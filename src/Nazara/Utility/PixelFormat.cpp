@@ -14,7 +14,7 @@ namespace
 {
 	inline nzUInt8 c4to8(nzUInt8 c)
 	{
-		return c * (255.f/15.f);
+		return c * (255/15);
 	}
 
 	inline nzUInt8 c5to8(nzUInt8 c)
@@ -327,7 +327,7 @@ namespace
 			*ptr++ = (l << 11) |
 			         (l << 6)  |
 			         (l << 1)  |
-					 1;
+			         1;
 
 			start += 1;
 		}
@@ -480,9 +480,9 @@ namespace
 	{
 		while (start < end)
 		{
-			*dst++ = (c4to8((start[1] & 0xF0) >> 4));
-			*dst++ = (c4to8((start[0] & 0x0F) >> 0));
-			*dst++ = (c4to8((start[0] & 0xF0) >> 4));
+			*dst++ = c4to8((start[1] & 0xF0) >> 4);
+			*dst++ = c4to8((start[0] & 0x0F) >> 0);
+			*dst++ = c4to8((start[0] & 0xF0) >> 4);
 
 			start += 2;
 		}
