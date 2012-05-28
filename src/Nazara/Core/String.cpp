@@ -3317,7 +3317,7 @@ NzString NzString::Simplified(nzUInt32 flags) const
 		utf8::unchecked::iterator<const char*> it(ptr);
 		do
 		{
-			if (NzUnicode::GetCategory(*it))
+			if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
 			{
 				if (inword)
 				{
@@ -3941,39 +3941,59 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 	if (m_sharedString->size == 0)
 		return *this;
 
-	unsigned int startPos = 0;
-	unsigned int endPos = m_sharedString->size-1;
+	unsigned int startPos;
+	unsigned int endPos;
 	if (flags & HandleUtf8)
 	{
-		utf8::unchecked::iterator<const char*> it(m_sharedString->string);
-		do
+		if ((flags & TrimOnlyRight) == 0)
 		{
-			if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
-				break;
-		}
-		while (*++it);
-		startPos = it.base() - m_sharedString->string;
+			utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+			do
+			{
+				if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
+					break;
+			}
+			while (*++it);
 
-		utf8::unchecked::iterator<const char*> itR(&m_sharedString->string[m_sharedString->size]);
-		while ((itR--).base() != m_sharedString->string)
-		{
-			if (NzUnicode::GetCategory(*itR) & NzUnicode::Category_Separator)
-				break;
+			startPos = it.base() - m_sharedString->string;
 		}
-		endPos = itR.base() - m_sharedString->string;
+		else
+			startPos = 0;
+
+		if ((flags & TrimOnlyLeft) == 0)
+		{
+			utf8::unchecked::iterator<const char*> it(&m_sharedString->string[m_sharedString->size]);
+			while ((it--).base() != m_sharedString->string)
+			{
+				if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
+					break;
+			}
+
+			endPos = it.base() - m_sharedString->string;
+		}
+		else
+			endPos = m_sharedString->size-1;
 	}
 	else
 	{
-		for (; startPos < m_sharedString->size; ++startPos)
+		startPos = 0;
+		if ((flags & TrimOnlyRight) == 0)
 		{
-			if (!std::isspace(m_sharedString->string[startPos]))
-				break;
+			for (; startPos < m_sharedString->size; ++startPos)
+			{
+				if (!std::isspace(m_sharedString->string[startPos]))
+					break;
+			}
 		}
 
-		for (; endPos > 0; --endPos)
+		endPos = m_sharedString->size-1;
+		if ((flags & TrimOnlyLeft) == 0)
 		{
-			if (!std::isspace(m_sharedString->string[endPos]))
-				break;
+			for (; endPos > 0; --endPos)
+			{
+				if (!std::isspace(m_sharedString->string[endPos]))
+					break;
+			}
 		}
 	}
 
@@ -3990,30 +4010,42 @@ NzString NzString::Trimmed(char character, nzUInt32 flags) const
 	if (flags & CaseInsensitive)
 	{
 		char ch = nzToLower(character);
-		for (; startPos < m_sharedString->size; ++startPos)
+		if ((flags & TrimOnlyRight) == 0)
 		{
-			if (nzToLower(m_sharedString->string[startPos]) != ch)
-				break;
+			for (; startPos < m_sharedString->size; ++startPos)
+			{
+				if (nzToLower(m_sharedString->string[startPos]) != ch)
+					break;
+			}
 		}
 
-		for (; endPos > 0; --endPos)
+		if ((flags & TrimOnlyLeft) == 0)
 		{
-			if (nzToLower(m_sharedString->string[startPos]) != ch)
-				break;
+			for (; endPos > 0; --endPos)
+			{
+				if (nzToLower(m_sharedString->string[startPos]) != ch)
+					break;
+			}
 		}
 	}
 	else
 	{
-		for (; startPos < m_sharedString->size; ++startPos)
+		if ((flags & TrimOnlyRight) == 0)
 		{
-			if (m_sharedString->string[startPos] != character)
-				break;
+			for (; startPos < m_sharedString->size; ++startPos)
+			{
+				if (m_sharedString->string[startPos] != character)
+					break;
+			}
 		}
 
-		for (; endPos > 0; --endPos)
+		if ((flags & TrimOnlyLeft) == 0)
 		{
-			if (m_sharedString->string[startPos] != character)
-				break;
+			for (; endPos > 0; --endPos)
+			{
+				if (m_sharedString->string[startPos] != character)
+					break;
+			}
 		}
 	}
 
