@@ -1,18 +1,14 @@
 // Copyright (C) 2012 Rémi Bèges
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-#include <Nazara/Noise/NoiseMachine.hpp>
-#include <cmath>
-
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/Debug.hpp>
+#include "NoiseMachine.hpp"
+//#include <Nazara/Noise/NoiseMachine.hpp>
+//#include <Nazara/Noise/Error.hpp>
+//#include <Nazara/Noise/Config.hpp>
+//#include <Nazara/Noise/Debug.hpp>
 
 NzNoiseMachine::NzNoiseMachine(int seed)
 {
-    pi = 3.14159265;
-
     SkewCoeff2D = 0.5*(sqrt(3.0) - 1.0);
     UnskewCoeff2D  = (3.0-sqrt(3.0))/6;
 
@@ -22,16 +18,6 @@ NzNoiseMachine::NzNoiseMachine(int seed)
     SkewCoeff4D = (sqrt(5) - 1)/4;
     UnskewCoeff4D = (5 - sqrt(5))/20;
 
-    Ua = 16807;
-    Uc = 0;
-    Um = 2147483647;
-    UcurrentSeed = 0;
-    Uprevious = 0;
-
-    SetNewSeed(seed);
-
-    for(int i(0) ; i < 256 ; i++)
-    PermutationTemp[i] = i;
 
     int lookupTemp4D[][4] =
     {
@@ -48,6 +34,9 @@ NzNoiseMachine::NzNoiseMachine(int seed)
     for(int i(0) ; i < 64 ; ++i)
         for(int j(0) ; j < 4 ; ++j)
             lookupTable4D[i][j] = lookupTemp4D[i][j];
+
+    gradient1[0] = 1;
+    gradient1[1] = -1;
 
     float unit = 1.0/sqrt(2);
     float grad2Temp[][2] = {{unit,unit},{-unit,unit},{unit,-unit},{-unit,-unit},
@@ -94,56 +83,26 @@ NzNoiseMachine::~NzNoiseMachine()
 {
 }
 
-void NzNoiseMachine::SetNewSeed(int seed)
-{
-    Uprevious = seed;
-    UcurrentSeed = seed;
-}
 
-int NzNoiseMachine::GetUniformRandomValue()
-{
-    Ulast = Ua*Uprevious + Uc%Um;
-    Uprevious = Ulast;
-    return Ulast;
-}
-
-void NzNoiseMachine::ShufflePermutationTable()
-{
-    int xchanger;
-    unsigned int ncase;
-
-    for(int j(0) ; j < 10 ; ++j)
-        for (int i(0); i < 256 ; ++i)
-        {
-            ncase = this->GetUniformRandomValue() & 255;
-            xchanger = PermutationTemp[i];
-            PermutationTemp[i] = PermutationTemp[ncase];
-            PermutationTemp[ncase] = xchanger;
-        }
-
-    for(int i(0) ; i < 512; ++i)
-        perm[i]=PermutationTemp[i & 255];
-}
 
 //------------------------------ PERLIN ------------------------------
 
 float NzNoiseMachine::Get1DPerlinNoiseValue(float x, float res)
 {
     nx = x/res;
-    x0 = (int)(nx);
+    x0 = static_cast<int>(nx);
     ii = x0 & 255;
 
-    gi0 = perm[ii] % 16;
-    gi1 = perm[ii + 1] % 16;
+    gi0 = perm[ii] % 2;
+    gi1 = perm[ii + 1] % 2;
 
     temp.x = nx-x0;
-    temp.y = ny-y0;
 
-    s[0] = gradient3[gi0][0]*temp.x;
+    s[0] = gradient1[gi0]*temp.x;
 
     temp.x = nx-(x0+1);
 
-    t[0] = gradient3[gi1][0]*temp.x;
+    t[0] = gradient1[gi1]*temp.x;
 
     tmp = nx-x0;
     Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
@@ -156,8 +115,8 @@ float NzNoiseMachine::Get2DPerlinNoiseValue(float x, float y, float res)
     nx = x/res;
     ny = y/res;
 
-    x0 = (int)(nx);
-    y0 = (int)(ny);
+    x0 = static_cast<int>(nx);
+    y0 = static_cast<int>(ny);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -200,9 +159,9 @@ float NzNoiseMachine::Get3DPerlinNoiseValue(float x, float y, float z, float res
     ny = y/res;
     nz = z/res;
 
-    x0 = (int)(nx);
-    y0 = (int)(ny);
-    z0 = (int)(nz);
+    x0 = static_cast<int>(nx);
+    y0 = static_cast<int>(ny);
+    z0 = static_cast<int>(nz);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -279,10 +238,10 @@ float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, 
     nz = z/res;
     nw = w/res;
 
-    x0 = (int)(nx);
-    y0 = (int)(ny);
-    z0 = (int)(nz);
-    w0 = (int)(nw);
+    x0 = static_cast<int>(nx);
+    y0 = static_cast<int>(ny);
+    z0 = static_cast<int>(nz);
+    w0 = static_cast<int>(nw);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -749,9 +708,9 @@ float NzNoiseMachine::Get3DCellNoiseValue(float x, float y, float z, float res)
     y /= res;
     z /= res;
 
-    x0 = (int)(x);
-    y0 = (int)(y);
-    z0 = (int)(z);
+    x0 = static_cast<int>(x);
+    y0 = static_cast<int>(y);
+    z0 = static_cast<int>(z);
 
     return 0;
 }
@@ -762,10 +721,10 @@ float NzNoiseMachine::Get4DCellNoiseValue(float x, float y, float z, float w, fl
     z /= res;
     w /= res;
 
-    x0 = (int)(x) & 255;
-    y0 = (int)(y) & 255;
-    z0 = (int)(z) & 255;
-    w0 = (int)(w) & 255;
+    x0 = static_cast<int>(x) & 255;
+    y0 = static_cast<int>(y) & 255;
+    z0 = static_cast<int>(z) & 255;
+    w0 = static_cast<int>(w) & 255;
 
     return 0;
 }
@@ -953,7 +912,7 @@ float NzNoiseMachine::Get3DHybridMultiFractalNoiseValue(float x, float y, float 
 int NzNoiseMachine::fastfloor(float n)
 {
     if(n >= 0)
-        return int(n);
+        return static_cast<int>(n);
     else
-        return int(n-1);
+        return static_cast<int>(n-1);
 }

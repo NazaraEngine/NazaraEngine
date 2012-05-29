@@ -8,21 +8,21 @@
 #define NOISEMACHINE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+//#include <Nazara/Noise/NoiseBase.hpp>
+#include "NoiseBase.hpp"
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-//TODO : tableau de gradients en float au lieu de int ? Ou alors condition ternaires ?
+//TODO : tableau de gradients en float au lieu de int ? Ou condition ternaires ?
+//       utiliser fastfloor partout
+//       vérifier bon fonctionnement perlin1d
 
-class NzNoiseMachine
+class NzNoiseMachine : public NzNoiseBase
 {
     public:
         NzNoiseMachine(int seed = 0);
         ~NzNoiseMachine();
-
-        void SetNewSeed(int seed);
-        int GetUniformRandomValue();
-        void ShufflePermutationTable();
 
         float Get1DPerlinNoiseValue (float x,                            float res);
         float Get2DPerlinNoiseValue (float x, float y,                   float res);
@@ -55,19 +55,11 @@ class NzNoiseMachine
         //Pour tronquer les nombres
         int fastfloor(float n);
 
-        float pi;
-        int perm[512];
-        int PermutationTemp[256];
+        int gradient1[2];
         float gradient2[8][2];
         int gradient3[16][3];
         int gradient4[32][4];
         int lookupTable4D[64][4];
-
-        //multiplicative congruential generator
-        int UcurrentSeed;
-        int Ua,Uc,Um;
-        int Uprevious;
-        int Ulast;
 
         //-----------------------  Simplex variables  --------------------------------------
 
