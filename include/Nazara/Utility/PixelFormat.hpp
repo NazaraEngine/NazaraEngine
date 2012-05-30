@@ -14,29 +14,27 @@ enum nzPixelFormat
 {
 	nzPixelFormat_Undefined,
 
-	nzPixelFormat_BGR8,
-	nzPixelFormat_BGRA8,
+	nzPixelFormat_BGR8,    // 3*nzUInt8
+	nzPixelFormat_BGRA8,   // 4*nzUInt8
 	nzPixelFormat_DXT1,
 	nzPixelFormat_DXT3,
 	nzPixelFormat_DXT5,
-	nzPixelFormat_L8,
-	nzPixelFormat_LA8,
+	nzPixelFormat_L8,      // 1*nzUInt8
+	nzPixelFormat_LA8,     // 2*nzUInt8
 	/*
 	nzPixelFormat_RGB16F,
-	nzPixelFormat_RGB16I,
+	nzPixelFormat_RGB16I,  // 4*nzUInt16
 	nzPixelFormat_RGB32F,
-	nzPixelFormat_RGB32I,
-	*/
+	nzPixelFormat_RGB32I,  // 4*nzUInt32
 	nzPixelFormat_RGBA16F,
-	nzPixelFormat_RGBA16I,
-	/*
+	nzPixelFormat_RGBA16I, // 4*nzUInt16
 	nzPixelFormat_RGBA32F,
-	nzPixelFormat_RGBA32I,
+	nzPixelFormat_RGBA32I, // 4*nzUInt32
 	*/
-	nzPixelFormat_RGBA4,
-	nzPixelFormat_RGB5A1,
-	nzPixelFormat_RGB8,
-	nzPixelFormat_RGBA8,
+	nzPixelFormat_RGBA4,   // 1*nzUInt16
+	nzPixelFormat_RGB5A1,  // 1*nzUInt16
+	nzPixelFormat_RGB8,    // 3*nzUInt8
+	nzPixelFormat_RGBA8,   // 4*nzUInt8
 
 	nzPixelFormat_Count
 };
@@ -56,6 +54,7 @@ class NzPixelFormat
 		static nzUInt8 GetBPP(nzPixelFormat format);
 
 		static bool IsCompressed(nzPixelFormat format);
+		static bool IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat);
 		static bool IsValid(nzPixelFormat format);
 
 		static void SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction);

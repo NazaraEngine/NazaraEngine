@@ -40,10 +40,10 @@ class NzColor
 		static NzColor FromXYZ(float x, float y, float z);
 		static void ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow);
 		static void ToCMYK(const NzColor& color, float* cyan, float* magenta, float* yellow, float* black);
-		static void ToXYZ(const NzColor& color, NzVector3f* vec);
-		static void ToXYZ(const NzColor& color, float* x, float* y, float* z);
 		static void ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, nzUInt8* lightness);
 		static void ToHSV(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, float* value);
+		static void ToXYZ(const NzColor& color, NzVector3f* vec);
+		static void ToXYZ(const NzColor& color, float* x, float* y, float* z);
 
 		nzUInt8 r, g, b, a;
 

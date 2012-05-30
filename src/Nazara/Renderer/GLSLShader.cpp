@@ -123,7 +123,7 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniformName = "TexCoord0";
+	NzString uniformName = "TexCoordi";
 	for (unsigned int i = 0; i < 8; ++i)
 	{
 		uniformName[8] = '0'+i;

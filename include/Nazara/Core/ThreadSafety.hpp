@@ -24,10 +24,10 @@
 	(NAZARA_THREADSAFETY_STRING		  && defined(NAZARA_CLASS_STRING)) || \
 	(NAZARA_THREADSAFETY_STRINGSTREAM && defined(NAZARA_CLASS_STRINGSTREAM)))
 
-	#include <Nazara/Core/Lock.hpp>
+	#include <Nazara/Core/LockGuard.hpp>
 	#include <Nazara/Core/Mutex.hpp>
 
-	#define NazaraLock(mutex) NzLock lock_mutex(mutex);
+	#define NazaraLock(mutex) NzLockGuard lock_mutex(mutex);
 	#define NazaraMutex(name) NzMutex name;
 	#define NazaraMutexAttrib(name, attribute) attribute NzMutex name;
 	#define NazaraMutexLock(mutex) mutex.Lock();

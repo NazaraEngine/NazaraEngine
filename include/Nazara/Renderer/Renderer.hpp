@@ -44,6 +44,7 @@ enum nzRendererClear
 	nzRendererClear_Stencil = 0x04
 };
 
+class NzColor;
 class NzIndexBuffer;
 class NzRenderTarget;
 class NzShader;
@@ -57,7 +58,7 @@ class NAZARA_API NzRenderer
 		NzRenderer();
 		~NzRenderer();
 
-		void Clear(nzRendererClear flags);
+		void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
 		void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
 		void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
@@ -69,6 +70,7 @@ class NAZARA_API NzRenderer
 		bool HasCapability(nzRendererCap capability) const;
 		bool Initialize();
 
+		void SetClearColor(const NzColor& color);
 		void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
 		void SetClearDepth(double depth);
 		void SetClearStencil(unsigned int value);
