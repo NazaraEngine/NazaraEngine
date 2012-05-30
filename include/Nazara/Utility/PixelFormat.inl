@@ -31,11 +31,15 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 	ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
 	if (!func)
 	{
-		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " not supported");
+		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " is not supported");
 		return false;
 	}
 
-	func(static_cast<const nzUInt8*>(src), static_cast<const nzUInt8*>(src) + GetBPP(srcFormat), static_cast<nzUInt8*>(dst));
+	if (!func(static_cast<const nzUInt8*>(src), static_cast<const nzUInt8*>(src) + GetBPP(srcFormat), static_cast<nzUInt8*>(dst)))
+	{
+		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " failed");
+		return false;
+	}
 
 	return true;
 }
@@ -51,11 +55,15 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 	ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
 	if (!func)
 	{
-		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " not supported");
+		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " is not supported");
 		return false;
 	}
 
-	func(static_cast<const nzUInt8*>(start), static_cast<const nzUInt8*>(end), static_cast<nzUInt8*>(dst));
+	if (!func(static_cast<const nzUInt8*>(start), static_cast<const nzUInt8*>(end), static_cast<nzUInt8*>(dst)))
+	{
+		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " failed");
+		return false;
+	}
 
 	return true;
 }
@@ -100,13 +108,13 @@ inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 
 		case nzPixelFormat_RGB32I:
 			return 12;
-*/
+
 		case nzPixelFormat_RGBA16F:
 			return 8;
 
 		case nzPixelFormat_RGBA16I:
 			return 8;
-/*
+
 		case nzPixelFormat_RGBA32F:
 			return 16;
 
@@ -143,6 +151,14 @@ inline bool NzPixelFormat::IsCompressed(nzPixelFormat format)
 		default:
 			return false;
 	}
+}
+
+inline bool NzPixelFormat::IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat)
+{
+	if (srcFormat == dstFormat)
+		return true;
+
+	return s_convertFunctions[srcFormat][dstFormat] != nullptr;
 }
 
 inline bool NzPixelFormat::IsValid(nzPixelFormat format)
@@ -199,13 +215,13 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 
 		case nzPixelFormat_RGB32I:
 			return "RGB32I";
-*/
+
 		case nzPixelFormat_RGBA16F:
 			return "RGBA16F";
 
 		case nzPixelFormat_RGBA16I:
 			return "RGBA16I";
-/*
+
 		case nzPixelFormat_RGBA32F:
 			return "RGBA32F";
 

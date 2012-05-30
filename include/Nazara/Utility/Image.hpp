@@ -50,9 +50,7 @@ struct NzImageParams
 	}
 };
 
-///TODO: Animations ?
 ///TODO: Filtres
-///TODO: Mipmaps
 
 class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, NzImageParams>
 {
@@ -70,20 +68,23 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		bool Copy(const NzImage& source, const NzRectui& srcRect, const NzVector2ui& dstPos);
 		bool CopyToFace(nzCubemapFace face, const NzImage& source, const NzRectui& srcRect, const NzVector2ui& dstPos);
 
-		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height = 1, unsigned int depth = 1);
+		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		void Destroy();
 
 		nzUInt8 GetBPP() const;
-		const nzUInt8* GetConstPixels() const;
-		unsigned int GetDepth() const;
+		const nzUInt8* GetConstPixels(nzUInt8 level = 0) const;
+		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
-		unsigned int GetHeight() const;
+		unsigned int GetHeight(nzUInt8 level = 0) const;
+		nzUInt8 GetLevelCount() const;
+		nzUInt8 GetMaxLevel() const;
 		NzColor GetPixel(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
 		NzColor GetPixelFace(nzCubemapFace face, unsigned int x, unsigned int y) const;
-		nzUInt8* GetPixels();
+		nzUInt8* GetPixels(nzUInt8 level = 0);
 		unsigned int GetSize() const;
+		unsigned int GetSize(nzUInt8 level) const;
 		nzImageType GetType() const;
-		unsigned int GetWidth() const;
+		unsigned int GetWidth(nzUInt8 level = 0) const;
 
 		bool IsCompressed() const;
 		bool IsCubemap() const;
@@ -93,18 +94,20 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
 
+		bool SetLevelCount(nzUInt8 levelCount);
 		bool SetPixel(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
-		bool SetPixelFace(const NzColor& color, nzCubemapFace face, unsigned int x, unsigned int y);
+		bool SetPixelFace(nzCubemapFace face, const NzColor& color, unsigned int x, unsigned int y);
 
-		bool Update(const nzUInt8* pixels);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0);
-		//bool Update(const nzUInt8* pixels, const NzCubeui& cube);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect);
+		bool Update(const nzUInt8* pixels, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
+		//bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
+		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 level = 0);
+		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
 		NzImage& operator=(NzImage&& image);
 
+		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 		static void RegisterFileLoader(const NzString& extensions, LoadFileFunction loadFile);
 		static void RegisterMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory);
 		static void RegisterStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream);
@@ -119,9 +122,10 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 			{
 			}
 
-			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, nzUInt8* Pixels, unsigned int Width, unsigned int Height = 1, unsigned int Depth = 1) :
+			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, nzInt8 LevelCount = 1, nzUInt8** Pixels = nullptr, unsigned int Width = 1, unsigned int Height = 1, unsigned int Depth = 1) :
 			type(Type),
 			format(Format),
+			levelCount(LevelCount),
 			pixels(Pixels),
 			depth(Depth),
 			height(Height),
@@ -132,7 +136,8 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 
 			nzImageType type;
 			nzPixelFormat format;
-			nzUInt8* pixels;
+			nzUInt8 levelCount;
+			nzUInt8** pixels;
 			unsigned int depth;
 			unsigned int height;
 			unsigned int width;

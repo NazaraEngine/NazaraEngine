@@ -120,6 +120,7 @@ namespace
 		}
 
 		resource->Update(ptr);
+
 		stbi_image_free(ptr);
 
 		if (stbiFormat == STBI_default && parameters.loadFormat != nzPixelFormat_Undefined)

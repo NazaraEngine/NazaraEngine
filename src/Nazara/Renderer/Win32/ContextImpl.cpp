@@ -7,7 +7,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Lock.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
@@ -180,7 +180,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		{
 			// wglShareLists n'est pas thread-safe (source: SFML)
 			static NzMutex mutex;
-			NzLock lock(mutex);
+			NzLockGuard lock(mutex);
 
 			if (!wglShareLists(shareContext, m_context))
 				NazaraWarning("Failed to share the context: " + NzGetLastSystemError());

@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/OpenGL.hpp> // Pour éviter une redéfinition de WIN32_LEAN_AND_MEAN
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/BufferImpl.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -53,7 +54,7 @@ NzRenderer::~NzRenderer()
 	s_instance = nullptr;
 }
 
-void NzRenderer::Clear(nzRendererClear flags)
+void NzRenderer::Clear(unsigned long flags)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -203,6 +204,19 @@ bool NzRenderer::Initialize()
 	}
 	else
 		return false;
+}
+
+void NzRenderer::SetClearColor(const NzColor& color)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	glClearColor(color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f);
 }
 
 void NzRenderer::SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a)

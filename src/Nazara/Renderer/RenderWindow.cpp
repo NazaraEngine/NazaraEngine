@@ -137,6 +137,7 @@ bool NzRenderWindow::OnCreate()
 {
 	m_parameters.doubleBuffered = true;
     m_parameters.window = GetHandle();
+
     m_context = new NzContext;
     if (!m_context->Create(m_parameters))
     {

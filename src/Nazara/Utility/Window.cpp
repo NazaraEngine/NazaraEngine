@@ -4,7 +4,7 @@
 
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Lock.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -281,7 +281,7 @@ bool NzWindow::PollEvent(NzEvent* event)
 		return false;
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
-	NzLock lock(m_eventMutex);
+	NzLockGuard lock(m_eventMutex);
 	#else
 	m_impl->ProcessEvents(false);
 	#endif
@@ -308,7 +308,7 @@ void NzWindow::SetEventListener(bool listener)
 	m_impl->SetEventListener(listener);
 	if (!listener)
 	{
-		NzLock lock(m_eventMutex);
+		NzLockGuard lock(m_eventMutex);
 		while (!m_events.empty())
 			m_events.pop();
 	}
@@ -408,7 +408,7 @@ bool NzWindow::WaitEvent(NzEvent* event)
 		return false;
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
-	NzLock lock(m_eventMutex);
+	NzLockGuard lock(m_eventMutex);
 
 	if (m_events.empty())
 	{
