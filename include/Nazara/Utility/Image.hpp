@@ -122,7 +122,7 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 			{
 			}
 
-			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, nzInt8 LevelCount = 1, nzUInt8** Pixels = nullptr, unsigned int Width = 1, unsigned int Height = 1, unsigned int Depth = 1) :
+			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, nzUInt8 LevelCount = 1, nzUInt8** Pixels = nullptr, unsigned int Width = 1, unsigned int Height = 1, unsigned int Depth = 1) :
 			type(Type),
 			format(Format),
 			levelCount(LevelCount),
