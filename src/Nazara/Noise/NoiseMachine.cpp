@@ -35,9 +35,6 @@ NzNoiseMachine::NzNoiseMachine(int seed)
         for(int j(0) ; j < 4 ; ++j)
             lookupTable4D[i][j] = lookupTemp4D[i][j];
 
-    gradient1[0] = 1;
-    gradient1[1] = -1;
-
     float unit = 1.0/sqrt(2);
     float grad2Temp[][2] = {{unit,unit},{-unit,unit},{unit,-unit},{-unit,-unit},
                             {1,0},{-1,0},{0,1},{0,-1}};
@@ -86,29 +83,6 @@ NzNoiseMachine::~NzNoiseMachine()
 
 
 //------------------------------ PERLIN ------------------------------
-
-float NzNoiseMachine::Get1DPerlinNoiseValue(float x, float res)
-{
-    nx = x/res;
-    x0 = static_cast<int>(nx);
-    ii = x0 & 255;
-
-    gi0 = perm[ii] % 2;
-    gi1 = perm[ii + 1] % 2;
-
-    temp.x = nx-x0;
-
-    s[0] = gradient1[gi0]*temp.x;
-
-    temp.x = nx-(x0+1);
-
-    t[0] = gradient1[gi1]*temp.x;
-
-    tmp = nx-x0;
-    Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
-
-    return s[0] + Cx*(t[0]-s[0]);
-}
 
 float NzNoiseMachine::Get2DPerlinNoiseValue(float x, float y, float res)
 {
@@ -372,10 +346,10 @@ float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, 
 
 //------------------------------ SIMPLEX ------------------------------
 
-float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float resolution)
+float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float res)
 {
-    x /= resolution;
-    y /= resolution;
+    x /= res;
+    y /= res;
 
 
     Origin.x = fastfloor(x + (x + y) * SkewCoeff2D);
@@ -410,28 +384,17 @@ float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float resolution)
     ii = Origin.x & 255;
     jj = Origin.y & 255;
 
-    gi0 = perm[ii + perm[jj]] % 12;
-    gi1 = perm[ii + off1.x + perm[jj + off1.y]] % 12;
-    gi2 = perm[ii + 1 + perm[jj + 1]] % 12;
+    gi0 = perm[ii + perm[jj]] % 8;
+    gi1 = perm[ii + off1.x + perm[jj + off1.y]] % 8;
+    gi2 = perm[ii + 1 + perm[jj + 1]] % 8;
 
-    H[0].x = gradient3[gi0][0];
-    H[0].y = gradient3[gi0][1];
+    n1 = gradient2[gi0][0] * d1.x + gradient2[gi0][1] * d1.y;
+    n2 = gradient2[gi1][0] * d2.x + gradient2[gi1][1] * d2.y;
+    n3 = gradient2[gi2][0] * d3.x + gradient2[gi2][1] * d3.y;
 
-    H[1].x = gradient3[gi1][0];
-    H[1].y = gradient3[gi1][1];
-
-    H[2].x = gradient3[gi2][0];
-    H[2].y = gradient3[gi2][1];
-
-    n1 = H[0].x * d1.x + H[0].y * d1.y;
-    n2 = H[1].x * d2.x + H[1].y * d2.y;
-    n3 = H[2].x * d3.x + H[2].y * d3.y;
-
-    lenght = 0.5;
-
-    c1 = lenght - d1.x * d1.x - d1.y * d1.y;
-    c2 = lenght - d2.x * d2.x - d2.y * d2.y;
-    c3 = lenght - d3.x * d3.x - d3.y * d3.y;
+    c1 = 0.5 - d1.x * d1.x - d1.y * d1.y;
+    c2 = 0.5 - d2.x * d2.x - d2.y * d2.y;
+    c3 = 0.5 - d3.x * d3.x - d3.y * d3.y;
 
     if(c1 < 0)
         c1 = 0;
@@ -447,11 +410,11 @@ float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float resolution)
     return (n1+n2+n3)*23.2;
 }
 
-float NzNoiseMachine::Get3DSimplexNoiseValue(float x, float y, float z, float resolution)
+float NzNoiseMachine::Get3DSimplexNoiseValue(float x, float y, float z, float res)
 {
-    x /= resolution;
-    y /= resolution;
-    z /= resolution;
+    x /= res;
+    y /= res;
+    z /= res;
 
     Origin.x = fastfloor(x + (x + y + z) * SkewCoeff3D);
     Origin.y = fastfloor(y + (x + y + z) * SkewCoeff3D);
@@ -556,12 +519,10 @@ float NzNoiseMachine::Get3DSimplexNoiseValue(float x, float y, float z, float re
     n3 = gradient3[gi2][0] * d3.x + gradient3[gi2][1] * d3.y + gradient3[gi2][2] * d3.z;
     n4 = gradient3[gi3][0] * d4.x + gradient3[gi3][1] * d4.y + gradient3[gi3][2] * d4.z;
 
-    lenght = 0.6;
-
-    c1 = lenght - d1.x * d1.x - d1.y * d1.y - d1.z * d1.z;
-    c2 = lenght - d2.x * d2.x - d2.y * d2.y - d2.z * d2.z;
-    c3 = lenght - d3.x * d3.x - d3.y * d3.y - d3.z * d3.z;
-    c4 = lenght - d4.x * d4.x - d4.y * d4.y - d4.z * d4.z;
+    c1 = 0.6 - d1.x * d1.x - d1.y * d1.y - d1.z * d1.z;
+    c2 = 0.6 - d2.x * d2.x - d2.y * d2.y - d2.z * d2.z;
+    c3 = 0.6 - d3.x * d3.x - d3.y * d3.y - d3.z * d3.z;
+    c4 = 0.6 - d4.x * d4.x - d4.y * d4.y - d4.z * d4.z;
 
     if(c1 < 0)
         c1 = 0;
@@ -580,12 +541,12 @@ float NzNoiseMachine::Get3DSimplexNoiseValue(float x, float y, float z, float re
     return (n1+n2+n3+n4)*17.6995;
 }
 
-float NzNoiseMachine::Get4DSimplexNoiseValue(float x, float y, float z, float w, float resolution)
+float NzNoiseMachine::Get4DSimplexNoiseValue(float x, float y, float z, float w, float res)
 {
-    x /= resolution;
-    y /= resolution;
-    z /= resolution;
-    w /= resolution;
+    x /= res;
+    y /= res;
+    z /= res;
+    w /= res;
 
     Origin.x = fastfloor(x + (x + y + z + w) * SkewCoeff4D);
     Origin.y = fastfloor(y + (x + y + z + w) * SkewCoeff4D);
@@ -667,13 +628,11 @@ float NzNoiseMachine::Get4DSimplexNoiseValue(float x, float y, float z, float w,
     n4 = gradient4[gi3][0]*d4.x + gradient4[gi3][1]*d4.y + gradient4[gi3][2]*d4.z + gradient4[gi3][3]*d4.w;
     n5 = gradient4[gi4][0]*d5.x + gradient4[gi4][1]*d5.y + gradient4[gi4][2]*d5.z + gradient4[gi4][3]*d5.w;
 
-    lenght = 0.6;
-
-    c1 = lenght - d1.x*d1.x - d1.y*d1.y - d1.z*d1.z - d1.w*d1.w;
-    c2 = lenght - d2.x*d2.x - d2.y*d2.y - d2.z*d2.z - d2.w*d2.w;
-    c3 = lenght - d3.x*d3.x - d3.y*d3.y - d3.z*d3.z - d3.w*d3.w;
-    c4 = lenght - d4.x*d4.x - d4.y*d4.y - d4.z*d4.z - d4.w*d4.w;
-    c5 = lenght - d5.x*d5.x - d5.y*d5.y - d5.z*d5.z - d5.w*d5.w;
+    c1 = 0.6 - d1.x*d1.x - d1.y*d1.y - d1.z*d1.z - d1.w*d1.w;
+    c2 = 0.6 - d2.x*d2.x - d2.y*d2.y - d2.z*d2.z - d2.w*d2.w;
+    c3 = 0.6 - d3.x*d3.x - d3.y*d3.y - d3.z*d3.z - d3.w*d3.w;
+    c4 = 0.6 - d4.x*d4.x - d4.y*d4.y - d4.z*d4.z - d4.w*d4.w;
+    c5 = 0.6 - d5.x*d5.x - d5.y*d5.y - d5.z*d5.z - d5.w*d5.w;
 
     if(c1 < 0)
         c1 = 0;
@@ -712,7 +671,7 @@ float NzNoiseMachine::Get3DCellNoiseValue(float x, float y, float z, float res)
     y0 = static_cast<int>(y);
     z0 = static_cast<int>(z);
 
-    return 0;
+    return (this->JenkinsHash(x0,y0,z0) & 255);
 }
 float NzNoiseMachine::Get4DCellNoiseValue(float x, float y, float z, float w, float res)
 {
@@ -775,24 +734,6 @@ void NzNoiseMachine::RecomputeExponentArray()
 }
 
 //------------------------------ FBM ------------------------------
-
-float NzNoiseMachine::Get1DFBMNoiseValue(float x, float res)
-{
-    value = 0.0;
-    RecomputeExponentArray();
-
-    for (int i(0); i < m_octaves; ++i)
-    {
-        value += Get1DPerlinNoiseValue(x,res) * exponent_array[i];
-        x *= m_lacunarity;
-    }
-    remainder = m_octaves - (float)m_octaves;
-
-    if(remainder != 0)
-        value += remainder * Get1DPerlinNoiseValue(x,res) * exponent_array[(int)m_octaves-1];
-
-    return value * m_sum;
-}
 
 float NzNoiseMachine::Get2DFBMNoiseValue(float x, float y, float res)
 {
@@ -907,12 +848,4 @@ float NzNoiseMachine::Get3DHybridMultiFractalNoiseValue(float x, float y, float 
         result += remainder * Get3DSimplexNoiseValue(x,y,z,res) * exponent_array[(int)m_octaves-1];
 
     return result;
-}
-
-int NzNoiseMachine::fastfloor(float n)
-{
-    if(n >= 0)
-        return static_cast<int>(n);
-    else
-        return static_cast<int>(n-1);
 }
