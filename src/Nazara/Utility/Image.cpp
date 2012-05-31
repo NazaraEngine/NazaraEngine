@@ -271,6 +271,14 @@ const nzUInt8* NzImage::GetConstPixels(nzUInt8 level) const
 
 unsigned int NzImage::GetDepth(nzUInt8 level) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
 	return std::max(m_sharedImage->depth/(1 << level), 1U);
 }
 
@@ -281,6 +289,14 @@ nzPixelFormat NzImage::GetFormat() const
 
 unsigned int NzImage::GetHeight(nzUInt8 level) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
 	return std::max(m_sharedImage->height/(1 << level), 1U);
 }
 
@@ -422,6 +438,14 @@ unsigned int NzImage::GetSize() const
 
 unsigned int NzImage::GetSize(nzUInt8 level) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
 	return (std::max(m_sharedImage->width/(1 << level), 1U)) *
 	       (std::max(m_sharedImage->height/(1 << level), 1U)) *
 	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : std::min(m_sharedImage->depth/(1 << level), 1U)) *
@@ -435,6 +459,14 @@ nzImageType	NzImage::GetType() const
 
 unsigned int NzImage::GetWidth(nzUInt8 level) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
 	return std::max(m_sharedImage->width/(1 << level), 1U);
 }
 
@@ -905,4 +937,4 @@ void NzImage::ReleaseImage()
 	m_sharedImage = &emptyImage;
 }
 
-NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 0, nullptr, 0, 0, 0);
+NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 1, nullptr, 0, 0, 0);

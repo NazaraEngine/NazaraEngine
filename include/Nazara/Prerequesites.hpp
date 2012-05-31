@@ -62,24 +62,18 @@
 
 		#if NAZARA_CORE_WINDOWS_VISTA
 			// Version de Windows minimale : Vista
-			#if defined(_WIN32_WINNT)
-				#if _WIN32_WINNT < 0x0600
-					#undef _WIN32_WINNT
-					#define _WIN32_WINNT 0x0600
-				#endif
-			#else
-				#define _WIN32_WINNT 0x0600
+			#define NAZARA_WINNT 0x0600
+		#else
+			#define NAZARA_WINNT 0x0501
+		#endif
+
+		#if defined(_WIN32_WINNT)
+			#if _WIN32_WINNT < NAZARA_WINNT
+				#undef _WIN32_WINNT
+				#define _WIN32_WINNT NAZARA_WINNT
 			#endif
 		#else
-			// Version de Windows minimale : XP
-			#if defined(_WIN32_WINNT)
-				#if _WIN32_WINNT < 0x0501
-					#undef _WIN32_WINNT
-					#define _WIN32_WINNT 0x0501
-				#endif
-			#else
-				#define _WIN32_WINNT 0x0501
-			#endif
+			#define _WIN32_WINNT NAZARA_WINNT
 		#endif
 	#endif
 #elif defined(linux) || defined(__linux)

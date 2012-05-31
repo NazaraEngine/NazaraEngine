@@ -314,7 +314,7 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	// Framebuffer_Object
+	// FrameBufferObject
 	try
 	{
 		glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
@@ -329,7 +329,7 @@ bool NzOpenGL::Initialize()
 		glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
 		glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
 
-		openGLextensions[NzOpenGL::Framebuffer_Object] = true;
+		openGLextensions[NzOpenGL::FrameBufferObject] = true;
 	}
 	catch (const std::exception& e)
 	{
@@ -352,7 +352,7 @@ bool NzOpenGL::Initialize()
 				glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSEXTPROC>(LoadEntry("glGenRenderbuffersEXT"));
 				glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEEXTPROC>(LoadEntry("glRenderbufferStorageEXT"));
 
-				openGLextensions[NzOpenGL::Framebuffer_Object] = true;
+				openGLextensions[NzOpenGL::FrameBufferObject] = true;
 			}
 			catch (const std::exception& e)
 			{
@@ -377,8 +377,24 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	/****************************************Contextes****************************************/
+	// VertexArrayObject
+	if (openGLversion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
+	{
+		try
+		{
+			glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(LoadEntry("glBindVertexArray", false));
+			glDeleteVertexArrays = reinterpret_cast<PFNGLDELETEVERTEXARRAYSPROC>(LoadEntry("glDeleteVertexArrays", false));
+			glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(LoadEntry("glGenVertexArrays", false));
 
+			openGLextensions[NzOpenGL::VertexArrayObject] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to load ARB_vertex_array_object: " + NzString(e.what()));
+		}
+	}
+
+	/****************************************Contextes****************************************/
 
 	NzContextParameters::defaultMajorVersion = openGLversion/100;
 	NzContextParameters::defaultMinorVersion = (openGLversion%100)/10;
@@ -427,6 +443,7 @@ PFNGLBINDBUFFERPROC				  glBindBuffer				 = nullptr;
 PFNGLBINDFRAMEBUFFERPROC		  glBindFramebuffer			 = nullptr;
 PFNGLBINDRENDERBUFFERPROC		  glBindRenderbuffer		 = nullptr;
 PFNGLBINDTEXTUREPROC			  glBindTexture				 = nullptr;
+PFNGLBINDVERTEXARRAYPROC		  glBindVertexArray			 = nullptr;
 PFNGLBLENDFUNCPROC				  glBlendFunc				 = nullptr;
 PFNGLBUFFERDATAPROC				  glBufferData				 = nullptr;
 PFNGLBUFFERSUBDATAPROC			  glBufferSubData			 = nullptr;
@@ -447,6 +464,7 @@ PFNGLDELETEQUERIESPROC			  glDeleteQueries			 = nullptr;
 PFNGLDELETERENDERBUFFERSPROC	  glDeleteRenderbuffers		 = nullptr;
 PFNGLDELETESHADERPROC			  glDeleteShader			 = nullptr;
 PFNGLDELETETEXTURESPROC			  glDeleteTextures			 = nullptr;
+PFNGLDELETEVERTEXARRAYSPROC		  glDeleteVertexArrays		 = nullptr;
 PFNGLDEPTHFUNCPROC				  glDepthFunc				 = nullptr;
 PFNGLDEPTHMASKPROC				  glDepthMask				 = nullptr;
 PFNGLDISABLEPROC 				  glDisable					 = nullptr;
@@ -467,6 +485,7 @@ PFNGLGENFRAMEBUFFERSPROC		  glGenFramebuffers			 = nullptr;
 PFNGLGENRENDERBUFFERSPROC		  glGenRenderbuffers		 = nullptr;
 PFNGLGENQUERIESPROC				  glGenQueries				 = nullptr;
 PFNGLGENTEXTURESPROC			  glGenTextures				 = nullptr;
+PFNGLGENVERTEXARRAYSPROC		  glGenVertexArrays			 = nullptr;
 PFNGLGETBUFFERPARAMETERIVPROC	  glGetBufferParameteriv	 = nullptr;
 PFNGLGETERRORPROC				  glGetError				 = nullptr;
 PFNGLGETINTEGERVPROC			  glGetIntegerv				 = nullptr;

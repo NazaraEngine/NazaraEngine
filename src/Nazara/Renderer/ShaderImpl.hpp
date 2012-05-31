@@ -47,9 +47,6 @@ class NzShaderImpl
 
 		virtual void Unbind() = 0;
 		virtual void Unlock() const = 0;
-
-	protected:
-		virtual bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration) = 0;
 };
 
 #endif // NAZARA_SHADERIMPL_HPP
