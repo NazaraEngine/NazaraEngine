@@ -2,27 +2,27 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Noise/Noise.hpp>
+#include <Nazara/ModuleName/ModuleName.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/Debug.hpp>
+#include <Nazara/ModuleName/Config.hpp>
+#include <Nazara/ModuleName/Debug.hpp>
 
-NzNoise::NzNoise()
+NzModuleName::NzModuleName()
 {
 }
 
-NzNoise::~NzNoise()
+NzModuleName::~NzModuleName()
 {
 	if (s_initialized)
 		Uninitialize();
 }
 
-bool NzNoise::Initialize()
+bool NzModuleName::Initialize()
 {
-	#if NAZARA_NOISE_SAFE
+	#if NAZARA_MODULENAME_SAFE
 	if (s_initialized)
 	{
-		NazaraError("NzNoise already initialized");
+		NazaraError("ModuleName already initialized");
 		return true;
 	}
 	#endif
@@ -34,12 +34,12 @@ bool NzNoise::Initialize()
 	return true;
 }
 
-void NzNoise::Uninitialize()
+void NzModuleName::Uninitialize()
 {
-	#if NAZARA_NOISE_SAFE
+	#if NAZARA_MODULENAME_SAFE
 	if (!s_initialized)
 	{
-		NazaraError("NzNoise not initialized");
+		NazaraError("ModuleName not initialized");
 		return;
 	}
 	#endif
@@ -49,9 +49,9 @@ void NzNoise::Uninitialize()
 	s_initialized = false;
 }
 
-bool NzNoise::IsInitialized()
+bool NzModuleName::IsInitialized()
 {
 	return s_initialized;
 }
 
-bool NzNoise::s_initialized = false;
+bool NzModuleName::s_initialized = false;

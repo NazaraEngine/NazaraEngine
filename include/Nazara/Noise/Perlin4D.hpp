@@ -8,7 +8,8 @@
 #define PERLIN4D_H
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Noise/NoiseBase.hpp>
+//#include <Nazara/Noise/NoiseBase.hpp>
+#include "NoiseBase.hpp"
 #include <Nazara/Math/Vector4.hpp>
 
 template <typename T> class NzPerlin4D : public NzNoiseBase
@@ -35,6 +36,7 @@ template <typename T> class NzPerlin4D : public NzNoiseBase
 typedef NzPerlin4D<float>  NzPerlin4Df;
 typedef NzPerlin4D<double> NzPerlin4Dd;
 
-#include <Nazara/Noise/Perlin4D.inl>
+//#include <Nazara/Noise/Perlin4D.inl>
+#include "Perlin4D.inl"
 
 #endif // PERLIN4D_H
