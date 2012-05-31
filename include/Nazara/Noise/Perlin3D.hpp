@@ -8,7 +8,8 @@
 #define PERLIN3D_H
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Noise/NoiseBase.hpp>
+//#include <Nazara/Noise/NoiseBase.hpp>
+#include "NoiseBase.hpp"
 #include <Nazara/Math/Vector3.hpp>
 
 template <typename T> class NzPerlin3D : public NzNoiseBase
@@ -35,6 +36,7 @@ template <typename T> class NzPerlin3D : public NzNoiseBase
 typedef NzPerlin3D<float>  NzPerlin3Df;
 typedef NzPerlin3D<double> NzPerlin3Dd;
 
-#include <Nazara/Noise/Perlin3D.inl>
+//#include <Nazara/Noise/Perlin3D.inl>
+#include "Perlin3D.inl"
 
 #endif // PERLIN3D_H
