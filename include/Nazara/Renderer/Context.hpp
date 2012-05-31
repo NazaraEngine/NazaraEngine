@@ -24,6 +24,7 @@ class NAZARA_API NzContext
 		~NzContext();
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());
+		void Destroy();
 		const NzContextParameters& GetParameters() const;
 		bool IsActive() const;
 		bool SetActive(bool active);

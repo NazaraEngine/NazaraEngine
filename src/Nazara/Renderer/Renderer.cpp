@@ -460,17 +460,20 @@ bool NzRenderer::UpdateStates()
 	if (vaoSupported)
 	{
 		// On recherche si un VAO existe déjà avec notre configuration
-		// Note: Les VAOs ne sont pas partagés entre les contextes, ils font donc partie de notre configuration
+		// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
 
 		auto key = std::make_tuple(NzContext::GetCurrent(), m_indexBuffer, m_vertexBuffer, m_vertexDeclaration);
 		auto it = m_vaos.find(key);
 		if (it == m_vaos.end())
 		{
+			// On créé notre VAO
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
 
+			// On l'ajoute à notre liste
 			m_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
 
+			// Et on indique qu'on veut le programmer
 			update = true;
 		}
 		else

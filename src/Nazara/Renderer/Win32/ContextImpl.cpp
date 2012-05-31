@@ -153,6 +153,8 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		*attrib++ = WGL_CONTEXT_MINOR_VERSION_ARB;
 		*attrib++ = parameters.minorVersion;
 
+		int flags = 0;
+
 		if (parameters.majorVersion >= 3)
 		{
 			*attrib++ = WGL_CONTEXT_PROFILE_MASK_ARB;
@@ -162,9 +164,17 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 			{
 				*attrib++ = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 
-				*attrib++ = WGL_CONTEXT_FLAGS_ARB;
-				*attrib++ = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+				flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
 			}
+		}
+
+		if (parameters.debugMode)
+			flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+
+		if (flags)
+		{
+			*attrib++ = WGL_CONTEXT_FLAGS_ARB;
+			*attrib++ = flags;
 		}
 
 		*attrib++ = 0;
