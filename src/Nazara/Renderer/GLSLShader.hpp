@@ -47,8 +47,6 @@ class NzGLSLShader : public NzShaderImpl
 		void Unlock() const;
 
 	private:
-		bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration);
-
 		mutable std::map<NzString, GLint> m_idCache;
 		mutable GLuint m_lockedPrevious;
 		GLuint m_program;

@@ -35,8 +35,9 @@ class NAZARA_API NzOpenGL
 		{
 			AnisotropicFilter,
 			FP64,
-			Framebuffer_Object,
+			FrameBufferObject,
 			Texture3D,
+			VertexArrayObject,
 
 			Count
 		};
@@ -56,6 +57,7 @@ NAZARA_API extern PFNGLBINDBUFFERPROC				glBindBuffer;
 NAZARA_API extern PFNGLBINDFRAMEBUFFERPROC			glBindFramebuffer;
 NAZARA_API extern PFNGLBINDRENDERBUFFERPROC			glBindRenderbuffer;
 NAZARA_API extern PFNGLBINDTEXTUREPROC				glBindTexture;
+NAZARA_API extern PFNGLBINDVERTEXARRAYPROC			glBindVertexArray;
 NAZARA_API extern PFNGLBLENDFUNCPROC				glBlendFunc;
 NAZARA_API extern PFNGLBUFFERDATAPROC				glBufferData;
 NAZARA_API extern PFNGLBUFFERSUBDATAPROC			glBufferSubData;
@@ -76,6 +78,7 @@ NAZARA_API extern PFNGLDELETEQUERIESPROC			glDeleteQueries;
 NAZARA_API extern PFNGLDELETERENDERBUFFERSPROC		glDeleteRenderbuffers;
 NAZARA_API extern PFNGLDELETESHADERPROC				glDeleteShader;
 NAZARA_API extern PFNGLDELETETEXTURESPROC			glDeleteTextures;
+NAZARA_API extern PFNGLDELETEVERTEXARRAYSPROC		glDeleteVertexArrays;
 NAZARA_API extern PFNGLDEPTHFUNCPROC				glDepthFunc;
 NAZARA_API extern PFNGLDEPTHMASKPROC				glDepthMask;
 NAZARA_API extern PFNGLDISABLEPROC 					glDisable;
@@ -96,6 +99,7 @@ NAZARA_API extern PFNGLGENFRAMEBUFFERSPROC			glGenFramebuffers;
 NAZARA_API extern PFNGLGENQUERIESPROC				glGenQueries;
 NAZARA_API extern PFNGLGENRENDERBUFFERSPROC			glGenRenderbuffers;
 NAZARA_API extern PFNGLGENTEXTURESPROC				glGenTextures;
+NAZARA_API extern PFNGLGENVERTEXARRAYSPROC			glGenVertexArrays;
 NAZARA_API extern PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv;
 NAZARA_API extern PFNGLGETERRORPROC					glGetError;
 NAZARA_API extern PFNGLGETINTEGERVPROC				glGetIntegerv;

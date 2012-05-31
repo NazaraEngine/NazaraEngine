@@ -8,6 +8,8 @@
 #define NAZARA_RENDERER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <map>
+#include <tuple>
 
 #define NazaraRenderer NzRenderer::Instance()
 
@@ -45,6 +47,7 @@ enum nzRendererClear
 };
 
 class NzColor;
+class NzContext;
 class NzIndexBuffer;
 class NzRenderTarget;
 class NzShader;
@@ -86,8 +89,11 @@ class NAZARA_API NzRenderer
 		static bool IsInitialized();
 
 	private:
-		bool UpdateVertexBuffer();
+		bool UpdateStates();
 
+		typedef std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*> VAO_Key;
+
+		std::map<VAO_Key, unsigned int> m_vaos;
 		const NzIndexBuffer* m_indexBuffer;
 		NzRenderTarget* m_target;
 		NzShader* m_shader;
@@ -95,7 +101,7 @@ class NAZARA_API NzRenderer
 		const NzVertexBuffer* m_vertexBuffer;
 		const NzVertexDeclaration* m_vertexDeclaration;
 		bool m_capabilities[nzRendererCap_Count];
-		bool m_vertexBufferUpdated;
+		bool m_statesUpdated;
 
 		static NzRenderer* s_instance;
 		static bool s_initialized;

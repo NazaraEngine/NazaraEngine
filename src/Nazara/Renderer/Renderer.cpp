@@ -14,19 +14,55 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
 #include <Nazara/Renderer/VertexBuffer.hpp>
+#include <Nazara/Renderer/VertexDeclaration.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
-	GLenum openglPrimitive[] = {
+	const nzUInt8 attribIndex[] =
+	{
+		2,	// nzElementUsage_Diffuse
+		1,	// nzElementUsage_Normal
+		0,	// nzElementUsage_Position
+		3,	// nzElementUsage_Tangent
+		4	// nzElementUsage_TexCoord
+	};
+
+	const GLenum openglPrimitive[] = {
 		GL_LINES,		   // nzPrimitiveType_LineList,
 		GL_LINE_STRIP,	   // nzPrimitiveType_LineStrip,
 		GL_POINTS,		   // nzPrimitiveType_PointList,
 		GL_TRIANGLES,	   // nzPrimitiveType_TriangleList,
 		GL_TRIANGLE_STRIP, // nzPrimitiveType_TriangleStrip,
 		GL_TRIANGLE_FAN	   // nzPrimitiveType_TriangleFan
+	};
+
+	const nzUInt8 openglSize[] =
+	{
+		4, // nzElementType_Color
+		1, // nzElementType_Double1
+		2, // nzElementType_Double2
+		3, // nzElementType_Double3
+		4, // nzElementType_Double4
+		1, // nzElementType_Float1
+		2, // nzElementType_Float2
+		3, // nzElementType_Float3
+		4  // nzElementType_Float4
+	};
+
+	const GLenum openglType[] =
+	{
+		GL_UNSIGNED_BYTE, // nzElementType_Color
+		GL_DOUBLE,		  // nzElementType_Double1
+		GL_DOUBLE,		  // nzElementType_Double2
+		GL_DOUBLE,		  // nzElementType_Double3
+		GL_DOUBLE,		  // nzElementType_Double4
+		GL_FLOAT,		  // nzElementType_Float1
+		GL_FLOAT,		  // nzElementType_Float2
+		GL_FLOAT,		  // nzElementType_Float3
+		GL_FLOAT		  // nzElementType_Float4
 	};
 }
 
@@ -36,7 +72,7 @@ m_target(nullptr),
 m_shader(nullptr),
 m_vertexBuffer(nullptr),
 m_vertexDeclaration(nullptr),
-m_vertexBufferUpdated(false)
+m_statesUpdated(false)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (s_instance)
@@ -91,11 +127,11 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	}
 	#endif
 
-	if (!m_vertexBufferUpdated)
+	if (!m_statesUpdated)
 	{
-		if (!UpdateVertexBuffer())
+		if (!UpdateStates())
 		{
-			NazaraError("Failed to update vertex buffer");
+			NazaraError("Failed to update states");
 			return;
 		}
 	}
@@ -127,11 +163,11 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 
 void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
 {
-	if (!m_vertexBufferUpdated)
+	if (!m_statesUpdated)
 	{
-		if (!UpdateVertexBuffer())
+		if (!UpdateStates())
 		{
-			NazaraError("Failed to update vertex buffer");
+			NazaraError("Failed to update states");
 			return;
 		}
 	}
@@ -191,7 +227,7 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
 		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
 		m_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
-		m_capabilities[nzRendererCap_OcclusionQuery] = // Natif depuis OpenGL 1.5
+		m_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
 		m_capabilities[nzRendererCap_SoftwareBuffer] = NzOpenGL::GetVersion() <= 300; // Déprécié en OpenGL 3
 		m_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
@@ -260,12 +296,11 @@ void NzRenderer::SetClearStencil(unsigned int value)
 
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
-	if (indexBuffer == m_indexBuffer)
-		return true;
-
-	// OpenGL ne nécessite pas de débinder un index buffer pour ne pas l'utiliser
-	if (indexBuffer)
-		indexBuffer->GetBuffer()->m_impl->Bind();
+	if (indexBuffer != m_indexBuffer)
+	{
+		m_indexBuffer = indexBuffer;
+		m_statesUpdated = false;
+	}
 
 	return true;
 }
@@ -292,7 +327,6 @@ bool NzRenderer::SetShader(NzShader* shader)
 		}
 
 		m_shader = shader;
-		m_vertexBufferUpdated = false;
 	}
 	else if (m_shader)
 	{
@@ -339,24 +373,22 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 
 bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 {
-	if (m_vertexBuffer == vertexBuffer)
-		return true;
-
-	if (m_vertexBuffer && vertexBuffer)
+	if (m_vertexBuffer != vertexBuffer)
 	{
-		// Si l'ancien buffer et le nouveau sont hardware, pas besoin de mettre à jour la déclaration
-		if (!m_vertexBuffer->IsHardware() || !vertexBuffer->IsHardware())
-			m_vertexBufferUpdated = false;
+		m_vertexBuffer = vertexBuffer;
+		m_statesUpdated = false;
 	}
-	m_vertexBuffer = vertexBuffer;
 
 	return true;
 }
 
 bool NzRenderer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration)
 {
-	m_vertexDeclaration = vertexDeclaration;
-	m_vertexBufferUpdated = false;
+	if (m_vertexDeclaration != vertexDeclaration)
+	{
+		m_vertexDeclaration = vertexDeclaration;
+		m_statesUpdated = false;
+	}
 
 	return true;
 }
@@ -371,9 +403,16 @@ void NzRenderer::Uninitialize()
 	}
 	#endif
 
-	NzOpenGL::Uninitialize();
-
 	s_initialized = false;
+
+	// Libération des VAOs
+	for (auto it = m_vaos.begin(); it != m_vaos.end(); ++it)
+	{
+		GLuint vao = it->second;
+		glDeleteVertexArrays(1, &vao);
+	}
+
+	NzOpenGL::Uninitialize();
 
 	if (m_utilityModule)
 	{
@@ -397,15 +436,9 @@ bool NzRenderer::IsInitialized()
 	return s_initialized;
 }
 
-bool NzRenderer::UpdateVertexBuffer()
+bool NzRenderer::UpdateStates()
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!m_shader)
-	{
-		NazaraError("No shader");
-		return false;
-	}
-
 	if (!m_vertexBuffer)
 	{
 		NazaraError("No vertex buffer");
@@ -419,10 +452,78 @@ bool NzRenderer::UpdateVertexBuffer()
 	}
 	#endif
 
-	if (!m_shader->m_impl->UpdateVertexBuffer(m_vertexBuffer, m_vertexDeclaration))
-		return false;
+	static const bool vaoSupported = NzOpenGL::IsSupported(NzOpenGL::VertexArrayObject);
+	bool update;
+	GLuint vao;
 
-	m_vertexBufferUpdated = true;
+	// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
+	if (vaoSupported)
+	{
+		// On recherche si un VAO existe déjà avec notre configuration
+		// Note: Les VAOs ne sont pas partagés entre les contextes, ils font donc partie de notre configuration
+
+		auto key = std::make_tuple(NzContext::GetCurrent(), m_indexBuffer, m_vertexBuffer, m_vertexDeclaration);
+		auto it = m_vaos.find(key);
+		if (it == m_vaos.end())
+		{
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			m_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
+
+			update = true;
+		}
+		else
+		{
+			// Notre VAO existe déjà, il est donc inutile de le reprogrammer
+			vao = it->second;
+
+			update = false;
+		}
+	}
+	else
+		update = true; // Fallback si les VAOs ne sont pas supportés
+
+	if (update)
+	{
+		m_vertexBuffer->GetBuffer()->GetImpl()->Bind();
+
+		const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetBufferPtr());
+
+		///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
+		for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
+			glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
+
+		unsigned int stride = m_vertexDeclaration->GetStride();
+		unsigned int elementCount = m_vertexDeclaration->GetElementCount();
+		for (unsigned int i = 0; i < elementCount; ++i)
+		{
+			const NzVertexDeclaration::Element* element = m_vertexDeclaration->GetElement(i);
+
+			glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
+			glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
+								  openglSize[element->type],
+								  openglType[element->type],
+								  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+								  stride,
+								  &buffer[element->offset]);
+		}
+
+		if (m_indexBuffer)
+			m_indexBuffer->GetBuffer()->GetImpl()->Bind();
+	}
+
+	if (vaoSupported)
+	{
+		// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
+		if (update)
+			glBindVertexArray(0);
+
+		// Nous (re)bindons le VAO pour définir les attributs de vertice
+		glBindVertexArray(vao);
+	}
+
+	m_statesUpdated = true;
 
 	return true;
 }
