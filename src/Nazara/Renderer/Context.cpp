@@ -191,6 +191,7 @@ void NzContext::Destroy()
 
 		m_impl->Destroy();
 		delete m_impl;
+		m_impl = nullptr;
 	}
 }
 
