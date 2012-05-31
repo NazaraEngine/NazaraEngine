@@ -16,6 +16,7 @@
 #include <Nazara/Core/ThreadSafety.hpp>
 
 #define NazaraLog NzLog::Instance()
+#define NazaraNotice(txt) NazaraLog->Write(txt)
 
 class NzFile;
 

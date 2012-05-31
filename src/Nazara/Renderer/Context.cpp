@@ -5,6 +5,8 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -22,6 +24,108 @@ namespace
 	///TODO: Thread-local
 	NzContext* currentContext = nullptr;
 	NzContext* threadContext = nullptr;
+
+	void CALLBACK DebugCallback(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, int length, const char* message, void* userParam)
+	{
+		NazaraUnused(length);
+
+		NzStringStream ss;
+		ss << "OpenGL debug message (ID: 0x" << NzString::Number(id, 16) << "):\n";
+		ss << "-Source: ";
+		switch (source)
+		{
+			case GL_DEBUG_SOURCE_API_ARB:
+				ss << "OpenGL";
+				break;
+
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+				ss << "Operating system";
+				break;
+
+			case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+				ss << "Shader compiler";
+				break;
+
+			case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+				ss << "Shader compiler";
+				break;
+
+			case GL_DEBUG_SOURCE_APPLICATION_ARB:
+				ss << "Application";
+				break;
+
+			case GL_DEBUG_SOURCE_OTHER_ARB:
+				ss << "Other";
+				break;
+
+			default:
+				// Peut être rajouté par une extension
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "-Type: ";
+		switch (type)
+		{
+			case GL_DEBUG_TYPE_ERROR_ARB:
+				ss << "Error";
+				break;
+
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+				ss << "Deprecated behavior";
+				break;
+
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+				ss << "Undefined behavior";
+				break;
+
+			case GL_DEBUG_TYPE_PORTABILITY_ARB:
+				ss << "Portability";
+				break;
+
+			case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+				ss << "Performance";
+				break;
+
+			case GL_DEBUG_TYPE_OTHER_ARB:
+				ss << "Other";
+				break;
+
+			default:
+				// Peut être rajouté par une extension
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "-Severity: ";
+		switch (severity)
+		{
+			case GL_DEBUG_SEVERITY_HIGH_ARB:
+				ss << "High";
+				break;
+
+			case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+				ss << "Medium";
+				break;
+
+			case GL_DEBUG_SEVERITY_LOW_ARB:
+				ss << "Low";
+				break;
+
+			default:
+				// Peut être rajouté par une extension
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "Message: " << message;
+		ss << "\n\nSent by context: " << userParam;
+
+		NazaraNotice(ss);
+	}
 }
 
 NzContext::NzContext() :
@@ -31,18 +135,13 @@ m_impl(nullptr)
 
 NzContext::~NzContext()
 {
-	if (m_impl)
-	{
-		if (currentContext == this)
-			NzContextImpl::Desactivate();
-
-		m_impl->Destroy();
-		delete m_impl;
-	}
+	Destroy();
 }
 
 bool NzContext::Create(const NzContextParameters& parameters)
 {
+	Destroy();
+
 	m_parameters = parameters;
 	if (m_parameters.shared && !m_parameters.shareContext)
 		m_parameters.shareContext = s_reference;
@@ -71,7 +170,28 @@ bool NzContext::Create(const NzContextParameters& parameters)
 	if (m_parameters.antialiasingLevel > 0)
 		glEnable(GL_MULTISAMPLE);
 
+	if (NzOpenGL::IsSupported(NzOpenGL::DebugOutput) && m_parameters.debugMode)
+	{
+		glDebugMessageCallback(&DebugCallback, this);
+
+		#ifdef NAZARA_DEBUG
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		#endif
+	}
+
 	return true;
+}
+
+void NzContext::Destroy()
+{
+	if (m_impl)
+	{
+		if (currentContext == this)
+			NzContextImpl::Desactivate();
+
+		m_impl->Destroy();
+		delete m_impl;
+	}
 }
 
 const NzContextParameters& NzContext::GetParameters() const
