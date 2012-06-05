@@ -30,6 +30,21 @@ namespace
 		4	// nzElementUsage_TexCoord
 	};
 
+	const GLenum faceCullingMode[] =
+	{
+		GL_BACK,		  // nzFaceCulling_Back
+		GL_FRONT,		  // nzFaceCulling_Front
+		GL_FRONT_AND_BACK // nzFaceCulling_FrontAndBack
+	};
+
+	const GLenum faceFillingMode[] =
+	{
+		GL_POINT, // nzFaceFilling_Point
+		GL_LINE,  // nzFaceFilling_Line
+		GL_FILL	  // nzFaceFilling_Fill
+	};
+
+
 	const GLenum openglPrimitive[] =
 	{
 		GL_LINES,		   // nzPrimitiveType_LineList,
@@ -65,15 +80,42 @@ namespace
 		GL_FLOAT,		  // nzElementType_Float3
 		GL_FLOAT		  // nzElementType_Float4
 	};
+
+	const GLenum rendererComparison[] =
+	{
+		GL_ALWAYS,	// nzRendererComparison_Always
+		GL_EQUAL,	// nzRendererComparison_Equal
+		GL_GREATER,	// nzRendererComparison_Greater
+		GL_GEQUAL,	// nzRendererComparison_GreaterOrEqual
+		GL_LESS,	// nzRendererComparison_Less
+		GL_LEQUAL,	// nzRendererComparison_LessOrEqual
+		GL_NEVER	// nzRendererComparison_Never
+	};
+
+	const GLenum rendererParameter[] =
+	{
+		GL_BLEND,		// nzRendererParameter_Blend
+		GL_NONE,		// nzRendererParameter_ColorWrite
+		GL_DEPTH_TEST,	// nzRendererParameter_DepthTest
+		GL_NONE,		// nzRendererParameter_DepthWrite
+		GL_CULL_FACE,	// nzRendererParameter_FaceCulling
+		GL_STENCIL_TEST	// nzRendererParameter_Stencil
+	};
+
+	const GLenum stencilOperation[] =
+	{
+		GL_DECR,	  // nzStencilOperation_Decrement
+		GL_DECR_WRAP, // nzStencilOperation_DecrementToSaturation
+		GL_INCR,	  // nzStencilOperation_Increment
+		GL_INCR_WRAP, // nzStencilOperation_IncrementToSaturation
+		GL_INVERT,	  // nzStencilOperation_Invert
+		GL_KEEP,	  // nzStencilOperation_Keep
+		GL_REPLACE,	  // nzStencilOperation_Replace
+		GL_ZERO		  // nzStencilOperation_Zero
+	};
 }
 
-NzRenderer::NzRenderer() :
-m_indexBuffer(nullptr),
-m_target(nullptr),
-m_shader(nullptr),
-m_vertexBuffer(nullptr),
-m_vertexDeclaration(nullptr),
-m_statesUpdated(false)
+NzRenderer::NzRenderer()
 {
 	#if NAZARA_RENDERER_SAFE
 	if (s_instance)
@@ -121,6 +163,12 @@ void NzRenderer::Clear(unsigned long flags)
 void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount)
 {
 	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+
 	if (!m_indexBuffer)
 	{
 		NazaraError("No index buffer");
@@ -128,13 +176,10 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	}
 	#endif
 
-	if (!m_statesUpdated)
+	if (!EnsureStateUpdate())
 	{
-		if (!UpdateStates())
-		{
-			NazaraError("Failed to update states");
-			return;
-		}
+		NazaraError("Failed to update states");
+		return;
 	}
 
 	nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
@@ -164,30 +209,58 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 
 void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
 {
-	if (!m_statesUpdated)
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
 	{
-		if (!UpdateStates())
-		{
-			NazaraError("Failed to update states");
-			return;
-		}
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	if (!EnsureStateUpdate())
+	{
+		NazaraError("Failed to update states");
+		return;
 	}
 
 	glDrawArrays(openglPrimitive[primitive], firstVertex, vertexCount);
 }
 
+void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
+{
+	switch (parameter)
+	{
+		case nzRendererParameter_ColorWrite:
+			glColorMask(enable, enable, enable, enable);
+			break;
+
+		case nzRendererParameter_DepthWrite:
+			glDepthMask(enable);
+			break;
+
+		default:
+			if (enable)
+				glEnable(rendererParameter[parameter]);
+			else
+				glDisable(rendererParameter[parameter]);
+
+			break;
+	}
+}
+
+unsigned int NzRenderer::GetMaxAnisotropyLevel() const
+{
+	return m_maxAnisotropyLevel;
+}
+
+unsigned int NzRenderer::GetMaxRenderTargets() const
+{
+	return m_maxRenderTarget;
+}
+
 unsigned int NzRenderer::GetMaxTextureUnits() const
 {
-	static int maxTextureUnits = -1;
-	if (maxTextureUnits == -1)
-	{
-		if (m_capabilities[nzRendererCap_TextureMulti])
-			glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-		else
-			maxTextureUnits = 1;
-	}
-
-	return maxTextureUnits;
+	return m_maxTextureUnit;
 }
 
 NzShader* NzRenderer::GetShader() const
@@ -224,6 +297,22 @@ bool NzRenderer::Initialize()
 
 	if (NzOpenGL::Initialize())
 	{
+		m_vaoUpdated = false;
+		m_indexBuffer = nullptr;
+		m_shader = nullptr;
+		m_stencilCompare = nzRendererComparison_Always;
+		m_stencilFail = nzStencilOperation_Keep;
+		m_stencilFuncUpdated = true;
+		m_stencilMask = 0xFFFFFFFF;
+		m_stencilOpUpdated = true;
+		m_stencilPass = nzStencilOperation_Keep;
+		m_stencilReference = 0;
+		m_stencilZFail = nzStencilOperation_Keep;
+		m_target = nullptr;
+		m_vertexBuffer = nullptr;
+		m_vertexDeclaration = nullptr;
+
+		// Récupération des capacités
 		m_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter);
 		m_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
 		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
@@ -234,6 +323,40 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
+
+		if (m_capabilities[nzRendererCap_AnisotropicFilter])
+		{
+			GLint maxAnisotropy;
+			glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+
+			m_maxAnisotropyLevel = static_cast<unsigned int>(maxAnisotropy);
+		}
+		else
+			m_maxAnisotropyLevel = 1;
+
+		if (m_capabilities[nzRendererCap_MultipleRenderTargets])
+		{
+			// Permettre de gérer plus de targets que de nombre de sorties dans le shader ne servirait à rien
+			GLint maxDrawBuffers;
+			glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
+
+			GLint maxRenderTextureTargets;
+			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxRenderTextureTargets);
+
+			m_maxRenderTarget = static_cast<unsigned int>(std::min(maxDrawBuffers, maxRenderTextureTargets));
+		}
+		else
+			m_maxRenderTarget = 1;
+
+		if (m_capabilities[nzRendererCap_TextureMulti])
+		{
+			GLint maxTextureUnits;
+			glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+
+			m_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
+		}
+		else
+			m_maxTextureUnit = 1;
 
 		s_initialized = true;
 
@@ -295,12 +418,39 @@ void NzRenderer::SetClearStencil(unsigned int value)
 	glClearStencil(value);
 }
 
+void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	glCullFace(faceCullingMode[cullingMode]);
+}
+
+void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	glPolygonMode(GL_FRONT_AND_BACK, faceFillingMode[fillingMode]);
+}
+
+
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
 	if (indexBuffer != m_indexBuffer)
 	{
 		m_indexBuffer = indexBuffer;
-		m_statesUpdated = false;
+		m_vaoUpdated = false;
 	}
 
 	return true;
@@ -332,11 +482,65 @@ bool NzRenderer::SetShader(NzShader* shader)
 			NazaraError("Failed to bind shader");
 			return false;
 		}
-
-		m_shader = shader;
 	}
 
+	m_shader = shader;
+
 	return true;
+}
+
+void NzRenderer::SetStencilCompareFunction(nzRendererComparison compareFunc)
+{
+	if (compareFunc != m_stencilCompare)
+	{
+		m_stencilCompare = compareFunc;
+		m_stencilFuncUpdated = false;
+	}
+}
+
+void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation)
+{
+	if (failOperation != m_stencilFail)
+	{
+		m_stencilFail = failOperation;
+		m_stencilOpUpdated = false;
+	}
+}
+
+void NzRenderer::SetStencilMask(nzUInt32 mask)
+{
+	if (mask != m_stencilMask)
+	{
+		m_stencilMask = mask;
+		m_stencilFuncUpdated = false;
+	}
+}
+
+void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation)
+{
+	if (passOperation != m_stencilPass)
+	{
+		m_stencilPass = passOperation;
+		m_stencilOpUpdated = false;
+	}
+}
+
+void NzRenderer::SetStencilReferenceValue(unsigned int refValue)
+{
+	if (refValue != m_stencilReference)
+	{
+		m_stencilReference = refValue;
+		m_stencilFuncUpdated = false;
+	}
+}
+
+void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation)
+{
+	if (zfailOperation != m_stencilZFail)
+	{
+		m_stencilZFail = zfailOperation;
+		m_stencilOpUpdated = false;
+	}
 }
 
 bool NzRenderer::SetTarget(NzRenderTarget* target)
@@ -378,7 +582,7 @@ bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 	if (m_vertexBuffer != vertexBuffer)
 	{
 		m_vertexBuffer = vertexBuffer;
-		m_statesUpdated = false;
+		m_vaoUpdated = false;
 	}
 
 	return true;
@@ -389,7 +593,7 @@ bool NzRenderer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclarati
 	if (m_vertexDeclaration != vertexDeclaration)
 	{
 		m_vertexDeclaration = vertexDeclaration;
-		m_statesUpdated = false;
+		m_vaoUpdated = false;
 	}
 
 	return true;
@@ -438,97 +642,112 @@ bool NzRenderer::IsInitialized()
 	return s_initialized;
 }
 
-bool NzRenderer::UpdateStates()
+bool NzRenderer::EnsureStateUpdate()
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_vertexBuffer)
+	if (!m_stencilFuncUpdated)
 	{
-		NazaraError("No vertex buffer");
-		return false;
+		glStencilFunc(rendererComparison[m_stencilCompare], m_stencilReference, m_stencilMask);
+		m_stencilFuncUpdated = true;
 	}
 
-	if (!m_vertexDeclaration)
+	if (!m_stencilOpUpdated)
 	{
-		NazaraError("No vertex declaration");
-		return false;
+		glStencilOp(stencilOperation[m_stencilFail], stencilOperation[m_stencilZFail], stencilOperation[m_stencilPass]);
+		m_stencilOpUpdated = true;
 	}
-	#endif
 
-	static const bool vaoSupported = NzOpenGL::IsSupported(NzOpenGL::VertexArrayObject);
-	bool update;
-	GLuint vao;
-
-	// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
-	if (vaoSupported)
+	if (!m_vaoUpdated)
 	{
-		// On recherche si un VAO existe déjà avec notre configuration
-		// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
-
-		auto key = std::make_tuple(NzContext::GetCurrent(), m_indexBuffer, m_vertexBuffer, m_vertexDeclaration);
-		auto it = m_vaos.find(key);
-		if (it == m_vaos.end())
+		#if NAZARA_RENDERER_SAFE
+		if (!m_vertexBuffer)
 		{
-			// On créé notre VAO
-			glGenVertexArrays(1, &vao);
-			glBindVertexArray(vao);
+			NazaraError("No vertex buffer");
+			return false;
+		}
 
-			// On l'ajoute à notre liste
-			m_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
+		if (!m_vertexDeclaration)
+		{
+			NazaraError("No vertex declaration");
+			return false;
+		}
+		#endif
 
-			// Et on indique qu'on veut le programmer
-			update = true;
+		static const bool vaoSupported = NzOpenGL::IsSupported(NzOpenGL::VertexArrayObject);
+		bool update;
+		GLuint vao;
+
+		// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
+		if (vaoSupported)
+		{
+			// On recherche si un VAO existe déjà avec notre configuration
+			// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
+
+			auto key = std::make_tuple(NzContext::GetCurrent(), m_indexBuffer, m_vertexBuffer, m_vertexDeclaration);
+			auto it = m_vaos.find(key);
+			if (it == m_vaos.end())
+			{
+				// On créé notre VAO
+				glGenVertexArrays(1, &vao);
+				glBindVertexArray(vao);
+
+				// On l'ajoute à notre liste
+				m_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
+
+				// Et on indique qu'on veut le programmer
+				update = true;
+			}
+			else
+			{
+				// Notre VAO existe déjà, il est donc inutile de le reprogrammer
+				vao = it->second;
+
+				update = false;
+			}
 		}
 		else
-		{
-			// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-			vao = it->second;
+			update = true; // Fallback si les VAOs ne sont pas supportés
 
-			update = false;
-		}
-	}
-	else
-		update = true; // Fallback si les VAOs ne sont pas supportés
-
-	if (update)
-	{
-		m_vertexBuffer->GetBuffer()->GetImpl()->Bind();
-
-		const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetBufferPtr());
-
-		///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
-		for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
-			glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
-
-		unsigned int stride = m_vertexDeclaration->GetStride();
-		unsigned int elementCount = m_vertexDeclaration->GetElementCount();
-		for (unsigned int i = 0; i < elementCount; ++i)
-		{
-			const NzVertexDeclaration::Element* element = m_vertexDeclaration->GetElement(i);
-
-			glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
-			glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
-								  openglSize[element->type],
-								  openglType[element->type],
-								  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-								  stride,
-								  &buffer[element->offset]);
-		}
-
-		if (m_indexBuffer)
-			m_indexBuffer->GetBuffer()->GetImpl()->Bind();
-	}
-
-	if (vaoSupported)
-	{
-		// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
 		if (update)
-			glBindVertexArray(0);
+		{
+			m_vertexBuffer->GetBuffer()->GetImpl()->Bind();
 
-		// Nous (re)bindons le VAO pour définir les attributs de vertice
-		glBindVertexArray(vao);
+			const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetBufferPtr());
+
+			///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
+			for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
+				glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
+
+			unsigned int stride = m_vertexDeclaration->GetStride();
+			unsigned int elementCount = m_vertexDeclaration->GetElementCount();
+			for (unsigned int i = 0; i < elementCount; ++i)
+			{
+				const NzVertexDeclaration::Element* element = m_vertexDeclaration->GetElement(i);
+
+				glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
+				glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
+									  openglSize[element->type],
+									  openglType[element->type],
+									  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+									  stride,
+									  &buffer[element->offset]);
+			}
+
+			if (m_indexBuffer)
+				m_indexBuffer->GetBuffer()->GetImpl()->Bind();
+		}
+
+		if (vaoSupported)
+		{
+			// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
+			if (update)
+				glBindVertexArray(0);
+
+			// Nous (re)bindons le VAO pour définir les attributs de vertice
+			glBindVertexArray(vao);
+		}
+
+		m_vaoUpdated = true;
 	}
-
-	m_statesUpdated = true;
 
 	return true;
 }

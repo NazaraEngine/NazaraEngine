@@ -202,11 +202,11 @@ NzVector2i NzWindowImpl::GetPosition() const
 	return NzVector2i(rect.left, rect.top);
 }
 
-NzVector2i NzWindowImpl::GetSize() const
+NzVector2ui NzWindowImpl::GetSize() const
 {
 	RECT rect;
 	GetClientRect(m_handle, &rect);
-	return NzVector2i(rect.right-rect.left, rect.bottom-rect.top);
+	return NzVector2ui(rect.right-rect.left, rect.bottom-rect.top);
 }
 
 NzString NzWindowImpl::GetTitle() const
@@ -689,7 +689,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			{
 				if (wParam != SIZE_MINIMIZED)
 				{
-					NzVector2i size = GetSize(); // On récupère uniquement la taille de la zone client
+					NzVector2ui size = GetSize(); // On récupère uniquement la taille de la zone client
 
 					NzEvent event;
 					event.type = NzEvent::Resized;

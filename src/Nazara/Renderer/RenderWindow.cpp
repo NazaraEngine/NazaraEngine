@@ -8,14 +8,9 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
-
-namespace
-{
-	NzContextParameters invalidContextParameters;
-	NzRenderTargetParameters invalidRTParameters;
-}
 
 NzRenderWindow::NzRenderWindow() :
 m_context(nullptr)
@@ -59,6 +54,82 @@ bool NzRenderWindow::CanActivate() const
 	return m_impl != nullptr && m_context != nullptr;
 }
 
+bool NzRenderWindow::CopyToImage(NzImage* image)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_context)
+	{
+		NazaraError("Window has not been created");
+		return false;
+	}
+
+	if (!image)
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+	#endif
+
+	if (!m_context->SetActive(true))
+	{
+		NazaraError("Failed to activate context");
+		return false;
+	}
+
+	NzVector2ui size = GetSize();
+
+	if (!image->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1))
+	{
+		NazaraError("Failed to create image");
+		return false;
+	}
+
+	nzUInt8* pixels = image->GetPixels();
+	glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	for (unsigned int j = 0; j < size.y/2; ++j)
+		std::swap_ranges(&pixels[j*size.x*4], &pixels[(j+1)*size.x*4-1], &pixels[(size.y-j-1)*size.x*4]);
+
+	return true;
+}
+
+bool NzRenderWindow::CopyToTexture(NzTexture* texture)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_context)
+	{
+		NazaraError("Window has not been created");
+		return false;
+	}
+
+	if (!texture)
+	{
+		NazaraError("Texture must be valid");
+		return false;
+	}
+	#endif
+
+	if (!m_context->SetActive(true))
+	{
+		NazaraError("Failed to activate context");
+		return false;
+	}
+
+	NzVector2ui size = GetSize();
+
+	if (!texture->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1, true))
+	{
+		NazaraError("Failed to create texture");
+		return false;
+	}
+
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, size.x, size.y);
+
+	texture->Unlock();
+
+	return true;
+}
+
 bool NzRenderWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
     m_parameters = parameters;
@@ -81,29 +152,29 @@ void NzRenderWindow::EnableVerticalSync(bool enabled)
 {
     if (m_context)
     {
-#if defined(NAZARA_PLATFORM_WINDOWS)
+		#if defined(NAZARA_PLATFORM_WINDOWS)
         if (!m_context->SetActive(true))
-        {
-            NazaraError("Unable to activate context");
-            return;
-        }
+		{
+			NazaraError("Failed to activate context");
+			return;
+		}
 
         if (wglSwapInterval)
             wglSwapInterval(enabled ? 1 : 0);
         else
-#elif defined(NAZARA_PLATFORM_LINUX)
+		#elif defined(NAZARA_PLATFORM_LINUX)
         if (!m_context->SetActive(true))
         {
-            NazaraError("Unable to activate context");
+            NazaraError("Failed to activate context");
             return;
         }
 
         if (glXSwapInterval)
             glXSwapInterval(enabled ? 1 : 0);
         else
-#else
-	#error Vertical Sync is not supported on this platform
-#endif
+		#else
+			#error Vertical Sync is not supported on this platform
+		#endif
             NazaraError("Vertical Sync is not supported on this platform");
     }
     else
