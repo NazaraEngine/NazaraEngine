@@ -6,6 +6,8 @@
 #include <Nazara/Renderer/GLSLShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -26,6 +28,9 @@ namespace
 		GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
 		GL_VERTEX_SHADER	// nzShaderType_Vertex
 	};
+
+	GLuint lockedPrevious = 0;
+	nzUInt8 lockedLevel = 0;
 }
 
 NzGLSLShader::NzGLSLShader(NzShader* parent) :
@@ -39,9 +44,24 @@ NzGLSLShader::~NzGLSLShader()
 
 bool NzGLSLShader::Bind()
 {
+	#if NAZARA_RENDERER_SAFE
+	if (lockedLevel > 0)
+	{
+		NazaraError("Cannot bind shader while a shader is locked");
+		return false;
+	}
+	#endif
+
 	glUseProgram(m_program);
 
-	return true; ///FIXME: Comment détecter une erreur d'OpenGL sans ralentir le programme ?
+	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
+	{
+		glActiveTexture(GL_TEXTURE0 + it->second.unit);
+		if (!it->second.texture->Bind())
+			NazaraWarning("Failed to bind texture");
+	}
+
+	return true;
 }
 
 bool NzGLSLShader::Compile()
@@ -105,6 +125,8 @@ bool NzGLSLShader::Create()
 
 	for (int i = 0; i < nzShaderType_Count; ++i)
 		m_shaders[i] = 0;
+
+	m_textureFreeID = 0;
 
 	return true;
 }
@@ -218,16 +240,16 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 	}
 }
 
-bool NzGLSLShader::Lock() const
+bool NzGLSLShader::Lock()
 {
-	if (m_lockedLevel++ == 0)
+	if (lockedLevel++ == 0)
 	{
 		GLint previous;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &previous);
 
-		m_lockedPrevious = previous;
+		lockedPrevious = previous;
 
-		if (m_lockedPrevious != m_program)
+		if (lockedPrevious != m_program)
 			glUseProgram(m_program);
 	}
 
@@ -288,19 +310,72 @@ bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 	return true;
 }
 
+bool NzGLSLShader::SendTexture(const NzString& name, NzTexture* texture)
+{
+	static const unsigned int maxUnits = NazaraRenderer->GetMaxTextureUnits();
+
+	unsigned int unitUsed = m_textures.size();
+	if (unitUsed >= maxUnits)
+	{
+		NazaraError("Unable to use texture \"" + name + "\" for shader: all available texture units are used");
+		return false;
+	}
+
+	// À partir d'ici nous savons qu'il y a au moins un identifiant de texture libre
+	GLint location = GetUniformLocation(name);
+	if (location == -1)
+	{
+		NazaraError("Parameter name \"" + name + "\" not found in shader");
+		return false;
+	}
+
+	nzUInt8 unit;
+	if (unitUsed == 0)
+		// Pas d'unité utilisée, la tâche est simple
+		unit = 0;
+	else
+	{
+		auto it = m_textures.rbegin(); // Itérateur vers la fin de la map
+		unit = it->second.unit;
+		if (unit == maxUnits-1)
+		{
+			// Il y a une place libre, mais pas à la fin
+			for (; it != m_textures.rend(); ++it)
+			{
+				if (unit - it->second.unit > 1) // Si l'espace entre les indices est supérieur à 1, alors il y a une place libre
+				{
+					unit--;
+					break;
+				}
+			}
+		}
+		else
+			// Il y a une place libre à la fin
+			unit++;
+	}
+
+	m_textures[location] = TextureSlot{unit, texture};
+
+	Lock();
+	glUniform1i(location, unit);
+	Unlock();
+
+	return true;
+}
+
 void NzGLSLShader::Unbind()
 {
 	glUseProgram(0);
 }
 
-void NzGLSLShader::Unlock() const
+void NzGLSLShader::Unlock()
 {
-	if (m_lockedLevel == 0)
+	if (lockedLevel == 0)
 	{
 		NazaraWarning("Unlock called on non-locked texture");
 		return;
 	}
 
-	if (--m_lockedLevel == 0 && m_lockedPrevious != m_program)
-		glUseProgram(m_lockedPrevious);
+	if (--lockedLevel == 0 && lockedPrevious != m_program)
+		glUseProgram(lockedPrevious);
 }

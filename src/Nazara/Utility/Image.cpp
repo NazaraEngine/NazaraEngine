@@ -160,6 +160,9 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 {
 	ReleaseImage();
 
+	if (width == 0 || height == 0 || depth == 0)
+		return true;
+
 	#if NAZARA_UTILITY_SAFE
 	if (!NzPixelFormat::IsValid(format))
 	{
@@ -191,6 +194,9 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 			}
 			break;
 
+		case nzImageType_3D:
+			break;
+
 		case nzImageType_Cubemap:
 			if (depth > 1)
 			{
@@ -206,12 +212,10 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 			break;
 
 		default:
-			break;
+			NazaraInternalError("Image type not handled");
+			return false;
 	}
 	#endif
-
-	if (width == 0 || height == 0 || depth == 0)
-		return true;
 
 	levelCount = std::min(levelCount, GetMaxLevel(width, height, depth));
 
@@ -279,7 +283,7 @@ unsigned int NzImage::GetDepth(nzUInt8 level) const
 	}
 	#endif
 
-	return std::max(m_sharedImage->depth/(1 << level), 1U);
+	return std::max(m_sharedImage->depth >> level, 1U);
 }
 
 nzPixelFormat NzImage::GetFormat() const
@@ -297,7 +301,7 @@ unsigned int NzImage::GetHeight(nzUInt8 level) const
 	}
 	#endif
 
-	return std::max(m_sharedImage->height/(1 << level), 1U);
+	return std::max(m_sharedImage->height >> level, 1U);
 }
 
 nzUInt8 NzImage::GetLevelCount() const
@@ -446,9 +450,9 @@ unsigned int NzImage::GetSize(nzUInt8 level) const
 	}
 	#endif
 
-	return (std::max(m_sharedImage->width/(1 << level), 1U)) *
-	       (std::max(m_sharedImage->height/(1 << level), 1U)) *
-	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : std::min(m_sharedImage->depth/(1 << level), 1U)) *
+	return (std::max(m_sharedImage->width >> level, 1U)) *
+	       (std::max(m_sharedImage->height >> level, 1U)) *
+	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : std::max(m_sharedImage->depth >> level, 1U)) *
 	       NzPixelFormat::GetBPP(m_sharedImage->format);
 }
 
@@ -467,7 +471,7 @@ unsigned int NzImage::GetWidth(nzUInt8 level) const
 	}
 	#endif
 
-	return std::max(m_sharedImage->width/(1 << level), 1U);
+	return std::max(m_sharedImage->width >> level, 1U);
 }
 
 bool NzImage::IsCompressed() const
@@ -523,22 +527,23 @@ bool NzImage::SetLevelCount(nzUInt8 levelCount)
 
 	EnsureOwnership();
 
+	nzUInt8 oldLevelCount = m_sharedImage->levelCount;
+	nzUInt8 maxLevelCount = std::max(levelCount, oldLevelCount);
+	m_sharedImage->levelCount = levelCount; // Pour faire fonctionner GetSize
+
 	nzUInt8** pixels = new nzUInt8*[levelCount];
-	for (unsigned int i = 0; i < levelCount; ++i)
+	for (unsigned int i = 0; i < maxLevelCount; ++i)
 	{
-		if (i < m_sharedImage->levelCount)
+		if (i < oldLevelCount)
 			pixels[i] = m_sharedImage->pixels[i];
+		else if (i < levelCount)
+			pixels[i] = new nzUInt8[GetSize(i)];
 		else
-		{
-			unsigned int size = GetSize(i);
-			pixels[i] = new nzUInt8[size];
-			std::memcpy(pixels[i], m_sharedImage->pixels[i], size);
-		}
+			delete[] m_sharedImage->pixels[i];
 	}
 
 	delete[] m_sharedImage->pixels;
 
-	m_sharedImage->levelCount = levelCount;
 	m_sharedImage->pixels = pixels;
 
 	return true;
@@ -702,21 +707,21 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 		return false;
 	}
 
-	if (level >= m_sharedImage->levelCount)
-	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return false;
-	}
-
-	if (rect.x+rect.width > (m_sharedImage->width << level) || rect.y+rect.height > (m_sharedImage->height) << level)
+	if (rect.x+rect.width > std::max(m_sharedImage->width >> level, 1U) || rect.y+rect.height > std::max(m_sharedImage->height >> level, 1U))
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
 	}
 
-	if (z >= (m_sharedImage->depth << level))
+	if (z >= std::max(m_sharedImage->depth >> level, 1U))
 	{
 		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(m_sharedImage->depth) + ')');
+		return false;
+	}
+
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return false;
 	}
 	#endif
@@ -749,7 +754,7 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 leve
 
 	if (m_sharedImage->type != nzImageType_Cubemap)
 	{
-		NazaraError("Update is designed for cubemaps, use Update instead");
+		NazaraError("UpdateFace is designed for cubemaps, use Update instead");
 		return false;
 	}
 
@@ -785,7 +790,7 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRect
 
 	if (m_sharedImage->type != nzImageType_Cubemap)
 	{
-		NazaraError("Update is designed for cubemaps, use Update instead");
+		NazaraError("UpdateFace is designed for cubemaps, use Update instead");
 		return false;
 	}
 
@@ -801,15 +806,15 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRect
 		return false;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (rect.x+rect.width > std::max(m_sharedImage->width >> level, 1U) || rect.y+rect.height > std::max(m_sharedImage->height >> level, 1U))
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
 	}
 
-	if (rect.x+rect.width > (m_sharedImage->width << level) || rect.y+rect.height > (m_sharedImage->height) << level)
+	if (level >= m_sharedImage->levelCount)
 	{
-		NazaraError("Rectangle dimensions are out of bounds");
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return false;
 	}
 	#endif
@@ -861,7 +866,7 @@ nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned i
 	unsigned int heightLevel = std::log(height)/l2;
 	unsigned int depthLevel = std::log(depth)/l2;
 
-	return std::max(std::max(widthLevel, heightLevel), depthLevel);
+	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
 }
 
 void NzImage::RegisterFileLoader(const NzString& extensions, LoadFileFunction loadFile)

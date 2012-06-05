@@ -30,7 +30,8 @@ namespace
 		4	// nzElementUsage_TexCoord
 	};
 
-	const GLenum openglPrimitive[] = {
+	const GLenum openglPrimitive[] =
+	{
 		GL_LINES,		   // nzPrimitiveType_LineList,
 		GL_LINE_STRIP,	   // nzPrimitiveType_LineStrip,
 		GL_POINTS,		   // nzPrimitiveType_PointList,
@@ -310,6 +311,12 @@ bool NzRenderer::SetShader(NzShader* shader)
 	if (shader == m_shader)
 		return true;
 
+	if (m_shader)
+	{
+		m_shader->m_impl->Unbind();
+		m_shader = nullptr;
+	}
+
 	if (shader)
 	{
 		#if NAZARA_RENDERER_SAFE
@@ -327,11 +334,6 @@ bool NzRenderer::SetShader(NzShader* shader)
 		}
 
 		m_shader = shader;
-	}
-	else if (m_shader)
-	{
-		m_shader->m_impl->Unbind();
-		m_shader = nullptr;
 	}
 
 	return true;
@@ -408,7 +410,7 @@ void NzRenderer::Uninitialize()
 	// Libération des VAOs
 	for (auto it = m_vaos.begin(); it != m_vaos.end(); ++it)
 	{
-		GLuint vao = it->second;
+		GLuint vao = static_cast<GLuint>(it->second);
 		glDeleteVertexArrays(1, &vao);
 	}
 

@@ -8,6 +8,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
+#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -25,12 +26,28 @@ NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32
 m_context(nullptr)
 {
 	Create(mode, title, style, parameters);
+
+	#ifdef NAZARA_DEBUG
+	if (!m_impl)
+	{
+		NazaraError("Failed to create render window");
+		throw std::runtime_error("Constructor failed");
+	}
+	#endif
 }
 
 NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters) :
 m_context(nullptr)
 {
 	Create(handle, parameters);
+
+	#ifdef NAZARA_DEBUG
+	if (!m_impl)
+	{
+		NazaraError("Failed to create render window");
+		throw std::runtime_error("Constructor failed");
+	}
+	#endif
 }
 
 NzRenderWindow::~NzRenderWindow()

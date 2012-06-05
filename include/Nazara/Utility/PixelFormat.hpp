@@ -53,6 +53,8 @@ class NzPixelFormat
 
 		static nzUInt8 GetBPP(nzPixelFormat format);
 
+		static bool HasAlpha(nzPixelFormat format);
+
 		static bool IsCompressed(nzPixelFormat format);
 		static bool IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat);
 		static bool IsValid(nzPixelFormat format);
@@ -65,7 +67,7 @@ class NzPixelFormat
 		static bool Initialize();
 		static void Uninitialize();
 
-		static ConvertFunction s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count];
+		static NAZARA_API ConvertFunction s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count];
 };
 
 #include <Nazara/Utility/PixelFormat.inl>

@@ -139,6 +139,24 @@ inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 	return 0;
 }
 
+inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
+{
+	switch (format)
+	{
+		case nzPixelFormat_BGRA8:
+		case nzPixelFormat_DXT3:
+		case nzPixelFormat_DXT5:
+		case nzPixelFormat_LA8:
+		case nzPixelFormat_RGB5A1:
+		case nzPixelFormat_RGBA4:
+		case nzPixelFormat_RGBA8:
+			return true;
+
+		default:
+			return false;
+	}
+}
+
 inline bool NzPixelFormat::IsCompressed(nzPixelFormat format)
 {
 	switch (format)
