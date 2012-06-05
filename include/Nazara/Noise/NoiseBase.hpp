@@ -18,6 +18,7 @@ class NzNoiseBase
         void SetNewSeed(int seed);
         int GetUniformRandomValue();
         void ShufflePermutationTable();
+
         int fastfloor(float n);
         int JenkinsHash(int a, int b, int c);
     protected:

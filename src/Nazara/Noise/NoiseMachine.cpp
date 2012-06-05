@@ -35,8 +35,7 @@ NzNoiseMachine::NzNoiseMachine(int seed)
         for(int j(0) ; j < 4 ; ++j)
             lookupTable4D[i][j] = lookupTemp4D[i][j];
 
-    float unit = 1.0/sqrt(2);
-    float grad2Temp[][2] = {{unit,unit},{-unit,unit},{unit,-unit},{-unit,-unit},
+    float grad2Temp[][2] = {{1,1},{-1,1},{1,-1},{-1,-1},
                             {1,0},{-1,0},{0,1},{0,-1}};
 
     for(int i(0) ; i < 8 ; ++i)
@@ -69,28 +68,17 @@ NzNoiseMachine::NzNoiseMachine(int seed)
     for(int i(0) ; i < 32 ; ++i)
         for(int j(0) ; j < 4 ; ++j)
             gradient4[i][j] = grad4Temp[i][j];
-
-    m_lacunarity = 2.5f;
-    m_octaves = 3.0f;
-    m_hurst = 1.1f;
-    m_parametersModified = true;
 }
-
-NzNoiseMachine::~NzNoiseMachine()
-{
-}
-
-
 
 //------------------------------ PERLIN ------------------------------
 
 float NzNoiseMachine::Get2DPerlinNoiseValue(float x, float y, float res)
 {
-    nx = x/res;
-    ny = y/res;
+    x /= res;
+    y /= res;
 
-    x0 = static_cast<int>(nx);
-    y0 = static_cast<int>(ny);
+    x0 = fastfloor(x);
+    y0 = fastfloor(y);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -100,42 +88,37 @@ float NzNoiseMachine::Get2DPerlinNoiseValue(float x, float y, float res)
     gi2 = perm[ii + perm[jj + 1]] & 7;
     gi3 = perm[ii + 1 + perm[jj + 1]] & 7;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
+    temp.x = x-x0;
+    temp.y = y-y0;
+
+    Cx = temp.x * temp.x * temp.x * (temp.x * (temp.x * 6 - 15) + 10);
+    Cy = temp.y * temp.y * temp.y * (temp.y * (temp.y * 6 - 15) + 10);
+
     s[0] = gradient2[gi0][0]*temp.x + gradient2[gi0][1]*temp.y;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[0] = gradient2[gi1][0]*temp.x + gradient2[gi1][1]*temp.y;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
-    u[0] = gradient2[gi2][0]*temp.x + gradient2[gi2][1]*temp.y;
-
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v[0] = gradient2[gi3][0]*temp.x + gradient2[gi3][1]*temp.y;
 
-    tmp = nx-x0;
-    Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
+    temp.x = x-x0;
+    u[0] = gradient2[gi2][0]*temp.x + gradient2[gi2][1]*temp.y;
 
     Li1 = s[0] + Cx*(t[0]-s[0]);
     Li2 = u[0] + Cx*(v[0]-u[0]);
-
-    tmp = ny - y0;
-    Cy = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     return Li1 + Cy*(Li2-Li1);
 }
 float NzNoiseMachine::Get3DPerlinNoiseValue(float x, float y, float z, float res)
 {
-    nx = x/res;
-    ny = y/res;
-    nz = z/res;
+    x /= res;
+    y /= res;
+    z /= res;
 
-    x0 = static_cast<int>(nx);
-    y0 = static_cast<int>(ny);
-    z0 = static_cast<int>(nz);
+    x0 = static_cast<int>(x);
+    y0 = static_cast<int>(y);
+    z0 = static_cast<int>(z);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -151,41 +134,38 @@ float NzNoiseMachine::Get3DPerlinNoiseValue(float x, float y, float z, float res
     gi6 = perm[ii + perm[jj + 1 + perm[kk + 1]]] % 16;
     gi7 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] % 16;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-z0;
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-z0;
     s[0] = gradient3[gi0][0]*temp.x + gradient3[gi0][1]*temp.y + gradient3[gi0][2]*temp.z;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[0] = gradient3[gi1][0]*temp.x + gradient3[gi1][1]*temp.y + gradient3[gi1][2]*temp.z;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[0] = gradient3[gi2][0]*temp.x + gradient3[gi2][1]*temp.y + gradient3[gi2][2]*temp.z;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
     v[0] = gradient3[gi3][0]*temp.x + gradient3[gi3][1]*temp.y + gradient3[gi3][2]*temp.z;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-(z0+1);
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-(z0+1);
     s[1] = gradient3[gi4][0]*temp.x + gradient3[gi4][1]*temp.y + gradient3[gi4][2]*temp.z;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[1] = gradient3[gi5][0]*temp.x + gradient3[gi5][1]*temp.y + gradient3[gi5][2]*temp.z;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[1] = gradient3[gi6][0]*temp.x + gradient3[gi6][1]*temp.y + gradient3[gi6][2]*temp.z;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
+    temp.y = y-(y0+1);
     v[1] = gradient3[gi7][0]*temp.x + gradient3[gi7][1]*temp.y + gradient3[gi7][2]*temp.z;
 
-    tmp = nx-x0;
+    tmp = x-x0;
     Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     Li1 = s[0] + Cx*(t[0]-s[0]);
@@ -193,13 +173,13 @@ float NzNoiseMachine::Get3DPerlinNoiseValue(float x, float y, float z, float res
     Li3 = s[1] + Cx*(t[1]-s[1]);
     Li4 = u[1] + Cx*(v[1]-u[1]);
 
-    tmp = ny-y0;
+    tmp = y-y0;
     Cy = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     Li5 = Li1 + Cy*(Li2-Li1);
     Li6 = Li3 + Cy*(Li4-Li3);
 
-    tmp = nz-z0;
+    tmp = z-z0;
     Cz = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     return Li5 + Cz*(Li6-Li5);
@@ -207,15 +187,15 @@ float NzNoiseMachine::Get3DPerlinNoiseValue(float x, float y, float z, float res
 
 float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, float res)
 {
-    nx = x/res;
-    ny = y/res;
-    nz = z/res;
-    nw = w/res;
+    x /= res;
+    y /= res;
+    z /= res;
+    w /= res;
 
-    x0 = static_cast<int>(nx);
-    y0 = static_cast<int>(ny);
-    z0 = static_cast<int>(nz);
-    w0 = static_cast<int>(nw);
+    x0 = static_cast<int>(x);
+    y0 = static_cast<int>(y);
+    z0 = static_cast<int>(z);
+    w0 = static_cast<int>(w);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -242,77 +222,69 @@ float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, 
     gi14 = perm[ii     + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
     gi15 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-z0;
-    temp.w = nw-w0;
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-z0;
+    temp.w = w-w0;
     s[0] = gradient4[gi0][0]*temp.x + gradient4[gi0][1]*temp.y + gradient4[gi0][2]*temp.z + gradient4[gi0][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[0] = gradient4[gi1][0]*temp.x + gradient4[gi1][1]*temp.y + gradient4[gi1][2]*temp.z + gradient4[gi1][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[0] = gradient4[gi2][0]*temp.x + gradient4[gi2][1]*temp.y + gradient4[gi2][2]*temp.z + gradient4[gi2][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
     v[0] = gradient4[gi3][0]*temp.x + gradient4[gi3][1]*temp.y + gradient4[gi3][2]*temp.z + gradient4[gi3][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-(z0+1);
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-(z0+1);
     s[1] = gradient4[gi4][0]*temp.x + gradient4[gi4][1]*temp.y + gradient4[gi4][2]*temp.z + gradient4[gi4][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[1] = gradient4[gi5][0]*temp.x + gradient4[gi5][1]*temp.y + gradient4[gi5][2]*temp.z + gradient4[gi5][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[1] = gradient4[gi6][0]*temp.x + gradient4[gi6][1]*temp.y + gradient4[gi6][2]*temp.z + gradient4[gi6][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
     v[1] = gradient4[gi7][0]*temp.x + gradient4[gi7][1]*temp.y + gradient4[gi7][2]*temp.z + gradient4[gi7][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-z0;
-    temp.w = nw-(w0+1);
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-z0;
+    temp.w = w-(w0+1);
     s[2] = gradient4[gi8][0]*temp.x + gradient4[gi8][1]*temp.y + gradient4[gi8][2]*temp.z + gradient4[gi8][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[2] = gradient4[gi9][0]*temp.x + gradient4[gi9][1]*temp.y + gradient4[gi9][2]*temp.z + gradient4[gi9][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[2] = gradient4[gi10][0]*temp.x + gradient4[gi10][1]*temp.y + gradient4[gi10][2]*temp.z + gradient4[gi10][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
     v[2] = gradient4[gi11][0]*temp.x + gradient4[gi11][1]*temp.y + gradient4[gi11][2]*temp.z + gradient4[gi11][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-(z0+1);
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-(z0+1);
     s[3] = gradient4[gi12][0]*temp.x + gradient4[gi12][1]*temp.y + gradient4[gi12][2]*temp.z + gradient4[gi12][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t[3] = gradient4[gi13][0]*temp.x + gradient4[gi13][1]*temp.y + gradient4[gi13][2]*temp.z + gradient4[gi13][3]*temp.w;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
+    temp.x = x-x0;
+    temp.y = y-(y0+1);
     u[3] = gradient4[gi14][0]*temp.x + gradient4[gi14][1]*temp.y + gradient4[gi14][2]*temp.z + gradient4[gi14][3]*temp.w;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.x = x-(x0+1);
     v[3] = gradient4[gi15][0]*temp.x + gradient4[gi15][1]*temp.y + gradient4[gi15][2]*temp.z + gradient4[gi15][3]*temp.w;
 
-    tmp = nx-x0;
+    tmp = x-x0;
     Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     Li1 = s[0] + Cx*(t[0]-s[0]);
@@ -324,7 +296,7 @@ float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, 
     Li7 = s[3] + Cx*(t[3]-s[3]);
     Li8 = u[3] + Cx*(v[3]-u[3]);
 
-    tmp = ny-y0;
+    tmp = y-y0;
     Cy = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     Li9 = Li1 + Cy*(Li2-Li1);
@@ -332,13 +304,13 @@ float NzNoiseMachine::Get4DPerlinNoiseValue(float x, float y, float z, float w, 
     Li11 = Li5 + Cy*(Li6-Li5);
     Li12 = Li7 + Cy*(Li8-Li7);
 
-    tmp = nz-z0;
+    tmp = z-z0;
     Cz = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     Li13 = Li9 + Cz*(Li10-Li9);
     Li14 = Li11 + Cz*(Li12-Li11);
 
-    tmp = nw-w0;
+    tmp = w-w0;
     Cw = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     return Li13 + Cw*(Li14-Li13);
@@ -351,17 +323,16 @@ float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float res)
     x /= res;
     y /= res;
 
+    skewedCubeOrigin.x = fastfloor(x + (x + y) * SkewCoeff2D);
+    skewedCubeOrigin.y = fastfloor(y + (x + y) * SkewCoeff2D);
 
-    Origin.x = fastfloor(x + (x + y) * SkewCoeff2D);
-    Origin.y = fastfloor(y + (x + y) * SkewCoeff2D);
+    unskewedCubeOrigin.x = skewedCubeOrigin.x - (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
+    unskewedCubeOrigin.y = skewedCubeOrigin.y - (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
 
-    A.x = Origin.x - (Origin.x + Origin.y) * UnskewCoeff2D;
-    A.y = Origin.y - (Origin.x + Origin.y) * UnskewCoeff2D;
+    unskewedDistToOrigin.x = x - unskewedCubeOrigin.x;
+    unskewedDistToOrigin.y = y - unskewedCubeOrigin.y;
 
-    IsoOriginDist.x = x - A.x;
-    IsoOriginDist.y = y - A.y;
-
-    if(IsoOriginDist.x > IsoOriginDist.y)
+    if(unskewedDistToOrigin.x > unskewedDistToOrigin.y)
     {
         off1.x = 1;
         off1.y = 0;
@@ -372,8 +343,9 @@ float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float res)
         off1.y = 1;
     }
 
-    d1.x = A.x - x;
-    d1.y = A.y - y;
+
+    d1.x = unskewedCubeOrigin.x - x;
+    d1.y = unskewedCubeOrigin.y - y;
 
     d2.x = d1.x + off1.x - UnskewCoeff2D;
     d2.y = d1.y + off1.y - UnskewCoeff2D;
@@ -381,33 +353,33 @@ float NzNoiseMachine::Get2DSimplexNoiseValue(float x, float y, float res)
     d3.x = d1.x + 1.0 - 2 * UnskewCoeff2D;
     d3.y = d1.y + 1.0 - 2 * UnskewCoeff2D;
 
-    ii = Origin.x & 255;
-    jj = Origin.y & 255;
+    ii = skewedCubeOrigin.x & 255;
+    jj = skewedCubeOrigin.y & 255;
 
-    gi0 = perm[ii + perm[jj]] % 8;
-    gi1 = perm[ii + off1.x + perm[jj + off1.y]] % 8;
-    gi2 = perm[ii + 1 + perm[jj + 1]] % 8;
-
-    n1 = gradient2[gi0][0] * d1.x + gradient2[gi0][1] * d1.y;
-    n2 = gradient2[gi1][0] * d2.x + gradient2[gi1][1] * d2.y;
-    n3 = gradient2[gi2][0] * d3.x + gradient2[gi2][1] * d3.y;
+    gi0 = perm[ii + perm[jj]] & 7;
+    gi1 = perm[ii + off1.x + perm[jj + off1.y]] & 7;
+    gi2 = perm[ii + 1 + perm[jj + 1]] & 7;
 
     c1 = 0.5 - d1.x * d1.x - d1.y * d1.y;
     c2 = 0.5 - d2.x * d2.x - d2.y * d2.y;
     c3 = 0.5 - d3.x * d3.x - d3.y * d3.y;
 
     if(c1 < 0)
-        c1 = 0;
+        n1 = 0;
+    else
+        n1 = c1*c1*c1*c1*(gradient2[gi0][0] * d1.x + gradient2[gi0][1] * d1.y);
+
     if(c2 < 0)
-        c2 = 0;
+        n2 = 0;
+    else
+        n2 = c2*c2*c2*c2*(gradient2[gi1][0] * d2.x + gradient2[gi1][1] * d2.y);
+
     if(c3 < 0)
-        c3 = 0;
+        n3 = 0;
+    else
+        n3 = c3*c3*c3*c3*(gradient2[gi2][0] * d3.x + gradient2[gi2][1] * d3.y);
 
-    n1 = c1*c1*c1*n1;
-    n2 = c2*c2*c2*n2;
-    n3 = c3*c3*c3*n3;
-
-    return (n1+n2+n3)*23.2;
+    return (n1+n2+n3)*70;
 }
 
 float NzNoiseMachine::Get3DSimplexNoiseValue(float x, float y, float z, float res)
@@ -686,51 +658,6 @@ float NzNoiseMachine::Get4DCellNoiseValue(float x, float y, float z, float w, fl
     w0 = static_cast<int>(w) & 255;
 
     return 0;
-}
-
-void NzNoiseMachine::SetLacunarity(float lacunarity)
-{
-    if(lacunarity != m_lacunarity)
-    {
-        m_lacunarity = lacunarity;
-        m_parametersModified = true;
-    }
-}
-
-void NzNoiseMachine::SetHurstParameter(float h)
-{
-    if(h != m_hurst)
-    {
-        m_hurst = h;
-        m_parametersModified = true;
-    }
-}
-
-void NzNoiseMachine::SetOctavesNumber(float octaves)
-{
-    if(octaves != m_octaves && octaves < 30)
-    {
-        m_octaves = octaves;
-        m_parametersModified = true;
-    }
-}
-
-void NzNoiseMachine::RecomputeExponentArray()
-{
-    if(m_parametersModified)
-    {
-        float frequency = 1.0;
-        m_sum = 0.f;
-        for (int i(0) ; i < m_octaves; ++i)
-        {
-            exponent_array[i] = pow( frequency, -m_hurst );
-            frequency *= m_lacunarity;
-
-            m_sum += exponent_array[i];
-
-        }
-        m_parametersModified = false;
-    }
 }
 
 //------------------------------ FBM ------------------------------

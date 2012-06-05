@@ -34,10 +34,10 @@ T NzPerlin4D<T>::GetValue(T x, T y, T z, T w, T res)
     nz = z/res;
     nw = w/res;
 
-    x0 = static_cast<int>(nx);
-    y0 = static_cast<int>(ny);
-    z0 = static_cast<int>(nz);
-    w0 = static_cast<int>(nw);
+    x0 = fastfloor(nx);
+    y0 = fastfloor(ny);
+    z0 = fastfloor(nz);
+    w0 = fastfloor(nw);
 
     ii = x0 & 255;
     jj = y0 & 255;

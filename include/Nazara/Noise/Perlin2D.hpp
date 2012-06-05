@@ -27,8 +27,6 @@ template <typename T> class NzPerlin2D : public NzNoiseBase
         T s,t,u,v;
         T Cx,Cy;
         T Li1, Li2;
-        T nx, ny;
-        T tmp;
         NzVector2<T> temp;
 };
 
