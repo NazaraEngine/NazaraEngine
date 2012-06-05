@@ -8,22 +8,20 @@
 #define NOISEMACHINE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-//#include <Nazara/Noise/NoiseBase.hpp>
-#include "NoiseBase.hpp"
+//#include <Nazara/Noise/ComplexNoiseBase.hpp>
+#include "ComplexNoiseBase.hpp"
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-//TODO : tableau de gradients en float au lieu de int ? Ou condition ternaires ?
-//       utiliser fastfloor partout
-//       utiliser copies paramètres pour économiser mémoire
-//       améliorer le mélange de la table de perm
+//TODO : AMELIORER MELANGE TABLE PERMUTATION
+//       PB MULTIPLES APPELS SHUFFLEPERMUTATIONTABLE()
 
-class NzNoiseMachine : public NzNoiseBase
+class NzNoiseMachine : public NzComplexNoiseBase
 {
     public:
         NzNoiseMachine(int seed = 0);
-        ~NzNoiseMachine();
+        ~NzNoiseMachine() = default;
 
         float Get2DPerlinNoiseValue (float x, float y,                   float res);
         float Get3DPerlinNoiseValue (float x, float y, float z,          float res);
@@ -36,11 +34,6 @@ class NzNoiseMachine : public NzNoiseBase
         float Get2DCellNoiseValue(float x, float y,                   float res);
         float Get3DCellNoiseValue(float x, float y, float z,          float res);
         float Get4DCellNoiseValue(float x, float y, float z, float w, float res);
-
-        void SetLacunarity(float lacunarity);
-        void SetHurstParameter(float h);
-        void SetOctavesNumber(float octaves);
-        void RecomputeExponentArray();
 
         float Get2DFBMNoiseValue(float x, float y,          float res);
         float Get3DFBMNoiseValue(float x, float y, float z, float res);
@@ -59,11 +52,11 @@ class NzNoiseMachine : public NzNoiseBase
         //-----------------------  Simplex variables  --------------------------------------
 
         float n1, n2, n3, n4, n5;
-        NzVector4f A;
-        NzVector4f d1,d2,d3,d4,d5;
-        NzVector4f IsoOriginDist;
+        NzVector4f d1,d2,d3,d4,d5,unskewedCubeOrigin,unskewedDistToOrigin;
+        NzVector4i off1, off2,off3,skewedCubeOrigin;
+
+        NzVector4f A,IsoOriginDist;
         NzVector4i Origin;
-        NzVector4i off1, off2,off3;
 
         int ii,jj,kk,ll;
         int gi0,gi1,gi2,gi3,gi4,gi5,gi6,gi7,gi8,gi9,gi10,gi11,gi12,gi13,gi14,gi15;
@@ -86,20 +79,14 @@ class NzNoiseMachine : public NzNoiseBase
         float s[4],t[4],u[4],v[4];
         float Cx, Cy, Cz, Cw;
         NzVector4f temp;
-        float nx,ny,nz,nw;
         float tmp;
 
         //----------------------  Complex Noise Variables --------------------------------
 
-        float m_lacunarity;
-        float m_hurst;
-        float m_octaves;
-        bool m_parametersModified;
-        float exponent_array[30];
+
         bool first;
         float value;
         float remainder;
-        float m_sum;
         float smax;
         float smin;
 

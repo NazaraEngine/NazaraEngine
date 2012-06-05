@@ -9,9 +9,8 @@
 template <typename T>
 NzPerlin2D<T>::NzPerlin2D()
 {
-    T unit = 1.0/sqrt(2);
-    T grad2Temp[][2] = {{unit,unit},{-unit,unit},{unit,-unit},{-unit,-unit},
-                            {1,0},{-1,0},{0,1},{0,-1}};
+    T grad2Temp[][2] = {{1,1},{-1,1},{1,-1},{-1,-1},
+                        {1,0},{-1,0},{0,1},{0,-1}};
 
     for(int i(0) ; i < 8 ; ++i)
         for(int j(0) ; j < 2 ; ++j)
@@ -21,11 +20,11 @@ NzPerlin2D<T>::NzPerlin2D()
 template <typename T>
 T NzPerlin2D<T>::GetValue(T x, T y, T res)
 {
-    nx = x/res;
-    ny = y/res;
+    x /= res;
+    y /= res;
 
-    x0 = static_cast<int>(nx);
-    y0 = static_cast<int>(ny);
+    x0 = fastfloor(x);
+    y0 = fastfloor(y);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -35,30 +34,25 @@ T NzPerlin2D<T>::GetValue(T x, T y, T res)
     gi2 = perm[ii + perm[jj + 1]] & 7;
     gi3 = perm[ii + 1 + perm[jj + 1]] & 7;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
+    temp.x = x-x0;
+    temp.y = y-y0;
+
+    Cx = temp.x * temp.x * temp.x * (temp.x * (temp.x * 6 - 15) + 10);
+    Cy = temp.y * temp.y * temp.y * (temp.y * (temp.y * 6 - 15) + 10);
+
     s = gradient2[gi0][0]*temp.x + gradient2[gi0][1]*temp.y;
 
-    temp.x = nx-(x0+1);
-    temp.y = ny-y0;
+    temp.x = x-(x0+1);
     t = gradient2[gi1][0]*temp.x + gradient2[gi1][1]*temp.y;
 
-    temp.x = nx-x0;
-    temp.y = ny-(y0+1);
-    u = gradient2[gi2][0]*temp.x + gradient2[gi2][1]*temp.y;
-
-    temp.x = nx-(x0+1);
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v = gradient2[gi3][0]*temp.x + gradient2[gi3][1]*temp.y;
 
-    tmp = nx-x0;
-    Cx = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
+    temp.x = x-x0;
+    u = gradient2[gi2][0]*temp.x + gradient2[gi2][1]*temp.y;
 
     Li1 = s + Cx*(t-s);
     Li2 = u + Cx*(v-u);
-
-    tmp = ny - y0;
-    Cy = tmp * tmp * tmp * (tmp * (tmp * 6 - 15) + 10);
 
     return Li1 + Cy*(Li2-Li1);
 }
