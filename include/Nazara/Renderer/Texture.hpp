@@ -27,7 +27,7 @@ enum nzTextureWrap
 	nzTextureWrap_Unknown
 };
 
-class NzRenderWindow; ///TODO: Screenshot
+class NzShader;
 struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable

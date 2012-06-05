@@ -45,7 +45,7 @@ class NzWindowImpl : NzNonCopyable
 		NzWindowHandle GetHandle() const;
 		unsigned int GetHeight() const;
 		NzVector2i GetPosition() const;
-		NzVector2i GetSize() const;
+		NzVector2ui GetSize() const;
 		NzString GetTitle() const;
 		unsigned int GetWidth() const;
 

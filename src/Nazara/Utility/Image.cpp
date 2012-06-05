@@ -729,8 +729,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 	EnsureOwnership();
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
-
-	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(m_sharedImage->height*(m_sharedImage->width*z + rect.y) + rect.x) * NzPixelFormat::GetBPP(m_sharedImage->format)];
+	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(m_sharedImage->height*(m_sharedImage->width*z + rect.y) + rect.x) * bpp];
 	unsigned int srcStride = rect.width * bpp;
 	unsigned int blockSize = m_sharedImage->width * bpp;
 	for (unsigned int i = 0; i < rect.height; ++i)
@@ -822,8 +821,7 @@ bool NzImage::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRect
 	EnsureOwnership();
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
-
-	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(m_sharedImage->height*(m_sharedImage->width*(face-nzCubemapFace_PositiveX) + rect.y) + rect.x) * NzPixelFormat::GetBPP(m_sharedImage->format)];
+	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(m_sharedImage->height*(m_sharedImage->width*(face-nzCubemapFace_PositiveX) + rect.y) + rect.x) * bpp];
 	unsigned int srcStride = rect.width * bpp;
 	unsigned int blockSize = m_sharedImage->width * bpp;
 	for (unsigned int i = 0; i < rect.height; ++i)

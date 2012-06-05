@@ -222,12 +222,12 @@ NzVector2i NzWindow::GetPosition() const
 		return NzVector2i(0);
 }
 
-NzVector2i NzWindow::GetSize() const
+NzVector2ui NzWindow::GetSize() const
 {
 	if (m_impl)
 		return m_impl->GetSize();
 	else
-		return NzVector2i(0);
+		return NzVector2ui(0U);
 }
 
 NzString NzWindow::GetTitle() const

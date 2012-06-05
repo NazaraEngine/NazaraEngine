@@ -19,10 +19,14 @@
 #endif
 
 class NzContext;
+class NzImage;
+class NzTexture;
 struct NzContextParameters;
 
 class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
+	friend class NzTexture;
+
 	public:
 		NzRenderWindow();
 		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = NzWindow::Default, const NzContextParameters& parameters = NzContextParameters());
@@ -30,6 +34,9 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 		virtual ~NzRenderWindow();
 
 		bool CanActivate() const;
+
+		bool CopyToImage(NzImage* image); ///TODO: Const
+		bool CopyToTexture(NzTexture* texture); ///TODO: Const
 
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = NzWindow::Default, const NzContextParameters& parameters = NzContextParameters());
 		bool Create(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
