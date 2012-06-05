@@ -111,7 +111,7 @@ namespace
 		if (format == nzPixelFormat_Undefined)
 			format = formats[bpp-1];
 
-		if (!resource->Create(nzImageType_2D, format, width, height))
+		if (!resource->Create(nzImageType_2D, format, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			stbi_image_free(ptr);

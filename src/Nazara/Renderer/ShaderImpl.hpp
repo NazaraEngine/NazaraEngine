@@ -10,6 +10,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 
 class NzRenderer;
+class NzTexture;
 class NzVertexBuffer;
 class NzVertexDeclaration;
 
@@ -36,7 +37,7 @@ class NzShaderImpl
 
 		virtual bool Load(nzShaderType type, const NzString& source) = 0;
 
-		virtual bool Lock() const = 0;
+		virtual bool Lock() = 0;
 
 		virtual bool SendBoolean(const NzString& name, bool value) = 0;
 		virtual bool SendDouble(const NzString& name, double value) = 0;
@@ -44,9 +45,10 @@ class NzShaderImpl
 		virtual bool SendInteger(const NzString& name, int value) = 0;
 		virtual bool SendMatrix(const NzString& name, const NzMatrix4d& matrix) = 0;
 		virtual bool SendMatrix(const NzString& name, const NzMatrix4f& matrix) = 0;
+		virtual bool SendTexture(const NzString& name, NzTexture* texture) = 0;
 
 		virtual void Unbind() = 0;
-		virtual void Unlock() const = 0;
+		virtual void Unlock() = 0;
 };
 
 #endif // NAZARA_SHADERIMPL_HPP

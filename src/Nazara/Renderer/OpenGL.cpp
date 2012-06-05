@@ -255,6 +255,8 @@ bool NzOpenGL::Initialize()
 		glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(LoadEntry("glGetShaderiv"));
 		glGetShaderSource = reinterpret_cast<PFNGLGETSHADERSOURCEPROC>(LoadEntry("glGetShaderSource"));
 		glGetTexImage = reinterpret_cast<PFNGLGETTEXIMAGEPROC>(LoadEntry("glGetTexImage"));
+		glGetTexLevelParameterfv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERFVPROC>(LoadEntry("glGetTexLevelParameterfv"));
+		glGetTexLevelParameteriv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERIVPROC>(LoadEntry("glGetTexLevelParameteriv"));
 		glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(LoadEntry("glGetTexParameterfv"));
 		glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(LoadEntry("glGetTexParameteriv"));
 		glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
@@ -445,6 +447,9 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
+	// TextureCompression_s3tc
+	openGLextensions[NzOpenGL::TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
+
 	// VertexArrayObject
 	if (openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
 	{
@@ -587,6 +592,8 @@ PFNGLGETSHADERSOURCEPROC		  glGetShaderSource			 = nullptr;
 PFNGLGETSTRINGPROC				  glGetString				 = nullptr;
 PFNGLGETSTRINGIPROC				  glGetStringi				 = nullptr;
 PFNGLGETTEXIMAGEPROC			  glGetTexImage				 = nullptr;
+PFNGLGETTEXLEVELPARAMETERFVPROC	  glGetTexLevelParameterfv	 = nullptr;
+PFNGLGETTEXLEVELPARAMETERIVPROC	  glGetTexLevelParameteriv	 = nullptr;
 PFNGLGETTEXPARAMETERFVPROC		  glGetTexParameterfv		 = nullptr;
 PFNGLGETTEXPARAMETERIVPROC		  glGetTexParameteriv		 = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC		  glGetUniformLocation		 = nullptr;

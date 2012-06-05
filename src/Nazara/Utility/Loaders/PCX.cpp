@@ -93,7 +93,7 @@ namespace
 		unsigned int width = header.xmax - header.xmin+1;
 		unsigned int height = header.ymax - header.ymin+1;
 
-		if (!resource->Create(nzImageType_2D, nzPixelFormat_RGB8, width, height))
+		if (!resource->Create(nzImageType_2D, nzPixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			return false;

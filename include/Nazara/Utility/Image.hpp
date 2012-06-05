@@ -31,18 +31,22 @@ enum nzImageType
 	nzImageType_1D,
 	nzImageType_2D,
 	nzImageType_3D,
-	nzImageType_Cubemap
+	nzImageType_Cubemap,
+
+	nzImageType_Count
 };
 
 struct NzImageParams
 {
 	// GCC 4.7 je te veux
 	NzImageParams() :
-	loadFormat(nzPixelFormat_Undefined)
+	loadFormat(nzPixelFormat_Undefined),
+	levelCount(0)
 	{
 	}
 
 	nzPixelFormat loadFormat;
+	nzUInt8 levelCount;
 
 	bool IsValid() const
 	{

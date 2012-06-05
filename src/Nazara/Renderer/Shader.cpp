@@ -371,6 +371,19 @@ bool NzShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 	return m_impl->SendMatrix(name, matrix);
 }
 
+bool NzShader::SendTexture(const NzString& name, NzTexture* texture)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendTexture(name, texture);
+}
+
 void NzShader::Unlock()
 {
 	#if NAZARA_RENDERER_SAFE

@@ -37,7 +37,10 @@ m_id(0)
 NzOcclusionQuery::~NzOcclusionQuery()
 {
 	if (m_id)
-		glDeleteQueries(1, reinterpret_cast<GLuint*>(&m_id));
+	{
+		GLuint query = static_cast<GLuint>(m_id);
+		glDeleteQueries(1, &query);
+	}
 }
 
 void NzOcclusionQuery::Begin()

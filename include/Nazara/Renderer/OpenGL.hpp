@@ -38,6 +38,7 @@ class NAZARA_API NzOpenGL
 			FP64,
 			FrameBufferObject,
 			Texture3D,
+			TextureCompression_s3tc,
 			TextureStorage,
 			VertexArrayObject,
 
@@ -120,6 +121,8 @@ NAZARA_API extern PFNGLGETSHADERSOURCEPROC			glGetShaderSource;
 NAZARA_API extern PFNGLGETSTRINGPROC				glGetString;
 NAZARA_API extern PFNGLGETSTRINGIPROC				glGetStringi;
 NAZARA_API extern PFNGLGETTEXIMAGEPROC				glGetTexImage;
+NAZARA_API extern PFNGLGETTEXLEVELPARAMETERFVPROC	glGetTexLevelParameterfv;
+NAZARA_API extern PFNGLGETTEXLEVELPARAMETERIVPROC	glGetTexLevelParameteriv;
 NAZARA_API extern PFNGLGETTEXPARAMETERFVPROC		glGetTexParameterfv;
 NAZARA_API extern PFNGLGETTEXPARAMETERIVPROC		glGetTexParameteriv;
 NAZARA_API extern PFNGLGETUNIFORMLOCATIONPROC		glGetUniformLocation;

@@ -31,7 +31,8 @@ namespace
 
 		NzStringStream ss;
 		ss << "OpenGL debug message (ID: 0x" << NzString::Number(id, 16) << "):\n";
-		ss << "-Source: ";
+		ss << "Sent by context: " << userParam;
+		ss << "\n-Source: ";
 		switch (source)
 		{
 			case GL_DEBUG_SOURCE_API_ARB:
@@ -121,8 +122,7 @@ namespace
 		}
 		ss << '\n';
 
-		ss << "Message: " << message;
-		ss << "\n\nSent by context: " << userParam;
+		ss << "Message: " << message << '\n';
 
 		NazaraNotice(ss);
 	}

@@ -32,6 +32,7 @@ enum nzShaderType
 
 class NzRenderer;
 class NzShaderImpl;
+class NzTexture;
 
 class NAZARA_API NzShader : public NzResource, NzNonCopyable
 {
@@ -65,6 +66,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool SendInteger(const NzString& name, int value);
 		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
+		bool SendTexture(const NzString& name, NzTexture* texture);
 
 		void Unlock();
 
