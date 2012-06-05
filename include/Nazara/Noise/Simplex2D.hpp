@@ -23,13 +23,13 @@ template <typename T> class NzSimplex2D : public NzNoiseBase
     private:
         int ii,jj;
         int gi0,gi1,gi2;
-        NzVector2i Origin,off1;
+        NzVector2i skewedCubeOrigin,off1;
         T n1,n2,n3;
         T c1,c2,c3;
         T gradient2[8][2];
         T UnskewCoeff2D;
         T SkewCoeff2D;
-        NzVector2<T> A, IsoOriginDist;
+        NzVector2<T> unskewedCubeOrigin, unskewedDistToOrigin;
         NzVector2<T> d1,d2,d3;
 
 

@@ -41,7 +41,7 @@ void NzNoiseBase::ShufflePermutationTable()
     int xchanger;
     unsigned int ncase;
 
-    for(int j(0) ; j < 10 ; ++j)
+    for(int j(0) ; j < 20 ; ++j)
         for (int i(0); i < 256 ; ++i)
         {
             ncase = this->GetUniformRandomValue() & 255;
@@ -56,10 +56,7 @@ void NzNoiseBase::ShufflePermutationTable()
 
 int NzNoiseBase::fastfloor(float n)
 {
-    if(n >= 0)
-        return static_cast<int>(n);
-    else
-        return static_cast<int>(n-1);
+    return (n >= 0) ? static_cast<int>(n) : static_cast<int>(n-1);
 }
 
 int NzNoiseBase::JenkinsHash(int a, int b, int c)
