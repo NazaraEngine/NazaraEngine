@@ -65,7 +65,6 @@ T NzPerlin3D<T>::GetValue(T x, T y, T z, T res)
     temp.x = x-x0;
     u[0] = gradient3[gi2][0]*temp.x + gradient3[gi2][1]*temp.y + gradient3[gi2][2]*temp.z;
 
-    temp.x = x-x0;
     temp.y = y-y0;
     temp.z = z-(z0+1);
     s[1] = gradient3[gi4][0]*temp.x + gradient3[gi4][1]*temp.y + gradient3[gi4][2]*temp.z;
