@@ -29,6 +29,7 @@ template <typename T> class NzSimplex2D : public NzNoiseBase
         T gradient2[8][2];
         T UnskewCoeff2D;
         T SkewCoeff2D;
+        T sum;
         NzVector2<T> unskewedCubeOrigin, unskewedDistToOrigin;
         NzVector2<T> d1,d2,d3;
 

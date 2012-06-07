@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 //#include <Nazara/Noise/NoiseBase.hpp>
 #include "NoiseBase.hpp"
-#include <Nazara/Math/Vector3.hpp>
+
 
 
 template <typename T> class NzSimplex3D : public NzNoiseBase
@@ -23,13 +23,14 @@ template <typename T> class NzSimplex3D : public NzNoiseBase
     private:
         int ii,jj,kk;
         int gi0,gi1,gi2,gi3;
-        NzVector3i Origin,off1,off2;
+        NzVector3i skewedCubeOrigin,off1,off2;
         T n1,n2,n3,n4;
         T c1,c2,c3,c4;
-        T gradient3[16][3];
+        T gradient3[12][3];
         T UnskewCoeff3D;
         T SkewCoeff3D;
-        NzVector3<T> A, IsoOriginDist;
+        T sum;
+        NzVector3<T> unskewedCubeOrigin, unskewedDistToOrigin;
         NzVector3<T> d1,d2,d3,d4;
 
 

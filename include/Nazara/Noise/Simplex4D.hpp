@@ -23,7 +23,7 @@ template <typename T> class NzSimplex4D : public NzNoiseBase
     private:
         int ii,jj,kk,ll;
         int gi0,gi1,gi2,gi3,gi4;
-        NzVector4i Origin,off1,off2,off3;
+        NzVector4i skewedCubeOrigin,off1,off2,off3;
         T n1,n2,n3,n4,n5;
         T c1,c2,c3,c4,c5,c6;
         T gradient4[32][4];
@@ -31,7 +31,8 @@ template <typename T> class NzSimplex4D : public NzNoiseBase
         int c;
         T UnskewCoeff4D;
         T SkewCoeff4D;
-        NzVector4<T> A, IsoOriginDist;
+        T sum;
+        NzVector4<T> unskewedCubeOrigin, unskewedDistToOrigin;
         NzVector4<T> d1,d2,d3,d4,d5;
 
 

@@ -17,7 +17,7 @@ NzSimplex2D<T>::NzSimplex2D()
             gradient2[i][j] = grad2Temp[i][j];
 
     SkewCoeff2D = 0.5*(sqrt(3.0) - 1.0);
-    UnskewCoeff2D  = (3.0-sqrt(3.0))/6;
+    UnskewCoeff2D  = (3.0-sqrt(3.0))/6.;
 }
 
 template <typename T>
@@ -26,11 +26,13 @@ T NzSimplex2D<T>::GetValue(T x, T y, T res)
     x /= res;
     y /= res;
 
-    skewedCubeOrigin.x = fastfloor(x + (x + y) * SkewCoeff2D);
-    skewedCubeOrigin.y = fastfloor(y + (x + y) * SkewCoeff2D);
+    sum = (x + y) * SkewCoeff2D;
+    skewedCubeOrigin.x = fastfloor(x + sum);
+    skewedCubeOrigin.y = fastfloor(y + sum);
 
-    unskewedCubeOrigin.x = skewedCubeOrigin.x - (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
-    unskewedCubeOrigin.y = skewedCubeOrigin.y - (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
+    sum = (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
+    unskewedCubeOrigin.x = skewedCubeOrigin.x - sum;
+    unskewedCubeOrigin.y = skewedCubeOrigin.y - sum;
 
     unskewedDistToOrigin.x = x - unskewedCubeOrigin.x;
     unskewedDistToOrigin.y = y - unskewedCubeOrigin.y;
@@ -46,9 +48,7 @@ T NzSimplex2D<T>::GetValue(T x, T y, T res)
         off1.y = 1;
     }
 
-
-    d1.x = unskewedCubeOrigin.x - x;
-    d1.y = unskewedCubeOrigin.y - y;
+    d1 = - unskewedDistToOrigin;
 
     d2.x = d1.x + off1.x - UnskewCoeff2D;
     d2.y = d1.y + off1.y - UnskewCoeff2D;
@@ -59,9 +59,9 @@ T NzSimplex2D<T>::GetValue(T x, T y, T res)
     ii = skewedCubeOrigin.x & 255;
     jj = skewedCubeOrigin.y & 255;
 
-    gi0 = perm[ii + perm[jj]] & 7;
+    gi0 = perm[ii +          perm[jj         ]] & 7;
     gi1 = perm[ii + off1.x + perm[jj + off1.y]] & 7;
-    gi2 = perm[ii + 1 + perm[jj + 1]] & 7;
+    gi2 = perm[ii + 1 +      perm[jj + 1     ]] & 7;
 
     c1 = 0.5 - d1.x * d1.x - d1.y * d1.y;
     c2 = 0.5 - d2.x * d2.x - d2.y * d2.y;

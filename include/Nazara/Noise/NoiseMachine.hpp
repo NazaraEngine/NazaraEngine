@@ -49,17 +49,17 @@ class NzNoiseMachine : public NzComplexNoiseBase
         int gradient4[32][4];
         int lookupTable4D[64][4];
 
+        //----------------------- Common variables    --------------------------------------
+        int ii,jj,kk,ll;
+        int gi0,gi1,gi2,gi3,gi4,gi5,gi6,gi7,gi8,gi9,gi10,gi11,gi12,gi13,gi14,gi15;
+
         //-----------------------  Simplex variables  --------------------------------------
 
         float n1, n2, n3, n4, n5;
         NzVector4f d1,d2,d3,d4,d5,unskewedCubeOrigin,unskewedDistToOrigin;
         NzVector4i off1, off2,off3,skewedCubeOrigin;
 
-        NzVector4f A,IsoOriginDist;
-        NzVector4i Origin;
 
-        int ii,jj,kk,ll;
-        int gi0,gi1,gi2,gi3,gi4,gi5,gi6,gi7,gi8,gi9,gi10,gi11,gi12,gi13,gi14,gi15;
         float c1,c2,c3,c4,c5,c6;
         int c;
 
@@ -71,6 +71,8 @@ class NzNoiseMachine : public NzComplexNoiseBase
 
         float SkewCoeff4D;
         float UnskewCoeff4D;
+
+        float sum;
 
         //-----------------------  Perlin Variables  -------------------------------------
 
