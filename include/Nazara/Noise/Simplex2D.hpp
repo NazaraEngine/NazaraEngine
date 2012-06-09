@@ -8,12 +8,10 @@
 #define SIMPLEX2D_H
 
 #include <Nazara/Prerequesites.hpp>
-//#include <Nazara/Noise/NoiseBase.hpp>
-#include "NoiseBase.hpp"
+#include <Nazara/Noise/NoiseBase.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-
-template <typename T> class NzSimplex2D : public NzNoiseBase
+template <typename T> class NAZARA_API NzSimplex2D : public NzNoiseBase
 {
     public:
         NzSimplex2D();
@@ -39,8 +37,7 @@ template <typename T> class NzSimplex2D : public NzNoiseBase
 typedef NzSimplex2D<float>  NzSimplex2Df;
 typedef NzSimplex2D<double> NzSimplex2Dd;
 
-//#include <Nazara/Noise/Simplex2D.inl>
-#include "Simplex2D.inl"
+#include <Nazara/Noise/Simplex2D.inl>
 
 #endif // SIMPLEX2D_H
 

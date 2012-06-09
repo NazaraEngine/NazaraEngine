@@ -8,8 +8,7 @@
 #define NOISEMACHINE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-//#include <Nazara/Noise/ComplexNoiseBase.hpp>
-#include "ComplexNoiseBase.hpp"
+#include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -17,7 +16,7 @@
 //TODO : AMELIORER MELANGE TABLE PERMUTATION
 //       PB MULTIPLES APPELS SHUFFLEPERMUTATIONTABLE()
 
-class NzNoiseMachine : public NzComplexNoiseBase
+class NAZARA_API NzNoiseMachine : public NzComplexNoiseBase
 {
     public:
         NzNoiseMachine(int seed = 0);

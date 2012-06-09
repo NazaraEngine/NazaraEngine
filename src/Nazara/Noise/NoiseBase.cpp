@@ -2,11 +2,10 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include "NoiseBase.hpp"
-//#include <Nazara/Noise/NoiseBase.hpp>
-//#include <Nazara/Noise/Error.hpp>
-//#include <Nazara/Noise/Config.hpp>
-//#include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Noise/NoiseBase.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 NzNoiseBase::NzNoiseBase(int seed)
 {

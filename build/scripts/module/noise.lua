@@ -2,16 +2,16 @@ project "NazaraNoise"
 
 files
 {
-	"../include/Nazara/Noise/**.hpp",
-	"../include/Nazara/Noise/**.inl",
-	"../src/Nazara/Noise/**.hpp",
-	"../src/Nazara/Noise/**.cpp"
+ "../include/Nazara/Noise/**.hpp",
+ "../include/Nazara/Noise/**.inl",
+ "../src/Nazara/Noise/**.hpp",
+ "../src/Nazara/Noise/**.cpp"
 }
 
 if (os.is("windows")) then
-	excludes { "../src/Nazara/ModuleName/Posix/*.hpp", "../src/Nazara/ModuleName/Posix/*.cpp" }
+	excludes { "../src/Nazara/Noise/Posix/*.hpp", "../src/Nazara/Noise/Posix/*.cpp" }
 else
-	excludes { "../src/Nazara/ModuleName/Win32/*.hpp", "../src/Nazara/ModuleName/Win32/*.cpp" }
+	excludes { "../src/Nazara/Noise/Win32/*.hpp", "../src/Nazara/Noise/Win32/*.cpp" }
 end
 
 configuration "DebugStatic"
