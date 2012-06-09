@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/Noise.hpp>
-#include <Nazara/Noise/Error.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
