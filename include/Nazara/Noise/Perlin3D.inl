@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-//#include <Nazara/Noise/Error.hpp>
-//#include <Nazara/Noise/Config.hpp>
-//#include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 template <typename T>
 NzPerlin3D<T>::NzPerlin3D()
@@ -88,3 +88,5 @@ T NzPerlin3D<T>::GetValue(T x, T y, T z, T res)
 
     return Li5 + Cz*(Li6-Li5);
 }
+
+#include <Nazara/Core/DebugOff.hpp>

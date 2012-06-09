@@ -8,11 +8,10 @@
 #define PERLIN2D_H
 
 #include <Nazara/Prerequesites.hpp>
-//#include <Nazara/Noise/NoiseBase.hpp>
-#include "NoiseBase.hpp"
+#include <Nazara/Noise/NoiseBase.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-template <typename T> class NzPerlin2D : public NzNoiseBase
+template <typename T> class NAZARA_API NzPerlin2D : public NzNoiseBase
 {
     public:
         NzPerlin2D();
@@ -33,8 +32,7 @@ template <typename T> class NzPerlin2D : public NzNoiseBase
 typedef NzPerlin2D<float>  NzPerlin2Df;
 typedef NzPerlin2D<double> NzPerlin2Dd;
 
-//#include <Nazara/Noise/Perlin2D.inl>
-#include "Perlin2D.inl"
+#include <Nazara/Noise/Perlin2D.inl>
 
 #endif // PERLIN2D_H
 

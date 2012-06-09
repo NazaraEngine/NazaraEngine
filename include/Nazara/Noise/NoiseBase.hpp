@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzNoiseBase
+class NAZARA_API NzNoiseBase
 {
     public:
         NzNoiseBase(int seed = 0);

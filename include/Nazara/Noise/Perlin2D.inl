@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-//#include <Nazara/Noise/Error.hpp>
-//#include <Nazara/Noise/Config.hpp>
-//#include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 template <typename T>
 NzPerlin2D<T>::NzPerlin2D()
@@ -57,3 +57,4 @@ T NzPerlin2D<T>::GetValue(T x, T y, T res)
     return Li1 + Cy*(Li2-Li1);
 }
 
+#include <Nazara/Core/DebugOff.hpp>

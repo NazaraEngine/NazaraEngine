@@ -8,10 +8,9 @@
 #define COMPLEXNOISEBASE_H
 
 #include <Nazara/Prerequesites.hpp>
-//#include <Nazara/Noise/NoiseBase.hpp>
-#include "NoiseBase.hpp"
+#include <Nazara/Noise/NoiseBase.hpp>
 
-class NzComplexNoiseBase : public NzNoiseBase
+class NAZARA_API NzComplexNoiseBase : public NzNoiseBase
 {
     public:
         NzComplexNoiseBase();
