@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef SIMPLEX2D_H
-#define SIMPLEX2D_H
+#ifndef SIMPLEX2D_HPP
+#define SIMPLEX2D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
@@ -39,5 +39,5 @@ typedef NzSimplex2D<double> NzSimplex2Dd;
 
 #include <Nazara/Noise/Simplex2D.inl>
 
-#endif // SIMPLEX2D_H
+#endif // SIMPLEX2D_HPP
 

@@ -758,3 +758,5 @@ float NzNoiseMachine::Get3DHybridMultiFractalNoiseValue(float x, float y, float 
 
     return result;
 }
+
+#include <Nazara/Core/DebugOff.hpp>

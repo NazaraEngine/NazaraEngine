@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef SIMPLEX3D_H
-#define SIMPLEX3D_H
+#ifndef SIMPLEX3D_HPP
+#define SIMPLEX3D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
@@ -39,5 +39,5 @@ typedef NzSimplex3D<double> NzSimplex3Dd;
 
 #include <Nazara/Noise/Simplex3D.inl>
 
-#endif // SIMPLEX3D_H
+#endif // SIMPLEX3D_HPP
 

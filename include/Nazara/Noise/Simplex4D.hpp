@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef SIMPLEX4D_H
-#define SIMPLEX4D_H
+#ifndef SIMPLEX4D_HPP
+#define SIMPLEX4D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
