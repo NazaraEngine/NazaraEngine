@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef COMPLEXNOISEBASE_H
-#define COMPLEXNOISEBASE_H
+#ifndef COMPLEXNOISEBASE_HPP
+#define COMPLEXNOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
@@ -14,7 +14,7 @@ class NAZARA_API NzComplexNoiseBase : public NzNoiseBase
 {
     public:
         NzComplexNoiseBase();
-        ~NzComplexNoiseBase();
+        ~NzComplexNoiseBase() = default;
 
         void SetLacunarity(float lacunarity);
         void SetHurstParameter(float h);
@@ -32,4 +32,4 @@ class NAZARA_API NzComplexNoiseBase : public NzNoiseBase
 
 };
 
-#endif // COMPLEXNOISEBASE_H
+#endif // COMPLEXNOISEBASE_HPP

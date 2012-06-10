@@ -55,3 +55,5 @@ bool NzNoise::IsInitialized()
 }
 
 bool NzNoise::s_initialized = false;
+
+//#include <Nazara/Core/DebugOff.hpp> //A INCLURE ?

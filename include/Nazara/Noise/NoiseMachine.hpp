@@ -13,9 +13,6 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-//TODO : AMELIORER MELANGE TABLE PERMUTATION
-//       PB MULTIPLES APPELS SHUFFLEPERMUTATIONTABLE()
-
 class NAZARA_API NzNoiseMachine : public NzComplexNoiseBase
 {
     public:
@@ -93,4 +90,4 @@ class NAZARA_API NzNoiseMachine : public NzComplexNoiseBase
 
 };
 
-#endif // NOISEMACHINE_H
+#endif // NOISEMACHINE_HPP

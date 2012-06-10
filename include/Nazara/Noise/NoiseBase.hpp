@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NOISEBASE_H
-#define NOISEBASE_H
+#ifndef NOISEBASE_HPP
+#define NOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
 
@@ -13,7 +13,7 @@ class NAZARA_API NzNoiseBase
 {
     public:
         NzNoiseBase(int seed = 0);
-        virtual ~NzNoiseBase();
+        ~NzNoiseBase() = default;
 
         void SetNewSeed(int seed);
         int GetUniformRandomValue();
@@ -30,4 +30,4 @@ class NAZARA_API NzNoiseBase
 
 };
 
-#endif // NOISEBASE_H
+#endif // NOISEBASE_HPP

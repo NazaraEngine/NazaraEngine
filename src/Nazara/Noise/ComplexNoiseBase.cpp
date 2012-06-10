@@ -60,9 +60,3 @@ void NzComplexNoiseBase::RecomputeExponentArray()
         m_parametersModified = false;
     }
 }
-
-
-NzComplexNoiseBase::~NzComplexNoiseBase()
-{
-    //dtor
-}
