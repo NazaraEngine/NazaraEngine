@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef PERLIN3D_H
-#define PERLIN3D_H
+#ifndef PERLIN3D_HPP
+#define PERLIN3D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
@@ -37,4 +37,4 @@ typedef NzPerlin3D<double> NzPerlin3Dd;
 
 #include <Nazara/Noise/Perlin3D.inl>
 
-#endif // PERLIN3D_H
+#endif // PERLIN3D_HPP

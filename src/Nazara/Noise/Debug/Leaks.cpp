@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/Config.hpp>
-#if NAZARA_MODULENAME_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
+#if NAZARA_NOISE_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <new>
 
@@ -26,4 +26,5 @@ void operator delete[](void* pointer) throw()
 {
 	NzMemoryManager::Free(pointer, true);
 }
+
 #endif

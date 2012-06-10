@@ -24,4 +24,4 @@ class NAZARA_API NzNoise
 		static bool s_initialized;
 };
 
-#endif // NOISE_H
+#endif // NOISE_HPP
