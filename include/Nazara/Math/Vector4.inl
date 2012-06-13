@@ -120,9 +120,15 @@ NzString NzVector4<T>::ToString() const
 }
 
 template<typename T>
-NzVector4<T>::operator NzString() const
+NzVector4<T>::operator T*()
 {
-	return ToString();
+	return &x;
+}
+
+template<typename T>
+NzVector4<T>::operator const T*() const
+{
+	return &x;
 }
 
 template<typename T>

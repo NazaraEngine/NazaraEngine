@@ -21,15 +21,16 @@ class NAZARA_API NzRenderTarget
 		NzRenderTarget() = default;
 		virtual ~NzRenderTarget();
 
-		virtual bool CanActivate() const = 0;
-
-		virtual NzRenderTargetParameters GetRenderTargetParameters() const = 0;
-
-		#ifdef NAZARA_RENDERER_OPENGL
+		#ifndef NAZARA_RENDERER_COMMON
 		virtual bool HasContext() const = 0;
 		#endif
 
+		virtual unsigned int GetHeight() const = 0;
+		virtual NzRenderTargetParameters GetParameters() const = 0;
+		virtual unsigned int GetWidth() const = 0;
+
 		bool IsActive() const;
+		virtual bool IsValid() const = 0;
 
 		bool SetActive(bool active);
 

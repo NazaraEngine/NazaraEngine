@@ -35,7 +35,7 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 		return false;
 	}
 
-	if (!func(static_cast<const nzUInt8*>(src), static_cast<const nzUInt8*>(src) + GetBPP(srcFormat), static_cast<nzUInt8*>(dst)))
+	if (!func(reinterpret_cast<const nzUInt8*>(src), reinterpret_cast<const nzUInt8*>(src) + GetBPP(srcFormat), reinterpret_cast<nzUInt8*>(dst)))
 	{
 		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " failed");
 		return false;
@@ -48,7 +48,7 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 {
 	if (srcFormat == dstFormat)
 	{
-		std::memcpy(dst, start, static_cast<const nzUInt8*>(end)-static_cast<const nzUInt8*>(start));
+		std::memcpy(dst, start, reinterpret_cast<const nzUInt8*>(end)-reinterpret_cast<const nzUInt8*>(start));
 		return true;
 	}
 
@@ -59,7 +59,7 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 		return false;
 	}
 
-	if (!func(static_cast<const nzUInt8*>(start), static_cast<const nzUInt8*>(end), static_cast<nzUInt8*>(dst)))
+	if (!func(reinterpret_cast<const nzUInt8*>(start), reinterpret_cast<const nzUInt8*>(end), reinterpret_cast<nzUInt8*>(dst)))
 	{
 		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " failed");
 		return false;
@@ -72,10 +72,6 @@ inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 {
 	switch (format)
 	{
-		case nzPixelFormat_Count:
-		case nzPixelFormat_Undefined:
-			return 0;
-
 		case nzPixelFormat_BGR8:
 			return 3;
 
@@ -132,6 +128,11 @@ inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 
 		case nzPixelFormat_RGBA8:
 			return 4;
+
+		case nzPixelFormat_Count:
+		case nzPixelFormat_Undefined:
+			NazaraError("Invalid pixel format");
+			return 0;
 	}
 
 	NazaraInternalError("Invalid pixel format");
@@ -152,9 +153,19 @@ inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return true;
 
-		default:
+		case nzPixelFormat_BGR8:
+		case nzPixelFormat_DXT1:
+		case nzPixelFormat_L8:
+		case nzPixelFormat_RGB8:
 			return false;
+
+		case nzPixelFormat_Count:
+		case nzPixelFormat_Undefined:
+			break;
 	}
+
+	NazaraError("Invalid pixel format");
+	return false;
 }
 
 inline bool NzPixelFormat::IsCompressed(nzPixelFormat format)
@@ -258,13 +269,13 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return "RGBA8";
 
-		default:
-			NazaraInternalError("Invalid pixel format");
-
 		case nzPixelFormat_Count:
 		case nzPixelFormat_Undefined:
-			return "Invalid format";
+			break;
 	}
+
+	NazaraError("Invalid pixel format");
+	return "Invalid format";
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

@@ -50,17 +50,17 @@ NzBuffer::~NzBuffer()
 
 bool NzBuffer::CopyContent(NzBuffer& buffer)
 {
-	void* ptr = buffer.Lock(nzBufferLock_ReadOnly);
+	void* ptr = buffer.Map(nzBufferAccess_ReadOnly);
 	if (!ptr)
 	{
-		NazaraError("Unable to lock source buffer");
+		NazaraError("Failed to map source buffer");
 		return false;
 	}
 
 	bool r = Fill(ptr, 0, m_length);
 
-	if (!buffer.Unlock())
-		NazaraWarning("Unable to unlock source buffer");
+	if (!buffer.Unmap())
+		NazaraWarning("Failed to unmap source buffer");
 
 	return r;
 }
@@ -205,7 +205,7 @@ bool NzBuffer::IsHardware() const
 	return m_storage == nzBufferStorage_Hardware;
 }
 
-void* NzBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length)
+void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -221,10 +221,10 @@ void* NzBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length
 	}
 	#endif
 
-	return m_impl->Lock(lock, offset*m_typeSize, length*m_typeSize);
+	return m_impl->Map(access, offset*m_typeSize, length*m_typeSize);
 }
 
-bool NzBuffer::Unlock()
+bool NzBuffer::Unmap()
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -234,7 +234,7 @@ bool NzBuffer::Unlock()
 	}
 	#endif
 
-	return m_impl->Unlock();
+	return m_impl->Unmap();
 }
 
 bool NzBuffer::IsSupported(nzBufferStorage storage)

@@ -76,17 +76,21 @@ double NzQuaternion<T>::Magnitude() const
 template<typename T>
 double NzQuaternion<T>::Normalize()
 {
-	double length = Magnitude();
+	T squaredLength = SquaredMagnitude();
 
-	if (length != 0.0)
+	if (std::fabs(squaredLength) > 0.00001 && std::fabs(squaredLength - 1.0) > 0.00001)
 	{
+		double length = std::sqrt(squaredLength);
+
 		w /= length;
 		x /= length;
 		y /= length;
 		z /= length;
-	}
 
-	return length;
+		return length;
+	}
+	else
+		return std::sqrt(squaredLength);
 }
 
 template<typename T>
@@ -102,6 +106,8 @@ void NzQuaternion<T>::Set(T W, T X, T Y, T Z)
 	x = X;
 	y = Y;
 	z = Z;
+
+	Normalize();
 }
 
 template<typename T>
@@ -111,6 +117,8 @@ void NzQuaternion<T>::Set(T quat[4])
 	x = quat[1];
 	y = quat[2];
 	z = quat[3];
+
+	Normalize();
 }
 
 template<typename T>
@@ -196,34 +204,31 @@ NzString NzQuaternion<T>::ToString() const
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::operator+(const NzQuaternion& quat) const
-{
-	return NzQuaternion(w + quat.w,
-						x + quat.x,
-						y + quat.y,
-						z + quat.z);
-}
-
-template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator*(const NzQuaternion& quat) const
 {
-	return NzQuaternion(w * quat.w - x * quat.x - y * quat.y - z * quat.z,
-						w * quat.x + x * quat.w + y * quat.z - z * quat.y,
-						w * quat.y + y * quat.w + z * quat.x - x * quat.z,
-						w * quat.z + z * quat.w + x * quat.y - y * quat.x);
+	NzQuaternion result(w * quat.w - x * quat.x - y * quat.y - z * quat.z,
+	                    w * quat.x + x * quat.w + y * quat.z - z * quat.y,
+	                    w * quat.y + y * quat.w + z * quat.x - x * quat.z,
+	                    w * quat.z + z * quat.w + x * quat.y - y * quat.x);
+
+	result.Normalize();
+
+	return result;
 }
 
 template<typename T>
 NzVector3<T> NzQuaternion<T>::operator*(const NzVector3<T>& vec) const
 {
-	NzVector3<T> uv, uuv;
-	NzVector3<T> qvec(x, y, z);
-	uv = qvec.CrossProduct(vec);
-	uuv = qvec.CrossProduct(uv);
-	uv *= 2.0 * w;
-	uuv *= 2.0;
+	NzVector3<T> normal(vec);
+	normal.Normalise();
 
-	return vec + uv + uuv;
+	NzQuaternion qvec(0.0, normal.x, normal.y, normal.z);
+	NzQuaternion result;
+
+	result = operator*(qvec * GetConjugate());
+
+	return NzVector3<T>(result.x, result.y, result.z);
+
 }
 
 template<typename T>
@@ -242,23 +247,11 @@ NzQuaternion<T> NzQuaternion<T>::operator/(const NzQuaternion& quat) const
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::operator+=(const NzQuaternion& quat)
-{
-	w += quat.w;
-	x += quat.x;
-	y += quat.y;
-	z += quat.z;
-
-	return *this;
-}
-
-template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator*=(const NzQuaternion& quat)
 {
     NzQuaternion q(*this);
-	operator=(q * quat);
 
-	return *this;
+	return operator=(q * quat);
 }
 
 template<typename T>
@@ -276,9 +269,8 @@ template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator/=(const NzQuaternion& quat)
 {
     NzQuaternion q(*this);
-	operator=(q / quat);
 
-	return *this;
+	return operator=(q / quat);
 }
 
 template<typename T>

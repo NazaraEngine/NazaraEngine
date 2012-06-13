@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -104,7 +105,7 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 
 		bool Update(const nzUInt8* pixels, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		//bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, nzUInt8 level = 0);
 

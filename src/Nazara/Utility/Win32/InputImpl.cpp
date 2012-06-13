@@ -18,7 +18,7 @@ NzVector2i NzEventImpl::GetMousePosition()
 
 NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
 {
-	HWND handle = static_cast<HWND>(relativeTo.GetHandle());
+	HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
 	if (handle)
 	{
 		POINT pos;
@@ -229,7 +229,7 @@ void NzEventImpl::SetMousePosition(int x, int y)
 
 void NzEventImpl::SetMousePosition(int x, int y, const NzWindow& relativeTo)
 {
-	HWND handle = static_cast<HWND>(relativeTo.GetHandle());
+	HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
 	if (handle)
 	{
 		POINT pos = {x, y};

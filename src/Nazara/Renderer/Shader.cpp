@@ -253,11 +253,12 @@ bool NzShader::LoadFromFile(nzShaderType type, const NzString& filePath)
 		return false;
 	}
 
-	NzString source;
 	unsigned int length = file.GetSize();
+
+	NzString source;
 	source.Resize(length);
 
-	if (file.Read(&source[0], sizeof(char), length) != length*sizeof(char))
+	if (file.Read(&source[0], length) != length)
 	{
 		NazaraError("Failed to read shader file");
 		return false;
@@ -369,6 +370,102 @@ bool NzShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 	#endif
 
 	return m_impl->SendMatrix(name, matrix);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector2d& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (!NazaraRenderer->HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector2f& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector3d& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (!NazaraRenderer->HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector3f& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector4d& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (!NazaraRenderer->HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
+}
+
+bool NzShader::SendVector(const NzString& name, const NzVector4f& vector)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(name, vector);
 }
 
 bool NzShader::SendTexture(const NzString& name, NzTexture* texture)

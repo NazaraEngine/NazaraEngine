@@ -29,8 +29,8 @@ class NAZARA_API NzVertexBuffer
 
 		bool IsHardware() const;
 
-		void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int length = 0);
-		bool Unlock();
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		bool Unmap();
 
 	private:
 		NzBuffer* m_buffer;

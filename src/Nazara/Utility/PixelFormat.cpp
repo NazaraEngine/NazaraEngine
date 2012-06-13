@@ -1317,4 +1317,4 @@ void NzPixelFormat::Uninitialize()
 	std::memset(s_convertFunctions, 0, nzPixelFormat_Count*nzPixelFormat_Count*sizeof(NzPixelFormat::ConvertFunction));
 }
 
-NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count] = {{0}};
+NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count] = {{0}}; ///FIXME: Fonctionne correctement ?

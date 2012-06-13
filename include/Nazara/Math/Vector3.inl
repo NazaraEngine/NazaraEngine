@@ -153,9 +153,15 @@ NzString NzVector3<T>::ToString() const
 }
 
 template<typename T>
-NzVector3<T>::operator NzString() const
+NzVector3<T>::operator T*()
 {
-	return ToString();
+	return &x;
+}
+
+template<typename T>
+NzVector3<T>::operator const T*() const
+{
+	return &x;
 }
 
 template<typename T>
