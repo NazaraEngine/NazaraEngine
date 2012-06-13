@@ -55,7 +55,7 @@ template<> inline int NzVector2<int>::AbsDotProduct(const NzVector2<int>& vec) c
 }
 
 template<typename T>
-double NzVector2<T>::Distance(const NzVector2& vec) const
+T NzVector2<T>::Distance(const NzVector2& vec) const
 {
 	return std::sqrt(SquaredDistance(vec));
 }
@@ -96,15 +96,15 @@ void NzVector2<T>::MakeFloor(const NzVector2& vec)
 }
 
 template<typename T>
-double NzVector2<T>::Length() const
+T NzVector2<T>::Length() const
 {
 	return std::sqrt(SquaredLength());
 }
 
 template<typename T>
-double NzVector2<T>::Normalize()
+T NzVector2<T>::Normalize()
 {
-	double length = Length();
+	T length = Length();
 
 	if (length != 0.f)
 	{

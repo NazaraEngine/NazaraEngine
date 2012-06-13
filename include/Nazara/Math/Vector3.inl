@@ -65,7 +65,7 @@ NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec) const
 }
 
 template<typename T>
-double NzVector3<T>::Distance(const NzVector3& vec) const
+T NzVector3<T>::Distance(const NzVector3& vec) const
 {
 	return std::sqrt(SquaredDistance(vec));
 }
@@ -112,15 +112,15 @@ void NzVector3<T>::MakeFloor(const NzVector3& vec)
 }
 
 template<typename T>
-double NzVector3<T>::Length() const
+T NzVector3<T>::Length() const
 {
 	return std::sqrt(SquaredLength());
 }
 
 template<typename T>
-double NzVector3<T>::Normalize()
+T NzVector3<T>::Normalize()
 {
-	double length = Length();
+	T length = Length();
 
 	if (length != 0.f)
 	{
