@@ -22,13 +22,13 @@ template<typename T> class NzVector3
 
 		T AbsDotProduct(const NzVector3& vec) const;
 		NzVector3 CrossProduct(const NzVector3& vec) const;
-		double Distance(const NzVector3& vec) const;
+		T Distance(const NzVector3& vec) const;
 		T DotProduct(const NzVector3& vec) const;
 		NzVector3 GetNormal() const;
 		void MakeCeil(const NzVector3& vec);
 		void MakeFloor(const NzVector3& vec);
-		double Length() const;
-		double Normalize();
+		T Length() const;
+		T Normalize();
 		T SquaredDistance(const NzVector3& vec) const;
 		T SquaredLength() const;
 
