@@ -9,8 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
 

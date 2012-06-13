@@ -136,9 +136,15 @@ NzString NzVector2<T>::ToString() const
 }
 
 template<typename T>
-NzVector2<T>::operator NzString() const
+NzVector2<T>::operator T*()
 {
-	return ToString();
+	return &x;
+}
+
+template<typename T>
+NzVector2<T>::operator const T*() const
+{
+	return &x;
 }
 
 template<typename T>

@@ -172,12 +172,12 @@ bool NzIndexBuffer::IsSequential() const
 	return m_buffer == nullptr;
 }
 
-void* NzIndexBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length)
+void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Impossible to lock sequential index buffer");
+		NazaraError("Impossible to map sequential index buffer");
 		return nullptr;
 	}
 
@@ -188,10 +188,10 @@ void* NzIndexBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int l
 	}
 	#endif
 
-	return m_buffer->Lock(lock, m_startIndex+offset, (length) ? length : m_indexCount-offset);
+	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
 }
 
-bool NzIndexBuffer::Unlock()
+bool NzIndexBuffer::Unmap()
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_buffer)
@@ -201,5 +201,5 @@ bool NzIndexBuffer::Unlock()
 	}
 	#endif
 
-	return m_buffer->Unlock();
+	return m_buffer->Unmap();
 }

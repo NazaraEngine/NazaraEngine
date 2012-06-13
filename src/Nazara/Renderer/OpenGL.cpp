@@ -116,7 +116,6 @@ bool NzOpenGL::Initialize()
 	}
 
 	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
-	// Le contexte de chargement ne peut pas être partagé car le contexte de référence n'existe pas encore
 	NzContextParameters parameters;
 	parameters.majorVersion = 2;
 	parameters.minorVersion = 0;
@@ -124,8 +123,8 @@ bool NzOpenGL::Initialize()
 
 	/*
 		Note: Même le contexte de chargement nécessite quelques fonctions de base pour correctement s'initialiser
-		Pour cette raison, sa création est faite en deux fois, la première sert à récupérer le strict minimum,
-		la seconde à créer le véritable contexte de chargement.
+		Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
+		de créer le second avec les bons paramètres.s
 
 		Non sérieusement si quelqu'un a une meilleure idée qu'il me le dise
 	*/
@@ -371,50 +370,50 @@ bool NzOpenGL::Initialize()
 	}
 
 	// FrameBufferObject
-	try
+	if (openGLversion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
 	{
-		glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
-		glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
-		glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
-		glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
-		glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
-		glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
-		glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
-		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
-		glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
-		glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
-		glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
-
-		openGLextensions[NzOpenGL::FrameBufferObject] = true;
-	}
-	catch (const std::exception& e)
-	{
-		if (openGLversion >= 300)
-			NazaraWarning("Failed to load core FBOs (" + NzString(e.what()) + ")");
-
-		if (IsSupported("GL_EXT_framebuffer_object"))
+		try
 		{
-			try
-			{
-				glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFEREXTPROC>(LoadEntry("glBindFramebufferEXT"));
-				glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFEREXTPROC>(LoadEntry("glBindRenderbufferEXT"));
-				glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC>(LoadEntry("glCheckFramebufferStatusEXT"));
-				glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSEXTPROC>(LoadEntry("glDeleteFramebuffersEXT"));
-				glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSEXTPROC>(LoadEntry("glDeleteRenderbuffersEXT"));
-				glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC>(LoadEntry("glFramebufferRenderbufferEXT"));
-				glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DEXTPROC>(LoadEntry("glFramebufferTexture2DEXT"));
-				glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT"));
-				glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSEXTPROC>(LoadEntry("glGenFramebuffersEXT"));
-				glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSEXTPROC>(LoadEntry("glGenRenderbuffersEXT"));
-				glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEEXTPROC>(LoadEntry("glRenderbufferStorageEXT"));
+			glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
+			glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
+			glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
+			glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
+			glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
+			glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
+			glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
+			glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
+			glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
+			glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
+			glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
 
-				openGLextensions[NzOpenGL::FrameBufferObject] = true;
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError("Failed to load EXT_framebuffer_object: " + NzString(e.what()));
-			}
+			openGLextensions[NzOpenGL::FrameBufferObject] = true;
 		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to load ARB_framebuffer_object: (" + NzString(e.what()) + ")");
+		}
+	}
+
+	// SeparateShaderObjects
+	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
+	{
+		glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FPROC>(LoadEntry("glProgramUniform1f"));
+		glProgramUniform1i = reinterpret_cast<PFNGLPROGRAMUNIFORM1IPROC>(LoadEntry("glProgramUniform1i"));
+		glProgramUniform2fv = reinterpret_cast<PFNGLPROGRAMUNIFORM2FVPROC>(LoadEntry("glProgramUniform2fv"));
+		glProgramUniform3fv = reinterpret_cast<PFNGLPROGRAMUNIFORM3FVPROC>(LoadEntry("glProgramUniform3fv"));
+		glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
+		glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
+
+		if (openGLextensions[NzOpenGL::FP64])
+		{
+			glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
+			glProgramUniform2dv = reinterpret_cast<PFNGLPROGRAMUNIFORM2DVPROC>(LoadEntry("glProgramUniform2dv"));
+			glProgramUniform3dv = reinterpret_cast<PFNGLPROGRAMUNIFORM3DVPROC>(LoadEntry("glProgramUniform3dv"));
+			glProgramUniform4dv = reinterpret_cast<PFNGLPROGRAMUNIFORM4DVPROC>(LoadEntry("glProgramUniform4dv"));
+			glProgramUniformMatrix4dv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4DVPROC>(LoadEntry("glProgramUniformMatrix4dv"));
+		}
+
+		openGLextensions[NzOpenGL::SeparateShaderObjects] = true;
 	}
 
 	// Texture3D
@@ -452,7 +451,7 @@ bool NzOpenGL::Initialize()
 	// TextureCompression_s3tc
 	openGLextensions[NzOpenGL::TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
 
-	// VertexArrayObject
+	// TextureStorage
 	if (openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
 	{
 		try
@@ -489,15 +488,13 @@ bool NzOpenGL::Initialize()
 	/****************************************Contexte de référence****************************************/
 
 	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
-	if (!NzContext::InitializeReference())
+	if (!NzContext::Initialize())
 	{
-		NazaraError("Failed to initialize reference context");
+		NazaraError("Failed to initialize contexts");
 		Uninitialize();
 
 		return false;
 	}
-
-	NzContextParameters::defaultShareContext = NzContext::GetReference();
 
 	return true;
 }
@@ -514,7 +511,7 @@ bool NzOpenGL::IsSupported(const NzString& string)
 
 void NzOpenGL::Uninitialize()
 {
-	NzContext::UninitializeReference();
+	NzContext::Uninitialize();
 
 	for (bool& ext : openGLextensions)
 		ext = false;
@@ -604,6 +601,17 @@ PFNGLLINKPROGRAMPROC			  glLinkProgram				 = nullptr;
 PFNGLMAPBUFFERPROC				  glMapBuffer				 = nullptr;
 PFNGLMAPBUFFERRANGEPROC			  glMapBufferRange			 = nullptr;
 PFNGLPOLYGONMODEPROC			  glPolygonMode				 = nullptr;
+PFNGLPROGRAMUNIFORM1DPROC		  glProgramUniform1d		 = nullptr;
+PFNGLPROGRAMUNIFORM1FPROC		  glProgramUniform1f		 = nullptr;
+PFNGLPROGRAMUNIFORM1IPROC		  glProgramUniform1i		 = nullptr;
+PFNGLPROGRAMUNIFORM2DVPROC		  glProgramUniform2dv		 = nullptr;
+PFNGLPROGRAMUNIFORM2FVPROC		  glProgramUniform2fv		 = nullptr;
+PFNGLPROGRAMUNIFORM3DVPROC		  glProgramUniform3dv		 = nullptr;
+PFNGLPROGRAMUNIFORM3FVPROC		  glProgramUniform3fv		 = nullptr;
+PFNGLPROGRAMUNIFORM4DVPROC		  glProgramUniform4dv		 = nullptr;
+PFNGLPROGRAMUNIFORM4FVPROC		  glProgramUniform4fv		 = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4DVPROC  glProgramUniformMatrix4dv	 = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4FVPROC  glProgramUniformMatrix4fv	 = nullptr;
 PFNGLREADPIXELSPROC				  glReadPixels				 = nullptr;
 PFNGLRENDERBUFFERSTORAGEPROC	  glRenderbufferStorage		 = nullptr;
 PFNGLSCISSORPROC				  glScissor					 = nullptr;

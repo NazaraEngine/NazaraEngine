@@ -42,6 +42,12 @@ class NzGLSLShader : public NzShaderImpl
 		bool SendInteger(const NzString& name, int value);
 		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
+		bool SendVector(const NzString& name, const NzVector2d& vector);
+		bool SendVector(const NzString& name, const NzVector2f& vector);
+		bool SendVector(const NzString& name, const NzVector3d& vector);
+		bool SendVector(const NzString& name, const NzVector3f& vector);
+		bool SendVector(const NzString& name, const NzVector4d& vector);
+		bool SendVector(const NzString& name, const NzVector4f& vector);
 		bool SendTexture(const NzString& name, NzTexture* texture);
 
 		void Unbind();
@@ -58,7 +64,6 @@ class NzGLSLShader : public NzShaderImpl
 		std::map<GLint, TextureSlot> m_textures;
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Count];
-		nzUInt8 m_textureFreeID;
 		NzShader* m_parent;
 		NzString m_log;
 };

@@ -6,6 +6,7 @@
 #include <Nazara/Renderer/OcclusionQuery.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
@@ -15,9 +16,13 @@ m_id(0)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (IsSupported())
+	{
 	#endif
+		NzContext::EnsureContext();
+
 		glGenQueries(1, reinterpret_cast<GLuint*>(&m_id));
 	#if NAZARA_RENDERER_SAFE
+	}
 	else
 	{
 		NazaraError("Occlusion queries not supported");
@@ -38,6 +43,8 @@ NzOcclusionQuery::~NzOcclusionQuery()
 {
 	if (m_id)
 	{
+		NzContext::EnsureContext();
+
 		GLuint query = static_cast<GLuint>(m_id);
 		glDeleteQueries(1, &query);
 	}
@@ -45,16 +52,34 @@ NzOcclusionQuery::~NzOcclusionQuery()
 
 void NzOcclusionQuery::Begin()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
 	glBeginQuery(GL_SAMPLES_PASSED, m_id);
 }
 
 void NzOcclusionQuery::End()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
 	glEndQuery(GL_SAMPLES_PASSED);
 }
 
 unsigned int NzOcclusionQuery::GetResult() const
 {
+	NzContext::EnsureContext();
+
 	GLuint result;
 	glGetQueryObjectuiv(m_id, GL_QUERY_RESULT, &result);
 
@@ -63,6 +88,8 @@ unsigned int NzOcclusionQuery::GetResult() const
 
 bool NzOcclusionQuery::IsResultAvailable() const
 {
+	NzContext::EnsureContext();
+
 	GLint available;
 	glGetQueryObjectiv(m_id, GL_QUERY_RESULT_AVAILABLE, &available);
 

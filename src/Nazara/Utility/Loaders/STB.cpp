@@ -21,19 +21,19 @@ namespace
 {
     int Read(void* userdata, char* data, int size)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         return static_cast<int>(stream->Read(data, size));
     }
 
     void Skip(void* userdata, unsigned int size)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         stream->Read(nullptr, size);
     }
 
     int Eof(void* userdata)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         return stream->GetCursorPos() >= stream->GetSize();
     }
 
@@ -63,7 +63,8 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		static nzPixelFormat formats[4] = {
+		static const nzPixelFormat formats[4] =
+		{
 			nzPixelFormat_L8,
 			nzPixelFormat_LA8,
 			nzPixelFormat_RGB8,
@@ -134,7 +135,7 @@ namespace
 		NazaraUnused(parameters);
 
 		int width, height, bpp;
-		return stbi_info_from_memory(static_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
+		return stbi_info_from_memory(reinterpret_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
 	}
 
 	bool NzLoader_STB_IsStreamLoadingSupported(NzInputStream& stream, const NzImageParams& parameters)

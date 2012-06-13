@@ -35,6 +35,16 @@ enum nzPixelFormat
 	nzPixelFormat_RGB5A1,  // 1*nzUInt16
 	nzPixelFormat_RGB8,    // 3*nzUInt8
 	nzPixelFormat_RGBA8,   // 4*nzUInt8
+	/*
+	nzPixelFormat_Depth16,
+	nzPixelFormat_Depth24,
+	nzPixelFormat_Depth24Stencil8,
+	nzPixelFormat_Depth32,
+	nzPixelFormat_Stencil1,
+	nzPixelFormat_Stencil4,
+	nzPixelFormat_Stencil8,
+	nzPixelFormat_Stencil16,
+	*/
 
 	nzPixelFormat_Count
 };

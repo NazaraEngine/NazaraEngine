@@ -39,7 +39,9 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
 
-		bool Bind();
+		#ifndef NAZARA_RENDERER_COMMON
+		bool Bind() const;
+		#endif
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1, bool lock = false);
 		void Destroy();
@@ -60,6 +62,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		bool IsCompressed() const;
 		bool IsCubemap() const;
+		bool IsTarget() const;
 		bool IsValid() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzImageParams& params = NzImageParams());
@@ -76,10 +79,10 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		bool Update(const NzImage& image, nzUInt8 level = 0);
 		bool Update(const NzImage& image, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		//bool Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level = 0);
+		bool Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		//bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const NzImage& image, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const NzImage& image, const NzRectui& rect, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 level = 0);
@@ -92,6 +95,8 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
+		void SetTarget(bool isTarget);
+
 		NzTextureImpl* m_impl;
 };
 

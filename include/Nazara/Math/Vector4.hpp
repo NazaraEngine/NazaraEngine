@@ -28,7 +28,8 @@ template<typename T> class NzVector4
 
 		NzString ToString() const;
 
-		operator NzString() const;
+		operator T*();
+		operator const T*() const;
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;

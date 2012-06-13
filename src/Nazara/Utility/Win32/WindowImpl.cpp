@@ -166,7 +166,7 @@ bool NzWindowImpl::Create(NzWindowHandle handle)
 		return false;
 	}
 
-	m_handle = static_cast<HWND>(handle);
+	m_handle = reinterpret_cast<HWND>(handle);
 	m_eventListener = false;
 	m_ownsWindow = false;
 
@@ -354,7 +354,7 @@ void NzWindowImpl::ShowMouseCursor(bool show)
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
 
 	if (show)
-		m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED));
+		m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED));
 	else
 		m_cursor = nullptr;
 

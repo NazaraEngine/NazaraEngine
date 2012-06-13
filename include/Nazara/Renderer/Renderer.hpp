@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <map>
 #include <tuple>
 
@@ -87,7 +88,6 @@ enum nzRendererComparison
 
 enum nzRendererParameter
 {
-	nzRendererParameter_AlphaTest,
 	nzRendererParameter_Blend,
 	nzRendererParameter_ColorWrite,
 	nzRendererParameter_DepthTest,
@@ -135,10 +135,12 @@ class NAZARA_API NzRenderer
 		unsigned int GetMaxTextureUnits() const;
 		NzShader* GetShader() const;
 		NzRenderTarget* GetTarget() const;
+		NzRectui GetViewport() const;
 
 		bool HasCapability(nzRendererCap capability) const;
 		bool Initialize();
 
+		void SetBlendFunc(nzBlendFunc src, nzBlendFunc dest);
 		void SetClearColor(const NzColor& color);
 		void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
 		void SetClearDepth(double depth);
@@ -156,6 +158,7 @@ class NAZARA_API NzRenderer
 		bool SetTarget(NzRenderTarget* target);
 		bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
 		bool SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
+		void SetViewport(const NzRectui& viewport);
 
 		void Uninitialize();
 
