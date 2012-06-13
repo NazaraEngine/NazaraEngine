@@ -30,8 +30,8 @@ class NAZARA_API NzIndexBuffer
 		bool IsHardware() const;
 		bool IsSequential() const;
 
-		void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int length = 0);
-		bool Unlock();
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		bool Unmap();
 
 	private:
 		NzBuffer* m_buffer;

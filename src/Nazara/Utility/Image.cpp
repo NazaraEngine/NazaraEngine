@@ -701,21 +701,72 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 		return false;
 	}
 
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return false;
+	}
+	#endif
+
+	unsigned int width = std::max(m_sharedImage->width >> level, 1U);
+	unsigned int height = std::max(m_sharedImage->height >> level, 1U);
+
+	#if NAZARA_UTILITY_SAFE
 	if (!rect.IsValid())
 	{
 		NazaraError("Invalid rectangle");
 		return false;
 	}
 
-	if (rect.x+rect.width > std::max(m_sharedImage->width >> level, 1U) || rect.y+rect.height > std::max(m_sharedImage->height >> level, 1U))
+	if (rect.x+rect.width > width || rect.y+rect.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
 	}
 
-	if (z >= std::max(m_sharedImage->depth >> level, 1U))
+	unsigned int depth = std::max(m_sharedImage->depth >> level, 1U);
+	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(m_sharedImage->depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		return false;
+	}
+	#endif
+
+	EnsureOwnership();
+
+	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(height*(width*z + rect.y) + rect.x) * bpp];
+	unsigned int srcStride = rect.width * bpp;
+	unsigned int blockSize = width * bpp;
+	for (unsigned int i = 0; i < rect.height; ++i)
+	{
+		std::memcpy(dstPixels, pixels, blockSize);
+		pixels += srcStride;
+		dstPixels += blockSize;
+	}
+
+	return true;
+}
+
+bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level)
+{
+	///FIXME: Vérifier que ça fonctionne correctement
+	#if NAZARA_UTILITY_SAFE
+	if (!IsValid())
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+
+	if (m_sharedImage->type == nzImageType_Cubemap)
+	{
+		NazaraError("Update is not designed for cubemaps, use UpdateFace instead");
+		return false;
+	}
+
+	if (!pixels)
+	{
+		NazaraError("Invalid pixel source");
 		return false;
 	}
 
@@ -726,17 +777,42 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 	}
 	#endif
 
+	unsigned int width = std::max(m_sharedImage->width >> level, 1U);
+	unsigned int height = std::max(m_sharedImage->height >> level, 1U);
+	unsigned int depth = std::max(m_sharedImage->height >> level, 1U);
+
+	#if NAZARA_UTILITY_SAFE
+	if (!cube.IsValid())
+	{
+		NazaraError("Invalid cube");
+		return false;
+	}
+
+	if (cube.x+cube.width > width || cube.y+cube.height > height || cube.z+cube.depth > depth)
+	{
+		NazaraError("Cube dimensions are out of bounds");
+		return false;
+	}
+	#endif
+
 	EnsureOwnership();
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
-	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(m_sharedImage->height*(m_sharedImage->width*z + rect.y) + rect.x) * bpp];
-	unsigned int srcStride = rect.width * bpp;
-	unsigned int blockSize = m_sharedImage->width * bpp;
-	for (unsigned int i = 0; i < rect.height; ++i)
+	nzUInt8* dstPixels = &m_sharedImage->pixels[level][(height*(width*cube.z + cube.y) + cube.x) * bpp];
+	unsigned int srcStride = cube.width * bpp;
+	unsigned int blockSize = width * bpp;
+	unsigned int faceSize = width * height * bpp;
+	for (unsigned int z = 0; z < cube.depth; ++z)
 	{
-		std::memcpy(dstPixels, pixels, blockSize);
-		pixels += srcStride;
-		dstPixels += blockSize;
+		nzUInt8* facePixels = dstPixels;
+		for (unsigned int i = 0; i < cube.height; ++i)
+		{
+			std::memcpy(dstPixels, pixels, blockSize);
+			pixels += srcStride;
+			facePixels += blockSize;
+		}
+
+		dstPixels += faceSize;
 	}
 
 	return true;

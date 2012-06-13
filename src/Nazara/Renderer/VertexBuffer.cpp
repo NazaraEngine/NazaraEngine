@@ -97,7 +97,7 @@ bool NzVertexBuffer::IsHardware() const
 	return m_buffer->IsHardware();
 }
 
-void* NzVertexBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int length)
+void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (offset+length > m_vertexCount)
@@ -107,10 +107,10 @@ void* NzVertexBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int 
 	}
 	#endif
 
-	return m_buffer->Lock(lock, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
+	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
 }
 
-bool NzVertexBuffer::Unlock()
+bool NzVertexBuffer::Unmap()
 {
-	return m_buffer->Unlock();
+	return m_buffer->Unmap();
 }

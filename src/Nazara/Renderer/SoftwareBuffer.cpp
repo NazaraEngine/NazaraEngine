@@ -6,6 +6,7 @@
 #include <Nazara/Renderer/SoftwareBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Context.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
@@ -30,6 +31,14 @@ NzSoftwareBuffer::~NzSoftwareBuffer()
 
 void NzSoftwareBuffer::Bind()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
 	glBindBuffer(bufferTarget[m_type], 0);
 }
 
@@ -48,7 +57,7 @@ bool NzSoftwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 		return false;
 	}
 
-	m_locked = false;
+	m_mapped = false;
 
 	return true;
 }
@@ -61,9 +70,9 @@ void NzSoftwareBuffer::Destroy()
 bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (m_locked)
+	if (m_mapped)
 	{
-		NazaraError("Buffer already locked");
+		NazaraError("Buffer already mapped");
 		return false;
 	}
 	#endif
@@ -83,35 +92,35 @@ bool NzSoftwareBuffer::IsHardware() const
 	return false;
 }
 
-void* NzSoftwareBuffer::Lock(nzBufferLock lock, unsigned int offset, unsigned int size)
+void* NzSoftwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
-	NazaraUnused(lock);
+	NazaraUnused(access);
 	NazaraUnused(size);
 
 	#if NAZARA_RENDERER_SAFE
-	if (m_locked)
+	if (m_mapped)
 	{
-		NazaraError("Buffer already locked");
+		NazaraError("Buffer already mapped");
 		return nullptr;
 	}
 	#endif
 
-	m_locked = true;
+	m_mapped = true;
 
 	return &m_buffer[offset];
 }
 
-bool NzSoftwareBuffer::Unlock()
+bool NzSoftwareBuffer::Unmap()
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!m_locked)
+	if (!m_mapped)
 	{
-		NazaraError("Buffer not locked");
+		NazaraError("Buffer not mapped");
 		return true;
 	}
 	#endif
 
-	m_locked = false;
+	m_mapped = false;
 
 	return true;
 }

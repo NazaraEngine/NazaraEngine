@@ -10,13 +10,10 @@
 #define NAZARA_RENDERWINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/Window.hpp>
-
-#ifndef NAZARA_RENDERER_COMMON
 #include <Nazara/Renderer/ContextParameters.hpp>
-#endif
+#include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Utility/Window.hpp>
 
 class NzContext;
 class NzImage;
@@ -25,15 +22,11 @@ struct NzContextParameters;
 
 class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
-	friend class NzTexture;
-
 	public:
 		NzRenderWindow();
 		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = NzWindow::Default, const NzContextParameters& parameters = NzContextParameters());
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
-
-		bool CanActivate() const;
 
 		bool CopyToImage(NzImage* image); ///TODO: Const
 		bool CopyToTexture(NzTexture* texture); ///TODO: Const
@@ -45,13 +38,19 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		void EnableVerticalSync(bool enabled);
 
-		NzRenderTargetParameters GetRenderTargetParameters() const;
-
 		#ifndef NAZARA_RENDERER_COMMON
 		NzContextParameters GetContextParameters() const;
+		#endif
 
+		unsigned int GetHeight() const;
+		NzRenderTargetParameters GetParameters() const;
+		unsigned int GetWidth() const;
+
+		#ifndef NAZARA_RENDERER_COMMON
 		bool HasContext() const;
 		#endif
+
+		bool IsValid() const;
 
 	protected:
 		bool Activate();

@@ -8,6 +8,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <vector>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Renderer/Win32/ContextImpl.hpp>
@@ -21,9 +22,10 @@
 
 namespace
 {
-	///TODO: Thread-local
-	NzContext* currentContext = nullptr;
-	NzContext* threadContext = nullptr;
+	NAZARA_THREADLOCAL NzContext* currentContext = nullptr;
+	NAZARA_THREADLOCAL NzContext* threadContext = nullptr;
+
+	std::vector<NzContext*> contexts;
 
 	void CALLBACK DebugCallback(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, int length, const char* message, void* userParam)
 	{
@@ -269,7 +271,36 @@ void NzContext::SwapBuffers()
 	m_impl->SwapBuffers();
 }
 
-const NzContext* NzContext::GetCurrent()
+bool NzContext::EnsureContext()
+{
+	if (!currentContext)
+	{
+		if (!threadContext)
+		{
+			NzContext* context = new NzContext;
+			if (!context->Create())
+			{
+				NazaraError("Failed to create context");
+				delete context;
+
+				return false;
+			}
+
+			contexts.push_back(context);
+
+			threadContext = context;
+		}
+		else if (!threadContext->SetActive(true))
+		{
+			NazaraError("Failed to active thread context");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+NzContext* NzContext::GetCurrent()
 {
 	return currentContext;
 }
@@ -279,12 +310,14 @@ const NzContext* NzContext::GetReference()
 	return s_reference;
 }
 
-const NzContext* NzContext::GetThreadContext()
+NzContext* NzContext::GetThreadContext()
 {
+	EnsureContext();
+
 	return threadContext;
 }
 
-bool NzContext::InitializeReference()
+bool NzContext::Initialize()
 {
 	NzContextParameters parameters;
 //	parameters.compatibilityProfile = true;
@@ -299,11 +332,21 @@ bool NzContext::InitializeReference()
 		return false;
 	}
 
+	// Le contexte de référence doit rester désactivé pour le partage
+	s_reference->SetActive(false);
+
+	NzContextParameters::defaultShareContext = s_reference;
+
 	return true;
 }
 
-void NzContext::UninitializeReference()
+void NzContext::Uninitialize()
 {
+	for (NzContext* context : contexts)
+		delete context;
+
+	contexts.clear(); // On supprime tous les contextes créés
+
 	delete s_reference;
 	s_reference = nullptr;
 }

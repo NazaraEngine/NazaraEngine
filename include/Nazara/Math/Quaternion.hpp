@@ -47,13 +47,11 @@ template<typename T> class NzQuaternion
 		//NzMatrix3<T> ToRotationMatrix() const;
 		NzString ToString() const;
 
-		NzQuaternion operator+(const NzQuaternion& quat) const;
 		NzQuaternion operator*(const NzQuaternion& quat) const;
 		NzVector3<T> operator*(const NzVector3<T>& vec) const;
 		NzQuaternion operator*(T scale) const;
 		NzQuaternion operator/(const NzQuaternion& quat) const;
 
-		NzQuaternion operator+=(const NzQuaternion& quat);
 		NzQuaternion operator*=(const NzQuaternion& quat);
 		NzQuaternion operator*=(T scale);
 		NzQuaternion operator/=(const NzQuaternion& quat);

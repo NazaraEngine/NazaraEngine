@@ -5,9 +5,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
-#include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
@@ -47,11 +45,6 @@ m_context(nullptr)
 
 NzRenderWindow::~NzRenderWindow()
 {
-}
-
-bool NzRenderWindow::CanActivate() const
-{
-	return m_impl != nullptr && m_context != nullptr;
 }
 
 bool NzRenderWindow::CopyToImage(NzImage* image)
@@ -144,7 +137,7 @@ bool NzRenderWindow::Create(NzWindowHandle handle, const NzContextParameters& pa
 
 void NzRenderWindow::Display()
 {
-	if (m_context)
+	if (m_context && m_parameters.doubleBuffered)
 		m_context->SwapBuffers();
 }
 
@@ -181,7 +174,23 @@ void NzRenderWindow::EnableVerticalSync(bool enabled)
         NazaraError("No context");
 }
 
-NzRenderTargetParameters NzRenderWindow::GetRenderTargetParameters() const
+NzContextParameters NzRenderWindow::GetContextParameters() const
+{
+	if (m_context)
+		return m_context->GetParameters();
+	else
+	{
+		NazaraError("Window not created/context not initialized");
+		return NzContextParameters();
+	}
+}
+
+unsigned int NzRenderWindow::GetHeight() const
+{
+	return NzWindow::GetHeight();
+}
+
+NzRenderTargetParameters NzRenderWindow::GetParameters() const
 {
 	if (m_context)
 	{
@@ -195,15 +204,9 @@ NzRenderTargetParameters NzRenderWindow::GetRenderTargetParameters() const
 	}
 }
 
-NzContextParameters NzRenderWindow::GetContextParameters() const
+unsigned int NzRenderWindow::GetWidth() const
 {
-	if (m_context)
-		return m_context->GetParameters();
-	else
-	{
-		NazaraError("Window not created/context not initialized");
-		return NzContextParameters();
-	}
+	return NzWindow::GetWidth();
 }
 
 bool NzRenderWindow::HasContext() const
@@ -211,9 +214,23 @@ bool NzRenderWindow::HasContext() const
 	return true;
 }
 
+bool NzRenderWindow::IsValid() const
+{
+	return m_impl != nullptr && m_context != nullptr;
+}
+
 bool NzRenderWindow::Activate()
 {
-	return m_context->SetActive(true);
+	if (m_context->SetActive(true))
+	{
+		glDrawBuffer((m_parameters.doubleBuffered) ? GL_BACK : GL_FRONT);
+		return true;
+	}
+	else
+	{
+		NazaraError("Failed to activate window's context");
+		return false;
+	}
 }
 
 void NzRenderWindow::OnClose()

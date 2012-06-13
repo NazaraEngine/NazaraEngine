@@ -23,17 +23,32 @@ namespace
 {
 	const nzUInt8 attribIndex[] =
 	{
-		2,	// nzElementUsage_Diffuse
-		1,	// nzElementUsage_Normal
-		0,	// nzElementUsage_Position
-		3,	// nzElementUsage_Tangent
-		4	// nzElementUsage_TexCoord
+		2, // nzElementUsage_Diffuse
+		1, // nzElementUsage_Normal
+		0, // nzElementUsage_Position
+		3, // nzElementUsage_Tangent
+		4  // nzElementUsage_TexCoord
+	};
+
+
+	const GLenum blendFunc[] =
+	{
+		GL_DST_ALPHA,           // nzBlendFunc_DestAlpha
+		GL_DST_COLOR,           // nzBlendFunc_DestColor
+		GL_SRC_ALPHA,           // nzBlendFunc_SrcAlpha
+		GL_SRC_COLOR,           // nzBlendFunc_SrcColor
+		GL_ONE_MINUS_DST_ALPHA, // nzBlendFunc_InvDestAlpha
+		GL_ONE_MINUS_DST_COLOR, // nzBlendFunc_InvDestColor
+		GL_ONE_MINUS_SRC_ALPHA, // nzBlendFunc_InvSrcAlpha
+		GL_ONE_MINUS_SRC_COLOR, // nzBlendFunc_InvSrcColor
+		GL_ONE,                 // nzBlendFunc_One
+		GL_ZERO                 // nzBlendFunc_Zero
 	};
 
 	const GLenum faceCullingMode[] =
 	{
-		GL_BACK,		  // nzFaceCulling_Back
-		GL_FRONT,		  // nzFaceCulling_Front
+		GL_BACK,          // nzFaceCulling_Back
+		GL_FRONT,	      // nzFaceCulling_Front
 		GL_FRONT_AND_BACK // nzFaceCulling_FrontAndBack
 	};
 
@@ -41,18 +56,18 @@ namespace
 	{
 		GL_POINT, // nzFaceFilling_Point
 		GL_LINE,  // nzFaceFilling_Line
-		GL_FILL	  // nzFaceFilling_Fill
+		GL_FILL   // nzFaceFilling_Fill
 	};
 
 
 	const GLenum openglPrimitive[] =
 	{
-		GL_LINES,		   // nzPrimitiveType_LineList,
-		GL_LINE_STRIP,	   // nzPrimitiveType_LineStrip,
-		GL_POINTS,		   // nzPrimitiveType_PointList,
-		GL_TRIANGLES,	   // nzPrimitiveType_TriangleList,
+		GL_LINES,          // nzPrimitiveType_LineList,
+		GL_LINE_STRIP,     // nzPrimitiveType_LineStrip,
+		GL_POINTS,         // nzPrimitiveType_PointList,
+		GL_TRIANGLES,      // nzPrimitiveType_TriangleList,
 		GL_TRIANGLE_STRIP, // nzPrimitiveType_TriangleStrip,
-		GL_TRIANGLE_FAN	   // nzPrimitiveType_TriangleFan
+		GL_TRIANGLE_FAN    // nzPrimitiveType_TriangleFan
 	};
 
 	const nzUInt8 openglSize[] =
@@ -71,47 +86,47 @@ namespace
 	const GLenum openglType[] =
 	{
 		GL_UNSIGNED_BYTE, // nzElementType_Color
-		GL_DOUBLE,		  // nzElementType_Double1
-		GL_DOUBLE,		  // nzElementType_Double2
-		GL_DOUBLE,		  // nzElementType_Double3
-		GL_DOUBLE,		  // nzElementType_Double4
-		GL_FLOAT,		  // nzElementType_Float1
-		GL_FLOAT,		  // nzElementType_Float2
-		GL_FLOAT,		  // nzElementType_Float3
-		GL_FLOAT		  // nzElementType_Float4
+		GL_DOUBLE,        // nzElementType_Double1
+		GL_DOUBLE,        // nzElementType_Double2
+		GL_DOUBLE,        // nzElementType_Double3
+		GL_DOUBLE,        // nzElementType_Double4
+		GL_FLOAT,         // nzElementType_Float1
+		GL_FLOAT,         // nzElementType_Float2
+		GL_FLOAT,         // nzElementType_Float3
+		GL_FLOAT          // nzElementType_Float4
 	};
 
 	const GLenum rendererComparison[] =
 	{
-		GL_ALWAYS,	// nzRendererComparison_Always
-		GL_EQUAL,	// nzRendererComparison_Equal
-		GL_GREATER,	// nzRendererComparison_Greater
-		GL_GEQUAL,	// nzRendererComparison_GreaterOrEqual
-		GL_LESS,	// nzRendererComparison_Less
-		GL_LEQUAL,	// nzRendererComparison_LessOrEqual
-		GL_NEVER	// nzRendererComparison_Never
+		GL_ALWAYS,  // nzRendererComparison_Always
+		GL_EQUAL,   // nzRendererComparison_Equal
+		GL_GREATER, // nzRendererComparison_Greater
+		GL_GEQUAL,  // nzRendererComparison_GreaterOrEqual
+		GL_LESS,    // nzRendererComparison_Less
+		GL_LEQUAL,  // nzRendererComparison_LessOrEqual
+		GL_NEVER    // nzRendererComparison_Never
 	};
 
 	const GLenum rendererParameter[] =
 	{
-		GL_BLEND,		// nzRendererParameter_Blend
-		GL_NONE,		// nzRendererParameter_ColorWrite
-		GL_DEPTH_TEST,	// nzRendererParameter_DepthTest
-		GL_NONE,		// nzRendererParameter_DepthWrite
-		GL_CULL_FACE,	// nzRendererParameter_FaceCulling
-		GL_STENCIL_TEST	// nzRendererParameter_Stencil
+		GL_BLEND,       // nzRendererParameter_Blend
+		GL_NONE,        // nzRendererParameter_ColorWrite
+		GL_DEPTH_TEST,  // nzRendererParameter_DepthTest
+		GL_NONE,        // nzRendererParameter_DepthWrite
+		GL_CULL_FACE,   // nzRendererParameter_FaceCulling
+		GL_STENCIL_TEST // nzRendererParameter_Stencil
 	};
 
 	const GLenum stencilOperation[] =
 	{
-		GL_DECR,	  // nzStencilOperation_Decrement
+		GL_DECR,      // nzStencilOperation_Decrement
 		GL_DECR_WRAP, // nzStencilOperation_DecrementToSaturation
-		GL_INCR,	  // nzStencilOperation_Increment
+		GL_INCR,      // nzStencilOperation_Increment
 		GL_INCR_WRAP, // nzStencilOperation_IncrementToSaturation
-		GL_INVERT,	  // nzStencilOperation_Invert
-		GL_KEEP,	  // nzStencilOperation_Keep
-		GL_REPLACE,	  // nzStencilOperation_Replace
-		GL_ZERO		  // nzStencilOperation_Zero
+		GL_INVERT,    // nzStencilOperation_Invert
+		GL_KEEP,      // nzStencilOperation_Keep
+		GL_REPLACE,   // nzStencilOperation_Replace
+		GL_ZERO       // nzStencilOperation_Zero
 	};
 }
 
@@ -228,6 +243,14 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
 	switch (parameter)
 	{
 		case nzRendererParameter_ColorWrite:
@@ -273,6 +296,22 @@ NzRenderTarget* NzRenderer::GetTarget() const
 	return m_target;
 }
 
+NzRectui NzRenderer::GetViewport() const
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return NzRectui();
+	}
+	#endif
+
+	GLint params[4];
+	glGetIntegerv(GL_VIEWPORT, &params[0]);
+
+	return NzRectui(params[0], params[1], params[2], params[3]);
+}
+
 bool NzRenderer::HasCapability(nzRendererCap capability) const
 {
 	return m_capabilities[capability];
@@ -297,6 +336,11 @@ bool NzRenderer::Initialize()
 
 	if (NzOpenGL::Initialize())
 	{
+		NzContext::EnsureContext();
+
+		const NzContext* context = NzContext::GetReference();
+		bool compatibility = context->GetParameters().compatibilityProfile;
+
 		m_vaoUpdated = false;
 		m_indexBuffer = nullptr;
 		m_shader = nullptr;
@@ -318,7 +362,7 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
 		m_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
 		m_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
-		m_capabilities[nzRendererCap_SoftwareBuffer] = NzOpenGL::GetVersion() <= 300; // Déprécié en OpenGL 3
+		m_capabilities[nzRendererCap_SoftwareBuffer] = compatibility || NzOpenGL::GetVersion() <= 300; // Déprécié en OpenGL 3
 		m_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
@@ -336,14 +380,10 @@ bool NzRenderer::Initialize()
 
 		if (m_capabilities[nzRendererCap_MultipleRenderTargets])
 		{
-			// Permettre de gérer plus de targets que de nombre de sorties dans le shader ne servirait à rien
 			GLint maxDrawBuffers;
 			glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
 
-			GLint maxRenderTextureTargets;
-			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxRenderTextureTargets);
-
-			m_maxRenderTarget = static_cast<unsigned int>(std::min(maxDrawBuffers, maxRenderTextureTargets));
+			m_maxRenderTarget = static_cast<unsigned int>(maxDrawBuffers);
 		}
 		else
 			m_maxRenderTarget = 1;
@@ -364,6 +404,19 @@ bool NzRenderer::Initialize()
 	}
 	else
 		return false;
+}
+
+void NzRenderer::SetBlendFunc(nzBlendFunc src, nzBlendFunc dest)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	glBlendFunc(blendFunc[src], blendFunc[dest]);
 }
 
 void NzRenderer::SetClearColor(const NzColor& color)
@@ -462,10 +515,7 @@ bool NzRenderer::SetShader(NzShader* shader)
 		return true;
 
 	if (m_shader)
-	{
 		m_shader->m_impl->Unbind();
-		m_shader = nullptr;
-	}
 
 	if (shader)
 	{
@@ -473,6 +523,8 @@ bool NzRenderer::SetShader(NzShader* shader)
 		if (!shader->IsCompiled())
 		{
 			NazaraError("Shader is not compiled");
+			m_shader = nullptr;
+
 			return false;
 		}
 		#endif
@@ -480,9 +532,13 @@ bool NzRenderer::SetShader(NzShader* shader)
 		if (!shader->m_impl->Bind())
 		{
 			NazaraError("Failed to bind shader");
+			m_shader = nullptr;
+
 			return false;
 		}
 	}
+	else
+		m_shader = nullptr;
 
 	m_shader = shader;
 
@@ -548,19 +604,19 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 	if (target == m_target)
 		return true;
 
-	#if NAZARA_RENDERER_SAFE
-	if (target && !target->CanActivate())
-	{
-		NazaraError("Target cannot be activated");
-		return false;
-	}
-	#endif
-
 	if (m_target && !m_target->HasContext())
 		m_target->Desactivate();
 
 	if (target)
 	{
+		#if NAZARA_RENDERER_SAFE
+		if (!target->IsValid())
+		{
+			NazaraError("Target not valid");
+			return false;
+		}
+		#endif
+
 		if (target->Activate())
 			m_target = target;
 		else
@@ -599,6 +655,43 @@ bool NzRenderer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclarati
 	return true;
 }
 
+void NzRenderer::SetViewport(const NzRectui& viewport)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	unsigned int height = m_target->GetHeight();
+
+	#if NAZARA_RENDERER_SAFE
+	if (!m_target)
+	{
+		NazaraError("Renderer has no target");
+		return;
+	}
+
+	unsigned int width = m_target->GetWidth();
+	if (viewport.x+viewport.width >= width)
+	{
+		NazaraError("Rectangle dimensions are out of bounds");
+		return;
+	}
+
+	if (viewport.y+viewport.height >= height)
+	{
+		NazaraError("Rectangle dimensions are out of bounds");
+		return;
+	}
+	#endif
+
+	glViewport(viewport.x, height-viewport.height-viewport.y, viewport.width, viewport.height);
+	glScissor(viewport.x, height-viewport.height-viewport.y, viewport.width, viewport.height);
+}
+
 void NzRenderer::Uninitialize()
 {
 	#if NAZARA_RENDERER_SAFE
@@ -608,6 +701,8 @@ void NzRenderer::Uninitialize()
 		return;
 	}
 	#endif
+
+	NzContext::EnsureContext();
 
 	s_initialized = false;
 
@@ -644,6 +739,14 @@ bool NzRenderer::IsInitialized()
 
 bool NzRenderer::EnsureStateUpdate()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return false;
+	}
+	#endif
+
 	if (!m_stencilFuncUpdated)
 	{
 		glStencilFunc(rendererComparison[m_stencilCompare], m_stencilReference, m_stencilMask);

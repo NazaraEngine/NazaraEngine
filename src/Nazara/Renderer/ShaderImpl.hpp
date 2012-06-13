@@ -45,6 +45,12 @@ class NzShaderImpl
 		virtual bool SendInteger(const NzString& name, int value) = 0;
 		virtual bool SendMatrix(const NzString& name, const NzMatrix4d& matrix) = 0;
 		virtual bool SendMatrix(const NzString& name, const NzMatrix4f& matrix) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector2d& vector) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector2f& vector) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector3d& vector) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector3f& vector) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector4d& vector) = 0;
+		virtual bool SendVector(const NzString& name, const NzVector4f& vector) = 0;
 		virtual bool SendTexture(const NzString& name, NzTexture* texture) = 0;
 
 		virtual void Unbind() = 0;
