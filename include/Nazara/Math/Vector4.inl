@@ -361,7 +361,7 @@ NzVector4<T> operator/(T scale, const NzVector4<T>& vec)
 		throw std::domain_error(ss.ToString());
 	}
 
-	return NzVector3<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+	return NzVector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
 
 #include <Nazara/Core/DebugOff.hpp>

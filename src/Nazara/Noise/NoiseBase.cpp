@@ -17,8 +17,8 @@ NzNoiseBase::NzNoiseBase(int seed)
 
     SetNewSeed(seed);
 
-    for(int i(0) ; i < 256 ; i++)
-        perm[i] = i;
+    for(int i(0) ; i < 512 ; i++)
+        perm[i] = i & 255;
 
 }
 
