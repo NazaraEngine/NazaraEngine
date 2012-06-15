@@ -217,15 +217,15 @@ NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuater
         k1 = std::sin(interp * omega) * sinOmega;
     }
 
-    /* interpolate and return new quaternion */
     NzQuaternion result(k0 * quatA.w, k0 * quatA.x, k0 * quatA.y, k0 * quatA.z);
-
     return result += q;
 }
 
 template<typename T>
 NzEulerAngles<T> NzQuaternion<T>::ToEulerAngles() const
 {
+	Normalize();
+
 	T test = x*y + z*w;
 	if (test > 0.499)
 		// singularity at north pole

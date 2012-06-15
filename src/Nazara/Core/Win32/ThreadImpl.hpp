@@ -29,7 +29,7 @@ class NzThreadImpl
 		void Terminate();
 
 	private:
-		static unsigned int _stdcall ThreadProc(void* userdata);
+		static unsigned int __stdcall ThreadProc(void* userdata);
 
 		HANDLE m_thread;
 		unsigned int m_threadId;

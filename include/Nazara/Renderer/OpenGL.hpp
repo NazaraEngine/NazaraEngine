@@ -46,6 +46,7 @@ class NAZARA_API NzOpenGL
 			Count
 		};
 
+		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
 		static unsigned int GetVersion();
 		static bool Initialize();
 		static bool IsSupported(Extension extension);
@@ -131,6 +132,7 @@ NAZARA_API extern PFNGLGETUNIFORMLOCATIONPROC		glGetUniformLocation;
 NAZARA_API extern PFNGLLINKPROGRAMPROC				glLinkProgram;
 NAZARA_API extern PFNGLMAPBUFFERPROC				glMapBuffer;
 NAZARA_API extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
+NAZARA_API extern PFNGLPIXELSTOREIPROC				glPixelStorei;
 NAZARA_API extern PFNGLPOLYGONMODEPROC				glPolygonMode;
 NAZARA_API extern PFNGLPROGRAMUNIFORM1DPROC			glProgramUniform1d;
 NAZARA_API extern PFNGLPROGRAMUNIFORM1FPROC			glProgramUniform1f;

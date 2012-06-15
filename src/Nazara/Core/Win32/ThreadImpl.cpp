@@ -65,7 +65,7 @@ void NzThreadImpl::Terminate()
 		TerminateThread(m_thread, 0);
 }
 
-unsigned int _stdcall NzThreadImpl::ThreadProc(void* userdata)
+unsigned int __stdcall NzThreadImpl::ThreadProc(void* userdata)
 {
 	NzThread* owner = reinterpret_cast<NzThread*>(userdata);
 	NzFunctor* func = owner->m_func;

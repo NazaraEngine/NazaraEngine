@@ -52,12 +52,28 @@ w(static_cast<T>(vec.w))
 }
 
 template<typename T>
+NzVector4<T>::NzVector4(const NzVector3<T>& vec, T W) :
+x(vec.x),
+y(vec.y),
+z(vec.z),
+w(W)
+{
+}
+
+template<typename T>
 T NzVector4<T>::AbsDotProduct(const NzVector4& vec) const
 {
 	return std::fabs(x * vec.x) + std::fabs(y * vec.y) + std::fabs(z * vec.z) + std::fabs(w * vec.w);
 }
 
-template<> inline int NzVector4<int>::AbsDotProduct(const NzVector4<int>& vec) const
+template<>
+inline int NzVector4<int>::AbsDotProduct(const NzVector4<int>& vec) const
+{
+	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z) + std::labs(w * vec.w);
+}
+
+template<>
+inline unsigned int NzVector4<unsigned int>::AbsDotProduct(const NzVector4<unsigned int>& vec) const
 {
 	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z) + std::labs(w * vec.w);
 }
@@ -103,7 +119,7 @@ void NzVector4<T>::MakeFloor(const NzVector4& vec)
 template<typename T>
 void NzVector4<T>::Normalize()
 {
-	if (w != 0.f)
+	if (!NzNumberEquals(w, static_cast<T>(0.0)))
 	{
 		x /= w;
 		y /= w;
@@ -116,7 +132,7 @@ NzString NzVector4<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "Vector4(" << x << ", " << y << ", " << z <<')';
+	return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
 }
 
 template<typename T>
@@ -180,7 +196,7 @@ NzVector4<T> NzVector4<T>::operator+(const NzVector4& vec) const
 template<typename T>
 NzVector4<T> NzVector4<T>::operator-(const NzVector4& vec) const
 {
-	return NzVector4(x - vec.x, y - vec.y, z - vec.z);
+	return NzVector4(x - vec.x, y - vec.y, z - vec.z, w - vec.w);
 }
 
 template<typename T>
@@ -198,7 +214,7 @@ NzVector4<T> NzVector4<T>::operator*(T scale) const
 template<typename T>
 NzVector4<T> NzVector4<T>::operator/(const NzVector4& vec) const
 {
-	if (vec.x == 0.f || vec.y == 0.f || vec.z == 0.f || vec.w == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -212,7 +228,7 @@ NzVector4<T> NzVector4<T>::operator/(const NzVector4& vec) const
 template<typename T>
 NzVector4<T> NzVector4<T>::operator/(T scale) const
 {
-	if (scale == 0.f)
+	if (NzNumberEquals(scale, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -270,7 +286,7 @@ NzVector4<T>& NzVector4<T>::operator*=(T scale)
 template<typename T>
 NzVector4<T>& NzVector4<T>::operator/=(const NzVector4& vec)
 {
-	if (vec.x == 0.f || vec.y == 0.f || vec.z == 0.f || vec.w == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -289,7 +305,7 @@ NzVector4<T>& NzVector4<T>::operator/=(const NzVector4& vec)
 template<typename T>
 NzVector4<T>& NzVector4<T>::operator/=(T scale)
 {
-	if (scale == 0.f)
+	if (NzNumberEquals(scale, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -359,7 +375,7 @@ NzVector4<T> operator*(T scale, const NzVector4<T>& vec)
 template<typename T>
 NzVector4<T> operator/(T scale, const NzVector4<T>& vec)
 {
-	if (vec.x == 0.f || vec.y == 0.f || vec.z == 0.f || vec.w == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";

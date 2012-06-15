@@ -5,10 +5,9 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-// (Commenté en attendant GCC 4.7)
-/*#if __cplusplus < 201103L
+#if __cplusplus < 201103L
 #error Nazara requires a C++11 compliant compiler
-#endif*/
+#endif
 
 // Version du moteur
 #define NAZARA_VERSION_MAJOR 0

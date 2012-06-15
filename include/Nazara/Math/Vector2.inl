@@ -49,7 +49,14 @@ T NzVector2<T>::AbsDotProduct(const NzVector2& vec) const
 	return std::fabs(x * vec.x) + std::fabs(y * vec.y);
 }
 
-template<> inline int NzVector2<int>::AbsDotProduct(const NzVector2<int>& vec) const
+template<>
+inline int NzVector2<int>::AbsDotProduct(const NzVector2<int>& vec) const
+{
+	return std::labs(x * vec.x) + std::labs(y * vec.y);
+}
+
+template<>
+inline unsigned int NzVector2<unsigned int>::AbsDotProduct(const NzVector2<unsigned int>& vec) const
 {
 	return std::labs(x * vec.x) + std::labs(y * vec.y);
 }
@@ -58,6 +65,12 @@ template<typename T>
 T NzVector2<T>::Distance(const NzVector2& vec) const
 {
 	return std::sqrt(SquaredDistance(vec));
+}
+
+template<typename T>
+float NzVector2<T>::Distancef(const NzVector2& vec) const
+{
+	return std::sqrt(static_cast<float>(SquaredDistance(vec)));
 }
 
 template<typename T>
@@ -102,17 +115,21 @@ T NzVector2<T>::Length() const
 }
 
 template<typename T>
-T NzVector2<T>::Normalize()
+float NzVector2<T>::Lengthf() const
 {
-	T length = Length();
+	return std::sqrt(static_cast<float>(SquaredLength()));
+}
 
-	if (length != 0.f)
+template<typename T>
+void NzVector2<T>::Normalize()
+{
+	auto length = Length();
+
+	if (!NzNumberEquals(length, static_cast<T>(0.0)))
 	{
 		x /= length;
 		y /= length;
 	}
-
-	return length;
 }
 
 template<typename T>
@@ -214,7 +231,7 @@ NzVector2<T> NzVector2<T>::operator*(T scale) const
 template<typename T>
 NzVector2<T> NzVector2<T>::operator/(const NzVector2& vec) const
 {
-	if (vec.x == 0.f || vec.y == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -228,7 +245,7 @@ NzVector2<T> NzVector2<T>::operator/(const NzVector2& vec) const
 template<typename T>
 NzVector2<T> NzVector2<T>::operator/(T scale) const
 {
-	if (scale == 0.f)
+	if (NzNumberEquals(scale, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -278,7 +295,7 @@ NzVector2<T>& NzVector2<T>::operator*=(T scale)
 template<typename T>
 NzVector2<T>& NzVector2<T>::operator/=(const NzVector2& vec)
 {
-	if (vec.x == 0.f || vec.y == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -295,7 +312,7 @@ NzVector2<T>& NzVector2<T>::operator/=(const NzVector2& vec)
 template<typename T>
 NzVector2<T>& NzVector2<T>::operator/=(T scale)
 {
-	if (scale == 0.f)
+	if (NzNumberEquals(scale, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -361,7 +378,7 @@ NzVector2<T> operator*(T scale, const NzVector2<T>& vec)
 template<typename T>
 NzVector2<T> operator/(T scale, const NzVector2<T>& vec)
 {
-	if (vec.x == 0.f || vec.y == 0.f)
+	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";

@@ -13,21 +13,13 @@
 
 struct NzTextureImpl
 {
-	// GCC 4.7 !!!!!!
-	NzTextureImpl() :
-	isTarget(false),
-	mipmapping(false),
-	mipmapsUpdated(true)
-	{
-	}
-
 	GLuint id;
 	nzImageType type;
 	nzPixelFormat format;
 	nzUInt8 levelCount;
-	bool isTarget;
-	bool mipmapping;
-	bool mipmapsUpdated;
+	bool isTarget = false;
+	bool mipmapping = false;
+	bool mipmapsUpdated = true;
 	unsigned int depth;
 	unsigned int height;
 	unsigned int width;
@@ -277,6 +269,18 @@ namespace
 			if (lockedPrevious[impl->type] != impl->id)
 				glBindTexture(openglTarget[impl->type], impl->id);
 		}
+	}
+
+	inline void SetUnpackAlignement(nzUInt8 bpp)
+	{
+		if (bpp % 8 == 0)
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
+		else if (bpp % 4 == 0)
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		else if (bpp % 2 == 0)
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+		else
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	}
 
 	void UnlockTexture(NzTextureImpl* impl)
@@ -539,27 +543,11 @@ bool NzTexture::Download(NzImage* image) const
 	unsigned int width = m_impl->width;
 	unsigned int height = m_impl->height;
 	unsigned int depth = m_impl->depth;
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
-
-	nzUInt8* mirrored = new nzUInt8[width*height*depth*bpp];
 
 	// Téléchargement...
 	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
 	{
-		glGetTexImage(openglTarget[m_impl->type], level, format.dataFormat, format.dataType, mirrored);
-
-		// Inversion de la texture pour le repère d'OpenGL
-		///FIXME: Gérer l'inversion dans NzImage, et gérer également les images compressées
-		unsigned int faceSize = width*height*bpp;
-
-		nzUInt8* ptr = mirrored;
-		for (unsigned int d = 0; d < depth; ++d)
-		{
-			for (unsigned int j = 0; j < height/2; ++j)
-				std::swap_ranges(&ptr[j*width*bpp], &ptr[(j+1)*width*bpp-1], &ptr[(height-j-1)*width*bpp]);
-
-			ptr += faceSize;
-		}
+		glGetTexImage(openglTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(level));
 
 		if (width > 1)
 			width >>= 1;
@@ -573,7 +561,9 @@ bool NzTexture::Download(NzImage* image) const
 
 	UnlockTexture(m_impl);
 
-	delete[] mirrored;
+	// Inversion de la texture pour le repère d'OpenGL
+	if (!image->FlipVertically())
+		NazaraWarning("Failed to flip image");
 
 	return true;
 }
@@ -1138,7 +1128,20 @@ bool NzTexture::Update(const NzImage& image, const NzRectui& rect, unsigned int 
 	}
 	#endif
 
-	return Update(image.GetConstPixels(level), rect, z, level);
+	const nzUInt8* pixels = image.GetConstPixels(level, rect.x, rect.y, z);
+	if (!pixels)
+	{
+		NazaraError("Failed to access image's pixels");
+		return false;
+	}
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, image.GetWidth(level));
+
+	bool success = Update(pixels, rect, z, level);
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+	return success;
 }
 
 bool NzTexture::Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level)
@@ -1157,7 +1160,22 @@ bool NzTexture::Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level
 	}
 	#endif
 
-	return Update(image.GetConstPixels(level), cube, level);
+	const nzUInt8* pixels = image.GetConstPixels(level, cube.x, cube.y, cube.z);
+	if (!pixels)
+	{
+		NazaraError("Failed to access image's pixels");
+		return false;
+	}
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, image.GetWidth(level));
+	glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, image.GetHeight(level));
+
+	bool success = Update(pixels, cube, level);
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+
+	return success;
 }
 
 bool NzTexture::Update(const nzUInt8* pixels, nzUInt8 level)
@@ -1208,8 +1226,12 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 		NazaraError("Invalid rectangle");
 		return false;
 	}
+	#endif
 
-	if (rect.x+rect.width > std::max(m_impl->width >> level, 1U) || rect.y+rect.height > std::max(m_impl->height >> level, 1U))
+	unsigned int height = std::max(m_impl->height >> level, 1U);
+
+	#if NAZARA_RENDERER_SAFE
+	if (rect.x+rect.width > std::max(m_impl->width >> level, 1U) || rect.y+rect.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
@@ -1238,38 +1260,34 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	///FIXME: Gérer l'inversion dans NzImage, et gérer également les images compressées
-	unsigned int size = rect.width*rect.height*bpp;
-	nzUInt8* mirrored = new nzUInt8[size];
-	std::memcpy(mirrored, pixels, size);
+	NzImage mirrored;
+	mirrored.Create(m_impl->type, m_impl->format, rect.width, rect.height);
+	mirrored.Update(pixels);
 
-	nzUInt8* ptr = &mirrored[size*z];
-	for (unsigned int j = 0; j < rect.height/2; ++j)
-		std::swap_ranges(&ptr[j*rect.width*bpp], &ptr[(j+1)*rect.width*bpp-1], &ptr[(rect.height-j-1)*rect.width*bpp]);
+	if (!mirrored.FlipVertically())
+		NazaraWarning("Failed to flip image");
+
+	SetUnpackAlignement(bpp);
 
 	LockTexture(m_impl);
-
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, rect.x, rect.width, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage1D(GL_TEXTURE_1D, level, rect.x, rect.width, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		case nzImageType_2D:
-			glTexSubImage2D(GL_TEXTURE_2D, level, rect.x, rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage2D(GL_TEXTURE_2D, level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		case nzImageType_3D:
-			glTexSubImage3D(GL_TEXTURE_3D, level, rect.x, rect.y, z, rect.width, rect.height, 1, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage3D(GL_TEXTURE_3D, level, rect.x, height-rect.height-rect.y, z, rect.width, rect.height, 1, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		default:
 			NazaraInternalError("Image type not handled (0x" + NzString::Number(m_impl->type, 16) + ')');
 	}
-
 	UnlockTexture(m_impl);
-
-	delete[] mirrored;
 
 	return true;
 }
@@ -1306,9 +1324,13 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 		NazaraError("Invalid rectangle");
 		return false;
 	}
+	#endif
 
+	unsigned int height = std::max(m_impl->height >> level, 1U);
+
+	#if NAZARA_RENDERER_SAFE
 	if (cube.x+cube.width > std::max(m_impl->width >> level, 1U) ||
-	    cube.y+cube.height > std::max(m_impl->height >> level, 1U) ||
+	    cube.y+cube.height > height ||
 		cube.z+cube.depth > std::max(m_impl->depth >> level, 1U))
 	{
 		NazaraError("Cube dimensions are out of bounds");
@@ -1332,44 +1354,34 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	///FIXME: Gérer l'inversion dans NzImage, et gérer également les images compressées
-	unsigned int faceSize = cube.width*cube.height*bpp;
-	unsigned int size = faceSize*cube.depth;
-	nzUInt8* mirrored = new nzUInt8[size];
-	std::memcpy(mirrored, pixels, size);
+	NzImage mirrored;
+	mirrored.Create(m_impl->type, m_impl->format, cube.width, cube.height, cube.depth);
+	mirrored.Update(pixels);
 
-	nzUInt8* ptr = mirrored;
-	for (unsigned int d = 0; d < cube.depth; ++d)
-	{
-		for (unsigned int j = 0; j < cube.height/2; ++j)
-			std::swap_ranges(&ptr[j*cube.width*bpp], &ptr[(j+1)*cube.width*bpp-1], &ptr[(cube.height-j-1)*cube.width*bpp]);
+	if (!mirrored.FlipVertically())
+		NazaraWarning("Failed to flip image");
 
-		ptr += faceSize;
-	}
+	SetUnpackAlignement(bpp);
 
 	LockTexture(m_impl);
-
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		case nzImageType_2D:
-			glTexSubImage2D(GL_TEXTURE_2D, level, cube.x, cube.y, cube.width, cube.height, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage2D(GL_TEXTURE_2D, level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		case nzImageType_3D:
-			glTexSubImage3D(GL_TEXTURE_3D, level, cube.x, cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage3D(GL_TEXTURE_3D, level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 			break;
 
 		default:
 			NazaraInternalError("Image type not handled (0x" + NzString::Number(m_impl->type, 16) + ')');
 	}
-
 	UnlockTexture(m_impl);
-
-	delete[] mirrored;
 
 	return true;
 }
@@ -1409,7 +1421,13 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const NzImage& image, const NzRec
 	}
 	#endif
 
-	return UpdateFace(face, image.GetConstPixels(level), rect, level);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, image.GetWidth(level));
+
+	bool success = UpdateFace(face, image.GetConstPixels(level), rect, level);
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+	return success;
 }
 
 bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 level)
@@ -1457,8 +1475,12 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 		NazaraError("Invalid rectangle");
 		return false;
 	}
+	#endif
 
-	if (rect.x+rect.width > std::max(m_impl->width >> level, 1U) || rect.y+rect.height > std::max(m_impl->height >> level, 1U))
+	unsigned int height = std::max(m_impl->height >> level, 1U);
+
+	#if NAZARA_RENDERER_SAFE
+	if (rect.x+rect.width > std::max(m_impl->width >> level, 1U) || rect.y+rect.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
@@ -1481,20 +1503,18 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	///FIXME: Gérer l'inversion dans NzImage, et gérer également les images compressées
-	unsigned int size = rect.width*rect.height*bpp;
-	nzUInt8* mirrored = new nzUInt8[size];
-	std::memcpy(mirrored, pixels, size);
-	for (unsigned int j = 0; j < rect.height/2; ++j)
-		std::swap_ranges(&mirrored[j*rect.width*bpp], &mirrored[(j+1)*rect.width*bpp-1], &mirrored[(rect.height-j-1)*rect.width*bpp]);
+	NzImage mirrored;
+	mirrored.Create(m_impl->type, m_impl->format, rect.width, rect.height);
+	mirrored.Update(pixels);
+
+	if (!mirrored.FlipVertically())
+		NazaraWarning("Failed to flip image");
+
+	SetUnpackAlignement(bpp);
 
 	LockTexture(m_impl);
-
-	glTexSubImage2D(cubemapFace[face], level, rect.x, rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored);
-
+	glTexSubImage2D(cubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
 	UnlockTexture(m_impl);
-
-	delete[] mirrored;
 
 	return true;
 }
