@@ -8,6 +8,7 @@
 #define NAZARA_CUBE_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 template<typename T>
@@ -17,6 +18,7 @@ class NzCube
 		NzCube();
 		NzCube(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzCube(T cube[6]);
+		NzCube(const NzRect<T>& rect);
 		template<typename U> explicit NzCube(const NzCube<U>& rect);
 		NzCube(const NzCube& rect) = default;
 		~NzCube() = default;

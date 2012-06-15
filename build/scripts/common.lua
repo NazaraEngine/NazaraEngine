@@ -32,5 +32,8 @@ configuration "*Static"
 configuration "*DLL"
 	kind "SharedLib"
 
+configuration "gmake"
+	buildoptions "-std=c++11"
+	
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
