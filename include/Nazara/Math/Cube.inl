@@ -34,6 +34,17 @@ depth(vec[5])
 }
 
 template<typename T>
+NzCube<T>::NzCube(const NzRect<T>& rect) :
+x(rect.x),
+y(rect.y),
+z(0),
+width(rect.width),
+height(rect.height),
+depth(1)
+{
+}
+
+template<typename T>
 template<typename U>
 NzCube<T>::NzCube(const NzCube<U>& rect) :
 x(static_cast<T>(rect.x)),

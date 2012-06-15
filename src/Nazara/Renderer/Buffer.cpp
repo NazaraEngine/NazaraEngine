@@ -145,7 +145,7 @@ void* NzBuffer::GetBufferPtr()
 	if (!m_impl)
 	{
 		NazaraError("Buffer not created");
-		return false;
+		return nullptr;
 	}
 	#endif
 
@@ -158,7 +158,7 @@ const void* NzBuffer::GetBufferPtr() const
 	if (!m_impl)
 	{
 		NazaraError("Buffer not created");
-		return false;
+		return nullptr;
 	}
 	#endif
 

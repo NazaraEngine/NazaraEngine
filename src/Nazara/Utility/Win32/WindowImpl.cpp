@@ -4,6 +4,8 @@
 
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
+#define OEMRESOURCE
+
 #include <Nazara/Utility/Win32/WindowImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Mutex.hpp>
@@ -13,6 +15,11 @@
 #include <cstdio>
 #include <windowsx.h>
 #include <Nazara/Utility/Debug.hpp>
+
+#ifdef _WIN64
+	#define GWL_USERDATA GWLP_USERDATA
+	#define GCL_HCURSOR GCLP_HCURSOR
+#endif
 
 // N'est pas définit avec MinGW apparemment
 #ifndef MAPVK_VK_TO_VSC
@@ -116,7 +123,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 		win32StyleEx = 0;
 
-		RECT rect = {0, 0, width, height};
+		RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 		AdjustWindowRect(&rect, win32Style, false);
 		width = rect.right-rect.left;
 		height = rect.bottom-rect.top;
@@ -330,7 +337,7 @@ void NzWindowImpl::SetPosition(int x, int y)
 void NzWindowImpl::SetSize(unsigned int width, unsigned int height)
 {
 	// SetWindowPos demande la taille totale de la fenêtre
-	RECT rect = {0, 0, width, height};
+	RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 	AdjustWindowRect(&rect, GetWindowLongPtr(m_handle, GWL_STYLE), false);
 
 	SetWindowPos(m_handle, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);

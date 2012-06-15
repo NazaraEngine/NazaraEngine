@@ -11,7 +11,7 @@
 #include <Nazara/Utility/Image.hpp>
 
 #define STBI_HEADER_FILE_ONLY
-#include <Nazara/Utility/Loaders/STB/stb_image.c>
+#include <Nazara/Utility/Loaders/STB/stb_image.cpp>
 
 #include <Nazara/Utility/Debug.hpp>
 

@@ -73,7 +73,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
-		return nullptr;
+		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
 
 	ptr->array = multi;
 	ptr->file = file;

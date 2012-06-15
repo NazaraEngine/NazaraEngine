@@ -80,8 +80,7 @@ bool NzRenderWindow::CopyToImage(NzImage* image)
 	nzUInt8* pixels = image->GetPixels();
 	glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	for (unsigned int j = 0; j < size.y/2; ++j)
-		std::swap_ranges(&pixels[j*size.x*4], &pixels[(j+1)*size.x*4-1], &pixels[(size.y-j-1)*size.x*4]);
+	image->FlipVertically();
 
 	return true;
 }

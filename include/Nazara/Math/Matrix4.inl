@@ -107,7 +107,7 @@ NzMatrix4<T> NzMatrix4<T>::GetInverse() const
 	NzMatrix4 matrix;
 	T det = GetDeterminant();
 
-	if (det != 0.0)
+	if (!NzNumberEquals(det, static_cast<T>(0.0)))
 	{
 		matrix(0, 0) =  (m_sharedMatrix->m22 * (m_sharedMatrix->m33 * m_sharedMatrix->m44 - m_sharedMatrix->m34 * m_sharedMatrix->m43) - m_sharedMatrix->m32 * (m_sharedMatrix->m23 * m_sharedMatrix->m44 - m_sharedMatrix->m43 * m_sharedMatrix->m24) + m_sharedMatrix->m42 * (m_sharedMatrix->m23 * m_sharedMatrix->m34 - m_sharedMatrix->m33 * m_sharedMatrix->m24)) / det;
 		matrix(0, 1) = -(m_sharedMatrix->m12 * (m_sharedMatrix->m33 * m_sharedMatrix->m44 - m_sharedMatrix->m43 * m_sharedMatrix->m34) - m_sharedMatrix->m32 * (m_sharedMatrix->m13 * m_sharedMatrix->m44 - m_sharedMatrix->m43 * m_sharedMatrix->m14) + m_sharedMatrix->m42 * (m_sharedMatrix->m13 * m_sharedMatrix->m34 - m_sharedMatrix->m33 * m_sharedMatrix->m14)) / det;

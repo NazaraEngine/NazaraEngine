@@ -308,6 +308,7 @@ void NzWindow::SetEventListener(bool listener)
 	m_impl->SetEventListener(listener);
 	if (!listener)
 	{
+		// On vide la pile des évènements
 		NzLockGuard lock(m_eventMutex);
 		while (!m_events.empty())
 			m_events.pop();

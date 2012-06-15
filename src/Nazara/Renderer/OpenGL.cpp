@@ -102,6 +102,11 @@ namespace
 	}
 }
 
+NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
+{
+	return LoadEntry(entryPoint.GetConstBuffer(), false);
+}
+
 unsigned int NzOpenGL::GetVersion()
 {
 	return openGLversion;
@@ -262,6 +267,7 @@ bool NzOpenGL::Initialize()
 		glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
 		glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(LoadEntry("glLinkProgram"));
 		glMapBuffer = reinterpret_cast<PFNGLMAPBUFFERPROC>(LoadEntry("glMapBuffer"));
+		glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(LoadEntry("glPixelStorei"));
 		glPolygonMode = reinterpret_cast<PFNGLPOLYGONMODEPROC>(LoadEntry("glPolygonMode"));
 		glReadPixels = reinterpret_cast<PFNGLREADPIXELSPROC>(LoadEntry("glReadPixels"));
 		glScissor = reinterpret_cast<PFNGLSCISSORPROC>(LoadEntry("glScissor"));
@@ -600,6 +606,7 @@ PFNGLGETUNIFORMLOCATIONPROC		  glGetUniformLocation		 = nullptr;
 PFNGLLINKPROGRAMPROC			  glLinkProgram				 = nullptr;
 PFNGLMAPBUFFERPROC				  glMapBuffer				 = nullptr;
 PFNGLMAPBUFFERRANGEPROC			  glMapBufferRange			 = nullptr;
+PFNGLPIXELSTOREIPROC			  glPixelStorei				 = nullptr;
 PFNGLPOLYGONMODEPROC			  glPolygonMode				 = nullptr;
 PFNGLPROGRAMUNIFORM1DPROC		  glProgramUniform1d		 = nullptr;
 PFNGLPROGRAMUNIFORM1FPROC		  glProgramUniform1f		 = nullptr;

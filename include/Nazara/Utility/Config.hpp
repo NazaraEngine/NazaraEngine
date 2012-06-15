@@ -36,6 +36,6 @@
 #define NAZARA_UTILITY_SAFE 1
 
 // Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
-#define NAZARA_UTILITY_THREADED_WINDOW 1
+#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Buggé depuis GCC 4.7
 
 #endif // NAZARA_CONFIG_UTILITY_HPP
