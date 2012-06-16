@@ -9,8 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -25,9 +24,11 @@ class NAZARA_API NzString : public NzHashable
 	public:
 		enum Flags
 		{
-			None			= 0x00,	// Mode par défaut
-			CaseInsensitive	= 0x01,	// Insensible à la casse
-			HandleUtf8		= 0x02	// Traite les octets comme une suite de caractères UTF-8
+			None            = 0x00,	// Mode par défaut
+			CaseInsensitive = 0x01,	// Insensible à la casse
+			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractères UTF-8
+			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
+			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
 		};
 
 		struct SharedString;

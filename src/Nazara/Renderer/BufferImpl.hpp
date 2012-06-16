@@ -26,8 +26,8 @@ class NzBufferImpl
 
 		virtual bool IsHardware() const = 0;
 
-		virtual void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int size = 0) = 0;
-		virtual bool Unlock() = 0;
+		virtual void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) = 0;
+		virtual bool Unmap() = 0;
 };
 
 #endif // NAZARA_BUFFERIMPL_INCLUDED

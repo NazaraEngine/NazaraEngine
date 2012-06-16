@@ -8,15 +8,15 @@
 #define NAZARA_BUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Utility/Resource.hpp>
 
-enum nzBufferLock
+enum nzBufferAccess
 {
-	nzBufferLock_DiscardAndWrite,
-	nzBufferLock_ReadOnly,
-	nzBufferLock_ReadWrite,
-	nzBufferLock_WriteOnly
+	nzBufferAccess_DiscardAndWrite,
+	nzBufferAccess_ReadOnly,
+	nzBufferAccess_ReadWrite,
+	nzBufferAccess_WriteOnly
 };
 
 enum nzBufferStorage
@@ -68,8 +68,8 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 
 		bool IsHardware() const;
 
-		void* Lock(nzBufferLock lock, unsigned int offset = 0, unsigned int length = 0);
-		bool Unlock();
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		bool Unmap();
 
 		static bool IsSupported(nzBufferStorage storage);
 

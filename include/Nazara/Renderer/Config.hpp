@@ -38,6 +38,9 @@
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
 
+// Active le paramère debug des paramètres des contextes par défaut (Perte de performances mais capable de recevoir des messages d'OpenGL)
+#define NAZARA_RENDERER_OPENGL_DEBUG 0
+
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_RENDERER_SAFE 1
 

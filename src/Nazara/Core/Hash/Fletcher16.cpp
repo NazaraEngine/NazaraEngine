@@ -52,8 +52,10 @@ NzHashDigest NzHashFletcher16::End()
 	m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
 
 	nzUInt32 fletcher = (m_state->sum2 << 8) | m_state->sum1;
-	if (NazaraEndianness == nzEndianness_BigEndian)
-		NzByteSwap(&fletcher, sizeof(nzUInt32));
+
+	#ifdef NAZARA_BIG_ENDIAN
+	NzByteSwap(&fletcher, sizeof(nzUInt32));
+	#endif
 
 	return NzHashDigest(GetHashName(), reinterpret_cast<nzUInt8*>(&fletcher), 2);
 }

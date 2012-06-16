@@ -313,7 +313,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
 	{
 		unsigned int typeCount = byteRead/typeSize;
 		for (unsigned int i = 0; i < typeCount; ++i)
-			NzByteSwap(static_cast<char*>(buffer) + i*typeSize, typeSize);
+			NzByteSwap(reinterpret_cast<nzUInt8*>(buffer) + i*typeSize, typeSize);
 	}
 
 	return byteRead;

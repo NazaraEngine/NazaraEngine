@@ -8,6 +8,7 @@
 #define NAZARA_VECTOR4_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Vector3.hpp>
 
 template<typename T> class NzVector4
 {
@@ -17,6 +18,7 @@ template<typename T> class NzVector4
 		explicit NzVector4(T scale);
 		NzVector4(T vec[4]);
 		template<typename U> explicit NzVector4(const NzVector4<U>& vec);
+		NzVector4(const NzVector3<T>& vec, T W = 1.0);
 		NzVector4(const NzVector4& vec) = default;
 		~NzVector4() = default;
 
@@ -28,7 +30,8 @@ template<typename T> class NzVector4
 
 		NzString ToString() const;
 
-		operator NzString() const;
+		operator T*();
+		operator const T*() const;
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;

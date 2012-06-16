@@ -10,11 +10,11 @@
 #define NAZARA_WINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Event.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <queue>
@@ -24,10 +24,12 @@
 #include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
+class NzUtility;
 class NzWindowImpl;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {
+	friend class NzUtility;
 	friend class NzWindowImpl;
 
 	public:
@@ -59,7 +61,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 		NzWindowHandle GetHandle() const;
 		unsigned int GetHeight() const;
 		NzVector2i GetPosition() const;
-		NzVector2i GetSize() const;
+		NzVector2ui GetSize() const;
 		NzString GetTitle() const;
 		unsigned int GetWidth() const;
 
@@ -98,6 +100,9 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 	private:
 		void PushEvent(const NzEvent& event);
+
+		static bool Initialize();
+		static void Uninitialize();
 
 		std::queue<NzEvent> m_events;
 		#if NAZARA_UTILITY_THREADED_WINDOW

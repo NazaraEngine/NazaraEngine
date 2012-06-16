@@ -6,7 +6,7 @@
 
 #include <Nazara/Core/Win32/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/Functor.hpp>
+#include <Nazara/Core/Functor.hpp>
 #include <process.h>
 #include <Nazara/Core/Debug.hpp>
 
@@ -65,9 +65,9 @@ void NzThreadImpl::Terminate()
 		TerminateThread(m_thread, 0);
 }
 
-unsigned int _stdcall NzThreadImpl::ThreadProc(void* userdata)
+unsigned int __stdcall NzThreadImpl::ThreadProc(void* userdata)
 {
-	NzThread* owner = static_cast<NzThread*>(userdata);
+	NzThread* owner = reinterpret_cast<NzThread*>(userdata);
 	NzFunctor* func = owner->m_func;
 	HANDLE myHandle = owner->m_impl->m_thread;
 	func->Run();

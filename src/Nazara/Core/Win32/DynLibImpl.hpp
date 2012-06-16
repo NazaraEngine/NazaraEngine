@@ -8,7 +8,7 @@
 #define NAZARA_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <windows.h>
 
 class NzString;

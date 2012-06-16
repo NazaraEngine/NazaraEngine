@@ -26,11 +26,13 @@ template<typename T> class NzQuaternion
 		NzQuaternion(const NzQuaternion& quat) = default;
 		~NzQuaternion() = default;
 
+		T DotProduct(const NzQuaternion& vec) const;
+
 		NzQuaternion GetConjugate() const;
 		NzQuaternion GetNormalized() const;
 
-		double Magnitude() const;
-		double Normalize();
+		T Magnitude() const;
+		T Normalize();
 		T SquaredMagnitude() const;
 
 		void Set(T W, T X, T Y, T Z);
@@ -53,10 +55,10 @@ template<typename T> class NzQuaternion
 		NzQuaternion operator*(T scale) const;
 		NzQuaternion operator/(const NzQuaternion& quat) const;
 
-		NzQuaternion operator+=(const NzQuaternion& quat);
-		NzQuaternion operator*=(const NzQuaternion& quat);
-		NzQuaternion operator*=(T scale);
-		NzQuaternion operator/=(const NzQuaternion& quat);
+		NzQuaternion& operator+=(const NzQuaternion& quat);
+		NzQuaternion& operator*=(const NzQuaternion& quat);
+		NzQuaternion& operator*=(T scale);
+		NzQuaternion& operator/=(const NzQuaternion& quat);
 
 		bool operator==(const NzQuaternion& quat) const;
 		bool operator!=(const NzQuaternion& quat) const;
@@ -64,6 +66,8 @@ template<typename T> class NzQuaternion
 		bool operator<=(const NzQuaternion& quat) const;
 		bool operator>(const NzQuaternion& quat) const;
 		bool operator>=(const NzQuaternion& quat) const;
+
+		static NzQuaternion Slerp(const NzQuaternion& quatA, const NzQuaternion& quatB, T interp);
 
 		T w, x, y, z;
 };

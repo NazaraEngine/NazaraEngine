@@ -4,21 +4,21 @@
 
 #pragma once
 
-#ifndef NAZARA_LOCK_HPP
-#define NAZARA_LOCK_HPP
+#ifndef NAZARA_LOCKGUARD_HPP
+#define NAZARA_LOCKGUARD_HPP
 
 #include <Nazara/Prerequesites.hpp>
 
 class NzMutex;
 
-class NAZARA_API NzLock
+class NAZARA_API NzLockGuard
 {
 	public:
-		NzLock(NzMutex& mutex);
-		~NzLock();
+		NzLockGuard(NzMutex& mutex);
+		~NzLockGuard();
 
 	private:
 		NzMutex& m_mutex;
 };
 
-#endif // NAZARA_LOCK_HPP
+#endif // NAZARA_LOCKGUARD_HPP

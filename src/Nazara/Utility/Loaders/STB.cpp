@@ -11,7 +11,7 @@
 #include <Nazara/Utility/Image.hpp>
 
 #define STBI_HEADER_FILE_ONLY
-#include <Nazara/Utility/Loaders/STB/stb_image.c>
+#include <Nazara/Utility/Loaders/STB/stb_image.cpp>
 
 #include <Nazara/Utility/Debug.hpp>
 
@@ -21,19 +21,19 @@ namespace
 {
     int Read(void* userdata, char* data, int size)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         return static_cast<int>(stream->Read(data, size));
     }
 
     void Skip(void* userdata, unsigned int size)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         stream->Read(nullptr, size);
     }
 
     int Eof(void* userdata)
     {
-        NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
         return stream->GetCursorPos() >= stream->GetSize();
     }
 
@@ -63,15 +63,45 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		static nzPixelFormat format[4] = {
+		static const nzPixelFormat formats[4] =
+		{
 			nzPixelFormat_L8,
-			nzPixelFormat_L8A8,
-			nzPixelFormat_R8G8B8,
-			nzPixelFormat_R8G8B8A8
+			nzPixelFormat_LA8,
+			nzPixelFormat_RGB8,
+			nzPixelFormat_RGBA8
 		};
 
+		nzPixelFormat format;
+		int stbiFormat;
+		switch (parameters.loadFormat)
+		{
+			case nzPixelFormat_L8:
+				format = nzPixelFormat_L8;
+				stbiFormat = STBI_grey;
+				break;
+
+			case nzPixelFormat_LA8:
+				format = nzPixelFormat_LA8;
+				stbiFormat = STBI_grey_alpha;
+				break;
+
+			case nzPixelFormat_RGB8:
+				format = nzPixelFormat_RGB8;
+				stbiFormat = STBI_rgb;
+				break;
+
+			case nzPixelFormat_RGBA8:
+				format = nzPixelFormat_RGBA8;
+				stbiFormat = STBI_rgb_alpha;
+				break;
+
+			default:
+				format = nzPixelFormat_Undefined;
+				stbiFormat = STBI_default;
+		}
+
 		int width, height, bpp;
-		nzUInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_default);
+		nzUInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, stbiFormat);
 
 		if (!ptr)
 		{
@@ -79,7 +109,10 @@ namespace
 			return false;
 		}
 
-		if (!resource->Create(nzImageType_2D, format[bpp-1], width, height))
+		if (format == nzPixelFormat_Undefined)
+			format = formats[bpp-1];
+
+		if (!resource->Create(nzImageType_2D, format, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			stbi_image_free(ptr);
@@ -88,7 +121,11 @@ namespace
 		}
 
 		resource->Update(ptr);
+
 		stbi_image_free(ptr);
+
+		if (stbiFormat == STBI_default && parameters.loadFormat != nzPixelFormat_Undefined)
+			resource->Convert(parameters.loadFormat);
 
 		return true;
 	}
@@ -98,7 +135,7 @@ namespace
 		NazaraUnused(parameters);
 
 		int width, height, bpp;
-		return stbi_info_from_memory(static_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
+		return stbi_info_from_memory(reinterpret_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
 	}
 
 	bool NzLoader_STB_IsStreamLoadingSupported(NzInputStream& stream, const NzImageParams& parameters)
