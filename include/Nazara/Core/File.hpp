@@ -13,8 +13,8 @@
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 
 #define NAZARA_CLASS_FILE
 #include <Nazara/Core/ThreadSafety.hpp>

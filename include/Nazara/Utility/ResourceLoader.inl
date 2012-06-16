@@ -35,14 +35,20 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromFile(Type* resource, co
 		return false;
 	}
 
-	for (auto it = range.first; it != range.second; ++it)
+	// range.second est un itérateur vers l'élément après le dernier élémént du range
+	auto it = range.second;
+
+	do
 	{
+		it--;
+
 		// Chargement de la ressource
 		if (it->second(resource, filePath, parameters))
 			return true;
 
 		NazaraWarning("Loader failed");
 	}
+	while (it != range.first);
 
 	NazaraError("Failed to load file: all loaders failed");
 
@@ -66,7 +72,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromMemory(Type* resource, 
 	}
 	#endif
 
-	for (auto loader = s_memoryLoaders.begin(); loader != s_memoryLoaders.end(); ++loader)
+	for (auto loader = s_memoryLoaders.rbegin(); loader != s_memoryLoaders.rend(); ++loader)
 	{
 		// Le loader supporte-t-il les données ?
 		if (!loader->first(data, size, parameters))
@@ -101,7 +107,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromStream(Type* resource, 
 	#endif
 
 	nzUInt64 streamPos = stream.GetCursorPos();
-	for (auto loader = s_streamLoaders.begin(); loader != s_streamLoaders.end(); ++loader)
+	for (auto loader = s_streamLoaders.rbegin(); loader != s_streamLoaders.rend(); ++loader)
 	{
 		stream.SetCursorPos(streamPos);
 
@@ -164,7 +170,6 @@ void NzResourceLoader<Type, Parameters>::UnregisterResourceFileLoader(const NzSt
 			}
 		}
 	}
-		//s_fileLoaders.erase(std::make_pair(ext, loadFile));
 }
 
 template<typename Type, typename Parameters>

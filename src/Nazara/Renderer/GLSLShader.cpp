@@ -6,14 +6,16 @@
 #include <Nazara/Renderer/GLSLShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Renderer/BufferImpl.hpp>
-#include <Nazara/Renderer/VertexBuffer.hpp>
+#include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
-	nzUInt8 attribIndex[] =
+	///FIXME: Déclaré deux fois (ici et dans Renderer.cpp)
+	const nzUInt8 attribIndex[] =
 	{
 		2,	// nzElementUsage_Diffuse
 		1,	// nzElementUsage_Normal
@@ -28,31 +30,8 @@ namespace
 		GL_VERTEX_SHADER	// nzShaderType_Vertex
 	};
 
-	const nzUInt8 size[] =
-	{
-		4, // nzElementType_Color
-		1, // nzElementType_Double1
-		2, // nzElementType_Double2
-		3, // nzElementType_Double3
-		4, // nzElementType_Double4
-		1, // nzElementType_Float1
-		2, // nzElementType_Float2
-		3, // nzElementType_Float3
-		4  // nzElementType_Float4
-	};
-
-	const GLenum type[] =
-	{
-		GL_UNSIGNED_BYTE, // nzElementType_Color
-		GL_DOUBLE,		  // nzElementType_Double1
-		GL_DOUBLE,		  // nzElementType_Double2
-		GL_DOUBLE,		  // nzElementType_Double3
-		GL_DOUBLE,		  // nzElementType_Double4
-		GL_FLOAT,		  // nzElementType_Float1
-		GL_FLOAT,		  // nzElementType_Float2
-		GL_FLOAT,		  // nzElementType_Float3
-		GL_FLOAT		  // nzElementType_Float4
-	};
+	GLuint lockedPrevious = 0;
+	nzUInt8 lockedLevel = 0;
 }
 
 NzGLSLShader::NzGLSLShader(NzShader* parent) :
@@ -66,13 +45,38 @@ NzGLSLShader::~NzGLSLShader()
 
 bool NzGLSLShader::Bind()
 {
+	#if NAZARA_RENDERER_SAFE
+	if (lockedLevel > 0)
+	{
+		NazaraError("Cannot bind shader while a shader is locked");
+		return false;
+	}
+	#endif
+
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return false;
+	}
+	#endif
+
 	glUseProgram(m_program);
 
-	return true; ///FIXME: Comment détecter une erreur d'OpenGL sans ralentir le programme ?
+	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
+	{
+		glActiveTexture(GL_TEXTURE0 + it->second.unit);
+		if (!it->second.texture->Bind())
+			NazaraWarning("Failed to bind texture");
+	}
+
+	return true;
 }
 
 bool NzGLSLShader::Compile()
 {
+	NzContext::EnsureContext();
+
 	m_idCache.clear();
 
 	glLinkProgram(m_program);
@@ -111,6 +115,8 @@ bool NzGLSLShader::Compile()
 
 bool NzGLSLShader::Create()
 {
+	NzContext::EnsureContext();
+
 	m_program = glCreateProgram();
 	if (!m_program)
 	{
@@ -123,7 +129,7 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniformName = "TexCoord0";
+	NzString uniformName = "TexCoordi";
 	for (unsigned int i = 0; i < 8; ++i)
 	{
 		uniformName[8] = '0'+i;
@@ -138,6 +144,8 @@ bool NzGLSLShader::Create()
 
 void NzGLSLShader::Destroy()
 {
+	NzContext::EnsureContext();
+
 	for (GLuint shader : m_shaders)
 		if (shader)
 			glDeleteShader(shader);
@@ -158,6 +166,8 @@ nzShaderLanguage NzGLSLShader::GetLanguage() const
 
 NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
 {
+	NzContext::EnsureContext();
+
 	NzString source;
 
 	GLint length;
@@ -177,6 +187,8 @@ GLint NzGLSLShader::GetUniformLocation(const NzString& name) const
 	GLint id;
 	if (it == m_idCache.end())
 	{
+		NzContext::EnsureContext();
+
 		id = glGetUniformLocation(m_program, name.GetConstBuffer());
 		m_idCache[name] = id;
 	}
@@ -193,6 +205,8 @@ bool NzGLSLShader::IsLoaded(nzShaderType type) const
 
 bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 {
+	NzContext::EnsureContext();
+
 	GLuint shader = glCreateShader(shaderType[type]);
 	if (!shader)
 	{
@@ -245,16 +259,18 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 	}
 }
 
-bool NzGLSLShader::Lock() const
+bool NzGLSLShader::Lock()
 {
-	if (m_lockedLevel++ == 0)
+	if (lockedLevel++ == 0)
 	{
+		NzContext::EnsureContext();
+
 		GLint previous;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &previous);
 
-		m_lockedPrevious = previous;
+		lockedPrevious = previous;
 
-		if (m_lockedPrevious != m_program)
+		if (lockedPrevious != m_program)
 			glUseProgram(m_program);
 	}
 
@@ -263,97 +279,261 @@ bool NzGLSLShader::Lock() const
 
 bool NzGLSLShader::SendBoolean(const NzString& name, bool value)
 {
-	Lock();
-	glUniform1i(GetUniformLocation(name), value);
-	Unlock();
+	if (glProgramUniform1i)
+		glProgramUniform1i(m_program, GetUniformLocation(name), value);
+	else
+	{
+		Lock();
+		glUniform1i(GetUniformLocation(name), value);
+		Unlock();
+	}
 
 	return true;
 }
 
 bool NzGLSLShader::SendDouble(const NzString& name, double value)
 {
-	Lock();
-	glUniform1d(GetUniformLocation(name), value);
-	Unlock();
+	if (glProgramUniform1d)
+		glProgramUniform1d(m_program, GetUniformLocation(name), value);
+	else
+	{
+		Lock();
+		glUniform1d(GetUniformLocation(name), value);
+		Unlock();
+	}
 
 	return true;
 }
 
 bool NzGLSLShader::SendFloat(const NzString& name, float value)
 {
-	Lock();
-	glUniform1f(GetUniformLocation(name), value);
-	Unlock();
+	if (glProgramUniform1f)
+		glProgramUniform1f(m_program, GetUniformLocation(name), value);
+	else
+	{
+		Lock();
+		glUniform1f(GetUniformLocation(name), value);
+		Unlock();
+	}
 
 	return true;
 }
 
 bool NzGLSLShader::SendInteger(const NzString& name, int value)
 {
-	Lock();
-	glUniform1i(GetUniformLocation(name), value);
-	Unlock();
+	if (glProgramUniform1i)
+		glProgramUniform1i(m_program, GetUniformLocation(name), value);
+	else
+	{
+		Lock();
+		glUniform1i(GetUniformLocation(name), value);
+		Unlock();
+	}
 
 	return true;
 }
 
 bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4d& matrix)
 {
-	Lock();
-	glUniformMatrix4dv(GetUniformLocation(name), 1, GL_FALSE, matrix);
-	Unlock();
+	if (glProgramUniformMatrix4dv)
+		glProgramUniformMatrix4dv(m_program, GetUniformLocation(name), 1, GL_FALSE, matrix);
+	else
+	{
+		Lock();
+		glUniformMatrix4dv(GetUniformLocation(name), 1, GL_FALSE, matrix);
+		Unlock();
+	}
 
 	return true;
 }
 
 bool NzGLSLShader::SendMatrix(const NzString& name, const NzMatrix4f& matrix)
 {
-	Lock();
-	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, matrix);
-	Unlock();
+	if (glProgramUniformMatrix4fv)
+		glProgramUniformMatrix4fv(m_program, GetUniformLocation(name), 1, GL_FALSE, matrix);
+	else
+	{
+		Lock();
+		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, matrix);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector2d& vector)
+{
+	if (glProgramUniform2dv)
+		glProgramUniform2dv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform2dv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector2f& vector)
+{
+	if (glProgramUniform2fv)
+		glProgramUniform2fv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform2fv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector3d& vector)
+{
+	if (glProgramUniform3dv)
+		glProgramUniform3dv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform3dv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector3f& vector)
+{
+	if (glProgramUniform3fv)
+		glProgramUniform3fv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform3fv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector4d& vector)
+{
+	if (glProgramUniform4dv)
+		glProgramUniform4dv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform4dv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendVector(const NzString& name, const NzVector4f& vector)
+{
+	if (glProgramUniform4fv)
+		glProgramUniform4fv(m_program, GetUniformLocation(name), 1, vector);
+	else
+	{
+		Lock();
+		glUniform4fv(GetUniformLocation(name), 1, vector);
+		Unlock();
+	}
+
+	return true;
+}
+
+bool NzGLSLShader::SendTexture(const NzString& name, NzTexture* texture)
+{
+	static const unsigned int maxUnits = NazaraRenderer->GetMaxTextureUnits();
+
+	unsigned int unitUsed = m_textures.size();
+	if (unitUsed >= maxUnits)
+	{
+		NazaraError("Unable to use texture \"" + name + "\" for shader: all available texture units are used");
+		return false;
+	}
+
+	// À partir d'ici nous savons qu'il y a au moins un identifiant de texture libre
+	GLint location = GetUniformLocation(name);
+	if (location == -1)
+	{
+		NazaraError("Parameter name \"" + name + "\" not found in shader");
+		return false;
+	}
+
+	nzUInt8 unit;
+	if (unitUsed == 0)
+		// Pas d'unité utilisée, la tâche est simple
+		unit = 0;
+	else
+	{
+		auto it = m_textures.rbegin(); // Itérateur vers la fin de la map
+		unit = it->second.unit;
+		if (unit == maxUnits-1)
+		{
+			// Il y a une place libre, mais pas à la fin
+			for (; it != m_textures.rend(); ++it)
+			{
+				if (unit - it->second.unit > 1) // Si l'espace entre les indices est supérieur à 1, alors il y a une place libre
+				{
+					unit--;
+					break;
+				}
+			}
+		}
+		else
+			// Il y a une place libre à la fin
+			unit++;
+	}
+
+	m_textures[location] = TextureSlot{unit, texture};
+
+	if (glProgramUniform1i)
+		glProgramUniform1i(m_program, location, unit);
+	else
+	{
+		Lock();
+		glUniform1i(location, unit);
+		Unlock();
+	}
 
 	return true;
 }
 
 void NzGLSLShader::Unbind()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
 	glUseProgram(0);
 }
 
-void NzGLSLShader::Unlock() const
+void NzGLSLShader::Unlock()
 {
-	if (m_lockedLevel == 0)
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (lockedLevel == 0)
 	{
 		NazaraWarning("Unlock called on non-locked texture");
 		return;
 	}
+	#endif
 
-	if (--m_lockedLevel == 0 && m_lockedPrevious != m_program)
-		glUseProgram(m_lockedPrevious);
-}
-
-bool NzGLSLShader::UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration)
-{
-	vertexBuffer->GetBuffer()->GetImpl()->Bind();
-	const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(vertexBuffer->GetBufferPtr());
-
-	///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
-	for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
-		glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
-
-	unsigned int stride = vertexDeclaration->GetStride();
-	unsigned int elementCount = vertexDeclaration->GetElementCount();
-	for (unsigned int i = 0; i < elementCount; ++i)
-	{
-		const NzVertexDeclaration::Element* element = vertexDeclaration->GetElement(i);
-		glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
-		glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
-							  size[element->type],
-							  type[element->type],
-							  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-							  stride,
-							  &buffer[element->offset]);
-	}
-
-	return true;
+	if (--lockedLevel == 0 && lockedPrevious != m_program)
+		glUseProgram(lockedPrevious);
 }

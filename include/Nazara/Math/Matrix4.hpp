@@ -96,17 +96,12 @@ template<typename T> class NzMatrix4
 
 		struct SharedMatrix
 		{
-			SharedMatrix() : // Vivement GCC 4.7 sur Windows
-			refCount(1)
-			{
-			}
-
 			T m11, m12, m13, m14;
 			T m21, m22, m23, m24;
 			T m31, m32, m33, m34;
 			T m41, m42, m43, m44;
 
-			unsigned short refCount;
+			unsigned short refCount = 1;
 			NazaraMutex(mutex)
 		};
 

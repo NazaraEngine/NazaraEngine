@@ -4,7 +4,7 @@
 
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Lock.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -222,12 +222,12 @@ NzVector2i NzWindow::GetPosition() const
 		return NzVector2i(0);
 }
 
-NzVector2i NzWindow::GetSize() const
+NzVector2ui NzWindow::GetSize() const
 {
 	if (m_impl)
 		return m_impl->GetSize();
 	else
-		return NzVector2i(0);
+		return NzVector2ui(0U);
 }
 
 NzString NzWindow::GetTitle() const
@@ -281,7 +281,7 @@ bool NzWindow::PollEvent(NzEvent* event)
 		return false;
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
-	NzLock lock(m_eventMutex);
+	NzLockGuard lock(m_eventMutex);
 	#else
 	m_impl->ProcessEvents(false);
 	#endif
@@ -308,7 +308,8 @@ void NzWindow::SetEventListener(bool listener)
 	m_impl->SetEventListener(listener);
 	if (!listener)
 	{
-		NzLock lock(m_eventMutex);
+		// On vide la pile des évènements
+		NzLockGuard lock(m_eventMutex);
 		while (!m_events.empty())
 			m_events.pop();
 	}
@@ -408,7 +409,7 @@ bool NzWindow::WaitEvent(NzEvent* event)
 		return false;
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
-	NzLock lock(m_eventMutex);
+	NzLockGuard lock(m_eventMutex);
 
 	if (m_events.empty())
 	{
@@ -472,4 +473,14 @@ void NzWindow::PushEvent(const NzEvent& event)
 		m_eventConditionMutex.Unlock();
 	}
 	#endif
+}
+
+bool NzWindow::Initialize()
+{
+	return NzWindowImpl::Initialize();
+}
+
+void NzWindow::Uninitialize()
+{
+	NzWindowImpl::Uninitialize();
 }

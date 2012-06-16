@@ -41,3 +41,6 @@ Liens
 Site web : http://www.digitalpulsesoftware.com
 Wiki     : http://wiki.digitalpulsesoftware.com/index.php?title=Nazara
 Forum    : http://forum.digitalpulsesoftware.com
+
+Merci à
+-RafBill: Recherche de bugs

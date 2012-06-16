@@ -34,7 +34,7 @@ class NzGLSLShader : public NzShaderImpl
 		bool IsLoaded(nzShaderType type) const;
 
 		bool Load(nzShaderType type, const NzString& source);
-		bool Lock() const;
+		bool Lock();
 
 		bool SendBoolean(const NzString& name, bool value);
 		bool SendDouble(const NzString& name, double value);
@@ -42,18 +42,28 @@ class NzGLSLShader : public NzShaderImpl
 		bool SendInteger(const NzString& name, int value);
 		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
+		bool SendVector(const NzString& name, const NzVector2d& vector);
+		bool SendVector(const NzString& name, const NzVector2f& vector);
+		bool SendVector(const NzString& name, const NzVector3d& vector);
+		bool SendVector(const NzString& name, const NzVector3f& vector);
+		bool SendVector(const NzString& name, const NzVector4d& vector);
+		bool SendVector(const NzString& name, const NzVector4f& vector);
+		bool SendTexture(const NzString& name, NzTexture* texture);
 
 		void Unbind();
-		void Unlock() const;
+		void Unlock();
 
 	private:
-		bool UpdateVertexBuffer(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration);
+		struct TextureSlot
+		{
+			nzUInt8 unit;
+			NzTexture* texture;
+		};
 
 		mutable std::map<NzString, GLint> m_idCache;
-		mutable GLuint m_lockedPrevious;
+		std::map<GLint, TextureSlot> m_textures;
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Count];
-		mutable nzUInt8 m_lockedLevel;
 		NzShader* m_parent;
 		NzString m_log;
 };

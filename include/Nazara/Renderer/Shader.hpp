@@ -8,9 +8,12 @@
 #define NAZARA_SHADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utility/Resource.hpp>
 
 enum nzShaderLanguage
@@ -32,6 +35,7 @@ enum nzShaderType
 
 class NzRenderer;
 class NzShaderImpl;
+class NzTexture;
 
 class NAZARA_API NzShader : public NzResource, NzNonCopyable
 {
@@ -65,6 +69,13 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool SendInteger(const NzString& name, int value);
 		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
 		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
+		bool SendVector(const NzString& name, const NzVector2d& vector);
+		bool SendVector(const NzString& name, const NzVector2f& vector);
+		bool SendVector(const NzString& name, const NzVector3d& vector);
+		bool SendVector(const NzString& name, const NzVector3f& vector);
+		bool SendVector(const NzString& name, const NzVector4d& vector);
+		bool SendVector(const NzString& name, const NzVector4f& vector);
+		bool SendTexture(const NzString& name, NzTexture* texture);
 
 		void Unlock();
 

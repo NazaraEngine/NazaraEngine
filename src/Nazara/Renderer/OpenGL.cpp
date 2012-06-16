@@ -102,6 +102,11 @@ namespace
 	}
 }
 
+NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
+{
+	return LoadEntry(entryPoint.GetConstBuffer(), false);
+}
+
 unsigned int NzOpenGL::GetVersion()
 {
 	return openGLversion;
@@ -116,16 +121,87 @@ bool NzOpenGL::Initialize()
 	}
 
 	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
-	// Le contexte de chargement ne peut pas être partagé car le contexte de référence n'existe pas encore
 	NzContextParameters parameters;
 	parameters.majorVersion = 2;
 	parameters.minorVersion = 0;
 	parameters.shared = false;
 
+	/*
+		Note: Même le contexte de chargement nécessite quelques fonctions de base pour correctement s'initialiser
+		Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
+		de créer le second avec les bons paramètres.s
+
+		Non sérieusement si quelqu'un a une meilleure idée qu'il me le dise
+	*/
+
+	/****************************************Initialisation****************************************/
+
 	NzContext loadContext;
 	if (!loadContext.Create(parameters))
 	{
 		NazaraError("Failed to create load context");
+		Uninitialize();
+
+		return false;
+	}
+
+	#if defined(NAZARA_PLATFORM_WINDOWS)
+	wglCreateContextAttribs = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(LoadEntry("wglCreateContextAttribsARB", false));
+	wglChoosePixelFormat = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(LoadEntry("wglChoosePixelFormatARB", false));
+	if (!wglChoosePixelFormat)
+		wglChoosePixelFormat = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATEXTPROC>(LoadEntry("wglChoosePixelFormatEXT", false));
+	#elif defined(NAZARA_PLATFORM_LINUX)
+	glXCreateContextAttribs = reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(LoadEntry("glXCreateContextAttribsARB", false));
+	#endif
+
+	// Récupération de la version d'OpenGL
+	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
+	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
+	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString"));
+	if (!glGetString)
+	{
+		NazaraError("Unable to load OpenGL: failed to load glGetString");
+		Uninitialize();
+
+		return false;
+	}
+
+	const GLubyte* version = glGetString(GL_VERSION);
+	if (!version)
+	{
+		NazaraError("Unable to retrieve OpenGL version");
+		Uninitialize();
+
+		return false;
+	}
+
+	unsigned int major = version[0] - '0';
+	unsigned int minor = version[2] - '0';
+
+	if (major == 0 || major > 9)
+	{
+		NazaraError("Unable to retrieve OpenGL major version");
+		return false;
+	}
+
+	if (minor > 9)
+	{
+		NazaraWarning("Unable to retrieve OpenGL minor version (using 0)");
+		minor = 0;
+	}
+
+	openGLversion = major*100 + minor*10;
+
+	parameters.debugMode = true; // Certaines extensions n'apparaissent qu'avec un contexte de debug (e.g. ARB_debug_output)
+	parameters.majorVersion = NzContextParameters::defaultMajorVersion = openGLversion/100;
+	parameters.minorVersion = NzContextParameters::defaultMinorVersion = (openGLversion%100)/10;
+
+	// Destruction implicite du premier contexte
+	if (!loadContext.Create(parameters))
+	{
+		NazaraError("Failed to create load context");
+		Uninitialize();
+
 		return false;
 	}
 
@@ -151,6 +227,7 @@ bool NzOpenGL::Initialize()
 		glColorMask = reinterpret_cast<PFNGLCOLORMASKPROC>(LoadEntry("glColorMask"));
 		glCullFace = reinterpret_cast<PFNGLCULLFACEPROC>(LoadEntry("glCullFace"));
 		glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(LoadEntry("glCompileShader"));
+		glCopyTexSubImage2D = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE2DPROC>(LoadEntry("glCopyTexSubImage2D"));
 		glDeleteBuffers = reinterpret_cast<PFNGLDELETEBUFFERSPROC>(LoadEntry("glDeleteBuffers"));
 		glDeleteQueries = reinterpret_cast<PFNGLDELETEQUERIESPROC>(LoadEntry("glDeleteQueries"));
 		glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(LoadEntry("glDeleteProgram"));
@@ -182,14 +259,17 @@ bool NzOpenGL::Initialize()
 		glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(LoadEntry("glGetShaderInfoLog"));
 		glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(LoadEntry("glGetShaderiv"));
 		glGetShaderSource = reinterpret_cast<PFNGLGETSHADERSOURCEPROC>(LoadEntry("glGetShaderSource"));
-		glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString"));
 		glGetTexImage = reinterpret_cast<PFNGLGETTEXIMAGEPROC>(LoadEntry("glGetTexImage"));
+		glGetTexLevelParameterfv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERFVPROC>(LoadEntry("glGetTexLevelParameterfv"));
+		glGetTexLevelParameteriv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERIVPROC>(LoadEntry("glGetTexLevelParameteriv"));
 		glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(LoadEntry("glGetTexParameterfv"));
 		glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(LoadEntry("glGetTexParameteriv"));
 		glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
 		glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(LoadEntry("glLinkProgram"));
 		glMapBuffer = reinterpret_cast<PFNGLMAPBUFFERPROC>(LoadEntry("glMapBuffer"));
+		glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(LoadEntry("glPixelStorei"));
 		glPolygonMode = reinterpret_cast<PFNGLPOLYGONMODEPROC>(LoadEntry("glPolygonMode"));
+		glReadPixels = reinterpret_cast<PFNGLREADPIXELSPROC>(LoadEntry("glReadPixels"));
 		glScissor = reinterpret_cast<PFNGLSCISSORPROC>(LoadEntry("glScissor"));
 		glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(LoadEntry("glShaderSource"));
 		glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(LoadEntry("glStencilFunc"));
@@ -223,49 +303,12 @@ bool NzOpenGL::Initialize()
 	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
-	wglCreateContextAttribs = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(LoadEntry("wglCreateContextAttribsARB", false));
-	wglChoosePixelFormat = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(LoadEntry("wglChoosePixelFormatARB", false));
-	if (!wglChoosePixelFormat)
-		wglChoosePixelFormat = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATEXTPROC>(LoadEntry("wglChoosePixelFormatEXT", false));
-
 	wglGetExtensionsStringARB = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGARBPROC>(LoadEntry("wglGetExtensionsStringARB", false));
 	wglGetExtensionsStringEXT = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGEXTPROC>(LoadEntry("wglGetExtensionsStringEXT", false));
 	wglSwapInterval = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(LoadEntry("wglSwapIntervalEXT", false));
 	#elif defined(NAZARA_PLATFORM_LINUX)
-	glXCreateContextAttribs = reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(LoadEntry("glXCreateContextAttribsARB", false));
 	glXSwapInterval = reinterpret_cast<PFNGLXSWAPINTERVALSGIPROC>(LoadEntry("glXSwapIntervalSGI", false));
 	#endif
-
-	// Récupération de la version d'OpenGL
-	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
-	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
-	const GLubyte* version = glGetString(GL_VERSION);
-	if (!version)
-	{
-		NazaraError("Unable to retrieve OpenGL version");
-		Uninitialize();
-
-		return false;
-	}
-
-	unsigned int major = version[0] - '0';
-	unsigned int minor = version[2] - '0';
-
-	if (major == 0 || major > 9)
-	{
-		NazaraError("Unable to retrieve OpenGL major version");
-		Uninitialize();
-
-		return false;
-	}
-
-	if (minor > 9)
-	{
-		NazaraWarning("Unable to retrieve OpenGL minor version (using 0)");
-		minor = 0;
-	}
-
-	openGLversion = major*100 + minor*10;
 
 	/****************************************Extensions****************************************/
 
@@ -296,6 +339,24 @@ bool NzOpenGL::Initialize()
 	// AnisotropicFilter
 	openGLextensions[NzOpenGL::AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
 
+	// DebugOutput
+	if (IsSupported("GL_ARB_debug_output"))
+	{
+		try
+		{
+			glDebugMessageControl = reinterpret_cast<PFNGLDEBUGMESSAGECONTROLARBPROC>(LoadEntry("glDebugMessageControlARB"));
+			glDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTARBPROC>(LoadEntry("glDebugMessageInsertARB"));
+			glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKARBPROC>(LoadEntry("glDebugMessageCallbackARB"));
+			glGetDebugMessageLog = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGARBPROC>(LoadEntry("glGetDebugMessageLogARB"));
+
+			openGLextensions[NzOpenGL::DebugOutput] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to load GL_ARB_debug_output: " + NzString(e.what()));
+		}
+	}
+
 	// FP64
 	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{
@@ -314,88 +375,132 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	// Framebuffer_Object
-	try
-	{
-		glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
-		glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
-		glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
-		glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
-		glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
-		glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
-		glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
-		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
-		glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
-		glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
-		glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
-
-		openGLextensions[NzOpenGL::Framebuffer_Object] = true;
-	}
-	catch (const std::exception& e)
-	{
-		if (openGLversion >= 300)
-			NazaraWarning("Failed to load core FBOs (" + NzString(e.what()) + ")");
-
-		if (IsSupported("GL_EXT_framebuffer_object"))
-		{
-			try
-			{
-				glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFEREXTPROC>(LoadEntry("glBindFramebufferEXT"));
-				glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFEREXTPROC>(LoadEntry("glBindRenderbufferEXT"));
-				glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC>(LoadEntry("glCheckFramebufferStatusEXT"));
-				glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSEXTPROC>(LoadEntry("glDeleteFramebuffersEXT"));
-				glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSEXTPROC>(LoadEntry("glDeleteRenderbuffersEXT"));
-				glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC>(LoadEntry("glFramebufferRenderbufferEXT"));
-				glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DEXTPROC>(LoadEntry("glFramebufferTexture2DEXT"));
-				glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT"));
-				glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSEXTPROC>(LoadEntry("glGenFramebuffersEXT"));
-				glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSEXTPROC>(LoadEntry("glGenRenderbuffersEXT"));
-				glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEEXTPROC>(LoadEntry("glRenderbufferStorageEXT"));
-
-				openGLextensions[NzOpenGL::Framebuffer_Object] = true;
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError("Failed to load EXT_framebuffer_object: " + NzString(e.what()));
-			}
-		}
-	}
-
-	// Texture3D
-	if (IsSupported("GL_EXT_texture3D"))
+	// FrameBufferObject
+	if (openGLversion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
 	{
 		try
 		{
-			glTexImage3D = reinterpret_cast<PFNGLTEXIMAGE3DEXTPROC>(LoadEntry("glTexImage3DEXT"));
-			glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DEXTPROC>(LoadEntry("glTexSubImage3DEXT"));
+			glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
+			glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
+			glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
+			glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
+			glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
+			glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
+			glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
+			glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
+			glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
+			glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
+			glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
 
-			openGLextensions[NzOpenGL::Texture3D] = true;
+			openGLextensions[NzOpenGL::FrameBufferObject] = true;
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load EXT_texture3D: " + NzString(e.what()));
+			NazaraError("Failed to load ARB_framebuffer_object: (" + NzString(e.what()) + ")");
 		}
 	}
 
-	/****************************************Contextes****************************************/
-
-
-	NzContextParameters::defaultMajorVersion = openGLversion/100;
-	NzContextParameters::defaultMinorVersion = (openGLversion%100)/10;
-
-/*
-	NzContextParameters::defaultMajorVersion = std::min(openGLversion/100, 2U);
-	NzContextParameters::defaultMinorVersion = std::min((openGLversion%100)/10, 1U);
-*/
-	if (!NzContext::InitializeReference())
+	// SeparateShaderObjects
+	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{
-		NazaraError("Failed to initialize reference context");
+		glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FPROC>(LoadEntry("glProgramUniform1f"));
+		glProgramUniform1i = reinterpret_cast<PFNGLPROGRAMUNIFORM1IPROC>(LoadEntry("glProgramUniform1i"));
+		glProgramUniform2fv = reinterpret_cast<PFNGLPROGRAMUNIFORM2FVPROC>(LoadEntry("glProgramUniform2fv"));
+		glProgramUniform3fv = reinterpret_cast<PFNGLPROGRAMUNIFORM3FVPROC>(LoadEntry("glProgramUniform3fv"));
+		glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
+		glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
+
+		if (openGLextensions[NzOpenGL::FP64])
+		{
+			glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
+			glProgramUniform2dv = reinterpret_cast<PFNGLPROGRAMUNIFORM2DVPROC>(LoadEntry("glProgramUniform2dv"));
+			glProgramUniform3dv = reinterpret_cast<PFNGLPROGRAMUNIFORM3DVPROC>(LoadEntry("glProgramUniform3dv"));
+			glProgramUniform4dv = reinterpret_cast<PFNGLPROGRAMUNIFORM4DVPROC>(LoadEntry("glProgramUniform4dv"));
+			glProgramUniformMatrix4dv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4DVPROC>(LoadEntry("glProgramUniformMatrix4dv"));
+		}
+
+		openGLextensions[NzOpenGL::SeparateShaderObjects] = true;
+	}
+
+	// Texture3D
+	try
+	{
+		glTexImage3D = reinterpret_cast<PFNGLTEXIMAGE3DPROC>(LoadEntry("glTexImage3D"));
+		glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DPROC>(LoadEntry("glTexSubImage3D"));
+
+		openGLextensions[NzOpenGL::Texture3D] = true;
+	}
+	catch (const std::exception& e)
+	{
+		if (openGLversion >= 120)
+			NazaraWarning("Failed to load core texture 3D (" + NzString(e.what()) + ")");
+
+		if (IsSupported("GL_EXT_texture3D"))
+		{
+			try
+			{
+				// Hacky: Normalement incompatible à cause du internalFormat, GLenum pour l'extension et GLint pour le noyau
+				// Mais la taille du type étant la même (GLenum est un typedef équivalent à GLint) et Nazara n'utilisant pas
+				// Ce qui cause l'incompatibilité (les paramètres 1,2,3,4), je prends cette liberté
+				glTexImage3D = reinterpret_cast<PFNGLTEXIMAGE3DPROC>(LoadEntry("glTexImage3DEXT"));
+				glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DEXTPROC>(LoadEntry("glTexSubImage3DEXT"));
+
+				openGLextensions[NzOpenGL::Texture3D] = true;
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError("Failed to load EXT_texture3D: " + NzString(e.what()));
+			}
+		}
+	}
+
+	// TextureCompression_s3tc
+	openGLextensions[NzOpenGL::TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
+
+	// TextureStorage
+	if (openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
+	{
+		try
+		{
+			glTexStorage1D = reinterpret_cast<PFNGLTEXSTORAGE1DPROC>(LoadEntry("glTexStorage1D"));
+			glTexStorage2D = reinterpret_cast<PFNGLTEXSTORAGE2DPROC>(LoadEntry("glTexStorage2D"));
+			glTexStorage3D = reinterpret_cast<PFNGLTEXSTORAGE3DPROC>(LoadEntry("glTexStorage3D"));
+
+			openGLextensions[NzOpenGL::TextureStorage] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to load ARB_texture_storage: " + NzString(e.what()));
+		}
+	}
+
+	// VertexArrayObject
+	if (openGLversion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
+	{
+		try
+		{
+			glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(LoadEntry("glBindVertexArray"));
+			glDeleteVertexArrays = reinterpret_cast<PFNGLDELETEVERTEXARRAYSPROC>(LoadEntry("glDeleteVertexArrays"));
+			glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(LoadEntry("glGenVertexArrays"));
+
+			openGLextensions[NzOpenGL::VertexArrayObject] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to load ARB_vertex_array_object: " + NzString(e.what()));
+		}
+	}
+
+	/****************************************Contexte de référence****************************************/
+
+	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
+	if (!NzContext::Initialize())
+	{
+		NazaraError("Failed to initialize contexts");
 		Uninitialize();
 
 		return false;
 	}
-
-	NzContextParameters::defaultShareContext = NzContext::GetReference();
 
 	return true;
 }
@@ -412,7 +517,7 @@ bool NzOpenGL::IsSupported(const NzString& string)
 
 void NzOpenGL::Uninitialize()
 {
-	NzContext::UninitializeReference();
+	NzContext::Uninitialize();
 
 	for (bool& ext : openGLextensions)
 		ext = false;
@@ -431,6 +536,7 @@ PFNGLBINDBUFFERPROC				  glBindBuffer				 = nullptr;
 PFNGLBINDFRAMEBUFFERPROC		  glBindFramebuffer			 = nullptr;
 PFNGLBINDRENDERBUFFERPROC		  glBindRenderbuffer		 = nullptr;
 PFNGLBINDTEXTUREPROC			  glBindTexture				 = nullptr;
+PFNGLBINDVERTEXARRAYPROC		  glBindVertexArray			 = nullptr;
 PFNGLBLENDFUNCPROC				  glBlendFunc				 = nullptr;
 PFNGLBUFFERDATAPROC				  glBufferData				 = nullptr;
 PFNGLBUFFERSUBDATAPROC			  glBufferSubData			 = nullptr;
@@ -444,6 +550,10 @@ PFNGLCHECKFRAMEBUFFERSTATUSPROC	  glCheckFramebufferStatus	 = nullptr;
 PFNGLCOLORMASKPROC				  glColorMask				 = nullptr;
 PFNGLCULLFACEPROC				  glCullFace				 = nullptr;
 PFNGLCOMPILESHADERPROC			  glCompileShader			 = nullptr;
+PFNGLCOPYTEXSUBIMAGE2DPROC		  glCopyTexSubImage2D		 = nullptr;
+PFNGLDEBUGMESSAGECONTROLARBPROC	  glDebugMessageControl		 = nullptr;
+PFNGLDEBUGMESSAGEINSERTARBPROC	  glDebugMessageInsert		 = nullptr;
+PFNGLDEBUGMESSAGECALLBACKARBPROC  glDebugMessageCallback	 = nullptr;
 PFNGLDELETEBUFFERSPROC			  glDeleteBuffers			 = nullptr;
 PFNGLDELETEFRAMEBUFFERSPROC		  glDeleteFramebuffers		 = nullptr;
 PFNGLDELETEPROGRAMPROC			  glDeleteProgram			 = nullptr;
@@ -451,6 +561,7 @@ PFNGLDELETEQUERIESPROC			  glDeleteQueries			 = nullptr;
 PFNGLDELETERENDERBUFFERSPROC	  glDeleteRenderbuffers		 = nullptr;
 PFNGLDELETESHADERPROC			  glDeleteShader			 = nullptr;
 PFNGLDELETETEXTURESPROC			  glDeleteTextures			 = nullptr;
+PFNGLDELETEVERTEXARRAYSPROC		  glDeleteVertexArrays		 = nullptr;
 PFNGLDEPTHFUNCPROC				  glDepthFunc				 = nullptr;
 PFNGLDEPTHMASKPROC				  glDepthMask				 = nullptr;
 PFNGLDISABLEPROC 				  glDisable					 = nullptr;
@@ -471,7 +582,9 @@ PFNGLGENFRAMEBUFFERSPROC		  glGenFramebuffers			 = nullptr;
 PFNGLGENRENDERBUFFERSPROC		  glGenRenderbuffers		 = nullptr;
 PFNGLGENQUERIESPROC				  glGenQueries				 = nullptr;
 PFNGLGENTEXTURESPROC			  glGenTextures				 = nullptr;
+PFNGLGENVERTEXARRAYSPROC		  glGenVertexArrays			 = nullptr;
 PFNGLGETBUFFERPARAMETERIVPROC	  glGetBufferParameteriv	 = nullptr;
+PFNGLGETDEBUGMESSAGELOGARBPROC	  glGetDebugMessageLog		 = nullptr;
 PFNGLGETERRORPROC				  glGetError				 = nullptr;
 PFNGLGETINTEGERVPROC			  glGetIntegerv				 = nullptr;
 PFNGLGETPROGRAMIVPROC			  glGetProgramiv			 = nullptr;
@@ -485,24 +598,44 @@ PFNGLGETSHADERSOURCEPROC		  glGetShaderSource			 = nullptr;
 PFNGLGETSTRINGPROC				  glGetString				 = nullptr;
 PFNGLGETSTRINGIPROC				  glGetStringi				 = nullptr;
 PFNGLGETTEXIMAGEPROC			  glGetTexImage				 = nullptr;
+PFNGLGETTEXLEVELPARAMETERFVPROC	  glGetTexLevelParameterfv	 = nullptr;
+PFNGLGETTEXLEVELPARAMETERIVPROC	  glGetTexLevelParameteriv	 = nullptr;
 PFNGLGETTEXPARAMETERFVPROC		  glGetTexParameterfv		 = nullptr;
 PFNGLGETTEXPARAMETERIVPROC		  glGetTexParameteriv		 = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC		  glGetUniformLocation		 = nullptr;
 PFNGLLINKPROGRAMPROC			  glLinkProgram				 = nullptr;
 PFNGLMAPBUFFERPROC				  glMapBuffer				 = nullptr;
 PFNGLMAPBUFFERRANGEPROC			  glMapBufferRange			 = nullptr;
+PFNGLPIXELSTOREIPROC			  glPixelStorei				 = nullptr;
 PFNGLPOLYGONMODEPROC			  glPolygonMode				 = nullptr;
+PFNGLPROGRAMUNIFORM1DPROC		  glProgramUniform1d		 = nullptr;
+PFNGLPROGRAMUNIFORM1FPROC		  glProgramUniform1f		 = nullptr;
+PFNGLPROGRAMUNIFORM1IPROC		  glProgramUniform1i		 = nullptr;
+PFNGLPROGRAMUNIFORM2DVPROC		  glProgramUniform2dv		 = nullptr;
+PFNGLPROGRAMUNIFORM2FVPROC		  glProgramUniform2fv		 = nullptr;
+PFNGLPROGRAMUNIFORM3DVPROC		  glProgramUniform3dv		 = nullptr;
+PFNGLPROGRAMUNIFORM3FVPROC		  glProgramUniform3fv		 = nullptr;
+PFNGLPROGRAMUNIFORM4DVPROC		  glProgramUniform4dv		 = nullptr;
+PFNGLPROGRAMUNIFORM4FVPROC		  glProgramUniform4fv		 = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4DVPROC  glProgramUniformMatrix4dv	 = nullptr;
+PFNGLPROGRAMUNIFORMMATRIX4FVPROC  glProgramUniformMatrix4fv	 = nullptr;
+PFNGLREADPIXELSPROC				  glReadPixels				 = nullptr;
 PFNGLRENDERBUFFERSTORAGEPROC	  glRenderbufferStorage		 = nullptr;
 PFNGLSCISSORPROC				  glScissor					 = nullptr;
 PFNGLSHADERSOURCEPROC			  glShaderSource			 = nullptr;
 PFNGLSTENCILFUNCPROC			  glStencilFunc				 = nullptr;
 PFNGLSTENCILOPPROC				  glStencilOp				 = nullptr;
+PFNGLTEXIMAGE1DPROC				  glTexImage1D				 = nullptr;
 PFNGLTEXIMAGE2DPROC				  glTexImage2D				 = nullptr;
-PFNGLTEXIMAGE3DEXTPROC			  glTexImage3D				 = nullptr;
+PFNGLTEXIMAGE3DPROC				  glTexImage3D				 = nullptr;
 PFNGLTEXPARAMETERFPROC			  glTexParameterf			 = nullptr;
 PFNGLTEXPARAMETERIPROC			  glTexParameteri			 = nullptr;
+PFNGLTEXSTORAGE1DPROC			  glTexStorage1D			 = nullptr;
+PFNGLTEXSTORAGE2DPROC			  glTexStorage2D			 = nullptr;
+PFNGLTEXSTORAGE3DPROC			  glTexStorage3D			 = nullptr;
+PFNGLTEXSUBIMAGE1DPROC			  glTexSubImage1D			 = nullptr;
 PFNGLTEXSUBIMAGE2DPROC			  glTexSubImage2D			 = nullptr;
-PFNGLTEXSUBIMAGE3DEXTPROC		  glTexSubImage3D			 = nullptr;
+PFNGLTEXSUBIMAGE3DPROC			  glTexSubImage3D			 = nullptr;
 PFNGLUNIFORM1DPROC				  glUniform1d				 = nullptr;
 PFNGLUNIFORM1FPROC				  glUniform1f				 = nullptr;
 PFNGLUNIFORM1IPROC				  glUniform1i				 = nullptr;

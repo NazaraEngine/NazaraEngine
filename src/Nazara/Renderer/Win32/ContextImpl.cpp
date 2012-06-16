@@ -7,7 +7,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Lock.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
@@ -153,6 +153,8 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		*attrib++ = WGL_CONTEXT_MINOR_VERSION_ARB;
 		*attrib++ = parameters.minorVersion;
 
+		int flags = 0;
+
 		if (parameters.majorVersion >= 3)
 		{
 			*attrib++ = WGL_CONTEXT_PROFILE_MASK_ARB;
@@ -162,9 +164,17 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 			{
 				*attrib++ = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 
-				*attrib++ = WGL_CONTEXT_FLAGS_ARB;
-				*attrib++ = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+				flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
 			}
+		}
+
+		if (parameters.debugMode)
+			flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+
+		if (flags)
+		{
+			*attrib++ = WGL_CONTEXT_FLAGS_ARB;
+			*attrib++ = flags;
 		}
 
 		*attrib++ = 0;
@@ -180,7 +190,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		{
 			// wglShareLists n'est pas thread-safe (source: SFML)
 			static NzMutex mutex;
-			NzLock lock(mutex);
+			NzLockGuard lock(mutex);
 
 			if (!wglShareLists(shareContext, m_context))
 				NazaraWarning("Failed to share the context: " + NzGetLastSystemError());
