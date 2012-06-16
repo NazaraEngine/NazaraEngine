@@ -65,7 +65,7 @@ void NzRect<T>::ExtendTo(const NzVector2<T>& point)
 	x = std::min(x, point.x);
 	y = std::min(y, point.y);
 	width = std::max(x+width, point.x)-x;
-	height = std::max(x+width, point.x)-y;
+	height = std::max(y+height, point.y)-y;
 }
 
 template<typename T>
@@ -74,7 +74,13 @@ void NzRect<T>::ExtendTo(const NzRect& rect)
 	x = std::min(x, rect.x);
 	y = std::min(y, rect.y);
 	width = std::max(x+width, rect.x+rect.width)-x;
-	height = std::max(x+width, rect.x+rect.height)-y;
+	height = std::max(x+height, rect.y+rect.height)-y;
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetCenter() const
+{
+	return NzVector2<T>((x+width)/2, (y+height)/2);
 }
 
 template<typename T>
@@ -97,7 +103,7 @@ bool NzRect<T>::Intersect(const NzRect& rect, NzRect& intersection) const
 		intersection.x = left;
 		intersection.y = top;
 		intersection.width = right-left;
-		intersection.height = top-bottom;
+		intersection.height = bottom-top;
 
 		return true;
 	}

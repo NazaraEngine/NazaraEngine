@@ -4,6 +4,8 @@
 
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
+#define OEMRESOURCE
+
 #include <Nazara/Utility/Win32/WindowImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Mutex.hpp>
@@ -13,6 +15,11 @@
 #include <cstdio>
 #include <windowsx.h>
 #include <Nazara/Utility/Debug.hpp>
+
+#ifdef _WIN64
+	#define GWL_USERDATA GWLP_USERDATA
+	#define GCL_HCURSOR GCLP_HCURSOR
+#endif
 
 // N'est pas définit avec MinGW apparemment
 #ifndef MAPVK_VK_TO_VSC
@@ -25,7 +32,6 @@ namespace
 {
 	const wchar_t* className = L"Nazara Window";
 	NzWindowImpl* fullscreenWindow = nullptr;
-	unsigned int windowCount = 0;
 }
 
 NzWindowImpl::NzWindowImpl(NzWindow* parent) :
@@ -62,19 +68,10 @@ void NzWindowImpl::Close()
 	}
 	else
 		SetEventListener(false);
-
-	if (--windowCount == 0)
-		Uninitialize();
 }
 
 bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
-	if (windowCount++ == 0 && !Initialize())
-	{
-		NazaraError("Unable to initialize window implementation");
-		return false;
-	}
-
 	bool fullscreen = (style & NzWindow::Fullscreen) != 0;
 	DWORD win32Style, win32StyleEx;
 	unsigned int x, y;
@@ -126,7 +123,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 		win32StyleEx = 0;
 
-		RECT rect = {0, 0, width, height};
+		RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 		AdjustWindowRect(&rect, win32Style, false);
 		width = rect.right-rect.left;
 		height = rect.bottom-rect.top;
@@ -165,15 +162,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	m_eventListener = true;
 	m_ownsWindow = true;
 
-	if (m_handle != nullptr)
-		return true;
-	else
-	{
-		if (--windowCount == 0)
-			Uninitialize();
-
-		return false;
-	}
+	return m_handle != nullptr;
 }
 
 bool NzWindowImpl::Create(NzWindowHandle handle)
@@ -184,7 +173,7 @@ bool NzWindowImpl::Create(NzWindowHandle handle)
 		return false;
 	}
 
-	m_handle = static_cast<HWND>(handle);
+	m_handle = reinterpret_cast<HWND>(handle);
 	m_eventListener = false;
 	m_ownsWindow = false;
 
@@ -220,11 +209,11 @@ NzVector2i NzWindowImpl::GetPosition() const
 	return NzVector2i(rect.left, rect.top);
 }
 
-NzVector2i NzWindowImpl::GetSize() const
+NzVector2ui NzWindowImpl::GetSize() const
 {
 	RECT rect;
 	GetClientRect(m_handle, &rect);
-	return NzVector2i(rect.right-rect.left, rect.bottom-rect.top);
+	return NzVector2ui(rect.right-rect.left, rect.bottom-rect.top);
 }
 
 NzString NzWindowImpl::GetTitle() const
@@ -348,7 +337,7 @@ void NzWindowImpl::SetPosition(int x, int y)
 void NzWindowImpl::SetSize(unsigned int width, unsigned int height)
 {
 	// SetWindowPos demande la taille totale de la fenêtre
-	RECT rect = {0, 0, width, height};
+	RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 	AdjustWindowRect(&rect, GetWindowLongPtr(m_handle, GWL_STYLE), false);
 
 	SetWindowPos(m_handle, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
@@ -372,7 +361,7 @@ void NzWindowImpl::ShowMouseCursor(bool show)
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
 
 	if (show)
-		m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED));
+		m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED));
 	else
 		m_cursor = nullptr;
 
@@ -707,7 +696,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			{
 				if (wParam != SIZE_MINIMIZED)
 				{
-					NzVector2i size = GetSize(); // On récupère uniquement la taille de la zone client
+					NzVector2ui size = GetSize(); // On récupère uniquement la taille de la zone client
 
 					NzEvent event;
 					event.type = NzEvent::Resized;
@@ -776,6 +765,30 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 	return false;
 }
 
+bool NzWindowImpl::Initialize()
+{
+	// Nous devons faire un type Unicode pour que la fenêtre le soit également
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
+	WNDCLASSW windowClass;
+	windowClass.cbClsExtra = 0;
+	windowClass.cbWndExtra = 0;
+	windowClass.hbrBackground = nullptr;
+	windowClass.hCursor = nullptr; // Le curseur est définit dynamiquement
+	windowClass.hIcon = nullptr; // L'icône est définie dynamiquement
+	windowClass.hInstance = GetModuleHandle(nullptr);
+	windowClass.lpfnWndProc = MessageHandler;
+	windowClass.lpszClassName = className;
+	windowClass.lpszMenuName = nullptr;
+	windowClass.style = CS_DBLCLKS; // Gestion du double-clic
+
+	return RegisterClassW(&windowClass);
+}
+
+void NzWindowImpl::Uninitialize()
+{
+	UnregisterClassW(className, GetModuleHandle(nullptr));
+}
+
 LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	NzWindowImpl* me;
@@ -796,25 +809,6 @@ LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM 
 	}
 
 	return DefWindowProcW(window, message, wParam, lParam);
-}
-
-bool NzWindowImpl::Initialize()
-{
-	// Nous devons faire un type Unicode pour que la fenêtre le soit également
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
-	WNDCLASSW windowClass;
-	windowClass.cbClsExtra = 0;
-	windowClass.cbWndExtra = 0;
-	windowClass.hbrBackground = nullptr;
-	windowClass.hCursor = nullptr; // Le curseur est définit dynamiquement
-	windowClass.hIcon = nullptr; // L'icône est définie dynamiquement
-	windowClass.hInstance = GetModuleHandle(nullptr);
-	windowClass.lpfnWndProc = MessageHandler;
-	windowClass.lpszClassName = className;
-	windowClass.lpszMenuName = nullptr;
-	windowClass.style = CS_DBLCLKS; // Gestion du double-clic
-
-	return RegisterClassW(&windowClass);
 }
 
 NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
@@ -947,11 +941,6 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 		default:
 			return NzKeyboard::Key(NzKeyboard::Undefined);
 	}
-}
-
-void NzWindowImpl::Uninitialize()
-{
-	UnregisterClassW(className, GetModuleHandle(nullptr));
 }
 
 #if NAZARA_UTILITY_THREADED_WINDOW

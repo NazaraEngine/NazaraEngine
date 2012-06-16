@@ -8,7 +8,7 @@
 #include <Nazara/Core/Debug.hpp>
 
 NzMemoryStream::NzMemoryStream(const void* ptr, nzUInt64 size) :
-m_ptr(static_cast<const nzUInt8*>(ptr)),
+m_ptr(reinterpret_cast<const nzUInt8*>(ptr)),
 m_pos(0),
 m_size(size)
 {

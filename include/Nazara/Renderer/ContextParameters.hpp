@@ -25,6 +25,7 @@ struct NAZARA_API NzContextParameters
 	shareContext(defaultShareContext),
 	window(defaultWindow),
 	compatibilityProfile(defaultCompatibilityProfile),
+	debugMode(defaultDebugMode),
 	doubleBuffered(defaultDoubleBuffered),
 	shared(defaultShared)
 	{
@@ -39,6 +40,7 @@ struct NAZARA_API NzContextParameters
 	const NzContext* shareContext;
 	NzWindowHandle window;
 	bool compatibilityProfile;
+	bool debugMode;
 	bool doubleBuffered;
 	bool shared;
 
@@ -47,6 +49,7 @@ struct NAZARA_API NzContextParameters
 	static const NzContext* defaultShareContext;
 	static NzWindowHandle defaultWindow;
 	static bool defaultCompatibilityProfile;
+	static bool defaultDebugMode;
 	static bool defaultDoubleBuffered;
 	static bool defaultShared;
 };

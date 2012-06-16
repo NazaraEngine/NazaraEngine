@@ -74,7 +74,7 @@ namespace
 			return false;
 		}
 
-		#if NAZARA_ENDIANNESS_BIGENDIAN
+		#if NAZARA_BIG_ENDIAN
 		// Les fichiers PCX sont en little endian
 		NzByteSwap(&header.xmin, sizeof(nzUInt16));
 		NzByteSwap(&header.ymin, sizeof(nzUInt16));
@@ -93,7 +93,7 @@ namespace
 		unsigned int width = header.xmax - header.xmin+1;
 		unsigned int height = header.ymax - header.ymin+1;
 
-		if (!resource->Create(nzImageType_2D, nzPixelFormat_R8G8B8, width, height))
+		if (!resource->Create(nzImageType_2D, nzPixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			return false;
@@ -342,6 +342,9 @@ namespace
 				NazaraError("Unknown " + NzString::Number(bitCount) + " bitcount pcx files");
 				return false;
 		}
+
+		if (parameters.loadFormat != nzPixelFormat_Undefined)
+			resource->Convert(parameters.loadFormat);
 
 		return true;
 	}

@@ -7,22 +7,22 @@
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <new>
 
-void* operator new(std::size_t size) throw(std::bad_alloc)
+void* operator new(std::size_t size)
 {
 	return NzMemoryManager::Allocate(size, false);
 }
 
-void* operator new[](std::size_t size) throw(std::bad_alloc)
+void* operator new[](std::size_t size)
 {
 	return NzMemoryManager::Allocate(size, true);
 }
 
-void operator delete(void* pointer) throw()
+void operator delete(void* pointer) noexcept
 {
 	NzMemoryManager::Free(pointer, false);
 }
 
-void operator delete[](void* pointer) throw()
+void operator delete[](void* pointer) noexcept
 {
 	NzMemoryManager::Free(pointer, true);
 }

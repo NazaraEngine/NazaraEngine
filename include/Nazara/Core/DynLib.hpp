@@ -8,8 +8,8 @@
 #define NAZARA_DYNLIB_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 
 #define NAZARA_CLASS_DYNLIB
 #include <Nazara/Core/ThreadSafety.hpp>

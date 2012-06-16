@@ -111,8 +111,9 @@ NzHashDigest NzHashCRC32::End()
 {
 	m_state->crc ^= 0xFFFFFFFF;
 
-	if (NazaraEndianness == nzEndianness_LittleEndian)
-		NzByteSwap(&m_state->crc, sizeof(nzUInt32));
+	#ifdef NAZARA_LITTLE_ENDIAN
+	NzByteSwap(&m_state->crc, sizeof(nzUInt32));
+	#endif
 
 	return NzHashDigest(GetHashName(), reinterpret_cast<nzUInt8*>(&m_state->crc), 4);
 }

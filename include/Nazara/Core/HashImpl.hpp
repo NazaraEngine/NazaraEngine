@@ -8,7 +8,7 @@
 #define NAZARA_HASHIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 
 class NzHashDigest;
 

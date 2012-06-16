@@ -28,6 +28,8 @@ class NzRect
 		void ExtendTo(const NzVector2<T>& point);
 		void ExtendTo(const NzRect& rect);
 
+		NzVector2<T> GetCenter() const;
+
 		bool Intersect(const NzRect& rect) const;
 		bool Intersect(const NzRect& rect, NzRect& intersection) const;
 

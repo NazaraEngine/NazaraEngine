@@ -9,12 +9,12 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
-#include <Nazara/Utility/NonCopyable.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/Window.hpp>
 #include <windows.h>
@@ -24,6 +24,7 @@ class NzMutex;
 class NzThread;
 class NzThreadCondition;
 #endif
+class NzWindow;
 
 #undef IsMinimized // Conflit avec la méthode du même nom
 
@@ -44,7 +45,7 @@ class NzWindowImpl : NzNonCopyable
 		NzWindowHandle GetHandle() const;
 		unsigned int GetHeight() const;
 		NzVector2i GetPosition() const;
-		NzVector2i GetSize() const;
+		NzVector2ui GetSize() const;
 		NzString GetTitle() const;
 		unsigned int GetWidth() const;
 
@@ -67,13 +68,14 @@ class NzWindowImpl : NzNonCopyable
 		void ShowMouseCursor(bool show);
 		void StayOnTop(bool stayOnTop);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 	private:
 		bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
-		static bool Initialize();
 		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 		static NzKeyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
-		static void Uninitialize();
 		#if NAZARA_UTILITY_THREADED_WINDOW
 		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzThreadCondition* condition);
 		#endif

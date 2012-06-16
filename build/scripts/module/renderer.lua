@@ -1,6 +1,5 @@
 project "NazaraRenderer"
 
-defines "NAZARA_RENDERER_OPENGL"
 links "gdi32"
 links "opengl32"
 links "winmm"

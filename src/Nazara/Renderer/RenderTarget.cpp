@@ -25,5 +25,5 @@ bool NzRenderTarget::SetActive(bool active)
 
 void NzRenderTarget::Desactivate()
 {
-	// Seuls les target sans contextes (ex: RenderTexture) nécessitent une désactivation
+	// Seuls les target sans contextes (ex: NzRenderTexture) nécessitent une désactivation
 }
