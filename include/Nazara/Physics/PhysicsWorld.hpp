@@ -9,34 +9,43 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Newton/Newton.h>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Cube.hpp>
+#include "PhysicsSolver.hpp"
+//#include <Nazara/Physics/PhysicsSolver.hpp>
 
-enum nzFrictionModel
-{
-  nzExact,
-  nzAdaptative
-};
-
-class NzPhysicsSolver;
+//TODO : ajouter Axis Aligned Bounding Box
 
 class NzPhysicsWorld
 {
+    enum nzFrictionModel
+    {
+      nzExact,
+      nzAdaptative
+    };
+
     public:
         NzPhysicsWorld();
         ~NzPhysicsWorld();
+
+        void SetSize(const NzCubef& size);
+        const NzCubef& GetSize() const;
 
         void SetPhysicsSolver(const NzPhysicsSolver& solver);
         const NzPhysicsSolver& GetPhysicsSolver() const;
 
         void SetFrictionModel(nzFrictionModel model);
-        const nzFrictionModel& GetFrictionModel();
+        const nzFrictionModel& GetFrictionModel() const;
 
-        void UpdatePhysics(nzUint64 timestep);
+        void UpdatePhysics(float timestep);
+
+        NewtonWorld* newtonWorld;
 
     protected:
     private:
-        NewtonWorld* m_world;
         NzPhysicsSolver m_solver;
         nzFrictionModel m_frictionModel;
+        NzCubef m_size;
 };
 
 #endif // PHYSICSWORLD_HPP

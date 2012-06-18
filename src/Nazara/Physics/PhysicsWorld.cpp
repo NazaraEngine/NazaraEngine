@@ -4,14 +4,12 @@
 
 #include "PhysicsWorld.hpp"
 //#include <Nazara/Physics/PhysicsWorld.hpp>
-#include "PhysicsSolver.hpp"
-//#include <Nazara/Physics/PhysicsSolver.hpp>
 
 #include <Nazara/Core/Debug.hpp>
 
 NzPhysicsWorld::NzPhysicsWorld()
 {
-    m_world = NewtonCreate();
+    newtonWorld = NewtonCreate();
     m_solver.Configure(nzLinear,10);
     m_solver.Set(this);
     SetFrictionModel(nzAdaptative);
@@ -19,16 +17,37 @@ NzPhysicsWorld::NzPhysicsWorld()
 
 NzPhysicsWorld::~NzPhysicsWorld()
 {
-    NewtonDestroy(m_world);
+    NewtonDestroy(newtonWorld);
 }
 
-void NzPhysicsWorld::SetPhysicsSolverSolver(const NzPhysicsSolver& solver)
+void NzPhysicsWorld::SetSize(const NzCubef& size)
+{
+    m_size = size;
+    float bottom[3];
+    bottom[0] = m_size.x;
+    bottom[1] = m_size.y;
+    bottom[2] = m_size.z;
+    float top[3];
+    top[0] = m_size.x + m_size.width;
+    top[1] = m_size.y + m_size.height;
+    top[2] = m_size.z + m_size.depth;
+
+    NewtonSetWorldSize(newtonWorld, static_cast<dFloat*>(bottom),
+                                   static_cast<dFloat*>(top));
+}
+
+const NzCubef& NzPhysicsWorld::GetSize() const
+{
+    return m_size;
+}
+
+void NzPhysicsWorld::SetPhysicsSolver(const NzPhysicsSolver& solver)
 {
     m_solver = solver;
     m_solver.Set(this);
 }
 
-const nzSolverMode& NzPhysicsWorld::GetPhysicsSolver()
+const NzPhysicsSolver& NzPhysicsWorld::GetPhysicsSolver() const
 {
     return m_solver;
 }
@@ -38,23 +57,23 @@ void NzPhysicsWorld::SetFrictionModel(nzFrictionModel model)
     switch(model)
     {
         case nzExact:
-            NewtonSetFrictionModel(this,0);
+            NewtonSetFrictionModel(newtonWorld,0);
         break;
 
         case nzAdaptative:
-            NewtonSetFrictionModel(this,1);
+            NewtonSetFrictionModel(newtonWorld,1);
         break;
     }
 
     m_frictionModel = model;
 }
 
-const nzFrictionModel& NzPhysicsWorld::GetFrictionModel()
+const NzPhysicsWorld::nzFrictionModel& NzPhysicsWorld::GetFrictionModel() const
 {
     return m_frictionModel;
 }
 
-void NzPhysicsWorld::UpdatePhysics(nzUint64 timestep)
+void NzPhysicsWorld::UpdatePhysics(float timestep)
 {
-    NewtonUpdate(m_world,static_cast<float>(timestep));//FLOAT WTF ?
+    NewtonUpdate(newtonWorld,timestep);//FLOAT WTF ?
 }
