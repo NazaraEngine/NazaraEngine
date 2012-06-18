@@ -27,15 +27,15 @@ void NzPhysicsSolver::Set(NzPhysicsWorld* world)
     switch(m_mode)
     {
         case nzExact:
-            NewtonSetSolverModel(world, 0);
+            NewtonSetSolverModel(world->newtonWorld, 0);
         break;
 
         case nzAdaptative:
-            NewtonSetSolverModel(world, 1);
+            NewtonSetSolverModel(world->newtonWorld, 1);
         break;
 
         case nzLinear:
-            NewtonSetSolverModel(world, m_numberOfPassesLinearMode);
+            NewtonSetSolverModel(world->newtonWorld, m_numberOfPassesLinearMode);
 
     }
 }
