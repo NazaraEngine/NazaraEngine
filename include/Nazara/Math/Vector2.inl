@@ -342,7 +342,7 @@ bool NzVector2<T>::operator!=(const NzVector2& vec) const
 template<typename T>
 bool NzVector2<T>::operator<(const NzVector2& vec) const
 {
-	return x < vec.x && y < vec.y;
+	return (x != vec.x) ? x < vec.x : y < vec.y;
 }
 
 template<typename T>
