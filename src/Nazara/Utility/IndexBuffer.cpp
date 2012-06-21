@@ -87,7 +87,7 @@ bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int len
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Impossible to fill sequential buffer");
+		NazaraError("Impossible to fill sequential buffers");
 		return false;
 	}
 
@@ -111,7 +111,7 @@ nzUInt8 NzIndexBuffer::GetIndexSize() const
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Sequential index buffer has no index size");
+		NazaraError("Sequential buffers have no index size");
 		return 0;
 	}
 	#endif
@@ -124,7 +124,7 @@ void* NzIndexBuffer::GetPointer()
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Sequential index buffer: Buffer has no pointer");
+		NazaraError("Sequential buffers have no pointer");
 		return nullptr;
 	}
 	#endif
@@ -137,7 +137,7 @@ const void* NzIndexBuffer::GetPointer() const
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Sequential index buffer has no pointer");
+		NazaraError("Sequential buffers have no pointer");
 		return nullptr;
 	}
 	#endif
@@ -178,7 +178,7 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Impossible to map sequential index buffer");
+		NazaraError("Impossible to map sequential buffers");
 		return nullptr;
 	}
 
@@ -192,12 +192,25 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
 }
 
+bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraWarning("Sequential buffers have no storage");
+		return true;
+	}
+	#endif
+
+	return m_buffer->SetStorage(storage);
+}
+
 bool NzIndexBuffer::Unmap()
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Impossible to unlock sequential index buffer");
+		NazaraError("Impossible to unlock sequential buffers");
 		return false;
 	}
 	#endif
