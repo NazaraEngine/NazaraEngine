@@ -35,7 +35,7 @@ enum nzImageType
 	nzImageType_3D,
 	nzImageType_Cubemap,
 
-	nzImageType_Count
+	nzImageType_Max = nzImageType_Cubemap
 };
 
 struct NzImageParams

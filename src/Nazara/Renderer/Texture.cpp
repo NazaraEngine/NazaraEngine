@@ -124,7 +124,6 @@ namespace
 				return true;
 
 			case nzPixelFormat_Undefined:
-			case nzPixelFormat_Count:
 				NazaraInternalError("Invalid pixel format");
 				return false;
 		}
@@ -252,8 +251,8 @@ namespace
 		return true;
 	}
 
-	static unsigned short lockedLevel[nzImageType_Count] = {0};
-	static GLuint lockedPrevious[nzImageType_Count] = {0};
+	static unsigned short lockedLevel[nzImageType_Max+1] = {0};
+	static GLuint lockedPrevious[nzImageType_Max+1] = {0};
 
 	void LockTexture(NzTextureImpl* impl)
 	{
@@ -1576,7 +1575,6 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		}
 
 		case nzPixelFormat_Undefined:
-		case nzPixelFormat_Count:
 			break;
 	}
 

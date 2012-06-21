@@ -7,22 +7,20 @@
 #ifndef NAZARA_BUFFERIMPL_HPP
 #define NAZARA_BUFFERIMPL_HPP
 
-#include <Nazara/Renderer/Buffer.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 
-class NzBufferImpl
+class NAZARA_API NzBufferImpl
 {
 	public:
 		NzBufferImpl() = default;
 		virtual ~NzBufferImpl();
-
-		virtual void Bind() = 0;
 
 		virtual bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static) = 0;
 		virtual void Destroy() = 0;
 
 		virtual bool Fill(const void* data, unsigned int offset, unsigned int size) = 0;
 
-		virtual void* GetBufferPtr() = 0;
+		virtual void* GetPointer() = 0;
 
 		virtual bool IsHardware() const = 0;
 

@@ -2,22 +2,21 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp>
-#include <Nazara/Renderer/Buffer.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/HardwareBuffer.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/SoftwareBuffer.hpp>
+#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/SoftwareBuffer.hpp>
+#include <cstring>
 #include <stdexcept>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 namespace
 {
-	nzRendererCap storageToCapability[] = {
-		nzRendererCap_HardwareBuffer, // nzBufferStorage_Hardware
-		nzRendererCap_SoftwareBuffer, // nzBufferStorage_Software
-	};
+	NzBufferImpl* SoftwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	{
+		return new NzSoftwareBuffer(parent, type);
+	}
 }
 
 NzBuffer::NzBuffer(nzBufferType type) :
@@ -28,11 +27,11 @@ m_length(0)
 {
 }
 
-NzBuffer::NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferUsage usage) :
+NzBuffer::NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage) :
 m_type(type),
 m_impl(nullptr)
 {
-	Create(length, typeSize, usage);
+	Create(length, typeSize, storage, usage);
 
 	#ifdef NAZARA_DEBUG
 	if (!m_impl)
@@ -50,6 +49,26 @@ NzBuffer::~NzBuffer()
 
 bool NzBuffer::CopyContent(NzBuffer& buffer)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer must be valid");
+		return false;
+	}
+
+	if (!buffer.IsValid())
+	{
+		NazaraError("Source buffer must be valid");
+		return false;
+	}
+
+	if (!buffer.GetTypeSize() != m_typeSize)
+	{
+		NazaraError("Source buffer type size does not match buffer type size");
+		return false;
+	}
+	#endif
+
 	void* ptr = buffer.Map(nzBufferAccess_ReadOnly);
 	if (!ptr)
 	{
@@ -57,7 +76,7 @@ bool NzBuffer::CopyContent(NzBuffer& buffer)
 		return false;
 	}
 
-	bool r = Fill(ptr, 0, m_length);
+	bool r = Fill(ptr, 0, buffer.GetLength());
 
 	if (!buffer.Unmap())
 		NazaraWarning("Failed to unmap source buffer");
@@ -65,41 +84,28 @@ bool NzBuffer::CopyContent(NzBuffer& buffer)
 	return r;
 }
 
-bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage)
+bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage)
 {
 	Destroy();
 
 	// On tente d'abord de faire un buffer hardware, si supporté
-	if (NazaraRenderer->HasCapability(nzRendererCap_HardwareBuffer))
+	if (s_bufferFunctions[storage])
 	{
-		m_impl = new NzHardwareBuffer(this, m_type);
-		if (!m_impl->Create(length*typeSize, usage))
+		NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
+		if (!impl->Create(length*typeSize, usage))
 		{
-			NazaraWarning("Failed to create hardware buffer, trying to create software buffer...");
+			NazaraError("Failed to create buffer");
+			delete impl;
 
-			delete m_impl;
-			m_impl = nullptr;
+			return false;
 		}
+
+		m_impl = impl;
 	}
-
-	if (!m_impl)
+	else
 	{
-		if (!NazaraRenderer->HasCapability(nzRendererCap_SoftwareBuffer))
-		{
-			// Ne devrait jamais arriver
-			NazaraError("Software buffer not supported");
-			return false;
-		}
-
-		m_impl = new NzSoftwareBuffer(this, m_type);
-		if (!m_impl->Create(length*typeSize, usage))
-		{
-			NazaraError("Failed to create software buffer");
-			delete m_impl;
-			m_impl = nullptr;
-
-			return false;
-		}
+		NazaraError("Buffer storage not supported");
+		return false;
 	}
 
 	m_length = length;
@@ -122,10 +128,10 @@ void NzBuffer::Destroy()
 
 bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Buffer not created");
+		NazaraError("Buffer not valid");
 		return false;
 	}
 
@@ -139,32 +145,6 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 	return m_impl->Fill(data, offset*m_typeSize, length*m_typeSize);
 }
 
-void* NzBuffer::GetBufferPtr()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Buffer not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->GetBufferPtr();
-}
-
-const void* NzBuffer::GetBufferPtr() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Buffer not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->GetBufferPtr();
-}
-
 NzBufferImpl* NzBuffer::GetImpl() const
 {
 	return m_impl;
@@ -173,6 +153,32 @@ NzBufferImpl* NzBuffer::GetImpl() const
 unsigned int NzBuffer::GetLength() const
 {
 	return m_length;
+}
+
+void* NzBuffer::GetPointer()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer not valid");
+		return nullptr;
+	}
+	#endif
+
+	return m_impl->GetPointer();
+}
+
+const void* NzBuffer::GetPointer() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer not valid");
+		return nullptr;
+	}
+	#endif
+
+	return m_impl->GetPointer();
 }
 
 unsigned int NzBuffer::GetSize() const
@@ -205,12 +211,17 @@ bool NzBuffer::IsHardware() const
 	return m_storage == nzBufferStorage_Hardware;
 }
 
+bool NzBuffer::IsValid() const
+{
+	return m_impl != nullptr;
+}
+
 void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Buffer not created");
+		NazaraError("Buffer not valid");
 		return nullptr;
 	}
 
@@ -226,10 +237,10 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int len
 
 bool NzBuffer::Unmap()
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Buffer not created");
+		NazaraError("Buffer not valid");
 		return false;
 	}
 	#endif
@@ -239,5 +250,24 @@ bool NzBuffer::Unmap()
 
 bool NzBuffer::IsSupported(nzBufferStorage storage)
 {
-	return NazaraRenderer->HasCapability(storageToCapability[storage]);
+	return s_bufferFunctions[storage] != nullptr;
 }
+
+void NzBuffer::SetBufferFunction(nzBufferStorage storage, BufferFunction func)
+{
+	s_bufferFunctions[storage] = func;
+}
+
+bool NzBuffer::Initialize()
+{
+	s_bufferFunctions[nzBufferStorage_Software] = SoftwareBufferFunction;
+
+	return true;
+}
+
+void NzBuffer::Uninitialize()
+{
+	std::memset(s_bufferFunctions, 0, (nzBufferStorage_Max+1)*sizeof(NzBuffer::BufferFunction));
+}
+
+NzBuffer::BufferFunction NzBuffer::s_bufferFunctions[nzBufferStorage_Max+1] = {0};

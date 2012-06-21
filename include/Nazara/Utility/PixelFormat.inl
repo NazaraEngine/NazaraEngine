@@ -129,7 +129,6 @@ inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return 4;
 
-		case nzPixelFormat_Count:
 		case nzPixelFormat_Undefined:
 			NazaraError("Invalid pixel format");
 			return 0;
@@ -159,7 +158,6 @@ inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
 		case nzPixelFormat_RGB8:
 			return false;
 
-		case nzPixelFormat_Count:
 		case nzPixelFormat_Undefined:
 			break;
 	}
@@ -192,15 +190,7 @@ inline bool NzPixelFormat::IsConversionSupported(nzPixelFormat srcFormat, nzPixe
 
 inline bool NzPixelFormat::IsValid(nzPixelFormat format)
 {
-	switch (format)
-	{
-		case nzPixelFormat_Count:
-		case nzPixelFormat_Undefined:
-			return false;
-
-		default:
-			return true;
-	}
+	return format != nzPixelFormat_Undefined;
 }
 
 inline void NzPixelFormat::SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction func)
@@ -269,7 +259,6 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return "RGBA8";
 
-		case nzPixelFormat_Count:
 		case nzPixelFormat_Undefined:
 			break;
 	}
