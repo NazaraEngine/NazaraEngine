@@ -188,7 +188,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	return true;
 }
 
-void* NzHardwareBuffer::GetBufferPtr()
+void* NzHardwareBuffer::GetPointer()
 {
 	return nullptr;
 }

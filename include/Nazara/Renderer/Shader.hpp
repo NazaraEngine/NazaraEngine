@@ -30,7 +30,7 @@ enum nzShaderType
 	nzShaderType_Geometry,
 	nzShaderType_Vertex,
 
-	nzShaderType_Count
+	nzShaderType_Max = nzShaderType_Vertex
 };
 
 class NzRenderer;

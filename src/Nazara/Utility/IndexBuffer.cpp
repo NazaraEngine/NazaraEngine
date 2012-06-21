@@ -2,11 +2,11 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/IndexBuffer.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <stdexcept>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 NzIndexBuffer::NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount) :
 m_buffer(buffer),
@@ -31,7 +31,7 @@ m_startIndex(startIndex)
 	}
 }
 
-NzIndexBuffer::NzIndexBuffer(unsigned int length, nzUInt8 indexSize, nzBufferUsage usage) :
+NzIndexBuffer::NzIndexBuffer(unsigned int length, nzUInt8 indexSize, nzBufferStorage storage, nzBufferUsage usage) :
 m_ownsBuffer(true),
 m_indexCount(length),
 m_startIndex(0)
@@ -46,13 +46,14 @@ m_startIndex(0)
 	}
 	#endif
 
-	m_buffer = new NzBuffer(nzBufferType_Index, length, indexSize, usage);
+	m_buffer = new NzBuffer(nzBufferType_Index, length, indexSize, storage, usage);
 	m_buffer->AddResourceReference();
 	m_buffer->SetPersistent(false);
 }
 
 NzIndexBuffer::NzIndexBuffer(const NzIndexBuffer& indexBuffer) :
 m_buffer(indexBuffer.m_buffer),
+m_ownsBuffer(indexBuffer.m_ownsBuffer),
 m_indexCount(indexBuffer.m_indexCount),
 m_startIndex(indexBuffer.m_startIndex)
 {
@@ -60,7 +61,9 @@ m_startIndex(indexBuffer.m_startIndex)
 	{
 		if (m_ownsBuffer)
 		{
-			m_buffer = new NzBuffer(nzBufferType_Index, indexBuffer.m_buffer->GetLength(), indexBuffer.m_buffer->GetSize(), indexBuffer.m_buffer->GetUsage());
+			NzBuffer* buffer = indexBuffer.m_buffer;
+
+			m_buffer = new NzBuffer(nzBufferType_Index, buffer->GetLength(), buffer->GetSize(), buffer->GetStorage(), buffer->GetUsage());
 			m_buffer->AddResourceReference();
 			m_buffer->SetPersistent(false);
 			m_buffer->CopyContent(*indexBuffer.m_buffer);
@@ -71,8 +74,6 @@ m_startIndex(indexBuffer.m_startIndex)
 			m_buffer->AddResourceReference();
 		}
 	}
-	else
-		m_buffer = nullptr;
 }
 
 NzIndexBuffer::~NzIndexBuffer()
@@ -83,7 +84,7 @@ NzIndexBuffer::~NzIndexBuffer()
 
 bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
 		NazaraError("Impossible to fill sequential buffer");
@@ -105,43 +106,43 @@ NzBuffer* NzIndexBuffer::GetBuffer() const
 	return m_buffer;
 }
 
-void* NzIndexBuffer::GetBufferPtr()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Sequential index buffer: Buffer has no pointer");
-		return nullptr;
-	}
-	#endif
-
-	return reinterpret_cast<nzUInt8*>(m_buffer->GetBufferPtr()) + m_startIndex*m_buffer->GetTypeSize();
-}
-
-const void* NzIndexBuffer::GetBufferPtr() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Sequential index buffer: Buffer has no pointer");
-		return nullptr;
-	}
-	#endif
-
-	return reinterpret_cast<const nzUInt8*>(m_buffer->GetBufferPtr()) + m_startIndex*m_buffer->GetTypeSize();
-}
-
 nzUInt8 NzIndexBuffer::GetIndexSize() const
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Sequential index buffer: Buffer has no index size");
+		NazaraError("Sequential index buffer has no index size");
 		return 0;
 	}
 	#endif
 
 	return m_buffer->GetTypeSize();
+}
+
+void* NzIndexBuffer::GetPointer()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("Sequential index buffer: Buffer has no pointer");
+		return nullptr;
+	}
+	#endif
+
+	return reinterpret_cast<nzUInt8*>(m_buffer->GetPointer()) + m_startIndex*m_buffer->GetTypeSize();
+}
+
+const void* NzIndexBuffer::GetPointer() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("Sequential index buffer has no pointer");
+		return nullptr;
+	}
+	#endif
+
+	return reinterpret_cast<const nzUInt8*>(m_buffer->GetPointer()) + m_startIndex*m_buffer->GetTypeSize();
 }
 
 unsigned int NzIndexBuffer::GetIndexCount() const
@@ -156,10 +157,10 @@ unsigned int NzIndexBuffer::GetStartIndex() const
 
 bool NzIndexBuffer::IsHardware() const
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("Sequential index buffer is neither hardware or software");
+		NazaraWarning("Sequential index buffers are neither hardware or software");
 		return false;
 	}
 	#endif
@@ -174,7 +175,7 @@ bool NzIndexBuffer::IsSequential() const
 
 void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
 		NazaraError("Impossible to map sequential index buffer");
@@ -193,7 +194,7 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 
 bool NzIndexBuffer::Unmap()
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
 		NazaraError("Impossible to unlock sequential index buffer");

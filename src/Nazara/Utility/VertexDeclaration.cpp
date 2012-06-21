@@ -2,11 +2,10 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 namespace
 {
@@ -32,21 +31,14 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 
 		if (stream >= m_streams.size())
 			m_streams.resize(stream+1);
-		#if NAZARA_RENDERER_SAFE
+		#if NAZARA_UTILITY_SAFE
 		else // Seulement si le stream ne vient pas d'être créé (Autrement c'est inutile)
 		{
-			bool fp64 = NazaraRenderer->HasCapability(nzRendererCap_FP64);
-
 			for (unsigned int j = 0; j < i; ++j)
 			{
 				if (elements[j].stream == stream && elements[j].usage == elements[i].usage && elements[j].usageIndex == elements[i].usageIndex)
 				{
 					NazaraError("Element usage (" + NzString::Number(elements[j].usage, 16) + ") collision on stream " + NzString::Number(stream) + " with usage index " + NzString::Number(elements[j].usageIndex));
-					return false;
-				}
-				else if (!fp64 && elements[j].type >= nzElementType_Double1 && elements[j].type <= nzElementType_Double4)
-				{
-					NazaraError("FP64 not supported");
 					return false;
 				}
 			}
@@ -78,7 +70,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 
 const NzVertexDeclaration::Element* NzVertexDeclaration::GetElement(unsigned int i, unsigned int stream) const
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (stream >= m_streams.size())
 	{
 		NazaraError("Stream out of range");
@@ -97,7 +89,7 @@ const NzVertexDeclaration::Element* NzVertexDeclaration::GetElement(unsigned int
 
 unsigned int NzVertexDeclaration::GetElementCount(unsigned int stream) const
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (stream >= m_streams.size())
 	{
 		NazaraError("Stream out of range");
@@ -115,7 +107,7 @@ unsigned int NzVertexDeclaration::GetStreamCount() const
 
 unsigned int NzVertexDeclaration::GetStride(unsigned int stream) const
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (stream >= m_streams.size())
 	{
 		NazaraError("Stream out of range");

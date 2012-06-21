@@ -8,7 +8,7 @@
 #define NAZARA_SOFTWAREBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Renderer/BufferImpl.hpp>
+#include <Nazara/Utility/BufferImpl.hpp>
 
 class NzSoftwareBuffer : public NzBufferImpl
 {
@@ -16,14 +16,12 @@ class NzSoftwareBuffer : public NzBufferImpl
 		NzSoftwareBuffer(NzBuffer* parent, nzBufferType type);
 		~NzSoftwareBuffer();
 
-		void Bind();
-
 		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
-		void* GetBufferPtr();
+		void* GetPointer();
 
 		bool IsHardware() const;
 

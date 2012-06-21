@@ -46,7 +46,7 @@ enum nzPixelFormat
 	nzPixelFormat_Stencil16,
 	*/
 
-	nzPixelFormat_Count
+	nzPixelFormat_Max = nzPixelFormat_RGBA8
 };
 
 class NzUtility;
@@ -69,7 +69,7 @@ class NzPixelFormat
 		static bool IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat);
 		static bool IsValid(nzPixelFormat format);
 
-		static void SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction);
+		static void SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction func);
 
 		static NzString ToString(nzPixelFormat format);
 
@@ -77,7 +77,7 @@ class NzPixelFormat
 		static bool Initialize();
 		static void Uninitialize();
 
-		static NAZARA_API ConvertFunction s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count];
+		static NAZARA_API ConvertFunction s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
 };
 
 #include <Nazara/Utility/PixelFormat.inl>

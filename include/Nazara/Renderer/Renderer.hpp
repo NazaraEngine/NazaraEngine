@@ -59,13 +59,13 @@ enum nzRendererCap
 	nzRendererCap_HardwareBuffer,
 	nzRendererCap_MultipleRenderTargets,
 	nzRendererCap_OcclusionQuery,
-	nzRendererCap_SoftwareBuffer,
+	nzRendererCap_PixelBufferObject,
 	nzRendererCap_Texture3D,
 	nzRendererCap_TextureCubemap,
 	nzRendererCap_TextureMulti,
 	nzRendererCap_TextureNPOT,
 
-	nzRendererCap_Count
+	nzRendererCap_Max = nzRendererCap_TextureNPOT
 };
 
 enum nzRendererClear
@@ -183,7 +183,7 @@ class NAZARA_API NzRenderer
 		const NzVertexBuffer* m_vertexBuffer;
 		const NzVertexDeclaration* m_vertexDeclaration;
 		bool m_vaoUpdated;
-		bool m_capabilities[nzRendererCap_Count];
+		bool m_capabilities[nzRendererCap_Max+1];
 		bool m_stencilFuncUpdated;
 		bool m_stencilOpUpdated;
 		unsigned int m_maxAnisotropyLevel;

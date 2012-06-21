@@ -8,8 +8,8 @@
 #define NAZARA_HARDWAREBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Renderer/BufferImpl.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Utility/BufferImpl.hpp>
 
 class NzHardwareBuffer : public NzBufferImpl
 {
@@ -24,7 +24,7 @@ class NzHardwareBuffer : public NzBufferImpl
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
-		void* GetBufferPtr();
+		void* GetPointer();
 
 		bool IsHardware() const;
 
