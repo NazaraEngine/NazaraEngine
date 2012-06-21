@@ -30,6 +30,9 @@ class NAZARA_API NzVertexBuffer
 		bool IsHardware() const;
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+
+		bool SetStorage(nzBufferStorage storage);
+
 		bool Unmap();
 
 	private:
