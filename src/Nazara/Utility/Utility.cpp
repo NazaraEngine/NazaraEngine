@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
@@ -31,9 +32,15 @@ bool NzUtility::Initialize()
 	}
 	#endif
 
+	if (!NzBuffer::Initialize())
+	{
+		NazaraError("Failed to initialize buffers");
+		return false;
+	}
+
 	if (!NzPixelFormat::Initialize())
 	{
-		NazaraError("Failed to initialize pixel format");
+		NazaraError("Failed to initialize pixel formats");
 		return false;
 	}
 
@@ -45,10 +52,10 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
-	// Loaders spécialisés
+	/// Loaders spécialisés
 	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
 
-	// Loaders génériques (En dernier pour donner la priorité aux loaders spécialisés)
+	/// Loaders génériques (En dernier pour donner la priorité aux loaders spécialisés)
 	NzLoaders_STB_Register(); // Loader générique (STB)
 
 	s_initialized = true;
@@ -70,8 +77,8 @@ void NzUtility::Uninitialize()
 	NzLoaders_PCX_Unregister();
 
 	NzWindow::Uninitialize();
-
 	NzPixelFormat::Uninitialize();
+	NzBuffer::Uninitialize();
 
 	s_initialized = false;
 }

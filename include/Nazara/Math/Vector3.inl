@@ -39,10 +39,10 @@ z(vec[2])
 }
 
 template<typename T>
-NzVector3<T>::NzVector3(const NzVector2<T>& vec) :
+NzVector3<T>::NzVector3(const NzVector2<T>& vec, T Z) :
 x(vec.x),
 y(vec.y),
-z(0)
+z(Z)
 {
 }
 

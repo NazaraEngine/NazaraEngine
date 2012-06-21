@@ -400,6 +400,9 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
+	// PixelBufferObject
+	openGLextensions[NzOpenGL::PixelBufferObject] = (openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
+
 	// SeparateShaderObjects
 	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{

@@ -9,7 +9,7 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -24,7 +24,7 @@ namespace
 		4	// nzElementUsage_TexCoord
 	};
 
-	const GLenum shaderType[nzShaderType_Count] = {
+	const GLenum shaderType[nzShaderType_Max+1] = {
 		GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
 		GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
 		GL_VERTEX_SHADER	// nzShaderType_Vertex
@@ -136,7 +136,7 @@ bool NzGLSLShader::Create()
 		glBindAttribLocation(m_program, attribIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
 	}
 
-	for (int i = 0; i < nzShaderType_Count; ++i)
+	for (int i = 0; i <= nzShaderType_Max; ++i)
 		m_shaders[i] = 0;
 
 	return true;
