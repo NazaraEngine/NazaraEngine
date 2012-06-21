@@ -203,29 +203,34 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		return;
 	}
 
-	nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
-
-	GLenum type;
-	switch (indexSize)
+	if (m_indexBuffer->IsSequential())
+		glDrawArrays(openglPrimitive[primitive], m_indexBuffer->GetStartIndex(), m_indexBuffer->GetIndexCount());
+	else
 	{
-		case 1:
-			type = GL_UNSIGNED_BYTE;
-			break;
+		nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
 
-		case 2:
-			type = GL_UNSIGNED_SHORT;
-			break;
+		GLenum type;
+		switch (indexSize)
+		{
+			case 1:
+				type = GL_UNSIGNED_BYTE;
+				break;
 
-		case 4:
-			type = GL_UNSIGNED_INT;
-			break;
+			case 2:
+				type = GL_UNSIGNED_SHORT;
+				break;
 
-		default:
-			NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
-			return;
+			case 4:
+				type = GL_UNSIGNED_INT;
+				break;
+
+			default:
+				NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
+				return;
+		}
+
+		glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(m_indexBuffer->GetPointer()) + firstIndex*indexSize);
 	}
-
-	glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(m_indexBuffer->GetPointer()) + firstIndex*indexSize);
 }
 
 void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
@@ -507,7 +512,7 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (indexBuffer && !indexBuffer->IsHardware())
+	if (indexBuffer && !indexBuffer->IsHardware() && !indexBuffer->IsSequential())
 	{
 		NazaraError("Buffer must be hardware");
 		return false;
@@ -551,8 +556,6 @@ bool NzRenderer::SetShader(NzShader* shader)
 			return false;
 		}
 	}
-	else
-		m_shader = nullptr;
 
 	m_shader = shader;
 
