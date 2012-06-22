@@ -494,24 +494,12 @@ bool NzImage::FlipHorizontally()
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
 	{
-		for (unsigned int z = 0; z < depth; ++z)
-		{
-			nzUInt8* ptr = &m_sharedImage->pixels[level][width*height*z];
-			unsigned int lineStride = width*bpp;
-			for (unsigned int y = 0; y < height; ++y)
-			{
-				for (unsigned int x = 0; x < width/2; ++x)
-					std::swap_ranges(&ptr[x*bpp], &ptr[(x+1)*bpp], &ptr[(width-x)*bpp]);
-
-				ptr += lineStride;
-			}
-		}
+		NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]);
 
 		if (width > 1U)
 			width >>= 1;
@@ -545,19 +533,12 @@ bool NzImage::FlipVertically()
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
 	{
-		for (unsigned int z = 0; z < depth; ++z)
-		{
-			nzUInt8* ptr = &m_sharedImage->pixels[level][width*height*z];
-			unsigned int lineStride = width*bpp;
-			for (unsigned int y = 0; y < height/2; ++y)
-				std::swap_ranges(&ptr[y*lineStride], &ptr[(y+1)*lineStride-1], &ptr[(height-y-1)*lineStride]);
-		}
+		NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]);
 
 		if (width > 1U)
 			width >>= 1;
