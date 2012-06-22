@@ -235,14 +235,14 @@ bool NzHardwareBuffer::Unmap()
 
 		glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
 
-		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 		if (previous != m_buffer && previous != 0)
 			glBindBuffer(bufferTarget[m_type], previous);
 
 		return false;
 	}
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 
