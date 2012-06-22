@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <map>
 
 enum nzPixelFormat
 {
@@ -49,6 +50,14 @@ enum nzPixelFormat
 	nzPixelFormat_Max = nzPixelFormat_RGBA8
 };
 
+enum nzPixelFlipping
+{
+	nzPixelFlipping_Horizontally,
+	nzPixelFlipping_Vertically,
+
+	nzPixelFlipping_Max = nzPixelFlipping_Vertically
+};
+
 class NzUtility;
 
 class NzPixelFormat
@@ -57,9 +66,12 @@ class NzPixelFormat
 
 	public:
 		typedef nzUInt8* (*ConvertFunction)(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst);
+		typedef void (*FlipFunction)(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst);
 
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* src, void* dst);
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* start, const void* end, void* dst);
+
+		static bool Flip(nzPixelFlipping flipping, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
 		static nzUInt8 GetBPP(nzPixelFormat format);
 
@@ -70,6 +82,7 @@ class NzPixelFormat
 		static bool IsValid(nzPixelFormat format);
 
 		static void SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction func);
+		static void SetFlipFunction(nzPixelFlipping flipping, nzPixelFormat format, FlipFunction func);
 
 		static NzString ToString(nzPixelFormat format);
 
@@ -78,6 +91,7 @@ class NzPixelFormat
 		static void Uninitialize();
 
 		static NAZARA_API ConvertFunction s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
+		static NAZARA_API std::map<nzPixelFormat, FlipFunction> s_flipFunctions[nzPixelFlipping_Max+1];
 };
 
 #include <Nazara/Utility/PixelFormat.inl>
