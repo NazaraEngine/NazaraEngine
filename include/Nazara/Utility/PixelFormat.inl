@@ -68,6 +68,102 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 	return true;
 }
 
+inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!IsValid(format))
+	{
+		NazaraError("Invalid pixel format");
+		return false;
+	}
+	#endif
+
+	auto it = s_flipFunctions[flipping].find(format);
+	if (it != s_flipFunctions[flipping].end())
+		it->second(width, height, depth, reinterpret_cast<const nzUInt8*>(src), reinterpret_cast<nzUInt8*>(dst));
+	else
+	{
+		// Flipping générique
+
+		#if NAZARA_UTILITY_SAFE
+		if (IsCompressed(format))
+		{
+			NazaraError("No function to flip compressed format");
+			return false;
+		}
+		#endif
+
+		nzUInt8 bpp = GetBPP(format);
+		unsigned int lineStride = width*bpp;
+		switch (flipping)
+		{
+			case nzPixelFlipping_Horizontally:
+			{
+				if (src == dst)
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							for (unsigned int x = 0; x < width/2; ++x)
+								std::swap_ranges(&ptr[x*bpp], &ptr[(x+1)*bpp], &ptr[(width-x)*bpp]);
+
+							ptr += lineStride;
+						}
+					}
+				}
+				else
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							for (unsigned int x = 0; x < width; ++x)
+								std::memcpy(&ptr[x*bpp], &ptr[(width-x)*bpp], bpp);
+
+							ptr += lineStride;
+						}
+					}
+				}
+				break;
+			}
+
+			case nzPixelFlipping_Vertically:
+			{
+				if (src == dst)
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
+						for (unsigned int y = 0; y < height/2; ++y)
+							std::swap_ranges(&ptr[y*lineStride], &ptr[(y+1)*lineStride-1], &ptr[(height-y-1)*lineStride]);
+					}
+				}
+				else
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						const nzUInt8* srcPtr = reinterpret_cast<const nzUInt8*>(src);
+						nzUInt8* dstPtr = reinterpret_cast<nzUInt8*>(dst) + (width-1)*height*depth*bpp;
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							std::memcpy(dstPtr, srcPtr, lineStride);
+
+							srcPtr += lineStride;
+							dstPtr -= lineStride;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	return true;
+}
+
 inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
 {
 	switch (format)
@@ -196,6 +292,11 @@ inline bool NzPixelFormat::IsValid(nzPixelFormat format)
 inline void NzPixelFormat::SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction func)
 {
 	s_convertFunctions[srcFormat][dstFormat] = func;
+}
+
+inline void NzPixelFormat::SetFlipFunction(nzPixelFlipping flipping, nzPixelFormat format, FlipFunction func)
+{
+	s_flipFunctions[flipping][format] = func;
 }
 
 inline NzString NzPixelFormat::ToString(nzPixelFormat format)
