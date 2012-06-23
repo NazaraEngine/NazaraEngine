@@ -56,6 +56,7 @@ class NzWindowImpl : NzNonCopyable
 		bool IsMinimized() const;
 		bool IsVisible() const;
 
+		void SetCursor(nzWindowCursor cursor);
 		void SetEventListener(bool listener);
 		void SetFocus();
 		void SetMaximumSize(int width, int height);
@@ -65,7 +66,6 @@ class NzWindowImpl : NzNonCopyable
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
 
-		void ShowMouseCursor(bool show);
 		void StayOnTop(bool stayOnTop);
 
 		static bool Initialize();
