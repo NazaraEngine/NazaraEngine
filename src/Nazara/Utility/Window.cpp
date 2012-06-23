@@ -103,12 +103,12 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 	Close();
 
 	// Inspiré du code de la SFML par Laurent Gomila
-	if (style & Fullscreen)
+	if (style & nzWindowStyle_Fullscreen)
 	{
 		if (fullscreenWindow)
 		{
 			NazaraError("Window (" + NzString::Pointer(fullscreenWindow) + ") already in fullscreen mode");
-			style &= ~Fullscreen;
+			style &= ~nzWindowStyle_Fullscreen;
 		}
 		else
 		{
@@ -121,8 +121,8 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 			fullscreenWindow = this;
 		}
 	}
-	else if (style & Closable || style & Resizable)
-		style |= Titlebar;
+	else if (style & nzWindowStyle_Closable || style & nzWindowStyle_Resizable)
+		style |= nzWindowStyle_Titlebar;
 
 	m_impl = new NzWindowImpl(this);
 	if (!m_impl->Create(mode, title, style))
@@ -147,10 +147,10 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 	m_impl->EnableKeyRepeat(true);
 	m_impl->EnableSmoothScrolling(false);
+	m_impl->SetCursor(nzWindowCursor_Default);
 	m_impl->SetMaximumSize(-1, -1);
 	m_impl->SetMinimumSize(-1, -1);
 	m_impl->SetVisible(true);
-	m_impl->ShowMouseCursor(true);
 
 	if (opened)
 		m_impl->SetPosition(position.x, position.y);
@@ -299,6 +299,12 @@ bool NzWindow::PollEvent(NzEvent* event)
 	return false;
 }
 
+void NzWindow::SetCursor(nzWindowCursor cursor)
+{
+	if (m_impl)
+		m_impl->SetCursor(cursor);
+}
+
 void NzWindow::SetEventListener(bool listener)
 {
 	if (!m_impl)
@@ -389,12 +395,6 @@ void NzWindow::SetVisible(bool visible)
 {
 	if (m_impl)
 		m_impl->SetVisible(visible);
-}
-
-void NzWindow::ShowMouseCursor(bool show)
-{
-	if (m_impl)
-		m_impl->ShowMouseCursor(show);
 }
 
 void NzWindow::StayOnTop(bool stayOnTop)

@@ -27,32 +27,55 @@
 class NzUtility;
 class NzWindowImpl;
 
+enum nzWindowCursor
+{
+	nzWindowCursor_None,
+	nzWindowCursor_Default,
+
+	nzWindowCursor_Crosshair,
+	nzWindowCursor_Hand,
+	nzWindowCursor_Help,
+	nzWindowCursor_Move,
+	nzWindowCursor_Pointer,
+	nzWindowCursor_Progress,
+	nzWindowCursor_ResizeE,
+	nzWindowCursor_ResizeN,
+	nzWindowCursor_ResizeNE,
+	nzWindowCursor_ResizeNW,
+	nzWindowCursor_ResizeS,
+	nzWindowCursor_ResizeSE,
+	nzWindowCursor_ResizeSW,
+	nzWindowCursor_ResizeW,
+	nzWindowCursor_Text,
+	nzWindowCursor_Wait
+};
+
+enum nzWindowStyle
+{
+	nzWindowStyle_None       = 0x0,
+	nzWindowStyle_Fullscreen = 0x1,
+
+	nzWindowStyle_Closable   = 0x2,
+	nzWindowStyle_Resizable  = 0x4,
+	nzWindowStyle_Titlebar   = 0x4,
+
+	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
+};
+
 class NAZARA_API NzWindow : NzNonCopyable
 {
 	friend class NzUtility;
 	friend class NzWindowImpl;
 
 	public:
-		enum Style
-		{
-			None	   = 0x0,
-			Fullscreen = 0x1,
-
-			Closable  = 0x2,
-			Resizable = 0x4,
-			Titlebar  = 0x8,
-
-			Default = Closable | Resizable | Titlebar
-		};
-
 		NzWindow();
-		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = Default);
+		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		NzWindow(NzWindowHandle handle);
 		virtual ~NzWindow();
 
 		void Close();
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = Default);
+		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		bool Create(NzWindowHandle handle);
 
 		void EnableKeyRepeat(bool enable);
@@ -73,6 +96,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		bool PollEvent(NzEvent* event);
 
+		void SetCursor(nzWindowCursor cursor);
 		void SetEventListener(bool listener);
 		void SetFocus();
 		void SetMaximumSize(const NzVector2i& maxSize);
@@ -85,8 +109,6 @@ class NAZARA_API NzWindow : NzNonCopyable
 		void SetSize(unsigned int width, unsigned int height);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
-
-		void ShowMouseCursor(bool show);
 
 		void StayOnTop(bool stayOnTop);
 
