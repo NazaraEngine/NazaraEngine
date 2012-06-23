@@ -17,8 +17,8 @@
 #include <Nazara/Utility/Debug.hpp>
 
 #ifdef _WIN64
-	#define GWL_USERDATA GWLP_USERDATA
 	#define GCL_HCURSOR GCLP_HCURSOR
+	#define GWL_USERDATA GWLP_USERDATA
 #endif
 
 // N'est pas définit avec MinGW apparemment
@@ -72,7 +72,7 @@ void NzWindowImpl::Close()
 
 bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
-	bool fullscreen = (style & NzWindow::Fullscreen) != 0;
+	bool fullscreen = (style & nzWindowStyle_Fullscreen) != 0;
 	DWORD win32Style, win32StyleEx;
 	unsigned int x, y;
 	unsigned int width = mode.width;
@@ -109,13 +109,13 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	else
 	{
 		win32Style = WS_VISIBLE;
-		if (style & NzWindow::Titlebar)
+		if (style & nzWindowStyle_Titlebar)
 		{
 			win32Style |= WS_CAPTION | WS_MINIMIZEBOX;
-			if (style & NzWindow::Closable)
+			if (style & nzWindowStyle_Closable)
 				win32Style |= WS_SYSMENU;
 
-			if (style & NzWindow::Resizable)
+			if (style & nzWindowStyle_Resizable)
 				win32Style |= WS_MAXIMIZEBOX | WS_SIZEBOX;
 		}
 		else
@@ -272,6 +272,74 @@ bool NzWindowImpl::IsVisible() const
 	return IsWindowVisible(m_handle);
 }
 
+void NzWindowImpl::SetCursor(nzWindowCursor cursor)
+{
+	// Pas besoin de libérer le curseur par la suite s'il est partagé
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
+
+	switch (cursor)
+	{
+		case nzWindowCursor_Crosshair:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_CROSS, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Default:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Hand:
+		case nzWindowCursor_Pointer:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_HAND, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Help:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_HELP, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Move:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZEALL, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_None:
+			m_cursor = nullptr;
+			break;
+
+		case nzWindowCursor_Progress:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_APPSTARTING, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_ResizeN:
+		case nzWindowCursor_ResizeS:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENS, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_ResizeNW:
+		case nzWindowCursor_ResizeSE:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_ResizeNE:
+		case nzWindowCursor_ResizeSW:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_ResizeE:
+		case nzWindowCursor_ResizeW:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZEWE, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Text:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_IBEAM, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+
+		case nzWindowCursor_Wait:
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_WAIT, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			break;
+	}
+
+	::SetCursor(m_cursor);
+}
+
 void NzWindowImpl::SetEventListener(bool listener)
 {
 	if (m_ownsWindow)
@@ -355,19 +423,6 @@ void NzWindowImpl::SetVisible(bool visible)
 	ShowWindow(m_handle, (visible) ? SW_SHOW : SW_HIDE);
 }
 
-void NzWindowImpl::ShowMouseCursor(bool show)
-{
-	// Pas besoin de libérer le curseur par la suite s'il est partagé
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
-
-	if (show)
-		m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, MAKEINTRESOURCE(OCR_NORMAL), IMAGE_CURSOR, 0, 0, LR_SHARED));
-	else
-		m_cursor = nullptr;
-
-	SetCursor(m_cursor);
-}
-
 void NzWindowImpl::StayOnTop(bool stayOnTop)
 {
 	SetWindowPos(m_handle, (stayOnTop) ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -390,7 +445,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 		case WM_SETCURSOR:
 			// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648382(v=vs.85).aspx
 			if (LOWORD(lParam) == HTCLIENT)
-				SetCursor(m_cursor);
+				::SetCursor(m_cursor);
 
 			break;
 
