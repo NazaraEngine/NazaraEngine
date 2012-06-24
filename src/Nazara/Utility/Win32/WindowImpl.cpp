@@ -347,6 +347,8 @@ void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 void NzWindowImpl::SetCursor(const NzCursor& cursor)
 {
 	m_cursor = cursor.m_impl->GetCursor();
+
+	::SetCursor(m_cursor);
 }
 
 void NzWindowImpl::SetEventListener(bool listener)

@@ -31,7 +31,7 @@ bool NzIcon::Create(const NzImage& icon)
 	m_impl = new NzIconImpl;
 	if (!m_impl->Create(icon))
 	{
-		NazaraError("Failed to create cursor implementation");
+		NazaraError("Failed to create icon implementation");
 		delete m_impl;
 		m_impl = nullptr;
 		return false;

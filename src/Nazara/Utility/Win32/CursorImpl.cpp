@@ -21,11 +21,11 @@ bool NzCursorImpl::Create(const NzImage& cursor, int hotSpotX, int hotSpotY)
 
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648052(v=vs.85).aspx
 	ICONINFO iconInfo;
-    iconInfo.fIcon = FALSE;
-    iconInfo.xHotspot = hotSpotX;
-    iconInfo.yHotspot = hotSpotY;
-    iconInfo.hbmMask = monoBitmap;
-    iconInfo.hbmColor = bitmap;
+	iconInfo.fIcon = FALSE;
+	iconInfo.xHotspot = hotSpotX;
+	iconInfo.yHotspot = hotSpotY;
+	iconInfo.hbmMask = monoBitmap;
+	iconInfo.hbmColor = bitmap;
 
 	m_cursor = CreateIconIndirect(&iconInfo);
 
