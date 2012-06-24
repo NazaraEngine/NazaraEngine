@@ -12,6 +12,11 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/ThreadCondition.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/Icon.hpp>
+#include <Nazara/Utility/Win32/CursorImpl.hpp>
+#include <Nazara/Utility/Win32/IconImpl.hpp>
 #include <cstdio>
 #include <windowsx.h>
 #include <Nazara/Utility/Debug.hpp>
@@ -274,9 +279,6 @@ bool NzWindowImpl::IsVisible() const
 
 void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 {
-	// Pas besoin de libérer le curseur par la suite s'il est partagé
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
-
 	switch (cursor)
 	{
 		case nzWindowCursor_Crosshair:
@@ -337,7 +339,14 @@ void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 			break;
 	}
 
+	// Pas besoin de libérer le curseur par la suite s'il est partagé
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
 	::SetCursor(m_cursor);
+}
+
+void NzWindowImpl::SetCursor(const NzCursor& cursor)
+{
+	m_cursor = cursor.m_impl->GetCursor();
 }
 
 void NzWindowImpl::SetEventListener(bool listener)
@@ -363,6 +372,14 @@ void NzWindowImpl::SetEventListener(bool listener)
 void NzWindowImpl::SetFocus()
 {
 	SetForegroundWindow(m_handle);
+}
+
+void NzWindowImpl::SetIcon(const NzIcon& icon)
+{
+	HICON iconHandle = icon.m_impl->GetIcon();
+
+	SendMessage(m_handle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(iconHandle));
+	SendMessage(m_handle, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconHandle));
 }
 
 void NzWindowImpl::SetMaximumSize(int width, int height)

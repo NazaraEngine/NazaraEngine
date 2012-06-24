@@ -57,8 +57,10 @@ class NzWindowImpl : NzNonCopyable
 		bool IsVisible() const;
 
 		void SetCursor(nzWindowCursor cursor);
+		void SetCursor(const NzCursor& cursor);
 		void SetEventListener(bool listener);
 		void SetFocus();
+		void SetIcon(const NzIcon& icon);
 		void SetMaximumSize(int width, int height);
 		void SetMinimumSize(int width, int height);
 		void SetPosition(int x, int y);
