@@ -20,9 +20,9 @@ bool NzIconImpl::Create(const NzImage& icon)
 
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648052(v=vs.85).aspx
 	ICONINFO iconInfo;
-    iconInfo.fIcon = TRUE;
-    iconInfo.hbmMask = monoBitmap;
-    iconInfo.hbmColor = bitmap;
+	iconInfo.fIcon = TRUE;
+	iconInfo.hbmMask = monoBitmap;
+	iconInfo.hbmColor = bitmap;
 
 	m_icon = CreateIconIndirect(&iconInfo);
 
