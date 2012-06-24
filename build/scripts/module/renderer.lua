@@ -1,9 +1,5 @@
 project "NazaraRenderer"
 
-links "gdi32"
-links "opengl32"
-links "winmm"
-
 files
 {
 	"../include/Nazara/Renderer/**.hpp",
@@ -14,6 +10,9 @@ files
 
 if (os.is("windows")) then
 	excludes { "../src/Nazara/Renderer/Posix/*.hpp", "../src/Nazara/Renderer/Posix/*.cpp" }
+	links "gdi32"
+	links "opengl32"
+	links "winmm"
 else
 	excludes { "../src/Nazara/Renderer/Win32/*.hpp", "../src/Nazara/Renderer/Win32/*.cpp" }
 end

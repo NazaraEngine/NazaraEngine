@@ -24,6 +24,7 @@
 #include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
+class NzImage;
 class NzUtility;
 class NzWindowImpl;
 
@@ -62,6 +63,9 @@ enum nzWindowStyle
 	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
 };
 
+class NzCursor;
+class NzIcon;
+
 class NAZARA_API NzWindow : NzNonCopyable
 {
 	friend class NzUtility;
@@ -97,8 +101,10 @@ class NAZARA_API NzWindow : NzNonCopyable
 		bool PollEvent(NzEvent* event);
 
 		void SetCursor(nzWindowCursor cursor);
+		void SetCursor(const NzCursor& cursor);
 		void SetEventListener(bool listener);
 		void SetFocus();
+		void SetIcon(const NzIcon& icon);
 		void SetMaximumSize(const NzVector2i& maxSize);
 		void SetMaximumSize(int width, int height);
 		void SetMinimumSize(const NzVector2i& minSize);
