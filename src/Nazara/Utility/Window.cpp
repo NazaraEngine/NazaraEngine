@@ -5,11 +5,18 @@
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/LockGuard.hpp>
+#include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/Icon.hpp>
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
+	#include <Nazara/Utility/Win32/CursorImpl.hpp>
+	#include <Nazara/Utility/Win32/IconImpl.hpp>
 	#include <Nazara/Utility/Win32/WindowImpl.hpp>
 #elif defined(NAZARA_PLATFORM_LINUX)
+	#include <Nazara/Utility/Linux/CursorImpl.hpp>
+	#include <Nazara/Utility/Linux/IconImpl.hpp>
 	#include <Nazara/Utility/Linux/WindowImpl.hpp>
 #else
 	#error Lack of implementation: Window
@@ -305,6 +312,20 @@ void NzWindow::SetCursor(nzWindowCursor cursor)
 		m_impl->SetCursor(cursor);
 }
 
+void NzWindow::SetCursor(const NzCursor& cursor)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!cursor.IsValid())
+	{
+		NazaraError("Cursor is not valid");
+		return;
+	}
+	#endif
+
+	if (m_impl)
+		m_impl->SetCursor(cursor);
+}
+
 void NzWindow::SetEventListener(bool listener)
 {
 	if (!m_impl)
@@ -335,6 +356,20 @@ void NzWindow::SetFocus()
 {
 	if (m_impl)
 		m_impl->SetFocus();
+}
+
+void NzWindow::SetIcon(const NzIcon& icon)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!icon.IsValid())
+	{
+		NazaraError("Icon is not valid");
+		return;
+	}
+	#endif
+
+	if (m_impl)
+		m_impl->SetIcon(icon);
 }
 
 void NzWindow::SetMaximumSize(const NzVector2i& maxSize)
