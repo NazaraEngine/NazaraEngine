@@ -195,7 +195,7 @@ NzString NzNumberToString(long long number, nzUInt8 radix)
 	if (number == 0)
 		return '0';
 
-	static const char* symbols("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	bool negative;
 	if (number < 0)
@@ -238,12 +238,16 @@ T NzRadianToDegree(T radians)
 	return radians * (180.0/M_PI);
 }
 
-long long NzStringToNumber(NzString str, nzUInt8 radix)
+long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 {
 	#if NAZARA_MATH_SAFE
 	if (radix < 2 || radix > 36)
 	{
 		NazaraError("Radix must be between 2 and 36");
+
+		if (ok)
+			*ok = false;
+
 		return 0;
 	}
 	#endif
@@ -269,10 +273,17 @@ long long NzStringToNumber(NzString str, nzUInt8 radix)
 		else
 		{
 			NazaraError("str is not a valid number");
+
+			if (ok)
+				*ok = false;
+
 			return 0;
 		}
 	}
 	while (*++digit);
+
+	if (ok)
+		*ok = true;
 
 	return (negative) ? -static_cast<long long>(total) : total;
 }

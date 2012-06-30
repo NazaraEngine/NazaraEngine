@@ -46,7 +46,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString& Append(const char* string);
 		NzString& Append(const NzString& string);
 
-		void Clear();
+		void Clear(bool keepBuffer = false);
 
 		bool Contains(char character, int start = 0, nzUInt32 flags = None) const;
 		bool Contains(const char* string, int start = 0, nzUInt32 flags = None) const;
