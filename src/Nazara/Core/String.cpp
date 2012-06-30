@@ -22,6 +22,7 @@ inline unsigned int nzPow2(unsigned int n)
 {
 	unsigned int x = 1;
 
+	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
 	while(x <= n)
 		x <<= 1;
 
@@ -265,9 +266,17 @@ NzString& NzString::Append(const NzString& string)
 	return *this;
 }
 
-void NzString::Clear()
+void NzString::Clear(bool keepBuffer)
 {
-	ReleaseString();
+	if (keepBuffer)
+	{
+		ReleaseString();
+
+		m_sharedString->size = 0;
+		m_sharedString->string = nullptr;
+	}
+	else
+		ReleaseString();
 }
 
 bool NzString::Contains(char character, int start, nzUInt32 flags) const
@@ -3842,7 +3851,7 @@ bool NzString::ToBool(bool* value, nzUInt32 flags) const
 
 bool NzString::ToDouble(double* value) const
 {
-	if (m_sharedString->size)
+	if (m_sharedString->size == 0)
 		return false;
 
 	if (value)
@@ -3853,13 +3862,15 @@ bool NzString::ToDouble(double* value) const
 
 bool NzString::ToInteger(long long* value, nzUInt8 base) const
 {
-	if (!IsNumber(base))
-		return false;
-
 	if (value)
-		*value = NzStringToNumber(*this, base);
+	{
+		bool ok;
+		*value = NzStringToNumber(*this, base, &ok);
 
-	return true;
+		return ok;
+	}
+	else
+		return IsNumber(base);
 }
 
 NzString NzString::ToLower(nzUInt32 flags) const
