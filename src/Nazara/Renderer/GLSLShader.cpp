@@ -98,6 +98,7 @@ bool NzGLSLShader::Compile()
 		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
 		if (length > 1)
 		{
+			m_log.Clear(true);
 			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Linkage error: ");
 			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log
@@ -129,7 +130,7 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniformName = "TexCoordi";
+	NzString uniformName = "TexCoord*";
 	for (unsigned int i = 0; i < 8; ++i)
 	{
 		uniformName[8] = '0'+i;
@@ -242,6 +243,7 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 		if (length > 1)
 		{
+			m_log.Clear(true);
 			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Compilation error: ");
 			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log
