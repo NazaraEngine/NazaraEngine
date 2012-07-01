@@ -270,10 +270,8 @@ void NzString::Clear(bool keepBuffer)
 {
 	if (keepBuffer)
 	{
-		ReleaseString();
-
+		EnsureOwnership();
 		m_sharedString->size = 0;
-		m_sharedString->string = nullptr;
 	}
 	else
 		ReleaseString();
