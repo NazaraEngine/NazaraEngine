@@ -29,9 +29,9 @@ extern "C" {
 */
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated $Date: 2012-04-26 00:59:42 -0700 (Thu, 26 Apr 2012) $ */
+/* glext.h last updated $Date: 2012-06-18 11:26:35 -0700 (Mon, 18 Jun 2012) $ */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 81
+#define GL_GLEXT_VERSION 82
 /* Function declaration macros - to move into glplatform.h */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -5476,6 +5476,12 @@ extern "C" {
 #endif
 
 #ifndef GL_NV_shader_atomic_float
+#endif
+
+#ifndef GL_AMD_query_buffer_object
+#define GL_QUERY_BUFFER_AMD               0x9192
+#define GL_QUERY_BUFFER_BINDING_AMD       0x9193
+#define GL_QUERY_RESULT_NO_WAIT_AMD       0x9194
 #endif
 
 
@@ -11803,6 +11809,10 @@ typedef GLboolean (APIENTRYP PFNGLISIMAGEHANDLERESIDENTNVPROC) (GLuint64 handle)
 
 #ifndef GL_NV_shader_atomic_float
 #define GL_NV_shader_atomic_float 1
+#endif
+
+#ifndef GL_AMD_query_buffer_object
+#define GL_AMD_query_buffer_object 1
 #endif
 
 
