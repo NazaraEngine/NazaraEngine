@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -53,9 +54,14 @@ bool NzUtility::Initialize()
 	}
 
 	/// Loaders spécialisés
+	// Mesh
+	NzLoaders_MD2_Register(); // Loader de fichiers .MD2 (v8)
+
+	// Image
 	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
 
 	/// Loaders génériques (En dernier pour donner la priorité aux loaders spécialisés)
+	// Image
 	NzLoaders_STB_Register(); // Loader générique (STB)
 
 	s_initialized = true;
@@ -73,8 +79,9 @@ void NzUtility::Uninitialize()
 	}
 	#endif
 
-	NzLoaders_STB_Unregister();
+	NzLoaders_MD2_Unregister();
 	NzLoaders_PCX_Unregister();
+	NzLoaders_STB_Unregister();
 
 	NzWindow::Uninitialize();
 	NzPixelFormat::Uninitialize();

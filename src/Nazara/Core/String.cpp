@@ -13,9 +13,6 @@
 #include <cstring>
 #include <sstream>
 #include <Utfcpp/utf8.h>
-
-#define NAZARA_CLASS_STRING
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 inline unsigned int nzPow2(unsigned int n)
@@ -2850,7 +2847,7 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 	else ///TODO: Algorithme de remplacement sans changement de buffer (si rSize < oSize)
 	{
 		unsigned int newSize = m_sharedString->size + Count(oldString)*(rSize - oSize);
-		if (newSize == m_sharedString->size) // Count(oldString) == 0
+		if (newSize == m_sharedString->size) // Alors c'est que Count(oldString) == 0
 			return 0;
 
 		char* newString = new char[newSize+1];
@@ -2920,7 +2917,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 	else
 	{
 		unsigned int newSize = m_sharedString->size + Count(oldString)*(replaceString.m_sharedString->size - oldString.m_sharedString->size);
-		if (newSize == m_sharedString->size) // Count(oldString) == 0
+		if (newSize == m_sharedString->size) // Alors c'est que Count(oldString) == 0
 			return 0;
 
 		char* newString = new char[newSize+1];
@@ -3205,6 +3202,9 @@ void NzString::Reserve(unsigned int bufferSize)
 
 NzString& NzString::Resize(int size, char character)
 {
+	if (size == 0)
+		Clear(true);
+
 	if (size < 0)
 		size = std::max(static_cast<int>(m_sharedString->size + size), 0);
 
@@ -3249,6 +3249,9 @@ NzString& NzString::Resize(int size, char character)
 
 NzString NzString::Resized(int size, char character) const
 {
+	if (size == 0)
+		return NzString();
+
 	if (size < 0)
 		size = m_sharedString->size + size;
 
@@ -3499,8 +3502,9 @@ unsigned int NzString::SplitAny(std::vector<NzString>& result, const char* separ
 	if (m_sharedString->size == 0)
 		return 0;
 
-	unsigned int lastSep = FindAny(separations, start, flags);
 	unsigned int oldSize = result.size();
+
+	unsigned int lastSep = FindAny(separations, start, flags);
 	if (lastSep == npos)
 	{
 		result.push_back(*this);
@@ -5098,11 +5102,12 @@ void NzString::ReleaseString()
 		return;
 
 	NazaraMutexLock(m_sharedString->mutex);
-	m_sharedString->refCount--;
+	bool freeSharedString = (--m_sharedString->refCount == 0);
 	NazaraMutexUnlock(m_sharedString->mutex);
 
-	if (m_sharedString->refCount == 0)
+	if (freeSharedString)
 	{
+		NazaraMutexUnlock(m_sharedString->mutex);
 		delete[] m_sharedString->string;
 		delete m_sharedString;
 	}

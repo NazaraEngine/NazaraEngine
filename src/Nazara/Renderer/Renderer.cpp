@@ -28,7 +28,8 @@ namespace
 		1, // nzElementUsage_Normal
 		0, // nzElementUsage_Position
 		3, // nzElementUsage_Tangent
-		4  // nzElementUsage_TexCoord
+
+		4  // nzElementUsage_TexCoord (Doit être le dernier de la liste car extensible)
 	};
 
 
@@ -403,7 +404,11 @@ bool NzRenderer::Initialize()
 			GLint maxTextureUnits;
 			glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 
-			m_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
+			GLint maxVertexAttribs;
+			glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
+
+			// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est déjà pris par les autres attributs)
+			m_maxTextureUnit = static_cast<unsigned int>(std::min(maxTextureUnits, maxVertexAttribs-attribIndex[nzElementUsage_TexCoord]));
 		}
 		else
 			m_maxTextureUnit = 1;
@@ -836,23 +841,23 @@ bool NzRenderer::EnsureStateUpdate()
 
 			const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetPointer());
 
-			///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
-			for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
-				glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
-
-			unsigned int stride = m_vertexDeclaration->GetStride();
-			unsigned int elementCount = m_vertexDeclaration->GetElementCount();
-			for (unsigned int i = 0; i < elementCount; ++i)
+			unsigned int stride = m_vertexDeclaration->GetStride(nzElementStream_VertexData);
+			for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
 			{
-				const NzVertexDeclaration::Element* element = m_vertexDeclaration->GetElement(i);
+				const NzVertexElement* element = m_vertexDeclaration->GetElement(nzElementStream_VertexData, static_cast<nzElementUsage>(i));
 
-				glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
-				glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
-									  openglSize[element->type],
-									  openglType[element->type],
-									  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-									  stride,
-									  &buffer[element->offset]);
+				if (element)
+				{
+					glEnableVertexAttribArray(attribIndex[i]);
+					glVertexAttribPointer(attribIndex[i],
+										  openglSize[element->type],
+										  openglType[element->type],
+										  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+										  stride,
+										  &buffer[element->offset]);
+				}
+				else
+					glDisableVertexAttribArray(attribIndex[i]);
 			}
 
 			if (m_indexBuffer)

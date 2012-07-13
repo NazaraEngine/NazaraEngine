@@ -19,8 +19,6 @@
 	#error OS not handled
 #endif
 
-#define NAZARA_CLASS_FILE
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 NzFile::NzFile() :
@@ -295,6 +293,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 		return m_impl->Read(buffer, size);
 	else
 	{
+		// Si nous ne devons rien lire, nous avançons simplement
 		nzUInt64 currentPos = m_impl->GetCursorPos();
 
 		m_impl->SetCursorPos(NzFile::AtCurrent, size);

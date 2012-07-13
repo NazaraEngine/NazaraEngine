@@ -16,8 +16,6 @@
 	#error OS not handled
 #endif
 
-#define NAZARA_CLASS_DIRECTORY
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace

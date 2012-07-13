@@ -33,7 +33,7 @@
 // Définit le radian comme l'unité utilisée pour les angles
 #define NAZARA_MATH_ANGLE_RADIAN 0
 
-// Définit la disposition des matrices en colonnes
+// Définit la disposition des matrices en colonnes (Façon OpenGL)
 #define NAZARA_MATH_MATRIX_COLUMN_MAJOR 1
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)

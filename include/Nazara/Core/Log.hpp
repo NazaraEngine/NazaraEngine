@@ -12,8 +12,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#define NAZARA_CLASS_LOG
+#if NAZARA_THREADSAFETY_LOG
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 #define NazaraLog NzLog::Instance()
 #define NazaraNotice(txt) NazaraLog->Write(txt)
@@ -50,7 +53,5 @@ class NAZARA_API NzLog : NzNonCopyable
 		bool m_enabled;
 		bool m_writeTime;
 };
-
-#undef NAZARA_CLASS_LOG
 
 #endif // NAZARA_LOGGER_HPP

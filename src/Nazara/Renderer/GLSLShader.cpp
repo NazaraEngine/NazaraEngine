@@ -130,10 +130,11 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniformName = "TexCoord*";
-	for (unsigned int i = 0; i < 8; ++i)
+	NzString uniform = "TexCoord";
+	unsigned int maxTexCoords = NazaraRenderer->GetMaxTextureUnits();
+	for (unsigned int i = 0; i < maxTexCoords; ++i)
 	{
-		uniformName[8] = '0'+i;
+		NzString uniformName = uniform + NzString::Number(i);
 		glBindAttribLocation(m_program, attribIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
 	}
 

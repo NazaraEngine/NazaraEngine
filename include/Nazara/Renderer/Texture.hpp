@@ -9,23 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-
-enum nzTextureFilter
-{
-	nzTextureFilter_Bilinear,
-	nzTextureFilter_Nearest,
-	nzTextureFilter_Trilinear,
-	nzTextureFilter_Unknown
-};
-
-enum nzTextureWrap
-{
-	nzTextureWrap_Clamp,
-	nzTextureWrap_Repeat,
-	nzTextureWrap_Unknown
-};
 
 class NzShader;
 struct NzTextureImpl;
@@ -92,6 +78,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
+		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);
 
 	private:

@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 NzVertexBuffer::NzVertexBuffer(NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount) :
@@ -15,8 +16,8 @@ m_vertexCount(vertexCount)
 	#ifdef NAZARA_DEBUG
 	if (!m_buffer)
 	{
-		NazaraError("Passed buffer is null");
-		return;
+		NazaraError("Buffer is null");
+		throw std::invalid_argument("Buffer must be valid");
 	}
 	#endif
 
@@ -34,6 +35,7 @@ m_vertexCount(length)
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexBuffer& vertexBuffer) :
+NzResource(true),
 m_ownsBuffer(vertexBuffer.m_ownsBuffer),
 m_startVertex(vertexBuffer.m_startVertex),
 m_vertexCount(vertexBuffer.m_vertexCount)
