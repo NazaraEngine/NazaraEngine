@@ -298,7 +298,8 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	// Fonctions optionnelles
+	/****************************************Extensions****************************************/
+
 	glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi", false));
 	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
 
@@ -309,8 +310,6 @@ bool NzOpenGL::Initialize()
 	#elif defined(NAZARA_PLATFORM_LINUX)
 	glXSwapInterval = reinterpret_cast<PFNGLXSWAPINTERVALSGIPROC>(LoadEntry("glXSwapIntervalSGI", false));
 	#endif
-
-	/****************************************Extensions****************************************/
 
 	if (!glGetStringi || !LoadExtensions3())
 	{
@@ -353,7 +352,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load GL_ARB_debug_output: " + NzString(e.what()));
+			NazaraWarning("Failed to load GL_ARB_debug_output: " + NzString(e.what()));
 		}
 	}
 
@@ -371,7 +370,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load ARB_gpu_shader_fp64: " + NzString(e.what()));
+			NazaraWarning("Failed to load ARB_gpu_shader_fp64: " + NzString(e.what()));
 		}
 	}
 
@@ -396,7 +395,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load ARB_framebuffer_object: (" + NzString(e.what()) + ")");
+			NazaraWarning("Failed to load ARB_framebuffer_object: (" + NzString(e.what()) + ")");
 		}
 	}
 
@@ -452,7 +451,7 @@ bool NzOpenGL::Initialize()
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("Failed to load EXT_texture3D: " + NzString(e.what()));
+				NazaraWarning("Failed to load EXT_texture3D: " + NzString(e.what()));
 			}
 		}
 	}
@@ -473,7 +472,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load ARB_texture_storage: " + NzString(e.what()));
+			NazaraWarning("Failed to load ARB_texture_storage: " + NzString(e.what()));
 		}
 	}
 
@@ -490,9 +489,13 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to load ARB_vertex_array_object: " + NzString(e.what()));
+			NazaraWarning("Failed to load ARB_vertex_array_object: " + NzString(e.what()));
 		}
 	}
+
+	// Fonctions de substitut
+	if (!glGenerateMipmap)
+		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
 	/****************************************Contexte de référence****************************************/
 
@@ -504,6 +507,8 @@ bool NzOpenGL::Initialize()
 
 		return false;
 	}
+
+	NzContextParameters::defaultShareContext = NzContext::GetReference();
 
 	return true;
 }

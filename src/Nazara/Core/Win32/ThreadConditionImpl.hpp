@@ -2,12 +2,12 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
+
 #pragma once
 
 #ifndef NAZARA_THREADCONDITIONIMPL_HPP
 #define NAZARA_THREADCONDITIONIMPL_HPP
-
-// http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
 
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>

@@ -9,8 +9,11 @@
 
 #include <Nazara/Core/String.hpp>
 
-#define NAZARA_CLASS_MATRIX4
-#include <Nazara/Math/ThreadSafety.hpp>
+#if NAZARA_THREADSAFETY_MATRIX4
+#include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 template<typename T> class NzEulerAngles;
 template<typename T> class NzQuaternion;
@@ -26,7 +29,7 @@ template<typename T> class NzMatrix4
 				  T r21, T r22, T r23, T r24,
 				  T r31, T r32, T r33, T r34,
 				  T r41, T r42, T r43, T r44);
-		NzMatrix4(T matrix[16]);
+		NzMatrix4(const T matrix[16]);
 		//NzMatrix4(const NzMatrix3<T>& matrix);
 		template<typename U> explicit NzMatrix4(const NzMatrix4<U>& matrix);
 		NzMatrix4(const NzMatrix4& matrix);
@@ -47,7 +50,7 @@ template<typename T> class NzMatrix4
 				 T r21, T r22, T r23, T r24,
 				 T r31, T r32, T r33, T r34,
 				 T r41, T r42, T r43, T r44);
-		void Set(T matrix[16]);
+		void Set(const T matrix[16]);
 		//NzMatrix4(const NzMatrix3<T>& matrix);
 		void Set(const NzMatrix4& matrix);
 		void Set(NzMatrix4&& matrix);
@@ -96,10 +99,10 @@ template<typename T> class NzMatrix4
 
 		struct SharedMatrix
 		{
-			T m11, m12, m13, m14;
-			T m21, m22, m23, m24;
-			T m31, m32, m33, m34;
-			T m41, m42, m43, m44;
+			T m11, m12, m13, m14,
+			  m21, m22, m23, m24,
+			  m31, m32, m33, m34,
+			  m41, m42, m43, m44;
 
 			unsigned short refCount = 1;
 			NazaraMutex(mutex)
@@ -116,8 +119,6 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const NzMatrix4
 
 typedef NzMatrix4<double> NzMatrix4d;
 typedef NzMatrix4<float> NzMatrix4f;
-
-#undef NAZARA_CLASS_MATRIX4
 
 #include <Nazara/Math/Matrix4.inl>
 

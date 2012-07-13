@@ -9,35 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Resource.hpp>
-
-enum nzBufferAccess
-{
-	nzBufferAccess_DiscardAndWrite,
-	nzBufferAccess_ReadOnly,
-	nzBufferAccess_ReadWrite,
-	nzBufferAccess_WriteOnly
-};
-
-enum nzBufferStorage
-{
-	nzBufferStorage_Hardware,
-	nzBufferStorage_Software,
-
-	nzBufferStorage_Max = nzBufferStorage_Software
-};
-
-enum nzBufferType
-{
-	nzBufferType_Index,
-	nzBufferType_Vertex
-};
-
-enum nzBufferUsage
-{
-	nzBufferUsage_Dynamic,
-	nzBufferUsage_Static
-};
 
 class NzBufferImpl;
 class NzRenderer;

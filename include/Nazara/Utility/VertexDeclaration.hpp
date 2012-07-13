@@ -6,70 +6,48 @@
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <vector>
-
-enum nzElementType
-{
-	nzElementType_Color,
-	nzElementType_Double1,
-	nzElementType_Double2,
-	nzElementType_Double3,
-	nzElementType_Double4,
-	nzElementType_Float1,
-	nzElementType_Float2,
-	nzElementType_Float3,
-	nzElementType_Float4
-};
-
-enum nzElementUsage
-{
-	nzElementUsage_Diffuse,
-	nzElementUsage_Normal,
-	nzElementUsage_Position,
-	nzElementUsage_Tangent,
-	nzElementUsage_TexCoord
-};
+#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/Resource.hpp>
 
 struct NzVertexElement
 {
-	NzVertexElement() : stream(0), usageIndex(0) {}
-
 	unsigned int offset;
-	unsigned int stream;
-	unsigned int usageIndex;
+	unsigned int usageIndex = 0;
+	nzElementStream stream = nzElementStream_VertexData;
 	nzElementType type;
 	nzElementUsage usage;
 };
 
-class NAZARA_API NzVertexDeclaration
+struct NzVertexDeclarationImpl;
+
+class NAZARA_API NzVertexDeclaration : public NzResource
 {
 	public:
-		struct Element
-		{
-			unsigned int offset;
-			unsigned int usageIndex;
-			nzElementType type;
-			nzElementUsage usage;
-		};
-
 		NzVertexDeclaration() = default;
-		~NzVertexDeclaration() = default;
+		NzVertexDeclaration(const NzVertexElement* elements, unsigned int elementCount);
+		NzVertexDeclaration(const NzVertexDeclaration& declaration);
+		NzVertexDeclaration(NzVertexDeclaration&& declaration);
+		~NzVertexDeclaration();
 
 		bool Create(const NzVertexElement* elements, unsigned int elementCount);
+		void Destroy();
 
-		const Element* GetElement(unsigned int i, unsigned int stream = 0) const;
-		unsigned int GetElementCount(unsigned int stream = 0) const;
-		unsigned int GetStreamCount() const;
-		unsigned int GetStride(unsigned int stream = 0) const;
+		const NzVertexElement* GetElement(unsigned int i) const;
+		const NzVertexElement* GetElement(nzElementStream stream, unsigned int i) const;
+		const NzVertexElement* GetElement(nzElementStream stream, nzElementUsage usage, unsigned int usageIndex = 0) const;
+		unsigned int GetElementCount() const;
+		unsigned int GetElementCount(nzElementStream stream) const;
+		unsigned int GetStride(nzElementStream stream) const;
+
+		bool HasStream(nzElementStream stream) const;
+
+		bool IsValid() const;
+
+		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
+		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration);
 
 	private:
-		struct Stream
-		{
-			std::vector<Element> elements;
-			unsigned int stride;
-		};
-
-		std::vector<Stream> m_streams;
+		NzVertexDeclarationImpl* m_sharedImpl = nullptr;
 };
 
 #endif // NAZARA_VERTEXDECLARATION_HPP

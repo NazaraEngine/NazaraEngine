@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Utility/Resource.hpp>
 
-class NAZARA_API NzVertexBuffer
+class NAZARA_API NzVertexBuffer : public NzResource
 {
 	public:
 		NzVertexBuffer(NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount);

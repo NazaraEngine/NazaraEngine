@@ -52,6 +52,7 @@ m_startIndex(0)
 }
 
 NzIndexBuffer::NzIndexBuffer(const NzIndexBuffer& indexBuffer) :
+NzResource(true),
 m_buffer(indexBuffer.m_buffer),
 m_ownsBuffer(indexBuffer.m_ownsBuffer),
 m_indexCount(indexBuffer.m_indexCount),

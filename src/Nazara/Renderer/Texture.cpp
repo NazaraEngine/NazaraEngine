@@ -341,7 +341,7 @@ bool NzTexture::Bind() const
 
 	glBindTexture(openglTarget[m_impl->type], m_impl->id);
 
-	if (!m_impl->mipmapsUpdated)
+	if (m_impl->mipmapping && !m_impl->mipmapsUpdated)
 	{
 		glGenerateMipmap(openglTarget[m_impl->type]);
 		m_impl->mipmapsUpdated = true;
@@ -433,7 +433,13 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 	NzContext::EnsureContext();
 
-	levelCount = std::min(levelCount, NzImage::GetMaxLevel(width, height, depth));
+	if (IsMipmappingSupported())
+		levelCount = std::min(levelCount, NzImage::GetMaxLevel(width, height, depth));
+	else if (levelCount > 1)
+	{
+		NazaraWarning("Mipmapping not supported, reducing level count to 1");
+		levelCount = 1;
+	}
 
 	NzTextureImpl* impl = new NzTextureImpl;
 	glGenTextures(1, &impl->id);
@@ -477,10 +483,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	SetWrapMode(nzTextureWrap_Repeat);
 
 	if (m_impl->levelCount > 1U)
-	{
-		m_impl->mipmapping = true;
-		m_impl->mipmapsUpdated = false;
-	}
+		EnableMipmapping(true);
 
 	if (!lock)
 		UnlockTexture(impl);
@@ -577,25 +580,17 @@ bool NzTexture::EnableMipmapping(bool enable)
 	}
 	#endif
 
-	if (!glGenerateMipmap)
+	if (m_impl->levelCount == 1)
+		return true;
+
+	if (!IsMipmappingSupported())
 	{
 		NazaraError("Mipmapping not supported");
 		return false;
 	}
 
 	if (!m_impl->mipmapping && enable)
-	{
-		GLint tex;
-		glGetIntegerv(openglTargetBinding[m_impl->type], &tex);
-
-		if (m_impl->id == static_cast<GLuint>(tex))
-		{
-			glGenerateMipmap(openglTarget[m_impl->type]);
-			m_impl->mipmapsUpdated = true;
-		}
-		else
-			m_impl->mipmapsUpdated = false;
-	}
+		m_impl->mipmapsUpdated = false;
 
 	m_impl->mipmapping = enable;
 
@@ -848,7 +843,6 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	if (!IsFormatSupported(format))
 	{
 		nzPixelFormat newFormat = (NzPixelFormat::HasAlpha(format)) ? nzPixelFormat_BGRA8 : nzPixelFormat_BGR8;
-
 		NazaraWarning("Format not supported, trying to convert it to " + NzPixelFormat::ToString(newFormat) + "...");
 
 		if (NzPixelFormat::IsConversionSupported(format, newFormat))
@@ -872,14 +866,13 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	}
 
 	nzImageType type = newImage.GetType();
-	nzUInt8 levelCount = newImage.GetLevelCount();
-	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), levelCount, true))
+	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), newImage.GetLevelCount(), true))
 	{
 		NazaraError("Failed to create texture");
 		return false;
 	}
 
-	for (nzUInt8 level = 0; level < levelCount; ++level)
+	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
 	{
 		if (!Update(newImage.GetConstPixels(level), level))
 		{
@@ -942,13 +935,13 @@ bool NzTexture::SetAnisotropyLevel(unsigned int anistropyLevel)
 		NazaraError("Texture must be valid");
 		return false;
 	}
+	#endif
 
 	if (!NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter))
 	{
 		NazaraError("Anisotropic filter not supported");
 		return false;
 	}
-	#endif
 
 	LockTexture(m_impl);
 
@@ -981,7 +974,7 @@ bool NzTexture::SetFilterMode(nzTextureFilter filter)
 	switch (filter)
 	{
 		case nzTextureFilter_Bilinear:
-			if (m_impl->levelCount > 1)
+			if (m_impl->mipmapping > 1)
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 			else
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -990,7 +983,7 @@ bool NzTexture::SetFilterMode(nzTextureFilter filter)
 			break;
 
 		case nzTextureFilter_Nearest:
-			if (m_impl->levelCount > 1)
+			if (m_impl->mipmapping > 1)
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 			else
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1586,6 +1579,11 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 	NazaraError("Invalid pixel format");
 
 	return false;
+}
+
+bool NzTexture::IsMipmappingSupported()
+{
+	return glGenerateMipmap != nullptr;
 }
 
 bool NzTexture::IsTypeSupported(nzImageType type)

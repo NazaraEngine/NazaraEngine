@@ -11,8 +11,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#define NAZARA_CLASS_DYNLIB
+#if NAZARA_THREADSAFETY_DYNLIB
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 class NzDynLibImpl;
 typedef int (*NzDynLibFunc)(); // Type "générique" de pointeur sur fonction
@@ -39,7 +42,5 @@ class NzDynLib : NzNonCopyable
 		NzString m_path;
 		NzDynLibImpl* m_impl;
 };
-
-#undef NAZARA_CLASS_DYNLIB
 
 #endif // NAZARA_DYNLIB_HPP

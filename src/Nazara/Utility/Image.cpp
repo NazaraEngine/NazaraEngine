@@ -5,7 +5,6 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
 #include <cmath>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -20,6 +19,11 @@ namespace
 	{
 		return &base[(width*(height*z+y) + x) * bpp];
 	}
+}
+
+bool NzImageParams::IsValid() const
+{
+	return true;
 }
 
 NzImage::NzImage() :
@@ -799,17 +803,17 @@ bool NzImage::IsValid() const
 
 bool NzImage::LoadFromFile(const NzString& filePath, const NzImageParams& params)
 {
-	return NzResourceLoader<NzImage, NzImageParams>::LoadResourceFromFile(this, filePath, params);
+	return NzImageLoader::LoadFromFile(this, filePath, params);
 }
 
 bool NzImage::LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params)
 {
-	return NzResourceLoader<NzImage, NzImageParams>::LoadResourceFromMemory(this, data, size, params);
+	return NzImageLoader::LoadFromMemory(this, data, size, params);
 }
 
 bool NzImage::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
 {
-	return NzResourceLoader<NzImage, NzImageParams>::LoadResourceFromStream(this, stream, params);
+	return NzImageLoader::LoadFromStream(this, stream, params);
 }
 
 bool NzImage::SetLevelCount(nzUInt8 levelCount)
@@ -1091,36 +1095,6 @@ nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned i
 	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
 }
 
-void NzImage::RegisterFileLoader(const NzString& extensions, LoadFileFunction loadFile)
-{
-	return RegisterResourceFileLoader(extensions, loadFile);
-}
-
-void NzImage::RegisterMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory)
-{
-	return RegisterResourceMemoryLoader(isLoadingSupported, loadMemory);
-}
-
-void NzImage::RegisterStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream)
-{
-	return RegisterResourceStreamLoader(isLoadingSupported, loadStream);
-}
-
-void NzImage::UnregisterFileLoader(const NzString& extensions, LoadFileFunction loadFile)
-{
-	UnregisterResourceFileLoader(extensions, loadFile);
-}
-
-void NzImage::UnregisterMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory)
-{
-	UnregisterResourceMemoryLoader(isLoadingSupported, loadMemory);
-}
-
-void NzImage::UnregisterStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream)
-{
-	UnregisterResourceStreamLoader(isLoadingSupported, loadStream);
-}
-
 void NzImage::EnsureOwnership()
 {
 	if (m_sharedImage == &emptyImage)
@@ -1149,10 +1123,10 @@ void NzImage::ReleaseImage()
 		return;
 
 	NazaraMutexLock(m_sharedImage->mutex);
-	m_sharedImage->refCount--;
+	bool freeSharedImage = (--m_sharedImage->refCount == 0);
 	NazaraMutexUnlock(m_sharedImage->mutex);
 
-	if (m_sharedImage->refCount == 0)
+	if (freeSharedImage)
 	{
 		for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 			delete[] m_sharedImage->pixels[i];
@@ -1165,3 +1139,6 @@ void NzImage::ReleaseImage()
 }
 
 NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 1, nullptr, 0, 0, 0);
+std::list<NzImageLoader::MemoryLoader> NzImage::s_memoryLoaders;
+std::list<NzImageLoader::StreamLoader> NzImage::s_streamLoaders;
+std::multimap<NzString, NzImageLoader::LoadFileFunction> NzImage::s_fileLoaders;

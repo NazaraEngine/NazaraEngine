@@ -14,6 +14,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
@@ -24,47 +25,11 @@
 #include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
+class NzCursor;
 class NzImage;
+class NzIcon;
 class NzUtility;
 class NzWindowImpl;
-
-enum nzWindowCursor
-{
-	nzWindowCursor_None,
-	nzWindowCursor_Default,
-
-	nzWindowCursor_Crosshair,
-	nzWindowCursor_Hand,
-	nzWindowCursor_Help,
-	nzWindowCursor_Move,
-	nzWindowCursor_Pointer,
-	nzWindowCursor_Progress,
-	nzWindowCursor_ResizeE,
-	nzWindowCursor_ResizeN,
-	nzWindowCursor_ResizeNE,
-	nzWindowCursor_ResizeNW,
-	nzWindowCursor_ResizeS,
-	nzWindowCursor_ResizeSE,
-	nzWindowCursor_ResizeSW,
-	nzWindowCursor_ResizeW,
-	nzWindowCursor_Text,
-	nzWindowCursor_Wait
-};
-
-enum nzWindowStyle
-{
-	nzWindowStyle_None       = 0x0,
-	nzWindowStyle_Fullscreen = 0x1,
-
-	nzWindowStyle_Closable   = 0x2,
-	nzWindowStyle_Resizable  = 0x4,
-	nzWindowStyle_Titlebar   = 0x4,
-
-	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
-};
-
-class NzCursor;
-class NzIcon;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {

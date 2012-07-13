@@ -15,8 +15,6 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-// Auteur du loader original : David Henry
-
 namespace
 {
     int Read(void* userdata, char* data, int size)
@@ -39,9 +37,9 @@ namespace
 
 	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
-	bool NzLoader_STB_LoadStream(NzImage* resource, NzInputStream& stream, const NzImageParams& parameters);
+	bool NzLoader_STB_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters);
 
-	bool NzLoader_STB_LoadFile(NzImage* resource, const NzString& filePath, const NzImageParams& parameters)
+	bool NzLoader_STB_LoadFile(NzImage* image, const NzString& filePath, const NzImageParams& parameters)
 	{
 		NzFile file(filePath);
 		if (!file.Open(NzFile::ReadOnly))
@@ -50,16 +48,16 @@ namespace
 			return false;
 		}
 
-		return NzLoader_STB_LoadStream(resource, file, parameters);
+		return NzLoader_STB_LoadStream(image, file, parameters);
 	}
 
-	bool NzLoader_STB_LoadMemory(NzImage* resource, const void* data, unsigned int size, const NzImageParams& parameters)
+	bool NzLoader_STB_LoadMemory(NzImage* image, const void* data, unsigned int size, const NzImageParams& parameters)
 	{
 		NzMemoryStream stream(data, size);
-		return NzLoader_STB_LoadStream(resource, stream, parameters);
+		return NzLoader_STB_LoadStream(image, stream, parameters);
 	}
 
-	bool NzLoader_STB_LoadStream(NzImage* resource, NzInputStream& stream, const NzImageParams& parameters)
+	bool NzLoader_STB_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -112,7 +110,7 @@ namespace
 		if (format == nzPixelFormat_Undefined)
 			format = formats[bpp-1];
 
-		if (!resource->Create(nzImageType_2D, format, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+		if (!image->Create(nzImageType_2D, format, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			stbi_image_free(ptr);
@@ -120,17 +118,17 @@ namespace
 			return false;
 		}
 
-		resource->Update(ptr);
+		image->Update(ptr);
 
 		stbi_image_free(ptr);
 
 		if (stbiFormat == STBI_default && parameters.loadFormat != nzPixelFormat_Undefined)
-			resource->Convert(parameters.loadFormat);
+			image->Convert(parameters.loadFormat);
 
 		return true;
 	}
 
-	bool NzLoader_STB_IsMemoryLoadingSupported(const void* data, unsigned int size, const NzImageParams& parameters)
+	bool NzLoader_STB_IdentifyMemory(const void* data, unsigned int size, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -138,7 +136,7 @@ namespace
 		return stbi_info_from_memory(reinterpret_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
 	}
 
-	bool NzLoader_STB_IsStreamLoadingSupported(NzInputStream& stream, const NzImageParams& parameters)
+	bool NzLoader_STB_IdentifyStream(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -149,14 +147,14 @@ namespace
 
 void NzLoaders_STB_Register()
 {
-	NzImage::RegisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
-	NzImage::RegisterMemoryLoader(NzLoader_STB_IsMemoryLoadingSupported, NzLoader_STB_LoadMemory);
-	NzImage::RegisterStreamLoader(NzLoader_STB_IsStreamLoadingSupported, NzLoader_STB_LoadStream);
+	NzImageLoader::RegisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
+	NzImageLoader::RegisterMemoryLoader(NzLoader_STB_IdentifyMemory, NzLoader_STB_LoadMemory);
+	NzImageLoader::RegisterStreamLoader(NzLoader_STB_IdentifyStream, NzLoader_STB_LoadStream);
 }
 
 void NzLoaders_STB_Unregister()
 {
-	NzImage::UnregisterStreamLoader(NzLoader_STB_IsStreamLoadingSupported, NzLoader_STB_LoadStream);
-	NzImage::UnregisterMemoryLoader(NzLoader_STB_IsMemoryLoadingSupported, NzLoader_STB_LoadMemory);
-	NzImage::UnregisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
+	NzImageLoader::UnregisterStreamLoader(NzLoader_STB_IdentifyStream, NzLoader_STB_LoadStream);
+	NzImageLoader::UnregisterMemoryLoader(NzLoader_STB_IdentifyMemory, NzLoader_STB_LoadMemory);
+	NzImageLoader::UnregisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
 }
