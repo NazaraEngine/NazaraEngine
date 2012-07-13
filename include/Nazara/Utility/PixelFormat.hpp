@@ -9,54 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <map>
-
-enum nzPixelFormat
-{
-	nzPixelFormat_Undefined,
-
-	nzPixelFormat_BGR8,    // 3*nzUInt8
-	nzPixelFormat_BGRA8,   // 4*nzUInt8
-	nzPixelFormat_DXT1,
-	nzPixelFormat_DXT3,
-	nzPixelFormat_DXT5,
-	nzPixelFormat_L8,      // 1*nzUInt8
-	nzPixelFormat_LA8,     // 2*nzUInt8
-	/*
-	nzPixelFormat_RGB16F,
-	nzPixelFormat_RGB16I,  // 4*nzUInt16
-	nzPixelFormat_RGB32F,
-	nzPixelFormat_RGB32I,  // 4*nzUInt32
-	nzPixelFormat_RGBA16F,
-	nzPixelFormat_RGBA16I, // 4*nzUInt16
-	nzPixelFormat_RGBA32F,
-	nzPixelFormat_RGBA32I, // 4*nzUInt32
-	*/
-	nzPixelFormat_RGBA4,   // 1*nzUInt16
-	nzPixelFormat_RGB5A1,  // 1*nzUInt16
-	nzPixelFormat_RGB8,    // 3*nzUInt8
-	nzPixelFormat_RGBA8,   // 4*nzUInt8
-	/*
-	nzPixelFormat_Depth16,
-	nzPixelFormat_Depth24,
-	nzPixelFormat_Depth24Stencil8,
-	nzPixelFormat_Depth32,
-	nzPixelFormat_Stencil1,
-	nzPixelFormat_Stencil4,
-	nzPixelFormat_Stencil8,
-	nzPixelFormat_Stencil16,
-	*/
-
-	nzPixelFormat_Max = nzPixelFormat_RGBA8
-};
-
-enum nzPixelFlipping
-{
-	nzPixelFlipping_Horizontally,
-	nzPixelFlipping_Vertically,
-
-	nzPixelFlipping_Max = nzPixelFlipping_Vertically
-};
 
 class NzUtility;
 

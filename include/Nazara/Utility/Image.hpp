@@ -13,46 +13,37 @@
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Resource.hpp>
-//#include <Nazara/Utility/ThreadSafety.hpp>
+#include <list>
+#include <map>
 
-enum nzCubemapFace
-{
-	nzCubemapFace_PositiveX = 0,
-	nzCubemapFace_NegativeX = 1,
-	nzCubemapFace_PositiveY = 2,
-	nzCubemapFace_NegativeY = 3,
-	nzCubemapFace_PositiveZ = 4,
-	nzCubemapFace_NegativeZ = 5
-};
-
-enum nzImageType
-{
-	nzImageType_1D,
-	nzImageType_2D,
-	nzImageType_3D,
-	nzImageType_Cubemap,
-
-	nzImageType_Max = nzImageType_Cubemap
-};
+#if NAZARA_THREADSAFETY_IMAGE
+#include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 struct NzImageParams
 {
 	nzPixelFormat loadFormat = nzPixelFormat_Undefined;
 	nzUInt8 levelCount = 0;
 
-	bool IsValid() const
-	{
-		return loadFormat == nzPixelFormat_Undefined || NzPixelFormat::IsValid(loadFormat);
-	}
+	bool IsValid() const;
 };
 
 ///TODO: Filtres
 
-class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, NzImageParams>
+class NzImage;
+
+typedef NzResourceLoader<NzImage, NzImageParams> NzImageLoader;
+
+class NAZARA_API NzImage : public NzResource
 {
+	friend class NzResourceLoader<NzImage, NzImageParams>;
+
 	public:
 		struct SharedImage;
 
@@ -109,12 +100,6 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		NzImage& operator=(NzImage&& image);
 
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
-		static void RegisterFileLoader(const NzString& extensions, LoadFileFunction loadFile);
-		static void RegisterMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory);
-		static void RegisterStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream);
-		static void UnregisterFileLoader(const NzString& extensions, LoadFileFunction loadFile);
-		static void UnregisterMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory);
-		static void UnregisterStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream);
 
 		struct SharedImage
 		{
@@ -149,6 +134,10 @@ class NAZARA_API NzImage : public NzResource, public NzResourceLoader<NzImage, N
 		void ReleaseImage();
 
 		SharedImage* m_sharedImage;
+
+		static std::list<NzImageLoader::MemoryLoader> s_memoryLoaders;
+		static std::list<NzImageLoader::StreamLoader> s_streamLoaders;
+		static std::multimap<NzString, NzImageLoader::LoadFileFunction> s_fileLoaders;
 };
 
 #endif // NAZARA_IMAGE_HPP

@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Utility/Resource.hpp>
 
-class NAZARA_API NzIndexBuffer
+class NAZARA_API NzIndexBuffer : public NzResource
 {
 	public:
 		NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount);

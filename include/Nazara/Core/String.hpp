@@ -13,8 +13,11 @@
 #include <string>
 #include <vector>
 
-#define NAZARA_CLASS_STRING
+#if NAZARA_THREADSAFETY_STRING
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 class NzAbstractHash;
 class NzHashDigest;
@@ -154,7 +157,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString Trimmed(nzUInt32 flags = None) const;
 		NzString Trimmed(char character, nzUInt32 flags = None) const;
 
-		// Méthodes compatibles STD
+		// Méthodes STD
 		char* begin();
 		const char* begin() const;
 		char* end();
@@ -170,7 +173,7 @@ class NAZARA_API NzString : public NzHashable
 		typedef char* iterator;
 		//typedef char* reverse_iterator;
 		typedef char value_type;
-		// Méthodes compatibles STD
+		// Méthodes STD
 
 		operator std::string() const;
 
@@ -317,7 +320,5 @@ namespace std
 	NAZARA_API istream& getline(istream& is, NzString& str, char delim);
 	NAZARA_API void swap(NzString& lhs, NzString& rhs);
 }
-
-#undef NAZARA_CLASS_STRING
 
 #endif // NAZARA_STRING_HPP

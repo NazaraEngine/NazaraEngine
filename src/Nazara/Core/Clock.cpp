@@ -13,8 +13,6 @@
 	#error OS not handled
 #endif
 
-#define NAZARA_CLASS_CLOCK
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 NzClock::NzClock() :

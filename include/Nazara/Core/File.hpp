@@ -16,8 +16,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#define NAZARA_CLASS_FILE
+#if NAZARA_THREADSAFETY_FILE
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 class NzFileImpl;
 
@@ -116,7 +119,5 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		NzFileImpl* m_impl;
 		unsigned int m_openMode;
 };
-
-#undef NAZARA_CLASS_FILE
 
 #endif // NAZARA_FILE_HPP
