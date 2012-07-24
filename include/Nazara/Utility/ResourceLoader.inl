@@ -9,7 +9,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 template<typename Type, typename Parameters>
-bool NzResourceLoader<Type, Parameters>::LoadResourceFromFile(Type* resource, const NzString& filePath, const Parameters& parameters)
+bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzString& filePath, const Parameters& parameters)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!parameters.IsValid())
@@ -28,7 +28,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromFile(Type* resource, co
 	}
 
 	// Récupération de tous les loaders de cette extension
-	auto range = s_fileLoaders.equal_range(ext);
+	auto range = Type::s_fileLoaders.equal_range(ext);
 	if (range.first == range.second)
 	{
 		NazaraError("No loader found for extension \"" + ext + '"');
@@ -56,7 +56,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromFile(Type* resource, co
 }
 
 template<typename Type, typename Parameters>
-bool NzResourceLoader<Type, Parameters>::LoadResourceFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
+bool NzResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!parameters.IsValid())
@@ -72,7 +72,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromMemory(Type* resource, 
 	}
 	#endif
 
-	for (auto loader = s_memoryLoaders.rbegin(); loader != s_memoryLoaders.rend(); ++loader)
+	for (auto loader = Type::s_memoryLoaders.rbegin(); loader != Type::s_memoryLoaders.rend(); ++loader)
 	{
 		// Le loader supporte-t-il les données ?
 		if (!loader->first(data, size, parameters))
@@ -90,7 +90,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromMemory(Type* resource, 
 }
 
 template<typename Type, typename Parameters>
-bool NzResourceLoader<Type, Parameters>::LoadResourceFromStream(Type* resource, NzInputStream& stream, const Parameters& parameters)
+bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputStream& stream, const Parameters& parameters)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!parameters.IsValid())
@@ -107,7 +107,7 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromStream(Type* resource, 
 	#endif
 
 	nzUInt64 streamPos = stream.GetCursorPos();
-	for (auto loader = s_streamLoaders.rbegin(); loader != s_streamLoaders.rend(); ++loader)
+	for (auto loader = Type::s_streamLoaders.rbegin(); loader != Type::s_streamLoaders.rend(); ++loader)
 	{
 		stream.SetCursorPos(streamPos);
 
@@ -129,29 +129,29 @@ bool NzResourceLoader<Type, Parameters>::LoadResourceFromStream(Type* resource, 
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::RegisterResourceFileLoader(const NzString& extensions, LoadFileFunction loadFile)
+void NzResourceLoader<Type, Parameters>::RegisterFileLoader(const NzString& extensions, LoadFileFunction loadFile)
 {
 	std::vector<NzString> exts;
 	extensions.SplitAny(exts, " /\\*.,;|-_");
 
 	for (const NzString& ext : exts)
-		s_fileLoaders.insert(std::make_pair(ext, loadFile));
+		Type::s_fileLoaders.insert(std::make_pair(ext, loadFile));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::RegisterResourceMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory)
+void NzResourceLoader<Type, Parameters>::RegisterMemoryLoader(IdentifyMemoryFunction identifyMemory, LoadMemoryFunction loadMemory)
 {
-	s_memoryLoaders.push_back(std::make_pair(isLoadingSupported, loadMemory));
+	Type::s_memoryLoaders.push_back(std::make_pair(identifyMemory, loadMemory));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::RegisterResourceStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream)
+void NzResourceLoader<Type, Parameters>::RegisterStreamLoader(IdentifyStreamFunction identifyStream, LoadStreamFunction loadStream)
 {
-	s_streamLoaders.push_back(std::make_pair(isLoadingSupported, loadStream));
+	Type::s_streamLoaders.push_back(std::make_pair(identifyStream, loadStream));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::UnregisterResourceFileLoader(const NzString& extensions, LoadFileFunction loadFile)
+void NzResourceLoader<Type, Parameters>::UnregisterFileLoader(const NzString& extensions, LoadFileFunction loadFile)
 {
 	std::vector<NzString> exts;
 	extensions.SplitAny(exts, " /\\*.,;|-_");
@@ -159,13 +159,13 @@ void NzResourceLoader<Type, Parameters>::UnregisterResourceFileLoader(const NzSt
 	for (const NzString& ext : exts)
 	{
 		// Récupération de tous les loaders de cette extension
-		auto range = s_fileLoaders.equal_range(ext);
+		auto range = Type::s_fileLoaders.equal_range(ext);
 
 		for (auto it = range.first; it != range.second; ++it)
 		{
 			if (it->second == loadFile)
 			{
-				s_fileLoaders.erase(it);
+				Type::s_fileLoaders.erase(it);
 				break;
 			}
 		}
@@ -173,19 +173,15 @@ void NzResourceLoader<Type, Parameters>::UnregisterResourceFileLoader(const NzSt
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::UnregisterResourceMemoryLoader(IsMemoryLoadingSupportedFunction isLoadingSupported, LoadMemoryFunction loadMemory)
+void NzResourceLoader<Type, Parameters>::UnregisterMemoryLoader(IdentifyMemoryFunction identifyMemory, LoadMemoryFunction loadMemory)
 {
-	s_memoryLoaders.remove(std::make_pair(isLoadingSupported, loadMemory));
+	Type::s_memoryLoaders.remove(std::make_pair(identifyMemory, loadMemory));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::UnregisterResourceStreamLoader(IsStreamLoadingSupportedFunction isLoadingSupported, LoadStreamFunction loadStream)
+void NzResourceLoader<Type, Parameters>::UnregisterStreamLoader(IdentifyStreamFunction identifyStream, LoadStreamFunction loadStream)
 {
-	s_streamLoaders.remove(std::make_pair(isLoadingSupported, loadStream));
+	Type::s_streamLoaders.remove(std::make_pair(identifyStream, loadStream));
 }
-
-template<typename T, typename P> std::list<typename NzResourceLoader<T, P>::MemoryLoader> NzResourceLoader<T, P>::s_memoryLoaders;
-template<typename T, typename P> std::list<typename NzResourceLoader<T, P>::StreamLoader> NzResourceLoader<T, P>::s_streamLoaders;
-template<typename T, typename P> std::multimap<NzString, typename NzResourceLoader<T, P>::LoadFileFunction> NzResourceLoader<T, P>::s_fileLoaders;
 
 #include <Nazara/Utility/DebugOff.hpp>

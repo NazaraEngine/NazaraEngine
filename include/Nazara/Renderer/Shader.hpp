@@ -14,24 +14,8 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Resource.hpp>
-
-enum nzShaderLanguage
-{
-	nzShaderLanguage_Unknown,
-
-	nzShaderLanguage_Cg,
-	nzShaderLanguage_GLSL
-};
-
-enum nzShaderType
-{
-	nzShaderType_Fragment,
-	nzShaderType_Geometry,
-	nzShaderType_Vertex,
-
-	nzShaderType_Count
-};
 
 class NzRenderer;
 class NzShaderImpl;

@@ -24,14 +24,14 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
 	public:
 		NzRenderWindow();
-		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = NzWindow::Default, const NzContextParameters& parameters = NzContextParameters());
+		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
 
 		bool CopyToImage(NzImage* image); ///TODO: Const
 		bool CopyToTexture(NzTexture* texture); ///TODO: Const
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = NzWindow::Default, const NzContextParameters& parameters = NzContextParameters());
+		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		bool Create(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 
 		void Display();

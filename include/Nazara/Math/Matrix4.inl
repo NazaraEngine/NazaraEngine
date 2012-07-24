@@ -15,9 +15,6 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
-
-#define NAZARA_CLASS_MATRIX4
-#include <Nazara/Math/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
@@ -40,7 +37,7 @@ m_sharedMatrix(nullptr)
 }
 
 template<typename T>
-NzMatrix4<T>::NzMatrix4(T matrix[16]) :
+NzMatrix4<T>::NzMatrix4(const T matrix[16]) :
 m_sharedMatrix(nullptr)
 {
 	Set(matrix);
@@ -243,12 +240,12 @@ void NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
 }
 
 template<typename T>
-void NzMatrix4<T>::Set(T matrix[16])
+void NzMatrix4<T>::Set(const T matrix[16])
 {
 	EnsureOwnership();
 
 	// Ici nous sommes certains de la continuité des éléments en mémoire
-	std::memcpy(&m_sharedMatrix->m41, matrix, 16*sizeof(T));
+	std::memcpy(&m_sharedMatrix->m11, matrix, 16*sizeof(T));
 }
 
 template<typename T>
@@ -309,6 +306,7 @@ void NzMatrix4<T>::SetOrtho(T left, T top, T width, T height, T zNear, T zFar)
 template<typename T>
 void NzMatrix4<T>::SetLookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up)
 {
+	// http://www.opengl.org/sdk/docs/man/xhtml/gluLookAt.xml
 	NzVector3<T> f = center - eye;
 	f.Normalize();
 
@@ -316,14 +314,19 @@ void NzMatrix4<T>::SetLookAt(const NzVector3<T>& eye, const NzVector3<T>& center
 	u.Normalize();
 
 	NzVector3<T> s = f.CrossProduct(u);
-	s.Normalize();
-
 	u = s.CrossProduct(f);
 
+	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
+	Set(s.x, s.y, s.z, 0.0,
+		u.x, u.y, u.z, 0.0,
+		-f.x, -f.y, -f.z, 0.0,
+		0.0, 0.0, 0.0, 1.0);
+	#else
 	Set(s.x, u.x, -f.x, 0.0,
 		s.y, u.y, -f.y, 0.0,
 		s.z, u.z, -f.z, 0.0,
 		0.0, 0.0, 0.0, 1.0);
+	#endif
 
 	operator*=(Translate(-eye));
 }
@@ -587,34 +590,22 @@ NzMatrix4<T> NzMatrix4<T>::operator*(const NzMatrix4& matrix) const
 	}
 	#endif
 
-	NzMatrix4 mat;
-	for(int k = 0; k < 4; k++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            for(int i = 0; i < 4; i++)
-                mat(j, k) += (*this)(j, i) * matrix(i, k);
-        }
-    }
-
-    return mat;
-	/*return NzMatrix4(m11 * matrix.m11 + m21 * matrix.m12 + m31 * matrix.m13 + m41 * matrix.m14,
-				     m12 * matrix.m11 + m22 * matrix.m12 + m32 * matrix.m13 + m42 * matrix.m14,
-					 m13 * matrix.m11 + m23 * matrix.m12 + m33 * matrix.m13 + m43 * matrix.m14,
-				     m14 * matrix.m11 + m24 * matrix.m12 + m34 * matrix.m13 + m44 * matrix.m14,
-				     m11 * matrix.m21 + m21 * matrix.m22 + m31 * matrix.m23 + m41 * matrix.m24,
-				     m12 * matrix.m21 + m22 * matrix.m22 + m32 * matrix.m23 + m42 * matrix.m24,
-				     m13 * matrix.m21 + m23 * matrix.m22 + m33 * matrix.m23 + m43 * matrix.m24,
-				     m14 * matrix.m21 + m24 * matrix.m22 + m34 * matrix.m23 + m44 * matrix.m24,
-				     m11 * matrix.m31 + m21 * matrix.m32 + m31 * matrix.m33 + m41 * matrix.m34,
-				     m12 * matrix.m31 + m22 * matrix.m32 + m32 * matrix.m33 + m42 * matrix.m34,
-				     m13 * matrix.m31 + m23 * matrix.m32 + m33 * matrix.m33 + m43 * matrix.m34,
-				     m14 * matrix.m31 + m24 * matrix.m32 + m34 * matrix.m33 + m44 * matrix.m34,
-				     m11 * matrix.m41 + m21 * matrix.m42 + m31 * matrix.m43 + m41 * matrix.m44,
-				     m12 * matrix.m41 + m22 * matrix.m42 + m32 * matrix.m43 + m42 * matrix.m44,
-				     m13 * matrix.m41 + m23 * matrix.m42 + m33 * matrix.m43 + m43 * matrix.m44,
-				     m14 * matrix.m41 + m24 * matrix.m42 + m34 * matrix.m43 + m44 * matrix.m44);*/
-
+	return NzMatrix4(m_sharedMatrix->m11 * matrix.m_sharedMatrix->m11 + m_sharedMatrix->m21 * matrix.m_sharedMatrix->m12 + m_sharedMatrix->m31 * matrix.m_sharedMatrix->m13 + m_sharedMatrix->m41 * matrix.m_sharedMatrix->m14,
+				     m_sharedMatrix->m12 * matrix.m_sharedMatrix->m11 + m_sharedMatrix->m22 * matrix.m_sharedMatrix->m12 + m_sharedMatrix->m32 * matrix.m_sharedMatrix->m13 + m_sharedMatrix->m42 * matrix.m_sharedMatrix->m14,
+					 m_sharedMatrix->m13 * matrix.m_sharedMatrix->m11 + m_sharedMatrix->m23 * matrix.m_sharedMatrix->m12 + m_sharedMatrix->m33 * matrix.m_sharedMatrix->m13 + m_sharedMatrix->m43 * matrix.m_sharedMatrix->m14,
+				     m_sharedMatrix->m14 * matrix.m_sharedMatrix->m11 + m_sharedMatrix->m24 * matrix.m_sharedMatrix->m12 + m_sharedMatrix->m34 * matrix.m_sharedMatrix->m13 + m_sharedMatrix->m44 * matrix.m_sharedMatrix->m14,
+				     m_sharedMatrix->m11 * matrix.m_sharedMatrix->m21 + m_sharedMatrix->m21 * matrix.m_sharedMatrix->m22 + m_sharedMatrix->m31 * matrix.m_sharedMatrix->m23 + m_sharedMatrix->m41 * matrix.m_sharedMatrix->m24,
+				     m_sharedMatrix->m12 * matrix.m_sharedMatrix->m21 + m_sharedMatrix->m22 * matrix.m_sharedMatrix->m22 + m_sharedMatrix->m32 * matrix.m_sharedMatrix->m23 + m_sharedMatrix->m42 * matrix.m_sharedMatrix->m24,
+				     m_sharedMatrix->m13 * matrix.m_sharedMatrix->m21 + m_sharedMatrix->m23 * matrix.m_sharedMatrix->m22 + m_sharedMatrix->m33 * matrix.m_sharedMatrix->m23 + m_sharedMatrix->m43 * matrix.m_sharedMatrix->m24,
+				     m_sharedMatrix->m14 * matrix.m_sharedMatrix->m21 + m_sharedMatrix->m24 * matrix.m_sharedMatrix->m22 + m_sharedMatrix->m34 * matrix.m_sharedMatrix->m23 + m_sharedMatrix->m44 * matrix.m_sharedMatrix->m24,
+				     m_sharedMatrix->m11 * matrix.m_sharedMatrix->m31 + m_sharedMatrix->m21 * matrix.m_sharedMatrix->m32 + m_sharedMatrix->m31 * matrix.m_sharedMatrix->m33 + m_sharedMatrix->m41 * matrix.m_sharedMatrix->m34,
+				     m_sharedMatrix->m12 * matrix.m_sharedMatrix->m31 + m_sharedMatrix->m22 * matrix.m_sharedMatrix->m32 + m_sharedMatrix->m32 * matrix.m_sharedMatrix->m33 + m_sharedMatrix->m42 * matrix.m_sharedMatrix->m34,
+				     m_sharedMatrix->m13 * matrix.m_sharedMatrix->m31 + m_sharedMatrix->m23 * matrix.m_sharedMatrix->m32 + m_sharedMatrix->m33 * matrix.m_sharedMatrix->m33 + m_sharedMatrix->m43 * matrix.m_sharedMatrix->m34,
+				     m_sharedMatrix->m14 * matrix.m_sharedMatrix->m31 + m_sharedMatrix->m24 * matrix.m_sharedMatrix->m32 + m_sharedMatrix->m34 * matrix.m_sharedMatrix->m33 + m_sharedMatrix->m44 * matrix.m_sharedMatrix->m34,
+				     m_sharedMatrix->m11 * matrix.m_sharedMatrix->m41 + m_sharedMatrix->m21 * matrix.m_sharedMatrix->m42 + m_sharedMatrix->m31 * matrix.m_sharedMatrix->m43 + m_sharedMatrix->m41 * matrix.m_sharedMatrix->m44,
+				     m_sharedMatrix->m12 * matrix.m_sharedMatrix->m41 + m_sharedMatrix->m22 * matrix.m_sharedMatrix->m42 + m_sharedMatrix->m32 * matrix.m_sharedMatrix->m43 + m_sharedMatrix->m42 * matrix.m_sharedMatrix->m44,
+				     m_sharedMatrix->m13 * matrix.m_sharedMatrix->m41 + m_sharedMatrix->m23 * matrix.m_sharedMatrix->m42 + m_sharedMatrix->m33 * matrix.m_sharedMatrix->m43 + m_sharedMatrix->m43 * matrix.m_sharedMatrix->m44,
+				     m_sharedMatrix->m14 * matrix.m_sharedMatrix->m41 + m_sharedMatrix->m24 * matrix.m_sharedMatrix->m42 + m_sharedMatrix->m34 * matrix.m_sharedMatrix->m43 + m_sharedMatrix->m44 * matrix.m_sharedMatrix->m44);
 }
 
 template<typename T>
@@ -806,10 +797,10 @@ void NzMatrix4<T>::ReleaseMatrix()
 		return;
 
 	NazaraMutexLock(m_sharedMatrix->mutex);
-	m_sharedMatrix->refCount--;
+	bool freeSharedMatrix = (--m_sharedMatrix->refCount == 0);
 	NazaraMutexUnlock(m_sharedMatrix->mutex);
 
-	if (m_sharedMatrix->refCount == 0)
+	if (freeSharedMatrix)
 		delete m_sharedMatrix;
 
 	m_sharedMatrix = nullptr;

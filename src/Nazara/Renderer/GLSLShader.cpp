@@ -9,7 +9,7 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -24,7 +24,7 @@ namespace
 		4	// nzElementUsage_TexCoord
 	};
 
-	const GLenum shaderType[nzShaderType_Count] = {
+	const GLenum shaderType[nzShaderType_Max+1] = {
 		GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
 		GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
 		GL_VERTEX_SHADER	// nzShaderType_Vertex
@@ -98,6 +98,7 @@ bool NzGLSLShader::Compile()
 		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
 		if (length > 1)
 		{
+			m_log.Clear(true);
 			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Linkage error: ");
 			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log
@@ -129,14 +130,15 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
 	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniformName = "TexCoordi";
-	for (unsigned int i = 0; i < 8; ++i)
+	NzString uniform = "TexCoord";
+	unsigned int maxTexCoords = NazaraRenderer->GetMaxTextureUnits();
+	for (unsigned int i = 0; i < maxTexCoords; ++i)
 	{
-		uniformName[8] = '0'+i;
+		NzString uniformName = uniform + NzString::Number(i);
 		glBindAttribLocation(m_program, attribIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
 	}
 
-	for (int i = 0; i < nzShaderType_Count; ++i)
+	for (int i = 0; i <= nzShaderType_Max; ++i)
 		m_shaders[i] = 0;
 
 	return true;
@@ -242,6 +244,7 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 		if (length > 1)
 		{
+			m_log.Clear(true);
 			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Compilation error: ");
 			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log

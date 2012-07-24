@@ -6,49 +6,46 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-namespace NzUnicode
+#if NAZARA_CORE_INCLUDE_UNICODEDATA
+struct Character
 {
-	#if NAZARA_CORE_INCLUDE_UNICODEDATA
-	struct Character
-	{
-		nzUInt16 category;	// Le type du caractère
-		nzUInt8	 direction;	// Le sens de lecure du caractère
-		nzUInt32 lowerCase;	// Le caractère correspondant en minuscule
-		nzUInt32 titleCase;	// Le caractère correspondant en titre
-		nzUInt32 upperCase;	// Le caractère correspondant en majuscule
-	};
+	nzUInt16 category;	// Le type du caractère
+	nzUInt8	 direction;	// Le sens de lecure du caractère
+	nzUInt32 lowerCase;	// Le caractère correspondant en minuscule
+	nzUInt32 titleCase;	// Le caractère correspondant en titre
+	nzUInt32 upperCase;	// Le caractère correspondant en majuscule
+};
 
-	#include <Nazara/Core/UnicodeData.hpp>
+#include <Nazara/Core/UnicodeData.hpp>
 
-	#else // Implémentation bidon
+#else // Implémentation bidon
 
-	Category GetCategory(char32_t character)
-	{
-		NazaraUnused(character);
+NzUnicode::Category NzUnicode::GetCategory(char32_t character)
+{
+	NazaraUnused(character);
 
-		return Category_NoCategory;
-	}
-
-	Direction GetDirection(char32_t character)
-	{
-		NazaraUnused(character);
-
-		return Direction_Boundary_Neutral;
-	}
-
-	char32_t GetLowercase(char32_t character)
-	{
-		return character;
-	}
-
-	char32_t GetTitlecase(char32_t character)
-	{
-		return character;
-	}
-
-	char32_t GetUppercase(char32_t character)
-	{
-		return character;
-	}
-	#endif
+	return Category_NoCategory;
 }
+
+NzUnicode::Direction NzUnicode::GetDirection(char32_t character)
+{
+	NazaraUnused(character);
+
+	return Direction_Boundary_Neutral;
+}
+
+char32_t NzUnicode::GetLowercase(char32_t character)
+{
+	return character;
+}
+
+char32_t NzUnicode::GetTitlecase(char32_t character)
+{
+	return character;
+}
+
+char32_t NzUnicode::GetUppercase(char32_t character)
+{
+	return character;
+}
+#endif

@@ -35,13 +35,13 @@ class NzColor
 		static NzColor FromCMY(float cyan, float magenta, float yellow);
 		static NzColor FromCMYK(float cyan, float magenta, float yellow, float black);
 		static NzColor FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightness);
-		static NzColor FromHSV(nzUInt8 hue, nzUInt8 saturation, float value);
+		static NzColor FromHSV(float hue, float saturation, float value);
 		static NzColor FromXYZ(const NzVector3f& vec);
 		static NzColor FromXYZ(float x, float y, float z);
 		static void ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow);
 		static void ToCMYK(const NzColor& color, float* cyan, float* magenta, float* yellow, float* black);
 		static void ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, nzUInt8* lightness);
-		static void ToHSV(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, float* value);
+		static void ToHSV(const NzColor& color, float* hue, float* saturation, float* value);
 		static void ToXYZ(const NzColor& color, NzVector3f* vec);
 		static void ToXYZ(const NzColor& color, float* x, float* y, float* z);
 

@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// http://www.easyrgb.com/index.php?X=MATH
+
 #include <Nazara/Core/StringStream.hpp>
 #include <cmath>
 #include <cstdlib>
@@ -130,14 +132,14 @@ inline NzColor NzColor::FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightne
 	}
 }
 
-inline NzColor NzColor::FromHSV(nzUInt8 hue, nzUInt8 saturation, float value)
+inline NzColor NzColor::FromHSV(float hue, float saturation, float value)
 {
-	if (saturation == 0)
+	if (NzNumberEquals(saturation, 0.f))
 		return NzColor(static_cast<nzUInt8>(value * 255.f));
 	else
 	{
-		float h = hue/240.f * 6.f;
-		float s = saturation/240.f;
+		float h = hue/360.f * 6.f;
+		float s = saturation/360.f;
 
 		if (NzNumberEquals(h, 6.f))
 			h = 0; // hue must be < 1
@@ -200,17 +202,17 @@ inline NzColor NzColor::FromXYZ(float x, float y, float z)
 	double g = x * -0.9689 + y *  1.8758 + z *  0.0415;
 	double b = x *  0.0557 + y * -0.2040 + z *  1.0570;
 
-	if (r > 0.0031308)
+	if (r > 0.0031308f)
 		r = 1.055 * (std::pow(r, 1.0/2.4)) - 0.055;
 	else
 		r *= 12.92;
 
-	if (g > 0.0031308)
+	if (g > 0.0031308f)
 		g = 1.055 * (std::pow(g, 1.0/2.4)) - 0.055;
 	else
 		g *= 12.92;
 
-	if (b > 0.0031308)
+	if (b > 0.0031308f)
 		b = 1.055 * (std::pow(b, 1.0/2.4)) - 0.055;
 	else
 		b *= 12.92;
@@ -300,7 +302,7 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 	}
 }
 
-inline void NzColor::ToHSV(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, float* value)
+inline void NzColor::ToHSV(const NzColor& color, float* hue, float* saturation, float* value)
 {
 	float r = color.r / 255.f;
 	float g = color.g / 255.f;
@@ -322,7 +324,7 @@ inline void NzColor::ToHSV(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 	else
 	{
 		//Chromatic data...
-		*saturation = deltaMax/max*240.f;
+		*saturation = deltaMax/max*360.f;
 
 		float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
 		float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
@@ -342,7 +344,7 @@ inline void NzColor::ToHSV(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 		else if (h > 1.f)
 			h -= 1.f;
 
-		*hue = h*240.f;
+		*hue = h*360.f;
 	}
 }
 

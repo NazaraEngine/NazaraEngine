@@ -14,6 +14,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
@@ -24,6 +25,9 @@
 #include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
+class NzCursor;
+class NzImage;
+class NzIcon;
 class NzUtility;
 class NzWindowImpl;
 
@@ -33,26 +37,14 @@ class NAZARA_API NzWindow : NzNonCopyable
 	friend class NzWindowImpl;
 
 	public:
-		enum Style
-		{
-			None	   = 0x0,
-			Fullscreen = 0x1,
-
-			Closable  = 0x2,
-			Resizable = 0x4,
-			Titlebar  = 0x8,
-
-			Default = Closable | Resizable | Titlebar
-		};
-
 		NzWindow();
-		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = Default);
+		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		NzWindow(NzWindowHandle handle);
 		virtual ~NzWindow();
 
 		void Close();
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = Default);
+		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		bool Create(NzWindowHandle handle);
 
 		void EnableKeyRepeat(bool enable);
@@ -73,8 +65,11 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		bool PollEvent(NzEvent* event);
 
+		void SetCursor(nzWindowCursor cursor);
+		void SetCursor(const NzCursor& cursor);
 		void SetEventListener(bool listener);
 		void SetFocus();
+		void SetIcon(const NzIcon& icon);
 		void SetMaximumSize(const NzVector2i& maxSize);
 		void SetMaximumSize(int width, int height);
 		void SetMinimumSize(const NzVector2i& minSize);
@@ -85,8 +80,6 @@ class NAZARA_API NzWindow : NzNonCopyable
 		void SetSize(unsigned int width, unsigned int height);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
-
-		void ShowMouseCursor(bool show);
 
 		void StayOnTop(bool stayOnTop);
 

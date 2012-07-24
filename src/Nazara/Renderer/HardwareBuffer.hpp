@@ -8,8 +8,8 @@
 #define NAZARA_HARDWAREBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Renderer/BufferImpl.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Utility/BufferImpl.hpp>
 
 class NzHardwareBuffer : public NzBufferImpl
 {
@@ -22,13 +22,13 @@ class NzHardwareBuffer : public NzBufferImpl
 		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int length);
+		bool Fill(const void* data, unsigned int offset, unsigned int size);
 
-		void* GetBufferPtr();
+		void* GetPointer();
 
 		bool IsHardware() const;
 
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
 		bool Unmap();
 
 	private:

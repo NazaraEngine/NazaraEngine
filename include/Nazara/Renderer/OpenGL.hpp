@@ -37,6 +37,7 @@ class NAZARA_API NzOpenGL
 			DebugOutput,
 			FP64,
 			FrameBufferObject,
+			PixelBufferObject,
 			SeparateShaderObjects,
 			Texture3D,
 			TextureCompression_s3tc,
