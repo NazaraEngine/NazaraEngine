@@ -18,10 +18,10 @@ NzPerlin2D<T>::NzPerlin2D()
 }
 
 template <typename T>
-T NzPerlin2D<T>::GetValue(T x, T y, T res)
+T NzPerlin2D<T>::GetValue(T x, T y, T resolution)
 {
-    x /= res;
-    y /= res;
+    x *= resolution;
+    y *= resolution;
 
     x0 = fastfloor(x);
     y0 = fastfloor(y);
