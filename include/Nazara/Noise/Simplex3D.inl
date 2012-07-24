@@ -22,11 +22,11 @@ NzSimplex3D<T>::NzSimplex3D()
 }
 
 template <typename T>
-T NzSimplex3D<T>::GetValue(T x, T y, T z, T res)
+T NzSimplex3D<T>::GetValue(T x, T y, T z, T resolution)
 {
-    x /= res;
-    y /= res;
-    z /= res;
+    x *= resolution;
+    y *= resolution;
+    z *= resolution;
 
     sum = (x + y + z) * SkewCoeff3D;
     skewedCubeOrigin.x = fastfloor(x + sum);
