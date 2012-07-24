@@ -273,7 +273,7 @@ template<typename T>
 NzVector3<T> NzQuaternion<T>::operator*(const NzVector3<T>& vec) const
 {
 	NzVector3<T> normal(vec);
-	normal.Normalise();
+	normal.Normalize();
 
 	NzQuaternion qvec(0.0, normal.x, normal.y, normal.z);
 	NzQuaternion result = operator*(qvec * GetConjugate());

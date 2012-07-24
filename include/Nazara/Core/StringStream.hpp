@@ -12,8 +12,11 @@
 #include <string>
 #include <vector>
 
-#define NAZARA_CLASS_STRINGSTREAM
+#if NAZARA_THREADSAFETY_STRINGSTREAM
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 class NAZARA_API NzStringStream
 {
@@ -50,7 +53,5 @@ class NAZARA_API NzStringStream
 		std::vector<NzString> m_strings;
 		unsigned int m_bufferSize;
 };
-
-#undef NAZARA_CLASS_STRINGSTREAM
 
 #endif // NAZARA_STRINGSTREAM_HPP

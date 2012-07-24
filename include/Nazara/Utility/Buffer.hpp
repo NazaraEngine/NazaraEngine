@@ -9,57 +9,36 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Resource.hpp>
-
-enum nzBufferAccess
-{
-	nzBufferAccess_DiscardAndWrite,
-	nzBufferAccess_ReadOnly,
-	nzBufferAccess_ReadWrite,
-	nzBufferAccess_WriteOnly
-};
-
-enum nzBufferStorage
-{
-	nzBufferStorage_Hardware,
-	nzBufferStorage_Software
-};
-
-enum nzBufferType
-{
-	nzBufferType_Index,
-	nzBufferType_Vertex
-};
-
-enum nzBufferUsage
-{
-	nzBufferUsage_Dynamic,
-	nzBufferUsage_Static
-};
 
 class NzBufferImpl;
 class NzRenderer;
+class NzUtility;
 
 class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
+	friend class NzUtility;
 
 	public:
+		typedef NzBufferImpl* (*BufferFunction)(NzBuffer* parent, nzBufferType type);
+
 		NzBuffer(nzBufferType type);
-		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferUsage usage = nzBufferUsage_Static);
+		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		~NzBuffer();
 
 		bool CopyContent(NzBuffer& buffer);
 
-		bool Create(unsigned int length, nzUInt8 typeSize, nzBufferUsage usage = nzBufferUsage_Static);
+		bool Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
-		void* GetBufferPtr();
-		const void* GetBufferPtr() const;
 		NzBufferImpl* GetImpl() const;
 		unsigned int GetLength() const;
+		void* GetPointer();
+		const void* GetPointer() const;
 		unsigned int GetSize() const;
 		nzBufferStorage GetStorage() const;
 		nzBufferType GetType() const;
@@ -67,13 +46,21 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		nzBufferUsage GetUsage() const;
 
 		bool IsHardware() const;
+		bool IsValid() const;
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+
+		bool SetStorage(nzBufferStorage storage);
+
 		bool Unmap();
 
 		static bool IsSupported(nzBufferStorage storage);
+		static void SetBufferFunction(nzBufferStorage storage, BufferFunction func);
 
 	private:
+		static bool Initialize();
+		static void Uninitialize();
+
 		nzBufferStorage m_storage;
 		nzBufferType m_type;
 		nzBufferUsage m_usage;
@@ -81,6 +68,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		NzBufferImpl* m_impl;
 		unsigned int m_length;
 
+		static BufferFunction s_bufferFunctions[nzBufferStorage_Max+1];
 };
 
 #endif // NAZARA_BUFFER_HPP

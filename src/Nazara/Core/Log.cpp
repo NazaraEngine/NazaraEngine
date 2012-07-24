@@ -13,8 +13,6 @@
 #include <cstdio>
 #endif
 
-#define NAZARA_CLASS_LOG
-#include <Nazara/Core/ThreadSafety.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace

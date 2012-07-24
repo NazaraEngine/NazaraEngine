@@ -38,4 +38,12 @@
 // Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
 #define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Buggé depuis GCC 4.7
 
+// Protège le module des accès concurrentiels
+#define NAZARA_UTILITY_THREADSAFE 1
+
+#if NAZARA_UTILITY_THREADSAFE
+	#define NAZARA_THREADSAFETY_IMAGE 1 // NzImage (COW)
+	#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
+#endif
+
 #endif // NAZARA_CONFIG_UTILITY_HPP

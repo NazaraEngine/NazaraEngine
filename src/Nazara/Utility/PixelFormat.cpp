@@ -1314,7 +1314,11 @@ bool NzPixelFormat::Initialize()
 
 void NzPixelFormat::Uninitialize()
 {
-	std::memset(s_convertFunctions, 0, nzPixelFormat_Count*nzPixelFormat_Count*sizeof(NzPixelFormat::ConvertFunction));
+	std::memset(s_convertFunctions, 0, (nzPixelFormat_Max+1)*(nzPixelFormat_Max+1)*sizeof(NzPixelFormat::ConvertFunction));
+
+	for (unsigned int i = 0; i <= nzPixelFlipping_Max; ++i)
+		s_flipFunctions[i].clear();
 }
 
-NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Count][nzPixelFormat_Count] = {{0}}; ///FIXME: Fonctionne correctement ?
+NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1] = {{0}}; ///FIXME: Fonctionne correctement ?
+std::map<nzPixelFormat, NzPixelFormat::FlipFunction> NzPixelFormat::s_flipFunctions[nzPixelFlipping_Max+1];

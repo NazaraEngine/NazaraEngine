@@ -290,7 +290,8 @@ bool NzContext::EnsureContext()
 
 			threadContext = context;
 		}
-		else if (!threadContext->SetActive(true))
+
+		if (!threadContext->SetActive(true))
 		{
 			NazaraError("Failed to active thread context");
 			return false;

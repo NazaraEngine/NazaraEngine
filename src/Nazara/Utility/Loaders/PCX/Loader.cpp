@@ -37,9 +37,9 @@ namespace
 		nzUInt8 padding[54];
 	};
 
-	bool NzLoader_PCX_LoadStream(NzImage* resource, NzInputStream& stream, const NzImageParams& parameters);
+	bool NzLoader_PCX_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters);
 
-	bool NzLoader_PCX_LoadFile(NzImage* resource, const NzString& filePath, const NzImageParams& parameters)
+	bool NzLoader_PCX_LoadFile(NzImage* image, const NzString& filePath, const NzImageParams& parameters)
 	{
 		NzFile file(filePath);
 		if (!file.Open(NzFile::ReadOnly))
@@ -48,16 +48,16 @@ namespace
 			return false;
 		}
 
-		return NzLoader_PCX_LoadStream(resource, file, parameters);
+		return NzLoader_PCX_LoadStream(image, file, parameters);
 	}
 
-	bool NzLoader_PCX_LoadMemory(NzImage* resource, const void* data, unsigned int size, const NzImageParams& parameters)
+	bool NzLoader_PCX_LoadMemory(NzImage* image, const void* data, unsigned int size, const NzImageParams& parameters)
 	{
 		NzMemoryStream stream(data, size);
-		return NzLoader_PCX_LoadStream(resource, stream, parameters);
+		return NzLoader_PCX_LoadStream(image, stream, parameters);
 	}
 
-	bool NzLoader_PCX_LoadStream(NzImage* resource, NzInputStream& stream, const NzImageParams& parameters)
+	bool NzLoader_PCX_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -93,13 +93,13 @@ namespace
 		unsigned int width = header.xmax - header.xmin+1;
 		unsigned int height = header.ymax - header.ymin+1;
 
-		if (!resource->Create(nzImageType_2D, nzPixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+		if (!image->Create(nzImageType_2D, nzPixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			return false;
 		}
 
-		nzUInt8* pixels = resource->GetPixels();
+		nzUInt8* pixels = image->GetPixels();
 
 		int rle_value = 0;
 		unsigned int rle_count = 0;
@@ -339,17 +339,17 @@ namespace
 			}
 
 			default:
-				NazaraError("Unknown " + NzString::Number(bitCount) + " bitcount pcx files");
+				NazaraError("Unable to load " + NzString::Number(bitCount) + " bitcount pcx files");
 				return false;
 		}
 
 		if (parameters.loadFormat != nzPixelFormat_Undefined)
-			resource->Convert(parameters.loadFormat);
+			image->Convert(parameters.loadFormat);
 
 		return true;
 	}
 
-	bool NzLoader_PCX_IsMemoryLoadingSupported(const void* data, unsigned int size, const NzImageParams& parameters)
+	bool NzLoader_PCX_IdentifyMemory(const void* data, unsigned int size, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -359,12 +359,13 @@ namespace
 		return *reinterpret_cast<const nzUInt8*>(data) == 0x0a;
 	}
 
-	bool NzLoader_PCX_IsStreamLoadingSupported(NzInputStream& stream, const NzImageParams& parameters)
+	bool NzLoader_PCX_IdentifyStream(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
 		nzUInt8 manufacturer;
-		stream.Read(&manufacturer, 1);
+		if (stream.Read(&manufacturer, 1) != 1)
+			return false;
 
 		return manufacturer == 0x0a;
 	}
@@ -372,14 +373,14 @@ namespace
 
 void NzLoaders_PCX_Register()
 {
-	NzImage::RegisterFileLoader("pcx", NzLoader_PCX_LoadFile);
-	NzImage::RegisterMemoryLoader(NzLoader_PCX_IsMemoryLoadingSupported, NzLoader_PCX_LoadMemory);
-	NzImage::RegisterStreamLoader(NzLoader_PCX_IsStreamLoadingSupported, NzLoader_PCX_LoadStream);
+	NzImageLoader::RegisterFileLoader("pcx", NzLoader_PCX_LoadFile);
+	NzImageLoader::RegisterMemoryLoader(NzLoader_PCX_IdentifyMemory, NzLoader_PCX_LoadMemory);
+	NzImageLoader::RegisterStreamLoader(NzLoader_PCX_IdentifyStream, NzLoader_PCX_LoadStream);
 }
 
 void NzLoaders_PCX_Unregister()
 {
-	NzImage::UnregisterStreamLoader(NzLoader_PCX_IsStreamLoadingSupported, NzLoader_PCX_LoadStream);
-	NzImage::UnregisterMemoryLoader(NzLoader_PCX_IsMemoryLoadingSupported, NzLoader_PCX_LoadMemory);
-	NzImage::UnregisterFileLoader("pcx", NzLoader_PCX_LoadFile);
+	NzImageLoader::UnregisterStreamLoader(NzLoader_PCX_IdentifyStream, NzLoader_PCX_LoadStream);
+	NzImageLoader::UnregisterMemoryLoader(NzLoader_PCX_IdentifyMemory, NzLoader_PCX_LoadMemory);
+	NzImageLoader::UnregisterFileLoader("pcx", NzLoader_PCX_LoadFile);
 }

@@ -63,7 +63,7 @@ class NzGLSLShader : public NzShaderImpl
 		mutable std::map<NzString, GLint> m_idCache;
 		std::map<GLint, TextureSlot> m_textures;
 		GLuint m_program;
-		GLuint m_shaders[nzShaderType_Count];
+		GLuint m_shaders[nzShaderType_Max+1];
 		NzShader* m_parent;
 		NzString m_log;
 };

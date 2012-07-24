@@ -5,11 +5,18 @@
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/LockGuard.hpp>
+#include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/Icon.hpp>
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
+	#include <Nazara/Utility/Win32/CursorImpl.hpp>
+	#include <Nazara/Utility/Win32/IconImpl.hpp>
 	#include <Nazara/Utility/Win32/WindowImpl.hpp>
 #elif defined(NAZARA_PLATFORM_LINUX)
+	#include <Nazara/Utility/Linux/CursorImpl.hpp>
+	#include <Nazara/Utility/Linux/IconImpl.hpp>
 	#include <Nazara/Utility/Linux/WindowImpl.hpp>
 #else
 	#error Lack of implementation: Window
@@ -103,12 +110,12 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 	Close();
 
 	// Inspiré du code de la SFML par Laurent Gomila
-	if (style & Fullscreen)
+	if (style & nzWindowStyle_Fullscreen)
 	{
 		if (fullscreenWindow)
 		{
 			NazaraError("Window (" + NzString::Pointer(fullscreenWindow) + ") already in fullscreen mode");
-			style &= ~Fullscreen;
+			style &= ~nzWindowStyle_Fullscreen;
 		}
 		else
 		{
@@ -121,8 +128,8 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 			fullscreenWindow = this;
 		}
 	}
-	else if (style & Closable || style & Resizable)
-		style |= Titlebar;
+	else if (style & nzWindowStyle_Closable || style & nzWindowStyle_Resizable)
+		style |= nzWindowStyle_Titlebar;
 
 	m_impl = new NzWindowImpl(this);
 	if (!m_impl->Create(mode, title, style))
@@ -147,10 +154,10 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 	m_impl->EnableKeyRepeat(true);
 	m_impl->EnableSmoothScrolling(false);
+	m_impl->SetCursor(nzWindowCursor_Default);
 	m_impl->SetMaximumSize(-1, -1);
 	m_impl->SetMinimumSize(-1, -1);
 	m_impl->SetVisible(true);
-	m_impl->ShowMouseCursor(true);
 
 	if (opened)
 		m_impl->SetPosition(position.x, position.y);
@@ -299,6 +306,26 @@ bool NzWindow::PollEvent(NzEvent* event)
 	return false;
 }
 
+void NzWindow::SetCursor(nzWindowCursor cursor)
+{
+	if (m_impl)
+		m_impl->SetCursor(cursor);
+}
+
+void NzWindow::SetCursor(const NzCursor& cursor)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!cursor.IsValid())
+	{
+		NazaraError("Cursor is not valid");
+		return;
+	}
+	#endif
+
+	if (m_impl)
+		m_impl->SetCursor(cursor);
+}
+
 void NzWindow::SetEventListener(bool listener)
 {
 	if (!m_impl)
@@ -329,6 +356,20 @@ void NzWindow::SetFocus()
 {
 	if (m_impl)
 		m_impl->SetFocus();
+}
+
+void NzWindow::SetIcon(const NzIcon& icon)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!icon.IsValid())
+	{
+		NazaraError("Icon is not valid");
+		return;
+	}
+	#endif
+
+	if (m_impl)
+		m_impl->SetIcon(icon);
 }
 
 void NzWindow::SetMaximumSize(const NzVector2i& maxSize)
@@ -389,12 +430,6 @@ void NzWindow::SetVisible(bool visible)
 {
 	if (m_impl)
 		m_impl->SetVisible(visible);
-}
-
-void NzWindow::ShowMouseCursor(bool show)
-{
-	if (m_impl)
-		m_impl->ShowMouseCursor(show);
 }
 
 void NzWindow::StayOnTop(bool stayOnTop)
