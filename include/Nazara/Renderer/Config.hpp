@@ -32,7 +32,7 @@
 // Active une fenêtre de rendu (NzRenderWindow) lors de sa création
 #define NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION 1
 
-// Force les buffers à posséder un stride multiple de 32 bytes (Gain de performances sur certaines cartes)
+// Force les buffers à posséder un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation mémoire)
 #define NAZARA_RENDERER_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32 0
 
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)

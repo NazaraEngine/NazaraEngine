@@ -19,8 +19,11 @@
 	#define NAZARA_DIRECTORY_SEPARATOR '/'
 #endif
 
-#define NAZARA_CLASS_DIRECTORY
+#if NAZARA_THREADSAFETY_DIRECTORY
 #include <Nazara/Core/ThreadSafety.hpp>
+#else
+#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
 
 class NzDirectoryImpl;
 
@@ -58,7 +61,5 @@ class NAZARA_API NzDirectory
 		NzString m_dirPath;
 		NzDirectoryImpl* m_impl;
 };
-
-#undef NAZARA_CLASS_DIRECTORY
 
 #endif // NAZARA_DIRECTORY_HPP

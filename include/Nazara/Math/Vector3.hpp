@@ -17,7 +17,7 @@ template<typename T> class NzVector3
 		NzVector3(T X, T Y, T Z);
 		explicit NzVector3(T scale);
 		NzVector3(T vec[3]);
-		NzVector3(const NzVector2<T>& vec);
+		NzVector3(const NzVector2<T>& vec, T Z = 0.0);
 		template<typename U> explicit NzVector3(const NzVector3<U>& vec);
 		NzVector3(const NzVector3& vec) = default;
 		~NzVector3() = default;

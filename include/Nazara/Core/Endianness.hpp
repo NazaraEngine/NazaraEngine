@@ -8,6 +8,7 @@
 #define NAZARA_ENDIANNESS_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Enums.hpp>
 
 #if !defined(NAZARA_BIG_ENDIAN) && !defined(NAZARA_LITTLE_ENDIAN)
 	// Détection automatique selon les macros du compilateur
@@ -22,13 +23,6 @@
 #elif defined(NAZARA_BIG_ENDIAN) && defined(NAZARA_LITTLE_ENDIAN)
 	#error You cannot define both NAZARA_BIG_ENDIAN and NAZARA_LITTLE_ENDIAN
 #endif
-
-enum nzEndianness
-{
-	nzEndianness_BigEndian,
-	nzEndianness_LittleEndian,
-	nzEndianness_Unknown
-};
 
 inline void NzByteSwap(void* buffer, unsigned int size);
 inline nzEndianness NzGetPlatformEndianness();

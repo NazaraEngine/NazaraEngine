@@ -23,7 +23,7 @@ struct NAZARA_API NzContextParameters
 	minorVersion(defaultMinorVersion),
 	stencilBits(parameters.stencilBits),
 	shareContext(defaultShareContext),
-	window(defaultWindow),
+	window(0),
 	compatibilityProfile(defaultCompatibilityProfile),
 	debugMode(defaultDebugMode),
 	doubleBuffered(defaultDoubleBuffered),
@@ -47,7 +47,6 @@ struct NAZARA_API NzContextParameters
 	static nzUInt8 defaultMajorVersion;
 	static nzUInt8 defaultMinorVersion;
 	static const NzContext* defaultShareContext;
-	static NzWindowHandle defaultWindow;
 	static bool defaultCompatibilityProfile;
 	static bool defaultDebugMode;
 	static bool defaultDoubleBuffered;

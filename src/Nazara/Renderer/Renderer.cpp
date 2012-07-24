@@ -6,16 +6,17 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/BufferImpl.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
-#include <Nazara/Renderer/IndexBuffer.hpp>
+#include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
-#include <Nazara/Renderer/VertexBuffer.hpp>
-#include <Nazara/Renderer/VertexDeclaration.hpp>
+#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -27,7 +28,8 @@ namespace
 		1, // nzElementUsage_Normal
 		0, // nzElementUsage_Position
 		3, // nzElementUsage_Tangent
-		4  // nzElementUsage_TexCoord
+
+		4  // nzElementUsage_TexCoord (Doit être le dernier de la liste car extensible)
 	};
 
 
@@ -128,6 +130,11 @@ namespace
 		GL_REPLACE,   // nzStencilOperation_Replace
 		GL_ZERO       // nzStencilOperation_Zero
 	};
+
+	NzBufferImpl* HardwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	{
+		return new NzHardwareBuffer(parent, type);
+	}
 }
 
 NzRenderer::NzRenderer()
@@ -197,29 +204,34 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		return;
 	}
 
-	nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
-
-	GLenum type;
-	switch (indexSize)
+	if (m_indexBuffer->IsSequential())
+		glDrawArrays(openglPrimitive[primitive], m_indexBuffer->GetStartIndex(), m_indexBuffer->GetIndexCount());
+	else
 	{
-		case 1:
-			type = GL_UNSIGNED_BYTE;
-			break;
+		nzUInt8 indexSize = m_indexBuffer->GetIndexSize();
 
-		case 2:
-			type = GL_UNSIGNED_SHORT;
-			break;
+		GLenum type;
+		switch (indexSize)
+		{
+			case 1:
+				type = GL_UNSIGNED_BYTE;
+				break;
 
-		case 4:
-			type = GL_UNSIGNED_INT;
-			break;
+			case 2:
+				type = GL_UNSIGNED_SHORT;
+				break;
 
-		default:
-			NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
-			return;
+			case 4:
+				type = GL_UNSIGNED_INT;
+				break;
+
+			default:
+				NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
+				return;
+		}
+
+		glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(m_indexBuffer->GetPointer()) + firstIndex*indexSize);
 	}
-
-	glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(m_indexBuffer->GetBufferPtr()) + firstIndex*indexSize);
 }
 
 void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
@@ -333,15 +345,13 @@ bool NzRenderer::Initialize()
 		m_utilityModule = new NzUtility;
 		m_utilityModule->Initialize();
 	}
+	else
+		m_utilityModule = nullptr;
 
 	if (NzOpenGL::Initialize())
 	{
 		NzContext::EnsureContext();
 
-		const NzContext* context = NzContext::GetReference();
-		bool compatibility = context->GetParameters().compatibilityProfile;
-
-		m_vaoUpdated = false;
 		m_indexBuffer = nullptr;
 		m_shader = nullptr;
 		m_stencilCompare = nzRendererComparison_Always;
@@ -353,6 +363,7 @@ bool NzRenderer::Initialize()
 		m_stencilReference = 0;
 		m_stencilZFail = nzStencilOperation_Keep;
 		m_target = nullptr;
+		m_vaoUpdated = false;
 		m_vertexBuffer = nullptr;
 		m_vertexDeclaration = nullptr;
 
@@ -362,7 +373,7 @@ bool NzRenderer::Initialize()
 		m_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
 		m_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
 		m_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
-		m_capabilities[nzRendererCap_SoftwareBuffer] = compatibility || NzOpenGL::GetVersion() <= 300; // Déprécié en OpenGL 3
+		m_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(NzOpenGL::PixelBufferObject);
 		m_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
 		m_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 		m_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
@@ -393,10 +404,16 @@ bool NzRenderer::Initialize()
 			GLint maxTextureUnits;
 			glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 
-			m_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
+			GLint maxVertexAttribs;
+			glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
+
+			// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est déjà pris par les autres attributs)
+			m_maxTextureUnit = static_cast<unsigned int>(std::min(maxTextureUnits, maxVertexAttribs-attribIndex[nzElementUsage_TexCoord]));
 		}
 		else
 			m_maxTextureUnit = 1;
+
+		NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
 		s_initialized = true;
 
@@ -497,9 +514,16 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 	glPolygonMode(GL_FRONT_AND_BACK, faceFillingMode[fillingMode]);
 }
 
-
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
+	#if NAZARA_RENDERER_SAFE
+	if (indexBuffer && !indexBuffer->IsHardware() && !indexBuffer->IsSequential())
+	{
+		NazaraError("Buffer must be hardware");
+		return false;
+	}
+	#endif
+
 	if (indexBuffer != m_indexBuffer)
 	{
 		m_indexBuffer = indexBuffer;
@@ -537,8 +561,6 @@ bool NzRenderer::SetShader(NzShader* shader)
 			return false;
 		}
 	}
-	else
-		m_shader = nullptr;
 
 	m_shader = shader;
 
@@ -635,6 +657,14 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 
 bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 {
+	#if NAZARA_RENDERER_SAFE
+	if (vertexBuffer && !vertexBuffer->IsHardware())
+	{
+		NazaraError("Buffer must be hardware");
+		return false;
+	}
+	#endif
+
 	if (m_vertexBuffer != vertexBuffer)
 	{
 		m_vertexBuffer = vertexBuffer;
@@ -675,13 +705,7 @@ void NzRenderer::SetViewport(const NzRectui& viewport)
 	}
 
 	unsigned int width = m_target->GetWidth();
-	if (viewport.x+viewport.width >= width)
-	{
-		NazaraError("Rectangle dimensions are out of bounds");
-		return;
-	}
-
-	if (viewport.y+viewport.height >= height)
+	if (viewport.x+viewport.width > width || viewport.y+viewport.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return;
@@ -812,31 +836,35 @@ bool NzRenderer::EnsureStateUpdate()
 
 		if (update)
 		{
-			m_vertexBuffer->GetBuffer()->GetImpl()->Bind();
+			NzHardwareBuffer* vertexBuffer = static_cast<NzHardwareBuffer*>(m_vertexBuffer->GetBuffer()->GetImpl());
+			vertexBuffer->Bind();
 
-			const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetBufferPtr());
+			const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(m_vertexBuffer->GetPointer());
 
-			///FIXME: Améliorer les déclarations pour permettre de faire ça plus simplement
-			for (int i = 0; i < 12; ++i) // Solution temporaire, à virer
-				glDisableVertexAttribArray(i); // Chaque itération tue un chaton :(
-
-			unsigned int stride = m_vertexDeclaration->GetStride();
-			unsigned int elementCount = m_vertexDeclaration->GetElementCount();
-			for (unsigned int i = 0; i < elementCount; ++i)
+			unsigned int stride = m_vertexDeclaration->GetStride(nzElementStream_VertexData);
+			for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
 			{
-				const NzVertexDeclaration::Element* element = m_vertexDeclaration->GetElement(i);
+				const NzVertexElement* element = m_vertexDeclaration->GetElement(nzElementStream_VertexData, static_cast<nzElementUsage>(i));
 
-				glEnableVertexAttribArray(attribIndex[element->usage]+element->usageIndex);
-				glVertexAttribPointer(attribIndex[element->usage]+element->usageIndex,
-									  openglSize[element->type],
-									  openglType[element->type],
-									  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-									  stride,
-									  &buffer[element->offset]);
+				if (element)
+				{
+					glEnableVertexAttribArray(attribIndex[i]);
+					glVertexAttribPointer(attribIndex[i],
+										  openglSize[element->type],
+										  openglType[element->type],
+										  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+										  stride,
+										  &buffer[element->offset]);
+				}
+				else
+					glDisableVertexAttribArray(attribIndex[i]);
 			}
 
 			if (m_indexBuffer)
-				m_indexBuffer->GetBuffer()->GetImpl()->Bind();
+			{
+				NzHardwareBuffer* indexBuffer = static_cast<NzHardwareBuffer*>(m_indexBuffer->GetBuffer()->GetImpl());
+				indexBuffer->Bind();
+			}
 		}
 
 		if (vaoSupported)

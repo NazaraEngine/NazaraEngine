@@ -124,7 +124,6 @@ namespace
 				return true;
 
 			case nzPixelFormat_Undefined:
-			case nzPixelFormat_Count:
 				NazaraInternalError("Invalid pixel format");
 				return false;
 		}
@@ -252,8 +251,8 @@ namespace
 		return true;
 	}
 
-	static unsigned short lockedLevel[nzImageType_Count] = {0};
-	static GLuint lockedPrevious[nzImageType_Count] = {0};
+	static unsigned short lockedLevel[nzImageType_Max+1] = {0};
+	static GLuint lockedPrevious[nzImageType_Max+1] = {0};
 
 	void LockTexture(NzTextureImpl* impl)
 	{
@@ -342,7 +341,7 @@ bool NzTexture::Bind() const
 
 	glBindTexture(openglTarget[m_impl->type], m_impl->id);
 
-	if (!m_impl->mipmapsUpdated)
+	if (m_impl->mipmapping && !m_impl->mipmapsUpdated)
 	{
 		glGenerateMipmap(openglTarget[m_impl->type]);
 		m_impl->mipmapsUpdated = true;
@@ -434,7 +433,13 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 	NzContext::EnsureContext();
 
-	levelCount = std::min(levelCount, NzImage::GetMaxLevel(width, height, depth));
+	if (IsMipmappingSupported())
+		levelCount = std::min(levelCount, NzImage::GetMaxLevel(width, height, depth));
+	else if (levelCount > 1)
+	{
+		NazaraWarning("Mipmapping not supported, reducing level count to 1");
+		levelCount = 1;
+	}
 
 	NzTextureImpl* impl = new NzTextureImpl;
 	glGenTextures(1, &impl->id);
@@ -478,10 +483,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	SetWrapMode(nzTextureWrap_Repeat);
 
 	if (m_impl->levelCount > 1U)
-	{
-		m_impl->mipmapping = true;
-		m_impl->mipmapsUpdated = false;
-	}
+		EnableMipmapping(true);
 
 	if (!lock)
 		UnlockTexture(impl);
@@ -578,25 +580,17 @@ bool NzTexture::EnableMipmapping(bool enable)
 	}
 	#endif
 
-	if (!glGenerateMipmap)
+	if (m_impl->levelCount == 1)
+		return true;
+
+	if (!IsMipmappingSupported())
 	{
 		NazaraError("Mipmapping not supported");
 		return false;
 	}
 
 	if (!m_impl->mipmapping && enable)
-	{
-		GLint tex;
-		glGetIntegerv(openglTargetBinding[m_impl->type], &tex);
-
-		if (m_impl->id == static_cast<GLuint>(tex))
-		{
-			glGenerateMipmap(openglTarget[m_impl->type]);
-			m_impl->mipmapsUpdated = true;
-		}
-		else
-			m_impl->mipmapsUpdated = false;
-	}
+		m_impl->mipmapsUpdated = false;
 
 	m_impl->mipmapping = enable;
 
@@ -849,7 +843,6 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	if (!IsFormatSupported(format))
 	{
 		nzPixelFormat newFormat = (NzPixelFormat::HasAlpha(format)) ? nzPixelFormat_BGRA8 : nzPixelFormat_BGR8;
-
 		NazaraWarning("Format not supported, trying to convert it to " + NzPixelFormat::ToString(newFormat) + "...");
 
 		if (NzPixelFormat::IsConversionSupported(format, newFormat))
@@ -873,14 +866,13 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	}
 
 	nzImageType type = newImage.GetType();
-	nzUInt8 levelCount = newImage.GetLevelCount();
-	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), levelCount, true))
+	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), newImage.GetLevelCount(), true))
 	{
 		NazaraError("Failed to create texture");
 		return false;
 	}
 
-	for (nzUInt8 level = 0; level < levelCount; ++level)
+	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
 	{
 		if (!Update(newImage.GetConstPixels(level), level))
 		{
@@ -943,13 +935,13 @@ bool NzTexture::SetAnisotropyLevel(unsigned int anistropyLevel)
 		NazaraError("Texture must be valid");
 		return false;
 	}
+	#endif
 
 	if (!NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter))
 	{
 		NazaraError("Anisotropic filter not supported");
 		return false;
 	}
-	#endif
 
 	LockTexture(m_impl);
 
@@ -982,7 +974,7 @@ bool NzTexture::SetFilterMode(nzTextureFilter filter)
 	switch (filter)
 	{
 		case nzTextureFilter_Bilinear:
-			if (m_impl->levelCount > 1)
+			if (m_impl->mipmapping > 1)
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 			else
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -991,7 +983,7 @@ bool NzTexture::SetFilterMode(nzTextureFilter filter)
 			break;
 
 		case nzTextureFilter_Nearest:
-			if (m_impl->levelCount > 1)
+			if (m_impl->mipmapping > 1)
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 			else
 				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1354,12 +1346,13 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	NzImage mirrored;
-	mirrored.Create(m_impl->type, m_impl->format, cube.width, cube.height, cube.depth);
-	mirrored.Update(pixels);
-
-	if (!mirrored.FlipVertically())
+	unsigned int size = cube.width*cube.height*cube.depth*bpp;
+	nzUInt8* mirrored = new nzUInt8[size];
+	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, cube.width, cube.height, cube.depth, pixels, mirrored))
+	{
 		NazaraWarning("Failed to flip image");
+		std::memcpy(mirrored, pixels, size);
+	}
 
 	SetUnpackAlignement(bpp);
 
@@ -1367,21 +1360,23 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, mirrored);
 			break;
 
 		case nzImageType_2D:
-			glTexSubImage2D(GL_TEXTURE_2D, level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage2D(GL_TEXTURE_2D, level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, mirrored);
 			break;
 
 		case nzImageType_3D:
-			glTexSubImage3D(GL_TEXTURE_3D, level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage3D(GL_TEXTURE_3D, level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, mirrored);
 			break;
 
 		default:
 			NazaraInternalError("Image type not handled (0x" + NzString::Number(m_impl->type, 16) + ')');
 	}
 	UnlockTexture(m_impl);
+
+	delete[] mirrored;
 
 	return true;
 }
@@ -1503,18 +1498,20 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	NzImage mirrored;
-	mirrored.Create(m_impl->type, m_impl->format, rect.width, rect.height);
-	mirrored.Update(pixels);
-
-	if (!mirrored.FlipVertically())
+	unsigned int size = rect.width*rect.height*bpp;
+	nzUInt8* mirrored = new nzUInt8[size];
+	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, rect.width, rect.height, 1, pixels, mirrored))
+	{
 		NazaraWarning("Failed to flip image");
+		std::memcpy(mirrored, pixels, size);
+	}
 
 	SetUnpackAlignement(bpp);
 
 	LockTexture(m_impl);
-	glTexSubImage2D(cubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+	glTexSubImage2D(cubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored);
 	UnlockTexture(m_impl);
+
 
 	return true;
 }
@@ -1576,13 +1573,17 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		}
 
 		case nzPixelFormat_Undefined:
-		case nzPixelFormat_Count:
 			break;
 	}
 
 	NazaraError("Invalid pixel format");
 
 	return false;
+}
+
+bool NzTexture::IsMipmappingSupported()
+{
+	return glGenerateMipmap != nullptr;
 }
 
 bool NzTexture::IsTypeSupported(nzImageType type)

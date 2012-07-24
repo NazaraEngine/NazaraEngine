@@ -52,14 +52,14 @@ namespace
 
 		if (access == nzBufferAccess_DiscardAndWrite)
 		{
-			GLint size;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_SIZE, &size);
+			GLint bufferSize;
+			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_SIZE, &bufferSize);
 
-			GLint usage;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_USAGE, &usage);
+			GLint bufferUsage;
+			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_USAGE, &bufferUsage);
 
 			// On discard le buffer
-			glBufferData(bufferTargetBinding[type], size, nullptr, usage);
+			glBufferData(bufferTargetBinding[type], bufferSize, nullptr, bufferUsage);
 		}
 
 		void* ptr = glMapBuffer(bufferTarget[type], bufferLock[access]);
@@ -154,8 +154,8 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	if (size < 32*1024)
 	{
 		// http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
-		if (size == m_parent->GetLength())
-			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]); // Discard
+		if (size == m_parent->GetSize())
+			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetUsage()]); // Discard
 
 		glBufferSubData(bufferTarget[m_type], offset, size, data);
 	}
@@ -188,7 +188,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	return true;
 }
 
-void* NzHardwareBuffer::GetBufferPtr()
+void* NzHardwareBuffer::GetPointer()
 {
 	return nullptr;
 }
@@ -198,7 +198,7 @@ bool NzHardwareBuffer::IsHardware() const
 	return true;
 }
 
-void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
+void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
 	NzContext::EnsureContext();
 
@@ -209,7 +209,7 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 	if (previous != m_buffer)
 		glBindBuffer(bufferTarget[m_type], m_buffer);
 
-	void* ptr = mapBuffer(m_type, access, offset, length);
+	void* ptr = mapBuffer(m_type, access, offset, size);
 
 	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
 	if (previous != m_buffer && previous != 0)
@@ -235,14 +235,14 @@ bool NzHardwareBuffer::Unmap()
 
 		glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
 
-		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 		if (previous != m_buffer && previous != 0)
 			glBindBuffer(bufferTarget[m_type], previous);
 
 		return false;
 	}
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 

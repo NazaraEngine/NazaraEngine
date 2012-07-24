@@ -40,7 +40,7 @@ template<typename T> bool NzNumberEquals(T a, T b);
 inline NzString NzNumberToString(long long number, nzUInt8 radix = 10);
 template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);
-inline long long NzStringToNumber(NzString str, nzUInt8 radix = 10);
+inline long long NzStringToNumber(NzString str, nzUInt8 radix = 10, bool* ok = nullptr);
 
 #include <Nazara/Math/Basic.inl>
 
