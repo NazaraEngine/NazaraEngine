@@ -27,17 +27,17 @@ NzPerlin4D<T>::NzPerlin4D()
 }
 
 template <typename T>
-T NzPerlin4D<T>::GetValue(T x, T y, T z, T w, T res)
+T NzPerlin4D<T>::GetValue(T x, T y, T z, T w, T resolution)
 {
-    nx = x/res;
-    ny = y/res;
-    nz = z/res;
-    nw = w/res;
+    x *= resolution;
+    y *= resolution;
+    z *= resolution;
+    w *= resolution;
 
-    x0 = fastfloor(nx);
-    y0 = fastfloor(ny);
-    z0 = fastfloor(nz);
-    w0 = fastfloor(nw);
+    x0 = fastfloor(x);
+    y0 = fastfloor(y);
+    z0 = fastfloor(z);
+    w0 = fastfloor(w);
 
     ii = x0 & 255;
     jj = y0 & 255;
@@ -64,10 +64,10 @@ T NzPerlin4D<T>::GetValue(T x, T y, T z, T w, T res)
     gi14 = perm[ii     + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] & 31;
     gi15 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] & 31;
 
-    temp.x = nx-x0;
-    temp.y = ny-y0;
-    temp.z = nz-z0;
-    temp.w = nw-w0;
+    temp.x = x-x0;
+    temp.y = y-y0;
+    temp.z = z-z0;
+    temp.w = w-w0;
 
     Cx = temp.x * temp.x * temp.x * (temp.x * (temp.x * 6 - 15) + 10);
     Cy = temp.y * temp.y * temp.y * (temp.y * (temp.y * 6 - 15) + 10);
@@ -76,55 +76,55 @@ T NzPerlin4D<T>::GetValue(T x, T y, T z, T w, T res)
 
     s[0] = gradient4[gi0][0]*temp.x + gradient4[gi0][1]*temp.y + gradient4[gi0][2]*temp.z + gradient4[gi0][3]*temp.w;
 
-    temp.x = nx-(x0+1);
+    temp.x = x-(x0+1);
     t[0] = gradient4[gi1][0]*temp.x + gradient4[gi1][1]*temp.y + gradient4[gi1][2]*temp.z + gradient4[gi1][3]*temp.w;
 
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v[0] = gradient4[gi3][0]*temp.x + gradient4[gi3][1]*temp.y + gradient4[gi3][2]*temp.z + gradient4[gi3][3]*temp.w;
 
-    temp.x = nx-x0;
+    temp.x = x-x0;
     u[0] = gradient4[gi2][0]*temp.x + gradient4[gi2][1]*temp.y + gradient4[gi2][2]*temp.z + gradient4[gi2][3]*temp.w;
 
-    temp.y = ny-y0;
-    temp.z = nz-(z0+1);
+    temp.y = y-y0;
+    temp.z = z-(z0+1);
     s[1] = gradient4[gi4][0]*temp.x + gradient4[gi4][1]*temp.y + gradient4[gi4][2]*temp.z + gradient4[gi4][3]*temp.w;
 
-    temp.x = nx-(x0+1);
+    temp.x = x-(x0+1);
     t[1] = gradient4[gi5][0]*temp.x + gradient4[gi5][1]*temp.y + gradient4[gi5][2]*temp.z + gradient4[gi5][3]*temp.w;
 
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v[1] = gradient4[gi7][0]*temp.x + gradient4[gi7][1]*temp.y + gradient4[gi7][2]*temp.z + gradient4[gi7][3]*temp.w;
 
-    temp.x = nx-x0;
+    temp.x = x-x0;
     u[1] = gradient4[gi6][0]*temp.x + gradient4[gi6][1]*temp.y + gradient4[gi6][2]*temp.z + gradient4[gi6][3]*temp.w;
 
 
-    temp.y = ny-y0;
-    temp.z = nz-z0;
-    temp.w = nw-(w0+1);
+    temp.y = y-y0;
+    temp.z = z-z0;
+    temp.w = w-(w0+1);
     s[2] = gradient4[gi8][0]*temp.x + gradient4[gi8][1]*temp.y + gradient4[gi8][2]*temp.z + gradient4[gi8][3]*temp.w;
 
-    temp.x = nx-(x0+1);
+    temp.x = x-(x0+1);
     t[2] = gradient4[gi9][0]*temp.x + gradient4[gi9][1]*temp.y + gradient4[gi9][2]*temp.z + gradient4[gi9][3]*temp.w;
 
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v[2] = gradient4[gi11][0]*temp.x + gradient4[gi11][1]*temp.y + gradient4[gi11][2]*temp.z + gradient4[gi11][3]*temp.w;
 
-    temp.x = nx-x0;
+    temp.x = x-x0;
     u[2] = gradient4[gi10][0]*temp.x + gradient4[gi10][1]*temp.y + gradient4[gi10][2]*temp.z + gradient4[gi10][3]*temp.w;
 
 
-    temp.y = ny-y0;
-    temp.z = nz-(z0+1);
+    temp.y = y-y0;
+    temp.z = z-(z0+1);
     s[3] = gradient4[gi12][0]*temp.x + gradient4[gi12][1]*temp.y + gradient4[gi12][2]*temp.z + gradient4[gi12][3]*temp.w;
 
-    temp.x = nx-(x0+1);
+    temp.x = x-(x0+1);
     t[3] = gradient4[gi13][0]*temp.x + gradient4[gi13][1]*temp.y + gradient4[gi13][2]*temp.z + gradient4[gi13][3]*temp.w;
 
-    temp.y = ny-(y0+1);
+    temp.y = y-(y0+1);
     v[3] = gradient4[gi15][0]*temp.x + gradient4[gi15][1]*temp.y + gradient4[gi15][2]*temp.z + gradient4[gi15][3]*temp.w;
 
-    temp.x = nx-x0;
+    temp.x = x-x0;
     u[3] = gradient4[gi14][0]*temp.x + gradient4[gi14][1]*temp.y + gradient4[gi14][2]*temp.z + gradient4[gi14][3]*temp.w;
 
     Li1 = s[0] + Cx*(t[0]-s[0]);

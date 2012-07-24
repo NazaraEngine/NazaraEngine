@@ -9,13 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
+#include <Nazara/Noise/Abstract3DNoise.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template <typename T> class NAZARA_API NzPerlin3D : public NzNoiseBase
+template <typename T> class NAZARA_API NzPerlin3D : public NzAbstract3DNoise<T>, public NzNoiseBase
 {
     public:
         NzPerlin3D();
-        T GetValue(T x, T y, T z, T res);
+        T GetValue(T x, T y, T z, T resolution);
         ~NzPerlin3D() = default;
     protected:
     private:

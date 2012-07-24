@@ -9,13 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
+#include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-template <typename T> class NAZARA_API NzSimplex4D : public NzNoiseBase
+template <typename T> class NAZARA_API NzSimplex4D : public NzAbstract4DNoise<T>, public NzNoiseBase
 {
     public:
         NzSimplex4D();
-        T GetValue(T x, T y, T z, T w, T res);
+        T GetValue(T x, T y, T z, T w, T resolution);
         ~NzSimplex4D() = default;
     protected:
     private:

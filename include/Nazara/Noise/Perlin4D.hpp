@@ -9,13 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
+#include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-template <typename T> class NAZARA_API NzPerlin4D : public NzNoiseBase
+template <typename T> class NAZARA_API NzPerlin4D : public NzAbstract4DNoise<T>, public NzNoiseBase
 {
     public:
         NzPerlin4D();
-        T GetValue(T x, T y, T z, T w, T res);
+        T GetValue(T x, T y, T z, T w, T resolution);
         ~NzPerlin4D() = default;
     protected:
     private:
@@ -26,7 +27,6 @@ template <typename T> class NAZARA_API NzPerlin4D : public NzNoiseBase
         T Li1,Li2,Li3,Li4,Li5,Li6,Li7,Li8,Li9,Li10,Li11,Li12,Li13,Li14;
         T s[4],t[4],u[4],v[4];
         T Cx,Cy,Cz,Cw;
-        T nx,ny,nz,nw;
         T tmp;
         NzVector4<T> temp;
 
