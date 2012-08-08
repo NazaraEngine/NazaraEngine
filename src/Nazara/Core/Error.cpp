@@ -42,7 +42,7 @@ NzString NzGetLastSystemError(unsigned int code)
 	wchar_t* buffer = nullptr;
 
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-				  0,
+				  nullptr,
 				  code,
 				  0,
 				  reinterpret_cast<LPWSTR>(&buffer),

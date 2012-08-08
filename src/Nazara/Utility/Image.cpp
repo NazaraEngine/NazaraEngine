@@ -17,7 +17,7 @@ namespace
 
 	inline nzUInt8* GetPixelPtr(nzUInt8* base, nzUInt8 bpp, unsigned int x, unsigned int y, unsigned int z, unsigned int width, unsigned int height)
 	{
-		return &base[(width*(height*z+y) + x) * bpp];
+		return &base[(width*(height*z + y) + x)*bpp];
 	}
 }
 
@@ -43,7 +43,7 @@ m_sharedImage(image.m_sharedImage)
 	}
 }
 
-NzImage::NzImage(NzImage&& image) :
+NzImage::NzImage(NzImage&& image) noexcept :
 m_sharedImage(image.m_sharedImage)
 {
 	image.m_sharedImage = &emptyImage;
@@ -95,14 +95,15 @@ bool NzImage::Convert(nzPixelFormat format)
 		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBPP(m_sharedImage->format);
 		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBPP(format);
 
-		levels[i] = ptr;
-
 		for (unsigned int d = 0; d < depth; ++d)
 		{
 			if (!NzPixelFormat::Convert(m_sharedImage->format, format, pixels, &pixels[srcStride], ptr))
 			{
 				NazaraError("Failed to convert image");
-				for (unsigned int j = 0; j <= i; ++j)
+
+				// Nettoyage de la mémoire
+				delete[] ptr; // Permet une optimisation de boucle (GCC)
+				for (unsigned int j = 0; j < i; ++j)
 					delete[] levels[j];
 
 				delete[] levels;
@@ -113,6 +114,8 @@ bool NzImage::Convert(nzPixelFormat format)
 			pixels += srcStride;
 			ptr += dstStride;
 		}
+
+		levels[i] = ptr;
 
 		if (width > 1)
 			width >>= 1;
@@ -223,6 +226,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 			}
 			break;
 
+		case nzImageType_1D_Array:
 		case nzImageType_2D:
 			if (depth > 1)
 			{
@@ -231,6 +235,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 			}
 			break;
 
+		case nzImageType_2D_Array:
 		case nzImageType_3D:
 			break;
 
@@ -281,7 +286,10 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to allocate image's level " + NzString::Number(i) + " (" + NzString(e.what()) + ')');
-			for (unsigned int j = 0; j <= i; ++j)
+
+			// Nettoyage
+			delete[] levels[i]; // Permet une optimisation de boucle (GCC)
+			for (unsigned int j = 0; j < i; ++j)
 				delete[] levels[j];
 
 			delete[] levels;
@@ -302,7 +310,7 @@ void NzImage::Destroy()
 
 bool NzImage::Fill(const NzColor& color)
 {
-	#if NAZARA_RENDERER_SAFE
+	#if NAZARA_UTILITY_SAFE
 	if (!IsValid())
 	{
 		NazaraError("Image must be valid");
@@ -399,6 +407,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 		return false;
 	}
 
+	///FIXME: L'algorithme a du mal avec un bpp non multiple de 2
 	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[0], bpp, rect.x, rect.y, z, m_sharedImage->width, m_sharedImage->height);
 	unsigned int srcStride = rect.width * bpp;
 	unsigned int dstStride = m_sharedImage->width * bpp;
@@ -414,6 +423,8 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 
 		dstPixels += dstStride;
 	}
+
+	delete[] pixels;
 
 	return true;
 }
@@ -452,6 +463,7 @@ bool NzImage::Fill(const NzColor& color, const NzCubeui& cube)
 		return false;
 	}
 
+	///FIXME: L'algorithme a du mal avec un bpp non multiple de 2
 	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[0], bpp, cube.x, cube.y, cube.z, m_sharedImage->width, m_sharedImage->height);
 	unsigned int srcStride = cube.width * bpp;
 	unsigned int dstStride = m_sharedImage->width * bpp;
@@ -562,18 +574,12 @@ nzUInt8 NzImage::GetBPP() const
 	return NzPixelFormat::GetBPP(m_sharedImage->format);
 }
 
-const nzUInt8* NzImage::GetConstPixels(nzUInt8 level, unsigned int x, unsigned int y, unsigned int z) const
+const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned int z, nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!IsValid())
 	{
 		NazaraError("Image must be valid");
-		return nullptr;
-	}
-
-	if (level >= m_sharedImage->levelCount)
-	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return nullptr;
 	}
 
@@ -593,6 +599,12 @@ const nzUInt8* NzImage::GetConstPixels(nzUInt8 level, unsigned int x, unsigned i
 	if (z >= depth)
 	{
 		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		return nullptr;
+	}
+
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return nullptr;
 	}
 	#endif
@@ -685,18 +697,12 @@ NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) c
 	return color;
 }
 
-nzUInt8* NzImage::GetPixels(nzUInt8 level, unsigned int x, unsigned int y, unsigned int z)
+nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!IsValid())
 	{
 		NazaraError("Image must be valid");
-		return nullptr;
-	}
-
-	if (level >= m_sharedImage->levelCount)
-	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return nullptr;
 	}
 
@@ -716,6 +722,13 @@ nzUInt8* NzImage::GetPixels(nzUInt8 level, unsigned int x, unsigned int y, unsig
 	if (z >= depth)
 	{
 		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		return nullptr;
+	}
+
+
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
 		return nullptr;
 	}
 	#endif
@@ -1077,7 +1090,7 @@ NzImage& NzImage::operator=(const NzImage& image)
 	return *this;
 }
 
-NzImage& NzImage::operator=(NzImage&& image)
+NzImage& NzImage::operator=(NzImage&& image) noexcept
 {
 	std::swap(m_sharedImage, image.m_sharedImage);
 
@@ -1086,11 +1099,11 @@ NzImage& NzImage::operator=(NzImage&& image)
 
 nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth)
 {
-	static const float l2 = std::log(2);
+	static const float l2 = std::log(2.f);
 
-	unsigned int widthLevel = std::log(width)/l2;
-	unsigned int heightLevel = std::log(height)/l2;
-	unsigned int depthLevel = std::log(depth)/l2;
+	unsigned int widthLevel = std::log(static_cast<float>(width))/l2;
+	unsigned int heightLevel = std::log(static_cast<float>(height))/l2;
+	unsigned int depthLevel = std::log(static_cast<float>(depth))/l2;
 
 	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
 }

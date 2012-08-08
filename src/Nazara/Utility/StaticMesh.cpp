@@ -12,17 +12,17 @@ NzSubMesh(parent)
 {
 }
 
-NzStaticMesh::NzStaticMesh(const NzMesh* parent, const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration, const NzIndexBuffer* indexBuffer) :
+NzStaticMesh::NzStaticMesh(const NzMesh* parent, const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer) :
 NzSubMesh(parent)
 {
 	#ifdef NAZARA_DEBUG
-	if (!Create(vertexBuffer, vertexDeclaration, indexBuffer))
+	if (!Create(vertexDeclaration, vertexBuffer, indexBuffer))
 	{
 		NazaraError("Failed to create mesh");
 		throw std::runtime_error("Constructor failed");
 	}
 	#else
-	Create(vertexBuffer, vertexDeclaration, indexBuffer);
+	Create(vertexDeclaration, vertexBuffer, indexBuffer);
 	#endif
 }
 
@@ -31,20 +31,20 @@ NzStaticMesh::~NzStaticMesh()
 	Destroy();
 }
 
-bool NzStaticMesh::Create(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration, const NzIndexBuffer* indexBuffer)
+bool NzStaticMesh::Create(const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer)
 {
 	Destroy();
 
 	#if NAZARA_UTILITY_SAFE
-	if (!vertexBuffer)
-	{
-		NazaraError("Vertex buffer is null");
-		return false;
-	}
-
 	if (!vertexDeclaration)
 	{
 		NazaraError("Vertex declaration is null");
+		return false;
+	}
+
+	if (!vertexBuffer)
+	{
+		NazaraError("Vertex buffer is null");
 		return false;
 	}
 	#endif
@@ -66,6 +66,8 @@ bool NzStaticMesh::Create(const NzVertexBuffer* vertexBuffer, const NzVertexDecl
 
 void NzStaticMesh::Destroy()
 {
+	m_aabb.SetNull();
+
 	if (m_indexBuffer)
 	{
 		m_indexBuffer->RemoveResourceReference();
@@ -83,6 +85,44 @@ void NzStaticMesh::Destroy()
 		m_vertexDeclaration->RemoveResourceReference();
 		m_vertexDeclaration = nullptr;
 	}
+}
+
+bool NzStaticMesh::GenerateAABB()
+{
+	if (!m_aabb.IsNull())
+		return true;
+
+	const NzVertexElement* position = m_vertexDeclaration->GetElement(nzElementStream_VertexData, nzElementUsage_Position);
+	if (position && position->type == nzElementType_Float3) // Si nous avons des positions du type Vec3
+	{
+		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
+		nzUInt8* buffer = reinterpret_cast<nzUInt8*>(m_vertexBuffer->Map(nzBufferAccess_ReadOnly));
+		if (!buffer)
+		{
+			NazaraWarning("Failed to lock vertex buffer");
+			return false;
+		}
+
+		buffer += position->offset;
+		unsigned int stride = m_vertexDeclaration->GetStride(nzElementStream_VertexData);
+		unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
+		for (unsigned int i = 0; i < vertexCount; ++i)
+		{
+			m_aabb.ExtendTo(*reinterpret_cast<NzVector3f*>(buffer));
+
+			buffer += stride;
+		}
+
+		if (!m_vertexBuffer->Unmap())
+			NazaraWarning("Failed to unmap vertex buffer");
+	}
+
+	return true;
+}
+
+const NzAxisAlignedBox& NzStaticMesh::GetAABB() const
+{
+	return m_aabb;
 }
 
 nzAnimationType NzStaticMesh::GetAnimationType() const
@@ -123,6 +163,11 @@ bool NzStaticMesh::IsAnimated() const
 bool NzStaticMesh::IsValid() const
 {
 	return m_vertexBuffer != nullptr && m_vertexDeclaration != nullptr;
+}
+
+void NzStaticMesh::SetAABB(const NzAxisAlignedBox& aabb)
+{
+	m_aabb = aabb;
 }
 
 void NzStaticMesh::SetPrimitiveType(nzPrimitiveType primitiveType)

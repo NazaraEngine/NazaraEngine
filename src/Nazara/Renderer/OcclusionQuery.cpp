@@ -98,5 +98,5 @@ bool NzOcclusionQuery::IsResultAvailable() const
 
 bool NzOcclusionQuery::IsSupported()
 {
-	return NazaraRenderer->HasCapability(nzRendererCap_OcclusionQuery);
+	return NzRenderer::HasCapability(nzRendererCap_OcclusionQuery);
 }

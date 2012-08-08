@@ -20,35 +20,36 @@ class NzGLSLShader : public NzShaderImpl
 		~NzGLSLShader();
 
 		bool Bind();
+		bool BindTextures();
 
 		bool Compile();
-		bool Create();
 
+		bool Create();
 		void Destroy();
 
 		NzString GetLog() const;
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
-		GLint GetUniformLocation(const NzString& name) const;
+		int GetUniformLocation(const NzString& name) const;
 
 		bool IsLoaded(nzShaderType type) const;
 
 		bool Load(nzShaderType type, const NzString& source);
 		bool Lock();
 
-		bool SendBoolean(const NzString& name, bool value);
-		bool SendDouble(const NzString& name, double value);
-		bool SendFloat(const NzString& name, float value);
-		bool SendInteger(const NzString& name, int value);
-		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
-		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
-		bool SendVector(const NzString& name, const NzVector2d& vector);
-		bool SendVector(const NzString& name, const NzVector2f& vector);
-		bool SendVector(const NzString& name, const NzVector3d& vector);
-		bool SendVector(const NzString& name, const NzVector3f& vector);
-		bool SendVector(const NzString& name, const NzVector4d& vector);
-		bool SendVector(const NzString& name, const NzVector4f& vector);
-		bool SendTexture(const NzString& name, NzTexture* texture);
+		bool SendBoolean(int location, bool value);
+		bool SendDouble(int location, double value);
+		bool SendFloat(int location, float value);
+		bool SendInteger(int location, int value);
+		bool SendMatrix(int location, const NzMatrix4d& matrix);
+		bool SendMatrix(int location, const NzMatrix4f& matrix);
+		bool SendTexture(int location, const NzTexture* texture);
+		bool SendVector(int location, const NzVector2d& vector);
+		bool SendVector(int location, const NzVector2f& vector);
+		bool SendVector(int location, const NzVector3d& vector);
+		bool SendVector(int location, const NzVector3f& vector);
+		bool SendVector(int location, const NzVector4d& vector);
+		bool SendVector(int location, const NzVector4f& vector);
 
 		void Unbind();
 		void Unlock();
@@ -56,8 +57,9 @@ class NzGLSLShader : public NzShaderImpl
 	private:
 		struct TextureSlot
 		{
+			bool updated = false;
 			nzUInt8 unit;
-			NzTexture* texture;
+			const NzTexture* texture;
 		};
 
 		mutable std::map<NzString, GLint> m_idCache;

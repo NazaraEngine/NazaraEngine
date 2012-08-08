@@ -5,18 +5,13 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzRenderWindow::NzRenderWindow() :
-m_context(nullptr)
-{
-}
-
-NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters) :
-m_context(nullptr)
+NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
 	Create(mode, title, style, parameters);
 
@@ -29,8 +24,7 @@ m_context(nullptr)
 	#endif
 }
 
-NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters) :
-m_context(nullptr)
+NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters)
 {
 	Create(handle, parameters);
 
@@ -45,6 +39,8 @@ m_context(nullptr)
 
 NzRenderWindow::~NzRenderWindow()
 {
+	// Nécessaire si NzWindow::Destroy est appelé par son destructeur
+	OnWindowDestroying();
 }
 
 bool NzRenderWindow::CopyToImage(NzImage* image)
@@ -136,6 +132,15 @@ bool NzRenderWindow::Create(NzWindowHandle handle, const NzContextParameters& pa
 
 void NzRenderWindow::Display()
 {
+	if (m_framerateLimit > 0)
+	{
+		int remainingTime = 1000/m_framerateLimit - m_clock.GetMilliseconds();
+		if (remainingTime > 0)
+			NzThread::Sleep(remainingTime);
+
+		m_clock.Restart();
+	}
+
 	if (m_context && m_parameters.doubleBuffered)
 		m_context->SwapBuffers();
 }
@@ -218,6 +223,11 @@ bool NzRenderWindow::IsValid() const
 	return m_impl != nullptr && m_context != nullptr;
 }
 
+void NzRenderWindow::SetFramerateLimit(unsigned int limit)
+{
+	m_framerateLimit = limit;
+}
+
 bool NzRenderWindow::Activate()
 {
 	if (m_context->SetActive(true))
@@ -232,12 +242,16 @@ bool NzRenderWindow::Activate()
 	}
 }
 
-void NzRenderWindow::OnClose()
+void NzRenderWindow::OnWindowDestroying()
 {
-	delete m_context;
+	if (m_context)
+	{
+		delete m_context;
+		m_context = nullptr;
+	}
 }
 
-bool NzRenderWindow::OnCreate()
+bool NzRenderWindow::OnWindowCreated()
 {
 	m_parameters.doubleBuffered = true;
     m_parameters.window = GetHandle();
@@ -257,6 +271,8 @@ bool NzRenderWindow::OnCreate()
 	if (!SetActive(true)) // Les fenêtres s'activent à la création
 		NazaraWarning("Failed to activate window");
 	#endif
+
+	m_clock.Restart();
 
     return true;
 }

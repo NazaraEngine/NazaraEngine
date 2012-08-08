@@ -11,11 +11,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 
 class NzMutexImpl;
-class NzThreadCondition;
+class NzConditionVariable;
 
 class NAZARA_API NzMutex : NzNonCopyable
 {
-	friend class NzThreadCondition;
+	friend class NzConditionVariable;
 
 	public:
 		NzMutex();

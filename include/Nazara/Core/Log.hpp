@@ -12,7 +12,7 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#if NAZARA_THREADSAFETY_LOG
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>

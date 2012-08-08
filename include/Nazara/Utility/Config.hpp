@@ -29,6 +29,9 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
+// Force les buffers à posséder un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation mémoire)
+#define NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32 0
+
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_UTILITY_MEMORYLEAKTRACKER 0
 
@@ -38,12 +41,11 @@
 // Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
 #define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Buggé depuis GCC 4.7
 
-// Protège le module des accès concurrentiels
+// Protège les classes des accès concurrentiels
 #define NAZARA_UTILITY_THREADSAFE 1
 
-#if NAZARA_UTILITY_THREADSAFE
-	#define NAZARA_THREADSAFETY_IMAGE 1 // NzImage (COW)
-	#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
-#endif
+// Les classes à protéger des accès concurrentiels
+#define NAZARA_THREADSAFETY_IMAGE             1 // NzImage (COW)
+#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
 
 #endif // NAZARA_CONFIG_UTILITY_HPP

@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#if NAZARA_THREADSAFETY_STRING
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_STRING
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -41,7 +41,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString(const char* string);
 		NzString(const std::string& string);
 		NzString(const NzString& string);
-		NzString(NzString&& string);
+		NzString(NzString&& string) noexcept;
 		NzString(SharedString* sharedString);
 		~NzString();
 
@@ -112,8 +112,8 @@ class NAZARA_API NzString : public NzHashable
 		unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, nzUInt32 flags = None);
 		unsigned int Replace(const NzString& oldString, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
 		unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, nzUInt32 flags = None);
-		unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
-		unsigned int ReplaceAny(const NzString& oldCharacters, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
+		//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
+		//unsigned int ReplaceAny(const NzString& oldCharacters, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
 
 		void Reserve(unsigned int bufferSize);
 
@@ -184,7 +184,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString& operator=(const char* string);
 		NzString& operator=(const std::string& string);
 		NzString& operator=(const NzString& string);
-		NzString& operator=(NzString&& string);
+		NzString& operator=(NzString&& string) noexcept;
 
 		NzString operator+(char character) const;
 		NzString operator+(const char* string) const;
@@ -282,10 +282,7 @@ class NAZARA_API NzString : public NzHashable
 
 		struct NAZARA_API SharedString
 		{
-			SharedString() :
-			refCount(1)
-			{
-			}
+			SharedString() = default;
 
 			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
 			capacity(bufferSize),
@@ -299,7 +296,7 @@ class NAZARA_API NzString : public NzHashable
 			unsigned int size;
 			char* string;
 
-			unsigned short refCount;
+			unsigned short refCount = 1;
 			NazaraMutex(mutex)
 		};
 

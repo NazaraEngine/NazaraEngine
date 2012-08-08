@@ -14,7 +14,7 @@ NzSubMesh::NzSubMesh(const NzMesh* parent) :
 NzResource(false), // Un SubMesh n'est pas persistant par défaut
 m_parent(parent)
 {
-	#if NAZARA_DEBUG
+	#ifdef NAZARA_DEBUG
 	if (!m_parent)
 	{
 		NazaraError("Parent mesh is null");
@@ -55,6 +55,8 @@ void NzSubMesh::Animate(unsigned int frameA, unsigned int frameB, float interpol
 	#endif
 
 	AnimateImpl(frameA, frameB, interpolation);
+
+	m_parent->InvalidateAABB();
 }
 
 const NzMesh* NzSubMesh::GetParent() const

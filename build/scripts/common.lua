@@ -9,11 +9,14 @@ configurations
 
 defines "NAZARA_BUILD"
 language "C++"
+location(_ACTION)
+
 includedirs
 {
 	"../include", 
 	"../src/"
 }
+
 libdirs "../lib"
 targetdir "../lib"
 
@@ -22,7 +25,7 @@ configuration "Debug*"
 	flags "Symbols"
 
 configuration "Release*"
-	flags { "Optimize", "OptimizeSpeed" }
+	flags { "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
 
 configuration "*Static"
 	defines "NAZARA_STATIC"

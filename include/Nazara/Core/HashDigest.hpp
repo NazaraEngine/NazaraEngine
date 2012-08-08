@@ -17,7 +17,7 @@ class NAZARA_API NzHashDigest
 		NzHashDigest();
 		NzHashDigest(const NzString& hashName, const nzUInt8* digest, unsigned int length);
 		NzHashDigest(const NzHashDigest& rhs);
-		NzHashDigest(NzHashDigest&& rhs);
+		NzHashDigest(NzHashDigest&& rhs) noexcept;
 		~NzHashDigest();
 
 		bool IsValid() const;
@@ -31,7 +31,7 @@ class NAZARA_API NzHashDigest
 		nzUInt8 operator[](unsigned short pos) const;
 
 		NzHashDigest& operator=(const NzHashDigest& rhs);
-		NzHashDigest& operator=(NzHashDigest&& rhs);
+		NzHashDigest& operator=(NzHashDigest&& rhs) noexcept;
 
 		bool operator==(const NzHashDigest& rhs) const;
 		bool operator!=(const NzHashDigest& rhs) const;

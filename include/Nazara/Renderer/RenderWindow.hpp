@@ -10,6 +10,7 @@
 #define NAZARA_RENDERWINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
@@ -23,7 +24,7 @@ struct NzContextParameters;
 class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
 	public:
-		NzRenderWindow();
+		NzRenderWindow() = default;
 		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
@@ -52,15 +53,19 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		bool IsValid() const;
 
+		void SetFramerateLimit(unsigned int limit);
+
 	protected:
-		bool Activate();
+		virtual bool Activate() override;
 
 	private:
-		void OnClose();
-		bool OnCreate();
+		virtual void OnWindowDestroying() override;
+		virtual bool OnWindowCreated() override;
 
-		NzContext* m_context;
+		NzClock m_clock;
 		NzContextParameters m_parameters;
+		NzContext* m_context = nullptr;
+		unsigned int m_framerateLimit = 0;
 };
 
 #endif // NAZARA_RENDERWINDOW_HPP

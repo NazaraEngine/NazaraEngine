@@ -10,15 +10,15 @@ NzRenderTarget::~NzRenderTarget() = default;
 
 bool NzRenderTarget::IsActive() const
 {
-	return NazaraRenderer->GetTarget() == this;
+	return NzRenderer::GetTarget() == this;
 }
 
 bool NzRenderTarget::SetActive(bool active)
 {
 	if (active)
-		return NazaraRenderer->SetTarget(this);
-	else if (NazaraRenderer->GetTarget() == this)
-		return NazaraRenderer->SetTarget(nullptr);
+		return NzRenderer::SetTarget(this);
+	else if (NzRenderer::GetTarget() == this)
+		return NzRenderer::SetTarget(nullptr);
 
 	return true;
 }

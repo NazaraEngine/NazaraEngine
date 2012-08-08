@@ -35,6 +35,15 @@ enum nzFaceFilling
 	nzFaceFilling_Fill
 };
 
+enum nzMatrixType
+{
+	nzMatrixType_Projection,
+	nzMatrixType_View,
+	nzMatrixType_World,
+
+	nzMatrixType_Max = nzMatrixType_World
+};
+
 enum nzPixelBufferType
 {
 	nzPixelBufferType_Pack,

@@ -4,13 +4,13 @@
 
 // Source: http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
 
-#include <Nazara/Core/Win32/ThreadConditionImpl.hpp>
+#include <Nazara/Core/Win32/ConditionVariableImpl.hpp>
 #include <Nazara/Core/Win32/MutexImpl.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzThreadConditionImpl::NzThreadConditionImpl()
+NzConditionVariableImpl::NzConditionVariableImpl()
 {
-	#ifdef NAZARA_PLATFORM_WINDOWSVISTA
+	#if NAZARA_CORE_WINDOWS_VISTA
 	InitializeConditionVariable(&m_cv);
 	#else
 	m_count = 0;
@@ -20,16 +20,16 @@ NzThreadConditionImpl::NzThreadConditionImpl()
 	#endif
 }
 
-#ifndef NAZARA_PLATFORM_WINDOWSVISTA
-NzThreadConditionImpl::~NzThreadConditionImpl()
+#if !NAZARA_CORE_WINDOWS_VISTA
+NzConditionVariableImpl::~NzConditionVariableImpl()
 {
 	DeleteCriticalSection(&m_countLock);
 }
 #endif
 
-void NzThreadConditionImpl::Signal()
+void NzConditionVariableImpl::Signal()
 {
-	#ifdef NAZARA_PLATFORM_WINDOWSVISTA
+	#if NAZARA_CORE_WINDOWS_VISTA
 	WakeConditionVariable(&m_cv);
 	#else
 	// Avoid race conditions.
@@ -42,9 +42,9 @@ void NzThreadConditionImpl::Signal()
 	#endif
 }
 
-void NzThreadConditionImpl::SignalAll()
+void NzConditionVariableImpl::SignalAll()
 {
-	#ifdef NAZARA_PLATFORM_WINDOWSVISTA
+	#if NAZARA_CORE_WINDOWS_VISTA
 	WakeAllConditionVariable(&m_cv);
 	#else
 	// Avoid race conditions.
@@ -57,14 +57,14 @@ void NzThreadConditionImpl::SignalAll()
 	#endif
 }
 
-void NzThreadConditionImpl::Wait(NzMutexImpl* mutex)
+void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 {
 	Wait(mutex, INFINITE);
 }
 
-bool NzThreadConditionImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
+bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 {
-	#ifdef NAZARA_PLATFORM_WINDOWSVISTA
+	#if NAZARA_CORE_WINDOWS_VISTA
 	return SleepConditionVariableCS(&m_cv, mutex->m_criticalSection, timeout);
 	#else
 	// Avoid race conditions.

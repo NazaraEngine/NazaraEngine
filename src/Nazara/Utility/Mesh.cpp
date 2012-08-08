@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <cstring>
@@ -18,6 +19,12 @@ bool NzMeshParams::IsValid() const
 		return false;
 	}
 
+	if (!NzBuffer::IsSupported(storage))
+	{
+		NazaraError("Storage not supported");
+		return false;
+	}
+
 	return true;
 }
 
@@ -27,6 +34,7 @@ struct NzMeshImpl
 	std::deque<NzString> skins;
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;
+	NzAxisAlignedBox aabb;
 	const NzAnimation* animation = nullptr;
 };
 
@@ -76,6 +84,8 @@ nzUInt8 NzMesh::AddSubMesh(NzSubMesh* subMesh)
 	#endif
 
 	subMesh->AddResourceReference();
+
+	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 
 	return m_impl->subMeshes.size()-1;
@@ -114,6 +124,7 @@ nzUInt8 NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 
 	subMesh->AddResourceReference();
 
+	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 	m_impl->subMeshMap[identifier] = index;
 
@@ -157,6 +168,8 @@ void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolati
 
 	for (NzSubMesh* subMesh : m_impl->subMeshes)
 		subMesh->AnimateImpl(frameA, frameB, interpolation);
+
+	m_impl->aabb.SetNull(); // On invalide l'AABB
 }
 
 bool NzMesh::Create(nzAnimationType type)
@@ -182,6 +195,25 @@ void NzMesh::Destroy()
 		delete m_impl;
 		m_impl = nullptr;
 	}
+}
+
+const NzAxisAlignedBox& NzMesh::GetAABB() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return NzAxisAlignedBox::Null;
+	}
+	#endif
+
+	if (m_impl->aabb.IsNull())
+	{
+		for (NzSubMesh* subMesh : m_impl->subMeshes)
+			m_impl->aabb.ExtendTo(subMesh->GetAABB());
+	}
+
+	return m_impl->aabb;
 }
 
 const NzAnimation* NzMesh::GetAnimation() const
@@ -373,6 +405,19 @@ unsigned int NzMesh::GetVertexCount() const
 	return vertexCount;
 }
 
+void NzMesh::InvalidateAABB() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+	#endif
+
+	m_impl->aabb.SetNull();
+}
+
 bool NzMesh::HasAnimation() const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -505,6 +550,8 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 	std::advance(it2, index);
 
 	m_impl->subMeshes.erase(it2);
+
+	m_impl->aabb.SetNull(); // On invalide l'AABB
 }
 
 void NzMesh::RemoveSubMesh(nzUInt8 index)
@@ -527,6 +574,8 @@ void NzMesh::RemoveSubMesh(nzUInt8 index)
 	std::advance(it, index);
 
 	m_impl->subMeshes.erase(it);
+
+	m_impl->aabb.SetNull(); // On invalide l'AABB
 }
 
 bool NzMesh::SetAnimation(const NzAnimation* animation)

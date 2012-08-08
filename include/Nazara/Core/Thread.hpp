@@ -26,7 +26,7 @@ class NAZARA_API NzThread : NzNonCopyable
 			friend class NzThreadImpl;
 
 			public:
-				Id() : m_handle(nullptr) {}
+				Id() = default;
 				Id(Id&& rhs) = default;
 				~Id();
 
@@ -38,7 +38,7 @@ class NAZARA_API NzThread : NzNonCopyable
 				Id(void* handle) : m_handle(handle) {}
 				Id(const NzThreadImpl* thread);
 
-				void* m_handle;
+				void* m_handle = nullptr;
 		};
 
 		template<typename F> NzThread(F function);

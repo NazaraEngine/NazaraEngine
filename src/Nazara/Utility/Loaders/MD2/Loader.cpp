@@ -48,7 +48,7 @@ namespace
 		}
 
 		// Les fichiers MD2 sont en little endian
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		NzByteSwap(&header.ident, sizeof(nzUInt32));
 		#endif
 
@@ -58,7 +58,7 @@ namespace
 			return false;
 		}
 
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		NzByteSwap(&header.version, sizeof(nzUInt32));
 		#endif
 
@@ -68,7 +68,7 @@ namespace
 			return false;
 		}
 
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		NzByteSwap(&header.skinwidth, sizeof(nzUInt32));
 		NzByteSwap(&header.skinheight, sizeof(nzUInt32));
 		NzByteSwap(&header.framesize, sizeof(nzUInt32));
@@ -129,6 +129,7 @@ namespace
 			NzAnimation* animation = new NzAnimation;
 			if (animation->Create(nzAnimationType_Keyframe, endFrame-startFrame+1))
 			{
+				// Décodage des séquences
 				NzString frameName;
 
 				NzSequence sequence;
@@ -154,7 +155,7 @@ namespace
 					stream.SetCursorPos(header.offset_frames + i*header.framesize + offsetof(md2_frame, name));
 					stream.Read(name, 16*sizeof(char));
 
-					int pos = std::strlen(name)-1;
+					pos = std::strlen(name)-1;
 					for (unsigned int j = 0; j < 2; ++j)
 					{
 						if (!std::isdigit(name[pos]))
@@ -217,7 +218,7 @@ namespace
 
 		const md2_header* header = reinterpret_cast<const md2_header*>(data);
 
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		nzUInt32 ident = header->ident;
 		nzUInt32 version = header->version;
 
@@ -238,7 +239,7 @@ namespace
 		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) != 2*sizeof(nzUInt32))
 			return false;
 
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		NzByteSwap(&magic[0], sizeof(nzUInt32));
 		NzByteSwap(&magic[1], sizeof(nzUInt32));
 		#endif

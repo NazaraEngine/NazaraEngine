@@ -11,7 +11,7 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#if NAZARA_THREADSAFETY_DYNLIB
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DYNLIB
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>

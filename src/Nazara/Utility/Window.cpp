@@ -82,32 +82,18 @@ m_impl(nullptr)
 
 NzWindow::~NzWindow()
 {
-	Close();
-}
-
-void NzWindow::Close()
-{
-	if (m_impl)
-	{
-		OnClose();
-
-		m_impl->Close();
-		delete m_impl;
-		m_impl = nullptr;
-
-		if (fullscreenWindow == this)
-			fullscreenWindow = nullptr;
-	}
+	Destroy();
 }
 
 bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
+	// Si la fenêtre est déjà ouverte, nous conservons sa position
 	bool opened = IsOpen();
 	NzVector2i position;
 	if (opened)
 		position = m_impl->GetPosition();
 
-	Close();
+	Destroy();
 
 	// Inspiré du code de la SFML par Laurent Gomila
 	if (style & nzWindowStyle_Fullscreen)
@@ -143,7 +129,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 	m_ownsWindow = true;
 
-	if (!OnCreate())
+	if (!OnWindowCreated())
 	{
 		NazaraError("Failed to initialize window extension");
 		delete m_impl;
@@ -152,6 +138,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		return false;
 	}
 
+	// Paramètres par défaut
 	m_impl->EnableKeyRepeat(true);
 	m_impl->EnableSmoothScrolling(false);
 	m_impl->SetCursor(nzWindowCursor_Default);
@@ -167,7 +154,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 bool NzWindow::Create(NzWindowHandle handle)
 {
-	Close();
+	Destroy();
 
 	m_impl = new NzWindowImpl(this);
 	if (!m_impl->Create(handle))
@@ -181,7 +168,7 @@ bool NzWindow::Create(NzWindowHandle handle)
 
 	m_ownsWindow = false;
 
-	if (!OnCreate())
+	if (!OnWindowCreated())
 	{
 		NazaraError("Failed to initialize window's derivate");
 		delete m_impl;
@@ -191,6 +178,21 @@ bool NzWindow::Create(NzWindowHandle handle)
 	}
 
 	return true;
+}
+
+void NzWindow::Destroy()
+{
+	if (m_impl)
+	{
+		OnWindowDestroying();
+
+		m_impl->Destroy();
+		delete m_impl;
+		m_impl = nullptr;
+
+		if (fullscreenWindow == this)
+			fullscreenWindow = nullptr;
+	}
 }
 
 void NzWindow::EnableKeyRepeat(bool enable)
@@ -210,7 +212,7 @@ NzWindowHandle NzWindow::GetHandle() const
 	if (m_impl)
 		return m_impl->GetHandle();
 	else
-		return 0;
+		return reinterpret_cast<NzWindowHandle>(0);
 }
 
 unsigned int NzWindow::GetHeight() const
@@ -420,6 +422,12 @@ void NzWindow::SetSize(unsigned int width, unsigned int height)
 		m_impl->SetSize(width, height);
 }
 
+void NzWindow::SetStayOnTop(bool stayOnTop)
+{
+	if (m_impl)
+		m_impl->SetStayOnTop(stayOnTop);
+}
+
 void NzWindow::SetTitle(const NzString& title)
 {
 	if (m_impl)
@@ -430,12 +438,6 @@ void NzWindow::SetVisible(bool visible)
 {
 	if (m_impl)
 		m_impl->SetVisible(visible);
-}
-
-void NzWindow::StayOnTop(bool stayOnTop)
-{
-	if (m_impl)
-		m_impl->StayOnTop(stayOnTop);
 }
 
 bool NzWindow::WaitEvent(NzEvent* event)
@@ -481,13 +483,19 @@ bool NzWindow::WaitEvent(NzEvent* event)
 	#endif
 }
 
-void NzWindow::OnClose()
+void NzWindow::OnWindowDestroying()
 {
 }
 
-bool NzWindow::OnCreate()
+bool NzWindow::OnWindowCreated()
 {
 	return true;
+}
+
+void NzWindow::IgnoreNextMouseEvent(int mouseX, int mouseY) const
+{
+	if (m_impl)
+		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
 }
 
 void NzWindow::PushEvent(const NzEvent& event)

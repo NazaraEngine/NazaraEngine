@@ -23,6 +23,7 @@ class NzShaderImpl
 		virtual ~NzShaderImpl();
 
 		virtual bool Bind() = 0;
+		virtual	bool BindTextures() = 0;
 
 		virtual bool Compile() = 0;
 		virtual bool Create() = 0;
@@ -32,6 +33,7 @@ class NzShaderImpl
 		virtual NzString GetLog() const = 0;
 		virtual nzShaderLanguage GetLanguage() const = 0;
 		virtual NzString GetSourceCode(nzShaderType type) const = 0;
+		virtual int GetUniformLocation(const NzString& name) const = 0;
 
 		virtual bool IsLoaded(nzShaderType type) const = 0;
 
@@ -39,19 +41,19 @@ class NzShaderImpl
 
 		virtual bool Lock() = 0;
 
-		virtual bool SendBoolean(const NzString& name, bool value) = 0;
-		virtual bool SendDouble(const NzString& name, double value) = 0;
-		virtual bool SendFloat(const NzString& name, float value) = 0;
-		virtual bool SendInteger(const NzString& name, int value) = 0;
-		virtual bool SendMatrix(const NzString& name, const NzMatrix4d& matrix) = 0;
-		virtual bool SendMatrix(const NzString& name, const NzMatrix4f& matrix) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector2d& vector) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector2f& vector) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector3d& vector) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector3f& vector) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector4d& vector) = 0;
-		virtual bool SendVector(const NzString& name, const NzVector4f& vector) = 0;
-		virtual bool SendTexture(const NzString& name, NzTexture* texture) = 0;
+		virtual bool SendBoolean(int location, bool value) = 0;
+		virtual bool SendDouble(int location, double value) = 0;
+		virtual bool SendFloat(int location, float value) = 0;
+		virtual bool SendInteger(int location, int value) = 0;
+		virtual bool SendMatrix(int location, const NzMatrix4d& matrix) = 0;
+		virtual bool SendMatrix(int location, const NzMatrix4f& matrix) = 0;
+		virtual bool SendTexture(int location, const NzTexture* texture) = 0;
+		virtual bool SendVector(int location, const NzVector2d& vector) = 0;
+		virtual bool SendVector(int location, const NzVector2f& vector) = 0;
+		virtual bool SendVector(int location, const NzVector3d& vector) = 0;
+		virtual bool SendVector(int location, const NzVector3f& vector) = 0;
+		virtual bool SendVector(int location, const NzVector4d& vector) = 0;
+		virtual bool SendVector(int location, const NzVector4f& vector) = 0;
 
 		virtual void Unbind() = 0;
 		virtual void Unlock() = 0;

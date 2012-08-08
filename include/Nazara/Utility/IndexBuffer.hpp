@@ -8,8 +8,8 @@
 #define NAZARA_INDEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 class NAZARA_API NzIndexBuffer : public NzResource
 {

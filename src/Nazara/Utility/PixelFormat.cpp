@@ -1320,5 +1320,5 @@ void NzPixelFormat::Uninitialize()
 		s_flipFunctions[i].clear();
 }
 
-NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1] = {{0}}; ///FIXME: Fonctionne correctement ?
+NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1] = {{nullptr}}; ///FIXME: Fonctionne correctement ?
 std::map<nzPixelFormat, NzPixelFormat::FlipFunction> NzPixelFormat::s_flipFunctions[nzPixelFlipping_Max+1];
