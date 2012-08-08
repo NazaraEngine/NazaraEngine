@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifdef NAZARA_RENDERER_COMMON
-#error This file is not part of the common renderer interface, you must undefine NAZARA_RENDERER_COMMON to use it
+	#error This file is not part of the common renderer interface, you must undefine NAZARA_RENDERER_COMMON to use it
 #endif
 
 #pragma once
@@ -12,18 +12,16 @@
 #define NAZARA_OPENGL_HPP
 
 // gl3.h définit WIN32_LEAN_AND_MEAN qui entre en conflit avec la définition de Nazara et doit donc être inclut en premier
-#include <GL3/gl3.h>
+#include <GL3/glcorearb.h>
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
-// Il semblerait qu'il ne soit pas conseillé d'inclure gl3.h t glext.h en même temps, mais je ne vois pas oomment gérer les extensions autrement...
+// Inclusion des extensions
 #include <GL3/glext.h>
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <GL3/wglext.h>
 #elif defined(NAZARA_PLATFORM_LINUX)
 	#include <GL3/glxext.h>
-#else
-	#error OS not handled
 #endif
 
 typedef void (*NzOpenGLFunc)();
@@ -40,11 +38,12 @@ class NAZARA_API NzOpenGL
 			PixelBufferObject,
 			SeparateShaderObjects,
 			Texture3D,
+			TextureArray,
 			TextureCompression_s3tc,
 			TextureStorage,
 			VertexArrayObject,
 
-			Count
+			Max = VertexArrayObject
 		};
 
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);

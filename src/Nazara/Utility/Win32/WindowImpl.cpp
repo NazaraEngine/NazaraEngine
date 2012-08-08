@@ -7,10 +7,10 @@
 #define OEMRESOURCE
 
 #include <Nazara/Utility/Win32/WindowImpl.hpp>
+#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
-#include <Nazara/Core/ThreadCondition.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Image.hpp>
@@ -53,28 +53,6 @@ m_scrolling(0)
 {
 }
 
-void NzWindowImpl::Close()
-{
-	if (m_ownsWindow)
-	{
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		if (m_thread)
-		{
-			m_threadActive = false;
-			PostMessageW(m_handle, WM_NULL, 0, 0); // Pour réveiller le thread
-
-			m_thread->Join();
-			delete m_thread;
-		}
-		#else
-		if (m_handle)
-			DestroyWindow(m_handle);
-		#endif
-	}
-	else
-		SetEventListener(false);
-}
-
 bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
 	bool fullscreen = (style & nzWindowStyle_Fullscreen) != 0;
@@ -99,6 +77,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 		}
 	}
 
+	// Testé une seconde fois car sa valeur peut changer
 	if (fullscreen)
 	{
 		x = 0;
@@ -143,7 +122,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzMutex mutex;
-	NzThreadCondition condition;
+	NzConditionVariable condition;
 	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle, win32Style, x, y, width, height, this, &mutex, &condition);
 	m_threadActive = true;
 
@@ -166,6 +145,9 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 	m_eventListener = true;
 	m_ownsWindow = true;
+	#if !NAZARA_UTILITY_THREADED_WINDOW
+	m_sizemove = false;
+	#endif
 
 	return m_handle != nullptr;
 }
@@ -181,8 +163,33 @@ bool NzWindowImpl::Create(NzWindowHandle handle)
 	m_handle = reinterpret_cast<HWND>(handle);
 	m_eventListener = false;
 	m_ownsWindow = false;
+	#if !NAZARA_UTILITY_THREADED_WINDOW
+	m_sizemove = false;
+	#endif
 
 	return true;
+}
+
+void NzWindowImpl::Destroy()
+{
+	if (m_ownsWindow)
+	{
+		#if NAZARA_UTILITY_THREADED_WINDOW
+		if (m_thread)
+		{
+			m_threadActive = false;
+			PostMessageW(m_handle, WM_NULL, 0, 0); // Pour réveiller le thread
+
+			m_thread->Join();
+			delete m_thread;
+		}
+		#else
+		if (m_handle)
+			DestroyWindow(m_handle);
+		#endif
+	}
+	else
+		SetEventListener(false);
 }
 
 void NzWindowImpl::EnableKeyRepeat(bool enable)
@@ -267,6 +274,13 @@ void NzWindowImpl::ProcessEvents(bool block)
 	}
 }
 
+void NzWindowImpl::IgnoreNextMouseEvent(int mouseX, int mouseY)
+{
+	// Petite astuce ...
+	m_mousePos.x = mouseX;
+	m_mousePos.y = mouseY;
+}
+
 bool NzWindowImpl::IsMinimized() const
 {
 	return IsIconic(m_handle);
@@ -317,12 +331,12 @@ void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 
 		case nzWindowCursor_ResizeNW:
 		case nzWindowCursor_ResizeSE:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED));
 			break;
 
 		case nzWindowCursor_ResizeNE:
 		case nzWindowCursor_ResizeSW:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED));
+			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED));
 			break;
 
 		case nzWindowCursor_ResizeE:
@@ -418,7 +432,7 @@ void NzWindowImpl::SetMinimumSize(int width, int height)
 
 void NzWindowImpl::SetPosition(int x, int y)
 {
-	SetWindowPos(m_handle, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(m_handle, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 void NzWindowImpl::SetSize(unsigned int width, unsigned int height)
@@ -427,7 +441,15 @@ void NzWindowImpl::SetSize(unsigned int width, unsigned int height)
 	RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 	AdjustWindowRect(&rect, GetWindowLongPtr(m_handle, GWL_STYLE), false);
 
-	SetWindowPos(m_handle, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(m_handle, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+}
+
+void NzWindowImpl::SetStayOnTop(bool stayOnTop)
+{
+	if (stayOnTop)
+		SetWindowPos(m_handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	else
+		SetWindowPos(m_handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void NzWindowImpl::SetTitle(const NzString& title)
@@ -440,11 +462,6 @@ void NzWindowImpl::SetTitle(const NzString& title)
 void NzWindowImpl::SetVisible(bool visible)
 {
 	ShowWindow(m_handle, (visible) ? SW_SHOW : SW_HIDE);
-}
-
-void NzWindowImpl::StayOnTop(bool stayOnTop)
-{
-	SetWindowPos(m_handle, (stayOnTop) ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 }
 
 bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
@@ -495,11 +512,13 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_CHAR:
 			{
 				// http://msdn.microsoft.com/en-us/library/ms646267(VS.85).aspx
-				if (m_keyRepeat || (HIWORD(lParam) & KF_REPEAT) == 0)
+				bool repeated = ((HIWORD(lParam) & KF_REPEAT) != 0);
+				if (m_keyRepeat || !repeated)
 				{
 					NzEvent event;
-					event.type = NzEvent::TextEntered;
-					event.text.character = static_cast<nzUInt32>(wParam);
+					event.type = nzEventType_TextEntered;
+					event.text.character = static_cast<char32_t>(wParam);
+					event.text.repeated = repeated;
 					m_parent->PushEvent(event);
 				}
 
@@ -509,65 +528,64 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_CLOSE:
 			{
 				NzEvent event;
-				event.type = NzEvent::Quit;
+				event.type = nzEventType_Quit;
 				m_parent->PushEvent(event);
 
 				return true; // Afin que Windows ne ferme pas la fenêtre automatiquement
 			}
 
-			case WM_LBUTTONDBLCLK:
+			#if !NAZARA_UTILITY_THREADED_WINDOW
+			case WM_ENTERSIZEMOVE:
 			{
-				// Cet évènement est généré à la place d'un WM_LBUTTONDOWN lors d'un double-clic.
-				// Comme nous désirons quand même notifier chaque clic, nous envoyons les deux évènements.
-				NzEvent event;
-				event.mouseButton.button = NzMouse::Left;
-				event.mouseButton.x = GET_X_LPARAM(lParam);
-				event.mouseButton.y = GET_Y_LPARAM(lParam);
-
-				event.type = NzEvent::MouseButtonDoubleClicked;
-				m_parent->PushEvent(event);
-
-				event.type = NzEvent::MouseButtonPressed;
-				m_parent->PushEvent(event);
-
+				m_sizemove = true;
 				break;
 			}
 
-			case WM_LBUTTONDOWN:
+			case WM_EXITSIZEMOVE:
 			{
-				NzEvent event;
-				event.type = NzEvent::MouseButtonPressed;
-				event.mouseButton.button = NzMouse::Left;
-				event.mouseButton.x = GET_X_LPARAM(lParam);
-				event.mouseButton.y = GET_Y_LPARAM(lParam);
-				m_parent->PushEvent(event);
+				m_sizemove = false;
 
-				break;
+				// On vérifie ce qui a changé
+				NzVector2i position = GetPosition();
+				if (m_position != position)
+				{
+					m_position = position;
+
+					NzEvent event;
+					event.type = nzEventType_Moved;
+					event.position.x = position.x;
+					event.position.y = position.y;
+					m_parent->PushEvent(event);
+				}
+
+				NzVector2ui size = GetSize();
+				if (m_size != size)
+				{
+					m_size = size;
+
+					NzEvent event;
+					event.type = nzEventType_Resized;
+					event.size.width = size.x;
+					event.size.height = size.y;
+					m_parent->PushEvent(event);
+				}
 			}
 
-			case WM_LBUTTONUP:
-			{
-				NzEvent event;
-				event.type = NzEvent::MouseButtonReleased;
-				event.mouseButton.button = NzMouse::Left;
-				event.mouseButton.x = GET_X_LPARAM(lParam);
-				event.mouseButton.y = GET_Y_LPARAM(lParam);
-				m_parent->PushEvent(event);
-
-				break;
-			}
+			#endif
 
 			case WM_KEYDOWN:
 			case WM_SYSKEYDOWN:
 			{
 				// http://msdn.microsoft.com/en-us/library/ms646267(VS.85).aspx
-				if (m_keyRepeat || (HIWORD(lParam) & KF_REPEAT) == 0)
+				bool repeated = ((HIWORD(lParam) & KF_REPEAT) != 0);
+				if (m_keyRepeat || !repeated)
 				{
 					NzEvent event;
-					event.type = NzEvent::KeyPressed;
+					event.type = nzEventType_KeyPressed;
 					event.key.code = ConvertVirtualKey(wParam, lParam);
 					event.key.alt = ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0);
 					event.key.control = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0);
+					event.key.repeated = repeated;
 					event.key.shift = ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0);
 					event.key.system = (((GetAsyncKeyState(VK_LWIN) & 0x8000) != 0) || ((GetAsyncKeyState(VK_RWIN) & 0x8000) != 0));
 					m_parent->PushEvent(event);
@@ -581,7 +599,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			{
 				// http://msdn.microsoft.com/en-us/library/ms646267(VS.85).aspx
 				NzEvent event;
-				event.type = NzEvent::KeyReleased;
+				event.type = nzEventType_KeyReleased;
 				event.key.code = ConvertVirtualKey(wParam, lParam);
 				event.key.alt = ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0);
 				event.key.control = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0);
@@ -595,7 +613,49 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_KILLFOCUS:
 			{
 				NzEvent event;
-				event.type = NzEvent::LostFocus;
+				event.type = nzEventType_LostFocus;
+				m_parent->PushEvent(event);
+
+				break;
+			}
+
+			case WM_LBUTTONDBLCLK:
+			{
+				// Cet évènement est généré à la place d'un WM_LBUTTONDOWN lors d'un double-clic.
+				// Comme nous désirons quand même notifier chaque clic, nous envoyons les deux évènements.
+				NzEvent event;
+				event.mouseButton.button = NzMouse::Left;
+				event.mouseButton.x = GET_X_LPARAM(lParam);
+				event.mouseButton.y = GET_Y_LPARAM(lParam);
+
+				event.type = nzEventType_MouseButtonDoubleClicked;
+				m_parent->PushEvent(event);
+
+				event.type = nzEventType_MouseButtonPressed;
+				m_parent->PushEvent(event);
+
+				break;
+			}
+
+			case WM_LBUTTONDOWN:
+			{
+				NzEvent event;
+				event.type = nzEventType_MouseButtonPressed;
+				event.mouseButton.button = NzMouse::Left;
+				event.mouseButton.x = GET_X_LPARAM(lParam);
+				event.mouseButton.y = GET_Y_LPARAM(lParam);
+				m_parent->PushEvent(event);
+
+				break;
+			}
+
+			case WM_LBUTTONUP:
+			{
+				NzEvent event;
+				event.type = nzEventType_MouseButtonReleased;
+				event.mouseButton.button = NzMouse::Left;
+				event.mouseButton.x = GET_X_LPARAM(lParam);
+				event.mouseButton.y = GET_Y_LPARAM(lParam);
 				m_parent->PushEvent(event);
 
 				break;
@@ -608,10 +668,10 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
 
-				event.type = NzEvent::MouseButtonDoubleClicked;
+				event.type = nzEventType_MouseButtonDoubleClicked;
 				m_parent->PushEvent(event);
 
-				event.type = NzEvent::MouseButtonPressed;
+				event.type = nzEventType_MouseButtonPressed;
 				m_parent->PushEvent(event);
 
 				break;
@@ -620,7 +680,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_MBUTTONDOWN:
 			{
 				NzEvent event;
-				event.type = NzEvent::MouseButtonPressed;
+				event.type = nzEventType_MouseButtonPressed;
 				event.mouseButton.button = NzMouse::Middle;
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
@@ -632,7 +692,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_MBUTTONUP:
 			{
 				NzEvent event;
-				event.type = NzEvent::MouseButtonReleased;
+				event.type = nzEventType_MouseButtonReleased;
 				event.mouseButton.button = NzMouse::Middle;
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
@@ -648,13 +708,16 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				m_mouseInside = false;
 
 				NzEvent event;
-				event.type = NzEvent::MouseLeft;
+				event.type = nzEventType_MouseLeft;
 				m_parent->PushEvent(event);
 				break;
 			}
 
 			case WM_MOUSEMOVE:
 			{
+				int currentX = GET_X_LPARAM(lParam);
+				int currentY = GET_Y_LPARAM(lParam);
+
 				if (!m_mouseInside)
 				{
 					m_mouseInside = true;
@@ -667,14 +730,37 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					TrackMouseEvent(&mouseEvent);
 
 					NzEvent event;
-					event.type = NzEvent::MouseEntered;
+					event.type = nzEventType_MouseEntered;
 					m_parent->PushEvent(event);
+
+					event.type = nzEventType_MouseMoved;
+
+					// Le delta sera 0
+					event.mouseMove.deltaX = 0;
+					event.mouseMove.deltaY = 0;
+
+					event.mouseMove.x = currentX;
+					event.mouseMove.y = currentY;
+
+					m_mousePos.x = currentX;
+					m_mousePos.y = currentY;
+
+					m_parent->PushEvent(event);
+					break;
 				}
+				else if (m_mousePos.x == currentX && m_mousePos.y == currentY)
+					break;
 
 				NzEvent event;
-				event.type = NzEvent::MouseMoved;
-				event.mouseMove.x = GET_X_LPARAM(lParam);
-				event.mouseMove.y = GET_Y_LPARAM(lParam);
+				event.type = nzEventType_MouseMoved;
+				event.mouseMove.deltaX = currentX - m_mousePos.x;
+				event.mouseMove.deltaY = currentY - m_mousePos.y;
+				event.mouseMove.x = currentX;
+				event.mouseMove.y = currentY;
+
+				m_mousePos.x = currentX;
+				m_mousePos.y = currentY;
+
 				m_parent->PushEvent(event);
 				break;
 			}
@@ -684,7 +770,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				if (m_smoothScrolling)
 				{
 					NzEvent event;
-					event.type = NzEvent::MouseWheelMoved;
+					event.type = nzEventType_MouseWheelMoved;
 					event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam))/WHEEL_DELTA;
 					m_parent->PushEvent(event);
 				}
@@ -694,7 +780,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					if (std::abs(m_scrolling) >= WHEEL_DELTA)
 					{
 						NzEvent event;
-						event.type = NzEvent::MouseWheelMoved;
+						event.type = nzEventType_MouseWheelMoved;
 						event.mouseWheel.delta = m_scrolling/WHEEL_DELTA;
 						m_parent->PushEvent(event);
 
@@ -709,7 +795,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				NzVector2i position = GetPosition();
 
 				NzEvent event;
-				event.type = NzEvent::Moved;
+				event.type = nzEventType_Moved;
 				event.position.x = position.x;
 				event.position.y = position.y;
 				m_parent->PushEvent(event);
@@ -724,10 +810,10 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
 
-				event.type = NzEvent::MouseButtonDoubleClicked;
+				event.type = nzEventType_MouseButtonDoubleClicked;
 				m_parent->PushEvent(event);
 
-				event.type = NzEvent::MouseButtonPressed;
+				event.type = nzEventType_MouseButtonPressed;
 				m_parent->PushEvent(event);
 
 				break;
@@ -736,7 +822,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_RBUTTONDOWN:
 			{
 				NzEvent event;
-				event.type = NzEvent::MouseButtonPressed;
+				event.type = nzEventType_MouseButtonPressed;
 				event.mouseButton.button = NzMouse::Right;
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
@@ -748,7 +834,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_RBUTTONUP:
 			{
 				NzEvent event;
-				event.type = NzEvent::MouseButtonReleased;
+				event.type = nzEventType_MouseButtonReleased;
 				event.mouseButton.button = NzMouse::Right;
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
@@ -760,7 +846,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_SETFOCUS:
 			{
 				NzEvent event;
-				event.type = NzEvent::GainedFocus;
+				event.type = nzEventType_GainedFocus;
 				m_parent->PushEvent(event);
 
 				break;
@@ -768,12 +854,22 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 
 			case WM_SIZE:
 			{
+				#if NAZARA_UTILITY_THREADED_WINDOW
 				if (wParam != SIZE_MINIMIZED)
+				#else
+				if (!m_sizemove && wParam != SIZE_MINIMIZED)
+				#endif
 				{
 					NzVector2ui size = GetSize(); // On récupère uniquement la taille de la zone client
+					#if !NAZARA_UTILITY_THREADED_WINDOW
+					if (m_size == size)
+						break;
+
+					m_size = size;
+					#endif
 
 					NzEvent event;
-					event.type = NzEvent::Resized;
+					event.type = nzEventType_Resized;
 					event.size.width = size.x;
 					event.size.height = size.y;
 					m_parent->PushEvent(event);
@@ -792,10 +888,10 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				event.mouseButton.x = GET_X_LPARAM(lParam);
 				event.mouseButton.y = GET_Y_LPARAM(lParam);
 
-				event.type = NzEvent::MouseButtonDoubleClicked;
+				event.type = nzEventType_MouseButtonDoubleClicked;
 				m_parent->PushEvent(event);
 
-				event.type = NzEvent::MouseButtonPressed;
+				event.type = nzEventType_MouseButtonPressed;
 				m_parent->PushEvent(event);
 
 				break;
@@ -804,6 +900,8 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_XBUTTONDOWN:
 			{
 				NzEvent event;
+				event.type = nzEventType_MouseButtonPressed;
+
 				if (HIWORD(wParam) == XBUTTON1)
 					event.mouseButton.button = NzMouse::XButton1;
 				else
@@ -819,6 +917,8 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			case WM_XBUTTONUP:
 			{
 				NzEvent event;
+				event.type = nzEventType_MouseButtonReleased;
+
 				if (HIWORD(wParam) == XBUTTON1)
 					event.mouseButton.button = NzMouse::XButton1;
 				else
@@ -1018,7 +1118,7 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 }
 
 #if NAZARA_UTILITY_THREADED_WINDOW
-void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzThreadCondition* condition)
+void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzConditionVariable* condition)
 {
 	*handle = CreateWindowExW(styleEx, className, title, style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
 

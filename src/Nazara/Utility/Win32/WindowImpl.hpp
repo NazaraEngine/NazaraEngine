@@ -20,9 +20,9 @@
 #include <windows.h>
 
 #if NAZARA_UTILITY_THREADED_WINDOW
+class NzConditionVariable;
 class NzMutex;
 class NzThread;
-class NzThreadCondition;
 #endif
 class NzWindow;
 
@@ -34,10 +34,10 @@ class NzWindowImpl : NzNonCopyable
 		NzWindowImpl(NzWindow* parent);
 		~NzWindowImpl() = default;
 
-		void Close();
-
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style);
 		bool Create(NzWindowHandle handle);
+
+		void Destroy();
 
 		void EnableKeyRepeat(bool enable);
 		void EnableSmoothScrolling(bool enable);
@@ -53,6 +53,8 @@ class NzWindowImpl : NzNonCopyable
 
 		void ProcessEvents(bool block);
 
+		void IgnoreNextMouseEvent(int mouseX, int mouseY);
+
 		bool IsMinimized() const;
 		bool IsVisible() const;
 
@@ -65,10 +67,9 @@ class NzWindowImpl : NzNonCopyable
 		void SetMinimumSize(int width, int height);
 		void SetPosition(int x, int y);
 		void SetSize(unsigned int width, unsigned int height);
+		void SetStayOnTop(bool stayOnTop);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
-
-		void StayOnTop(bool stayOnTop);
 
 		static bool Initialize();
 		static void Uninitialize();
@@ -79,7 +80,7 @@ class NzWindowImpl : NzNonCopyable
 		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 		static NzKeyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 		#if NAZARA_UTILITY_THREADED_WINDOW
-		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzThreadCondition* condition);
+		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzConditionVariable* condition);
 		#endif
 
 		HCURSOR m_cursor;
@@ -87,7 +88,11 @@ class NzWindowImpl : NzNonCopyable
 		LONG_PTR m_callback;
 		NzVector2i m_maxSize;
 		NzVector2i m_minSize;
-		#if NAZARA_UTILITY_THREADED_WINDOW
+		NzVector2i m_mousePos;
+		#if !NAZARA_UTILITY_THREADED_WINDOW
+		NzVector2i m_position;
+		NzVector2ui m_size;
+		#else
 		NzThread* m_thread;
 		#endif
 		NzWindow* m_parent;
@@ -95,6 +100,9 @@ class NzWindowImpl : NzNonCopyable
 		bool m_keyRepeat;
 		bool m_mouseInside;
 		bool m_ownsWindow;
+		#if !NAZARA_UTILITY_THREADED_WINDOW
+		bool m_sizemove;
+		#endif
 		bool m_smoothScrolling;
 		#if NAZARA_UTILITY_THREADED_WINDOW
 		bool m_threadActive;

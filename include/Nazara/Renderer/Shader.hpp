@@ -9,13 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 class NzRenderer;
 class NzShaderImpl;
@@ -38,6 +38,9 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		NzString GetLog() const;
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
+		int GetUniformLocation(const NzString& name) const;
+
+		bool HasUniform(const NzString& name) const;
 
 		bool IsCompiled() const;
 		bool IsLoaded(nzShaderType type) const;
@@ -47,19 +50,19 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		bool Lock();
 
-		bool SendBoolean(const NzString& name, bool value);
-		bool SendDouble(const NzString& name, double value);
-		bool SendFloat(const NzString& name, float value);
-		bool SendInteger(const NzString& name, int value);
-		bool SendMatrix(const NzString& name, const NzMatrix4d& matrix);
-		bool SendMatrix(const NzString& name, const NzMatrix4f& matrix);
-		bool SendVector(const NzString& name, const NzVector2d& vector);
-		bool SendVector(const NzString& name, const NzVector2f& vector);
-		bool SendVector(const NzString& name, const NzVector3d& vector);
-		bool SendVector(const NzString& name, const NzVector3f& vector);
-		bool SendVector(const NzString& name, const NzVector4d& vector);
-		bool SendVector(const NzString& name, const NzVector4f& vector);
-		bool SendTexture(const NzString& name, NzTexture* texture);
+		bool SendBoolean(int location, bool value);
+		bool SendDouble(int location, double value);
+		bool SendFloat(int location, float value);
+		bool SendInteger(int location, int value);
+		bool SendMatrix(int location, const NzMatrix4d& matrix);
+		bool SendMatrix(int location, const NzMatrix4f& matrix);
+		bool SendTexture(int location, const NzTexture* texture);
+		bool SendVector(int location, const NzVector2d& vector);
+		bool SendVector(int location, const NzVector2f& vector);
+		bool SendVector(int location, const NzVector3d& vector);
+		bool SendVector(int location, const NzVector3f& vector);
+		bool SendVector(int location, const NzVector4d& vector);
+		bool SendVector(int location, const NzVector4f& vector);
 
 		void Unlock();
 

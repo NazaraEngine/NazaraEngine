@@ -16,7 +16,7 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#if NAZARA_THREADSAFETY_FILE
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -50,7 +50,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		NzFile();
 		NzFile(const NzString& filePath);
 		NzFile(const NzString& filePath, unsigned long openMode);
-		NzFile(NzFile&& file);
+		NzFile(NzFile&& file) noexcept;
 		~NzFile();
 
 		bool Copy(const NzString& newFilePath);
@@ -92,7 +92,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 
 		NzFile& operator=(const NzString& filePath);
-		NzFile& operator=(NzFile&& file);
+		NzFile& operator=(NzFile&& file) noexcept;
 
 		static NzString AbsolutePath(const NzString& filePath);
 		static bool Copy(const NzString& sourcePath, const NzString& targetPath);

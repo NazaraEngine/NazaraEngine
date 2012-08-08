@@ -17,18 +17,33 @@ template<typename T> class NzVector4
 		NzVector4(T X, T Y, T Z, T W = 1.0);
 		explicit NzVector4(T scale);
 		NzVector4(T vec[4]);
-		template<typename U> explicit NzVector4(const NzVector4<U>& vec);
 		NzVector4(const NzVector3<T>& vec, T W = 1.0);
+		template<typename U> explicit NzVector4(const NzVector4<U>& vec);
 		NzVector4(const NzVector4& vec) = default;
 		~NzVector4() = default;
 
 		T AbsDotProduct(const NzVector4& vec) const;
+
 		T DotProduct(const NzVector4& vec) const;
+
 		void MakeCeil(const NzVector4& vec);
 		void MakeFloor(const NzVector4& vec);
+		void MakeUnitX();
+		void MakeUnitY();
+		void MakeUnitZ();
+		void MakeZero();
+
 		void Normalize();
 
+		void Set(T X, T Y, T Z, T W = 1.0);
+		void Set(T scale);
+		void Set(T vec[4]);
+		void Set(const NzVector3<T>& vec, T W = 1.0);
+		template<typename U> void Set(const NzVector4<U>& vec);
+
 		NzString ToString() const;
+
+		operator NzString() const;
 
 		operator T*();
 		operator const T*() const;
@@ -60,10 +75,12 @@ template<typename T> class NzVector4
 		bool operator>(const NzVector4& vec) const;
 		bool operator>=(const NzVector4& vec) const;
 
-		T x;
-		T y;
-		T z;
-		T w;
+		static NzVector4 UnitX();
+		static NzVector4 UnitY();
+		static NzVector4 UnitZ();
+		static NzVector4 Zero();
+
+		T x, y, z, w;
 };
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const NzVector4<T>& vec);

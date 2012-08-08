@@ -21,19 +21,36 @@ template<typename T> class NzVector2
 		~NzVector2() = default;
 
 		T AbsDotProduct(const NzVector2& vec) const;
+
 		T Distance(const NzVector2& vec) const;
 		float Distancef(const NzVector2& vec) const;
+
 		T DotProduct(const NzVector2& vec) const;
+
 		NzVector2 GetNormal() const;
+
 		void MakeCeil(const NzVector2& vec);
 		void MakeFloor(const NzVector2& vec);
+		void MakeUnitX();
+		void MakeUnitY();
+		void MakeZero();
+
 		T Length() const;
 		float Lengthf() const;
+
 		void Normalize();
+
+		void Set(T X, T Y);
+		void Set(T scale);
+		void Set(T vec[2]);
+		template<typename U> void Set(const NzVector2<U>& vec);
+
 		T SquaredDistance(const NzVector2& vec) const;
 		T SquaredLength() const;
 
 		NzString ToString() const;
+
+		operator NzString() const;
 
 		operator T*();
 		operator const T*() const;
@@ -65,8 +82,11 @@ template<typename T> class NzVector2
 		bool operator>(const NzVector2& vec) const;
 		bool operator>=(const NzVector2& vec) const;
 
-		T x;
-		T y;
+		static NzVector2 UnitX();
+		static NzVector2 UnitY();
+		static NzVector2 Zero();
+
+		T x, y;
 };
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const NzVector2<T>& vec);

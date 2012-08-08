@@ -28,11 +28,13 @@
 class NzCursor;
 class NzImage;
 class NzIcon;
+class NzMouse;
 class NzUtility;
 class NzWindowImpl;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {
+	friend class NzMouse;
 	friend class NzUtility;
 	friend class NzWindowImpl;
 
@@ -42,10 +44,10 @@ class NAZARA_API NzWindow : NzNonCopyable
 		NzWindow(NzWindowHandle handle);
 		virtual ~NzWindow();
 
-		void Close();
-
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		bool Create(NzWindowHandle handle);
+
+		void Destroy();
 
 		void EnableKeyRepeat(bool enable);
 		void EnableSmoothScrolling(bool enable);
@@ -78,20 +80,20 @@ class NAZARA_API NzWindow : NzNonCopyable
 		void SetPosition(int x, int y);
 		void SetSize(const NzVector2i& size);
 		void SetSize(unsigned int width, unsigned int height);
+		void SetStayOnTop(bool stayOnTop);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
-
-		void StayOnTop(bool stayOnTop);
 
 		bool WaitEvent(NzEvent* event);
 
 	protected:
-		virtual void OnClose();
-		virtual bool OnCreate();
+		virtual void OnWindowDestroying();
+		virtual bool OnWindowCreated();
 
 		NzWindowImpl* m_impl;
 
 	private:
+		void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
 		void PushEvent(const NzEvent& event);
 
 		static bool Initialize();
@@ -99,9 +101,9 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		std::queue<NzEvent> m_events;
 		#if NAZARA_UTILITY_THREADED_WINDOW
+		NzConditionVariable m_eventCondition;
 		NzMutex m_eventMutex;
 		NzMutex m_eventConditionMutex;
-		NzThreadCondition m_eventCondition;
 		bool m_eventListener;
 		bool m_waitForEvent;
 		#endif

@@ -24,6 +24,7 @@ enum nzBufferAccess
 
 enum nzBufferStorage
 {
+	//nzBufferStorage_Both,
 	nzBufferStorage_Hardware,
 	nzBufferStorage_Software,
 
@@ -44,8 +45,8 @@ enum nzBufferUsage
 
 enum nzCubemapFace
 {
-	// L'ordre est X, -X, Y, -Y, Z, -Z
 	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap
+	// L'ordre est X, -X, Y, -Y, Z, -Z
 	nzCubemapFace_PositiveX = 0,
 	nzCubemapFace_PositiveY = 2,
 	nzCubemapFace_PositiveZ = 4,
@@ -86,10 +87,38 @@ enum nzElementUsage
 	nzElementUsage_Max = nzElementUsage_TexCoord
 };
 
+enum nzEventType
+{
+	nzEventType_GainedFocus,
+	nzEventType_LostFocus,
+	nzEventType_KeyPressed,
+	nzEventType_KeyReleased,
+	nzEventType_MouseButtonDoubleClicked,
+	nzEventType_MouseButtonPressed,
+	nzEventType_MouseButtonReleased,
+	nzEventType_MouseEntered,
+	nzEventType_MouseLeft,
+	nzEventType_MouseMoved,
+	nzEventType_MouseWheelMoved,
+	nzEventType_Moved,
+	nzEventType_Quit,
+	nzEventType_Resized,
+	nzEventType_TextEntered
+};
+
+enum nzExtend
+{
+	nzExtend_Finite,
+	nzExtend_Infinite,
+	nzExtend_Null
+};
+
 enum nzImageType
 {
 	nzImageType_1D,
+	nzImageType_1D_Array,
 	nzImageType_2D,
+	nzImageType_2D_Array,
 	nzImageType_3D,
 	nzImageType_Cubemap,
 

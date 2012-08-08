@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-#if NAZARA_THREADSAFETY_VERTEXDECLARATION
+#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_VERTEXDECLARATION
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -22,15 +22,15 @@ namespace
 {
 	const unsigned int size[] =
 	{
-		4,	// nzElementType_Color
-		8,	// nzElementType_Double1
-		16,	// nzElementType_Double2
-		24,	// nzElementType_Double3
-		32,	// nzElementType_Double4
-		4,	// nzElementType_Float1
-		8,	// nzElementType_Float2
-		12,	// nzElementType_Float3
-		16	// nzElementType_Float4
+		sizeof(nzUInt32), // nzElementType_Color
+		1*sizeof(double), // nzElementType_Double1
+		2*sizeof(double), // nzElementType_Double2
+		3*sizeof(double), // nzElementType_Double3
+		4*sizeof(double), // nzElementType_Double4
+		1*sizeof(float),  // nzElementType_Float1
+		2*sizeof(float),  // nzElementType_Float2
+		3*sizeof(float),  // nzElementType_Float3
+		4*sizeof(float)	  // nzElementType_Float4
 	};
 
 	bool VertexElementCompare(const NzVertexElement& elementA, const NzVertexElement& elementB)
@@ -57,7 +57,7 @@ struct NzVertexDeclarationImpl
 	int streamPos[nzElementStream_Max+1];
 	unsigned int stride[nzElementStream_Max+1] = {0};
 
-	unsigned short refCount;
+	unsigned short refCount = 1;
 	NazaraMutex(mutex)
 };
 
@@ -86,7 +86,7 @@ m_sharedImpl(declaration.m_sharedImpl)
 	}
 }
 
-NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration&& declaration) :
+NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration&& declaration) noexcept :
 m_sharedImpl(declaration.m_sharedImpl)
 {
 	declaration.m_sharedImpl = nullptr;
@@ -146,7 +146,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 		impl->stride[current.stream] += size[current.type];
 	}
 
-	#if NAZARA_RENDERER_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32
+	#if NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32
 	for (unsigned int& stride : impl->stride)
 		stride = ((static_cast<int>(stride)-1)/32+1)*32;
 	#endif
@@ -335,7 +335,7 @@ NzVertexDeclaration& NzVertexDeclaration::operator=(const NzVertexDeclaration& d
 	return *this;
 }
 
-NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declaration)
+NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declaration) noexcept
 {
 	Destroy();
 

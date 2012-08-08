@@ -361,7 +361,7 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 			return "RGBA8";
 
 		case nzPixelFormat_Undefined:
-			break;
+			return "Undefined";
 	}
 
 	NazaraError("Invalid pixel format");

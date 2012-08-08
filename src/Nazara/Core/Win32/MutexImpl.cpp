@@ -7,7 +7,11 @@
 
 NzMutexImpl::NzMutexImpl()
 {
+	#if NAZARA_CORE_WINDOWS_CS_SPINLOCKS > 0
+	InitializeCriticalSectionAndSpinCount(&m_criticalSection, NAZARA_CORE_WINDOWS_CS_SPINLOCKS);
+	#else
 	InitializeCriticalSection(&m_criticalSection);
+	#endif
 }
 
 NzMutexImpl::~NzMutexImpl()

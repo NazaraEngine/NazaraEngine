@@ -52,14 +52,14 @@ namespace
 
 		if (access == nzBufferAccess_DiscardAndWrite)
 		{
-			GLint bufferSize;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_SIZE, &bufferSize);
+			GLint bufSize;
+			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_SIZE, &bufSize);
 
-			GLint bufferUsage;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_USAGE, &bufferUsage);
+			GLint bufUsage;
+			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_USAGE, &bufUsage);
 
 			// On discard le buffer
-			glBufferData(bufferTargetBinding[type], bufferSize, nullptr, bufferUsage);
+			glBufferData(bufferTargetBinding[type], bufSize, nullptr, bufUsage);
 		}
 
 		void* ptr = glMapBuffer(bufferTarget[type], bufferLock[access]);

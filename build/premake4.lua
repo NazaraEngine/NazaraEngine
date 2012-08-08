@@ -1,7 +1,10 @@
-solution "Nazara"
- 
--- Hack: loadfile doesn't change current directory, as does premake-overloaded dofile
+newoption {
+	trigger     = "with-examples",
+	description = "Builds the examples"
+}
 
+solution "NazaraEngine"
+-- Hack: loadfile doesn't change current directory, as does premake-overloaded dofile
 loadfile("scripts/common.lua")()
 
 local modules
@@ -23,5 +26,19 @@ for k,v in pairs(modules) do
 		f()
 	else
 		print("Unable to load action: " .. err)
+	end
+end
+
+if (_OPTIONS["with-examples"]) then
+	solution "NazaraExamples"
+	loadfile("scripts/common_examples.lua")()
+
+	local examples = os.matchdirs("../examples/*")
+	for k,v in pairs(examples) do
+		local dirName = v:match(".*/(.*)")
+		if (dirName ~= "bin" and dirName ~= "build") then
+			project(dirName)
+			dofile(v .. "/build.lua")
+		end
 	end
 end

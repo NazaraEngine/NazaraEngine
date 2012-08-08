@@ -1,3 +1,7 @@
+// Copyright (C) 2012 Jérôme Leclercq
+// This file is part of the "Nazara Engine".
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
@@ -54,7 +58,7 @@ namespace
 	}
 
 	std::set<NzString> openGLextensionSet;
-	bool openGLextensions[NzOpenGL::Count] = {false};
+	bool openGLextensions[NzOpenGL::Max+1] = {false};
 	unsigned int openGLversion = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
@@ -129,7 +133,7 @@ bool NzOpenGL::Initialize()
 	/*
 		Note: Même le contexte de chargement nécessite quelques fonctions de base pour correctement s'initialiser
 		Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
-		de créer le second avec les bons paramètres.s
+		de créer le second avec les bons paramètres.
 
 		Non sérieusement si quelqu'un a une meilleure idée qu'il me le dise
 	*/
@@ -157,7 +161,7 @@ bool NzOpenGL::Initialize()
 	// Récupération de la version d'OpenGL
 	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
 	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
-	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString"));
+	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString", false));
 	if (!glGetString)
 	{
 		NazaraError("Unable to load OpenGL: failed to load glGetString");
@@ -191,10 +195,17 @@ bool NzOpenGL::Initialize()
 	}
 
 	openGLversion = major*100 + minor*10;
+	if (openGLversion < 200)
+	{
+		NazaraError("OpenGL version is too low, please upgrade your drivers or your graphics card");
+		Uninitialize();
+
+		return false;
+	}
 
 	parameters.debugMode = true; // Certaines extensions n'apparaissent qu'avec un contexte de debug (e.g. ARB_debug_output)
-	parameters.majorVersion = NzContextParameters::defaultMajorVersion = openGLversion/100;
-	parameters.minorVersion = NzContextParameters::defaultMinorVersion = (openGLversion%100)/10;
+	parameters.majorVersion = NzContextParameters::defaultMajorVersion = major;
+	parameters.minorVersion = NzContextParameters::defaultMinorVersion = minor;
 
 	// Destruction implicite du premier contexte
 	if (!loadContext.Create(parameters))
@@ -331,7 +342,7 @@ bool NzOpenGL::Initialize()
 			loaded = false;
 
 		if (!loaded)
-			NazaraWarning("Failed to load windows' extension string");
+			NazaraWarning("Failed to load wgl extension string");
 	}
 	#endif
 
@@ -403,7 +414,7 @@ bool NzOpenGL::Initialize()
 	openGLextensions[NzOpenGL::PixelBufferObject] = (openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
 
 	// SeparateShaderObjects
-	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
+	if (openGLversion >= 400 || IsSupported("GL_ARB_separate_shader_objects"))
 	{
 		glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FPROC>(LoadEntry("glProgramUniform1f"));
 		glProgramUniform1i = reinterpret_cast<PFNGLPROGRAMUNIFORM1IPROC>(LoadEntry("glProgramUniform1i"));
@@ -412,6 +423,7 @@ bool NzOpenGL::Initialize()
 		glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
 		glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
 
+		// Si ARB_gpu_shader_fp64 est supporté, alors cette extension donne également accès aux fonctions utilisant des double
 		if (openGLextensions[NzOpenGL::FP64])
 		{
 			glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
@@ -434,8 +446,7 @@ bool NzOpenGL::Initialize()
 	}
 	catch (const std::exception& e)
 	{
-		if (openGLversion >= 120)
-			NazaraWarning("Failed to load core texture 3D (" + NzString(e.what()) + ")");
+		NazaraWarning("Failed to load core texture 3D (" + NzString(e.what()) + ")");
 
 		if (IsSupported("GL_EXT_texture3D"))
 		{
@@ -449,12 +460,15 @@ bool NzOpenGL::Initialize()
 
 				openGLextensions[NzOpenGL::Texture3D] = true;
 			}
-			catch (const std::exception& e)
+			catch (const std::exception& e2)
 			{
-				NazaraWarning("Failed to load EXT_texture3D: " + NzString(e.what()));
+				NazaraWarning("Failed to load EXT_texture3D: " + NzString(e2.what()));
 			}
 		}
 	}
+
+	// TextureArray
+	openGLextensions[NzOpenGL::TextureArray] = (openGLversion >= 300 || IsSupported("GL_EXT_texture_array"));
 
 	// TextureCompression_s3tc
 	openGLextensions[NzOpenGL::TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");

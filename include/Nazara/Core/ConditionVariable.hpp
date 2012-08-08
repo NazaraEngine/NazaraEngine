@@ -4,19 +4,19 @@
 
 #pragma once
 
-#ifndef NAZARA_THREADCONDITION_HPP
-#define NAZARA_THREADCONDITION_HPP
+#ifndef NAZARA_CONDITIONVARIABLE_HPP
+#define NAZARA_CONDITIONVARIABLE_HPP
 
 #include <Nazara/Prerequesites.hpp>
 
+class NzConditionVariableImpl;
 class NzMutex;
-class NzThreadConditionImpl;
 
-class NAZARA_API NzThreadCondition
+class NAZARA_API NzConditionVariable
 {
 	public:
-		NzThreadCondition();
-		~NzThreadCondition();
+		NzConditionVariable();
+		~NzConditionVariable();
 
 		void Signal();
 		void SignalAll();
@@ -25,7 +25,7 @@ class NAZARA_API NzThreadCondition
 		bool Wait(NzMutex* mutex, nzUInt32 timeout);
 
 	private:
-		NzThreadConditionImpl* m_impl;
+		NzConditionVariableImpl* m_impl;
 };
 
-#endif // NAZARA_THREADCONDITION_HPP
+#endif // NAZARA_CONDITIONVARIABLE_HPP

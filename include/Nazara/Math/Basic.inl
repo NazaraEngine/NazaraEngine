@@ -10,6 +10,8 @@
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
+#define F(a) static_cast<T>(a)
+
 template<typename T>
 T NzApproach(T value, T objective, T increment)
 {
@@ -45,7 +47,7 @@ T NzDegrees(T degrees)
 template<typename T>
 T NzDegreeToRadian(T degrees)
 {
-	return degrees * (M_PI/180.0);
+	return degrees * F(M_PI/180.0);
 }
 
 unsigned int NzGetNumberLength(signed char number)
@@ -53,7 +55,15 @@ unsigned int NzGetNumberLength(signed char number)
 	if (number == 0)
 		return 1;
 
-	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
+	// Le standard définit le char comme étant codé sur un octet
+	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
+
+	if (number >= 100)
+		return 3;
+	else if (number >= 10)
+		return 2;
+	else
+		return 1;
 }
 
 unsigned int NzGetNumberLength(unsigned char number)
@@ -61,7 +71,15 @@ unsigned int NzGetNumberLength(unsigned char number)
 	if (number == 0)
 		return 1;
 
-	return static_cast<unsigned int>(std::log10(number))+1;
+	// Le standard définit le char comme étant codé sur un octet
+	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
+
+	if (number >= 100)
+		return 3;
+	else if (number >= 10)
+		return 2;
+	else
+		return 1;
 }
 
 unsigned int NzGetNumberLength(short number)
@@ -152,20 +170,20 @@ T NzNormalizeAngle(T angle)
 	#if NAZARA_MATH_ANGLE_RADIAN
 	const T limit = M_PI;
 	#else
-	const T limit = 180.0;
+	const T limit = F(180.0);
 	#endif
 
 	///TODO: Trouver une solution sans duplication
-	if (angle > 0.0)
+	if (angle > F(0.0))
 	{
 		angle += limit;
-		angle -= static_cast<int>(angle/(2.0*limit))*(2.0*limit);
+		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
 		angle -= limit;
 	}
 	else
 	{
 		angle -= limit;
-		angle -= static_cast<int>(angle/(2.0*limit))*(2.0*limit);
+		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
 		angle += limit;
 	}
 
@@ -175,11 +193,7 @@ T NzNormalizeAngle(T angle)
 template<typename T>
 bool NzNumberEquals(T a, T b)
 {
-	if (a > b)
-		return (a-b) <= std::numeric_limits<T>::epsilon();
-	else
-		return (b-a) <= std::numeric_limits<T>::epsilon();
-
+	return std::fabs(a-b) <= std::numeric_limits<T>::epsilon();
 }
 
 NzString NzNumberToString(long long number, nzUInt8 radix)
@@ -235,7 +249,7 @@ T NzRadians(T radians)
 template<typename T>
 T NzRadianToDegree(T radians)
 {
-	return radians * (180.0/M_PI);
+	return radians * F(180.0/M_PI);
 }
 
 long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
@@ -287,5 +301,7 @@ long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 
 	return (negative) ? -static_cast<long long>(total) : total;
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

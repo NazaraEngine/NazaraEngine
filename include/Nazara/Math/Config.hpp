@@ -36,15 +36,17 @@
 // Définit la disposition des matrices en colonnes (Façon OpenGL)
 #define NAZARA_MATH_MATRIX_COLUMN_MAJOR 1
 
+// Optimise les opérations entre matrices affines (Demande plusieurs comparaisons pour déterminer si une matrice est affine)
+#define NAZARA_MATH_MATRIX4_CHECK_AFFINE 0
+
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_MATH_SAFE 1
 
-// Protège le module des accès concurrentiels
+// Protège les classes des accès concurrentiels
 #define NAZARA_MATH_THREADSAFE 1
 
-#if NAZARA_MATH_THREADSAFE
-	#define NAZARA_THREADSAFETY_MATRIX3 1  // NzMatrix3 (COW)
-	#define NAZARA_THREADSAFETY_MATRIX4 1  // NzMatrix4 (COW)
-#endif
+// Les classes à protéger des accès concurrentiels
+#define NAZARA_THREADSAFETY_MATRIX3 1  // NzMatrix3 (COW)
+#define NAZARA_THREADSAFETY_MATRIX4 1  // NzMatrix4 (COW)
 
 #endif // NAZARA_CONFIG_MATH_HPP

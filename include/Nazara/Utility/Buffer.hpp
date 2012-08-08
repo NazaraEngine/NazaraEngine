@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 class NzBufferImpl;
 class NzRenderer;

@@ -10,17 +10,17 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utility/Resource.hpp>
 #include <list>
 #include <map>
 
-#if NAZARA_THREADSAFETY_IMAGE
+#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_IMAGE
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -49,7 +49,7 @@ class NAZARA_API NzImage : public NzResource
 
 		NzImage();
 		NzImage(const NzImage& image);
-		NzImage(NzImage&& image);
+		NzImage(NzImage&& image) noexcept;
 		NzImage(SharedImage* sharedImage);
 		~NzImage();
 
@@ -68,14 +68,14 @@ class NAZARA_API NzImage : public NzResource
 		bool FlipVertically();
 
 		nzUInt8 GetBPP() const;
-		const nzUInt8* GetConstPixels(nzUInt8 level = 0, unsigned int x = 0, unsigned int y = 0, unsigned int z = 0) const;
+		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight(nzUInt8 level = 0) const;
 		nzUInt8 GetLevelCount() const;
 		nzUInt8 GetMaxLevel() const;
 		NzColor GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
-		nzUInt8* GetPixels(nzUInt8 level = 0, unsigned int x = 0, unsigned int y = 0, unsigned int z = 0);
+		nzUInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0);
 		unsigned int GetSize() const;
 		unsigned int GetSize(nzUInt8 level) const;
 		nzImageType GetType() const;
@@ -97,7 +97,7 @@ class NAZARA_API NzImage : public NzResource
 		bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
-		NzImage& operator=(NzImage&& image);
+		NzImage& operator=(NzImage&& image) noexcept;
 
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 

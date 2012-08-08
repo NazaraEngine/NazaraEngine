@@ -6,7 +6,7 @@
 #define NAZARA_PREREQUESITES_HPP
 
 #if __cplusplus < 201103L
-#error Nazara requires a C++11 compliant compiler
+	#error Nazara requires a C++11 compliant compiler
 #endif
 
 // Version du moteur
@@ -42,7 +42,7 @@
 
 #define NazaraUnused(a) (void) a
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(NAZARA_PLATFORM_WINDOWSVISTA)
+#if defined(_WIN32) || defined(__WIN32__)
 	#if !defined(NAZARA_STATIC)
 		#ifdef NAZARA_BUILD
 			#define NAZARA_API __declspec(dllexport)
@@ -71,6 +71,7 @@
 			#define NAZARA_WINNT 0x0501
 		#endif
 
+		// Pour ne pas casser le define déjà en place s'il est applicable
 		#if defined(_WIN32_WINNT)
 			#if _WIN32_WINNT < NAZARA_WINNT
 				#undef _WIN32_WINNT
@@ -109,6 +110,16 @@
 #endif
 
 #include <cstdint>
+
+static_assert(sizeof(int8_t)  == 1, "int8_t is not of the correct size" );
+static_assert(sizeof(int16_t) == 2, "int16_t is not of the correct size");
+static_assert(sizeof(int32_t) == 4, "int32_t is not of the correct size");
+static_assert(sizeof(int64_t) == 8, "int64_t is not of the correct size");
+
+static_assert(sizeof(uint8_t)  == 1, "uint8_t is not of the correct size" );
+static_assert(sizeof(uint16_t) == 2, "uint16_t is not of the correct size");
+static_assert(sizeof(uint32_t) == 4, "uint32_t is not of the correct size");
+static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
 typedef int8_t nzInt8;
 typedef uint8_t nzUInt8;

@@ -8,9 +8,10 @@
 #define NAZARA_SUBMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
-#include <Nazara/Utility/Resource.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
@@ -26,6 +27,7 @@ class NAZARA_API NzSubMesh : public NzResource
 
 		void Animate(unsigned int frameA, unsigned int frameB, float interpolation);
 
+		virtual const NzAxisAlignedBox& GetAABB() const = 0;
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
 		const NzMesh* GetParent() const;
 		virtual nzPrimitiveType GetPrimitiveType() const = 0;
