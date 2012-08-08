@@ -8,20 +8,22 @@
 #define NAZARA_MODULENAME_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Initializer.hpp>
 
 class NAZARA_API NzModuleName
 {
 	public:
-		NzModuleName();
-		~NzModuleName();
+		NzModuleName() = delete;
+		~NzModuleName() = delete;
 
-		bool Initialize();
-		void Uninitialize();
+		static bool Initialize();
 
 		static bool IsInitialized();
 
+		static void Uninitialize();
+
 	private:
-		static bool s_initialized;
+		static unsigned int s_moduleReferenceCouter;
 };
 
 #endif // NAZARA_MODULENAME_HPP

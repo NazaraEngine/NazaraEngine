@@ -25,14 +25,14 @@ namespace
 }
 
 NzDirectory::NzDirectory() :
-m_impl(nullptr)
+m_pattern('*')
 {
 }
 
 NzDirectory::NzDirectory(const NzString& dirPath) :
-m_impl(nullptr)
+m_dirPath(dirPath),
+m_pattern('*')
 {
-	SetDirectory(dirPath);
 }
 
 NzDirectory::~NzDirectory()
@@ -42,18 +42,27 @@ NzDirectory::~NzDirectory()
 
 void NzDirectory::Close()
 {
+	NazaraLock(m_mutex);
+
 	if (m_impl)
 	{
 		m_impl->Close();
 		delete m_impl;
 		m_impl = nullptr;
-
-		NazaraMutexUnlock(m_mutex);
 	}
+}
+
+NzString NzDirectory::GetPattern() const
+{
+	NazaraLock(m_mutex);
+
+	return m_pattern;
 }
 
 NzString NzDirectory::GetResultName() const
 {
+	NazaraLock(m_mutex);
+
 	#if NAZARA_CORE_SAFE
 	if (!m_impl)
 	{
@@ -67,6 +76,8 @@ NzString NzDirectory::GetResultName() const
 
 NzString NzDirectory::GetResultPath() const
 {
+	NazaraLock(m_mutex);
+
 	#if NAZARA_CORE_SAFE
 	if (!m_impl)
 	{
@@ -80,6 +91,8 @@ NzString NzDirectory::GetResultPath() const
 
 nzUInt64 NzDirectory::GetResultSize() const
 {
+	NazaraLock(m_mutex);
+
 	#if NAZARA_CORE_SAFE
 	if (!m_impl)
 	{
@@ -91,8 +104,17 @@ nzUInt64 NzDirectory::GetResultSize() const
 	return m_impl->GetResultSize();
 }
 
+bool NzDirectory::IsOpen() const
+{
+	NazaraLock(m_mutex);
+
+	return m_impl != nullptr;
+}
+
 bool NzDirectory::IsResultDirectory() const
 {
+	NazaraLock(m_mutex);
+
 	#if NAZARA_CORE_SAFE
 	if (!m_impl)
 	{
@@ -106,6 +128,8 @@ bool NzDirectory::IsResultDirectory() const
 
 bool NzDirectory::NextResult(bool skipDots)
 {
+	NazaraLock(m_mutex);
+
 	#if NAZARA_CORE_SAFE
 	if (!m_impl)
 	{
@@ -114,40 +138,39 @@ bool NzDirectory::NextResult(bool skipDots)
 	}
 	#endif
 
-	if (skipDots)
+	NzString name;
+	do
 	{
-		NzString name;
-		do
-		{
-			if (!m_impl->NextResult())
-				return false;
+		if (!m_impl->NextResult())
+			return false;
 
-			name = m_impl->GetResultName();
-		}
-		while (name == '.' || name == "..");
+		name = m_impl->GetResultName();
 
-		return true;
+		if (skipDots && (name == '.' || name == ".."))
+			continue;
+
+		if (name.Match(m_pattern))
+			break;
 	}
-	else
-		return m_impl->NextResult();
+	while (true);
+
+	return true;
 }
 
 bool NzDirectory::Open()
 {
+	NazaraLock(m_mutex);
+
 	Close();
 
 	if (!Exists(m_dirPath))
 		return false;
-
-	NazaraMutexLock(m_mutex);
 
 	m_impl = new NzDirectoryImpl(this);
 	if (!m_impl->Open(m_dirPath))
 	{
 		delete m_impl;
 		m_impl = nullptr;
-
-		NazaraMutexUnlock(m_mutex);
 
 		return false;
 	}
@@ -157,9 +180,18 @@ bool NzDirectory::Open()
 
 void NzDirectory::SetDirectory(const NzString& dirPath)
 {
+	NazaraLock(m_mutex);
+
 	Close();
 
 	m_dirPath = NzFile::AbsolutePath(dirPath);
+}
+
+void NzDirectory::SetPattern(const NzString& pattern)
+{
+	NazaraLock(m_mutex);
+
+	m_pattern = pattern;
 }
 
 bool NzDirectory::Copy(const NzString& sourcePath, const NzString& destPath)
@@ -187,12 +219,12 @@ bool NzDirectory::Copy(const NzString& sourcePath, const NzString& destPath)
 	{
 		if (dir.IsResultDirectory())
 		{
-			if (!Copy(dir.GetResultPath(),  dest + NAZARA_DIRECTORY_SEPARATOR + dir.GetResultName()))
+			if (!Copy(dir.GetResultPath(), dest + NAZARA_DIRECTORY_SEPARATOR + dir.GetResultName()))
 				return false;
 		}
 		else if (!NzFile::Copy(dir.GetResultPath(), dest + NAZARA_DIRECTORY_SEPARATOR + dir.GetResultName()))
 		{
-			NazaraError("Unable to copy \"" + dir.GetResultPath() + "\" to \"" + dest + NAZARA_DIRECTORY_SEPARATOR + dir.GetResultName() + '"');
+			NazaraError("Failed to copy \"" + dir.GetResultPath() + "\" to \"" + dest + NAZARA_DIRECTORY_SEPARATOR + dir.GetResultName() + '"');
 			return false;
 		}
 	}

@@ -45,7 +45,7 @@ m_openMode(0)
 	Open(openMode);
 }
 
-NzFile::NzFile(NzFile&& file) :
+NzFile::NzFile(NzFile&& file) noexcept :
 m_endianness(file.m_endianness),
 m_filePath(std::move(file.m_filePath)),
 m_impl(file.m_impl),
@@ -525,7 +525,7 @@ NzFile& NzFile::operator=(const NzString& filePath)
 	return *this;
 }
 
-NzFile& NzFile::operator=(NzFile&& file)
+NzFile& NzFile::operator=(NzFile&& file) noexcept
 {
 	NazaraLock(m_mutex)
 
@@ -570,7 +570,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		NazaraError("Path unrecognized");
 		return path;
 	}
-	#elif NAZARA_PLATEFORM_LINUX
+	#elif defined(NAZARA_PLATEFORM_LINUX)
 	base = '/';
 	start = 0;
 	#else
@@ -718,7 +718,7 @@ bool NzFile::IsAbsolute(const NzString& path)
 		return true;
 	else
 		return false;
-	#elif NAZARA_PLATEFORM_LINUX
+	#elif defined(NAZARA_PLATEFORM_LINUX)
 	return wpath.StartsWith('/');
 	#else
 		#error OS case not implemented
@@ -752,7 +752,7 @@ NzString NzFile::NormalizeSeparators(const NzString& filePath)
 	#elif defined(NAZARA_PLATFORM_LINUX)
 	path.Replace('\\', '/');
 	#else
-		#error OS not handled
+		#error OS case not implemented
 	#endif
 
 	return path;
@@ -793,4 +793,4 @@ bool NzFile::FillHash(NzHashImpl* hash) const
 	}
 
 	return true;
-} // Fermeture auttomatique du fichier
+} // Fermeture automatique du fichier

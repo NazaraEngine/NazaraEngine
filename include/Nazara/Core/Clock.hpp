@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-#if NAZARA_THREADSAFETY_CLOCK
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>

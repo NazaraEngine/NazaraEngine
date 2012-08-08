@@ -1,0 +1,1 @@
+premake4 --with-examples vs2010

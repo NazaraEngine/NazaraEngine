@@ -9,11 +9,11 @@
 
 #include <windows.h>
 
-class NzThreadConditionImpl;
+class NzConditionVariableImpl;
 
 class NzMutexImpl
 {
-	friend class NzThreadConditionImpl;
+	friend class NzConditionVariableImpl;
 
 	public:
 		NzMutexImpl();

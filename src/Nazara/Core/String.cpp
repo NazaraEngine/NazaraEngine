@@ -142,7 +142,7 @@ m_sharedString(string.m_sharedString)
 	}
 }
 
-NzString::NzString(NzString&& string) :
+NzString::NzString(NzString&& string) noexcept :
 m_sharedString(string.m_sharedString)
 {
 	string.m_sharedString = &emptyString;
@@ -307,7 +307,6 @@ unsigned int NzString::Count(char character, int start, nzUInt32 flags) const
 	{
 		char character_lower = nzToLower(character);
 		char character_upper = nzToUpper(character);
-		unsigned int count = 0;
 		do
 		{
 			if (*str == character_lower || *str == character_upper)
@@ -807,14 +806,14 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 			{
 				if (NzUnicode::GetLowercase(*it) == c)
 				{
-					const char* pos = it.base();
+					const char* ptrPos = it.base();
 					++it;
 
 					utf8::unchecked::iterator<const char*> it2(t);
 					while (true)
 					{
 						if (*it2 == '\0')
-							return static_cast<unsigned int>(pos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
 
 						if (*it == '\0')
 							return npos;
@@ -836,14 +835,14 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 			{
 				if (nzToLower(*str) == c)
 				{
-					char* pos = str;
+					char* ptrPos = str;
 					str++;
 
 					const char* ptr = &string[1];
 					while (true)
 					{
 						if (*ptr == '\0')
-							return static_cast<unsigned int>(pos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
 
 						if (*str == '\0')
 							return npos;
@@ -897,14 +896,14 @@ unsigned int NzString::Find(const NzString& string, int start, nzUInt32 flags) c
 			{
 				if (NzUnicode::GetLowercase(*it) == c)
 				{
-					const char* pos = it.base();
+					const char* ptrPos = it.base();
 					++it;
 
 					utf8::unchecked::iterator<const char*> it2(t);
 					while (true)
 					{
 						if (*it2 == '\0')
-							return static_cast<unsigned int>(pos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
 
 						if (*it == '\0')
 							return npos;
@@ -926,14 +925,14 @@ unsigned int NzString::Find(const NzString& string, int start, nzUInt32 flags) c
 			{
 				if (nzToLower(*str) == c)
 				{
-					char* pos = str;
+					char* ptrPos = str;
 					str++;
 
 					const char* ptr = &string.m_sharedString->string[1];
 					while (true)
 					{
 						if (*ptr == '\0')
-							return static_cast<unsigned int>(pos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
 
 						if (*str == '\0')
 							return npos;
@@ -2296,7 +2295,7 @@ char16_t* NzString::GetUtf16Buffer(unsigned int* size) const
 	catch (const utf8::exception& exception)
 	{
 		NazaraError("UTF-8 error : " + NzString(exception.what()));
-		return 0;
+		return nullptr;
 	}
 	#endif
 
@@ -2340,7 +2339,7 @@ char32_t* NzString::GetUtf32Buffer(unsigned int* size) const
 	catch (const utf8::exception& exception)
 	{
 		NazaraError("UTF-8 error : " + NzString(exception.what()));
-		return 0;
+		return nullptr;
 	}
 	#endif
 }
@@ -2387,7 +2386,7 @@ wchar_t* NzString::GetWideBuffer(unsigned int* size) const
 	catch (const utf8::exception& exception)
 	{
 		NazaraError("UTF-8 error : " + NzString(exception.what()));
-		return 0;
+		return nullptr;
 	}
 	#endif
 }
@@ -2621,7 +2620,7 @@ bool NzString::IsNull() const
 
 bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 {
-	#if !NAZARA_UNSAFE
+	#if NAZARA_CORE_SAFE
 	if (base < 2 || base > 36)
 	{
 		NazaraError("Base must be between 2 and 36");
@@ -2770,11 +2769,11 @@ unsigned int NzString::Replace(char oldCharacter, char newCharacter, int start, 
 			{
 				if (!found)
 				{
-					unsigned int pos = ptr-m_sharedString->string;
+					unsigned int offset = ptr-m_sharedString->string;
 
 					EnsureOwnership();
 
-					ptr = &m_sharedString->string[pos];
+					ptr = &m_sharedString->string[offset];
 					found = true;
 				}
 
@@ -2790,11 +2789,11 @@ unsigned int NzString::Replace(char oldCharacter, char newCharacter, int start, 
 		{
 			if (!found)
 			{
-				unsigned int pos = ptr-m_sharedString->string;
+				unsigned int offset = ptr-m_sharedString->string;
 
 				EnsureOwnership();
 
-				ptr = &m_sharedString->string[pos];
+				ptr = &m_sharedString->string[offset];
 				found = true;
 			}
 
@@ -2954,6 +2953,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 
 unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharacter, int start, nzUInt32 flags)
 {
+	///FIXME: Ne gère pas l'UTF-8
 	if (!oldCharacters || !oldCharacters[0])
 		return 0;
 
@@ -2982,11 +2982,11 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 				{
 					if (!found)
 					{
-						unsigned int pos = ptr-m_sharedString->string;
+						unsigned int offset = ptr-m_sharedString->string;
 
 						EnsureOwnership();
 
-						ptr = &m_sharedString->string[pos];
+						ptr = &m_sharedString->string[offset];
 						found = true;
 					}
 
@@ -3006,11 +3006,11 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 		{
 			if (!found)
 			{
-				unsigned int pos = ptr-m_sharedString->string;
+				unsigned int offset = ptr-m_sharedString->string;
 
 				EnsureOwnership();
 
-				ptr = &m_sharedString->string[pos];
+				ptr = &m_sharedString->string[offset];
 				found = true;
 			}
 
@@ -3203,7 +3203,10 @@ void NzString::Reserve(unsigned int bufferSize)
 NzString& NzString::Resize(int size, char character)
 {
 	if (size == 0)
+	{
 		Clear(true);
+		return *this;
+	}
 
 	if (size < 0)
 		size = std::max(static_cast<int>(m_sharedString->size + size), 0);
@@ -3249,9 +3252,6 @@ NzString& NzString::Resize(int size, char character)
 
 NzString NzString::Resized(int size, char character) const
 {
-	if (size == 0)
-		return NzString();
-
 	if (size < 0)
 		size = m_sharedString->size + size;
 
@@ -3692,12 +3692,12 @@ NzString NzString::Substr(int startPos, int endPos) const
 			return NzString();
 	}
 
-	unsigned int end = std::min(static_cast<unsigned int>(endPos), m_sharedString->size-1);
+	unsigned int minEnd = std::min(static_cast<unsigned int>(endPos), m_sharedString->size-1);
 
-	if (start > end || start >= m_sharedString->size)
+	if (start > minEnd || start >= m_sharedString->size)
 		return NzString();
 
-	unsigned int size = end-start+1;
+	unsigned int size = minEnd-start+1;
 	char* str = new char[size+1];
 	std::memcpy(str, &m_sharedString->string[start], size*sizeof(char));
 	str[size] = '\0';
@@ -4232,7 +4232,7 @@ NzString& NzString::operator=(const NzString& string)
 	return *this;
 }
 
-NzString& NzString::operator=(NzString&& string)
+NzString& NzString::operator=(NzString&& string) noexcept
 {
 	std::swap(m_sharedString, string.m_sharedString);
 
@@ -5107,7 +5107,6 @@ void NzString::ReleaseString()
 
 	if (freeSharedString)
 	{
-		NazaraMutexUnlock(m_sharedString->mutex);
 		delete[] m_sharedString->string;
 		delete m_sharedString;
 	}

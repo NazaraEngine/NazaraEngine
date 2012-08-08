@@ -9,21 +9,22 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/ResourceLoader.hpp>
-#include <Nazara/Utility/Resource.hpp>
+#include <Nazara/Utility/SubMesh.hpp>
 #include <list>
 #include <map>
 
-class NzSubMesh;
 class NzVertexDeclaration;
 
 struct NzMeshParams
 {
 	NzAnimationParams animation;
 	//const NzVertexDeclaration* declaration = nullptr;
-	bool forceSoftware = false;
+	nzBufferStorage storage = nzBufferStorage_Hardware;
 	bool loadAnimations = true;
 
 	bool IsValid() const;
@@ -52,6 +53,7 @@ class NAZARA_API NzMesh : public NzResource
 		bool Create(nzAnimationType type);
 		void Destroy();
 
+		const NzAxisAlignedBox& GetAABB() const;
 		const NzAnimation* GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetFrameCount() const;
@@ -68,6 +70,8 @@ class NAZARA_API NzMesh : public NzResource
 		bool HasSkin(unsigned int index = 0) const;
 		bool HasSubMesh(const NzString& identifier) const;
 		bool HasSubMesh(nzUInt8 index = 0) const;
+
+		void InvalidateAABB() const;
 
 		bool IsAnimable() const;
 		bool IsValid() const;

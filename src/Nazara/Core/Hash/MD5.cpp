@@ -136,7 +136,7 @@ namespace
 		 * On little-endian machines, we can process properly aligned
 		 * data without copying it.
 		 */
-		if (!((data - reinterpret_cast<const nzUInt8*>(0)) & 3))
+		if (!(data - static_cast<const nzUInt8*>(nullptr)) & 3)
 		{
 			/* data are properly aligned */
 			X = reinterpret_cast<const nzUInt32*>(data);

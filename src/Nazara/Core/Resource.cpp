@@ -2,10 +2,10 @@
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Resource.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 NzResource::NzResource(bool persistent) :
 m_resourcePersistent(persistent),
@@ -33,7 +33,7 @@ bool NzResource::IsPersistent() const
 
 void NzResource::RemoveResourceReference() const
 {
-	#if NAZARA_UTILITY_SAFE
+	#if NAZARA_CORE_SAFE
 	if (m_resourceReferenceCount == 0)
 	{
 		NazaraError("Impossible to remove reference (Ref. counter is already 0)");

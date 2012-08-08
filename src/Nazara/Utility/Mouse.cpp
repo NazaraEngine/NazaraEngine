@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Mouse.hpp>
+#include <Nazara/Utility/Window.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Utility/Win32/InputImpl.hpp>
@@ -36,6 +37,9 @@ void NzMouse::SetPosition(const NzVector2i& position)
 
 void NzMouse::SetPosition(const NzVector2i& position, const NzWindow& relativeTo)
 {
+	if (position.x > 0 && position.y > 0)
+		relativeTo.IgnoreNextMouseEvent(position.x, position.y);
+
 	NzEventImpl::SetMousePosition(position.x, position.y, relativeTo);
 }
 
@@ -46,5 +50,8 @@ void NzMouse::SetPosition(int x, int y)
 
 void NzMouse::SetPosition(int x, int y, const NzWindow& relativeTo)
 {
+	if (x > 0 && y > 0)
+		relativeTo.IgnoreNextMouseEvent(x, y);
+
 	NzEventImpl::SetMousePosition(x, y, relativeTo);
 }

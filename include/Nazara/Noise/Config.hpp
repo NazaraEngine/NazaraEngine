@@ -1,8 +1,4 @@
 /*
-	Nazara Engine
-
-	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
-
 	Nazara Engine - NzNoise Module
 
 	Copyright (C) 2012 Rémi "Overdrivr" Bèges (remi.beges@laposte.net)

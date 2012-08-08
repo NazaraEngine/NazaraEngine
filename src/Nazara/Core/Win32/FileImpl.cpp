@@ -117,7 +117,7 @@ std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
 		///       D'après les tests, ce n'est pas le cas, la taille lue est inférieure à la taille en argument, mais pas nulle
 		///       Peut-être ais-je mal compris la documentation
 		///       Le correctif (dans le cas où la doc serait vraie) est commenté en début de fonction et après ce commentaire
-		///       Il est cependant plus lourd, et ne fonctionne pas selon les tests...
+		///       Il est cependant plus lourd, et ne fonctionne pas avec le comportement observé de la fonction
 		/*
 		if (read == 0)
 		{
@@ -254,7 +254,7 @@ time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&creationTime);
+	return NzFileTimeToTime(&creationTime);
 }
 
 time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
@@ -277,7 +277,7 @@ time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&accessTime);
+	return NzFileTimeToTime(&accessTime);
 }
 
 time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
@@ -300,7 +300,7 @@ time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&writeTime);
+	return NzFileTimeToTime(&writeTime);
 }
 
 nzUInt64 NzFileImpl::GetSize(const NzString& filePath)

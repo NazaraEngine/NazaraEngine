@@ -44,34 +44,36 @@
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_CORE_MEMORYLEAKTRACKER 0
 
-// Standardise les séparateurs des dossiers selon le système d'exploitation courant
+// Standardise les séparateurs des dossiers selon le système d'exploitation courant (Léger coût à l'exécution)
 #define NAZARA_CORE_NORMALIZE_DIRECTORY_SEPARATORS 1
 
 // Précision des réels lors de la transformation en texte (Max. chiffres après la virgule)
 #define NAZARA_CORE_REAL_PRECISION 6
 
-// Redirige la sortie du log sur le flux d'erreur standard (cerr) en cas d'erreur d'écriture (ou d'ouverture du fichier)
-#define NAZARA_CORE_REDIRECT_TO_CERR_ON_LOG_FAILURE 1
+// Duplique la sortie du log sur le flux de sortie standard (cout)
+#define NAZARA_CORE_DUPLICATE_TO_COUT 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_CORE_SAFE 1
 
-// Protège le module des accès concurrentiels
+// Protège les classes des accès concurrentiels
 #define NAZARA_CORE_THREADSAFE 1
 
-#if NAZARA_CORE_THREADSAFE
-	#define NAZARA_THREADSAFETY_BYTEARRAY 1    // NzByteArray (COW)
-	#define NAZARA_THREADSAFETY_CLOCK 0        // NzClock
-	#define NAZARA_THREADSAFETY_DIRECTORY 1    // NzDirectory
-	#define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
-	#define NAZARA_THREADSAFETY_FILE 1         // NzFile
-	#define NAZARA_THREADSAFETY_HASHDIGEST 0   // NzHashDigest
-	#define NAZARA_THREADSAFETY_LOG 1          // NzLog
-	#define NAZARA_THREADSAFETY_STRING 1       // NzString (COW)
-	#define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
-#endif
+// Les classes à protéger des accès concurrentiels
+#define NAZARA_THREADSAFETY_BYTEARRAY 1    // NzByteArray (COW)
+#define NAZARA_THREADSAFETY_CLOCK 0        // NzClock
+#define NAZARA_THREADSAFETY_DIRECTORY 1    // NzDirectory
+#define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
+#define NAZARA_THREADSAFETY_FILE 1         // NzFile
+#define NAZARA_THREADSAFETY_HASHDIGEST 0   // NzHashDigest
+#define NAZARA_THREADSAFETY_LOG 1          // NzLog
+#define NAZARA_THREADSAFETY_STRING 1       // NzString (COW)
+#define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
 
-// Optimise certaines parties du code avec les avancées venues de Windows Vista (Nécessite Vista ou supérieur et compilateur compatible)
+// Le nombre de spinlocks à utiliser avec les critical sections de Windows (0 pour désactiver)
+#define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
+
+// Optimise certaines parties du code avec certaines avancées venues de Windows Vista (Casse la compatibilité XP mais n'affecte pas les autres OS)
 #define NAZARA_CORE_WINDOWS_VISTA 0
 
 /*

@@ -25,7 +25,7 @@ class NAZARA_API NzMouse
 			XButton1,
 			XButton2,
 
-			Count
+			Max = XButton2
 		};
 
 		static NzVector2i GetPosition();

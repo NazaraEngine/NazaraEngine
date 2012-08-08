@@ -74,7 +74,7 @@ namespace
 			return false;
 		}
 
-		#if NAZARA_BIG_ENDIAN
+		#if defined(NAZARA_BIG_ENDIAN)
 		// Les fichiers PCX sont en little endian
 		NzByteSwap(&header.xmin, sizeof(nzUInt16));
 		NzByteSwap(&header.ymin, sizeof(nzUInt16));

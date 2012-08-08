@@ -6,8 +6,8 @@
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 struct NzVertexElement
 {
@@ -26,7 +26,7 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		NzVertexDeclaration() = default;
 		NzVertexDeclaration(const NzVertexElement* elements, unsigned int elementCount);
 		NzVertexDeclaration(const NzVertexDeclaration& declaration);
-		NzVertexDeclaration(NzVertexDeclaration&& declaration);
+		NzVertexDeclaration(NzVertexDeclaration&& declaration) noexcept;
 		~NzVertexDeclaration();
 
 		bool Create(const NzVertexElement* elements, unsigned int elementCount);
@@ -44,7 +44,7 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		bool IsValid() const;
 
 		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
-		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration);
+		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration) noexcept;
 
 	private:
 		NzVertexDeclarationImpl* m_sharedImpl = nullptr;

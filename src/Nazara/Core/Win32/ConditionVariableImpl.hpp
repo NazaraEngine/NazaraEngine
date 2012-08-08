@@ -6,22 +6,22 @@
 
 #pragma once
 
-#ifndef NAZARA_THREADCONDITIONIMPL_HPP
-#define NAZARA_THREADCONDITIONIMPL_HPP
+#ifndef NAZARA_CONDITIONVARIABLEIMPL_HPP
+#define NAZARA_CONDITIONVARIABLEIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
 class NzMutexImpl;
 
-class NzThreadConditionImpl
+class NzConditionVariableImpl
 {
 	public:
-		NzThreadConditionImpl();
-		#ifdef NAZARA_PLATFORM_WINDOWSVISTA
-		~NzThreadConditionImpl() = default;
+		NzConditionVariableImpl();
+		#if NAZARA_CORE_WINDOWS_VISTA
+		~NzConditionVariableImpl() = default;
 		#else
-		~NzThreadConditionImpl();
+		~NzConditionVariableImpl();
 		#endif
 
 		void Signal();
@@ -31,7 +31,7 @@ class NzThreadConditionImpl
 		bool Wait(NzMutexImpl* mutex, nzUInt32 timeout);
 
 	private:
-		#ifdef NAZARA_PLATFORM_WINDOWSVISTA
+		#if NAZARA_CORE_WINDOWS_VISTA
 		CONDITION_VARIABLE m_cv;
 		#else
 		enum
@@ -48,4 +48,4 @@ class NzThreadConditionImpl
 
 };
 
-#endif // NAZARA_THREADCONDITIONIMPL_HPP
+#endif // NAZARA_CONDITIONVARIABLEIMPL_HPP

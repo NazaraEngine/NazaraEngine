@@ -17,8 +17,9 @@ class NzCube
 	public:
 		NzCube();
 		NzCube(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzCube(T cube[6]);
+		NzCube(const T cube[6]);
 		NzCube(const NzRect<T>& rect);
+		NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> explicit NzCube(const NzCube<U>& rect);
 		NzCube(const NzCube& rect) = default;
 		~NzCube() = default;
@@ -32,10 +33,15 @@ class NzCube
 
 		NzVector3<T> GetCenter() const;
 
-		bool Intersect(const NzCube& rect) const;
-		bool Intersect(const NzCube& rect, NzCube& intersection) const;
+		bool Intersect(const NzCube& rect, NzCube* intersection = nullptr) const;
 
 		bool IsValid() const;
+
+		void Set(T X, T Y, T Z, T Width, T Height, T Depth);
+		void Set(const T rect[6]);
+		void Set(const NzRect<T>& rect);
+		void Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
+		template<typename U> void Set(const NzCube<U>& rect);
 
 		NzString ToString() const;
 

@@ -16,7 +16,8 @@ class NzRect
 	public:
 		NzRect();
 		NzRect(T X, T Y, T Width, T Height);
-		NzRect(T rect[4]);
+		NzRect(const T rect[4]);
+		NzRect(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
 		template<typename U> explicit NzRect(const NzRect<U>& rect);
 		NzRect(const NzRect& rect) = default;
 		~NzRect() = default;
@@ -30,10 +31,14 @@ class NzRect
 
 		NzVector2<T> GetCenter() const;
 
-		bool Intersect(const NzRect& rect) const;
-		bool Intersect(const NzRect& rect, NzRect& intersection) const;
+		bool Intersect(const NzRect& rect, NzRect* intersection = nullptr) const;
 
 		bool IsValid() const;
+
+		void Set(T X, T Y, T Width, T Height);
+		void Set(const T rect[4]);
+		void Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
+		template<typename U> void Set(const NzRect<U>& rect);
 
 		NzString ToString() const;
 

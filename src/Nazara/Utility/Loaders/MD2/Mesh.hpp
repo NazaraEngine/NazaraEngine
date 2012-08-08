@@ -27,6 +27,7 @@ class NAZARA_API NzMD2Mesh : public NzKeyframeMesh
 		bool Create(const md2_header& header, NzInputStream& stream, const NzMeshParams& parameters);
 		void Destroy();
 
+		const NzAxisAlignedBox& GetAABB() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const;
@@ -44,14 +45,14 @@ class NAZARA_API NzMD2Mesh : public NzKeyframeMesh
 
 		struct Frame
 		{
-			//AxisAlignedBox aabb;
+			NzAxisAlignedBox aabb;
 			nzUInt8* normal;
 			NzVector3f* tangents;
 			NzVector3f* vertices;
 			char name[16];
 		};
 
-		//AxisAlignedBox m_aabb;
+		NzAxisAlignedBox m_aabb;
 		Frame* m_frames;
 		NzIndexBuffer* m_indexBuffer;
 		NzVertexBuffer* m_vertexBuffer;

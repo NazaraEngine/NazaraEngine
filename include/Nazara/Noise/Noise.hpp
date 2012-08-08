@@ -8,20 +8,22 @@
 #define NAZARA_NOISE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Initializer.hpp>
 
 class NAZARA_API NzNoise
 {
 	public:
-		NzNoise();
-		~NzNoise();
+		NzNoise() = delete;
+		~NzNoise() = delete;
 
-		bool Initialize();
-		void Uninitialize();
+		static bool Initialize();
 
 		static bool IsInitialized();
 
+		static void Uninitialize();
+
 	private:
-		static bool s_initialized;
+		static unsigned int s_moduleReferenceCouter;
 };
 
-#endif // NOISE_HPP
+#endif // NAZARA_NOISE_HPP

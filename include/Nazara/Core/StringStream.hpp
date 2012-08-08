@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#if NAZARA_THREADSAFETY_STRINGSTREAM
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_STRINGSTREAM
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>

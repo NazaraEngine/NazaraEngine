@@ -8,20 +8,22 @@
 #define NAZARA_UTILITY_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Initializer.hpp>
 
 class NAZARA_API NzUtility
 {
 	public:
-		NzUtility();
-		~NzUtility();
+		NzUtility() = delete;
+		~NzUtility() = delete;
 
-		bool Initialize();
-		void Uninitialize();
+		static bool Initialize();
 
 		static bool IsInitialized();
 
+		static void Uninitialize();
+
 	private:
-		static bool s_initialized;
+		static unsigned int s_moduleReferenceCouter;
 };
 
 #endif // NAZARA_UTILITY_HPP

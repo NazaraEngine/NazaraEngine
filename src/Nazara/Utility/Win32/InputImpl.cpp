@@ -192,7 +192,7 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 
 bool NzEventImpl::IsMouseButtonPressed(NzMouse::Button button)
 {
-	static int vButtons[NzMouse::Count] = {
+	static int vButtons[NzMouse::Max+1] = {
 		VK_LBUTTON,	 // Button::Left
 		VK_MBUTTON,	 // Button::Middle
 		VK_RBUTTON,	 // Button::Right
