@@ -4,17 +4,17 @@
 
 int main()
 {
-	// Pour charger des ressources, il est impératif d'initialiser le module utilitaire
+	// Pour charger des ressources, il est impÃ©ratif d'initialiser le module utilitaire
 	NzInitializer<NzUtility> utility;
 	if (!utility)
 	{
-		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
+		// Ã‡a n'a pas fonctionnÃ©, le pourquoi se trouve dans le fichier NazaraLog.log
 		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
 	}
 
-	// Le Renderer n'étant pas chargé, nous devons indiquer que nous désirons un stockage software de notre mesh
+	// Le Renderer n'Ã©tant pas chargÃ©, nous devons indiquer que nous dÃ©sirons un stockage software de notre mesh
 	NzMeshParams parameters;
 	parameters.storage = nzBufferStorage_Software;
 
@@ -26,14 +26,14 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	if (drfreak.HasAnimation()) // Si le mesh possède des animations
+	if (drfreak.HasAnimation()) // Si le mesh possÃ¨de des animations
 	{
 		std::cout << "Mesh has animation" << std::endl;
 
-		// Un objet NzAnimation représente un ensemble d'informations sur des animations
+		// Un objet NzAnimation reprÃ©sente un ensemble d'informations sur des animations
 		const NzAnimation* animation = drfreak.GetAnimation();
 
-		// Une séquence définit une "action", chaque séquence possède un nom, une frame de départ, une d'arrivée ainsi qu'un framerate
+		// Une sÃ©quence dÃ©finit une "action", chaque sÃ©quence possÃ¨de un nom, une frame de dÃ©part, une d'arrivÃ©e ainsi qu'un framerate
 		unsigned int sequenceCount = animation->GetSequenceCount();
 		std::cout << sequenceCount << " sequences:" << std::endl;
 		for (unsigned int i = 0; i < sequenceCount; ++i)
@@ -44,6 +44,6 @@ int main()
 
 	std::getchar(); // Une attente pour avoir le temps de lire :-)
 
-	// Le module utilitaire et le mesh sont déchargés automatiquement
+	// Le module utilitaire et le mesh sont dÃ©chargÃ©s automatiquement
 	return EXIT_SUCCESS;
 }

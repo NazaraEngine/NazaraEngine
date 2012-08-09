@@ -12,10 +12,10 @@
 #include <iostream>
 #include <map>
 
-// Une structure pour contenir nos informations (Cette structure est très simpliste)
+// Une structure pour contenir nos informations (Cette structure est trÃ¨s simpliste)
 struct Model
 {
-	NzMatrix4f matrix; // Les transformations subies par le modèle
+	NzMatrix4f matrix; // Les transformations subies par le modÃ¨le
 	NzMesh mesh; // Le mesh
 	NzTexture texture; // Sa texture
 };
@@ -23,10 +23,10 @@ struct Model
 struct AnimatedModel : public Model
 {
 	// Quelques variables pour l'animation
-	const NzSequence* currentSequence = nullptr; // La séquence en cours
-	float interpolation = 0.f; // La valeur de l'interpolation ([0..1], si dépasse 1, on passe à la frame suivante)
-	unsigned int currentFrame = 0; // La première frame
-	unsigned int nextFrame; // La seconde frame, l'animation est interpollée entre ces deux-là
+	const NzSequence* currentSequence = nullptr; // La sÃ©quence en cours
+	float interpolation = 0.f; // La valeur de l'interpolation ([0..1], si dÃ©passe 1, on passe Ã  la frame suivante)
+	unsigned int currentFrame = 0; // La premiÃ¨re frame
+	unsigned int nextFrame; // La seconde frame, l'animation est interpollÃ©e entre ces deux-lÃ 
 };
 
 void AnimateModel(AnimatedModel& moedel, float elapsed);
@@ -42,15 +42,15 @@ int main()
 	std::cout << "Dr. Freak controls: Up, down, left and right" << std::endl;
 	std::cout << "Escape to quit" << std::endl;
 
-	// Cette ligne active le mode de compatibilité d'OpenGL lors de l'initialisation de Nazara (Nécessaire pour le shader)
+	// Cette ligne active le mode de compatibilitÃ© d'OpenGL lors de l'initialisation de Nazara (NÃ©cessaire pour le shader)
 	NzContextParameters::defaultCompatibilityProfile = true;
 
-	// Maintenant nous initialisons le Renderer (Qui initialisera le noyau ainsi que le module utlitaire)
-	// Cette étape est obligatoire pour beaucoup de classes
+	// Maintenant nous initialisons le Renderer (Qui initialisera le noyau ainsi que le module utilitaire)
+	// Cette Ã©tape est obligatoire pour beaucoup de fonctionnalitÃ©s (Notamment le chargement de ressources et le rendu)
 	NzInitializer<NzRenderer> renderer;
 	if (!renderer)
 	{
-		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
+		// Ã‡a n'a pas fonctionnÃ©, le pourquoi se trouve dans le fichier NazaraLog.log
 		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
@@ -58,35 +58,35 @@ int main()
 
 	// Maintenant nous pouvons utiliser le moteur comme bon nous semble, tout d'abord nous allons charger les ressources
 
-	// Charger une ressource se fait actuellement manuellement, mais un ResourceManager est à venir
-	// Vous initialisez une ressource, et la chargez via sa méthode LoadFrom[File|Memory|Stream]
+	// Charger une ressource se fait actuellement manuellement, mais un ResourceManager est Ã  venir
+	// Vous initialisez une ressource, et la chargez via sa mÃ©thode LoadFrom[File|Memory|Stream]
 	// Note: il est possible de donner des instructions au loader (qui va charger le fichier en ressource) via les ResourceParameters
 	NzMeshParams parameters;
 
 	// Le loader doit-il automatiquement charger les animations ?
-	// Attention, ce paramètre possède une signification différente selon le type d'animation du mesh.
-	// -Pour les animations keyframe (image-clé), c'est la seule et unique façon de charger les animations, étant donné
+	// Attention, ce paramÃ¨tre possÃ¨de une signification diffÃ©rente selon le type d'animation du mesh.
+	// -Pour les animations keyframe (image-clÃ©), c'est la seule et unique faÃ§on de charger les animations, Ã©tant donnÃ©
 	// qu'elles sont fourniees avec le mesh.
-	// -Pour les animations squelettiques, le loader ne fera que charger automatiquement l'animation associée au mesh s'il le peut
-	// Dans les deux cas, les paramètres d'animations (parameters.animation) seront utilisés
-	parameters.loadAnimations = true; // Vaut true par défaut
+	// -Pour les animations squelettiques, le loader ne fera que charger automatiquement l'animation associÃ©e au mesh s'il le peut
+	// Dans les deux cas, les paramÃ¨tres d'animations (parameters.animation) seront utilisÃ©s
+	parameters.loadAnimations = true; // Vaut true par dÃ©faut
 
-	// Pour qu'un mesh puisse être rendu, il doit être stocké du côté de la carte graphique (Hardware), mais il est parfois utile de
-	// le stocker côté RAM, par exemple pour le moteur physique. En sachant qu'il est facile de changer le stockage d'un buffer.
-	parameters.storage = nzBufferStorage_Hardware; // Vaut nzBufferStorage_Hardware par défaut
+	// Pour qu'un mesh puisse Ãªtre rendu, il doit Ãªtre stockÃ© du cÃ´tÃ© de la carte graphique (Hardware), mais il est parfois utile de
+	// le stocker cÃ´tÃ© RAM, par exemple pour le moteur physique. En sachant qu'il est facile de changer le stockage d'un buffer.
+	parameters.storage = nzBufferStorage_Hardware; // Vaut nzBufferStorage_Hardware par dÃ©faut
 
 	AnimatedModel drfreak;
-	if (!drfreak.mesh.LoadFromFile("resources/drfreak.md2", parameters)) // On charge notre bon vieux docteur avec les paramètres de chargement.
+	if (!drfreak.mesh.LoadFromFile("resources/drfreak.md2", parameters)) // On charge notre bon vieux docteur avec les paramÃ¨tres de chargement.
 	{
-		// Le chargement n'a pas fonctionné, le modèle est peut-être corrompu/non-supporté, ou alors n'existe pas.
+		// Le chargement n'a pas fonctionnÃ©, le modÃ¨le est peut-Ãªtre corrompu/non-supportÃ©, ou alors n'existe pas.
 		std::cout << "Failed to load mesh" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
 	}
 
-	if (!drfreak.mesh.HasAnimation()) // Le mesh possède-t-il des animations ?
+	if (!drfreak.mesh.HasAnimation()) // Le mesh possÃ¨de-t-il des animations ?
 	{
-		// Cette démo n'a aucun intérêt sans animations
+		// Cette dÃ©mo n'a aucun intÃ©rÃªt sans animations
 		std::cout << "Mesh has no animation" << std::endl;
 		std::getchar();
 		return EXIT_FAILURE;
@@ -94,17 +94,17 @@ int main()
 
 	SetSequence(drfreak, "stand");
 
-	// Il est possible que le mesh possède un ou plusieurs skin, nous utiliserons cette information pour charger une texture
+	// Il est possible que le mesh possÃ¨de un ou plusieurs skin, nous utiliserons cette information pour charger une texture
 	if (drfreak.mesh.HasSkin())
 	{
 		// Contrairement aux autres ressources, la texture n'est pas critique
 		if (drfreak.texture.LoadFromFile("resources/" + drfreak.mesh.GetSkin()))
-			drfreak.texture.SetFilterMode(nzTextureFilter_Bilinear); // Appliquons-lui un filtrage bilinéaire
+			drfreak.texture.SetFilterMode(nzTextureFilter_Bilinear); // Appliquons-lui un filtrage bilinÃ©aire
 		else
 			std::cout << "Failed to load texture" << std::endl;
 	}
 
-	if (!drfreak.texture.IsValid()) // Les méthodes Resource::IsValid indiquent si la ressource a été correctement créée
+	if (!drfreak.texture.IsValid()) // Les mÃ©thodes Resource::IsValid indiquent si la ressource a Ã©tÃ© correctement crÃ©Ã©e
 	{
 		std::cout << "Creating checker texture for mesh" << std::endl;
 
@@ -116,7 +116,7 @@ int main()
 		}
 	}
 
-	// Nous créons maintenant notre sol
+	// Nous crÃ©ons maintenant notre sol
 	Model floor;
 	if (!CreateFloorMesh(&floor.mesh))
 	{
@@ -136,11 +136,11 @@ int main()
 	floor.matrix.MakeIdentity();
 
 	// Pour effectuer un rendu, il faut que la carte graphique sache quoi faire.
-	// Les shaders sont de petits programmes qui donnent des instructions à la carte graphique lors du pipeline.
-	// Ils sont aujourd'hui indispensables pour un rendu 3D, mais sont très utiles pour divers effets !
-	// Il existe plusieurs langages de shaders, GLSL pour OpenGL, HLSL pour Direct3D et Cg qui peut être utilisé pour les deux.
-	// Le Renderer de Nazara utilise OpenGL, par conséquent nous utiliserons le GLSL
-	// La méthode NzShader::IsLanguageSupported permet de savoir si un langage est supporté.
+	// Les shaders sont de petits programmes qui donnent des instructions Ã  la carte graphique lors du pipeline.
+	// Ils sont aujourd'hui indispensables pour un rendu 3D, mais sont trÃ¨s utiles pour divers effets !
+	// Il existe plusieurs langages de shaders, GLSL pour OpenGL, HLSL pour Direct3D et Cg qui peut Ãªtre utilisÃ© pour les deux.
+	// Le Renderer de Nazara utilise OpenGL, par consÃ©quent nous utiliserons le GLSL
+	// La mÃ©thode NzShader::IsLanguageSupported permet de savoir si un langage est supportÃ©.
 	NzShader shader;
 	if (!shader.Create(nzShaderLanguage_GLSL))
 	{
@@ -149,13 +149,13 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Une fois le shader créé, nous devons lui spécifier les codes sources de nos shaders
-	// Pour notre exemple nous prendrons un shader très simple
-	// Un shader doit obligatoirement posséder au moins deux codes, un pour le fragment shader et un pour le vertex shader
+	// Une fois le shader crÃ©Ã©, nous devons lui spÃ©cifier les codes sources de nos shaders
+	// Pour notre exemple nous prendrons un shader trÃ¨s simple
+	// Un shader doit obligatoirement possÃ©der au moins deux codes, un pour le fragment shader et un pour le vertex shader
 	if (!shader.LoadFromFile(nzShaderType_Fragment, "shaders/basic.frag"))
 	{
 		std::cout << "Failed to load fragment shader from file" << std::endl;
-		// À la différence des autres ressources, le shader possède un log qui peut indiquer les erreurs en cas d'échec
+		// Ã€ la diffÃ©rence des autres ressources, le shader possÃ¨de un log qui peut indiquer les erreurs en cas d'Ã©chec
 		std::cout << "Log: " << shader.GetLog() << std::endl;
 		std::getchar();
 		return EXIT_FAILURE;
@@ -170,7 +170,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Une fois le code source de nos shaders chargé, nous pouvons le compiler, afin de le rendre utilisable
+	// Une fois le code source de nos shaders chargÃ©, nous pouvons le compiler, afin de le rendre utilisable
 	if (!shader.Compile())
 	{
 		std::cout << "Failed to compile shader" << std::endl;
@@ -179,9 +179,9 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Nos ressources sont chargées, et c'est bien beau, mais il nous faudrait une fenêtre pour afficher tout ça
-	// Window représente une fenêtre singulière, pour y effectuer un rendu il nous faut une RenderWindow
-	// Tout d'abord, sa taille, disons celle du bureau divisé par deux
+	// Nos ressources sont chargÃ©es, et c'est bien beau, mais il nous faudrait une fenÃªtre pour afficher tout Ã§a
+	// Window reprÃ©sente une fenÃªtre singuliÃ¨re, pour y effectuer un rendu il nous faut une RenderWindow
+	// Tout d'abord, sa taille, disons celle du bureau divisÃ© par deux
 	NzVideoMode mode = NzVideoMode::GetDesktopMode();
 	mode.width /= 2;
 	mode.height /= 2;
@@ -189,11 +189,11 @@ int main()
 	NzString title = "Nazara Demo - AnimatedMesh";
 
 	NzRenderWindow window;
-	// Le premier argument définit la taille de rendu de la fenêtre (Si elle possède des bordures elle sera légèrement plus grande)
-	// Le deuxième argument est le titre de la fenêtre lors de sa création, vous pouvez le modifier à tout moment via window.SetTitle
-	// Le troisième argument représente la décoration de la fenêtre, sa bordure, ses boutons.
-	// Attention que cela permet à la fenêtre d'envoyer des évènements, et de changer sa taille
-	// Par défaut le troisième argument vaut nzWindowStyle_Default (Bordure + Bouton de fermeture + Redimensionnement)
+	// Le premier argument dÃ©finit la taille de rendu de la fenÃªtre (Si elle possÃ¨de une bordure elle sera lÃ©gÃ¨rement plus grande)
+	// Le deuxiÃ¨me argument est le titre de la fenÃªtre lors de sa crÃ©ation, vous pouvez le modifier Ã  tout moment via window.SetTitle
+	// Le troisiÃ¨me argument reprÃ©sente la dÃ©coration de la fenÃªtre, sa bordure, ses boutons.
+	// Attention que cela permet Ã  la fenÃªtre d'envoyer des Ã©vÃ¨nements, et de changer sa taille
+	// Par dÃ©faut le troisiÃ¨me argument vaut nzWindowStyle_Default (Bordure + Bouton de fermeture + Redimensionnement)
 	if (!window.Create(mode, title, nzWindowStyle_Default))
 	{
 		std::cout << "Failed to create window" << std::endl;
@@ -204,40 +204,40 @@ int main()
 	// On cache le curseur
 	window.SetCursor(nzWindowCursor_None);
 
-	// Nous limitons les FPS à 100
+	// Nous limitons les FPS Ã  100
 	window.SetFramerateLimit(100);
 
-	// La matrice de projection définit la transformation du vertice 3D à un point 2D
+	// La matrice de projection dÃ©finit la transformation du vertice 3D Ã  un point 2D
 	NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(window.GetWidth())/window.GetHeight(), 1.f, 1000.f));
 
-	// Notre fenêtre est créée, cependant il faut s'occuper d'elle, pour le rendu et les évènements
-	NzClock secondClock, updateClock; // Des horloges pour gérer le temps
+	// Notre fenÃªtre est crÃ©Ã©e, cependant il faut s'occuper d'elle, pour le rendu et les Ã©vÃ¨nements
+	NzClock secondClock, updateClock; // Des horloges pour gÃ©rer le temps
 	unsigned int fps = 0; // Compteur de FPS
 
 	// Quelques variables pour notre improvisation de physique
-	float groundPos = drfreak.mesh.GetAABB().GetMinimum().y; // Pas très exact
+	float groundPos = drfreak.mesh.GetAABB().GetMinimum().y; // Pas trÃ¨s exact
 	NzVector3f modelPos(0.f, groundPos, -50.f);
 	NzVector3f modelVel(0.f, 0.f, 0.f);
-	NzQuaternionf modelRot(NzEulerAnglesf(0.f, 0.f, 0.f)); // Les angles d'eulers sont bien plus facile à se représenter
+	NzQuaternionf modelRot(NzEulerAnglesf(0.f, 0.f, 0.f)); // Les angles d'eulers sont bien plus facile Ã  se reprÃ©senter
 	float speed = 60.f;
 
 	// Nous initialisons la matrice
 	drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos);
 
-	// Notre caméra
+	// Notre camÃ©ra
 	NzVector3f camPos(0.f, 25.f, -20.f);
 	NzEulerAnglesf camRot(0.f, 0.f, 0.f);
 	NzMatrix4f camMatrix = NzMatrix4f::Translate(camPos);
 	float camSpeed = 2.f;
 	float sensitivity = 0.5;
 
-	// Dernière étape, nos touches
+	// DerniÃ¨re Ã©tape, nos touches
 
 	// Chaque touche fera bouger
 	struct Movement
 	{
 		NzVector3f direction; // La direction
-		NzQuaternionf rotation; // La rotation du modèle
+		NzQuaternionf rotation; // La rotation du modÃ¨le
 	};
 
 	std::map<NzKeyboard::Key, Movement> movements;
@@ -247,39 +247,41 @@ int main()
 	movements[NzKeyboard::Right] = Movement{NzVector3f(1.f, 0.f, 0.f), NzQuaternionf(NzEulerAnglesf(0.f, -90.f, 0.f))};
 	NzKeyboard::Key currentKey = NzKeyboard::Undefined;
 
-	// Quelques booléens
+	// Quelques boolÃ©ens
 	bool camMode = true;
 	bool windowOpen = true;
+
+	// On peut commencer la boucle du programme
 	while (windowOpen)
 	{
-		// Ici nous gérons les évènements
+		// Ici nous gÃ©rons les Ã©vÃ¨nements
 		NzEvent event;
-		while (window.PollEvent(&event)) // Avons-nous un évènement dans la file ?
+		while (window.PollEvent(&event)) // Avons-nous un Ã©vÃ¨nement dans la file ?
 		{
-			// Nous avons un évènement
-			switch (event.type) // De quel type est cet évènement ?
+			// Nous avons un Ã©vÃ¨nement
+			switch (event.type) // De quel type est cet Ã©vÃ¨nement ?
 			{
-				case nzEventType_Quit: // L'utilisateur/L'OS nous a demandé de terminer notre exécution
-					windowOpen = false; // Nous fermons alors la boucle
+				case nzEventType_Quit: // L'utilisateur/L'OS nous a demandÃ© de terminer notre exÃ©cution
+					windowOpen = false; // Nous terminons alors la boucle
 					break;
 
 				case nzEventType_MouseMoved:
 				{
-					// Si nous ne sommes pas en mode caméra, on ne traite pas l'évènement
+					// Si nous ne sommes pas en mode camÃ©ra, on ne traite pas l'Ã©vÃ¨nement
 					if (!camMode)
 						break;
 
-					// On modifie l'angle de la caméra grâce au déplacement relatif de la souris
+					// On modifie l'angle de la camÃ©ra grÃ¢ce au dÃ©placement relatif de la souris
 					camRot.yaw = NzNormalizeAngle(camRot.yaw - event.mouseMove.deltaX*sensitivity);
 
-					// Pour éviter les loopings, on restreint les angles
+					// Pour Ã©viter les loopings, on restreint les angles
 					camRot.pitch = NzClamp(camRot.pitch + event.mouseMove.deltaY*sensitivity, -90.f, 90.f);
 
-					// La matrice vue représente les transformations effectuées par la caméra
-					// On recalcule la matrice de la caméra et on l'envoie au renderer
+					// La matrice vue reprÃ©sente les transformations effectuÃ©es par la camÃ©ra
+					// On recalcule la matrice de la camÃ©ra et on l'envoie au renderer
 					NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::Translate(camPos) * NzMatrix4f::Rotate(camRot));
 
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
+					// Pour Ã©viter que le curseur ne sorte de l'Ã©cran, nous le renvoyons au centre de la fenÃªtre
 					NzMouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
 					break;
 				}
@@ -288,7 +290,7 @@ int main()
 					if (event.mouseButton.button == NzMouse::Left)
 					{
 						// L'utilisateur vient d'appuyer sur le bouton left de la souris
-						// Nous allons inverser le mode caméra et montrer/cacher le curseur en conséquence
+						// Nous allons inverser le mode camÃ©ra et montrer/cacher le curseur en consÃ©quence
 						if (camMode)
 						{
 							camMode = false;
@@ -303,25 +305,25 @@ int main()
 					}
 					break;
 
-				case nzEventType_Resized: // L'utilisateur a changé notre taille, le coquin !
+				case nzEventType_Resized: // L'utilisateur a changÃ© notre taille, le coquin !
 					NzRenderer::SetViewport(NzRectui(0, 0, event.size.width, event.size.height)); // Adaptons l'affichage
 
-					// Il nous faut aussi mettre à jour notre matrice de projection
+					// Il nous faut aussi mettre Ã  jour notre matrice de projection
 					NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(event.size.width)/event.size.height, 1.f, 1000.f));
 					break;
 
 				case nzEventType_KeyPressed:
-					if (!event.key.repeated) // Si la touche n'est pas répétée
+					if (!event.key.repeated) // Si la touche n'est pas rÃ©pÃ©tÃ©e
 					{
 						auto it = movements.find(event.key.code);
 						if (it != movements.end())
 						{
 							// Si la touche est une touche de mouvement
-							SetSequence(drfreak, "run"); // On anime le personnage pour qu'il ait une animation de déplacement
+							SetSequence(drfreak, "run"); // On anime le personnage pour qu'il ait une animation de dÃ©placement
 
-							modelRot = it->second.rotation; // On change la rotation du modèle
+							modelRot = it->second.rotation; // On change la rotation du modÃ¨le
 							drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos); // On recalcule sa matrice
-							modelVel = it->second.direction * speed; // On change la vitesse de déplacement
+							modelVel = it->second.direction * speed; // On change la vitesse de dÃ©placement
 							currentKey = event.key.code;
 						}
 					}
@@ -335,18 +337,18 @@ int main()
 					if (event.key.code == currentKey)
 					{
 						SetSequence(drfreak, "stand");
-						modelVel = NzVector3f(0.f); // On arrête le déplacement
+						modelVel = NzVector3f(0.f); // On arrÃªte le dÃ©placement
 						break;
 					}
 
 					break;
 
-				default: // Les autres évènements, on s'en fiche
+				default: // Les autres Ã©vÃ¨nements, on s'en fiche
 					break;
 			}
 		}
 
-		// On active le shader et paramètrons le rendu
+		// On active le shader et paramÃ¨trons le rendu
 		NzRenderer::SetShader(&shader);
 		NzRenderer::Enable(nzRendererParameter_DepthTest, true);
 
@@ -355,9 +357,9 @@ int main()
 
 		if (updateClock.GetMilliseconds() >= 1000/60) // 60 fois par seconde
 		{
-			float elapsedTime = updateClock.GetSeconds(); // Le temps depuis la dernière mise à jour
+			float elapsedTime = updateClock.GetSeconds(); // Le temps depuis la derniÃ¨re mise Ã  jour
 
-			// Déplacement de la caméra
+			// DÃ©placement de la camÃ©ra
 			static const NzVector3f forward(NzVector3f::UnitZ());
 			static const NzVector3f left(NzVector3f::UnitX());
 			static const NzVector3f up(NzVector3f::UnitY());
@@ -365,7 +367,7 @@ int main()
 			// Notre rotation sous forme de quaternion nous permet de tourner un vecteur
 			NzQuaternionf quaternion(camRot);
 
-			// Par exemple ici, quaternion * forward nous permet de récupérer le vecteur de la direction "avant"
+			// Par exemple ici, quaternion * forward nous permet de rÃ©cupÃ©rer le vecteur de la direction "avant"
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
 				camPos += quaternion * forward * camSpeed;
 
@@ -378,15 +380,15 @@ int main()
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
 				camPos -= quaternion * left * camSpeed;
 
-			// En revanche, ici la hauteur est toujours la même, peu importe notre orientation
+			// En revanche, ici la hauteur est toujours la mÃªme, peu importe notre orientation
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
 				camPos += up * camSpeed;
 
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl))
 				camPos -= up * camSpeed;
 
-			// Oui le quaternion et la matrice sont calculés même si la caméra ne bouge pas
-			// C'est une limitation de mon implémentation, qui ne sera pas présente une fois les NzSceneNode intégrés
+			// Oui le quaternion et la matrice sont calculÃ©s mÃªme si la camÃ©ra ne bouge pas
+			// C'est une limitation de mon implÃ©mentation, qui ne sera pas prÃ©sente une fois les NzSceneNode intÃ©grÃ©s
 			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::Translate(camPos) * NzMatrix4f::Rotate(camRot));
 
 			// Animation
@@ -397,20 +399,8 @@ int main()
 			if (modelVel != NzVector3f::Zero())
 			{
 				modelPos += modelVel * elapsedTime;
-				/*if (jumping)
-				{
-					velocity.y -= 500.f * elapsedTime; // Un simulacre de gravité
-					if (modelPos.y <= groundPos)
-					{
-						// On stoppe net
-						modelPos.y = groundPos;
-						velocity.y = 0.f;
-						jumping = false;
-						SetSequence(drfreak, "stand");
-					}
-				}*/
 
-				// Mise à jour de la matrice
+				// Mise Ã  jour de la matrice
 				drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos);
 			}
 		}
@@ -418,14 +408,14 @@ int main()
 		// Affichage des meshs
 		DrawModel(floor);
 
-		// Notre Dr. Freak possède des normales, nous pouvons alors culler les faces qu'on ne voit pas
+		// Notre Dr. Freak possÃ¨de des normales, nous pouvons alors culler les faces qu'on ne voit pas
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
 
 		DrawModel(drfreak);
 
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
 
-		window.Display(); // Nous mettons à jour l'écran
+		window.Display(); // Nous mettons Ã  jour l'Ã©cran
 
 		fps++;
 
@@ -459,16 +449,16 @@ void AnimateModel(AnimatedModel& model, float elapsed)
 bool CreateCheckerTexture(NzTexture* texture)
 {
 	NzImage image;
-	// Nous crééons une image 2D, au format RGBA8 de dimensions 128*128 (8 blocs de 16 pixels de côté)
+	// Nous crÃ©Ã©ons une image 2D, au format RGBA8 de dimensions 128*128 (8 blocs de 16 pixels de cÃ´tÃ©)
 	if (!image.Create(nzImageType_2D, nzPixelFormat_RGBA8, 8*16, 8*16))
 	{
-		// Ne devrait pas arriver (La création d'une image ne peut échouer que si l'un des argument est incorrect)
+		// Ne devrait pas arriver (La crÃ©ation d'une image ne peut Ã©chouer que si l'un des argument est incorrect)
 		std::cout << "Failed to create image, this means a bug has been found in Nazara" << std::endl;
 		return false;
 	}
 
-	// Pour modifier les pixels, nous pouvons accéder directement à ces derniers avec GetPixels(), ou bien à un pixel
-	// via [Get|Set]PixelColor, mais pour cette occasion nous utiliserons une méthode bien pratique, Fill.
+	// Pour modifier les pixels, nous pouvons accÃ©der directement Ã  ces derniers avec GetPixels(), ou bien Ã  un pixel
+	// via [Get|Set]PixelColor, mais pour cette occasion nous utiliserons une mÃ©thode bien pratique, Fill.
 	unsigned int blockCountX = image.GetWidth()/16;
 	unsigned int blockCountY = image.GetHeight()/16;
 	for (unsigned int x = 0; x < blockCountX; ++x)
@@ -482,7 +472,7 @@ bool CreateCheckerTexture(NzTexture* texture)
 		}
 	}
 
-	if (!texture->LoadFromImage(image)) // Nous créons notre texture depuis notre image
+	if (!texture->LoadFromImage(image)) // Nous crÃ©ons notre texture depuis notre image
 	{
 		// Nous n'avons vraiment pas beaucoup de chance..
 		std::cout << "Failed to load image" << std::endl;
@@ -490,37 +480,37 @@ bool CreateCheckerTexture(NzTexture* texture)
 	}
 
 	texture->SetAnisotropyLevel(NzRenderer::GetMaxAnisotropyLevel()); // Un filtrage anisotropique pour la texture
-	texture->SetWrapMode(nzTextureWrap_Repeat); // Si les coordonnées de texture dépassent 1.f, la texture sera répétée
+	texture->SetWrapMode(nzTextureWrap_Repeat); // Si les coordonnÃ©es de texture dÃ©passent 1.f, la texture sera rÃ©pÃ©tÃ©e
 
 	return true;
 }
 
 bool CreateFloorMesh(NzMesh* mesh)
 {
-	// Cette fonction créé un mesh statique simpliste pour servir de sol
+	// Cette fonction crÃ©Ã© un mesh statique simpliste pour servir de sol
 
-	// Nous créons un mesh statique
+	// Nous crÃ©ons un mesh statique
 	if (!mesh->Create(nzAnimationType_Static))
 	{
-		// L'échec est techniquement impossible mais le moteur étant en constante évolution ...
+		// L'Ã©chec est techniquement impossible mais le moteur Ã©tant en constante Ã©volution ...
 		std::cout << "Failed to create mesh" << std::endl;
 		return false;
 	}
 
-	// Les vertex declaration ont pour seul but de décrire l'agencement d'un vertex buffer
-	// Elles sont composées de VertexElement, chacun décrivant un élément du buffer
+	// Les vertex declaration ont pour seul but de dÃ©crire l'agencement d'un vertex buffer
+	// Elles sont composÃ©es de VertexElement, chacun dÃ©crivant un Ã©lÃ©ment du buffer
 	NzVertexDeclaration* declaration = new NzVertexDeclaration;
 
-	// Il y a cinq paramètres différents (stream, usage, type, offset, usageIndex)
-	// -Stream: À quoi serviront les données ? À définir des sommets (nzElementStream_VertexData) ou à l'instancing (nzElementStream_InstancedData)
-	// -Usage: Comment cette donnée doit-elle être envoyée au shader
-	// -Type: Comment sont stockées ces données ? (Un triplet de float ? Deux double ? ..)
-	// -Offset: La position de la donnée dans le buffer (les données sont entrelacées)
-	// -UsageIndex: Pour les coordonnées de texture, définit l'indice de texture utilisé.
+	// Il y a cinq paramÃ¨tres diffÃ©rents (stream, usage, type, offset, usageIndex)
+	// -Stream: Ã€ quoi serviront les donnÃ©es ? Ã€ dÃ©finir des sommets (nzElementStream_VertexData) ou Ã  l'instancing (nzElementStream_InstancedData)
+	// -Usage: Comment cette donnÃ©e doit-elle Ãªtre envoyÃ©e au shader
+	// -Type: Comment sont stockÃ©es ces donnÃ©es ? (Un triplet de float ? Deux double ? ..)
+	// -Offset: La position de la donnÃ©e dans le buffer (les donnÃ©es sont entrelacÃ©es)
+	// -UsageIndex: Pour les coordonnÃ©es de texture, dÃ©finit l'indice de texture utilisÃ©.
 	NzVertexElement elements[2];
-	elements[0].usage = nzElementUsage_Position; // Notre premier élément sera la position des vertices
-	elements[0].offset = 0; // Celles-ci sont placées au début
-	elements[0].type = nzElementType_Float3; // Sont composées de trois flottants
+	elements[0].usage = nzElementUsage_Position; // Notre premier Ã©lÃ©ment sera la position des vertices
+	elements[0].offset = 0; // Celles-ci sont placÃ©es au dÃ©but
+	elements[0].type = nzElementType_Float3; // Sont composÃ©es de trois flottants
 
 	elements[1].usage = nzElementUsage_TexCoord;
 	elements[1].offset = 3*sizeof(float);
@@ -528,12 +518,12 @@ bool CreateFloorMesh(NzMesh* mesh)
 
 	if (!declaration->Create(elements, 2))
 	{
-		// Nos éléments sont invalides !
+		// Nos Ã©lÃ©ments sont invalides !
 		std::cout << "Failed to create vertex declaration" << std::endl;
 		return false;
 	}
 
-	// Nous créons ensuite un buffer de 4 vertices (le second argument précise l'espace pris par chaque vertex), le stockage
+	// Nous crÃ©ons ensuite un buffer de 4 vertices (le second argument prÃ©cise l'espace pris par chaque vertex), le stockage
 	// Et nous indiquons que nous n'y toucherons plus
 	NzVertexBuffer* buffer = new NzVertexBuffer(4, declaration->GetStride(nzElementStream_VertexData), nzBufferStorage_Hardware, nzBufferUsage_Static);
 
@@ -557,8 +547,8 @@ bool CreateFloorMesh(NzMesh* mesh)
 		10.f, 10.f           // UV
 	};
 
-	// Afin de modifier un buffer, il nous faut soit le verrouiller (accès bas-niveau),  soit le remplir (accès de plus haut niveau)
-	if (!buffer->Fill(vertices, 0, 4)) // Nous remplissons à partir de l'index 0, et nous envoyons 4 vertices
+	// Afin de modifier un buffer, il nous faut soit le verrouiller (accÃ¨s bas-niveau),  soit le remplir (accÃ¨s de plus haut niveau)
+	if (!buffer->Fill(vertices, 0, 4)) // Nous remplissons Ã  partir de l'index 0, et nous envoyons 4 vertices
 	{
 		std::cout << "Failed to fill buffer" << std::endl;
 		return false;
@@ -576,31 +566,31 @@ bool CreateFloorMesh(NzMesh* mesh)
 	// On ajoute le submesh au mesh
 	mesh->AddSubMesh(subMesh);
 
-	// Nos ressources sont notifiées utilisées par le mesh et le submesh, nous pouvons les rendre éphèmères.
-	// Les ressources seront donc automatiquement libérées lorsque plus aucune classe n'en aura besoin
+	// Nos ressources sont notifiÃ©es utilisÃ©es par le mesh et le submesh, nous pouvons les rendre Ã©phÃ¨mÃ¨res.
+	// Les ressources seront donc automatiquement libÃ©rÃ©es lorsque plus aucune classe n'en aura besoin
 	buffer->SetPersistent(false);
 	declaration->SetPersistent(false);
-	subMesh->SetPersistent(false); // Pour le submesh, c'est déjà à false à la base
+	subMesh->SetPersistent(false); // Pour le submesh, c'est dÃ©jÃ  Ã  false Ã  la base
 
 	return true;
 }
 
 void DrawModel(const Model& model)
 {
-	// La matrice world est celle qui représente les transformations du modèle
+	// La matrice world est celle qui reprÃ©sente les transformations du modÃ¨le
 	NzRenderer::SetMatrix(nzMatrixType_World, model.matrix);
 
-	NzShader* shader = NzRenderer::GetShader();// On récupère le shader du rendu
+	NzShader* shader = NzRenderer::GetShader();// On rÃ©cupÃ¨re le shader du rendu
 	shader->SendTexture(shader->GetUniformLocation("texture"), &model.texture);
 
-	// Un mesh est divisé en plusieurs submeshes
+	// Un mesh est divisÃ© en plusieurs submeshes
 	unsigned int subMeshCount = model.mesh.GetSubMeshCount();
 	for (unsigned int i = 0; i < subMeshCount; ++i)
 	{
-		// On récupère le submesh
+		// On rÃ©cupÃ¨re le submesh
 		const NzSubMesh* subMesh = model.mesh.GetSubMesh(i);
 
-		// On paramètre le Renderer avec ses données
+		// On paramÃ¨tre le Renderer avec ses donnÃ©es
 		NzRenderer::SetIndexBuffer(subMesh->GetIndexBuffer());
 		NzRenderer::SetVertexBuffer(subMesh->GetVertexBuffer());
 		NzRenderer::SetVertexDeclaration(subMesh->GetVertexDeclaration());
@@ -612,12 +602,12 @@ void DrawModel(const Model& model)
 
 void SetSequence(AnimatedModel& model, const NzString& sequenceName)
 {
-	// On récupère l'animation du mesh
+	// On rÃ©cupÃ¨re l'animation du mesh
 	const NzAnimation* animation = model.mesh.GetAnimation();
 
-	// Nous nous basons sur l'assertion que la séquence existe (Chose que nous pouvons tester avec HasSequence())
+	// Nous nous basons sur l'assertion que la sÃ©quence existe (Chose que nous pouvons tester avec HasSequence())
 	model.currentSequence = animation->GetSequence(sequenceName);
 
-	// Pour avoir une interpolation entre la séquence précédente et celle-ci, nous n'affectons que nextFrame
+	// Pour avoir une interpolation entre la sÃ©quence prÃ©cÃ©dente et celle-ci, nous n'affectons que nextFrame
 	model.nextFrame = model.currentSequence->firstFrame;
 }
