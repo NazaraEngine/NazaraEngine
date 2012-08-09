@@ -11,8 +11,8 @@ You can use it in any kind of commercial/non-commercial applications.
 Authors
 -------
 
-Jérôme "Lynix" Leclercq - main developper (Lynix680@gmail.com)
-Rémi "overdrivr" Bèges - developper & helper - NzNoise Module - (remi.beges@laposte.net)
+JÃ©rÃ´me "Lynix" Leclercq - main developper (Lynix680@gmail.com)
+RÃ©mi "overdrivr" BÃ¨ges - developper & helper - NzNoise Module - (remi.beges@laposte.net)
 
 Install
 -------
