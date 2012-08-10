@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Interface inspirée de la SFML par Laurent Gomila
+// Interface inspirÃ©e de la SFML par Laurent Gomila
 
 #pragma once
 

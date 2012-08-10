@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SubMesh.hpp>
@@ -11,7 +11,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 NzSubMesh::NzSubMesh(const NzMesh* parent) :
-NzResource(false), // Un SubMesh n'est pas persistant par défaut
+NzResource(false), // Un SubMesh n'est pas persistant par dÃ©faut
 m_parent(parent)
 {
 	#ifdef NAZARA_DEBUG

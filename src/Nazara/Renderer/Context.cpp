@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -62,7 +62,7 @@ namespace
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -96,7 +96,7 @@ namespace
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -118,7 +118,7 @@ namespace
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -230,7 +230,7 @@ bool NzContext::SetActive(bool active)
 	}
 	#endif
 
-	// Si le contexte est déjà activé/désactivé
+	// Si le contexte est dÃ©jÃ  activÃ©/dÃ©sactivÃ©
 	if ((currentContext == this) == active)
 		return true;
 
@@ -322,7 +322,7 @@ bool NzContext::Initialize()
 {
 	NzContextParameters parameters;
 //	parameters.compatibilityProfile = true;
-	parameters.shared = false; // Difficile de partager le contexte de référence avec lui-même
+	parameters.shared = false; // Difficile de partager le contexte de rÃ©fÃ©rence avec lui-mÃªme
 
 	s_reference = new NzContext;
 	if (!s_reference->Create(parameters))
@@ -333,7 +333,7 @@ bool NzContext::Initialize()
 		return false;
 	}
 
-	// Le contexte de référence doit rester désactivé pour le partage
+	// Le contexte de rÃ©fÃ©rence doit rester dÃ©sactivÃ© pour le partage
 	s_reference->SetActive(false);
 
 	NzContextParameters::defaultShareContext = s_reference;
@@ -346,7 +346,7 @@ void NzContext::Uninitialize()
 	for (NzContext* context : contexts)
 		delete context;
 
-	contexts.clear(); // On supprime tous les contextes créés
+	contexts.clear(); // On supprime tous les contextes crÃ©Ã©s
 
 	delete s_reference;
 	s_reference = nullptr;

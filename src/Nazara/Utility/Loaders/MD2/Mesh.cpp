@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2011 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Loaders/MD2/Mesh.hpp>
 #include <Nazara/Core/InputStream.hpp>
@@ -37,7 +37,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 	std::vector<md2_texCoord> texCoords(header.num_st);
 	std::vector<md2_triangle> triangles(header.num_tris);
 
-	// Lecture des coordonnées de texture
+	// Lecture des coordonnÃ©es de texture
 	stream.SetCursorPos(header.offset_st);
 	stream.Read(&texCoords[0], header.num_st*sizeof(md2_texCoord));
 
@@ -71,7 +71,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 	md2_frame frame;
 	frame.vertices.resize(header.num_vertices);
 
-	// Pour que le modèle soit correctement aligné, on génère une matrice de rotation que nous appliquerons à chacune des vertices
+	// Pour que le modÃ¨le soit correctement alignÃ©, on gÃ©nÃ¨re une matrice de rotation que nous appliquerons Ã  chacune des vertices
 	NzMatrix4f rotationMatrix = NzMatrix4f::Rotate(NzEulerAnglesf(90.f, -90.f, 0.f));
 
 	unsigned int stride = s_declaration.GetStride(nzElementStream_VertexData);
@@ -94,7 +94,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 		NzByteSwap(&frame.translate.z, sizeof(float));
 		#endif
 
-		m_frames[i].normal = new nzUInt8[m_vertexCount]; // Nous stockons l'indice de la normale plutôt que la normale (gain d'espace)
+		m_frames[i].normal = new nzUInt8[m_vertexCount]; // Nous stockons l'indice de la normale plutÃ´t que la normale (gain d'espace)
 		m_frames[i].vertices = new NzVector3f[m_vertexCount];
 
 		NzVector3f max, min;
@@ -128,7 +128,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 		return false;
 	}
 
-	// On avance jusqu'aux premières coordonnées de texture
+	// On avance jusqu'aux premiÃ¨res coordonnÃ©es de texture
 	ptr += s_declaration.GetElement(nzElementStream_VertexData, nzElementUsage_TexCoord)->offset;
 	for (unsigned int t = 0; t < header.num_tris; ++t)
 	{

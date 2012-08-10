@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/RenderTarget.hpp>
@@ -25,5 +25,5 @@ bool NzRenderTarget::SetActive(bool active)
 
 void NzRenderTarget::Desactivate()
 {
-	// Seuls les target sans contextes (ex: NzRenderTexture) nécessitent une désactivation
+	// Seuls les target sans contextes (ex: NzRenderTexture) nÃ©cessitent une dÃ©sactivation
 }

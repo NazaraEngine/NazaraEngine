@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Core/Endianness.hpp>
@@ -339,7 +339,7 @@ namespace
 			}
 
 			default:
-				NazaraError("Unable to load " + NzString::Number(bitCount) + " bitcount pcx files");
+				NazaraError("Failed to load " + NzString::Number(bitCount) + " bitcount pcx files");
 				return false;
 		}
 

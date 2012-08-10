@@ -1,5 +1,5 @@
 // Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // Source: http://www.cs.wustl.edu/~schmidt/win32-cv-1.html

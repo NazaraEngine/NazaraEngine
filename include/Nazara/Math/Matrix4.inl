@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -16,7 +16,7 @@
 #include <limits>
 #include <stdexcept>
 //#include <Nazara/Core/Debug.hpp>
-///FIXME: Le MLT détecte de faux-leaks ici (Problème lié aux inline ?)
+///FIXME: Le MLT dÃ©tecte de faux-leaks ici (ProblÃ¨me liÃ© aux inline ?)
 
 #define F(a) static_cast<T>(a)
 
@@ -407,7 +407,7 @@ void NzMatrix4<T>::Set(const T matrix[16])
 {
 	EnsureOwnership();
 
-	// Ici nous sommes certains de la continuité des éléments en mémoire
+	// Ici nous sommes certains de la continuitÃ© des Ã©lÃ©ments en mÃ©moire
 	std::memcpy(&m_sharedMatrix->m11, matrix, 16*sizeof(T));
 }
 

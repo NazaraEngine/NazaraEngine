@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Code inspiré de NeHe (Lesson1) et de la SFML par Laurent Gomila
+// Code inspirÃ© de NeHe (Lesson1) et de la SFML par Laurent Gomila
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
@@ -129,7 +129,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		return false;
 	}
 
-	// Arrivé ici, le format de pixel est choisi, nous récupérons donc les paramètres réels du futur contexte
+	// ArrivÃ© ici, le format de pixel est choisi, nous rÃ©cupÃ©rons donc les paramÃ¨tres rÃ©els du futur contexte
 	if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
 	{
 		parameters.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;

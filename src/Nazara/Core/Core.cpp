@@ -1,5 +1,5 @@
 // Copyright (C) 2012 AUTHORS
-// This file is part of the "Nazara Engine".
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Core.hpp>
@@ -11,11 +11,11 @@
 bool NzCore::Initialize()
 {
 	if (s_moduleReferenceCouter++ != 0)
-		return true; // DÈj‡ initialisÈ
+		return true; // D√©j√† initialis√©
 
 	// Initialisation du module
-	// Le noyau de Nazara n'a pour l'instant aucun besoin d'initialisation, mais dans le futur il est trËs probable que ce soit le cas.
-	// Donc en prÈvision, tous les modules initialisent le noyau
+	// Le noyau de Nazara n'a pour l'instant aucun besoin d'initialisation, mais dans le futur il est tr√®s probable que ce soit le cas.
+	// Donc en pr√©vision, tous les modules initialisent le noyau
 
 	NazaraNotice("Initialized: Core");
 
@@ -30,9 +30,9 @@ bool NzCore::IsInitialized()
 void NzCore::Uninitialize()
 {
 	if (--s_moduleReferenceCouter != 0)
-		return; // Encore utilisÈ
+		return; // Encore utilis√©
 
-	// LibÈration du module
+	// Lib√©ration du module
 	NazaraNotice("Uninitialized: Core");
 }
 

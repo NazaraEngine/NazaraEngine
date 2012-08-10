@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
@@ -27,7 +27,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		return false;
 	}
 
-	// Récupération de tous les loaders de cette extension
+	// RÃ©cupÃ©ration de tous les loaders de cette extension
 	auto range = Type::s_fileLoaders.equal_range(ext);
 	if (range.first == range.second)
 	{
@@ -35,7 +35,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		return false;
 	}
 
-	// range.second est un itérateur vers l'élément après le dernier élémént du range
+	// range.second est un itÃ©rateur vers l'Ã©lÃ©ment aprÃ¨s le dernier Ã©lÃ©mÃ©nt du range
 	auto it = range.second;
 
 	do
@@ -74,7 +74,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const vo
 
 	for (auto loader = Type::s_memoryLoaders.rbegin(); loader != Type::s_memoryLoaders.rend(); ++loader)
 	{
-		// Le loader supporte-t-il les données ?
+		// Le loader supporte-t-il les donnÃ©es ?
 		if (!loader->first(data, size, parameters))
 			continue;
 
@@ -111,7 +111,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 	{
 		stream.SetCursorPos(streamPos);
 
-		// Le loader supporte-t-il les données ?
+		// Le loader supporte-t-il les donnÃ©es ?
 		if (!loader->first(stream, parameters))
 			continue;
 
@@ -158,7 +158,7 @@ void NzResourceLoader<Type, Parameters>::UnregisterFileLoader(const NzString& ex
 
 	for (const NzString& ext : exts)
 	{
-		// Récupération de tous les loaders de cette extension
+		// RÃ©cupÃ©ration de tous les loaders de cette extension
 		auto range = Type::s_fileLoaders.equal_range(ext);
 
 		for (auto it = range.first; it != range.second; ++it)

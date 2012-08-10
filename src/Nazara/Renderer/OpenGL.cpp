@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -69,7 +69,7 @@ namespace
 			return false;
 		}
 
-		// On peut sûrement faire plus rapide mais comme ça ne se fait qu'une fois et que NzString implémente le COW...
+		// On peut sÃ»rement faire plus rapide mais comme Ã§a ne se fait qu'une fois et que NzString implÃ©mente le COW...
 		std::vector<NzString> ext;
 		extensionString.Split(ext);
 
@@ -124,18 +124,18 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
+	// Le chargement des fonctions OpenGL nÃ©cessite un contexte OpenGL
 	NzContextParameters parameters;
 	parameters.majorVersion = 2;
 	parameters.minorVersion = 0;
 	parameters.shared = false;
 
 	/*
-		Note: Même le contexte de chargement nécessite quelques fonctions de base pour correctement s'initialiser
-		Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
-		de créer le second avec les bons paramètres.
+		Note: MÃªme le contexte de chargement nÃ©cessite quelques fonctions de base pour correctement s'initialiser
+		Pour cette raison, deux contextes sont crÃ©Ã©s, le premier sert Ã  rÃ©cupÃ©rer les fonctions permetttant
+		de crÃ©er le second avec les bons paramÃ¨tres.
 
-		Non sérieusement si quelqu'un a une meilleure idée qu'il me le dise
+		Non sÃ©rieusement si quelqu'un a une meilleure idÃ©e qu'il me le dise
 	*/
 
 	/****************************************Initialisation****************************************/
@@ -158,9 +158,9 @@ bool NzOpenGL::Initialize()
 	glXCreateContextAttribs = reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(LoadEntry("glXCreateContextAttribsARB", false));
 	#endif
 
-	// Récupération de la version d'OpenGL
-	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
-	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
+	// RÃ©cupÃ©ration de la version d'OpenGL
+	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilitÃ© avec la plus haute version supportÃ©e
+	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un Ã  une meilleure idÃ©e ...
 	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString", false));
 	if (!glGetString)
 	{
@@ -440,7 +440,7 @@ bool NzOpenGL::Initialize()
 		glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
 		glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
 
-		// Si ARB_gpu_shader_fp64 est supporté, alors cette extension donne également accès aux fonctions utilisant des double
+		// Si ARB_gpu_shader_fp64 est supportÃ©, alors cette extension donne Ã©galement accÃ¨s aux fonctions utilisant des double
 		if (openGLextensions[NzOpenGL::FP64])
 		{
 			glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
@@ -469,9 +469,9 @@ bool NzOpenGL::Initialize()
 		{
 			try
 			{
-				// Hacky: Normalement incompatible à cause du internalFormat, GLenum pour l'extension et GLint pour le noyau
-				// Mais la taille du type étant la même (GLenum est un typedef équivalent à GLint) et Nazara n'utilisant pas
-				// Ce qui cause l'incompatibilité (les paramètres 1,2,3,4), je prends cette liberté
+				// Hacky: Normalement incompatible Ã  cause du internalFormat, GLenum pour l'extension et GLint pour le noyau
+				// Mais la taille du type Ã©tant la mÃªme (GLenum est un typedef Ã©quivalent Ã  GLint) et Nazara n'utilisant pas
+				// Ce qui cause l'incompatibilitÃ© (les paramÃ¨tres 1,2,3,4), je prends cette libertÃ©
 				glTexImage3D = reinterpret_cast<PFNGLTEXIMAGE3DPROC>(LoadEntry("glTexImage3DEXT"));
 				glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DEXTPROC>(LoadEntry("glTexSubImage3DEXT"));
 
@@ -528,9 +528,9 @@ bool NzOpenGL::Initialize()
 	if (!glGenerateMipmap)
 		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
-	/****************************************Contexte de référence****************************************/
+	/****************************************Contexte de rÃ©fÃ©rence****************************************/
 
-	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
+	///FIXME: Utiliser le contexte de chargement comme rÃ©fÃ©rence ? (VÃ©rifier mode debug)
 	if (!NzContext::Initialize())
 	{
 		NazaraError("Failed to initialize contexts");

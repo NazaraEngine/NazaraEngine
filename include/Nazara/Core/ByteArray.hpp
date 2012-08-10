@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -58,7 +58,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		NzByteArray& Trim(nzUInt8 byte = '\0');
 		NzByteArray Trimmed(nzUInt8 byte = '\0') const;
 
-		// Méthodes compatibles STD
+		// MÃ©thodes compatibles STD
 		nzUInt8* begin();
 		const nzUInt8* begin() const;
 		nzUInt8* end();
@@ -74,7 +74,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		typedef nzUInt8* iterator;
 		//typedef nzUInt8* reverse_iterator;
 		typedef nzUInt8 value_type;
-		// Méthodes compatibles STD
+		// MÃ©thodes compatibles STD
 
 		nzUInt8& operator[](unsigned int pos);
 		nzUInt8 operator[](unsigned int pos) const;

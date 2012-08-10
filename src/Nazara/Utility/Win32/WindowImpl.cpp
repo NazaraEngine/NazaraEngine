@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
+// Un grand merci Ã  Laurent Gomila pour la SFML qui m'aura bien aidÃ© Ã  rÃ©aliser cette implÃ©mentation
 
 #define OEMRESOURCE
 
@@ -26,12 +26,12 @@
 	#define GWL_USERDATA GWLP_USERDATA
 #endif
 
-// N'est pas définit avec MinGW apparemment
+// N'est pas dÃ©finit avec MinGW apparemment
 #ifndef MAPVK_VK_TO_VSC
     #define MAPVK_VK_TO_VSC 0
 #endif
 
-#undef IsMinimized // Conflit avec la méthode du même nom
+#undef IsMinimized // Conflit avec la mÃ©thode du mÃªme nom
 
 namespace
 {
@@ -71,20 +71,20 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 		if (ChangeDisplaySettings(&win32Mode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 		{
-			// Situation extrêmement rare grâce à NzVideoMode::IsValid appelé par NzWindow
+			// Situation extrÃªmement rare grÃ¢ce Ã  NzVideoMode::IsValid appelÃ© par NzWindow
 			NazaraError("Failed to change display settings for fullscreen, this video mode is not supported by your computer");
 			fullscreen = false;
 		}
 	}
 
-	// Testé une seconde fois car sa valeur peut changer
+	// TestÃ© une seconde fois car sa valeur peut changer
 	if (fullscreen)
 	{
 		x = 0;
 		y = 0;
 		win32Style = WS_CLIPCHILDREN | WS_POPUP;
 
-		// Pour cacher la barre des tâches
+		// Pour cacher la barre des tÃ¢ches
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
 		win32StyleEx = WS_EX_APPWINDOW;
 
@@ -126,7 +126,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle, win32Style, x, y, width, height, this, &mutex, &condition);
 	m_threadActive = true;
 
-	// On attend que la fenêtre soit créée
+	// On attend que la fenÃªtre soit crÃ©Ã©e
 	mutex.Lock();
 	m_thread->Launch();
 	condition.Wait(&mutex);
@@ -178,7 +178,7 @@ void NzWindowImpl::Destroy()
 		if (m_thread)
 		{
 			m_threadActive = false;
-			PostMessageW(m_handle, WM_NULL, 0, 0); // Pour réveiller le thread
+			PostMessageW(m_handle, WM_NULL, 0, 0); // Pour rÃ©veiller le thread
 
 			m_thread->Join();
 			delete m_thread;
@@ -234,7 +234,7 @@ NzString NzWindowImpl::GetTitle() const
 	if (titleSize == 0)
 		return NzString();
 
-	titleSize++; // Caractère nul
+	titleSize++; // CaractÃ¨re nul
 
 	wchar_t* wTitle = new wchar_t[titleSize];
 	GetWindowTextW(m_handle, wTitle, titleSize);
@@ -353,7 +353,7 @@ void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 			break;
 	}
 
-	// Pas besoin de libérer le curseur par la suite s'il est partagé
+	// Pas besoin de libÃ©rer le curseur par la suite s'il est partagÃ©
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
 	::SetCursor(m_cursor);
 }
@@ -437,7 +437,7 @@ void NzWindowImpl::SetPosition(int x, int y)
 
 void NzWindowImpl::SetSize(unsigned int width, unsigned int height)
 {
-	// SetWindowPos demande la taille totale de la fenêtre
+	// SetWindowPos demande la taille totale de la fenÃªtre
 	RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 	AdjustWindowRect(&rect, GetWindowLongPtr(m_handle, GWL_STYLE), false);
 
@@ -466,7 +466,7 @@ void NzWindowImpl::SetVisible(bool visible)
 
 bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// Inutile de récupérer des évènements ne venant pas de notre fenêtre
+	// Inutile de rÃ©cupÃ©rer des Ã©vÃ¨nements ne venant pas de notre fenÃªtre
 	if (m_handle != window)
 		return false;
 
@@ -531,7 +531,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				event.type = nzEventType_Quit;
 				m_parent->PushEvent(event);
 
-				return true; // Afin que Windows ne ferme pas la fenêtre automatiquement
+				return true; // Afin que Windows ne ferme pas la fenÃªtre automatiquement
 			}
 
 			#if !NAZARA_UTILITY_THREADED_WINDOW
@@ -545,7 +545,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 			{
 				m_sizemove = false;
 
-				// On vérifie ce qui a changé
+				// On vÃ©rifie ce qui a changÃ©
 				NzVector2i position = GetPosition();
 				if (m_position != position)
 				{
@@ -621,8 +621,8 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 
 			case WM_LBUTTONDBLCLK:
 			{
-				// Cet évènement est généré à la place d'un WM_LBUTTONDOWN lors d'un double-clic.
-				// Comme nous désirons quand même notifier chaque clic, nous envoyons les deux évènements.
+				// Cet Ã©vÃ¨nement est gÃ©nÃ©rÃ© Ã  la place d'un WM_LBUTTONDOWN lors d'un double-clic.
+				// Comme nous dÃ©sirons quand mÃªme notifier chaque clic, nous envoyons les deux Ã©vÃ¨nements.
 				NzEvent event;
 				event.mouseButton.button = NzMouse::Left;
 				event.mouseButton.x = GET_X_LPARAM(lParam);
@@ -701,7 +701,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				break;
 			}
 
-			// Nécessite un appel précédent à TrackMouseEvent (Fait dans WM_MOUSEMOVE)
+			// NÃ©cessite un appel prÃ©cÃ©dent Ã  TrackMouseEvent (Fait dans WM_MOUSEMOVE)
 			// http://msdn.microsoft.com/en-us/library/windows/desktop/ms645615(v=vs.85).aspx
 			case WM_MOUSELEAVE:
 			{
@@ -860,7 +860,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				if (!m_sizemove && wParam != SIZE_MINIMIZED)
 				#endif
 				{
-					NzVector2ui size = GetSize(); // On récupère uniquement la taille de la zone client
+					NzVector2ui size = GetSize(); // On rÃ©cupÃ¨re uniquement la taille de la zone client
 					#if !NAZARA_UTILITY_THREADED_WINDOW
 					if (m_size == size)
 						break;
@@ -941,14 +941,14 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 
 bool NzWindowImpl::Initialize()
 {
-	// Nous devons faire un type Unicode pour que la fenêtre le soit également
+	// Nous devons faire un type Unicode pour que la fenÃªtre le soit Ã©galement
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
 	WNDCLASSW windowClass;
 	windowClass.cbClsExtra = 0;
 	windowClass.cbWndExtra = 0;
 	windowClass.hbrBackground = nullptr;
-	windowClass.hCursor = nullptr; // Le curseur est définit dynamiquement
-	windowClass.hIcon = nullptr; // L'icône est définie dynamiquement
+	windowClass.hCursor = nullptr; // Le curseur est dÃ©finit dynamiquement
+	windowClass.hIcon = nullptr; // L'icÃ´ne est dÃ©finie dynamiquement
 	windowClass.hInstance = GetModuleHandle(nullptr);
 	windowClass.lpfnWndProc = MessageHandler;
 	windowClass.lpszClassName = className;
@@ -1125,7 +1125,7 @@ void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* titl
 	mutex->Lock();
 	condition->Signal();
 	mutex->Unlock();
-	// mutex et condition sont considérés invalides à partir d'ici
+	// mutex et condition sont considÃ©rÃ©s invalides Ã  partir d'ici
 
 	while (window->m_threadActive)
 		window->ProcessEvents(true);

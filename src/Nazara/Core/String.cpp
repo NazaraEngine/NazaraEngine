@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/String.hpp>
@@ -19,13 +19,13 @@ inline unsigned int nzPow2(unsigned int n)
 {
 	unsigned int x = 1;
 
-	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
+	// Tant que x est plus petit que n, on dÃ©cale ses bits vers la gauche, ce qui revient Ã  multiplier par deux
 	while(x <= n)
 		x <<= 1;
 
 	return x;
 }
-// Cet algorithme est inspiré de la documentation de Qt
+// Cet algorithme est inspirÃ© de la documentation de Qt
 inline unsigned int nzGetNewSize(unsigned int newSize)
 {
 	if (newSize < 20)
@@ -1174,7 +1174,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 		if (flags & HandleUtf8)
 		{
 			if (utf8::internal::is_trail(*ptr))
-				utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+				utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 			utf8::unchecked::iterator<const char*> it(ptr);
 			const char* t = string;
@@ -1282,9 +1282,9 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 	{
 		if (flags & HandleUtf8)
 		{
-			///Algo 1.FindLast#3 (Itérateur non-adapté)
+			///Algo 1.FindLast#3 (ItÃ©rateur non-adaptÃ©)
 			if (utf8::internal::is_trail(*ptr))
-				utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+				utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 			utf8::unchecked::iterator<const char*> it(ptr);
 			const char* t = string.m_sharedString->string;
@@ -1559,13 +1559,13 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 	if (flags & HandleUtf8)
 	{
 		if (utf8::internal::is_trail(*ptr))
-			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 		utf8::unchecked::iterator<const char*> it(ptr);
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 			do
 			{
@@ -1607,7 +1607,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 		}
 		else
 		{
-			const char* t = string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = utf8::unchecked::next(t);
 			do
 			{
@@ -1742,13 +1742,13 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 	if (flags & HandleUtf8)
 	{
 		if (utf8::internal::is_trail(*ptr))
-			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 		utf8::unchecked::iterator<const char*> it(ptr);
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 			do
 			{
@@ -1790,7 +1790,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 		}
 		else
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = utf8::unchecked::next(t);
 			do
 			{
@@ -1917,13 +1917,13 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 	if (flags & HandleUtf8)
 	{
 		if (utf8::internal::is_trail(*ptr))
-			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 		utf8::unchecked::iterator<const char*> it(ptr);
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
@@ -1963,7 +1963,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 		}
 		else
 		{
-			const char* t = string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
@@ -2087,15 +2087,15 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 	char* ptr = m_sharedString->string;
 	if (flags & HandleUtf8)
 	{
-		///Algo 3.FindWord#3 (Itérateur trop lent pour #2)
+		///Algo 3.FindWord#3 (ItÃ©rateur trop lent pour #2)
 		if (utf8::internal::is_trail(*ptr))
-			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
+			utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le dÃ©but d'un caractÃ¨re
 
 		utf8::unchecked::iterator<const char*> it(ptr);
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
@@ -2135,7 +2135,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 		}
 		else
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itÃ©rateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
@@ -2213,7 +2213,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 		{
 			while ((ptr = std::strstr(ptr, string.m_sharedString->string)))
 			{
-				// Si le mot est bien isolé
+				// Si le mot est bien isolÃ©
 				if ((ptr == m_sharedString->string || std::isspace(*(ptr-1))) && (*(ptr+m_sharedString->size) == '\0' || std::isspace(*(ptr+m_sharedString->size))))
 					return ptr - m_sharedString->string;
 
@@ -2396,11 +2396,11 @@ NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
 	if (m_sharedString->size == 0)
 		return NzString();
 
-	NzString temp = Simplified(flags); // Évitons les mauvaises surprises
+	NzString temp = Simplified(flags); // Ã‰vitons les mauvaises surprises
 	if (temp.IsEmpty())
 		return NzString();
 
-	unsigned int foundPos = temp.Find(' '); // Simplified nous assure que nous n'avons plus que des espaces comme séparation
+	unsigned int foundPos = temp.Find(' '); // Simplified nous assure que nous n'avons plus que des espaces comme sÃ©paration
 	unsigned int lastPos = 0;
 	for (; index > 0; --index)
 	{
@@ -2475,7 +2475,7 @@ NzString& NzString::Insert(int pos, char character)
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
-	// Si le buffer est déjà suffisamment grand
+	// Si le buffer est dÃ©jÃ  suffisamment grand
 	if (m_sharedString->capacity >= m_sharedString->size+1)
 	{
 		EnsureOwnership();
@@ -2520,7 +2520,7 @@ NzString& NzString::Insert(int pos, const char* string)
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
-	// Si le buffer est déjà suffisamment grand
+	// Si le buffer est dÃ©jÃ  suffisamment grand
 	unsigned int len = std::strlen(string);
 	if (m_sharedString->capacity >= m_sharedString->size+len)
 	{
@@ -2571,7 +2571,7 @@ NzString& NzString::Insert(int pos, const NzString& string)
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
-	// Si le buffer est déjà suffisamment grand
+	// Si le buffer est dÃ©jÃ  suffisamment grand
 	if (m_sharedString->capacity >= m_sharedString->size + string.m_sharedString->size)
 	{
 		EnsureOwnership();
@@ -2828,7 +2828,7 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 	{
 		bool found = false;
 
-		// Si aucun changement de taille n'est nécessaire, nous pouvons alors utiliser un algorithme bien plus rapide
+		// Si aucun changement de taille n'est nÃ©cessaire, nous pouvons alors utiliser un algorithme bien plus rapide
 		while ((pos = Find(oldString, pos, flags)) != npos)
 		{
 			if (!found)
@@ -2869,7 +2869,7 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 			count++;
 		}
 
-		std::strcpy(ptr, p); // Ajoute le caractère de fin par la même occasion
+		std::strcpy(ptr, p); // Ajoute le caractÃ¨re de fin par la mÃªme occasion
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -2898,7 +2898,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 	{
 		bool found = false;
 
-		// Si aucun changement de taille n'est nécessaire, nous pouvons alors utiliser un algorithme bien plus rapide
+		// Si aucun changement de taille n'est nÃ©cessaire, nous pouvons alors utiliser un algorithme bien plus rapide
 		while ((pos = Find(oldString, pos, flags)) != npos)
 		{
 			if (!found)
@@ -2939,7 +2939,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 			count++;
 		}
 
-		std::strcpy(ptr, p); // Ajoute le caractère de fin par la même occasion
+		std::strcpy(ptr, p); // Ajoute le caractÃ¨re de fin par la mÃªme occasion
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -2953,7 +2953,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 
 unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharacter, int start, nzUInt32 flags)
 {
-	///FIXME: Ne gère pas l'UTF-8
+	///FIXME: Ne gÃ¨re pas l'UTF-8
 	if (!oldCharacters || !oldCharacters[0])
 		return 0;
 
@@ -3040,7 +3040,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 
 		unsigned int count = 0;
 
-		if (rSize == 1) // On utilise un algorithme optimisé
+		if (rSize == 1) // On utilise un algorithme optimisÃ©
 		{
 			EnsureOwnership();
 
@@ -3070,7 +3070,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 			unsigned int j = 0;
 			for (unsigned int i = 0; i < m_sharedString->size; ++i)
 			{
-				if (i < pos) // Avant la position où on est censé commencer à remplacer, on ne fait que recopier
+				if (i < pos) // Avant la position oÃ¹ on est censÃ© commencer Ã  remplacer, on ne fait que recopier
 					newString[j++] = m_sharedString->string[i];
 				else
 				{
@@ -3084,7 +3084,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 
 							++count;
 							found = true;
-							break; // Simple façon d'éviter la ligne après la boucle
+							break; // Simple faÃ§on d'Ã©viter la ligne aprÃ¨s la boucle
 						}
 					}
 
@@ -3119,7 +3119,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 
 		unsigned int count = 0;
 
-		if (replaceString.m_sharedString->size == 1) // On utilise un algorithme optimisé
+		if (replaceString.m_sharedString->size == 1) // On utilise un algorithme optimisÃ©
 		{
 			EnsureOwnership();
 
@@ -3149,7 +3149,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 			unsigned int j = 0;
 			for (unsigned int i = 0; i < m_sharedString->size; ++i)
 			{
-				if (i < pos) // Avant la position où on est censé commencer à remplacer, on ne fait que recopier
+				if (i < pos) // Avant la position oÃ¹ on est censÃ© commencer Ã  remplacer, on ne fait que recopier
 					newString[j++] = m_sharedString->string[i];
 				else
 				{
@@ -3163,7 +3163,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 
 							++count;
 							found = true;
-							break; // Simple façon d'éviter la ligne après la boucle
+							break; // Simple faÃ§on d'Ã©viter la ligne aprÃ¨s la boucle
 						}
 					}
 
@@ -3217,7 +3217,7 @@ NzString& NzString::Resize(int size, char character)
 	{
 		EnsureOwnership();
 
-		// Nous avons déjà la place requise, contentons-nous de remplir le buffer
+		// Nous avons dÃ©jÃ  la place requise, contentons-nous de remplir le buffer
 		if (character != '\0' && newSize > m_sharedString->size)
 		{
 			char* ptr = &m_sharedString->string[m_sharedString->size];
@@ -3229,7 +3229,7 @@ NzString& NzString::Resize(int size, char character)
 		m_sharedString->size = newSize;
 		m_sharedString->string[newSize] = '\0';
 	}
-	else // On veut forcément agrandir la chaine
+	else // On veut forcÃ©ment agrandir la chaine
 	{
 		char* newString = new char[newSize+1];
 		if (m_sharedString->size != 0)
@@ -3832,7 +3832,7 @@ bool NzString::ToBool(bool* value, nzUInt32 flags) const
 	else
 	{
 		if (flags & CaseInsensitive)
-			word = word.ToLower(); // Les mots identifiés sont en ASCII, inutile de passer le flag unicode
+			word = word.ToLower(); // Les mots identifiÃ©s sont en ASCII, inutile de passer le flag unicode
 
 		if (word == "true")
 		{

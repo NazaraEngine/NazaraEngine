@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -45,7 +45,7 @@ enum nzBufferUsage
 
 enum nzCubemapFace
 {
-	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap
+	// Cette Ã©numÃ©ration est prÃ©vue pour remplacer l'argument "z" des mÃ©thodes de NzImage contenant un cubemap
 	// L'ordre est X, -X, Y, -Y, Z, -Z
 	nzCubemapFace_PositiveX = 0,
 	nzCubemapFace_PositiveY = 2,

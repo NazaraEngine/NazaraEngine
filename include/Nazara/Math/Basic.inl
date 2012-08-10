@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
@@ -55,7 +55,7 @@ unsigned int NzGetNumberLength(signed char number)
 	if (number == 0)
 		return 1;
 
-	// Le standard définit le char comme étant codé sur un octet
+	// Le standard dÃ©finit le char comme Ã©tant codÃ© sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
 	if (number >= 100)
@@ -71,7 +71,7 @@ unsigned int NzGetNumberLength(unsigned char number)
 	if (number == 0)
 		return 1;
 
-	// Le standard définit le char comme étant codé sur un octet
+	// Le standard dÃ©finit le char comme Ã©tant codÃ© sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
 	if (number >= 100)
@@ -148,19 +148,19 @@ unsigned int NzGetNumberLength(unsigned long long number)
 
 unsigned int NzGetNumberLength(float number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprÃ©cision des flottants nÃ©cessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
 unsigned int NzGetNumberLength(double number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprÃ©cision des flottants nÃ©cessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
 unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprÃ©cision des flottants nÃ©cessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 

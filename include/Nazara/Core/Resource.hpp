@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -22,7 +22,7 @@ class NAZARA_API NzResource
 		void SetPersistent(bool persistent = true);
 
 	private:
-		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
+		// Je fais prÃ©cÃ©der le nom par 'resource' pour Ã©viter les Ã©ventuels conflits de noms
 		mutable bool m_resourcePersistent;
 		mutable unsigned int m_resourceReferenceCount;
 };

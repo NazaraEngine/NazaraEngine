@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 RÃ©mi BÃ¨ges - JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
-///FIXME: Les calculs effectués ici sont probablements tous faux, la composante W étant spéciale dans le monde de la 3D
+///FIXME: Les calculs effectuÃ©s ici sont probablements tous faux, la composante W Ã©tant spÃ©ciale dans le monde de la 3D
 
 #define F(a) static_cast<T>(a)
 

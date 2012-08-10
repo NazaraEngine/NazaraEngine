@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/VideoModeImpl.hpp>
@@ -25,7 +25,7 @@ void NzVideoModeImpl::GetFullscreenModes(std::vector<NzVideoMode>& modes)
 	{
 		NzVideoMode mode(win32Mode.dmPelsWidth, win32Mode.dmPelsHeight, win32Mode.dmBitsPerPel);
 
-		// Il existe plusieurs modes avec ces trois caractéristques identiques
+		// Il existe plusieurs modes avec ces trois caractÃ©ristques identiques
 		if (std::find(modes.begin(), modes.end(), mode) == modes.end())
 			modes.push_back(mode);
 	}

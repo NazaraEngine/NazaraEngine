@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Utility.hpp>
@@ -18,9 +18,9 @@
 bool NzUtility::Initialize()
 {
 	if (s_moduleReferenceCouter++ != 0)
-		return true; // DÈj‡ initialisÈ
+		return true; // D√©j√† initialis√©
 
-	// Initialisation des dÈpendances
+	// Initialisation des d√©pendances
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
@@ -48,16 +48,16 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
-	/// Loaders spÈcialisÈs
+	/// Loaders sp√©cialis√©s
 	// Mesh
 	NzLoaders_MD2_Register(); // Loader de fichiers .MD2 (v8)
 
 	// Image
 	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
 
-	/// Loaders gÈnÈriques (En dernier pour donner la prioritÈ aux loaders spÈcialisÈs)
+	/// Loaders g√©n√©riques (En dernier pour donner la priorit√© aux loaders sp√©cialis√©s)
 	// Image
-	NzLoaders_STB_Register(); // Loader gÈnÈrique (STB)
+	NzLoaders_STB_Register(); // Loader g√©n√©rique (STB)
 
 	NazaraNotice("Initialized: Utility module");
 
@@ -72,9 +72,9 @@ bool NzUtility::IsInitialized()
 void NzUtility::Uninitialize()
 {
 	if (--s_moduleReferenceCouter != 0)
-		return; // Encore utilisÈ
+		return; // Encore utilis√©
 
-	// LibÈration du module
+	// Lib√©ration du module
 	NzLoaders_MD2_Unregister();
 	NzLoaders_PCX_Unregister();
 	NzLoaders_STB_Unregister();
@@ -85,7 +85,7 @@ void NzUtility::Uninitialize()
 
 	NazaraNotice("Uninitialized: Utility module");
 
-	// LibÈration des dÈpendances
+	// Lib√©ration des d√©pendances
 	NzCore::Uninitialize();
 }
 
