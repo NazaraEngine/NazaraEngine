@@ -29,5 +29,5 @@ configuration "Release*"
 configuration "*Static"
 	defines "NAZARA_STATIC"
 
-configuration "gmake"
+configuration "codeblocks or codelite or gmake or xcode3*"
 	buildoptions "-std=c++11"
