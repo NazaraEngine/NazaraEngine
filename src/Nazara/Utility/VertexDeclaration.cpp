@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -113,7 +113,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 	std::memset(&impl->elementPos, -1, (nzElementStream_Max+1)*(nzElementUsage_Max+1)*sizeof(int));
 	std::memset(&impl->streamPos, -1, (nzElementStream_Max+1)*sizeof(int));
 
-	// On copie et trie les éléments
+	// On copie et trie les Ã©lÃ©ments
 	impl->elements.resize(elementCount);
 	std::memcpy(&impl->elements[0], elements, elementCount*sizeof(NzVertexElement));
 	std::sort(impl->elements.begin(), impl->elements.end(), VertexElementCompare);
@@ -122,13 +122,13 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 	{
 		NzVertexElement& current = impl->elements[i];
 		#if NAZARA_UTILITY_SAFE
-		// Notre tableau étant trié, s'il y a collision, les deux éléments identiques se suivent...
+		// Notre tableau Ã©tant triÃ©, s'il y a collision, les deux Ã©lÃ©ments identiques se suivent...
 		if (i > 0)
 		{
-			NzVertexElement& previous = impl->elements[i-1]; // On accède à l'élément précédent
+			NzVertexElement& previous = impl->elements[i-1]; // On accÃ¨de Ã  l'Ã©lÃ©ment prÃ©cÃ©dent
 			if (previous.usage == current.usage && previous.usageIndex == current.usageIndex && previous.stream == current.stream)
 			{
-				// Les deux éléments sont identiques là où ils ne devraient pas, nous avons une collision...
+				// Les deux Ã©lÃ©ments sont identiques lÃ  oÃ¹ ils ne devraient pas, nous avons une collision...
 				NazaraError("Element usage 0x" + NzString::Number(current.usage, 16) + " collision with usage index " + NzString::Number(current.usageIndex) + " on stream 0x" + NzString::Number(current.stream, 16));
 				delete impl;
 
@@ -141,7 +141,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 			impl->elementPos[current.stream][current.usage] = i;
 
 		if (impl->streamPos[current.stream] == -1)
-			impl->streamPos[current.stream] = i; // Premier élément du stream (via le triage)
+			impl->streamPos[current.stream] = i; // Premier Ã©lÃ©ment du stream (via le triage)
 
 		impl->stride[current.stream] += size[current.type];
 	}

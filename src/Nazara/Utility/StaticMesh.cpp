@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -95,7 +95,7 @@ bool NzStaticMesh::GenerateAABB()
 	const NzVertexElement* position = m_vertexDeclaration->GetElement(nzElementStream_VertexData, nzElementUsage_Position);
 	if (position && position->type == nzElementType_Float3) // Si nous avons des positions du type Vec3
 	{
-		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
+		// On lock le buffer pour itÃ©rer sur toutes les positions et composer notre AABB
 		nzUInt8* buffer = reinterpret_cast<nzUInt8*>(m_vertexBuffer->Map(nzBufferAccess_ReadOnly));
 		if (!buffer)
 		{
@@ -181,6 +181,6 @@ void NzStaticMesh::AnimateImpl(unsigned int frameA, unsigned int frameB, float i
 	NazaraUnused(frameB);
 	NazaraUnused(interpolation);
 
-	// Le safe mode est censé nous protéger de cet appel
+	// Le safe mode est censÃ© nous protÃ©ger de cet appel
 	NazaraError("Static mesh have no animation, please enable safe mode");
 }

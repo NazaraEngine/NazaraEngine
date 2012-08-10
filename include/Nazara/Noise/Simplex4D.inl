@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Rémi Bèges
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 RÃ©mi BÃ¨ges
+// This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>

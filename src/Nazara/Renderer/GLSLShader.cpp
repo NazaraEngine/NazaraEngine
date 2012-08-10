@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -14,7 +14,7 @@
 
 namespace
 {
-	///FIXME: DÈclarÈ deux fois (ici et dans Renderer.cpp)
+	///FIXME: D√©clar√© deux fois (ici et dans Renderer.cpp)
 	const nzUInt8 attribIndex[] =
 	{
 		2,	// nzElementUsage_Diffuse
@@ -111,9 +111,9 @@ bool NzGLSLShader::Compile()
 		if (length > 1)
 		{
 			m_log.Clear(true);
-			m_log.Reserve(length+19-1); // La taille retournÈe est celle du buffer (Avec caractËre de fin)
+			m_log.Reserve(length+19-1); // La taille retourn√©e est celle du buffer (Avec caract√®re de fin)
 			m_log.Prepend("Linkage error: ");
-			m_log.Resize(length+19-1); // Extension du buffer d'Ècriture pour ajouter le log
+			m_log.Resize(length+19-1); // Extension du buffer d'√©criture pour ajouter le log
 
 			glGetProgramInfoLog(m_program, length-1, nullptr, &m_log[19]);
 		}
@@ -191,7 +191,7 @@ NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
 	glGetShaderiv(m_shaders[type], GL_SHADER_SOURCE_LENGTH, &length);
 	if (length > 1)
 	{
-		source.Resize(length-1); // La taille retournÈe est celle du buffer (Avec caractËre de fin)
+		source.Resize(length-1); // La taille retourn√©e est celle du buffer (Avec caract√®re de fin)
 		glGetShaderSource(m_shaders[type], length, nullptr, &source[0]);
 	}
 
@@ -260,9 +260,9 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 		if (length > 1)
 		{
 			m_log.Clear(true);
-			m_log.Reserve(length+19-1); // La taille retournÈe est celle du buffer (Avec caractËre de fin)
+			m_log.Reserve(length+19-1); // La taille retourn√©e est celle du buffer (Avec caract√®re de fin)
 			m_log.Prepend("Compilation error: ");
-			m_log.Resize(length+19-1); // Extension du buffer d'Ècriture pour ajouter le log
+			m_log.Resize(length+19-1); // Extension du buffer d'√©criture pour ajouter le log
 
 			glGetShaderInfoLog(shader, length-1, nullptr, &m_log[19]);
 		}
@@ -384,7 +384,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 	auto it = m_textures.find(location);
 	if (it != m_textures.end())
 	{
-		// Slot dÈj‡ utilisÈ
+		// Slot d√©j√† utilis√©
 		TextureSlot& slot = it->second;
 		if (slot.texture != texture)
 		{
@@ -412,21 +412,21 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 			return false;
 		}
 
-		// ¿ partir d'ici nous savons qu'il y a au moins un identifiant de texture libre
+		// √Ä partir d'ici nous savons qu'il y a au moins un identifiant de texture libre
 		nzUInt8 unit;
 		if (unitUsed == 0)
-			// Pas d'unitÈ utilisÈe, la t‚che est simple
+			// Pas d'unit√© utilis√©e, la t√¢che est simple
 			unit = 0;
 		else
 		{
-			auto it2 = m_textures.rbegin(); // ItÈrateur vers la fin de la map
+			auto it2 = m_textures.rbegin(); // It√©rateur vers la fin de la map
 			unit = it2->second.unit;
 			if (unit == maxUnits-1)
 			{
-				// Il y a une place libre, mais pas ‡ la fin
+				// Il y a une place libre, mais pas √† la fin
 				for (; it2 != m_textures.rend(); ++it2)
 				{
-					if (unit - it2->second.unit > 1) // Si l'espace entre les indices est supÈrieur ‡ 1, alors il y a une place libre
+					if (unit - it2->second.unit > 1) // Si l'espace entre les indices est sup√©rieur √† 1, alors il y a une place libre
 					{
 						unit--;
 						break;
@@ -434,7 +434,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 				}
 			}
 			else
-				// Il y a une place libre ‡ la fin
+				// Il y a une place libre √† la fin
 				unit++;
 		}
 

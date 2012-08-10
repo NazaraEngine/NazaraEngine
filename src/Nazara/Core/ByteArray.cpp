@@ -1,4 +1,9 @@
-/*#include <Nazara/Core/ByteArray.hpp>
+/*
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Core module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#include <Nazara/Core/ByteArray.hpp>
 #include <algorithm>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
@@ -12,7 +17,7 @@ inline unsigned int nzPow2(unsigned int n)
 
 	return x;
 }
-// Cet algorithme est inspirÈ de la documentation de Qt
+// Cet algorithme est inspir√© de la documentation de Qt
 inline unsigned int nzGetNewSize(unsigned int newSize)
 {
 	if (newSize < 20)
@@ -146,7 +151,7 @@ NzByteArray& NzByteArray::Insert(int pos, const nzUInt8* buffer, unsigned int bu
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedArray->size);
 
-	// Si le buffer est dÈj‡ suffisamment grand
+	// Si le buffer est d√©j√† suffisamment grand
 	if (m_sharedArray->capacity >= m_sharedArray->size + bufferLength)
 	{
 		EnsureOwnership();
@@ -195,7 +200,7 @@ NzByteArray& NzByteArray::Insert(int pos, const NzByteArray& byteArray)
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedArray->size);
 
-	// Si le buffer est dÈj‡ suffisamment grand
+	// Si le buffer est d√©j√† suffisamment grand
 	if (m_sharedArray->capacity >= m_sharedArray->size + string.m_sharedArray->size)
 	{
 		EnsureOwnership();

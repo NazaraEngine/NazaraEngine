@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2011 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Core/Endianness.hpp>
@@ -92,8 +92,8 @@ namespace
 			return false;
 		}
 
-		/// Création du mesh
-		// Animé ou statique, c'est la question
+		/// CrÃ©ation du mesh
+		// AnimÃ© ou statique, c'est la question
 		bool animated;
 		unsigned int startFrame = NzClamp(parameters.animation.startFrame, 0U, static_cast<unsigned int>(header.num_frames-1));
 		unsigned int endFrame = NzClamp(parameters.animation.endFrame, 0U, static_cast<unsigned int>(header.num_frames-1));
@@ -103,7 +103,7 @@ namespace
 		else
 			animated = false;
 
-		if (!mesh->Create((animated) ? nzAnimationType_Keyframe : nzAnimationType_Static)) // Ne devrait pas échouer
+		if (!mesh->Create((animated) ? nzAnimationType_Keyframe : nzAnimationType_Static)) // Ne devrait pas Ã©chouer
 		{
 			NazaraInternalError("Failed to create mesh");
 			return false;
@@ -129,11 +129,11 @@ namespace
 			NzAnimation* animation = new NzAnimation;
 			if (animation->Create(nzAnimationType_Keyframe, endFrame-startFrame+1))
 			{
-				// Décodage des séquences
+				// DÃ©codage des sÃ©quences
 				NzString frameName;
 
 				NzSequence sequence;
-				sequence.framePerSecond = 10; // Par défaut pour les animations MD2
+				sequence.framePerSecond = 10; // Par dÃ©faut pour les animations MD2
 
 				char name[16], last[16];
 				stream.SetCursorPos(header.offset_frames + startFrame*header.framesize + offsetof(md2_frame, name));
@@ -165,9 +165,9 @@ namespace
 					}
 					name[pos+1] = '\0';
 
-					if (std::strcmp(name, last) != 0) // Si les deux frames n'ont pas le même nom
+					if (std::strcmp(name, last) != 0) // Si les deux frames n'ont pas le mÃªme nom
 					{
-						// Alors on enregistre la séquence
+						// Alors on enregistre la sÃ©quence
 						sequence.firstFrame = i-numFrames;
 						sequence.lastFrame = i-1;
 						sequence.name = last;
@@ -181,7 +181,7 @@ namespace
 					numFrames++;
 				}
 
-				// On ajoute la dernière frame (Qui n'a pas été traitée par la boucle)
+				// On ajoute la derniÃ¨re frame (Qui n'a pas Ã©tÃ© traitÃ©e par la boucle)
 				sequence.firstFrame = endFrame-numFrames;
 				sequence.lastFrame = endFrame;
 				sequence.name = last;
@@ -196,7 +196,7 @@ namespace
 
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
-		// TODO: Utiliser les commandes OpenGL pour accélérer le rendu
+		// TODO: Utiliser les commandes OpenGL pour accÃ©lÃ©rer le rendu
 		NzMD2Mesh* subMesh = new NzMD2Mesh(mesh);
 		if (!subMesh->Create(header, stream, parameters))
 		{

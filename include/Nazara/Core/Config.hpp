@@ -1,5 +1,5 @@
 /*
-	Nazara Engine
+	Nazara Engine - Core module
 
 	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 

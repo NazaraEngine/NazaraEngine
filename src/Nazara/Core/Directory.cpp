@@ -1,12 +1,12 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-//#include <Nazara/ThreadLocalVar.h>
+//#include <Nazara/Core/ThreadLocal.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/DirectoryImpl.hpp>
@@ -21,7 +21,7 @@
 namespace
 {
 	NzString currentPath(NzDirectoryImpl::GetCurrent());
-	//static ThreadLocalVar<NzString> currentPath(NzDirectoryImpl::GetCurrent());
+	//static ThreadLocal<NzString> currentPath(NzDirectoryImpl::GetCurrent());
 }
 
 NzDirectory::NzDirectory() :
@@ -247,7 +247,7 @@ bool NzDirectory::Create(const NzString& dirPath, bool recursive)
 			return false;
 
 		#ifdef NAZARA_PLATFORM_WINDOWS
-		// Contrairement au disque (Ex: "C:"), le chemin réseau n'est pas considéré comme un dossier (Ex: "\\Laptop")
+		// Contrairement au disque (Ex: "C:"), le chemin rÃ©seau n'est pas considÃ©rÃ© comme un dossier (Ex: "\\Laptop")
 		if (path.Match("\\\\*"))
 		{
 			foundPos = path.Find('\\', 2);
@@ -304,7 +304,7 @@ bool NzDirectory::Remove(const NzString& dirPath, bool emptyDirectory)
 	{
 		NzDirectory dir(dirPath);
 		if (!dir.Open())
-			return NzDirectoryImpl::Remove(dirPath); // Si on n'arrive pas à ouvrir le dossier, on tente de le supprimer
+			return NzDirectoryImpl::Remove(dirPath); // Si on n'arrive pas Ã  ouvrir le dossier, on tente de le supprimer
 
 		while (dir.NextResult(true))
 		{

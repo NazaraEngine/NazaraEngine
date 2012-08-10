@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -456,7 +456,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 	LockTexture(impl);
 
-	// Vérification du support par la carte graphique
+	// VÃ©rification du support par la carte graphique
 	/*if (!CreateTexture(impl, true))
 	{
 		NazaraError("Texture's parameters not supported by driver");
@@ -467,7 +467,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 		return false;
 	}*/
 
-	// Création de la texture
+	// CrÃ©ation de la texture
 	if (!CreateTexture(impl, false))
 	{
 		NazaraError("Failed to create texture");
@@ -480,7 +480,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 	m_impl = impl;
 
-	// Paramètres par défaut
+	// ParamÃ¨tres par dÃ©faut
 	SetFilterMode(nzTextureFilter_Nearest);
 	SetMipmapRange(0, m_impl->levelCount);
 	SetWrapMode(nzTextureWrap_Repeat);
@@ -549,7 +549,7 @@ bool NzTexture::Download(NzImage* image) const
 	unsigned int height = m_impl->height;
 	unsigned int depth = m_impl->depth;
 
-	// Téléchargement...
+	// TÃ©lÃ©chargement...
 	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
 	{
 		glGetTexImage(openglTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(level));
@@ -566,7 +566,7 @@ bool NzTexture::Download(NzImage* image) const
 
 	UnlockTexture(m_impl);
 
-	// Inversion de la texture pour le repère d'OpenGL
+	// Inversion de la texture pour le repÃ¨re d'OpenGL
 	if (!image->FlipVertically())
 		NazaraWarning("Failed to flip image");
 
@@ -1253,7 +1253,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
-	// Inversion de la texture pour le repère d'OpenGL
+	// Inversion de la texture pour le repÃ¨re d'OpenGL
 	NzImage mirrored;
 	mirrored.Create(m_impl->type, m_impl->format, rect.width, rect.height);
 	mirrored.Update(pixels);
@@ -1350,7 +1350,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
-	// Inversion de la texture pour le repère d'OpenGL
+	// Inversion de la texture pour le repÃ¨re d'OpenGL
 	unsigned int size = cube.width*cube.height*cube.depth*bpp;
 	nzUInt8* mirrored = new nzUInt8[size];
 	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, cube.width, cube.height, cube.depth, pixels, mirrored))
@@ -1505,7 +1505,7 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
 
-	// Inversion de la texture pour le repère d'OpenGL
+	// Inversion de la texture pour le repÃ¨re d'OpenGL
 	unsigned int size = rect.width*rect.height*bpp;
 	nzUInt8* mirrored = new nzUInt8[size];
 	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, rect.width, rect.height, 1, pixels, mirrored))
@@ -1562,12 +1562,12 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return true;
 
-		// Packed formats supportés depuis OpenGL 1.2
+		// Packed formats supportÃ©s depuis OpenGL 1.2
 		case nzPixelFormat_RGB5A1:
 		case nzPixelFormat_RGBA4:
 			return true;
 
-		// Dépréciés depuis OpenGL 3 (FIXME: Il doit bien exister des remplaçants ..)
+		// DÃ©prÃ©ciÃ©s depuis OpenGL 3 (FIXME: Il doit bien exister des remplaÃ§ants ..)
 		case nzPixelFormat_L8:
 		case nzPixelFormat_LA8:
 			return false;
@@ -1602,7 +1602,7 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 		case nzImageType_2D:
 		case nzImageType_3D:
 		case nzImageType_Cubemap:
-			return true; // Tous supportés nativement dans OpenGL 2
+			return true; // Tous supportÃ©s nativement dans OpenGL 2
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D_Array:

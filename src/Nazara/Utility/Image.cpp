@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Image.hpp>
@@ -84,7 +84,7 @@ bool NzImage::Convert(nzPixelFormat format)
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
 
-	// Les images 3D et cubemaps sont stockés de la même façon
+	// Les images 3D et cubemaps sont stockÃ©s de la mÃªme faÃ§on
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 
 	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
@@ -101,7 +101,7 @@ bool NzImage::Convert(nzPixelFormat format)
 			{
 				NazaraError("Failed to convert image");
 
-				// Nettoyage de la mémoire
+				// Nettoyage de la mÃ©moire
 				delete[] ptr; // Permet une optimisation de boucle (GCC)
 				for (unsigned int j = 0; j < i; ++j)
 					delete[] levels[j];
@@ -159,11 +159,11 @@ bool NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVecto
 	}
 
 	/*
-	Correctif temporaire : Update veut de la mémoire contigüe
-	Il est donc nécessaire de prendre la partie de la texture que nous voulons mettre à jour
+	Correctif temporaire : Update veut de la mÃ©moire contigÃ¼e
+	Il est donc nÃ©cessaire de prendre la partie de la texture que nous voulons mettre Ã  jour
 
-	FIXME: Trouver une interface pour gérer ce genre de problème (Façon OpenGL?)
-	(Appliquer l'interface à NzTexture également)
+	FIXME: Trouver une interface pour gÃ©rer ce genre de problÃ¨me (FaÃ§on OpenGL?)
+	(Appliquer l'interface Ã  NzTexture Ã©galement)
 	*/
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
 	unsigned int dstLineStride = srcCube.width*bpp;
@@ -269,7 +269,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 
 	for (unsigned int i = 0; i < levelCount; ++i)
 	{
-		// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
+		// Cette allocation est protÃ©gÃ©e car sa taille dÃ©pend directement de paramÃ¨tres utilisateurs
 		try
 		{
 			levels[i] = new nzUInt8[w * h * d * NzPixelFormat::GetBPP(format)];
@@ -1013,7 +1013,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 
 bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level)
 {
-	///FIXME: Vérifier que ça fonctionne correctement
+	///FIXME: VÃ©rifier que Ã§a fonctionne correctement
 	#if NAZARA_UTILITY_SAFE
 	if (!IsValid())
 	{

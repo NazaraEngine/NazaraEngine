@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -39,7 +39,7 @@ NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters&
 
 NzRenderWindow::~NzRenderWindow()
 {
-	// Nécessaire si NzWindow::Destroy est appelé par son destructeur
+	// NÃ©cessaire si NzWindow::Destroy est appelÃ© par son destructeur
 	OnWindowDestroying();
 }
 
@@ -268,7 +268,7 @@ bool NzRenderWindow::OnWindowCreated()
     EnableVerticalSync(false);
 
 	#if NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION
-	if (!SetActive(true)) // Les fenêtres s'activent à la création
+	if (!SetActive(true)) // Les fenÃªtres s'activent Ã  la crÃ©ation
 		NazaraWarning("Failed to activate window");
 	#endif
 

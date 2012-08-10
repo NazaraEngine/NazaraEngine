@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifdef NAZARA_RENDERER_COMMON
@@ -11,7 +11,7 @@
 #ifndef NAZARA_OPENGL_HPP
 #define NAZARA_OPENGL_HPP
 
-// gl3.h définit WIN32_LEAN_AND_MEAN qui entre en conflit avec la définition de Nazara et doit donc être inclut en premier
+// gl3.h dÃ©finit WIN32_LEAN_AND_MEAN qui entre en conflit avec la dÃ©finition de Nazara et doit donc Ãªtre inclut en premier
 #include <GL3/glcorearb.h>
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
