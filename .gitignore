@@ -5,6 +5,9 @@
 *.layout
 *.workspace
 
+# CodeLite
+*.project
+
 # Compiled Object files
 *.slo
 *.lo
