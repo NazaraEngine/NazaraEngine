@@ -17,7 +17,7 @@ m_parent(parent)
 	#ifdef NAZARA_DEBUG
 	if (!m_parent)
 	{
-		NazaraError("Parent mesh is null");
+		NazaraError("Parent mesh must be valid");
 		throw std::invalid_argument("Parent mesh must be valid");
 	}
 	#endif
@@ -30,7 +30,7 @@ void NzSubMesh::Animate(unsigned int frameA, unsigned int frameB, float interpol
 	#if NAZARA_UTILITY_SAFE
 	if (!m_parent->HasAnimation())
 	{
-		NazaraError("SubMesh is not animated");
+		NazaraError("SubMesh has no animation");
 		return;
 	}
 

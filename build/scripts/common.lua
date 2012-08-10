@@ -13,8 +13,9 @@ location(_ACTION)
 
 includedirs
 {
-	"../include", 
-	"../src/"
+	"../include",
+	"../src/",
+	"../extlibs/include"
 }
 
 libdirs "../lib"
@@ -35,7 +36,7 @@ configuration "*Static"
 configuration "*DLL"
 	kind "SharedLib"
 
-configuration "gmake"
+configuration "codeblocks or codelite or gmake or xcode3*"
 	buildoptions "-std=c++11"
 	
 configuration { "linux or bsd or macosx", "gmake" }
