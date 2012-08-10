@@ -1,10 +1,10 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // Pas de header guard
 
-// Ces macros peuvent changer pour n'importe quel fichier qui l'utilise dans une même unité de compilation
+// Ces macros peuvent changer pour n'importe quel fichier qui l'utilise dans une mÃªme unitÃ© de compilation
 #undef NazaraLock
 #undef NazaraMutex
 #undef NazaraMutexAttrib

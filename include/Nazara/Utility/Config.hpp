@@ -1,7 +1,7 @@
 /*
-	Nazara Engine
+	Nazara Engine - Window module
 
-	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2012 JÃ©rÃ´me "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -27,24 +27,24 @@
 #ifndef NAZARA_CONFIG_UTILITY_HPP
 #define NAZARA_CONFIG_UTILITY_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/// Chaque modification d'un paramÃ¨tre du module nÃ©cessite une recompilation de celui-ci
 
-// Force les buffers à posséder un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation mémoire)
+// Force les buffers Ã  possÃ©der un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation mÃ©moire)
 #define NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32 0
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
+// Utilise un tracker pour repÃ©rer les Ã©ventuels leaks (Ralentit l'exÃ©cution)
 #define NAZARA_UTILITY_MEMORYLEAKTRACKER 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Active les tests de sÃ©curitÃ© basÃ©s sur le code (ConseillÃ© pour le dÃ©veloppement)
 #define NAZARA_UTILITY_SAFE 1
 
-// Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
-#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Buggé depuis GCC 4.7
+// Fait tourner chaque fenÃªtre dans un thread sÃ©parÃ© si le systÃ¨me le supporte
+#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: BuggÃ© depuis GCC 4.7
 
-// Protège les classes des accès concurrentiels
+// ProtÃ¨ge les classes des accÃ¨s concurrentiels
 #define NAZARA_UTILITY_THREADSAFE 1
 
-// Les classes à protéger des accès concurrentiels
+// Les classes Ã  protÃ©ger des accÃ¨s concurrentiels
 #define NAZARA_THREADSAFETY_IMAGE             1 // NzImage (COW)
 #define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
 

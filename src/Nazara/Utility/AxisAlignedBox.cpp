@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -55,7 +55,7 @@ void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 			}
 
 			case nzExtend_Infinite:
-				// Rien à faire
+				// Rien Ã  faire
 				break;
 
 			case nzExtend_Null:
@@ -74,11 +74,11 @@ void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
 			break;
 
 		case nzExtend_Infinite:
-			// Rien à faire
+			// Rien Ã  faire
 			break;
 
 		case nzExtend_Null:
-			// Nous étendons l'AABB en la construisant de l'origine jusqu'au vecteur
+			// Nous Ã©tendons l'AABB en la construisant de l'origine jusqu'au vecteur
 			m_cube.x = 0.f;
 			m_cube.y = 0.f;
 			m_cube.z = 0.f;

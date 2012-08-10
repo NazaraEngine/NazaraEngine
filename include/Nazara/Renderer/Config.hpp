@@ -1,7 +1,7 @@
 /*
-	Nazara Engine
+	Nazara Engine - Renderer module
 
-	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2012 JÃ©rÃ´me "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -27,18 +27,18 @@
 #ifndef NAZARA_CONFIG_RENDERER_HPP
 #define NAZARA_CONFIG_RENDERER_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/// Chaque modification d'un paramÃ¨tre du module nÃ©cessite une recompilation de celui-ci
 
-// Active une fenêtre de rendu (NzRenderWindow) lors de sa création
+// Active une fenÃªtre de rendu (NzRenderWindow) lors de sa crÃ©ation
 #define NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION 1
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
+// Utilise un tracker pour repÃ©rer les Ã©ventuels leaks (Ralentit l'exÃ©cution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
 
-// Active le paramère debug des paramètres des contextes par défaut (Perte de performances mais capable de recevoir des messages d'OpenGL)
+// Active le paramÃ¨re debug des paramÃ¨tres des contextes par dÃ©faut (Perte de performances mais capable de recevoir des messages d'OpenGL)
 #define NAZARA_RENDERER_OPENGL_DEBUG 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Active les tests de sÃ©curitÃ© basÃ©s sur le code (ConseillÃ© pour le dÃ©veloppement)
 #define NAZARA_RENDERER_SAFE 1
 
 #endif // NAZARA_CONFIG_MODULENAME_HPP

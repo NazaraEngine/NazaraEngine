@@ -1,8 +1,8 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp> // Pour Èviter une redÈfinition de WIN32_LEAN_AND_MEAN
+#include <Nazara/Renderer/OpenGL.hpp> // Pour √©viter une red√©finition de WIN32_LEAN_AND_MEAN
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -31,7 +31,7 @@ namespace
 		0, // nzElementUsage_Position
 		3, // nzElementUsage_Tangent
 
-		4  // nzElementUsage_TexCoord (Doit Ítre le dernier de la liste car extensible)
+		4  // nzElementUsage_TexCoord (Doit √™tre le dernier de la liste car extensible)
 	};
 
 
@@ -132,7 +132,7 @@ namespace
 		GL_ZERO       // nzStencilOperation_Zero
 	};
 
-	///FIXME: Solution temporaire pour plus de facilitÈ
+	///FIXME: Solution temporaire pour plus de facilit√©
 	enum nzMatrixCombination
 	{
 		nzMatrixCombination_ViewProj = nzMatrixType_Max+1,
@@ -391,9 +391,9 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 bool NzRenderer::Initialize()
 {
 	if (s_moduleReferenceCouter++ != 0)
-		return true; // DÈj‡ initialisÈ
+		return true; // D√©j√† initialis√©
 
-	// Initialisation des dÈpendances
+	// Initialisation des d√©pendances
 	if (!NzUtility::Initialize())
 	{
 		NazaraError("Failed to initialize utility module");
@@ -431,7 +431,7 @@ bool NzRenderer::Initialize()
 	s_vertexBuffer = nullptr;
 	s_vertexDeclaration = nullptr;
 
-	// RÈcupÈration des capacitÈs
+	// R√©cup√©ration des capacit√©s
 	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter);
 	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
 	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
@@ -471,7 +471,7 @@ bool NzRenderer::Initialize()
 		GLint maxVertexAttribs;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 
-		// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est dÈj‡ pris par les autres attributs)
+		// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est d√©j√† pris par les autres attributs)
 		s_maxTextureUnit = static_cast<unsigned int>(std::min(maxTextureUnits, maxVertexAttribs-attribIndex[nzElementUsage_TexCoord]));
 	}
 	else
@@ -603,7 +603,7 @@ void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 {
 	s_matrix[type] = matrix;
 
-	// Cas particulier, la matrice projection doit Ítre inversÈe sur l'axe Y ‡ cause des conventions d'OpenGL
+	// Cas particulier, la matrice projection doit √™tre invers√©e sur l'axe Y √† cause des conventions d'OpenGL
 	if (type == nzMatrixType_Projection)
 		s_matrix[type] *= NzMatrix4f::Scale(NzVector3f(1.f, -1.f, 1.f));
 
@@ -648,7 +648,7 @@ bool NzRenderer::SetShader(NzShader* shader)
 			return false;
 		}
 
-		// RÈcupÈration des indices des variables uniformes (-1 si la variable n'existe pas)
+		// R√©cup√©ration des indices des variables uniformes (-1 si la variable n'existe pas)
 		s_matrixLocation[nzMatrixType_Projection] = shader->GetUniformLocation("ProjMatrix");
 		s_matrixLocation[nzMatrixType_View] = shader->GetUniformLocation("ViewMatrix");
 		s_matrixLocation[nzMatrixType_World] = shader->GetUniformLocation("WorldMatrix");
@@ -815,12 +815,12 @@ void NzRenderer::SetViewport(const NzRectui& viewport)
 void NzRenderer::Uninitialize()
 {
 	if (--s_moduleReferenceCouter != 0)
-		return; // Encore utilisÈ
+		return; // Encore utilis√©
 
-	// LibÈration du module
+	// Lib√©ration du module
 	NzContext::EnsureContext();
 
-	// LibÈration des VAOs
+	// Lib√©ration des VAOs
 	for (auto it = s_vaos.begin(); it != s_vaos.end(); ++it)
 	{
 		GLuint vao = static_cast<GLuint>(it->second);
@@ -831,7 +831,7 @@ void NzRenderer::Uninitialize()
 
 	NazaraNotice("Uninitialized: Renderer module");
 
-	// LibÈration des dÈpendances
+	// Lib√©ration des d√©pendances
 	NzUtility::Uninitialize();
 }
 
@@ -853,7 +853,7 @@ bool NzRenderer::EnsureStateUpdate()
 	}
 	#endif
 
-	// Il est plus rapide d'opÈrer sur l'implÈmentation du shader directement
+	// Il est plus rapide d'op√©rer sur l'impl√©mentation du shader directement
 	NzShaderImpl* shaderImpl = s_shader->m_impl;
 
 	if (!shaderImpl->BindTextures())
@@ -868,7 +868,7 @@ bool NzRenderer::EnsureStateUpdate()
 		}
 	}
 
-	// Cas spÈciaux car il faut recalculer la matrice
+	// Cas sp√©ciaux car il faut recalculer la matrice
 	if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
 	{
 		s_matrix[nzMatrixCombination_ViewProj] = s_matrix[nzMatrixType_View] * s_matrix[nzMatrixType_Projection];
@@ -925,21 +925,21 @@ bool NzRenderer::EnsureStateUpdate()
 		bool update;
 		GLuint vao;
 
-		// Si les VAOs sont supportÈs, on entoure nos appels par ceux-ci
+		// Si les VAOs sont support√©s, on entoure nos appels par ceux-ci
 		if (vaoSupported)
 		{
-			// On recherche si un VAO existe dÈj‡ avec notre configuration
-			// Note: Les VAOs ne sont pas partagÈs entre les contextes, ces derniers font donc partie de notre configuration
+			// On recherche si un VAO existe d√©j√† avec notre configuration
+			// Note: Les VAOs ne sont pas partag√©s entre les contextes, ces derniers font donc partie de notre configuration
 
 			auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration);
 			auto it = s_vaos.find(key);
 			if (it == s_vaos.end())
 			{
-				// On crÈÈ notre VAO
+				// On cr√©√© notre VAO
 				glGenVertexArrays(1, &vao);
 				glBindVertexArray(vao);
 
-				// On l'ajoute ‡ notre liste
+				// On l'ajoute √† notre liste
 				s_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
 
 				// Et on indique qu'on veut le programmer
@@ -947,14 +947,14 @@ bool NzRenderer::EnsureStateUpdate()
 			}
 			else
 			{
-				// Notre VAO existe dÈj‡, il est donc inutile de le reprogrammer
+				// Notre VAO existe d√©j√†, il est donc inutile de le reprogrammer
 				vao = it->second;
 
 				update = false;
 			}
 		}
 		else
-			update = true; // Fallback si les VAOs ne sont pas supportÈs
+			update = true; // Fallback si les VAOs ne sont pas support√©s
 
 		if (update)
 		{
@@ -991,11 +991,11 @@ bool NzRenderer::EnsureStateUpdate()
 
 		if (vaoSupported)
 		{
-			// Si nous venons de dÈfinir notre VAO, nous devons le dÈbinder pour indiquer la fin de sa construction
+			// Si nous venons de d√©finir notre VAO, nous devons le d√©binder pour indiquer la fin de sa construction
 			if (update)
 				glBindVertexArray(0);
 
-			// Nous (re)bindons le VAO pour dÈfinir les attributs de vertice
+			// Nous (re)bindons le VAO pour d√©finir les attributs de vertice
 			glBindVertexArray(vao);
 		}
 

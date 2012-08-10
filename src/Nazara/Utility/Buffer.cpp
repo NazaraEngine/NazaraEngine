@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Buffer.hpp>
@@ -88,7 +88,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 {
 	Destroy();
 
-	// On tente d'abord de faire un buffer hardware, si supporté
+	// On tente d'abord de faire un buffer hardware, si supportÃ©
 	if (s_bufferFunctions[storage])
 	{
 		NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
@@ -113,7 +113,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 	m_storage = storage;
 	m_usage = usage;
 
-	// Si on arrive ici c'est que tout s'est bien passé.
+	// Si on arrive ici c'est que tout s'est bien passÃ©.
 	return true;
 }
 

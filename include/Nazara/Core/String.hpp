@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -27,11 +27,11 @@ class NAZARA_API NzString : public NzHashable
 	public:
 		enum Flags
 		{
-			None            = 0x00,	// Mode par défaut
-			CaseInsensitive = 0x01,	// Insensible à la casse
-			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractères UTF-8
-			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
-			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
+			None            = 0x00,	// Mode par dÃ©faut
+			CaseInsensitive = 0x01,	// Insensible Ã  la casse
+			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractÃ¨res UTF-8
+			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaÃ®ne
+			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaÃ®ne
 		};
 
 		struct SharedString;
@@ -157,7 +157,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString Trimmed(nzUInt32 flags = None) const;
 		NzString Trimmed(char character, nzUInt32 flags = None) const;
 
-		// Méthodes STD
+		// MÃ©thodes STD
 		char* begin();
 		const char* begin() const;
 		char* end();
@@ -173,7 +173,7 @@ class NAZARA_API NzString : public NzHashable
 		typedef char* iterator;
 		//typedef char* reverse_iterator;
 		typedef char value_type;
-		// Méthodes STD
+		// MÃ©thodes STD
 
 		operator std::string() const;
 

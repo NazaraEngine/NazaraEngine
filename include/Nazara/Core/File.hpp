@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -29,7 +29,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 	public:
 		enum CursorPosition
 		{
-			AtBegin,   // Début du fichier
+			AtBegin,   // DÃ©but du fichier
 			AtCurrent, // Position du pointeur
 			AtEnd	   // Fin du fichier
 		};
@@ -38,13 +38,13 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		{
 			Current   = 0x00, // Utilise le mode d'ouverture actuel
 
-			Append	  = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-			Lock	  = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
+			Append	  = 0x01, // EmpÃªche l'Ã©criture sur la partie dÃ©jÃ  existante et met le curseur Ã  la fin
+			Lock	  = 0x02, // EmpÃªche le fichier d'Ãªtre modifiÃ© tant qu'il est ouvert
 			ReadOnly  = 0x04, // Ouvre uniquement en lecture
-			ReadWrite = 0x08, // Ouvre en lecture/écriture
+			ReadWrite = 0x08, // Ouvre en lecture/Ã©criture
 			Text	  = 0x10, // Ouvre en mode texte
-			Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
-			WriteOnly = 0x40  // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+			Truncate  = 0x20, // CrÃ©Ã© le fichier s'il n'existe pas et le vide s'il existe
+			WriteOnly = 0x40  // Ouvre uniquement en Ã©criture, crÃ©Ã© le fichier s'il n'existe pas
 		};
 
 		NzFile();

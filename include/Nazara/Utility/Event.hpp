@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Interface inspirée de la SFML par Laurent Gomila
+// Interface inspirÃ©e de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -14,7 +14,7 @@
 
 struct NzEvent
 {
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_KeyPressed
 	// -nzEventType_KeyReleased
 	struct KeyEvent
@@ -27,7 +27,7 @@ struct NzEvent
 		bool system;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_MouseButtonDoubleClicked
 	// -nzEventType_MouseButtonPressed
 	struct MouseButtonEvent
@@ -37,7 +37,7 @@ struct NzEvent
 		unsigned int y;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_MouseMoved
 	struct MouseMoveEvent
 	{
@@ -47,14 +47,14 @@ struct NzEvent
 		unsigned int y;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_MouseWheelMoved
 	struct MouseWheelEvent
 	{
 		float delta;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_Moved
 	struct PositionEvent
 	{
@@ -62,7 +62,7 @@ struct NzEvent
 		int y;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_Resized
 	struct SizeEvent
 	{
@@ -70,7 +70,7 @@ struct NzEvent
 		unsigned int width;
 	};
 
-	// Utilisé par:
+	// UtilisÃ© par:
 	// -nzEventType_TextEntered
 	struct TextEvent
 	{
@@ -82,33 +82,33 @@ struct NzEvent
 
 	union
 	{
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_KeyPressed
 		// -nzEventType_KeyReleased
 		KeyEvent key;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_MouseButtonDoubleClicked
 		// -nzEventType_MouseButtonPressed
 		MouseButtonEvent mouseButton;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_MouseMoved
 		MouseMoveEvent mouseMove;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_MouseWheelMoved
 		MouseWheelEvent mouseWheel;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_Moved
 		PositionEvent position;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_Resized
 		SizeEvent size;
 
-		// Utilisé par:
+		// UtilisÃ© par:
 		// -nzEventType_TextEntered
 		TextEvent text;
 	};

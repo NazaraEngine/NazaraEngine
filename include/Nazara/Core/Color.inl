@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // http://www.easyrgb.com/index.php?X=MATH
@@ -378,7 +378,7 @@ inline void NzColor::ToXYZ(const NzColor& color, float* x, float* y, float* z)
 	g *= 100.0;
 	b *= 100.0;
 
-	//Observer. = 2°, Illuminant = D65
+	//Observer. = 2Â°, Illuminant = D65
 	*x = r*0.4124 + g*0.3576 + b*0.1805;
 	*y = r*0.2126 + g*0.7152 + b*0.0722;
 	*z = r*0.0193 + g*0.1192 + b*0.9505;

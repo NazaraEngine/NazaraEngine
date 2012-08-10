@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -37,8 +37,8 @@ namespace
 	};
 
 	GLenum bufferUsage[] = {
-		// J'ai choisi DYNAMIC à la place de STREAM car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
-		// Ce qui est je pense le scénario qui arrivera le plus souvent (Prévoir une option pour permettre d'utiliser le STREAM_DRAW ?)
+		// J'ai choisi DYNAMIC Ã  la place de STREAM car DYNAMIC semble plus adaptÃ© au profil "une mise Ã  jour pour quelques rendus"
+		// Ce qui est je pense le scÃ©nario qui arrivera le plus souvent (PrÃ©voir une option pour permettre d'utiliser le STREAM_DRAW ?)
 		// Source: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=160839
 		GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
 		GL_STATIC_DRAW  // nzBufferUsage_Static
@@ -125,7 +125,7 @@ bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 	glBindBuffer(bufferTarget[m_type], m_buffer);
 	glBufferData(bufferTarget[m_type], size, nullptr, bufferUsage[usage]);
 
-	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
+	// Pour ne pas perturber le rendu, on interfÃ¨re pas avec le binding dÃ©jÃ  prÃ©sent
 	if (previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 
@@ -172,7 +172,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 
 		if (glUnmapBuffer(bufferTarget[m_type]) != GL_TRUE)
 		{
-			// Une erreur rare est survenue, nous devons réinitialiser le buffer
+			// Une erreur rare est survenue, nous devons rÃ©initialiser le buffer
 			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
 
 			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
@@ -181,7 +181,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 		}
 	}
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opÃ©rations chaÃ®nÃ©es)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 
@@ -202,7 +202,7 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 {
 	NzContext::EnsureContext();
 
-	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
+	// Pour ne pas perturber le rendu, on interfÃ¨re pas avec le binding dÃ©jÃ  prÃ©sent
 	GLuint previous;
 	glGetIntegerv(bufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
 
@@ -211,7 +211,7 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 
 	void* ptr = mapBuffer(m_type, access, offset, size);
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opÃ©rrations chaÃ®nÃ©es)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 
@@ -230,19 +230,19 @@ bool NzHardwareBuffer::Unmap()
 
 	if (glUnmapBuffer(bufferTarget[m_type]) != GL_TRUE)
 	{
-		// Une erreur rare est survenue, nous devons réinitialiser le buffer
+		// Une erreur rare est survenue, nous devons rÃ©initialiser le buffer
 		NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
 
 		glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
 
-		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
+		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opÃ©rations chaÃ®nÃ©es)
 		if (previous != m_buffer && previous != 0)
 			glBindBuffer(bufferTarget[m_type], previous);
 
 		return false;
 	}
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opÃ©rations chaÃ®nÃ©es)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(bufferTarget[m_type], previous);
 

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/File.hpp>
@@ -207,7 +207,7 @@ NzString NzFile::GetLine(unsigned int lineSize)
 	#endif
 
 	NzString line;
-	if (lineSize == 0) // Taille maximale indÈterminÈe
+	if (lineSize == 0) // Taille maximale ind√©termin√©e
 	{
 		while (!m_impl->EndOfFile())
 		{
@@ -293,7 +293,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 		return m_impl->Read(buffer, size);
 	else
 	{
-		// Si nous ne devons rien lire, nous avanÁons simplement
+		// Si nous ne devons rien lire, nous avan√ßons simplement
 		nzUInt64 currentPos = m_impl->GetCursorPos();
 
 		m_impl->SetCursorPos(NzFile::AtCurrent, size);
@@ -464,7 +464,7 @@ bool NzFile::Write(const NzString& string)
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		temp.Replace("\n", "\r\n");
 		#elif defined(NAZARA_PLATFORM_LINUX)
-		// Rien ‡ faire
+		// Rien √† faire
 		#elif defined(NAZARA_PLATFORM_MACOS)
 		temp.Replace('\n', '\r');
 		#else
@@ -554,7 +554,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		base = "\\\\";
 		start = 2;
 	}
-	else if (path.StartsWith('\\')) // SpÈcial : '\' fait rÈfÈrence au disque racine
+	else if (path.StartsWith('\\')) // Sp√©cial : '\' fait r√©f√©rence au disque racine
 	{
 		NzString drive = NzDirectory::GetCurrent().SubstrTo('\\');
 		NzString end = path.Substr(1, -1);
@@ -594,7 +594,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 			sep.erase(sep.begin() + i--);
 		else if (sep[i] == "..")
 		{
-			if (i > start) // Si nous ne sommes pas dans la partie protÈgÈe
+			if (i > start) // Si nous ne sommes pas dans la partie prot√©g√©e
 				sep.erase(sep.begin() + i--);
 
 			sep.erase(sep.begin() + i--);
@@ -605,7 +605,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 
 	pathLen += sep.size()-1;
 
-	///FIXME: Le destructeur de NzStringStream provoque un bug lors de la libÈration de son vector
+	///FIXME: Le destructeur de NzStringStream provoque un bug lors de la lib√©ration de son vector
 
 	//NzStringStream stream(base);
 	NzString stream;
@@ -714,7 +714,7 @@ bool NzFile::IsAbsolute(const NzString& path)
 		return true;
 	else if (path.Match("\\\\*"))
 		return true;
-	else if (wpath.StartsWith('\\')) // SpÈcial : '\' fait rÈfÈrence au disque racine
+	else if (wpath.StartsWith('\\')) // Sp√©cial : '\' fait r√©f√©rence au disque racine
 		return true;
 	else
 		return false;

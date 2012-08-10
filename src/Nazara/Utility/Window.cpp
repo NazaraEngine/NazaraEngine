@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Window.hpp>
@@ -87,7 +87,7 @@ NzWindow::~NzWindow()
 
 bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
-	// Si la fenÍtre est dÈj‡ ouverte, nous conservons sa position
+	// Si la fen√™tre est d√©j√† ouverte, nous conservons sa position
 	bool opened = IsOpen();
 	NzVector2i position;
 	if (opened)
@@ -95,7 +95,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 	Destroy();
 
-	// InspirÈ du code de la SFML par Laurent Gomila
+	// Inspir√© du code de la SFML par Laurent Gomila
 	if (style & nzWindowStyle_Fullscreen)
 	{
 		if (fullscreenWindow)
@@ -138,7 +138,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		return false;
 	}
 
-	// ParamËtres par dÈfaut
+	// Param√®tres par d√©faut
 	m_impl->EnableKeyRepeat(true);
 	m_impl->EnableSmoothScrolling(false);
 	m_impl->SetCursor(nzWindowCursor_Default);
@@ -337,7 +337,7 @@ void NzWindow::SetEventListener(bool listener)
 	m_impl->SetEventListener(listener);
 	if (!listener)
 	{
-		// On vide la pile des ÈvËnements
+		// On vide la pile des √©v√®nements
 		NzLockGuard lock(m_eventMutex);
 		while (!m_events.empty())
 			m_events.pop();
@@ -345,7 +345,7 @@ void NzWindow::SetEventListener(bool listener)
 	#else
 	if (m_ownsWindow)
 	{
-		// Inutile de transmettre l'ordre dans ce cas-l‡
+		// Inutile de transmettre l'ordre dans ce cas-l√†
 		if (!listener)
 			NazaraError("A non-threaded window needs to listen to events");
 	}

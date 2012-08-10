@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -1139,7 +1139,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_BGRA8, nzPixelFormat_RGBA8>();
 
 	/**********************************DXT1***********************************/
-	///TODO: Décompresseur DXT1
+	///TODO: DÃ©compresseur DXT1
 /*
 	RegisterConverter<nzPixelFormat_DXT1, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_DXT1, nzPixelFormat_BGRA8>();
@@ -1162,7 +1162,7 @@ bool NzPixelFormat::Initialize()
 */
 
 	/**********************************DXT3***********************************/
-	///TODO: Décompresseur DXT3
+	///TODO: DÃ©compresseur DXT3
 /*
 	RegisterConverter<nzPixelFormat_DXT3, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_DXT3, nzPixelFormat_BGRA8>();
@@ -1185,7 +1185,7 @@ bool NzPixelFormat::Initialize()
 */
 
 	/**********************************DXT5***********************************/
-	///TODO: Décompresseur DXT5
+	///TODO: DÃ©compresseur DXT5
 /*
 	RegisterConverter<nzPixelFormat_DXT5, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_DXT5, nzPixelFormat_BGRA8>();

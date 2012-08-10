@@ -1,6 +1,5 @@
-// Copyright (C) 2012 RÈmi BËges
-//                    JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 R√©mi B√®ges - J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -111,7 +110,7 @@ T NzQuaternion<T>::Normalize()
 		return magnitude;
 	}
 	else
-		return F(1.0); // Le quaternion est dÈj‡ normalisÈ
+		return F(1.0); // Le quaternion est d√©j√† normalis√©
 }
 
 template<typename T>
@@ -364,7 +363,7 @@ NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuater
 	T k0, k1;
 	if (cosOmega > F(0.9999))
 	{
-		// Interpolation linÈaire pour Èviter une division par zÈro
+		// Interpolation lin√©aire pour √©viter une division par z√©ro
         k0 = F(1.0) - interp;
         k1 = interp;
     }
@@ -373,7 +372,7 @@ NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuater
         T sinOmega = std::sqrt(F(1.0) - cosOmega*cosOmega);
         T omega = std::atan2(sinOmega, cosOmega);
 
-		// Pour Èviter deux divisions
+		// Pour √©viter deux divisions
 		sinOmega = F(1.0)/sinOmega;
 
         k0 = std::sin((F(1.0) - interp) * omega) * sinOmega;

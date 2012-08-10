@@ -1,5 +1,5 @@
 // Copyright (C) 2012 AUTHORS
-// This file is part of the "Nazara Engine".
+// This file is part of the "Nazara Engine - Module name"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ModuleName/ModuleName.hpp>
@@ -12,9 +12,9 @@
 bool NzModuleName::Initialize()
 {
 	if (s_moduleReferenceCouter++ != 0)
-		return true; // DÈj‡ initialisÈ
+		return true; // D√©j√† initialis√©
 
-	// Initialisation des dÈpendances
+	// Initialisation des d√©pendances
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
@@ -36,13 +36,13 @@ bool NzModuleName::IsInitialized()
 void NzModuleName::Uninitialize()
 {
 	if (--s_moduleReferenceCouter != 0)
-		return; // Encore utilisÈ
+		return; // Encore utilis√©
 
-	// LibÈration du module
+	// Lib√©ration du module
 
 	NazaraNotice("Uninitialized: ModuleName module");
 
-	// LibÈration des dÈpendances
+	// Lib√©ration des d√©pendances
 	NzCore::Uninitialize();
 }
 
