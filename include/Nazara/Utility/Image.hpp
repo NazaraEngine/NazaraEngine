@@ -11,20 +11,20 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <list>
-#include <map>
 
 #if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_IMAGE
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
+
+///TODO: Filtres
 
 struct NzImageParams
 {
@@ -34,20 +34,19 @@ struct NzImageParams
 	bool IsValid() const;
 };
 
-///TODO: Filtres
-
 class NzImage;
 
-typedef NzResourceLoader<NzImage, NzImageParams> NzImageLoader;
+using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 
 class NAZARA_API NzImage : public NzResource
 {
-	friend class NzResourceLoader<NzImage, NzImageParams>;
+	friend NzImageLoader;
 
 	public:
 		struct SharedImage;
 
 		NzImage();
+		NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		NzImage(const NzImage& image);
 		NzImage(NzImage&& image) noexcept;
 		NzImage(SharedImage* sharedImage);
@@ -135,9 +134,7 @@ class NAZARA_API NzImage : public NzResource
 
 		SharedImage* m_sharedImage;
 
-		static std::list<NzImageLoader::MemoryLoader> s_memoryLoaders;
-		static std::list<NzImageLoader::StreamLoader> s_streamLoaders;
-		static std::multimap<NzString, NzImageLoader::LoadFileFunction> s_fileLoaders;
+		static NzImageLoader::LoaderList s_loaders;
 };
 
 #endif // NAZARA_IMAGE_HPP

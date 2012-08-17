@@ -1,4 +1,14 @@
 newoption {
+	trigger     = "x64",
+	description = "Setup build project for x64 arch"
+}
+
+newoption {
+	trigger     = "one-library",
+	description = "Builds all the modules as one library"
+}
+
+newoption {
 	trigger     = "with-examples",
 	description = "Builds the examples"
 }
@@ -9,6 +19,10 @@ loadfile("scripts/common.lua")()
 
 local modules
 
+if (_OPTIONS["one-library"]) then
+	project "NazaraEngine"
+end
+
 modules = os.matchfiles("scripts/module/*.lua")
 for k,v in pairs(modules) do
 	local f, err = loadfile(v)
@@ -17,6 +31,14 @@ for k,v in pairs(modules) do
 	else
 		error("Unable to load module: " .. err)
 	end
+end
+
+if (_OPTIONS["one-library"]) then
+	configuration "Debug*"
+		targetname "Nazarad"
+
+	configuration "Release*"
+		targetname "Nazara"
 end
 
 modules = os.matchfiles("scripts/actions/*.lua")
@@ -36,7 +58,8 @@ if (_OPTIONS["with-examples"]) then
 	local examples = os.matchdirs("../examples/*")
 	for k,v in pairs(examples) do
 		local dirName = v:match(".*/(.*)")
-		if (dirName ~= "bin" and dirName ~= "build") then
+		if (dirName ~= "bin" and
+		    dirName ~= "build") then
 			project(dirName)
 			dofile(v .. "/build.lua")
 		end

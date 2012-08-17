@@ -17,13 +17,13 @@ class NzThreadImpl;
 
 class NAZARA_API NzThread : NzNonCopyable
 {
-	friend class NzThreadImpl;
+	friend NzThreadImpl;
 
 	public:
 		class NAZARA_API Id
 		{
-			friend class NzThread;
-			friend class NzThreadImpl;
+			friend NzThread;
+			friend NzThreadImpl;
 
 			public:
 				Id() = default;
@@ -43,6 +43,7 @@ class NAZARA_API NzThread : NzNonCopyable
 
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args... args);
+		template<typename C> NzThread(void (C::*function)(), C* object);
 		~NzThread();
 
 		Id GetId() const;
@@ -56,7 +57,7 @@ class NAZARA_API NzThread : NzNonCopyable
 
 	private:
 		NzFunctor* m_func;
-		NzThreadImpl* m_impl;
+		NzThreadImpl* m_impl = nullptr;
 		bool m_independent;
 };
 

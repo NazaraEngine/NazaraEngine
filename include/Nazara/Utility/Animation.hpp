@@ -9,11 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
-#include <list>
-#include <map>
 
 struct NzAnimationParams
 {
@@ -33,13 +31,13 @@ struct NzSequence
 
 class NzAnimation;
 
-typedef NzResourceLoader<NzAnimation, NzAnimationParams> NzAnimationLoader;
+using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 
 struct NzAnimationImpl;
 
 class NAZARA_API NzAnimation : public NzResource
 {
-	friend class NzResourceLoader<NzAnimation, NzAnimationParams>;
+	friend NzAnimationLoader;
 
 	public:
 		NzAnimation() = default;
@@ -73,9 +71,7 @@ class NAZARA_API NzAnimation : public NzResource
 	private:
 		NzAnimationImpl* m_impl = nullptr;
 
-		static std::list<NzAnimationLoader::MemoryLoader> s_memoryLoaders;
-		static std::list<NzAnimationLoader::StreamLoader> s_streamLoaders;
-		static std::multimap<NzString, NzAnimationLoader::LoadFileFunction> s_fileLoaders;
+		static NzAnimationLoader::LoaderList s_loaders;
 };
 
 #endif // NAZARA_ANIMATION_HPP

@@ -19,6 +19,13 @@ includedirs
 }
 
 libdirs "../lib"
+
+if (_OPTIONS["x64"]) then
+	libdirs "../extlibs/lib/x64"
+end
+
+libdirs "../extlibs/lib/x86"
+
 targetdir "../lib"
 
 configuration "Debug*"

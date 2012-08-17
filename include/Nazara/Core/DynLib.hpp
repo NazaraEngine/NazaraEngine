@@ -22,7 +22,7 @@ typedef int (*NzDynLibFunc)(); // Type "générique" de pointeur sur fonction
 
 class NzDynLib : NzNonCopyable
 {
-	friend class NzDynLibImpl;
+	friend NzDynLibImpl;
 
 	public:
 		NzDynLib(const NzString& libraryPath);

@@ -147,9 +147,9 @@ namespace
 		return new NzHardwareBuffer(parent, type);
 	}
 
-	typedef std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*> VAO_Key;
-
 	constexpr unsigned int totalMatrixCount = nzMatrixCombination_Max+1;
+
+	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
 	NzMatrix4f s_matrix[totalMatrixCount];

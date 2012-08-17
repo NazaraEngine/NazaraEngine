@@ -9,9 +9,10 @@
 
 enum nzEndianness
 {
+	nzEndianness_Unknown = -1,
+
 	nzEndianness_BigEndian,
-	nzEndianness_LittleEndian,
-	nzEndianness_Unknown
+	nzEndianness_LittleEndian
 };
 
 enum nzErrorType

@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <map>
 #include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -313,6 +314,4 @@ void NzAnimation::RemoveSequence(unsigned int index)
 	m_impl->sequences.erase(it);
 }
 
-std::list<NzAnimationLoader::MemoryLoader> NzAnimation::s_memoryLoaders;
-std::list<NzAnimationLoader::StreamLoader> NzAnimation::s_streamLoaders;
-std::multimap<NzString, NzAnimationLoader::LoadFileFunction> NzAnimation::s_fileLoaders;
+NzAnimationLoader::LoaderList NzAnimation::s_loaders;

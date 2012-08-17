@@ -22,7 +22,6 @@ enum nzHash
 	nzHash_Whirlpool
 };
 
-class NzHash;
 class NzHashDigest;
 class NzHashImpl;
 

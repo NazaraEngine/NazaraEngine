@@ -28,15 +28,13 @@
 class NzCursor;
 class NzImage;
 class NzIcon;
-class NzMouse;
-class NzUtility;
 class NzWindowImpl;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {
+	friend NzWindowImpl;
 	friend class NzMouse;
 	friend class NzUtility;
-	friend class NzWindowImpl;
 
 	public:
 		NzWindow();

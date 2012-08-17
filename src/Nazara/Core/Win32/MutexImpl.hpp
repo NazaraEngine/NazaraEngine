@@ -9,8 +9,6 @@
 
 #include <windows.h>
 
-class NzConditionVariableImpl;
-
 class NzMutexImpl
 {
 	friend class NzConditionVariableImpl;
