@@ -8,7 +8,8 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-template<unsigned int N> struct NzTupleUnpack
+template<unsigned int N>
+struct NzTupleUnpack
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>& t,  Args&... args)
@@ -17,7 +18,8 @@ template<unsigned int N> struct NzTupleUnpack
 	}
 };
 
-template<> struct NzTupleUnpack<0>
+template<>
+struct NzTupleUnpack<0>
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>&, Args&... args)
@@ -27,7 +29,7 @@ template<> struct NzTupleUnpack<0>
 };
 
 template<typename F, typename... ArgsT>
-void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t )
+void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)
 {
 	NzTupleUnpack<sizeof...(ArgsT)>()(func, t);
 }

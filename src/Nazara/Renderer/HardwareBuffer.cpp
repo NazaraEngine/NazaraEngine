@@ -44,7 +44,7 @@ namespace
 		GL_STATIC_DRAW  // nzBufferUsage_Static
 	};
 
-	typedef nzUInt8* (*LockRoutine)(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size);
+	using LockRoutine = nzUInt8* (*)(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size);
 
 	nzUInt8* LockBuffer(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size)
 	{

@@ -1,4 +1,6 @@
-project "NazaraCore"
+if (not _OPTIONS["one-library"]) then
+	project "NazaraCore"
+end
 
 files
 {
@@ -17,8 +19,10 @@ else
 	excludes { "../src/Nazara/Core/Win32/**.hpp", "../src/Nazara/Core/Win32/**.cpp" }
 end
 
-configuration "Debug*"
-	targetname "NazaraCored"
+if (not _OPTIONS["one-library"]) then
+	configuration "Debug*"
+		targetname "NazaraCored"
 
-configuration "Release*"
-	targetname "NazaraCore"
+	configuration "Release*"
+		targetname "NazaraCore"
+end

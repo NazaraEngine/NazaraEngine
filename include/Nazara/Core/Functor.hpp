@@ -18,27 +18,40 @@ struct NzFunctor
 	virtual void Run() = 0;
 };
 
-template<typename F> struct NzFunctorWithoutArgs : NzFunctor
+template<typename F>
+struct NzFunctorWithoutArgs : NzFunctor
 {
 	NzFunctorWithoutArgs(F func);
 
 	void Run();
 
-	F function;
+	private:
+		F m_func;
 };
 
-template<typename F, typename... Args> struct NzFunctorWithArgs : NzFunctor
+template<typename F, typename... Args>
+struct NzFunctorWithArgs : NzFunctor
 {
 	NzFunctorWithArgs(F func, Args&... args);
 
 	void Run();
 
-	F function;
-	std::tuple<Args...> arguments;
+	private:
+		F m_func;
+		std::tuple<Args...> m_args;
 };
 
-template<typename F> struct NzFunctorWithoutArgs;
-template<typename F, typename... Args> struct NzFunctorWithArgs;
+template<typename C>
+struct NzMemberWithoutArgs : NzFunctor
+{
+	NzMemberWithoutArgs(void (C::*func)(), C* object);
+
+	void Run();
+
+	private:
+		void (C::*m_func)();
+		C* m_object;
+};
 
 #include <Nazara/Core/Functor.inl>
 

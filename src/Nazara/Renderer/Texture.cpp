@@ -517,7 +517,7 @@ void NzTexture::Destroy()
 bool NzTexture::Download(NzImage* image) const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -576,7 +576,7 @@ bool NzTexture::Download(NzImage* image) const
 bool NzTexture::EnableMipmapping(bool enable)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -603,7 +603,7 @@ bool NzTexture::EnableMipmapping(bool enable)
 unsigned int NzTexture::GetAnisotropyLevel() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return 0;
@@ -626,7 +626,7 @@ unsigned int NzTexture::GetAnisotropyLevel() const
 nzUInt8 NzTexture::GetBPP() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return 0;
@@ -639,7 +639,7 @@ nzUInt8 NzTexture::GetBPP() const
 unsigned int NzTexture::GetDepth() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return 0;
@@ -652,7 +652,7 @@ unsigned int NzTexture::GetDepth() const
 nzTextureFilter NzTexture::GetFilterMode() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return nzTextureFilter_Unknown;
@@ -689,7 +689,7 @@ nzTextureFilter NzTexture::GetFilterMode() const
 nzPixelFormat NzTexture::GetFormat() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return nzPixelFormat_Undefined;
@@ -702,7 +702,7 @@ nzPixelFormat NzTexture::GetFormat() const
 unsigned int NzTexture::GetHeight() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return 0;
@@ -715,7 +715,7 @@ unsigned int NzTexture::GetHeight() const
 nzImageType NzTexture::GetType() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return nzImageType_2D;
@@ -728,7 +728,7 @@ nzImageType NzTexture::GetType() const
 unsigned int NzTexture::GetWidth() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return 0;
@@ -741,7 +741,7 @@ unsigned int NzTexture::GetWidth() const
 nzTextureWrap NzTexture::GetWrapMode() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return nzTextureWrap_Unknown;
@@ -773,7 +773,7 @@ nzTextureWrap NzTexture::GetWrapMode() const
 bool NzTexture::IsCompressed() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -786,7 +786,7 @@ bool NzTexture::IsCompressed() const
 bool NzTexture::IsCubemap() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -799,7 +799,7 @@ bool NzTexture::IsCubemap() const
 bool NzTexture::IsTarget() const
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -915,7 +915,7 @@ bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& param
 bool NzTexture::Lock()
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -930,7 +930,7 @@ bool NzTexture::Lock()
 bool NzTexture::SetAnisotropyLevel(unsigned int anistropyLevel)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -955,7 +955,7 @@ bool NzTexture::SetAnisotropyLevel(unsigned int anistropyLevel)
 bool NzTexture::SetFilterMode(nzTextureFilter filter)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1008,7 +1008,7 @@ bool NzTexture::SetFilterMode(nzTextureFilter filter)
 bool NzTexture::SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1038,7 +1038,7 @@ bool NzTexture::SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel)
 bool NzTexture::SetWrapMode(nzTextureWrap wrap)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1175,7 +1175,7 @@ bool NzTexture::Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level
 bool NzTexture::Update(const nzUInt8* pixels, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1191,7 +1191,7 @@ bool NzTexture::Update(const nzUInt8* pixels, nzUInt8 level)
 bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1292,7 +1292,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1436,7 +1436,7 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const NzImage& image, const NzRec
 bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1449,7 +1449,7 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, nzUInt8 le
 bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return false;
@@ -1527,7 +1527,7 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 void NzTexture::Unlock()
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
 		return;
@@ -1619,7 +1619,7 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 void NzTexture::SetTarget(bool isTarget)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (!IsValid())
+	if (!m_impl)
 	{
 		NazaraInternalError("Texture must be valid");
 		return;

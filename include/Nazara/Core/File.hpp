@@ -38,11 +38,11 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		{
 			Current   = 0x00, // Utilise le mode d'ouverture actuel
 
-			Append	  = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-			Lock	  = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
+			Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
+			Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
 			ReadOnly  = 0x04, // Ouvre uniquement en lecture
 			ReadWrite = 0x08, // Ouvre en lecture/écriture
-			Text	  = 0x10, // Ouvre en mode texte
+			Text      = 0x10, // Ouvre en mode texte
 			Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
 			WriteOnly = 0x40  // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
 		};

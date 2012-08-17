@@ -11,7 +11,6 @@
 #include <Nazara/Core/NonCopyable.hpp>
 
 class NzMutexImpl;
-class NzConditionVariable;
 
 class NAZARA_API NzMutex : NzNonCopyable
 {

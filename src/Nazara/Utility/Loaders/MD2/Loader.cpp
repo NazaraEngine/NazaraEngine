@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Jérôme Leclercq
+// Copyright (C) 2012 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,27 +18,23 @@
 
 namespace
 {
-	bool NzLoader_MD2_LoadStream(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters);
-
-	bool NzLoader_MD2_LoadFile(NzMesh* mesh, const NzString& filePath, const NzMeshParams& parameters)
+	bool NzLoader_MD2_Check(NzInputStream& stream, const NzMeshParams& parameters)
 	{
-		NzFile file(filePath);
-		if (!file.Open(NzFile::ReadOnly))
-		{
-			NazaraError("Failed to open file");
+		NazaraUnused(parameters);
+
+		nzUInt32 magic[2];
+		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) != 2*sizeof(nzUInt32))
 			return false;
-		}
 
-		return NzLoader_MD2_LoadStream(mesh, file, parameters);
+		#if defined(NAZARA_BIG_ENDIAN)
+		NzByteSwap(&magic[0], sizeof(nzUInt32));
+		NzByteSwap(&magic[1], sizeof(nzUInt32));
+		#endif
+
+		return magic[0] == md2Ident && magic[1] == 8;
 	}
 
-	bool NzLoader_MD2_LoadMemory(NzMesh* mesh, const void* data, unsigned int size, const NzMeshParams& parameters)
-	{
-		NzMemoryStream stream(data, size);
-		return NzLoader_MD2_LoadStream(mesh, stream, parameters);
-	}
-
-	bool NzLoader_MD2_LoadStream(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
+	bool NzLoader_MD2_Load(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		md2_header header;
 		if (stream.Read(&header, sizeof(md2_header)) != sizeof(md2_header))
@@ -208,60 +204,18 @@ namespace
 
 		return true;
 	}
-
-	bool NzLoader_MD2_IdentifyMemory(const void* data, unsigned int size, const NzMeshParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		if (size < sizeof(md2_header))
-			return false;
-
-		const md2_header* header = reinterpret_cast<const md2_header*>(data);
-
-		#if defined(NAZARA_BIG_ENDIAN)
-		nzUInt32 ident = header->ident;
-		nzUInt32 version = header->version;
-
-		NzByteSwap(&ident, sizeof(nzUInt32));
-		NzByteSwap(&version, sizeof(nzUInt32));
-
-		return ident == md2Ident && version == 8;
-		#else
-		return header->ident == md2Ident && header->version == 8;
-		#endif
-	}
-
-	bool NzLoader_MD2_IdentifyStream(NzInputStream& stream, const NzMeshParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		nzUInt32 magic[2];
-		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) != 2*sizeof(nzUInt32))
-			return false;
-
-		#if defined(NAZARA_BIG_ENDIAN)
-		NzByteSwap(&magic[0], sizeof(nzUInt32));
-		NzByteSwap(&magic[1], sizeof(nzUInt32));
-		#endif
-
-		return magic[0] == md2Ident && magic[1] == 8;
-	}
 }
 
 void NzLoaders_MD2_Register()
 {
 	NzMD2Mesh::Initialize();
 
-	NzMeshLoader::RegisterFileLoader("md2", NzLoader_MD2_LoadFile);
-	NzMeshLoader::RegisterMemoryLoader(NzLoader_MD2_IdentifyMemory, NzLoader_MD2_LoadMemory);
-	NzMeshLoader::RegisterStreamLoader(NzLoader_MD2_IdentifyStream, NzLoader_MD2_LoadStream);
+	NzMeshLoader::RegisterLoader("md2", NzLoader_MD2_Check, NzLoader_MD2_Load);
 }
 
 void NzLoaders_MD2_Unregister()
 {
-	NzMeshLoader::UnregisterStreamLoader(NzLoader_MD2_IdentifyStream, NzLoader_MD2_LoadStream);
-	NzMeshLoader::UnregisterMemoryLoader(NzLoader_MD2_IdentifyMemory, NzLoader_MD2_LoadMemory);
-	NzMeshLoader::UnregisterFileLoader("md2", NzLoader_MD2_LoadFile);
+	NzMeshLoader::UnregisterLoader("md2", NzLoader_MD2_Check, NzLoader_MD2_Load);
 
 	NzMD2Mesh::Uninitialize();
 }

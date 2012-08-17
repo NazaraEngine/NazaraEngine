@@ -9,6 +9,7 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <cstring>
 #include <deque>
+#include <map>
 #include <Nazara/Utility/Debug.hpp>
 
 bool NzMeshParams::IsValid() const
@@ -619,6 +620,4 @@ bool NzMesh::SetAnimation(const NzAnimation* animation)
 	return true;
 }
 
-std::list<NzMeshLoader::MemoryLoader> NzMesh::s_memoryLoaders;
-std::list<NzMeshLoader::StreamLoader> NzMesh::s_streamLoaders;
-std::multimap<NzString, NzMeshLoader::LoadFileFunction> NzMesh::s_fileLoaders;
+NzMeshLoader::LoaderList NzMesh::s_loaders;

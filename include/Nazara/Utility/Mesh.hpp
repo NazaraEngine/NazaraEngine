@@ -10,13 +10,11 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/AxisAlignedBox.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
-#include <list>
-#include <map>
 
 class NzVertexDeclaration;
 
@@ -32,13 +30,13 @@ struct NzMeshParams
 
 class NzMesh;
 
-typedef NzResourceLoader<NzMesh, NzMeshParams> NzMeshLoader;
+using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 
 struct NzMeshImpl;
 
 class NAZARA_API NzMesh : public NzResource
 {
-	friend class NzResourceLoader<NzMesh, NzMeshParams>;
+	friend NzMeshLoader;
 
 	public:
 		NzMesh() = default;
@@ -89,9 +87,7 @@ class NAZARA_API NzMesh : public NzResource
 	private:
 		NzMeshImpl* m_impl = nullptr;
 
-		static std::list<NzMeshLoader::MemoryLoader> s_memoryLoaders;
-		static std::list<NzMeshLoader::StreamLoader> s_streamLoaders;
-		static std::multimap<NzString, NzMeshLoader::LoadFileFunction> s_fileLoaders;
+		static NzMeshLoader::LoaderList s_loaders;
 };
 
 #endif // NAZARA_MESH_HPP

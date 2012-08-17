@@ -17,7 +17,7 @@ class NzContextImpl;
 
 class NAZARA_API NzContext
 {
-	friend class NzContextImpl;
+	friend NzContextImpl;
 
 	public:
 		NzContext();

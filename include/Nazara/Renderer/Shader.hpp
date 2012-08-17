@@ -17,7 +17,6 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NzRenderer;
 class NzShaderImpl;
 class NzTexture;
 
@@ -26,7 +25,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 	friend class NzRenderer;
 
 	public:
-		NzShader();
+		NzShader() = default;
 		NzShader(nzShaderLanguage language);
 		~NzShader();
 
@@ -70,8 +69,8 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzShaderType type);
 
 	private:
-		NzShaderImpl* m_impl;
-		bool m_compiled;
+		NzShaderImpl* m_impl = nullptr;
+		bool m_compiled = false;
 };
 
 #endif // NAZARA_SHADER_HPP

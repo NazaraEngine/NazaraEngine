@@ -1,4 +1,6 @@
-project "NazaraModuleName"
+if (not _OPTIONS["one-library"]) then
+	project "NazaraModuleName"
+end
 
 files
 {
@@ -14,18 +16,22 @@ else
 	excludes { "../src/Nazara/ModuleName/Win32/*.hpp", "../src/Nazara/ModuleName/Win32/*.cpp" }
 end
 
-configuration "DebugStatic"
-	links "NazaraCored-s"
-	targetname "NazaraModuleNamed"
+if (_OPTIONS["one-library"]) then
+	excludes "../src/Nazara/Audio/Debug/Leaks.cpp"
+else
+	configuration "DebugStatic"
+		links "NazaraCored-s"
+		targetname "NazaraModuleNamed"
 
-configuration "ReleaseStatic"
-	links "NazaraCore-s"
-	targetname "NazaraModuleName"
+	configuration "ReleaseStatic"
+		links "NazaraCore-s"
+		targetname "NazaraModuleName"
 
-configuration "DebugDLL"
-	links "NazaraCored"
-	targetname "NazaraModuleNamed"
+	configuration "DebugDLL"
+		links "NazaraCored"
+		targetname "NazaraModuleNamed"
 
-configuration "ReleaseDLL"
-	links "NazaraCore"
-	targetname "NazaraModuleName"
+	configuration "ReleaseDLL"
+		links "NazaraCore"
+		targetname "NazaraModuleName"
+end
