@@ -13,16 +13,13 @@
 #include <Nazara/Utility/Enums.hpp>
 
 class NzBufferImpl;
-class NzRenderer;
-class NzUtility;
 
 class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 {
-	friend class NzRenderer;
 	friend class NzUtility;
 
 	public:
-		typedef NzBufferImpl* (*BufferFunction)(NzBuffer* parent, nzBufferType type);
+		using BufferFunction = NzBufferImpl* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);

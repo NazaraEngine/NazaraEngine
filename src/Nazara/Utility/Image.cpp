@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cmath>
+#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace
@@ -29,6 +30,20 @@ bool NzImageParams::IsValid() const
 NzImage::NzImage() :
 m_sharedImage(&emptyImage)
 {
+}
+
+NzImage::NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount) :
+m_sharedImage(&emptyImage)
+{
+	Create(type, format, width, height, depth, levelCount);
+
+	#ifdef NAZARA_DEBUG
+	if (!m_sharedImage)
+	{
+		NazaraError("Failed to create image");
+		throw std::runtime_error("Constructor failed");
+	}
+	#endif
 }
 
 NzImage::NzImage(const NzImage& image) :
@@ -57,7 +72,7 @@ NzImage::~NzImage()
 bool NzImage::Convert(nzPixelFormat format)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -162,7 +177,7 @@ bool NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVecto
 	Correctif temporaire : Update veut de la mémoire contigüe
 	Il est donc nécessaire de prendre la partie de la texture que nous voulons mettre à jour
 
-	FIXME: Trouver une interface pour gérer ce genre de problème (Façon OpenGL?)
+	///FIXME: Trouver une interface pour gérer ce genre de problème (Façon OpenGL?)
 	(Appliquer l'interface à NzTexture également)
 	*/
 	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
@@ -311,7 +326,7 @@ void NzImage::Destroy()
 bool NzImage::Fill(const NzColor& color)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -369,7 +384,7 @@ bool NzImage::Fill(const NzColor& color)
 bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -432,7 +447,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 bool NzImage::Fill(const NzColor& color, const NzCubeui& cube)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -495,7 +510,7 @@ bool NzImage::Fill(const NzColor& color, const NzCubeui& cube)
 bool NzImage::FlipHorizontally()
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -534,7 +549,7 @@ bool NzImage::FlipHorizontally()
 bool NzImage::FlipVertically()
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -577,7 +592,7 @@ nzUInt8 NzImage::GetBPP() const
 const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned int z, nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return nullptr;
@@ -656,7 +671,7 @@ nzUInt8 NzImage::GetMaxLevel() const
 NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return NzColor();
@@ -700,7 +715,7 @@ NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) c
 nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return nullptr;
@@ -832,7 +847,7 @@ bool NzImage::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
 bool NzImage::SetLevelCount(nzUInt8 levelCount)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -877,7 +892,7 @@ bool NzImage::SetLevelCount(nzUInt8 levelCount)
 bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y, unsigned int z)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -923,7 +938,7 @@ bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y
 bool NzImage::Update(const nzUInt8* pixels, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -952,7 +967,7 @@ bool NzImage::Update(const nzUInt8* pixels, nzUInt8 level)
 bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -990,7 +1005,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
 		return false;
 	}
 	#endif
@@ -1015,7 +1030,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level)
 {
 	///FIXME: Vérifier que ça fonctionne correctement
 	#if NAZARA_UTILITY_SAFE
-	if (!IsValid())
+	if (!m_sharedImage)
 	{
 		NazaraError("Image must be valid");
 		return false;
@@ -1152,6 +1167,4 @@ void NzImage::ReleaseImage()
 }
 
 NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 1, nullptr, 0, 0, 0);
-std::list<NzImageLoader::MemoryLoader> NzImage::s_memoryLoaders;
-std::list<NzImageLoader::StreamLoader> NzImage::s_streamLoaders;
-std::multimap<NzString, NzImageLoader::LoadFileFunction> NzImage::s_fileLoaders;
+NzImageLoader::LoaderList NzImage::s_loaders;

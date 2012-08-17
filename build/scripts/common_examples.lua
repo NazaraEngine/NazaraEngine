@@ -10,10 +10,7 @@ configurations
 language "C++"
 location("../examples/build/" .. _ACTION)
 
-includedirs
-{
-	"../include"
-}
+includedirs "../include"
 
 debugdir "../examples/bin"
 libdirs "../lib"

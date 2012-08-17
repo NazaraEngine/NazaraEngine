@@ -19,8 +19,8 @@ class NzPixelFormat
 	friend class NzUtility;
 
 	public:
-		typedef nzUInt8* (*ConvertFunction)(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst);
-		typedef void (*FlipFunction)(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst);
+		using ConvertFunction = nzUInt8* (*)(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst);
+		using FlipFunction = void (*)(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst);
 
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* src, void* dst);
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* start, const void* end, void* dst);

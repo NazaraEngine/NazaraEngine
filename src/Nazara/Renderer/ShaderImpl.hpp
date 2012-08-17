@@ -9,7 +9,6 @@
 
 #include <Nazara/Renderer/Shader.hpp>
 
-class NzRenderer;
 class NzTexture;
 class NzVertexBuffer;
 class NzVertexDeclaration;

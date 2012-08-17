@@ -13,7 +13,6 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
-class NzShader;
 struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable

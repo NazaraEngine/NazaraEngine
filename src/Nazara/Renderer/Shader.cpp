@@ -14,15 +14,7 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzShader::NzShader() :
-m_impl(nullptr),
-m_compiled(false)
-{
-}
-
-NzShader::NzShader(nzShaderLanguage language) :
-m_impl(nullptr),
-m_compiled(false)
+NzShader::NzShader(nzShaderLanguage language)
 {
 	Create(language);
 

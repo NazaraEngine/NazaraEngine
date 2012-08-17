@@ -24,7 +24,7 @@
 	#include <GL3/glxext.h>
 #endif
 
-typedef void (*NzOpenGLFunc)();
+using NzOpenGLFunc = void (*)();
 
 class NAZARA_API NzOpenGL
 {
@@ -77,9 +77,9 @@ NAZARA_API extern PFNGLCOLORMASKPROC                glColorMask;
 NAZARA_API extern PFNGLCULLFACEPROC                 glCullFace;
 NAZARA_API extern PFNGLCOMPILESHADERPROC            glCompileShader;
 NAZARA_API extern PFNGLCOPYTEXSUBIMAGE2DPROC        glCopyTexSubImage2D;
+NAZARA_API extern PFNGLDEBUGMESSAGECALLBACKPROC     glDebugMessageCallback;
 NAZARA_API extern PFNGLDEBUGMESSAGECONTROLPROC      glDebugMessageControl;
 NAZARA_API extern PFNGLDEBUGMESSAGEINSERTPROC       glDebugMessageInsert;
-NAZARA_API extern PFNGLDEBUGMESSAGECALLBACKPROC     glDebugMessageCallback;
 NAZARA_API extern PFNGLDELETEBUFFERSPROC            glDeleteBuffers;
 NAZARA_API extern PFNGLDELETEFRAMEBUFFERSPROC       glDeleteFramebuffers;
 NAZARA_API extern PFNGLDELETEPROGRAMPROC            glDeleteProgram;

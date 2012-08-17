@@ -127,7 +127,7 @@ enum nzImageType
 
 enum nzPixelFormat
 {
-	nzPixelFormat_Undefined,
+	nzPixelFormat_Undefined = -1,
 
 	nzPixelFormat_BGR8,    // 3*nzUInt8
 	nzPixelFormat_BGRA8,   // 4*nzUInt8

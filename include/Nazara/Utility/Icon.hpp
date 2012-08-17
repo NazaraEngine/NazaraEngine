@@ -12,7 +12,6 @@
 
 class NzImage;
 class NzIconImpl;
-class NzWindowImpl;
 
 class NAZARA_API NzIcon
 {

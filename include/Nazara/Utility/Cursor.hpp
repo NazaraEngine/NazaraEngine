@@ -12,7 +12,6 @@
 
 class NzCursorImpl;
 class NzImage;
-class NzWindowImpl;
 
 class NAZARA_API NzCursor
 {

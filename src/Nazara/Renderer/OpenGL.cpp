@@ -354,9 +354,9 @@ bool NzOpenGL::Initialize()
 	{
 		try
 		{
+			glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKPROC>(LoadEntry("glDebugMessageCallback"));
 			glDebugMessageControl = reinterpret_cast<PFNGLDEBUGMESSAGECONTROLPROC>(LoadEntry("glDebugMessageControl"));
 			glDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTPROC>(LoadEntry("glDebugMessageInsert"));
-			glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKPROC>(LoadEntry("glDebugMessageCallback"));
 			glGetDebugMessageLog = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGPROC>(LoadEntry("glGetDebugMessageLog"));
 
 			openGLextensions[NzOpenGL::DebugOutput] = true;
@@ -371,9 +371,9 @@ bool NzOpenGL::Initialize()
 	{
 		try
 		{
+			glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKARBPROC>(LoadEntry("glDebugMessageCallbackARB"));
 			glDebugMessageControl = reinterpret_cast<PFNGLDEBUGMESSAGECONTROLARBPROC>(LoadEntry("glDebugMessageControlARB"));
 			glDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTARBPROC>(LoadEntry("glDebugMessageInsertARB"));
-			glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKARBPROC>(LoadEntry("glDebugMessageCallbackARB"));
 			glGetDebugMessageLog = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGARBPROC>(LoadEntry("glGetDebugMessageLogARB"));
 
 			openGLextensions[NzOpenGL::DebugOutput] = true;
@@ -590,9 +590,9 @@ PFNGLCOLORMASKPROC                glColorMask                = nullptr;
 PFNGLCULLFACEPROC                 glCullFace                 = nullptr;
 PFNGLCOMPILESHADERPROC            glCompileShader            = nullptr;
 PFNGLCOPYTEXSUBIMAGE2DPROC        glCopyTexSubImage2D        = nullptr;
+PFNGLDEBUGMESSAGECALLBACKPROC     glDebugMessageCallback     = nullptr;
 PFNGLDEBUGMESSAGECONTROLPROC      glDebugMessageControl      = nullptr;
 PFNGLDEBUGMESSAGEINSERTPROC       glDebugMessageInsert       = nullptr;
-PFNGLDEBUGMESSAGECALLBACKPROC     glDebugMessageCallback     = nullptr;
 PFNGLDELETEBUFFERSPROC            glDeleteBuffers            = nullptr;
 PFNGLDELETEFRAMEBUFFERSPROC       glDeleteFramebuffers       = nullptr;
 PFNGLDELETEPROGRAMPROC            glDeleteProgram            = nullptr;
