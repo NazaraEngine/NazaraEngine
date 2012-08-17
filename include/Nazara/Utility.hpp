@@ -42,7 +42,6 @@
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
