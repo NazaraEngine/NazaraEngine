@@ -52,6 +52,7 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Semaphore.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/StringStream.hpp>
