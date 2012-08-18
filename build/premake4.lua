@@ -25,11 +25,22 @@ end
 
 modules = os.matchfiles("scripts/module/*.lua")
 for k,v in pairs(modules) do
-	local f, err = loadfile(v)
-	if (f) then
-		f()
-	else
-		error("Unable to load module: " .. err)
+	local moduleName = v:match(".*/(.*).lua")
+
+	if (moduleName ~= "core") then
+		newoption {
+			trigger     = "exclude-" .. moduleName,
+			description = "Exclude the " .. moduleName .. " module from build system"
+		}
+	end
+
+	if (not _OPTIONS["exclude-" .. moduleName]) then
+		local f, err = loadfile(v)
+		if (f) then
+			f()
+		else
+			error("Unable to load module: " .. err)
+		end
 	end
 end
 
