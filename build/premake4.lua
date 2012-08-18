@@ -44,14 +44,6 @@ for k,v in pairs(modules) do
 	end
 end
 
-if (_OPTIONS["one-library"]) then
-	configuration "Debug*"
-		targetname "Nazarad"
-
-	configuration "Release*"
-		targetname "Nazara"
-end
-
 modules = os.matchfiles("scripts/actions/*.lua")
 for k,v in pairs(modules) do
 	local f, err = loadfile(v)

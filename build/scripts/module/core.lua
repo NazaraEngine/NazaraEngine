@@ -18,11 +18,3 @@ if (os.is("windows")) then
 else
 	excludes { "../src/Nazara/Core/Win32/**.hpp", "../src/Nazara/Core/Win32/**.cpp" }
 end
-
-if (not _OPTIONS["one-library"]) then
-	configuration "Debug*"
-		targetname "NazaraCored"
-
-	configuration "Release*"
-		targetname "NazaraCore"
-end
