@@ -20,18 +20,14 @@ if (_OPTIONS["one-library"]) then
 	excludes "../src/Nazara/Noise/Debug/Leaks.cpp"
 else
 	configuration "DebugStatic"
-		links "NazaraCored-s"
-		targetname "NazaraNoised"
+		links "NazaraCore-s-d"
 
 	configuration "ReleaseStatic"
 		links "NazaraCore-s"
-		targetname "NazaraNoise"
 
 	configuration "DebugDLL"
-		links "NazaraCored"
-		targetname "NazaraNoised"
+		links "NazaraCore-d"
 
 	configuration "ReleaseDLL"
 		links "NazaraCore"
-		targetname "NazaraNoise"
 end

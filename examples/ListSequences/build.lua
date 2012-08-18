@@ -4,28 +4,28 @@ files "main.cpp"
 
 if (_OPTIONS["one-library"]) then
 	configuration "DebugStatic"
-		links "Nazarad-s"
+		links "Nazara-s-d"
 
 	configuration "ReleaseStatic"
 		links "Nazara-s"
 
 	configuration "DebugDLL"
-		links "Nazarad"
+		links "Nazara-d"
 
 	configuration "ReleaseDLL"
 		links "Nazara"
 else
 	configuration "DebugStatic"
-		links "NazaraCored-s"
-		links "NazaraUtilityd-s"
+		links "NazaraCore-s-d"
+		links "NazaraUtility-s-d"
 
 	configuration "ReleaseStatic"
 		links "NazaraCore-s"
 		links "NazaraUtility-s"
 
 	configuration "DebugDLL"
-		links "NazaraCored"
-		links "NazaraUtilityd"
+		links "NazaraCore-d"
+		links "NazaraUtility-d"
 
 	configuration "ReleaseDLL"
 		links "NazaraCore"

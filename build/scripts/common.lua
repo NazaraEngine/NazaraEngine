@@ -38,10 +38,18 @@ configuration "Release*"
 configuration "*Static"
 	defines "NAZARA_STATIC"
 	kind "StaticLib"
-	targetsuffix "-s"
 
 configuration "*DLL"
 	kind "SharedLib"
+
+configuration "DebugStatic"
+	targetsuffix "-s-d"
+
+configuration "ReleaseStatic"
+	targetsuffix "-s"
+
+configuration "DebugDLL"
+	targetsuffix "-d"
 
 configuration "codeblocks or codelite or gmake or xcode3*"
 	buildoptions "-std=c++11"

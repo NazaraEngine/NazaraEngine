@@ -17,21 +17,18 @@ else
 end
 
 if (_OPTIONS["one-library"]) then
-	excludes "../src/Nazara/Audio/Debug/Leaks.cpp"
+	excludes "../src/Nazara/ModuleName/Debug/Leaks.cpp"
 else
 	configuration "DebugStatic"
-		links "NazaraCored-s"
-		targetname "NazaraModuleNamed"
+		links "NazaraCore-s-d"
 
 	configuration "ReleaseStatic"
 		links "NazaraCore-s"
-		targetname "NazaraModuleName"
 
 	configuration "DebugDLL"
-		links "NazaraCored"
-		targetname "NazaraModuleNamed"
+		links "NazaraCore-d"
 
 	configuration "ReleaseDLL"
 		links "NazaraCore"
-		targetname "NazaraModuleName"
+end
 end
