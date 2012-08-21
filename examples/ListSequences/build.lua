@@ -16,18 +16,18 @@ if (_OPTIONS["one-library"]) then
 		links "NazaraEngine"
 else
 	configuration "DebugStatic"
-		links "NazaraCore-s-d"
 		links "NazaraUtility-s-d"
+		links "NazaraCore-s-d"
 
 	configuration "ReleaseStatic"
-		links "NazaraCore-s"
 		links "NazaraUtility-s"
+		links "NazaraCore-s"
 
 	configuration "DebugDLL"
-		links "NazaraCore-d"
 		links "NazaraUtility-d"
+		links "NazaraCore-d"
 
 	configuration "ReleaseDLL"
-		links "NazaraCore"
 		links "NazaraUtility"
+		links "NazaraCore"
 end
