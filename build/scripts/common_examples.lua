@@ -1,8 +1,8 @@
 -- Configuration générale
 configurations 
 {
-	"DebugStatic",
-	"ReleaseStatic",
+--	"DebugStatic",
+--	"ReleaseStatic",
 	"DebugDLL",
 	"ReleaseDLL"
 }
@@ -10,10 +10,18 @@ configurations
 language "C++"
 location("../examples/build/" .. _ACTION)
 
+debugdir "../examples/bin"
+
 includedirs "../include"
 
-debugdir "../examples/bin"
 libdirs "../lib"
+
+if (_OPTIONS["x64"]) then
+	libdirs "../extlibs/lib/x64"
+end
+
+libdirs "../extlibs/lib/x86"
+
 targetdir "../examples/bin"
 
 configuration "Debug*"

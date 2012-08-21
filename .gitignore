@@ -1,5 +1,6 @@
 # Codeblocks
 *.cbp
+*.cbTemp
 *.cscope_file_list
 *.depend
 *.layout
@@ -126,7 +127,6 @@ publish
 *.Publish.xml
 
 # Others
-[Bb]in
 [Oo]bj
 sql
 TestResults

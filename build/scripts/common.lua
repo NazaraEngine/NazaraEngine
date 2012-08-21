@@ -1,8 +1,8 @@
 -- Configuration générale
 configurations 
 {
-	"DebugStatic",
-	"ReleaseStatic",
+--	"DebugStatic",
+--	"ReleaseStatic",
 	"DebugDLL",
 	"ReleaseDLL"
 }
