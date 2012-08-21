@@ -9,6 +9,13 @@
 # CodeLite
 *.project
 
+# Nazara build
+
+examples/bin
+lib/libNazara*.a
+lib/Nazara*.dll
+lib/Nazara*.so
+
 # Compiled Object files
 *.slo
 *.lo
@@ -20,21 +27,9 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.a
 
 # Object files
 *.o
-
-# Libraries
-*.lib
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-
-# Executables
-*.exe
-*.out
 
 # Windows image file caches
 Thumbs.db
@@ -54,7 +49,6 @@ $RECYCLE.BIN/
 *.sln.docstates
 
 # Build results
-
 [Dd]ebug*/
 [Rr]elease/
 
