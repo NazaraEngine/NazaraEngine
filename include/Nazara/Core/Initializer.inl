@@ -17,7 +17,8 @@ NzInitializer<T>::NzInitializer(Args... args)
 template<typename T>
 NzInitializer<T>::~NzInitializer()
 {
-	T::Uninitialize();
+	if (T::IsInitialized())
+		T::Uninitialize();
 }
 
 template<typename T>

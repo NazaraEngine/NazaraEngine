@@ -193,7 +193,7 @@ T NzNormalizeAngle(T angle)
 template<typename T>
 bool NzNumberEquals(T a, T b)
 {
-	return std::fabs(a-b) <= std::numeric_limits<T>::epsilon();
+	return std::fabs(a-b) < std::numeric_limits<T>::epsilon();
 }
 
 NzString NzNumberToString(long long number, nzUInt8 radix)
