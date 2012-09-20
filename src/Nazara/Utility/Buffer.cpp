@@ -113,14 +113,16 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 	m_storage = storage;
 	m_usage = usage;
 
-	// Si on arrive ici c'est que tout s'est bien passé.
-	return true;
+	NotifyCreated();
+	return true; // Si on arrive ici c'est que tout s'est bien passé.
 }
 
 void NzBuffer::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		m_impl->Destroy();
 		delete m_impl;
 		m_impl = nullptr;

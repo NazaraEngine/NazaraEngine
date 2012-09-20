@@ -12,38 +12,6 @@
 
 namespace
 {
-	GLenum bufferLock[] = {
-		GL_WRITE_ONLY, // nzBufferAccess_DiscardAndWrite
-		GL_READ_ONLY,  // nzBufferAccess_ReadOnly
-		GL_READ_WRITE, // nzBufferAccess_ReadWrite
-		GL_WRITE_ONLY  // nzBufferAccess_WriteOnly
-	};
-
-	GLenum bufferLockRange[] = {
-		GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT, // nzBufferAccess_DiscardAndWrite
-		GL_MAP_READ_BIT,                                 // nzBufferAccess_ReadOnly
-		GL_MAP_READ_BIT | GL_MAP_WRITE_BIT,              // nzBufferAccess_ReadWrite
-		GL_MAP_WRITE_BIT                                 // nzBufferAccess_WriteOnly
-	};
-
-	GLenum bufferTarget[] = {
-		GL_ELEMENT_ARRAY_BUFFER, // nzBufferType_Index,
-		GL_ARRAY_BUFFER,		 // nzBufferType_Vertex
-	};
-
-	GLenum bufferTargetBinding[] = {
-		GL_ELEMENT_ARRAY_BUFFER_BINDING, // nzBufferType_Index,
-		GL_ARRAY_BUFFER_BINDING,		 // nzBufferType_Vertex
-	};
-
-	GLenum bufferUsage[] = {
-		// J'ai choisi DYNAMIC à la place de STREAM car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
-		// Ce qui est je pense le scénario qui arrivera le plus souvent (Prévoir une option pour permettre d'utiliser le STREAM_DRAW ?)
-		// Source: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=160839
-		GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
-		GL_STATIC_DRAW  // nzBufferUsage_Static
-	};
-
 	using LockRoutine = nzUInt8* (*)(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size);
 
 	nzUInt8* LockBuffer(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size)
@@ -53,16 +21,16 @@ namespace
 		if (access == nzBufferAccess_DiscardAndWrite)
 		{
 			GLint bufSize;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_SIZE, &bufSize);
+			glGetBufferParameteriv(NzOpenGL::BufferTargetBinding[type], GL_BUFFER_SIZE, &bufSize);
 
 			GLint bufUsage;
-			glGetBufferParameteriv(bufferTargetBinding[type], GL_BUFFER_USAGE, &bufUsage);
+			glGetBufferParameteriv(NzOpenGL::BufferTargetBinding[type], GL_BUFFER_USAGE, &bufUsage);
 
 			// On discard le buffer
-			glBufferData(bufferTargetBinding[type], bufSize, nullptr, bufUsage);
+			glBufferData(NzOpenGL::BufferTargetBinding[type], bufSize, nullptr, bufUsage);
 		}
 
-		void* ptr = glMapBuffer(bufferTarget[type], bufferLock[access]);
+		void* ptr = glMapBuffer(NzOpenGL::BufferTarget[type], NzOpenGL::BufferLock[access]);
 		if (ptr)
 			return reinterpret_cast<nzUInt8*>(ptr) + offset;
 		else
@@ -71,7 +39,7 @@ namespace
 
 	nzUInt8* LockBufferRange(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size)
 	{
-		return reinterpret_cast<nzUInt8*>(glMapBufferRange(bufferTarget[type], offset, size, bufferLockRange[access]));
+		return reinterpret_cast<nzUInt8*>(glMapBufferRange(NzOpenGL::BufferTarget[type], offset, size, NzOpenGL::BufferLockRange[access]));
 	}
 
 	nzUInt8* LockBufferFirstRun(nzBufferType type, nzBufferAccess access, unsigned int offset, unsigned int size);
@@ -109,7 +77,7 @@ void NzHardwareBuffer::Bind()
 	}
 	#endif
 
-	glBindBuffer(bufferTarget[m_type], m_buffer);
+	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 }
 
 bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
@@ -120,14 +88,14 @@ bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 	glGenBuffers(1, &m_buffer);
 
 	GLint previous;
-	glGetIntegerv(bufferTargetBinding[m_type], &previous);
+	glGetIntegerv(NzOpenGL::BufferTargetBinding[m_type], &previous);
 
-	glBindBuffer(bufferTarget[m_type], m_buffer);
-	glBufferData(bufferTarget[m_type], size, nullptr, bufferUsage[usage]);
+	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
+	glBufferData(NzOpenGL::BufferTarget[m_type], size, nullptr, NzOpenGL::BufferUsage[usage]);
 
 	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
 	if (previous != 0)
-		glBindBuffer(bufferTarget[m_type], previous);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
 	return true;
 }
@@ -144,10 +112,10 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	NzContext::EnsureContext();
 
 	GLuint previous;
-	glGetIntegerv(bufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
+	glGetIntegerv(NzOpenGL::BufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
 
 	if (previous != m_buffer)
-		glBindBuffer(bufferTarget[m_type], m_buffer);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 
 	// Il semblerait que glBuffer(Sub)Data soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
 	// http://www.stevestreeting.com/2007/03/17/glmapbuffer-vs-glbuffersubdata-the-return/
@@ -155,9 +123,9 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	{
 		// http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
 		if (size == m_parent->GetSize())
-			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetUsage()]); // Discard
+			glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
 
-		glBufferSubData(bufferTarget[m_type], offset, size, data);
+		glBufferSubData(NzOpenGL::BufferTarget[m_type], offset, size, data);
 	}
 	else
 	{
@@ -170,12 +138,12 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 
 		std::memcpy(ptr, data, size);
 
-		if (glUnmapBuffer(bufferTarget[m_type]) != GL_TRUE)
+		if (glUnmapBuffer(NzOpenGL::BufferTarget[m_type]) != GL_TRUE)
 		{
 			// Une erreur rare est survenue, nous devons réinitialiser le buffer
 			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
 
-			glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
+			glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetStorage()]);
 
 			return false;
 		}
@@ -183,7 +151,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 
 	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 	if (previous != m_buffer && previous != 0)
-		glBindBuffer(bufferTarget[m_type], previous);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
 	return true;
 }
@@ -204,16 +172,16 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 
 	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
 	GLuint previous;
-	glGetIntegerv(bufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
+	glGetIntegerv(NzOpenGL::BufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
 
 	if (previous != m_buffer)
-		glBindBuffer(bufferTarget[m_type], m_buffer);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 
 	void* ptr = mapBuffer(m_type, access, offset, size);
 
 	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
 	if (previous != m_buffer && previous != 0)
-		glBindBuffer(bufferTarget[m_type], previous);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
 	return ptr;
 }
@@ -223,28 +191,28 @@ bool NzHardwareBuffer::Unmap()
 	NzContext::EnsureContext();
 
 	GLuint previous;
-	glGetIntegerv(bufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
+	glGetIntegerv(NzOpenGL::BufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
 
 	if (previous != m_buffer)
-		glBindBuffer(bufferTarget[m_type], m_buffer);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 
-	if (glUnmapBuffer(bufferTarget[m_type]) != GL_TRUE)
+	if (glUnmapBuffer(NzOpenGL::BufferTarget[m_type]) != GL_TRUE)
 	{
 		// Une erreur rare est survenue, nous devons réinitialiser le buffer
 		NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
 
-		glBufferData(bufferTarget[m_type], m_parent->GetSize(), nullptr, bufferUsage[m_parent->GetStorage()]);
+		glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetStorage()]);
 
 		// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 		if (previous != m_buffer && previous != 0)
-			glBindBuffer(bufferTarget[m_type], previous);
+			glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
 		return false;
 	}
 
 	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 	if (previous != m_buffer && previous != 0)
-		glBindBuffer(bufferTarget[m_type], previous);
+		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
 	return true;
 }

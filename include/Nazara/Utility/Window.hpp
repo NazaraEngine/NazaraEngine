@@ -21,8 +21,8 @@
 #include <queue>
 
 #if NAZARA_UTILITY_THREADED_WINDOW
+#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
 class NzCursor;
@@ -61,6 +61,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		bool IsMinimized() const;
 		bool IsOpen() const;
+		bool IsValid() const;
 		bool IsVisible() const;
 
 		bool PollEvent(NzEvent* event);
@@ -85,8 +86,8 @@ class NAZARA_API NzWindow : NzNonCopyable
 		bool WaitEvent(NzEvent* event);
 
 	protected:
-		virtual void OnWindowDestroying();
 		virtual bool OnWindowCreated();
+		virtual void OnWindowDestroy();
 
 		NzWindowImpl* m_impl;
 

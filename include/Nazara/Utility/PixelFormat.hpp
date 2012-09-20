@@ -28,6 +28,7 @@ class NzPixelFormat
 		static bool Flip(nzPixelFlipping flipping, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
 		static nzUInt8 GetBPP(nzPixelFormat format);
+		static nzPixelFormatType GetType(nzPixelFormat format);
 
 		static bool HasAlpha(nzPixelFormat format);
 

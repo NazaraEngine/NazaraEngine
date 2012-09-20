@@ -31,8 +31,8 @@ bool NzMeshParams::IsValid() const
 
 struct NzMeshImpl
 {
-	std::map<NzString, nzUInt8> subMeshMap;
 	std::deque<NzString> skins;
+	std::map<NzString, unsigned int> subMeshMap;
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;
 	NzAxisAlignedBox aabb;
@@ -44,19 +44,19 @@ NzMesh::~NzMesh()
 	Destroy();
 }
 
-unsigned int NzMesh::AddSkin(const NzString& skin, bool setDefault)
+bool NzMesh::AddSkin(const NzString& skin, bool setDefault)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return 0;
+		return false;
 	}
 
 	if (skin.IsEmpty())
 	{
 		NazaraError("Skin is empty");
-		return 0;
+		return false;
 	}
 	#endif
 
@@ -65,71 +65,71 @@ unsigned int NzMesh::AddSkin(const NzString& skin, bool setDefault)
 	else
 		m_impl->skins.push_back(skin);
 
-	return m_impl->skins.size()-1;
+	return true;
 }
 
-nzUInt8 NzMesh::AddSubMesh(NzSubMesh* subMesh)
+bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return 0;
+		return false;
 	}
 
 	if (!subMesh)
 	{
 		NazaraError("Invalid submesh");
-		return 0;
+		return false;
 	}
 	#endif
 
-	subMesh->AddResourceReference();
+	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 
-	return m_impl->subMeshes.size()-1;
+	return true;
 }
 
-nzUInt8 NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
+bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return 0;
+		return false;
 	}
 
 	if (identifier.IsEmpty())
 	{
 		NazaraError("Identifier is empty");
-		return 0;
+		return false;
 	}
 
 	auto it = m_impl->subMeshMap.find(identifier);
 	if (it != m_impl->subMeshMap.end())
 	{
 		NazaraError("SubMesh identifier \"" + identifier + "\" is already used");
-		return it->second;
+		return false;
 	}
 
 	if (!subMesh)
 	{
 		NazaraError("Invalid submesh");
-		return 0;
+		return false;
 	}
 	#endif
 
-	nzUInt8 index = m_impl->subMeshes.size();
+	int index = m_impl->subMeshes.size();
 
-	subMesh->AddResourceReference();
+	subMesh->AddResourceListener(this, index);
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 	m_impl->subMeshMap[identifier] = index;
 
-	return index;
+	return true;
 }
 
 void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolation)
@@ -180,6 +180,8 @@ bool NzMesh::Create(nzAnimationType type)
 	m_impl = new NzMeshImpl;
 	m_impl->animationType = type;
 
+	NotifyCreated();
+
 	return true;
 }
 
@@ -187,11 +189,13 @@ void NzMesh::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		if (m_impl->animation)
-			m_impl->animation->RemoveResourceReference();
+			m_impl->animation->RemoveResourceListener(this);
 
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
-			subMesh->RemoveResourceReference();
+			subMesh->RemoveResourceListener(this);
 
 		delete m_impl;
 		m_impl = nullptr;
@@ -316,7 +320,7 @@ NzSubMesh* NzMesh::GetSubMesh(const NzString& identifier)
 	#endif
 }
 
-NzSubMesh* NzMesh::GetSubMesh(nzUInt8 index)
+NzSubMesh* NzMesh::GetSubMesh(unsigned int index)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -357,7 +361,7 @@ const NzSubMesh* NzMesh::GetSubMesh(const NzString& identifier) const
 	#endif
 }
 
-const NzSubMesh* NzMesh::GetSubMesh(nzUInt8 index) const
+const NzSubMesh* NzMesh::GetSubMesh(unsigned int index) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -376,7 +380,7 @@ const NzSubMesh* NzMesh::GetSubMesh(nzUInt8 index) const
 	return m_impl->subMeshes[index];
 }
 
-nzUInt8 NzMesh::GetSubMeshCount() const
+unsigned int NzMesh::GetSubMeshCount() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -387,6 +391,28 @@ nzUInt8 NzMesh::GetSubMeshCount() const
 	#endif
 
 	return m_impl->subMeshes.size();
+}
+
+int NzMesh::GetSubMeshIndex(const NzString& identifier) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return -1;
+	}
+
+	auto it = m_impl->subMeshMap.find(identifier);
+	if (it == m_impl->subMeshMap.end())
+	{
+		NazaraError("SubMesh not found");
+		return -1;
+	}
+
+	return it->second;
+	#else
+	return m_impl->subMeshMap[identifier];
+	#endif
 }
 
 unsigned int NzMesh::GetVertexCount() const
@@ -458,7 +484,7 @@ bool NzMesh::HasSubMesh(const NzString& identifier) const
 	return m_impl->subMeshMap.find(identifier) != m_impl->subMeshMap.end();
 }
 
-bool NzMesh::HasSubMesh(nzUInt8 index) const
+bool NzMesh::HasSubMesh(unsigned int index) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -520,6 +546,7 @@ void NzMesh::RemoveSkin(unsigned int index)
 	}
 	#endif
 
+	// On accède à l'itérateur correspondant à l'entrée #index
 	auto it = m_impl->skins.begin();
 	std::advance(it, index);
 
@@ -547,15 +574,18 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 	unsigned int index = m_impl->subMeshMap[identifier];
 	#endif
 
+	// On déplace l'itérateur du début d'une distance de x
 	auto it2 = m_impl->subMeshes.begin();
-	std::advance(it2, index);
+	std::advance(it, index);
 
+	// On libère la ressource
+	(*it2)->RemoveResourceListener(this);
 	m_impl->subMeshes.erase(it2);
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 }
 
-void NzMesh::RemoveSubMesh(nzUInt8 index)
+void NzMesh::RemoveSubMesh(unsigned int index)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -571,9 +601,12 @@ void NzMesh::RemoveSubMesh(nzUInt8 index)
 	}
 	#endif
 
+	// On déplace l'itérateur du début de x
 	auto it = m_impl->subMeshes.begin();
 	std::advance(it, index);
 
+	// On libère la ressource
+	(*it)->RemoveResourceListener(this);
 	m_impl->subMeshes.erase(it);
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
@@ -599,7 +632,7 @@ bool NzMesh::SetAnimation(const NzAnimation* animation)
 		return true;
 
 	if (m_impl->animation)
-		m_impl->animation->RemoveResourceReference();
+		m_impl->animation->RemoveResourceListener(this);
 
 	if (animation)
 	{
@@ -611,13 +644,38 @@ bool NzMesh::SetAnimation(const NzAnimation* animation)
 		}
 		#endif
 
-		m_impl->animation = animation;
-		m_impl->animation->AddResourceReference();
+		animation->AddResourceListener(this);
 	}
-	else
-		m_impl->animation = nullptr;
+
+	m_impl->animation = animation;
 
 	return true;
+}
+
+void NzMesh::OnResourceCreated(const NzResource* resource, int index)
+{
+	NazaraUnused(index);
+
+	if (resource == m_impl->animation)
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (m_impl->animation->GetType() != m_impl->animationType)
+		{
+			NazaraError("Animation's type must match mesh animation type");
+
+			m_impl->animation->RemoveResourceListener(this);
+			m_impl->animation = nullptr;
+		}
+		#endif
+	}
+}
+
+void NzMesh::OnResourceReleased(const NzResource* resource, int index)
+{
+	if (resource == m_impl->animation)
+		SetAnimation(nullptr);
+	else
+		RemoveSubMesh(index);
 }
 
 NzMeshLoader::LoaderList NzMesh::s_loaders;

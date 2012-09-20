@@ -60,6 +60,7 @@ bool NzShader::Create(nzShaderLanguage language)
 		return false;
 	}
 
+	NotifyCreated();
 	return true;
 }
 
@@ -86,6 +87,8 @@ void NzShader::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		m_impl->Destroy();
 		delete m_impl;
 		m_impl = nullptr;
@@ -595,7 +598,7 @@ bool NzShader::IsLanguageSupported(nzShaderLanguage language)
 	switch (language)
 	{
 		case nzShaderLanguage_Cg:
-			return false; // ??
+			return false; //FIXME: ??
 
 		case nzShaderLanguage_GLSL:
 			return true;

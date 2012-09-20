@@ -28,7 +28,10 @@ template<typename T> class NzQuaternion
 		T DotProduct(const NzQuaternion& vec) const;
 
 		NzQuaternion GetConjugate() const;
-		NzQuaternion GetNormalized() const;
+		NzQuaternion GetInverse() const;
+		NzQuaternion GetNormal() const;
+
+		void Inverse();
 
 		void MakeIdentity();
 		void MakeZero();

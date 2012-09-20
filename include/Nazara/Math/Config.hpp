@@ -33,9 +33,6 @@
 // Définit le radian comme l'unité utilisée pour les angles
 #define NAZARA_MATH_ANGLE_RADIAN 0
 
-// Définit la disposition des matrices en colonnes (Façon OpenGL)
-#define NAZARA_MATH_MATRIX_COLUMN_MAJOR 1
-
 // Optimise les opérations entre matrices affines (Demande plusieurs comparaisons pour déterminer si une matrice est affine)
 #define NAZARA_MATH_MATRIX4_CHECK_AFFINE 0
 

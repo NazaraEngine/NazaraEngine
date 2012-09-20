@@ -38,6 +38,7 @@ template<typename T> class NzMatrix4
 		~NzMatrix4();
 
 		NzMatrix4 Concatenate(const NzMatrix4& matrix) const;
+		NzMatrix4 ConcatenateAffine(const NzMatrix4& matrix) const;
 
 		T GetDeterminant() const;
 		NzMatrix4 GetInverse() const;
@@ -54,7 +55,7 @@ template<typename T> class NzMatrix4
 		bool IsDefined() const;
 
 		void MakeIdentity();
-		void MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up);
+		void MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
 		void MakeOrtho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
 		void MakePerspective(T angle, T ratio, T zNear, T zFar);
 		void MakeRotation(const NzQuaternion<T>& rotation);
@@ -106,7 +107,7 @@ template<typename T> class NzMatrix4
 		static NzMatrix4 Concatenate(const NzMatrix4& m1, const NzMatrix4& m2);
 		static NzMatrix4 ConcatenateAffine(const NzMatrix4& m1, const NzMatrix4& m2);
 		static NzMatrix4 Identity();
-		static NzMatrix4 LookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up);
+		static NzMatrix4 LookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
 		static NzMatrix4 Ortho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
 		static NzMatrix4 Perspective(T angle, T ratio, T zNear, T zFar);
 		static NzMatrix4 Rotate(const NzQuaternion<T>& rotation);

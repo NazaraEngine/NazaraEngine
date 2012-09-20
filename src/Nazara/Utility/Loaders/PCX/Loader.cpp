@@ -59,12 +59,6 @@ namespace
 			return false;
 		}
 
-		if (header.manufacturer != 0x0a)
-		{
-			NazaraError("Bad version number (" + NzString::Number(header.manufacturer) + ')');
-			return false;
-		}
-
 		#if defined(NAZARA_BIG_ENDIAN)
 		// Les fichiers PCX sont en little endian
 		NzByteSwap(&header.xmin, sizeof(nzUInt16));
