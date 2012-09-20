@@ -153,28 +153,19 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		*attrib++ = WGL_CONTEXT_MINOR_VERSION_ARB;
 		*attrib++ = parameters.minorVersion;
 
-		int flags = 0;
-
 		if (parameters.majorVersion >= 3)
 		{
 			*attrib++ = WGL_CONTEXT_PROFILE_MASK_ARB;
-			if (parameters.compatibilityProfile)
-				*attrib++ = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-			else
-			{
-				*attrib++ = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
-
-				flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
-			}
+			*attrib++ = (parameters.compatibilityProfile) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 		}
 
 		if (parameters.debugMode)
-			flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
-
-		if (flags)
 		{
 			*attrib++ = WGL_CONTEXT_FLAGS_ARB;
-			*attrib++ = flags;
+			*attrib++ = WGL_CONTEXT_DEBUG_BIT_ARB;
+
+			// Les contextes forward-compatible ne sont plus utilisés pour cette raison :
+			// http://www.opengl.org/discussion_boards/showthread.php/175052-Forward-compatible-vs-Core-profile
 		}
 
 		*attrib++ = 0;
@@ -210,13 +201,25 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 void NzContextImpl::Destroy()
 {
 	if (m_context)
+	{
+		if (wglGetCurrentContext() == m_context)
+			wglMakeCurrent(nullptr, nullptr);
+
 		wglDeleteContext(m_context);
+		m_context = nullptr;
+	}
 
 	if (m_deviceContext)
+	{
 		ReleaseDC(m_window, m_deviceContext);
+		m_deviceContext = nullptr;
+	}
 
 	if (m_ownsWindow)
+	{
 		DestroyWindow(m_window);
+		m_window = nullptr;
+	}
 }
 
 void NzContextImpl::SwapBuffers()

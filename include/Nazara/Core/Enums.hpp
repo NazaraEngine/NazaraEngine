@@ -12,7 +12,9 @@ enum nzEndianness
 	nzEndianness_Unknown = -1,
 
 	nzEndianness_BigEndian,
-	nzEndianness_LittleEndian
+	nzEndianness_LittleEndian,
+
+	nzEndianness_Max = nzEndianness_LittleEndian
 };
 
 enum nzErrorType
@@ -20,7 +22,9 @@ enum nzErrorType
 	nzErrorType_AssertFailed,
 	nzErrorType_Internal,
 	nzErrorType_Normal,
-	nzErrorType_Warning
+	nzErrorType_Warning,
+
+	nzErrorType_Max = nzErrorType_Warning
 };
 
 #endif // NAZARA_ENUMS_CORE_HPP

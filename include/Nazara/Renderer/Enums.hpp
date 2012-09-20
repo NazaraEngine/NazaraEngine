@@ -7,6 +7,16 @@
 #ifndef NAZARA_ENUMS_RENDERER_HPP
 #define NAZARA_ENUMS_RENDERER_HPP
 
+enum nzAttachmentPoint
+{
+	nzAttachmentPoint_Color,
+	nzAttachmentPoint_Depth,
+	nzAttachmentPoint_DepthStencil,
+	nzAttachmentPoint_Stencil,
+
+	nzAttachmentPoint_Max = nzAttachmentPoint_Stencil
+};
+
 enum nzBlendFunc
 {
 	nzBlendFunc_DestAlpha,
@@ -18,21 +28,27 @@ enum nzBlendFunc
 	nzBlendFunc_InvSrcAlpha,
 	nzBlendFunc_InvSrcColor,
 	nzBlendFunc_One,
-	nzBlendFunc_Zero
+	nzBlendFunc_Zero,
+
+	nzBlendFunc_Max = nzBlendFunc_Zero
 };
 
 enum nzFaceCulling
 {
 	nzFaceCulling_Back,
 	nzFaceCulling_Front,
-	nzFaceCulling_FrontAndBack
+	nzFaceCulling_FrontAndBack,
+
+	nzFaceCulling_Max = nzFaceCulling_FrontAndBack
 };
 
 enum nzFaceFilling
 {
 	nzFaceFilling_Point,
 	nzFaceFilling_Line,
-	nzFaceFilling_Fill
+	nzFaceFilling_Fill,
+
+	nzFaceFilling_Max = nzFaceFilling_Fill
 };
 
 enum nzMatrixType
@@ -47,7 +63,9 @@ enum nzMatrixType
 enum nzPixelBufferType
 {
 	nzPixelBufferType_Pack,
-	nzPixelBufferType_Unpack
+	nzPixelBufferType_Unpack,
+
+	nzPixelBufferType_Max = nzPixelBufferType_Unpack
 };
 
 enum nzRendererCap
@@ -58,6 +76,7 @@ enum nzRendererCap
 	nzRendererCap_MultipleRenderTargets,
 	nzRendererCap_OcclusionQuery,
 	nzRendererCap_PixelBufferObject,
+	nzRendererCap_RenderTexture,
 	nzRendererCap_Texture3D,
 	nzRendererCap_TextureCubemap,
 	nzRendererCap_TextureMulti,
@@ -66,7 +85,7 @@ enum nzRendererCap
 	nzRendererCap_Max = nzRendererCap_TextureNPOT
 };
 
-enum nzRendererClear
+enum nzRendererClearFlags
 {
 	nzRendererClear_Color = 0x01,
 	nzRendererClear_Depth = 0x02,
@@ -81,7 +100,9 @@ enum nzRendererComparison
 	nzRendererComparison_GreaterOrEqual,
 	nzRendererComparison_Less,
 	nzRendererComparison_LessOrEqual,
-	nzRendererComparison_Never
+	nzRendererComparison_Never,
+
+	nzRendererComparison_Max = nzRendererComparison_Never
 };
 
 enum nzRendererParameter
@@ -91,15 +112,19 @@ enum nzRendererParameter
 	nzRendererParameter_DepthTest,
 	nzRendererParameter_DepthWrite,
 	nzRendererParameter_FaceCulling,
-	nzRendererParameter_Stencil
+	nzRendererParameter_Stencil,
+
+	nzRendererParameter_Max = nzRendererParameter_Stencil
 };
 
 enum nzShaderLanguage
 {
-	nzShaderLanguage_Unknown,
+	nzShaderLanguage_Unknown = -1,
 
 	nzShaderLanguage_Cg,
-	nzShaderLanguage_GLSL
+	nzShaderLanguage_GLSL,
+
+	nzShaderLanguage_Max = nzShaderLanguage_GLSL
 };
 
 enum nzShaderType
@@ -120,22 +145,30 @@ enum nzStencilOperation
 	nzStencilOperation_Invert,
 	nzStencilOperation_Keep,
 	nzStencilOperation_Replace,
-	nzStencilOperation_Zero
+	nzStencilOperation_Zero,
+
+	nzStencilOperation_Max = nzStencilOperation_Zero
 };
 
 enum nzTextureFilter
 {
+	nzTextureFilter_Unknown = -1,
+
 	nzTextureFilter_Bilinear,
 	nzTextureFilter_Nearest,
 	nzTextureFilter_Trilinear,
-	nzTextureFilter_Unknown
+
+	nzTextureFilter_Max = nzTextureFilter_Trilinear
 };
 
 enum nzTextureWrap
 {
+	nzTextureWrap_Unknown = -1,
+
 	nzTextureWrap_Clamp,
 	nzTextureWrap_Repeat,
-	nzTextureWrap_Unknown
+
+	nzTextureWrap_Max = nzTextureWrap_Repeat
 };
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

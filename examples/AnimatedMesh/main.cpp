@@ -38,9 +38,10 @@ void SetSequence(AnimatedModel& model, const NzString& name);
 int main()
 {
 	// Tout d'abord on affiche les instructions
-	std::cout << "Camera controls: ZQSD" << std::endl;
-	std::cout << "Dr. Freak controls: Up, down, left and right" << std::endl;
+	std::cout << "Controls: ZQSD" << std::endl;
 	std::cout << "Escape to quit" << std::endl;
+	std::cout << "Left click to capture/free the mouse" << std::endl;
+	std::cout << "Right click to control Dr. Freak" << std::endl;
 
 	// Cette ligne active le mode de compatibilité d'OpenGL lors de l'initialisation de Nazara (Nécessaire pour le shader)
 	NzContextParameters::defaultCompatibilityProfile = true;
@@ -135,8 +136,8 @@ int main()
 	// Le sol ne subit aucune transformation
 	floor.matrix.MakeIdentity();
 
-	// Pour effectuer un rendu, il faut que la carte graphique sache quoi faire.
-	// Les shaders sont de petits programmes qui donnent des instructions à la carte graphique lors du pipeline.
+	// Pour effectuer un rendu, il faut que la carte graphique sache comment le faire.
+	// Les shaders sont de petits programmes qui donnent des instructions à la carte graphique lors de son pipeline.
 	// Ils sont aujourd'hui indispensables pour un rendu 3D, mais sont très utiles pour divers effets !
 	// Il existe plusieurs langages de shaders, GLSL pour OpenGL, HLSL pour Direct3D et Cg qui peut être utilisé pour les deux.
 	// Le Renderer de Nazara utilise OpenGL, par conséquent nous utiliserons le GLSL
@@ -152,6 +153,8 @@ int main()
 	// Une fois le shader créé, nous devons lui spécifier les codes sources de nos shaders
 	// Pour notre exemple nous prendrons un shader très simple
 	// Un shader doit obligatoirement posséder au moins deux codes, un pour le fragment shader et un pour le vertex shader
+
+	// Le fragment shader traite la couleur de nos pixels
 	if (!shader.LoadFromFile(nzShaderType_Fragment, "shaders/basic.frag"))
 	{
 		std::cout << "Failed to load fragment shader from file" << std::endl;
@@ -161,7 +164,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Maintenant le vertex shader
+	// Le vertex shader (Transformation des vertices de l'espace 3D vers l'espace écran)
 	if (!shader.LoadFromFile(nzShaderType_Vertex, "shaders/basic.vert"))
 	{
 		std::cout << "Failed to load vertex shader from file" << std::endl;
@@ -170,7 +173,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Une fois le code source de nos shaders chargé, nous pouvons le compiler, afin de le rendre utilisable
+	// Une fois les codes sources de notre shader chargé, nous pouvons le compiler, afin de le rendre utilisable
 	if (!shader.Compile())
 	{
 		std::cout << "Failed to compile shader" << std::endl;
@@ -182,24 +185,33 @@ int main()
 	// Nos ressources sont chargées, et c'est bien beau, mais il nous faudrait une fenêtre pour afficher tout ça
 	// Window représente une fenêtre singulière, pour y effectuer un rendu il nous faut une RenderWindow
 	// Tout d'abord, sa taille, disons celle du bureau divisé par deux
-	NzVideoMode mode = NzVideoMode::GetDesktopMode();
+
+	// Un VideoMode est une structure contenant une longueur (width), une largeur (height) et le nombre de bits par pixels (bitsPerPixel)
+	NzVideoMode mode = NzVideoMode::GetDesktopMode(); // Nous récupérons le mode actuellement utilisé par le bureau
+
+	// Nous divisons sa longueur et sa largeur par deux
 	mode.width /= 2;
 	mode.height /= 2;
 
-	NzString title = "Nazara Demo - AnimatedMesh";
+	// Maintenant le titre, rien de plus simple...
+	NzString windowTitle = "Nazara Demo - AnimatedMesh";
 
+	// Nous pouvons créer notre fenêtre ! (Via le constructeur directement ou par la méthode Create)
 	NzRenderWindow window;
-	// Le premier argument définit la taille de rendu de la fenêtre (Si elle possède une bordure elle sera légèrement plus grande)
-	// Le deuxième argument est le titre de la fenêtre lors de sa création, vous pouvez le modifier à tout moment via window.SetTitle
+
+	// Le premier argument définit la taille de rendu de la fenêtre (Si elle possède une bordure elle sera légèrement plus grande).
+	// Le deuxième argument est le titre de la fenêtre lors de sa création, vous pouvez le modifier à tout moment via window.SetTitle.
 	// Le troisième argument représente la décoration de la fenêtre, sa bordure, ses boutons.
-	// Attention que cela permet à la fenêtre d'envoyer des évènements, et de changer sa taille
+	// Attention que cela permet à la fenêtre de changer sa taille et qu'il faudra donc traiter l'évènement.
 	// Par défaut le troisième argument vaut nzWindowStyle_Default (Bordure + Bouton de fermeture + Redimensionnement)
-	if (!window.Create(mode, title, nzWindowStyle_Default))
+	if (!window.Create(mode, windowTitle, nzWindowStyle_Default))
 	{
 		std::cout << "Failed to create window" << std::endl;
 		std::getchar();
 		return EXIT_FAILURE;
 	}
+
+	// Notre belle fenêtre est créée, nous pouvons la configurer
 
 	// On cache le curseur
 	window.SetCursor(nzWindowCursor_None);
@@ -215,40 +227,27 @@ int main()
 	unsigned int fps = 0; // Compteur de FPS
 
 	// Quelques variables pour notre improvisation de physique
-	float groundPos = drfreak.mesh.GetAABB().GetMinimum().y; // Pas très exact
-	NzVector3f modelPos(0.f, groundPos, -50.f);
+	float groundPos = drfreak.mesh.GetAABB().GetMinimum().y; // Les coordonnées locales du "bas" du modèle
+	NzVector3f modelPos(0.f, -groundPos, -50.f);
 	NzVector3f modelVel(0.f, 0.f, 0.f);
-	NzQuaternionf modelRot(NzEulerAnglesf(0.f, 0.f, 0.f)); // Les angles d'eulers sont bien plus facile à se représenter
-	float speed = 60.f;
+	NzQuaternionf modelOrient(NzQuaternionf::Identity());
+	NzEulerAnglesf modelRot(0.f, 0.f, 0.f);
+	float modelSpeed = 150.f;
 
 	// Nous initialisons la matrice
-	drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos);
+	drfreak.matrix = NzMatrix4f::Rotate(modelOrient) * NzMatrix4f::Translate(modelPos);
 
 	// Notre caméra
 	NzVector3f camPos(0.f, 25.f, -20.f);
-	NzEulerAnglesf camRot(0.f, 0.f, 0.f);
+	NzQuaternionf camOrient(NzQuaternionf::Identity());
+	NzEulerAnglesf camRot(0.f, 0.f, 0.f); // Les angles d'eulers sont bien plus facile à utiliser
 	NzMatrix4f camMatrix = NzMatrix4f::Translate(camPos);
-	float camSpeed = 2.f;
-	float sensitivity = 0.5;
+	float camSpeed = 100.f;
+	float sensitivity = 0.8f;
 
-	// Dernière étape, nos touches
-
-	// Chaque touche fera bouger
-	struct Movement
-	{
-		NzVector3f direction; // La direction
-		NzQuaternionf rotation; // La rotation du modèle
-	};
-
-	std::map<NzKeyboard::Key, Movement> movements;
-	movements[NzKeyboard::Up] = Movement{NzVector3f(0.f, 0.f, -1.f), NzQuaternionf(NzEulerAnglesf(0.f, 180.f, 0.f))};
-	movements[NzKeyboard::Down] = Movement{NzVector3f(0.f, 0.f, 1.f), NzQuaternionf(NzEulerAnglesf(0.f, 0.f, 0.f))};
-	movements[NzKeyboard::Left] = Movement{NzVector3f(-1.f, 0.f, 0.f), NzQuaternionf(NzEulerAnglesf(0.f, 90.f, 0.f))};
-	movements[NzKeyboard::Right] = Movement{NzVector3f(1.f, 0.f, 0.f), NzQuaternionf(NzEulerAnglesf(0.f, -90.f, 0.f))};
-	NzKeyboard::Key currentKey = NzKeyboard::Undefined;
-
-	// Quelques booléens
+	// Quelques variables
 	bool camMode = true;
+	bool thirdPerson = false;
 	bool windowOpen = true;
 
 	// On peut commencer la boucle du programme
@@ -258,36 +257,38 @@ int main()
 		NzEvent event;
 		while (window.PollEvent(&event)) // Avons-nous un évènement dans la file ?
 		{
-			// Nous avons un évènement
+			// Nous avons un évènement !
+
 			switch (event.type) // De quel type est cet évènement ?
 			{
 				case nzEventType_Quit: // L'utilisateur/L'OS nous a demandé de terminer notre exécution
 					windowOpen = false; // Nous terminons alors la boucle
 					break;
 
-				case nzEventType_MouseMoved:
+				case nzEventType_MouseMoved: // La souris a bougé
 				{
-					// Si nous ne sommes pas en mode caméra, on ne traite pas l'évènement
-					if (!camMode)
+					// Si nous ne sommes pas en mode free-fly, on ne traite pas l'évènement
+					if (!camMode || thirdPerson)
 						break;
 
 					// On modifie l'angle de la caméra grâce au déplacement relatif de la souris
 					camRot.yaw = NzNormalizeAngle(camRot.yaw - event.mouseMove.deltaX*sensitivity);
 
-					// Pour éviter les loopings, on restreint les angles
-					camRot.pitch = NzClamp(camRot.pitch + event.mouseMove.deltaY*sensitivity, -90.f, 90.f);
+					// Pour éviter les loopings mais surtout les problèmes de calculation de la matrice de vue, on restreint les angles
+					camRot.pitch = NzClamp(camRot.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					// La matrice vue représente les transformations effectuées par la caméra
 					// On recalcule la matrice de la caméra et on l'envoie au renderer
-					NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::Translate(camPos) * NzMatrix4f::Rotate(camRot));
+					camOrient = camRot; // Conversion des angles d'euler en quaternion
+					NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::LookAt(camPos, camPos + camOrient * NzVector3f::Forward()));
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					NzMouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
 					break;
 				}
 
-				case nzEventType_MouseButtonPressed:
-					if (event.mouseButton.button == NzMouse::Left)
+				case nzEventType_MouseButtonPressed: // L'utilisateur (ou son chat) vient de cliquer sur la souris
+					if (event.mouseButton.button == NzMouse::Left) // Est-ce le clic gauche ?
 					{
 						// L'utilisateur vient d'appuyer sur le bouton left de la souris
 						// Nous allons inverser le mode caméra et montrer/cacher le curseur en conséquence
@@ -301,44 +302,54 @@ int main()
 							camMode = true;
 							window.SetCursor(nzWindowCursor_None);
 						}
+					}
+					else if (event.mouseButton.button == NzMouse::Right) // Est-ce le clic droit ?
+					{
+						if (thirdPerson)
+						{
+							// On arrête le mouvement
+							SetSequence(drfreak, "stand");
 
+							// Afin de synchroniser le quaternion avec les angles d'euler
+							camRot = camOrient.ToEulerAngles();
+							thirdPerson = false;
+						}
+						else
+							thirdPerson = true;
 					}
 					break;
 
-				case nzEventType_Resized: // L'utilisateur a changé notre taille, le coquin !
+				case nzEventType_Resized: // L'utilisateur a changé la taille de la fenêtre, le coquin !
 					NzRenderer::SetViewport(NzRectui(0, 0, event.size.width, event.size.height)); // Adaptons l'affichage
 
 					// Il nous faut aussi mettre à jour notre matrice de projection
 					NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(event.size.width)/event.size.height, 1.f, 1000.f));
 					break;
 
-				case nzEventType_KeyPressed:
-					if (!event.key.repeated) // Si la touche n'est pas répétée
+				case nzEventType_KeyPressed: // Une touche du clavier vient d'être enfoncée
+					if (thirdPerson &&
+						(event.key.code == NzKeyboard::Z || // Est-ce la touche Z ?
+						 event.key.code == NzKeyboard::S || // Ou bien la touche S ?
+						 event.key.code == NzKeyboard::Q || // Ou encore la touche Q ?
+						 event.key.code == NzKeyboard::D))  // Et pourquoi pas la touche D ?
 					{
-						auto it = movements.find(event.key.code);
-						if (it != movements.end())
-						{
-							// Si la touche est une touche de mouvement
-							SetSequence(drfreak, "run"); // On anime le personnage pour qu'il ait une animation de déplacement
-
-							modelRot = it->second.rotation; // On change la rotation du modèle
-							drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos); // On recalcule sa matrice
-							modelVel = it->second.direction * speed; // On change la vitesse de déplacement
-							currentKey = event.key.code;
-						}
+						// Si une touche concernant le déplacement est appuyée
+						SetSequence(drfreak, "run"); // On anime le personnage pour qu'il ait une animation de déplacement
 					}
-
-					if (event.key.code == NzKeyboard::Escape)
+					else if (event.key.code == NzKeyboard::Escape)
 						windowOpen = false;
 
 					break;
 
-				case nzEventType_KeyReleased:
-					if (event.key.code == currentKey)
+				case nzEventType_KeyReleased: // Une touche du clavier vient d'être relachée
+					if (thirdPerson &&
+						!NzKeyboard::IsKeyPressed(NzKeyboard::Z) && // Est-ce que la touche Z est enfoncée en ce moment ?
+						!NzKeyboard::IsKeyPressed(NzKeyboard::S) && // Ou bien la touche S ?
+						!NzKeyboard::IsKeyPressed(NzKeyboard::Q) && // Etc..
+						!NzKeyboard::IsKeyPressed(NzKeyboard::D)) // Etc..
 					{
+						// Si plus aucune touche de déplacement n'est enfoncée
 						SetSequence(drfreak, "stand");
-						modelVel = NzVector3f(0.f); // On arrête le déplacement
-						break;
 					}
 
 					break;
@@ -348,81 +359,115 @@ int main()
 			}
 		}
 
-		// On active le shader et paramètrons le rendu
-		NzRenderer::SetShader(&shader);
-		NzRenderer::Enable(nzRendererParameter_DepthTest, true);
-
-		NzRenderer::SetClearColor(128, 128, 128);
-		NzRenderer::Clear(nzRendererClear_Color | nzRendererClear_Depth);
-
+		// Mise à jour de la partie logique
 		if (updateClock.GetMilliseconds() >= 1000/60) // 60 fois par seconde
 		{
 			float elapsedTime = updateClock.GetSeconds(); // Le temps depuis la dernière mise à jour
 
 			// Déplacement de la caméra
-			static const NzVector3f forward(NzVector3f::UnitZ());
-			static const NzVector3f left(NzVector3f::UnitX());
-			static const NzVector3f up(NzVector3f::UnitY());
+			static const NzVector3f forward(NzVector3f::Forward());
+			static const NzVector3f left(NzVector3f::Left());
+			static const NzVector3f up(NzVector3f::Up());
 
 			// Notre rotation sous forme de quaternion nous permet de tourner un vecteur
-			NzQuaternionf quaternion(camRot);
-
 			// Par exemple ici, quaternion * forward nous permet de récupérer le vecteur de la direction "avant"
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
-				camPos += quaternion * forward * camSpeed;
 
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::S))
-				camPos -= quaternion * forward * camSpeed;
+			if (thirdPerson)
+			{
+				// Nous déplaçons le personnage en fonction des touches pressées
 
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Q))
-				camPos += quaternion * left * camSpeed;
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
+					modelPos += modelOrient * forward * modelSpeed * elapsedTime;
 
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
-				camPos -= quaternion * left * camSpeed;
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::S))
+					modelPos -= modelOrient * forward * modelSpeed * elapsedTime;
 
-			// En revanche, ici la hauteur est toujours la même, peu importe notre orientation
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
-				camPos += up * camSpeed;
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::Q))
+					modelRot.yaw += camSpeed * elapsedTime;
 
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl))
-				camPos -= up * camSpeed;
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
+					modelRot.yaw -= camSpeed * elapsedTime;
 
-			// Oui le quaternion et la matrice sont calculés même si la caméra ne bouge pas
+				modelOrient = modelRot;
+			}
+			else
+			{
+				// Sinon, c'est la caméra qui se déplace (en fonction des mêmes touches)
+
+				// Un boost en maintenant le shift gauche
+				float speed = (NzKeyboard::IsKeyPressed(NzKeyboard::Key::LShift)) ? camSpeed*5 : camSpeed;
+
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
+					camPos += camOrient * forward * speed * elapsedTime;
+
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::S))
+					camPos -= camOrient * forward * speed * elapsedTime;
+
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::Q))
+					camPos += camOrient * left * speed * elapsedTime;
+
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
+					camPos -= camOrient * left * speed * elapsedTime;
+
+				// En revanche, ici la hauteur est toujours la même, peu importe notre orientation
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
+					camPos += up * speed * elapsedTime;
+
+				if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl))
+					camPos -= up * speed * elapsedTime;
+			}
+
+			// Oui les quaternions et les matrices sont calculés même si la caméra ne bouge pas
 			// C'est une limitation de mon implémentation, qui ne sera pas présente une fois les NzSceneNode intégrés
-			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::Translate(camPos) * NzMatrix4f::Rotate(camRot));
+			if (thirdPerson)
+			{
+				static NzQuaternionf rotDown(NzEulerAnglesf(-15.f, 0.f, 0.f)); // Une rotation pour regarder vers le bas
+				camOrient = modelOrient * rotDown;
+
+				camPos = modelPos + camOrient * NzVector3f(0.f, 25.f, 60.f);
+			}
+
+			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::LookAt(camPos, camPos + camOrient * NzVector3f::Forward()));
+
+			// Mise à jour de la matrice du personnage
+			drfreak.matrix = NzMatrix4f::Rotate(modelOrient) * NzMatrix4f::Translate(modelPos);
 
 			// Animation
 			AnimateModel(drfreak, elapsedTime);
 			updateClock.Restart();
-
-			// "Physique"
-			if (modelVel != NzVector3f::Zero())
-			{
-				modelPos += modelVel * elapsedTime;
-
-				// Mise à jour de la matrice
-				drfreak.matrix = NzMatrix4f::Rotate(modelRot) * NzMatrix4f::Translate(modelPos);
-			}
 		}
+
+		// On active le shader et paramètrons le rendu
+		NzRenderer::SetShader(&shader);
+
+		// Notre scène 3D requiert un test de profondeur
+		NzRenderer::Enable(nzRendererParameter_DepthTest, true);
+
+		// Nous voulons avoir un fond bien gris
+		NzRenderer::SetClearColor(128, 128, 128);
+
+		// Et nous effaçons les buffers de couleur et de profondeur
+		NzRenderer::Clear(nzRendererClear_Color | nzRendererClear_Depth);
 
 		// Affichage des meshs
 		DrawModel(floor);
 
-		// Notre Dr. Freak possède des normales, nous pouvons alors culler les faces qu'on ne voit pas
+		// Notre Dr. Freak possède des normales, nous pouvons alors éliminer les faces qu'on ne voit pas
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
 
 		DrawModel(drfreak);
 
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
 
-		window.Display(); // Nous mettons à jour l'écran
+		// Nous mettons à jour l'écran
+		window.Display();
 
 		fps++;
 
 		// Toutes les secondes
 		if (secondClock.GetMilliseconds() >= 1000)
 		{
-			window.SetTitle(title + " (FPS: " + NzString::Number(fps) + ')');
+			window.SetTitle(windowTitle + " (FPS: " + NzString::Number(fps) + ')');
 			fps = 0;
 			secondClock.Restart();
 		}
@@ -567,10 +612,10 @@ bool CreateFloorMesh(NzMesh* mesh)
 	mesh->AddSubMesh(subMesh);
 
 	// Nos ressources sont notifiées utilisées par le mesh et le submesh, nous pouvons les rendre éphèmères.
-	// Les ressources seront donc automatiquement libérées lorsque plus aucune classe n'en aura besoin
+	// Les ressources seront donc automatiquement libérées lorsqu'elles ne seront plus référencées par une classe
 	buffer->SetPersistent(false);
 	declaration->SetPersistent(false);
-	subMesh->SetPersistent(false); // Pour le submesh, c'est déjà à false à la base
+	subMesh->SetPersistent(false); // Pour le submesh, c'est déjà le comportement par défaut
 
 	return true;
 }
@@ -606,8 +651,12 @@ void SetSequence(AnimatedModel& model, const NzString& sequenceName)
 	const NzAnimation* animation = model.mesh.GetAnimation();
 
 	// Nous nous basons sur l'assertion que la séquence existe (Chose que nous pouvons tester avec HasSequence())
-	model.currentSequence = animation->GetSequence(sequenceName);
+	const NzSequence* sequence = animation->GetSequence(sequenceName);
+	if (model.currentSequence != sequence)
+	{
+		model.currentSequence = sequence;
 
-	// Pour avoir une interpolation entre la séquence précédente et celle-ci, nous n'affectons que nextFrame
-	model.nextFrame = model.currentSequence->firstFrame;
+		// Pour avoir une interpolation entre la séquence précédente et celle-ci, nous n'affectons que nextFrame
+		model.nextFrame = model.currentSequence->firstFrame;
+	}
 }

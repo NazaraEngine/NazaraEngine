@@ -75,6 +75,12 @@ NzMatrix4<T> NzMatrix4<T>::Concatenate(const NzMatrix4& matrix) const
 }
 
 template<typename T>
+NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix) const
+{
+	return ConcatenateAffine(*this, matrix);
+}
+
+template<typename T>
 T NzMatrix4<T>::GetDeterminant() const
 {
 	#if NAZARA_MATH_SAFE
@@ -162,11 +168,7 @@ NzVector3<T> NzMatrix4<T>::GetTranslation() const
 	}
 	#endif
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	return NzVector3<T>(m_sharedMatrix->m41, m_sharedMatrix->m42, m_sharedMatrix->m43);
-	#else
-	return NzVector3<T>(m_sharedMatrix->m14, m_sharedMatrix->m24, m_sharedMatrix->m34);
-	#endif
 }
 
 template<typename T>
@@ -229,17 +231,10 @@ bool NzMatrix4<T>::IsAffine() const
 	}
 	#endif
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	return NzNumberEquals(m_sharedMatrix->m14, F(0.0)) &&
 	       NzNumberEquals(m_sharedMatrix->m24, F(0.0)) &&
 	       NzNumberEquals(m_sharedMatrix->m34, F(0.0)) &&
 	       NzNumberEquals(m_sharedMatrix->m44, F(1.0));
-	#else
-	return NzNumberEquals(m_sharedMatrix->m41, F(0.0)) &&
-	       NzNumberEquals(m_sharedMatrix->m42, F(0.0)) &&
-	       NzNumberEquals(m_sharedMatrix->m43, F(0.0)) &&
-	       NzNumberEquals(m_sharedMatrix->m44, F(1.0));
-	#endif
 }
 
 template<typename T>
@@ -260,86 +255,80 @@ void NzMatrix4<T>::MakeIdentity()
 template<typename T>
 void NzMatrix4<T>::MakeOrtho(T left, T top, T width, T height, T zNear, T zFar)
 {
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204941(v=vs.85).aspx
 	Set(F(2.0)/(width-left), F(0.0), F(0.0), -(width+left)/(width-left),
 	    F(0.0), F(2.0)/(top-height), F(0.0), -(top+height)/(top-height),
 	    F(0.0), F(0.0), F(-2.0)/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
 	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#else
-	Set(F(2.0)/(width-left), F(0.0), F(0.0), F(0.0),
-	    F(0.0), F(2.0)/(top-height), F(0.0), F(0.0),
-	    F(0.0), F(0.0), F(-2.0)/(zFar-zNear), F(0.0),
-	    -(width+left)/(width-left), -(top+height)/(top-height), -(zFar+zNear)/(zFar-zNear), F(1.0));
-	#endif
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up)
+void NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
 {
-	// http://www.opengl.org/sdk/docs/man/xhtml/gluLookAt.xml
-	NzVector3<T> f = center - eye;
-	f.Normalize();
-
-	NzVector3<T> u = up;
-	u.Normalize();
-
-	NzVector3<T> s = f.CrossProduct(u);
+	NzVector3<T> f = NzVector3<T>::Normalize(target - eye);
+	NzVector3<T> u(up.GetNormal());
+	NzVector3<T> s = NzVector3<T>::Normalize(f.CrossProduct(u));
 	u = s.CrossProduct(f);
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
-	Set(s.x, s.y, s.z, F(0.0),
-	    u.x, u.y, u.z, F(0.0),
-	    -f.x, -f.y, -f.z, F(0.0),
-	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#else
-	Set(s.x, u.x, -f.x, F(0.0),
-	    s.y, u.y, -f.y, F(0.0),
-	    s.z, u.z, -f.z, F(0.0),
-	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#endif
-
-	Concatenate(Translate(-eye));
+	Set(s.x, u.x, -f.x, T(0.0),
+	    s.y, u.y, -f.y, T(0.0),
+	    s.z, u.z, -f.z, T(0.0),
+		-s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0));
 }
 
 template<typename T>
 void NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 {
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204944(v=vs.85).aspx
 	#if NAZARA_MATH_ANGLE_RADIAN
 	angle /= F(2.0);
 	#else
-	angle = NzDegreeToRadian(angle/2);
+	angle = NzDegreeToRadian(angle/F(2.0));
 	#endif
 
-	T f = F(1.0) / std::tan(angle);
+	T yScale = F(1.0) / std::tan(angle);
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
-	Set(f / ratio, F(0.0), F(0.0), F(0.0),
-	    F(0.0), f, F(0.0), F(0.0),
-	    F(0.0), F(0.0), (zNear+zFar) / (zNear-zFar), F(-1.0),
-	    F(0.0), F(0.0), (F(2.0)*zNear*zFar) / (zNear-zFar), F(1.0));
-	#else
-	Set(f / ratio, F(0.0), F(0.0), F(0.0),
-	    F(0.0), f, F(0.0), F(0.0),
-	    F(0.0), F(0.0), (zNear+zFar) / (zNear-zFar), (F(2.0)*zNear*zFar) / (zNear-zFar),
-	    F(0.0), F(0.0), F(-1.0), F(1.0));
-	#endif
+	Set(yScale / ratio, F(0.0), F(0.0), F(0.0),
+	    F(0.0), yScale, F(0.0), F(0.0),
+	    F(0.0), F(0.0), zFar / (zNear-zFar), F(-1.0),
+	    F(0.0), F(0.0), (zNear*zFar) / (zNear-zFar), F(0.0));
 }
 
 template<typename T>
 void NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
 {
-	// http://stackoverflow.com/questions/1556260/convert-quaternion-rotation-to-rotation-matrix
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
-	Set(F(1.0) - F(2.0)*rotation.y*rotation.y - F(2.0)*rotation.z*rotation.z, F(2.0)*rotation.x*rotation.y - F(2.0)*rotation.z*rotation.w, F(2.0)*rotation.x*rotation.z + F(2.0)*rotation.y*rotation.w, F(0.0),
-	    F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w, F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.z*rotation.z, F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w, F(0.0),
-	    F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w, F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w, F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.y*rotation.y, F(0.0),
-	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#else
-	Set(F(1.0) - F(2.0)*rotation.y*rotation.y - F(2.0)*rotation.z*rotation.z, F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w, F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w, F(0.0),
-	    F(2.0)*rotation.x*rotation.y - F(2.0)*rotation.z*rotation.w, F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.z*rotation.z, F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w, F(0.0),
-	    F(2.0)*rotation.x*rotation.z + F(2.0)*rotation.y*rotation.w, F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w, F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.y*rotation.y, F(0.0),
-	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#endif
+	// http://www.flipcode.com/documents/matrfaq.html#Q54
+/*
+        |       2     2                                |
+        | 1 - 2Y  - 2Z    2XY + 2ZW      2XZ - 2YW     |
+        |                                              |
+        |                       2     2                |
+    M = | 2XY - 2ZW       1 - 2X  - 2Z   2YZ + 2XW     |
+        |                                              |
+        |                                      2     2 |
+        | 2XZ + 2YW       2YZ - 2XW      1 - 2X  - 2Y  |
+        |                                              |
+*/
+	///FIXME: À corriger (Rotation quaternino != rotation matricielle)
+	Set(F(1.0) - F(2.0)*rotation.y*rotation.y - F(2.0)*rotation.z*rotation.z,
+		F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w,
+		F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w,
+		F(0.0),
+
+		F(2.0)*rotation.x*rotation.y - F(2.0)*rotation.z*rotation.w,
+		F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.z*rotation.z,
+		F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w,
+		F(0.0),
+
+		F(2.0)*rotation.x*rotation.z + F(2.0)*rotation.y*rotation.w,
+		F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w,
+		F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.y*rotation.y,
+		F(0.0),
+
+		F(0.0),
+		F(0.0),
+		F(0.0),
+		F(1.0));
 }
 
 template<typename T>
@@ -354,17 +343,10 @@ void NzMatrix4<T>::MakeScale(const NzVector3<T>& scale)
 template<typename T>
 void NzMatrix4<T>::MakeTranslation(const NzVector3<T>& translation)
 {
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	Set(F(1.0), F(0.0), F(0.0), F(0.0),
 	    F(0.0), F(1.0), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(1.0), F(0.0),
 	    translation.x, translation.y, translation.z, F(1.0));
-	#else
-	Set(F(1.0), F(0.0), F(0.0), translation.x,
-	    F(0.0), F(1.0), F(0.0), translation.y,
-	    F(0.0), F(0.0), F(1.0), translation.z,
-	    F(0.0), F(0.0), F(0.0), F(1.0));
-	#endif
 }
 
 template<typename T>
@@ -451,21 +433,12 @@ void NzMatrix4<T>::SetRotation(const NzQuaternion<T>& rotation)
 	m_sharedMatrix->m22 = F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.z*rotation.z;
 	m_sharedMatrix->m33 = F(1.0) - F(2.0)*rotation.x*rotation.x - F(2.0)*rotation.y*rotation.y;
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	m_sharedMatrix->m12 = F(2.0)*rotation.x*rotation.y - F(2.0)*rotation.z*rotation.w;
 	m_sharedMatrix->m13 = F(2.0)*rotation.x*rotation.z + F(2.0)*rotation.y*rotation.w;
 	m_sharedMatrix->m21 = F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w;
 	m_sharedMatrix->m23 = F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w;
 	m_sharedMatrix->m31 = F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w;
 	m_sharedMatrix->m32 = F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w;
-	#else
-	m_sharedMatrix->m12 = F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w;
-	m_sharedMatrix->m13 = F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w;
-	m_sharedMatrix->m21 = F(2.0)*rotation.x*rotation.y - F(2.0)*rotation.z*rotation.w;
-	m_sharedMatrix->m23 = F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w;
-	m_sharedMatrix->m31 = F(2.0)*rotation.x*rotation.z + F(2.0)*rotation.y*rotation.w;
-	m_sharedMatrix->m32 = F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w;
-	#endif
 }
 
 template<typename T>
@@ -483,17 +456,10 @@ void NzMatrix4<T>::SetTranslation(const NzVector3<T>& translation)
 {
 	EnsureOwnership();
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	m_sharedMatrix->m41 = translation.x;
 	m_sharedMatrix->m42 = translation.y;
 	m_sharedMatrix->m43 = translation.z;
 	m_sharedMatrix->m44 = F(1.0);
-	#else
-	m_sharedMatrix->m14 = translation.x;
-	m_sharedMatrix->m24 = translation.y;
-	m_sharedMatrix->m34 = translation.z;
-	m_sharedMatrix->m44 = F(1.0);
-	#endif
 }
 
 template<typename T>
@@ -832,7 +798,6 @@ NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& m1, const NzMatrix
 	}
 	#endif
 
-	#if NAZARA_MATH_MATRIX_COLUMN_MAJOR
 	return NzMatrix4(m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m11 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m21 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m31,
 	                 m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m12 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m22 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m32,
 	                 m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m13 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m23 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m33,
@@ -852,27 +817,6 @@ NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& m1, const NzMatrix
 	                 m1.m_sharedMatrix->m41*m2.m_sharedMatrix->m12 + m1.m_sharedMatrix->m42*m2.m_sharedMatrix->m22 + m1.m_sharedMatrix->m43*m2.m_sharedMatrix->m32 + m2.m_sharedMatrix->m42,
 	                 m1.m_sharedMatrix->m41*m2.m_sharedMatrix->m13 + m1.m_sharedMatrix->m42*m2.m_sharedMatrix->m23 + m1.m_sharedMatrix->m43*m2.m_sharedMatrix->m33 + m2.m_sharedMatrix->m43,
 	                 F(1.0));
-	#else
-	return NzMatrix4(m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m11 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m21 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m31,
-	                 m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m12 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m22 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m32,
-	                 m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m13 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m23 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m33,
-	                 m1.m_sharedMatrix->m11*m2.m_sharedMatrix->m14 + m1.m_sharedMatrix->m12*m2.m_sharedMatrix->m24 + m1.m_sharedMatrix->m13*m2.m_sharedMatrix->m34 + m1.m_sharedMatrix->m14,
-
-	                 m1.m_sharedMatrix->m21*m2.m_sharedMatrix->m11 + m1.m_sharedMatrix->m22*m2.m_sharedMatrix->m21 + m1.m_sharedMatrix->m23*m2.m_sharedMatrix->m31,
-	                 m1.m_sharedMatrix->m21*m2.m_sharedMatrix->m12 + m1.m_sharedMatrix->m22*m2.m_sharedMatrix->m22 + m1.m_sharedMatrix->m23*m2.m_sharedMatrix->m32,
-	                 m1.m_sharedMatrix->m21*m2.m_sharedMatrix->m13 + m1.m_sharedMatrix->m22*m2.m_sharedMatrix->m23 + m1.m_sharedMatrix->m23*m2.m_sharedMatrix->m33,
-	                 m1.m_sharedMatrix->m21*m2.m_sharedMatrix->m14 + m1.m_sharedMatrix->m22*m2.m_sharedMatrix->m24 + m1.m_sharedMatrix->m23*m2.m_sharedMatrix->m34 + m1.m_sharedMatrix->m24,
-
-	                 m1.m_sharedMatrix->m31*m2.m_sharedMatrix->m11 + m1.m_sharedMatrix->m32*m2.m_sharedMatrix->m21 + m1.m_sharedMatrix->m33*m2.m_sharedMatrix->m31,
-	                 m1.m_sharedMatrix->m31*m2.m_sharedMatrix->m12 + m1.m_sharedMatrix->m32*m2.m_sharedMatrix->m22 + m1.m_sharedMatrix->m33*m2.m_sharedMatrix->m32,
-	                 m1.m_sharedMatrix->m31*m2.m_sharedMatrix->m13 + m1.m_sharedMatrix->m32*m2.m_sharedMatrix->m23 + m1.m_sharedMatrix->m33*m2.m_sharedMatrix->m33,
-	                 m1.m_sharedMatrix->m31*m2.m_sharedMatrix->m14 + m1.m_sharedMatrix->m32*m2.m_sharedMatrix->m24 + m1.m_sharedMatrix->m33*m2.m_sharedMatrix->m34 + m1.m_sharedMatrix->m34,
-
-	                 F(0.0),
-	                 F(0.0),
-	                 F(0.0),
-	                 F(1.0));
-	#endif
 }
 
 template<typename T>
@@ -885,10 +829,10 @@ NzMatrix4<T> NzMatrix4<T>::Identity()
 }
 
 template<typename T>
-NzMatrix4<T> NzMatrix4<T>::LookAt(const NzVector3<T>& eye, const NzVector3<T>& center, const NzVector3<T>& up)
+NzMatrix4<T> NzMatrix4<T>::LookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
 {
 	NzMatrix4 matrix;
-	matrix.MakeLookAt(eye, center, up);
+	matrix.MakeLookAt(eye, target, up);
 
 	return matrix;
 }

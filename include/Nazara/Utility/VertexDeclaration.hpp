@@ -46,6 +46,9 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
 		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration) noexcept;
 
+		static unsigned int GetElementCount(nzElementType type);
+		static unsigned int GetElementSize(nzElementType type);
+
 	private:
 		NzVertexDeclarationImpl* m_sharedImpl = nullptr;
 };
