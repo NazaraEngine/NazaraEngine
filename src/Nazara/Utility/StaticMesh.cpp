@@ -38,28 +38,27 @@ bool NzStaticMesh::Create(const NzVertexDeclaration* vertexDeclaration, NzVertex
 	#if NAZARA_UTILITY_SAFE
 	if (!vertexDeclaration)
 	{
-		NazaraError("Vertex declaration is null");
+		NazaraError("Invalid vertex declaration");
 		return false;
 	}
 
 	if (!vertexBuffer)
 	{
-		NazaraError("Vertex buffer is null");
+		NazaraError("Invalid vertex buffer");
 		return false;
 	}
 	#endif
 
 	if (indexBuffer)
-	{
-		m_indexBuffer = indexBuffer;
-		m_indexBuffer->AddResourceReference();
-	}
+		indexBuffer->AddResourceListener(this);
+
+	m_indexBuffer = indexBuffer;
 
 	m_vertexBuffer = vertexBuffer;
-	m_vertexBuffer->AddResourceReference();
+	m_vertexBuffer->AddResourceListener(this);
 
 	m_vertexDeclaration = vertexDeclaration;
-	m_vertexDeclaration->AddResourceReference();
+	m_vertexDeclaration->AddResourceListener(this);
 
 	return true;
 }
@@ -70,19 +69,19 @@ void NzStaticMesh::Destroy()
 
 	if (m_indexBuffer)
 	{
-		m_indexBuffer->RemoveResourceReference();
+		m_indexBuffer->RemoveResourceListener(this);
 		m_indexBuffer = nullptr;
 	}
 
 	if (m_vertexBuffer)
 	{
-		m_vertexBuffer->RemoveResourceReference();
+		m_vertexBuffer->RemoveResourceListener(this);
 		m_vertexBuffer = nullptr;
 	}
 
 	if (m_vertexDeclaration)
 	{
-		m_vertexDeclaration->RemoveResourceReference();
+		m_vertexDeclaration->RemoveResourceListener(this);
 		m_vertexDeclaration = nullptr;
 	}
 }
@@ -183,4 +182,18 @@ void NzStaticMesh::AnimateImpl(unsigned int frameA, unsigned int frameB, float i
 
 	// Le safe mode est censé nous protéger de cet appel
 	NazaraError("Static mesh have no animation, please enable safe mode");
+}
+
+void NzStaticMesh::OnResourceReleased(const NzResource* resource, int index)
+{
+	NazaraUnused(index);
+
+	if (resource == m_indexBuffer)
+		m_indexBuffer = nullptr;
+	else if (resource == m_vertexBuffer)
+		m_vertexBuffer = nullptr;
+	else if (resource == m_vertexDeclaration)
+		m_vertexDeclaration = nullptr;
+	else
+		NazaraInternalError("Not listening to " + NzString::Pointer(resource));
 }

@@ -8,9 +8,10 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
-class NAZARA_API NzStaticMesh final : public NzSubMesh
+class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);
@@ -38,6 +39,7 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh
 
 	private:
 		void AnimateImpl(unsigned int frameA, unsigned int frameB, float interpolation);
+		void OnResourceReleased(const NzResource* resource, int index) override;
 
 		nzPrimitiveType m_primitiveType = nzPrimitiveType_TriangleList;
 		NzAxisAlignedBox m_aabb;

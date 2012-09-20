@@ -14,22 +14,6 @@
 
 namespace
 {
-	///FIXME: Déclaré deux fois (ici et dans Renderer.cpp)
-	const nzUInt8 attribIndex[] =
-	{
-		2,	// nzElementUsage_Diffuse
-		1,	// nzElementUsage_Normal
-		0,	// nzElementUsage_Position
-		3,	// nzElementUsage_Tangent
-		4	// nzElementUsage_TexCoord
-	};
-
-	const GLenum shaderType[nzShaderType_Max+1] = {
-		GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
-		GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
-		GL_VERTEX_SHADER	// nzShaderType_Vertex
-	};
-
 	GLuint lockedPrevious = 0;
 	nzUInt8 lockedLevel = 0;
 }
@@ -41,6 +25,8 @@ m_parent(parent)
 
 NzGLSLShader::~NzGLSLShader()
 {
+	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
+		it->second.texture->RemoveResourceListener(this);
 }
 
 bool NzGLSLShader::Bind()
@@ -71,11 +57,11 @@ bool NzGLSLShader::BindTextures()
 	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
 	{
 		TextureSlot& slot = it->second;
-		if (!slot.updated)
+		if (slot.enabled && !slot.updated)
 		{
 			glActiveTexture(GL_TEXTURE0 + slot.unit);
-			if (!slot.texture->Bind())
-				NazaraWarning("Failed to bind texture");
+			if (!slot.texture->Prepare())
+				NazaraWarning("Failed to prepare texture");
 
 			slot.updated = true;
 		}
@@ -137,17 +123,35 @@ bool NzGLSLShader::Create()
 		return false;
 	}
 
-	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Position], "Position");
-	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Normal], "Normal");
-	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Diffuse], "Diffuse");
-	glBindAttribLocation(m_program, attribIndex[nzElementUsage_Tangent], "Tangent");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Position], "Position");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Normal], "Normal");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Diffuse], "Diffuse");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "Tangent");
 
-	NzString uniform = "TexCoord";
-	unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
+	NzString uniform;
+
+	static const unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
+
+	uniform.Reserve(10); // 8 + 2
+	uniform = "TexCoord";
 	for (unsigned int i = 0; i < maxTexCoords; ++i)
 	{
 		NzString uniformName = uniform + NzString::Number(i);
-		glBindAttribLocation(m_program, attribIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
+		glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
+	}
+
+	static const bool mrtSupported = NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets);
+	if (mrtSupported)
+	{
+		static const unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();
+
+		uniform.Reserve(14); // 12 + 2
+		uniform = "RenderTarget";
+		for (unsigned int i = 0; i < maxRenderTargets; ++i)
+		{
+			NzString uniformName = uniform + NzString::Number(i);
+			glBindFragDataLocation(m_program, i, uniformName.GetConstBuffer());
+		}
 	}
 
 	for (int i = 0; i <= nzShaderType_Max; ++i)
@@ -224,7 +228,7 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 {
 	NzContext::EnsureContext();
 
-	GLuint shader = glCreateShader(shaderType[type]);
+	GLuint shader = glCreateShader(NzOpenGL::ShaderType[type]);
 	if (!shader)
 	{
 		m_log = "Failed to create shader object";
@@ -301,7 +305,12 @@ bool NzGLSLShader::SendBoolean(int location, bool value)
 		glProgramUniform1i(m_program, location, value);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform1i(location, value);
 		Unlock();
 	}
@@ -315,7 +324,12 @@ bool NzGLSLShader::SendDouble(int location, double value)
 		glProgramUniform1d(m_program, location, value);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform1d(location, value);
 		Unlock();
 	}
@@ -329,7 +343,12 @@ bool NzGLSLShader::SendFloat(int location, float value)
 		glProgramUniform1f(m_program, location, value);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform1f(location, value);
 		Unlock();
 	}
@@ -343,7 +362,12 @@ bool NzGLSLShader::SendInteger(int location, int value)
 		glProgramUniform1i(m_program, location, value);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform1i(location, value);
 		Unlock();
 	}
@@ -357,7 +381,12 @@ bool NzGLSLShader::SendMatrix(int location, const NzMatrix4d& matrix)
 		glProgramUniformMatrix4dv(m_program, location, 1, GL_FALSE, matrix);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniformMatrix4dv(location, 1, GL_FALSE, matrix);
 		Unlock();
 	}
@@ -371,7 +400,12 @@ bool NzGLSLShader::SendMatrix(int location, const NzMatrix4f& matrix)
 		glProgramUniformMatrix4fv(m_program, location, 1, GL_FALSE, matrix);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
 		Unlock();
 	}
@@ -388,12 +422,12 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 		TextureSlot& slot = it->second;
 		if (slot.texture != texture)
 		{
-			slot.texture->RemoveResourceReference();
+			slot.texture->RemoveResourceListener(this);
 
 			if (texture)
 			{
 				slot.texture = texture;
-				slot.texture->AddResourceReference();
+				slot.texture->AddResourceListener(this, location);
 
 				slot.updated = false;
 			}
@@ -439,19 +473,28 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 		}
 
 		TextureSlot slot;
+		slot.enabled = texture->IsValid();
 		slot.unit = unit;
 		slot.texture = texture;
-		texture->AddResourceReference();
+		texture->AddResourceListener(this, location);
 
 		m_textures[location] = slot;
 
-		if (glProgramUniform1i)
-			glProgramUniform1i(m_program, location, unit);
-		else
+		if (slot.enabled)
 		{
-			Lock();
-			glUniform1i(location, unit);
-			Unlock();
+			if (glProgramUniform1i)
+				glProgramUniform1i(m_program, location, unit);
+			else
+			{
+				if (!Lock())
+				{
+					NazaraError("Failed to lock shader");
+					return false;
+				}
+
+				glUniform1i(location, unit);
+				Unlock();
+			}
 		}
 	}
 
@@ -464,7 +507,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector2d& vector)
 		glProgramUniform2dv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform2dv(location, 1, vector);
 		Unlock();
 	}
@@ -478,7 +526,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector2f& vector)
 		glProgramUniform2fv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform2fv(location, 1, vector);
 		Unlock();
 	}
@@ -492,7 +545,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector3d& vector)
 		glProgramUniform3dv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform3dv(location, 1, vector);
 		Unlock();
 	}
@@ -506,7 +564,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector3f& vector)
 		glProgramUniform3fv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform3fv(location, 1, vector);
 		Unlock();
 	}
@@ -520,7 +583,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector4d& vector)
 		glProgramUniform4dv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform4dv(location, 1, vector);
 		Unlock();
 	}
@@ -534,7 +602,12 @@ bool NzGLSLShader::SendVector(int location, const NzVector4f& vector)
 		glProgramUniform4fv(m_program, location, 1, vector);
 	else
 	{
-		Lock();
+		if (!Lock())
+		{
+			NazaraError("Failed to lock shader");
+			return false;
+		}
+
 		glUniform4fv(location, 1, vector);
 		Unlock();
 	}
@@ -575,4 +648,65 @@ void NzGLSLShader::Unlock()
 
 	if (--lockedLevel == 0 && lockedPrevious != m_program)
 		glUseProgram(lockedPrevious);
+}
+
+void NzGLSLShader::OnResourceCreated(const NzResource* resource, int index)
+{
+	NazaraUnused(resource);
+
+	auto it = m_textures.find(index);
+
+	#ifdef NAZARA_DEBUG
+	if (it == m_textures.end())
+	{
+		NazaraInternalError("Invalid index (" + NzString::Number(index) + ')');
+		return;
+	}
+	#endif
+
+	TextureSlot& slot = it->second;
+
+	#ifdef NAZARA_DEBUG
+	if (slot.texture != resource)
+	{
+		NazaraInternalError("Wrong texture at location #" + NzString::Number(index));
+		return;
+	}
+	#endif
+
+	slot.enabled = true;
+	slot.updated = false;
+}
+
+void NzGLSLShader::OnResourceDestroy(const NzResource* resource, int index)
+{
+	NazaraUnused(resource);
+
+	auto it = m_textures.find(index);
+
+	#ifdef NAZARA_DEBUG
+	if (it == m_textures.end())
+	{
+		NazaraInternalError("Invalid index (" + NzString::Number(index) + ')');
+		return;
+	}
+	#endif
+
+	TextureSlot& slot = it->second;
+
+	#ifdef NAZARA_DEBUG
+	if (slot.texture != resource)
+	{
+		NazaraInternalError("Wrong texture at location #" + NzString::Number(index));
+		return;
+	}
+	#endif
+
+	slot.enabled = false;
+}
+
+void NzGLSLShader::OnResourceReleased(const NzResource* resource, int index)
+{
+	if (m_textures.erase(index) == 0)
+		NazaraInternalError("Texture " + NzString::Pointer(resource) + " not found");
 }

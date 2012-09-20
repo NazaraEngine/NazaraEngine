@@ -24,114 +24,6 @@
 
 namespace
 {
-	const nzUInt8 attribIndex[] =
-	{
-		2, // nzElementUsage_Diffuse
-		1, // nzElementUsage_Normal
-		0, // nzElementUsage_Position
-		3, // nzElementUsage_Tangent
-
-		4  // nzElementUsage_TexCoord (Doit être le dernier de la liste car extensible)
-	};
-
-
-	const GLenum blendFunc[] =
-	{
-		GL_DST_ALPHA,           // nzBlendFunc_DestAlpha
-		GL_DST_COLOR,           // nzBlendFunc_DestColor
-		GL_SRC_ALPHA,           // nzBlendFunc_SrcAlpha
-		GL_SRC_COLOR,           // nzBlendFunc_SrcColor
-		GL_ONE_MINUS_DST_ALPHA, // nzBlendFunc_InvDestAlpha
-		GL_ONE_MINUS_DST_COLOR, // nzBlendFunc_InvDestColor
-		GL_ONE_MINUS_SRC_ALPHA, // nzBlendFunc_InvSrcAlpha
-		GL_ONE_MINUS_SRC_COLOR, // nzBlendFunc_InvSrcColor
-		GL_ONE,                 // nzBlendFunc_One
-		GL_ZERO                 // nzBlendFunc_Zero
-	};
-
-	const GLenum faceCullingMode[] =
-	{
-		GL_BACK,          // nzFaceCulling_Back
-		GL_FRONT,	      // nzFaceCulling_Front
-		GL_FRONT_AND_BACK // nzFaceCulling_FrontAndBack
-	};
-
-	const GLenum faceFillingMode[] =
-	{
-		GL_POINT, // nzFaceFilling_Point
-		GL_LINE,  // nzFaceFilling_Line
-		GL_FILL   // nzFaceFilling_Fill
-	};
-
-	const GLenum openglPrimitive[] =
-	{
-		GL_LINES,          // nzPrimitiveType_LineList,
-		GL_LINE_STRIP,     // nzPrimitiveType_LineStrip,
-		GL_POINTS,         // nzPrimitiveType_PointList,
-		GL_TRIANGLES,      // nzPrimitiveType_TriangleList,
-		GL_TRIANGLE_STRIP, // nzPrimitiveType_TriangleStrip,
-		GL_TRIANGLE_FAN    // nzPrimitiveType_TriangleFan
-	};
-
-	const nzUInt8 openglSize[] =
-	{
-		4, // nzElementType_Color
-		1, // nzElementType_Double1
-		2, // nzElementType_Double2
-		3, // nzElementType_Double3
-		4, // nzElementType_Double4
-		1, // nzElementType_Float1
-		2, // nzElementType_Float2
-		3, // nzElementType_Float3
-		4  // nzElementType_Float4
-	};
-
-	const GLenum openglType[] =
-	{
-		GL_UNSIGNED_BYTE, // nzElementType_Color
-		GL_DOUBLE,        // nzElementType_Double1
-		GL_DOUBLE,        // nzElementType_Double2
-		GL_DOUBLE,        // nzElementType_Double3
-		GL_DOUBLE,        // nzElementType_Double4
-		GL_FLOAT,         // nzElementType_Float1
-		GL_FLOAT,         // nzElementType_Float2
-		GL_FLOAT,         // nzElementType_Float3
-		GL_FLOAT          // nzElementType_Float4
-	};
-
-	const GLenum rendererComparison[] =
-	{
-		GL_ALWAYS,  // nzRendererComparison_Always
-		GL_EQUAL,   // nzRendererComparison_Equal
-		GL_GREATER, // nzRendererComparison_Greater
-		GL_GEQUAL,  // nzRendererComparison_GreaterOrEqual
-		GL_LESS,    // nzRendererComparison_Less
-		GL_LEQUAL,  // nzRendererComparison_LessOrEqual
-		GL_NEVER    // nzRendererComparison_Never
-	};
-
-	const GLenum rendererParameter[] =
-	{
-		GL_BLEND,       // nzRendererParameter_Blend
-		GL_NONE,        // nzRendererParameter_ColorWrite
-		GL_DEPTH_TEST,  // nzRendererParameter_DepthTest
-		GL_NONE,        // nzRendererParameter_DepthWrite
-		GL_CULL_FACE,   // nzRendererParameter_FaceCulling
-		GL_STENCIL_TEST // nzRendererParameter_Stencil
-	};
-
-	const GLenum stencilOperation[] =
-	{
-		GL_DECR,      // nzStencilOperation_Decrement
-		GL_DECR_WRAP, // nzStencilOperation_DecrementToSaturation
-		GL_INCR,      // nzStencilOperation_Increment
-		GL_INCR_WRAP, // nzStencilOperation_IncrementToSaturation
-		GL_INVERT,    // nzStencilOperation_Invert
-		GL_KEEP,      // nzStencilOperation_Keep
-		GL_REPLACE,   // nzStencilOperation_Replace
-		GL_ZERO       // nzStencilOperation_Zero
-	};
-
 	///FIXME: Solution temporaire pour plus de facilité
 	enum nzMatrixCombination
 	{
@@ -227,7 +119,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	}
 
 	if (s_indexBuffer->IsSequential())
-		glDrawArrays(openglPrimitive[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
+		glDrawArrays(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
 	else
 	{
 		nzUInt8 indexSize = s_indexBuffer->GetIndexSize();
@@ -252,7 +144,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 				return;
 		}
 
-		glDrawElements(openglPrimitive[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer()) + firstIndex*indexSize);
+		glDrawElements(NzOpenGL::PrimitiveType[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer()) + firstIndex*indexSize);
 	}
 }
 
@@ -272,7 +164,7 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 		return;
 	}
 
-	glDrawArrays(openglPrimitive[primitive], firstVertex, vertexCount);
+	glDrawArrays(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount);
 }
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
@@ -297,9 +189,9 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 
 		default:
 			if (enable)
-				glEnable(rendererParameter[parameter]);
+				glEnable(NzOpenGL::RendererParameter[parameter]);
 			else
-				glDisable(rendererParameter[parameter]);
+				glDisable(NzOpenGL::RendererParameter[parameter]);
 
 			break;
 	}
@@ -307,6 +199,7 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 /*
 NzMatrix4f NzRenderer::GetMatrix(nzMatrixCombination combination)
 {
+	///FIXME: Duplication
 	switch (combination)
 	{
 		case nzMatrixCombination_ViewProj:
@@ -431,14 +324,16 @@ bool NzRenderer::Initialize()
 	s_vertexBuffer = nullptr;
 	s_vertexDeclaration = nullptr;
 
-	// Récupération des capacités
-	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(NzOpenGL::AnisotropicFilter);
-	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(NzOpenGL::FP64);
+	// Récupération des capacités d'OpenGL
+	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
+	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
 	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_MultipleRenderTargets] = true; // Natif depuis OpenGL 2.0
+	// MultipleRenderTargets (Techniquement natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation)
+	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr);
 	s_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(NzOpenGL::PixelBufferObject);
-	s_capabilities[nzRendererCap_Texture3D] = NzOpenGL::IsSupported(NzOpenGL::Texture3D);
+	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
+	s_capabilities[nzRendererCap_RenderTexture] = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
+	s_capabilities[nzRendererCap_Texture3D] = true; // Natif depuis OpenGL 1.2
 	s_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 	s_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
 	s_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
@@ -458,7 +353,10 @@ bool NzRenderer::Initialize()
 		GLint maxDrawBuffers;
 		glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
 
-		s_maxRenderTarget = static_cast<unsigned int>(maxDrawBuffers);
+		GLint maxColorAttachments;
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+
+		s_maxRenderTarget = static_cast<unsigned int>(std::min(maxColorAttachments, maxDrawBuffers));
 	}
 	else
 		s_maxRenderTarget = 1;
@@ -472,7 +370,7 @@ bool NzRenderer::Initialize()
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 
 		// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est déjà pris par les autres attributs)
-		s_maxTextureUnit = static_cast<unsigned int>(std::min(maxTextureUnits, maxVertexAttribs-attribIndex[nzElementUsage_TexCoord]));
+		s_maxTextureUnit = static_cast<unsigned int>(std::min(maxTextureUnits, maxVertexAttribs-NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]));
 	}
 	else
 		s_maxTextureUnit = 1;
@@ -499,7 +397,7 @@ void NzRenderer::SetBlendFunc(nzBlendFunc src, nzBlendFunc dest)
 	}
 	#endif
 
-	glBlendFunc(blendFunc[src], blendFunc[dest]);
+	glBlendFunc(NzOpenGL::BlendFunc[src], NzOpenGL::BlendFunc[dest]);
 }
 
 void NzRenderer::SetClearColor(const NzColor& color)
@@ -564,7 +462,7 @@ void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
 	}
 	#endif
 
-	glCullFace(faceCullingMode[cullingMode]);
+	glCullFace(NzOpenGL::FaceCulling[cullingMode]);
 }
 
 void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
@@ -577,7 +475,7 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 	}
 	#endif
 
-	glPolygonMode(GL_FRONT_AND_BACK, faceFillingMode[fillingMode]);
+	glPolygonMode(GL_FRONT_AND_BACK, NzOpenGL::FaceFilling[fillingMode]);
 }
 
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
@@ -602,10 +500,6 @@ bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 {
 	s_matrix[type] = matrix;
-
-	// Cas particulier, la matrice projection doit être inversée sur l'axe Y à cause des conventions d'OpenGL
-	if (type == nzMatrixType_Projection)
-		s_matrix[type] *= NzMatrix4f::Scale(NzVector3f(1.f, -1.f, 1.f));
 
 	// Invalidation des combinaisons
 	switch (type)
@@ -722,15 +616,15 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 	if (s_target == target)
 		return true;
 
-	if (s_target && !target->HasContext())
+	if (s_target && !s_target->HasContext())
 		s_target->Desactivate();
 
 	if (target)
 	{
 		#if NAZARA_RENDERER_SAFE
-		if (!target->IsValid())
+		if (!target->IsRenderable())
 		{
-			NazaraError("Target not valid");
+			NazaraError("Target not renderable");
 			return false;
 		}
 		#endif
@@ -895,13 +789,13 @@ bool NzRenderer::EnsureStateUpdate()
 
 	if (!s_stencilFuncUpdated)
 	{
-		glStencilFunc(rendererComparison[s_stencilCompare], s_stencilReference, s_stencilMask);
+		glStencilFunc(NzOpenGL::RendererComparison[s_stencilCompare], s_stencilReference, s_stencilMask);
 		s_stencilFuncUpdated = true;
 	}
 
 	if (!s_stencilOpUpdated)
 	{
-		glStencilOp(stencilOperation[s_stencilFail], stencilOperation[s_stencilZFail], stencilOperation[s_stencilPass]);
+		glStencilOp(NzOpenGL::StencilOperation[s_stencilFail], NzOpenGL::StencilOperation[s_stencilZFail], NzOpenGL::StencilOperation[s_stencilPass]);
 		s_stencilOpUpdated = true;
 	}
 
@@ -921,7 +815,7 @@ bool NzRenderer::EnsureStateUpdate()
 		}
 		#endif
 
-		static const bool vaoSupported = NzOpenGL::IsSupported(NzOpenGL::VertexArrayObject);
+		static const bool vaoSupported = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObject);
 		bool update;
 		GLuint vao;
 
@@ -970,16 +864,16 @@ bool NzRenderer::EnsureStateUpdate()
 
 				if (element)
 				{
-					glEnableVertexAttribArray(attribIndex[i]);
-					glVertexAttribPointer(attribIndex[i],
-										  openglSize[element->type],
-										  openglType[element->type],
+					glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+					glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
+										  NzVertexDeclaration::GetElementCount(element->type),
+										  NzOpenGL::ElementType[element->type],
 										  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
 										  stride,
 										  &buffer[element->offset]);
 				}
 				else
-					glDisableVertexAttribArray(attribIndex[i]);
+					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 			}
 
 			if (s_indexBuffer)

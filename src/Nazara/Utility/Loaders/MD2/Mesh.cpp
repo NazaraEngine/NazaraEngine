@@ -31,7 +31,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 	unsigned int endFrame = NzClamp(parameters.animation.endFrame, 0U, static_cast<unsigned int>(header.num_frames-1));
 
 	m_frameCount = endFrame - startFrame + 1;
-	m_vertexCount = header.num_tris*3;
+	m_vertexCount = header.num_tris * 3;
 
 	/// Chargement des vertices
 	std::vector<md2_texCoord> texCoords(header.num_st);
@@ -71,8 +71,9 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 	md2_frame frame;
 	frame.vertices.resize(header.num_vertices);
 
-	// Pour que le modèle soit correctement aligné, on génère une matrice de rotation que nous appliquerons à chacune des vertices
-	NzMatrix4f rotationMatrix = NzMatrix4f::Rotate(NzEulerAnglesf(90.f, -90.f, 0.f));
+	// Pour que le modèle soit correctement aligné, on génère un quaternion que nous appliquerons à chacune des vertices
+	NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
+	//NzMatrix4f rotationMatrix = NzMatrix4f::Rotate(NzEulerAnglesf(-90.f, -90.f, 0.f));
 
 	unsigned int stride = s_declaration.GetStride(nzElementStream_VertexData);
 
@@ -94,7 +95,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 		NzByteSwap(&frame.translate.z, sizeof(float));
 		#endif
 
-		m_frames[i].normal = new nzUInt8[m_vertexCount]; // Nous stockons l'indice de la normale plutôt que la normale (gain d'espace)
+		m_frames[i].normal = new nzUInt8[m_vertexCount]; // Nous stockons l'indice MD2 de la normale plutôt que la normale (gain d'espace)
 		m_frames[i].vertices = new NzVector3f[m_vertexCount];
 
 		NzVector3f max, min;
@@ -104,12 +105,16 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 			{
 				const md2_vertex& vert = frame.vertices[triangles[t].vertices[v]];
 
-				NzVector3f vertex = rotationMatrix * NzVector3f(vert.x * frame.scale.x + frame.translate.x, vert.y * frame.scale.y + frame.translate.y, vert.z * frame.scale.z + frame.translate.z);
-				max.MakeCeil(vertex);
-				min.MakeFloor(vertex);
+				NzVector3f vertex = rotationQuat * NzVector3f(vert.x * frame.scale.x + frame.translate.x, vert.y * frame.scale.y + frame.translate.y, vert.z * frame.scale.z + frame.translate.z);
 
-				m_frames[i].normal[t*3+v] = vert.n;
-				m_frames[i].vertices[t*3+v] = vertex;
+				// On fait en sorte d'avoir deux vertices de délimitation, définissant un rectangle dans l'espace
+				max.Maximize(vertex);
+				min.Minimize(vertex);
+
+				// Le MD2 ne définit pas ses vertices dans le bon ordre, il nous faut donc les ajouter dans l'ordre inverse
+				unsigned int index = m_vertexCount - (t*3 + v) - 1;
+				m_frames[i].normal[index] = vert.n;
+				m_frames[i].vertices[index] = vertex;
 			}
 		}
 
@@ -128,8 +133,8 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 		return false;
 	}
 
-	// On avance jusqu'aux premières coordonnées de texture
-	ptr += s_declaration.GetElement(nzElementStream_VertexData, nzElementUsage_TexCoord)->offset;
+	// On avance jusqu'aux dernières coordonnées de texture et on les définit dans l'ordre inverse
+	ptr += s_declaration.GetElement(nzElementStream_VertexData, nzElementUsage_TexCoord)->offset + stride * (m_vertexCount-1);
 	for (unsigned int t = 0; t < header.num_tris; ++t)
 	{
 		for (unsigned int v = 0; v < 3; ++v)
@@ -140,7 +145,7 @@ bool NzMD2Mesh::Create(const md2_header& header, NzInputStream& stream, const Nz
 			coords->x = texC.u / static_cast<float>(header.skinwidth);
 			coords->y = 1.f - texC.v / static_cast<float>(header.skinheight);
 
-			ptr += stride;
+			ptr -= stride;
 		}
 	}
 

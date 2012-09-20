@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Animation.hpp>
@@ -34,7 +35,7 @@ using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 
 struct NzMeshImpl;
 
-class NAZARA_API NzMesh : public NzResource
+class NAZARA_API NzMesh : public NzResource, NzResourceListener
 {
 	friend NzMeshLoader;
 
@@ -42,9 +43,9 @@ class NAZARA_API NzMesh : public NzResource
 		NzMesh() = default;
 		~NzMesh();
 
-		unsigned int AddSkin(const NzString& skin, bool setDefault = false);
-		nzUInt8 AddSubMesh(NzSubMesh* subMesh);
-		nzUInt8 AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
+		bool AddSkin(const NzString& skin, bool setDefault = false);
+		bool AddSubMesh(NzSubMesh* subMesh);
+		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
 		void Animate(unsigned int frameA, unsigned int frameB, float interpolation);
 
@@ -58,16 +59,17 @@ class NAZARA_API NzMesh : public NzResource
 		NzString GetSkin(unsigned int index = 0) const;
 		unsigned int GetSkinCount() const;
 		NzSubMesh* GetSubMesh(const NzString& identifier);
-		NzSubMesh* GetSubMesh(nzUInt8 index);
+		NzSubMesh* GetSubMesh(unsigned int index);
 		const NzSubMesh* GetSubMesh(const NzString& identifier) const;
-		const NzSubMesh* GetSubMesh(nzUInt8 index) const;
-		nzUInt8 GetSubMeshCount() const;
+		const NzSubMesh* GetSubMesh(unsigned int index) const;
+		unsigned int GetSubMeshCount() const;
+		int GetSubMeshIndex(const NzString& identifier) const;
 		unsigned int GetVertexCount() const;
 
 		bool HasAnimation() const;
 		bool HasSkin(unsigned int index = 0) const;
 		bool HasSubMesh(const NzString& identifier) const;
-		bool HasSubMesh(nzUInt8 index = 0) const;
+		bool HasSubMesh(unsigned int index = 0) const;
 
 		void InvalidateAABB() const;
 
@@ -80,11 +82,14 @@ class NAZARA_API NzMesh : public NzResource
 
 		void RemoveSkin(unsigned int index = 0);
 		void RemoveSubMesh(const NzString& identifier);
-		void RemoveSubMesh(nzUInt8 index = 0);
+		void RemoveSubMesh(unsigned int index = 0);
 
 		bool SetAnimation(const NzAnimation* animation);
 
 	private:
+		void OnResourceCreated(const NzResource* resource, int index) override;
+		void OnResourceReleased(const NzResource* resource, int index) override;
+
 		NzMeshImpl* m_impl = nullptr;
 
 		static NzMeshLoader::LoaderList s_loaders;

@@ -100,26 +100,6 @@ float NzVector2<T>::Lengthf() const
 }
 
 template<typename T>
-void NzVector2<T>::MakeCeil(const NzVector2& vec)
-{
-	if (vec.x > x)
-		x = vec.x;
-
-	if  (vec.y > y)
-		y = vec.y;
-}
-
-template<typename T>
-void NzVector2<T>::MakeFloor(const NzVector2& vec)
-{
-	if (vec.x < x)
-		x = vec.x;
-
-	if  (vec.y < y)
-		y = vec.y;
-}
-
-template<typename T>
 void NzVector2<T>::MakeUnitX()
 {
 	Set(F(1.0), F(0.0));
@@ -135,6 +115,26 @@ template<typename T>
 void NzVector2<T>::MakeZero()
 {
 	Set(F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector2<T>::Maximize(const NzVector2& vec)
+{
+	if (vec.x > x)
+		x = vec.x;
+
+	if  (vec.y > y)
+		y = vec.y;
+}
+
+template<typename T>
+void NzVector2<T>::Minimize(const NzVector2& vec)
+{
+	if (vec.x < x)
+		x = vec.x;
+
+	if  (vec.y < y)
+		y = vec.y;
 }
 
 template<typename T>

@@ -301,7 +301,7 @@ class NAZARA_API NzString : public NzHashable
 		};
 
 		static SharedString emptyString;
-		static unsigned int npos;
+		static const unsigned int npos;
 
 	private:
 		void EnsureOwnership();

@@ -50,13 +50,16 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 {
 	Destroy();
 
-	if (sampleCount == 0)
-		return true;
-
 	#if NAZARA_AUDIO_SAFE
 	if (!IsFormatSupported(format))
 	{
 		NazaraError("Audio format is not supported");
+		return false;
+	}
+
+	if (sampleCount == 0)
+	{
+		NazaraError("Sample rate must be different from zero");
 		return false;
 	}
 
@@ -104,6 +107,7 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 	m_impl->samples = new nzInt16[sampleCount];
 	std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(nzInt16));
 
+	NotifyCreated();
 	return true;
 }
 
@@ -111,6 +115,8 @@ void NzSoundBuffer::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		delete[] m_impl->samples;
 		delete m_impl;
 		m_impl = nullptr;

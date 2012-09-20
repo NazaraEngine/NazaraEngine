@@ -2,19 +2,19 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifdef NAZARA_RENDERER_COMMON
-	#error This file is not part of the common renderer interface, you must undefine NAZARA_RENDERER_COMMON to use it
-#endif
-
 #pragma once
 
 #ifndef NAZARA_OPENGL_HPP
 #define NAZARA_OPENGL_HPP
 
+#ifdef NAZARA_RENDERER_OPENGL
+
 // gl3.h définit WIN32_LEAN_AND_MEAN qui entre en conflit avec la définition de Nazara et doit donc être inclut en premier
 #include <GL3/glcorearb.h>
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 
 // Inclusion des extensions
 #include <GL3/glext.h>
@@ -24,35 +24,69 @@
 	#include <GL3/glxext.h>
 #endif
 
+enum nzOpenGLExtension
+{
+	nzOpenGLExtension_AnisotropicFilter,
+	nzOpenGLExtension_DebugOutput,
+	nzOpenGLExtension_FP64,
+	nzOpenGLExtension_FrameBufferObject,
+	nzOpenGLExtension_PixelBufferObject,
+	nzOpenGLExtension_SeparateShaderObjects,
+	nzOpenGLExtension_TextureArray,
+	nzOpenGLExtension_TextureCompression_s3tc,
+	nzOpenGLExtension_TextureStorage,
+	nzOpenGLExtension_VertexArrayObject,
+
+	nzOpenGLExtension_Max = nzOpenGLExtension_VertexArrayObject
+};
+
 using NzOpenGLFunc = void (*)();
 
-class NAZARA_API NzOpenGL
+namespace NzOpenGL
 {
-	public:
-		enum Extension
-		{
-			AnisotropicFilter,
-			DebugOutput,
-			FP64,
-			FrameBufferObject,
-			PixelBufferObject,
-			SeparateShaderObjects,
-			Texture3D,
-			TextureArray,
-			TextureCompression_s3tc,
-			TextureStorage,
-			VertexArrayObject,
+	enum FormatType
+	{
+		FormatType_RenderBuffer,
+//		FormatType_MultisampleTexture,
+		FormatType_Texture
+	};
 
-			Max = VertexArrayObject
-		};
+	struct Format
+	{
+		GLenum dataFormat;
+		GLenum dataType;
+		GLint internalFormat;
+	};
 
-		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
-		static unsigned int GetVersion();
-		static bool Initialize();
-		static bool IsSupported(Extension extension);
-		static bool IsSupported(const NzString& string);
-		static void Uninitialize();
-};
+	NzOpenGLFunc GetEntry(const NzString& entryPoint);
+	unsigned int GetVersion();
+	bool Initialize();
+	bool IsSupported(nzOpenGLExtension extension);
+	bool IsSupported(const NzString& string);
+	bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
+	void Uninitialize();
+
+	extern GLenum Attachment[nzAttachmentPoint_Max+1];
+	extern nzUInt8 AttributeIndex[nzElementUsage_Max+1];
+	extern GLenum BlendFunc[nzBlendFunc_Max+1];
+	extern GLenum BufferLock[nzBufferAccess_Max+1];
+	extern GLenum BufferLockRange[nzBufferAccess_Max+1];
+	extern GLenum BufferTarget[nzBufferType_Max+1];
+	extern GLenum BufferTargetBinding[nzBufferType_Max+1];
+	extern GLenum BufferUsage[nzBufferUsage_Max+1];
+	extern GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
+	extern GLenum ElementType[nzElementType_Max+1];
+	extern GLenum FaceCulling[nzFaceCulling_Max+1];
+	extern GLenum FaceFilling[nzFaceFilling_Max+1];
+	extern GLenum PrimitiveType[nzPrimitiveType_Max+1];
+	extern GLenum RendererComparison[nzRendererComparison_Max+1];
+	extern GLenum RendererParameter[nzRendererParameter_Max+1];
+	extern GLenum ShaderType[nzShaderType_Max+1];
+	extern GLenum StencilOperation[nzStencilOperation_Max+1];
+	extern GLenum TextureTarget[nzImageType_Max+1];
+	extern GLenum TextureTargetBinding[nzImageType_Max+1];
+	extern GLenum TextureTargetProxy[nzImageType_Max+1];
+}
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_API extern PFNGLATTACHSHADERPROC             glAttachShader;
@@ -60,6 +94,7 @@ NAZARA_API extern PFNGLBEGINQUERYPROC               glBeginQuery;
 NAZARA_API extern PFNGLBINDATTRIBLOCATIONPROC       glBindAttribLocation;
 NAZARA_API extern PFNGLBINDBUFFERPROC               glBindBuffer;
 NAZARA_API extern PFNGLBINDFRAMEBUFFERPROC          glBindFramebuffer;
+NAZARA_API extern PFNGLBINDFRAGDATALOCATIONPROC     glBindFragDataLocation;
 NAZARA_API extern PFNGLBINDRENDERBUFFERPROC         glBindRenderbuffer;
 NAZARA_API extern PFNGLBINDTEXTUREPROC              glBindTexture;
 NAZARA_API extern PFNGLBINDVERTEXARRAYPROC          glBindVertexArray;
@@ -99,7 +134,11 @@ NAZARA_API extern PFNGLDRAWELEMENTSPROC             glDrawElements;
 NAZARA_API extern PFNGLENDQUERYPROC                 glEndQuery;
 NAZARA_API extern PFNGLFLUSHPROC                    glFlush;
 NAZARA_API extern PFNGLFRAMEBUFFERRENDERBUFFERPROC  glFramebufferRenderbuffer;
+NAZARA_API extern PFNGLFRAMEBUFFERTEXTUREPROC       glFramebufferTexture;
+NAZARA_API extern PFNGLFRAMEBUFFERTEXTURE1DPROC     glFramebufferTexture1D;
 NAZARA_API extern PFNGLFRAMEBUFFERTEXTURE2DPROC     glFramebufferTexture2D;
+NAZARA_API extern PFNGLFRAMEBUFFERTEXTURE3DPROC     glFramebufferTexture3D;
+NAZARA_API extern PFNGLFRAMEBUFFERTEXTURELAYERPROC  glFramebufferTextureLayer;
 NAZARA_API extern PFNGLENABLEPROC                   glEnable;
 NAZARA_API extern PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray;
 NAZARA_API extern PFNGLGENERATEMIPMAPPROC           glGenerateMipmap;
@@ -188,5 +227,7 @@ NAZARA_API extern PFNWGLSWAPINTERVALEXTPROC         wglSwapInterval;
 NAZARA_API extern PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribs;
 NAZARA_API extern PFNGLXSWAPINTERVALSGIPROC         glXSwapInterval;
 #endif
+
+#endif // NAZARA_RENDERER_OPENGL
 
 #endif // NAZARA_OPENGL_HPP

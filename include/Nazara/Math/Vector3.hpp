@@ -36,12 +36,16 @@ template<typename T> class NzVector3
 		T Length() const;
 		float Lengthf() const;
 
-		void MakeCeil(const NzVector3& vec);
-		void MakeFloor(const NzVector3& vec);
+		void MakeForward();
+		void MakeLeft();
 		void MakeUnitX();
 		void MakeUnitY();
 		void MakeUnitZ();
+		void MakeUp();
 		void MakeZero();
+
+		void Maximize(const NzVector3& vec);
+		void Minimize(const NzVector3& vec);
 
 		void Normalize();
 
@@ -88,9 +92,15 @@ template<typename T> class NzVector3
 		bool operator>(const NzVector3& vec) const;
 		bool operator>=(const NzVector3& vec) const;
 
+		static NzVector3 CrossProduct(const NzVector3& vec1, const NzVector3& vec2);
+		static T DotProduct(const NzVector3& vec1, const NzVector3& vec2);
+		static NzVector3 Forward();
+		static NzVector3 Left();
+		static NzVector3 Normalize(const NzVector3& vec);
 		static NzVector3 UnitX();
 		static NzVector3 UnitY();
 		static NzVector3 UnitZ();
+		static NzVector3 Up();
 		static NzVector3 Zero();
 
 		T x, y, z;

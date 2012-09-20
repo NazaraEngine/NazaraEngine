@@ -172,14 +172,16 @@ bool NzContext::Create(const NzContextParameters& parameters)
 	if (m_parameters.antialiasingLevel > 0)
 		glEnable(GL_MULTISAMPLE);
 
-	if (NzOpenGL::IsSupported(NzOpenGL::DebugOutput) && m_parameters.debugMode)
+	if (NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput) && m_parameters.debugMode)
 	{
 		glDebugMessageCallback(&DebugCallback, this);
 
 		#ifdef NAZARA_DEBUG
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		#endif
 	}
+
+	NotifyCreated();
 
 	return true;
 }
@@ -188,6 +190,8 @@ void NzContext::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		if (currentContext == this)
 			NzContextImpl::Desactivate();
 

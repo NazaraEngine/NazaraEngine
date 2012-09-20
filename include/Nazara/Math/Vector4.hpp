@@ -26,12 +26,13 @@ template<typename T> class NzVector4
 
 		T DotProduct(const NzVector4& vec) const;
 
-		void MakeCeil(const NzVector4& vec);
-		void MakeFloor(const NzVector4& vec);
 		void MakeUnitX();
 		void MakeUnitY();
 		void MakeUnitZ();
 		void MakeZero();
+
+		void Maximize(const NzVector4& vec);
+		void Minimize(const NzVector4& vec);
 
 		void Normalize();
 

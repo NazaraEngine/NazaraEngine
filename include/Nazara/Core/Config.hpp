@@ -67,6 +67,7 @@
 #define NAZARA_THREADSAFETY_FILE 1         // NzFile
 #define NAZARA_THREADSAFETY_HASHDIGEST 0   // NzHashDigest
 #define NAZARA_THREADSAFETY_LOG 1          // NzLog
+#define NAZARA_THREADSAFETY_RESOURCE 1     // NzResource
 #define NAZARA_THREADSAFETY_STRING 1       // NzString (COW)
 #define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
 

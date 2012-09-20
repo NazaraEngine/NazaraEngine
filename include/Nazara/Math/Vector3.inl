@@ -69,7 +69,7 @@ inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsig
 template<typename T>
 NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec) const
 {
-	return NzVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.y, x * vec.y - y * vec.x);
+	return NzVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
 }
 
 template<typename T>
@@ -100,29 +100,27 @@ NzVector3<T> NzVector3<T>::GetNormal() const
 }
 
 template<typename T>
-void NzVector3<T>::MakeCeil(const NzVector3& vec)
+T NzVector3<T>::Length() const
 {
-	if (vec.x > x)
-		x = vec.x;
-
-	if (vec.y > y)
-		y = vec.y;
-
-    if (vec.z > z)
-        z = vec.z;
+	return std::sqrt(SquaredLength());
 }
 
 template<typename T>
-void NzVector3<T>::MakeFloor(const NzVector3& vec)
+float NzVector3<T>::Lengthf() const
 {
-	if (vec.x < x)
-		x = vec.x;
+	return std::sqrt(static_cast<float>(SquaredLength()));
+}
 
-	if (vec.y < y)
-		y = vec.y;
+template<typename T>
+void NzVector3<T>::MakeForward()
+{
+	Set(F(0.0), F(0.0), F(-1.0));
+}
 
-    if (vec.z < z)
-        z = vec.z;
+template<typename T>
+void NzVector3<T>::MakeLeft()
+{
+	Set(F(-1.0), F(0.0), F(0.0));
 }
 
 template<typename T>
@@ -144,21 +142,41 @@ void NzVector3<T>::MakeUnitZ()
 }
 
 template<typename T>
+void NzVector3<T>::MakeUp()
+{
+	Set(F(0.0), F(1.0), F(0.0));
+}
+
+template<typename T>
 void NzVector3<T>::MakeZero()
 {
 	Set(F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
-T NzVector3<T>::Length() const
+void NzVector3<T>::Maximize(const NzVector3& vec)
 {
-	return std::sqrt(SquaredLength());
+	if (vec.x > x)
+		x = vec.x;
+
+	if (vec.y > y)
+		y = vec.y;
+
+    if (vec.z > z)
+        z = vec.z;
 }
 
 template<typename T>
-float NzVector3<T>::Lengthf() const
+void NzVector3<T>::Minimize(const NzVector3& vec)
 {
-	return std::sqrt(static_cast<float>(SquaredLength()));
+	if (vec.x < x)
+		x = vec.x;
+
+	if (vec.y < y)
+		y = vec.y;
+
+    if (vec.z < z)
+        z = vec.z;
 }
 
 template<typename T>
@@ -166,13 +184,13 @@ void NzVector3<T>::Normalize()
 {
 	T squaredLength = SquaredLength();
 
-	if (squaredLength-F(1.0) > std::numeric_limits<T>::epsilon())
+	if (!NzNumberEquals(squaredLength, F(1.0)))
 	{
-		T length = std::sqrt(squaredLength);
+		T invLength = F(1.0) / std::sqrt(squaredLength);
 
-		x /= length;
-		y /= length;
-		z /= length;
+		x *= invLength;
+		y *= invLength;
+		z *= invLength;
 	}
 }
 
@@ -468,6 +486,42 @@ bool NzVector3<T>::operator>=(const NzVector3& vec) const
 }
 
 template<typename T>
+NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.CrossProduct(vec2);
+}
+
+template<typename T>
+T NzVector3<T>::DotProduct(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.DotProduct(vec2);
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Forward()
+{
+	NzVector3 vector;
+	vector.MakeForward();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Left()
+{
+	NzVector3 vector;
+	vector.MakeLeft();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Normalize(const NzVector3& vec)
+{
+	return vec.GetNormal();
+}
+
+template<typename T>
 NzVector3<T> NzVector3<T>::UnitX()
 {
 	NzVector3 vector;
@@ -490,6 +544,15 @@ NzVector3<T> NzVector3<T>::UnitZ()
 {
 	NzVector3 vector;
 	vector.MakeUnitZ();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Up()
+{
+	NzVector3 vector;
+	vector.MakeUp();
 
 	return vector;
 }

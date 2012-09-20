@@ -15,7 +15,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	#if NAZARA_CORE_SAFE
 	if (!parameters.IsValid())
 	{
-		NazaraError("Invalid Parameters");
+		NazaraError("Invalid parameters");
 		return false;
 	}
 	#endif
@@ -81,7 +81,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 	#if NAZARA_CORE_SAFE
 	if (!parameters.IsValid())
 	{
-		NazaraError("Invalid Parameters");
+		NazaraError("Invalid parameters");
 		return false;
 	}
 
@@ -117,7 +117,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 template<typename Type, typename Parameters>
 void NzResourceLoader<Type, Parameters>::RegisterLoader(const NzString& fileExtensions, CheckFunction checkFunc, LoadFunction loadFunc)
 {
-	/// Trouver une alternative à ce code monstrueux
+	///FIXME: Trouver une alternative à ce code monstrueux
 	std::vector<NzString> exts;
 	fileExtensions.SplitAny(exts, " /\\.,;|-_");
 

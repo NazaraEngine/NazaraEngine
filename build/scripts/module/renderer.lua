@@ -2,6 +2,8 @@ if (not _OPTIONS["one-library"]) then
 	project "NazaraRenderer"
 end
 
+defines "NAZARA_RENDERER_OPENGL"
+
 files
 {
 	"../include/Nazara/Renderer/**.hpp",
