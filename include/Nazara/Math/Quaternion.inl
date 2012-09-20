@@ -67,7 +67,16 @@ NzQuaternion<T> NzQuaternion<T>::GetConjugate() const
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::GetNormalized() const
+NzQuaternion<T> NzQuaternion<T>::GetInverse() const
+{
+	NzQuaternion<T> quat(*this);
+	quat.Inverse();
+
+	return quat;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::GetNormal() const
 {
 	NzQuaternion<T> quat(*this);
 	quat.Normalize();
@@ -76,15 +85,30 @@ NzQuaternion<T> NzQuaternion<T>::GetNormalized() const
 }
 
 template<typename T>
+void NzQuaternion<T>::Inverse()
+{
+	T norm = SquaredMagnitude();
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+
+		w *= invNorm;
+		x *= -invNorm;
+		y *= -invNorm;
+		z *= -invNorm;
+	}
+}
+
+template<typename T>
 void NzQuaternion<T>::MakeIdentity()
 {
-	Set(1.0, 0.0, 0.0, 0.0);
+	Set(F(1.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
 void NzQuaternion<T>::MakeZero()
 {
-	Set(0.0, 0.0, 0.0, 0.0);
+	Set(F(0.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
@@ -98,16 +122,18 @@ T NzQuaternion<T>::Normalize()
 {
 	T squaredMagnitude = SquaredMagnitude();
 
-	if (squaredMagnitude-F(1.0) > std::numeric_limits<T>::epsilon())
+	// Inutile de vérifier si la magnitude au carrée est négative (Elle ne peut pas l'être)
+	if (!NzNumberEquals(squaredMagnitude, F(1.0)))
 	{
-		T magnitude = std::sqrt(squaredMagnitude);
+		T norm = std::sqrt(squaredMagnitude);
+		T invNorm = F(1.0) / norm;
 
-		w /= magnitude;
-		x /= magnitude;
-		y /= magnitude;
-		z /= magnitude;
+		w *= invNorm;
+		x *= invNorm;
+		y *= invNorm;
+		z *= invNorm;
 
-		return magnitude;
+		return norm;
 	}
 	else
 		return F(1.0); // Le quaternion est déjà normalisé
@@ -132,20 +158,24 @@ void NzQuaternion<T>::Set(T quat[4])
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(T angle, const NzVector3<T>& normalizedAxis)
+void NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 {
+	angle /= F(2.0);
+
 	#if !NAZARA_MATH_ANGLE_RADIAN
 	angle = NzDegreeToRadian(angle);
 	#endif
 
-	angle /= 2;
+	NzVector3<T> normalizedAxis = axis.GetNormal();
 
-	auto sinAngle = std::sin(angle);
+	T sinAngle = std::sin(angle);
 
 	w = std::cos(angle);
 	x = normalizedAxis.x * sinAngle;
 	y = normalizedAxis.y * sinAngle;
 	z = normalizedAxis.z * sinAngle;
+
+	Normalize();
 }
 
 template<typename T>
@@ -190,12 +220,8 @@ NzEulerAngles<T> NzQuaternion<T>::ToEulerAngles() const
 	if (test < F(-0.499))
 		return NzEulerAngles<T>(NzDegrees(F(-90.0)), NzRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
 
-	T xx = x*x;
-	T yy = y*y;
-	T zz = z*z;
-
-	return NzEulerAngles<T>(NzRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*xx - F(2.0)*zz)),
-							NzRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*yy - F(2.0)*zz)),
+	return NzEulerAngles<T>(NzRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x* - F(2.0)*z*z)),
+							NzRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
 							NzRadians(std::asin(F(2.0)*test)));
 }
 
@@ -242,14 +268,13 @@ NzQuaternion<T> NzQuaternion<T>::operator*(const NzQuaternion& quat) const
 template<typename T>
 NzVector3<T> NzQuaternion<T>::operator*(const NzVector3<T>& vec) const
 {
-	NzVector3<T> normal(vec);
-	normal.Normalize();
+	NzVector3f quatVec(x, y, z);
+	NzVector3f uv = quatVec.CrossProduct(vec);
+	NzVector3f uuv = quatVec.CrossProduct(uv);
+	uv *= F(2.0) * w;
+	uuv *= F(2.0);
 
-	NzQuaternion qvec(0.0, normal.x, normal.y, normal.z);
-	NzQuaternion result(operator*(qvec * GetConjugate()));
-
-	return NzVector3<T>(result.x, result.y, result.z);
-
+	return vec + uv + uuv;
 }
 
 template<typename T>

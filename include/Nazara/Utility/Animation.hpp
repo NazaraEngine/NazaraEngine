@@ -43,7 +43,7 @@ class NAZARA_API NzAnimation : public NzResource
 		NzAnimation() = default;
 		~NzAnimation();
 
-		unsigned int AddSequence(const NzSequence& sequence);
+		bool AddSequence(const NzSequence& sequence);
 
 		bool Create(nzAnimationType type, unsigned int frameCount);
 		void Destroy();
@@ -54,6 +54,7 @@ class NAZARA_API NzAnimation : public NzResource
 		const NzSequence* GetSequence(const NzString& sequenceName) const;
 		const NzSequence* GetSequence(unsigned int index) const;
 		unsigned int GetSequenceCount() const;
+		int GetSequenceIndex(const NzString& sequenceName) const;
 		nzAnimationType GetType() const;
 
 		bool HasSequence(const NzString& sequenceName) const;

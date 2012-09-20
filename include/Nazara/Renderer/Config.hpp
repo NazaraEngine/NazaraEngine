@@ -29,9 +29,6 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-// Active une fenêtre de rendu (NzRenderWindow) lors de sa création
-#define NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION 1
-
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
 

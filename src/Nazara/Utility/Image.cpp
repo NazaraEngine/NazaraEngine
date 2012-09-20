@@ -215,13 +215,28 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 {
 	ReleaseImage();
 
-	if (width == 0 || height == 0 || depth == 0)
-		return true;
-
 	#if NAZARA_UTILITY_SAFE
 	if (!NzPixelFormat::IsValid(format))
 	{
 		NazaraError("Invalid pixel format");
+		return false;
+	}
+
+	if (width == 0)
+	{
+		NazaraError("Width must be at least 1 (0)");
+		return false;
+	}
+
+	if (height == 0)
+	{
+		NazaraError("Height must be at least 1 (0)");
+		return false;
+	}
+
+	if (depth == 0)
+	{
+		NazaraError("Depth must be at least 1 (0)");
 		return false;
 	}
 
@@ -315,11 +330,13 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 
 	m_sharedImage = new SharedImage(1, type, format, levelCount, levels, width, height, depth);
 
+	NotifyCreated();
 	return true;
 }
 
 void NzImage::Destroy()
 {
+	NotifyDestroy();
 	ReleaseImage();
 }
 

@@ -39,28 +39,25 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		void EnableVerticalSync(bool enabled);
 
-		#ifndef NAZARA_RENDERER_COMMON
-		NzContextParameters GetContextParameters() const;
-		#endif
-
 		unsigned int GetHeight() const;
 		NzRenderTargetParameters GetParameters() const;
 		unsigned int GetWidth() const;
 
-		#ifndef NAZARA_RENDERER_COMMON
-		bool HasContext() const;
-		#endif
-
+		bool IsRenderable() const;
 		bool IsValid() const;
 
 		void SetFramerateLimit(unsigned int limit);
 
+		// Fonctions OpenGL
+		NzContextParameters GetContextParameters() const;
+		bool HasContext() const;
+
 	protected:
-		virtual bool Activate() override;
+		bool Activate() override;
 
 	private:
-		virtual void OnWindowDestroying() override;
-		virtual bool OnWindowCreated() override;
+		bool OnWindowCreated() override;
+		void OnWindowDestroy() override;
 
 		NzClock m_clock;
 		NzContextParameters m_parameters;

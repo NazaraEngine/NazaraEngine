@@ -29,14 +29,15 @@ template<typename T> class NzVector2
 
 		NzVector2 GetNormal() const;
 
-		void MakeCeil(const NzVector2& vec);
-		void MakeFloor(const NzVector2& vec);
+		T Length() const;
+		float Lengthf() const;
+
 		void MakeUnitX();
 		void MakeUnitY();
 		void MakeZero();
 
-		T Length() const;
-		float Lengthf() const;
+		void Maximize(const NzVector2& vec);
+		void Minimize(const NzVector2& vec);
 
 		void Normalize();
 

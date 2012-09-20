@@ -74,38 +74,6 @@ T NzVector4<T>::DotProduct(const NzVector4& vec) const
 }
 
 template<typename T>
-void NzVector4<T>::MakeCeil(const NzVector4& vec)
-{
-	if (vec.x > x)
-		x = vec.x;
-
-	if (vec.y > y)
-		y = vec.y;
-
-    if (vec.z > z)
-        z = vec.z;
-
-    if (vec.w > w)
-        w = vec.w;
-}
-
-template<typename T>
-void NzVector4<T>::MakeFloor(const NzVector4& vec)
-{
-	if (vec.x < x)
-		x = vec.x;
-
-	if (vec.y < y)
-		y = vec.y;
-
-    if (vec.z < z)
-        z = vec.z;
-
-    if (vec.w < w)
-        w = vec.w;
-}
-
-template<typename T>
 void NzVector4<T>::MakeUnitX()
 {
 	Set(F(1.0), F(0.0), F(0.0), F(1.0));
@@ -127,6 +95,38 @@ template<typename T>
 void NzVector4<T>::MakeZero()
 {
 	Set(F(0.0), F(0.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector4<T>::Maximize(const NzVector4& vec)
+{
+	if (vec.x > x)
+		x = vec.x;
+
+	if (vec.y > y)
+		y = vec.y;
+
+    if (vec.z > z)
+        z = vec.z;
+
+    if (vec.w > w)
+        w = vec.w;
+}
+
+template<typename T>
+void NzVector4<T>::Minimize(const NzVector4& vec)
+{
+	if (vec.x < x)
+		x = vec.x;
+
+	if (vec.y < y)
+		y = vec.y;
+
+    if (vec.z < z)
+        z = vec.z;
+
+    if (vec.w < w)
+        w = vec.w;
 }
 
 template<typename T>

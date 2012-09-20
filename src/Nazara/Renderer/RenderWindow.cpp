@@ -40,7 +40,7 @@ NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters&
 NzRenderWindow::~NzRenderWindow()
 {
 	// Nécessaire si NzWindow::Destroy est appelé par son destructeur
-	OnWindowDestroying();
+	OnWindowDestroy();
 }
 
 bool NzRenderWindow::CopyToImage(NzImage* image)
@@ -178,17 +178,6 @@ void NzRenderWindow::EnableVerticalSync(bool enabled)
         NazaraError("No context");
 }
 
-NzContextParameters NzRenderWindow::GetContextParameters() const
-{
-	if (m_context)
-		return m_context->GetParameters();
-	else
-	{
-		NazaraError("Window not created/context not initialized");
-		return NzContextParameters();
-	}
-}
-
 unsigned int NzRenderWindow::GetHeight() const
 {
 	return NzWindow::GetHeight();
@@ -213,19 +202,30 @@ unsigned int NzRenderWindow::GetWidth() const
 	return NzWindow::GetWidth();
 }
 
-bool NzRenderWindow::HasContext() const
+bool NzRenderWindow::IsRenderable() const
 {
-	return true;
-}
-
-bool NzRenderWindow::IsValid() const
-{
-	return m_impl != nullptr && m_context != nullptr;
+	return m_impl != nullptr; // Si m_impl est valide, alors m_context l'est aussi
 }
 
 void NzRenderWindow::SetFramerateLimit(unsigned int limit)
 {
 	m_framerateLimit = limit;
+}
+
+NzContextParameters NzRenderWindow::GetContextParameters() const
+{
+	if (m_context)
+		return m_context->GetParameters();
+	else
+	{
+		NazaraError("Window not created/context not initialized");
+		return NzContextParameters();
+	}
+}
+
+bool NzRenderWindow::HasContext() const
+{
+	return true;
 }
 
 bool NzRenderWindow::Activate()
@@ -239,15 +239,6 @@ bool NzRenderWindow::Activate()
 	{
 		NazaraError("Failed to activate window's context");
 		return false;
-	}
-}
-
-void NzRenderWindow::OnWindowDestroying()
-{
-	if (m_context)
-	{
-		delete m_context;
-		m_context = nullptr;
 	}
 }
 
@@ -267,12 +258,19 @@ bool NzRenderWindow::OnWindowCreated()
 
     EnableVerticalSync(false);
 
-	#if NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION
 	if (!SetActive(true)) // Les fenêtres s'activent à la création
 		NazaraWarning("Failed to activate window");
-	#endif
 
 	m_clock.Restart();
 
     return true;
+}
+
+void NzRenderWindow::OnWindowDestroy()
+{
+	if (m_context)
+	{
+		delete m_context;
+		m_context = nullptr;
+	}
 }

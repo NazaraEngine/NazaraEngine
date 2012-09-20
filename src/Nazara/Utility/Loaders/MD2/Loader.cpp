@@ -43,27 +43,6 @@ namespace
 			return false;
 		}
 
-		// Les fichiers MD2 sont en little endian
-		#if defined(NAZARA_BIG_ENDIAN)
-		NzByteSwap(&header.ident, sizeof(nzUInt32));
-		#endif
-
-		if (header.ident != md2Ident)
-		{
-			NazaraError("Invalid MD2 file");
-			return false;
-		}
-
-		#if defined(NAZARA_BIG_ENDIAN)
-		NzByteSwap(&header.version, sizeof(nzUInt32));
-		#endif
-
-		if (header.version != 8)
-		{
-			NazaraError("Bad version number (" + NzString::Number(header.version) + ')');
-			return false;
-		}
-
 		#if defined(NAZARA_BIG_ENDIAN)
 		NzByteSwap(&header.skinwidth, sizeof(nzUInt32));
 		NzByteSwap(&header.skinheight, sizeof(nzUInt32));
@@ -99,7 +78,7 @@ namespace
 		else
 			animated = false;
 
-		if (!mesh->Create((animated) ? nzAnimationType_Keyframe : nzAnimationType_Static)) // Ne devrait pas échouer
+		if (!mesh->Create((animated) ? nzAnimationType_Keyframe : nzAnimationType_Static)) // Ne devrait jamais échouer
 		{
 			NazaraInternalError("Failed to create mesh");
 			return false;

@@ -7,13 +7,16 @@
 #ifndef NAZARA_GLSLSHADER_HPP
 #define NAZARA_GLSLSHADER_HPP
 
+#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
 #include <map>
 
-class NzGLSLShader : public NzShaderImpl
+class NzResource;
+
+class NzGLSLShader : public NzShaderImpl, NzResourceListener
 {
 	public:
 		NzGLSLShader(NzShader* parent);
@@ -55,8 +58,13 @@ class NzGLSLShader : public NzShaderImpl
 		void Unlock();
 
 	private:
+		void OnResourceCreated(const NzResource* resource, int index) override;
+		void OnResourceDestroy(const NzResource* resource, int index) override;
+		void OnResourceReleased(const NzResource* resource, int index) override;
+
 		struct TextureSlot
 		{
+			bool enabled;
 			bool updated = false;
 			nzUInt8 unit;
 			const NzTexture* texture;

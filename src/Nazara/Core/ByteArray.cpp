@@ -1,8 +1,8 @@
-/*
 // Copyright (C) 2012 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+/*
 #include <Nazara/Core/ByteArray.hpp>
 #include <algorithm>
 #include <cstring>
@@ -61,7 +61,7 @@ m_sharedArray(buffer.m_sharedArray)
 	}
 }
 
-NzByteArray::NzByteArray(NzByteArray&& buffer) :
+NzByteArray::NzByteArray(NzByteArray&& buffer) noexcept :
 m_sharedArray(buffer.m_sharedArray)
 {
 	buffer.m_sharedArray = &emptyArray;

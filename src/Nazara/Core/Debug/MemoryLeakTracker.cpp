@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -73,7 +73,14 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
-		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
+	{
+		// Pas d'information de temps (Car nÃ©cessitant une allocation)
+		FILE* log = std::fopen(MLTFileName, "a");
+		std::fprintf(log, "Failed to allocate memory (%d bytes)\n", size);
+		std::fclose(log);
+
+		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mÃ©moire avec new (boucle infinie)
+	}
 
 	ptr->array = multi;
 	ptr->file = file;

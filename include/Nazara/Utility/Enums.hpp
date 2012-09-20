@@ -11,7 +11,9 @@ enum nzAnimationType
 {
 	nzAnimationType_Keyframe,
 	nzAnimationType_Skeletal,
-	nzAnimationType_Static
+	nzAnimationType_Static,
+
+	nzAnimationType_Max = nzAnimationType_Static
 };
 
 enum nzBufferAccess
@@ -19,7 +21,9 @@ enum nzBufferAccess
 	nzBufferAccess_DiscardAndWrite,
 	nzBufferAccess_ReadOnly,
 	nzBufferAccess_ReadWrite,
-	nzBufferAccess_WriteOnly
+	nzBufferAccess_WriteOnly,
+
+	nzBufferAccess_Max = nzBufferAccess_WriteOnly
 };
 
 enum nzBufferStorage
@@ -34,13 +38,17 @@ enum nzBufferStorage
 enum nzBufferType
 {
 	nzBufferType_Index,
-	nzBufferType_Vertex
+	nzBufferType_Vertex,
+
+	nzBufferType_Max = nzBufferType_Vertex
 };
 
 enum nzBufferUsage
 {
 	nzBufferUsage_Dynamic,
-	nzBufferUsage_Static
+	nzBufferUsage_Static,
+
+	nzBufferUsage_Max = nzBufferUsage_Static
 };
 
 enum nzCubemapFace
@@ -52,7 +60,9 @@ enum nzCubemapFace
 	nzCubemapFace_PositiveZ = 4,
 	nzCubemapFace_NegativeX = 1,
 	nzCubemapFace_NegativeY = 3,
-	nzCubemapFace_NegativeZ = 5
+	nzCubemapFace_NegativeZ = 5,
+
+	nzCubemapFace_Max = nzCubemapFace_NegativeZ
 };
 
 enum nzElementStream
@@ -73,7 +83,9 @@ enum nzElementType
 	nzElementType_Float1,
 	nzElementType_Float2,
 	nzElementType_Float3,
-	nzElementType_Float4
+	nzElementType_Float4,
+
+	nzElementType_Max = nzElementType_Float4
 };
 
 enum nzElementUsage
@@ -103,14 +115,18 @@ enum nzEventType
 	nzEventType_Moved,
 	nzEventType_Quit,
 	nzEventType_Resized,
-	nzEventType_TextEntered
+	nzEventType_TextEntered,
+
+	nzEventType_Max = nzEventType_TextEntered
 };
 
 enum nzExtend
 {
 	nzExtend_Finite,
 	nzExtend_Infinite,
-	nzExtend_Null
+	nzExtend_Null,
+
+	nzExtend_Max = nzExtend_Null
 };
 
 enum nzImageType
@@ -129,28 +145,27 @@ enum nzPixelFormat
 {
 	nzPixelFormat_Undefined = -1,
 
-	nzPixelFormat_BGR8,    // 3*nzUInt8
-	nzPixelFormat_BGRA8,   // 4*nzUInt8
+	nzPixelFormat_BGR8,            // 3*nzUInt8
+	nzPixelFormat_BGRA8,           // 4*nzUInt8
 	nzPixelFormat_DXT1,
 	nzPixelFormat_DXT3,
 	nzPixelFormat_DXT5,
-	nzPixelFormat_L8,      // 1*nzUInt8
-	nzPixelFormat_LA8,     // 2*nzUInt8
+	nzPixelFormat_L8,              // 1*nzUInt8
+	nzPixelFormat_LA8,             // 2*nzUInt8
 	/*
 	nzPixelFormat_RGB16F,
-	nzPixelFormat_RGB16I,  // 4*nzUInt16
+	nzPixelFormat_RGB16I,          // 4*nzUInt16
 	nzPixelFormat_RGB32F,
-	nzPixelFormat_RGB32I,  // 4*nzUInt32
+	nzPixelFormat_RGB32I,          // 4*nzUInt32
 	nzPixelFormat_RGBA16F,
-	nzPixelFormat_RGBA16I, // 4*nzUInt16
+	nzPixelFormat_RGBA16I,         // 4*nzUInt16
 	nzPixelFormat_RGBA32F,
-	nzPixelFormat_RGBA32I, // 4*nzUInt32
+	nzPixelFormat_RGBA32I,         // 4*nzUInt32
 	*/
-	nzPixelFormat_RGBA4,   // 1*nzUInt16
-	nzPixelFormat_RGB5A1,  // 1*nzUInt16
-	nzPixelFormat_RGB8,    // 3*nzUInt8
-	nzPixelFormat_RGBA8,   // 4*nzUInt8
-	/*
+	nzPixelFormat_RGBA4,           // 1*nzUInt16
+	nzPixelFormat_RGB5A1,          // 1*nzUInt16
+	nzPixelFormat_RGB8,            // 3*nzUInt8
+	nzPixelFormat_RGBA8,           // 4*nzUInt8
 	nzPixelFormat_Depth16,
 	nzPixelFormat_Depth24,
 	nzPixelFormat_Depth24Stencil8,
@@ -159,9 +174,20 @@ enum nzPixelFormat
 	nzPixelFormat_Stencil4,
 	nzPixelFormat_Stencil8,
 	nzPixelFormat_Stencil16,
-	*/
 
-	nzPixelFormat_Max = nzPixelFormat_RGBA8
+	nzPixelFormat_Max = nzPixelFormat_Stencil16
+};
+
+enum nzPixelFormatType
+{
+	nzPixelFormatType_Undefined = -1,
+
+	nzPixelFormatType_Color,
+	nzPixelFormatType_Depth,
+	nzPixelFormatType_DepthStencil,
+	nzPixelFormatType_Stencil,
+
+	nzPixelFormatType_Max = nzPixelFormatType_Stencil
 };
 
 enum nzPixelFlipping
@@ -179,7 +205,9 @@ enum nzPrimitiveType
 	nzPrimitiveType_PointList,
 	nzPrimitiveType_TriangleList,
 	nzPrimitiveType_TriangleStrip,
-	nzPrimitiveType_TriangleFan
+	nzPrimitiveType_TriangleFan,
+
+	nzPrimitiveType_Max = nzPrimitiveType_TriangleFan
 };
 
 enum nzWindowCursor
@@ -202,10 +230,12 @@ enum nzWindowCursor
 	nzWindowCursor_ResizeSW,
 	nzWindowCursor_ResizeW,
 	nzWindowCursor_Text,
-	nzWindowCursor_Wait
+	nzWindowCursor_Wait,
+
+	nzWindowCursor_Max = nzWindowCursor_Wait
 };
 
-enum nzWindowStyle
+enum nzWindowStyleFlags
 {
 	nzWindowStyle_None       = 0x0,
 	nzWindowStyle_Fullscreen = 0x1,

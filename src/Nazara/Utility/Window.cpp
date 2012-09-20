@@ -107,7 +107,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		{
 			if (!mode.IsFullscreenValid())
 			{
-				NazaraWarning("Mode is not fullscreen valid");
+				NazaraWarning("Video mode is not fullscreen valid");
 				mode = NzVideoMode::GetFullscreenModes()[0];
 			}
 
@@ -184,7 +184,7 @@ void NzWindow::Destroy()
 {
 	if (m_impl)
 	{
-		OnWindowDestroying();
+		OnWindowDestroy();
 
 		m_impl->Destroy();
 		delete m_impl;
@@ -212,7 +212,7 @@ NzWindowHandle NzWindow::GetHandle() const
 	if (m_impl)
 		return m_impl->GetHandle();
 	else
-		return reinterpret_cast<NzWindowHandle>(0);
+		return static_cast<NzWindowHandle>(0);
 }
 
 unsigned int NzWindow::GetHeight() const
@@ -274,6 +274,11 @@ bool NzWindow::IsMinimized() const
 		return m_impl->IsMinimized();
 	else
 		return false;
+}
+
+bool NzWindow::IsValid() const
+{
+	return m_impl != nullptr;
 }
 
 bool NzWindow::IsVisible() const
@@ -483,13 +488,13 @@ bool NzWindow::WaitEvent(NzEvent* event)
 	#endif
 }
 
-void NzWindow::OnWindowDestroying()
-{
-}
-
 bool NzWindow::OnWindowCreated()
 {
 	return true;
+}
+
+void NzWindow::OnWindowDestroy()
+{
 }
 
 void NzWindow::IgnoreNextMouseEvent(int mouseX, int mouseY) const

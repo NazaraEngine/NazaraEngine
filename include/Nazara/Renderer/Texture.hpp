@@ -13,20 +13,18 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
+class NzRenderTexture;
 struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 {
+	friend NzRenderTexture;
 	friend class NzShader;
 
 	public:
 		NzTexture();
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
-
-		#ifndef NAZARA_RENDERER_COMMON
-		bool Bind() const;
-		#endif
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1, bool lock = false);
 		void Destroy();
@@ -75,13 +73,18 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		void Unlock();
 
+		// Fonctions OpenGL
+		unsigned int GetOpenGLID() const;
+		bool Prepare() const;
+
 		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
 		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
-		void SetTarget(bool isTarget);
+		NzRenderTexture* GetRenderTexture() const;
+		void SetRenderTexture(NzRenderTexture* renderTexture);
 
 		NzTextureImpl* m_impl;
 };

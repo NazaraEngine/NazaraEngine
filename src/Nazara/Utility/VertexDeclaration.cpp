@@ -20,9 +20,22 @@
 
 namespace
 {
-	const unsigned int size[] =
+	const unsigned int elementCount[] =
 	{
-		sizeof(nzUInt32), // nzElementType_Color
+		4, // nzElementType_Color
+		1, // nzElementType_Double1
+		2, // nzElementType_Double2
+		3, // nzElementType_Double3
+		4, // nzElementType_Double4
+		1, // nzElementType_Float1
+		2, // nzElementType_Float2
+		3, // nzElementType_Float3
+		4  // nzElementType_Float4
+	};
+
+	const unsigned int elementSize[] =
+	{
+		4*sizeof(nzUInt8), // nzElementType_Color
 		1*sizeof(double), // nzElementType_Double1
 		2*sizeof(double), // nzElementType_Double2
 		3*sizeof(double), // nzElementType_Double3
@@ -143,7 +156,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 		if (impl->streamPos[current.stream] == -1)
 			impl->streamPos[current.stream] = i; // Premier élément du stream (via le triage)
 
-		impl->stride[current.stream] += size[current.type];
+		impl->stride[current.stream] += elementSize[current.type];
 	}
 
 	#if NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32
@@ -153,6 +166,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 
 	m_sharedImpl = impl;
 
+	NotifyCreated();
 	return true;
 }
 
@@ -160,6 +174,8 @@ void NzVertexDeclaration::Destroy()
 {
 	if (!m_sharedImpl)
 		return;
+
+	NotifyDestroy();
 
 	NazaraMutexLock(m_sharedImpl->mutex);
 	bool freeSharedImpl = (--m_sharedImpl->refCount == 0);
@@ -343,4 +359,14 @@ NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declar
 	declaration.m_sharedImpl = nullptr;
 
 	return *this;
+}
+
+unsigned int NzVertexDeclaration::GetElementCount(nzElementType type)
+{
+	return elementCount[type];
+}
+
+unsigned int NzVertexDeclaration::GetElementSize(nzElementType type)
+{
+	return elementSize[type];
 }

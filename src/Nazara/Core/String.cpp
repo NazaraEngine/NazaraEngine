@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <sstream>
 #include <Utfcpp/utf8.h>
 #include <Nazara/Core/Debug.hpp>
@@ -108,7 +109,7 @@ NzString::NzString(const char* string)
 			m_sharedString->capacity = size;
 			m_sharedString->size = size;
 			m_sharedString->string = new char[size+1];
-			std::strcpy(m_sharedString->string, string);
+			std::memcpy(m_sharedString->string, string, size+1);
 		}
 		else
 			m_sharedString = &emptyString;
@@ -125,7 +126,7 @@ NzString::NzString(const std::string& string)
 		m_sharedString->capacity = string.capacity();
 		m_sharedString->size = string.size();
 		m_sharedString->string = new char[string.capacity()+1];
-		std::strcpy(m_sharedString->string, string.c_str());
+		std::memcpy(m_sharedString->string, string.c_str(), string.size()+1);
 	}
 	else
 		m_sharedString = &emptyString;
@@ -180,7 +181,7 @@ NzString& NzString::Append(char character)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
 		str[m_sharedString->size] = character;
 		str[newSize] = '\0';
 
@@ -207,7 +208,7 @@ NzString& NzString::Append(const char* string)
 	{
 		EnsureOwnership();
 
-		std::strcpy(&m_sharedString->string[m_sharedString->size], string);
+		std::memcpy(&m_sharedString->string[m_sharedString->size], string, length+1);
 		m_sharedString->size += length;
 	}
 	else
@@ -216,8 +217,8 @@ NzString& NzString::Append(const char* string)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-		std::strcpy(&str[m_sharedString->size], string);
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(&str[m_sharedString->size], string, length+1);
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -241,7 +242,7 @@ NzString& NzString::Append(const NzString& string)
 	{
 		EnsureOwnership();
 
-		std::strcpy(&m_sharedString->string[m_sharedString->size], string.m_sharedString->string);
+		std::memcpy(&m_sharedString->string[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
 		m_sharedString->size += string.m_sharedString->size;
 	}
 	else
@@ -250,8 +251,8 @@ NzString& NzString::Append(const NzString& string)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-		std::strcpy(&str[m_sharedString->size], string.m_sharedString->string);
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(&str[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -2270,7 +2271,7 @@ char* NzString::GetUtf8Buffer(unsigned int* size) const
 		return nullptr;
 
 	char* buffer = new char[m_sharedString->size+1];
-	std::strcpy(buffer, m_sharedString->string);
+	std::memcpy(buffer, m_sharedString->string, m_sharedString->size+1);
 
 	if (size)
 		*size = m_sharedString->size;
@@ -2372,7 +2373,7 @@ wchar_t* NzString::GetWideBuffer(unsigned int* size) const
 			if (cp <= 0xFFFF && (cp < 0xD800 || cp > 0xDFFF)) // @Laurent Gomila
 				*ptr++ = static_cast<wchar_t>(cp);
 			else
-				*ptr++ = static_cast<wchar_t>('?');
+				*ptr++ = L'?';
 		}
 		while (*it++);
 	}
@@ -2480,7 +2481,7 @@ NzString& NzString::Insert(int pos, char character)
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedString->string[start+1], &m_sharedString->string[start], m_sharedString->size*sizeof(char));
+		std::memmove(&m_sharedString->string[start+1], &m_sharedString->string[start], m_sharedString->size);
 		m_sharedString->string[start] = character;
 
 		m_sharedString->size += 1;
@@ -2526,8 +2527,8 @@ NzString& NzString::Insert(int pos, const char* string)
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedString->string[start+len], &m_sharedString->string[start], m_sharedString->size*sizeof(char));
-		std::memcpy(&m_sharedString->string[start], string, len*sizeof(char));
+		std::memmove(&m_sharedString->string[start+len], &m_sharedString->string[start], m_sharedString->size);
+		std::memcpy(&m_sharedString->string[start], string, len+1);
 
 		m_sharedString->size += len;
 	}
@@ -2576,8 +2577,8 @@ NzString& NzString::Insert(int pos, const NzString& string)
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedString->string[start+string.m_sharedString->size], &m_sharedString->string[start], m_sharedString->size*sizeof(char));
-		std::memcpy(&m_sharedString->string[start], string.m_sharedString->string, string.m_sharedString->size*sizeof(char));
+		std::memmove(&m_sharedString->string[start+string.m_sharedString->size], &m_sharedString->string[start], m_sharedString->size);
+		std::memcpy(&m_sharedString->string[start], string.m_sharedString->string, string.m_sharedString->size+1);
 
 		m_sharedString->size += string.m_sharedString->size;
 	}
@@ -2837,7 +2838,7 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 				found = true;
 			}
 
-			std::memcpy(&m_sharedString->string[pos], replaceString, oSize*sizeof(char));
+			std::memcpy(&m_sharedString->string[pos], replaceString, oSize);
 			pos += oSize;
 
 			++count;
@@ -2859,9 +2860,9 @@ unsigned int NzString::Replace(const char* oldString, const char* replaceString,
 		{
 			const char* r = &m_sharedString->string[pos];
 
-			std::memcpy(ptr, p, (r-p)*sizeof(char));
+			std::memcpy(ptr, p, r-p);
 			ptr += r-p;
-			std::memcpy(ptr, replaceString, rSize*sizeof(char));
+			std::memcpy(ptr, replaceString, rSize);
 			ptr += rSize;
 			p = r+oSize;
 			pos += oSize;
@@ -2907,7 +2908,7 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 				found = true;
 			}
 
-			std::memcpy(&m_sharedString->string[pos], replaceString.m_sharedString->string, oldString.m_sharedString->size*sizeof(char));
+			std::memcpy(&m_sharedString->string[pos], replaceString.m_sharedString->string, oldString.m_sharedString->size);
 			pos += oldString.m_sharedString->size;
 
 			++count;
@@ -2929,9 +2930,9 @@ unsigned int NzString::Replace(const NzString& oldString, const NzString& replac
 		{
 			const char* r = &m_sharedString->string[pos];
 
-			std::memcpy(ptr, p, (r-p)*sizeof(char));
+			std::memcpy(ptr, p, r-p);
 			ptr += r-p;
-			std::memcpy(ptr, replaceString.m_sharedString->string, replaceString.m_sharedString->size*sizeof(char));
+			std::memcpy(ptr, replaceString.m_sharedString->string, replaceString.m_sharedString->size);
 			ptr += replaceString.m_sharedString->size;
 			p = r+oldString.m_sharedString->size;
 			pos += oldString.m_sharedString->size;
@@ -3189,7 +3190,7 @@ void NzString::Reserve(unsigned int bufferSize)
 
 	char* ptr = new char[bufferSize+1];
 	if (m_sharedString->size > 0)
-		std::strcpy(ptr, m_sharedString->string);
+		std::memcpy(ptr, m_sharedString->string, m_sharedString->size+1);
 
 	unsigned int size = m_sharedString->size;
 
@@ -3233,7 +3234,7 @@ NzString& NzString::Resize(int size, char character)
 	{
 		char* newString = new char[newSize+1];
 		if (m_sharedString->size != 0)
-			std::memcpy(newString, m_sharedString->string, newSize*sizeof(char));
+			std::memcpy(newString, m_sharedString->string, newSize);
 
 		char* ptr = &newString[m_sharedString->size];
 		char* limit = &newString[newSize];
@@ -3673,7 +3674,7 @@ bool NzString::StartsWith(const NzString& string, nzUInt32 flags) const
 		}
 	}
 	else
-		return std::memcmp(m_sharedString->string, string.m_sharedString->string, string.m_sharedString->size*sizeof(char)) == 0;
+		return std::memcmp(m_sharedString->string, string.m_sharedString->string, string.m_sharedString->size) == 0;
 
 	return false;
 }
@@ -3699,7 +3700,7 @@ NzString NzString::Substr(int startPos, int endPos) const
 
 	unsigned int size = minEnd-start+1;
 	char* str = new char[size+1];
-	std::memcpy(str, &m_sharedString->string[start], size*sizeof(char));
+	std::memcpy(str, &m_sharedString->string[start], size);
 	str[size] = '\0';
 
 	return NzString(new SharedString(1, size, size, str));
@@ -4185,7 +4186,7 @@ NzString& NzString::operator=(const char* string)
 		}
 
 		m_sharedString->size = size;
-		std::strcpy(m_sharedString->string, string);
+		std::memcpy(m_sharedString->string, string, size+1);
 	}
 	else
 		ReleaseString();
@@ -4209,7 +4210,7 @@ NzString& NzString::operator=(const std::string& string)
 		}
 
 		m_sharedString->size = string.size();
-		std::strcpy(m_sharedString->string, string.c_str());
+		std::memcpy(m_sharedString->string, string.c_str(), string.size()+1);
 	}
 	else
 		ReleaseString();
@@ -4246,7 +4247,7 @@ NzString NzString::operator+(char character) const
 
 	unsigned int totalSize = m_sharedString->size+1;
 	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
+	std::memcpy(str, m_sharedString->string, m_sharedString->size);
 
 	str[m_sharedString->size] = character;
 	str[totalSize] = '\0';
@@ -4268,8 +4269,8 @@ NzString NzString::operator+(const char* string) const
 
 	unsigned int totalSize = m_sharedString->size + length;
 	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-	std::strcpy(&str[m_sharedString->size], string);
+	std::memcpy(str, m_sharedString->string, m_sharedString->size);
+	std::memcpy(&str[m_sharedString->size], string, length+1);
 
 	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
@@ -4284,8 +4285,8 @@ NzString NzString::operator+(const std::string& string) const
 
 	unsigned int totalSize = m_sharedString->size + string.size();
 	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-	std::strcpy(&str[m_sharedString->size], string.c_str());
+	std::memcpy(str, m_sharedString->string, m_sharedString->size);
+	std::memcpy(&str[m_sharedString->size], string.c_str(), string.size()+1);
 
 	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
@@ -4300,8 +4301,8 @@ NzString NzString::operator+(const NzString& string) const
 
 	unsigned int totalSize = m_sharedString->size + string.m_sharedString->size;
 	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-	std::strcpy(&str[m_sharedString->size], string.m_sharedString->string);
+	std::memcpy(str, m_sharedString->string, m_sharedString->size);
+	std::memcpy(&str[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
 
 	return NzString(new SharedString(1, totalSize, totalSize, str));
 }
@@ -4328,7 +4329,7 @@ NzString& NzString::operator+=(char character)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
 		str[m_sharedString->size] = character;
 		str[newSize] = '\0';
 
@@ -4350,25 +4351,25 @@ NzString& NzString::operator+=(const char* string)
 	if (m_sharedString->size == 0)
 		return operator=(string);
 
-	unsigned int length = std::strlen(string);
-	if (length == 0)
+	unsigned int size = std::strlen(string);
+	if (size == 0)
 		return *this;
 
-	if (m_sharedString->capacity >= m_sharedString->size + length)
+	if (m_sharedString->capacity >= m_sharedString->size + size)
 	{
 		EnsureOwnership();
 
-		std::strcpy(&m_sharedString->string[m_sharedString->size], string);
-		m_sharedString->size += length;
+		std::memcpy(&m_sharedString->string[m_sharedString->size], string, size+1);
+		m_sharedString->size += size;
 	}
 	else
 	{
-		unsigned int newSize = m_sharedString->size + length;
+		unsigned int newSize = m_sharedString->size + size;
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-		std::strcpy(&str[m_sharedString->size], string);
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(&str[m_sharedString->size], string, size+1);
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -4392,7 +4393,7 @@ NzString& NzString::operator+=(const std::string& string)
 	{
 		EnsureOwnership();
 
-		std::strcpy(&m_sharedString->string[m_sharedString->size], string.c_str());
+		std::memcpy(&m_sharedString->string[m_sharedString->size], string.c_str(), string.size()+1);
 		m_sharedString->size += string.size();
 	}
 	else
@@ -4401,8 +4402,8 @@ NzString& NzString::operator+=(const std::string& string)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-		std::strcpy(&str[m_sharedString->size], string.c_str());
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(&str[m_sharedString->size], string.c_str(), string.size()+1);
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -4426,7 +4427,7 @@ NzString& NzString::operator+=(const NzString& string)
 	{
 		EnsureOwnership();
 
-		std::strcpy(&m_sharedString->string[m_sharedString->size], string.m_sharedString->string);
+		std::memcpy(&m_sharedString->string[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
 		m_sharedString->size += string.m_sharedString->size;
 	}
 	else
@@ -4435,8 +4436,8 @@ NzString& NzString::operator+=(const NzString& string)
 		unsigned int bufferSize = nzGetNewSize(newSize);
 
 		char* str = new char[bufferSize+1];
-		std::memcpy(str, m_sharedString->string, m_sharedString->size*sizeof(char));
-		std::strcpy(&str[m_sharedString->size], string.m_sharedString->string);
+		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(&str[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
 
 		ReleaseString();
 		m_sharedString = new SharedString;
@@ -4902,7 +4903,7 @@ NzString operator+(char character, const NzString& string)
 	unsigned int totalSize = string.m_sharedString->size+1;
 	char* str = new char[totalSize+1];
 	str[0] = character;
-	std::strcpy(str, string.m_sharedString->string);
+	std::memcpy(str, string.m_sharedString->string, string.m_sharedString->size+1);
 
 	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
@@ -4918,8 +4919,8 @@ NzString operator+(const char* string, const NzString& nstring)
 	unsigned int size = std::strlen(string);
 	unsigned int totalSize = size + nstring.m_sharedString->size;
 	char* str = new char[totalSize+1];
-	std::memcpy(str, string, size*sizeof(char));
-	std::strcpy(&str[size], nstring.m_sharedString->string);
+	std::memcpy(str, string, size);
+	std::memcpy(&str[size], nstring.m_sharedString->string, nstring.m_sharedString->size+1);
 
 	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
@@ -4934,8 +4935,8 @@ NzString operator+(const std::string& string, const NzString& nstring)
 
 	unsigned int totalSize = string.size() + nstring.m_sharedString->size;
 	char* str = new char[totalSize+1];
-	std::memcpy(str, string.c_str(), string.size()*sizeof(char));
-	std::strcpy(&str[string.size()], nstring.m_sharedString->string);
+	std::memcpy(str, string.c_str(), string.size());
+	std::memcpy(&str[string.size()], nstring.m_sharedString->string, nstring.m_sharedString->size+1);
 
 	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
@@ -5083,7 +5084,7 @@ void NzString::EnsureOwnership()
 		m_sharedString->refCount--;
 
 		char* string = new char[m_sharedString->capacity+1];
-		std::strcpy(string, m_sharedString->string);
+		std::memcpy(string, m_sharedString->string, m_sharedString->size+1);
 
 		m_sharedString = new SharedString(1, m_sharedString->capacity, m_sharedString->size, string);
 	}
@@ -5115,7 +5116,7 @@ void NzString::ReleaseString()
 }
 
 NzString::SharedString NzString::emptyString(0, 0, 0, nullptr);
-unsigned int NzString::npos(static_cast<unsigned int>(-1));
+const unsigned int NzString::npos(std::numeric_limits<unsigned int>::max());
 
 namespace std
 {
