@@ -242,7 +242,7 @@ enum nzWindowStyleFlags
 
 	nzWindowStyle_Closable   = 0x2,
 	nzWindowStyle_Resizable  = 0x4,
-	nzWindowStyle_Titlebar   = 0x4,
+	nzWindowStyle_Titlebar   = 0x8,
 
 	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
 };
