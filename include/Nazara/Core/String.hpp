@@ -89,7 +89,6 @@ class NAZARA_API NzString : public NzHashable
 		char16_t* GetUtf16Buffer(unsigned int* size = nullptr) const;
 		char32_t* GetUtf32Buffer(unsigned int* size = nullptr) const;
 		wchar_t* GetWideBuffer(unsigned int* size = nullptr) const;
-
 		NzString GetWord(unsigned int index, nzUInt32 flags = None) const;
 		unsigned int GetWordPosition(unsigned int index, nzUInt32 flags = None) const;
 
