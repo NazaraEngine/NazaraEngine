@@ -14,6 +14,8 @@ class NzInputStream
 	public:
 		virtual ~NzInputStream();
 
+		virtual bool EndOfStream() const = 0;
+
 		virtual nzUInt64 GetCursorPos() const = 0;
 		virtual nzUInt64 GetSize() const = 0;
 
