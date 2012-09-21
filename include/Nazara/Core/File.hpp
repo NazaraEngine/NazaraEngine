@@ -72,7 +72,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		NzString GetFileName() const;
 		time_t GetLastAccessTime() const;
 		time_t GetLastWriteTime() const;
-		NzString GetLine(unsigned int lineSize = 0);
+		NzString GetLine(unsigned int lineSize = 0) override;
 		nzUInt64 GetSize() const;
 
 		bool IsOpen() const;

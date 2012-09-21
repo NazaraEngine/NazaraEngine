@@ -9,6 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 
+class NzString;
+
 class NzInputStream
 {
 	public:
@@ -17,6 +19,7 @@ class NzInputStream
 		virtual bool EndOfStream() const = 0;
 
 		virtual nzUInt64 GetCursorPos() const = 0;
+		virtual NzString GetLine(unsigned int lineSize = 0);
 		virtual nzUInt64 GetSize() const = 0;
 
 		virtual std::size_t Read(void* buffer, std::size_t size) = 0;
