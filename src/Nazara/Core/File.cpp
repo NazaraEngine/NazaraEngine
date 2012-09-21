@@ -100,7 +100,7 @@ bool NzFile::EndOfFile() const
 	return m_impl->EndOfFile();
 }
 
-bool NzFile::EndOfStream() const;
+bool NzFile::EndOfStream() const
 {
 	return EndOfFile();
 }
@@ -211,50 +211,9 @@ NzString NzFile::GetLine(unsigned int lineSize)
 	}
 	#endif
 
-	NzString line;
-	if (lineSize == 0) // Taille maximale indéterminée
-	{
-		while (!m_impl->EndOfFile())
-		{
-			char c;
-			if (m_impl->Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-				{
-					if (m_openMode & Text && line.EndsWith('\r'))
-						line.Resize(-1);
-
-					break;
-				}
-
-				line += c;
-			}
-			else
-				break;
-		}
-	}
-	else
-	{
-		line.Reserve(lineSize);
-		for (unsigned int i = 0; i < lineSize; ++i)
-		{
-			char c;
-			if (m_impl->Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-				{
-					if (m_openMode & Text && line.EndsWith('\r'))
-						line.Resize(-1);
-
-					break;
-				}
-
-				line += c;
-			}
-			else
-				break;
-		}
-	}
+	NzString line = NzInputStream::GetLine(lineSize);
+	if (m_openMode & Text && !m_impl->EndOfFile() && line.EndsWith('\r'))
+		line.Resize(-1);
 
 	return line;
 }
