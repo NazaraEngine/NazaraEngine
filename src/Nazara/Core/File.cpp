@@ -100,6 +100,11 @@ bool NzFile::EndOfFile() const
 	return m_impl->EndOfFile();
 }
 
+bool NzFile::EndOfStream() const;
+{
+	return EndOfFile();
+}
+
 bool NzFile::Exists() const
 {
 	NazaraLock(m_mutex)
