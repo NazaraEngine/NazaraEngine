@@ -59,6 +59,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		bool Delete();
 
 		bool EndOfFile() const;
+		bool EndOfStream() const;
 
 		bool Exists() const;
 
