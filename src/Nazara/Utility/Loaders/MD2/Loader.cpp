@@ -5,9 +5,7 @@
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Loaders/MD2/Constants.hpp>
