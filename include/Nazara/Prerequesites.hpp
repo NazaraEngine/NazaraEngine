@@ -101,7 +101,7 @@
 			#define _WIN32_WINNT NAZARA_WINNT
 		#endif
 	#endif
-#elif defined(linux) || defined(__linux)
+#elif defined(__linux__) || defined(linux) || defined(__linux)
 	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
 		#define NAZARA_API __attribute__((visibility ("default")))
 	#else
@@ -109,11 +109,11 @@
 	#endif
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
-/*#elif defined(__APPLE__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
+/*#elif defined(__APPLE__) || defined(macintosh) || defined(Macintosh)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_MACOS
 	#define NAZARA_PLATFORM_POSIX
-#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__FreeBSD__)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_FREEBSD
 	#define NAZARA_PLATFORM_POSIX*/
