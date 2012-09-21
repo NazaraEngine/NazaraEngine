@@ -45,13 +45,13 @@ int main()
 	NzClock clock;
 	while (sound.GetStatus() == nzSoundStatus_Playing)
 	{
-		// Comme le son se joue dans un thread séparé, on peut mettre en pause celui-ci régulièrement
+		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
 		int sleepTime = 1000/60 - clock.GetMilliseconds(); // 60 FPS
 
 		if (sleepTime > 0)
 			NzThread::Sleep(sleepTime);
 
-		// On bouge la source du son en fonction du au temps depuis chaque mise à jour
+		// On bouge la source du son en fonction du temps depuis chaque mise à jour
 		NzVector3f pos = sound.GetPosition() + sound.GetVelocity()*clock.GetSeconds();
 		sound.SetPosition(pos);
 
