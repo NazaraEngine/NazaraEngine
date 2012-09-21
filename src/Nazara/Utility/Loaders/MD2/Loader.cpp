@@ -96,7 +96,7 @@ namespace
 			}
 		}
 
-		/// Chargement des animmations
+		/// Chargement des animations
 		if (animated)
 		{
 			NzAnimation* animation = new NzAnimation;
