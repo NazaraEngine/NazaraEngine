@@ -11,7 +11,6 @@
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzMesh;
-struct NzAnimation;
 
 class NAZARA_API NzKeyframeMesh : public NzSubMesh
 {
