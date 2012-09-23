@@ -181,7 +181,6 @@ bool NzMesh::Create(nzAnimationType type)
 	m_impl->animationType = type;
 
 	NotifyCreated();
-
 	return true;
 }
 

@@ -30,7 +30,7 @@ void NzSubMesh::Animate(unsigned int frameA, unsigned int frameB, float interpol
 	#if NAZARA_UTILITY_SAFE
 	if (!m_parent->HasAnimation())
 	{
-		NazaraError("SubMesh has no animation");
+		NazaraError("Parent mesh has no animation");
 		return;
 	}
 
