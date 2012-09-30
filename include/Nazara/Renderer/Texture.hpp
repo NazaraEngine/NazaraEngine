@@ -34,7 +34,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool EnableMipmapping(bool enable);
 
 		unsigned int GetAnisotropyLevel() const;
-		nzUInt8 GetBPP() const;
+		nzUInt8 GetBytesPerPixel() const;
 		unsigned int GetDepth() const;
 		nzTextureFilter GetFilterMode() const;
 		nzPixelFormat GetFormat() const;
