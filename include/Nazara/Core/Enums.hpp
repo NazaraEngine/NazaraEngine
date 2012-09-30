@@ -27,4 +27,11 @@ enum nzErrorType
 	nzErrorType_Max = nzErrorType_Warning
 };
 
+enum nzStreamOptionFlags
+{
+	nzStreamOption_None = 0x0,
+
+	nzStreamOption_Text = 0x1
+};
+
 #endif // NAZARA_ENUMS_CORE_HPP
