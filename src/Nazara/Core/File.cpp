@@ -193,31 +193,6 @@ time_t NzFile::GetLastWriteTime() const
 	return GetLastWriteTime(m_filePath);
 }
 
-NzString NzFile::GetLine(unsigned int lineSize)
-{
-	NazaraLock(m_mutex)
-
-	#if NAZARA_CORE_SAFE
-	if (!IsOpen())
-	{
-		NazaraError("File not opened");
-		return NzString();
-	}
-
-	if ((m_openMode & ReadOnly) == 0 && (m_openMode & ReadWrite) == 0)
-	{
-		NazaraError("File not opened with read access");
-		return NzString();
-	}
-	#endif
-
-	NzString line = NzInputStream::GetLine(lineSize);
-	if (m_openMode & Text && !m_impl->EndOfFile() && line.EndsWith('\r'))
-		line.Resize(-1);
-
-	return line;
-}
-
 nzUInt64 NzFile::GetSize() const
 {
 	NazaraLock(m_mutex)
@@ -272,7 +247,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
 	if (byteRead == 0)
 		return 0;
 
-	if (buffer && m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness() && typeSize != 1)
+	if (buffer && typeSize != 1 && m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness())
 	{
 		unsigned int typeCount = byteRead/typeSize;
 		for (unsigned int i = 0; i < typeCount; ++i)
@@ -322,6 +297,9 @@ bool NzFile::Open(unsigned long openMode)
 
 		return false;
 	}
+
+	if (m_openMode & Text)
+		m_streamOptions &= nzStreamOption_Text;
 
 	return true;
 }
@@ -410,6 +388,9 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 		delete m_impl;
 
 		m_impl = impl;
+
+		if (m_openMode & Text)
+			m_streamOptions &= nzStreamOption_Text;
 	}
 
 	m_openMode = openMode;
@@ -423,7 +404,7 @@ bool NzFile::Write(const NzString& string)
 
 	NzString temp(string);
 
-	if (m_openMode & Text)
+	if (m_streamOptions & nzStreamOption_Text)
 	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		temp.Replace("\n", "\r\n");
