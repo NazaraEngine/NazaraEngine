@@ -10,12 +10,12 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
 
-template <typename T> class NAZARA_API NzAbstract3DNoise : public NzMappedNoiseBase
+template<typename T> class NzAbstract3DNoise : public NzMappedNoiseBase<T>
 {
     public:
+        virtual T GetBasicValue(T x, T y, T z);
         virtual T GetMappedValue(T x, T y, T z);
-        virtual T GetValue(T x, T y, T z) = 0;
-        virtual T GetValue(T x, T y, T z, T resolution);
+        virtual T GetValue(T x, T y, T z, T resolution) = 0;
 };
 
 #include <Nazara/Noise/Abstract3DNoise.inl>

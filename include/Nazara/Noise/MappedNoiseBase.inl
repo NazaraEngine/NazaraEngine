@@ -52,11 +52,11 @@ void NzMappedNoiseBase<T>::SetResolution(T resolution)
     if (NzNumberEquals(resolution, static_cast<T>(0.0)))
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		ss << __FILE__ << ':' << __LINE__ << " : resolution cannot be 0.0f";
 
 		throw std::domain_error(ss.ToString());
 	}
-    m_resolution = static_cast<T>(1.0)/resolution;
+    m_resolution = resolution;
 }
 
 #include <Nazara/Core/DebugOff.hpp>
