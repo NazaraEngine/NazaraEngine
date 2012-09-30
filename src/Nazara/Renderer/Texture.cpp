@@ -485,7 +485,7 @@ unsigned int NzTexture::GetAnisotropyLevel() const
 	return anisotropyLevel;
 }
 
-nzUInt8 NzTexture::GetBPP() const
+nzUInt8 NzTexture::GetBytesPerPixel() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -495,7 +495,7 @@ nzUInt8 NzTexture::GetBPP() const
 	}
 	#endif
 
-	return NzPixelFormat::GetBPP(m_impl->format);
+	return NzPixelFormat::GetBytesPerPixel(m_impl->format);
 }
 
 unsigned int NzTexture::GetDepth() const
@@ -1113,7 +1113,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 		return false;
 	}
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
 	NzImage mirrored;
@@ -1210,7 +1210,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 		return false;
 	}
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
 	unsigned int size = cube.width*cube.height*cube.depth*bpp;
@@ -1365,7 +1365,7 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 		return false;
 	}
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_impl->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
 	unsigned int size = rect.width*rect.height*bpp;
