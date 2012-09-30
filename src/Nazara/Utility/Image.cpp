@@ -105,10 +105,10 @@ bool NzImage::Convert(nzPixelFormat format)
 	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 	{
 		unsigned int pixelsPerFace = width*height;
-		nzUInt8* ptr = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBPP(format)];
+		nzUInt8* ptr = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBytesPerPixel(format)];
 		nzUInt8* pixels = m_sharedImage->pixels[i];
-		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBPP(m_sharedImage->format);
-		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBPP(format);
+		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(format);
 
 		for (unsigned int d = 0; d < depth; ++d)
 		{
@@ -180,7 +180,7 @@ bool NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVecto
 	///FIXME: Trouver une interface pour gérer ce genre de problème (Façon OpenGL?)
 	(Appliquer l'interface à NzTexture également)
 	*/
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	unsigned int dstLineStride = srcCube.width*bpp;
 	unsigned int dstFaceStride = dstLineStride*srcCube.height;
 	unsigned int srcLineStride = m_sharedImage->width*bpp;
@@ -302,7 +302,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 		try
 		{
-			levels[i] = new nzUInt8[w * h * d * NzPixelFormat::GetBPP(format)];
+			levels[i] = new nzUInt8[w * h * d * NzPixelFormat::GetBytesPerPixel(format)];
 
 			if (w > 1)
 				w >>= 1;
@@ -358,7 +358,7 @@ bool NzImage::Fill(const NzColor& color)
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* pixels = new nzUInt8[bpp];
 	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixels))
 	{
@@ -429,7 +429,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* pixels = new nzUInt8[bpp];
 	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixels))
 	{
@@ -485,7 +485,7 @@ bool NzImage::Fill(const NzColor& color, const NzCubeui& cube)
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* pixels = new nzUInt8[bpp];
 	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixels))
 	{
@@ -601,9 +601,9 @@ bool NzImage::FlipVertically()
 	return true;
 }
 
-nzUInt8 NzImage::GetBPP() const
+nzUInt8 NzImage::GetBytesPerPixel() const
 {
-	return NzPixelFormat::GetBPP(m_sharedImage->format);
+	return NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 }
 
 const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned int z, nzUInt8 level) const
@@ -641,7 +641,7 @@ const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned 
 	}
 	#endif
 
-	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBPP(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 }
 
 unsigned int NzImage::GetDepth(nzUInt8 level) const
@@ -720,7 +720,7 @@ NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) c
 	}
 	#endif
 
-	const nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBPP(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	const nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 	NzColor color;
 	if (!NzPixelFormat::Convert(m_sharedImage->format, nzPixelFormat_RGBA8, pixel, &color.r))
@@ -767,7 +767,7 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 
 	EnsureOwnership();
 
-	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBPP(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 }
 
 unsigned int NzImage::GetSize() const
@@ -794,7 +794,7 @@ unsigned int NzImage::GetSize() const
 	if (m_sharedImage->type == nzImageType_Cubemap)
 		size *= 6;
 
-	return size * NzPixelFormat::GetBPP(m_sharedImage->format);
+	return size * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 }
 
 unsigned int NzImage::GetSize(nzUInt8 level) const
@@ -810,7 +810,7 @@ unsigned int NzImage::GetSize(nzUInt8 level) const
 	return (GetLevelSize(m_sharedImage->width, level)) *
 	       (GetLevelSize(m_sharedImage->height, level)) *
 	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)) *
-	       NzPixelFormat::GetBPP(m_sharedImage->format);
+	       NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 }
 
 nzImageType	NzImage::GetType() const
@@ -941,7 +941,7 @@ bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y
 	}
 	#endif
 
-	nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBPP(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixel))
 	{
@@ -1029,7 +1029,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[level], bpp, rect.x, rect.y, z, width, height);
 	unsigned int srcStride = rect.width * bpp;
 	unsigned int dstStride = m_sharedImage->width * bpp;
@@ -1086,7 +1086,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level)
 
 	EnsureOwnership();
 
-	nzUInt8 bpp = NzPixelFormat::GetBPP(m_sharedImage->format);
+	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[level], bpp, cube.x, cube.y, cube.z, width, height);
 	unsigned int srcStride = cube.width * bpp;
 	unsigned int dstStride = width * bpp;

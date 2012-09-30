@@ -66,7 +66,7 @@ class NAZARA_API NzImage : public NzResource
 		bool FlipHorizontally();
 		bool FlipVertically();
 
-		nzUInt8 GetBPP() const;
+		nzUInt8 GetBytesPerPixel() const;
 		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
