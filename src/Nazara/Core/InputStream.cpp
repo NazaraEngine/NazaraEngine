@@ -45,5 +45,8 @@ NzString NzInputStream::GetLine(unsigned int lineSize)
 		}
 	}
 
+	if (m_streamOptions & nzStreamOption_Text && !EndOfStream() && line.EndsWith('\r'))
+		line.Resize(-1);
+
 	return line;
 }
