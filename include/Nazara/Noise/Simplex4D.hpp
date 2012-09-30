@@ -12,7 +12,7 @@
 #include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-template <typename T> class NAZARA_API NzSimplex4D : public NzAbstract4DNoise<T>, public NzNoiseBase
+template <typename T> class NzSimplex4D : public NzAbstract4DNoise<T>, public NzNoiseBase
 {
     public:
         NzSimplex4D();

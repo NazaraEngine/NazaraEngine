@@ -12,7 +12,7 @@
 #include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-template <typename T> class NAZARA_API NzPerlin4D : public NzAbstract4DNoise<T>, public NzNoiseBase
+template <typename T> class NzPerlin4D : public NzAbstract4DNoise<T>, public NzNoiseBase
 {
     public:
         NzPerlin4D();
