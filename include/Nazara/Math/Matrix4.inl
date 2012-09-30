@@ -725,6 +725,28 @@ NzMatrix4<T>& NzMatrix4<T>::operator*=(T scalar)
 }
 
 template<typename T>
+bool NzMatrix4<T>::operator==(const NzMatrix4& mat) const
+{
+	if (!m_sharedMatrix)
+		return mat.m_sharedMatrix == nullptr;
+
+	if (!mat.m_sharedMatrix)
+		return false;
+
+	for (unsigned int i = 0; i < 16; ++i)
+		if (!NzNumberEquals((&m_sharedMatrix->m11)[i]))
+			return false;
+
+	return true;
+}
+
+template<typename T>
+bool NzMatrix4<T>::operator!=(const NzMatrix4& mat) const
+{
+	return !operator==(mat);
+}
+
+template<typename T>
 NzMatrix4<T> NzMatrix4<T>::Concatenate(const NzMatrix4& m1, const NzMatrix4& m2)
 {
 	#if NAZARA_MATH_SAFE
