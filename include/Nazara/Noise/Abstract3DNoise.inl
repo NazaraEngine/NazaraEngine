@@ -9,15 +9,15 @@
 #include <Nazara/Noise/Debug.hpp>
 
 template <typename T>
-T NzAbstract3DNoise<T>::GetMappedValue(T x, T y, T z)
+T NzAbstract3DNoise<T>::GetBasicValue(T x, T y, T z)
 {
-    return GetValue(x,y,z) * m_gain + m_offset;
+    return this->GetValue(x,y,z,this->m_resolution);
 }
 
 template <typename T>
-T NzAbstract3DNoise<T>::GetValue(T x, T y, T z, T resolution)
+T NzAbstract3DNoise<T>::GetMappedValue(T x, T y, T z)
 {
-    return GetValue(x,y,z,this->m_resolution);
+    return (this->GetValue(x,y,z,this->m_resolution) + this->m_offset) * this->m_gain ;
 }
 
 #include <Nazara/Core/DebugOff.hpp>

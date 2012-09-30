@@ -24,9 +24,9 @@ NzPerlin3D<T>::NzPerlin3D()
 template <typename T>
 T NzPerlin3D<T>::GetValue(T x, T y, T z, T resolution)
 {
-    x *= resolution;
-    y *= resolution;
-    z *= resolution;
+    x /= resolution;
+    y /= resolution;
+    z /= resolution;
 
     x0 = fastfloor(x);
     y0 = fastfloor(y);
