@@ -22,7 +22,8 @@ template<typename T> class NzVector2;
 template<typename T> class NzVector3;
 template<typename T> class NzVector4;
 
-template<typename T> class NzMatrix4
+template<typename T>
+class NzMatrix4
 {
 	public:
 		NzMatrix4();
@@ -103,6 +104,9 @@ template<typename T> class NzMatrix4
 
 		NzMatrix4& operator*=(const NzMatrix4& matrix);
 		NzMatrix4& operator*=(T scalar);
+
+		bool operator==(const NzMatrix4& mat) const;
+		bool operator!=(const NzMatrix4& mat) const;
 
 		static NzMatrix4 Concatenate(const NzMatrix4& m1, const NzMatrix4& m2);
 		static NzMatrix4 ConcatenateAffine(const NzMatrix4& m1, const NzMatrix4& m2);
