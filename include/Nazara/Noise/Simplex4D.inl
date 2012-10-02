@@ -54,10 +54,10 @@ T NzSimplex4D<T>::GetValue(T x, T y, T z, T w, T resolution)
     w *= resolution;
 
     sum = (x + y + z + w) * SkewCoeff4D;
-    skewedCubeOrigin.x = fastfloor(x + sum);
-    skewedCubeOrigin.y = fastfloor(y + sum);
-    skewedCubeOrigin.z = fastfloor(z + sum);
-    skewedCubeOrigin.w = fastfloor(w + sum);
+    skewedCubeOrigin.x = this->fastfloor(x + sum);
+    skewedCubeOrigin.y = this->fastfloor(y + sum);
+    skewedCubeOrigin.z = this->fastfloor(z + sum);
+    skewedCubeOrigin.w = this->fastfloor(w + sum);
 
     sum = (skewedCubeOrigin.x + skewedCubeOrigin.y + skewedCubeOrigin.z + skewedCubeOrigin.w) * UnskewCoeff4D;
     unskewedCubeOrigin.x = skewedCubeOrigin.x - sum;
@@ -120,11 +120,11 @@ T NzSimplex4D<T>::GetValue(T x, T y, T z, T w, T resolution)
     kk = skewedCubeOrigin.z & 255;
     ll = skewedCubeOrigin.w & 255;
 
-    gi0 = perm[ii + perm[jj + perm[kk + perm[ll]]]] & 31;
-    gi1 = perm[ii + off1.x + perm[jj + off1.y + perm[kk + off1.z + perm[ll + off1.w]]]] & 31;
-    gi2 = perm[ii + off2.x + perm[jj + off2.y + perm[kk + off2.z + perm[ll + off2.w]]]] & 31;
-    gi3 = perm[ii + off3.x + perm[jj + off3.y + perm[kk + off3.z + perm[ll + off3.w]]]] & 31;
-    gi4 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
+    gi0 = this->perm[ii +          this->perm[jj +          this->perm[kk +          this->perm[ll]]]] & 31;
+    gi1 = this->perm[ii + off1.x + this->perm[jj + off1.y + this->perm[kk + off1.z + this->perm[ll + off1.w]]]] & 31;
+    gi2 = this->perm[ii + off2.x + this->perm[jj + off2.y + this->perm[kk + off2.z + this->perm[ll + off2.w]]]] & 31;
+    gi3 = this->perm[ii + off3.x + this->perm[jj + off3.y + this->perm[kk + off3.z + this->perm[ll + off3.w]]]] & 31;
+    gi4 = this->perm[ii + 1 +      this->perm[jj + 1 +      this->perm[kk + 1 +      this->perm[ll + 1]]]] % 32;
 
     c1 = 0.6 - d1.x*d1.x - d1.y*d1.y - d1.z*d1.z - d1.w*d1.w;
     c2 = 0.6 - d2.x*d2.x - d2.y*d2.y - d2.z*d2.z - d2.w*d2.w;

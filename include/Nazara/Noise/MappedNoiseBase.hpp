@@ -8,8 +8,9 @@
 #define NAZARA_MAPPEDNOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Noise/NoiseBase.hpp>
 
-template <typename T> class NzMappedNoiseBase
+template <typename T> class NzMappedNoiseBase : public NzNoiseBase
 {
     public:
         NzMappedNoiseBase();

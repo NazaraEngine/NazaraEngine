@@ -28,23 +28,23 @@ T NzPerlin3D<T>::GetValue(T x, T y, T z, T resolution)
     y /= resolution;
     z /= resolution;
 
-    x0 = fastfloor(x);
-    y0 = fastfloor(y);
-    z0 = fastfloor(z);
+    x0 = this->fastfloor(x);
+    y0 = this->fastfloor(y);
+    z0 = this->fastfloor(z);
 
     ii = x0 & 255;
     jj = y0 & 255;
     kk = z0 & 255;
 
-    gi0 = perm[ii + perm[jj + perm[kk]]] & 15;
-    gi1 = perm[ii + 1 + perm[jj + perm[kk]]] & 15;
-    gi2 = perm[ii + perm[jj + 1 + perm[kk]]] & 15;
-    gi3 = perm[ii + 1 + perm[jj + 1 + perm[kk]]] & 15;
+    gi0 = this->perm[ii +     this->perm[jj +     this->perm[kk]]] & 15;
+    gi1 = this->perm[ii + 1 + this->perm[jj +     this->perm[kk]]] & 15;
+    gi2 = this->perm[ii +     this->perm[jj + 1 + this->perm[kk]]] & 15;
+    gi3 = this->perm[ii + 1 + this->perm[jj + 1 + this->perm[kk]]] & 15;
 
-    gi4 = perm[ii + perm[jj + perm[kk + 1]]] & 15;
-    gi5 = perm[ii + 1 + perm[jj + perm[kk + 1]]] & 15;
-    gi6 = perm[ii + perm[jj + 1 + perm[kk + 1]]] & 15;
-    gi7 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] & 15;
+    gi4 = this->perm[ii +     this->perm[jj +     this->perm[kk + 1]]] & 15;
+    gi5 = this->perm[ii + 1 + this->perm[jj +     this->perm[kk + 1]]] & 15;
+    gi6 = this->perm[ii +     this->perm[jj + 1 + this->perm[kk + 1]]] & 15;
+    gi7 = this->perm[ii + 1 + this->perm[jj + 1 + this->perm[kk + 1]]] & 15;
 
     temp.x = x-x0;
     temp.y = y-y0;
