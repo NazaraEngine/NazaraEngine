@@ -27,8 +27,8 @@ T NzSimplex2D<T>::GetValue(T x, T y, T resolution)
     y *= resolution;
 
     sum = (x + y) * SkewCoeff2D;
-    skewedCubeOrigin.x = fastfloor(x + sum);
-    skewedCubeOrigin.y = fastfloor(y + sum);
+    skewedCubeOrigin.x = this->fastfloor(x + sum);
+    skewedCubeOrigin.y = this->fastfloor(y + sum);
 
     sum = (skewedCubeOrigin.x + skewedCubeOrigin.y) * UnskewCoeff2D;
     unskewedCubeOrigin.x = skewedCubeOrigin.x - sum;
@@ -59,9 +59,9 @@ T NzSimplex2D<T>::GetValue(T x, T y, T resolution)
     ii = skewedCubeOrigin.x & 255;
     jj = skewedCubeOrigin.y & 255;
 
-    gi0 = perm[ii +          perm[jj         ]] & 7;
-    gi1 = perm[ii + off1.x + perm[jj + off1.y]] & 7;
-    gi2 = perm[ii + 1 +      perm[jj + 1     ]] & 7;
+    gi0 = this->perm[ii +          this->perm[jj         ]] & 7;
+    gi1 = this->perm[ii + off1.x + this->perm[jj + off1.y]] & 7;
+    gi2 = this->perm[ii + 1 +      this->perm[jj + 1     ]] & 7;
 
     c1 = 0.5 - d1.x * d1.x - d1.y * d1.y;
     c2 = 0.5 - d2.x * d2.x - d2.y * d2.y;

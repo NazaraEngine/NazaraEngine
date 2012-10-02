@@ -23,16 +23,16 @@ T NzPerlin2D<T>::GetValue(T x, T y, T resolution)
     x *= resolution;
     y *= resolution;
 
-    x0 = fastfloor(x);
-    y0 = fastfloor(y);
+    x0 = this->fastfloor(x);
+    y0 = this->fastfloor(y);
 
     ii = x0 & 255;
     jj = y0 & 255;
 
-    gi0 = perm[ii + perm[jj]] & 7;
-    gi1 = perm[ii + 1 + perm[jj]] & 7;
-    gi2 = perm[ii + perm[jj + 1]] & 7;
-    gi3 = perm[ii + 1 + perm[jj + 1]] & 7;
+    gi0 = this->perm[ii +     this->perm[jj]] & 7;
+    gi1 = this->perm[ii + 1 + this->perm[jj]] & 7;
+    gi2 = this->perm[ii +     this->perm[jj + 1]] & 7;
+    gi3 = this->perm[ii + 1 + this->perm[jj + 1]] & 7;
 
     temp.x = x-x0;
     temp.y = y-y0;

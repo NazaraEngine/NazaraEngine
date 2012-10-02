@@ -12,12 +12,12 @@
 #include <Nazara/Noise/Abstract2DNoise.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-template <typename T> class NzPerlin2D : public NzAbstract2DNoise<T>, public NzNoiseBase
+template <typename T> class NzPerlin2D : public NzAbstract2DNoise<T>
 {
     public:
         NzPerlin2D();
         T GetValue(T x, T y, T resolution);
-        ~NzPerlin2D() = default;
+        virtual ~NzPerlin2D() = default;
     protected:
     private:
         int x0, y0;

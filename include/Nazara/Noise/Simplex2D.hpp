@@ -12,12 +12,12 @@
 #include <Nazara/Noise/Abstract2DNoise.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-template <typename T> class NzSimplex2D : public NzAbstract2DNoise<T>, public NzNoiseBase
+template <typename T> class NzSimplex2D : public NzAbstract2DNoise<T>
 {
     public:
         NzSimplex2D();
         T GetValue(T x, T y, T resolution);
-        ~NzSimplex2D() = default;
+        virtual ~NzSimplex2D() = default;
     protected:
     private:
         int ii,jj;
