@@ -63,6 +63,8 @@
 #define NazaraUnused(a) (void) a
 
 #if defined(_WIN32) || defined(__WIN32__)
+	#define NAZARA_PLATFORM_WINDOWS
+
 	#if !defined(NAZARA_STATIC)
 		#ifdef NAZARA_BUILD
 			#define NAZARA_API __declspec(dllexport)
@@ -72,7 +74,6 @@
 	#else
 		#define NAZARA_API
 	#endif
-	#define NAZARA_PLATFORM_WINDOWS
 
 	// Des defines pour le header Windows
 	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothèque
@@ -102,13 +103,14 @@
 		#endif
 	#endif
 #elif defined(__linux__) || defined(linux) || defined(__linux)
+	#define NAZARA_PLATFORM_LINUX
+	#define NAZARA_PLATFORM_POSIX
+
 	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
 		#define NAZARA_API __attribute__((visibility ("default")))
 	#else
 		#define NAZARA_API
 	#endif
-	#define NAZARA_PLATFORM_LINUX
-	#define NAZARA_PLATFORM_POSIX
 /*#elif defined(__APPLE__) || defined(macintosh) || defined(Macintosh)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_MACOS

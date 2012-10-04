@@ -52,9 +52,6 @@ T NzDegreeToRadian(T degrees)
 
 unsigned int NzGetNumberLength(signed char number)
 {
-	if (number == 0)
-		return 1;
-
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
@@ -62,15 +59,18 @@ unsigned int NzGetNumberLength(signed char number)
 		return 3;
 	else if (number >= 10)
 		return 2;
-	else
+	else if (number >= 0)
 		return 1;
+	else if (number > -10)
+		return 2;
+	else if (number > -100)
+		return 3;
+	else
+		return 4;
 }
 
 unsigned int NzGetNumberLength(unsigned char number)
 {
-	if (number == 0)
-		return 1;
-
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
@@ -80,22 +80,6 @@ unsigned int NzGetNumberLength(unsigned char number)
 		return 2;
 	else
 		return 1;
-}
-
-unsigned int NzGetNumberLength(short number)
-{
-	if (number == 0)
-		return 1;
-
-	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
-}
-
-unsigned int NzGetNumberLength(unsigned short number)
-{
-	if (number == 0)
-		return 1;
-
-	return static_cast<unsigned int>(std::log10(number))+1;
 }
 
 unsigned int NzGetNumberLength(int number)
@@ -107,22 +91,6 @@ unsigned int NzGetNumberLength(int number)
 }
 
 unsigned int NzGetNumberLength(unsigned int number)
-{
-	if (number == 0)
-		return 1;
-
-	return static_cast<unsigned int>(std::log10(number))+1;
-}
-
-unsigned int NzGetNumberLength(long number)
-{
-	if (number == 0)
-		return 1;
-
-	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
-}
-
-unsigned int NzGetNumberLength(unsigned long number)
 {
 	if (number == 0)
 		return 1;

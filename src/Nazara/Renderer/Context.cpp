@@ -37,27 +37,27 @@ namespace
 		ss << "\n-Source: ";
 		switch (source)
 		{
-			case GL_DEBUG_SOURCE_API_ARB:
+			case GL_DEBUG_SOURCE_API:
 				ss << "OpenGL";
 				break;
 
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
 				ss << "Operating system";
 				break;
 
-			case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:
 				ss << "Shader compiler";
 				break;
 
-			case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+			case GL_DEBUG_SOURCE_THIRD_PARTY:
 				ss << "Shader compiler";
 				break;
 
-			case GL_DEBUG_SOURCE_APPLICATION_ARB:
+			case GL_DEBUG_SOURCE_APPLICATION:
 				ss << "Application";
 				break;
 
-			case GL_DEBUG_SOURCE_OTHER_ARB:
+			case GL_DEBUG_SOURCE_OTHER:
 				ss << "Other";
 				break;
 
@@ -71,27 +71,27 @@ namespace
 		ss << "-Type: ";
 		switch (type)
 		{
-			case GL_DEBUG_TYPE_ERROR_ARB:
+			case GL_DEBUG_TYPE_ERROR:
 				ss << "Error";
 				break;
 
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
 				ss << "Deprecated behavior";
 				break;
 
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
 				ss << "Undefined behavior";
 				break;
 
-			case GL_DEBUG_TYPE_PORTABILITY_ARB:
+			case GL_DEBUG_TYPE_PORTABILITY:
 				ss << "Portability";
 				break;
 
-			case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+			case GL_DEBUG_TYPE_PERFORMANCE:
 				ss << "Performance";
 				break;
 
-			case GL_DEBUG_TYPE_OTHER_ARB:
+			case GL_DEBUG_TYPE_OTHER:
 				ss << "Other";
 				break;
 
@@ -105,15 +105,15 @@ namespace
 		ss << "-Severity: ";
 		switch (severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH_ARB:
+			case GL_DEBUG_SEVERITY_HIGH:
 				ss << "High";
 				break;
 
-			case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+			case GL_DEBUG_SEVERITY_MEDIUM:
 				ss << "Medium";
 				break;
 
-			case GL_DEBUG_SEVERITY_LOW_ARB:
+			case GL_DEBUG_SEVERITY_LOW:
 				ss << "Low";
 				break;
 
@@ -128,11 +128,6 @@ namespace
 
 		NazaraNotice(ss);
 	}
-}
-
-NzContext::NzContext() :
-m_impl(nullptr)
-{
 }
 
 NzContext::~NzContext()
