@@ -17,19 +17,19 @@ namespace
 {
 	sf_count_t GetSize(void* user_data)
 	{
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(user_data);
+        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
 		return stream->GetSize();
 	}
 
     sf_count_t Read(void* ptr, sf_count_t count, void* user_data)
     {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(user_data);
+        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
         return stream->Read(ptr, count);
     }
 
     sf_count_t Seek(sf_count_t offset, int whence, void* user_data)
     {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(user_data);
+        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
         switch (whence)
         {
 			case SEEK_CUR:
