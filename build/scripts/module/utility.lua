@@ -1,4 +1,4 @@
-if (not _OPTIONS["one-library"]) then
+if (not _OPTIONS["united"]) then
 	project "NazaraUtility"
 end
 
@@ -20,7 +20,7 @@ else
 	excludes { "../src/Nazara/Utility/Win32/*.hpp", "../src/Nazara/Utility/Win32/*.cpp" }
 end
 
-if (_OPTIONS["one-library"]) then
+if (_OPTIONS["united"]) then
 	excludes "../src/Nazara/Utility/Debug/Leaks.cpp"
 else
 	configuration "DebugStatic"
