@@ -13,6 +13,7 @@
 class NAZARA_API NzStream
 {
 	public:
+		NzStream() = default;
 		virtual ~NzStream();
 
 		virtual nzUInt64 GetCursorPos() const = 0;
@@ -22,7 +23,7 @@ class NAZARA_API NzStream
 		void SetStreamOptions(unsigned int options);
 
 	protected:
-		unsigned int m_streamOptions;
+		unsigned int m_streamOptions = 0;
 };
 
 #endif // NAZARA_STREAM_HPP
