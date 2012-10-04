@@ -247,6 +247,7 @@ int main()
 
 	// Quelques variables
 	bool camMode = true;
+	bool paused = false;
 	bool thirdPerson = false;
 	bool windowOpen = true;
 
@@ -338,6 +339,8 @@ int main()
 					}
 					else if (event.key.code == NzKeyboard::Escape)
 						windowOpen = false;
+					else if (event.key.code == NzKeyboard::P)
+						paused = !paused;
 
 					break;
 
@@ -433,7 +436,9 @@ int main()
 			drfreak.matrix = NzMatrix4f::Rotate(modelOrient) * NzMatrix4f::Translate(modelPos);
 
 			// Animation
-			AnimateModel(drfreak, elapsedTime);
+			if (!paused)
+				AnimateModel(drfreak, elapsedTime);
+
 			updateClock.Restart();
 		}
 

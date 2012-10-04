@@ -1,12 +1,13 @@
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Thread.hpp> // Thread::Sleep
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <iostream>
 
 int main()
 {
-	// NzKeyboard ne nécessite pas l'initialisation d'Utility
+	// NzKeyboard ne nécessite pas l'initialisation du module Utilitaire
 	NzInitializer<NzAudio> audio;
 	if (!audio)
 	{
@@ -32,11 +33,11 @@ int main()
 	// On fait en sorte de répéter le son
 	sound.EnableLooping(true);
 
-	// La source du son se situe en (50, 0, 5)
-	sound.SetPosition(50, 0, 5);
+	// La source du son se situe vers la gauche (Et un peu en avant)
+	sound.SetPosition(NzVector3f::Left()*50.f + NzVector3f::Forward()*5.);
 
-	// Et possède une vitesse de -10 par seconde sur l'axe X
-	sound.SetVelocity(-10, 0, 0);
+	// Et possède une vitesse de 10 par seconde vers la droite
+	sound.SetVelocity(NzVector3f::Left()*-10.f);
 
 	// On joue le son
 	sound.Play();
@@ -58,7 +59,7 @@ int main()
 		std::cout << "Sound position: " << pos << std::endl;
 
 		// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
-		if (pos.x < -50.f || NzKeyboard::IsKeyPressed(NzKeyboard::Escape))
+		if (pos.x > NzVector3f::Left().x*-50.f || NzKeyboard::IsKeyPressed(NzKeyboard::Escape))
 			sound.Stop(); // On arrête le son (Stoppant également la boucle)
 
 		clock.Restart();
