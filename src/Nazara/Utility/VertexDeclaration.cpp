@@ -244,16 +244,34 @@ const NzVertexElement* NzVertexDeclaration::GetElement(nzElementStream stream, n
 	#endif
 
 	int elementPos = m_sharedImpl->elementPos[stream][usage];
+
+	#if NAZARA_UTILITY_SAFE
 	if (elementPos == -1)
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	elementPos += usageIndex;
+
+	#if NAZARA_UTILITY_SAFE
 	if (static_cast<unsigned int>(elementPos) >= m_sharedImpl->elements.size())
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	NzVertexElement& element = m_sharedImpl->elements[elementPos];
+
+	#if NAZARA_UTILITY_SAFE
 	if (element.stream != stream || element.usage != usage || element.usageIndex != usageIndex)
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	return &element;
 }
@@ -316,6 +334,33 @@ unsigned int NzVertexDeclaration::GetStride(nzElementStream stream) const
 	#endif
 
 	return m_sharedImpl->stride[stream];
+}
+
+bool NzVertexDeclaration::HasElement(unsigned int i) const
+{
+	return i < m_sharedImpl->elements.size();
+}
+
+bool NzVertexDeclaration::HasElement(nzElementStream stream, unsigned int i) const
+{
+	return i < GetElementCount(stream);
+}
+
+bool NzVertexDeclaration::HasElement(nzElementStream stream, nzElementUsage usage, unsigned int usageIndex) const
+{
+	int elementPos = m_sharedImpl->elementPos[stream][usage];
+	if (elementPos == -1)
+		return false;
+
+	elementPos += usageIndex;
+	if (static_cast<unsigned int>(elementPos) >= m_sharedImpl->elements.size())
+		return false;
+
+	NzVertexElement& element = m_sharedImpl->elements[elementPos];
+	if (element.stream != stream || element.usage != usage || element.usageIndex != usageIndex)
+		return false;
+
+	return true;
 }
 
 bool NzVertexDeclaration::HasStream(nzElementStream stream) const

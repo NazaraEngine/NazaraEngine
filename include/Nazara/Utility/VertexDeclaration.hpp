@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#pragma once
+
 #ifndef NAZARA_VERTEXDECLARATION_HPP
 #define NAZARA_VERTEXDECLARATION_HPP
 
@@ -39,6 +41,9 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		unsigned int GetElementCount(nzElementStream stream) const;
 		unsigned int GetStride(nzElementStream stream) const;
 
+		bool HasElement(unsigned int i) const;
+		bool HasElement(nzElementStream stream, unsigned int i) const;
+		bool HasElement(nzElementStream stream, nzElementUsage usage, unsigned int usageIndex = 0) const;
 		bool HasStream(nzElementStream stream) const;
 
 		bool IsValid() const;
