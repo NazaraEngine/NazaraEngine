@@ -11,10 +11,6 @@ NzDirectoryImpl::NzDirectoryImpl(const NzDirectory* parent)
 	NazaraUnused(parent);
 }
 
-NzDirectoryImpl::~NzDirectoryImpl()
-{
-}
-
 void NzDirectoryImpl::Close()
 {
 	FindClose(m_handle);
