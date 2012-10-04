@@ -616,8 +616,13 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 	if (s_target == target)
 		return true;
 
-	if (s_target && !s_target->HasContext())
-		s_target->Desactivate();
+	if (s_target)
+	{
+		if (!s_target->HasContext())
+			s_target->Desactivate();
+
+		s_target = nullptr;
+	}
 
 	if (target)
 	{
@@ -629,18 +634,14 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 		}
 		#endif
 
-		if (target->Activate())
-			s_target = target;
-		else
+		if (!target->Activate())
 		{
 			NazaraError("Failed to activate target");
-			s_target = nullptr;
-
 			return false;
 		}
+
+		s_target = target;
 	}
-	else
-		s_target = nullptr;
 
 	return true;
 }
