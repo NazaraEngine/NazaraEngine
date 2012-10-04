@@ -6,7 +6,7 @@
 // Merci à Ryan "FullMetal Alchemist" Lahfa
 // Merci aussi à Freedom de siteduzero.com
 
-#include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 template<unsigned int N>
 struct NzTupleUnpack
@@ -34,4 +34,4 @@ void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)
 	NzTupleUnpack<sizeof...(ArgsT)>()(func, t);
 }
 
-#include <Nazara/Utility/DebugOff.hpp>
+#include <Nazara/Core/DebugOff.hpp>
