@@ -4,8 +4,8 @@ newoption {
 }
 
 newoption {
-	trigger     = "one-library",
-	description = "Builds all the modules as one library"
+	trigger     = "united",
+	description = "Builds all the modules as one united library"
 }
 
 newoption {
@@ -19,7 +19,7 @@ loadfile("scripts/common.lua")()
 
 local modules
 
-if (_OPTIONS["one-library"]) then
+if (_OPTIONS["united"]) then
 	project "NazaraEngine"
 end
 
