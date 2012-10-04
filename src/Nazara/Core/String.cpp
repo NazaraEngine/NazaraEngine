@@ -3318,6 +3318,9 @@ NzString NzString::Reversed() const
 
 NzString NzString::Simplified(nzUInt32 flags) const
 {
+	if (m_sharedString->size == 0)
+		return NzString();
+
 	char* str = new char[m_sharedString->size+1];
 	char* p = str;
 
