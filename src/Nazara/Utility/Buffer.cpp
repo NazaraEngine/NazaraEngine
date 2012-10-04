@@ -292,10 +292,9 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 
 	m_impl->Unmap();
 	m_impl->Destroy();
-
 	delete m_impl;
-	m_impl = impl;
 
+	m_impl = impl;
 	m_storage = storage;
 
 	return true;

@@ -39,7 +39,7 @@ class NAZARA_API NzContext : public NzResource
 
 	private:
 		NzContextParameters m_parameters;
-		NzContextImpl* m_impl;
+		NzContextImpl* m_impl = nullptr;
 
 		static NzContext* s_reference;
 };
