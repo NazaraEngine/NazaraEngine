@@ -1,4 +1,4 @@
-if (not _OPTIONS["one-library"]) then
+if (not _OPTIONS["united"]) then
 	project "NazaraAudio"
 end
 
@@ -19,7 +19,7 @@ else
 	-- Link posix ?
 end
 
-if (_OPTIONS["one-library"]) then
+if (_OPTIONS["united"]) then
 	excludes "../src/Nazara/Audio/Debug/Leaks.cpp"
 else
 	configuration "DebugStatic"
