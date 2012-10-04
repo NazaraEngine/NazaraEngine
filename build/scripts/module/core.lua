@@ -1,4 +1,4 @@
-if (not _OPTIONS["one-library"]) then
+if (not _OPTIONS["united"]) then
 	project "NazaraCore"
 end
 
