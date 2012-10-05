@@ -19,7 +19,7 @@ class NAZARA_API NzContext : public NzResource
 	friend NzContextImpl;
 
 	public:
-		NzContext();
+		NzContext() = default;
 		~NzContext();
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());
