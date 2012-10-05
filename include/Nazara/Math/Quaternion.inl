@@ -1,6 +1,5 @@
-// Copyright (C) 2012 RÈmi BËges
-//                    JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 R√©mi B√®ges - J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -8,7 +7,10 @@
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <limits>
 #include <Nazara/Core/Debug.hpp>
+
+#define F(a) static_cast<T>(a)
 
 template<typename T>
 NzQuaternion<T>::NzQuaternion()
@@ -53,9 +55,9 @@ NzQuaternion<T>::NzQuaternion(const NzQuaternion<U>& quat)
 }
 
 template<typename T>
-T NzQuaternion<T>::DotProduct(const NzQuaternion& vec) const
+T NzQuaternion<T>::DotProduct(const NzQuaternion& quat) const
 {
-	return w*vec.w + x*vec.x + y*vec.y + z.vec.z;
+	return w*quat.w + x*quat.x + y*quat.y + z*quat.z;
 }
 
 template<typename T>
@@ -65,12 +67,48 @@ NzQuaternion<T> NzQuaternion<T>::GetConjugate() const
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::GetNormalized() const
+NzQuaternion<T> NzQuaternion<T>::GetInverse() const
+{
+	NzQuaternion<T> quat(*this);
+	quat.Inverse();
+
+	return quat;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::GetNormal() const
 {
 	NzQuaternion<T> quat(*this);
 	quat.Normalize();
 
 	return quat;
+}
+
+template<typename T>
+void NzQuaternion<T>::Inverse()
+{
+	T norm = SquaredMagnitude();
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+
+		w *= invNorm;
+		x *= -invNorm;
+		y *= -invNorm;
+		z *= -invNorm;
+	}
+}
+
+template<typename T>
+void NzQuaternion<T>::MakeIdentity()
+{
+	Set(F(1.0), F(0.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzQuaternion<T>::MakeZero()
+{
+	Set(F(0.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
@@ -82,27 +120,23 @@ T NzQuaternion<T>::Magnitude() const
 template<typename T>
 T NzQuaternion<T>::Normalize()
 {
-	T squaredLength = SquaredMagnitude();
+	T squaredMagnitude = SquaredMagnitude();
 
-	if (std::fabs(squaredLength) > 0.00001 && std::fabs(squaredLength - 1.0) > 0.00001)
+	// Inutile de v√©rifier si la magnitude au carr√©e est n√©gative (Elle ne peut pas l'√™tre)
+	if (!NzNumberEquals(squaredMagnitude, F(1.0)))
 	{
-		T length = std::sqrt(squaredLength);
+		T norm = std::sqrt(squaredMagnitude);
+		T invNorm = F(1.0) / norm;
 
-		w /= length;
-		x /= length;
-		y /= length;
-		z /= length;
+		w *= invNorm;
+		x *= invNorm;
+		y *= invNorm;
+		z *= invNorm;
 
-		return length;
+		return norm;
 	}
 	else
-		return 1.0; // Le quaternion est dÈj‡ normalisÈ
-}
-
-template<typename T>
-T NzQuaternion<T>::SquaredMagnitude() const
-{
-	return w * w + x * x + y * y + z * z;
+		return F(1.0); // Le quaternion est d√©j√† normalis√©
 }
 
 template<typename T>
@@ -124,20 +158,24 @@ void NzQuaternion<T>::Set(T quat[4])
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(T angle, const NzVector3<T>& normalizedAxis)
+void NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 {
+	angle /= F(2.0);
+
 	#if !NAZARA_MATH_ANGLE_RADIAN
 	angle = NzDegreeToRadian(angle);
 	#endif
 
-	angle /= 2;
+	NzVector3<T> normalizedAxis = axis.GetNormal();
 
-	auto sinAngle = std::sin(angle);
+	T sinAngle = std::sin(angle);
 
 	w = std::cos(angle);
 	x = normalizedAxis.x * sinAngle;
 	y = normalizedAxis.y * sinAngle;
 	z = normalizedAxis.z * sinAngle;
+
+	Normalize();
 }
 
 template<typename T>
@@ -166,81 +204,25 @@ void NzQuaternion<T>::Set(const NzQuaternion& quat)
 }
 
 template<typename T>
-void NzQuaternion<T>::SetIdentity()
+T NzQuaternion<T>::SquaredMagnitude() const
 {
-	Set(1.0, 0.0, 0.0, 0.0);
-}
-
-template<typename T>
-void NzQuaternion<T>::SetZero()
-{
-	Set(0.0, 0.0, 0.0, 0.0);
-}
-
-template<typename T>
-NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuaternion& quatB, T interp)
-{
-	if (interp <= 0.0)
-		return quatA;
-
-	if (interp >= 1.0)
-		return quatB;
-
-	NzQuaternion q;
-
-	T cosOmega = quatA.DotProduct(quatB);
-	if (cosOmega < 0.0)
-	{
-		// On inverse tout
-		q.Set(-quatB.w, -quatB.x, -quatB.y, -quatB.z);
-		cosOmega = -cosOmega;
-	}
-	else
-		q.Set(quatB);
-
-	T k0, k1;
-	if (cosOmega > 0.9999)
-	{
-		// Interpolation linÈaire pour Èviter une division par zÈro
-        k0 = 1.0 - interp;
-        k1 = interp;
-    }
-    else
-    {
-        T sinOmega = std::sqrt(1.0f - (cosOmega * cosOmega));
-        T omega = std::atan2(sinOmega, cosOmega);
-
-		// Pour Èviter deux divisions
-		sinOmega = 1/sinOmega;
-
-        k0 = std::sin((1.0 - interp) * omega) * sinOmega;
-        k1 = std::sin(interp * omega) * sinOmega;
-    }
-
-    NzQuaternion result(k0 * quatA.w, k0 * quatA.x, k0 * quatA.y, k0 * quatA.z);
-    return result += q;
+	return w*w + x*x + y*y + z*z;
 }
 
 template<typename T>
 NzEulerAngles<T> NzQuaternion<T>::ToEulerAngles() const
 {
-	Normalize();
-
 	T test = x*y + z*w;
-	if (test > 0.499)
+	if (test > F(0.499))
 		// singularity at north pole
-		return NzEulerAngles<T>(NzDegrees(90.0), NzRadians(2.0 * std::atan2(x, w)), 0.0);
+		return NzEulerAngles<T>(NzDegrees(F(90.0)), NzRadians(F(2.0) * std::atan2(x, w)), F(0.0));
 
-	if (test < -0.499)
-		return NzEulerAngles<T>(NzDegrees(-90.0), NzRadians(-2.0 * std::atan2(x, w)), 0.0);
+	if (test < F(-0.499))
+		return NzEulerAngles<T>(NzDegrees(F(-90.0)), NzRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
 
-	T xx = x*x;
-	T yy = y*y;
-	T zz = z*z;
-
-	return NzEulerAngles<T>(NzRadians(std::atan2(2.0*x*w - 2.0*y*z, 1.0 - 2.0*xx - 2.0*zz)),
-							NzRadians(std::atan2(2.0*y*w - 2.0*x*z, 1.f - 2.0*yy - 2.0*zz)),
-							NzRadians(std::asin(2.0*test)));
+	return NzEulerAngles<T>(NzRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x* - F(2.0)*z*z)),
+							NzRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
+							NzRadians(std::asin(F(2.0)*test)));
 }
 
 template<typename T>
@@ -249,6 +231,20 @@ NzString NzQuaternion<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Quaternion(" << w << " | " << x << ", " << y << ", " << z << ')';
+}
+
+template<typename T>
+NzQuaternion<T>::operator NzString() const
+{
+	return ToString();
+}
+
+template<typename T>
+NzQuaternion<T>& NzQuaternion<T>::operator=(const NzQuaternion& quat)
+{
+	Set(quat);
+
+	return *this;
 }
 
 template<typename T>
@@ -263,23 +259,22 @@ NzQuaternion<T> NzQuaternion<T>::operator+(const NzQuaternion& quat) const
 template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator*(const NzQuaternion& quat) const
 {
-	return NzQuaternion(w * quat.w - x * quat.x - y * quat.y - z * quat.z,
-	                    w * quat.x + x * quat.w + y * quat.z - z * quat.y,
-	                    w * quat.y + y * quat.w + z * quat.x - x * quat.z,
-	                    w * quat.z + z * quat.w + x * quat.y - y * quat.x);
+	return NzQuaternion(w*quat.w - x*quat.x - y*quat.y - z*quat.z,
+	                    w*quat.x + x*quat.w + y*quat.z - z*quat.y,
+	                    w*quat.y + y*quat.w + z*quat.x - x*quat.z,
+	                    w*quat.z + z*quat.w + x*quat.y - y*quat.x);
 }
 
 template<typename T>
 NzVector3<T> NzQuaternion<T>::operator*(const NzVector3<T>& vec) const
 {
-	NzVector3<T> normal(vec);
-	normal.Normalize();
+	NzVector3f quatVec(x, y, z);
+	NzVector3f uv = quatVec.CrossProduct(vec);
+	NzVector3f uuv = quatVec.CrossProduct(uv);
+	uv *= F(2.0) * w;
+	uuv *= F(2.0);
 
-	NzQuaternion qvec(0.0, normal.x, normal.y, normal.z);
-	NzQuaternion result = operator*(qvec * GetConjugate());
-
-	return NzVector3<T>(result.x, result.y, result.z);
-
+	return vec + uv + uuv;
 }
 
 template<typename T>
@@ -361,9 +356,73 @@ bool NzQuaternion<T>::operator>=(const NzQuaternion& quat) const
 }
 
 template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Identity()
+{
+	NzQuaternion quaternion;
+	quaternion.MakeIdentity();
+
+	return quaternion;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuaternion& quatB, T interp)
+{
+	if (interp <= F(0.0))
+		return quatA;
+
+	if (interp >= F(1.0))
+		return quatB;
+
+	NzQuaternion q;
+
+	T cosOmega = quatA.DotProduct(quatB);
+	if (cosOmega < F(0.0))
+	{
+		// On inverse tout
+		q.Set(-quatB.w, -quatB.x, -quatB.y, -quatB.z);
+		cosOmega = -cosOmega;
+	}
+	else
+		q.Set(quatB);
+
+	T k0, k1;
+	if (cosOmega > F(0.9999))
+	{
+		// Interpolation lin√©aire pour √©viter une division par z√©ro
+        k0 = F(1.0) - interp;
+        k1 = interp;
+    }
+    else
+    {
+        T sinOmega = std::sqrt(F(1.0) - cosOmega*cosOmega);
+        T omega = std::atan2(sinOmega, cosOmega);
+
+		// Pour √©viter deux divisions
+		sinOmega = F(1.0)/sinOmega;
+
+        k0 = std::sin((F(1.0) - interp) * omega) * sinOmega;
+        k1 = std::sin(interp*omega) * sinOmega;
+    }
+
+    NzQuaternion result(k0 * quatA.w, k0 * quatA.x, k0 * quatA.y, k0 * quatA.z);
+    return result += q*k1;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Zero()
+{
+	NzQuaternion quaternion;
+	quaternion.MakeZero();
+
+	return quaternion;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzQuaternion<T>& quat)
 {
 	return out << quat.ToString();
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

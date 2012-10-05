@@ -1,7 +1,7 @@
 /*
-	Nazara Engine
+	Nazara Engine - Window module
 
-	Copyright (C) 2012 JÈrÙme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2012 J√©r√¥me "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -27,23 +27,25 @@
 #ifndef NAZARA_CONFIG_UTILITY_HPP
 #define NAZARA_CONFIG_UTILITY_HPP
 
-/// Chaque modification d'un paramËtre du module nÈcessite une recompilation de celui-ci
+/// Chaque modification d'un param√®tre du module n√©cessite une recompilation de celui-ci
 
-// Utilise un tracker pour repÈrer les Èventuels leaks (Ralentit l'exÈcution)
+// Force les buffers √† poss√©der un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation m√©moire)
+#define NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32 0
+
+// Utilise un tracker pour rep√©rer les √©ventuels leaks (Ralentit l'ex√©cution)
 #define NAZARA_UTILITY_MEMORYLEAKTRACKER 0
 
-// Active les tests de sÈcuritÈ basÈs sur le code (ConseillÈ pour le dÈveloppement)
+// Active les tests de s√©curit√© bas√©s sur le code (Conseill√© pour le d√©veloppement)
 #define NAZARA_UTILITY_SAFE 1
 
-// Fait tourner chaque fenÍtre dans un thread sÈparÈ si le systËme le supporte
-#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: BuggÈ depuis GCC 4.7
+// Fait tourner chaque fen√™tre dans un thread s√©par√© si le syst√®me le supporte
+#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Bugg√© depuis GCC 4.7
 
-// ProtËge le module des accËs concurrentiels
+// Prot√®ge les classes des acc√®s concurrentiels
 #define NAZARA_UTILITY_THREADSAFE 1
 
-#if NAZARA_UTILITY_THREADSAFE
-	#define NAZARA_THREADSAFETY_IMAGE 1 // NzImage (COW)
-	#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
-#endif
+// Les classes √† prot√©ger des acc√®s concurrentiels
+#define NAZARA_THREADSAFETY_IMAGE             1 // NzImage (COW)
+#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
 
 #endif // NAZARA_CONFIG_UTILITY_HPP

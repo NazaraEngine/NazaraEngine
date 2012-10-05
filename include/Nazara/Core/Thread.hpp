@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Inspiré du code de la SFML par Laurent Gomila
+// InspirÃ© du code de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -17,16 +17,16 @@ class NzThreadImpl;
 
 class NAZARA_API NzThread : NzNonCopyable
 {
-	friend class NzThreadImpl;
+	friend NzThreadImpl;
 
 	public:
 		class NAZARA_API Id
 		{
-			friend class NzThread;
-			friend class NzThreadImpl;
+			friend NzThread;
+			friend NzThreadImpl;
 
 			public:
-				Id() : m_handle(nullptr) {}
+				Id() = default;
 				Id(Id&& rhs) = default;
 				~Id();
 
@@ -38,11 +38,12 @@ class NAZARA_API NzThread : NzNonCopyable
 				Id(void* handle) : m_handle(handle) {}
 				Id(const NzThreadImpl* thread);
 
-				void* m_handle;
+				void* m_handle = nullptr;
 		};
 
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args... args);
+		template<typename C> NzThread(void (C::*function)(), C* object);
 		~NzThread();
 
 		Id GetId() const;
@@ -56,7 +57,7 @@ class NAZARA_API NzThread : NzNonCopyable
 
 	private:
 		NzFunctor* m_func;
-		NzThreadImpl* m_impl;
+		NzThreadImpl* m_impl = nullptr;
 		bool m_independent;
 };
 

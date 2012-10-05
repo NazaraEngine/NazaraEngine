@@ -1,13 +1,16 @@
-// Copyright (C) 2012 R�mi B�ges
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 Rémi Bèges - Jérôme Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <limits>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
+
+#define F(a) static_cast<T>(a)
 
 template<typename T>
 NzVector3<T>::NzVector3()
@@ -15,44 +18,34 @@ NzVector3<T>::NzVector3()
 }
 
 template<typename T>
-NzVector3<T>::NzVector3(T X, T Y, T Z) :
-x(X),
-y(Y),
-z(Z)
+NzVector3<T>::NzVector3(T X, T Y, T Z)
 {
+	Set(X, Y, Z);
 }
 
 template<typename T>
-NzVector3<T>::NzVector3(T scale) :
-x(scale),
-y(scale),
-z(scale)
+NzVector3<T>::NzVector3(T scale)
 {
+	Set(scale);
 }
 
 template<typename T>
-NzVector3<T>::NzVector3(T vec[3]) :
-x(vec[0]),
-y(vec[1]),
-z(vec[2])
+NzVector3<T>::NzVector3(T vec[3])
 {
+	Set(vec);
 }
 
 template<typename T>
-NzVector3<T>::NzVector3(const NzVector2<T>& vec, T Z) :
-x(vec.x),
-y(vec.y),
-z(Z)
+NzVector3<T>::NzVector3(const NzVector2<T>& vec, T Z)
 {
+	Set(vec, Z);
 }
 
 template<typename T>
 template<typename U>
-NzVector3<T>::NzVector3(const NzVector3<U>& vec) :
-x(static_cast<T>(vec.x)),
-y(static_cast<T>(vec.y)),
-z(static_cast<T>(vec.z))
+NzVector3<T>::NzVector3(const NzVector3<U>& vec)
 {
+	Set(vec);
 }
 
 template<typename T>
@@ -76,7 +69,7 @@ inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsig
 template<typename T>
 NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec) const
 {
-	return NzVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.y, x * vec.y - y * vec.x);
+	return NzVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
 }
 
 template<typename T>
@@ -94,7 +87,7 @@ float NzVector3<T>::Distancef(const NzVector3& vec) const
 template<typename T>
 T NzVector3<T>::DotProduct(const NzVector3& vec) const
 {
-	return x * vec.x + y * vec.y + z * vec.z;
+	return x*vec.x + y*vec.y + z*vec.z;
 }
 
 template<typename T>
@@ -104,32 +97,6 @@ NzVector3<T> NzVector3<T>::GetNormal() const
 	vec.Normalize();
 
 	return vec;
-}
-
-template<typename T>
-void NzVector3<T>::MakeCeil(const NzVector3& vec)
-{
-	if (vec.x > x)
-		x = vec.x;
-
-	if (vec.y > y)
-		y = vec.y;
-
-    if (vec.z > z)
-        z = vec.z;
-}
-
-template<typename T>
-void NzVector3<T>::MakeFloor(const NzVector3& vec)
-{
-	if (vec.x < x)
-		x = vec.x;
-
-	if (vec.y < y)
-		y = vec.y;
-
-    if (vec.z < z)
-        z = vec.z;
 }
 
 template<typename T>
@@ -145,16 +112,125 @@ float NzVector3<T>::Lengthf() const
 }
 
 template<typename T>
+void NzVector3<T>::MakeForward()
+{
+	Set(F(0.0), F(0.0), F(-1.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeLeft()
+{
+	Set(F(-1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeUnitX()
+{
+	Set(F(1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeUnitY()
+{
+	Set(F(0.0), F(1.0), F(0.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeUnitZ()
+{
+	Set(F(0.0), F(0.0), F(1.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeUp()
+{
+	Set(F(0.0), F(1.0), F(0.0));
+}
+
+template<typename T>
+void NzVector3<T>::MakeZero()
+{
+	Set(F(0.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector3<T>::Maximize(const NzVector3& vec)
+{
+	if (vec.x > x)
+		x = vec.x;
+
+	if (vec.y > y)
+		y = vec.y;
+
+    if (vec.z > z)
+        z = vec.z;
+}
+
+template<typename T>
+void NzVector3<T>::Minimize(const NzVector3& vec)
+{
+	if (vec.x < x)
+		x = vec.x;
+
+	if (vec.y < y)
+		y = vec.y;
+
+    if (vec.z < z)
+        z = vec.z;
+}
+
+template<typename T>
 void NzVector3<T>::Normalize()
 {
-	T length = Length();
+	T squaredLength = SquaredLength();
 
-	if (!NzNumberEquals(length, static_cast<T>(0.0)))
+	if (!NzNumberEquals(squaredLength, F(1.0)))
 	{
-		x /= length;
-		y /= length;
-		z /= length;
+		T invLength = F(1.0) / std::sqrt(squaredLength);
+
+		x *= invLength;
+		y *= invLength;
+		z *= invLength;
 	}
+}
+
+template<typename T>
+void NzVector3<T>::Set(T X, T Y, T Z)
+{
+	x = X;
+	y = Y;
+	z = Z;
+}
+
+template<typename T>
+void NzVector3<T>::Set(T scale)
+{
+	x = scale;
+	y = scale;
+	z = scale;
+}
+
+template<typename T>
+void NzVector3<T>::Set(T vec[3])
+{
+	std::memcpy(&x, vec, 3*sizeof(T));
+}
+
+template<typename T>
+void NzVector3<T>::Set(const NzVector2<T>& vec, T Z)
+{
+	x = vec.x;
+	y = vec.y;
+	z = Z;
+}
+
+template<typename T>
+template<typename U>
+void NzVector3<T>::Set(const NzVector3<U>& vec)
+{
+	x = F(vec.x);
+	y = F(vec.y);
+	z = F(vec.z);
 }
 
 template<typename T>
@@ -166,7 +242,7 @@ T NzVector3<T>::SquaredDistance(const NzVector3& vec) const
 template<typename T>
 T NzVector3<T>::SquaredLength() const
 {
-	return x * x + y * y + z * z;
+	return x*x + y*y + z*z;
 }
 
 template<typename T>
@@ -175,6 +251,12 @@ NzString NzVector3<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Vector3(" << x << ", " << y << ", " << z <<')';
+}
+
+template<typename T>
+NzVector3<T>::operator NzString() const
+{
+	return ToString();
 }
 
 template<typename T>
@@ -192,13 +274,15 @@ NzVector3<T>::operator const T*() const
 template<typename T>
 T& NzVector3<T>::operator[](unsigned int i)
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 3)
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 3)";
 
-		throw std::domain_error(ss.ToString());
+		throw std::out_of_range(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -206,13 +290,15 @@ T& NzVector3<T>::operator[](unsigned int i)
 template<typename T>
 T NzVector3<T>::operator[](unsigned int i) const
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 3)
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 3)";
 
-		throw std::domain_error(ss.ToString());
+		throw std::out_of_range(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -256,13 +342,15 @@ NzVector3<T> NzVector3<T>::operator*(T scale) const
 template<typename T>
 NzVector3<T> NzVector3<T>::operator/(const NzVector3& vec) const
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector3(x / vec.x, y / vec.y, z / vec.z);
 }
@@ -270,13 +358,15 @@ NzVector3<T> NzVector3<T>::operator/(const NzVector3& vec) const
 template<typename T>
 NzVector3<T> NzVector3<T>::operator/(T scale) const
 {
-	if (NzNumberEquals(scale, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(scale, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector3(x / scale, y / scale, z / scale);
 }
@@ -324,7 +414,7 @@ NzVector3<T>& NzVector3<T>::operator*=(T scale)
 template<typename T>
 NzVector3<T>& NzVector3<T>::operator/=(const NzVector3& vec)
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)))
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -342,7 +432,7 @@ NzVector3<T>& NzVector3<T>::operator/=(const NzVector3& vec)
 template<typename T>
 NzVector3<T>& NzVector3<T>::operator/=(T scale)
 {
-	if (NzNumberEquals(scale, static_cast<T>(0.0)))
+	if (NzNumberEquals(scale, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
@@ -396,6 +486,87 @@ bool NzVector3<T>::operator>=(const NzVector3& vec) const
 }
 
 template<typename T>
+NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.CrossProduct(vec2);
+}
+
+template<typename T>
+T NzVector3<T>::DotProduct(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.DotProduct(vec2);
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Forward()
+{
+	NzVector3 vector;
+	vector.MakeForward();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Left()
+{
+	NzVector3 vector;
+	vector.MakeLeft();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Normalize(const NzVector3& vec)
+{
+	return vec.GetNormal();
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::UnitX()
+{
+	NzVector3 vector;
+	vector.MakeUnitX();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::UnitY()
+{
+	NzVector3 vector;
+	vector.MakeUnitY();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::UnitZ()
+{
+	NzVector3 vector;
+	vector.MakeUnitZ();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Up()
+{
+	NzVector3 vector;
+	vector.MakeUp();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Zero()
+{
+	NzVector3 vector;
+	vector.MakeZero();
+
+	return vector;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzVector3<T>& vec)
 {
 	return out << vec.ToString();
@@ -410,15 +581,19 @@ NzVector3<T> operator*(T scale, const NzVector3<T>& vec)
 template<typename T>
 NzVector3<T> operator/(T scale, const NzVector3<T>& vec)
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

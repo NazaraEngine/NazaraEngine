@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -9,9 +9,12 @@
 
 enum nzEndianness
 {
+	nzEndianness_Unknown = -1,
+
 	nzEndianness_BigEndian,
 	nzEndianness_LittleEndian,
-	nzEndianness_Unknown
+
+	nzEndianness_Max = nzEndianness_LittleEndian
 };
 
 enum nzErrorType
@@ -19,7 +22,16 @@ enum nzErrorType
 	nzErrorType_AssertFailed,
 	nzErrorType_Internal,
 	nzErrorType_Normal,
-	nzErrorType_Warning
+	nzErrorType_Warning,
+
+	nzErrorType_Max = nzErrorType_Warning
+};
+
+enum nzStreamOptionFlags
+{
+	nzStreamOption_None = 0x0,
+
+	nzStreamOption_Text = 0x1
 };
 
 #endif // NAZARA_ENUMS_CORE_HPP

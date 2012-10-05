@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Win32/InputImpl.hpp>
@@ -31,7 +31,7 @@ NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
 	{
 		NazaraError("Window's handle is invalid");
 
-		// Attention que (-1, -1) est une position tout à fait valide et ne doit pas être utilisée pour tester l'erreur
+		// Attention que (-1, -1) est une position tout Ã  fait valide et ne doit pas Ãªtre utilisÃ©e pour tester l'erreur
 		return NzVector2i(-1, -1);
 	}
 }
@@ -84,13 +84,13 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 		VK_F14,	// Key::F14
 		VK_F15,	// Key::F15
 
-		// Flèches directionnelles
+		// FlÃ¨ches directionnelles
 		VK_DOWN,  // Key::Down
 		VK_LEFT,  // Key::Left
 		VK_RIGHT, // Key::Right
 		VK_UP,	  // Key::Up
 
-		// Pavé numérique
+		// PavÃ© numÃ©rique
 		VK_ADD,		 // Key::Add
 		VK_DIVIDE,	 // Key::Divide
 		VK_MULTIPLY, // Key::Multiply
@@ -167,12 +167,12 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 		VK_MEDIA_PREV_TRACK, // Key::Media_Previous,
 		VK_MEDIA_STOP,		 // Key::Media_Stop,
 
-		// Touches de contrôle du volume
+		// Touches de contrÃ´le du volume
 		VK_VOLUME_DOWN,	// Key::Volume_Down
 		VK_VOLUME_MUTE,	// Key::Volume_Mute
 		VK_VOLUME_UP,	// Key::Volume_Up
 
-		// Touches à verrouillage
+		// Touches Ã  verrouillage
 		VK_CAPITAL,	// Key::CapsLock
 		VK_NUMLOCK,	// Key::NumLock
 		VK_SCROLL	// Key::ScrollLock
@@ -192,7 +192,7 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 
 bool NzEventImpl::IsMouseButtonPressed(NzMouse::Button button)
 {
-	static int vButtons[NzMouse::Count] = {
+	static int vButtons[NzMouse::Max+1] = {
 		VK_LBUTTON,	 // Button::Left
 		VK_MBUTTON,	 // Button::Middle
 		VK_RBUTTON,	 // Button::Right

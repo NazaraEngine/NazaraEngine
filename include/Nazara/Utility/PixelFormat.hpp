@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -19,15 +19,17 @@ class NzPixelFormat
 	friend class NzUtility;
 
 	public:
-		typedef nzUInt8* (*ConvertFunction)(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst);
-		typedef void (*FlipFunction)(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst);
+		using ConvertFunction = nzUInt8* (*)(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst);
+		using FlipFunction = void (*)(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst);
 
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* src, void* dst);
 		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* start, const void* end, void* dst);
 
 		static bool Flip(nzPixelFlipping flipping, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
-		static nzUInt8 GetBPP(nzPixelFormat format);
+		static nzUInt8 GetBitsPerPixel(nzPixelFormat format);
+		static nzUInt8 GetBytesPerPixel(nzPixelFormat format);
+		static nzPixelFormatType GetType(nzPixelFormat format);
 
 		static bool HasAlpha(nzPixelFormat format);
 

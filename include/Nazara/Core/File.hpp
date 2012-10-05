@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -16,7 +16,7 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
-#if NAZARA_THREADSAFETY_FILE
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -29,7 +29,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 	public:
 		enum CursorPosition
 		{
-			AtBegin,   // Début du fichier
+			AtBegin,   // DÃ©but du fichier
 			AtCurrent, // Position du pointeur
 			AtEnd	   // Fin du fichier
 		};
@@ -38,19 +38,19 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		{
 			Current   = 0x00, // Utilise le mode d'ouverture actuel
 
-			Append	  = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-			Lock	  = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
+			Append    = 0x01, // EmpÃªche l'Ã©criture sur la partie dÃ©jÃ  existante et met le curseur Ã  la fin
+			Lock      = 0x02, // EmpÃªche le fichier d'Ãªtre modifiÃ© tant qu'il est ouvert
 			ReadOnly  = 0x04, // Ouvre uniquement en lecture
-			ReadWrite = 0x08, // Ouvre en lecture/écriture
-			Text	  = 0x10, // Ouvre en mode texte
-			Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
-			WriteOnly = 0x40  // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+			ReadWrite = 0x08, // Ouvre en lecture/Ã©criture
+			Text      = 0x10, // Ouvre en mode texte
+			Truncate  = 0x20, // CrÃ©Ã© le fichier s'il n'existe pas et le vide s'il existe
+			WriteOnly = 0x40  // Ouvre uniquement en Ã©criture, crÃ©Ã© le fichier s'il n'existe pas
 		};
 
 		NzFile();
 		NzFile(const NzString& filePath);
 		NzFile(const NzString& filePath, unsigned long openMode);
-		NzFile(NzFile&& file);
+		NzFile(NzFile&& file) noexcept;
 		~NzFile();
 
 		bool Copy(const NzString& newFilePath);
@@ -59,6 +59,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		bool Delete();
 
 		bool EndOfFile() const;
+		bool EndOfStream() const;
 
 		bool Exists() const;
 
@@ -71,7 +72,6 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		NzString GetFileName() const;
 		time_t GetLastAccessTime() const;
 		time_t GetLastWriteTime() const;
-		NzString GetLine(unsigned int lineSize = 0);
 		nzUInt64 GetSize() const;
 
 		bool IsOpen() const;
@@ -92,7 +92,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 
 		NzFile& operator=(const NzString& filePath);
-		NzFile& operator=(NzFile&& file);
+		NzFile& operator=(NzFile&& file) noexcept;
 
 		static NzString AbsolutePath(const NzString& filePath);
 		static bool Copy(const NzString& sourcePath, const NzString& targetPath);

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 /*
@@ -315,119 +315,122 @@ void SHA1_Init(SHA_CTX* context)
 	(b) = ROTL32(30, b);	\
 	j++;
 
-void SHA1_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
+namespace
 {
-	nzUInt32 a, b, c, d, e;
-	nzUInt32 T1, *W1;
-	int	j;
+	void SHA1_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
+	{
+		nzUInt32 a, b, c, d, e;
+		nzUInt32 T1, *W1;
+		int	j;
 
-	W1 = reinterpret_cast<nzUInt32*>(context->s1.buffer);
+		W1 = reinterpret_cast<nzUInt32*>(context->s1.buffer);
 
-	/* Initialize registers with the prev. intermediate value */
-	a = context->s1.state[0];
-	b = context->s1.state[1];
-	c = context->s1.state[2];
-	d = context->s1.state[3];
-	e = context->s1.state[4];
+		/* Initialize registers with the prev. intermediate value */
+		a = context->s1.state[0];
+		b = context->s1.state[1];
+		c = context->s1.state[2];
+		d = context->s1.state[3];
+		e = context->s1.state[4];
 
-	j = 0;
+		j = 0;
 
-	/* Rounds 0 to 15 unrolled: */
-	ROUND1_0_TO_15(a,b,c,d,e);
-	ROUND1_0_TO_15(e,a,b,c,d);
-	ROUND1_0_TO_15(d,e,a,b,c);
-	ROUND1_0_TO_15(c,d,e,a,b);
-	ROUND1_0_TO_15(b,c,d,e,a);
-	ROUND1_0_TO_15(a,b,c,d,e);
-	ROUND1_0_TO_15(e,a,b,c,d);
-	ROUND1_0_TO_15(d,e,a,b,c);
-	ROUND1_0_TO_15(c,d,e,a,b);
-	ROUND1_0_TO_15(b,c,d,e,a);
-	ROUND1_0_TO_15(a,b,c,d,e);
-	ROUND1_0_TO_15(e,a,b,c,d);
-	ROUND1_0_TO_15(d,e,a,b,c);
-	ROUND1_0_TO_15(c,d,e,a,b);
-	ROUND1_0_TO_15(b,c,d,e,a);
-	ROUND1_0_TO_15(a,b,c,d,e);
+		/* Rounds 0 to 15 unrolled: */
+		ROUND1_0_TO_15(a,b,c,d,e);
+		ROUND1_0_TO_15(e,a,b,c,d);
+		ROUND1_0_TO_15(d,e,a,b,c);
+		ROUND1_0_TO_15(c,d,e,a,b);
+		ROUND1_0_TO_15(b,c,d,e,a);
+		ROUND1_0_TO_15(a,b,c,d,e);
+		ROUND1_0_TO_15(e,a,b,c,d);
+		ROUND1_0_TO_15(d,e,a,b,c);
+		ROUND1_0_TO_15(c,d,e,a,b);
+		ROUND1_0_TO_15(b,c,d,e,a);
+		ROUND1_0_TO_15(a,b,c,d,e);
+		ROUND1_0_TO_15(e,a,b,c,d);
+		ROUND1_0_TO_15(d,e,a,b,c);
+		ROUND1_0_TO_15(c,d,e,a,b);
+		ROUND1_0_TO_15(b,c,d,e,a);
+		ROUND1_0_TO_15(a,b,c,d,e);
 
-	/* Rounds 16 to 19 unrolled: */
-	ROUND1_16_TO_19(e,a,b,c,d);
-	ROUND1_16_TO_19(d,e,a,b,c);
-	ROUND1_16_TO_19(c,d,e,a,b);
-	ROUND1_16_TO_19(b,c,d,e,a);
+		/* Rounds 16 to 19 unrolled: */
+		ROUND1_16_TO_19(e,a,b,c,d);
+		ROUND1_16_TO_19(d,e,a,b,c);
+		ROUND1_16_TO_19(c,d,e,a,b);
+		ROUND1_16_TO_19(b,c,d,e,a);
 
-	/* Rounds 20 to 39 unrolled: */
-	ROUND1_20_TO_39(a,b,c,d,e);
-	ROUND1_20_TO_39(e,a,b,c,d);
-	ROUND1_20_TO_39(d,e,a,b,c);
-	ROUND1_20_TO_39(c,d,e,a,b);
-	ROUND1_20_TO_39(b,c,d,e,a);
-	ROUND1_20_TO_39(a,b,c,d,e);
-	ROUND1_20_TO_39(e,a,b,c,d);
-	ROUND1_20_TO_39(d,e,a,b,c);
-	ROUND1_20_TO_39(c,d,e,a,b);
-	ROUND1_20_TO_39(b,c,d,e,a);
-	ROUND1_20_TO_39(a,b,c,d,e);
-	ROUND1_20_TO_39(e,a,b,c,d);
-	ROUND1_20_TO_39(d,e,a,b,c);
-	ROUND1_20_TO_39(c,d,e,a,b);
-	ROUND1_20_TO_39(b,c,d,e,a);
-	ROUND1_20_TO_39(a,b,c,d,e);
-	ROUND1_20_TO_39(e,a,b,c,d);
-	ROUND1_20_TO_39(d,e,a,b,c);
-	ROUND1_20_TO_39(c,d,e,a,b);
-	ROUND1_20_TO_39(b,c,d,e,a);
+		/* Rounds 20 to 39 unrolled: */
+		ROUND1_20_TO_39(a,b,c,d,e);
+		ROUND1_20_TO_39(e,a,b,c,d);
+		ROUND1_20_TO_39(d,e,a,b,c);
+		ROUND1_20_TO_39(c,d,e,a,b);
+		ROUND1_20_TO_39(b,c,d,e,a);
+		ROUND1_20_TO_39(a,b,c,d,e);
+		ROUND1_20_TO_39(e,a,b,c,d);
+		ROUND1_20_TO_39(d,e,a,b,c);
+		ROUND1_20_TO_39(c,d,e,a,b);
+		ROUND1_20_TO_39(b,c,d,e,a);
+		ROUND1_20_TO_39(a,b,c,d,e);
+		ROUND1_20_TO_39(e,a,b,c,d);
+		ROUND1_20_TO_39(d,e,a,b,c);
+		ROUND1_20_TO_39(c,d,e,a,b);
+		ROUND1_20_TO_39(b,c,d,e,a);
+		ROUND1_20_TO_39(a,b,c,d,e);
+		ROUND1_20_TO_39(e,a,b,c,d);
+		ROUND1_20_TO_39(d,e,a,b,c);
+		ROUND1_20_TO_39(c,d,e,a,b);
+		ROUND1_20_TO_39(b,c,d,e,a);
 
-	/* Rounds 40 to 59 unrolled: */
-	ROUND1_40_TO_59(a,b,c,d,e);
-	ROUND1_40_TO_59(e,a,b,c,d);
-	ROUND1_40_TO_59(d,e,a,b,c);
-	ROUND1_40_TO_59(c,d,e,a,b);
-	ROUND1_40_TO_59(b,c,d,e,a);
-	ROUND1_40_TO_59(a,b,c,d,e);
-	ROUND1_40_TO_59(e,a,b,c,d);
-	ROUND1_40_TO_59(d,e,a,b,c);
-	ROUND1_40_TO_59(c,d,e,a,b);
-	ROUND1_40_TO_59(b,c,d,e,a);
-	ROUND1_40_TO_59(a,b,c,d,e);
-	ROUND1_40_TO_59(e,a,b,c,d);
-	ROUND1_40_TO_59(d,e,a,b,c);
-	ROUND1_40_TO_59(c,d,e,a,b);
-	ROUND1_40_TO_59(b,c,d,e,a);
-	ROUND1_40_TO_59(a,b,c,d,e);
-	ROUND1_40_TO_59(e,a,b,c,d);
-	ROUND1_40_TO_59(d,e,a,b,c);
-	ROUND1_40_TO_59(c,d,e,a,b);
-	ROUND1_40_TO_59(b,c,d,e,a);
+		/* Rounds 40 to 59 unrolled: */
+		ROUND1_40_TO_59(a,b,c,d,e);
+		ROUND1_40_TO_59(e,a,b,c,d);
+		ROUND1_40_TO_59(d,e,a,b,c);
+		ROUND1_40_TO_59(c,d,e,a,b);
+		ROUND1_40_TO_59(b,c,d,e,a);
+		ROUND1_40_TO_59(a,b,c,d,e);
+		ROUND1_40_TO_59(e,a,b,c,d);
+		ROUND1_40_TO_59(d,e,a,b,c);
+		ROUND1_40_TO_59(c,d,e,a,b);
+		ROUND1_40_TO_59(b,c,d,e,a);
+		ROUND1_40_TO_59(a,b,c,d,e);
+		ROUND1_40_TO_59(e,a,b,c,d);
+		ROUND1_40_TO_59(d,e,a,b,c);
+		ROUND1_40_TO_59(c,d,e,a,b);
+		ROUND1_40_TO_59(b,c,d,e,a);
+		ROUND1_40_TO_59(a,b,c,d,e);
+		ROUND1_40_TO_59(e,a,b,c,d);
+		ROUND1_40_TO_59(d,e,a,b,c);
+		ROUND1_40_TO_59(c,d,e,a,b);
+		ROUND1_40_TO_59(b,c,d,e,a);
 
-	/* Rounds 60 to 79 unrolled: */
-	ROUND1_60_TO_79(a,b,c,d,e);
-	ROUND1_60_TO_79(e,a,b,c,d);
-	ROUND1_60_TO_79(d,e,a,b,c);
-	ROUND1_60_TO_79(c,d,e,a,b);
-	ROUND1_60_TO_79(b,c,d,e,a);
-	ROUND1_60_TO_79(a,b,c,d,e);
-	ROUND1_60_TO_79(e,a,b,c,d);
-	ROUND1_60_TO_79(d,e,a,b,c);
-	ROUND1_60_TO_79(c,d,e,a,b);
-	ROUND1_60_TO_79(b,c,d,e,a);
-	ROUND1_60_TO_79(a,b,c,d,e);
-	ROUND1_60_TO_79(e,a,b,c,d);
-	ROUND1_60_TO_79(d,e,a,b,c);
-	ROUND1_60_TO_79(c,d,e,a,b);
-	ROUND1_60_TO_79(b,c,d,e,a);
-	ROUND1_60_TO_79(a,b,c,d,e);
-	ROUND1_60_TO_79(e,a,b,c,d);
-	ROUND1_60_TO_79(d,e,a,b,c);
-	ROUND1_60_TO_79(c,d,e,a,b);
-	ROUND1_60_TO_79(b,c,d,e,a);
+		/* Rounds 60 to 79 unrolled: */
+		ROUND1_60_TO_79(a,b,c,d,e);
+		ROUND1_60_TO_79(e,a,b,c,d);
+		ROUND1_60_TO_79(d,e,a,b,c);
+		ROUND1_60_TO_79(c,d,e,a,b);
+		ROUND1_60_TO_79(b,c,d,e,a);
+		ROUND1_60_TO_79(a,b,c,d,e);
+		ROUND1_60_TO_79(e,a,b,c,d);
+		ROUND1_60_TO_79(d,e,a,b,c);
+		ROUND1_60_TO_79(c,d,e,a,b);
+		ROUND1_60_TO_79(b,c,d,e,a);
+		ROUND1_60_TO_79(a,b,c,d,e);
+		ROUND1_60_TO_79(e,a,b,c,d);
+		ROUND1_60_TO_79(d,e,a,b,c);
+		ROUND1_60_TO_79(c,d,e,a,b);
+		ROUND1_60_TO_79(b,c,d,e,a);
+		ROUND1_60_TO_79(a,b,c,d,e);
+		ROUND1_60_TO_79(e,a,b,c,d);
+		ROUND1_60_TO_79(d,e,a,b,c);
+		ROUND1_60_TO_79(c,d,e,a,b);
+		ROUND1_60_TO_79(b,c,d,e,a);
 
-	/* Compute the current intermediate hash value */
-	context->s1.state[0] += a;
-	context->s1.state[1] += b;
-	context->s1.state[2] += c;
-	context->s1.state[3] += d;
-	context->s1.state[4] += e;
+		/* Compute the current intermediate hash value */
+		context->s1.state[0] += a;
+		context->s1.state[1] += b;
+		context->s1.state[2] += c;
+		context->s1.state[3] += d;
+		context->s1.state[4] += e;
+	}
 }
 
 void SHA1_Update(SHA_CTX* context, const nzUInt8* data, std::size_t len)
@@ -766,9 +769,12 @@ void SHA224_Init(SHA_CTX* context)
 	SHA256_Internal_Init(context, sha224_initial_hash_value);
 }
 
-void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
+namespace
 {
-	SHA256_Internal_Transform(context, data);
+	void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
+	{
+		SHA256_Internal_Transform(context, data);
+	}
 }
 
 void SHA224_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)

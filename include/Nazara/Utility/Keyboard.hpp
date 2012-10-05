@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Interface inspirée de la SFML par Laurent Gomila
+// Interface inspirÃ©e de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -63,13 +63,13 @@ class NAZARA_API NzKeyboard
 			F14,
 			F15,
 
-			// Flèches directionnelles
+			// FlÃ¨ches directionnelles
 			Down,
 			Left,
 			Right,
 			Up,
 
-			// Pavé numérique
+			// PavÃ© numÃ©rique
 			Add,
 			Divide,
 			Multiply,
@@ -140,18 +140,18 @@ class NAZARA_API NzKeyboard
 			Browser_Search,
 			Browser_Stop,
 
-			// Touches de contrôle de lecture
+			// Touches de contrÃ´le de lecture
 			Media_Next,
 			Media_Play,
 			Media_Previous,
 			Media_Stop,
 
-			// Touches de contrôle du volume
+			// Touches de contrÃ´le du volume
 			Volume_Down,
 			Volume_Mute,
 			Volume_Up,
 
-			// Touches à verrouillage
+			// Touches Ã  verrouillage
 			CapsLock,
 			NumLock,
 			ScrollLock,

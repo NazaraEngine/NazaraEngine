@@ -1,10 +1,12 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
 #include <Nazara/Core/Debug.hpp>
+
+#define F(a) static_cast<T>(a)
 
 template<typename T>
 NzCube<T>::NzCube()
@@ -12,48 +14,34 @@ NzCube<T>::NzCube()
 }
 
 template<typename T>
-NzCube<T>::NzCube(T X, T Y, T Z, T Width, T Height, T Depth) :
-x(X),
-y(Y),
-z(Z),
-width(Width),
-height(Height),
-depth(Depth)
+NzCube<T>::NzCube(T X, T Y, T Z, T Width, T Height, T Depth)
 {
+	Set(X, Y, Z, Width, Height, Depth);
 }
 
 template<typename T>
-NzCube<T>::NzCube(T vec[6]) :
-x(vec[0]),
-y(vec[1]),
-z(vec[2]),
-width(vec[3]),
-height(vec[4]),
-depth(vec[5])
+NzCube<T>::NzCube(const T vec[6])
 {
+	Set(vec);
 }
 
 template<typename T>
-NzCube<T>::NzCube(const NzRect<T>& rect) :
-x(rect.x),
-y(rect.y),
-z(0),
-width(rect.width),
-height(rect.height),
-depth(1)
+NzCube<T>::NzCube(const NzRect<T>& rect)
 {
+	Set(rect);
+}
+
+template<typename T>
+NzCube<T>::NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+{
+	Set(vec1, vec2);
 }
 
 template<typename T>
 template<typename U>
-NzCube<T>::NzCube(const NzCube<U>& rect) :
-x(static_cast<T>(rect.x)),
-y(static_cast<T>(rect.y)),
-z(static_cast<T>(rect.z)),
-width(static_cast<T>(rect.width)),
-height(static_cast<T>(rect.height)),
-depth(static_cast<T>(rect.depth))
+NzCube<T>::NzCube(const NzCube<U>& rect)
 {
+	Set(rect);
 }
 
 template<typename T>
@@ -102,18 +90,11 @@ void NzCube<T>::ExtendTo(const NzCube& rect)
 template<typename T>
 NzVector3<T> NzCube<T>::GetCenter() const
 {
-	return NzVector3<T>((x+width)/2, (y+height)/2, (z+depth)/2);
+	return NzVector3<T>((x+width)/F(2.0), (y+height)/F(2.0), (z+depth)/F(2.0));
 }
 
 template<typename T>
-bool NzCube<T>::Intersect(const NzCube& rect) const
-{
-	NzCube intersection; // Optimisé par le compilateur
-	return Intersect(rect, intersection);
-}
-
-template<typename T>
-bool NzCube<T>::Intersect(const NzCube& rect, NzCube& intersection) const
+bool NzCube<T>::Intersect(const NzCube& rect, NzCube* intersection) const
 {
 	T left = std::max(x, rect.x);
 	T right = std::min(x+width, rect.x+rect.width);
@@ -124,12 +105,15 @@ bool NzCube<T>::Intersect(const NzCube& rect, NzCube& intersection) const
 
 	if (left < right && top < bottom && up < down)
 	{
-		intersection.x = left;
-		intersection.y = top;
-		intersection.z = up;
-		intersection.width = right-left;
-		intersection.height = bottom-top;
-		intersection.depth = down-up;
+		if (intersection)
+		{
+			intersection->x = left;
+			intersection->y = top;
+			intersection->z = up;
+			intersection->width = right-left;
+			intersection->height = bottom-top;
+			intersection->depth = down-up;
+		}
 
 		return true;
 	}
@@ -140,7 +124,63 @@ bool NzCube<T>::Intersect(const NzCube& rect, NzCube& intersection) const
 template<typename T>
 bool NzCube<T>::IsValid() const
 {
-	return width > 0 && height > 0 && depth > 0;
+	return width > F(0.0) && height > F(0.0) && depth > F(0.0);
+}
+
+template<typename T>
+void NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
+{
+	x = X;
+	y = Y;
+	z = Z;
+	width = Width;
+	height = Height;
+	depth = Depth;
+}
+
+template<typename T>
+void NzCube<T>::Set(const T rect[6])
+{
+	x = rect[0];
+	y = rect[1];
+	z = rect[2];
+	width = rect[3];
+	height = rect[4];
+	depth = rect[5];
+}
+
+template<typename T>
+void NzCube<T>::Set(const NzRect<T>& rect)
+{
+	x = rect.x;
+	y = rect.y;
+	z = 0;
+	width = rect.width;
+	height = rect.height;
+	depth = 1;
+}
+
+template<typename T>
+void NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+{
+	x = std::min(vec1.x, vec2.x);
+	y = std::min(vec1.y, vec2.y);
+	z = std::min(vec1.z, vec2.z);
+	width = (vec2.x > vec1.x) ? vec2.x-vec1.x : vec1.x-vec2.x;
+	height = (vec2.y > vec1.y) ? vec2.y-vec1.y : vec1.y-vec2.y;
+	depth = (vec2.z > vec1.z) ? vec2.z-vec1.z : vec1.z-vec2.z;
+}
+
+template<typename T>
+template<typename U>
+void NzCube<T>::Set(const NzCube<U>& cube)
+{
+	x = F(cube.x);
+	y = F(cube.y);
+	z = F(cube.z);
+	width = F(cube.width);
+	height = F(cube.height);
+	depth = F(cube.depth);
 }
 
 template<typename T>
@@ -160,13 +200,15 @@ NzCube<T>::operator NzString() const
 template<typename T>
 T& NzCube<T>::operator[](unsigned int i)
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 6)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 4)";
+		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 6)";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -174,13 +216,15 @@ T& NzCube<T>::operator[](unsigned int i)
 template<typename T>
 T NzCube<T>::operator[](unsigned int i) const
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 6)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 4)";
+		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 6)";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -190,5 +234,7 @@ std::ostream& operator<<(std::ostream& out, const NzCube<T>& rect)
 {
 	return out << rect.ToString();
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

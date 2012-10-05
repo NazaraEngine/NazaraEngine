@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/FileImpl.hpp>
@@ -113,11 +113,11 @@ std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
 		m_endOfFileUpdated = true;
 
 		return read;
-		///FIXME: D'après la documenation, read vaut 0 si ReadFile atteint la fin du fichier
-		///       D'après les tests, ce n'est pas le cas, la taille lue est inférieure à la taille en argument, mais pas nulle
-		///       Peut-être ais-je mal compris la documentation
-		///       Le correctif (dans le cas où la doc serait vraie) est commenté en début de fonction et après ce commentaire
-		///       Il est cependant plus lourd, et ne fonctionne pas selon les tests...
+		///FIXME: D'aprÃ¨s la documentation, read vaut 0 si ReadFile atteint la fin du fichier
+		///       D'aprÃ¨s les tests, ce n'est pas le cas, la taille lue est infÃ©rieure Ã  la taille en argument, mais pas nulle
+		///       Peut-Ãªtre ais-je mal compris la documentation
+		///       Le correctif (dans le cas oÃ¹ la doc serait vraie) est commentÃ© en dÃ©but de fonction et aprÃ¨s ce commentaire
+		///       Il est cependant plus lourd, et ne fonctionne pas avec le comportement observÃ© de la fonction
 		/*
 		if (read == 0)
 		{
@@ -254,7 +254,7 @@ time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&creationTime);
+	return NzFileTimeToTime(&creationTime);
 }
 
 time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
@@ -277,7 +277,7 @@ time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&accessTime);
+	return NzFileTimeToTime(&accessTime);
 }
 
 time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
@@ -300,7 +300,7 @@ time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 
 	CloseHandle(handle);
 
-	return FileTimeToTime(&writeTime);
+	return NzFileTimeToTime(&writeTime);
 }
 
 nzUInt64 NzFileImpl::GetSize(const NzString& filePath)

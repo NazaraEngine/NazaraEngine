@@ -1,10 +1,11 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <map>
 #include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -32,13 +33,13 @@ NzAnimation::~NzAnimation()
 	Destroy();
 }
 
-unsigned int NzAnimation::AddSequence(const NzSequence& sequence)
+bool NzAnimation::AddSequence(const NzSequence& sequence)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Animation not created");
-		return 0;
+		return false;
 	}
 	#endif
 
@@ -51,7 +52,7 @@ unsigned int NzAnimation::AddSequence(const NzSequence& sequence)
 		if (it != m_impl->sequenceMap.end())
 		{
 			NazaraError("Sequence name \"" + sequence.name + "\" is already used");
-			return 0;
+			return false;
 		}
 		#endif
 
@@ -60,7 +61,7 @@ unsigned int NzAnimation::AddSequence(const NzSequence& sequence)
 
 	m_impl->sequences.push_back(sequence);
 
-	return index;
+	return true;
 }
 
 bool NzAnimation::Create(nzAnimationType type, unsigned int frameCount)
@@ -85,6 +86,7 @@ bool NzAnimation::Create(nzAnimationType type, unsigned int frameCount)
 	m_impl->frameCount = frameCount;
 	m_impl->type = type;
 
+	NotifyCreated();
 	return true;
 }
 
@@ -92,6 +94,8 @@ void NzAnimation::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		delete m_impl;
 		m_impl = nullptr;
 	}
@@ -205,6 +209,28 @@ unsigned int NzAnimation::GetSequenceCount() const
 	return m_impl->sequences.size();
 }
 
+int NzAnimation::GetSequenceIndex(const NzString& sequenceName) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return -1;
+	}
+
+	auto it = m_impl->sequenceMap.find(sequenceName);
+	if (it == m_impl->sequenceMap.end())
+	{
+		NazaraError("Sequence not found");
+		return -1;
+	}
+
+	return it->second;
+	#else
+	return m_impl->sequenceMap[sequenceName];
+	#endif
+}
+
 nzAnimationType NzAnimation::GetType() const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -276,13 +302,13 @@ void NzAnimation::RemoveSequence(const NzString& identifier)
 	auto it = m_impl->sequenceMap.find(identifier);
 	if (it == m_impl->sequenceMap.end())
 	{
-		NazaraError("SubMesh not found");
+		NazaraError("Sequence not found");
 		return;
 	}
 
-	unsigned int index = it->second;
+	int index = it->second;
 	#else
-	unsigned int index = m_impl->sequenceMap[identifier];
+	int index = m_impl->sequenceMap[identifier];
 	#endif
 
 	auto it2 = m_impl->sequences.begin();
@@ -313,6 +339,4 @@ void NzAnimation::RemoveSequence(unsigned int index)
 	m_impl->sequences.erase(it);
 }
 
-std::list<NzAnimationLoader::MemoryLoader> NzAnimation::s_memoryLoaders;
-std::list<NzAnimationLoader::StreamLoader> NzAnimation::s_streamLoaders;
-std::multimap<NzString, NzAnimationLoader::LoadFileFunction> NzAnimation::s_fileLoaders;
+NzAnimationLoader::LoaderList NzAnimation::s_loaders;

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -9,20 +9,17 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 class NzBufferImpl;
-class NzRenderer;
-class NzUtility;
 
 class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 {
-	friend class NzRenderer;
 	friend class NzUtility;
 
 	public:
-		typedef NzBufferImpl* (*BufferFunction)(NzBuffer* parent, nzBufferType type);
+		using BufferFunction = NzBufferImpl* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);

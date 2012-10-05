@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Interface inspirée de la SFML par Laurent Gomila
+// Interface inspirÃ©e de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -21,20 +21,20 @@
 #include <queue>
 
 #if NAZARA_UTILITY_THREADED_WINDOW
+#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/ThreadCondition.hpp>
 #endif
 
 class NzCursor;
 class NzImage;
 class NzIcon;
-class NzUtility;
 class NzWindowImpl;
 
 class NAZARA_API NzWindow : NzNonCopyable
 {
+	friend NzWindowImpl;
+	friend class NzMouse;
 	friend class NzUtility;
-	friend class NzWindowImpl;
 
 	public:
 		NzWindow();
@@ -42,10 +42,10 @@ class NAZARA_API NzWindow : NzNonCopyable
 		NzWindow(NzWindowHandle handle);
 		virtual ~NzWindow();
 
-		void Close();
-
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		bool Create(NzWindowHandle handle);
+
+		void Destroy();
 
 		void EnableKeyRepeat(bool enable);
 		void EnableSmoothScrolling(bool enable);
@@ -61,6 +61,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		bool IsMinimized() const;
 		bool IsOpen() const;
+		bool IsValid() const;
 		bool IsVisible() const;
 
 		bool PollEvent(NzEvent* event);
@@ -78,20 +79,20 @@ class NAZARA_API NzWindow : NzNonCopyable
 		void SetPosition(int x, int y);
 		void SetSize(const NzVector2i& size);
 		void SetSize(unsigned int width, unsigned int height);
+		void SetStayOnTop(bool stayOnTop);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
-
-		void StayOnTop(bool stayOnTop);
 
 		bool WaitEvent(NzEvent* event);
 
 	protected:
-		virtual void OnClose();
-		virtual bool OnCreate();
+		virtual bool OnWindowCreated();
+		virtual void OnWindowDestroy();
 
 		NzWindowImpl* m_impl;
 
 	private:
+		void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
 		void PushEvent(const NzEvent& event);
 
 		static bool Initialize();
@@ -99,9 +100,9 @@ class NAZARA_API NzWindow : NzNonCopyable
 
 		std::queue<NzEvent> m_events;
 		#if NAZARA_UTILITY_THREADED_WINDOW
+		NzConditionVariable m_eventCondition;
 		NzMutex m_eventMutex;
 		NzMutex m_eventConditionMutex;
-		NzThreadCondition m_eventCondition;
 		bool m_eventListener;
 		bool m_waitForEvent;
 		#endif
