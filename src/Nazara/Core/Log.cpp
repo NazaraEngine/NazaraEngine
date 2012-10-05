@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Log.hpp>
@@ -8,8 +8,9 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <ctime>
+#include <cstring>
 
-#if NAZARA_CORE_REDIRECT_TO_CERR_ON_LOG_FAILURE
+#if NAZARA_CORE_DUPLICATE_TO_COUT
 #include <cstdio>
 #endif
 
@@ -17,7 +18,7 @@
 
 namespace
 {
-	NzString errorType[] = {
+	const char* errorType[] = {
 		"Assert failed: ",	// nzErrorType_AssertFailed
 		"Internal error: ",	// nzErrorType_Internal
 		"Error: ",			// nzErrorType_Normal
@@ -124,12 +125,11 @@ void NzLog::Write(const NzString& string)
 		line += string;
 		line += '\n';
 
-		#if NAZARA_CORE_REDIRECT_TO_CERR_ON_LOG_FAILURE
-		if (!m_file->IsOpen() || !m_file->Write(line))
-			std::fputs(line.GetBuffer(), stderr);
-		#else
 		if (m_file->IsOpen())
 			m_file->Write(line);
+
+		#if NAZARA_CORE_DUPLICATE_TO_COUT
+		std::fputs(line.GetConstBuffer(), stderr);
 		#endif
 	}
 }
@@ -137,7 +137,7 @@ void NzLog::Write(const NzString& string)
 void NzLog::WriteError(nzErrorType type, const NzString& error, unsigned int line, const NzString& file, const NzString& func)
 {
 	NzString stream;
-	stream.Reserve(errorType[type].GetSize() + error.GetSize() + 2 + file.GetSize() + 1 + NzGetNumberLength(line) +2 + func.GetSize() + 1);
+	stream.Reserve(std::strlen(errorType[type]) + error.GetSize() + 2 + file.GetSize() + 1 + NzGetNumberLength(line) +2 + func.GetSize() + 1);
 	stream += errorType[type];
 	stream += error;
 	stream += " (";

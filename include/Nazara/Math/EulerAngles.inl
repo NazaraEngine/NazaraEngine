@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -7,8 +7,9 @@
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <cmath>
 #include <Nazara/Core/Debug.hpp>
+
+#define F(a) static_cast<T>(a)
 
 template<typename T>
 NzEulerAngles<T>::NzEulerAngles()
@@ -41,33 +42,9 @@ NzEulerAngles<T>::NzEulerAngles(const NzEulerAngles<U>& angles)
 }
 
 template<typename T>
-NzVector3<T> NzEulerAngles<T>::GetForward() const
+void NzEulerAngles<T>::MakeZero()
 {
-	#if NAZARA_MATH_ANGLE_RADIAN
-	return NzVector3<T>(std::cos(yaw), std::sin(roll), std::sin(yaw));
-	#else
-	return NzVector3<T>(std::cos(NzDegreeToRadian(yaw)), std::sin(NzDegreeToRadian(roll)), std::sin(NzDegreeToRadian(yaw)));
-	#endif
-}
-
-template<typename T>
-NzVector3<T> NzEulerAngles<T>::GetRight() const
-{
-	#if NAZARA_MATH_ANGLE_RADIAN
-	return NzVector3<T>(std::sin(yaw), std::sin(pitch), std::cos(pitch));
-	#else
-	return NzVector3<T>(std::sin(NzDegreeToRadian(yaw)), std::sin(NzDegreeToRadian(pitch)), std::cos(NzDegreeToRadian(pitch)));
-	#endif
-}
-
-template<typename T>
-NzVector3<T> NzEulerAngles<T>::GetUp() const
-{
-	#if NAZARA_MATH_ANGLE_RADIAN
-	return NzVector3<T>(std::sin(roll), std::cos(pitch), -std::sin(pitch));
-	#else
-	return NzVector3<T>(std::sin(NzDegreeToRadian(roll)), std::cos(NzDegreeToRadian(pitch)), -std::sin(NzDegreeToRadian(pitch)));
-	#endif
+	Set(F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
@@ -118,19 +95,13 @@ void NzEulerAngles<T>::Set(const NzEulerAngles<U>& angles)
 }
 
 template<typename T>
-void NzEulerAngles<T>::SetZero()
-{
-	Set(0.0, 0.0, 0.0);
-}
-
-template<typename T>
 NzQuaternion<T> NzEulerAngles<T>::ToQuaternion() const
 {
-	NzQuaternion<T> Qx(pitch, NzVector3<T>(1.0, 0.0, 0.0));
-	NzQuaternion<T> Qy(yaw, NzVector3<T>(0.0, 1.0, 0.0));
-	NzQuaternion<T> Qz(roll, NzVector3<T>(0.0, 0.0, 1.0));
+	NzQuaternion<T> rotX(pitch, NzVector3<T>(F(1.0), F(0.0), F(0.0)));
+	NzQuaternion<T> rotY(yaw, NzVector3<T>(F(0.0), F(1.0), F(0.0)));
+	NzQuaternion<T> rotZ(roll, NzVector3<T>(F(0.0), F(0.0), F(1.0)));
 
-	return Qx * Qy * Qz;
+	return rotY * rotX * rotZ;
 }
 
 template<typename T>
@@ -139,6 +110,12 @@ NzString NzEulerAngles<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "EulerAngles(" << pitch << ", " << yaw << ", " << roll << ')';
+}
+
+template<typename T>
+NzEulerAngles<T>::operator NzString() const
+{
+	return ToString();
 }
 
 template<typename T>
@@ -192,9 +169,20 @@ bool NzEulerAngles<T>::operator!=(const NzEulerAngles& angles) const
 }
 
 template<typename T>
+NzEulerAngles<T> NzEulerAngles<T>::Zero()
+{
+	NzEulerAngles angles;
+	angles.MakeZero();
+
+	return angles;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzEulerAngles<T>& angles)
 {
 	return out << angles.ToString();
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

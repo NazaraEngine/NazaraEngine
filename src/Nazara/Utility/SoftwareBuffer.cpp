@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SoftwareBuffer.hpp>
@@ -23,7 +23,7 @@ bool NzSoftwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 {
 	NazaraUnused(usage);
 
-	// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
+	// Cette allocation est protÃ©gÃ©e car sa taille dÃ©pend directement de paramÃ¨tres utilisateurs
 	try
 	{
 		m_buffer = new nzUInt8[size];

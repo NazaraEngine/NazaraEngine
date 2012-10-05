@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -24,12 +24,8 @@ template<typename T> T NzDegrees(T degrees);
 template<typename T> T NzDegreeToRadian(T degrees);
 inline unsigned int NzGetNumberLength(signed char number);
 inline unsigned int NzGetNumberLength(unsigned char number);
-inline unsigned int NzGetNumberLength(short number);
-inline unsigned int NzGetNumberLength(unsigned short number);
 inline unsigned int NzGetNumberLength(int number);
 inline unsigned int NzGetNumberLength(unsigned int number);
-inline unsigned int NzGetNumberLength(long number);
-inline unsigned int NzGetNumberLength(unsigned long number);
 inline unsigned int NzGetNumberLength(long long number);
 inline unsigned int NzGetNumberLength(unsigned long long number);
 inline unsigned int NzGetNumberLength(float number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);

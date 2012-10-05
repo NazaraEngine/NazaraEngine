@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
@@ -73,7 +73,14 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
-		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
+	{
+		// Pas d'information de temps (Car nÃ©cessitant une allocation)
+		FILE* log = std::fopen(MLTFileName, "a");
+		std::fprintf(log, "Failed to allocate memory (%d bytes)\n", size);
+		std::fclose(log);
+
+		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mÃ©moire avec new (boucle infinie)
+	}
 
 	ptr->array = multi;
 	ptr->file = file;
@@ -119,19 +126,16 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 		if (nextFreeFile)
 		{
 			if (multi)
-				std::fprintf(log, "%s Warning: delete[] on new at %s:%d\n", time, nextFreeFile, nextFreeLine);
+				std::fprintf(log, "%s Warning: delete[] after new at %s:%d\n", time, nextFreeFile, nextFreeLine);
 			else
-				std::fprintf(log, "%s Warning: delete on new[] at %s:%d\n", time, nextFreeFile, nextFreeLine);
-
-			nextFreeFile = nullptr;
-			nextFreeLine = 0;
+				std::fprintf(log, "%s Warning: delete after new[] at %s:%d\n", time, nextFreeFile, nextFreeLine);
 		}
 		else
 		{
 			if (multi)
-				std::fprintf(log, "%s Warning: delete[] on new at unknown position\n", time);
+				std::fprintf(log, "%s Warning: delete[] after new at unknown position\n", time);
 			else
-				std::fprintf(log, "%s Warning: delete on new[] at unknown position\n", time);
+				std::fprintf(log, "%s Warning: delete after new[] at unknown position\n", time);
 		}
 
 		std::fclose(log);
@@ -144,6 +148,9 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 	ptr->next->prev = ptr->prev;
 
 	std::free(ptr);
+
+	nextFreeFile = nullptr;
+	nextFreeLine = 0;
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	LeaveCriticalSection(&mutex);

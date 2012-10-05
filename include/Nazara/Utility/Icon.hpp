@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -12,7 +12,6 @@
 
 class NzImage;
 class NzIconImpl;
-class NzWindowImpl;
 
 class NAZARA_API NzIcon
 {

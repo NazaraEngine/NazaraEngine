@@ -1,0 +1,2 @@
+premake4 generateheaders
+pause

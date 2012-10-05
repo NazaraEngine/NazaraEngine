@@ -1,5 +1,5 @@
-// Copyright (C) 2012 J�r�me Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 Rémi Bèges - Jérôme Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
@@ -9,55 +9,44 @@
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
+///FIXME: Les calculs effectués ici sont probablements tous faux, la composante W étant spéciale dans le monde de la 3D
+
+#define F(a) static_cast<T>(a)
+
 template<typename T>
 NzVector4<T>::NzVector4()
 {
 }
 
 template<typename T>
-NzVector4<T>::NzVector4(T X, T Y, T Z, T W) :
-x(X),
-y(Y),
-z(Z),
-w(W)
+NzVector4<T>::NzVector4(T X, T Y, T Z, T W)
 {
+	Set(X, Y, Z, W);
 }
 
 template<typename T>
-NzVector4<T>::NzVector4(T scale) :
-x(scale),
-y(scale),
-z(scale),
-w(scale)
+NzVector4<T>::NzVector4(T scale)
 {
+	Set(scale);
 }
 
 template<typename T>
-NzVector4<T>::NzVector4(T vec[4]) :
-x(vec[0]),
-y(vec[1]),
-z(vec[2]),
-w(vec[3])
+NzVector4<T>::NzVector4(T vec[4])
 {
+	Set(vec);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(const NzVector3<T>& vec, T W)
+{
+	Set(vec, W);
 }
 
 template<typename T>
 template<typename U>
-NzVector4<T>::NzVector4(const NzVector4<U>& vec) :
-x(static_cast<T>(vec.x)),
-y(static_cast<T>(vec.y)),
-z(static_cast<T>(vec.z)),
-w(static_cast<T>(vec.w))
+NzVector4<T>::NzVector4(const NzVector4<U>& vec)
 {
-}
-
-template<typename T>
-NzVector4<T>::NzVector4(const NzVector3<T>& vec, T W) :
-x(vec.x),
-y(vec.y),
-z(vec.z),
-w(W)
-{
+	Set(vec);
 }
 
 template<typename T>
@@ -81,11 +70,35 @@ inline unsigned int NzVector4<unsigned int>::AbsDotProduct(const NzVector4<unsig
 template<typename T>
 T NzVector4<T>::DotProduct(const NzVector4& vec) const
 {
-	return x * vec.x + y * vec.y + z * vec.z + w * vec.w;
+	return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
 }
 
 template<typename T>
-void NzVector4<T>::MakeCeil(const NzVector4& vec)
+void NzVector4<T>::MakeUnitX()
+{
+	Set(F(1.0), F(0.0), F(0.0), F(1.0));
+}
+
+template<typename T>
+void NzVector4<T>::MakeUnitY()
+{
+	Set(F(0.0), F(1.0), F(0.0), F(1.0));
+}
+
+template<typename T>
+void NzVector4<T>::MakeUnitZ()
+{
+	Set(F(0.0), F(0.0), F(1.0), F(1.0));
+}
+
+template<typename T>
+void NzVector4<T>::MakeZero()
+{
+	Set(F(0.0), F(0.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+void NzVector4<T>::Maximize(const NzVector4& vec)
 {
 	if (vec.x > x)
 		x = vec.x;
@@ -101,7 +114,7 @@ void NzVector4<T>::MakeCeil(const NzVector4& vec)
 }
 
 template<typename T>
-void NzVector4<T>::MakeFloor(const NzVector4& vec)
+void NzVector4<T>::Minimize(const NzVector4& vec)
 {
 	if (vec.x < x)
 		x = vec.x;
@@ -119,7 +132,7 @@ void NzVector4<T>::MakeFloor(const NzVector4& vec)
 template<typename T>
 void NzVector4<T>::Normalize()
 {
-	if (!NzNumberEquals(w, static_cast<T>(0.0)))
+	if (!NzNumberEquals(w, F(0.0)))
 	{
 		x /= w;
 		y /= w;
@@ -128,11 +141,60 @@ void NzVector4<T>::Normalize()
 }
 
 template<typename T>
+void NzVector4<T>::Set(T X, T Y, T Z, T W)
+{
+	w = W;
+	x = X;
+	y = Y;
+	z = Z;
+}
+
+template<typename T>
+void NzVector4<T>::Set(T scale)
+{
+	w = scale;
+	x = scale;
+	y = scale;
+	z = scale;
+}
+
+template<typename T>
+void NzVector4<T>::Set(T vec[4])
+{
+	std::memcpy(&x, vec, 4*sizeof(T));
+}
+
+template<typename T>
+void NzVector4<T>::Set(const NzVector3<T>& vec, T W)
+{
+	w = W;
+	x = vec.x;
+	y = vec.y;
+	z = vec.z;
+}
+
+template<typename T>
+template<typename U>
+void NzVector4<T>::Set(const NzVector4<U>& vec)
+{
+	w = F(vec.w);
+	x = F(vec.x);
+	y = F(vec.y);
+	z = F(vec.z);
+}
+
+template<typename T>
 NzString NzVector4<T>::ToString() const
 {
 	NzStringStream ss;
 
 	return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
+}
+
+template<typename T>
+NzVector4<T>::operator NzString() const
+{
+	return ToString();
 }
 
 template<typename T>
@@ -150,6 +212,7 @@ NzVector4<T>::operator const T*() const
 template<typename T>
 T& NzVector4<T>::operator[](unsigned int i)
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 4)
 	{
 		NzStringStream ss;
@@ -157,6 +220,7 @@ T& NzVector4<T>::operator[](unsigned int i)
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -164,6 +228,7 @@ T& NzVector4<T>::operator[](unsigned int i)
 template<typename T>
 T NzVector4<T>::operator[](unsigned int i) const
 {
+	#if NAZARA_MATH_SAFE
 	if (i >= 4)
 	{
 		NzStringStream ss;
@@ -171,6 +236,7 @@ T NzVector4<T>::operator[](unsigned int i) const
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return *(&x+i);
 }
@@ -214,13 +280,15 @@ NzVector4<T> NzVector4<T>::operator*(T scale) const
 template<typename T>
 NzVector4<T> NzVector4<T>::operator/(const NzVector4& vec) const
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector4(x / vec.x, y / vec.y, z / vec.z, w / vec.w);
 }
@@ -228,13 +296,15 @@ NzVector4<T> NzVector4<T>::operator/(const NzVector4& vec) const
 template<typename T>
 NzVector4<T> NzVector4<T>::operator/(T scale) const
 {
-	if (NzNumberEquals(scale, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(scale, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector4(x / scale, y / scale, z / scale, w / scale);
 }
@@ -286,13 +356,15 @@ NzVector4<T>& NzVector4<T>::operator*=(T scale)
 template<typename T>
 NzVector4<T>& NzVector4<T>::operator/=(const NzVector4& vec)
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	x /= vec.x;
 	y /= vec.y;
@@ -305,13 +377,15 @@ NzVector4<T>& NzVector4<T>::operator/=(const NzVector4& vec)
 template<typename T>
 NzVector4<T>& NzVector4<T>::operator/=(T scale)
 {
-	if (NzNumberEquals(scale, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(scale, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	x /= scale;
 	y /= scale;
@@ -361,6 +435,42 @@ bool NzVector4<T>::operator>=(const NzVector4& vec) const
 }
 
 template<typename T>
+NzVector4<T> NzVector4<T>::UnitX()
+{
+	NzVector4 vector;
+	vector.MakeUnitX();
+
+	return vector;
+}
+
+template<typename T>
+NzVector4<T> NzVector4<T>::UnitY()
+{
+	NzVector4 vector;
+	vector.MakeUnitY();
+
+	return vector;
+}
+
+template<typename T>
+NzVector4<T> NzVector4<T>::UnitZ()
+{
+	NzVector4 vector;
+	vector.MakeUnitZ();
+
+	return vector;
+}
+
+template<typename T>
+NzVector4<T> NzVector4<T>::Zero()
+{
+	NzVector4 vector;
+	vector.MakeZero();
+
+	return vector;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzVector4<T>& vec)
 {
 	return out << vec.ToString();
@@ -375,15 +485,19 @@ NzVector4<T> operator*(T scale, const NzVector4<T>& vec)
 template<typename T>
 NzVector4<T> operator/(T scale, const NzVector4<T>& vec)
 {
-	if (NzNumberEquals(vec.x, static_cast<T>(0.0)) || NzNumberEquals(vec.y, static_cast<T>(0.0)) || NzNumberEquals(vec.z, static_cast<T>(0.0)) || NzNumberEquals(vec.w, static_cast<T>(0.0)))
+	#if NAZARA_MATH_SAFE
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
 
 		throw std::domain_error(ss.ToString());
 	}
+	#endif
 
 	return NzVector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
+
+#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/HashDigest.hpp>
@@ -42,7 +42,7 @@ m_digestLength(rhs.m_digestLength)
 		m_digest = nullptr;
 }
 
-NzHashDigest::NzHashDigest(NzHashDigest&& rhs) :
+NzHashDigest::NzHashDigest(NzHashDigest&& rhs) noexcept :
 m_hashName(std::move(rhs.m_hashName)),
 m_digest(rhs.m_digest),
 m_digestLength(rhs.m_digestLength)
@@ -118,7 +118,7 @@ NzHashDigest& NzHashDigest::operator=(const NzHashDigest& rhs)
 	return *this;
 }
 
-NzHashDigest& NzHashDigest::operator=(NzHashDigest&& rhs)
+NzHashDigest& NzHashDigest::operator=(NzHashDigest&& rhs) noexcept
 {
 	std::swap(m_hashName, rhs.m_hashName);
 	std::swap(m_digest, rhs.m_digest);

@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Core/Endianness.hpp>
@@ -37,30 +37,16 @@ namespace
 
 	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
-	bool NzLoader_STB_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters);
-
-	bool NzLoader_STB_LoadFile(NzImage* image, const NzString& filePath, const NzImageParams& parameters)
-	{
-		NzFile file(filePath);
-		if (!file.Open(NzFile::ReadOnly))
-		{
-			NazaraError("Failed to open file");
-			return false;
-		}
-
-		return NzLoader_STB_LoadStream(image, file, parameters);
-	}
-
-	bool NzLoader_STB_LoadMemory(NzImage* image, const void* data, unsigned int size, const NzImageParams& parameters)
-	{
-		NzMemoryStream stream(data, size);
-		return NzLoader_STB_LoadStream(image, stream, parameters);
-	}
-
-	bool NzLoader_STB_LoadStream(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
+	bool NzLoader_STB_Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
+		int width, height, bpp;
+		return stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp);
+	}
+
+	bool NzLoader_STB_Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
+	{
 		static const nzPixelFormat formats[4] =
 		{
 			nzPixelFormat_L8,
@@ -127,34 +113,14 @@ namespace
 
 		return true;
 	}
-
-	bool NzLoader_STB_IdentifyMemory(const void* data, unsigned int size, const NzImageParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		int width, height, bpp;
-		return stbi_info_from_memory(reinterpret_cast<const stbi_uc*>(data), size, &width, &height, &bpp);
-	}
-
-	bool NzLoader_STB_IdentifyStream(NzInputStream& stream, const NzImageParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		int width, height, bpp;
-		return stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp);
-	}
 }
 
 void NzLoaders_STB_Register()
 {
-	NzImageLoader::RegisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
-	NzImageLoader::RegisterMemoryLoader(NzLoader_STB_IdentifyMemory, NzLoader_STB_LoadMemory);
-	NzImageLoader::RegisterStreamLoader(NzLoader_STB_IdentifyStream, NzLoader_STB_LoadStream);
+	NzImageLoader::RegisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", NzLoader_STB_Check, NzLoader_STB_Load);
 }
 
 void NzLoaders_STB_Unregister()
 {
-	NzImageLoader::UnregisterStreamLoader(NzLoader_STB_IdentifyStream, NzLoader_STB_LoadStream);
-	NzImageLoader::UnregisterMemoryLoader(NzLoader_STB_IdentifyMemory, NzLoader_STB_LoadMemory);
-	NzImageLoader::UnregisterFileLoader("bmp, gif, hdr, jpg, jpeg, pic, png, psd, tga", NzLoader_STB_LoadFile);
+	NzImageLoader::UnregisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", NzLoader_STB_Check, NzLoader_STB_Load);
 }

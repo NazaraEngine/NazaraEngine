@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Unicode.hpp>
@@ -9,16 +9,16 @@
 #if NAZARA_CORE_INCLUDE_UNICODEDATA
 struct Character
 {
-	nzUInt16 category;	// Le type du caractère
-	nzUInt8	 direction;	// Le sens de lecure du caractère
-	nzUInt32 lowerCase;	// Le caractère correspondant en minuscule
-	nzUInt32 titleCase;	// Le caractère correspondant en titre
-	nzUInt32 upperCase;	// Le caractère correspondant en majuscule
+	nzUInt16 category;	// Le type du caractÃ¨re
+	nzUInt8	 direction;	// Le sens de lecure du caractÃ¨re
+	nzUInt32 lowerCase;	// Le caractÃ¨re correspondant en minuscule
+	nzUInt32 titleCase;	// Le caractÃ¨re correspondant en titre
+	nzUInt32 upperCase;	// Le caractÃ¨re correspondant en majuscule
 };
 
 #include <Nazara/Core/UnicodeData.hpp>
 
-#else // Implémentation bidon
+#else // ImplÃ©mentation bidon
 
 NzUnicode::Category NzUnicode::GetCategory(char32_t character)
 {

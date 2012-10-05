@@ -1,4 +1,8 @@
-project "NazaraRenderer"
+if (not _OPTIONS["united"]) then
+	project "NazaraRenderer"
+end
+
+defines "NAZARA_RENDERER_OPENGL"
 
 files
 {
@@ -17,22 +21,22 @@ else
 	excludes { "../src/Nazara/Renderer/Win32/*.hpp", "../src/Nazara/Renderer/Win32/*.cpp" }
 end
 
-configuration "DebugStatic"
-	links "NazaraCored-s"
-	links "NazaraUtilityd-s"
-	targetname "NazaraRendererd"
+if (_OPTIONS["united"]) then
+	excludes "../src/Nazara/Renderer/Debug/Leaks.cpp"
+else
+	configuration "DebugStatic"
+		links "NazaraCore-s-d"
+		links "NazaraUtility-s-d"
 
-configuration "ReleaseStatic"
-	links "NazaraCore-s"
-	links "NazaraUtility-s"
-	targetname "NazaraRenderer"
+	configuration "ReleaseStatic"
+		links "NazaraCore-s"
+		links "NazaraUtility-s"
 
-configuration "DebugDLL"
-	links "NazaraCored"
-	links "NazaraUtilityd"
-	targetname "NazaraRendererd"
+	configuration "DebugDLL"
+		links "NazaraCore-d"
+		links "NazaraUtility-d"
 
-configuration "ReleaseDLL"
-	links "NazaraCore"
-	links "NazaraUtility"
-	targetname "NazaraRenderer"
+	configuration "ReleaseDLL"
+		links "NazaraCore"
+		links "NazaraUtility"
+end

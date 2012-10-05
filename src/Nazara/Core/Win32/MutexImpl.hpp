@@ -1,5 +1,5 @@
 // Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -9,11 +9,9 @@
 
 #include <windows.h>
 
-class NzThreadConditionImpl;
-
 class NzMutexImpl
 {
-	friend class NzThreadConditionImpl;
+	friend class NzConditionVariableImpl;
 
 	public:
 		NzMutexImpl();

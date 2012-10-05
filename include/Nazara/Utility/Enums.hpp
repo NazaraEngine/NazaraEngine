@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -11,7 +11,9 @@ enum nzAnimationType
 {
 	nzAnimationType_Keyframe,
 	nzAnimationType_Skeletal,
-	nzAnimationType_Static
+	nzAnimationType_Static,
+
+	nzAnimationType_Max = nzAnimationType_Static
 };
 
 enum nzBufferAccess
@@ -19,11 +21,14 @@ enum nzBufferAccess
 	nzBufferAccess_DiscardAndWrite,
 	nzBufferAccess_ReadOnly,
 	nzBufferAccess_ReadWrite,
-	nzBufferAccess_WriteOnly
+	nzBufferAccess_WriteOnly,
+
+	nzBufferAccess_Max = nzBufferAccess_WriteOnly
 };
 
 enum nzBufferStorage
 {
+	//nzBufferStorage_Both,
 	nzBufferStorage_Hardware,
 	nzBufferStorage_Software,
 
@@ -33,25 +38,31 @@ enum nzBufferStorage
 enum nzBufferType
 {
 	nzBufferType_Index,
-	nzBufferType_Vertex
+	nzBufferType_Vertex,
+
+	nzBufferType_Max = nzBufferType_Vertex
 };
 
 enum nzBufferUsage
 {
 	nzBufferUsage_Dynamic,
-	nzBufferUsage_Static
+	nzBufferUsage_Static,
+
+	nzBufferUsage_Max = nzBufferUsage_Static
 };
 
 enum nzCubemapFace
 {
+	// Cette Ã©numÃ©ration est prÃ©vue pour remplacer l'argument "z" des mÃ©thodes de NzImage contenant un cubemap
 	// L'ordre est X, -X, Y, -Y, Z, -Z
-	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap
 	nzCubemapFace_PositiveX = 0,
 	nzCubemapFace_PositiveY = 2,
 	nzCubemapFace_PositiveZ = 4,
 	nzCubemapFace_NegativeX = 1,
 	nzCubemapFace_NegativeY = 3,
-	nzCubemapFace_NegativeZ = 5
+	nzCubemapFace_NegativeZ = 5,
+
+	nzCubemapFace_Max = nzCubemapFace_NegativeZ
 };
 
 enum nzElementStream
@@ -72,7 +83,9 @@ enum nzElementType
 	nzElementType_Float1,
 	nzElementType_Float2,
 	nzElementType_Float3,
-	nzElementType_Float4
+	nzElementType_Float4,
+
+	nzElementType_Max = nzElementType_Float4
 };
 
 enum nzElementUsage
@@ -86,10 +99,42 @@ enum nzElementUsage
 	nzElementUsage_Max = nzElementUsage_TexCoord
 };
 
+enum nzEventType
+{
+	nzEventType_GainedFocus,
+	nzEventType_LostFocus,
+	nzEventType_KeyPressed,
+	nzEventType_KeyReleased,
+	nzEventType_MouseButtonDoubleClicked,
+	nzEventType_MouseButtonPressed,
+	nzEventType_MouseButtonReleased,
+	nzEventType_MouseEntered,
+	nzEventType_MouseLeft,
+	nzEventType_MouseMoved,
+	nzEventType_MouseWheelMoved,
+	nzEventType_Moved,
+	nzEventType_Quit,
+	nzEventType_Resized,
+	nzEventType_TextEntered,
+
+	nzEventType_Max = nzEventType_TextEntered
+};
+
+enum nzExtend
+{
+	nzExtend_Finite,
+	nzExtend_Infinite,
+	nzExtend_Null,
+
+	nzExtend_Max = nzExtend_Null
+};
+
 enum nzImageType
 {
 	nzImageType_1D,
+	nzImageType_1D_Array,
 	nzImageType_2D,
+	nzImageType_2D_Array,
 	nzImageType_3D,
 	nzImageType_Cubemap,
 
@@ -98,30 +143,29 @@ enum nzImageType
 
 enum nzPixelFormat
 {
-	nzPixelFormat_Undefined,
+	nzPixelFormat_Undefined = -1,
 
-	nzPixelFormat_BGR8,    // 3*nzUInt8
-	nzPixelFormat_BGRA8,   // 4*nzUInt8
+	nzPixelFormat_BGR8,            // 3*nzUInt8
+	nzPixelFormat_BGRA8,           // 4*nzUInt8
 	nzPixelFormat_DXT1,
 	nzPixelFormat_DXT3,
 	nzPixelFormat_DXT5,
-	nzPixelFormat_L8,      // 1*nzUInt8
-	nzPixelFormat_LA8,     // 2*nzUInt8
+	nzPixelFormat_L8,              // 1*nzUInt8
+	nzPixelFormat_LA8,             // 2*nzUInt8
 	/*
 	nzPixelFormat_RGB16F,
-	nzPixelFormat_RGB16I,  // 4*nzUInt16
+	nzPixelFormat_RGB16I,          // 4*nzUInt16
 	nzPixelFormat_RGB32F,
-	nzPixelFormat_RGB32I,  // 4*nzUInt32
+	nzPixelFormat_RGB32I,          // 4*nzUInt32
 	nzPixelFormat_RGBA16F,
-	nzPixelFormat_RGBA16I, // 4*nzUInt16
+	nzPixelFormat_RGBA16I,         // 4*nzUInt16
 	nzPixelFormat_RGBA32F,
-	nzPixelFormat_RGBA32I, // 4*nzUInt32
+	nzPixelFormat_RGBA32I,         // 4*nzUInt32
 	*/
-	nzPixelFormat_RGBA4,   // 1*nzUInt16
-	nzPixelFormat_RGB5A1,  // 1*nzUInt16
-	nzPixelFormat_RGB8,    // 3*nzUInt8
-	nzPixelFormat_RGBA8,   // 4*nzUInt8
-	/*
+	nzPixelFormat_RGBA4,           // 1*nzUInt16
+	nzPixelFormat_RGB5A1,          // 1*nzUInt16
+	nzPixelFormat_RGB8,            // 3*nzUInt8
+	nzPixelFormat_RGBA8,           // 4*nzUInt8
 	nzPixelFormat_Depth16,
 	nzPixelFormat_Depth24,
 	nzPixelFormat_Depth24Stencil8,
@@ -130,9 +174,20 @@ enum nzPixelFormat
 	nzPixelFormat_Stencil4,
 	nzPixelFormat_Stencil8,
 	nzPixelFormat_Stencil16,
-	*/
 
-	nzPixelFormat_Max = nzPixelFormat_RGBA8
+	nzPixelFormat_Max = nzPixelFormat_Stencil16
+};
+
+enum nzPixelFormatType
+{
+	nzPixelFormatType_Undefined = -1,
+
+	nzPixelFormatType_Color,
+	nzPixelFormatType_Depth,
+	nzPixelFormatType_DepthStencil,
+	nzPixelFormatType_Stencil,
+
+	nzPixelFormatType_Max = nzPixelFormatType_Stencil
 };
 
 enum nzPixelFlipping
@@ -150,7 +205,9 @@ enum nzPrimitiveType
 	nzPrimitiveType_PointList,
 	nzPrimitiveType_TriangleList,
 	nzPrimitiveType_TriangleStrip,
-	nzPrimitiveType_TriangleFan
+	nzPrimitiveType_TriangleFan,
+
+	nzPrimitiveType_Max = nzPrimitiveType_TriangleFan
 };
 
 enum nzWindowCursor
@@ -173,17 +230,19 @@ enum nzWindowCursor
 	nzWindowCursor_ResizeSW,
 	nzWindowCursor_ResizeW,
 	nzWindowCursor_Text,
-	nzWindowCursor_Wait
+	nzWindowCursor_Wait,
+
+	nzWindowCursor_Max = nzWindowCursor_Wait
 };
 
-enum nzWindowStyle
+enum nzWindowStyleFlags
 {
 	nzWindowStyle_None       = 0x0,
 	nzWindowStyle_Fullscreen = 0x1,
 
 	nzWindowStyle_Closable   = 0x2,
 	nzWindowStyle_Resizable  = 0x4,
-	nzWindowStyle_Titlebar   = 0x4,
+	nzWindowStyle_Titlebar   = 0x8,
 
 	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
 };

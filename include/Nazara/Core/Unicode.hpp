@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -13,13 +13,13 @@ class NzUnicode
 {
 	public:
 		/*
-			Catégorie Unicode:
-			-Les valeurs de 0x01 à 0x80 indiquent la catégorie.
-			-Les valeurs de 0x100 à 0x10000 indiquent la sous-catégorie.
+			CatÃ©gorie Unicode:
+			-Les valeurs de 0x01 Ã  0x80 indiquent la catÃ©gorie.
+			-Les valeurs de 0x100 Ã  0x10000 indiquent la sous-catÃ©gorie.
 		*/
 		enum Category : nzUInt16
 		{
-			// Catégorie non-reconnue par Nazara
+			// CatÃ©gorie non-reconnue par Nazara
 			Category_NoCategory				  = 0,
 
 			// Lettres

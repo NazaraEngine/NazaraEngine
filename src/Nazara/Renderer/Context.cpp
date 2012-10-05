@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -37,32 +37,32 @@ namespace
 		ss << "\n-Source: ";
 		switch (source)
 		{
-			case GL_DEBUG_SOURCE_API_ARB:
+			case GL_DEBUG_SOURCE_API:
 				ss << "OpenGL";
 				break;
 
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
 				ss << "Operating system";
 				break;
 
-			case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:
 				ss << "Shader compiler";
 				break;
 
-			case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+			case GL_DEBUG_SOURCE_THIRD_PARTY:
 				ss << "Shader compiler";
 				break;
 
-			case GL_DEBUG_SOURCE_APPLICATION_ARB:
+			case GL_DEBUG_SOURCE_APPLICATION:
 				ss << "Application";
 				break;
 
-			case GL_DEBUG_SOURCE_OTHER_ARB:
+			case GL_DEBUG_SOURCE_OTHER:
 				ss << "Other";
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -71,32 +71,32 @@ namespace
 		ss << "-Type: ";
 		switch (type)
 		{
-			case GL_DEBUG_TYPE_ERROR_ARB:
+			case GL_DEBUG_TYPE_ERROR:
 				ss << "Error";
 				break;
 
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
 				ss << "Deprecated behavior";
 				break;
 
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
 				ss << "Undefined behavior";
 				break;
 
-			case GL_DEBUG_TYPE_PORTABILITY_ARB:
+			case GL_DEBUG_TYPE_PORTABILITY:
 				ss << "Portability";
 				break;
 
-			case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+			case GL_DEBUG_TYPE_PERFORMANCE:
 				ss << "Performance";
 				break;
 
-			case GL_DEBUG_TYPE_OTHER_ARB:
+			case GL_DEBUG_TYPE_OTHER:
 				ss << "Other";
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -105,20 +105,20 @@ namespace
 		ss << "-Severity: ";
 		switch (severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH_ARB:
+			case GL_DEBUG_SEVERITY_HIGH:
 				ss << "High";
 				break;
 
-			case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+			case GL_DEBUG_SEVERITY_MEDIUM:
 				ss << "Medium";
 				break;
 
-			case GL_DEBUG_SEVERITY_LOW_ARB:
+			case GL_DEBUG_SEVERITY_LOW:
 				ss << "Low";
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Peut Ãªtre rajoutÃ© par une extension
 				ss << "Unknown";
 				break;
 		}
@@ -128,11 +128,6 @@ namespace
 
 		NazaraNotice(ss);
 	}
-}
-
-NzContext::NzContext() :
-m_impl(nullptr)
-{
 }
 
 NzContext::~NzContext()
@@ -172,14 +167,16 @@ bool NzContext::Create(const NzContextParameters& parameters)
 	if (m_parameters.antialiasingLevel > 0)
 		glEnable(GL_MULTISAMPLE);
 
-	if (NzOpenGL::IsSupported(NzOpenGL::DebugOutput) && m_parameters.debugMode)
+	if (NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput) && m_parameters.debugMode)
 	{
 		glDebugMessageCallback(&DebugCallback, this);
 
 		#ifdef NAZARA_DEBUG
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		#endif
 	}
+
+	NotifyCreated();
 
 	return true;
 }
@@ -188,6 +185,8 @@ void NzContext::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		if (currentContext == this)
 			NzContextImpl::Desactivate();
 
@@ -230,7 +229,7 @@ bool NzContext::SetActive(bool active)
 	}
 	#endif
 
-	// Si le contexte est déjà activé/désactivé
+	// Si le contexte est dÃ©jÃ  activÃ©/dÃ©sactivÃ©
 	if ((currentContext == this) == active)
 		return true;
 
@@ -322,7 +321,7 @@ bool NzContext::Initialize()
 {
 	NzContextParameters parameters;
 //	parameters.compatibilityProfile = true;
-	parameters.shared = false; // Difficile de partager le contexte de référence avec lui-même
+	parameters.shared = false; // Difficile de partager le contexte de rÃ©fÃ©rence avec lui-mÃªme
 
 	s_reference = new NzContext;
 	if (!s_reference->Create(parameters))
@@ -333,7 +332,7 @@ bool NzContext::Initialize()
 		return false;
 	}
 
-	// Le contexte de référence doit rester désactivé pour le partage
+	// Le contexte de rÃ©fÃ©rence doit rester dÃ©sactivÃ© pour le partage
 	s_reference->SetActive(false);
 
 	NzContextParameters::defaultShareContext = s_reference;
@@ -346,7 +345,7 @@ void NzContext::Uninitialize()
 	for (NzContext* context : contexts)
 		delete context;
 
-	contexts.clear(); // On supprime tous les contextes créés
+	contexts.clear(); // On supprime tous les contextes crÃ©Ã©s
 
 	delete s_reference;
 	s_reference = nullptr;

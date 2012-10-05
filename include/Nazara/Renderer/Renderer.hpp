@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,99 +8,76 @@
 #define NAZARA_RENDERER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <map>
-#include <tuple>
-
-#define NazaraRenderer NzRenderer::Instance()
 
 class NzColor;
 class NzContext;
 class NzIndexBuffer;
 class NzRenderTarget;
 class NzShader;
-class NzUtility;
 class NzVertexBuffer;
 class NzVertexDeclaration;
 
 class NAZARA_API NzRenderer
 {
 	public:
-		NzRenderer();
-		~NzRenderer();
+		NzRenderer() = delete;
+		~NzRenderer() = delete;
 
-		void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
+		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
-		void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
-		void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
+		static void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
+		static void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
 
-		void Enable(nzRendererParameter parameter, bool enable);
+		static void Enable(nzRendererParameter parameter, bool enable);
 
-		unsigned int GetMaxAnisotropyLevel() const;
-		unsigned int GetMaxRenderTargets() const;
-		unsigned int GetMaxTextureUnits() const;
-		NzShader* GetShader() const;
-		NzRenderTarget* GetTarget() const;
-		NzRectui GetViewport() const;
+		//static NzMatrix4f GetMatrix(nzMatrixCombination combination);
+		static NzMatrix4f GetMatrix(nzMatrixType type);
+		static unsigned int GetMaxAnisotropyLevel();
+		static unsigned int GetMaxRenderTargets();
+		static unsigned int GetMaxTextureUnits();
+		static NzShader* GetShader();
+		static NzRenderTarget* GetTarget();
+		static NzRectui GetViewport();
 
-		bool HasCapability(nzRendererCap capability) const;
-		bool Initialize();
+		static bool HasCapability(nzRendererCap capability);
 
-		void SetBlendFunc(nzBlendFunc src, nzBlendFunc dest);
-		void SetClearColor(const NzColor& color);
-		void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
-		void SetClearDepth(double depth);
-		void SetClearStencil(unsigned int value);
-		void SetFaceCulling(nzFaceCulling cullingMode);
-		void SetFaceFilling(nzFaceFilling fillingMode);
-		bool SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		bool SetShader(NzShader* shader);
-		void SetStencilCompareFunction(nzRendererComparison compareFunc);
-		void SetStencilFailOperation(nzStencilOperation failOperation);
-		void SetStencilMask(nzUInt32 mask);
-		void SetStencilPassOperation(nzStencilOperation passOperation);
-		void SetStencilReferenceValue(unsigned int refValue);
-		void SetStencilZFailOperation(nzStencilOperation zfailOperation);
-		bool SetTarget(NzRenderTarget* target);
-		bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
-		bool SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
-		void SetViewport(const NzRectui& viewport);
+		static bool Initialize();
 
-		void Uninitialize();
-
-		static NzRenderer* Instance();
 		static bool IsInitialized();
 
+		static void SetBlendFunc(nzBlendFunc src, nzBlendFunc dest);
+		static void SetClearColor(const NzColor& color);
+		static void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
+		static void SetClearDepth(double depth);
+		static void SetClearStencil(unsigned int value);
+		static void SetFaceCulling(nzFaceCulling cullingMode);
+		static void SetFaceFilling(nzFaceFilling fillingMode);
+		static bool SetIndexBuffer(const NzIndexBuffer* indexBuffer);
+		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
+		static bool SetShader(NzShader* shader);
+		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
+		static void SetStencilFailOperation(nzStencilOperation failOperation);
+		static void SetStencilMask(nzUInt32 mask);
+		static void SetStencilPassOperation(nzStencilOperation passOperation);
+		static void SetStencilReferenceValue(unsigned int refValue);
+		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
+		static bool SetTarget(NzRenderTarget* target);
+		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
+		static bool SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
+		static void SetViewport(const NzRectui& viewport);
+
+		static void Uninitialize();
+
 	private:
-		bool EnsureStateUpdate();
+		static bool EnsureStateUpdate();
 
-		typedef std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*> VAO_Key;
-
-		std::map<VAO_Key, unsigned int> m_vaos;
-		nzRendererComparison m_stencilCompare;
-		nzStencilOperation m_stencilFail;
-		nzStencilOperation m_stencilPass;
-		nzStencilOperation m_stencilZFail;
-		nzUInt32 m_stencilMask;
-		const NzIndexBuffer* m_indexBuffer;
-		NzRenderTarget* m_target;
-		NzShader* m_shader;
-		NzUtility* m_utilityModule;
-		const NzVertexBuffer* m_vertexBuffer;
-		const NzVertexDeclaration* m_vertexDeclaration;
-		bool m_vaoUpdated;
-		bool m_capabilities[nzRendererCap_Max+1];
-		bool m_stencilFuncUpdated;
-		bool m_stencilOpUpdated;
-		unsigned int m_maxAnisotropyLevel;
-		unsigned int m_maxRenderTarget;
-		unsigned int m_maxTextureUnit;
-		unsigned int m_stencilReference;
-
-		static NzRenderer* s_instance;
-		static bool s_initialized;
+		static unsigned int s_moduleReferenceCouter;
 };
 
 #endif // NAZARA_RENDERER_HPP

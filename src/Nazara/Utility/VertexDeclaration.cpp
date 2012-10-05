@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-#if NAZARA_THREADSAFETY_VERTEXDECLARATION
+#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_VERTEXDECLARATION
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -20,17 +20,30 @@
 
 namespace
 {
-	const unsigned int size[] =
+	const unsigned int elementCount[] =
 	{
-		4,	// nzElementType_Color
-		8,	// nzElementType_Double1
-		16,	// nzElementType_Double2
-		24,	// nzElementType_Double3
-		32,	// nzElementType_Double4
-		4,	// nzElementType_Float1
-		8,	// nzElementType_Float2
-		12,	// nzElementType_Float3
-		16	// nzElementType_Float4
+		4, // nzElementType_Color
+		1, // nzElementType_Double1
+		2, // nzElementType_Double2
+		3, // nzElementType_Double3
+		4, // nzElementType_Double4
+		1, // nzElementType_Float1
+		2, // nzElementType_Float2
+		3, // nzElementType_Float3
+		4  // nzElementType_Float4
+	};
+
+	const unsigned int elementSize[] =
+	{
+		4*sizeof(nzUInt8), // nzElementType_Color
+		1*sizeof(double), // nzElementType_Double1
+		2*sizeof(double), // nzElementType_Double2
+		3*sizeof(double), // nzElementType_Double3
+		4*sizeof(double), // nzElementType_Double4
+		1*sizeof(float),  // nzElementType_Float1
+		2*sizeof(float),  // nzElementType_Float2
+		3*sizeof(float),  // nzElementType_Float3
+		4*sizeof(float)	  // nzElementType_Float4
 	};
 
 	bool VertexElementCompare(const NzVertexElement& elementA, const NzVertexElement& elementB)
@@ -57,7 +70,7 @@ struct NzVertexDeclarationImpl
 	int streamPos[nzElementStream_Max+1];
 	unsigned int stride[nzElementStream_Max+1] = {0};
 
-	unsigned short refCount;
+	unsigned short refCount = 1;
 	NazaraMutex(mutex)
 };
 
@@ -86,7 +99,7 @@ m_sharedImpl(declaration.m_sharedImpl)
 	}
 }
 
-NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration&& declaration) :
+NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration&& declaration) noexcept :
 m_sharedImpl(declaration.m_sharedImpl)
 {
 	declaration.m_sharedImpl = nullptr;
@@ -113,7 +126,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 	std::memset(&impl->elementPos, -1, (nzElementStream_Max+1)*(nzElementUsage_Max+1)*sizeof(int));
 	std::memset(&impl->streamPos, -1, (nzElementStream_Max+1)*sizeof(int));
 
-	// On copie et trie les éléments
+	// On copie et trie les Ã©lÃ©ments
 	impl->elements.resize(elementCount);
 	std::memcpy(&impl->elements[0], elements, elementCount*sizeof(NzVertexElement));
 	std::sort(impl->elements.begin(), impl->elements.end(), VertexElementCompare);
@@ -122,13 +135,13 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 	{
 		NzVertexElement& current = impl->elements[i];
 		#if NAZARA_UTILITY_SAFE
-		// Notre tableau étant trié, s'il y a collision, les deux éléments identiques se suivent...
+		// Notre tableau Ã©tant triÃ©, s'il y a collision, les deux Ã©lÃ©ments identiques se suivent...
 		if (i > 0)
 		{
-			NzVertexElement& previous = impl->elements[i-1]; // On accède à l'élément précédent
+			NzVertexElement& previous = impl->elements[i-1]; // On accÃ¨de Ã  l'Ã©lÃ©ment prÃ©cÃ©dent
 			if (previous.usage == current.usage && previous.usageIndex == current.usageIndex && previous.stream == current.stream)
 			{
-				// Les deux éléments sont identiques là où ils ne devraient pas, nous avons une collision...
+				// Les deux Ã©lÃ©ments sont identiques lÃ  oÃ¹ ils ne devraient pas, nous avons une collision...
 				NazaraError("Element usage 0x" + NzString::Number(current.usage, 16) + " collision with usage index " + NzString::Number(current.usageIndex) + " on stream 0x" + NzString::Number(current.stream, 16));
 				delete impl;
 
@@ -141,18 +154,19 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 			impl->elementPos[current.stream][current.usage] = i;
 
 		if (impl->streamPos[current.stream] == -1)
-			impl->streamPos[current.stream] = i; // Premier élément du stream (via le triage)
+			impl->streamPos[current.stream] = i; // Premier Ã©lÃ©ment du stream (via le triage)
 
-		impl->stride[current.stream] += size[current.type];
+		impl->stride[current.stream] += elementSize[current.type];
 	}
 
-	#if NAZARA_RENDERER_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32
+	#if NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32
 	for (unsigned int& stride : impl->stride)
 		stride = ((static_cast<int>(stride)-1)/32+1)*32;
 	#endif
 
 	m_sharedImpl = impl;
 
+	NotifyCreated();
 	return true;
 }
 
@@ -160,6 +174,8 @@ void NzVertexDeclaration::Destroy()
 {
 	if (!m_sharedImpl)
 		return;
+
+	NotifyDestroy();
 
 	NazaraMutexLock(m_sharedImpl->mutex);
 	bool freeSharedImpl = (--m_sharedImpl->refCount == 0);
@@ -228,16 +244,34 @@ const NzVertexElement* NzVertexDeclaration::GetElement(nzElementStream stream, n
 	#endif
 
 	int elementPos = m_sharedImpl->elementPos[stream][usage];
+
+	#if NAZARA_UTILITY_SAFE
 	if (elementPos == -1)
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	elementPos += usageIndex;
+
+	#if NAZARA_UTILITY_SAFE
 	if (static_cast<unsigned int>(elementPos) >= m_sharedImpl->elements.size())
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	NzVertexElement& element = m_sharedImpl->elements[elementPos];
+
+	#if NAZARA_UTILITY_SAFE
 	if (element.stream != stream || element.usage != usage || element.usageIndex != usageIndex)
+	{
+		NazaraError("Element not found");
 		return nullptr;
+	}
+	#endif
 
 	return &element;
 }
@@ -302,6 +336,33 @@ unsigned int NzVertexDeclaration::GetStride(nzElementStream stream) const
 	return m_sharedImpl->stride[stream];
 }
 
+bool NzVertexDeclaration::HasElement(unsigned int i) const
+{
+	return i < m_sharedImpl->elements.size();
+}
+
+bool NzVertexDeclaration::HasElement(nzElementStream stream, unsigned int i) const
+{
+	return i < GetElementCount(stream);
+}
+
+bool NzVertexDeclaration::HasElement(nzElementStream stream, nzElementUsage usage, unsigned int usageIndex) const
+{
+	int elementPos = m_sharedImpl->elementPos[stream][usage];
+	if (elementPos == -1)
+		return false;
+
+	elementPos += usageIndex;
+	if (static_cast<unsigned int>(elementPos) >= m_sharedImpl->elements.size())
+		return false;
+
+	NzVertexElement& element = m_sharedImpl->elements[elementPos];
+	if (element.stream != stream || element.usage != usage || element.usageIndex != usageIndex)
+		return false;
+
+	return true;
+}
+
 bool NzVertexDeclaration::HasStream(nzElementStream stream) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -335,7 +396,7 @@ NzVertexDeclaration& NzVertexDeclaration::operator=(const NzVertexDeclaration& d
 	return *this;
 }
 
-NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declaration)
+NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declaration) noexcept
 {
 	Destroy();
 
@@ -343,4 +404,14 @@ NzVertexDeclaration& NzVertexDeclaration::operator=(NzVertexDeclaration&& declar
 	declaration.m_sharedImpl = nullptr;
 
 	return *this;
+}
+
+unsigned int NzVertexDeclaration::GetElementCount(nzElementType type)
+{
+	return elementCount[type];
+}
+
+unsigned int NzVertexDeclaration::GetElementSize(nzElementType type)
+{
+	return elementSize[type];
 }

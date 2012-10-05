@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -19,7 +19,7 @@
 	#define NAZARA_DIRECTORY_SEPARATOR '/'
 #endif
 
-#if NAZARA_THREADSAFETY_DIRECTORY
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DIRECTORY
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -36,10 +36,12 @@ class NAZARA_API NzDirectory
 
 		void Close();
 
+		NzString GetPattern() const;
 		NzString GetResultName() const;
 		NzString GetResultPath() const;
 		nzUInt64 GetResultSize() const;
 
+		bool IsOpen() const;
 		bool IsResultDirectory() const;
 
 		bool NextResult(bool skipDots = true);
@@ -47,6 +49,7 @@ class NAZARA_API NzDirectory
 		bool Open();
 
 		void SetDirectory(const NzString& dirPath);
+		void SetPattern(const NzString& pattern);
 
 		static bool Copy(const NzString& sourcePath, const NzString& destPath);
 		static bool Create(const NzString& dirPath, bool recursive = false);
@@ -59,7 +62,8 @@ class NAZARA_API NzDirectory
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		NzString m_dirPath;
-		NzDirectoryImpl* m_impl;
+		NzString m_pattern;
+		NzDirectoryImpl* m_impl = nullptr;
 };
 
 #endif // NAZARA_DIRECTORY_HPP

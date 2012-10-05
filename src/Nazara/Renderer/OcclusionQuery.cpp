@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -14,21 +14,17 @@
 NzOcclusionQuery::NzOcclusionQuery() :
 m_id(0)
 {
-	#if NAZARA_RENDERER_SAFE
 	if (IsSupported())
 	{
-	#endif
 		NzContext::EnsureContext();
 
 		glGenQueries(1, reinterpret_cast<GLuint*>(&m_id));
-	#if NAZARA_RENDERER_SAFE
 	}
 	else
 	{
 		NazaraError("Occlusion queries not supported");
 		return;
 	}
-	#endif
 
 	#ifdef NAZARA_DEBUG
 	if (!m_id)
@@ -98,5 +94,5 @@ bool NzOcclusionQuery::IsResultAvailable() const
 
 bool NzOcclusionQuery::IsSupported()
 {
-	return NazaraRenderer->HasCapability(nzRendererCap_OcclusionQuery);
+	return NzRenderer::HasCapability(nzRendererCap_OcclusionQuery);
 }

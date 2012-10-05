@@ -1,59 +1,49 @@
-// Copyright (C) 2012 R�mi B�ges
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 Rémi Bèges
+// This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/Noise.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzNoise::NzNoise()
-{
-}
-
-NzNoise::~NzNoise()
-{
-	if (s_initialized)
-		Uninitialize();
-}
-
 bool NzNoise::Initialize()
 {
-	#if NAZARA_NOISE_SAFE
-	if (s_initialized)
+	if (s_moduleReferenceCouter++ != 0)
+		return true; // Déjà initialisé
+
+	// Initialisation des dépendances
+	if (!NzCore::Initialize())
 	{
-		NazaraError("NzNoise already initialized");
-		return true;
+		NazaraError("Failed to initialize core module");
+		return false;
 	}
-	#endif
 
 	// Initialisation du module
 
-	s_initialized = true;
+	NazaraNotice("Initialized: Noise module");
 
 	return true;
 }
 
-void NzNoise::Uninitialize()
-{
-	#if NAZARA_NOISE_SAFE
-	if (!s_initialized)
-	{
-		NazaraError("NzNoise not initialized");
-		return;
-	}
-	#endif
-
-	// Lib�ration du module
-
-	s_initialized = false;
-}
-
 bool NzNoise::IsInitialized()
 {
-	return s_initialized;
+	return s_moduleReferenceCouter != 0;
 }
 
-bool NzNoise::s_initialized = false;
+void NzNoise::Uninitialize()
+{
+	if (--s_moduleReferenceCouter != 0)
+		return; // Encore utilisé
 
-//#include <Nazara/Core/DebugOff.hpp> //A INCLURE ?
+	// Libération du module
+
+	// Libération des dépendances
+	NzCore::Uninitialize();
+
+	NazaraNotice("Uninitialized: Noise module");
+}
+
+unsigned int NzNoise::s_moduleReferenceCouter = 0;
