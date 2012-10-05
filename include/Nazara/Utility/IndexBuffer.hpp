@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,8 +8,8 @@
 #define NAZARA_INDEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 class NAZARA_API NzIndexBuffer : public NzResource
 {

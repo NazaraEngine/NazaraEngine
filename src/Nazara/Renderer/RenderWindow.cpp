@@ -1,22 +1,17 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzRenderWindow::NzRenderWindow() :
-m_context(nullptr)
-{
-}
-
-NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters) :
-m_context(nullptr)
+NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
 	Create(mode, title, style, parameters);
 
@@ -29,8 +24,7 @@ m_context(nullptr)
 	#endif
 }
 
-NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters) :
-m_context(nullptr)
+NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters)
 {
 	Create(handle, parameters);
 
@@ -45,6 +39,8 @@ m_context(nullptr)
 
 NzRenderWindow::~NzRenderWindow()
 {
+	// NÃ©cessaire si NzWindow::Destroy est appelÃ© par son destructeur
+	OnWindowDestroy();
 }
 
 bool NzRenderWindow::CopyToImage(NzImage* image)
@@ -136,6 +132,15 @@ bool NzRenderWindow::Create(NzWindowHandle handle, const NzContextParameters& pa
 
 void NzRenderWindow::Display()
 {
+	if (m_framerateLimit > 0)
+	{
+		int remainingTime = 1000/m_framerateLimit - m_clock.GetMilliseconds();
+		if (remainingTime > 0)
+			NzThread::Sleep(remainingTime);
+
+		m_clock.Restart();
+	}
+
 	if (m_context && m_parameters.doubleBuffered)
 		m_context->SwapBuffers();
 }
@@ -173,17 +178,6 @@ void NzRenderWindow::EnableVerticalSync(bool enabled)
         NazaraError("No context");
 }
 
-NzContextParameters NzRenderWindow::GetContextParameters() const
-{
-	if (m_context)
-		return m_context->GetParameters();
-	else
-	{
-		NazaraError("Window not created/context not initialized");
-		return NzContextParameters();
-	}
-}
-
 unsigned int NzRenderWindow::GetHeight() const
 {
 	return NzWindow::GetHeight();
@@ -208,14 +202,30 @@ unsigned int NzRenderWindow::GetWidth() const
 	return NzWindow::GetWidth();
 }
 
+bool NzRenderWindow::IsRenderable() const
+{
+	return m_impl != nullptr; // Si m_impl est valide, alors m_context l'est aussi
+}
+
+void NzRenderWindow::SetFramerateLimit(unsigned int limit)
+{
+	m_framerateLimit = limit;
+}
+
+NzContextParameters NzRenderWindow::GetContextParameters() const
+{
+	if (m_context)
+		return m_context->GetParameters();
+	else
+	{
+		NazaraError("Window not created/context not initialized");
+		return NzContextParameters();
+	}
+}
+
 bool NzRenderWindow::HasContext() const
 {
 	return true;
-}
-
-bool NzRenderWindow::IsValid() const
-{
-	return m_impl != nullptr && m_context != nullptr;
 }
 
 bool NzRenderWindow::Activate()
@@ -232,12 +242,7 @@ bool NzRenderWindow::Activate()
 	}
 }
 
-void NzRenderWindow::OnClose()
-{
-	delete m_context;
-}
-
-bool NzRenderWindow::OnCreate()
+bool NzRenderWindow::OnWindowCreated()
 {
 	m_parameters.doubleBuffered = true;
     m_parameters.window = GetHandle();
@@ -253,10 +258,19 @@ bool NzRenderWindow::OnCreate()
 
     EnableVerticalSync(false);
 
-	#if NAZARA_RENDERER_ACTIVATE_RENDERWINDOW_ON_CREATION
-	if (!SetActive(true)) // Les fenêtres s'activent à la création
+	if (!SetActive(true)) // Les fenÃªtres s'activent Ã  la crÃ©ation
 		NazaraWarning("Failed to activate window");
-	#endif
+
+	m_clock.Restart();
 
     return true;
+}
+
+void NzRenderWindow::OnWindowDestroy()
+{
+	if (m_context)
+	{
+		delete m_context;
+		m_context = nullptr;
+	}
 }

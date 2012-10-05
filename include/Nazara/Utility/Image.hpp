@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -10,21 +10,21 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/ResourceLoader.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utility/Resource.hpp>
-#include <list>
-#include <map>
 
-#if NAZARA_THREADSAFETY_IMAGE
+#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_IMAGE
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
+
+///TODO: Filtres
 
 struct NzImageParams
 {
@@ -34,22 +34,21 @@ struct NzImageParams
 	bool IsValid() const;
 };
 
-///TODO: Filtres
-
 class NzImage;
 
-typedef NzResourceLoader<NzImage, NzImageParams> NzImageLoader;
+using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 
 class NAZARA_API NzImage : public NzResource
 {
-	friend class NzResourceLoader<NzImage, NzImageParams>;
+	friend NzImageLoader;
 
 	public:
 		struct SharedImage;
 
 		NzImage();
+		NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		NzImage(const NzImage& image);
-		NzImage(NzImage&& image);
+		NzImage(NzImage&& image) noexcept;
 		NzImage(SharedImage* sharedImage);
 		~NzImage();
 
@@ -67,15 +66,15 @@ class NAZARA_API NzImage : public NzResource
 		bool FlipHorizontally();
 		bool FlipVertically();
 
-		nzUInt8 GetBPP() const;
-		const nzUInt8* GetConstPixels(nzUInt8 level = 0, unsigned int x = 0, unsigned int y = 0, unsigned int z = 0) const;
+		nzUInt8 GetBytesPerPixel() const;
+		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight(nzUInt8 level = 0) const;
 		nzUInt8 GetLevelCount() const;
 		nzUInt8 GetMaxLevel() const;
 		NzColor GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
-		nzUInt8* GetPixels(nzUInt8 level = 0, unsigned int x = 0, unsigned int y = 0, unsigned int z = 0);
+		nzUInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0);
 		unsigned int GetSize() const;
 		unsigned int GetSize(nzUInt8 level) const;
 		nzImageType GetType() const;
@@ -97,7 +96,7 @@ class NAZARA_API NzImage : public NzResource
 		bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
-		NzImage& operator=(NzImage&& image);
+		NzImage& operator=(NzImage&& image) noexcept;
 
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 
@@ -135,9 +134,7 @@ class NAZARA_API NzImage : public NzResource
 
 		SharedImage* m_sharedImage;
 
-		static std::list<NzImageLoader::MemoryLoader> s_memoryLoaders;
-		static std::list<NzImageLoader::StreamLoader> s_streamLoaders;
-		static std::multimap<NzString, NzImageLoader::LoadFileFunction> s_fileLoaders;
+		static NzImageLoader::LoaderList s_loaders;
 };
 
 #endif // NAZARA_IMAGE_HPP

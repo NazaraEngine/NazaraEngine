@@ -1,13 +1,15 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
 
 #ifndef NAZARA_VERTEXDECLARATION_HPP
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Resource.hpp>
 
 struct NzVertexElement
 {
@@ -26,7 +28,7 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		NzVertexDeclaration() = default;
 		NzVertexDeclaration(const NzVertexElement* elements, unsigned int elementCount);
 		NzVertexDeclaration(const NzVertexDeclaration& declaration);
-		NzVertexDeclaration(NzVertexDeclaration&& declaration);
+		NzVertexDeclaration(NzVertexDeclaration&& declaration) noexcept;
 		~NzVertexDeclaration();
 
 		bool Create(const NzVertexElement* elements, unsigned int elementCount);
@@ -39,12 +41,18 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		unsigned int GetElementCount(nzElementStream stream) const;
 		unsigned int GetStride(nzElementStream stream) const;
 
+		bool HasElement(unsigned int i) const;
+		bool HasElement(nzElementStream stream, unsigned int i) const;
+		bool HasElement(nzElementStream stream, nzElementUsage usage, unsigned int usageIndex = 0) const;
 		bool HasStream(nzElementStream stream) const;
 
 		bool IsValid() const;
 
 		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
-		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration);
+		NzVertexDeclaration& operator=(NzVertexDeclaration&& declaration) noexcept;
+
+		static unsigned int GetElementCount(nzElementType type);
+		static unsigned int GetElementSize(nzElementType type);
 
 	private:
 		NzVertexDeclarationImpl* m_sharedImpl = nullptr;

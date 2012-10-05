@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#if NAZARA_THREADSAFETY_STRING
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_STRING
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -27,11 +27,11 @@ class NAZARA_API NzString : public NzHashable
 	public:
 		enum Flags
 		{
-			None            = 0x00,	// Mode par défaut
-			CaseInsensitive = 0x01,	// Insensible à la casse
-			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractères UTF-8
-			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
-			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
+			None            = 0x00,	// Mode par dÃ©faut
+			CaseInsensitive = 0x01,	// Insensible Ã  la casse
+			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractÃ¨res UTF-8
+			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaÃ®ne
+			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaÃ®ne
 		};
 
 		struct SharedString;
@@ -41,7 +41,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString(const char* string);
 		NzString(const std::string& string);
 		NzString(const NzString& string);
-		NzString(NzString&& string);
+		NzString(NzString&& string) noexcept;
 		NzString(SharedString* sharedString);
 		~NzString();
 
@@ -89,7 +89,6 @@ class NAZARA_API NzString : public NzHashable
 		char16_t* GetUtf16Buffer(unsigned int* size = nullptr) const;
 		char32_t* GetUtf32Buffer(unsigned int* size = nullptr) const;
 		wchar_t* GetWideBuffer(unsigned int* size = nullptr) const;
-
 		NzString GetWord(unsigned int index, nzUInt32 flags = None) const;
 		unsigned int GetWordPosition(unsigned int index, nzUInt32 flags = None) const;
 
@@ -112,8 +111,8 @@ class NAZARA_API NzString : public NzHashable
 		unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, nzUInt32 flags = None);
 		unsigned int Replace(const NzString& oldString, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
 		unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, nzUInt32 flags = None);
-		unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
-		unsigned int ReplaceAny(const NzString& oldCharacters, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
+		//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
+		//unsigned int ReplaceAny(const NzString& oldCharacters, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
 
 		void Reserve(unsigned int bufferSize);
 
@@ -157,7 +156,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString Trimmed(nzUInt32 flags = None) const;
 		NzString Trimmed(char character, nzUInt32 flags = None) const;
 
-		// Méthodes STD
+		// MÃ©thodes STD
 		char* begin();
 		const char* begin() const;
 		char* end();
@@ -173,7 +172,7 @@ class NAZARA_API NzString : public NzHashable
 		typedef char* iterator;
 		//typedef char* reverse_iterator;
 		typedef char value_type;
-		// Méthodes STD
+		// MÃ©thodes STD
 
 		operator std::string() const;
 
@@ -184,7 +183,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString& operator=(const char* string);
 		NzString& operator=(const std::string& string);
 		NzString& operator=(const NzString& string);
-		NzString& operator=(NzString&& string);
+		NzString& operator=(NzString&& string) noexcept;
 
 		NzString operator+(char character) const;
 		NzString operator+(const char* string) const;
@@ -282,10 +281,7 @@ class NAZARA_API NzString : public NzHashable
 
 		struct NAZARA_API SharedString
 		{
-			SharedString() :
-			refCount(1)
-			{
-			}
+			SharedString() = default;
 
 			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
 			capacity(bufferSize),
@@ -299,12 +295,12 @@ class NAZARA_API NzString : public NzHashable
 			unsigned int size;
 			char* string;
 
-			unsigned short refCount;
+			unsigned short refCount = 1;
 			NazaraMutex(mutex)
 		};
 
 		static SharedString emptyString;
-		static unsigned int npos;
+		static const unsigned int npos;
 
 	private:
 		void EnsureOwnership();

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,10 +8,10 @@
 #define NAZARA_BYTEARRAY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Conig.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Hashable.hpp>
 
-#if NAZARA_THREADSAFETY_BYTEARRAY
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_BYTEARRAY
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>
@@ -28,7 +28,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		NzByteArray();
 		NzByteArray(const nzUInt8* buffer, unsigned int bufferLength);
 		NzByteArray(const NzByteArray& buffer);
-		NzByteArray(NzByteArray&& buffer);
+		NzByteArray(NzByteArray&& buffer) noexcept;
 		NzByteArray(SharedArray* sharedArray);
 		~NzByteArray();
 
@@ -58,7 +58,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		NzByteArray& Trim(nzUInt8 byte = '\0');
 		NzByteArray Trimmed(nzUInt8 byte = '\0') const;
 
-		// Méthodes compatibles STD
+		// MÃ©thodes compatibles STD
 		nzUInt8* begin();
 		const nzUInt8* begin() const;
 		nzUInt8* end();
@@ -74,13 +74,13 @@ class NAZARA_API NzByteArray : public NzHashable
 		typedef nzUInt8* iterator;
 		//typedef nzUInt8* reverse_iterator;
 		typedef nzUInt8 value_type;
-		// Méthodes compatibles STD
+		// MÃ©thodes compatibles STD
 
 		nzUInt8& operator[](unsigned int pos);
 		nzUInt8 operator[](unsigned int pos) const;
 
 		NzByteArray& operator=(const NzByteArray& byteArray);
-		NzByteArray& operator=(NzByteArray&& byteArray);
+		NzByteArray& operator=(NzByteArray&& byteArray) noexcept;
 
 		NzByteArray operator+(const NzByteArray& byteArray) const;
 		NzByteArray& operator+=(const NzByteArray& byteArray);
@@ -89,10 +89,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 		struct NAZARA_API SharedArray
 		{
-			SharedArray() :
-			refCount(1)
-			{
-			}
+			SharedArray() = default;
 
 			SharedArray(unsigned short referenceCount, unsigned int bufferSize, unsigned int arraySize, nzUInt8* ptr) :
 			capacity(bufferSize),
@@ -104,7 +101,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 			unsigned int capacity;
 			unsigned int size;
-			unsigned short refCount;
+			unsigned short refCount = 1;
 			nzUInt8* buffer;
 
 			NazaraMutex(mutex)

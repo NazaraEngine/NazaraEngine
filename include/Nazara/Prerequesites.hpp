@@ -1,12 +1,32 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
-// For conditions of distribution and use, see copyright notice in Config.hpp
+/*
+	Nazara Engine
+
+	Copyright (C) 2012 JÃ©rÃ´me "Lynix" Leclercq (Lynix680@gmail.com)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy of
+	this software and associated documentation files (the "Software"), to deal in
+	the Software without restriction, including without limitation the rights to
+	use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+	of the Software, and to permit persons to whom the Software is furnished to do
+	so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
 
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
 #if __cplusplus < 201103L
-#error Nazara requires a C++11 compliant compiler
+	#error Nazara requires a C++11 compliant compiler
 #endif
 
 // Version du moteur
@@ -42,7 +62,9 @@
 
 #define NazaraUnused(a) (void) a
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(NAZARA_PLATFORM_WINDOWSVISTA)
+#if defined(_WIN32) || defined(__WIN32__)
+	#define NAZARA_PLATFORM_WINDOWS
+
 	#if !defined(NAZARA_STATIC)
 		#ifdef NAZARA_BUILD
 			#define NAZARA_API __declspec(dllexport)
@@ -52,10 +74,9 @@
 	#else
 		#define NAZARA_API
 	#endif
-	#define NAZARA_PLATFORM_WINDOWS
 
 	// Des defines pour le header Windows
-	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothèque
+	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothÃ¨que
 		#ifndef WIN32_LEAN_AND_MEAN
 			#define WIN32_LEAN_AND_MEAN
 		#endif
@@ -71,6 +92,7 @@
 			#define NAZARA_WINNT 0x0501
 		#endif
 
+		// Pour ne pas casser le define dÃ©jÃ  en place s'il est applicable
 		#if defined(_WIN32_WINNT)
 			#if _WIN32_WINNT < NAZARA_WINNT
 				#undef _WIN32_WINNT
@@ -80,24 +102,25 @@
 			#define _WIN32_WINNT NAZARA_WINNT
 		#endif
 	#endif
-#elif defined(linux) || defined(__linux)
+#elif defined(__linux__) || defined(linux) || defined(__linux)
+	#define NAZARA_PLATFORM_LINUX
+	#define NAZARA_PLATFORM_POSIX
+
 	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
 		#define NAZARA_API __attribute__((visibility ("default")))
 	#else
 		#define NAZARA_API
 	#endif
-	#define NAZARA_PLATFORM_LINUX
-	#define NAZARA_PLATFORM_POSIX
-/*#elif defined(__APPLE__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
+/*#elif defined(__APPLE__) || defined(macintosh) || defined(Macintosh)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_MACOS
 	#define NAZARA_PLATFORM_POSIX
-#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__FreeBSD__)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_FREEBSD
 	#define NAZARA_PLATFORM_POSIX*/
 #else
-	// À commenter pour tenter quand même une compilation
+	// Ã€ commenter pour tenter quand mÃªme une compilation
 	#error This operating system is not fully supported by the Nazara Engine
 
 	#define NAZARA_PLATFORM_UNKNOWN
@@ -109,6 +132,16 @@
 #endif
 
 #include <cstdint>
+
+static_assert(sizeof(int8_t)  == 1, "int8_t is not of the correct size" );
+static_assert(sizeof(int16_t) == 2, "int16_t is not of the correct size");
+static_assert(sizeof(int32_t) == 4, "int32_t is not of the correct size");
+static_assert(sizeof(int64_t) == 8, "int64_t is not of the correct size");
+
+static_assert(sizeof(uint8_t)  == 1, "uint8_t is not of the correct size" );
+static_assert(sizeof(uint16_t) == 2, "uint16_t is not of the correct size");
+static_assert(sizeof(uint32_t) == 4, "uint32_t is not of the correct size");
+static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
 typedef int8_t nzInt8;
 typedef uint8_t nzUInt8;

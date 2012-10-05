@@ -1,4 +1,6 @@
-project "NazaraUtility"
+if (not _OPTIONS["united"]) then
+	project "NazaraUtility"
+end
 
 defines "STBI_NO_STDIO"
 
@@ -18,18 +20,18 @@ else
 	excludes { "../src/Nazara/Utility/Win32/*.hpp", "../src/Nazara/Utility/Win32/*.cpp" }
 end
 
-configuration "DebugStatic"
-	links "NazaraCored-s"
-	targetname "NazaraUtilityd"
+if (_OPTIONS["united"]) then
+	excludes "../src/Nazara/Utility/Debug/Leaks.cpp"
+else
+	configuration "DebugStatic"
+		links "NazaraCore-s-d"
 
-configuration "ReleaseStatic"
-	links "NazaraCore-s"
-	targetname "NazaraUtility"
+	configuration "ReleaseStatic"
+		links "NazaraCore-s"
 
-configuration "DebugDLL"
-	links "NazaraCored"
-	targetname "NazaraUtilityd"
+	configuration "DebugDLL"
+		links "NazaraCore-d"
 
-configuration "ReleaseDLL"
-	links "NazaraCore"
-	targetname "NazaraUtility"
+	configuration "ReleaseDLL"
+		links "NazaraCore"
+end

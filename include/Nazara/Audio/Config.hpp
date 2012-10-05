@@ -1,7 +1,7 @@
 /*
-	Nazara Engine
+	Nazara Engine - Audio module
 
-	Copyright (C) 2012 JÈrÙme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2012 J√©r√¥me "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -27,9 +27,15 @@
 #ifndef NAZARA_CONFIG_AUDIO_HPP
 #define NAZARA_CONFIG_AUDIO_HPP
 
-/// Chaque modification d'un paramËtre du module nÈcessite une recompilation de celui-ci
+/// Chaque modification d'un param√®tre du module n√©cessite une recompilation de celui-ci
 
-// Utilise un tracker pour repÈrer les Èventuels leaks (Ralentit l'exÈcution)
+// Utilise un tracker pour rep√©rer les √©ventuels leaks (Ralentit l'ex√©cution)
 #define NAZARA_AUDIO_MEMORYLEAKTRACKER 0
 
-#endif // NAZARA_CONFIG_AUDIOs_HPP
+// Active les tests de s√©curit√© bas√©s sur le code (Conseill√© pour le d√©veloppement)
+#define NAZARA_AUDIO_SAFE 1
+
+// Le nombre de buffers utilis√©s lors du streaming d'objets audio (Au moins deux)
+#define NAZARA_AUDIO_STREAMEDBUFFERCOUNT 2
+
+#endif // NAZARA_CONFIG_AUDIO_HPP

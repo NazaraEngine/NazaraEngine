@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
@@ -10,7 +10,7 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 {
 	if (srcFormat == dstFormat)
 	{
-		std::memcpy(dst, src, GetBPP(srcFormat));
+		std::memcpy(dst, src, GetBytesPerPixel(srcFormat));
 		return true;
 	}
 
@@ -35,7 +35,7 @@ inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFor
 		return false;
 	}
 
-	if (!func(reinterpret_cast<const nzUInt8*>(src), reinterpret_cast<const nzUInt8*>(src) + GetBPP(srcFormat), reinterpret_cast<nzUInt8*>(dst)))
+	if (!func(reinterpret_cast<const nzUInt8*>(src), reinterpret_cast<const nzUInt8*>(src) + GetBytesPerPixel(srcFormat), reinterpret_cast<nzUInt8*>(dst)))
 	{
 		NazaraError("Pixel format conversion from " + ToString(srcFormat) + " to " + ToString(dstFormat) + " failed");
 		return false;
@@ -83,7 +83,7 @@ inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, 
 		it->second(width, height, depth, reinterpret_cast<const nzUInt8*>(src), reinterpret_cast<nzUInt8*>(dst));
 	else
 	{
-		// Flipping générique
+		// Flipping gÃ©nÃ©rique
 
 		#if NAZARA_UTILITY_SAFE
 		if (IsCompressed(format))
@@ -93,7 +93,7 @@ inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, 
 		}
 		#endif
 
-		nzUInt8 bpp = GetBPP(format);
+		nzUInt8 bpp = GetBytesPerPixel(format);
 		unsigned int lineStride = width*bpp;
 		switch (flipping)
 		{
@@ -164,75 +164,148 @@ inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, 
 	return true;
 }
 
-inline nzUInt8 NzPixelFormat::GetBPP(nzPixelFormat format)
+inline nzUInt8 NzPixelFormat::GetBitsPerPixel(nzPixelFormat format)
 {
 	switch (format)
 	{
 		case nzPixelFormat_BGR8:
-			return 3;
+			return 24;
 
 		case nzPixelFormat_BGRA8:
-			return 4;
+			return 32;
 
 		case nzPixelFormat_DXT1:
-			return 1;
+			return 8;
 
 		case nzPixelFormat_DXT3:
-			return 2;
+			return 16;
 
 		case nzPixelFormat_DXT5:
-			return 2;
+			return 16;
 
 		case nzPixelFormat_L8:
-			return 1;
+			return 8;
 
 		case nzPixelFormat_LA8:
-			return 2;
+			return 16;
 /*
 		case nzPixelFormat_RGB16F:
-			return 6;
+			return 48;
 
 		case nzPixelFormat_RGB16I:
-			return 6;
+			return 48;
 
 		case nzPixelFormat_RGB32F:
-			return 12;
+			return 96;
 
 		case nzPixelFormat_RGB32I:
-			return 12;
+			return 96;
 
 		case nzPixelFormat_RGBA16F:
-			return 8;
+			return 64;
 
 		case nzPixelFormat_RGBA16I:
-			return 8;
+			return 64;
 
 		case nzPixelFormat_RGBA32F:
-			return 16;
+			return 128;
 
 		case nzPixelFormat_RGBA32I:
-			return 16;
+			return 128;
 */
 		case nzPixelFormat_RGBA4:
-			return 2;
+			return 16;
 
 		case nzPixelFormat_RGB5A1:
-			return 2;
+			return 16;
 
 		case nzPixelFormat_RGB8:
-			return 3;
+			return 24;
 
 		case nzPixelFormat_RGBA8:
-			return 4;
+			return 32;
+
+		case nzPixelFormat_Depth16:
+			return 16;
+
+		case nzPixelFormat_Depth24:
+			return 24;
+
+		case nzPixelFormat_Depth24Stencil8:
+			return 32;
+
+		case nzPixelFormat_Depth32:
+			return 32;
+
+		case nzPixelFormat_Stencil1:
+			return 1;
+
+		case nzPixelFormat_Stencil4:
+			return 2;
+
+		case nzPixelFormat_Stencil8:
+			return 8;
+
+		case nzPixelFormat_Stencil16:
+			return 16;
 
 		case nzPixelFormat_Undefined:
-			NazaraError("Invalid pixel format");
-			return 0;
+			break;
 	}
 
-	NazaraInternalError("Invalid pixel format");
-
+	NazaraError("Invalid pixel format");
 	return 0;
+}
+
+inline nzUInt8 NzPixelFormat::GetBytesPerPixel(nzPixelFormat format)
+{
+	nzUInt8 bytesPerPixel = GetBitsPerPixel(format)/8;
+
+	#if NAZARA_UTILITY_SAFE
+	if (bytesPerPixel == 0)
+		NazaraWarning("This format is invalid or uses less than one byte per pixel");
+	#endif
+
+	return bytesPerPixel;
+}
+
+inline nzPixelFormatType NzPixelFormat::GetType(nzPixelFormat format)
+{
+	switch (format)
+	{
+		case nzPixelFormat_BGR8:
+		case nzPixelFormat_BGRA8:
+		case nzPixelFormat_DXT1:
+		case nzPixelFormat_DXT3:
+		case nzPixelFormat_DXT5:
+		case nzPixelFormat_L8:
+		case nzPixelFormat_LA8:
+		case nzPixelFormat_RGB5A1:
+		case nzPixelFormat_RGB8:
+		case nzPixelFormat_RGBA4:
+		case nzPixelFormat_RGBA8:
+			return nzPixelFormatType_Color;
+
+		case nzPixelFormat_Depth16:
+		case nzPixelFormat_Depth24:
+		case nzPixelFormat_Depth32:
+			return nzPixelFormatType_Depth;
+
+		case nzPixelFormat_Depth24Stencil8:
+			return nzPixelFormatType_DepthStencil;
+
+		case nzPixelFormat_Stencil1:
+		case nzPixelFormat_Stencil4:
+		case nzPixelFormat_Stencil8:
+		case nzPixelFormat_Stencil16:
+			return nzPixelFormatType_Stencil;
+
+		case nzPixelFormat_Undefined:
+			break;
+	}
+
+	NazaraError("Invalid pixel format");
+	return nzPixelFormatType_Undefined;
 }
 
 inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
@@ -252,6 +325,14 @@ inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
 		case nzPixelFormat_DXT1:
 		case nzPixelFormat_L8:
 		case nzPixelFormat_RGB8:
+		case nzPixelFormat_Depth16:
+		case nzPixelFormat_Depth24:
+		case nzPixelFormat_Depth24Stencil8:
+		case nzPixelFormat_Depth32:
+		case nzPixelFormat_Stencil1:
+		case nzPixelFormat_Stencil4:
+		case nzPixelFormat_Stencil8:
+		case nzPixelFormat_Stencil16:
 			return false;
 
 		case nzPixelFormat_Undefined:
@@ -271,9 +352,30 @@ inline bool NzPixelFormat::IsCompressed(nzPixelFormat format)
 		case nzPixelFormat_DXT5:
 			return true;
 
-		default:
+		case nzPixelFormat_BGRA8:
+		case nzPixelFormat_LA8:
+		case nzPixelFormat_RGB5A1:
+		case nzPixelFormat_RGBA4:
+		case nzPixelFormat_RGBA8:
+		case nzPixelFormat_BGR8:
+		case nzPixelFormat_L8:
+		case nzPixelFormat_RGB8:
+		case nzPixelFormat_Depth16:
+		case nzPixelFormat_Depth24:
+		case nzPixelFormat_Depth24Stencil8:
+		case nzPixelFormat_Depth32:
+		case nzPixelFormat_Stencil1:
+		case nzPixelFormat_Stencil4:
+		case nzPixelFormat_Stencil8:
+		case nzPixelFormat_Stencil16:
 			return false;
+
+		case nzPixelFormat_Undefined:
+			break;
 	}
+
+	NazaraError("Invalid pixel format");
+	return false;
 }
 
 inline bool NzPixelFormat::IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat)
@@ -360,8 +462,32 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_RGBA8:
 			return "RGBA8";
 
+		case nzPixelFormat_Depth16:
+			return "Depth16";
+
+		case nzPixelFormat_Depth24:
+			return "Depth24";
+
+		case nzPixelFormat_Depth24Stencil8:
+			return "Depth24Stencil8";
+
+		case nzPixelFormat_Depth32:
+			return "Depth32";
+
+		case nzPixelFormat_Stencil1:
+			return "Stencil1";
+
+		case nzPixelFormat_Stencil4:
+			return "Stencil4";
+
+		case nzPixelFormat_Stencil8:
+			return "Stencil8";
+
+		case nzPixelFormat_Stencil16:
+			return "Stencil16";
+
 		case nzPixelFormat_Undefined:
-			break;
+			return "Undefined";
 	}
 
 	NazaraError("Invalid pixel format");

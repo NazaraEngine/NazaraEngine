@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // http://www.easyrgb.com/index.php?X=MATH
@@ -8,7 +8,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
-#include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 inline NzColor::NzColor()
 {
@@ -198,26 +198,26 @@ inline NzColor NzColor::FromXYZ(float x, float y, float z)
 	y /= 100; // Y from 0 to 100.000
 	z /= 100; // Z from 0 to 108.883
 
-	double r = x *  3.2406 + y * -1.5372 + z * -0.4986;
-	double g = x * -0.9689 + y *  1.8758 + z *  0.0415;
-	double b = x *  0.0557 + y * -0.2040 + z *  1.0570;
+	float r = x *  3.2406f + y * -1.5372f + z * -0.4986f;
+	float g = x * -0.9689f + y *  1.8758f + z *  0.0415f;
+	float b = x *  0.0557f + y * -0.2040f + z *  1.0570f;
 
 	if (r > 0.0031308f)
-		r = 1.055 * (std::pow(r, 1.0/2.4)) - 0.055;
+		r = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
 	else
-		r *= 12.92;
+		r *= 12.92f;
 
 	if (g > 0.0031308f)
-		g = 1.055 * (std::pow(g, 1.0/2.4)) - 0.055;
+		g = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
 	else
-		g *= 12.92;
+		g *= 12.92f;
 
 	if (b > 0.0031308f)
-		b = 1.055 * (std::pow(b, 1.0/2.4)) - 0.055;
+		b = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
 	else
-		b *= 12.92;
+		b *= 12.92f;
 
-	return NzColor(r * 255.0, g * 255.0, b * 255.0);
+	return NzColor(r * 255.f, g * 255.f, b * 255.f);
 }
 
 inline void NzColor::ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow)
@@ -378,7 +378,7 @@ inline void NzColor::ToXYZ(const NzColor& color, float* x, float* y, float* z)
 	g *= 100.0;
 	b *= 100.0;
 
-	//Observer. = 2°, Illuminant = D65
+	//Observer. = 2Â°, Illuminant = D65
 	*x = r*0.4124 + g*0.3576 + b*0.1805;
 	*y = r*0.2126 + g*0.7152 + b*0.0722;
 	*z = r*0.0193 + g*0.1192 + b*0.9505;
@@ -409,4 +409,4 @@ inline std::ostream& operator<<(std::ostream& out, const NzColor& color)
 	return out << color.ToString();
 }
 
-#include <Nazara/Utility/DebugOff.hpp>
+#include <Nazara/Core/DebugOff.hpp>

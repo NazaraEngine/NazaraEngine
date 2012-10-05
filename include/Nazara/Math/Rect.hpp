@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -16,7 +16,8 @@ class NzRect
 	public:
 		NzRect();
 		NzRect(T X, T Y, T Width, T Height);
-		NzRect(T rect[4]);
+		NzRect(const T rect[4]);
+		NzRect(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
 		template<typename U> explicit NzRect(const NzRect<U>& rect);
 		NzRect(const NzRect& rect) = default;
 		~NzRect() = default;
@@ -30,10 +31,14 @@ class NzRect
 
 		NzVector2<T> GetCenter() const;
 
-		bool Intersect(const NzRect& rect) const;
-		bool Intersect(const NzRect& rect, NzRect& intersection) const;
+		bool Intersect(const NzRect& rect, NzRect* intersection = nullptr) const;
 
 		bool IsValid() const;
+
+		void Set(T X, T Y, T Width, T Height);
+		void Set(const T rect[4]);
+		void Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
+		template<typename U> void Set(const NzRect<U>& rect);
 
 		NzString ToString() const;
 

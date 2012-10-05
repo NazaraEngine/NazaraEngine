@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-#if NAZARA_THREADSAFETY_CLOCK
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>
 #else
 #include <Nazara/Core/ThreadSafetyOff.hpp>

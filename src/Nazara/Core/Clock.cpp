@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Clock.hpp>
@@ -14,6 +14,24 @@
 #endif
 
 #include <Nazara/Core/Debug.hpp>
+
+namespace
+{
+	nzUInt64 NzGetMicrosecondsLowPrecision()
+	{
+		return NzClockImplGetMilliseconds()*1000ULL;
+	}
+
+	nzUInt64 NzGetMicrosecondsFirstRun()
+	{
+		if (NzClockImplInitializeHighPrecision())
+			NzGetMicroseconds = NzClockImplGetMicroseconds;
+		else
+			NzGetMicroseconds = NzGetMicrosecondsLowPrecision;
+
+		return NzGetMicroseconds();
+	}
+}
 
 NzClock::NzClock() :
 m_elapsedTime(0),
@@ -79,21 +97,6 @@ void NzClock::Unpause()
 	}
 	else
 		NazaraWarning("Clock is not paused, ignoring...");
-}
-
-nzUInt64 NzGetMicrosecondsLowPrecision()
-{
-	return NzClockImplGetMilliseconds()*1000ULL;
-}
-
-nzUInt64 NzGetMicrosecondsFirstRun()
-{
-	if (NzClockImplInitializeHighPrecision())
-		NzGetMicroseconds = NzClockImplGetMicroseconds;
-	else
-		NzGetMicroseconds = NzGetMicrosecondsLowPrecision;
-
-	return NzGetMicroseconds();
 }
 
 NzClockFunction NzGetMicroseconds = NzGetMicrosecondsFirstRun;

@@ -1,8 +1,8 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Code inspirÈ de NeHe (Lesson1) et de la SFML par Laurent Gomila
+// Code inspir√© de NeHe (Lesson1) et de la SFML par Laurent Gomila
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
@@ -129,7 +129,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		return false;
 	}
 
-	// ArrivÈ ici, le format de pixel est choisi, nous rÈcupÈrons donc les paramËtres rÈels du futur contexte
+	// Arriv√© ici, le format de pixel est choisi, nous r√©cup√©rons donc les param√®tres r√©els du futur contexte
 	if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
 	{
 		parameters.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;
@@ -153,28 +153,19 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		*attrib++ = WGL_CONTEXT_MINOR_VERSION_ARB;
 		*attrib++ = parameters.minorVersion;
 
-		int flags = 0;
-
 		if (parameters.majorVersion >= 3)
 		{
 			*attrib++ = WGL_CONTEXT_PROFILE_MASK_ARB;
-			if (parameters.compatibilityProfile)
-				*attrib++ = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-			else
-			{
-				*attrib++ = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
-
-				flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
-			}
+			*attrib++ = (parameters.compatibilityProfile) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 		}
 
 		if (parameters.debugMode)
-			flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
-
-		if (flags)
 		{
 			*attrib++ = WGL_CONTEXT_FLAGS_ARB;
-			*attrib++ = flags;
+			*attrib++ = WGL_CONTEXT_DEBUG_BIT_ARB;
+
+			// Les contextes forward-compatible ne sont plus utilis√©s pour cette raison :
+			// http://www.opengl.org/discussion_boards/showthread.php/175052-Forward-compatible-vs-Core-profile
 		}
 
 		*attrib++ = 0;
@@ -210,13 +201,25 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 void NzContextImpl::Destroy()
 {
 	if (m_context)
+	{
+		if (wglGetCurrentContext() == m_context)
+			wglMakeCurrent(nullptr, nullptr);
+
 		wglDeleteContext(m_context);
+		m_context = nullptr;
+	}
 
 	if (m_deviceContext)
+	{
 		ReleaseDC(m_window, m_deviceContext);
+		m_deviceContext = nullptr;
+	}
 
 	if (m_ownsWindow)
+	{
 		DestroyWindow(m_window);
+		m_window = nullptr;
+	}
 }
 
 void NzContextImpl::SwapBuffers()

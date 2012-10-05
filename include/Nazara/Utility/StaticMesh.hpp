@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,18 +8,22 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
-class NAZARA_API NzStaticMesh final : public NzSubMesh
+class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);
-		NzStaticMesh(const NzMesh* parent, const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration, const NzIndexBuffer* indexBuffer = nullptr);
+		NzStaticMesh(const NzMesh* parent, const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer = nullptr);
 		virtual ~NzStaticMesh();
 
-		bool Create(const NzVertexBuffer* vertexBuffer, const NzVertexDeclaration* vertexDeclaration, const NzIndexBuffer* indexBuffer = nullptr);
+		bool Create(const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer = nullptr);
 		void Destroy();
 
+		bool GenerateAABB();
+
+		const NzAxisAlignedBox& GetAABB() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const;
@@ -30,14 +34,17 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh
 		bool IsAnimated() const;
 		bool IsValid() const;
 
+		void SetAABB(const NzAxisAlignedBox& aabb);
 		void SetPrimitiveType(nzPrimitiveType primitiveType);
 
 	private:
 		void AnimateImpl(unsigned int frameA, unsigned int frameB, float interpolation);
+		void OnResourceReleased(const NzResource* resource, int index) override;
 
 		nzPrimitiveType m_primitiveType = nzPrimitiveType_TriangleList;
-		const NzIndexBuffer* m_indexBuffer = nullptr;
-		const NzVertexBuffer* m_vertexBuffer = nullptr;
+		NzAxisAlignedBox m_aabb;
+		NzIndexBuffer* m_indexBuffer = nullptr;
+		NzVertexBuffer* m_vertexBuffer = nullptr;
 		const NzVertexDeclaration* m_vertexDeclaration = nullptr;
 };
 

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Window.hpp>
@@ -82,34 +82,20 @@ m_impl(nullptr)
 
 NzWindow::~NzWindow()
 {
-	Close();
-}
-
-void NzWindow::Close()
-{
-	if (m_impl)
-	{
-		OnClose();
-
-		m_impl->Close();
-		delete m_impl;
-		m_impl = nullptr;
-
-		if (fullscreenWindow == this)
-			fullscreenWindow = nullptr;
-	}
+	Destroy();
 }
 
 bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
+	// Si la fenÃªtre est dÃ©jÃ  ouverte, nous conservons sa position
 	bool opened = IsOpen();
 	NzVector2i position;
 	if (opened)
 		position = m_impl->GetPosition();
 
-	Close();
+	Destroy();
 
-	// Inspiré du code de la SFML par Laurent Gomila
+	// InspirÃ© du code de la SFML par Laurent Gomila
 	if (style & nzWindowStyle_Fullscreen)
 	{
 		if (fullscreenWindow)
@@ -121,7 +107,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		{
 			if (!mode.IsFullscreenValid())
 			{
-				NazaraWarning("Mode is not fullscreen valid");
+				NazaraWarning("Video mode is not fullscreen valid");
 				mode = NzVideoMode::GetFullscreenModes()[0];
 			}
 
@@ -143,7 +129,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 	m_ownsWindow = true;
 
-	if (!OnCreate())
+	if (!OnWindowCreated())
 	{
 		NazaraError("Failed to initialize window extension");
 		delete m_impl;
@@ -152,6 +138,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		return false;
 	}
 
+	// ParamÃ¨tres par dÃ©faut
 	m_impl->EnableKeyRepeat(true);
 	m_impl->EnableSmoothScrolling(false);
 	m_impl->SetCursor(nzWindowCursor_Default);
@@ -167,7 +154,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 
 bool NzWindow::Create(NzWindowHandle handle)
 {
-	Close();
+	Destroy();
 
 	m_impl = new NzWindowImpl(this);
 	if (!m_impl->Create(handle))
@@ -181,7 +168,7 @@ bool NzWindow::Create(NzWindowHandle handle)
 
 	m_ownsWindow = false;
 
-	if (!OnCreate())
+	if (!OnWindowCreated())
 	{
 		NazaraError("Failed to initialize window's derivate");
 		delete m_impl;
@@ -191,6 +178,21 @@ bool NzWindow::Create(NzWindowHandle handle)
 	}
 
 	return true;
+}
+
+void NzWindow::Destroy()
+{
+	if (m_impl)
+	{
+		OnWindowDestroy();
+
+		m_impl->Destroy();
+		delete m_impl;
+		m_impl = nullptr;
+
+		if (fullscreenWindow == this)
+			fullscreenWindow = nullptr;
+	}
 }
 
 void NzWindow::EnableKeyRepeat(bool enable)
@@ -210,7 +212,7 @@ NzWindowHandle NzWindow::GetHandle() const
 	if (m_impl)
 		return m_impl->GetHandle();
 	else
-		return 0;
+		return static_cast<NzWindowHandle>(0);
 }
 
 unsigned int NzWindow::GetHeight() const
@@ -274,6 +276,11 @@ bool NzWindow::IsMinimized() const
 		return false;
 }
 
+bool NzWindow::IsValid() const
+{
+	return m_impl != nullptr;
+}
+
 bool NzWindow::IsVisible() const
 {
 	if (m_impl)
@@ -335,7 +342,7 @@ void NzWindow::SetEventListener(bool listener)
 	m_impl->SetEventListener(listener);
 	if (!listener)
 	{
-		// On vide la pile des évènements
+		// On vide la pile des Ã©vÃ¨nements
 		NzLockGuard lock(m_eventMutex);
 		while (!m_events.empty())
 			m_events.pop();
@@ -343,7 +350,7 @@ void NzWindow::SetEventListener(bool listener)
 	#else
 	if (m_ownsWindow)
 	{
-		// Inutile de transmettre l'ordre dans ce cas-là
+		// Inutile de transmettre l'ordre dans ce cas-lÃ 
 		if (!listener)
 			NazaraError("A non-threaded window needs to listen to events");
 	}
@@ -420,6 +427,12 @@ void NzWindow::SetSize(unsigned int width, unsigned int height)
 		m_impl->SetSize(width, height);
 }
 
+void NzWindow::SetStayOnTop(bool stayOnTop)
+{
+	if (m_impl)
+		m_impl->SetStayOnTop(stayOnTop);
+}
+
 void NzWindow::SetTitle(const NzString& title)
 {
 	if (m_impl)
@@ -430,12 +443,6 @@ void NzWindow::SetVisible(bool visible)
 {
 	if (m_impl)
 		m_impl->SetVisible(visible);
-}
-
-void NzWindow::StayOnTop(bool stayOnTop)
-{
-	if (m_impl)
-		m_impl->StayOnTop(stayOnTop);
 }
 
 bool NzWindow::WaitEvent(NzEvent* event)
@@ -481,13 +488,19 @@ bool NzWindow::WaitEvent(NzEvent* event)
 	#endif
 }
 
-void NzWindow::OnClose()
+bool NzWindow::OnWindowCreated()
+{
+	return true;
+}
+
+void NzWindow::OnWindowDestroy()
 {
 }
 
-bool NzWindow::OnCreate()
+void NzWindow::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 {
-	return true;
+	if (m_impl)
+		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
 }
 
 void NzWindow::PushEvent(const NzEvent& event)
