@@ -1,14 +1,15 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // http://stackoverflow.com/questions/687490/c0x-how-do-i-expand-a-tuple-into-variadic-template-function-arguments
-// Merci à Ryan "FullMetal Alchemist" Lahfa
-// Merci aussi à Freedom de siteduzero.com
+// Merci Ã  Ryan "FullMetal Alchemist" Lahfa
+// Merci aussi Ã  Freedom de siteduzero.com
 
-#include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Core/Debug.hpp>
 
-template<unsigned int N> struct NzTupleUnpack
+template<unsigned int N>
+struct NzTupleUnpack
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>& t,  Args&... args)
@@ -17,7 +18,8 @@ template<unsigned int N> struct NzTupleUnpack
 	}
 };
 
-template<> struct NzTupleUnpack<0>
+template<>
+struct NzTupleUnpack<0>
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>&, Args&... args)
@@ -27,9 +29,9 @@ template<> struct NzTupleUnpack<0>
 };
 
 template<typename F, typename... ArgsT>
-void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t )
+void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)
 {
 	NzTupleUnpack<sizeof...(ArgsT)>()(func, t);
 }
 
-#include <Nazara/Utility/DebugOff.hpp>
+#include <Nazara/Core/DebugOff.hpp>

@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/RenderTarget.hpp>
@@ -10,20 +10,20 @@ NzRenderTarget::~NzRenderTarget() = default;
 
 bool NzRenderTarget::IsActive() const
 {
-	return NazaraRenderer->GetTarget() == this;
+	return NzRenderer::GetTarget() == this;
 }
 
 bool NzRenderTarget::SetActive(bool active)
 {
 	if (active)
-		return NazaraRenderer->SetTarget(this);
-	else if (NazaraRenderer->GetTarget() == this)
-		return NazaraRenderer->SetTarget(nullptr);
+		return NzRenderer::SetTarget(this);
+	else if (NzRenderer::GetTarget() == this)
+		return NzRenderer::SetTarget(nullptr);
 
 	return true;
 }
 
 void NzRenderTarget::Desactivate()
 {
-	// Seuls les target sans contextes (ex: NzRenderTexture) nécessitent une désactivation
+	// Seuls les target sans contextes (ex: NzRenderTexture) nÃ©cessitent une dÃ©sactivation
 }

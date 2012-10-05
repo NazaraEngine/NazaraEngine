@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Jérôme Leclercq
-// This file is part of the "Ungine".
-// For conditions of distribution and use, see copyright notice in Core.h
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_LOADERS_MD2_CONSTANTS_HPP
 #define NAZARA_LOADERS_MD2_CONSTANTS_HPP
@@ -21,16 +21,16 @@ struct md2_header
 
 	nzUInt32 num_skins;     // nombre de skins
 	nzUInt32 num_vertices;  // nombre de vertices par frame
-	nzUInt32 num_st;        // nombre de coordonnées de texture
+	nzUInt32 num_st;        // nombre de coordonnÃ©es de texture
 	nzUInt32 num_tris;      // nombre de triangles
 	nzUInt32 num_glcmds;    // nombre de commandes opengl
 	nzUInt32 num_frames;    // nombre de frames
 
-	nzUInt32 offset_skins;  // offset données skins
-	nzUInt32 offset_st;     // offset données coordonnées de texture
-	nzUInt32 offset_tris;   // offset données triangles
-	nzUInt32 offset_frames; // offset données frames
-	nzUInt32 offset_glcmds; // offset données commandes OpenGL
+	nzUInt32 offset_skins;  // offset donnÃ©es skins
+	nzUInt32 offset_st;     // offset donnÃ©es coordonnÃ©es de texture
+	nzUInt32 offset_tris;   // offset donnÃ©es triangles
+	nzUInt32 offset_frames; // offset donnÃ©es frames
+	nzUInt32 offset_glcmds; // offset donnÃ©es commandes OpenGL
 	nzUInt32 offset_end;    // offset fin de fichier
 };
 

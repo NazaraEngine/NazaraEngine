@@ -1,5 +1,5 @@
-// Copyright (C) 2012 R�mi B�ges
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 Rémi Bèges - Jérôme Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -23,20 +23,44 @@ template<typename T> class NzVector3
 		~NzVector3() = default;
 
 		T AbsDotProduct(const NzVector3& vec) const;
+
 		NzVector3 CrossProduct(const NzVector3& vec) const;
+
 		T Distance(const NzVector3& vec) const;
 		float Distancef(const NzVector3& vec) const;
+
 		T DotProduct(const NzVector3& vec) const;
+
 		NzVector3 GetNormal() const;
-		void MakeCeil(const NzVector3& vec);
-		void MakeFloor(const NzVector3& vec);
+
 		T Length() const;
 		float Lengthf() const;
+
+		void MakeForward();
+		void MakeLeft();
+		void MakeUnitX();
+		void MakeUnitY();
+		void MakeUnitZ();
+		void MakeUp();
+		void MakeZero();
+
+		void Maximize(const NzVector3& vec);
+		void Minimize(const NzVector3& vec);
+
 		void Normalize();
+
+		void Set(T X, T Y, T Z);
+		void Set(T scale);
+		void Set(T vec[3]);
+		void Set(const NzVector2<T>& vec, T Z = 0.0);
+		template<typename U> void Set(const NzVector3<U>& vec);
+
 		T SquaredDistance(const NzVector3& vec) const;
 		T SquaredLength() const;
 
 		NzString ToString() const;
+
+		operator NzString() const;
 
 		operator T*();
 		operator const T*() const;
@@ -68,9 +92,18 @@ template<typename T> class NzVector3
 		bool operator>(const NzVector3& vec) const;
 		bool operator>=(const NzVector3& vec) const;
 
-		T x;
-		T y;
-		T z;
+		static NzVector3 CrossProduct(const NzVector3& vec1, const NzVector3& vec2);
+		static T DotProduct(const NzVector3& vec1, const NzVector3& vec2);
+		static NzVector3 Forward();
+		static NzVector3 Left();
+		static NzVector3 Normalize(const NzVector3& vec);
+		static NzVector3 UnitX();
+		static NzVector3 UnitY();
+		static NzVector3 UnitZ();
+		static NzVector3 Up();
+		static NzVector3 Zero();
+
+		T x, y, z;
 };
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const NzVector3<T>& vec);

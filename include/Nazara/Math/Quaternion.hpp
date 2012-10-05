@@ -1,6 +1,5 @@
-// Copyright (C) 2012 Rémi Bèges
-//                    Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 RÃ©mi BÃ¨ges - JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -29,11 +28,17 @@ template<typename T> class NzQuaternion
 		T DotProduct(const NzQuaternion& vec) const;
 
 		NzQuaternion GetConjugate() const;
-		NzQuaternion GetNormalized() const;
+		NzQuaternion GetInverse() const;
+		NzQuaternion GetNormal() const;
+
+		void Inverse();
+
+		void MakeIdentity();
+		void MakeZero();
 
 		T Magnitude() const;
+
 		T Normalize();
-		T SquaredMagnitude() const;
 
 		void Set(T W, T X, T Y, T Z);
 		void Set(T quat[4]);
@@ -42,12 +47,16 @@ template<typename T> class NzQuaternion
 		//void Set(const NzMatrix3<T>& mat);
 		void Set(const NzQuaternion& quat);
 		template<typename U> void Set(const NzQuaternion<U>& quat);
-		void SetIdentity();
-		void SetZero();
+
+		T SquaredMagnitude() const;
 
 		NzEulerAngles<T> ToEulerAngles() const;
 		//NzMatrix3<T> ToRotationMatrix() const;
 		NzString ToString() const;
+
+		operator NzString() const;
+
+		NzQuaternion& operator=(const NzQuaternion& quat);
 
 		NzQuaternion operator+(const NzQuaternion& quat) const;
 		NzQuaternion operator*(const NzQuaternion& quat) const;
@@ -67,7 +76,9 @@ template<typename T> class NzQuaternion
 		bool operator>(const NzQuaternion& quat) const;
 		bool operator>=(const NzQuaternion& quat) const;
 
+		static NzQuaternion Identity();
 		static NzQuaternion Slerp(const NzQuaternion& quatA, const NzQuaternion& quatB, T interp);
+		static NzQuaternion Zero();
 
 		T w, x, y, z;
 };

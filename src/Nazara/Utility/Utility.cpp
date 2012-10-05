@@ -1,9 +1,11 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
@@ -13,26 +15,19 @@
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzUtility::NzUtility()
-{
-}
-
-NzUtility::~NzUtility()
-{
-	if (s_initialized)
-		Uninitialize();
-}
-
 bool NzUtility::Initialize()
 {
-	#if NAZARA_UTILITY_SAFE
-	if (s_initialized)
-	{
-		NazaraError("Renderer already initialized");
-		return true;
-	}
-	#endif
+	if (s_moduleReferenceCouter++ != 0)
+		return true; // D√©j√† initialis√©
 
+	// Initialisation des d√©pendances
+	if (!NzCore::Initialize())
+	{
+		NazaraError("Failed to initialize core module");
+		return false;
+	}
+
+	// Initialisation du module
 	if (!NzBuffer::Initialize())
 	{
 		NazaraError("Failed to initialize buffers");
@@ -53,32 +48,33 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
-	/// Loaders spÈcialisÈs
+	/// Loaders sp√©cialis√©s
 	// Mesh
 	NzLoaders_MD2_Register(); // Loader de fichiers .MD2 (v8)
 
 	// Image
 	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
 
-	/// Loaders gÈnÈriques (En dernier pour donner la prioritÈ aux loaders spÈcialisÈs)
+	/// Loaders g√©n√©riques (En dernier pour donner la priorit√© aux loaders sp√©cialis√©s)
 	// Image
-	NzLoaders_STB_Register(); // Loader gÈnÈrique (STB)
+	NzLoaders_STB_Register(); // Loader g√©n√©rique (STB)
 
-	s_initialized = true;
+	NazaraNotice("Initialized: Utility module");
 
 	return true;
 }
 
+bool NzUtility::IsInitialized()
+{
+	return s_moduleReferenceCouter != 0;
+}
+
 void NzUtility::Uninitialize()
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!s_initialized)
-	{
-		NazaraError("Utility not initialized");
-		return;
-	}
-	#endif
+	if (--s_moduleReferenceCouter != 0)
+		return; // Encore utilis√©
 
+	// Lib√©ration du module
 	NzLoaders_MD2_Unregister();
 	NzLoaders_PCX_Unregister();
 	NzLoaders_STB_Unregister();
@@ -87,12 +83,11 @@ void NzUtility::Uninitialize()
 	NzPixelFormat::Uninitialize();
 	NzBuffer::Uninitialize();
 
-	s_initialized = false;
+	NazaraNotice("Uninitialized: Utility module");
+
+	// Lib√©ration des d√©pendances
+	NzCore::Uninitialize();
 }
 
-bool NzUtility::IsInitialized()
-{
-	return s_initialized;
-}
+unsigned int NzUtility::s_moduleReferenceCouter = 0;
 
-bool NzUtility::s_initialized = false;

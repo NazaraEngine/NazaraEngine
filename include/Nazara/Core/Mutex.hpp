@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -11,11 +11,10 @@
 #include <Nazara/Core/NonCopyable.hpp>
 
 class NzMutexImpl;
-class NzThreadCondition;
 
 class NAZARA_API NzMutex : NzNonCopyable
 {
-	friend class NzThreadCondition;
+	friend class NzConditionVariable;
 
 	public:
 		NzMutex();

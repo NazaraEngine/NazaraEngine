@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -13,21 +13,18 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
-class NzShader;
+class NzRenderTexture;
 struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 {
+	friend NzRenderTexture;
 	friend class NzShader;
 
 	public:
 		NzTexture();
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
-
-		#ifndef NAZARA_RENDERER_COMMON
-		bool Bind() const;
-		#endif
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1, bool lock = false);
 		void Destroy();
@@ -37,7 +34,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool EnableMipmapping(bool enable);
 
 		unsigned int GetAnisotropyLevel() const;
-		nzUInt8 GetBPP() const;
+		nzUInt8 GetBytesPerPixel() const;
 		unsigned int GetDepth() const;
 		nzTextureFilter GetFilterMode() const;
 		nzPixelFormat GetFormat() const;
@@ -76,13 +73,18 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		void Unlock();
 
+		// Fonctions OpenGL
+		unsigned int GetOpenGLID() const;
+		bool Prepare() const;
+
 		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
 		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
-		void SetTarget(bool isTarget);
+		NzRenderTexture* GetRenderTexture() const;
+		void SetRenderTexture(NzRenderTexture* renderTexture);
 
 		NzTextureImpl* m_impl;
 };

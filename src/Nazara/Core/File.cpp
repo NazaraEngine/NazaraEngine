@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/File.hpp>
@@ -45,7 +45,7 @@ m_openMode(0)
 	Open(openMode);
 }
 
-NzFile::NzFile(NzFile&& file) :
+NzFile::NzFile(NzFile&& file) noexcept :
 m_endianness(file.m_endianness),
 m_filePath(std::move(file.m_filePath)),
 m_impl(file.m_impl),
@@ -98,6 +98,11 @@ bool NzFile::EndOfFile() const
 	#endif
 
 	return m_impl->EndOfFile();
+}
+
+bool NzFile::EndOfStream() const
+{
+	return EndOfFile();
 }
 
 bool NzFile::Exists() const
@@ -188,72 +193,6 @@ time_t NzFile::GetLastWriteTime() const
 	return GetLastWriteTime(m_filePath);
 }
 
-NzString NzFile::GetLine(unsigned int lineSize)
-{
-	NazaraLock(m_mutex)
-
-	#if NAZARA_CORE_SAFE
-	if (!IsOpen())
-	{
-		NazaraError("File not opened");
-		return NzString();
-	}
-
-	if ((m_openMode & ReadOnly) == 0 && (m_openMode & ReadWrite) == 0)
-	{
-		NazaraError("File not opened with read access");
-		return NzString();
-	}
-	#endif
-
-	NzString line;
-	if (lineSize == 0) // Taille maximale indÈterminÈe
-	{
-		while (!m_impl->EndOfFile())
-		{
-			char c;
-			if (m_impl->Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-				{
-					if (m_openMode & Text && line.EndsWith('\r'))
-						line.Resize(-1);
-
-					break;
-				}
-
-				line += c;
-			}
-			else
-				break;
-		}
-	}
-	else
-	{
-		line.Reserve(lineSize);
-		for (unsigned int i = 0; i < lineSize; ++i)
-		{
-			char c;
-			if (m_impl->Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-				{
-					if (m_openMode & Text && line.EndsWith('\r'))
-						line.Resize(-1);
-
-					break;
-				}
-
-				line += c;
-			}
-			else
-				break;
-		}
-	}
-
-	return line;
-}
-
 nzUInt64 NzFile::GetSize() const
 {
 	NazaraLock(m_mutex)
@@ -293,7 +232,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 		return m_impl->Read(buffer, size);
 	else
 	{
-		// Si nous ne devons rien lire, nous avanÁons simplement
+		// Si nous ne devons rien lire, nous avan√ßons simplement
 		nzUInt64 currentPos = m_impl->GetCursorPos();
 
 		m_impl->SetCursorPos(NzFile::AtCurrent, size);
@@ -308,7 +247,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
 	if (byteRead == 0)
 		return 0;
 
-	if (buffer && m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness() && typeSize != 1)
+	if (buffer && typeSize != 1 && m_endianness != nzEndianness_Unknown && m_endianness != NzGetPlatformEndianness())
 	{
 		unsigned int typeCount = byteRead/typeSize;
 		for (unsigned int i = 0; i < typeCount; ++i)
@@ -358,6 +297,9 @@ bool NzFile::Open(unsigned long openMode)
 
 		return false;
 	}
+
+	if (m_openMode & Text)
+		m_streamOptions &= nzStreamOption_Text;
 
 	return true;
 }
@@ -446,6 +388,9 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 		delete m_impl;
 
 		m_impl = impl;
+
+		if (m_openMode & Text)
+			m_streamOptions &= nzStreamOption_Text;
 	}
 
 	m_openMode = openMode;
@@ -459,12 +404,12 @@ bool NzFile::Write(const NzString& string)
 
 	NzString temp(string);
 
-	if (m_openMode & Text)
+	if (m_streamOptions & nzStreamOption_Text)
 	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		temp.Replace("\n", "\r\n");
 		#elif defined(NAZARA_PLATFORM_LINUX)
-		// Rien ‡ faire
+		// Rien √† faire
 		#elif defined(NAZARA_PLATFORM_MACOS)
 		temp.Replace('\n', '\r');
 		#else
@@ -525,7 +470,7 @@ NzFile& NzFile::operator=(const NzString& filePath)
 	return *this;
 }
 
-NzFile& NzFile::operator=(NzFile&& file)
+NzFile& NzFile::operator=(NzFile&& file) noexcept
 {
 	NazaraLock(m_mutex)
 
@@ -554,7 +499,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		base = "\\\\";
 		start = 2;
 	}
-	else if (path.StartsWith('\\')) // SpÈcial : '\' fait rÈfÈrence au disque racine
+	else if (path.StartsWith('\\')) // Sp√©cial : '\' fait r√©f√©rence au disque racine
 	{
 		NzString drive = NzDirectory::GetCurrent().SubstrTo('\\');
 		NzString end = path.Substr(1, -1);
@@ -570,7 +515,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		NazaraError("Path unrecognized");
 		return path;
 	}
-	#elif NAZARA_PLATEFORM_LINUX
+	#elif defined(NAZARA_PLATEFORM_LINUX)
 	base = '/';
 	start = 0;
 	#else
@@ -594,7 +539,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 			sep.erase(sep.begin() + i--);
 		else if (sep[i] == "..")
 		{
-			if (i > start) // Si nous ne sommes pas dans la partie protÈgÈe
+			if (i > start) // Si nous ne sommes pas dans la partie prot√©g√©e
 				sep.erase(sep.begin() + i--);
 
 			sep.erase(sep.begin() + i--);
@@ -605,7 +550,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 
 	pathLen += sep.size()-1;
 
-	///FIXME: Le destructeur de NzStringStream provoque un bug lors de la libÈration de son vector
+	///FIXME: Le destructeur de NzStringStream provoque un bug lors de la lib√©ration de son vector
 
 	//NzStringStream stream(base);
 	NzString stream;
@@ -714,11 +659,11 @@ bool NzFile::IsAbsolute(const NzString& path)
 		return true;
 	else if (path.Match("\\\\*"))
 		return true;
-	else if (wpath.StartsWith('\\')) // SpÈcial : '\' fait rÈfÈrence au disque racine
+	else if (wpath.StartsWith('\\')) // Sp√©cial : '\' fait r√©f√©rence au disque racine
 		return true;
 	else
 		return false;
-	#elif NAZARA_PLATEFORM_LINUX
+	#elif defined(NAZARA_PLATEFORM_LINUX)
 	return wpath.StartsWith('/');
 	#else
 		#error OS case not implemented
@@ -752,7 +697,7 @@ NzString NzFile::NormalizeSeparators(const NzString& filePath)
 	#elif defined(NAZARA_PLATFORM_LINUX)
 	path.Replace('\\', '/');
 	#else
-		#error OS not handled
+		#error OS case not implemented
 	#endif
 
 	return path;
@@ -793,4 +738,4 @@ bool NzFile::FillHash(NzHashImpl* hash) const
 	}
 
 	return true;
-} // Fermeture auttomatique du fichier
+} // Fermeture automatique du fichier

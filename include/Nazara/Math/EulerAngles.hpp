@@ -1,6 +1,5 @@
-// Copyright (C) 2012 Rémi Bèges
-//                    Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -9,9 +8,8 @@
 #define NAZARA_EULERANGLES_HPP
 
 #include <Nazara/Core/String.hpp>
-
-template<typename T> class NzQuaternion;
-template<typename T> class NzVector3;
+#include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Vector3.hpp>
 
 template<typename T> class NzEulerAngles
 {
@@ -25,9 +23,7 @@ template<typename T> class NzEulerAngles
 		NzEulerAngles(const NzEulerAngles& angles) = default;
 		~NzEulerAngles() = default;
 
-		NzVector3<T> GetForward() const;
-		NzVector3<T> GetRight() const;
-		NzVector3<T> GetUp() const;
+		void MakeZero();
 
 		void Normalize();
 
@@ -37,24 +33,27 @@ template<typename T> class NzEulerAngles
 		//void Set(const NzMatrix3<T>& mat);
 		void Set(const NzQuaternion<T>& quat);
 		template<typename U> void Set(const NzEulerAngles<U>& angles);
-		void SetZero();
 
 		//NzMatrix3<T> ToRotationMatrix() const;
 		NzQuaternion<T> ToQuaternion() const;
 		NzString ToString() const;
 
+		operator NzString() const;
+
 		NzEulerAngles operator+(const NzEulerAngles& angles) const;
 		NzEulerAngles operator-(const NzEulerAngles& angles) const;
-		NzEulerAngles operator*(const NzEulerAngles& angles) const;
-		NzEulerAngles operator/(const NzEulerAngles& angles) const;
+		/*NzEulerAngles operator*(const NzEulerAngles& angles) const;
+		NzEulerAngles operator/(const NzEulerAngles& angles) const;*/
 
 		NzEulerAngles operator+=(const NzEulerAngles& angles);
 		NzEulerAngles operator-=(const NzEulerAngles& angles);
-		NzEulerAngles operator*=(const NzEulerAngles& angles);
-		NzEulerAngles operator/=(const NzEulerAngles& angles);
+		/*NzEulerAngles operator*=(const NzEulerAngles& angles);
+		NzEulerAngles operator/=(const NzEulerAngles& angles);*/
 
 		bool operator==(const NzEulerAngles& angles) const;
 		bool operator!=(const NzEulerAngles& angles) const;
+
+		static NzEulerAngles Zero();
 
 		T pitch, yaw, roll;
 };

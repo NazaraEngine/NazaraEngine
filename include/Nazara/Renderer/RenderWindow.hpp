@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Interface inspirée de la SFML par Laurent Gomila
+// Interface inspirÃ©e de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -10,6 +10,7 @@
 #define NAZARA_RENDERWINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
@@ -23,7 +24,7 @@ struct NzContextParameters;
 class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
 	public:
-		NzRenderWindow();
+		NzRenderWindow() = default;
 		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
@@ -38,29 +39,30 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		void EnableVerticalSync(bool enabled);
 
-		#ifndef NAZARA_RENDERER_COMMON
-		NzContextParameters GetContextParameters() const;
-		#endif
-
 		unsigned int GetHeight() const;
 		NzRenderTargetParameters GetParameters() const;
 		unsigned int GetWidth() const;
 
-		#ifndef NAZARA_RENDERER_COMMON
-		bool HasContext() const;
-		#endif
-
+		bool IsRenderable() const;
 		bool IsValid() const;
 
+		void SetFramerateLimit(unsigned int limit);
+
+		// Fonctions OpenGL
+		NzContextParameters GetContextParameters() const;
+		bool HasContext() const;
+
 	protected:
-		bool Activate();
+		bool Activate() override;
 
 	private:
-		void OnClose();
-		bool OnCreate();
+		bool OnWindowCreated() override;
+		void OnWindowDestroy() override;
 
-		NzContext* m_context;
+		NzClock m_clock;
 		NzContextParameters m_parameters;
+		NzContext* m_context = nullptr;
+		unsigned int m_framerateLimit = 0;
 };
 
 #endif // NAZARA_RENDERWINDOW_HPP

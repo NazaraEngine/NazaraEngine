@@ -1,23 +1,22 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-#ifdef NAZARA_RENDERER_COMMON
-#error This file is not part of the common renderer interface, you must undefine NAZARA_RENDERER_COMMON to use it
-#endif
 
 #pragma once
 
 #ifndef NAZARA_CONTEXT_HPP
 #define NAZARA_CONTEXT_HPP
 
+#ifdef NAZARA_RENDERER_OPENGL
+
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 
 class NzContextImpl;
 
-class NAZARA_API NzContext
+class NAZARA_API NzContext : public NzResource
 {
-	friend class NzContextImpl;
+	friend NzContextImpl;
 
 	public:
 		NzContext();
@@ -25,6 +24,7 @@ class NAZARA_API NzContext
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());
 		void Destroy();
+
 		const NzContextParameters& GetParameters() const;
 		bool IsActive() const;
 		bool SetActive(bool active);
@@ -39,9 +39,11 @@ class NAZARA_API NzContext
 
 	private:
 		NzContextParameters m_parameters;
-		NzContextImpl* m_impl;
+		NzContextImpl* m_impl = nullptr;
 
 		static NzContext* s_reference;
 };
+
+#endif // NAZARA_RENDERER_OPENGL
 
 #endif // NAZARA_CONTEXT_HPP

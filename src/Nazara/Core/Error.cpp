@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Jérôme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
@@ -42,7 +42,7 @@ NzString NzGetLastSystemError(unsigned int code)
 	wchar_t* buffer = nullptr;
 
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-				  0,
+				  nullptr,
 				  code,
 				  0,
 				  reinterpret_cast<LPWSTR>(&buffer),
@@ -52,7 +52,7 @@ NzString NzGetLastSystemError(unsigned int code)
 	NzString error(NzString::Unicode(buffer));
 	LocalFree(buffer);
 
-	error.Trim(); // Pour une raison inconnue, Windows met deux-trois retours à la ligne après le message
+	error.Trim(); // Pour une raison inconnue, Windows met deux-trois retours Ã  la ligne aprÃ¨s le message
 
 	return error;
 	#elif defined(NAZARA_PLATFORM_POSIX)

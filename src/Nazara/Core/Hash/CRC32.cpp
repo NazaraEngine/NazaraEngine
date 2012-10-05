@@ -1,5 +1,5 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
-// This file is part of the "Nazara Engine".
+// Copyright (C) 2012 J√©r√¥me Leclercq
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Hash/CRC32.hpp>
@@ -70,7 +70,7 @@ NzHashCRC32::NzHashCRC32(nzUInt32 polynomial)
 	m_state = new NzHashCRC32_state;
 
 	if (polynomial == 0x04c11db7)
-		m_state->table = crc32_table; // Table prÈcalculÈe (Bien plus rapide)
+		m_state->table = crc32_table; // Table pr√©calcul√©e (Bien plus rapide)
 	else
 	{
 		nzUInt32* table = new nzUInt32[256];
