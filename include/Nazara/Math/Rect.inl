@@ -196,6 +196,26 @@ T NzRect<T>::operator[](unsigned int i) const
 }
 
 template<typename T>
+NzRect<T> NzRect<T>::Lerp(const NzRect& from, const NzRect& to, T interpolation)
+{
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F(0.0) || interpolation > F(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Zero();
+	}
+	#endif
+
+	NzRect rect;
+	rect.x = NzLerp(from.x, to.x, interpolation);
+	rect.y = NzLerp(from.y, to.y, interpolation);
+	rect.width = NzLerp(from.width, to.width, interpolation);
+	rect.height = NzLerp(from.height, to.height, interpolation);
+
+	return rect;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzRect<T>& rect)
 {
 	return out << rect.ToString();

@@ -132,6 +132,20 @@ unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
+template<typename T, typename F>
+T NzLerp(T from, T to, F interpolation)
+{
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F(0.0) || interpolation > F(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Zero();
+	}
+	#endif
+
+	return from + interpolation*(to-from);
+}
+
 template<typename T>
 T NzNormalizeAngle(T angle)
 {
