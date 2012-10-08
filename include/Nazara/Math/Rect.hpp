@@ -35,6 +35,8 @@ class NzRect
 
 		bool IsValid() const;
 
+		void MakeZero();
+
 		void Set(T X, T Y, T Width, T Height);
 		void Set(const T rect[4]);
 		void Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
@@ -47,7 +49,15 @@ class NzRect
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
 
+		NzRect operator*(T scalar) const;
+
+		NzRect& operator*=(T scalar);
+
+		bool operator==(const NzRect& rect) const;
+		bool operator!=(const NzRect& rect) const;
+
 		static NzRect Lerp(const NzRect& from, const NzRect& to, T interpolation);
+		static NzRect Zero();
 
 		T x, y, width, height;
 };

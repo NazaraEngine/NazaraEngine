@@ -31,7 +31,7 @@ inline unsigned int NzGetNumberLength(unsigned long long number);
 inline unsigned int NzGetNumberLength(float number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
 inline unsigned int NzGetNumberLength(double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
 inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
-template<typename T, typename F> T NzLerp(T from, T to, F interpolation);
+template<typename T, typename T2> T NzLerp(T from, T to, T2 interpolation);
 template<typename T> T NzNormalizeAngle(T angle);
 template<typename T> bool NzNumberEquals(T a, T b);
 inline NzString NzNumberToString(long long number, nzUInt8 radix = 10);
