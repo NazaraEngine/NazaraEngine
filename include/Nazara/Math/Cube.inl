@@ -39,9 +39,9 @@ NzCube<T>::NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 
 template<typename T>
 template<typename U>
-NzCube<T>::NzCube(const NzCube<U>& rect)
+NzCube<T>::NzCube(const NzCube<U>& cube)
 {
-	Set(rect);
+	Set(cube);
 }
 
 template<typename T>
@@ -59,10 +59,10 @@ bool NzCube<T>::Contains(const NzVector3<T>& point) const
 }
 
 template<typename T>
-bool NzCube<T>::Contains(const NzCube<T>& rect) const
+bool NzCube<T>::Contains(const NzCube<T>& cube) const
 {
-	return Contains(rect.x, rect.y, rect.z) &&
-		   Contains(rect.x + rect.width, rect.y + rect.height, rect.z + rect.depth);
+	return Contains(cube.x, cube.y, cube.z) &&
+		   Contains(cube.x + cube.width, cube.y + cube.height, cube.z + cube.depth);
 }
 
 template<typename T>
@@ -77,14 +77,14 @@ void NzCube<T>::ExtendTo(const NzVector3<T>& point)
 }
 
 template<typename T>
-void NzCube<T>::ExtendTo(const NzCube& rect)
+void NzCube<T>::ExtendTo(const NzCube& cube)
 {
-	x = std::min(x, rect.x);
-	y = std::min(y, rect.y);
-	z = std::min(y, rect.z);
-	width = std::max(x+width, rect.x+rect.width)-x;
-	height = std::max(x+height, rect.y+rect.height)-y;
-	depth = std::max(x+depth, rect.z+rect.depth)-z;
+	x = std::min(x, cube.x);
+	y = std::min(y, cube.y);
+	z = std::min(y, cube.z);
+	width = std::max(x+width, cube.x+cube.width)-x;
+	height = std::max(x+height, cube.y+cube.height)-y;
+	depth = std::max(x+depth, cube.z+cube.depth)-z;
 }
 
 template<typename T>
@@ -94,14 +94,14 @@ NzVector3<T> NzCube<T>::GetCenter() const
 }
 
 template<typename T>
-bool NzCube<T>::Intersect(const NzCube& rect, NzCube* intersection) const
+bool NzCube<T>::Intersect(const NzCube& cube, NzCube* intersection) const
 {
-	T left = std::max(x, rect.x);
-	T right = std::min(x+width, rect.x+rect.width);
-	T top = std::max(y, rect.y);
-	T bottom = std::min(y+height, rect.y+rect.height);
-	T up = std::max(z, rect.z);
-	T down = std::min(z+depth, rect.z+rect.depth);
+	T left = std::max(x, cube.x);
+	T right = std::min(x+width, cube.x+cube.width);
+	T top = std::max(y, cube.y);
+	T bottom = std::min(y+height, cube.y+cube.height);
+	T up = std::max(z, cube.z);
+	T down = std::min(z+depth, cube.z+cube.depth);
 
 	if (left < right && top < bottom && up < down)
 	{
@@ -139,14 +139,14 @@ void NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 }
 
 template<typename T>
-void NzCube<T>::Set(const T rect[6])
+void NzCube<T>::Set(const T cube[6])
 {
-	x = rect[0];
-	y = rect[1];
-	z = rect[2];
-	width = rect[3];
-	height = rect[4];
-	depth = rect[5];
+	x = cube[0];
+	y = cube[1];
+	z = cube[2];
+	width = cube[3];
+	height = cube[4];
+	depth = cube[5];
 }
 
 template<typename T>
@@ -230,9 +230,31 @@ T NzCube<T>::operator[](unsigned int i) const
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzCube<T>& rect)
+NzCube<T> NzCube<T>::Lerp(const NzCube& from, const NzCube& to, T interpolation)
 {
-	return out << rect.ToString();
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F(0.0) || interpolation > F(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Zero();
+	}
+	#endif
+
+	NzCube cube;
+	cube.x = NzLerp(from.x, to.x, interpolation);
+	cube.y = NzLerp(from.y, to.y, interpolation);
+	cube.z = NzLerp(from.z, to.z, interpolation);
+	cube.width = NzLerp(from.width, to.width, interpolation);
+	cube.height = NzLerp(from.height, to.height, interpolation);
+	cube.depth = NzLerp(from.depth, to.depth, interpolation);
+
+	return cube;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const NzCube<T>& cube)
+{
+	return out << cube.ToString();
 }
 
 #undef F

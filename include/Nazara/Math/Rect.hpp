@@ -47,6 +47,8 @@ class NzRect
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
 
+		static NzRect Lerp(const NzRect& from, const NzRect& to, T interpolation);
+
 		T x, y, width, height;
 };
 
