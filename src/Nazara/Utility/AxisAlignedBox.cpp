@@ -11,6 +11,12 @@ m_extend(nzExtend_Null)
 {
 }
 
+NzAxisAlignedBox::NzAxisAlignedBox(const NzCubef& cube) :
+m_extend(nzExtend_Finite),
+m_cube(cube)
+{
+}
+
 NzAxisAlignedBox::NzAxisAlignedBox(const NzVector3f& vec1, const NzVector3f& vec2) :
 m_extend(nzExtend_Finite),
 m_cube(vec1, vec2)
@@ -37,7 +43,6 @@ void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 	switch (m_extend)
 	{
 		case nzExtend_Finite:
-		{
 			switch (box.m_extend)
 			{
 				case nzExtend_Finite:
@@ -50,18 +55,16 @@ void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 
 				case nzExtend_Null:
 					break;
-
-				break;
 			}
+			break;
 
-			case nzExtend_Infinite:
-				// Rien à faire
-				break;
+		case nzExtend_Infinite:
+			// Rien à faire
+			break;
 
-			case nzExtend_Null:
-				operator=(box);
-				break;
-		}
+		case nzExtend_Null:
+			operator=(box);
+			break;
 	}
 }
 
@@ -150,6 +153,61 @@ NzString NzAxisAlignedBox::ToString() const
 	}
 
 	return "NzAxisAlignedBox(ERROR)";
+}
+
+NzAxisAlignedBox NzAxisAlignedBox::Lerp(const NzAxisAlignedBox& from, const NzAxisAlignedBox& to, float interpolation)
+{
+	#ifdef NAZARA_DEBUG
+	if (interpolation < 0.f || interpolation > 1.f)
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Null;
+	}
+	#endif
+
+	if (NzNumberEquals(interpolation, 0.f))
+		return from;
+
+	if (NzNumberEquals(interpolation, 1.f))
+		return to;
+
+	switch (to.m_extend)
+	{
+		case nzExtend_Finite:
+		{
+			switch (from.m_extend)
+			{
+				case nzExtend_Finite:
+					return NzCubef::Lerp(from.m_cube, to.m_cube, interpolation);
+
+				case nzExtend_Infinite:
+					return Infinite;
+
+				case nzExtend_Null:
+					return from.m_cube * interpolation;
+			}
+		}
+
+		case nzExtend_Infinite:
+			return Infinite; // Un petit peu d'infini est infini quand même ;)
+
+		case nzExtend_Null:
+		{
+			switch (from.m_extend)
+			{
+				case nzExtend_Finite:
+					return from.m_cube * (1.f - interpolation);
+
+				case nzExtend_Infinite:
+					return Infinite;
+
+				case nzExtend_Null:
+					return Null;
+			}
+		}
+	}
+
+	return Null;
 }
 
 const NzAxisAlignedBox NzAxisAlignedBox::Infinite(nzExtend_Infinite);

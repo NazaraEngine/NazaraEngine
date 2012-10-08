@@ -113,6 +113,15 @@ bool NzRect<T>::IsValid() const
 }
 
 template<typename T>
+void NzRect<T>::MakeZero()
+{
+	x = F(0.0);
+	y = F(0.0);
+	width = F(0.0);
+	height = F(0.0);
+}
+
+template<typename T>
 void NzRect<T>::Set(T X, T Y, T Width, T Height)
 {
 	x = X;
@@ -196,6 +205,32 @@ T NzRect<T>::operator[](unsigned int i) const
 }
 
 template<typename T>
+NzRect<T> NzRect<T>::operator*(T scalar) const
+{
+	return NzRect(x, y, width*scalar, height*scalar);
+}
+
+template<typename T>
+NzRect<T>& NzRect<T>::operator*=(T scalar)
+{
+	width *= scalar;
+	height *= scalar;
+}
+
+template<typename T>
+bool NzRect<T>::operator==(const NzRect& rect) const
+{
+	return NzNumberEquals(x, rect.x) && NzNumberEquals(y, rect.y) &&
+	       NzNumberEquals(width, rect.width) &&  NzNumberEquals(height, rect.height);
+}
+
+template<typename T>
+bool NzRect<T>::operator!=(const NzRect& rect) const
+{
+	return !operator==(rect);
+}
+
+template<typename T>
 NzRect<T> NzRect<T>::Lerp(const NzRect& from, const NzRect& to, T interpolation)
 {
 	#ifdef NAZARA_DEBUG
@@ -211,6 +246,15 @@ NzRect<T> NzRect<T>::Lerp(const NzRect& from, const NzRect& to, T interpolation)
 	rect.y = NzLerp(from.y, to.y, interpolation);
 	rect.width = NzLerp(from.width, to.width, interpolation);
 	rect.height = NzLerp(from.height, to.height, interpolation);
+
+	return rect;
+}
+
+template<typename T>
+NzRect<T> NzRect<T>::Zero()
+{
+	NzRect rect;
+	rect.MakeZero();
 
 	return rect;
 }

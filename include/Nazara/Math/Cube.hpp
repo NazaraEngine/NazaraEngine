@@ -37,6 +37,8 @@ class NzCube
 
 		bool IsValid() const;
 
+		void MakeZero();
+
 		void Set(T X, T Y, T Z, T Width, T Height, T Depth);
 		void Set(const T cube[6]);
 		void Set(const NzRect<T>& rect);
@@ -50,7 +52,15 @@ class NzCube
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
 
+		NzCube operator*(T scalar) const;
+
+		NzCube& operator*=(T scalar);
+
+		bool operator==(const NzCube& cube) const;
+		bool operator!=(const NzCube& cube) const;
+
 		static NzCube Lerp(const NzCube& from, const NzCube& to, T interpolation);
+		static NzCube Zero();
 
 		T x, y, z, width, height, depth;
 };
