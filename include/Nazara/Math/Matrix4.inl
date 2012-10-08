@@ -309,7 +309,7 @@ void NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
         | 2XZ + 2YW       2YZ - 2XW      1 - 2X  - 2Y  |
         |                                              |
 */
-	///FIXME: À corriger (Rotation quaternino != rotation matricielle)
+	///FIXME: À corriger (Rotation quaternion != rotation matricielle)
 	Set(F(1.0) - F(2.0)*rotation.y*rotation.y - F(2.0)*rotation.z*rotation.z,
 		F(2.0)*rotation.x*rotation.y + F(2.0)*rotation.z*rotation.w,
 		F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w,
