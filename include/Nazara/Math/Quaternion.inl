@@ -365,32 +365,48 @@ NzQuaternion<T> NzQuaternion<T>::Identity()
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuaternion& quatB, T interp)
+NzQuaternion<T> NzQuaternion<T>::Lerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation)
 {
-	if (interp <= F(0.0))
-		return quatA;
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F(0.0) || interpolation > F(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Zero();
+	}
+	#endif
 
-	if (interp >= F(1.0))
-		return quatB;
+	return from + interpolation*(to-from);
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation)
+{
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F(0.0) || interpolation > F(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return Zero();
+	}
+	#endif
 
 	NzQuaternion q;
 
-	T cosOmega = quatA.DotProduct(quatB);
+	T cosOmega = from.DotProduct(to);
 	if (cosOmega < F(0.0))
 	{
 		// On inverse tout
-		q.Set(-quatB.w, -quatB.x, -quatB.y, -quatB.z);
+		q.Set(-to.w, -to.x, -to.y, -to.z);
 		cosOmega = -cosOmega;
 	}
 	else
-		q.Set(quatB);
+		q.Set(to);
 
 	T k0, k1;
 	if (cosOmega > F(0.9999))
 	{
 		// Interpolation linéaire pour éviter une division par zéro
-        k0 = F(1.0) - interp;
-        k1 = interp;
+        k0 = F(1.0) - interpolation;
+        k1 = interpolation;
     }
     else
     {
@@ -400,11 +416,11 @@ NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& quatA, const NzQuater
 		// Pour éviter deux divisions
 		sinOmega = F(1.0)/sinOmega;
 
-        k0 = std::sin((F(1.0) - interp) * omega) * sinOmega;
-        k1 = std::sin(interp*omega) * sinOmega;
+        k0 = std::sin((F(1.0) - interpolation) * omega) * sinOmega;
+        k1 = std::sin(interpolation*omega) * sinOmega;
     }
 
-    NzQuaternion result(k0 * quatA.w, k0 * quatA.x, k0 * quatA.y, k0 * quatA.z);
+    NzQuaternion result(k0 * from.w, k0 * from.x, k0 * from.y, k0 * from.z);
     return result += q*k1;
 }
 
