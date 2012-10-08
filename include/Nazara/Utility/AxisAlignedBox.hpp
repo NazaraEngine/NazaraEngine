@@ -15,6 +15,7 @@ class NAZARA_API NzAxisAlignedBox
 {
 	public:
 		NzAxisAlignedBox();
+		NzAxisAlignedBox(const NzCubef& cube);
 		NzAxisAlignedBox(const NzVector3f& vec1, const NzVector3f& vec2);
 		NzAxisAlignedBox(nzExtend extend);
 
@@ -36,6 +37,8 @@ class NAZARA_API NzAxisAlignedBox
 		void SetNull();
 
 		NzString ToString() const;
+
+		static NzAxisAlignedBox Lerp(const NzAxisAlignedBox& from, const NzAxisAlignedBox& to, float interpolation);
 
 		static const NzAxisAlignedBox Infinite;
 		static const NzAxisAlignedBox Null;

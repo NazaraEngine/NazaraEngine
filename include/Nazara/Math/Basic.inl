@@ -11,6 +11,7 @@
 #include <Nazara/Core/Debug.hpp>
 
 #define F(a) static_cast<T>(a)
+#define F2(a) static_cast<T2>(a)
 
 template<typename T>
 T NzApproach(T value, T objective, T increment)
@@ -132,18 +133,18 @@ unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
-template<typename T, typename F>
-T NzLerp(T from, T to, F interpolation)
+template<typename T, typename T2>
+T NzLerp(T from, T to, T2 interpolation)
 {
 	#ifdef NAZARA_DEBUG
-	if (interpolation < F(0.0) || interpolation > F(1.0))
+	if (interpolation < F2(0.0) || interpolation > F2(1.0))
 	{
 		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
-		return Zero();
+		return F(0.0);
 	}
 	#endif
 
-	return from + interpolation*(to-from);
+	return from + interpolation*(to - from);
 }
 
 template<typename T>
@@ -284,6 +285,7 @@ long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 	return (negative) ? -static_cast<long long>(total) : total;
 }
 
+#undef F2
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -128,6 +128,17 @@ bool NzCube<T>::IsValid() const
 }
 
 template<typename T>
+void NzCube<T>::MakeZero()
+{
+	x = F(0.0);
+	y = F(0.0);
+	z = F(0.0);
+	width = F(0.0);
+	height = F(0.0);
+	depth = F(0.0);
+}
+
+template<typename T>
 void NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	x = X;
@@ -230,6 +241,33 @@ T NzCube<T>::operator[](unsigned int i) const
 }
 
 template<typename T>
+NzCube<T> NzCube<T>::operator*(T scalar) const
+{
+	return NzCube(x, y, z, width*scalar, height*scalar, depth*scalar);
+}
+
+template<typename T>
+NzCube<T>& NzCube<T>::operator*=(T scalar)
+{
+	width *= scalar;
+	height *= scalar;
+	depth *= scalar;
+}
+
+template<typename T>
+bool NzCube<T>::operator==(const NzCube& cube) const
+{
+	return NzNumberEquals(x, cube.x) && NzNumberEquals(y, cube.y) && NzNumberEquals(z, cube.z) &&
+	       NzNumberEquals(width, cube.width) &&  NzNumberEquals(height, cube.height) && NzNumberEquals(depth, cube.depth);
+}
+
+template<typename T>
+bool NzCube<T>::operator!=(const NzCube& cube) const
+{
+	return !operator==(cube);
+}
+
+template<typename T>
 NzCube<T> NzCube<T>::Lerp(const NzCube& from, const NzCube& to, T interpolation)
 {
 	#ifdef NAZARA_DEBUG
@@ -247,6 +285,15 @@ NzCube<T> NzCube<T>::Lerp(const NzCube& from, const NzCube& to, T interpolation)
 	cube.width = NzLerp(from.width, to.width, interpolation);
 	cube.height = NzLerp(from.height, to.height, interpolation);
 	cube.depth = NzLerp(from.depth, to.depth, interpolation);
+
+	return cube;
+}
+
+template<typename T>
+NzCube<T> NzCube<T>::Zero()
+{
+	NzCube cube;
+	cube.MakeZero();
 
 	return cube;
 }
