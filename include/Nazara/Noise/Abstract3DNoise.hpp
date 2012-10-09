@@ -13,8 +13,8 @@
 template<typename T> class NzAbstract3DNoise : public NzMappedNoiseBase<T>
 {
     public:
-        virtual T GetBasicValue(T x, T y, T z);
-        virtual T GetMappedValue(T x, T y, T z);
+        T GetBasicValue(T x, T y, T z);
+        T GetMappedValue(T x, T y, T z);
         virtual T GetValue(T x, T y, T z, T resolution) = 0;
 };
 
