@@ -151,7 +151,7 @@ template<typename T>
 T NzNormalizeAngle(T angle)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
-	const T limit = M_PI;
+	const T limit = F(M_PI);
 	#else
 	const T limit = F(180.0);
 	#endif
@@ -160,13 +160,13 @@ T NzNormalizeAngle(T angle)
 	if (angle > F(0.0))
 	{
 		angle += limit;
-		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
 		angle -= limit;
 	}
 	else
 	{
 		angle -= limit;
-		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
 		angle += limit;
 	}
 
