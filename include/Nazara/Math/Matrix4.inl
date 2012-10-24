@@ -16,7 +16,7 @@
 #include <limits>
 #include <stdexcept>
 //#include <Nazara/Core/Debug.hpp>
-///FIXME: Le MLT détecte de faux-leaks ici (Problème lié aux inline ?)
+///FIXME: Le MLT détecte des leaks ici, mais dont la véracité n'a pu être prouvée (Problème lié aux classes inlines ?)
 
 #define F(a) static_cast<T>(a)
 
@@ -69,6 +69,24 @@ NzMatrix4<T>::~NzMatrix4()
 }
 
 template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::ApplyScale(const NzVector3<T>& scale)
+{
+	m_sharedMatrix->m11 *= scale.x;
+	m_sharedMatrix->m12 *= scale.x;
+	m_sharedMatrix->m13 *= scale.x;
+
+	m_sharedMatrix->m21 *= scale.y;
+	m_sharedMatrix->m22 *= scale.y;
+	m_sharedMatrix->m23 *= scale.y;
+
+	m_sharedMatrix->m31 *= scale.z;
+	m_sharedMatrix->m32 *= scale.z;
+	m_sharedMatrix->m33 *= scale.z;
+
+	return *this;
+}
+
+template<typename T>
 NzMatrix4<T> NzMatrix4<T>::Concatenate(const NzMatrix4& matrix) const
 {
 	return Concatenate(*this, matrix);
@@ -78,6 +96,12 @@ template<typename T>
 NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix) const
 {
 	return ConcatenateAffine(*this, matrix);
+}
+
+template<typename T>
+void NzMatrix4<T>::Destroy()
+{
+	ReleaseMatrix();
 }
 
 template<typename T>
@@ -100,45 +124,17 @@ T NzMatrix4<T>::GetDeterminant() const
 }
 
 template<typename T>
-NzMatrix4<T> NzMatrix4<T>::GetInverse() const
+NzMatrix4<T> NzMatrix4<T>::GetInverse(bool* succeeded) const
 {
-	#if NAZARA_MATH_SAFE
-	if (!IsDefined())
-	{
-		NazaraError("Matrix not defined");
-		return NzMatrix4();
-	}
-	#endif
+	NzMatrix4f matInv(*this);
+	return matInv.Inverse(succeeded);
+}
 
-	T det = GetDeterminant();
-	if (!NzNumberEquals(det, F(0.0)))
-	{
-		return NzMatrix4((m_sharedMatrix->m22*(m_sharedMatrix->m33*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m43) - m_sharedMatrix->m32*(m_sharedMatrix->m23*m_sharedMatrix->m44 - m_sharedMatrix->m43*m_sharedMatrix->m24) + m_sharedMatrix->m42*(m_sharedMatrix->m23*m_sharedMatrix->m34 - m_sharedMatrix->m33*m_sharedMatrix->m24)) / det,
-						-(m_sharedMatrix->m12*(m_sharedMatrix->m33*m_sharedMatrix->m44 - m_sharedMatrix->m43*m_sharedMatrix->m34) - m_sharedMatrix->m32*(m_sharedMatrix->m13*m_sharedMatrix->m44 - m_sharedMatrix->m43*m_sharedMatrix->m14) + m_sharedMatrix->m42*(m_sharedMatrix->m13*m_sharedMatrix->m34 - m_sharedMatrix->m33*m_sharedMatrix->m14)) / det,
-		                 (m_sharedMatrix->m12*(m_sharedMatrix->m23*m_sharedMatrix->m44 - m_sharedMatrix->m43*m_sharedMatrix->m24) - m_sharedMatrix->m22*(m_sharedMatrix->m13*m_sharedMatrix->m44 - m_sharedMatrix->m43*m_sharedMatrix->m14) + m_sharedMatrix->m42*(m_sharedMatrix->m13*m_sharedMatrix->m24 - m_sharedMatrix->m23*m_sharedMatrix->m14)) / det,
-		                -(m_sharedMatrix->m12*(m_sharedMatrix->m23*m_sharedMatrix->m34 - m_sharedMatrix->m33*m_sharedMatrix->m24) - m_sharedMatrix->m22*(m_sharedMatrix->m13*m_sharedMatrix->m34 - m_sharedMatrix->m33*m_sharedMatrix->m14) + m_sharedMatrix->m32*(m_sharedMatrix->m13*m_sharedMatrix->m24 - m_sharedMatrix->m23*m_sharedMatrix->m14)) / det,
-
-		                -(m_sharedMatrix->m21*(m_sharedMatrix->m33*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m43) - m_sharedMatrix->m23*(m_sharedMatrix->m31*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m41) + m_sharedMatrix->m24*(m_sharedMatrix->m31*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m41)) / det,
-		                 (m_sharedMatrix->m11*(m_sharedMatrix->m33*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m43) - m_sharedMatrix->m13*(m_sharedMatrix->m31*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m41) + m_sharedMatrix->m14*(m_sharedMatrix->m31*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m41)) / det,
-		                -(m_sharedMatrix->m11*(m_sharedMatrix->m23*m_sharedMatrix->m44 - m_sharedMatrix->m24*m_sharedMatrix->m43) - m_sharedMatrix->m13*(m_sharedMatrix->m21*m_sharedMatrix->m44 - m_sharedMatrix->m24*m_sharedMatrix->m41) + m_sharedMatrix->m14*(m_sharedMatrix->m21*m_sharedMatrix->m43 - m_sharedMatrix->m23*m_sharedMatrix->m41)) / det,
-		                 (m_sharedMatrix->m11*(m_sharedMatrix->m23*m_sharedMatrix->m34 - m_sharedMatrix->m24*m_sharedMatrix->m33) - m_sharedMatrix->m13*(m_sharedMatrix->m21*m_sharedMatrix->m34 - m_sharedMatrix->m24*m_sharedMatrix->m31) + m_sharedMatrix->m14*(m_sharedMatrix->m21*m_sharedMatrix->m33 - m_sharedMatrix->m23*m_sharedMatrix->m31)) / det,
-
-		                 (m_sharedMatrix->m21*(m_sharedMatrix->m32*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m42) - m_sharedMatrix->m22*(m_sharedMatrix->m31*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m41) + m_sharedMatrix->m24*(m_sharedMatrix->m31*m_sharedMatrix->m42 - m_sharedMatrix->m32*m_sharedMatrix->m41)) / det,
-		                -(m_sharedMatrix->m11*(m_sharedMatrix->m32*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m42) - m_sharedMatrix->m12*(m_sharedMatrix->m31*m_sharedMatrix->m44 - m_sharedMatrix->m34*m_sharedMatrix->m41) + m_sharedMatrix->m14*(m_sharedMatrix->m31*m_sharedMatrix->m42 - m_sharedMatrix->m32*m_sharedMatrix->m41)) / det,
-		                 (m_sharedMatrix->m11*(m_sharedMatrix->m22*m_sharedMatrix->m44 - m_sharedMatrix->m24*m_sharedMatrix->m42) - m_sharedMatrix->m12*(m_sharedMatrix->m21*m_sharedMatrix->m44 - m_sharedMatrix->m24*m_sharedMatrix->m41) + m_sharedMatrix->m14*(m_sharedMatrix->m21*m_sharedMatrix->m42 - m_sharedMatrix->m22*m_sharedMatrix->m41)) / det,
-		                -(m_sharedMatrix->m11*(m_sharedMatrix->m22*m_sharedMatrix->m34 - m_sharedMatrix->m24*m_sharedMatrix->m32) - m_sharedMatrix->m12*(m_sharedMatrix->m21*m_sharedMatrix->m34 - m_sharedMatrix->m24*m_sharedMatrix->m31) + m_sharedMatrix->m14*(m_sharedMatrix->m21*m_sharedMatrix->m32 - m_sharedMatrix->m22*m_sharedMatrix->m31)) / det,
-
-		                -(m_sharedMatrix->m21*(m_sharedMatrix->m32*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m42) - m_sharedMatrix->m22*(m_sharedMatrix->m31*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m41) + m_sharedMatrix->m23*(m_sharedMatrix->m31*m_sharedMatrix->m42 - m_sharedMatrix->m32*m_sharedMatrix->m41)) / det,
-						 (m_sharedMatrix->m11*(m_sharedMatrix->m32*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m42) - m_sharedMatrix->m12*(m_sharedMatrix->m31*m_sharedMatrix->m43 - m_sharedMatrix->m33*m_sharedMatrix->m41) + m_sharedMatrix->m13*(m_sharedMatrix->m31*m_sharedMatrix->m42 - m_sharedMatrix->m32*m_sharedMatrix->m41)) / det,
-		                -(m_sharedMatrix->m11*(m_sharedMatrix->m22*m_sharedMatrix->m43 - m_sharedMatrix->m23*m_sharedMatrix->m42) - m_sharedMatrix->m12*(m_sharedMatrix->m21*m_sharedMatrix->m43 - m_sharedMatrix->m23*m_sharedMatrix->m41) + m_sharedMatrix->m13*(m_sharedMatrix->m21*m_sharedMatrix->m42 - m_sharedMatrix->m22*m_sharedMatrix->m41)) / det,
-						 (m_sharedMatrix->m11*(m_sharedMatrix->m22*m_sharedMatrix->m33 - m_sharedMatrix->m23*m_sharedMatrix->m32) - m_sharedMatrix->m12*(m_sharedMatrix->m21*m_sharedMatrix->m33 - m_sharedMatrix->m23*m_sharedMatrix->m31) + m_sharedMatrix->m13*(m_sharedMatrix->m21*m_sharedMatrix->m32 - m_sharedMatrix->m22*m_sharedMatrix->m31)) / det);
-	}
-	else
-	{
-		NazaraError("Matrix has no inverse");
-
-		return Identity();
-	}
+template<typename T>
+NzMatrix4<T> NzMatrix4<T>::GetInverseAffine(bool* succeeded) const
+{
+	NzMatrix4f matInv(*this);
+	return matInv.InverseAffine(succeeded);
 }
 
 template<typename T>
@@ -221,6 +217,259 @@ bool NzMatrix4<T>::HasScale() const
 }
 
 template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::Inverse(bool* succeeded)
+{
+	#if NAZARA_MATH_SAFE
+	if (!IsDefined())
+	{
+		NazaraError("Matrix not defined");
+		if (succeeded)
+			*succeeded = false;
+
+		return *this;
+	}
+	#endif
+
+	T det = GetDeterminant();
+	if (!NzNumberEquals(det, F(0.0)))
+	{
+		// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+		T inv[16];
+		inv[0] = m_sharedMatrix->m22 * m_sharedMatrix->m33 * m_sharedMatrix->m44 -
+				 m_sharedMatrix->m22 * m_sharedMatrix->m34 * m_sharedMatrix->m43 -
+				 m_sharedMatrix->m32 * m_sharedMatrix->m23 * m_sharedMatrix->m44 +
+				 m_sharedMatrix->m32 * m_sharedMatrix->m24 * m_sharedMatrix->m43 +
+				 m_sharedMatrix->m42 * m_sharedMatrix->m23 * m_sharedMatrix->m34 -
+				 m_sharedMatrix->m42 * m_sharedMatrix->m24 * m_sharedMatrix->m33;
+
+		inv[1] = -m_sharedMatrix->m12 * m_sharedMatrix->m33 * m_sharedMatrix->m44 +
+				  m_sharedMatrix->m12 * m_sharedMatrix->m34 * m_sharedMatrix->m43 +
+				  m_sharedMatrix->m32 * m_sharedMatrix->m13 * m_sharedMatrix->m44 -
+				  m_sharedMatrix->m32 * m_sharedMatrix->m14 * m_sharedMatrix->m43 -
+				  m_sharedMatrix->m42 * m_sharedMatrix->m13 * m_sharedMatrix->m34 +
+				  m_sharedMatrix->m42 * m_sharedMatrix->m14 * m_sharedMatrix->m33;
+
+		inv[2] = m_sharedMatrix->m12 * m_sharedMatrix->m23 * m_sharedMatrix->m44 -
+				 m_sharedMatrix->m12 * m_sharedMatrix->m24 * m_sharedMatrix->m43 -
+				 m_sharedMatrix->m22 * m_sharedMatrix->m13 * m_sharedMatrix->m44 +
+				 m_sharedMatrix->m22 * m_sharedMatrix->m14 * m_sharedMatrix->m43 +
+				 m_sharedMatrix->m42 * m_sharedMatrix->m13 * m_sharedMatrix->m24 -
+				 m_sharedMatrix->m42 * m_sharedMatrix->m14 * m_sharedMatrix->m23;
+
+		inv[3] = -m_sharedMatrix->m12 * m_sharedMatrix->m23 * m_sharedMatrix->m34 +
+				  m_sharedMatrix->m12 * m_sharedMatrix->m24 * m_sharedMatrix->m33 +
+				  m_sharedMatrix->m22 * m_sharedMatrix->m13 * m_sharedMatrix->m34 -
+				  m_sharedMatrix->m22 * m_sharedMatrix->m14 * m_sharedMatrix->m33 -
+				  m_sharedMatrix->m32 * m_sharedMatrix->m13 * m_sharedMatrix->m24 +
+				  m_sharedMatrix->m32 * m_sharedMatrix->m14 * m_sharedMatrix->m23;
+
+		inv[4] = -m_sharedMatrix->m21 * m_sharedMatrix->m33 * m_sharedMatrix->m44 +
+				  m_sharedMatrix->m21 * m_sharedMatrix->m34 * m_sharedMatrix->m43 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m23 * m_sharedMatrix->m44 -
+				  m_sharedMatrix->m31 * m_sharedMatrix->m24 * m_sharedMatrix->m43 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m23 * m_sharedMatrix->m34 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m24 * m_sharedMatrix->m33;
+
+		inv[5] = m_sharedMatrix->m11 * m_sharedMatrix->m33 * m_sharedMatrix->m44 -
+				 m_sharedMatrix->m11 * m_sharedMatrix->m34 * m_sharedMatrix->m43 -
+				 m_sharedMatrix->m31 * m_sharedMatrix->m13 * m_sharedMatrix->m44 +
+				 m_sharedMatrix->m31 * m_sharedMatrix->m14 * m_sharedMatrix->m43 +
+				 m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m34 -
+				 m_sharedMatrix->m41 * m_sharedMatrix->m14 * m_sharedMatrix->m33;
+
+		inv[6] = -m_sharedMatrix->m11 * m_sharedMatrix->m23 * m_sharedMatrix->m44 +
+				  m_sharedMatrix->m11 * m_sharedMatrix->m24 * m_sharedMatrix->m43 +
+				  m_sharedMatrix->m21 * m_sharedMatrix->m13 * m_sharedMatrix->m44 -
+				  m_sharedMatrix->m21 * m_sharedMatrix->m14 * m_sharedMatrix->m43 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m24 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m14 * m_sharedMatrix->m23;
+
+		inv[7] = m_sharedMatrix->m11 * m_sharedMatrix->m23 * m_sharedMatrix->m34 -
+				 m_sharedMatrix->m11 * m_sharedMatrix->m24 * m_sharedMatrix->m33 -
+				 m_sharedMatrix->m21 * m_sharedMatrix->m13 * m_sharedMatrix->m34 +
+				 m_sharedMatrix->m21 * m_sharedMatrix->m14 * m_sharedMatrix->m33 +
+				 m_sharedMatrix->m31 * m_sharedMatrix->m13 * m_sharedMatrix->m24 -
+				 m_sharedMatrix->m31 * m_sharedMatrix->m14 * m_sharedMatrix->m23;
+
+		inv[8] = m_sharedMatrix->m21 * m_sharedMatrix->m32 * m_sharedMatrix->m44 -
+				 m_sharedMatrix->m21 * m_sharedMatrix->m34 * m_sharedMatrix->m42 -
+				 m_sharedMatrix->m31 * m_sharedMatrix->m22 * m_sharedMatrix->m44 +
+				 m_sharedMatrix->m31 * m_sharedMatrix->m24 * m_sharedMatrix->m42 +
+				 m_sharedMatrix->m41 * m_sharedMatrix->m22 * m_sharedMatrix->m34 -
+				 m_sharedMatrix->m41 * m_sharedMatrix->m24 * m_sharedMatrix->m32;
+
+		inv[9] = -m_sharedMatrix->m11 * m_sharedMatrix->m32 * m_sharedMatrix->m44 +
+				  m_sharedMatrix->m11 * m_sharedMatrix->m34 * m_sharedMatrix->m42 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m12 * m_sharedMatrix->m44 -
+				  m_sharedMatrix->m31 * m_sharedMatrix->m14 * m_sharedMatrix->m42 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m34 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m14 * m_sharedMatrix->m32;
+
+		inv[10] = m_sharedMatrix->m11 * m_sharedMatrix->m22 * m_sharedMatrix->m44 -
+				  m_sharedMatrix->m11 * m_sharedMatrix->m24 * m_sharedMatrix->m42 -
+				  m_sharedMatrix->m21 * m_sharedMatrix->m12 * m_sharedMatrix->m44 +
+				  m_sharedMatrix->m21 * m_sharedMatrix->m14 * m_sharedMatrix->m42 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m24 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m14 * m_sharedMatrix->m22;
+
+		inv[11] = -m_sharedMatrix->m11 * m_sharedMatrix->m22 * m_sharedMatrix->m34 +
+				   m_sharedMatrix->m11 * m_sharedMatrix->m24 * m_sharedMatrix->m32 +
+				   m_sharedMatrix->m21 * m_sharedMatrix->m12 * m_sharedMatrix->m34 -
+				   m_sharedMatrix->m21 * m_sharedMatrix->m14 * m_sharedMatrix->m32 -
+				   m_sharedMatrix->m31 * m_sharedMatrix->m12 * m_sharedMatrix->m24 +
+				   m_sharedMatrix->m31 * m_sharedMatrix->m14 * m_sharedMatrix->m22;
+
+		inv[12] = -m_sharedMatrix->m21 * m_sharedMatrix->m32 * m_sharedMatrix->m43 +
+				   m_sharedMatrix->m21 * m_sharedMatrix->m33 * m_sharedMatrix->m42 +
+				   m_sharedMatrix->m31 * m_sharedMatrix->m22 * m_sharedMatrix->m43 -
+				   m_sharedMatrix->m31 * m_sharedMatrix->m23 * m_sharedMatrix->m42 -
+				   m_sharedMatrix->m41 * m_sharedMatrix->m22 * m_sharedMatrix->m33 +
+				   m_sharedMatrix->m41 * m_sharedMatrix->m23 * m_sharedMatrix->m32;
+
+		inv[13] = m_sharedMatrix->m11 * m_sharedMatrix->m32 * m_sharedMatrix->m43 -
+				  m_sharedMatrix->m11 * m_sharedMatrix->m33 * m_sharedMatrix->m42 -
+				  m_sharedMatrix->m31 * m_sharedMatrix->m12 * m_sharedMatrix->m43 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m13 * m_sharedMatrix->m42 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m33 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m32;
+
+		inv[14] = -m_sharedMatrix->m11 * m_sharedMatrix->m22 * m_sharedMatrix->m43 +
+				   m_sharedMatrix->m11 * m_sharedMatrix->m23 * m_sharedMatrix->m42 +
+				   m_sharedMatrix->m21 * m_sharedMatrix->m12 * m_sharedMatrix->m43 -
+				   m_sharedMatrix->m21 * m_sharedMatrix->m13 * m_sharedMatrix->m42 -
+				   m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m23 +
+				   m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m22;
+
+		inv[15] = m_sharedMatrix->m11 * m_sharedMatrix->m22 * m_sharedMatrix->m33 -
+				  m_sharedMatrix->m11 * m_sharedMatrix->m23 * m_sharedMatrix->m32 -
+				  m_sharedMatrix->m21 * m_sharedMatrix->m12 * m_sharedMatrix->m33 +
+				  m_sharedMatrix->m21 * m_sharedMatrix->m13 * m_sharedMatrix->m32 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m12 * m_sharedMatrix->m23 -
+				  m_sharedMatrix->m31 * m_sharedMatrix->m13 * m_sharedMatrix->m22;
+
+		T invDet = F(1.0) / det;
+		for (unsigned int i = 0; i < 16; ++i)
+			inv[i] *= invDet;
+
+		Set(inv);
+		if (succeeded)
+			*succeeded = true;
+	}
+	else
+	{
+		NazaraError("Matrix has no inverse");
+		if (succeeded)
+			*succeeded = false;
+	}
+
+	return *this;
+}
+
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::InverseAffine(bool* succeeded)
+{
+	#if NAZARA_MATH_SAFE
+	if (!IsDefined())
+	{
+		NazaraError("Matrix not defined");
+		if (succeeded)
+			*succeeded = false;
+
+		return *this;
+	}
+
+	if (!IsAffine())
+	{
+		NazaraError("Matrix not affine");
+		if (succeeded)
+			*succeeded = false;
+
+		return *this;
+	}
+	#endif
+
+	T det = GetDeterminant();
+	if (!NzNumberEquals(det, F(0.0)))
+	{
+		// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+		T inv[16];
+		inv[0] = m_sharedMatrix->m22 * m_sharedMatrix->m33 -
+				 m_sharedMatrix->m32 * m_sharedMatrix->m23;
+
+		inv[1] = -m_sharedMatrix->m12 * m_sharedMatrix->m33 +
+				  m_sharedMatrix->m32 * m_sharedMatrix->m13;
+
+		inv[2] = m_sharedMatrix->m12 * m_sharedMatrix->m23 -
+				 m_sharedMatrix->m22 * m_sharedMatrix->m13;
+
+		inv[3] = F(0.0);
+
+		inv[4] = -m_sharedMatrix->m21 * m_sharedMatrix->m33 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m23;
+
+		inv[5] = m_sharedMatrix->m11 * m_sharedMatrix->m33 -
+				 m_sharedMatrix->m31 * m_sharedMatrix->m13;
+
+		inv[6] = -m_sharedMatrix->m11 * m_sharedMatrix->m23 +
+				  m_sharedMatrix->m21 * m_sharedMatrix->m13;
+
+		inv[7] = F(0.0);
+
+		inv[8] = m_sharedMatrix->m21 * m_sharedMatrix->m32 -
+				 m_sharedMatrix->m31 * m_sharedMatrix->m22;
+
+		inv[9] = -m_sharedMatrix->m11 * m_sharedMatrix->m32 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m12;
+
+		inv[10] = m_sharedMatrix->m11 * m_sharedMatrix->m22 -
+				  m_sharedMatrix->m21 * m_sharedMatrix->m12;
+
+		inv[11] = F(0.0);
+
+		inv[12] = -m_sharedMatrix->m21 * m_sharedMatrix->m32 * m_sharedMatrix->m43 +
+				   m_sharedMatrix->m21 * m_sharedMatrix->m33 * m_sharedMatrix->m42 +
+				   m_sharedMatrix->m31 * m_sharedMatrix->m22 * m_sharedMatrix->m43 -
+				   m_sharedMatrix->m31 * m_sharedMatrix->m23 * m_sharedMatrix->m42 -
+				   m_sharedMatrix->m41 * m_sharedMatrix->m22 * m_sharedMatrix->m33 +
+				   m_sharedMatrix->m41 * m_sharedMatrix->m23 * m_sharedMatrix->m32;
+
+		inv[13] = m_sharedMatrix->m11 * m_sharedMatrix->m32 * m_sharedMatrix->m43 -
+				  m_sharedMatrix->m11 * m_sharedMatrix->m33 * m_sharedMatrix->m42 -
+				  m_sharedMatrix->m31 * m_sharedMatrix->m12 * m_sharedMatrix->m43 +
+				  m_sharedMatrix->m31 * m_sharedMatrix->m13 * m_sharedMatrix->m42 +
+				  m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m33 -
+				  m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m32;
+
+		inv[14] = -m_sharedMatrix->m11 * m_sharedMatrix->m22 * m_sharedMatrix->m43 +
+				   m_sharedMatrix->m11 * m_sharedMatrix->m23 * m_sharedMatrix->m42 +
+				   m_sharedMatrix->m21 * m_sharedMatrix->m12 * m_sharedMatrix->m43 -
+				   m_sharedMatrix->m21 * m_sharedMatrix->m13 * m_sharedMatrix->m42 -
+				   m_sharedMatrix->m41 * m_sharedMatrix->m12 * m_sharedMatrix->m23 +
+				   m_sharedMatrix->m41 * m_sharedMatrix->m13 * m_sharedMatrix->m22;
+
+		inv[15] = F(0.0);
+
+		T invDet = F(1.0) / det;
+		for (unsigned int i = 0; i < 16; ++i)
+			inv[i] *= invDet;
+
+		inv[15] = F(1.0);
+
+		Set(inv);
+		if (succeeded)
+			*succeeded = true;
+	}
+	else
+	{
+		NazaraError("Matrix has no inverse");
+		if (succeeded)
+			*succeeded = false;
+	}
+
+	return *this;
+}
+
+template<typename T>
 bool NzMatrix4<T>::IsAffine() const
 {
 	#if NAZARA_MATH_SAFE
@@ -244,26 +493,30 @@ bool NzMatrix4<T>::IsDefined() const
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeIdentity()
+NzMatrix4<T>& NzMatrix4<T>::MakeIdentity()
 {
 	Set(F(1.0), F(0.0), F(0.0), F(0.0),
 		F(0.0), F(1.0), F(0.0), F(0.0),
 		F(0.0), F(0.0), F(1.0), F(0.0),
 		F(0.0), F(0.0), F(0.0), F(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeOrtho(T left, T top, T width, T height, T zNear, T zFar)
+NzMatrix4<T>& NzMatrix4<T>::MakeOrtho(T left, T top, T width, T height, T zNear, T zFar)
 {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204941(v=vs.85).aspx
 	Set(F(2.0)/(width-left), F(0.0), F(0.0), -(width+left)/(width-left),
 	    F(0.0), F(2.0)/(top-height), F(0.0), -(top+height)/(top-height),
 	    F(0.0), F(0.0), F(-2.0)/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
 	    F(0.0), F(0.0), F(0.0), F(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
+NzMatrix4<T>& NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
 {
 	NzVector3<T> f = NzVector3<T>::Normalize(target - eye);
 	NzVector3<T> u(up.GetNormal());
@@ -274,10 +527,12 @@ void NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& targe
 	    s.y, u.y, -f.y, T(0.0),
 	    s.z, u.z, -f.z, T(0.0),
 		-s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
+NzMatrix4<T>& NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204944(v=vs.85).aspx
 	#if NAZARA_MATH_ANGLE_RADIAN
@@ -292,10 +547,12 @@ void NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 	    F(0.0), yScale, F(0.0), F(0.0),
 	    F(0.0), F(0.0), zFar / (zNear-zFar), F(-1.0),
 	    F(0.0), F(0.0), (zNear*zFar) / (zNear-zFar), F(0.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
+NzMatrix4<T>& NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
 {
 	// http://www.flipcode.com/documents/matrfaq.html#Q54
 /*
@@ -329,43 +586,71 @@ void NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
 		F(0.0),
 		F(0.0),
 		F(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeScale(const NzVector3<T>& scale)
+NzMatrix4<T>& NzMatrix4<T>::MakeScale(const NzVector3<T>& scale)
 {
 	Set(scale.x, F(0.0),  F(0.0),  F(0.0),
 	    F(0.0),  scale.y, F(0.0),  F(0.0),
 	    F(0.0),  F(0.0),  scale.z, F(0.0),
 	    F(0.0),  F(0.0),  F(0.0),  F(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeTranslation(const NzVector3<T>& translation)
+NzMatrix4<T>& NzMatrix4<T>::MakeTranslation(const NzVector3<T>& translation)
 {
 	Set(F(1.0), F(0.0), F(0.0), F(0.0),
 	    F(0.0), F(1.0), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(1.0), F(0.0),
 	    translation.x, translation.y, translation.z, F(1.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::MakeZero()
+NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation)
+{
+	// La rotation et la translation peuvent être appliquées directement
+	SetRotation(rotation);
+	SetTranslation(translation);
+
+	// On complète la matrice (les transformations sont affines)
+	m_sharedMatrix->m14 = F(0.0);
+	m_sharedMatrix->m24 = F(0.0);
+	m_sharedMatrix->m34 = F(0.0);
+	m_sharedMatrix->m44 = F(1.0);
+
+	// Ensuite on fait une mise à l'échelle des valeurs déjà présentes
+	ApplyScale(scale);
+
+	return *this;
+}
+
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::MakeZero()
 {
 	Set(F(0.0), F(0.0), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(0.0), F(0.0));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
+NzMatrix4<T>& NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
 					   T r21, T r22, T r23, T r24,
 					   T r31, T r32, T r33, T r34,
 					   T r41, T r42, T r43, T r44)
 {
-	EnsureOwnership();
+	ReleaseMatrix();
 
+	m_sharedMatrix = new SharedMatrix;
 	m_sharedMatrix->m11 = r11;
 	m_sharedMatrix->m12 = r12;
 	m_sharedMatrix->m13 = r13;
@@ -382,19 +667,24 @@ void NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
 	m_sharedMatrix->m42 = r42;
 	m_sharedMatrix->m43 = r43;
 	m_sharedMatrix->m44 = r44;
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::Set(const T matrix[16])
+NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 {
-	EnsureOwnership();
+	ReleaseMatrix();
 
+	m_sharedMatrix = new SharedMatrix;
 	// Ici nous sommes certains de la continuité des éléments en mémoire
 	std::memcpy(&m_sharedMatrix->m11, matrix, 16*sizeof(T));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::Set(const NzMatrix4& matrix)
+NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4& matrix)
 {
 	ReleaseMatrix();
 
@@ -405,26 +695,32 @@ void NzMatrix4<T>::Set(const NzMatrix4& matrix)
 		m_sharedMatrix->refCount++;
 		NazaraMutexUnlock(m_sharedMatrix->mutex);
 	}
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::Set(NzMatrix4&& matrix)
+NzMatrix4<T>& NzMatrix4<T>::Set(NzMatrix4&& matrix)
 {
 	std::swap(m_sharedMatrix, matrix.m_sharedMatrix);
+
+	return *this;
 }
 
 template<typename T>
 template<typename U>
-void NzMatrix4<T>::Set(const NzMatrix4<U>& matrix)
+NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4<U>& matrix)
 {
 	Set(F(matrix.m_sharedMatrix->m11), F(matrix.m_sharedMatrix->m12), F(matrix.m_sharedMatrix->m13), F(matrix.m_sharedMatrix->m14),
 		F(matrix.m_sharedMatrix->m21), F(matrix.m_sharedMatrix->m22), F(matrix.m_sharedMatrix->m23), F(matrix.m_sharedMatrix->m24),
 		F(matrix.m_sharedMatrix->m31), F(matrix.m_sharedMatrix->m32), F(matrix.m_sharedMatrix->m33), F(matrix.m_sharedMatrix->m34),
 		F(matrix.m_sharedMatrix->m41), F(matrix.m_sharedMatrix->m42), F(matrix.m_sharedMatrix->m43), F(matrix.m_sharedMatrix->m44));
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::SetRotation(const NzQuaternion<T>& rotation)
+NzMatrix4<T>& NzMatrix4<T>::SetRotation(const NzQuaternion<T>& rotation)
 {
 	// http://www.flipcode.com/documents/matrfaq.html#Q54
 	EnsureOwnership();
@@ -439,20 +735,24 @@ void NzMatrix4<T>::SetRotation(const NzQuaternion<T>& rotation)
 	m_sharedMatrix->m23 = F(2.0)*rotation.y*rotation.z - F(2.0)*rotation.x*rotation.w;
 	m_sharedMatrix->m31 = F(2.0)*rotation.x*rotation.z - F(2.0)*rotation.y*rotation.w;
 	m_sharedMatrix->m32 = F(2.0)*rotation.y*rotation.z + F(2.0)*rotation.x*rotation.w;
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::SetScale(const NzVector3<T>& scale)
+NzMatrix4<T>& NzMatrix4<T>::SetScale(const NzVector3<T>& scale)
 {
 	EnsureOwnership();
 
 	m_sharedMatrix->m11 = scale.x;
 	m_sharedMatrix->m22 = scale.y;
 	m_sharedMatrix->m33 = scale.z;
+
+	return *this;
 }
 
 template<typename T>
-void NzMatrix4<T>::SetTranslation(const NzVector3<T>& translation)
+NzMatrix4<T>& NzMatrix4<T>::SetTranslation(const NzVector3<T>& translation)
 {
 	EnsureOwnership();
 
@@ -460,6 +760,8 @@ void NzMatrix4<T>::SetTranslation(const NzVector3<T>& translation)
 	m_sharedMatrix->m42 = translation.y;
 	m_sharedMatrix->m43 = translation.z;
 	m_sharedMatrix->m44 = F(1.0);
+
+	return *this;
 }
 
 template<typename T>
@@ -734,7 +1036,7 @@ bool NzMatrix4<T>::operator==(const NzMatrix4& mat) const
 		return false;
 
 	for (unsigned int i = 0; i < 16; ++i)
-		if (!NzNumberEquals((&m_sharedMatrix->m11)[i]))
+		if (!NzNumberEquals((&m_sharedMatrix->m11)[i], (&mat.m_sharedMatrix->m11)[i]))
 			return false;
 
 	return true;
@@ -905,6 +1207,15 @@ NzMatrix4<T> NzMatrix4<T>::Translate(const NzVector3<T>& translation)
 }
 
 template<typename T>
+NzMatrix4<T> NzMatrix4<T>::Transform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation)
+{
+	NzMatrix4 mat;
+	mat.MakeTransform(translation, scale, rotation);
+
+	return mat;
+}
+
+template<typename T>
 NzMatrix4<T> NzMatrix4<T>::Zero()
 {
 	NzMatrix4 matrix;
@@ -937,6 +1248,8 @@ void NzMatrix4<T>::EnsureOwnership()
 
 			SharedMatrix* sharedMatrix = new SharedMatrix;
 			std::memcpy(&sharedMatrix->m11, &m_sharedMatrix->m11, 16*sizeof(T));
+
+			m_sharedMatrix = sharedMatrix;
 		}
 	}
 	else
