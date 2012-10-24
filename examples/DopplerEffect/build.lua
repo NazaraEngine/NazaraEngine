@@ -2,7 +2,7 @@ kind "ConsoleApp"
 
 files "main.cpp"
 
-if (_OPTIONS["one-library"]) then
+if (_OPTIONS["united"]) then
 	configuration "DebugStatic"
 		links "NazaraEngine-s-d"
 
