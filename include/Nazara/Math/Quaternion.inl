@@ -375,7 +375,13 @@ NzQuaternion<T> NzQuaternion<T>::Lerp(const NzQuaternion& from, const NzQuaterni
 	}
 	#endif
 
-	return from + interpolation*(to-from);
+	NzQuaternion interpolated;
+	interpolated.w = NzLerp(from.w, to.w, interpolation);
+	interpolated.x = NzLerp(from.x, to.x, interpolation);
+	interpolated.y = NzLerp(from.y, to.y, interpolation);
+	interpolated.z = NzLerp(from.z, to.z, interpolation);
+
+	return interpolated;
 }
 
 template<typename T>
