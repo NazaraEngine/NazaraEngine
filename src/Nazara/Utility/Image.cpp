@@ -105,7 +105,8 @@ bool NzImage::Convert(nzPixelFormat format)
 	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 	{
 		unsigned int pixelsPerFace = width*height;
-		nzUInt8* ptr = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBytesPerPixel(format)];
+		nzUInt8* face = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBytesPerPixel(format)];
+		nzUInt8* ptr = face;
 		nzUInt8* pixels = m_sharedImage->pixels[i];
 		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(format);
@@ -117,7 +118,7 @@ bool NzImage::Convert(nzPixelFormat format)
 				NazaraError("Failed to convert image");
 
 				// Nettoyage de la mémoire
-				delete[] ptr; // Permet une optimisation de boucle (GCC)
+				delete[] face; // Permet une optimisation de boucle (GCC)
 				for (unsigned int j = 0; j < i; ++j)
 					delete[] levels[j];
 
@@ -130,7 +131,7 @@ bool NzImage::Convert(nzPixelFormat format)
 			ptr += dstStride;
 		}
 
-		levels[i] = ptr;
+		levels[i] = face;
 
 		if (width > 1)
 			width >>= 1;
@@ -356,32 +357,38 @@ bool NzImage::Fill(const NzColor& color)
 	}
 	#endif
 
-	EnsureOwnership();
-
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-	nzUInt8* pixels = new nzUInt8[bpp];
-	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixels))
+	nzUInt8* colorBuffer = new nzUInt8[bpp];
+	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, colorBuffer))
 	{
 		NazaraError("Failed to convert RGBA8 to " + NzPixelFormat::ToString(m_sharedImage->format));
-		delete[] pixels;
+		delete[] colorBuffer;
 
 		return false;
 	}
 
+	nzUInt8** levels = new nzUInt8*[m_sharedImage->levelCount];
+
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
+
+	// Les images 3D et cubemaps sont stockés de la même façon
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 
-	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
+	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 	{
-		nzUInt8* ptr = &m_sharedImage->pixels[level][0];
-		nzUInt8* end = &m_sharedImage->pixels[level][width*height*depth*bpp];
+		unsigned int size = width*height*depth*bpp;
+		nzUInt8* face = new nzUInt8[size];
+		nzUInt8* ptr = face;
+		nzUInt8* end = &ptr[size];
 
 		while (ptr < end)
 		{
-			std::memcpy(ptr, pixels, bpp);
+			std::memcpy(ptr, colorBuffer, bpp);
 			ptr += bpp;
 		}
+
+		levels[i] = face;
 
 		if (width > 1U)
 			width >>= 1;
@@ -393,7 +400,12 @@ bool NzImage::Fill(const NzColor& color)
 			depth >>= 1;
 	}
 
-	delete[] pixels;
+	delete[] colorBuffer;
+
+	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, m_sharedImage->levelCount, levels, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+
+	ReleaseImage();
+	m_sharedImage = newImage;
 
 	return true;
 }
@@ -561,7 +573,6 @@ bool NzImage::FlipHorizontally()
 
 	return true;
 }
-
 
 bool NzImage::FlipVertically()
 {
