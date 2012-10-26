@@ -43,8 +43,6 @@ class NzMatrix4
 		NzMatrix4 Concatenate(const NzMatrix4& matrix) const;
 		NzMatrix4 ConcatenateAffine(const NzMatrix4& matrix) const;
 
-		void Destroy();
-
 		T GetDeterminant() const;
 		NzMatrix4 GetInverse(bool* succeeded = nullptr) const;
 		NzMatrix4 GetInverseAffine(bool* succeeded = nullptr) const;
@@ -93,6 +91,8 @@ class NzMatrix4
 		NzVector4<T> Transform(const NzVector4<T>& vector) const;
 
 		NzMatrix4& Transpose();
+
+		NzMatrix4& Undefine();
 
 		operator NzString() const;
 
