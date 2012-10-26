@@ -99,12 +99,6 @@ NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix) const
 }
 
 template<typename T>
-void NzMatrix4<T>::Destroy()
-{
-	ReleaseMatrix();
-}
-
-template<typename T>
 T NzMatrix4<T>::GetDeterminant() const
 {
 	#if NAZARA_MATH_SAFE
@@ -836,12 +830,22 @@ NzMatrix4<T>& NzMatrix4<T>::Transpose()
 	}
 	#endif
 
+	EnsureOwnership();
+
 	std::swap(m_sharedMatrix->m12, m_sharedMatrix->m21);
 	std::swap(m_sharedMatrix->m13, m_sharedMatrix->m31);
 	std::swap(m_sharedMatrix->m14, m_sharedMatrix->m41);
 	std::swap(m_sharedMatrix->m23, m_sharedMatrix->m32);
 	std::swap(m_sharedMatrix->m24, m_sharedMatrix->m42);
 	std::swap(m_sharedMatrix->m34, m_sharedMatrix->m43);
+
+	return *this;
+}
+
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::Undefine()
+{
+	ReleaseMatrix();
 
 	return *this;
 }
