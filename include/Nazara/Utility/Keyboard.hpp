@@ -10,6 +10,7 @@
 #define NAZARA_KEYBOARD_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/String.hpp>
 
 class NAZARA_API NzKeyboard
 {
@@ -159,6 +160,7 @@ class NAZARA_API NzKeyboard
 			Count
 		};
 
+		static NzString GetKeyName(Key key);
 		static bool IsKeyPressed(Key key);
 };
 
