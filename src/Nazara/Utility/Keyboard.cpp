@@ -14,6 +14,11 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
+NzString NzKeyboard::GetKeyName(Key key)
+{
+	return NzEventImpl::GetKeyName(key);
+}
+
 bool NzKeyboard::IsKeyPressed(Key key)
 {
 	return NzEventImpl::IsKeyPressed(key);
