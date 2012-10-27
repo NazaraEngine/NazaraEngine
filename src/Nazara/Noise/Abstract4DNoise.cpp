@@ -7,17 +7,14 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Noise/Abstract4DNoise.hpp>
 
-template <typename T>
-T NzAbstract3DNoise<T>::GetBasicValue(T x, T y, T z)
+float NzAbstract4DNoise::GetBasicValue(float x, float y, float z, float w)
 {
-    return this->GetValue(x,y,z,this->m_resolution);
+    return this->GetValue(x,y,z,w,m_resolution);
 }
 
-template <typename T>
-T NzAbstract3DNoise<T>::GetMappedValue(T x, T y, T z)
+float NzAbstract4DNoise::GetMappedValue(float x, float y, float z, float w)
 {
-    return (this->GetValue(x,y,z,this->m_resolution) + this->m_offset) * this->m_gain ;
+    return (this->GetValue(x,y,z,w,m_resolution) + m_offset) * m_gain ;
 }
-
-#include <Nazara/Core/DebugOff.hpp>

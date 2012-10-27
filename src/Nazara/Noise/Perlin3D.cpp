@@ -4,12 +4,12 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Perlin3D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-template <typename T>
-NzPerlin3D<T>::NzPerlin3D()
+NzPerlin3D::NzPerlin3D()
 {
-    int grad3Temp[][3] = {
+    float grad3Temp[][3] = {
         {1,1,0},{-1,1,0},{1,-1,0},{-1,-1,0},
         {1,0,1},{-1,0,1},{1,0,-1},{-1,0,-1},
         {0,1,1},{0,-1,1},{0,1,-1},{0,-1,-1},
@@ -21,30 +21,29 @@ NzPerlin3D<T>::NzPerlin3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
-template <typename T>
-T NzPerlin3D<T>::GetValue(T x, T y, T z, T resolution)
+float NzPerlin3D::GetValue(float x, float y, float z, float resolution)
 {
     x /= resolution;
     y /= resolution;
     z /= resolution;
 
-    x0 = this->fastfloor(x);
-    y0 = this->fastfloor(y);
-    z0 = this->fastfloor(z);
+    x0 = fastfloor(x);
+    y0 = fastfloor(y);
+    z0 = fastfloor(z);
 
     ii = x0 & 255;
     jj = y0 & 255;
     kk = z0 & 255;
 
-    gi0 = this->perm[ii +     this->perm[jj +     this->perm[kk]]] & 15;
-    gi1 = this->perm[ii + 1 + this->perm[jj +     this->perm[kk]]] & 15;
-    gi2 = this->perm[ii +     this->perm[jj + 1 + this->perm[kk]]] & 15;
-    gi3 = this->perm[ii + 1 + this->perm[jj + 1 + this->perm[kk]]] & 15;
+    gi0 = perm[ii +     perm[jj +     perm[kk]]] & 15;
+    gi1 = perm[ii + 1 + perm[jj +     perm[kk]]] & 15;
+    gi2 = perm[ii +     perm[jj + 1 + perm[kk]]] & 15;
+    gi3 = perm[ii + 1 + perm[jj + 1 + perm[kk]]] & 15;
 
-    gi4 = this->perm[ii +     this->perm[jj +     this->perm[kk + 1]]] & 15;
-    gi5 = this->perm[ii + 1 + this->perm[jj +     this->perm[kk + 1]]] & 15;
-    gi6 = this->perm[ii +     this->perm[jj + 1 + this->perm[kk + 1]]] & 15;
-    gi7 = this->perm[ii + 1 + this->perm[jj + 1 + this->perm[kk + 1]]] & 15;
+    gi4 = perm[ii +     perm[jj +     perm[kk + 1]]] & 15;
+    gi5 = perm[ii + 1 + perm[jj +     perm[kk + 1]]] & 15;
+    gi6 = perm[ii +     perm[jj + 1 + perm[kk + 1]]] & 15;
+    gi7 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] & 15;
 
     temp.x = x-x0;
     temp.y = y-y0;
@@ -88,5 +87,3 @@ T NzPerlin3D<T>::GetValue(T x, T y, T z, T resolution)
 
     return Li5 + Cz*(Li6-Li5);
 }
-
-#include <Nazara/Core/DebugOff.hpp>
