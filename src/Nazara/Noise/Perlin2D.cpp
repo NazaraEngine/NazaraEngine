@@ -4,12 +4,12 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Perlin2D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-template <typename T>
-NzPerlin2D<T>::NzPerlin2D()
+NzPerlin2D::NzPerlin2D()
 {
-    T grad2Temp[][2] = {{1,1},{-1,1},{1,-1},{-1,-1},
+    int grad2Temp[][2] = {{1,1},{-1,1},{1,-1},{-1,-1},
                         {1,0},{-1,0},{0,1},{0,-1}};
 
     for(int i(0) ; i < 8 ; ++i)
@@ -17,22 +17,21 @@ NzPerlin2D<T>::NzPerlin2D()
             gradient2[i][j] = grad2Temp[i][j];
 }
 
-template <typename T>
-T NzPerlin2D<T>::GetValue(T x, T y, T resolution)
+float NzPerlin2D::GetValue(float x, float y, float resolution)
 {
     x *= resolution;
     y *= resolution;
 
-    x0 = this->fastfloor(x);
-    y0 = this->fastfloor(y);
+    x0 = fastfloor(x);
+    y0 = fastfloor(y);
 
     ii = x0 & 255;
     jj = y0 & 255;
 
-    gi0 = this->perm[ii +     this->perm[jj]] & 7;
-    gi1 = this->perm[ii + 1 + this->perm[jj]] & 7;
-    gi2 = this->perm[ii +     this->perm[jj + 1]] & 7;
-    gi3 = this->perm[ii + 1 + this->perm[jj + 1]] & 7;
+    gi0 = perm[ii +     perm[jj]] & 7;
+    gi1 = perm[ii + 1 + perm[jj]] & 7;
+    gi2 = perm[ii +     perm[jj + 1]] & 7;
+    gi3 = perm[ii + 1 + perm[jj + 1]] & 7;
 
     temp.x = x-x0;
     temp.y = y-y0;
@@ -56,5 +55,3 @@ T NzPerlin2D<T>::GetValue(T x, T y, T resolution)
 
     return Li1 + Cy*(Li2-Li1);
 }
-
-#include <Nazara/Core/DebugOff.hpp>

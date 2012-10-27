@@ -4,25 +4,21 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/Debug.hpp>
-
+#include <Nazara/Noise/FBM2D.hpp>
 #include <Nazara/Noise/Perlin2D.hpp>
 #include <Nazara/Noise/Simplex2D.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
-#include <iostream>
-using namespace std;
-
-template <typename T>
-NzFBM2D<T>::NzFBM2D(nzNoises source, int seed) : NzComplexNoiseBase<T>()
+NzFBM2D::NzFBM2D(nzNoises source, int seed)
 {
     switch(source)
     {
         case PERLIN:
-            m_source = new NzPerlin2D<T>;
+            m_source = new NzPerlin2D();
         break;
 
         default:
-            m_source = new NzSimplex2D<T>;
+            m_source = new NzSimplex2D();
         break;
     }
     m_source->SetNewSeed(seed);
@@ -30,8 +26,7 @@ NzFBM2D<T>::NzFBM2D(nzNoises source, int seed) : NzComplexNoiseBase<T>()
     m_noiseType = source;
 }
 
-template <typename T>
-T NzFBM2D<T>::GetValue(T x, T y, T resolution)
+float NzFBM2D::GetValue(float x, float y, float resolution)
 {
     this->RecomputeExponentArray();
 
@@ -45,26 +40,23 @@ T NzFBM2D<T>::GetValue(T x, T y, T resolution)
     //cout<<m_value<<endl;//"|"<<this->m_sum<<endl;
     //m_remainder = this->m_octaves - static_cast<int>(this->m_octaves);
 
-    //if(!NzNumberEquals(remainder, static_cast<T>(0.0)))
+    //if(!NzNumberEquals(remainder, static_cast<float>(0.0)))
       //  m_value += remainder * Get2DSimplexNoiseValue(x,y,resolution) * exponent_array[(int)m_octaves-1];
 
     //0.65 is an experimental value to make the noise stick closer to [-1 , 1]
     return m_value / (this->m_sum * 0.65);
 }
 
-template <typename T>
-NzFBM2D<T>::~NzFBM2D()
+NzFBM2D::~NzFBM2D()
 {
     switch(m_noiseType)
     {
         case PERLIN:
-            delete dynamic_cast<NzPerlin2D<T>*>(m_source);
+            delete dynamic_cast<NzPerlin2D*>(m_source);
         break;
 
         default:
-            delete dynamic_cast<NzSimplex2D<T>*>(m_source);
+            delete dynamic_cast<NzSimplex2D*>(m_source);
         break;
     }
 }
-
-#include <Nazara/Core/DebugOff.hpp>

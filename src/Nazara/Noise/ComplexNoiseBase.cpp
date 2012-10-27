@@ -6,12 +6,9 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Noise/ComplexNoiseBase.hpp>
 
-#include <iostream>
-using namespace std;
-
-template <typename T>
-NzComplexNoiseBase<T>::NzComplexNoiseBase()
+NzComplexNoiseBase::NzComplexNoiseBase()
 {
     m_parametersModified = true;
     m_lacunarity = 5.0f;
@@ -24,27 +21,28 @@ NzComplexNoiseBase<T>::NzComplexNoiseBase()
     }
 }
 
-template <typename T>
-T NzComplexNoiseBase<T>::GetLacunarity() const
+const std::array<float, 30>& NzComplexNoiseBase::GetExponentArray() const
+{
+    return exponent_array;
+}
+
+float NzComplexNoiseBase::GetLacunarity() const
 {
 
     return m_lacunarity;
 }
 
-template <typename T>
-T NzComplexNoiseBase<T>::GetHurstParameter() const
+float NzComplexNoiseBase::GetHurstParameter() const
 {
     return m_hurst;
 }
 
-template <typename T>
-T NzComplexNoiseBase<T>::GetOctaveNumber() const
+float NzComplexNoiseBase::GetOctaveNumber() const
 {
     return m_octaves;
 }
 
-template <typename T>
-void NzComplexNoiseBase<T>::SetLacunarity(T lacunarity)
+void NzComplexNoiseBase::SetLacunarity(float lacunarity)
 {
    // if(lacunarity != m_lacunarity)
     //{
@@ -53,8 +51,7 @@ void NzComplexNoiseBase<T>::SetLacunarity(T lacunarity)
     //}
 }
 
-template <typename T>
-void NzComplexNoiseBase<T>::SetHurstParameter(T h)
+void NzComplexNoiseBase::SetHurstParameter(float h)
 {
     //if(h != m_hurst)
     //{
@@ -63,8 +60,7 @@ void NzComplexNoiseBase<T>::SetHurstParameter(T h)
     //}
 }
 
-template <typename T>
-void NzComplexNoiseBase<T>::SetOctavesNumber(T octaves)
+void NzComplexNoiseBase::SetOctavesNumber(float octaves)
 {
     if(octaves <= 30.0f)
         m_octaves = octaves;
@@ -75,28 +71,22 @@ void NzComplexNoiseBase<T>::SetOctavesNumber(T octaves)
 
 }
 
-template <typename T>
-void NzComplexNoiseBase<T>::RecomputeExponentArray()
+void NzComplexNoiseBase::RecomputeExponentArray()
 {
     if(m_parametersModified)
     {
-        cout<<"Recomputing exponent array"<<endl;
         float frequency = 1.0;
         m_sum = 0.f;
         for (int i(0) ; i < static_cast<int>(m_octaves) ; ++i)
         {
 
             exponent_array[i] = std::pow( frequency, -m_hurst );
-            cout<<"expo["<<i<<"] : "<<exponent_array[i]<<endl;
             frequency *= m_lacunarity;
 
             //m_sum += 1.0f/exponent_array[i];//A tester
             m_sum += exponent_array[i];
 
         }
-        cout<<"sum = "<<m_sum<<endl;
         m_parametersModified = false;
     }
 }
-
-#include <Nazara/Core/DebugOff.hpp>

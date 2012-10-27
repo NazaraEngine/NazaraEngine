@@ -8,48 +8,41 @@
 #include <Nazara/Noise/Config.hpp>
 #include <stdexcept>
 #include <Nazara/Noise/Debug.hpp>
+#include <Nazara/Noise/MappedNoiseBase.hpp>
 
-
-template <typename T>
-NzMappedNoiseBase<T>::NzMappedNoiseBase() : m_gain(1), m_offset(0), m_resolution(30)
+NzMappedNoiseBase::NzMappedNoiseBase() : m_gain(1.f), m_offset(0.f), m_resolution(30.f)
 {
 
 }
 
-template <typename T>
-T NzMappedNoiseBase<T>::GetGain() const
+float NzMappedNoiseBase::GetGain() const
 {
     return m_gain;
 }
 
-template <typename T>
-T NzMappedNoiseBase<T>::GetOffset() const
+float NzMappedNoiseBase::GetOffset() const
 {
     return m_offset;
 }
 
-template <typename T>
-T NzMappedNoiseBase<T>::GetResolution() const
+float NzMappedNoiseBase::GetResolution() const
 {
     return m_resolution;
 }
 
-template <typename T>
-void NzMappedNoiseBase<T>::SetGain(T gain)
+void NzMappedNoiseBase::SetGain(float gain)
 {
     m_gain = gain;
 }
 
-template <typename T>
-void NzMappedNoiseBase<T>::SetOffset(T offset)
+void NzMappedNoiseBase::SetOffset(float offset)
 {
     m_offset = offset;
 }
 
-template <typename T>
-void NzMappedNoiseBase<T>::SetResolution(T resolution)
+void NzMappedNoiseBase::SetResolution(float resolution)
 {
-    if (NzNumberEquals(resolution, static_cast<T>(0.0)))
+    if (NzNumberEquals(resolution, 0.f))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << " : resolution cannot be 0.0f";
@@ -58,5 +51,3 @@ void NzMappedNoiseBase<T>::SetResolution(T resolution)
 	}
     m_resolution = resolution;
 }
-
-#include <Nazara/Core/DebugOff.hpp>
