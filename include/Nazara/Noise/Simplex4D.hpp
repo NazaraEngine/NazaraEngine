@@ -12,35 +12,28 @@
 #include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
-template <typename T> class NzSimplex4D : public NzAbstract4DNoise<T>
+class NAZARA_API NzSimplex4D : public NzAbstract4DNoise
 {
     public:
         NzSimplex4D();
-        T GetValue(T x, T y, T z, T w, T resolution);
+        float GetValue(float x, float y, float z, float w, float resolution);
         ~NzSimplex4D() = default;
     protected:
     private:
         int ii,jj,kk,ll;
         int gi0,gi1,gi2,gi3,gi4;
         NzVector4i skewedCubeOrigin,off1,off2,off3;
-        T n1,n2,n3,n4,n5;
-        T c1,c2,c3,c4,c5,c6;
-        T gradient4[32][4];
         int lookupTable4D[64][4];
         int c;
-        T UnskewCoeff4D;
-        T SkewCoeff4D;
-        T sum;
-        NzVector4<T> unskewedCubeOrigin, unskewedDistToOrigin;
-        NzVector4<T> d1,d2,d3,d4,d5;
-
-
+        float n1,n2,n3,n4,n5;
+        float c1,c2,c3,c4,c5,c6;
+        float gradient4[32][4];
+        float UnskewCoeff4D;
+        float SkewCoeff4D;
+        float sum;
+        NzVector4<float> unskewedCubeOrigin, unskewedDistToOrigin;
+        NzVector4<float> d1,d2,d3,d4,d5;
 };
-
-typedef NzSimplex4D<float>  NzSimplex4Df;
-typedef NzSimplex4D<double> NzSimplex4Dd;
-
-#include <Nazara/Noise/Simplex4D.inl>
 
 #endif // SIMPLEX4D_H
 

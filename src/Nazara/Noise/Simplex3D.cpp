@@ -4,10 +4,10 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Simplex3D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-template <typename T>
-NzSimplex3D<T>::NzSimplex3D()
+NzSimplex3D::NzSimplex3D()
 {
     SkewCoeff3D = 1/3.;
     UnskewCoeff3D = 1/6.;
@@ -21,17 +21,16 @@ NzSimplex3D<T>::NzSimplex3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
-template <typename T>
-T NzSimplex3D<T>::GetValue(T x, T y, T z, T resolution)
+float NzSimplex3D::GetValue(float x, float y, float z, float resolution)
 {
     x *= resolution;
     y *= resolution;
     z *= resolution;
 
     sum = (x + y + z) * SkewCoeff3D;
-    skewedCubeOrigin.x = this->fastfloor(x + sum);
-    skewedCubeOrigin.y = this->fastfloor(y + sum);
-    skewedCubeOrigin.z = this->fastfloor(z + sum);
+    skewedCubeOrigin.x = fastfloor(x + sum);
+    skewedCubeOrigin.y = fastfloor(y + sum);
+    skewedCubeOrigin.z = fastfloor(z + sum);
 
     sum = (skewedCubeOrigin.x + skewedCubeOrigin.y + skewedCubeOrigin.z) * UnskewCoeff3D;
     unskewedCubeOrigin.x = skewedCubeOrigin.x - sum;
@@ -121,10 +120,10 @@ T NzSimplex3D<T>::GetValue(T x, T y, T z, T resolution)
     jj = skewedCubeOrigin.y & 255;
     kk = skewedCubeOrigin.z & 255;
 
-    gi0 = this->perm[ii +          this->perm[jj +          this->perm[kk         ]]] % 12;
-    gi1 = this->perm[ii + off1.x + this->perm[jj + off1.y + this->perm[kk + off1.z]]] % 12;
-    gi2 = this->perm[ii + off2.x + this->perm[jj + off2.y + this->perm[kk + off2.z]]] % 12;
-    gi3 = this->perm[ii + 1 +      this->perm[jj + 1 +      this->perm[kk + 1     ]]] % 12;
+    gi0 = perm[ii +          perm[jj +          perm[kk         ]]] % 12;
+    gi1 = perm[ii + off1.x + perm[jj + off1.y + perm[kk + off1.z]]] % 12;
+    gi2 = perm[ii + off2.x + perm[jj + off2.y + perm[kk + off2.z]]] % 12;
+    gi3 = perm[ii + 1 +      perm[jj + 1 +      perm[kk + 1     ]]] % 12;
 
     c1 = 0.6 - d1.x * d1.x - d1.y * d1.y - d1.z * d1.z;
     c2 = 0.6 - d2.x * d2.x - d2.y * d2.y - d2.z * d2.z;
@@ -153,5 +152,3 @@ T NzSimplex3D<T>::GetValue(T x, T y, T z, T resolution)
 
     return (n1+n2+n3+n4)*32;
 }
-
-#include <Nazara/Core/DebugOff.hpp>
