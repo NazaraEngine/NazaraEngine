@@ -46,7 +46,9 @@ void NzSubMesh::Animate(unsigned int frameA, unsigned int frameB, float interpol
 		NazaraError("Frame B is out of range (" + NzString::Number(frameB) + " >= " + NzString::Number(frameCount) + ')');
 		return;
 	}
+	#endif
 
+	#ifdef NAZARA_DEBUG
 	if (interpolation < 0.f || interpolation > 1.f)
 	{
 		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
