@@ -9,6 +9,7 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 
