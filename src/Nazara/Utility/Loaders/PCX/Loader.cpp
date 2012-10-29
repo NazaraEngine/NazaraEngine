@@ -37,7 +37,7 @@ namespace
 		nzUInt8 padding[54];
 	};
 
-	bool NzLoader_PCX_Check(NzInputStream& stream, const NzImageParams& parameters)
+	bool Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -48,7 +48,7 @@ namespace
 		return manufacturer == 0x0a;
 	}
 
-	bool NzLoader_PCX_Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
+	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -59,7 +59,7 @@ namespace
 			return false;
 		}
 
-		#if defined(NAZARA_BIG_ENDIAN)
+		#ifdef NAZARA_BIG_ENDIAN
 		// Les fichiers PCX sont en little endian
 		NzByteSwap(&header.xmin, sizeof(nzUInt16));
 		NzByteSwap(&header.ymin, sizeof(nzUInt16));
@@ -337,10 +337,10 @@ namespace
 
 void NzLoaders_PCX_Register()
 {
-	NzImageLoader::RegisterLoader("pcx", NzLoader_PCX_Check, NzLoader_PCX_Load);
+	NzImageLoader::RegisterLoader("pcx", Check, Load);
 }
 
 void NzLoaders_PCX_Unregister()
 {
-	NzImageLoader::UnregisterLoader("pcx", NzLoader_PCX_Check, NzLoader_PCX_Load);
+	NzImageLoader::UnregisterLoader("pcx", Check, Load);
 }
