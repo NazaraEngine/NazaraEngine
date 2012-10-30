@@ -14,6 +14,14 @@
 #include <pthread.h>
 #endif
 
+// C'est malheureux mais le spécificateur %z de (f)printf n'est pas supporté partout
+#ifdef NAZARA_COMPILER_MINGW
+	#define SIZE_T_SPECIFIER "%u"
+#else
+	#define SIZE_T_SPECIFIER "%zu" // Standard
+#endif
+// Le seul fichier n'ayant pas à inclure Debug.hpp
+
 namespace
 {
 	struct Block
@@ -76,7 +84,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	{
 		// Pas d'information de temps (Car nécessitant une allocation)
 		FILE* log = std::fopen(MLTFileName, "a");
-		std::fprintf(log, "Failed to allocate memory (%zu bytes)\n", size);
+		std::fprintf(log, "Failed to allocate memory (" SIZE_T_SPECIFIER " bytes)\n", size);
 		std::fclose(log);
 
 		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
@@ -232,9 +240,9 @@ void NzMemoryManager::Uninitialize()
 			count++;
 			totalSize += ptr->size;
 			if (ptr->file)
-				std::fprintf(log, "-0x%p -> %zu bytes allocated at %s:%u\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size, ptr->file, ptr->line);
+				std::fprintf(log, "-0x%p -> " SIZE_T_SPECIFIER " bytes allocated at %s:%u\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size, ptr->file, ptr->line);
 			else
-				std::fprintf(log, "-0x%p -> %zu bytes allocated at unknown position\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size);
+				std::fprintf(log, "-0x%p -> " SIZE_T_SPECIFIER " bytes allocated at unknown position\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size);
 
 			void* pointer = ptr;
 			ptr = ptr->next;
