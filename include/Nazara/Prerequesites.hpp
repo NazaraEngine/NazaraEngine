@@ -37,20 +37,32 @@
 
 ///TODO: Rajouter des tests d'identification de compilateurs
 // NAZARA_THREADLOCAL n'existe qu'en attendant le support complet de thread_local
-#if defined(_MSC_VER)
-	#define NAZARA_COMPILER_MSVC
-	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
-	#define NAZARA_FUNCTION __FUNCSIG__
+#if defined(__BORLANDC__)
+	#define NAZARA_COMPILER_BORDLAND
+	#define NAZARA_DEPRECATED(txt)
+	#define NAZARA_FUNCTION __FUNC__
 	#define NAZARA_THREADLOCAL __declspec(thread)
-#elif defined(__GNUC__)
+#elif defined(__clang__)
+	#define NAZARA_COMPILER_CLANG
+	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
+	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
+	#define NAZARA_THREADLOCAL __declspec(thread)
+#elif defined(__GNUC__) || defined(__MINGW32__)
 	#define NAZARA_COMPILER_GCC
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 	#define NAZARA_THREADLOCAL __thread
-#elif defined(__BORLANDC__)
-	#define NAZARA_COMPILER_BORDLAND
-	#define NAZARA_DEPRECATED(txt)
-	#define NAZARA_FUNCTION __FUNC__
+
+	#ifdef __MINGW32__
+		#define NAZARA_COMPILER_MINGW
+		#ifdef __MINGW64_VERSION_MAJOR
+			#define NAZARA_COMPILER_MINGW_W64
+		#endif
+	#endif
+#elif defined(_MSC_VER)
+	#define NAZARA_COMPILER_MSVC
+	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
+	#define NAZARA_FUNCTION __FUNCSIG__
 	#define NAZARA_THREADLOCAL __declspec(thread)
 #else
 	#define NAZARA_COMPILER_UNKNOWN
