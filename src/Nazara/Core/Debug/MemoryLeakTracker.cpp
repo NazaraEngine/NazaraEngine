@@ -76,7 +76,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	{
 		// Pas d'information de temps (Car nécessitant une allocation)
 		FILE* log = std::fopen(MLTFileName, "a");
-		std::fprintf(log, "Failed to allocate memory (%d bytes)\n", size);
+		std::fprintf(log, "Failed to allocate memory (%zu bytes)\n", size);
 		std::fclose(log);
 
 		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
@@ -126,9 +126,9 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 		if (nextFreeFile)
 		{
 			if (multi)
-				std::fprintf(log, "%s Warning: delete[] after new at %s:%d\n", time, nextFreeFile, nextFreeLine);
+				std::fprintf(log, "%s Warning: delete[] after new at %s:%u\n", time, nextFreeFile, nextFreeLine);
 			else
-				std::fprintf(log, "%s Warning: delete after new[] at %s:%d\n", time, nextFreeFile, nextFreeLine);
+				std::fprintf(log, "%s Warning: delete after new[] at %s:%u\n", time, nextFreeFile, nextFreeLine);
 		}
 		else
 		{
@@ -232,16 +232,16 @@ void NzMemoryManager::Uninitialize()
 			count++;
 			totalSize += ptr->size;
 			if (ptr->file)
-				std::fprintf(log, "-0x%p -> %d bytes allocated at %s:%d\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size, ptr->file, ptr->line);
+				std::fprintf(log, "-0x%p -> %zu bytes allocated at %s:%u\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size, ptr->file, ptr->line);
 			else
-				std::fprintf(log, "-0x%p -> %d bytes allocated at unknown position\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size);
+				std::fprintf(log, "-0x%p -> %zu bytes allocated at unknown position\n", reinterpret_cast<char*>(ptr)+sizeof(Block), ptr->size);
 
 			void* pointer = ptr;
 			ptr = ptr->next;
 			std::free(pointer);
 		}
 
-		std::fprintf(log, "\n%d blocks leaked (%d bytes)", count, totalSize);
+		std::fprintf(log, "\n%u blocks leaked (%u bytes)", count, totalSize);
 	}
 
 	std::free(time);
