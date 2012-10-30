@@ -232,9 +232,9 @@ void NzMemoryManager::Uninitialize()
 		std::fprintf(log, "%s ==============================\n\n", time);
 		std::fputs("Leak list:\n", log);
 
+		std::size_t totalSize = 0;
 		Block* ptr = ptrList.next;
 		unsigned int count = 0;
-		unsigned int totalSize = 0;
 		while (ptr != &ptrList)
 		{
 			count++;
@@ -249,7 +249,7 @@ void NzMemoryManager::Uninitialize()
 			std::free(pointer);
 		}
 
-		std::fprintf(log, "\n%u blocks leaked (%u bytes)", count, totalSize);
+		std::fprintf(log, "\n%u blocks leaked (" SIZE_T_SPECIFIER " bytes)", count, totalSize);
 	}
 
 	std::free(time);
