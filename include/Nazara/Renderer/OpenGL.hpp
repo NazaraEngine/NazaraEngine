@@ -169,6 +169,7 @@ NAZARA_API extern PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv;
 NAZARA_API extern PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv;
 NAZARA_API extern PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv;
 NAZARA_API extern PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation;
+NAZARA_API extern PFNGLLINEWIDTHPROC                glLineWidth;
 NAZARA_API extern PFNGLLINKPROGRAMPROC              glLinkProgram;
 NAZARA_API extern PFNGLMAPBUFFERPROC                glMapBuffer;
 NAZARA_API extern PFNGLMAPBUFFERRANGEPROC           glMapBufferRange;

@@ -278,6 +278,7 @@ namespace NzOpenGL
 			glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(LoadEntry("glGetTexParameterfv"));
 			glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(LoadEntry("glGetTexParameteriv"));
 			glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
+			glLineWidth = reinterpret_cast<PFNGLLINEWIDTHPROC>(LoadEntry("glLineWidth"));
 			glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(LoadEntry("glLinkProgram"));
 			glMapBuffer = reinterpret_cast<PFNGLMAPBUFFERPROC>(LoadEntry("glMapBuffer"));
 			glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(LoadEntry("glPixelStorei"));
@@ -956,6 +957,7 @@ PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv   = nullptr;
 PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv        = nullptr;
 PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv        = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation       = nullptr;
+PFNGLLINEWIDTHPROC                glLineWidth                = nullptr;
 PFNGLLINKPROGRAMPROC              glLinkProgram              = nullptr;
 PFNGLMAPBUFFERPROC                glMapBuffer                = nullptr;
 PFNGLMAPBUFFERRANGEPROC           glMapBufferRange           = nullptr;
