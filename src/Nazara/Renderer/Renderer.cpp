@@ -250,6 +250,14 @@ unsigned int NzRenderer::GetMaxTextureUnits()
 	return s_maxTextureUnit;
 }
 
+float NzRenderer::GetPointSize()
+{
+	float pointSize;
+	glGetFloatv(GL_POINT_SIZE, &pointSize);
+
+	return pointSize;
+}
+
 NzShader* NzRenderer::GetShader()
 {
 	return s_shader;
@@ -512,6 +520,19 @@ void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 			s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
 			break;
 	}
+}
+
+void NzRenderer::SetPointSize(float size)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (size <= 0.f)
+	{
+		NazaraError("Size must be over zero");
+		return;
+	}
+	#endif
+
+	glPointSize(size);
 }
 
 bool NzRenderer::SetShader(NzShader* shader)
@@ -856,15 +877,15 @@ bool NzRenderer::EnsureStateUpdate()
 			NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
 			vertexBufferImpl->Bind();
 
-			const nzUInt8* buffer = reinterpret_cast<const nzUInt8*>(s_vertexBuffer->GetPointer());
-
+			const nzUInt8* buffer = static_cast<const nzUInt8*>(s_vertexBuffer->GetPointer());
 			unsigned int stride = s_vertexDeclaration->GetStride(nzElementStream_VertexData);
 			for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
 			{
-				const NzVertexElement* element = s_vertexDeclaration->GetElement(nzElementStream_VertexData, static_cast<nzElementUsage>(i));
-
-				if (element)
+				nzElementUsage usage = static_cast<nzElementUsage>(i);
+				if (s_vertexDeclaration->HasElement(nzElementStream_VertexData, usage))
 				{
+					const NzVertexElement* element = s_vertexDeclaration->GetElement(nzElementStream_VertexData, usage);
+
 					glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 					glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
 										  NzVertexDeclaration::GetElementCount(element->type),
