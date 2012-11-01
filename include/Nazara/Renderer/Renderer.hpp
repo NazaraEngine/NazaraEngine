@@ -41,6 +41,7 @@ class NAZARA_API NzRenderer
 		static unsigned int GetMaxAnisotropyLevel();
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
+		static float GetPointSize();
 		static NzShader* GetShader();
 		static NzRenderTarget* GetTarget();
 		static NzRectui GetViewport();
@@ -60,6 +61,7 @@ class NAZARA_API NzRenderer
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static bool SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
+		static void SetPointSize(float size);
 		static bool SetShader(NzShader* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
 		static void SetStencilFailOperation(nzStencilOperation failOperation);
