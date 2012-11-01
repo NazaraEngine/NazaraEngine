@@ -196,6 +196,14 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 			break;
 	}
 }
+
+float NzRenderer::GetLineWidth()
+{
+	float lineWidth;
+	glGetFloatv(GL_LINE_WIDTH, &lineWidth);
+
+	return lineWidth;
+}
 /*
 NzMatrix4f NzRenderer::GetMatrix(nzMatrixCombination combination)
 {
@@ -503,6 +511,19 @@ bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 	}
 
 	return true;
+}
+
+void NzRenderer::SetLineWidth(float width)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (width <= 0.f)
+	{
+		NazaraError("Width must be over zero");
+		return;
+	}
+	#endif
+
+	glLineWidth(width);
 }
 
 void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
