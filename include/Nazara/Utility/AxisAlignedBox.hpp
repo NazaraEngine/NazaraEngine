@@ -38,6 +38,8 @@ class NAZARA_API NzAxisAlignedBox
 
 		NzString ToString() const;
 
+		operator NzString() const;
+
 		static NzAxisAlignedBox Lerp(const NzAxisAlignedBox& from, const NzAxisAlignedBox& to, float interpolation);
 
 		static const NzAxisAlignedBox Infinite;
