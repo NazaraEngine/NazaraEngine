@@ -155,6 +155,11 @@ NzString NzAxisAlignedBox::ToString() const
 	return "NzAxisAlignedBox(ERROR)";
 }
 
+NzAxisAlignedBox::operator NzString() const
+{
+	return ToString();
+}
+
 NzAxisAlignedBox NzAxisAlignedBox::Lerp(const NzAxisAlignedBox& from, const NzAxisAlignedBox& to, float interpolation)
 {
 	#ifdef NAZARA_DEBUG
