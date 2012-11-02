@@ -592,6 +592,10 @@ bool NzRenderer::SetShader(NzShader* shader)
 		s_matrixLocation[nzMatrixCombination_ViewProj] = shader->GetUniformLocation("ViewProjMatrix");
 		s_matrixLocation[nzMatrixCombination_WorldView] = shader->GetUniformLocation("WorldViewMatrix");
 		s_matrixLocation[nzMatrixCombination_WorldViewProj] = shader->GetUniformLocation("WorldViewProjMatrix");
+
+		///FIXME: Peut VRAIMENT être optimisé
+		for (unsigned int i = 0; i < totalMatrixCount; ++i)
+			s_matrixUpdated[i] = false;
 	}
 
 	s_shader = shader;
