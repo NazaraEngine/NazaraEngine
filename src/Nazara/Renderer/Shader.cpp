@@ -214,6 +214,11 @@ bool NzShader::IsLoaded(nzShaderType type) const
 	return m_impl->IsLoaded(type);
 }
 
+bool NzShader::IsValid() const
+{
+	return m_impl != nullptr;
+}
+
 bool NzShader::Load(nzShaderType type, const NzString& source)
 {
 	#if NAZARA_RENDERER_SAFE
