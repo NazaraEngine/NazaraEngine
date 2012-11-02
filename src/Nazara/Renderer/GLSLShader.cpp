@@ -97,9 +97,9 @@ bool NzGLSLShader::Compile()
 		if (length > 1)
 		{
 			m_log.Clear(true);
-			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
+			m_log.Reserve(length+15-2); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Linkage error: ");
-			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log
+			m_log.Resize(length+15-2); // Extension du buffer d'écriture pour ajouter le log
 
 			glGetProgramInfoLog(m_program, length-1, nullptr, &m_log[19]);
 		}
@@ -264,9 +264,9 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 		if (length > 1)
 		{
 			m_log.Clear(true);
-			m_log.Reserve(length+19-1); // La taille retournée est celle du buffer (Avec caractère de fin)
+			m_log.Reserve(length+19-2); // La taille retournée est celle du buffer (Avec caractère de fin)
 			m_log.Prepend("Compilation error: ");
-			m_log.Resize(length+19-1); // Extension du buffer d'écriture pour ajouter le log
+			m_log.Resize(length+19-2); // Extension du buffer d'écriture pour ajouter le log
 
 			glGetShaderInfoLog(shader, length-1, nullptr, &m_log[19]);
 		}
