@@ -43,6 +43,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		bool IsCompiled() const;
 		bool IsLoaded(nzShaderType type) const;
+		bool IsValid() const;
 
 		bool Load(nzShaderType type, const NzString& source);
 		bool LoadFromFile(nzShaderType type, const NzString& source);

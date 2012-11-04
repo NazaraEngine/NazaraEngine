@@ -34,7 +34,7 @@ int main()
 	sound.EnableLooping(true);
 
 	// La source du son se situe vers la gauche (Et un peu en avant)
-	sound.SetPosition(NzVector3f::Left()*50.f + NzVector3f::Forward()*5.);
+	sound.SetPosition(NzVector3f::Left()*50.f + NzVector3f::Forward()*5.f);
 
 	// Et possède une vitesse de 10 par seconde vers la droite
 	sound.SetVelocity(NzVector3f::Left()*-10.f);

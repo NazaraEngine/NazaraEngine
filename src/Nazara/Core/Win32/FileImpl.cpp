@@ -14,10 +14,6 @@ m_endOfFileUpdated(true)
 	NazaraUnused(parent);
 }
 
-NzFileImpl::~NzFileImpl()
-{
-}
-
 void NzFileImpl::Close()
 {
 	CloseHandle(m_handle);

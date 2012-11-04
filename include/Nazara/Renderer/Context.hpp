@@ -9,6 +9,7 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 
@@ -19,7 +20,7 @@ class NAZARA_API NzContext : public NzResource
 	friend NzContextImpl;
 
 	public:
-		NzContext();
+		NzContext() = default;
 		~NzContext();
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());

@@ -18,7 +18,7 @@ class NzDirectoryImpl : NzNonCopyable
 {
 	public:
 		NzDirectoryImpl(const NzDirectory* parent);
-		~NzDirectoryImpl();
+		~NzDirectoryImpl() = default;
 
 		void Close();
 

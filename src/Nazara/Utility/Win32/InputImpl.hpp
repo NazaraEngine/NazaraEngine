@@ -8,12 +8,14 @@
 #define NAZARA_INPUTIMPL_HPP
 
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 
 class NzEventImpl
 {
 	public:
+		static NzString GetKeyName(NzKeyboard::Key key);
 		static NzVector2i GetMousePosition();
 		static NzVector2i GetMousePosition(const NzWindow& relativeTo);
 		static bool IsKeyPressed(NzKeyboard::Key key);
