@@ -38,11 +38,14 @@ class NzMatrix4
 		NzMatrix4(NzMatrix4&& matrix) noexcept;
 		~NzMatrix4();
 
+		NzMatrix4& ApplyScale(const NzVector3<T>& scale);
+
 		NzMatrix4 Concatenate(const NzMatrix4& matrix) const;
 		NzMatrix4 ConcatenateAffine(const NzMatrix4& matrix) const;
 
 		T GetDeterminant() const;
-		NzMatrix4 GetInverse() const;
+		NzMatrix4 GetInverse(bool* succeeded = nullptr) const;
+		NzMatrix4 GetInverseAffine(bool* succeeded = nullptr) const;
 		NzQuaternion<T> GetRotation() const;
 		//NzMatrix3 GetRotationMatrix() const;
 		NzVector3<T> GetScale() const;
@@ -52,30 +55,34 @@ class NzMatrix4
 		bool HasNegativeScale() const;
 		bool HasScale() const;
 
+		NzMatrix4& Inverse(bool* succeeded = nullptr);
+		NzMatrix4& InverseAffine(bool* succeeded = nullptr);
+
 		bool IsAffine() const;
 		bool IsDefined() const;
 
-		void MakeIdentity();
-		void MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
-		void MakeOrtho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
-		void MakePerspective(T angle, T ratio, T zNear, T zFar);
-		void MakeRotation(const NzQuaternion<T>& rotation);
-		void MakeScale(const NzVector3<T>& scale);
-		void MakeTranslation(const NzVector3<T>& translation);
-		void MakeZero();
+		NzMatrix4& MakeIdentity();
+		NzMatrix4& MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
+		NzMatrix4& MakeOrtho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
+		NzMatrix4& MakePerspective(T angle, T ratio, T zNear, T zFar);
+		NzMatrix4& MakeRotation(const NzQuaternion<T>& rotation);
+		NzMatrix4& MakeScale(const NzVector3<T>& scale);
+		NzMatrix4& MakeTranslation(const NzVector3<T>& translation);
+		NzMatrix4& MakeTransform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation);
+		NzMatrix4& MakeZero();
 
-		void Set(T r11, T r12, T r13, T r14,
+		NzMatrix4& Set(T r11, T r12, T r13, T r14,
 		         T r21, T r22, T r23, T r24,
 		         T r31, T r32, T r33, T r34,
 		         T r41, T r42, T r43, T r44);
-		void Set(const T matrix[16]);
+		NzMatrix4& Set(const T matrix[16]);
 		//NzMatrix4(const NzMatrix3<T>& matrix);
-		void Set(const NzMatrix4& matrix);
-		void Set(NzMatrix4&& matrix);
-		template<typename U> void Set(const NzMatrix4<U>& matrix);
-		void SetRotation(const NzQuaternion<T>& rotation);
-		void SetScale(const NzVector3<T>& scale);
-		void SetTranslation(const NzVector3<T>& translation);
+		NzMatrix4& Set(const NzMatrix4& matrix);
+		NzMatrix4& Set(NzMatrix4&& matrix);
+		template<typename U> NzMatrix4& Set(const NzMatrix4<U>& matrix);
+		NzMatrix4& SetRotation(const NzQuaternion<T>& rotation);
+		NzMatrix4& SetScale(const NzVector3<T>& scale);
+		NzMatrix4& SetTranslation(const NzVector3<T>& translation);
 
 		NzString ToString() const;
 
@@ -84,6 +91,8 @@ class NzMatrix4
 		NzVector4<T> Transform(const NzVector4<T>& vector) const;
 
 		NzMatrix4& Transpose();
+
+		NzMatrix4& Undefine();
 
 		operator NzString() const;
 
@@ -117,6 +126,7 @@ class NzMatrix4
 		static NzMatrix4 Rotate(const NzQuaternion<T>& rotation);
 		static NzMatrix4 Scale(const NzVector3<T>& scale);
 		static NzMatrix4 Translate(const NzVector3<T>& translation);
+		static NzMatrix4 Transform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation);
 		static NzMatrix4 Zero();
 
 		struct SharedMatrix

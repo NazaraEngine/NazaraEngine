@@ -37,7 +37,7 @@ namespace
 
 	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
-	bool NzLoader_STB_Check(NzInputStream& stream, const NzImageParams& parameters)
+	bool Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -45,7 +45,7 @@ namespace
 		return stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp);
 	}
 
-	bool NzLoader_STB_Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
+	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
 	{
 		static const nzPixelFormat formats[4] =
 		{
@@ -117,10 +117,10 @@ namespace
 
 void NzLoaders_STB_Register()
 {
-	NzImageLoader::RegisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", NzLoader_STB_Check, NzLoader_STB_Load);
+	NzImageLoader::RegisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
 }
 
 void NzLoaders_STB_Unregister()
 {
-	NzImageLoader::UnregisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", NzLoader_STB_Check, NzLoader_STB_Load);
+	NzImageLoader::UnregisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
 }

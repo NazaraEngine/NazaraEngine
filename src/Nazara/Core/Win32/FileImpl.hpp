@@ -20,7 +20,7 @@ class NzFileImpl : NzNonCopyable
 {
 	public:
 		NzFileImpl(const NzFile* parent);
-		~NzFileImpl();
+		~NzFileImpl() = default;
 
 		void Close();
 		bool EndOfFile() const;

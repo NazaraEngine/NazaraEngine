@@ -8,37 +8,9 @@
 #include <windows.h>
 #include <Nazara/Utility/Debug.hpp>
 
-NzVector2i NzEventImpl::GetMousePosition()
+namespace
 {
-	POINT pos;
-	GetCursorPos(&pos);
-
-	return NzVector2i(pos.x, pos.y);
-}
-
-NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
-{
-	HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
-	if (handle)
-	{
-		POINT pos;
-		GetCursorPos(&pos);
-		ScreenToClient(handle, &pos);
-
-		return NzVector2i(pos.x, pos.y);
-	}
-	else
-	{
-		NazaraError("Window's handle is invalid");
-
-		// Attention que (-1, -1) est une position tout à fait valide et ne doit pas être utilisée pour tester l'erreur
-		return NzVector2i(-1, -1);
-	}
-}
-
-bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
-{
-	static int vKeys[NzKeyboard::Count] = {
+	int vKeys[NzKeyboard::Count] = {
 		// Lettres
 		0x41, // Key::A
 		0x42, // Key::B
@@ -161,7 +133,7 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 		VK_BROWSER_SEARCH,	  // Key::Browser_Search
 		VK_BROWSER_STOP,	  // Key::Browser_Stop
 
-		// Touches de contr
+		// Touches de contrôle
 		VK_MEDIA_NEXT_TRACK, // Key::Media_Next,
 		VK_MEDIA_PLAY_PAUSE, // Key::Media_PlayPause,
 		VK_MEDIA_PREV_TRACK, // Key::Media_Previous,
@@ -177,7 +149,86 @@ bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
 		VK_NUMLOCK,	// Key::NumLock
 		VK_SCROLL	// Key::ScrollLock
 	};
+}
 
+NzString NzEventImpl::GetKeyName(NzKeyboard::Key key)
+{
+	// http://www.ffuts.org/blog/mapvirtualkey-getkeynametext-and-a-story-of-how-to/
+	int vk = vKeys[key];
+	unsigned int code = MapVirtualKeyW(vk, 0) << 16;
+
+	///FIXME: Liste complète ?
+	switch (vk)
+	{
+		case VK_ATTN:
+		case VK_DOWN:
+		case VK_DELETE:
+		case VK_DIVIDE:
+		case VK_END:
+		case VK_HOME:
+		case VK_INSERT:
+		case VK_LEFT:
+		case VK_LWIN:
+		case VK_OEM_1:
+		case VK_OEM_2:
+		case VK_OEM_3:
+		case VK_OEM_4:
+		case VK_OEM_5:
+		case VK_OEM_6:
+		case VK_OEM_7:
+		case VK_OEM_CLEAR:
+		case VK_OEM_COMMA:
+		case VK_OEM_MINUS:
+		case VK_OEM_PERIOD:
+		case VK_OEM_PLUS:
+		case VK_PAUSE:
+		case VK_NEXT:
+		case VK_NUMLOCK:
+		case VK_PRIOR:
+		case VK_RIGHT:
+		case VK_RWIN:
+		case VK_UP:
+			code |= 0x1000000; // 24ème bit pour l'extension
+			break;
+	}
+
+	wchar_t keyName[20]; // Je ne pense pas que ça dépassera 20 caractères
+	if (!GetKeyNameTextW(code, &keyName[0], 20))
+		return "Unknown";
+
+	return NzString::Unicode(keyName);
+}
+
+NzVector2i NzEventImpl::GetMousePosition()
+{
+	POINT pos;
+	GetCursorPos(&pos);
+
+	return NzVector2i(pos.x, pos.y);
+}
+
+NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
+{
+	HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
+	if (handle)
+	{
+		POINT pos;
+		GetCursorPos(&pos);
+		ScreenToClient(handle, &pos);
+
+		return NzVector2i(pos.x, pos.y);
+	}
+	else
+	{
+		NazaraError("Window's handle is invalid");
+
+		// Attention que (-1, -1) est une position tout à fait valide et ne doit pas être utilisée pour tester l'erreur
+		return NzVector2i(-1, -1);
+	}
+}
+
+bool NzEventImpl::IsKeyPressed(NzKeyboard::Key key)
+{
 	switch (key)
 	{
 		case NzKeyboard::CapsLock:

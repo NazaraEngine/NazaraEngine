@@ -11,6 +11,7 @@
 #include <Nazara/Core/Debug.hpp>
 
 #define F(a) static_cast<T>(a)
+#define F2(a) static_cast<T2>(a)
 
 template<typename T>
 T NzApproach(T value, T objective, T increment)
@@ -132,11 +133,25 @@ unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
+template<typename T, typename T2>
+T NzLerp(T from, T to, T2 interpolation)
+{
+	#ifdef NAZARA_DEBUG
+	if (interpolation < F2(0.0) || interpolation > F2(1.0))
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return F(0.0);
+	}
+	#endif
+
+	return from + interpolation*(to - from);
+}
+
 template<typename T>
 T NzNormalizeAngle(T angle)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
-	const T limit = M_PI;
+	const T limit = F(M_PI);
 	#else
 	const T limit = F(180.0);
 	#endif
@@ -145,13 +160,13 @@ T NzNormalizeAngle(T angle)
 	if (angle > F(0.0))
 	{
 		angle += limit;
-		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
 		angle -= limit;
 	}
 	else
 	{
 		angle -= limit;
-		angle -= static_cast<int>(angle/(F(2.0)*limit))*(F(2.0)*limit);
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
 		angle += limit;
 	}
 
@@ -270,6 +285,7 @@ long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 	return (negative) ? -static_cast<long long>(total) : total;
 }
 
+#undef F2
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
