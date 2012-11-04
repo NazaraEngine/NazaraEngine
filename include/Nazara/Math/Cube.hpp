@@ -20,28 +20,30 @@ class NzCube
 		NzCube(const T cube[6]);
 		NzCube(const NzRect<T>& rect);
 		NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> explicit NzCube(const NzCube<U>& rect);
-		NzCube(const NzCube& rect) = default;
+		template<typename U> explicit NzCube(const NzCube<U>& cube);
+		NzCube(const NzCube& cube) = default;
 		~NzCube() = default;
 
 		bool Contains(T X, T Y, T Z) const;
 		bool Contains(const NzVector3<T>& point) const;
-		bool Contains(const NzCube& rect) const;
+		bool Contains(const NzCube& cube) const;
 
 		void ExtendTo(const NzVector3<T>& point);
-		void ExtendTo(const NzCube& rect);
+		void ExtendTo(const NzCube& cube);
 
 		NzVector3<T> GetCenter() const;
 
-		bool Intersect(const NzCube& rect, NzCube* intersection = nullptr) const;
+		bool Intersect(const NzCube& cube, NzCube* intersection = nullptr) const;
 
 		bool IsValid() const;
 
+		void MakeZero();
+
 		void Set(T X, T Y, T Z, T Width, T Height, T Depth);
-		void Set(const T rect[6]);
+		void Set(const T cube[6]);
 		void Set(const NzRect<T>& rect);
 		void Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> void Set(const NzCube<U>& rect);
+		template<typename U> void Set(const NzCube<U>& cube);
 
 		NzString ToString() const;
 
@@ -49,6 +51,16 @@ class NzCube
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
+
+		NzCube operator*(T scalar) const;
+
+		NzCube& operator*=(T scalar);
+
+		bool operator==(const NzCube& cube) const;
+		bool operator!=(const NzCube& cube) const;
+
+		static NzCube Lerp(const NzCube& from, const NzCube& to, T interpolation);
+		static NzCube Zero();
 
 		T x, y, z, width, height, depth;
 };

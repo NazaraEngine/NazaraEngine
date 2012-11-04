@@ -13,10 +13,6 @@ m_parent(parent)
 {
 }
 
-NzDynLibImpl::~NzDynLibImpl()
-{
-}
-
 NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol) const
 {
 	NzDynLibFunc sym = reinterpret_cast<NzDynLibFunc>(GetProcAddress(m_handle, symbol.GetConstBuffer()));

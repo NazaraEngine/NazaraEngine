@@ -96,6 +96,7 @@ template<typename T> class NzVector3
 		static T DotProduct(const NzVector3& vec1, const NzVector3& vec2);
 		static NzVector3 Forward();
 		static NzVector3 Left();
+		static NzVector3 Lerp(const NzVector3& from, const NzVector3& to, T interpolation);
 		static NzVector3 Normalize(const NzVector3& vec);
 		static NzVector3 UnitX();
 		static NzVector3 UnitY();

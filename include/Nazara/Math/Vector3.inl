@@ -516,6 +516,12 @@ NzVector3<T> NzVector3<T>::Left()
 }
 
 template<typename T>
+NzVector3<T> NzVector3<T>::Lerp(const NzVector3& from, const NzVector3& to, T interpolation)
+{
+	return NzLerp(from, to, interpolation);
+}
+
+template<typename T>
 NzVector3<T> NzVector3<T>::Normalize(const NzVector3& vec)
 {
 	return vec.GetNormal();
