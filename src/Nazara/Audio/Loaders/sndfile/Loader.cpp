@@ -37,7 +37,7 @@ namespace
 				break;
 
 			case SEEK_END:
-				stream->SetCursorPos(stream->GetSize()+offset);
+				stream->SetCursorPos(stream->GetSize() + offset); // L'offset est négatif ici
 				break;
 
 			case SEEK_SET:
@@ -95,11 +95,18 @@ namespace
 			return false;
 		}
 
+		// https://github.com/LaurentGomila/SFML/issues/271
+		// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
+		///FIXME: Seulement le Vorbis ?
+		if (infos.format & SF_FORMAT_VORBIS)
+			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
+
 		unsigned int sampleCount = infos.frames*infos.channels;
 		nzInt16* samples = new nzInt16[sampleCount];
 		if (sf_read_short(file, samples, sampleCount) != sampleCount)
 		{
 			NazaraError("Failed to read samples");
+
 			delete[] samples;
 			sf_close(file);
 
@@ -109,6 +116,8 @@ namespace
 		if (!soundBuffer->Create(format, infos.frames*infos.channels, infos.samplerate, samples))
 		{
 			NazaraError("Failed to create sound buffer");
+
+			delete[] samples;
 			sf_close(file);
 
 			return false;
@@ -123,13 +132,11 @@ namespace
 void NzLoaders_sndfile_Register()
 {
 	NzSoundBufferLoader::RegisterLoader("aiff,au,avr,caf,flac,htk,ircam,mat4,mat5,mpc2k,nist,ogg,paf,pvf,raw,rf64,sd2,sds,svx,voc,w64,wav,wve",
-										NzLoader_sndfile_Check,
-										NzLoader_sndfile_Load);
+	                                    NzLoader_sndfile_Check, NzLoader_sndfile_Load);
 }
 
 void NzLoaders_sndfile_Unregister()
 {
 	NzSoundBufferLoader::UnregisterLoader("aiff,au,avr,caf,flac,htk,ircam,mat4,mat5,mpc2k,nist,ogg,paf,pvf,raw,rf64,sd2,sds,svx,voc,w64,wav,wve",
-										NzLoader_sndfile_Check,
-										NzLoader_sndfile_Load);
+	                                      NzLoader_sndfile_Check, NzLoader_sndfile_Load);
 }
