@@ -26,7 +26,7 @@
 #define NAZARA_PREREQUESITES_HPP
 
 #if __cplusplus < 201103L
-	#error Nazara requires a C++11 compliant compiler
+	//#error Nazara requires a C++11 compliant compiler
 #endif
 
 // Version du moteur

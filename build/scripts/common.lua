@@ -52,7 +52,7 @@ configuration "DebugDLL"
 	targetsuffix "-d"
 
 configuration "codeblocks or codelite or gmake or xcode3*"
-	buildoptions "-std=c++11"
+	buildoptions "-std=gnu++11"
 	
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
