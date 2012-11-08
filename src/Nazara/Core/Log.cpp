@@ -129,7 +129,7 @@ void NzLog::Write(const NzString& string)
 			m_file->Write(line);
 
 		#if NAZARA_CORE_DUPLICATE_TO_COUT
-		std::fputs(line.GetConstBuffer(), stderr);
+		std::fputs(line.GetConstBuffer(), stdout);
 		#endif
 	}
 }
