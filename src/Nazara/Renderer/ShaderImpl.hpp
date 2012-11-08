@@ -9,10 +9,6 @@
 
 #include <Nazara/Renderer/Shader.hpp>
 
-class NzTexture;
-class NzVertexBuffer;
-class NzVertexDeclaration;
-
 class NzShaderImpl
 {
 	friend class NzRenderer;
@@ -41,6 +37,7 @@ class NzShaderImpl
 		virtual bool Lock() = 0;
 
 		virtual bool SendBoolean(int location, bool value) = 0;
+		virtual bool SendColor(int location, const NzColor& color) = 0;
 		virtual bool SendDouble(int location, double value) = 0;
 		virtual bool SendFloat(int location, float value) = 0;
 		virtual bool SendInteger(int location, int value) = 0;
