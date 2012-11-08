@@ -299,7 +299,7 @@ bool NzFile::Open(unsigned long openMode)
 	}
 
 	if (m_openMode & Text)
-		m_streamOptions &= nzStreamOption_Text;
+		m_streamOptions |= nzStreamOption_Text;
 
 	return true;
 }
