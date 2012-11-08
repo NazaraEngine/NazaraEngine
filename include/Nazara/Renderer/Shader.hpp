@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/String.hpp>
@@ -51,6 +52,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool Lock();
 
 		bool SendBoolean(int location, bool value);
+		bool SendColor(int location, const NzColor& color);
 		bool SendDouble(int location, double value);
 		bool SendFloat(int location, float value);
 		bool SendInteger(int location, int value);

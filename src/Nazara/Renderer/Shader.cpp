@@ -327,6 +327,25 @@ bool NzShader::SendBoolean(int location, bool value)
 	return m_impl->SendBoolean(location, value);
 }
 
+bool NzShader::SendColor(int location, const NzColor& color)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (location == -1)
+	{
+		NazaraError("Invalid location");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendColor(location, color);
+}
+
 bool NzShader::SendDouble(int location, double value)
 {
 	#if NAZARA_RENDERER_SAFE
