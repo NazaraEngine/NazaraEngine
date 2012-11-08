@@ -41,6 +41,7 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		bool Lock();
 
 		bool SendBoolean(int location, bool value);
+		bool SendColor(int location, const NzColor& color);
 		bool SendDouble(int location, double value);
 		bool SendFloat(int location, float value);
 		bool SendInteger(int location, int value);
