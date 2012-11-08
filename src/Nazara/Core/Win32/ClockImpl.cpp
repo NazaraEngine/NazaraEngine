@@ -29,7 +29,7 @@ nzUInt64 NzClockImplGetMicroseconds()
 
 	SetThreadAffinityMask(thread, oldMask);
 
-	return time.QuadPart * 1000000ULL / frequency.QuadPart;
+	return time.QuadPart*1000000ULL / frequency.QuadPart;
 }
 
 nzUInt64 NzClockImplGetMilliseconds()
