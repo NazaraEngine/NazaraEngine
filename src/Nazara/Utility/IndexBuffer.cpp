@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+///FIXME: Gérer efficacement les erreurs de création du buffer
+
 NzIndexBuffer::NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount) :
 m_buffer(buffer),
 m_ownsBuffer(false),
