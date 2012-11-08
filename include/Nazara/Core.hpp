@@ -55,6 +55,7 @@
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Semaphore.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Thread.hpp>
