@@ -38,7 +38,7 @@ namespace
 	bool initialized = false;
 	const unsigned int magic = 0x51429EE;
 	const char* MLTFileName = "NazaraLeaks.log";
-	const char* nextFreeFile = "Internal error";
+	const char* nextFreeFile = "(Internal error)";
 	unsigned int nextFreeLine = 0;
 
 	Block ptrList =
