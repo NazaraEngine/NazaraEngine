@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+///FIXME: Gérer efficacement les erreurs de création du buffer
+
 NzVertexBuffer::NzVertexBuffer(NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount) :
 m_buffer(buffer),
 m_ownsBuffer(false),
