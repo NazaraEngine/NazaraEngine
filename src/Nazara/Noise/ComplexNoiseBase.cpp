@@ -17,13 +17,13 @@ NzComplexNoiseBase::NzComplexNoiseBase()
 
     for (int i(0) ; i < m_octaves; ++i)
     {
-        exponent_array[i] = 0;
+        m_exponent_array[i] = 0;
     }
 }
 
 const std::array<float, 30>& NzComplexNoiseBase::GetExponentArray() const
 {
-    return exponent_array;
+    return m_exponent_array;
 }
 
 float NzComplexNoiseBase::GetLacunarity() const
@@ -80,11 +80,10 @@ void NzComplexNoiseBase::RecomputeExponentArray()
         for (int i(0) ; i < static_cast<int>(m_octaves) ; ++i)
         {
 
-            exponent_array[i] = std::pow( frequency, -m_hurst );
+            m_exponent_array[i] = std::pow( frequency, -m_hurst );
             frequency *= m_lacunarity;
 
-            //m_sum += 1.0f/exponent_array[i];//A tester
-            m_sum += exponent_array[i];
+            m_sum += m_exponent_array[i];
 
         }
         m_parametersModified = false;

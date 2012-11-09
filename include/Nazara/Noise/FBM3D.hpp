@@ -4,25 +4,26 @@
 
 #pragma once
 
-#ifndef FBM2D_HPP
-#define FBM2D_HPP
+#ifndef FBM3D_HPP
+#define FBM3D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
-#include <Nazara/Noise/Abstract2DNoise.hpp>
+#include <Nazara/Noise/Abstract3DNoise.hpp>
 
-class NAZARA_API NzFBM2D : public NzAbstract2DNoise, public NzComplexNoiseBase
+class NAZARA_API NzFBM3D : public NzAbstract3DNoise, public NzComplexNoiseBase
 {
     public:
-        NzFBM2D(nzNoises source, int seed);
-        float GetValue(float x, float y, float resolution);
-        ~NzFBM2D();
+        NzFBM3D(nzNoises source, int seed);
+        float GetValue(float x, float y, float z, float resolution);
+        ~NzFBM3D();
     protected:
     private:
-        NzAbstract2DNoise* m_source;
+        NzAbstract3DNoise* m_source;
         float m_value;
         float m_remainder;
         nzNoises m_noiseType;
 };
 
-#endif // FBM2D_HPP
+#endif // FBM3D_HPP
+
