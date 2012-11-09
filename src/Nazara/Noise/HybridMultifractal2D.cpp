@@ -4,12 +4,12 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/FBM2D.hpp>
+#include <Nazara/Noise/HybridMultiFractal2D.hpp>
 #include <Nazara/Noise/Perlin2D.hpp>
 #include <Nazara/Noise/Simplex2D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzFBM2D::NzFBM2D(nzNoises source, int seed)
+NzHybridMultiFractal2D::NzHybridMultiFractal2D(nzNoises source, int seed)
 {
     switch(source)
     {
@@ -26,26 +26,40 @@ NzFBM2D::NzFBM2D(nzNoises source, int seed)
     m_noiseType = source;
 }
 
-float NzFBM2D::GetValue(float x, float y, float resolution)
+float NzHybridMultiFractal2D::GetValue(float x, float y, float resolution)
 {
     this->RecomputeExponentArray();
 
-    m_value = 0.0;
+    float offset = 1.0f;
 
-    for (int i(0); i < m_octaves; ++i)
+    m_value = (m_source->GetValue(x,y,resolution) + offset) * m_exponent_array[0];
+    float weight = m_value;
+    float signal;
+
+    resolution *= m_lacunarity;
+
+    for(int i(1) ; i < m_octaves; ++i)
     {
-        m_value += m_source->GetValue(x,y,resolution) * m_exponent_array[i];
+        if(weight > 1.0)
+            weight = 1.0;
+
+        signal = (m_source->GetValue(x,y,resolution) + offset) * m_exponent_array[i];
+        m_value += weight * signal;
+
+        weight *= signal;
+
         resolution *= m_lacunarity;
     }
+
     m_remainder = m_octaves - static_cast<int>(m_octaves);
 
-    if(!NzNumberEquals(m_remainder, static_cast<float>(0.0)))
-      m_value += m_remainder * m_source->GetValue(x,y,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
+    if(remainder != 0)
+        m_value += m_remainder * m_source->GetValue(x,y,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
     return m_value/this->m_sum;
 }
 
-NzFBM2D::~NzFBM2D()
+NzHybridMultiFractal2D::~NzHybridMultiFractal2D()
 {
     delete m_source;
 }
