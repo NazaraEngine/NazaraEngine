@@ -29,7 +29,7 @@ class NAZARA_API NzComplexNoiseBase
         float m_lacunarity;
         float m_hurst;
         float m_octaves;
-        std::array<float, 30> exponent_array;
+        std::array<float, 30> m_exponent_array;
         float m_sum;
     private:
         bool m_parametersModified;

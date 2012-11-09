@@ -4,19 +4,19 @@
 
 #pragma once
 
-#ifndef FBM2D_HPP
-#define FBM2D_HPP
+#ifndef HYBRIDMULTIFRACTAL2D_HPP
+#define HYBRIDMULTIFRACTAL2D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Abstract2DNoise.hpp>
 
-class NAZARA_API NzFBM2D : public NzAbstract2DNoise, public NzComplexNoiseBase
+class NAZARA_API NzHybridMultiFractal2D : public NzAbstract2DNoise, public NzComplexNoiseBase
 {
     public:
-        NzFBM2D(nzNoises source, int seed);
+        NzHybridMultiFractal2D(nzNoises source, int seed);
         float GetValue(float x, float y, float resolution);
-        ~NzFBM2D();
+        ~NzHybridMultiFractal2D();
     protected:
     private:
         NzAbstract2DNoise* m_source;
@@ -25,4 +25,5 @@ class NAZARA_API NzFBM2D : public NzAbstract2DNoise, public NzComplexNoiseBase
         nzNoises m_noiseType;
 };
 
-#endif // FBM2D_HPP
+#endif // HYBRIDMULTIFRACTAL2D_HPP
+
