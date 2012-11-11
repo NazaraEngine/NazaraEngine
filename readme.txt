@@ -44,3 +44,4 @@ Forum   : http://forum.digitalpulsesoftware.com
 
 Thanks to
 -RafBill: Finding bugs
+-Fissal "DrFisher" Hannoun: Helped a lot in architecture design
