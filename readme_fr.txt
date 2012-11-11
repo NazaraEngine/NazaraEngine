@@ -1,4 +1,4 @@
-Nazara Engine
+﻿Nazara Engine
 =============
 
 Nazara Engine est une API rapide, complète, portable et orientée-objet qui peut vous aider dans votre vie de développeur de tous les jours.
@@ -44,3 +44,4 @@ Forum    : http://forum.digitalpulsesoftware.com
 
 Merci à
 -RafBill: Recherche de bugs
+-Fissal "DrFisher" Hannoun: Beaucoup d'aide dans la conception de l'architecture du moteur
