@@ -16,6 +16,7 @@ class NAZARA_API NzPerlin2D : public NzAbstract2DNoise
 {
     public:
         NzPerlin2D();
+        NzPerlin2D(int seed);
         float GetValue(float x, float y, float resolution);
         ~NzPerlin2D() = default;
     protected:

@@ -16,6 +16,7 @@ class NAZARA_API NzSimplex4D : public NzAbstract4DNoise
 {
     public:
         NzSimplex4D();
+        NzSimplex4D(int seed);
         float GetValue(float x, float y, float z, float w, float resolution);
         ~NzSimplex4D() = default;
     protected:

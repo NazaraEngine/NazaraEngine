@@ -16,6 +16,7 @@ class NAZARA_API NzSimplex2D : public NzAbstract2DNoise
 {
     public:
         NzSimplex2D();
+        NzSimplex2D(int seed);
         float GetValue(float x, float y, float resolution);
         virtual ~NzSimplex2D() = default;
     protected:

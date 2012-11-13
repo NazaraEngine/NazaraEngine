@@ -17,6 +17,12 @@ NzPerlin2D::NzPerlin2D()
             gradient2[i][j] = grad2Temp[i][j];
 }
 
+NzPerlin2D::NzPerlin2D(int seed) : NzPerlin2D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzPerlin2D::GetValue(float x, float y, float resolution)
 {
     x *= resolution;
