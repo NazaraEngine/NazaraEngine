@@ -26,6 +26,12 @@ NzPerlin4D::NzPerlin4D()
             gradient4[i][j] = grad4Temp[i][j];
 }
 
+NzPerlin4D::NzPerlin4D(int seed) : NzPerlin4D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzPerlin4D::GetValue(float x, float y, float z, float w, float resolution)
 {
     x *= resolution;
