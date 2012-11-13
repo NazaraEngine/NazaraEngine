@@ -20,6 +20,12 @@ NzSimplex2D::NzSimplex2D()
     UnskewCoeff2D  = (3.0-sqrt(3.0))/6.;
 }
 
+NzSimplex2D::NzSimplex2D(int seed) : NzSimplex2D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzSimplex2D::GetValue(float x, float y, float resolution)
 {
     x *= resolution;

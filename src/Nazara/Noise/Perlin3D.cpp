@@ -21,6 +21,12 @@ NzPerlin3D::NzPerlin3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
+NzPerlin3D::NzPerlin3D(int seed) : NzPerlin3D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzPerlin3D::GetValue(float x, float y, float z, float resolution)
 {
     x /= resolution;
