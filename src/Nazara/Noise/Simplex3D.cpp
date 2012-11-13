@@ -21,6 +21,12 @@ NzSimplex3D::NzSimplex3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
+NzSimplex3D::NzSimplex3D(int seed) : NzSimplex3D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzSimplex3D::GetValue(float x, float y, float z, float resolution)
 {
     x *= resolution;

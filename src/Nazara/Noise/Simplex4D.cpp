@@ -45,6 +45,12 @@ NzSimplex4D::NzSimplex4D()
             gradient4[i][j] = grad4Temp[i][j];
 }
 
+NzSimplex4D::NzSimplex4D(int seed) : NzSimplex4D()
+{
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
 float NzSimplex4D::GetValue(float x, float y, float z, float w, float resolution)
 {
     x *= resolution;
