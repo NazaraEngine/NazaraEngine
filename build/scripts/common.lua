@@ -33,7 +33,7 @@ configuration "Debug*"
 	flags "Symbols"
 
 configuration "Release*"
-	flags { "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
+	flags { "EnableSSE", "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
 
 configuration "*Static"
 	defines "NAZARA_STATIC"
@@ -52,7 +52,11 @@ configuration "DebugDLL"
 	targetsuffix "-d"
 
 configuration "codeblocks or codelite or gmake or xcode3*"
-	buildoptions "-std=c++11"
+	buildoptions 
+	{
+		"-mfpmath=sse",
+		"-std=c++11"
+	}
 	
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
