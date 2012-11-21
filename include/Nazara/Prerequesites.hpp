@@ -59,6 +59,11 @@
 			#define NAZARA_COMPILER_MINGW_W64
 		#endif
 	#endif
+#elif defined(__INTEL_COMPILER) || defined(__ICL)
+	#define NAZARA_COMPILER_INTEL
+	#define NAZARA_DEPRECATED(txt)
+	#define NAZARA_FUNCTION __FUNCTION__
+	#define NAZARA_THREADLOCAL __thread
 #elif defined(_MSC_VER)
 	#define NAZARA_COMPILER_MSVC
 	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
@@ -137,6 +142,11 @@
 
 	#define NAZARA_PLATFORM_UNKNOWN
 	#define NAZARA_API
+#endif
+
+#if defined(_WIN64) ||  defined(__amd64__) || defined(__x86_64__) || defined(__ia64__) || defined(__ia64) || \
+    defined(_M_IA64) || defined(__itanium__)
+	#define NAZARA_PLATFORM_X64
 #endif
 
 #if !defined(NAZARA_DEBUG) && !defined(NDEBUG)
