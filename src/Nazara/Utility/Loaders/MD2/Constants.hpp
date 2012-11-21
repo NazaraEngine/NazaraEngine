@@ -7,7 +7,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <vector>
 
 struct md2_header
 {
@@ -49,14 +48,6 @@ struct md2_triangle
 {
 	nzUInt16 vertices[3];
 	nzUInt16 texCoords[3];
-};
-
-struct md2_frame
-{
-	NzVector3f              scale;
-	NzVector3f              translate;
-	char                    name[16];
-	std::vector<md2_vertex>	vertices;
 };
 
 extern const nzUInt32 md2Ident;

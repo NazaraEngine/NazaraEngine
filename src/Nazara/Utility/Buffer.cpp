@@ -88,26 +88,23 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 {
 	Destroy();
 
-	// On tente d'abord de faire un buffer hardware, si supporté
-	if (s_bufferFunctions[storage])
-	{
-		NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
-		if (!impl->Create(length*typeSize, usage))
-		{
-			NazaraError("Failed to create buffer");
-			delete impl;
-
-			return false;
-		}
-
-		m_impl = impl;
-	}
-	else
+	// Notre buffer est-il supporté ?
+	if (!s_bufferFunctions[storage])
 	{
 		NazaraError("Buffer storage not supported");
 		return false;
 	}
 
+	NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
+	if (!impl->Create(length*typeSize, usage))
+	{
+		NazaraError("Failed to create buffer");
+		delete impl;
+
+		return false;
+	}
+
+	m_impl = impl;
 	m_length = length;
 	m_typeSize = typeSize;
 	m_storage = storage;

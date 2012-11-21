@@ -10,8 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Stream.hpp>
 
-class NzString;
-
 class NAZARA_API NzInputStream : public NzStream
 {
 	public:
@@ -19,10 +17,10 @@ class NAZARA_API NzInputStream : public NzStream
 
 		virtual bool EndOfStream() const = 0;
 
-		virtual NzString GetLine(unsigned int lineSize = 0);
 		virtual nzUInt64 GetSize() const = 0;
 
 		virtual std::size_t Read(void* buffer, std::size_t size) = 0;
+		virtual NzString ReadLine(unsigned int lineSize = 0);
 };
 
 #endif // NAZARA_INPUTSTREAM_HPP

@@ -23,12 +23,6 @@ m_parent(parent)
 {
 }
 
-NzGLSLShader::~NzGLSLShader()
-{
-	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
-		it->second.texture->RemoveResourceListener(this);
-}
-
 bool NzGLSLShader::Bind()
 {
 	#if NAZARA_RENDERER_SAFE
@@ -165,11 +159,13 @@ void NzGLSLShader::Destroy()
 	NzContext::EnsureContext();
 
 	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
-		it->second.texture->RemoveResourceReference();
+		it->second.texture->RemoveResourceListener(this);
 
 	for (GLuint shader : m_shaders)
+	{
 		if (shader)
 			glDeleteShader(shader);
+	}
 
 	if (m_program)
 		glDeleteProgram(m_program);
@@ -730,4 +726,6 @@ void NzGLSLShader::OnResourceReleased(const NzResource* resource, int index)
 {
 	if (m_textures.erase(index) == 0)
 		NazaraInternalError("Texture " + NzString::Pointer(resource) + " not found");
+
+	resource->RemoveResourceListener(this);
 }

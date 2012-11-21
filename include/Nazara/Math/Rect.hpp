@@ -14,7 +14,7 @@ template<typename T>
 class NzRect
 {
 	public:
-		NzRect();
+		NzRect() = default;
 		NzRect(T X, T Y, T Width, T Height);
 		NzRect(const T rect[4]);
 		NzRect(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
@@ -26,21 +26,23 @@ class NzRect
 		bool Contains(const NzVector2<T>& point) const;
 		bool Contains(const NzRect& rect) const;
 
-		void ExtendTo(const NzVector2<T>& point);
-		void ExtendTo(const NzRect& rect);
+		NzRect& ExtendTo(const NzVector2<T>& point);
+		NzRect& ExtendTo(const NzRect& rect);
 
 		NzVector2<T> GetCenter() const;
+		NzVector2<T> GetPosition() const;
+		NzVector2<T> GetSize() const;
 
 		bool Intersect(const NzRect& rect, NzRect* intersection = nullptr) const;
 
 		bool IsValid() const;
 
-		void MakeZero();
+		NzRect& MakeZero();
 
-		void Set(T X, T Y, T Width, T Height);
-		void Set(const T rect[4]);
-		void Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
-		template<typename U> void Set(const NzRect<U>& rect);
+		NzRect& Set(T X, T Y, T Width, T Height);
+		NzRect& Set(const T rect[4]);
+		NzRect& Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
+		template<typename U> NzRect& Set(const NzRect<U>& rect);
 
 		NzString ToString() const;
 

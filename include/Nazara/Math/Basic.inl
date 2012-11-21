@@ -6,7 +6,6 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
-#include <cmath>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -73,7 +72,7 @@ unsigned int NzGetNumberLength(signed char number)
 unsigned int NzGetNumberLength(unsigned char number)
 {
 	// Le standard définit le char comme étant codé sur un octet
-	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
+	static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
 
 	if (number >= 100)
 		return 3;
@@ -204,7 +203,7 @@ NzString NzNumberToString(long long number, nzUInt8 radix)
 		negative = false;
 
 	NzString str;
-	str.Reserve(NzGetNumberLength(number));
+	str.Reserve(NzGetNumberLength(number)); // Prends en compte le signe négatif
 
 	do
 	{

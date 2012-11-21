@@ -15,37 +15,30 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);
-		NzStaticMesh(const NzMesh* parent, const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer = nullptr);
 		virtual ~NzStaticMesh();
 
-		bool Create(const NzVertexDeclaration* vertexDeclaration, NzVertexBuffer* vertexBuffer, NzIndexBuffer* indexBuffer = nullptr);
+		bool Create(NzVertexBuffer* vertexBuffer);
 		void Destroy();
 
 		bool GenerateAABB();
 
-		const NzAxisAlignedBox& GetAABB() const;
-		nzAnimationType GetAnimationType() const;
-		unsigned int GetFrameCount() const;
-		const NzIndexBuffer* GetIndexBuffer() const;
-		nzPrimitiveType GetPrimitiveType() const;
-		const NzVertexBuffer* GetVertexBuffer() const;
-		const NzVertexDeclaration* GetVertexDeclaration() const;
+		const NzAxisAlignedBox& GetAABB() const override;
+		nzAnimationType GetAnimationType() const final;
+		const NzIndexBuffer* GetIndexBuffer() const override;
+		const NzVertexBuffer* GetVertexBuffer() const override;
 
-		bool IsAnimated() const;
+		bool IsAnimated() const final;
 		bool IsValid() const;
 
 		void SetAABB(const NzAxisAlignedBox& aabb);
-		void SetPrimitiveType(nzPrimitiveType primitiveType);
+		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 	private:
-		void AnimateImpl(unsigned int frameA, unsigned int frameB, float interpolation);
 		void OnResourceReleased(const NzResource* resource, int index) override;
 
-		nzPrimitiveType m_primitiveType = nzPrimitiveType_TriangleList;
 		NzAxisAlignedBox m_aabb;
-		NzIndexBuffer* m_indexBuffer = nullptr;
+		const NzIndexBuffer* m_indexBuffer = nullptr;
 		NzVertexBuffer* m_vertexBuffer = nullptr;
-		const NzVertexDeclaration* m_vertexDeclaration = nullptr;
 };
 
 #endif // NAZARA_STATICMESH_HPP

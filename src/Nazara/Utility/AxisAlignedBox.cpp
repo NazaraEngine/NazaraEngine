@@ -38,6 +38,24 @@ bool NzAxisAlignedBox::Contains(const NzAxisAlignedBox& box)
 	return m_cube.Contains(box.m_cube);
 }
 
+bool NzAxisAlignedBox::Contains(const NzVector3f& vector)
+{
+	switch (m_extend)
+	{
+		case nzExtend_Finite:
+			return m_cube.Contains(vector);
+
+		case nzExtend_Infinite:
+			return true;
+
+		case nzExtend_Null:
+			return false;
+	}
+
+	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
+	return false;
+}
+
 void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 {
 	switch (m_extend)
@@ -81,15 +99,48 @@ void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
 			break;
 
 		case nzExtend_Null:
-			// Nous étendons l'AABB en la construisant de l'origine jusqu'au vecteur
-			m_cube.x = 0.f;
-			m_cube.y = 0.f;
-			m_cube.z = 0.f;
-			m_cube.width = std::fabs(vector.x);
-			m_cube.height = std::fabs(vector.y);
-			m_cube.depth = std::fabs(vector.z);
+			m_extend = nzExtend_Finite;
+			m_cube.Set(vector, vector);
 			break;
 	}
+}
+
+NzVector3f NzAxisAlignedBox::GetCorner(nzCorner corner) const
+{
+	switch (corner)
+	{
+		case nzCorner_FarLeftBottom:
+			return NzVector3f(m_cube.x, m_cube.y, m_cube.z);
+
+		case nzCorner_FarLeftTop:
+			return NzVector3f(m_cube.x, m_cube.y+m_cube.height, m_cube.z);
+
+		case nzCorner_FarRightBottom:
+			return NzVector3f(m_cube.x+m_cube.width, m_cube.y, m_cube.z);
+
+		case nzCorner_FarRightTop:
+			return NzVector3f(m_cube.x+m_cube.width, m_cube.y+m_cube.height, m_cube.z);
+
+		case nzCorner_NearLeftBottom:
+			return NzVector3f(m_cube.x, m_cube.y, m_cube.z+m_cube.depth);
+
+		case nzCorner_NearLeftTop:
+			return NzVector3f(m_cube.x, m_cube.y+m_cube.height, m_cube.z+m_cube.depth);
+
+		case nzCorner_NearRightBottom:
+			return NzVector3f(m_cube.x+m_cube.width, m_cube.y, m_cube.z+m_cube.depth);
+
+		case nzCorner_NearRightTop:
+			return NzVector3f(m_cube.x+m_cube.width, m_cube.y+m_cube.height, m_cube.z+m_cube.depth);
+	}
+
+	NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
+	return NzVector3f();
+}
+
+NzCubef NzAxisAlignedBox::GetCube() const
+{
+	return m_cube;
 }
 
 nzExtend NzAxisAlignedBox::GetExtend() const
@@ -99,12 +150,12 @@ nzExtend NzAxisAlignedBox::GetExtend() const
 
 NzVector3f NzAxisAlignedBox::GetMaximum() const
 {
-	return NzVector3f(m_cube.x+m_cube.width, m_cube.y+m_cube.height, m_cube.z+m_cube.depth);
+	return m_cube.GetPosition() + m_cube.GetSize();
 }
 
 NzVector3f NzAxisAlignedBox::GetMinimum() const
 {
-	return NzVector3f(m_cube.x, m_cube.y, m_cube.z);
+	return m_cube.GetPosition();
 }
 
 bool NzAxisAlignedBox::IsFinite() const
@@ -153,6 +204,22 @@ NzString NzAxisAlignedBox::ToString() const
 	}
 
 	return "NzAxisAlignedBox(ERROR)";
+}
+
+void NzAxisAlignedBox::Transform(const NzMatrix4f& matrix)
+{
+	if (m_extend != nzExtend_Finite)
+		return;
+
+	NzVector3f center = matrix.Transform(m_cube.GetCenter(), 0.f); // 0.f pour annuler la translation
+	NzVector3f halfSize = m_cube.GetSize() * 0.5f;
+
+	halfSize.Set(std::fabs(matrix(0,0))*halfSize.x + std::fabs(matrix(1,0))*halfSize.y + std::fabs(matrix(2,0))*halfSize.z,
+	             std::fabs(matrix(0,1))*halfSize.x + std::fabs(matrix(1,1))*halfSize.y + std::fabs(matrix(2,1))*halfSize.z,
+	             std::fabs(matrix(0,2))*halfSize.x + std::fabs(matrix(1,2))*halfSize.y + std::fabs(matrix(2,2))*halfSize.z);
+
+
+	m_cube.Set(center - halfSize, center + halfSize);
 }
 
 NzAxisAlignedBox::operator NzString() const

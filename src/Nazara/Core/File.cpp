@@ -158,18 +158,11 @@ nzUInt64 NzFile::GetCursorPos() const
 	return m_impl->GetCursorPos();
 }
 
-NzString NzFile::GetDirectoryPath() const
+NzString NzFile::GetDirectory() const
 {
 	NazaraLock(m_mutex)
 
-	return m_filePath.SubstrTo(NAZARA_DIRECTORY_SEPARATOR, -1, true);
-}
-
-NzString NzFile::GetFilePath() const
-{
-	NazaraLock(m_mutex)
-
-	return m_filePath;
+	return m_filePath.SubstrTo(NAZARA_DIRECTORY_SEPARATOR, -1, true, true);
 }
 
 NzString NzFile::GetFileName() const
@@ -191,6 +184,13 @@ time_t NzFile::GetLastWriteTime() const
 	NazaraLock(m_mutex)
 
 	return GetLastWriteTime(m_filePath);
+}
+
+NzString NzFile::GetPath() const
+{
+	NazaraLock(m_mutex)
+
+	return m_filePath;
 }
 
 nzUInt64 NzFile::GetSize() const
@@ -602,6 +602,11 @@ time_t NzFile::GetCreationTime(const NzString& filePath)
 	return NzFileImpl::GetCreationTime(NormalizePath(filePath));
 }
 
+NzString NzFile::GetDirectory(const NzString& filePath)
+{
+	return filePath.SubstrTo(NAZARA_DIRECTORY_SEPARATOR, -1, true, true);
+}
+
 time_t NzFile::GetLastAccessTime(const NzString& filePath)
 {
 	if (filePath.IsEmpty())
@@ -642,29 +647,25 @@ nzUInt64 NzFile::GetSize(const NzString& filePath)
 	return NzFileImpl::GetSize(NormalizePath(filePath));
 }
 
-bool NzFile::IsAbsolute(const NzString& path)
+bool NzFile::IsAbsolute(const NzString& filePath)
 {
-	NzString wpath(path);
-	wpath.Trim();
-
-	if (wpath.IsEmpty())
+	NzString path(filePath.Trimmed());
+	if (path.IsEmpty())
 		return false;
 
-	#if NAZARA_CORE_NORMALIZE_DIRECTORY_SEPARATORS
-	wpath = NormalizeSeparators(wpath);
-	#endif
+	path = NormalizeSeparators(path);
 
 	#ifdef NAZARA_PLATFORM_WINDOWS
-	if (path.Match("?:*"))
+	if (path.Match("?:*")) // Ex: C:\Hello
 		return true;
-	else if (path.Match("\\\\*"))
+	else if (path.Match("\\\\*")) // Ex: \\Laptop
 		return true;
-	else if (wpath.StartsWith('\\')) // Spécial : '\' fait référence au disque racine
+	else if (path.StartsWith('\\')) // Spécial : '\' fait référence au disque racine
 		return true;
 	else
 		return false;
 	#elif defined(NAZARA_PLATEFORM_LINUX)
-	return wpath.StartsWith('/');
+	return path.StartsWith('/');
 	#else
 		#error OS case not implemented
 	#endif
@@ -672,12 +673,7 @@ bool NzFile::IsAbsolute(const NzString& path)
 
 NzString NzFile::NormalizePath(const NzString& filePath)
 {
-	NzString path(filePath);
-	path.Trim();
-
-	#if NAZARA_CORE_NORMALIZE_DIRECTORY_SEPARATORS
-	path = NormalizeSeparators(path);
-	#endif
+	NzString path = NormalizeSeparators(filePath.Trimmed());
 
 	if (!IsAbsolute(path))
 		path = NzDirectory::GetCurrent() + NAZARA_DIRECTORY_SEPARATOR + path;

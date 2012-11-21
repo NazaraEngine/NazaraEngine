@@ -26,9 +26,14 @@
 
 #pragma once
 
+#ifndef NAZARA_GLOBAL_AUDIO_HPP
+#define NAZARA_GLOBAL_AUDIO_HPP
+
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
+
+#endif // NAZARA_GLOBAL_AUDIO_HPP

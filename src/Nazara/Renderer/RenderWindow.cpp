@@ -43,7 +43,7 @@ NzRenderWindow::~NzRenderWindow()
 	OnWindowDestroy();
 }
 
-bool NzRenderWindow::CopyToImage(NzImage* image)
+bool NzRenderWindow::CopyToImage(NzImage* image) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_context)
@@ -59,10 +59,14 @@ bool NzRenderWindow::CopyToImage(NzImage* image)
 	}
 	#endif
 
-	if (!m_context->SetActive(true))
+	NzContext* currentContext = NzContext::GetCurrent();
+	if (m_context != currentContext)
 	{
-		NazaraError("Failed to activate context");
-		return false;
+		if (!m_context->SetActive(true))
+		{
+			NazaraError("Failed to activate context");
+			return false;
+		}
 	}
 
 	NzVector2ui size = GetSize();
@@ -78,10 +82,21 @@ bool NzRenderWindow::CopyToImage(NzImage* image)
 
 	image->FlipVertically();
 
+	if (m_context != currentContext)
+	{
+		if (currentContext)
+		{
+			if (!currentContext->SetActive(true))
+				NazaraWarning("Failed to reset current context");
+		}
+		else
+			m_context->SetActive(false);
+	}
+
 	return true;
 }
 
-bool NzRenderWindow::CopyToTexture(NzTexture* texture)
+bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_context)
@@ -97,10 +112,14 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture)
 	}
 	#endif
 
-	if (!m_context->SetActive(true))
+	NzContext* currentContext = NzContext::GetCurrent();
+	if (m_context != currentContext)
 	{
-		NazaraError("Failed to activate context");
-		return false;
+		if (!m_context->SetActive(true))
+		{
+			NazaraError("Failed to activate context");
+			return false;
+		}
 	}
 
 	NzVector2ui size = GetSize();
@@ -112,6 +131,17 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture)
 	}
 
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, size.x, size.y);
+
+	if (m_context != currentContext)
+	{
+		if (currentContext)
+		{
+			if (!currentContext->SetActive(true))
+				NazaraWarning("Failed to reset current context");
+		}
+		else
+			m_context->SetActive(false);
+	}
 
 	texture->Unlock();
 

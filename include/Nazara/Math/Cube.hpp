@@ -15,7 +15,7 @@ template<typename T>
 class NzCube
 {
 	public:
-		NzCube();
+		NzCube() = default;
 		NzCube(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzCube(const T cube[6]);
 		NzCube(const NzRect<T>& rect);
@@ -28,22 +28,24 @@ class NzCube
 		bool Contains(const NzVector3<T>& point) const;
 		bool Contains(const NzCube& cube) const;
 
-		void ExtendTo(const NzVector3<T>& point);
-		void ExtendTo(const NzCube& cube);
+		NzCube& ExtendTo(const NzVector3<T>& point);
+		NzCube& ExtendTo(const NzCube& cube);
 
 		NzVector3<T> GetCenter() const;
+		NzVector3<T> GetPosition() const;
+		NzVector3<T> GetSize() const;
 
 		bool Intersect(const NzCube& cube, NzCube* intersection = nullptr) const;
 
 		bool IsValid() const;
 
-		void MakeZero();
+		NzCube& MakeZero();
 
-		void Set(T X, T Y, T Z, T Width, T Height, T Depth);
-		void Set(const T cube[6]);
-		void Set(const NzRect<T>& rect);
-		void Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> void Set(const NzCube<U>& cube);
+		NzCube& Set(T X, T Y, T Z, T Width, T Height, T Depth);
+		NzCube& Set(const T cube[6]);
+		NzCube& Set(const NzRect<T>& rect);
+		NzCube& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
+		template<typename U> NzCube& Set(const NzCube<U>& cube);
 
 		NzString ToString() const;
 

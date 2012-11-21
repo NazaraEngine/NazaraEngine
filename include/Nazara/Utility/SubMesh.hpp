@@ -19,26 +19,30 @@ class NzMesh;
 
 class NAZARA_API NzSubMesh : public NzResource
 {
-	friend class NzMesh;
+	friend NzMesh;
 
 	public:
 		NzSubMesh(const NzMesh* parent);
 		virtual ~NzSubMesh();
 
-		void Animate(unsigned int frameA, unsigned int frameB, float interpolation);
-
 		virtual const NzAxisAlignedBox& GetAABB() const = 0;
+		virtual nzAnimationType GetAnimationType() const = 0;
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
 		const NzMesh* GetParent() const;
-		virtual nzPrimitiveType GetPrimitiveType() const = 0;
+		nzPrimitiveType GetPrimitiveType() const;
+		unsigned int GetSkinIndex() const;
 		virtual const NzVertexBuffer* GetVertexBuffer() const = 0;
-		virtual const NzVertexDeclaration* GetVertexDeclaration() const = 0;
-		unsigned int GetVertexCount() const;
+		virtual unsigned int GetVertexCount() const;
+
+		virtual bool IsAnimated() const = 0;
+
+		void SetMaterialIndex(unsigned int matIndex);
+		void SetPrimitiveType(nzPrimitiveType primitiveType);
 
 	protected:
-		virtual void AnimateImpl(unsigned int frameA, unsigned int frameB, float interpolation) = 0;
-
+		nzPrimitiveType m_primitiveType = nzPrimitiveType_TriangleList;
 		const NzMesh* m_parent;
+		unsigned int m_matIndex;
 };
 
 #endif // NAZARA_SUBMESH_HPP

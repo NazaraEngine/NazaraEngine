@@ -8,7 +8,7 @@
 
 NzInputStream::~NzInputStream() = default;
 
-NzString NzInputStream::GetLine(unsigned int lineSize)
+NzString NzInputStream::ReadLine(unsigned int lineSize)
 {
 	NzString line;
 	if (lineSize == 0) // Taille maximale indéterminée

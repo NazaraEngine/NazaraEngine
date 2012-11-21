@@ -9,20 +9,9 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzCube<T>::NzCube()
-{
-}
-
-template<typename T>
 NzCube<T>::NzCube(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	Set(X, Y, Z, Width, Height, Depth);
-}
-
-template<typename T>
-NzCube<T>::NzCube(const T vec[6])
-{
-	Set(vec);
 }
 
 template<typename T>
@@ -35,6 +24,12 @@ template<typename T>
 NzCube<T>::NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	Set(vec1, vec2);
+}
+
+template<typename T>
+NzCube<T>::NzCube(const T vec[6])
+{
+	Set(vec);
 }
 
 template<typename T>
@@ -66,42 +61,58 @@ bool NzCube<T>::Contains(const NzCube<T>& cube) const
 }
 
 template<typename T>
-void NzCube<T>::ExtendTo(const NzVector3<T>& point)
+NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
 {
 	x = std::min(x, point.x);
 	y = std::min(y, point.y);
 	z = std::min(z, point.z);
-	width = std::max(x+width, point.x)-x;
-	height = std::max(y+height, point.x)-y;
-	depth = std::max(z+depth, point.x)-z;
+	width = std::max(x + width, point.x) - x;
+	height = std::max(y + height, point.y) - y;
+	depth = std::max(z + depth, point.z) - z;
+
+	return *this;
 }
 
 template<typename T>
-void NzCube<T>::ExtendTo(const NzCube& cube)
+NzCube<T>& NzCube<T>::ExtendTo(const NzCube& cube)
 {
 	x = std::min(x, cube.x);
 	y = std::min(y, cube.y);
-	z = std::min(y, cube.z);
-	width = std::max(x+width, cube.x+cube.width)-x;
-	height = std::max(x+height, cube.y+cube.height)-y;
-	depth = std::max(x+depth, cube.z+cube.depth)-z;
+	z = std::min(z, cube.z);
+	width = std::max(x + width, cube.x + cube.width) - x;
+	height = std::max(y + height, cube.y + cube.height) - y;
+	depth = std::max(z + depth, cube.z + cube.depth) - z;
+
+	return *this;
 }
 
 template<typename T>
 NzVector3<T> NzCube<T>::GetCenter() const
 {
-	return NzVector3<T>((x+width)/F(2.0), (y+height)/F(2.0), (z+depth)/F(2.0));
+	return NzVector3<T>(x + width/F(2.0), y + height/F(2.0), z + depth/F(2.0));
+}
+
+template<typename T>
+NzVector3<T> NzCube<T>::GetPosition() const
+{
+	return NzVector3<T>(x, y, z);
+}
+
+template<typename T>
+NzVector3<T> NzCube<T>::GetSize() const
+{
+	return NzVector3<T>(width, height, depth);
 }
 
 template<typename T>
 bool NzCube<T>::Intersect(const NzCube& cube, NzCube* intersection) const
 {
 	T left = std::max(x, cube.x);
-	T right = std::min(x+width, cube.x+cube.width);
+	T right = std::min(x + width, cube.x + cube.width);
 	T top = std::max(y, cube.y);
-	T bottom = std::min(y+height, cube.y+cube.height);
+	T bottom = std::min(y + height, cube.y + cube.height);
 	T up = std::max(z, cube.z);
-	T down = std::min(z+depth, cube.z+cube.depth);
+	T down = std::min(z + depth, cube.z + cube.depth);
 
 	if (left < right && top < bottom && up < down)
 	{
@@ -110,9 +121,9 @@ bool NzCube<T>::Intersect(const NzCube& cube, NzCube* intersection) const
 			intersection->x = left;
 			intersection->y = top;
 			intersection->z = up;
-			intersection->width = right-left;
-			intersection->height = bottom-top;
-			intersection->depth = down-up;
+			intersection->width = right - left;
+			intersection->height = bottom - top;
+			intersection->depth = down - up;
 		}
 
 		return true;
@@ -128,7 +139,7 @@ bool NzCube<T>::IsValid() const
 }
 
 template<typename T>
-void NzCube<T>::MakeZero()
+NzCube<T>& NzCube<T>::MakeZero()
 {
 	x = F(0.0);
 	y = F(0.0);
@@ -136,10 +147,12 @@ void NzCube<T>::MakeZero()
 	width = F(0.0);
 	height = F(0.0);
 	depth = F(0.0);
+
+	return *this;
 }
 
 template<typename T>
-void NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
+NzCube<T>& NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	x = X;
 	y = Y;
@@ -147,10 +160,12 @@ void NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 	width = Width;
 	height = Height;
 	depth = Depth;
+
+	return *this;
 }
 
 template<typename T>
-void NzCube<T>::Set(const T cube[6])
+NzCube<T>& NzCube<T>::Set(const T cube[6])
 {
 	x = cube[0];
 	y = cube[1];
@@ -158,21 +173,25 @@ void NzCube<T>::Set(const T cube[6])
 	width = cube[3];
 	height = cube[4];
 	depth = cube[5];
+
+	return *this;
 }
 
 template<typename T>
-void NzCube<T>::Set(const NzRect<T>& rect)
+NzCube<T>& NzCube<T>::Set(const NzRect<T>& rect)
 {
 	x = rect.x;
 	y = rect.y;
-	z = 0;
+	z = F(0.0);
 	width = rect.width;
 	height = rect.height;
-	depth = 1;
+	depth = F(1.0);
+
+	return *this;
 }
 
 template<typename T>
-void NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+NzCube<T>& NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	x = std::min(vec1.x, vec2.x);
 	y = std::min(vec1.y, vec2.y);
@@ -180,11 +199,13 @@ void NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 	width = (vec2.x > vec1.x) ? vec2.x-vec1.x : vec1.x-vec2.x;
 	height = (vec2.y > vec1.y) ? vec2.y-vec1.y : vec1.y-vec2.y;
 	depth = (vec2.z > vec1.z) ? vec2.z-vec1.z : vec1.z-vec2.z;
+
+	return *this;
 }
 
 template<typename T>
 template<typename U>
-void NzCube<T>::Set(const NzCube<U>& cube)
+NzCube<T>& NzCube<T>::Set(const NzCube<U>& cube)
 {
 	x = F(cube.x);
 	y = F(cube.y);
@@ -192,6 +213,8 @@ void NzCube<T>::Set(const NzCube<U>& cube)
 	width = F(cube.width);
 	height = F(cube.height);
 	depth = F(cube.depth);
+
+	return *this;
 }
 
 template<typename T>
@@ -215,8 +238,9 @@ T& NzCube<T>::operator[](unsigned int i)
 	if (i >= 6)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 6)";
+		ss << "Index out of range: (" << i << " >= 6)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif
@@ -231,8 +255,9 @@ T NzCube<T>::operator[](unsigned int i) const
 	if (i >= 6)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 6)";
+		ss << "Index out of range: (" << i << " >= 6)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif

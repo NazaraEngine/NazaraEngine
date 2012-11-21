@@ -10,12 +10,13 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NAZARA_API NzVertexBuffer : public NzResource
 {
 	public:
-		NzVertexBuffer(NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount);
-		NzVertexBuffer(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount);
+		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
 		~NzVertexBuffer();
 
@@ -27,6 +28,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		unsigned int GetStartVertex() const;
 		nzUInt8 GetTypeSize() const;
 		unsigned int GetVertexCount() const;
+		const NzVertexDeclaration* GetVertexDeclaration() const;
 
 		bool IsHardware() const;
 
@@ -38,6 +40,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 
 	private:
 		NzBuffer* m_buffer;
+		const NzVertexDeclaration* m_vertexDeclaration;
 		bool m_ownsBuffer;
 		unsigned int m_startVertex;
 		unsigned int m_vertexCount;

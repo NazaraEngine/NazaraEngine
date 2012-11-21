@@ -23,9 +23,13 @@ m_resourceReferenceCount(0)
 NzResource::~NzResource()
 {
 	EnsureResourceListenerUpdate();
+	for (const NzResourceEntry& entry : m_resourceListenersCache)
+		entry.listener->OnResourceReleased(this, entry.index);
 
-	for (auto it = m_resourceListenersCache.begin(); it != m_resourceListenersCache.end(); ++it)
-		(*it).listener->OnResourceReleased(this, (*it).index);
+	#if NAZARA_CORE_SAFE
+	if (m_resourceReferenceCount > 0)
+		NazaraWarning("Resource destroyed while still referenced " + NzString::Number(m_resourceReferenceCount) + " time(s)");
+	#endif
 }
 
 void NzResource::AddResourceListener(NzResourceListener* listener, int index) const
@@ -57,14 +61,31 @@ bool NzResource::IsPersistent() const
 
 void NzResource::RemoveResourceListener(NzResourceListener* listener) const
 {
-	NazaraLock(m_mutex)
+	NazaraMutexLock(m_mutex);
 
 	if (m_resourceListeners.erase(listener) != 0)
 		m_resourceListenerUpdated = false;
 	else
-		NazaraError(NzString::Pointer(listener) + " is not listening to " + NzString::Pointer(this));
+		NazaraError(NzString::Pointer(listener) + " is not a listener of " + NzString::Pointer(this));
 
-	RemoveResourceReference();
+	// RemoveResourceReference()
+	#if NAZARA_CORE_SAFE
+	if (m_resourceReferenceCount == 0)
+	{
+		NazaraError("Impossible to remove reference (Ref. counter is already 0)");
+		return;
+	}
+	#endif
+
+	if (--m_resourceReferenceCount == 0 && !m_resourcePersistent)
+	{
+		NazaraMutexUnlock(m_mutex);
+		delete this;
+	}
+	else
+	{
+		NazaraMutexUnlock(m_mutex);
+	}
 }
 
 void NzResource::RemoveResourceReference() const
@@ -112,9 +133,8 @@ void NzResource::NotifyCreated()
 	NazaraLock(m_mutex)
 
 	EnsureResourceListenerUpdate();
-
-	for (auto it = m_resourceListenersCache.begin(); it != m_resourceListenersCache.end(); ++it)
-		(*it).listener->OnResourceCreated(this, (*it).index);
+	for (const NzResourceEntry& entry : m_resourceListenersCache)
+		entry.listener->OnResourceCreated(this, entry.index);
 }
 
 void NzResource::NotifyDestroy()
@@ -122,9 +142,8 @@ void NzResource::NotifyDestroy()
 	NazaraLock(m_mutex)
 
 	EnsureResourceListenerUpdate();
-
-	for (auto it = m_resourceListenersCache.begin(); it != m_resourceListenersCache.end(); ++it)
-		(*it).listener->OnResourceDestroy(this, (*it).index);
+	for (const NzResourceEntry& entry : m_resourceListenersCache)
+		entry.listener->OnResourceDestroy(this, entry.index);
 }
 
 void NzResource::EnsureResourceListenerUpdate() const

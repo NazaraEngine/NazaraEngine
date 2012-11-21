@@ -13,18 +13,13 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzQuaternion<T>::NzQuaternion()
-{
-}
-
-template<typename T>
 NzQuaternion<T>::NzQuaternion(T W, T X, T Y, T Z)
 {
 	Set(W, X, Y, Z);
 }
 
 template<typename T>
-NzQuaternion<T>::NzQuaternion(T quat[4])
+NzQuaternion<T>::NzQuaternion(const T quat[4])
 {
 	Set(quat);
 }
@@ -55,6 +50,29 @@ NzQuaternion<T>::NzQuaternion(const NzQuaternion<U>& quat)
 }
 
 template<typename T>
+NzQuaternion<T>& NzQuaternion<T>::ComputeW()
+{
+	T t = F(1.0) - SquaredMagnitude();
+
+	if (t < F(0.0))
+		w = F(0.0);
+	else
+		w = -std::sqrt(t);
+
+	return *this;
+}
+
+template<typename T>
+NzQuaternion<T>& NzQuaternion<T>::Conjugate()
+{
+	x = -x;
+	y = -y;
+	z = -z;
+
+	return *this;
+}
+
+template<typename T>
 T NzQuaternion<T>::DotProduct(const NzQuaternion& quat) const
 {
 	return w*quat.w + x*quat.x + y*quat.y + z*quat.z;
@@ -63,7 +81,10 @@ T NzQuaternion<T>::DotProduct(const NzQuaternion& quat) const
 template<typename T>
 NzQuaternion<T> NzQuaternion<T>::GetConjugate() const
 {
-	return NzQuaternion(w, -x, -y, -z);
+	NzQuaternion<T> quat(*this);
+	quat.Conjugate();
+
+	return quat;
 }
 
 template<typename T>
@@ -76,16 +97,16 @@ NzQuaternion<T> NzQuaternion<T>::GetInverse() const
 }
 
 template<typename T>
-NzQuaternion<T> NzQuaternion<T>::GetNormal() const
+NzQuaternion<T> NzQuaternion<T>::GetNormal(T* length) const
 {
 	NzQuaternion<T> quat(*this);
-	quat.Normalize();
+	quat.Normalize(length);
 
 	return quat;
 }
 
 template<typename T>
-void NzQuaternion<T>::Inverse()
+NzQuaternion<T>& NzQuaternion<T>::Inverse()
 {
 	T norm = SquaredMagnitude();
 	if (norm > F(0.0))
@@ -97,18 +118,20 @@ void NzQuaternion<T>::Inverse()
 		y *= -invNorm;
 		z *= -invNorm;
 	}
+
+	return *this;
 }
 
 template<typename T>
-void NzQuaternion<T>::MakeIdentity()
+NzQuaternion<T>& NzQuaternion<T>::MakeIdentity()
 {
-	Set(F(1.0), F(0.0), F(0.0), F(0.0));
+	return Set(F(1.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
-void NzQuaternion<T>::MakeZero()
+NzQuaternion<T>& NzQuaternion<T>::MakeZero()
 {
-	Set(F(0.0), F(0.0), F(0.0), F(0.0));
+	return Set(F(0.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>
@@ -118,49 +141,48 @@ T NzQuaternion<T>::Magnitude() const
 }
 
 template<typename T>
-T NzQuaternion<T>::Normalize()
+NzQuaternion<T>& NzQuaternion<T>::Normalize(T* length)
 {
-	T squaredMagnitude = SquaredMagnitude();
+	T norm = std::sqrt(SquaredMagnitude());
+	T invNorm = F(1.0) / norm;
 
-	// Inutile de vérifier si la magnitude au carrée est négative (Elle ne peut pas l'être)
-	if (!NzNumberEquals(squaredMagnitude, F(1.0)))
-	{
-		T norm = std::sqrt(squaredMagnitude);
-		T invNorm = F(1.0) / norm;
+	w *= invNorm;
+	x *= invNorm;
+	y *= invNorm;
+	z *= invNorm;
 
-		w *= invNorm;
-		x *= invNorm;
-		y *= invNorm;
-		z *= invNorm;
+	if (length)
+		*length = norm;
 
-		return norm;
-	}
-	else
-		return F(1.0); // Le quaternion est déjà normalisé
+	return *this;
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(T W, T X, T Y, T Z)
+NzQuaternion<T>& NzQuaternion<T>::Set(T W, T X, T Y, T Z)
 {
 	w = W;
 	x = X;
 	y = Y;
 	z = Z;
+
+	return *this;
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(T quat[4])
+NzQuaternion<T>& NzQuaternion<T>::Set(const T quat[4])
 {
 	w = quat[0];
 	x = quat[1];
 	y = quat[2];
 	z = quat[3];
+
+	return *this;
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
+NzQuaternion<T>& NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 {
-	angle /= F(2.0);
+	angle *= F(0.5);
 
 	#if !NAZARA_MATH_ANGLE_RADIAN
 	angle = NzDegreeToRadian(angle);
@@ -175,32 +197,36 @@ void NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 	y = normalizedAxis.y * sinAngle;
 	z = normalizedAxis.z * sinAngle;
 
-	Normalize();
+	return Normalize();
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(const NzEulerAngles<T>& angles)
+NzQuaternion<T>& NzQuaternion<T>::Set(const NzEulerAngles<T>& angles)
 {
-	Set(angles.ToQuaternion());
+	return Set(angles.ToQuaternion());
 }
 
 template<typename T>
 template<typename U>
-void NzQuaternion<T>::Set(const NzQuaternion<U>& quat)
+NzQuaternion<T>& NzQuaternion<T>::Set(const NzQuaternion<U>& quat)
 {
 	w = static_cast<T>(quat.w);
 	x = static_cast<T>(quat.x);
 	y = static_cast<T>(quat.y);
 	z = static_cast<T>(quat.z);
+
+	return *this;
 }
 
 template<typename T>
-void NzQuaternion<T>::Set(const NzQuaternion& quat)
+NzQuaternion<T>& NzQuaternion<T>::Set(const NzQuaternion& quat)
 {
 	w = quat.w;
 	x = quat.x;
 	y = quat.y;
 	z = quat.z;
+
+	return *this;
 }
 
 template<typename T>
@@ -242,27 +268,31 @@ NzQuaternion<T>::operator NzString() const
 template<typename T>
 NzQuaternion<T>& NzQuaternion<T>::operator=(const NzQuaternion& quat)
 {
-	Set(quat);
-
-	return *this;
+	return Set(quat);
 }
 
 template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator+(const NzQuaternion& quat) const
 {
-	return NzQuaternion(w + quat.w,
-	                    x + quat.x,
-	                    y + quat.y,
-	                    z + quat.z);
+	NzQuaternion result;
+	result.w = w + quat.w;
+	result.x = x + quat.x;
+	result.y = y + quat.y;
+	result.z = z + quat.z;
+
+	return result;
 }
 
 template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator*(const NzQuaternion& quat) const
 {
-	return NzQuaternion(w*quat.w - x*quat.x - y*quat.y - z*quat.z,
-	                    w*quat.x + x*quat.w + y*quat.z - z*quat.y,
-	                    w*quat.y + y*quat.w + z*quat.x - x*quat.z,
-	                    w*quat.z + z*quat.w + x*quat.y - y*quat.x);
+	NzQuaternion result;
+	result.w = w*quat.w - x*quat.x - y*quat.y - z*quat.z;
+	result.x = w*quat.x + x*quat.w + y*quat.z - z*quat.y;
+	result.y = w*quat.y + y*quat.w + z*quat.x - x*quat.z;
+	result.z = w*quat.z + z*quat.w + x*quat.y - y*quat.x;
+
+	return result;
 }
 
 template<typename T>

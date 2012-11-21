@@ -26,7 +26,7 @@
 
 ///TODO: Filtres
 
-struct NzImageParams
+struct NAZARA_API NzImageParams
 {
 	nzPixelFormat loadFormat = nzPixelFormat_Undefined;
 	nzUInt8 levelCount = 0;
