@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/String.hpp>
 
 class NAZARA_API NzStream
 {
@@ -17,6 +18,8 @@ class NAZARA_API NzStream
 		virtual ~NzStream();
 
 		virtual nzUInt64 GetCursorPos() const = 0;
+		virtual NzString GetDirectory() const;
+		virtual NzString GetPath() const;
 		unsigned int GetStreamOptions() const;
 
 		virtual bool SetCursorPos(nzUInt64 offset) = 0;

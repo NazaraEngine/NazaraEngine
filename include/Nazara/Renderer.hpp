@@ -26,9 +26,13 @@
 
 #pragma once
 
+#ifndef NAZARA_GLOBAL_RENDERER_HPP
+#define NAZARA_GLOBAL_RENDERER_HPP
+
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/OcclusionQuery.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -39,3 +43,5 @@
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+
+#endif // NAZARA_GLOBAL_RENDERER_HPP

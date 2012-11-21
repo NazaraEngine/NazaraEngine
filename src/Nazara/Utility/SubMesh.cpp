@@ -12,61 +12,39 @@
 
 NzSubMesh::NzSubMesh(const NzMesh* parent) :
 NzResource(false), // Un SubMesh n'est pas persistant par défaut
-m_parent(parent)
+m_parent(parent),
+m_matIndex(0)
 {
-	#ifdef NAZARA_DEBUG
-	if (!m_parent)
-	{
-		NazaraError("Parent mesh must be valid");
-		throw std::invalid_argument("Parent mesh must be valid");
-	}
-	#endif
 }
 
 NzSubMesh::~NzSubMesh() = default;
-
-void NzSubMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolation)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_parent->HasAnimation())
-	{
-		NazaraError("Parent mesh has no animation");
-		return;
-	}
-
-	unsigned int frameCount = m_parent->GetFrameCount();
-	if (frameA >= frameCount)
-	{
-		NazaraError("Frame A is out of range (" + NzString::Number(frameA) + " >= " + NzString::Number(frameCount) + ')');
-		return;
-	}
-
-	if (frameB >= frameCount)
-	{
-		NazaraError("Frame B is out of range (" + NzString::Number(frameB) + " >= " + NzString::Number(frameCount) + ')');
-		return;
-	}
-	#endif
-
-	#ifdef NAZARA_DEBUG
-	if (interpolation < 0.f || interpolation > 1.f)
-	{
-		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
-		return;
-	}
-	#endif
-
-	AnimateImpl(frameA, frameB, interpolation);
-
-	m_parent->InvalidateAABB();
-}
 
 const NzMesh* NzSubMesh::GetParent() const
 {
 	return m_parent;
 }
 
+nzPrimitiveType NzSubMesh::GetPrimitiveType() const
+{
+	return m_primitiveType;
+}
+
+unsigned int NzSubMesh::GetSkinIndex() const
+{
+	return m_matIndex;
+}
+
 unsigned int NzSubMesh::GetVertexCount() const
 {
 	return GetVertexBuffer()->GetVertexCount();
+}
+
+void NzSubMesh::SetPrimitiveType(nzPrimitiveType primitiveType)
+{
+	m_primitiveType = primitiveType;
+}
+
+void NzSubMesh::SetMaterialIndex(unsigned int matIndex)
+{
+	m_matIndex = matIndex;
 }

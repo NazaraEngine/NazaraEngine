@@ -13,11 +13,6 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzVector2<T>::NzVector2()
-{
-}
-
-template<typename T>
 NzVector2<T>::NzVector2(T X, T Y)
 {
 	Set(X, Y);
@@ -30,7 +25,7 @@ NzVector2<T>::NzVector2(T scale)
 }
 
 template<typename T>
-NzVector2<T>::NzVector2(T vec[2])
+NzVector2<T>::NzVector2(const T vec[2])
 {
 	Set(vec);
 }
@@ -100,83 +95,96 @@ float NzVector2<T>::Lengthf() const
 }
 
 template<typename T>
-void NzVector2<T>::MakeUnitX()
+NzVector2<T>& NzVector2<T>::MakeUnitX()
 {
 	Set(F(1.0), F(0.0));
 }
 
 template<typename T>
-void NzVector2<T>::MakeUnitY()
+NzVector2<T>& NzVector2<T>::MakeUnitY()
 {
-	Set(F(0.0), F(1.0));
+	return Set(F(0.0), F(1.0));
 }
 
 template<typename T>
-void NzVector2<T>::MakeZero()
+NzVector2<T>& NzVector2<T>::MakeZero()
 {
-	Set(F(0.0), F(0.0));
+	return Set(F(0.0), F(0.0));
 }
 
 template<typename T>
-void NzVector2<T>::Maximize(const NzVector2& vec)
+NzVector2<T>& NzVector2<T>::Maximize(const NzVector2& vec)
 {
 	if (vec.x > x)
 		x = vec.x;
 
 	if  (vec.y > y)
 		y = vec.y;
+
+	return *this;
 }
 
 template<typename T>
-void NzVector2<T>::Minimize(const NzVector2& vec)
+NzVector2<T>& NzVector2<T>::Minimize(const NzVector2& vec)
 {
 	if (vec.x < x)
 		x = vec.x;
 
 	if  (vec.y < y)
 		y = vec.y;
+
+	return *this;
 }
 
 template<typename T>
-void NzVector2<T>::Normalize()
+NzVector2<T>& NzVector2<T>::Normalize(T* length)
 {
-	T squaredLength = SquaredLength();
+	T norm = std::sqrt(SquaredLength());
+	T invNorm = F(1.0) / length;
 
-	if (squaredLength-F(1.0) > std::numeric_limits<T>::epsilon())
-	{
-		T length = std::sqrt(squaredLength);
+	x *= invNorm;
+	y *= invNorm;
 
-		x /= length;
-		y /= length;
-	}
+	if (length)
+		*length = norm;
+
+	return *this;
 }
 
 template<typename T>
-void NzVector2<T>::Set(T X, T Y)
+NzVector2<T>& NzVector2<T>::Set(T X, T Y)
 {
 	x = X;
 	y = Y;
+
+	return *this;
 }
 
 template<typename T>
-void NzVector2<T>::Set(T scale)
+NzVector2<T>& NzVector2<T>::Set(T scale)
 {
 	x = scale;
 	y = scale;
+
+	return *this;
 }
 
 template<typename T>
-void NzVector2<T>::Set(T vec[2])
+NzVector2<T>& NzVector2<T>::Set(const T vec[2])
 {
 	std::memcpy(&x, vec, 2*sizeof(T));
+
+	return *this;
 }
 
 template<typename T>
 template<typename U>
-void NzVector2<T>::Set(const NzVector2<U>& vec)
+NzVector2<T>& NzVector2<T>::Set(const NzVector2<U>& vec)
 {
 	x = F(vec.x);
 	y = F(vec.y);
+
+	return *this;
 }
 
 template<typename T>
@@ -224,8 +232,9 @@ T& NzVector2<T>::operator[](unsigned int i)
 	if (i >= 2)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 2)";
+		ss << "Index out of range: (" << i << " >= 2)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif
@@ -240,8 +249,9 @@ T NzVector2<T>::operator[](unsigned int i) const
 	if (i >= 2)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 2)";
+		ss << "Index out of range: (" << i << " >= 2)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif
@@ -291,10 +301,10 @@ NzVector2<T> NzVector2<T>::operator/(const NzVector2& vec) const
 	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)))
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		NzString error("Division by zero");
 
-		throw std::domain_error(ss.ToString());
+		NazaraError(error);
+		throw std::domain_error(error);
 	}
 	#endif
 
@@ -307,10 +317,10 @@ NzVector2<T> NzVector2<T>::operator/(T scale) const
 	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(scale, F(0.0)))
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		NzString error("Division by zero");
 
-		throw std::domain_error(ss.ToString());
+		NazaraError(error);
+		throw std::domain_error(error);
 	}
 	#endif
 
@@ -359,10 +369,10 @@ NzVector2<T>& NzVector2<T>::operator/=(const NzVector2& vec)
 	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		NzString error("Division by zero");
 
-		throw std::domain_error(ss.ToString());
+		NazaraError(error);
+		throw std::domain_error(error);
 	}
 	#endif
 
@@ -378,10 +388,10 @@ NzVector2<T>& NzVector2<T>::operator/=(T scale)
 	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(scale, F(0.0)))
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		NzString error("Division by zero");
 
-		throw std::domain_error(ss.ToString());
+		NazaraError(error);
+		throw std::domain_error(error);
 	}
 	#endif
 
@@ -479,10 +489,10 @@ NzVector2<T> operator/(T scale, const NzVector2<T>& vec)
 	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Division by zero";
+		NzString error("Division by zero");
 
-		throw std::domain_error(ss.ToString());
+		NazaraError(error);
+		throw std::domain_error(error);
 	}
 	#endif
 

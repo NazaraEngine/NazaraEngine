@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <cmath>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643

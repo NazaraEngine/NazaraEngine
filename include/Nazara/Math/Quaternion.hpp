@@ -15,9 +15,9 @@ template<typename T> class NzVector3;
 template<typename T> class NzQuaternion
 {
 	public:
-		NzQuaternion();
+		NzQuaternion() = default;
 		NzQuaternion(T W, T X, T Y, T Z);
-		NzQuaternion(T quat[4]);
+		NzQuaternion(const T quat[4]);
 		NzQuaternion(T angle, const NzVector3<T>& axis);
 		NzQuaternion(const NzEulerAngles<T>& angles);
 		//NzQuaternion(const NzMatrix3<T>& mat);
@@ -25,28 +25,31 @@ template<typename T> class NzQuaternion
 		NzQuaternion(const NzQuaternion& quat) = default;
 		~NzQuaternion() = default;
 
+		NzQuaternion& ComputeW();
+		NzQuaternion& Conjugate();
+
 		T DotProduct(const NzQuaternion& vec) const;
 
 		NzQuaternion GetConjugate() const;
 		NzQuaternion GetInverse() const;
-		NzQuaternion GetNormal() const;
+		NzQuaternion GetNormal(T* length = nullptr) const;
 
-		void Inverse();
+		NzQuaternion& Inverse();
 
-		void MakeIdentity();
-		void MakeZero();
+		NzQuaternion& MakeIdentity();
+		NzQuaternion& MakeZero();
 
 		T Magnitude() const;
 
-		T Normalize();
+		NzQuaternion& Normalize(T* length = nullptr);
 
-		void Set(T W, T X, T Y, T Z);
-		void Set(T quat[4]);
-		void Set(T angle, const NzVector3<T>& normalizedAxis);
-		void Set(const NzEulerAngles<T>& angles);
-		//void Set(const NzMatrix3<T>& mat);
-		void Set(const NzQuaternion& quat);
-		template<typename U> void Set(const NzQuaternion<U>& quat);
+		NzQuaternion& Set(T W, T X, T Y, T Z);
+		NzQuaternion& Set(const T quat[4]);
+		NzQuaternion& Set(T angle, const NzVector3<T>& normalizedAxis);
+		NzQuaternion& Set(const NzEulerAngles<T>& angles);
+		//NzQuaternion& Set(const NzMatrix3<T>& mat);
+		NzQuaternion& Set(const NzQuaternion& quat);
+		template<typename U> NzQuaternion& Set(const NzQuaternion<U>& quat);
 
 		T SquaredMagnitude() const;
 

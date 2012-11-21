@@ -12,18 +12,13 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzEulerAngles<T>::NzEulerAngles()
-{
-}
-
-template<typename T>
 NzEulerAngles<T>::NzEulerAngles(T P, T Y, T R)
 {
 	Set(P, Y, R);
 }
 
 template<typename T>
-NzEulerAngles<T>::NzEulerAngles(T angles[3])
+NzEulerAngles<T>::NzEulerAngles(const T angles[3])
 {
 	Set(angles);
 }
@@ -64,7 +59,7 @@ void NzEulerAngles<T>::Set(T P, T Y, T R)
 }
 
 template<typename T>
-void NzEulerAngles<T>::Set(T angles[3])
+void NzEulerAngles<T>::Set(const T angles[3])
 {
 	pitch = angles[0];
 	yaw = angles[1];
@@ -97,9 +92,9 @@ void NzEulerAngles<T>::Set(const NzEulerAngles<U>& angles)
 template<typename T>
 NzQuaternion<T> NzEulerAngles<T>::ToQuaternion() const
 {
-	NzQuaternion<T> rotX(pitch, NzVector3<T>(F(1.0), F(0.0), F(0.0)));
-	NzQuaternion<T> rotY(yaw, NzVector3<T>(F(0.0), F(1.0), F(0.0)));
-	NzQuaternion<T> rotZ(roll, NzVector3<T>(F(0.0), F(0.0), F(1.0)));
+	NzQuaternion<T> rotX(pitch, NzVector3<T>::UnitX());
+	NzQuaternion<T> rotY(yaw, NzVector3<T>::UnitY());
+	NzQuaternion<T> rotZ(roll, NzVector3<T>::UnitZ());
 
 	return rotY * rotX * rotZ;
 }

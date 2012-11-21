@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <map>
 #include <vector>
 #include <Nazara/Utility/Debug.hpp>
@@ -13,15 +14,17 @@ struct NzAnimationImpl
 {
 	std::map<NzString, unsigned int> sequenceMap;
 	std::vector<NzSequence> sequences;
+	std::vector<NzSequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 	nzAnimationType type;
 	unsigned int frameCount;
+	unsigned int jointCount;  // Uniquement pour les animations squelettiques
 };
 
 bool NzAnimationParams::IsValid() const
 {
 	if (startFrame > endFrame)
 	{
-		NazaraError("Start frame must be lower than end frame");
+		NazaraError("Start frame index must be smaller than end frame index");
 		return false;
 	}
 
@@ -41,9 +44,34 @@ bool NzAnimation::AddSequence(const NzSequence& sequence)
 		NazaraError("Animation not created");
 		return false;
 	}
+
+	if (sequence.frameCount == 0)
+	{
+		NazaraError("Sequence frame count must be over 0");
+		return false;
+	}
 	#endif
 
-	unsigned int index = m_impl->sequences.size();
+	if (m_impl->type == nzAnimationType_Skeletal)
+	{
+		unsigned int endFrame = sequence.firstFrame + sequence.frameCount - 1;
+		if (endFrame >= m_impl->frameCount)
+		{
+			m_impl->frameCount = endFrame+1;
+			m_impl->sequenceJoints.resize(m_impl->frameCount*m_impl->jointCount);
+		}
+	}
+	#if NAZARA_UTILITY_SAFE
+	else
+	{
+		unsigned int endFrame = sequence.firstFrame + sequence.frameCount - 1;
+		if (endFrame >= m_impl->frameCount)
+		{
+			NazaraError("Sequence end frame is over animation end frame");
+			return false;
+		}
+	}
+	#endif
 
 	if (!sequence.name.IsEmpty())
 	{
@@ -56,7 +84,7 @@ bool NzAnimation::AddSequence(const NzSequence& sequence)
 		}
 		#endif
 
-		m_impl->sequenceMap[sequence.name] = index;
+		m_impl->sequenceMap[sequence.name] = m_impl->sequences.size();
 	}
 
 	m_impl->sequences.push_back(sequence);
@@ -64,17 +92,72 @@ bool NzAnimation::AddSequence(const NzSequence& sequence)
 	return true;
 }
 
-bool NzAnimation::Create(nzAnimationType type, unsigned int frameCount)
+void NzAnimation::AnimateSkeleton(NzSkeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return;
+	}
+
+	if (m_impl->type != nzAnimationType_Skeletal)
+	{
+		NazaraError("Animation is not skeletal");
+		return;
+	}
+
+	if (!targetSkeleton || !targetSkeleton->IsValid())
+	{
+		NazaraError("Target skeleton is invalid");
+		return;
+	}
+
+	if (targetSkeleton->GetJointCount() != m_impl->jointCount)
+	{
+		NazaraError("Target skeleton joint count must match animation joint count");
+		return;
+	}
+
+	if (frameA >= m_impl->frameCount)
+	{
+		NazaraError("Frame A is out of range (" + NzString::Number(frameA) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return;
+	}
+
+	if (frameB >= m_impl->frameCount)
+	{
+		NazaraError("Frame B is out of range (" + NzString::Number(frameB) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return;
+	}
+	#endif
+
+	#ifdef NAZARA_DEBUG
+	if (interpolation < 0.f || interpolation > 1.f)
+	{
+		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
+		return;
+	}
+	#endif
+
+	for (unsigned int i = 0; i < m_impl->jointCount; ++i)
+	{
+		NzJoint* joint = targetSkeleton->GetJoint(i);
+
+		NzSequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
+		NzSequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
+
+		joint->SetRotation(NzQuaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation));
+		joint->SetScale(NzVector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation));
+		joint->SetTranslation(NzVector3f::Lerp(sequenceJointA.translation, sequenceJointB.translation, interpolation));
+	}
+}
+
+bool NzAnimation::CreateKeyframe(unsigned int frameCount)
 {
 	Destroy();
 
 	#if NAZARA_UTILITY_SAFE
-	if (type == nzAnimationType_Static)
-	{
-		NazaraError("Invalid type");
-		return false;
-	}
-
 	if (frameCount == 0)
 	{
 		NazaraError("Frame count must be over zero");
@@ -84,7 +167,29 @@ bool NzAnimation::Create(nzAnimationType type, unsigned int frameCount)
 
 	m_impl = new NzAnimationImpl;
 	m_impl->frameCount = frameCount;
-	m_impl->type = type;
+	m_impl->type = nzAnimationType_Keyframe;
+
+	NotifyCreated();
+	return true;
+}
+
+bool NzAnimation::CreateSkeletal(unsigned int frameCount, unsigned int jointCount)
+{
+	Destroy();
+
+	#if NAZARA_UTILITY_SAFE
+	if (frameCount == 0)
+	{
+		NazaraError("Frame count must be over zero");
+		return false;
+	}
+	#endif
+
+	m_impl = new NzAnimationImpl;
+	m_impl->frameCount = frameCount;
+	m_impl->jointCount = jointCount;
+	m_impl->sequenceJoints.resize(frameCount*jointCount);
+	m_impl->type = nzAnimationType_Skeletal;
 
 	NotifyCreated();
 	return true;
@@ -122,18 +227,19 @@ NzSequence* NzAnimation::GetSequence(const NzString& sequenceName)
 		NazaraError("Animation not created");
 		return nullptr;
 	}
+	#endif
 
 	auto it = m_impl->sequenceMap.find(sequenceName);
+
+	#if NAZARA_UTILITY_SAFE
 	if (it == m_impl->sequenceMap.end())
 	{
 		NazaraError("Sequence not found");
 		return nullptr;
 	}
+	#endif
 
 	return &m_impl->sequences[it->second];
-	#else
-	return &m_impl->sequences[m_impl->sequenceMap[sequenceName]];
-	#endif
 }
 
 NzSequence* NzAnimation::GetSequence(unsigned int index)
@@ -163,18 +269,19 @@ const NzSequence* NzAnimation::GetSequence(const NzString& sequenceName) const
 		NazaraError("Animation not created");
 		return nullptr;
 	}
+	#endif
 
 	auto it = m_impl->sequenceMap.find(sequenceName);
+
+	#if NAZARA_UTILITY_SAFE
 	if (it == m_impl->sequenceMap.end())
 	{
 		NazaraError("Sequence not found");
 		return nullptr;
 	}
+	#endif
 
 	return &m_impl->sequences[it->second];
-	#else
-	return &m_impl->sequences[m_impl->sequenceMap[sequenceName]];
-	#endif
 }
 
 const NzSequence* NzAnimation::GetSequence(unsigned int index) const
@@ -217,18 +324,57 @@ int NzAnimation::GetSequenceIndex(const NzString& sequenceName) const
 		NazaraError("Animation not created");
 		return -1;
 	}
+	#endif
 
 	auto it = m_impl->sequenceMap.find(sequenceName);
+
+	#if NAZARA_UTILITY_SAFE
 	if (it == m_impl->sequenceMap.end())
 	{
 		NazaraError("Sequence not found");
 		return -1;
 	}
+	#endif
 
 	return it->second;
-	#else
-	return m_impl->sequenceMap[sequenceName];
+}
+
+NzSequenceJoint* NzAnimation::GetSequenceJoints(unsigned int frameIndex)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return nullptr;
+	}
+
+	if (m_impl->type != nzAnimationType_Skeletal)
+	{
+		NazaraError("Animation is not skeletal");
+		return nullptr;
+	}
 	#endif
+
+	return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
+}
+
+const NzSequenceJoint* NzAnimation::GetSequenceJoints(unsigned int frameIndex) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return nullptr;
+	}
+
+	if (m_impl->type != nzAnimationType_Skeletal)
+	{
+		NazaraError("Animation is not skeletal");
+		return nullptr;
+	}
+	#endif
+
+	return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
 }
 
 nzAnimationType NzAnimation::GetType() const

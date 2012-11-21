@@ -7,6 +7,16 @@
 
 NzStream::~NzStream() = default;
 
+NzString NzStream::GetDirectory() const
+{
+	return NzString();
+}
+
+NzString NzStream::GetPath() const
+{
+	return NzString();
+}
+
 unsigned int NzStream::GetStreamOptions() const
 {
 	return m_streamOptions;

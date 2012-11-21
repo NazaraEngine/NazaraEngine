@@ -67,11 +67,11 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 
 		time_t GetCreationTime() const;
 		nzUInt64 GetCursorPos() const;
-		NzString GetDirectoryPath() const;
-		NzString GetFilePath() const;
+		NzString GetDirectory() const;
 		NzString GetFileName() const;
 		time_t GetLastAccessTime() const;
 		time_t GetLastWriteTime() const;
+		NzString GetPath() const;
 		nzUInt64 GetSize() const;
 
 		bool IsOpen() const;
@@ -99,12 +99,13 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		static bool Delete(const NzString& filePath);
 		static bool Exists(const NzString& filePath);
 		static time_t GetCreationTime(const NzString& filePath);
+		static NzString GetDirectory(const NzString& filePath);
 		static time_t GetLastAccessTime(const NzString& filePath);
 		static time_t GetLastWriteTime(const NzString& filePath);
 		static NzHashDigest GetHash(const NzString& filePath, nzHash hash);
 		static NzHashDigest GetHash(const NzString& filePath, NzHashImpl* hash);
 		static nzUInt64 GetSize(const NzString& filePath);
-		static bool IsAbsolute(const NzString& path);
+		static bool IsAbsolute(const NzString& filePath);
 		static NzString NormalizePath(const NzString& filePath);
 		static NzString NormalizeSeparators(const NzString& filePath);
 		static bool Rename(const NzString& sourcePath, const NzString& targetPath);

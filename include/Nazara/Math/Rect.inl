@@ -9,11 +9,6 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzRect<T>::NzRect()
-{
-}
-
-template<typename T>
 NzRect<T>::NzRect(T X, T Y, T Width, T Height)
 {
 	Set(X, Y, Width, Height);
@@ -59,27 +54,43 @@ bool NzRect<T>::Contains(const NzRect<T>& rect) const
 }
 
 template<typename T>
-void NzRect<T>::ExtendTo(const NzVector2<T>& point)
+NzRect<T>& NzRect<T>::ExtendTo(const NzVector2<T>& point)
 {
 	x = std::min(x, point.x);
 	y = std::min(y, point.y);
-	width = std::max(x+width, point.x)-x;
-	height = std::max(y+height, point.y)-y;
+	width = std::max(x + width, point.x) - x;
+	height = std::max(y + height, point.y) - y;
+
+	return *this;
 }
 
 template<typename T>
-void NzRect<T>::ExtendTo(const NzRect& rect)
+NzRect<T>& NzRect<T>::ExtendTo(const NzRect& rect)
 {
 	x = std::min(x, rect.x);
 	y = std::min(y, rect.y);
-	width = std::max(x+width, rect.x+rect.width)-x;
-	height = std::max(x+height, rect.y+rect.height)-y;
+	width = std::max(x + width, rect.x + rect.width) - x;
+	height = std::max(x + height, rect.y + rect.height) - y;
+
+	return *this;
 }
 
 template<typename T>
 NzVector2<T> NzRect<T>::GetCenter() const
 {
-	return NzVector2<T>((x+width)/F(2.0), (y+height)/F(2.0));
+	return NzVector2<T>(x + width/F(2.0), y + height/F(2.0));
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetPosition() const
+{
+	return NzVector2<T>(x, y);
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetSize() const
+{
+	return NzVector2<T>(width, height);
 }
 
 template<typename T>
@@ -113,49 +124,59 @@ bool NzRect<T>::IsValid() const
 }
 
 template<typename T>
-void NzRect<T>::MakeZero()
+NzRect<T>& NzRect<T>::MakeZero()
 {
 	x = F(0.0);
 	y = F(0.0);
 	width = F(0.0);
 	height = F(0.0);
+
+	return *this;
 }
 
 template<typename T>
-void NzRect<T>::Set(T X, T Y, T Width, T Height)
+NzRect<T>& NzRect<T>::Set(T X, T Y, T Width, T Height)
 {
 	x = X;
 	y = Y;
 	width = Width;
 	height = Height;
+
+	return *this;
 }
 
 template<typename T>
-void NzRect<T>::Set(const T rect[4])
+NzRect<T>& NzRect<T>::Set(const T rect[4])
 {
 	x = rect[0];
 	y = rect[1];
 	width = rect[2];
 	height = rect[3];
+
+	return *this;
 }
 
 template<typename T>
-void NzRect<T>::Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2)
+NzRect<T>& NzRect<T>::Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2)
 {
 	x = std::min(vec1.x, vec2.x);
 	y = std::min(vec1.y, vec2.y);
 	width = (vec2.x > vec1.x) ? vec2.x-vec1.x : vec1.x-vec2.x;
 	height = (vec2.y > vec1.y) ? vec2.y-vec1.y : vec1.y-vec2.y;
+
+	return *this;
 }
 
 template<typename T>
 template<typename U>
-void NzRect<T>::Set(const NzRect<U>& rect)
+NzRect<T>& NzRect<T>::Set(const NzRect<U>& rect)
 {
 	x = F(rect.x);
 	y = F(rect.y);
 	width = F(rect.width);
 	height = F(rect.height);
+
+	return *this;
 }
 
 template<typename T>
@@ -179,8 +200,9 @@ T& NzRect<T>::operator[](unsigned int i)
 	if (i >= 4)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 4)";
+		ss << "Index out of range: (" << i << " >= 4)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif
@@ -195,8 +217,9 @@ T NzRect<T>::operator[](unsigned int i) const
 	if (i >= 4)
 	{
 		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << ": Index out of range (" << i << " >= 4)";
+		ss << "Index out of range: (" << i << " >= 4)";
 
+		NazaraError(ss);
 		throw std::domain_error(ss.ToString());
 	}
 	#endif

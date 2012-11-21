@@ -725,4 +725,6 @@ void NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
 		m_impl->checked = false;
 		m_impl->drawBuffersUpdated = false;
 	}
+
+	resource->RemoveResourceListener(this);
 }

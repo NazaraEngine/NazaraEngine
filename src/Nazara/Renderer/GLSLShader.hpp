@@ -20,7 +20,7 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 {
 	public:
 		NzGLSLShader(NzShader* parent);
-		~NzGLSLShader();
+		~NzGLSLShader() = default;
 
 		bool Bind();
 		bool BindTextures();
