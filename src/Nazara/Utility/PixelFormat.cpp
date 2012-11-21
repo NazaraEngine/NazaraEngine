@@ -1104,6 +1104,9 @@ namespace
 
 bool NzPixelFormat::Initialize()
 {
+	// Réinitialisation
+	std::memset(s_convertFunctions, 0, (nzPixelFormat_Max+1)*(nzPixelFormat_Max+1)*sizeof(NzPixelFormat::ConvertFunction));
+
 	/**********************************BGR8***********************************/
 	RegisterConverter<nzPixelFormat_BGR8, nzPixelFormat_BGRA8>();
 	RegisterConverter<nzPixelFormat_BGR8, nzPixelFormat_L8>();
@@ -1320,5 +1323,5 @@ void NzPixelFormat::Uninitialize()
 		s_flipFunctions[i].clear();
 }
 
-NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1] = {{nullptr}}; ///FIXME: Fonctionne correctement ?
+NzPixelFormat::ConvertFunction NzPixelFormat::s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
 std::map<nzPixelFormat, NzPixelFormat::FlipFunction> NzPixelFormat::s_flipFunctions[nzPixelFlipping_Max+1];

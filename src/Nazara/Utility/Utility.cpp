@@ -9,6 +9,8 @@
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
+#include <Nazara/Utility/Loaders/MD5Anim.hpp>
+#include <Nazara/Utility/Loaders/MD5Mesh.hpp>
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -48,16 +50,21 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
-	/// Loaders spécialisés
-	// Mesh
-	NzLoaders_MD2_Register(); // Loader de fichiers .MD2 (v8)
+	// On enregistre les loaders pour les extensions
+	// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
-	// Image
-	NzLoaders_PCX_Register(); // Loader de fichiers .PCX (1, 4, 8, 24)
-
-	/// Loaders génériques (En dernier pour donner la priorité aux loaders spécialisés)
+	/// Loaders génériques
 	// Image
 	NzLoaders_STB_Register(); // Loader générique (STB)
+
+	/// Loaders spécialisés
+	// Mesh
+	NzLoaders_MD2_Register(); // Loader de fichiers .md2 (v8)
+	NzLoaders_MD5Anim_Register(); // Loader de fichiers .md5anim (v10)
+	NzLoaders_MD5Mesh_Register(); // Loader de fichiers .md5mesh (v10)
+
+	// Image
+	NzLoaders_PCX_Register(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
 
 	NazaraNotice("Initialized: Utility module");
 
@@ -76,6 +83,7 @@ void NzUtility::Uninitialize()
 
 	// Libération du module
 	NzLoaders_MD2_Unregister();
+	NzLoaders_MD5Mesh_Unregister();
 	NzLoaders_PCX_Unregister();
 	NzLoaders_STB_Unregister();
 

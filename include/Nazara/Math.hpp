@@ -27,6 +27,9 @@
 
 #pragma once
 
+#ifndef NAZARA_GLOBAL_MATH_HPP
+#define NAZARA_GLOBAL_MATH_HPP
+
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Cube.hpp>
@@ -37,3 +40,5 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+
+#endif // NAZARA_GLOBAL_MATH_HPP

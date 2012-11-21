@@ -26,6 +26,9 @@
 
 #pragma once
 
+#ifndef NAZARA_GLOBAL_UTILITY_HPP
+#define NAZARA_GLOBAL_UTILITY_HPP
+
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -37,16 +40,25 @@
 #include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Mouse.hpp>
+#include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/Sequence.hpp>
+#include <Nazara/Utility/SkeletalMesh.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Utility/Vertex.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
+
+#endif // NAZARA_GLOBAL_UTILITY_HPP

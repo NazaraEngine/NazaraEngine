@@ -29,8 +29,8 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
 
-		bool CopyToImage(NzImage* image); ///TODO: Const
-		bool CopyToTexture(NzTexture* texture); ///TODO: Const
+		bool CopyToImage(NzImage* image) const;
+		bool CopyToTexture(NzTexture* texture) const;
 
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		bool Create(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
@@ -61,7 +61,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		NzClock m_clock;
 		NzContextParameters m_parameters;
-		NzContext* m_context = nullptr;
+		mutable NzContext* m_context = nullptr;
 		unsigned int m_framerateLimit = 0;
 };
 

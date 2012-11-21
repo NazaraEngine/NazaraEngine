@@ -124,7 +124,7 @@ void NzResourceLoader<Type, Parameters>::RegisterLoader(const NzString& fileExte
 	std::set<NzString> extensions;
 	std::copy(exts.begin(), exts.end(), std::inserter(extensions, extensions.begin()));
 
-	Type::s_loaders.insert(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
+	Type::s_loaders.push_front(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
 }
 
 template<typename Type, typename Parameters>
@@ -136,7 +136,7 @@ void NzResourceLoader<Type, Parameters>::UnregisterLoader(const NzString& fileEx
 	std::set<NzString> extensions;
 	std::copy(exts.begin(), exts.end(), std::inserter(extensions, extensions.begin()));
 
-	Type::s_loaders.erase(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
+	Type::s_loaders.remove(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
 }
 
 #include <Nazara/Core/DebugOff.hpp>

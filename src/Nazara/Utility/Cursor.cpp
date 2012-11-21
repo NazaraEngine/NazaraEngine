@@ -34,6 +34,7 @@ bool NzCursor::Create(const NzImage& cursor, int hotSpotX, int hotSpotY)
 		NazaraError("Failed to create cursor implementation");
 		delete m_impl;
 		m_impl = nullptr;
+
 		return false;
 	}
 
@@ -50,6 +51,7 @@ void NzCursor::Destroy()
 	if (m_impl)
 	{
 		m_impl->Destroy();
+
 		delete m_impl;
 		m_impl = nullptr;
 	}

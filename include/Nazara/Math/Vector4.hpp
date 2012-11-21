@@ -13,10 +13,10 @@
 template<typename T> class NzVector4
 {
 	public:
-		NzVector4();
+		NzVector4() = default;
 		NzVector4(T X, T Y, T Z, T W = 1.0);
 		explicit NzVector4(T scale);
-		NzVector4(T vec[4]);
+		NzVector4(const T vec[4]);
 		NzVector4(const NzVector3<T>& vec, T W = 1.0);
 		template<typename U> explicit NzVector4(const NzVector4<U>& vec);
 		NzVector4(const NzVector4& vec) = default;
@@ -26,21 +26,21 @@ template<typename T> class NzVector4
 
 		T DotProduct(const NzVector4& vec) const;
 
-		void MakeUnitX();
-		void MakeUnitY();
-		void MakeUnitZ();
-		void MakeZero();
+		NzVector4& MakeUnitX();
+		NzVector4& MakeUnitY();
+		NzVector4& MakeUnitZ();
+		NzVector4& MakeZero();
 
-		void Maximize(const NzVector4& vec);
-		void Minimize(const NzVector4& vec);
+		NzVector4& Maximize(const NzVector4& vec);
+		NzVector4& Minimize(const NzVector4& vec);
 
-		void Normalize();
+		NzVector4& Normalize(T* length = nullptr);
 
-		void Set(T X, T Y, T Z, T W = 1.0);
-		void Set(T scale);
-		void Set(T vec[4]);
-		void Set(const NzVector3<T>& vec, T W = 1.0);
-		template<typename U> void Set(const NzVector4<U>& vec);
+		NzVector4& Set(T X, T Y, T Z, T W = 1.0);
+		NzVector4& Set(T scale);
+		NzVector4& Set(const T vec[4]);
+		NzVector4& Set(const NzVector3<T>& vec, T W = 1.0);
+		template<typename U> NzVector4& Set(const NzVector4<U>& vec);
 
 		NzString ToString() const;
 

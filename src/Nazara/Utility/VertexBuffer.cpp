@@ -9,35 +9,54 @@
 
 ///FIXME: Gérer efficacement les erreurs de création du buffer
 
-NzVertexBuffer::NzVertexBuffer(NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount) :
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount) :
 m_buffer(buffer),
+m_vertexDeclaration(vertexDeclaration),
 m_ownsBuffer(false),
 m_startVertex(startVertex),
 m_vertexCount(vertexCount)
 {
 	#ifdef NAZARA_DEBUG
-	if (!m_buffer)
+	if (!m_buffer || !m_buffer->IsValid())
 	{
-		NazaraError("Buffer is null");
+		NazaraError("Buffer is invalid");
 		throw std::invalid_argument("Buffer must be valid");
+	}
+
+	if (!m_vertexDeclaration || !m_vertexDeclaration->IsValid())
+	{
+		NazaraError("Vertex declaration is invalid");
+		throw std::invalid_argument("Invalid vertex declaration");
 	}
 	#endif
 
 	m_buffer->AddResourceReference();
+	m_vertexDeclaration->AddResourceReference();
 }
 
-NzVertexBuffer::NzVertexBuffer(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage) :
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage) :
+m_vertexDeclaration(vertexDeclaration),
 m_ownsBuffer(true),
 m_startVertex(0),
 m_vertexCount(length)
 {
-	m_buffer = new NzBuffer(nzBufferType_Vertex, length, typeSize, storage, usage);
+	#ifdef NAZARA_DEBUG
+	if (!m_vertexDeclaration || !m_vertexDeclaration->IsValid())
+	{
+		NazaraError("Vertex declaration is invalid");
+		throw std::invalid_argument("Invalid vertex declaration");
+	}
+	#endif
+
+	m_buffer = new NzBuffer(nzBufferType_Vertex, length, vertexDeclaration->GetStride(nzElementStream_VertexData), storage, usage);
 	m_buffer->AddResourceReference();
 	m_buffer->SetPersistent(false);
+	m_vertexDeclaration->AddResourceReference();
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexBuffer& vertexBuffer) :
 NzResource(true),
+m_vertexDeclaration(vertexBuffer.m_vertexDeclaration),
 m_ownsBuffer(vertexBuffer.m_ownsBuffer),
 m_startVertex(vertexBuffer.m_startVertex),
 m_vertexCount(vertexBuffer.m_vertexCount)
@@ -56,11 +75,14 @@ m_vertexCount(vertexBuffer.m_vertexCount)
 		m_buffer = vertexBuffer.m_buffer;
 		m_buffer->AddResourceReference();
 	}
+
+	m_vertexDeclaration->AddResourceReference();
 }
 
 NzVertexBuffer::~NzVertexBuffer()
 {
 	m_buffer->RemoveResourceReference();
+	m_vertexDeclaration->RemoveResourceReference();
 }
 
 bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
@@ -104,6 +126,11 @@ nzUInt8 NzVertexBuffer::GetTypeSize() const
 unsigned int NzVertexBuffer::GetVertexCount() const
 {
 	return m_vertexCount;
+}
+
+const NzVertexDeclaration* NzVertexBuffer::GetVertexDeclaration() const
+{
+	return m_vertexDeclaration;
 }
 
 bool NzVertexBuffer::IsHardware() const

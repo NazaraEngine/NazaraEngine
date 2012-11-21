@@ -37,6 +37,8 @@ namespace
 		nzUInt8 padding[54];
 	};
 
+	//static_assert(sizeof(pcx_header) == 1024, "PCX header must be 1024 bytes sized");
+
 	bool Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);

@@ -13,10 +13,10 @@
 template<typename T> class NzVector3
 {
 	public:
-		NzVector3();
+		NzVector3() = default;
 		NzVector3(T X, T Y, T Z);
 		explicit NzVector3(T scale);
-		NzVector3(T vec[3]);
+		NzVector3(const T vec[3]);
 		NzVector3(const NzVector2<T>& vec, T Z = 0.0);
 		template<typename U> explicit NzVector3(const NzVector3<U>& vec);
 		NzVector3(const NzVector3& vec) = default;
@@ -36,24 +36,24 @@ template<typename T> class NzVector3
 		T Length() const;
 		float Lengthf() const;
 
-		void MakeForward();
-		void MakeLeft();
-		void MakeUnitX();
-		void MakeUnitY();
-		void MakeUnitZ();
-		void MakeUp();
-		void MakeZero();
+		NzVector3& MakeForward();
+		NzVector3& MakeLeft();
+		NzVector3& MakeUnitX();
+		NzVector3& MakeUnitY();
+		NzVector3& MakeUnitZ();
+		NzVector3& MakeUp();
+		NzVector3& MakeZero();
 
-		void Maximize(const NzVector3& vec);
-		void Minimize(const NzVector3& vec);
+		NzVector3& Maximize(const NzVector3& vec);
+		NzVector3& Minimize(const NzVector3& vec);
 
-		void Normalize();
+		NzVector3& Normalize(T* length = nullptr);
 
-		void Set(T X, T Y, T Z);
-		void Set(T scale);
-		void Set(T vec[3]);
-		void Set(const NzVector2<T>& vec, T Z = 0.0);
-		template<typename U> void Set(const NzVector3<U>& vec);
+		NzVector3& Set(T X, T Y, T Z);
+		NzVector3& Set(T scale);
+		NzVector3& Set(const T vec[3]);
+		NzVector3& Set(const NzVector2<T>& vec, T Z = 0.0);
+		template<typename U> NzVector3& Set(const NzVector3<U>& vec);
 
 		T SquaredDistance(const NzVector3& vec) const;
 		T SquaredLength() const;

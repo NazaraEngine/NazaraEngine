@@ -34,6 +34,7 @@ bool NzIcon::Create(const NzImage& icon)
 		NazaraError("Failed to create icon implementation");
 		delete m_impl;
 		m_impl = nullptr;
+
 		return false;
 	}
 
@@ -45,6 +46,7 @@ void NzIcon::Destroy()
 	if (m_impl)
 	{
 		m_impl->Destroy();
+
 		delete m_impl;
 		m_impl = nullptr;
 	}
