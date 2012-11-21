@@ -3369,7 +3369,7 @@ NzString NzString::Simplified(nzUInt32 flags) const
 		while (++ptr != limit);
 	}
 
-	if (!inword)
+	if (!inword && p != str)
 		p--;
 
 	*p = '\0';
@@ -4040,7 +4040,7 @@ NzString NzString::Trimmed(char character, nzUInt32 flags) const
 		{
 			for (; endPos > 0; --endPos)
 			{
-				if (nzToLower(m_sharedString->string[startPos]) != ch)
+				if (nzToLower(m_sharedString->string[endPos]) != ch)
 					break;
 			}
 		}
@@ -4060,7 +4060,7 @@ NzString NzString::Trimmed(char character, nzUInt32 flags) const
 		{
 			for (; endPos > 0; --endPos)
 			{
-				if (m_sharedString->string[startPos] != character)
+				if (m_sharedString->string[endPos] != character)
 					break;
 			}
 		}

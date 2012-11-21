@@ -12,8 +12,9 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 
-struct NzAnimationParams
+struct NAZARA_API NzAnimationParams
 {
 	unsigned int endFrame = static_cast<unsigned int>(-1);
 	unsigned int startFrame = 0;
@@ -21,15 +22,8 @@ struct NzAnimationParams
 	bool IsValid() const;
 };
 
-struct NzSequence
-{
-	NzString name;
-	unsigned int firstFrame;
-	unsigned int lastFrame;
-	unsigned int framePerSecond;
-};
-
 class NzAnimation;
+class NzSkeleton;
 
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 
@@ -44,8 +38,10 @@ class NAZARA_API NzAnimation : public NzResource
 		~NzAnimation();
 
 		bool AddSequence(const NzSequence& sequence);
+		void AnimateSkeleton(NzSkeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const;
 
-		bool Create(nzAnimationType type, unsigned int frameCount);
+		bool CreateKeyframe(unsigned int frameCount);
+		bool CreateSkeletal(unsigned int frameCount, unsigned int jointCount);
 		void Destroy();
 
 		unsigned int GetFrameCount() const;
@@ -55,6 +51,8 @@ class NAZARA_API NzAnimation : public NzResource
 		const NzSequence* GetSequence(unsigned int index) const;
 		unsigned int GetSequenceCount() const;
 		int GetSequenceIndex(const NzString& sequenceName) const;
+		NzSequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0);
+		const NzSequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0) const;
 		nzAnimationType GetType() const;
 
 		bool HasSequence(const NzString& sequenceName) const;

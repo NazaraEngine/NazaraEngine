@@ -11,10 +11,8 @@
 NzSemaphoreImpl::NzSemaphoreImpl(unsigned int count)
 {
 	m_semaphore = CreateSemaphore(nullptr, count, std::numeric_limits<LONG>::max(), nullptr);
-	#if NAZARA_CORE_SAFE ///FIXME: Ne peut échouer qu'à cause de mauvais paramètres ?
 	if (!m_semaphore)
 		NazaraError("Failed to create semaphore: " + NzGetLastSystemError());
-	#endif
 }
 
 NzSemaphoreImpl::~NzSemaphoreImpl()

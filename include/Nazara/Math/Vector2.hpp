@@ -9,13 +9,14 @@
 
 #include <Nazara/Core/String.hpp>
 
-template<typename T> class NzVector2
+template<typename T>
+class NzVector2
 {
 	public:
-		NzVector2();
+		NzVector2() = default;
 		NzVector2(T X, T Y);
 		explicit NzVector2(T scale);
-		NzVector2(T vec[2]);
+		NzVector2(const T vec[2]);
 		template<typename U> explicit NzVector2(const NzVector2<U>& vec);
 		NzVector2(const NzVector2& vec) = default;
 		~NzVector2() = default;
@@ -32,19 +33,19 @@ template<typename T> class NzVector2
 		T Length() const;
 		float Lengthf() const;
 
-		void MakeUnitX();
-		void MakeUnitY();
-		void MakeZero();
+		NzVector2& MakeUnitX();
+		NzVector2& MakeUnitY();
+		NzVector2& MakeZero();
 
-		void Maximize(const NzVector2& vec);
-		void Minimize(const NzVector2& vec);
+		NzVector2& Maximize(const NzVector2& vec);
+		NzVector2& Minimize(const NzVector2& vec);
 
-		void Normalize();
+		NzVector2& Normalize(T* length = nullptr);
 
-		void Set(T X, T Y);
-		void Set(T scale);
-		void Set(T vec[2]);
-		template<typename U> void Set(const NzVector2<U>& vec);
+		NzVector2& Set(T X, T Y);
+		NzVector2& Set(T scale);
+		NzVector2& Set(const T vec[2]);
+		template<typename U> NzVector2& Set(const NzVector2<U>& vec);
 
 		T SquaredDistance(const NzVector2& vec) const;
 		T SquaredLength() const;

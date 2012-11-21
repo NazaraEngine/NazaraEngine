@@ -26,6 +26,9 @@
 
 #pragma once
 
+#ifndef NAZARA_GLOBAL_NOISE_HPP
+#define NAZARA_GLOBAL_NOISE_HPP
+
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Noise.hpp>
@@ -37,3 +40,5 @@
 #include <Nazara/Noise/Simplex2D.hpp>
 #include <Nazara/Noise/Simplex3D.hpp>
 #include <Nazara/Noise/Simplex4D.hpp>
+
+#endif // NAZARA_GLOBAL_NOISE_HPP

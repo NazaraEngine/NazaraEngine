@@ -79,7 +79,7 @@ NzString NzLog::GetFile() const
 	NazaraLock(m_mutex)
 
 	if (m_file)
-		return m_file->GetFilePath();
+		return m_file->GetPath();
 	else
 		return NzString();
 }

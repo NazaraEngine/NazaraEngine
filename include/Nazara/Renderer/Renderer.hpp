@@ -36,7 +36,7 @@ class NAZARA_API NzRenderer
 
 		static void Enable(nzRendererParameter parameter, bool enable);
 
-		float GetLineWidth();
+		static float GetLineWidth();
 		//static NzMatrix4f GetMatrix(nzMatrixCombination combination);
 		static NzMatrix4f GetMatrix(nzMatrixType type);
 		static unsigned int GetMaxAnisotropyLevel();
@@ -51,6 +51,7 @@ class NAZARA_API NzRenderer
 
 		static bool Initialize();
 
+		static bool IsEnabled(nzRendererParameter parameter);
 		static bool IsInitialized();
 
 		static void SetBlendFunc(nzBlendFunc src, nzBlendFunc dest);
@@ -73,7 +74,6 @@ class NAZARA_API NzRenderer
 		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
 		static bool SetTarget(NzRenderTarget* target);
 		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
-		static bool SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
 		static void SetViewport(const NzRectui& viewport);
 
 		static void Uninitialize();

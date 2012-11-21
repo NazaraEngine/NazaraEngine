@@ -8,6 +8,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
@@ -20,10 +21,13 @@ class NAZARA_API NzAxisAlignedBox
 		NzAxisAlignedBox(nzExtend extend);
 
 		bool Contains(const NzAxisAlignedBox& box);
+		bool Contains(const NzVector3f& vector);
 
 		void ExtendTo(const NzAxisAlignedBox& box);
 		void ExtendTo(const NzVector3f& vector);
 
+		NzVector3f GetCorner(nzCorner corner) const;
+		NzCubef GetCube() const;
 		nzExtend GetExtend() const;
 		NzVector3f GetMaximum() const;
 		NzVector3f GetMinimum() const;
@@ -37,6 +41,8 @@ class NAZARA_API NzAxisAlignedBox
 		void SetNull();
 
 		NzString ToString() const;
+
+		void Transform(const NzMatrix4f& matrix);
 
 		operator NzString() const;
 

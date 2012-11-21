@@ -8,6 +8,7 @@
 #define NAZARA_RESOURCELOADER_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <list>
 #include <set>
 #include <tuple>
 
@@ -28,7 +29,7 @@ class NzResourceLoader
 		static void UnregisterLoader(const NzString& fileExtensions, CheckFunction checkFunc, LoadFunction loadfunc);
 
 		using Loader = std::tuple<std::set<NzString>, CheckFunction, LoadFunction>;
-		using LoaderList = std::set<Loader>;
+		using LoaderList = std::list<Loader>;
 };
 
 #include <Nazara/Core/ResourceLoader.inl>

@@ -244,37 +244,20 @@ const NzVertexElement* NzVertexDeclaration::GetElement(nzElementStream stream, n
 	#endif
 
 	int elementPos = m_sharedImpl->elementPos[stream][usage];
-	#if NAZARA_UTILITY_SAFE
 	if (elementPos == -1)
-	{
-		NazaraError("Element not found");
 		return nullptr;
-	}
-	#endif
 
 	if (usageIndex == 0) // Si l'usage index vaut zéro, alors nous sommes certains d'être sur le bon élément (Majorité des cas)
 		return &m_sharedImpl->elements[elementPos];
 	else
 	{
 		elementPos += usageIndex;
-
-		#if NAZARA_UTILITY_SAFE
 		if (static_cast<unsigned int>(elementPos) >= m_sharedImpl->elements.size())
-		{
-			NazaraError("Element not found");
 			return nullptr;
-		}
-		#endif
 
 		NzVertexElement& element = m_sharedImpl->elements[elementPos];
-
-		#if NAZARA_UTILITY_SAFE
 		if (element.stream != stream || element.usage != usage || element.usageIndex != usageIndex)
-		{
-			NazaraError("Element not found");
 			return nullptr;
-		}
-		#endif
 
 		return &element;
 	}

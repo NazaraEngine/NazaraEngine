@@ -14,9 +14,9 @@
 template<typename T> class NzEulerAngles
 {
 	public:
-		NzEulerAngles();
+		NzEulerAngles() = default;
 		NzEulerAngles(T P, T Y, T R);
-		NzEulerAngles(T angles[3]);
+		NzEulerAngles(const T angles[3]);
 		//NzEulerAngles(const NzMatrix3<T>& mat);
 		NzEulerAngles(const NzQuaternion<T>& quat);
 		template<typename U> explicit NzEulerAngles(const NzEulerAngles<U>& angles);
@@ -28,7 +28,7 @@ template<typename T> class NzEulerAngles
 		void Normalize();
 
 		void Set(T P, T Y, T R);
-		void Set(T angles[3]);
+		void Set(const T angles[3]);
 		void Set(const NzEulerAngles<T>& angles);
 		//void Set(const NzMatrix3<T>& mat);
 		void Set(const NzQuaternion<T>& quat);

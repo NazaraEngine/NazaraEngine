@@ -51,6 +51,28 @@ enum nzBufferUsage
 	nzBufferUsage_Max = nzBufferUsage_Static
 };
 
+enum nzCoordSys
+{
+	nzCoordSys_Global,
+	nzCoordSys_Local,
+
+	nzCoordSys_Max = nzCoordSys_Local
+};
+
+enum nzCorner
+{
+	nzCorner_FarLeftBottom,
+	nzCorner_FarLeftTop,
+	nzCorner_FarRightBottom,
+	nzCorner_FarRightTop,
+	nzCorner_NearLeftBottom,
+	nzCorner_NearLeftTop,
+	nzCorner_NearRightBottom,
+	nzCorner_NearRightTop,
+
+	nzCorner_Max = nzCorner_FarRightTop
+};
+
 enum nzCubemapFace
 {
 	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap
