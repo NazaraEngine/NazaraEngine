@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -255,8 +254,6 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton)
 	NzVertexStruct_XYZ_Normal_UV_Tangent* inputVertex = reinterpret_cast<NzVertexStruct_XYZ_Normal_UV_Tangent*>(m_impl->bindPoseBuffer);
 	NzVertexStruct_XYZ_Normal_UV_Tangent* outputVertex = reinterpret_cast<NzVertexStruct_XYZ_Normal_UV_Tangent*>(outputBuffer);
 
-	NzClock c;
-
 	const NzJoint* joints = skeleton->GetJoints();
 	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
 	for (unsigned int i = 0; i < vertexCount; ++i)
@@ -290,10 +287,6 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton)
 		inputVertex++;
 		outputVertex++;
 	}
-
-	nzUInt64 t = c.GetMicroseconds();
-
-	NazaraError("Skinning took a total of " + NzString::Number(t) + "us\n\n");
 
 	if (!m_impl->vertexBuffer->Unmap())
 		NazaraWarning("Failed to unmap vertex buffer");
