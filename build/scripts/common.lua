@@ -35,6 +35,10 @@ configuration "Debug*"
 configuration "Release*"
 	flags { "EnableSSE", "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
 
+-- Activation du SSE côté GCC
+configuration { "Release*", "codeblocks or codelite or gmake or xcode3*" }
+	buildoptions "-mfpmath=sse"
+
 configuration "*Static"
 	defines "NAZARA_STATIC"
 	kind "StaticLib"
@@ -52,11 +56,7 @@ configuration "DebugDLL"
 	targetsuffix "-d"
 
 configuration "codeblocks or codelite or gmake or xcode3*"
-	buildoptions 
-	{
-		"-mfpmath=sse",
-		"-std=c++11"
-	}
-	
+	buildoptions "-std=c++11"
+
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
