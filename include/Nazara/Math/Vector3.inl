@@ -109,13 +109,13 @@ float NzVector3<T>::Lengthf() const
 template<typename T>
 NzVector3<T>& NzVector3<T>::MakeForward()
 {
-	Set(F(0.0), F(0.0), F(-1.0));
+	return Set(F(0.0), F(0.0), F(-1.0));
 }
 
 template<typename T>
 NzVector3<T>& NzVector3<T>::MakeLeft()
 {
-	Set(F(-1.0), F(0.0), F(0.0));
+	return Set(F(-1.0), F(0.0), F(0.0));
 }
 
 template<typename T>
