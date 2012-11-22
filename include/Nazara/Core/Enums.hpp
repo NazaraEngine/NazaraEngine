@@ -7,6 +7,44 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
+enum nzProcessorCap
+{
+	nzProcessorCap_AVX,
+	nzProcessorCap_FMA3,
+	nzProcessorCap_FMA4,
+	nzProcessorCap_MMX,
+	nzProcessorCap_XOP,
+	nzProcessorCap_SSE,
+	nzProcessorCap_SSE2,
+	nzProcessorCap_SSE3,
+	nzProcessorCap_SSSE3,
+	nzProcessorCap_SSE41,
+	nzProcessorCap_SSE42,
+	nzProcessorCap_SSE4a,
+
+	nzProcessorCap_Max = nzProcessorCap_SSE4a
+};
+
+enum nzProcessorVendor
+{
+	nzProcessorVendor_Unknown = -1,
+
+	nzProcessorVendor_AMD,
+	nzProcessorVendor_Centaur,
+	nzProcessorVendor_Cyrix,
+	nzProcessorVendor_Intel,
+	nzProcessorVendor_Transmeta,
+	nzProcessorVendor_NSC,
+	nzProcessorVendor_NexGen,
+	nzProcessorVendor_Rise,
+	nzProcessorVendor_SIS,
+	nzProcessorVendor_UMC,
+	nzProcessorVendor_VIA,
+	nzProcessorVendor_Vortex,
+
+	nzProcessorVendor_Max = nzProcessorVendor_Vortex
+};
+
 enum nzEndianness
 {
 	nzEndianness_Unknown = -1,
