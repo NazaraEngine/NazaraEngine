@@ -222,7 +222,7 @@ const NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer() const
 	return m_impl->vertexBuffer;
 }
 
-void NzKeyframeMesh::Interpolate(unsigned int frameA, unsigned int frameB, float interpolation)
+void NzKeyframeMesh::Interpolate(unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_parent->HasAnimation())
@@ -419,7 +419,7 @@ void NzKeyframeMesh::Unlock() const
 	}
 }
 
-void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation)
+void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#ifdef NAZARA_DEBUG
 	if (!m_impl)
