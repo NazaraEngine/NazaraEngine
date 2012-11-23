@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,7 +10,7 @@
 
 namespace
 {
-	LARGE_INTEGER frequency; // La fréquence ne varie pas pas au cours de l'exécution
+	LARGE_INTEGER frequency; // La frÃ©quence ne varie pas pas au cours de l'exÃ©cution
 }
 
 bool NzClockImplInitializeHighPrecision()

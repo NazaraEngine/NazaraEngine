@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,10 +15,10 @@
 void NzHardwareInfoImpl::Cpuid(nzUInt32 code, nzUInt32 result[4])
 {
 	#if defined(NAZARA_COMPILER_MSVC)
-	__cpuid(reinterpret_cast<int*>(result), static_cast<int>(code)); // Visual propose une fonction intrinsèque pour le cpuid
+	__cpuid(reinterpret_cast<int*>(result), static_cast<int>(code)); // Visual propose une fonction intrinsÃ¨que pour le cpuid
 	#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 	// Source: http://stackoverflow.com/questions/1666093/cpuid-implementations-in-c
-	asm volatile ("cpuid" // Besoin d'être volatile ?
+	asm volatile ("cpuid" // Besoin d'Ãªtre volatile ?
 				  : "=a" (result[0]), "=b" (result[1]), "=c" (result[2]), "=d" (result[3]) // output
                   : "a" (code), "c" (0));                                                  // input
 	#else
