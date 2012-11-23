@@ -221,7 +221,7 @@ bool NzSkeletalMesh::IsValid() const
 	return m_impl != nullptr;
 }
 
-void NzSkeletalMesh::Skin()
+void NzSkeletalMesh::Skin() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -234,7 +234,7 @@ void NzSkeletalMesh::Skin()
 	Skin(m_parent->GetSkeleton());
 }
 
-void NzSkeletalMesh::Skin(const NzSkeleton* skeleton)
+void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)

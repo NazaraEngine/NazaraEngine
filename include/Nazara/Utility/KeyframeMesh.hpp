@@ -33,7 +33,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		bool GetVertex(NzMeshVertex* dest, unsigned int frameIndex, unsigned int vertexIndex, bool queryUV = true) const;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 
-		void Interpolate(unsigned int frameA, unsigned int frameB, float interpolation);
+		void Interpolate(unsigned int frameA, unsigned int frameB, float interpolation) const;
 
 		bool IsAnimated() const override;
 		bool IsValid();
@@ -47,7 +47,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		void Unlock() const;
 
 	private:
-		void InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation);
+		void InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation) const;
 
 		NzKeyframeMeshImpl* m_impl = nullptr;
 };

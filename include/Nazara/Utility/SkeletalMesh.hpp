@@ -50,8 +50,8 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		bool IsAnimated() const final;
 		bool IsValid() const;
 
-		void Skin();
-		void Skin(const NzSkeleton* skeleton);
+		void Skin() const;
+		void Skin(const NzSkeleton* skeleton) const;
 
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
