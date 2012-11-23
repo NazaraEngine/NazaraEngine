@@ -1,8 +1,8 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Inspiré du code de la SFML par Laurent Gomila
+// InspirÃ© du code de la SFML par Laurent Gomila
 
 #include <Nazara/Core/Win32/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -13,7 +13,7 @@
 NzThread::Id::Id(const NzThreadImpl* thread)
 {
 	if (thread->m_thread)
-		m_handle = reinterpret_cast<void*>(thread->m_threadId); // Un entier transformé en pointeur : Hacky
+		m_handle = reinterpret_cast<void*>(thread->m_threadId); // Un entier transformÃ© en pointeur : Hacky
 	else
 		m_handle = nullptr;
 }
