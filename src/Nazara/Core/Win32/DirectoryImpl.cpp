@@ -1,4 +1,4 @@
-// Copyright (C) 2012 JÈrÙme Leclercq
+// Copyright (C) 2012 J√©r√¥me Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -40,7 +40,7 @@ bool NzDirectoryImpl::IsResultDirectory() const
 
 bool NzDirectoryImpl::NextResult()
 {
-	if (m_firstCall) // Nous devons ignorer le premier appel car FindFirstFile nous a dÈj‡ renvoyÈ des rÈsultats
+	if (m_firstCall) // Nous devons ignorer le premier appel car FindFirstFile nous a d√©j√† renvoy√© des r√©sultats
 	{
 		m_firstCall = false;
 		return true;
@@ -102,7 +102,7 @@ NzString NzDirectoryImpl::GetCurrent()
 	wchar_t* path = new wchar_t[MAX_PATH];
 
 	unsigned int size = GetCurrentDirectoryW(MAX_PATH, path);
-	if (size > MAX_PATH) // La taille prends en compte le caractËre nul
+	if (size > MAX_PATH) // La taille prends en compte le caract√®re nul
 	{
 		delete[] path;
 
