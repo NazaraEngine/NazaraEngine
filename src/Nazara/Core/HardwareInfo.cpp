@@ -104,7 +104,7 @@ bool NzHardwareInfo::Initialize()
 
 	if (ids >= 1)
 	{
-    	NzHardwareInfoImpl::Cpuid(1, result);
+		NzHardwareInfoImpl::Cpuid(1, result);
 		s_capabilities[nzProcessorCap_AVX]   = (result[2] & (1U << 28)) != 0;
 		s_capabilities[nzProcessorCap_FMA3]  = (result[2] & (1U << 12)) != 0;
 		s_capabilities[nzProcessorCap_MMX]   = (result[3] & (1U << 23)) != 0;
@@ -121,7 +121,7 @@ bool NzHardwareInfo::Initialize()
 
 	if (exIds >= 0x80000001)
 	{
-    	NzHardwareInfoImpl::Cpuid(0x80000001, result);
+		NzHardwareInfoImpl::Cpuid(0x80000001, result);
 		s_capabilities[nzProcessorCap_FMA4]  = (result[2] & (1U << 16)) != 0;
 		s_capabilities[nzProcessorCap_SSE4a] = (result[2] & (1U <<  6)) != 0;
 		s_capabilities[nzProcessorCap_XOP]   = (result[2] & (1U << 11)) != 0;
