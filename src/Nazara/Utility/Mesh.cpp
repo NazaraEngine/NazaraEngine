@@ -170,7 +170,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	return true;
 }
 
-void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolation)
+void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -805,7 +805,7 @@ bool NzMesh::SetAnimation(const NzAnimation* animation)
 	return true;
 }
 
-void NzMesh::Skin(const NzSkeleton* skeleton)
+void NzMesh::Skin(const NzSkeleton* skeleton) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
