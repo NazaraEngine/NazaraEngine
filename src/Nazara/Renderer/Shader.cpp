@@ -17,14 +17,6 @@
 NzShader::NzShader(nzShaderLanguage language)
 {
 	Create(language);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create shader");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzShader::~NzShader()
