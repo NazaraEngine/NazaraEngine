@@ -19,8 +19,6 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 
-class NzVertexDeclaration;
-
 struct NAZARA_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage indiqué un peu plus bas est supporté
