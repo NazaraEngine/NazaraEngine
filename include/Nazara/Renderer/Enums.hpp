@@ -87,8 +87,8 @@ enum nzRendererCap
 
 enum nzRendererClearFlags
 {
-	nzRendererClear_Color = 0x01,
-	nzRendererClear_Depth = 0x02,
+	nzRendererClear_Color   = 0x01,
+	nzRendererClear_Depth   = 0x02,
 	nzRendererClear_Stencil = 0x04
 };
 
