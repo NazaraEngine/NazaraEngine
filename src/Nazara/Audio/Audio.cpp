@@ -159,6 +159,7 @@ bool NzAudio::Initialize()
 	formats[nzAudioFormat_6_1]    = alGetEnumValue("AL_FORMAT_61CHN16");
 	formats[nzAudioFormat_7_1]    = alGetEnumValue("AL_FORMAT_71CHN16");
 
+	// Loaders
 	NzLoaders_sndfile_Register();
 
 	NazaraNotice("Initialized: Audio module");
@@ -254,6 +255,9 @@ void NzAudio::Uninitialize()
 {
 	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
+
+	// Loaders
+	NzLoaders_sndfile_Unregister();
 
 	// Libération du module
 	alcMakeContextCurrent(nullptr);
