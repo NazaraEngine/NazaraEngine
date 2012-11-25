@@ -11,7 +11,7 @@
 
 bool NzNoise::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
@@ -30,12 +30,12 @@ bool NzNoise::Initialize()
 
 bool NzNoise::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void NzNoise::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	// Libération du module
@@ -46,4 +46,4 @@ void NzNoise::Uninitialize()
 	NazaraNotice("Uninitialized: Noise module");
 }
 
-unsigned int NzNoise::s_moduleReferenceCouter = 0;
+unsigned int NzNoise::s_moduleReferenceCounter = 0;

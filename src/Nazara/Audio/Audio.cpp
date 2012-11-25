@@ -101,7 +101,7 @@ float NzAudio::GetSpeedOfSound()
 
 bool NzAudio::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
@@ -176,7 +176,7 @@ bool NzAudio::IsFormatSupported(nzAudioFormat format)
 
 bool NzAudio::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void NzAudio::SetDopplerFactor(float dopplerFactor)
@@ -252,7 +252,7 @@ void NzAudio::SetSpeedOfSound(float speed)
 
 void NzAudio::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	// Libération du module
@@ -282,4 +282,4 @@ unsigned int NzAudio::GetOpenALFormat(nzAudioFormat format)
 	return formats[format];
 }
 
-unsigned int NzAudio::s_moduleReferenceCouter = 0;
+unsigned int NzAudio::s_moduleReferenceCounter = 0;

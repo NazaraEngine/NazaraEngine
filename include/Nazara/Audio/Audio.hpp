@@ -52,7 +52,7 @@ class NAZARA_API NzAudio
 	private:
 		static unsigned int GetOpenALFormat(nzAudioFormat format);
 
-		static unsigned int s_moduleReferenceCouter;
+		static unsigned int s_moduleReferenceCounter;
 };
 
 #endif // NAZARA_AUDIO_HPP
