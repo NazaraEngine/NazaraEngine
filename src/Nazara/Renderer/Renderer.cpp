@@ -14,6 +14,7 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
+#include <Nazara/Renderer/Loaders/Texture.hpp>
 #include <Nazara/Utility/BufferImpl.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -448,6 +449,9 @@ bool NzRenderer::Initialize()
 	if (!NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer");
 	#endif
+
+	// Loaders
+	NzLoaders_Texture_Register();
 
 	NazaraNotice("Initialized: Renderer module");
 
@@ -903,6 +907,9 @@ void NzRenderer::Uninitialize()
 	if (--s_moduleReferenceCouter != 0)
 		return; // Encore utilisé
 
+	// Loaders
+	NzLoaders_Texture_Unregister();
+
 	#ifdef NAZARA_DEBUG
 	NzDebugDrawer::Uninitialize();
 	#endif
@@ -1065,11 +1072,11 @@ bool NzRenderer::EnsureStateUpdate()
 
 					glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 					glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-										  NzVertexDeclaration::GetElementCount(element->type),
-										  NzOpenGL::ElementType[element->type],
-										  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-										  stride,
-										  &buffer[element->offset]);
+					                      NzVertexDeclaration::GetElementCount(element->type),
+					                      NzOpenGL::ElementType[element->type],
+					                      (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+					                      stride,
+					                      &buffer[element->offset]);
 				}
 				else
 					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
