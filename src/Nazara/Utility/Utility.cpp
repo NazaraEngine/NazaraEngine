@@ -19,7 +19,7 @@
 
 bool NzUtility::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
@@ -73,12 +73,12 @@ bool NzUtility::Initialize()
 
 bool NzUtility::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void NzUtility::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	// Libération du module
@@ -97,5 +97,5 @@ void NzUtility::Uninitialize()
 	NzCore::Uninitialize();
 }
 
-unsigned int NzUtility::s_moduleReferenceCouter = 0;
+unsigned int NzUtility::s_moduleReferenceCounter = 0;
 

@@ -81,7 +81,7 @@ class NAZARA_API NzRenderer
 	private:
 		static bool EnsureStateUpdate();
 
-		static unsigned int s_moduleReferenceCouter;
+		static unsigned int s_moduleReferenceCounter;
 };
 
 #endif // NAZARA_RENDERER_HPP
