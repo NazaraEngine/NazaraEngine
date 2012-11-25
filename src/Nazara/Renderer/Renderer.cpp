@@ -350,7 +350,7 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 
 bool NzRenderer::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
@@ -495,7 +495,7 @@ bool NzRenderer::IsEnabled(nzRendererParameter parameter)
 
 bool NzRenderer::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void NzRenderer::SetBlendFunc(nzBlendFunc src, nzBlendFunc dest)
@@ -900,7 +900,7 @@ void NzRenderer::SetViewport(const NzRectui& viewport)
 
 void NzRenderer::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	#ifdef NAZARA_DEBUG
@@ -1098,4 +1098,4 @@ bool NzRenderer::EnsureStateUpdate()
 	return true;
 }
 
-unsigned int NzRenderer::s_moduleReferenceCouter = 0;
+unsigned int NzRenderer::s_moduleReferenceCounter = 0;

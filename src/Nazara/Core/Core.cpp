@@ -10,7 +10,7 @@
 
 bool NzCore::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation du module
@@ -24,16 +24,16 @@ bool NzCore::Initialize()
 
 bool NzCore::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void NzCore::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	// Libération du module
 	NazaraNotice("Uninitialized: Core");
 }
 
-unsigned int NzCore::s_moduleReferenceCouter = 0;
+unsigned int NzCore::s_moduleReferenceCounter = 0;
