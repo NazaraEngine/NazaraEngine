@@ -2,48 +2,48 @@
 // This file is part of the "Nazara Engine - 3D Module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/3D/ModuleName.hpp>
+#include <Nazara/3D/3D.hpp>
 #include <Nazara/3D/Config.hpp>
 #include <Nazara/3D/Debug.hpp>
-#include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 
 bool Nz3D::Initialize()
 {
-	if (s_moduleReferenceCouter++ != 0)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	if (!NzRenderer::Initialize())
 	{
-		NazaraError("Failed to initialize core module");
+		NazaraError("Failed to initialize renderer module");
 		return false;
 	}
 
 	// Initialisation du module
 
-	NazaraNotice("Initialized: ModuleName module");
+	NazaraNotice("Initialized: 3D module");
 
 	return true;
 }
 
 bool Nz3D::IsInitialized()
 {
-	return s_moduleReferenceCouter != 0;
+	return s_moduleReferenceCounter != 0;
 }
 
 void Nz3D::Uninitialize()
 {
-	if (--s_moduleReferenceCouter != 0)
+	if (--s_moduleReferenceCounter != 0)
 		return; // Encore utilisé
 
 	// Libération du module
 
-	NazaraNotice("Uninitialized: ModuleName module");
+	NazaraNotice("Uninitialized: 3D module");
 
 	// Libération des dépendances
-	NzCore::Uninitialize();
+	NzRenderer::Uninitialize();
 }
 
-unsigned int Nz3D::s_moduleReferenceCouter = 0;
+unsigned int Nz3D::s_moduleReferenceCounter = 0;
