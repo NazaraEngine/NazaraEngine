@@ -87,6 +87,7 @@ namespace
 		/// Chargement des skins
 		if (header.num_skins > 0)
 		{
+			mesh->SetMaterialCount(header.num_skins);
 			stream.SetCursorPos(header.offset_skins);
 			{
 				NzString baseDir = stream.GetDirectory();
@@ -94,7 +95,7 @@ namespace
 				for (unsigned int i = 0; i < header.num_skins; ++i)
 				{
 					stream.Read(skin, 68*sizeof(char));
-					mesh->AddMaterial(baseDir + skin);
+					mesh->SetMaterial(i, baseDir + skin);
 				}
 			}
 		}

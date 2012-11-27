@@ -55,45 +55,6 @@ NzMesh::~NzMesh()
 	Destroy();
 }
 
-bool NzMesh::AddMaterial(const NzString& matPath, unsigned int* matIndex)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return false;
-	}
-
-	if (matPath.IsEmpty())
-	{
-		NazaraError("Material path is empty");
-		return false;
-	}
-	#endif
-
-	NzString path = NzFile::NormalizeSeparators(matPath);
-
-	for (unsigned int i = 0; i < m_impl->materials.size(); ++i)
-	{
-		if (m_impl->materials[i] == path) // Ce skin est-il déjà présent ?
-		{
-			if (matIndex)
-				*matIndex = i;
-
-			return true;
-		}
-	}
-
-	// Sinon on l'ajoute
-
-	if (matIndex)
-		*matIndex = m_impl->materials.size();
-
-	m_impl->materials.push_back(matPath);
-
-	return true;
-}
-
 bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -609,19 +570,6 @@ bool NzMesh::HasAnimation() const
 	return m_impl->animation != nullptr;
 }
 
-bool NzMesh::HasMaterial(unsigned int index) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return false;
-	}
-	#endif
-
-	return index < m_impl->materials.size();
-}
-
 bool NzMesh::HasSubMesh(const NzString& identifier) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -679,29 +627,6 @@ bool NzMesh::LoadFromMemory(const void* data, std::size_t size, const NzMeshPara
 bool NzMesh::LoadFromStream(NzInputStream& stream, const NzMeshParams& params)
 {
 	return NzMeshLoader::LoadFromStream(this, stream, params);
-}
-
-void NzMesh::RemoveMaterial(unsigned int index)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return;
-	}
-
-	if (index >= m_impl->materials.size())
-	{
-		NazaraError("Material index out of range (" + NzString::Number(index) + " >= " + NzString::Number(m_impl->materials.size()) + ')');
-		return;
-	}
-	#endif
-
-	// On accède à l'itérateur correspondant à l'entrée #index
-	auto it = m_impl->materials.begin();
-	std::advance(it, index);
-
-	m_impl->materials.erase(it);
 }
 
 void NzMesh::RemoveSubMesh(const NzString& identifier)
@@ -803,6 +728,47 @@ bool NzMesh::SetAnimation(const NzAnimation* animation)
 	m_impl->animation = animation;
 
 	return true;
+}
+
+void NzMesh::SetMaterial(unsigned int matIndex, const NzString& materialPath)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+
+	if (matIndex >= m_impl->materials.size())
+	{
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_impl->materials.size()));
+		return;
+	}
+	#endif
+
+	m_impl->materials[matIndex] = materialPath;
+}
+
+void NzMesh::SetMaterialCount(unsigned int matCount)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+	#endif
+
+	m_impl->materials.resize(matCount);
+
+	#ifdef NAZARA_DEBUG
+	for (NzSubMesh* subMesh : m_impl->subMeshes)
+	{
+		unsigned int matIndex = subMesh->GetMaterialIndex();
+		if (matIndex >= matCount)
+			NazaraWarning("SubMesh " + NzString::Pointer(subMesh) + " material index is over mesh new material count (" + NzString::Number(matIndex) + " >= " + NzString::Number(matCount));
+	}
+	#endif
 }
 
 void NzMesh::Skin(const NzSkeleton* skeleton) const

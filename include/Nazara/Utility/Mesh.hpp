@@ -46,7 +46,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		NzMesh() = default;
 		~NzMesh();
 
-		bool AddMaterial(const NzString& matPath, unsigned int* matIndex = nullptr);
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
@@ -75,7 +74,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		unsigned int GetVertexCount() const;
 
 		bool HasAnimation() const;
-		bool HasMaterial(unsigned int index) const;
 		bool HasSubMesh(const NzString& identifier) const;
 		bool HasSubMesh(unsigned int index = 0) const;
 
@@ -88,11 +86,12 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool LoadFromMemory(const void* data, std::size_t size, const NzMeshParams& params = NzMeshParams());
 		bool LoadFromStream(NzInputStream& stream, const NzMeshParams& params = NzMeshParams());
 
-		void RemoveMaterial(unsigned int index);
 		void RemoveSubMesh(const NzString& identifier);
 		void RemoveSubMesh(unsigned int index);
 
 		bool SetAnimation(const NzAnimation* animation);
+		void SetMaterial(unsigned int matIndex, const NzString& materialPath);
+		void SetMaterialCount(unsigned int matCount);
 
 		void Skin(const NzSkeleton* skeleton) const;
 
