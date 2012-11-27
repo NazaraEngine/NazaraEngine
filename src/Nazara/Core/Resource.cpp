@@ -6,6 +6,7 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
+#include <typeinfo>
 #include <Nazara/Core/Debug.hpp>
 
 NzResource::NzResource(bool persistent) :
@@ -111,13 +112,13 @@ void NzResource::RemoveResourceReference() const
 	}
 }
 
-void NzResource::SetPersistent(bool persistent)
+void NzResource::SetPersistent(bool persistent, bool checkReferenceCount)
 {
 	NazaraMutexLock(m_mutex);
 
 	m_resourcePersistent = persistent;
 
-	if (!persistent && m_resourceReferenceCount == 0)
+	if (checkReferenceCount && !persistent && m_resourceReferenceCount == 0)
 	{
 		NazaraMutexUnlock(m_mutex);
 		delete this;
