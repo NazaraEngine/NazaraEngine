@@ -53,6 +53,10 @@ class NAZARA_API NzMaterial : public NzResource
 		bool IsZTestEnabled() const;
 		bool IsZWriteEnabled() const;
 
+		bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
+		bool LoadFromMemory(const void* data, std::size_t size, const NzMaterialParams& params = NzMaterialParams());
+		bool LoadFromStream(NzInputStream& stream, const NzMaterialParams& params = NzMaterialParams());
+
 		void Reset();
 
 		void SetAmbientColor(const NzColor& ambient);
@@ -66,6 +70,8 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetSpecularMap(const NzTexture* map);
 		void SetSrcAlpha(nzBlendFunc func);
 		void SetZTestCompare(nzRendererComparison compareFunc);
+
+		static const NzMaterial* GetDefault();
 
 	private:
 		nzBlendFunc m_dstAlpha;
