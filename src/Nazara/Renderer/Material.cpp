@@ -110,6 +110,21 @@ bool NzMaterial::IsZWriteEnabled() const
 	return m_zWriteEnabled;
 }
 
+bool NzMaterial::LoadFromFile(const NzString& filePath, const NzMaterialParams& params)
+{
+	return NzMaterialLoader::LoadFromFile(this, filePath, params);
+}
+
+bool NzMaterial::LoadFromMemory(const void* data, std::size_t size, const NzMaterialParams& params)
+{
+	return NzMaterialLoader::LoadFromMemory(this, data, size, params);
+}
+
+bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& params)
+{
+	return NzMaterialLoader::LoadFromStream(this, stream, params);
+}
+
 void NzMaterial::Reset()
 {
 	if (m_diffuseMap)
@@ -201,6 +216,23 @@ void NzMaterial::SetSrcAlpha(nzBlendFunc func)
 void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
 {
 	m_zTestEnabled = compareFunc;
+}
+
+const NzMaterial* NzMaterial::GetDefault()
+{
+	static NzMaterial defaultMaterial;
+	static bool initialized = false;
+
+	if (!initialized)
+	{
+		defaultMaterial.SetFaceCulling(nzFaceCulling_FrontAndBack);
+		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
+		defaultMaterial.SetDiffuseColor(NzColor::White);
+
+		initialized = true;
+	}
+
+	return &defaultMaterial;
 }
 
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;
