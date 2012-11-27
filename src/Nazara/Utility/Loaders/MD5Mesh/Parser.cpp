@@ -314,21 +314,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			}
 
 			subMesh.release();
-
-			// Animation
-			// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
-			if (!baseDir.IsEmpty())
-			{
-				baseDir.Replace(".md5mesh", ".md5anim", -8, NzString::CaseInsensitive);
-				if (NzFile::Exists(baseDir))
-				{
-					std::unique_ptr<NzAnimation> animation(new NzAnimation);
-					if (animation->LoadFromFile(baseDir) && mesh->SetAnimation(animation.get()))
-						animation.release();
-					else
-						NazaraWarning("Failed to load mesh's animation");
-				}
-			}
 		}
 	}
 	else

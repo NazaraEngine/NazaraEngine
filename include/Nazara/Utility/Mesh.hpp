@@ -49,7 +49,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
-		void Animate(unsigned int frameA, unsigned int frameB, float interpolation) const;
+		void Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const;
 
 		bool CreateKeyframe();
 		bool CreateSkeletal(unsigned int jointCount);
@@ -57,9 +57,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void Destroy();
 
 		const NzAxisAlignedBox& GetAABB() const;
-		const NzAnimation* GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
-		unsigned int GetFrameCount() const;
 		unsigned int GetJointCount() const;
 		NzString GetMaterial(unsigned int index) const;
 		unsigned int GetMaterialCount() const;
@@ -73,7 +71,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		int GetSubMeshIndex(const NzString& identifier) const;
 		unsigned int GetVertexCount() const;
 
-		bool HasAnimation() const;
 		bool HasSubMesh(const NzString& identifier) const;
 		bool HasSubMesh(unsigned int index = 0) const;
 
@@ -89,7 +86,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void RemoveSubMesh(const NzString& identifier);
 		void RemoveSubMesh(unsigned int index);
 
-		bool SetAnimation(const NzAnimation* animation);
 		void SetMaterial(unsigned int matIndex, const NzString& materialPath);
 		void SetMaterialCount(unsigned int matCount);
 
@@ -98,7 +94,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		static const NzVertexDeclaration* GetDeclaration();
 
 	private:
-		void OnResourceCreated(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
 
 		NzMeshImpl* m_impl = nullptr;
