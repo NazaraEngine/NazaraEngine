@@ -28,9 +28,9 @@ class NAZARA_API NzSubMesh : public NzResource
 		virtual const NzAxisAlignedBox& GetAABB() const = 0;
 		virtual nzAnimationType GetAnimationType() const = 0;
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
+		unsigned int GetMaterialIndex() const;
 		const NzMesh* GetParent() const;
 		nzPrimitiveType GetPrimitiveType() const;
-		unsigned int GetSkinIndex() const;
 		virtual const NzVertexBuffer* GetVertexBuffer() const = 0;
 		virtual unsigned int GetVertexCount() const;
 
