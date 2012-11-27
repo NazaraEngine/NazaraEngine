@@ -6,6 +6,7 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <typeinfo>
 #include <Nazara/Core/Debug.hpp>
 
