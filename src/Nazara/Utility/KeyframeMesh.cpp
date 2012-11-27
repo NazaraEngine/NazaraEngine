@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <vector>
