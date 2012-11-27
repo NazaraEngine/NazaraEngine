@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/KeyframeMesh.hpp>
@@ -23,12 +24,6 @@ NzMeshParams::NzMeshParams()
 
 bool NzMeshParams::IsValid() const
 {
-	if (!animation.IsValid())
-	{
-		NazaraError("Invalid animation parameters");
-		return false;
-	}
-
 	if (!NzBuffer::IsSupported(storage))
 	{
 		NazaraError("Storage not supported");
@@ -46,6 +41,7 @@ struct NzMeshImpl
 	nzAnimationType animationType;
 	NzAxisAlignedBox aabb;
 	NzSkeleton skeleton; // Uniquement pour les animations squelettiques
+	NzString animationPath;
 	unsigned int jointCount; // Uniquement pour les animations squelettiques
 };
 
@@ -273,6 +269,19 @@ const NzAxisAlignedBox& NzMesh::GetAABB() const
 	}
 
 	return m_impl->aabb;
+}
+
+NzString NzMesh::GetAnimation() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return nzAnimationType_Static;
+	}
+	#endif
+
+	return m_impl->animationPath;
 }
 
 nzAnimationType NzMesh::GetAnimationType() const
@@ -643,6 +652,19 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	m_impl->subMeshes.erase(it);
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
+}
+
+void NzMesh::SetAnimation(const NzString& animationPath)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+	#endif
+
+	m_impl->animationPath = animationPath;
 }
 
 void NzMesh::SetMaterial(unsigned int matIndex, const NzString& materialPath)

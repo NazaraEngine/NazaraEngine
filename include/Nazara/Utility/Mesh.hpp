@@ -13,7 +13,6 @@
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
@@ -23,13 +22,13 @@ struct NAZARA_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage indiqué un peu plus bas est supporté
 
-	NzAnimationParams animation;
 	nzBufferStorage storage = nzBufferStorage_Hardware;
 	bool animated = true;
 
 	bool IsValid() const;
 };
 
+class NzAnimation;
 class NzMesh;
 
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
@@ -57,6 +56,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void Destroy();
 
 		const NzAxisAlignedBox& GetAABB() const;
+		NzString GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetJointCount() const;
 		NzString GetMaterial(unsigned int index) const;
@@ -86,6 +86,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void RemoveSubMesh(const NzString& identifier);
 		void RemoveSubMesh(unsigned int index);
 
+		void SetAnimation(const NzString& animationPath);
 		void SetMaterial(unsigned int matIndex, const NzString& materialPath);
 		void SetMaterialCount(unsigned int matCount);
 
