@@ -46,7 +46,6 @@ struct NzMeshImpl
 	nzAnimationType animationType;
 	NzAxisAlignedBox aabb;
 	NzSkeleton skeleton; // Uniquement pour les animations squelettiques
-	const NzAnimation* animation = nullptr;
 	unsigned int jointCount; // Uniquement pour les animations squelettiques
 };
 
@@ -72,7 +71,7 @@ bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 
 	if (subMesh->GetAnimationType() != m_impl->animationType)
 	{
-		NazaraError("Submesh's animation type must match mesh animation type");
+		NazaraError("Submesh animation type must match mesh animation type");
 		return false;
 	}
 	#endif
@@ -115,7 +114,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 
 	if (m_impl->animationType != subMesh->GetAnimationType())
 	{
-		NazaraError("Submesh's animation type must match mesh animation type");
+		NazaraError("Submesh animation type must match mesh animation type");
 		return false;
 	}
 	#endif
@@ -131,7 +130,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	return true;
 }
 
-void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolation) const
+void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -140,13 +139,19 @@ void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolati
 		return;
 	}
 
-	if (!m_impl->animation)
+	if (!animation || !animation->IsValid())
 	{
-		NazaraError("Mesh has no animation");
+		NazaraError("Animation must be valid");
 		return;
 	}
 
-	unsigned int frameCount = m_impl->animation->GetFrameCount();
+	if (animation->GetType() != m_impl->animationType)
+	{
+		NazaraError("Animation type must match mesh animation type");
+		return;
+	}
+
+	unsigned int frameCount = animation->GetFrameCount();
 	if (frameA >= frameCount)
 	{
 		NazaraError("Frame A is out of range (" + NzString::Number(frameA) + " >= " + NzString::Number(frameCount) + ')');
@@ -174,12 +179,12 @@ void NzMesh::Animate(unsigned int frameA, unsigned int frameB, float interpolati
 			for (NzSubMesh* subMesh : m_impl->subMeshes)
 			{
 				NzKeyframeMesh* keyframeMesh = static_cast<NzKeyframeMesh*>(subMesh);
-				keyframeMesh->Interpolate(frameA, frameB, interpolation);
+				keyframeMesh->InterpolateImpl(frameA, frameB, interpolation);
 			}
 			break;
 
 		case nzAnimationType_Skeletal:
-			m_impl->animation->AnimateSkeleton(&m_impl->skeleton, frameA, frameB, interpolation);
+			animation->AnimateSkeleton(&m_impl->skeleton, frameA, frameB, interpolation);
 			for (NzSubMesh* subMesh : m_impl->subMeshes)
 			{
 				NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
@@ -243,9 +248,6 @@ void NzMesh::Destroy()
 	{
 		NotifyDestroy();
 
-		if (m_impl->animation)
-			m_impl->animation->RemoveResourceListener(this);
-
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
 			subMesh->RemoveResourceListener(this);
 
@@ -273,19 +275,6 @@ const NzAxisAlignedBox& NzMesh::GetAABB() const
 	return m_impl->aabb;
 }
 
-const NzAnimation* NzMesh::GetAnimation() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->animation;
-}
-
 nzAnimationType NzMesh::GetAnimationType() const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -297,25 +286,6 @@ nzAnimationType NzMesh::GetAnimationType() const
 	#endif
 
 	return m_impl->animationType;
-}
-
-unsigned int NzMesh::GetFrameCount() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return 0;
-	}
-
-	if (!m_impl->animation)
-	{
-		NazaraError("Mesh has no animation");
-		return 0;
-	}
-	#endif
-
-	return m_impl->animation->GetFrameCount();
 }
 
 unsigned int NzMesh::GetJointCount() const
@@ -557,19 +527,6 @@ void NzMesh::InvalidateAABB() const
 	m_impl->aabb.SetNull();
 }
 
-bool NzMesh::HasAnimation() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return false;
-	}
-	#endif
-
-	return m_impl->animation != nullptr;
-}
-
 bool NzMesh::HasSubMesh(const NzString& identifier) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -688,48 +645,6 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 }
 
-bool NzMesh::SetAnimation(const NzAnimation* animation)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return false;
-	}
-
-	if (m_impl->animationType == nzAnimationType_Static)
-	{
-		NazaraError("Static meshes cannot have animation");
-		return false;
-	}
-	#endif
-
-	if (animation == m_impl->animation)
-		return true;
-
-	if (m_impl->animation)
-		m_impl->animation->RemoveResourceListener(this);
-
-	if (animation)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (animation->GetType() != m_impl->animationType)
-		{
-			NazaraError("Animation's type must match mesh animation type");
-			m_impl->animation = nullptr;
-
-			return false;
-		}
-		#endif
-
-		animation->AddResourceListener(this);
-	}
-
-	m_impl->animation = animation;
-
-	return true;
-}
-
 void NzMesh::SetMaterial(unsigned int matIndex, const NzString& materialPath)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -824,30 +739,11 @@ const NzVertexDeclaration* NzMesh::GetDeclaration()
 	return &declaration;
 }
 
-void NzMesh::OnResourceCreated(const NzResource* resource, int index)
-{
-	NazaraUnused(index);
-
-	if (resource == m_impl->animation)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (m_impl->animation->GetType() != m_impl->animationType)
-		{
-			NazaraError("Animation's type must match mesh animation type");
-
-			m_impl->animation->RemoveResourceListener(this);
-			m_impl->animation = nullptr;
-		}
-		#endif
-	}
-}
-
 void NzMesh::OnResourceReleased(const NzResource* resource, int index)
 {
-	if (resource == m_impl->animation)
-		SetAnimation(nullptr);
-	else
-		RemoveSubMesh(index);
+	NazaraUnused(resource);
+
+	RemoveSubMesh(index);
 }
 
 NzMeshLoader::LoaderList NzMesh::s_loaders;
