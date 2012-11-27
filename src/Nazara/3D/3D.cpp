@@ -4,10 +4,10 @@
 
 #include <Nazara/3D/3D.hpp>
 #include <Nazara/3D/Config.hpp>
-#include <Nazara/3D/Debug.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/3D/Debug.hpp>
 
 bool Nz3D::Initialize()
 {
