@@ -31,7 +31,7 @@ class NAZARA_API NzNode
 		NzQuaternionf GetRotation() const;
 		NzVector3f GetScale() const;
 		NzVector3f GetTranslation() const;
-		NzMatrix4f GetTransformMatrix() const;
+		const NzMatrix4f& GetTransformMatrix() const;
 
 		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation);
 

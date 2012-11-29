@@ -590,9 +590,9 @@ NzMatrix4<T>& NzMatrix4<T>::MakeZero()
 
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
-					   T r21, T r22, T r23, T r24,
-					   T r31, T r32, T r33, T r34,
-					   T r41, T r42, T r43, T r44)
+                                T r21, T r22, T r23, T r24,
+                                T r31, T r32, T r33, T r34,
+                                T r41, T r42, T r43, T r44)
 {
 	m11 = r11;
 	m12 = r12;
@@ -626,9 +626,7 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4& matrix)
 {
-	NazaraError("Check 1");
 	std::memcpy(&m11, &matrix.m11, 16*sizeof(T));
-	NazaraError("Check 2");
 
 	return *this;
 }
