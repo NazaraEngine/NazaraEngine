@@ -7,6 +7,8 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/HardwareInfo.hpp>
+#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ThreadImpl.hpp>
@@ -18,62 +20,127 @@
 
 #include <Nazara/Core/Debug.hpp>
 
+///********************************NzThread::Id********************************
+
+bool operator==(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id == rhs.m_id;
+}
+
+bool operator!=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id != rhs.m_id;
+}
+
+bool operator<(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id < rhs.m_id;
+}
+
+bool operator<=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id <= rhs.m_id;
+}
+
+bool operator>(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id > rhs.m_id;
+}
+
+bool operator>=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id >= rhs.m_id;
+}
+
+bool operator<<(std::ostream& o, const NzThread::Id& id)
+{
+	o << id.m_id;
+	return o;
+}
+
+NzThread::Id::Id(NzThreadImpl* thread) :
+m_id(thread)
+{
+}
+
+///**********************************NzThread**********************************
+
+NzThread::NzThread(NzThread&& other) :
+m_impl(other.m_impl)
+{
+	other.m_impl = nullptr;
+}
+
 NzThread::~NzThread()
-{
-	if (!m_independent)
-		Join();
-	else
-		delete m_impl;
-}
-
-NzThread::Id NzThread::GetId() const
-{
-	if (m_impl)
-		return m_impl->GetId();
-	else
-		return NzThread::Id();
-}
-
-bool NzThread::IsCurrent() const
-{
-	if (m_impl)
-		return m_impl->IsCurrent();
-	else
-		return false;
-}
-
-void NzThread::Launch(bool independent)
-{
-	Join();
-	m_independent = independent;
-	m_impl = new NzThreadImpl(this);
-}
-
-void NzThread::Join()
 {
 	if (m_impl)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_impl->IsCurrent())
-		{
-			NazaraError("A thread cannot join itself");
-			return;
-		}
-		#endif
-
 		m_impl->Join();
 		delete m_impl;
 		m_impl = nullptr;
 	}
 }
 
-void NzThread::Terminate()
+void NzThread::Detach()
 {
 	if (m_impl)
 	{
-		m_impl->Terminate();
+		m_impl->Detach();
 		delete m_impl;
 		m_impl = nullptr;
 	}
 }
 
+NzThread::Id NzThread::GetId() const
+{
+	return NzThread::Id(m_impl);
+}
+
+bool NzThread::IsJoinable() const
+{
+	return m_impl != nullptr;
+}
+
+void NzThread::Join()
+{
+	#if NAZARA_CORE_SAFE
+	if (!m_impl)
+	{
+		NazaraError("This thread is not joinable");
+		return;
+	}
+	#endif
+
+	m_impl->Join();
+	delete m_impl;
+	m_impl = nullptr;
+}
+
+NzThread& NzThread::operator=(NzThread&& thread)
+{
+	#if NAZARA_CORE_SAFE
+	if (m_impl)
+	{
+		NazaraError("This thread cannot be joined");
+		std::terminate();
+	}
+	#endif
+
+	std::swap(m_impl, thread.m_impl);
+	return *this;
+}
+
+unsigned int NzThread::HardwareConcurrency()
+{
+	return NzHardwareInfo::GetProcessorCount();
+}
+
+void NzThread::Sleep(nzUInt32 milliseconds)
+{
+	NzThreadImpl::Sleep(milliseconds);
+}
+
+void NzThread::CreateImpl(NzFunctor* functor)
+{
+	m_impl = new NzThreadImpl(functor);
+}
