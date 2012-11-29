@@ -20,7 +20,7 @@ void NzError(nzErrorType type, const NzString& error, unsigned int line, const c
 
 	#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
 	if (type == nzErrorType_AssertFailed)
-		exit(EXIT_FAILURE);
+		std::exit(EXIT_FAILURE);
 	#endif
 }
 
@@ -56,7 +56,7 @@ NzString NzGetLastSystemError(unsigned int code)
 
 	return error;
 	#elif defined(NAZARA_PLATFORM_POSIX)
-	return strerror(code);
+	return std::strerror(code);
 	#else
 		#error GetLastSystemError is not implemented on this platform
 

@@ -101,7 +101,7 @@ NzVector3f NzNode::GetTranslation() const
 	return m_translation;
 }
 
-NzMatrix4f NzNode::GetTransformMatrix() const
+const NzMatrix4f& NzNode::GetTransformMatrix() const
 {
 	if (!m_matrixUpdated)
 		UpdateMatrix();
