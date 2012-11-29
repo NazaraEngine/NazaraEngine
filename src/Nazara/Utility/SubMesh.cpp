@@ -29,7 +29,7 @@ nzPrimitiveType NzSubMesh::GetPrimitiveType() const
 	return m_primitiveType;
 }
 
-unsigned int NzSubMesh::GetSkinIndex() const
+unsigned int NzSubMesh::GetMaterialIndex() const
 {
 	return m_matIndex;
 }

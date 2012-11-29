@@ -31,7 +31,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	NzFile file(path, NzFile::ReadOnly);
 	if (!file.IsOpen())
 	{
-		NazaraError("Failed to open file");
+		NazaraError("Failed to open \"" + path + '"');
 		return false;
 	}
 
@@ -42,6 +42,8 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 			int cmp = NzString::Compare(loaderExt, ext);
 			if (cmp == 0)
 			{
+				file.SetCursorPos(0);
+
 				if (!std::get<1>(*loader)(file, parameters))
 					continue;
 
@@ -52,8 +54,6 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 					return true;
 
 				NazaraWarning("Loader failed");
-
-				file.SetCursorPos(0);
 			}
 			else if (cmp < 0) // S'il est encore possible que l'extension se situe après
 				continue;
@@ -95,11 +95,13 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 	nzUInt64 streamPos = stream.GetCursorPos();
 	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
 	{
+		stream.SetCursorPos(streamPos);
+
 		// Le loader supporte-t-il les données ?
 		if (!std::get<1>(*loader)(stream, parameters))
 			continue;
 
-		// On repositionne le stream au début
+		// On repositionne le stream à son ancienne position
 		stream.SetCursorPos(streamPos);
 
 		// Chargement de la ressource
@@ -107,7 +109,6 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 			return true;
 
 		NazaraWarning("Loader failed");
-		stream.SetCursorPos(streamPos); // On repositionne au début
 	}
 
 	NazaraError("Failed to load file: no loader");
