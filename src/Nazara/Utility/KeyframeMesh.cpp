@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <vector>
@@ -222,16 +223,22 @@ const NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer() const
 	return m_impl->vertexBuffer;
 }
 
-void NzKeyframeMesh::Interpolate(unsigned int frameA, unsigned int frameB, float interpolation) const
+void NzKeyframeMesh::Interpolate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!m_parent->HasAnimation())
+	if (!animation || !animation->IsValid())
 	{
-		NazaraError("Parent mesh has no animation");
+		NazaraError("Animation must be valid");
 		return;
 	}
 
-	unsigned int frameCount = m_parent->GetFrameCount();
+	if (animation->GetType() != nzAnimationType_Keyframe)
+	{
+		NazaraError("Animation must be of keyframe type");
+		return;
+	}
+
+	unsigned int frameCount = animation->GetFrameCount();
 	if (frameA >= frameCount)
 	{
 		NazaraError("Frame A is out of range (" + NzString::Number(frameA) + " >= " + NzString::Number(frameCount) + ')');

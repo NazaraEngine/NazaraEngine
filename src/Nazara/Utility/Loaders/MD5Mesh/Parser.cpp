@@ -175,8 +175,11 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 		}
 
-		for (const Mesh& md5Mesh : m_meshes)
+		mesh->SetMaterialCount(m_meshes.size());
+		for (unsigned int i = 0; i < m_meshes.size(); ++i)
 		{
+			const Mesh& md5Mesh = m_meshes[i];
+
 			void* ptr;
 			unsigned int indexCount = md5Mesh.triangles.size()*3;
 			unsigned int vertexCount = md5Mesh.vertices.size();
@@ -270,10 +273,10 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			vertexBuffer.release();
 
 			NzWeight* weights = subMesh->GetWeight();
-			for (unsigned int i = 0; i < weightCount; ++i)
+			for (unsigned int j = 0; j < weightCount; ++j)
 			{
-				weights->jointIndex = md5Mesh.weights[i].joint;
-				weights->weight = md5Mesh.weights[i].bias;
+				weights->jointIndex = md5Mesh.weights[j].joint;
+				weights->weight = md5Mesh.weights[j].bias;
 				weights++;
 			}
 
@@ -301,14 +304,8 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			}
 
 			// Material
-			if (!md5Mesh.shader.IsEmpty())
-			{
-				unsigned int skinIndex;
-				if (mesh->AddMaterial(baseDir + md5Mesh.shader, &skinIndex))
-					subMesh->SetMaterialIndex(skinIndex);
-				else
-					NazaraWarning("Failed to add mesh shader");
-			}
+			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+			subMesh->SetMaterialIndex(i);
 
 			if (!mesh->AddSubMesh(subMesh.get()))
 			{
@@ -320,18 +317,12 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			// Animation
 			// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
-			NzString animationPath = m_stream.GetPath();
-			if (!animationPath.IsEmpty())
+			NzString path = m_stream.GetPath();
+			if (!path.IsEmpty())
 			{
-				animationPath.Replace(".md5mesh", ".md5anim", -8, NzString::CaseInsensitive);
-				if (NzFile::Exists(animationPath))
-				{
-					std::unique_ptr<NzAnimation> animation(new NzAnimation);
-					if (animation->LoadFromFile(animationPath) && mesh->SetAnimation(animation.get()))
-						animation.release();
-					else
-						NazaraWarning("Failed to load mesh's animation");
-				}
+				path.Replace(".md5mesh", ".md5anim", -8, NzString::CaseInsensitive);
+				if (NzFile::Exists(path))
+					mesh->SetAnimation(path);
 			}
 		}
 	}
@@ -343,8 +334,9 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			return false;
 		}
 
-		for (const Mesh& md5Mesh : m_meshes)
+		for (unsigned int i = 0; i < m_meshes.size(); ++i)
 		{
+			const Mesh& md5Mesh = m_meshes[i];
 			void* ptr;
 			unsigned int indexCount = md5Mesh.triangles.size()*3;
 			unsigned int vertexCount = md5Mesh.vertices.size();
@@ -479,14 +471,8 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			indexBuffer.release();
 
 			// Material
-			if (!md5Mesh.shader.IsEmpty())
-			{
-				unsigned int skinIndex;
-				if (mesh->AddMaterial(baseDir + md5Mesh.shader, &skinIndex))
-					subMesh->SetMaterialIndex(skinIndex);
-				else
-					NazaraWarning("Failed to add mesh shader");
-			}
+			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+			subMesh->SetMaterialIndex(i);
 
 			if (!mesh->AddSubMesh(subMesh.get()))
 			{

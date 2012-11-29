@@ -8,6 +8,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Loaders/MD2/Constants.hpp>
@@ -18,7 +19,8 @@
 
 namespace
 {
-	bool Check(NzInputStream& stream, const NzMeshParams& parameters)
+	/// Loader de mesh
+	bool CheckMesh(NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -34,7 +36,7 @@ namespace
 		return magic[0] == md2Ident && magic[1] == 8;
 	}
 
-	bool Load(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
+	bool LoadMesh(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		md2_header header;
 		if (stream.Read(&header, sizeof(md2_header)) != sizeof(md2_header))
@@ -69,11 +71,8 @@ namespace
 
 		/// Création du mesh
 		// Animé ou statique, c'est la question
-		unsigned int startFrame = NzClamp(parameters.animation.startFrame, 0U, static_cast<unsigned int>(header.num_frames-1));
-		unsigned int endFrame = NzClamp(parameters.animation.endFrame, 0U, static_cast<unsigned int>(header.num_frames-1));
-
-		bool animated = (parameters.animated && startFrame != endFrame);
-		if (animated)
+		///FIXME: Le loader ne traite pas correctement le cas d'un mesh statique
+		if (parameters.animated)
 			mesh->CreateKeyframe();
 		else
 			mesh->CreateStatic();
@@ -84,9 +83,12 @@ namespace
 			return false;
 		}
 
+		mesh->SetAnimation(stream.GetPath()); // Même fichier
+
 		/// Chargement des skins
 		if (header.num_skins > 0)
 		{
+			mesh->SetMaterialCount(header.num_skins);
 			stream.SetCursorPos(header.offset_skins);
 			{
 				NzString baseDir = stream.GetDirectory();
@@ -94,90 +96,19 @@ namespace
 				for (unsigned int i = 0; i < header.num_skins; ++i)
 				{
 					stream.Read(skin, 68*sizeof(char));
-					mesh->AddMaterial(baseDir + skin);
+					mesh->SetMaterial(i, baseDir + skin);
 				}
 			}
-		}
-
-		/// Chargement des animations
-		if (animated)
-		{
-			NzAnimation* animation = new NzAnimation;
-			if (animation->CreateKeyframe(endFrame-startFrame+1))
-			{
-				// Décodage des séquences
-				///TODO: Optimiser le calcul
-				char last[16];
-
-				stream.SetCursorPos(header.offset_frames + startFrame*header.framesize + 2*sizeof(NzVector3f));
-				stream.Read(last, 16*sizeof(char));
-
-				int pos = std::strlen(last)-1;
-				for (unsigned int j = 0; j < 2; ++j)
-				{
-					if (!std::isdigit(last[pos]))
-						break;
-
-					pos--;
-				}
-				last[pos+1] = '\0';
-
-				NzSequence sequence;
-				sequence.firstFrame = startFrame;
-				sequence.frameCount = 0;
-				sequence.frameRate = 10; // Par défaut pour les animations MD2
-				sequence.name = last;
-
-				char name[16];
-				for (unsigned int i = startFrame; i <= endFrame; ++i)
-				{
-					stream.SetCursorPos(header.offset_frames + i*header.framesize + 2*sizeof(NzVector3f));
-					stream.Read(name, 16*sizeof(char));
-
-					pos = std::strlen(name)-1;
-					for (unsigned int j = 0; j < 2; ++j)
-					{
-						if (!std::isdigit(name[pos]))
-							break;
-
-						pos--;
-					}
-					name[pos+1] = '\0';
-
-					if (std::strcmp(name, last) != 0) // Si les deux frames n'ont pas le même nom
-					{
-						std::strcpy(last, name);
-
-						// Alors on enregistre la séquence actuelle
-						animation->AddSequence(sequence);
-
-						// Et on initialise la séquence suivante
-						sequence.firstFrame = i;
-						sequence.frameCount = 0;
-						sequence.name = last;
-					}
-
-					sequence.frameCount++;
-				}
-				// On ajoute la dernière frame (Qui n'a pas été traitée par la boucle)
-				animation->AddSequence(sequence);
-
-				mesh->SetAnimation(animation);
-				animation->SetPersistent(false);
-			}
-			else
-				NazaraInternalError("Failed to create animaton");
 		}
 
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
 		// TODO: Utiliser les commandes OpenGL pour créer des indices et accélérer le rendu
-		unsigned int frameCount = endFrame - startFrame + 1;
 		unsigned int vertexCount = header.num_tris * 3;
 
 		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, parameters.storage, nzBufferUsage_Dynamic));
 		std::unique_ptr<NzKeyframeMesh> subMesh(new NzKeyframeMesh(mesh));
-		if (!subMesh->Create(vertexBuffer.get(), frameCount))
+		if (!subMesh->Create(vertexBuffer.get(), header.num_frames))
 		{
 			NazaraError("Failed to create SubMesh");
 			return false;
@@ -222,13 +153,13 @@ namespace
 		#endif
 
 		/// Chargement des frames
-		stream.SetCursorPos(header.offset_frames + header.framesize*startFrame);
+		stream.SetCursorPos(header.offset_frames);
 
 		// Pour que le modèle soit correctement aligné, on génère un quaternion que nous appliquerons à chacune des vertices
 		NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
 
 		md2_vertex* vertices = new md2_vertex[header.num_vertices];
-		for (unsigned int f = 0; f < frameCount; ++f)
+		for (unsigned int f = 0; f < header.num_frames; ++f)
 		{
 			NzVector3f scale, translate;
 
@@ -286,14 +217,125 @@ namespace
 
 		return true;
 	}
+
+	/// Loader d'animations
+	bool CheckAnim(NzInputStream& stream, const NzAnimationParams& parameters)
+	{
+		NazaraUnused(parameters);
+
+		nzUInt32 magic[2];
+		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) != 2*sizeof(nzUInt32))
+			return false;
+
+		#ifdef NAZARA_BIG_ENDIAN
+		NzByteSwap(&magic[0], sizeof(nzUInt32));
+		NzByteSwap(&magic[1], sizeof(nzUInt32));
+		#endif
+
+		return magic[0] == md2Ident && magic[1] == 8;
+	}
+
+	bool LoadAnim(NzAnimation* animation, NzInputStream& stream, const NzAnimationParams& parameters)
+	{
+		md2_header header;
+		if (stream.Read(&header, sizeof(md2_header)) != sizeof(md2_header))
+		{
+			NazaraError("Failed to read header");
+			return false;
+		}
+
+		#ifdef NAZARA_BIG_ENDIAN
+		NzByteSwap(&header.framesize, sizeof(nzUInt32));
+		NzByteSwap(&header.num_frames, sizeof(nzUInt32));
+		NzByteSwap(&header.offset_frames, sizeof(nzUInt32));
+		NzByteSwap(&header.offset_end, sizeof(nzUInt32));
+		#endif
+
+		if (stream.GetSize() < header.offset_end)
+		{
+			NazaraError("Incomplete MD2 file");
+			return false;
+		}
+
+		unsigned int startFrame = std::min(parameters.startFrame, static_cast<unsigned int>(header.num_frames-1));
+		unsigned int endFrame = std::min(parameters.endFrame, static_cast<unsigned int>(header.num_frames-1));
+
+		unsigned int frameCount = endFrame - startFrame + 1;
+		if (!animation->CreateKeyframe(frameCount))
+		{
+			NazaraInternalError("Failed to create animaton");
+			return false;
+		}
+
+		// Décodage des séquences
+		///TODO: Optimiser le calcul
+		char last[16];
+
+		stream.SetCursorPos(header.offset_frames + startFrame*header.framesize + 2*sizeof(NzVector3f));
+		stream.Read(last, 16*sizeof(char));
+
+		int pos = std::strlen(last)-1;
+		for (unsigned int j = 0; j < 2; ++j)
+		{
+			if (!std::isdigit(last[pos]))
+				break;
+
+			pos--;
+		}
+		last[pos+1] = '\0';
+
+		NzSequence sequence;
+		sequence.firstFrame = startFrame;
+		sequence.frameCount = 0;
+		sequence.frameRate = 10; // Par défaut pour les animations MD2
+		sequence.name = last;
+
+		char name[16];
+		for (unsigned int i = startFrame; i <= endFrame; ++i)
+		{
+			stream.SetCursorPos(header.offset_frames + i*header.framesize + 2*sizeof(NzVector3f));
+			stream.Read(name, 16*sizeof(char));
+
+			pos = std::strlen(name)-1;
+			for (unsigned int j = 0; j < 2; ++j)
+			{
+				if (!std::isdigit(name[pos]))
+					break;
+
+				pos--;
+			}
+			name[pos+1] = '\0';
+
+			if (std::strcmp(name, last) != 0) // Si les deux frames n'ont pas le même nom
+			{
+				std::strcpy(last, name);
+
+				// Alors on enregistre la séquence actuelle
+				animation->AddSequence(sequence);
+
+				// Et on initialise la séquence suivante
+				sequence.firstFrame = i;
+				sequence.frameCount = 0;
+				sequence.name = last;
+			}
+
+			sequence.frameCount++;
+		}
+		// On ajoute la dernière frame (Qui n'a pas été traitée par la boucle)
+		animation->AddSequence(sequence);
+
+		return true;
+	}
 }
 
 void NzLoaders_MD2_Register()
 {
-	NzMeshLoader::RegisterLoader("md2", Check, Load);
+	NzAnimationLoader::RegisterLoader("md2", CheckAnim, LoadAnim);
+	NzMeshLoader::RegisterLoader("md2", CheckMesh, LoadMesh);
 }
 
 void NzLoaders_MD2_Unregister()
 {
-	NzMeshLoader::UnregisterLoader("md2", Check, Load);
+	NzAnimationLoader::UnregisterLoader("md2", CheckAnim, LoadAnim);
+	NzMeshLoader::UnregisterLoader("md2", CheckMesh, LoadMesh);
 }
