@@ -390,7 +390,7 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 		m_impl = impl;
 
 		if (m_openMode & Text)
-			m_streamOptions &= nzStreamOption_Text;
+			m_streamOptions |= nzStreamOption_Text;
 	}
 
 	m_openMode = openMode;
