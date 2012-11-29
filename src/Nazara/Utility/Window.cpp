@@ -11,12 +11,8 @@
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Utility/Win32/CursorImpl.hpp>
-	#include <Nazara/Utility/Win32/IconImpl.hpp>
 	#include <Nazara/Utility/Win32/WindowImpl.hpp>
 #elif defined(NAZARA_PLATFORM_LINUX)
-	#include <Nazara/Utility/Linux/CursorImpl.hpp>
-	#include <Nazara/Utility/Linux/IconImpl.hpp>
 	#include <Nazara/Utility/Linux/WindowImpl.hpp>
 #else
 	#error Lack of implementation: Window
@@ -100,7 +96,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 	{
 		if (fullscreenWindow)
 		{
-			NazaraError("Window (" + NzString::Pointer(fullscreenWindow) + ") already in fullscreen mode");
+			NazaraError("Window " + NzString::Pointer(fullscreenWindow) + " already in fullscreen mode");
 			style &= ~nzWindowStyle_Fullscreen;
 		}
 		else
