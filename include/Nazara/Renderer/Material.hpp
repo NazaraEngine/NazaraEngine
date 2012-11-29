@@ -40,13 +40,13 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor GetAmbientColor() const;
 		NzColor GetDiffuseColor() const;
 		const NzTexture* GetDiffuseMap() const;
-		nzBlendFunc GetDstAlpha() const;
+		nzBlendFunc GetDstBlend() const;
 		nzFaceCulling GetFaceCulling() const;
 		nzFaceFilling GetFaceFilling() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		const NzTexture* GetSpecularMap() const;
-		nzBlendFunc GetSrcAlpha() const;
+		nzBlendFunc GetSrcBlend() const;
 		nzRendererComparison GetZTestCompare() const;
 
 		bool IsAlphaBlendingEnabled() const;
@@ -62,20 +62,20 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDiffuseColor(const NzColor& diffuse);
 		void SetDiffuseMap(const NzTexture* map);
-		void SetDstAlpha(nzBlendFunc func);
+		void SetDstBlend(nzBlendFunc func);
 		void SetFaceCulling(nzFaceCulling culling);
 		void SetFaceFilling(nzFaceFilling filling);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		void SetSpecularMap(const NzTexture* map);
-		void SetSrcAlpha(nzBlendFunc func);
+		void SetSrcBlend(nzBlendFunc func);
 		void SetZTestCompare(nzRendererComparison compareFunc);
 
 		static const NzMaterial* GetDefault();
 
 	private:
-		nzBlendFunc m_dstAlpha;
-		nzBlendFunc m_srcAlpha;
+		nzBlendFunc m_dstBlend;
+		nzBlendFunc m_srcBlend;
 		nzFaceCulling m_faceCulling;
 		nzFaceFilling m_faceFilling;
 		nzRendererComparison m_zTestCompareFunc;
