@@ -55,9 +55,9 @@ const NzTexture* NzMaterial::GetDiffuseMap() const
 	return m_diffuseMap;
 }
 
-nzBlendFunc NzMaterial::GetDstAlpha() const
+nzBlendFunc NzMaterial::GetDstBlend() const
 {
-	return m_dstAlpha;
+	return m_dstBlend;
 }
 
 nzFaceCulling NzMaterial::GetFaceCulling() const
@@ -85,9 +85,9 @@ const NzTexture* NzMaterial::GetSpecularMap() const
 	return m_specularMap;
 }
 
-nzBlendFunc NzMaterial::GetSrcAlpha() const
+nzBlendFunc NzMaterial::GetSrcBlend() const
 {
-	return m_srcAlpha;
+	return m_srcBlend;
 }
 
 nzRendererComparison NzMaterial::GetZTestCompare() const
@@ -142,12 +142,12 @@ void NzMaterial::Reset()
 	m_alphaBlendingEnabled = false;
 	m_ambientColor = NzColor::Black;
 	m_diffuseColor = NzColor::White;
-	m_dstAlpha = nzBlendFunc_Zero;
+	m_dstBlend = nzBlendFunc_Zero;
 	m_faceCulling = nzFaceCulling_Back;
 	m_faceFilling = nzFaceFilling_Fill;
 	m_shininess = 0;
 	m_specularColor = NzColor::White;
-	m_srcAlpha = nzBlendFunc_One;
+	m_srcBlend = nzBlendFunc_One;
 	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
 	m_zTestEnabled = true;
 	m_zWriteEnabled = true;
@@ -173,9 +173,9 @@ void NzMaterial::SetDiffuseMap(const NzTexture* map)
 		m_diffuseMap->AddResourceReference();
 }
 
-void NzMaterial::SetDstAlpha(nzBlendFunc func)
+void NzMaterial::SetDstBlend(nzBlendFunc func)
 {
-	m_dstAlpha = func;
+	m_dstBlend = func;
 }
 
 void NzMaterial::SetFaceCulling(nzFaceCulling culling)
@@ -208,9 +208,9 @@ void NzMaterial::SetSpecularMap(const NzTexture* map)
 		m_specularMap->AddResourceReference();
 }
 
-void NzMaterial::SetSrcAlpha(nzBlendFunc func)
+void NzMaterial::SetSrcBlend(nzBlendFunc func)
 {
-	m_srcAlpha = func;
+	m_srcBlend = func;
 }
 
 void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
