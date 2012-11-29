@@ -219,6 +219,25 @@ unsigned int NzAnimation::GetFrameCount() const
 	return m_impl->frameCount;
 }
 
+unsigned int NzAnimation::GetJointCount() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return 0;
+	}
+
+	if (m_impl->type != nzAnimationType_Skeletal)
+	{
+		NazaraError("Animation is not skeletal");
+		return 0;
+	}
+	#endif
+
+	return m_impl->jointCount;
+}
+
 NzSequence* NzAnimation::GetSequence(const NzString& sequenceName)
 {
 	#if NAZARA_UTILITY_SAFE

@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
+#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
@@ -49,6 +50,11 @@ namespace
 	NzMatrix4f s_matrix[totalMatrixCount];
 	int s_matrixLocation[totalMatrixCount];
 	bool s_matrixUpdated[totalMatrixCount];
+	nzBlendFunc s_srcBlend;
+	nzBlendFunc s_dstBlend;
+	nzFaceCulling s_faceCulling;
+	nzFaceFilling s_faceFilling;
+	nzRendererComparison s_depthFunc;
 	nzRendererComparison s_stencilCompare;
 	nzStencilOperation s_stencilFail;
 	nzStencilOperation s_stencilPass;
@@ -67,6 +73,57 @@ namespace
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_stencilReference;
+}
+
+void NzRenderer::ApplyMaterial(const NzMaterial* material)
+{
+	///FIXME; Bouger vers Material::Apply ?
+	#if NAZARA_RENDERER_SAFE
+	if (!material)
+	{
+		NazaraError("Invalid material");
+		return;
+	}
+	#endif
+
+	NzShader* shader = s_shader;
+
+	int ambientColorLocation = shader->GetUniformLocation("ambientColor");
+	int diffuseColorLocation = shader->GetUniformLocation("diffuseColor");
+	int diffuseMapLocation = shader->GetUniformLocation("diffuseMap");
+	int shininessLocation = shader->GetUniformLocation("shininess");
+	int specularColorLocation = shader->GetUniformLocation("specularColor");
+	int specularMapLocation = shader->GetUniformLocation("specularMap");
+
+	if (ambientColorLocation != -1)
+		shader->SendColor(ambientColorLocation, material->GetAmbientColor());
+
+	if (diffuseColorLocation != -1)
+		shader->SendColor(diffuseColorLocation, material->GetDiffuseColor());
+
+	if (diffuseMapLocation != -1)
+		shader->SendTexture(diffuseMapLocation, material->GetDiffuseMap());
+
+	if (shininessLocation != -1)
+		shader->SendFloat(shininessLocation, material->GetShininess());
+
+	if (specularColorLocation != -1)
+		shader->SendColor(ambientColorLocation, material->GetSpecularColor());
+
+	if (specularMapLocation != -1)
+		shader->SendTexture(specularMapLocation, material->GetSpecularMap());
+
+	if (material->IsAlphaBlendingEnabled())
+	{
+		Enable(nzRendererParameter_Blend, true);
+		SetBlendFunc(material->GetSrcBlend(), material->GetDstBlend());
+	}
+	else
+		Enable(nzRendererParameter_Blend, false);
+
+	Enable(nzRendererParameter_DepthTest, material->IsZTestEnabled());
+	Enable(nzRendererParameter_DepthWrite, material->IsZWriteEnabled());
+	SetDepthFunc(material->GetZTestCompare());
 }
 
 void NzRenderer::Clear(unsigned long flags)
@@ -377,8 +434,12 @@ bool NzRenderer::Initialize()
 		s_matrixUpdated[i] = false;
 	}
 
+	s_dstBlend = nzBlendFunc_Zero;
+	s_faceCulling = nzFaceCulling_Back;
+	s_faceFilling = nzFaceFilling_Fill;
 	s_indexBuffer = nullptr;
 	s_shader = nullptr;
+	s_srcBlend = nzBlendFunc_One;
 	s_stencilCompare = nzRendererComparison_Always;
 	s_stencilFail = nzStencilOperation_Keep;
 	s_stencilFuncUpdated = true;
@@ -502,7 +563,7 @@ bool NzRenderer::IsInitialized()
 	return s_moduleReferenceCounter != 0;
 }
 
-void NzRenderer::SetBlendFunc(nzBlendFunc src, nzBlendFunc dest)
+void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc destBlend)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -512,7 +573,12 @@ void NzRenderer::SetBlendFunc(nzBlendFunc src, nzBlendFunc dest)
 	}
 	#endif
 
-	glBlendFunc(NzOpenGL::BlendFunc[src], NzOpenGL::BlendFunc[dest]);
+	if (s_srcBlend != srcBlend || s_dstBlend != destBlend)
+	{
+		glBlendFunc(NzOpenGL::BlendFunc[srcBlend], NzOpenGL::BlendFunc[destBlend]);
+		s_srcBlend = srcBlend;
+		s_dstBlend = destBlend;
+	}
 }
 
 void NzRenderer::SetClearColor(const NzColor& color)
@@ -567,6 +633,23 @@ void NzRenderer::SetClearStencil(unsigned int value)
 	glClearStencil(value);
 }
 
+void NzRenderer::SetDepthFunc(nzRendererComparison compareFunc)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	if (s_depthFunc != compareFunc)
+	{
+		glDepthFunc(NzOpenGL::RendererComparison[compareFunc]);
+		s_depthFunc = compareFunc;
+	}
+}
+
 void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
 {
 	#ifdef NAZARA_DEBUG
@@ -577,7 +660,11 @@ void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
 	}
 	#endif
 
-	glCullFace(NzOpenGL::FaceCulling[cullingMode]);
+	if (s_faceCulling != cullingMode)
+	{
+		glCullFace(NzOpenGL::FaceCulling[cullingMode]);
+		s_faceCulling = cullingMode;
+	}
 }
 
 void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
@@ -590,7 +677,11 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 	}
 	#endif
 
-	glPolygonMode(GL_FRONT_AND_BACK, NzOpenGL::FaceFilling[fillingMode]);
+	if (s_faceFilling != fillingMode)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, NzOpenGL::FaceFilling[fillingMode]);
+		s_faceFilling = fillingMode;
+	}
 }
 
 bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)

@@ -15,7 +15,7 @@ class NzSkeleton;
 
 struct NzVertexWeight
 {
-	std::vector<unsigned int> weights;
+	std::vector<unsigned int> weights; ///FIXME: Niveau fragmentation mémoire ça doit pas être génial
 };
 
 struct NzWeight

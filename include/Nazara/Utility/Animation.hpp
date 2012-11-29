@@ -45,6 +45,7 @@ class NAZARA_API NzAnimation : public NzResource
 		void Destroy();
 
 		unsigned int GetFrameCount() const;
+		unsigned int GetJointCount() const;
 		NzSequence* GetSequence(const NzString& sequenceName);
 		NzSequence* GetSequence(unsigned int index);
 		const NzSequence* GetSequence(const NzString& sequenceName) const;
