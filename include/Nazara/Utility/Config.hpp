@@ -42,7 +42,7 @@
 #define NAZARA_UTILITY_STRICT_RESOURCE_PARSING 1
 
 // Fait tourner chaque fenêtre dans un thread séparé si le système le supporte
-#define NAZARA_UTILITY_THREADED_WINDOW 0 ///FIXME: Buggé depuis GCC 4.7 avec certains ordinateurs
+#define NAZARA_UTILITY_THREADED_WINDOW 0
 
 // Protège les classes des accès concurrentiels
 #define NAZARA_UTILITY_THREADSAFE 1

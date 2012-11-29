@@ -123,12 +123,11 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzMutex mutex;
 	NzConditionVariable condition;
-	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle, win32Style, x, y, width, height, this, &mutex, &condition);
 	m_threadActive = true;
 
 	// On attend que la fenêtre soit créée
 	mutex.Lock();
-	m_thread->Launch();
+	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle, win32Style, x, y, width, height, this, &mutex, &condition);
 	condition.Wait(&mutex);
 	mutex.Unlock();
 	#else
