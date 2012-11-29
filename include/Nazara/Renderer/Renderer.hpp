@@ -18,6 +18,7 @@
 class NzColor;
 class NzContext;
 class NzIndexBuffer;
+class NzMaterial;
 class NzRenderTarget;
 class NzShader;
 class NzVertexBuffer;
@@ -28,6 +29,8 @@ class NAZARA_API NzRenderer
 	public:
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
+
+		static void ApplyMaterial(const NzMaterial* material);
 
 		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
@@ -54,11 +57,12 @@ class NAZARA_API NzRenderer
 		static bool IsEnabled(nzRendererParameter parameter);
 		static bool IsInitialized();
 
-		static void SetBlendFunc(nzBlendFunc src, nzBlendFunc dest);
+		static void SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc destBlend);
 		static void SetClearColor(const NzColor& color);
 		static void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
 		static void SetClearDepth(double depth);
 		static void SetClearStencil(unsigned int value);
+		static void SetDepthFunc(nzRendererComparison compareFunc);
 		static void SetFaceCulling(nzFaceCulling cullingMode);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static bool SetIndexBuffer(const NzIndexBuffer* indexBuffer);
