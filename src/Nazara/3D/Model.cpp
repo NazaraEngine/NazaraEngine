@@ -83,6 +83,7 @@ unsigned int NzModel::GetMaterialCount() const
 {
 	return m_matCount;
 }
+
 unsigned int NzModel::GetSkinCount() const
 {
 	return m_skinCount;
@@ -215,6 +216,9 @@ bool NzModel::SetAnimation(const NzAnimation* animation)
 	if (m_animation)
 	{
 		m_animation->AddResourceReference();
+		m_currentFrame = 0;
+		m_interpolation = 0.f;
+
 		SetSequence(0);
 	}
 
@@ -297,7 +301,6 @@ void NzModel::SetMesh(const NzMesh* mesh, const NzModelParameters& modelParamete
 			}
 		}
 
-		m_interpolation = 0.f;
 		m_matCount = mesh->GetMaterialCount();
 		m_materials.resize(m_matCount, NzMaterial::GetDefault());
 		if (modelParameters.loadMaterials)
@@ -390,9 +393,17 @@ void NzModel::Update(float elapsedTime)
 	{
 		m_interpolation -= 1.f;
 
-		m_currentFrame = m_nextFrame;
-		if (++m_nextFrame >= m_currentSequence->firstFrame+m_currentSequence->frameCount)
-			m_nextFrame = m_currentSequence->firstFrame;
+		unsigned lastFrame = m_currentSequence->firstFrame + m_currentSequence->frameCount - 1;
+		if (m_nextFrame+1 > lastFrame)
+		{
+			m_currentFrame = m_currentSequence->firstFrame;
+			m_nextFrame = m_currentFrame+1;
+		}
+		else
+		{
+			m_currentFrame = m_nextFrame;
+			m_nextFrame++;
+		}
 	}
 
 	m_mesh->Animate(m_animation, m_currentFrame, m_nextFrame, m_interpolation);
