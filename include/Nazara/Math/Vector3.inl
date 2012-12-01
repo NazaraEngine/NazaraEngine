@@ -474,30 +474,6 @@ bool NzVector3<T>::operator!=(const NzVector3& vec) const
 }
 
 template<typename T>
-bool NzVector3<T>::operator<(const NzVector3& vec) const
-{
-	return x < vec.x && y < vec.y && z < vec.z;
-}
-
-template<typename T>
-bool NzVector3<T>::operator<=(const NzVector3& vec) const
-{
-	return operator<(vec) || operator==(vec);
-}
-
-template<typename T>
-bool NzVector3<T>::operator>(const NzVector3& vec) const
-{
-	return !operator<=(vec);
-}
-
-template<typename T>
-bool NzVector3<T>::operator>=(const NzVector3& vec) const
-{
-	return !operator<(vec);
-}
-
-template<typename T>
 NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec1, const NzVector3& vec2)
 {
 	return vec1.CrossProduct(vec2);

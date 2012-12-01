@@ -79,10 +79,6 @@ class NzVector2
 
 		bool operator==(const NzVector2& vec) const;
 		bool operator!=(const NzVector2& vec) const;
-		bool operator<(const NzVector2& vec) const;
-		bool operator<=(const NzVector2& vec) const;
-		bool operator>(const NzVector2& vec) const;
-		bool operator>=(const NzVector2& vec) const;
 
 		static NzVector2 Lerp(const NzVector2& from, const NzVector2& to, T interpolation);
 		static NzVector2 UnitX();
