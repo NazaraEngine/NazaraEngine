@@ -9,7 +9,7 @@
 #include <Nazara/Noise/Simplex4D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzFBM4D::NzFBM4D(nzNoises source, int seed)
+NzFBM4D::NzFBM4D(nzNoises source, unsigned int seed)
 {
     switch(source)
     {

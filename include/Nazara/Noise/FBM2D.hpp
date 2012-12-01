@@ -14,7 +14,7 @@
 class NAZARA_API NzFBM2D : public NzAbstract2DNoise, public NzComplexNoiseBase
 {
     public:
-        NzFBM2D(nzNoises source, int seed);
+        NzFBM2D(nzNoises source, unsigned int seed);
         float GetValue(float x, float y, float resolution);
         ~NzFBM2D();
     protected:

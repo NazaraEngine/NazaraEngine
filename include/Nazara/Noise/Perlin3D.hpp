@@ -16,7 +16,7 @@ class NAZARA_API NzPerlin3D : public NzAbstract3DNoise
 {
     public:
         NzPerlin3D();
-        NzPerlin3D(int seed);
+        NzPerlin3D(unsigned int seed);
         float GetValue(float x, float y, float z, float resolution);
         ~NzPerlin3D() = default;
     protected:

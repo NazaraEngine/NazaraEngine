@@ -16,7 +16,6 @@ class NAZARA_API NzComplexNoiseBase
         NzComplexNoiseBase();
         ~NzComplexNoiseBase() = default;
 
-        const std::array<float, 30>& GetExponentArray() const; //For debug purpose
         float GetHurstParameter() const;
         float GetLacunarity() const;
         float GetOctaveNumber() const;

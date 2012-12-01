@@ -21,11 +21,6 @@ NzComplexNoiseBase::NzComplexNoiseBase()
     }
 }
 
-const std::array<float, 30>& NzComplexNoiseBase::GetExponentArray() const
-{
-    return m_exponent_array;
-}
-
 float NzComplexNoiseBase::GetLacunarity() const
 {
 
@@ -44,20 +39,16 @@ float NzComplexNoiseBase::GetOctaveNumber() const
 
 void NzComplexNoiseBase::SetLacunarity(float lacunarity)
 {
-   // if(lacunarity != m_lacunarity)
-    //{
-        m_lacunarity = lacunarity;
-        m_parametersModified = true;
-    //}
+    m_lacunarity = lacunarity;
+    m_parametersModified = true;
+
 }
 
 void NzComplexNoiseBase::SetHurstParameter(float h)
 {
-    //if(h != m_hurst)
-    //{
-        m_hurst = h;
-        m_parametersModified = true;
-    //}
+
+    m_hurst = h;
+    m_parametersModified = true;
 }
 
 void NzComplexNoiseBase::SetOctavesNumber(float octaves)
