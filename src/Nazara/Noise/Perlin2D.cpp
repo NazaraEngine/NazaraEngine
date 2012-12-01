@@ -17,7 +17,7 @@ NzPerlin2D::NzPerlin2D()
             gradient2[i][j] = grad2Temp[i][j];
 }
 
-NzPerlin2D::NzPerlin2D(int seed) : NzPerlin2D()
+NzPerlin2D::NzPerlin2D(unsigned int seed) : NzPerlin2D()
 {
     this->SetNewSeed(seed);
     this->ShufflePermutationTable();

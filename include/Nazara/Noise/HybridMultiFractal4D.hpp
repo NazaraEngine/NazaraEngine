@@ -14,7 +14,7 @@
 class NAZARA_API NzHybridMultiFractal4D : public NzAbstract4DNoise, public NzComplexNoiseBase
 {
     public:
-        NzHybridMultiFractal4D(nzNoises source, int seed);
+        NzHybridMultiFractal4D(nzNoises source, unsigned int seed);
         float GetValue(float x, float y, float z, float w, float resolution);
         ~NzHybridMultiFractal4D();
     protected:
