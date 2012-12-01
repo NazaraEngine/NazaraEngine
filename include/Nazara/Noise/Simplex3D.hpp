@@ -16,7 +16,7 @@ class NAZARA_API NzSimplex3D : public NzAbstract3DNoise
 {
     public:
         NzSimplex3D();
-        NzSimplex3D(int seed);
+        NzSimplex3D(unsigned int seed);
         float GetValue(float x, float y, float z, float resolution);
         ~NzSimplex3D() = default;
     protected:

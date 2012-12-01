@@ -21,7 +21,7 @@ NzPerlin3D::NzPerlin3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
-NzPerlin3D::NzPerlin3D(int seed) : NzPerlin3D()
+NzPerlin3D::NzPerlin3D(unsigned int seed) : NzPerlin3D()
 {
     this->SetNewSeed(seed);
     this->ShufflePermutationTable();

@@ -45,7 +45,7 @@ NzSimplex4D::NzSimplex4D()
             gradient4[i][j] = grad4Temp[i][j];
 }
 
-NzSimplex4D::NzSimplex4D(int seed) : NzSimplex4D()
+NzSimplex4D::NzSimplex4D(unsigned int seed) : NzSimplex4D()
 {
     this->SetNewSeed(seed);
     this->ShufflePermutationTable();
