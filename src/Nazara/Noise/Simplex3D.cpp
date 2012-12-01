@@ -21,7 +21,7 @@ NzSimplex3D::NzSimplex3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
-NzSimplex3D::NzSimplex3D(int seed) : NzSimplex3D()
+NzSimplex3D::NzSimplex3D(unsigned int seed) : NzSimplex3D()
 {
     this->SetNewSeed(seed);
     this->ShufflePermutationTable();

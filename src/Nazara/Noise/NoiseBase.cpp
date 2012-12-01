@@ -7,7 +7,7 @@
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzNoiseBase::NzNoiseBase(int seed)
+NzNoiseBase::NzNoiseBase(unsigned int seed)
 {
     Ua = 16807;
     Uc = 0;
@@ -22,13 +22,13 @@ NzNoiseBase::NzNoiseBase(int seed)
 
 }
 
-void NzNoiseBase::SetNewSeed(int seed)
+void NzNoiseBase::SetNewSeed(unsigned int seed)
 {
     Uprevious = seed;
     UcurrentSeed = seed;
 }
 
-int NzNoiseBase::GetUniformRandomValue()
+unsigned int NzNoiseBase::GetUniformRandomValue()
 {
     Ulast = Ua*Uprevious + Uc%Um;
     Uprevious = Ulast;
@@ -40,11 +40,11 @@ void NzNoiseBase::ShufflePermutationTable()
     int xchanger;
     unsigned int ncase;
 
-    for(int i(0) ; i < 256 ; i++)
+    for(unsigned int i(0) ; i < 256 ; i++)
         perm[i] = i;
 
-    for(int j(0) ; j < 20 ; ++j)
-        for (int i(0); i < 256 ; ++i)
+    for(unsigned int j(0) ; j < 20 ; ++j)
+        for (unsigned int i(0); i < 256 ; ++i)
         {
             ncase = this->GetUniformRandomValue() & 255;
             xchanger = perm[i];
@@ -52,7 +52,7 @@ void NzNoiseBase::ShufflePermutationTable()
             perm[ncase] = xchanger;
         }
 
-    for(int i(256) ; i < 512; ++i)
+    for(unsigned int i(256) ; i < 512; ++i)
         perm[i] = perm[i & 255];
 }
 
@@ -74,5 +74,3 @@ int NzNoiseBase::JenkinsHash(int a, int b, int c)
     c = c-a;  c = c - b;  c = c^(static_cast<unsigned int>(b) >> 15);
     return c;
 }
-
-#include <Nazara/Core/DebugOff.hpp>

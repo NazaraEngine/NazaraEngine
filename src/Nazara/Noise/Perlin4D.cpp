@@ -26,7 +26,7 @@ NzPerlin4D::NzPerlin4D()
             gradient4[i][j] = grad4Temp[i][j];
 }
 
-NzPerlin4D::NzPerlin4D(int seed) : NzPerlin4D()
+NzPerlin4D::NzPerlin4D(unsigned int seed) : NzPerlin4D()
 {
     this->SetNewSeed(seed);
     this->ShufflePermutationTable();

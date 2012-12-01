@@ -9,7 +9,7 @@
 #include <Nazara/Noise/Simplex4D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzHybridMultiFractal4D::NzHybridMultiFractal4D(nzNoises source, int seed)
+NzHybridMultiFractal4D::NzHybridMultiFractal4D(nzNoises source, unsigned int seed)
 {
     switch(source)
     {
