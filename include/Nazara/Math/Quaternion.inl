@@ -362,30 +362,6 @@ bool NzQuaternion<T>::operator!=(const NzQuaternion& quat) const
 }
 
 template<typename T>
-bool NzQuaternion<T>::operator<(const NzQuaternion& quat) const
-{
-	 return w < quat.w && x < quat.x && y < quat.y && z < quat.z;
-}
-
-template<typename T>
-bool NzQuaternion<T>::operator<=(const NzQuaternion& quat) const
-{
-	return operator<(quat) || operator==(quat);
-}
-
-template<typename T>
-bool NzQuaternion<T>::operator>(const NzQuaternion& quat) const
-{
-	return !operator<=(quat);
-}
-
-template<typename T>
-bool NzQuaternion<T>::operator>=(const NzQuaternion& quat) const
-{
-	return !operator<(quat);
-}
-
-template<typename T>
 NzQuaternion<T> NzQuaternion<T>::Identity()
 {
 	NzQuaternion quaternion;

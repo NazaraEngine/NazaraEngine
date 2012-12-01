@@ -74,10 +74,6 @@ template<typename T> class NzQuaternion
 
 		bool operator==(const NzQuaternion& quat) const;
 		bool operator!=(const NzQuaternion& quat) const;
-		bool operator<(const NzQuaternion& quat) const;
-		bool operator<=(const NzQuaternion& quat) const;
-		bool operator>(const NzQuaternion& quat) const;
-		bool operator>=(const NzQuaternion& quat) const;
 
 		static NzQuaternion Identity();
 		static NzQuaternion Lerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation);
