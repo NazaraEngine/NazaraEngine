@@ -426,30 +426,6 @@ bool NzVector4<T>::operator!=(const NzVector4& vec) const
 }
 
 template<typename T>
-bool NzVector4<T>::operator<(const NzVector4& vec) const
-{
-	return x < vec.x && y < vec.y && z < vec.z && w < vec.w;
-}
-
-template<typename T>
-bool NzVector4<T>::operator<=(const NzVector4& vec) const
-{
-	return operator<(vec) || operator==(vec);
-}
-
-template<typename T>
-bool NzVector4<T>::operator>(const NzVector4& vec) const
-{
-	return !operator<=(vec);
-}
-
-template<typename T>
-bool NzVector4<T>::operator>=(const NzVector4& vec) const
-{
-	return !operator<(vec);
-}
-
-template<typename T>
 NzVector4<T> NzVector4<T>::UnitX()
 {
 	NzVector4 vector;
