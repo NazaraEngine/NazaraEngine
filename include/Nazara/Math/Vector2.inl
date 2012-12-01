@@ -415,30 +415,6 @@ bool NzVector2<T>::operator!=(const NzVector2& vec) const
 }
 
 template<typename T>
-bool NzVector2<T>::operator<(const NzVector2& vec) const
-{
-	return x < vec.x && y < vec.y;
-}
-
-template<typename T>
-bool NzVector2<T>::operator<=(const NzVector2& vec) const
-{
-	return operator<(vec) || operator==(vec);
-}
-
-template<typename T>
-bool NzVector2<T>::operator>(const NzVector2& vec) const
-{
-	return !operator<=(vec);
-}
-
-template<typename T>
-bool NzVector2<T>::operator>=(const NzVector2& vec) const
-{
-	return !operator<(vec);
-}
-
-template<typename T>
 NzVector2<T> NzVector2<T>::Lerp(const NzVector2& from, const NzVector2& to, T interpolation)
 {
 	return NzLerp(from, to, interpolation);
