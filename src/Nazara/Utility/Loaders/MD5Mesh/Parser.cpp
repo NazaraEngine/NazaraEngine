@@ -186,15 +186,9 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			unsigned int weightCount = md5Mesh.weights.size();
 
 			// Index buffer
-			nzUInt8 indexSize;
-			if (vertexCount > std::numeric_limits<nzUInt16>::max())
-				indexSize = 4;
-			else if (vertexCount > std::numeric_limits<nzUInt8>::max())
-				indexSize = 2;
-			else
-				indexSize = 1;
+			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, indexSize, m_parameters.storage));
+			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
 			if (!indexBuffer->GetBuffer()->IsValid())
 			{
 				NazaraError("Failed to create index buffer");
@@ -208,48 +202,28 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				continue;
 			}
 
-			switch (indexSize)
+			if (largeIndices)
 			{
-				case 1:
-				{
-					nzUInt8* index = reinterpret_cast<nzUInt8*>(ptr);
+				nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
 
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
+				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
+				{
+					// On les respécifie dans le bon ordre
+					*index++ = triangle.x;
+					*index++ = triangle.z;
+					*index++ = triangle.y;
 				}
+			}
+			else
+			{
+				nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
 
-				case 2:
+				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
-					nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
-
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
-				}
-
-				case 4:
-				{
-					nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
-
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
+					// On les respécifie dans le bon ordre
+					*index++ = triangle.x;
+					*index++ = triangle.z;
+					*index++ = triangle.y;
 				}
 			}
 
@@ -342,15 +316,9 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			unsigned int vertexCount = md5Mesh.vertices.size();
 
 			// Index buffer
-			nzUInt8 indexSize;
-			if (vertexCount > std::numeric_limits<nzUInt16>::max())
-				indexSize = 4;
-			else if (vertexCount > std::numeric_limits<nzUInt8>::max())
-				indexSize = 2;
-			else
-				indexSize = 1;
+			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, indexSize, m_parameters.storage));
+			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
 			if (!indexBuffer->GetBuffer()->IsValid())
 			{
 				NazaraError("Failed to create index buffer");
@@ -364,49 +332,30 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				continue;
 			}
 
-			switch (indexSize)
+			if (largeIndices)
 			{
-				case 1:
+				nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
+
+				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
-					nzUInt8* index = reinterpret_cast<nzUInt8*>(ptr);
-
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
+					// On les respécifie dans le bon ordre
+					*index++ = triangle.x;
+					*index++ = triangle.z;
+					*index++ = triangle.y;
 				}
+			}
+			else
+			{
+				nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
 
-				case 2:
+				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
-					nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
-
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
+					// On les respécifie dans le bon ordre
+					*index++ = triangle.x;
+					*index++ = triangle.z;
+					*index++ = triangle.y;
 				}
-
-				case 4:
-				{
-					nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
-
-					for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-					{
-						// On les respécifie dans le bon ordre
-						*index++ = triangle.x;
-						*index++ = triangle.z;
-						*index++ = triangle.y;
-					}
-					break;
-				}
+				break;
 			}
 
 			if (!indexBuffer->Unmap())

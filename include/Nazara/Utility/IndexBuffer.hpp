@@ -15,18 +15,19 @@ class NAZARA_API NzIndexBuffer : public NzResource
 {
 	public:
 		NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount);
-		NzIndexBuffer(unsigned int length, nzUInt8 indexSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzIndexBuffer(unsigned int length, bool largeIndices = false, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzIndexBuffer(const NzIndexBuffer& indexBuffer);
 		~NzIndexBuffer();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length);
 
 		NzBuffer* GetBuffer() const;
-		nzUInt8 GetIndexSize() const;
 		unsigned int GetIndexCount() const;
 		void* GetPointer();
 		const void* GetPointer() const;
 		unsigned int GetStartIndex() const;
+
+		bool HasLargeIndices() const;
 
 		bool IsHardware() const;
 		bool IsSequential() const;
