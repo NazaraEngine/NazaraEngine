@@ -187,29 +187,20 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		glDrawArrays(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
 	else
 	{
-		nzUInt8 indexSize = s_indexBuffer->GetIndexSize();
-
 		GLenum type;
-		switch (indexSize)
+		const nzUInt8* ptr = reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer());
+		if (s_indexBuffer->HasLargeIndices())
 		{
-			case 1:
-				type = GL_UNSIGNED_BYTE;
-				break;
-
-			case 2:
-				type = GL_UNSIGNED_SHORT;
-				break;
-
-			case 4:
-				type = GL_UNSIGNED_INT;
-				break;
-
-			default:
-				NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
-				return;
+			ptr += firstIndex*sizeof(nzUInt32);
+			type = GL_UNSIGNED_INT;
+		}
+		else
+		{
+			ptr += firstIndex*sizeof(nzUInt16);
+			type = GL_UNSIGNED_SHORT;
 		}
 
-		glDrawElements(NzOpenGL::PrimitiveType[primitive], indexCount, type, reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer()) + firstIndex*indexSize);
+		glDrawElements(NzOpenGL::PrimitiveType[primitive], indexCount, type, ptr);
 	}
 }
 
