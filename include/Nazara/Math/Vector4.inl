@@ -447,7 +447,20 @@ bool NzVector4<T>::operator<(const NzVector4& vec) const
 template<typename T>
 bool NzVector4<T>::operator<=(const NzVector4& vec) const
 {
-	return operator<(vec) || operator==(vec);
+	if (x == vec.x)
+	{
+		if (y == vec.y)
+		{
+			if (z == vec.z)
+				return w <= vec.w;
+			else
+				return z < vec.z;
+		}
+		else
+			return y < vec.y;
+	}
+	else
+		return x < vec.x;
 }
 
 template<typename T>
