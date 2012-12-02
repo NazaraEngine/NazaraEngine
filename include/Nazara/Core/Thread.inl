@@ -4,13 +4,16 @@
 
 #include <Nazara/Core/Debug.hpp>
 
+template<typename F>
+NzThread::NzThread(F function)
+{
+	CreateImpl(new NzFunctorWithoutArgs<F>(function));
+}
+
 template<typename F, typename... Args>
 NzThread::NzThread(F function, Args... args)
 {
-	if (sizeof...(Args) == 0)
-		CreateImpl(new NzFunctorWithoutArgs<F>(function));
-	else
-		CreateImpl(new NzFunctorWithArgs<F, Args...>(function, args...));
+	CreateImpl(new NzFunctorWithArgs<F, Args...>(function, args...));
 }
 
 template<typename C>
