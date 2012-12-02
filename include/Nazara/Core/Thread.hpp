@@ -40,10 +40,10 @@ class NAZARA_API NzThread : NzNonCopyable
 		};
 
 		NzThread() = default;
-		NzThread(NzThread&& other);
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args... args);
 		template<typename C> NzThread(void (C::*function)(), C* object);
+		NzThread(NzThread&& other);
 		~NzThread();
 
 		void Detach();
