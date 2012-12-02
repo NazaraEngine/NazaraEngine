@@ -4,10 +4,10 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Simplex3D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-template <typename T>
-NzSimplex3D<T>::NzSimplex3D()
+NzSimplex3D::NzSimplex3D()
 {
     SkewCoeff3D = 1/3.;
     UnskewCoeff3D = 1/6.;
@@ -21,12 +21,17 @@ NzSimplex3D<T>::NzSimplex3D()
             gradient3[i][j] = grad3Temp[i][j];
 }
 
-template <typename T>
-T NzSimplex3D<T>::GetValue(T x, T y, T z, T res)
+NzSimplex3D::NzSimplex3D(unsigned int seed) : NzSimplex3D()
 {
-    x /= res;
-    y /= res;
-    z /= res;
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
+float NzSimplex3D::GetValue(float x, float y, float z, float resolution)
+{
+    x *= resolution;
+    y *= resolution;
+    z *= resolution;
 
     sum = (x + y + z) * SkewCoeff3D;
     skewedCubeOrigin.x = fastfloor(x + sum);
@@ -153,5 +158,3 @@ T NzSimplex3D<T>::GetValue(T x, T y, T z, T res)
 
     return (n1+n2+n3+n4)*32;
 }
-
-#include <Nazara/Core/DebugOff.hpp>

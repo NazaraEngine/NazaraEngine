@@ -8,16 +8,19 @@
 #define COMPLEXNOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Noise/NoiseBase.hpp>
+#include <array>
 
-class NAZARA_API NzComplexNoiseBase : public NzNoiseBase
+class NAZARA_API NzComplexNoiseBase
 {
     public:
         NzComplexNoiseBase();
         ~NzComplexNoiseBase() = default;
 
-        void SetLacunarity(float lacunarity);
+        float GetHurstParameter() const;
+        float GetLacunarity() const;
+        float GetOctaveNumber() const;
         void SetHurstParameter(float h);
+        void SetLacunarity(float lacunarity);
         void SetOctavesNumber(float octaves);
         void RecomputeExponentArray();
 
@@ -25,11 +28,10 @@ class NAZARA_API NzComplexNoiseBase : public NzNoiseBase
         float m_lacunarity;
         float m_hurst;
         float m_octaves;
-        float exponent_array[30];
+        std::array<float, 30> m_exponent_array;
         float m_sum;
     private:
         bool m_parametersModified;
-
 };
 
 #endif // COMPLEXNOISEBASE_HPP

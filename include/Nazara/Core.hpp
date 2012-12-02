@@ -43,6 +43,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Hash.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
@@ -61,6 +62,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/Tuple.hpp>
 #include <Nazara/Core/Unicode.hpp>

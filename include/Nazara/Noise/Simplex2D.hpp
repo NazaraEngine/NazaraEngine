@@ -9,35 +9,30 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
+#include <Nazara/Noise/Abstract2DNoise.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-template <typename T> class NAZARA_API NzSimplex2D : public NzNoiseBase
+class NAZARA_API NzSimplex2D : public NzAbstract2DNoise
 {
     public:
         NzSimplex2D();
-        T GetValue(T x, T y, T res);
-        ~NzSimplex2D() = default;
+        NzSimplex2D(unsigned int seed);
+        float GetValue(float x, float y, float resolution);
+        virtual ~NzSimplex2D() = default;
     protected:
     private:
         int ii,jj;
         int gi0,gi1,gi2;
         NzVector2i skewedCubeOrigin,off1;
-        T n1,n2,n3;
-        T c1,c2,c3;
-        T gradient2[8][2];
-        T UnskewCoeff2D;
-        T SkewCoeff2D;
-        T sum;
-        NzVector2<T> unskewedCubeOrigin, unskewedDistToOrigin;
-        NzVector2<T> d1,d2,d3;
-
-
+        float n1,n2,n3;
+        float c1,c2,c3;
+        float gradient2[8][2];
+        float UnskewCoeff2D;
+        float SkewCoeff2D;
+        float sum;
+        NzVector2<float> unskewedCubeOrigin, unskewedDistToOrigin;
+        NzVector2<float> d1,d2,d3;
 };
-
-typedef NzSimplex2D<float>  NzSimplex2Df;
-typedef NzSimplex2D<double> NzSimplex2Dd;
-
-#include <Nazara/Noise/Simplex2D.inl>
 
 #endif // SIMPLEX2D_HPP
 

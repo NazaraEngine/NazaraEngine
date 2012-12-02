@@ -1,39 +1,14 @@
+#include <Nazara/3D/Model.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Renderer/ContextParameters.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Math.hpp>
+#include <Nazara/Renderer.hpp>
+#include <Nazara/Utility.hpp>
 #include <iostream>
 #include <map>
 
-// Une structure pour contenir nos informations (Cette structure est très simpliste)
-struct Model
-{
-	NzMatrix4f matrix; // Les transformations subies par le modèle
-	NzMesh mesh; // Le mesh
-	NzTexture texture; // Sa texture
-};
-
-struct AnimatedModel : public Model
-{
-	// Quelques variables pour l'animation
-	const NzSequence* currentSequence = nullptr; // La séquence en cours
-	float interpolation = 0.f; // La valeur de l'interpolation ([0..1], si dépasse 1, on passe à la frame suivante)
-	unsigned int currentFrame = 0; // La première frame
-	unsigned int nextFrame; // La seconde frame, l'animation est interpollée entre ces deux-là
-};
-
-void AnimateModel(AnimatedModel& moedel, float elapsed);
-bool CreateCheckerTexture(NzTexture* texture);
-bool CreateFloorMesh(NzMesh* mesh);
-void DrawModel(const Model& model);
-void SetSequence(AnimatedModel& model, const NzString& name);
+bool CreateCheckerMaterial(NzMaterial* material);
+bool CreateFloorModel(NzModel* model);
+void DrawModel(const NzModel& model);
 
 int main()
 {
@@ -57,6 +32,8 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	NzDebugDrawer::Initialize();
+
 	// Maintenant nous pouvons utiliser le moteur comme bon nous semble, tout d'abord nous allons charger les ressources
 
 	// Charger une ressource se fait actuellement manuellement, mais un ResourceManager est à venir
@@ -70,22 +47,22 @@ int main()
 	// qu'elles sont fourniees avec le mesh.
 	// -Pour les animations squelettiques, le loader ne fera que charger automatiquement l'animation associée au mesh s'il le peut
 	// Dans les deux cas, les paramètres d'animations (parameters.animation) seront utilisés
-	parameters.loadAnimations = true; // Vaut true par défaut
+	parameters.animated = true; // Vaut true par défaut
 
 	// Pour qu'un mesh puisse être rendu, il doit être stocké du côté de la carte graphique (Hardware), mais il est parfois utile de
 	// le stocker côté RAM, par exemple pour le moteur physique. En sachant qu'il est facile de changer le stockage d'un buffer.
-	parameters.storage = nzBufferStorage_Hardware; // Vaut nzBufferStorage_Hardware par défaut
+	parameters.storage = nzBufferStorage_Hardware; // Vaut nzBufferStorage_Hardware par défaut si possible et nzBufferStorage_Software autrement.
 
-	AnimatedModel drfreak;
-	if (!drfreak.mesh.LoadFromFile("resources/drfreak.md2", parameters)) // On charge notre bon vieux docteur avec les paramètres de chargement.
+	NzModel drfreak;
+	if (!drfreak.LoadFromFile("resources/drfreak.md2")) // On charge notre bon vieux docteur avec les paramètres de chargement.
 	{
 		// Le chargement n'a pas fonctionné, le modèle est peut-être corrompu/non-supporté, ou alors n'existe pas.
-		std::cout << "Failed to load mesh" << std::endl;
+		std::cout << "Failed to load Dr. Freak" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
 	}
 
-	if (!drfreak.mesh.HasAnimation()) // Le mesh possède-t-il des animations ?
+	if (!drfreak.HasAnimation()) // Le mesh possède-t-il des animations ?
 	{
 		// Cette démo n'a aucun intérêt sans animations
 		std::cout << "Mesh has no animation" << std::endl;
@@ -93,48 +70,14 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	SetSequence(drfreak, "stand");
-
-	// Il est possible que le mesh possède un ou plusieurs skin, nous utiliserons cette information pour charger une texture
-	if (drfreak.mesh.HasSkin())
-	{
-		// Contrairement aux autres ressources, la texture n'est pas critique
-		if (drfreak.texture.LoadFromFile("resources/" + drfreak.mesh.GetSkin()))
-			drfreak.texture.SetFilterMode(nzTextureFilter_Bilinear); // Appliquons-lui un filtrage bilinéaire
-		else
-			std::cout << "Failed to load texture" << std::endl;
-	}
-
-	if (!drfreak.texture.IsValid()) // Les méthodes Resource::IsValid indiquent si la ressource a été correctement créée
-	{
-		std::cout << "Creating checker texture for mesh" << std::endl;
-
-		if (!CreateCheckerTexture(&drfreak.texture))
-		{
-			std::cout << "Failed to create mesh texture" << std::endl;
-			std::getchar();
-			return EXIT_FAILURE;
-		}
-	}
-
 	// Nous créons maintenant notre sol
-	Model floor;
-	if (!CreateFloorMesh(&floor.mesh))
+	NzModel floor;
+	if (!CreateFloorModel(&floor))
 	{
 		std::cout << "Failed to create floor" << std::endl;
 		std::getchar();
 		return EXIT_FAILURE;
 	}
-
-	if (!CreateCheckerTexture(&floor.texture))
-	{
-		std::cout << "Failed to create floor texture" << std::endl;
-		std::getchar();
-		return EXIT_FAILURE;
-	}
-
-	// Le sol ne subit aucune transformation
-	floor.matrix.MakeIdentity();
 
 	// Pour effectuer un rendu, il faut que la carte graphique sache comment le faire.
 	// Les shaders sont de petits programmes qui donnent des instructions à la carte graphique lors de son pipeline.
@@ -189,12 +132,15 @@ int main()
 	// Un VideoMode est une structure contenant une longueur (width), une largeur (height) et le nombre de bits par pixels (bitsPerPixel)
 	NzVideoMode mode = NzVideoMode::GetDesktopMode(); // Nous récupérons le mode actuellement utilisé par le bureau
 
-	// Nous divisons sa longueur et sa largeur par deux
-	mode.width /= 2;
-	mode.height /= 2;
+	// Nous allons prendre les trois quarts de la résolution du bureau pour notre fenêtre
+	//mode.width *= 3.f/4.f;
+	//mode.height *= 3.f/4.f;
+	mode.width = 1280;
+	mode.height = 720;
+	// 720p power !
 
 	// Maintenant le titre, rien de plus simple...
-	NzString windowTitle = "Nazara Demo - AnimatedMesh";
+	NzString windowTitle = "Nazara Demo - Skeletal mesh test";
 
 	// Nous pouvons créer notre fenêtre ! (Via le constructeur directement ou par la méthode Create)
 	NzRenderWindow window;
@@ -217,32 +163,26 @@ int main()
 	window.SetCursor(nzWindowCursor_None);
 
 	// Nous limitons les FPS à 100
-	window.SetFramerateLimit(100);
+	//window.SetFramerateLimit(100);
 
 	// La matrice de projection définit la transformation du vertice 3D à un point 2D
-	NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(window.GetWidth())/window.GetHeight(), 1.f, 1000.f));
+	NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(window.GetWidth())/window.GetHeight(), 1.f, 10000.f));
 
 	// Notre fenêtre est créée, cependant il faut s'occuper d'elle, pour le rendu et les évènements
-	NzClock secondClock, updateClock; // Des horloges pour gérer le temps
 	unsigned int fps = 0; // Compteur de FPS
 
 	// Quelques variables pour notre improvisation de physique
-	float groundPos = drfreak.mesh.GetAABB().GetMinimum().y; // Les coordonnées locales du "bas" du modèle
-	NzVector3f modelPos(0.f, -groundPos, -50.f);
-	NzVector3f modelVel(0.f, 0.f, 0.f);
-	NzQuaternionf modelOrient(NzQuaternionf::Identity());
 	NzEulerAnglesf modelRot(0.f, 0.f, 0.f);
-	float modelSpeed = 150.f;
-
-	// Nous initialisons la matrice
-	drfreak.matrix = NzMatrix4f::Rotate(modelOrient) * NzMatrix4f::Translate(modelPos);
+	float modelSpeed = 250.f;
 
 	// Notre caméra
-	NzVector3f camPos(0.f, 25.f, -20.f);
-	NzQuaternionf camOrient(NzQuaternionf::Identity());
-	NzEulerAnglesf camRot(0.f, 0.f, 0.f); // Les angles d'eulers sont bien plus facile à utiliser
-	NzMatrix4f camMatrix = NzMatrix4f::Translate(camPos);
-	float camSpeed = 100.f;
+	NzEulerAnglesf camRot(0.f, 180.f, 0.f); // Les angles d'eulers sont bien plus facile à utiliser
+
+	NzNode camera;
+	camera.SetTranslation(0.f, 50.f, -50.f);
+	camera.SetRotation(camRot);
+
+	NzVector3f camSpeed(100.f);
 	float sensitivity = 0.8f;
 
 	// Quelques variables
@@ -250,6 +190,40 @@ int main()
 	bool paused = false;
 	bool thirdPerson = false;
 	bool windowOpen = true;
+
+	NzClock loadClock;
+
+	NzModel hellknight;
+	//if (!LoadModel("resources/mm/snoutx10k.md5mesh", params, &hellknight))
+	//if (!LoadModel("resources/Boblamp/boblampclean.md5mesh", params, &hellknight))
+	if (!hellknight.LoadFromFile("resources/hellknight.md5mesh"))
+	{
+		std::cout << "Failed to load mesh" << std::endl;
+		return 0;
+	}
+
+	NzAnimation* hellknightAnimation = new NzAnimation;
+	//if (!hellknightAnimation.LoadFromFile("resources/mm/idle.md5anim"))
+	//if (!hellknightAnimation.LoadFromFile("resources/Boblamp/boblampclean.md5anim"))0
+	if (!hellknightAnimation->LoadFromFile("resources/hellknight/walk7.md5anim"))
+	{
+		std::cout << "Failed to load animation" << std::endl;
+		delete hellknightAnimation;
+
+		return 0;
+	}
+
+	hellknightAnimation->SetPersistent(false, false);
+	hellknight.SetAnimation(hellknightAnimation);
+
+	std::cout << "Loaded in " << loadClock.GetSeconds() << std::endl;
+
+	bool drawAabb = false;
+	bool drawSkeleton = false;
+	bool drawHellknight = true;
+	bool drawWireframe = false;
+
+	NzClock secondClock, updateClock; // Des horloges pour gérer le temps
 
 	// On peut commencer la boucle du programme
 	while (windowOpen)
@@ -280,8 +254,7 @@ int main()
 
 					// La matrice vue représente les transformations effectuées par la caméra
 					// On recalcule la matrice de la caméra et on l'envoie au renderer
-					camOrient = camRot; // Conversion des angles d'euler en quaternion
-					NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::LookAt(camPos, camPos + camOrient * NzVector3f::Forward()));
+					camera.SetRotation(camRot); // Conversion des angles d'euler en quaternion
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					NzMouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
@@ -309,10 +282,11 @@ int main()
 						if (thirdPerson)
 						{
 							// On arrête le mouvement
-							SetSequence(drfreak, "stand");
+							drfreak.SetSequence("stand");
 
 							// Afin de synchroniser le quaternion avec les angles d'euler
-							camRot = camOrient.ToEulerAngles();
+							camRot = camera.GetDerivedRotation().ToEulerAngles();
+
 							thirdPerson = false;
 						}
 						else
@@ -324,25 +298,75 @@ int main()
 					NzRenderer::SetViewport(NzRectui(0, 0, event.size.width, event.size.height)); // Adaptons l'affichage
 
 					// Il nous faut aussi mettre à jour notre matrice de projection
-					NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(event.size.width)/event.size.height, 1.f, 1000.f));
+					NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzDegrees(70.f), static_cast<float>(event.size.width)/event.size.height, 1.f, 10000.f));
 					break;
 
 				case nzEventType_KeyPressed: // Une touche du clavier vient d'être enfoncée
-					if (thirdPerson &&
-						(event.key.code == NzKeyboard::Z || // Est-ce la touche Z ?
-						 event.key.code == NzKeyboard::S || // Ou bien la touche S ?
-						 event.key.code == NzKeyboard::Q || // Ou encore la touche Q ?
-						 event.key.code == NzKeyboard::D))  // Et pourquoi pas la touche D ?
+				{
+					switch (event.key.code)
 					{
-						// Si une touche concernant le déplacement est appuyée
-						SetSequence(drfreak, "run"); // On anime le personnage pour qu'il ait une animation de déplacement
+						case NzKeyboard::Z:
+						case NzKeyboard::S:
+						case NzKeyboard::Q:
+						case NzKeyboard::D:
+							if (thirdPerson)
+								drfreak.SetSequence("run");
+							break;
+
+						case NzKeyboard::Escape:
+							windowOpen = false;
+							break;
+
+						case NzKeyboard::P:
+							paused = !paused;
+							break;
+
+						case NzKeyboard::F1:
+							if (drawWireframe)
+							{
+								drawWireframe = false;
+								NzRenderer::SetFaceFilling(nzFaceFilling_Fill);
+							}
+							else
+							{
+								drawWireframe = true;
+								NzRenderer::SetFaceFilling(nzFaceFilling_Line);
+							}
+							break;
+
+						case NzKeyboard::F2:
+							drawAabb = !drawAabb;
+							break;
+
+						case NzKeyboard::F3:
+							drawSkeleton = !drawSkeleton;
+							break;
+
+						case NzKeyboard::F4:
+							drawHellknight = !drawHellknight;
+							break;
+
+						/*case NzKeyboard::F5:
+						{
+							NzString animationName;
+							std::cin >> animationName;
+							if (!hellknightAnimation.LoadFromFile("resources/mm/" + animationName + ".md5anim"))
+							{
+								std::cout << "Failed to load animation" << std::endl;
+								break;
+							}
+
+							SetSequence(hellknight, 0);
+
+							break;
+						}*/
+
+						default:
+							break;
 					}
-					else if (event.key.code == NzKeyboard::Escape)
-						windowOpen = false;
-					else if (event.key.code == NzKeyboard::P)
-						paused = !paused;
 
 					break;
+				}
 
 				case nzEventType_KeyReleased: // Une touche du clavier vient d'être relachée
 					if (thirdPerson &&
@@ -352,7 +376,7 @@ int main()
 						!NzKeyboard::IsKeyPressed(NzKeyboard::D)) // Etc..
 					{
 						// Si plus aucune touche de déplacement n'est enfoncée
-						SetSequence(drfreak, "stand");
+						drfreak.SetSequence("stand");
 					}
 
 					break;
@@ -380,67 +404,70 @@ int main()
 				// Nous déplaçons le personnage en fonction des touches pressées
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
-					modelPos += modelOrient * forward * modelSpeed * elapsedTime;
+					drfreak.Translate(forward * modelSpeed * elapsedTime);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::S))
-					modelPos -= modelOrient * forward * modelSpeed * elapsedTime;
+					drfreak.Translate(-forward * modelSpeed * elapsedTime);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::Q))
-					modelRot.yaw += camSpeed * elapsedTime;
+					drfreak.Rotate(NzEulerAnglesf(0.f, modelSpeed * elapsedTime, 0.f));
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
-					modelRot.yaw -= camSpeed * elapsedTime;
-
-				modelOrient = modelRot;
+					drfreak.Rotate(NzEulerAnglesf(0.f, -modelSpeed * elapsedTime, 0.f));
 			}
 			else
 			{
 				// Sinon, c'est la caméra qui se déplace (en fonction des mêmes touches)
 
 				// Un boost en maintenant le shift gauche
-				float speed = (NzKeyboard::IsKeyPressed(NzKeyboard::Key::LShift)) ? camSpeed*5 : camSpeed;
+				NzVector3f speed = (NzKeyboard::IsKeyPressed(NzKeyboard::Key::LShift)) ? camSpeed*5 : camSpeed;
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::Z))
-					camPos += camOrient * forward * speed * elapsedTime;
+					camera.Translate(forward * speed * elapsedTime);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::S))
-					camPos -= camOrient * forward * speed * elapsedTime;
+					camera.Translate(-forward * speed * elapsedTime);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::Q))
-					camPos += camOrient * left * speed * elapsedTime;
+					camera.Translate(left * speed * elapsedTime);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::D))
-					camPos -= camOrient * left * speed * elapsedTime;
+					camera.Translate(-left * speed * elapsedTime);
 
 				// En revanche, ici la hauteur est toujours la même, peu importe notre orientation
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
-					camPos += up * speed * elapsedTime;
+					camera.Translate(up * speed * elapsedTime, nzCoordSys_Global);
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl))
-					camPos -= up * speed * elapsedTime;
+					camera.Translate(up * speed * elapsedTime, nzCoordSys_Global);
 			}
 
-			// Oui les quaternions et les matrices sont calculés même si la caméra ne bouge pas
-			// C'est une limitation de mon implémentation, qui ne sera pas présente une fois les NzSceneNode intégrés
 			if (thirdPerson)
 			{
-				static NzQuaternionf rotDown(NzEulerAnglesf(-15.f, 0.f, 0.f)); // Une rotation pour regarder vers le bas
-				camOrient = modelOrient * rotDown;
+				static NzQuaternionf rotDown(NzEulerAnglesf(-35.f, 0.f, 0.f)); // Une rotation pour regarder vers le bas
+				camera.SetRotation(drfreak.GetDerivedRotation() * rotDown);
 
-				camPos = modelPos + camOrient * NzVector3f(0.f, 25.f, 60.f);
+				camera.SetTranslation(drfreak.GetDerivedTranslation() + camera.GetDerivedRotation() * NzVector3f(0.f, 30.f, 50.f));
 			}
-
-			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::LookAt(camPos, camPos + camOrient * NzVector3f::Forward()));
-
-			// Mise à jour de la matrice du personnage
-			drfreak.matrix = NzMatrix4f::Rotate(modelOrient) * NzMatrix4f::Translate(modelPos);
 
 			// Animation
 			if (!paused)
-				AnimateModel(drfreak, elapsedTime);
+			{
+				drfreak.Update(elapsedTime);
+				hellknight.Update(elapsedTime);
+				/*AnimateModel(hellknight, elapsedTime);
+				hellknight.mesh.GetSkeleton()->GetJoint("luparm")->SetScale(2.f);
+				hellknight.mesh.Skin(hellknight.mesh.GetSkeleton());*/
+			}
 
 			updateClock.Restart();
 		}
+
+		NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::LookAt(camera.GetDerivedTranslation(), camera.GetDerivedTranslation() + camera.GetDerivedRotation() * NzVector3f::Forward()));
+
+		NzVector3f translation = drfreak.GetTranslation();
+		translation.y = -drfreak.GetMesh()->GetAABB().GetMinimum().y;
+		drfreak.SetTranslation(translation);
 
 		// On active le shader et paramètrons le rendu
 		NzRenderer::SetShader(&shader);
@@ -457,10 +484,38 @@ int main()
 		// Affichage des meshs
 		DrawModel(floor);
 
-		// Notre Dr. Freak possède des normales, nous pouvons alors éliminer les faces qu'on ne voit pas
+		// On élimine les faces qu'on ne voit pas
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
 
 		DrawModel(drfreak);
+
+		if (drawHellknight)
+			DrawModel(hellknight);
+
+		if (drawSkeleton)
+		{
+			NzDebugDrawer::SetDepthTest(false);
+			NzDebugDrawer::SetPrimaryColor(NzColor::Blue);
+			NzDebugDrawer::Draw(hellknight.GetSkeleton());
+		}
+
+		if (drawAabb)
+		{
+/*			NzDebugDrawer::SetDepthTest(true);
+			NzDebugDrawer::SetPrimaryColor(NzColor::Red);
+			NzDebugDrawer::Draw(hellknight.mesh.GetAABB());*/
+
+			NzAxisAlignedBox aabb(drfreak.GetMesh()->GetAABB());
+			aabb.Transform(drfreak.GetTransformMatrix());
+
+			NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Translate(drfreak.GetDerivedTranslation()));
+			NzDebugDrawer::SetPrimaryColor(NzColor::Red);
+			NzDebugDrawer::Draw(aabb);
+
+			NzRenderer::SetMatrix(nzMatrixType_World, drfreak.GetTransformMatrix());
+			NzDebugDrawer::SetPrimaryColor(NzColor::Blue);
+			NzDebugDrawer::Draw(drfreak.GetMesh()->GetAABB());
+		}
 
 		NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
 
@@ -478,32 +533,19 @@ int main()
 		}
 	}
 
+	NzDebugDrawer::Uninitialize();
+
     return EXIT_SUCCESS;
 }
 
-void AnimateModel(AnimatedModel& model, float elapsed)
-{
-	model.interpolation += model.currentSequence->framePerSecond * elapsed;
-	while (model.interpolation > 1.f)
-	{
-		model.interpolation -= 1.f;
-
-		model.currentFrame = model.nextFrame;
-		if (++model.nextFrame > model.currentSequence->lastFrame)
-			model.nextFrame = model.currentSequence->firstFrame;
-	}
-
-	model.mesh.Animate(model.currentFrame, model.nextFrame, (NzKeyboard::IsKeyPressed(NzKeyboard::A)) ? 0.f : model.interpolation);
-}
-
-bool CreateCheckerTexture(NzTexture* texture)
+bool CreateCheckerMaterial(NzMaterial* material)
 {
 	NzImage image;
 	// Nous crééons une image 2D, au format RGBA8 de dimensions 128*128 (8 blocs de 16 pixels de côté)
 	if (!image.Create(nzImageType_2D, nzPixelFormat_RGBA8, 8*16, 8*16))
 	{
 		// Ne devrait pas arriver (La création d'une image ne peut échouer que si l'un des argument est incorrect)
-		std::cout << "Failed to create image, this means a bug has been found in Nazara" << std::endl;
+		std::cout << "Failed to create image, this means that a bug has been found in Nazara" << std::endl;
 		return false;
 	}
 
@@ -522,6 +564,7 @@ bool CreateCheckerTexture(NzTexture* texture)
 		}
 	}
 
+	NzTexture* texture = new NzTexture;
 	if (!texture->LoadFromImage(image)) // Nous créons notre texture depuis notre image
 	{
 		// Nous n'avons vraiment pas beaucoup de chance..
@@ -532,18 +575,24 @@ bool CreateCheckerTexture(NzTexture* texture)
 	texture->SetAnisotropyLevel(NzRenderer::GetMaxAnisotropyLevel()); // Un filtrage anisotropique pour la texture
 	texture->SetWrapMode(nzTextureWrap_Repeat); // Si les coordonnées de texture dépassent 1.f, la texture sera répétée
 
+	material->SetDiffuseMap(texture);
+
+	texture->SetPersistent(false);
+
 	return true;
 }
 
-bool CreateFloorMesh(NzMesh* mesh)
+bool CreateFloorModel(NzModel* model)
 {
 	// Cette fonction créé un mesh statique simpliste pour servir de sol
-
+	NzMesh* mesh = new NzMesh;
 	// Nous créons un mesh statique
-	if (!mesh->Create(nzAnimationType_Static))
+	if (!mesh->CreateStatic())
 	{
 		// L'échec est techniquement impossible mais le moteur étant en constante évolution ...
 		std::cout << "Failed to create mesh" << std::endl;
+		delete mesh;
+
 		return false;
 	}
 
@@ -575,7 +624,7 @@ bool CreateFloorMesh(NzMesh* mesh)
 
 	// Nous créons ensuite un buffer de 4 vertices (le second argument précise l'espace pris par chaque vertex), le stockage
 	// Et nous indiquons que nous n'y toucherons plus
-	NzVertexBuffer* buffer = new NzVertexBuffer(4, declaration->GetStride(nzElementStream_VertexData), nzBufferStorage_Hardware, nzBufferUsage_Static);
+	NzVertexBuffer* buffer = new NzVertexBuffer(declaration, 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
 
 	// Doit respecter la declaration
 	float vertices[] =
@@ -605,16 +654,18 @@ bool CreateFloorMesh(NzMesh* mesh)
 	}
 
 	NzStaticMesh* subMesh = new NzStaticMesh(mesh);
-	if (!subMesh->Create(declaration, buffer))
+	if (!subMesh->Create(buffer))
 	{
 		std::cout << "Failed to create subMesh" << std::endl;
 		return false;
 	}
 
+	subMesh->SetMaterialIndex(0);
 	subMesh->SetPrimitiveType(nzPrimitiveType_TriangleStrip);
 
 	// On ajoute le submesh au mesh
 	mesh->AddSubMesh(subMesh);
+	mesh->SetMaterialCount(1);
 
 	// Nos ressources sont notifiées utilisées par le mesh et le submesh, nous pouvons les rendre éphèmères.
 	// Les ressources seront donc automatiquement libérées lorsqu'elles ne seront plus référencées par une classe
@@ -622,46 +673,46 @@ bool CreateFloorMesh(NzMesh* mesh)
 	declaration->SetPersistent(false);
 	subMesh->SetPersistent(false); // Pour le submesh, c'est déjà le comportement par défaut
 
+	NzModelParameters params;
+	params.loadAnimation = false;
+	params.loadMaterials = false;
+
+	model->SetMesh(mesh, params);
+	mesh->SetPersistent(false);
+
+	NzMaterial* material = new NzMaterial;
+	CreateCheckerMaterial(material);
+
+	model->SetMaterial(0, material);
+	material->SetPersistent(false);
+
 	return true;
 }
 
-void DrawModel(const Model& model)
+void DrawModel(const NzModel& model)
 {
 	// La matrice world est celle qui représente les transformations du modèle
-	NzRenderer::SetMatrix(nzMatrixType_World, model.matrix);
-
-	NzShader* shader = NzRenderer::GetShader();// On récupère le shader du rendu
-	shader->SendTexture(shader->GetUniformLocation("texture"), &model.texture);
+	NzRenderer::SetMatrix(nzMatrixType_World, model.GetTransformMatrix());
 
 	// Un mesh est divisé en plusieurs submeshes
-	unsigned int subMeshCount = model.mesh.GetSubMeshCount();
+	unsigned int subMeshCount = model.GetMesh()->GetSubMeshCount();
 	for (unsigned int i = 0; i < subMeshCount; ++i)
 	{
 		// On récupère le submesh
-		const NzSubMesh* subMesh = model.mesh.GetSubMesh(i);
+		const NzSubMesh* subMesh = model.GetMesh()->GetSubMesh(i);
 
-		// On paramètre le Renderer avec ses données
-		NzRenderer::SetIndexBuffer(subMesh->GetIndexBuffer());
+		NzRenderer::ApplyMaterial(model.GetMaterial(i));
+
 		NzRenderer::SetVertexBuffer(subMesh->GetVertexBuffer());
-		NzRenderer::SetVertexDeclaration(subMesh->GetVertexDeclaration());
 
 		// On fait le rendu
-		NzRenderer::DrawPrimitives(subMesh->GetPrimitiveType(), 0, subMesh->GetVertexCount());
-	}
-}
-
-void SetSequence(AnimatedModel& model, const NzString& sequenceName)
-{
-	// On récupère l'animation du mesh
-	const NzAnimation* animation = model.mesh.GetAnimation();
-
-	// Nous nous basons sur l'assertion que la séquence existe (Chose que nous pouvons tester avec HasSequence())
-	const NzSequence* sequence = animation->GetSequence(sequenceName);
-	if (model.currentSequence != sequence)
-	{
-		model.currentSequence = sequence;
-
-		// Pour avoir une interpolation entre la séquence précédente et celle-ci, nous n'affectons que nextFrame
-		model.nextFrame = model.currentSequence->firstFrame;
+		const NzIndexBuffer* indexBuffer = subMesh->GetIndexBuffer();
+		if (indexBuffer)
+		{
+			NzRenderer::SetIndexBuffer(indexBuffer);
+			NzRenderer::DrawIndexedPrimitives(subMesh->GetPrimitiveType(), 0, indexBuffer->GetIndexCount());
+		}
+		else
+			NzRenderer::DrawPrimitives(subMesh->GetPrimitiveType(), 0, subMesh->GetVertexCount());
 	}
 }
