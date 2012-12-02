@@ -71,6 +71,10 @@ template<typename T> class NzVector4
 
 		bool operator==(const NzVector4& vec) const;
 		bool operator!=(const NzVector4& vec) const;
+		bool operator<(const NzVector4& vec) const;
+		bool operator<=(const NzVector4& vec) const;
+		bool operator>(const NzVector4& vec) const;
+		bool operator>=(const NzVector4& vec) const;
 
 		static NzVector4 UnitX();
 		static NzVector4 UnitY();
