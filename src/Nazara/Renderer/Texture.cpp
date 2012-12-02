@@ -632,6 +632,19 @@ nzTextureWrap NzTexture::GetWrapMode() const
 	}
 }
 
+bool NzTexture::HasMipmaps() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return false;
+	}
+	#endif
+
+	return m_impl->levelCount > 1;
+}
+
 bool NzTexture::IsCompressed() const
 {
 	#if NAZARA_RENDERER_SAFE
