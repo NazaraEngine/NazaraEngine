@@ -4,10 +4,10 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/Simplex4D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-template <typename T>
-NzSimplex4D<T>::NzSimplex4D()
+NzSimplex4D::NzSimplex4D()
 {
     SkewCoeff4D = (sqrt(5.) - 1.)/4.;
     UnskewCoeff4D = (5. - sqrt(5.))/20.;
@@ -45,13 +45,18 @@ NzSimplex4D<T>::NzSimplex4D()
             gradient4[i][j] = grad4Temp[i][j];
 }
 
-template <typename T>
-T NzSimplex4D<T>::GetValue(T x, T y, T z, T w, T res)
+NzSimplex4D::NzSimplex4D(unsigned int seed) : NzSimplex4D()
 {
-    x /= res;
-    y /= res;
-    z /= res;
-    w /= res;
+    this->SetNewSeed(seed);
+    this->ShufflePermutationTable();
+}
+
+float NzSimplex4D::GetValue(float x, float y, float z, float w, float resolution)
+{
+    x *= resolution;
+    y *= resolution;
+    z *= resolution;
+    w *= resolution;
 
     sum = (x + y + z + w) * SkewCoeff4D;
     skewedCubeOrigin.x = fastfloor(x + sum);
@@ -120,11 +125,11 @@ T NzSimplex4D<T>::GetValue(T x, T y, T z, T w, T res)
     kk = skewedCubeOrigin.z & 255;
     ll = skewedCubeOrigin.w & 255;
 
-    gi0 = perm[ii + perm[jj + perm[kk + perm[ll]]]] & 31;
+    gi0 = perm[ii +          perm[jj +          perm[kk +          perm[ll]]]] & 31;
     gi1 = perm[ii + off1.x + perm[jj + off1.y + perm[kk + off1.z + perm[ll + off1.w]]]] & 31;
     gi2 = perm[ii + off2.x + perm[jj + off2.y + perm[kk + off2.z + perm[ll + off2.w]]]] & 31;
     gi3 = perm[ii + off3.x + perm[jj + off3.y + perm[kk + off3.z + perm[ll + off3.w]]]] & 31;
-    gi4 = perm[ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32;
+    gi4 = perm[ii + 1 +      perm[jj + 1 +      perm[kk + 1 +      perm[ll + 1]]]] % 32;
 
     c1 = 0.6 - d1.x*d1.x - d1.y*d1.y - d1.z*d1.z - d1.w*d1.w;
     c2 = 0.6 - d2.x*d2.x - d2.y*d2.y - d2.z*d2.z - d2.w*d2.w;
@@ -159,5 +164,3 @@ T NzSimplex4D<T>::GetValue(T x, T y, T z, T w, T res)
 
     return (n1+n2+n3+n4+n5)*27.0;
 }
-
-#include <Nazara/Core/DebugOff.hpp>

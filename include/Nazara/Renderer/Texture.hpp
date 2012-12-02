@@ -43,6 +43,8 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		unsigned int GetWidth() const;
 		nzTextureWrap GetWrapMode() const;
 
+		bool HasMipmaps() const;
+
 		bool IsCompressed() const;
 		bool IsCubemap() const;
 		bool IsTarget() const;

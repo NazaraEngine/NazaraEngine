@@ -148,6 +148,8 @@ void NzMaterial::Reset()
 	m_shininess = 0;
 	m_specularColor = NzColor::White;
 	m_srcBlend = nzBlendFunc_One;
+	m_textureFilter = nzTextureFilter_Default;
+	m_textureWrap = nzTextureWrap_Repeat;
 	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
 	m_zTestEnabled = true;
 	m_zWriteEnabled = true;
