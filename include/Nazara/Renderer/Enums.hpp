@@ -158,7 +158,9 @@ enum nzTextureFilter
 	nzTextureFilter_Nearest,
 	nzTextureFilter_Trilinear,
 
-	nzTextureFilter_Max = nzTextureFilter_Trilinear
+	nzTextureFilter_Default,
+
+	nzTextureFilter_Max = nzTextureFilter_Default
 };
 
 enum nzTextureWrap
