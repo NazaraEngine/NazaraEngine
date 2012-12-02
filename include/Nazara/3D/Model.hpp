@@ -29,6 +29,7 @@ class NAZARA_API NzModel : public NzSceneNode
 		~NzModel();
 
 		const NzAnimation* GetAnimation() const;
+		const NzAxisAlignedBox& GetAABB() const;
 		const NzMaterial* GetMaterial(unsigned int matIndex) const;
 		const NzMaterial* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
 		unsigned int GetMaterialCount() const;

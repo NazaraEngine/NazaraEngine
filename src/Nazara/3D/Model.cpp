@@ -47,6 +47,19 @@ const NzAnimation* NzModel::GetAnimation() const
 	return m_animation;
 }
 
+const NzAxisAlignedBox& NzModel::GetAABB() const
+{
+	#if NAZARA_3D_SAFE
+	if (!m_mesh)
+	{
+		NazaraError("Model has no mesh");
+		return NzAxisAlignedBox::Null;
+	}
+	#endif
+
+	return m_mesh->GetAABB();
+}
+
 const NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 {
 	#if NAZARA_3D_SAFE
