@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/3D/Enums.hpp>
+#include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Node.hpp>
 
 class NzSceneNode : public NzNode
@@ -16,6 +17,7 @@ class NzSceneNode : public NzNode
 	public:
 		virtual ~NzSceneNode();
 
+		virtual const NzAxisAlignedBox& GetAABB() const = 0;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
 };
 
