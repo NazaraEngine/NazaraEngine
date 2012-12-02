@@ -464,13 +464,13 @@ bool NzVector4<T>::operator<=(const NzVector4& vec) const
 }
 
 template<typename T>
-bool NzVector3<T>::operator>(const NzVector3& vec) const
+bool NzVector4<T>::operator>(const NzVector4& vec) const
 {
 	return !operator<=(vec);
 }
 
 template<typename T>
-bool NzVector3<T>::operator>=(const NzVector3& vec) const
+bool NzVector4<T>::operator>=(const NzVector4& vec) const
 {
 	return !operator<(vec);
 }
