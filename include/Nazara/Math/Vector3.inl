@@ -490,7 +490,15 @@ bool NzVector3<T>::operator<(const NzVector3& vec) const
 template<typename T>
 bool NzVector3<T>::operator<=(const NzVector3& vec) const
 {
-	return operator<(vec) || operator==(vec);
+	if (x == vec.x)
+	{
+		if (y < vec.y)
+			return z <= vec.z;
+		else
+			return y < vec.y;
+	}
+	else
+		return x < vec.x;
 }
 
 template<typename T>
