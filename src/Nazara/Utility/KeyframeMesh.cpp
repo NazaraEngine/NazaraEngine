@@ -15,6 +15,7 @@ struct NzKeyframeMeshImpl
 	nzBufferAccess lockAccess;
 	NzAxisAlignedBox* aabb;
 	NzMeshVertex* lockBuffer;
+	NzVector2f* uv;
 	NzVector3f* normals;
 	NzVector3f* positions;
 	NzVector3f* tangents;
@@ -70,6 +71,7 @@ bool NzKeyframeMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int frameCoun
 	m_impl->positions = new NzVector3f[frameCount*vertexCount];
 	m_impl->normals = new NzVector3f[frameCount*vertexCount];
 	m_impl->tangents = new NzVector3f[frameCount*vertexCount];
+	m_impl->uv = new NzVector2f[vertexCount];
 
 	if (lock && !Lock(nzBufferAccess_DiscardAndWrite))
 	{
@@ -98,6 +100,7 @@ void NzKeyframeMesh::Destroy()
 		delete[] m_impl->normals;
 		delete[] m_impl->positions;
 		delete[] m_impl->tangents;
+		delete[] m_impl->uv;
 
 		delete m_impl;
 		m_impl = nullptr;
@@ -161,19 +164,19 @@ const NzIndexBuffer* NzKeyframeMesh::GetIndexBuffer() const
 	return m_impl->indexBuffer;
 }
 
-bool NzKeyframeMesh::GetVertex(NzMeshVertex* dest, unsigned int frameIndex, unsigned int vertexIndex, bool queryUV) const
+void NzKeyframeMesh::GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Keyframe mesh not created");
-		return false;
+		return;
 	}
 
 	if (frameIndex >= m_impl->frameCount)
 	{
 		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -183,7 +186,7 @@ bool NzKeyframeMesh::GetVertex(NzMeshVertex* dest, unsigned int frameIndex, unsi
 	if (vertexIndex >= vertexCount)
 	{
 		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -192,22 +195,7 @@ bool NzKeyframeMesh::GetVertex(NzMeshVertex* dest, unsigned int frameIndex, unsi
 	dest->normal = m_impl->normals[index];
 	dest->position = m_impl->positions[index];
 	dest->tangent = m_impl->tangents[index];
-
-	if (queryUV)
-	{
-		if (!Lock(nzBufferAccess_ReadOnly))
-		{
-			NazaraError("Failed to query UV");
-			return false;
-		}
-
-		NzMeshVertex& vertex = m_impl->lockBuffer[vertexIndex];
-		dest->uv = vertex.uv;
-
-		Unlock();
-	}
-
-	return true;
+	dest->uv = m_impl->uv[vertexIndex];
 }
 
 const NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer() const
@@ -354,19 +342,19 @@ void NzKeyframeMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 	m_impl->indexBuffer = indexBuffer;
 }
 
-bool NzKeyframeMesh::SetVertex(const NzMeshVertex& source, unsigned int frameIndex, unsigned int vertexIndex, bool setUV)
+void NzKeyframeMesh::SetVertex(unsigned int frameIndex, unsigned int vertexIndex, const NzMeshVertex& source)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Keyframe mesh not created");
-		return false;
+		return;
 	}
 
 	if (frameIndex >= m_impl->frameCount)
 	{
 		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -376,7 +364,7 @@ bool NzKeyframeMesh::SetVertex(const NzMeshVertex& source, unsigned int frameInd
 	if (vertexIndex >= vertexCount)
 	{
 		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -385,22 +373,25 @@ bool NzKeyframeMesh::SetVertex(const NzMeshVertex& source, unsigned int frameInd
 	m_impl->normals[index] = source.normal;
 	m_impl->positions[index] = source.position;
 	m_impl->tangents[index] = source.tangent;
+}
 
-	if (setUV)
+void NzKeyframeMesh::SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
 	{
-		if (!Lock(nzBufferAccess_WriteOnly))
-		{
-			NazaraError("Failed to write UV");
-			return false;
-		}
-
-		NzMeshVertex& vertex = m_impl->lockBuffer[vertexIndex];
-		vertex.uv = source.uv;
-
-		Unlock();
+		NazaraError("Keyframe mesh not created");
+		return;
 	}
 
-	return true;
+	if (vertexIndex >= m_impl->vertexBuffer->GetVertexCount())
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(m_impl->vertexBuffer->GetVertexCount()) + ')');
+		return;
+	}
+	#endif
+
+	m_impl->uv[vertexIndex] = uv;
 }
 
 void NzKeyframeMesh::Unlock() const
@@ -439,7 +430,7 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 	// Interpolation de l'AABB
 	m_impl->aabb[0] = NzAxisAlignedBox::Lerp(m_impl->aabb[frameA+1], m_impl->aabb[frameB+1], interpolation);
 
-	if (!Lock(nzBufferAccess_WriteOnly))
+	if (!Lock(nzBufferAccess_DiscardAndWrite))
 	{
 		NazaraError("Failed to lock vertex buffer");
 		return;
@@ -457,6 +448,7 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 		vertex->normal = NzVector3f::Lerp(m_impl->positions[frameA+i], m_impl->positions[frameB+i], interpolation);
 		vertex->position = NzVector3f::Lerp(m_impl->positions[frameA+i], m_impl->positions[frameB+i], interpolation);
 		vertex->tangent = NzVector3f::Lerp(m_impl->positions[frameA+i], m_impl->positions[frameB+i], interpolation);
+		vertex->uv = m_impl->uv[i];
 
 		vertex++;
 	}

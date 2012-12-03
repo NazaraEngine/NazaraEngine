@@ -30,7 +30,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		nzAnimationType GetAnimationType() const override;
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
-		bool GetVertex(NzMeshVertex* dest, unsigned int frameIndex, unsigned int vertexIndex, bool queryUV = true) const;
+		void GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 
 		void Interpolate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const;
@@ -42,7 +42,8 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 
 		void SetAABB(unsigned int frameIndex, const NzAxisAlignedBox& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		bool SetVertex(const NzMeshVertex& source, unsigned int frameIndex, unsigned int vertexIndex, bool setUV = true);
+		void SetVertex(unsigned int frameIndex, unsigned int vertexIndex, const NzMeshVertex& source);
+		void SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv);
 
 		void Unlock() const;
 
