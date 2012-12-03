@@ -73,6 +73,7 @@ bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 	#endif
 
 	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
+	subMesh->Finish();
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -118,6 +119,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	int index = m_impl->subMeshes.size();
 
 	subMesh->AddResourceListener(this, index);
+	subMesh->Finish();
 
 	m_impl->aabb.SetNull(); // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
