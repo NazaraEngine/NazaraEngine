@@ -103,7 +103,7 @@ namespace
 
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
-		// TODO: Utiliser les commandes OpenGL pour créer des indices et accélérer le rendu
+		// FIXME: Utiliser les commandes OpenGL ?
 		unsigned int vertexCount = header.num_tris * 3;
 
 		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, parameters.storage, nzBufferUsage_Dynamic));
@@ -194,15 +194,15 @@ namespace
 					vertex.normal = md2Normals[vert.n];
 					vertex.position = position;
 
-					// On ne définit les coordonnées de texture que pour la première frame
-					bool firstFrame = (f == 0);
-					if (firstFrame)
+					unsigned int vertexIndex = vertexCount - (t*3 + v) - 1;
+					if (f == 0)
 					{
+						// On ne définit les coordonnées de texture que lors de la première frame
 						const md2_texCoord& texC = texCoords[triangles[t].texCoords[v]];
-						vertex.uv.Set(texC.u / static_cast<float>(header.skinwidth), 1.f - texC.v / static_cast<float>(header.skinheight));
+						subMesh->SetTexCoords(vertexIndex, NzVector2f(texC.u / static_cast<float>(header.skinwidth), 1.f - texC.v / static_cast<float>(header.skinheight)));
 					}
 
-					subMesh->SetVertex(vertex, f, vertexCount - (t*3 + v) - 1, firstFrame);
+					subMesh->SetVertex(f, vertexIndex, vertex);
 				}
 			}
 
