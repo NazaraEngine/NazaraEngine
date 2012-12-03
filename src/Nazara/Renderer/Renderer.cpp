@@ -77,7 +77,7 @@ namespace
 
 void NzRenderer::ApplyMaterial(const NzMaterial* material)
 {
-	///FIXME; Bouger vers Material::Apply ?
+	///FIXME: Bouger vers Material::Apply ?
 	#if NAZARA_RENDERER_SAFE
 	if (!material)
 	{
