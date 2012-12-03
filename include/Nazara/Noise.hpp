@@ -29,11 +29,20 @@
 #ifndef NAZARA_GLOBAL_NOISE_HPP
 #define NAZARA_GLOBAL_NOISE_HPP
 
+#include <Nazara/Noise/Abstract2DNoise.hpp>
+#include <Nazara/Noise/Abstract3DNoise.hpp>
+#include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <Nazara/Noise/FBM2D.hpp>
+#include <Nazara/Noise/FBM3D.hpp>
+#include <Nazara/Noise/FBM4D.hpp>
+#include <Nazara/Noise/HybridMultifractal2D.hpp>
+#include <Nazara/Noise/HybridMultiFractal3D.hpp>
+#include <Nazara/Noise/HybridMultiFractal4D.hpp>
+#include <Nazara/Noise/MappedNoiseBase.hpp>
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <Nazara/Noise/NoiseMachine.hpp>
 #include <Nazara/Noise/Perlin2D.hpp>
 #include <Nazara/Noise/Perlin3D.hpp>
 #include <Nazara/Noise/Perlin4D.hpp>
