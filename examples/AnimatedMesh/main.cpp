@@ -501,9 +501,9 @@ int main()
 
 		if (drawAabb)
 		{
-/*			NzDebugDrawer::SetDepthTest(true);
+			NzDebugDrawer::SetDepthTest(true);
 			NzDebugDrawer::SetPrimaryColor(NzColor::Red);
-			NzDebugDrawer::Draw(hellknight.mesh.GetAABB());*/
+			NzDebugDrawer::Draw(hellknight.GetAABB());
 
 			NzAxisAlignedBox aabb(drfreak.GetMesh()->GetAABB());
 			aabb.Transform(drfreak.GetTransformMatrix());
