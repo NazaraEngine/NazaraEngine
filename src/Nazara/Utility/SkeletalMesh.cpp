@@ -86,7 +86,7 @@ const NzAxisAlignedBox& NzSkeletalMesh::GetAABB() const
 	}
 	#endif
 
-	return m_parent->GetSkeleton()->GetAABB();
+	return m_impl->aabb;
 }
 
 nzAnimationType NzSkeletalMesh::GetAnimationType() const
@@ -290,6 +290,8 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 
 	if (!m_impl->vertexBuffer->Unmap())
 		NazaraWarning("Failed to unmap vertex buffer");
+
+	m_impl->aabb = skeleton->GetAABB();
 }
 
 void NzSkeletalMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
