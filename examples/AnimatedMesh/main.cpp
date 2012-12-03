@@ -285,12 +285,23 @@ int main()
 							drfreak.SetSequence("stand");
 
 							// Afin de synchroniser le quaternion avec les angles d'euler
-							camRot = camera.GetDerivedRotation().ToEulerAngles();
+							NzQuaternionf globalRot = camera.GetDerivedRotation();
+							NzVector3f globalPos = camera.GetDerivedTranslation();
+							camRot = globalRot.ToEulerAngles();
+
+							camera.SetParent(); // On détache la caméra du docteur
+							camera.SetRotation(globalRot);
+							camera.SetTranslation(globalPos);
 
 							thirdPerson = false;
 						}
 						else
+						{
+							camera.SetParent(drfreak); // On accroche la caméra au Dr. Freak
+							camera.SetRotation(NzEulerAnglesf(-35.f, 0.f, 0.f)); // Une rotation pour regarder vers le bas
+							camera.SetTranslation(NzVector3f(0.f, 30.f + drfreak.GetTranslation().y, 50.f));
 							thirdPerson = true;
+						}
 					}
 					break;
 
@@ -440,14 +451,6 @@ int main()
 
 				if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl))
 					camera.Translate(up * speed * elapsedTime, nzCoordSys_Global);
-			}
-
-			if (thirdPerson)
-			{
-				static NzQuaternionf rotDown(NzEulerAnglesf(-35.f, 0.f, 0.f)); // Une rotation pour regarder vers le bas
-				camera.SetRotation(drfreak.GetDerivedRotation() * rotDown);
-
-				camera.SetTranslation(drfreak.GetDerivedTranslation() + camera.GetDerivedRotation() * NzVector3f(0.f, 30.f, 50.f));
 			}
 
 			// Animation
