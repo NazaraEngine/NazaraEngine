@@ -25,6 +25,8 @@ class NAZARA_API NzSubMesh : public NzResource
 		NzSubMesh(const NzMesh* parent);
 		virtual ~NzSubMesh();
 
+		virtual void Finish() = 0; ///DOC: Mets le mesh dans sa position d'origine et calcule son AABB
+
 		virtual const NzAxisAlignedBox& GetAABB() const = 0;
 		virtual nzAnimationType GetAnimationType() const = 0;
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
