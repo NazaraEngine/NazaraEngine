@@ -212,6 +212,9 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
+		float oldLineWidth = NzRenderer::GetLineWidth();
+		NzRenderer::SetLineWidth(lineWidth);
+
 		shader->SendColor(colorLocation, primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
 
@@ -221,6 +224,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		shader->SendColor(colorLocation, secondaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveType_PointList, 0, vertexCount);
 
+		NzRenderer::SetLineWidth(oldLineWidth);
 		NzRenderer::SetPointSize(oldPointSize);
 
 		if (depthTestActive != depthTest)
