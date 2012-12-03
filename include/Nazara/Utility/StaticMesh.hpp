@@ -20,6 +20,8 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		bool Create(NzVertexBuffer* vertexBuffer);
 		void Destroy();
 
+		void Finish();
+
 		bool GenerateAABB();
 
 		const NzAxisAlignedBox& GetAABB() const override;

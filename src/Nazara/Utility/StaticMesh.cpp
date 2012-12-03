@@ -53,6 +53,12 @@ void NzStaticMesh::Destroy()
 	}
 }
 
+void NzStaticMesh::Finish()
+{
+	// La seule chose à faire ici est de calculer l'AABB
+	GenerateAABB();
+}
+
 bool NzStaticMesh::GenerateAABB()
 {
 	if (!m_aabb.IsNull())
