@@ -31,6 +31,7 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_FP64,
 	nzOpenGLExtension_FrameBufferObject,
 	nzOpenGLExtension_PixelBufferObject,
+	nzOpenGLExtension_SamplerObjects,
 	nzOpenGLExtension_SeparateShaderObjects,
 	nzOpenGLExtension_TextureArray,
 	nzOpenGLExtension_TextureCompression_s3tc,
@@ -96,6 +97,7 @@ NAZARA_API extern PFNGLBINDBUFFERPROC               glBindBuffer;
 NAZARA_API extern PFNGLBINDFRAMEBUFFERPROC          glBindFramebuffer;
 NAZARA_API extern PFNGLBINDFRAGDATALOCATIONPROC     glBindFragDataLocation;
 NAZARA_API extern PFNGLBINDRENDERBUFFERPROC         glBindRenderbuffer;
+NAZARA_API extern PFNGLBINDSAMPLERPROC              glBindSampler;
 NAZARA_API extern PFNGLBINDTEXTUREPROC              glBindTexture;
 NAZARA_API extern PFNGLBINDVERTEXARRAYPROC          glBindVertexArray;
 NAZARA_API extern PFNGLBLENDFUNCPROC                glBlendFunc;
@@ -120,6 +122,7 @@ NAZARA_API extern PFNGLDELETEFRAMEBUFFERSPROC       glDeleteFramebuffers;
 NAZARA_API extern PFNGLDELETEPROGRAMPROC            glDeleteProgram;
 NAZARA_API extern PFNGLDELETEQUERIESPROC            glDeleteQueries;
 NAZARA_API extern PFNGLDELETERENDERBUFFERSPROC      glDeleteRenderbuffers;
+NAZARA_API extern PFNGLDELETESAMPLERSPROC           glDeleteSamplers;
 NAZARA_API extern PFNGLDELETESHADERPROC             glDeleteShader;
 NAZARA_API extern PFNGLDELETETEXTURESPROC           glDeleteTextures;
 NAZARA_API extern PFNGLDELETEVERTEXARRAYSPROC       glDeleteVertexArrays;
@@ -146,6 +149,7 @@ NAZARA_API extern PFNGLGENBUFFERSPROC               glGenBuffers;
 NAZARA_API extern PFNGLGENFRAMEBUFFERSPROC          glGenFramebuffers;
 NAZARA_API extern PFNGLGENQUERIESPROC               glGenQueries;
 NAZARA_API extern PFNGLGENRENDERBUFFERSPROC         glGenRenderbuffers;
+NAZARA_API extern PFNGLGENSAMPLERSPROC              glGenSamplers;
 NAZARA_API extern PFNGLGENTEXTURESPROC              glGenTextures;
 NAZARA_API extern PFNGLGENVERTEXARRAYSPROC          glGenVertexArrays;
 NAZARA_API extern PFNGLGETBOOLEANVPROC              glGetBooleanv;
@@ -191,6 +195,8 @@ NAZARA_API extern PFNGLPROGRAMUNIFORMMATRIX4DVPROC  glProgramUniformMatrix4dv;
 NAZARA_API extern PFNGLPROGRAMUNIFORMMATRIX4FVPROC  glProgramUniformMatrix4fv;
 NAZARA_API extern PFNGLREADPIXELSPROC               glReadPixels;
 NAZARA_API extern PFNGLRENDERBUFFERSTORAGEPROC      glRenderbufferStorage;
+NAZARA_API extern PFNGLSAMPLERPARAMETERFPROC        glSamplerParameterf;
+NAZARA_API extern PFNGLSAMPLERPARAMETERIPROC        glSamplerParameteri;
 NAZARA_API extern PFNGLSCISSORPROC                  glScissor;
 NAZARA_API extern PFNGLSHADERSOURCEPROC             glShaderSource;
 NAZARA_API extern PFNGLSTENCILFUNCPROC              glStencilFunc;
