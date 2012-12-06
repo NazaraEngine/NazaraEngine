@@ -93,7 +93,7 @@ bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 	glBufferData(NzOpenGL::BufferTarget[m_type], size, nullptr, NzOpenGL::BufferUsage[usage]);
 
-	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
+	// Pour ne pas perturber le rendu, on n'interfère pas avec le binding déjà présent
 	if (previous != 0)
 		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
@@ -170,7 +170,7 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 {
 	NzContext::EnsureContext();
 
-	// Pour ne pas perturber le rendu, on interfère pas avec le binding déjà présent
+	// Pour ne pas perturber le rendu, on n'interfère pas avec le binding déjà présent
 	GLuint previous;
 	glGetIntegerv(NzOpenGL::BufferTargetBinding[m_type], reinterpret_cast<GLint*>(&previous));
 
