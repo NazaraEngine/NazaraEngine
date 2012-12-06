@@ -36,9 +36,9 @@ class NzConditionVariableImpl
 		#else
 		enum
 		{
-			SIGNAL = 0,
-			BROADCAST = 1,
-			MAX_EVENTS = 2
+			SIGNAL,
+			BROADCAST,
+			MAX_EVENTS
 		};
 
 		CRITICAL_SECTION m_countLock;
