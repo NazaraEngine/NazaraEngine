@@ -54,7 +54,7 @@ namespace
 				s_impl->waiterConditionVariable.SignalAll();
 				s_impl->waiterConditionVariableMutex.Unlock();
 
-				// Dans le cas contraire, nous attendons qu'une nouvelle tâche arrive
+				// Nous attendons qu'une nouvelle tâche arrive
 				s_impl->workerConditionVariableMutex.Lock();
 				s_impl->workerConditionVariable.Wait(&s_impl->workerConditionVariableMutex);
 				s_impl->workerConditionVariableMutex.Unlock();
@@ -62,6 +62,19 @@ namespace
 		}
 		while (s_impl->running);
 	}
+}
+
+unsigned int NzTaskScheduler::GetWorkerCount()
+{
+	#ifdef NAZARA_CORE_SAFE
+	if (!s_impl)
+	{
+		NazaraError("Task scheduler is not initialized");
+		return 0;
+	}
+	#endif
+
+	return s_impl->workers.size();
 }
 
 bool NzTaskScheduler::Initialize()
@@ -101,26 +114,6 @@ void NzTaskScheduler::Uninitialize()
 	}
 }
 
-void NzTaskScheduler::AddTaskFunctor(NzFunctor* taskFunctor)
-{
-	#ifdef NAZARA_CORE_SAFE
-	if (!s_impl)
-	{
-		NazaraError("Task scheduler is not initialized");
-		return;
-	}
-	#endif
-
-	{
-		NzLockGuard lock(s_impl->taskMutex);
-		s_impl->tasks.push(taskFunctor);
-	}
-
-	s_impl->workerConditionVariableMutex.Lock();
-	s_impl->workerConditionVariable.Signal();
-	s_impl->workerConditionVariableMutex.Unlock();
-}
-
 void NzTaskScheduler::WaitForTasks()
 {
 	#ifdef NAZARA_CORE_SAFE
@@ -145,4 +138,24 @@ void NzTaskScheduler::WaitForTasks()
 	s_impl->taskMutex.Unlock();
 	s_impl->waiterConditionVariable.Wait(&s_impl->waiterConditionVariableMutex);
 	s_impl->waiterConditionVariableMutex.Unlock();
+}
+
+void NzTaskScheduler::AddTaskFunctor(NzFunctor* taskFunctor)
+{
+	#ifdef NAZARA_CORE_SAFE
+	if (!s_impl)
+	{
+		NazaraError("Task scheduler is not initialized");
+		return;
+	}
+	#endif
+
+	{
+		NzLockGuard lock(s_impl->taskMutex);
+		s_impl->tasks.push(taskFunctor);
+	}
+
+	s_impl->workerConditionVariableMutex.Lock();
+	s_impl->workerConditionVariable.Signal();
+	s_impl->workerConditionVariableMutex.Unlock();
 }
