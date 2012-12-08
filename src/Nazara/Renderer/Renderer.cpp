@@ -986,8 +986,17 @@ void NzRenderer::SetViewport(const NzRectui& viewport)
 
 void NzRenderer::Uninitialize()
 {
-	if (--s_moduleReferenceCounter != 0)
-		return; // Encore utilisé
+	if (s_moduleReferenceCounter != 1)
+	{
+		// Le module est soit encore utilisé, soit pas initialisé
+		if (s_moduleReferenceCounter > 1)
+			s_moduleReferenceCounter--;
+
+		return;
+	}
+
+	// Libération du module
+	s_moduleReferenceCounter = 0;
 
 	// Loaders
 	NzLoaders_Texture_Unregister();
@@ -996,7 +1005,6 @@ void NzRenderer::Uninitialize()
 	NzDebugDrawer::Uninitialize();
 	#endif
 
-	// Libération du module
 	NzContext::EnsureContext();
 
 	// Libération des VAOs
