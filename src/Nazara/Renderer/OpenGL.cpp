@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -69,7 +69,7 @@ namespace
 			return false;
 		}
 
-		// On peut sûrement faire plus rapide mais comme ça ne se fait qu'une fois et que NzString implémente le COW...
+		// On peut sÃ»rement faire plus rapide mais comme Ã§a ne se fait qu'une fois et que NzString implÃ©mente le COW...
 		std::vector<NzString> ext;
 		extensionString.Split(ext);
 
@@ -126,18 +126,18 @@ namespace NzOpenGL
 			return false;
 		}
 
-		// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
+		// Le chargement des fonctions OpenGL nÃ©cessite un contexte OpenGL
 		NzContextParameters parameters;
 		parameters.majorVersion = 2;
 		parameters.minorVersion = 0;
 		parameters.shared = false;
 
 		/*
-			Note: Même le contexte de chargement nécessite quelques fonctions de base pour correctement s'initialiser
-			Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
-			de créer le second avec les bons paramètres.
+			Note: MÃªme le contexte de chargement nÃ©cessite quelques fonctions de base pour correctement s'initialiser
+			Pour cette raison, deux contextes sont crÃ©Ã©s, le premier sert Ã  rÃ©cupÃ©rer les fonctions permetttant
+			de crÃ©er le second avec les bons paramÃ¨tres.
 
-			Non sérieusement si quelqu'un a une meilleure idée qu'il me le dise.
+			Non sÃ©rieusement si vous avez une meilleure idÃ©e contactez-moi
 		*/
 
 		/****************************************Initialisation****************************************/
@@ -160,9 +160,9 @@ namespace NzOpenGL
 		glXCreateContextAttribs = reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(LoadEntry("glXCreateContextAttribsARB", false));
 		#endif
 
-		// Récupération de la version d'OpenGL
-		// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
-		// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
+		// RÃ©cupÃ©ration de la version d'OpenGL
+		// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilitÃ© avec la plus haute version supportÃ©e
+		// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un Ã  une meilleure idÃ©e ...
 		glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString", false));
 		if (!glGetString)
 		{
@@ -448,7 +448,7 @@ namespace NzOpenGL
 		openGLextensions[nzOpenGLExtension_PixelBufferObject] = (openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
 
 		// SamplerObjects
-		if (openGLversion >= 430 || (openGLversion < 400 && openGLversion >= 330) || IsSupported("GL_ARB_sampler_objects"))
+		if (openGLversion >= 330 || IsSupported("GL_ARB_sampler_objects"))
 		{
 			try
 			{
@@ -478,7 +478,7 @@ namespace NzOpenGL
 				glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
 				glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
 
-				// Si ARB_gpu_shader_fp64 est supporté, alors cette extension donne également accès aux fonctions utilisant des double
+				// Si ARB_gpu_shader_fp64 est supportÃ©, alors cette extension donne Ã©galement accÃ¨s aux fonctions utilisant des double
 				if (openGLextensions[nzOpenGLExtension_FP64])
 				{
 					glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
@@ -540,9 +540,9 @@ namespace NzOpenGL
 		if (!glGenerateMipmap)
 			glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
-		/****************************************Contexte de référence****************************************/
+		/****************************************Contexte de rÃ©fÃ©rence****************************************/
 
-		///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
+		///FIXME: Utiliser le contexte de chargement comme rÃ©fÃ©rence ? (VÃ©rifier mode debug)
 		if (!NzContext::Initialize())
 		{
 			NazaraError("Failed to initialize contexts");
@@ -653,7 +653,7 @@ namespace NzOpenGL
 				return true;
 
 			case nzPixelFormat_Stencil1:
-				if (type == FormatType_Texture) // Les formats de stencil ne sont pas supportés par les textures
+				if (type == FormatType_Texture) // Les formats de stencil ne sont pas supportÃ©s par les textures
 					return false;
 				else
 				{
@@ -732,7 +732,7 @@ namespace NzOpenGL
 		0, // nzElementUsage_Position
 		3, // nzElementUsage_Tangent
 
-		4  // nzElementUsage_TexCoord (Doit être le dernier de la liste car extensible)
+		4  // nzElementUsage_TexCoord (Doit Ãªtre le dernier de la liste car extensible)
 	};
 
 	GLenum BlendFunc[nzBlendFunc_Max+1] =
@@ -779,8 +779,8 @@ namespace NzOpenGL
 
 	GLenum BufferUsage[nzBufferUsage_Max+1] =
 	{
-		// J'ai choisi DYNAMIC à la place de STREAM car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
-		// Ce qui est je pense le scénario qui arrivera le plus souvent (Prévoir une option pour permettre d'utiliser le STREAM_DRAW ?)
+		// J'ai choisi DYNAMIC Ã  la place de STREAM car DYNAMIC semble plus adaptÃ© au profil "une mise Ã  jour pour quelques rendus"
+		// Ce qui est je pense le scÃ©nario qui arrivera le plus souvent (PrÃ©voir une option pour permettre d'utiliser le STREAM_DRAW ?)
 		// Source: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=160839
 		GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
 		GL_STATIC_DRAW   // nzBufferUsage_Static
