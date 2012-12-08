@@ -27,6 +27,9 @@ class NAZARA_API NzNode
 		bool GetInheritRotation() const;
 		bool GetInheritScale() const;
 		bool GetInheritTranslation() const;
+		NzQuaternionf GetInitialRotation() const;
+		NzVector3f GetInitialScale() const;
+		NzVector3f GetInitialTranslation() const;
 		const NzNode* GetParent() const;
 		NzQuaternionf GetRotation() const;
 		NzVector3f GetScale() const;
@@ -47,6 +50,12 @@ class NAZARA_API NzNode
 		void SetInheritRotation(bool inheritRotation);
 		void SetInheritScale(bool inheritScale);
 		void SetInheritTranslation(bool inheritTranslation);
+		void SetInitialRotation(const NzQuaternionf& quat);
+		void SetInitialScale(const NzVector3f& scale);
+		void SetInitialScale(float scale);
+		void SetInitialScale(float scaleX, float scaleY, float scaleZ);
+		void SetInitialTranslation(const NzVector3f& translation);
+		void SetInitialTranslation(float translationX, float translationXY, float translationZ);
 		void SetParent(const NzNode* node = nullptr);
 		void SetParent(const NzNode& node);
 		void SetRotation(const NzQuaternionf& quat, nzCoordSys coordSys = nzCoordSys_Local);
@@ -68,10 +77,13 @@ class NAZARA_API NzNode
 		mutable std::set<NzNode*> m_childs;
 		mutable NzMatrix4f m_transformMatrix;
 		mutable NzQuaternionf m_derivedRotation;
+		NzQuaternionf m_initialRotation;
 		NzQuaternionf m_rotation;
 		NzString m_name;
 		mutable NzVector3f m_derivedTranslation;
 		mutable NzVector3f m_derivedScale;
+		NzVector3f m_initialScale;
+		NzVector3f m_initialTranslation;
 		NzVector3f m_scale;
 		NzVector3f m_translation;
 		const NzNode* m_parent;
