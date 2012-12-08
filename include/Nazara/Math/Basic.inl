@@ -155,11 +155,19 @@ T NzNormalizeAngle(T angle)
 	const T limit = F(180.0);
 	#endif
 
-	while (angle > limit)
-		angle -= limit;
-
-	while (angle < limit)
+	///TODO: Trouver une solution sans duplication
+	if (angle > F(0.0))
+	{
 		angle += limit;
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
+		angle -= limit;
+	}
+	else
+	{
+		angle -= limit;
+		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
+		angle += limit;
+	}
 
 	return angle;
 }
