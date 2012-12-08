@@ -47,7 +47,7 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		bool SendInteger(int location, int value);
 		bool SendMatrix(int location, const NzMatrix4d& matrix);
 		bool SendMatrix(int location, const NzMatrix4f& matrix);
-		bool SendTexture(int location, const NzTexture* texture);
+		bool SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit = nullptr);
 		bool SendVector(int location, const NzVector2d& vector);
 		bool SendVector(int location, const NzVector2f& vector);
 		bool SendVector(int location, const NzVector3d& vector);

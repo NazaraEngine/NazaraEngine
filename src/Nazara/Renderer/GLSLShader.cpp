@@ -430,7 +430,7 @@ bool NzGLSLShader::SendMatrix(int location, const NzMatrix4f& matrix)
 	return true;
 }
 
-bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
+bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit)
 {
 	auto it = m_textures.find(location);
 	if (it != m_textures.end())
@@ -451,6 +451,9 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 			else
 				m_textures.erase(it); // On supprime le slot
 		}
+
+		if (textureUnit)
+			*textureUnit = slot.unit;
 	}
 	else
 	{
@@ -493,9 +496,6 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 		slot.enabled = texture->IsValid();
 		slot.unit = unit;
 		slot.texture = texture;
-		texture->AddResourceListener(this, location);
-
-		m_textures[location] = slot;
 
 		if (slot.enabled)
 		{
@@ -513,6 +513,12 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture)
 				Unlock();
 			}
 		}
+
+		m_textures[location] = slot;
+		texture->AddResourceListener(this, location);
+
+		if (textureUnit)
+			*textureUnit = unit;
 	}
 
 	return true;
