@@ -43,7 +43,7 @@ class NzShaderImpl
 		virtual bool SendInteger(int location, int value) = 0;
 		virtual bool SendMatrix(int location, const NzMatrix4d& matrix) = 0;
 		virtual bool SendMatrix(int location, const NzMatrix4f& matrix) = 0;
-		virtual bool SendTexture(int location, const NzTexture* texture) = 0;
+		virtual bool SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit = nullptr) = 0;
 		virtual bool SendVector(int location, const NzVector2d& vector) = 0;
 		virtual bool SendVector(int location, const NzVector2f& vector) = 0;
 		virtual bool SendVector(int location, const NzVector3d& vector) = 0;

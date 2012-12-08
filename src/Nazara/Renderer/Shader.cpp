@@ -445,7 +445,7 @@ bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix)
 	return m_impl->SendMatrix(location, matrix);
 }
 
-bool NzShader::SendTexture(int location, const NzTexture* texture)
+bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -461,7 +461,7 @@ bool NzShader::SendTexture(int location, const NzTexture* texture)
 	}
 	#endif
 
-	return m_impl->SendTexture(location, texture);
+	return m_impl->SendTexture(location, texture, textureUnit);
 }
 
 bool NzShader::SendVector(int location, const NzVector2d& vector)
