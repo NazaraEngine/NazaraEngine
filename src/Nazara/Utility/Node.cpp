@@ -6,7 +6,10 @@
 #include <Nazara/Utility/Debug.hpp>
 
 NzNode::NzNode() :
+m_initialRotation(NzQuaternionf::Identity()),
 m_rotation(NzQuaternionf::Identity()),
+m_initialScale(NzVector3f(1.f, 1.f, 1.f)),
+m_initialTranslation(NzVector3f::Zero()),
 m_scale(NzVector3f(1.f, 1.f, 1.f)),
 m_translation(NzVector3f::Zero()),
 m_parent(nullptr),
@@ -19,7 +22,10 @@ m_matrixUpdated(false)
 }
 
 NzNode::NzNode(const NzNode& node) :
+m_initialRotation(node.m_initialRotation),
 m_rotation(node.m_rotation),
+m_initialScale(node.m_initialScale),
+m_initialTranslation(node.m_initialTranslation),
 m_scale(node.m_scale),
 m_translation(node.m_translation),
 m_parent(node.m_parent),
@@ -79,6 +85,21 @@ bool NzNode::GetInheritScale() const
 bool NzNode::GetInheritTranslation() const
 {
 	return m_inheritTranslation;
+}
+
+NzQuaternionf NzNode::GetInitialRotation() const
+{
+	return m_initialRotation;
+}
+
+NzVector3f NzNode::GetInitialScale() const
+{
+	return m_initialScale;
+}
+
+NzVector3f NzNode::GetInitialTranslation() const
+{
+	return m_initialTranslation;
 }
 
 const NzNode* NzNode::GetParent() const
@@ -231,6 +252,49 @@ void NzNode::SetInheritTranslation(bool inheritTranslation)
 
 		Invalidate();
 	}
+}
+
+void NzNode::SetInitialRotation(const NzQuaternionf& rotation)
+{
+	m_initialRotation = rotation
+	m_initialRotation.Normalize(); // Évitons toute mauvaise surprise ...
+
+	Invalidate();
+}
+
+void NzNode::SetInitialScale(const NzVector3f& scale)
+{
+	m_initialScale = scale;
+
+	Invalidate();
+}
+
+void NzNode::SetInitialScale(float scale)
+{
+	m_initialScale.Set(scale);
+
+	Invalidate();
+}
+
+void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
+{
+	m_initialScale.Set(scaleX, scaleY, scaleZ);
+
+	Invalidate();
+}
+
+void NzNode::SetInitialTranslation(const NzVector3f& translation)
+{
+	m_initialTranslation = translation;
+
+	Invalidate();
+}
+
+void NzNode::SetInitialTranslation(float translationX, float translationY, float translationZ)
+{
+	m_initialTranslation.Set(translationX, translationY, translationZ);
+
+	Invalidate();
 }
 
 void NzNode::SetParent(const NzNode* node)
@@ -393,20 +457,20 @@ void NzNode::UpdateDerived() const
 
 		if (m_inheritRotation)
 		{
-			m_derivedRotation = m_parent->m_derivedRotation * m_rotation;
+			m_derivedRotation = m_parent->m_derivedRotation * m_initialRotation * m_rotation;
 			m_derivedRotation.Normalize();
 		}
 		else
-			m_derivedRotation = m_rotation;
+			m_derivedRotation = m_initialRotation * m_rotation;
 
-		m_derivedScale = m_scale;
+		m_derivedScale = m_initialScale * m_scale;
 		if (m_inheritScale)
 			m_derivedScale *= m_parent->m_derivedScale;
 
 		if (m_inheritTranslation)
-			m_derivedTranslation = m_parent->m_derivedRotation*(m_parent->m_derivedScale * m_translation) + m_parent->m_derivedTranslation;
+			m_derivedTranslation = m_parent->m_derivedRotation*(m_parent->m_derivedScale * (m_initialTranslation + m_translation)) + m_parent->m_derivedTranslation;
 		else
-			m_derivedTranslation = m_translation;
+			m_derivedTranslation = m_initialTranslation + m_translation;
 	}
 	else
 	{
