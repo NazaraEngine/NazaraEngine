@@ -5,17 +5,28 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-bool NzCore::Initialize()
+bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskScheduler)
 {
 	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	// Initialisation du module
-	// Le noyau de Nazara n'a pour l'instant aucun besoin d'initialisation, mais dans le futur il est très probable que ce soit le cas.
-	// Donc en prévision, tous les modules initialisent le noyau
+	if (initializeHardwareInfo && !NzHardwareInfo::Initialize())
+	{
+		NazaraError("Failed to initialize hardware info");
+		return false;
+	}
+
+	if (initializeTaskScheduler && !NzTaskScheduler::Initialize())
+	{
+		NazaraError("Failed to initialize task scheduler");
+		return false;
+	}
 
 	NazaraNotice("Initialized: Core");
 
@@ -40,6 +51,9 @@ void NzCore::Uninitialize()
 
 	// Libération du module
 	s_moduleReferenceCounter = 0;
+
+	NzHardwareInfo::Uninitialize();
+	NzTaskScheduler::Uninitialize();
 
 	NazaraNotice("Uninitialized: Core");
 }

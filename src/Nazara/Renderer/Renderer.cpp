@@ -397,7 +397,7 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 	return s_capabilities[capability];
 }
 
-bool NzRenderer::Initialize()
+bool NzRenderer::Initialize(bool initializeDebugDrawer)
 {
 	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
@@ -497,10 +497,8 @@ bool NzRenderer::Initialize()
 
 	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
-	#ifdef NAZARA_DEBUG
-	if (!NzDebugDrawer::Initialize())
-		NazaraWarning("Failed to initialize debug drawer");
-	#endif
+	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
+		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
 
 	// Loaders
 	NzLoaders_Texture_Register();
@@ -1001,9 +999,7 @@ void NzRenderer::Uninitialize()
 	// Loaders
 	NzLoaders_Texture_Unregister();
 
-	#ifdef NAZARA_DEBUG
 	NzDebugDrawer::Uninitialize();
-	#endif
 
 	NzContext::EnsureContext();
 
