@@ -253,13 +253,22 @@ void NzAudio::SetSpeedOfSound(float speed)
 
 void NzAudio::Uninitialize()
 {
-	if (--s_moduleReferenceCounter != 0)
-		return; // Encore utilisé
+	if (s_moduleReferenceCounter != 1)
+	{
+		// Le module est soit encore utilisé, soit pas initialisé
+		if (s_moduleReferenceCounter > 1)
+			s_moduleReferenceCounter--;
+
+		return;
+	}
+
+	// Libération du module
+	s_moduleReferenceCounter = 0;
 
 	// Loaders
 	NzLoaders_sndfile_Unregister();
 
-	// Libération du module
+	// Libération d'OpenAL
 	alcMakeContextCurrent(nullptr);
 	alcDestroyContext(context);
 
