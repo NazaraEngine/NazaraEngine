@@ -35,10 +35,17 @@ bool NzNoise::IsInitialized()
 
 void NzNoise::Uninitialize()
 {
-	if (--s_moduleReferenceCounter != 0)
-		return; // Encore utilisé
+	if (s_moduleReferenceCounter != 1)
+	{
+		// Le module est soit encore utilisé, soit pas initialisé
+		if (s_moduleReferenceCounter > 1)
+			s_moduleReferenceCounter--;
+
+		return;
+	}
 
 	// Libération du module
+	s_moduleReferenceCounter = 0;
 
 	// Libération des dépendances
 	NzCore::Uninitialize();
