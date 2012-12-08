@@ -394,6 +394,8 @@ void NzNode::SetTranslation(const NzVector3f& translation, nzCoordSys coordSys)
 			m_translation = translation;
 			break;
 	}
+
+	Invalidate();
 }
 
 void NzNode::SetTranslation(float translationX, float translationY, float translationZ, nzCoordSys coordSys)
