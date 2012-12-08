@@ -52,7 +52,7 @@ class NAZARA_API NzRenderer
 
 		static bool HasCapability(nzRendererCap capability);
 
-		static bool Initialize();
+		static bool Initialize(bool initializeDebugDrawer = false);
 
 		static bool IsEnabled(nzRendererParameter parameter);
 		static bool IsInitialized();
