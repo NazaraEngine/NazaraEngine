@@ -23,7 +23,7 @@ class NAZARA_API NzModuleName
 		static void Uninitialize();
 
 	private:
-		static unsigned int s_moduleReferenceCouter;
+		static unsigned int s_moduleReferenceCounter;
 };
 
 #endif // NAZARA_MODULENAME_HPP
