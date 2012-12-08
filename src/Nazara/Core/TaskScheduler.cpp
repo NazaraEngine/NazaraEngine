@@ -111,6 +111,7 @@ void NzTaskScheduler::Uninitialize()
 		}
 
 		delete s_impl;
+		s_impl = nullptr;
 	}
 }
 
