@@ -256,7 +256,7 @@ void NzNode::SetInheritTranslation(bool inheritTranslation)
 
 void NzNode::SetInitialRotation(const NzQuaternionf& rotation)
 {
-	m_initialRotation = rotation
+	m_initialRotation = rotation;
 	m_initialRotation.Normalize(); // Évitons toute mauvaise surprise ...
 
 	Invalidate();
