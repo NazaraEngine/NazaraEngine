@@ -688,7 +688,7 @@ void NzMesh::SetMaterial(unsigned int matIndex, const NzString& materialPath)
 
 	if (matIndex >= m_impl->materials.size())
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_impl->materials.size()));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_impl->materials.size()) + ')');
 		return;
 	}
 	#endif
