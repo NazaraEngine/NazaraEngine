@@ -1,6 +1,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Math/Cube.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <iostream>
@@ -65,7 +66,7 @@ int main()
 			break;
 
 		NzMesh mesh;
-		if (!mesh.LoadFromFile("resources/" + models[iChoice-1]))
+		if (!mesh.LoadFromFile("resources/" + models[iChoice-1], params))
 		{
 			std::cout << "Failed to load mesh" << std::endl;
 			std::getchar();
@@ -120,41 +121,59 @@ int main()
 				}
 			}
 
-			if (mesh.HasAnimation())
+			NzString animationPath = mesh.GetAnimation();
+			if (!animationPath.IsEmpty())
 			{
-				const NzAnimation* animation = mesh.GetAnimation();
-				unsigned int sequenceCount = animation->GetSequenceCount();
-				std::cout << "It has an animation made of " << animation->GetFrameCount() << " frame(s) for " << sequenceCount << " sequence(s)." << std::endl;
-				std::cout << "Print sequences ? (Y/N) ";
-
-				char cChoice;
-				std::cin >> cChoice;
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-				if (std::tolower(cChoice) == 'y')
+				NzAnimation animation;
+				if (animation.LoadFromFile(animationPath))
 				{
-					for (unsigned int i = 0; i < sequenceCount; ++i)
+					unsigned int sequenceCount = animation.GetSequenceCount();
+					std::cout << "It has an animation made of " << animation.GetFrameCount() << " frame(s) for " << sequenceCount << " sequence(s)." << std::endl;
+					std::cout << "Print sequences ? (Y/N) ";
+
+					char cChoice;
+					std::cin >> cChoice;
+					std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+					if (std::tolower(cChoice) == 'y')
 					{
-						const NzSequence* sequence = animation->GetSequence(i);
-						std::cout << "\t" << (i+1) << ": " << sequence->name << std::endl;
-						std::cout << "\t\tStart frame: " << sequence->firstFrame << std::endl;
-						std::cout << "\t\tFrame count: " << sequence->frameCount << std::endl;
-						std::cout << "\t\tFrame rate: " << sequence->frameRate << std::endl;
-						std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						for (unsigned int i = 0; i < sequenceCount; ++i)
+						{
+							const NzSequence* sequence = animation.GetSequence(i);
+							std::cout << "\t" << (i+1) << ": " << sequence->name << std::endl;
+							std::cout << "\t\tStart frame: " << sequence->firstFrame << std::endl;
+							std::cout << "\t\tFrame count: " << sequence->frameCount << std::endl;
+							std::cout << "\t\tFrame rate: " << sequence->frameRate << std::endl;
+							std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
 					}
 				}
+				else
+					std::cout << "It has animation information but animation file could'nt be loaded" << std::endl;
 			}
 			else
-				std::cout << "It's animable but has no loaded animation" << std::endl;
+				std::cout << "It's animable but has no animation information" << std::endl;
 		}
 
-		/*NzCubef cube = mesh.GetAABB().GetCube();
-		std::cout << "Mesh is " << cube.width << " unit wide, " << cube.height << "unit height and " << cube.depth << " unit depth" << std::endl;
+		NzCubef cube = mesh.GetAABB().GetCube();
+		std::cout << "Mesh is " << cube.width << " units wide, " << cube.height << " units height and " << cube.depth << " units depth" << std::endl;
 
 		unsigned int materialCount = mesh.GetMaterialCount();
 		std::cout << "It has " << materialCount << " materials registred" << std::endl;
-		for (unsigned int i = 0; i < materialCount; ++i)
-			std::cout << "\t" << (i+1) << ": " << mesh.GetMaterial(i) << std::endl;*/
+		std::cout << "Print materials ? (Y/N) ";
+
+		char cChoice;
+		std::cin >> cChoice;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		if (std::tolower(cChoice) == 'y')
+		{
+			for (unsigned int i = 0; i < materialCount; ++i)
+			{
+				std::cout << "\t" << (i+1) << ": " << mesh.GetMaterial(i) << std::endl;
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
+		}
 
 		std::cout << std::endl << std::endl;
 	}
