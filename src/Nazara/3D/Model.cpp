@@ -112,6 +112,11 @@ nzSceneNodeType NzModel::GetSceneNodeType() const
 	return nzSceneNodeType_Model;
 }
 
+NzSkeleton* NzModel::GetSkeleton()
+{
+	return &m_skeleton;
+}
+
 const NzSkeleton* NzModel::GetSkeleton() const
 {
 	return &m_skeleton;
@@ -419,5 +424,5 @@ void NzModel::Update(float elapsedTime)
 		}
 	}
 
-	m_mesh->Animate(m_animation, m_currentFrame, m_nextFrame, m_interpolation);
+	m_mesh->Animate(m_animation, m_currentFrame, m_nextFrame, m_interpolation, &m_skeleton);
 }
