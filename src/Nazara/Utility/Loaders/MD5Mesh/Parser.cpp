@@ -308,6 +308,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			return false;
 		}
 
+		mesh->SetMaterialCount(m_meshes.size());
 		for (unsigned int i = 0; i < m_meshes.size(); ++i)
 		{
 			const Mesh& md5Mesh = m_meshes[i];
@@ -355,7 +356,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 					*index++ = triangle.z;
 					*index++ = triangle.y;
 				}
-				break;
 			}
 
 			if (!indexBuffer->Unmap())
