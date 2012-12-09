@@ -158,7 +158,7 @@ namespace
 		// Pour que le modèle soit correctement aligné, on génère un quaternion que nous appliquerons à chacune des vertices
 		NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
 
-		md2_vertex* vertices = new md2_vertex[header.num_vertices];
+		std::unique_ptr<md2_vertex[]> vertices(new md2_vertex[header.num_vertices]);
 		for (unsigned int f = 0; f < header.num_frames; ++f)
 		{
 			NzVector3f scale, translate;
@@ -166,7 +166,7 @@ namespace
 			stream.Read(scale, sizeof(NzVector3f));
 			stream.Read(translate, sizeof(NzVector3f));
 			stream.Read(nullptr, 16*sizeof(char));
-			stream.Read(vertices, header.num_vertices*sizeof(md2_vertex));
+			stream.Read(vertices.get(), header.num_vertices*sizeof(md2_vertex));
 
 			#ifdef NAZARA_BIG_ENDIAN
 			NzByteSwap(&scale.x, sizeof(float));
@@ -208,7 +208,6 @@ namespace
 
 			subMesh->SetAABB(f, aabb);
 		}
-		delete[] vertices;
 
 		subMesh->Unlock();
 
