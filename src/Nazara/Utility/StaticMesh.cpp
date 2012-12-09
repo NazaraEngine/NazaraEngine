@@ -123,10 +123,10 @@ void NzStaticMesh::SetAABB(const NzAxisAlignedBox& aabb)
 void NzStaticMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
 	if (m_indexBuffer)
-		m_indexBuffer->RemoveResourceReference();
+		m_indexBuffer->RemoveResourceListener(this);
 
 	if (indexBuffer)
-		indexBuffer->AddResourceReference();
+		indexBuffer->AddResourceListener(this);
 
 	m_indexBuffer = indexBuffer;
 }
