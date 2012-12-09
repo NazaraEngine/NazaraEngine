@@ -48,7 +48,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
-		void Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const;
+		void Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation, NzSkeleton* skeleton) const;
 
 		bool CreateKeyframe();
 		bool CreateSkeletal(unsigned int jointCount);

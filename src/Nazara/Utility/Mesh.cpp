@@ -128,7 +128,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	return true;
 }
 
-void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const
+void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation, NzSkeleton* skeleton) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -182,11 +182,19 @@ void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned
 			break;
 
 		case nzAnimationType_Skeletal:
-			animation->AnimateSkeleton(&m_impl->skeleton, frameA, frameB, interpolation);
+			#if NAZARA_UTILITY_SAFE
+			if (!skeleton)
+			{
+				NazaraError("Skeleton must be valid for skeletal animation");
+				return;
+			}
+			#endif
+
+			animation->AnimateSkeleton(skeleton, frameA, frameB, interpolation);
 			for (NzSubMesh* subMesh : m_impl->subMeshes)
 			{
 				NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
-				skeletalMesh->Skin(&m_impl->skeleton);
+				skeletalMesh->Skin(skeleton);
 			}
 			break;
 
