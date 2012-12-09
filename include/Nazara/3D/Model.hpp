@@ -36,6 +36,7 @@ class NAZARA_API NzModel : public NzSceneNode
 		unsigned int GetSkinCount() const;
 		const NzMesh* GetMesh() const;
 		nzSceneNodeType GetSceneNodeType() const override;
+		NzSkeleton* GetSkeleton();
 		const NzSkeleton* GetSkeleton() const;
 
 		bool HasAnimation() const;
