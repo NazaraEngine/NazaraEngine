@@ -459,11 +459,11 @@ void NzNode::UpdateDerived() const
 
 		if (m_inheritRotation)
 		{
-			m_derivedRotation = m_parent->m_derivedRotation * m_initialRotation * m_rotation;
+			m_derivedRotation = m_initialRotation * m_parent->m_derivedRotation * m_rotation;
 			m_derivedRotation.Normalize();
 		}
 		else
-			m_derivedRotation = m_initialRotation * m_rotation;
+			m_derivedRotation = m_initialRotation * m_rotation; ///FIXME: Besoin d'une normalisation ?
 
 		m_derivedScale = m_initialScale * m_scale;
 		if (m_inheritScale)
@@ -476,9 +476,9 @@ void NzNode::UpdateDerived() const
 	}
 	else
 	{
-		m_derivedRotation = m_rotation;
-		m_derivedScale = m_scale;
-		m_derivedTranslation = m_translation;
+		m_derivedRotation = m_initialRotation * m_rotation;
+		m_derivedScale = m_initialScale * m_scale;
+		m_derivedTranslation = m_initialTranslation + m_translation;
 	}
 
 	m_derivedUpdated = true;
