@@ -170,7 +170,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			NzMatrix4f bindMatrix;
 			bindMatrix.MakeRotation((parent >= 0) ? m_joints[i].bindOrient : rotationQuat * m_joints[i].bindOrient);
-			bindMatrix.SetTranslation(m_joints[i].bindPos); // Plus rapide que de multiplier par une matrice de translation
+			bindMatrix.SetTranslation((parent >= 0) ? m_joints[i].bindPos : rotationQuat * m_joints[i].bindPos); // Plus rapide que de multiplier par une matrice de translation
 
 			joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 		}
