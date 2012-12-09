@@ -536,8 +536,6 @@ int main()
 		}
 	}
 
-	NzDebugDrawer::Uninitialize();
-
     return EXIT_SUCCESS;
 }
 
