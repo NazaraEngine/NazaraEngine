@@ -150,7 +150,7 @@ int main()
 	// Le troisième argument représente la décoration de la fenêtre, sa bordure, ses boutons.
 	// Attention que cela permet à la fenêtre de changer sa taille et qu'il faudra donc traiter l'évènement.
 	// Par défaut le troisième argument vaut nzWindowStyle_Default (Bordure + Bouton de fermeture + Redimensionnement)
-	if (!window.Create(mode, windowTitle, nzWindowStyle_Default))
+	if (!window.Create(mode, windowTitle, nzWindowStyle_Default, NzContextParameters(4)))
 	{
 		std::cout << "Failed to create window" << std::endl;
 		std::getchar();
@@ -458,6 +458,7 @@ int main()
 			{
 				drfreak.Update(elapsedTime);
 				hellknight.Update(elapsedTime);
+
 				/*AnimateModel(hellknight, elapsedTime);
 				hellknight.mesh.GetSkeleton()->GetJoint("luparm")->SetScale(2.f);
 				hellknight.mesh.Skin(hellknight.mesh.GetSkeleton());*/
