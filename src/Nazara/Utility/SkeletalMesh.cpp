@@ -264,8 +264,8 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 		return;
 	}
 
-	NzVertexStruct_XYZ_Normal_UV_Tangent* inputVertex = reinterpret_cast<NzVertexStruct_XYZ_Normal_UV_Tangent*>(m_impl->bindPoseBuffer);
-	NzVertexStruct_XYZ_Normal_UV_Tangent* outputVertex = reinterpret_cast<NzVertexStruct_XYZ_Normal_UV_Tangent*>(outputBuffer);
+	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(m_impl->bindPoseBuffer);
+	NzMeshVertex* outputVertex = reinterpret_cast<NzMeshVertex*>(outputBuffer);
 
 	const NzJoint* joints = skeleton->GetJoints();
 	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
