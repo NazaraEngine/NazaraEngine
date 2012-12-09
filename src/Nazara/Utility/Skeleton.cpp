@@ -15,17 +15,10 @@ struct NzSkeletonImpl
 	bool jointMapUpdated = false;
 };
 
-NzSkeleton::NzSkeleton(const NzSkeleton& skeleton)
+NzSkeleton::NzSkeleton(const NzSkeleton& skeleton) :
+m_impl(nullptr)
 {
-	if (skeleton.m_impl)
-	{
-		m_impl = new NzSkeletonImpl;
-		m_impl->jointMap = skeleton.m_impl->jointMap;
-		m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
-		m_impl->joints = skeleton.m_impl->joints;
-	}
-	else
-		m_impl = nullptr;
+	operator=(skeleton);
 }
 
 NzSkeleton::~NzSkeleton()
@@ -333,6 +326,26 @@ NzSkeleton& NzSkeleton::operator=(const NzSkeleton& skeleton)
 		m_impl->jointMap = skeleton.m_impl->jointMap;
 		m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
 		m_impl->joints = skeleton.m_impl->joints;
+
+		// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(unsigned int) en plus
+		// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
+		// L'éternel trade-off mémoire/calculs ..
+		unsigned int jointCount = skeleton.m_impl->joints.size();
+		for (unsigned int i = 0; i < jointCount; ++i)
+		{
+			const NzNode* parent = skeleton.m_impl->joints[i].GetParent();
+			if (parent)
+			{
+				for (unsigned int j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
+				{
+					if (parent == &skeleton.m_impl->joints[j]) // A-t-on trouvé le parent ?
+					{
+						m_impl->joints[i].SetParent(m_impl->joints[j]); // Oui, tout ça pour ça
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	return *this;
