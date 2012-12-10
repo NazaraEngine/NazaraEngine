@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 
-class Nz3D
+class NAZARA_API Nz3D
 {
 	public:
 		Nz3D() = delete;
