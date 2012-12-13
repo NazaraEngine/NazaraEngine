@@ -22,6 +22,9 @@ class NAZARA_API NzHardwareInfo
 		static bool HasCapability(nzProcessorCap capability);
 
 		static bool Initialize();
+
+		static bool IsInitialized();
+
 		static void Uninitialize();
 };
 
