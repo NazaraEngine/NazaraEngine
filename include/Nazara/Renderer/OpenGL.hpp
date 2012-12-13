@@ -87,6 +87,7 @@ namespace NzOpenGL
 	extern GLenum TextureTarget[nzImageType_Max+1];
 	extern GLenum TextureTargetBinding[nzImageType_Max+1];
 	extern GLenum TextureTargetProxy[nzImageType_Max+1];
+	extern GLenum TextureWrapMode[nzTextureWrap_Max+1];
 }
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
