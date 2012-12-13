@@ -20,15 +20,37 @@ namespace
 {
 	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
 	bool s_capabilities[nzProcessorCap_Max+1] = {false};
-	bool s_x64 = false;
 
+	char s_brandString[48] = "Not initialized";
 	char s_vendor[12] = {'C', 'P', 'U', 'i', 's', 'U', 'n', 'k', 'n', 'o', 'w', 'n'};
+
+	const char* vendorName[nzProcessorVendor_Max+2] = // +1 pour gérer le cas Unknown
+	{
+		"Unknown",                             // nzProcessorVendor_Unknown
+		"Advanced Micro Devices",              // nzProcessorVendor_AMD
+		"Centaur Technology",                  // nzProcessorVendor_Centaur
+		"Cyrix Corporation",                   // nzProcessorVendor_Cyrix
+		"Intel Corporation",                   // nzProcessorVendor_Intel
+		"Transmeta Corporation",               // nzProcessorVendor_Transmeta
+		"National Semiconductor",              // nzProcessorVendor_NSC
+		"NexGen",                              // nzProcessorVendor_NexGen
+		"Rise Technology",                     // nzProcessorVendor_Rise
+		"Silicon Integrated Systems",          // nzProcessorVendor_SIS
+		"United Microelectronics Corporation", // nzProcessorVendor_UMC
+		"VIA Technologies",                    // nzProcessorVendor_VIA
+		"Vortex86",                            // nzProcessorVendor_Vortex
+	};
 
 	struct VendorString
 	{
 		nzProcessorVendor vendorEnum;
 		char vendor[13]; // +1 pour le \0 automatiquement ajouté par le compilateur
 	};
+}
+
+NzString NzHardwareInfo::GetProcessorBrandString()
+{
+	return s_brandString;
 }
 
 unsigned int NzHardwareInfo::GetProcessorCount()
@@ -42,9 +64,12 @@ nzProcessorVendor NzHardwareInfo::GetProcessorVendor()
 	return s_vendorEnum;
 }
 
-void NzHardwareInfo::GetProcessorVendor(char vendor[12])
+NzString NzHardwareInfo::GetProcessorVendorName()
 {
-	std::memcpy(vendor, s_vendor, 12);
+	if (s_vendorEnum == nzProcessorVendor_Unknown)
+		return "Unknown";
+
+	return vendorName[s_vendorEnum];
 }
 
 bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
@@ -114,26 +139,33 @@ bool NzHardwareInfo::Initialize()
 		s_capabilities[nzProcessorCap_SSSE3] = (result[2] & (1U <<  9)) != 0;
 		s_capabilities[nzProcessorCap_SSE41] = (result[2] & (1U << 19)) != 0;
 		s_capabilities[nzProcessorCap_SSE42] = (result[2] & (1U << 20)) != 0;
-	}
 
-	NzHardwareInfoImpl::Cpuid(0x80000000, result);
-	unsigned int exIds = result[0];
+		NzHardwareInfoImpl::Cpuid(0x80000000, result);
+		unsigned int exIds = result[0];
 
-	if (exIds >= 0x80000001)
-	{
-		NzHardwareInfoImpl::Cpuid(0x80000001, result);
-		s_capabilities[nzProcessorCap_FMA4]  = (result[2] & (1U << 16)) != 0;
-		s_capabilities[nzProcessorCap_SSE4a] = (result[2] & (1U <<  6)) != 0;
-		s_capabilities[nzProcessorCap_XOP]   = (result[2] & (1U << 11)) != 0;
-		s_x64 = (result[3] & (1U << 29)) != 0;
+		if (exIds >= 0x80000001)
+		{
+			NzHardwareInfoImpl::Cpuid(0x80000001, result);
+			s_capabilities[nzProcessorCap_x64]   = (result[3] & (1U << 29)) != 0;
+			s_capabilities[nzProcessorCap_FMA4]  = (result[2] & (1U << 16)) != 0;
+			s_capabilities[nzProcessorCap_SSE4a] = (result[2] & (1U <<  6)) != 0;
+			s_capabilities[nzProcessorCap_XOP]   = (result[2] & (1U << 11)) != 0;
+
+			if (exIds >= 0x80000004)
+			{
+				char* ptr = &s_brandString[0];
+				for (nzUInt32 code = 0x80000002; code <= 0x80000004; ++code)
+				{
+					NzHardwareInfoImpl::Cpuid(code, result);
+					std::memcpy(ptr, &result[0], 16);
+
+					ptr += 16;
+				}
+			}
+		}
 	}
 
 	return true;
-}
-
-bool NzHardwareInfo::Is64Bits()
-{
-	return s_x64;
 }
 
 void NzHardwareInfo::Uninitialize()
