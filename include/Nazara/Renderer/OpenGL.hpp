@@ -43,52 +43,53 @@ enum nzOpenGLExtension
 
 using NzOpenGLFunc = void (*)();
 
-namespace NzOpenGL
+class NAZARA_API NzOpenGL
 {
-	enum FormatType
-	{
-		FormatType_RenderBuffer,
-//		FormatType_MultisampleTexture,
-		FormatType_Texture
-	};
+	public:
+		enum FormatType
+		{
+			FormatType_RenderBuffer,
+	//		FormatType_MultisampleTexture,
+			FormatType_Texture
+		};
 
-	struct Format
-	{
-		GLenum dataFormat;
-		GLenum dataType;
-		GLint internalFormat;
-	};
+		struct Format
+		{
+			GLenum dataFormat;
+			GLenum dataType;
+			GLint internalFormat;
+		};
 
-	NzOpenGLFunc GetEntry(const NzString& entryPoint);
-	unsigned int GetVersion();
-	bool Initialize();
-	bool IsSupported(nzOpenGLExtension extension);
-	bool IsSupported(const NzString& string);
-	bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
-	void Uninitialize();
+		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
+		static unsigned int GetVersion();
+		static bool Initialize();
+		static bool IsSupported(nzOpenGLExtension extension);
+		static bool IsSupported(const NzString& string);
+		static bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
+		static void Uninitialize();
 
-	extern GLenum Attachment[nzAttachmentPoint_Max+1];
-	extern nzUInt8 AttributeIndex[nzElementUsage_Max+1];
-	extern GLenum BlendFunc[nzBlendFunc_Max+1];
-	extern GLenum BufferLock[nzBufferAccess_Max+1];
-	extern GLenum BufferLockRange[nzBufferAccess_Max+1];
-	extern GLenum BufferTarget[nzBufferType_Max+1];
-	extern GLenum BufferTargetBinding[nzBufferType_Max+1];
-	extern GLenum BufferUsage[nzBufferUsage_Max+1];
-	extern GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
-	extern GLenum ElementType[nzElementType_Max+1];
-	extern GLenum FaceCulling[nzFaceCulling_Max+1];
-	extern GLenum FaceFilling[nzFaceFilling_Max+1];
-	extern GLenum PrimitiveType[nzPrimitiveType_Max+1];
-	extern GLenum RendererComparison[nzRendererComparison_Max+1];
-	extern GLenum RendererParameter[nzRendererParameter_Max+1];
-	extern GLenum ShaderType[nzShaderType_Max+1];
-	extern GLenum StencilOperation[nzStencilOperation_Max+1];
-	extern GLenum TextureTarget[nzImageType_Max+1];
-	extern GLenum TextureTargetBinding[nzImageType_Max+1];
-	extern GLenum TextureTargetProxy[nzImageType_Max+1];
-	extern GLenum TextureWrapMode[nzTextureWrap_Max+1];
-}
+		static GLenum Attachment[nzAttachmentPoint_Max+1];
+		static nzUInt8 AttributeIndex[nzElementUsage_Max+1];
+		static GLenum BlendFunc[nzBlendFunc_Max+1];
+		static GLenum BufferLock[nzBufferAccess_Max+1];
+		static GLenum BufferLockRange[nzBufferAccess_Max+1];
+		static GLenum BufferTarget[nzBufferType_Max+1];
+		static GLenum BufferTargetBinding[nzBufferType_Max+1];
+		static GLenum BufferUsage[nzBufferUsage_Max+1];
+		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
+		static GLenum ElementType[nzElementType_Max+1];
+		static GLenum FaceCulling[nzFaceCulling_Max+1];
+		static GLenum FaceFilling[nzFaceFilling_Max+1];
+		static GLenum PrimitiveType[nzPrimitiveType_Max+1];
+		static GLenum RendererComparison[nzRendererComparison_Max+1];
+		static GLenum RendererParameter[nzRendererParameter_Max+1];
+		static GLenum ShaderType[nzShaderType_Max+1];
+		static GLenum StencilOperation[nzStencilOperation_Max+1];
+		static GLenum TextureTarget[nzImageType_Max+1];
+		static GLenum TextureTargetBinding[nzImageType_Max+1];
+		static GLenum TextureTargetProxy[nzImageType_Max+1];
+		static GLenum TextureWrapMode[nzTextureWrap_Max+1];
+};
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_API extern PFNGLATTACHSHADERPROC             glAttachShader;
