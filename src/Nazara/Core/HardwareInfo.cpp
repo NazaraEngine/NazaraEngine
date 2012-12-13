@@ -66,10 +66,7 @@ nzProcessorVendor NzHardwareInfo::GetProcessorVendor()
 
 NzString NzHardwareInfo::GetProcessorVendorName()
 {
-	if (s_vendorEnum == nzProcessorVendor_Unknown)
-		return "Unknown";
-
-	return vendorName[s_vendorEnum];
+	return vendorName[s_vendorEnum+1];
 }
 
 bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
