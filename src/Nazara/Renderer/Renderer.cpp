@@ -1107,7 +1107,7 @@ bool NzRenderer::EnsureStateUpdate()
 		}
 		#endif
 
-		static const bool vaoSupported = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObject);
+		static const bool vaoSupported = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 		bool update;
 		GLuint vao;
 
