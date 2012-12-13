@@ -873,7 +873,7 @@ namespace NzOpenGL
 		GL_ZERO       // nzStencilOperation_Zero
 	};
 
-	GLenum TextureTarget[nzImageType_Max+1]
+	GLenum TextureTarget[nzImageType_Max+1] =
 	{
 		GL_TEXTURE_1D,       // nzImageType_1D
 		GL_TEXTURE_1D_ARRAY, // nzImageType_1D_Array
@@ -883,7 +883,7 @@ namespace NzOpenGL
 		GL_TEXTURE_CUBE_MAP  // nzImageType_Cubemap
 	};
 
-	GLenum TextureTargetBinding[nzImageType_Max+1]
+	GLenum TextureTargetBinding[nzImageType_Max+1] =
 	{
 		GL_TEXTURE_BINDING_1D,       // nzImageType_1D
 		GL_TEXTURE_BINDING_1D_ARRAY, // nzImageType_1D_Array
@@ -893,7 +893,7 @@ namespace NzOpenGL
 		GL_TEXTURE_BINDING_CUBE_MAP  // nzImageType_Cubemap
 	};
 
-	GLenum TextureTargetProxy[nzImageType_Max+1]
+	GLenum TextureTargetProxy[nzImageType_Max+1] =
 	{
 		GL_PROXY_TEXTURE_1D,       // nzImageType_1D
 		GL_PROXY_TEXTURE_1D_ARRAY, // nzImageType_1D_Array
@@ -901,6 +901,12 @@ namespace NzOpenGL
 		GL_PROXY_TEXTURE_2D_ARRAY, // nzImageType_2D_Array
 		GL_PROXY_TEXTURE_3D,       // nzImageType_3D
 		GL_PROXY_TEXTURE_CUBE_MAP  // nzImageType_Cubemap
+	};
+
+	GLenum TextureWrapMode[nzTextureWrap_Max+1] =
+	{
+		GL_CLAMP_TO_EDGE, // nzTextureWrap_Clamp
+		GL_REPEAT         // nzTextureWrap_Repeat
 	};
 }
 
