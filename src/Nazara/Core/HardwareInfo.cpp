@@ -20,6 +20,7 @@ namespace
 {
 	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
 	bool s_capabilities[nzProcessorCap_Max+1] = {false};
+	bool s_initialized = false;
 
 	char s_brandString[48] = "Not initialized";
 	char s_vendor[12] = {'C', 'P', 'U', 'i', 's', 'U', 'n', 'k', 'n', 'o', 'w', 'n'};
@@ -84,8 +85,13 @@ bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
 
 bool NzHardwareInfo::Initialize()
 {
+	if (s_initialized)
+		return true;
+
 	if (!NzHardwareInfoImpl::IsCpuidSupported())
 		return false;
+
+	s_initialized = true;
 
 	nzUInt32 result[4];
 
@@ -165,7 +171,13 @@ bool NzHardwareInfo::Initialize()
 	return true;
 }
 
+bool NzHardwareInfo::IsInitialized()
+{
+	return s_initialized;
+}
+
 void NzHardwareInfo::Uninitialize()
 {
 	// Rien à faire
+	s_initialized = false;
 }
