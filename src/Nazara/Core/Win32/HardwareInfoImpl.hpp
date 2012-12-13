@@ -12,7 +12,7 @@
 class NzHardwareInfoImpl
 {
 	public:
-		static void Cpuid(unsigned int code, nzUInt32 result[4]);
+		static void Cpuid(nzUInt32 code, nzUInt32 result[4]);
 		static unsigned int GetProcessorCount();
 		static bool IsCpuidSupported();
 };
