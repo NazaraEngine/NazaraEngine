@@ -36,9 +36,9 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_TextureArray,
 	nzOpenGLExtension_TextureCompression_s3tc,
 	nzOpenGLExtension_TextureStorage,
-	nzOpenGLExtension_VertexArrayObject,
+	nzOpenGLExtension_VertexArrayObjects,
 
-	nzOpenGLExtension_Max = nzOpenGLExtension_VertexArrayObject
+	nzOpenGLExtension_Max = nzOpenGLExtension_VertexArrayObjects
 };
 
 using NzOpenGLFunc = void (*)();
@@ -61,8 +61,11 @@ class NAZARA_API NzOpenGL
 		};
 
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
+		static NzString GetRendererName();
+		static NzString GetVendorName();
 		static unsigned int GetVersion();
 		static bool Initialize();
+		static bool IsInitialized();
 		static bool IsSupported(nzOpenGLExtension extension);
 		static bool IsSupported(const NzString& string);
 		static bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);

@@ -57,9 +57,10 @@ namespace
 		#endif
 	}
 
-	std::set<NzString> openGLextensionSet;
-	bool openGLextensions[nzOpenGLExtension_Max+1] = {false};
-	unsigned int openGLversion = 0;
+	std::set<NzString> s_openGLextensionSet;
+	bool s_initialized = false;
+	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
+	unsigned int s_openGLversion = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
 	{
@@ -74,7 +75,7 @@ namespace
 		extensionString.Split(ext);
 
 		for (std::vector<NzString>::iterator it = ext.begin(); it != ext.end(); ++it)
-			openGLextensionSet.insert(*it);
+			s_openGLextensionSet.insert(*it);
 
 		return true;
 	}
@@ -99,7 +100,7 @@ namespace
 				continue;
 			}
 
-			openGLextensionSet.insert(extension);
+			s_openGLextensionSet.insert(extension);
 		}
 
 		return true;
@@ -111,18 +112,35 @@ NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 	return LoadEntry(entryPoint.GetConstBuffer(), false);
 }
 
+NzString NzOpenGL::GetRendererName()
+{
+	static const char* rendererName(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+	return rendererName;
+}
+
+NzString NzOpenGL::GetVendorName()
+{
+	static const char* vendorName(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+	return vendorName;
+}
+
 unsigned int NzOpenGL::GetVersion()
 {
-	return openGLversion;
+	return s_openGLversion;
 }
 
 bool NzOpenGL::Initialize()
 {
+	if (s_initialized)
+		return true;
+
 	if (!LoadLibrary())
 	{
 		NazaraError("Failed to load OpenGL library");
 		return false;
 	}
+
+	s_initialized = true;
 
 	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
 	NzContextParameters parameters;
@@ -194,8 +212,8 @@ bool NzOpenGL::Initialize()
 		minor = 0;
 	}
 
-	openGLversion = major*100 + minor*10;
-	if (openGLversion < 200)
+	s_openGLversion = major*100 + minor*10;
+	if (s_openGLversion < 200)
 	{
 		NazaraError("OpenGL version is too low, please upgrade your drivers or your video card");
 		Uninitialize();
@@ -335,7 +353,7 @@ bool NzOpenGL::Initialize()
 
 	if (!glGetStringi || !LoadExtensions3())
 	{
-		if (openGLversion >= 300) // Dans le cas contraire c'est normal
+		if (s_openGLversion >= 300) // Dans le cas contraire c'est normal
 			NazaraWarning("Failed to load OpenGL 3 extension system, switching to OpenGL 2 extension system...");
 
 		if (!LoadExtensionsString(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS))))
@@ -358,10 +376,10 @@ bool NzOpenGL::Initialize()
 	#endif
 
 	// AnisotropicFilter
-	openGLextensions[nzOpenGLExtension_AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
+	s_openGLextensions[nzOpenGLExtension_AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
 
 	// DebugOutput
-	if (openGLversion >= 430 || IsSupported("GL_KHR_debug"))
+	if (s_openGLversion >= 430 || IsSupported("GL_KHR_debug"))
 	{
 		try
 		{
@@ -370,7 +388,7 @@ bool NzOpenGL::Initialize()
 			glDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTPROC>(LoadEntry("glDebugMessageInsert"));
 			glGetDebugMessageLog = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGPROC>(LoadEntry("glGetDebugMessageLog"));
 
-			openGLextensions[nzOpenGLExtension_DebugOutput] = true;
+			s_openGLextensions[nzOpenGLExtension_DebugOutput] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -378,7 +396,7 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	if (!openGLextensions[nzOpenGLExtension_DebugOutput] && IsSupported("GL_ARB_debug_output"))
+	if (!s_openGLextensions[nzOpenGLExtension_DebugOutput] && IsSupported("GL_ARB_debug_output"))
 	{
 		try
 		{
@@ -387,7 +405,7 @@ bool NzOpenGL::Initialize()
 			glDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTARBPROC>(LoadEntry("glDebugMessageInsertARB"));
 			glGetDebugMessageLog = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGARBPROC>(LoadEntry("glGetDebugMessageLogARB"));
 
-			openGLextensions[nzOpenGLExtension_DebugOutput] = true;
+			s_openGLextensions[nzOpenGLExtension_DebugOutput] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -396,7 +414,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// FP64
-	if (openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
+	if (s_openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{
 		try
 		{
@@ -405,7 +423,7 @@ bool NzOpenGL::Initialize()
 			glUniform3dv = reinterpret_cast<PFNGLUNIFORM3DVPROC>(LoadEntry("glUniform3dv"));
 			glUniform4dv = reinterpret_cast<PFNGLUNIFORM4DVPROC>(LoadEntry("glUniform4dv"));
 
-			openGLextensions[nzOpenGLExtension_FP64] = true;
+			s_openGLextensions[nzOpenGLExtension_FP64] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -414,7 +432,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// FrameBufferObject
-	if (openGLversion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
+	if (s_openGLversion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
 	{
 		try
 		{
@@ -434,7 +452,7 @@ bool NzOpenGL::Initialize()
 			glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
 			glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
 
-			openGLextensions[nzOpenGLExtension_FrameBufferObject] = true;
+			s_openGLextensions[nzOpenGLExtension_FrameBufferObject] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -443,10 +461,10 @@ bool NzOpenGL::Initialize()
 	}
 
 	// PixelBufferObject
-	openGLextensions[nzOpenGLExtension_PixelBufferObject] = (openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
+	s_openGLextensions[nzOpenGLExtension_PixelBufferObject] = (s_openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
 
 	// SamplerObjects
-	if (openGLversion >= 330 || IsSupported("GL_ARB_sampler_objects"))
+	if (s_openGLversion >= 330 || IsSupported("GL_ARB_sampler_objects"))
 	{
 		try
 		{
@@ -456,7 +474,7 @@ bool NzOpenGL::Initialize()
 			glSamplerParameterf = reinterpret_cast<PFNGLSAMPLERPARAMETERFPROC>(LoadEntry("glSamplerParameterf"));
 			glSamplerParameteri = reinterpret_cast<PFNGLSAMPLERPARAMETERIPROC>(LoadEntry("glSamplerParameteri"));
 
-			openGLextensions[nzOpenGLExtension_SamplerObjects] = true;
+			s_openGLextensions[nzOpenGLExtension_SamplerObjects] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -465,7 +483,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// SeparateShaderObjects
-	if (openGLversion >= 400 || IsSupported("GL_ARB_separate_shader_objects"))
+	if (s_openGLversion >= 400 || IsSupported("GL_ARB_separate_shader_objects"))
 	{
 		try
 		{
@@ -477,7 +495,7 @@ bool NzOpenGL::Initialize()
 			glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
 
 			// Si ARB_gpu_shader_fp64 est supporté, alors cette extension donne également accès aux fonctions utilisant des double
-			if (openGLextensions[nzOpenGLExtension_FP64])
+			if (s_openGLextensions[nzOpenGLExtension_FP64])
 			{
 				glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
 				glProgramUniform2dv = reinterpret_cast<PFNGLPROGRAMUNIFORM2DVPROC>(LoadEntry("glProgramUniform2dv"));
@@ -486,7 +504,7 @@ bool NzOpenGL::Initialize()
 				glProgramUniformMatrix4dv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4DVPROC>(LoadEntry("glProgramUniformMatrix4dv"));
 			}
 
-			openGLextensions[nzOpenGLExtension_SeparateShaderObjects] = true;
+			s_openGLextensions[nzOpenGLExtension_SeparateShaderObjects] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -495,13 +513,13 @@ bool NzOpenGL::Initialize()
 	}
 
 	// TextureArray
-	openGLextensions[nzOpenGLExtension_TextureArray] = (openGLversion >= 300 || IsSupported("GL_EXT_texture_array"));
+	s_openGLextensions[nzOpenGLExtension_TextureArray] = (s_openGLversion >= 300 || IsSupported("GL_EXT_texture_array"));
 
 	// TextureCompression_s3tc
-	openGLextensions[nzOpenGLExtension_TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
+	s_openGLextensions[nzOpenGLExtension_TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
 
 	// TextureStorage
-	if (openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
+	if (s_openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
 	{
 		try
 		{
@@ -509,7 +527,7 @@ bool NzOpenGL::Initialize()
 			glTexStorage2D = reinterpret_cast<PFNGLTEXSTORAGE2DPROC>(LoadEntry("glTexStorage2D"));
 			glTexStorage3D = reinterpret_cast<PFNGLTEXSTORAGE3DPROC>(LoadEntry("glTexStorage3D"));
 
-			openGLextensions[nzOpenGLExtension_TextureStorage] = true;
+			s_openGLextensions[nzOpenGLExtension_TextureStorage] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -518,7 +536,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// VertexArrayObject
-	if (openGLversion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
+	if (s_openGLversion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
 	{
 		try
 		{
@@ -526,7 +544,7 @@ bool NzOpenGL::Initialize()
 			glDeleteVertexArrays = reinterpret_cast<PFNGLDELETEVERTEXARRAYSPROC>(LoadEntry("glDeleteVertexArrays"));
 			glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(LoadEntry("glGenVertexArrays"));
 
-			openGLextensions[nzOpenGLExtension_VertexArrayObject] = true;
+			s_openGLextensions[nzOpenGLExtension_VertexArrayObjects] = true;
 		}
 		catch (const std::exception& e)
 		{
@@ -554,14 +572,19 @@ bool NzOpenGL::Initialize()
 	return true;
 }
 
+bool NzOpenGL::IsInitialized()
+{
+	return s_initialized;
+}
+
 bool NzOpenGL::IsSupported(nzOpenGLExtension extension)
 {
-	return openGLextensions[extension];
+	return s_openGLextensions[extension];
 }
 
 bool NzOpenGL::IsSupported(const NzString& string)
 {
-	return openGLextensionSet.find(string) != openGLextensionSet.end();
+	return s_openGLextensionSet.find(string) != s_openGLextensionSet.end();
 }
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)
@@ -704,15 +727,19 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 void NzOpenGL::Uninitialize()
 {
-	NzContext::Uninitialize();
+	if (s_initialized)
+	{
+		NzContext::Uninitialize();
 
-	for (bool& ext : openGLextensions)
-		ext = false;
+		for (bool& ext : s_openGLextensions)
+			ext = false;
 
-	openGLextensionSet.clear();
-	openGLversion = 0;
+		s_initialized = false;
+		s_openGLextensionSet.clear();
+		s_openGLversion = 0;
 
-	UnloadLibrary();
+		UnloadLibrary();
+	}
 }
 
 GLenum NzOpenGL::Attachment[nzAttachmentPoint_Max+1] =
