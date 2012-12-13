@@ -17,10 +17,7 @@ bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskSchedule
 
 	// Initialisation du module
 	if (initializeHardwareInfo && !NzHardwareInfo::Initialize())
-	{
-		NazaraError("Failed to initialize hardware info");
-		return false;
-	}
+		NazaraWarning("Failed to initialize hardware info"); // Non-critique
 
 	if (initializeTaskScheduler && !NzTaskScheduler::Initialize())
 	{
