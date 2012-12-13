@@ -24,7 +24,7 @@ namespace
 	static NzVertexDeclaration* vertexDeclaration = nullptr;
 	static bool depthTest = true;
 	static bool initialized = false;
-	static float lineWidth = 2.f;
+	static float lineWidth = 1.5f;
 	static float pointSize = 3.f;
 	static int colorLocation = -1;
 }
