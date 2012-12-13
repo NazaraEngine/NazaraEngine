@@ -9,20 +9,19 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/String.hpp>
 
 class NAZARA_API NzHardwareInfo
 {
 	public:
+		static NzString GetProcessorBrandString();
 		static unsigned int GetProcessorCount();
 		static nzProcessorVendor GetProcessorVendor();
-		static void GetProcessorVendor(char vendor[12]);
+		static NzString GetProcessorVendorName();
 
 		static bool HasCapability(nzProcessorCap capability);
 
 		static bool Initialize();
-
-		static bool Is64Bits();
-
 		static void Uninitialize();
 };
 

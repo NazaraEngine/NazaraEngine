@@ -9,6 +9,7 @@
 
 enum nzProcessorCap
 {
+	nzProcessorCap_x64,
 	nzProcessorCap_AVX,
 	nzProcessorCap_FMA3,
 	nzProcessorCap_FMA4,
