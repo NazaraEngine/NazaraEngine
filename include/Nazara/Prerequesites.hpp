@@ -144,8 +144,8 @@
 	#define NAZARA_API
 #endif
 
-#if defined(_WIN64) ||  defined(__amd64__) || defined(__x86_64__) || defined(__ia64__) || defined(__ia64) || \
-    defined(_M_IA64) || defined(__itanium__) || defined(__MINGW64__)
+#if !defined(NAZARA_PLATFORM_x64) && (defined(_WIN64) ||  defined(__amd64__) || defined(__x86_64__) || defined(__ia64__) || defined(__ia64) || \
+    defined(_M_IA64) || defined(__itanium__) || defined(__MINGW64__))
 	#define NAZARA_PLATFORM_x64
 #endif
 
