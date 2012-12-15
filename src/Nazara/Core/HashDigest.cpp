@@ -82,11 +82,11 @@ NzString NzHashDigest::ToHex() const
 		return NzString();
 
 	unsigned int length = m_digestLength*2;
-	char* hex_output = new char[length+1];
+	char* hexOutput = new char[length+1];
 	for (unsigned int i = 0; i < m_digestLength; ++i)
-		std::sprintf(hex_output + i*2, "%02x", m_digest[i]);
+		std::sprintf(hexOutput + i*2, "%02x", m_digest[i]);
 
-	return NzString(new NzString::SharedString(length, length, 1, hex_output));
+	return NzString(new NzString::SharedString(1, length, length, hexOutput));
 }
 
 nzUInt8 NzHashDigest::operator[](unsigned short pos) const
