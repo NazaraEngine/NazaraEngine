@@ -879,6 +879,13 @@ GLenum NzOpenGL::RendererParameter[nzRendererParameter_Max+1] =
 	GL_STENCIL_TEST // nzRendererParameter_Stencil
 };
 
+GLenum NzOpenGL::SamplerWrapMode[nzSamplerWrap_Max+1] =
+{
+	GL_CLAMP_TO_EDGE,   // nzTextureWrap_Clamp
+	GL_MIRRORED_REPEAT, // nzSamplerWrap_MirroredRepeat
+	GL_REPEAT           // nzTextureWrap_Repeat
+};
+
 GLenum NzOpenGL::ShaderType[nzShaderType_Max+1] =
 {
 	GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
@@ -926,12 +933,6 @@ GLenum NzOpenGL::TextureTargetProxy[nzImageType_Max+1] =
 	GL_PROXY_TEXTURE_2D_ARRAY, // nzImageType_2D_Array
 	GL_PROXY_TEXTURE_3D,       // nzImageType_3D
 	GL_PROXY_TEXTURE_CUBE_MAP  // nzImageType_Cubemap
-};
-
-GLenum NzOpenGL::TextureWrapMode[nzTextureWrap_Max+1] =
-{
-	GL_CLAMP_TO_EDGE, // nzTextureWrap_Clamp
-	GL_REPEAT         // nzTextureWrap_Repeat
 };
 
 PFNGLACTIVETEXTUREPROC            glActiveTexture            = nullptr;

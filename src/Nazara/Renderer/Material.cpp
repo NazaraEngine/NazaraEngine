@@ -145,11 +145,11 @@ void NzMaterial::Reset()
 	m_dstBlend = nzBlendFunc_Zero;
 	m_faceCulling = nzFaceCulling_Back;
 	m_faceFilling = nzFaceFilling_Fill;
+	m_samplerFilter = nzSamplerFilter_Default;
+	m_samplerWrap = nzSamplerWrap_Repeat;
 	m_shininess = 0;
 	m_specularColor = NzColor::White;
 	m_srcBlend = nzBlendFunc_One;
-	m_textureFilter = nzTextureFilter_Default;
-	m_textureWrap = nzTextureWrap_Repeat;
 	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
 	m_zTestEnabled = true;
 	m_zWriteEnabled = true;

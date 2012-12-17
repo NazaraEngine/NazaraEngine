@@ -117,6 +117,32 @@ enum nzRendererParameter
 	nzRendererParameter_Max = nzRendererParameter_Stencil
 };
 
+enum nzSamplerFilter
+{
+	nzSamplerFilter_Unknown = -1,
+
+	nzSamplerFilter_Bilinear,
+	nzSamplerFilter_Nearest,
+	nzSamplerFilter_Trilinear,
+
+	nzSamplerFilter_Default,
+
+	nzSamplerFilter_Max = nzSamplerFilter_Default
+};
+
+enum nzSamplerWrap
+{
+	nzSamplerWrap_Unknown = -1,
+
+	nzSamplerWrap_Clamp,
+	nzSamplerWrap_MirroredRepeat,
+	nzSamplerWrap_Repeat,
+
+	nzSamplerWrap_Default,
+
+	nzSamplerWrap_Max = nzSamplerWrap_Repeat
+};
+
 enum nzShaderLanguage
 {
 	nzShaderLanguage_Unknown = -1,
@@ -148,29 +174,6 @@ enum nzStencilOperation
 	nzStencilOperation_Zero,
 
 	nzStencilOperation_Max = nzStencilOperation_Zero
-};
-
-enum nzTextureFilter
-{
-	nzTextureFilter_Unknown = -1,
-
-	nzTextureFilter_Bilinear,
-	nzTextureFilter_Nearest,
-	nzTextureFilter_Trilinear,
-
-	nzTextureFilter_Default,
-
-	nzTextureFilter_Max = nzTextureFilter_Default
-};
-
-enum nzTextureWrap
-{
-	nzTextureWrap_Unknown = -1,
-
-	nzTextureWrap_Clamp,
-	nzTextureWrap_Repeat,
-
-	nzTextureWrap_Max = nzTextureWrap_Repeat
 };
 
 #endif // NAZARA_ENUMS_RENDERER_HPP
