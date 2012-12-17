@@ -12,8 +12,8 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <map>
 
 class NzColor;
 class NzContext;
@@ -42,7 +42,7 @@ class NAZARA_API NzRenderer
 		static float GetLineWidth();
 		//static NzMatrix4f GetMatrix(nzMatrixCombination combination);
 		static NzMatrix4f GetMatrix(nzMatrixType type);
-		static unsigned int GetMaxAnisotropyLevel();
+		static nzUInt8 GetMaxAnisotropyLevel();
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
 		static float GetPointSize();
@@ -77,6 +77,8 @@ class NAZARA_API NzRenderer
 		static void SetStencilReferenceValue(unsigned int refValue);
 		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
 		static bool SetTarget(NzRenderTarget* target);
+		static void SetTexture(unsigned int unit, const NzTexture* texture);
+		static void SetTextureSampling(unsigned int unit, const NzTextureSampler& sampler);
 		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
 		static void SetViewport(const NzRectui& viewport);
 

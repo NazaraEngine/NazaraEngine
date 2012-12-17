@@ -86,12 +86,12 @@ class NAZARA_API NzOpenGL
 		static GLenum PrimitiveType[nzPrimitiveType_Max+1];
 		static GLenum RendererComparison[nzRendererComparison_Max+1];
 		static GLenum RendererParameter[nzRendererParameter_Max+1];
+		static GLenum SamplerWrapMode[nzSamplerWrap_Max+1];
 		static GLenum ShaderType[nzShaderType_Max+1];
 		static GLenum StencilOperation[nzStencilOperation_Max+1];
 		static GLenum TextureTarget[nzImageType_Max+1];
 		static GLenum TextureTargetBinding[nzImageType_Max+1];
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
-		static GLenum TextureWrapMode[nzTextureWrap_Max+1];
 };
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;

@@ -51,14 +51,8 @@ bool NzGLSLShader::BindTextures()
 	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
 	{
 		TextureSlot& slot = it->second;
-		if (slot.enabled && !slot.updated)
-		{
-			glActiveTexture(GL_TEXTURE0 + slot.unit);
-			if (!slot.texture->Prepare())
-				NazaraWarning("Failed to prepare texture");
-
-			slot.updated = true;
-		}
+		if (slot.enabled)
+			NzRenderer::SetTexture(slot.unit, slot.texture);
 	}
 
 	return true;

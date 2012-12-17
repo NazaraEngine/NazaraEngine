@@ -347,11 +347,6 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 	m_impl = impl;
 
-	// Paramètres par défaut
-	SetFilterMode(nzTextureFilter_Nearest);
-	SetMipmapRange(0, m_impl->levelCount);
-	SetWrapMode(nzTextureWrap_Repeat);
-
 	if (m_impl->levelCount > 1U)
 		EnableMipmapping(true);
 
@@ -445,14 +440,14 @@ bool NzTexture::EnableMipmapping(bool enable)
 	}
 	#endif
 
-	if (m_impl->levelCount == 1)
-		return true;
-
 	if (!IsMipmappingSupported())
 	{
 		NazaraError("Mipmapping not supported");
 		return false;
 	}
+
+	if (m_impl->levelCount == 1) // Transformation d'une texture sans mipmaps vers une texture avec mipmaps
+		m_impl->levelCount = NzImage::GetMaxLevel(m_impl->width, m_impl->height, m_impl->depth);
 
 	if (!m_impl->mipmapping && enable)
 		m_impl->mipmapsUpdated = false;
@@ -460,29 +455,6 @@ bool NzTexture::EnableMipmapping(bool enable)
 	m_impl->mipmapping = enable;
 
 	return true;
-}
-
-unsigned int NzTexture::GetAnisotropyLevel() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return 0;
-	}
-	#endif
-
-	if (!NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter))
-		return 1;
-
-	LockTexture(m_impl);
-
-	GLint anisotropyLevel;
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropyLevel);
-
-	UnlockTexture(m_impl);
-
-	return anisotropyLevel;
 }
 
 nzUInt8 NzTexture::GetBytesPerPixel() const
@@ -509,43 +481,6 @@ unsigned int NzTexture::GetDepth() const
 	#endif
 
 	return m_impl->depth;
-}
-
-nzTextureFilter NzTexture::GetFilterMode() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return nzTextureFilter_Unknown;
-	}
-	#endif
-
-	LockTexture(m_impl);
-
-	GLint value;
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &value);
-
-	UnlockTexture(m_impl);
-
-	GLenum filterMode = static_cast<GLenum>(value);
-	switch (filterMode)
-	{
-		case GL_LINEAR:
-		case GL_LINEAR_MIPMAP_NEAREST:
-			return nzTextureFilter_Bilinear;
-
-		case GL_NEAREST:
-		case GL_NEAREST_MIPMAP_NEAREST:
-			return nzTextureFilter_Nearest;
-
-		case GL_LINEAR_MIPMAP_LINEAR:
-			return nzTextureFilter_Trilinear;
-
-		default:
-			NazaraInternalError("OpenGL filter mode not handled (0x" + NzString::Number(filterMode, 16) + ')');
-			return nzTextureFilter_Unknown;
-	}
 }
 
 nzPixelFormat NzTexture::GetFormat() const
@@ -598,38 +533,6 @@ unsigned int NzTexture::GetWidth() const
 	#endif
 
 	return m_impl->width;
-}
-
-nzTextureWrap NzTexture::GetWrapMode() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return nzTextureWrap_Unknown;
-	}
-	#endif
-
-	LockTexture(m_impl);
-
-	GLint value;
-	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &value);
-
-	UnlockTexture(m_impl);
-
-	GLenum wrapMode = static_cast<GLenum>(value);
-	switch (wrapMode)
-	{
-		case GL_CLAMP_TO_EDGE:
-			return nzTextureWrap_Clamp;
-
-		case GL_REPEAT:
-			return nzTextureWrap_Repeat;
-
-		default:
-			NazaraInternalError("OpenGL wrap mode not handled (0x" + NzString::Number(wrapMode, 16) + ')');
-			return nzTextureWrap_Unknown;
-	}
 }
 
 bool NzTexture::HasMipmaps() const
@@ -689,7 +592,7 @@ bool NzTexture::IsValid() const
 	return m_impl != nullptr;
 }
 
-bool NzTexture::LoadFromFile(const NzString& filePath, const NzImageParams& params)
+bool NzTexture::LoadFromFile(const NzString& filePath, const NzImageParams& params, bool generateMipmaps)
 {
 	NzImage image;
 	if (!image.LoadFromFile(filePath, params))
@@ -698,10 +601,10 @@ bool NzTexture::LoadFromFile(const NzString& filePath, const NzImageParams& para
 		return false;
 	}
 
-	return LoadFromImage(image);
+	return LoadFromImage(image, generateMipmaps);
 }
 
-bool NzTexture::LoadFromImage(const NzImage& image)
+bool NzTexture::LoadFromImage(const NzImage& image, bool generateMipmaps)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!image.IsValid())
@@ -741,13 +644,14 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	}
 
 	nzImageType type = newImage.GetType();
-	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), newImage.GetLevelCount(), true))
+	nzUInt8 levelCount = newImage.GetLevelCount();
+	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), (generateMipmaps) ? 0xFF : levelCount, true))
 	{
 		NazaraError("Failed to create texture");
 		return false;
 	}
 
-	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
+	for (nzUInt8 level = 0; level < levelCount; ++level)
 	{
 		if (!Update(newImage.GetConstPixels(level), level))
 		{
@@ -763,7 +667,7 @@ bool NzTexture::LoadFromImage(const NzImage& image)
 	return true;
 }
 
-bool NzTexture::LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params)
+bool NzTexture::LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params, bool generateMipmaps)
 {
 	NzImage image;
 	if (!image.LoadFromMemory(data, size, params))
@@ -772,10 +676,10 @@ bool NzTexture::LoadFromMemory(const void* data, std::size_t size, const NzImage
 		return false;
 	}
 
-	return LoadFromImage(image);
+	return LoadFromImage(image, generateMipmaps);
 }
 
-bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
+bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& params, bool generateMipmaps)
 {
 	NzImage image;
 	if (!image.LoadFromStream(stream, params))
@@ -784,7 +688,7 @@ bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& param
 		return false;
 	}
 
-	return LoadFromImage(image);
+	return LoadFromImage(image, generateMipmaps);
 }
 
 bool NzTexture::Lock()
@@ -798,84 +702,6 @@ bool NzTexture::Lock()
 	#endif
 
 	LockTexture(m_impl);
-
-	return true;
-}
-
-bool NzTexture::SetAnisotropyLevel(unsigned int anistropyLevel)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	if (anistropyLevel > 1 && !NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter))
-	{
-		NazaraError("Anisotropic filter not supported");
-		return false;
-	}
-
-	LockTexture(m_impl);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anistropyLevel);
-
-	UnlockTexture(m_impl);
-
-	return true;
-}
-
-bool NzTexture::SetFilterMode(nzTextureFilter filter)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-
-	if (filter == nzTextureFilter_Trilinear && m_impl->levelCount == 1)
-	{
-		NazaraError("Trilinear filter set wihout mipmaps");
-		return false;
-	}
-	#endif
-
-	LockTexture(m_impl);
-
-	GLenum target = NzOpenGL::TextureTarget[m_impl->type];
-	switch (filter)
-	{
-		case nzTextureFilter_Bilinear:
-			if (m_impl->mipmapping > 1)
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-			else
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
-
-		case nzTextureFilter_Nearest:
-			if (m_impl->mipmapping > 1)
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-			else
-				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			break;
-
-		case nzTextureFilter_Trilinear:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
-
-		default:
-			NazaraError("Texture filter not handled (0x" + NzString::Number(filter, 16) + ')');
-	}
-
-	UnlockTexture(m_impl);
 
 	return true;
 }
@@ -904,59 +730,7 @@ bool NzTexture::SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel)
 
 	LockTexture(m_impl);
 	glTexParameteri(NzOpenGL::TextureTarget[m_impl->type], GL_TEXTURE_BASE_LEVEL, minLevel);
-	glTexParameteri(NzOpenGL::TextureTarget[m_impl->type], GL_TEXTURE_MAX_LEVEL, std::min(m_impl->levelCount, maxLevel));
-	UnlockTexture(m_impl);
-
-	return true;
-}
-
-bool NzTexture::SetWrapMode(nzTextureWrap wrap)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	GLenum wrapMode;
-	switch (wrap)
-	{
-		case nzTextureWrap_Clamp:
-			wrapMode = GL_CLAMP_TO_EDGE;
-			break;
-
-		case nzTextureWrap_Repeat:
-			wrapMode = GL_REPEAT;
-			break;
-
-		default:
-			NazaraError("Texture wrap mode not handled (0x" + NzString::Number(wrap, 16) + ')');
-			return false;
-	}
-
-	LockTexture(m_impl);
-
-	GLenum target = NzOpenGL::TextureTarget[m_impl->type];
-	switch (m_impl->type)
-	{
-		// Notez l'absence de "break" ici
-		case nzImageType_3D:
-			glTexParameteri(target, GL_TEXTURE_WRAP_R, wrapMode);
-		case nzImageType_2D:
-		case nzImageType_2D_Array:
-		case nzImageType_Cubemap:
-			glTexParameteri(target, GL_TEXTURE_WRAP_T, wrapMode);
-		case nzImageType_1D:
-		case nzImageType_1D_Array:
-			glTexParameteri(target, GL_TEXTURE_WRAP_S, wrapMode);
-			break;
-
-		default:
-			break;
-	}
-
+	glTexParameteri(NzOpenGL::TextureTarget[m_impl->type], GL_TEXTURE_MAX_LEVEL, maxLevel);
 	UnlockTexture(m_impl);
 
 	return true;
@@ -1411,20 +1185,7 @@ void NzTexture::Unlock()
 	UnlockTexture(m_impl);
 }
 
-unsigned int NzTexture::GetOpenGLID() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return 0;
-	}
-	#endif
-
-	return m_impl->id;
-}
-
-bool NzTexture::Prepare() const
+bool NzTexture::Bind() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (lockedLevel[m_impl->type] > 0)
@@ -1443,6 +1204,19 @@ bool NzTexture::Prepare() const
 	}
 
 	return true;
+}
+
+unsigned int NzTexture::GetOpenGLID() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+	#endif
+
+	return m_impl->id;
 }
 
 unsigned int NzTexture::GetValidSize(unsigned int size)
