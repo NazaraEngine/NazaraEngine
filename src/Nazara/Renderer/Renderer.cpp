@@ -21,8 +21,10 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <map>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -37,6 +39,15 @@ namespace
 		nzMatrixCombination_Max = nzMatrixCombination_WorldViewProj
 	};
 
+	struct TextureUnit
+	{
+		NzTextureSampler sampler;
+		const NzTexture* texture = nullptr;
+		bool samplerUpdated = false;
+		bool textureUpdated = true;
+		bool updated = true;
+	};
+
 	NzBufferImpl* HardwareBufferFunction(NzBuffer* parent, nzBufferType type)
 	{
 		return new NzHardwareBuffer(parent, type);
@@ -47,6 +58,7 @@ namespace
 	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
+	std::vector<TextureUnit> s_textureUnits;
 	NzMatrix4f s_matrix[totalMatrixCount];
 	int s_matrixLocation[totalMatrixCount];
 	bool s_matrixUpdated[totalMatrixCount];
@@ -59,6 +71,7 @@ namespace
 	nzStencilOperation s_stencilFail;
 	nzStencilOperation s_stencilPass;
 	nzStencilOperation s_stencilZFail;
+	nzUInt8 s_maxAnisotropyLevel;
 	nzUInt32 s_stencilMask;
 	const NzIndexBuffer* s_indexBuffer;
 	NzRenderTarget* s_target;
@@ -69,7 +82,6 @@ namespace
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_stencilFuncUpdated;
 	bool s_stencilOpUpdated;
-	unsigned int s_maxAnisotropyLevel;
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_stencilReference;
@@ -327,7 +339,7 @@ NzMatrix4f NzRenderer::GetMatrix(nzMatrixType type)
 	return s_matrix[type];
 }
 
-unsigned int NzRenderer::GetMaxAnisotropyLevel()
+nzUInt8 NzRenderer::GetMaxAnisotropyLevel()
 {
 	return s_maxAnisotropyLevel;
 }
@@ -425,25 +437,6 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 		s_matrixUpdated[i] = false;
 	}
 
-	s_dstBlend = nzBlendFunc_Zero;
-	s_faceCulling = nzFaceCulling_Back;
-	s_faceFilling = nzFaceFilling_Fill;
-	s_indexBuffer = nullptr;
-	s_shader = nullptr;
-	s_srcBlend = nzBlendFunc_One;
-	s_stencilCompare = nzRendererComparison_Always;
-	s_stencilFail = nzStencilOperation_Keep;
-	s_stencilFuncUpdated = true;
-	s_stencilMask = 0xFFFFFFFF;
-	s_stencilOpUpdated = true;
-	s_stencilPass = nzStencilOperation_Keep;
-	s_stencilReference = 0;
-	s_stencilZFail = nzStencilOperation_Keep;
-	s_target = nullptr;
-	s_vaoUpdated = false;
-	s_vertexBuffer = nullptr;
-	s_vertexDeclaration = nullptr;
-
 	// Récupération des capacités d'OpenGL
 	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
 	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
@@ -460,10 +453,10 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 
 	if (s_capabilities[nzRendererCap_AnisotropicFilter])
 	{
-		GLint maxAnisotropy;
-		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+		GLfloat maxAnisotropy;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
 
-		s_maxAnisotropyLevel = static_cast<unsigned int>(maxAnisotropy);
+		s_maxAnisotropyLevel = static_cast<nzUInt8>(maxAnisotropy);
 	}
 	else
 		s_maxAnisotropyLevel = 1;
@@ -495,10 +488,32 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	else
 		s_maxTextureUnit = 1;
 
+	s_dstBlend = nzBlendFunc_Zero;
+	s_faceCulling = nzFaceCulling_Back;
+	s_faceFilling = nzFaceFilling_Fill;
+	s_indexBuffer = nullptr;
+	s_shader = nullptr;
+	s_srcBlend = nzBlendFunc_One;
+	s_stencilCompare = nzRendererComparison_Always;
+	s_stencilFail = nzStencilOperation_Keep;
+	s_stencilFuncUpdated = true;
+	s_stencilMask = 0xFFFFFFFF;
+	s_stencilOpUpdated = true;
+	s_stencilPass = nzStencilOperation_Keep;
+	s_stencilReference = 0;
+	s_stencilZFail = nzStencilOperation_Keep;
+	s_target = nullptr;
+	s_textureUnits.resize(s_maxTextureUnit);
+	s_vaoUpdated = false;
+	s_vertexBuffer = nullptr;
+	s_vertexDeclaration = nullptr;
+
 	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
 	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
+
+	NzTextureSampler::Initialize();
 
 	// Loaders
 	NzLoaders_Texture_Register();
@@ -927,6 +942,47 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 	return true;
 }
 
+void NzRenderer::SetTexture(unsigned int unit, const NzTexture* texture)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (unit >= s_textureUnits.size())
+	{
+		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_textureUnits.size()) + ')');
+		return;
+	}
+	#endif
+
+	if (!texture) // Pas besoin de mettre à jour s'il n'y a pas de texture
+		return;
+
+	if (s_textureUnits[unit].texture != texture)
+	{
+		s_textureUnits[unit].texture = texture;
+		s_textureUnits[unit].textureUpdated = false;
+
+		if (s_textureUnits[unit].sampler.UseMipmaps(texture->HasMipmaps()))
+			s_textureUnits[unit].samplerUpdated = false;
+
+		s_textureUnits[unit].updated = false;
+	}
+}
+
+void NzRenderer::SetTextureSampling(unsigned int unit, const NzTextureSampler& sampler)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (unit >= s_textureUnits.size())
+	{
+		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_textureUnits.size()) + ')');
+		return;
+	}
+	#endif
+
+	s_textureUnits[unit].sampler = sampler;
+	s_textureUnits[unit].sampler.UseMipmaps(s_textureUnits[unit].texture->HasMipmaps());
+	s_textureUnits[unit].samplerUpdated = false;
+	s_textureUnits[unit].updated = false;
+}
+
 bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -996,10 +1052,13 @@ void NzRenderer::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	s_textureUnits.clear();
+
 	// Loaders
 	NzLoaders_Texture_Unregister();
 
 	NzDebugDrawer::Uninitialize();
+	NzTextureSampler::Uninitialize();
 
 	NzContext::EnsureContext();
 
@@ -1038,9 +1097,56 @@ bool NzRenderer::EnsureStateUpdate()
 
 	// Il est plus rapide d'opérer sur l'implémentation du shader directement
 	NzShaderImpl* shaderImpl = s_shader->m_impl;
+	shaderImpl->BindTextures();
 
-	if (!shaderImpl->BindTextures())
-		NazaraWarning("Failed to bind textures");
+	static const bool useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
+
+	if (useSamplerObjects)
+	{
+		for (unsigned int i = 0; i < s_textureUnits.size(); ++i)
+		{
+			TextureUnit& unit = s_textureUnits[i];
+
+			if (!unit.updated)
+			{
+				if (!unit.textureUpdated)
+				{
+					glActiveTexture(GL_TEXTURE0 + i);
+					unit.texture->Bind();
+
+					unit.textureUpdated = true;
+				}
+
+				if (!unit.samplerUpdated)
+				{
+					unit.sampler.Bind(i);
+					unit.samplerUpdated = true;
+				}
+
+				unit.updated = true;
+			}
+		}
+	}
+	else
+	{
+		for (unsigned int i = 0; i < s_textureUnits.size(); ++i)
+		{
+			TextureUnit& unit = s_textureUnits[i];
+
+			if (!unit.updated)
+			{
+				glActiveTexture(GL_TEXTURE0 + i);
+
+				unit.texture->Bind();
+				unit.textureUpdated = true;
+
+				unit.sampler.Apply(unit.texture);
+				unit.samplerUpdated = true;
+
+				unit.updated = true;
+			}
+		}
+	}
 
 	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
