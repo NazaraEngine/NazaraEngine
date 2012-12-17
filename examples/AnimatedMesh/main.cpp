@@ -2,6 +2,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math.hpp>
 #include <Nazara/Renderer.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
 #include <map>
@@ -357,6 +358,18 @@ int main()
 							drawHellknight = !drawHellknight;
 							break;
 
+						case NzKeyboard::F5:
+						{
+							NzTextureSampler::SetDefaultFilterMode(nzSamplerFilter_Trilinear);
+							break;
+						}
+
+						case NzKeyboard::F6:
+						{
+							NzTextureSampler::SetDefaultFilterMode(nzSamplerFilter_Nearest);
+							break;
+						}
+
 						/*case NzKeyboard::F5:
 						{
 							NzString animationName;
@@ -573,9 +586,6 @@ bool CreateCheckerMaterial(NzMaterial* material)
 		std::cout << "Failed to load image" << std::endl;
 		return false;
 	}
-
-	texture->SetAnisotropyLevel(NzRenderer::GetMaxAnisotropyLevel()); // Un filtrage anisotropique pour la texture
-	texture->SetWrapMode(nzTextureWrap_Repeat); // Si les coordonnées de texture dépassent 1.f, la texture sera répétée
 
 	material->SetDiffuseMap(texture);
 
