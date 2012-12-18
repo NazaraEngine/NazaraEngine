@@ -1,4 +1,4 @@
-#include <Nazara/3D/Model.hpp>
+#include <Nazara/3D.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math.hpp>
 #include <Nazara/Renderer.hpp>
@@ -24,16 +24,14 @@ int main()
 
 	// Maintenant nous initialisons le Renderer (Qui initialisera le noyau ainsi que le module utilitaire)
 	// Cette étape est obligatoire pour beaucoup de fonctionnalités (Notamment le chargement de ressources et le rendu)
-	NzInitializer<NzRenderer> renderer;
-	if (!renderer)
+	NzInitializer<Nz3D> nazara;
+	if (!nazara)
 	{
 		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
 		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
 	}
-
-	NzDebugDrawer::Initialize();
 
 	// Maintenant nous pouvons utiliser le moteur comme bon nous semble, tout d'abord nous allons charger les ressources
 
@@ -508,6 +506,8 @@ int main()
 
 		if (drawHellknight)
 			DrawModel(hellknight);
+		else
+			NzRenderer::SetMatrix(nzMatrixType_World, hellknight.GetTransformMatrix());
 
 		if (drawSkeleton)
 		{
@@ -713,7 +713,7 @@ void DrawModel(const NzModel& model)
 		// On récupère le submesh
 		const NzSubMesh* subMesh = model.GetMesh()->GetSubMesh(i);
 
-		NzRenderer::ApplyMaterial(model.GetMaterial(i));
+		model.GetMaterial(i)->Apply();
 
 		NzRenderer::SetVertexBuffer(subMesh->GetVertexBuffer());
 
