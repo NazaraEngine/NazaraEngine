@@ -43,6 +43,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor GetAmbientColor() const;
 		NzColor GetDiffuseColor() const;
 		const NzTexture* GetDiffuseMap() const;
+		NzTextureSampler& GetDiffuseSampler();
 		const NzTextureSampler& GetDiffuseSampler() const;
 		nzBlendFunc GetDstBlend() const;
 		nzFaceCulling GetFaceCulling() const;
@@ -50,6 +51,7 @@ class NAZARA_API NzMaterial : public NzResource
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		const NzTexture* GetSpecularMap() const;
+		NzTextureSampler& GetSpecularSampler();
 		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
 		nzRendererComparison GetZTestCompare() const;

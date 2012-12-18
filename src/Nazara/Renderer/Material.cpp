@@ -125,6 +125,11 @@ NzColor NzMaterial::GetDiffuseColor() const
 	return m_diffuseColor;
 }
 
+NzTextureSampler& NzMaterial::GetDiffuseSampler()
+{
+	return m_diffuseSampler;
+}
+
 const NzTextureSampler& NzMaterial::GetDiffuseSampler() const
 {
 	return m_diffuseSampler;
@@ -163,6 +168,11 @@ NzColor NzMaterial::GetSpecularColor() const
 const NzTexture* NzMaterial::GetSpecularMap() const
 {
 	return m_specularMap;
+}
+
+NzTextureSampler& NzMaterial::GetSpecularSampler()
+{
+	return m_specularSampler;
 }
 
 const NzTextureSampler& NzMaterial::GetSpecularSampler() const
