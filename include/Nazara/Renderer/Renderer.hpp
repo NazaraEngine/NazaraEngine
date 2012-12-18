@@ -30,8 +30,6 @@ class NAZARA_API NzRenderer
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
-		static void ApplyMaterial(const NzMaterial* material);
-
 		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
 		static void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
@@ -77,8 +75,8 @@ class NAZARA_API NzRenderer
 		static void SetStencilReferenceValue(unsigned int refValue);
 		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
 		static bool SetTarget(NzRenderTarget* target);
-		static void SetTexture(unsigned int unit, const NzTexture* texture);
-		static void SetTextureSampling(unsigned int unit, const NzTextureSampler& sampler);
+		static void SetTexture(nzUInt8 unit, const NzTexture* texture);
+		static void SetTextureSampler(nzUInt8 textureUnit, const NzTextureSampler& sampler);
 		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
 		static void SetViewport(const NzRectui& viewport);
 
