@@ -12,6 +12,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 
 struct NAZARA_API NzMaterialParams
 {
@@ -33,6 +34,8 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial();
 		~NzMaterial();
 
+		void Apply() const;
+
 		void EnableAlphaBlending(bool alphaBlending);
 		void EnableZTest(bool zTest);
 		void EnableZWrite(bool zWrite);
@@ -40,14 +43,14 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor GetAmbientColor() const;
 		NzColor GetDiffuseColor() const;
 		const NzTexture* GetDiffuseMap() const;
+		const NzTextureSampler& GetDiffuseSampler() const;
 		nzBlendFunc GetDstBlend() const;
 		nzFaceCulling GetFaceCulling() const;
 		nzFaceFilling GetFaceFilling() const;
-		nzSamplerFilter GetSamplerFilter() const;
-		nzSamplerWrap GetSamplerWrap() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		const NzTexture* GetSpecularMap() const;
+		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
 		nzRendererComparison GetZTestCompare() const;
 
@@ -64,14 +67,15 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDiffuseColor(const NzColor& diffuse);
 		void SetDiffuseMap(const NzTexture* map);
+		void SetDiffuseSampler(const NzTextureSampler& sampler);
 		void SetDstBlend(nzBlendFunc func);
 		void SetFaceCulling(nzFaceCulling culling);
 		void SetFaceFilling(nzFaceFilling filling);
-		void SetSamplerFilter(nzSamplerFilter filter);
 		void SetSamplerWrap(nzSamplerWrap wrapMode);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		void SetSpecularMap(const NzTexture* map);
+		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
 		void SetZTestCompare(nzRendererComparison compareFunc);
 
@@ -83,11 +87,11 @@ class NAZARA_API NzMaterial : public NzResource
 		nzFaceCulling m_faceCulling;
 		nzFaceFilling m_faceFilling;
 		nzRendererComparison m_zTestCompareFunc;
-		nzSamplerFilter m_samplerFilter;
-		nzSamplerWrap m_samplerWrap;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
+		NzTextureSampler m_diffuseSampler;
+		NzTextureSampler m_specularSampler;
 		const NzTexture* m_diffuseMap;
 		const NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
