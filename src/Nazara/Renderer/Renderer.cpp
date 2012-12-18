@@ -87,57 +87,6 @@ namespace
 	unsigned int s_stencilReference;
 }
 
-void NzRenderer::ApplyMaterial(const NzMaterial* material)
-{
-	///FIXME: Bouger vers Material::Apply ?
-	#if NAZARA_RENDERER_SAFE
-	if (!material)
-	{
-		NazaraError("Invalid material");
-		return;
-	}
-	#endif
-
-	NzShader* shader = s_shader;
-
-	int ambientColorLocation = shader->GetUniformLocation("ambientColor");
-	int diffuseColorLocation = shader->GetUniformLocation("diffuseColor");
-	int diffuseMapLocation = shader->GetUniformLocation("diffuseMap");
-	int shininessLocation = shader->GetUniformLocation("shininess");
-	int specularColorLocation = shader->GetUniformLocation("specularColor");
-	int specularMapLocation = shader->GetUniformLocation("specularMap");
-
-	if (ambientColorLocation != -1)
-		shader->SendColor(ambientColorLocation, material->GetAmbientColor());
-
-	if (diffuseColorLocation != -1)
-		shader->SendColor(diffuseColorLocation, material->GetDiffuseColor());
-
-	if (diffuseMapLocation != -1)
-		shader->SendTexture(diffuseMapLocation, material->GetDiffuseMap());
-
-	if (shininessLocation != -1)
-		shader->SendFloat(shininessLocation, material->GetShininess());
-
-	if (specularColorLocation != -1)
-		shader->SendColor(ambientColorLocation, material->GetSpecularColor());
-
-	if (specularMapLocation != -1)
-		shader->SendTexture(specularMapLocation, material->GetSpecularMap());
-
-	if (material->IsAlphaBlendingEnabled())
-	{
-		Enable(nzRendererParameter_Blend, true);
-		SetBlendFunc(material->GetSrcBlend(), material->GetDstBlend());
-	}
-	else
-		Enable(nzRendererParameter_Blend, false);
-
-	Enable(nzRendererParameter_DepthTest, material->IsZTestEnabled());
-	Enable(nzRendererParameter_DepthWrite, material->IsZWriteEnabled());
-	SetDepthFunc(material->GetZTestCompare());
-}
-
 void NzRenderer::Clear(unsigned long flags)
 {
 	#ifdef NAZARA_DEBUG
@@ -942,7 +891,7 @@ bool NzRenderer::SetTarget(NzRenderTarget* target)
 	return true;
 }
 
-void NzRenderer::SetTexture(unsigned int unit, const NzTexture* texture)
+void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (unit >= s_textureUnits.size())
@@ -967,7 +916,7 @@ void NzRenderer::SetTexture(unsigned int unit, const NzTexture* texture)
 	}
 }
 
-void NzRenderer::SetTextureSampling(unsigned int unit, const NzTextureSampler& sampler)
+void NzRenderer::SetTextureSampler(nzUInt8 unit, const NzTextureSampler& sampler)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (unit >= s_textureUnits.size())
@@ -978,9 +927,11 @@ void NzRenderer::SetTextureSampling(unsigned int unit, const NzTextureSampler& s
 	#endif
 
 	s_textureUnits[unit].sampler = sampler;
-	s_textureUnits[unit].sampler.UseMipmaps(s_textureUnits[unit].texture->HasMipmaps());
 	s_textureUnits[unit].samplerUpdated = false;
 	s_textureUnits[unit].updated = false;
+
+	if (s_textureUnits[unit].texture)
+		s_textureUnits[unit].sampler.UseMipmaps(s_textureUnits[unit].texture->HasMipmaps());
 }
 
 bool NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
