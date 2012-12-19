@@ -20,12 +20,12 @@ class NAZARA_API NzVideoMode
 
 		bool IsFullscreenValid() const;
 
-		static NzVideoMode GetDesktopMode();
-		static const std::vector<NzVideoMode>& GetFullscreenModes();
-
 		nzUInt8 bitsPerPixel;
 		unsigned int height;
 		unsigned int width;
+
+		static NzVideoMode GetDesktopMode();
+		static const std::vector<NzVideoMode>& GetFullscreenModes();
 };
 
 bool operator==(const NzVideoMode& left, const NzVideoMode& right);
