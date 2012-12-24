@@ -456,7 +456,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 		unsigned int unitUsed = m_textures.size();
 		if (unitUsed >= maxUnits)
 		{
-			NazaraError("Unable to use texture for shader: all available texture units are used");
+			NazaraError("Unable to use texture for shader: all available texture units are in use");
 			return false;
 		}
 
