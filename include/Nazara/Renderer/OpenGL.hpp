@@ -60,6 +60,9 @@ class NAZARA_API NzOpenGL
 			GLint internalFormat;
 		};
 
+		NzOpenGL() = delete;
+		~NzOpenGL() = delete;
+
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
 		static NzString GetRendererName();
 		static NzString GetVendorName();
