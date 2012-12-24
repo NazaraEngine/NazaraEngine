@@ -117,24 +117,22 @@ bool NzGLSLShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "Tangent");
 
 	NzString uniform;
-
-	static const unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
-
 	uniform.Reserve(10); // 8 + 2
 	uniform = "TexCoord";
+
+	unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
 	for (unsigned int i = 0; i < maxTexCoords; ++i)
 	{
 		NzString uniformName = uniform + NzString::Number(i);
 		glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
 	}
 
-	static const bool mrtSupported = NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets);
-	if (mrtSupported)
+	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
 	{
-		static const unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();
-
 		uniform.Reserve(14); // 12 + 2
 		uniform = "RenderTarget";
+
+		unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();
 		for (unsigned int i = 0; i < maxRenderTargets; ++i)
 		{
 			NzString uniformName = uniform + NzString::Number(i);
@@ -451,8 +449,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 	}
 	else
 	{
-		static const unsigned int maxUnits = NzRenderer::GetMaxTextureUnits();
-
+		unsigned int maxUnits = NzRenderer::GetMaxTextureUnits();
 		unsigned int unitUsed = m_textures.size();
 		if (unitUsed >= maxUnits)
 		{
