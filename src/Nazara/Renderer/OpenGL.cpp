@@ -58,6 +58,8 @@ namespace
 	}
 
 	std::set<NzString> s_openGLextensionSet;
+	const char* s_rendererName = nullptr;
+	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
 	unsigned int s_openGLversion = 0;
@@ -114,14 +116,12 @@ NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 
 NzString NzOpenGL::GetRendererName()
 {
-	static const char* rendererName(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-	return rendererName;
+	return s_rendererName;
 }
 
 NzString NzOpenGL::GetVendorName()
 {
-	static const char* vendorName(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-	return vendorName;
+	return s_vendorName;
 }
 
 unsigned int NzOpenGL::GetVersion()
@@ -156,7 +156,7 @@ bool NzOpenGL::Initialize()
 		Non sérieusement si vous avez une meilleure idée contactez-moi
 	*/
 
-	/****************************************Initialisation****************************************/
+	/****************************************Chargement OpenGL****************************************/
 
 	NzContext loadContext;
 	if (!loadContext.Create(parameters))
@@ -556,7 +556,7 @@ bool NzOpenGL::Initialize()
 	if (!glGenerateMipmap)
 		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
-	/****************************************Contexte de référence****************************************/
+	/****************************************Initialisation****************************************/
 
 	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
 	if (!NzContext::Initialize())
@@ -567,7 +567,8 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	NzContextParameters::defaultShareContext = NzContext::GetReference();
+	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
 	return true;
 }
@@ -737,6 +738,8 @@ void NzOpenGL::Uninitialize()
 		s_initialized = false;
 		s_openGLextensionSet.clear();
 		s_openGLversion = 0;
+		s_rendererName = nullptr;
+		s_vendorName = nullptr;
 
 		UnloadLibrary();
 	}

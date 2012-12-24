@@ -82,6 +82,8 @@ namespace
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_stencilFuncUpdated;
 	bool s_stencilOpUpdated;
+	bool s_useSamplerObjects;
+	bool s_useVertexArrayObjects;
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_stencilReference;
@@ -453,6 +455,8 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	s_stencilZFail = nzStencilOperation_Keep;
 	s_target = nullptr;
 	s_textureUnits.resize(s_maxTextureUnit);
+	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
+	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 	s_vaoUpdated = false;
 	s_vertexBuffer = nullptr;
 	s_vertexDeclaration = nullptr;
@@ -1050,9 +1054,7 @@ bool NzRenderer::EnsureStateUpdate()
 	NzShaderImpl* shaderImpl = s_shader->m_impl;
 	shaderImpl->BindTextures();
 
-	static const bool useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
-
-	if (useSamplerObjects)
+	if (s_useSamplerObjects)
 	{
 		for (unsigned int i = 0; i < s_textureUnits.size(); ++i)
 		{
@@ -1164,12 +1166,11 @@ bool NzRenderer::EnsureStateUpdate()
 		}
 		#endif
 
-		static const bool vaoSupported = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 		bool update;
 		GLuint vao;
 
 		// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
-		if (vaoSupported)
+		if (s_useVertexArrayObjects)
 		{
 			// On recherche si un VAO existe déjà avec notre configuration
 			// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
@@ -1232,7 +1233,7 @@ bool NzRenderer::EnsureStateUpdate()
 			}
 		}
 
-		if (vaoSupported)
+		if (s_useVertexArrayObjects)
 		{
 			// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
 			if (update)
