@@ -1254,10 +1254,7 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_Depth24:
 		case nzPixelFormat_Depth32:
 		case nzPixelFormat_Depth24Stencil8:
-		{
-			static const bool supported = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
-			return supported;
-		}
+			return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
 
 		// Formats de stencil (Non supportés pour les textures)
 		case nzPixelFormat_Stencil1:
@@ -1275,10 +1272,7 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_DXT1:
 		case nzPixelFormat_DXT3:
 		case nzPixelFormat_DXT5:
-		{
-			static const bool supported = NzOpenGL::IsSupported(nzOpenGLExtension_TextureCompression_s3tc);
-			return supported;
-		}
+			return NzOpenGL::IsSupported(nzOpenGLExtension_TextureCompression_s3tc);
 
 		case nzPixelFormat_Undefined:
 			break;
@@ -1306,10 +1300,7 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D_Array:
-		{
-			static bool supported = NzOpenGL::IsSupported(nzOpenGLExtension_TextureArray);
-			return supported;
-		}
+			return NzOpenGL::IsSupported(nzOpenGLExtension_TextureArray);
 	}
 
 	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
