@@ -22,7 +22,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 	friend class NzShader;
 
 	public:
-		NzTexture();
+		NzTexture() = default;
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
 
@@ -83,7 +83,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		NzRenderTexture* GetRenderTexture() const;
 		void SetRenderTexture(NzRenderTexture* renderTexture);
 
-		NzTextureImpl* m_impl;
+		NzTextureImpl* m_impl = nullptr;
 };
 
 #endif // NAZARA_TEXTURE_HPP

@@ -191,13 +191,7 @@ namespace
 	}
 }
 
-NzTexture::NzTexture() :
-m_impl(nullptr)
-{
-}
-
-NzTexture::NzTexture(const NzImage& image) :
-m_impl(nullptr)
+NzTexture::NzTexture(const NzImage& image)
 {
 	LoadFromImage(image);
 
