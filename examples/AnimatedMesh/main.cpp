@@ -33,6 +33,8 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	NzDebugDrawer::Initialize();
+
 	// Maintenant nous pouvons utiliser le moteur comme bon nous semble, tout d'abord nous allons charger les ressources
 
 	// Charger une ressource se fait actuellement manuellement, mais un ResourceManager est à venir
