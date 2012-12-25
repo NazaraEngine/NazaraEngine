@@ -22,6 +22,8 @@ bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskSchedule
 	if (initializeTaskScheduler && !NzTaskScheduler::Initialize())
 	{
 		NazaraError("Failed to initialize task scheduler");
+		Uninitialize();
+
 		return false;
 	}
 

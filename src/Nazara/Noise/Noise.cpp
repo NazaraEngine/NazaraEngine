@@ -18,6 +18,8 @@ bool NzNoise::Initialize()
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
+		Uninitialize();
+
 		return false;
 	}
 
