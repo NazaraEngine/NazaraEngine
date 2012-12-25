@@ -53,7 +53,7 @@ float NzHybridMultiFractal3D::GetValue(float x, float y, float z, float resoluti
 
     m_remainder = m_octaves - static_cast<int>(m_octaves);
 
-    if(remainder != 0)
+    if (m_remainder != 0)
         m_value += m_remainder * m_source->GetValue(x,y,z,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
     return m_value/this->m_sum - m_offset;
