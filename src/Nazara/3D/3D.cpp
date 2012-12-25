@@ -18,6 +18,8 @@ bool Nz3D::Initialize()
 	if (!NzRenderer::Initialize())
 	{
 		NazaraError("Failed to initialize renderer module");
+		Uninitialize();
+
 		return false;
 	}
 

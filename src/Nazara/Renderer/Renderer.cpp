@@ -466,7 +466,13 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
 
-	NzTextureSampler::Initialize();
+	if (!NzTextureSampler::Initialize())
+	{
+		NazaraError("Failed to initialize texture sampler");
+		Uninitialize();
+
+		return false;
+	}
 
 	// Loaders
 	NzLoaders_Texture_Register();
