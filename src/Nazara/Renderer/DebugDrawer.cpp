@@ -6,6 +6,7 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -19,7 +20,7 @@ namespace
 {
 	static NzColor primaryColor = NzColor::Red;
 	static NzColor secondaryColor = NzColor::Green;
-	static NzShader* shader = nullptr;
+	static const NzShader* shader = nullptr;
 	static NzVertexBuffer* vertexBuffer = nullptr;
 	static NzVertexDeclaration* vertexDeclaration = nullptr;
 	static bool depthTest = true;
@@ -241,69 +242,14 @@ bool NzDebugDrawer::Initialize()
 	{
 		// Shader
 		{
-			const char* fragmentSource110 =
-			"#version 110\n"
-			"uniform vec3 color;\n"
-			"void main()\n"
-			"{\n"
-			"	gl_FragColor = vec4(color, 1.0);\n"
-			"}\n";
-
-			const char* fragmentSource140 =
-			"#version 140\n"
-			"uniform vec3 color;\n"
-			"out vec4 RenderTarget0;\n"
-			"void main()\n"
-			"{\n"
-			"	RenderTarget0 = vec4(color, 1.0);\n"
-			"}\n";
-
-			const char* vertexSource110 =
-			"#version 110\n"
-			"attribute vec3 Position;\n"
-			"uniform mat4 WorldViewProjMatrix;\n"
-			"void main()\n"
-			"{\n"
-			"    gl_Position = WorldViewProjMatrix * vec4(Position, 1.0);\n"
-			"}\n";
-
-			const char* vertexSource140 =
-			"#version 140\n"
-			"in vec3 Position;\n"
-			"uniform mat4 WorldViewProjMatrix;\n"
-			"void main()\n"
-			"{\n"
-			"    gl_Position = WorldViewProjMatrix * vec4(Position, 1.0);\n"
-			"}\n";
-
-			bool useGLSL140 = (NzOpenGL::GetVersion() >= 310);
-
-			shader = new NzShader(nzShaderLanguage_GLSL);
-			if (!shader->Load(nzShaderType_Fragment, (useGLSL140) ? fragmentSource140 : fragmentSource110))
+			shader = NzShaderBuilder::Get(nzShaderBuilder_None);
+			if (!shader)
 			{
-				NazaraError("Failed to load fragment shader");
-				Uninitialize();
-
+				NazaraError("Failed to build debug shader");
 				return false;
 			}
 
-			if (!shader->Load(nzShaderType_Vertex, (useGLSL140) ? vertexSource140 : vertexSource110))
-			{
-				NazaraError("Failed to load vertex shader");
-				Uninitialize();
-
-				return false;
-			}
-
-			if (!shader->Compile())
-			{
-				NazaraError("Failed to compile shader");
-				Uninitialize();
-
-				return false;
-			}
-
-			colorLocation = shader->GetUniformLocation("color");
+			colorLocation = shader->GetUniformLocation("DiffuseColor");
 		}
 
 		// VertexDeclaration
@@ -393,12 +339,6 @@ void NzDebugDrawer::SetSecondaryColor(const NzColor& color)
 
 void NzDebugDrawer::Uninitialize()
 {
-	if (shader)
-	{
-		delete shader;
-		shader = nullptr;
-	}
-
 	if (vertexBuffer)
 	{
 		delete vertexBuffer;
