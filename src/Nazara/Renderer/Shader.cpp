@@ -300,7 +300,7 @@ bool NzShader::Lock()
 	return m_impl->Lock();
 }
 
-bool NzShader::SendBoolean(int location, bool value)
+bool NzShader::SendBoolean(int location, bool value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -319,7 +319,7 @@ bool NzShader::SendBoolean(int location, bool value)
 	return m_impl->SendBoolean(location, value);
 }
 
-bool NzShader::SendColor(int location, const NzColor& color)
+bool NzShader::SendColor(int location, const NzColor& color) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -338,7 +338,7 @@ bool NzShader::SendColor(int location, const NzColor& color)
 	return m_impl->SendColor(location, color);
 }
 
-bool NzShader::SendDouble(int location, double value)
+bool NzShader::SendDouble(int location, double value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -363,7 +363,7 @@ bool NzShader::SendDouble(int location, double value)
 	return m_impl->SendDouble(location, value);
 }
 
-bool NzShader::SendFloat(int location, float value)
+bool NzShader::SendFloat(int location, float value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -382,7 +382,7 @@ bool NzShader::SendFloat(int location, float value)
 	return m_impl->SendFloat(location, value);
 }
 
-bool NzShader::SendInteger(int location, int value)
+bool NzShader::SendInteger(int location, int value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -401,7 +401,7 @@ bool NzShader::SendInteger(int location, int value)
 	return m_impl->SendInteger(location, value);
 }
 
-bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix)
+bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -426,7 +426,7 @@ bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix)
 	return m_impl->SendMatrix(location, matrix);
 }
 
-bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix)
+bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -445,7 +445,7 @@ bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix)
 	return m_impl->SendMatrix(location, matrix);
 }
 
-bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit)
+bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -464,7 +464,7 @@ bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* text
 	return m_impl->SendTexture(location, texture, textureUnit);
 }
 
-bool NzShader::SendVector(int location, const NzVector2d& vector)
+bool NzShader::SendVector(int location, const NzVector2d& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -489,7 +489,7 @@ bool NzShader::SendVector(int location, const NzVector2d& vector)
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector2f& vector)
+bool NzShader::SendVector(int location, const NzVector2f& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -508,51 +508,7 @@ bool NzShader::SendVector(int location, const NzVector2f& vector)
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector3d& vector)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
-	{
-		NazaraError("FP64 is not supported");
-		return false;
-	}
-
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return false;
-	}
-
-	if (location == -1)
-	{
-		NazaraError("Invalid location");
-		return false;
-	}
-	#endif
-
-	return m_impl->SendVector(location, vector);
-}
-
-bool NzShader::SendVector(int location, const NzVector3f& vector)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return false;
-	}
-
-	if (location == -1)
-	{
-		NazaraError("Invalid location");
-		return false;
-	}
-	#endif
-
-	return m_impl->SendVector(location, vector);
-}
-
-bool NzShader::SendVector(int location, const NzVector4d& vector)
+bool NzShader::SendVector(int location, const NzVector3d& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -577,7 +533,51 @@ bool NzShader::SendVector(int location, const NzVector4d& vector)
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector4f& vector)
+bool NzShader::SendVector(int location, const NzVector3f& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (location == -1)
+	{
+		NazaraError("Invalid location");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(location, vector);
+}
+
+bool NzShader::SendVector(int location, const NzVector4d& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+
+	if (location == -1)
+	{
+		NazaraError("Invalid location");
+		return false;
+	}
+	#endif
+
+	return m_impl->SendVector(location, vector);
+}
+
+bool NzShader::SendVector(int location, const NzVector4f& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
