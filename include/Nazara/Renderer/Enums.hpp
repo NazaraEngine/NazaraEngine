@@ -143,6 +143,18 @@ enum nzSamplerWrap
 	nzSamplerWrap_Max = nzSamplerWrap_Repeat
 };
 
+enum nzShaderBuilderFlags
+{
+	nzShaderBuilder_None = 0,
+
+	nzShaderBuilder_Deferred        = 0x01,
+	nzShaderBuilder_DiffuseMapping  = 0x02,
+	nzShaderBuilder_Instancing      = 0x04,
+	nzShaderBuilder_Lighting        = 0x08,
+	nzShaderBuilder_NormalMapping   = 0x10,
+	nzShaderBuilder_ParallaxMapping = 0x20
+};
+
 enum nzShaderLanguage
 {
 	nzShaderLanguage_Unknown = -1,
