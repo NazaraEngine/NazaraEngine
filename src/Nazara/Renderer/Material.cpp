@@ -39,10 +39,10 @@ void NzMaterial::Apply() const
 	}
 	#endif
 
-	int ambientColorLocation = shader->GetUniformLocation("ambientColor");
-	int diffuseColorLocation = shader->GetUniformLocation("diffuseColor");
-	int shininessLocation = shader->GetUniformLocation("shininess");
-	int specularColorLocation = shader->GetUniformLocation("specularColor");
+	int ambientColorLocation = shader->GetUniformLocation("AmbientColor");
+	int diffuseColorLocation = shader->GetUniformLocation("DiffuseColor");
+	int shininessLocation = shader->GetUniformLocation("Shininess");
+	int specularColorLocation = shader->GetUniformLocation("SpecularColor");
 
 	if (ambientColorLocation != -1)
 		shader->SendColor(ambientColorLocation, m_ambientColor);
@@ -52,7 +52,7 @@ void NzMaterial::Apply() const
 
 	if (m_diffuseMap)
 	{
-		int diffuseMapLocation = shader->GetUniformLocation("diffuseMap");
+		int diffuseMapLocation = shader->GetUniformLocation("DiffuseMap");
 		if (diffuseMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
@@ -71,7 +71,7 @@ void NzMaterial::Apply() const
 
 	if (m_specularMap)
 	{
-		int specularMapLocation = shader->GetUniformLocation("specularMap");
+		int specularMapLocation = shader->GetUniformLocation("SpecularMap");
 		if (specularMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
