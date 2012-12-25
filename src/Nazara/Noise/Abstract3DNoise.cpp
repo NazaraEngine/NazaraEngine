@@ -9,6 +9,8 @@
 #include <Nazara/Noise/Debug.hpp>
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 
+NzAbstract3DNoise::~NzAbstract3DNoise() = default;
+
 float NzAbstract3DNoise::GetBasicValue(float x, float y, float z)
 {
     return this->GetValue(x,y,z,m_resolution);
