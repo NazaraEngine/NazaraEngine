@@ -76,7 +76,7 @@ namespace
 	nzUInt32 s_stencilMask;
 	const NzIndexBuffer* s_indexBuffer;
 	NzRenderTarget* s_target;
-	NzShader* s_shader;
+	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
 	const NzVertexDeclaration* s_vertexDeclaration;
 	bool s_vaoUpdated;
@@ -322,7 +322,7 @@ float NzRenderer::GetPointSize()
 	return pointSize;
 }
 
-NzShader* NzRenderer::GetShader()
+const NzShader* NzRenderer::GetShader()
 {
 	return s_shader;
 }
@@ -742,7 +742,7 @@ void NzRenderer::SetPointSize(float size)
 	glPointSize(size);
 }
 
-bool NzRenderer::SetShader(NzShader* shader)
+bool NzRenderer::SetShader(const NzShader* shader)
 {
 	if (s_shader == shader)
 		return true;

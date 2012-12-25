@@ -51,20 +51,20 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		bool Lock();
 
-		bool SendBoolean(int location, bool value);
-		bool SendColor(int location, const NzColor& color);
-		bool SendDouble(int location, double value);
-		bool SendFloat(int location, float value);
-		bool SendInteger(int location, int value);
-		bool SendMatrix(int location, const NzMatrix4d& matrix);
-		bool SendMatrix(int location, const NzMatrix4f& matrix);
-		bool SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit = nullptr);
-		bool SendVector(int location, const NzVector2d& vector);
-		bool SendVector(int location, const NzVector2f& vector);
-		bool SendVector(int location, const NzVector3d& vector);
-		bool SendVector(int location, const NzVector3f& vector);
-		bool SendVector(int location, const NzVector4d& vector);
-		bool SendVector(int location, const NzVector4f& vector);
+		bool SendBoolean(int location, bool value) const;
+		bool SendColor(int location, const NzColor& color) const;
+		bool SendDouble(int location, double value) const;
+		bool SendFloat(int location, float value) const;
+		bool SendInteger(int location, int value) const;
+		bool SendMatrix(int location, const NzMatrix4d& matrix) const;
+		bool SendMatrix(int location, const NzMatrix4f& matrix) const;
+		bool SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit = nullptr) const;
+		bool SendVector(int location, const NzVector2d& vector) const;
+		bool SendVector(int location, const NzVector2f& vector) const;
+		bool SendVector(int location, const NzVector3d& vector) const;
+		bool SendVector(int location, const NzVector3f& vector) const;
+		bool SendVector(int location, const NzVector4d& vector) const;
+		bool SendVector(int location, const NzVector4f& vector) const;
 
 		void Unlock();
 

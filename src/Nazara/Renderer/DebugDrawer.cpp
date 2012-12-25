@@ -124,7 +124,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	if (!vertexBuffer->Unmap())
 		NazaraWarning("Failed to unmap buffer");
 
-	NzShader* oldShader = NzRenderer::GetShader();
+	const NzShader* oldShader = NzRenderer::GetShader();
 
 	if (!NzRenderer::SetShader(shader))
 	{
@@ -198,7 +198,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 	if (vertexCount > 0)
 	{
-		NzShader* oldShader = NzRenderer::GetShader();
+		const NzShader* oldShader = NzRenderer::GetShader();
 
 		if (!NzRenderer::SetShader(shader))
 		{
