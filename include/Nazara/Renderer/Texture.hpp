@@ -35,7 +35,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		nzUInt8 GetBytesPerPixel() const;
 		unsigned int GetDepth() const;
-		nzSamplerFilter GetFilterMode() const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight() const;
 		nzImageType GetType() const;
