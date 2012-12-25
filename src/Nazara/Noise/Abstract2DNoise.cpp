@@ -9,6 +9,8 @@
 #include <Nazara/Noise/Debug.hpp>
 #include <Nazara/Noise/Abstract2DNoise.hpp>
 
+NzAbstract2DNoise::~NzAbstract2DNoise() = default;
+
 float NzAbstract2DNoise::GetBasicValue(float x, float y)
 {
     return this->GetValue(x,y,m_resolution);
