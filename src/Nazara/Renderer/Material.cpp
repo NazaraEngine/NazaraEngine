@@ -30,7 +30,7 @@ NzMaterial::~NzMaterial()
 
 void NzMaterial::Apply() const
 {
-	NzShader* shader = NzRenderer::GetShader();
+	const NzShader* shader = NzRenderer::GetShader();
 	#if NAZARA_RENDERER_SAFE
 	if (!shader)
 	{
