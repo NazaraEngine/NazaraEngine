@@ -26,6 +26,8 @@ bool NzUtility::Initialize()
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
+		Uninitialize();
+
 		return false;
 	}
 
@@ -33,19 +35,23 @@ bool NzUtility::Initialize()
 	if (!NzBuffer::Initialize())
 	{
 		NazaraError("Failed to initialize buffers");
+		Uninitialize();
+
 		return false;
 	}
 
 	if (!NzPixelFormat::Initialize())
 	{
 		NazaraError("Failed to initialize pixel formats");
+		Uninitialize();
+
 		return false;
 	}
 
 	if (!NzWindow::Initialize())
 	{
 		NazaraError("Failed to initialize window's system");
-		NzPixelFormat::Uninitialize();
+		Uninitialize();
 
 		return false;
 	}
