@@ -14,6 +14,7 @@
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/ShaderImpl.hpp>
 #include <Nazara/Renderer/Loaders/Texture.hpp>
 #include <Nazara/Utility/BufferImpl.hpp>
@@ -465,6 +466,14 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 
 	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
+
+	if (!NzShaderBuilder::Initialize())
+	{
+		NazaraError("Failed to initialize shader builder");
+		Uninitialize();
+
+		return false;
+	}
 
 	if (!NzTextureSampler::Initialize())
 	{
@@ -1019,6 +1028,7 @@ void NzRenderer::Uninitialize()
 	NzLoaders_Texture_Unregister();
 
 	NzDebugDrawer::Uninitialize();
+	NzShaderBuilder::Uninitialize();
 	NzTextureSampler::Uninitialize();
 
 	NzContext::EnsureContext();
