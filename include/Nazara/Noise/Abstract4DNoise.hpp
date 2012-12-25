@@ -13,6 +13,8 @@
 class NAZARA_API NzAbstract4DNoise : public NzMappedNoiseBase
 {
     public:
+        virtual ~NzAbstract4DNoise();
+
         float GetBasicValue(float x, float y, float z, float w);
         float GetMappedValue(float x, float y, float z, float w);
         virtual float GetValue(float x, float y, float z, float w, float resolution) = 0;
