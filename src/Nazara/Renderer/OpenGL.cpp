@@ -62,7 +62,7 @@ namespace
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
-	unsigned int s_openGLversion = 0;
+	unsigned int s_openglVersion = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
 	{
@@ -126,7 +126,7 @@ NzString NzOpenGL::GetVendorName()
 
 unsigned int NzOpenGL::GetVersion()
 {
-	return s_openGLversion;
+	return s_openglVersion;
 }
 
 bool NzOpenGL::Initialize()
@@ -212,8 +212,8 @@ bool NzOpenGL::Initialize()
 		minor = 0;
 	}
 
-	s_openGLversion = major*100 + minor*10;
-	if (s_openGLversion < 200)
+	s_openglVersion = major*100 + minor*10;
+	if (s_openglVersion < 200)
 	{
 		NazaraError("OpenGL version is too low, please upgrade your drivers or your video card");
 		Uninitialize();
@@ -353,7 +353,7 @@ bool NzOpenGL::Initialize()
 
 	if (!glGetStringi || !LoadExtensions3())
 	{
-		if (s_openGLversion >= 300) // Dans le cas contraire c'est normal
+		if (s_openglVersion >= 300) // Dans le cas contraire c'est normal
 			NazaraWarning("Failed to load OpenGL 3 extension system, switching to OpenGL 2 extension system...");
 
 		if (!LoadExtensionsString(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS))))
@@ -379,7 +379,7 @@ bool NzOpenGL::Initialize()
 	s_openGLextensions[nzOpenGLExtension_AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
 
 	// DebugOutput
-	if (s_openGLversion >= 430 || IsSupported("GL_KHR_debug"))
+	if (s_openglVersion >= 430 || IsSupported("GL_KHR_debug"))
 	{
 		try
 		{
@@ -414,7 +414,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// FP64
-	if (s_openGLversion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
+	if (s_openglVersion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{
 		try
 		{
@@ -432,7 +432,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// FrameBufferObject
-	if (s_openGLversion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
+	if (s_openglVersion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
 	{
 		try
 		{
@@ -461,10 +461,10 @@ bool NzOpenGL::Initialize()
 	}
 
 	// PixelBufferObject
-	s_openGLextensions[nzOpenGLExtension_PixelBufferObject] = (s_openGLversion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
+	s_openGLextensions[nzOpenGLExtension_PixelBufferObject] = (s_openglVersion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
 
 	// SamplerObjects
-	if (s_openGLversion >= 330 || IsSupported("GL_ARB_sampler_objects"))
+	if (s_openglVersion >= 330 || IsSupported("GL_ARB_sampler_objects"))
 	{
 		try
 		{
@@ -483,7 +483,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// SeparateShaderObjects
-	if (s_openGLversion >= 400 || IsSupported("GL_ARB_separate_shader_objects"))
+	if (s_openglVersion >= 400 || IsSupported("GL_ARB_separate_shader_objects"))
 	{
 		try
 		{
@@ -513,13 +513,13 @@ bool NzOpenGL::Initialize()
 	}
 
 	// TextureArray
-	s_openGLextensions[nzOpenGLExtension_TextureArray] = (s_openGLversion >= 300 || IsSupported("GL_EXT_texture_array"));
+	s_openGLextensions[nzOpenGLExtension_TextureArray] = (s_openglVersion >= 300 || IsSupported("GL_EXT_texture_array"));
 
 	// TextureCompression_s3tc
 	s_openGLextensions[nzOpenGLExtension_TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
 
 	// TextureStorage
-	if (s_openGLversion >= 420 || IsSupported("GL_ARB_texture_storage"))
+	if (s_openglVersion >= 420 || IsSupported("GL_ARB_texture_storage"))
 	{
 		try
 		{
@@ -536,7 +536,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// VertexArrayObject
-	if (s_openGLversion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
+	if (s_openglVersion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
 	{
 		try
 		{
@@ -737,7 +737,7 @@ void NzOpenGL::Uninitialize()
 
 		s_initialized = false;
 		s_openGLextensionSet.clear();
-		s_openGLversion = 0;
+		s_openglVersion = 0;
 		s_rendererName = nullptr;
 		s_vendorName = nullptr;
 
