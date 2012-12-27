@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <cstring>
 #include <Nazara/Renderer/Debug.hpp>
 
 bool NzMaterialParams::IsValid() const
@@ -17,6 +18,32 @@ m_diffuseMap(nullptr),
 m_specularMap(nullptr)
 {
 	Reset();
+}
+
+NzMaterial::NzMaterial(const NzMaterial& material)
+{
+	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et plus rapide
+
+	if (m_diffuseMap)
+		m_diffuseMap->AddResourceReference();
+
+	if (m_specularMap)
+		m_specularMap->AddResourceReference();
+}
+
+NzMaterial::NzMaterial(NzMaterial&& material)
+{
+	if (m_diffuseMap)
+		m_diffuseMap->RemoveResourceReference();
+
+	if (m_specularMap)
+		m_specularMap->RemoveResourceReference();
+
+	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et plus rapide
+
+	// Comme ça nous volons la référence du matériau
+	material.m_diffuseMap = nullptr;
+	material.m_specularMap = nullptr;
 }
 
 NzMaterial::~NzMaterial()
@@ -323,6 +350,42 @@ void NzMaterial::SetSrcBlend(nzBlendFunc func)
 void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
 {
 	m_zTestEnabled = compareFunc;
+}
+
+NzMaterial& NzMaterial::operator=(const NzMaterial& material)
+{
+	if (m_diffuseMap)
+		m_diffuseMap->RemoveResourceReference();
+
+	if (m_specularMap)
+		m_specularMap->RemoveResourceReference();
+
+	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et plus rapide
+
+	if (m_diffuseMap)
+		m_diffuseMap->AddResourceReference();
+
+	if (m_specularMap)
+		m_specularMap->AddResourceReference();
+
+	return *this;
+}
+
+NzMaterial& NzMaterial::operator=(NzMaterial&& material)
+{
+	if (m_diffuseMap)
+		m_diffuseMap->RemoveResourceReference();
+
+	if (m_specularMap)
+		m_specularMap->RemoveResourceReference();
+
+	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et plus rapide
+
+	// Comme ça nous volons la référence du matériau
+	material.m_diffuseMap = nullptr;
+	material.m_specularMap = nullptr;
+
+	return *this;
 }
 
 const NzMaterial* NzMaterial::GetDefault()

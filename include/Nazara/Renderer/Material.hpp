@@ -32,6 +32,8 @@ class NAZARA_API NzMaterial : public NzResource
 
 	public:
 		NzMaterial();
+		NzMaterial(const NzMaterial& material);
+		NzMaterial(NzMaterial&& material);
 		~NzMaterial();
 
 		void Apply() const;
@@ -80,6 +82,9 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
 		void SetZTestCompare(nzRendererComparison compareFunc);
+
+		NzMaterial& operator=(const NzMaterial& material);
+		NzMaterial& operator=(NzMaterial&& material);
 
 		static const NzMaterial* GetDefault();
 
