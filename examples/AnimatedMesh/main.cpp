@@ -2,8 +2,6 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
 #include <map>
