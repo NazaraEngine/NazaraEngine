@@ -63,9 +63,7 @@ m_parent(parent)
 {
 }
 
-NzHardwareBuffer::~NzHardwareBuffer()
-{
-}
+NzHardwareBuffer::~NzHardwareBuffer() = default;
 
 void NzHardwareBuffer::Bind()
 {
