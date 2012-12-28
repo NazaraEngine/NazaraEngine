@@ -63,6 +63,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	if (fullscreen)
 	{
 		DEVMODE win32Mode;
+		std::memset(&win32Mode, 0, sizeof(DEVMODE));
 		win32Mode.dmBitsPerPel = mode.bitsPerPixel;
 		win32Mode.dmPelsHeight = mode.height;
 		win32Mode.dmPelsWidth  = mode.width;
