@@ -137,11 +137,16 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	if (depthTestActive != depthTest)
 		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
 
+	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::SetLineWidth(lineWidth);
+
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
 	shader->SendColor(colorLocation, primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+
+	NzRenderer::SetLineWidth(oldLineWidth);
 
 	if (depthTestActive != depthTest)
 		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
