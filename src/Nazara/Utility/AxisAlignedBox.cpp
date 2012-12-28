@@ -206,18 +206,17 @@ NzString NzAxisAlignedBox::ToString() const
 	return "NzAxisAlignedBox(ERROR)";
 }
 
-void NzAxisAlignedBox::Transform(const NzMatrix4f& matrix)
+void NzAxisAlignedBox::Transform(const NzMatrix4f& matrix, bool applyTranslation)
 {
 	if (m_extend != nzExtend_Finite)
 		return;
 
-	NzVector3f center = matrix.Transform(m_cube.GetCenter(), 0.f); // 0.f pour annuler la translation
+	NzVector3f center = matrix.Transform(m_cube.GetCenter(), (applyTranslation) ? 1.f : 0.f); // Valeur multipliant la translation
 	NzVector3f halfSize = m_cube.GetSize() * 0.5f;
 
 	halfSize.Set(std::fabs(matrix(0,0))*halfSize.x + std::fabs(matrix(1,0))*halfSize.y + std::fabs(matrix(2,0))*halfSize.z,
 	             std::fabs(matrix(0,1))*halfSize.x + std::fabs(matrix(1,1))*halfSize.y + std::fabs(matrix(2,1))*halfSize.z,
 	             std::fabs(matrix(0,2))*halfSize.x + std::fabs(matrix(1,2))*halfSize.y + std::fabs(matrix(2,2))*halfSize.z);
-
 
 	m_cube.Set(center - halfSize, center + halfSize);
 }
