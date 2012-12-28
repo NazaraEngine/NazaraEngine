@@ -42,7 +42,7 @@ class NAZARA_API NzAxisAlignedBox
 
 		NzString ToString() const;
 
-		void Transform(const NzMatrix4f& matrix);
+		void Transform(const NzMatrix4f& matrix, bool applyTranslation = true);
 
 		operator NzString() const;
 
