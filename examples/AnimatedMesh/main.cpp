@@ -483,7 +483,7 @@ int main()
 			NzDebugDrawer::Draw(hellknight.GetAABB());
 
 			NzAxisAlignedBox aabb(drfreak.GetMesh()->GetAABB());
-			aabb.Transform(drfreak.GetTransformMatrix());
+			aabb.Transform(drfreak.GetTransformMatrix(), false);
 
 			NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Translate(drfreak.GetDerivedTranslation()));
 			NzDebugDrawer::SetPrimaryColor(NzColor::Red);
