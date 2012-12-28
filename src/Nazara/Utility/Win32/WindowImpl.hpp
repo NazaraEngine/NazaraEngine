@@ -51,12 +51,12 @@ class NzWindowImpl : NzNonCopyable
 
 		bool HasFocus() const;
 
-		void ProcessEvents(bool block);
-
 		void IgnoreNextMouseEvent(int mouseX, int mouseY);
 
 		bool IsMinimized() const;
 		bool IsVisible() const;
+
+		void ProcessEvents(bool block);
 
 		void SetCursor(nzWindowCursor cursor);
 		void SetCursor(const NzCursor& cursor);
