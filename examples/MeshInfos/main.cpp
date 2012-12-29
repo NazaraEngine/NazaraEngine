@@ -66,7 +66,7 @@ int main()
 			break;
 
 		NzMesh mesh;
-		if (!mesh.LoadFromFile("resources/" + models[iChoice-1], params))
+		if (!mesh.LoadFromFile("resources/" + models[iChoice-1]))
 		{
 			std::cout << "Failed to load mesh" << std::endl;
 			std::getchar();
