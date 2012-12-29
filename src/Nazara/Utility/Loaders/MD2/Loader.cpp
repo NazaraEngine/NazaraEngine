@@ -266,6 +266,9 @@ namespace
 			return false;
 		}
 
+		// Le MD2 requiert une interpolation de la dernière à la première frame (en cas de loop)
+		animation->EnableLoopPointInterpolation(true);
+
 		// Décodage des séquences
 		///TODO: Optimiser le calcul
 		char last[16];

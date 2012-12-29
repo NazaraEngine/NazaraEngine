@@ -424,8 +424,16 @@ void NzModel::Update(float elapsedTime)
 		unsigned lastFrame = m_currentSequence->firstFrame + m_currentSequence->frameCount - 1;
 		if (m_nextFrame+1 > lastFrame)
 		{
-			m_currentFrame = m_currentSequence->firstFrame;
-			m_nextFrame = m_currentFrame+1;
+			if (m_animation->IsLoopPointInterpolationEnabled())
+			{
+				m_currentFrame = m_nextFrame;
+				m_nextFrame = m_currentSequence->firstFrame;
+			}
+			else
+			{
+				m_currentFrame = m_currentSequence->firstFrame;
+				m_nextFrame = m_currentFrame+1;
+			}
 		}
 		else
 		{

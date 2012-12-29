@@ -16,6 +16,7 @@ struct NzAnimationImpl
 	std::vector<NzSequence> sequences;
 	std::vector<NzSequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 	nzAnimationType type;
+	bool loopPointInterpolation = false;
 	unsigned int frameCount;
 	unsigned int jointCount;  // Uniquement pour les animations squelettiques
 };
@@ -204,6 +205,19 @@ void NzAnimation::Destroy()
 		delete m_impl;
 		m_impl = nullptr;
 	}
+}
+
+void NzAnimation::EnableLoopPointInterpolation(bool loopPointInterpolation)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return;
+	}
+	#endif
+
+	m_impl->loopPointInterpolation = loopPointInterpolation;
 }
 
 unsigned int NzAnimation::GetFrameCount() const
@@ -433,6 +447,19 @@ bool NzAnimation::HasSequence(unsigned int index) const
 	#endif
 
 	return index >= m_impl->sequences.size();
+}
+
+bool NzAnimation::IsLoopPointInterpolationEnabled() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Animation not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->loopPointInterpolation;
 }
 
 bool NzAnimation::IsValid() const
