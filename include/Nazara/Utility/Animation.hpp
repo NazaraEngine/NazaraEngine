@@ -44,6 +44,8 @@ class NAZARA_API NzAnimation : public NzResource
 		bool CreateSkeletal(unsigned int frameCount, unsigned int jointCount);
 		void Destroy();
 
+		void EnableLoopPointInterpolation(bool loopPointInterpolation);
+
 		unsigned int GetFrameCount() const;
 		unsigned int GetJointCount() const;
 		NzSequence* GetSequence(const NzString& sequenceName);
@@ -59,6 +61,7 @@ class NAZARA_API NzAnimation : public NzResource
 		bool HasSequence(const NzString& sequenceName) const;
 		bool HasSequence(unsigned int index = 0) const;
 
+		bool IsLoopPointInterpolationEnabled() const;
 		bool IsValid() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzAnimationParams& params = NzAnimationParams());
