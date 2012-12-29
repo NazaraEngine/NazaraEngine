@@ -444,6 +444,10 @@ extern "C" {
 #define GLX_LATE_SWAPS_TEAR_EXT            0x20F3
 #endif
 
+#ifndef GLX_EXT_buffer_age
+#define GLX_BACK_BUFFER_AGE_EXT            0x20F4
+#endif
+
 
 /*************************************************************/
 
@@ -991,6 +995,10 @@ typedef void ( * PFNGLXCOPYIMAGESUBDATANVPROC) (Display *dpy, GLXContext srcCtx,
 
 #ifndef GLX_EXT_swap_control_tear
 #define GLX_EXT_swap_control_tear 1
+#endif
+
+#ifndef GLX_EXT_buffer_age
+#define GLX_EXT_buffer_age 1
 #endif
 
 
