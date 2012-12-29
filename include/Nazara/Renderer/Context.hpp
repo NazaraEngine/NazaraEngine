@@ -7,8 +7,6 @@
 #ifndef NAZARA_CONTEXT_HPP
 #define NAZARA_CONTEXT_HPP
 
-#ifdef NAZARA_RENDERER_OPENGL
-
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
@@ -44,7 +42,5 @@ class NAZARA_API NzContext : public NzResource
 
 		static NzContext* s_reference;
 };
-
-#endif // NAZARA_RENDERER_OPENGL
 
 #endif // NAZARA_CONTEXT_HPP
