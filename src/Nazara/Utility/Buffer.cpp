@@ -293,9 +293,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	{
 		NazaraError("Failed to create buffer");
 		delete impl;
-
-		if (!m_impl->Unmap())
-			NazaraWarning("Failed to unmap buffer");
+		m_impl->Unmap();
 
 		return false;
 	}
@@ -305,9 +303,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 		NazaraError("Failed to fill buffer");
 		impl->Destroy();
 		delete impl;
-
-		if (!m_impl->Unmap())
-			NazaraWarning("Failed to unmap buffer");
+		m_impl->Unmap();
 
 		return false;
 	}
@@ -322,7 +318,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	return true;
 }
 
-bool NzBuffer::Unmap() const
+void NzBuffer::Unmap() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -332,7 +328,8 @@ bool NzBuffer::Unmap() const
 	}
 	#endif
 
-	return m_impl->Unmap();
+	if (!m_impl->Unmap())
+		NazaraWarning("Failed to unmap buffer (it's content is undefined)"); ///TODO: Unexpected ?
 }
 
 bool NzBuffer::IsSupported(nzBufferStorage storage)

@@ -50,7 +50,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 
 		bool SetStorage(nzBufferStorage storage);
 
-		bool Unmap() const;
+		void Unmap() const;
 
 		static bool IsSupported(nzBufferStorage storage);
 		static void SetBufferFunction(nzBufferStorage storage, BufferFunction func);
