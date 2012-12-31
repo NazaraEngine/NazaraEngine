@@ -31,6 +31,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
 		void GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const;
+		NzVertexBuffer* GetVertexBuffer() override;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 
 		void Interpolate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const;

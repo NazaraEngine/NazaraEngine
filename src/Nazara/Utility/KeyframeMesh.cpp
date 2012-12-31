@@ -198,6 +198,19 @@ void NzKeyframeMesh::GetVertex(unsigned int frameIndex, unsigned int vertexIndex
 	dest->uv = m_impl->uv[vertexIndex];
 }
 
+NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return nullptr;
+	}
+	#endif
+
+	return m_impl->vertexBuffer;
+}
+
 const NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer() const
 {
 	#if NAZARA_UTILITY_SAFE
