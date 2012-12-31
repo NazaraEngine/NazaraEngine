@@ -46,10 +46,11 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		bool IsValid() const;
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		const void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0) const;
 
 		bool SetStorage(nzBufferStorage storage);
 
-		bool Unmap();
+		bool Unmap() const;
 
 		static bool IsSupported(nzBufferStorage storage);
 		static void SetBufferFunction(nzBufferStorage storage, BufferFunction func);

@@ -33,10 +33,11 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		bool IsHardware() const;
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+		const void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0) const;
 
 		bool SetStorage(nzBufferStorage storage);
 
-		bool Unmap();
+		bool Unmap() const;
 
 	private:
 		NzBuffer* m_buffer;

@@ -185,6 +185,25 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
 }
 
+const void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("Impossible to map sequential buffers");
+		return nullptr;
+	}
+
+	if (offset+length > m_indexCount)
+	{
+		NazaraError("Exceeding virtual buffer size");
+		return nullptr;
+	}
+	#endif
+
+	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
+}
+
 bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -198,7 +217,7 @@ bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
 	return m_buffer->SetStorage(storage);
 }
 
-bool NzIndexBuffer::Unmap()
+bool NzIndexBuffer::Unmap() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
