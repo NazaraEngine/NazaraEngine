@@ -42,6 +42,7 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		void* GetBindPoseBuffer();
 		const void* GetBindPoseBuffer() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
+		NzVertexBuffer* GetVertexBuffer() override;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 		NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0);
 		const NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0) const;

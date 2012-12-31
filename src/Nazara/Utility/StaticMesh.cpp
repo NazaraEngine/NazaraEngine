@@ -100,6 +100,11 @@ const NzIndexBuffer* NzStaticMesh::GetIndexBuffer() const
 	return m_indexBuffer;
 }
 
+NzVertexBuffer* NzStaticMesh::GetVertexBuffer()
+{
+	return m_vertexBuffer;
+}
+
 const NzVertexBuffer* NzStaticMesh::GetVertexBuffer() const
 {
 	return m_vertexBuffer;

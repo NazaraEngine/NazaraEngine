@@ -27,6 +27,7 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		const NzAxisAlignedBox& GetAABB() const override;
 		nzAnimationType GetAnimationType() const final;
 		const NzIndexBuffer* GetIndexBuffer() const override;
+		NzVertexBuffer* GetVertexBuffer() override;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 
 		bool IsAnimated() const final;
