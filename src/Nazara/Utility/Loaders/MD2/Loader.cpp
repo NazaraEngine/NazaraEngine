@@ -209,8 +209,6 @@ namespace
 			subMesh->SetAABB(f, aabb);
 		}
 
-		subMesh->Unlock();
-
 		subMesh->SetMaterialIndex(0);
 		mesh->AddSubMesh(subMesh.release());
 

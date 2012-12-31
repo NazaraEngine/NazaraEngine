@@ -21,7 +21,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		NzKeyframeMesh(const NzMesh* parent);
 		virtual ~NzKeyframeMesh();
 
-		bool Create(NzVertexBuffer* vertexBuffer, unsigned int frameCount, bool lock = true);
+		bool Create(NzVertexBuffer* vertexBuffer, unsigned int frameCount);
 		void Destroy();
 
 		void Finish();
@@ -39,14 +39,10 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		bool IsAnimated() const override;
 		bool IsValid();
 
-		bool Lock(nzBufferAccess access) const;
-
 		void SetAABB(unsigned int frameIndex, const NzAxisAlignedBox& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 		void SetVertex(unsigned int frameIndex, unsigned int vertexIndex, const NzMeshVertex& source);
 		void SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv);
-
-		void Unlock() const;
 
 	private:
 		void InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation) const;

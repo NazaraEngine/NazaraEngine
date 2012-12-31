@@ -12,9 +12,7 @@
 
 struct NzKeyframeMeshImpl
 {
-	nzBufferAccess lockAccess;
 	NzAxisAlignedBox* aabb;
-	NzMeshVertex* lockBuffer;
 	NzVector2f* uv;
 	NzVector3f* normals;
 	NzVector3f* positions;
@@ -22,7 +20,6 @@ struct NzKeyframeMeshImpl
 	const NzIndexBuffer* indexBuffer = nullptr;
 	NzVertexBuffer* vertexBuffer;
 	unsigned int frameCount;
-	unsigned int lockLevel = 0;
 };
 
 NzKeyframeMesh::NzKeyframeMesh(const NzMesh* parent) :
@@ -35,7 +32,7 @@ NzKeyframeMesh::~NzKeyframeMesh()
 	Destroy();
 }
 
-bool NzKeyframeMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int frameCount, bool lock)
+bool NzKeyframeMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int frameCount)
 {
 	Destroy();
 
@@ -72,14 +69,6 @@ bool NzKeyframeMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int frameCoun
 	m_impl->normals = new NzVector3f[frameCount*vertexCount];
 	m_impl->tangents = new NzVector3f[frameCount*vertexCount];
 	m_impl->uv = new NzVector2f[vertexCount];
-
-	if (lock && !Lock(nzBufferAccess_DiscardAndWrite))
-	{
-		NazaraError("Failed to lock buffer");
-		Destroy();
-
-		return false;
-	}
 
 	NotifyCreated();
 	return true;
@@ -276,47 +265,6 @@ bool NzKeyframeMesh::IsValid()
 	return m_impl != nullptr;
 }
 
-bool NzKeyframeMesh::Lock(nzBufferAccess access) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Keyframe mesh not created");
-		return false;
-	}
-	#endif
-
-	if (m_impl->lockLevel == 0)
-	{
-		m_impl->lockBuffer = reinterpret_cast<NzMeshVertex*>(m_impl->vertexBuffer->Map(access));
-		if (!m_impl->lockBuffer)
-		{
-			NazaraError("Failed to lock vertex buffer");
-			m_impl->lockLevel = 0;
-
-			return false;
-		}
-
-		m_impl->lockAccess = access;
-	}
-	else
-	{
-		///FIXME: Vérifier cette condition
-		if (m_impl->lockAccess != access &&
-		   (m_impl->lockAccess != nzBufferAccess_ReadWrite || access != nzBufferAccess_WriteOnly) &&
-		   (m_impl->lockAccess != nzBufferAccess_ReadWrite || access != nzBufferAccess_ReadOnly) &&
-		   (m_impl->lockAccess != nzBufferAccess_DiscardAndWrite || access != nzBufferAccess_WriteOnly))
-		{
-			NazaraError("Vertex buffer already locked by an incompatible lock access");
-			return false;
-		}
-	}
-
-	m_impl->lockLevel++;
-
-	return true;
-}
-
 void NzKeyframeMesh::SetAABB(unsigned int frameIndex, const NzAxisAlignedBox& aabb)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -407,29 +355,6 @@ void NzKeyframeMesh::SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv
 	m_impl->uv[vertexIndex] = uv;
 }
 
-void NzKeyframeMesh::Unlock() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Keyframe mesh not created");
-		return;
-	}
-
-	if (m_impl->lockLevel == 0)
-	{
-		NazaraWarning("Unlock called on non-locked texture");
-		return;
-	}
-	#endif
-
-	if (--m_impl->lockLevel == 0)
-	{
-		if (!m_impl->vertexBuffer->Unmap())
-			NazaraWarning("Failed to unmap vertex buffer, expect mesh corruption");
-	}
-}
-
 void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#ifdef NAZARA_DEBUG
@@ -443,7 +368,8 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 	// Interpolation de l'AABB
 	m_impl->aabb[0] = NzAxisAlignedBox::Lerp(m_impl->aabb[frameA+1], m_impl->aabb[frameB+1], interpolation);
 
-	if (!Lock(nzBufferAccess_DiscardAndWrite))
+	NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(m_impl->vertexBuffer->Map(nzBufferAccess_DiscardAndWrite));
+	if (!vertex)
 	{
 		NazaraError("Failed to lock vertex buffer");
 		return;
@@ -455,7 +381,6 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 	frameA *= vertexCount;
 	frameB *= vertexCount;
 
-	NzMeshVertex* vertex = m_impl->lockBuffer;
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
 		vertex->normal = NzVector3f::Lerp(m_impl->positions[frameA+i], m_impl->positions[frameB+i], interpolation);
@@ -466,5 +391,5 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 		vertex++;
 	}
 
-	Unlock();
+	m_impl->vertexBuffer->Unmap();
 }
