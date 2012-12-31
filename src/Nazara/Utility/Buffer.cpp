@@ -235,6 +235,31 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int len
 	return m_impl->Map(access, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
 }
 
+const void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Buffer not valid");
+		return nullptr;
+	}
+
+	if (access != nzBufferAccess_ReadOnly)
+	{
+		NazaraError("Buffer access must be read-only when used const");
+		return nullptr;
+	}
+
+	if (offset+length > m_length)
+	{
+		NazaraError("Exceeding buffer size");
+		return nullptr;
+	}
+	#endif
+
+	return m_impl->Map(access, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
+}
+
 bool NzBuffer::SetStorage(nzBufferStorage storage)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -297,7 +322,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	return true;
 }
 
-bool NzBuffer::Unmap()
+bool NzBuffer::Unmap() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
