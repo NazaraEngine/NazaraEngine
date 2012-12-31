@@ -371,7 +371,7 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 	NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(m_impl->vertexBuffer->Map(nzBufferAccess_DiscardAndWrite));
 	if (!vertex)
 	{
-		NazaraError("Failed to lock vertex buffer");
+		NazaraError("Failed to map vertex buffer");
 		return;
 	}
 

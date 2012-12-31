@@ -79,8 +79,7 @@ bool NzStaticMesh::GenerateAABB()
 		vertex++;
 	}
 
-	if (!m_vertexBuffer->Unmap())
-		NazaraWarning("Failed to unmap vertex buffer");
+	m_vertexBuffer->Unmap();
 
 	return true;
 }
