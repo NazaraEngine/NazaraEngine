@@ -151,12 +151,25 @@ void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned i
 	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
 }
 
+const void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (offset+length > m_vertexCount)
+	{
+		NazaraError("Exceeding virtual buffer size");
+		return nullptr;
+	}
+	#endif
+
+	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
+}
+
 bool NzVertexBuffer::SetStorage(nzBufferStorage storage)
 {
 	return m_buffer->SetStorage(storage);
 }
 
-bool NzVertexBuffer::Unmap()
+bool NzVertexBuffer::Unmap() const
 {
 	return m_buffer->Unmap();
 }
