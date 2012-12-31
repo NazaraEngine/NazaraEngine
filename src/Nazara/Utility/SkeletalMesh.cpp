@@ -314,8 +314,7 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 		outputVertex++;
 	}
 
-	if (!m_impl->vertexBuffer->Unmap())
-		NazaraWarning("Failed to unmap vertex buffer");
+	m_impl->vertexBuffer->Unmap();
 
 	m_impl->aabb = skeleton->GetAABB();
 }
