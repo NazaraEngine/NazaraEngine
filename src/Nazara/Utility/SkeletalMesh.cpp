@@ -146,6 +146,19 @@ const NzIndexBuffer* NzSkeletalMesh::GetIndexBuffer() const
 	return m_impl->indexBuffer;
 }
 
+NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Skeletal mesh not created");
+		return nullptr;
+	}
+	#endif
+
+	return m_impl->vertexBuffer;
+}
+
 const NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer() const
 {
 	#if NAZARA_UTILITY_SAFE
