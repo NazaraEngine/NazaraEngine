@@ -357,8 +357,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				}
 			}
 
-			if (!indexBuffer->Unmap())
-				NazaraWarning("Failed to unmap index buffer");
+			indexBuffer->Unmap();
 
 			// Vertex buffer
 			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage, nzBufferUsage_Dynamic));
