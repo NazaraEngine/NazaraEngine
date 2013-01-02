@@ -78,8 +78,7 @@ bool NzBuffer::CopyContent(NzBuffer& buffer)
 
 	bool r = Fill(ptr, 0, buffer.GetLength());
 
-	if (!buffer.Unmap())
-		NazaraWarning("Failed to unmap source buffer");
+	buffer.Unmap();
 
 	return r;
 }
@@ -324,7 +323,7 @@ void NzBuffer::Unmap() const
 	if (!m_impl)
 	{
 		NazaraError("Buffer not valid");
-		return false;
+		return;
 	}
 	#endif
 

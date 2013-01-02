@@ -217,15 +217,15 @@ bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
 	return m_buffer->SetStorage(storage);
 }
 
-bool NzIndexBuffer::Unmap() const
+void NzIndexBuffer::Unmap() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
 	{
 		NazaraError("Impossible to unlock sequential buffers");
-		return false;
+		return;
 	}
 	#endif
 
-	return m_buffer->Unmap();
+	m_buffer->Unmap();
 }
