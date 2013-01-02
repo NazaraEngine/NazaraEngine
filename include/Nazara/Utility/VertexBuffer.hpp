@@ -37,7 +37,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 
 		bool SetStorage(nzBufferStorage storage);
 
-		bool Unmap() const;
+		void Unmap() const;
 
 	private:
 		NzBuffer* m_buffer;

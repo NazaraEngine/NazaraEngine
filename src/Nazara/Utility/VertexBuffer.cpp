@@ -169,7 +169,7 @@ bool NzVertexBuffer::SetStorage(nzBufferStorage storage)
 	return m_buffer->SetStorage(storage);
 }
 
-bool NzVertexBuffer::Unmap() const
+void NzVertexBuffer::Unmap() const
 {
-	return m_buffer->Unmap();
+	m_buffer->Unmap();
 }

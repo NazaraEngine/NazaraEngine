@@ -122,8 +122,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	vertex->position.Set(max.x, min.y, max.z);
 	vertex++;
 
-	if (!vertexBuffer->Unmap())
-		NazaraWarning("Failed to unmap buffer");
+	vertexBuffer->Unmap();
 
 	const NzShader* oldShader = NzRenderer::GetShader();
 
@@ -199,8 +198,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		}
 	}
 
-	if (!vertexBuffer->Unmap())
-		NazaraWarning("Failed to unmap buffer");
+	vertexBuffer->Unmap();
 
 	if (vertexCount > 0)
 	{
