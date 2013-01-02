@@ -15,7 +15,7 @@ namespace
 
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{
-		bool glsl140 = (NzOpenGL::GetVersion() >= 300);
+		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
 		bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
 
 		NzString inKW = (glsl140) ? "in" : "varying";
