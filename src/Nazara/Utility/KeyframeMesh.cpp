@@ -153,6 +153,118 @@ const NzIndexBuffer* NzKeyframeMesh::GetIndexBuffer() const
 	return m_impl->indexBuffer;
 }
 
+NzVector3f NzKeyframeMesh::GetNormal(unsigned int frameIndex, unsigned int vertexIndex) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return NzVector3f();
+	}
+
+	if (frameIndex >= m_impl->frameCount)
+	{
+		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+
+	#if NAZARA_UTILITY_SAFE
+	if (vertexIndex >= vertexCount)
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int index = frameIndex*vertexCount + vertexIndex;
+
+	return m_impl->normals[index];
+}
+
+NzVector3f NzKeyframeMesh::GetPosition(unsigned int frameIndex, unsigned int vertexIndex) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return NzVector3f();
+	}
+
+	if (frameIndex >= m_impl->frameCount)
+	{
+		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+
+	#if NAZARA_UTILITY_SAFE
+	if (vertexIndex >= vertexCount)
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int index = frameIndex*vertexCount + vertexIndex;
+
+	return m_impl->positions[index];
+}
+
+NzVector3f NzKeyframeMesh::GetTangent(unsigned int frameIndex, unsigned int vertexIndex) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return NzVector3f();
+	}
+
+	if (frameIndex >= m_impl->frameCount)
+	{
+		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+
+	#if NAZARA_UTILITY_SAFE
+	if (vertexIndex >= vertexCount)
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
+	unsigned int index = frameIndex*vertexCount + vertexIndex;
+
+	return m_impl->tangents[index];
+}
+
+NzVector2f NzKeyframeMesh::GetTexCoords(unsigned int vertexIndex) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return NzVector2f();
+	}
+
+	if (vertexIndex >= m_impl->vertexBuffer->GetVertexCount())
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(m_impl->vertexBuffer->GetVertexCount()) + ')');
+		return NzVector2f();
+	}
+	#endif
+
+	return m_impl->uv[vertexIndex];
+}
+
 void NzKeyframeMesh::GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -303,7 +415,7 @@ void NzKeyframeMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 	m_impl->indexBuffer = indexBuffer;
 }
 
-void NzKeyframeMesh::SetVertex(unsigned int frameIndex, unsigned int vertexIndex, const NzMeshVertex& source)
+void NzKeyframeMesh::SetNormal(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& normal)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -331,9 +443,69 @@ void NzKeyframeMesh::SetVertex(unsigned int frameIndex, unsigned int vertexIndex
 
 	unsigned int index = frameIndex*vertexCount + vertexIndex;
 
-	m_impl->normals[index] = source.normal;
-	m_impl->positions[index] = source.position;
-	m_impl->tangents[index] = source.tangent;
+	m_impl->normals[index] = normal;
+}
+
+void NzKeyframeMesh::SetPosition(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& position)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return;
+	}
+
+	if (frameIndex >= m_impl->frameCount)
+	{
+		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return;
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+
+	#if NAZARA_UTILITY_SAFE
+	if (vertexIndex >= vertexCount)
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
+		return;
+	}
+	#endif
+
+	unsigned int index = frameIndex*vertexCount + vertexIndex;
+
+	m_impl->positions[index] = position;
+}
+
+void NzKeyframeMesh::SetTangent(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& tangent)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return;
+	}
+
+	if (frameIndex >= m_impl->frameCount)
+	{
+		NazaraError("Frame index out of bounds (" + NzString::Number(frameIndex) + " >= " + NzString::Number(m_impl->frameCount) + ')');
+		return;
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+
+	#if NAZARA_UTILITY_SAFE
+	if (vertexIndex >= vertexCount)
+	{
+		NazaraError("Vertex index out of bounds (" + NzString::Number(vertexIndex) + " >= " + NzString::Number(vertexCount) + ')');
+		return;
+	}
+	#endif
+
+	unsigned int index = frameIndex*vertexCount + vertexIndex;
+
+	m_impl->tangents[index] = tangent;
 }
 
 void NzKeyframeMesh::SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv)

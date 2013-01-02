@@ -189,20 +189,19 @@ namespace
 					// On fait en sorte d'étendre l'AABB pour qu'il contienne ce sommet
 					aabb.ExtendTo(position);
 
-					// Et on finit par copier les éléments dans le buffer
-					NzMeshVertex vertex;
-					vertex.normal = md2Normals[vert.n];
-					vertex.position = position;
-
+					// On calcule l'indice (On affecte dans le sens inverse)
 					unsigned int vertexIndex = vertexCount - (t*3 + v) - 1;
+
+					// Et on finit par copier les éléments dans le buffer
+					subMesh->SetNormal(f, vertexIndex, md2Normals[vert.n]);
+					subMesh->SetPosition(f, vertexIndex, position);
+
 					if (f == 0)
 					{
 						// On ne définit les coordonnées de texture que lors de la première frame
 						const md2_texCoord& texC = texCoords[triangles[t].texCoords[v]];
 						subMesh->SetTexCoords(vertexIndex, NzVector2f(texC.u / static_cast<float>(header.skinwidth), 1.f - texC.v / static_cast<float>(header.skinheight)));
 					}
-
-					subMesh->SetVertex(f, vertexIndex, vertex);
 				}
 			}
 
