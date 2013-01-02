@@ -30,7 +30,12 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		nzAnimationType GetAnimationType() const override;
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
+		NzVector3f GetNormal(unsigned int frameIndex, unsigned int vertexIndex) const;
+		NzVector3f GetPosition(unsigned int frameIndex, unsigned int vertexIndex) const;
+		NzVector3f GetTangent(unsigned int frameIndex, unsigned int vertexIndex) const;
+		NzVector2f GetTexCoords(unsigned int vertexIndex) const;
 		void GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const;
+
 		NzVertexBuffer* GetVertexBuffer() override;
 		const NzVertexBuffer* GetVertexBuffer() const override;
 
@@ -41,8 +46,10 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 
 		void SetAABB(unsigned int frameIndex, const NzAxisAlignedBox& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		void SetVertex(unsigned int frameIndex, unsigned int vertexIndex, const NzMeshVertex& source);
-		void SetTexCoords(unsigned int vertexIndex, const NzVector2f& uv);
+		void SetNormal(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& normal);
+		void SetPosition(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& position);
+		void SetTangent(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& tangent);
+		void SetTexCoords(unsigned int vertexIndex, const NzVector2f& texCoords);
 
 	private:
 		void InterpolateImpl(unsigned int frameA, unsigned int frameB, float interpolation) const;
