@@ -63,12 +63,17 @@ bool NzCube<T>::Contains(const NzCube<T>& cube) const
 template<typename T>
 NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
 {
+	width = std::max(x + width, point.x);
+	height = std::max(y + height, point.y);
+	depth = std::max(z + depth, point.z);
+
 	x = std::min(x, point.x);
 	y = std::min(y, point.y);
 	z = std::min(z, point.z);
-	width = std::max(x + width, point.x) - x;
-	height = std::max(y + height, point.y) - y;
-	depth = std::max(z + depth, point.z) - z;
+
+	width -= x;
+	height -= y;
+	depth -= z;
 
 	return *this;
 }
@@ -76,12 +81,17 @@ NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
 template<typename T>
 NzCube<T>& NzCube<T>::ExtendTo(const NzCube& cube)
 {
+	width = std::max(x + width, cube.x + cube.width);
+	height = std::max(y + height, cube.y + cube.height);
+	depth = std::max(z + depth, cube.z + cube.depth);
+
 	x = std::min(x, cube.x);
 	y = std::min(y, cube.y);
 	z = std::min(z, cube.z);
-	width = std::max(x + width, cube.x + cube.width) - x;
-	height = std::max(y + height, cube.y + cube.height) - y;
-	depth = std::max(z + depth, cube.z + cube.depth) - z;
+
+	width -= x;
+	height -= y;
+	depth -= z;
 
 	return *this;
 }
