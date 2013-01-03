@@ -26,6 +26,8 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 
 		void Finish();
 
+		void GenerateAABBs();
+
 		const NzAxisAlignedBox& GetAABB() const override;
 		nzAnimationType GetAnimationType() const override;
 		unsigned int GetFrameCount() const;
