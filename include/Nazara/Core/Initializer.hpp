@@ -7,8 +7,6 @@
 #ifndef NAZARA_INITIALIZER_HPP
 #define NAZARA_INITIALIZER_HPP
 
-///TODO: Utiliser les variadic template pour initialiser plusieurs modules à la fois ?
-
 #include <Nazara/Prerequesites.hpp>
 
 template<typename T>
