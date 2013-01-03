@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Loaders/MD5Mesh/Parser.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
@@ -180,7 +181,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 		{
 			const Mesh& md5Mesh = m_meshes[i];
 
-			void* ptr;
 			unsigned int indexCount = md5Mesh.triangles.size()*3;
 			unsigned int vertexCount = md5Mesh.vertices.size();
 			unsigned int weightCount = md5Mesh.weights.size();
@@ -189,22 +189,11 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
-			if (!indexBuffer->GetBuffer()->IsValid())
-			{
-				NazaraError("Failed to create index buffer");
-				continue;
-			}
-
-			ptr = indexBuffer->Map(nzBufferAccess_WriteOnly);
-			if (!ptr)
-			{
-				NazaraError("Failed to map index buffer");
-				continue;
-			}
+			NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
 			if (largeIndices)
 			{
-				nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
+				nzUInt32* index = reinterpret_cast<nzUInt32*>(indexMapper.GetPointer());
 
 				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
@@ -216,7 +205,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			}
 			else
 			{
-				nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
+				nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
 
 				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
@@ -227,7 +216,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				}
 			}
 
-			indexBuffer->Unmap();
+			indexMapper.Unmap();
 
 			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage, nzBufferUsage_Dynamic));
 
@@ -311,7 +300,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 		for (unsigned int i = 0; i < m_meshes.size(); ++i)
 		{
 			const Mesh& md5Mesh = m_meshes[i];
-			void* ptr;
 			unsigned int indexCount = md5Mesh.triangles.size()*3;
 			unsigned int vertexCount = md5Mesh.vertices.size();
 
@@ -319,22 +307,11 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
-			if (!indexBuffer->GetBuffer()->IsValid())
-			{
-				NazaraError("Failed to create index buffer");
-				continue;
-			}
-
-			ptr = indexBuffer->Map(nzBufferAccess_WriteOnly);
-			if (!ptr)
-			{
-				NazaraError("Failed to map index buffer");
-				continue;
-			}
+			NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
 			if (largeIndices)
 			{
-				nzUInt32* index = reinterpret_cast<nzUInt32*>(ptr);
+				nzUInt32* index = reinterpret_cast<nzUInt32*>(indexMapper.GetPointer());
 
 				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
@@ -346,7 +323,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			}
 			else
 			{
-				nzUInt16* index = reinterpret_cast<nzUInt16*>(ptr);
+				nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
 
 				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 				{
@@ -357,25 +334,13 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				}
 			}
 
-			indexBuffer->Unmap();
+			indexMapper.Unmap();
 
 			// Vertex buffer
 			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage, nzBufferUsage_Dynamic));
-			if (!vertexBuffer->GetBuffer()->IsValid())
-			{
-				NazaraError("Failed to create vertex buffer");
-				continue;
-			}
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 
-			ptr = vertexBuffer->Map(nzBufferAccess_WriteOnly);
-			if (!ptr)
-			{
-				NazaraError("Failed to map vertex buffer");
-				continue;
-			}
-
-			NzAxisAlignedBox aabb;
-			NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(ptr);
+			NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
 			for (const Mesh::Vertex& md5Vertex : md5Mesh.vertices)
 			{
 				// Skinning MD5 (Formule d'Id Tech)
@@ -389,15 +354,12 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				}
 
 				// On retourne le modèle dans le bon sens
-				finalPos = rotationQuat * finalPos;
-				aabb.ExtendTo(finalPos);
-
-				vertex->position = finalPos;
+				vertex->position = rotationQuat * finalPos;
 				vertex->uv.Set(md5Vertex.uv.x, 1.f - md5Vertex.uv.y);
 				vertex++;
 			}
 
-			vertexBuffer->Unmap();
+			vertexMapper.Unmap();
 
 			// Submesh
 			std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
@@ -410,7 +372,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			vertexBuffer->SetPersistent(false);
 			vertexBuffer.release();
 
-			subMesh->SetAABB(aabb);
 			subMesh->SetIndexBuffer(indexBuffer.get());
 
 			indexBuffer->SetPersistent(false);

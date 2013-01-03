@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
@@ -65,21 +66,15 @@ bool NzStaticMesh::GenerateAABB()
 		return true;
 
 	// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
-	NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(m_vertexBuffer->Map(nzBufferAccess_ReadOnly));
-	if (!vertex)
-	{
-		NazaraWarning("Failed to lock vertex buffer");
-		return false;
-	}
+	NzBufferMapper<NzVertexBuffer> mapper(m_vertexBuffer, nzBufferAccess_ReadOnly);
 
+	NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
 	unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
 		m_aabb.ExtendTo(vertex->position);
 		vertex++;
 	}
-
-	m_vertexBuffer->Unmap();
 
 	return true;
 }
