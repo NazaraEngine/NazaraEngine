@@ -25,6 +25,7 @@ class NAZARA_API NzIndexMapper
 		~NzIndexMapper() = default;
 
 		nzUInt32 Get(unsigned int i) const;
+		const NzIndexBuffer* GetBuffer() const;
 
 		void Set(unsigned int i, nzUInt32 value);
 
