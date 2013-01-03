@@ -75,8 +75,8 @@ m_mapper(indexBuffer, access)
 	}
 }
 
-NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer) :
-m_mapper(indexBuffer, nzBufferAccess_ReadOnly)
+NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access) :
+m_mapper(indexBuffer, access)
 {
 	if (indexBuffer && !indexBuffer->IsSequential())
 	{
