@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SkeletalMesh.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -270,15 +271,10 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 	}
 	#endif
 
-	void* outputBuffer = m_impl->vertexBuffer->Map(nzBufferAccess_DiscardAndWrite);
-	if (!outputBuffer)
-	{
-		NazaraError("Failed to map vertex buffer");
-		return;
-	}
+	NzBufferMapper<NzVertexBuffer> mapper(m_impl->vertexBuffer, nzBufferAccess_DiscardAndWrite);
 
 	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(m_impl->bindPoseBuffer);
-	NzMeshVertex* outputVertex = reinterpret_cast<NzMeshVertex*>(outputBuffer);
+	NzMeshVertex* outputVertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
 
 	const NzJoint* joints = skeleton->GetJoints();
 	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
@@ -313,8 +309,6 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 		inputVertex++;
 		outputVertex++;
 	}
-
-	m_impl->vertexBuffer->Unmap();
 
 	m_impl->aabb = skeleton->GetAABB();
 }
