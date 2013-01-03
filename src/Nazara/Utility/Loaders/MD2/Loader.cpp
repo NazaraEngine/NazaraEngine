@@ -178,7 +178,6 @@ namespace
 			NzByteSwap(&translate.z, sizeof(float));
 			#endif
 
-			NzAxisAlignedBox aabb;
 			for (unsigned int t = 0; t < header.num_tris; ++t)
 			{
 				for (unsigned int v = 0; v < 3; ++v)
@@ -186,26 +185,24 @@ namespace
 					const md2_vertex& vert = vertices[triangles[t].vertices[v]];
 					NzVector3f position = rotationQuat * NzVector3f(vert.x * scale.x + translate.x, vert.y * scale.y + translate.y, vert.z * scale.z + translate.z);
 
-					// On fait en sorte d'étendre l'AABB pour qu'il contienne ce sommet
-					aabb.ExtendTo(position);
-
 					// On calcule l'indice (On affecte dans le sens inverse)
 					unsigned int vertexIndex = vertexCount - (t*3 + v) - 1;
 
 					// Et on finit par copier les éléments dans le buffer
 					subMesh->SetNormal(f, vertexIndex, md2Normals[vert.n]);
 					subMesh->SetPosition(f, vertexIndex, position);
-
-					if (f == 0)
-					{
-						// On ne définit les coordonnées de texture que lors de la première frame
-						const md2_texCoord& texC = texCoords[triangles[t].texCoords[v]];
-						subMesh->SetTexCoords(vertexIndex, NzVector2f(texC.u / static_cast<float>(header.skinwidth), 1.f - texC.v / static_cast<float>(header.skinheight)));
-					}
 				}
 			}
+		}
 
-			subMesh->SetAABB(f, aabb);
+		// Définit les coordonnées de textures
+		for (unsigned int t = 0; t < header.num_tris; ++t)
+		{
+			for (unsigned int v = 0; v < 3; ++v)
+			{
+				const md2_texCoord& texC = texCoords[triangles[t].texCoords[v]];
+				subMesh->SetTexCoords(vertexCount - (t*3 + v) - 1, NzVector2f(texC.u / static_cast<float>(header.skinwidth), 1.f - texC.v / static_cast<float>(header.skinheight)));
+			}
 		}
 
 		subMesh->SetMaterialIndex(0);

@@ -106,7 +106,32 @@ void NzKeyframeMesh::Finish()
 	}
 	#endif
 
+	GenerateAABBs();
 	InterpolateImpl(0, 0, 0.f);
+}
+
+void NzKeyframeMesh::GenerateAABBs()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return;
+	}
+	#endif
+
+	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
+	for (unsigned int i = 0; i < m_impl->frameCount; ++i)
+	{
+		NzAxisAlignedBox& aabb = m_impl->aabb[i+1]; // l'AABB 0 est celle qui est interpolée
+		if (aabb.IsNull())
+		{
+			// Génération de l'AABB selon la position
+			unsigned int index = i*vertexCount;
+			for (unsigned int j = 0; j < vertexCount; ++j)
+				aabb.ExtendTo(m_impl->positions[index+j]);
+		}
+	}
 }
 
 const NzAxisAlignedBox& NzKeyframeMesh::GetAABB() const
@@ -475,6 +500,7 @@ void NzKeyframeMesh::SetPosition(unsigned int frameIndex, unsigned int vertexInd
 	unsigned int index = frameIndex*vertexCount + vertexIndex;
 
 	m_impl->positions[index] = position;
+	m_impl->aabb[frameIndex+1].SetNull(); // Invalidation de l'AABB
 }
 
 void NzKeyframeMesh::SetTangent(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& tangent)
