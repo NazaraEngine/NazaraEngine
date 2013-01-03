@@ -21,6 +21,13 @@ namespace
 		return ptr[i];
 	}
 
+	nzUInt32 GetterSequential(const void* buffer, unsigned int i)
+	{
+		NazaraUnused(buffer);
+
+		return static_cast<nzUInt32>(i);
+	}
+
 	void Setter16(void* buffer, unsigned int i, nzUInt32 value)
 	{
 		nzUInt16* ptr = reinterpret_cast<nzUInt16*>(buffer);
@@ -42,35 +49,51 @@ namespace
 NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access) :
 m_mapper(indexBuffer, access)
 {
-	if (indexBuffer->HasLargeIndices())
+	if (indexBuffer && !indexBuffer->IsSequential())
 	{
-		m_getter = Getter32;
-		if (access != nzBufferAccess_ReadOnly)
-			m_setter = Setter32;
+		if (indexBuffer->HasLargeIndices())
+		{
+			m_getter = Getter32;
+			if (access != nzBufferAccess_ReadOnly)
+				m_setter = Setter32;
+			else
+				m_setter = SetterError;
+		}
 		else
-			m_setter = SetterError;
+		{
+			m_getter = Getter16;
+			if (access != nzBufferAccess_ReadOnly)
+				m_setter = Setter16;
+			else
+				m_setter = SetterError;
+		}
 	}
 	else
 	{
-		m_getter = Getter16;
-		if (access != nzBufferAccess_ReadOnly)
-			m_setter = Setter16;
-		else
-			m_setter = SetterError;
+		m_getter = GetterSequential;
+		m_setter = SetterError;
 	}
 }
 
 NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer) :
 m_mapper(indexBuffer, nzBufferAccess_ReadOnly)
 {
-	if (indexBuffer->HasLargeIndices())
+	if (indexBuffer && !indexBuffer->IsSequential())
 	{
-		m_getter = Getter32;
-		m_setter = SetterError;
+		if (indexBuffer->HasLargeIndices())
+		{
+			m_getter = Getter32;
+			m_setter = SetterError;
+		}
+		else
+		{
+			m_getter = Getter16;
+			m_setter = SetterError;
+		}
 	}
 	else
 	{
-		m_getter = Getter16;
+		m_getter = GetterSequential;
 		m_setter = SetterError;
 	}
 }
