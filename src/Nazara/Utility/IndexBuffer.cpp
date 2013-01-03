@@ -185,7 +185,7 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
 }
 
-const void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)

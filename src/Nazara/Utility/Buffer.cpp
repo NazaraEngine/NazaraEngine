@@ -234,7 +234,7 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int len
 	return m_impl->Map(access, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
 }
 
-const void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
