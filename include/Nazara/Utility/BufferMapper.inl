@@ -12,9 +12,14 @@ template<typename T>
 NzBufferMapper<T>::NzBufferMapper(T* buffer, nzBufferAccess access, unsigned int offset, unsigned int length) :
 m_buffer(buffer)
 {
-	m_ptr = buffer->Map(access, offset, length);
-	if (!m_ptr)
-		NazaraError("Failed to map buffer"); ///TODO: Unexpected
+	if (m_buffer)
+	{
+		m_ptr = buffer->Map(access, offset, length);
+		if (!m_ptr)
+			NazaraError("Failed to map buffer"); ///TODO: Unexpected
+	}
+	else
+		m_ptr = nullptr;
 }
 
 template<typename T>
@@ -27,9 +32,14 @@ template<typename T>
 NzBufferMapper<T>::NzBufferMapper(const T* buffer, nzBufferAccess access, unsigned int offset, unsigned int length) :
 m_buffer(buffer)
 {
-	m_ptr = buffer->Map(access, offset, length);
-	if (!m_ptr)
-		NazaraError("Failed to map buffer"); ///TODO: Unexpected
+	if (m_buffer)
+	{
+		m_ptr = buffer->Map(access, offset, length);
+		if (!m_ptr)
+			NazaraError("Failed to map buffer"); ///TODO: Unexpected
+	}
+	else
+		m_ptr = nullptr;
 }
 
 template<typename T>
