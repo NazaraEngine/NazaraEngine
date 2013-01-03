@@ -13,7 +13,6 @@
 #include <Nazara/Utility/Enums.hpp>
 
 class NzSubMesh;
-class NzVertexBuffer;
 
 class NzVertexMapperImpl;
 
@@ -33,6 +32,8 @@ class NAZARA_API NzVertexMapper
 		void SetPosition(unsigned int i, const NzVector3f& position);
 		void SetTangent(unsigned int i, const NzVector3f& tangent);
 		void SetTexCoords(unsigned int i, const NzVector2f& texCoords);
+
+		void Unmap();
 
 	private:
 		NzVertexMapperImpl* m_impl;
