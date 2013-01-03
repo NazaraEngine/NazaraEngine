@@ -7,6 +7,7 @@
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -189,31 +190,15 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
-			NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
-			if (largeIndices)
+			unsigned int index = 0;
+			for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 			{
-				nzUInt32* index = reinterpret_cast<nzUInt32*>(indexMapper.GetPointer());
-
-				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-				{
-					// On les respécifie dans le bon ordre
-					*index++ = triangle.x;
-					*index++ = triangle.z;
-					*index++ = triangle.y;
-				}
-			}
-			else
-			{
-				nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
-
-				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-				{
-					// On les respécifie dans le bon ordre
-					*index++ = triangle.x;
-					*index++ = triangle.z;
-					*index++ = triangle.y;
-				}
+				// On les respécifie dans le bon ordre
+				indexMapper.Set(index++, triangle.x);
+				indexMapper.Set(index++, triangle.z);
+				indexMapper.Set(index++, triangle.y);
 			}
 
 			indexMapper.Unmap();
@@ -307,31 +292,15 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
-			NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
-			if (largeIndices)
+			unsigned int index = 0;
+			for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 			{
-				nzUInt32* index = reinterpret_cast<nzUInt32*>(indexMapper.GetPointer());
-
-				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-				{
-					// On les respécifie dans le bon ordre
-					*index++ = triangle.x;
-					*index++ = triangle.z;
-					*index++ = triangle.y;
-				}
-			}
-			else
-			{
-				nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
-
-				for (const Mesh::Triangle& triangle : md5Mesh.triangles)
-				{
-					// On les respécifie dans le bon ordre
-					*index++ = triangle.x;
-					*index++ = triangle.z;
-					*index++ = triangle.y;
-				}
+				// On les respécifie dans le bon ordre
+				indexMapper.Set(index++, triangle.x);
+				indexMapper.Set(index++, triangle.z);
+				indexMapper.Set(index++, triangle.y);
 			}
 
 			indexMapper.Unmap();
