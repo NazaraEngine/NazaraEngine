@@ -108,6 +108,11 @@ nzUInt32 NzIndexMapper::Get(unsigned int i) const
 	return m_getter(m_mapper.GetPointer(), i);
 }
 
+const NzIndexBuffer* NzIndexMapper::GetBuffer() const
+{
+	return m_mapper.GetBuffer();
+}
+
 void NzIndexMapper::Set(unsigned int i, nzUInt32 value)
 {
 	m_setter(m_mapper.GetPointer(), i, value);
