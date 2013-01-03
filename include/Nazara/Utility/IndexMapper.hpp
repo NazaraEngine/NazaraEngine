@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VERTEXITERATOR_HPP
-#define NAZARA_VERTEXITERATOR_HPP
+#ifndef NAZARA_INDEXMAPPER_HPP
+#define NAZARA_INDEXMAPPER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -36,4 +36,4 @@ class NAZARA_API NzIndexMapper
 		NzIndexMapperSetter m_setter;
 };
 
-#endif // NAZARA_VERTEXITERATOR_HPP
+#endif // NAZARA_INDEXMAPPER_HPP
