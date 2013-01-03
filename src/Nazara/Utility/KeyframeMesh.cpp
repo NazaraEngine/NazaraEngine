@@ -560,6 +560,9 @@ void NzKeyframeMesh::InterpolateImpl(unsigned int frameA, unsigned int frameB, f
 		vertex->tangent = NzVector3f::Lerp(m_impl->positions[frameA+i], m_impl->positions[frameB+i], interpolation);
 		vertex->uv = m_impl->uv[i];
 
+		vertex->normal.Normalize();
+		vertex->tangent.Normalize();
+
 		vertex++;
 	}
 
