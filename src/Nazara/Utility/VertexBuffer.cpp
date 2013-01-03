@@ -151,7 +151,7 @@ void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned i
 	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
 }
 
-const void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (offset+length > m_vertexCount)
