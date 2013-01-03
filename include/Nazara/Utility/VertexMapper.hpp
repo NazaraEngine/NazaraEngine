@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VERTEXITERATOR_HPP
-#define NAZARA_VERTEXITERATOR_HPP
+#ifndef NAZARA_VERTEXMAPPER_HPP
+#define NAZARA_VERTEXMAPPER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -39,4 +39,4 @@ class NAZARA_API NzVertexMapper
 		NzVertexMapperImpl* m_impl;
 };
 
-#endif // NAZARA_VERTEXITERATOR_HPP
+#endif // NAZARA_VERTEXMAPPER_HPP
