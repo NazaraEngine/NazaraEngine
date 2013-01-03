@@ -20,7 +20,8 @@ m_specularMap(nullptr)
 	Reset();
 }
 
-NzMaterial::NzMaterial(const NzMaterial& material)
+NzMaterial::NzMaterial(const NzMaterial& material) :
+NzResource()
 {
 	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et plus rapide
 
