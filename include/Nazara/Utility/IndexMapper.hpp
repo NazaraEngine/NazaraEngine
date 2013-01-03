@@ -20,7 +20,7 @@ class NAZARA_API NzIndexMapper
 {
 	public:
 		NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access = nzBufferAccess_ReadWrite);
-		NzIndexMapper(const NzIndexBuffer* indexBuffer);
+		NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access = nzBufferAccess_ReadOnly);
 		NzIndexMapper(const NzSubMesh* subMesh);
 		~NzIndexMapper() = default;
 
