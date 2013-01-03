@@ -56,10 +56,14 @@ bool NzRect<T>::Contains(const NzRect<T>& rect) const
 template<typename T>
 NzRect<T>& NzRect<T>::ExtendTo(const NzVector2<T>& point)
 {
+	width = std::max(x + width, point.x);
+	height = std::max(y + height, point.y);
+
 	x = std::min(x, point.x);
 	y = std::min(y, point.y);
-	width = std::max(x + width, point.x) - x;
-	height = std::max(y + height, point.y) - y;
+
+	width -= x;
+	height -= y;
 
 	return *this;
 }
@@ -67,10 +71,14 @@ NzRect<T>& NzRect<T>::ExtendTo(const NzVector2<T>& point)
 template<typename T>
 NzRect<T>& NzRect<T>::ExtendTo(const NzRect& rect)
 {
+	width = std::max(x + width, rect.x + rect.width);
+	height = std::max(y + height, rect.y + rect.height);
+
 	x = std::min(x, rect.x);
 	y = std::min(y, rect.y);
-	width = std::max(x + width, rect.x + rect.width) - x;
-	height = std::max(x + height, rect.y + rect.height) - y;
+
+	width -= x;
+	height -= y;
 
 	return *this;
 }
