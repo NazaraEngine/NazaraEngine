@@ -8,6 +8,8 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Utility/AxisAlignedBox.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -51,12 +53,8 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 		return;
 	}
 
-	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(vertexBuffer->Map(nzBufferAccess_DiscardAndWrite, 0, 24));
-	if (!vertex)
-	{
-		NazaraError("Failed to map buffer");
-		return;
-	}
+	NzBufferMapper<NzVertexBuffer> mapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, 24);
+	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
 
 	NzVector3f max, min;
 	max = cube.GetPosition() + cube.GetSize();
@@ -122,7 +120,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	vertex->position.Set(max.x, min.y, max.z);
 	vertex++;
 
-	vertexBuffer->Unmap();
+	mapper.Unmap();
 
 	const NzShader* oldShader = NzRenderer::GetShader();
 
@@ -174,12 +172,8 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		return;
 	}
 
-	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(vertexBuffer->Map(nzBufferAccess_DiscardAndWrite, 0, jointCount*2));
-	if (!vertex)
-	{
-		NazaraError("Failed to map buffer");
-		return;
-	}
+	NzBufferMapper<NzVertexBuffer> mapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, jointCount*2);
+	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
 
 	unsigned int vertexCount = 0;
 	for (unsigned int i = 0; i < jointCount; ++i)
@@ -198,7 +192,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		}
 	}
 
-	vertexBuffer->Unmap();
+	mapper.Unmap();
 
 	if (vertexCount > 0)
 	{
@@ -230,6 +224,74 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 		NzRenderer::SetLineWidth(oldLineWidth);
 		NzRenderer::SetPointSize(oldPointSize);
+
+		if (depthTestActive != depthTest)
+			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
+
+		if (!NzRenderer::SetShader(oldShader))
+			NazaraWarning("Failed to reset shader");
+	}
+}
+
+void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
+{
+	if (!initialized)
+	{
+		NazaraError("Debug drawer is not initialized");
+		return;
+	}
+
+	unsigned int normalCount = subMesh->GetVertexCount();
+	unsigned int vertexCount = normalCount*2;
+	if (vertexBuffer->GetVertexCount() < vertexCount)
+	{
+		NazaraError("Debug buffer not length enougth to draw object");
+		return;
+	}
+
+	NzBufferMapper<NzVertexBuffer> inputMapper(subMesh->GetVertexBuffer(), nzBufferAccess_ReadOnly);
+	NzBufferMapper<NzVertexBuffer> outputMapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, vertexCount);
+
+	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(inputMapper.GetPointer());
+	NzVertexStruct_XYZ* outputVertex = reinterpret_cast<NzVertexStruct_XYZ*>(outputMapper.GetPointer());
+
+	for (unsigned int i = 0; i < normalCount; ++i)
+	{
+		outputVertex->position = inputVertex->position;
+		outputVertex++;
+
+		outputVertex->position = inputVertex->position + inputVertex->normal;
+		outputVertex++;
+
+		inputVertex++;
+	}
+
+	inputMapper.Unmap();
+	outputMapper.Unmap();
+
+	if (vertexCount > 0)
+	{
+		const NzShader* oldShader = NzRenderer::GetShader();
+
+		if (!NzRenderer::SetShader(shader))
+		{
+			NazaraError("Failed to set debug shader");
+			return;
+		}
+
+		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
+		if (depthTestActive != depthTest)
+			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
+
+		NzRenderer::SetVertexBuffer(vertexBuffer);
+
+		float oldLineWidth = NzRenderer::GetLineWidth();
+		NzRenderer::SetLineWidth(lineWidth);
+
+		shader->SendColor(colorLocation, primaryColor);
+		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
+
+		NzRenderer::SetLineWidth(oldLineWidth);
 
 		if (depthTestActive != depthTest)
 			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
@@ -274,7 +336,7 @@ bool NzDebugDrawer::Initialize()
 
 		// VertexBuffer (Nécessite la déclaration)
 		{
-			vertexBuffer = new NzVertexBuffer(vertexDeclaration, 256, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			vertexBuffer = new NzVertexBuffer(vertexDeclaration, 1024, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 			if (!vertexBuffer->GetBuffer()->IsValid())
 			{
 				NazaraError("Failed to create buffer");
