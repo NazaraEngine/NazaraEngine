@@ -4,7 +4,7 @@
 
 /*
     04/01/2012 : alexandre.janniaux@gmail.com
-    Add pthread mutex implementation
+    Add pthread mutex implementation.
 */
 
 #pragma once
