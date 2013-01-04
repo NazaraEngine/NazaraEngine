@@ -18,6 +18,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+/*
+    04/01/2012 : alexandre.janniaux@gmail.com
+    Add posix file implementation.
+*/
+
 class NzFile;
 class NzString;
 
