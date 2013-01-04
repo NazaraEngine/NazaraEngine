@@ -73,7 +73,6 @@ namespace
 
 		/// Création du mesh
 		// Animé ou statique, c'est la question
-		///FIXME: Le loader ne traite pas correctement le cas d'un mesh statique
 		if (parameters.animated)
 			mesh->CreateKeyframe();
 		else
