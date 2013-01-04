@@ -326,6 +326,9 @@ void NzVertexMapper::SetTexCoords(unsigned int i, const NzVector2f& texCoords)
 
 void NzVertexMapper::Unmap()
 {
-	delete m_impl;
-	m_impl = nullptr;
+	if (m_impl)
+	{
+		delete m_impl;
+		m_impl = nullptr;
+	}
 }

@@ -34,6 +34,8 @@ class NAZARA_API NzTriangleIterator
 		void SetTangent(unsigned int i, const NzVector3f& tangent);
 		void SetTexCoords(unsigned int i, const NzVector2f& texCoords);
 
+		void Unmap();
+
 	private:
 		nzPrimitiveType m_primitiveType;
 		nzUInt32 m_triangleIndices[3];
