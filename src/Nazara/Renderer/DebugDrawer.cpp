@@ -301,6 +301,74 @@ void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
 	}
 }
 
+void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
+{
+	if (!initialized)
+	{
+		NazaraError("Debug drawer is not initialized");
+		return;
+	}
+
+	unsigned int tangentCount = subMesh->GetVertexCount();
+	unsigned int vertexCount = tangentCount*2;
+	if (vertexBuffer->GetVertexCount() < vertexCount)
+	{
+		NazaraError("Debug buffer not length enougth to draw object");
+		return;
+	}
+
+	NzBufferMapper<NzVertexBuffer> inputMapper(subMesh->GetVertexBuffer(), nzBufferAccess_ReadOnly);
+	NzBufferMapper<NzVertexBuffer> outputMapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, vertexCount);
+
+	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(inputMapper.GetPointer());
+	NzVertexStruct_XYZ* outputVertex = reinterpret_cast<NzVertexStruct_XYZ*>(outputMapper.GetPointer());
+
+	for (unsigned int i = 0; i < tangentCount; ++i)
+	{
+		outputVertex->position = inputVertex->position;
+		outputVertex++;
+
+		outputVertex->position = inputVertex->position + inputVertex->tangent;
+		outputVertex++;
+
+		inputVertex++;
+	}
+
+	inputMapper.Unmap();
+	outputMapper.Unmap();
+
+	if (vertexCount > 0)
+	{
+		const NzShader* oldShader = NzRenderer::GetShader();
+
+		if (!NzRenderer::SetShader(shader))
+		{
+			NazaraError("Failed to set debug shader");
+			return;
+		}
+
+		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
+		if (depthTestActive != depthTest)
+			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
+
+		NzRenderer::SetVertexBuffer(vertexBuffer);
+
+		float oldLineWidth = NzRenderer::GetLineWidth();
+		NzRenderer::SetLineWidth(lineWidth);
+
+		shader->SendColor(colorLocation, primaryColor);
+		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
+
+		NzRenderer::SetLineWidth(oldLineWidth);
+
+		if (depthTestActive != depthTest)
+			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
+
+		if (!NzRenderer::SetShader(oldShader))
+			NazaraWarning("Failed to reset shader");
+	}
+}
+
 bool NzDebugDrawer::Initialize()
 {
 	if (!initialized)
