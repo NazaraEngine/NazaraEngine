@@ -26,7 +26,7 @@ class NAZARA_API NzVertexMapper
 		NzVector3f GetPosition(unsigned int i) const;
 		NzVector3f GetTangent(unsigned int i) const;
 		NzVector2f GetTexCoords(unsigned int i) const;
-		unsigned int GetTotalVertexCount();
+		unsigned int GetVertexCount();
 
 		void SetNormal(unsigned int i, const NzVector3f& normal);
 		void SetPosition(unsigned int i, const NzVector3f& position);
