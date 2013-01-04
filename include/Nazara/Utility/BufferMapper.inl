@@ -70,8 +70,11 @@ void* NzBufferMapper<T>::GetPointer() const
 template<typename T>
 void NzBufferMapper<T>::Unmap()
 {
-	m_buffer->Unmap();
-	m_buffer = nullptr;
+	if (m_buffer)
+	{
+		m_buffer->Unmap();
+		m_buffer = nullptr;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
