@@ -303,7 +303,7 @@ void NzModel::SetMesh(const NzMesh* mesh, const NzModelParameters& modelParamete
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = *mesh->GetSkeleton(); // Copie du squelette template
 
-		if (modelParameters.loadAnimation)
+		if (modelParameters.loadAnimation && m_mesh->IsAnimable())
 		{
 			NzString animationPath = m_mesh->GetAnimation();
 			if (!animationPath.IsEmpty())
