@@ -7,7 +7,9 @@
 #ifndef NAZARA_FILEIMPL_HPP
 #define NAZARA_FILEIMPL_HPP
 
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/File.hpp>

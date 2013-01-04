@@ -27,7 +27,7 @@ class NzMutexImpl
 		void Unlock();
 
 	private:
-		pthread_mutex_t m_pmutex;
+		pthread_mutex_t m_handle;
 };
 
 #endif // NAZARA_MUTEXIMPL_HPP

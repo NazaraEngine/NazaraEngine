@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Win32/DynLibImpl.hpp>
+#include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
