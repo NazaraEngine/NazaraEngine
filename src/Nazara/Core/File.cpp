@@ -515,7 +515,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		NazaraError("Path unrecognized");
 		return path;
 	}
-	#elif defined(NAZARA_PLATEFORM_LINUX)
+	#elif defined(NAZARA_PLATFORM_LINUX)
 	base = '/';
 	start = 0;
 	#else
@@ -664,7 +664,7 @@ bool NzFile::IsAbsolute(const NzString& filePath)
 		return true;
 	else
 		return false;
-	#elif defined(NAZARA_PLATEFORM_LINUX)
+	#elif defined(NAZARA_PLATFORM_LINUX)
 	return path.StartsWith('/');
 	#else
 		#error OS case not implemented
