@@ -157,6 +157,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
     if (fd2 == -1)
     {
         NazaraError("Fail to open output file (" + targetPath + "): " + NzGetLastSystemError()); // TODO: more info ?
+        close(fd1);
         return false;
     }
 
@@ -176,6 +177,9 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
         write(fd2,buffer,bytes);
 
     } while (bytes == 512);
+
+    close(fd1);
+    close(fd2);
 }
 
 bool NzFileImpl::Delete(const NzString& filePath)
