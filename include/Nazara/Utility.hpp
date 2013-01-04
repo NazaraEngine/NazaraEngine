@@ -33,6 +33,7 @@
 #include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -40,6 +41,7 @@
 #include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/KeyframeMesh.hpp>
@@ -52,9 +54,11 @@
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/TriangleIterator.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/Window.hpp>
