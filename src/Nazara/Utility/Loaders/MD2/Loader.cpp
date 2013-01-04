@@ -12,6 +12,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Loaders/MD2/Constants.hpp>
 #include <cstddef>
 #include <cstring>
@@ -105,31 +106,6 @@ namespace
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
 		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(header.num_tris * 3, false, parameters.storage, nzBufferUsage_Static));
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), header.num_vertices, parameters.storage, nzBufferUsage_Dynamic));
-		std::unique_ptr<NzKeyframeMesh> subMesh(new NzKeyframeMesh(mesh));
-		if (!subMesh->Create(vertexBuffer.get(), header.num_frames))
-		{
-			NazaraError("Failed to create SubMesh");
-			return false;
-		}
-
-		vertexBuffer->SetPersistent(false);
-		vertexBuffer.release();
-
-		/// Coordonnées de texture
-		std::vector<md2_texCoord> texCoords(header.num_st);
-
-		// Lecture des coordonnées de texture
-		stream.SetCursorPos(header.offset_st);
-		stream.Read(&texCoords[0], header.num_st*sizeof(md2_texCoord));
-
-		#ifdef NAZARA_BIG_ENDIAN
-		for (unsigned int i = 0; i < header.num_st; ++i)
-		{
-			NzByteSwap(&texCoords[i].u, sizeof(nzInt16));
-			NzByteSwap(&texCoords[i].v, sizeof(nzInt16));
-		}
-		#endif
 
 		/// Lecture des triangles
 		std::vector<md2_triangle> triangles(header.num_tris);
@@ -139,8 +115,6 @@ namespace
 
 		NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 		nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
-
-		const unsigned int indexFix[3] = {0, 2, 1}; // Pour respécifier les indices dans le bon ordre
 
 		for (unsigned int i = 0; i < header.num_tris; ++i)
 		{
@@ -155,32 +129,112 @@ namespace
 			NzByteSwap(&triangles[i].texCoords[2], sizeof(nzUInt16));
 			#endif
 
-			for (unsigned int j = 0; j < 3; ++j)
-			{
-				const unsigned int fixedIndex = indexFix[j];
-				index[fixedIndex] = triangles[i].vertices[j];
-
-				const md2_texCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
-				subMesh->SetTexCoords(triangles[i].vertices[fixedIndex], NzVector2f(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight));
-			}
-
-			index += 3;
+			// On respécifie le triangle dans le bon ordre
+			*index++ = triangles[i].vertices[0];
+			*index++ = triangles[i].vertices[2];
+			*index++ = triangles[i].vertices[1];
 		}
 
 		indexMapper.Unmap();
-		subMesh->SetIndexBuffer(indexBuffer.release());
 
-		/// Chargement des frames
-		stream.SetCursorPos(header.offset_frames);
+		/// Lecture des coordonnées de texture
+		std::vector<md2_texCoord> texCoords(header.num_st);
+
+		stream.SetCursorPos(header.offset_st);
+		stream.Read(&texCoords[0], header.num_st*sizeof(md2_texCoord));
+
+		#ifdef NAZARA_BIG_ENDIAN
+		for (unsigned int i = 0; i < header.num_st; ++i)
+		{
+			NzByteSwap(&texCoords[i].u, sizeof(nzInt16));
+			NzByteSwap(&texCoords[i].v, sizeof(nzInt16));
+		}
+		#endif
+
+		const unsigned int indexFix[3] = {0, 2, 1}; // Pour respécifier les indices dans le bon ordre
 
 		// Pour que le modèle soit correctement aligné, on génère un quaternion que nous appliquerons à chacune des vertices
 		NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
 
-		std::unique_ptr<md2_vertex[]> vertices(new md2_vertex[header.num_vertices]);
-		for (unsigned int f = 0; f < header.num_frames; ++f)
+		if (parameters.animated)
 		{
-			NzVector3f scale, translate;
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), header.num_vertices, parameters.storage, nzBufferUsage_Dynamic));
+			std::unique_ptr<NzKeyframeMesh> subMesh(new NzKeyframeMesh(mesh));
+			if (!subMesh->Create(vertexBuffer.get(), header.num_frames))
+			{
+				NazaraError("Failed to create SubMesh");
+				return false;
+			}
 
+			subMesh->SetIndexBuffer(indexBuffer.release());
+
+			vertexBuffer->SetPersistent(false);
+			vertexBuffer.release();
+
+			/// Chargement des frames
+			stream.SetCursorPos(header.offset_frames);
+
+			std::unique_ptr<md2_vertex[]> vertices(new md2_vertex[header.num_vertices]);
+			for (unsigned int f = 0; f < header.num_frames; ++f)
+			{
+				NzVector3f scale, translate;
+
+				stream.Read(scale, sizeof(NzVector3f));
+				stream.Read(translate, sizeof(NzVector3f));
+				stream.Read(nullptr, 16*sizeof(char)); // On avance en ignorant le nom de la frame (Géré par l'animation)
+				stream.Read(vertices.get(), header.num_vertices*sizeof(md2_vertex));
+
+				#ifdef NAZARA_BIG_ENDIAN
+				NzByteSwap(&scale.x, sizeof(float));
+				NzByteSwap(&scale.y, sizeof(float));
+				NzByteSwap(&scale.z, sizeof(float));
+
+				NzByteSwap(&translate.x, sizeof(float));
+				NzByteSwap(&translate.y, sizeof(float));
+				NzByteSwap(&translate.z, sizeof(float));
+				#endif
+
+				for (unsigned int v = 0; v < header.num_vertices; ++v)
+				{
+					const md2_vertex& vert = vertices[v];
+					NzVector3f position = rotationQuat * NzVector3f(vert.x * scale.x + translate.x, vert.y * scale.y + translate.y, vert.z * scale.z + translate.z);
+
+					subMesh->SetNormal(f, v, rotationQuat * md2Normals[vert.n]);
+					subMesh->SetPosition(f, v, position);
+				}
+			}
+
+			/// Chargement des coordonnées de texture
+			for (unsigned int i = 0; i < header.num_tris; ++i)
+			{
+				for (unsigned int j = 0; j < 3; ++j)
+				{
+					const unsigned int fixedIndex = indexFix[j];
+					const md2_texCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
+					subMesh->SetTexCoords(triangles[i].vertices[fixedIndex], NzVector2f(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight));
+				}
+			}
+
+			subMesh->SetMaterialIndex(0);
+			mesh->AddSubMesh(subMesh.release());
+		}
+		else
+		{
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), header.num_vertices, parameters.storage, nzBufferUsage_Static));
+			std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
+			if (!subMesh->Create(vertexBuffer.get()))
+			{
+				NazaraError("Failed to create SubMesh");
+				return false;
+			}
+
+			subMesh->SetIndexBuffer(indexBuffer.release());
+
+			/// Chargement des vertices
+			stream.SetCursorPos(header.offset_frames);
+
+			std::unique_ptr<md2_vertex[]> vertices(new md2_vertex[header.num_vertices]);
+			NzVector3f scale, translate;
 			stream.Read(scale, sizeof(NzVector3f));
 			stream.Read(translate, sizeof(NzVector3f));
 			stream.Read(nullptr, 16*sizeof(char)); // On avance en ignorant le nom de la frame (Géré par l'animation)
@@ -196,18 +250,39 @@ namespace
 			NzByteSwap(&translate.z, sizeof(float));
 			#endif
 
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+			NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
+
+			/// Chargement des coordonnées de texture
+			for (unsigned int i = 0; i < header.num_tris; ++i)
+			{
+				for (unsigned int j = 0; j < 3; ++j)
+				{
+					const unsigned int fixedIndex = indexFix[j];
+					const md2_texCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
+					vertex[triangles[i].vertices[fixedIndex]].uv.Set(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight);
+				}
+			}
+
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const md2_vertex& vert = vertices[v];
 				NzVector3f position = rotationQuat * NzVector3f(vert.x * scale.x + translate.x, vert.y * scale.y + translate.y, vert.z * scale.z + translate.z);
 
-				subMesh->SetNormal(f, v, md2Normals[vert.n]);
-				subMesh->SetPosition(f, v, position);
-			}
-		}
+				vertex->normal = rotationQuat * md2Normals[vert.n];
+				vertex->position = position;
 
-		subMesh->SetMaterialIndex(0);
-		mesh->AddSubMesh(subMesh.release());
+				vertex++;
+			}
+
+			vertexMapper.Unmap();
+
+			vertexBuffer->SetPersistent(false);
+			vertexBuffer.release();
+
+			subMesh->SetMaterialIndex(0);
+			mesh->AddSubMesh(subMesh.release());
+		}
 
 		return true;
 	}
