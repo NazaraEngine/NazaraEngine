@@ -29,7 +29,7 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol) const
 
 	dlerror(); // Clear error flag
 
-	converter.pointer = reinterpret_cast<NzDynLibFunc>(dlsym(m_handle, symbol.GetConstBuffer()));
+	converter.pointer = dlsym(m_handle, symbol.GetConstBuffer());
 	if (!converter.pointer)
 		m_parent->SetLastError(dlerror());
 
@@ -44,7 +44,7 @@ bool NzDynLibImpl::Load(const NzString& libraryPath)
 
 	dlerror(); // Clear error flag
 
-	m_handle = dlopen(path.GetConstBuffer());
+	m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
 
 	if (m_handle)
 		return true;
