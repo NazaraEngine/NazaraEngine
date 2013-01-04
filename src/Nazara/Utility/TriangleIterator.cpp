@@ -29,9 +29,7 @@ bool NzTriangleIterator::Advance()
 {
 	if (m_currentIndex >= m_indexCount)
 	{
-		///FIXME: Que faire si Advance() est appelé deux fois
-		m_indexMapper.Unmap();
-		m_vertexMapper.Unmap();
+		Unmap();
 		return false;
 	}
 
@@ -163,4 +161,11 @@ void NzTriangleIterator::SetTexCoords(unsigned int i, const NzVector2f& texCoord
 	#endif
 
 	m_vertexMapper.SetTexCoords(m_triangleIndices[i], texCoords);
+}
+
+void NzTriangleIterator::Unmap()
+{
+	// Peut très bien être appellé plusieurs fois de suite, seul le premier appel sera pris en compte
+	m_indexMapper.Unmap();
+	m_vertexMapper.Unmap();
 }
