@@ -22,7 +22,7 @@ class NzVertexMapperImpl
 		virtual NzVector3f GetPosition(unsigned int i) const = 0;
 		virtual NzVector3f GetTangent(unsigned int i) const = 0;
 		virtual NzVector2f GetTexCoords(unsigned int i) const = 0;
-		virtual unsigned int GetTotalVertexCount() const = 0;
+		virtual unsigned int GetVertexCount() const = 0;
 
 		virtual void SetNormal(unsigned int i, const NzVector3f& normal) = 0;
 		virtual void SetPosition(unsigned int i, const NzVector3f& position) = 0;
@@ -90,7 +90,7 @@ namespace
 				return m_mesh->GetTexCoords(i%m_vertexPerFrame);
 			}
 
-			unsigned int GetTotalVertexCount() const
+			unsigned int GetVertexCount() const
 			{
 				return m_vertexPerFrame*m_mesh->GetFrameCount();
 			}
@@ -157,7 +157,7 @@ namespace
 				return m_vertices[i].uv;
 			}
 
-			unsigned int GetTotalVertexCount() const
+			unsigned int GetVertexCount() const
 			{
 				return m_mesh->GetVertexCount();
 			}
@@ -221,7 +221,7 @@ namespace
 				return m_vertices[i].uv;
 			}
 
-			unsigned int GetTotalVertexCount() const
+			unsigned int GetVertexCount() const
 			{
 				return m_vertexMapper.GetBuffer()->GetVertexCount();
 			}
@@ -299,9 +299,9 @@ NzVector2f NzVertexMapper::GetTexCoords(unsigned int i) const
 	return m_impl->GetTexCoords(i);
 }
 
-unsigned int NzVertexMapper::GetTotalVertexCount()
+unsigned int NzVertexMapper::GetVertexCount()
 {
-	return m_impl->GetTotalVertexCount();
+	return m_impl->GetVertexCount();
 }
 
 void NzVertexMapper::SetNormal(unsigned int i, const NzVector3f& normal)
