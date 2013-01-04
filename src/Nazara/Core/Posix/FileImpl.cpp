@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Win32/Time.hpp>
+#include <Nazara/Core/Posix/Time.hpp>
 #include <Nazara/Core/Debug.hpp>
 #include <stdio.h>
 #include <unistd.h>
