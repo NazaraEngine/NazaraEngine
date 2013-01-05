@@ -18,20 +18,24 @@ void NzDirectoryImpl::Close()
 
 NzString NzDirectoryImpl::GetResultName() const
 {
-	return m_result.d_name;
+	return m_result->d_name;
 }
 
 nzUInt64 NzDirectoryImpl::GetResultSize() const
 {
 	struct stat64 resulststat;
-	stat64(m_result.d_name, &resulststat);
+	stat64(m_result->d_name, &resulststat);
 
 	return static_cast<nzUInt64>(resulststat.st_size);
 }
 
 bool NzDirectoryImpl::IsResultDirectory() const
 {
-	return S_ISDIR(m_result.d_name);
+    struct stat64 filestats;
+    if (stat64(m_result->d_name, &filestats) == -1) // error
+        return false;
+
+	return S_ISDIR(filestats.st_mode);
 }
 
 bool NzDirectoryImpl::NextResult()
@@ -68,10 +72,11 @@ bool NzDirectoryImpl::Create(const NzString& dirPath)
 
 bool NzDirectoryImpl::Exists(const NzString& dirPath)
 {
-	if (S_ISDIR(dirPath.GetConstBuffer()))
-		return true;
+    struct stat64 filestats;
+    if (stat64(dirPath.GetConstBuffer(), &filestats) == -1) // error
+        return false;
 
-	return false;
+	return S_ISDIR(filestats.st_mode) || S_ISREG(filestats.st_mode);
 }
 
 NzString NzDirectoryImpl::GetCurrent()

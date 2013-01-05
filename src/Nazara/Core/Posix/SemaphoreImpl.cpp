@@ -7,11 +7,11 @@
 #include <Nazara/Core/Error.hpp>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
+#include <sys/time.h>
 
 NzSemaphoreImpl::NzSemaphoreImpl(unsigned int count)
 {
-	m_semaphore = sem_init(&m_semaphore, 0, count);
-	if (!m_semaphore)
+	if(sem_init(&m_semaphore, 0, count) != 0)
 		NazaraError("Failed to create semaphore: " + NzGetLastSystemError());
 }
 
@@ -22,8 +22,8 @@ NzSemaphoreImpl::~NzSemaphoreImpl()
 
 unsigned int NzSemaphoreImpl::GetCount() const
 {
-	int count;
-	sem_getvalue(&m_semaphore, &count);
+	int count=0;
+	sem_getvalue(const_cast<sem_t*>(&m_semaphore), &count);
 	return static_cast<unsigned int>(count);
 }
 
@@ -49,13 +49,16 @@ void NzSemaphoreImpl::Wait()
 
 bool NzSemaphoreImpl::Wait(nzUInt32 timeout)
 {
+    timeval tv;
+    gettimeofday(&tv, nullptr);
+
 	timespec ti;
 	ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
 	ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
 	ti.tv_nsec %= 1000000000;
 
 	#if NAZARA_CORE_SAFE
-	if (sem_timedwait(m_semaphore, timeout) == -1)
+	if (sem_timedwait(&m_semaphore, &ti) != 0)
 	{
 		NazaraError("Failed to wait for semaphore: " + NzGetLastSystemError());
 		return false;
@@ -63,6 +66,6 @@ bool NzSemaphoreImpl::Wait(nzUInt32 timeout)
 
 	return true;
 	#else
-		return sem_timedwait(&m_semaphore, ti) == 0 && errno != ETIMEDOUT;
+		return sem_timedwait(&m_semaphore, &ti) != 0;
 	#endif
 }
