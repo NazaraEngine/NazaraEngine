@@ -35,10 +35,10 @@ namespace
 
 		/********************Uniformes********************/
 		if ((flags & nzShaderBuilder_DiffuseMapping) == 0 || flags & nzShaderBuilder_Lighting)
-			sourceCode += "uniform vec3 DiffuseColor;\n";
+			sourceCode += "uniform vec3 MaterialDiffuseColor;\n";
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
-			sourceCode += "uniform sampler2D DiffuseMap;\n";
+			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
 
 		sourceCode += '\n';
 
@@ -63,9 +63,9 @@ namespace
 		sourceCode += '\t';
 		sourceCode += fragmentColorKW;
 		if (flags & nzShaderBuilder_DiffuseMapping)
-			sourceCode += " = texture2D(DiffuseMap, vTexCoord);\n";
+			sourceCode += " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
 		else
-			sourceCode += " = vec4(DiffuseColor, 1.0);\n";
+			sourceCode += " = vec4(MaterialDiffuseColor, 1.0);\n";
 
 		sourceCode += '}';
 
@@ -100,24 +100,24 @@ namespace
 
 		/********************Entrant********************/
 		sourceCode += inKW;
-		sourceCode += " vec3 Position;\n";
+		sourceCode += " vec3 VertexPosition;\n";
 
 		if (flags & nzShaderBuilder_Lighting || flags & nzShaderBuilder_NormalMapping || flags & nzShaderBuilder_ParallaxMapping)
 		{
 			sourceCode += inKW;
-			sourceCode += " vec3 Normal;\n";
+			sourceCode += " vec3 VertexNormal;\n";
 		}
 
 		if (flags & nzShaderBuilder_Lighting)
 		{
 			sourceCode += inKW;
-			sourceCode += " vec3 Tangent;\n";
+			sourceCode += " vec3 VertexTangent;\n";
 		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_Lighting || flags & nzShaderBuilder_NormalMapping || flags & nzShaderBuilder_ParallaxMapping)
 		{
 			sourceCode += inKW;
-			sourceCode += " vec2 TexCoord0;\n";
+			sourceCode += " vec2 VertexTexCoord0;\n";
 		}
 
 		sourceCode += '\n';
@@ -134,10 +134,10 @@ namespace
 		/********************Code********************/
 		sourceCode += "void main()\n{\n";
 
-		sourceCode += "\tgl_Position = WorldViewProjMatrix * vec4(Position, 1.0);\n";
+		sourceCode += "\tgl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
-			sourceCode += "\tvTexCoord = TexCoord0;\n";
+			sourceCode += "\tvTexCoord = VertexTexCoord0;\n";
 
 		sourceCode += '}';
 
