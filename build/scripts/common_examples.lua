@@ -12,7 +12,7 @@ location("../examples/build/" .. _ACTION)
 
 debugdir "../examples/bin"
 
-includedirs "../include"
+includedirs { "../include", "../extlibs/lib/include" }
 
 libdirs "../lib"
 
