@@ -45,3 +45,4 @@ Forum    : http://forum.digitalpulsesoftware.com
 Merci à
 -RafBill: Recherche de bugs
 -Fissal "DrFisher" Hannoun: Beaucoup d'aide dans la conception de l'architecture du moteur
+-Alexandre "Danman" Janniaux: À fait le port POSIX du noyau
