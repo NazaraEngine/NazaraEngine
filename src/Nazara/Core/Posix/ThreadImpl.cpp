@@ -5,7 +5,6 @@
 #include <Nazara/Core/Posix/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Functor.hpp>
-#include <process.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <Nazara/Core/Debug.hpp>
@@ -27,13 +26,13 @@ void NzThreadImpl::Join()
 	pthread_join(m_handle, nullptr);
 }
 
-unsigned int NzThreadImpl::ThreadProc(void* userdata)
+void* NzThreadImpl::ThreadProc(void* userdata)
 {
 	NzFunctor* func = static_cast<NzFunctor*>(userdata);
 	func->Run();
 	delete func;
 
-	return 0;
+	return nullptr;
 }
 
 void NzThreadImpl::Sleep(nzUInt32 time)
@@ -48,7 +47,7 @@ void NzThreadImpl::Sleep(nzUInt32 time)
 
     // get the current time
     timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
 
     // construct the time limit (current time + time to wait)
     timespec ti;

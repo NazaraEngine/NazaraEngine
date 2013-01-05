@@ -28,7 +28,7 @@ void NzConditionVariableImpl::SignalAll()
 
 void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 {
-	pthread_cond_wait(&m_cv, mutex);
+	pthread_cond_wait(&m_cv, &mutex->m_handle);
 }
 
 bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
@@ -43,5 +43,5 @@ bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
     ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
     ti.tv_nsec %= 1000000000;
 
-    pthread_cond_timedwait(&m_cv,mutex, &tv);
+    return pthread_cond_timedwait(&m_cv,&mutex->m_handle, &ti) != 0;
 }
