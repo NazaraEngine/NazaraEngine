@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,11 +19,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-/*
-    04/01/2012 : alexandre.janniaux@gmail.com
-    Add posix file implementation.
-*/
 
 class NzFile;
 class NzString;
@@ -54,7 +49,6 @@ class NzFileImpl : NzNonCopyable
 
 	private:
 		int m_fileDescriptor;
-		FILE* m_handle;
 		mutable bool m_endOfFile;
 		mutable bool m_endOfFileUpdated;
 };
