@@ -1,8 +1,6 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-// Inspiré du code de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -11,8 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <pthread.h>
-#include <unistd.h>
-#include <sys/time.h>
 
 struct NzFunctor;
 
