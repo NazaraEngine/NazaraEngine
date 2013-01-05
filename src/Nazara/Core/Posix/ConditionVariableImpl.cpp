@@ -33,15 +33,15 @@ void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 
 bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 {
-    // get the current time
-    timeval tv;
-    gettimeofday(&tv, NULL);
+	// get the current time
+	timeval tv;
+	gettimeofday(&tv, NULL);
 
-    // construct the time limit (current time + time to wait)
-    timespec ti;
-    ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
-    ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
-    ti.tv_nsec %= 1000000000;
+	// construct the time limit (current time + time to wait)
+	timespec ti;
+	ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
+	ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
+	ti.tv_nsec %= 1000000000;
 
-    pthread_cond_timedwait(&m_cv,mutex, &tv);
+	return pthread_cond_timedwait(&m_cv,mutex, &tv) != ETIMEDOUT;
 }
