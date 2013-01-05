@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,10 +49,10 @@ void NzSemaphoreImpl::Wait()
 
 bool NzSemaphoreImpl::Wait(nzUInt32 timeout)
 {
-    timespec ti;
-    ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
-    ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
-    ti.tv_nsec %= 1000000000;
+	timespec ti;
+	ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
+	ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
+	ti.tv_nsec %= 1000000000;
 
 	#if NAZARA_CORE_SAFE
 	if (sem_timedwait(m_semaphore, timeout) == -1)
@@ -61,8 +61,8 @@ bool NzSemaphoreImpl::Wait(nzUInt32 timeout)
 		return false;
 	}
 
-    return true;
+	return true;
 	#else
-        return sem_timedwait(&m_semaphore, ti) != -1;
+		return sem_timedwait(&m_semaphore, ti) == 0 && errno != ETIMEDOUT;
 	#endif
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,10 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <dirent.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
 
 class NzDirectory;
 class NzString;
@@ -42,7 +42,6 @@ class NzDirectoryImpl : NzNonCopyable
 	private:
 		DIR* m_handle;
 		dirent64* m_result;
-		bool m_firstCall;
 };
 
 #endif // NAZARA_DIRECTORYIMPL_HPP

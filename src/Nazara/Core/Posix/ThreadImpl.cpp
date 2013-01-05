@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <process.h>
+#include <unistd.h>
+#include <sys/time.h>
 #include <Nazara/Core/Debug.hpp>
 
 NzThreadImpl::NzThreadImpl(NzFunctor* functor)
@@ -17,25 +19,19 @@ NzThreadImpl::NzThreadImpl(NzFunctor* functor)
 
 void NzThreadImpl::Detach()
 {
-	// http://stackoverflow.com/questions/418742/is-it-reasonable-to-call-closehandle-on-a-thread-before-it-terminates
-	pthread_detach(&m_handle);
+	pthread_detach(m_handle);
 }
 
 void NzThreadImpl::Join()
 {
-	pthread_join(&m_handle, nullptr);
+	pthread_join(m_handle, nullptr);
 }
 
-unsigned int __stdcall NzThreadImpl::ThreadProc(void* userdata)
+unsigned int NzThreadImpl::ThreadProc(void* userdata)
 {
 	NzFunctor* func = static_cast<NzFunctor*>(userdata);
 	func->Run();
 	delete func;
-
-	/*
-	En C++, il vaut mieux retourner depuis la fonction que de quitter le thread explicitement
-	Source : http://msdn.microsoft.com/en-us/library/windows/desktop/ms682659(v=vs.85).aspx
-	*/
 
 	return 0;
 }
@@ -50,16 +46,14 @@ void NzThreadImpl::Sleep(nzUInt32 time)
 
     // this implementation is inspired from Qt
 
-    nzUint64 usecs = time.asMicroseconds();
-
     // get the current time
     timeval tv;
     gettimeofday(&tv, NULL);
 
     // construct the time limit (current time + time to wait)
     timespec ti;
-    ti.tv_nsec = (tv.tv_usec + (usecs % 1000000)) * 1000;
-    ti.tv_sec = tv.tv_sec + (usecs / 1000000) + (ti.tv_nsec / 1000000000);
+    ti.tv_nsec = (tv.tv_usec + (time % 1000)) * 1000;
+    ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
     ti.tv_nsec %= 1000000000;
 
     // create a mutex and thread condition
