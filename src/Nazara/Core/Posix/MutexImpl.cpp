@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,20 +12,20 @@ NzMutexImpl::NzMutexImpl()
 
 NzMutexImpl::~NzMutexImpl()
 {
-    pthread_mutex_destroy(&m_handle);
+	pthread_mutex_destroy(m_handle);
 }
 
 void NzMutexImpl::Lock()
 {
-	pthread_mutex_lock(&m_handle);
+	pthread_mutex_lock(m_handle);
 }
 
 bool NzMutexImpl::TryLock()
 {
-    pthread_mutex_trylock(&m_handle) == 0;
+	return pthread_mutex_trylock(m_handle) == 0;
 }
 
 void NzMutexImpl::Unlock()
 {
-	pthread_mutex_unlock(&m_handle);
+	pthread_mutex_unlock(m_handle);
 }

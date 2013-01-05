@@ -1,11 +1,6 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-/*
-    04/01/2012 : alexandre.janniaux@gmail.com
-    Add pthread mutex implementation.
-*/
 
 #pragma once
 

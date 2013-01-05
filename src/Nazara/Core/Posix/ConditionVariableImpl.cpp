@@ -1,8 +1,6 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-// Source: http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
 
 #include <Nazara/Core/Posix/ConditionVariableImpl.hpp>
 #include <Nazara/Core/Posix/MutexImpl.hpp>
@@ -35,8 +33,6 @@ void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 
 bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 {
-
-
     // get the current time
     timeval tv;
     gettimeofday(&tv, NULL);
@@ -48,5 +44,4 @@ bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
     ti.tv_nsec %= 1000000000;
 
     pthread_cond_timedwait(&m_cv,mutex, &tv);
-
 }

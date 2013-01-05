@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Jérôme Leclercq
+// Copyright (C) 2012 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,7 +22,6 @@ class NzConditionVariableImpl
 		NzConditionVariableImpl();
 		~NzConditionVariableImpl();
 
-
 		void Signal();
 		void SignalAll();
 
@@ -30,7 +29,6 @@ class NzConditionVariableImpl
 		bool Wait(NzMutexImpl* mutex, nzUInt32 timeout);
 
 	private:
-
 		pthread_cond_t m_cv;
 };
 
