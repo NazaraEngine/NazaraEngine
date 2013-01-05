@@ -111,14 +111,14 @@ bool NzGLSLShader::Create()
 		return false;
 	}
 
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Position], "Position");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Normal], "Normal");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Diffuse], "Diffuse");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "Tangent");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Position], "VertexPosition");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Normal], "VertexNormal");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Diffuse], "VertexDiffuse");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "VertexTangent");
 
 	NzString uniform;
-	uniform.Reserve(10); // 8 + 2
-	uniform = "TexCoord";
+	uniform.Reserve(16); // 14 + 2
+	uniform = "VertexTexCoord";
 
 	unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
 	for (unsigned int i = 0; i < maxTexCoords; ++i)
