@@ -28,7 +28,7 @@ void NzConditionVariableImpl::SignalAll()
 
 void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 {
-	pthread_cond_wait(&m_cv, mutex);
+	pthread_cond_wait(&m_cv, &mutex->m_handle);
 }
 
 bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
