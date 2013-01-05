@@ -1,4 +1,4 @@
-Nazara Engine
+﻿Nazara Engine
 =============
 
 Nazara Engine is a fast, complete, cross-platform, object-oriented API which can help you in your daily developper life.
@@ -45,3 +45,4 @@ Forum   : http://forum.digitalpulsesoftware.com
 Thanks to
 -RafBill: Finding bugs
 -Fissal "DrFisher" Hannoun: Helped a lot in architecture design
+-Alexandre "Danman" Janniaux: Made the core POSIX port
