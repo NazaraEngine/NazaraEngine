@@ -707,18 +707,20 @@ void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 	#endif
 
 	s_matrix[type] = matrix;
+	s_matrixUpdated[type] = false;
 
 	// Invalidation des combinaisons
-	switch (type)
+	if (type == nzMatrixType_View)
 	{
-		case nzMatrixType_View:
-		case nzMatrixType_World:
-			s_matrixUpdated[nzMatrixCombination_WorldView] = false;
-		case nzMatrixType_Projection:
-			s_matrixUpdated[nzMatrixCombination_WorldViewProj] = false;
-			s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
-			break;
+		s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
+		s_matrixUpdated[nzMatrixCombination_WorldView] = false;
 	}
+	else if (type == nzMatrixType_Projection)
+		s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
+	else if (type == nzMatrixType_World)
+		s_matrixUpdated[nzMatrixCombination_WorldView] = false;
+
+	s_matrixUpdated[nzMatrixCombination_WorldViewProj] = false; // Toujours invalidée
 }
 
 void NzRenderer::SetPointSize(float size)
