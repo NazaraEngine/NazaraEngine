@@ -17,12 +17,12 @@ nzUInt64 NzClockImplGetMicroseconds()
 {
 	timeval clock;
 	gettimeofday(&clock, nullptr);
-	return static_cast<nzUInt64>(clock.tv_sec*1000000 + (clock.tv_nsec/1000));
+	return static_cast<nzUInt64>(clock.tv_sec*1000000 + clock.tv_usec);
 }
 
 nzUInt64 NzClockImplGetMilliseconds()
 {
 	timeval clock;
 	gettimeofday(&clock, nullptr);
-	return static_cast<nzUInt64>(clock.tv_sec*1000 + (clock.tv_nsec/1000000));
+	return static_cast<nzUInt64>(clock.tv_sec*1000 + (clock.tv_usec/1000));
 }

@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Posix/Time.hpp>
 #include <Nazara/Core/Debug.hpp>
 #include <stdio.h>
 #include <unistd.h>
@@ -26,7 +25,7 @@ bool NzFileImpl::EndOfFile() const
 {
 	if (!m_endOfFileUpdated)
 	{
-		stat64 fileSize;
+		struct stat64 fileSize;
 		if (fstat64(m_fileDescriptor, &fileSize) == -1)
 			fileSize.st_size = 0;
 
@@ -192,7 +191,7 @@ bool NzFileImpl::Delete(const NzString& filePath)
 
 bool NzFileImpl::Exists(const NzString& filePath)
 {
-	char* path = filePath.GetConstBuffer();
+	const char* path = filePath.GetConstBuffer();
 	if (access(path, F_OK) != -1)
 		return true;
 
