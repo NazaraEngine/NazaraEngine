@@ -23,7 +23,7 @@ class NzThreadImpl
 		static void Sleep(nzUInt32 time);
 
 	private:
-		static unsigned int ThreadProc(void* userdata);
+		static void* ThreadProc(void* userdata);
 
 		pthread_t m_handle;
 };
