@@ -269,7 +269,7 @@ void NzMaterial::Reset()
 	m_dstBlend = nzBlendFunc_Zero;
 	m_faceCulling = nzFaceCulling_Back;
 	m_faceFilling = nzFaceFilling_Fill;
-	m_shininess = 0;
+	m_shininess = 50.f;
 	m_specularColor = NzColor::White;
 	m_specularSampler = NzTextureSampler();
 	m_srcBlend = nzBlendFunc_One;
