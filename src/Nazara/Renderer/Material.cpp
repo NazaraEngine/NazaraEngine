@@ -95,7 +95,7 @@ void NzMaterial::Apply() const
 		shader->SendFloat(shininessLocation, m_shininess);
 
 	if (specularColorLocation != -1)
-		shader->SendColor(ambientColorLocation, m_specularColor);
+		shader->SendColor(specularColorLocation, m_specularColor);
 
 	if (m_specularMap)
 	{
