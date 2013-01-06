@@ -308,10 +308,10 @@ bool NzGLSLShader::SendBoolean(int location, bool value)
 
 bool NzGLSLShader::SendColor(int location, const NzColor& color)
 {
-	NzVector3f vecColor(color.r/255.f, color.g/255.f, color.b/255.f);
+	NzVector4f vecColor(color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f);
 
-	if (glProgramUniform3fv)
-		glProgramUniform3fv(m_program, location, 1, vecColor);
+	if (glProgramUniform4fv)
+		glProgramUniform4fv(m_program, location, 1, vecColor);
 	else
 	{
 		if (!Lock())
@@ -320,7 +320,7 @@ bool NzGLSLShader::SendColor(int location, const NzColor& color)
 			return false;
 		}
 
-		glUniform3fv(location, 1, vecColor);
+		glUniform4fv(location, 1, vecColor);
 		Unlock();
 	}
 
