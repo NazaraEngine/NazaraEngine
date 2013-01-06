@@ -67,10 +67,10 @@ void NzMaterial::Apply() const
 	}
 	#endif
 
-	int ambientColorLocation = shader->GetUniformLocation("MaterialAmbientColor");
-	int diffuseColorLocation = shader->GetUniformLocation("MaterialDiffuseColor");
+	int ambientColorLocation = shader->GetUniformLocation("MaterialAmbient");
+	int diffuseColorLocation = shader->GetUniformLocation("MaterialDiffuse");
 	int shininessLocation = shader->GetUniformLocation("MaterialShininess");
-	int specularColorLocation = shader->GetUniformLocation("MaterialSpecularColor");
+	int specularColorLocation = shader->GetUniformLocation("MaterialSpecular");
 
 	if (ambientColorLocation != -1)
 		shader->SendColor(ambientColorLocation, m_ambientColor);
