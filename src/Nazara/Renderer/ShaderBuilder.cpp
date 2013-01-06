@@ -35,7 +35,7 @@ namespace
 
 		/********************Uniformes********************/
 		if ((flags & nzShaderBuilder_DiffuseMapping) == 0 || flags & nzShaderBuilder_Lighting)
-			sourceCode += "uniform vec3 MaterialDiffuse;\n";
+			sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
 			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
@@ -65,7 +65,7 @@ namespace
 		if (flags & nzShaderBuilder_DiffuseMapping)
 			sourceCode += " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
 		else
-			sourceCode += " = vec4(MaterialDiffuse, 1.0);\n";
+			sourceCode += " = MaterialDiffuse;\n";
 
 		sourceCode += '}';
 
