@@ -115,7 +115,7 @@ namespace
 
 		if (flags & nzShaderBuilder_Lighting)
 		{
-			sourceCode += "vec4 light = vec4(0.0, 0.0, 0.0, 1.0);\n"
+			sourceCode += "vec3 light = vec3(0.0, 0.0, 0.0);\n"
 			              "vec3 normal = normalize(vNormal);\n"
 			              "\n"
 			              "for (int i = 0; i < LightCount; ++i)\n"
@@ -133,11 +133,10 @@ namespace
 			// Directional Light
 			sourceCode += "{\n"
 			              "vec3 lightDir = normalize(-Lights[i].parameters1.xyz);\n"
-			              "light += Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
-			              //"light += Lights[i].ambient * SceneAmbient;\n"
+			              "light += Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
 			              "\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
-			              "light += lambert * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "light += lambert * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -145,7 +144,7 @@ namespace
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += specular * Lights[i].specular * MaterialSpecular;\n"
+			              "light += specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -164,12 +163,11 @@ namespace
 			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
 			              "\n"
 			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);\n"
-			              "light += att * Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
-			              //"light += att * Lights[i].ambient * SceneAmbient;\n"
+			              "light += att * Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
 			              "\n"
 			              "lightDir = normalize(lightDir);\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
-			              "light += att * lambert * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "light += att * lambert * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -177,7 +175,7 @@ namespace
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += att * specular * Lights[i].specular * MaterialSpecular;\n"
+			              "light += att * specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -198,8 +196,7 @@ namespace
 			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
 			              "\n"
 			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*length(lightDir), 0.0);\n"
-			              "light += att * Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
-			              //"light += att * Lights[i].ambient * SceneAmbient;\n"
+			              "light += att * Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
 			              "\n"
 			              "lightDir = normalize(lightDir);\n"
 			              "\n"
@@ -208,7 +205,7 @@ namespace
 			              "float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
 			              "float spot = max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);\n"
-			              "light += att * lambert * spot * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "light += att * lambert * spot * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -216,7 +213,7 @@ namespace
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += att * specular * spot * Lights[i].specular * MaterialSpecular;\n"
+			              "light += att * specular * spot * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -233,7 +230,7 @@ namespace
 			sourceCode += "}\n"
 			              "\n";
 
-			sourceCode += fragmentColorKW + "	= light";
+			sourceCode += fragmentColorKW + "	= vec4(light, MaterialDiffuse.w)";
 
 			if (flags & nzShaderBuilder_DiffuseMapping)
 				sourceCode += " * texture2D(MaterialDiffuseMap, vTexCoord)";
