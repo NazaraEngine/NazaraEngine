@@ -152,7 +152,8 @@ enum nzShaderBuilderFlags
 	nzShaderBuilder_Instancing      = 0x04,
 	nzShaderBuilder_Lighting        = 0x08,
 	nzShaderBuilder_NormalMapping   = 0x10,
-	nzShaderBuilder_ParallaxMapping = 0x20
+	nzShaderBuilder_ParallaxMapping = 0x20,
+	nzShaderBuilder_SpecularMapping = 0x40
 };
 
 enum nzShaderLanguage
