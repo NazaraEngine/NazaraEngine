@@ -4,9 +4,11 @@
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <map>
+#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -15,39 +17,89 @@ namespace
 
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{
-		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
-		bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
+		bool glsl150 = (NzOpenGL::GetVersion() >= 320);
+		bool useMRT = (glsl150 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
 
-		NzString inKW = (glsl140) ? "in" : "varying";
-		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
+		NzString inKW = (glsl150) ? "in" : "varying";
+		NzString fragmentColorKW = (glsl150) ? "RenderTarget0" : "gl_FragColor";
 
 		NzString sourceCode;
-		sourceCode.Reserve(256); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
+		sourceCode.Reserve(512); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
-		/********************Version de GLSL********************/
+		/********************Préprocesseur********************/
 		sourceCode = "#version ";
-		if (glsl140)
-			sourceCode += "140\n";
+		if (glsl150)
+			sourceCode += "150 core\n";
 		else
 			sourceCode += "110\n";
 
 		sourceCode += '\n';
 
+		if (flags & nzShaderBuilder_Lighting)
+		{
+			sourceCode += "#define LIGHT_DIRECTIONAL 0\n"
+			              "#define LIGHT_POINT 1\n"
+			              "#define LIGHT_SPOT 2\n"
+			              "#define MAX_LIGHTS 8\n"
+			              "\n";
+		}
+
+		sourceCode += '\n';
+
 		/********************Uniformes********************/
+		if (flags & nzShaderBuilder_Lighting)
+		{
+			sourceCode += "struct Light\n"
+			              "{\n"
+			              "int type;\n"
+			              "vec4 ambient;\n"
+			              "vec4 diffuse;\n"
+			              "vec4 specular;\n"
+			              "\n"
+			              "vec4 parameters1;\n"
+			              "vec4 parameters2;\n"
+			              "vec2 parameters3;\n"
+			              "};\n"
+			              "\n";
+		}
+
+		if (flags & nzShaderBuilder_Lighting)
+		{
+			sourceCode += "uniform vec3 CameraPosition;\n"
+			              "uniform int LightCount;\n"
+			              "uniform Light Lights[MAX_LIGHTS];\n"
+			              "uniform vec4 MaterialAmbient;\n";
+		}
+
 		if ((flags & nzShaderBuilder_DiffuseMapping) == 0 || flags & nzShaderBuilder_Lighting)
 			sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
 			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
 
+		if (flags & nzShaderBuilder_Lighting)
+		{
+			sourceCode += "uniform float MaterialShininess;\n"
+			              "uniform vec4 MaterialSpecular;\n";
+		}
+
+		/*if (flags & nzShaderBuilder_SpecularMapping)
+			sourceCode += "uniform sampler2D MaterialSpecularMap;\n";*/
+
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += "uniform vec4 SceneAmbient;\n";
+
 		sourceCode += '\n';
 
 		/********************Entrant********************/
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += inKW + " vec3 vNormal;\n";
+
 		if (flags & nzShaderBuilder_DiffuseMapping)
-		{
-			sourceCode += inKW;
-			sourceCode += " vec2 vTexCoord;\n";
-		}
+			sourceCode += inKW + " vec2 vTexCoord;\n";
+
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += inKW + " vec3 vWorldPos;\n";
 
 		sourceCode += '\n';
 
@@ -57,118 +109,243 @@ namespace
 
 		sourceCode += '\n';
 
-		/********************Code********************/
-		sourceCode += "void main()\n{\n";
+		/********************Fonctions********************/
+		sourceCode += "void main()\n"
+		              "{\n";
 
-		sourceCode += '\t';
-		sourceCode += fragmentColorKW;
-		if (flags & nzShaderBuilder_DiffuseMapping)
-			sourceCode += " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
+		if (flags & nzShaderBuilder_Lighting)
+		{
+			sourceCode += "vec4 light = vec4(0.0, 0.0, 0.0, 1.0);\n"
+			              "vec3 normal = normalize(vNormal);\n"
+			              "\n"
+			              "for (int i = 0; i < LightCount; ++i)\n"
+			              "{\n";
+
+			if (glsl150)
+			{
+				sourceCode += "switch (Lights[i].type)\n"
+				              "{\n"
+				              "case LIGHT_DIRECTIONAL:\n";
+			}
+			else // Le GLSL 110 n'a pas d'instruction switch
+				sourceCode += "if (Lights[i].type == LIGHT_DIRECTIONAL)\n";
+
+			// Directional Light
+			sourceCode += "{\n"
+			              "vec3 lightDir = normalize(-Lights[i].parameters1.xyz);\n"
+			              "light += Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
+			              //"light += Lights[i].ambient * SceneAmbient;\n"
+			              "\n"
+			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
+			              "light += lambert * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "\n"
+			              "if (MaterialShininess > 0.0)\n"
+			              "{\n"
+			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
+			              "vec3 reflection = reflect(-lightDir, normal);\n"
+			              "\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
+			              "light += specular * Lights[i].specular * MaterialSpecular;\n"
+			              "}\n";
+
+			if (glsl150)
+			{
+				sourceCode += "break;\n"
+				              "}\n"
+				              "\n"
+				              "case LIGHT_POINT:\n";
+			}
+			else
+				sourceCode += "}\n"
+				              "else if (Lights[i].type == LIGHT_POINT)\n";
+
+			// Point Light
+			sourceCode += "{\n"
+			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
+			              "\n"
+			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);\n"
+			              "light += att * Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
+			              //"light += att * Lights[i].ambient * SceneAmbient;\n"
+			              "\n"
+			              "lightDir = normalize(lightDir);\n"
+			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
+			              "light += att * lambert * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "\n"
+			              "if (MaterialShininess > 0.0)\n"
+			              "{\n"
+			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
+			              "vec3 reflection = reflect(-lightDir, normal);\n"
+			              "\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
+			              "light += att * specular * Lights[i].specular * MaterialSpecular;\n"
+			              "}\n";
+
+			if (glsl150)
+			{
+				sourceCode += "break;\n"
+				              "}\n"
+				              "\n"
+				              "case LIGHT_SPOT:\n";
+			}
+			else
+			{
+				sourceCode += "}\n"
+				              "else if (Lights[i].type == LIGHT_SPOT)\n";
+			}
+
+			// Spot Light
+			sourceCode += "{\n"
+			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
+			              "\n"
+			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*length(lightDir), 0.0);\n"
+			              "light += att * Lights[i].ambient * (MaterialAmbient + SceneAmbient);\n"
+			              //"light += att * Lights[i].ambient * SceneAmbient;\n"
+			              "\n"
+			              "lightDir = normalize(lightDir);\n"
+			              "\n"
+			              "float curAngle = dot(Lights[i].parameters2.xyz, -lightDir);\n"
+			              "float outerAngle = Lights[i].parameters3.y;\n"
+			              "float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;\n"
+			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
+			              "float spot = max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);\n"
+			              "light += att * lambert * spot * Lights[i].diffuse * MaterialDiffuse;\n"
+			              "\n"
+			              "if (MaterialShininess > 0.0)\n"
+			              "{\n"
+			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
+			              "vec3 reflection = reflect(-lightDir, normal);\n"
+			              "\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
+			              "light += att * specular * spot * Lights[i].specular * MaterialSpecular;\n"
+			              "}\n";
+
+			if (glsl150)
+			{
+				sourceCode += "break;\n"
+				              "}\n"
+				              "default:\n"
+				              "break;\n"
+				              "}\n";
+			}
+			else
+				sourceCode += "}\n";
+
+			sourceCode += "}\n"
+			              "\n";
+
+			sourceCode += fragmentColorKW + "	= light";
+
+			if (flags & nzShaderBuilder_DiffuseMapping)
+				sourceCode += " * texture2D(MaterialDiffuseMap, vTexCoord)";
+
+			sourceCode += ";\n";
+		}
+		else if (flags & nzShaderBuilder_DiffuseMapping)
+			sourceCode += fragmentColorKW + " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
 		else
-			sourceCode += " = MaterialDiffuse;\n";
+			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
 
-		sourceCode += '}';
-
-		sourceCode += '\n';
+		sourceCode += "}\n";
 
 		return sourceCode;
 	}
 
 	NzString BuildVertexShaderSource(nzUInt32 flags)
 	{
-		bool glsl140 = (NzOpenGL::GetVersion() >= 300);
+		bool glsl150 = (NzOpenGL::GetVersion() >= 300);
 
-		NzString inKW = (glsl140) ? "in" : "attribute";
-		NzString outKW = (glsl140) ? "out" : "varying";
+		NzString inKW = (glsl150) ? "in" : "attribute";
+		NzString outKW = (glsl150) ? "out" : "varying";
 
 		NzString sourceCode;
 		sourceCode.Reserve(256); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
 		/********************Version de GLSL********************/
 		sourceCode = "#version ";
-		if (glsl140)
-			sourceCode += "140\n";
+		if (glsl150)
+			sourceCode += "150 core\n";
 		else
 			sourceCode += "110\n";
 
 		sourceCode += '\n';
 
 		/********************Uniformes********************/
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += "uniform mat4 WorldMatrix;\n";
+
 		sourceCode += "uniform mat4 WorldViewProjMatrix;\n";
 
 		sourceCode += '\n';
 
 		/********************Entrant********************/
-		sourceCode += inKW;
-		sourceCode += " vec3 VertexPosition;\n";
-
-		if (flags & nzShaderBuilder_Lighting || flags & nzShaderBuilder_NormalMapping || flags & nzShaderBuilder_ParallaxMapping)
-		{
-			sourceCode += inKW;
-			sourceCode += " vec3 VertexNormal;\n";
-		}
+		sourceCode += inKW + " vec3 VertexPosition;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
-		{
-			sourceCode += inKW;
-			sourceCode += " vec3 VertexTangent;\n";
-		}
+			sourceCode += inKW + " vec3 VertexNormal;\n";
 
-		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_Lighting || flags & nzShaderBuilder_NormalMapping || flags & nzShaderBuilder_ParallaxMapping)
-		{
-			sourceCode += inKW;
-			sourceCode += " vec2 VertexTexCoord0;\n";
-		}
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += inKW + " vec3 VertexTangent;\n";
+
+		if (flags & nzShaderBuilder_DiffuseMapping)
+			sourceCode += inKW + " vec2 VertexTexCoord0;\n";
 
 		sourceCode += '\n';
 
 		/********************Sortant********************/
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += outKW + " vec3 vNormal;\n";
+
 		if (flags & nzShaderBuilder_DiffuseMapping)
-		{
-			sourceCode += outKW;
-			sourceCode += " vec2 vTexCoord;\n";
-		}
+			sourceCode += outKW + " vec2 vTexCoord;\n";
+
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += outKW + " vec3 vWorldPos;\n";
 
 		sourceCode += '\n';
 
 		/********************Code********************/
-		sourceCode += "void main()\n{\n";
+		sourceCode += "void main()\n"
+		              "{\n"
+		              "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
 
-		sourceCode += "\tgl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += "vNormal = normalize(mat3(WorldMatrix) * VertexNormal);\n";
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
-			sourceCode += "\tvTexCoord = VertexTexCoord0;\n";
+			sourceCode += "vTexCoord = VertexTexCoord0;\n";
 
-		sourceCode += '}';
+		if (flags & nzShaderBuilder_Lighting)
+			sourceCode += "vWorldPos = vec3(WorldMatrix * vec4(VertexPosition, 1.0));\n";
 
-		sourceCode += '\n';
+		sourceCode += "}\n";
 
 		return sourceCode;
 	}
-}
 
-const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
-{
-	auto it = s_shaders.find(flags);
-	if (it == s_shaders.end())
+	NzShader* BuildShader(nzUInt32 flags)
 	{
-		// Alors nous créons le shader
-		NzShader* shader = new NzShader;
+		std::unique_ptr<NzShader> shader(new NzShader);
 		if (!shader->Create(nzShaderLanguage_GLSL))
 		{
 			NazaraError("Failed to create shader");
 			return nullptr;
 		}
 
-		if (!shader->Load(nzShaderType_Fragment, BuildFragmentShaderSource(flags)))
+		NzString fragmentSource = BuildFragmentShaderSource(flags);
+		if (!shader->Load(nzShaderType_Fragment, fragmentSource))
 		{
 			NazaraError("Failed to load fragment shader: " + shader->GetLog());
+			NazaraNotice("Fragment shader source: ");
+			NazaraNotice(fragmentSource);
 			return nullptr;
 		}
 
-		if (!shader->Load(nzShaderType_Vertex, BuildVertexShaderSource(flags)))
+		NzString vertexSource = BuildVertexShaderSource(flags);
+		if (!shader->Load(nzShaderType_Vertex, vertexSource))
 		{
 			NazaraError("Failed to load vertex shader: " + shader->GetLog());
+			NazaraNotice("Vertex shader source: ");
+			NazaraNotice(vertexSource);
 			return nullptr;
 		}
 
@@ -178,7 +355,22 @@ const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
 			return nullptr;
 		}
 
+		return shader.release();
+	}
+}
+
+const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
+{
+	auto it = s_shaders.find(flags);
+	if (it == s_shaders.end())
+	{
+		// Alors nous créons le shader
+		NzShader* shader = BuildShader(flags);
+		if (!shader) ///TODO: Ajouter une erreur en mode Once
+			return s_shaders[0]; // Shader par défaut
+
 		s_shaders[flags] = shader;
+		///TODO: emplace
 
 		return shader;
 	}
@@ -188,6 +380,15 @@ const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
 
 bool NzShaderBuilder::Initialize()
 {
+	NzShader* shader = BuildShader(0);
+	if (!shader)
+	{
+		NazaraInternalError("Failed to build default shader");
+		return false;
+	}
+
+	s_shaders[0] = shader;
+
 	return true;
 }
 
