@@ -83,8 +83,8 @@ namespace
 			              "uniform vec4 MaterialSpecular;\n";
 		}
 
-		/*if (flags & nzShaderBuilder_SpecularMapping)
-			sourceCode += "uniform sampler2D MaterialSpecularMap;\n";*/
+		if (flags & nzShaderBuilder_SpecularMapping)
+			sourceCode += "uniform sampler2D MaterialSpecularMap;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
 			sourceCode += "uniform vec4 SceneAmbient;\n";
@@ -115,8 +115,12 @@ namespace
 
 		if (flags & nzShaderBuilder_Lighting)
 		{
-			sourceCode += "vec3 light = vec3(0.0, 0.0, 0.0);\n"
-			              "vec3 normal = normalize(vNormal);\n"
+			sourceCode += "vec3 light = vec3(0.0, 0.0, 0.0);\n";
+
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += "vec3 si = vec3(0.0, 0.0, 0.0);\n";
+
+			sourceCode += "vec3 normal = normalize(vNormal);\n"
 			              "\n"
 			              "for (int i = 0; i < LightCount; ++i)\n"
 			              "{\n";
@@ -143,8 +147,14 @@ namespace
 			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
-			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
+
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += "si";
+			else
+				sourceCode += "light";
+
+			sourceCode += " += specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -174,8 +184,14 @@ namespace
 			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
-			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += att * specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
+
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += "si";
+			else
+				sourceCode += "light";
+
+			sourceCode += " += att * specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -212,8 +228,14 @@ namespace
 			              "vec3 eyeVec = normalize(CameraPosition - vWorldPos);\n"
 			              "vec3 reflection = reflect(-lightDir, normal);\n"
 			              "\n"
-			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n"
-			              "light += att * specular * spot * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
+
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += "si";
+			else
+				sourceCode += "light";
+
+			sourceCode += " += att * specular * spot * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -233,7 +255,10 @@ namespace
 			sourceCode += fragmentColorKW + "	= vec4(light, MaterialDiffuse.w)";
 
 			if (flags & nzShaderBuilder_DiffuseMapping)
-				sourceCode += " * texture2D(MaterialDiffuseMap, vTexCoord)";
+				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
+
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += " + vec4(light, MaterialDiffuse.w)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser MaterialSpecular.w n'aurait aucun sens
 
 			sourceCode += ";\n";
 		}
