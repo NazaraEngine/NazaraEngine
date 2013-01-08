@@ -28,6 +28,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 	public:
 		NzShader() = default;
 		NzShader(nzShaderLanguage language);
+		NzShader(NzShader&& shader);
 		~NzShader();
 
 		bool Create(nzShaderLanguage language);
@@ -67,6 +68,8 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool SendVector(int location, const NzVector4f& vector) const;
 
 		void Unlock();
+
+		NzShader& operator=(NzShader&& shader);
 
 		static bool IsLanguageSupported(nzShaderLanguage language);
 		static bool IsTypeSupported(nzShaderType type);
