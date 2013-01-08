@@ -19,6 +19,12 @@ NzShader::NzShader(nzShaderLanguage language)
 	Create(language);
 }
 
+NzShader::NzShader(NzShader&& shader) :
+m_impl(shader.m_impl)
+{
+	shader.m_impl = nullptr;
+}
+
 NzShader::~NzShader()
 {
 	Destroy();
@@ -607,6 +613,16 @@ void NzShader::Unlock()
 	#endif
 
 	return m_impl->Unlock();
+}
+
+NzShader& NzShader::operator=(NzShader&& shader)
+{
+	Destroy();
+
+	m_impl = shader.m_impl;
+	shader.m_impl = nullptr;
+
+	return *this;
 }
 
 bool NzShader::IsLanguageSupported(nzShaderLanguage language)
