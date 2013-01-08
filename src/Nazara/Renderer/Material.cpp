@@ -263,7 +263,7 @@ void NzMaterial::Reset()
 	}
 
 	m_alphaBlendingEnabled = false;
-	m_ambientColor = NzColor::Black;
+	m_ambientColor = NzColor(128, 128, 128);
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
 	m_dstBlend = nzBlendFunc_Zero;
