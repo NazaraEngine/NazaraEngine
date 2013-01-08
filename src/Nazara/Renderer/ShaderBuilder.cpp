@@ -17,19 +17,19 @@ namespace
 
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{
-		bool glsl150 = (NzOpenGL::GetVersion() >= 320);
-		bool useMRT = (glsl150 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
+		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
+		bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
 
-		NzString inKW = (glsl150) ? "in" : "varying";
-		NzString fragmentColorKW = (glsl150) ? "RenderTarget0" : "gl_FragColor";
+		NzString inKW = (glsl140) ? "in" : "varying";
+		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
 
 		NzString sourceCode;
 		sourceCode.Reserve(512); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
 		/********************Préprocesseur********************/
 		sourceCode = "#version ";
-		if (glsl150)
-			sourceCode += "150 core\n";
+		if (glsl140)
+			sourceCode += "140\n";
 		else
 			sourceCode += "110\n";
 
@@ -121,7 +121,7 @@ namespace
 			              "for (int i = 0; i < LightCount; ++i)\n"
 			              "{\n";
 
-			if (glsl150)
+			if (glsl140)
 			{
 				sourceCode += "switch (Lights[i].type)\n"
 				              "{\n"
@@ -148,7 +148,7 @@ namespace
 			              "light += specular * Lights[i].specular * MaterialSpecular;\n"
 			              "}\n";
 
-			if (glsl150)
+			if (glsl140)
 			{
 				sourceCode += "break;\n"
 				              "}\n"
@@ -180,7 +180,7 @@ namespace
 			              "light += att * specular * Lights[i].specular * MaterialSpecular;\n"
 			              "}\n";
 
-			if (glsl150)
+			if (glsl140)
 			{
 				sourceCode += "break;\n"
 				              "}\n"
@@ -219,7 +219,7 @@ namespace
 			              "light += att * specular * spot * Lights[i].specular * MaterialSpecular;\n"
 			              "}\n";
 
-			if (glsl150)
+			if (glsl140)
 			{
 				sourceCode += "break;\n"
 				              "}\n"
@@ -252,18 +252,18 @@ namespace
 
 	NzString BuildVertexShaderSource(nzUInt32 flags)
 	{
-		bool glsl150 = (NzOpenGL::GetVersion() >= 300);
+		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
 
-		NzString inKW = (glsl150) ? "in" : "attribute";
-		NzString outKW = (glsl150) ? "out" : "varying";
+		NzString inKW = (glsl140) ? "in" : "attribute";
+		NzString outKW = (glsl140) ? "out" : "varying";
 
 		NzString sourceCode;
 		sourceCode.Reserve(256); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
 		/********************Version de GLSL********************/
 		sourceCode = "#version ";
-		if (glsl150)
-			sourceCode += "150 core\n";
+		if (glsl140)
+			sourceCode += "140\n";
 		else
 			sourceCode += "110\n";
 
