@@ -15,6 +15,8 @@ bool NzMaterialParams::IsValid() const
 
 NzMaterial::NzMaterial() :
 m_diffuseMap(nullptr),
+m_heightMap(nullptr),
+m_normalMap(nullptr),
 m_specularMap(nullptr)
 {
 	Reset();
@@ -28,6 +30,12 @@ NzResource()
 	if (m_diffuseMap)
 		m_diffuseMap->AddResourceReference();
 
+	if (m_heightMap)
+		m_heightMap->AddResourceReference();
+
+	if (m_normalMap)
+		m_normalMap->AddResourceReference();
+
 	if (m_specularMap)
 		m_specularMap->AddResourceReference();
 }
@@ -37,6 +45,12 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 	if (m_diffuseMap)
 		m_diffuseMap->RemoveResourceReference();
 
+	if (m_heightMap)
+		m_heightMap->AddResourceReference();
+
+	if (m_normalMap)
+		m_normalMap->AddResourceReference();
+
 	if (m_specularMap)
 		m_specularMap->RemoveResourceReference();
 
@@ -44,6 +58,8 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 
 	// Comme ça nous volons la référence du matériau
 	material.m_diffuseMap = nullptr;
+	material.m_heightMap = nullptr;
+	material.m_normalMap = nullptr;
 	material.m_specularMap = nullptr;
 }
 
@@ -51,6 +67,12 @@ NzMaterial::~NzMaterial()
 {
 	if (m_diffuseMap)
 		m_diffuseMap->RemoveResourceReference();
+
+	if (m_heightMap)
+		m_heightMap->RemoveResourceReference();
+
+	if (m_normalMap)
+		m_normalMap->RemoveResourceReference();
 
 	if (m_specularMap)
 		m_specularMap->RemoveResourceReference();
@@ -91,6 +113,32 @@ void NzMaterial::Apply() const
 		}
 	}
 
+	if (m_heightMap)
+	{
+		int heightMapLocation = shader->GetUniformLocation("MaterialHeightMap");
+		if (heightMapLocation != -1)
+		{
+			nzUInt8 textureUnit;
+			if (shader->SendTexture(heightMapLocation, m_heightMap, &textureUnit))
+				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			else
+				NazaraWarning("Failed to send height map");
+		}
+	}
+
+	if (m_normalMap)
+	{
+		int normalMapLocation = shader->GetUniformLocation("MaterialNormalMap");
+		if (normalMapLocation != -1)
+		{
+			nzUInt8 textureUnit;
+			if (shader->SendTexture(normalMapLocation, m_normalMap, &textureUnit))
+				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			else
+				NazaraWarning("Failed to send normal map");
+		}
+	}
+
 	if (shininessLocation != -1)
 		shader->SendFloat(shininessLocation, m_shininess);
 
@@ -106,7 +154,7 @@ void NzMaterial::Apply() const
 			if (shader->SendTexture(specularMapLocation, m_specularMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_specularSampler);
 			else
-				NazaraWarning("Failed to send diffuse map");
+				NazaraWarning("Failed to send specular map");
 		}
 	}
 
@@ -183,6 +231,16 @@ nzFaceFilling NzMaterial::GetFaceFilling() const
 	return m_faceFilling;
 }
 
+const NzTexture* NzMaterial::GetHeightMap() const
+{
+	return m_diffuseMap;
+}
+
+const NzTexture* NzMaterial::GetNormalMap() const
+{
+	return m_diffuseMap;
+}
+
 float NzMaterial::GetShininess() const
 {
 	return m_shininess;
@@ -256,6 +314,18 @@ void NzMaterial::Reset()
 		m_diffuseMap = nullptr;
 	}
 
+	if (m_heightMap)
+	{
+		m_heightMap->RemoveResourceReference();
+		m_heightMap = nullptr;
+	}
+
+	if (m_normalMap)
+	{
+		m_normalMap->RemoveResourceReference();
+		m_normalMap = nullptr;
+	}
+
 	if (m_specularMap)
 	{
 		m_specularMap->RemoveResourceReference();
@@ -316,6 +386,26 @@ void NzMaterial::SetFaceCulling(nzFaceCulling culling)
 void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 {
 	m_faceFilling = filling;
+}
+
+void NzMaterial::SetHeightMap(const NzTexture* map)
+{
+	if (m_heightMap)
+		m_heightMap->RemoveResourceReference();
+
+	m_heightMap = map;
+	if (m_heightMap)
+		m_heightMap->AddResourceReference();
+}
+
+void NzMaterial::SetNormalMap(const NzTexture* map)
+{
+	if (m_normalMap)
+		m_normalMap->RemoveResourceReference();
+
+	m_normalMap = map;
+	if (m_normalMap)
+		m_normalMap->AddResourceReference();
 }
 
 void NzMaterial::SetShininess(float shininess)
