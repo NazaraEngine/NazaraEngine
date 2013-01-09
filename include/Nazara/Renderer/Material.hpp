@@ -50,6 +50,8 @@ class NAZARA_API NzMaterial : public NzResource
 		nzBlendFunc GetDstBlend() const;
 		nzFaceCulling GetFaceCulling() const;
 		nzFaceFilling GetFaceFilling() const;
+		const NzTexture* GetHeightMap() const;
+		const NzTexture* GetNormalMap() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		const NzTexture* GetSpecularMap() const;
@@ -75,6 +77,8 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetDstBlend(nzBlendFunc func);
 		void SetFaceCulling(nzFaceCulling culling);
 		void SetFaceFilling(nzFaceFilling filling);
+		void SetHeightMap(const NzTexture* map);
+		void SetNormalMap(const NzTexture* map);
 		void SetSamplerWrap(nzSamplerWrap wrapMode);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
@@ -100,6 +104,8 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
 		const NzTexture* m_diffuseMap;
+		const NzTexture* m_heightMap;
+		const NzTexture* m_normalMap;
 		const NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
 		bool m_zTestEnabled;
