@@ -79,23 +79,30 @@ namespace
 
 		if (flags & nzShaderBuilder_Lighting)
 		{
+			if (flags & nzShaderBuilder_NormalMapping)
+				sourceCode += "uniform sampler2D MaterialNormalMap;\n";
+
 			sourceCode += "uniform float MaterialShininess;\n"
 			              "uniform vec4 MaterialSpecular;\n";
-		}
 
-		if (flags & nzShaderBuilder_SpecularMapping)
-			sourceCode += "uniform sampler2D MaterialSpecularMap;\n";
+			if (flags & nzShaderBuilder_SpecularMapping)
+				sourceCode += "uniform sampler2D MaterialSpecularMap;\n";
 
-		if (flags & nzShaderBuilder_Lighting)
 			sourceCode += "uniform vec4 SceneAmbient;\n";
+		}
 
 		sourceCode += '\n';
 
 		/********************Entrant********************/
 		if (flags & nzShaderBuilder_Lighting)
-			sourceCode += inKW + " vec3 vNormal;\n";
+		{
+			if (flags & nzShaderBuilder_NormalMapping)
+				sourceCode += inKW + " mat3 vLightToWorld;\n";
 
-		if (flags & nzShaderBuilder_DiffuseMapping)
+			sourceCode += inKW + " vec3 vNormal;\n";
+		}
+
+		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
 			sourceCode += inKW + " vec2 vTexCoord;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
@@ -120,8 +127,12 @@ namespace
 			if (flags & nzShaderBuilder_SpecularMapping)
 				sourceCode += "vec3 si = vec3(0.0, 0.0, 0.0);\n";
 
-			sourceCode += "vec3 normal = normalize(vNormal);\n"
-			              "\n"
+			if (flags & nzShaderBuilder_NormalMapping)
+				sourceCode += "vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture2D(MaterialNormalMap, vTexCoord)) - 1.0));\n";
+			else
+				sourceCode += "vec3 normal = normalize(vNormal);\n";
+
+			sourceCode += "\n"
 			              "for (int i = 0; i < LightCount; ++i)\n"
 			              "{\n";
 
@@ -303,10 +314,10 @@ namespace
 		sourceCode += inKW + " vec3 VertexPosition;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
+		{
 			sourceCode += inKW + " vec3 VertexNormal;\n";
-
-		if (flags & nzShaderBuilder_Lighting)
 			sourceCode += inKW + " vec3 VertexTangent;\n";
+		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping)
 			sourceCode += inKW + " vec2 VertexTexCoord0;\n";
@@ -315,9 +326,14 @@ namespace
 
 		/********************Sortant********************/
 		if (flags & nzShaderBuilder_Lighting)
-			sourceCode += outKW + " vec3 vNormal;\n";
+		{
+			if (flags & nzShaderBuilder_NormalMapping)
+				sourceCode += outKW + " mat3 vLightToWorld;";
 
-		if (flags & nzShaderBuilder_DiffuseMapping)
+			sourceCode += outKW + " vec3 vNormal;\n";
+		}
+
+		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
 			sourceCode += outKW + " vec2 vTexCoord;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
@@ -331,9 +347,23 @@ namespace
 		              "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
 
 		if (flags & nzShaderBuilder_Lighting)
-			sourceCode += "vNormal = normalize(mat3(WorldMatrix) * VertexNormal);\n";
+		{
+			sourceCode += "mat3 RotationMatrix = mat3(WorldMatrix);\n";
 
-		if (flags & nzShaderBuilder_DiffuseMapping)
+			if (flags & nzShaderBuilder_NormalMapping)
+			{
+				sourceCode += "\n"
+				              "vec3 binormal = cross(VertexNormal, VertexTangent);\n"
+				              "vLightToWorld[0] = VertexTangent * RotationMatrix;\n"
+				              "vLightToWorld[1] = binormal * RotationMatrix;\n"
+				              "vLightToWorld[2] = normalize(VertexNormal * RotationMatrix);\n"
+				              "\n";
+			}
+
+			sourceCode += "vNormal = normalize(RotationMatrix * VertexNormal);\n";
+		}
+
+		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
 			sourceCode += "vTexCoord = VertexTexCoord0;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
