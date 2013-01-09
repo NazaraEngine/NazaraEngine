@@ -23,6 +23,7 @@ struct NAZARA_API NzMaterialParams
 };
 
 class NzMaterial;
+class NzShader;
 
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 
@@ -39,6 +40,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void Apply() const;
 
 		void EnableAlphaBlending(bool alphaBlending);
+		void EnableLighting(bool lighting);
 		void EnableZTest(bool zTest);
 		void EnableZWrite(bool zWrite);
 
@@ -52,6 +54,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzFaceFilling GetFaceFilling() const;
 		const NzTexture* GetHeightMap() const;
 		const NzTexture* GetNormalMap() const;
+		const NzShader* GetShader() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		const NzTexture* GetSpecularMap() const;
@@ -61,6 +64,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzRendererComparison GetZTestCompare() const;
 
 		bool IsAlphaBlendingEnabled() const;
+		bool IsLightingEnabled() const;
 		bool IsZTestEnabled() const;
 		bool IsZWriteEnabled() const;
 
@@ -79,7 +83,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetFaceFilling(nzFaceFilling filling);
 		void SetHeightMap(const NzTexture* map);
 		void SetNormalMap(const NzTexture* map);
-		void SetSamplerWrap(nzSamplerWrap wrapMode);
+		void SetShader(const NzShader* shader);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		void SetSpecularMap(const NzTexture* map);
@@ -93,6 +97,8 @@ class NAZARA_API NzMaterial : public NzResource
 		static const NzMaterial* GetDefault();
 
 	private:
+		void UpdateShader() const;
+
 		nzBlendFunc m_dstBlend;
 		nzBlendFunc m_srcBlend;
 		nzFaceCulling m_faceCulling;
@@ -103,11 +109,14 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor m_specularColor;
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
+		mutable const NzShader* m_shader;
 		const NzTexture* m_diffuseMap;
 		const NzTexture* m_heightMap;
 		const NzTexture* m_normalMap;
 		const NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
+		bool m_autoShader;
+		bool m_lightingEnabled;
 		bool m_zTestEnabled;
 		bool m_zWriteEnabled;
 		float m_shininess;
