@@ -297,24 +297,43 @@ void NzNode::SetInitialTranslation(float translationX, float translationY, float
 	Invalidate();
 }
 
-void NzNode::SetParent(const NzNode* node)
+void NzNode::SetParent(const NzNode* node, bool keepDerived)
 {
 	if (m_parent == node)
 		return;
 
-	if (m_parent)
-		m_parent->RemoveChild(this);
+	if (keepDerived)
+	{
+		if (!m_derivedUpdated)
+			UpdateDerived();
 
-	m_parent = node;
-	if (m_parent)
-		m_parent->AddChild(this);
+		if (m_parent)
+			m_parent->RemoveChild(this);
 
-	Invalidate();
+		m_parent = node;
+		if (m_parent)
+			m_parent->AddChild(this);
+
+		SetRotation(m_derivedRotation, nzCoordSys_Global);
+		SetScale(m_derivedScale, nzCoordSys_Global);
+		SetTranslation(m_derivedTranslation, nzCoordSys_Global);
+	}
+	else
+	{
+		if (m_parent)
+			m_parent->RemoveChild(this);
+
+		m_parent = node;
+		if (m_parent)
+			m_parent->AddChild(this);
+
+		Invalidate();
+	}
 }
 
-void NzNode::SetParent(const NzNode& node)
+void NzNode::SetParent(const NzNode& node, bool keepDerived)
 {
-	SetParent(&node);
+	SetParent(&node, keepDerived);
 }
 
 void NzNode::SetRotation(const NzQuaternionf& rotation, nzCoordSys coordSys)
@@ -327,9 +346,11 @@ void NzNode::SetRotation(const NzQuaternionf& rotation, nzCoordSys coordSys)
 	{
 		case nzCoordSys_Global:
 		{
-			if (m_parent)
+			if (m_parent && m_inheritRotation)
 			{
-				m_rotation = q * m_parent->GetDerivedRotation().GetInverse(); ///FIXME: Vérifier si le résultat est correct
+				NzQuaternionf rot(m_initialRotation * m_parent->GetDerivedRotation());
+
+				m_rotation = rot.GetInverse() * q; ///FIXME: Vérifier si le résultat est correct
 				m_rotation.Normalize();
 			}
 			else
@@ -352,10 +373,10 @@ void NzNode::SetScale(const NzVector3f& scale, nzCoordSys coordSys)
 	{
 		case nzCoordSys_Global:
 		{
-			if (m_parent)
-				m_scale = scale / m_parent->GetDerivedScale();
+			if (m_parent && m_inheritScale)
+				m_scale = scale / (m_initialScale * m_parent->GetDerivedScale());
 			else
-				m_scale = scale;
+				m_scale = scale / m_initialScale;
 			break;
 		}
 
@@ -383,10 +404,15 @@ void NzNode::SetTranslation(const NzVector3f& translation, nzCoordSys coordSys)
 	{
 		case nzCoordSys_Global:
 		{
-			if (m_parent)
-				m_translation = translation - m_parent->GetDerivedTranslation();
+			if (m_parent && m_inheritTranslation)
+			{
+				if (!m_parent->m_derivedUpdated)
+					m_parent->UpdateDerived();
+
+				m_translation = (m_parent->m_derivedRotation.GetConjugate()*(translation - m_parent->m_derivedTranslation))/m_parent->m_derivedScale - m_initialTranslation;
+			}
 			else
-				m_translation = translation;
+				m_translation = translation - m_initialTranslation;
 			break;
 		}
 
