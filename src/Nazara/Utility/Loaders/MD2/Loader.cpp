@@ -165,7 +165,10 @@ namespace
 				return false;
 			}
 
-			subMesh->SetIndexBuffer(indexBuffer.release());
+			subMesh->SetIndexBuffer(indexBuffer.get());
+
+			indexBuffer->SetPersistent(false);
+			indexBuffer.release();
 
 			vertexBuffer->SetPersistent(false);
 			vertexBuffer.release();
@@ -227,7 +230,10 @@ namespace
 				return false;
 			}
 
-			subMesh->SetIndexBuffer(indexBuffer.release());
+			subMesh->SetIndexBuffer(indexBuffer.get());
+
+			indexBuffer->SetPersistent(false);
+			indexBuffer.release();
 
 			/// Chargement des vertices
 			stream.SetCursorPos(header.offset_frames);
