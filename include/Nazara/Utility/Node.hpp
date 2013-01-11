@@ -56,8 +56,8 @@ class NAZARA_API NzNode
 		void SetInitialScale(float scaleX, float scaleY, float scaleZ);
 		void SetInitialTranslation(const NzVector3f& translation);
 		void SetInitialTranslation(float translationX, float translationXY, float translationZ);
-		void SetParent(const NzNode* node = nullptr);
-		void SetParent(const NzNode& node);
+		void SetParent(const NzNode* node = nullptr, bool keepDerived = false);
+		void SetParent(const NzNode& node, bool keepDerived = false);
 		void SetRotation(const NzQuaternionf& quat, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
