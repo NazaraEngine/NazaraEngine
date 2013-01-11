@@ -24,7 +24,7 @@ namespace
 		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
 
 		NzString sourceCode;
-		sourceCode.Reserve(512); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
+		sourceCode.Reserve(1024); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
 		/********************Préprocesseur********************/
 		sourceCode = "#version ";
@@ -291,7 +291,7 @@ namespace
 		NzString outKW = (glsl140) ? "out" : "varying";
 
 		NzString sourceCode;
-		sourceCode.Reserve(256); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
+		sourceCode.Reserve(512); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
 
 		/********************Version de GLSL********************/
 		sourceCode = "#version ";
