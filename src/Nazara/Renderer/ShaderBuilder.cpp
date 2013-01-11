@@ -148,10 +148,10 @@ namespace
 			// Directional Light
 			sourceCode += "{\n"
 			              "vec3 lightDir = normalize(-Lights[i].parameters1.xyz);\n"
-			              "light += Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
+			              "light += Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);\n"
 			              "\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
-			              "light += lambert * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
+			              "light += lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -165,7 +165,7 @@ namespace
 			else
 				sourceCode += "light";
 
-			sourceCode += " += specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			sourceCode += " += specular * Lights[i].specular.rgb * MaterialSpecular.rgb;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -184,11 +184,11 @@ namespace
 			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
 			              "\n"
 			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);\n"
-			              "light += att * Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
+			              "light += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);\n"
 			              "\n"
 			              "lightDir = normalize(lightDir);\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
-			              "light += att * lambert * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
+			              "light += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -202,7 +202,7 @@ namespace
 			else
 				sourceCode += "light";
 
-			sourceCode += " += att * specular * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			sourceCode += " += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -223,7 +223,7 @@ namespace
 			              "vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;\n"
 			              "\n"
 			              "float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*length(lightDir), 0.0);\n"
-			              "light += att * Lights[i].ambient.xyz * (MaterialAmbient.xyz + SceneAmbient.xyz);\n"
+			              "light += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);\n"
 			              "\n"
 			              "lightDir = normalize(lightDir);\n"
 			              "\n"
@@ -232,7 +232,7 @@ namespace
 			              "float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
 			              "float spot = max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);\n"
-			              "light += att * lambert * spot * Lights[i].diffuse.xyz * MaterialDiffuse.xyz;\n"
+			              "light += att * lambert * spot * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -246,7 +246,7 @@ namespace
 			else
 				sourceCode += "light";
 
-			sourceCode += " += att * specular * spot * Lights[i].specular.xyz * MaterialSpecular.xyz;\n"
+			sourceCode += " += att * specular * spot * Lights[i].specular.rgb * MaterialSpecular.rgb;\n"
 			              "}\n";
 
 			if (glsl140)
@@ -269,7 +269,7 @@ namespace
 				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
 
 			if (flags & nzShaderBuilder_SpecularMapping)
-				sourceCode += " + vec4(light, MaterialDiffuse.w)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser MaterialSpecular.w n'aurait aucun sens
+				sourceCode += " + vec4(si, MaterialDiffuse.w)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser MaterialSpecular.w n'aurait aucun sens
 
 			sourceCode += ";\n";
 		}
@@ -400,6 +400,13 @@ namespace
 			NazaraNotice(vertexSource);
 			return nullptr;
 		}
+
+		#ifdef NAZARA_DEBUG
+		NazaraNotice("Fragment shader source: ");
+		NazaraNotice(fragmentSource);
+		NazaraNotice("Vertex shader source: ");
+		NazaraNotice(vertexSource);
+		#endif
 
 		if (!shader->Compile())
 		{
