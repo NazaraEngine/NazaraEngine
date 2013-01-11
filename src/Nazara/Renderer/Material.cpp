@@ -580,6 +580,7 @@ void NzMaterial::UpdateShader() const
 	}
 
 	m_shader = NzShaderBuilder::Get(shaderFlags);
+	m_shader->AddResourceReference();
 }
 
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;
