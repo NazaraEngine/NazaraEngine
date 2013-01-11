@@ -7,8 +7,18 @@
 #ifndef NAZARA_ENUMS_3D_HPP
 #define NAZARA_ENUMS_3D_HPP
 
+enum nzLightType
+{
+	nzLightType_Directional,
+	nzLightType_Point,
+	nzLightType_Spot,
+
+	nzLightType_Max = nzLightType_Spot
+};
+
 enum nzSceneNodeType
 {
+	nzSceneNodeType_Light,
 	nzSceneNodeType_Model,
 
 	nzSceneNodeType_Max = nzSceneNodeType_Model
