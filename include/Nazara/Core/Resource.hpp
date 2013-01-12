@@ -45,6 +45,8 @@ class NAZARA_API NzResource
 		void AddResourceListener(NzResourceListener* listener, int index = 0) const;
 		void AddResourceReference() const;
 
+		unsigned int GetResourceReferenceCount() const;
+
 		bool IsPersistent() const;
 
 		void RemoveResourceListener(NzResourceListener* listener) const;
