@@ -54,6 +54,13 @@ void NzResource::AddResourceReference() const
 	m_resourceReferenceCount++;
 }
 
+unsigned int NzResource::GetResourceReferenceCount() const
+{
+	NazaraLock(m_mutex)
+
+	return m_resourceReferenceCount;
+}
+
 bool NzResource::IsPersistent() const
 {
 	NazaraLock(m_mutex)
