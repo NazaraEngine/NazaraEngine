@@ -64,7 +64,7 @@ const NzAxisAlignedBox& NzSkeleton::GetAABB() const
 	if (m_impl->aabb.IsNull())
 	{
 		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
-			m_impl->aabb.ExtendTo(m_impl->joints[i].GetDerivedTranslation());
+			m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 	}
 
 	return m_impl->aabb;
