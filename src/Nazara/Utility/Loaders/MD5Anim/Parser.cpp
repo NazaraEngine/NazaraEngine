@@ -228,16 +228,18 @@ bool NzMD5AnimParser::Parse(NzAnimation* animation)
 			NzSequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
 
 			if (parent >= 0)
+			{
+				sequenceJoint.position = m_frames[j].joints[i].pos;
 				sequenceJoint.rotation = m_frames[j].joints[i].orient;
+			}
 			else
+			{
+				sequenceJoint.position = rotationQuat * m_frames[j].joints[i].pos;
 				sequenceJoint.rotation = rotationQuat * m_frames[j].joints[i].orient;
+			}
 
 			sequenceJoint.scale = NzVector3f(1.f, 1.f, 1.f);
 
-			if (parent >= 0)
-				sequenceJoint.translation = m_frames[j].joints[i].pos;
-			else
-				sequenceJoint.translation = rotationQuat * m_frames[j].joints[i].pos;
 		}
 	}
 

@@ -148,9 +148,9 @@ void NzAnimation::AnimateSkeleton(NzSkeleton* targetSkeleton, unsigned int frame
 		NzSequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
 		NzSequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
 
+		joint->SetPosition(NzVector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation));
 		joint->SetRotation(NzQuaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation));
 		joint->SetScale(NzVector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation));
-		joint->SetTranslation(NzVector3f::Lerp(sequenceJointA.translation, sequenceJointB.translation, interpolation));
 	}
 }
 

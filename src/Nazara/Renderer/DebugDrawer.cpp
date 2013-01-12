@@ -182,10 +182,10 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		const NzNode* parent = joint->GetParent();
 		if (parent)
 		{
-			vertex->position = joint->GetDerivedTranslation();
+			vertex->position = joint->GetPosition();
 			vertex++;
 
-			vertex->position = parent->GetDerivedTranslation();
+			vertex->position = parent->GetPosition();
 			vertex++;
 
 			vertexCount += 2;

@@ -96,12 +96,12 @@ void NzLight::Apply(unsigned int i) const
 			break;
 
 		case nzLightType_Point:
-			shader->SendVector(parameters1Location, NzVector4f(m_derivedTranslation, m_attenuation));
+			shader->SendVector(parameters1Location, NzVector4f(m_derivedPosition, m_attenuation));
 			shader->SendVector(parameters2Location, NzVector4f(1.f/m_radius, 0.f, 0.f, 0.f));
 			break;
 
 		case nzLightType_Spot:
-			shader->SendVector(parameters1Location, NzVector4f(m_derivedTranslation, m_attenuation));
+			shader->SendVector(parameters1Location, NzVector4f(m_derivedPosition, m_attenuation));
 			shader->SendVector(parameters2Location, NzVector4f(m_derivedRotation * NzVector3f::Forward(), 1.f/m_radius));
 			shader->SendVector(parameters3Location, NzVector2f(std::cos(NzDegreeToRadian(m_innerAngle)), std::cos(NzDegreeToRadian(m_outerAngle))));
 			break;
