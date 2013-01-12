@@ -22,8 +22,8 @@ struct NzSequence
 struct NzSequenceJoint
 {
 	NzQuaternionf rotation;
+	NzVector3f position;
 	NzVector3f scale;
-	NzVector3f translation;
 };
 
 #endif // NAZARA_SEQUENCE_HPP
