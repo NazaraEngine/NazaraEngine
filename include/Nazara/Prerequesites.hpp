@@ -130,7 +130,7 @@
 	#endif
 /*#elif defined(__APPLE__) || defined(macintosh) || defined(Macintosh)
 	#define NAZARA_API
-	#define NAZARA_PLATFORM_MACOS
+	#define NAZARA_PLATFORM_MACOSX
 	#define NAZARA_PLATFORM_POSIX
 #elif defined(__FreeBSD__)
 	#define NAZARA_API
