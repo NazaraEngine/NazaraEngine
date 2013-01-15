@@ -42,7 +42,7 @@ NzModel::~NzModel()
 	Reset();
 }
 
-const NzAnimation* NzModel::GetAnimation() const
+NzAnimation* NzModel::GetAnimation() const
 {
 	return m_animation;
 }
@@ -60,7 +60,7 @@ const NzAxisAlignedBox& NzModel::GetAABB() const
 	return m_mesh->GetAABB();
 }
 
-const NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
+NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 {
 	#if NAZARA_3D_SAFE
 	if (matIndex >= m_matCount)
@@ -73,7 +73,7 @@ const NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 	return m_materials[matIndex];
 }
 
-const NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
+NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
 {
 	#if NAZARA_3D_SAFE
 	if (skinIndex >= m_skinCount)
@@ -102,7 +102,7 @@ unsigned int NzModel::GetSkinCount() const
 	return m_skinCount;
 }
 
-const NzMesh* NzModel::GetMesh() const
+NzMesh* NzModel::GetMesh() const
 {
 	return m_mesh;
 }
@@ -199,7 +199,7 @@ void NzModel::Reset()
 	}
 }
 
-bool NzModel::SetAnimation(const NzAnimation* animation)
+bool NzModel::SetAnimation(NzAnimation* animation)
 {
 	#if NAZARA_3D_SAFE
 	if (!m_mesh)
@@ -243,7 +243,7 @@ bool NzModel::SetAnimation(const NzAnimation* animation)
 	return true;
 }
 
-void NzModel::SetMaterial(unsigned int matIndex, const NzMaterial* material)
+void NzModel::SetMaterial(unsigned int matIndex, NzMaterial* material)
 {
 	#if NAZARA_3D_SAFE
 	if (matIndex >= m_matCount)
@@ -263,7 +263,7 @@ void NzModel::SetMaterial(unsigned int matIndex, const NzMaterial* material)
 	m_materials[matIndex]->AddResourceReference();
 }
 
-void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, const NzMaterial* material)
+void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material)
 {
 	#if NAZARA_3D_SAFE
 	if (skinIndex >= m_skinCount)
@@ -291,7 +291,7 @@ void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, const N
 	m_materials[index]->AddResourceReference();
 }
 
-void NzModel::SetMesh(const NzMesh* mesh, const NzModelParameters& modelParameters)
+void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 {
 	Reset();
 

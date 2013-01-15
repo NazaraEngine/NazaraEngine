@@ -217,7 +217,7 @@ const NzTextureSampler& NzMaterial::GetDiffuseSampler() const
 	return m_diffuseSampler;
 }
 
-const NzTexture* NzMaterial::GetDiffuseMap() const
+NzTexture* NzMaterial::GetDiffuseMap() const
 {
 	return m_diffuseMap;
 }
@@ -237,12 +237,12 @@ nzFaceFilling NzMaterial::GetFaceFilling() const
 	return m_faceFilling;
 }
 
-const NzTexture* NzMaterial::GetHeightMap() const
+NzTexture* NzMaterial::GetHeightMap() const
 {
 	return m_diffuseMap;
 }
 
-const NzTexture* NzMaterial::GetNormalMap() const
+NzTexture* NzMaterial::GetNormalMap() const
 {
 	return m_diffuseMap;
 }
@@ -265,7 +265,7 @@ NzColor NzMaterial::GetSpecularColor() const
 	return m_specularColor;
 }
 
-const NzTexture* NzMaterial::GetSpecularMap() const
+NzTexture* NzMaterial::GetSpecularMap() const
 {
 	return m_specularMap;
 }
@@ -385,7 +385,7 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 	m_diffuseColor = diffuse;
 }
 
-void NzMaterial::SetDiffuseMap(const NzTexture* map)
+void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
 	if (m_diffuseMap)
 		m_diffuseMap->RemoveResourceReference();
@@ -415,7 +415,7 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 	m_faceFilling = filling;
 }
 
-void NzMaterial::SetHeightMap(const NzTexture* map)
+void NzMaterial::SetHeightMap(NzTexture* map)
 {
 	if (m_heightMap)
 		m_heightMap->RemoveResourceReference();
@@ -425,7 +425,7 @@ void NzMaterial::SetHeightMap(const NzTexture* map)
 		m_heightMap->AddResourceReference();
 }
 
-void NzMaterial::SetNormalMap(const NzTexture* map)
+void NzMaterial::SetNormalMap(NzTexture* map)
 {
 	if (m_normalMap)
 		m_normalMap->RemoveResourceReference();
@@ -456,7 +456,7 @@ void NzMaterial::SetSpecularColor(const NzColor& specular)
 	m_specularColor = specular;
 }
 
-void NzMaterial::SetSpecularMap(const NzTexture* map)
+void NzMaterial::SetSpecularMap(NzTexture* map)
 {
 	if (m_specularMap)
 		m_specularMap->RemoveResourceReference();
@@ -545,7 +545,7 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	return *this;
 }
 
-const NzMaterial* NzMaterial::GetDefault()
+NzMaterial* NzMaterial::GetDefault()
 {
 	static NzMaterial defaultMaterial;
 	static bool initialized = false;
