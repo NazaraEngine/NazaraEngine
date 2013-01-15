@@ -7,6 +7,12 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
+enum nzPlugin
+{
+	nzPlugin_Assimp,
+	nzPlugin_FreeType
+};
+
 enum nzProcessorCap
 {
 	nzProcessorCap_x64,
