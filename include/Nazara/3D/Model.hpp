@@ -28,13 +28,13 @@ class NAZARA_API NzModel : public NzSceneNode
 		NzModel(const NzModel& model);
 		~NzModel();
 
-		const NzAnimation* GetAnimation() const;
+		NzAnimation* GetAnimation() const;
 		const NzAxisAlignedBox& GetAABB() const;
-		const NzMaterial* GetMaterial(unsigned int matIndex) const;
-		const NzMaterial* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
+		NzMaterial* GetMaterial(unsigned int matIndex) const;
+		NzMaterial* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
 		unsigned int GetMaterialCount() const;
 		unsigned int GetSkinCount() const;
-		const NzMesh* GetMesh() const;
+		NzMesh* GetMesh() const;
 		nzSceneNodeType GetSceneNodeType() const override;
 		NzSkeleton* GetSkeleton();
 		const NzSkeleton* GetSkeleton() const;
@@ -47,10 +47,10 @@ class NAZARA_API NzModel : public NzSceneNode
 
 		void Reset();
 
-		bool SetAnimation(const NzAnimation* animation);
-		void SetMaterial(unsigned int matIndex, const NzMaterial* material);
-		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, const NzMaterial* material);
-		void SetMesh(const NzMesh* mesh, const NzModelParameters& parameters = NzModelParameters());
+		bool SetAnimation(NzAnimation* animation);
+		void SetMaterial(unsigned int matIndex, NzMaterial* material);
+		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
+		void SetMesh(NzMesh* mesh, const NzModelParameters& parameters = NzModelParameters());
 		void SetSkinCount(unsigned int skinCount);
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
@@ -58,10 +58,10 @@ class NAZARA_API NzModel : public NzSceneNode
 		void Update(float elapsedTime);
 
 	private:
-		std::vector<const NzMaterial*> m_materials;
+		std::vector<NzMaterial*> m_materials;
 		NzSkeleton m_skeleton; // Uniquement pour les animations squelettiques
-		const NzAnimation* m_animation;
-		const NzMesh* m_mesh;
+		NzAnimation* m_animation;
+		NzMesh* m_mesh;
 		const NzSequence* m_currentSequence;
 		float m_interpolation;
 		unsigned int m_currentFrame;

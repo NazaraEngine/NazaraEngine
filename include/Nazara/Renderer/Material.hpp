@@ -46,18 +46,18 @@ class NAZARA_API NzMaterial : public NzResource
 
 		NzColor GetAmbientColor() const;
 		NzColor GetDiffuseColor() const;
-		const NzTexture* GetDiffuseMap() const;
+		NzTexture* GetDiffuseMap() const;
 		NzTextureSampler& GetDiffuseSampler();
 		const NzTextureSampler& GetDiffuseSampler() const;
 		nzBlendFunc GetDstBlend() const;
 		nzFaceCulling GetFaceCulling() const;
 		nzFaceFilling GetFaceFilling() const;
-		const NzTexture* GetHeightMap() const;
-		const NzTexture* GetNormalMap() const;
+		NzTexture* GetHeightMap() const;
+		NzTexture* GetNormalMap() const;
 		const NzShader* GetShader() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
-		const NzTexture* GetSpecularMap() const;
+		NzTexture* GetSpecularMap() const;
 		NzTextureSampler& GetSpecularSampler();
 		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
@@ -76,17 +76,17 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDiffuseColor(const NzColor& diffuse);
-		void SetDiffuseMap(const NzTexture* map);
+		void SetDiffuseMap(NzTexture* map);
 		void SetDiffuseSampler(const NzTextureSampler& sampler);
 		void SetDstBlend(nzBlendFunc func);
 		void SetFaceCulling(nzFaceCulling culling);
 		void SetFaceFilling(nzFaceFilling filling);
-		void SetHeightMap(const NzTexture* map);
-		void SetNormalMap(const NzTexture* map);
+		void SetHeightMap(NzTexture* map);
+		void SetNormalMap(NzTexture* map);
 		void SetShader(const NzShader* shader);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
-		void SetSpecularMap(const NzTexture* map);
+		void SetSpecularMap(NzTexture* map);
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
 		void SetZTestCompare(nzRendererComparison compareFunc);
@@ -94,7 +94,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial& operator=(const NzMaterial& material);
 		NzMaterial& operator=(NzMaterial&& material);
 
-		static const NzMaterial* GetDefault();
+		static NzMaterial* GetDefault();
 
 	private:
 		void UpdateShader() const;
@@ -110,10 +110,10 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
 		mutable const NzShader* m_shader;
-		const NzTexture* m_diffuseMap;
-		const NzTexture* m_heightMap;
-		const NzTexture* m_normalMap;
-		const NzTexture* m_specularMap;
+		NzTexture* m_diffuseMap;
+		NzTexture* m_heightMap;
+		NzTexture* m_normalMap;
+		NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
 		bool m_autoShader;
 		bool m_lightingEnabled;
