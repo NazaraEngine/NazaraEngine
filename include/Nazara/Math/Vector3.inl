@@ -157,8 +157,8 @@ NzVector3<T>& NzVector3<T>::Maximize(const NzVector3& vec)
 	if (vec.y > y)
 		y = vec.y;
 
-    if (vec.z > z)
-        z = vec.z;
+	if (vec.z > z)
+		z = vec.z;
 
 	return *this;
 }
@@ -172,8 +172,8 @@ NzVector3<T>& NzVector3<T>::Minimize(const NzVector3& vec)
 	if (vec.y < y)
 		y = vec.y;
 
-    if (vec.z < z)
-        z = vec.z;
+	if (vec.z < z)
+		z = vec.z;
 
 	return *this;
 }
@@ -181,7 +181,7 @@ NzVector3<T>& NzVector3<T>::Minimize(const NzVector3& vec)
 template<typename T>
 NzVector3<T>& NzVector3<T>::Normalize(T* length)
 {
-	T norm = std::sqrt(SquaredLength());
+	T norm = Length();
 	T invNorm = F(1.0) / norm;
 
 	x *= invNorm;
