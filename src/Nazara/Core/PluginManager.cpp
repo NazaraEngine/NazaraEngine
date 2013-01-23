@@ -37,7 +37,8 @@ bool NzPluginManager::AddDirectory(const NzString& directoryPath)
 		return false;
 	}
 
-	s_directories.push_back(directoryPath);
+	s_directories.push_back(path);
+
 	return true;
 }
 
