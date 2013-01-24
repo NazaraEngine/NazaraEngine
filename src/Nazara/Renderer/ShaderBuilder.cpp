@@ -231,8 +231,8 @@ namespace
 			              "float outerAngle = Lights[i].parameters3.y;\n"
 			              "float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;\n"
 			              "float lambert = max(dot(normal, lightDir), 0.0);\n"
-			              "float spot = max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);\n"
-			              "light += att * lambert * spot * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;\n"
+			              "att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);\n"
+			              "light += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;\n"
 			              "\n"
 			              "if (MaterialShininess > 0.0)\n"
 			              "{\n"
@@ -246,7 +246,7 @@ namespace
 			else
 				sourceCode += "light";
 
-			sourceCode += " += att * specular * spot * Lights[i].specular.rgb * MaterialSpecular.rgb;\n"
+			sourceCode += " += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;\n"
 			              "}\n";
 
 			if (glsl140)
