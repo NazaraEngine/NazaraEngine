@@ -10,6 +10,8 @@
 #include <cstring>
 #include <Nazara/3D/Debug.hpp>
 
+///TODO: Utilisation des UBOs
+
 NzLight::NzLight(nzLightType type) :
 m_type(type),
 m_ambientColor((type == nzLightType_Directional) ? NzColor(50, 50, 50) : NzColor::Black),
@@ -29,7 +31,7 @@ NzLight::NzLight(const NzLight& light)
 
 NzLight::~NzLight() = default;
 
-void NzLight::Apply(unsigned int i) const
+void NzLight::Apply(unsigned int unit) const
 {
 	/*
 	struct Light
@@ -66,10 +68,10 @@ void NzLight::Apply(unsigned int i) const
 	int parameters2Location = shader->GetUniformLocation("Lights[0].parameters2");
 	int parameters3Location = shader->GetUniformLocation("Lights[0].parameters3");
 
-	if (i > 0)
+	if (unit > 0)
 	{
 		int type2Location = shader->GetUniformLocation("Lights[1].type");
-		int offset = i * (type2Location - typeLocation); // type2Location - typeLocation donne la taille de la structure
+		int offset = unit * (type2Location - typeLocation); // type2Location - typeLocation donne la taille de la structure
 
 		// On applique cet offset
 		typeLocation += offset;
@@ -131,6 +133,11 @@ NzColor NzLight::GetDiffuseColor() const
 float NzLight::GetInnerAngle() const
 {
 	return m_innerAngle;
+}
+
+nzLightType NzLight::GetLightType() const
+{
+	return m_type;
 }
 
 float NzLight::GetOuterAngle() const

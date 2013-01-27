@@ -19,13 +19,14 @@ class NAZARA_API NzLight : public NzSceneNode
 		NzLight(const NzLight& light);
 		~NzLight();
 
-		void Apply(unsigned int i = 0) const;
+		void Apply(unsigned int unit) const;
 
 		const NzAxisAlignedBox& GetAABB() const;
 		NzColor GetAmbientColor() const;
 		float GetAttenuation() const;
 		NzColor GetDiffuseColor() const;
 		float GetInnerAngle() const;
+		nzLightType GetLightType() const;
 		float GetOuterAngle() const;
 		float GetRadius() const;
 		nzSceneNodeType GetSceneNodeType() const;
