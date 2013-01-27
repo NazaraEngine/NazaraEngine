@@ -55,6 +55,10 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool CreateStatic();
 		void Destroy();
 
+		void GenerateNormals();
+		void GenerateNormalsAndTangents();
+		void GenerateTangents();
+
 		const NzAxisAlignedBox& GetAABB() const;
 		NzString GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
