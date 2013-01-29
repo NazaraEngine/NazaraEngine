@@ -78,33 +78,29 @@ NzMaterial::~NzMaterial()
 
 void NzMaterial::Apply() const
 {
-	const NzShader* shader = NzRenderer::GetShader();
-	#if NAZARA_RENDERER_SAFE
-	if (!shader)
-	{
-		NazaraError("No shader bound");
-		return;
-	}
-	#endif
+	if (!m_shader)
+		UpdateShader();
 
-	int ambientColorLocation = shader->GetUniformLocation("MaterialAmbient");
-	int diffuseColorLocation = shader->GetUniformLocation("MaterialDiffuse");
-	int shininessLocation = shader->GetUniformLocation("MaterialShininess");
-	int specularColorLocation = shader->GetUniformLocation("MaterialSpecular");
+	NzRenderer::SetShader(m_shader);
+
+	int ambientColorLocation = m_shader->GetUniformLocation("MaterialAmbient");
+	int diffuseColorLocation = m_shader->GetUniformLocation("MaterialDiffuse");
+	int shininessLocation = m_shader->GetUniformLocation("MaterialShininess");
+	int specularColorLocation = m_shader->GetUniformLocation("MaterialSpecular");
 
 	if (ambientColorLocation != -1)
-		shader->SendColor(ambientColorLocation, m_ambientColor);
+		m_shader->SendColor(ambientColorLocation, m_ambientColor);
 
 	if (diffuseColorLocation != -1)
-		shader->SendColor(diffuseColorLocation, m_diffuseColor);
+		m_shader->SendColor(diffuseColorLocation, m_diffuseColor);
 
 	if (m_diffuseMap)
 	{
-		int diffuseMapLocation = shader->GetUniformLocation("MaterialDiffuseMap");
+		int diffuseMapLocation = m_shader->GetUniformLocation("MaterialDiffuseMap");
 		if (diffuseMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(diffuseMapLocation, m_diffuseMap, &textureUnit))
+			if (m_shader->SendTexture(diffuseMapLocation, m_diffuseMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send diffuse map");
@@ -113,11 +109,11 @@ void NzMaterial::Apply() const
 
 	if (m_heightMap)
 	{
-		int heightMapLocation = shader->GetUniformLocation("MaterialHeightMap");
+		int heightMapLocation = m_shader->GetUniformLocation("MaterialHeightMap");
 		if (heightMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(heightMapLocation, m_heightMap, &textureUnit))
+			if (m_shader->SendTexture(heightMapLocation, m_heightMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send height map");
@@ -126,11 +122,11 @@ void NzMaterial::Apply() const
 
 	if (m_normalMap)
 	{
-		int normalMapLocation = shader->GetUniformLocation("MaterialNormalMap");
+		int normalMapLocation = m_shader->GetUniformLocation("MaterialNormalMap");
 		if (normalMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(normalMapLocation, m_normalMap, &textureUnit))
+			if (m_shader->SendTexture(normalMapLocation, m_normalMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send normal map");
@@ -138,18 +134,18 @@ void NzMaterial::Apply() const
 	}
 
 	if (shininessLocation != -1)
-		shader->SendFloat(shininessLocation, m_shininess);
+		m_shader->SendFloat(shininessLocation, m_shininess);
 
 	if (specularColorLocation != -1)
-		shader->SendColor(specularColorLocation, m_specularColor);
+		m_shader->SendColor(specularColorLocation, m_specularColor);
 
 	if (m_specularMap)
 	{
-		int specularMapLocation = shader->GetUniformLocation("MaterialSpecularMap");
+		int specularMapLocation = m_shader->GetUniformLocation("MaterialSpecularMap");
 		if (specularMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(specularMapLocation, m_specularMap, &textureUnit))
+			if (m_shader->SendTexture(specularMapLocation, m_specularMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_specularSampler);
 			else
 				NazaraWarning("Failed to send specular map");
