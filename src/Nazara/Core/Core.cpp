@@ -12,8 +12,7 @@
 
 bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskScheduler)
 {
-	if (s_moduleReferenceCounter++ != 0)
-		return true; // Déjà initialisé
+	s_moduleReferenceCounter++;
 
 	// Initialisation du module
 	if (initializeHardwareInfo && !NzHardwareInfo::Initialize())
@@ -26,6 +25,10 @@ bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskSchedule
 
 		return false;
 	}
+
+	// Vérification après l'initialisation des sous-modules
+	if (s_moduleReferenceCounter != 0)
+		return true; // Déjà initialisé
 
 	NazaraNotice("Initialized: Core");
 
