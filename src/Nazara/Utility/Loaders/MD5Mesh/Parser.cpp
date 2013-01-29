@@ -360,6 +360,8 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 		}
 	}
 
+	mesh->GenerateNormalsAndTangents();
+
 	return true;
 }
 
