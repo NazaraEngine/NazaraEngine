@@ -408,13 +408,8 @@ void NzModel::SetSequence(unsigned int sequenceIndex)
 
 void NzModel::Update(float elapsedTime)
 {
-	#if NAZARA_3D_SAFE
 	if (!m_animation)
-	{
-		NazaraError("Model has no animation");
 		return;
-	}
-	#endif
 
 	m_interpolation += m_currentSequence->frameRate * elapsedTime;
 	while (m_interpolation > 1.f)
@@ -442,5 +437,5 @@ void NzModel::Update(float elapsedTime)
 		}
 	}
 
-	m_mesh->Animate(m_animation, m_currentFrame, m_nextFrame, m_interpolation, &m_skeleton);
+	m_animation->AnimateSkeleton(&m_skeleton, m_currentFrame, m_nextFrame, m_interpolation);
 }
