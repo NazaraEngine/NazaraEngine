@@ -293,8 +293,8 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	}
 	#endif
 
-	NzJoint* jointsA = &skeletonA.m_impl->joints[0];
-	NzJoint* jointsB = &skeletonB.m_impl->joints[0];
+	const NzJoint* jointsA = &skeletonA.m_impl->joints[0];
+	const NzJoint* jointsB = &skeletonB.m_impl->joints[0];
 	for (unsigned int i = 0; i < indiceCount; ++i)
 	{
 		unsigned int index = indices[i];
