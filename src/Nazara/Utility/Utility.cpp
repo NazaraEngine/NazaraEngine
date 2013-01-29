@@ -23,7 +23,11 @@ bool NzUtility::Initialize()
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
+	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
+	if (!NzCore::Initialize(false, true))
+	#else
 	if (!NzCore::Initialize())
+	#endif
 	{
 		NazaraError("Failed to initialize core module");
 		Uninitialize();
