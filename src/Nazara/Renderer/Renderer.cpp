@@ -364,7 +364,12 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 bool NzRenderer::Initialize(bool initializeDebugDrawer)
 {
 	if (s_moduleReferenceCounter++ != 0)
+	{
+		if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
+			NazaraWarning("Failed to initialize debug drawer"); // Non-critique
+
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzUtility::Initialize())
