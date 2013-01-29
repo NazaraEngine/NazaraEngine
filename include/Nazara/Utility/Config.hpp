@@ -35,6 +35,9 @@
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_UTILITY_MEMORYLEAKTRACKER 0
 
+// Le skinning doit-il prendre avantage du multi-threading ? (Boost de performances sur les processeurs multi-coeurs)
+#define NAZARA_UTILITY_MULTITHREADED_SKINNING 1
+
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_UTILITY_SAFE 1
 
