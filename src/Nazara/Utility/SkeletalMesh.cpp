@@ -17,19 +17,26 @@ namespace
 	struct SkinningInfos
 	{
 		const NzJoint* joints;
+		const NzMeshVertex* inputVertex;
+		NzMeshVertex* outputVertex;
+		const NzVertexWeight* vertexWeights;
 		const NzWeight* weights;
 	};
 
-	void Skin_Position(const SkinningInfos& skinningInfos, NzMeshVertex* inputVertex, NzMeshVertex* outputVertex, const NzVertexWeight* vertexWeights, unsigned int vertexCount)
+	void Skin_Position(const SkinningInfos& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 	{
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+		NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
+
+		unsigned int endVertex = startVertex + vertexCount - 1;
+		for (unsigned int i = startVertex; i <= endVertex; ++i)
 		{
 			NzVector3f finalPosition(NzVector3f::Zero());
 
-			unsigned int weightCount = vertexWeights[i].weights.size();
+			unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
 			for (unsigned int j = 0; j < weightCount; ++j)
 			{
-				const NzWeight& weight = skinningInfos.weights[vertexWeights[i].weights[j]];
+				const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
 
 				NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetInverseBindMatrix());
 				mat.ConcatenateAffine(skinningInfos.joints[weight.jointIndex].GetTransformMatrix());
@@ -46,17 +53,21 @@ namespace
 		}
 	}
 
-	void Skin_PositionNormal(const SkinningInfos& skinningInfos, NzMeshVertex* inputVertex, NzMeshVertex* outputVertex, const NzVertexWeight* vertexWeights, unsigned int vertexCount)
+	void Skin_PositionNormal(const SkinningInfos& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 	{
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+		NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
+
+		unsigned int endVertex = startVertex + vertexCount - 1;
+		for (unsigned int i = startVertex; i <= endVertex; ++i)
 		{
 			NzVector3f finalPosition(NzVector3f::Zero());
 			NzVector3f finalNormal(NzVector3f::Zero());
 
-			unsigned int weightCount = vertexWeights[i].weights.size();
+			unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
 			for (unsigned int j = 0; j < weightCount; ++j)
 			{
-				const NzWeight& weight = skinningInfos.weights[vertexWeights[i].weights[j]];
+				const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
 
 				NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetInverseBindMatrix());
 				mat.ConcatenateAffine(skinningInfos.joints[weight.jointIndex].GetTransformMatrix());
@@ -77,18 +88,22 @@ namespace
 		}
 	}
 
-	void Skin_PositionNormalTangent(const SkinningInfos& skinningInfos, NzMeshVertex* inputVertex, NzMeshVertex* outputVertex, const NzVertexWeight* vertexWeights, unsigned int vertexCount)
+	void Skin_PositionNormalTangent(const SkinningInfos& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 	{
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+		NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
+
+		unsigned int endVertex = startVertex + vertexCount - 1;
+		for (unsigned int i = startVertex; i <= endVertex; ++i)
 		{
 			NzVector3f finalPosition(NzVector3f::Zero());
 			NzVector3f finalNormal(NzVector3f::Zero());
 			NzVector3f finalTangent(NzVector3f::Zero());
 
-			unsigned int weightCount = vertexWeights[i].weights.size();
+			unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
 			for (unsigned int j = 0; j < weightCount; ++j)
 			{
-				const NzWeight& weight = skinningInfos.weights[vertexWeights[i].weights[j]];
+				const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
 
 				NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetInverseBindMatrix());
 				mat.ConcatenateAffine(skinningInfos.joints[weight.jointIndex].GetTransformMatrix());
@@ -376,33 +391,25 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 
 	NzBufferMapper<NzVertexBuffer> mapper(m_impl->vertexBuffer, nzBufferAccess_DiscardAndWrite);
 
-	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(m_impl->bindPoseBuffer);
-	NzMeshVertex* outputVertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
+	SkinningInfos skinningInfos;
+	skinningInfos.inputVertex = reinterpret_cast<const NzMeshVertex*>(m_impl->bindPoseBuffer);
+	skinningInfos.outputVertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
+	skinningInfos.joints = skeleton->GetJoints();
+	skinningInfos.vertexWeights = &m_impl->vertexWeights[0];
+	skinningInfos.weights = &m_impl->weights[0];
 
 	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
 
-	SkinningInfos skinningInfos;
-	skinningInfos.joints = skeleton->GetJoints();
-	skinningInfos.weights = &m_impl->weights[0];
-
 	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
 	unsigned int workerCount = NzTaskScheduler::GetWorkerCount();
-	unsigned int vertexPerWorker = vertexCount / workerCount;
-	unsigned int extraVertex = vertexCount % workerCount; // Il est très probable que la division ne soit pas parfaite
 
+	std::ldiv_t div = std::ldiv(vertexCount, workerCount); // Qui sait, peut-être que ça permet des optimisations plus facilement
 	for (unsigned int i = 0; i < workerCount; ++i)
-	{
-		NzTaskScheduler::AddTask(Skin_PositionNormalTangent,
-		                         skinningInfos,
-		                         &inputVertex[i*vertexPerWorker],
-		                         &outputVertex[i*vertexPerWorker],
-		                         &m_impl->vertexWeights[i*vertexPerWorker],
-		                         (i == workerCount-1) ? vertexPerWorker + extraVertex : vertexPerWorker);
-	}
+		NzTaskScheduler::AddTask(Skin_PositionNormalTangent, skinningInfos, i*div.quot, (i == workerCount-1) ? div.quot + div.rem : div.quot);
 
 	NzTaskScheduler::WaitForTasks();
 	#else
-	Skin_PositionNormalTangent(skinningInfos, inputVertex, outputVertex, &m_impl->vertexWeights[0], vertexCount);
+	Skin_PositionNormalTangent(skinningInfos, 0, vertexCount);
 	#endif
 
 	m_impl->aabb = skeleton->GetAABB();
