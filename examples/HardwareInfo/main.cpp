@@ -47,7 +47,7 @@ int main()
 		printCap(oss, "-SSE4.a", NzHardwareInfo::HasCapability(nzProcessorCap_SSE4a));
 	}
 	else
-		oss << "Impossible de retrouver les informations de la carte graphique" << std::endl;
+		oss << "Impossible de retrouver les informations du processeur" << std::endl;
 
 	oss << std::endl << "--Carte graphique--" << std::endl;
 	// La classe NzOpenGL nous donne accès à des informations sur la carte graphique
