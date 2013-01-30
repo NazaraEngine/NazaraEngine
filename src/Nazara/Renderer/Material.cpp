@@ -160,6 +160,9 @@ void NzMaterial::Apply() const
 	else
 		NzRenderer::Enable(nzRendererParameter_Blend, false);
 
+	NzRenderer::SetFaceCulling(m_faceCulling);
+	NzRenderer::SetFaceFilling(m_faceFilling);
+
 	if (m_zTestEnabled)
 	{
 		NzRenderer::Enable(nzRendererParameter_DepthTest, true);
@@ -383,12 +386,18 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 
 void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
-	if (m_diffuseMap)
-		m_diffuseMap->RemoveResourceReference();
+	if (m_diffuseMap != map)
+	{
+		if (m_diffuseMap)
+			m_diffuseMap->RemoveResourceReference();
 
-	m_diffuseMap = map;
-	if (m_diffuseMap)
-		m_diffuseMap->AddResourceReference();
+		m_diffuseMap = map;
+		if (m_diffuseMap)
+			m_diffuseMap->AddResourceReference();
+
+		if (m_autoShader)
+			m_shader = nullptr; // Invalidation du shader
+	}
 }
 
 void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
@@ -413,33 +422,48 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 
 void NzMaterial::SetHeightMap(NzTexture* map)
 {
-	if (m_heightMap)
-		m_heightMap->RemoveResourceReference();
+	if (m_heightMap != map)
+	{
+		if (m_heightMap)
+			m_heightMap->RemoveResourceReference();
 
-	m_heightMap = map;
-	if (m_heightMap)
-		m_heightMap->AddResourceReference();
+		m_heightMap = map;
+		if (m_heightMap)
+			m_heightMap->AddResourceReference();
+
+		if (m_autoShader)
+			m_shader = nullptr; // Invalidation du shader
+	}
 }
 
 void NzMaterial::SetNormalMap(NzTexture* map)
 {
-	if (m_normalMap)
-		m_normalMap->RemoveResourceReference();
+	if (m_normalMap != map)
+	{
+		if (m_normalMap)
+			m_normalMap->RemoveResourceReference();
 
-	m_normalMap = map;
-	if (m_normalMap)
-		m_normalMap->AddResourceReference();
+		m_normalMap = map;
+		if (m_normalMap)
+			m_normalMap->AddResourceReference();
+
+		if (m_autoShader)
+			m_shader = nullptr; // Invalidation du shader
+	}
 }
 
 void NzMaterial::SetShader(const NzShader* shader)
 {
-	if (m_shader)
-		m_shader->RemoveResourceReference();
+	if (m_shader != shader)
+	{
+		if (m_shader)
+			m_shader->RemoveResourceReference();
 
-	m_autoShader = (shader == nullptr);
-	m_shader = shader;
-	if (m_shader)
-		m_shader->AddResourceReference();
+		m_autoShader = (shader == nullptr);
+		m_shader = shader;
+		if (m_shader)
+			m_shader->AddResourceReference();
+	}
 }
 
 void NzMaterial::SetShininess(float shininess)
@@ -454,12 +478,18 @@ void NzMaterial::SetSpecularColor(const NzColor& specular)
 
 void NzMaterial::SetSpecularMap(NzTexture* map)
 {
-	if (m_specularMap)
-		m_specularMap->RemoveResourceReference();
+	if (m_specularMap != map)
+	{
+		if (m_specularMap)
+			m_specularMap->RemoveResourceReference();
 
-	m_specularMap = map;
-	if (m_specularMap)
-		m_specularMap->AddResourceReference();
+		m_specularMap = map;
+		if (m_specularMap)
+			m_specularMap->AddResourceReference();
+
+		if (m_autoShader)
+			m_shader = nullptr; // Invalidation du shader
+	}
 }
 
 void NzMaterial::SetSpecularSampler(const NzTextureSampler& sampler)
