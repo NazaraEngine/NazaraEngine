@@ -98,8 +98,8 @@ namespace
 		{
 			if (flags & nzShaderBuilder_NormalMapping)
 				sourceCode += inKW + " mat3 vLightToWorld;\n";
-
-			sourceCode += inKW + " vec3 vNormal;\n";
+			else
+				sourceCode += inKW + " vec3 vNormal;\n";
 		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
@@ -263,7 +263,7 @@ namespace
 			sourceCode += "}\n"
 			              "\n";
 
-			sourceCode += fragmentColorKW + "	= vec4(light, MaterialDiffuse.w)";
+			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.w)";
 
 			if (flags & nzShaderBuilder_DiffuseMapping)
 				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
@@ -328,9 +328,9 @@ namespace
 		if (flags & nzShaderBuilder_Lighting)
 		{
 			if (flags & nzShaderBuilder_NormalMapping)
-				sourceCode += outKW + " mat3 vLightToWorld;";
-
-			sourceCode += outKW + " vec3 vNormal;\n";
+				sourceCode += outKW + " mat3 vLightToWorld;\n";
+			else
+				sourceCode += outKW + " vec3 vNormal;\n";
 		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
@@ -359,8 +359,8 @@ namespace
 				              "vLightToWorld[2] = normalize(VertexNormal * RotationMatrix);\n"
 				              "\n";
 			}
-
-			sourceCode += "vNormal = normalize(RotationMatrix * VertexNormal);\n";
+			else
+				sourceCode += "vNormal = normalize(RotationMatrix * VertexNormal);\n";
 		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
