@@ -263,6 +263,8 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	NzJoint* jointsB = &skeletonB.m_impl->joints[0];
 	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation);
+
+	m_impl->aabb.SetNull();
 }
 
 void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
@@ -309,6 +311,8 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 
 		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation);
 	}
+
+	m_impl->aabb.SetNull();
 }
 
 bool NzSkeleton::IsValid() const
