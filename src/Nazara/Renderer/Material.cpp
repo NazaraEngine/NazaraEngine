@@ -578,6 +578,7 @@ NzMaterial* NzMaterial::GetDefault()
 
 	if (!initialized)
 	{
+		defaultMaterial.EnableLighting(false); ///FIXME: Éclairage ou pas ?
 		defaultMaterial.SetFaceCulling(nzFaceCulling_FrontAndBack);
 		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
 		defaultMaterial.SetDiffuseColor(NzColor::White);
