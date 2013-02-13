@@ -27,7 +27,7 @@ int main()
 		// 2) Le concepteur du processeur, accessible via une énumération (GetProcessorVendor) ou une chaîne de caractère (GetProcessorVendorName)
 		// 3) Le nombre de processeurs, alias bien souvent le nombre de coeurs, cette valeur est renvoyée par l'OS (Le SMT multiplie donc la valeur réelle)
 		oss << "Identification: " << NzHardwareInfo::GetProcessorBrandString() << std::endl;
-		oss << "Vendeur: " << NzHardwareInfo::GetProcessorVendorName() << std::endl;
+		oss << "Concepteur: " << NzHardwareInfo::GetProcessorVendorName() << std::endl;
 		oss << "Nombre de coeurs: " << NzHardwareInfo::GetProcessorCount() << std::endl;
 		oss << std::endl;
 
@@ -64,7 +64,7 @@ int main()
 		// 2) La chaîne d'identification du concepteur ("Vendor name")
 		// 3) La version d'OpenGL
 		oss << "Identification: " << NzOpenGL::GetRendererName() << std::endl;
-		oss << "Vendeur: " << NzOpenGL::GetVendorName() << std::endl;
+		oss << "Concepteur: " << NzOpenGL::GetVendorName() << std::endl;
 		oss << "Version d'OpenGL: " << openglVersion/100 << '.' << openglVersion%100 << std::endl;
 		oss << std::endl;
 
