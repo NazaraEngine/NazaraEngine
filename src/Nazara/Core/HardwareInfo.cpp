@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <cstdlib>
 #include <cstring>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -18,14 +19,13 @@
 
 namespace
 {
-	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
-	bool s_capabilities[nzProcessorCap_Max+1] = {false};
-	bool s_initialized = false;
+	struct VendorString
+	{
+		char vendor[13]; // +1 pour le \0 automatiquement ajouté par le compilateur
+		nzProcessorVendor vendorEnum;
+	};
 
-	char s_brandString[48] = "Not initialized";
-	char s_vendor[12] = {'C', 'P', 'U', 'i', 's', 'U', 'n', 'k', 'n', 'o', 'w', 'n'};
-
-	const char* vendorName[nzProcessorVendor_Max+2] = // +1 pour gérer le cas Unknown
+	const char* vendorNames[nzProcessorVendor_Max+2] = // +1 pour gérer le cas Unknown
 	{
 		"Unknown",                             // nzProcessorVendor_Unknown
 		"Advanced Micro Devices",              // nzProcessorVendor_AMD
@@ -42,11 +42,35 @@ namespace
 		"Vortex86",                            // nzProcessorVendor_Vortex
 	};
 
-	struct VendorString
+	VendorString vendorStrings[] =
 	{
-		nzProcessorVendor vendorEnum;
-		char vendor[13]; // +1 pour le \0 automatiquement ajouté par le compilateur
+		// Triés par ordre alphabétique (Majuscules primant sur minuscules)
+		{"AMDisbetter!", nzProcessorVendor_AMD},
+		{"AuthenticAMD", nzProcessorVendor_AMD},
+		{"CentaurHauls", nzProcessorVendor_Centaur},
+		{"CyrixInstead", nzProcessorVendor_Cyrix},
+		{"GenuineIntel", nzProcessorVendor_Intel},
+		{"GenuineTMx86", nzProcessorVendor_Transmeta},
+		{"Geode by NSC", nzProcessorVendor_NSC},
+		{"NexGenDriven", nzProcessorVendor_NexGen},
+		{"SiS SiS SiS ", nzProcessorVendor_SIS},
+		{"TransmetaCPU", nzProcessorVendor_Transmeta},
+		{"UMC UMC UMC ", nzProcessorVendor_UMC},
+		{"VIA VIA VIA ", nzProcessorVendor_VIA},
+		{"Vortex86 SoC", nzProcessorVendor_VIA}
 	};
+
+	bool VendorStringCompare(const VendorString& a, const VendorString& b)
+	{
+		return std::memcmp(a.vendor, b.vendor, 12);
+	}
+
+	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
+	bool s_capabilities[nzProcessorCap_Max+1] = {false};
+	bool s_initialized = false;
+
+	char s_brandString[48] = "Not initialized";
+	char s_vendor[12] = {'C', 'P', 'U', 'i', 's', 'U', 'n', 'k', 'n', 'o', 'w', 'n'};
 }
 
 NzString NzHardwareInfo::GetProcessorBrandString()
@@ -67,7 +91,7 @@ nzProcessorVendor NzHardwareInfo::GetProcessorVendor()
 
 NzString NzHardwareInfo::GetProcessorVendorName()
 {
-	return vendorName[s_vendorEnum+1];
+	return vendorNames[s_vendorEnum+1];
 }
 
 bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
@@ -100,26 +124,9 @@ bool NzHardwareInfo::Initialize()
 	std::memcpy(&s_vendor[4], &result[3], 4);
 	std::memcpy(&s_vendor[8], &result[2], 4);
 
-	VendorString s_vendorStrings[] =
-	{
-		{nzProcessorVendor_AMD, "AMDisbetter!"},
-		{nzProcessorVendor_AMD, "AuthenticAMD"},
-		{nzProcessorVendor_Centaur, "CentaurHauls"},
-		{nzProcessorVendor_Cyrix, "CyrixInstead"},
-		{nzProcessorVendor_Intel, "GenuineIntel"},
-		{nzProcessorVendor_NexGen, "NexGenDriven"},
-		{nzProcessorVendor_NSC, "Geode by NSC"},
-		{nzProcessorVendor_SIS, "SiS SiS SiS "},
-		{nzProcessorVendor_Transmeta, "GenuineTMx86"},
-		{nzProcessorVendor_Transmeta, "TransmetaCPU"},
-		{nzProcessorVendor_UMC, "UMC UMC UMC "},
-		{nzProcessorVendor_VIA, "VIA VIA VIA "},
-		{nzProcessorVendor_VIA, "Vortex86 SoC"}
-	};
-
-	// Identification du vendeur
+	// Identification du concepteur
 	s_vendorEnum = nzProcessorVendor_Unknown;
-	for (const VendorString& vendorString : s_vendorStrings)
+	for (const VendorString& vendorString : vendorStrings)
 	{
 		if (std::memcmp(s_vendor, vendorString.vendor, 12) == 0)
 		{
