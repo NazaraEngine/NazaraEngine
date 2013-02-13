@@ -4,8 +4,6 @@ defines "NAZARA_RENDERER_OPENGL"
 
 files "main.cpp"
 
-includedirs "../extlibs/include"
-
 if (_OPTIONS["united"]) then
 	configuration "DebugStatic"
 		links "NazaraEngine-s-d"
