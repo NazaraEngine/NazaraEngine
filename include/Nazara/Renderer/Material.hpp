@@ -40,6 +40,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void Apply() const;
 
 		void EnableAlphaBlending(bool alphaBlending);
+		void EnableFaceCulling(bool faceCulling);
 		void EnableLighting(bool lighting);
 		void EnableZTest(bool zTest);
 		void EnableZWrite(bool zWrite);
@@ -64,6 +65,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzRendererComparison GetZTestCompare() const;
 
 		bool IsAlphaBlendingEnabled() const;
+		bool IsFaceCullingEnabled() const;
 		bool IsLightingEnabled() const;
 		bool IsZTestEnabled() const;
 		bool IsZWriteEnabled() const;
@@ -116,6 +118,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
 		bool m_autoShader;
+		bool m_faceCullingEnabled;
 		bool m_lightingEnabled;
 		bool m_zTestEnabled;
 		bool m_zWriteEnabled;
