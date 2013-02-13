@@ -160,7 +160,14 @@ void NzMaterial::Apply() const
 	else
 		NzRenderer::Enable(nzRendererParameter_Blend, false);
 
-	NzRenderer::SetFaceCulling(m_faceCulling);
+	if (m_faceCullingEnabled)
+	{
+		NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
+		NzRenderer::SetFaceCulling(m_faceCulling);
+	}
+	else
+		NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
+
 	NzRenderer::SetFaceFilling(m_faceFilling);
 
 	if (m_zTestEnabled)
@@ -176,6 +183,11 @@ void NzMaterial::Apply() const
 void NzMaterial::EnableAlphaBlending(bool alphaBlending)
 {
 	m_alphaBlendingEnabled = alphaBlending;
+}
+
+void NzMaterial::EnableFaceCulling(bool faceCulling)
+{
+	m_faceCullingEnabled = faceCulling;
 }
 
 void NzMaterial::EnableLighting(bool lighting)
@@ -294,6 +306,11 @@ bool NzMaterial::IsAlphaBlendingEnabled() const
 	return m_alphaBlendingEnabled;
 }
 
+bool NzMaterial::IsFaceCullingEnabled() const
+{
+	return m_faceCullingEnabled;
+}
+
 bool NzMaterial::IsLightingEnabled() const
 {
 	return m_lightingEnabled;
@@ -363,6 +380,7 @@ void NzMaterial::Reset()
 	m_diffuseSampler = NzTextureSampler();
 	m_dstBlend = nzBlendFunc_Zero;
 	m_faceCulling = nzFaceCulling_Back;
+	m_faceCullingEnabled = true;
 	m_faceFilling = nzFaceFilling_Fill;
 	m_lightingEnabled = true;
 	m_shininess = 50.f;
