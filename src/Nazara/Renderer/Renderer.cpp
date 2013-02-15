@@ -1079,6 +1079,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 	if (s_useSamplerObjects)
 	{
+		///FIXME: Itère sur toutes les unités (Dont beaucoup inutilisées)
 		for (unsigned int i = 0; i < s_textureUnits.size(); ++i)
 		{
 			TextureUnit& unit = s_textureUnits[i];
@@ -1105,6 +1106,7 @@ bool NzRenderer::EnsureStateUpdate()
 	}
 	else
 	{
+		///FIXME: Itère sur toutes les unités (Dont beaucoup inutilisées)
 		for (unsigned int i = 0; i < s_textureUnits.size(); ++i)
 		{
 			TextureUnit& unit = s_textureUnits[i];
