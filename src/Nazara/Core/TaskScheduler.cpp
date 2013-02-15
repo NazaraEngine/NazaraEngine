@@ -46,7 +46,11 @@ namespace
 
 			// Avons-nous une tâche ?
 			if (task)
+			{
 				task->Run(); // Chouette ! Allons travailler gaiement
+
+				delete task; // Sans oublier de supprimer la tâche
+			}
 			else
 			{
 				// On peut signaler à tout le monde qu'il n'y a plus de tâches
@@ -108,6 +112,13 @@ void NzTaskScheduler::Uninitialize()
 		{
 			thread->Join();
 			delete thread;
+		}
+
+		// S'il reste des tâches en cours, on les libère
+		while (!s_impl->tasks.empty())
+		{
+			delete s_impl->tasks.front();
+			s_impl->tasks.pop();
 		}
 
 		delete s_impl;
