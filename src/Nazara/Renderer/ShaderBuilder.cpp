@@ -18,7 +18,7 @@ namespace
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{
 		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
-		bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
+		//bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
 
 		NzString inKW = (glsl140) ? "in" : "varying";
 		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
@@ -111,7 +111,7 @@ namespace
 		sourceCode += '\n';
 
 		/********************Sortant********************/
-		if (useMRT)
+		if (glsl140)
 			sourceCode += "out vec4 RenderTarget0;\n";
 
 		sourceCode += '\n';
