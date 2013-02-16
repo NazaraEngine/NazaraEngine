@@ -41,12 +41,11 @@ class NzRect
 
 		NzRect& Set(T X, T Y, T Width, T Height);
 		NzRect& Set(const T rect[4]);
+		NzRect& Set(const NzRect<T>& rect);
 		NzRect& Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
 		template<typename U> NzRect& Set(const NzRect<U>& rect);
 
 		NzString ToString() const;
-
-		operator NzString() const;
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
