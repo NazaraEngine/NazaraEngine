@@ -97,6 +97,40 @@ NzCube<T>& NzCube<T>::ExtendTo(const NzCube& cube)
 }
 
 template<typename T>
+NzVector3<T> NzCube<T>::GetCorner(nzCorner corner) const
+{
+	switch (corner)
+	{
+		case nzCorner_FarLeftBottom:
+			return NzVector3f(x, y, z);
+
+		case nzCorner_FarLeftTop:
+			return NzVector3f(x, y + height, z);
+
+		case nzCorner_FarRightBottom:
+			return NzVector3f(x + width, y, z);
+
+		case nzCorner_FarRightTop:
+			return NzVector3f(x + width, y + height, z);
+
+		case nzCorner_NearLeftBottom:
+			return NzVector3f(x, y, z + depth);
+
+		case nzCorner_NearLeftTop:
+			return NzVector3f(x, y + height, z + depth);
+
+		case nzCorner_NearRightBottom:
+			return NzVector3f(x + width, y, z + depth);
+
+		case nzCorner_NearRightTop:
+			return NzVector3f(x + width, y + height, z + depth);
+	}
+
+	NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
+	return NzVector3f();
+}
+
+template<typename T>
 NzVector3<T> NzCube<T>::GetCenter() const
 {
 	return NzVector3<T>(x + width/F(2.0), y + height/F(2.0), z + depth/F(2.0));

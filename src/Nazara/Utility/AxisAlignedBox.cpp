@@ -84,6 +84,8 @@ void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 			operator=(box);
 			break;
 	}
+
+	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
 }
 
 void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
@@ -103,38 +105,28 @@ void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
 			m_cube.Set(vector, vector);
 			break;
 	}
+
+	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
 }
 
 NzVector3f NzAxisAlignedBox::GetCorner(nzCorner corner) const
 {
-	switch (corner)
+	switch (m_extend)
 	{
-		case nzCorner_FarLeftBottom:
-			return NzVector3f(m_cube.x, m_cube.y, m_cube.z);
+		case nzExtend_Finite:
+			return m_cube.GetCorner(corner);
 
-		case nzCorner_FarLeftTop:
-			return NzVector3f(m_cube.x, m_cube.y+m_cube.height, m_cube.z);
+		case nzExtend_Infinite:
+			// Il est possible de renvoyer un vecteur avec des flottants infinis dont le signe dépend du coin
+			// Bien que ça soit plus juste mathématiquement, je ne vois pas l'intérêt...
+			NazaraError("Infinite AABB has no corner");
+			return NzVector3f();
 
-		case nzCorner_FarRightBottom:
-			return NzVector3f(m_cube.x+m_cube.width, m_cube.y, m_cube.z);
-
-		case nzCorner_FarRightTop:
-			return NzVector3f(m_cube.x+m_cube.width, m_cube.y+m_cube.height, m_cube.z);
-
-		case nzCorner_NearLeftBottom:
-			return NzVector3f(m_cube.x, m_cube.y, m_cube.z+m_cube.depth);
-
-		case nzCorner_NearLeftTop:
-			return NzVector3f(m_cube.x, m_cube.y+m_cube.height, m_cube.z+m_cube.depth);
-
-		case nzCorner_NearRightBottom:
-			return NzVector3f(m_cube.x+m_cube.width, m_cube.y, m_cube.z+m_cube.depth);
-
-		case nzCorner_NearRightTop:
-			return NzVector3f(m_cube.x+m_cube.width, m_cube.y+m_cube.height, m_cube.z+m_cube.depth);
+		case nzExtend_Null:
+			return NzVector3f::Zero();
 	}
 
-	NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
+	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
 	return NzVector3f();
 }
 
