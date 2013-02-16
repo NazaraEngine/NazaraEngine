@@ -57,8 +57,6 @@ template<typename T> class NzQuaternion
 		//NzMatrix3<T> ToRotationMatrix() const;
 		NzString ToString() const;
 
-		operator NzString() const;
-
 		NzQuaternion& operator=(const NzQuaternion& quat);
 
 		NzQuaternion operator+(const NzQuaternion& quat) const;

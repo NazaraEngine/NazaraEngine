@@ -40,11 +40,10 @@ template<typename T> class NzVector4
 		NzVector4& Set(T scale);
 		NzVector4& Set(const T vec[4]);
 		NzVector4& Set(const NzVector3<T>& vec, T W = 1.0);
+		NzVector4& Set(const NzVector4<T>& vec);
 		template<typename U> NzVector4& Set(const NzVector4<U>& vec);
 
 		NzString ToString() const;
-
-		operator NzString() const;
 
 		operator T*();
 		operator const T*() const;

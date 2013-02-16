@@ -43,13 +43,12 @@ class NzCube
 
 		NzCube& Set(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzCube& Set(const T cube[6]);
+		NzCube& Set(const NzCube& cube);
 		NzCube& Set(const NzRect<T>& rect);
 		NzCube& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> NzCube& Set(const NzCube<U>& cube);
 
 		NzString ToString() const;
-
-		operator NzString() const;
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;

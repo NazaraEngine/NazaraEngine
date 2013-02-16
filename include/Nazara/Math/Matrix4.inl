@@ -626,7 +626,7 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4& matrix)
 {
-	std::memcpy(&m11, &matrix.m11, 16*sizeof(T));
+	std::memcpy(this, &matrix, sizeof(NzMatrix4));
 
 	return *this;
 }
@@ -739,12 +739,6 @@ NzMatrix4<T>& NzMatrix4<T>::Transpose()
 	std::swap(m34, m43);
 
 	return *this;
-}
-
-template<typename T>
-NzMatrix4<T>::operator NzString() const
-{
-	return ToString();
 }
 
 template<typename T>
