@@ -69,9 +69,7 @@ void NzEulerAngles<T>::Set(const T angles[3])
 template<typename T>
 void NzEulerAngles<T>::Set(const NzEulerAngles& angles)
 {
-	pitch = angles.pitch;
-	yaw = angles.yaw;
-	roll = angles.roll;
+	std::memcpy(this, &angles, sizeof(NzEulerAngles));
 }
 
 template<typename T>
@@ -105,12 +103,6 @@ NzString NzEulerAngles<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "EulerAngles(" << pitch << ", " << yaw << ", " << roll << ')';
-}
-
-template<typename T>
-NzEulerAngles<T>::operator NzString() const
-{
-	return ToString();
 }
 
 template<typename T>

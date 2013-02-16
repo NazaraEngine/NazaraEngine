@@ -188,6 +188,14 @@ NzCube<T>& NzCube<T>::Set(const T cube[6])
 }
 
 template<typename T>
+NzCube<T>& NzCube<T>::Set(const NzCube& cube)
+{
+	std::memcpy(this, &cube, sizeof(NzCube));
+
+	return *this;
+}
+
+template<typename T>
 NzCube<T>& NzCube<T>::Set(const NzRect<T>& rect)
 {
 	x = rect.x;
@@ -233,12 +241,6 @@ NzString NzCube<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Cube(" << x << ", " << y << ", " << z << ", " << width << ", " << height << ", " << depth << ')';
-}
-
-template<typename T>
-NzCube<T>::operator NzString() const
-{
-	return ToString();
 }
 
 template<typename T>

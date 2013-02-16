@@ -165,6 +165,14 @@ NzRect<T>& NzRect<T>::Set(const T rect[4])
 }
 
 template<typename T>
+NzRect<T>& NzRect<T>::Set(const NzRect<T>& rect)
+{
+	std::memcpy(this, &rect, sizeof(NzRect));
+
+	return *this;
+}
+
+template<typename T>
 NzRect<T>& NzRect<T>::Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2)
 {
 	x = std::min(vec1.x, vec2.x);
@@ -193,12 +201,6 @@ NzString NzRect<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Rect(" << x << ", " << y << ", " << width << ", " << height << ')';
-}
-
-template<typename T>
-NzRect<T>::operator NzString() const
-{
-	return ToString();
 }
 
 template<typename T>

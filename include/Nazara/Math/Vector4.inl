@@ -185,6 +185,14 @@ NzVector4<T>& NzVector4<T>::Set(const NzVector3<T>& vec, T W)
 }
 
 template<typename T>
+NzVector4<T>& NzVector4<T>::Set(const NzVector4& vec)
+{
+	std::memcpy(this, &vec, sizeof(NzVector4));
+
+	return *this;
+}
+
+template<typename T>
 template<typename U>
 NzVector4<T>& NzVector4<T>::Set(const NzVector4<U>& vec)
 {
@@ -202,12 +210,6 @@ NzString NzVector4<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
-}
-
-template<typename T>
-NzVector4<T>::operator NzString() const
-{
-	return ToString();
 }
 
 template<typename T>
