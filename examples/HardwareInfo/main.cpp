@@ -100,9 +100,7 @@ int main()
 		std::cout << "Un fichier (RapportHardwareInfo.txt) contenant le rapport a " << accent << 't' << accent << " cr" << accent << accent << std::endl;
 	}
 	else
-	{
 		std::cout << "Impossible de sauvegarder le rapport" << std::endl;
-	}
 
 	std::getchar();
 
