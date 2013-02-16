@@ -84,8 +84,6 @@ class NzMatrix4
 
 		NzMatrix4& Transpose();
 
-		operator NzString() const;
-
 		operator T*();
 		operator const T*() const;
 

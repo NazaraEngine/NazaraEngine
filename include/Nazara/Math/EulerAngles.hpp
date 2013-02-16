@@ -38,8 +38,6 @@ template<typename T> class NzEulerAngles
 		NzQuaternion<T> ToQuaternion() const;
 		NzString ToString() const;
 
-		operator NzString() const;
-
 		NzEulerAngles operator+(const NzEulerAngles& angles) const;
 		NzEulerAngles operator-(const NzEulerAngles& angles) const;
 		/*NzEulerAngles operator*(const NzEulerAngles& angles) const;

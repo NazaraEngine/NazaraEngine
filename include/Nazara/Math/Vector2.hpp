@@ -45,14 +45,13 @@ class NzVector2
 		NzVector2& Set(T X, T Y);
 		NzVector2& Set(T scale);
 		NzVector2& Set(const T vec[2]);
+		NzVector2& Set(const NzVector2& vec);
 		template<typename U> NzVector2& Set(const NzVector2<U>& vec);
 
 		T SquaredDistance(const NzVector2& vec) const;
 		T SquaredLength() const;
 
 		NzString ToString() const;
-
-		operator NzString() const;
 
 		operator T*();
 		operator const T*() const;
