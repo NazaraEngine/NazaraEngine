@@ -8,6 +8,7 @@
 #define NAZARA_CUBE_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
@@ -31,6 +32,7 @@ class NzCube
 		NzCube& ExtendTo(const NzVector3<T>& point);
 		NzCube& ExtendTo(const NzCube& cube);
 
+		NzVector3<T> GetCorner(nzCorner corner) const;
 		NzVector3<T> GetCenter() const;
 		NzVector3<T> GetPosition() const;
 		NzVector3<T> GetSize() const;
