@@ -30,7 +30,9 @@ class NzRect
 		NzRect& ExtendTo(const NzRect& rect);
 
 		NzVector2<T> GetCenter() const;
+		NzVector2<T> GetNegativeVertex(const NzVector2<T>& normal) const;
 		NzVector2<T> GetPosition() const;
+		NzVector2<T> GetPositiveVertex(const NzVector2<T>& normal) const;
 		NzVector2<T> GetSize() const;
 
 		bool Intersect(const NzRect& rect, NzRect* intersection = nullptr) const;

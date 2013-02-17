@@ -92,9 +92,37 @@ NzVector2<T> NzRect<T>::GetCenter() const
 }
 
 template<typename T>
+NzVector2<T> NzRect<T>::GetNegativeVertex(const NzVector2<T>& normal) const
+{
+	NzVector2<T> neg(GetPosition());
+
+	if (normal.x < F(0.0))
+		neg.x += width;
+
+	if (normal.y < F(0.0))
+		neg.y += height;
+
+	return neg;
+}
+
+template<typename T>
 NzVector2<T> NzRect<T>::GetPosition() const
 {
 	return NzVector2<T>(x, y);
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetPositiveVertex(const NzVector2<T>& normal) const
+{
+	NzVector2<T> pos(GetPosition());
+
+	if (normal.x > F(0.0))
+		pos.x += width;
+
+	if (normal.y > F(0.0))
+		pos.y += height;
+
+	return pos;
 }
 
 template<typename T>
