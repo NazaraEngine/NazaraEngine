@@ -7,6 +7,7 @@
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 #define F(a) static_cast<T>(a)

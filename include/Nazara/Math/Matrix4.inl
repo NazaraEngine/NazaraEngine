@@ -11,7 +11,6 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
-#include <cmath>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
