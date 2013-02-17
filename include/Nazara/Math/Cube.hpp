@@ -34,7 +34,9 @@ class NzCube
 
 		NzVector3<T> GetCorner(nzCorner corner) const;
 		NzVector3<T> GetCenter() const;
+		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
 		NzVector3<T> GetPosition() const;
+		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
 		NzVector3<T> GetSize() const;
 
 		bool Intersect(const NzCube& cube, NzCube* intersection = nullptr) const;
