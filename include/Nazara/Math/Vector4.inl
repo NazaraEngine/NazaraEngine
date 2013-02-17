@@ -4,8 +4,7 @@
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Basic.hpp>
-#include <cmath>
-#include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
