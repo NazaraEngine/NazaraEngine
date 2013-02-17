@@ -48,9 +48,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2012/02/29 */
+/* glxext.h last updated 2013/01/02 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GLX_GLXEXT_VERSION 33
+#define GLX_GLXEXT_VERSION 34
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -438,6 +438,10 @@ extern "C" {
 
 #ifndef GLX_EXT_create_context_es2_profile
 #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT    0x00000004
+#endif
+
+#ifndef GLX_EXT_create_context_es_profile
+#define GLX_CONTEXT_ES_PROFILE_BIT_EXT     0x00000004
 #endif
 
 #ifndef GLX_EXT_swap_control_tear
@@ -991,6 +995,14 @@ typedef void ( * PFNGLXCOPYIMAGESUBDATANVPROC) (Display *dpy, GLXContext srcCtx,
 
 #ifndef GLX_NV_multisample_coverage
 #define GLX_NV_multisample_coverage 1
+#endif
+
+#ifndef GLX_EXT_create_context_es2_profile
+#define GLX_EXT_create_context_es2_profile 1
+#endif
+
+#ifndef GLX_EXT_create_context_es_profile
+#define GLX_EXT_create_context_es_profile 1
 #endif
 
 #ifndef GLX_EXT_swap_control_tear
