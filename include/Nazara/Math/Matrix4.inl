@@ -503,9 +503,9 @@ NzMatrix4<T>& NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204945(v=vs.85).aspx
 	#if NAZARA_MATH_ANGLE_RADIAN
-	angle /= F(2.0);
+	angle *= F(0.5);
 	#else
-	angle = NzDegreeToRadian(angle/F(2.0));
+	angle = NzDegreeToRadian(angle * F(0.5));
 	#endif
 
 	T yScale = F(1.0) / std::tan(angle);
