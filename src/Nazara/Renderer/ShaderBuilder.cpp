@@ -7,13 +7,13 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
-	std::map<nzUInt32, NzShader*> s_shaders;
+	std::unordered_map<nzUInt32, NzShader*> s_shaders;
 
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{

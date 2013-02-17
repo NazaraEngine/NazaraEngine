@@ -9,7 +9,7 @@
 
 struct NzSkeletonImpl
 {
-	std::map<NzString, unsigned int> jointMap;
+	std::map<NzString, unsigned int> jointMap; ///FIXME: unordered_map
 	std::vector<NzJoint> joints;
 	NzAxisAlignedBox aabb;
 	bool jointMapUpdated = false;
