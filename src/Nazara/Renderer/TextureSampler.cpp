@@ -8,11 +8,12 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <unordered_map>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
-	std::map<nzUInt32, GLuint> s_samplers;
+	std::unordered_map<nzUInt32, GLuint> s_samplers;
 	nzUInt8 s_maxAnisotropyLevel;
 	bool s_useAnisotropicFilter;
 }

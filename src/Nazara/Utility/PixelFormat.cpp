@@ -5,7 +5,6 @@
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace
