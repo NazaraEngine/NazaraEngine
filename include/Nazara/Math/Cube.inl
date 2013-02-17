@@ -139,9 +139,43 @@ NzVector3<T> NzCube<T>::GetCenter() const
 }
 
 template<typename T>
+NzVector3<T> NzCube<T>::GetNegativeVertex(const NzVector3<T>& normal) const
+{
+	NzVector3<T> neg(GetPosition());
+
+	if (normal.x < F(0.0))
+		neg.x += width;
+
+	if (normal.y < F(0.0))
+		neg.y += height;
+
+	if (normal.z < F(0.0))
+		neg.z += depth;
+
+	return neg;
+}
+
+template<typename T>
 NzVector3<T> NzCube<T>::GetPosition() const
 {
 	return NzVector3<T>(x, y, z);
+}
+
+template<typename T>
+NzVector3<T> NzCube<T>::GetPositiveVertex(const NzVector3<T>& normal) const
+{
+	NzVector3<T> pos(GetPosition());
+
+	if (normal.x > F(0.0))
+		pos.x += width;
+
+	if (normal.y > F(0.0))
+		pos.y += height;
+
+	if (normal.z > F(0.0))
+		pos.z += depth;
+
+	return pos;
 }
 
 template<typename T>
