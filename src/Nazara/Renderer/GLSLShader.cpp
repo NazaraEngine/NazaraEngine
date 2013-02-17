@@ -192,7 +192,7 @@ NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
 
 int NzGLSLShader::GetUniformLocation(const NzString& name) const
 {
-	std::map<NzString, GLint>::const_iterator it = m_idCache.find(name);
+	auto it = m_idCache.find(name);
 	GLint id;
 	if (it == m_idCache.end())
 	{
