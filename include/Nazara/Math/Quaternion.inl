@@ -7,6 +7,7 @@
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <cstring>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
 
