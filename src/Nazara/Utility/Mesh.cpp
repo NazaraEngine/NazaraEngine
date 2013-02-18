@@ -42,9 +42,9 @@ struct NzMeshImpl
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;
 	NzAxisAlignedBox aabb;
-	NzSkeleton skeleton; // Uniquement pour les animations squelettiques
+	NzSkeleton skeleton; // Uniquement pour les meshs squelettiques
 	NzString animationPath;
-	unsigned int jointCount; // Uniquement pour les animations squelettiques
+	unsigned int jointCount; // Uniquement pour les meshs squelettiques
 };
 
 NzMesh::~NzMesh()
