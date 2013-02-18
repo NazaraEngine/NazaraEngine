@@ -84,8 +84,6 @@ void NzAxisAlignedBox::ExtendTo(const NzAxisAlignedBox& box)
 			operator=(box);
 			break;
 	}
-
-	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
 }
 
 void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
@@ -105,8 +103,6 @@ void NzAxisAlignedBox::ExtendTo(const NzVector3f& vector)
 			m_cube.Set(vector, vector);
 			break;
 	}
-
-	NazaraError("Extend type not handled (0x" + NzString::Number(m_extend, 16) + ')');
 }
 
 NzVector3f NzAxisAlignedBox::GetCorner(nzCorner corner) const
