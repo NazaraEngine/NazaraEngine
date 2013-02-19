@@ -157,6 +157,109 @@ void NzDebugDrawer::Draw(const NzCubeui& cube)
 	Draw(NzCubef(cube));
 }
 
+void NzDebugDrawer::Draw(const NzFrustumf& frustum)
+{
+	if (!initialized)
+	{
+		NazaraError("Debug drawer is not initialized");
+		return;
+	}
+
+	NzBufferMapper<NzVertexBuffer> mapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, 24);
+	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	mapper.Unmap();
+
+	const NzShader* oldShader = NzRenderer::GetShader();
+
+	if (!NzRenderer::SetShader(shader))
+	{
+		NazaraError("Failed to set debug shader");
+		return;
+	}
+
+	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
+	if (depthTestActive != depthTest)
+		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
+
+	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::SetLineWidth(lineWidth);
+
+	NzRenderer::SetVertexBuffer(vertexBuffer);
+
+	shader->SendColor(colorLocation, primaryColor);
+
+	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+
+	NzRenderer::SetLineWidth(oldLineWidth);
+
+	if (depthTestActive != depthTest)
+		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
+
+	if (!NzRenderer::SetShader(oldShader))
+		NazaraWarning("Failed to reset shader");
+}
+
 void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 {
 	if (!initialized)
