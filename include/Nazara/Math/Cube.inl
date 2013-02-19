@@ -63,21 +63,27 @@ bool NzCube<T>::Contains(const NzCube<T>& cube) const
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
+NzCube<T>& NzCube<T>::ExtendTo(T X, T Y, T Z)
 {
-	width = std::max(x + width, point.x);
-	height = std::max(y + height, point.y);
-	depth = std::max(z + depth, point.z);
+	width = std::max(x + width, X);
+	height = std::max(y + height, Y);
+	depth = std::max(z + depth, Z);
 
-	x = std::min(x, point.x);
-	y = std::min(y, point.y);
-	z = std::min(z, point.z);
+	x = std::min(x, X);
+	y = std::min(y, Y);
+	z = std::min(z, Z);
 
 	width -= x;
 	height -= y;
 	depth -= z;
 
 	return *this;
+}
+
+template<typename T>
+NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
+{
+	return ExtendTo(point.x, point.y, point.z);
 }
 
 template<typename T>
