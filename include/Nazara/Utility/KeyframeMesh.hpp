@@ -28,7 +28,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 
 		void GenerateAABBs();
 
-		const NzAxisAlignedBox& GetAABB() const override;
+		const NzAxisAlignedBoxf& GetAABB() const override;
 		nzAnimationType GetAnimationType() const override;
 		unsigned int GetFrameCount() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
@@ -46,7 +46,7 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		bool IsAnimated() const override;
 		bool IsValid();
 
-		void SetAABB(unsigned int frameIndex, const NzAxisAlignedBox& aabb);
+		void SetAABB(unsigned int frameIndex, const NzAxisAlignedBoxf& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 		void SetNormal(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& normal);
 		void SetPosition(unsigned int frameIndex, unsigned int vertexIndex, const NzVector3f& position);
