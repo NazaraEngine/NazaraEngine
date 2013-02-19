@@ -39,7 +39,7 @@ bool NzStaticMesh::Create(NzVertexBuffer* vertexBuffer)
 
 void NzStaticMesh::Destroy()
 {
-	m_aabb.SetNull();
+	m_aabb.MakeNull();
 
 	if (m_indexBuffer)
 	{
@@ -79,7 +79,7 @@ bool NzStaticMesh::GenerateAABB()
 	return true;
 }
 
-const NzAxisAlignedBox& NzStaticMesh::GetAABB() const
+const NzAxisAlignedBoxf& NzStaticMesh::GetAABB() const
 {
 	return m_aabb;
 }
@@ -114,7 +114,7 @@ bool NzStaticMesh::IsValid() const
 	return m_vertexBuffer != nullptr;
 }
 
-void NzStaticMesh::SetAABB(const NzAxisAlignedBox& aabb)
+void NzStaticMesh::SetAABB(const NzAxisAlignedBoxf& aabb)
 {
 	m_aabb = aabb;
 }
