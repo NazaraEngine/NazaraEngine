@@ -130,14 +130,15 @@ NzVector4<T>& NzVector4<T>::Minimize(const NzVector4& vec)
 template<typename T>
 NzVector4<T>& NzVector4<T>::Normalize(T* length)
 {
-	x /= w;
-	y /= w;
-	z /= w;
-
-	w = F(1.0);
+	T invLength = F(1.0)/w;
+	x *= invLength; // Attention, briser cette logique casserait Frustum::Extract
+	y *= invLength;
+	z *= invLength;
 
 	if (length)
 		*length = w;
+
+	w = F(1.0);
 
 	return *this;
 }
