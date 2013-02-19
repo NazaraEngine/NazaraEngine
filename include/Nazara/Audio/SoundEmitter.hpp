@@ -13,6 +13,8 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
+///TODO: Faire hériter SoundEmitter de Node
+
 class NAZARA_API NzSoundEmitter
 {
 	public:
