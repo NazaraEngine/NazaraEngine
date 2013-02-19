@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzAxisAlignedBox;
@@ -22,6 +23,7 @@ class NAZARA_API NzDebugDrawer
 		static void Draw(const NzCubef& cube);
 		static void Draw(const NzCubei& cube);
 		static void Draw(const NzCubeui& cube);
+		static void Draw(const NzFrustumf& frustum);
 		static void Draw(const NzSkeleton* skeleton);
 		static void DrawNormals(const NzSubMesh* subMesh);
 		static void DrawTangents(const NzSubMesh* subMesh);
