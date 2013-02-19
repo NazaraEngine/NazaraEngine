@@ -26,6 +26,7 @@ class NzRect
 		bool Contains(const NzVector2<T>& point) const;
 		bool Contains(const NzRect& rect) const;
 
+		NzRect& ExtendTo(T X, T Y);
 		NzRect& ExtendTo(const NzVector2<T>& point);
 		NzRect& ExtendTo(const NzRect& rect);
 
@@ -66,7 +67,7 @@ class NzRect
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzRect<T>& vec);
+std::ostream& operator<<(std::ostream& out, const NzRect<T>& rect);
 
 typedef NzRect<double> NzRectd;
 typedef NzRect<float> NzRectf;
