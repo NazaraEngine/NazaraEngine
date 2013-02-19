@@ -29,6 +29,7 @@ class NzCube
 		bool Contains(const NzVector3<T>& point) const;
 		bool Contains(const NzCube& cube) const;
 
+		NzCube& ExtendTo(T X, T Y, T Z);
 		NzCube& ExtendTo(const NzVector3<T>& point);
 		NzCube& ExtendTo(const NzCube& cube);
 
@@ -71,7 +72,7 @@ class NzCube
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzCube<T>& vec);
+std::ostream& operator<<(std::ostream& out, const NzCube<T>& cube);
 
 typedef NzCube<double> NzCubed;
 typedef NzCube<float> NzCubef;
