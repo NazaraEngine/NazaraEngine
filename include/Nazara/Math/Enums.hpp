@@ -18,7 +18,7 @@ enum nzCorner
 	nzCorner_NearRightBottom,
 	nzCorner_NearRightTop,
 
-	nzCorner_Max = nzCorner_FarRightTop
+	nzCorner_Max = nzCorner_NearRightTop
 };
 
 #endif // NAZARA_ENUMS_MATH_HPP
