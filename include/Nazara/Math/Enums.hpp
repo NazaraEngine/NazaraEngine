@@ -21,4 +21,25 @@ enum nzCorner
 	nzCorner_Max = nzCorner_NearRightTop
 };
 
+enum nzFrustumPlane
+{
+	nzFrustumPlane_Bottom,
+	nzFrustumPlane_Far,
+	nzFrustumPlane_Left,
+	nzFrustumPlane_Near,
+	nzFrustumPlane_Right,
+	nzFrustumPlane_Top,
+
+	nzFrustumPlane_Max = nzFrustumPlane_Top
+};
+
+enum nzIntersectionSide
+{
+	nzIntersectionSide_Inside,
+	nzIntersectionSide_Intersecting,
+	nzIntersectionSide_Outside,
+
+	nzIntersectionSide_Max = nzIntersectionSide_Outside
+};
+
 #endif // NAZARA_ENUMS_MATH_HPP
