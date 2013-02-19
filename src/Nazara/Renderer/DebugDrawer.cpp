@@ -7,7 +7,6 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -32,7 +31,7 @@ namespace
 	static int colorLocation = -1;
 }
 
-void NzDebugDrawer::Draw(const NzAxisAlignedBox& aabb)
+void NzDebugDrawer::Draw(const NzAxisAlignedBoxf& aabb)
 {
 	if (!aabb.IsFinite())
 		return;
