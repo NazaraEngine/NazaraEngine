@@ -128,15 +128,6 @@ enum nzEventType
 	nzEventType_Max = nzEventType_TextEntered
 };
 
-enum nzExtend
-{
-	nzExtend_Finite,
-	nzExtend_Infinite,
-	nzExtend_Null,
-
-	nzExtend_Max = nzExtend_Null
-};
-
 enum nzImageType
 {
 	nzImageType_1D,

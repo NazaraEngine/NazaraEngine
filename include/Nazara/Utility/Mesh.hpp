@@ -13,7 +13,7 @@
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/AxisAlignedBox.hpp>
+#include <Nazara/Math/AxisAlignedBox.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -59,7 +59,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void GenerateNormalsAndTangents();
 		void GenerateTangents();
 
-		const NzAxisAlignedBox& GetAABB() const;
+		const NzAxisAlignedBoxf& GetAABB() const;
 		NzString GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetJointCount() const;

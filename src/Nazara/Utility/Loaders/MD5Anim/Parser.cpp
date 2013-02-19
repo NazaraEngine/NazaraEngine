@@ -338,7 +338,7 @@ bool NzMD5AnimParser::ParseBounds()
 			return false;
 		}
 
-		m_frames[i].aabb.SetExtends(min, max);
+		m_frames[i].aabb.Set(min, max);
 	}
 
 	if (!Advance())

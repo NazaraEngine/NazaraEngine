@@ -21,6 +21,15 @@ enum nzCorner
 	nzCorner_Max = nzCorner_NearRightTop
 };
 
+enum nzExtend
+{
+	nzExtend_Finite,
+	nzExtend_Infinite,
+	nzExtend_Null,
+
+	nzExtend_Max = nzExtend_Null
+};
+
 enum nzFrustumPlane
 {
 	nzFrustumPlane_Bottom,

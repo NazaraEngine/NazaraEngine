@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utility/AxisAlignedBox.hpp>
 #include <map>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -11,7 +10,7 @@ struct NzSkeletonImpl
 {
 	std::map<NzString, unsigned int> jointMap; ///FIXME: unordered_map
 	std::vector<NzJoint> joints;
-	NzAxisAlignedBox aabb;
+	NzAxisAlignedBoxf aabb;
 	bool jointMapUpdated = false;
 };
 
@@ -51,13 +50,15 @@ void NzSkeleton::Destroy()
 	}
 }
 
-const NzAxisAlignedBox& NzSkeleton::GetAABB() const
+const NzAxisAlignedBoxf& NzSkeleton::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeleton not created");
-		return NzAxisAlignedBox::Null;
+
+		static NzAxisAlignedBoxf dummy(nzExtend_Null);
+		return dummy;
 	}
 	#endif
 
@@ -94,7 +95,7 @@ NzJoint* NzSkeleton::GetJoint(const NzString& jointName)
 	#endif
 
 	// Invalidation de l'AABB
-	m_impl->aabb.SetNull();
+	m_impl->aabb.MakeNull();
 
 	return &m_impl->joints[it->second];
 }
@@ -116,7 +117,7 @@ NzJoint* NzSkeleton::GetJoint(unsigned int index)
 	#endif
 
 	// Invalidation de l'AABB
-	m_impl->aabb.SetNull();
+	m_impl->aabb.MakeNull();
 
 	return &m_impl->joints[index];
 }
@@ -264,7 +265,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation);
 
-	m_impl->aabb.SetNull();
+	m_impl->aabb.MakeNull();
 }
 
 void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
@@ -312,7 +313,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation);
 	}
 
-	m_impl->aabb.SetNull();
+	m_impl->aabb.MakeNull();
 }
 
 bool NzSkeleton::IsValid() const
