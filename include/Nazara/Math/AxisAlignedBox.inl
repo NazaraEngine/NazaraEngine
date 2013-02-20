@@ -450,7 +450,7 @@ template<typename T>
 NzAxisAlignedBox<T>& NzAxisAlignedBox<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
 {
 	if (extend != nzExtend_Finite)
-		return; //
+		return *this; // Toute transformation d'une AABox autre que finie résultera en la même AABox
 
 	NzVector3<T> center = matrix.Transform(cube.GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Valeur multipliant la translation
 	NzVector3<T> halfSize = cube.GetSize() * F(0.5);
