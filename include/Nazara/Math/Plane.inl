@@ -130,7 +130,7 @@ NzString NzPlane<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "Plane(Normal: " << normal << "; Distance: " << distance << ')';
+	return ss << "Plane(Normal: " << normal.ToString() << "; Distance: " << distance << ')';
 }
 
 template<typename T>
