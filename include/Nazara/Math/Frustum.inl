@@ -449,12 +449,12 @@ NzString NzFrustum<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "Frustum(Bottom: " << m_planes[nzFrustumPlane_Bottom] << "\n"
-	          << "        Far: " << m_planes[nzFrustumPlane_Far] << "\n"
-	          << "        Left: " << m_planes[nzFrustumPlane_Left] << "\n"
-	          << "        Near: " << m_planes[nzFrustumPlane_Near] << "\n"
-	          << "        Right: " << m_planes[nzFrustumPlane_Right] << "\n"
-	          << "        Top: " << m_planes[nzFrustumPlane_Top] << ")\n";
+	return ss << "Frustum(Bottom: " << m_planes[nzFrustumPlane_Bottom].ToString() << "\n"
+	          << "        Far: " << m_planes[nzFrustumPlane_Far].ToString() << "\n"
+	          << "        Left: " << m_planes[nzFrustumPlane_Left].ToString() << "\n"
+	          << "        Near: " << m_planes[nzFrustumPlane_Near].ToString() << "\n"
+	          << "        Right: " << m_planes[nzFrustumPlane_Right].ToString() << "\n"
+	          << "        Top: " << m_planes[nzFrustumPlane_Top].ToString() << ")\n";
 }
 
 template<typename T>
