@@ -47,13 +47,13 @@ NzPlane<T>::NzPlane(const NzPlane<U>& plane)
 }
 
 template<typename T>
-T NzPlane<T>::Distance(const NzVector3<T>& point)
+T NzPlane<T>::Distance(const NzVector3<T>& point) const
 {
 	return normal.DotProduct(point) + distance;
 }
 
 template<typename T>
-T NzPlane<T>::Distance(T x, T y, T z)
+T NzPlane<T>::Distance(T x, T y, T z) const
 {
 	return Distance(NzVector3<T>(x, y, z));
 }
