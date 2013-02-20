@@ -24,8 +24,8 @@ class NzPlane
 		NzPlane(const NzPlane& plane) = default;
 		~NzPlane() = default;
 
-		T Distance(const NzVector3<T>& point);
-		T Distance(T x, T y, T z);
+		T Distance(const NzVector3<T>& point) const;
+		T Distance(T x, T y, T z) const;
 
 		NzPlane& Set(T normalX, T normalY, T normalZ, T Distance);
 		NzPlane& Set(const T plane[4]);
