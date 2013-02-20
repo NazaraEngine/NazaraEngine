@@ -368,7 +368,7 @@ NzAxisAlignedBox<T>& NzAxisAlignedBox<T>::MakeInfinite()
 template<typename T>
 NzAxisAlignedBox<T>& NzAxisAlignedBox<T>::MakeNull()
 {
-	extend = nzExtend_Infinite;
+	extend = nzExtend_Null;
 
 	return *this;
 }
