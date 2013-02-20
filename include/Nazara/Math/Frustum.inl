@@ -66,7 +66,26 @@ NzFrustum<T>& NzFrustum<T>::Build(T angle, T ratio, T zNear, T zFar, const NzVec
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzCube<T>& cube)
+bool NzFrustum<T>::Contains(const NzAxisAlignedBox<T>& box) const
+{
+	switch (box.extend)
+	{
+		case nzExtend_Finite:
+			return Contains(box.cube);
+
+		case nzExtend_Infinite:
+			return true;
+
+		case nzExtend_Null:
+			return false;
+	}
+
+	NazaraError("Invalid extend type (0x" + NzString::Number(box.extend, 16) + ')');
+	return false;
+}
+
+template<typename T>
+bool NzFrustum<T>::Contains(const NzCube<T>& cube) const
 {
 	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 	for(unsigned int i = 0; i <= nzFrustumPlane_Max; i++)
@@ -79,7 +98,7 @@ bool NzFrustum<T>::Contains(const NzCube<T>& cube)
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzSphere<T>& sphere)
+bool NzFrustum<T>::Contains(const NzSphere<T>& sphere) const
 {
 	for(unsigned int i = 0; i <= nzFrustumPlane_Max; i++)
 	{
@@ -91,7 +110,7 @@ bool NzFrustum<T>::Contains(const NzSphere<T>& sphere)
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzVector3<T>& point)
+bool NzFrustum<T>::Contains(const NzVector3<T>& point) const
 {
 	for(unsigned int i = 0; i <= nzFrustumPlane_Max; ++i)
 	{
@@ -103,7 +122,7 @@ bool NzFrustum<T>::Contains(const NzVector3<T>& point)
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzVector3<T>* points, unsigned int pointCount)
+bool NzFrustum<T>::Contains(const NzVector3<T>* points, unsigned int pointCount) const
 {
  	for (unsigned int i = 0; i <= nzFrustumPlane_Max; ++i)
 	{
@@ -328,6 +347,25 @@ const NzPlane<T>& NzFrustum<T>::GetPlane(nzFrustumPlane plane) const
 }
 
 template<typename T>
+nzIntersectionSide NzFrustum<T>::Intersect(const NzAxisAlignedBox<T>& box) const
+{
+	switch (box.extend)
+	{
+		case nzExtend_Finite:
+			return Intersect(box.cube);
+
+		case nzExtend_Infinite:
+			return nzIntersectionSide_Intersecting;
+
+		case nzExtend_Null:
+			return nzIntersectionSide_Outside;
+	}
+
+	NazaraError("Invalid extend type (0x" + NzString::Number(box.extend, 16) + ')');
+	return nzIntersectionSide_Outside;
+}
+
+template<typename T>
 nzIntersectionSide NzFrustum<T>::Intersect(const NzCube<T>& cube) const
 {
 	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
@@ -363,7 +401,7 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzSphere<T>& sphere) const
 }
 
 template<typename T>
-nzIntersectionSide NzFrustum<T>::Intersect(const NzVector3<T>* points, unsigned int pointCount)
+nzIntersectionSide NzFrustum<T>::Intersect(const NzVector3<T>* points, unsigned int pointCount) const
 {
 	unsigned int c = 0;
 
