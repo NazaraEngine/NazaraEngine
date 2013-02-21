@@ -66,12 +66,12 @@ NzFrustum<T>& NzFrustum<T>::Build(T angle, T ratio, T zNear, T zFar, const NzVec
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzAxisAlignedBox<T>& box) const
+bool NzFrustum<T>::Contains(const NzBoundingBox<T>& box) const
 {
 	switch (box.extend)
 	{
 		case nzExtend_Finite:
-			return Contains(box.cube);
+			return Contains(box.aabb) && Contains(box.obb);
 
 		case nzExtend_Infinite:
 			return true;
@@ -95,6 +95,12 @@ bool NzFrustum<T>::Contains(const NzCube<T>& cube) const
 	}
 
 	return true;
+}
+
+template<typename T>
+bool NzFrustum<T>::Contains(const NzOrientedCube<T>& orientedCube) const
+{
+	return Contains(&orientedCube[0], 8);
 }
 
 template<typename T>
@@ -347,12 +353,12 @@ const NzPlane<T>& NzFrustum<T>::GetPlane(nzFrustumPlane plane) const
 }
 
 template<typename T>
-nzIntersectionSide NzFrustum<T>::Intersect(const NzAxisAlignedBox<T>& box) const
+nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingBox<T>& box) const
 {
 	switch (box.extend)
 	{
 		case nzExtend_Finite:
-			return Intersect(box.cube);
+			return Intersect(box.aabb) && Intersect(box.obb); // Test de l'AABB et puis de l'OBB
 
 		case nzExtend_Infinite:
 			return nzIntersectionSide_Intersecting;
@@ -380,6 +386,12 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzCube<T>& cube) const
 	}
 
 	return side;
+}
+
+template<typename T>
+nzIntersectionSide NzFrustum<T>::Intersect(const NzOrientedCube<T>& orientedCube) const
+{
+	return Intersect(&orientedCube[0], 8);
 }
 
 template<typename T>
