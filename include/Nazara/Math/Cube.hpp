@@ -9,7 +9,9 @@
 
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 template<typename T>
@@ -33,12 +35,15 @@ class NzCube
 		NzCube& ExtendTo(const NzVector3<T>& point);
 		NzCube& ExtendTo(const NzCube& cube);
 
+		NzSphere<T> GetBoundingSphere() const;
 		NzVector3<T> GetCorner(nzCorner corner) const;
 		NzVector3<T> GetCenter() const;
 		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
 		NzVector3<T> GetPosition() const;
 		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
+		T GetRadius() const;
 		NzVector3<T> GetSize() const;
+		T GetSquaredRadius() const;
 
 		bool Intersect(const NzCube& cube, NzCube* intersection = nullptr) const;
 
@@ -54,6 +59,8 @@ class NzCube
 		template<typename U> NzCube& Set(const NzCube<U>& cube);
 
 		NzString ToString() const;
+
+		NzCube& Transform(const NzMatrix4<T>& matrix, bool applyTranslation = true);
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
