@@ -10,7 +10,8 @@ struct NzSkeletonImpl
 {
 	std::map<NzString, unsigned int> jointMap; ///FIXME: unordered_map
 	std::vector<NzJoint> joints;
-	NzAxisAlignedBoxf aabb;
+	NzCubef aabb;
+	bool aabbUpdated = false;
 	bool jointMapUpdated = false;
 };
 
@@ -50,22 +51,24 @@ void NzSkeleton::Destroy()
 	}
 }
 
-const NzAxisAlignedBoxf& NzSkeleton::GetAABB() const
+const NzCubef& NzSkeleton::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeleton not created");
 
-		static NzAxisAlignedBoxf dummy(nzExtend_Null);
+		static NzCubef dummy;
 		return dummy;
 	}
 	#endif
 
-	if (m_impl->aabb.IsNull())
+	if (!m_impl->aabbUpdated)
 	{
 		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 			m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
+
+		m_impl->aabbUpdated = true;
 	}
 
 	return m_impl->aabb;
@@ -95,7 +98,7 @@ NzJoint* NzSkeleton::GetJoint(const NzString& jointName)
 	#endif
 
 	// Invalidation de l'AABB
-	m_impl->aabb.MakeNull();
+	m_impl->aabbUpdated = false;
 
 	return &m_impl->joints[it->second];
 }
@@ -117,7 +120,7 @@ NzJoint* NzSkeleton::GetJoint(unsigned int index)
 	#endif
 
 	// Invalidation de l'AABB
-	m_impl->aabb.MakeNull();
+	m_impl->aabbUpdated = false;
 
 	return &m_impl->joints[index];
 }
@@ -265,7 +268,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation);
 
-	m_impl->aabb.MakeNull();
+	m_impl->aabbUpdated = false;
 }
 
 void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
@@ -313,7 +316,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation);
 	}
 
-	m_impl->aabb.MakeNull();
+	m_impl->aabbUpdated = false;
 }
 
 bool NzSkeleton::IsValid() const

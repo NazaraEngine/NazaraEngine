@@ -88,7 +88,7 @@ class NzMatrix4
 		operator const T*() const;
 
 		T& operator()(unsigned int x, unsigned int y);
-		const T& operator()(unsigned int x, unsigned int y) const;
+		T operator()(unsigned int x, unsigned int y) const;
 
 		NzMatrix4& operator=(const NzMatrix4& matrix) = default;
 

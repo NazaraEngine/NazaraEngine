@@ -132,7 +132,7 @@ struct NzSkeletalMeshImpl
 {
 	std::vector<NzVertexWeight> vertexWeights;
 	std::vector<NzWeight> weights;
-	NzAxisAlignedBoxf aabb;
+	NzCubef aabb;
 	nzUInt8* bindPoseBuffer;
 	const NzIndexBuffer* indexBuffer = nullptr;
 	NzVertexBuffer* vertexBuffer;
@@ -208,14 +208,14 @@ void NzSkeletalMesh::Finish()
 	Skin();
 }
 
-const NzAxisAlignedBoxf& NzSkeletalMesh::GetAABB() const
+const NzCubef& NzSkeletalMesh::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeletal mesh not created");
 
-		static NzAxisAlignedBoxf dummy(nzExtend_Null);
+		static NzCubef dummy;
 		return dummy;
 	}
 	#endif
