@@ -139,9 +139,15 @@ NzVector3<T> NzCube<T>::GetCorner(nzCorner corner) const
 }
 
 template<typename T>
+NzSphere<T> NzCube<T>::GetBoundingSphere() const
+{
+	return NzSphere<T>(GetCenter(), GetRadius());
+}
+
+template<typename T>
 NzVector3<T> NzCube<T>::GetCenter() const
 {
-	return NzVector3<T>(x + width/F(2.0), y + height/F(2.0), z + depth/F(2.0));
+	return NzVector3<T>(x + width*F(0.5), y + height*F(0.5), z + depth*F(0.5));
 }
 
 template<typename T>
@@ -185,9 +191,24 @@ NzVector3<T> NzCube<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 }
 
 template<typename T>
+T NzCube<T>::GetRadius() const
+{
+	return std::sqrt(GetSquaredRadius());
+}
+
+template<typename T>
 NzVector3<T> NzCube<T>::GetSize() const
 {
 	return NzVector3<T>(width, height, depth);
+}
+
+template<typename T>
+T NzCube<T>::GetSquaredRadius() const
+{
+	NzVector3<T> size(GetSize());
+	size *= F(0.5); // La taille étant relative à la position (minimum) du cube et non pas à son centre
+
+	return size.GetSquaredLength();
 }
 
 template<typename T>
@@ -317,6 +338,19 @@ NzString NzCube<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Cube(" << x << ", " << y << ", " << z << ", " << width << ", " << height << ", " << depth << ')';
+}
+
+template<typename T>
+NzCube<T>& NzCube<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
+{
+	NzVector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Valeur multipliant la translation
+	NzVector3<T> halfSize = GetSize() * F(0.5);
+
+	halfSize.Set(std::fabs(matrix(0,0))*halfSize.x + std::fabs(matrix(1,0))*halfSize.y + std::fabs(matrix(2,0))*halfSize.z,
+	             std::fabs(matrix(0,1))*halfSize.x + std::fabs(matrix(1,1))*halfSize.y + std::fabs(matrix(2,1))*halfSize.z,
+	             std::fabs(matrix(0,2))*halfSize.x + std::fabs(matrix(1,2))*halfSize.y + std::fabs(matrix(2,2))*halfSize.z);
+
+	return Set(center - halfSize, center + halfSize);
 }
 
 template<typename T>
