@@ -37,7 +37,7 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 
 		void Finish();
 
-		const NzAxisAlignedBoxf& GetAABB() const;
+		const NzCubef& GetAABB() const;
 		nzAnimationType GetAnimationType() const final;
 		void* GetBindPoseBuffer();
 		const void* GetBindPoseBuffer() const;

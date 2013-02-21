@@ -41,9 +41,10 @@ struct NzMeshImpl
 	std::vector<NzString> materials;
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;
-	NzAxisAlignedBoxf aabb;
+	NzCubef aabb;
 	NzSkeleton skeleton; // Uniquement pour les meshs squelettiques
 	NzString animationPath;
+	bool aabbUpdated = false;
 	unsigned int jointCount; // Uniquement pour les meshs squelettiques
 };
 
@@ -77,7 +78,7 @@ bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
 	subMesh->Finish();
 
-	m_impl->aabb.MakeNull(); // On invalide l'AABB
+	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 
 	return true;
@@ -123,7 +124,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	subMesh->AddResourceListener(this, index);
 	subMesh->Finish();
 
-	m_impl->aabb.MakeNull(); // On invalide l'AABB
+	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 	m_impl->subMeshMap[identifier] = index;
 
@@ -206,7 +207,7 @@ void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned
 			break;
 	}
 
-	m_impl->aabb.MakeNull(); // On invalide l'AABB
+	m_impl->aabbUpdated = false; // On invalide l'AABB
 }
 
 bool NzMesh::CreateKeyframe()
@@ -417,22 +418,24 @@ void NzMesh::GenerateTangents()
 	}
 }
 
-const NzAxisAlignedBoxf& NzMesh::GetAABB() const
+const NzCubef& NzMesh::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
 
-		static NzAxisAlignedBoxf dummy(nzExtend_Null);
+		static NzCubef dummy;
 		return dummy;
 	}
 	#endif
 
-	if (m_impl->aabb.IsNull())
+	if (!m_impl->aabbUpdated)
 	{
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
 			m_impl->aabb.ExtendTo(subMesh->GetAABB());
+
+		m_impl->aabbUpdated = true;
 	}
 
 	return m_impl->aabb;
@@ -700,7 +703,7 @@ void NzMesh::InvalidateAABB() const
 	}
 	#endif
 
-	m_impl->aabb.MakeNull();
+	m_impl->aabbUpdated = false;
 }
 
 bool NzMesh::HasSubMesh(const NzString& identifier) const
@@ -791,7 +794,7 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 	(*it2)->RemoveResourceListener(this);
 	m_impl->subMeshes.erase(it2);
 
-	m_impl->aabb.MakeNull(); // On invalide l'AABB
+	m_impl->aabbUpdated = false; // On invalide l'AABB
 }
 
 void NzMesh::RemoveSubMesh(unsigned int index)
@@ -818,7 +821,7 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	(*it)->RemoveResourceListener(this);
 	m_impl->subMeshes.erase(it);
 
-	m_impl->aabb.MakeNull(); // On invalide l'AABB
+	m_impl->aabbUpdated = false; // On invalide l'AABB
 }
 
 void NzMesh::SetAnimation(const NzString& animationPath)

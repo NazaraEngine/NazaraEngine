@@ -31,12 +31,19 @@ namespace
 	static int colorLocation = -1;
 }
 
-void NzDebugDrawer::Draw(const NzAxisAlignedBoxf& aabb)
+void NzDebugDrawer::Draw(const NzBoundingBoxf& box)
 {
-	if (!aabb.IsFinite())
+	if (!box.IsFinite())
 		return;
 
-	Draw(aabb.GetCube());
+	NzColor oldPrimaryColor = primaryColor;
+
+	Draw(box.aabb);
+
+	primaryColor = secondaryColor;
+	Draw(box.obb);
+
+	primaryColor = oldPrimaryColor;
 }
 
 void NzDebugDrawer::Draw(const NzCubei& cube)
@@ -225,6 +232,109 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 	vertex->position.Set(frustum.GetCorner(nzCorner_NearRightBottom));
 	vertex++;
 	vertex->position.Set(frustum.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	mapper.Unmap();
+
+	const NzShader* oldShader = NzRenderer::GetShader();
+
+	if (!NzRenderer::SetShader(shader))
+	{
+		NazaraError("Failed to set debug shader");
+		return;
+	}
+
+	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
+	if (depthTestActive != depthTest)
+		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
+
+	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::SetLineWidth(lineWidth);
+
+	NzRenderer::SetVertexBuffer(vertexBuffer);
+
+	shader->SendColor(colorLocation, primaryColor);
+
+	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+
+	NzRenderer::SetLineWidth(oldLineWidth);
+
+	if (depthTestActive != depthTest)
+		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
+
+	if (!NzRenderer::SetShader(oldShader))
+		NazaraWarning("Failed to reset shader");
+}
+
+void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
+{
+	if (!initialized)
+	{
+		NazaraError("Debug drawer is not initialized");
+		return;
+	}
+
+	NzBufferMapper<NzVertexBuffer> mapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, 24);
+	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
 	vertex++;
 
 	mapper.Unmap();

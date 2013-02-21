@@ -769,7 +769,7 @@ T& NzMatrix4<T>::operator()(unsigned int x, unsigned int y)
 }
 
 template<typename T>
-const T& NzMatrix4<T>::operator()(unsigned int x, unsigned int y) const
+T NzMatrix4<T>::operator()(unsigned int x, unsigned int y) const
 {
 	#if NAZARA_MATH_SAFE
 	if (x > 3 || y > 3)
