@@ -263,13 +263,13 @@ namespace
 			sourceCode += "}\n"
 			              "\n";
 
-			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.w)";
+			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.a)";
 
 			if (flags & nzShaderBuilder_DiffuseMapping)
 				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
 
 			if (flags & nzShaderBuilder_SpecularMapping)
-				sourceCode += " + vec4(si, MaterialDiffuse.w)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser MaterialSpecular.w n'aurait aucun sens
+				sourceCode += " + vec4(si, MaterialDiffuse.a)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 
 			sourceCode += ";\n";
 		}
@@ -354,8 +354,8 @@ namespace
 			{
 				sourceCode += "\n"
 				              "vec3 binormal = cross(VertexNormal, VertexTangent);\n"
-				              "vLightToWorld[0] = VertexTangent * RotationMatrix;\n"
-				              "vLightToWorld[1] = binormal * RotationMatrix;\n"
+				              "vLightToWorld[0] = normalize(VertexTangent * RotationMatrix);\n"
+				              "vLightToWorld[1] = normalize(binormal * RotationMatrix);\n"
 				              "vLightToWorld[2] = normalize(VertexNormal * RotationMatrix);\n"
 				              "\n";
 			}
