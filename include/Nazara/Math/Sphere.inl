@@ -62,7 +62,7 @@ template<typename T>
 T NzSphere<T>::Distance(T X, T Y, T Z) const
 {
 	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.Length() - radius;
+	return distance.GetLength() - radius;
 }
 
 template<typename T>

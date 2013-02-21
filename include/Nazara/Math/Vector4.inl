@@ -68,6 +68,15 @@ T NzVector4<T>::DotProduct(const NzVector4& vec) const
 }
 
 template<typename T>
+NzVector4<T> NzVector4<T>::GetNormal(T* length) const
+{
+	NzVector4<T> vec(*this);
+	vec.Normalize(length);
+
+	return vec;
+}
+
+template<typename T>
 NzVector4<T>& NzVector4<T>::MakeUnitX()
 {
 	return Set(F(1.0), F(0.0), F(0.0), F(1.0));
