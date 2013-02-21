@@ -31,10 +31,10 @@ template<typename T> class NzVector3
 
 		T DotProduct(const NzVector3& vec) const;
 
-		NzVector3 GetNormal() const;
-
-		T Length() const;
-		float Lengthf() const;
+		T GetLength() const;
+		float GetLengthf() const;
+		NzVector3 GetNormal(T* length = nullptr) const;
+		T GetSquaredLength() const;
 
 		NzVector3& MakeForward();
 		NzVector3& MakeLeft();
@@ -57,7 +57,6 @@ template<typename T> class NzVector3
 		template<typename U> NzVector3& Set(const NzVector3<U>& vec);
 
 		T SquaredDistance(const NzVector3& vec) const;
-		T SquaredLength() const;
 
 		NzString ToString() const;
 

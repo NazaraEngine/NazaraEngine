@@ -85,24 +85,30 @@ T NzVector3<T>::DotProduct(const NzVector3& vec) const
 }
 
 template<typename T>
-NzVector3<T> NzVector3<T>::GetNormal() const
+T NzVector3<T>::GetLength() const
+{
+	return std::sqrt(GetSquaredLength());
+}
+
+template<typename T>
+float NzVector3<T>::GetLengthf() const
+{
+	return std::sqrt(static_cast<float>(GetSquaredLength()));
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::GetNormal(T* length) const
 {
 	NzVector3 vec(*this);
-	vec.Normalize();
+	vec.Normalize(length);
 
 	return vec;
 }
 
 template<typename T>
-T NzVector3<T>::Length() const
+T NzVector3<T>::GetSquaredLength() const
 {
-	return std::sqrt(SquaredLength());
-}
-
-template<typename T>
-float NzVector3<T>::Lengthf() const
-{
-	return std::sqrt(static_cast<float>(SquaredLength()));
+	return x*x + y*y + z*z;
 }
 
 template<typename T>
@@ -180,7 +186,7 @@ NzVector3<T>& NzVector3<T>::Minimize(const NzVector3& vec)
 template<typename T>
 NzVector3<T>& NzVector3<T>::Normalize(T* length)
 {
-	T norm = Length();
+	T norm = GetLength();
 	T invNorm = F(1.0) / norm;
 
 	x *= invNorm;
@@ -253,13 +259,7 @@ NzVector3<T>& NzVector3<T>::Set(const NzVector3<U>& vec)
 template<typename T>
 T NzVector3<T>::SquaredDistance(const NzVector3& vec) const
 {
-	return operator-(vec).SquaredLength();
-}
-
-template<typename T>
-T NzVector3<T>::SquaredLength() const
-{
-	return x*x + y*y + z*z;
+	return operator-(vec).GetSquaredLength();
 }
 
 template<typename T>

@@ -26,6 +26,8 @@ template<typename T> class NzVector4
 
 		T DotProduct(const NzVector4& vec) const;
 
+		NzVector4 GetNormal(T* length = nullptr) const;
+
 		NzVector4& MakeUnitX();
 		NzVector4& MakeUnitY();
 		NzVector4& MakeUnitZ();
