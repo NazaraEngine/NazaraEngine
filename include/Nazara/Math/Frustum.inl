@@ -71,7 +71,23 @@ bool NzFrustum<T>::Contains(const NzBoundingBox<T>& box) const
 	switch (box.extend)
 	{
 		case nzExtend_Finite:
-			return Contains(box.aabb) && Contains(box.obb);
+		{
+			nzIntersectionSide side = Intersect(box.aabb);
+			switch (side)
+			{
+				case nzIntersectionSide_Inside:
+					return true;
+
+				case nzIntersectionSide_Intersecting:
+					return Contains(box.obb);
+
+				case nzIntersectionSide_Outside:
+					return false;
+			}
+
+			NazaraError("Invalid intersection side (0x" + NzString::Number(side, 16) + ')');
+			return false;
+		}
 
 		case nzExtend_Infinite:
 			return true;
@@ -358,10 +374,26 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingBox<T>& box) const
 	switch (box.extend)
 	{
 		case nzExtend_Finite:
-			return Intersect(box.aabb) && Intersect(box.obb); // Test de l'AABB et puis de l'OBB
+		{
+			nzIntersectionSide side = Intersect(box.aabb);
+			switch (side)
+			{
+				case nzIntersectionSide_Inside:
+					return nzIntersectionSide_Inside;
+
+				case nzIntersectionSide_Intersecting:
+					return Intersect(box.obb);
+
+				case nzIntersectionSide_Outside:
+					return nzIntersectionSide_Outside;
+			}
+
+			NazaraError("Invalid intersection side (0x" + NzString::Number(side, 16) + ')');
+			return false;
+		}
 
 		case nzExtend_Infinite:
-			return nzIntersectionSide_Intersecting;
+			return nzIntersectionSide_Intersecting; // On ne peut pas contenir l'infini
 
 		case nzExtend_Null:
 			return nzIntersectionSide_Outside;
@@ -381,7 +413,7 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzCube<T>& cube) const
 	{
 		if (m_planes[i].Distance(cube.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
 			return nzIntersectionSide_Outside;
-		else if (m_planes[i].Distance(cube.GetNegativeVertex(m_planes[i].normal) < F(0.0)))
+		else if (m_planes[i].Distance(cube.GetNegativeVertex(m_planes[i].normal)) < F(0.0))
 			side = nzIntersectionSide_Intersecting;
 	}
 
