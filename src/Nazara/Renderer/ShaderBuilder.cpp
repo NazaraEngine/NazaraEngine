@@ -303,14 +303,22 @@ namespace
 		sourceCode += '\n';
 
 		/********************Uniformes********************/
-		if (flags & nzShaderBuilder_Lighting)
-			sourceCode += "uniform mat4 WorldMatrix;\n";
+		if (flags & nzShaderBuilder_Instancing)
+			sourceCode += "uniform mat4 ViewProjMatrix;\n";
+		else
+		{
+			if (flags & nzShaderBuilder_Lighting)
+				sourceCode += "uniform mat4 WorldMatrix;\n";
 
-		sourceCode += "uniform mat4 WorldViewProjMatrix;\n";
+			sourceCode += "uniform mat4 WorldViewProjMatrix;\n";
+		}
 
 		sourceCode += '\n';
 
 		/********************Entrant********************/
+		if (flags & nzShaderBuilder_Instancing)
+			sourceCode += inKW + " mat4 InstanceMatrix;\n";
+
 		sourceCode += inKW + " vec3 VertexPosition;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
@@ -343,31 +351,43 @@ namespace
 
 		/********************Code********************/
 		sourceCode += "void main()\n"
-		              "{\n"
-		              "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
+		              "{\n";
+
+		if (flags & nzShaderBuilder_Instancing)
+			sourceCode += "gl_Position = InstanceMatrix * ViewProjMatrix * vec4(VertexPosition, 1.0);\n";
+		else
+			sourceCode += "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
 
 		if (flags & nzShaderBuilder_Lighting)
 		{
-			sourceCode += "mat3 RotationMatrix = mat3(WorldMatrix);\n";
+			if (flags & nzShaderBuilder_Instancing)
+				sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix);\n";
+			else
+				sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix);\n";
 
 			if (flags & nzShaderBuilder_NormalMapping)
 			{
 				sourceCode += "\n"
 				              "vec3 binormal = cross(VertexNormal, VertexTangent);\n"
-				              "vLightToWorld[0] = normalize(VertexTangent * RotationMatrix);\n"
-				              "vLightToWorld[1] = normalize(binormal * RotationMatrix);\n"
-				              "vLightToWorld[2] = normalize(VertexNormal * RotationMatrix);\n"
+				              "vLightToWorld[0] = normalize(VertexTangent * rotationMatrix);\n"
+				              "vLightToWorld[1] = normalize(binormal * rotationMatrix);\n"
+				              "vLightToWorld[2] = normalize(VertexNormal * rotationMatrix);\n"
 				              "\n";
 			}
 			else
-				sourceCode += "vNormal = normalize(RotationMatrix * VertexNormal);\n";
+				sourceCode += "vNormal = normalize(rotationMatrix * VertexNormal);\n";
 		}
 
 		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
 			sourceCode += "vTexCoord = VertexTexCoord0;\n";
 
 		if (flags & nzShaderBuilder_Lighting)
-			sourceCode += "vWorldPos = vec3(WorldMatrix * vec4(VertexPosition, 1.0));\n";
+		{
+			if (flags & nzShaderBuilder_Instancing)
+				sourceCode += "vWorldPos = vec3(InstanceMatrix * vec4(VertexPosition, 1.0));\n";
+			else
+				sourceCode += "vWorldPos = vec3(WorldMatrix * vec4(VertexPosition, 1.0));\n";
+		}
 
 		sourceCode += "}\n";
 
