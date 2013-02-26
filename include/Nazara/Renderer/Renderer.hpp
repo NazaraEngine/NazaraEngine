@@ -27,15 +27,26 @@ class NzVertexDeclaration;
 class NAZARA_API NzRenderer
 {
 	public:
+		struct InstancingData
+		{
+			NzMatrix4f worldMatrix;
+		};
+
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
 		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
 		static void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
+		static void DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
 		static void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
+		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
 
 		static void Enable(nzRendererParameter parameter, bool enable);
+
+		static void FillInstancingBuffer(const InstancingData* instancingData, unsigned int instanceCount);
+
+		static void Flush();
 
 		static float GetLineWidth();
 		//static NzMatrix4f GetMatrix(nzMatrixCombination combination);

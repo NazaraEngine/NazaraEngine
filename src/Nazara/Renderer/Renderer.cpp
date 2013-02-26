@@ -60,9 +60,8 @@ namespace
 
 	std::map<VAO_Key, unsigned int> s_vaos;
 	std::vector<TextureUnit> s_textureUnits;
+	NzBuffer* s_instancingBuffer = nullptr;
 	NzMatrix4f s_matrix[totalMatrixCount];
-	int s_matrixLocation[totalMatrixCount];
-	bool s_matrixUpdated[totalMatrixCount];
 	nzBlendFunc s_srcBlend;
 	nzBlendFunc s_dstBlend;
 	nzFaceCulling s_faceCulling;
@@ -79,12 +78,15 @@ namespace
 	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
 	const NzVertexDeclaration* s_vertexDeclaration;
-	bool s_vaoUpdated;
 	bool s_capabilities[nzRendererCap_Max+1];
+	bool s_instancingEnabled;
+	bool s_matrixUpdated[totalMatrixCount];
 	bool s_stencilFuncUpdated;
 	bool s_stencilOpUpdated;
 	bool s_useSamplerObjects;
 	bool s_useVertexArrayObjects;
+	bool s_vaoUpdated;
+	int s_matrixLocation[totalMatrixCount];
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_stencilReference;
@@ -147,6 +149,12 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		return;
 	}
 
+	if (s_instancingEnabled)
+	{
+		glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+		s_instancingEnabled = false;
+	}
+
 	if (s_indexBuffer->IsSequential())
 		glDrawArrays(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
 	else
@@ -165,6 +173,81 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		}
 
 		glDrawElements(NzOpenGL::PrimitiveType[primitive], indexCount, type, ptr);
+	}
+}
+
+void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+
+	if (primitive > nzPrimitiveType_Max)
+	{
+		NazaraError("Primitive type out of enum");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_Instancing])
+	{
+		NazaraError("Instancing not supported");
+		return;
+	}
+
+	if (!s_indexBuffer)
+	{
+		NazaraError("No index buffer");
+		return;
+	}
+
+	if (instanceCount == 0)
+	{
+		NazaraError("Instance count must be over 0");
+		return;
+	}
+
+	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	{
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		return;
+	}
+	#endif
+
+	if (!EnsureStateUpdate())
+	{
+		NazaraError("Failed to update states");
+		return;
+	}
+
+	if (!s_instancingEnabled)
+	{
+		glEnableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+		s_instancingEnabled = true;
+	}
+
+	if (s_indexBuffer->IsSequential())
+		glDrawArraysInstanced(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount(), instanceCount);
+	else
+	{
+		GLenum type;
+		const nzUInt8* ptr = reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer());
+		if (s_indexBuffer->HasLargeIndices())
+		{
+			ptr += firstIndex*sizeof(nzUInt32);
+			type = GL_UNSIGNED_INT;
+		}
+		else
+		{
+			ptr += firstIndex*sizeof(nzUInt16);
+			type = GL_UNSIGNED_SHORT;
+		}
+
+		glDrawElementsInstanced(NzOpenGL::PrimitiveType[primitive], indexCount, type, ptr, instanceCount);
 	}
 }
 
@@ -190,7 +273,64 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 		return;
 	}
 
+	if (s_instancingEnabled)
+	{
+		glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+		s_instancingEnabled = false;
+	}
+
 	glDrawArrays(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount);
+}
+
+void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+
+	if (primitive > nzPrimitiveType_Max)
+	{
+		NazaraError("Primitive type out of enum");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_Instancing])
+	{
+		NazaraError("Instancing not supported");
+		return;
+	}
+
+	if (instanceCount == 0)
+	{
+		NazaraError("Instance count must be over 0");
+		return;
+	}
+
+	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	{
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		return;
+	}
+	#endif
+
+	if (!EnsureStateUpdate())
+	{
+		NazaraError("Failed to update states");
+		return;
+	}
+
+	if (!s_instancingEnabled)
+	{
+		glEnableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+		s_instancingEnabled = true;
+	}
+
+	glDrawArraysInstanced(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount, instanceCount);
 }
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
@@ -227,6 +367,43 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 
 			break;
 	}
+}
+
+void NzRenderer::FillInstancingBuffer(const NzRenderer::InstancingData* instancingData, unsigned int instanceCount)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_Instancing])
+	{
+		NazaraError("Instancing not supported");
+		return;
+	}
+
+	if (!instancingData)
+	{
+		NazaraError("Instancing data must be valid");
+		return;
+	}
+
+	if (instanceCount == 0)
+	{
+		NazaraError("Instance count must be over 0");
+		return;
+	}
+
+	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	{
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		return;
+	}
+	#endif
+
+	if (!s_instancingBuffer->Fill(instancingData, 0, instanceCount))
+		NazaraError("Failed to fill instancing buffer");
+}
+
+void NzRenderer::Flush()
+{
+	glFlush();
 }
 
 float NzRenderer::GetLineWidth()
@@ -387,6 +564,8 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 
 	NzContext::EnsureContext();
 
+	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
+
 	for (unsigned int i = 0; i < totalMatrixCount; ++i)
 	{
 		s_matrix[i].MakeIdentity();
@@ -398,8 +577,8 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
 	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
 	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
-	// MultipleRenderTargets (Techniquement natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation)
-	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr);
+	s_capabilities[nzRendererCap_Instancing] = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
+	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr); // Natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation
 	s_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
 	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
 	s_capabilities[nzRendererCap_RenderTexture] = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
@@ -417,6 +596,35 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	}
 	else
 		s_maxAnisotropyLevel = 1;
+
+	if (s_capabilities[nzRendererCap_Instancing])
+	{
+		s_instancingBuffer = new NzBuffer(nzBufferType_Vertex);
+		if (s_instancingBuffer->Create(NAZARA_RENDERER_INSTANCING_MAX, sizeof(InstancingData), nzBufferStorage_Hardware, nzBufferUsage_Dynamic))
+		{
+			static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
+
+			unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
+			for (unsigned int i = 0; i < 4; ++i)
+			{
+				glVertexAttribPointer(instanceMatrixIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstancingData), reinterpret_cast<GLvoid*>(offsetof(InstancingData, worldMatrix) + sizeof(float)*4*i));
+				glVertexAttribDivisor(instanceMatrixIndex, 1);
+
+				instanceMatrixIndex++;
+			}
+
+			s_instancingEnabled = false;
+		}
+		else
+		{
+			s_capabilities[nzRendererCap_Instancing] = false;
+
+			delete s_instancingBuffer;
+			s_instancingBuffer = nullptr;
+
+			NazaraWarning("Failed to create instancing buffer, disabled instancing.");
+		}
+	}
 
 	if (s_capabilities[nzRendererCap_MultipleRenderTargets])
 	{
@@ -466,8 +674,6 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	s_vaoUpdated = false;
 	s_vertexBuffer = nullptr;
 	s_vertexDeclaration = nullptr;
-
-	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
 	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
@@ -1039,6 +1245,13 @@ void NzRenderer::Uninitialize()
 	NzTextureSampler::Uninitialize();
 
 	NzContext::EnsureContext();
+
+	// Libération du buffer d'instancing
+	if (s_instancingBuffer)
+	{
+		delete s_instancingBuffer;
+		s_instancingBuffer = nullptr;
+	}
 
 	// Libération des VAOs
 	for (auto it = s_vaos.begin(); it != s_vaos.end(); ++it)
