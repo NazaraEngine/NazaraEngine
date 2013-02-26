@@ -28,8 +28,10 @@ enum nzOpenGLExtension
 {
 	nzOpenGLExtension_AnisotropicFilter,
 	nzOpenGLExtension_DebugOutput,
+	nzOpenGLExtension_DrawInstanced,
 	nzOpenGLExtension_FP64,
 	nzOpenGLExtension_FrameBufferObject,
+	nzOpenGLExtension_InstancedArray,
 	nzOpenGLExtension_PixelBufferObject,
 	nzOpenGLExtension_SamplerObjects,
 	nzOpenGLExtension_SeparateShaderObjects,
@@ -139,9 +141,11 @@ NAZARA_API extern PFNGLDEPTHMASKPROC                glDepthMask;
 NAZARA_API extern PFNGLDISABLEPROC                  glDisable;
 NAZARA_API extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
 NAZARA_API extern PFNGLDRAWARRAYSPROC               glDrawArrays;
+NAZARA_API extern PFNGLDRAWARRAYSINSTANCEDPROC      glDrawArraysInstanced;
 NAZARA_API extern PFNGLDRAWBUFFERPROC               glDrawBuffer;
 NAZARA_API extern PFNGLDRAWBUFFERSPROC              glDrawBuffers;
 NAZARA_API extern PFNGLDRAWELEMENTSPROC             glDrawElements;
+NAZARA_API extern PFNGLDRAWELEMENTSINSTANCEDPROC    glDrawElementsInstanced;
 NAZARA_API extern PFNGLENABLEPROC                   glEnable;
 NAZARA_API extern PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray;
 NAZARA_API extern PFNGLENDQUERYPROC                 glEndQuery;
@@ -234,6 +238,7 @@ NAZARA_API extern PFNGLUNIFORMMATRIX4FVPROC         glUniformMatrix4fv;
 NAZARA_API extern PFNGLUNMAPBUFFERPROC              glUnmapBuffer;
 NAZARA_API extern PFNGLUSEPROGRAMPROC               glUseProgram;
 NAZARA_API extern PFNGLVERTEXATTRIB4FPROC           glVertexAttrib4f;
+NAZARA_API extern PFNGLVERTEXATTRIBDIVISORPROC      glVertexAttribDivisor;
 NAZARA_API extern PFNGLVERTEXATTRIBPOINTERPROC      glVertexAttribPointer;
 NAZARA_API extern PFNGLVIEWPORTPROC                 glViewport;
 #if defined(NAZARA_PLATFORM_WINDOWS)

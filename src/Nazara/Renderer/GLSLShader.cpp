@@ -111,24 +111,25 @@ bool NzGLSLShader::Create()
 		return false;
 	}
 
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8, "InstanceMatrix");
+
 	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Position], "VertexPosition");
 	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Normal], "VertexNormal");
 	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Diffuse], "VertexDiffuse");
 	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "VertexTangent");
 
-	NzString uniform;
-	uniform.Reserve(16); // 14 + 2
-	uniform = "VertexTexCoord";
+	char texCoordsUniform[] = "VertexTexCoord*";
 
-	unsigned int maxTexCoords = NzRenderer::GetMaxTextureUnits();
+	unsigned int maxTexCoords = std::min(8U, NzRenderer::GetMaxTextureUnits());
 	for (unsigned int i = 0; i < maxTexCoords; ++i)
 	{
-		NzString uniformName = uniform + NzString::Number(i);
-		glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i, uniformName.GetConstBuffer());
+		texCoordsUniform[14] = '0' + i;
+		glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i, texCoordsUniform);
 	}
 
 	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
 	{
+		NzString uniform;
 		uniform.Reserve(14); // 12 + 2
 		uniform = "RenderTarget";
 
