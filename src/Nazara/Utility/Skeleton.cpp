@@ -65,6 +65,8 @@ const NzCubef& NzSkeleton::GetAABB() const
 
 	if (!m_impl->aabbUpdated)
 	{
+		m_impl->aabb.MakeZero();
+
 		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 			m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 
