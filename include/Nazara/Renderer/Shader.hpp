@@ -36,6 +36,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		void Destroy();
 
+		nzUInt32 GetFlags() const;
 		NzString GetLog() const;
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
@@ -67,6 +68,8 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool SendVector(int location, const NzVector4d& vector) const;
 		bool SendVector(int location, const NzVector4f& vector) const;
 
+		void SetFlags(nzUInt32 flags);
+
 		void Unlock();
 
 		NzShader& operator=(NzShader&& shader);
@@ -75,6 +78,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzShaderType type);
 
 	private:
+		nzUInt32 m_flags = nzShaderFlags_None;
 		NzShaderImpl* m_impl = nullptr;
 		bool m_compiled = false;
 };

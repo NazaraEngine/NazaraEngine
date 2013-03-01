@@ -22,7 +22,6 @@ class NzMaterial;
 class NzRenderTarget;
 class NzShader;
 class NzVertexBuffer;
-class NzVertexDeclaration;
 
 class NAZARA_API NzRenderer
 {
@@ -94,7 +93,7 @@ class NAZARA_API NzRenderer
 		static void Uninitialize();
 
 	private:
-		static bool EnsureStateUpdate();
+		static bool EnsureStateUpdate(bool instancing);
 
 		static unsigned int s_moduleReferenceCounter;
 };
