@@ -688,8 +688,8 @@ bool NzRenderTexture::Activate()
 		m_impl->drawBuffersUpdated = true;
 	}
 
-	glDrawBuffers(m_impl->drawBuffers.size(), &m_impl->drawBuffers[0]);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_impl->fbo);
+	glDrawBuffers(m_impl->drawBuffers.size(), &m_impl->drawBuffers[0]);
 
 	return true;
 }
