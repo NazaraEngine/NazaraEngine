@@ -23,19 +23,23 @@ else
 		links "NazaraCore-s-d"
 		links "NazaraUtility-s-d"
 		links "NazaraRenderer-s-d"
+		links "Nazara2D-s-d"
 
 	configuration "ReleaseStatic"
 		links "NazaraCore-s"
 		links "NazaraUtility-s"
 		links "NazaraRenderer-s"
+		links "Nazara2D-s"
 
 	configuration "DebugDLL"
 		links "NazaraCore-d"
 		links "NazaraUtility-d"
 		links "NazaraRenderer-d"
+		links "Nazara2D-d"
 
 	configuration "ReleaseDLL"
 		links "NazaraCore"
 		links "NazaraUtility"
 		links "NazaraRenderer"
+		links "Nazara2D"
 end
