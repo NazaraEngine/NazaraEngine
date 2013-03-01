@@ -77,7 +77,7 @@ int main()
 		printCap(oss, "-Mode debug", NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput));
 		printCap(oss, "-Pixelbuffer Object", NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject));
 		printCap(oss, "-Samplers Object", NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects));
-		printCap(oss, "-Separate shader objects", NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects));
+		printCap(oss, "-Separate shader objects", NzOpenGL::IsSupported(nzOpenGLExtension_SeparateShaderObjects));
 		printCap(oss, "-Texture array", NzOpenGL::IsSupported(nzOpenGLExtension_TextureArray));
 		printCap(oss, "-Texture storage", NzOpenGL::IsSupported(nzOpenGLExtension_TextureStorage));
 		printCap(oss, "-Vertex array objects", NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects));
