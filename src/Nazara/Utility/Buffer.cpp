@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <cstring>
@@ -47,7 +48,7 @@ NzBuffer::~NzBuffer()
 	Destroy();
 }
 
-bool NzBuffer::CopyContent(NzBuffer& buffer)
+bool NzBuffer::CopyContent(const NzBuffer& buffer)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -69,18 +70,9 @@ bool NzBuffer::CopyContent(NzBuffer& buffer)
 	}
 	#endif
 
-	void* ptr = buffer.Map(nzBufferAccess_ReadOnly);
-	if (!ptr)
-	{
-		NazaraError("Failed to map source buffer");
-		return false;
-	}
+	NzBufferMapper<NzBuffer> mapper(buffer, nzBufferAccess_ReadOnly);
 
-	bool r = Fill(ptr, 0, buffer.GetLength());
-
-	buffer.Unmap();
-
-	return r;
+	return Fill(mapper.GetPointer(), 0, buffer.GetLength());
 }
 
 bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage)

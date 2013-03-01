@@ -106,7 +106,7 @@ class NzMatrix4
 
 		static NzMatrix4 Identity();
 		static NzMatrix4 LookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
-		static NzMatrix4 Ortho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
+		static NzMatrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
 		static NzMatrix4 Perspective(T angle, T ratio, T zNear, T zFar);
 		static NzMatrix4 Rotate(const NzQuaternion<T>& rotation);
 		static NzMatrix4 Scale(const NzVector3<T>& scale);
