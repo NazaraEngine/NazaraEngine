@@ -35,7 +35,7 @@ namespace
 
 		sourceCode += '\n';
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += "#define LIGHT_DIRECTIONAL 0\n"
 			              "#define LIGHT_POINT 1\n"
@@ -47,7 +47,7 @@ namespace
 		sourceCode += '\n';
 
 		/********************Uniformes********************/
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += "struct Light\n"
 			              "{\n"
@@ -63,7 +63,7 @@ namespace
 			              "\n";
 		}
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += "uniform vec3 CameraPosition;\n"
 			              "uniform int LightCount;\n"
@@ -71,21 +71,21 @@ namespace
 			              "uniform vec4 MaterialAmbient;\n";
 		}
 
-		if ((flags & nzShaderBuilder_DiffuseMapping) == 0 || flags & nzShaderBuilder_Lighting)
+		if ((flags & nzShaderFlags_DiffuseMapping) == 0 || flags & nzShaderFlags_Lighting)
 			sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
-		if (flags & nzShaderBuilder_DiffuseMapping)
+		if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
-			if (flags & nzShaderBuilder_NormalMapping)
+			if (flags & nzShaderFlags_NormalMapping)
 				sourceCode += "uniform sampler2D MaterialNormalMap;\n";
 
 			sourceCode += "uniform float MaterialShininess;\n"
 			              "uniform vec4 MaterialSpecular;\n";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += "uniform sampler2D MaterialSpecularMap;\n";
 
 			sourceCode += "uniform vec4 SceneAmbient;\n";
@@ -94,18 +94,18 @@ namespace
 		sourceCode += '\n';
 
 		/********************Entrant********************/
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
-			if (flags & nzShaderBuilder_NormalMapping)
+			if (flags & nzShaderFlags_NormalMapping)
 				sourceCode += inKW + " mat3 vLightToWorld;\n";
 			else
 				sourceCode += inKW + " vec3 vNormal;\n";
 		}
 
-		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
+		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping)
 			sourceCode += inKW + " vec2 vTexCoord;\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 			sourceCode += inKW + " vec3 vWorldPos;\n";
 
 		sourceCode += '\n';
@@ -120,14 +120,14 @@ namespace
 		sourceCode += "void main()\n"
 		              "{\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += "vec3 light = vec3(0.0, 0.0, 0.0);\n";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += "vec3 si = vec3(0.0, 0.0, 0.0);\n";
 
-			if (flags & nzShaderBuilder_NormalMapping)
+			if (flags & nzShaderFlags_NormalMapping)
 				sourceCode += "vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture2D(MaterialNormalMap, vTexCoord)) - 1.0));\n";
 			else
 				sourceCode += "vec3 normal = normalize(vNormal);\n";
@@ -160,7 +160,7 @@ namespace
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += "si";
 			else
 				sourceCode += "light";
@@ -197,7 +197,7 @@ namespace
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += "si";
 			else
 				sourceCode += "light";
@@ -241,7 +241,7 @@ namespace
 			              "\n"
 			              "float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);\n";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += "si";
 			else
 				sourceCode += "light";
@@ -265,15 +265,15 @@ namespace
 
 			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.a)";
 
-			if (flags & nzShaderBuilder_DiffuseMapping)
+			if (flags & nzShaderFlags_DiffuseMapping)
 				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
 
-			if (flags & nzShaderBuilder_SpecularMapping)
+			if (flags & nzShaderFlags_SpecularMapping)
 				sourceCode += " + vec4(si, MaterialDiffuse.a)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 
 			sourceCode += ";\n";
 		}
-		else if (flags & nzShaderBuilder_DiffuseMapping)
+		else if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += fragmentColorKW + " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
@@ -303,11 +303,11 @@ namespace
 		sourceCode += '\n';
 
 		/********************Uniformes********************/
-		if (flags & nzShaderBuilder_Instancing)
+		if (flags & nzShaderFlags_Instancing)
 			sourceCode += "uniform mat4 ViewProjMatrix;\n";
 		else
 		{
-			if (flags & nzShaderBuilder_Lighting)
+			if (flags & nzShaderFlags_Lighting)
 				sourceCode += "uniform mat4 WorldMatrix;\n";
 
 			sourceCode += "uniform mat4 WorldViewProjMatrix;\n";
@@ -316,35 +316,35 @@ namespace
 		sourceCode += '\n';
 
 		/********************Entrant********************/
-		if (flags & nzShaderBuilder_Instancing)
+		if (flags & nzShaderFlags_Instancing)
 			sourceCode += inKW + " mat4 InstanceMatrix;\n";
 
 		sourceCode += inKW + " vec3 VertexPosition;\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += inKW + " vec3 VertexNormal;\n";
 			sourceCode += inKW + " vec3 VertexTangent;\n";
 		}
 
-		if (flags & nzShaderBuilder_DiffuseMapping)
+		if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += inKW + " vec2 VertexTexCoord0;\n";
 
 		sourceCode += '\n';
 
 		/********************Sortant********************/
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
-			if (flags & nzShaderBuilder_NormalMapping)
+			if (flags & nzShaderFlags_NormalMapping)
 				sourceCode += outKW + " mat3 vLightToWorld;\n";
 			else
 				sourceCode += outKW + " vec3 vNormal;\n";
 		}
 
-		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
+		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping)
 			sourceCode += outKW + " vec2 vTexCoord;\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 			sourceCode += outKW + " vec3 vWorldPos;\n";
 
 		sourceCode += '\n';
@@ -353,19 +353,19 @@ namespace
 		sourceCode += "void main()\n"
 		              "{\n";
 
-		if (flags & nzShaderBuilder_Instancing)
-			sourceCode += "gl_Position = InstanceMatrix * ViewProjMatrix * vec4(VertexPosition, 1.0);\n";
+		if (flags & nzShaderFlags_Instancing)
+			sourceCode += "gl_Position = ViewProjMatrix * InstanceMatrix * vec4(VertexPosition, 1.0);\n";
 		else
 			sourceCode += "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n";
 
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_Lighting)
 		{
-			if (flags & nzShaderBuilder_Instancing)
+			if (flags & nzShaderFlags_Instancing)
 				sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix);\n";
 			else
 				sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix);\n";
 
-			if (flags & nzShaderBuilder_NormalMapping)
+			if (flags & nzShaderFlags_NormalMapping)
 			{
 				sourceCode += "\n"
 				              "vec3 binormal = cross(VertexNormal, VertexTangent);\n"
@@ -378,12 +378,17 @@ namespace
 				sourceCode += "vNormal = normalize(rotationMatrix * VertexNormal);\n";
 		}
 
-		if (flags & nzShaderBuilder_DiffuseMapping || flags & nzShaderBuilder_NormalMapping)
-			sourceCode += "vTexCoord = VertexTexCoord0;\n";
-
-		if (flags & nzShaderBuilder_Lighting)
+		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping || flags & nzShaderFlags_SpecularMapping)
 		{
-			if (flags & nzShaderBuilder_Instancing)
+			if (flags & nzShaderFlags_FlipUVs)
+				sourceCode += "vTexCoord = vec2(VertexTexCoord0.x, 1.0 - VertexTexCoord0.y);\n";
+			else
+				sourceCode += "vTexCoord = VertexTexCoord0;\n";
+		}
+
+		if (flags & nzShaderFlags_Lighting)
+		{
+			if (flags & nzShaderFlags_Instancing)
 				sourceCode += "vWorldPos = vec3(InstanceMatrix * vec4(VertexPosition, 1.0));\n";
 			else
 				sourceCode += "vWorldPos = vec3(WorldMatrix * vec4(VertexPosition, 1.0));\n";
@@ -433,6 +438,8 @@ namespace
 			NazaraError("Failed to compile shader: " + shader->GetLog());
 			return nullptr;
 		}
+
+		shader->SetFlags(flags);
 
 		return shader.release();
 	}

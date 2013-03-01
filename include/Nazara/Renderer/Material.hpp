@@ -37,7 +37,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial(NzMaterial&& material);
 		~NzMaterial();
 
-		void Apply() const;
+		void Apply(const NzShader* shader) const;
 
 		void EnableAlphaBlending(bool alphaBlending);
 		void EnableFaceCulling(bool faceCulling);
@@ -46,6 +46,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void EnableZWrite(bool zWrite);
 
 		NzColor GetAmbientColor() const;
+		const NzShader* GetCustomShader() const;
 		NzColor GetDiffuseColor() const;
 		NzTexture* GetDiffuseMap() const;
 		NzTextureSampler& GetDiffuseSampler();
@@ -55,7 +56,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzFaceFilling GetFaceFilling() const;
 		NzTexture* GetHeightMap() const;
 		NzTexture* GetNormalMap() const;
-		const NzShader* GetShader() const;
+		nzUInt32 GetShaderFlags() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		NzTexture* GetSpecularMap() const;
@@ -63,6 +64,8 @@ class NAZARA_API NzMaterial : public NzResource
 		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
 		nzRendererComparison GetZTestCompare() const;
+
+		bool HasCustomShader() const;
 
 		bool IsAlphaBlendingEnabled() const;
 		bool IsFaceCullingEnabled() const;
@@ -85,7 +88,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetFaceFilling(nzFaceFilling filling);
 		void SetHeightMap(NzTexture* map);
 		void SetNormalMap(NzTexture* map);
-		void SetShader(const NzShader* shader);
+		void SetCustomShader(const NzShader* shader);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		void SetSpecularMap(NzTexture* map);
@@ -99,25 +102,23 @@ class NAZARA_API NzMaterial : public NzResource
 		static NzMaterial* GetDefault();
 
 	private:
-		void UpdateShader() const;
-
 		nzBlendFunc m_dstBlend;
 		nzBlendFunc m_srcBlend;
 		nzFaceCulling m_faceCulling;
 		nzFaceFilling m_faceFilling;
 		nzRendererComparison m_zTestCompareFunc;
+		nzUInt32 m_shaderFlags;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
-		mutable const NzShader* m_shader;
+		mutable const NzShader* m_customShader;
 		NzTexture* m_diffuseMap;
 		NzTexture* m_heightMap;
 		NzTexture* m_normalMap;
 		NzTexture* m_specularMap;
 		bool m_alphaBlendingEnabled;
-		bool m_autoShader;
 		bool m_faceCullingEnabled;
 		bool m_lightingEnabled;
 		bool m_zTestEnabled;

@@ -73,6 +73,7 @@ enum nzRendererCap
 	nzRendererCap_AnisotropicFilter,
 	nzRendererCap_FP64,
 	nzRendererCap_HardwareBuffer,
+	nzRendererCap_Instancing,
 	nzRendererCap_MultipleRenderTargets,
 	nzRendererCap_OcclusionQuery,
 	nzRendererCap_PixelBufferObject,
@@ -143,17 +144,18 @@ enum nzSamplerWrap
 	nzSamplerWrap_Max = nzSamplerWrap_Repeat
 };
 
-enum nzShaderBuilderFlags
+enum nzShaderFlags
 {
-	nzShaderBuilder_None = 0,
+	nzShaderFlags_None = 0,
 
-	nzShaderBuilder_Deferred        = 0x01,
-	nzShaderBuilder_DiffuseMapping  = 0x02,
-	nzShaderBuilder_Instancing      = 0x04,
-	nzShaderBuilder_Lighting        = 0x08,
-	nzShaderBuilder_NormalMapping   = 0x10,
-	nzShaderBuilder_ParallaxMapping = 0x20,
-	nzShaderBuilder_SpecularMapping = 0x40
+	nzShaderFlags_Deferred        = 0x01,
+	nzShaderFlags_DiffuseMapping  = 0x02,
+	nzShaderFlags_FlipUVs         = 0x04,
+	nzShaderFlags_Instancing      = 0x08,
+	nzShaderFlags_Lighting        = 0x10,
+	nzShaderFlags_NormalMapping   = 0x20,
+	nzShaderFlags_ParallaxMapping = 0x40,
+	nzShaderFlags_SpecularMapping = 0x80
 };
 
 enum nzShaderLanguage
