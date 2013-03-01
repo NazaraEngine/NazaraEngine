@@ -444,7 +444,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 			NazaraWarning("Failed to reset shader");
 	}
 }
-
+/*
 void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
 {
 	if (!initialized)
@@ -580,14 +580,14 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 			NazaraWarning("Failed to reset shader");
 	}
 }
-
+*/
 bool NzDebugDrawer::Initialize()
 {
 	if (!initialized)
 	{
 		// Shader
 		{
-			shader = NzShaderBuilder::Get(nzShaderBuilder_None);
+			shader = NzShaderBuilder::Get(nzShaderFlags_None);
 			if (!shader)
 			{
 				NazaraError("Failed to build debug shader");
