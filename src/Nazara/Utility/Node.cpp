@@ -17,7 +17,7 @@ m_derivedUpdated(false),
 m_inheritPosition(true),
 m_inheritRotation(true),
 m_inheritScale(true),
-m_matrixUpdated(false)
+m_transformMatrixUpdated(false)
 {
 }
 
@@ -33,7 +33,7 @@ m_derivedUpdated(false),
 m_inheritPosition(node.m_inheritPosition),
 m_inheritRotation(node.m_inheritRotation),
 m_inheritScale(node.m_inheritScale),
-m_matrixUpdated(false)
+m_transformMatrixUpdated(false)
 {
 	if (m_parent)
 		m_parent->AddChild(this);
@@ -46,6 +46,23 @@ NzNode::~NzNode()
 
 	if (m_parent)
 		m_parent->RemoveChild(this);
+}
+
+void NzNode::EnsureDerivedUpdate() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+}
+
+void NzNode::EnsureTransformMatrixUpdate() const
+{
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
+}
+
+const std::vector<NzNode*>& NzNode::GetChilds() const
+{
+	return m_childs;
 }
 
 bool NzNode::GetInheritPosition() const
@@ -76,6 +93,11 @@ NzQuaternionf NzNode::GetInitialRotation() const
 NzVector3f NzNode::GetInitialScale() const
 {
 	return m_initialScale;
+}
+
+nzNodeType NzNode::GetNodeType() const
+{
+	return nzNodeType_Default;
 }
 
 const NzNode* NzNode::GetParent() const
@@ -139,10 +161,15 @@ NzVector3f NzNode::GetScale(nzCoordSys coordSys) const
 
 const NzMatrix4f& NzNode::GetTransformMatrix() const
 {
-	if (!m_matrixUpdated)
-		UpdateMatrix();
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
 
 	return m_transformMatrix;
+}
+
+bool NzNode::HasChilds() const
+{
+	return !m_childs.empty();
 }
 
 NzNode& NzNode::Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation)
@@ -166,7 +193,7 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 				if (!m_parent->m_derivedUpdated)
 					m_parent->UpdateDerived();
 
-				m_position += (m_parent->m_derivedRotation.GetInverse() * movement) / m_parent->m_derivedPosition; // Compensation
+				m_position += (m_parent->m_derivedRotation.GetConjugate()*(movement - m_parent->m_derivedPosition))/m_parent->m_derivedScale; // Compensation
 			}
 			else
 				m_position += movement; // Rien n'affecte le node
@@ -201,7 +228,7 @@ NzNode& NzNode::Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys)
 			if (!m_derivedUpdated)
 				UpdateDerived();
 
-			m_rotation *= m_derivedRotation.GetInverse() * q * m_derivedRotation;
+			m_rotation *= m_derivedRotation.GetInverse() * q * m_derivedRotation; ///FIXME: Correct ?
 			break;
 		}
 
@@ -349,6 +376,8 @@ void NzNode::SetParent(const NzNode* node, bool keepDerived)
 
 		Invalidate();
 	}
+
+	OnParenting(node);
 }
 
 void NzNode::SetParent(const NzNode& node, bool keepDerived)
@@ -461,33 +490,38 @@ NzNode& NzNode::operator=(const NzNode& node)
 
 void NzNode::AddChild(NzNode* node) const
 {
-	auto pair = m_childs.insert(node);
-
-	if (pair.second)
-		node->Invalidate();
 	#ifdef NAZARA_DEBUG
-	else
-		NazaraWarning("Child already in set");
+	if (std::find(m_childs.begin(), m_childs.end(), node) != m_childs.end())
+	{
+		NazaraWarning("Is already a child");
+		return;
+	}
 	#endif
+
+	m_childs.push_back(node);
 }
 
 void NzNode::Invalidate()
 {
 	m_derivedUpdated = false;
-	m_matrixUpdated = false;
+	m_transformMatrixUpdated = false;
 
 	for (NzNode* node : m_childs)
 		node->Invalidate();
 }
 
+void NzNode::OnParenting(const NzNode* parent)
+{
+	NazaraUnused(parent);
+}
+
 void NzNode::RemoveChild(NzNode* node) const
 {
-	#ifdef NAZARA_DEBUG
-	if (m_childs.erase(node) == 0)
-		NazaraWarning("Child not found in set");
-	#else
-	m_childs.erase(node);
-	#endif
+	auto it = std::find(m_childs.begin(), m_childs.end(), node);
+	if (it != m_childs.end())
+		m_childs.erase(it);
+	else
+		NazaraWarning("Child not found");
 }
 
 void NzNode::UpdateDerived() const
@@ -524,12 +558,11 @@ void NzNode::UpdateDerived() const
 	m_derivedUpdated = true;
 }
 
-void NzNode::UpdateMatrix() const
+void NzNode::UpdateTransformMatrix() const
 {
 	if (!m_derivedUpdated)
 		UpdateDerived();
 
 	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedScale, m_derivedRotation);
-
-	m_matrixUpdated = true;
+	m_transformMatrixUpdated = true;
 }

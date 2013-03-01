@@ -131,85 +131,6 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	return true;
 }
 
-void NzMesh::Animate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation, NzSkeleton* skeleton) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return;
-	}
-
-	if (!animation || !animation->IsValid())
-	{
-		NazaraError("Animation must be valid");
-		return;
-	}
-
-	if (animation->GetType() != m_impl->animationType)
-	{
-		NazaraError("Animation type must match mesh animation type");
-		return;
-	}
-
-	unsigned int frameCount = animation->GetFrameCount();
-	if (frameA >= frameCount)
-	{
-		NazaraError("Frame A is out of range (" + NzString::Number(frameA) + " >= " + NzString::Number(frameCount) + ')');
-		return;
-	}
-
-	if (frameB >= frameCount)
-	{
-		NazaraError("Frame B is out of range (" + NzString::Number(frameB) + " >= " + NzString::Number(frameCount) + ')');
-		return;
-	}
-	#endif
-
-	#ifdef NAZARA_DEBUG
-	if (interpolation < 0.f || interpolation > 1.f)
-	{
-		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
-		return;
-	}
-	#endif
-
-	switch (m_impl->animationType)
-	{
-		case nzAnimationType_Keyframe:
-			for (NzSubMesh* subMesh : m_impl->subMeshes)
-			{
-				NzKeyframeMesh* keyframeMesh = static_cast<NzKeyframeMesh*>(subMesh);
-				keyframeMesh->InterpolateImpl(frameA, frameB, interpolation);
-			}
-			break;
-
-		case nzAnimationType_Skeletal:
-			#if NAZARA_UTILITY_SAFE
-			if (!skeleton)
-			{
-				NazaraError("Skeleton must be valid for skeletal animation");
-				return;
-			}
-			#endif
-
-			animation->AnimateSkeleton(skeleton, frameA, frameB, interpolation);
-			for (NzSubMesh* subMesh : m_impl->subMeshes)
-			{
-				NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
-				skeletalMesh->Skin(skeleton);
-			}
-			break;
-
-		case nzAnimationType_Static:
-			// Le safe mode est censé nous protéger de cet appel
-			NazaraInternalError("Static mesh has no animation, please enable safe mode");
-			break;
-	}
-
-	m_impl->aabbUpdated = false; // On invalide l'AABB
-}
-
 bool NzMesh::CreateKeyframe()
 {
 	Destroy();
@@ -432,6 +353,8 @@ const NzCubef& NzMesh::GetAABB() const
 
 	if (!m_impl->aabbUpdated)
 	{
+		m_impl->aabb.MakeZero();
+
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
 			m_impl->aabb.ExtendTo(subMesh->GetAABB());
 
@@ -876,29 +799,6 @@ void NzMesh::SetMaterialCount(unsigned int matCount)
 			NazaraWarning("SubMesh " + NzString::Pointer(subMesh) + " material index is over mesh new material count (" + NzString::Number(matIndex) + " >= " + NzString::Number(matCount));
 	}
 	#endif
-}
-
-void NzMesh::Skin(const NzSkeleton* skeleton) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Mesh not created");
-		return;
-	}
-
-	if (m_impl->animationType != nzAnimationType_Skeletal)
-	{
-		NazaraError("Mesh's animation type is not skeletal");
-		return;
-	}
-	#endif
-
-	for (NzSubMesh* subMesh : m_impl->subMeshes)
-	{
-		NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
-		skeletalMesh->Skin(skeleton);
-	}
 }
 
 const NzVertexDeclaration* NzMesh::GetDeclaration()
