@@ -471,13 +471,13 @@ NzMatrix4<T>& NzMatrix4<T>::MakeIdentity()
 }
 
 template<typename T>
-NzMatrix4<T>& NzMatrix4<T>::MakeOrtho(T left, T top, T width, T height, T zNear, T zFar)
+NzMatrix4<T>& NzMatrix4<T>::MakeOrtho(T left, T right, T top, T bottom, T zNear, T zFar)
 {
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204941(v=vs.85).aspx
-	Set(F(2.0)/(width-left), F(0.0), F(0.0), -(width+left)/(width-left),
-	    F(0.0), F(2.0)/(top-height), F(0.0), -(top+height)/(top-height),
-	    F(0.0), F(0.0), F(-2.0)/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
-	    F(0.0), F(0.0), F(0.0), F(1.0));
+	// http://www.opengl.org/sdk/docs/man2/xhtml/glOrtho.xml
+	Set(F(2.0) / (right - left), F(0.0), F(0.0), F(0.0),
+	    F(0.0), F(2.0) / (top - bottom), F(0.0), F(0.0),
+	    F(0.0), F(0.0), F(1.0) / (zFar - zNear), F(0.0),
+	    (left + right) / (left - right), (top + bottom) / (bottom - top), zNear/(zNear - zFar), F(1.0));
 
 	return *this;
 }
