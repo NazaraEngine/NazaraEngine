@@ -140,6 +140,15 @@ enum nzImageType
 	nzImageType_Max = nzImageType_Cubemap
 };
 
+enum nzNodeType
+{
+	nzNodeType_Default,
+	nzNodeType_Scene,
+	nzNodeType_Skeletal,
+
+	nzNodeType_Max = nzNodeType_Skeletal
+};
+
 enum nzPixelFormat
 {
 	nzPixelFormat_Undefined = -1,
@@ -161,9 +170,9 @@ enum nzPixelFormat
 	nzPixelFormat_RGBA32F,
 	nzPixelFormat_RGBA32I,         // 4*nzUInt32
 	*/
-	nzPixelFormat_RGBA4,           // 1*nzUInt16
 	nzPixelFormat_RGB5A1,          // 1*nzUInt16
 	nzPixelFormat_RGB8,            // 3*nzUInt8
+	nzPixelFormat_RGBA4,           // 1*nzUInt16
 	nzPixelFormat_RGBA8,           // 4*nzUInt8
 	nzPixelFormat_Depth16,
 	nzPixelFormat_Depth24,
