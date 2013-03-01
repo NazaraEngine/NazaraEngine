@@ -273,7 +273,7 @@ namespace
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const md2_vertex& vert = vertices[v];
-				NzVector3f position = rotationQuat * NzVector3f(vert.x * scale.x + translate.x, vert.y * scale.y + translate.y, vert.z * scale.z + translate.z);
+				NzVector3f position = rotationQuat * NzVector3f(vert.x*scale.x + translate.x, vert.y*scale.y + translate.y, vert.z*scale.z + translate.z);
 
 				vertex->position = position;
 				vertex->normal = rotationQuat * md2Normals[vert.n];

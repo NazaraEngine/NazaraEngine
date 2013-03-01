@@ -239,7 +239,6 @@ bool NzMD5AnimParser::Parse(NzAnimation* animation)
 			}
 
 			sequenceJoint.scale = NzVector3f(1.f, 1.f, 1.f);
-
 		}
 	}
 

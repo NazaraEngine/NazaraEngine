@@ -33,9 +33,7 @@ class NAZARA_API NzSubMesh : public NzResource
 		unsigned int GetMaterialIndex() const;
 		const NzMesh* GetParent() const;
 		nzPrimitiveType GetPrimitiveType() const;
-		virtual NzVertexBuffer* GetVertexBuffer() = 0;
-		virtual const NzVertexBuffer* GetVertexBuffer() const = 0;
-		virtual unsigned int GetVertexCount() const;
+		virtual unsigned int GetVertexCount() const = 0;
 
 		virtual bool IsAnimated() const = 0;
 

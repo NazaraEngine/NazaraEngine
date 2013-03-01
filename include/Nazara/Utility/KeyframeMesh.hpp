@@ -37,9 +37,9 @@ class NAZARA_API NzKeyframeMesh final : public NzSubMesh
 		NzVector3f GetTangent(unsigned int frameIndex, unsigned int vertexIndex) const;
 		NzVector2f GetTexCoords(unsigned int vertexIndex) const;
 		void GetVertex(unsigned int frameIndex, unsigned int vertexIndex, NzMeshVertex* dest) const;
-
-		NzVertexBuffer* GetVertexBuffer() override;
-		const NzVertexBuffer* GetVertexBuffer() const override;
+		NzVertexBuffer* GetVertexBuffer();
+		const NzVertexBuffer* GetVertexBuffer() const;
+		unsigned int GetVertexCount() const override;
 
 		void Interpolate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const;
 

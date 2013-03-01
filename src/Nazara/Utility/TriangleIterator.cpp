@@ -22,7 +22,7 @@ m_vertexMapper(subMesh)
 	if (indexBuffer)
 		m_indexCount = indexBuffer->GetIndexCount();
 	else
-		m_indexCount = subMesh->GetVertexBuffer()->GetVertexCount();
+		m_indexCount = subMesh->GetVertexCount();
 }
 
 bool NzTriangleIterator::Advance()

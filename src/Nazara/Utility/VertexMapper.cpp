@@ -59,10 +59,10 @@ namespace
 	class KeyframeMeshVertexMapper : public SubMeshVertexMapper
 	{
 		public:
-			KeyframeMeshVertexMapper(NzSubMesh* subMesh) :
-			SubMeshVertexMapper(subMesh)
+			KeyframeMeshVertexMapper(NzKeyframeMesh* subMesh) :
+			SubMeshVertexMapper(subMesh),
+			m_mesh(subMesh)
 			{
-				m_mesh = static_cast<NzKeyframeMesh*>(subMesh);
 				m_vertexPerFrame = m_mesh->GetVertexCount();
 			}
 
@@ -123,10 +123,10 @@ namespace
 	class SkeletalMeshVertexMapper : public SubMeshVertexMapper
 	{
 		public:
-			SkeletalMeshVertexMapper(NzSubMesh* subMesh) :
-			SubMeshVertexMapper(subMesh)
+			SkeletalMeshVertexMapper(NzSkeletalMesh* subMesh) :
+			SubMeshVertexMapper(subMesh),
+			m_mesh(subMesh)
 			{
-				m_mesh = static_cast<NzSkeletalMesh*>(subMesh);
 				m_vertices = reinterpret_cast<NzMeshVertex*>(m_mesh->GetBindPoseBuffer());
 
 				m_mesh->AddResourceReference();
@@ -190,7 +190,7 @@ namespace
 	class StaticMeshVertexMapper : public SubMeshVertexMapper
 	{
 		public:
-			StaticMeshVertexMapper(NzSubMesh* subMesh) :
+			StaticMeshVertexMapper(NzStaticMesh* subMesh) :
 			SubMeshVertexMapper(subMesh),
 			m_vertexMapper(subMesh->GetVertexBuffer(), nzBufferAccess_ReadWrite)
 			{
@@ -257,15 +257,15 @@ NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh)
 	switch (subMesh->GetAnimationType())
 	{
 		case nzAnimationType_Keyframe:
-			m_impl = new KeyframeMeshVertexMapper(subMesh);
+			m_impl = new KeyframeMeshVertexMapper(static_cast<NzKeyframeMesh*>(subMesh));
 			break;
 
 		case nzAnimationType_Skeletal:
-			m_impl = new SkeletalMeshVertexMapper(subMesh);
+			m_impl = new SkeletalMeshVertexMapper(static_cast<NzSkeletalMesh*>(subMesh));
 			break;
 
 		case nzAnimationType_Static:
-			m_impl = new StaticMeshVertexMapper(subMesh);
+			m_impl = new StaticMeshVertexMapper(static_cast<NzStaticMesh*>(subMesh));
 			break;
 	}
 	#ifdef NAZARA_DEBUG
