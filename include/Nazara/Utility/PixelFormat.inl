@@ -263,7 +263,7 @@ inline nzUInt8 NzPixelFormat::GetBytesPerPixel(nzPixelFormat format)
 
 	#if NAZARA_UTILITY_SAFE
 	if (bytesPerPixel == 0)
-		NazaraWarning("This format is invalid or uses less than one byte per pixel");
+		NazaraWarning("This format is either invalid or using less than one byte per pixel");
 	#endif
 
 	return bytesPerPixel;

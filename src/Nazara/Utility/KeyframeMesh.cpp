@@ -350,6 +350,19 @@ const NzVertexBuffer* NzKeyframeMesh::GetVertexBuffer() const
 	return m_impl->vertexBuffer;
 }
 
+unsigned int NzKeyframeMesh::GetVertexCount() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Keyframe mesh not created");
+		return 0;
+	}
+	#endif
+
+	return m_impl->vertexBuffer->GetVertexCount();
+}
+
 void NzKeyframeMesh::Interpolate(const NzAnimation* animation, unsigned int frameA, unsigned int frameB, float interpolation) const
 {
 	#if NAZARA_UTILITY_SAFE

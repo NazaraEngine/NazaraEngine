@@ -203,10 +203,8 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			indexMapper.Unmap();
 
-			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage, nzBufferUsage_Dynamic));
-
 			std::unique_ptr<NzSkeletalMesh> subMesh(new NzSkeletalMesh(mesh));
-			if (!subMesh->Create(vertexBuffer.get(), weightCount))
+			if (!subMesh->Create(vertexCount, weightCount))
 			{
 				NazaraError("Failed to create skeletal mesh");
 				continue;
@@ -215,9 +213,6 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			subMesh->SetIndexBuffer(indexBuffer.get());
 			indexBuffer->SetPersistent(false);
 			indexBuffer.release();
-
-			vertexBuffer->SetPersistent(false);
-			vertexBuffer.release();
 
 			NzWeight* weights = subMesh->GetWeight();
 			for (unsigned int j = 0; j < weightCount; ++j)
@@ -306,7 +301,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			indexMapper.Unmap();
 
 			// Vertex buffer
-			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage, nzBufferUsage_Dynamic));
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage));
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 
 			NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
