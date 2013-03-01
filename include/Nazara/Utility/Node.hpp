@@ -12,7 +12,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <set>
+#include <vector>
 
 class NAZARA_API NzNode
 {
@@ -21,17 +21,24 @@ class NAZARA_API NzNode
 		NzNode(const NzNode& node);
 		virtual ~NzNode();
 
+		void EnsureDerivedUpdate() const;
+		void EnsureTransformMatrixUpdate() const;
+
+		const std::vector<NzNode*>& GetChilds() const;
 		bool GetInheritPosition() const;
 		bool GetInheritRotation() const;
 		bool GetInheritScale() const;
 		NzVector3f GetInitialPosition() const;
 		NzQuaternionf GetInitialRotation() const;
 		NzVector3f GetInitialScale() const;
+		virtual nzNodeType GetNodeType() const;
 		const NzNode* GetParent() const;
 		NzVector3f GetPosition(nzCoordSys coordSys = nzCoordSys_Global) const;
 		NzQuaternionf GetRotation(nzCoordSys coordSys = nzCoordSys_Global) const;
 		NzVector3f GetScale(nzCoordSys coordSys = nzCoordSys_Global) const;
 		const NzMatrix4f& GetTransformMatrix() const;
+
+		bool HasChilds() const;
 
 		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation);
 
@@ -66,12 +73,13 @@ class NAZARA_API NzNode
 
 	protected:
 		void AddChild(NzNode* node) const;
-		void Invalidate();
+		virtual void Invalidate();
+		virtual void OnParenting(const NzNode* parent);
 		void RemoveChild(NzNode* node) const;
 		void UpdateDerived() const;
-		virtual void UpdateMatrix() const;
+		virtual void UpdateTransformMatrix() const;
 
-		mutable std::set<NzNode*> m_childs;
+		mutable std::vector<NzNode*> m_childs;
 		mutable NzMatrix4f m_transformMatrix;
 		mutable NzQuaternionf m_derivedRotation;
 		NzQuaternionf m_initialRotation;
@@ -88,7 +96,7 @@ class NAZARA_API NzNode
 		bool m_inheritPosition;
 		bool m_inheritRotation;
 		bool m_inheritScale;
-		mutable bool m_matrixUpdated;
+		mutable bool m_transformMatrixUpdated;
 };
 
 #endif // NAZARA_NODE_HPP
