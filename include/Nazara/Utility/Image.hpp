@@ -28,7 +28,10 @@
 
 struct NAZARA_API NzImageParams
 {
+	// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
 	nzPixelFormat loadFormat = nzPixelFormat_Undefined;
+
+	// Le nombre de niveaux de mipmaps maximum devant être créé
 	nzUInt8 levelCount = 0;
 
 	bool IsValid() const;
