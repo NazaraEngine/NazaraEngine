@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Clock.hpp>
+
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -135,7 +137,7 @@ struct NzSkeletalMeshImpl
 	NzCubef aabb;
 	nzUInt8* bindPoseBuffer;
 	const NzIndexBuffer* indexBuffer = nullptr;
-	NzVertexBuffer* vertexBuffer;
+	unsigned int vertexCount;
 };
 
 NzSkeletalMesh::NzSkeletalMesh(const NzMesh* parent) :
@@ -148,14 +150,14 @@ NzSkeletalMesh::~NzSkeletalMesh()
 	Destroy();
 }
 
-bool NzSkeletalMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int weightCount)
+bool NzSkeletalMesh::Create(unsigned int vertexCount, unsigned int weightCount)
 {
 	Destroy();
 
 	#if NAZARA_UTILITY_SAFE
-	if (!vertexBuffer)
+	if (vertexCount == 0)
 	{
-		NazaraError("Invalid vertex buffer");
+		NazaraError("Vertex count must be over 0");
 		return false;
 	}
 
@@ -166,13 +168,9 @@ bool NzSkeletalMesh::Create(NzVertexBuffer* vertexBuffer, unsigned int weightCou
 	}
 	#endif
 
-	vertexBuffer->AddResourceReference();
-
-	unsigned int vertexCount = vertexBuffer->GetVertexCount();
-
 	m_impl = new NzSkeletalMeshImpl;
-	m_impl->bindPoseBuffer = new nzUInt8[vertexCount*vertexBuffer->GetTypeSize()];
-	m_impl->vertexBuffer = vertexBuffer;
+	m_impl->bindPoseBuffer = new nzUInt8[vertexCount*sizeof(NzMeshVertex)];
+	m_impl->vertexCount = vertexCount;
 	m_impl->vertexWeights.resize(vertexCount);
 	m_impl->weights.resize(weightCount);
 
@@ -185,9 +183,6 @@ void NzSkeletalMesh::Destroy()
 	{
 		if (m_impl->indexBuffer)
 			m_impl->indexBuffer->RemoveResourceReference();
-
-		if (m_impl->vertexBuffer)
-			m_impl->vertexBuffer->RemoveResourceReference();
 
 		delete[] m_impl->bindPoseBuffer;
 		delete m_impl;
@@ -205,7 +200,7 @@ void NzSkeletalMesh::Finish()
 	}
 	#endif
 
-	Skin();
+	// Rien à faire de particulier
 }
 
 const NzCubef& NzSkeletalMesh::GetAABB() const
@@ -267,30 +262,17 @@ const NzIndexBuffer* NzSkeletalMesh::GetIndexBuffer() const
 	return m_impl->indexBuffer;
 }
 
-NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer()
+unsigned int NzSkeletalMesh::GetVertexCount() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeletal mesh not created");
-		return nullptr;
+		return 0;
 	}
 	#endif
 
-	return m_impl->vertexBuffer;
-}
-
-const NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->vertexBuffer;
+	return m_impl->vertexCount;
 }
 
 NzVertexWeight* NzSkeletalMesh::GetVertexWeight(unsigned int vertexIndex)
@@ -368,7 +350,7 @@ bool NzSkeletalMesh::IsValid() const
 	return m_impl != nullptr;
 }
 
-void NzSkeletalMesh::Skin() const
+void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -378,10 +360,10 @@ void NzSkeletalMesh::Skin() const
 	}
 	#endif
 
-	Skin(m_parent->GetSkeleton());
+	Skin(outputBuffer, m_parent->GetSkeleton());
 }
 
-void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
+void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -390,28 +372,28 @@ void NzSkeletalMesh::Skin(const NzSkeleton* skeleton) const
 		return;
 	}
 	#endif
-
-	NzBufferMapper<NzVertexBuffer> mapper(m_impl->vertexBuffer, nzBufferAccess_DiscardAndWrite);
 
 	SkinningInfos skinningInfos;
 	skinningInfos.inputVertex = reinterpret_cast<const NzMeshVertex*>(m_impl->bindPoseBuffer);
-	skinningInfos.outputVertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
+	skinningInfos.outputVertex = outputBuffer;
 	skinningInfos.joints = skeleton->GetJoints();
 	skinningInfos.vertexWeights = &m_impl->vertexWeights[0];
 	skinningInfos.weights = &m_impl->weights[0];
 
-	unsigned int vertexCount = m_impl->vertexBuffer->GetVertexCount();
-
 	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
+	unsigned int jointCount = skeleton->GetJointCount();
+	for (unsigned int i = 0; i < jointCount; ++i)
+		skinningInfos.joints[i].EnsureTransformMatrixUpdate();
+
 	unsigned int workerCount = NzTaskScheduler::GetWorkerCount();
 
-	std::ldiv_t div = std::ldiv(vertexCount, workerCount); // Qui sait, peut-être que ça permet des optimisations plus facilement
+	std::ldiv_t div = std::ldiv(m_impl->vertexCount, workerCount); // Qui sait, peut-être que ça permet des optimisations plus efficaces
 	for (unsigned int i = 0; i < workerCount; ++i)
 		NzTaskScheduler::AddTask(Skin_PositionNormalTangent, skinningInfos, i*div.quot, (i == workerCount-1) ? div.quot + div.rem : div.quot);
 
 	NzTaskScheduler::WaitForTasks();
 	#else
-	Skin_PositionNormalTangent(skinningInfos, 0, vertexCount);
+	Skin_PositionNormalTangent(skinningInfos, 0, m_impl->vertexCount);
 	#endif
 
 	m_impl->aabb = skeleton->GetAABB();

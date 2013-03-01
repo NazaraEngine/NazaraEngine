@@ -16,7 +16,9 @@
 
 struct NAZARA_API NzAnimationParams
 {
+	// La frame de fin à charger
 	unsigned int endFrame = static_cast<unsigned int>(-1);
+	// La frame de début à charger
 	unsigned int startFrame = 0;
 
 	bool IsValid() const;

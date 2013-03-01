@@ -34,11 +34,6 @@ unsigned int NzSubMesh::GetMaterialIndex() const
 	return m_matIndex;
 }
 
-unsigned int NzSubMesh::GetVertexCount() const
-{
-	return GetVertexBuffer()->GetVertexCount();
-}
-
 void NzSubMesh::SetPrimitiveType(nzPrimitiveType primitiveType)
 {
 	m_primitiveType = primitiveType;

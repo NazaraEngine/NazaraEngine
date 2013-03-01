@@ -63,6 +63,8 @@ bool NzStaticMesh::GenerateAABB()
 	// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
 	NzBufferMapper<NzVertexBuffer> mapper(m_vertexBuffer, nzBufferAccess_ReadOnly);
 
+	m_aabb.MakeZero();
+
 	NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(mapper.GetPointer());
 	unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
 	for (unsigned int i = 0; i < vertexCount; ++i)
@@ -97,6 +99,11 @@ NzVertexBuffer* NzStaticMesh::GetVertexBuffer()
 const NzVertexBuffer* NzStaticMesh::GetVertexBuffer() const
 {
 	return m_vertexBuffer;
+}
+
+unsigned int NzStaticMesh::GetVertexCount() const
+{
+	return m_vertexBuffer->GetVertexCount();
 }
 
 bool NzStaticMesh::IsAnimated() const

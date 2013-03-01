@@ -27,8 +27,9 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		const NzCubef& GetAABB() const override;
 		nzAnimationType GetAnimationType() const final;
 		const NzIndexBuffer* GetIndexBuffer() const override;
-		NzVertexBuffer* GetVertexBuffer() override;
-		const NzVertexBuffer* GetVertexBuffer() const override;
+		NzVertexBuffer* GetVertexBuffer();
+		const NzVertexBuffer* GetVertexBuffer() const;
+		unsigned int GetVertexCount() const override;
 
 		bool IsAnimated() const final;
 		bool IsValid() const;

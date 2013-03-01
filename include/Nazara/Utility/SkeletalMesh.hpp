@@ -32,7 +32,7 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		NzSkeletalMesh(const NzMesh* parent);
 		virtual ~NzSkeletalMesh();
 
-		bool Create(NzVertexBuffer* vertexBuffer, unsigned int weightCount);
+		bool Create(unsigned int vertexCount, unsigned int weightCount);
 		void Destroy();
 
 		void Finish();
@@ -42,8 +42,7 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		void* GetBindPoseBuffer();
 		const void* GetBindPoseBuffer() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
-		NzVertexBuffer* GetVertexBuffer() override;
-		const NzVertexBuffer* GetVertexBuffer() const override;
+		unsigned int GetVertexCount() const override;
 		NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0);
 		const NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0) const;
 		NzWeight* GetWeight(unsigned int weightIndex = 0);
@@ -53,8 +52,8 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		bool IsAnimated() const final;
 		bool IsValid() const;
 
-		void Skin() const;
-		void Skin(const NzSkeleton* skeleton) const;
+		void Skin(NzMeshVertex* outputBuffer) const;
+		void Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton) const;
 
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
