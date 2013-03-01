@@ -56,7 +56,7 @@ namespace
 
 	constexpr unsigned int totalMatrixCount = nzMatrixCombination_Max+1;
 
-	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*>;
+	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, bool>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
 	std::vector<TextureUnit> s_textureUnits;
@@ -79,7 +79,6 @@ namespace
 	const NzVertexBuffer* s_vertexBuffer;
 	const NzVertexDeclaration* s_vertexDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
-	bool s_instancingEnabled;
 	bool s_matrixUpdated[totalMatrixCount];
 	bool s_stencilFuncUpdated;
 	bool s_stencilOpUpdated;
@@ -143,16 +142,10 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	}
 	#endif
 
-	if (!EnsureStateUpdate())
+	if (!EnsureStateUpdate(false))
 	{
 		NazaraError("Failed to update states");
 		return;
-	}
-
-	if (s_instancingEnabled)
-	{
-		glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
-		s_instancingEnabled = false;
 	}
 
 	if (s_indexBuffer->IsSequential())
@@ -218,16 +211,10 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	}
 	#endif
 
-	if (!EnsureStateUpdate())
+	if (!EnsureStateUpdate(true))
 	{
 		NazaraError("Failed to update states");
 		return;
-	}
-
-	if (!s_instancingEnabled)
-	{
-		glEnableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
-		s_instancingEnabled = true;
 	}
 
 	if (s_indexBuffer->IsSequential())
@@ -267,16 +254,10 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 	}
 	#endif
 
-	if (!EnsureStateUpdate())
+	if (!EnsureStateUpdate(false))
 	{
 		NazaraError("Failed to update states");
 		return;
-	}
-
-	if (s_instancingEnabled)
-	{
-		glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
-		s_instancingEnabled = false;
 	}
 
 	glDrawArrays(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount);
@@ -318,16 +299,10 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	}
 	#endif
 
-	if (!EnsureStateUpdate())
+	if (!EnsureStateUpdate(true))
 	{
 		NazaraError("Failed to update states");
 		return;
-	}
-
-	if (!s_instancingEnabled)
-	{
-		glEnableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
-		s_instancingEnabled = true;
 	}
 
 	glDrawArraysInstanced(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount, instanceCount);
@@ -600,22 +575,7 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	if (s_capabilities[nzRendererCap_Instancing])
 	{
 		s_instancingBuffer = new NzBuffer(nzBufferType_Vertex);
-		if (s_instancingBuffer->Create(NAZARA_RENDERER_INSTANCING_MAX, sizeof(InstancingData), nzBufferStorage_Hardware, nzBufferUsage_Dynamic))
-		{
-			static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
-
-			unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
-			for (unsigned int i = 0; i < 4; ++i)
-			{
-				glVertexAttribPointer(instanceMatrixIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstancingData), reinterpret_cast<GLvoid*>(offsetof(InstancingData, worldMatrix) + sizeof(float)*4*i));
-				glVertexAttribDivisor(instanceMatrixIndex, 1);
-
-				instanceMatrixIndex++;
-			}
-
-			s_instancingEnabled = false;
-		}
-		else
+		if (!s_instancingBuffer->Create(NAZARA_RENDERER_INSTANCING_MAX, sizeof(InstancingData), nzBufferStorage_Hardware, nzBufferUsage_Dynamic))
 		{
 			s_capabilities[nzRendererCap_Instancing] = false;
 
@@ -1268,7 +1228,7 @@ void NzRenderer::Uninitialize()
 	NzUtility::Uninitialize();
 }
 
-bool NzRenderer::EnsureStateUpdate()
+bool NzRenderer::EnsureStateUpdate(bool instancing)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -1413,7 +1373,7 @@ bool NzRenderer::EnsureStateUpdate()
 			// On recherche si un VAO existe déjà avec notre configuration
 			// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
 
-			auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration);
+			auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration, instancing);
 			auto it = s_vaos.find(key);
 			if (it == s_vaos.end())
 			{
@@ -1463,6 +1423,23 @@ bool NzRenderer::EnsureStateUpdate()
 				else
 					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 			}
+
+			if (instancing)
+			{
+				static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
+
+				unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
+				for (unsigned int i = 0; i < 4; ++i)
+				{
+					glEnableVertexAttribArray(instanceMatrixIndex);
+					glVertexAttribPointer(instanceMatrixIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstancingData), reinterpret_cast<GLvoid*>(offsetof(InstancingData, worldMatrix) + i*sizeof(float)*4));
+					glVertexAttribDivisor(instanceMatrixIndex, 1);
+
+					instanceMatrixIndex++;
+				}
+			}
+			else
+				glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
 
 			if (s_indexBuffer)
 			{

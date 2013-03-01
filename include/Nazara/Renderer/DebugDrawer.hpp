@@ -27,8 +27,8 @@ class NAZARA_API NzDebugDrawer
 		static void Draw(const NzFrustumf& frustum);
 		static void Draw(const NzOrientedCubef& orientedCube);
 		static void Draw(const NzSkeleton* skeleton);
-		static void DrawNormals(const NzSubMesh* subMesh);
-		static void DrawTangents(const NzSubMesh* subMesh);
+		//static void DrawNormals(const NzSubMesh* subMesh);
+		//static void DrawTangents(const NzSubMesh* subMesh);
 
 		static bool Initialize();
 
