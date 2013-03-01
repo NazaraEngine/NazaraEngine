@@ -93,6 +93,11 @@ void NzShader::Destroy()
 	}
 }
 
+nzUInt32 NzShader::GetFlags() const
+{
+	return m_flags;
+}
+
 NzString NzShader::GetLog() const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -600,6 +605,11 @@ bool NzShader::SendVector(int location, const NzVector4f& vector) const
 	#endif
 
 	return m_impl->SendVector(location, vector);
+}
+
+void NzShader::SetFlags(nzUInt32 flags)
+{
+	m_flags = flags;
 }
 
 void NzShader::Unlock()
