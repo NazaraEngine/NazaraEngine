@@ -121,7 +121,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	{
 		// http://www.opengl.org/wiki/Vertex_Specification_Best_Practices
 		if (size == m_parent->GetSize())
-			glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
+			glBufferData(NzOpenGL::BufferTarget[m_type], size, nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
 
 		glBufferSubData(NzOpenGL::BufferTarget[m_type], offset, size, data);
 	}
