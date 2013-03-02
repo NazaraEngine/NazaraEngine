@@ -369,9 +369,9 @@ namespace
 			{
 				sourceCode += "\n"
 				              "vec3 binormal = cross(VertexNormal, VertexTangent);\n"
-				              "vLightToWorld[0] = normalize(VertexTangent * rotationMatrix);\n"
-				              "vLightToWorld[1] = normalize(binormal * rotationMatrix);\n"
-				              "vLightToWorld[2] = normalize(VertexNormal * rotationMatrix);\n"
+				              "vLightToWorld[0] = normalize(rotationMatrix * VertexTangent);\n"
+				              "vLightToWorld[1] = normalize(rotationMatrix * binormal);\n"
+				              "vLightToWorld[2] = normalize(rotationMatrix * VertexNormal);\n"
 				              "\n";
 			}
 			else
