@@ -1,4 +1,4 @@
-// This file was automatically generated on 20 Feb 2013 at 17:02:32
+// This file was automatically generated on 02 Mar 2013 at 01:32:01
 
 /*
 	Nazara Engine - 2D module
@@ -31,5 +31,6 @@
 
 #include <Nazara/2D/2D.hpp>
 #include <Nazara/2D/Config.hpp>
+#include <Nazara/2D/Drawable.hpp>
 
 #endif // NAZARA_GLOBAL_2D_HPP
