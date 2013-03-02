@@ -48,8 +48,8 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		static bool IsSupported();
 
 	protected:
-		bool Activate() override;
-		void Desactivate() override;
+		bool Activate() const override;
+		void Desactivate() const override;
 
 	private:
 		void OnResourceDestroy(const NzResource* resource, int index) override;

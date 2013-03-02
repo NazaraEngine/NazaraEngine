@@ -34,8 +34,8 @@ class NAZARA_API NzRenderTarget
 		virtual bool HasContext() const = 0;
 
 	protected:
-		virtual bool Activate() = 0;
-		virtual void Desactivate();
+		virtual bool Activate() const = 0;
+		virtual void Desactivate() const;
 };
 
 #endif // NAZARA_RENDERTARGET_HPP

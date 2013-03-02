@@ -22,8 +22,8 @@
 
 namespace
 {
-	NAZARA_THREADLOCAL NzContext* currentContext = nullptr;
-	NAZARA_THREADLOCAL NzContext* threadContext = nullptr;
+	NAZARA_THREADLOCAL const NzContext* currentContext = nullptr;
+	NAZARA_THREADLOCAL const NzContext* threadContext = nullptr;
 
 	std::vector<NzContext*> contexts;
 
@@ -219,7 +219,7 @@ bool NzContext::IsActive() const
 	return currentContext == this;
 }
 
-bool NzContext::SetActive(bool active)
+bool NzContext::SetActive(bool active) const
 {
 	#ifdef NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -300,7 +300,7 @@ bool NzContext::EnsureContext()
 	return true;
 }
 
-NzContext* NzContext::GetCurrent()
+const NzContext* NzContext::GetCurrent()
 {
 	return currentContext;
 }
@@ -310,7 +310,7 @@ const NzContext* NzContext::GetReference()
 	return s_reference;
 }
 
-NzContext* NzContext::GetThreadContext()
+const NzContext* NzContext::GetThreadContext()
 {
 	EnsureContext();
 
@@ -320,7 +320,6 @@ NzContext* NzContext::GetThreadContext()
 bool NzContext::Initialize()
 {
 	NzContextParameters parameters;
-//	parameters.compatibilityProfile = true;
 	parameters.shared = false; // Difficile de partager le contexte de référence avec lui-même
 
 	s_reference = new NzContext;

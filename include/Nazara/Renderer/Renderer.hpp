@@ -55,7 +55,7 @@ class NAZARA_API NzRenderer
 		static unsigned int GetMaxTextureUnits();
 		static float GetPointSize();
 		static const NzShader* GetShader();
-		static NzRenderTarget* GetTarget();
+		static const NzRenderTarget* GetTarget();
 		static NzRectui GetViewport();
 
 		static bool HasCapability(nzRendererCap capability);
@@ -84,7 +84,7 @@ class NAZARA_API NzRenderer
 		static void SetStencilPassOperation(nzStencilOperation passOperation);
 		static void SetStencilReferenceValue(unsigned int refValue);
 		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
-		static bool SetTarget(NzRenderTarget* target);
+		static bool SetTarget(const NzRenderTarget* target);
 		static void SetTexture(nzUInt8 unit, const NzTexture* texture);
 		static void SetTextureSampler(nzUInt8 textureUnit, const NzTextureSampler& sampler);
 		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
