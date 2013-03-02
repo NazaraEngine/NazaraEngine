@@ -48,11 +48,11 @@ struct NzRenderTextureImpl
 {
 	GLuint fbo;
 	std::vector<Attachment> attachements;
-	std::vector<GLenum> drawBuffers;
-	NzContext* context;
+	mutable std::vector<GLenum> drawBuffers;
+	const NzContext* context;
 	bool checked = false;
 	bool complete = false;
-	bool drawBuffersUpdated = true;
+	mutable bool drawBuffersUpdated = true;
 	unsigned int height;
 	unsigned int width;
 };
@@ -665,7 +665,7 @@ bool NzRenderTexture::IsSupported()
 	return NzRenderer::HasCapability(nzRendererCap_RenderTexture);
 }
 
-bool NzRenderTexture::Activate()
+bool NzRenderTexture::Activate() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
@@ -694,7 +694,7 @@ bool NzRenderTexture::Activate()
 	return true;
 }
 
-void NzRenderTexture::Desactivate()
+void NzRenderTexture::Desactivate() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)

@@ -74,7 +74,7 @@ namespace
 	nzUInt8 s_maxAnisotropyLevel;
 	nzUInt32 s_stencilMask;
 	const NzIndexBuffer* s_indexBuffer;
-	NzRenderTarget* s_target;
+	const NzRenderTarget* s_target;
 	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
 	const NzVertexDeclaration* s_vertexDeclaration;
@@ -479,7 +479,7 @@ const NzShader* NzRenderer::GetShader()
 	return s_shader;
 }
 
-NzRenderTarget* NzRenderer::GetTarget()
+const NzRenderTarget* NzRenderer::GetTarget()
 {
 	return s_target;
 }
@@ -1048,7 +1048,7 @@ void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation)
 	}
 }
 
-bool NzRenderer::SetTarget(NzRenderTarget* target)
+bool NzRenderer::SetTarget(const NzRenderTarget* target)
 {
 	if (s_target == target)
 		return true;

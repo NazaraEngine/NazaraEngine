@@ -53,7 +53,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 		bool HasContext() const;
 
 	protected:
-		bool Activate() override;
+		bool Activate() const override;
 
 	private:
 		bool OnWindowCreated() override;
