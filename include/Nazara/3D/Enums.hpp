@@ -18,10 +18,13 @@ enum nzLightType
 
 enum nzSceneNodeType
 {
+	nzSceneNodeType_Camera,
 	nzSceneNodeType_Light,
 	nzSceneNodeType_Model,
+	nzSceneNodeType_Root,
+	nzSceneNodeType_User,
 
-	nzSceneNodeType_Max = nzSceneNodeType_Model
+	nzSceneNodeType_Max = nzSceneNodeType_User
 };
 
 #endif // NAZARA_ENUMS_3D_HPP
