@@ -17,6 +17,7 @@ m_type(type),
 m_ambientColor((type == nzLightType_Directional) ? NzColor(50, 50, 50) : NzColor::Black),
 m_diffuseColor(NzColor::White),
 m_specularColor(NzColor::White),
+m_boundingBoxUpdated(false),
 m_attenuation(0.9f),
 m_innerAngle(15.f),
 m_outerAngle(45.f),
@@ -24,14 +25,32 @@ m_radius(500.f)
 {
 }
 
-NzLight::NzLight(const NzLight& light)
+NzLight::NzLight(const NzLight& light) :
+NzSceneNode(light)
 {
 	std::memcpy(this, &light, sizeof(NzLight)); // Aussi simple que ça
 }
 
-NzLight::~NzLight() = default;
+NzLight::~NzLight()
+{
+}
 
-void NzLight::Apply(unsigned int unit) const
+void NzLight::AddToRenderQueue(NzRenderQueue& renderQueue) const
+{
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			renderQueue.directionnalLights.push_back(this);
+			break;
+
+		case nzLightType_Point:
+		case nzLightType_Spot:
+			renderQueue.visibleLights.push_back(this);
+			break;
+	}
+}
+
+void NzLight::Apply(const NzShader* shader, unsigned int lightUnit) const
 {
 	/*
 	struct Light
@@ -58,7 +77,6 @@ void NzLight::Apply(unsigned int unit) const
 	-P2: vec3 direction + float invRadius
 	-P3: float cosInnerAngle + float cosOuterAngle
 	*/
-	const NzShader* shader = NzRenderer::GetShader();
 
 	int typeLocation = shader->GetUniformLocation("Lights[0].type");
 	int ambientLocation = shader->GetUniformLocation("Lights[0].ambient");
@@ -68,10 +86,10 @@ void NzLight::Apply(unsigned int unit) const
 	int parameters2Location = shader->GetUniformLocation("Lights[0].parameters2");
 	int parameters3Location = shader->GetUniformLocation("Lights[0].parameters3");
 
-	if (unit > 0)
+	if (lightUnit > 0)
 	{
 		int type2Location = shader->GetUniformLocation("Lights[1].type");
-		int offset = unit * (type2Location - typeLocation); // type2Location - typeLocation donne la taille de la structure
+		int offset = lightUnit * (type2Location - typeLocation); // type2Location - typeLocation donne la taille de la structure
 
 		// On applique cet offset
 		typeLocation += offset;
@@ -110,9 +128,10 @@ void NzLight::Apply(unsigned int unit) const
 	}
 }
 
-const NzAxisAlignedBox& NzLight::GetAABB() const
+const NzBoundingBoxf& NzLight::GetBoundingBox() const
 {
-	return NzAxisAlignedBox::Null;
+	static NzBoundingBoxf dummy(nzExtend_Null);
+	return dummy;
 }
 
 NzColor NzLight::GetAmbientColor() const
@@ -160,6 +179,14 @@ NzColor NzLight::GetSpecularColor() const
 	return m_specularColor;
 }
 
+bool NzLight::IsVisible(const NzFrustumf& frustum) const
+{
+	NazaraUnused(frustum);
+
+	///FIXME: Pour l'instant toujours visible
+	return true; // Toujours visible
+}
+
 void NzLight::SetAmbientColor(const NzColor& ambient)
 {
 	m_ambientColor = ambient;
@@ -200,4 +227,12 @@ NzLight& NzLight::operator=(const NzLight& light)
 	std::memcpy(this, &light, sizeof(NzLight));
 
 	return *this;
+}
+
+void NzLight::Register()
+{
+}
+
+void NzLight::Unregister()
+{
 }

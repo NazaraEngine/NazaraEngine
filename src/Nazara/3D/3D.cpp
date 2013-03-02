@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/3D/3D.hpp>
+#include <Nazara/2D/2D.hpp>
 #include <Nazara/3D/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -15,9 +16,9 @@ bool Nz3D::Initialize()
 		return true; // Déjà initialisé
 
 	// Initialisation des dépendances
-	if (!NzRenderer::Initialize())
+	if (!Nz2D::Initialize())
 	{
-		NazaraError("Failed to initialize renderer module");
+		NazaraError("Failed to initialize 2D module");
 		Uninitialize();
 
 		return false;
@@ -52,7 +53,7 @@ void Nz3D::Uninitialize()
 	NazaraNotice("Uninitialized: 3D module");
 
 	// Libération des dépendances
-	NzRenderer::Uninitialize();
+	Nz2D::Uninitialize();
 }
 
 unsigned int Nz3D::s_moduleReferenceCounter = 0;
