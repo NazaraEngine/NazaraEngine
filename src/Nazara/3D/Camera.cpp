@@ -25,18 +25,18 @@ NzCamera::~NzCamera() = default;
 
 void NzCamera::Activate() const
 {
-	NzRenderTarget* renderTarget = NzRenderer::GetTarget();
-
 	#ifdef NAZARA_3D_SAFE
-	if (!renderTarget)
+	if (!m_target)
 	{
 		NazaraError("No render target !");
 		return;
 	}
 	#endif
 
-	unsigned int width = renderTarget->GetWidth();
-	unsigned int height = std::max(renderTarget->GetHeight(), 1U);
+	NzRenderer::SetTarget(m_target);
+
+	unsigned int width = m_target->GetWidth();
+	unsigned int height = std::max(m_target->GetHeight(), 1U);
 
 	float vWidth = width * m_viewport.width;
 	float vHeight = height * m_viewport.height;
@@ -126,6 +126,11 @@ nzSceneNodeType NzCamera::GetSceneNodeType() const
 	return nzSceneNodeType_Camera;
 }
 
+const NzRenderTarget* NzCamera::GetTarget() const
+{
+	return m_target;
+}
+
 const NzVector3f& NzCamera::GetUpVector() const
 {
 	return m_upVector;
@@ -160,6 +165,11 @@ void NzCamera::SetFOV(float fov)
 
 	m_frustumUpdated = false;
 	m_projectionMatrixUpdated= false;
+}
+
+void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
+{
+	m_target = renderTarget;
 }
 
 void NzCamera::SetUpVector(const NzVector3f& upVector)
