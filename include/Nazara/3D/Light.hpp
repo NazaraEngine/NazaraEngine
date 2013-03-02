@@ -12,6 +12,8 @@
 #include <Nazara/3D/SceneNode.hpp>
 #include <Nazara/Core/Color.hpp>
 
+class NzShader;
+
 class NAZARA_API NzLight : public NzSceneNode
 {
 	public:
@@ -19,9 +21,11 @@ class NAZARA_API NzLight : public NzSceneNode
 		NzLight(const NzLight& light);
 		~NzLight();
 
-		void Apply(unsigned int unit) const;
+		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
 
-		const NzAxisAlignedBox& GetAABB() const;
+		void Apply(const NzShader* shader, unsigned int lightUnit) const;
+
+		const NzBoundingBoxf& GetBoundingBox() const;
 		NzColor GetAmbientColor() const;
 		float GetAttenuation() const;
 		NzColor GetDiffuseColor() const;
@@ -31,6 +35,8 @@ class NAZARA_API NzLight : public NzSceneNode
 		float GetRadius() const;
 		nzSceneNodeType GetSceneNodeType() const;
 		NzColor GetSpecularColor() const;
+
+		bool IsVisible(const NzFrustumf& frustum) const;
 
 		void SetAmbientColor(const NzColor& ambient);
 		void SetAttenuation(float attenuation);
@@ -43,10 +49,16 @@ class NAZARA_API NzLight : public NzSceneNode
 		NzLight& operator=(const NzLight& light);
 
 	private:
+		void Register();
+		void Unregister();
+		void UpdateFrustum();
+
 		nzLightType m_type;
+		NzBoundingBoxf m_boundingBox;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
+		bool m_boundingBoxUpdated;
 		float m_attenuation;
 		float m_innerAngle;
 		float m_outerAngle;
