@@ -95,6 +95,11 @@ NzVector3f NzNode::GetInitialScale() const
 	return m_initialScale;
 }
 
+const NzString& NzNode::GetName() const
+{
+	return m_name;
+}
+
 nzNodeType NzNode::GetNodeType() const
 {
 	return nzNodeType_Default;
@@ -342,6 +347,11 @@ void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
 	m_initialScale.Set(scaleX, scaleY, scaleZ);
 
 	Invalidate();
+}
+
+void NzNode::SetName(const NzString& name)
+{
+	m_name = name;
 }
 
 void NzNode::SetParent(const NzNode* node, bool keepDerived)
