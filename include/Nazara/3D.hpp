@@ -1,4 +1,4 @@
-// This file was automatically generated on 20 Feb 2013 at 17:02:32
+// This file was automatically generated on 02 Mar 2013 at 01:32:01
 
 /*
 	Nazara Engine - 3D module
@@ -35,6 +35,7 @@
 #include <Nazara/3D/Enums.hpp>
 #include <Nazara/3D/Light.hpp>
 #include <Nazara/3D/Model.hpp>
+#include <Nazara/3D/RenderQueue.hpp>
 #include <Nazara/3D/Scene.hpp>
 #include <Nazara/3D/SceneNode.hpp>
 #include <Nazara/3D/SceneRoot.hpp>
