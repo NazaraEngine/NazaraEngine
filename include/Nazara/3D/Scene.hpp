@@ -10,10 +10,12 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Updatable.hpp>
+#include <Nazara/Math/Frustum.hpp>
 
 class NzCamera;
 class NzLight;
 class NzModel;
+class NzRenderQueue;
 class NzSceneNode;
 struct NzSceneImpl;
 
@@ -45,6 +47,7 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
+		void RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzSceneNode* node);
 		void SetActiveCamera(const NzCamera* camera);
 
 		NzSceneImpl* m_impl;

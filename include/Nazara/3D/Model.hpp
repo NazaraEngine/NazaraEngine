@@ -54,7 +54,6 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 
 		bool IsAnimationEnabled() const;
 		bool IsDrawEnabled() const;
-		bool IsVisible(const NzFrustumf& frustum) const override;
 
 		bool LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters = NzModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& modelParameters = NzModelParameters());
@@ -77,6 +76,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void Unregister() override;
 		void Update() override;
 		void UpdateBoundingBox() const;
+		bool VisibilityTest(const NzFrustumf& frustum) override;
 
 		std::vector<NzMaterial*> m_materials;
 		mutable NzBoundingBoxf m_boundingBox;
