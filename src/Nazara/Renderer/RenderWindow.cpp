@@ -237,6 +237,11 @@ bool NzRenderWindow::IsRenderable() const
 	return m_impl != nullptr; // Si m_impl est valide, alors m_context l'est aussi
 }
 
+bool NzRenderWindow::IsValid() const
+{
+	return m_impl != nullptr;
+}
+
 void NzRenderWindow::SetFramerateLimit(unsigned int limit)
 {
 	m_framerateLimit = limit;
