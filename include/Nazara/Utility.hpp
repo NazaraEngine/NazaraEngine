@@ -1,4 +1,4 @@
-// This file was automatically generated on 02 Mar 2013 at 01:32:01
+// This file was automatically generated on 05 Mar 2013 at 10:53:41
 
 /*
 	Nazara Engine - Window module
@@ -43,7 +43,6 @@
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
-#include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
