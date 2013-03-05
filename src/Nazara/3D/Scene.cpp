@@ -48,7 +48,8 @@ namespace
 				if (sceneNode->IsVisible(frustum))
 					sceneNode->AddToRenderQueue(renderQueue);
 
-				RecursiveFrustumCull(renderQueue, frustum, sceneNode);
+				if (sceneNode->HasChilds())
+					RecursiveFrustumCull(renderQueue, frustum, sceneNode);
 			}
 		}
 	}
