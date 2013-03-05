@@ -18,8 +18,9 @@ struct NzModelParameters
 {
 	bool loadAnimation = true;
 	bool loadMaterials = true;
-	NzAnimationParams animationParams;
-	NzMaterialParams materialParams;
+	NzAnimationParams animation;
+	NzMaterialParams material;
+	NzMeshParams mesh;
 };
 
 class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
@@ -55,9 +56,9 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		bool IsDrawEnabled() const;
 		bool IsVisible(const NzFrustumf& frustum) const override;
 
-		bool LoadFromFile(const NzString& meshPath, const NzMeshParams& meshParameters = NzMeshParams(), const NzModelParameters& modelParameters = NzModelParameters());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzMeshParams& meshParameters = NzMeshParams(), const NzModelParameters& modelParameters = NzModelParameters());
-		bool LoadFromStream(NzInputStream& stream, const NzMeshParams& meshParameters = NzMeshParams(), const NzModelParameters& modelParameters = NzModelParameters());
+		bool LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters = NzModelParameters());
+		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& modelParameters = NzModelParameters());
+		bool LoadFromStream(NzInputStream& stream, const NzModelParameters& modelParameters = NzModelParameters());
 
 		void Reset();
 
