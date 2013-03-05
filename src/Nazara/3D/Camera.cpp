@@ -172,6 +172,11 @@ void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 	m_target = renderTarget;
 }
 
+void NzCamera::SetTarget(const NzRenderTarget& renderTarget)
+{
+	SetTarget(&renderTarget);
+}
+
 void NzCamera::SetUpVector(const NzVector3f& upVector)
 {
 	m_upVector = upVector;
