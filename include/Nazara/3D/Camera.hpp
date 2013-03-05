@@ -43,6 +43,7 @@ class NAZARA_API NzCamera : public NzSceneNode
 
 		void SetFOV(float fov);
 		void SetTarget(const NzRenderTarget* renderTarget);
+		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetUpVector(const NzVector3f& upVector);
 		void SetViewport(const NzRectf& viewport);
 		void SetZFar(float zFar);
