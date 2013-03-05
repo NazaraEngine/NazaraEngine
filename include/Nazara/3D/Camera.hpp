@@ -51,12 +51,12 @@ class NAZARA_API NzCamera : public NzSceneNode
 	private:
 		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
 		void Invalidate();
-		bool IsVisible(const NzFrustumf& frustum) const override;
 		void Register();
 		void Unregister();
 		void UpdateFrustum() const;
 		void UpdateProjectionMatrix() const;
 		void UpdateViewMatrix() const;
+ 		bool VisibilityTest(const NzFrustumf& frustum) override;
 
 		mutable NzFrustumf m_frustum;
 		mutable NzMatrix4f m_projectionMatrix;

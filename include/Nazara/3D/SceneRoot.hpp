@@ -22,14 +22,13 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 		const NzBoundingBoxf& GetBoundingBox() const override;
 		nzSceneNodeType GetSceneNodeType() const override;
 
-		bool IsVisible(const NzFrustumf& frustum) const override;
-
 	private:
 		NzSceneRoot(NzScene* scene);
 		virtual ~NzSceneRoot();
 
 		void Register();
 		void Unregister();
+		bool VisibilityTest(const NzFrustumf& frustum) override;
 };
 
 #endif // NAZARA_SCENEROOT_HPP

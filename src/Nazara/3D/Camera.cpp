@@ -216,13 +216,6 @@ void NzCamera::Invalidate()
 	m_viewMatrixUpdated = false;
 }
 
-bool NzCamera::IsVisible(const NzFrustumf& frustum) const
-{
-	NazaraUnused(frustum);
-	//NazaraInternalError("SceneNode::IsVisible() called on Camera");
-	return false;
-}
-
 void NzCamera::Register()
 {
 }
@@ -250,4 +243,11 @@ void NzCamera::UpdateViewMatrix() const
 
 	m_viewMatrix.MakeLookAt(m_derivedPosition, m_derivedPosition + m_derivedRotation*NzVector3f::Forward(), m_upVector);
 	m_viewMatrixUpdated = true;
+}
+
+bool NzCamera::VisibilityTest(const NzFrustumf& frustum)
+{
+	NazaraUnused(frustum);
+	//NazaraInternalError("SceneNode::IsVisible() called on Camera");
+	return false;
 }
