@@ -258,25 +258,6 @@ bool NzModel::IsDrawEnabled() const
 	return m_drawEnabled;
 }
 
-bool NzModel::IsVisible(const NzFrustumf& frustum) const
-{
-	#if NAZARA_3D_SAFE
-	if (!m_mesh)
-	{
-		NazaraError("Model has no mesh");
-		return false;
-	}
-	#endif
-
-	if (!m_drawEnabled)
-		return false;
-
-	if (!m_boundingBoxUpdated)
-		UpdateBoundingBox();
-
-	return frustum.Contains(m_boundingBox);
-}
-
 bool NzModel::LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters)
 {
 	///TODO: ResourceManager
@@ -619,4 +600,23 @@ void NzModel::UpdateBoundingBox() const
 
 	m_boundingBox.Update(m_transformMatrix);
 	m_boundingBoxUpdated = true;
+}
+
+bool NzModel::VisibilityTest(const NzFrustumf& frustum)
+{
+	#if NAZARA_3D_SAFE
+	if (!m_mesh)
+	{
+		NazaraError("Model has no mesh");
+		return false;
+	}
+	#endif
+
+	if (!m_drawEnabled)
+		return false;
+
+	if (!m_boundingBoxUpdated)
+		UpdateBoundingBox();
+
+	return frustum.Contains(m_boundingBox);
 }

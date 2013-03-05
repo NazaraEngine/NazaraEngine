@@ -31,17 +31,22 @@ class NAZARA_API NzSceneNode : public NzNode
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
 
-		virtual bool IsVisible(const NzFrustumf& frustum) const = 0;
+		bool IsVisible() const;
 
 	protected:
 		virtual void OnParenting(const NzNode* parent) override;
+		virtual void OnVisibilityChange(bool visibility);
 		virtual void Register();
 		void SetScene(NzScene* scene);
-		virtual bool ShouldUpdateWhenVisible();
 		virtual void Unregister();
 		virtual void Update();
+		virtual bool VisibilityTest(const NzFrustumf& frustum) = 0;
 
 		NzScene* m_scene;
+		bool m_visible;
+
+	private:
+		void UpdateVisibility(const NzFrustumf& frustum);
 };
 
 #endif // NAZARA_SCENENODE_HPP
