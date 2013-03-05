@@ -9,7 +9,6 @@
 
 enum nzAnimationType
 {
-	nzAnimationType_Keyframe,
 	nzAnimationType_Skeletal,
 	nzAnimationType_Static,
 

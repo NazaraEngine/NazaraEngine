@@ -6,7 +6,6 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Mesh.hpp> // NzMeshVertex
-#include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
@@ -54,70 +53,6 @@ namespace
 
 		protected:
 			NzSubMesh* m_subMesh;
-	};
-
-	class KeyframeMeshVertexMapper : public SubMeshVertexMapper
-	{
-		public:
-			KeyframeMeshVertexMapper(NzKeyframeMesh* subMesh) :
-			SubMeshVertexMapper(subMesh),
-			m_mesh(subMesh)
-			{
-				m_vertexPerFrame = m_mesh->GetVertexCount();
-			}
-
-			virtual ~KeyframeMeshVertexMapper() noexcept
-			{
-			}
-
-			NzVector3f GetNormal(unsigned int i) const
-			{
-				return m_mesh->GetNormal(i/m_vertexPerFrame, i%m_vertexPerFrame);
-			}
-
-			NzVector3f GetPosition(unsigned int i) const
-			{
-				return m_mesh->GetPosition(i/m_vertexPerFrame, i%m_vertexPerFrame);
-			}
-
-			NzVector3f GetTangent(unsigned int i) const
-			{
-				return m_mesh->GetTangent(i/m_vertexPerFrame, i%m_vertexPerFrame);
-			}
-
-			NzVector2f GetTexCoords(unsigned int i) const
-			{
-				return m_mesh->GetTexCoords(i%m_vertexPerFrame);
-			}
-
-			unsigned int GetVertexCount() const
-			{
-				return m_vertexPerFrame*m_mesh->GetFrameCount();
-			}
-
-			void SetNormal(unsigned int i, const NzVector3f& normal)
-			{
-				m_mesh->SetNormal(i/m_vertexPerFrame, i%m_vertexPerFrame, normal);
-			}
-
-			void SetPosition(unsigned int i, const NzVector3f& position)
-			{
-				m_mesh->SetPosition(i/m_vertexPerFrame, i%m_vertexPerFrame, position);
-			}
-
-			void SetTangent(unsigned int i, const NzVector3f& tangent)
-			{
-				m_mesh->SetTangent(i/m_vertexPerFrame, i%m_vertexPerFrame, tangent);
-			}
-
-			void SetTexCoords(unsigned int i, const NzVector2f& texCoords)
-			{
-				m_mesh->SetTexCoords(i%m_vertexPerFrame, texCoords);
-			}
-
-		private:
-			NzKeyframeMesh* m_mesh;
-			unsigned int m_vertexPerFrame;
 	};
 
 	class SkeletalMeshVertexMapper : public SubMeshVertexMapper
@@ -256,10 +191,6 @@ NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh)
 {
 	switch (subMesh->GetAnimationType())
 	{
-		case nzAnimationType_Keyframe:
-			m_impl = new KeyframeMeshVertexMapper(static_cast<NzKeyframeMesh*>(subMesh));
-			break;
-
 		case nzAnimationType_Skeletal:
 			m_impl = new SkeletalMeshVertexMapper(static_cast<NzSkeletalMesh*>(subMesh));
 			break;
@@ -268,6 +199,7 @@ NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh)
 			m_impl = new StaticMeshVertexMapper(static_cast<NzStaticMesh*>(subMesh));
 			break;
 	}
+
 	#ifdef NAZARA_DEBUG
 	if (!m_impl)
 		NazaraInternalError("No impl"); ///TODO: Internal, Unexpected

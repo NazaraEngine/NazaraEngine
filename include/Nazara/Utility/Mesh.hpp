@@ -51,7 +51,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
-		bool CreateKeyframe();
 		bool CreateSkeletal(unsigned int jointCount);
 		bool CreateStatic();
 		void Destroy();

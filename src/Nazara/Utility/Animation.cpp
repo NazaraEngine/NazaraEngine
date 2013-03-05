@@ -154,26 +154,6 @@ void NzAnimation::AnimateSkeleton(NzSkeleton* targetSkeleton, unsigned int frame
 	}
 }
 
-bool NzAnimation::CreateKeyframe(unsigned int frameCount)
-{
-	Destroy();
-
-	#if NAZARA_UTILITY_SAFE
-	if (frameCount == 0)
-	{
-		NazaraError("Frame count must be over zero");
-		return false;
-	}
-	#endif
-
-	m_impl = new NzAnimationImpl;
-	m_impl->frameCount = frameCount;
-	m_impl->type = nzAnimationType_Keyframe;
-
-	NotifyCreated();
-	return true;
-}
-
 bool NzAnimation::CreateSkeletal(unsigned int frameCount, unsigned int jointCount)
 {
 	Destroy();

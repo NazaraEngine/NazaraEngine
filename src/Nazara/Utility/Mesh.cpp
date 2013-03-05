@@ -7,7 +7,6 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/KeyframeMesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
@@ -128,17 +127,6 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	m_impl->subMeshes.push_back(subMesh);
 	m_impl->subMeshMap[identifier] = index;
 
-	return true;
-}
-
-bool NzMesh::CreateKeyframe()
-{
-	Destroy();
-
-	m_impl = new NzMeshImpl;
-	m_impl->animationType = nzAnimationType_Keyframe;
-
-	NotifyCreated();
 	return true;
 }
 
