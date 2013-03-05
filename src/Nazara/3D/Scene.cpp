@@ -36,23 +36,6 @@ namespace
 
 		NzVector3f pos;
 	};
-
-	void RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzSceneNode* node)
-	{
-		for (NzNode* child : node->GetChilds())
-		{
-			if (child->GetNodeType() == nzNodeType_Scene)
-			{
-				NzSceneNode* sceneNode = static_cast<NzSceneNode*>(child);
-				///TODO: Empêcher le rendu des enfants si le parent est cullé selon un flag
-				if (sceneNode->IsVisible(frustum))
-					sceneNode->AddToRenderQueue(renderQueue);
-
-				if (sceneNode->HasChilds())
-					RecursiveFrustumCull(renderQueue, frustum, sceneNode);
-			}
-		}
-	}
 }
 
 struct NzSceneImpl
@@ -400,6 +383,24 @@ void NzScene::UpdateVisible()
 NzScene::operator const NzSceneNode&() const
 {
 	return m_impl->root;
+}
+
+void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzSceneNode* node)
+{
+	for (NzNode* child : node->GetChilds())
+	{
+		if (child->GetNodeType() == nzNodeType_Scene)
+		{
+			NzSceneNode* sceneNode = static_cast<NzSceneNode*>(child);
+			///TODO: Empêcher le rendu des enfants si le parent est cullé selon un flag
+			sceneNode->UpdateVisibility(frustum);
+			if (sceneNode->IsVisible())
+				sceneNode->AddToRenderQueue(renderQueue);
+
+			if (sceneNode->HasChilds())
+				RecursiveFrustumCull(renderQueue, frustum, sceneNode);
+		}
+	}
 }
 
 void NzScene::SetActiveCamera(const NzCamera* camera)

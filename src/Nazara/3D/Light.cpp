@@ -179,14 +179,6 @@ NzColor NzLight::GetSpecularColor() const
 	return m_specularColor;
 }
 
-bool NzLight::IsVisible(const NzFrustumf& frustum) const
-{
-	NazaraUnused(frustum);
-
-	///FIXME: Pour l'instant toujours visible
-	return true; // Toujours visible
-}
-
 void NzLight::SetAmbientColor(const NzColor& ambient)
 {
 	m_ambientColor = ambient;
@@ -235,4 +227,12 @@ void NzLight::Register()
 
 void NzLight::Unregister()
 {
+}
+
+bool NzLight::VisibilityTest(const NzFrustumf& frustum)
+{
+	NazaraUnused(frustum);
+
+	///FIXME: Pour l'instant toujours visible
+	return true; // Toujours visible
 }

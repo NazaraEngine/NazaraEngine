@@ -7,13 +7,15 @@
 #include <Nazara/3D/Debug.hpp>
 
 NzSceneNode::NzSceneNode() :
-m_scene(nullptr)
+m_scene(nullptr),
+m_visible(false)
 {
 }
 
 NzSceneNode::NzSceneNode(const NzSceneNode& node) :
 NzNode(node),
-m_scene(node.m_scene)
+m_scene(node.m_scene),
+m_visible(false)
 {
 }
 
@@ -29,6 +31,11 @@ NzScene* NzSceneNode::GetScene() const
 	return m_scene;
 }
 
+bool NzSceneNode::IsVisible() const
+{
+	return m_visible;
+}
+
 void NzSceneNode::OnParenting(const NzNode* parent)
 {
 	if (parent)
@@ -38,6 +45,13 @@ void NzSceneNode::OnParenting(const NzNode* parent)
 	}
 	else
 		SetScene(nullptr);
+}
+
+void NzSceneNode::OnVisibilityChange(bool visibility)
+{
+	NazaraUnused(visibility);
+
+	///TODO: Envoyer l'évènements aux listeners
 }
 
 void NzSceneNode::Register()
@@ -63,15 +77,20 @@ void NzSceneNode::SetScene(NzScene* scene)
 	}
 }
 
-bool NzSceneNode::ShouldUpdateWhenVisible()
-{
-	return false;
-}
-
 void NzSceneNode::Unregister()
 {
 }
 
 void NzSceneNode::Update()
 {
+}
+
+void NzSceneNode::UpdateVisibility(const NzFrustumf& frustum)
+{
+	bool wasVisible = m_visible;
+
+	m_visible = VisibilityTest(frustum);
+
+	if (m_visible != wasVisible)
+		OnVisibilityChange(m_visible);
 }

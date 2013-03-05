@@ -36,8 +36,6 @@ class NAZARA_API NzLight : public NzSceneNode
 		nzSceneNodeType GetSceneNodeType() const;
 		NzColor GetSpecularColor() const;
 
-		bool IsVisible(const NzFrustumf& frustum) const;
-
 		void SetAmbientColor(const NzColor& ambient);
 		void SetAttenuation(float attenuation);
 		void SetDiffuseColor(const NzColor& diffuse);
@@ -52,6 +50,7 @@ class NAZARA_API NzLight : public NzSceneNode
 		void Register();
 		void Unregister();
 		void UpdateFrustum();
+		bool VisibilityTest(const NzFrustumf& frustum);
 
 		nzLightType m_type;
 		NzBoundingBoxf m_boundingBox;
