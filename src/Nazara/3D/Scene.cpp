@@ -86,6 +86,10 @@ void NzScene::Cull()
 
 	// Frustum culling
 	RecursiveFrustumCull(m_impl->renderQueue, m_impl->activeCamera->GetFrustum(), &m_impl->root);
+
+	///TODO: Occlusion culling
+
+	///TODO: Light culling
 }
 
 void NzScene::Draw()
