@@ -277,11 +277,11 @@ bool NzModel::IsVisible(const NzFrustumf& frustum) const
 	return frustum.Contains(m_boundingBox);
 }
 
-bool NzModel::LoadFromFile(const NzString& meshPath, const NzMeshParams& meshParameters, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters)
 {
 	///TODO: ResourceManager
 	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromFile(meshPath, meshParameters))
+	if (!mesh->LoadFromFile(meshPath, modelParameters.mesh))
 	{
 		NazaraError("Failed to load mesh");
 		return false;
@@ -293,10 +293,10 @@ bool NzModel::LoadFromFile(const NzString& meshPath, const NzMeshParams& meshPar
 	return true;
 }
 
-bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzMeshParams& meshParameters, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& modelParameters)
 {
 	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromMemory(data, size, meshParameters))
+	if (!mesh->LoadFromMemory(data, size, modelParameters.mesh))
 	{
 		NazaraError("Failed to load mesh");
 		return false;
@@ -308,10 +308,10 @@ bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzMeshPar
 	return true;
 }
 
-bool NzModel::LoadFromStream(NzInputStream& stream, const NzMeshParams& meshParameters, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromStream(NzInputStream& stream, const NzModelParameters& modelParameters)
 {
 	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromStream(stream, meshParameters))
+	if (!mesh->LoadFromStream(stream, modelParameters.mesh))
 	{
 		NazaraError("Failed to load mesh");
 		return false;
@@ -457,6 +457,7 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 
 	if (mesh)
 	{
+		m_boundingBoxUpdated = false;
 		m_mesh = mesh;
 		m_mesh->AddResourceReference();
 
@@ -469,7 +470,7 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 			if (!animationPath.IsEmpty())
 			{
 				std::unique_ptr<NzAnimation> animation(new NzAnimation);
-				if (animation->LoadFromFile(animationPath, modelParameters.animationParams) && SetAnimation(animation.get()))
+				if (animation->LoadFromFile(animationPath, modelParameters.animation) && SetAnimation(animation.get()))
 				{
 					animation->SetPersistent(false);
 					animation.release();
@@ -479,7 +480,6 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 			}
 		}
 
-		m_boundingBoxUpdated = false;
 		m_matCount = mesh->GetMaterialCount();
 		m_materials.resize(m_matCount, NzMaterial::GetDefault());
 		if (modelParameters.loadMaterials)
@@ -490,7 +490,7 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 				if (!mat.IsEmpty())
 				{
 					std::unique_ptr<NzMaterial> material(new NzMaterial);
-					if (material->LoadFromFile(mat, modelParameters.materialParams))
+					if (material->LoadFromFile(mat, modelParameters.material))
 					{
 						material->SetPersistent(false, false); // Pas de vérification des références car nous n'y avons pas encore accroché de référence
 						m_materials[i] = material.release();
