@@ -18,7 +18,7 @@ class NAZARA_API NzBufferImpl
 		virtual bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static) = 0;
 		virtual void Destroy() = 0;
 
-		virtual bool Fill(const void* data, unsigned int offset, unsigned int size) = 0;
+		virtual bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false) = 0;
 
 		virtual void* GetPointer() = 0;
 
