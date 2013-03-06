@@ -11,7 +11,7 @@
 
 # Nazara build
 
-examples/bin
+examples/bin/*.exe
 lib/libNazara*.a
 lib/Nazara*.dll
 lib/Nazara*.so
