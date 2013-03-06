@@ -342,6 +342,7 @@ bool NzOpenGL::Initialize()
 
 	glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi", false));
 	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
+	glInvalidateBufferData = reinterpret_cast<PFNGLINVALIDATEBUFFERDATAPROC>(LoadEntry("glInvalidateBufferData", false));
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	wglGetExtensionsStringARB = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGARBPROC>(LoadEntry("wglGetExtensionsStringARB", false));
@@ -1085,6 +1086,7 @@ PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv   = nullptr;
 PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv        = nullptr;
 PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv        = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation       = nullptr;
+PFNGLINVALIDATEBUFFERDATAPROC     glInvalidateBufferData     = nullptr;
 PFNGLISENABLEDPROC                glIsEnabled                = nullptr;
 PFNGLLINEWIDTHPROC                glLineWidth                = nullptr;
 PFNGLLINKPROGRAMPROC              glLinkProgram              = nullptr;
