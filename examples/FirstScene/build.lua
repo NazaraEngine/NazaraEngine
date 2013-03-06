@@ -17,24 +17,28 @@ if (_OPTIONS["united"]) then
 else
 	configuration "DebugStatic"
 		links "Nazara3D-s-d"
+		links "Nazara2D-s-d"
 		links "NazaraRenderer-s-d"
 		links "NazaraUtility-s-d"
 		links "NazaraCore-s-d"
 
 	configuration "ReleaseStatic"
 		links "Nazara3D-s"
+		links "Nazara2D-s"
 		links "NazaraRenderer-s"
 		links "NazaraUtility-s"
 		links "NazaraCore-s"
 
 	configuration "DebugDLL"
 		links "Nazara3D-d"
+		links "Nazara2D-d"
 		links "NazaraRenderer-d"
 		links "NazaraUtility-d"
 		links "NazaraCore-d"
 
 	configuration "ReleaseDLL"
 		links "Nazara3D"
+		links "Nazara2D"
 		links "NazaraRenderer"
 		links "NazaraUtility"
 		links "NazaraCore"
