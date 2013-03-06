@@ -146,8 +146,8 @@ template<typename T>
 bool NzEulerAngles<T>::operator==(const NzEulerAngles& angles) const
 {
 	return NzNumberEquals(pitch, angles.pitch) &&
-		   NzNumberEquals(yaw, angles.yaw) &&
-		   NzNumberEquals(roll, angles.roll);
+	       NzNumberEquals(yaw, angles.yaw) &&
+	       NzNumberEquals(roll, angles.roll);
 }
 
 template<typename T>
