@@ -19,7 +19,7 @@ class NzSoftwareBuffer : public NzBufferImpl
 		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int size);
+		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
 
 		void* GetPointer();
 
