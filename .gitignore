@@ -10,7 +10,6 @@
 *.project
 
 # Nazara build
-
 examples/bin/*.exe
 lib/libNazara*.a
 lib/Nazara*.dll
@@ -47,10 +46,6 @@ $RECYCLE.BIN/
 *.suo
 *.user
 *.sln.docstates
-
-# Build results
-[Dd]ebug*/
-[Rr]elease/
 
 [Tt]est[Rr]esult
 [Bb]uild[Ll]og.*
