@@ -44,8 +44,10 @@ void NzSoftwareBuffer::Destroy()
 	delete[] m_buffer;
 }
 
-bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size)
+bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
 {
+	NazaraUnused(forceDiscard);
+
 	#if NAZARA_UTILITY_SAFE
 	if (m_mapped)
 	{

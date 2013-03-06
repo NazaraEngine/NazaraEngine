@@ -372,7 +372,7 @@ void NzRenderer::FillInstancingBuffer(const NzRenderer::InstancingData* instanci
 	}
 	#endif
 
-	if (!s_instancingBuffer->Fill(instancingData, 0, instanceCount))
+	if (!s_instancingBuffer->Fill(instancingData, 0, instanceCount, true))
 		NazaraError("Failed to fill instancing buffer");
 }
 
