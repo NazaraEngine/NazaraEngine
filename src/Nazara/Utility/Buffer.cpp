@@ -117,7 +117,7 @@ void NzBuffer::Destroy()
 	}
 }
 
-bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
+bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -133,7 +133,7 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 	}
 	#endif
 
-	return m_impl->Fill(data, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
+	return m_impl->Fill(data, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize, forceDiscard);
 }
 
 NzBufferImpl* NzBuffer::GetImpl() const
