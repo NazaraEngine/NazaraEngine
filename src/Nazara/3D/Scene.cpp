@@ -389,7 +389,7 @@ NzScene::operator const NzSceneNode&() const
 	return m_impl->root;
 }
 
-void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzSceneNode* node)
+void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzNode* node)
 {
 	for (NzNode* child : node->GetChilds())
 	{
@@ -400,10 +400,10 @@ void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf&
 			sceneNode->UpdateVisibility(frustum);
 			if (sceneNode->IsVisible())
 				sceneNode->AddToRenderQueue(renderQueue);
-
-			if (sceneNode->HasChilds())
-				RecursiveFrustumCull(renderQueue, frustum, sceneNode);
 		}
+
+		if (child->HasChilds())
+			RecursiveFrustumCull(renderQueue, frustum, child);
 	}
 }
 

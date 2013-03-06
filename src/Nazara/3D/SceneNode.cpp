@@ -54,6 +54,21 @@ void NzSceneNode::OnVisibilityChange(bool visibility)
 	///TODO: Envoyer l'évènements aux listeners
 }
 
+void NzSceneNode::RecursiveSetScene(NzScene* scene, NzNode* node)
+{
+	for (NzNode* child : node->GetChilds())
+	{
+		if (child->GetNodeType() == nzNodeType_Scene)
+		{
+			NzSceneNode* sceneNode = static_cast<NzSceneNode*>(child);
+			sceneNode->SetScene(scene);
+		}
+
+		if (node->HasChilds())
+			RecursiveSetScene(scene, node);
+	}
+}
+
 void NzSceneNode::Register()
 {
 }
@@ -69,11 +84,7 @@ void NzSceneNode::SetScene(NzScene* scene)
 		if (m_scene)
 			Register();
 
-		for (NzNode* child : m_childs)
-		{
-			if (child->GetNodeType() == nzNodeType_Scene)
-				static_cast<NzSceneNode*>(child)->SetScene(scene);
-		}
+		RecursiveSetScene(scene, this);
 	}
 }
 
