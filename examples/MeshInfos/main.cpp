@@ -75,10 +75,6 @@ int main()
 
 		switch (mesh.GetAnimationType())
 		{
-			case nzAnimationType_Keyframe:
-				std::cout << "This is a keyframe-animated mesh" << std::endl;
-				break;
-
 			case nzAnimationType_Skeletal:
 				std::cout << "This is a skeletal-animated mesh" << std::endl;
 				break;
@@ -155,7 +151,7 @@ int main()
 				std::cout << "It's animable but has no animation information" << std::endl;
 		}
 
-		NzCubef cube = mesh.GetAABB().GetCube();
+		NzCubef cube = mesh.GetAABB();
 		std::cout << "Mesh is " << cube.width << " units wide, " << cube.height << " units height and " << cube.depth << " units depth" << std::endl;
 
 		unsigned int materialCount = mesh.GetMaterialCount();
