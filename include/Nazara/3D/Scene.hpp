@@ -15,6 +15,7 @@
 class NzCamera;
 class NzLight;
 class NzModel;
+class NzNode;
 class NzRenderQueue;
 class NzSceneNode;
 struct NzSceneImpl;
@@ -47,7 +48,7 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
-		void RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzSceneNode* node);
+		void RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzNode* node);
 		void SetActiveCamera(const NzCamera* camera);
 
 		NzSceneImpl* m_impl;
