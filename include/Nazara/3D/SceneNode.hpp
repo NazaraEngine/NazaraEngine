@@ -36,6 +36,7 @@ class NAZARA_API NzSceneNode : public NzNode
 	protected:
 		virtual void OnParenting(const NzNode* parent) override;
 		virtual void OnVisibilityChange(bool visibility);
+		void RecursiveSetScene(NzScene* scene, NzNode* node);
 		virtual void Register();
 		void SetScene(NzScene* scene);
 		virtual void Unregister();
