@@ -146,19 +146,19 @@ int main()
 				case nzEventType_MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.8f; // Sensibilité du déplacement
+					float sensitivity = 0.8f; // Sensibilité de la souris
 
-					// On modifie l'angle de la caméra grâce au déplacement relatif de la souris
+					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
 					camAngles.yaw = NzNormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
-					// Pour éviter les loopings mais surtout les problèmes de calculation de la matrice de vue, on restreint les angles
+					// Idem, mais pour éviter les loopings mais surtout les problèmes de calculation de la matrice de vue, on restreint les angles
 					camAngles.pitch = NzClamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
-					// On applique l'angle d'euler à la caméra
+					// On applique les angles d'Euler à notre caméra
 					camera.SetRotation(camAngles);
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// La fonction est codée de sorte qu'elle ne provoquera pas d'évènement MouseMoved
+					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
 					NzMouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
 					break;
 				}
@@ -184,6 +184,10 @@ int main()
 			float cameraSpeed = 300.f; // Unités par seconde
 			float elapsedTime = updateClock.GetSeconds();
 
+			// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
+			if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
+				cameraSpeed *= 2.f;
+
 			// Move agit par défaut dans l'espace local de la caméra, autrement dit la rotation est prise en compte
 
 			// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
@@ -206,7 +210,7 @@ int main()
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::LShift) || NzKeyboard::IsKeyPressed(NzKeyboard::RShift))
 				camera.Move(NzVector3f::Up() * cameraSpeed * elapsedTime, nzCoordSys_Global);
 
-			// Contrôle (Gauche ou droite) pour descendre, etc...
+			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl) || NzKeyboard::IsKeyPressed(NzKeyboard::RControl))
 				camera.Move(NzVector3f::Up() * -cameraSpeed * elapsedTime, nzCoordSys_Global);
 
