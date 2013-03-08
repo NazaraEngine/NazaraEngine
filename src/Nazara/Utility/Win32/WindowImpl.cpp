@@ -722,6 +722,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				{
 					m_mouseInside = true;
 
+					// On créé un évènement pour être informé de la sortie de la fenêtre
 					TRACKMOUSEEVENT mouseEvent;
 					mouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
 					mouseEvent.dwFlags = TME_LEAVE;
@@ -748,7 +749,9 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					m_parent->PushEvent(event);
 					break;
 				}
-				else if (m_mousePos.x == currentX && m_mousePos.y == currentY)
+
+				// Si la souris n'a pas bougé (Ou qu'on veut ignorer l'évènement)
+				if (m_mousePos.x == currentX && m_mousePos.y == currentY)
 					break;
 
 				NzEvent event;
@@ -1113,7 +1116,7 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 		case VK_VOLUME_UP:		   return NzKeyboard::Volume_Up;
 
 		default:
-			return NzKeyboard::Key(NzKeyboard::Undefined);
+			return NzKeyboard::Undefined;
 	}
 }
 
@@ -1124,8 +1127,7 @@ void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* titl
 
 	mutex->Lock();
 	condition->Signal();
-	mutex->Unlock();
-	// mutex et condition sont considérés invalides à partir d'ici
+	mutex->Unlock(); // mutex et condition sont considérés invalides à partir d'ici
 
 	while (window->m_threadActive)
 		window->ProcessEvents(true);
