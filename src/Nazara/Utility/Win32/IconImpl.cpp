@@ -8,7 +8,7 @@
 
 bool NzIconImpl::Create(const NzImage& icon)
 {
-	NzImage windowsIcon(icon);
+	NzImage windowsIcon(icon); // Vive le COW
 	if (!windowsIcon.Convert(nzPixelFormat_BGRA8))
 	{
 		NazaraError("Failed to convert icon to BGRA8");
