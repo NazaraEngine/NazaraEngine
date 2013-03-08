@@ -164,12 +164,12 @@ int main()
 				}
 
 				case nzEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
-					window.Destroy(); // On ferme la fenêtre sans demander notre reste
+					window.Close(); // On demande la fermeture de la fenêtre (Qui aura lieu au prochain tour de boucle)
 					break;
 
 				case nzEventType_KeyPressed: // Une touche a été pressée !
 					if (event.key.code == NzKeyboard::Key::Escape)
-						window.Destroy();
+						window.Close();
 					break;
 
 				default:
