@@ -7,7 +7,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
