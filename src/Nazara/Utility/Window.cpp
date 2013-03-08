@@ -81,6 +81,11 @@ NzWindow::~NzWindow()
 	Destroy();
 }
 
+void NzWindow::Close()
+{
+	m_closed = true; // On retarde la fermeture jusqu'au prochain IsOpen
+}
+
 bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 {
 	// Si la fenêtre est déjà ouverte, nous conservons sa position
@@ -123,6 +128,7 @@ bool NzWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
 		return false;
 	}
 
+	m_closed = false;
 	m_ownsWindow = true;
 
 	if (!OnWindowCreated())
@@ -162,6 +168,7 @@ bool NzWindow::Create(NzWindowHandle handle)
 		return false;
 	}
 
+	m_closed = false;
 	m_ownsWindow = false;
 
 	if (!OnWindowCreated())
@@ -193,68 +200,133 @@ void NzWindow::Destroy()
 
 void NzWindow::EnableKeyRepeat(bool enable)
 {
-	if (m_impl)
-		m_impl->EnableKeyRepeat(enable);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->EnableKeyRepeat(enable);
 }
 
 void NzWindow::EnableSmoothScrolling(bool enable)
 {
-	if (m_impl)
-		m_impl->EnableSmoothScrolling(enable);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->EnableSmoothScrolling(enable);
 }
 
 NzWindowHandle NzWindow::GetHandle() const
 {
-	if (m_impl)
-		return m_impl->GetHandle();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return static_cast<NzWindowHandle>(0);
+	}
+	#endif
+
+	return m_impl->GetHandle();
 }
 
 unsigned int NzWindow::GetHeight() const
 {
-	if (m_impl)
-		return m_impl->GetHeight();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return 0;
+	}
+	#endif
+
+	return m_impl->GetHeight();
 }
 
 NzVector2i NzWindow::GetPosition() const
 {
-	if (m_impl)
-		return m_impl->GetPosition();
-	else
-		return NzVector2i(0);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return NzVector2i::Zero();
+	}
+	#endif
+
+	return m_impl->GetPosition();
 }
 
 NzVector2ui NzWindow::GetSize() const
 {
-	if (m_impl)
-		return m_impl->GetSize();
-	else
-		return NzVector2ui(0U);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return NzVector2ui::Zero();
+	}
+	#endif
+
+	return m_impl->GetSize();
 }
 
 NzString NzWindow::GetTitle() const
 {
-	if (m_impl)
-		return m_impl->GetTitle();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return NzString();
+	}
+	#endif
+
+	return m_impl->GetTitle();
 }
 
 unsigned int NzWindow::GetWidth() const
 {
-	if (m_impl)
-		return m_impl->GetWidth();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return 0;
+	}
+	#endif
+
+	return m_impl->GetWidth();
 }
 
 bool NzWindow::HasFocus() const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->HasFocus();
+}
+
+bool NzWindow::IsOpen(bool checkClosed)
+{
 	if (m_impl)
-		return m_impl->HasFocus();
+	{
+		if (m_closed && checkClosed)
+		{
+			Destroy();
+			return false;
+		}
+		else
+			return true;
+	}
 	else
 		return false;
 }
@@ -266,10 +338,15 @@ bool NzWindow::IsOpen() const
 
 bool NzWindow::IsMinimized() const
 {
-	if (m_impl)
-		return m_impl->IsMinimized();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return false;
+	}
+	#endif
+
+	return m_impl->IsMinimized();
 }
 
 bool NzWindow::IsValid() const
@@ -279,16 +356,26 @@ bool NzWindow::IsValid() const
 
 bool NzWindow::IsVisible() const
 {
-	if (m_impl)
-		return m_impl->IsVisible();
-	else
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return false;
+	}
+	#endif
+
+	return m_impl->IsVisible();
 }
 
 bool NzWindow::PollEvent(NzEvent* event)
 {
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return false;
+	}
+	#endif
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzLockGuard lock(m_eventMutex);
@@ -311,13 +398,26 @@ bool NzWindow::PollEvent(NzEvent* event)
 
 void NzWindow::SetCursor(nzWindowCursor cursor)
 {
-	if (m_impl)
-		m_impl->SetCursor(cursor);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetCursor(cursor);
 }
 
 void NzWindow::SetCursor(const NzCursor& cursor)
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+
 	if (!cursor.IsValid())
 	{
 		NazaraError("Cursor is not valid");
@@ -325,14 +425,18 @@ void NzWindow::SetCursor(const NzCursor& cursor)
 	}
 	#endif
 
-	if (m_impl)
-		m_impl->SetCursor(cursor);
+	m_impl->SetCursor(cursor);
 }
 
 void NzWindow::SetEventListener(bool listener)
 {
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return;
+	}
+	#endif
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	m_impl->SetEventListener(listener);
@@ -357,13 +461,26 @@ void NzWindow::SetEventListener(bool listener)
 
 void NzWindow::SetFocus()
 {
-	if (m_impl)
-		m_impl->SetFocus();
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetFocus();
 }
 
 void NzWindow::SetIcon(const NzIcon& icon)
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+
 	if (!icon.IsValid())
 	{
 		NazaraError("Icon is not valid");
@@ -371,80 +488,161 @@ void NzWindow::SetIcon(const NzIcon& icon)
 	}
 	#endif
 
-	if (m_impl)
-		m_impl->SetIcon(icon);
+	m_impl->SetIcon(icon);
 }
 
 void NzWindow::SetMaximumSize(const NzVector2i& maxSize)
 {
-	if (m_impl)
-		m_impl->SetMaximumSize(maxSize.x, maxSize.y);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetMaximumSize(maxSize.x, maxSize.y);
 }
 
 void NzWindow::SetMaximumSize(int width, int height)
 {
-	if (m_impl)
-		m_impl->SetMaximumSize(width, height);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetMaximumSize(width, height);
 }
 
 void NzWindow::SetMinimumSize(const NzVector2i& minSize)
 {
-	if (m_impl)
-		m_impl->SetMinimumSize(minSize.x, minSize.y);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetMinimumSize(minSize.x, minSize.y);
 }
 
 void NzWindow::SetMinimumSize(int width, int height)
 {
-	if (m_impl)
-		m_impl->SetMinimumSize(width, height);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetMinimumSize(width, height);
 }
 
 void NzWindow::SetPosition(const NzVector2i& position)
 {
-	if (m_impl)
-		m_impl->SetPosition(position.x, position.y);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetPosition(position.x, position.y);
 }
 
 void NzWindow::SetPosition(int x, int y)
 {
-	if (m_impl)
-		m_impl->SetPosition(x, y);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetPosition(x, y);
 }
 
 void NzWindow::SetSize(const NzVector2i& size)
 {
-	if (m_impl)
-		m_impl->SetSize(size.x, size.y);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetSize(size.x, size.y);
 }
 
 void NzWindow::SetSize(unsigned int width, unsigned int height)
 {
-	if (m_impl)
-		m_impl->SetSize(width, height);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetSize(width, height);
 }
 
 void NzWindow::SetStayOnTop(bool stayOnTop)
 {
-	if (m_impl)
-		m_impl->SetStayOnTop(stayOnTop);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetStayOnTop(stayOnTop);
 }
 
 void NzWindow::SetTitle(const NzString& title)
 {
-	if (m_impl)
-		m_impl->SetTitle(title);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetTitle(title);
 }
 
 void NzWindow::SetVisible(bool visible)
 {
-	if (m_impl)
-		m_impl->SetVisible(visible);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->SetVisible(visible);
 }
 
 bool NzWindow::WaitEvent(NzEvent* event)
 {
+	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
+	{
+		NazaraError("Window not created");
 		return false;
+	}
+	#endif
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzLockGuard lock(m_eventMutex);
@@ -495,8 +693,15 @@ void NzWindow::OnWindowDestroy()
 
 void NzWindow::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 {
-	if (m_impl)
-		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return;
+	}
+	#endif
+
+	m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
 }
 
 void NzWindow::PushEvent(const NzEvent& event)
