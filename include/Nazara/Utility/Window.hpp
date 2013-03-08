@@ -42,6 +42,8 @@ class NAZARA_API NzWindow : NzNonCopyable
 		NzWindow(NzWindowHandle handle);
 		virtual ~NzWindow();
 
+		void Close();
+
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		bool Create(NzWindowHandle handle);
 
@@ -60,6 +62,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 		bool HasFocus() const;
 
 		bool IsMinimized() const;
+		bool IsOpen(bool checkClosed = true);
 		bool IsOpen() const;
 		bool IsValid() const;
 		bool IsVisible() const;
@@ -106,6 +109,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 		bool m_eventListener;
 		bool m_waitForEvent;
 		#endif
+		bool m_closed;
 		bool m_ownsWindow;
 };
 
