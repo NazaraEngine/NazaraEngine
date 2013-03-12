@@ -144,84 +144,6 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	return true;
 }
 
-bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return false;
-	}
-
-	if (attachmentPoint != nzAttachmentPoint_Color && index > 0)
-	{
-		NazaraError("Index must be 0 for non-color attachments");
-		return false;
-	}
-
-	unsigned int depthStencilIndex = attachmentIndex[nzAttachmentPoint_DepthStencil];
-	if (attachmentPoint == nzAttachmentPoint_Stencil && m_impl->attachements.size() > depthStencilIndex &&
-		m_impl->attachements[depthStencilIndex].isUsed)
-	{
-		NazaraError("Stencil target already attached by DepthStencil attachment");
-		return false;
-	}
-
-	if (!texture || !texture->IsValid())
-	{
-		NazaraError("Invalid texture");
-		return false;
-	}
-
-	if (texture->GetWidth() < m_impl->width || texture->GetHeight() < m_impl->height)
-	{
-		NazaraError("Texture cannot be smaller than render texture");
-		return false;
-	}
-
-	if (texture->GetRenderTexture() != nullptr)
-	{
-		NazaraError("Texture already used by another render texture");
-		return false;
-	}
-
-	if (formatTypeToAttachment[NzPixelFormat::GetType(texture->GetFormat())] != attachmentPoint)
-	{
-		NazaraError("Pixel format type does not match attachment point type");
-		return false;
-	}
-	#endif
-
-	if (!Lock())
-	{
-		NazaraError("Failed to lock render texture");
-		return false;
-	}
-
-	// Détachement de l'attache précédente (Si il y a)
-	Detach(attachmentPoint, index);
-
-	glFramebufferTexture(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, texture->GetOpenGLID(), 0);
-	Unlock();
-
-	unsigned int minSize = attachmentIndex[attachmentPoint]+index+1;
-	if (m_impl->attachements.size() < minSize)
-		m_impl->attachements.resize(minSize);
-
-	Attachment& attachment = m_impl->attachements[minSize-1];
-	attachment.isBuffer = true;
-	attachment.isUsed = true;
-	attachment.texture = texture;
-
-	texture->AddResourceListener(this, minSize-1);
-	texture->SetRenderTexture(this);
-
-	m_impl->checked = false;
-	m_impl->drawBuffersUpdated = false;
-
-	return true;
-}
-
 bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -315,6 +237,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, NzOpenGL::CubemapFace[z], texture->GetOpenGLID(), 0);
 			break;
 	}
+
 	Unlock();
 
 	unsigned int minSize = attachmentIndex[attachmentPoint]+index+1;
@@ -471,7 +394,11 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	}
 	else
 	{
-		glFramebufferTexture(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0);
+		if (glFramebufferTexture)
+			glFramebufferTexture(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0);
+		else
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0, 0);
+
 		attachement.texture->RemoveResourceListener(this);
 		attachement.texture->SetRenderTexture(nullptr);
 	}
