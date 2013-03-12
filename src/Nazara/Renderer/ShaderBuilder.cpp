@@ -361,9 +361,19 @@ namespace
 		if (flags & nzShaderFlags_Lighting)
 		{
 			if (flags & nzShaderFlags_Instancing)
-				sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix);\n";
+			{
+				if (glsl140)
+					sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix);\n";
+				else
+					sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix[0], InstanceMatrix[1], InstanceMatrix[2]);\n";
+			}
 			else
-				sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix);\n";
+			{
+				if (glsl140)
+					sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix);\n";
+				else
+					sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix[0], WorldMatrix[1], WorldMatrix[2]);\n";
+			}
 
 			if (flags & nzShaderFlags_NormalMapping)
 			{
