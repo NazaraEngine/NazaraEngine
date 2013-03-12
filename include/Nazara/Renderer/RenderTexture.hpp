@@ -23,8 +23,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		~NzRenderTexture();
 
 		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format);
-		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture);
-		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z);
+		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z = 0);
 
 		bool Create(unsigned int width, unsigned int height, bool lock = false);
 		void Destroy();
