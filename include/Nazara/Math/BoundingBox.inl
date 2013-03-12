@@ -175,8 +175,9 @@ NzBoundingBox<T> NzBoundingBox<T>::operator*(T scalar) const
 template<typename T>
 NzBoundingBox<T>& NzBoundingBox<T>::operator*=(T scalar)
 {
-	aabb *= scalar;
 	obb *= scalar;
+
+	return *this;
 }
 
 template<typename T>
