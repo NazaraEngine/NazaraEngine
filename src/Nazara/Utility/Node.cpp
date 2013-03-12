@@ -356,6 +356,14 @@ void NzNode::SetName(const NzString& name)
 
 void NzNode::SetParent(const NzNode* node, bool keepDerived)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (node == this)
+	{
+		NazaraError("A node can be it's own parent");
+		return;
+	}
+	#endif
+
 	if (m_parent == node)
 		return;
 
