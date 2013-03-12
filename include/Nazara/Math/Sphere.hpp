@@ -17,7 +17,7 @@ class NzSphere
 		NzSphere() = default;
 		NzSphere(T X, T Y, T Z, T Radius);
 		//NzSphere(const NzCircle<T>& circle);
-		NzSphere(const NzVector3<T>& pos, T Radius);
+		NzSphere(const NzVector3<T>& center, T Radius);
 		NzSphere(const T sphere[4]);
 		template<typename U> explicit NzSphere(const NzSphere<U>& sphere);
 		NzSphere(const NzSphere& sphere) = default;
@@ -47,7 +47,7 @@ class NzSphere
 		NzSphere& Set(T X, T Y, T Z, T Radius);
 		//NzSphere& Set(const NzCircle<T>& rect);
 		NzSphere& Set(const NzSphere& sphere);
-		NzSphere& Set(const NzVector3<T>& pos, T Radius);
+		NzSphere& Set(const NzVector3<T>& center, T Radius);
 		NzSphere& Set(const T sphere[4]);
 		template<typename U> NzSphere& Set(const NzSphere<U>& sphere);
 
