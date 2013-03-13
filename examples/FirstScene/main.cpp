@@ -151,7 +151,7 @@ int main()
 					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
 					camAngles.yaw = NzNormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
-					// Idem, mais pour éviter les loopings mais surtout les problèmes de calculation de la matrice de vue, on restreint les angles
+					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
 					camAngles.pitch = NzClamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					// On applique les angles d'Euler à notre caméra
@@ -261,11 +261,12 @@ int main()
 			}
 
 			// Et on insère ces données dans le titre de la fenêtre
-			window.SetTitle(windowTitle + " - " + NzString::Number(fps) + " FPS - " + NzString::Number(visibleNode) + u8" mod\u00E8les visibles");
+			window.SetTitle(windowTitle + " - " + NzString::Number(fps) + " FPS - " + NzString::Number(visibleNode) + " modèles visibles");
 			/*
-			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard,
+			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
 			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res"
-			Cependant, si le code source est encodé en UTF-8, cela fonctionnera aussi comme ceci : "Chaîne de caractères"
+			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas ici),
+			cela fonctionnera aussi comme ceci : "Chaîne de caractères"
 			*/
 
 			// Et on réinitialise le compteur de FPS
