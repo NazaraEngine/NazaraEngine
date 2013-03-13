@@ -1,9 +1,9 @@
-// This file was automatically generated on 02 Mar 2013 at 01:32:01
+// This file was automatically generated on 13 Mar 2013 at 23:20:31
 
 /*
 	Nazara Engine - Renderer module
 
-	Copyright (C) 2012 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2013 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
