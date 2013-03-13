@@ -880,6 +880,25 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				break;
 			}
 
+			case WM_UNICHAR:
+			{
+				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646288(v=vs.85).aspx
+				if (wParam != UNICODE_NOCHAR)
+				{
+					bool repeated = ((HIWORD(lParam) & KF_REPEAT) != 0);
+					if (m_keyRepeat || !repeated)
+					{
+						NzEvent event;
+						event.type = nzEventType_TextEntered;
+						event.text.character = static_cast<char32_t>(wParam);
+						event.text.repeated = repeated;
+						m_parent->PushEvent(event);
+					}
+
+					return true;
+				}
+			}
+
 			case WM_XBUTTONDBLCLK:
 			{
 				NzEvent event;
