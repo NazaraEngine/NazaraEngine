@@ -35,9 +35,9 @@ void NzMouse::SetPosition(const NzVector2i& position)
 	NzEventImpl::SetMousePosition(position.x, position.y);
 }
 
-void NzMouse::SetPosition(const NzVector2i& position, const NzWindow& relativeTo)
+void NzMouse::SetPosition(const NzVector2i& position, const NzWindow& relativeTo, bool ignoreEvent)
 {
-	if (position.x > 0 && position.y > 0)
+	if (ignoreEvent && position.x > 0 && position.y > 0)
 		relativeTo.IgnoreNextMouseEvent(position.x, position.y);
 
 	NzEventImpl::SetMousePosition(position.x, position.y, relativeTo);
@@ -48,9 +48,9 @@ void NzMouse::SetPosition(int x, int y)
 	NzEventImpl::SetMousePosition(x, y);
 }
 
-void NzMouse::SetPosition(int x, int y, const NzWindow& relativeTo)
+void NzMouse::SetPosition(int x, int y, const NzWindow& relativeTo, bool ignoreEvent)
 {
-	if (x > 0 && y > 0)
+	if (ignoreEvent && x > 0 && y > 0)
 		relativeTo.IgnoreNextMouseEvent(x, y);
 
 	NzEventImpl::SetMousePosition(x, y, relativeTo);
