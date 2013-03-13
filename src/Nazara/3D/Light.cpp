@@ -5,6 +5,7 @@
 #include <Nazara/3D/Light.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <cstring>
@@ -130,8 +131,10 @@ void NzLight::Apply(const NzShader* shader, unsigned int lightUnit) const
 
 const NzBoundingBoxf& NzLight::GetBoundingBox() const
 {
-	static NzBoundingBoxf dummy(nzExtend_Null);
-	return dummy;
+	if (!m_boundingBoxUpdated)
+		UpdateBoundingBox();
+
+	return m_boundingBox;
 }
 
 NzColor NzLight::GetAmbientColor() const
@@ -202,11 +205,17 @@ void NzLight::SetInnerAngle(float innerAngle)
 void NzLight::SetOuterAngle(float outerAngle)
 {
 	m_outerAngle = outerAngle;
+
+	m_boundingBox.MakeNull();
+	m_boundingBoxUpdated = false;
 }
 
 void NzLight::SetRadius(float radius)
 {
 	m_radius = radius;
+
+	m_boundingBox.MakeNull();
+	m_boundingBoxUpdated = false;
 }
 
 void NzLight::SetSpecularColor(const NzColor& specular)
@@ -221,6 +230,13 @@ NzLight& NzLight::operator=(const NzLight& light)
 	return *this;
 }
 
+void NzLight::Invalidate()
+{
+	NzSceneNode::Invalidate();
+
+	m_boundingBoxUpdated = false;
+}
+
 void NzLight::Register()
 {
 }
@@ -229,10 +245,95 @@ void NzLight::Unregister()
 {
 }
 
+void NzLight::UpdateBoundingBox() const
+{
+	if (m_boundingBox.IsNull())
+	{
+		switch (m_type)
+		{
+			case nzLightType_Directional:
+				m_boundingBox.MakeInfinite();
+				m_boundingBoxUpdated = true;
+				return; // Rien d'autre à faire
+
+			case nzLightType_Point:
+			{
+				NzVector3f radius(m_radius);
+				m_boundingBox.Set(-radius, radius);
+				break;
+			}
+
+			case nzLightType_Spot:
+			{
+				// On forme un cube sur l'origine
+				NzCubef cube(NzVector3f::Zero());
+
+				// On calcule le reste des points
+				float height = m_radius;
+				NzVector3f base(NzVector3f::Forward()*height);
+
+				// Il nous faut maintenant le rayon du cercle projeté à cette distance
+				// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
+				float radius = height*std::tan(NzDegreeToRadian(m_outerAngle));
+				NzVector3f lExtend = NzVector3f::Left()*radius;
+				NzVector3f uExtend = NzVector3f::Up()*radius;
+
+				// Et on ajoute ensuite les quatres extrêmités de la pyramide
+				cube.ExtendTo(base + lExtend + uExtend);
+				cube.ExtendTo(base + lExtend - uExtend);
+				cube.ExtendTo(base - lExtend + uExtend);
+				cube.ExtendTo(base - lExtend - uExtend);
+
+				m_boundingBox.Set(cube);
+				break;
+			}
+		}
+	}
+
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			break;
+
+		case nzLightType_Point:
+			if (!m_derivedUpdated)
+				UpdateDerived();
+
+			m_boundingBox.Update(NzMatrix4f::Translate(m_derivedPosition)); // Notre BoundingBox ne changera que selon la position
+			break;
+
+		case nzLightType_Spot:
+			if (!m_transformMatrixUpdated)
+				UpdateTransformMatrix();
+
+			m_boundingBox.Update(m_transformMatrix);
+			break;
+	}
+
+	m_boundingBoxUpdated = true;
+}
+
 bool NzLight::VisibilityTest(const NzFrustumf& frustum)
 {
-	NazaraUnused(frustum);
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			return true; // Toujours visible
 
-	///FIXME: Pour l'instant toujours visible
-	return true; // Toujours visible
+		case nzLightType_Point:
+			if (!m_derivedUpdated)
+				UpdateDerived();
+
+			// Un test sphérique est bien plus rapide et précis que celui de la bounding box
+			return frustum.Contains(NzSpheref(m_derivedPosition, m_radius));
+
+		case nzLightType_Spot:
+			if (!m_boundingBoxUpdated)
+				UpdateBoundingBox();
+
+			return frustum.Contains(m_boundingBox);
+	}
+
+	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
+	return false;
 }
