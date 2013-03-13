@@ -147,7 +147,7 @@ NzSphere<T> NzCube<T>::GetBoundingSphere() const
 template<typename T>
 NzVector3<T> NzCube<T>::GetCenter() const
 {
-	return NzVector3<T>(x + width*F(0.5), y + height*F(0.5), z + depth*F(0.5));
+	return GetPosition() + F(0.5)*GetSize();
 }
 
 template<typename T>
