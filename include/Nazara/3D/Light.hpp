@@ -47,17 +47,18 @@ class NAZARA_API NzLight : public NzSceneNode
 		NzLight& operator=(const NzLight& light);
 
 	private:
+		void Invalidate();
 		void Register();
 		void Unregister();
-		void UpdateFrustum();
+		void UpdateBoundingBox() const;
 		bool VisibilityTest(const NzFrustumf& frustum);
 
 		nzLightType m_type;
-		NzBoundingBoxf m_boundingBox;
+		mutable NzBoundingBoxf m_boundingBox;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
-		bool m_boundingBoxUpdated;
+		mutable bool m_boundingBoxUpdated;
 		float m_attenuation;
 		float m_innerAngle;
 		float m_outerAngle;
