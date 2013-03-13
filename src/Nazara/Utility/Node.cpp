@@ -359,7 +359,7 @@ void NzNode::SetParent(const NzNode* node, bool keepDerived)
 	#if NAZARA_UTILITY_SAFE
 	if (node == this)
 	{
-		NazaraError("A node can be it's own parent");
+		NazaraError("A node cannot be it's own parent");
 		return;
 	}
 	#endif
@@ -511,7 +511,7 @@ void NzNode::AddChild(NzNode* node) const
 	#ifdef NAZARA_DEBUG
 	if (std::find(m_childs.begin(), m_childs.end(), node) != m_childs.end())
 	{
-		NazaraWarning("Is already a child");
+		NazaraWarning("Child node is already a child of parent node");
 		return;
 	}
 	#endif
