@@ -450,6 +450,7 @@ namespace
 		}
 
 		shader->SetFlags(flags);
+		shader->SetPersistent(false, false);
 
 		return shader.release();
 	}
@@ -462,11 +463,15 @@ const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
 	{
 		// Alors nous créons le shader
 		NzShader* shader = BuildShader(flags);
-		if (!shader) ///TODO: Ajouter une erreur en mode Once
-			return s_shaders[0]; // Shader par défaut
+		if (!shader)
+		{
+			NazaraWarning("Failed to build shader (flags: 0x" + NzString::Number(flags, 16) + ", using default one...");
+
+			shader = s_shaders[0]; // Shader par défaut
+		}
 
 		s_shaders[flags] = shader;
-		///TODO: emplace
+		shader->AddResourceReference();
 
 		return shader;
 	}
@@ -484,6 +489,7 @@ bool NzShaderBuilder::Initialize()
 	}
 
 	s_shaders[0] = shader;
+	shader->AddResourceReference();
 
 	return true;
 }
@@ -491,7 +497,7 @@ bool NzShaderBuilder::Initialize()
 void NzShaderBuilder::Uninitialize()
 {
 	for (auto it : s_shaders)
-		delete it.second;
+		it.second->RemoveResourceReference();
 
 	s_shaders.clear();
 }
