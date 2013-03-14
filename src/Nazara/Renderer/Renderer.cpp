@@ -1192,6 +1192,8 @@ void NzRenderer::Uninitialize()
 		return;
 	}
 
+	NzContext::EnsureContext();
+
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
@@ -1203,8 +1205,6 @@ void NzRenderer::Uninitialize()
 	NzDebugDrawer::Uninitialize();
 	NzShaderBuilder::Uninitialize();
 	NzTextureSampler::Uninitialize();
-
-	NzContext::EnsureContext();
 
 	// Libération du buffer d'instancing
 	if (s_instancingBuffer)
