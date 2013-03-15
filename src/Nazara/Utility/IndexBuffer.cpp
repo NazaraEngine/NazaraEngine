@@ -28,8 +28,6 @@ m_startIndex(startIndex)
 			throw std::runtime_error("Constructor failed");
 		}
 		#endif
-
-		m_buffer->AddResourceReference();
 	}
 }
 
@@ -39,7 +37,6 @@ m_indexCount(length),
 m_startIndex(0)
 {
 	m_buffer = new NzBuffer(nzBufferType_Index, length, (largeIndices) ? 4 : 2, storage, usage);
-	m_buffer->AddResourceReference();
 	m_buffer->SetPersistent(false);
 }
 
@@ -57,23 +54,15 @@ m_startIndex(indexBuffer.m_startIndex)
 			NzBuffer* buffer = indexBuffer.m_buffer;
 
 			m_buffer = new NzBuffer(nzBufferType_Index, buffer->GetLength(), buffer->GetSize(), buffer->GetStorage(), buffer->GetUsage());
-			m_buffer->AddResourceReference();
 			m_buffer->SetPersistent(false);
 			m_buffer->CopyContent(*indexBuffer.m_buffer);
 		}
 		else
-		{
 			m_buffer = indexBuffer.m_buffer;
-			m_buffer->AddResourceReference();
-		}
 	}
 }
 
-NzIndexBuffer::~NzIndexBuffer()
-{
-	if (m_buffer)
-		m_buffer->RemoveResourceReference();
-}
+NzIndexBuffer::~NzIndexBuffer() = default;
 
 bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
 {

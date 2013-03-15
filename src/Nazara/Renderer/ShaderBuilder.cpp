@@ -13,7 +13,7 @@
 
 namespace
 {
-	std::unordered_map<nzUInt32, NzShader*> s_shaders;
+	std::unordered_map<nzUInt32, NzResourceRef<NzShader>> s_shaders;
 
 	NzString BuildFragmentShaderSource(nzUInt32 flags)
 	{
@@ -471,7 +471,6 @@ const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
 		}
 
 		s_shaders[flags] = shader;
-		shader->AddResourceReference();
 
 		return shader;
 	}
@@ -489,15 +488,11 @@ bool NzShaderBuilder::Initialize()
 	}
 
 	s_shaders[0] = shader;
-	shader->AddResourceReference();
 
 	return true;
 }
 
 void NzShaderBuilder::Uninitialize()
 {
-	for (auto it : s_shaders)
-		it.second->RemoveResourceReference();
-
 	s_shaders.clear();
 }

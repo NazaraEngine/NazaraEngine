@@ -12,6 +12,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -36,7 +37,9 @@ class NzMesh;
 
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 
+using NzMeshConstRef = NzResourceRef<const NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
+using NzMeshRef = NzResourceRef<NzMesh>;
 
 struct NzMeshImpl;
 

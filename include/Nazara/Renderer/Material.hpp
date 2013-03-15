@@ -9,8 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
@@ -23,9 +26,10 @@ struct NAZARA_API NzMaterialParams
 };
 
 class NzMaterial;
-class NzShader;
 
+using NzMaterialConstRef = NzResourceRef<const NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
+using NzMaterialRef = NzResourceRef<NzMaterial>;
 
 class NAZARA_API NzMaterial : public NzResource
 {
@@ -35,7 +39,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial();
 		NzMaterial(const NzMaterial& material);
 		NzMaterial(NzMaterial&& material);
-		~NzMaterial();
+		~NzMaterial() = default;
 
 		void Apply(const NzShader* shader) const;
 
@@ -102,6 +106,8 @@ class NAZARA_API NzMaterial : public NzResource
 		static NzMaterial* GetDefault();
 
 	private:
+		void Copy(const NzMaterial& material);
+
 		nzBlendFunc m_dstBlend;
 		nzBlendFunc m_srcBlend;
 		nzFaceCulling m_faceCulling;
@@ -113,11 +119,11 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor m_specularColor;
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
-		mutable const NzShader* m_customShader;
-		NzTexture* m_diffuseMap;
-		NzTexture* m_heightMap;
-		NzTexture* m_normalMap;
-		NzTexture* m_specularMap;
+		mutable NzShaderConstRef m_customShader;
+		NzTextureRef m_diffuseMap;
+		NzTextureRef m_heightMap;
+		NzTextureRef m_normalMap;
+		NzTextureRef m_specularMap;
 		bool m_alphaBlendingEnabled;
 		bool m_faceCullingEnabled;
 		bool m_lightingEnabled;
