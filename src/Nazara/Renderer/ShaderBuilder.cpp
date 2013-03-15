@@ -365,14 +365,14 @@ namespace
 				if (glsl140)
 					sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix);\n";
 				else
-					sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix[0], InstanceMatrix[1], InstanceMatrix[2]);\n";
+					sourceCode += "mat3 rotationMatrix = mat3(InstanceMatrix[0].xyz, InstanceMatrix[1].xyz, InstanceMatrix[2].xyz);\n";
 			}
 			else
 			{
 				if (glsl140)
 					sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix);\n";
 				else
-					sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix[0], WorldMatrix[1], WorldMatrix[2]);\n";
+					sourceCode += "mat3 rotationMatrix = mat3(WorldMatrix[0].xyz, WorldMatrix[1].xyz, WorldMatrix[2].xyz);\n";
 			}
 
 			if (flags & nzShaderFlags_NormalMapping)
