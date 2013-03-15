@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Buffer.hpp>
+
+class NzIndexBuffer;
+
+using NzIndexBufferConstRef = NzResourceRef<const NzIndexBuffer>;
+using NzIndexBufferRef = NzResourceRef<NzIndexBuffer>;
 
 class NAZARA_API NzIndexBuffer : public NzResource
 {
@@ -40,7 +46,7 @@ class NAZARA_API NzIndexBuffer : public NzResource
 		void Unmap() const;
 
 	private:
-		NzBuffer* m_buffer;
+		NzBufferRef m_buffer;
 		bool m_ownsBuffer;
 		unsigned int m_indexCount;
 		unsigned int m_startIndex;

@@ -49,8 +49,8 @@ class NAZARA_API NzResource
 
 		bool IsPersistent() const;
 
-		void RemoveResourceListener(NzResourceListener* listener) const;
-		void RemoveResourceReference() const;
+		bool RemoveResourceListener(NzResourceListener* listener) const;
+		bool RemoveResourceReference() const;
 
 		void SetPersistent(bool persistent = true, bool checkReferenceCount = true);
 

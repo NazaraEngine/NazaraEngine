@@ -78,11 +78,11 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void UpdateBoundingBox() const;
 		bool VisibilityTest(const NzFrustumf& frustum) override;
 
-		std::vector<NzMaterial*> m_materials;
+		std::vector<NzMaterialRef> m_materials;
 		mutable NzBoundingBoxf m_boundingBox;
 		NzSkeleton m_skeleton; // Uniquement pour les animations squelettiques
-		NzAnimation* m_animation;
-		NzMesh* m_mesh;
+		NzAnimationRef m_animation;
+		NzMeshRef m_mesh;
 		const NzSequence* m_currentSequence;
 		bool m_animationEnabled;
 		mutable bool m_boundingBoxUpdated;

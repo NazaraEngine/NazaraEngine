@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
+
+class NzContext;
+
+using NzContextConstRef = NzResourceRef<const NzContext>;
+using NzContextRef = NzResourceRef<NzContext>;
 
 class NzContextImpl;
 

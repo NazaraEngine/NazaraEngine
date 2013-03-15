@@ -11,8 +11,6 @@
 #include <Nazara/3D/Debug.hpp>
 
 NzModel::NzModel() :
-m_animation(nullptr),
-m_mesh(nullptr),
 m_currentSequence(nullptr),
 m_animationEnabled(true),
 m_boundingBoxUpdated(false),
@@ -27,8 +25,6 @@ NzModel::NzModel(const NzModel& model) :
 NzSceneNode(model),
 m_materials(model.m_materials),
 m_boundingBox(model.m_boundingBox),
-m_animation(model.m_animation),
-m_mesh(model.m_mesh),
 m_currentSequence(model.m_currentSequence),
 m_animationEnabled(model.m_animationEnabled),
 m_boundingBoxUpdated(model.m_boundingBoxUpdated),
@@ -40,19 +36,15 @@ m_nextFrame(model.m_nextFrame),
 m_skin(model.m_skin),
 m_skinCount(model.m_skinCount)
 {
-	if (m_mesh)
+	if (model.m_mesh)
 	{
-		if (m_animation)
-			m_animation->AddResourceReference();
-
-		m_mesh->AddResourceReference();
+		// Nous n'avons une animation et des matériaux que si nous avons un mesh
+		m_animation = model.m_animation;
+		m_mesh = model.m_mesh;
+		m_materials = model.m_materials;
 
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = model.m_skeleton;
-
-		// Nous n'avons des matériaux que si nous avons un mesh
-		for (const NzMaterial* material : m_materials)
-			material->AddResourceReference();
 	}
 }
 
@@ -314,22 +306,11 @@ void NzModel::Reset()
 
 	if (m_mesh)
 	{
-		m_mesh->RemoveResourceReference();
-		m_mesh = nullptr;
+		m_animation.Reset();
+		m_mesh.Reset();
+		m_materials.clear();
 
 		m_skeleton.Destroy();
-
-		if (m_animation)
-		{
-			m_animation->RemoveResourceReference();
-			m_animation = nullptr;
-		}
-
-		// Nous n'avons des matériaux que si nous avons un mesh
-		for (const NzMaterial* material : m_materials)
-			material->RemoveResourceReference();
-
-		m_materials.clear();
 	}
 }
 
@@ -367,7 +348,6 @@ bool NzModel::SetAnimation(NzAnimation* animation)
 	m_animation = animation;
 	if (m_animation)
 	{
-		m_animation->AddResourceReference();
 		m_currentFrame = 0;
 		m_interpolation = 0.f;
 
@@ -394,14 +374,10 @@ void NzModel::SetMaterial(unsigned int matIndex, NzMaterial* material)
 
 	unsigned int index = m_skin*m_matCount + matIndex;
 
-	m_materials[index]->RemoveResourceReference();
-
 	if (material)
 		m_materials[index] = material;
 	else
 		m_materials[index] = NzMaterial::GetDefault();
-
-	m_materials[index]->AddResourceReference();
 }
 
 void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material)
@@ -422,14 +398,10 @@ void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMater
 
 	unsigned int index = skinIndex*m_matCount + matIndex;
 
-	m_materials[index]->RemoveResourceReference();
-
 	if (material)
 		m_materials[index] = material;
 	else
 		m_materials[index] = NzMaterial::GetDefault();
-
-	m_materials[index]->AddResourceReference();
 }
 
 void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
@@ -440,7 +412,6 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 	{
 		m_boundingBoxUpdated = false;
 		m_mesh = mesh;
-		m_mesh->AddResourceReference();
 
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = *mesh->GetSkeleton(); // Copie du squelette template
@@ -462,7 +433,7 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 		}
 
 		m_matCount = mesh->GetMaterialCount();
-		m_materials.resize(m_matCount, NzMaterial::GetDefault());
+		m_materials.reserve(m_matCount);
 		if (modelParameters.loadMaterials)
 		{
 			for (unsigned int i = 0; i < m_matCount; ++i)
@@ -474,16 +445,17 @@ void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
 					if (material->LoadFromFile(mat, modelParameters.material))
 					{
 						material->SetPersistent(false, false); // Pas de vérification des références car nous n'y avons pas encore accroché de référence
-						m_materials[i] = material.release();
+						m_materials.push_back(material.release());
 					}
 					else
+					{
 						NazaraWarning("Failed to load material #" + NzString::Number(i));
+
+						m_materials.push_back(NzMaterial::GetDefault());
+					}
 				}
 			}
 		}
-
-		for (const NzMaterial* material : m_materials)
-			material->AddResourceReference();
 	}
 }
 

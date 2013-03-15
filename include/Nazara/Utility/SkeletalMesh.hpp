@@ -24,6 +24,11 @@ struct NzWeight
 	unsigned int jointIndex;
 };
 
+class NzSkeletalMesh;
+
+using NzSkeletalMeshConstRef = NzResourceRef<const NzSkeletalMesh>;
+using NzSkeletalMeshRef = NzResourceRef<NzSkeletalMesh>;
+
 struct NzSkeletalMeshImpl;
 
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh

@@ -68,7 +68,7 @@ bool NzResource::IsPersistent() const
 	return m_resourcePersistent;
 }
 
-void NzResource::RemoveResourceListener(NzResourceListener* listener) const
+bool NzResource::RemoveResourceListener(NzResourceListener* listener) const
 {
 	NazaraMutexLock(m_mutex);
 
@@ -82,7 +82,7 @@ void NzResource::RemoveResourceListener(NzResourceListener* listener) const
 	if (m_resourceReferenceCount == 0)
 	{
 		NazaraError("Impossible to remove reference (Ref. counter is already 0)");
-		return;
+		return false;
 	}
 	#endif
 
@@ -90,14 +90,18 @@ void NzResource::RemoveResourceListener(NzResourceListener* listener) const
 	{
 		NazaraMutexUnlock(m_mutex);
 		delete this;
+
+		return true; // On vient d'être supprimé
 	}
 	else
 	{
 		NazaraMutexUnlock(m_mutex);
+
+		return false;
 	}
 }
 
-void NzResource::RemoveResourceReference() const
+bool NzResource::RemoveResourceReference() const
 {
 	NazaraMutexLock(m_mutex);
 
@@ -105,7 +109,7 @@ void NzResource::RemoveResourceReference() const
 	if (m_resourceReferenceCount == 0)
 	{
 		NazaraError("Impossible to remove reference (Ref. counter is already 0)");
-		return;
+		return false;
 	}
 	#endif
 
@@ -113,10 +117,14 @@ void NzResource::RemoveResourceReference() const
 	{
 		NazaraMutexUnlock(m_mutex);
 		delete this;
+
+		return true;
 	}
 	else
 	{
 		NazaraMutexUnlock(m_mutex);
+
+		return false;
 	}
 }
 

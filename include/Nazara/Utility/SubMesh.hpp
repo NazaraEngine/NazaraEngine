@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -16,6 +17,10 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NzMesh;
+class NzSubMesh;
+
+using NzSubMeshConstRef = NzResourceRef<const NzSubMesh>;
+using NzSubMeshRef = NzResourceRef<NzSubMesh>;
 
 class NAZARA_API NzSubMesh : public NzResource
 {
