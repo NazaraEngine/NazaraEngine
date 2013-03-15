@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 struct NzVertexElement
@@ -19,6 +20,11 @@ struct NzVertexElement
 	nzElementType type;
 	nzElementUsage usage;
 };
+
+class NzVertexDeclaration;
+
+using NzVertexDeclarationConstRef = NzResourceRef<const NzVertexDeclaration>;
+using NzVertexDeclarationRef = NzResourceRef<NzVertexDeclaration>;
 
 struct NzVertexDeclarationImpl;
 

@@ -136,7 +136,7 @@ struct NzSkeletalMeshImpl
 	std::vector<NzWeight> weights;
 	NzCubef aabb;
 	nzUInt8* bindPoseBuffer;
-	const NzIndexBuffer* indexBuffer = nullptr;
+	NzIndexBufferConstRef indexBuffer;
 	unsigned int vertexCount;
 };
 
@@ -401,11 +401,5 @@ void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton
 
 void NzSkeletalMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
-	if (m_impl->indexBuffer)
-		m_impl->indexBuffer->RemoveResourceReference();
-
-	if (indexBuffer)
-		indexBuffer->AddResourceReference();
-
 	m_impl->indexBuffer = indexBuffer;
 }

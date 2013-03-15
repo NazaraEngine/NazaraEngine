@@ -9,11 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
 class NzRenderTexture;
+class NzTexture;
+
+using NzTextureConstRef = NzResourceRef<const NzTexture>;
+using NzTextureRef = NzResourceRef<NzTexture>;
+
 struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable

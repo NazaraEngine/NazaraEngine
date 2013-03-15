@@ -9,8 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+
+class NzVertexBuffer;
+
+using NzVertexBufferConstRef = NzResourceRef<NzVertexBuffer>;
+using NzVertexBufferRef = NzResourceRef<NzVertexBuffer>;
 
 class NAZARA_API NzVertexBuffer : public NzResource
 {
@@ -40,8 +46,8 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		void Unmap() const;
 
 	private:
-		NzBuffer* m_buffer;
-		const NzVertexDeclaration* m_vertexDeclaration;
+		NzBufferRef m_buffer;
+		NzVertexDeclarationConstRef m_vertexDeclaration;
 		bool m_ownsBuffer;
 		unsigned int m_startVertex;
 		unsigned int m_vertexCount;

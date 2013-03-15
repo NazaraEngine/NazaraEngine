@@ -10,7 +10,13 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Enums.hpp>
+
+class NzBuffer;
+
+using NzBufferConstRef = NzResourceRef<const NzBuffer>;
+using NzBufferRef = NzResourceRef<NzBuffer>;
 
 class NzBufferImpl;
 

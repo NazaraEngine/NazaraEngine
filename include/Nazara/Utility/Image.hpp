@@ -12,6 +12,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -39,7 +40,9 @@ struct NAZARA_API NzImageParams
 
 class NzImage;
 
+using NzImageConstRef = NzResourceRef<const NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
+using NzImageRef = NzResourceRef<NzImage>;
 
 class NAZARA_API NzImage : public NzResource
 {

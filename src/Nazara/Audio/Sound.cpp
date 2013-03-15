@@ -25,9 +25,6 @@ NzSoundEmitter(sound)
 NzSound::~NzSound()
 {
 	Stop();
-
-	if (m_buffer)
-		m_buffer->RemoveResourceReference();
 }
 
 void NzSound::EnableLooping(bool loop)
@@ -155,16 +152,10 @@ void NzSound::SetBuffer(const NzSoundBuffer* buffer)
 
 	Stop();
 
-	if (m_buffer)
-		m_buffer->RemoveResourceReference();
-
 	m_buffer = buffer;
 
 	if (m_buffer)
-	{
-		m_buffer->AddResourceReference();
 		alSourcei(m_source, AL_BUFFER, m_buffer->GetOpenALBuffer());
-	}
 	else
 		alSourcei(m_source, AL_BUFFER, AL_NONE);
 }
