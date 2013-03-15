@@ -181,9 +181,6 @@ void NzSkeletalMesh::Destroy()
 {
 	if (m_impl)
 	{
-		if (m_impl->indexBuffer)
-			m_impl->indexBuffer->RemoveResourceReference();
-
 		delete[] m_impl->bindPoseBuffer;
 		delete m_impl;
 		m_impl = nullptr;
