@@ -11,6 +11,11 @@
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
+class NzStaticMesh;
+
+using NzStaticMeshConstRef = NzResourceRef<const NzStaticMesh>;
+using NzStaticMeshRef = NzResourceRef<NzStaticMesh>;
+
 class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 {
 	public:

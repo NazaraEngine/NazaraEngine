@@ -52,7 +52,7 @@ namespace
 			}
 
 		protected:
-			NzSubMesh* m_subMesh;
+			NzSubMeshRef m_subMesh;
 	};
 
 	class SkeletalMeshVertexMapper : public SubMeshVertexMapper
@@ -63,13 +63,10 @@ namespace
 			m_mesh(subMesh)
 			{
 				m_vertices = reinterpret_cast<NzMeshVertex*>(m_mesh->GetBindPoseBuffer());
-
-				m_mesh->AddResourceReference();
 			}
 
 			virtual ~SkeletalMeshVertexMapper() noexcept
 			{
-				m_mesh->RemoveResourceReference();
 			}
 
 			NzVector3f GetNormal(unsigned int i) const

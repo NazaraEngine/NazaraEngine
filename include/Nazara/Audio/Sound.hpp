@@ -42,7 +42,7 @@ class NAZARA_API NzSound : public NzSoundEmitter
 		void Stop();
 
 	private:
-		const NzSoundBuffer* m_buffer = nullptr;
+		NzSoundBufferConstRef m_buffer;
 };
 
 #endif // NAZARA_SOUND_HPP
