@@ -261,7 +261,7 @@ void NzScene::Draw()
 					m_impl->instancingData[count++].worldMatrix = matrix;
 					if (count == m_impl->instancingData.size())
 					{
-						NzRenderer::FillInstancingBuffer(&m_impl->instancingData[0], count);
+						NzRenderer::SetInstancingData(&m_impl->instancingData[0], count);
 						instancedDraw(count, primitiveType, 0, indexCount);
 
 						count = 0;
@@ -270,7 +270,7 @@ void NzScene::Draw()
 
 				if (count > 0)
 				{
-					NzRenderer::FillInstancingBuffer(&m_impl->instancingData[0], count);
+					NzRenderer::SetInstancingData(&m_impl->instancingData[0], count);
 					instancedDraw(count, primitiveType, 0, indexCount);
 				}
 			}
