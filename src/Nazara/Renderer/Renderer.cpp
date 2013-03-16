@@ -344,40 +344,16 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 	}
 }
 
-void NzRenderer::FillInstancingBuffer(const NzRenderer::InstancingData* instancingData, unsigned int instanceCount)
+void NzRenderer::Flush()
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
 	{
-		NazaraError("Instancing not supported");
-		return;
-	}
-
-	if (!instancingData)
-	{
-		NazaraError("Instancing data must be valid");
-		return;
-	}
-
-	if (instanceCount == 0)
-	{
-		NazaraError("Instance count must be over 0");
-		return;
-	}
-
-	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
-	{
-		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		NazaraError("No active context");
 		return;
 	}
 	#endif
 
-	if (!s_instancingBuffer->Fill(instancingData, 0, instanceCount, true))
-		NazaraError("Failed to fill instancing buffer");
-}
-
-void NzRenderer::Flush()
-{
 	glFlush();
 }
 
@@ -844,6 +820,38 @@ bool NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 	}
 
 	return true;
+}
+
+void NzRenderer::SetInstancingData(const NzRenderer::InstancingData* instancingData, unsigned int instanceCount)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_Instancing])
+	{
+		NazaraError("Instancing not supported");
+		return;
+	}
+
+	if (!instancingData)
+	{
+		NazaraError("Instancing data must be valid");
+		return;
+	}
+
+	if (instanceCount == 0)
+	{
+		NazaraError("Instance count must be over 0");
+		return;
+	}
+
+	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	{
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		return;
+	}
+	#endif
+
+	if (!s_instancingBuffer->Fill(instancingData, 0, instanceCount, true))
+		NazaraError("Failed to fill instancing buffer");
 }
 
 void NzRenderer::SetLineWidth(float width)
