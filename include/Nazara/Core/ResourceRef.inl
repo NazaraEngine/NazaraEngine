@@ -94,6 +94,23 @@ T* NzResourceRef<T>::operator->() const
 }
 
 template<typename T>
+NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
+{
+	if (m_resource != resource)
+	{
+		Release();
+
+		if (resource)
+		{
+			m_resource = resource;
+			m_resource->AddResourceReference();
+		}
+	}
+
+	return *this;
+}
+
+template<typename T>
 NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 {
 	if (m_resource != ref.m_resource)
