@@ -212,7 +212,7 @@ void NzTextureSampler::SetDefaultWrapMode(nzSamplerWrap wrapMode)
 	}
 }
 
-void NzTextureSampler::Apply(const NzTexture* texture)
+void NzTextureSampler::Apply(const NzTexture* texture) const
 {
 	// On considère que la texture est déjà active lors de l'appel à cette fonction
 	GLenum target = NzOpenGL::TextureTarget[texture->GetType()];
@@ -275,78 +275,89 @@ void NzTextureSampler::Apply(const NzTexture* texture)
 	}
 }
 
-void NzTextureSampler::Bind(unsigned int unit)
+void NzTextureSampler::Bind(unsigned int unit) const
 {
 	static_assert(nzSamplerFilter_Max < 0x4, "Maximum sampler filter mode takes more than 2 bits");
 	static_assert(nzSamplerWrap_Max < 0x4, "Maximum sampler wrap mode takes more than 2 bits");
 
 	if (!m_samplerId)
-	{
-		nzUInt32 key = (m_mipmaps          << 0) | // 1 bit
-		               (m_filterMode       << 1) | // 2 bits
-		               (m_wrapMode         << 3) | // 2 bits
-		               (m_anisotropicLevel << 5);  // 8 bits
-
-		auto it = s_samplers.find(key);
-		if (it == s_samplers.end())
-		{
-			GLuint sampler;
-			glGenSamplers(1, &sampler);
-
-			if (s_useAnisotropicFilter)
-			{
-				nzUInt8 anisotropyLevel = (m_anisotropicLevel == 0) ? s_defaultAnisotropyLevel : m_anisotropicLevel;
-				glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(anisotropyLevel));
-			}
-
-			nzSamplerFilter filterMode = (m_filterMode == nzSamplerFilter_Default) ? s_defaultFilterMode : m_filterMode;
-			switch (filterMode)
-			{
-				case nzSamplerFilter_Bilinear:
-					if (m_mipmaps)
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-					else
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-					glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					break;
-
-				case nzSamplerFilter_Nearest:
-					if (m_mipmaps)
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-					else
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-					glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-					break;
-
-				case nzSamplerFilter_Trilinear:
-					if (m_mipmaps)
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-					else
-						glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtrage bilinéaire
-
-					glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					break;
-
-				default:
-					NazaraError("Texture filter not handled (0x" + NzString::Number(filterMode, 16) + ')');
-					break;
-			}
-
-			GLenum wrapMode = NzOpenGL::SamplerWrapMode[(m_wrapMode == nzSamplerWrap_Default) ? s_defaultWrapMode : m_wrapMode];
-			glSamplerParameteri(sampler, GL_TEXTURE_WRAP_R, wrapMode);
-			glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, wrapMode);
-			glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, wrapMode);
-
-			s_samplers[key] = sampler;
-			m_samplerId = sampler;
-		}
-		else
-			m_samplerId = it->second;
-	}
+		UpdateSamplerId();
 
 	glBindSampler(unit, m_samplerId);
+}
+
+unsigned int NzTextureSampler::GetOpenGLID() const
+{
+	if (!m_samplerId)
+		UpdateSamplerId();
+
+	return m_samplerId;
+}
+
+void NzTextureSampler::UpdateSamplerId() const
+{
+	nzUInt32 key = (m_mipmaps          << 0) | // 1 bit
+				   (m_filterMode       << 1) | // 2 bits
+				   (m_wrapMode         << 3) | // 2 bits
+				   (m_anisotropicLevel << 5);  // 8 bits
+
+	auto it = s_samplers.find(key);
+	if (it == s_samplers.end())
+	{
+		GLuint sampler;
+		glGenSamplers(1, &sampler);
+
+		if (s_useAnisotropicFilter)
+		{
+			nzUInt8 anisotropyLevel = (m_anisotropicLevel == 0) ? s_defaultAnisotropyLevel : m_anisotropicLevel;
+			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(anisotropyLevel));
+		}
+
+		nzSamplerFilter filterMode = (m_filterMode == nzSamplerFilter_Default) ? s_defaultFilterMode : m_filterMode;
+		switch (filterMode)
+		{
+			case nzSamplerFilter_Bilinear:
+				if (m_mipmaps)
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+				else
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+
+			case nzSamplerFilter_Nearest:
+				if (m_mipmaps)
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+				else
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				break;
+
+			case nzSamplerFilter_Trilinear:
+				if (m_mipmaps)
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				else
+					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtrage bilinéaire
+
+				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+
+			default:
+				NazaraError("Texture filter not handled (0x" + NzString::Number(filterMode, 16) + ')');
+				break;
+		}
+
+		GLenum wrapMode = NzOpenGL::SamplerWrapMode[(m_wrapMode == nzSamplerWrap_Default) ? s_defaultWrapMode : m_wrapMode];
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_R, wrapMode);
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, wrapMode);
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, wrapMode);
+
+		s_samplers[key] = sampler;
+		m_samplerId = sampler;
+	}
+	else
+		m_samplerId = it->second;
 }
 
 bool NzTextureSampler::UseMipmaps(bool mipmaps)

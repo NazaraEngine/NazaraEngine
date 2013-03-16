@@ -39,8 +39,10 @@ class NAZARA_API NzTextureSampler
 		static void SetDefaultWrapMode(nzSamplerWrap wrapMode);
 
 	private:
-		void Apply(const NzTexture* texture);
-		void Bind(unsigned int unit);
+		void Apply(const NzTexture* texture) const;
+		void Bind(unsigned int unit) const;
+		unsigned int GetOpenGLID() const;
+		void UpdateSamplerId() const;
 		bool UseMipmaps(bool mipmaps);
 
 		static bool Initialize();
