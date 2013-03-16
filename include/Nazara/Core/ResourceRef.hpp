@@ -32,6 +32,7 @@ class NzResourceRef
 		operator T*() const;
 		T* operator->() const;
 
+		NzResourceRef& operator=(T* resource);
 		NzResourceRef& operator=(const NzResourceRef& ref);
 		NzResourceRef& operator=(NzResourceRef&& ref);
 
