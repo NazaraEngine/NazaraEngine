@@ -19,6 +19,7 @@ namespace
 	{
 		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
 		//bool useMRT = (glsl140 && NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets));
+		bool uvMapping = (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping || flags & nzShaderFlags_SpecularMapping);
 
 		NzString inKW = (glsl140) ? "in" : "varying";
 		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
@@ -102,7 +103,7 @@ namespace
 				sourceCode += inKW + " vec3 vNormal;\n";
 		}
 
-		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping)
+		if (uvMapping)
 			sourceCode += inKW + " vec2 vTexCoord;\n";
 
 		if (flags & nzShaderFlags_Lighting)
@@ -286,6 +287,7 @@ namespace
 	NzString BuildVertexShaderSource(nzUInt32 flags)
 	{
 		bool glsl140 = (NzOpenGL::GetVersion() >= 310);
+		bool uvMapping = (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping || flags & nzShaderFlags_SpecularMapping);
 
 		NzString inKW = (glsl140) ? "in" : "attribute";
 		NzString outKW = (glsl140) ? "out" : "varying";
@@ -327,7 +329,7 @@ namespace
 			sourceCode += inKW + " vec3 VertexTangent;\n";
 		}
 
-		if (flags & nzShaderFlags_DiffuseMapping)
+		if (uvMapping)
 			sourceCode += inKW + " vec2 VertexTexCoord0;\n";
 
 		sourceCode += '\n';
@@ -341,7 +343,7 @@ namespace
 				sourceCode += outKW + " vec3 vNormal;\n";
 		}
 
-		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping)
+		if (uvMapping)
 			sourceCode += outKW + " vec2 vTexCoord;\n";
 
 		if (flags & nzShaderFlags_Lighting)
@@ -388,7 +390,7 @@ namespace
 				sourceCode += "vNormal = normalize(rotationMatrix * VertexNormal);\n";
 		}
 
-		if (flags & nzShaderFlags_DiffuseMapping || flags & nzShaderFlags_NormalMapping || flags & nzShaderFlags_SpecularMapping)
+		if (uvMapping)
 		{
 			if (flags & nzShaderFlags_FlipUVs)
 				sourceCode += "vTexCoord = vec2(VertexTexCoord0.x, 1.0 - VertexTexCoord0.y);\n";
