@@ -26,7 +26,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
 		~NzVertexBuffer();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int length);
+		bool Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard = false);
 
 		NzBuffer* GetBuffer() const;
 		void* GetPointer();
