@@ -70,7 +70,7 @@ m_vertexCount(vertexBuffer.m_vertexCount)
 
 NzVertexBuffer::~NzVertexBuffer() = default;
 
-bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
+bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (offset+length > m_vertexCount)
@@ -80,7 +80,7 @@ bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int le
 	}
 	#endif
 
-	return m_buffer->Fill(data, m_startVertex+offset, length);
+	return m_buffer->Fill(data, m_startVertex+offset, length, forceDiscard);
 }
 
 NzBuffer* NzVertexBuffer::GetBuffer() const

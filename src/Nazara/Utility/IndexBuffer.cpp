@@ -64,7 +64,7 @@ m_startIndex(indexBuffer.m_startIndex)
 
 NzIndexBuffer::~NzIndexBuffer() = default;
 
-bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length)
+bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_buffer)
@@ -80,7 +80,7 @@ bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int len
 	}
 	#endif
 
-	return m_buffer->Fill(data, m_startIndex+offset, length);
+	return m_buffer->Fill(data, m_startIndex+offset, length, forceDiscard);
 }
 
 NzBuffer* NzIndexBuffer::GetBuffer() const
