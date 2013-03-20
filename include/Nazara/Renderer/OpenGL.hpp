@@ -146,6 +146,7 @@ NAZARA_API extern PFNGLDRAWBUFFERPROC               glDrawBuffer;
 NAZARA_API extern PFNGLDRAWBUFFERSPROC              glDrawBuffers;
 NAZARA_API extern PFNGLDRAWELEMENTSPROC             glDrawElements;
 NAZARA_API extern PFNGLDRAWELEMENTSINSTANCEDPROC    glDrawElementsInstanced;
+NAZARA_API extern PFNGLDRAWTEXTURENVPROC            glDrawTexture;
 NAZARA_API extern PFNGLENABLEPROC                   glEnable;
 NAZARA_API extern PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray;
 NAZARA_API extern PFNGLENDQUERYPROC                 glEndQuery;

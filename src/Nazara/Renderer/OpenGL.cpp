@@ -340,6 +340,7 @@ bool NzOpenGL::Initialize()
 	if (!glBindFragDataLocation)
 		glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONEXTPROC>(LoadEntry("glBindFragDataLocationEXT", false));
 
+	glDrawTexture = reinterpret_cast<PFNGLDRAWTEXTURENVPROC>(LoadEntry("glDrawTextureNV", false));
 	glFramebufferTexture = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREPROC>(LoadEntry("glFramebufferTexture", false));
 	glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi", false));
 	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
@@ -1046,6 +1047,7 @@ PFNGLDRAWBUFFERPROC               glDrawBuffer               = nullptr;
 PFNGLDRAWBUFFERSPROC              glDrawBuffers              = nullptr;
 PFNGLDRAWELEMENTSPROC             glDrawElements             = nullptr;
 PFNGLDRAWELEMENTSINSTANCEDPROC    glDrawElementsInstanced    = nullptr;
+PFNGLDRAWTEXTURENVPROC            glDrawTexture              = nullptr;
 PFNGLENABLEPROC                   glEnable                   = nullptr;
 PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray  = nullptr;
 PFNGLENDQUERYPROC                 glEndQuery                 = nullptr;
