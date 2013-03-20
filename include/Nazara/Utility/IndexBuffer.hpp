@@ -25,7 +25,7 @@ class NAZARA_API NzIndexBuffer : public NzResource
 		NzIndexBuffer(const NzIndexBuffer& indexBuffer);
 		~NzIndexBuffer();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int length);
+		bool Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard = false);
 
 		NzBuffer* GetBuffer() const;
 		unsigned int GetIndexCount() const;
