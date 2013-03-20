@@ -45,7 +45,8 @@ struct NzSceneImpl
 	{
 	}
 
-	std::set<NzUpdatable*> updateList;
+	std::vector<NzUpdatable*> updateList;
+	std::vector<NzUpdatable*> visibleUpdateList;
 	std::vector<NzRenderer::InstancingData> instancingData;
 	NzClock updateClock;
 	NzColor ambientColor = NzColor(25,25,25);
@@ -53,7 +54,7 @@ struct NzSceneImpl
 	NzSceneRoot root;
 	const NzCamera* activeCamera;
 	NzVertexBuffer* skinningBuffer;
-	bool update = true;
+	bool update;
 	float frameTime;
 	float updateTime;
 	unsigned int updatePerSecond = 60;
@@ -80,9 +81,15 @@ NzScene::~NzScene()
 	delete m_impl;
 }
 
+void NzScene::AddToVisibilityList(NzUpdatable* object)
+{
+	m_impl->visibleUpdateList.push_back(object);
+}
+
 void NzScene::Cull()
 {
 	m_impl->renderQueue.Clear();
+	m_impl->visibleUpdateList.clear();
 
 	// Frustum culling
 	RecursiveFrustumCull(m_impl->renderQueue, m_impl->activeCamera->GetFrustum(), &m_impl->root);
@@ -333,7 +340,7 @@ void NzScene::RegisterForUpdate(NzUpdatable* object)
 	}
 	#endif
 
-	m_impl->updateList.insert(object);
+	m_impl->updateList.push_back(object);
 }
 
 void NzScene::SetAmbientColor(const NzColor& color)
@@ -356,34 +363,32 @@ void NzScene::UnregisterForUpdate(NzUpdatable* object)
 	}
 	#endif
 
-	m_impl->updateList.erase(object);
+	auto it = std::find(m_impl->updateList.begin(), m_impl->updateList.end(), object);
+	if (it != m_impl->updateList.end())
+		m_impl->updateList.erase(it);
 }
 
 void NzScene::Update()
 {
-	if (m_impl->updatePerSecond == 0 || m_impl->updateClock.GetMilliseconds() > 1000/m_impl->updatePerSecond)
+	m_impl->update = (m_impl->updatePerSecond == 0 || m_impl->updateClock.GetMilliseconds() > 1000/m_impl->updatePerSecond);
+	if (m_impl->update)
 	{
 		m_impl->updateTime = m_impl->updateClock.GetSeconds();
 		m_impl->updateClock.Restart();
 
 		for (NzUpdatable* updatable : m_impl->updateList)
-		{
 			///TODO: Multihreading
 			updatable->Update();
-		}
 	}
 }
 
 void NzScene::UpdateVisible()
-{/*
+{
 	if (m_impl->update)
 	{
-		for (NzSceneNode* node : m_impl->visibleNodes)
-		{
-			if (node->ShouldUpdateWhenVisible())
-				node->Update();
-		}
-	}*/
+		for (NzUpdatable* node : m_impl->visibleUpdateList)
+			node->Update();
+	}
 }
 
 NzScene::operator const NzSceneNode&() const
