@@ -448,7 +448,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 		if (textureUnit)
 			*textureUnit = slot.unit;
 	}
-	else
+	else if (texture)
 	{
 		unsigned int maxUnits = NzRenderer::GetMaxTextureUnits();
 		unsigned int unitUsed = m_textures.size();
