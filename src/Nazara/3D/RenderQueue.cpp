@@ -89,6 +89,7 @@ bool NzRenderQueue::StaticMeshComparator::operator()(const NzStaticMesh* subMesh
 void NzRenderQueue::Clear()
 {
 	directionnalLights.clear();
+	otherDrawables.clear();
 	visibleLights.clear();
 	visibleSkeletalModels.clear();
 	visibleStaticModels.clear();
