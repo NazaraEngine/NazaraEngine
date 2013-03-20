@@ -28,6 +28,8 @@ class NAZARA_API NzScene
 		NzScene();
 		~NzScene();
 
+		void AddToVisibilityList(NzUpdatable* object);
+
 		void Cull();
 		void Draw();
 
@@ -35,12 +37,12 @@ class NAZARA_API NzScene
 		float GetUpdateTime() const;
 		unsigned int GetUpdatePerSecond() const;
 
-		void RegisterForUpdate(NzUpdatable* node);
+		void RegisterForUpdate(NzUpdatable* object);
 
 		void SetAmbientColor(const NzColor& color);
 		void SetUpdatePerSecond(unsigned int updatePerSecond);
 
-		void UnregisterForUpdate(NzUpdatable* node);
+		void UnregisterForUpdate(NzUpdatable* object);
 
 		void Update();
 		void UpdateVisible();
