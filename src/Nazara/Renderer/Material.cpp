@@ -207,12 +207,12 @@ nzFaceFilling NzMaterial::GetFaceFilling() const
 
 NzTexture* NzMaterial::GetHeightMap() const
 {
-	return m_diffuseMap;
+	return m_heightMap;
 }
 
 NzTexture* NzMaterial::GetNormalMap() const
 {
-	return m_diffuseMap;
+	return m_normalMap;
 }
 
 const NzShader* NzMaterial::GetCustomShader() const
