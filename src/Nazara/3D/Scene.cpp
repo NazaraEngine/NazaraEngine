@@ -94,6 +94,8 @@ void NzScene::Cull()
 
 void NzScene::Draw()
 {
+	NzRenderer::Clear(nzRendererClear_Depth);
+
 	LightComparator lightComparator;
 
 	// Pour les meshs squelettiques, on utilise un buffer commun
