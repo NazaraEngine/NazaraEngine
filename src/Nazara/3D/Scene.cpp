@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/3D/Scene.hpp>
+#include <Nazara/2D/ColorBackground.hpp>
 #include <Nazara/2D/Drawable.hpp>
 #include <Nazara/3D/Camera.hpp>
 #include <Nazara/3D/Light.hpp>
@@ -19,6 +20,7 @@
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <functional>
+#include <memory>
 #include <set>
 #include <vector>
 #include <Nazara/3D/Debug.hpp>
@@ -45,6 +47,7 @@ struct NzSceneImpl
 	{
 	}
 
+	std::unique_ptr<NzBackground> background;
 	std::vector<NzUpdatable*> updateList;
 	std::vector<NzUpdatable*> visibleUpdateList;
 	std::vector<NzRenderer::InstancingData> instancingData;
@@ -67,6 +70,8 @@ NzScene::NzScene()
 
 	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
 		m_impl->instancingData.resize(NAZARA_RENDERER_INSTANCING_MAX);
+
+	SetBackground(nullptr);
 }
 
 NzScene::~NzScene()
@@ -102,6 +107,9 @@ void NzScene::Cull()
 void NzScene::Draw()
 {
 	NzRenderer::Clear(nzRendererClear_Depth);
+
+	if (m_impl->background)
+		m_impl->background->Draw();
 
 	LightComparator lightComparator;
 
@@ -315,6 +323,11 @@ void NzScene::Draw()
 		drawable->Draw();
 }
 
+NzBackground* NzScene::GetBackground() const
+{
+	return m_impl->background.get();
+}
+
 NzSceneNode& NzScene::GetRoot() const
 {
 	return m_impl->root;
@@ -346,6 +359,14 @@ void NzScene::RegisterForUpdate(NzUpdatable* object)
 void NzScene::SetAmbientColor(const NzColor& color)
 {
 	m_impl->ambientColor = color;
+}
+
+void NzScene::SetBackground(NzBackground* background)
+{
+	if (!background)
+		background = new NzColorBackground;
+
+	m_impl->background.reset(background);
 }
 
 void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
