@@ -196,7 +196,7 @@ int main()
 
 			// Si la flèche du bas ou la touche S est pressée, on recule
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::Down) || NzKeyboard::IsKeyPressed(NzKeyboard::S))
-				camera.Move(NzVector3f::Forward() * -cameraSpeed * elapsedTime);
+				camera.Move(NzVector3f::Backward() * cameraSpeed * elapsedTime);
 
 			// Etc...
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::Left) || NzKeyboard::IsKeyPressed(NzKeyboard::Q))
@@ -204,7 +204,7 @@ int main()
 
 			// Etc...
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::Right) || NzKeyboard::IsKeyPressed(NzKeyboard::D))
-				camera.Move(NzVector3f::Left() * -cameraSpeed * elapsedTime);
+				camera.Move(NzVector3f::Right() * cameraSpeed * elapsedTime);
 
 			// Majuscule pour monter, mais dans l'espace global (Sans tenir compte de la rotation)
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::LShift) || NzKeyboard::IsKeyPressed(NzKeyboard::RShift))
@@ -212,7 +212,7 @@ int main()
 
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl) || NzKeyboard::IsKeyPressed(NzKeyboard::RControl))
-				camera.Move(NzVector3f::Up() * -cameraSpeed * elapsedTime, nzCoordSys_Global);
+				camera.Move(NzVector3f::Down() * cameraSpeed * elapsedTime, nzCoordSys_Global);
 
 			// On relance l'horloge
 			updateClock.Restart();
