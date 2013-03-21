@@ -141,9 +141,9 @@ enum nzImageType
 
 enum nzNodeType
 {
-	nzNodeType_Default,
-	nzNodeType_Scene,
-	nzNodeType_Skeletal,
+	nzNodeType_Default,  // NzNode
+	nzNodeType_Scene,    // NzSceneNode (3D)
+	nzNodeType_Skeletal, ///TODO
 
 	nzNodeType_Max = nzNodeType_Skeletal
 };
