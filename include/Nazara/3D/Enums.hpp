@@ -18,10 +18,10 @@ enum nzLightType
 
 enum nzSceneNodeType
 {
-	nzSceneNodeType_Camera,
-	nzSceneNodeType_Light,
-	nzSceneNodeType_Model,
-	nzSceneNodeType_Root,
+	nzSceneNodeType_Camera, // NzCamera
+	nzSceneNodeType_Light,  // NzLight
+	nzSceneNodeType_Model,  // NzModel
+	nzSceneNodeType_Root,   // NzSceneRoot
 	nzSceneNodeType_User,
 
 	nzSceneNodeType_Max = nzSceneNodeType_User
