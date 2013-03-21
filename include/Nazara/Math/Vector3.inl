@@ -112,6 +112,18 @@ T NzVector3<T>::GetSquaredLength() const
 }
 
 template<typename T>
+NzVector3<T>& NzVector3<T>::MakeBackward()
+{
+	return Set(F(0.0), F(0.0), F(1.0));
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::MakeDown()
+{
+	return Set(F(0.0), F(-1.0), F(0.0));
+}
+
+template<typename T>
 NzVector3<T>& NzVector3<T>::MakeForward()
 {
 	return Set(F(0.0), F(0.0), F(-1.0));
@@ -121,6 +133,18 @@ template<typename T>
 NzVector3<T>& NzVector3<T>::MakeLeft()
 {
 	return Set(F(-1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::MakeRight()
+{
+	return Set(F(1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::MakeUnit()
+{
+	return Set(F(1.0), F(1.0), F(1.0));
 }
 
 template<typename T>
@@ -527,6 +551,24 @@ T NzVector3<T>::DotProduct(const NzVector3& vec1, const NzVector3& vec2)
 }
 
 template<typename T>
+NzVector3<T> NzVector3<T>::Backward()
+{
+	NzVector3 vector;
+	vector.MakeBackward();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Down()
+{
+	NzVector3 vector;
+	vector.MakeDown();
+
+	return vector;
+}
+
+template<typename T>
 NzVector3<T> NzVector3<T>::Forward()
 {
 	NzVector3 vector;
@@ -554,6 +596,24 @@ template<typename T>
 NzVector3<T> NzVector3<T>::Normalize(const NzVector3& vec)
 {
 	return vec.GetNormal();
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Right()
+{
+	NzVector3 vector;
+	vector.MakeRight();
+
+	return vector;
+}
+
+template<typename T>
+NzVector3<T> NzVector3<T>::Unit()
+{
+	NzVector3 vector;
+	vector.MakeUnit();
+
+	return vector;
 }
 
 template<typename T>
