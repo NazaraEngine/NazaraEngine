@@ -37,6 +37,7 @@ class NzMatrix4
 		NzMatrix4& ConcatenateAffine(const NzMatrix4& matrix);
 
 		T GetDeterminant() const;
+		T GetDeterminantAffine() const;
 		bool GetInverse(NzMatrix4* dest) const;
 		bool GetInverseAffine(NzMatrix4* dest) const;
 		NzQuaternion<T> GetRotation() const;
