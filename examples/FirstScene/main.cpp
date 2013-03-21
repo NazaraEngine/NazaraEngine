@@ -223,10 +223,6 @@ int main()
 		// On active la caméra (Qui s'occupera de préparer la fenêtre au rendu)
 		camera.Activate();
 
-		// On vide le buffer de couleur et de profondeur pour réinitialiser le rendu
-		// À l'avenir, ceci sera fait automatiquement par la scène via les backgrounds
-		NzRenderer::Clear(nzRendererClear_Color | nzRendererClear_Depth);
-
 		// On procède maintenant au rendu de la scène en elle-même, celui-ci se décompose en quatre étapes distinctes
 
 		// Pour commencer, on mets à jour la scène, ceci appelle la méthode Update de tous les SceneNode enregistrés
