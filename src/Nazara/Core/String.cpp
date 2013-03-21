@@ -2633,7 +2633,7 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 		return false;
 
 	NzString check = Simplified();
-	if (check.m_sharedString->size)
+	if (check.m_sharedString->size == 0)
 		return false;
 
 	char* ptr = (check.m_sharedString->string[0] == '-') ? &check.m_sharedString->string[1] : check.m_sharedString->string;
@@ -2642,20 +2642,24 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 	{
 		if (flags & CaseInsensitive)
 		{
+			char limitLower = 'a'+base-1;
+			char limitUpper = 'A'+base-1;
+
 			do
 			{
 				char c = *ptr;
-				if (c != ' ' && (c < '0' || (c > '9' && c < 'A') || (c > 'A'+base-1 && c < 'a') || c > 'a'+base-1))
+				if (c != ' ' && (c < '0' || (c > '9' && c < 'A') || (c > limitUpper && c < 'a') || c > limitLower))
 					return false;
 			}
 			while (*++ptr);
 		}
 		else
 		{
+			char limit = 'a'+base-1;
 			do
 			{
 				char c = *ptr;
-				if (c != ' ' && (c < '0' || (c > '9' && c < 'a') || c > 'a'+base-1))
+				if (c != ' ' && (c < '0' || (c > '9' && c < 'a') || c > limit))
 					return false;
 			}
 			while (*++ptr);
@@ -2663,10 +2667,12 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 	}
 	else
 	{
+		char limit = '0'+base-1;
+
 		do
 		{
 			char c = *ptr;
-			if (c != ' ' && (c < '0' || c > '0'+base-1))
+			if (c != ' ' && (c < '0' || c > limit))
 				return false;
 		}
 		while (*++ptr);
