@@ -8,6 +8,7 @@
 #define NAZARA_SCENE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/2D/Background.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -33,6 +34,7 @@ class NAZARA_API NzScene
 		void Cull();
 		void Draw();
 
+		NzBackground* GetBackground() const;
 		NzSceneNode& GetRoot() const;
 		float GetUpdateTime() const;
 		unsigned int GetUpdatePerSecond() const;
@@ -40,6 +42,7 @@ class NAZARA_API NzScene
 		void RegisterForUpdate(NzUpdatable* object);
 
 		void SetAmbientColor(const NzColor& color);
+		void SetBackground(NzBackground* background);
 		void SetUpdatePerSecond(unsigned int updatePerSecond);
 
 		void UnregisterForUpdate(NzUpdatable* object);
