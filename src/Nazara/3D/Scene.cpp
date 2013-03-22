@@ -66,12 +66,11 @@ struct NzSceneImpl
 NzScene::NzScene()
 {
 	m_impl = new NzSceneImpl(this);
+	m_impl->background.reset(new NzColorBackground);
 	m_impl->skinningBuffer = new NzVertexBuffer(NzMesh::GetDeclaration(), 20000, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 
 	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
 		m_impl->instancingData.resize(NAZARA_RENDERER_INSTANCING_MAX);
-
-	SetBackground(nullptr);
 }
 
 NzScene::~NzScene()
@@ -363,9 +362,6 @@ void NzScene::SetAmbientColor(const NzColor& color)
 
 void NzScene::SetBackground(NzBackground* background)
 {
-	if (!background)
-		background = new NzColorBackground;
-
 	m_impl->background.reset(background);
 }
 
