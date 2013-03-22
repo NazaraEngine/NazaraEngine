@@ -104,6 +104,35 @@ inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, 
 					for (unsigned int z = 0; z < depth; ++z)
 					{
 						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
+						for (unsigned int y = 0; y < height/2; ++y)
+							std::swap_ranges(&ptr[y*lineStride], &ptr[(y+1)*lineStride-1], &ptr[(height-y-1)*lineStride]);
+					}
+				}
+				else
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						const nzUInt8* srcPtr = reinterpret_cast<const nzUInt8*>(src);
+						nzUInt8* dstPtr = reinterpret_cast<nzUInt8*>(dst) + (width-1)*height*depth*bpp;
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							std::memcpy(dstPtr, srcPtr, lineStride);
+
+							srcPtr += lineStride;
+							dstPtr -= lineStride;
+						}
+					}
+				}
+				break;
+			}
+
+			case nzPixelFlipping_Vertically:
+			{
+				if (src == dst)
+				{
+					for (unsigned int z = 0; z < depth; ++z)
+					{
+						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
 						for (unsigned int y = 0; y < height; ++y)
 						{
 							for (unsigned int x = 0; x < width/2; ++x)
@@ -124,35 +153,6 @@ inline bool NzPixelFormat::Flip(nzPixelFlipping flipping, nzPixelFormat format, 
 								std::memcpy(&ptr[x*bpp], &ptr[(width-x)*bpp], bpp);
 
 							ptr += lineStride;
-						}
-					}
-				}
-				break;
-			}
-
-			case nzPixelFlipping_Vertically:
-			{
-				if (src == dst)
-				{
-					for (unsigned int z = 0; z < depth; ++z)
-					{
-						nzUInt8* ptr = reinterpret_cast<nzUInt8*>(dst) + width*height*z;
-						for (unsigned int y = 0; y < height/2; ++y)
-							std::swap_ranges(&ptr[y*lineStride], &ptr[(y+1)*lineStride-1], &ptr[(height-y-1)*lineStride]);
-					}
-				}
-				else
-				{
-					for (unsigned int z = 0; z < depth; ++z)
-					{
-						const nzUInt8* srcPtr = reinterpret_cast<const nzUInt8*>(src);
-						nzUInt8* dstPtr = reinterpret_cast<nzUInt8*>(dst) + (width-1)*height*depth*bpp;
-						for (unsigned int y = 0; y < height; ++y)
-						{
-							std::memcpy(dstPtr, srcPtr, lineStride);
-
-							srcPtr += lineStride;
-							dstPtr -= lineStride;
 						}
 					}
 				}
