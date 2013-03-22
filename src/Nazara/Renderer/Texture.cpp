@@ -896,11 +896,11 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_impl->format);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	NzImage mirrored;
-	mirrored.Create(m_impl->type, m_impl->format, rect.width, rect.height);
-	mirrored.Update(pixels);
+	NzImage flipped;
+	flipped.Create(m_impl->type, m_impl->format, rect.width, rect.height);
+	flipped.Update(pixels);
 
-	if (!mirrored.FlipVertically())
+	if (!flipped.FlipHorizontally())
 		NazaraWarning("Failed to flip image");
 
 	SetUnpackAlignement(bpp);
@@ -909,17 +909,17 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, rect.x, rect.width, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage1D(GL_TEXTURE_1D, level, rect.x, rect.width, format.dataFormat, format.dataType, flipped.GetConstPixels());
 			break;
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D:
-			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, flipped.GetConstPixels());
 			break;
 
 		case nzImageType_2D_Array:
 		case nzImageType_3D:
-			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, rect.x, height-rect.height-rect.y, z, rect.width, rect.height, 1, format.dataFormat, format.dataType, mirrored.GetConstPixels());
+			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, rect.x, height-rect.height-rect.y, z, rect.width, rect.height, 1, format.dataFormat, format.dataType, flipped.GetConstPixels());
 			break;
 
 		case nzImageType_Cubemap:
@@ -994,11 +994,11 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 
 	// Inversion de la texture pour le repère d'OpenGL
 	unsigned int size = cube.width*cube.height*cube.depth*bpp;
-	nzUInt8* mirrored = new nzUInt8[size];
-	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, cube.width, cube.height, cube.depth, pixels, mirrored))
+	nzUInt8* flipped = new nzUInt8[size];
+	if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_impl->format, cube.width, cube.height, cube.depth, pixels, flipped))
 	{
 		NazaraWarning("Failed to flip image");
-		std::memcpy(mirrored, pixels, size);
+		std::memcpy(flipped, pixels, size);
 	}
 
 	SetUnpackAlignement(bpp);
@@ -1007,17 +1007,17 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, flipped);
 			break;
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D:
-			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, flipped);
 			break;
 
 		case nzImageType_2D_Array:
 		case nzImageType_3D:
-			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, mirrored);
+			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, flipped);
 			break;
 
 		case nzImageType_Cubemap:
@@ -1026,7 +1026,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 leve
 	}
 	UnlockTexture(m_impl);
 
-	delete[] mirrored;
+	delete[] flipped;
 
 	return true;
 }
@@ -1149,17 +1149,17 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 
 	// Inversion de la texture pour le repère d'OpenGL
 	unsigned int size = rect.width*rect.height*bpp;
-	nzUInt8* mirrored = new nzUInt8[size];
-	if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_impl->format, rect.width, rect.height, 1, pixels, mirrored))
+	nzUInt8* flipped = new nzUInt8[size];
+	if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_impl->format, rect.width, rect.height, 1, pixels, flipped))
 	{
 		NazaraWarning("Failed to flip image");
-		std::memcpy(mirrored, pixels, size);
+		std::memcpy(flipped, pixels, size);
 	}
 
 	SetUnpackAlignement(bpp);
 
 	LockTexture(m_impl);
-	glTexSubImage2D(NzOpenGL::CubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, mirrored);
+	glTexSubImage2D(NzOpenGL::CubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, flipped);
 	UnlockTexture(m_impl);
 
 	return true;
