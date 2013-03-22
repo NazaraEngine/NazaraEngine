@@ -245,7 +245,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 		m_impl->attachements.resize(minSize);
 
 	Attachment& attachment = m_impl->attachements[minSize-1];
-	attachment.isBuffer = true;
+	attachment.isBuffer = false;
 	attachment.isUsed = true;
 	attachment.texture = texture;
 
@@ -334,7 +334,7 @@ void NzRenderTexture::Destroy()
 
 		m_impl->context->RemoveResourceListener(this);
 
-		for (Attachment& attachment : m_impl->attachements)
+		for (const Attachment& attachment : m_impl->attachements)
 		{
 			if (attachment.isUsed)
 			{
@@ -342,8 +342,8 @@ void NzRenderTexture::Destroy()
 					glDeleteRenderbuffers(1, &attachment.buffer);
 				else
 				{
-					attachment.texture->RemoveResourceListener(this);
 					attachment.texture->SetRenderTexture(nullptr);
+					attachment.texture->RemoveResourceListener(this);
 				}
 			}
 		}
@@ -644,6 +644,7 @@ void NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
 	else
 	{
 		// Sinon, c'est une texture
+		resource->RemoveResourceListener(this);
 
 		// La ressource n'est plus, du coup nous mettons à jour
 		Attachment& attachement = m_impl->attachements[index];
@@ -652,6 +653,4 @@ void NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
 		m_impl->checked = false;
 		m_impl->drawBuffersUpdated = false;
 	}
-
-	resource->RemoveResourceListener(this);
 }
