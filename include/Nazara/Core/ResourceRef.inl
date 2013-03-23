@@ -98,7 +98,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
 {
 	if (m_resource != resource)
 	{
-		Release();
+		Reset();
 
 		if (resource)
 		{
@@ -115,7 +115,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 {
 	if (m_resource != ref.m_resource)
 	{
-		Release();
+		Reset();
 
 		if (ref)
 		{
@@ -130,7 +130,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 template<typename T>
 NzResourceRef<T>& NzResourceRef<T>::operator=(NzResourceRef&& ref)
 {
-	Release();
+	Reset();
 
 	std::swap(m_resource, ref.m_resource);
 
