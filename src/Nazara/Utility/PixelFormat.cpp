@@ -16,7 +16,7 @@ namespace
 
 	inline nzUInt8 c4to8(nzUInt8 c)
 	{
-		return c * (255/15);
+		return c >> 4;
 	}
 
 	inline nzUInt8 c5to4(nzUInt8 c)
@@ -31,7 +31,7 @@ namespace
 
 	inline nzUInt8 c8to4(nzUInt8 c)
 	{
-		return c * (15.f/255.f);
+		return c << 4;
 	}
 
 	inline nzUInt8 c8to5(nzUInt8 c)
