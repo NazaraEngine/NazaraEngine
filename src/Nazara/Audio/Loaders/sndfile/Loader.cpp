@@ -4,6 +4,7 @@
 
 #include <Nazara/Audio/Loaders/sndfile.hpp>
 #include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
@@ -12,13 +13,13 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/String.hpp>
+#include <memory>
 #include <sndfile/sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace
 {
-	const char* supportedFormats = "aiff,au,avr,caf,flac,htk,ircam,mat4,mat5,mpc2k,nist,ogg,paf,pvf,raw,rf64,sd2,sds,svx,voc,w64,wav,wve";
-
 	sf_count_t GetSize(void* user_data)
 	{
         NzInputStream* stream = static_cast<NzInputStream*>(user_data);
@@ -66,12 +67,19 @@ namespace
 	class sndfileStream : public NzSoundStream
 	{
 		public:
-			sndfileStream() = default;
+			sndfileStream() :
+			m_file(nullptr),
+			m_handle(nullptr)
+			{
+			}
 
 			~sndfileStream()
 			{
+				if (m_handle)
+					sf_close(m_handle);
+
 				if (m_file)
-					sf_close(m_file);
+					delete m_file;
 			}
 
 			nzUInt32 GetDuration() const
@@ -94,13 +102,25 @@ namespace
 				return m_sampleRate;
 			}
 
+			bool Open(const NzString& filePath)
+			{
+				m_file = new NzFile(filePath);
+				if (!m_file->Open(NzFile::ReadOnly))
+				{
+					NazaraError("Failed to open file " + filePath);
+					return false;
+				}
+
+				return Open(*m_file);
+			}
+
 			bool Open(NzInputStream& stream)
 			{
 				SF_INFO infos;
-				m_file = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
-				if (!m_file)
+				m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
+				if (!m_handle)
 				{
-					NazaraError("Failed to open sound: " + NzString(sf_strerror(m_file)));
+					NazaraError("Failed to open sound: " + NzString(sf_strerror(m_handle)));
 					return false;
 				}
 
@@ -108,8 +128,8 @@ namespace
 				if (m_format == nzAudioFormat_Unknown)
 				{
 					NazaraError("Channel count not handled");
-					sf_close(m_file);
-					m_file = nullptr;
+					sf_close(m_handle);
+					m_handle = nullptr;
 
 					return false;
 				}
@@ -123,30 +143,40 @@ namespace
 				// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
 				///FIXME: Seulement le Vorbis ?
 				/*if (infos.format & SF_FORMAT_VORBIS)
-					sf_command(m_file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);*/
+					sf_command(m_handle, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);*/
 
 				return true;
 			}
 
 			unsigned int Read(void* buffer, unsigned int sampleCount)
 			{
-				return sf_read_short(m_file, reinterpret_cast<nzInt16*>(buffer), sampleCount);
+				return sf_read_short(m_handle, reinterpret_cast<nzInt16*>(buffer), sampleCount);
 			}
 
 			void Seek(nzUInt32 offset)
 			{
-				sf_seek(m_file, offset*m_sampleRate / 1000, SEEK_SET);
+				sf_seek(m_handle, offset*m_sampleRate / 1000, SEEK_SET);
 			}
 
 		private:
 			nzAudioFormat m_format;
-			SNDFILE* m_file = nullptr;
+			NzFile* m_file;
+			SNDFILE* m_handle;
 			unsigned int m_duration;
 			unsigned int m_sampleCount;
 			unsigned int m_sampleRate;
 	};
 
-	bool NzLoader_sndfile_Check_Music(NzInputStream& stream, const NzMusicParams& parameters)
+	bool IsSupported(const NzString& extension)
+	{
+		static std::set<NzString> supportedExtensions = {
+			"aiff", "au", "avr", "caf", "flac", "htk", "ircam", "mat4", "mat5", "mpc2k",
+			"nist","ogg", "pvf", "raw", "rf64", "sd2", "sds", "svx", "voc", "w64", "wav", "wve"};
+
+		return supportedExtensions.find(extension) != supportedExtensions.end();
+	}
+
+	bool CheckMusic(NzInputStream& stream, const NzMusicParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -161,31 +191,51 @@ namespace
 			return false;
 	}
 
-	bool NzLoader_sndfile_Load_Music(NzMusic* music, NzInputStream& stream, const NzMusicParams& parameters)
+	bool LoadMusicFile(NzMusic* music, const NzString& filePath, const NzMusicParams& parameters)
 	{
 		NazaraUnused(parameters);
 
-		sndfileStream* musicStream = new sndfileStream;
-		if (!musicStream->Open(stream))
+		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
+		if (!musicStream->Open(filePath))
 		{
-			// L'erreur a déjà été signalée par la méthode
-			delete musicStream;
-
+			NazaraError("Failed to open music stream");
 			return false;
 		}
 
-		if (!music->Create(musicStream))
+		if (!music->Create(musicStream.get()))
 		{
 			NazaraError("Failed to create music");
-			delete musicStream;
-
 			return false;
 		}
+
+		musicStream.release();
 
 		return true;
 	}
 
-	bool NzLoader_sndfile_Check_SoundBuffer(NzInputStream& stream, const NzSoundBufferParams& parameters)
+	bool LoadMusicStream(NzMusic* music, NzInputStream& stream, const NzMusicParams& parameters)
+	{
+		NazaraUnused(parameters);
+
+		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
+		if (!musicStream->Open(stream))
+		{
+			NazaraError("Failed to open music stream");
+			return false;
+		}
+
+		if (!music->Create(musicStream.get()))
+		{
+			NazaraError("Failed to create music");
+			return false;
+		}
+
+		musicStream.release();
+
+		return true;
+	}
+
+	bool CheckSoundBuffer(NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -200,7 +250,7 @@ namespace
 			return false;
 	}
 
-	bool NzLoader_sndfile_Load_SoundBuffer(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
+	bool LoadSoundBuffer(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -209,22 +259,19 @@ namespace
 			return false; // L'erreur a déjà été envoyée par la méthode
 
 		unsigned int sampleCount = musicStream.GetSampleCount();
-		nzInt16* samples = new nzInt16[sampleCount];
-		if (musicStream.Read(samples, sampleCount) != sampleCount)
+		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
+
+		if (musicStream.Read(samples.get(), sampleCount) != sampleCount)
 		{
 			NazaraError("Failed to read samples");
 			return false;
 		}
 
-		if (!soundBuffer->Create(musicStream.GetFormat(), sampleCount, musicStream.GetSampleRate(), samples))
+		if (!soundBuffer->Create(musicStream.GetFormat(), sampleCount, musicStream.GetSampleRate(), samples.get()))
 		{
 			NazaraError("Failed to create sound buffer");
-			delete[] samples;
-
 			return false;
 		}
-
-		delete[] samples;
 
 		return true;
 	}
@@ -232,12 +279,12 @@ namespace
 
 void NzLoaders_sndfile_Register()
 {
-	NzMusicLoader::RegisterLoader(supportedFormats, NzLoader_sndfile_Check_Music, NzLoader_sndfile_Load_Music);
-	NzSoundBufferLoader::RegisterLoader(supportedFormats, NzLoader_sndfile_Check_SoundBuffer, NzLoader_sndfile_Load_SoundBuffer);
+	NzMusicLoader::RegisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile);
+	NzSoundBufferLoader::RegisterLoader(IsSupported, CheckSoundBuffer, LoadSoundBuffer);
 }
 
 void NzLoaders_sndfile_Unregister()
 {
-	NzMusicLoader::UnregisterLoader(supportedFormats, NzLoader_sndfile_Check_Music, NzLoader_sndfile_Load_Music);
-	NzSoundBufferLoader::UnregisterLoader(supportedFormats, NzLoader_sndfile_Check_SoundBuffer, NzLoader_sndfile_Load_SoundBuffer);
+	NzMusicLoader::UnregisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile);
+	NzSoundBufferLoader::UnregisterLoader(IsSupported, CheckSoundBuffer, LoadSoundBuffer);
 }

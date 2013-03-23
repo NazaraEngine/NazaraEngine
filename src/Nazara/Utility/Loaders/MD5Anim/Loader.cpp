@@ -8,6 +8,11 @@
 
 namespace
 {
+	bool IsSupported(const NzString& extension)
+	{
+		return (extension == "md5anim");
+	}
+
 	bool Check(NzInputStream& stream, const NzAnimationParams& parameters)
 	{
 		NzMD5AnimParser parser(stream, parameters);
@@ -23,10 +28,10 @@ namespace
 
 void NzLoaders_MD5Anim_Register()
 {
-	NzAnimationLoader::RegisterLoader("md5anim", Check, Load);
+	NzAnimationLoader::RegisterLoader(IsSupported, Check, Load);
 }
 
 void NzLoaders_MD5Anim_Unregister()
 {
-	NzAnimationLoader::UnregisterLoader("md5anim", Check, Load);
+	NzAnimationLoader::UnregisterLoader(IsSupported, Check, Load);
 }
