@@ -39,6 +39,11 @@ namespace
 
 	//static_assert(sizeof(pcx_header) == 1024, "PCX header must be 1024 bytes sized");
 
+	bool IsSupported(const NzString& extension)
+	{
+		return (extension == "pcx");
+	}
+
 	bool Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
@@ -339,10 +344,10 @@ namespace
 
 void NzLoaders_PCX_Register()
 {
-	NzImageLoader::RegisterLoader("pcx", Check, Load);
+	NzImageLoader::RegisterLoader(IsSupported, Check, Load);
 }
 
 void NzLoaders_PCX_Unregister()
 {
-	NzImageLoader::UnregisterLoader("pcx", Check, Load);
+	NzImageLoader::UnregisterLoader(IsSupported, Check, Load);
 }

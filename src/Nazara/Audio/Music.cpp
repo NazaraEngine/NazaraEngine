@@ -20,7 +20,7 @@ struct NzMusicImpl
 	ALenum audioFormat;
 	std::vector<nzInt16> chunkSamples;
 	NzSoundStream* stream;
-	NzThread* thread = nullptr;
+	NzThread thread;
 	bool loop = false;
 	bool playing = false;
 	bool paused = false;
@@ -178,8 +178,7 @@ bool NzMusic::Play()
 	}*/
 
 	m_impl->playing = true;
-	m_impl->thread = new NzThread(&NzMusic::MusicThread, this);
-	m_impl->thread->Launch();
+	m_impl->thread = NzThread(&NzMusic::MusicThread, this);
 
 	return true;
 }
@@ -197,9 +196,7 @@ void NzMusic::Stop()
 	if (m_impl->playing)
 	{
 		m_impl->playing = false;
-		m_impl->thread->Join();
-		delete m_impl->thread;
-		m_impl->thread = nullptr;
+		m_impl->thread.Join();
 	}
 }
 
