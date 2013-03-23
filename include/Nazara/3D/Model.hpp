@@ -30,6 +30,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 	public:
 		NzModel();
 		NzModel(const NzModel& model);
+		NzModel(NzModel&& model);
 		~NzModel();
 
 		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
@@ -65,10 +66,13 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void SetMaterial(unsigned int matIndex, NzMaterial* material);
 		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
 		void SetMesh(NzMesh* mesh, const NzModelParameters& parameters = NzModelParameters());
-		void SetSkin(unsigned int skin);
-		void SetSkinCount(unsigned int skinCount);
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
+		void SetSkin(unsigned int skin);
+		void SetSkinCount(unsigned int skinCount);
+
+		NzModel& operator=(const NzModel& node);
+		NzModel& operator=(NzModel&& node);
 
 	private:
 		void Invalidate() override;
