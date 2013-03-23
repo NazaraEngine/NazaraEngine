@@ -10,6 +10,20 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<typename Type, typename Parameters>
+bool NzResourceLoader<Type, Parameters>::IsExtensionSupported(const NzString& extension)
+{
+	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
+	{
+		ExtensionGetter isExtensionSupported = std::get<0>(*loader);
+
+		if (isExtensionSupported && isExtensionSupported(extension))
+			return true;
+	}
+
+	return false;
+}
+
+template<typename Type, typename Parameters>
 bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzString& filePath, const Parameters& parameters)
 {
 	#if NAZARA_CORE_SAFE
@@ -28,38 +42,54 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		return false;
 	}
 
-	NzFile file(path, NzFile::ReadOnly);
-	if (!file.IsOpen())
-	{
-		NazaraError("Failed to open \"" + path + '"');
-		return false;
-	}
+	NzFile file(path); // Ouvert seulement en cas de besoin
 
 	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
 	{
-		for (const NzString& loaderExt : std::get<0>(*loader))
+		ExtensionGetter isExtensionSupported = std::get<0>(*loader);
+		if (!isExtensionSupported || !isExtensionSupported(ext))
+			continue;
+
+		StreamChecker checkFunc = std::get<1>(*loader);
+		StreamLoader streamLoader = std::get<2>(*loader);
+		FileLoader fileLoader = std::get<3>(*loader);
+
+		if (checkFunc && !file.IsOpen())
 		{
-			int cmp = NzString::Compare(loaderExt, ext);
-			if (cmp == 0)
+			if (!file.Open(NzFile::ReadOnly))
+			{
+				NazaraError("Failed to load file: unable to open file");
+				return false;
+			}
+		}
+
+		if (fileLoader)
+		{
+			if (checkFunc)
 			{
 				file.SetCursorPos(0);
 
-				if (!std::get<1>(*loader)(file, parameters))
+				if (!checkFunc(file, parameters))
 					continue;
-
-				file.SetCursorPos(0);
-
-				// Chargement de la ressource
-				if (std::get<2>(*loader)(resource, file, parameters))
-					return true;
-
-				NazaraWarning("Loader failed");
 			}
-			else if (cmp < 0) // S'il est encore possible que l'extension se situe après
+
+			if (fileLoader(resource, filePath, parameters))
+				return true;
+		}
+		else
+		{
+			file.SetCursorPos(0);
+
+			if (!checkFunc(file, parameters))
 				continue;
 
-			break;
+			file.SetCursorPos(0);
+
+			if (streamLoader(resource, file, parameters))
+				return true;
 		}
+
+		NazaraWarning("Loader failed");
 	}
 
 	NazaraError("Failed to load file: no loader");
@@ -95,17 +125,20 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 	nzUInt64 streamPos = stream.GetCursorPos();
 	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
 	{
+		StreamChecker checkFunc = std::get<1>(*loader);
+		StreamLoader streamLoader = std::get<2>(*loader);
+
 		stream.SetCursorPos(streamPos);
 
 		// Le loader supporte-t-il les données ?
-		if (!std::get<1>(*loader)(stream, parameters))
+		if (!checkFunc(stream, parameters))
 			continue;
 
 		// On repositionne le stream à son ancienne position
 		stream.SetCursorPos(streamPos);
 
 		// Chargement de la ressource
-		if (std::get<2>(*loader)(resource, stream, parameters))
+		if (streamLoader(resource, stream, parameters))
 			return true;
 
 		NazaraWarning("Loader failed");
@@ -116,28 +149,31 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::RegisterLoader(const NzString& fileExtensions, CheckFunction checkFunc, LoadFunction loadFunc)
+void NzResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader)
 {
-	///FIXME: Trouver une alternative à ce code monstrueux
-	std::vector<NzString> exts;
-	fileExtensions.SplitAny(exts, " /\\.,;|-_");
+	#if NAZARA_CORE_SAFE
+	if (streamLoader)
+	{
+		if (!checkFunc)
+		{
+			NazaraError("StreamLoader present without StreamChecker");
+			return;
+		}
+	}
+	else if (!fileLoader)
+	{
+		NazaraError("Neither FileLoader nor StreamLoader were found");
+		return;
+	}
+	#endif
 
-	std::set<NzString> extensions;
-	std::copy(exts.begin(), exts.end(), std::inserter(extensions, extensions.begin()));
-
-	Type::s_loaders.push_front(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
+	Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::UnregisterLoader(const NzString& fileExtensions, CheckFunction checkFunc, LoadFunction loadFunc)
+void NzResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader)
 {
-	std::vector<NzString> exts;
-	fileExtensions.SplitAny(exts, " /\\.,;|-_");
-
-	std::set<NzString> extensions;
-	std::copy(exts.begin(), exts.end(), std::inserter(extensions, extensions.begin()));
-
-	Type::s_loaders.remove(std::make_tuple(std::move(extensions), checkFunc, loadFunc));
+	Type::s_loaders.remove(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader));
 }
 
 #include <Nazara/Core/DebugOff.hpp>
