@@ -38,11 +38,10 @@ namespace
 
 void NzLoaders_Texture_Register()
 {
-	///FIXME: Pas bon
-	NzMaterialLoader::RegisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
+	NzMaterialLoader::RegisterLoader(NzImageLoader::IsExtensionSupported, Check, Load);
 }
 
 void NzLoaders_Texture_Unregister()
 {
-	NzMaterialLoader::UnregisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
+	NzMaterialLoader::UnregisterLoader(NzImageLoader::IsExtensionSupported, Check, Load);
 }
