@@ -37,6 +37,12 @@ namespace
 
 	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
+	bool IsSupported(const NzString& extension)
+	{
+		static std::set<NzString> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "psd", "tga"};
+		return supportedExtensions.find(extension) != supportedExtensions.end();
+	}
+
 	bool Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
@@ -117,10 +123,10 @@ namespace
 
 void NzLoaders_STB_Register()
 {
-	NzImageLoader::RegisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
+	NzImageLoader::RegisterLoader(IsSupported, Check, Load);
 }
 
 void NzLoaders_STB_Unregister()
 {
-	NzImageLoader::UnregisterLoader("bmp,gif,hdr,jpg,jpeg,pic,png,psd,tga", Check, Load);
+	NzImageLoader::UnregisterLoader(IsSupported, Check, Load);
 }
