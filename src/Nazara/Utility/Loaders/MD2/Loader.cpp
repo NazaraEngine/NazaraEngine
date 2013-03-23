@@ -19,7 +19,11 @@
 
 namespace
 {
-	/// Loader de mesh
+	bool IsSupported(const NzString& extension)
+	{
+		return (extension == "md2");
+	}
+
 	bool Check(NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		NazaraUnused(parameters);
@@ -221,10 +225,10 @@ namespace
 
 void NzLoaders_MD2_Register()
 {
-	NzMeshLoader::RegisterLoader("md2", Check, Load);
+	NzMeshLoader::RegisterLoader(IsSupported, Check, Load);
 }
 
 void NzLoaders_MD2_Unregister()
 {
-	NzMeshLoader::UnregisterLoader("md2", Check, Load);
+	NzMeshLoader::UnregisterLoader(IsSupported, Check, Load);
 }
