@@ -533,6 +533,56 @@ void NzModel::SetSkinCount(unsigned int skinCount)
 	m_skinCount = skinCount;
 }
 
+NzModel& NzModel::operator=(const NzModel& node)
+{
+	NzSceneNode::operator=(node);
+
+	m_animation = node.m_animation;
+	m_animationEnabled = node.m_animationEnabled;
+	m_boundingBox = node.m_boundingBox;
+	m_boundingBoxUpdated = node.m_boundingBoxUpdated;
+	m_currentFrame = node.m_currentFrame;
+	m_currentSequence = node.m_currentSequence;
+	m_drawEnabled = node.m_drawEnabled;
+	m_interpolation = node.m_interpolation;
+	m_matCount = node.m_matCount;
+	m_materials = node.m_materials;
+	m_mesh = node.m_mesh;
+	m_nextFrame = node.m_nextFrame;
+	m_skin = node.m_skin;
+	m_skinCount = node.m_skinCount;
+
+	if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
+		m_skeleton = node.m_skeleton;
+
+	return *this;
+}
+
+NzModel& NzModel::operator=(NzModel&& node)
+{
+	NzSceneNode::operator=(node);
+
+	m_animation = std::move(node.m_animation);
+	m_animationEnabled = node.m_animationEnabled;
+	m_boundingBox = node.m_boundingBox;
+	m_boundingBoxUpdated = node.m_boundingBoxUpdated;
+	m_currentFrame = node.m_currentFrame;
+	m_currentSequence = node.m_currentSequence;
+	m_drawEnabled = node.m_drawEnabled;
+	m_interpolation = node.m_interpolation;
+	m_matCount = node.m_matCount;
+	m_materials = std::move(node.m_materials);
+	m_mesh = std::move(node.m_mesh);
+	m_nextFrame = node.m_nextFrame;
+	m_skin = node.m_skin;
+	m_skinCount = node.m_skinCount;
+
+	if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
+		m_skeleton = std::move(node.m_skeleton);
+
+	return *this;
+}
+
 void NzModel::Invalidate()
 {
 	NzSceneNode::Invalidate();
