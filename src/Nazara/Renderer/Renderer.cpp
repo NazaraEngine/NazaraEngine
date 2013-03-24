@@ -23,6 +23,7 @@
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -746,7 +747,7 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 	elements[1].type = nzElementType_Float2;
 	elements[1].usage = nzElementUsage_TexCoord;
 
-	NzVertexDeclaration* declaration = new NzVertexDeclaration;
+	std::unique_ptr<NzVertexDeclaration> declaration(new NzVertexDeclaration);
 	if (!declaration->Create(elements, 2))
 	{
 		NazaraError("Failed to create quad declaration");
@@ -755,9 +756,10 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 		return false;
 	}
 
-	declaration->SetPersistent(false, false);
+	declaration->SetPersistent(false);
 
-	s_quadBuffer = new NzVertexBuffer(declaration, 4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+	s_quadBuffer = new NzVertexBuffer(declaration.get(), 4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+	declaration.release();
 
 	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
 		NazaraWarning("Failed to initialize debug drawer"); // Non-critique

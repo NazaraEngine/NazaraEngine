@@ -24,7 +24,7 @@ namespace
 		NazaraUnused(parameters);
 
 		std::unique_ptr<NzMesh> mesh(new NzMesh);
-		mesh->SetPersistent(false, false);
+		mesh->SetPersistent(false);
 		if (!mesh->LoadFromStream(stream))
 		{
 			NazaraError("Failed to load model mesh");
@@ -44,7 +44,7 @@ namespace
 			if (!animationPath.IsEmpty())
 			{
 				std::unique_ptr<NzAnimation> animation(new NzAnimation);
-				animation->SetPersistent(false, false);
+				animation->SetPersistent(false);
 				if (animation->LoadFromFile(animationPath, parameters.animation) && model->SetAnimation(animation.get()))
 					animation.release();
 				else
@@ -62,7 +62,7 @@ namespace
 				if (!mat.IsEmpty())
 				{
 					std::unique_ptr<NzMaterial> material(new NzMaterial);
-					material->SetPersistent(false, false);
+					material->SetPersistent(false);
 					if (material->LoadFromFile(mat, parameters.material))
 					{
 						model->SetMaterial(i, material.get());
