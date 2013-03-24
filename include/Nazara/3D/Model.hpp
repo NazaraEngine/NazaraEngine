@@ -9,22 +9,30 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/3D/SceneNode.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
-struct NzModelParameters
+struct NAZARA_API NzModelParameters
 {
 	bool loadAnimation = true;
 	bool loadMaterials = true;
 	NzAnimationParams animation;
 	NzMaterialParams material;
 	NzMeshParams mesh;
+
+	bool IsValid() const;
 };
+
+class NzModel;
+
+using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
 
 class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 {
+	friend NzModelLoader;
 	friend class NzScene;
 
 	public:
@@ -56,16 +64,16 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		bool IsAnimationEnabled() const;
 		bool IsDrawEnabled() const;
 
-		bool LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters = NzModelParameters());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& modelParameters = NzModelParameters());
-		bool LoadFromStream(NzInputStream& stream, const NzModelParameters& modelParameters = NzModelParameters());
+		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());
+		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params = NzModelParameters());
+		bool LoadFromStream(NzInputStream& stream, const NzModelParameters& params = NzModelParameters());
 
 		void Reset();
 
 		bool SetAnimation(NzAnimation* animation);
 		void SetMaterial(unsigned int matIndex, NzMaterial* material);
 		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
-		void SetMesh(NzMesh* mesh, const NzModelParameters& parameters = NzModelParameters());
+		void SetMesh(NzMesh* mesh);
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
 		void SetSkin(unsigned int skin);
@@ -97,6 +105,8 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		unsigned int m_nextFrame;
 		unsigned int m_skin;
 		unsigned int m_skinCount;
+
+		static NzModelLoader::LoaderList s_loaders;
 };
 
 #endif // NAZARA_MODEL_HPP
