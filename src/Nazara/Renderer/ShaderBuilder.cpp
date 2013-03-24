@@ -452,7 +452,7 @@ namespace
 		}
 
 		shader->SetFlags(flags);
-		shader->SetPersistent(false, false);
+		shader->SetPersistent(false);
 
 		return shader.release();
 	}

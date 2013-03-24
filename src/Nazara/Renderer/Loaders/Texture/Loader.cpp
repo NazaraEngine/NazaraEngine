@@ -23,7 +23,7 @@ namespace
 		NazaraUnused(parameters);
 
 		std::unique_ptr<NzTexture> texture(new NzTexture);
-		texture->SetPersistent(false, false);
+		texture->SetPersistent(false);
 
 		if (!texture->LoadFromStream(stream))
 		{
