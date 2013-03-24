@@ -10,10 +10,21 @@
 #include <tuple>
 #include <Nazara/3D/Debug.hpp>
 
+bool NzModelParameters::IsValid() const
+{
+	if (loadAnimation && !animation.IsValid())
+		return false;
+
+	if (loadMaterials && !material.IsValid())
+		return false;
+
+	return mesh.IsValid();
+}
+
 NzModel::NzModel() :
 m_currentSequence(nullptr),
 m_animationEnabled(true),
-m_boundingBoxUpdated(false),
+m_boundingBoxUpdated(true),
 m_drawEnabled(true),
 m_matCount(0),
 m_skin(0),
@@ -250,50 +261,19 @@ bool NzModel::IsDrawEnabled() const
 	return m_drawEnabled;
 }
 
-bool NzModel::LoadFromFile(const NzString& meshPath, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromFile(const NzString& filePath, const NzModelParameters& params)
 {
-	///TODO: ResourceManager
-	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromFile(meshPath, modelParameters.mesh))
-	{
-		NazaraError("Failed to load mesh");
-		return false;
-	}
-
-	mesh->SetPersistent(false, false);
-	SetMesh(mesh.release(), modelParameters);
-
-	return true;
+	return NzModelLoader::LoadFromFile(this, filePath, params);
 }
 
-bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params)
 {
-	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromMemory(data, size, modelParameters.mesh))
-	{
-		NazaraError("Failed to load mesh");
-		return false;
-	}
-
-	mesh->SetPersistent(false, false);
-	SetMesh(mesh.release(), modelParameters);
-
-	return true;
+	return NzModelLoader::LoadFromMemory(this, data, size, params);
 }
 
-bool NzModel::LoadFromStream(NzInputStream& stream, const NzModelParameters& modelParameters)
+bool NzModel::LoadFromStream(NzInputStream& stream, const NzModelParameters& params)
 {
-	std::unique_ptr<NzMesh> mesh(new NzMesh);
-	if (!mesh->LoadFromStream(stream, modelParameters.mesh))
-	{
-		NazaraError("Failed to load mesh");
-		return false;
-	}
-
-	mesh->SetPersistent(false, false);
-	SetMesh(mesh.release(), modelParameters);
-
-	return true;
+	return NzModelLoader::LoadFromStream(this, stream, params);
 }
 
 void NzModel::Reset()
@@ -404,58 +384,39 @@ void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMater
 		m_materials[index] = NzMaterial::GetDefault();
 }
 
-void NzModel::SetMesh(NzMesh* mesh, const NzModelParameters& modelParameters)
+void NzModel::SetMesh(NzMesh* mesh)
 {
-	Reset();
+	m_mesh = mesh;
 
-	if (mesh)
+	if (m_mesh)
 	{
 		m_boundingBoxUpdated = false;
-		m_mesh = mesh;
 
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = *mesh->GetSkeleton(); // Copie du squelette template
 
-		if (modelParameters.loadAnimation && m_mesh->IsAnimable())
+		if (m_animation)
 		{
-			NzString animationPath = m_mesh->GetAnimation();
-			if (!animationPath.IsEmpty())
+			if (m_animation->GetJointCount() != m_mesh->GetJointCount())
 			{
-				std::unique_ptr<NzAnimation> animation(new NzAnimation);
-				if (animation->LoadFromFile(animationPath, modelParameters.animation) && SetAnimation(animation.get()))
-				{
-					animation->SetPersistent(false);
-					animation.release();
-				}
-				else
-					NazaraWarning("Failed to load animation");
+				NazaraWarning("Animation joint count is not matching new mesh joint count");
+				SetAnimation(nullptr);
 			}
 		}
 
 		m_matCount = mesh->GetMaterialCount();
-		m_materials.reserve(m_matCount);
-		if (modelParameters.loadMaterials)
-		{
-			for (unsigned int i = 0; i < m_matCount; ++i)
-			{
-				NzString mat = mesh->GetMaterial(i);
-				if (!mat.IsEmpty())
-				{
-					std::unique_ptr<NzMaterial> material(new NzMaterial);
-					if (material->LoadFromFile(mat, modelParameters.material))
-					{
-						material->SetPersistent(false, false); // Pas de vérification des références car nous n'y avons pas encore accroché de référence
-						m_materials.push_back(material.release());
-					}
-					else
-					{
-						NazaraWarning("Failed to load material #" + NzString::Number(i));
+		m_materials.resize(m_matCount, NzMaterial::GetDefault());
+		m_skinCount = 1;
+	}
+	else
+	{
+		m_boundingBox.MakeNull();
+		m_boundingBoxUpdated = true;
+		m_matCount = 0;
+		m_skinCount = 0;
+		m_materials.clear();
 
-						m_materials.push_back(NzMaterial::GetDefault());
-					}
-				}
-			}
-		}
+		SetAnimation(nullptr);
 	}
 }
 
@@ -642,3 +603,5 @@ bool NzModel::VisibilityTest(const NzFrustumf& frustum)
 
 	return frustum.Contains(m_boundingBox);
 }
+
+NzModelLoader::LoaderList NzModel::s_loaders;
