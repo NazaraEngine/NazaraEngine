@@ -5,7 +5,8 @@
 #include <Nazara/Renderer/Loaders/Texture.hpp>
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/Debug.hpp>
+#include <memory>
+#include <Nazara/Renderer/Debug.hpp>
 
 namespace
 {
@@ -21,7 +22,9 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		NzTexture* texture = new NzTexture;
+		std::unique_ptr<NzTexture> texture(new NzTexture);
+		texture->SetPersistent(false, false);
+
 		if (!texture->LoadFromStream(stream))
 		{
 			NazaraError("Failed to load diffuse map");
@@ -29,8 +32,8 @@ namespace
 		}
 
 		material->Reset();
-		material->SetDiffuseMap(texture);
-		texture->SetPersistent(false);
+		material->SetDiffuseMap(texture.get());
+		texture.release();
 
 		return true;
 	}
