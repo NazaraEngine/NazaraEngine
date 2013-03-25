@@ -34,6 +34,7 @@ class NAZARA_API NzScene
 		void Cull();
 		void Draw();
 
+		const NzCamera* GetActiveCamera() const;
 		NzBackground* GetBackground() const;
 		NzSceneNode& GetRoot() const;
 		float GetUpdateTime() const;
