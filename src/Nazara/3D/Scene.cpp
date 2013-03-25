@@ -325,7 +325,7 @@ void NzScene::Draw()
 
 const NzCamera* NzScene::GetActiveCamera() const
 {
-	return m_impl->camera;
+	return m_impl->activeCamera;
 }
 
 NzBackground* NzScene::GetBackground() const
