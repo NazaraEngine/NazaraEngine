@@ -269,7 +269,8 @@ void NzScene::Draw()
 
 			if (instancing)
 			{
-				shader->SendInteger(lightCountLocation, lightIndex);
+				if (lightCountLocation != -1)
+					shader->SendInteger(lightCountLocation, lightIndex);
 
 				unsigned int count = 0;
 				for (const NzMatrix4f& matrix : subMeshIt.second)
@@ -320,6 +321,11 @@ void NzScene::Draw()
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_impl->renderQueue.otherDrawables)
 		drawable->Draw();
+}
+
+const NzCamera* NzScene::GetActiveCamera() const
+{
+	return m_impl->camera;
 }
 
 NzBackground* NzScene::GetBackground() const
