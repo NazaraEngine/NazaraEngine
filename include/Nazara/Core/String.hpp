@@ -47,6 +47,7 @@ class NAZARA_API NzString : public NzHashable
 
 		NzString& Append(char character);
 		NzString& Append(const char* string);
+		NzString& Append(const char* string, unsigned int length);
 		NzString& Append(const NzString& string);
 
 		void Clear(bool keepBuffer = false);
