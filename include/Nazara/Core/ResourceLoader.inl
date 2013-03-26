@@ -44,6 +44,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 
 	NzFile file(path); // Ouvert seulement en cas de besoin
 
+	bool found = false;
 	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
 	{
 		ExtensionGetter isExtensionSupported = std::get<0>(*loader);
@@ -73,6 +74,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 					continue;
 			}
 
+			found = true;
 			if (fileLoader(resource, filePath, parameters))
 				return true;
 		}
@@ -85,6 +87,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 
 			file.SetCursorPos(0);
 
+			found = true;
 			if (streamLoader(resource, file, parameters))
 				return true;
 		}
@@ -92,7 +95,10 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		NazaraWarning("Loader failed");
 	}
 
-	NazaraError("Failed to load file: no loader");
+	if (found)
+		NazaraError("Failed to load file: all loaders failed");
+	else
+		NazaraError("Failed to load file: no loader found");
 
 	return false;
 }
@@ -123,6 +129,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 	#endif
 
 	nzUInt64 streamPos = stream.GetCursorPos();
+	bool found = false;
 	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
 	{
 		StreamChecker checkFunc = std::get<1>(*loader);
@@ -138,13 +145,18 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 		stream.SetCursorPos(streamPos);
 
 		// Chargement de la ressource
+		found = true;
 		if (streamLoader(resource, stream, parameters))
 			return true;
 
 		NazaraWarning("Loader failed");
 	}
 
-	NazaraError("Failed to load file: no loader");
+	if (found)
+		NazaraError("Failed to load file: all loaders failed");
+	else
+		NazaraError("Failed to load file: no loader found");
+
 	return false;
 }
 
@@ -162,7 +174,7 @@ void NzResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensio
 	}
 	else if (!fileLoader)
 	{
-		NazaraError("Neither FileLoader nor StreamLoader were found");
+		NazaraError("Neither FileLoader nor StreamLoader were present");
 		return;
 	}
 	#endif
