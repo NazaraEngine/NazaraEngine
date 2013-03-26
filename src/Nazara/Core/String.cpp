@@ -197,11 +197,12 @@ NzString& NzString::Append(char character)
 
 NzString& NzString::Append(const char* string)
 {
-	if (!string || !string[0])
-		return *this;
+	return Append(string, std::strlen(string));
+}
 
-	unsigned int length = std::strlen(string);
-	if (length == 0)
+NzString& NzString::Append(const char* string, unsigned int length)
+{
+	if (!string || !string[0] || length == 0)
 		return *this;
 
 	if (m_sharedString->capacity >= m_sharedString->size + length)
@@ -226,6 +227,8 @@ NzString& NzString::Append(const char* string)
 		m_sharedString->size = newSize;
 		m_sharedString->string = str;
 	}
+
+	m_sharedString->string[m_sharedString->size] = '\0';
 
 	return *this;
 }
