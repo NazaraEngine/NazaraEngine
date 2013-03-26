@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 NzInputStream::~NzInputStream() = default;
@@ -13,40 +15,54 @@ NzString NzInputStream::ReadLine(unsigned int lineSize)
 	NzString line;
 	if (lineSize == 0) // Taille maximale indéterminée
 	{
-		while (!EndOfStream())
-		{
-			char c;
-			if (Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-					break;
+		const unsigned int bufferSize = 64;
 
-				line += c;
+		char buffer[bufferSize+1];
+		buffer[bufferSize] = '\0';
+
+		unsigned int readSize;
+		do
+		{
+			readSize = Read(buffer, bufferSize);
+
+			const char* ptr = std::strchr(buffer, '\n');
+			if (ptr)
+			{
+				unsigned int pos = ptr-buffer;
+
+				if (m_streamOptions & nzStreamOption_Text && pos > 0 && buffer[pos-1] == '\r')
+					line.Append(buffer, pos-1);
+				else
+					line.Append(buffer, pos);
+
+				if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
+					NazaraWarning("Failed to reset cursos pos");
+
+				break;
 			}
 			else
-				break;
+				line.Append(buffer, readSize);
 		}
+		while (readSize == bufferSize);
 	}
 	else
 	{
-		line.Reserve(lineSize);
-		for (unsigned int i = 0; i < lineSize; ++i)
+		line.Resize(lineSize);
+		unsigned int readSize = Read(&line[0], lineSize);
+		unsigned int pos = line.Find('\n');
+		if (pos <= readSize) // Forcément trouvé, npos étant le plus grand des entiers
 		{
-			char c;
-			if (Read(&c, sizeof(char)) == sizeof(char))
-			{
-				if (c == '\n')
-					break;
-
-				line += c;
-			}
+			if (m_streamOptions & nzStreamOption_Text && pos > 0 && line[pos-1] == '\r')
+				line.Resize(pos);
 			else
-				break;
-		}
-	}
+				line.Resize(pos+1);
 
-	if (m_streamOptions & nzStreamOption_Text && !EndOfStream() && line.EndsWith('\r'))
-		line.Resize(-1);
+			if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
+				NazaraWarning("Failed to reset cursos pos");
+		}
+		else
+			line.Resize(readSize);
+	}
 
 	return line;
 }
