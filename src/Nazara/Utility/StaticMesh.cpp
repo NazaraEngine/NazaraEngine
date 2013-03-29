@@ -52,12 +52,6 @@ void NzStaticMesh::Destroy()
 	}
 }
 
-void NzStaticMesh::Finish()
-{
-	// La seule chose à faire ici est de calculer l'AABB
-	GenerateAABB();
-}
-
 bool NzStaticMesh::GenerateAABB()
 {
 	// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
