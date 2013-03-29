@@ -6,6 +6,7 @@
 #include <Nazara/2D/2D.hpp>
 #include <Nazara/3D/Config.hpp>
 #include <Nazara/3D/Loaders/Mesh.hpp>
+#include <Nazara/3D/Loaders/OBJ.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -28,6 +29,9 @@ bool Nz3D::Initialize()
 	// Initialisation du module
 
 	// Loaders
+	NzLoaders_OBJ_Register();
+
+	// Loader générique
 	NzLoaders_Mesh_Register();
 
 	NazaraNotice("Initialized: 3D module");
@@ -56,6 +60,7 @@ void Nz3D::Uninitialize()
 
 	// Loaders
 	NzLoaders_Mesh_Unregister();
+	NzLoaders_OBJ_Unregister();
 
 	NazaraNotice("Uninitialized: 3D module");
 
