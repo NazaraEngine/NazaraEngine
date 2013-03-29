@@ -55,7 +55,7 @@ int main()
 		material->SetNormalMap(normalMap);
 
 		// On va rendre notre texture non-persistante, cela signifie que lorsque son compteur de référence tombera à zéro,
-		// elle sera automatiquement libérée. (Ce qui sera le cas lorsque tous les modèles auront étés libérés)
+		// elle sera automatiquement libérée. (Ce qui sera le cas lorsque tous les modèles l'utilisant auront étés libérés)
 		normalMap->SetPersistent(false);
 	}
 	else
