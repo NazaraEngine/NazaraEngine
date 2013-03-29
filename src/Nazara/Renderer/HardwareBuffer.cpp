@@ -184,7 +184,7 @@ void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned
 
 	void* ptr = mapBuffer(m_type, access, offset, size);
 
-	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérrations chaînées)
+	// Inutile de rebinder s'il n'y avait aucun buffer (Optimise les opérations chaînées)
 	if (previous != m_buffer && previous != 0)
 		glBindBuffer(NzOpenGL::BufferTarget[m_type], previous);
 
