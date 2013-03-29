@@ -46,11 +46,13 @@ namespace
 	}
 }
 
-NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access) :
-m_mapper(indexBuffer, access)
+NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access)
 {
 	if (indexBuffer && !indexBuffer->IsSequential())
 	{
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+
 		if (indexBuffer->HasLargeIndices())
 		{
 			m_getter = Getter32;
