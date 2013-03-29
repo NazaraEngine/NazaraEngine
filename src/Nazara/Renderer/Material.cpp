@@ -452,8 +452,8 @@ NzMaterial* NzMaterial::GetDefault()
 
 	if (!initialized)
 	{
+		defaultMaterial.EnableFaceCulling(false);
 		defaultMaterial.EnableLighting(false);
-		defaultMaterial.SetFaceCulling(nzFaceCulling_FrontAndBack);
 		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
 		defaultMaterial.SetDiffuseColor(NzColor::White);
 
