@@ -27,12 +27,12 @@ class NAZARA_API NzTriangleIterator
 		NzVector3f GetNormal(unsigned int i) const;
 		NzVector3f GetPosition(unsigned int i) const;
 		NzVector3f GetTangent(unsigned int i) const;
-		NzVector2f GetTexCoords(unsigned int i) const;
+		NzVector2f GetTexCoord(unsigned int i) const;
 
 		void SetNormal(unsigned int i, const NzVector3f& normal);
 		void SetPosition(unsigned int i, const NzVector3f& position);
 		void SetTangent(unsigned int i, const NzVector3f& tangent);
-		void SetTexCoords(unsigned int i, const NzVector2f& texCoords);
+		void SetTexCoord(unsigned int i, const NzVector2f& texCoords);
 
 		void Unmap();
 
