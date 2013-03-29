@@ -98,7 +98,7 @@ NzVector3f NzTriangleIterator::GetTangent(unsigned int i) const
 	return m_vertexMapper.GetTangent(m_triangleIndices[i]);
 }
 
-NzVector2f NzTriangleIterator::GetTexCoords(unsigned int i) const
+NzVector2f NzTriangleIterator::GetTexCoord(unsigned int i) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (i > 2)
@@ -108,7 +108,7 @@ NzVector2f NzTriangleIterator::GetTexCoords(unsigned int i) const
 	}
 	#endif
 
-	return m_vertexMapper.GetTexCoords(m_triangleIndices[i]);
+	return m_vertexMapper.GetTexCoord(m_triangleIndices[i]);
 }
 
 void NzTriangleIterator::SetNormal(unsigned int i, const NzVector3f& normal)
@@ -150,7 +150,7 @@ void NzTriangleIterator::SetTangent(unsigned int i, const NzVector3f& tangent)
 	m_vertexMapper.SetTangent(m_triangleIndices[i], tangent);
 }
 
-void NzTriangleIterator::SetTexCoords(unsigned int i, const NzVector2f& texCoords)
+void NzTriangleIterator::SetTexCoord(unsigned int i, const NzVector2f& texCoords)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (i > 2)
@@ -160,7 +160,7 @@ void NzTriangleIterator::SetTexCoords(unsigned int i, const NzVector2f& texCoord
 	}
 	#endif
 
-	m_vertexMapper.SetTexCoords(m_triangleIndices[i], texCoords);
+	m_vertexMapper.SetTexCoord(m_triangleIndices[i], texCoords);
 }
 
 void NzTriangleIterator::Unmap()
