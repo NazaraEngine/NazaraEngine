@@ -2447,20 +2447,21 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 	}
 	else
 	{
-		while (ptr != &m_sharedString->string[m_sharedString->size])
+		do
 		{
-			if (!std::isspace(*ptr++))
+			if (std::isspace(*ptr))
+				inWord = false;
+			else
 			{
 				if (!inWord)
 				{
 					inWord = true;
 					if (++currentWord > index)
-						return ptr-m_sharedString->string;
+						return ptr - m_sharedString->string;
 				}
 			}
-			else
-				inWord = false;
 		}
+		while (*++ptr);
 	}
 
 	return npos;
