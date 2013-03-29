@@ -187,19 +187,6 @@ void NzSkeletalMesh::Destroy()
 	}
 }
 
-void NzSkeletalMesh::Finish()
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return;
-	}
-	#endif
-
-	// Rien à faire de particulier
-}
-
 const NzCubef& NzSkeletalMesh::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE

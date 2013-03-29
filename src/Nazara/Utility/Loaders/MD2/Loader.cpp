@@ -214,10 +214,10 @@ namespace
 		vertexBuffer->SetPersistent(false);
 		vertexBuffer.release();
 
+		subMesh->GenerateAABB();
+		subMesh->GenerateTangents();
 		subMesh->SetMaterialIndex(0);
 		mesh->AddSubMesh(subMesh.release());
-
-		mesh->GenerateTangents();
 
 		return true;
 	}
