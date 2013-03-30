@@ -30,10 +30,11 @@ int main()
 		}
 
 		std::vector<NzString> models;
-		while (resourceDirectory.NextResult(true))
+		while (resourceDirectory.NextResult())
 		{
 			NzString path = resourceDirectory.GetResultName();
-			if (path.EndsWith(".md2") || path.EndsWith(".md5mesh"))
+			NzString ext = path.SubstrFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
+			if (NzMeshLoader::IsExtensionSupported(ext)) // L'extension est-elle supportée par le MeshLoader ?
 				models.push_back(path);
 		}
 
