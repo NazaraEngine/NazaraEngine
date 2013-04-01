@@ -18,9 +18,9 @@ class NzMTLParser
 	public:
 		struct Material
 		{
-			NzColor ambient;
-			NzColor diffuse;
-			NzColor specular;
+			NzColor ambient = NzColor::White;
+			NzColor diffuse = NzColor::White;
+			NzColor specular = NzColor::White;
 			NzString alphaMap;
 			NzString ambientMap;
 			NzString bumpMap;
@@ -30,10 +30,10 @@ class NzMTLParser
 			NzString reflectionMap;
 			NzString shininessMap;
 			NzString specularMap;
-			float alpha;
-			float refractionIndex;
-			float shininess;
-			unsigned int illumModel;
+			float alpha = 1.f;
+			float refractionIndex = 1.f;
+			float shininess = 1.f;
+			unsigned int illumModel = 0;
 		};
 
 		NzMTLParser(NzInputStream& stream$);
