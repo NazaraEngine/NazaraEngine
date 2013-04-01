@@ -25,4 +25,4 @@ class NAZARA_API NzShaderBuilder
 		static void Uninitialize();
 };
 
-#endif // NAZARA_SHADER_HPP
+#endif // NAZARA_SHADERBUILDER_HPP
