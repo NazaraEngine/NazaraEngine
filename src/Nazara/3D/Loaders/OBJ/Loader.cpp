@@ -225,7 +225,7 @@ namespace
 									diffuseMap.release();
 								}
 								else
-									NazaraWarning("Failed to load diffuse map");
+									NazaraWarning("Failed to load diffuse map (" + mtlMat->diffuseMap + ')');
 							}
 
 							if (parameters.material.loadSpecularMap && !mtlMat->specularMap.IsEmpty())
@@ -239,7 +239,7 @@ namespace
 									specularMap.release();
 								}
 								else
-									NazaraWarning("Failed to load specular map");
+									NazaraWarning("Failed to load specular map (" + mtlMat->diffuseMap + ')');
 							}
 
 							model->SetMaterial(meshes[i].material, material.get());
