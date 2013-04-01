@@ -52,7 +52,7 @@ class NAZARA_API NzMusic : public NzSoundEmitter
 		bool OpenFromStream(NzInputStream& stream, const NzMusicParams& params = NzMusicParams());
 
 		void Pause();
-		bool Play();
+		void Play();
 
 		void SetPlayingOffset(nzUInt32 offset);
 

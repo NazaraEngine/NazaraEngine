@@ -133,19 +133,17 @@ void NzSound::Pause()
 	alSourcePause(m_source);
 }
 
-bool NzSound::Play()
+void NzSound::Play()
 {
 	#if NAZARA_AUDIO_SAFE
 	if (!m_buffer)
 	{
 		NazaraError("No sound buffer to play");
-		return false;
+		return;
 	}
 	#endif
 
 	alSourcePlay(m_source);
-
-	return true;
 }
 
 void NzSound::SetBuffer(const NzSoundBuffer* buffer)
