@@ -40,6 +40,7 @@ class NAZARA_API NzSubMesh : public NzResource
 		unsigned int GetMaterialIndex() const;
 		const NzMesh* GetParent() const;
 		nzPrimitiveType GetPrimitiveType() const;
+		unsigned int GetTriangleCount() const;
 		virtual unsigned int GetVertexCount() const = 0;
 
 		virtual bool IsAnimated() const = 0;
