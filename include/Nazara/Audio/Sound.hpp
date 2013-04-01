@@ -34,7 +34,7 @@ class NAZARA_API NzSound : public NzSoundEmitter
 		bool LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params = NzSoundBufferParams());
 
 		void Pause();
-		bool Play();
+		void Play();
 
 		void SetBuffer(const NzSoundBuffer* buffer);
 		void SetPlayingOffset(nzUInt32 offset);
