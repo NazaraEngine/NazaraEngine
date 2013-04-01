@@ -137,42 +137,36 @@ bool NzOBJParser::Parse()
 					int& p = face.vertices[i].position;
 					int& t = face.vertices[i].texCoord;
 
-					if (std::sscanf(&m_currentLine[pos], "%d/%d/%d%n", &p, &t, &n, &offset) == 3)
+					if (std::sscanf(&m_currentLine[pos], "%d/%d/%d%n", &p, &t, &n, &offset) != 3)
 					{
-						p--;
-						t--;
-						n--;
-					}
-					else if (std::sscanf(&m_currentLine[pos], "%d//%d%n", &p, &n, &offset) == 2)
-					{
-						p--;
-						n--;
-						t = -1;
-					}
-					else if (std::sscanf(&m_currentLine[pos], "%d/%d%n", &p, &t, &offset) == 2)
-					{
-						p--;
-						n = -1;
-						t--;
-					}
-					else if (std::sscanf(&m_currentLine[pos], "%d%n", &p, &offset) == 1)
-					{
-						p--;
-						n = -1;
-						t = -1;
-					}
-					else
-					{
-						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
-						#endif
-						error = true;
-						break;
+						if (std::sscanf(&m_currentLine[pos], "%d//%d%n", &p, &n, &offset) != 2)
+						{
+							if (std::sscanf(&m_currentLine[pos], "%d/%d%n", &p, &t, &offset) != 2)
+							{
+								if (std::sscanf(&m_currentLine[pos], "%d%n", &p, &offset) != 1)
+								{
+									#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+									UnrecognizedLine();
+									#endif
+									error = true;
+									break;
+								}
+								else
+								{
+									n = 0;
+									t = 0;
+								}
+							}
+							else
+								n = 0;
+						}
+						else
+							t = 0;
 					}
 
 					if (p < 0)
 					{
-						p += m_positions.size() + 1;
+						p += m_positions.size();
 						if (p < 0)
 						{
 							Error("Vertex index out of range (" + NzString::Number(p) + " < 0");
@@ -185,7 +179,7 @@ bool NzOBJParser::Parse()
 
 					if (n < 0)
 					{
-						n += m_normals.size() + 1;
+						n += m_normals.size();
 						if (n < 0)
 						{
 							Error("Vertex index out of range (" + NzString::Number(n) + " < 0");
@@ -198,7 +192,7 @@ bool NzOBJParser::Parse()
 
 					if (t < 0)
 					{
-						t += m_texCoords.size() + 1;
+						t += m_texCoords.size();
 						if (t < 0)
 						{
 							Error("Vertex index out of range (" + NzString::Number(t) + " < 0");
