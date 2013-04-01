@@ -151,6 +151,36 @@ nzPrimitiveType NzSubMesh::GetPrimitiveType() const
 	return m_primitiveType;
 }
 
+unsigned int NzSubMesh::GetTriangleCount() const
+{
+	const NzIndexBuffer* indexBuffer = GetIndexBuffer();
+	unsigned int indexCount;
+	if (indexBuffer)
+		indexCount = indexBuffer->GetIndexCount();
+	else
+		indexCount = GetVertexCount();
+
+	switch (m_primitiveType)
+	{
+		case nzPrimitiveType_LineList:
+		case nzPrimitiveType_LineStrip:
+		case nzPrimitiveType_PointList:
+			return 0;
+
+		case nzPrimitiveType_TriangleFan:
+			return (indexCount - 1) / 2;
+
+		case nzPrimitiveType_TriangleList:
+			return indexCount / 3;
+
+		case nzPrimitiveType_TriangleStrip:
+			return indexCount - 2;
+	}
+
+	NazaraError("Primitive type not handled (0x" + NzString::Number(m_primitiveType, 16) + ')');
+	return 0;
+}
+
 unsigned int NzSubMesh::GetMaterialIndex() const
 {
 	return m_matIndex;
