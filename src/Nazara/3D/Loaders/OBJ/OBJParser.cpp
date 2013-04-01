@@ -170,23 +170,65 @@ bool NzOBJParser::Parse()
 						break;
 					}
 
-					pos += offset;
+					if (p < 0)
+					{
+						p += m_positions.size() + 1;
+						if (p < 0)
+						{
+							Error("Vertex index out of range (" + NzString::Number(p) + " < 0");
+							error = true;
+							break;
+						}
+					}
+					else
+						p--;
+
+					if (n < 0)
+					{
+						n += m_normals.size() + 1;
+						if (n < 0)
+						{
+							Error("Vertex index out of range (" + NzString::Number(n) + " < 0");
+							error = true;
+							break;
+						}
+					}
+					else
+						n--;
+
+					if (t < 0)
+					{
+						t += m_texCoords.size() + 1;
+						if (t < 0)
+						{
+							Error("Vertex index out of range (" + NzString::Number(t) + " < 0");
+							error = true;
+							break;
+						}
+					}
+					else
+						t--;
 
 					if (static_cast<unsigned int>(p) >= m_positions.size())
 					{
-						Error("Vertex index out of range " + NzString::Number(p) + " > " + NzString::Number(m_positions.size()));
+						Error("Vertex index out of range (" + NzString::Number(p) + " >= " + NzString::Number(m_positions.size()) + ')');
+						error = true;
 						break;
 					}
 					else if (n >= 0 && static_cast<unsigned int>(n) >= m_normals.size())
 					{
-						Error("Normal index out of range " + NzString::Number(n) + " > " + NzString::Number(m_normals.size()));
+						Error("Normal index out of range (" + NzString::Number(n) + " >= " + NzString::Number(m_normals.size()) + ')');
+						error = true;
 						break;
 					}
 					else if (t >= 0 && static_cast<unsigned int>(t) >= m_texCoords.size())
 					{
-						Error("TexCoord index out of range " + NzString::Number(t) + " > " + NzString::Number(m_texCoords.size()));
+						Error("TexCoord index out of range (" + NzString::Number(t) + " >= " + NzString::Number(m_texCoords.size()) + ')');
+						error = true;
 						break;
 					}
+
+					pos += offset;
 				}
 
 				if (!error)
@@ -234,7 +276,7 @@ bool NzOBJParser::Parse()
 				if (m_currentLine[1] == ' ')
 				{
 					NzString param = m_currentLine.Substr(2);
-					if (param != '0' && param != '1' && param != "on" && param != "off")
+					if (param != "all" && param != "on" && param != "off" && !param.IsNumber())
 						UnrecognizedLine();
 				}
 				else
@@ -337,6 +379,12 @@ bool NzOBJParser::Parse()
 				m_meshes.push_back(std::move(mesh));
 			}
 		}
+	}
+
+	if (m_meshes.empty())
+	{
+		NazaraError("No meshes");
+		return false;
 	}
 
 	m_materials.resize(matCount);

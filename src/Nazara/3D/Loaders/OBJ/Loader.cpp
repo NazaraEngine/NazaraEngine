@@ -184,13 +184,13 @@ namespace
 		NzString mtlLib = parser.GetMtlLib();
 		if (parameters.loadMaterials && !mtlLib.IsEmpty())
 		{
-			NzString baseDir = stream.GetDirectory();
-			NzFile file(baseDir + mtlLib);
+			NzFile file(stream.GetDirectory() + mtlLib);
 			if (file.Open(NzFile::ReadOnly | NzFile::Text))
 			{
 				NzMTLParser materialParser(file);
 				if (materialParser.Parse())
 				{
+					NzString baseDir = file.GetDirectory();
 					for (unsigned int i = 0; i < meshCount; ++i)
 					{
 						const NzString& matName = materials[meshes[i].material];
