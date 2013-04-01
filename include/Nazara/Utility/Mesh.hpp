@@ -76,6 +76,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		const NzSubMesh* GetSubMesh(unsigned int index) const;
 		unsigned int GetSubMeshCount() const;
 		int GetSubMeshIndex(const NzString& identifier) const;
+		unsigned int GetTriangleCount() const;
 		unsigned int GetVertexCount() const;
 
 		bool HasSubMesh(const NzString& identifier) const;
