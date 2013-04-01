@@ -22,7 +22,7 @@ struct NzMusicImpl
 	NzSoundStream* stream;
 	NzThread thread;
 	bool loop = false;
-	bool playing = false;
+	bool streaming = false;
 	bool paused = false;
 	unsigned int sampleRate;
 };
@@ -118,7 +118,7 @@ nzSoundStatus NzMusic::GetStatus() const
 
 	nzSoundStatus status = GetInternalStatus();
 
-	if (m_impl->playing && status == nzSoundStatus_Stopped)
+	if (m_impl->streaming && status == nzSoundStatus_Stopped)
 		status = nzSoundStatus_Playing;
 
 	return status;
@@ -154,34 +154,32 @@ bool NzMusic::OpenFromStream(NzInputStream& stream, const NzMusicParams& params)
 
 void NzMusic::Pause()
 {
-	return;
+	alSourcePause(m_source);
 }
 
-bool NzMusic::Play()
+void NzMusic::Play()
 {
 	#if NAZARA_AUDIO_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Music not created");
-		return false;
+		return;
 	}
 	#endif
 
-	/*if (m_impl->playing)
+	if (m_impl->streaming)
 	{
-		if (m_impl->paused)
+		if (GetStatus() != nzSoundStatus_Playing)
 			alSourcePlay(m_source);
-		else
-			// On repositionne au début
-			m_impl->stream->Seek(0);
 
-		return true;
-	}*/
+		return;
+	}
 
-	m_impl->playing = true;
+	m_impl->stream->Seek(0);
+	m_impl->streaming = true;
 	m_impl->thread = NzThread(&NzMusic::MusicThread, this);
 
-	return true;
+	return;
 }
 
 void NzMusic::Stop()
@@ -194,20 +192,31 @@ void NzMusic::Stop()
 	}
 	#endif
 
-	if (m_impl->playing)
+	if (m_impl->streaming)
 	{
-		m_impl->playing = false;
+		m_impl->streaming = false;
 		m_impl->thread.Join();
 	}
 }
 
 bool NzMusic::FillBuffer(unsigned int buffer)
 {
-	unsigned int sampleRead = m_impl->stream->Read(&m_impl->chunkSamples[0], m_impl->chunkSamples.size());
+	unsigned int sampleCount = m_impl->chunkSamples.size();
+	unsigned int sampleRead = 0;
+
+	for (;;)
+	{
+		sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount-sampleRead);
+		if (sampleRead != sampleCount && m_impl->loop)
+			m_impl->stream->Seek(0);
+		else
+			break;
+	}
+
 	if (sampleRead > 0)
 		alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], sampleRead*sizeof(nzInt16), m_impl->sampleRate);
 
-	return sampleRead != m_impl->chunkSamples.size(); // Fin du fichier
+	return sampleRead != sampleCount; // Fin du fichier (N'arrive pas en cas de loop)
 }
 
 void NzMusic::MusicThread()
@@ -217,51 +226,39 @@ void NzMusic::MusicThread()
 
 	for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMEDBUFFERCOUNT; ++i)
 	{
-		FillBuffer(buffers[i]);
+		bool eof = FillBuffer(buffers[i]);
 		alSourceQueueBuffers(m_source, 1, &buffers[i]);
+
+		if (eof)
+			break; // Nous avons fini, nous ne continuons pas
 	}
 
 	alSourcePlay(m_source);
 
-	while (m_impl->playing)
+	while (m_impl->streaming)
 	{
 		nzSoundStatus status = GetInternalStatus();
 		if (status == nzSoundStatus_Stopped)
 		{
-			NazaraError("Stopped !");
-			if (m_impl->loop)
-			{
-				m_impl->stream->Seek(0);
-				for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMEDBUFFERCOUNT; ++i)
-				{
-					FillBuffer(buffers[i]);
-					alSourceQueueBuffers(m_source, 1, &buffers[i]);
-				}
-
-				alSourcePlay(m_source);
-			}
-			else
-				m_impl->playing = false;
-
+			m_impl->streaming = false;
 			break;
 		}
 
 		ALint processedCount = 0;
 		alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
 
-		if (processedCount > 0)
-			NazaraWarning(NzString::Number(processedCount));
-
 		ALuint buffer;
 		while (processedCount--)
 		{
 			alSourceUnqueueBuffers(m_source, 1, &buffer);
-			FillBuffer(buffer);
-			alSourceQueueBuffers(m_source, 1, &buffer);
+			if (!FillBuffer(buffer)) // Fin du fichier ?
+				alSourceQueueBuffers(m_source, 1, &buffer);
 		}
 
-		NzThread::Sleep(NAZARA_AUDIO_STREAMEDBUFFERCOUNT*500);
+		NzThread::Sleep(50);
 	}
+
+	alSourceStop(m_source);
 
 	ALint queuedBufferCount;
 	alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
