@@ -61,6 +61,7 @@ void NzMusic::Destroy()
 	{
 		Stop();
 
+		delete m_impl->stream;
 		delete m_impl;
 		m_impl = nullptr;
 	}
