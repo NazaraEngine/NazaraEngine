@@ -472,6 +472,23 @@ int NzMesh::GetSubMeshIndex(const NzString& identifier) const
 	return it->second;
 }
 
+unsigned int NzMesh::GetTriangleCount() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return 0;
+	}
+	#endif
+
+	unsigned int triangleCount = 0;
+	for (NzSubMesh* subMesh : m_impl->subMeshes)
+		triangleCount += subMesh->GetTriangleCount();
+
+	return triangleCount;
+}
+
 unsigned int NzMesh::GetVertexCount() const
 {
 	#if NAZARA_UTILITY_SAFE
