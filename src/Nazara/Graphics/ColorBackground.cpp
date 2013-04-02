@@ -11,8 +11,10 @@ m_color(color)
 {
 }
 
-void NzColorBackground::Draw() const
+void NzColorBackground::Draw(const NzScene* scene) const
 {
+	NazaraUnused(scene);
+
 	NzRenderer::SetClearColor(m_color);
 	NzRenderer::Clear(nzRendererClear_Color);
 }
