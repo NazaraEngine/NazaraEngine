@@ -12,8 +12,10 @@ m_texture(texture)
 {
 }
 
-void NzTextureBackground::Draw() const
+void NzTextureBackground::Draw(const NzScene* scene) const
 {
+	NazaraUnused(scene);
+
 	const NzRenderTarget* target = NzRenderer::GetTarget();
 	NzRectui viewport = NzRenderer::GetViewport();
 

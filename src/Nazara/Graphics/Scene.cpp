@@ -108,7 +108,7 @@ void NzScene::Draw()
 	NzRenderer::Clear(nzRendererClear_Depth);
 
 	if (m_impl->background)
-		m_impl->background->Draw();
+		m_impl->background->Draw(this);
 
 	LightComparator lightComparator;
 
