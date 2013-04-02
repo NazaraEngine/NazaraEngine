@@ -16,7 +16,7 @@ class NAZARA_API NzColorBackground : public NzBackground
 	public:
 		NzColorBackground(const NzColor& color = NzColor::Black);
 
-		void Draw() const;
+		void Draw(const NzScene* scene) const;
 
 		nzBackgroundType GetBackgroundType() const;
 		NzColor GetColor() const;

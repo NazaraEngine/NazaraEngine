@@ -10,13 +10,15 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
+class NzScene;
+
 class NAZARA_API NzBackground
 {
 	public:
 		NzBackground() = default;
 		~NzBackground();
 
-		virtual void Draw() const = 0;
+		virtual void Draw(const NzScene* scene) const = 0;
 
 		virtual nzBackgroundType GetBackgroundType() const = 0;
 };
