@@ -142,7 +142,7 @@ enum nzImageType
 enum nzNodeType
 {
 	nzNodeType_Default,  // NzNode
-	nzNodeType_Scene,    // NzSceneNode (3D)
+	nzNodeType_Scene,    // NzSceneNode (Graphics)
 	nzNodeType_Skeletal, ///TODO
 
 	nzNodeType_Max = nzNodeType_Skeletal

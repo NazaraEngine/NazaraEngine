@@ -3,15 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
 #include <Nazara/Graphics/Loaders/OBJ.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-bool Nz3D::Initialize()
+bool NzGraphics::Initialize()
 {
 	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
@@ -38,12 +38,12 @@ bool Nz3D::Initialize()
 	return true;
 }
 
-bool Nz3D::IsInitialized()
+bool NzGraphics::IsInitialized()
 {
 	return s_moduleReferenceCounter != 0;
 }
 
-void Nz3D::Uninitialize()
+void NzGraphics::Uninitialize()
 {
 	if (s_moduleReferenceCounter != 1)
 	{
@@ -64,7 +64,7 @@ void Nz3D::Uninitialize()
 	NazaraNotice("Uninitialized: Graphics module");
 
 	// Libération des dépendances
-	Nz2D::Uninitialize();
+	NzRenderer::Uninitialize();
 }
 
-unsigned int Nz3D::s_moduleReferenceCounter = 0;
+unsigned int NzGraphics::s_moduleReferenceCounter = 0;
