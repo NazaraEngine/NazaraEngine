@@ -23,7 +23,7 @@
 #include <memory>
 #include <set>
 #include <vector>
-#include <Nazara/3D/Debug.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace
 {
@@ -350,7 +350,7 @@ unsigned int NzScene::GetUpdatePerSecond() const
 
 void NzScene::RegisterForUpdate(NzUpdatable* object)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!object)
 	{
 		NazaraError("Invalid object");
@@ -378,7 +378,7 @@ void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
 
 void NzScene::UnregisterForUpdate(NzUpdatable* object)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!object)
 	{
 		NazaraError("Invalid object");
