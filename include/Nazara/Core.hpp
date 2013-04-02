@@ -1,4 +1,4 @@
-// This file was automatically generated on 13 Mar 2013 at 23:20:31
+// This file was automatically generated on 03 Apr 2013 at 01:09:47
 
 /*
 	Nazara Engine - Core module
@@ -59,6 +59,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/Semaphore.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
