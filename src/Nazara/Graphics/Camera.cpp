@@ -25,7 +25,7 @@ NzCamera::~NzCamera() = default;
 
 void NzCamera::Activate() const
 {
-	#ifdef NAZARA_3D_SAFE
+	#ifdef NAZARA_GRAPHICS_SAFE
 	if (!m_target)
 	{
 		NazaraError("No render target !");
