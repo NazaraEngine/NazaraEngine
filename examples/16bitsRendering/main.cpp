@@ -1,14 +1,14 @@
 // Cette démo suppose que vous avez déjà lu les commentaires de "FirstScene"
 
-#include <Nazara/3D.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
 
 int main()
 {
-	NzInitializer<Nz3D> nazara;
+	NzInitializer<NzGraphics> nazara;
 	if (!nazara)
 	{
 		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;

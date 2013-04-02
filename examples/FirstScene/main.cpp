@@ -1,16 +1,16 @@
-#include <Nazara/3D.hpp> // Module 3D
 #include <Nazara/Core/Clock.hpp> // Horloges
+#include <Nazara/Graphics.hpp> // Module Graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Utility.hpp> // Module utilitaire
 #include <iostream>
 
 int main()
 {
-	// Pour commencer, nous initialisons le module 3D, celui-ci va provoquer l'initialisation (dans l'ordre),
-	// du noyau (Core), Utility, Renderer, 2D.
+	// Pour commencer, nous initialisons le module Graphique, celui-ci va provoquer l'initialisation (dans l'ordre),
+	// du noyau (Core), Utility, Renderer.
 	// NzInitializer est une classe RAII appelant Initialize dans son constructeur et Uninitialize dans son destructeur.
 	// Autrement dit, une fois ceci fait nous n'avons plus à nous soucier de la libération du moteur.
-	NzInitializer<Nz3D> nazara;
+	NzInitializer<NzGraphics> nazara;
 	if (!nazara)
 	{
 		// Une erreur s'est produite dans l'initialisation d'un des modules

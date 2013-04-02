@@ -8,7 +8,7 @@
 #define NAZARA_CAMERA_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/3D/SceneNode.hpp>
+#include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>

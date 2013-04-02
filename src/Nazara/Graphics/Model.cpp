@@ -107,7 +107,7 @@ void NzModel::AddToRenderQueue(NzRenderQueue& renderQueue) const
 
 void NzModel::AdvanceAnimation(float elapsedTime)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_animation)
 	{
 		NazaraError("Model has no animation");
@@ -163,7 +163,7 @@ NzAnimation* NzModel::GetAnimation() const
 
 const NzBoundingBoxf& NzModel::GetBoundingBox() const
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_mesh)
 	{
 		NazaraError("Model has no mesh");
@@ -181,7 +181,7 @@ const NzBoundingBoxf& NzModel::GetBoundingBox() const
 
 NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (matIndex >= m_matCount)
 	{
 		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
@@ -194,7 +194,7 @@ NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 
 NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (skinIndex >= m_skinCount)
 	{
 		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
@@ -296,7 +296,7 @@ void NzModel::Reset()
 
 bool NzModel::SetAnimation(NzAnimation* animation)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_mesh)
 	{
 		NazaraError("Model has no animation");
@@ -344,7 +344,7 @@ bool NzModel::SetAnimation(NzAnimation* animation)
 
 void NzModel::SetMaterial(unsigned int matIndex, NzMaterial* material)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (matIndex >= m_matCount)
 	{
 		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
@@ -362,7 +362,7 @@ void NzModel::SetMaterial(unsigned int matIndex, NzMaterial* material)
 
 void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (skinIndex >= m_skinCount)
 	{
 		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
@@ -423,7 +423,7 @@ void NzModel::SetMesh(NzMesh* mesh)
 bool NzModel::SetSequence(const NzString& sequenceName)
 {
 	///TODO: Rendre cette erreur "safe" avec le nouveau système de gestions d'erreur (No-log)
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_animation)
 	{
 		NazaraError("Model has no animation");
@@ -446,7 +446,7 @@ bool NzModel::SetSequence(const NzString& sequenceName)
 
 void NzModel::SetSequence(unsigned int sequenceIndex)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_animation)
 	{
 		NazaraError("Model has no animation");
@@ -455,7 +455,7 @@ void NzModel::SetSequence(unsigned int sequenceIndex)
 	#endif
 
 	const NzSequence* currentSequence = m_animation->GetSequence(sequenceIndex);
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!currentSequence)
 	{
 		NazaraError("Sequence not found");
@@ -469,7 +469,7 @@ void NzModel::SetSequence(unsigned int sequenceIndex)
 
 void NzModel::SetSkin(unsigned int skin)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (skin >= m_skinCount)
 	{
 		NazaraError("Skin index out of range (" + NzString::Number(skin) + " >= " + NzString::Number(m_skinCount));
@@ -482,7 +482,7 @@ void NzModel::SetSkin(unsigned int skin)
 
 void NzModel::SetSkinCount(unsigned int skinCount)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (skinCount == 0)
 	{
 		NazaraError("Skin count must be over 0");
@@ -587,7 +587,7 @@ void NzModel::UpdateBoundingBox() const
 
 bool NzModel::VisibilityTest(const NzFrustumf& frustum)
 {
-	#if NAZARA_3D_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (!m_mesh)
 	{
 		NazaraError("Model has no mesh");
