@@ -9,17 +9,17 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<unsigned int N>
-struct NzTupleUnpack
+struct NzImplTupleUnpack
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>& t,  Args&... args)
 	{
-		NzTupleUnpack<N-1>()(func, t, std::get<N-1>(t), args...);
+		NzImplTupleUnpack<N-1>()(func, t, std::get<N-1>(t), args...);
 	}
 };
 
 template<>
-struct NzTupleUnpack<0>
+struct NzImplTupleUnpack<0>
 {
 	template <typename F, typename... ArgsT, typename... Args>
 	void operator()(F func, const std::tuple<ArgsT...>&, Args&... args)
@@ -31,7 +31,7 @@ struct NzTupleUnpack<0>
 template<typename F, typename... ArgsT>
 void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)
 {
-	NzTupleUnpack<sizeof...(ArgsT)>()(func, t);
+	NzImplTupleUnpack<sizeof...(ArgsT)>()(func, t);
 }
 
 #include <Nazara/Core/DebugOff.hpp>
