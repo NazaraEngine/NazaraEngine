@@ -49,10 +49,10 @@ void NzNoise::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	NazaraNotice("Uninitialized: Noise module");
+
 	// Libération des dépendances
 	NzCore::Uninitialize();
-
-	NazaraNotice("Uninitialized: Noise module");
 }
 
 unsigned int NzNoise::s_moduleReferenceCounter = 0;
