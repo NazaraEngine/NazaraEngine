@@ -80,6 +80,7 @@ NzString NzHardwareInfo::GetProcessorBrandString()
 
 unsigned int NzHardwareInfo::GetProcessorCount()
 {
+	///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
 	static unsigned int processorCount = std::max(NzHardwareInfoImpl::GetProcessorCount(), 1U);
 	return processorCount;
 }

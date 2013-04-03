@@ -5,6 +5,7 @@
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
@@ -19,7 +20,7 @@ namespace
 	struct TaskSchedulerImpl
 	{
 		std::queue<NzFunctor*> tasks;
-		std::vector<NzThread*> workers;
+		std::vector<NzThread> workers;
 		NzConditionVariable waiterConditionVariable;
 		NzConditionVariable workerConditionVariable;
 		NzMutex taskMutex;
@@ -31,6 +32,7 @@ namespace
 	};
 
 	TaskSchedulerImpl* s_impl = nullptr;
+	unsigned int s_workerCount = 0;
 
 	void WorkerFunc()
 	{
@@ -84,29 +86,39 @@ namespace
 
 unsigned int NzTaskScheduler::GetWorkerCount()
 {
-	#ifdef NAZARA_CORE_SAFE
-	if (!s_impl)
-	{
-		NazaraError("Task scheduler is not initialized");
-		return 0;
-	}
-	#endif
-
-	return s_impl->workers.size();
+	return (s_workerCount > 0) ? s_workerCount : NzHardwareInfo::GetProcessorCount();
 }
 
-bool NzTaskScheduler::Initialize(unsigned int workerCount)
+bool NzTaskScheduler::Initialize()
 {
 	if (s_impl)
 		return true; // Déjà initialisé
 
 	s_impl = new TaskSchedulerImpl;
-	s_impl->workers.reserve(workerCount);
 
+	unsigned int workerCount = GetWorkerCount();
+
+	s_impl->workers.resize(workerCount);
 	for (unsigned int i = 0; i < workerCount; ++i)
-		s_impl->workers.push_back(new NzThread(WorkerFunc));
+		s_impl->workers[i] = NzThread(WorkerFunc);
 
 	return true;
+}
+
+void NzTaskScheduler::SetWorkerCount(unsigned int workerCount)
+{
+	s_workerCount = workerCount;
+	if (s_impl)
+	{
+		unsigned int newWorkerCount = GetWorkerCount();
+		unsigned int oldWorkerCount = s_impl->workers.size();
+		s_impl->workers.resize(newWorkerCount);
+		if (newWorkerCount > oldWorkerCount)
+		{
+			for (unsigned int i = oldWorkerCount-1; i < newWorkerCount; ++i)
+				s_impl->workers[i] = NzThread(WorkerFunc);
+		}
+	}
 }
 
 void NzTaskScheduler::Uninitialize()
@@ -130,11 +142,8 @@ void NzTaskScheduler::Uninitialize()
 		s_impl->workerConditionVariable.SignalAll();
 		s_impl->workerConditionVariableMutex.Unlock();
 
-		for (NzThread* thread : s_impl->workers)
-		{
-			thread->Join();
-			delete thread;
-		}
+		for (NzThread& thread : s_impl->workers)
+			thread.Join();
 
 		delete s_impl;
 		s_impl = nullptr;

@@ -16,7 +16,7 @@ class NAZARA_API NzCore
 		NzCore() = delete;
 		~NzCore() = delete;
 
-		static bool Initialize(bool initializeHardwareInfo = false, bool initializeTaskScheduler = false);
+		static bool Initialize();
 
 		static bool IsInitialized();
 
