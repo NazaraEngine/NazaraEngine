@@ -21,7 +21,8 @@ class NAZARA_API NzTaskScheduler
 		template<typename F, typename... Args> static void AddTask(F function, Args... args);
 		template<typename C> static void AddTask(void (C::*function)(), C* object);
 		static unsigned int GetWorkerCount();
-		static bool Initialize(unsigned int workerCount = NzThread::HardwareConcurrency());
+		static bool Initialize();
+		static void SetWorkerCount(unsigned int workerCount);
 		static void Uninitialize();
 		static void WaitForTasks();
 
