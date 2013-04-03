@@ -2,33 +2,69 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-template<typename T>
-template<typename... Args>
-NzInitializer<T>::NzInitializer(Args... args)
-{
-	T::Initialize(args...);
-}
+template<typename...> struct NzImplInitializer;
 
-template<typename T>
-NzInitializer<T>::~NzInitializer()
+template<typename T, typename... Rest>
+struct NzImplInitializer<T, Rest...>
 {
-	if (T::IsInitialized())
+	static bool Init()
+	{
+		if (T::Initialize())
+		{
+			if (NzImplInitializer<Rest...>::Init())
+				return true;
+			else
+				T::Uninitialize();
+		}
+
+		return false;
+	}
+
+	static void Uninit()
+	{
 		T::Uninitialize();
+		NzImplInitializer<Rest...>::Uninit();
+	}
+};
+
+template<>
+struct NzImplInitializer<>
+{
+	static bool Init()
+	{
+		return true;
+	}
+
+	static void Uninit()
+	{
+	}
+};
+
+template<typename... Args>
+NzInitializer<Args...>::NzInitializer()
+{
+	m_initialized = NzImplInitializer<Args...>::Init();
 }
 
-template<typename T>
-bool NzInitializer<T>::IsInitialized() const
+template<typename... Args>
+NzInitializer<Args...>::~NzInitializer()
 {
-	return T::IsInitialized();
+	if (m_initialized)
+		NzImplInitializer<Args...>::Uninit();
 }
 
-template<typename T>
-NzInitializer<T>::operator bool() const
+template<typename... Args>
+bool NzInitializer<Args...>::IsInitialized() const
 {
-	return T::IsInitialized();
+	return m_initialized;
+}
+
+template<typename... Args>
+NzInitializer<Args...>::operator bool() const
+{
+	return m_initialized;
 }
 
 #include <Nazara/Core/DebugOff.hpp>
