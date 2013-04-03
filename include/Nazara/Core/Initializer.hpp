@@ -9,16 +9,19 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-template<typename T>
+template<typename... Args>
 class NzInitializer
 {
 	public:
-		template<typename... Args> NzInitializer(Args... args);
+		NzInitializer();
 		~NzInitializer();
 
 		bool IsInitialized() const;
 
 		operator bool() const;
+
+	private:
+		bool m_initialized;
 };
 
 #include <Nazara/Core/Initializer.inl>
