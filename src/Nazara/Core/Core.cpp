@@ -10,24 +10,9 @@
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-bool NzCore::Initialize(bool initializeHardwareInfo, bool initializeTaskScheduler)
+bool NzCore::Initialize()
 {
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-	if (initializeHardwareInfo && !NzHardwareInfo::Initialize())
-		NazaraWarning("Failed to initialize hardware info"); // Non-critique
-
-	if (initializeTaskScheduler && !NzTaskScheduler::Initialize())
-	{
-		NazaraError("Failed to initialize task scheduler");
-		Uninitialize();
-
-		return false;
-	}
-
-	// Vérification après l'initialisation des sous-modules
-	if (s_moduleReferenceCounter != 1)
+	if (s_moduleReferenceCounter++ != 0)
 		return true; // Déjà initialisé
 
 	NazaraNotice("Initialized: Core");
