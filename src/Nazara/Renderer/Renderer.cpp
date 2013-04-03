@@ -616,15 +616,10 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 	return s_capabilities[capability];
 }
 
-bool NzRenderer::Initialize(bool initializeDebugDrawer)
+bool NzRenderer::Initialize()
 {
 	if (s_moduleReferenceCounter++ != 0)
-	{
-		if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
-			NazaraWarning("Failed to initialize debug drawer"); // Non-critique
-
 		return true; // Déjà initialisé
-	}
 
 	// Initialisation des dépendances
 	if (!NzUtility::Initialize())
@@ -760,9 +755,6 @@ bool NzRenderer::Initialize(bool initializeDebugDrawer)
 
 	s_quadBuffer = new NzVertexBuffer(declaration.get(), 4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 	declaration.release();
-
-	if (initializeDebugDrawer && !NzDebugDrawer::Initialize())
-		NazaraWarning("Failed to initialize debug drawer"); // Non-critique
 
 	if (!NzShaderBuilder::Initialize())
 	{
