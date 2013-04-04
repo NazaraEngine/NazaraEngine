@@ -4916,7 +4916,7 @@ NzString operator+(char character, const NzString& string)
 	unsigned int totalSize = string.m_sharedString->size+1;
 	char* str = new char[totalSize+1];
 	str[0] = character;
-	std::memcpy(str, string.m_sharedString->string, string.m_sharedString->size+1);
+	std::memcpy(&str[1], string.m_sharedString->string, string.m_sharedString->size+1);
 
 	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
 }
