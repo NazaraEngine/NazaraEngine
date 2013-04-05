@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <Nazara/Renderer/Debug.hpp>
 
+///TODO: Remplacer par les ShaderNode
+
 namespace
 {
 	std::unordered_map<nzUInt32, NzResourceRef<NzShader>> s_shaders;
@@ -23,6 +25,7 @@ namespace
 
 		NzString inKW = (glsl140) ? "in" : "varying";
 		NzString fragmentColorKW = (glsl140) ? "RenderTarget0" : "gl_FragColor";
+		NzString textureLookupKW = (glsl140) ? "texture" : "texture2D";
 
 		NzString sourceCode;
 		sourceCode.Reserve(1024); // Le shader peut faire plus, mais cela évite déjà beaucoup de petites allocations
@@ -129,7 +132,7 @@ namespace
 				sourceCode += "vec3 si = vec3(0.0, 0.0, 0.0);\n";
 
 			if (flags & nzShaderFlags_NormalMapping)
-				sourceCode += "vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture2D(MaterialNormalMap, vTexCoord)) - 1.0));\n";
+				sourceCode += "vec3 normal = normalize(vLightToWorld * (2.0 * vec3(" + textureLookupKW + "(MaterialNormalMap, vTexCoord)) - 1.0));\n";
 			else
 				sourceCode += "vec3 normal = normalize(vNormal);\n";
 
@@ -267,15 +270,15 @@ namespace
 			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.a)";
 
 			if (flags & nzShaderFlags_DiffuseMapping)
-				sourceCode += "*texture2D(MaterialDiffuseMap, vTexCoord)";
+				sourceCode += '*' + textureLookupKW + "(MaterialDiffuseMap, vTexCoord)";
 
 			if (flags & nzShaderFlags_SpecularMapping)
-				sourceCode += " + vec4(si, MaterialDiffuse.a)*texture2D(MaterialSpecularMap, vTexCoord)"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
+				sourceCode += " + vec4(si, MaterialDiffuse.a)*" + textureLookupKW + "(MaterialSpecularMap, vTexCoord)"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 
 			sourceCode += ";\n";
 		}
 		else if (flags & nzShaderFlags_DiffuseMapping)
-			sourceCode += fragmentColorKW + " = texture2D(MaterialDiffuseMap, vTexCoord);\n";
+			sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
 
@@ -467,7 +470,7 @@ const NzShader* NzShaderBuilder::Get(nzUInt32 flags)
 		NzShader* shader = BuildShader(flags);
 		if (!shader)
 		{
-			NazaraWarning("Failed to build shader (flags: 0x" + NzString::Number(flags, 16) + ", using default one...");
+			NazaraWarning("Failed to build shader (flags: 0x" + NzString::Number(flags, 16) + "), using default one...");
 
 			shader = s_shaders[0]; // Shader par défaut
 		}
