@@ -16,7 +16,7 @@ class NAZARA_API NzBackground
 {
 	public:
 		NzBackground() = default;
-		~NzBackground();
+		virtual ~NzBackground();
 
 		virtual void Draw(const NzScene* scene) const = 0;
 
