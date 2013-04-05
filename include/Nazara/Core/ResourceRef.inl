@@ -54,15 +54,18 @@ template<typename T>
 bool NzResourceRef<T>::Reset(T* resource)
 {
 	bool destroyed = false;
-	if (m_resource)
+	if (m_resource != resource)
 	{
-		destroyed = m_resource->RemoveResourceReference();
-		m_resource = nullptr;
-	}
+		if (m_resource)
+		{
+			destroyed = m_resource->RemoveResourceReference();
+			m_resource = nullptr;
+		}
 
-	m_resource = resource;
-	if (m_resource)
-		m_resource->AddResourceReference();
+		m_resource = resource;
+		if (m_resource)
+			m_resource->AddResourceReference();
+	}
 
 	return destroyed;
 }
@@ -96,16 +99,7 @@ T* NzResourceRef<T>::operator->() const
 template<typename T>
 NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
 {
-	if (m_resource != resource)
-	{
-		Reset();
-
-		if (resource)
-		{
-			m_resource = resource;
-			m_resource->AddResourceReference();
-		}
-	}
+	Reset(resource);
 
 	return *this;
 }
@@ -113,16 +107,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
 template<typename T>
 NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 {
-	if (m_resource != ref.m_resource)
-	{
-		Reset();
-
-		if (ref)
-		{
-			m_resource = ref.m_resource;
-			m_resource->AddResourceReference();
-		}
-	}
+	Reset(ref.m_resource);
 
 	return *this;
 }
