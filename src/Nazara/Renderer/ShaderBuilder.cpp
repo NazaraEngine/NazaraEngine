@@ -127,14 +127,6 @@ namespace
 		sourceCode += "void main()\n"
 		              "{\n";
 
-		if (flags & nzShaderFlags_EmissiveMapping)
-		{
-			// Les emissive map court-circuitent l'éclairage
-			sourceCode += "vec3 emissive = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
-			              "if (emissive == vec3(0.0, 0.0, 0.0))\n"
-			              "{\n";
-		}
-
 		if (flags & nzShaderFlags_Lighting)
 		{
 			sourceCode += "vec3 light = vec3(0.0, 0.0, 0.0);\n";
@@ -278,28 +270,29 @@ namespace
 			sourceCode += "}\n"
 			              "\n";
 
-			sourceCode += fragmentColorKW + " = vec4(light, MaterialDiffuse.a)";
+			sourceCode += "vec3 lighting = light";
 
 			if (flags & nzShaderFlags_DiffuseMapping)
-				sourceCode += '*' + textureLookupKW + "(MaterialDiffuseMap, vTexCoord)";
+				sourceCode += "*vec3(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord))";
 
 			if (flags & nzShaderFlags_SpecularMapping)
-				sourceCode += " + vec4(si, MaterialDiffuse.a)*" + textureLookupKW + "(MaterialSpecularMap, vTexCoord)"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
+				sourceCode += " + si*vec3(" + textureLookupKW + "(MaterialSpecularMap, vTexCoord))"; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 
 			sourceCode += ";\n";
+
+			if (flags & nzShaderFlags_EmissiveMapping)
+			{
+				sourceCode += "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
+				               + fragmentColorKW + " = vec4(mix(lighting, emission, length(emission)), MaterialDiffuse.a);";
+				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(emission)" par "dot(emission, emission)"
+			}
+			else
+				sourceCode += fragmentColorKW + " = vec4(lighting, MaterialDiffuse.a);";
 		}
 		else if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
-
-		if (flags & nzShaderFlags_EmissiveMapping)
-		{
-			sourceCode += "}\n"
-			              "else\n"
-			              + fragmentColorKW + " = vec4(emissive, MaterialDiffuse.a);\n";
-		}
-
 
 		sourceCode += "}\n";
 
