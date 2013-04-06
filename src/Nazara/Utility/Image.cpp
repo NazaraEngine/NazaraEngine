@@ -316,8 +316,11 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 
 void NzImage::Destroy()
 {
-	NotifyDestroy();
-	ReleaseImage();
+	if (m_sharedImage != &emptyImage)
+	{
+		NotifyDestroy();
+		ReleaseImage();
+	}
 }
 
 bool NzImage::Fill(const NzColor& color)
