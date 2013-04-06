@@ -32,6 +32,7 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 	// Nous "volons" la référence du matériau
 	material.m_customShader = nullptr;
 	material.m_diffuseMap = nullptr;
+	material.m_emissiveMap = nullptr;
 	material.m_heightMap = nullptr;
 	material.m_normalMap = nullptr;
 	material.m_specularMap = nullptr;
@@ -60,6 +61,19 @@ void NzMaterial::Apply(const NzShader* shader) const
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send diffuse map");
+		}
+	}
+
+	if (m_emissiveMap)
+	{
+		int emissiveMapLocation = shader->GetUniformLocation("MaterialEmissiveMap");
+		if (emissiveMapLocation != -1)
+		{
+			nzUInt8 textureUnit;
+			if (shader->SendTexture(emissiveMapLocation, m_emissiveMap, &textureUnit))
+				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			else
+				NazaraWarning("Failed to send emissive map");
 		}
 	}
 
@@ -195,6 +209,11 @@ nzBlendFunc NzMaterial::GetDstBlend() const
 	return m_dstBlend;
 }
 
+NzTexture* NzMaterial::GetEmissiveMap() const
+{
+	return m_emissiveMap;
+}
+
 nzFaceCulling NzMaterial::GetFaceCulling() const
 {
 	return m_faceCulling;
@@ -309,6 +328,7 @@ void NzMaterial::Reset()
 {
 	m_customShader.Reset();
 	m_diffuseMap.Reset();
+	m_emissiveMap.Reset();
 	m_heightMap.Reset();
 	m_normalMap.Reset();
 	m_specularMap.Reset();
@@ -364,6 +384,15 @@ void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
 void NzMaterial::SetDstBlend(nzBlendFunc func)
 {
 	m_dstBlend = func;
+}
+
+void NzMaterial::SetEmissiveMap(NzTexture* map)
+{
+	m_emissiveMap = map;
+	if (m_emissiveMap)
+		m_shaderFlags |= nzShaderFlags_EmissiveMapping;
+	else
+		m_shaderFlags &= ~nzShaderFlags_EmissiveMapping;
 }
 
 void NzMaterial::SetFaceCulling(nzFaceCulling culling)
@@ -438,6 +467,7 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	// Comme ça nous volons la référence du matériau
 	material.m_customShader = nullptr;
 	material.m_diffuseMap = nullptr;
+	material.m_emissiveMap = nullptr;
 	material.m_heightMap = nullptr;
 	material.m_normalMap = nullptr;
 	material.m_specularMap = nullptr;
@@ -467,6 +497,7 @@ void NzMaterial::Copy(const NzMaterial& material)
 {
 	m_customShader.Reset();
 	m_diffuseMap.Reset();
+	m_emissiveMap.Reset();
 	m_heightMap.Reset();
 	m_normalMap.Reset();
 	m_specularMap.Reset();
@@ -476,6 +507,7 @@ void NzMaterial::Copy(const NzMaterial& material)
 	// Ensuite une petite astuce pour récupérer correctement les références
 	m_customShader.Release();
 	m_diffuseMap.Release();
+	m_emissiveMap.Release();
 	m_heightMap.Release();
 	m_normalMap.Release();
 	m_specularMap.Release();

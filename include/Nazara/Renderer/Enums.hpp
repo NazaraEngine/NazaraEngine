@@ -148,14 +148,15 @@ enum nzShaderFlags
 {
 	nzShaderFlags_None = 0,
 
-	nzShaderFlags_Deferred        = 0x01,
-	nzShaderFlags_DiffuseMapping  = 0x02,
-	nzShaderFlags_FlipUVs         = 0x04,
-	nzShaderFlags_Instancing      = 0x08,
-	nzShaderFlags_Lighting        = 0x10,
-	nzShaderFlags_NormalMapping   = 0x20,
-	nzShaderFlags_ParallaxMapping = 0x40,
-	nzShaderFlags_SpecularMapping = 0x80
+	nzShaderFlags_Deferred        = 0x001,
+	nzShaderFlags_DiffuseMapping  = 0x002,
+	nzShaderFlags_EmissiveMapping = 0x004,
+	nzShaderFlags_FlipUVs         = 0x008,
+	nzShaderFlags_Instancing      = 0x010,
+	nzShaderFlags_Lighting        = 0x020,
+	nzShaderFlags_NormalMapping   = 0x040,
+	nzShaderFlags_ParallaxMapping = 0x080,
+	nzShaderFlags_SpecularMapping = 0x100
 };
 
 enum nzShaderLanguage
