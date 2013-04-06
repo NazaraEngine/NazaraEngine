@@ -81,6 +81,9 @@ namespace
 		if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
 
+		if (flags & nzShaderFlags_EmissiveMapping)
+			sourceCode += "uniform sampler2D MaterialEmissiveMap;\n";
+
 		if (flags & nzShaderFlags_Lighting)
 		{
 			if (flags & nzShaderFlags_NormalMapping)
@@ -123,6 +126,14 @@ namespace
 		/********************Fonctions********************/
 		sourceCode += "void main()\n"
 		              "{\n";
+
+		if (flags & nzShaderFlags_EmissiveMapping)
+		{
+			// Les emissive map court-circuitent l'éclairage
+			sourceCode += "vec3 emissive = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
+			              "if (emissive == vec3(0.0, 0.0, 0.0))\n"
+			              "{\n";
+		}
 
 		if (flags & nzShaderFlags_Lighting)
 		{
@@ -281,6 +292,14 @@ namespace
 			sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
+
+		if (flags & nzShaderFlags_EmissiveMapping)
+		{
+			sourceCode += "}\n"
+			              "else\n"
+			              + fragmentColorKW + " = vec4(emissive, MaterialDiffuse.a);\n";
+		}
+
 
 		sourceCode += "}\n";
 
