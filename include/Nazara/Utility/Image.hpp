@@ -60,7 +60,7 @@ class NAZARA_API NzImage : public NzResource
 
 		bool Convert(nzPixelFormat format);
 
-		bool Copy(const NzImage& source, const NzCubeui& srcCube, const NzVector3ui& dstPos);
+		void Copy(const NzImage& source, const NzCubeui& srcCube, const NzVector3ui& dstPos);
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		void Destroy();
@@ -94,12 +94,12 @@ class NAZARA_API NzImage : public NzResource
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
 
-		bool SetLevelCount(nzUInt8 levelCount);
+		void SetLevelCount(nzUInt8 levelCount);
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
-		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		void Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		void Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		void Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
 		NzImage& operator=(NzImage&& image) noexcept;
