@@ -97,13 +97,14 @@ class NAZARA_API NzImage : public NzResource
 		bool SetLevelCount(nzUInt8 levelCount);
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
-		bool Update(const nzUInt8* pixels, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzCubeui& cube, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
 		NzImage& operator=(NzImage&& image) noexcept;
 
+		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 
 		struct SharedImage
