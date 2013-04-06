@@ -154,41 +154,41 @@ bool NzImage::Convert(nzPixelFormat format)
 	return true;
 }
 
-bool NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVector3ui& dstPos)
+void NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVector3ui& dstPos)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
 		NazaraError("Image must be valid");
-		return false;
+		return;
 	}
 
 	if (!source.IsValid())
 	{
 		NazaraError("Source image must be valid");
-		return false;
+		return;
 	}
 
 	if (source.GetFormat() != m_sharedImage->format)
 	{
 		NazaraError("Source image format does not match destination image format");
-		return false;
+		return;
 	}
 	#endif
 
 	const nzUInt8* srcPtr = source.GetConstPixels(0, srcCube.x, srcCube.y, srcCube.z);
+	#if NAZARA_UTILITY_SAFE
 	if (!srcPtr)
 	{
 		NazaraError("Failed to access pixels");
-		return false;
+		return;
 	}
+	#endif
 
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	nzUInt8* dstPtr = GetPixelPtr(m_sharedImage->pixels[0], bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
 	Copy(dstPtr, srcPtr, bpp, srcCube.width, srcCube.height, srcCube.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
-
-	return true;
 }
 
 bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)
@@ -514,12 +514,6 @@ bool NzImage::FlipHorizontally()
 		NazaraError("Image must be valid");
 		return false;
 	}
-
-	if (NzPixelFormat::IsCompressed(m_sharedImage->format))
-	{
-		NazaraError("Cannot flip compressed image");
-		return false;
-	}
 	#endif
 
 	EnsureOwnership();
@@ -529,7 +523,11 @@ bool NzImage::FlipHorizontally()
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
 	{
-		NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]);
+		if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]))
+		{
+			NazaraError("Failed to flip image");
+			return false;
+		}
 
 		if (width > 1U)
 			width >>= 1;
@@ -567,7 +565,11 @@ bool NzImage::FlipVertically()
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
 	{
-		NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]);
+		if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]))
+		{
+			NazaraError("Failed to flip image");
+			return false;
+		}
 
 		if (width > 1U)
 			width >>= 1;
@@ -859,26 +861,26 @@ bool NzImage::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
 	return NzImageLoader::LoadFromStream(this, stream, params);
 }
 
-bool NzImage::SetLevelCount(nzUInt8 levelCount)
+void NzImage::SetLevelCount(nzUInt8 levelCount)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
 		NazaraError("Image must be valid");
-		return false;
+		return;
 	}
 
 	if (levelCount == 0)
 	{
 		NazaraError("Level count must be positive");
-		return false;
+		return;
 	}
 	#endif
 
 	levelCount = std::min(levelCount, GetMaxLevel(m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
 
 	if (m_sharedImage->levelCount == levelCount)
-		return true;
+		return;
 
 	EnsureOwnership();
 
@@ -900,8 +902,6 @@ bool NzImage::SetLevelCount(nzUInt8 levelCount)
 	delete[] m_sharedImage->pixels;
 
 	m_sharedImage->pixels = pixels;
-
-	return true;
 }
 
 bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y, unsigned int z)
@@ -950,25 +950,25 @@ bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y
 	return true;
 }
 
-bool NzImage::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
+void NzImage::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
 		NazaraError("Image must be valid");
-		return false;
+		return;
 	}
 
 	if (!pixels)
 	{
 		NazaraError("Invalid pixel source");
-		return false;
+		return;
 	}
 
 	if (level >= m_sharedImage->levelCount)
 	{
 		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -980,35 +980,33 @@ bool NzImage::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned int 
 	     GetLevelSize(m_sharedImage->depth, level),
 	     0, 0,
 	     srcWidth, srcHeight);
-
-	return true;
 }
 
-bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
+void NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
 		NazaraError("Image must be valid");
-		return false;
+		return;
 	}
 
 	if (!pixels)
 	{
 		NazaraError("Invalid pixel source");
-		return false;
+		return;
 	}
 
 	if (!rect.IsValid())
 	{
 		NazaraError("Invalid rectangle");
-		return false;
+		return;
 	}
 
 	if (level >= m_sharedImage->levelCount)
 	{
 		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -1019,14 +1017,14 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 	if (rect.x+rect.width > width || rect.y+rect.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
-		return false;
+		return;
 	}
 
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 	if (z >= depth)
 	{
 		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -1039,29 +1037,27 @@ bool NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z
 	     rect.width, rect.height, 1,
 	     width, height,
 	     srcWidth, srcHeight);
-
-	return true;
 }
 
-bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
+void NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
 		NazaraError("Image must be valid");
-		return false;
+		return;
 	}
 
 	if (!pixels)
 	{
 		NazaraError("Invalid pixel source");
-		return false;
+		return;
 	}
 
 	if (level >= m_sharedImage->levelCount)
 	{
 		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return false;
+		return;
 	}
 	#endif
 
@@ -1072,14 +1068,14 @@ bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int s
 	if (!cube.IsValid())
 	{
 		NazaraError("Invalid cube");
-		return false;
+		return;
 	}
 
 	// Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
 	if (cube.x+cube.width > width || cube.y+cube.height > height || cube.z+cube.depth > GetLevelSize(m_sharedImage->height, level))
 	{
 		NazaraError("Cube dimensions are out of bounds");
-		return false;
+		return;
 	}
 	#endif
 
@@ -1092,8 +1088,6 @@ bool NzImage::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int s
 	     cube.width, cube.height, cube.depth,
 	     width, height,
 	     srcWidth, srcHeight);
-
-	return true;
 }
 
 NzImage& NzImage::operator=(const NzImage& image)
