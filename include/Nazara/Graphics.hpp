@@ -1,4 +1,4 @@
-// This file was automatically generated on 03 Apr 2013 at 01:09:47
+// This file was automatically generated on 07 Apr 2013 at 02:09:05
 
 /*
 	Nazara Engine - Graphics module
@@ -42,6 +42,7 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
+#include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP

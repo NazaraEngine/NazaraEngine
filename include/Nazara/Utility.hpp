@@ -1,4 +1,4 @@
-// This file was automatically generated on 13 Mar 2013 at 23:20:31
+// This file was automatically generated on 07 Apr 2013 at 02:09:05
 
 /*
 	Nazara Engine - Window module
@@ -34,6 +34,7 @@
 #include <Nazara/Utility/BufferImpl.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
