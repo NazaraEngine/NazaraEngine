@@ -176,7 +176,7 @@ void NzImage::Copy(const NzImage& source, const NzCubeui& srcCube, const NzVecto
 	}
 	#endif
 
-	const nzUInt8* srcPtr = source.GetConstPixels(0, srcCube.x, srcCube.y, srcCube.z);
+	const nzUInt8* srcPtr = source.GetConstPixels(srcCube.x, srcCube.y, srcCube.z);
 	#if NAZARA_UTILITY_SAFE
 	if (!srcPtr)
 	{
@@ -859,6 +859,130 @@ bool NzImage::LoadFromMemory(const void* data, std::size_t size, const NzImagePa
 bool NzImage::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
 {
 	return NzImageLoader::LoadFromStream(this, stream, params);
+}
+
+bool NzImage::LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams, const NzCubemapParams& cubemapParams)
+{
+	NzImage image;
+	if (!image.LoadFromFile(filePath, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadCubemapFromImage(image, cubemapParams);
+}
+
+bool NzImage::LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& params)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!image.IsValid())
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+	#endif
+
+	unsigned int width = image.GetWidth();
+	unsigned int height = image.GetHeight();
+	unsigned int faceSize = (params.faceSize == 0) ? std::max(width, height)/4 : params.faceSize;
+
+	// Sans cette vérification, celles des rectangles pourrait réussir via un overflow
+	if (width < faceSize || height < faceSize)
+	{
+		NazaraError("Image is too small for this face size");
+		return false;
+	}
+
+	// Calcul et vérification des surfaces
+	unsigned limitX = width - faceSize;
+	unsigned limitY = height - faceSize;
+
+	NzVector2ui backPos = params.backPosition * faceSize;
+	if (backPos.x > limitX || backPos.y > limitY)
+	{
+		NazaraError("Back rectangle is out of image");
+		return false;
+	}
+
+	NzVector2ui downPos = params.downPosition * faceSize;
+	if (downPos.x > limitX || downPos.y > limitY)
+	{
+		NazaraError("Down rectangle is out of image");
+		return false;
+	}
+
+	NzVector2ui forwardPos = params.forwardPosition * faceSize;
+	if (forwardPos.x > limitX || forwardPos.y > limitY)
+	{
+		NazaraError("Forward rectangle is out of image");
+		return false;
+	}
+
+	NzVector2ui leftPos = params.leftPosition * faceSize;
+	if (leftPos.x > limitX || leftPos.y > limitY)
+	{
+		NazaraError("Left rectangle is out of image");
+		return false;
+	}
+
+	NzVector2ui rightPos = params.rightPosition * faceSize;
+	if (rightPos.x > limitX || rightPos.y > limitY)
+	{
+		NazaraError("Right rectangle is out of image");
+		return false;
+	}
+
+	NzVector2ui upPos = params.upPosition * faceSize;
+	if (upPos.x > limitX || upPos.y > limitY)
+	{
+		NazaraError("Up rectangle is out of image");
+		return false;
+	}
+
+	Create(nzImageType_Cubemap, image.GetFormat(), faceSize, faceSize);
+
+	#ifdef NAZARA_DEBUG
+	// Les paramètres sont valides, que Create ne fonctionne pas relèverait d'un bug
+	if (m_sharedImage == &emptyImage)
+	{
+		NazaraInternalError("Failed to create cubemap");
+		return false;
+	}
+	#endif
+
+	Copy(image, NzRectui(backPos.x, backPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_NegativeZ));
+	Copy(image, NzRectui(downPos.x, downPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_NegativeY));
+	Copy(image, NzRectui(forwardPos.x, forwardPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_PositiveZ));
+	Copy(image, NzRectui(leftPos.x, leftPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_NegativeX));
+	Copy(image, NzRectui(rightPos.x, rightPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_PositiveX));
+	Copy(image, NzRectui(upPos.x, upPos.y, faceSize, faceSize), NzVector3ui(0, 0, nzCubemapFace_PositiveY));
+
+	return true;
+}
+
+bool NzImage::LoadCubemapFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams, const NzCubemapParams& cubemapParams)
+{
+	NzImage image;
+	if (!image.LoadFromMemory(data, size, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadCubemapFromImage(image, cubemapParams);
+}
+
+bool NzImage::LoadCubemapFromStream(NzInputStream& stream, const NzImageParams& imageParams, const NzCubemapParams& cubemapParams)
+{
+	NzImage image;
+	if (!image.LoadFromStream(stream, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadCubemapFromImage(image, cubemapParams);
 }
 
 void NzImage::SetLevelCount(nzUInt8 levelCount)
