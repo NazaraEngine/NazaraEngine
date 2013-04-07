@@ -16,6 +16,7 @@
 #include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
@@ -90,9 +91,16 @@ class NAZARA_API NzImage : public NzResource
 		bool IsCubemap() const;
 		bool IsValid() const;
 
+		// Load
 		bool LoadFromFile(const NzString& filePath, const NzImageParams& params = NzImageParams());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
+
+		// LoadCubemap
+		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
+		bool LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& params = NzCubemapParams());
+		bool LoadCubemapFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
+		bool LoadCubemapFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
 
 		void SetLevelCount(nzUInt8 levelCount);
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
