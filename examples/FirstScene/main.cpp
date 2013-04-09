@@ -108,10 +108,10 @@ int main()
 	// regardant dans sa direction.
 
 	// On conserve la rotation à part via des angles d'eulers pour la caméra free-fly
-	NzEulerAnglesf camAngles(0.f, 20.f, 0.f);
+	NzEulerAnglesf camAngles(0.f, -20.f, 0.f);
 
 	NzCamera camera;
-	camera.SetPosition(300.f, 25.f, 200); // On place la caméra à l'écart
+	camera.SetPosition(0.f, 25.f, 200.f); // On place la caméra à l'écart
 	camera.SetRotation(camAngles);
 	camera.SetParent(scene); // On l'attache également à la scène
 
