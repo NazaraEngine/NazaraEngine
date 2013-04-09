@@ -38,7 +38,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	NzString ext = path.SubstrFrom('.', -1, true);
 	if (ext.IsEmpty())
 	{
-		NazaraError("Failed to get file extension");
+		NazaraError("Failed to get file extension from \"" + filePath + '"');
 		return false;
 	}
 
@@ -59,7 +59,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		{
 			if (!file.Open(NzFile::ReadOnly))
 			{
-				NazaraError("Failed to load file: unable to open file");
+				NazaraError("Failed to load file: unable to open \"" + filePath + '"');
 				return false;
 			}
 		}
