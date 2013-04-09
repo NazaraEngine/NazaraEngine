@@ -1,0 +1,36 @@
+--Processeur--
+Identification: Intel(R) Core(TM) i3 CPU       M 330  @ 2.13GHz
+Concepteur: Intel Corporation
+Nombre de coeurs: 4
+
+Report des capacites: 
+-64bits: Oui
+-AVX: Non
+-FMA3: Non
+-FMA4: Non
+-MMX: Oui
+-SSE: Oui
+-SSE2: Oui
+-SSE3: Oui
+-SSSE3: Oui
+-SSE4.1: Oui
+-SSE4.2: Oui
+-SSE4.a: Non
+
+--Carte graphique--
+Identification: AMD Radeon HD 6500M/5600/5700 Series
+Concepteur: ATI Technologies Inc.
+Version d'OpenGL: 4.20
+
+Report des capacites: 
+-Calculs 64bits: Oui
+-Compression de textures (s3tc): Oui
+-Filtrage anisotrope: Oui
+-Framebuffer Object: Oui
+-Mode debug: Oui
+-Pixelbuffer Object: Oui
+-Samplers Object: Oui
+-Separate shader objects: Oui
+-Texture array: Oui
+-Texture storage: Oui
+-Vertex array objects: Oui
