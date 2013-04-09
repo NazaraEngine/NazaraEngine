@@ -89,8 +89,8 @@ int main()
 
 	// En revanche, le format OBJ ne précise pas l'utilisation d'une normal map, nous devons donc la charger manuellement
 	// Pour commencer on récupère le matériau du mesh, celui-ci en possède plusieurs mais celui qui nous intéresse,
-	// celui de la coque, est le premier (Cela est bien entendu lié au modèle en lui-même)
-	NzMaterial* material = spaceship.GetMaterial(0);
+	// celui de la coque, est le second (Cela est bien entendu lié au modèle en lui-même)
+	NzMaterial* material = spaceship.GetMaterial(1);
 
 	// On lui indique ensuite le chemin vers la normal map
 	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
