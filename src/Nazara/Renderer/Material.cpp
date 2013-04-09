@@ -7,6 +7,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <cstring>
+#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 bool NzMaterialParams::IsValid() const
@@ -367,6 +368,23 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 	m_diffuseColor = diffuse;
 }
 
+bool NzMaterial::SetDiffuseMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetDiffuseMap(texture.get());
+	texture.release();
+
+	return true;
+}
+
 void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
 	m_diffuseMap = map;
@@ -384,6 +402,23 @@ void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
 void NzMaterial::SetDstBlend(nzBlendFunc func)
 {
 	m_dstBlend = func;
+}
+
+bool NzMaterial::SetEmissiveMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetEmissiveMap(texture.get());
+	texture.release();
+
+	return true;
 }
 
 void NzMaterial::SetEmissiveMap(NzTexture* map)
@@ -405,9 +440,43 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 	m_faceFilling = filling;
 }
 
+bool NzMaterial::SetHeightMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetHeightMap(texture.get());
+	texture.release();
+
+	return true;
+}
+
 void NzMaterial::SetHeightMap(NzTexture* map)
 {
 	m_heightMap = map;
+}
+
+bool NzMaterial::SetNormalMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetNormalMap(texture.get());
+	texture.release();
+
+	return true;
 }
 
 void NzMaterial::SetNormalMap(NzTexture* map)
@@ -427,6 +496,23 @@ void NzMaterial::SetShininess(float shininess)
 void NzMaterial::SetSpecularColor(const NzColor& specular)
 {
 	m_specularColor = specular;
+}
+
+bool NzMaterial::SetSpecularMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetSpecularMap(texture.get());
+	texture.release();
+
+	return true;
 }
 
 void NzMaterial::SetSpecularMap(NzTexture* map)
