@@ -30,78 +30,132 @@ int main()
 	// affichée dans la télé si cette dernière n'est pas visible dans la première scène.
 	NzScene scene;
 
-	// Nous allons commencer par rajouter des modèles à notre scène
-	// Nous choisirons l'éternel Dr. Freak (Qui ne peut plus être animé car les vieilles animations image-clé
-	// ne sont plus supportées par le moteur pour des raisons techniques)
-	NzModel drfreak;
+	// La première chose que nous faisons est d'ajouter un background (fond) à la scène.
+	// Il en existe plusieurs types, le moteur inclut pour l'instant trois d'entre eux:
+	// -ColorBackground: Une couleur unie en fond
+	// -SkyboxBackground: Une skybox en fond, un cube à six faces rendu autour de la caméra (En perdant la notion de distance)
+	// -TextureBackground: Une texture en fond, celle-ci sera affichée derrière la scène
 
-	// On charge ensuite le modèle depuis un fichier .md2, le moteur va se charger d'essayer de retrouver les matériaux associés
-	if (!drfreak.LoadFromFile("resources/drfreak.md2"))
+	// Nous choisirons ici une Skybox, cette dernière étant l'effet le plus réussi et convenant très bien à une scène spatiale
+	// Pour commencer il faut charger une texture de type cubemap, certaines images sont assemblées de cette façon,
+	// comme celle que nous allons utiliser.
+	// En réalité les textures "cubemap" regroupent six faces en une, pour faciliter leur utilisation.
+	NzTexture* texture = new NzTexture;
+	if (texture->LoadCubemapFromFile("resources/skybox-space.png"))
 	{
-		std::cout << "Failed to load Dr. Freak" << std::endl;
+		// Si la création du cubemap a fonctionné
+
+		// Nous indiquons que la texture est "non-persistente", autrement dit elle sera libérée automatiquement par le moteur
+		// à l'instant précis où elle ne sera plus utilisée, dans ce cas-ci, ce sera à la libération de l'objet skybox,
+		// ceci arrivant lorsqu'un autre background est affecté à la scène, ou lorsque la scène sera libérée
+		texture->SetPersistent(false);
+
+		// Nous créons le background en lui affectant la texture
+		NzSkyboxBackground* background = new NzSkyboxBackground(texture);
+
+		// Nous pouvons en profiter pour paramétrer le background.
+		// Cependant, nous n'avons rien de spécial à faire ici, nous pouvons donc l'envoyer à la scène.
+		scene.SetBackground(background);
+
+		// Comme indiqué plus haut, la scène s'occupera automatiquement de la libération de notre background
+	}
+	else
+	{
+		delete texture; // Le chargement a échoué, nous libérons la texture
+		std::cout << "Failed to load skybox" << std::endl;
+	}
+
+	// Ensuite, nous allons rajouter un modèle à notre scène.
+	// Les modèles représentent, globalement, tout ce qui est visible en trois dimensions.
+	// Nous choisirons ici un vaisseau spatial (Quoi de mieux pour une scène spatiale ?)
+	NzModel spaceship;
+
+	// On charge ensuite le modèle depuis son fichier
+	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
+	if (!spaceship.LoadFromFile("resources/Spaceship/spaceship.obj"))
+	{
+		std::cout << "Failed to load spaceship" << std::endl;
 		std::getchar();
 
 		return EXIT_FAILURE;
 	}
 
-	// On rajoute également une normal-map externe car elle n'est pas précisée dans le format MD2
-	// On l'alloue dynamiquement pour ne pas avoir de problème avec les ressources, car en effet, si la texture était supprimée
-	// avant que le modèle ne le soit, alors il y aurait un crash lorsque le modèle supprimerait sa référence vers la texture
-	NzTexture* normalMap = new NzTexture;
-	if (normalMap->LoadFromFile("resources/drfreak_bump.tga"))
-	{
-		// On associe ensuite la normal map au matériau du Dr. Freak
-		NzMaterial* material = drfreak.GetMaterial(0);
-		material->SetNormalMap(normalMap);
+	// Nous voulons afficher quelques statistiques relatives au modèle, comme le nombre de sommets et de triangles
+	// Pour cela, nous devons accéder au mesh (maillage 3D)
+	NzMesh* mesh = spaceship.GetMesh();
 
-		// On va rendre notre texture non-persistante, cela signifie que lorsque son compteur de référence tombera à zéro,
-		// elle sera automatiquement libérée. (Ce qui sera le cas lorsque tous les modèles l'utilisant auront étés libérés)
-		normalMap->SetPersistent(false);
-	}
-	else
-	{
-		delete normalMap;
+	std::cout << mesh->GetVertexCount() << " vertices" << std::endl;
+	std::cout << mesh->GetTriangleCount() << " triangles" << std::endl;
 
+	// En revanche, le format OBJ ne précise pas l'utilisation d'une normal map, nous devons donc la charger manuellement
+	// Pour commencer on récupère le matériau du mesh, celui-ci en possède plusieurs mais celui qui nous intéresse,
+	// celui de la coque, est le premier (Cela est bien entendu lié au modèle en lui-même)
+	NzMaterial* material = spaceship.GetMaterial(0);
+
+	// On lui indique ensuite le chemin vers la normal map
+	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
+	{
+		// Le chargement a échoué, peut-être le fichier n'existe pas, ou n'est pas reconnu par le moteur
+		// Mais ce n'est pas une erreur critique, le rendu peut quand même se faire (Mais sera moins détaillé)
 		std::cout << "Failed to load normal map" << std::endl;
 	}
 
-	// Nous allons faire une centaine de copie du modèle du Dr. Freak, chaque modèle sera indépendant dans ses propriétés
-	// à l'exception de son mesh, de ses matériaux et de son animation s'il en avait eu une, car ceux-ci sont des ressources
-	// lourdes en mémoire (Contrairement au modèle) qui ne seront pas dupliqués mais référencés
-	// Autrement dit, chaque modèle possède une référence vers le mesh et les matériaux du Dr. Freak original, si nous venions
-	// à supprimer le mesh original, il n'y aurait aucun problème (Car les ressources sont toujours utilisées par les autres)
-	std::vector<NzModel> models(100, drfreak);
-	for (unsigned int i = 0; i < models.size(); ++i)
-	{
-		models[i].SetPosition(i/10 * 40, 0.f, i%10 * 40); // On les espace
-		models[i].SetParent(scene); // Et on les attache à la scène
-	}
+	// Il nous reste à attacher le modèle à la scène, ce qui se fait simplement via cet appel
+	spaceship.SetParent(scene);
+	// Et voilà, à partir de maintenant le modèle fait partie de la "hiérarchie de la scène", et sera donc rendu avec la scène
 
-	// Nous avons besoin également d'une caméra, pour des raisons évidentes, celle-ci sera placée au dessus des modèles
-	// Et dans leur direction (Nous nous arrangerons également pour en faire une caméra free-fly via les évènements)
+	// Nous avons besoin également d'une caméra, pour des raisons évidentes, celle-ci sera à l'écart du modèle
+	// regardant dans sa direction.
 
 	// On conserve la rotation à part via des angles d'eulers pour la caméra free-fly
-	NzEulerAnglesf camAngles(-45.f, 180.f, 0.f);
+	NzEulerAnglesf camAngles(0.f, 20.f, 0.f);
 
 	NzCamera camera;
-	camera.SetPosition(200.f, 50.f, 200); // On place la caméra au milieu de tous les modèles
+	camera.SetPosition(300.f, 25.f, 200); // On place la caméra à l'écart
 	camera.SetRotation(camAngles);
 	camera.SetParent(scene); // On l'attache également à la scène
 
 	// Et on n'oublie pas de définir les plans délimitant le champs de vision
 	// (Seul ce qui se trouvera entre les deux plans sera rendu)
-	camera.SetZFar(500.f); // La distance entre l'oeil et le plan éloigné
-	camera.SetZNear(1.f); // La distance entre l'oeil et le plan rapproché
+
+	// La distance entre l'oeil et le plan éloigné
+	camera.SetZFar(5000.f);
+
+	// La distance entre l'oeil et le plan rapproché (0 est une valeur interdite car la division par zéro l'est également)
+	camera.SetZNear(1.f);
+
+	// Attention que le ratio entre les deux (zFar/zNear) doit rester raisonnable, dans le cas contraire vous risquez un phénomène
+	// de "Z-Fighting" (Impossibilité de déduire quelle surface devrait apparaître en premier) sur les surfaces éloignées.
 
 	// Il ne nous manque plus maintenant que de l'éclairage, sans quoi la scène sera complètement noire
-	NzLight spotLight(nzLightType_Spot);
+	// Il existe trois types de lumières:
+	// -DirectionalLight: Lumière infinie sans position, envoyant de la lumière dans une direction particulière
+	// -PointLight: Lumière située à un endroit précis, envoyant de la lumière finie dans toutes les directions
+	// -SpotLight: Lumière située à un endroit précis, envoyant de la lumière vers un endroit donné, avec un angle de diffusion
 
-	// On attache la lumière à la caméra pour qu'elle suive sa position et son orientation, ce qui va aussi l'attacher à la scène
-	// car la caméra y est attachée
-	spotLight.SetParent(camera);
+	// Nous choisissons une lumière directionnelle représentant la nébuleuse de notre skybox
+	NzLight nebulaLight(nzLightType_Directional);
+
+	// Il nous faut ensuite configurer la lumière, pour commencer, les couleurs.
+
+	// La couleur ambiante est celle qui sera appliquée à toutes les faces, éclairées ou non, dans le rayon de la lumière
+	// Comme nous avons une lumière infinie, ceci est la couleur appliquée de base à toutes les faces de la scène
+	nebulaLight.SetAmbientColor(NzColor(30, 30, 30));
+
+	// Ensuite vient la couleur diffuse, celle-ci étant la couleur appliquée lorsque la lumière éclaire une face
+	nebulaLight.SetDiffuseColor(NzColor(255, 182, 90));
+
+	// Ensuite, la lumière spéculaire, appliquée aux faces éclairées faisant face à la lumière
+	nebulaLight.SetSpecularColor(NzColor::Orange);
+
+	// Nous appliquons ensuite une rotation de sorte que la lumière dans la même direction que la nébuleuse
+	nebulaLight.SetRotation(NzEulerAnglesf(0.f, 102.f, 0.f));
+
+	// Et nous ajoutons la lumière à la scène
+	nebulaLight.SetParent(scene);
 
 	// Nous allons maintenant créer la fenêtre, dans laquelle nous ferons nos rendus
-	// Celle-ci demande des paramètres un peu plus complexes
+	// Celle-ci demande des paramètres plus complexes
 
 	// Pour commencer le mode vidéo, celui-ci va définir la taille de la zone de rendu et le nombre de bits par pixels
 	NzVideoMode mode = NzVideoMode::GetDesktopMode(); // Nous récupérons le mode vidéo du bureau
@@ -113,7 +167,17 @@ int main()
 	// Maintenant le titre, rien de plus simple...
 	NzString windowTitle = "Nazara Demo - First scene";
 
-	NzRenderWindow window(mode, windowTitle);
+	// Ensuite, le "style" de la fenêtre, possède-t-elle des bordures, peut-on cliquer sur la croix de fermeture,
+	// peut-on la redimensionner, ...
+	nzWindowStyleFlags style = nzWindowStyle_Default; // Nous prenons le style par défaut, autorisant tout ce que je viens de citer
+
+	// Ensuite, les paramètres du contexte de rendu
+	// On peut configurer le niveau d'antialiasing, le nombre de bits du depth buffer et le nombre de bits du stencil buffer
+	// Nous désirons avoir un peu d'antialiasing (4x), les valeurs par défaut pour le reste nous conviendrons très bien
+	NzRenderTargetParameters parameters;
+	parameters.antialiasingLevel = 4;
+
+	NzRenderWindow window(mode, windowTitle, style, parameters);
 	if (!window.IsValid())
 	{
 		std::cout << "Failed to create render window" << std::endl;
@@ -248,21 +312,14 @@ int main()
 
 		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
 		{
-			// On compte le nombre de Dr. Freak qui sont affichés actuellement
-			unsigned int visibleNode = 0;
-			for (NzModel& model : models)
-			{
-				if (model.IsVisible())
-					visibleNode++;
-			}
-
 			// Et on insère ces données dans le titre de la fenêtre
-			window.SetTitle(windowTitle + " - " + NzString::Number(fps) + " FPS - " + NzString::Number(visibleNode) + " modèles visibles");
+			window.SetTitle(windowTitle + " - " + NzString::Number(fps) + " FPS");
+
 			/*
 			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res"
-			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas ici),
-			cela fonctionnera aussi comme ceci : "Chaîne de caractères"
+			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
+			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
+			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
 			*/
 
 			// Et on réinitialise le compteur de FPS
