@@ -12,6 +12,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -86,17 +87,22 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDiffuseColor(const NzColor& diffuse);
+		bool SetDiffuseMap(const NzString& texturePath);
 		void SetDiffuseMap(NzTexture* map);
 		void SetDiffuseSampler(const NzTextureSampler& sampler);
 		void SetDstBlend(nzBlendFunc func);
+		bool SetEmissiveMap(const NzString& texturePath);
 		void SetEmissiveMap(NzTexture* map);
 		void SetFaceCulling(nzFaceCulling culling);
 		void SetFaceFilling(nzFaceFilling filling);
+		bool SetHeightMap(const NzString& texturePath);
 		void SetHeightMap(NzTexture* map);
+		bool SetNormalMap(const NzString& texturePath);
 		void SetNormalMap(NzTexture* map);
 		void SetCustomShader(const NzShader* shader);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
+		bool SetSpecularMap(const NzString& texturePath);
 		void SetSpecularMap(NzTexture* map);
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
