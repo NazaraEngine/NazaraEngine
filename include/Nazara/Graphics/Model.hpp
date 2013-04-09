@@ -49,7 +49,9 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 
 		NzAnimation* GetAnimation() const;
 		const NzBoundingBoxf& GetBoundingBox() const;
+		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
+		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
 		unsigned int GetMaterialCount() const;
 		unsigned int GetSkin() const;
@@ -71,7 +73,9 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void Reset();
 
 		bool SetAnimation(NzAnimation* animation);
+		bool SetMaterial(const NzString& subMeshName, NzMaterial* material);
 		void SetMaterial(unsigned int matIndex, NzMaterial* material);
+		bool SetMaterial(unsigned int skinIndex, const NzString& subMeshName, NzMaterial* material);
 		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
 		void SetMesh(NzMesh* mesh);
 		bool SetSequence(const NzString& sequenceName);
