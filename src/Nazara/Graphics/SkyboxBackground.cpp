@@ -239,10 +239,19 @@ NzTexture* NzSkyboxBackground::GetTexture() const
 void NzSkyboxBackground::SetTexture(NzTexture* cubemapTexture)
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (cubemapTexture && !cubemapTexture->IsCubemap())
+	if (cubemapTexture)
 	{
-		NazaraError("Texture must be a cubemap");
-		return;
+		if (!cubemapTexture->IsValid())
+		{
+			NazaraError("Texture must be valid");
+			return;
+		}
+
+		if (!cubemapTexture->IsCubemap())
+		{
+			NazaraError("Texture must be a cubemap");
+			return;
+		}
 	}
 	#endif
 
