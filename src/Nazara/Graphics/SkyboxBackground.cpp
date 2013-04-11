@@ -210,10 +210,13 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	NzMatrix4f skyboxMatrix(viewMatrix);
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
+	NzRenderer::Enable(nzRendererParameter_Blend, false);
 	NzRenderer::Enable(nzRendererParameter_DepthTest, false);
 	NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
 
+	NzRenderer::SetDepthFunc(nzRendererComparison_Less);
 	NzRenderer::SetFaceCulling(nzFaceCulling_Front);
+	NzRenderer::SetFaceFilling(nzFaceFilling_Fill);
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(camera->GetZNear())));
