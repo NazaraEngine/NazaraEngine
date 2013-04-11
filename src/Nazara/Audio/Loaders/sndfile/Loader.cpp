@@ -59,7 +59,17 @@ namespace
 
 	static SF_VIRTUAL_IO callbacks = {GetSize, Seek, Read, nullptr, Tell};
 
-	bool NzLoader_sndfile_Check(NzInputStream& stream, const NzSoundBufferParams& parameters)
+	bool IsSupported(const NzString& extension)
+	{
+		static std::set<NzString> supportedExtensions = {
+			"aiff", "au", "avr", "caf", "flac", "htk", "ircam", "mat4", "mat5", "mpc2k",
+			"nist","ogg", "pvf", "raw", "rf64", "sd2", "sds", "svx", "voc", "w64", "wav", "wve"
+		};
+
+		return supportedExtensions.find(extension) != supportedExtensions.end();
+	}
+
+	bool Check(NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -74,7 +84,7 @@ namespace
 			return false;
 	}
 
-	bool NzLoader_sndfile_Load(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
+	bool Load(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -131,12 +141,10 @@ namespace
 
 void NzLoaders_sndfile_Register()
 {
-	NzSoundBufferLoader::RegisterLoader("aiff,au,avr,caf,flac,htk,ircam,mat4,mat5,mpc2k,nist,ogg,paf,pvf,raw,rf64,sd2,sds,svx,voc,w64,wav,wve",
-	                                    NzLoader_sndfile_Check, NzLoader_sndfile_Load);
+	NzSoundBufferLoader::RegisterLoader(IsSupported, Check, Load);
 }
 
 void NzLoaders_sndfile_Unregister()
 {
-	NzSoundBufferLoader::UnregisterLoader("aiff,au,avr,caf,flac,htk,ircam,mat4,mat5,mpc2k,nist,ogg,paf,pvf,raw,rf64,sd2,sds,svx,voc,w64,wav,wve",
-	                                      NzLoader_sndfile_Check, NzLoader_sndfile_Load);
+	NzSoundBufferLoader::UnregisterLoader(IsSupported, Check, Load);
 }
