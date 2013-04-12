@@ -1,0 +1,103 @@
+Changement:
+
+---------------------------------Compatibilité---------------------------------
+-Dans tous les fichiers:
+  Remplacement des lignes:
+    #include "lauxlib.h"
+    #include "lua.h"
+    #include "luaconf.h"
+    #include "lualib.h"
+
+  Par les lignes:
+    #include <Lua/lauxlib.h>
+    #include <Lua/lua.h>
+    #include <Lua/luaconf.h>
+    #include <Lua/lualib.h>
+
+------------------------Support des commentaires du C++------------------------
+-Fichier llex.c (Aux alentours de la ligne 425):
+           next(ls);  /* skip until end of line (or end of file) */
+         break;
+       }
++
++      /* bn 01/2012: added C++-style comments */
++#if defined(LUA_CPPCOMT_SHORT) || defined(LUA_CPPCOMT_LONG)
++      case '/': {  /* '/' or '/''/' (line comment) or '/''*' (long comment) */
++        next(ls);
++#if defined(LUA_CPPCOMT_SHORT)
++        if (ls->current == '/') {
++          /* line comment */
++          next(ls);
++          while (!currIsNewline(ls) && ls->current != EOZ)
++            next(ls);  /* skip until end of line (or end of file) */
++        } else
++#endif /* LUA_CPPCOMT_SHORT */
++#if defined(LUA_CPPCOMT_LONG)
++        if (ls->current == '*') {
++          /* long comment */
++          next(ls);
++          int last = 0;
++          while (ls->current != EOZ) {
++            if (last == '*' && ls->current == '/') break;
++            last = ls->current;
++            next(ls);  /* skip until closing marker (or end of file) */
++          }
++          if (ls->current == EOZ)
++            lexerror(ls, "unfinished long comment", TK_EOS);
++          else next(ls);
++        } else
++#endif /* LUA_CPPCOMT_LONG */
++        return '/';
++        break;
++      }
++#endif /* LUA_CPPCOMT_SHORT || LUA_CPPCOMT_LONG */
++      /* end changes */
++
+       case '[': {  /* long string or simply '[' */
+         int sep = skip_sep(ls);
+         if (sep >= 0) {
+-Fichier llex.h (Aux alentours de la ligne 15):
+ 
++/* bn 01/2012: added C++-style comments */
++#define LUA_CPPCOMT_SHORT
++#define LUA_CPPCOMT_LONG
++/* end changes */
++
+ /*
+ * WARNING: if you change the order of this enumeration,
+ * grep "ORDER RESERVED"
+
+---------------------Support de la négation du C/C++ (!=)----------------------
+-Fichier llex.h (Aux alentours de la ligne 15):
++#define LUA_CPPNEG
+
+ /*
+ * WARNING: if you change the order of this enumeration,
+ * grep "ORDER RESERVED"
+-Fichier llex.h (Aux alentours de la ligne 30)
+  TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE, TK_DBCOLON, TK_EOS,
++#ifdef LUA_CPPNEG
++  TK_CNE,
++#endif
+  TK_NUMBER, TK_NAME, TK_STRING
+
+-Fichier llex.c (Aux alentours de la ligne 40)
+    "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
++#ifdef LUA_CPPNEG
++    "!=",
++#endif
+    "<number>", "<name>", "<string>"
+-Fichier llex.c (Aux alentours de la ligne 490)
+        else { next(ls); return TK_GE; }
+      }
++
++      case '!': {
++        next(ls);
++        if (ls->current != '=') return '!';
++        else { next(ls); return TK_NE; }
++      }
+
+      case '~': {
+        next(ls);
+        if (ls->current != '=') return '~';
+
