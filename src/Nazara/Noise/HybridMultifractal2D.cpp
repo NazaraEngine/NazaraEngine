@@ -40,8 +40,8 @@ float NzHybridMultiFractal2D::GetValue(float x, float y, float resolution)
 
     for(int i(1) ; i < m_octaves; ++i)
     {
-        if(m_weight > 1.0)
-            m_weight = 1.0;
+        if (m_weight > 1.f)
+            m_weight = 1.f;
 
         m_signal = (m_source->GetValue(x,y,resolution) + m_offset) * m_exponent_array[i];
         m_value += m_weight * m_signal;
@@ -51,9 +51,8 @@ float NzHybridMultiFractal2D::GetValue(float x, float y, float resolution)
         resolution *= m_lacunarity;
     }
 
-    m_remainder = m_octaves - static_cast<int>(m_octaves);
-
-    if (m_remainder != 0)
+    m_remainder = std::floor(m_octaves);
+    if (m_remainder > 0.f)
         m_value += m_remainder * m_source->GetValue(x,y,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
     return m_value/this->m_sum - m_offset;
