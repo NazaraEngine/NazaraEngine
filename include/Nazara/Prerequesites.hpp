@@ -25,7 +25,7 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-#if __cplusplus < 201103L
+#if !defined(__cplusplus) || __cplusplus < 201103L
 	#error Nazara requires a C++11 compliant compiler
 #endif
 
