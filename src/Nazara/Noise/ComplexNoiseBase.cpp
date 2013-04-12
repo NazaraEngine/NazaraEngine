@@ -46,7 +46,6 @@ void NzComplexNoiseBase::SetLacunarity(float lacunarity)
 
 void NzComplexNoiseBase::SetHurstParameter(float h)
 {
-
     m_hurst = h;
     m_parametersModified = true;
 }
@@ -59,7 +58,6 @@ void NzComplexNoiseBase::SetOctavesNumber(float octaves)
         m_octaves = 30.0f;
 
     m_parametersModified = true;
-
 }
 
 void NzComplexNoiseBase::RecomputeExponentArray()
