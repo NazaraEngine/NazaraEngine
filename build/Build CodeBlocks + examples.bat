@@ -1,1 +1,0 @@
-premake4 --with-examples codeblocks

@@ -1,0 +1,1 @@
+premake4 --united --with-extlibs --with-examples vs2010
