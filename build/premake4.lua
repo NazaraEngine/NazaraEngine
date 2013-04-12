@@ -9,6 +9,11 @@ newoption {
 }
 
 newoption {
+	trigger     = "with-extlibs",
+	description = "Builds the extern libraries"
+}
+
+newoption {
 	trigger     = "with-examples",
 	description = "Builds the examples"
 }
@@ -51,6 +56,16 @@ for k,v in pairs(modules) do
 		f()
 	else
 		print("Unable to load action: " .. err)
+	end
+end
+
+if (_OPTIONS["with-extlibs"]) then
+	solution "NazaraExtlibs"
+	loadfile("scripts/common_extlibs.lua")()
+
+	local extlibs = os.matchfiles("../extlibs/build/*.lua")
+	for k,v in pairs(extlibs) do
+		dofile(v)
 	end
 end
 

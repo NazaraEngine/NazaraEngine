@@ -2,14 +2,11 @@ if (not _OPTIONS["united"]) then
 	project "NazaraUtility"
 end
 
-defines "STBI_NO_STDIO"
-
 files
 {
 	"../include/Nazara/Utility/**.hpp",
 	"../include/Nazara/Utility/**.inl",
 	"../src/Nazara/Utility/**.hpp",
-	"../src/Nazara/Utility/**.c",
 	"../src/Nazara/Utility/**.cpp"
 }
 
@@ -35,3 +32,9 @@ else
 	configuration "ReleaseDLL"
 		links "NazaraCore"
 end
+
+configuration "Debug*"
+	links "stb_image-s-d"
+
+configuration "Release*"
+	links "stb_image-s"
