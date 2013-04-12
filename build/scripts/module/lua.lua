@@ -5,10 +5,8 @@ end
 files
 {
 	"../include/Nazara/Lua/**.hpp",
-	"../include/Nazara/Lua/**.h",
 	"../include/Nazara/Lua/**.inl",
 	"../src/Nazara/Lua/**.hpp",
-	"../src/Nazara/Lua/**.c",
 	"../src/Nazara/Lua/**.cpp"
 }
 
@@ -33,3 +31,9 @@ else
 	configuration "ReleaseDLL"
 		links "NazaraCore"
 end
+
+configuration "Debug*"
+	links "lua-s-d"
+
+configuration "Release*"
+	links "lua-s"

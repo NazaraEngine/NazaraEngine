@@ -3,16 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Loaders/STB.hpp>
+#include <stb_image/stb_image.h>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Utility/Image.hpp>
-
-#define STBI_HEADER_FILE_ONLY
-#include <Nazara/Utility/Loaders/STB/stb_image.cpp>
-
 #include <Nazara/Utility/Debug.hpp>
 
 namespace

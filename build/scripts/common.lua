@@ -60,3 +60,5 @@ configuration "codeblocks or codelite or gmake or xcode3*"
 
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
+
+configuration {} -- Fin du filtre
