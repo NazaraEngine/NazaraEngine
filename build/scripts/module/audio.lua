@@ -4,10 +4,10 @@ end
 
 files
 {
- "../include/Nazara/Audio/**.hpp",
- "../include/Nazara/Audio/**.inl",
- "../src/Nazara/Audio/**.hpp",
- "../src/Nazara/Audio/**.cpp"
+	"../include/Nazara/Audio/**.hpp",
+	"../include/Nazara/Audio/**.inl",
+	"../src/Nazara/Audio/**.hpp",
+	"../src/Nazara/Audio/**.cpp"
 }
 
 if (os.is("windows")) then
