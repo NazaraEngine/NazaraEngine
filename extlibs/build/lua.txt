@@ -1,6 +1,6 @@
 Changement:
 
----------------------------------Compatibilité---------------------------------
+---------------------------------CompatibilitÃ©---------------------------------
 -Dans tous les fichiers:
   Remplacement des lignes:
     #include "lauxlib.h"
@@ -15,6 +15,13 @@ Changement:
     #include <Lua/lualib.h>
 
 ------------------------Support des commentaires du C++------------------------
+-Fichier llex.c (Aux alentours de la ligne 405)
+static int llex (LexState *ls, SemInfo *seminfo) {
++#if defined(LUA_CPPCOMT_LONG)
++  int last;
++#endif
+  luaZ_resetbuffer(ls->buff);
+  for (;;) {
 -Fichier llex.c (Aux alentours de la ligne 425):
            next(ls);  /* skip until end of line (or end of file) */
          break;
@@ -36,7 +43,7 @@ Changement:
 +        if (ls->current == '*') {
 +          /* long comment */
 +          next(ls);
-+          int last = 0;
++          last = 0;
 +          while (ls->current != EOZ) {
 +            if (last == '*' && ls->current == '/') break;
 +            last = ls->current;
@@ -67,7 +74,7 @@ Changement:
  * WARNING: if you change the order of this enumeration,
  * grep "ORDER RESERVED"
 
----------------------Support de la négation du C/C++ (!=)----------------------
+---------------------Support de la nÃ©gation du C/C++ (!=)----------------------
 -Fichier llex.h (Aux alentours de la ligne 15):
 +#define LUA_CPPNEG
 
@@ -90,13 +97,13 @@ Changement:
 -Fichier llex.c (Aux alentours de la ligne 490)
         else { next(ls); return TK_GE; }
       }
-+
++#ifdef LUA_CPPNEG
 +      case '!': {
 +        next(ls);
 +        if (ls->current != '=') return '!';
 +        else { next(ls); return TK_NE; }
 +      }
-
++#endif
       case '~': {
         next(ls);
         if (ls->current != '=') return '~';
