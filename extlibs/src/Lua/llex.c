@@ -399,6 +399,9 @@ static void read_string (LexState *ls, int del, SemInfo *seminfo) {
 
 
 static int llex (LexState *ls, SemInfo *seminfo) {
+#if defined(LUA_CPPCOMT_LONG)
+  int last;
+#endif
   luaZ_resetbuffer(ls->buff);
   for (;;) {
     switch (ls->current) {
@@ -446,7 +449,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (ls->current == '*') {
           /* long comment */
           next(ls);
-          int last = 0;
+          last = 0;
           while (ls->current != EOZ) {
             if (last == '*' && ls->current == '/') break;
             last = ls->current;
@@ -487,6 +490,13 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (ls->current != '=') return '>';
         else { next(ls); return TK_GE; }
       }
+#ifdef LUA_CPPNEG
+      case '!': {
+        next(ls);
+        if (ls->current != '=') return '!';
+        else { next(ls); return TK_NE; }
+      }
+#endif
       case '~': {
         next(ls);
         if (ls->current != '=') return '~';
