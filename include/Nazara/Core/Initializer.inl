@@ -24,8 +24,8 @@ struct NzImplInitializer<T, Rest...>
 
 	static void Uninit()
 	{
-		T::Uninitialize();
 		NzImplInitializer<Rest...>::Uninit();
+		T::Uninitialize();
 	}
 };
 
