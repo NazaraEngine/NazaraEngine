@@ -51,7 +51,7 @@ float NzHybridMultiFractal4D::GetValue(float x, float y, float z, float w, float
         resolution *= m_lacunarity;
     }
 
-    m_remainder = std::floor(m_octaves);
+    m_remainder = m_octaves - static_cast<int>(m_octaves);
     if (m_remainder > 0.f)
         m_value += m_remainder * m_source->GetValue(x,y,z,w,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
