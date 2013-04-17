@@ -303,7 +303,7 @@ void NzScene::Draw()
 						std::sort(visibleLights.begin(), visibleLights.end(), lightComparator);
 
 						const unsigned int maxLightPerObject = 3; ///TODO: Config
-						unsigned int max = std::min(std::min(maxLights - lightIndex, maxLightPerObject), visibleLights.size());
+						unsigned int max = std::min(std::min(maxLights - lightIndex, maxLightPerObject), static_cast<unsigned int>(visibleLights.size()));
 						for (unsigned int i = 0; i < max; ++i)
 							visibleLights[i]->Apply(shader, lightIndex + i);
 
