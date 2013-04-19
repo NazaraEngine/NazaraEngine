@@ -41,7 +41,7 @@ class NAZARA_API NzNode
 
 		bool HasChilds() const;
 
-		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation);
+		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation, nzCoordSys coordSys = nzCoordSys_Global);
 
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
 		NzNode& Move(float movementX, float movementY, float movementZ, nzCoordSys coordSys = nzCoordSys_Local);
@@ -70,6 +70,16 @@ class NAZARA_API NzNode
 		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys = nzCoordSys_Local);
+
+		// Local -> global
+		NzVector3f ToGlobalPosition(const NzVector3f& localPosition) const;
+		NzQuaternionf ToGlobalRotation(const NzQuaternionf& localRotation) const;
+		NzVector3f ToGlobalScale(const NzVector3f& localScale) const;
+
+		// Global -> local
+		NzVector3f ToLocalPosition(const NzVector3f& globalPosition) const;
+		NzQuaternionf ToLocalRotation(const NzQuaternionf& globalRotation) const;
+		NzVector3f ToLocalScale(const NzVector3f& globalScale) const;
 
 		NzNode& operator=(const NzNode& node);
 
