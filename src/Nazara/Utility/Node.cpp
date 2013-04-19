@@ -177,11 +177,28 @@ bool NzNode::HasChilds() const
 	return !m_childs.empty();
 }
 
-NzNode& NzNode::Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation)
+NzNode& NzNode::Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation, nzCoordSys coordSys)
 {
-	m_position = NzVector3f::Lerp(nodeA.m_position, nodeB.m_position, interpolation);
-	m_rotation = NzQuaternionf::Slerp(nodeA.m_rotation, nodeB.m_rotation, interpolation);
-	m_scale = NzVector3f::Lerp(nodeA.m_scale, nodeB.m_scale, interpolation);
+	switch (coordSys)
+	{
+		case nzCoordSys_Global:
+			if (!nodeA.m_derivedUpdated)
+				nodeA.UpdateDerived();
+
+			if (!nodeB.m_derivedUpdated)
+				nodeB.UpdateDerived();
+
+			m_position = ToLocalPosition(NzVector3f::Lerp(nodeA.m_derivedPosition, nodeB.m_derivedPosition, interpolation));
+			m_rotation = ToLocalRotation(NzQuaternionf::Slerp(nodeA.m_derivedRotation, nodeB.m_derivedRotation, interpolation));
+			m_scale = ToLocalScale(NzVector3f::Lerp(nodeA.m_derivedScale, nodeB.m_derivedScale, interpolation));
+			break;
+
+		case nzCoordSys_Local:
+			m_position = NzVector3f::Lerp(nodeA.m_position, nodeB.m_position, interpolation);
+			m_rotation = NzQuaternionf::Slerp(nodeA.m_rotation, nodeB.m_rotation, interpolation);
+			m_scale = NzVector3f::Lerp(nodeA.m_scale, nodeB.m_scale, interpolation);
+			break;
+	}
 
 	Invalidate();
 	return *this;
@@ -488,6 +505,54 @@ void NzNode::SetScale(float scale, nzCoordSys coordSys)
 void NzNode::SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys)
 {
 	SetScale(NzVector3f(scaleX, scaleY, scaleZ), coordSys);
+}
+
+NzVector3f NzNode::ToGlobalPosition(const NzVector3f& localPosition) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedPosition + (m_derivedScale * (m_derivedRotation * localPosition));
+}
+
+NzQuaternionf NzNode::ToGlobalRotation(const NzQuaternionf& localRotation) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * localRotation;
+}
+
+NzVector3f NzNode::ToGlobalScale(const NzVector3f& localScale) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedScale * localScale;
+}
+
+NzVector3f NzNode::ToLocalPosition(const NzVector3f& globalPosition) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return (m_derivedRotation.GetConjugate()*(globalPosition - m_derivedPosition))/m_derivedScale;
+}
+
+NzQuaternionf NzNode::ToLocalRotation(const NzQuaternionf& globalRotation) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation.GetConjugate() * globalRotation;
+}
+
+NzVector3f NzNode::ToLocalScale(const NzVector3f& globalScale) const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return globalScale / m_derivedScale;
 }
 
 NzNode& NzNode::operator=(const NzNode& node)
