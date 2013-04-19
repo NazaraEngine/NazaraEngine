@@ -268,7 +268,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	NzJoint* jointsA = &skeletonA.m_impl->joints[0];
 	NzJoint* jointsB = &skeletonB.m_impl->joints[0];
 	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
-		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation);
+		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, nzCoordSys_Local);
 
 	m_impl->aabbUpdated = false;
 }
@@ -315,7 +315,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 		}
 		#endif
 
-		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation);
+		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, nzCoordSys_Local);
 	}
 
 	m_impl->aabbUpdated = false;
