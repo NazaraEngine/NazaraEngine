@@ -32,16 +32,19 @@ NzMD5AnimParser::~NzMD5AnimParser()
 		m_stream.SetStreamOptions(m_streamFlags);
 }
 
-bool NzMD5AnimParser::Check()
+nzTernary NzMD5AnimParser::Check()
 {
-	if (!Advance(false))
-		return false;
+	if (Advance(false))
+	{
+		unsigned int version;
+		if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
+		{
+			if (version == 10)
+				return nzTernary_True;
+		}
+	}
 
-	unsigned int version;
-	if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) != 1)
-		return false;
-
-	return version == 10;
+	return nzTernary_False;
 }
 
 bool NzMD5AnimParser::Parse(NzAnimation* animation)

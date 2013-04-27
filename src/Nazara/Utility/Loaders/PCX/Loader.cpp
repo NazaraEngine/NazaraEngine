@@ -44,15 +44,18 @@ namespace
 		return (extension == "pcx");
 	}
 
-	bool Check(NzInputStream& stream, const NzImageParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
 		nzUInt8 manufacturer;
-		if (stream.Read(&manufacturer, 1) != 1)
-			return false;
+		if (stream.Read(&manufacturer, 1) == 1)
+		{
+			if (manufacturer == 0x0a)
+				return nzTernary_True;
+		}
 
-		return manufacturer == 0x0a;
+		return nzTernary_False;
 	}
 
 	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)

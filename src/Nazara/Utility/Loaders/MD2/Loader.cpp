@@ -24,20 +24,23 @@ namespace
 		return (extension == "md2");
 	}
 
-	bool Check(NzInputStream& stream, const NzMeshParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		NazaraUnused(parameters);
 
 		nzUInt32 magic[2];
-		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) != 2*sizeof(nzUInt32))
-			return false;
+		if (stream.Read(&magic[0], 2*sizeof(nzUInt32)) == 2*sizeof(nzUInt32))
+		{
+			#ifdef NAZARA_BIG_ENDIAN
+			NzByteSwap(&magic[0], sizeof(nzUInt32));
+			NzByteSwap(&magic[1], sizeof(nzUInt32));
+			#endif
 
-		#ifdef NAZARA_BIG_ENDIAN
-		NzByteSwap(&magic[0], sizeof(nzUInt32));
-		NzByteSwap(&magic[1], sizeof(nzUInt32));
-		#endif
+			if (magic[0] == md2Ident && magic[1] == 8)
+				return nzTernary_True;
+		}
 
-		return magic[0] == md2Ident && magic[1] == 8;
+		return nzTernary_False;
 	}
 
 	bool Load(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)

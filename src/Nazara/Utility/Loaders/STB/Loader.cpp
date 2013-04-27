@@ -40,12 +40,15 @@ namespace
 		return supportedExtensions.find(extension) != supportedExtensions.end();
 	}
 
-	bool Check(NzInputStream& stream, const NzImageParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzImageParams& parameters)
 	{
 		NazaraUnused(parameters);
 
 		int width, height, bpp;
-		return stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp);
+		if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
+			return nzTernary_True;
+		else
+			return nzTernary_False;
 	}
 
 	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)

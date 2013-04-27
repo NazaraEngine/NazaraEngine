@@ -13,7 +13,7 @@ namespace
 		return (extension == "md5anim");
 	}
 
-	bool Check(NzInputStream& stream, const NzAnimationParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzAnimationParams& parameters)
 	{
 		NzMD5AnimParser parser(stream, parameters);
 		return parser.Check();

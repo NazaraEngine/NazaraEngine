@@ -36,16 +36,19 @@ NzMD5MeshParser::~NzMD5MeshParser()
 		m_stream.SetStreamOptions(m_streamFlags);
 }
 
-bool NzMD5MeshParser::Check()
+nzTernary NzMD5MeshParser::Check()
 {
-	if (!Advance(false))
-		return false;
+	if (Advance(false))
+	{
+		unsigned int version;
+		if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
+		{
+			if (version == 10)
+				return nzTernary_True;
+		}
+	}
 
-	unsigned int version;
-	if (std::sscanf(&m_currentLine[0], "MD5Version %u", &version) != 1)
-		return false;
-
-	return version == 10;
+	return nzTernary_False;
 }
 
 bool NzMD5MeshParser::Parse(NzMesh* mesh)

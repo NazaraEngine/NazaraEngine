@@ -21,7 +21,7 @@ class NzMD5AnimParser
 		NzMD5AnimParser(NzInputStream& stream, const NzAnimationParams& parameters);
 		~NzMD5AnimParser();
 
-		bool Check();
+		nzTernary Check();
 		bool Parse(NzAnimation* animation);
 
 	private:

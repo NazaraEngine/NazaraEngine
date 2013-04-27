@@ -7,6 +7,7 @@
 #ifndef NAZARA_RESOURCELOADER_HPP
 #define NAZARA_RESOURCELOADER_HPP
 
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 #include <list>
 #include <tuple>
@@ -19,7 +20,7 @@ class NzResourceLoader
 	public:
 		using ExtensionGetter = bool (*)(const NzString& extension);
 		using FileLoader = bool (*)(Type* resource, const NzString& filePath, const Parameters& parameters);
-		using StreamChecker = bool (*)(NzInputStream& stream, const Parameters& parameters);
+		using StreamChecker = nzTernary (*)(NzInputStream& stream, const Parameters& parameters);
 		using StreamLoader = bool (*)(Type* resource, NzInputStream& stream, const Parameters& parameters);
 
 		static bool IsExtensionSupported(const NzString& extension);
