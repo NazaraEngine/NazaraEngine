@@ -69,7 +69,7 @@ namespace
 		return supportedExtensions.find(extension) != supportedExtensions.end();
 	}
 
-	bool Check(NzInputStream& stream, const NzSoundBufferParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -78,10 +78,10 @@ namespace
 		if (file)
 		{
 			sf_close(file);
-			return true;
+			return nzTernary_True;
 		}
 		else
-			return false;
+			return nzTernary_False;
 	}
 
 	bool Load(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
