@@ -21,7 +21,7 @@ class NzMD5MeshParser
 		NzMD5MeshParser(NzInputStream& stream, const NzMeshParams& parameters);
 		~NzMD5MeshParser();
 
-		bool Check();
+		nzTernary Check();
 		bool Parse(NzMesh* mesh);
 
 	private:

@@ -10,12 +10,12 @@
 
 namespace
 {
-	bool Check(NzInputStream& stream, const NzMaterialParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzMaterialParams& parameters)
 	{
 		NazaraUnused(stream);
 		NazaraUnused(parameters);
 
-		return true; ///FIXME: Pas bon
+		return nzTernary_Unknown;
 	}
 
 	bool Load(NzMaterial* material, NzInputStream& stream, const NzMaterialParams& parameters)

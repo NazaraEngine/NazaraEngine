@@ -7,6 +7,26 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
+enum nzEndianness
+{
+	nzEndianness_Unknown = -1,
+
+	nzEndianness_BigEndian,
+	nzEndianness_LittleEndian,
+
+	nzEndianness_Max = nzEndianness_LittleEndian
+};
+
+enum nzErrorType
+{
+	nzErrorType_AssertFailed,
+	nzErrorType_Internal,
+	nzErrorType_Normal,
+	nzErrorType_Warning,
+
+	nzErrorType_Max = nzErrorType_Warning
+};
+
 enum nzPlugin
 {
 	nzPlugin_Assimp,
@@ -52,31 +72,20 @@ enum nzProcessorVendor
 	nzProcessorVendor_Max = nzProcessorVendor_Vortex
 };
 
-enum nzEndianness
-{
-	nzEndianness_Unknown = -1,
-
-	nzEndianness_BigEndian,
-	nzEndianness_LittleEndian,
-
-	nzEndianness_Max = nzEndianness_LittleEndian
-};
-
-enum nzErrorType
-{
-	nzErrorType_AssertFailed,
-	nzErrorType_Internal,
-	nzErrorType_Normal,
-	nzErrorType_Warning,
-
-	nzErrorType_Max = nzErrorType_Warning
-};
-
 enum nzStreamOptionFlags
 {
 	nzStreamOption_None = 0x0,
 
 	nzStreamOption_Text = 0x1
+};
+
+enum nzTernary
+{
+	nzTernary_False,
+	nzTernary_True,
+	nzTernary_Unknown,
+
+	nzTernary_Max = nzTernary_Unknown
 };
 
 #endif // NAZARA_ENUMS_CORE_HPP

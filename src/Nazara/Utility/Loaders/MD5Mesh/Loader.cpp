@@ -13,7 +13,7 @@ namespace
 		return (extension == "md5mesh");
 	}
 
-	bool Check(NzInputStream& stream, const NzMeshParams& parameters)
+	nzTernary Check(NzInputStream& stream, const NzMeshParams& parameters)
 	{
 		NzMD5MeshParser parser(stream, parameters);
 		return parser.Check();
