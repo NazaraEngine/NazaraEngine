@@ -23,12 +23,12 @@ namespace
 		return (extension == "obj");
 	}
 
-	bool Check(NzInputStream& stream, const NzModelParameters& parameters)
+	nzTernary Check(NzInputStream& stream, const NzModelParameters& parameters)
 	{
 		NazaraUnused(stream);
 		NazaraUnused(parameters);
 
-		return true; ///FIXME: Pas bon
+		return nzTernary_Unknown;
 	}
 
 	bool Load(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)

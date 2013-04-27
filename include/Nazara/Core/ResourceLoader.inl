@@ -64,17 +64,25 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 			}
 		}
 
+		nzTernary recognized = nzTernary_Unknown;
 		if (fileLoader)
 		{
 			if (checkFunc)
 			{
 				file.SetCursorPos(0);
 
-				if (!checkFunc(file, parameters))
+				recognized = checkFunc(file, parameters);
+				if (recognized == nzTernary_False)
 					continue;
+				else
+					found = true;
+			}
+			else
+			{
+				recognized = nzTernary_Unknown;
+				found = true;
 			}
 
-			found = true;
 			if (fileLoader(resource, filePath, parameters))
 				return true;
 		}
@@ -82,17 +90,20 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 		{
 			file.SetCursorPos(0);
 
-			if (!checkFunc(file, parameters))
+			recognized = checkFunc(file, parameters);
+			if (recognized == nzTernary_False)
 				continue;
+			else if (recognized == nzTernary_True)
+				found = true;
 
 			file.SetCursorPos(0);
 
-			found = true;
 			if (streamLoader(resource, file, parameters))
 				return true;
 		}
 
-		NazaraWarning("Loader failed");
+		if (recognized == nzTernary_True)
+			NazaraWarning("Loader failed");
 	}
 
 	if (found)
@@ -138,18 +149,21 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 		stream.SetCursorPos(streamPos);
 
 		// Le loader supporte-t-il les données ?
-		if (!checkFunc(stream, parameters))
+		nzTernary recognized = checkFunc(stream, parameters);
+		if (recognized == nzTernary_False)
 			continue;
+		else if (recognized == nzTernary_True)
+			found = true;
 
 		// On repositionne le stream à son ancienne position
 		stream.SetCursorPos(streamPos);
 
 		// Chargement de la ressource
-		found = true;
 		if (streamLoader(resource, stream, parameters))
 			return true;
 
-		NazaraWarning("Loader failed");
+		if (recognized == nzTernary_True)
+			NazaraWarning("Loader failed");
 	}
 
 	if (found)
