@@ -650,6 +650,6 @@ void NzNode::UpdateTransformMatrix() const
 	if (!m_derivedUpdated)
 		UpdateDerived();
 
-	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedScale, m_derivedRotation);
+	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 	m_transformMatrixUpdated = true;
 }
