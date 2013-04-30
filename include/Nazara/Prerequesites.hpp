@@ -79,7 +79,7 @@
 
 #define NazaraUnused(a) (void) a
 
-#if defined(_WIN32) || defined(__WIN32__)
+#if defined(_WIN32)
 	#define NAZARA_PLATFORM_WINDOWS
 
 	#if !defined(NAZARA_STATIC)
@@ -119,7 +119,7 @@
 			#define _WIN32_WINNT NAZARA_WINNT
 		#endif
 	#endif
-#elif defined(__linux__) || defined(linux) || defined(__linux)
+#elif defined(__linux__)
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
 
@@ -128,13 +128,9 @@
 	#else
 		#define NAZARA_API
 	#endif
-/*#elif defined(__APPLE__) || defined(macintosh) || defined(Macintosh)
+/*#elif defined(__APPLE__) && defined(__MACH__)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_MACOSX
-	#define NAZARA_PLATFORM_POSIX
-#elif defined(__FreeBSD__)
-	#define NAZARA_API
-	#define NAZARA_PLATFORM_FREEBSD
 	#define NAZARA_PLATFORM_POSIX*/
 #else
 	// À commenter pour tenter quand même une compilation
