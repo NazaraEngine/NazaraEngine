@@ -26,7 +26,7 @@
 	#define GWL_USERDATA GWLP_USERDATA
 #endif
 
-// N'est pas définit avec MinGW apparemment
+// N'est pas définit avec MinGW
 #ifndef MAPVK_VK_TO_VSC
     #define MAPVK_VK_TO_VSC 0
 #endif
@@ -43,6 +43,7 @@ NzWindowImpl::NzWindowImpl(NzWindow* parent) :
 m_cursor(nullptr),
 m_handle(nullptr),
 m_callback(0),
+m_style(0),
 m_maxSize(-1),
 m_minSize(-1),
 m_parent(parent),
@@ -148,24 +149,27 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	#if !NAZARA_UTILITY_THREADED_WINDOW
 	m_sizemove = false;
 	#endif
+	m_style = style;
 
 	return m_handle != nullptr;
 }
 
 bool NzWindowImpl::Create(NzWindowHandle handle)
 {
-	if (!handle)
+	m_handle = reinterpret_cast<HWND>(handle);
+
+	if (!m_handle || !IsWindow(m_handle))
 	{
 		NazaraError("Invalid handle");
 		return false;
 	}
 
-	m_handle = reinterpret_cast<HWND>(handle);
 	m_eventListener = false;
 	m_ownsWindow = false;
 	#if !NAZARA_UTILITY_THREADED_WINDOW
 	m_sizemove = false;
 	#endif
+	m_style = RetrieveStyle(m_handle);
 
 	return true;
 }
@@ -226,6 +230,11 @@ NzVector2ui NzWindowImpl::GetSize() const
 	RECT rect;
 	GetClientRect(m_handle, &rect);
 	return NzVector2ui(rect.right-rect.left, rect.bottom-rect.top);
+}
+
+nzUInt32 NzWindowImpl::GetStyle() const
+{
+	return m_style;
 }
 
 NzString NzWindowImpl::GetTitle() const
@@ -570,7 +579,6 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					m_parent->PushEvent(event);
 				}
 			}
-
 			#endif
 
 			case WM_KEYDOWN:
@@ -985,28 +993,6 @@ void NzWindowImpl::Uninitialize()
 	UnregisterClassW(className, GetModuleHandle(nullptr));
 }
 
-LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	NzWindowImpl* me;
-	if (message == WM_CREATE)
-	{
-		me = reinterpret_cast<NzWindowImpl*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
-		SetWindowLongPtr(window, GWL_USERDATA, reinterpret_cast<LONG_PTR>(me));
-	}
-	else
-		me = reinterpret_cast<NzWindowImpl*>(GetWindowLongPtr(window, GWL_USERDATA));
-
-	if (me)
-	{
-		if (me->HandleMessage(window, message, wParam, lParam))
-			return 0;
-		else if (me->m_callback)
-			return CallWindowProcW(reinterpret_cast<WNDPROC>(me->m_callback), window, message, wParam, lParam);
-	}
-
-	return DefWindowProcW(window, message, wParam, lParam);
-}
-
 NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 {
 	switch (key)
@@ -1137,6 +1123,63 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 		default:
 			return NzKeyboard::Undefined;
 	}
+}
+
+LRESULT CALLBACK NzWindowImpl::MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	NzWindowImpl* me;
+	if (message == WM_CREATE)
+	{
+		me = reinterpret_cast<NzWindowImpl*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+		SetWindowLongPtr(window, GWL_USERDATA, reinterpret_cast<LONG_PTR>(me));
+	}
+	else
+		me = reinterpret_cast<NzWindowImpl*>(GetWindowLongPtr(window, GWL_USERDATA));
+
+	if (me)
+	{
+		if (me->HandleMessage(window, message, wParam, lParam))
+			return 0;
+		else if (me->m_callback)
+			return CallWindowProcW(reinterpret_cast<WNDPROC>(me->m_callback), window, message, wParam, lParam);
+	}
+
+	return DefWindowProcW(window, message, wParam, lParam);
+}
+
+nzUInt32 NzWindowImpl::RetrieveStyle(HWND handle)
+{
+	nzUInt32 style = 0;
+
+	LONG_PTR winStyle = GetWindowLongPtr(handle, GWL_STYLE);
+
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
+	if (winStyle & WS_CAPTION)
+	{
+		style |= nzWindowStyle_Titlebar;
+		if (winStyle & WS_SYSMENU)
+			style |= nzWindowStyle_Closable;
+
+		if (winStyle & WS_MAXIMIZEBOX)
+			style |= nzWindowStyle_Resizable;
+	}
+
+	if (winStyle & WS_SIZEBOX)
+		style |= nzWindowStyle_Resizable;
+
+	// Pour déterminer si la fenêtre est en plein écran, il suffit de vérifier si elle recouvre l'écran
+	DEVMODE mode;
+	mode.dmSize = sizeof(DEVMODE);
+	EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode);
+
+	RECT rect;
+	if (GetWindowRect(handle, &rect))
+	{
+		if (static_cast<DWORD>(rect.right-rect.left) == mode.dmPelsWidth && static_cast<DWORD>(rect.bottom-rect.top) == mode.dmPelsHeight)
+			style |= nzWindowStyle_Fullscreen;
+	}
+
+	return style;
 }
 
 #if NAZARA_UTILITY_THREADED_WINDOW
