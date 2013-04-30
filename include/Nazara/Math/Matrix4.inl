@@ -369,8 +369,6 @@ bool NzMatrix4<T>::GetInverseAffine(NzMatrix4* dest) const
 				   m41 * m12 * m23 +
 				   m41 * m13 * m22;
 
-		inv[15] = F(0.0);
-
 		T invDet = F(1.0) / det;
 		for (unsigned int i = 0; i < 16; ++i)
 			inv[i] *= invDet;
@@ -563,7 +561,7 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTranslation(const NzVector3<T>& translation)
 }
 
 template<typename T>
-NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation)
+NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale)
 {
 	// La rotation et la translation peuvent être appliquées directement
 	SetRotation(rotation);
@@ -922,10 +920,10 @@ NzMatrix4<T> NzMatrix4<T>::Translate(const NzVector3<T>& translation)
 }
 
 template<typename T>
-NzMatrix4<T> NzMatrix4<T>::Transform(const NzVector3<T>& translation, const NzVector3<T>& scale, const NzQuaternion<T>& rotation)
+NzMatrix4<T> NzMatrix4<T>::Transform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale)
 {
 	NzMatrix4 mat;
-	mat.MakeTransform(translation, scale, rotation);
+	mat.MakeTransform(translation, rotation, scale);
 
 	return mat;
 }
