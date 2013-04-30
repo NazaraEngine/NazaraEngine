@@ -276,6 +276,19 @@ NzVector2ui NzWindow::GetSize() const
 	return m_impl->GetSize();
 }
 
+nzUInt32 NzWindow::GetStyle() const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Window not created");
+		return 0;
+	}
+	#endif
+
+	return m_impl->GetStyle();
+}
+
 NzString NzWindow::GetTitle() const
 {
 	#if NAZARA_UTILITY_SAFE

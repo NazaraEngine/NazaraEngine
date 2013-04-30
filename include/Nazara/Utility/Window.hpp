@@ -56,6 +56,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 		unsigned int GetHeight() const;
 		NzVector2i GetPosition() const;
 		NzVector2ui GetSize() const;
+		nzUInt32 GetStyle() const;
 		NzString GetTitle() const;
 		unsigned int GetWidth() const;
 
