@@ -224,22 +224,7 @@ bool NzLuaInstance::Execute(const NzString& code)
 		return false;
 	}
 
-	if (m_level++ == 0)
-		m_clock.Restart();
-
-	int status = lua_pcall(m_state, 0, LUA_MULTRET, 0);
-
-	m_level--;
-
-	if (status != 0)
-	{
-		m_lastError = lua_tostring(m_state, -1);
-		lua_pop(m_state, 1);
-
-		return false;
-	}
-
-	return true;
+	return Run();
 }
 
 bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
@@ -278,7 +263,7 @@ bool NzLuaInstance::ExecuteFromStream(NzInputStream& stream)
 	StreamData data;
 	data.stream = &stream;
 
-	if (lua_load(m_state, StreamReader, &data, "C", nullptr) != 0)
+	if (lua_load(m_state, StreamReader, &data, "C++", nullptr) != 0)
 	{
 		m_lastError = lua_tostring(m_state, -1);
 		lua_pop(m_state, 1);
@@ -511,9 +496,9 @@ void NzLuaInstance::PushBoolean(bool value)
 	lua_pushboolean(m_state, value);
 }
 
-void NzLuaInstance::PushCFunction(NzLuaCFunction func, int valueCount)
+void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
 {
-	lua_pushcclosure(m_state, func, valueCount);
+	lua_pushcclosure(m_state, func, upvalueCount);
 }
 
 void NzLuaInstance::PushFunction(NzLuaFunction func)

@@ -92,7 +92,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void Pop(unsigned int n = 1U);
 
 		void PushBoolean(bool value);
-		void PushCFunction(NzLuaCFunction func, int valueCount = 0);
+		void PushCFunction(NzLuaCFunction func, int upvalueCount = 0);
 		void PushFunction(NzLuaFunction func);
 		void PushInteger(int value);
 		void PushLightUserdata(void* value);
