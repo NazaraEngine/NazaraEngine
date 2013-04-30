@@ -46,6 +46,7 @@ class NzWindowImpl : NzNonCopyable
 		unsigned int GetHeight() const;
 		NzVector2i GetPosition() const;
 		NzVector2ui GetSize() const;
+		nzUInt32 GetStyle() const;
 		NzString GetTitle() const;
 		unsigned int GetWidth() const;
 
@@ -77,8 +78,9 @@ class NzWindowImpl : NzNonCopyable
 	private:
 		bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 
-		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 		static NzKeyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
+		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+		static nzUInt32 RetrieveStyle(HWND window);
 		#if NAZARA_UTILITY_THREADED_WINDOW
 		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzConditionVariable* condition);
 		#endif
@@ -86,6 +88,7 @@ class NzWindowImpl : NzNonCopyable
 		HCURSOR m_cursor;
 		HWND m_handle;
 		LONG_PTR m_callback;
+		nzUInt32 m_style;
 		NzVector2i m_maxSize;
 		NzVector2i m_minSize;
 		NzVector2i m_mousePos;
