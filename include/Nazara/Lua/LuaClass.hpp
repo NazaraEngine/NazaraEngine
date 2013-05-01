@@ -11,10 +11,14 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <map>
+#include <memory>
+//#include <type_traits>
 
-template<class T>
-class NzLuaClass : public NzLuaClassImpl
+template<class T/*, class P = void*/>
+class NzLuaClass
 {
+	//static_assert(std::is_same<P, void>::value || std::is_base_of<P, T>::value, "P must be a base of T");
+
 	public:
 		using ClassFunc = int (*)(NzLuaInstance& lua, T& instance);
 		using ClassIndexFunc = bool (*)(NzLuaInstance& lua, T& instance);
@@ -23,7 +27,7 @@ class NzLuaClass : public NzLuaClassImpl
 
 		NzLuaClass(const NzString& name);
 
-		//template<class U> void Inherit(NzLuaClass<U>& parent);
+		//void Inherit(NzLuaClass<P>& parent);
 
 		void Register(NzLuaInstance& lua);
 
@@ -36,16 +40,23 @@ class NzLuaClass : public NzLuaClassImpl
 	private:
 		static int ConstructorProxy(lua_State* state);
 		static int FinalizerProxy(lua_State* state);
+		static int InfoDestructor(lua_State* state);
 		static int GetterProxy(lua_State* state);
 		static int MethodProxy(lua_State* state);
 		static int SetterProxy(lua_State* state);
 
+		struct ClassInfo
+		{
+			std::vector<ClassFunc> methods;
+			ClassIndexFunc getter = nullptr;
+			ClassIndexFunc setter = nullptr;
+			ConstructorFunc constructor = nullptr;
+			FinalizerFunc finalizer = nullptr;
+			NzString name;
+		};
+
 		std::map<NzString, ClassFunc> m_methods;
-		ClassIndexFunc m_getter;
-		ClassIndexFunc m_setter;
-		ConstructorFunc m_constructor;
-		FinalizerFunc m_finalizer;
-		NzString m_name;
+		std::shared_ptr<ClassInfo> m_info;
 };
 
 #include <Nazara/Lua/LuaClass.inl>
