@@ -2,95 +2,118 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Lua/Debug.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Lua/Debug.hpp>
 
 template<class T>
 NzLuaClass<T>::NzLuaClass(const NzString& name) :
-m_getter(nullptr),
-m_setter(nullptr),
-m_constructor(nullptr),
-m_finalizer(nullptr),
-m_name(name)
+m_info(new ClassInfo)
 {
+	m_info->name = name;
 }
+/*
+template<class T>
+void NzLuaClass<T>::Inherit(NzLuaClass<P>& parent)
+{
+	static_assert(std::is_base_of<P, T>::value, "P must be a base of T");
 
+	m_info->parentInfo = parent.m_info;
+}
+*/
 template<class T>
 void NzLuaClass<T>::Register(NzLuaInstance& lua)
 {
-	if (!lua.NewMetatable(m_name))
-		NazaraWarning("Class \"" + m_name + "\" already registred in this instance");
-	{
-		FinalizerFunc* finalizer = static_cast<FinalizerFunc*>(lua.PushUserdata(sizeof(FinalizerFunc)));
-		*finalizer = m_finalizer;
-		lua.PushString(m_name);
+	m_info->methods.resize(m_methods.size());
 
-		lua.PushCFunction(FinalizerProxy, 2);
+	unsigned int index = 0;
+	for (auto it = m_methods.begin(); it != m_methods.end(); ++it)
+		m_info->methods[index++] = it->second;
+
+	// Le ClassInfo doit rester en vie jusqu'à la fin du script
+	// Obliger l'instance de LuaClass à rester en vie dans cette fin serait contraignant pour l'utilisateur
+	// J'utilise donc une astuce, la stocker dans une UserData associée avec chaque fonction de la metatable du type,
+	// cette UserData disposera d'un finalizer qui libérera le ClassInfo
+	// Ainsi c'est Lua qui va s'occuper de la destruction pour nous :-)
+	// PS: L'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
+	void* info = lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>));
+	new (info) std::shared_ptr<ClassInfo>(m_info);
+
+	// On créé la table qui contiendra une méthode (Le finalizer) pour libérer le ClassInfo
+	lua.PushTable(0, 1);
+		lua.PushLightUserdata(info);
+		lua.PushCFunction(InfoDestructor, 1);
 		lua.SetField("__gc");
+	lua.SetMetatable(-2); // La table devient la metatable de l'UserData
 
-		if (m_getter)
+	// Maintenant, nous allons associer l'UserData avec chaque fonction, de sorte qu'il reste en vie
+	// aussi longtemps que nécessaire, et que le pointeur soit transmis à chaque méthode
+
+	if (!lua.NewMetatable(m_info->name))
+		NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
+	{
+		lua.PushValue(1); // On associe l'UserData avec la fonction
+		lua.PushCFunction(FinalizerProxy, 1);
+		lua.SetField("__gc"); // Finalizer
+
+		if (m_info->getter)
 		{
-			ClassIndexFunc* getter = static_cast<ClassIndexFunc*>(lua.PushUserdata(sizeof(ClassIndexFunc)));
-			*getter = m_getter;
-			lua.PushString(m_name);
-
-			lua.PushCFunction(GetterProxy, 2);
+			lua.PushValue(1);
+			lua.PushCFunction(GetterProxy, 1);
 		}
 		else
-			lua.PushValue(-1);
-
-		lua.SetField("__index");
-
-		if (m_setter)
 		{
-			ClassIndexFunc* setter = static_cast<ClassIndexFunc*>(lua.PushUserdata(sizeof(ClassIndexFunc)));
-			*setter = m_setter;
-			lua.PushString(m_name);
-
-			lua.PushCFunction(SetterProxy, 2);
-			lua.SetField("__newindex");
+			// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
+			// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
+			// Ceci n'est possible que si nous n'avons ni getter, ni parent
+			lua.PushValue(-1);
 		}
 
+		lua.SetField("__index"); // Getter
+
+		if (m_info->setter)
+		{
+			lua.PushValue(1);
+			lua.PushCFunction(SetterProxy, 1);
+			lua.SetField("__newindex"); // Setter
+		}
+
+		index = 0;
 		for (auto it = m_methods.begin(); it != m_methods.end(); ++it)
 		{
-			ClassFunc* method = static_cast<ClassFunc*>(lua.PushUserdata(sizeof(ClassFunc)));
-			*method = it->second;
-			lua.PushString(m_name);
+			lua.PushValue(1);
+			lua.PushInteger(index++);
 
 			lua.PushCFunction(MethodProxy, 2);
-			lua.SetField(it->first);
+			lua.SetField(it->first); // Méthode
 		}
 
 	}
 	lua.Pop();
 
-	if (m_constructor)
+	if (m_info->constructor)
 	{
-		ConstructorFunc* ptr = static_cast<ConstructorFunc*>(lua.PushUserdata(sizeof(ConstructorFunc)));
-		*ptr = m_constructor;
-		lua.PushString(m_name);
-
-		lua.PushCFunction(ConstructorProxy, 2);
-		lua.SetGlobal(m_name);
+		lua.PushValue(1);
+		lua.PushCFunction(ConstructorProxy, 1);
+		lua.SetGlobal(m_info->name);
 	}
 }
 
 template<class T>
 void NzLuaClass<T>::SetConstructor(ConstructorFunc constructor)
 {
-	m_constructor = constructor;
+	m_info->constructor = constructor;
 }
 
 template<class T>
 void NzLuaClass<T>::SetFinalizer(FinalizerFunc finalizer)
 {
-	m_finalizer = finalizer;
+	m_info->finalizer = finalizer;
 }
 
 template<class T>
 void NzLuaClass<T>::SetGetter(ClassIndexFunc getter)
 {
-	m_getter = getter;
+	m_info->getter = getter;
 }
 
 template<class T>
@@ -102,7 +125,7 @@ void NzLuaClass<T>::SetMethod(const NzString& name, ClassFunc method)
 template<class T>
 void NzLuaClass<T>::SetSetter(ClassIndexFunc setter)
 {
-	m_setter = setter;
+	m_info->setter = setter;
 }
 
 template<class T>
@@ -110,10 +133,10 @@ int NzLuaClass<T>::ConstructorProxy(lua_State* state)
 {
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
-	ConstructorFunc func = *static_cast<ConstructorFunc*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	const char* className = lua.ToString(lua.GetIndexOfUpValue(2));
+	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+	ConstructorFunc constructor = info->constructor;
 
-	T* instance = func(lua);
+	T* instance = constructor(lua);
 	if (!instance)
 	{
 		lua.Error("Constructor failed");
@@ -121,8 +144,8 @@ int NzLuaClass<T>::ConstructorProxy(lua_State* state)
 	}
 
 	T** ud = static_cast<T**>(lua.PushUserdata(sizeof(T*)));
-	lua.SetMetatable(className);
 	*ud = instance;
+	lua.SetMetatable(info->name);
 
 	return 1;
 }
@@ -132,14 +155,26 @@ int NzLuaClass<T>::FinalizerProxy(lua_State* state)
 {
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
-	FinalizerFunc func = *static_cast<FinalizerFunc*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	const char* className = lua.ToString(lua.GetIndexOfUpValue(2));
+	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+	FinalizerFunc finalizer = info->finalizer;
 
-	T* instance = *static_cast<T**>(lua.CheckUserdata(1, className));
-	lua.Remove(1);
+	T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
 
-	if (!func || func(lua, *instance))
+	if (!finalizer || finalizer(lua, *instance))
 		delete instance;
+
+	return 0;
+}
+
+template<class T>
+int NzLuaClass<T>::InfoDestructor(lua_State* state)
+{
+	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
+
+	std::shared_ptr<ClassInfo>* infoPtr = static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+
+	using namespace std; // Obligatoire pour le destructeur
+	infoPtr->~shared_ptr(); // Si vous voyez une autre façon de faire, je suis preneur
 
 	return 0;
 }
@@ -149,17 +184,16 @@ int NzLuaClass<T>::GetterProxy(lua_State* state)
 {
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
-	ClassIndexFunc func = *static_cast<ClassIndexFunc*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	const char* className = lua.ToString(lua.GetIndexOfUpValue(2));
+	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+	ClassIndexFunc getter = info->getter;
 
-	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, className)));
-	lua.Remove(1);
+	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 
-	if (!func(lua, instance))
+	if (!getter(lua, instance))
 	{
 		// On accède alors à la table
-		lua.PushMetatable(className);
-		lua.PushValue(1);
+		lua.PushMetatable(info->name);
+		lua.PushValue(-2);
 		lua.GetTable();
 	}
 
@@ -171,13 +205,13 @@ int NzLuaClass<T>::MethodProxy(lua_State* state)
 {
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
-	ClassFunc func = *static_cast<ClassFunc*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	const char* className = lua.ToString(lua.GetIndexOfUpValue(2));
+	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+	int index = lua.ToInteger(lua.GetIndexOfUpValue(2));
+	ClassFunc method = info->methods[index];
 
-	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, className)));
-	lua.Remove(1);
+	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 
-	return (*func)(lua, instance);
+	return method(lua, instance);
 }
 
 template<class T>
@@ -185,13 +219,12 @@ int NzLuaClass<T>::SetterProxy(lua_State* state)
 {
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
-	ClassIndexFunc func = *static_cast<ClassIndexFunc*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	const char* className = lua.ToString(lua.GetIndexOfUpValue(2));
+	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+	ClassIndexFunc setter = info->setter;
 
-	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, className)));
-	lua.Remove(1);
+	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 
-	if (!func(lua, instance))
+	if (!setter(lua, instance))
 		lua.Error("Field not found");
 
 	return 1;
