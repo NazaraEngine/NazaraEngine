@@ -22,8 +22,8 @@
 
 namespace
 {
-	NAZARA_THREADLOCAL const NzContext* currentContext = nullptr;
-	NAZARA_THREADLOCAL const NzContext* threadContext = nullptr;
+	thread_local const NzContext* currentContext = nullptr;
+	thread_local const NzContext* threadContext = nullptr;
 
 	std::vector<NzContext*> contexts;
 
