@@ -16,10 +16,10 @@
 
 // C'est malheureux mais le spécificateur %z de (f)printf n'est pas supporté partout
 #ifdef NAZARA_COMPILER_MINGW
-	#ifdef defined(NAZARA_PLATFORM_x64)
-		#define SIZE_T_SPECIFIER "%lu"
-	#else
+	#ifdef NAZARA_PLATFORM_x64
 		#define SIZE_T_SPECIFIER "%llu"
+	#else
+		#define SIZE_T_SPECIFIER "%u"
 	#endif
 #else
 	#define SIZE_T_SPECIFIER "%zu" // Standard
