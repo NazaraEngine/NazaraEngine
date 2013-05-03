@@ -8,6 +8,7 @@
 #define NAZARA_RESOURCE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <atomic>
 #include <set>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_RESOURCE
@@ -52,7 +53,7 @@ class NAZARA_API NzResource
 		bool RemoveResourceListener(NzResourceListener* listener) const;
 		bool RemoveResourceReference() const;
 
-		void SetPersistent(bool persistent = true, bool checkReferenceCount = false);
+		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
 
 	protected:
 		void NotifyCreated();
@@ -67,8 +68,8 @@ class NAZARA_API NzResource
 		mutable std::set<NzResourceEntry> m_resourceListeners;
 		mutable std::set<NzResourceEntry> m_resourceListenersCache;
 		mutable bool m_resourceListenerUpdated;
-		        bool m_resourcePersistent;
-		mutable unsigned int m_resourceReferenceCount;
+		        std::atomic_bool m_resourcePersistent;
+		mutable std::atomic_uint m_resourceReferenceCount;
 };
 
 #endif // NAZARA_RESOURCE_HPP

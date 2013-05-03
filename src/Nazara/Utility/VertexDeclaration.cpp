@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <algorithm>
+#include <atomic>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -65,13 +66,17 @@ namespace
 
 struct NzVertexDeclarationImpl
 {
+	NzVertexDeclarationImpl() :
+	refCount(1)
+	{
+	}
+
 	std::vector<NzVertexElement> elements;
 	int elementPos[nzElementStream_Max+1][nzElementUsage_Max+1];
 	int streamPos[nzElementStream_Max+1];
 	unsigned int stride[nzElementStream_Max+1] = {0};
 
-	unsigned short refCount = 1;
-	NazaraMutex(mutex)
+	std::atomic_ushort refCount;
 };
 
 NzVertexDeclaration::NzVertexDeclaration(const NzVertexElement* elements, unsigned int elementCount)
@@ -92,11 +97,7 @@ NzResource(),
 m_sharedImpl(declaration.m_sharedImpl)
 {
 	if (m_sharedImpl)
-	{
-		NazaraMutexLock(m_sharedImpl->mutex);
 		m_sharedImpl->refCount++;
-		NazaraMutexUnlock(m_sharedImpl->mutex);
-	}
 }
 
 NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration&& declaration) noexcept :
@@ -126,7 +127,7 @@ bool NzVertexDeclaration::Create(const NzVertexElement* elements, unsigned int e
 	std::memset(&impl->elementPos, -1, (nzElementStream_Max+1)*(nzElementUsage_Max+1)*sizeof(int));
 	std::memset(&impl->streamPos, -1, (nzElementStream_Max+1)*sizeof(int));
 
-	// On copie et trie les éléments
+	// On copie et trions les éléments
 	impl->elements.resize(elementCount);
 	std::memcpy(&impl->elements[0], elements, elementCount*sizeof(NzVertexElement));
 	std::sort(impl->elements.begin(), impl->elements.end(), VertexElementCompare);
@@ -177,11 +178,7 @@ void NzVertexDeclaration::Destroy()
 
 	NotifyDestroy();
 
-	NazaraMutexLock(m_sharedImpl->mutex);
-	bool freeSharedImpl = (--m_sharedImpl->refCount == 0);
-	NazaraMutexUnlock(m_sharedImpl->mutex);
-
-	if (freeSharedImpl)
+	if (--m_sharedImpl->refCount == 0)
 		delete m_sharedImpl;
 
 	m_sharedImpl = nullptr;
@@ -374,11 +371,7 @@ NzVertexDeclaration& NzVertexDeclaration::operator=(const NzVertexDeclaration& d
 
 	m_sharedImpl = declaration.m_sharedImpl;
 	if (m_sharedImpl)
-	{
-		NazaraMutexLock(m_sharedImpl->mutex);
 		m_sharedImpl->refCount++;
-		NazaraMutexUnlock(m_sharedImpl->mutex);
-	}
 
 	return *this;
 }
