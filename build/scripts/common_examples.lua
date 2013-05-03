@@ -17,10 +17,11 @@ includedirs { "../include", "../extlibs/include" }
 libdirs "../lib"
 
 if (_OPTIONS["x64"]) then
+	defines "NAZARA_PLATFORM_x64"
 	libdirs "../extlibs/lib/x64"
+else
+	libdirs "../extlibs/lib/x86"
 end
-
-libdirs "../extlibs/lib/x86"
 
 targetdir "../examples/bin"
 
