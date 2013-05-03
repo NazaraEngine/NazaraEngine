@@ -36,22 +36,18 @@
 #include <Nazara/Core/Config.hpp>
 
 ///TODO: Rajouter des tests d'identification de compilateurs
-// NAZARA_THREADLOCAL n'existe qu'en attendant le support complet de thread_local
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNC__
-	#define NAZARA_THREADLOCAL __declspec(thread)
 #elif defined(__clang__)
 	#define NAZARA_COMPILER_CLANG
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
-	#define NAZARA_THREADLOCAL __declspec(thread)
 #elif defined(__GNUC__) || defined(__MINGW32__)
 	#define NAZARA_COMPILER_GCC
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
-	#define NAZARA_THREADLOCAL __thread
 
 	#ifdef __MINGW32__
 		#define NAZARA_COMPILER_MINGW
@@ -63,17 +59,14 @@
 	#define NAZARA_COMPILER_INTEL
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNCTION__
-	#define NAZARA_THREADLOCAL __thread
 #elif defined(_MSC_VER)
 	#define NAZARA_COMPILER_MSVC
 	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
 	#define NAZARA_FUNCTION __FUNCSIG__
-	#define NAZARA_THREADLOCAL __declspec(thread)
 #else
 	#define NAZARA_COMPILER_UNKNOWN
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __func__ // __func__ est standard depuis le C++11
-	#define NAZARA_THREADLOCAL thread_local
 	#error This compiler is not fully supported
 #endif
 
