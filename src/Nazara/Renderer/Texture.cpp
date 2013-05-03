@@ -37,8 +37,6 @@ namespace
 		}
 
 		GLenum target = (proxy) ? NzOpenGL::TextureTargetProxy[impl->type] : NzOpenGL::TextureTarget[impl->type];
-		GLint previous;
-		glGetIntegerv(NzOpenGL::TextureTargetBinding[impl->type], &previous);
 		switch (impl->type)
 		{
 			case nzImageType_1D:
@@ -137,25 +135,6 @@ namespace
 		return true;
 	}
 
-	static unsigned short lockedLevel[nzImageType_Max+1] = {0};
-	static GLuint lockedPrevious[nzImageType_Max+1] = {0};
-
-	void LockTexture(NzTextureImpl* impl)
-	{
-		if (lockedLevel[impl->type]++ == 0)
-		{
-			NzContext::EnsureContext();
-
-			GLint previous;
-			glGetIntegerv(NzOpenGL::TextureTargetBinding[impl->type], &previous);
-
-			lockedPrevious[impl->type] = static_cast<GLuint>(previous);
-
-			if (lockedPrevious[impl->type] != impl->id)
-				glBindTexture(NzOpenGL::TextureTarget[impl->type], impl->id);
-		}
-	}
-
 	inline void SetUnpackAlignement(nzUInt8 bpp)
 	{
 		if (bpp % 8 == 0)
@@ -166,28 +145,6 @@ namespace
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 		else
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	}
-
-	void UnlockTexture(NzTextureImpl* impl)
-	{
-		#ifdef NAZARA_DEBUG
-		if (NzContext::GetCurrent() == nullptr)
-		{
-			NazaraError("No active context");
-			return;
-		}
-		#endif
-
-		#if NAZARA_RENDERER_SAFE
-		if (lockedLevel[impl->type] == 0)
-		{
-			NazaraError("Unlock called on non-locked texture");
-			return;
-		}
-		#endif
-
-		if (--lockedLevel[impl->type] == 0 && lockedPrevious[impl->type] != impl->id)
-			glBindTexture(NzOpenGL::TextureTarget[impl->type], lockedPrevious[impl->type]);
 	}
 }
 
@@ -209,7 +166,7 @@ NzTexture::~NzTexture()
 	Destroy();
 }
 
-bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount, bool lock)
+bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)
 {
 	Destroy();
 
@@ -305,7 +262,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 		levelCount = 1;
 	}
 
-	NzTextureImpl* impl = new NzTextureImpl;
+	std::unique_ptr<NzTextureImpl> impl(new NzTextureImpl);
 	glGenTextures(1, &impl->id);
 
 	impl->depth = GetValidSize(depth);
@@ -315,37 +272,30 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	impl->type = type;
 	impl->width = GetValidSize(width);
 
-	LockTexture(impl);
+	NzOpenGL::BindTexture(impl->type, impl->id);
 
 	// Vérification du support par la carte graphique
 	/*if (!CreateTexture(impl, true))
 	{
-		NazaraError("Texture's parameters not supported by driver");
-		UnlockTexture(impl);
-		glDeleteTextures(1, &impl->id);
-		delete impl;
+		NzOpenGL::DeleteTexture(m_impl->id);
 
+		NazaraError("Texture's parameters not supported by driver");
 		return false;
 	}*/
 
 	// Création de la texture
-	if (!CreateTexture(impl, false))
+	if (!CreateTexture(impl.get(), false))
 	{
-		NazaraError("Failed to create texture");
-		UnlockTexture(impl);
-		glDeleteTextures(1, &impl->id);
-		delete impl;
+		NzOpenGL::DeleteTexture(m_impl->id);
 
+		NazaraError("Failed to create texture");
 		return false;
 	}
 
-	m_impl = impl;
+	m_impl = impl.release();
 
 	if (m_impl->levelCount > 1U)
 		EnableMipmapping(true);
-
-	if (!lock)
-		UnlockTexture(impl);
 
 	NotifyCreated();
 	return true;
@@ -358,8 +308,8 @@ void NzTexture::Destroy()
 		NotifyDestroy();
 
 		NzContext::EnsureContext();
+		NzOpenGL::DeleteTexture(m_impl->id);
 
-		glDeleteTextures(1, &m_impl->id);
 		delete m_impl;
 		m_impl = nullptr;
 	}
@@ -394,13 +344,12 @@ bool NzTexture::Download(NzImage* image) const
 		return false;
 	}
 
-	LockTexture(m_impl);
-
 	unsigned int width = m_impl->width;
 	unsigned int height = m_impl->height;
 	unsigned int depth = m_impl->depth;
 
 	// Téléchargement...
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
 	{
 		glGetTexImage(NzOpenGL::TextureTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(level));
@@ -414,8 +363,6 @@ bool NzTexture::Download(NzImage* image) const
 		if (depth > 1)
 			depth >>= 1;
 	}
-
-	UnlockTexture(m_impl);
 
 	// Inversion de la texture pour le repère d'OpenGL
 	if (!image->FlipVertically())
@@ -639,7 +586,7 @@ bool NzTexture::LoadFromImage(const NzImage& image, bool generateMipmaps)
 
 	nzImageType type = newImage.GetType();
 	nzUInt8 levelCount = newImage.GetLevelCount();
-	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), (generateMipmaps) ? 0xFF : levelCount, true))
+	if (!Create(type, format, newImage.GetWidth(), newImage.GetHeight(), newImage.GetDepth(), (generateMipmaps) ? 0xFF : levelCount))
 	{
 		NazaraError("Failed to create texture");
 		return false;
@@ -674,8 +621,6 @@ bool NzTexture::LoadFromImage(const NzImage& image, bool generateMipmaps)
 			}
 		}
 	}
-
-	UnlockTexture(m_impl);
 
 	return true;
 }
@@ -784,7 +729,7 @@ bool NzTexture::LoadCubemapFromImage(const NzImage& image, bool generateMipmaps,
 		return false;
 	}
 
-	if (!Create(nzImageType_Cubemap, image.GetFormat(), faceSize, faceSize, 1, (generateMipmaps) ? 0xFF : 1, true))
+	if (!Create(nzImageType_Cubemap, image.GetFormat(), faceSize, faceSize, 1, (generateMipmaps) ? 0xFF : 1))
 	{
 		NazaraError("Failed to create texture");
 		return false;
@@ -796,8 +741,6 @@ bool NzTexture::LoadCubemapFromImage(const NzImage& image, bool generateMipmaps,
 	UpdateFace(nzCubemapFace_PositiveX, image.GetConstPixels(rightPos.x, rightPos.y), width, height);
 	UpdateFace(nzCubemapFace_PositiveY, image.GetConstPixels(upPos.x, upPos.y), width, height);
 	UpdateFace(nzCubemapFace_PositiveZ, image.GetConstPixels(forwardPos.x, forwardPos.y), width, height);
-
-	UnlockTexture(m_impl);
 
 	return true;
 }
@@ -946,21 +889,6 @@ bool NzTexture::LoadFaceFromStream(nzCubemapFace face, NzInputStream& stream, co
 	return UpdateFace(face, image);
 }
 
-bool NzTexture::Lock()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	LockTexture(m_impl);
-
-	return true;
-}
-
 bool NzTexture::SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -983,10 +911,9 @@ bool NzTexture::SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel)
 	}
 	#endif
 
-	LockTexture(m_impl);
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	glTexParameteri(NzOpenGL::TextureTarget[m_impl->type], GL_TEXTURE_BASE_LEVEL, minLevel);
 	glTexParameteri(NzOpenGL::TextureTarget[m_impl->type], GL_TEXTURE_MAX_LEVEL, maxLevel);
-	UnlockTexture(m_impl);
 
 	return true;
 }
@@ -1158,7 +1085,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 
 	SetUnpackAlignement(bpp);
 
-	LockTexture(m_impl);
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
@@ -1179,7 +1106,6 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 			NazaraError("Update used on a cubemap texture, please enable safe mode");
 			break;
 	}
-	UnlockTexture(m_impl);
 
 	return true;
 }
@@ -1304,37 +1230,15 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 
 	SetUnpackAlignement(bpp);
 
-	LockTexture(m_impl);
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	glTexSubImage2D(NzOpenGL::CubemapFace[face], level, rect.x, height-rect.height-rect.y, rect.width, rect.height, format.dataFormat, format.dataType, flipped.get());
-	UnlockTexture(m_impl);
 
 	return true;
 }
 
-void NzTexture::Unlock()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return;
-	}
-	#endif
-
-	UnlockTexture(m_impl);
-}
-
 bool NzTexture::Bind() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (lockedLevel[m_impl->type] > 0)
-	{
-		NazaraError("Cannot bind texture while a texture is locked");
-		return false;
-	}
-	#endif
-
-	glBindTexture(NzOpenGL::TextureTarget[m_impl->type], m_impl->id);
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 
 	if (m_impl->mipmapping && !m_impl->mipmapsUpdated)
 	{

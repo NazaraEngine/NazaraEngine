@@ -113,9 +113,10 @@ enum nzRendererParameter
 	nzRendererParameter_DepthTest,
 	nzRendererParameter_DepthWrite,
 	nzRendererParameter_FaceCulling,
-	nzRendererParameter_Stencil,
+	nzRendererParameter_ScissorTest,
+	nzRendererParameter_StencilTest,
 
-	nzRendererParameter_Max = nzRendererParameter_Stencil
+	nzRendererParameter_Max = nzRendererParameter_StencilTest
 };
 
 enum nzSamplerFilter

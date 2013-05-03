@@ -124,7 +124,7 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 
 	NzVector2ui size = GetSize();
 
-	if (!texture->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1, true))
+	if (!texture->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1))
 	{
 		NazaraError("Failed to create texture");
 		return false;
@@ -142,8 +142,6 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 		else
 			m_context->SetActive(false);
 	}
-
-	texture->Unlock();
 
 	return true;
 }

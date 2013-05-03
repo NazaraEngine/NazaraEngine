@@ -38,7 +38,6 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		bool IsLoaded(nzShaderType type) const;
 
 		bool Load(nzShaderType type, const NzString& source);
-		bool Lock();
 
 		bool SendBoolean(int location, bool value);
 		bool SendColor(int location, const NzColor& color);
@@ -54,9 +53,6 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		bool SendVector(int location, const NzVector3f& vector);
 		bool SendVector(int location, const NzVector4d& vector);
 		bool SendVector(int location, const NzVector4f& vector);
-
-		void Unbind();
-		void Unlock();
 
 	private:
 		void OnResourceCreated(const NzResource* resource, int index) override;
