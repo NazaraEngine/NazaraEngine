@@ -130,11 +130,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 
 	const NzShader* oldShader = NzRenderer::GetShader();
 
-	if (!NzRenderer::SetShader(shader))
-	{
-		NazaraError("Failed to set debug shader");
-		return;
-	}
+	NzRenderer::SetShader(shader);
 
 	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
 	if (depthTestActive != depthTest)
@@ -154,8 +150,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	if (depthTestActive != depthTest)
 		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
 
-	if (!NzRenderer::SetShader(oldShader))
-		NazaraWarning("Failed to reset shader");
+	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzCubeui& cube)
@@ -238,11 +233,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 
 	const NzShader* oldShader = NzRenderer::GetShader();
 
-	if (!NzRenderer::SetShader(shader))
-	{
-		NazaraError("Failed to set debug shader");
-		return;
-	}
+	NzRenderer::SetShader(shader);
 
 	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
 	if (depthTestActive != depthTest)
@@ -262,8 +253,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 	if (depthTestActive != depthTest)
 		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
 
-	if (!NzRenderer::SetShader(oldShader))
-		NazaraWarning("Failed to reset shader");
+	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
@@ -341,11 +331,7 @@ void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
 
 	const NzShader* oldShader = NzRenderer::GetShader();
 
-	if (!NzRenderer::SetShader(shader))
-	{
-		NazaraError("Failed to set debug shader");
-		return;
-	}
+	NzRenderer::SetShader(shader);
 
 	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
 	if (depthTestActive != depthTest)
@@ -365,8 +351,7 @@ void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
 	if (depthTestActive != depthTest)
 		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
 
-	if (!NzRenderer::SetShader(oldShader))
-		NazaraWarning("Failed to reset shader");
+	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
@@ -410,11 +395,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 	{
 		const NzShader* oldShader = NzRenderer::GetShader();
 
-		if (!NzRenderer::SetShader(shader))
-		{
-			NazaraError("Failed to set debug shader");
-			return;
-		}
+		NzRenderer::SetShader(shader);
 
 		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
 		if (depthTestActive != depthTest)
@@ -440,8 +421,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		if (depthTestActive != depthTest)
 			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
 
-		if (!NzRenderer::SetShader(oldShader))
-			NazaraWarning("Failed to reset shader");
+		NzRenderer::SetShader(oldShader);
 	}
 }
 /*

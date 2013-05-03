@@ -34,7 +34,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
 
-		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1, bool lock = false);
+		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		void Destroy();
 
 		bool Download(NzImage* image) const;
@@ -72,8 +72,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool LoadFaceFromMemory(nzCubemapFace face, const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFaceFromStream(nzCubemapFace face, NzInputStream& stream, const NzImageParams& params = NzImageParams());
 
-		bool Lock();
-
 		bool SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel);
 
 		bool Update(const NzImage& image, nzUInt8 level = 0);
@@ -86,8 +84,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool UpdateFace(nzCubemapFace face, const NzImage& image, const NzRectui& rect, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-
-		void Unlock();
 
 		// Fonctions OpenGL
 		bool Bind() const;

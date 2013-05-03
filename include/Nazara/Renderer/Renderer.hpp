@@ -53,6 +53,7 @@ class NAZARA_API NzRenderer
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
 		static float GetPointSize();
+		static NzRectui GetScissorRect();
 		static const NzShader* GetShader();
 		static const NzRenderTarget* GetTarget();
 		static NzRectui GetViewport();
@@ -72,12 +73,13 @@ class NAZARA_API NzRenderer
 		static void SetDepthFunc(nzRendererComparison compareFunc);
 		static void SetFaceCulling(nzFaceCulling cullingMode);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
-		static bool SetIndexBuffer(const NzIndexBuffer* indexBuffer);
+		static void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 		static void SetInstancingData(const InstancingData* instancingData, unsigned int instanceCount);
 		static void SetLineWidth(float size);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
 		static void SetPointSize(float size);
-		static bool SetShader(const NzShader* shader);
+		static void SetScissorRect(const NzRectui& viewport);
+		static void SetShader(const NzShader* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
 		static void SetStencilFailOperation(nzStencilOperation failOperation);
 		static void SetStencilMask(nzUInt32 mask);
@@ -87,13 +89,14 @@ class NAZARA_API NzRenderer
 		static bool SetTarget(const NzRenderTarget* target);
 		static void SetTexture(nzUInt8 unit, const NzTexture* texture);
 		static void SetTextureSampler(nzUInt8 textureUnit, const NzTextureSampler& sampler);
-		static bool SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
+		static void SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
 		static void SetViewport(const NzRectui& viewport);
 
 		static void Uninitialize();
 
 	private:
-		static bool EnsureStateUpdate(bool instancing);
+		static void EnableInstancing(bool instancing);
+		static bool EnsureStateUpdate();
 
 		static unsigned int s_moduleReferenceCounter;
 };
