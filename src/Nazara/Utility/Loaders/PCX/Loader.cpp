@@ -9,6 +9,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 // Auteur du loader original : David Henry
@@ -149,18 +150,18 @@ namespace
 
 			case 4:
 			{
-				nzUInt8* colorIndex = new nzUInt8[width];
-				nzUInt8* line = new nzUInt8[header.bytesPerScanLine];
+				std::unique_ptr<nzUInt8[]> colorIndex(new nzUInt8[width]);
+				std::unique_ptr<nzUInt8[]> line(new nzUInt8[header.bytesPerScanLine]);
 
 				for (unsigned int y = 0; y < height; ++y)
 				{
 					nzUInt8* ptr = &pixels[y * width * 3];
 
-					std::memset(colorIndex, 0, width);
+					std::memset(colorIndex.get(), 0, width);
 
 					for (unsigned int c = 0; c < 4; ++c)
 					{
-						nzUInt8* pLine = line;
+						nzUInt8* pLine = line.get();
 						int bytes = header.bytesPerScanLine;
 
 						/* decode line number y */
@@ -171,9 +172,6 @@ namespace
 								if (!stream.Read(&rle_value, 1))
 								{
 									NazaraError("Failed to read stream (byte " + NzString::Number(stream.GetCursorPos()) + ')');
-									delete[] colorIndex;
-									delete[] line;
-
 									return false;
 								}
 
@@ -185,9 +183,6 @@ namespace
 									if (!stream.Read(&rle_value, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NzString::Number(stream.GetCursorPos()) + ')');
-										delete[] colorIndex;
-										delete[] line;
-
 										return false;
 									}
 								}
@@ -214,9 +209,6 @@ namespace
 					}
 				}
 
-				/* release memory */
-				delete[] colorIndex;
-				delete[] line;
 				break;
 			}
 
