@@ -1423,271 +1423,274 @@ void NzRenderer::EnableInstancing(bool instancing)
 
 bool NzRenderer::EnsureStateUpdate()
 {
-	if (s_updateFlags == Update_None)
-		return true;
-
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
+	if (s_updateFlags != Update_None)
 	{
-		NazaraError("No active context");
-		return false;
-	}
-	#endif
-
-	NzShaderImpl* shaderImpl;
-
-	if (s_updateFlags & Update_Shader)
-	{
-		#if NAZARA_RENDERER_SAFE
-		if (!s_shader)
+		#ifdef NAZARA_DEBUG
+		if (NzContext::GetCurrent() == nullptr)
 		{
-			NazaraError("No shader");
+			NazaraError("No active context");
 			return false;
 		}
 		#endif
 
-		// Il est plus rapide d'opérer sur l'implémentation du shader directement
-		shaderImpl = s_shader->m_impl;
-		shaderImpl->Bind();
-		shaderImpl->BindTextures();
+		NzShaderImpl* shaderImpl;
 
-		// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-		s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation("ProjMatrix");
-		s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation("ViewMatrix");
-		s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation("WorldMatrix");
-
-		s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation("ViewProjMatrix");
-		s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation("WorldViewMatrix");
-		s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation("WorldViewProjMatrix");
-
-		s_updateFlags |= Update_Matrices;
-		for (unsigned int i = 0; i < totalMatrixCount; ++i)
+		if (s_updateFlags & Update_Shader)
 		{
-			if (s_matrixLocation[i] != -1)
-				s_matrixUpdated[i] = false;
-			else
-				s_matrixUpdated[i] = false;
-		}
-
-		s_updateFlags &= ~Update_Shader;
-	}
-	else
-		shaderImpl = s_shader->m_impl;
-
-	if (s_updateFlags & Update_Textures)
-	{
-		if (s_useSamplerObjects)
-		{
-			for (unsigned int i : s_dirtyTextureUnits)
+			#if NAZARA_RENDERER_SAFE
+			if (!s_shader)
 			{
-				TextureUnit& unit = s_textureUnits[i];
+				NazaraError("No shader");
+				return false;
+			}
+			#endif
 
-				if (!unit.textureUpdated)
+			// Il est plus rapide d'opérer sur l'implémentation du shader directement
+			shaderImpl = s_shader->m_impl;
+			shaderImpl->Bind();
+			shaderImpl->BindTextures();
+
+			// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
+			s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation("ProjMatrix");
+			s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation("ViewMatrix");
+			s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation("WorldMatrix");
+
+			s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation("ViewProjMatrix");
+			s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation("WorldViewMatrix");
+			s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation("WorldViewProjMatrix");
+
+			s_updateFlags |= Update_Matrices;
+			for (unsigned int i = 0; i < totalMatrixCount; ++i)
+			{
+				if (s_matrixLocation[i] != -1)
+					s_matrixUpdated[i] = false;
+				else
+					s_matrixUpdated[i] = false;
+			}
+
+			s_updateFlags &= ~Update_Shader;
+		}
+		else
+			shaderImpl = s_shader->m_impl;
+
+		if (s_updateFlags & Update_Textures)
+		{
+			if (s_useSamplerObjects)
+			{
+				for (unsigned int i : s_dirtyTextureUnits)
 				{
-					NzOpenGL::SetTextureUnit(i);
-					unit.texture->Bind();
+					TextureUnit& unit = s_textureUnits[i];
 
-					unit.textureUpdated = true;
+					if (!unit.textureUpdated)
+					{
+						NzOpenGL::SetTextureUnit(i);
+						unit.texture->Bind();
+
+						unit.textureUpdated = true;
+					}
+
+					if (!unit.samplerUpdated)
+					{
+						unit.sampler.Bind(i);
+						unit.samplerUpdated = true;
+					}
 				}
-
-				if (!unit.samplerUpdated)
+			}
+			else
+			{
+				for (unsigned int i : s_dirtyTextureUnits)
 				{
-					unit.sampler.Bind(i);
+					TextureUnit& unit = s_textureUnits[i];
+
+					NzOpenGL::SetTextureUnit(i);
+
+					unit.texture->Bind();
+					unit.textureUpdated = true;
+
+					unit.sampler.Apply(unit.texture);
 					unit.samplerUpdated = true;
 				}
 			}
+
+			s_dirtyTextureUnits.clear(); // Ne change pas la capacité
+			s_updateFlags &= ~Update_Textures;
 		}
-		else
+
+		if (s_updateFlags & Update_Matrices)
 		{
-			for (unsigned int i : s_dirtyTextureUnits)
+			for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 			{
-				TextureUnit& unit = s_textureUnits[i];
-
-				NzOpenGL::SetTextureUnit(i);
-
-				unit.texture->Bind();
-				unit.textureUpdated = true;
-
-				unit.sampler.Apply(unit.texture);
-				unit.samplerUpdated = true;
-			}
-		}
-
-		s_dirtyTextureUnits.clear(); // Ne change pas la capacité
-		s_updateFlags &= ~Update_Textures;
-	}
-
-	if (s_updateFlags & Update_Matrices)
-	{
-		for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
-		{
-			if (!s_matrixUpdated[i])
-			{
-				shaderImpl->SendMatrix(s_matrixLocation[i], s_matrix[i]);
-				s_matrixUpdated[i] = true;
-			}
-		}
-
-		// Cas spéciaux car il faut recalculer la matrice
-		if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
-		{
-			s_matrix[nzMatrixCombination_ViewProj] = s_matrix[nzMatrixType_View];
-			s_matrix[nzMatrixCombination_ViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
-
-			shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_ViewProj], s_matrix[nzMatrixCombination_ViewProj]);
-			s_matrixUpdated[nzMatrixCombination_ViewProj] = true;
-		}
-
-		if (!s_matrixUpdated[nzMatrixCombination_WorldView])
-		{
-			s_matrix[nzMatrixCombination_WorldView] = s_matrix[nzMatrixType_World];
-			s_matrix[nzMatrixCombination_WorldView].ConcatenateAffine(s_matrix[nzMatrixType_View]);
-
-			shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldView], s_matrix[nzMatrixCombination_WorldView]);
-			s_matrixUpdated[nzMatrixCombination_WorldView] = true;
-		}
-
-		if (!s_matrixUpdated[nzMatrixCombination_WorldViewProj])
-		{
-			s_matrix[nzMatrixCombination_WorldViewProj] = s_matrix[nzMatrixCombination_WorldView];
-			s_matrix[nzMatrixCombination_WorldViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
-
-			shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldViewProj], s_matrix[nzMatrixCombination_WorldViewProj]);
-			s_matrixUpdated[nzMatrixCombination_WorldViewProj] = true;
-		}
-
-		s_updateFlags &= ~Update_Matrices;
-	}
-
-	if (s_updateFlags & Update_StencilFunc)
-	{
-		glStencilFunc(NzOpenGL::RendererComparison[s_stencilCompare], s_stencilReference, s_stencilMask);
-		s_updateFlags &= ~Update_StencilFunc;
-	}
-
-	if (s_updateFlags & Update_StencilOp)
-	{
-		glStencilOp(NzOpenGL::StencilOperation[s_stencilFail], NzOpenGL::StencilOperation[s_stencilZFail], NzOpenGL::StencilOperation[s_stencilPass]);
-		s_updateFlags &= ~Update_StencilOp;
-	}
-
-	if (s_updateFlags & Update_VAO)
-	{
-		#if NAZARA_RENDERER_SAFE
-		if (!s_vertexBuffer)
-		{
-			NazaraError("No vertex buffer");
-			return false;
-		}
-
-		if (!s_vertexDeclaration)
-		{
-			NazaraError("No vertex declaration");
-			return false;
-		}
-		#endif
-
-		bool update;
-		GLuint vao;
-
-		// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
-		if (s_useVertexArrayObjects)
-		{
-			// On recherche si un VAO existe déjà avec notre configuration
-			// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
-
-			auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration, s_instancing);
-			auto it = s_vaos.find(key);
-			if (it == s_vaos.end())
-			{
-				// On créé notre VAO
-				glGenVertexArrays(1, &vao);
-				glBindVertexArray(vao);
-
-				// On l'ajoute à notre liste
-				s_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
-
-				// Et on indique qu'on veut le programmer
-				update = true;
-			}
-			else
-			{
-				// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-				vao = it->second;
-
-				update = false;
-			}
-		}
-		else
-			update = true; // Fallback si les VAOs ne sont pas supportés
-
-		if (update)
-		{
-			NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
-			vertexBufferImpl->Bind();
-
-			const nzUInt8* buffer = static_cast<const nzUInt8*>(s_vertexBuffer->GetPointer());
-			unsigned int stride = s_vertexDeclaration->GetStride(nzElementStream_VertexData);
-			for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
-			{
-				nzElementUsage usage = static_cast<nzElementUsage>(i);
-				if (s_vertexDeclaration->HasElement(nzElementStream_VertexData, usage))
+				if (!s_matrixUpdated[i])
 				{
-					const NzVertexElement* element = s_vertexDeclaration->GetElement(nzElementStream_VertexData, usage);
+					shaderImpl->SendMatrix(s_matrixLocation[i], s_matrix[i]);
+					s_matrixUpdated[i] = true;
+				}
+			}
 
-					glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-					glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-					                      NzVertexDeclaration::GetElementCount(element->type),
-					                      NzOpenGL::ElementType[element->type],
-					                      (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
-					                      stride,
-					                      &buffer[element->offset]);
+			// Cas spéciaux car il faut recalculer la matrice
+			if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
+			{
+				s_matrix[nzMatrixCombination_ViewProj] = s_matrix[nzMatrixType_View];
+				s_matrix[nzMatrixCombination_ViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
+
+				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_ViewProj], s_matrix[nzMatrixCombination_ViewProj]);
+				s_matrixUpdated[nzMatrixCombination_ViewProj] = true;
+			}
+
+			if (!s_matrixUpdated[nzMatrixCombination_WorldView])
+			{
+				s_matrix[nzMatrixCombination_WorldView] = s_matrix[nzMatrixType_World];
+				s_matrix[nzMatrixCombination_WorldView].ConcatenateAffine(s_matrix[nzMatrixType_View]);
+
+				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldView], s_matrix[nzMatrixCombination_WorldView]);
+				s_matrixUpdated[nzMatrixCombination_WorldView] = true;
+			}
+
+			if (!s_matrixUpdated[nzMatrixCombination_WorldViewProj])
+			{
+				s_matrix[nzMatrixCombination_WorldViewProj] = s_matrix[nzMatrixCombination_WorldView];
+				s_matrix[nzMatrixCombination_WorldViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
+
+				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldViewProj], s_matrix[nzMatrixCombination_WorldViewProj]);
+				s_matrixUpdated[nzMatrixCombination_WorldViewProj] = true;
+			}
+
+			s_updateFlags &= ~Update_Matrices;
+		}
+
+		if (s_updateFlags & Update_StencilFunc)
+		{
+			glStencilFunc(NzOpenGL::RendererComparison[s_stencilCompare], s_stencilReference, s_stencilMask);
+			s_updateFlags &= ~Update_StencilFunc;
+		}
+
+		if (s_updateFlags & Update_StencilOp)
+		{
+			glStencilOp(NzOpenGL::StencilOperation[s_stencilFail], NzOpenGL::StencilOperation[s_stencilZFail], NzOpenGL::StencilOperation[s_stencilPass]);
+			s_updateFlags &= ~Update_StencilOp;
+		}
+
+		if (s_updateFlags & Update_VAO)
+		{
+			#if NAZARA_RENDERER_SAFE
+			if (!s_vertexBuffer)
+			{
+				NazaraError("No vertex buffer");
+				return false;
+			}
+
+			if (!s_vertexDeclaration)
+			{
+				NazaraError("No vertex declaration");
+				return false;
+			}
+			#endif
+
+			bool update;
+			GLuint vao;
+
+			// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
+			if (s_useVertexArrayObjects)
+			{
+				// On recherche si un VAO existe déjà avec notre configuration
+				// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
+
+				auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration, s_instancing);
+				auto it = s_vaos.find(key);
+				if (it == s_vaos.end())
+				{
+					// On créé notre VAO
+					glGenVertexArrays(1, &vao);
+					glBindVertexArray(vao);
+
+					// On l'ajoute à notre liste
+					s_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
+
+					// Et on indique qu'on veut le programmer
+					update = true;
 				}
 				else
-					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-			}
-
-			if (s_instancing)
-			{
-				static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
-
-				unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
-				for (unsigned int i = 0; i < 4; ++i)
 				{
-					glEnableVertexAttribArray(instanceMatrixIndex);
-					glVertexAttribPointer(instanceMatrixIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstancingData), reinterpret_cast<GLvoid*>(offsetof(InstancingData, worldMatrix) + i*sizeof(float)*4));
-					glVertexAttribDivisor(instanceMatrixIndex, 1);
+					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
+					vao = it->second;
 
-					instanceMatrixIndex++;
+					update = false;
 				}
 			}
 			else
-				glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+				update = true; // Fallback si les VAOs ne sont pas supportés
 
-			if (s_indexBuffer)
-			{
-				NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
-				indexBufferImpl->Bind();
-			}
-		}
-
-		if (s_useVertexArrayObjects)
-		{
-			// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
 			if (update)
-				glBindVertexArray(0);
+			{
+				NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
+				vertexBufferImpl->Bind();
 
-			// Nous (re)bindons le VAO pour définir les attributs de vertice
-			glBindVertexArray(vao);
+				const nzUInt8* buffer = static_cast<const nzUInt8*>(s_vertexBuffer->GetPointer());
+				unsigned int stride = s_vertexDeclaration->GetStride(nzElementStream_VertexData);
+				for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
+				{
+					nzElementUsage usage = static_cast<nzElementUsage>(i);
+					if (s_vertexDeclaration->HasElement(nzElementStream_VertexData, usage))
+					{
+						const NzVertexElement* element = s_vertexDeclaration->GetElement(nzElementStream_VertexData, usage);
+
+						glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+						glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
+											  NzVertexDeclaration::GetElementCount(element->type),
+											  NzOpenGL::ElementType[element->type],
+											  (element->type == nzElementType_Color) ? GL_TRUE : GL_FALSE,
+											  stride,
+											  &buffer[element->offset]);
+					}
+					else
+						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+				}
+
+				if (s_instancing)
+				{
+					static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
+
+					unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
+					for (unsigned int i = 0; i < 4; ++i)
+					{
+						glEnableVertexAttribArray(instanceMatrixIndex);
+						glVertexAttribPointer(instanceMatrixIndex, 4, GL_FLOAT, GL_FALSE, sizeof(InstancingData), reinterpret_cast<GLvoid*>(offsetof(InstancingData, worldMatrix) + i*sizeof(float)*4));
+						glVertexAttribDivisor(instanceMatrixIndex, 1);
+
+						instanceMatrixIndex++;
+					}
+				}
+				else
+					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+
+				if (s_indexBuffer)
+				{
+					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
+					indexBufferImpl->Bind();
+				}
+			}
+
+			if (s_useVertexArrayObjects)
+			{
+				// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
+				if (update)
+					glBindVertexArray(0);
+
+				// Nous (re)bindons le VAO pour définir les attributs de vertice
+				glBindVertexArray(vao);
+			}
+
+			s_updateFlags &= ~Update_VAO;
 		}
 
-		s_updateFlags &= ~Update_VAO;
+		#ifdef NAZARA_DEBUG
+		if (s_updateFlags != Update_None)
+			NazaraWarning("Update flags not fully cleared");
+		#endif
 	}
 
-	#ifdef NAZARA_DEBUG
-	if (s_updateFlags != Update_None)
-		NazaraWarning("Update flags not fully cleared");
-	#endif
+	///FIXME: Rebinder le shader, les textures et le VAO via l'API NzOpenGL ?
+	// Le problème étant que si une modification est faite à une ressource, celle-ci ne sera pas rebindée alors qu'elle le devrait
 
 	return true;
 }
