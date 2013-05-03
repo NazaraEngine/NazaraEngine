@@ -34,8 +34,6 @@ class NzShaderImpl
 
 		virtual bool Load(nzShaderType type, const NzString& source) = 0;
 
-		virtual bool Lock() = 0;
-
 		virtual bool SendBoolean(int location, bool value) = 0;
 		virtual bool SendColor(int location, const NzColor& color) = 0;
 		virtual bool SendDouble(int location, double value) = 0;
@@ -50,9 +48,6 @@ class NzShaderImpl
 		virtual bool SendVector(int location, const NzVector3f& vector) = 0;
 		virtual bool SendVector(int location, const NzVector4d& vector) = 0;
 		virtual bool SendVector(int location, const NzVector4f& vector) = 0;
-
-		virtual void Unbind() = 0;
-		virtual void Unlock() = 0;
 };
 
 #endif // NAZARA_SHADERIMPL_HPP

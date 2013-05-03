@@ -51,7 +51,7 @@ class NAZARA_API NzOpenGL
 		enum FormatType
 		{
 			FormatType_RenderBuffer,
-	//		FormatType_MultisampleTexture,
+//			FormatType_MultisampleTexture,
 			FormatType_Texture
 		};
 
@@ -65,15 +65,33 @@ class NAZARA_API NzOpenGL
 		NzOpenGL() = delete;
 		~NzOpenGL() = delete;
 
+		static void BindBuffer(nzBufferType type, GLuint id);
+		static void BindProgram(GLuint id);
+		static void BindTexture(nzImageType type, GLuint id);
+
+		static void DeleteBuffer(nzBufferType type, GLuint id);
+		static void DeleteProgram(GLuint id);
+		static void DeleteTexture(GLuint id);
+
+		static GLuint GetCurrentBuffer(nzBufferType type);
+		static GLuint GetCurrentProgram();
+		static GLuint GetCurrentTexture();
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
 		static NzString GetRendererName();
+		static unsigned int GetTextureUnit();
 		static NzString GetVendorName();
 		static unsigned int GetVersion();
+
 		static bool Initialize();
+
 		static bool IsInitialized();
 		static bool IsSupported(nzOpenGLExtension extension);
 		static bool IsSupported(const NzString& string);
+
+		static void SetTextureUnit(unsigned int textureUnit);
+
 		static bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
+
 		static void Uninitialize();
 
 		static GLenum Attachment[nzAttachmentPoint_Max+1];

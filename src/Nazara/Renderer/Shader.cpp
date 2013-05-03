@@ -298,19 +298,6 @@ bool NzShader::LoadFromFile(nzShaderType type, const NzString& filePath)
 	return m_impl->Load(type, source);
 }
 
-bool NzShader::Lock()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return false;
-	}
-	#endif
-
-	return m_impl->Lock();
-}
-
 bool NzShader::SendBoolean(int location, bool value) const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -610,19 +597,6 @@ bool NzShader::SendVector(int location, const NzVector4f& vector) const
 void NzShader::SetFlags(nzUInt32 flags)
 {
 	m_flags = flags;
-}
-
-void NzShader::Unlock()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return;
-	}
-	#endif
-
-	return m_impl->Unlock();
 }
 
 NzShader& NzShader::operator=(NzShader&& shader)
