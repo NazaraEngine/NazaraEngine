@@ -9,15 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Hashable.hpp>
+#include <atomic>
 #include <iosfwd>
 #include <string>
 #include <vector>
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_STRING
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
 
 class NzAbstractHash;
 class NzHashDigest;
@@ -282,7 +277,10 @@ class NAZARA_API NzString : public NzHashable
 
 		struct NAZARA_API SharedString
 		{
-			SharedString() = default;
+			SharedString() :
+			refCount(1)
+			{
+			}
 
 			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
 			capacity(bufferSize),
@@ -296,8 +294,7 @@ class NAZARA_API NzString : public NzHashable
 			unsigned int size;
 			char* string;
 
-			unsigned short refCount = 1;
-			NazaraMutex(mutex)
+			std::atomic_ushort refCount;
 		};
 
 		static SharedString emptyString;

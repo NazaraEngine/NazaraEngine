@@ -54,11 +54,7 @@ NzResource(image),
 m_sharedImage(image.m_sharedImage)
 {
 	if (m_sharedImage != &emptyImage)
-	{
-		NazaraMutexLock(m_sharedImage->mutex);
 		m_sharedImage->refCount++;
-		NazaraMutexUnlock(m_sharedImage->mutex);
-	}
 }
 
 NzImage::NzImage(NzImage&& image) noexcept :
@@ -1220,11 +1216,7 @@ NzImage& NzImage::operator=(const NzImage& image)
 
 	m_sharedImage = image.m_sharedImage;
 	if (m_sharedImage != &emptyImage)
-	{
-		NazaraMutexLock(m_sharedImage->mutex);
 		m_sharedImage->refCount++;
-		NazaraMutexUnlock(m_sharedImage->mutex);
-	}
 
 	return *this;
 }
@@ -1294,7 +1286,6 @@ void NzImage::EnsureOwnership()
 	if (m_sharedImage == &emptyImage)
 		return;
 
-	NazaraLock(m_sharedImage->mutex);
 	if (m_sharedImage->refCount > 1)
 	{
 		m_sharedImage->refCount--;
@@ -1316,11 +1307,7 @@ void NzImage::ReleaseImage()
 	if (m_sharedImage == &emptyImage)
 		return;
 
-	NazaraMutexLock(m_sharedImage->mutex);
-	bool freeSharedImage = (--m_sharedImage->refCount == 0);
-	NazaraMutexUnlock(m_sharedImage->mutex);
-
-	if (freeSharedImage)
+	if (--m_sharedImage->refCount == 0)
 	{
 		for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 			delete[] m_sharedImage->pixels[i];
