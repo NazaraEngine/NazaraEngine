@@ -24,3 +24,8 @@ configuration "Release"
 -- Activation du SSE côté GCC
 configuration { "Release*", "codeblocks or codelite or gmake or xcode3*" }
 	buildoptions "-mfpmath=sse"
+
+if (_OPTIONS["x64"]) then
+configuration "codeblocks or codelite or gmake or xcode3*"
+	buildoptions "-m64"
+end

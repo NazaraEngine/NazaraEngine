@@ -21,10 +21,11 @@ includedirs
 libdirs "../lib"
 
 if (_OPTIONS["x64"]) then
+	defines "NAZARA_PLATFORM_x64"
 	libdirs "../extlibs/lib/x64"
+else
+	libdirs "../extlibs/lib/x86"
 end
-
-libdirs "../extlibs/lib/x86"
 
 targetdir "../lib"
 
@@ -57,7 +58,10 @@ configuration "DebugDLL"
 
 configuration "codeblocks or codelite or gmake or xcode3*"
 	buildoptions "-std=c++11"
-
+if (_OPTIONS["x64"]) then
+	buildoptions "-m64"
+end
+	
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
 
