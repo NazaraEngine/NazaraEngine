@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <cstring>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -58,11 +59,15 @@ namespace
 	}
 
 	std::set<NzString> s_openGLextensionSet;
+	GLuint s_buffersBinding[nzBufferType_Max+1];
+	GLuint s_currentProgram;
+	GLuint s_texturesBinding[32]; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 	const char* s_rendererName = nullptr;
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
 	unsigned int s_openglVersion = 0;
+	unsigned int s_textureUnit = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
 	{
@@ -109,6 +114,64 @@ namespace
 	}
 }
 
+void NzOpenGL::BindBuffer(nzBufferType type, GLuint id)
+{
+	if (s_buffersBinding[type] != id)
+	{
+		glBindBuffer(BufferTarget[type], id);
+		s_buffersBinding[type] = id;
+	}
+}
+
+void NzOpenGL::BindProgram(GLuint id)
+{
+	if (s_currentProgram != id)
+	{
+		glUseProgram(id);
+		s_currentProgram = id;
+	}
+}
+
+void NzOpenGL::BindTexture(nzImageType type, GLuint id)
+{
+	if (s_texturesBinding[s_textureUnit] != id)
+	{
+		glBindTexture(TextureTarget[type], id);
+		s_texturesBinding[s_textureUnit] = id;
+	}
+}
+
+void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
+{
+	glDeleteBuffers(1, &id);
+	if (s_buffersBinding[type] == id)
+		s_buffersBinding[type] = 0;
+}
+
+void NzOpenGL::DeleteProgram(GLuint id)
+{
+	glDeleteProgram(id);
+	if (s_currentProgram == id)
+		s_currentProgram = 0;
+}
+
+void NzOpenGL::DeleteTexture(GLuint id)
+{
+	glDeleteTextures(1, &id);
+	if (s_texturesBinding[s_textureUnit] == id)
+		s_texturesBinding[s_textureUnit] = 0;
+}
+
+GLuint NzOpenGL::GetCurrentBuffer(nzBufferType type)
+{
+	return s_buffersBinding[type];
+}
+
+GLuint NzOpenGL::GetCurrentProgram()
+{
+	return s_currentProgram;
+}
+
 NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 {
 	return LoadEntry(entryPoint.GetConstBuffer(), false);
@@ -117,6 +180,11 @@ NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 NzString NzOpenGL::GetRendererName()
 {
 	return s_rendererName;
+}
+
+unsigned int NzOpenGL::GetTextureUnit()
+{
+	return s_textureUnit;
 }
 
 NzString NzOpenGL::GetVendorName()
@@ -629,7 +697,12 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
+	std::memset(s_buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
+	std::memset(s_texturesBinding, 0, 32*sizeof(GLuint));
+
+	s_currentProgram = 0;
 	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+	s_textureUnit = 0;
 	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
 	return true;
@@ -648,6 +721,15 @@ bool NzOpenGL::IsSupported(nzOpenGLExtension extension)
 bool NzOpenGL::IsSupported(const NzString& string)
 {
 	return s_openGLextensionSet.find(string) != s_openGLextensionSet.end();
+}
+
+void NzOpenGL::SetTextureUnit(unsigned int textureUnit)
+{
+	if (s_textureUnit != textureUnit)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureUnit);
+		s_textureUnit = textureUnit;
+	}
 }
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)
@@ -936,12 +1018,13 @@ GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
 
 GLenum NzOpenGL::RendererParameter[nzRendererParameter_Max+1] =
 {
-	GL_BLEND,       // nzRendererParameter_Blend
-	GL_NONE,        // nzRendererParameter_ColorWrite
-	GL_DEPTH_TEST,  // nzRendererParameter_DepthTest
-	GL_NONE,        // nzRendererParameter_DepthWrite
-	GL_CULL_FACE,   // nzRendererParameter_FaceCulling
-	GL_STENCIL_TEST // nzRendererParameter_Stencil
+	GL_BLEND,        // nzRendererParameter_Blend
+	GL_NONE,         // nzRendererParameter_ColorWrite
+	GL_DEPTH_TEST,   // nzRendererParameter_DepthTest
+	GL_NONE,         // nzRendererParameter_DepthWrite
+	GL_CULL_FACE,    // nzRendererParameter_FaceCulling
+	GL_SCISSOR_TEST, // nzRendererParameter_ScissorTest
+	GL_STENCIL_TEST  // nzRendererParameter_StencilTest
 };
 
 GLenum NzOpenGL::SamplerWrapMode[nzSamplerWrap_Max+1] =

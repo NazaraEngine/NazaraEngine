@@ -57,8 +57,6 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool Load(nzShaderType type, const NzString& source);
 		bool LoadFromFile(nzShaderType type, const NzString& source);
 
-		bool Lock();
-
 		bool SendBoolean(int location, bool value) const;
 		bool SendColor(int location, const NzColor& color) const;
 		bool SendDouble(int location, double value) const;
@@ -75,8 +73,6 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool SendVector(int location, const NzVector4f& vector) const;
 
 		void SetFlags(nzUInt32 flags);
-
-		void Unlock();
 
 		NzShader& operator=(NzShader&& shader);
 
