@@ -17,7 +17,7 @@ m_resourceReferenceCount(0)
 }
 
 NzResource::NzResource(const NzResource& resource) :
-m_resourcePersistent(resource.m_resourcePersistent),
+m_resourcePersistent(resource.m_resourcePersistent.load()),
 m_resourceReferenceCount(0)
 {
 }
@@ -49,22 +49,16 @@ void NzResource::AddResourceListener(NzResourceListener* listener, int index) co
 
 void NzResource::AddResourceReference() const
 {
-	NazaraLock(m_mutex)
-
 	m_resourceReferenceCount++;
 }
 
 unsigned int NzResource::GetResourceReferenceCount() const
 {
-	NazaraLock(m_mutex)
-
 	return m_resourceReferenceCount;
 }
 
 bool NzResource::IsPersistent() const
 {
-	NazaraLock(m_mutex)
-
 	return m_resourcePersistent;
 }
 
@@ -77,34 +71,11 @@ bool NzResource::RemoveResourceListener(NzResourceListener* listener) const
 	else
 		NazaraError(NzString::Pointer(listener) + " is not a listener of " + NzString::Pointer(this));
 
-	// RemoveResourceReference()
-	#if NAZARA_CORE_SAFE
-	if (m_resourceReferenceCount == 0)
-	{
-		NazaraError("Impossible to remove reference (Ref. counter is already 0)");
-		return false;
-	}
-	#endif
-
-	if (--m_resourceReferenceCount == 0 && !m_resourcePersistent)
-	{
-		NazaraMutexUnlock(m_mutex);
-		delete this;
-
-		return true; // On vient d'être supprimé
-	}
-	else
-	{
-		NazaraMutexUnlock(m_mutex);
-
-		return false;
-	}
+	return RemoveResourceReference();
 }
 
 bool NzResource::RemoveResourceReference() const
 {
-	NazaraMutexLock(m_mutex);
-
 	#if NAZARA_CORE_SAFE
 	if (m_resourceReferenceCount == 0)
 	{
@@ -115,34 +86,26 @@ bool NzResource::RemoveResourceReference() const
 
 	if (--m_resourceReferenceCount == 0 && !m_resourcePersistent)
 	{
-		NazaraMutexUnlock(m_mutex);
+		delete this; // Suicide
+
+		return true;
+	}
+	else
+		return false;
+}
+
+bool NzResource::SetPersistent(bool persistent, bool checkReferenceCount)
+{
+	m_resourcePersistent = persistent;
+
+	if (checkReferenceCount && !persistent && m_resourceReferenceCount == 0)
+	{
 		delete this;
 
 		return true;
 	}
 	else
-	{
-		NazaraMutexUnlock(m_mutex);
-
 		return false;
-	}
-}
-
-void NzResource::SetPersistent(bool persistent, bool checkReferenceCount)
-{
-	NazaraMutexLock(m_mutex);
-
-	m_resourcePersistent = persistent;
-
-	if (checkReferenceCount && !persistent && m_resourceReferenceCount == 0)
-	{
-		NazaraMutexUnlock(m_mutex);
-		delete this;
-	}
-	else
-	{
-		NazaraMutexUnlock(m_mutex);
-	}
 }
 
 void NzResource::NotifyCreated()

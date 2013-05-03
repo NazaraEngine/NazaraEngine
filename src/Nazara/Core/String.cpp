@@ -136,11 +136,7 @@ NzString::NzString(const NzString& string) :
 m_sharedString(string.m_sharedString)
 {
 	if (m_sharedString != &emptyString)
-	{
-		NazaraMutexLock(m_sharedString->mutex);
 		m_sharedString->refCount++;
-		NazaraMutexUnlock(m_sharedString->mutex);
-	}
 }
 
 NzString::NzString(NzString&& string) noexcept :
@@ -4237,11 +4233,7 @@ NzString& NzString::operator=(const NzString& string)
 
 	m_sharedString = string.m_sharedString;
 	if (m_sharedString != &emptyString)
-	{
-		NazaraMutexLock(m_sharedString->mutex);
 		m_sharedString->refCount++;
-		NazaraMutexUnlock(m_sharedString->mutex);
-	}
 
 	return *this;
 }
@@ -5091,7 +5083,6 @@ void NzString::EnsureOwnership()
 	if (m_sharedString == &emptyString)
 		return;
 
-	NazaraLock(m_sharedString->mutex);
 	if (m_sharedString->refCount > 1)
 	{
 		m_sharedString->refCount--;
@@ -5115,11 +5106,7 @@ void NzString::ReleaseString()
 	if (m_sharedString == &emptyString)
 		return;
 
-	NazaraMutexLock(m_sharedString->mutex);
-	bool freeSharedString = (--m_sharedString->refCount == 0);
-	NazaraMutexUnlock(m_sharedString->mutex);
-
-	if (freeSharedString)
+	if (--m_sharedString->refCount == 0)
 	{
 		delete[] m_sharedString->string;
 		delete m_sharedString;
