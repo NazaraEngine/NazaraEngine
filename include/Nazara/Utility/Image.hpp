@@ -19,12 +19,7 @@
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-
-#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_IMAGE
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
+#include <atomic>
 
 ///TODO: Filtres
 
@@ -137,8 +132,7 @@ class NAZARA_API NzImage : public NzResource
 			unsigned int height;
 			unsigned int width;
 
-			unsigned short refCount = 1;
-			NazaraMutex(mutex)
+			std::atomic_ushort refCount;
 		};
 
 		static SharedImage emptyImage;

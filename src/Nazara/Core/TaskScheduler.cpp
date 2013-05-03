@@ -9,6 +9,7 @@
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <atomic>
 #include <queue>
 #include <vector>
 #include <Nazara/Core/Debug.hpp>
@@ -28,7 +29,7 @@ namespace
 		NzMutex waiterConditionVariableMutex;
 		NzMutex workerConditionVariableMutex;
 		volatile bool running = true;
-		unsigned int taskCount; ///TODO: Atomic
+		std::atomic<unsigned int> taskCount;
 	};
 
 	TaskSchedulerImpl* s_impl = nullptr;
