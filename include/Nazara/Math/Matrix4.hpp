@@ -61,6 +61,7 @@ class NzMatrix4
 		NzMatrix4& MakeRotation(const NzQuaternion<T>& rotation);
 		NzMatrix4& MakeScale(const NzVector3<T>& scale);
 		NzMatrix4& MakeTranslation(const NzVector3<T>& translation);
+		NzMatrix4& MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation);
 		NzMatrix4& MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale);
 		NzMatrix4& MakeZero();
 
@@ -112,6 +113,7 @@ class NzMatrix4
 		static NzMatrix4 Rotate(const NzQuaternion<T>& rotation);
 		static NzMatrix4 Scale(const NzVector3<T>& scale);
 		static NzMatrix4 Translate(const NzVector3<T>& translation);
+		static NzMatrix4 Transform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation);
 		static NzMatrix4 Transform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale);
 		static NzMatrix4 Zero();
 

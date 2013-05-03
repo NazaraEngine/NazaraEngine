@@ -561,7 +561,7 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTranslation(const NzVector3<T>& translation)
 }
 
 template<typename T>
-NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale)
+NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation)
 {
 	// La rotation et la translation peuvent être appliquées directement
 	SetRotation(rotation);
@@ -572,6 +572,14 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const
 	m24 = F(0.0);
 	m34 = F(0.0);
 	m44 = F(1.0);
+
+	return *this;
+}
+
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale)
+{
+	MakeTransform(translation, rotation);
 
 	// Ensuite on fait une mise à l'échelle des valeurs déjà présentes
 	ApplyScale(scale);
@@ -915,6 +923,15 @@ NzMatrix4<T> NzMatrix4<T>::Translate(const NzVector3<T>& translation)
 {
 	NzMatrix4 mat;
 	mat.MakeTranslation(translation);
+
+	return mat;
+}
+
+template<typename T>
+NzMatrix4<T> NzMatrix4<T>::Transform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation)
+{
+	NzMatrix4 mat;
+	mat.MakeTransform(translation, rotation);
 
 	return mat;
 }
