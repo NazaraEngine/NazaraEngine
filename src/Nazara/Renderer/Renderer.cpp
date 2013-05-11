@@ -1451,13 +1451,13 @@ bool NzRenderer::EnsureStateUpdate()
 			shaderImpl->BindTextures();
 
 			// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-			s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation("ProjMatrix");
-			s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation("ViewMatrix");
-			s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation("WorldMatrix");
+			s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
+			s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
+			s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
 
-			s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation("ViewProjMatrix");
-			s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation("WorldViewMatrix");
-			s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation("WorldViewProjMatrix");
+			s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
+			s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
+			s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
 
 			s_updateFlags |= Update_Matrices;
 			for (unsigned int i = 0; i < totalMatrixCount; ++i)

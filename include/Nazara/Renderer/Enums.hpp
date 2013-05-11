@@ -170,6 +170,30 @@ enum nzShaderLanguage
 	nzShaderLanguage_Max = nzShaderLanguage_GLSL
 };
 
+enum nzShaderUniform
+{
+	nzShaderUniform_CameraPosition,
+	nzShaderUniform_LightCount,
+	nzShaderUniform_MaterialAmbient,
+	nzShaderUniform_MaterialDiffuse,
+	nzShaderUniform_MaterialDiffuseMap,
+	nzShaderUniform_MaterialEmissiveMap,
+	nzShaderUniform_MaterialHeightMap,
+	nzShaderUniform_MaterialNormalMap,
+	nzShaderUniform_MaterialShininess,
+	nzShaderUniform_MaterialSpecular,
+	nzShaderUniform_MaterialSpecularMap,
+	nzShaderUniform_ProjMatrix,
+	nzShaderUniform_SceneAmbient,
+	nzShaderUniform_ViewMatrix,
+	nzShaderUniform_ViewProjMatrix,
+	nzShaderUniform_WorldMatrix,
+	nzShaderUniform_WorldViewMatrix,
+	nzShaderUniform_WorldViewProjMatrix,
+
+	nzShaderUniform_Max = nzShaderUniform_WorldViewProjMatrix
+};
+
 enum nzShaderType
 {
 	nzShaderType_Fragment,

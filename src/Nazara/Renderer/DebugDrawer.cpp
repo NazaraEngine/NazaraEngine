@@ -574,7 +574,7 @@ bool NzDebugDrawer::Initialize()
 				return false;
 			}
 
-			colorLocation = shader->GetUniformLocation("MaterialDiffuse");
+			colorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
 		}
 
 		// VertexDeclaration
