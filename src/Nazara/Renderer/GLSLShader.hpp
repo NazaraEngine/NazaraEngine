@@ -34,6 +34,7 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
 		int GetUniformLocation(const NzString& name) const;
+		int GetUniformLocation(nzShaderUniform uniform) const;
 
 		bool IsLoaded(nzShaderType type) const;
 
@@ -73,6 +74,7 @@ class NzGLSLShader : public NzShaderImpl, NzResourceListener
 		GLuint m_shaders[nzShaderType_Max+1];
 		NzShader* m_parent;
 		NzString m_log;
+		int m_uniformLocations[nzShaderUniform_Max+1];
 };
 
 #endif // NAZARA_GLSLSHADER_HPPs
