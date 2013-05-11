@@ -44,7 +44,7 @@ bool NzPluginManager::AddDirectory(const NzString& directoryPath)
 
 bool NzPluginManager::Initialize()
 {
-	s_directories.push_back(NzFile::AbsolutePath('.'));
+	s_directories.push_back(NzFile::AbsolutePath("."));
 
 	NzString libDir = NzFile::AbsolutePath("lib");
 	if (NzDirectory::Exists(libDir))

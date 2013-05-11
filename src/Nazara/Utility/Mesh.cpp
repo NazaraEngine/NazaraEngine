@@ -243,7 +243,7 @@ NzString NzMesh::GetAnimation() const
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return nzAnimationType_Static;
+		return NzString();
 	}
 	#endif
 

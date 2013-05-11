@@ -3778,7 +3778,7 @@ NzString NzString::SubstrTo(char character, int startPos, bool toLast, bool incl
 		pos = Find(character, startPos, flags);
 
 	if (pos == 0)
-		return (include) ? character : NzString();
+		return (include) ? NzString(character) : NzString();
 	else if (pos == npos)
 		return *this;
 
@@ -4903,7 +4903,7 @@ NzString operator+(char character, const NzString& string)
 		return string;
 
 	if (string.IsEmpty())
-		return character;
+		return NzString(character);
 
 	unsigned int totalSize = string.m_sharedString->size+1;
 	char* str = new char[totalSize+1];
@@ -5035,7 +5035,7 @@ bool operator<(const std::string& string, const NzString& nstring)
 
 bool operator<=(char character, const NzString& nstring)
 {
-	return !operator<(nstring, character);
+	return !operator<(nstring, NzString(character));
 }
 
 bool operator<=(const char* string, const NzString& nstring)

@@ -32,7 +32,7 @@ class NAZARA_API NzString : public NzHashable
 		struct SharedString;
 
 		NzString();
-		NzString(char character);
+		explicit NzString(char character);
 		NzString(const char* string);
 		NzString(const std::string& string);
 		NzString(const NzString& string);
