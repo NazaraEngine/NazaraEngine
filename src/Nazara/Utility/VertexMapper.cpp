@@ -45,7 +45,8 @@ NzVector3f NzVertexMapper::GetNormal(unsigned int i) const
 	#if NAZARA_UTILITY_SAFE
 	if (i >= m_vertexCount)
 	{
-
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return NzVector3f();
 	}
 	#endif
 
@@ -54,16 +55,40 @@ NzVector3f NzVertexMapper::GetNormal(unsigned int i) const
 
 NzVector3f NzVertexMapper::GetPosition(unsigned int i) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
 	return m_vertices[i].position;
 }
 
 NzVector3f NzVertexMapper::GetTangent(unsigned int i) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return NzVector3f();
+	}
+	#endif
+
 	return m_vertices[i].tangent;
 }
 
 NzVector2f NzVertexMapper::GetTexCoord(unsigned int i) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return NzVector2f();
+	}
+	#endif
+
 	return m_vertices[i].uv;
 }
 
@@ -74,21 +99,53 @@ unsigned int NzVertexMapper::GetVertexCount()
 
 void NzVertexMapper::SetNormal(unsigned int i, const NzVector3f& normal)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return;
+	}
+	#endif
+
 	m_vertices[i].normal = normal;
 }
 
 void NzVertexMapper::SetPosition(unsigned int i, const NzVector3f& position)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return;
+	}
+	#endif
+
 	m_vertices[i].position = position;
 }
 
 void NzVertexMapper::SetTangent(unsigned int i, const NzVector3f& tangent)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return;
+	}
+	#endif
+
 	m_vertices[i].tangent = tangent;
 }
 
 void NzVertexMapper::SetTexCoord(unsigned int i, const NzVector2f& texCoord)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_vertexCount)
+	{
+		NazaraError("Vertex index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_vertexCount) + ')');
+		return;
+	}
+	#endif
+
 	m_vertices[i].uv = texCoord;
 }
 
