@@ -4,10 +4,10 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <Nazara/Core/Debug.hpp>
 
 NzFileImpl::NzFileImpl(const NzFile* parent) :
 m_endOfFile(false),

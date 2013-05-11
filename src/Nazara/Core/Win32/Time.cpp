@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/Time.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 time_t NzFileTimeToTime(FILETIME* time)
 {

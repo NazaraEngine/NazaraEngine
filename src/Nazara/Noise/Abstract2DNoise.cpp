@@ -6,8 +6,8 @@
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/Debug.hpp>
 #include <Nazara/Noise/Abstract2DNoise.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 NzAbstract2DNoise::~NzAbstract2DNoise() = default;
 
