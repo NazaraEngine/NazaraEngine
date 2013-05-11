@@ -61,24 +61,28 @@ bool NzGLSLShader::Compile()
 		static NzString successStr("Linkage successful");
 		m_log = successStr;
 
-		m_uniformLocations[nzShaderUniform_CameraPosition] = GetUniformLocation("CameraPosition");
-		m_uniformLocations[nzShaderUniform_LightCount] = GetUniformLocation("LightCount");
-		m_uniformLocations[nzShaderUniform_MaterialAmbient] = GetUniformLocation("MaterialAmbient");
-		m_uniformLocations[nzShaderUniform_MaterialDiffuse] = GetUniformLocation("MaterialDiffuse");
-		m_uniformLocations[nzShaderUniform_MaterialDiffuseMap] = GetUniformLocation("MaterialDiffuseMap");
-		m_uniformLocations[nzShaderUniform_MaterialEmissiveMap] = GetUniformLocation("MaterialEmissiveMap");
-		m_uniformLocations[nzShaderUniform_MaterialHeightMap] = GetUniformLocation("MaterialHeightMap");
-		m_uniformLocations[nzShaderUniform_MaterialNormalMap] = GetUniformLocation("MaterialNormalMap");
-		m_uniformLocations[nzShaderUniform_MaterialShininess] = GetUniformLocation("MaterialShininess");
-		m_uniformLocations[nzShaderUniform_MaterialSpecular] = GetUniformLocation("MaterialSpecular");
-		m_uniformLocations[nzShaderUniform_MaterialSpecularMap] = GetUniformLocation("MaterialSpecularMap");
-		m_uniformLocations[nzShaderUniform_ProjMatrix] = GetUniformLocation("ProjMatrix");
-		m_uniformLocations[nzShaderUniform_SceneAmbient] = GetUniformLocation("SceneAmbient");
-		m_uniformLocations[nzShaderUniform_ViewMatrix] = GetUniformLocation("ViewMatrix");
-		m_uniformLocations[nzShaderUniform_ViewProjMatrix] = GetUniformLocation("ViewProjMatrix");
-		m_uniformLocations[nzShaderUniform_WorldMatrix] = GetUniformLocation("WorldMatrix");
-		m_uniformLocations[nzShaderUniform_WorldViewMatrix] = GetUniformLocation("WorldViewMatrix");
-		m_uniformLocations[nzShaderUniform_WorldViewProjMatrix] = GetUniformLocation("WorldViewProjMatrix");
+		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = GetUniformLocation(#name)
+
+		CacheUniform(CameraPosition);
+		CacheUniform(LightCount);
+		CacheUniform(MaterialAmbient);
+		CacheUniform(MaterialDiffuse);
+		CacheUniform(MaterialDiffuseMap);
+		CacheUniform(MaterialEmissiveMap);
+		CacheUniform(MaterialHeightMap);
+		CacheUniform(MaterialNormalMap);
+		CacheUniform(MaterialShininess);
+		CacheUniform(MaterialSpecular);
+		CacheUniform(MaterialSpecularMap);
+		CacheUniform(ProjMatrix);
+		CacheUniform(SceneAmbient);
+		CacheUniform(ViewMatrix);
+		CacheUniform(ViewProjMatrix);
+		CacheUniform(WorldMatrix);
+		CacheUniform(WorldViewMatrix);
+		CacheUniform(WorldViewProjMatrix);
+
+		#undef CacheUniform
 
 		return true;
 	}
