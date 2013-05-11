@@ -5,8 +5,8 @@
 #include <cmath>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/Debug.hpp>
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 NzComplexNoiseBase::NzComplexNoiseBase()
 {

@@ -6,8 +6,8 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <limits>
-#include <Nazara/Core/Debug.hpp>
 #include <sys/time.h>
+#include <Nazara/Core/Debug.hpp>
 
 NzSemaphoreImpl::NzSemaphoreImpl(unsigned int count)
 {

@@ -40,6 +40,7 @@
 #include <Nazara/Core/Hash/SHA/Internal.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <cstring>
+#include <Nazara/Core/Debug.hpp>
 
 /*** ENDIAN REVERSAL MACROS *******************************************/
 #ifdef NAZARA_LITTLE_ENDIAN

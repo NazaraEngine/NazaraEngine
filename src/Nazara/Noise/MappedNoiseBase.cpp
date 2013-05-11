@@ -7,8 +7,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <stdexcept>
-#include <Nazara/Noise/Debug.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
+#include <Nazara/Noise/Debug.hpp>
 
 NzMappedNoiseBase::NzMappedNoiseBase() : m_gain(1.f), m_offset(0.f), m_resolution(30.f)
 {
