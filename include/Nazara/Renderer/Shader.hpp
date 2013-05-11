@@ -32,7 +32,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 	friend class NzRenderer;
 
 	public:
-		NzShader() = default;
+		NzShader();
 		NzShader(nzShaderLanguage language);
 		NzShader(NzShader&& shader);
 		~NzShader();
@@ -47,6 +47,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
 		int GetUniformLocation(const NzString& name) const;
+		int GetUniformLocation(nzShaderUniform uniform) const;
 
 		bool HasUniform(const NzString& name) const;
 
@@ -80,9 +81,9 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzShaderType type);
 
 	private:
-		nzUInt32 m_flags = nzShaderFlags_None;
-		NzShaderImpl* m_impl = nullptr;
-		bool m_compiled = false;
+		nzUInt32 m_flags;
+		NzShaderImpl* m_impl;
+		bool m_compiled;
 };
 
 #endif // NAZARA_SHADER_HPP
