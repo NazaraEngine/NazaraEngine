@@ -153,7 +153,7 @@ NzStringStream& NzStringStream::operator<<(char character)
 {
 	NazaraLock(m_mutex)
 
-	m_strings.push_back(character);
+	m_strings.push_back(NzString(character));
 	m_bufferSize++;
 
 	return *this;
@@ -163,7 +163,7 @@ NzStringStream& NzStringStream::operator<<(unsigned char character)
 {
 	NazaraLock(m_mutex)
 
-	m_strings.push_back(character);
+	m_strings.push_back(NzString(character));
 	m_bufferSize++;
 
 	return *this;

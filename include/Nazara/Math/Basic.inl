@@ -189,7 +189,7 @@ NzString NzNumberToString(long long number, nzUInt8 radix)
 	#endif
 
 	if (number == 0)
-		return '0';
+		return NzString('0');
 
 	static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
