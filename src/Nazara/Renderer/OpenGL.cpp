@@ -141,6 +141,17 @@ void NzOpenGL::BindTexture(nzImageType type, GLuint id)
 	}
 }
 
+void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id)
+{
+	if (s_texturesBinding[textureUnit] != id)
+	{
+		SetTextureUnit(textureUnit);
+
+		glBindTexture(TextureTarget[type], id);
+		s_texturesBinding[textureUnit] = id;
+	}
+}
+
 void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
 {
 	glDeleteBuffers(1, &id);
@@ -158,8 +169,12 @@ void NzOpenGL::DeleteProgram(GLuint id)
 void NzOpenGL::DeleteTexture(GLuint id)
 {
 	glDeleteTextures(1, &id);
-	if (s_texturesBinding[s_textureUnit] == id)
-		s_texturesBinding[s_textureUnit] = 0;
+
+	for (GLuint& binding : s_texturesBinding)
+	{
+		if (binding == id)
+			binding = 0;
+	}
 }
 
 GLuint NzOpenGL::GetCurrentBuffer(nzBufferType type)

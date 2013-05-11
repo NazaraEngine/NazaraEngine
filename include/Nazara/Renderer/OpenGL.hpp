@@ -68,6 +68,7 @@ class NAZARA_API NzOpenGL
 		static void BindBuffer(nzBufferType type, GLuint id);
 		static void BindProgram(GLuint id);
 		static void BindTexture(nzImageType type, GLuint id);
+		static void BindTexture(unsigned int textureUnit, nzImageType type, GLuint id);
 
 		static void DeleteBuffer(nzBufferType type, GLuint id);
 		static void DeleteProgram(GLuint id);
