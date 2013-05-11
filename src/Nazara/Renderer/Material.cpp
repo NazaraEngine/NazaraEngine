@@ -41,10 +41,10 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 
 void NzMaterial::Apply(const NzShader* shader) const
 {
-	int ambientColorLocation = shader->GetUniformLocation("MaterialAmbient");
-	int diffuseColorLocation = shader->GetUniformLocation("MaterialDiffuse");
-	int shininessLocation = shader->GetUniformLocation("MaterialShininess");
-	int specularColorLocation = shader->GetUniformLocation("MaterialSpecular");
+	int ambientColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAmbient);
+	int diffuseColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
+	int shininessLocation = shader->GetUniformLocation(nzShaderUniform_MaterialShininess);
+	int specularColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialSpecular);
 
 	if (ambientColorLocation != -1)
 		shader->SendColor(ambientColorLocation, m_ambientColor);
@@ -54,7 +54,7 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_diffuseMap)
 	{
-		int diffuseMapLocation = shader->GetUniformLocation("MaterialDiffuseMap");
+		int diffuseMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap);
 		if (diffuseMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
@@ -67,7 +67,7 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_emissiveMap)
 	{
-		int emissiveMapLocation = shader->GetUniformLocation("MaterialEmissiveMap");
+		int emissiveMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialEmissiveMap);
 		if (emissiveMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
@@ -80,7 +80,7 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_heightMap)
 	{
-		int heightMapLocation = shader->GetUniformLocation("MaterialHeightMap");
+		int heightMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialHeightMap);
 		if (heightMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
@@ -93,7 +93,7 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_normalMap)
 	{
-		int normalMapLocation = shader->GetUniformLocation("MaterialNormalMap");
+		int normalMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialNormalMap);
 		if (normalMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
@@ -112,7 +112,7 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_specularMap)
 	{
-		int specularMapLocation = shader->GetUniformLocation("MaterialSpecularMap");
+		int specularMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialSpecularMap);
 		if (specularMapLocation != -1)
 		{
 			nzUInt8 textureUnit;

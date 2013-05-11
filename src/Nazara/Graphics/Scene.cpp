@@ -125,17 +125,17 @@ void NzScene::Draw()
 		matIt.first->Apply(shader);
 
 		// Position de la caméra
-		int camPosLocation = shader->GetUniformLocation("CameraPosition");
+		int camPosLocation = shader->GetUniformLocation(nzShaderUniform_CameraPosition);
 		if (camPosLocation != -1)
 			shader->SendVector(camPosLocation, m_impl->activeCamera->GetPosition());
 
 		// Couleur ambiante de la scène
-		int sceneAmbientLocation = shader->GetUniformLocation("SceneAmbient");
+		int sceneAmbientLocation = shader->GetUniformLocation(nzShaderUniform_SceneAmbient);
 		if (sceneAmbientLocation != -1)
 			shader->SendColor(sceneAmbientLocation, m_impl->ambientColor);
 
 		// Gestion des lumières (D'abord directionnelles)
-		int lightCountLocation = shader->GetUniformLocation("LightCount");
+		int lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
 
 		unsigned int lightIndex = 0;
 		if (lightCountLocation != -1)
@@ -216,17 +216,17 @@ void NzScene::Draw()
 		bool instancing = shader->GetFlags() & nzShaderFlags_Instancing;
 
 		// Position de la caméra
-		int camPosLocation = shader->GetUniformLocation("CameraPosition");
+		int camPosLocation = shader->GetUniformLocation(nzShaderUniform_CameraPosition);
 		if (camPosLocation != -1)
 			shader->SendVector(camPosLocation, m_impl->activeCamera->GetPosition());
 
 		// Couleur ambiante de la scène
-		int sceneAmbientLocation = shader->GetUniformLocation("SceneAmbient");
+		int sceneAmbientLocation = shader->GetUniformLocation(nzShaderUniform_SceneAmbient);
 		if (sceneAmbientLocation != -1)
 			shader->SendColor(sceneAmbientLocation, m_impl->ambientColor);
 
 		// Gestion des lumières (D'abord directionnelles)
-		int lightCountLocation = shader->GetUniformLocation("LightCount");
+		int lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
 
 		unsigned int lightIndex = 0;
 		if (lightCountLocation != -1)

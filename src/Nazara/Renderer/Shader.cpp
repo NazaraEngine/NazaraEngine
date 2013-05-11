@@ -14,13 +14,25 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzShader::NzShader(nzShaderLanguage language)
+NzShader::NzShader() :
+m_flags(nzShaderFlags_None),
+m_impl(nullptr),
+m_compiled(false)
+{
+}
+
+NzShader::NzShader(nzShaderLanguage language) :
+m_flags(nzShaderFlags_None),
+m_impl(nullptr),
+m_compiled(false)
 {
 	Create(language);
 }
 
 NzShader::NzShader(NzShader&& shader) :
-m_impl(shader.m_impl)
+m_flags(shader.m_flags),
+m_impl(shader.m_impl),
+m_compiled(shader.m_compiled)
 {
 	shader.m_impl = nullptr;
 }
@@ -75,6 +87,7 @@ bool NzShader::Compile()
 	if (m_impl->Compile())
 	{
 		m_compiled = true;
+
 		return true;
 	}
 	else
@@ -170,6 +183,19 @@ int NzShader::GetUniformLocation(const NzString& name) const
 	#endif
 
 	return m_impl->GetUniformLocation(name);
+}
+
+int NzShader::GetUniformLocation(nzShaderUniform uniform) const
+{
+	#ifdef NAZARA_DEBUG
+	if (uniform > nzShaderUniform_Max)
+	{
+		NazaraError("Shader uniform out of enum");
+		return -1;
+	}
+	#endif
+
+	return m_impl->GetUniformLocation(uniform);
 }
 
 bool NzShader::HasUniform(const NzString& name) const

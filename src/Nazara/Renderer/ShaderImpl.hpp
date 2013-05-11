@@ -29,6 +29,7 @@ class NzShaderImpl
 		virtual nzShaderLanguage GetLanguage() const = 0;
 		virtual NzString GetSourceCode(nzShaderType type) const = 0;
 		virtual int GetUniformLocation(const NzString& name) const = 0;
+		virtual int GetUniformLocation(nzShaderUniform uniform) const = 0;
 
 		virtual bool IsLoaded(nzShaderType type) const = 0;
 
