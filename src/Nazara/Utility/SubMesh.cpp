@@ -14,6 +14,7 @@
 
 NzSubMesh::NzSubMesh(const NzMesh* parent) :
 NzResource(false), // Un SubMesh n'est pas persistant par défaut
+m_primitiveType(nzPrimitiveType_TriangleList),
 m_parent(parent),
 m_matIndex(0)
 {
