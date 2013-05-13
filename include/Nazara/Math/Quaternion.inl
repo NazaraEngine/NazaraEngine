@@ -130,6 +130,18 @@ NzQuaternion<T>& NzQuaternion<T>::MakeIdentity()
 }
 
 template<typename T>
+NzQuaternion<T>& NzQuaternion<T>::MakeRotationBetween(const NzVector3<T>& from, const NzVector3<T>& to)
+{
+	NzVector3f a = from.CrossProduct(to);
+	x = a.x;
+	y = a.y;
+	z = a.z;
+	w = std::sqrt(std::pow(from.GetLength(), 2.f) * std::pow(to.GetLength(), 2.f)) + from.DotProduct(to);
+
+	return Normalize();
+}
+
+template<typename T>
 NzQuaternion<T>& NzQuaternion<T>::MakeZero()
 {
 	return Set(F(0.0), F(0.0), F(0.0), F(0.0));
@@ -380,6 +392,15 @@ NzQuaternion<T> NzQuaternion<T>::Lerp(const NzQuaternion& from, const NzQuaterni
 	interpolated.z = NzLerp(from.z, to.z, interpolation);
 
 	return interpolated;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::RotationBetween(const NzVector3<T>& from, const NzVector3<T>& to)
+{
+	NzQuaternion quaternion;
+	quaternion.MakeRotationBetween(from, to);
+
+	return quaternion;
 }
 
 template<typename T>
