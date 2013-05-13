@@ -50,6 +50,16 @@ T NzDegreeToRadian(T degrees)
 	return degrees * F(M_PI/180.0);
 }
 
+unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
+{
+	unsigned int r = 1;
+	for (unsigned int i = 0; i < exponent; ++i)
+		r *= base;
+
+	return r;
+}
+
+
 unsigned int NzGetNumberLength(signed char number)
 {
 	// Le standard définit le char comme étant codé sur un octet
