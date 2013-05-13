@@ -37,6 +37,7 @@ template<typename T> class NzQuaternion
 		NzQuaternion& Inverse();
 
 		NzQuaternion& MakeIdentity();
+		NzQuaternion& MakeRotationBetween(const NzVector3<T>& from, const NzVector3<T>& to);
 		NzQuaternion& MakeZero();
 
 		T Magnitude() const;
@@ -75,6 +76,7 @@ template<typename T> class NzQuaternion
 
 		static NzQuaternion Identity();
 		static NzQuaternion Lerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation);
+		static NzQuaternion RotationBetween(const NzVector3<T>& from, const NzVector3<T>& to);
 		static NzQuaternion Slerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation);
 		static NzQuaternion Zero();
 
