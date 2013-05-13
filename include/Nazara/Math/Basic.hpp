@@ -23,6 +23,7 @@ template<typename T> T NzApproach(T value, T objective, T increment);
 template<typename T> T NzClamp(T value, T min, T max);
 template<typename T> T NzDegrees(T degrees);
 template<typename T> T NzDegreeToRadian(T degrees);
+inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
 inline unsigned int NzGetNumberLength(signed char number);
 inline unsigned int NzGetNumberLength(unsigned char number);
 inline unsigned int NzGetNumberLength(int number);
