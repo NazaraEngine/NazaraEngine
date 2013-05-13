@@ -78,26 +78,20 @@ NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access)
 }
 
 NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access) :
-m_mapper(indexBuffer, access)
+m_setter(SetterError)
 {
 	if (indexBuffer && !indexBuffer->IsSequential())
 	{
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+
 		if (indexBuffer->HasLargeIndices())
-		{
 			m_getter = Getter32;
-			m_setter = SetterError;
-		}
 		else
-		{
 			m_getter = Getter16;
-			m_setter = SetterError;
-		}
 	}
 	else
-	{
 		m_getter = GetterSequential;
-		m_setter = SetterError;
-	}
 }
 
 NzIndexMapper::NzIndexMapper(const NzSubMesh* subMesh) :
