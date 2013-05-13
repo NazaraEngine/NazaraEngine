@@ -49,7 +49,7 @@ class NAZARA_API NzSubMesh : public NzResource
 		void SetPrimitiveType(nzPrimitiveType primitiveType);
 
 	protected:
-		nzPrimitiveType m_primitiveType = nzPrimitiveType_TriangleList;
+		nzPrimitiveType m_primitiveType;
 		const NzMesh* m_parent;
 		unsigned int m_matIndex;
 };
