@@ -53,6 +53,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor GetAmbientColor() const;
 		const NzShader* GetCustomShader() const;
 		NzColor GetDiffuseColor() const;
+		NzTexture* GetAlphaMap() const;
 		NzTexture* GetDiffuseMap() const;
 		NzTextureSampler& GetDiffuseSampler();
 		const NzTextureSampler& GetDiffuseSampler() const;
@@ -85,6 +86,8 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void Reset();
 
+		bool SetAlphaMap(const NzString& texturePath);
+		void SetAlphaMap(NzTexture* map);
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDiffuseColor(const NzColor& diffuse);
 		bool SetDiffuseMap(const NzString& texturePath);
@@ -128,6 +131,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
 		mutable NzShaderConstRef m_customShader;
+		NzTextureRef m_alphaMap;
 		NzTextureRef m_diffuseMap;
 		NzTextureRef m_emissiveMap;
 		NzTextureRef m_heightMap;
