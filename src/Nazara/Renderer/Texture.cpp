@@ -32,7 +32,7 @@ namespace
 		NzOpenGL::Format openGLFormat;
 		if (!NzOpenGL::TranslateFormat(impl->format, &openGLFormat, NzOpenGL::FormatType_Texture))
 		{
-			NazaraError("Format not supported by OpenGL");
+			NazaraError("Format " + NzPixelFormat::ToString(impl->format) + " not supported by OpenGL");
 			return false;
 		}
 
@@ -562,7 +562,7 @@ bool NzTexture::LoadFromImage(const NzImage& image, bool generateMipmaps)
 	if (!IsFormatSupported(format))
 	{
 		nzPixelFormat newFormat = (NzPixelFormat::HasAlpha(format)) ? nzPixelFormat_BGRA8 : nzPixelFormat_BGR8;
-		NazaraWarning("Format not supported, trying to convert it to " + NzPixelFormat::ToString(newFormat) + "...");
+		NazaraWarning("Format " + NzPixelFormat::ToString(format) + " not supported, trying to convert it to " + NzPixelFormat::ToString(newFormat) + "...");
 
 		if (NzPixelFormat::IsConversionSupported(format, newFormat))
 		{
