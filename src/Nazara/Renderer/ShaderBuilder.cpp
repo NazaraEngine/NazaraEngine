@@ -75,6 +75,9 @@ namespace
 			              "uniform vec4 MaterialAmbient;\n";
 		}
 
+		if (flags & nzShaderFlags_AlphaMapping)
+			sourceCode += "uniform sampler2D MaterialAlphaMap;\n";
+
 		if ((flags & nzShaderFlags_DiffuseMapping) == 0 || flags & nzShaderFlags_Lighting)
 			sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
@@ -280,17 +283,27 @@ namespace
 
 			sourceCode += ";\n";
 
+			if (flags & nzShaderFlags_AlphaMapping)
+				sourceCode += "float alpha = " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r;\n";
+			else
+				sourceCode += "float alpha = MaterialDiffuse.a;\n";
+
 			if (flags & nzShaderFlags_EmissiveMapping)
 			{
 				sourceCode += "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
-				               + fragmentColorKW + " = vec4(mix(lighting, emission, length(emission)), MaterialDiffuse.a);";
+				               + fragmentColorKW + " = vec4(mix(lighting, emission, length(emission)), alpha);\n";
 				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(emission)" par "dot(emission, emission)"
 			}
 			else
-				sourceCode += fragmentColorKW + " = vec4(lighting, MaterialDiffuse.a);";
+				sourceCode += fragmentColorKW + " = vec4(lighting, alpha);\n";
 		}
 		else if (flags & nzShaderFlags_DiffuseMapping)
-			sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
+		{
+			if (flags & nzShaderFlags_AlphaMapping)
+				sourceCode += fragmentColorKW + " = vec4(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord).rgb, " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r);\n";
+			else
+				sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
+		}
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
 

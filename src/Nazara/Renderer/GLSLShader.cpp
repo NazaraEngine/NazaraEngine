@@ -61,10 +61,12 @@ bool NzGLSLShader::Compile()
 		static NzString successStr("Linkage successful");
 		m_log = successStr;
 
+		// Pour éviter de se tromper entre le nom et la constante
 		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = GetUniformLocation(#name)
 
 		CacheUniform(CameraPosition);
 		CacheUniform(LightCount);
+		CacheUniform(MaterialAlphaMap);
 		CacheUniform(MaterialAmbient);
 		CacheUniform(MaterialDiffuse);
 		CacheUniform(MaterialDiffuseMap);

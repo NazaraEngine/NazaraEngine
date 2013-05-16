@@ -31,6 +31,7 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 	Copy(material);
 
 	// Nous "volons" la référence du matériau
+	material.m_alphaMap = nullptr;
 	material.m_customShader = nullptr;
 	material.m_diffuseMap = nullptr;
 	material.m_emissiveMap = nullptr;
@@ -45,6 +46,19 @@ void NzMaterial::Apply(const NzShader* shader) const
 	int diffuseColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
 	int shininessLocation = shader->GetUniformLocation(nzShaderUniform_MaterialShininess);
 	int specularColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialSpecular);
+
+	if (m_alphaMap)
+	{
+		int alphaMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAlphaMap);
+		if (alphaMapLocation != -1)
+		{
+			nzUInt8 textureUnit;
+			if (shader->SendTexture(alphaMapLocation, m_alphaMap, &textureUnit))
+				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			else
+				NazaraWarning("Failed to send diffuse map");
+		}
+	}
 
 	if (ambientColorLocation != -1)
 		shader->SendColor(ambientColorLocation, m_ambientColor);
@@ -327,6 +341,7 @@ bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& p
 
 void NzMaterial::Reset()
 {
+	m_alphaMap.Reset();
 	m_customShader.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
@@ -351,6 +366,32 @@ void NzMaterial::Reset()
 	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
 	m_zTestEnabled = true;
 	m_zWriteEnabled = true;
+}
+
+bool NzMaterial::SetAlphaMap(const NzString& texturePath)
+{
+	std::unique_ptr<NzTexture> texture(new NzTexture);
+	if (!texture->LoadFromFile(texturePath))
+	{
+		NazaraError("Failed to load texture from \"" + texturePath + '"');
+		return false;
+	}
+
+	texture->SetPersistent(false);
+
+	SetAlphaMap(texture.get());
+	texture.release();
+
+	return true;
+}
+
+void NzMaterial::SetAlphaMap(NzTexture* map)
+{
+	m_alphaMap = map;
+	if (m_alphaMap)
+		m_shaderFlags |= nzShaderFlags_AlphaMapping;
+	else
+		m_shaderFlags &= ~nzShaderFlags_AlphaMapping;
 }
 
 void NzMaterial::SetAmbientColor(const NzColor& ambient)
@@ -551,6 +592,7 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	Copy(material);
 
 	// Comme ça nous volons la référence du matériau
+	material.m_alphaMap = nullptr;
 	material.m_customShader = nullptr;
 	material.m_diffuseMap = nullptr;
 	material.m_emissiveMap = nullptr;
@@ -581,6 +623,7 @@ NzMaterial* NzMaterial::GetDefault()
 
 void NzMaterial::Copy(const NzMaterial& material)
 {
+	m_alphaMap.Reset();
 	m_customShader.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
@@ -591,6 +634,7 @@ void NzMaterial::Copy(const NzMaterial& material)
 	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
 
 	// Ensuite une petite astuce pour récupérer correctement les références
+	m_alphaMap.Release();
 	m_customShader.Release();
 	m_diffuseMap.Release();
 	m_emissiveMap.Release();
@@ -598,6 +642,7 @@ void NzMaterial::Copy(const NzMaterial& material)
 	m_normalMap.Release();
 	m_specularMap.Release();
 
+	m_alphaMap = material.m_alphaMap;
 	m_customShader = material.m_customShader;
 	m_diffuseMap = material.m_diffuseMap;
 	m_heightMap = material.m_heightMap;
