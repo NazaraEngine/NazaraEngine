@@ -21,6 +21,36 @@ class NzStaticMesh;
 class NAZARA_API NzRenderQueue
 {
 	public:
+		NzRenderQueue() = default;
+		~NzRenderQueue() = default;
+
+		void Clear();
+
+		struct SkeletalData
+		{
+			NzMatrix4f transformMatrix;
+
+			///TODO: Déplacer vers un container séparé qui ne serait pas sujet à Clear();
+			std::vector<NzMeshVertex> skinnedVertices;
+		};
+
+		struct TransparentModel
+		{
+			NzMatrix4f transformMatrix;
+			NzMaterial* material;
+		};
+
+		struct TransparentSkeletalModel : public TransparentModel
+		{
+			///TODO: Déplacer vers un container séparé qui ne serait pas sujet à Clear();
+			std::vector<NzMeshVertex> skinnedVertices;
+		};
+
+		struct TransparentStaticModel : public TransparentModel
+		{
+			NzStaticMesh* mesh;
+		};
+
 		struct MaterialComparator
 		{
 			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
@@ -36,24 +66,13 @@ class NAZARA_API NzRenderQueue
 			bool operator()(const NzStaticMesh* subMesh1, const NzStaticMesh* subMesh2);
 		};
 
-		NzRenderQueue() = default;
-		~NzRenderQueue() = default;
-
-		void Clear();
-
-		struct SkeletalData
-		{
-			NzMatrix4f transformMatrix;
-
-			///TODO: Déplacer vers un container séparé qui ne serait pas sujer à Clear();
-			std::vector<NzMeshVertex> skinnedVertices;
-		};
-
 		typedef std::map<NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
 		typedef std::map<NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
 
 		std::map<NzMaterial*, SkeletalMeshContainer, MaterialComparator> visibleSkeletalModels;
 		std::map<NzMaterial*, StaticMeshContainer, MaterialComparator> visibleStaticModels;
+		std::vector<TransparentSkeletalModel> visibleTransparentSkeletalModels;
+		std::vector<TransparentStaticModel> visibleTransparentStaticModels;
 		std::vector<const NzDrawable*> otherDrawables;
 		std::vector<const NzLight*> directionnalLights;
 		std::vector<const NzLight*> visibleLights;
