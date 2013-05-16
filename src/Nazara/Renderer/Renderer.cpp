@@ -24,6 +24,7 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <map>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -71,8 +72,8 @@ namespace
 	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, bool>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
+	std::set<unsigned int> s_dirtyTextureUnits;
 	std::vector<TextureUnit> s_textureUnits;
-	std::vector<unsigned int> s_dirtyTextureUnits;
 	NzBuffer* s_instancingBuffer = nullptr;
 	NzVertexBuffer* s_quadBuffer = nullptr;
 	NzMatrix4f s_matrix[totalMatrixCount];
@@ -743,7 +744,6 @@ bool NzRenderer::Initialize()
 	else
 		s_maxTextureUnit = 1;
 
-	s_dirtyTextureUnits.reserve(s_maxTextureUnit);
 	s_dstBlend = nzBlendFunc_Zero;
 	s_faceCulling = nzFaceCulling_Back;
 	s_faceFilling = nzFaceFilling_Fill;
@@ -1286,7 +1286,7 @@ void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 				s_textureUnits[unit].samplerUpdated = false;
 		}
 
-		s_dirtyTextureUnits.push_back(unit);
+		s_dirtyTextureUnits.insert(unit);
 		s_updateFlags |= Update_Textures;
 	}
 }
@@ -1307,7 +1307,7 @@ void NzRenderer::SetTextureSampler(nzUInt8 unit, const NzTextureSampler& sampler
 	if (s_textureUnits[unit].texture)
 		s_textureUnits[unit].sampler.UseMipmaps(s_textureUnits[unit].texture->HasMipmaps());
 
-	s_dirtyTextureUnits.push_back(unit);
+	s_dirtyTextureUnits.insert(unit);
 	s_updateFlags |= Update_Textures;
 }
 
@@ -1462,9 +1462,10 @@ bool NzRenderer::EnsureStateUpdate()
 			s_updateFlags |= Update_Matrices;
 			for (unsigned int i = 0; i < totalMatrixCount; ++i)
 			{
-				if (s_matrixLocation[i] != -1)
+				///TODO: Voir le FIXME au niveau de l'envoi des matrices
+				/*if (s_matrixLocation[i] != -1)
 					s_matrixUpdated[i] = false;
-				else
+				else*/
 					s_matrixUpdated[i] = false;
 			}
 
@@ -1527,6 +1528,8 @@ bool NzRenderer::EnsureStateUpdate()
 				}
 			}
 
+			///FIXME: Optimiser les matrices
+			///TODO: Prendre en compte les FIXME...
 			// Cas spéciaux car il faut recalculer la matrice
 			if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
 			{
