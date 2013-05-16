@@ -385,6 +385,54 @@ bool NzMatrix4<T>::GetInverseAffine(NzMatrix4* dest) const
 	}
 }
 
+template<typename T>
+NzQuaternion<T> NzMatrix4<T>::GetRotation() const
+{
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+	NzQuaternion<T> quat;
+
+	T trace = m11 + m22 + m33;
+	if (trace > F(0.0))
+	{
+		float s = F(0.5)/std::sqrt(trace + F(1.0));
+		quat.w = F(0.25) / s;
+		quat.x = (m32 - m23) * s;
+		quat.y = (m13 - m31) * s;
+		quat.z = (m21 - m12) * s;
+	}
+	else
+	{
+		if (m11 > m22 && m11 > m33)
+		{
+			float s = F(2.0) * std::sqrt(F(1.0) + m11 - m22 - m33);
+
+			quat.w = (m32 - m23) / s;
+			quat.x = F(0.25) * s;
+			quat.y = (m12 + m21) / s;
+			quat.z = (m13 + m31) / s;
+		}
+		else if (m22 > m33)
+		{
+			float s = F(2.0) * std::sqrt(F(1.0) + m22 - m11 - m33);
+
+			quat.w = (m13 - m31) / s;
+			quat.x = (m12 + m21) / s;
+			quat.y = F(0.25) * s;
+			quat.z = (m23 + m32) / s;
+		}
+		else
+		{
+			float s = F(2.0) * std::sqrt(F(1.0) + m33 - m11 - m22);
+
+			quat.w = (m21 - m12) / s;
+			quat.x = (m13 + m31) / s;
+			quat.y = (m23 + m32) / s;
+			quat.z = F(0.25) * s;
+		}
+	}
+
+	return quat;
+}
 
 template<typename T>
 NzVector3<T> NzMatrix4<T>::GetScale() const
