@@ -358,7 +358,7 @@ const NzPlane<T>& NzFrustum<T>::GetPlane(nzFrustumPlane plane) const
 	{
 		NazaraError("Frustum plane not handled (0x" + NzString::Number(plane, 16) + ')');
 
-		static NzVector3<T> dummy;
+		static NzPlane<T> dummy;
 		return dummy;
 	}
 	#endif
