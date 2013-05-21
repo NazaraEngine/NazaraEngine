@@ -1307,7 +1307,7 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 			return false;
 
 		// Dépréciés depuis OpenGL 3
-		///FIXME: Il doit bien exister des remplaçants ..
+		///FIXME: Il doit bien exister des remplaçants (GL_RED ?)
 		case nzPixelFormat_L8:
 		case nzPixelFormat_LA8:
 			return false;
