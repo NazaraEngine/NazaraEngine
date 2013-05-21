@@ -8,22 +8,22 @@
 #define NAZARA_HASH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 
 class NAZARA_API NzHash : NzNonCopyable
 {
 	public:
 		NzHash(nzHash hash);
-		NzHash(NzHashImpl* hashImpl);
+		NzHash(NzAbstractHash* hashImpl);
 		~NzHash();
 
 		NzHashDigest Hash(const NzHashable& hashable);
 
 	private:
-		NzHashImpl* m_impl;
+		NzAbstractHash* m_impl;
 };
 
 #endif // NAZARA_HASH_HPP

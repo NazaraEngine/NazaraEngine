@@ -9,14 +9,14 @@
 
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Renderer/AbstractShader.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderImpl.hpp>
 #include <map>
 
 class NzResource;
 
-class NzGLSLShader : public NzShaderImpl, NzResourceListener
+class NzGLSLShader : public NzAbstractShader, NzResourceListener
 {
 	public:
 		NzGLSLShader(NzShader* parent);

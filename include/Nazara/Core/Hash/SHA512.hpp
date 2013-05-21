@@ -8,12 +8,12 @@
 #define NAZARA_HASH_SHA512_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 
 union SHA_CTX;
 
-class NAZARA_API NzHashSHA512 : public NzHashImpl
+class NAZARA_API NzHashSHA512 : public NzAbstractHash
 {
 	public:
 		NzHashSHA512();

@@ -8,12 +8,12 @@
 #define NAZARA_HASH_MD5_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 
 struct NzHashMD5_state;
 
-class NAZARA_API NzHashMD5 : public NzHashImpl
+class NAZARA_API NzHashMD5 : public NzAbstractHash
 {
 	public:
 		NzHashMD5();

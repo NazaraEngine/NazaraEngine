@@ -4,7 +4,7 @@
 
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
@@ -14,7 +14,7 @@
 
 namespace
 {
-	NzBufferImpl* SoftwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	NzAbstractBuffer* SoftwareBufferFunction(NzBuffer* parent, nzBufferType type)
 	{
 		return new NzSoftwareBuffer(parent, type);
 	}
@@ -86,7 +86,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 		return false;
 	}
 
-	NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
+	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
 	if (!impl->Create(length*typeSize, usage))
 	{
 		NazaraError("Failed to create buffer");
@@ -136,7 +136,7 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length, 
 	return m_impl->Fill(data, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize, forceDiscard);
 }
 
-NzBufferImpl* NzBuffer::GetImpl() const
+NzAbstractBuffer* NzBuffer::GetImpl() const
 {
 	return m_impl;
 }
@@ -279,7 +279,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 		return false;
 	}
 
-	NzBufferImpl* impl = s_bufferFunctions[storage](this, m_type);
+	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
 	if (!impl->Create(m_length*m_typeSize, m_usage))
 	{
 		NazaraError("Failed to create buffer");

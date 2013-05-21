@@ -302,7 +302,7 @@ class NAZARA_API NzString : public NzHashable
 
 	private:
 		void EnsureOwnership();
-		bool FillHash(NzHashImpl* hash) const;
+		bool FillHash(NzAbstractHash* hash) const;
 		void ReleaseString();
 
 		SharedString* m_sharedString;

@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
-#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 
-class NzHardwareBuffer : public NzBufferImpl
+class NzHardwareBuffer : public NzAbstractBuffer
 {
 	public:
 		NzHardwareBuffer(NzBuffer* parent, nzBufferType type);

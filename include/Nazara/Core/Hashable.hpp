@@ -22,8 +22,8 @@ enum nzHash
 	nzHash_Whirlpool
 };
 
+class NzAbstractHash;
 class NzHashDigest;
-class NzHashImpl;
 
 class NAZARA_API NzHashable
 {
@@ -34,10 +34,10 @@ class NAZARA_API NzHashable
 		virtual ~NzHashable();
 
 		NzHashDigest GetHash(nzHash hash) const;
-		NzHashDigest GetHash(NzHashImpl* impl) const;
+		NzHashDigest GetHash(NzAbstractHash* impl) const;
 
 	private:
-		virtual bool FillHash(NzHashImpl* impl) const = 0;
+		virtual bool FillHash(NzAbstractHash* impl) const = 0;
 };
 
 #endif // HASHABLE_HPP_INCLUDED

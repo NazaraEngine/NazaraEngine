@@ -7,6 +7,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Renderer/AbstractShader.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
@@ -15,9 +16,8 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <Nazara/Renderer/ShaderImpl.hpp>
 #include <Nazara/Renderer/Loaders/Texture.hpp>
-#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -62,7 +62,7 @@ namespace
 		bool textureUpdated = true;
 	};
 
-	NzBufferImpl* HardwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	NzAbstractBuffer* HardwareBufferFunction(NzBuffer* parent, nzBufferType type)
 	{
 		return new NzHardwareBuffer(parent, type);
 	}
@@ -1433,7 +1433,7 @@ bool NzRenderer::EnsureStateUpdate()
 		}
 		#endif
 
-		NzShaderImpl* shaderImpl;
+		NzAbstractShader* shaderImpl;
 
 		if (s_updateFlags & Update_Shader)
 		{
@@ -1664,7 +1664,10 @@ bool NzRenderer::EnsureStateUpdate()
 					}
 				}
 				else
-					glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8);
+                {
+					for (unsigned int i = 8; i < 8+4; ++i)
+						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i);
+                }
 
 				if (s_indexBuffer)
 				{
