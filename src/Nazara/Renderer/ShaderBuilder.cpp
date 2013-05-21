@@ -291,8 +291,8 @@ namespace
 			if (flags & nzShaderFlags_EmissiveMapping)
 			{
 				sourceCode += "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
-				               + fragmentColorKW + " = vec4(mix(lighting, emission, length(emission)), alpha);\n";
-				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(emission)" par "dot(emission, emission)"
+				               + fragmentColorKW + " = vec4(mix(lighting, emission, max(0.0, 1.0-length(light))), alpha);\n";
+				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(light)" par "dot(light, light)"
 			}
 			else
 				sourceCode += fragmentColorKW + " = vec4(lighting, alpha);\n";
