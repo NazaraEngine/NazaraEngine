@@ -1,4 +1,4 @@
-// This file was automatically generated on 03 Apr 2013 at 01:09:47
+// This file was automatically generated on 21 May 2013 at 13:57:27
 
 /*
 	Nazara Engine - Core module
@@ -29,6 +29,7 @@
 #ifndef NAZARA_GLOBAL_CORE_HPP
 #define NAZARA_GLOBAL_CORE_HPP
 
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -47,7 +48,6 @@
 #include <Nazara/Core/Hash.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/LockGuard.hpp>
