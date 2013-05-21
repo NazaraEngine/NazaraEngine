@@ -1035,7 +1035,7 @@ GLenum NzOpenGL::RendererParameter[nzRendererParameter_Max+1] =
 {
 	GL_BLEND,        // nzRendererParameter_Blend
 	GL_NONE,         // nzRendererParameter_ColorWrite
-	GL_DEPTH_TEST,   // nzRendererParameter_DepthTest
+	GL_DEPTH_TEST,   // nzRendererParameter_DepthBuffer
 	GL_NONE,         // nzRendererParameter_DepthWrite
 	GL_CULL_FACE,    // nzRendererParameter_FaceCulling
 	GL_SCISSOR_TEST, // nzRendererParameter_ScissorTest

@@ -24,7 +24,7 @@ namespace
 	static const NzShader* shader = nullptr;
 	static NzVertexBuffer* vertexBuffer = nullptr;
 	static NzVertexDeclaration* vertexDeclaration = nullptr;
-	static bool depthTest = true;
+	static bool depthBufferEnabled = true;
 	static bool initialized = false;
 	static float lineWidth = 1.5f;
 	static float pointSize = 3.f;
@@ -128,29 +128,14 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 
 	mapper.Unmap();
 
-	const NzShader* oldShader = NzRenderer::GetShader();
-
-	NzRenderer::SetShader(shader);
-
-	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
-	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
 	NzRenderer::SetLineWidth(lineWidth);
-
+	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
 	shader->SendColor(colorLocation, primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
-
-	NzRenderer::SetLineWidth(oldLineWidth);
-
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzCubeui& cube)
@@ -231,29 +216,14 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 
 	mapper.Unmap();
 
-	const NzShader* oldShader = NzRenderer::GetShader();
-
-	NzRenderer::SetShader(shader);
-
-	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
-	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
 	NzRenderer::SetLineWidth(lineWidth);
-
+	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
 	shader->SendColor(colorLocation, primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
-
-	NzRenderer::SetLineWidth(oldLineWidth);
-
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
@@ -329,29 +299,14 @@ void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
 
 	mapper.Unmap();
 
-	const NzShader* oldShader = NzRenderer::GetShader();
-
-	NzRenderer::SetShader(shader);
-
-	bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
-	float oldLineWidth = NzRenderer::GetLineWidth();
+	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
 	NzRenderer::SetLineWidth(lineWidth);
-
+	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
 	shader->SendColor(colorLocation, primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
-
-	NzRenderer::SetLineWidth(oldLineWidth);
-
-	if (depthTestActive != depthTest)
-		NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-	NzRenderer::SetShader(oldShader);
 }
 
 void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
@@ -393,35 +348,17 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 	if (vertexCount > 0)
 	{
-		const NzShader* oldShader = NzRenderer::GetShader();
-
-		NzRenderer::SetShader(shader);
-
-		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
-		NzRenderer::SetVertexBuffer(vertexBuffer);
-
-		float oldLineWidth = NzRenderer::GetLineWidth();
+		NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
 		NzRenderer::SetLineWidth(lineWidth);
+		NzRenderer::SetPointSize(pointSize);
+		NzRenderer::SetShader(shader);
+		NzRenderer::SetVertexBuffer(vertexBuffer);
 
 		shader->SendColor(colorLocation, primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
 
-		float oldPointSize = NzRenderer::GetPointSize();
-		NzRenderer::SetPointSize(pointSize);
-
 		shader->SendColor(colorLocation, secondaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveType_PointList, 0, vertexCount);
-
-		NzRenderer::SetLineWidth(oldLineWidth);
-		NzRenderer::SetPointSize(oldPointSize);
-
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-		NzRenderer::SetShader(oldShader);
 	}
 }
 /*
@@ -561,6 +498,32 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 	}
 }
 */
+
+void NzDebugDrawer::EnableDepthBuffer(bool depthBuffer)
+{
+	depthBufferEnabled = depthBuffer;
+}
+
+float NzDebugDrawer::GetLineWidth()
+{
+	return lineWidth;
+}
+
+float NzDebugDrawer::GetPointSize()
+{
+	return pointSize;
+}
+
+NzColor NzDebugDrawer::GetPrimaryColor()
+{
+	return primaryColor;
+}
+
+NzColor NzDebugDrawer::GetSecondaryColor()
+{
+	return secondaryColor;
+}
+
 bool NzDebugDrawer::Initialize()
 {
 	if (!initialized)
@@ -612,34 +575,9 @@ bool NzDebugDrawer::Initialize()
 	return true;
 }
 
-bool NzDebugDrawer::GetDepthTest()
+bool NzDebugDrawer::IsDepthBufferEnabled()
 {
-	return depthTest;
-}
-
-float NzDebugDrawer::GetLineWidth()
-{
-	return lineWidth;
-}
-
-float NzDebugDrawer::GetPointSize()
-{
-	return pointSize;
-}
-
-NzColor NzDebugDrawer::GetPrimaryColor()
-{
-	return primaryColor;
-}
-
-NzColor NzDebugDrawer::GetSecondaryColor()
-{
-	return secondaryColor;
-}
-
-void NzDebugDrawer::SetDepthTest(bool shouldTest)
-{
-	depthTest = shouldTest;
+	return depthBufferEnabled;
 }
 
 void NzDebugDrawer::SetLineWidth(float width)

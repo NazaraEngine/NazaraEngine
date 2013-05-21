@@ -155,14 +155,14 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	NzRenderer::SetFaceFilling(m_faceFilling);
 
-	if (m_zTestEnabled)
+	if (m_zBufferEnabled)
 	{
-		NzRenderer::Enable(nzRendererParameter_DepthTest, true);
+		NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
 		NzRenderer::Enable(nzRendererParameter_DepthWrite, m_zWriteEnabled);
 		NzRenderer::SetDepthFunc(m_zTestCompareFunc);
 	}
 	else
-		NzRenderer::Enable(nzRendererParameter_DepthTest, false);
+		NzRenderer::Enable(nzRendererParameter_DepthBuffer, false);
 }
 
 void NzMaterial::EnableAlphaBlending(bool alphaBlending)
@@ -184,9 +184,9 @@ void NzMaterial::EnableLighting(bool lighting)
 		m_shaderFlags &= ~nzShaderFlags_Lighting;
 }
 
-void NzMaterial::EnableZTest(bool zTest)
+void NzMaterial::EnableZBuffer(bool zBuffer)
 {
-	m_zTestEnabled = zTest;
+	m_zBufferEnabled = zBuffer;
 }
 
 void NzMaterial::EnableZWrite(bool zWrite)
@@ -314,9 +314,9 @@ bool NzMaterial::IsLightingEnabled() const
 	return m_lightingEnabled;
 }
 
-bool NzMaterial::IsZTestEnabled() const
+bool NzMaterial::IsZBufferEnabled() const
 {
-	return m_zTestEnabled;
+	return m_zBufferEnabled;
 }
 
 bool NzMaterial::IsZWriteEnabled() const
@@ -363,8 +363,8 @@ void NzMaterial::Reset()
 	m_specularColor = NzColor::White;
 	m_specularSampler = NzTextureSampler();
 	m_srcBlend = nzBlendFunc_One;
+	m_zBufferEnabled = true;
 	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
-	m_zTestEnabled = true;
 	m_zWriteEnabled = true;
 }
 
@@ -577,7 +577,7 @@ void NzMaterial::SetSrcBlend(nzBlendFunc func)
 
 void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
 {
-	m_zTestEnabled = compareFunc;
+	m_zTestCompareFunc = compareFunc;
 }
 
 NzMaterial& NzMaterial::operator=(const NzMaterial& material)
