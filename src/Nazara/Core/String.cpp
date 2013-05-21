@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <algorithm>
@@ -5094,7 +5094,7 @@ void NzString::EnsureOwnership()
 	}
 }
 
-bool NzString::FillHash(NzHashImpl* hazh) const
+bool NzString::FillHash(NzAbstractHash* hazh) const
 {
 	hazh->Append(reinterpret_cast<const nzUInt8*>(m_sharedString->string), m_sharedString->size);
 

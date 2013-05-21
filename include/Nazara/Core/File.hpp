@@ -103,7 +103,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		static time_t GetLastAccessTime(const NzString& filePath);
 		static time_t GetLastWriteTime(const NzString& filePath);
 		static NzHashDigest GetHash(const NzString& filePath, nzHash hash);
-		static NzHashDigest GetHash(const NzString& filePath, NzHashImpl* hash);
+		static NzHashDigest GetHash(const NzString& filePath, NzAbstractHash* hash);
 		static nzUInt64 GetSize(const NzString& filePath);
 		static bool IsAbsolute(const NzString& filePath);
 		static NzString NormalizePath(const NzString& filePath);
@@ -111,7 +111,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		static bool Rename(const NzString& sourcePath, const NzString& targetPath);
 
 	private:
-		bool FillHash(NzHashImpl* hash) const;
+		bool FillHash(NzAbstractHash* hash) const;
 
 		NazaraMutexAttrib(m_mutex, mutable)
 

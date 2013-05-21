@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Hash.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <cstring>
 #include <utility>
@@ -631,7 +631,7 @@ NzHashDigest NzFile::GetHash(const NzString& filePath, nzHash hash)
 	return h.Hash(file);
 }
 
-NzHashDigest NzFile::GetHash(const NzString& filePath, NzHashImpl* hash)
+NzHashDigest NzFile::GetHash(const NzString& filePath, NzAbstractHash* hash)
 {
 	NzFile file(filePath);
 
@@ -707,7 +707,7 @@ bool NzFile::Rename(const NzString& sourcePath, const NzString& targetPath)
 	return NzFileImpl::Rename(NormalizePath(sourcePath), NormalizePath(targetPath));
 }
 
-bool NzFile::FillHash(NzHashImpl* hash) const
+bool NzFile::FillHash(NzAbstractHash* hash) const
 {
 	NzFile file(m_filePath);
 	if (!file.Open(NzFile::ReadOnly))

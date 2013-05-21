@@ -20,12 +20,12 @@
 #include <Nazara/Renderer/Enums.hpp>
 
 class NzShader;
-class NzTexture;
 
 using NzShaderConstRef = NzResourceRef<const NzShader>;
 using NzShaderRef = NzResourceRef<NzShader>;
 
-class NzShaderImpl;
+class NzAbstractShader;
+class NzTexture;
 
 class NAZARA_API NzShader : public NzResource, NzNonCopyable
 {
@@ -82,7 +82,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 	private:
 		nzUInt32 m_flags;
-		NzShaderImpl* m_impl;
+		NzAbstractShader* m_impl;
 		bool m_compiled;
 };
 
