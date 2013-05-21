@@ -1,4 +1,4 @@
-// This file was automatically generated on 07 Apr 2013 at 02:09:05
+// This file was automatically generated on 21 May 2013 at 13:57:27
 
 /*
 	Nazara Engine - Window module
@@ -29,9 +29,9 @@
 #ifndef NAZARA_GLOBAL_UTILITY_HPP
 #define NAZARA_GLOBAL_UTILITY_HPP
 
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/BufferImpl.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
