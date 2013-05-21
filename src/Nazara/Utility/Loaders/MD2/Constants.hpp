@@ -39,16 +39,22 @@ struct md2_vertex
 	nzUInt8 n;
 };
 
+static_assert(sizeof(md2_vertex) == 4*sizeof(nzUInt8), "md2_vertex must be packed");
+
 struct md2_texCoord
 {
 	nzInt16 u, v;
 };
+
+static_assert(sizeof(md2_texCoord) == 2*sizeof(nzUInt16), "md2_texCoord must be packed");
 
 struct md2_triangle
 {
 	nzUInt16 vertices[3];
 	nzUInt16 texCoords[3];
 };
+
+static_assert(sizeof(md2_triangle) == 2*3*sizeof(nzUInt16), "md2_triangle must be packed");
 
 extern const nzUInt32 md2Ident;
 extern const NzVector3f md2Normals[162];
