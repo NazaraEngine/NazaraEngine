@@ -110,7 +110,7 @@ enum nzRendererParameter
 {
 	nzRendererParameter_Blend,
 	nzRendererParameter_ColorWrite,
-	nzRendererParameter_DepthTest,
+	nzRendererParameter_DepthBuffer,
 	nzRendererParameter_DepthWrite,
 	nzRendererParameter_FaceCulling,
 	nzRendererParameter_ScissorTest,
