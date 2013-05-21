@@ -4,18 +4,18 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERIMPL_HPP
-#define NAZARA_SHADERIMPL_HPP
+#ifndef NAZARA_ABSTRACTSHADER_HPP
+#define NAZARA_ABSTRACTSHADER_HPP
 
 #include <Nazara/Renderer/Shader.hpp>
 
-class NzShaderImpl
+class NzAbstractShader
 {
 	friend class NzRenderer;
 
 	public:
-		NzShaderImpl() = default;
-		virtual ~NzShaderImpl();
+		NzAbstractShader() = default;
+		virtual ~NzAbstractShader();
 
 		virtual bool Bind() = 0;
 		virtual	bool BindTextures() = 0;
@@ -51,4 +51,4 @@ class NzShaderImpl
 		virtual bool SendVector(int location, const NzVector4f& vector) = 0;
 };
 
-#endif // NAZARA_SHADERIMPL_HPP
+#endif // NAZARA_ABSTRACTSHADER_HPP

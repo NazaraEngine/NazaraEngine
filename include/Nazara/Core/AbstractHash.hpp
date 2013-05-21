@@ -4,23 +4,23 @@
 
 #pragma once
 
-#ifndef NAZARA_HASHIMPL_HPP
-#define NAZARA_HASHIMPL_HPP
+#ifndef NAZARA_ABSTRACTHASH_HPP
+#define NAZARA_ABSTRACTHASH_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 
 class NzHashDigest;
 
-class NAZARA_API NzHashImpl : NzNonCopyable
+class NAZARA_API NzAbstractHash : NzNonCopyable
 {
 	public:
-		NzHashImpl() = default;
-		virtual ~NzHashImpl() {}
+		NzAbstractHash() = default;
+		virtual ~NzAbstractHash();
 
 		virtual void Append(const nzUInt8* data, unsigned int len) = 0;
 		virtual void Begin() = 0;
 		virtual NzHashDigest End() = 0;
 };
 
-#endif // NAZARA_HASHIMPL_HPP
+#endif // NAZARA_ABSTRACTHASH_HPP

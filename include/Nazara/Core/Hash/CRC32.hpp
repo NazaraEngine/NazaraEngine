@@ -8,12 +8,12 @@
 #define NAZARA_HASH_CRC32_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 
 struct NzHashCRC32_state;
 
-class NAZARA_API NzHashCRC32 : public NzHashImpl
+class NAZARA_API NzHashCRC32 : public NzAbstractHash
 {
 	public:
 		NzHashCRC32(nzUInt32 polynomial = 0x04c11db7);
