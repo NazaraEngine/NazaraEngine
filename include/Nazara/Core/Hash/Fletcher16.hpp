@@ -8,13 +8,13 @@
 #define NAZARA_HASH_FLETCHER16_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 #include <Nazara/Core/String.hpp>
 
 struct NzHashFletcher16_state;
 
-class NAZARA_API NzHashFletcher16 : public NzHashImpl
+class NAZARA_API NzHashFletcher16 : public NzAbstractHash
 {
 	public:
 		NzHashFletcher16();

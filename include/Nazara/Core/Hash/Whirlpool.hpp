@@ -6,12 +6,12 @@
 #define NAZARA_HASH_WHIRLPOOL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/HashImpl.hpp>
 
 struct NzHashWhirlpool_state;
 
-class NAZARA_API NzHashWhirlpool : public NzHashImpl
+class NAZARA_API NzHashWhirlpool : public NzAbstractHash
 {
 	public:
 		NzHashWhirlpool();

@@ -56,7 +56,7 @@ NzHash::NzHash(nzHash hash)
 	}
 }
 
-NzHash::NzHash(NzHashImpl* hashImpl) :
+NzHash::NzHash(NzAbstractHash* hashImpl) :
 m_impl(hashImpl)
 {
 }

@@ -18,14 +18,14 @@ class NzBuffer;
 using NzBufferConstRef = NzResourceRef<const NzBuffer>;
 using NzBufferRef = NzResourceRef<NzBuffer>;
 
-class NzBufferImpl;
+class NzAbstractBuffer;
 
 class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 {
 	friend class NzUtility;
 
 	public:
-		using BufferFunction = NzBufferImpl* (*)(NzBuffer* parent, nzBufferType type);
+		using BufferFunction = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
@@ -38,7 +38,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 
 		bool Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard = false);
 
-		NzBufferImpl* GetImpl() const;
+		NzAbstractBuffer* GetImpl() const;
 		unsigned int GetLength() const;
 		void* GetPointer();
 		const void* GetPointer() const;
@@ -69,7 +69,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		nzBufferType m_type;
 		nzBufferUsage m_usage;
 		nzUInt8 m_typeSize;
-		NzBufferImpl* m_impl;
+		NzAbstractBuffer* m_impl;
 		unsigned int m_length;
 
 		static BufferFunction s_bufferFunctions[nzBufferStorage_Max+1];

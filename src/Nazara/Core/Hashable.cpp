@@ -14,7 +14,7 @@ NzHashDigest NzHashable::GetHash(nzHash hash) const
 	return h.Hash(*this);
 }
 
-NzHashDigest NzHashable::GetHash(NzHashImpl* impl) const
+NzHashDigest NzHashable::GetHash(NzAbstractHash* impl) const
 {
 	NzHash h(impl);
 	return h.Hash(*this);

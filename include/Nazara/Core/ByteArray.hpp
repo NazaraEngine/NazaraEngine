@@ -112,7 +112,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 	private:
 		void EnsureOwnership();
-		bool FillHash(NzHashImpl* hash) const;
+		bool FillHash(NzAbstractHash* hash) const;
 		void ReleaseArray();
 
 		SharedArray* m_sharedArray;

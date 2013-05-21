@@ -8,9 +8,9 @@
 #define NAZARA_SOFTWAREBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/BufferImpl.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 
-class NzSoftwareBuffer : public NzBufferImpl
+class NzSoftwareBuffer : public NzAbstractBuffer
 {
 	public:
 		NzSoftwareBuffer(NzBuffer* parent, nzBufferType type);
