@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
