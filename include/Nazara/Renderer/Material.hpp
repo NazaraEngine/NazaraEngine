@@ -47,7 +47,7 @@ class NAZARA_API NzMaterial : public NzResource
 		void EnableAlphaBlending(bool alphaBlending);
 		void EnableFaceCulling(bool faceCulling);
 		void EnableLighting(bool lighting);
-		void EnableZTest(bool zTest);
+		void EnableZBuffer(bool zBuffer);
 		void EnableZWrite(bool zWrite);
 
 		NzColor GetAmbientColor() const;
@@ -77,7 +77,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool IsAlphaBlendingEnabled() const;
 		bool IsFaceCullingEnabled() const;
 		bool IsLightingEnabled() const;
-		bool IsZTestEnabled() const;
+		bool IsZBufferEnabled() const;
 		bool IsZWriteEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
@@ -140,7 +140,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool m_alphaBlendingEnabled;
 		bool m_faceCullingEnabled;
 		bool m_lightingEnabled;
-		bool m_zTestEnabled;
+		bool m_zBufferEnabled;
 		bool m_zWriteEnabled;
 		float m_shininess;
 

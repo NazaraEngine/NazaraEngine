@@ -30,15 +30,16 @@ class NAZARA_API NzDebugDrawer
 		//static void DrawNormals(const NzSubMesh* subMesh);
 		//static void DrawTangents(const NzSubMesh* subMesh);
 
-		static bool Initialize();
+		static void EnableDepthBuffer(bool depthBuffer);
 
-		static bool GetDepthTest();
 		static float GetLineWidth();
 		static float GetPointSize();
 		static NzColor GetPrimaryColor();
 		static NzColor GetSecondaryColor();
 
-		static void SetDepthTest(bool shouldTest);
+		static bool Initialize();
+		static bool IsDepthBufferEnabled();
+
 		static void SetLineWidth(float width);
 		static void SetPointSize(float size);
 		static void SetPrimaryColor(const NzColor& color);
