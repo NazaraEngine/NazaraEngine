@@ -211,7 +211,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
 	NzRenderer::Enable(nzRendererParameter_Blend, false);
-	NzRenderer::Enable(nzRendererParameter_DepthTest, false);
+	NzRenderer::Enable(nzRendererParameter_DepthBuffer, false);
 	NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
 
 	NzRenderer::SetDepthFunc(nzRendererComparison_Less);
