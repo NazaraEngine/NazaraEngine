@@ -121,7 +121,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 	m_callback = 0;
 
-	std::unique_ptr<wchar_t> wtitle(title.GetWideBuffer());
+	std::unique_ptr<wchar_t[]> wtitle(title.GetWideBuffer());
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzMutex mutex;
