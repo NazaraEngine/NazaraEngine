@@ -35,6 +35,7 @@
 
 #include <Nazara/Core/Config.hpp>
 
+// Identification du compilateur
 ///TODO: Rajouter des tests d'identification de compilateurs
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
@@ -70,8 +71,7 @@
 	#error This compiler is not fully supported
 #endif
 
-#define NazaraUnused(a) (void) a
-
+// Identification de la plateforme
 #if defined(_WIN32)
 	#define NAZARA_PLATFORM_WINDOWS
 
@@ -133,14 +133,21 @@
 	#define NAZARA_API
 #endif
 
+// Détection 64 bits
 #if !defined(NAZARA_PLATFORM_x64) && (defined(_WIN64) ||  defined(__amd64__) || defined(__x86_64__) || defined(__ia64__) || defined(__ia64) || \
     defined(_M_IA64) || defined(__itanium__) || defined(__MINGW64__))
 	#define NAZARA_PLATFORM_x64
 #endif
 
+// Définit NDEBUG si NAZARA_DEBUG n'est pas présent
 #if !defined(NAZARA_DEBUG) && !defined(NDEBUG)
 	#define NDEBUG
 #endif
+
+// Macros supplémentaires
+#define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
+#define NazaraStringify(s) #s
+#define NazaraUnused(a) (void) a
 
 #include <cstdint>
 
