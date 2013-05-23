@@ -18,6 +18,7 @@
 #include <Nazara/Utility/Win32/CursorImpl.hpp>
 #include <Nazara/Utility/Win32/IconImpl.hpp>
 #include <cstdio>
+#include <memory>
 #include <windowsx.h>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -120,7 +121,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 	m_callback = 0;
 
-	wchar_t* wtitle = title.GetWideBuffer();
+	std::unique_ptr<wchar_t> wtitle(title.GetWideBuffer());
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzMutex mutex;
@@ -129,14 +130,12 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 
 	// On attend que la fenêtre soit créée
 	mutex.Lock();
-	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle, win32Style, x, y, width, height, this, &mutex, &condition);
+	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle.get(), win32Style, x, y, width, height, this, &mutex, &condition);
 	condition.Wait(&mutex);
 	mutex.Unlock();
 	#else
-	m_handle = CreateWindowExW(win32StyleEx, className, wtitle, win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
+	m_handle = CreateWindowExW(win32StyleEx, className, wtitle.get(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
 	#endif
-
-	delete[] wtitle;
 
 	if (fullscreen)
 	{
@@ -245,14 +244,10 @@ NzString NzWindowImpl::GetTitle() const
 
 	titleSize++; // Caractère nul
 
-	wchar_t* wTitle = new wchar_t[titleSize];
-	GetWindowTextW(m_handle, wTitle, titleSize);
+	std::unique_ptr<wchar_t[]> wTitle(new wchar_t[titleSize]);
+	GetWindowTextW(m_handle, wTitle.get(), titleSize);
 
-	NzString title = NzString::Unicode(wTitle);
-
-	delete[] wTitle;
-
-	return title;
+	return NzString::Unicode(wTitle.get());
 }
 
 unsigned int NzWindowImpl::GetWidth() const
@@ -463,9 +458,8 @@ void NzWindowImpl::SetStayOnTop(bool stayOnTop)
 
 void NzWindowImpl::SetTitle(const NzString& title)
 {
-	wchar_t* wtitle = title.GetWideBuffer();
-	SetWindowTextW(m_handle, wtitle);
-	delete[] wtitle;
+	std::unique_ptr<wchar_t[]> wTitle(title.GetWideBuffer());
+	SetWindowTextW(m_handle, wTitle.get());
 }
 
 void NzWindowImpl::SetVisible(bool visible)
