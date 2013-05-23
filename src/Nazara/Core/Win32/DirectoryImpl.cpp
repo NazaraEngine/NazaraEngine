@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Win32/DirectoryImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <memory>
 #include <Nazara/Core/Debug.hpp>
 
 NzDirectoryImpl::NzDirectoryImpl(const NzDirectory* parent)
@@ -60,9 +61,9 @@ bool NzDirectoryImpl::NextResult()
 bool NzDirectoryImpl::Open(const NzString& dirPath)
 {
 	NzString searchPath = dirPath + "\\*";
-	wchar_t* path = searchPath.GetWideBuffer();
-	m_handle = FindFirstFileW(path, &m_result);
-	delete[] path;
+
+	std::unique_ptr<wchar_t[]> wPath(searchPath.GetWideBuffer());
+	m_handle = FindFirstFileW(wPath.get(), &m_result);
 
 	if (m_handle == INVALID_HANDLE_VALUE)
 	{
@@ -77,18 +78,15 @@ bool NzDirectoryImpl::Open(const NzString& dirPath)
 
 bool NzDirectoryImpl::Create(const NzString& dirPath)
 {
-	wchar_t* path = dirPath.GetWideBuffer();
-	bool success = CreateDirectoryW(path, nullptr) != 0;
-	delete[] path;
+	std::unique_ptr<wchar_t[]> wPath(dirPath.GetWideBuffer());
 
-	return success || GetLastError() == ERROR_ALREADY_EXISTS;
+	return (CreateDirectoryW(wPath.get(), nullptr) != 0) || GetLastError() == ERROR_ALREADY_EXISTS;
 }
 
 bool NzDirectoryImpl::Exists(const NzString& dirPath)
 {
-	wchar_t* path = dirPath.GetWideBuffer();
-	DWORD attributes = GetFileAttributesW(path);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> wPath(dirPath.GetWideBuffer());
+	DWORD attributes = GetFileAttributesW(wPath.get());
 
 	if (attributes != INVALID_FILE_ATTRIBUTES)
 		return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -99,34 +97,29 @@ bool NzDirectoryImpl::Exists(const NzString& dirPath)
 NzString NzDirectoryImpl::GetCurrent()
 {
 	NzString currentPath;
-	wchar_t* path = new wchar_t[MAX_PATH];
+	std::unique_ptr<wchar_t[]> path(new wchar_t[MAX_PATH]);
 
-	unsigned int size = GetCurrentDirectoryW(MAX_PATH, path);
+	unsigned int size = GetCurrentDirectoryW(MAX_PATH, path.get());
 	if (size > MAX_PATH) // La taille prends en compte le caractère nul
 	{
-		delete[] path;
-
-		path = new wchar_t[size];
-		if (GetCurrentDirectoryW(size, path) == 0)
-			NazaraError("Unable to get current directory: " + NzGetLastSystemError());
+		path.reset(new wchar_t[size]);
+		if (GetCurrentDirectoryW(size, path.get()) != 0)
+			currentPath = NzString::Unicode(path.get());
 		else
-			currentPath = NzString::Unicode(path);
+			NazaraError("Unable to get current directory: " + NzGetLastSystemError());
 	}
 	else if (size == 0)
 		NazaraError("Unable to get current directory: " + NzGetLastSystemError());
 	else
-		currentPath = NzString::Unicode(path);
-
-	delete[] path;
+		currentPath = NzString::Unicode(path.get());
 
 	return currentPath;
 }
 
 bool NzDirectoryImpl::Remove(const NzString& dirPath)
 {
-	wchar_t* path = dirPath.GetWideBuffer();
-	bool success = RemoveDirectoryW(path) != 0;
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(dirPath.GetWideBuffer());
+	bool success = RemoveDirectoryW(path.get()) != 0;
 
 	DWORD error = GetLastError();
 	return success || error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND;
