@@ -6,6 +6,7 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <memory>
 #include <Nazara/Core/Debug.hpp>
 
 NzDynLibImpl::NzDynLibImpl(NzDynLib* parent) :
@@ -28,9 +29,8 @@ bool NzDynLibImpl::Load(const NzString& libraryPath)
 	if (!path.EndsWith(".dll"))
 		path += ".dll";
 
-	wchar_t* pathW = path.GetWideBuffer();
-	m_handle = LoadLibraryExW(pathW, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-	delete[] pathW;
+	std::unique_ptr<wchar_t[]> wPath(path.GetWideBuffer());
+	m_handle = LoadLibraryExW(wPath.get(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 
 	if (m_handle)
 		return true;

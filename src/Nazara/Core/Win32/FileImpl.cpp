@@ -5,6 +5,7 @@
 #include <Nazara/Core/Win32/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Win32/Time.hpp>
+#include <memory>
 #include <Nazara/Core/Debug.hpp>
 
 NzFileImpl::NzFileImpl(const NzFile* parent) :
@@ -91,9 +92,8 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 	if ((mode & NzFile::Lock) == 0)
 		shareMode |= FILE_SHARE_WRITE;
 
-	wchar_t* path = filePath.GetWideBuffer();
-	m_handle = CreateFileW(path, access, shareMode, nullptr, openMode, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	m_handle = CreateFileW(path.get(), access, shareMode, nullptr, openMode, 0, nullptr);
 
 	return m_handle != INVALID_HANDLE_VALUE;
 }
@@ -184,13 +184,10 @@ std::size_t NzFileImpl::Write(const void* buffer, std::size_t size)
 
 bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 {
-	wchar_t* path = sourcePath.GetWideBuffer();
-	wchar_t* newPath = targetPath.GetWideBuffer();
-	bool success = CopyFileW(path, newPath, false);
-	delete[] path;
-	delete[] newPath;
+	std::unique_ptr<wchar_t[]> srcPath(sourcePath.GetWideBuffer());
+	std::unique_ptr<wchar_t[]> dstPath(targetPath.GetWideBuffer());
 
-	if (success)
+	if (CopyFileW(srcPath.get(), dstPath.get(), false))
 		return true;
 	else
 	{
@@ -202,11 +199,9 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 
 bool NzFileImpl::Delete(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	bool success = DeleteFileW(path);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
 
-	if (success)
+	if (DeleteFileW(path.get()))
 		return true;
 	else
 	{
@@ -218,9 +213,8 @@ bool NzFileImpl::Delete(const NzString& filePath)
 
 bool NzFileImpl::Exists(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		return false;
@@ -232,9 +226,8 @@ bool NzFileImpl::Exists(const NzString& filePath)
 
 time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
@@ -255,9 +248,8 @@ time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 
 time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
@@ -278,9 +270,8 @@ time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 
 time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
@@ -301,9 +292,8 @@ time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 
 nzUInt64 NzFileImpl::GetSize(const NzString& filePath)
 {
-	wchar_t* path = filePath.GetWideBuffer();
-	HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-	delete[] path;
+	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
+	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
@@ -319,15 +309,10 @@ nzUInt64 NzFileImpl::GetSize(const NzString& filePath)
 
 bool NzFileImpl::Rename(const NzString& sourcePath, const NzString& targetPath)
 {
-	wchar_t* path = sourcePath.GetWideBuffer();
-	wchar_t* newPath = targetPath.GetWideBuffer();
+	std::unique_ptr<wchar_t[]> srcPath(sourcePath.GetWideBuffer());
+	std::unique_ptr<wchar_t[]> dstPath(targetPath.GetWideBuffer());
 
-	bool success = MoveFileExW(path, newPath, MOVEFILE_COPY_ALLOWED) != 0;
-
-	delete[] path;
-	delete[] newPath;
-
-	if (success)
+	if (MoveFileExW(srcPath.get(), dstPath.get(), MOVEFILE_COPY_ALLOWED))
 		return true;
 	else
 	{
