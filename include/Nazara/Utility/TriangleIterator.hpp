@@ -37,7 +37,7 @@ class NAZARA_API NzTriangleIterator
 		void Unmap();
 
 	private:
-		nzPrimitiveType m_primitiveType;
+		nzPrimitiveMode m_primitiveMode;
 		nzUInt32 m_triangleIndices[3];
 		NzIndexMapper m_indexMapper;
 		NzVertexMapper m_vertexMapper;

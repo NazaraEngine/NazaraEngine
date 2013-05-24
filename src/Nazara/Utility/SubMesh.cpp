@@ -14,7 +14,7 @@
 
 NzSubMesh::NzSubMesh(const NzMesh* parent) :
 NzResource(false), // Un SubMesh n'est pas persistant par défaut
-m_primitiveType(nzPrimitiveType_TriangleList),
+m_primitiveMode(nzPrimitiveMode_TriangleList),
 m_parent(parent),
 m_matIndex(0)
 {
@@ -147,9 +147,9 @@ const NzMesh* NzSubMesh::GetParent() const
 	return m_parent;
 }
 
-nzPrimitiveType NzSubMesh::GetPrimitiveType() const
+nzPrimitiveMode NzSubMesh::GetPrimitiveMode() const
 {
-	return m_primitiveType;
+	return m_primitiveMode;
 }
 
 unsigned int NzSubMesh::GetTriangleCount() const
@@ -161,24 +161,24 @@ unsigned int NzSubMesh::GetTriangleCount() const
 	else
 		indexCount = GetVertexCount();
 
-	switch (m_primitiveType)
+	switch (m_primitiveMode)
 	{
-		case nzPrimitiveType_LineList:
-		case nzPrimitiveType_LineStrip:
-		case nzPrimitiveType_PointList:
+		case nzPrimitiveMode_LineList:
+		case nzPrimitiveMode_LineStrip:
+		case nzPrimitiveMode_PointList:
 			return 0;
 
-		case nzPrimitiveType_TriangleFan:
+		case nzPrimitiveMode_TriangleFan:
 			return (indexCount - 1) / 2;
 
-		case nzPrimitiveType_TriangleList:
+		case nzPrimitiveMode_TriangleList:
 			return indexCount / 3;
 
-		case nzPrimitiveType_TriangleStrip:
+		case nzPrimitiveMode_TriangleStrip:
 			return indexCount - 2;
 	}
 
-	NazaraError("Primitive type not handled (0x" + NzString::Number(m_primitiveType, 16) + ')');
+	NazaraError("Primitive mode not handled (0x" + NzString::Number(m_primitiveMode, 16) + ')');
 	return 0;
 }
 
@@ -187,9 +187,9 @@ unsigned int NzSubMesh::GetMaterialIndex() const
 	return m_matIndex;
 }
 
-void NzSubMesh::SetPrimitiveType(nzPrimitiveType primitiveType)
+void NzSubMesh::SetPrimitiveMode(nzPrimitiveMode mode)
 {
-	m_primitiveType = primitiveType;
+	m_primitiveMode = mode;
 }
 
 void NzSubMesh::SetMaterialIndex(unsigned int matIndex)

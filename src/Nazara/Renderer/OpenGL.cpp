@@ -1010,14 +1010,14 @@ GLenum NzOpenGL::FaceFilling[nzFaceFilling_Max+1] =
 	GL_FILL   // nzFaceFilling_Fill
 };
 
-GLenum NzOpenGL::PrimitiveType[nzPrimitiveType_Max+1] =
+GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 {
-	GL_LINES,          // nzPrimitiveType_LineList,
-	GL_LINE_STRIP,     // nzPrimitiveType_LineStrip,
-	GL_POINTS,         // nzPrimitiveType_PointList,
-	GL_TRIANGLES,      // nzPrimitiveType_TriangleList,
-	GL_TRIANGLE_STRIP, // nzPrimitiveType_TriangleStrip,
-	GL_TRIANGLE_FAN    // nzPrimitiveType_TriangleFan
+	GL_LINES,          // nzPrimitiveMode_LineList
+	GL_LINE_STRIP,     // nzPrimitiveMode_LineStrip
+	GL_POINTS,         // nzPrimitiveMode_PointList
+	GL_TRIANGLES,      // nzPrimitiveMode_TriangleList
+	GL_TRIANGLE_STRIP, // nzPrimitiveMode_TriangleStrip
+	GL_TRIANGLE_FAN    // nzPrimitiveMode_TriangleFan
 };
 
 GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
