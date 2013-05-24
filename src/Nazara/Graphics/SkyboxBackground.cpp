@@ -224,7 +224,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	NzRenderer::SetTextureSampler(textureUnit, m_sampler);
 	NzRenderer::SetVertexBuffer(m_vertexBuffer);
 
-	NzRenderer::DrawIndexedPrimitives(nzPrimitiveType_TriangleList, 0, 36);
+	NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, 36);
 
 	NzRenderer::SetMatrix(nzMatrixType_View, viewMatrix);
 }

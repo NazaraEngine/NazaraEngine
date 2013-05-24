@@ -135,7 +135,7 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 
 	shader->SendColor(colorLocation, primaryColor);
 
-	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
 
 void NzDebugDrawer::Draw(const NzCubeui& cube)
@@ -223,7 +223,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 
 	shader->SendColor(colorLocation, primaryColor);
 
-	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
 
 void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
@@ -306,7 +306,7 @@ void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
 
 	shader->SendColor(colorLocation, primaryColor);
 
-	NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, 24);
+	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
 
 void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
@@ -355,10 +355,10 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
 		shader->SendColor(colorLocation, primaryColor);
-		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 
 		shader->SendColor(colorLocation, secondaryColor);
-		NzRenderer::DrawPrimitives(nzPrimitiveType_PointList, 0, vertexCount);
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, vertexCount);
 	}
 }
 /*

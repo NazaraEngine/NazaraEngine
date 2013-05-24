@@ -30,7 +30,7 @@
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
 // Le nombre maximum d'instances pouvant être géré par le Renderer
-#define NAZARA_RENDERER_INSTANCING_MAX 8192
+#define NAZARA_RENDERER_MAX_INSTANCES 8192
 
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
@@ -40,5 +40,8 @@
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_RENDERER_SAFE 1
+
+// Le nombre maximum de lumières qu'un forward shader supportera
+#define NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT 8
 
 #endif // NAZARA_CONFIG_MODULENAME_HPP

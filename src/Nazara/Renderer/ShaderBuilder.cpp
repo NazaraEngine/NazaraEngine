@@ -44,7 +44,6 @@ namespace
 			sourceCode += "#define LIGHT_DIRECTIONAL 0\n"
 			              "#define LIGHT_POINT 1\n"
 			              "#define LIGHT_SPOT 2\n"
-			              "#define MAX_LIGHTS 8\n"
 			              "\n";
 		}
 
@@ -71,7 +70,7 @@ namespace
 		{
 			sourceCode += "uniform vec3 CameraPosition;\n"
 			              "uniform int LightCount;\n"
-			              "uniform Light Lights[MAX_LIGHTS];\n"
+			              "uniform Light Lights[" NazaraStringifyMacro(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT) "];\n"
 			              "uniform vec4 MaterialAmbient;\n";
 		}
 
