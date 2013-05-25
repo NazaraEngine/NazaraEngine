@@ -22,7 +22,7 @@ class NAZARA_API NzCamera : public NzSceneNode
 		NzCamera();
 		~NzCamera();
 
-		void Activate() const;
+		void Activate();
 
 		void EnsureFrustumUpdate() const;
 		void EnsureProjectionMatrixUpdate() const;
@@ -50,7 +50,7 @@ class NAZARA_API NzCamera : public NzSceneNode
 		void SetZNear(float zNear);
 
 	private:
-		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void Invalidate();
 		void Register();
 		void Unregister();
