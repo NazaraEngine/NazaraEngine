@@ -13,7 +13,7 @@ NzSceneRoot::NzSceneRoot(NzScene* scene)
 
 NzSceneRoot::~NzSceneRoot() = default;
 
-void NzSceneRoot::AddToRenderQueue(NzRenderQueue& renderQueue) const
+void NzSceneRoot::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
 	NazaraUnused(renderQueue);
 

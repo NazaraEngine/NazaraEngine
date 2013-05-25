@@ -10,9 +10,11 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Updatable.hpp>
+#include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Background.hpp>
 #include <Nazara/Math/Frustum.hpp>
 
+class NzAbstractRenderQueue;
 class NzCamera;
 class NzLight;
 class NzModel;
@@ -34,8 +36,10 @@ class NAZARA_API NzScene
 		void Cull();
 		void Draw();
 
-		const NzCamera* GetActiveCamera() const;
+		NzCamera* GetActiveCamera() const;
+		NzColor GetAmbientColor() const;
 		NzBackground* GetBackground() const;
+		NzAbstractRenderTechnique* GetRenderTechnique() const;
 		NzSceneNode& GetRoot() const;
 		float GetUpdateTime() const;
 		unsigned int GetUpdatePerSecond() const;
@@ -44,6 +48,7 @@ class NAZARA_API NzScene
 
 		void SetAmbientColor(const NzColor& color);
 		void SetBackground(NzBackground* background);
+		void SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique);
 		void SetUpdatePerSecond(unsigned int updatePerSecond);
 
 		void UnregisterForUpdate(NzUpdatable* object);
@@ -54,8 +59,8 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
-		void RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzNode* node);
-		void SetActiveCamera(const NzCamera* camera);
+		void RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node);
+		void SetActiveCamera(NzCamera* camera);
 
 		NzSceneImpl* m_impl;
 };
