@@ -38,7 +38,6 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>

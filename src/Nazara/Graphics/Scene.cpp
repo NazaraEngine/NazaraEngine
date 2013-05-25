@@ -5,40 +5,16 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Graphics/ColorBackground.hpp>
-#include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Camera.hpp>
-#include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
+#include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <functional>
 #include <memory>
 #include <set>
 #include <vector>
 #include <Nazara/Graphics/Debug.hpp>
-
-namespace
-{
-	const unsigned int maxLights = 8; ///TODO: Config
-
-	struct LightComparator
-	{
-		bool operator()(const NzLight* light1, const NzLight* light2)
-		{
-			return light1->GetPosition().SquaredDistance(pos) < light2->GetPosition().SquaredDistance(pos);
-		}
-
-		NzVector3f pos;
-	};
-}
 
 struct NzSceneImpl
 {
@@ -47,16 +23,14 @@ struct NzSceneImpl
 	{
 	}
 
+	std::unique_ptr<NzAbstractRenderTechnique> renderTechnique;
 	std::unique_ptr<NzBackground> background;
 	std::vector<NzUpdatable*> updateList;
 	std::vector<NzUpdatable*> visibleUpdateList;
-	std::vector<NzRenderer::InstancingData> instancingData;
 	NzClock updateClock;
 	NzColor ambientColor = NzColor(25,25,25);
-	NzRenderQueue renderQueue;
 	NzSceneRoot root;
-	const NzCamera* activeCamera;
-	NzVertexBuffer* skinningBuffer;
+	NzCamera* activeCamera;
 	bool update;
 	float frameTime;
 	float updateTime;
@@ -67,10 +41,7 @@ NzScene::NzScene()
 {
 	m_impl = new NzSceneImpl(this);
 	m_impl->background.reset(new NzColorBackground);
-	m_impl->skinningBuffer = new NzVertexBuffer(NzMesh::GetDeclaration(), 20000, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
-
-	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
-		m_impl->instancingData.resize(NAZARA_RENDERER_INSTANCING_MAX);
+	m_impl->renderTechnique.reset(new NzForwardRenderTechnique);
 }
 
 NzScene::~NzScene()
@@ -81,7 +52,6 @@ NzScene::~NzScene()
 			static_cast<NzSceneNode*>(child)->SetScene(nullptr);
 	}
 
-	delete m_impl->skinningBuffer;
 	delete m_impl;
 }
 
@@ -92,11 +62,13 @@ void NzScene::AddToVisibilityList(NzUpdatable* object)
 
 void NzScene::Cull()
 {
-	m_impl->renderQueue.Clear();
+	NzAbstractRenderQueue* renderQueue = m_impl->renderTechnique->GetRenderQueue();
+	renderQueue->Clear();
+
 	m_impl->visibleUpdateList.clear();
 
 	// Frustum culling
-	RecursiveFrustumCull(m_impl->renderQueue, m_impl->activeCamera->GetFrustum(), &m_impl->root);
+	RecursiveFrustumCull(renderQueue, m_impl->activeCamera->GetFrustum(), &m_impl->root);
 
 	///TODO: Occlusion culling
 
@@ -105,232 +77,28 @@ void NzScene::Cull()
 
 void NzScene::Draw()
 {
-	NzRenderer::Clear(nzRendererClear_Depth);
-
-	if (m_impl->background)
-		m_impl->background->Draw(this);
-
-	LightComparator lightComparator;
-
-	// Pour les meshs squelettiques, on utilise un buffer commun
-	NzRenderer::SetVertexBuffer(m_impl->skinningBuffer);
-	for (auto matIt : m_impl->renderQueue.visibleSkeletalModels)
-	{
-		// On applique le shader du matériau
-		nzUInt32 shaderFlags = matIt.first->GetShaderFlags();
-
-		const NzShader* shader = NzShaderBuilder::Get(shaderFlags);
-
-		NzRenderer::SetShader(shader);
-		matIt.first->Apply(shader);
-
-		// Position de la caméra
-		int camPosLocation = shader->GetUniformLocation(nzShaderUniform_CameraPosition);
-		if (camPosLocation != -1)
-			shader->SendVector(camPosLocation, m_impl->activeCamera->GetPosition());
-
-		// Couleur ambiante de la scène
-		int sceneAmbientLocation = shader->GetUniformLocation(nzShaderUniform_SceneAmbient);
-		if (sceneAmbientLocation != -1)
-			shader->SendColor(sceneAmbientLocation, m_impl->ambientColor);
-
-		// Gestion des lumières (D'abord directionnelles)
-		int lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
-
-		unsigned int lightIndex = 0;
-		if (lightCountLocation != -1)
-		{
-			for (const NzLight* light : m_impl->renderQueue.directionnalLights)
-			{
-				light->Apply(shader, lightIndex++);
-				if (lightIndex > maxLights)
-					break; // N'arrivera jamais mais pourrait résulter en un bug
-			}
-		}
-
-		for (auto subMeshIt : matIt.second)
-		{
-			const NzSkeletalMesh* skeletalMesh = subMeshIt.first;
-			const NzIndexBuffer* indexBuffer = skeletalMesh->GetIndexBuffer();
-
-			unsigned int vertexCount = skeletalMesh->GetVertexCount();
-
-			// Gestion du draw call avant la boucle de rendu
-			std::function<void(nzPrimitiveType, unsigned int, unsigned int)> drawFunc;
-			nzPrimitiveType primitiveType = skeletalMesh->GetPrimitiveType();
-			unsigned int indexCount;
-			if (indexBuffer)
-			{
-				drawFunc = NzRenderer::DrawIndexedPrimitives;
-				indexCount = indexBuffer->GetIndexCount();
-				NzRenderer::SetIndexBuffer(indexBuffer);
-			}
-			else
-			{
-				drawFunc = NzRenderer::DrawPrimitives;
-				indexCount = skeletalMesh->GetVertexCount();
-			}
-
-			for (const NzRenderQueue::SkeletalData& data : subMeshIt.second)
-			{
-				// Transfert du résultat du skinning vers notre buffer hardware
-				NzBufferMapper<NzVertexBuffer> outputMapper(m_impl->skinningBuffer, nzBufferAccess_DiscardAndWrite, 0, vertexCount);
-				std::memcpy(outputMapper.GetPointer(), &data.skinnedVertices[0], vertexCount*sizeof(NzMeshVertex));
-				outputMapper.Unmap();
-
-				// Calcul des lumières les plus proches (TODO: LightManager ?)
-				if (lightCountLocation != -1)
-				{
-					auto visibleLights = m_impl->renderQueue.visibleLights;
-					lightComparator.pos = data.transformMatrix.GetTranslation();
-					std::sort(visibleLights.begin(), visibleLights.end(), lightComparator);
-
-					const unsigned int maxLightPerObject = 3; ///TODO: Config
-					unsigned int max = std::min(std::min(maxLights - lightIndex, maxLightPerObject), static_cast<unsigned int>(visibleLights.size()));
-					for (unsigned int i = 0; i < max; ++i)
-						visibleLights[i]->Apply(shader, lightIndex + i);
-
-					shader->SendInteger(lightCountLocation, lightIndex + max);
-				}
-
-				NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
-
-				drawFunc(primitiveType, 0, indexCount);
-			}
-		}
-	}
-
-	// Pour les meshs statiques, on utilise le buffer du mesh
-	for (auto matIt : m_impl->renderQueue.visibleStaticModels)
-	{
-		// On applique le shader du matériau
-		nzUInt32 shaderFlags = matIt.first->GetShaderFlags();
-		if (NzRenderer::HasCapability(nzRendererCap_Instancing) && m_impl->renderQueue.visibleLights.empty())
-			shaderFlags |= nzShaderFlags_Instancing;
-
-		const NzShader* shader = NzShaderBuilder::Get(shaderFlags);
-
-		NzRenderer::SetShader(shader);
-		matIt.first->Apply(shader);
-
-		bool instancing = shader->GetFlags() & nzShaderFlags_Instancing;
-
-		// Position de la caméra
-		int camPosLocation = shader->GetUniformLocation(nzShaderUniform_CameraPosition);
-		if (camPosLocation != -1)
-			shader->SendVector(camPosLocation, m_impl->activeCamera->GetPosition());
-
-		// Couleur ambiante de la scène
-		int sceneAmbientLocation = shader->GetUniformLocation(nzShaderUniform_SceneAmbient);
-		if (sceneAmbientLocation != -1)
-			shader->SendColor(sceneAmbientLocation, m_impl->ambientColor);
-
-		// Gestion des lumières (D'abord directionnelles)
-		int lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
-
-		unsigned int lightIndex = 0;
-		if (lightCountLocation != -1)
-		{
-			for (const NzLight* light : m_impl->renderQueue.directionnalLights)
-			{
-				light->Apply(shader, lightIndex++);
-				if (lightIndex > maxLights)
-					break; // N'arrivera probablement jamais mais pourrait résulter en un bug
-			}
-		}
-
-		for (auto subMeshIt : matIt.second)
-		{
-			NzStaticMesh* staticMesh = subMeshIt.first;
-
-			const NzIndexBuffer* indexBuffer = staticMesh->GetIndexBuffer();
-			const NzVertexBuffer* vertexBuffer = staticMesh->GetVertexBuffer();
-
-			NzRenderer::SetVertexBuffer(vertexBuffer);
-
-			// Gestion du draw call avant la boucle de rendu
-			std::function<void(nzPrimitiveType, unsigned int, unsigned int)> draw;
-			std::function<void(unsigned int, nzPrimitiveType, unsigned int, unsigned int)> instancedDraw;
-			nzPrimitiveType primitiveType = staticMesh->GetPrimitiveType();
-			unsigned int indexCount;
-			if (indexBuffer)
-			{
-				draw = NzRenderer::DrawIndexedPrimitives;
-				indexCount = indexBuffer->GetIndexCount();
-				instancedDraw = NzRenderer::DrawIndexedPrimitivesInstanced;
-				NzRenderer::SetIndexBuffer(indexBuffer);
-			}
-			else
-			{
-				draw = NzRenderer::DrawPrimitives;
-				indexCount = vertexBuffer->GetVertexCount();
-				instancedDraw = NzRenderer::DrawPrimitivesInstanced;
-			}
-
-			if (instancing)
-			{
-				if (lightCountLocation != -1)
-					shader->SendInteger(lightCountLocation, lightIndex);
-
-				unsigned int count = 0;
-				for (const NzMatrix4f& matrix : subMeshIt.second)
-				{
-					m_impl->instancingData[count++].worldMatrix = matrix;
-					if (count == m_impl->instancingData.size())
-					{
-						NzRenderer::SetInstancingData(&m_impl->instancingData[0], count);
-						instancedDraw(count, primitiveType, 0, indexCount);
-
-						count = 0;
-					}
-				}
-
-				if (count > 0)
-				{
-					NzRenderer::SetInstancingData(&m_impl->instancingData[0], count);
-					instancedDraw(count, primitiveType, 0, indexCount);
-				}
-			}
-			else
-			{
-				for (const NzMatrix4f& matrix : subMeshIt.second)
-				{
-					// Calcul des lumières les plus proches (TODO: LightManager ?)
-					if (lightCountLocation != -1)
-					{
-						std::vector<const NzLight*>& visibleLights = m_impl->renderQueue.visibleLights;
-						lightComparator.pos = matrix.GetTranslation();
-						std::sort(visibleLights.begin(), visibleLights.end(), lightComparator);
-
-						const unsigned int maxLightPerObject = 3; ///TODO: Config
-						unsigned int max = std::min(std::min(maxLights - lightIndex, maxLightPerObject), static_cast<unsigned int>(visibleLights.size()));
-						for (unsigned int i = 0; i < max; ++i)
-							visibleLights[i]->Apply(shader, lightIndex + i);
-
-						shader->SendInteger(lightCountLocation, lightIndex + max);
-					}
-
-					NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-
-					draw(primitiveType, 0, indexCount);
-				}
-			}
-		}
-	}
-
-	// Les autres drawables (Exemple: Terrain)
-	for (const NzDrawable* drawable : m_impl->renderQueue.otherDrawables)
-		drawable->Draw();
+	m_impl->renderTechnique->Clear(this);
+	m_impl->renderTechnique->Draw(this);
 }
 
-const NzCamera* NzScene::GetActiveCamera() const
+NzCamera* NzScene::GetActiveCamera() const
 {
 	return m_impl->activeCamera;
+}
+
+NzColor NzScene::GetAmbientColor() const
+{
+	return m_impl->ambientColor;
 }
 
 NzBackground* NzScene::GetBackground() const
 {
 	return m_impl->background.get();
+}
+
+NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
+{
+	return m_impl->renderTechnique.get();
 }
 
 NzSceneNode& NzScene::GetRoot() const
@@ -369,6 +137,11 @@ void NzScene::SetAmbientColor(const NzColor& color)
 void NzScene::SetBackground(NzBackground* background)
 {
 	m_impl->background.reset(background);
+}
+
+void NzScene::SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique)
+{
+	m_impl->renderTechnique.reset(renderTechnique);
 }
 
 void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
@@ -419,7 +192,7 @@ NzScene::operator const NzSceneNode&() const
 	return m_impl->root;
 }
 
-void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf& frustum, NzNode* node)
+void NzScene::RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node)
 {
 	for (NzNode* child : node->GetChilds())
 	{
@@ -437,7 +210,7 @@ void NzScene::RecursiveFrustumCull(NzRenderQueue& renderQueue, const NzFrustumf&
 	}
 }
 
-void NzScene::SetActiveCamera(const NzCamera* camera)
+void NzScene::SetActiveCamera(NzCamera* camera)
 {
 	m_impl->activeCamera = camera;
 }

@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -32,23 +33,9 @@ NzSceneNode(light)
 	std::memcpy(this, &light, sizeof(NzLight)); // Aussi simple que ça
 }
 
-NzLight::~NzLight()
+void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
-}
-
-void NzLight::AddToRenderQueue(NzRenderQueue& renderQueue) const
-{
-	switch (m_type)
-	{
-		case nzLightType_Directional:
-			renderQueue.directionnalLights.push_back(this);
-			break;
-
-		case nzLightType_Point:
-		case nzLightType_Spot:
-			renderQueue.visibleLights.push_back(this);
-			break;
-	}
+	renderQueue->AddLight(this);
 }
 
 void NzLight::Apply(const NzShader* shader, unsigned int lightUnit) const
