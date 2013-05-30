@@ -33,6 +33,7 @@ struct NAZARA_API NzMeshParams
 };
 
 class NzAnimation;
+class NzPrimitiveList;
 class NzMesh;
 
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
@@ -53,6 +54,8 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
+
+		void Build(const NzPrimitiveList& list, const NzMeshParams& params = NzMeshParams());
 
 		bool CreateSkeletal(unsigned int jointCount);
 		bool CreateStatic();
