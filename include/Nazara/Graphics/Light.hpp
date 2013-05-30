@@ -19,9 +19,9 @@ class NAZARA_API NzLight : public NzSceneNode
 	public:
 		NzLight(nzLightType type);
 		NzLight(const NzLight& light);
-		~NzLight();
+		~NzLight() = default;
 
-		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
 		void Apply(const NzShader* shader, unsigned int lightUnit) const;
 
