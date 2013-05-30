@@ -53,6 +53,7 @@ class NzMatrix4
 		NzMatrix4& InverseAffine(bool* succeeded = nullptr);
 
 		bool IsAffine() const;
+		bool IsIdentity() const;
 
 		NzMatrix4& MakeIdentity();
 		NzMatrix4& MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
@@ -117,10 +118,12 @@ class NzMatrix4
 		static NzMatrix4 Transform(const NzVector3<T>& translation, const NzQuaternion<T>& rotation, const NzVector3<T>& scale);
 		static NzMatrix4 Zero();
 
-		T m11, m12, m13, m14,
-		  m21, m22, m23, m24,
-		  m31, m32, m33, m34,
-		  m41, m42, m43, m44;
+		private:
+			T m11, m12, m13, m14,
+			  m21, m22, m23, m24,
+			  m31, m32, m33, m34,
+			  m41, m42, m43, m44;
+			mutable bool m_isIdentity;
 };
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const NzMatrix4<T>& matrix);
