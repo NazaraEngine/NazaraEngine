@@ -19,9 +19,11 @@ class NzCube
 {
 	public:
 		NzCube() = default;
+		NzCube(T Width, T Height, T Depth);
 		NzCube(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzCube(const T cube[6]);
 		NzCube(const NzRect<T>& rect);
+		NzCube(const NzVector3<T>& size);
 		NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> explicit NzCube(const NzCube<U>& cube);
 		NzCube(const NzCube& cube) = default;
@@ -51,10 +53,12 @@ class NzCube
 
 		NzCube& MakeZero();
 
+		NzCube& Set(T Width, T Height, T Depth);
 		NzCube& Set(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzCube& Set(const T cube[6]);
 		NzCube& Set(const NzCube& cube);
 		NzCube& Set(const NzRect<T>& rect);
+		NzCube& Set(const NzVector3<T>& size);
 		NzCube& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> NzCube& Set(const NzCube<U>& cube);
 
@@ -66,8 +70,10 @@ class NzCube
 		T operator[](unsigned int i) const;
 
 		NzCube operator*(T scalar) const;
+		NzCube operator*(const NzVector3<T>& vec) const;
 
 		NzCube& operator*=(T scalar);
+		NzCube& operator*=(const NzVector3<T>& vec);
 
 		bool operator==(const NzCube& cube) const;
 		bool operator!=(const NzCube& cube) const;
