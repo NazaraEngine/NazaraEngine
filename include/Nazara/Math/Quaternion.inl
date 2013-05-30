@@ -132,13 +132,27 @@ NzQuaternion<T>& NzQuaternion<T>::MakeIdentity()
 template<typename T>
 NzQuaternion<T>& NzQuaternion<T>::MakeRotationBetween(const NzVector3<T>& from, const NzVector3<T>& to)
 {
-	NzVector3f a = from.CrossProduct(to);
-	x = a.x;
-	y = a.y;
-	z = a.z;
-	w = std::sqrt(std::pow(from.GetLength(), 2.f) * std::pow(to.GetLength(), 2.f)) + from.DotProduct(to);
+	T dot = from.DotProduct(to);
+	if (NzNumberEquals(dot, F(-1.0)))
+	{
+		NzVector3<T> cross = NzVector3<T>::CrossProduct(NzVector3<T>::UnitX(), from);
+		if (NzNumberEquals(cross.GetLength(), F(0.0)))
+			cross = NzVector3<T>::CrossProduct(NzVector3<T>::UnitY(), from);
 
-	return Normalize();
+		return Set(F(180.0), cross);
+	}
+	else if (NzNumberEquals(dot, F(1.0)))
+		return MakeIdentity();
+	else
+	{
+		NzVector3<T> a = from.CrossProduct(to);
+		x = a.x;
+		y = a.y;
+		z = a.z;
+		w = T(1.0) + dot;
+
+		return Normalize();
+	}
 }
 
 template<typename T>
@@ -195,11 +209,11 @@ NzQuaternion<T>& NzQuaternion<T>::Set(const T quat[4])
 template<typename T>
 NzQuaternion<T>& NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 {
-	angle *= F(0.5);
-
 	#if !NAZARA_MATH_ANGLE_RADIAN
 	angle = NzDegreeToRadian(angle);
 	#endif
+
+	angle *= F(0.5);
 
 	NzVector3<T> normalizedAxis = axis.GetNormal();
 
