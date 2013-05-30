@@ -22,8 +22,6 @@ class NAZARA_API NzThread : NzNonCopyable
 			friend NzThread;
 
 			public:
-				Id() = default;
-
 				NAZARA_API friend bool operator==(const Id& lhs, const Id& rhs);
 				NAZARA_API friend bool operator!=(const Id& lhs, const Id& rhs);
 				NAZARA_API friend bool operator<(const Id& lhs, const Id& rhs);
@@ -39,7 +37,7 @@ class NAZARA_API NzThread : NzNonCopyable
 				NzThreadImpl* m_id = nullptr;
 		};
 
-		NzThread() = default;
+		NzThread();
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args... args);
 		template<typename C> NzThread(void (C::*function)(), C* object);
@@ -59,7 +57,7 @@ class NAZARA_API NzThread : NzNonCopyable
 	private:
 		void CreateImpl(NzFunctor* functor);
 
-		NzThreadImpl* m_impl = nullptr;
+		NzThreadImpl* m_impl;
 };
 
 #include <Nazara/Core/Thread.inl>
