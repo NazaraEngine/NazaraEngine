@@ -33,6 +33,15 @@ enum nzPlugin
 	nzPlugin_FreeType
 };
 
+enum nzPrimitiveType
+{
+	nzPrimitiveType_Cube,
+	nzPrimitiveType_Plane,
+	nzPrimitiveType_Sphere,
+
+	nzPrimitiveType_Max = nzPrimitiveType_Sphere
+};
+
 enum nzProcessorCap
 {
 	nzProcessorCap_x64,
@@ -70,6 +79,15 @@ enum nzProcessorVendor
 	nzProcessorVendor_Vortex,
 
 	nzProcessorVendor_Max = nzProcessorVendor_Vortex
+};
+
+enum nzSphereType
+{
+	nzSphereType_Cubic,
+	nzSphereType_Ico,
+	nzSphereType_UV,
+
+	nzSphereType_Max = nzSphereType_UV
 };
 
 enum nzStreamOptionFlags
