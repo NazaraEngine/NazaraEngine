@@ -11,6 +11,12 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
+NzCube<T>::NzCube(T Width, T Height, T Depth)
+{
+	Set(Width, Height, Depth);
+}
+
+template<typename T>
 NzCube<T>::NzCube(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	Set(X, Y, Z, Width, Height, Depth);
@@ -20,6 +26,12 @@ template<typename T>
 NzCube<T>::NzCube(const NzRect<T>& rect)
 {
 	Set(rect);
+}
+
+template<typename T>
+NzCube<T>::NzCube(const NzVector3<T>& size)
+{
+	Set(size);
 }
 
 template<typename T>
@@ -259,6 +271,19 @@ NzCube<T>& NzCube<T>::MakeZero()
 }
 
 template<typename T>
+NzCube<T>& NzCube<T>::Set(T Width, T Height, T Depth)
+{
+	x = F(0.0);
+	y = F(0.0);
+	z = F(0.0);
+	width = Width;
+	height = Height;
+	depth = Depth;
+
+	return *this;
+}
+
+template<typename T>
 NzCube<T>& NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	x = X;
@@ -303,6 +328,12 @@ NzCube<T>& NzCube<T>::Set(const NzRect<T>& rect)
 	depth = F(1.0);
 
 	return *this;
+}
+
+template<typename T>
+NzCube<T>& NzCube<T>::Set(const NzVector3<T>& size)
+{
+	return Set(size.x, size.y, size.z);
 }
 
 template<typename T>
@@ -394,11 +425,25 @@ NzCube<T> NzCube<T>::operator*(T scalar) const
 }
 
 template<typename T>
+NzCube<T> NzCube<T>::operator*(const NzVector3<T>& vec) const
+{
+	return NzCube(x, y, z, width*vec.x, height*vec.y, depth*vec.z);
+}
+
+template<typename T>
 NzCube<T>& NzCube<T>::operator*=(T scalar)
 {
 	width *= scalar;
 	height *= scalar;
 	depth *= scalar;
+}
+
+template<typename T>
+NzCube<T>& NzCube<T>::operator*=(const NzVector3<T>& vec)
+{
+	width *= vec.x;
+	height *= vec.y;
+	depth *= vec.z;
 }
 
 template<typename T>

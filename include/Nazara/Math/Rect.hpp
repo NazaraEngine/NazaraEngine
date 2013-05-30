@@ -15,8 +15,10 @@ class NzRect
 {
 	public:
 		NzRect() = default;
+		NzRect(T Width, T Height);
 		NzRect(T X, T Y, T Width, T Height);
 		NzRect(const T rect[4]);
+		NzRect(const NzVector2<T>& size);
 		NzRect(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
 		template<typename U> explicit NzRect(const NzRect<U>& rect);
 		NzRect(const NzRect& rect) = default;
@@ -42,9 +44,11 @@ class NzRect
 
 		NzRect& MakeZero();
 
+		NzRect& Set(T Width, T Height);
 		NzRect& Set(T X, T Y, T Width, T Height);
 		NzRect& Set(const T rect[4]);
 		NzRect& Set(const NzRect<T>& rect);
+		NzRect& Set(const NzVector2<T>& size);
 		NzRect& Set(const NzVector2<T>& vec1, const NzVector2<T>& vec2);
 		template<typename U> NzRect& Set(const NzRect<U>& rect);
 
@@ -54,8 +58,10 @@ class NzRect
 		T operator[](unsigned int i) const;
 
 		NzRect operator*(T scalar) const;
+		NzRect operator*(const NzVector2<T>& vec) const;
 
 		NzRect& operator*=(T scalar);
+		NzRect& operator*=(const NzVector2<T>& vec);
 
 		bool operator==(const NzRect& rect) const;
 		bool operator!=(const NzRect& rect) const;
