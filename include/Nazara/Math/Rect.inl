@@ -11,6 +11,12 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
+NzRect<T>::NzRect(T Width, T Height)
+{
+	Set(Width, Height);
+}
+
+template<typename T>
 NzRect<T>::NzRect(T X, T Y, T Width, T Height)
 {
 	Set(X, Y, Width, Height);
@@ -20,6 +26,12 @@ template<typename T>
 NzRect<T>::NzRect(const T vec[4])
 {
 	Set(vec);
+}
+
+template<typename T>
+NzRect<T>::NzRect(const NzVector2<T>& size)
+{
+	Set(size);
 }
 
 template<typename T>
@@ -179,6 +191,17 @@ NzRect<T>& NzRect<T>::MakeZero()
 }
 
 template<typename T>
+NzRect<T>& NzRect<T>::Set(T Width, T Height)
+{
+	x = F(0.0);
+	y = F(0.0);
+	width = Width;
+	height = Height;
+
+	return *this;
+}
+
+template<typename T>
 NzRect<T>& NzRect<T>::Set(T X, T Y, T Width, T Height)
 {
 	x = X;
@@ -206,6 +229,12 @@ NzRect<T>& NzRect<T>::Set(const NzRect<T>& rect)
 	std::memcpy(this, &rect, sizeof(NzRect));
 
 	return *this;
+}
+
+template<typename T>
+NzRect<T>& NzRect<T>::Set(const NzVector2<T>& size)
+{
+	return Set(size.x, size.y);
 }
 
 template<typename T>
@@ -280,10 +309,23 @@ NzRect<T> NzRect<T>::operator*(T scalar) const
 }
 
 template<typename T>
+NzRect<T> NzRect<T>::operator*(const NzVector2<T>& vec) const
+{
+	return NzRect(x, y, width*vec.x, height*vec.y);
+}
+
+template<typename T>
 NzRect<T>& NzRect<T>::operator*=(T scalar)
 {
 	width *= scalar;
 	height *= scalar;
+}
+
+template<typename T>
+NzRect<T>& NzRect<T>::operator*=(const NzVector2<T>& vec)
+{
+	width *= vec.x;
+	height *= vec.y;
 }
 
 template<typename T>
