@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Inspiré du code de la SFML par Laurent Gomila
-
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -20,7 +18,7 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-///********************************NzThread::Id********************************
+/*********************************NzThread::Id********************************/
 
 bool operator==(const NzThread::Id& lhs, const NzThread::Id& rhs)
 {
@@ -63,7 +61,12 @@ m_id(thread)
 {
 }
 
-///**********************************NzThread**********************************
+/***********************************NzThread**********************************/
+
+NzThread::NzThread() :
+m_impl(nullptr)
+{
+}
 
 NzThread::NzThread(NzThread&& other) :
 m_impl(other.m_impl)
