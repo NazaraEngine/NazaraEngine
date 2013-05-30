@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -64,45 +65,9 @@ NzModel::~NzModel()
 	Reset();
 }
 
-void NzModel::AddToRenderQueue(NzRenderQueue& renderQueue) const
+void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	unsigned int subMeshCount = m_mesh->GetSubMeshCount();
-	for (unsigned int i = 0; i < subMeshCount; ++i)
-	{
-		NzSubMesh* subMesh = m_mesh->GetSubMesh(i);
-		NzMaterial* material = m_materials[m_skin*m_matCount + subMesh->GetMaterialIndex()];
-
-		switch (subMesh->GetAnimationType())
-		{
-			case nzAnimationType_Skeletal:
-			{
-				NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
-				std::vector<NzRenderQueue::SkeletalData>& data = renderQueue.visibleSkeletalModels[material][skeletalMesh];
-
-				///TODO: Corriger cette abomination
-				data.resize(data.size()+1);
-				NzRenderQueue::SkeletalData& skeletalData = data.back();
-
-				skeletalData.skinnedVertices.resize(skeletalMesh->GetVertexCount());
-				skeletalData.transformMatrix = m_transformMatrix;
-
-				skeletalMesh->Skin(&skeletalData.skinnedVertices[0], &m_skeleton);
-				break;
-			}
-
-			case nzAnimationType_Static:
-			{
-				NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
-				std::vector<NzMatrix4f>& matrices = renderQueue.visibleStaticModels[material][staticMesh];
-
-				matrices.push_back(m_transformMatrix);
-				break;
-			}
-		}
-	}
+	renderQueue->AddModel(this);
 }
 
 void NzModel::AdvanceAnimation(float elapsedTime)
@@ -308,6 +273,11 @@ bool NzModel::HasAnimation() const
 bool NzModel::IsAnimationEnabled() const
 {
 	return m_animationEnabled;
+}
+
+bool NzModel::IsDrawable() const
+{
+	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
 }
 
 bool NzModel::IsDrawEnabled() const
@@ -702,9 +672,9 @@ void NzModel::UpdateBoundingBox() const
 bool NzModel::VisibilityTest(const NzFrustumf& frustum)
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_mesh)
+	if (!IsDrawable())
 	{
-		NazaraError("Model has no mesh");
+		NazaraError("Model is not drawable");
 		return false;
 	}
 	#endif

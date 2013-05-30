@@ -41,7 +41,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		NzModel(NzModel&& model);
 		~NzModel();
 
-		void AddToRenderQueue(NzRenderQueue& renderQueue) const;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void AdvanceAnimation(float elapsedTime);
 
 		void EnableAnimation(bool animation);
@@ -64,6 +64,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		bool HasAnimation() const;
 
 		bool IsAnimationEnabled() const;
+		bool IsDrawable() const;
 		bool IsDrawEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());

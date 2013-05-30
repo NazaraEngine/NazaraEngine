@@ -44,7 +44,6 @@ namespace
 			sourceCode += "#define LIGHT_DIRECTIONAL 0\n"
 			              "#define LIGHT_POINT 1\n"
 			              "#define LIGHT_SPOT 2\n"
-			              "#define MAX_LIGHTS 8\n"
 			              "\n";
 		}
 
@@ -71,7 +70,7 @@ namespace
 		{
 			sourceCode += "uniform vec3 CameraPosition;\n"
 			              "uniform int LightCount;\n"
-			              "uniform Light Lights[MAX_LIGHTS];\n"
+			              "uniform Light Lights[" NazaraStringifyMacro(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT) "];\n"
 			              "uniform vec4 MaterialAmbient;\n";
 		}
 
@@ -290,8 +289,9 @@ namespace
 
 			if (flags & nzShaderFlags_EmissiveMapping)
 			{
-				sourceCode += "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
-				               + fragmentColorKW + " = vec4(mix(lighting, emission, max(0.0, 1.0-length(light))), alpha);\n";
+				sourceCode += "float intensity = light.r*0.3 + light.g*0.59 + light.b*0.11;\n"
+				              "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
+				              + fragmentColorKW + " = vec4(mix(lighting, emission, clamp(1.0 - 3.0*intensity, 0.0, 1.0)), alpha);\n";
 				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(light)" par "dot(light, light)"
 			}
 			else

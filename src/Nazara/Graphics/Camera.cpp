@@ -23,7 +23,7 @@ m_zNear(1.f)
 
 NzCamera::~NzCamera() = default;
 
-void NzCamera::Activate() const
+void NzCamera::Activate()
 {
 	#ifdef NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -206,7 +206,7 @@ void NzCamera::SetZNear(float zNear)
 	m_projectionMatrixUpdated = false;
 }
 
-void NzCamera::AddToRenderQueue(NzRenderQueue& renderQueue) const
+void NzCamera::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
 	NazaraUnused(renderQueue);
 
