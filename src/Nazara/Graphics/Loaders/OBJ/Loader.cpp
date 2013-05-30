@@ -160,7 +160,7 @@ namespace
 
 			subMesh->GenerateAABB();
 			subMesh->SetMaterialIndex(meshes[i].material);
-			subMesh->SetPrimitiveType(nzPrimitiveType_TriangleList);
+			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();

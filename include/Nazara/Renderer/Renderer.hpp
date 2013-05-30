@@ -36,10 +36,10 @@ class NAZARA_API NzRenderer
 
 		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
-		static void DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
-		static void DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount);
-		static void DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
-		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount);
+		static void DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
+		static void DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
+		static void DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
+		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
 		NAZARA_DEPRECATED("Don't use this or you will have cancer") static void DrawTexture(unsigned int unit, const NzRectf& rect, const NzVector2f& uv0, const NzVector2f& uv1, float z = 0.f);
 
 		static void Enable(nzRendererParameter parameter, bool enable);

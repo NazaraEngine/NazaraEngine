@@ -53,56 +53,18 @@ namespace
 
 	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
 	{
-		static const nzPixelFormat formats[4] =
-		{
-			nzPixelFormat_L8,
-			nzPixelFormat_LA8,
-			nzPixelFormat_RGB8,
-			nzPixelFormat_RGBA8
-		};
-
-		nzPixelFormat format;
-		int stbiFormat;
-		switch (parameters.loadFormat)
-		{
-			case nzPixelFormat_L8:
-				format = nzPixelFormat_L8;
-				stbiFormat = STBI_grey;
-				break;
-
-			case nzPixelFormat_LA8:
-				format = nzPixelFormat_LA8;
-				stbiFormat = STBI_grey_alpha;
-				break;
-
-			case nzPixelFormat_RGB8:
-				format = nzPixelFormat_RGB8;
-				stbiFormat = STBI_rgb;
-				break;
-
-			case nzPixelFormat_RGBA8:
-				format = nzPixelFormat_RGBA8;
-				stbiFormat = STBI_rgb_alpha;
-				break;
-
-			default:
-				format = nzPixelFormat_Undefined;
-				stbiFormat = STBI_default;
-		}
+		// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
+		// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
 
 		int width, height, bpp;
-		nzUInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, stbiFormat);
-
+		nzUInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 		if (!ptr)
 		{
 			NazaraError("Failed to load image: " + NzString(stbi_failure_reason()));
 			return false;
 		}
 
-		if (format == nzPixelFormat_Undefined)
-			format = formats[bpp-1];
-
-		if (!image->Create(nzImageType_2D, format, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+		if (!image->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 		{
 			NazaraError("Failed to create image");
 			stbi_image_free(ptr);
@@ -111,10 +73,9 @@ namespace
 		}
 
 		image->Update(ptr);
-
 		stbi_image_free(ptr);
 
-		if (stbiFormat == STBI_default && parameters.loadFormat != nzPixelFormat_Undefined)
+		if (parameters.loadFormat != nzPixelFormat_Undefined)
 			image->Convert(parameters.loadFormat);
 
 		return true;

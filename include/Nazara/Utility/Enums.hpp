@@ -205,16 +205,16 @@ enum nzPixelFlipping
 	nzPixelFlipping_Max = nzPixelFlipping_Vertically
 };
 
-enum nzPrimitiveType
+enum nzPrimitiveMode
 {
-	nzPrimitiveType_LineList,
-	nzPrimitiveType_LineStrip,
-	nzPrimitiveType_PointList,
-	nzPrimitiveType_TriangleList,
-	nzPrimitiveType_TriangleStrip,
-	nzPrimitiveType_TriangleFan,
+	nzPrimitiveMode_LineList,
+	nzPrimitiveMode_LineStrip,
+	nzPrimitiveMode_PointList,
+	nzPrimitiveMode_TriangleList,
+	nzPrimitiveMode_TriangleStrip,
+	nzPrimitiveMode_TriangleFan,
 
-	nzPrimitiveType_Max = nzPrimitiveType_TriangleFan
+	nzPrimitiveMode_Max = nzPrimitiveMode_TriangleFan
 };
 
 enum nzWindowCursor
