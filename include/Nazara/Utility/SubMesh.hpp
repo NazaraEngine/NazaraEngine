@@ -39,17 +39,17 @@ class NAZARA_API NzSubMesh : public NzResource
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
 		unsigned int GetMaterialIndex() const;
 		const NzMesh* GetParent() const;
-		nzPrimitiveType GetPrimitiveType() const;
+		nzPrimitiveMode GetPrimitiveMode() const;
 		unsigned int GetTriangleCount() const;
 		virtual unsigned int GetVertexCount() const = 0;
 
 		virtual bool IsAnimated() const = 0;
 
 		void SetMaterialIndex(unsigned int matIndex);
-		void SetPrimitiveType(nzPrimitiveType primitiveType);
+		void SetPrimitiveMode(nzPrimitiveMode mode);
 
 	protected:
-		nzPrimitiveType m_primitiveType;
+		nzPrimitiveMode m_primitiveMode;
 		const NzMesh* m_parent;
 		unsigned int m_matIndex;
 };

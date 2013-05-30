@@ -7,7 +7,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 NzTriangleIterator::NzTriangleIterator(NzSubMesh* subMesh, nzBufferAccess access) :
-m_primitiveType(subMesh->GetPrimitiveType()),
+m_primitiveMode(subMesh->GetPrimitiveMode()),
 m_indexMapper(subMesh->GetIndexBuffer(), nzBufferAccess_ReadOnly),
 m_vertexMapper(subMesh)
 {
@@ -33,20 +33,20 @@ bool NzTriangleIterator::Advance()
 		return false;
 	}
 
-	switch (m_primitiveType)
+	switch (m_primitiveMode)
 	{
-		case nzPrimitiveType_TriangleFan:
+		case nzPrimitiveMode_TriangleFan:
 			m_triangleIndices[1] = m_indexMapper.Get(m_currentIndex++);
 			m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 			break;
 
-		case nzPrimitiveType_TriangleList:
+		case nzPrimitiveMode_TriangleList:
 			m_triangleIndices[0] = m_indexMapper.Get(m_currentIndex++);
 			m_triangleIndices[1] = m_indexMapper.Get(m_currentIndex++);
 			m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 			break;
 
-		case nzPrimitiveType_TriangleStrip:
+		case nzPrimitiveMode_TriangleStrip:
 			m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 			m_triangleIndices[1] = m_triangleIndices[2];
 			m_triangleIndices[0] = m_triangleIndices[1];

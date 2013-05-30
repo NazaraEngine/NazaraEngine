@@ -133,7 +133,7 @@ void NzRenderer::Clear(unsigned long flags)
 	}
 }
 
-void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount)
+void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -142,9 +142,9 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 		return;
 	}
 
-	if (primitive > nzPrimitiveType_Max)
+	if (mode > nzPrimitiveMode_Max)
 	{
-		NazaraError("Primitive type out of enum");
+		NazaraError("Primitive mode out of enum");
 		return;
 	}
 	#endif
@@ -166,7 +166,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 	}
 
 	if (s_indexBuffer->IsSequential())
-		glDrawArrays(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
+		glDrawArrays(NzOpenGL::PrimitiveMode[mode], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount());
 	else
 	{
 		GLenum type;
@@ -182,11 +182,11 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveType primitive, unsigned int f
 			type = GL_UNSIGNED_SHORT;
 		}
 
-		glDrawElements(NzOpenGL::PrimitiveType[primitive], indexCount, type, ptr);
+		glDrawElements(NzOpenGL::PrimitiveMode[mode], indexCount, type, ptr);
 	}
 }
 
-void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstIndex, unsigned int indexCount)
+void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -195,9 +195,9 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 		return;
 	}
 
-	if (primitive > nzPrimitiveType_Max)
+	if (mode > nzPrimitiveMode_Max)
 	{
-		NazaraError("Primitive type out of enum");
+		NazaraError("Primitive mode out of enum");
 		return;
 	}
 	#endif
@@ -221,9 +221,9 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 		return;
 	}
 
-	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	if (instanceCount > NAZARA_RENDERER_MAX_INSTANCES)
 	{
-		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " NazaraStringifyMacro(NAZARA_RENDERER_MAX_INSTANCES) ")" );
 		return;
 	}
 	#endif
@@ -237,7 +237,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	}
 
 	if (s_indexBuffer->IsSequential())
-		glDrawArraysInstanced(NzOpenGL::PrimitiveType[primitive], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount(), instanceCount);
+		glDrawArraysInstanced(NzOpenGL::PrimitiveMode[mode], s_indexBuffer->GetStartIndex(), s_indexBuffer->GetIndexCount(), instanceCount);
 	else
 	{
 		GLenum type;
@@ -253,11 +253,11 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 			type = GL_UNSIGNED_SHORT;
 		}
 
-		glDrawElementsInstanced(NzOpenGL::PrimitiveType[primitive], indexCount, type, ptr, instanceCount);
+		glDrawElementsInstanced(NzOpenGL::PrimitiveMode[mode], indexCount, type, ptr, instanceCount);
 	}
 }
 
-void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
+void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -266,9 +266,9 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 		return;
 	}
 
-	if (primitive > nzPrimitiveType_Max)
+	if (mode > nzPrimitiveMode_Max)
 	{
-		NazaraError("Primitive type out of enum");
+		NazaraError("Primitive mode out of enum");
 		return;
 	}
 	#endif
@@ -281,10 +281,10 @@ void NzRenderer::DrawPrimitives(nzPrimitiveType primitive, unsigned int firstVer
 		return;
 	}
 
-	glDrawArrays(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount);
+	glDrawArrays(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount);
 }
 
-void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveType primitive, unsigned int firstVertex, unsigned int vertexCount)
+void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -293,9 +293,9 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 		return;
 	}
 
-	if (primitive > nzPrimitiveType_Max)
+	if (mode > nzPrimitiveMode_Max)
 	{
-		NazaraError("Primitive type out of enum");
+		NazaraError("Primitive mode out of enum");
 		return;
 	}
 	#endif
@@ -313,9 +313,9 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 		return;
 	}
 
-	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	if (instanceCount > NAZARA_RENDERER_MAX_INSTANCES)
 	{
-		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " NazaraStringifyMacro(NAZARA_RENDERER_MAX_INSTANCES) ")" );
 		return;
 	}
 	#endif
@@ -328,7 +328,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 		return;
 	}
 
-	glDrawArraysInstanced(NzOpenGL::PrimitiveType[primitive], firstVertex, vertexCount, instanceCount);
+	glDrawArraysInstanced(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount, instanceCount);
 }
 
 void NzRenderer::DrawTexture(unsigned int unit, const NzRectf& rect, const NzVector2f& uv0, const NzVector2f& uv1, float z)
@@ -443,7 +443,7 @@ void NzRenderer::DrawTexture(unsigned int unit, const NzRectf& rect, const NzVec
 
 		shader->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldViewProj], NzMatrix4f::Ortho(0.f, s_targetSize.x, 0.f, s_targetSize.y, 0.f));
 
-		glDrawArrays(NzOpenGL::PrimitiveType[nzPrimitiveType_TriangleStrip], 0, 4);
+		glDrawArrays(NzOpenGL::PrimitiveMode[nzPrimitiveMode_TriangleStrip], 0, 4);
 
 		// Restauration
 		Enable(nzRendererParameter_FaceCulling, faceCulling);
@@ -706,7 +706,7 @@ bool NzRenderer::Initialize()
 	if (s_capabilities[nzRendererCap_Instancing])
 	{
 		s_instancingBuffer = new NzBuffer(nzBufferType_Vertex);
-		if (!s_instancingBuffer->Create(NAZARA_RENDERER_INSTANCING_MAX, sizeof(InstancingData), nzBufferStorage_Hardware, nzBufferUsage_Dynamic))
+		if (!s_instancingBuffer->Create(NAZARA_RENDERER_MAX_INSTANCES, sizeof(InstancingData), nzBufferStorage_Hardware, nzBufferUsage_Dynamic))
 		{
 			s_capabilities[nzRendererCap_Instancing] = false;
 
@@ -1014,9 +1014,9 @@ void NzRenderer::SetInstancingData(const NzRenderer::InstancingData* instancingD
 		return;
 	}
 
-	if (instanceCount > NAZARA_RENDERER_INSTANCING_MAX)
+	if (instanceCount > NAZARA_RENDERER_MAX_INSTANCES)
 	{
-		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(NAZARA_RENDERER_INSTANCING_MAX) + ')');
+		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " NazaraStringifyMacro(NAZARA_RENDERER_MAX_INSTANCES) ")");
 		return;
 	}
 	#endif
