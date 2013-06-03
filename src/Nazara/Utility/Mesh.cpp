@@ -193,7 +193,7 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 				indices.resize(indexCount);
 
 				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzGenerateBox(primitive.box.box, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
+				NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
 				vertexMapper.Unmap();
 
 				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
