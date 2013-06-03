@@ -136,7 +136,7 @@ struct NzSkeletalMeshImpl
 	std::unique_ptr<nzUInt8[]> bindPoseBuffer;
 	std::vector<NzVertexWeight> vertexWeights;
 	std::vector<NzWeight> weights;
-	NzCubef aabb;
+	NzBoxf aabb;
 	NzIndexBufferConstRef indexBuffer;
 	unsigned int vertexCount;
 };
@@ -187,14 +187,14 @@ void NzSkeletalMesh::Destroy()
 	}
 }
 
-const NzCubef& NzSkeletalMesh::GetAABB() const
+const NzBoxf& NzSkeletalMesh::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeletal mesh not created");
 
-		static NzCubef dummy;
+		static NzBoxf dummy;
 		return dummy;
 	}
 	#endif

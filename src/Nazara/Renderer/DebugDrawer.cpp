@@ -31,27 +31,27 @@ namespace
 	static int colorLocation = -1;
 }
 
-void NzDebugDrawer::Draw(const NzBoundingBoxf& box)
+void NzDebugDrawer::Draw(const NzBoundingVolumef& volume)
 {
-	if (!box.IsFinite())
+	if (!volume.IsFinite())
 		return;
 
 	NzColor oldPrimaryColor = primaryColor;
 
-	Draw(box.aabb);
+	Draw(volume.aabb);
 
 	primaryColor = secondaryColor;
-	Draw(box.obb);
+	Draw(volume.obb);
 
 	primaryColor = oldPrimaryColor;
 }
 
-void NzDebugDrawer::Draw(const NzCubei& cube)
+void NzDebugDrawer::Draw(const NzBoxi& box)
 {
-	Draw(NzCubef(cube));
+	Draw(NzBoxf(box));
 }
 
-void NzDebugDrawer::Draw(const NzCubef& cube)
+void NzDebugDrawer::Draw(const NzBoxf& box)
 {
 	if (!initialized)
 	{
@@ -63,8 +63,8 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
 
 	NzVector3f max, min;
-	max = cube.GetPosition() + cube.GetSize();
-	min = cube.GetPosition();
+	max = box.GetPosition() + box.GetSize();
+	min = box.GetPosition();
 
 	vertex->position.Set(min.x, min.y, min.z);
 	vertex++;
@@ -138,9 +138,9 @@ void NzDebugDrawer::Draw(const NzCubef& cube)
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
 
-void NzDebugDrawer::Draw(const NzCubeui& cube)
+void NzDebugDrawer::Draw(const NzBoxui& box)
 {
-	Draw(NzCubef(cube));
+	Draw(NzBoxf(box));
 }
 
 void NzDebugDrawer::Draw(const NzFrustumf& frustum)
@@ -226,7 +226,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
 
-void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
+void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 {
 	if (!initialized)
 	{
@@ -237,64 +237,64 @@ void NzDebugDrawer::Draw(const NzOrientedCubef& orientedCube)
 	NzBufferMapper<NzVertexBuffer> mapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, 24);
 	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftBottom));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
-	vertex++;
-
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
-	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightBottom));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftBottom));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
-	vertex++;
-
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
-	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftTop));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftBottom));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
-	vertex++;
-
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightTop));
-	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftBottom));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightTop));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
-	vertex++;
-
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftBottom));
-	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftTop));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightTop));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
-	vertex++;
-
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearLeftTop));
-	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarLeftTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightBottom));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightTop));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightTop));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightTop));
 	vertex++;
 
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_NearRightBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftBottom));
 	vertex++;
-	vertex->position.Set(orientedCube.GetCorner(nzCorner_FarRightBottom));
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightBottom));
+	vertex++;
+
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftBottom));
+	vertex++;
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearLeftTop));
+	vertex++;
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarLeftTop));
+	vertex++;
+
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightTop));
+	vertex++;
+
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_NearRightBottom));
+	vertex++;
+	vertex->position.Set(orientedBox.GetCorner(nzCorner_FarRightBottom));
 	vertex++;
 
 	mapper.Unmap();

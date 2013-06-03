@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Scene.hpp>
-#include <Nazara/Math/BoundingBox.hpp>
+#include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/Node.hpp>
 
@@ -25,7 +25,7 @@ class NAZARA_API NzSceneNode : public NzNode
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;
 
-		virtual const NzBoundingBoxf& GetBoundingBox() const = 0;
+		virtual const NzBoundingVolumef& GetBoundingVolume() const = 0;
 		nzNodeType GetNodeType() const final;
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;

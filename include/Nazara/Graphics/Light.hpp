@@ -25,9 +25,9 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		void Apply(const NzShader* shader, unsigned int lightUnit) const;
 
-		const NzBoundingBoxf& GetBoundingBox() const;
 		NzColor GetAmbientColor() const;
 		float GetAttenuation() const;
+		const NzBoundingVolumef& GetBoundingVolume() const;
 		NzColor GetDiffuseColor() const;
 		float GetInnerAngle() const;
 		nzLightType GetLightType() const;
@@ -50,15 +50,15 @@ class NAZARA_API NzLight : public NzSceneNode
 		void Invalidate();
 		void Register();
 		void Unregister();
-		void UpdateBoundingBox() const;
+		void UpdateBoundingVolume() const;
 		bool VisibilityTest(const NzFrustumf& frustum);
 
 		nzLightType m_type;
-		mutable NzBoundingBoxf m_boundingBox;
+		mutable NzBoundingVolumef m_boundingVolume;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
-		mutable bool m_boundingBoxUpdated;
+		mutable bool m_boundingVolumeUpdated;
 		float m_attenuation;
 		float m_innerAngle;
 		float m_outerAngle;

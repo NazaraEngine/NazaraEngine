@@ -29,7 +29,7 @@ class NAZARA_API NzCamera : public NzSceneNode
 		void EnsureViewMatrixUpdate() const;
 
 		float GetAspectRatio() const;
-		const NzBoundingBoxf& GetBoundingBox() const override;
+		const NzBoundingVolumef& GetBoundingVolume() const override;
 		float GetFOV() const;
 		const NzFrustumf& GetFrustum() const;
 		const NzMatrix4f& GetProjectionMatrix() const;

@@ -20,9 +20,9 @@ void NzSceneRoot::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	NazaraInternalError("SceneNode::AddToRenderQueue() called on SceneRoot");
 }
 
-const NzBoundingBoxf& NzSceneRoot::GetBoundingBox() const
+const NzBoundingVolumef& NzSceneRoot::GetBoundingVolume() const
 {
-	static NzBoundingBoxf infinite(nzExtend_Infinite);
+	static NzBoundingVolumef infinite(nzExtend_Infinite);
 	return infinite;
 }
 

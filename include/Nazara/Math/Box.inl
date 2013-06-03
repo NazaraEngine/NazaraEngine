@@ -11,50 +11,50 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzCube<T>::NzCube(T Width, T Height, T Depth)
+NzBox<T>::NzBox(T Width, T Height, T Depth)
 {
 	Set(Width, Height, Depth);
 }
 
 template<typename T>
-NzCube<T>::NzCube(T X, T Y, T Z, T Width, T Height, T Depth)
+NzBox<T>::NzBox(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	Set(X, Y, Z, Width, Height, Depth);
 }
 
 template<typename T>
-NzCube<T>::NzCube(const NzRect<T>& rect)
+NzBox<T>::NzBox(const NzRect<T>& rect)
 {
 	Set(rect);
 }
 
 template<typename T>
-NzCube<T>::NzCube(const NzVector3<T>& size)
+NzBox<T>::NzBox(const NzVector3<T>& size)
 {
 	Set(size);
 }
 
 template<typename T>
-NzCube<T>::NzCube(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+NzBox<T>::NzBox(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	Set(vec1, vec2);
 }
 
 template<typename T>
-NzCube<T>::NzCube(const T vec[6])
+NzBox<T>::NzBox(const T vec[6])
 {
 	Set(vec);
 }
 
 template<typename T>
 template<typename U>
-NzCube<T>::NzCube(const NzCube<U>& cube)
+NzBox<T>::NzBox(const NzBox<U>& box)
 {
-	Set(cube);
+	Set(box);
 }
 
 template<typename T>
-bool NzCube<T>::Contains(T X, T Y, T Z) const
+bool NzBox<T>::Contains(T X, T Y, T Z) const
 {
 	return X >= x && X < x+width &&
 	       Y >= y && Y < y+height &&
@@ -62,20 +62,20 @@ bool NzCube<T>::Contains(T X, T Y, T Z) const
 }
 
 template<typename T>
-bool NzCube<T>::Contains(const NzVector3<T>& point) const
+bool NzBox<T>::Contains(const NzBox<T>& box) const
+{
+	return Contains(box.x, box.y, box.z) &&
+		   Contains(box.x + box.width, box.y + box.height, box.z + box.depth);
+}
+
+template<typename T>
+bool NzBox<T>::Contains(const NzVector3<T>& point) const
 {
 	return Contains(point.x, point.y, point.z);
 }
 
 template<typename T>
-bool NzCube<T>::Contains(const NzCube<T>& cube) const
-{
-	return Contains(cube.x, cube.y, cube.z) &&
-		   Contains(cube.x + cube.width, cube.y + cube.height, cube.z + cube.depth);
-}
-
-template<typename T>
-NzCube<T>& NzCube<T>::ExtendTo(T X, T Y, T Z)
+NzBox<T>& NzBox<T>::ExtendTo(T X, T Y, T Z)
 {
 	width = std::max(x + width, X);
 	height = std::max(y + height, Y);
@@ -93,21 +93,15 @@ NzCube<T>& NzCube<T>::ExtendTo(T X, T Y, T Z)
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::ExtendTo(const NzVector3<T>& point)
+NzBox<T>& NzBox<T>::ExtendTo(const NzBox& box)
 {
-	return ExtendTo(point.x, point.y, point.z);
-}
+	width = std::max(x + width, box.x + box.width);
+	height = std::max(y + height, box.y + box.height);
+	depth = std::max(z + depth, box.z + box.depth);
 
-template<typename T>
-NzCube<T>& NzCube<T>::ExtendTo(const NzCube& cube)
-{
-	width = std::max(x + width, cube.x + cube.width);
-	height = std::max(y + height, cube.y + cube.height);
-	depth = std::max(z + depth, cube.z + cube.depth);
-
-	x = std::min(x, cube.x);
-	y = std::min(y, cube.y);
-	z = std::min(z, cube.z);
+	x = std::min(x, box.x);
+	y = std::min(y, box.y);
+	z = std::min(z, box.z);
 
 	width -= x;
 	height -= y;
@@ -117,7 +111,13 @@ NzCube<T>& NzCube<T>::ExtendTo(const NzCube& cube)
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetCorner(nzCorner corner) const
+NzBox<T>& NzBox<T>::ExtendTo(const NzVector3<T>& point)
+{
+	return ExtendTo(point.x, point.y, point.z);
+}
+
+template<typename T>
+NzVector3<T> NzBox<T>::GetCorner(nzCorner corner) const
 {
 	switch (corner)
 	{
@@ -151,19 +151,19 @@ NzVector3<T> NzCube<T>::GetCorner(nzCorner corner) const
 }
 
 template<typename T>
-NzSphere<T> NzCube<T>::GetBoundingSphere() const
+NzSphere<T> NzBox<T>::GetBoundingSphere() const
 {
 	return NzSphere<T>(GetCenter(), GetRadius());
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetCenter() const
+NzVector3<T> NzBox<T>::GetCenter() const
 {
 	return GetPosition() + F(0.5)*GetSize();
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetNegativeVertex(const NzVector3<T>& normal) const
+NzVector3<T> NzBox<T>::GetNegativeVertex(const NzVector3<T>& normal) const
 {
 	NzVector3<T> neg(GetPosition());
 
@@ -180,13 +180,13 @@ NzVector3<T> NzCube<T>::GetNegativeVertex(const NzVector3<T>& normal) const
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetPosition() const
+NzVector3<T> NzBox<T>::GetPosition() const
 {
 	return NzVector3<T>(x, y, z);
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetPositiveVertex(const NzVector3<T>& normal) const
+NzVector3<T> NzBox<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 {
 	NzVector3<T> pos(GetPosition());
 
@@ -203,35 +203,35 @@ NzVector3<T> NzCube<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 }
 
 template<typename T>
-T NzCube<T>::GetRadius() const
+T NzBox<T>::GetRadius() const
 {
 	return std::sqrt(GetSquaredRadius());
 }
 
 template<typename T>
-NzVector3<T> NzCube<T>::GetSize() const
+NzVector3<T> NzBox<T>::GetSize() const
 {
 	return NzVector3<T>(width, height, depth);
 }
 
 template<typename T>
-T NzCube<T>::GetSquaredRadius() const
+T NzBox<T>::GetSquaredRadius() const
 {
 	NzVector3<T> size(GetSize());
-	size *= F(0.5); // La taille étant relative à la position (minimum) du cube et non pas à son centre
+	size *= F(0.5); // La taille étant relative à la position (minimum) de la boite et non pas à son centre
 
 	return size.GetSquaredLength();
 }
 
 template<typename T>
-bool NzCube<T>::Intersect(const NzCube& cube, NzCube* intersection) const
+bool NzBox<T>::Intersect(const NzBox& box, NzBox* intersection) const
 {
-	T left = std::max(x, cube.x);
-	T right = std::min(x + width, cube.x + cube.width);
-	T top = std::max(y, cube.y);
-	T bottom = std::min(y + height, cube.y + cube.height);
-	T up = std::max(z, cube.z);
-	T down = std::min(z + depth, cube.z + cube.depth);
+	T left = std::max(x, box.x);
+	T right = std::min(x + width, box.x + box.width);
+	T top = std::max(y, box.y);
+	T bottom = std::min(y + height, box.y + box.height);
+	T up = std::max(z, box.z);
+	T down = std::min(z + depth, box.z + box.depth);
 
 	if (left < right && top < bottom && up < down)
 	{
@@ -252,13 +252,13 @@ bool NzCube<T>::Intersect(const NzCube& cube, NzCube* intersection) const
 }
 
 template<typename T>
-bool NzCube<T>::IsValid() const
+bool NzBox<T>::IsValid() const
 {
 	return width > F(0.0) && height > F(0.0) && depth > F(0.0);
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::MakeZero()
+NzBox<T>& NzBox<T>::MakeZero()
 {
 	x = F(0.0);
 	y = F(0.0);
@@ -271,7 +271,7 @@ NzCube<T>& NzCube<T>::MakeZero()
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(T Width, T Height, T Depth)
+NzBox<T>& NzBox<T>::Set(T Width, T Height, T Depth)
 {
 	x = F(0.0);
 	y = F(0.0);
@@ -284,7 +284,7 @@ NzCube<T>& NzCube<T>::Set(T Width, T Height, T Depth)
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
+NzBox<T>& NzBox<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	x = X;
 	y = Y;
@@ -297,28 +297,28 @@ NzCube<T>& NzCube<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(const T cube[6])
+NzBox<T>& NzBox<T>::Set(const T box[6])
 {
-	x = cube[0];
-	y = cube[1];
-	z = cube[2];
-	width = cube[3];
-	height = cube[4];
-	depth = cube[5];
+	x = box[0];
+	y = box[1];
+	z = box[2];
+	width = box[3];
+	height = box[4];
+	depth = box[5];
 
 	return *this;
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(const NzCube& cube)
+NzBox<T>& NzBox<T>::Set(const NzBox& box)
 {
-	std::memcpy(this, &cube, sizeof(NzCube));
+	std::memcpy(this, &box, sizeof(NzBox));
 
 	return *this;
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(const NzRect<T>& rect)
+NzBox<T>& NzBox<T>::Set(const NzRect<T>& rect)
 {
 	x = rect.x;
 	y = rect.y;
@@ -331,13 +331,13 @@ NzCube<T>& NzCube<T>::Set(const NzRect<T>& rect)
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(const NzVector3<T>& size)
+NzBox<T>& NzBox<T>::Set(const NzVector3<T>& size)
 {
 	return Set(size.x, size.y, size.z);
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+NzBox<T>& NzBox<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	x = std::min(vec1.x, vec2.x);
 	y = std::min(vec1.y, vec2.y);
@@ -351,28 +351,28 @@ NzCube<T>& NzCube<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 
 template<typename T>
 template<typename U>
-NzCube<T>& NzCube<T>::Set(const NzCube<U>& cube)
+NzBox<T>& NzBox<T>::Set(const NzBox<U>& box)
 {
-	x = F(cube.x);
-	y = F(cube.y);
-	z = F(cube.z);
-	width = F(cube.width);
-	height = F(cube.height);
-	depth = F(cube.depth);
+	x = F(box.x);
+	y = F(box.y);
+	z = F(box.z);
+	width = F(box.width);
+	height = F(box.height);
+	depth = F(box.depth);
 
 	return *this;
 }
 
 template<typename T>
-NzString NzCube<T>::ToString() const
+NzString NzBox<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "Cube(" << x << ", " << y << ", " << z << ", " << width << ", " << height << ", " << depth << ')';
+	return ss << "Box(" << x << ", " << y << ", " << z << ", " << width << ", " << height << ", " << depth << ')';
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
+NzBox<T>& NzBox<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
 {
 	NzVector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Valeur multipliant la translation
 	NzVector3<T> halfSize = GetSize() * F(0.5);
@@ -385,7 +385,7 @@ NzCube<T>& NzCube<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslatio
 }
 
 template<typename T>
-T& NzCube<T>::operator[](unsigned int i)
+T& NzBox<T>::operator[](unsigned int i)
 {
 	#if NAZARA_MATH_SAFE
 	if (i >= 6)
@@ -402,7 +402,7 @@ T& NzCube<T>::operator[](unsigned int i)
 }
 
 template<typename T>
-T NzCube<T>::operator[](unsigned int i) const
+T NzBox<T>::operator[](unsigned int i) const
 {
 	#if NAZARA_MATH_SAFE
 	if (i >= 6)
@@ -419,19 +419,19 @@ T NzCube<T>::operator[](unsigned int i) const
 }
 
 template<typename T>
-NzCube<T> NzCube<T>::operator*(T scalar) const
+NzBox<T> NzBox<T>::operator*(T scalar) const
 {
-	return NzCube(x, y, z, width*scalar, height*scalar, depth*scalar);
+	return NzBox(x, y, z, width*scalar, height*scalar, depth*scalar);
 }
 
 template<typename T>
-NzCube<T> NzCube<T>::operator*(const NzVector3<T>& vec) const
+NzBox<T> NzBox<T>::operator*(const NzVector3<T>& vec) const
 {
-	return NzCube(x, y, z, width*vec.x, height*vec.y, depth*vec.z);
+	return NzBox(x, y, z, width*vec.x, height*vec.y, depth*vec.z);
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::operator*=(T scalar)
+NzBox<T>& NzBox<T>::operator*=(T scalar)
 {
 	width *= scalar;
 	height *= scalar;
@@ -439,7 +439,7 @@ NzCube<T>& NzCube<T>::operator*=(T scalar)
 }
 
 template<typename T>
-NzCube<T>& NzCube<T>::operator*=(const NzVector3<T>& vec)
+NzBox<T>& NzBox<T>::operator*=(const NzVector3<T>& vec)
 {
 	width *= vec.x;
 	height *= vec.y;
@@ -447,20 +447,20 @@ NzCube<T>& NzCube<T>::operator*=(const NzVector3<T>& vec)
 }
 
 template<typename T>
-bool NzCube<T>::operator==(const NzCube& cube) const
+bool NzBox<T>::operator==(const NzBox& box) const
 {
-	return NzNumberEquals(x, cube.x) && NzNumberEquals(y, cube.y) && NzNumberEquals(z, cube.z) &&
-	       NzNumberEquals(width, cube.width) &&  NzNumberEquals(height, cube.height) && NzNumberEquals(depth, cube.depth);
+	return NzNumberEquals(x, box.x) && NzNumberEquals(y, box.y) && NzNumberEquals(z, box.z) &&
+	       NzNumberEquals(width, box.width) &&  NzNumberEquals(height, box.height) && NzNumberEquals(depth, box.depth);
 }
 
 template<typename T>
-bool NzCube<T>::operator!=(const NzCube& cube) const
+bool NzBox<T>::operator!=(const NzBox& box) const
 {
-	return !operator==(cube);
+	return !operator==(box);
 }
 
 template<typename T>
-NzCube<T> NzCube<T>::Lerp(const NzCube& from, const NzCube& to, T interpolation)
+NzBox<T> NzBox<T>::Lerp(const NzBox& from, const NzBox& to, T interpolation)
 {
 	#ifdef NAZARA_DEBUG
 	if (interpolation < F(0.0) || interpolation > F(1.0))
@@ -470,30 +470,30 @@ NzCube<T> NzCube<T>::Lerp(const NzCube& from, const NzCube& to, T interpolation)
 	}
 	#endif
 
-	NzCube cube;
-	cube.x = NzLerp(from.x, to.x, interpolation);
-	cube.y = NzLerp(from.y, to.y, interpolation);
-	cube.z = NzLerp(from.z, to.z, interpolation);
-	cube.width = NzLerp(from.width, to.width, interpolation);
-	cube.height = NzLerp(from.height, to.height, interpolation);
-	cube.depth = NzLerp(from.depth, to.depth, interpolation);
+	NzBox box;
+	box.x = NzLerp(from.x, to.x, interpolation);
+	box.y = NzLerp(from.y, to.y, interpolation);
+	box.z = NzLerp(from.z, to.z, interpolation);
+	box.width = NzLerp(from.width, to.width, interpolation);
+	box.height = NzLerp(from.height, to.height, interpolation);
+	box.depth = NzLerp(from.depth, to.depth, interpolation);
 
-	return cube;
+	return box;
 }
 
 template<typename T>
-NzCube<T> NzCube<T>::Zero()
+NzBox<T> NzBox<T>::Zero()
 {
-	NzCube cube;
-	cube.MakeZero();
+	NzBox box;
+	box.MakeZero();
 
-	return cube;
+	return box;
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzCube<T>& cube)
+std::ostream& operator<<(std::ostream& out, const NzBox<T>& box)
 {
-	return out << cube.ToString();
+	return out << box.ToString();
 }
 
 #undef F
