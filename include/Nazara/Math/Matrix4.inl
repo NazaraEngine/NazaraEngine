@@ -44,6 +44,12 @@ NzMatrix4<T>::NzMatrix4(const NzMatrix4<U>& matrix)
 }
 
 template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::ApplyRotation(const NzQuaternion<T>& rotation)
+{
+	return Concatenate(NzMatrix4f::Rotate(rotation));
+}
+
+template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::ApplyScale(const NzVector3<T>& scale)
 {
 	m11 *= scale.x;
@@ -57,6 +63,17 @@ NzMatrix4<T>& NzMatrix4<T>::ApplyScale(const NzVector3<T>& scale)
 	m31 *= scale.z;
 	m32 *= scale.z;
 	m33 *= scale.z;
+	m_isIdentity = false;
+
+	return *this;
+}
+
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::ApplyTranslation(const NzVector3<T>& translation)
+{
+	m41 += translation.x;
+	m42 += translation.y;
+	m43 += translation.z;
 	m_isIdentity = false;
 
 	return *this;

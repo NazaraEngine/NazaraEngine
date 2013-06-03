@@ -31,7 +31,9 @@ class NzMatrix4
 		NzMatrix4(const NzMatrix4& matrix) = default;
 		~NzMatrix4() = default;
 
+		NzMatrix4& ApplyRotation(const NzQuaternion<T>& rotation);
 		NzMatrix4& ApplyScale(const NzVector3<T>& scale);
+		NzMatrix4& ApplyTranslation(const NzVector3<T>& translation);
 
 		NzMatrix4& Concatenate(const NzMatrix4& matrix);
 		NzMatrix4& ConcatenateAffine(const NzMatrix4& matrix);
