@@ -944,6 +944,32 @@ bool NzTexture::Update(const NzImage& image, nzUInt8 level)
 	return Update(pixels, image.GetWidth(level), image.GetHeight(level), level);
 }
 
+bool NzTexture::Update(const NzImage& image, const NzBoxui& box, nzUInt8 level)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!image.IsValid())
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+
+	if (image.GetFormat() != m_impl->format)
+	{
+		NazaraError("Image format does not match texture format");
+		return false;
+	}
+	#endif
+
+	const nzUInt8* pixels = image.GetConstPixels(box.x, box.y, box.z, level);
+	if (!pixels)
+	{
+		NazaraError("Failed to access image's pixels");
+		return false;
+	}
+
+	return Update(pixels, box, image.GetWidth(level), image.GetHeight(level), level);
+}
+
 bool NzTexture::Update(const NzImage& image, const NzRectui& rect, unsigned int z, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -970,32 +996,6 @@ bool NzTexture::Update(const NzImage& image, const NzRectui& rect, unsigned int 
 	return Update(pixels, rect, z, image.GetWidth(level), image.GetHeight(level), level);
 }
 
-bool NzTexture::Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!image.IsValid())
-	{
-		NazaraError("Image must be valid");
-		return false;
-	}
-
-	if (image.GetFormat() != m_impl->format)
-	{
-		NazaraError("Image format does not match texture format");
-		return false;
-	}
-	#endif
-
-	const nzUInt8* pixels = image.GetConstPixels(cube.x, cube.y, cube.z, level);
-	if (!pixels)
-	{
-		NazaraError("Failed to access image's pixels");
-		return false;
-	}
-
-	return Update(pixels, cube, image.GetWidth(level), image.GetHeight(level), level);
-}
-
 bool NzTexture::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
@@ -1006,15 +1006,10 @@ bool NzTexture::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned in
 	}
 	#endif
 
-	return Update(pixels, NzCubeui(0, 0, 0, std::max(m_impl->width >> level, 1U), std::max(m_impl->height >> level, 1U), std::max(m_impl->depth >> level, 1U)), srcWidth, srcHeight, level);
+	return Update(pixels, NzBoxui(std::max(m_impl->width >> level, 1U), std::max(m_impl->height >> level, 1U), std::max(m_impl->depth >> level, 1U)), srcWidth, srcHeight, level);
 }
 
-bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
-{
-	return Update(pixels, NzCubeui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, srcHeight, level);
-}
-
-bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
+bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -1041,9 +1036,9 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 		return false;
 	}
 
-	if (!cube.IsValid())
+	if (!box.IsValid())
 	{
-		NazaraError("Invalid rectangle");
+		NazaraError("Invalid box");
 		return false;
 	}
 	#endif
@@ -1051,9 +1046,9 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 	unsigned int height = std::max(m_impl->height >> level, 1U);
 
 	#if NAZARA_RENDERER_SAFE
-	if (cube.x+cube.width > std::max(m_impl->width >> level, 1U) ||
-	    cube.y+cube.height > height ||
-		cube.z+cube.depth > std::max(m_impl->depth >> level, 1U))
+	if (box.x+box.width > std::max(m_impl->width >> level, 1U) ||
+	    box.y+box.height > height ||
+		box.z+box.depth > std::max(m_impl->depth >> level, 1U))
 	{
 		NazaraError("Cube dimensions are out of bounds");
 		return false;
@@ -1075,12 +1070,12 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_impl->format);
 
-	unsigned int size = cube.width*cube.height*cube.depth*bpp;
+	unsigned int size = box.width*box.height*box.depth*bpp;
 	std::unique_ptr<nzUInt8[]> flipped(new nzUInt8[size]);
-	NzImage::Copy(flipped.get(), pixels, bpp, cube.width, cube.height, cube.depth, 0, 0, srcWidth, srcHeight);
+	NzImage::Copy(flipped.get(), pixels, bpp, box.width, box.height, box.depth, 0, 0, srcWidth, srcHeight);
 
 	// Inversion de la texture pour le repère d'OpenGL
-	if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_impl->format, cube.width, cube.height, cube.depth, flipped.get(), flipped.get()))
+	if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_impl->format, box.width, box.height, box.depth, flipped.get(), flipped.get()))
 		NazaraWarning("Failed to flip image");
 
 	SetUnpackAlignement(bpp);
@@ -1089,17 +1084,17 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 	switch (m_impl->type)
 	{
 		case nzImageType_1D:
-			glTexSubImage1D(GL_TEXTURE_1D, level, cube.x, cube.width, format.dataFormat, format.dataType, flipped.get());
+			glTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.dataFormat, format.dataType, flipped.get());
 			break;
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D:
-			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.width, cube.height, format.dataFormat, format.dataType, flipped.get());
+			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, height-box.height-box.y, box.width, box.height, format.dataFormat, format.dataType, flipped.get());
 			break;
 
 		case nzImageType_2D_Array:
 		case nzImageType_3D:
-			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, cube.x, height-cube.height-cube.y, cube.z, cube.width, cube.height, cube.depth, format.dataFormat, format.dataType, flipped.get());
+			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, height-box.height-box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, flipped.get());
 			break;
 
 		case nzImageType_Cubemap:
@@ -1108,6 +1103,11 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int
 	}
 
 	return true;
+}
+
+bool NzTexture::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
+{
+	return Update(pixels, NzBoxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, srcHeight, level);
 }
 
 bool NzTexture::UpdateFace(nzCubemapFace face, const NzImage& image, nzUInt8 level)

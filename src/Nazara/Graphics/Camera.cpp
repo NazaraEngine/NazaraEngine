@@ -93,10 +93,10 @@ float NzCamera::GetAspectRatio() const
 	return m_aspectRatio;
 }
 
-const NzBoundingBoxf& NzCamera::GetBoundingBox() const
+const NzBoundingVolumef& NzCamera::GetBoundingVolume() const
 {
-	///TODO: Remplacer par la bounding box du Frustum ?
-	static NzBoundingBoxf dummy(nzExtend_Null);
+	///TODO: Remplacer par le bounding volume du Frustum ?
+	static NzBoundingVolumef dummy(nzExtend_Null);
 	return dummy;
 }
 

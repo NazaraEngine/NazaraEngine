@@ -66,20 +66,20 @@ NzFrustum<T>& NzFrustum<T>::Build(T angle, T ratio, T zNear, T zFar, const NzVec
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzBoundingBox<T>& box) const
+bool NzFrustum<T>::Contains(const NzBoundingVolume<T>& volume) const
 {
-	switch (box.extend)
+	switch (volume.extend)
 	{
 		case nzExtend_Finite:
 		{
-			nzIntersectionSide side = Intersect(box.aabb);
+			nzIntersectionSide side = Intersect(volume.aabb);
 			switch (side)
 			{
 				case nzIntersectionSide_Inside:
 					return true;
 
 				case nzIntersectionSide_Intersecting:
-					return Contains(box.obb);
+					return Contains(volume.obb);
 
 				case nzIntersectionSide_Outside:
 					return false;
@@ -96,17 +96,17 @@ bool NzFrustum<T>::Contains(const NzBoundingBox<T>& box) const
 			return false;
 	}
 
-	NazaraError("Invalid extend type (0x" + NzString::Number(box.extend, 16) + ')');
+	NazaraError("Invalid extend type (0x" + NzString::Number(volume.extend, 16) + ')');
 	return false;
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzCube<T>& cube) const
+bool NzFrustum<T>::Contains(const NzBox<T>& box) const
 {
 	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 	for(unsigned int i = 0; i <= nzFrustumPlane_Max; i++)
 	{
-		if (m_planes[i].Distance(cube.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
+		if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
 			return false;
 	}
 
@@ -114,9 +114,9 @@ bool NzFrustum<T>::Contains(const NzCube<T>& cube) const
 }
 
 template<typename T>
-bool NzFrustum<T>::Contains(const NzOrientedCube<T>& orientedCube) const
+bool NzFrustum<T>::Contains(const NzOrientedBox<T>& orientedbox) const
 {
-	return Contains(&orientedCube[0], 8);
+	return Contains(&orientedbox[0], 8);
 }
 
 template<typename T>
@@ -367,20 +367,20 @@ const NzPlane<T>& NzFrustum<T>::GetPlane(nzFrustumPlane plane) const
 }
 
 template<typename T>
-nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingBox<T>& box) const
+nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingVolume<T>& volume) const
 {
-	switch (box.extend)
+	switch (volume.extend)
 	{
 		case nzExtend_Finite:
 		{
-			nzIntersectionSide side = Intersect(box.aabb);
+			nzIntersectionSide side = Intersect(volume.aabb);
 			switch (side)
 			{
 				case nzIntersectionSide_Inside:
 					return nzIntersectionSide_Inside;
 
 				case nzIntersectionSide_Intersecting:
-					return Intersect(box.obb);
+					return Intersect(volume.obb);
 
 				case nzIntersectionSide_Outside:
 					return nzIntersectionSide_Outside;
@@ -397,21 +397,21 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingBox<T>& box) const
 			return nzIntersectionSide_Outside;
 	}
 
-	NazaraError("Invalid extend type (0x" + NzString::Number(box.extend, 16) + ')');
+	NazaraError("Invalid extend type (0x" + NzString::Number(volume.extend, 16) + ')');
 	return nzIntersectionSide_Outside;
 }
 
 template<typename T>
-nzIntersectionSide NzFrustum<T>::Intersect(const NzCube<T>& cube) const
+nzIntersectionSide NzFrustum<T>::Intersect(const NzBox<T>& box) const
 {
 	// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 	nzIntersectionSide side = nzIntersectionSide_Inside;
 
 	for(unsigned int i = 0; i <= nzFrustumPlane_Max; i++)
 	{
-		if (m_planes[i].Distance(cube.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
+		if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
 			return nzIntersectionSide_Outside;
-		else if (m_planes[i].Distance(cube.GetNegativeVertex(m_planes[i].normal)) < F(0.0))
+		else if (m_planes[i].Distance(box.GetNegativeVertex(m_planes[i].normal)) < F(0.0))
 			side = nzIntersectionSide_Intersecting;
 	}
 
@@ -419,9 +419,9 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzCube<T>& cube) const
 }
 
 template<typename T>
-nzIntersectionSide NzFrustum<T>::Intersect(const NzOrientedCube<T>& orientedCube) const
+nzIntersectionSide NzFrustum<T>::Intersect(const NzOrientedBox<T>& orientedbox) const
 {
-	return Intersect(&orientedCube[0], 8);
+	return Intersect(&orientedbox[0], 8);
 }
 
 template<typename T>

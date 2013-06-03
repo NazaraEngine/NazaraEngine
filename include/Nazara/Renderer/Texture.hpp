@@ -75,11 +75,11 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel);
 
 		bool Update(const NzImage& image, nzUInt8 level = 0);
+		bool Update(const NzImage& image, const NzBoxui& box, nzUInt8 level = 0);
 		bool Update(const NzImage& image, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		bool Update(const NzImage& image, const NzCubeui& cube, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const NzImage& image, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const NzImage& image, const NzRectui& rect, nzUInt8 level = 0);
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);

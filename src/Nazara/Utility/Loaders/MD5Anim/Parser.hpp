@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Animation.hpp>
@@ -34,7 +34,7 @@ class NzMD5AnimParser
 			};
 
 			std::vector<Joint> joints;
-			NzCubef aabb;
+			NzBoxf aabb;
 		};
 
 		struct Joint
