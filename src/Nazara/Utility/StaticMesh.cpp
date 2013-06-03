@@ -70,7 +70,7 @@ bool NzStaticMesh::GenerateAABB()
 	return true;
 }
 
-const NzCubef& NzStaticMesh::GetAABB() const
+const NzBoxf& NzStaticMesh::GetAABB() const
 {
 	return m_aabb;
 }
@@ -110,7 +110,7 @@ bool NzStaticMesh::IsValid() const
 	return m_vertexBuffer != nullptr;
 }
 
-void NzStaticMesh::SetAABB(const NzCubef& aabb)
+void NzStaticMesh::SetAABB(const NzBoxf& aabb)
 {
 	m_aabb = aabb;
 }

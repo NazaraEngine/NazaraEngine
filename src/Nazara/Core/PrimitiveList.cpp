@@ -6,20 +6,20 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-void NzPrimitiveList::AddCube(const NzCubef& cube, const NzVector3ui& subdivision, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMatrix4f& matrix)
 {
 	NzPrimitive primitive;
-	primitive.type = nzPrimitiveType_Cube;
-	primitive.cube.cube = cube; // cube.cube = cube, parce que je le vaux bien
-	primitive.cube.matrix = matrix;
-	primitive.cube.subdivision = subdivision;
+	primitive.type = nzPrimitiveType_Box;
+	primitive.box.box = box; // box.box = box, parce que je le vaux bien
+	primitive.box.matrix = matrix;
+	primitive.box.subdivision = subdivision;
 
 	m_primitives.push_back(primitive);
 }
 
-void NzPrimitiveList::AddCube(const NzCubef& cube, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
+void NzPrimitiveList::AddBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddCube(cube, subdivision, NzMatrix4f::Transform(position, rotation));
+	AddBox(box, subdivision, NzMatrix4f::Transform(position, rotation));
 }
 
 void NzPrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix)

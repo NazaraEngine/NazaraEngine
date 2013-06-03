@@ -32,9 +32,9 @@ void NzPhysWorld::SetGravity(const NzVector3f& gravity)
 	m_gravity = gravity;
 }
 
-void NzPhysWorld::SetSize(const NzCubef& cube)
+void NzPhysWorld::SetSize(const NzBoxf& box)
 {
-	NewtonSetWorldSize(m_world, cube.GetPosition(), cube.GetPosition()+cube.GetSize());
+	NewtonSetWorldSize(m_world, box.GetPosition(), box.GetPosition()+box.GetSize());
 }
 
 void NzPhysWorld::SetSize(const NzVector3f& min, const NzVector3f& max)

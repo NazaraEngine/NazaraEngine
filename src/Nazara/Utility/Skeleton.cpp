@@ -10,7 +10,7 @@ struct NzSkeletonImpl
 {
 	std::map<NzString, unsigned int> jointMap; ///FIXME: unordered_map
 	std::vector<NzJoint> joints;
-	NzCubef aabb;
+	NzBoxf aabb;
 	bool aabbUpdated = false;
 	bool jointMapUpdated = false;
 };
@@ -51,14 +51,14 @@ void NzSkeleton::Destroy()
 	}
 }
 
-const NzCubef& NzSkeleton::GetAABB() const
+const NzBoxf& NzSkeleton::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Skeleton not created");
 
-		static NzCubef dummy;
+		static NzBoxf dummy;
 		return dummy;
 	}
 	#endif

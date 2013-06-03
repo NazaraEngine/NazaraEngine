@@ -12,62 +12,62 @@
 #define F(a) static_cast<T>(a)
 
 template<typename T>
-NzBoundingBox<T>::NzBoundingBox() :
+NzBoundingVolume<T>::NzBoundingVolume() :
 extend(nzExtend_Null)
 {
 }
 
 template<typename T>
-NzBoundingBox<T>::NzBoundingBox(nzExtend Extend)
+NzBoundingVolume<T>::NzBoundingVolume(nzExtend Extend)
 {
 	Set(Extend);
 }
 
 template<typename T>
-NzBoundingBox<T>::NzBoundingBox(T X, T Y, T Z, T Width, T Height, T Depth)
+NzBoundingVolume<T>::NzBoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	Set(X, Y, Z, Width, Height, Depth);
 }
 
 template<typename T>
-NzBoundingBox<T>::NzBoundingBox(const NzCube<T>& Cube)
+NzBoundingVolume<T>::NzBoundingVolume(const NzBox<T>& box)
 {
-	Set(Cube);
+	Set(box);
 }
 
 template<typename T>
-NzBoundingBox<T>::NzBoundingBox(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+NzBoundingVolume<T>::NzBoundingVolume(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	Set(vec1, vec2);
 }
 
 template<typename T>
 template<typename U>
-NzBoundingBox<T>::NzBoundingBox(const NzBoundingBox<U>& box)
+NzBoundingVolume<T>::NzBoundingVolume(const NzBoundingVolume<U>& volume)
 {
-	Set(box);
+	Set(volume);
 }
 
 template<typename T>
-bool NzBoundingBox<T>::IsFinite() const
+bool NzBoundingVolume<T>::IsFinite() const
 {
 	return extend == nzExtend_Finite;
 }
 
 template<typename T>
-bool NzBoundingBox<T>::IsInfinite() const
+bool NzBoundingVolume<T>::IsInfinite() const
 {
 	return extend == nzExtend_Infinite;
 }
 
 template<typename T>
-bool NzBoundingBox<T>::IsNull() const
+bool NzBoundingVolume<T>::IsNull() const
 {
 	return extend == nzExtend_Null;
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::MakeInfinite()
+NzBoundingVolume<T>& NzBoundingVolume<T>::MakeInfinite()
 {
 	extend = nzExtend_Infinite;
 
@@ -75,7 +75,7 @@ NzBoundingBox<T>& NzBoundingBox<T>::MakeInfinite()
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::MakeNull()
+NzBoundingVolume<T>& NzBoundingVolume<T>::MakeNull()
 {
 	extend = nzExtend_Null;
 
@@ -83,7 +83,7 @@ NzBoundingBox<T>& NzBoundingBox<T>::MakeNull()
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(nzExtend Extend)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(nzExtend Extend)
 {
 	extend = Extend;
 
@@ -91,7 +91,7 @@ NzBoundingBox<T>& NzBoundingBox<T>::Set(nzExtend Extend)
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 {
 	obb.Set(X, Y, Z, Width, Height, Depth);
 	extend = nzExtend_Finite;
@@ -100,24 +100,24 @@ NzBoundingBox<T>& NzBoundingBox<T>::Set(T X, T Y, T Z, T Width, T Height, T Dept
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(const NzBoundingBox<T>& box)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzBoundingVolume<T>& volume)
 {
-	obb.Set(box.obb); // Seul l'OBB est importante pour la suite
+	obb.Set(volume.obb); // Seul l'OBB est importante pour la suite
 
 	return *this;
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(const NzCube<T>& Cube)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzBox<T>& box)
 {
-	obb.Set(Cube);
+	obb.Set(box);
 	extend = nzExtend_Finite;
 
 	return *this;
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2)
 {
 	obb.Set(vec1, vec2);
 	extend = nzExtend_Finite;
@@ -127,53 +127,53 @@ NzBoundingBox<T>& NzBoundingBox<T>::Set(const NzVector3<T>& vec1, const NzVector
 
 template<typename T>
 template<typename U>
-NzBoundingBox<T>& NzBoundingBox<T>::Set(const NzBoundingBox<U>& box)
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzBoundingVolume<U>& volume)
 {
-	obb.Set(box.obb);
-	extend = box.extend;
+	obb.Set(volume.obb);
+	extend = volume.extend;
 
 	return *this;
 }
 
 template<typename T>
-NzString NzBoundingBox<T>::ToString() const
+NzString NzBoundingVolume<T>::ToString() const
 {
 	switch (extend)
 	{
 		case nzExtend_Finite:
-			return "BoundingBox(localCube=" + obb.localCube.ToString() + ')';
+			return "BoundingVolume(localBox=" + obb.localBox.ToString() + ')';
 
 		case nzExtend_Infinite:
-			return "BoundingBox(Infinite)";
+			return "BoundingVolume(Infinite)";
 
 		case nzExtend_Null:
-			return "BoundingBox(Null)";
+			return "BoundingVolume(Null)";
 	}
 
 	// Si nous arrivons ici c'est que l'extend est invalide
 	NazaraError("Invalid extend type (0x" + NzString::Number(extend, 16) + ')');
-	return "BoundingBox(ERROR)";
+	return "BoundingVolume(ERROR)";
 }
 
 template<typename T>
-void NzBoundingBox<T>::Update(const NzMatrix4<T>& transformMatrix)
+void NzBoundingVolume<T>::Update(const NzMatrix4<T>& transformMatrix)
 {
-	aabb.Set(obb.localCube);
+	aabb.Set(obb.localBox);
 	aabb.Transform(transformMatrix);
 	obb.Update(transformMatrix);
 }
 
 template<typename T>
-NzBoundingBox<T> NzBoundingBox<T>::operator*(T scalar) const
+NzBoundingVolume<T> NzBoundingVolume<T>::operator*(T scalar) const
 {
-	NzBoundingBox box(*this);
-	box *= scalar;
+	NzBoundingVolume volume(*this);
+	volume *= scalar;
 
-	return box;
+	return volume;
 }
 
 template<typename T>
-NzBoundingBox<T>& NzBoundingBox<T>::operator*=(T scalar)
+NzBoundingVolume<T>& NzBoundingVolume<T>::operator*=(T scalar)
 {
 	obb *= scalar;
 
@@ -181,31 +181,31 @@ NzBoundingBox<T>& NzBoundingBox<T>::operator*=(T scalar)
 }
 
 template<typename T>
-bool NzBoundingBox<T>::operator==(const NzBoundingBox& box) const
+bool NzBoundingVolume<T>::operator==(const NzBoundingVolume& volume) const
 {
-	if (extend == box.extend)
-		return obb == box.obb;
+	if (extend == volume.extend)
+		return obb == volume.obb;
 	else
 		return false;
 }
 
 template<typename T>
-bool NzBoundingBox<T>::operator!=(const NzBoundingBox& box) const
+bool NzBoundingVolume<T>::operator!=(const NzBoundingVolume& volume) const
 {
-	return !operator==(box);
+	return !operator==(volume);
 }
 
 template<typename T>
-NzBoundingBox<T> NzBoundingBox<T>::Infinite()
+NzBoundingVolume<T> NzBoundingVolume<T>::Infinite()
 {
-	NzBoundingBox box;
-	box.MakeInfinite();
+	NzBoundingVolume volume;
+	volume.MakeInfinite();
 
-	return box;
+	return volume;
 }
 
 template<typename T>
-NzBoundingBox<T> NzBoundingBox<T>::Lerp(const NzBoundingBox& from, const NzBoundingBox& to, T interpolation)
+NzBoundingVolume<T> NzBoundingVolume<T>::Lerp(const NzBoundingVolume& from, const NzBoundingVolume& to, T interpolation)
 {
 	#ifdef NAZARA_DEBUG
 	if (interpolation < 0.f || interpolation > 1.f)
@@ -229,10 +229,10 @@ NzBoundingBox<T> NzBoundingBox<T>::Lerp(const NzBoundingBox& from, const NzBound
 			{
 				case nzExtend_Finite:
 				{
-					NzBoundingBox box;
-					box.Set(NzOrientedCube<T>::Lerp(from.obb, to.obb, interpolation));
+					NzBoundingVolume volume;
+					volume.Set(NzOrientedBox<T>::Lerp(from.obb, to.obb, interpolation));
 
-					return box;
+					return volume;
 				}
 
 				case nzExtend_Infinite:
@@ -271,23 +271,23 @@ NzBoundingBox<T> NzBoundingBox<T>::Lerp(const NzBoundingBox& from, const NzBound
 	}
 
 	// Si nous arrivons ici c'est que l'extend est invalide
-	NazaraError("Invalid extend type (To) (0x" + NzString::Number(from.extend, 16) + ')');
+	NazaraError("Invalid extend type (To) (0x" + NzString::Number(to.extend, 16) + ')');
 	return Null();
 }
 
 template<typename T>
-NzBoundingBox<T> NzBoundingBox<T>::Null()
+NzBoundingVolume<T> NzBoundingVolume<T>::Null()
 {
-	NzBoundingBox box;
-	box.MakeNull();
+	NzBoundingVolume volume;
+	volume.MakeNull();
 
-	return box;
+	return volume;
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzBoundingBox<T>& box)
+std::ostream& operator<<(std::ostream& out, const NzBoundingVolume<T>& volume)
 {
-	out << box.ToString();
+	out << volume.ToString();
 	return out;
 }
 

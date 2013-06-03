@@ -19,7 +19,7 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 	public:
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		const NzBoundingBoxf& GetBoundingBox() const override;
+		const NzBoundingVolumef& GetBoundingVolume() const override;
 		nzSceneNodeType GetSceneNodeType() const override;
 
 	private:

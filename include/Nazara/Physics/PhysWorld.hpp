@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 struct NewtonWorld;
@@ -25,7 +25,7 @@ class NAZARA_API NzPhysWorld : NzNonCopyable
 		unsigned int GetMemoryUsed() const;
 
 		void SetGravity(const NzVector3f& gravity);
-		void SetSize(const NzCubef& cube);
+		void SetSize(const NzBoxf& box);
 		void SetSize(const NzVector3f& min, const NzVector3f& max);
 		void SetSolverModel(unsigned int model);
 

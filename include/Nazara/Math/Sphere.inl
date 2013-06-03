@@ -48,7 +48,7 @@ bool NzSphere<T>::Contains(T X, T Y, T Z) const
 }
 /*
 template<typename T>
-bool NzSphere<T>::Contains(const NzCube<T>& cube) const
+bool NzSphere<T>::Contains(const NzBox<T>& box) const
 {
 }
 */
@@ -113,7 +113,7 @@ NzVector3<T> NzSphere<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 }
 /*
 template<typename T>
-bool NzSphere<T>::Intersect(const NzCube<T>& cube) const
+bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 {
 
 }
@@ -165,7 +165,7 @@ NzSphere<T>& NzSphere<T>::Set(const NzVector3<T>& center, T Radius)
 }
 /*
 template<typename T>
-NzSphere<T>& NzCube<T>::Set(const NzCircle<T>& circle)
+NzSphere<T>& NzSphere<T>::Set(const NzCircle<T>& circle)
 {
 	x = circle.x;
 	y = circle.y;

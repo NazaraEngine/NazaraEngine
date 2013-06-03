@@ -13,7 +13,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
@@ -56,14 +56,14 @@ class NAZARA_API NzImage : public NzResource
 
 		bool Convert(nzPixelFormat format);
 
-		void Copy(const NzImage& source, const NzCubeui& srcCube, const NzVector3ui& dstPos);
+		void Copy(const NzImage& source, const NzBoxui& srcBox, const NzVector3ui& dstPos);
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		void Destroy();
 
 		bool Fill(const NzColor& color);
+		bool Fill(const NzColor& color, const NzBoxui& box);
 		bool Fill(const NzColor& color, const NzRectui& rect, unsigned int z = 0);
-		bool Fill(const NzColor& color, const NzCubeui& cube);
 
 		bool FlipHorizontally();
 		bool FlipVertically();
@@ -101,8 +101,8 @@ class NAZARA_API NzImage : public NzResource
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
 		void Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		void Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		void Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		void Update(const nzUInt8* pixels, const NzCubeui& cube, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
 		NzImage& operator=(NzImage&& image) noexcept;

@@ -8,10 +8,10 @@
 #define NAZARA_FRUSTUM_HPP
 
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Math/BoundingBox.hpp>
+#include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Math/OrientedCube.hpp>
+#include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -27,9 +27,9 @@ class NzFrustum
 
 		NzFrustum& Build(T angle, T ratio, T zNear, T zFar, const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
 
-		bool Contains(const NzBoundingBox<T>& box) const;
-		bool Contains(const NzCube<T>& cube) const;
-		bool Contains(const NzOrientedCube<T>& orientedCube) const;
+		bool Contains(const NzBoundingVolume<T>& volume) const;
+		bool Contains(const NzBox<T>& box) const;
+		bool Contains(const NzOrientedBox<T>& orientedBox) const;
 		bool Contains(const NzSphere<T>& sphere) const;
 		bool Contains(const NzVector3<T>& point) const;
 		bool Contains(const NzVector3<T>* points, unsigned int pointCount) const;
@@ -40,9 +40,9 @@ class NzFrustum
 		const NzVector3<T>& GetCorner(nzCorner corner) const;
 		const NzPlane<T>& GetPlane(nzFrustumPlane plane) const;
 
-		nzIntersectionSide Intersect(const NzBoundingBox<T>& box) const;
-		nzIntersectionSide Intersect(const NzCube<T>& cube) const;
-		nzIntersectionSide Intersect(const NzOrientedCube<T>& orientedCube) const;
+		nzIntersectionSide Intersect(const NzBoundingVolume<T>& volume) const;
+		nzIntersectionSide Intersect(const NzBox<T>& box) const;
+		nzIntersectionSide Intersect(const NzOrientedBox<T>& orientedBox) const;
 		nzIntersectionSide Intersect(const NzSphere<T>& sphere) const;
 		nzIntersectionSide Intersect(const NzVector3<T>* points, unsigned int pointCount) const;
 
