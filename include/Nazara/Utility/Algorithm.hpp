@@ -21,7 +21,7 @@ NAZARA_API void NzComputePlaneIndexVertexCount(const NzVector2ui& subdivision, u
 NAZARA_API void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, unsigned int* indexCount, unsigned int* vertexCount);
 
 ///TODO: Itérateur sur les indices
-NAZARA_API void NzGenerateBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 NAZARA_API void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 NAZARA_API void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 NAZARA_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
