@@ -202,7 +202,7 @@ void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int sta
 		*vertexCount = sliceCount * stackCount;
 }
 
-void NzGenerateBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
 	unsigned int xVertexCount, yVertexCount, zVertexCount;
@@ -214,37 +214,37 @@ void NzGenerateBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMa
 	NzMeshVertex* oldVertices = vertices;
 
 	// Face +X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), box.GetPosition() + NzVector3f::UnitX() * box.width/2.f, NzVector3f::UnitX(), NzVector2f(box.height, box.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector3f::UnitX() * lengths.x/2.f, NzVector3f::UnitX(), NzVector2f(lengths.y, lengths.z), vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face +Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), box.GetPosition() + NzVector3f::UnitY() * box.height/2.f, NzVector3f::UnitY(), NzVector2f(box.width, box.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector3f::UnitY() * lengths.y/2.f, NzVector3f::UnitY(), NzVector2f(lengths.x, lengths.z), vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face +Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), box.GetPosition() + NzVector3f::UnitZ() * box.depth/2.f, NzVector3f::UnitZ(), NzVector2f(box.width, box.height), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector3f::UnitZ() * lengths.z/2.f, NzVector3f::UnitZ(), NzVector2f(lengths.x, lengths.y), vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
 
 	// Face -X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), box.GetPosition() - NzVector3f::UnitX() * box.width/2.f, -NzVector3f::UnitX(), NzVector2f(box.height, box.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), -NzVector3f::UnitX() * lengths.x/2.f, -NzVector3f::UnitX(), NzVector2f(lengths.y, lengths.z), vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face -Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), box.GetPosition() - NzVector3f::UnitY() * box.height/2.f, -NzVector3f::UnitY(), NzVector2f(box.width, box.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), -NzVector3f::UnitY() * lengths.y/2.f, -NzVector3f::UnitY(), NzVector2f(lengths.x, lengths.z), vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face -Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), box.GetPosition() - NzVector3f::UnitZ() * box.depth/2.f, -NzVector3f::UnitZ(), NzVector2f(box.width, box.height), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), -NzVector3f::UnitZ() * lengths.z/2.f, -NzVector3f::UnitZ(), NzVector2f(lengths.x, lengths.y), vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
@@ -253,7 +253,7 @@ void NzGenerateBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMa
 
 	if (aabb)
 	{
-		aabb->Set(NzVector3f::Unit());
+		aabb->Set(lengths);
 		aabb->Transform(matrix, 0.f);
 	}
 }
@@ -263,8 +263,8 @@ void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4
 	unsigned int vertexCount;
 	NzComputeBoxIndexVertexCount(NzVector3ui(subdivision), nullptr, &vertexCount);
 
-	// On envoie une matrice identité de sorte à ce que le box ne subisse aucune transformation (rendant plus facile l'étape suivante)
-	NzGenerateBox(NzBoxf(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), vertices, indices, nullptr, indexOffset);
+	// On envoie une matrice identité de sorte à ce que la boîte ne subisse aucune transformation (rendant plus facile l'étape suivante)
+	NzGenerateBox(NzVector3f(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), vertices, indices, nullptr, indexOffset);
 
 	if (aabb)
 	{
