@@ -155,7 +155,7 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 	#if NAZARA_UTILITY_SAFE
 	if (primitiveCount == 0)
 	{
-		NazaraError("GeomBuilder has no primitive");
+		NazaraError("PrimitiveList must have at least one primitive");
 		return;
 	}
 
