@@ -35,7 +35,7 @@ enum nzPlugin
 
 enum nzPrimitiveType
 {
-	nzPrimitiveType_Cube,
+	nzPrimitiveType_Box,
 	nzPrimitiveType_Plane,
 	nzPrimitiveType_Sphere,
 

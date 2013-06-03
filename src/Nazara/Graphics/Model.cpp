@@ -25,7 +25,7 @@ bool NzModelParameters::IsValid() const
 NzModel::NzModel() :
 m_currentSequence(nullptr),
 m_animationEnabled(true),
-m_boundingBoxUpdated(true),
+m_boundingVolumeUpdated(true),
 m_drawEnabled(true),
 m_matCount(0),
 m_skin(0),
@@ -36,10 +36,10 @@ m_skinCount(1)
 NzModel::NzModel(const NzModel& model) :
 NzSceneNode(model),
 m_materials(model.m_materials),
-m_boundingBox(model.m_boundingBox),
+m_boundingVolume(model.m_boundingVolume),
 m_currentSequence(model.m_currentSequence),
 m_animationEnabled(model.m_animationEnabled),
-m_boundingBoxUpdated(model.m_boundingBoxUpdated),
+m_boundingVolumeUpdated(model.m_boundingVolumeUpdated),
 m_drawEnabled(model.m_drawEnabled),
 m_interpolation(model.m_interpolation),
 m_currentFrame(model.m_currentFrame),
@@ -107,8 +107,8 @@ void NzModel::AdvanceAnimation(float elapsedTime)
 	}
 
 	m_animation->AnimateSkeleton(&m_skeleton, m_currentFrame, m_nextFrame, m_interpolation);
-	m_boundingBox.MakeNull();
-	m_boundingBoxUpdated = false;
+	m_boundingVolume.MakeNull();
+	m_boundingVolumeUpdated = false;
 }
 
 void NzModel::EnableAnimation(bool animation)
@@ -126,22 +126,22 @@ NzAnimation* NzModel::GetAnimation() const
 	return m_animation;
 }
 
-const NzBoundingBoxf& NzModel::GetBoundingBox() const
+const NzBoundingVolumef& NzModel::GetBoundingVolume() const
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_mesh)
 	{
 		NazaraError("Model has no mesh");
 
-		static NzBoundingBoxf dummy(nzExtend_Null);
+		static NzBoundingVolumef dummy(nzExtend_Null);
 		return dummy;
 	}
 	#endif
 
-	if (!m_boundingBoxUpdated)
-		UpdateBoundingBox();
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
 
-	return m_boundingBox;
+	return m_boundingVolume;
 }
 
 NzMaterial* NzModel::GetMaterial(const NzString& subMeshName) const
@@ -474,7 +474,7 @@ void NzModel::SetMesh(NzMesh* mesh)
 
 	if (m_mesh)
 	{
-		m_boundingBoxUpdated = false;
+		m_boundingVolumeUpdated = false;
 
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = *mesh->GetSkeleton(); // Copie du squelette template
@@ -494,8 +494,8 @@ void NzModel::SetMesh(NzMesh* mesh)
 	}
 	else
 	{
-		m_boundingBox.MakeNull();
-		m_boundingBoxUpdated = true;
+		m_boundingVolume.MakeNull();
+		m_boundingVolumeUpdated = true;
 		m_matCount = 0;
 		m_skinCount = 0;
 		m_materials.clear();
@@ -584,8 +584,8 @@ NzModel& NzModel::operator=(const NzModel& node)
 
 	m_animation = node.m_animation;
 	m_animationEnabled = node.m_animationEnabled;
-	m_boundingBox = node.m_boundingBox;
-	m_boundingBoxUpdated = node.m_boundingBoxUpdated;
+	m_boundingVolume = node.m_boundingVolume;
+	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
 	m_currentFrame = node.m_currentFrame;
 	m_currentSequence = node.m_currentSequence;
 	m_drawEnabled = node.m_drawEnabled;
@@ -609,8 +609,8 @@ NzModel& NzModel::operator=(NzModel&& node)
 
 	m_animation = std::move(node.m_animation);
 	m_animationEnabled = node.m_animationEnabled;
-	m_boundingBox = node.m_boundingBox;
-	m_boundingBoxUpdated = node.m_boundingBoxUpdated;
+	m_boundingVolume = node.m_boundingVolume;
+	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
 	m_currentFrame = node.m_currentFrame;
 	m_currentSequence = node.m_currentSequence;
 	m_drawEnabled = node.m_drawEnabled;
@@ -632,7 +632,7 @@ void NzModel::Invalidate()
 {
 	NzSceneNode::Invalidate();
 
-	m_boundingBoxUpdated = false;
+	m_boundingVolumeUpdated = false;
 }
 
 void NzModel::Register()
@@ -652,21 +652,21 @@ void NzModel::Update()
 		AdvanceAnimation(m_scene->GetUpdateTime());
 }
 
-void NzModel::UpdateBoundingBox() const
+void NzModel::UpdateBoundingVolume() const
 {
-	if (m_boundingBox.IsNull())
+	if (m_boundingVolume.IsNull())
 	{
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
-			m_boundingBox.Set(m_skeleton.GetAABB());
+			m_boundingVolume.Set(m_skeleton.GetAABB());
 		else
-			m_boundingBox.Set(m_mesh->GetAABB());
+			m_boundingVolume.Set(m_mesh->GetAABB());
 	}
 
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
-	m_boundingBox.Update(m_transformMatrix);
-	m_boundingBoxUpdated = true;
+	m_boundingVolume.Update(m_transformMatrix);
+	m_boundingVolumeUpdated = true;
 }
 
 bool NzModel::VisibilityTest(const NzFrustumf& frustum)
@@ -682,10 +682,10 @@ bool NzModel::VisibilityTest(const NzFrustumf& frustum)
 	if (!m_drawEnabled)
 		return false;
 
-	if (!m_boundingBoxUpdated)
-		UpdateBoundingBox();
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
 
-	return frustum.Contains(m_boundingBox);
+	return frustum.Contains(m_boundingVolume);
 }
 
 NzModelLoader::LoaderList NzModel::s_loaders;

@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -34,7 +34,7 @@ class NAZARA_API NzSubMesh : public NzResource
 		void GenerateNormalsAndTangents();
 		void GenerateTangents();
 
-		virtual const NzCubef& GetAABB() const = 0;
+		virtual const NzBoxf& GetAABB() const = 0;
 		virtual nzAnimationType GetAnimationType() const = 0;
 		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
 		unsigned int GetMaterialIndex() const;

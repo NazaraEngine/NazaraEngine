@@ -14,7 +14,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -65,7 +65,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void GenerateNormalsAndTangents();
 		void GenerateTangents();
 
-		const NzCubef& GetAABB() const;
+		const NzBoxf& GetAABB() const;
 		NzString GetAnimation() const;
 		nzAnimationType GetAnimationType() const;
 		unsigned int GetJointCount() const;

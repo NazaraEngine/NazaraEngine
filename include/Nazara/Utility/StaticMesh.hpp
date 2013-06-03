@@ -27,7 +27,7 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 
 		bool GenerateAABB();
 
-		const NzCubef& GetAABB() const override;
+		const NzBoxf& GetAABB() const override;
 		nzAnimationType GetAnimationType() const final;
 		const NzIndexBuffer* GetIndexBuffer() const override;
 		NzVertexBuffer* GetVertexBuffer();
@@ -37,13 +37,13 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		bool IsAnimated() const final;
 		bool IsValid() const;
 
-		void SetAABB(const NzCubef& aabb);
+		void SetAABB(const NzBoxf& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 	private:
 		void OnResourceReleased(const NzResource* resource, int index) override;
 
-		NzCubef m_aabb;
+		NzBoxf m_aabb;
 		const NzIndexBuffer* m_indexBuffer = nullptr;
 		NzVertexBuffer* m_vertexBuffer = nullptr;
 };

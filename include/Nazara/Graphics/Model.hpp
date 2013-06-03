@@ -48,7 +48,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void EnableDraw(bool draw);
 
 		NzAnimation* GetAnimation() const;
-		const NzBoundingBoxf& GetBoundingBox() const;
+		const NzBoundingVolumef& GetBoundingVolume() const;
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
 		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
@@ -92,17 +92,17 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void Register() override;
 		void Unregister() override;
 		void Update() override;
-		void UpdateBoundingBox() const;
+		void UpdateBoundingVolume() const;
 		bool VisibilityTest(const NzFrustumf& frustum) override;
 
 		std::vector<NzMaterialRef> m_materials;
-		mutable NzBoundingBoxf m_boundingBox;
-		NzSkeleton m_skeleton; // Uniquement pour les animations squelettiques
 		NzAnimationRef m_animation;
+		mutable NzBoundingVolumef m_boundingVolume;
 		NzMeshRef m_mesh;
+		NzSkeleton m_skeleton; // Uniquement pour les animations squelettiques
 		const NzSequence* m_currentSequence;
 		bool m_animationEnabled;
-		mutable bool m_boundingBoxUpdated;
+		mutable bool m_boundingVolumeUpdated;
 		bool m_drawEnabled;
 		float m_interpolation;
 		unsigned int m_currentFrame;

@@ -46,7 +46,7 @@ struct NzMeshImpl
 	std::vector<NzString> materials;
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;
-	NzCubef aabb;
+	NzBoxf aabb;
 	NzSkeleton skeleton; // Uniquement pour les meshs squelettiques
 	NzString animationPath;
 	bool aabbUpdated = false;
@@ -168,7 +168,7 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 
 	for (unsigned int p = 0; p < primitiveCount; ++p)
 	{
-		NzCubef aabb;
+		NzBoxf aabb;
 		std::unique_ptr<NzIndexBuffer> indexBuffer;
 		std::unique_ptr<NzVertexBuffer> vertexBuffer;
 
@@ -176,11 +176,11 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 
 		switch (primitive.type)
 		{
-			case nzPrimitiveType_Cube:
+			case nzPrimitiveType_Box:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
-				NzComputeCubeIndexVertexCount(primitive.cube.subdivision, &indexCount, &vertexCount);
+				NzComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
 				indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 				indexBuffer->SetPersistent(false);
@@ -193,7 +193,7 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 				indices.resize(indexCount);
 
 				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzGenerateCube(primitive.cube.cube, primitive.cube.subdivision, primitive.cube.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
+				NzGenerateBox(primitive.box.box, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
 				vertexMapper.Unmap();
 
 				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -432,14 +432,14 @@ void NzMesh::GenerateTangents()
 		subMesh->GenerateTangents();
 }
 
-const NzCubef& NzMesh::GetAABB() const
+const NzBoxf& NzMesh::GetAABB() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
 
-		static NzCubef dummy;
+		static NzBoxf dummy;
 		return dummy;
 	}
 	#endif

@@ -8,7 +8,7 @@
 #define NAZARA_SKELETON_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
 
@@ -26,7 +26,7 @@ class NAZARA_API NzSkeleton
 		bool Create(unsigned int jointCount);
 		void Destroy();
 
-		const NzCubef& GetAABB() const;
+		const NzBoxf& GetAABB() const;
 		NzJoint* GetJoint(const NzString& jointName);
 		NzJoint* GetJoint(unsigned int index);
 		const NzJoint* GetJoint(const NzString& jointName) const;

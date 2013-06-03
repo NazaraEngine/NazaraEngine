@@ -17,7 +17,7 @@ namespace
 			{
 			}
 
-			void Generate(float size, unsigned int recursionLevel, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+			void Generate(float size, unsigned int recursionLevel, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 			{
 				// Grandement inspiré de http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
 				const float t = (1.f + 2.236067f)/2.f;
@@ -139,7 +139,7 @@ namespace
 	};
 }
 
-void NzComputeCubeIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
 	unsigned int xVertexCount, yVertexCount, zVertexCount;
@@ -202,7 +202,7 @@ void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int sta
 		*vertexCount = sliceCount * stackCount;
 }
 
-void NzGenerateCube(const NzCubef& cube, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+void NzGenerateBox(const NzBoxf& box, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
 	unsigned int xVertexCount, yVertexCount, zVertexCount;
@@ -214,37 +214,37 @@ void NzGenerateCube(const NzCubef& cube, const NzVector3ui& subdivision, const N
 	NzMeshVertex* oldVertices = vertices;
 
 	// Face +X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), cube.GetPosition() + NzVector3f::UnitX() * cube.width/2.f, NzVector3f::UnitX(), NzVector2f(cube.height, cube.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), box.GetPosition() + NzVector3f::UnitX() * box.width/2.f, NzVector3f::UnitX(), NzVector2f(box.height, box.depth), vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face +Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), cube.GetPosition() + NzVector3f::UnitY() * cube.height/2.f, NzVector3f::UnitY(), NzVector2f(cube.width, cube.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), box.GetPosition() + NzVector3f::UnitY() * box.height/2.f, NzVector3f::UnitY(), NzVector2f(box.width, box.depth), vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face +Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), cube.GetPosition() + NzVector3f::UnitZ() * cube.depth/2.f, NzVector3f::UnitZ(), NzVector2f(cube.width, cube.height), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), box.GetPosition() + NzVector3f::UnitZ() * box.depth/2.f, NzVector3f::UnitZ(), NzVector2f(box.width, box.height), vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
 
 	// Face -X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), cube.GetPosition() - NzVector3f::UnitX() * cube.width/2.f, -NzVector3f::UnitX(), NzVector2f(cube.height, cube.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), box.GetPosition() - NzVector3f::UnitX() * box.width/2.f, -NzVector3f::UnitX(), NzVector2f(box.height, box.depth), vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face -Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), cube.GetPosition() - NzVector3f::UnitY() * cube.height/2.f, -NzVector3f::UnitY(), NzVector2f(cube.width, cube.depth), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), box.GetPosition() - NzVector3f::UnitY() * box.height/2.f, -NzVector3f::UnitY(), NzVector2f(box.width, box.depth), vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face -Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), cube.GetPosition() - NzVector3f::UnitZ() * cube.depth/2.f, -NzVector3f::UnitZ(), NzVector2f(cube.width, cube.height), vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), box.GetPosition() - NzVector3f::UnitZ() * box.depth/2.f, -NzVector3f::UnitZ(), NzVector2f(box.width, box.height), vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
@@ -258,13 +258,13 @@ void NzGenerateCube(const NzCubef& cube, const NzVector3ui& subdivision, const N
 	}
 }
 
-void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int vertexCount;
-	NzComputeCubeIndexVertexCount(NzVector3ui(subdivision), nullptr, &vertexCount);
+	NzComputeBoxIndexVertexCount(NzVector3ui(subdivision), nullptr, &vertexCount);
 
-	// On envoie une matrice identité de sorte à ce que le cube ne subisse aucune transformation (rendant plus facile l'étape suivante)
-	NzGenerateCube(NzCubef(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), vertices, indices, nullptr, indexOffset);
+	// On envoie une matrice identité de sorte à ce que le box ne subisse aucune transformation (rendant plus facile l'étape suivante)
+	NzGenerateBox(NzBoxf(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), vertices, indices, nullptr, indexOffset);
 
 	if (aabb)
 	{
@@ -281,13 +281,13 @@ void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4
 	}
 }
 
-void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	IcoSphereBuilder builder(matrix);
 	builder.Generate(size, recursionLevel, vertices, indices, aabb, indexOffset);
 }
 
-void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (2,3,5,9,17,33,...)
 	unsigned int horizontalFaceCount = (1 << subdivision.x);
@@ -344,7 +344,7 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position,
 		aabb->Set(rotation * NzVector3f(-halfSizeX, 0.f, -halfSizeY), rotation * NzVector3f(halfSizeX, 0.f, halfSizeY));
 }
 
-void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzCubef* aabb, unsigned int indexOffset)
+void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 	float invSliceCount = 1.f / (sliceCount-1);
