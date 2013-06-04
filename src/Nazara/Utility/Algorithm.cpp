@@ -178,16 +178,16 @@ void NzComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, unsigned in
 
 void NzComputePlaneIndexVertexCount(const NzVector2ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
 {
-	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (2,3,5,9,17,33,...)
+	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 	unsigned int horizontalFaceCount = (1 << subdivision.x);
 	unsigned int verticalFaceCount = (1 << subdivision.y);
 
-	// Et le nombre de sommets est ce nombre ajouté de 1
+	// Et le nombre de sommets est ce nombre ajouté de 1 (2,3,5,9,17,33,...)
 	unsigned int horizontalVertexCount = horizontalFaceCount + 1;
 	unsigned int verticalVertexCount = verticalFaceCount + 1;
 
 	if (indexCount)
-		*indexCount = horizontalFaceCount*verticalFaceCount*6;
+		*indexCount = horizontalFaceCount*verticalFaceCount*6; // Six indices sont nécessaires pour décrire une face (deux triangles)
 
 	if (vertexCount)
 		*vertexCount = horizontalVertexCount*verticalVertexCount;
@@ -289,11 +289,11 @@ void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix
 
 void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
 {
-	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (2,3,5,9,17,33,...)
+	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 	unsigned int horizontalFaceCount = (1 << subdivision.x);
 	unsigned int verticalFaceCount = (1 << subdivision.y);
 
-	// Et le nombre de sommets est ce nombre ajouté de 1
+	// Et le nombre de sommets est ce nombre ajouté de 1 (2,3,5,9,17,33,...)
 	unsigned int horizontalVertexCount = horizontalFaceCount + 1;
 	unsigned int verticalVertexCount = verticalFaceCount + 1;
 
