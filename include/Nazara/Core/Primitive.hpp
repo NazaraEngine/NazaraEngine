@@ -8,7 +8,7 @@
 #define NAZARA_PRIMITIVE_HPP
 
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -21,11 +21,11 @@ struct NzPrimitive
 	{
 		struct
 		{
-			NzCubef cube;
 			NzMatrix4f matrix;
+			NzVector3f lengths;
 			NzVector3ui subdivision;
 		}
-		cube;
+		box;
 
 		struct
 		{
