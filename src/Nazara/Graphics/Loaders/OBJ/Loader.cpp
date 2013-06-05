@@ -155,6 +155,9 @@ namespace
 			}
 			vertexBuffer.release();
 
+			if (parameters.mesh.optimizeIndexBuffers)
+				indexBuffer->Optimize();
+
 			subMesh->SetIndexBuffer(indexBuffer.get());
 			indexBuffer.release();
 

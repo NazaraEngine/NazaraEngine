@@ -287,6 +287,9 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 		}
 		vertexBuffer.release();
 
+		if (params.optimizeIndexBuffers)
+			indexBuffer->Optimize();
+
 		subMesh->SetIndexBuffer(indexBuffer.get());
 		indexBuffer.release();
 
