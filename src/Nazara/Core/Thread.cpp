@@ -18,51 +18,6 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-/*********************************NzThread::Id********************************/
-
-bool operator==(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id == rhs.m_id;
-}
-
-bool operator!=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id != rhs.m_id;
-}
-
-bool operator<(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id < rhs.m_id;
-}
-
-bool operator<=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id <= rhs.m_id;
-}
-
-bool operator>(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id > rhs.m_id;
-}
-
-bool operator>=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id >= rhs.m_id;
-}
-
-bool operator<<(std::ostream& o, const NzThread::Id& id)
-{
-	o << id.m_id;
-	return o;
-}
-
-NzThread::Id::Id(NzThreadImpl* thread) :
-m_id(thread)
-{
-}
-
-/***********************************NzThread**********************************/
-
 NzThread::NzThread() :
 m_impl(nullptr)
 {
@@ -146,4 +101,47 @@ void NzThread::Sleep(nzUInt32 milliseconds)
 void NzThread::CreateImpl(NzFunctor* functor)
 {
 	m_impl = new NzThreadImpl(functor);
+}
+
+/*********************************NzThread::Id********************************/
+
+bool operator==(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id == rhs.m_id;
+}
+
+bool operator!=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id != rhs.m_id;
+}
+
+bool operator<(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id < rhs.m_id;
+}
+
+bool operator<=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id <= rhs.m_id;
+}
+
+bool operator>(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id > rhs.m_id;
+}
+
+bool operator>=(const NzThread::Id& lhs, const NzThread::Id& rhs)
+{
+	return lhs.m_id >= rhs.m_id;
+}
+
+bool operator<<(std::ostream& o, const NzThread::Id& id)
+{
+	o << id.m_id;
+	return o;
+}
+
+NzThread::Id::Id(NzThreadImpl* thread) :
+m_id(thread)
+{
 }

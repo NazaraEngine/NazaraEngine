@@ -292,7 +292,6 @@ namespace
 				sourceCode += "float intensity = light.r*0.3 + light.g*0.59 + light.b*0.11;\n"
 				              "vec3 emission = vec3(" + textureLookupKW + "(MaterialEmissiveMap, vTexCoord));\n"
 				              + fragmentColorKW + " = vec4(mix(lighting, emission, clamp(1.0 - 3.0*intensity, 0.0, 1.0)), alpha);\n";
-				///NOTE: Pour un shader avec un coût réduit avec une qualité moyenne, il est possible de remplacer "length(light)" par "dot(light, light)"
 			}
 			else
 				sourceCode += fragmentColorKW + " = vec4(lighting, alpha);\n";
