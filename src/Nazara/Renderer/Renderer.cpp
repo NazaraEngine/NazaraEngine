@@ -242,6 +242,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	{
 		GLenum type;
 		const nzUInt8* ptr = reinterpret_cast<const nzUInt8*>(s_indexBuffer->GetPointer());
+
 		if (s_indexBuffer->HasLargeIndices())
 		{
 			ptr += firstIndex*sizeof(nzUInt32);
