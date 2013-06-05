@@ -21,7 +21,7 @@ class NAZARA_API NzPrimitiveList
 		void AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 		void AddCubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& matrix = NzMatrix4f::Identity());
 		void AddCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddIcoSphere(float size, unsigned int recursionLevel = 1, const NzMatrix4f& matrix = NzMatrix4f::Identity());
+		void AddIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& matrix = NzMatrix4f::Identity());
 		void AddIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 		void AddPlane(const NzPlanef& plane, const NzVector2f& size, const NzVector2ui& subdivision = NzVector2ui(0U));
 		void AddPlane(const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, const NzVector2ui& subdivision = NzVector2ui(0U));
