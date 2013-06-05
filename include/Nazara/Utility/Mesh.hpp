@@ -23,11 +23,14 @@ struct NAZARA_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 
-	// Si ceci sera le stockage choisi par le loader
+	// Si ceci sera le stockage utilisé par les buffers
 	nzBufferStorage storage = nzBufferStorage_Hardware;
 
-	// Le loader doit-il charger une version animée du mesh si possible ?
+	// Charger une version animée du mesh si possible ?
 	bool animated = true;
+
+	// Faut-il optimiser les index buffers ? (Rendu plus rapide, mais le chargement dure plus longtemps)
+	bool optimizeIndexBuffers = true;
 
 	bool IsValid() const;
 };
