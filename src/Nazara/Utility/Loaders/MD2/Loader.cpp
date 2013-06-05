@@ -103,6 +103,7 @@ namespace
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
 		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(header.num_tris * 3, false, parameters.storage, nzBufferUsage_Static));
+		indexBuffer->SetPersistent(false);
 
 		/// Lecture des triangles
 		std::vector<md2_triangle> triangles(header.num_tris);
@@ -148,8 +149,6 @@ namespace
 		}
 		#endif
 
-		const unsigned int indexFix[3] = {0, 2, 1}; // Pour respécifier les indices dans le bon ordre
-
 		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), header.num_vertices, parameters.storage, nzBufferUsage_Static));
 		std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
 		if (!subMesh->Create(vertexBuffer.get()))
@@ -158,9 +157,10 @@ namespace
 			return false;
 		}
 
-		subMesh->SetIndexBuffer(indexBuffer.get());
+		if (parameters.optimizeIndexBuffers)
+			indexBuffer->Optimize();
 
-		indexBuffer->SetPersistent(false);
+		subMesh->SetIndexBuffer(indexBuffer.get());
 		indexBuffer.release();
 
 		/// Chargement des vertices
@@ -187,6 +187,7 @@ namespace
 		NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
 
 		/// Chargement des coordonnées de texture
+		const unsigned int indexFix[3] = {0, 2, 1}; // Pour respécifier les indices dans le bon ordre
 		for (unsigned int i = 0; i < header.num_tris; ++i)
 		{
 			for (unsigned int j = 0; j < 3; ++j)
