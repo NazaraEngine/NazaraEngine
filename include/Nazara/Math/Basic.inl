@@ -50,7 +50,7 @@ T NzDegreeToRadian(T degrees)
 	return degrees * F(M_PI/180.0);
 }
 
-unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
+inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 {
 	unsigned int r = 1;
 	for (unsigned int i = 0; i < exponent; ++i)
@@ -59,8 +59,7 @@ unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 	return r;
 }
 
-
-unsigned int NzGetNumberLength(signed char number)
+inline unsigned int NzGetNumberLength(signed char number)
 {
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
@@ -79,7 +78,7 @@ unsigned int NzGetNumberLength(signed char number)
 		return 4;
 }
 
-unsigned int NzGetNumberLength(unsigned char number)
+inline unsigned int NzGetNumberLength(unsigned char number)
 {
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
@@ -92,7 +91,7 @@ unsigned int NzGetNumberLength(unsigned char number)
 		return 1;
 }
 
-unsigned int NzGetNumberLength(int number)
+inline unsigned int NzGetNumberLength(int number)
 {
 	if (number == 0)
 		return 1;
@@ -100,7 +99,7 @@ unsigned int NzGetNumberLength(int number)
 	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
 }
 
-unsigned int NzGetNumberLength(unsigned int number)
+inline unsigned int NzGetNumberLength(unsigned int number)
 {
 	if (number == 0)
 		return 1;
@@ -108,7 +107,7 @@ unsigned int NzGetNumberLength(unsigned int number)
 	return static_cast<unsigned int>(std::log10(number))+1;
 }
 
-unsigned int NzGetNumberLength(long long number)
+inline unsigned int NzGetNumberLength(long long number)
 {
 	if (number == 0)
 		return 1;
@@ -116,7 +115,7 @@ unsigned int NzGetNumberLength(long long number)
 	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
 }
 
-unsigned int NzGetNumberLength(unsigned long long number)
+inline unsigned int NzGetNumberLength(unsigned long long number)
 {
 	if (number == 0)
 		return 1;
@@ -124,19 +123,19 @@ unsigned int NzGetNumberLength(unsigned long long number)
 	return static_cast<unsigned int>(std::log10(number))+1;
 }
 
-unsigned int NzGetNumberLength(float number, nzUInt8 precision)
+inline unsigned int NzGetNumberLength(float number, nzUInt8 precision)
 {
 	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
-unsigned int NzGetNumberLength(double number, nzUInt8 precision)
+inline unsigned int NzGetNumberLength(double number, nzUInt8 precision)
 {
 	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
-unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
+inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 {
 	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
@@ -188,7 +187,7 @@ bool NzNumberEquals(T a, T b)
 	return std::fabs(a-b) < std::numeric_limits<T>::epsilon();
 }
 
-NzString NzNumberToString(long long number, nzUInt8 radix)
+inline NzString NzNumberToString(long long number, nzUInt8 radix)
 {
 	#if NAZARA_MATH_SAFE
 	if (radix < 2 || radix > 36)
@@ -244,7 +243,7 @@ T NzRadianToDegree(T radians)
 	return radians * F(180.0/M_PI);
 }
 
-long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
+inline long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 {
 	#if NAZARA_MATH_SAFE
 	if (radix < 2 || radix > 36)
