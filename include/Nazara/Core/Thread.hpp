@@ -17,25 +17,7 @@ class NzThreadImpl;
 class NAZARA_API NzThread : NzNonCopyable
 {
 	public:
-		class NAZARA_API Id
-		{
-			friend NzThread;
-
-			public:
-				NAZARA_API friend bool operator==(const Id& lhs, const Id& rhs);
-				NAZARA_API friend bool operator!=(const Id& lhs, const Id& rhs);
-				NAZARA_API friend bool operator<(const Id& lhs, const Id& rhs);
-				NAZARA_API friend bool operator<=(const Id& lhs, const Id& rhs);
-				NAZARA_API friend bool operator>(const Id& lhs, const Id& rhs);
-				NAZARA_API friend bool operator>=(const Id& lhs, const Id& rhs);
-
-				NAZARA_API friend bool operator<<(std::ostream& o, const Id& id);
-
-			private:
-				Id(NzThreadImpl* thread);
-
-				NzThreadImpl* m_id = nullptr;
-		};
+		class Id;
 
 		NzThread();
 		template<typename F> NzThread(F function);
@@ -58,6 +40,26 @@ class NAZARA_API NzThread : NzNonCopyable
 		void CreateImpl(NzFunctor* functor);
 
 		NzThreadImpl* m_impl;
+};
+
+class NAZARA_API NzThread::Id
+{
+	friend NzThread;
+
+	public:
+		NAZARA_API friend bool operator==(const Id& lhs, const Id& rhs);
+		NAZARA_API friend bool operator!=(const Id& lhs, const Id& rhs);
+		NAZARA_API friend bool operator<(const Id& lhs, const Id& rhs);
+		NAZARA_API friend bool operator<=(const Id& lhs, const Id& rhs);
+		NAZARA_API friend bool operator>(const Id& lhs, const Id& rhs);
+		NAZARA_API friend bool operator>=(const Id& lhs, const Id& rhs);
+
+		NAZARA_API friend bool operator<<(std::ostream& o, const Id& id);
+
+	private:
+		Id(NzThreadImpl* thread);
+
+		NzThreadImpl* m_id = nullptr;
 };
 
 #include <Nazara/Core/Thread.inl>
