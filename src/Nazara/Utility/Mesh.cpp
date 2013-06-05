@@ -188,20 +188,10 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 				vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
 				vertexBuffer->SetPersistent(false);
 
-				///TODO: Remplacer par un itérateur sur les indices
-				std::vector<nzUInt32> indices;
-				indices.resize(indexCount);
-
 				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
-				vertexMapper.Unmap();
-
 				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-				for (unsigned int i = 0; i < indexCount; ++i)
-					indexMapper.Set(i, indices[i]);
-
-				indexMapper.Unmap();
+				NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 				break;
 			}
 
@@ -217,20 +207,10 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 				vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
 				vertexBuffer->SetPersistent(false);
 
-				///TODO: Remplacer par un itérateur sur les indices
-				std::vector<nzUInt32> indices;
-				indices.resize(indexCount);
-
 				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzGeneratePlane(primitive.plane.subdivision, primitive.plane.position, primitive.plane.normal, primitive.plane.size, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
-				vertexMapper.Unmap();
-
 				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-				for (unsigned int i = 0; i < indexCount; ++i)
-					indexMapper.Set(i, indices[i]);
-
-				indexMapper.Unmap();
+				NzGeneratePlane(primitive.plane.subdivision, primitive.plane.position, primitive.plane.normal, primitive.plane.size, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 				break;
 			}
 
@@ -250,20 +230,10 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
 						vertexBuffer->SetPersistent(false);
 
-						///TODO: Remplacer par un itérateur sur les indices
-						std::vector<nzUInt32> indices;
-						indices.resize(indexCount);
-
 						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
-						vertexMapper.Unmap();
-
 						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-						for (unsigned int i = 0; i < indexCount; ++i)
-							indexMapper.Set(i, indices[i]);
-
-						indexMapper.Unmap();
+						NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 						break;
 					}
 
@@ -279,20 +249,10 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
 						vertexBuffer->SetPersistent(false);
 
-						///TODO: Remplacer par un itérateur sur les indices
-						std::vector<nzUInt32> indices;
-						indices.resize(indexCount);
-
 						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
-						vertexMapper.Unmap();
-
 						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-						for (unsigned int i = 0; i < indexCount; ++i)
-							indexMapper.Set(i, indices[i]);
-
-						indexMapper.Unmap();
+						NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 						break;
 					}
 
@@ -308,20 +268,11 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
 						vertexBuffer->SetPersistent(false);
 
-						///TODO: Remplacer par un itérateur sur les indices
-						std::vector<nzUInt32> indices;
-						indices.resize(indexCount);
-
 						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), &indices[0], &aabb);
-						vertexMapper.Unmap();
-
 						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-						for (unsigned int i = 0; i < indexCount; ++i)
-							indexMapper.Set(i, indices[i]);
-
-						indexMapper.Unmap();
+						NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+						break;
 					}
 				}
 				break;
