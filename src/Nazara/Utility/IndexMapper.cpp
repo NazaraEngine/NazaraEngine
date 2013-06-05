@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -101,6 +102,14 @@ NzIndexMapper(subMesh->GetIndexBuffer())
 
 nzUInt32 NzIndexMapper::Get(unsigned int i) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_indexCount)
+	{
+		NazaraError("Index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_indexCount) + ')');
+		return 0;
+	}
+	#endif
+
 	return m_getter(m_mapper.GetPointer(), i);
 }
 
@@ -109,12 +118,35 @@ const NzIndexBuffer* NzIndexMapper::GetBuffer() const
 	return m_mapper.GetBuffer();
 }
 
+unsigned int NzIndexMapper::GetIndexCount() const
+{
+	return m_indexCount;
+}
+
 void NzIndexMapper::Set(unsigned int i, nzUInt32 value)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (i >= m_indexCount)
+	{
+		NazaraError("Index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_indexCount) + ')');
+		return;
+	}
+	#endif
+
 	m_setter(m_mapper.GetPointer(), i, value);
 }
 
 void NzIndexMapper::Unmap()
 {
 	m_mapper.Unmap();
+}
+
+NzIndexIterator NzIndexMapper::begin()
+{
+	return NzIndexIterator(this, 0);
+}
+
+NzIndexIterator NzIndexMapper::end()
+{
+	return NzIndexIterator(this, m_indexCount); // Post-end
 }
