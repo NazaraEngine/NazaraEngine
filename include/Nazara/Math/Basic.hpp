@@ -23,23 +23,23 @@ template<typename T> T NzApproach(T value, T objective, T increment);
 template<typename T> T NzClamp(T value, T min, T max);
 template<typename T> T NzDegrees(T degrees);
 template<typename T> T NzDegreeToRadian(T degrees);
-inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
-inline unsigned int NzGetNumberLength(signed char number);
-inline unsigned int NzGetNumberLength(unsigned char number);
-inline unsigned int NzGetNumberLength(int number);
-inline unsigned int NzGetNumberLength(unsigned int number);
-inline unsigned int NzGetNumberLength(long long number);
-inline unsigned int NzGetNumberLength(unsigned long long number);
-inline unsigned int NzGetNumberLength(float number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
-inline unsigned int NzGetNumberLength(double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
-inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
+unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
+unsigned int NzGetNumberLength(signed char number);
+unsigned int NzGetNumberLength(unsigned char number);
+unsigned int NzGetNumberLength(int number);
+unsigned int NzGetNumberLength(unsigned int number);
+unsigned int NzGetNumberLength(long long number);
+unsigned int NzGetNumberLength(unsigned long long number);
+unsigned int NzGetNumberLength(float number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
+unsigned int NzGetNumberLength(double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
+unsigned int NzGetNumberLength(long double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
 template<typename T, typename T2> T NzLerp(T from, T to, T2 interpolation);
 template<typename T> T NzNormalizeAngle(T angle);
 template<typename T> bool NzNumberEquals(T a, T b);
-inline NzString NzNumberToString(long long number, nzUInt8 radix = 10);
+NzString NzNumberToString(long long number, nzUInt8 radix = 10);
 template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);
-inline long long NzStringToNumber(NzString str, nzUInt8 radix = 10, bool* ok = nullptr);
+long long NzStringToNumber(NzString str, nzUInt8 radix = 10, bool* ok = nullptr);
 
 #include <Nazara/Math/Basic.inl>
 
