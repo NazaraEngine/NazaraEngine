@@ -47,7 +47,8 @@ namespace
 	}
 }
 
-NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access)
+NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access) :
+m_indexCount(indexBuffer->GetIndexCount())
 {
 	if (indexBuffer && !indexBuffer->IsSequential())
 	{
@@ -79,7 +80,8 @@ NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access)
 }
 
 NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access) :
-m_setter(SetterError)
+m_setter(SetterError),
+m_indexCount(indexBuffer->GetIndexCount())
 {
 	if (indexBuffer && !indexBuffer->IsSequential())
 	{
