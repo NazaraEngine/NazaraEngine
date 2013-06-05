@@ -17,7 +17,7 @@ namespace
 			{
 			}
 
-			void Generate(float size, unsigned int recursionLevel, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+			void Generate(float size, unsigned int recursionLevel, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 			{
 				// Grandement inspiré de http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
 				const float t = (1.f + 2.236067f)/2.f;
@@ -202,7 +202,7 @@ void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int sta
 		*vertexCount = sliceCount * stackCount;
 }
 
-void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
 	unsigned int xVertexCount, yVertexCount, zVertexCount;
@@ -258,7 +258,7 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 	}
 }
 
-void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int vertexCount;
 	NzComputeBoxIndexVertexCount(NzVector3ui(subdivision), nullptr, &vertexCount);
@@ -281,13 +281,13 @@ void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4
 	}
 }
 
-void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	IcoSphereBuilder builder(matrix);
 	builder.Generate(size, recursionLevel, vertices, indices, aabb, indexOffset);
 }
 
-void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 	unsigned int horizontalFaceCount = (1 << subdivision.x);
@@ -344,7 +344,7 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position,
 		aabb->Set(rotation * NzVector3f(-halfSizeX, 0.f, -halfSizeY), rotation * NzVector3f(halfSizeX, 0.f, halfSizeY));
 }
 
-void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, nzUInt32* indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 	float invSliceCount = 1.f / (sliceCount-1);

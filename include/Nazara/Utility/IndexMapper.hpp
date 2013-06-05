@@ -11,6 +11,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 
 class NzIndexBuffer;
+class NzIndexIterator;
 class NzSubMesh;
 
 using NzIndexMapperGetter = nzUInt32 (*)(const void* buffer, unsigned int i);
@@ -26,15 +27,24 @@ class NAZARA_API NzIndexMapper
 
 		nzUInt32 Get(unsigned int i) const;
 		const NzIndexBuffer* GetBuffer() const;
+		unsigned int GetIndexCount() const;
 
 		void Set(unsigned int i, nzUInt32 value);
 
 		void Unmap();
 
+		// Méthodes STD
+		NzIndexIterator begin();
+		//NzIndexConstIterator begin() const;
+		NzIndexIterator end();
+		//NzIndexIterator end() const;
+		// Méthodes STD
+
 	private:
 		NzBufferMapper<NzIndexBuffer> m_mapper;
 		NzIndexMapperGetter m_getter;
 		NzIndexMapperSetter m_setter;
+		unsigned int m_indexCount;
 };
 
 #endif // NAZARA_INDEXMAPPER_HPP
