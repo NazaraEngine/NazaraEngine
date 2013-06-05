@@ -7,6 +7,7 @@
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
@@ -290,17 +291,18 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
-			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+			indexBuffer->SetPersistent(false);
 
-			unsigned int index = 0;
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+			NzIndexIterator index = indexMapper.begin();
+
 			for (const Mesh::Triangle& triangle : md5Mesh.triangles)
 			{
 				// On les respécifie dans le bon ordre
-				indexMapper.Set(index++, triangle.x);
-				indexMapper.Set(index++, triangle.z);
-				indexMapper.Set(index++, triangle.y);
+				*index++ = triangle.x;
+				*index++ = triangle.z;
+				*index++ = triangle.y;
 			}
-
 			indexMapper.Unmap();
 
 			// Vertex buffer
@@ -339,9 +341,10 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			vertexBuffer->SetPersistent(false);
 			vertexBuffer.release();
 
-			subMesh->SetIndexBuffer(indexBuffer.get());
+			if (m_parameters.optimizeIndexBuffers)
+				indexBuffer->Optimize();
 
-			indexBuffer->SetPersistent(false);
+			subMesh->SetIndexBuffer(indexBuffer.get());
 			indexBuffer.release();
 
 			// Material
