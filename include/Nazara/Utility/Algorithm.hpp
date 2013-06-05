@@ -16,6 +16,7 @@
 #include <Nazara/Utility/Mesh.hpp>
 
 NAZARA_API void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
+NAZARA_API unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int indexCount);
 NAZARA_API void NzComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
 NAZARA_API void NzComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, unsigned int* indexCount, unsigned int* vertexCount);
 NAZARA_API void NzComputePlaneIndexVertexCount(const NzVector2ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
@@ -26,6 +27,8 @@ NAZARA_API void NzGenerateCubicSphere(float size, unsigned int subdivision, cons
 NAZARA_API void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 NAZARA_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 NAZARA_API void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+
+NAZARA_API void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount);
 
 inline void NzTransformVertex(NzMeshVertex* vertex, const NzMatrix4f& matrix);
 inline void NzTransformVertices(NzMeshVertex* vertices, unsigned int vertexCount, const NzMatrix4f& matrix);
