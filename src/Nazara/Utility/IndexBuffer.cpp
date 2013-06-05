@@ -4,7 +4,10 @@
 
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/IndexIterator.hpp>
+#include <Nazara/Utility/IndexMapper.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -63,6 +66,13 @@ m_startIndex(indexBuffer.m_startIndex)
 }
 
 NzIndexBuffer::~NzIndexBuffer() = default;
+
+unsigned int NzIndexBuffer::ComputeCacheMissCount() const
+{
+	NzIndexMapper mapper(this);
+
+	return NzComputeCacheMissCount(mapper.begin(), m_indexCount);
+}
 
 bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
 {
@@ -191,6 +201,13 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned in
 	#endif
 
 	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
+}
+
+void NzIndexBuffer::Optimize()
+{
+	NzIndexMapper mapper(this);
+
+	NzOptimizeIndices(mapper.begin(), m_indexCount);
 }
 
 bool NzIndexBuffer::SetStorage(nzBufferStorage storage)

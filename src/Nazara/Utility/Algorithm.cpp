@@ -2,8 +2,33 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+/*
+ * vcacheopt.h - Vertex Cache Optimizer
+ * Copyright 2009 Michael Georgoulpoulos <mgeorgoulopoulos at gmail>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Utility/IndexIterator.hpp>
+#include <algorithm>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -137,7 +162,480 @@ namespace
 			float m_size;
 			unsigned int m_vertexIndex;
 	};
+
+	// Source: https://code.google.com/p/vcacne/
+	// Auteur: Michael Georgoulpoulos
+	// Selon ce papier: http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
+	// Modifié pour les besoins du moteur
+	///TODO: Déplacer dans un fichier à part ?
+	struct VertexCacheData
+	{
+		int position_in_cache = -1;
+		float current_score = 0.f;
+		int total_valence = 0; // toatl number of triangles using this vertex
+		int remaining_valence = 0; // number of triangles using it but not yet rendered
+		std::vector<int> tri_indices; // indices to the indices that use this vertex
+		bool calculated; // was the score calculated during this iteration?
+
+
+		int FindTriangle(int tri)
+		{
+			for (unsigned int i = 0; i < tri_indices.size(); ++i)
+				if (tri_indices[i] == tri) return i;
+
+			return -1;
+		}
+
+		void MoveTriangleToEnd(int tri)
+		{
+			auto it = std::find(tri_indices.begin(), tri_indices.end(), tri);
+			int t_ind = (it != tri_indices.end()) ? std::distance(tri_indices.begin(), it) : -1;
+
+			NazaraAssert(t_ind >= 0, "Triangle not found");
+
+			tri_indices.erase(tri_indices.begin() + t_ind, tri_indices.begin() + t_ind + 1);
+			tri_indices.push_back(tri);
+		}
+	};
+
+	struct TriangleCacheData
+	{
+		bool rendered = false; // has the triangle been added to the draw list yet?
+		float current_score = 0.f; // sum of the score of its vertices
+		int verts[3] = {-1, -1, -1}; // indices to the triangle's vertices
+		bool calculated = false; // was the score calculated during this iteration?
+	};
+
+	class VertexCache
+	{
+		public:
+			VertexCache()
+			{
+				Clear();
+			}
+
+			VertexCache(NzIndexIterator indices, unsigned int indexCount)
+			{
+				Clear();
+
+				for (unsigned int i = 0; i < indexCount; ++i)
+					AddVertex(*indices++);
+			}
+
+			// the vertex will be placed on top
+			// if the vertex didn't exist previewsly in
+			// the cache, then miss count is incermented
+			void AddVertex(unsigned int v)
+			{
+				int w = FindVertex(v);
+				if (w >= 0)
+					// remove the vertex from the cache (to reinsert it later on the top)
+					RemoveVertex(w);
+				else
+					// the vertex was not found in the cache - increment misses
+					m_misses++;
+
+				// shift all vertices down (to make room for the new top vertex)
+				for (int i=39; i>0; i--)
+					m_cache[i] = m_cache[i-1];
+
+				// add the new vertex on top
+				m_cache[0] = v;
+			}
+
+			void Clear()
+			{
+				for (int i=0; i<40; i++)
+					m_cache[i] = -1;
+
+				m_misses = 0;
+			}
+
+			int GetMissCount()
+			{
+				return m_misses;
+			}
+
+			int GetVertex(int which)
+			{
+				return m_cache[which];
+			}
+
+		private:
+			int FindVertex(int v)
+			{
+				for (int i = 0; i < 32; ++i)
+				{
+					if (m_cache[i] == v)
+						return i;
+				}
+
+				return -1;
+			}
+
+			void RemoveVertex(int stack_index)
+			{
+				for (int i=stack_index; i<38; i++)
+					m_cache[i] = m_cache[i+1];
+			}
+
+			int m_cache[40];
+			int m_misses; // cache miss count
+	};
+
+	class VertexCacheOptimizer
+	{
+		public:
+			enum Result
+			{
+				Success,
+				Fail_BadIndex,
+				Fail_NoVerts
+			};
+
+			VertexCacheOptimizer()
+			{
+				// initialize constants
+				m_cacheDecayPower = 1.5f;
+				m_lastTriScore = 0.75f;
+				m_valenceBoostScale = 2.0f;
+				m_valenceBoostPower = 0.5f;
+
+				m_bestTri = 0;
+			}
+
+			// stores new indices in place
+			Result Optimize(NzIndexIterator indices, unsigned int indexCount)
+			{
+				if (indexCount == 0)
+					return Fail_NoVerts;
+
+				// find vertex count
+				int max_vert = *std::max_element(indices, indices + indexCount);
+
+				Result res = Init(indices, indexCount, max_vert + 1);
+				if (res != Success)
+					return res;
+
+				// iterate until Iterate returns false
+				while (Iterate());
+
+				// rewrite optimized index list
+				for (int index : m_drawList)
+				{
+					*indices++ = m_triangles[index].verts[0];
+					*indices++ = m_triangles[index].verts[1];
+					*indices++ = m_triangles[index].verts[2];
+				}
+
+				return Success;
+			}
+
+		private:
+			float CalculateVertexScore(unsigned int vertex)
+			{
+				VertexCacheData *v = &m_vertices[vertex];
+				if (v->remaining_valence <= 0)
+					// No tri needs this vertex!
+					return -1.0f;
+
+				float ret = 0.0f;
+				if (v->position_in_cache < 0)
+				{
+					// Vertex is not in FIFO cache - no score.
+				}
+				else
+				{
+					if (v->position_in_cache < 3)
+					{
+						// This vertex was used in the last triangle,
+						// so it has a fixed score, whichever of the three
+						// it's in. Otherwise, you can get very different
+						// answers depending on whether you add
+						// the triangle 1,2,3 or 3,1,2 - which is silly.
+						ret = m_lastTriScore;
+					}
+					else
+					{
+						// Points for being high in the cache.
+						const float Scaler = 1.0f / (32  - 3);
+						ret = 1.0f - (v->position_in_cache - 3) * Scaler;
+						ret = std::pow(ret, m_cacheDecayPower);
+					}
+				}
+
+				// Bonus points for having a low number of tris still to
+				// use the vert, so we get rid of lone verts quickly.
+				float valence_boost = std::pow(static_cast<float>(v->remaining_valence), -m_valenceBoostPower);
+				ret += m_valenceBoostScale * valence_boost;
+
+				return ret;
+			}
+
+			// returns the index of the triangle with the highest score
+			// (or -1, if there aren't any active triangles)
+			int FullScoreRecalculation()
+			{
+				// calculate score for all vertices
+				for (unsigned int i = 0; i < m_vertices.size(); ++i)
+					m_vertices[i].current_score = CalculateVertexScore(i);
+
+				// calculate scores for all active triangles
+				float max_score;
+				int max_score_tri = -1;
+				bool first_time = true;
+
+				for (unsigned int i = 0; i < m_triangles.size(); ++i)
+				{
+					if (m_triangles[i].rendered)
+						continue;
+
+					// sum the score of all the triangle's vertices
+					float sc = m_vertices[m_triangles[i].verts[0]].current_score +
+					           m_vertices[m_triangles[i].verts[1]].current_score +
+					           m_vertices[m_triangles[i].verts[2]].current_score;
+
+					m_triangles[i].current_score = sc;
+
+					if (first_time || sc > max_score)
+					{
+						first_time = false;
+						max_score = sc;
+						max_score_tri = i;
+					}
+				}
+
+				return max_score_tri;
+			}
+
+			Result InitialPass()
+			{
+				for (unsigned int i = 0; i < m_indices.size(); ++i)
+				{
+					int index = m_indices[i];
+					if (index < 0 || index >= static_cast<int>(m_vertices.size()))
+						return Fail_BadIndex;
+
+					m_vertices[index].total_valence++;
+					m_vertices[index].remaining_valence++;
+
+					m_vertices[index].tri_indices.push_back(i/3);
+				}
+
+				m_bestTri = FullScoreRecalculation();
+
+				return Success;
+			}
+
+			Result Init(NzIndexIterator indices, unsigned int indexCount, int vertex_count)
+			{
+				// clear the draw list
+				m_drawList.clear();
+
+				// allocate and initialize vertices and triangles
+				m_vertices.clear(); // Pour reconstruire tous les éléments
+				m_vertices.resize(vertex_count);
+
+				m_triangles.clear();
+				for (unsigned int i = 0; i < indexCount; i += 3)
+				{
+					TriangleCacheData dat;
+					for (unsigned int j = 0; j < 3; ++j)
+						dat.verts[j] = indices[i + j];
+
+					m_triangles.push_back(dat);
+				}
+
+				// copy the indices
+				m_indices.resize(indexCount);
+				for (unsigned int i = 0; i < indexCount; ++i)
+					m_indices[i] = indices[i];
+
+				m_vertexCache.Clear();
+				m_bestTri = -1;
+
+				return InitialPass();
+			}
+
+			void AddTriangleToDrawList(int tri)
+			{
+				// reset all cache positions
+				for (unsigned int i = 0; i < 32; ++i)
+				{
+					int ind = m_vertexCache.GetVertex(i);
+					if (ind < 0)
+						continue;
+
+					m_vertices[ind].position_in_cache = -1;
+				}
+
+				TriangleCacheData* t = &m_triangles[tri];
+				if (t->rendered)
+					return; // triangle is already in the draw list
+
+				for (unsigned int i = 0; i < 3; ++i)
+				{
+					// add all triangle vertices to the cache
+					m_vertexCache.AddVertex(t->verts[i]);
+
+					VertexCacheData *v = &m_vertices[t->verts[i]];
+
+					// decrease remaining velence
+					v->remaining_valence--;
+
+					// move the added triangle to the end of the vertex's
+					// triangle index list, so that the first 'remaining_valence'
+					// triangles in the list are the active ones
+					v->MoveTriangleToEnd(tri);
+				}
+
+				m_drawList.push_back(tri);
+
+				t->rendered = true;
+
+				// update all vertex cache positions
+				for (unsigned int i = 0; i < 32; ++i)
+				{
+					int ind = m_vertexCache.GetVertex(i);
+					if (ind < 0)
+						continue;
+
+					m_vertices[ind].position_in_cache = i;
+				}
+			}
+
+			// Optimization: to avoid duplicate calculations durind the same iteration,
+			// both vertices and triangles have a 'calculated' flag. This flag
+			// must be cleared at the beginning of the iteration to all *active* triangles
+			// that have one or more of their vertices currently cached, and all their
+			// other vertices.
+			// If there aren't any active triangles in the cache, the function returns
+			// false and full recalculation is performed.
+			bool CleanCalculationFlags()
+			{
+				bool ret = false;
+				for (unsigned int i = 0; i < 32; ++i)
+				{
+					int vert = m_vertexCache.GetVertex(i);
+					if (vert < 0)
+						continue;
+
+					VertexCacheData *v = &m_vertices[vert];
+
+					for (int j = 0; j < v->remaining_valence; j++)
+					{
+						TriangleCacheData *t = &m_triangles[v->tri_indices[j]];
+
+						// we actually found a triangle to process
+						ret = true;
+
+						// clear triangle flag
+						t->calculated = false;
+
+						// clear vertex flags
+						for (unsigned int k = 0; k < 3; ++k)
+							m_vertices[t->verts[k]].calculated = false;
+					}
+				}
+
+				return ret;
+			}
+
+			void TriangleScoreRecalculation(int tri)
+			{
+				TriangleCacheData* t = &m_triangles[tri];
+
+				// calculate vertex scores
+				float sum = 0.0f;
+				for (unsigned int i = 0; i < 3; ++i)
+				{
+					VertexCacheData *v = &m_vertices[t->verts[i]];
+					float sc = v->current_score;
+					if (!v->calculated)
+					{
+						sc = CalculateVertexScore(t->verts[i]);
+					}
+					v->current_score = sc;
+					v->calculated = true;
+					sum += sc;
+				}
+
+				t->current_score = sum;
+				t->calculated = true;
+			}
+
+			int PartialScoreRecalculation()
+			{
+				// iterate through all the vertices of the cache
+				bool first_time = true;
+				float max_score;
+				int max_score_tri = -1;
+
+				for (unsigned int i = 0; i < 32; ++i)
+				{
+					int vert = m_vertexCache.GetVertex(i);
+					if (vert < 0)
+						continue;
+
+					VertexCacheData *v = &m_vertices[vert];
+
+					// iterate through all *active* triangles of this vertex
+					for (int j=0; j<v->remaining_valence; j++)
+					{
+						int tri = v->tri_indices[j];
+						TriangleCacheData *t = &m_triangles[tri];
+						if (!t->calculated)
+							// calculate triangle score
+							TriangleScoreRecalculation(tri);
+
+						float sc = t->current_score;
+
+						// we actually found a triangle to process
+						if (first_time || sc > max_score)
+						{
+							first_time = false;
+							max_score = sc;
+							max_score_tri = tri;
+						}
+					}
+				}
+
+				return max_score_tri;
+			}
+
+			// returns true while there are more steps to take
+			// false when optimization is complete
+			bool Iterate()
+			{
+				if (m_drawList.size() == m_triangles.size())
+					return false;
+
+				// add the selected triangle to the draw list
+				AddTriangleToDrawList(m_bestTri);
+
+				// recalculate vertex and triangle scores and
+				// select the best triangle for the next iteration
+				m_bestTri = (CleanCalculationFlags()) ? PartialScoreRecalculation() : FullScoreRecalculation();
+
+				return true;
+			}
+
+			std::vector<VertexCacheData> m_vertices;
+			std::vector<TriangleCacheData> m_triangles;
+			std::vector<int> m_indices;
+			int m_bestTri; // the next triangle to add to the render list
+			VertexCache m_vertexCache;
+			std::vector<int> m_drawList;
+
+			// CalculateVertexScore constants
+			float m_cacheDecayPower;
+			float m_lastTriScore;
+			float m_valenceBoostScale;
+			float m_valenceBoostPower;
+	};
 }
+
+/**********************************NzCompute**********************************/
 
 void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
 {
@@ -153,6 +651,12 @@ void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* 
 
 	if (vertexCount)
 		*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
+}
+
+unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int indexCount)
+{
+	VertexCache cache(indices, indexCount);
+	return cache.GetMissCount();
 }
 
 void NzComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount)
@@ -201,6 +705,8 @@ void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int sta
 	if (vertexCount)
 		*vertexCount = sliceCount * stackCount;
 }
+
+/**********************************NzGenerate*********************************/
 
 void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
@@ -393,4 +899,13 @@ void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackC
 		NzVector3f totalSize = size * matrix.GetScale();
 		aabb->Set(-totalSize, totalSize);
 	}
+}
+
+/************************************Autres***********************************/
+
+void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount)
+{
+	VertexCacheOptimizer optimizer;
+	if (optimizer.Optimize(indices, indexCount) != VertexCacheOptimizer::Success)
+		NazaraWarning("Indices optimizer failed");
 }
