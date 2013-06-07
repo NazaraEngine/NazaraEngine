@@ -65,7 +65,7 @@ void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
 bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 {
 	#if NAZARA_CORE_WINDOWS_VISTA
-	return SleepConditionVariableCS(&m_cv, mutex->m_criticalSection, timeout);
+	return SleepConditionVariableCS(&m_cv, &mutex->m_criticalSection, timeout);
 	#else
 	// Avoid race conditions.
 	EnterCriticalSection(&m_countLock);
