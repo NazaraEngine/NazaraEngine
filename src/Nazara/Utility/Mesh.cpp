@@ -134,7 +134,7 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	return true;
 }
 
-void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
+void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -148,16 +148,6 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 		NazaraError("Mesh must be static");
 		return;
 	}
-	#endif
-
-	unsigned int primitiveCount = list.GetSize();
-
-	#if NAZARA_UTILITY_SAFE
-	if (primitiveCount == 0)
-	{
-		NazaraError("PrimitiveList must have at least one primitive");
-		return;
-	}
 
 	if (!params.IsValid())
 	{
@@ -166,138 +156,149 @@ void NzMesh::Build(const NzPrimitiveList& list, const NzMeshParams& params)
 	}
 	#endif
 
-	for (unsigned int p = 0; p < primitiveCount; ++p)
+	NzBoxf aabb;
+	std::unique_ptr<NzIndexBuffer> indexBuffer;
+	std::unique_ptr<NzVertexBuffer> vertexBuffer;
+
+	switch (primitive.type)
 	{
-		NzBoxf aabb;
-		std::unique_ptr<NzIndexBuffer> indexBuffer;
-		std::unique_ptr<NzVertexBuffer> vertexBuffer;
-
-		const NzPrimitive& primitive = list.GetPrimitive(p);
-
-		switch (primitive.type)
+		case nzPrimitiveType_Box:
 		{
-			case nzPrimitiveType_Box:
-			{
-				unsigned int indexCount;
-				unsigned int vertexCount;
-				NzComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
+			unsigned int indexCount;
+			unsigned int vertexCount;
+			NzComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
-				indexBuffer->SetPersistent(false);
+			indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
+			indexBuffer->SetPersistent(false);
 
-				vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
-				vertexBuffer->SetPersistent(false);
+			vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+			vertexBuffer->SetPersistent(false);
 
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-				NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
-				break;
-			}
-
-			case nzPrimitiveType_Plane:
-			{
-				unsigned int indexCount;
-				unsigned int vertexCount;
-				NzComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
-
-				indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
-				indexBuffer->SetPersistent(false);
-
-				vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
-				vertexBuffer->SetPersistent(false);
-
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
-
-				NzGeneratePlane(primitive.plane.subdivision, primitive.plane.position, primitive.plane.normal, primitive.plane.size, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
-				break;
-			}
-
-			case nzPrimitiveType_Sphere:
-			{
-				switch (primitive.sphere.type)
-				{
-					case nzSphereType_Cubic:
-					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
-						NzComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
-
-						indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
-						indexBuffer->SetPersistent(false);
-
-						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
-						vertexBuffer->SetPersistent(false);
-
-						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
-
-						NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
-						break;
-					}
-
-					case nzSphereType_Ico:
-					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
-						NzComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
-
-						indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
-						indexBuffer->SetPersistent(false);
-
-						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
-						vertexBuffer->SetPersistent(false);
-
-						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
-
-						NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
-						break;
-					}
-
-					case nzSphereType_UV:
-					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
-						NzComputeUvSphereIndexVertexCount(primitive.sphere.uv.slices, primitive.sphere.uv.stacks, &indexCount, &vertexCount);
-
-						indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
-						indexBuffer->SetPersistent(false);
-
-						vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
-						vertexBuffer->SetPersistent(false);
-
-						NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
-						NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
-
-						NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
-						break;
-					}
-				}
-				break;
-			}
-		}
-
-		std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(this));
-		if (!subMesh->Create(vertexBuffer.get()))
-		{
-			NazaraError("Failed to create StaticMesh");
+			NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 			break;
 		}
-		vertexBuffer.release();
 
-		if (params.optimizeIndexBuffers)
-			indexBuffer->Optimize();
+		case nzPrimitiveType_Plane:
+		{
+			unsigned int indexCount;
+			unsigned int vertexCount;
+			NzComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-		subMesh->SetIndexBuffer(indexBuffer.get());
-		indexBuffer.release();
+			indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
+			indexBuffer->SetPersistent(false);
 
-		subMesh->SetAABB(aabb);
+			vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+			vertexBuffer->SetPersistent(false);
 
-		if (AddSubMesh(subMesh.get()))
-			subMesh.release();
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+
+			NzGeneratePlane(primitive.plane.subdivision, primitive.plane.position, primitive.plane.normal, primitive.plane.size, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+			break;
+		}
+
+		case nzPrimitiveType_Sphere:
+		{
+			switch (primitive.sphere.type)
+			{
+				case nzSphereType_Cubic:
+				{
+					unsigned int indexCount;
+					unsigned int vertexCount;
+					NzComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
+
+					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
+					indexBuffer->SetPersistent(false);
+
+					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer->SetPersistent(false);
+
+					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+
+					NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					break;
+				}
+
+				case nzSphereType_Ico:
+				{
+					unsigned int indexCount;
+					unsigned int vertexCount;
+					NzComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
+
+					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
+					indexBuffer->SetPersistent(false);
+
+					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer->SetPersistent(false);
+
+					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+
+					NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					break;
+				}
+
+				case nzSphereType_UV:
+				{
+					unsigned int indexCount;
+					unsigned int vertexCount;
+					NzComputeUvSphereIndexVertexCount(primitive.sphere.uv.slices, primitive.sphere.uv.stacks, &indexCount, &vertexCount);
+
+					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
+					indexBuffer->SetPersistent(false);
+
+					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer->SetPersistent(false);
+
+					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+
+					NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					break;
+				}
+			}
+			break;
+		}
 	}
+
+	std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(this));
+	if (!subMesh->Create(vertexBuffer.get()))
+	{
+		NazaraError("Failed to create StaticMesh");
+		return;
+	}
+	vertexBuffer.release();
+
+	if (params.optimizeIndexBuffers)
+		indexBuffer->Optimize();
+
+	subMesh->SetIndexBuffer(indexBuffer.get());
+	indexBuffer.release();
+
+	subMesh->SetAABB(aabb);
+
+	if (AddSubMesh(subMesh.get()))
+		subMesh.release();
+}
+
+void NzMesh::BuildSubMeshes(const NzPrimitiveList& list, const NzMeshParams& params)
+{
+	unsigned int primitiveCount = list.GetSize();
+
+	#if NAZARA_UTILITY_SAFE
+	if (primitiveCount == 0)
+	{
+		NazaraError("PrimitiveList must have at least one primitive");
+		return;
+	}
+	#endif
+
+	for (unsigned int i = 0; i < primitiveCount; ++i)
+		BuildSubMesh(list.GetPrimitive(i), params);
 }
 
 bool NzMesh::CreateSkeletal(unsigned int jointCount)

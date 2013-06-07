@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -58,7 +59,8 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool AddSubMesh(NzSubMesh* subMesh);
 		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
-		void Build(const NzPrimitiveList& list, const NzMeshParams& params = NzMeshParams());
+		void BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params = NzMeshParams());
+		void BuildSubMeshes(const NzPrimitiveList& list, const NzMeshParams& params = NzMeshParams());
 
 		bool CreateSkeletal(unsigned int jointCount);
 		bool CreateStatic();
