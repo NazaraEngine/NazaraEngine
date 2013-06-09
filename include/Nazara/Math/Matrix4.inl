@@ -441,9 +441,9 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 	{
 		float s = F(0.5)/std::sqrt(trace + F(1.0));
 		quat.w = F(0.25) / s;
-		quat.x = (m32 - m23) * s;
-		quat.y = (m13 - m31) * s;
-		quat.z = (m21 - m12) * s;
+		quat.x = (m23 - m32) * s;
+		quat.y = (m31 - m13) * s;
+		quat.z = (m12 - m21) * s;
 	}
 	else
 	{
@@ -451,27 +451,27 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 		{
 			float s = F(2.0) * std::sqrt(F(1.0) + m11 - m22 - m33);
 
-			quat.w = (m32 - m23) / s;
+			quat.w = (m23 - m32) / s;
 			quat.x = F(0.25) * s;
-			quat.y = (m12 + m21) / s;
-			quat.z = (m13 + m31) / s;
+			quat.y = (m21 + m12) / s;
+			quat.z = (m31 + m13) / s;
 		}
 		else if (m22 > m33)
 		{
 			float s = F(2.0) * std::sqrt(F(1.0) + m22 - m11 - m33);
 
-			quat.w = (m13 - m31) / s;
-			quat.x = (m12 + m21) / s;
+			quat.w = (m31 - m13) / s;
+			quat.x = (m21 + m12) / s;
 			quat.y = F(0.25) * s;
-			quat.z = (m23 + m32) / s;
+			quat.z = (m32 + m23) / s;
 		}
 		else
 		{
 			float s = F(2.0) * std::sqrt(F(1.0) + m33 - m11 - m22);
 
-			quat.w = (m21 - m12) / s;
-			quat.x = (m13 + m31) / s;
-			quat.y = (m23 + m32) / s;
+			quat.w = (m12 - m21) / s;
+			quat.x = (m31 + m13) / s;
+			quat.y = (m32 + m23) / s;
 			quat.z = F(0.25) * s;
 		}
 	}
