@@ -40,11 +40,11 @@ class NzBox
 		NzSphere<T> GetBoundingSphere() const;
 		NzVector3<T> GetCorner(nzCorner corner) const;
 		NzVector3<T> GetCenter() const;
+		NzVector3<T> GetLengths() const;
 		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
 		NzVector3<T> GetPosition() const;
 		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
 		T GetRadius() const;
-		NzVector3<T> GetSize() const;
 		T GetSquaredRadius() const;
 
 		bool Intersect(const NzBox& box, NzBox* intersection = nullptr) const;
