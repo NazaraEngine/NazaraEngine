@@ -10,7 +10,7 @@ NzBoxf NzComputeVerticesAABB(const T* vertices, unsigned int vertexCount)
 	NzBoxf aabb;
 	if (vertexCount > 0)
 	{
-		aabb.Set(vertices->position);
+		aabb.Set(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);
 		vertices++;
 
 		for (unsigned int i = 1; i < vertexCount; ++i)
