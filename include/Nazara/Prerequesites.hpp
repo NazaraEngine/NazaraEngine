@@ -145,8 +145,8 @@
 #endif
 
 // Macros supplémentaires
-#define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraStringify(s) #s
+#define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraUnused(a) (void) a
 
 #include <cstdint>
