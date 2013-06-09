@@ -65,4 +65,7 @@ end
 configuration { "linux or bsd or macosx", "gmake" }
 	buildoptions "-fvisibility=hidden"
 
+configuration "vs*"
+	defines "_CRT_SECURE_NO_WARNINGS"
+
 configuration {} -- Fin du filtre
