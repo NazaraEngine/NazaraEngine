@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <cmath>
+#include <limits>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
@@ -35,7 +36,7 @@ unsigned int NzGetNumberLength(double number, nzUInt8 precision = NAZARA_CORE_RE
 unsigned int NzGetNumberLength(long double number, nzUInt8 precision = NAZARA_CORE_REAL_PRECISION);
 template<typename T, typename T2> T NzLerp(T from, T to, T2 interpolation);
 template<typename T> T NzNormalizeAngle(T angle);
-template<typename T> bool NzNumberEquals(T a, T b);
+template<typename T> bool NzNumberEquals(T a, T b, T maxDifference = std::numeric_limits<T>::epsilon());
 NzString NzNumberToString(long long number, nzUInt8 radix = 10);
 template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);
