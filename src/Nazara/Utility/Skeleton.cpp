@@ -68,7 +68,8 @@ const NzBoxf& NzSkeleton::GetAABB() const
 		unsigned int jointCount = m_impl->joints.size();
 		if (jointCount > 0)
 		{
-			m_impl->aabb.Set(m_impl->joints[0].GetPosition());
+			NzVector3f pos = m_impl->joints[0].GetPosition();
+			m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
 			for (unsigned int i = 1; i < jointCount; ++i)
 				m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 		}
