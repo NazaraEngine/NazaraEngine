@@ -29,9 +29,9 @@ NzRect<T>::NzRect(const T vec[4])
 }
 
 template<typename T>
-NzRect<T>::NzRect(const NzVector2<T>& size)
+NzRect<T>::NzRect(const NzVector2<T>& lengths)
 {
-	Set(size);
+	Set(lengths);
 }
 
 template<typename T>
@@ -245,9 +245,9 @@ NzRect<T>& NzRect<T>::Set(const NzRect<T>& rect)
 }
 
 template<typename T>
-NzRect<T>& NzRect<T>::Set(const NzVector2<T>& size)
+NzRect<T>& NzRect<T>::Set(const NzVector2<T>& lengths)
 {
-	return Set(size.x, size.y);
+	return Set(lengths.x, lengths.y);
 }
 
 template<typename T>
