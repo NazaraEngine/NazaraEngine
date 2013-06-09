@@ -332,13 +332,10 @@ bool NzShader::SendBoolean(int location, bool value) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendBoolean(location, value);
 }
@@ -351,13 +348,10 @@ bool NzShader::SendColor(int location, const NzColor& color) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendColor(location, color);
 }
@@ -376,13 +370,10 @@ bool NzShader::SendDouble(int location, double value) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendDouble(location, value);
 }
@@ -395,13 +386,10 @@ bool NzShader::SendFloat(int location, float value) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendFloat(location, value);
 }
@@ -414,13 +402,10 @@ bool NzShader::SendInteger(int location, int value) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendInteger(location, value);
 }
@@ -439,13 +424,10 @@ bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendMatrix(location, matrix);
 }
@@ -458,13 +440,10 @@ bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendMatrix(location, matrix);
 }
@@ -477,13 +456,10 @@ bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* text
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendTexture(location, texture, textureUnit);
 }
@@ -502,13 +478,10 @@ bool NzShader::SendVector(int location, const NzVector2d& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
@@ -521,13 +494,10 @@ bool NzShader::SendVector(int location, const NzVector2f& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
@@ -546,13 +516,10 @@ bool NzShader::SendVector(int location, const NzVector3d& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
@@ -565,13 +532,10 @@ bool NzShader::SendVector(int location, const NzVector3f& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
@@ -590,13 +554,10 @@ bool NzShader::SendVector(int location, const NzVector4d& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
@@ -609,13 +570,10 @@ bool NzShader::SendVector(int location, const NzVector4f& vector) const
 		NazaraError("Shader not created");
 		return false;
 	}
+	#endif
 
 	if (location == -1)
-	{
-		NazaraError("Invalid location");
 		return false;
-	}
-	#endif
 
 	return m_impl->SendVector(location, vector);
 }
