@@ -99,6 +99,8 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		bool LoadFromMemory(const void* data, std::size_t size, const NzMeshParams& params = NzMeshParams());
 		bool LoadFromStream(NzInputStream& stream, const NzMeshParams& params = NzMeshParams());
 
+		void Recenter();
+
 		void RemoveSubMesh(const NzString& identifier);
 		void RemoveSubMesh(unsigned int index);
 
