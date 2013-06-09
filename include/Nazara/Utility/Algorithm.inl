@@ -4,21 +4,42 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-void NzTransformVertex(NzMeshVertex* vertex, const NzMatrix4f& matrix)
+template<typename T>
+NzBoxf NzComputeVerticesAABB(const T* vertices, unsigned int vertexCount)
 {
-	vertex->normal = matrix.Transform(vertex->normal, 0.f);
-	vertex->position = matrix.Transform(vertex->position);
-	vertex->tangent = matrix.Transform(vertex->tangent, 0.f);
-	vertex++;
+	NzBoxf aabb;
+	if (vertexCount > 0)
+	{
+		aabb.Set(vertices->position);
+		vertices++;
+
+		for (unsigned int i = 1; i < vertexCount; ++i)
+		{
+			aabb.ExtendTo(vertices->position);
+			vertices++;
+		}
+	}
+	else
+		aabb.MakeZero();
+
+	return aabb;
 }
 
-void NzTransformVertices(NzMeshVertex* vertices, unsigned int vertexCount, const NzMatrix4f& matrix)
+template<typename T>
+void NzTransformVertices(T* vertices, unsigned int vertexCount, const NzMatrix4f& matrix)
 {
 	if (matrix.IsIdentity())
 		return;
 
+	NzVector3f scale = matrix.GetScale();
+
 	for (unsigned int i = 0; i < vertexCount; ++i)
-		NzTransformVertex(vertices++, matrix);
+	{
+		vertices->normal = matrix.Transform(vertices->normal, 0.f) / scale;
+		vertices->position = matrix.Transform(vertices->position);
+		vertices->tangent = matrix.Transform(vertices->tangent, 0.f) / scale;
+		vertices++;
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>
