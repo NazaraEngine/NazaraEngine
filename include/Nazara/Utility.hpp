@@ -1,4 +1,4 @@
-// This file was automatically generated on 21 May 2013 at 13:57:27
+// This file was automatically generated on 09 Jun 2013 at 11:23:10
 
 /*
 	Nazara Engine - Window module
@@ -30,6 +30,7 @@
 #define NAZARA_GLOBAL_UTILITY_HPP
 
 #include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -41,6 +42,7 @@
 #include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
