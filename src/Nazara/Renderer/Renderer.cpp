@@ -980,7 +980,7 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 void NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (indexBuffer && !indexBuffer->IsHardware() && !indexBuffer->IsSequential())
+	if (indexBuffer && !indexBuffer->IsSequential() && !indexBuffer->IsHardware())
 	{
 		NazaraError("Buffer must be hardware");
 		return;
@@ -1424,57 +1424,54 @@ void NzRenderer::EnableInstancing(bool instancing)
 
 bool NzRenderer::EnsureStateUpdate()
 {
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return false;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (!s_shader)
+	{
+		NazaraError("No shader");
+		return false;
+	}
+	#endif
+
+	NzAbstractShader* shaderImpl = s_shader->m_impl;
+	shaderImpl->Bind();
+
+	// Si le shader a été changé depuis la dernière fois
+	if (s_updateFlags & Update_Shader)
+	{
+		// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
+		s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
+		s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
+		s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
+
+		s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
+		s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
+		s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
+
+		s_updateFlags |= Update_Matrices;
+		for (unsigned int i = 0; i < totalMatrixCount; ++i)
+		{
+			///TODO: Voir le FIXME au niveau de l'envoi des matrices
+			/*if (s_matrixLocation[i] != -1)
+				s_matrixUpdated[i] = false;
+			else*/
+				s_matrixUpdated[i] = false;
+		}
+
+		s_updateFlags &= ~Update_Shader;
+	}
+
+	shaderImpl->BindTextures();
+
 	if (s_updateFlags != Update_None)
 	{
-		#ifdef NAZARA_DEBUG
-		if (NzContext::GetCurrent() == nullptr)
-		{
-			NazaraError("No active context");
-			return false;
-		}
-		#endif
-
-		NzAbstractShader* shaderImpl;
-
-		if (s_updateFlags & Update_Shader)
-		{
-			#if NAZARA_RENDERER_SAFE
-			if (!s_shader)
-			{
-				NazaraError("No shader");
-				return false;
-			}
-			#endif
-
-			// Il est plus rapide d'opérer sur l'implémentation du shader directement
-			shaderImpl = s_shader->m_impl;
-			shaderImpl->Bind();
-			shaderImpl->BindTextures();
-
-			// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-			s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
-			s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
-			s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
-
-			s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
-			s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
-			s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
-
-			s_updateFlags |= Update_Matrices;
-			for (unsigned int i = 0; i < totalMatrixCount; ++i)
-			{
-				///TODO: Voir le FIXME au niveau de l'envoi des matrices
-				/*if (s_matrixLocation[i] != -1)
-					s_matrixUpdated[i] = false;
-				else*/
-					s_matrixUpdated[i] = false;
-			}
-
-			s_updateFlags &= ~Update_Shader;
-		}
-		else
-			shaderImpl = s_shader->m_impl;
-
 		if (s_updateFlags & Update_Textures)
 		{
 			if (s_useSamplerObjects)
@@ -1670,7 +1667,7 @@ bool NzRenderer::EnsureStateUpdate()
 						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i);
                 }
 
-				if (s_indexBuffer)
+				if (s_indexBuffer && !s_indexBuffer->IsSequential())
 				{
 					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
 					indexBufferImpl->Bind();
