@@ -70,6 +70,7 @@ class NAZARA_API NzNode
 		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys = nzCoordSys_Local);
+		void SetTransformMatrix(const NzMatrix4f& matrix);
 
 		// Local -> global
 		NzVector3f ToGlobalPosition(const NzVector3f& localPosition) const;
