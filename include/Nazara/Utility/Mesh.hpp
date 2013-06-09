@@ -108,6 +108,8 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void SetMaterial(unsigned int matIndex, const NzString& materialPath);
 		void SetMaterialCount(unsigned int matCount);
 
+		void Transform(const NzMatrix4f& matrix);
+
 		static const NzVertexDeclaration* GetDeclaration();
 
 	private:
