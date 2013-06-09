@@ -401,10 +401,15 @@ const NzBoxf& NzMesh::GetAABB() const
 
 	if (!m_impl->aabbUpdated)
 	{
-		m_impl->aabb.MakeZero();
-
-		for (NzSubMesh* subMesh : m_impl->subMeshes)
-			m_impl->aabb.ExtendTo(subMesh->GetAABB());
+		unsigned int subMeshCount = m_impl->subMeshes.size();
+		if (subMeshCount > 0)
+		{
+			m_impl->aabb.Set(m_impl->subMeshes[0]->GetAABB());
+			for (unsigned int i = 1; i < subMeshCount; ++i)
+				m_impl->aabb.ExtendTo(m_impl->subMeshes[i]->GetAABB());
+		}
+		else
+			m_impl->aabb.MakeZero();
 
 		m_impl->aabbUpdated = true;
 	}
