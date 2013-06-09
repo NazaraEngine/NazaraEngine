@@ -63,7 +63,7 @@ void NzDebugDrawer::Draw(const NzBoxf& box)
 	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
 
 	NzVector3f max, min;
-	max = box.GetPosition() + box.GetSize();
+	max = box.GetPosition() + box.GetLengths();
 	min = box.GetPosition();
 
 	vertex->position.Set(min.x, min.y, min.z);

@@ -106,7 +106,13 @@ NzRect<T>& NzRect<T>::ExtendTo(const NzRect& rect)
 template<typename T>
 NzVector2<T> NzRect<T>::GetCenter() const
 {
-	return NzVector2<T>(x + width/F(2.0), y + height/F(2.0));
+	return GetPosition() + F(0.5)*GetLengths();
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetLengths() const
+{
+	return NzVector2<T>(width, height);
 }
 
 template<typename T>
@@ -141,12 +147,6 @@ NzVector2<T> NzRect<T>::GetPositiveVertex(const NzVector2<T>& normal) const
 		pos.y += height;
 
 	return pos;
-}
-
-template<typename T>
-NzVector2<T> NzRect<T>::GetSize() const
-{
-	return NzVector2<T>(width, height);
 }
 
 template<typename T>
