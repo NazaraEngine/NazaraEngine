@@ -1,4 +1,4 @@
-// This file was automatically generated on 13 Mar 2013 at 23:20:31
+// This file was automatically generated on 09 Jun 2013 at 11:23:10
 
 /*
 	Nazara Engine - Mathematics module
@@ -31,14 +31,14 @@
 #define NAZARA_GLOBAL_MATH_HPP
 
 #include <Nazara/Math/Basic.hpp>
-#include <Nazara/Math/BoundingBox.hpp>
+#include <Nazara/Math/BoundingVolume.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Config.hpp>
-#include <Nazara/Math/Cube.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Math/OrientedCube.hpp>
+#include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Rect.hpp>
