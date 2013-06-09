@@ -56,6 +56,8 @@ class NzRect
 
 		NzString ToString() const;
 
+		NzRect& Translate(const NzVector2<T>& translation);
+
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
 

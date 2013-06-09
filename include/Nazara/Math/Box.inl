@@ -398,6 +398,16 @@ NzBox<T>& NzBox<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
 }
 
 template<typename T>
+NzBox<T>& NzBox<T>::Translate(const NzVector3<T>& translation)
+{
+	x += translation.x;
+	y += translation.y;
+	z += translation.z;
+
+	return *this;
+}
+
+template<typename T>
 T& NzBox<T>::operator[](unsigned int i)
 {
 	#if NAZARA_MATH_SAFE
