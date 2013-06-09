@@ -50,14 +50,6 @@ enum nzBufferUsage
 	nzBufferUsage_Max = nzBufferUsage_Static
 };
 
-enum nzCoordSys
-{
-	nzCoordSys_Global,
-	nzCoordSys_Local,
-
-	nzCoordSys_Max = nzCoordSys_Local
-};
-
 enum nzCubemapFace
 {
 	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap

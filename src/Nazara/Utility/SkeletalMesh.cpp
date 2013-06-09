@@ -133,7 +133,7 @@ namespace
 
 struct NzSkeletalMeshImpl
 {
-	std::unique_ptr<nzUInt8[]> bindPoseBuffer;
+	std::unique_ptr<NzMeshVertex[]> bindPoseBuffer;
 	std::vector<NzVertexWeight> vertexWeights;
 	std::vector<NzWeight> weights;
 	NzBoxf aabb;
@@ -170,7 +170,7 @@ bool NzSkeletalMesh::Create(unsigned int vertexCount, unsigned int weightCount)
 	#endif
 
 	m_impl = new NzSkeletalMeshImpl;
-	m_impl->bindPoseBuffer.reset(new nzUInt8[vertexCount*sizeof(NzMeshVertex)]);
+	m_impl->bindPoseBuffer.reset(new NzMeshVertex[vertexCount]);
 	m_impl->vertexCount = vertexCount;
 	m_impl->vertexWeights.resize(vertexCount);
 	m_impl->weights.resize(weightCount);
@@ -207,7 +207,7 @@ nzAnimationType NzSkeletalMesh::GetAnimationType() const
 	return nzAnimationType_Skeletal;
 }
 
-void* NzSkeletalMesh::GetBindPoseBuffer()
+NzMeshVertex* NzSkeletalMesh::GetBindPoseBuffer()
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -220,7 +220,7 @@ void* NzSkeletalMesh::GetBindPoseBuffer()
 	return m_impl->bindPoseBuffer.get();
 }
 
-const void* NzSkeletalMesh::GetBindPoseBuffer() const
+const NzMeshVertex* NzSkeletalMesh::GetBindPoseBuffer() const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -358,7 +358,7 @@ void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton
 	#endif
 
 	SkinningInfos skinningInfos;
-	skinningInfos.inputVertex = reinterpret_cast<const NzMeshVertex*>(m_impl->bindPoseBuffer.get());
+	skinningInfos.inputVertex = m_impl->bindPoseBuffer.get();
 	skinningInfos.outputVertex = outputBuffer;
 	skinningInfos.joints = skeleton->GetJoints();
 	skinningInfos.vertexWeights = &m_impl->vertexWeights[0];
@@ -380,7 +380,7 @@ void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton
 	Skin_PositionNormalTangent(skinningInfos, 0, m_impl->vertexCount);
 	#endif
 
-	m_impl->aabb = skeleton->GetAABB();
+	m_impl->aabb = skeleton->GetAABB(); ///FIXME: Qu'est-ce que ça fait encore là ça ?
 }
 
 void NzSkeletalMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
