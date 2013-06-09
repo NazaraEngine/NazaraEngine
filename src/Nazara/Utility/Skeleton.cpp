@@ -65,10 +65,15 @@ const NzBoxf& NzSkeleton::GetAABB() const
 
 	if (!m_impl->aabbUpdated)
 	{
-		m_impl->aabb.MakeZero();
-
-		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
-			m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
+		unsigned int jointCount = m_impl->joints.size();
+		if (jointCount > 0)
+		{
+			m_impl->aabb.Set(m_impl->joints[0].GetPosition());
+			for (unsigned int i = 1; i < jointCount; ++i)
+				m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
+		}
+		else
+			m_impl->aabb.MakeZero();
 
 		m_impl->aabbUpdated = true;
 	}
