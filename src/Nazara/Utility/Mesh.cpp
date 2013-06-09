@@ -774,6 +774,7 @@ void NzMesh::Recenter()
 	}
 	#endif
 
+	// Le centre de notre mesh est le centre de l'AABB *globale*
 	NzVector3f center = GetAABB().GetCenter();
 
 	for (NzSubMesh* subMesh : m_impl->subMeshes)
@@ -790,13 +791,15 @@ void NzMesh::Recenter()
 			vertices++;
 		}
 
+		// l'AABB ne change pas de dimensions mais seulement de position, appliquons-lui le même procédé
 		NzBoxf aabb = staticMesh->GetAABB();
 		aabb.Translate(-center);
 
 		staticMesh->SetAABB(aabb);
 	}
 
-	m_impl->aabbUpdated = false; // Notre AABB a changée
+	// Il ne faut pas oublier d'invalider notre AABB
+	m_impl->aabbUpdated = false;
 }
 
 void NzMesh::RemoveSubMesh(const NzString& identifier)
