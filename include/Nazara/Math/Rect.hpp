@@ -34,6 +34,8 @@ class NzRect
 
 		NzVector2<T> GetCenter() const;
 		NzVector2<T> GetLengths() const;
+		NzVector2<T> GetMaximum() const;
+		NzVector2<T> GetMinimum() const;
 		NzVector2<T> GetNegativeVertex(const NzVector2<T>& normal) const;
 		NzVector2<T> GetPosition() const;
 		NzVector2<T> GetPositiveVertex(const NzVector2<T>& normal) const;
