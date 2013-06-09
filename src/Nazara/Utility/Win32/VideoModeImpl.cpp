@@ -14,7 +14,7 @@ NzVideoMode NzVideoModeImpl::GetDesktopMode()
 	mode.dmSize = sizeof(DEVMODE);
 	EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode);
 
-	return NzVideoMode(mode.dmPelsWidth, mode.dmPelsHeight, mode.dmBitsPerPel);
+	return NzVideoMode(mode.dmPelsWidth, mode.dmPelsHeight, static_cast<nzUInt8>(mode.dmBitsPerPel));
 }
 
 void NzVideoModeImpl::GetFullscreenModes(std::vector<NzVideoMode>& modes)
@@ -23,7 +23,7 @@ void NzVideoModeImpl::GetFullscreenModes(std::vector<NzVideoMode>& modes)
 	win32Mode.dmSize = sizeof(DEVMODE);
 	for (unsigned int i = 0; EnumDisplaySettings(nullptr, i, &win32Mode); ++i)
 	{
-		NzVideoMode mode(win32Mode.dmPelsWidth, win32Mode.dmPelsHeight, win32Mode.dmBitsPerPel);
+		NzVideoMode mode(win32Mode.dmPelsWidth, win32Mode.dmPelsHeight, static_cast<nzUInt8>(win32Mode.dmBitsPerPel));
 
 		// Il existe plusieurs modes avec ces trois caractéristques identiques
 		if (std::find(modes.begin(), modes.end(), mode) == modes.end())
