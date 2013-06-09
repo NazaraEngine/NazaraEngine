@@ -915,6 +915,50 @@ void NzMesh::SetMaterialCount(unsigned int matCount)
 	#endif
 }
 
+void NzMesh::Transform(const NzMatrix4f& matrix)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+
+	if (m_impl->animationType != nzAnimationType_Static)
+	{
+		NazaraError("Mesh must be static");
+		return;
+	}
+	#endif
+
+	if (matrix.IsIdentity())
+		return;
+
+	for (NzSubMesh* subMesh : m_impl->subMeshes)
+	{
+		NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
+
+		NzBufferMapper<NzVertexBuffer> mapper(staticMesh->GetVertexBuffer(), nzBufferAccess_ReadWrite);
+		NzMeshVertex* vertices = static_cast<NzMeshVertex*>(mapper.GetPointer());
+
+		NzBoxf aabb(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);
+
+		unsigned int vertexCount = staticMesh->GetVertexCount();
+		for (unsigned int i = 0; i < vertexCount; ++i)
+		{
+			vertices->position = matrix.Transform(vertices->position);
+			aabb.ExtendTo(vertices->position);
+
+			vertices++;
+		}
+
+		staticMesh->SetAABB(aabb);
+	}
+
+	// Il ne faut pas oublier d'invalider notre AABB
+	m_impl->aabbUpdated = false;
+}
+
 const NzVertexDeclaration* NzMesh::GetDeclaration()
 {
 	static NzVertexDeclaration declaration;
