@@ -7,6 +7,14 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
+enum nzCoordSys
+{
+	nzCoordSys_Global,
+	nzCoordSys_Local,
+
+	nzCoordSys_Max = nzCoordSys_Local
+};
+
 enum nzEndianness
 {
 	nzEndianness_Unknown = -1,

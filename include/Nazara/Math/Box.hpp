@@ -23,7 +23,7 @@ class NzBox
 		NzBox(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzBox(const T box[6]);
 		NzBox(const NzRect<T>& rect);
-		NzBox(const NzVector3<T>& size);
+		NzBox(const NzVector3<T>& lengths);
 		NzBox(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> explicit NzBox(const NzBox<U>& box);
 		NzBox(const NzBox& box) = default;
@@ -60,7 +60,7 @@ class NzBox
 		NzBox& Set(const T box[6]);
 		NzBox& Set(const NzBox& box);
 		NzBox& Set(const NzRect<T>& rect);
-		NzBox& Set(const NzVector3<T>& size);
+		NzBox& Set(const NzVector3<T>& lengths);
 		NzBox& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> NzBox& Set(const NzBox<U>& box);
 
