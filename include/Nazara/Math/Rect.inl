@@ -116,6 +116,19 @@ NzVector2<T> NzRect<T>::GetLengths() const
 }
 
 template<typename T>
+NzVector2<T> NzRect<T>::GetMaximum() const
+{
+	return GetPosition() + GetLengths();
+}
+
+template<typename T>
+NzVector2<T> NzRect<T>::GetMinimum() const
+{
+	///DOC: Alias de GetPosition()
+	return GetPosition();
+}
+
+template<typename T>
 NzVector2<T> NzRect<T>::GetNegativeVertex(const NzVector2<T>& normal) const
 {
 	NzVector2<T> neg(GetPosition());
