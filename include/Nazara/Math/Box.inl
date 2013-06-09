@@ -29,9 +29,9 @@ NzBox<T>::NzBox(const NzRect<T>& rect)
 }
 
 template<typename T>
-NzBox<T>::NzBox(const NzVector3<T>& size)
+NzBox<T>::NzBox(const NzVector3<T>& lengths)
 {
-	Set(size);
+	Set(lengths);
 }
 
 template<typename T>
@@ -344,9 +344,9 @@ NzBox<T>& NzBox<T>::Set(const NzRect<T>& rect)
 }
 
 template<typename T>
-NzBox<T>& NzBox<T>::Set(const NzVector3<T>& size)
+NzBox<T>& NzBox<T>::Set(const NzVector3<T>& lengths)
 {
-	return Set(size.x, size.y, size.z);
+	return Set(lengths.x, lengths.y, lengths.z);
 }
 
 template<typename T>
