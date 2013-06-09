@@ -8,19 +8,7 @@
 #define HASHABLE_HPP_INCLUDED
 
 #include <Nazara/Prerequesites.hpp>
-
-enum nzHash
-{
-	nzHash_CRC32,
-	nzHash_Fletcher16,
-	nzHash_MD5,
-	nzHash_SHA1,
-	nzHash_SHA224,
-	nzHash_SHA256,
-	nzHash_SHA384,
-	nzHash_SHA512,
-	nzHash_Whirlpool
-};
+#include <Nazara/Core/Enums.hpp>
 
 class NzAbstractHash;
 class NzHashDigest;
