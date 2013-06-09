@@ -60,11 +60,6 @@ namespace
 		{"Vortex86 SoC", nzProcessorVendor_VIA}
 	};
 
-	bool VendorStringCompare(const VendorString& a, const VendorString& b)
-	{
-		return std::memcmp(a.vendor, b.vendor, 12);
-	}
-
 	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
 	bool s_capabilities[nzProcessorCap_Max+1] = {false};
 	bool s_initialized = false;
