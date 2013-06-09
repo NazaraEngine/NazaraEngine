@@ -1,4 +1,4 @@
-// This file was automatically generated on 21 May 2013 at 13:57:27
+// This file was automatically generated on 09 Jun 2013 at 11:23:10
 
 /*
 	Nazara Engine - Core module
@@ -56,6 +56,8 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PluginManager.hpp>
+#include <Nazara/Core/Primitive.hpp>
+#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>

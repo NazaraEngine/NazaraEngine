@@ -1,4 +1,4 @@
-// This file was automatically generated on 07 Apr 2013 at 02:09:05
+// This file was automatically generated on 09 Jun 2013 at 11:23:10
 
 /*
 	Nazara Engine - Graphics module
@@ -29,12 +29,16 @@
 #ifndef NAZARA_GLOBAL_GRAPHICS_HPP
 #define NAZARA_GLOBAL_GRAPHICS_HPP
 
+#include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Background.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Model.hpp>
