@@ -20,8 +20,8 @@ void NzTextureBackground::Draw(const NzScene* scene) const
 	NzRectui viewport = NzRenderer::GetViewport();
 
 	// Sous forme de flottants pour la division flottante
-	float width = target->GetWidth();
-	float height = target->GetHeight();
+	float width = static_cast<float>(target->GetWidth());
+	float height = static_cast<float>(target->GetHeight());
 
 	NzVector2f uv0(viewport.x/width, viewport.y/height);
 	NzVector2f uv1((viewport.x+viewport.width)/width, (viewport.y+viewport.height)/height);
