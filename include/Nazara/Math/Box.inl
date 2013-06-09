@@ -159,7 +159,13 @@ NzSphere<T> NzBox<T>::GetBoundingSphere() const
 template<typename T>
 NzVector3<T> NzBox<T>::GetCenter() const
 {
-	return GetPosition() + F(0.5)*GetSize();
+	return GetPosition() + F(0.5)*GetLengths();
+}
+
+template<typename T>
+NzVector3<T> NzBox<T>::GetLengths() const
+{
+	return NzVector3<T>(width, height, depth);
 }
 
 template<typename T>
@@ -209,15 +215,9 @@ T NzBox<T>::GetRadius() const
 }
 
 template<typename T>
-NzVector3<T> NzBox<T>::GetSize() const
-{
-	return NzVector3<T>(width, height, depth);
-}
-
-template<typename T>
 T NzBox<T>::GetSquaredRadius() const
 {
-	NzVector3<T> size(GetSize());
+	NzVector3<T> size(GetLengths());
 	size *= F(0.5); // La taille étant relative à la position (minimum) de la boite et non pas à son centre
 
 	return size.GetSquaredLength();
@@ -375,7 +375,7 @@ template<typename T>
 NzBox<T>& NzBox<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
 {
 	NzVector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Valeur multipliant la translation
-	NzVector3<T> halfSize = GetSize() * F(0.5);
+	NzVector3<T> halfSize = GetLengths() * F(0.5);
 
 	halfSize.Set(std::fabs(matrix(0,0))*halfSize.x + std::fabs(matrix(1,0))*halfSize.y + std::fabs(matrix(2,0))*halfSize.z,
 	             std::fabs(matrix(0,1))*halfSize.x + std::fabs(matrix(1,1))*halfSize.y + std::fabs(matrix(2,1))*halfSize.z,
