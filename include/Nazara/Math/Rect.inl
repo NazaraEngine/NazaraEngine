@@ -282,6 +282,15 @@ NzString NzRect<T>::ToString() const
 }
 
 template<typename T>
+NzRect<T>& NzRect<T>::Translate(const NzVector2<T>& translation)
+{
+	x += translation.x;
+	y += translation.y;
+
+	return *this;
+}
+
+template<typename T>
 T& NzRect<T>::operator[](unsigned int i)
 {
 	#if NAZARA_MATH_SAFE

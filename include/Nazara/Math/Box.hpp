@@ -67,6 +67,7 @@ class NzBox
 		NzString ToString() const;
 
 		NzBox& Transform(const NzMatrix4<T>& matrix, bool applyTranslation = true);
+		NzBox& Translate(const NzVector3<T>& translation);
 
 		T& operator[](unsigned int i);
 		T operator[](unsigned int i) const;
