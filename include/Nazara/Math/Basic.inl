@@ -182,9 +182,9 @@ T NzNormalizeAngle(T angle)
 }
 
 template<typename T>
-bool NzNumberEquals(T a, T b)
+bool NzNumberEquals(T a, T b, T maxDifference)
 {
-	return std::fabs(a-b) < std::numeric_limits<T>::epsilon();
+	return std::fabs(a-b) < maxDifference;
 }
 
 inline NzString NzNumberToString(long long number, nzUInt8 radix)
