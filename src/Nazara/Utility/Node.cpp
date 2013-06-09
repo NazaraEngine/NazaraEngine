@@ -293,6 +293,7 @@ NzNode& NzNode::Scale(float scaleX, float scaleY, float scaleZ)
 
 void NzNode::SetInheritPosition(bool inheritPosition)
 {
+	///DOC: Un appel redondant est sans effet
 	if (m_inheritPosition != inheritPosition)
 	{
 		m_inheritPosition = inheritPosition;
@@ -460,10 +461,9 @@ void NzNode::SetRotation(const NzQuaternionf& rotation, nzCoordSys coordSys)
 		case nzCoordSys_Global:
 			if (m_parent && m_inheritRotation)
 			{
-				NzQuaternionf rot(m_initialRotation * m_parent->GetRotation());
+				NzQuaternionf rot(m_parent->GetRotation() * m_initialRotation);
 
-				m_rotation = rot.GetInverse() * q; ///FIXME: Vérifier si le résultat est correct
-				m_rotation.Normalize();
+				m_rotation = rot.GetConjugate() * q;
 			}
 			else
 				m_rotation = q;
@@ -505,6 +505,16 @@ void NzNode::SetScale(float scale, nzCoordSys coordSys)
 void NzNode::SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys)
 {
 	SetScale(NzVector3f(scaleX, scaleY, scaleZ), coordSys);
+}
+
+void NzNode::SetTransformMatrix(const NzMatrix4f& matrix)
+{
+	SetPosition(matrix.GetTranslation(), nzCoordSys_Global);
+	SetRotation(matrix.GetRotation(), nzCoordSys_Global);
+	SetScale(matrix.GetScale(), nzCoordSys_Global);
+
+	m_transformMatrix = matrix;
+	m_transformMatrixUpdated = true;
 }
 
 NzVector3f NzNode::ToGlobalPosition(const NzVector3f& localPosition) const
