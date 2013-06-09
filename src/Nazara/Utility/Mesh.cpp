@@ -758,6 +758,47 @@ bool NzMesh::LoadFromStream(NzInputStream& stream, const NzMeshParams& params)
 	return NzMeshLoader::LoadFromStream(this, stream, params);
 }
 
+void NzMesh::Recenter()
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Mesh not created");
+		return;
+	}
+
+	if (m_impl->animationType != nzAnimationType_Static)
+	{
+		NazaraError("Mesh must be static");
+		return;
+	}
+	#endif
+
+	NzVector3f center = GetAABB().GetCenter();
+
+	for (NzSubMesh* subMesh : m_impl->subMeshes)
+	{
+		NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
+
+		NzBufferMapper<NzVertexBuffer> mapper(staticMesh->GetVertexBuffer(), nzBufferAccess_ReadWrite);
+		NzMeshVertex* vertices = static_cast<NzMeshVertex*>(mapper.GetPointer());
+
+		unsigned int vertexCount = staticMesh->GetVertexCount();
+		for (unsigned int i = 0; i < vertexCount; ++i)
+		{
+			vertices->position -= center;
+			vertices++;
+		}
+
+		NzBoxf aabb = staticMesh->GetAABB();
+		aabb.Translate(-center);
+
+		staticMesh->SetAABB(aabb);
+	}
+
+	m_impl->aabbUpdated = false; // Notre AABB a changée
+}
+
 void NzMesh::RemoveSubMesh(const NzString& identifier)
 {
 	#if NAZARA_UTILITY_SAFE
