@@ -35,7 +35,6 @@ class NAZARA_API NzCamera : public NzSceneNode
 		const NzMatrix4f& GetProjectionMatrix() const;
 		nzSceneNodeType GetSceneNodeType() const override;
 		const NzRenderTarget* GetTarget() const;
-		const NzVector3f& GetUpVector() const;
 		const NzMatrix4f& GetViewMatrix() const;
 		const NzRectf& GetViewport() const;
 		float GetZFar() const;
@@ -44,7 +43,6 @@ class NAZARA_API NzCamera : public NzSceneNode
 		void SetFOV(float fov);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
-		void SetUpVector(const NzVector3f& upVector);
 		void SetViewport(const NzRectf& viewport);
 		void SetZFar(float zFar);
 		void SetZNear(float zNear);
@@ -63,7 +61,6 @@ class NAZARA_API NzCamera : public NzSceneNode
 		mutable NzMatrix4f m_projectionMatrix;
 		mutable NzMatrix4f m_viewMatrix;
 		NzRectf m_viewport;
-		NzVector3f m_upVector;
 		const NzRenderTarget* m_target;
 		mutable bool m_frustumUpdated;
 		mutable bool m_projectionMatrixUpdated;
