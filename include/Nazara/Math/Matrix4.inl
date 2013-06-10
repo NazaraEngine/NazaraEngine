@@ -709,9 +709,16 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const
 	MakeTransform(translation, rotation);
 
 	// Ensuite on fait une mise à l'échelle des valeurs déjà présentes
-	ApplyScale(scale);
+	return ApplyScale(scale);
+}
 
-	return *this;
+template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::MakeViewMatrix(const NzVector3<T>& translation, const NzQuaternion<T>& rotation)
+{
+	// Une matrice de vue doit appliquer une transformation opposée à la matrice "monde"
+	NzQuaternionf invRot = rotation.GetConjugate(); // Inverse de la rotation
+
+	return MakeTransform(-(invRot*translation), invRot);
 }
 
 template<typename T>
@@ -765,6 +772,7 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4& matrix)
 {
+	// Le membre isIdentity est copié en même temps que les valeurs
 	std::memcpy(this, &matrix, sizeof(NzMatrix4));
 
 	return *this;
@@ -774,12 +782,12 @@ template<typename T>
 template<typename U>
 NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4<U>& matrix)
 {
-	Set(F(matrix.m11), F(matrix.m12), F(matrix.m13), F(matrix.m14),
-		F(matrix.m21), F(matrix.m22), F(matrix.m23), F(matrix.m24),
-		F(matrix.m31), F(matrix.m32), F(matrix.m33), F(matrix.m34),
-		F(matrix.m41), F(matrix.m42), F(matrix.m43), F(matrix.m44));
+	Set(F(matrix[ 0]), F(matrix[ 1]), F(matrix[ 2]), F(matrix[ 3]),
+	    F(matrix[ 4]), F(matrix[ 5]), F(matrix[ 6]), F(matrix[ 7]),
+	    F(matrix[ 8]), F(matrix[ 9]), F(matrix[10]), F(matrix[11]),
+	    F(matrix[12]), F(matrix[13]), F(matrix[14]), F(matrix[15]));
 
-	m_isIdentity = matrix.IsIdentity();
+	m_isIdentity = false;
 
 	return *this;
 }
@@ -884,6 +892,7 @@ NzVector4<T> NzMatrix4<T>::Transform(const NzVector4<T>& vector) const
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Transpose()
 {
+	// N'affecte pas l'identité (La transposée d'une matrice identité est la matrice identité elle-même)
 	std::swap(m12, m21);
 	std::swap(m13, m31);
 	std::swap(m14, m41);
@@ -1087,6 +1096,15 @@ NzMatrix4<T> NzMatrix4<T>::Transform(const NzVector3<T>& translation, const NzQu
 {
 	NzMatrix4 mat;
 	mat.MakeTransform(translation, rotation, scale);
+
+	return mat;
+}
+
+template<typename T>
+NzMatrix4<T> NzMatrix4<T>::ViewMatrix(const NzVector3<T>& translation, const NzQuaternion<T>& rotation)
+{
+	NzMatrix4 mat;
+	mat.MakeViewMatrix(translation, rotation);
 
 	return mat;
 }
