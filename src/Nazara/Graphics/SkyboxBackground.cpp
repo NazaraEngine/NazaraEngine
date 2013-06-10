@@ -204,9 +204,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	nzUInt8 textureUnit;
 	m_shader->SendTexture(m_shader->GetUniformLocation("Skybox"), m_texture, &textureUnit);
 
-	const NzCamera* camera = scene->GetActiveCamera();
-
-	const NzMatrix4f& viewMatrix = camera->GetViewMatrix();
+	const NzMatrix4f& viewMatrix = NzRenderer::GetMatrix(nzMatrixType_View);
 	NzMatrix4f skyboxMatrix(viewMatrix);
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
@@ -219,7 +217,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	NzRenderer::SetFaceFilling(nzFaceFilling_Fill);
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
-	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(camera->GetZNear())));
+	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(scene->GetActiveCamera()->GetZNear())));
 	NzRenderer::SetShader(m_shader);
 	NzRenderer::SetTextureSampler(textureUnit, m_sampler);
 	NzRenderer::SetVertexBuffer(m_vertexBuffer);
