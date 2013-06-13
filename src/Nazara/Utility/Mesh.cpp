@@ -37,6 +37,12 @@ bool NzMeshParams::IsValid() const
 		return false;
 	}
 
+	if (scale == NzVector3f::Zero())
+	{
+		NazaraError("Invalid scale");
+		return false;
+	}
+
 	return true;
 }
 
