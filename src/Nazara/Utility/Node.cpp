@@ -60,9 +60,33 @@ void NzNode::EnsureTransformMatrixUpdate() const
 		UpdateTransformMatrix();
 }
 
+NzVector3f NzNode::GetBackward() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Backward();
+}
+
 const std::vector<NzNode*>& NzNode::GetChilds() const
 {
 	return m_childs;
+}
+
+NzVector3f NzNode::GetDown() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Down();
+}
+
+NzVector3f NzNode::GetForward() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Forward();
 }
 
 bool NzNode::GetInheritPosition() const
@@ -93,6 +117,14 @@ NzQuaternionf NzNode::GetInitialRotation() const
 NzVector3f NzNode::GetInitialScale() const
 {
 	return m_initialScale;
+}
+
+NzVector3f NzNode::GetLeft() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Left();
 }
 
 const NzString& NzNode::GetName() const
@@ -126,6 +158,14 @@ NzVector3f NzNode::GetPosition(nzCoordSys coordSys) const
 
 	NazaraError("Coordinate system out of enum (0x" + NzString::Number(coordSys, 16) + ')');
 	return NzVector3f();
+}
+
+NzVector3f NzNode::GetRight() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Right();
 }
 
 NzQuaternionf NzNode::GetRotation(nzCoordSys coordSys) const
@@ -170,6 +210,14 @@ const NzMatrix4f& NzNode::GetTransformMatrix() const
 		UpdateTransformMatrix();
 
 	return m_transformMatrix;
+}
+
+NzVector3f NzNode::GetUp() const
+{
+	if (!m_derivedUpdated)
+		UpdateDerived();
+
+	return m_derivedRotation * NzVector3f::Up();
 }
 
 bool NzNode::HasChilds() const
