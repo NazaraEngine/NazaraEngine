@@ -1,3 +1,13 @@
+/*
+** DopplerEffect - Introduction à la lecture de son spatialisé (+ démonstration de l'effet doppler)
+** Prérequis: Aucun
+** Utilisation du noyau et du module audio
+** Présente:
+** - Chargement, lecture et positionnement d'un son
+** - Gestion basique d'une horloge
+** - Gestion basique de position 3D
+*/
+
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Thread.hpp> // Thread::Sleep
