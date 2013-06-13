@@ -155,6 +155,10 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 	NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 180.f, 0.f);
 	NzString baseDir = m_stream.GetDirectory();
 
+	// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
+	// Nous réduisons donc sa taille de 1/40
+	NzVector3f scale(m_parameters.scale/40.f);
+
 	if (m_parameters.animated)
 	{
 		if (!mesh->CreateSkeletal(m_joints.size())) // Ne devrait jamais échouer
@@ -175,8 +179,11 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			joint->SetName(m_joints[i].name);
 
 			NzMatrix4f bindMatrix;
-			bindMatrix.MakeRotation((parent >= 0) ? m_joints[i].bindOrient : rotationQuat * m_joints[i].bindOrient);
-			bindMatrix.SetTranslation((parent >= 0) ? m_joints[i].bindPos : rotationQuat * m_joints[i].bindPos); // Plus rapide que de multiplier par une matrice de translation
+
+			if (parent >= 0)
+				bindMatrix.MakeTransform(m_joints[i].bindPos, m_joints[i].bindOrient);
+			else
+				bindMatrix.MakeTransform(rotationQuat * m_joints[i].bindPos, rotationQuat * m_joints[i].bindOrient, scale);
 
 			joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 		}
@@ -243,7 +250,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 					vertexWeight->weights[j] = vertex.startWeight + j;
 				}
 
-				bindPosVertex->position = finalPos;
+				bindPosVertex->position = scale * finalPos;
 				bindPosVertex->uv.Set(vertex.uv.x, 1.f-vertex.uv.y);
 				bindPosVertex++;
 				vertexWeight++;
@@ -323,7 +330,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 				}
 
 				// On retourne le modèle dans le bon sens
-				vertex->position = rotationQuat * finalPos;
+				vertex->position = scale * (rotationQuat * finalPos);
 				vertex->uv.Set(md5Vertex.uv.x, 1.f - md5Vertex.uv.y);
 				vertex++;
 			}
@@ -349,6 +356,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			// Material
 			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+			subMesh->GenerateAABB();
 			subMesh->GenerateNormalsAndTangents();
 			subMesh->SetMaterialIndex(i);
 
