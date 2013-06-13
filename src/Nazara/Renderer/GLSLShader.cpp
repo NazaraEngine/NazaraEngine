@@ -395,12 +395,14 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 				slot.texture->AddResourceListener(this, location);
 
 				slot.updated = false;
+
+				 if (textureUnit)
+					*textureUnit = slot.unit;
 			}
 			else
 				m_textures.erase(it); // On supprime le slot
 		}
-
-		if (textureUnit)
+		else if (textureUnit)
 			*textureUnit = slot.unit;
 	}
 	else if (texture)
