@@ -123,7 +123,8 @@ namespace
 						NzMeshVertex& vertex = meshVertices[positionIt.second];
 
 						const NzVector4f& vec = positions[positionIt.first];
-						vertex.position.Set(vec.x/vec.w, vec.y/vec.w, vec.z/vec.w);
+						vertex.position.Set(vec.x, vec.y, vec.z);
+						vertex.position *= parameters.mesh.scale/vec.w;
 
 						int index;
 
