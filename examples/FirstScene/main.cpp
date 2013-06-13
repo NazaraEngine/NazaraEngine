@@ -1,5 +1,18 @@
+/*
+** FirstScene - Première scène graphique
+** Prérequis: Aucun
+** Utilisation du module utilitaire et graphique
+** Présente:
+** - Création et gestion d'une fenêtre (Traitement des évènements clavier/souris)
+** - Gestion du clavier (Récupération de l'état d'une touche)
+** - Des outils pour afficher une scène basique via le chargement d'un modèle (et son affichage)
+** - Éclairage directionnel
+** - Gestion d'une caméra free-fly (Avec déplacement fluide)
+** - Gestion basique d'une horloge
+*/
+
 #include <Nazara/Core/Clock.hpp> // Horloges
-#include <Nazara/Graphics.hpp> // Module Graphique
+#include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Utility.hpp> // Module utilitaire
 #include <iostream>
@@ -75,7 +88,6 @@ int main()
 
 	// Une structure permettant de paramétrer le chargement des modèles
 	NzModelParameters params;
-
 
 	// Le format OBJ ne précise aucune échelle pour ses données, contrairement à Nazara (une unité = un mètre).
 	// Comme le vaisseau est très grand (Des centaines de mètres de long), nous allons le rendre plus petit

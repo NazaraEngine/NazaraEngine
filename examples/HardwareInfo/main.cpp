@@ -1,3 +1,12 @@
+/*
+** HardwareInfo - Récupération des caractéristiques de l'ordinateur
+** Prérequis: Aucun
+** Utilisation du noyau et du module de rendu
+** Présente:
+** - Récupération des informations sur le processeur
+** - Récupération des informations sur la carte graphique
+*/
+
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Initializer.hpp>
@@ -25,10 +34,10 @@ int main()
 		// On commence par les informations sur le processeur, Nazara en récupère trois caractéristiques:
 		// 1) La "brand string", qui est une chaîne de 48 caractères identifiant le processeur
 		// 2) Le concepteur du processeur, accessible via une énumération (GetProcessorVendor) ou une chaîne de caractère (GetProcessorVendorName)
-		// 3) Le nombre de processeurs, alias bien souvent le nombre de coeurs, cette valeur est renvoyée par l'OS (Le SMT multiplie donc la valeur réelle)
+		// 3) Le nombre de processeurs logique, alias bien souvent le nombre de coeurs (logiques), cette valeur est renvoyée par l'OS (Le SMT multiplie donc la valeur réelle)
 		oss << "Identification: " << NzHardwareInfo::GetProcessorBrandString() << std::endl;
 		oss << "Concepteur: " << NzHardwareInfo::GetProcessorVendorName() << std::endl;
-		oss << "Nombre de coeurs: " << NzHardwareInfo::GetProcessorCount() << std::endl;
+		oss << "Nombre de coeurs logiques: " << NzHardwareInfo::GetProcessorCount() << std::endl;
 		oss << std::endl;
 
 		// Ensuite, Nazara récupère les capacités du processeur, dont des jeux d'extensions supplémentaires
