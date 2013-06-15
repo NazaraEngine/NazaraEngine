@@ -57,7 +57,6 @@
 #define NAZARA_CORE_THREADSAFE 1
 
 // Les classes à protéger des accès concurrentiels
-#define NAZARA_THREADSAFETY_BYTEARRAY 1    // NzByteArray (COW)
 #define NAZARA_THREADSAFETY_CLOCK 0        // NzClock
 #define NAZARA_THREADSAFETY_DIRECTORY 1    // NzDirectory
 #define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
@@ -65,7 +64,6 @@
 #define NAZARA_THREADSAFETY_HASHDIGEST 0   // NzHashDigest
 #define NAZARA_THREADSAFETY_LOG 1          // NzLog
 #define NAZARA_THREADSAFETY_RESOURCE 1     // NzResource
-#define NAZARA_THREADSAFETY_STRING 1       // NzString (COW)
 #define NAZARA_THREADSAFETY_STRINGSTREAM 0 // NzStringStream
 
 // Le nombre de spinlocks à utiliser avec les critical sections de Windows (0 pour désactiver)
