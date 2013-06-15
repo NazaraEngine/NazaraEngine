@@ -48,10 +48,6 @@
 #define NAZARA_UTILITY_THREADED_WINDOW 0
 
 // Protège les classes des accès concurrentiels
-#define NAZARA_UTILITY_THREADSAFE 1
-
-// Les classes à protéger des accès concurrentiels
-#define NAZARA_THREADSAFETY_IMAGE             1 // NzImage (COW)
-#define NAZARA_THREADSAFETY_VERTEXDECLARATION 1 // NzVertexDeclaration (COW)
+//#define NAZARA_UTILITY_THREADSAFE 1
 
 #endif // NAZARA_CONFIG_UTILITY_HPP
