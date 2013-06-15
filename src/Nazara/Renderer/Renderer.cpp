@@ -69,7 +69,7 @@ namespace
 
 	constexpr unsigned int totalMatrixCount = nzMatrixCombination_Max+1;
 
-	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, bool>;
+	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, bool>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
 	std::set<unsigned int> s_dirtyTextureUnits;
@@ -94,7 +94,6 @@ namespace
 	const NzRenderTarget* s_target;
 	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
-	const NzVertexDeclaration* s_vertexDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
 	bool s_matrixUpdated[totalMatrixCount];
@@ -762,7 +761,6 @@ bool NzRenderer::Initialize()
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
 	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 	s_vertexBuffer = nullptr;
-	s_vertexDeclaration = nullptr;
 	s_updateFlags = (Update_Matrices | Update_Shader | Update_VAO);
 
 	NzVertexElement elements[2];
@@ -1325,11 +1323,6 @@ void NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 	if (vertexBuffer && s_vertexBuffer != vertexBuffer)
 	{
 		s_vertexBuffer = vertexBuffer;
-
-		const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
-		if (s_vertexDeclaration != vertexDeclaration)
-			s_vertexDeclaration = vertexDeclaration;
-
 		s_updateFlags |= Update_VAO;
 	}
 }
@@ -1579,12 +1572,6 @@ bool NzRenderer::EnsureStateUpdate()
 				NazaraError("No vertex buffer");
 				return false;
 			}
-
-			if (!s_vertexDeclaration)
-			{
-				NazaraError("No vertex declaration");
-				return false;
-			}
 			#endif
 
 			bool update;
@@ -1596,7 +1583,7 @@ bool NzRenderer::EnsureStateUpdate()
 				// On recherche si un VAO existe déjà avec notre configuration
 				// Note: Les VAOs ne sont pas partagés entre les contextes, ces derniers font donc partie de notre configuration
 
-				auto key = std::make_tuple(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_vertexDeclaration, s_instancing);
+				VAO_Key key(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_instancing);
 				auto it = s_vaos.find(key);
 				if (it == s_vaos.end())
 				{
@@ -1626,14 +1613,16 @@ bool NzRenderer::EnsureStateUpdate()
 				NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
 				vertexBufferImpl->Bind();
 
+				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
+
 				const nzUInt8* buffer = static_cast<const nzUInt8*>(s_vertexBuffer->GetPointer());
-				unsigned int stride = s_vertexDeclaration->GetStride(nzElementStream_VertexData);
+				unsigned int stride = vertexDeclaration->GetStride(nzElementStream_VertexData);
 				for (unsigned int i = 0; i <= nzElementUsage_Max; ++i)
 				{
 					nzElementUsage usage = static_cast<nzElementUsage>(i);
-					if (s_vertexDeclaration->HasElement(nzElementStream_VertexData, usage))
+					if (vertexDeclaration->HasElement(nzElementStream_VertexData, usage))
 					{
-						const NzVertexElement* element = s_vertexDeclaration->GetElement(nzElementStream_VertexData, usage);
+						const NzVertexElement* element = vertexDeclaration->GetElement(nzElementStream_VertexData, usage);
 
 						glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 						glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
@@ -1647,11 +1636,11 @@ bool NzRenderer::EnsureStateUpdate()
 						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 				}
 
+				unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
 				if (s_instancing)
 				{
 					static_cast<NzHardwareBuffer*>(s_instancingBuffer->GetImpl())->Bind();
 
-					unsigned int instanceMatrixIndex = NzOpenGL::AttributeIndex[nzElementUsage_TexCoord] + 8;
 					for (unsigned int i = 0; i < 4; ++i)
 					{
 						glEnableVertexAttribArray(instanceMatrixIndex);
@@ -1662,10 +1651,10 @@ bool NzRenderer::EnsureStateUpdate()
 					}
 				}
 				else
-                {
-					for (unsigned int i = 8; i < 8+4; ++i)
-						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i);
-                }
+				{
+					for (unsigned int i = 0; i < 4; ++i)
+						glDisableVertexAttribArray(instanceMatrixIndex++);
+				}
 
 				if (s_indexBuffer && !s_indexBuffer->IsSequential())
 				{
@@ -1693,8 +1682,14 @@ bool NzRenderer::EnsureStateUpdate()
 		#endif
 	}
 
-	///FIXME: Rebinder le shader, les textures et le VAO via l'API NzOpenGL ?
-	// Le problème étant que si une modification est faite à une ressource, celle-ci ne sera pas rebindée alors qu'elle le devrait
+	///FIXME: Comment détecter le besoin de réactiver le VAO ? (Est-ce même nécessaire ?)
+	// On vérifie que les textures actuellement bindées sont bien nos textures
+	for (unsigned int i = 0; i < s_maxTextureUnit; ++i)
+	{
+		const NzTexture* texture = s_textureUnits[i].texture;
+		if (texture)
+			NzOpenGL::BindTexture(i, texture->GetType(), texture->GetOpenGLID());
+	}
 
 	return true;
 }
