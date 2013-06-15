@@ -10,13 +10,6 @@
 #include <cstring>
 #include <stdexcept>
 #include <vector>
-
-#if NAZARA_UTILITY_THREADSAFE && NAZARA_THREADSAFETY_VERTEXDECLARATION
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 #include <Nazara/Utility/Debug.hpp>
 
 namespace
