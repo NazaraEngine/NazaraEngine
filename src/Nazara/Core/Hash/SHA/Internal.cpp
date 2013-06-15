@@ -67,7 +67,7 @@
  * 64-bit words):
  */
 #define ADDINC128(w,n)	{ \
-	(w)[0] += (nzUInt64)(n); \
+	(w)[0] += static_cast<nzUInt64>(n); \
 	if ((w)[0] < (n)) { \
 		(w)[1]++; \
 	} \
