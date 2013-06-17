@@ -21,6 +21,7 @@ newoption {
 solution "NazaraEngine"
 -- Hack: loadfile doesn't change current directory, as does premake-overloaded dofile
 loadfile("scripts/common.lua")()
+configuration {} -- Désactivation du filtre
 
 local modules
 
@@ -43,6 +44,7 @@ for k,v in pairs(modules) do
 		local f, err = loadfile(v)
 		if (f) then
 			f()
+			configuration {} -- Désactivation du filtre
 		else
 			error("Unable to load module: " .. err)
 		end
@@ -54,6 +56,7 @@ for k,v in pairs(modules) do
 	local f, err = loadfile(v)
 	if (f) then
 		f()
+		configuration {} -- Désactivation du filtre
 	else
 		print("Unable to load action: " .. err)
 	end
@@ -62,10 +65,12 @@ end
 if (_OPTIONS["with-extlibs"]) then
 	solution "NazaraExtlibs"
 	loadfile("scripts/common_extlibs.lua")()
+	configuration {} -- Désactivation du filtre
 
 	local extlibs = os.matchfiles("../extlibs/build/*.lua")
 	for k,v in pairs(extlibs) do
 		dofile(v)
+		configuration {} -- Désactivation du filtre
 	end
 end
 
@@ -80,6 +85,7 @@ if (_OPTIONS["with-examples"]) then
 		    dirName ~= "build") then
 			project(dirName)
 			dofile(v .. "/build.lua")
+			configuration {} -- Désactivation du filtre
 		end
 	end
 end
