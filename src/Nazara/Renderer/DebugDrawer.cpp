@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -21,13 +22,12 @@ namespace
 {
 	static NzColor primaryColor = NzColor::Red;
 	static NzColor secondaryColor = NzColor::Green;
+	static NzRenderStates renderStates;
 	static const NzShader* shader = nullptr;
 	static NzVertexBuffer* vertexBuffer = nullptr;
 	static NzVertexDeclaration* vertexDeclaration = nullptr;
 	static bool depthBufferEnabled = true;
 	static bool initialized = false;
-	static float lineWidth = 1.5f;
-	static float pointSize = 3.f;
 	static int colorLocation = -1;
 }
 
@@ -128,8 +128,7 @@ void NzDebugDrawer::Draw(const NzBoxf& box)
 
 	mapper.Unmap();
 
-	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
-	NzRenderer::SetLineWidth(lineWidth);
+	NzRenderer::SetRenderStates(renderStates);
 	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
@@ -216,8 +215,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 
 	mapper.Unmap();
 
-	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
-	NzRenderer::SetLineWidth(lineWidth);
+	NzRenderer::SetRenderStates(renderStates);
 	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
@@ -299,8 +297,7 @@ void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 
 	mapper.Unmap();
 
-	NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
-	NzRenderer::SetLineWidth(lineWidth);
+	NzRenderer::SetRenderStates(renderStates);
 	NzRenderer::SetShader(shader);
 	NzRenderer::SetVertexBuffer(vertexBuffer);
 
@@ -348,9 +345,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 	if (vertexCount > 0)
 	{
-		NzRenderer::Enable(nzRendererParameter_DepthBuffer, depthBufferEnabled);
-		NzRenderer::SetLineWidth(lineWidth);
-		NzRenderer::SetPointSize(pointSize);
+		NzRenderer::SetRenderStates(renderStates);
 		NzRenderer::SetShader(shader);
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
@@ -501,17 +496,17 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 
 void NzDebugDrawer::EnableDepthBuffer(bool depthBuffer)
 {
-	depthBufferEnabled = depthBuffer;
+	renderStates.parameters[nzRendererParameter_DepthBuffer] = depthBuffer;
 }
 
 float NzDebugDrawer::GetLineWidth()
 {
-	return lineWidth;
+	return renderStates.lineWidth;
 }
 
 float NzDebugDrawer::GetPointSize()
 {
-	return pointSize;
+	return renderStates.pointSize;
 }
 
 NzColor NzDebugDrawer::GetPrimaryColor()
@@ -582,12 +577,12 @@ bool NzDebugDrawer::IsDepthBufferEnabled()
 
 void NzDebugDrawer::SetLineWidth(float width)
 {
-	lineWidth = width;
+	renderStates.lineWidth = width;
 }
 
 void NzDebugDrawer::SetPointSize(float size)
 {
-	pointSize = size;
+	renderStates.pointSize = size;
 }
 
 void NzDebugDrawer::SetPrimaryColor(const NzColor& color)
