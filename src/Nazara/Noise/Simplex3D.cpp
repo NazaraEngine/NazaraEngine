@@ -9,8 +9,8 @@
 
 NzSimplex3D::NzSimplex3D()
 {
-    SkewCoeff3D = 1/3.;
-    UnskewCoeff3D = 1/6.;
+    SkewCoeff3D = 1/3.f;
+    UnskewCoeff3D = 1/6.f;
 
     int grad3Temp[][3] = {{1,1,0},{-1,1,0},{1,-1,0},{-1,-1,0},
                           {1,0,1},{-1,0,1},{1,0,-1},{-1,0,-1},
@@ -114,13 +114,13 @@ float NzSimplex3D::GetValue(float x, float y, float z, float resolution)
     d2.y = d1.y - off1.y + UnskewCoeff3D;
     d2.z = d1.z - off1.z + UnskewCoeff3D;
 
-    d3.x = d1.x - off2.x + 2*UnskewCoeff3D;
-    d3.y = d1.y - off2.y + 2*UnskewCoeff3D;
-    d3.z = d1.z - off2.z + 2*UnskewCoeff3D;
+    d3.x = d1.x - off2.x + 2.f*UnskewCoeff3D;
+    d3.y = d1.y - off2.y + 2.f*UnskewCoeff3D;
+    d3.z = d1.z - off2.z + 2.f*UnskewCoeff3D;
 
-    d4.x = d1.x - 1.0 + 3*UnskewCoeff3D;
-    d4.y = d1.y - 1.0 + 3*UnskewCoeff3D;
-    d4.z = d1.z - 1.0 + 3*UnskewCoeff3D;
+    d4.x = d1.x - 1.f + 3.f*UnskewCoeff3D;
+    d4.y = d1.y - 1.f + 3.f*UnskewCoeff3D;
+    d4.z = d1.z - 1.f + 3.f*UnskewCoeff3D;
 
     ii = skewedCubeOrigin.x & 255;
     jj = skewedCubeOrigin.y & 255;
@@ -131,10 +131,10 @@ float NzSimplex3D::GetValue(float x, float y, float z, float resolution)
     gi2 = perm[ii + off2.x + perm[jj + off2.y + perm[kk + off2.z]]] % 12;
     gi3 = perm[ii + 1 +      perm[jj + 1 +      perm[kk + 1     ]]] % 12;
 
-    c1 = 0.6 - d1.x * d1.x - d1.y * d1.y - d1.z * d1.z;
-    c2 = 0.6 - d2.x * d2.x - d2.y * d2.y - d2.z * d2.z;
-    c3 = 0.6 - d3.x * d3.x - d3.y * d3.y - d3.z * d3.z;
-    c4 = 0.6 - d4.x * d4.x - d4.y * d4.y - d4.z * d4.z;
+    c1 = 0.6f - d1.x * d1.x - d1.y * d1.y - d1.z * d1.z;
+    c2 = 0.6f - d2.x * d2.x - d2.y * d2.y - d2.z * d2.z;
+    c3 = 0.6f - d3.x * d3.x - d3.y * d3.y - d3.z * d3.z;
+    c4 = 0.6f - d4.x * d4.x - d4.y * d4.y - d4.z * d4.z;
 
     if(c1 < 0)
         n1 = 0;
