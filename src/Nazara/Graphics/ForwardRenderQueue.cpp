@@ -101,7 +101,7 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 			case nzAnimationType_Static:
 			{
 				NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
-				if (material->IsAlphaBlendingEnabled())
+				if (material->IsEnabled(nzRendererParameter_Blend))
 				{
 					unsigned int index = transparentStaticModels.size();
 					transparentStaticModels.resize(index+1);

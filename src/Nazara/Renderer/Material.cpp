@@ -140,14 +140,17 @@ void NzMaterial::Apply(const NzShader* shader) const
 	NzRenderer::SetRenderStates(m_states);
 }
 
-void NzMaterial::EnableAlphaBlending(bool blending)
+void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
 {
-	m_states.parameters[nzRendererParameter_Blend] = blending;
-}
+	#ifdef NAZARA_DEBUG
+	if (renderParameter > nzRendererParameter_Max)
+	{
+		NazaraError("Renderer parameter out of enum");
+		return;
+	}
+	#endif
 
-void NzMaterial::EnableFaceCulling(bool faceCulling)
-{
-	m_states.parameters[nzRendererParameter_FaceCulling] = faceCulling;
+	m_states.parameters[renderParameter] = enable;
 }
 
 void NzMaterial::EnableLighting(bool lighting)
@@ -159,14 +162,9 @@ void NzMaterial::EnableLighting(bool lighting)
 		m_shaderFlags &= ~nzShaderFlags_Lighting;
 }
 
-void NzMaterial::EnableZBuffer(bool zBuffer)
+NzTexture* NzMaterial::GetAlphaMap() const
 {
-	m_states.parameters[nzRendererParameter_DepthBuffer] = zBuffer;
-}
-
-void NzMaterial::EnableZWrite(bool zWrite)
-{
-	m_states.parameters[nzRendererParameter_DepthWrite] = zWrite;
+	return m_alphaMap;
 }
 
 NzColor NzMaterial::GetAmbientColor() const
@@ -174,14 +172,14 @@ NzColor NzMaterial::GetAmbientColor() const
 	return m_ambientColor;
 }
 
-NzTexture* NzMaterial::GetAlphaMap() const
-{
-	return m_alphaMap;
-}
-
 const NzShader* NzMaterial::GetCustomShader() const
 {
 	return m_customShader;
+}
+
+nzRendererComparison NzMaterial::GetDepthFunc() const
+{
+	return m_states.depthFunc;
 }
 
 NzColor NzMaterial::GetDiffuseColor() const
@@ -234,6 +232,11 @@ NzTexture* NzMaterial::GetNormalMap() const
 	return m_normalMap;
 }
 
+const NzRenderStates& NzMaterial::GetRenderStates() const
+{
+	return m_states;
+}
+
 nzUInt32 NzMaterial::GetShaderFlags() const
 {
 	return m_shaderFlags;
@@ -269,39 +272,27 @@ nzBlendFunc NzMaterial::GetSrcBlend() const
 	return m_states.srcBlend;
 }
 
-nzRendererComparison NzMaterial::GetZTestCompare() const
-{
-	return m_states.depthFunc;
-}
-
 bool NzMaterial::HasCustomShader() const
 {
 	return m_customShader != nullptr;
 }
 
-bool NzMaterial::IsAlphaBlendingEnabled() const
+bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
 {
-	return m_states.parameters[nzRendererParameter_Blend];
-}
+	#ifdef NAZARA_DEBUG
+	if (parameter > nzRendererParameter_Max)
+	{
+		NazaraError("Renderer parameter out of enum");
+		return false;
+	}
+	#endif
 
-bool NzMaterial::IsFaceCullingEnabled() const
-{
-	return m_states.parameters[nzRendererParameter_FaceCulling];
+	return m_states.parameters[parameter];
 }
 
 bool NzMaterial::IsLightingEnabled() const
 {
 	return m_lightingEnabled;
-}
-
-bool NzMaterial::IsZBufferEnabled() const
-{
-	return m_states.parameters[nzRendererParameter_DepthBuffer];
-}
-
-bool NzMaterial::IsZWriteEnabled() const
-{
-	return m_states.parameters[nzRendererParameter_DepthWrite];
 }
 
 bool NzMaterial::LoadFromFile(const NzString& filePath, const NzMaterialParams& params)
@@ -376,6 +367,11 @@ void NzMaterial::SetAmbientColor(const NzColor& ambient)
 void NzMaterial::SetCustomShader(const NzShader* shader)
 {
 	m_customShader = shader;
+}
+
+void NzMaterial::SetDepthFunc(nzRendererComparison depthFunc)
+{
+	m_states.depthFunc = depthFunc;
 }
 
 void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
@@ -503,6 +499,11 @@ void NzMaterial::SetNormalMap(NzTexture* map)
 		m_shaderFlags &= ~nzShaderFlags_NormalMapping;
 }
 
+void NzMaterial::SetRenderStates(const NzRenderStates& states)
+{
+	m_states = states;
+}
+
 void NzMaterial::SetShininess(float shininess)
 {
 	m_shininess = shininess;
@@ -549,11 +550,6 @@ void NzMaterial::SetSrcBlend(nzBlendFunc func)
 	m_states.srcBlend = func;
 }
 
-void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
-{
-	m_states.depthFunc = compareFunc;
-}
-
 NzMaterial& NzMaterial::operator=(const NzMaterial& material)
 {
 	Copy(material);
@@ -584,10 +580,9 @@ NzMaterial* NzMaterial::GetDefault()
 
 	if (!initialized)
 	{
-		defaultMaterial.EnableFaceCulling(false);
 		defaultMaterial.EnableLighting(false);
-		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
 		defaultMaterial.SetDiffuseColor(NzColor::White);
+		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
 
 		initialized = true;
 	}
