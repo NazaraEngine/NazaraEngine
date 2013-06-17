@@ -158,13 +158,13 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 		s_states.stencilZFail = states.stencilZFail;
 	}
 
-	if (NzNumberEquals(s_states.lineWidth, states.lineWidth, 0.001f))
+	if (!NzNumberEquals(s_states.lineWidth, states.lineWidth, 0.001f))
 	{
 		glLineWidth(states.lineWidth);
 		s_states.lineWidth = states.lineWidth;
 	}
 
-	if (NzNumberEquals(s_states.pointSize, states.pointSize, 0.001f))
+	if (!NzNumberEquals(s_states.pointSize, states.pointSize, 0.001f))
 	{
 		glPointSize(states.pointSize);
 		s_states.pointSize = states.pointSize;
