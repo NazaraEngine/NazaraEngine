@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Math/Basic.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
 #include <set>
@@ -62,6 +63,7 @@ namespace
 	GLuint s_buffersBinding[nzBufferType_Max+1];
 	GLuint s_currentProgram;
 	GLuint s_texturesBinding[32]; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+	NzRenderStates s_states; // Toujours synchronisé avec OpenGL
 	const char* s_rendererName = nullptr;
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
@@ -111,6 +113,126 @@ namespace
 		}
 
 		return true;
+	}
+}
+
+void NzOpenGL::ApplyStates(const NzRenderStates& states)
+{
+	if (states.dstBlend != states.dstBlend || s_states.srcBlend != states.srcBlend)
+	{
+		glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
+		s_states.dstBlend = states.dstBlend;
+	}
+
+	if (s_states.depthFunc != states.depthFunc)
+	{
+		glDepthFunc(RendererComparison[states.depthFunc]);
+		s_states.depthFunc = states.depthFunc;
+	}
+
+	if (s_states.faceCulling != states.faceCulling)
+	{
+		glCullFace(FaceCulling[states.faceCulling]);
+		s_states.faceCulling = states.faceCulling;
+	}
+
+	if (s_states.faceFilling != states.faceFilling)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, FaceFilling[states.faceFilling]);
+		s_states.faceFilling = states.faceFilling;
+	}
+
+	if (s_states.stencilCompare != states.stencilCompare || s_states.stencilMask != states.stencilMask || s_states.stencilReference != states.stencilReference)
+	{
+		glStencilFunc(RendererComparison[states.stencilCompare], states.stencilReference, states.stencilMask);
+		s_states.stencilCompare = states.stencilCompare;
+		s_states.stencilMask = states.stencilMask;
+		s_states.stencilReference = states.stencilReference;
+	}
+
+	if (s_states.stencilFail != states.stencilFail || s_states.stencilPass != states.stencilPass || s_states.stencilZFail != states.stencilZFail)
+	{
+		glStencilOp(StencilOperation[states.stencilFail], StencilOperation[states.stencilZFail], StencilOperation[states.stencilPass]);
+		s_states.stencilFail = states.stencilFail;
+		s_states.stencilPass = states.stencilPass;
+		s_states.stencilZFail = states.stencilZFail;
+	}
+
+	if (NzNumberEquals(s_states.lineWidth, states.lineWidth, 0.001f))
+	{
+		glLineWidth(states.lineWidth);
+		s_states.lineWidth = states.lineWidth;
+	}
+
+	if (NzNumberEquals(s_states.pointSize, states.pointSize, 0.001f))
+	{
+		glPointSize(states.pointSize);
+		s_states.pointSize = states.pointSize;
+	}
+
+	// Paramètres de rendu
+	if (s_states.parameters[nzRendererParameter_Blend] != states.parameters[nzRendererParameter_Blend])
+	{
+		if (states.parameters[nzRendererParameter_Blend])
+			glEnable(GL_BLEND);
+		else
+			glDisable(GL_BLEND);
+
+		s_states.parameters[nzRendererParameter_Blend] = states.parameters[nzRendererParameter_Blend];
+	}
+
+	if (s_states.parameters[nzRendererParameter_ColorWrite] != states.parameters[nzRendererParameter_ColorWrite])
+	{
+		GLboolean param = (states.parameters[nzRendererParameter_ColorWrite]) ? GL_TRUE : GL_FALSE;
+		glColorMask(param, param, param, param);
+
+		s_states.parameters[nzRendererParameter_ColorWrite] = states.parameters[nzRendererParameter_ColorWrite];
+	}
+
+	if (s_states.parameters[nzRendererParameter_DepthBuffer] != states.parameters[nzRendererParameter_DepthBuffer])
+	{
+		if (states.parameters[nzRendererParameter_DepthBuffer])
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+
+		s_states.parameters[nzRendererParameter_DepthBuffer] = states.parameters[nzRendererParameter_DepthBuffer];
+	}
+
+	if (s_states.parameters[nzRendererParameter_DepthWrite] != states.parameters[nzRendererParameter_DepthWrite])
+	{
+		glDepthMask((states.parameters[nzRendererParameter_DepthWrite]) ? GL_TRUE : GL_FALSE);
+		s_states.parameters[nzRendererParameter_DepthWrite] = states.parameters[nzRendererParameter_DepthWrite];
+	}
+
+	if (s_states.parameters[nzRendererParameter_FaceCulling] != states.parameters[nzRendererParameter_FaceCulling])
+	{
+		if (states.parameters[nzRendererParameter_FaceCulling])
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
+
+		s_states.parameters[nzRendererParameter_FaceCulling] = states.parameters[nzRendererParameter_FaceCulling];
+	}
+
+	if (s_states.parameters[nzRendererParameter_ScissorTest] != states.parameters[nzRendererParameter_ScissorTest])
+	{
+		if (states.parameters[nzRendererParameter_ScissorTest])
+			glEnable(GL_SCISSOR_TEST);
+		else
+			glDisable(GL_SCISSOR_TEST);
+
+		s_states.parameters[nzRendererParameter_ScissorTest] = states.parameters[nzRendererParameter_ScissorTest];
+	}
+
+	if (s_states.parameters[nzRendererParameter_StencilTest] != states.parameters[nzRendererParameter_StencilTest])
+	{
+		if (states.parameters[nzRendererParameter_StencilTest])
+			glEnable(GL_STENCIL_TEST);
+		else
+			glDisable(GL_STENCIL_TEST);
+
+		s_states.parameters[nzRendererParameter_StencilTest] = states.parameters[nzRendererParameter_StencilTest];
 	}
 }
 

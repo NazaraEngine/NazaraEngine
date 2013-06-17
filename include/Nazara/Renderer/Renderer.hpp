@@ -12,6 +12,7 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
@@ -53,6 +54,7 @@ class NAZARA_API NzRenderer
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
 		static float GetPointSize();
+		static const NzRenderStates& GetRenderStates();
 		static NzRectui GetScissorRect();
 		static const NzShader* GetShader();
 		static const NzRenderTarget* GetTarget();
@@ -65,7 +67,7 @@ class NAZARA_API NzRenderer
 		static bool IsEnabled(nzRendererParameter parameter);
 		static bool IsInitialized();
 
-		static void SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc destBlend);
+		static void SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend);
 		static void SetClearColor(const NzColor& color);
 		static void SetClearColor(nzUInt8 r, nzUInt8 g, nzUInt8 b, nzUInt8 a = 255);
 		static void SetClearDepth(double depth);
@@ -78,6 +80,7 @@ class NAZARA_API NzRenderer
 		static void SetLineWidth(float size);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
 		static void SetPointSize(float size);
+		static void SetRenderStates(const NzRenderStates& states);
 		static void SetScissorRect(const NzRectui& viewport);
 		static void SetShader(const NzShader* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
