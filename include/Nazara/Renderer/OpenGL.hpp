@@ -15,6 +15,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 
 // Inclusion des extensions
 #include <GL3/glext.h>
@@ -64,6 +65,8 @@ class NAZARA_API NzOpenGL
 
 		NzOpenGL() = delete;
 		~NzOpenGL() = delete;
+
+		static void ApplyStates(const NzRenderStates& states);
 
 		static void BindBuffer(nzBufferType type, GLuint id);
 		static void BindProgram(GLuint id);
