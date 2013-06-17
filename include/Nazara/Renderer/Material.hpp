@@ -14,6 +14,7 @@
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
@@ -44,16 +45,16 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void Apply(const NzShader* shader) const;
 
-		void EnableAlphaBlending(bool alphaBlending);
+		void EnableAlphaBlending(bool blending);
 		void EnableFaceCulling(bool faceCulling);
 		void EnableLighting(bool lighting);
 		void EnableZBuffer(bool zBuffer);
 		void EnableZWrite(bool zWrite);
 
 		NzColor GetAmbientColor() const;
+		NzTexture* GetAlphaMap() const;
 		const NzShader* GetCustomShader() const;
 		NzColor GetDiffuseColor() const;
-		NzTexture* GetAlphaMap() const;
 		NzTexture* GetDiffuseMap() const;
 		NzTextureSampler& GetDiffuseSampler();
 		const NzTextureSampler& GetDiffuseSampler() const;
@@ -119,15 +120,11 @@ class NAZARA_API NzMaterial : public NzResource
 	private:
 		void Copy(const NzMaterial& material);
 
-		nzBlendFunc m_dstBlend;
-		nzBlendFunc m_srcBlend;
-		nzFaceCulling m_faceCulling;
-		nzFaceFilling m_faceFilling;
-		nzRendererComparison m_zTestCompareFunc;
 		nzUInt32 m_shaderFlags;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
+		NzRenderStates m_states;
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
 		mutable NzShaderConstRef m_customShader;
@@ -137,11 +134,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureRef m_heightMap;
 		NzTextureRef m_normalMap;
 		NzTextureRef m_specularMap;
-		bool m_alphaBlendingEnabled;
-		bool m_faceCullingEnabled;
 		bool m_lightingEnabled;
-		bool m_zBufferEnabled;
-		bool m_zWriteEnabled;
 		float m_shininess;
 
 		static NzMaterialLoader::LoaderList s_loaders;
