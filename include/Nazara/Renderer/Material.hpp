@@ -45,15 +45,13 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void Apply(const NzShader* shader) const;
 
-		void EnableAlphaBlending(bool blending);
-		void EnableFaceCulling(bool faceCulling);
+		void Enable(nzRendererParameter renderParameter, bool enable);
 		void EnableLighting(bool lighting);
-		void EnableZBuffer(bool zBuffer);
-		void EnableZWrite(bool zWrite);
 
-		NzColor GetAmbientColor() const;
 		NzTexture* GetAlphaMap() const;
+		NzColor GetAmbientColor() const;
 		const NzShader* GetCustomShader() const;
+		nzRendererComparison GetDepthFunc() const;
 		NzColor GetDiffuseColor() const;
 		NzTexture* GetDiffuseMap() const;
 		NzTextureSampler& GetDiffuseSampler();
@@ -64,6 +62,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzFaceFilling GetFaceFilling() const;
 		NzTexture* GetHeightMap() const;
 		NzTexture* GetNormalMap() const;
+		const NzRenderStates& GetRenderStates() const;
 		nzUInt32 GetShaderFlags() const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
@@ -71,15 +70,11 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureSampler& GetSpecularSampler();
 		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
-		nzRendererComparison GetZTestCompare() const;
 
 		bool HasCustomShader() const;
 
-		bool IsAlphaBlendingEnabled() const;
-		bool IsFaceCullingEnabled() const;
+		bool IsEnabled(nzRendererParameter renderParameter) const;
 		bool IsLightingEnabled() const;
-		bool IsZBufferEnabled() const;
-		bool IsZWriteEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzMaterialParams& params = NzMaterialParams());
@@ -90,6 +85,8 @@ class NAZARA_API NzMaterial : public NzResource
 		bool SetAlphaMap(const NzString& texturePath);
 		void SetAlphaMap(NzTexture* map);
 		void SetAmbientColor(const NzColor& ambient);
+		void SetCustomShader(const NzShader* shader);
+		void SetDepthFunc(nzRendererComparison depthFunc);
 		void SetDiffuseColor(const NzColor& diffuse);
 		bool SetDiffuseMap(const NzString& texturePath);
 		void SetDiffuseMap(NzTexture* map);
@@ -103,14 +100,13 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetHeightMap(NzTexture* map);
 		bool SetNormalMap(const NzString& texturePath);
 		void SetNormalMap(NzTexture* map);
-		void SetCustomShader(const NzShader* shader);
+		void SetRenderStates(const NzRenderStates& states);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		bool SetSpecularMap(const NzString& texturePath);
 		void SetSpecularMap(NzTexture* map);
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
-		void SetZTestCompare(nzRendererComparison compareFunc);
 
 		NzMaterial& operator=(const NzMaterial& material);
 		NzMaterial& operator=(NzMaterial&& material);
