@@ -48,10 +48,8 @@ namespace
 
 		Update_Matrices     = 0x01,
 		Update_Shader       = 0x02,
-		Update_StencilFunc  = 0x04,
-		Update_StencilOp    = 0x08,
-		Update_Textures     = 0x10,
-		Update_VAO          = 0x20,
+		Update_Textures     = 0x04,
+		Update_VAO          = 0x08,
 	};
 
 	struct TextureUnit
@@ -77,18 +75,9 @@ namespace
 	NzBuffer* s_instancingBuffer = nullptr;
 	NzVertexBuffer* s_quadBuffer = nullptr;
 	NzMatrix4f s_matrix[totalMatrixCount];
+	NzRenderStates s_states;
 	NzVector2ui s_targetSize;
-	nzBlendFunc s_srcBlend;
-	nzBlendFunc s_dstBlend;
-	nzFaceCulling s_faceCulling;
-	nzFaceFilling s_faceFilling;
-	nzRendererComparison s_depthFunc;
-	nzRendererComparison s_stencilCompare;
-	nzStencilOperation s_stencilFail;
-	nzStencilOperation s_stencilPass;
-	nzStencilOperation s_stencilZFail;
 	nzUInt8 s_maxAnisotropyLevel;
-	nzUInt32 s_stencilMask;
 	nzUInt32 s_updateFlags;
 	const NzIndexBuffer* s_indexBuffer;
 	const NzRenderTarget* s_target;
@@ -102,7 +91,6 @@ namespace
 	int s_matrixLocation[totalMatrixCount];
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
-	unsigned int s_stencilReference;
 }
 
 void NzRenderer::Clear(unsigned long flags)
@@ -468,7 +456,8 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 	}
 	#endif
 
-	switch (parameter)
+	s_states.parameters[parameter] = enable;
+	/*switch (parameter)
 	{
 		case nzRendererParameter_ColorWrite:
 			glColorMask(enable, enable, enable, enable);
@@ -485,7 +474,7 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 				glDisable(NzOpenGL::RendererParameter[parameter]);
 
 			break;
-	}
+	}*/
 }
 
 void NzRenderer::Flush()
@@ -511,10 +500,7 @@ float NzRenderer::GetLineWidth()
 	}
 	#endif
 
-	float lineWidth;
-	glGetFloatv(GL_LINE_WIDTH, &lineWidth);
-
-	return lineWidth;
+	return s_states.lineWidth;
 }
 /*
 NzMatrix4f NzRenderer::GetMatrix(nzMatrixCombination combination)
@@ -588,10 +574,12 @@ float NzRenderer::GetPointSize()
 	}
 	#endif
 
-	float pointSize;
-	glGetFloatv(GL_POINT_SIZE, &pointSize);
+	return s_states.pointSize;
+}
 
-	return pointSize;
+const NzRenderStates& NzRenderer::GetRenderStates()
+{
+	return s_states;
 }
 
 NzRectui NzRenderer::GetScissorRect()
@@ -744,18 +732,10 @@ bool NzRenderer::Initialize()
 	else
 		s_maxTextureUnit = 1;
 
-	s_dstBlend = nzBlendFunc_Zero;
-	s_faceCulling = nzFaceCulling_Back;
-	s_faceFilling = nzFaceFilling_Fill;
+	s_states = NzRenderStates();
+
 	s_indexBuffer = nullptr;
 	s_shader = nullptr;
-	s_srcBlend = nzBlendFunc_One;
-	s_stencilCompare = nzRendererComparison_Always;
-	s_stencilFail = nzStencilOperation_Keep;
-	s_stencilMask = 0xFFFFFFFF;
-	s_stencilPass = nzStencilOperation_Keep;
-	s_stencilReference = 0;
-	s_stencilZFail = nzStencilOperation_Keep;
 	s_target = nullptr;
 	s_textureUnits.resize(s_maxTextureUnit);
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
@@ -826,27 +806,7 @@ bool NzRenderer::IsEnabled(nzRendererParameter parameter)
 	}
 	#endif
 
-	switch (parameter)
-	{
-		case nzRendererParameter_ColorWrite:
-		{
-			GLboolean enabled;
-			glGetBooleanv(GL_COLOR_WRITEMASK, &enabled);
-
-			return enabled;
-		}
-
-		case nzRendererParameter_DepthWrite:
-		{
-			GLboolean enabled;
-			glGetBooleanv(GL_DEPTH_WRITEMASK, &enabled);
-
-			return enabled;
-		}
-
-		default:
-			return glIsEnabled(NzOpenGL::RendererParameter[parameter]);
-	}
+	return s_states.parameters[parameter];
 }
 
 bool NzRenderer::IsInitialized()
@@ -854,7 +814,7 @@ bool NzRenderer::IsInitialized()
 	return s_moduleReferenceCounter != 0;
 }
 
-void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc destBlend)
+void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -864,12 +824,8 @@ void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc destBlend)
 	}
 	#endif
 
-	if (s_srcBlend != srcBlend || s_dstBlend != destBlend)
-	{
-		glBlendFunc(NzOpenGL::BlendFunc[srcBlend], NzOpenGL::BlendFunc[destBlend]);
-		s_srcBlend = srcBlend;
-		s_dstBlend = destBlend;
-	}
+	s_states.srcBlend = srcBlend;
+	s_states.dstBlend = dstBlend;
 }
 
 void NzRenderer::SetClearColor(const NzColor& color)
@@ -934,11 +890,7 @@ void NzRenderer::SetDepthFunc(nzRendererComparison compareFunc)
 	}
 	#endif
 
-	if (s_depthFunc != compareFunc)
-	{
-		glDepthFunc(NzOpenGL::RendererComparison[compareFunc]);
-		s_depthFunc = compareFunc;
-	}
+	s_states.depthFunc = compareFunc;
 }
 
 void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
@@ -951,11 +903,7 @@ void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
 	}
 	#endif
 
-	if (s_faceCulling != cullingMode)
-	{
-		glCullFace(NzOpenGL::FaceCulling[cullingMode]);
-		s_faceCulling = cullingMode;
-	}
+	s_states.faceCulling = cullingMode;
 }
 
 void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
@@ -968,11 +916,7 @@ void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 	}
 	#endif
 
-	if (s_faceFilling != fillingMode)
-	{
-		glPolygonMode(GL_FRONT_AND_BACK, NzOpenGL::FaceFilling[fillingMode]);
-		s_faceFilling = fillingMode;
-	}
+	s_states.faceFilling = fillingMode;
 }
 
 void NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
@@ -1042,7 +986,7 @@ void NzRenderer::SetLineWidth(float width)
 	}
 	#endif
 
-	glLineWidth(width);
+	s_states.lineWidth = width;
 }
 
 void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
@@ -1092,7 +1036,12 @@ void NzRenderer::SetPointSize(float size)
 	}
 	#endif
 
-	glPointSize(size);
+	s_states.pointSize = size;
+}
+
+void NzRenderer::SetRenderStates(const NzRenderStates& states)
+{
+	s_states = states;
 }
 
 void NzRenderer::SetScissorRect(const NzRectui& rect)
@@ -1152,11 +1101,7 @@ void NzRenderer::SetStencilCompareFunction(nzRendererComparison compareFunc)
 	}
 	#endif
 
-	if (compareFunc != s_stencilCompare)
-	{
-		s_stencilCompare = compareFunc;
-		s_updateFlags |= Update_StencilFunc;
-	}
+	s_states.stencilCompare = compareFunc;
 }
 
 void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation)
@@ -1169,20 +1114,12 @@ void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation)
 	}
 	#endif
 
-	if (failOperation != s_stencilFail)
-	{
-		s_stencilFail = failOperation;
-		s_updateFlags |= Update_StencilOp;
-	}
+	s_states.stencilFail = failOperation;
 }
 
 void NzRenderer::SetStencilMask(nzUInt32 mask)
 {
-	if (mask != s_stencilMask)
-	{
-		s_stencilMask = mask;
-		s_updateFlags |= Update_StencilFunc;
-	}
+	s_states.stencilMask = mask;
 }
 
 void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation)
@@ -1195,20 +1132,12 @@ void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation)
 	}
 	#endif
 
-	if (passOperation != s_stencilPass)
-	{
-		s_stencilPass = passOperation;
-		s_updateFlags |= Update_StencilOp;
-	}
+	s_states.stencilPass = passOperation;
 }
 
 void NzRenderer::SetStencilReferenceValue(unsigned int refValue)
 {
-	if (refValue != s_stencilReference)
-	{
-		s_stencilReference = refValue;
-		s_updateFlags |= Update_StencilFunc;
-	}
+	s_states.stencilReference = refValue;
 }
 
 void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation)
@@ -1221,11 +1150,7 @@ void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation)
 	}
 	#endif
 
-	if (zfailOperation != s_stencilZFail)
-	{
-		s_stencilZFail = zfailOperation;
-		s_updateFlags |= Update_StencilOp;
-	}
+	s_states.stencilZFail = zfailOperation;
 }
 
 bool NzRenderer::SetTarget(const NzRenderTarget* target)
@@ -1552,18 +1477,6 @@ bool NzRenderer::EnsureStateUpdate()
 			s_updateFlags &= ~Update_Matrices;
 		}
 
-		if (s_updateFlags & Update_StencilFunc)
-		{
-			glStencilFunc(NzOpenGL::RendererComparison[s_stencilCompare], s_stencilReference, s_stencilMask);
-			s_updateFlags &= ~Update_StencilFunc;
-		}
-
-		if (s_updateFlags & Update_StencilOp)
-		{
-			glStencilOp(NzOpenGL::StencilOperation[s_stencilFail], NzOpenGL::StencilOperation[s_stencilZFail], NzOpenGL::StencilOperation[s_stencilPass]);
-			s_updateFlags &= ~Update_StencilOp;
-		}
-
 		if (s_updateFlags & Update_VAO)
 		{
 			#if NAZARA_RENDERER_SAFE
@@ -1690,6 +1603,8 @@ bool NzRenderer::EnsureStateUpdate()
 		if (texture)
 			NzOpenGL::BindTexture(i, texture->GetType(), texture->GetOpenGLID());
 	}
+
+	NzOpenGL::ApplyStates(s_states);
 
 	return true;
 }

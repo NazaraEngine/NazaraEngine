@@ -137,42 +137,17 @@ void NzMaterial::Apply(const NzShader* shader) const
 		}
 	}
 
-	if (m_alphaBlendingEnabled)
-	{
-		NzRenderer::Enable(nzRendererParameter_Blend, true);
-		NzRenderer::SetBlendFunc(m_srcBlend, m_dstBlend);
-	}
-	else
-		NzRenderer::Enable(nzRendererParameter_Blend, false);
-
-	if (m_faceCullingEnabled)
-	{
-		NzRenderer::Enable(nzRendererParameter_FaceCulling, true);
-		NzRenderer::SetFaceCulling(m_faceCulling);
-	}
-	else
-		NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
-
-	NzRenderer::SetFaceFilling(m_faceFilling);
-
-	if (m_zBufferEnabled)
-	{
-		NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
-		NzRenderer::Enable(nzRendererParameter_DepthWrite, m_zWriteEnabled);
-		NzRenderer::SetDepthFunc(m_zTestCompareFunc);
-	}
-	else
-		NzRenderer::Enable(nzRendererParameter_DepthBuffer, false);
+	NzRenderer::SetRenderStates(m_states);
 }
 
-void NzMaterial::EnableAlphaBlending(bool alphaBlending)
+void NzMaterial::EnableAlphaBlending(bool blending)
 {
-	m_alphaBlendingEnabled = alphaBlending;
+	m_states.parameters[nzRendererParameter_Blend] = blending;
 }
 
 void NzMaterial::EnableFaceCulling(bool faceCulling)
 {
-	m_faceCullingEnabled = faceCulling;
+	m_states.parameters[nzRendererParameter_FaceCulling] = faceCulling;
 }
 
 void NzMaterial::EnableLighting(bool lighting)
@@ -186,17 +161,27 @@ void NzMaterial::EnableLighting(bool lighting)
 
 void NzMaterial::EnableZBuffer(bool zBuffer)
 {
-	m_zBufferEnabled = zBuffer;
+	m_states.parameters[nzRendererParameter_DepthBuffer] = zBuffer;
 }
 
 void NzMaterial::EnableZWrite(bool zWrite)
 {
-	m_zWriteEnabled = zWrite;
+	m_states.parameters[nzRendererParameter_DepthWrite] = zWrite;
 }
 
 NzColor NzMaterial::GetAmbientColor() const
 {
 	return m_ambientColor;
+}
+
+NzTexture* NzMaterial::GetAlphaMap() const
+{
+	return m_alphaMap;
+}
+
+const NzShader* NzMaterial::GetCustomShader() const
+{
+	return m_customShader;
 }
 
 NzColor NzMaterial::GetDiffuseColor() const
@@ -221,7 +206,7 @@ NzTexture* NzMaterial::GetDiffuseMap() const
 
 nzBlendFunc NzMaterial::GetDstBlend() const
 {
-	return m_dstBlend;
+	return m_states.dstBlend;
 }
 
 NzTexture* NzMaterial::GetEmissiveMap() const
@@ -231,12 +216,12 @@ NzTexture* NzMaterial::GetEmissiveMap() const
 
 nzFaceCulling NzMaterial::GetFaceCulling() const
 {
-	return m_faceCulling;
+	return m_states.faceCulling;
 }
 
 nzFaceFilling NzMaterial::GetFaceFilling() const
 {
-	return m_faceFilling;
+	return m_states.faceFilling;
 }
 
 NzTexture* NzMaterial::GetHeightMap() const
@@ -247,11 +232,6 @@ NzTexture* NzMaterial::GetHeightMap() const
 NzTexture* NzMaterial::GetNormalMap() const
 {
 	return m_normalMap;
-}
-
-const NzShader* NzMaterial::GetCustomShader() const
-{
-	return m_customShader;
 }
 
 nzUInt32 NzMaterial::GetShaderFlags() const
@@ -286,12 +266,12 @@ const NzTextureSampler& NzMaterial::GetSpecularSampler() const
 
 nzBlendFunc NzMaterial::GetSrcBlend() const
 {
-	return m_srcBlend;
+	return m_states.srcBlend;
 }
 
 nzRendererComparison NzMaterial::GetZTestCompare() const
 {
-	return m_zTestCompareFunc;
+	return m_states.depthFunc;
 }
 
 bool NzMaterial::HasCustomShader() const
@@ -301,12 +281,12 @@ bool NzMaterial::HasCustomShader() const
 
 bool NzMaterial::IsAlphaBlendingEnabled() const
 {
-	return m_alphaBlendingEnabled;
+	return m_states.parameters[nzRendererParameter_Blend];
 }
 
 bool NzMaterial::IsFaceCullingEnabled() const
 {
-	return m_faceCullingEnabled;
+	return m_states.parameters[nzRendererParameter_FaceCulling];
 }
 
 bool NzMaterial::IsLightingEnabled() const
@@ -316,12 +296,12 @@ bool NzMaterial::IsLightingEnabled() const
 
 bool NzMaterial::IsZBufferEnabled() const
 {
-	return m_zBufferEnabled;
+	return m_states.parameters[nzRendererParameter_DepthBuffer];
 }
 
 bool NzMaterial::IsZWriteEnabled() const
 {
-	return m_zWriteEnabled;
+	return m_states.parameters[nzRendererParameter_DepthWrite];
 }
 
 bool NzMaterial::LoadFromFile(const NzString& filePath, const NzMaterialParams& params)
@@ -349,23 +329,17 @@ void NzMaterial::Reset()
 	m_normalMap.Reset();
 	m_specularMap.Reset();
 
-	m_alphaBlendingEnabled = false;
 	m_ambientColor = NzColor(128, 128, 128);
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
-	m_dstBlend = nzBlendFunc_Zero;
-	m_faceCulling = nzFaceCulling_Back;
-	m_faceCullingEnabled = true;
-	m_faceFilling = nzFaceFilling_Fill;
 	m_lightingEnabled = true;
 	m_shaderFlags = nzShaderFlags_Lighting;
 	m_shininess = 50.f;
 	m_specularColor = NzColor::White;
 	m_specularSampler = NzTextureSampler();
-	m_srcBlend = nzBlendFunc_One;
-	m_zBufferEnabled = true;
-	m_zTestCompareFunc = nzRendererComparison_LessOrEqual;
-	m_zWriteEnabled = true;
+	m_states = NzRenderStates();
+	m_states.parameters[nzRendererParameter_DepthBuffer] = true;
+	m_states.parameters[nzRendererParameter_FaceCulling] = true;
 }
 
 bool NzMaterial::SetAlphaMap(const NzString& texturePath)
@@ -442,7 +416,7 @@ void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
 
 void NzMaterial::SetDstBlend(nzBlendFunc func)
 {
-	m_dstBlend = func;
+	m_states.dstBlend = func;
 }
 
 bool NzMaterial::SetEmissiveMap(const NzString& texturePath)
@@ -473,12 +447,12 @@ void NzMaterial::SetEmissiveMap(NzTexture* map)
 
 void NzMaterial::SetFaceCulling(nzFaceCulling culling)
 {
-	m_faceCulling = culling;
+	m_states.faceCulling = culling;
 }
 
 void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 {
-	m_faceFilling = filling;
+	m_states.faceFilling = filling;
 }
 
 bool NzMaterial::SetHeightMap(const NzString& texturePath)
@@ -572,12 +546,12 @@ void NzMaterial::SetSpecularSampler(const NzTextureSampler& sampler)
 
 void NzMaterial::SetSrcBlend(nzBlendFunc func)
 {
-	m_srcBlend = func;
+	m_states.srcBlend = func;
 }
 
 void NzMaterial::SetZTestCompare(nzRendererComparison compareFunc)
 {
-	m_zTestCompareFunc = compareFunc;
+	m_states.depthFunc = compareFunc;
 }
 
 NzMaterial& NzMaterial::operator=(const NzMaterial& material)
