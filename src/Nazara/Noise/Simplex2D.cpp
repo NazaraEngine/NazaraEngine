@@ -16,8 +16,8 @@ NzSimplex2D::NzSimplex2D()
         for(int j(0) ; j < 2 ; ++j)
             gradient2[i][j] = grad2Temp[i][j];
 
-    SkewCoeff2D = 0.5*(sqrt(3.0) - 1.0);
-    UnskewCoeff2D  = (3.0-sqrt(3.0))/6.;
+    SkewCoeff2D = 0.5f*(std::sqrt(3.f) - 1.f);
+    UnskewCoeff2D  = (3.f-std::sqrt(3.f))/6.f;
 }
 
 NzSimplex2D::NzSimplex2D(unsigned int seed) : NzSimplex2D()
@@ -58,8 +58,8 @@ float NzSimplex2D::GetValue(float x, float y, float resolution)
     d2.x = d1.x + off1.x - UnskewCoeff2D;
     d2.y = d1.y + off1.y - UnskewCoeff2D;
 
-    d3.x = d1.x + 1.0 - 2 * UnskewCoeff2D;
-    d3.y = d1.y + 1.0 - 2 * UnskewCoeff2D;
+    d3.x = d1.x + 1.f - 2.f * UnskewCoeff2D;
+    d3.y = d1.y + 1.f - 2.f * UnskewCoeff2D;
 
     ii = skewedCubeOrigin.x & 255;
     jj = skewedCubeOrigin.y & 255;
@@ -68,9 +68,9 @@ float NzSimplex2D::GetValue(float x, float y, float resolution)
     gi1 = perm[ii + off1.x + perm[jj + off1.y]] & 7;
     gi2 = perm[ii + 1 +      perm[jj + 1     ]] & 7;
 
-    c1 = 0.5 - d1.x * d1.x - d1.y * d1.y;
-    c2 = 0.5 - d2.x * d2.x - d2.y * d2.y;
-    c3 = 0.5 - d3.x * d3.x - d3.y * d3.y;
+    c1 = 0.5f - d1.x * d1.x - d1.y * d1.y;
+    c2 = 0.5f - d2.x * d2.x - d2.y * d2.y;
+    c3 = 0.5f - d3.x * d3.x - d3.y * d3.y;
 
     if(c1 < 0)
         n1 = 0;
@@ -87,5 +87,5 @@ float NzSimplex2D::GetValue(float x, float y, float resolution)
     else
         n3 = c3*c3*c3*c3*(gradient2[gi2][0] * d3.x + gradient2[gi2][1] * d3.y);
 
-    return (n1+n2+n3)*70;
+    return (n1+n2+n3)*70.f;
 }
