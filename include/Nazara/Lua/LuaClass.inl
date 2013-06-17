@@ -23,12 +23,6 @@ void NzLuaClass<T>::Inherit(NzLuaClass<P>& parent)
 template<class T>
 void NzLuaClass<T>::Register(NzLuaInstance& lua)
 {
-	m_info->methods.resize(m_methods.size());
-
-	unsigned int index = 0;
-	for (auto it = m_methods.begin(); it != m_methods.end(); ++it)
-		m_info->methods[index++] = it->second;
-
 	// Le ClassInfo doit rester en vie jusqu'à la fin du script
 	// Obliger l'instance de LuaClass à rester en vie dans cette fin serait contraignant pour l'utilisateur
 	// J'utilise donc une astuce, la stocker dans une UserData associée avec chaque fonction de la metatable du type,
@@ -61,12 +55,10 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 			lua.PushCFunction(GetterProxy, 1);
 		}
 		else
-		{
 			// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
 			// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
 			// Ceci n'est possible que si nous n'avons ni getter, ni parent
 			lua.PushValue(-1);
-		}
 
 		lua.SetField("__index"); // Getter
 
@@ -77,16 +69,21 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 			lua.SetField("__newindex"); // Setter
 		}
 
-		index = 0;
+		m_info->methods.resize(m_methods.size());
+
+		unsigned int index = 0;
 		for (auto it = m_methods.begin(); it != m_methods.end(); ++it)
 		{
+			m_info->methods[index] = it->second;
+
 			lua.PushValue(1);
-			lua.PushInteger(index++);
+			lua.PushInteger(index);
 
 			lua.PushCFunction(MethodProxy, 2);
 			lua.SetField(it->first); // Méthode
-		}
 
+			index++;
+		}
 	}
 	lua.Pop();
 
