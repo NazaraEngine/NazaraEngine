@@ -122,6 +122,7 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 	{
 		glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
 		s_states.dstBlend = states.dstBlend;
+		s_states.srcBlend = states.srcBlend;
 	}
 
 	if (s_states.depthFunc != states.depthFunc)
