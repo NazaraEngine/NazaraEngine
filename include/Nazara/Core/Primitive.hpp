@@ -15,13 +15,13 @@
 
 struct NzPrimitive
 {
+	NzMatrix4f matrix;
 	nzPrimitiveType type;
 
 	union
 	{
 		struct
 		{
-			NzMatrix4f matrix;
 			NzVector3f lengths;
 			NzVector3ui subdivision;
 		}
@@ -31,15 +31,12 @@ struct NzPrimitive
 		{
 			NzVector2f size;
 			NzVector2ui subdivision;
-			NzVector3f normal;
-			NzVector3f position;
 		}
 		plane;
 
 		struct
 		{
 			nzSphereType type;
-			NzMatrix4f matrix;
 			float size;
 
 			union
