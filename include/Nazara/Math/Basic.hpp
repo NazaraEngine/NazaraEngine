@@ -25,6 +25,7 @@ template<typename T> T NzClamp(T value, T min, T max);
 template<typename T> T NzDegrees(T degrees);
 template<typename T> T NzDegreeToRadian(T degrees);
 unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
+unsigned int NzGetNearestPowerOfTwo(unsigned int number);
 unsigned int NzGetNumberLength(signed char number);
 unsigned int NzGetNumberLength(unsigned char number);
 unsigned int NzGetNumberLength(int number);
