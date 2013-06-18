@@ -274,6 +274,15 @@ void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id
 	}
 }
 
+void NzOpenGL::BindVertexArray(GLuint id)
+{
+	// Je ne pense pas que ça soit une bonne idée de le mettre en cache, c'est un objet "spécial"
+	glBindVertexArray(id);
+
+	// On invalide les bindings des buffers (Overridés par le VertexArray)
+	std::memset(s_buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
+}
+
 void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
 {
 	glDeleteBuffers(1, &id);
