@@ -166,6 +166,9 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 	std::unique_ptr<NzIndexBuffer> indexBuffer;
 	std::unique_ptr<NzVertexBuffer> vertexBuffer;
 
+	NzMatrix4f matrix(primitive.matrix);
+	matrix.ApplyScale(params.scale);
+
 	switch (primitive.type)
 	{
 		case nzPrimitiveType_Box:
@@ -183,7 +186,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-			NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, primitive.box.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+			NzGenerateBox(primitive.box.lengths, primitive.box.subdivision, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 			break;
 		}
 
@@ -202,7 +205,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-			NzGeneratePlane(primitive.plane.subdivision, primitive.plane.position, primitive.plane.normal, primitive.plane.size, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+			NzGeneratePlane(primitive.plane.subdivision, primitive.plane.size, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 			break;
 		}
 
@@ -225,7 +228,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-					NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					NzGenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 					break;
 				}
 
@@ -244,7 +247,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-					NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					NzGenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 					break;
 				}
 
@@ -263,7 +266,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-					NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, primitive.sphere.matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 					break;
 				}
 			}
