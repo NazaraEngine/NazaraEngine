@@ -20,8 +20,8 @@
 
 namespace
 {
-	static NzColor primaryColor = NzColor::Red;
-	static NzColor secondaryColor = NzColor::Green;
+	static NzColor primaryColor;
+	static NzColor secondaryColor;
 	static NzRenderStates renderStates;
 	static const NzShader* shader = nullptr;
 	static NzVertexBuffer* vertexBuffer = nullptr;
@@ -563,6 +563,10 @@ bool NzDebugDrawer::Initialize()
 				return false;
 			}
 		}
+
+		primaryColor = NzColor::Red;
+		renderStates.parameters[nzRendererParameter_DepthBuffer] = true;
+		secondaryColor = NzColor::Green;
 
 		initialized = true;
 	}
