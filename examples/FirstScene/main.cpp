@@ -391,7 +391,7 @@ NzVector3f DampedString(const NzVector3f& currentPos, const NzVector3f& targetPo
 	float displacementLength = displacement.GetLength();
 
 	// Stops small position fluctuations (integration errors probably - since only using euler)
-	if (displacementLength < 0.0001f)
+	if (NzNumberEquals(displacementLength, 0.f))
 		return currentPos;
 
 	float invDisplacementLength = 1.f/displacementLength;
@@ -403,7 +403,7 @@ NzVector3f DampedString(const NzVector3f& currentPos, const NzVector3f& targetPo
 
 	// Normalise the displacement and scale by the spring magnitude
 	// and the amount of time passed
-	float scalar = invDisplacementLength * springMagitude * frametime;
+	float scalar = std::min(invDisplacementLength * springMagitude * frametime, 1.f);
 	displacement *= scalar;
 
 	// move the camera a bit towards the target
