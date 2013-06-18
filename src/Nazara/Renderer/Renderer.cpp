@@ -1498,6 +1498,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 				VAO_Key key(NzContext::GetCurrent(), s_indexBuffer, s_vertexBuffer, s_instancing);
 				auto it = s_vaos.find(key);
+
 				if (it == s_vaos.end())
 				{
 					// On créé notre VAO
@@ -1574,6 +1575,8 @@ bool NzRenderer::EnsureStateUpdate()
 					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
 					indexBufferImpl->Bind();
 				}
+				else
+					NzOpenGL::BindBuffer(nzBufferType_Index, 0);
 			}
 
 			if (s_useVertexArrayObjects)
@@ -1583,7 +1586,7 @@ bool NzRenderer::EnsureStateUpdate()
 					glBindVertexArray(0);
 
 				// Nous (re)bindons le VAO pour définir les attributs de vertice
-				glBindVertexArray(vao);
+				NzOpenGL::BindVertexArray(vao);
 			}
 
 			s_updateFlags &= ~Update_VAO;
