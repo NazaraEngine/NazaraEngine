@@ -474,6 +474,7 @@ void NzModel::SetMesh(NzMesh* mesh)
 
 	if (m_mesh)
 	{
+		m_boundingVolume.MakeNull();
 		m_boundingVolumeUpdated = false;
 
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
