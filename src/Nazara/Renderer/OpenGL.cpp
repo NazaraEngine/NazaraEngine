@@ -118,7 +118,7 @@ namespace
 
 void NzOpenGL::ApplyStates(const NzRenderStates& states)
 {
-	if (states.dstBlend != states.dstBlend || s_states.srcBlend != states.srcBlend)
+	if (s_states.dstBlend != states.dstBlend || s_states.srcBlend != states.srcBlend)
 	{
 		glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
 		s_states.dstBlend = states.dstBlend;
