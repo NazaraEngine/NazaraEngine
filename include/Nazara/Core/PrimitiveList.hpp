@@ -23,8 +23,9 @@ class NAZARA_API NzPrimitiveList
 		void AddCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 		void AddIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& matrix = NzMatrix4f::Identity());
 		void AddIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddPlane(const NzPlanef& plane, const NzVector2f& size, const NzVector2ui& subdivision = NzVector2ui(0U));
-		void AddPlane(const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, const NzVector2ui& subdivision = NzVector2ui(0U));
+		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& matrix = NzMatrix4f::Identity());
+		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane);
+		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 		void AddUVSphere(float size, unsigned int slices = 4, unsigned int stacks = 4, const NzMatrix4f& matrix = NzMatrix4f::Identity());
 		void AddUVSphere(float size, unsigned int slices, unsigned int stacks, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 

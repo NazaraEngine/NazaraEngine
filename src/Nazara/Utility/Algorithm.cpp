@@ -718,39 +718,47 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 	NzComputePlaneIndexVertexCount(NzVector2ui(subdivision.x, subdivision.y), &zIndexCount, &zVertexCount);
 
 	NzMeshVertex* oldVertices = vertices;
+	NzMatrix4f transform;
+	NzVector3f halfLengths = lengths/2.f;
 
 	// Face +X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector3f::UnitX() * lengths.x/2.f, NzVector3f::UnitX(), NzVector2f(lengths.y, lengths.z), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, -90.f));
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector2f(lengths.y, lengths.z), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face +Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector3f::UnitY() * lengths.y/2.f, NzVector3f::UnitY(), NzVector2f(lengths.x, lengths.z), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 0.f));
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face +Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector3f::UnitZ() * lengths.z/2.f, NzVector3f::UnitZ(), NzVector2f(lengths.x, lengths.y), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, 90.f, 90.f));
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
 
 	// Face -X
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), -NzVector3f::UnitX() * lengths.x/2.f, -NzVector3f::UnitX(), NzVector2f(lengths.y, lengths.z), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(-NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, 90.f));
+	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector2f(lengths.y, lengths.z), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face -Y
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), -NzVector3f::UnitY() * lengths.y/2.f, -NzVector3f::UnitY(), NzVector2f(lengths.x, lengths.z), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(-NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 180.f));
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face -Z
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), -NzVector3f::UnitZ() * lengths.z/2.f, -NzVector3f::UnitZ(), NzVector2f(lengths.x, lengths.y), vertices, indices, nullptr, indexOffset);
+	transform.MakeTransform(-NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, -90.f, 90.f));
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
@@ -759,7 +767,7 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 	if (aabb)
 	{
-		aabb->Set(lengths);
+		aabb->Set(-halfLengths, halfLengths);
 		aabb->Transform(matrix, 0.f);
 	}
 }
@@ -793,8 +801,11 @@ void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix
 	builder.Generate(size, recursionLevel, vertices, indices, aabb, indexOffset);
 }
 
-void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position, const NzVector3f& normal, const NzVector2f& size, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
+	// Pour plus de facilité, on va construire notre plan en considérant que la normale est de 0,1,0
+	// Et appliquer ensuite une matrice "finissant le travail"
+
 	// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 	unsigned int horizontalFaceCount = (1 << subdivision.x);
 	unsigned int verticalFaceCount = (1 << subdivision.y);
@@ -803,18 +814,12 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position,
 	unsigned int horizontalVertexCount = horizontalFaceCount + 1;
 	unsigned int verticalVertexCount = verticalFaceCount + 1;
 
-	// Pour plus de facilité, on va construire notre plan en considérant que la normale est de 0,1,0
-	// et on va construire un quaternion représentant la rotation de cette normale à la normale demandée par l'utilisateur.
-	// Celui-ci, combiné avec la position, va former une transformation qu'il suffira d'appliquer aux sommets
-	NzQuaternionf rotation;
-	rotation.MakeRotationBetween(NzVector3f::UnitY(), normal);
+	NzVector3f normal(NzVector3f::UnitY());
+	normal = matrix.Transform(normal, 0.f);
+	normal.Normalize();
 
-	NzMatrix4f transform;
-	transform.MakeTransform(position, rotation);
-
-	///FIXME: Vérifier les tangentes
 	NzVector3f tangent(1.f, 1.f, 0.f);
-	tangent = rotation * tangent;
+	tangent = matrix.Transform(tangent, 0.f);
 	tangent.Normalize();
 
 	float halfSizeX = size.x / 2.f;
@@ -827,7 +832,7 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position,
 		for (unsigned int y = 0; y < verticalVertexCount; ++y)
 		{
 			NzVector3f localPos((2.f*x*invHorizontalVertexCount - 1.f) * halfSizeX, 0.f, (2.f*y*invVerticalVertexCount - 1.f) * halfSizeY);
-			vertices->position = transform * localPos;
+			vertices->position = matrix * localPos;
 			vertices->uv.Set(x*invHorizontalVertexCount, y*invVerticalVertexCount);
 			vertices->normal = normal;
 			vertices->tangent = tangent;
@@ -847,7 +852,7 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector3f& position,
 	}
 
 	if (aabb)
-		aabb->Set(rotation * NzVector3f(-halfSizeX, 0.f, -halfSizeY), rotation * NzVector3f(halfSizeX, 0.f, halfSizeY));
+		aabb->Set(matrix.Transform(NzVector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(NzVector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 }
 
 void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
