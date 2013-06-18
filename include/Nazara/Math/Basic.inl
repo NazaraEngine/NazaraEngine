@@ -59,6 +59,16 @@ inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 	return r;
 }
 
+inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
+{
+	unsigned int x = 1;
+	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
+	while(x <= number)
+		x <<= 1;
+
+	return x;
+}
+
 inline unsigned int NzGetNumberLength(signed char number)
 {
 	// Le standard définit le char comme étant codé sur un octet
