@@ -35,7 +35,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	#endif
 
 	NzString path = NzFile::NormalizePath(filePath);
-	NzString ext = path.SubstrFrom('.', -1, true);
+	NzString ext = path.SubStringFrom('.', -1, true);
 	if (ext.IsEmpty())
 	{
 		NazaraError("Failed to get file extension from \"" + filePath + '"');
