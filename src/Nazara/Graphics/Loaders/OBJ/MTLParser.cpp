@@ -151,7 +151,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_ka")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -166,7 +166,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_kd")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -181,7 +181,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_ks")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -196,7 +196,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_bump" || keyword == "bump")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -211,7 +211,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_d")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -226,7 +226,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_decal" || keyword == "decal")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -241,7 +241,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_disp" || keyword == "disp")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -256,7 +256,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_refl" || keyword == "refl")
 		{
-			NzString map = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!map.IsEmpty())
 			{
 				if (!currentMaterial)
@@ -271,7 +271,7 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "newmtl")
 		{
-			NzString materialName = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+			NzString materialName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 			if (!materialName.IsEmpty())
 				currentMaterial = &m_materials[materialName];
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -305,7 +305,7 @@ bool NzMTLParser::Advance(bool required)
 			m_lineCount++;
 
 			m_currentLine = m_stream.ReadLine();
-			m_currentLine = m_currentLine.SubstrTo("#"); // On ignore les commentaires
+			m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
 			m_currentLine.Simplify(); // Pour un traitement plus simple
 		}
 		while (m_currentLine.IsEmpty());

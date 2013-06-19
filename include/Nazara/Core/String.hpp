@@ -34,6 +34,7 @@ class NAZARA_API NzString : public NzHashable
 		NzString();
 		explicit NzString(char character);
 		NzString(const char* string);
+		NzString(const char* string, unsigned int length);
 		NzString(const std::string& string);
 		NzString(const NzString& string);
 		NzString(NzString&& string) noexcept;
@@ -59,6 +60,7 @@ class NAZARA_API NzString : public NzHashable
 
 		bool EndsWith(char character, nzUInt32 flags = None) const;
 		bool EndsWith(const char* string, nzUInt32 flags = None) const;
+		bool EndsWith(const char* string, unsigned int length, nzUInt32 flags = None) const;
 		bool EndsWith(const NzString& string, nzUInt32 flags = None) const;
 
 		unsigned int Find(char character, int start = 0, nzUInt32 flags = None) const;
@@ -90,6 +92,7 @@ class NAZARA_API NzString : public NzHashable
 
 		NzString& Insert(int pos, char character);
 		NzString& Insert(int pos, const char* string);
+		NzString& Insert(int pos, const char* string, unsigned int length);
 		NzString& Insert(int pos, const NzString& string);
 
 		bool IsEmpty() const;
@@ -101,10 +104,12 @@ class NAZARA_API NzString : public NzHashable
 
 		NzString& Prepend(char character);
 		NzString& Prepend(const char* string);
+		NzString& Prepend(const char* string, unsigned int length);
 		NzString& Prepend(const NzString& string);
 
 		unsigned int Replace(char oldCharacter, char newCharacter, int start = 0, nzUInt32 flags = None);
 		unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, nzUInt32 flags = None);
+		unsigned int Replace(const char* oldString, unsigned int oldLength, const char* replaceString, unsigned int replaceLength, int start = 0, nzUInt32 flags = None);
 		unsigned int Replace(const NzString& oldString, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
 		unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, nzUInt32 flags = None);
 		//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
@@ -123,6 +128,7 @@ class NAZARA_API NzString : public NzHashable
 
 		unsigned int Split(std::vector<NzString>& result, char separation = ' ', int start = 0, nzUInt32 flags = None) const;
 		unsigned int Split(std::vector<NzString>& result, const char* separation, int start = 0, nzUInt32 flags = None) const;
+		unsigned int Split(std::vector<NzString>& result, const char* separation, unsigned int length, int start = 0, nzUInt32 flags = None) const;
 		unsigned int Split(std::vector<NzString>& result, const NzString& separation, int start = 0, nzUInt32 flags = None) const;
 		unsigned int SplitAny(std::vector<NzString>& result, const char* separations, int start = 0, nzUInt32 flags = None) const;
 		unsigned int SplitAny(std::vector<NzString>& result, const NzString& separations, int start = 0, nzUInt32 flags = None) const;
@@ -131,13 +137,15 @@ class NAZARA_API NzString : public NzHashable
 		bool StartsWith(const char* string, nzUInt32 flags = None) const;
 		bool StartsWith(const NzString& string, nzUInt32 flags = None) const;
 
-		NzString Substr(int startPos, int endPos = -1) const;
-		NzString SubstrFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubstrFrom(const char *string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubstrFrom(const NzString& string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubstrTo(char character, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubstrTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubstrTo(const NzString& string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubString(int startPos, int endPos = -1) const;
+		NzString SubStringFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringFrom(const char *string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringFrom(const char *string, unsigned int length, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringFrom(const NzString& string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringTo(char character, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringTo(const char *string, unsigned int length, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
+		NzString SubStringTo(const NzString& string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
 
 		void Swap(NzString& str);
 
