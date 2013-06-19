@@ -215,7 +215,7 @@ bool NzMD5AnimParser::Parse(NzAnimation* animation)
 	sequence.firstFrame = 0;
 	sequence.frameCount = m_frames.size();
 	sequence.frameRate = m_frameRate;
-	sequence.name = m_stream.GetPath().SubstrFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
+	sequence.name = m_stream.GetPath().SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
 	if (!animation->AddSequence(sequence))
 		NazaraWarning("Failed to add sequence");
 
@@ -265,7 +265,7 @@ bool NzMD5AnimParser::Advance(bool required)
 			m_lineCount++;
 
 			m_currentLine = m_stream.ReadLine();
-			m_currentLine = m_currentLine.SubstrTo("//"); // On ignore les commentaires
+			m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 			m_currentLine.Simplify(); // Pour un traitement plus simple
 		}
 		while (m_currentLine.IsEmpty());

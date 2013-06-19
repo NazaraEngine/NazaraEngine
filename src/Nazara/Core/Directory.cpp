@@ -262,9 +262,9 @@ bool NzDirectory::Create(const NzString& dirPath, bool recursive)
 
 		do
 		{
-			NzString p = path.Substr(0, foundPos);
+			NzString p = path.SubString(0, foundPos);
 			if (p.EndsWith(NAZARA_DIRECTORY_SEPARATOR))
-				p = p.Substr(0, -2);
+				p = p.SubString(0, -2);
 
 			if (!NzDirectoryImpl::Exists(p) && !NzDirectoryImpl::Create(p))
 				return false;
