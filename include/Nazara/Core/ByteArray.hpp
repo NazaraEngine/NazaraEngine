@@ -29,7 +29,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 		NzByteArray& Append(nzUInt8 byte);
 		NzByteArray& Append(const nzUInt8* buffer, unsigned int length);
-		NzByteArray& Append(const NzByteArray& byteArray);
+		NzByteArray& Append(const NzByteArray& array);
 
 		void Clear(bool keepBuffer = false);
 
@@ -78,13 +78,13 @@ class NAZARA_API NzByteArray : public NzHashable
 		nzUInt8& operator[](unsigned int pos);
 		nzUInt8 operator[](unsigned int pos) const;
 
-		NzByteArray& operator=(const NzByteArray& byteArray);
-		NzByteArray& operator=(NzByteArray&& byteArray) noexcept;
+		NzByteArray& operator=(const NzByteArray& array);
+		NzByteArray& operator=(NzByteArray&& array) noexcept;
 
 		NzByteArray operator+(nzUInt8 byte) const;
-		NzByteArray operator+(const NzByteArray& byteArray) const;
+		NzByteArray operator+(const NzByteArray& array) const;
 		NzByteArray& operator+=(nzUInt8 byte);
-		NzByteArray& operator+=(const NzByteArray& byteArray);
+		NzByteArray& operator+=(const NzByteArray& array);
 
 		static int Compare(const NzByteArray& first, const NzByteArray& second);
 

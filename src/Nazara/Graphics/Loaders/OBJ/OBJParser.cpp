@@ -237,7 +237,7 @@ bool NzOBJParser::Parse()
 					UnrecognizedLine();
 				#endif
 
-				m_mtlLib = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+				m_mtlLib = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 				break;
 
 			case 'g':
@@ -251,7 +251,7 @@ bool NzOBJParser::Parse()
 					break;
 				}
 
-				NzString objectName = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+				NzString objectName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 				if (objectName.IsEmpty())
 				{
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -269,7 +269,7 @@ bool NzOBJParser::Parse()
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				if (m_currentLine[1] == ' ')
 				{
-					NzString param = m_currentLine.Substr(2);
+					NzString param = m_currentLine.SubString(2);
 					if (param != "all" && param != "on" && param != "off" && !param.IsNumber())
 						UnrecognizedLine();
 				}
@@ -284,7 +284,7 @@ bool NzOBJParser::Parse()
 					UnrecognizedLine();
 				#endif
 
-				matName = m_currentLine.Substr(m_currentLine.GetWordPosition(1));
+				matName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 				if (matName.IsEmpty())
 				{
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -405,7 +405,7 @@ bool NzOBJParser::Advance(bool required)
 			m_lineCount++;
 
 			m_currentLine = m_stream.ReadLine();
-			m_currentLine = m_currentLine.SubstrTo("#"); // On ignore les commentaires
+			m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
 			m_currentLine.Simplify(); // Pour un traitement plus simple
 		}
 		while (m_currentLine.IsEmpty());

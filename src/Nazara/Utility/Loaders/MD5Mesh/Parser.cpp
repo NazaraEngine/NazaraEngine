@@ -390,7 +390,7 @@ bool NzMD5MeshParser::Advance(bool required)
 			m_lineCount++;
 
 			m_currentLine = m_stream.ReadLine();
-			m_currentLine = m_currentLine.SubstrTo("//"); // On ignore les commentaires
+			m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 			m_currentLine.Simplify(); // Pour un traitement plus simple
 		}
 		while (m_currentLine.IsEmpty());
@@ -494,7 +494,7 @@ bool NzMD5MeshParser::ParseMesh()
 				}
 				#endif
 
-				m_meshes[m_meshIndex].shader = m_currentLine.Substr(7);
+				m_meshes[m_meshIndex].shader = m_currentLine.SubString(7);
 				m_meshes[m_meshIndex].shader.Trim('"');
 				break;
 
