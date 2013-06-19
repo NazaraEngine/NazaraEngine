@@ -457,24 +457,6 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 	#endif
 
 	s_states.parameters[parameter] = enable;
-	/*switch (parameter)
-	{
-		case nzRendererParameter_ColorWrite:
-			glColorMask(enable, enable, enable, enable);
-			break;
-
-		case nzRendererParameter_DepthWrite:
-			glDepthMask(enable);
-			break;
-
-		default:
-			if (enable)
-				glEnable(NzOpenGL::RendererParameter[parameter]);
-			else
-				glDisable(NzOpenGL::RendererParameter[parameter]);
-
-			break;
-	}*/
 }
 
 void NzRenderer::Flush()
@@ -710,10 +692,7 @@ bool NzRenderer::Initialize()
 		GLint maxDrawBuffers;
 		glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
 
-		GLint maxColorAttachments;
-		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
-
-		s_maxRenderTarget = static_cast<unsigned int>(std::min(maxColorAttachments, maxDrawBuffers));
+		s_maxRenderTarget = static_cast<unsigned int>(maxDrawBuffers);
 	}
 	else
 		s_maxRenderTarget = 1;
