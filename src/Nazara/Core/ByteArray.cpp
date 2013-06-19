@@ -134,7 +134,7 @@ NzByteArray& NzByteArray::Insert(int pos, const nzUInt8* buffer, unsigned int le
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedArray->buffer[start+length], &m_sharedArray->buffer[start], m_sharedArray->size);
+		std::memmove(&m_sharedArray->buffer[start+length], &m_sharedArray->buffer[start], m_sharedArray->size - start);
 		std::memcpy(&m_sharedArray->buffer[start], buffer, length);
 
 		m_sharedArray->size += length;
