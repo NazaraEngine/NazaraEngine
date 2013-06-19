@@ -1821,24 +1821,39 @@ wchar_t* NzString::GetWideBuffer(unsigned int* size) const
 
 NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
 {
-	if (m_sharedString->size == 0)
+	unsigned int startPos = GetWordPosition(index, flags);
+	if (startPos == npos)
 		return NzString();
 
-	NzString temp = Simplified(flags); // Évitons les mauvaises surprises
-	if (temp.IsEmpty())
-		return NzString();
-
-	unsigned int foundPos = temp.Find(' '); // Simplified nous assure que nous n'avons plus que des espaces comme séparation
-	unsigned int lastPos = 0;
-	for (; index > 0; --index)
+	int endPos = -1;
+	const char* ptr = &m_sharedString->string[startPos];
+	if (flags & HandleUtf8)
 	{
-		if (foundPos == npos)
-			return NzString();
-
-		lastPos = foundPos;
-		foundPos = temp.Find(' ', foundPos+1);
+		utf8::unchecked::iterator<const char*> it(ptr);
+		do
+		{
+			if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
+			{
+				endPos = static_cast<int>(it.base() - m_sharedString->string - 1);
+				break;
+			}
+		}
+		while (*++it);
 	}
-	return temp.SubString((lastPos == 0) ? 0 : lastPos+1, (foundPos == npos) ? -1 : static_cast<int>(foundPos-1));
+	else
+	{
+		do
+		{
+			if (std::isspace(*ptr))
+			{
+				endPos = static_cast<int>(ptr - m_sharedString->string - 1);
+				break;
+			}
+		}
+		while (*++ptr);
+	}
+
+	return SubString(startPos, endPos);
 }
 
 unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
