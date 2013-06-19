@@ -37,7 +37,8 @@ configuration "Release*"
 	flags { "EnableSSE", "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
 
 configuration { "Release*", "codeblocks or codelite or gmake or xcode3*" }
-	buildoptions "-mfpmath=sse" -- Activation de la vectorisation du code
+	buildoptions "-mfpmath=sse" -- Utilisation du SSE pour les calculs flottants
+	buildoptions "-ftree-vectorize" -- Activation de la vectorisation du code
 
 configuration "*Static"
 	defines "NAZARA_STATIC"
