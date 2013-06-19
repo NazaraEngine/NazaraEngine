@@ -1893,7 +1893,7 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 
 NzString& NzString::Insert(int pos, char character)
 {
-	return Insert(pos, &character);
+	return Insert(pos, &character, 1);
 }
 
 NzString& NzString::Insert(int pos, const char* string)
@@ -1916,7 +1916,7 @@ NzString& NzString::Insert(int pos, const char* string, unsigned int length)
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedString->string[start+length], &m_sharedString->string[start], m_sharedString->size);
+		std::memmove(&m_sharedString->string[start+length], &m_sharedString->string[start], m_sharedString->size - start);
 		std::memcpy(&m_sharedString->string[start], string, length);
 
 		m_sharedString->size += length;
