@@ -22,8 +22,8 @@
 
 namespace
 {
-	thread_local const NzContext* currentContext = nullptr;
-	thread_local const NzContext* threadContext = nullptr;
+	thread_local NzContext* currentContext = nullptr;
+	thread_local NzContext* threadContext = nullptr;
 
 	std::vector<NzContext*> contexts;
 
@@ -153,7 +153,7 @@ bool NzContext::Create(const NzContextParameters& parameters)
 		return false;
 	}
 
-	if (!m_impl->Activate())
+	if (!SetActive(true))
 	{
 		NazaraError("Failed to activate context");
 
@@ -186,9 +186,13 @@ void NzContext::Destroy()
 	if (m_impl)
 	{
 		NotifyDestroy();
+		NzOpenGL::OnContextDestruction(this);
 
 		if (currentContext == this)
+		{
 			NzContextImpl::Desactivate();
+			currentContext = nullptr;
+		}
 
 		m_impl->Destroy();
 		delete m_impl;
@@ -219,7 +223,7 @@ bool NzContext::IsActive() const
 	return currentContext == this;
 }
 
-bool NzContext::SetActive(bool active) const
+bool NzContext::SetActive(bool active)
 {
 	#ifdef NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -247,6 +251,8 @@ bool NzContext::SetActive(bool active) const
 
 		currentContext = nullptr;
 	}
+
+	NzOpenGL::OnContextChange(currentContext);
 
 	return true;
 }
@@ -300,17 +306,17 @@ bool NzContext::EnsureContext()
 	return true;
 }
 
-const NzContext* NzContext::GetCurrent()
+NzContext* NzContext::GetCurrent()
 {
 	return currentContext;
 }
 
-const NzContext* NzContext::GetReference()
+NzContext* NzContext::GetReference()
 {
 	return s_reference;
 }
 
-const NzContext* NzContext::GetThreadContext()
+NzContext* NzContext::GetThreadContext()
 {
 	EnsureContext();
 

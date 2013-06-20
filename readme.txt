@@ -43,6 +43,6 @@ Wiki    : http://wiki.digitalpulsesoftware.com/index.php?title=Nazara
 Forum   : http://forum.digitalpulsesoftware.com
 
 Thanks to
--RafBill: Finding bugs
+-RafBill/Raakz: Finding bugs and/or testing
 -Fissal "DrFisher" Hannoun: Helped a lot in architecture design
 -Alexandre "Danman" Janniaux: Made the core POSIX port
