@@ -32,13 +32,13 @@ class NAZARA_API NzContext : public NzResource
 
 		const NzContextParameters& GetParameters() const;
 		bool IsActive() const;
-		bool SetActive(bool active) const;
+		bool SetActive(bool active);
 		void SwapBuffers();
 
 		static bool EnsureContext();
-		static const NzContext* GetCurrent();
-		static const NzContext* GetReference();
-		static const NzContext* GetThreadContext();
+		static NzContext* GetCurrent();
+		static NzContext* GetReference();
+		static NzContext* GetThreadContext();
 		static bool Initialize();
 		static void Uninitialize();
 
