@@ -43,6 +43,6 @@ Wiki     : http://wiki.digitalpulsesoftware.com/index.php?title=Nazara
 Forum    : http://forum.digitalpulsesoftware.com
 
 Merci à
--RafBill: Recherche de bugs
+-RafBill/Raakz: Recherche de bugs et/ou testeur
 -Fissal "DrFisher" Hannoun: Beaucoup d'aide dans la conception de l'architecture du moteur
 -Alexandre "Danman" Janniaux: À fait le port POSIX du noyau
