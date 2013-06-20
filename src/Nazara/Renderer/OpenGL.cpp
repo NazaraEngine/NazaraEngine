@@ -10,6 +10,7 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace
@@ -59,17 +60,23 @@ namespace
 		#endif
 	}
 
+	struct ContextStates
+	{
+		GLuint buffersBinding[nzBufferType_Max+1] = {0};
+		GLuint currentProgram = 0;
+		GLuint texturesBinding[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+		NzRenderStates renderStates; // Toujours synchronisé avec OpenGL
+		unsigned int textureUnit = 0;
+	};
+
 	std::set<NzString> s_openGLextensionSet;
-	GLuint s_buffersBinding[nzBufferType_Max+1];
-	GLuint s_currentProgram;
-	GLuint s_texturesBinding[32]; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
-	NzRenderStates s_states; // Toujours synchronisé avec OpenGL
+	std::unordered_map<NzContext*, ContextStates> s_contexts;
+	ContextStates* s_contextStates = nullptr;
 	const char* s_rendererName = nullptr;
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
 	unsigned int s_openglVersion = 0;
-	unsigned int s_textureUnit = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
 	{
@@ -118,191 +125,270 @@ namespace
 
 void NzOpenGL::ApplyStates(const NzRenderStates& states)
 {
-	if (s_states.dstBlend != states.dstBlend || s_states.srcBlend != states.srcBlend)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	NzRenderStates& currentRenderStates = s_contextStates->renderStates;
+
+	if (currentRenderStates.dstBlend != states.dstBlend ||
+		currentRenderStates.srcBlend != states.srcBlend)
 	{
 		glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
-		s_states.dstBlend = states.dstBlend;
-		s_states.srcBlend = states.srcBlend;
+		currentRenderStates.dstBlend = states.dstBlend;
+		currentRenderStates.srcBlend = states.srcBlend;
 	}
 
-	if (s_states.depthFunc != states.depthFunc)
+	if (currentRenderStates.depthFunc != states.depthFunc)
 	{
 		glDepthFunc(RendererComparison[states.depthFunc]);
-		s_states.depthFunc = states.depthFunc;
+		currentRenderStates.depthFunc = states.depthFunc;
 	}
 
-	if (s_states.faceCulling != states.faceCulling)
+	if (currentRenderStates.faceCulling != states.faceCulling)
 	{
 		glCullFace(FaceCulling[states.faceCulling]);
-		s_states.faceCulling = states.faceCulling;
+		currentRenderStates.faceCulling = states.faceCulling;
 	}
 
-	if (s_states.faceFilling != states.faceFilling)
+	if (currentRenderStates.faceFilling != states.faceFilling)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, FaceFilling[states.faceFilling]);
-		s_states.faceFilling = states.faceFilling;
+		currentRenderStates.faceFilling = states.faceFilling;
 	}
 
-	if (s_states.stencilCompare != states.stencilCompare || s_states.stencilMask != states.stencilMask || s_states.stencilReference != states.stencilReference)
+	if (currentRenderStates.stencilCompare != states.stencilCompare ||
+		currentRenderStates.stencilMask != states.stencilMask ||
+		currentRenderStates.stencilReference != states.stencilReference)
 	{
 		glStencilFunc(RendererComparison[states.stencilCompare], states.stencilReference, states.stencilMask);
-		s_states.stencilCompare = states.stencilCompare;
-		s_states.stencilMask = states.stencilMask;
-		s_states.stencilReference = states.stencilReference;
+		currentRenderStates.stencilCompare = states.stencilCompare;
+		currentRenderStates.stencilMask = states.stencilMask;
+		currentRenderStates.stencilReference = states.stencilReference;
 	}
 
-	if (s_states.stencilFail != states.stencilFail || s_states.stencilPass != states.stencilPass || s_states.stencilZFail != states.stencilZFail)
+	if (currentRenderStates.stencilFail != states.stencilFail ||
+		currentRenderStates.stencilPass != states.stencilPass ||
+		currentRenderStates.stencilZFail != states.stencilZFail)
 	{
 		glStencilOp(StencilOperation[states.stencilFail], StencilOperation[states.stencilZFail], StencilOperation[states.stencilPass]);
-		s_states.stencilFail = states.stencilFail;
-		s_states.stencilPass = states.stencilPass;
-		s_states.stencilZFail = states.stencilZFail;
+		currentRenderStates.stencilFail = states.stencilFail;
+		currentRenderStates.stencilPass = states.stencilPass;
+		currentRenderStates.stencilZFail = states.stencilZFail;
 	}
 
-	if (!NzNumberEquals(s_states.lineWidth, states.lineWidth, 0.001f))
+	if (!NzNumberEquals(currentRenderStates.lineWidth, states.lineWidth, 0.001f))
 	{
 		glLineWidth(states.lineWidth);
-		s_states.lineWidth = states.lineWidth;
+		currentRenderStates.lineWidth = states.lineWidth;
 	}
 
-	if (!NzNumberEquals(s_states.pointSize, states.pointSize, 0.001f))
+	if (!NzNumberEquals(currentRenderStates.pointSize, states.pointSize, 0.001f))
 	{
 		glPointSize(states.pointSize);
-		s_states.pointSize = states.pointSize;
+		currentRenderStates.pointSize = states.pointSize;
 	}
 
 	// Paramètres de rendu
-	if (s_states.parameters[nzRendererParameter_Blend] != states.parameters[nzRendererParameter_Blend])
+	if (currentRenderStates.parameters[nzRendererParameter_Blend] != states.parameters[nzRendererParameter_Blend])
 	{
 		if (states.parameters[nzRendererParameter_Blend])
 			glEnable(GL_BLEND);
 		else
 			glDisable(GL_BLEND);
 
-		s_states.parameters[nzRendererParameter_Blend] = states.parameters[nzRendererParameter_Blend];
+		currentRenderStates.parameters[nzRendererParameter_Blend] = states.parameters[nzRendererParameter_Blend];
 	}
 
-	if (s_states.parameters[nzRendererParameter_ColorWrite] != states.parameters[nzRendererParameter_ColorWrite])
+	if (currentRenderStates.parameters[nzRendererParameter_ColorWrite] != states.parameters[nzRendererParameter_ColorWrite])
 	{
 		GLboolean param = (states.parameters[nzRendererParameter_ColorWrite]) ? GL_TRUE : GL_FALSE;
 		glColorMask(param, param, param, param);
 
-		s_states.parameters[nzRendererParameter_ColorWrite] = states.parameters[nzRendererParameter_ColorWrite];
+		currentRenderStates.parameters[nzRendererParameter_ColorWrite] = states.parameters[nzRendererParameter_ColorWrite];
 	}
 
-	if (s_states.parameters[nzRendererParameter_DepthBuffer] != states.parameters[nzRendererParameter_DepthBuffer])
+	if (currentRenderStates.parameters[nzRendererParameter_DepthBuffer] != states.parameters[nzRendererParameter_DepthBuffer])
 	{
 		if (states.parameters[nzRendererParameter_DepthBuffer])
 			glEnable(GL_DEPTH_TEST);
 		else
 			glDisable(GL_DEPTH_TEST);
 
-		s_states.parameters[nzRendererParameter_DepthBuffer] = states.parameters[nzRendererParameter_DepthBuffer];
+		currentRenderStates.parameters[nzRendererParameter_DepthBuffer] = states.parameters[nzRendererParameter_DepthBuffer];
 	}
 
-	if (s_states.parameters[nzRendererParameter_DepthWrite] != states.parameters[nzRendererParameter_DepthWrite])
+	if (currentRenderStates.parameters[nzRendererParameter_DepthWrite] != states.parameters[nzRendererParameter_DepthWrite])
 	{
 		glDepthMask((states.parameters[nzRendererParameter_DepthWrite]) ? GL_TRUE : GL_FALSE);
-		s_states.parameters[nzRendererParameter_DepthWrite] = states.parameters[nzRendererParameter_DepthWrite];
+		currentRenderStates.parameters[nzRendererParameter_DepthWrite] = states.parameters[nzRendererParameter_DepthWrite];
 	}
 
-	if (s_states.parameters[nzRendererParameter_FaceCulling] != states.parameters[nzRendererParameter_FaceCulling])
+	if (currentRenderStates.parameters[nzRendererParameter_FaceCulling] != states.parameters[nzRendererParameter_FaceCulling])
 	{
 		if (states.parameters[nzRendererParameter_FaceCulling])
 			glEnable(GL_CULL_FACE);
 		else
 			glDisable(GL_CULL_FACE);
 
-		s_states.parameters[nzRendererParameter_FaceCulling] = states.parameters[nzRendererParameter_FaceCulling];
+		currentRenderStates.parameters[nzRendererParameter_FaceCulling] = states.parameters[nzRendererParameter_FaceCulling];
 	}
 
-	if (s_states.parameters[nzRendererParameter_ScissorTest] != states.parameters[nzRendererParameter_ScissorTest])
+	if (currentRenderStates.parameters[nzRendererParameter_ScissorTest] != states.parameters[nzRendererParameter_ScissorTest])
 	{
 		if (states.parameters[nzRendererParameter_ScissorTest])
 			glEnable(GL_SCISSOR_TEST);
 		else
 			glDisable(GL_SCISSOR_TEST);
 
-		s_states.parameters[nzRendererParameter_ScissorTest] = states.parameters[nzRendererParameter_ScissorTest];
+		currentRenderStates.parameters[nzRendererParameter_ScissorTest] = states.parameters[nzRendererParameter_ScissorTest];
 	}
 
-	if (s_states.parameters[nzRendererParameter_StencilTest] != states.parameters[nzRendererParameter_StencilTest])
+	if (currentRenderStates.parameters[nzRendererParameter_StencilTest] != states.parameters[nzRendererParameter_StencilTest])
 	{
 		if (states.parameters[nzRendererParameter_StencilTest])
 			glEnable(GL_STENCIL_TEST);
 		else
 			glDisable(GL_STENCIL_TEST);
 
-		s_states.parameters[nzRendererParameter_StencilTest] = states.parameters[nzRendererParameter_StencilTest];
+		currentRenderStates.parameters[nzRendererParameter_StencilTest] = states.parameters[nzRendererParameter_StencilTest];
 	}
 }
 
 void NzOpenGL::BindBuffer(nzBufferType type, GLuint id)
 {
-	if (s_buffersBinding[type] != id)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->buffersBinding[type] != id)
 	{
 		glBindBuffer(BufferTarget[type], id);
-		s_buffersBinding[type] = id;
+		s_contextStates->buffersBinding[type] = id;
 	}
 }
 
 void NzOpenGL::BindProgram(GLuint id)
 {
-	if (s_currentProgram != id)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->currentProgram != id)
 	{
 		glUseProgram(id);
-		s_currentProgram = id;
+		s_contextStates->currentProgram = id;
 	}
 }
 
 void NzOpenGL::BindTexture(nzImageType type, GLuint id)
 {
-	if (s_texturesBinding[s_textureUnit] != id)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->texturesBinding[s_contextStates->textureUnit] != id)
 	{
 		glBindTexture(TextureTarget[type], id);
-		s_texturesBinding[s_textureUnit] = id;
+		s_contextStates->texturesBinding[s_contextStates->textureUnit] = id;
 	}
 }
 
 void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id)
 {
-	if (s_texturesBinding[textureUnit] != id)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->texturesBinding[textureUnit] != id)
 	{
 		SetTextureUnit(textureUnit);
 
 		glBindTexture(TextureTarget[type], id);
-		s_texturesBinding[textureUnit] = id;
+		s_contextStates->texturesBinding[textureUnit] = id;
 	}
 }
 
 void NzOpenGL::BindVertexArray(GLuint id)
 {
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
 	// Je ne pense pas que ça soit une bonne idée de le mettre en cache, c'est un objet "spécial"
 	glBindVertexArray(id);
 
 	// On invalide les bindings des buffers (Overridés par le VertexArray)
-	std::memset(s_buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
+	std::memset(s_contextStates->buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
 }
 
 void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
 {
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
 	glDeleteBuffers(1, &id);
-	if (s_buffersBinding[type] == id)
-		s_buffersBinding[type] = 0;
+	if (s_contextStates->buffersBinding[type] == id)
+		s_contextStates->buffersBinding[type] = 0;
 }
 
 void NzOpenGL::DeleteProgram(GLuint id)
 {
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
 	glDeleteProgram(id);
-	if (s_currentProgram == id)
-		s_currentProgram = 0;
+	if (s_contextStates->currentProgram == id)
+		s_contextStates->currentProgram = 0;
 }
 
 void NzOpenGL::DeleteTexture(GLuint id)
 {
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
 	glDeleteTextures(1, &id);
 
-	for (GLuint& binding : s_texturesBinding)
+	for (GLuint& binding : s_contextStates->texturesBinding)
 	{
 		if (binding == id)
 			binding = 0;
@@ -311,12 +397,28 @@ void NzOpenGL::DeleteTexture(GLuint id)
 
 GLuint NzOpenGL::GetCurrentBuffer(nzBufferType type)
 {
-	return s_buffersBinding[type];
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->buffersBinding[type];
 }
 
 GLuint NzOpenGL::GetCurrentProgram()
 {
-	return s_currentProgram;
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->currentProgram;
 }
 
 NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
@@ -331,7 +433,15 @@ NzString NzOpenGL::GetRendererName()
 
 unsigned int NzOpenGL::GetTextureUnit()
 {
-	return s_textureUnit;
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->textureUnit;
 }
 
 NzString NzOpenGL::GetVendorName()
@@ -844,12 +954,8 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	std::memset(s_buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
-	std::memset(s_texturesBinding, 0, 32*sizeof(GLuint));
-
-	s_currentProgram = 0;
 	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-	s_textureUnit = 0;
+	s_contextStates = nullptr;
 	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
 	return true;
@@ -872,10 +978,10 @@ bool NzOpenGL::IsSupported(const NzString& string)
 
 void NzOpenGL::SetTextureUnit(unsigned int textureUnit)
 {
-	if (s_textureUnit != textureUnit)
+	if (s_contextStates->textureUnit != textureUnit)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureUnit);
-		s_textureUnit = textureUnit;
+		s_contextStates->textureUnit = textureUnit;
 	}
 }
 
@@ -1034,6 +1140,16 @@ void NzOpenGL::Uninitialize()
 
 		UnloadLibrary();
 	}
+}
+
+void NzOpenGL::OnContextDestruction(NzContext* context)
+{
+	s_contexts.erase(context);
+}
+
+void NzOpenGL::OnContextChange(NzContext* newContext)
+{
+	s_contextStates = (newContext) ? &s_contexts[newContext] : nullptr;
 }
 
 GLenum NzOpenGL::Attachment[nzAttachmentPoint_Max+1] =

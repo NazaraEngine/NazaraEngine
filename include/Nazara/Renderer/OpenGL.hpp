@@ -44,10 +44,13 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_Max = nzOpenGLExtension_VertexArrayObjects
 };
 
+class NzContext;
 using NzOpenGLFunc = void (*)();
 
 class NAZARA_API NzOpenGL
 {
+	friend NzContext;
+
 	public:
 		enum FormatType
 		{
@@ -120,6 +123,10 @@ class NAZARA_API NzOpenGL
 		static GLenum TextureTarget[nzImageType_Max+1];
 		static GLenum TextureTargetBinding[nzImageType_Max+1];
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
+
+	private:
+		static void OnContextDestruction(NzContext* context);
+		static void OnContextChange(NzContext* newContext);
 };
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
