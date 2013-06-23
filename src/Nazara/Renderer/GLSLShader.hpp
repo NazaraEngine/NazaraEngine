@@ -70,7 +70,7 @@ class NzGLSLShader : public NzAbstractShader, NzResourceListener
 		};
 
 		mutable std::unordered_map<NzString, GLint> m_idCache;
-		std::map<GLint, TextureSlot> m_textures; ///FIXME: unordered_map
+		std::map<GLint, TextureSlot> m_textures;
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Max+1];
 		NzShader* m_parent;

@@ -396,7 +396,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 					*textureUnit = slot.unit;
 			}
 			else
-				m_textures.erase(it); // On supprime le slot
+				slot.enabled = false;
 		}
 		else if (textureUnit)
 			*textureUnit = slot.unit;
@@ -412,44 +412,20 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 		}
 
 		// À partir d'ici nous savons qu'il y a au moins un identifiant de texture libre
-		nzUInt8 unit;
-		if (unitUsed == 0)
-			// Pas d'unité utilisée, la tâche est simple
-			unit = 0;
-		else
-		{
-			auto it2 = m_textures.rbegin(); // Itérateur vers la fin de la map
-			unit = it2->second.unit;
-			if (unit == maxUnits-1)
-			{
-				// Il y a une place libre, mais pas à la fin
-				for (; it2 != m_textures.rend(); ++it2)
-				{
-					if (unit - it2->second.unit > 1) // Si l'espace entre les indices est supérieur à 1, alors il y a une place libre
-					{
-						unit--;
-						break;
-					}
-				}
-			}
-			else
-				// Il y a une place libre à la fin
-				unit++;
-		}
 
 		TextureSlot slot;
 		slot.enabled = texture->IsValid();
-		slot.unit = unit;
+		slot.unit = unitUsed+1;
 		slot.texture = texture;
 
 		if (slot.enabled)
 		{
 			if (glProgramUniform1i)
-				glProgramUniform1i(m_program, location, unit);
+				glProgramUniform1i(m_program, location, slot.unit);
 			else
 			{
 				NzOpenGL::BindProgram(m_program);
-				glUniform1i(location, unit);
+				glUniform1i(location, slot.unit);
 			}
 		}
 
@@ -457,7 +433,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 		texture->AddResourceListener(this, location);
 
 		if (textureUnit)
-			*textureUnit = unit;
+			*textureUnit = slot.unit;
 	}
 
 	return true;
