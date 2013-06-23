@@ -329,23 +329,6 @@ void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id
 	}
 }
 
-void NzOpenGL::BindVertexArray(GLuint id)
-{
-	#ifdef NAZARA_DEBUG
-	if (!s_contextStates)
-	{
-		NazaraError("No context activated");
-		return;
-	}
-	#endif
-
-	// Je ne pense pas que ça soit une bonne idée de le mettre en cache, c'est un objet "spécial"
-	glBindVertexArray(id);
-
-	// On invalide les bindings des buffers (Overridés par le VertexArray)
-	std::memset(s_contextStates->buffersBinding, 0, (nzBufferType_Max+1)*sizeof(GLuint));
-}
-
 void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
 {
 	#ifdef NAZARA_DEBUG
