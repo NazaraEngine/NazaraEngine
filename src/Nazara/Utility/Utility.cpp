@@ -76,9 +76,11 @@ bool NzUtility::Initialize()
 	NzLoaders_STB_Register(); // Loader générique (STB)
 
 	/// Loaders spécialisés
+	// Animation
+	NzLoaders_MD5Anim_Register(); // Loader de fichiers .md5anim (v10)
+
 	// Mesh
 	NzLoaders_MD2_Register(); // Loader de fichiers .md2 (v8)
-	NzLoaders_MD5Anim_Register(); // Loader de fichiers .md5anim (v10)
 	NzLoaders_MD5Mesh_Register(); // Loader de fichiers .md5mesh (v10)
 
 	// Image
@@ -109,6 +111,7 @@ void NzUtility::Uninitialize()
 	s_moduleReferenceCounter = 0;
 
 	NzLoaders_MD2_Unregister();
+	NzLoaders_MD5Anim_Unregister();
 	NzLoaders_MD5Mesh_Unregister();
 	NzLoaders_PCX_Unregister();
 	NzLoaders_STB_Unregister();
