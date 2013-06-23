@@ -165,12 +165,6 @@ void NzGLSLShader::Destroy()
 	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
 		it->second.texture->RemoveResourceListener(this);
 
-	for (GLuint shader : m_shaders)
-	{
-		if (shader)
-			glDeleteShader(shader);
-	}
-
 	NzOpenGL::DeleteProgram(m_program);
 }
 
@@ -252,7 +246,9 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 
 	if (success == GL_TRUE)
 	{
-		glAttachShader(m_program, shader);
+		glAttachShader(m_program, shader); // On attache le shader au programme
+		glDeleteShader(shader); // On le marque pour suppression (Lors de l'appel à glDeleteProgram)
+
 		m_shaders[type] = shader;
 
 		static NzString successStr("Compilation successful");
