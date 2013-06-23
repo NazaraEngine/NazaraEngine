@@ -18,9 +18,9 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <cstring>
-#include <map>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
 NzMeshParams::NzMeshParams()
@@ -48,7 +48,7 @@ bool NzMeshParams::IsValid() const
 
 struct NzMeshImpl
 {
-	std::map<NzString, unsigned int> subMeshMap;
+	std::unordered_map<NzString, unsigned int> subMeshMap;
 	std::vector<NzString> materials;
 	std::vector<NzSubMesh*> subMeshes;
 	nzAnimationType animationType;

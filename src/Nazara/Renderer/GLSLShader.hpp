@@ -13,6 +13,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <map>
+#include <unordered_map>
 
 class NzResource;
 
@@ -68,7 +69,7 @@ class NzGLSLShader : public NzAbstractShader, NzResourceListener
 			const NzTexture* texture;
 		};
 
-		mutable std::map<NzString, GLint> m_idCache; ///FIXME: unordered_map
+		mutable std::unordered_map<NzString, GLint> m_idCache;
 		std::map<GLint, TextureSlot> m_textures; ///FIXME: unordered_map
 		GLuint m_program;
 		GLuint m_shaders[nzShaderType_Max+1];

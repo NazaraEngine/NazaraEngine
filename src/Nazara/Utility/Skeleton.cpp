@@ -3,12 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Skeleton.hpp>
-#include <map>
+#include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
 struct NzSkeletonImpl
 {
-	std::map<NzString, unsigned int> jointMap; ///FIXME: unordered_map
+	std::unordered_map<NzString, unsigned int> jointMap;
 	std::vector<NzJoint> joints;
 	NzBoxf aabb;
 	bool aabbUpdated = false;
