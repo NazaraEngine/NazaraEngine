@@ -6,13 +6,13 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
-#include <map>
 #include <vector>
+#include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
 struct NzAnimationImpl
 {
-	std::map<NzString, unsigned int> sequenceMap;
+	std::unordered_map<NzString, unsigned int> sequenceMap;
 	std::vector<NzSequence> sequences;
 	std::vector<NzSequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 	nzAnimationType type;
