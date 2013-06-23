@@ -72,6 +72,7 @@ namespace
 	std::map<VAO_Key, unsigned int> s_vaos;
 	std::set<unsigned int> s_dirtyTextureUnits;
 	std::vector<TextureUnit> s_textureUnits;
+	GLuint s_currentVAO = 0;
 	NzBuffer* s_instancingBuffer = nullptr;
 	NzVertexBuffer* s_quadBuffer = nullptr;
 	NzMatrix4f s_matrix[totalMatrixCount];
@@ -171,6 +172,8 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstI
 
 		glDrawElements(NzOpenGL::PrimitiveMode[mode], indexCount, type, ptr);
 	}
+
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -243,6 +246,8 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 		glDrawElementsInstanced(NzOpenGL::PrimitiveMode[mode], indexCount, type, ptr, instanceCount);
 	}
+
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -270,6 +275,7 @@ void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, 
 	}
 
 	glDrawArrays(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -317,6 +323,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	}
 
 	glDrawArraysInstanced(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount, instanceCount);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawTexture(unsigned int unit, const NzRectf& rect, const NzVector2f& uv0, const NzVector2f& uv1, float z)
@@ -1467,7 +1474,6 @@ bool NzRenderer::EnsureStateUpdate()
 			#endif
 
 			bool update;
-			GLuint vao;
 
 			// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
 			if (s_useVertexArrayObjects)
@@ -1481,11 +1487,11 @@ bool NzRenderer::EnsureStateUpdate()
 				if (it == s_vaos.end())
 				{
 					// On créé notre VAO
-					glGenVertexArrays(1, &vao);
-					glBindVertexArray(vao);
+					glGenVertexArrays(1, &s_currentVAO);
+					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					s_vaos.insert(std::make_pair(key, static_cast<unsigned int>(vao)));
+					s_vaos.insert(std::make_pair(key, static_cast<unsigned int>(s_currentVAO)));
 
 					// Et on indique qu'on veut le programmer
 					update = true;
@@ -1493,7 +1499,7 @@ bool NzRenderer::EnsureStateUpdate()
 				else
 				{
 					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-					vao = it->second;
+					s_currentVAO = it->second;
 
 					update = false;
 				}
@@ -1564,11 +1570,9 @@ bool NzRenderer::EnsureStateUpdate()
 				if (update)
 					glBindVertexArray(0);
 
-				// Nous (re)bindons le VAO pour définir les attributs de vertice
-				NzOpenGL::BindVertexArray(vao);
+				// En cas de non-support des VAOs, les attributs doivent être respécifiés à chaque frame
+				s_updateFlags &= ~Update_VAO;
 			}
-
-			s_updateFlags &= ~Update_VAO;
 		}
 
 		#ifdef NAZARA_DEBUG
@@ -1577,7 +1581,10 @@ bool NzRenderer::EnsureStateUpdate()
 		#endif
 	}
 
-	///FIXME: Comment détecter le besoin de réactiver le VAO ? (Est-ce même nécessaire ?)
+	// On bind notre VAO
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(s_currentVAO);
+
 	// On vérifie que les textures actuellement bindées sont bien nos textures
 	for (unsigned int i = 0; i < s_maxTextureUnit; ++i)
 	{
