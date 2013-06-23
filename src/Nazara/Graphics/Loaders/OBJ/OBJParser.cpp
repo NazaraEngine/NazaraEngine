@@ -7,8 +7,8 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <Nazara/Graphics/Debug.hpp>
 
 NzOBJParser::NzOBJParser(NzInputStream& stream) :
@@ -98,7 +98,7 @@ bool NzOBJParser::Parse()
 	m_positions.reserve(100);
 	m_texCoords.reserve(100);
 
-	std::map<NzString, std::map<NzString, std::vector<Face>>> meshes;
+	std::unordered_map<NzString, std::unordered_map<NzString, std::vector<Face>>> meshes;
 
 	std::vector<Face>* currentMesh = &meshes[meshName][matName];
 
@@ -348,7 +348,7 @@ bool NzOBJParser::Parse()
 		}
 	}
 
-	std::map<NzString, unsigned int> materials;
+	std::unordered_map<NzString, unsigned int> materials;
 	unsigned int matCount = 0;
 
 	for (auto meshIt : meshes)
