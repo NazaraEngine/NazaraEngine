@@ -11,7 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/String.hpp>
-#include <map>
+#include <unordered_map>
 
 class NzMTLParser
 {
@@ -49,7 +49,7 @@ class NzMTLParser
 		void Warning(const NzString& message);
 		void UnrecognizedLine(bool error = false);
 
-		std::map<NzString, Material> m_materials;
+		std::unordered_map<NzString, Material> m_materials;
 		NzInputStream& m_stream;
 		NzString m_currentLine;
 		bool m_keepLastLine;

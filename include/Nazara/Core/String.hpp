@@ -323,4 +323,6 @@ namespace std
 	NAZARA_API void swap(NzString& lhs, NzString& rhs);
 }
 
+#include <Nazara/Core/String.inl>
+
 #endif // NAZARA_STRING_HPP

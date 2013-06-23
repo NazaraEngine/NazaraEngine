@@ -8,8 +8,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <list>
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <Nazara/Core/Debug.hpp>
 
 namespace
@@ -18,7 +18,7 @@ namespace
 	using PluginUnload = void (*)();
 
 	std::list<NzString> s_directories;
-	std::map<NzString, NzDynLib*> s_plugins;
+	std::unordered_map<NzString, NzDynLib*> s_plugins;
 
 	NzString s_pluginFiles[] =
 	{
