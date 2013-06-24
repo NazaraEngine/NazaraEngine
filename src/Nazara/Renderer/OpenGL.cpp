@@ -71,7 +71,7 @@ namespace
 
 	std::set<NzString> s_openGLextensionSet;
 	std::unordered_map<NzContext*, ContextStates> s_contexts;
-	ContextStates* s_contextStates = nullptr;
+	thread_local ContextStates* s_contextStates = nullptr;
 	const char* s_rendererName = nullptr;
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;

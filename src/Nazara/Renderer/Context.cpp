@@ -167,7 +167,7 @@ bool NzContext::Create(const NzContextParameters& parameters)
 	if (m_parameters.antialiasingLevel > 0)
 		glEnable(GL_MULTISAMPLE);
 
-	if (NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput) && m_parameters.debugMode)
+	if (m_parameters.debugMode && NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput))
 	{
 		glDebugMessageCallback(&DebugCallback, this);
 
@@ -186,13 +186,9 @@ void NzContext::Destroy()
 	if (m_impl)
 	{
 		NotifyDestroy();
-		NzOpenGL::OnContextDestruction(this);
 
-		if (currentContext == this)
-		{
-			NzContextImpl::Desactivate();
-			currentContext = nullptr;
-		}
+		NzOpenGL::OnContextDestruction(this);
+		SetActive(false);
 
 		m_impl->Destroy();
 		delete m_impl;
