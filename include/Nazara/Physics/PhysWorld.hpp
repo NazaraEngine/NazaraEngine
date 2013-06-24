@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Jérôme Leclercq
+// Copyright (C) 2013 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,18 +22,19 @@ class NAZARA_API NzPhysWorld : NzNonCopyable
 
 		NzVector3f GetGravity() const;
 		NewtonWorld* GetHandle() const;
-		unsigned int GetMemoryUsed() const;
+		float GetStepSize() const;
 
 		void SetGravity(const NzVector3f& gravity);
-		void SetSize(const NzBoxf& box);
-		void SetSize(const NzVector3f& min, const NzVector3f& max);
 		void SetSolverModel(unsigned int model);
+		void SetStepSize(float stepSize);
 
-		void Update(float timestep);
+		void Step(float timestep);
 
 	private:
 		NzVector3f m_gravity;
 		NewtonWorld* m_world;
+		float m_stepSize;
+		float m_timestepAccumulator;
 };
 
 #endif // NAZARA_PHYSWORLD_HPP
