@@ -13,7 +13,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
-#include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/StaticMesh.hpp>
 
 class NzSkeleton;
 
@@ -27,8 +27,9 @@ class NAZARA_API NzDebugDrawer
 		static void Draw(const NzFrustumf& frustum);
 		static void Draw(const NzOrientedBoxf& orientedBox);
 		static void Draw(const NzSkeleton* skeleton);
-		//static void DrawNormals(const NzSubMesh* subMesh);
-		//static void DrawTangents(const NzSubMesh* subMesh);
+		static void DrawBinormals(const NzStaticMesh* subMesh);
+		static void DrawNormals(const NzStaticMesh* subMesh);
+		static void DrawTangents(const NzStaticMesh* subMesh);
 
 		static void EnableDepthBuffer(bool depthBuffer);
 
