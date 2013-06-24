@@ -317,7 +317,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 	unsigned int jointCount = skeleton->GetJointCount();
 	if (vertexBuffer->GetVertexCount() < jointCount*2)
 	{
-		NazaraError("Debug buffer not length enougth to draw object");
+		NazaraError("Debug buffer not large enougth to draw object");
 		return;
 	}
 
@@ -356,8 +356,8 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, vertexCount);
 	}
 }
-/*
-void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
+
+void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 {
 	if (!initialized)
 	{
@@ -369,7 +369,7 @@ void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
 	unsigned int vertexCount = normalCount*2;
 	if (vertexBuffer->GetVertexCount() < vertexCount)
 	{
-		NazaraError("Debug buffer not length enougth to draw object");
+		NazaraError("Debug buffer not large enougth to draw object");
 		return;
 	}
 
@@ -384,7 +384,7 @@ void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
 		outputVertex->position = inputVertex->position;
 		outputVertex++;
 
-		outputVertex->position = inputVertex->position + inputVertex->normal;
+		outputVertex->position = inputVertex->position + NzVector3f::CrossProduct(inputVertex->normal, inputVertex->tangent)*0.01f;
 		outputVertex++;
 
 		inputVertex++;
@@ -395,37 +395,63 @@ void NzDebugDrawer::DrawNormals(const NzSubMesh* subMesh)
 
 	if (vertexCount > 0)
 	{
-		const NzShader* oldShader = NzRenderer::GetShader();
-
-		if (!NzRenderer::SetShader(shader))
-		{
-			NazaraError("Failed to set debug shader");
-			return;
-		}
-
-		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
+		NzRenderer::SetRenderStates(renderStates);
+		NzRenderer::SetShader(shader);
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
-		float oldLineWidth = NzRenderer::GetLineWidth();
-		NzRenderer::SetLineWidth(lineWidth);
-
 		shader->SendColor(colorLocation, primaryColor);
-		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
-
-		NzRenderer::SetLineWidth(oldLineWidth);
-
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-		if (!NzRenderer::SetShader(oldShader))
-			NazaraWarning("Failed to reset shader");
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 	}
 }
 
-void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
+void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
+{
+	if (!initialized)
+	{
+		NazaraError("Debug drawer is not initialized");
+		return;
+	}
+
+	unsigned int normalCount = subMesh->GetVertexCount();
+	unsigned int vertexCount = normalCount*2;
+	if (vertexBuffer->GetVertexCount() < vertexCount)
+	{
+		NazaraError("Debug buffer not large enougth to draw object");
+		return;
+	}
+
+	NzBufferMapper<NzVertexBuffer> inputMapper(subMesh->GetVertexBuffer(), nzBufferAccess_ReadOnly);
+	NzBufferMapper<NzVertexBuffer> outputMapper(vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, vertexCount);
+
+	NzMeshVertex* inputVertex = reinterpret_cast<NzMeshVertex*>(inputMapper.GetPointer());
+	NzVertexStruct_XYZ* outputVertex = reinterpret_cast<NzVertexStruct_XYZ*>(outputMapper.GetPointer());
+
+	for (unsigned int i = 0; i < normalCount; ++i)
+	{
+		outputVertex->position = inputVertex->position;
+		outputVertex++;
+
+		outputVertex->position = inputVertex->position + inputVertex->normal*0.01f;
+		outputVertex++;
+
+		inputVertex++;
+	}
+
+	inputMapper.Unmap();
+	outputMapper.Unmap();
+
+	if (vertexCount > 0)
+	{
+		NzRenderer::SetRenderStates(renderStates);
+		NzRenderer::SetShader(shader);
+		NzRenderer::SetVertexBuffer(vertexBuffer);
+
+		shader->SendColor(colorLocation, primaryColor);
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
+	}
+}
+
+void NzDebugDrawer::DrawTangents(const NzStaticMesh* subMesh)
 {
 	if (!initialized)
 	{
@@ -437,7 +463,7 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 	unsigned int vertexCount = tangentCount*2;
 	if (vertexBuffer->GetVertexCount() < vertexCount)
 	{
-		NazaraError("Debug buffer not length enougth to draw object");
+		NazaraError("Debug buffer not large enougth to draw object");
 		return;
 	}
 
@@ -452,7 +478,7 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 		outputVertex->position = inputVertex->position;
 		outputVertex++;
 
-		outputVertex->position = inputVertex->position + inputVertex->tangent;
+		outputVertex->position = inputVertex->position + inputVertex->tangent*0.01f;
 		outputVertex++;
 
 		inputVertex++;
@@ -463,36 +489,14 @@ void NzDebugDrawer::DrawTangents(const NzSubMesh* subMesh)
 
 	if (vertexCount > 0)
 	{
-		const NzShader* oldShader = NzRenderer::GetShader();
-
-		if (!NzRenderer::SetShader(shader))
-		{
-			NazaraError("Failed to set debug shader");
-			return;
-		}
-
-		bool depthTestActive = NzRenderer::IsEnabled(nzRendererParameter_DepthTest);
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTest);
-
+		NzRenderer::SetRenderStates(renderStates);
+		NzRenderer::SetShader(shader);
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
-		float oldLineWidth = NzRenderer::GetLineWidth();
-		NzRenderer::SetLineWidth(lineWidth);
-
 		shader->SendColor(colorLocation, primaryColor);
-		NzRenderer::DrawPrimitives(nzPrimitiveType_LineList, 0, vertexCount);
-
-		NzRenderer::SetLineWidth(oldLineWidth);
-
-		if (depthTestActive != depthTest)
-			NzRenderer::Enable(nzRendererParameter_DepthTest, depthTestActive);
-
-		if (!NzRenderer::SetShader(oldShader))
-			NazaraWarning("Failed to reset shader");
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 	}
 }
-*/
 
 void NzDebugDrawer::EnableDepthBuffer(bool depthBuffer)
 {
@@ -554,7 +558,7 @@ bool NzDebugDrawer::Initialize()
 
 		// VertexBuffer (Nécessite la déclaration)
 		{
-			vertexBuffer = new NzVertexBuffer(vertexDeclaration, 1024, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			vertexBuffer = new NzVertexBuffer(vertexDeclaration, 65365, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 			if (!vertexBuffer->GetBuffer()->IsValid())
 			{
 				NazaraError("Failed to create buffer");
