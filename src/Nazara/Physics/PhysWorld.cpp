@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Jérôme Leclercq
+// Copyright (C) 2013 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,10 @@
 #include <Newton/Newton.h>
 #include <Nazara/Physics/Debug.hpp>
 
-NzPhysWorld::NzPhysWorld()
+NzPhysWorld::NzPhysWorld() :
+m_gravity(NzVector3f::Zero()),
+m_stepSize(0.005f),
+m_timestepAccumulator(0.f)
 {
 	m_world = NewtonCreate();
 	NewtonWorldSetUserData(m_world, this);
@@ -27,19 +30,14 @@ NewtonWorld* NzPhysWorld::GetHandle() const
 	return m_world;
 }
 
+float NzPhysWorld::GetStepSize() const
+{
+	return m_stepSize;
+}
+
 void NzPhysWorld::SetGravity(const NzVector3f& gravity)
 {
 	m_gravity = gravity;
-}
-
-void NzPhysWorld::SetSize(const NzBoxf& box)
-{
-	NewtonSetWorldSize(m_world, box.GetPosition(), box.GetPosition()+box.GetSize());
-}
-
-void NzPhysWorld::SetSize(const NzVector3f& min, const NzVector3f& max)
-{
-	NewtonSetWorldSize(m_world, min, max);
 }
 
 void NzPhysWorld::SetSolverModel(unsigned int model)
@@ -47,7 +45,18 @@ void NzPhysWorld::SetSolverModel(unsigned int model)
 	NewtonSetSolverModel(m_world, model);
 }
 
-void NzPhysWorld::Update(float timestep)
+void NzPhysWorld::SetStepSize(float stepSize)
 {
-	NewtonUpdate(m_world, timestep);
+	m_stepSize = stepSize;
+}
+
+void NzPhysWorld::Step(float timestep)
+{
+	m_timestepAccumulator += timestep;
+
+	while (m_timestepAccumulator >= m_stepSize)
+	{
+		NewtonUpdate(m_world, m_stepSize);
+		m_timestepAccumulator -= m_stepSize;
+	}
 }
