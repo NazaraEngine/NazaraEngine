@@ -8,14 +8,16 @@
 #define NAZARA_GEOM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Enums.hpp>
 
 ///TODO: CollisionModifier
 ///TODO: HeightfieldGeom
+///TODO: PlaneGeom ?
 ///TODO: SceneGeom
 ///TODO: TreeGeom
 
@@ -28,8 +30,8 @@ class NAZARA_API NzBaseGeom : NzNonCopyable
 		NzBaseGeom(NzPhysWorld* physWorld);
 		virtual ~NzBaseGeom();
 
-		virtual NzCubef ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
-		virtual NzCubef ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity()) const;
+		virtual NzBoxf ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
+		virtual NzBoxf ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity()) const;
 		virtual void ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const;
 		virtual float ComputeVolume() const;
 
@@ -37,6 +39,8 @@ class NAZARA_API NzBaseGeom : NzNonCopyable
 		virtual nzGeomType GetType() const = 0;
 
 		NzPhysWorld* GetWorld() const;
+
+		static NzBaseGeom* Build(NzPhysWorld* physWorld, const NzPrimitiveList& list);
 
 	protected:
 		NewtonCollision* m_collision;
@@ -46,7 +50,8 @@ class NAZARA_API NzBaseGeom : NzNonCopyable
 class NAZARA_API NzBoxGeom : public NzBaseGeom
 {
 	public:
-		NzBoxGeom(NzPhysWorld* physWorld, const NzVector3f& lengths, const NzVector3f& translation = NzVector3f::Zero(), const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzBoxGeom(NzPhysWorld* physWorld, const NzVector3f& lengths, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzBoxGeom(NzPhysWorld* physWorld, const NzVector3f& lengths, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		NzVector3f GetLengths() const;
 		nzGeomType GetType() const override;
@@ -58,7 +63,8 @@ class NAZARA_API NzBoxGeom : public NzBaseGeom
 class NAZARA_API NzCapsuleGeom : public NzBaseGeom
 {
 	public:
-		NzCapsuleGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation = NzVector3f::Zero(), const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzCapsuleGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzCapsuleGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -72,7 +78,7 @@ class NAZARA_API NzCapsuleGeom : public NzBaseGeom
 class NAZARA_API NzCompoundGeom : public NzBaseGeom
 {
 	public:
-		NzCompoundGeom(NzPhysWorld* physWorld, NzBaseGeom* geoms, unsigned int geomCount);
+		NzCompoundGeom(NzPhysWorld* physWorld, NzBaseGeom** geoms, unsigned int geomCount);
 
 		nzGeomType GetType() const override;
 };
@@ -80,7 +86,8 @@ class NAZARA_API NzCompoundGeom : public NzBaseGeom
 class NAZARA_API NzConeGeom : public NzBaseGeom
 {
 	public:
-		NzConeGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation = NzVector3f::Zero(), const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzConeGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzConeGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -94,7 +101,8 @@ class NAZARA_API NzConeGeom : public NzBaseGeom
 class NAZARA_API NzConvexHullGeom : public NzBaseGeom
 {
 	public:
-		NzConvexHullGeom(NzPhysWorld* physWorld, const NzVector3f* vertices, unsigned int vertexCount, unsigned int stride = sizeof(NzVector3f), float tolerance = 0.2f, const NzVector3f& translation = NzVector3f::Zero(), const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzConvexHullGeom(NzPhysWorld* physWorld, const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(NzVector3f), float tolerance = 0.002f, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzConvexHullGeom(NzPhysWorld* physWorld, const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		nzGeomType GetType() const override;
 };
@@ -102,7 +110,8 @@ class NAZARA_API NzConvexHullGeom : public NzBaseGeom
 class NAZARA_API NzCylinderGeom : public NzBaseGeom
 {
 	public:
-		NzCylinderGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation = NzVector3f::Zero(), const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzCylinderGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzCylinderGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -124,8 +133,8 @@ class NAZARA_API NzNullGeom : public NzBaseGeom
 class NAZARA_API NzSphereGeom : public NzBaseGeom
 {
 	public:
-		NzSphereGeom(NzPhysWorld* physWorld, const NzVector3f& radius, const NzVector3f& translation = NzVector3f::Zero());
-		NzSphereGeom(NzPhysWorld* physWorld, float radius, const NzVector3f& translation = NzVector3f::Zero());
+		NzSphereGeom(NzPhysWorld* physWorld, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzSphereGeom(NzPhysWorld* physWorld, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		NzVector3f GetRadius() const;
 		nzGeomType GetType() const override;
