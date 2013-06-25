@@ -6,99 +6,59 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-void NzPrimitiveList::AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& transformMatrix)
 {
-	NzPrimitive primitive;
-	primitive.matrix = matrix;
-	primitive.type = nzPrimitiveType_Box;
-	primitive.box.lengths = lengths;
-	primitive.box.subdivision = subdivision;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::Box(lengths, subdivision, transformMatrix));
 }
 
 void NzPrimitiveList::AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddBox(lengths, subdivision, NzMatrix4f::Transform(position, rotation));
+	m_primitives.push_back(NzPrimitive::Box(lengths, subdivision, position, rotation));
 }
 
-void NzPrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& transformMatrix)
 {
-	NzPrimitive primitive;
-	primitive.matrix = matrix;
-	primitive.type = nzPrimitiveType_Sphere;
-	primitive.sphere.size = size;
-	primitive.sphere.type = nzSphereType_Cubic;
-	primitive.sphere.cubic.subdivision = subdivision;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::CubicSphere(size, subdivision, transformMatrix));
 }
 
 void NzPrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddCubicSphere(size, subdivision, NzMatrix4f::Transform(position, rotation));
+	m_primitives.push_back(NzPrimitive::CubicSphere(size, subdivision, position, rotation));
 }
 
-void NzPrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& transformMatrix)
 {
-	NzPrimitive primitive;
-	primitive.matrix = matrix;
-	primitive.type = nzPrimitiveType_Sphere;
-	primitive.sphere.size = size;
-	primitive.sphere.type = nzSphereType_Ico;
-	primitive.sphere.ico.recursionLevel = recursionLevel;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::IcoSphere(size, recursionLevel, transformMatrix));
 }
 
 void NzPrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddIcoSphere(size, recursionLevel, NzMatrix4f::Transform(position, rotation));
+	m_primitives.push_back(NzPrimitive::IcoSphere(size, recursionLevel, position, rotation));
 }
 
-void NzPrimitiveList::AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix)
 {
-	NzPrimitive primitive;
-	primitive.matrix = matrix;
-	primitive.type = nzPrimitiveType_Plane;
-	primitive.plane.size = size;
-	primitive.plane.subdivision = subdivision;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::Plane(size, subdivision, transformMatrix));
 }
 
-void NzPrimitiveList::AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane)
+void NzPrimitiveList::AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& planeInfo)
 {
-	NzPrimitive primitive;
-	primitive.matrix = NzMatrix4f::Transform(plane.distance * plane.normal, NzQuaternionf::RotationBetween(NzVector3f::Up(), plane.normal));
-	primitive.type = nzPrimitiveType_Plane;
-	primitive.plane.size = size;
-	primitive.plane.subdivision = subdivision;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::Plane(size, subdivision, planeInfo));
 }
 
 void NzPrimitiveList::AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddPlane(size, subdivision, NzMatrix4f::Transform(position, rotation));
+	m_primitives.push_back(NzPrimitive::Plane(size, subdivision, position, rotation));
 }
 
-void NzPrimitiveList::AddUVSphere(float size, unsigned int slices, unsigned int stacks, const NzMatrix4f& matrix)
+void NzPrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& transformMatrix)
 {
-	NzPrimitive primitive;
-	primitive.matrix = matrix;
-	primitive.type = nzPrimitiveType_Sphere;
-	primitive.sphere.size = size;
-	primitive.sphere.type = nzSphereType_UV;
-	primitive.sphere.uv.slices = slices;
-	primitive.sphere.uv.stacks = stacks;
-
-	m_primitives.push_back(primitive);
+	m_primitives.push_back(NzPrimitive::UVSphere(size, sliceCount, stackCount, transformMatrix));
 }
 
-void NzPrimitiveList::AddUVSphere(float size, unsigned int slices, unsigned int stacks, const NzVector3f& position, const NzQuaternionf& rotation)
+void NzPrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation)
 {
-	AddUVSphere(size, slices, stacks, NzMatrix4f::Transform(position, rotation));
+	m_primitives.push_back(NzPrimitive::UVSphere(size, sliceCount, stackCount, position, rotation));
 }
 
 NzPrimitive& NzPrimitiveList::GetPrimitive(unsigned int i)
