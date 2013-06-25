@@ -48,6 +48,11 @@ bool NzMeshParams::IsValid() const
 
 struct NzMeshImpl
 {
+	NzMeshImpl()
+	{
+		materials.resize(1); // Un matériau par défaut
+	}
+
 	std::unordered_map<NzString, unsigned int> subMeshMap;
 	std::vector<NzString> materials;
 	std::vector<NzSubMesh*> subMeshes;
@@ -255,7 +260,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 				{
 					unsigned int indexCount;
 					unsigned int vertexCount;
-					NzComputeUvSphereIndexVertexCount(primitive.sphere.uv.slices, primitive.sphere.uv.stacks, &indexCount, &vertexCount);
+					NzComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
 					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 					indexBuffer->SetPersistent(false);
@@ -266,7 +271,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 					NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
 
-					NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.slices, primitive.sphere.uv.stacks, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+					NzGenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, matrix, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
 					break;
 				}
 			}
@@ -319,9 +324,10 @@ bool NzMesh::CreateSkeletal(unsigned int jointCount)
 	m_impl->jointCount = jointCount;
 	if (!m_impl->skeleton.Create(jointCount))
 	{
-		NazaraError("Failed to create skeleton");
-
 		delete m_impl;
+		m_impl = nullptr;
+
+		NazaraError("Failed to create skeleton");
 		return false;
 	}
 
@@ -910,6 +916,12 @@ void NzMesh::SetMaterialCount(unsigned int matCount)
 		NazaraError("Mesh not created");
 		return;
 	}
+
+	if (matCount == 0)
+	{
+		NazaraError("A mesh should have at least a material");
+		return;
+	}
 	#endif
 
 	m_impl->materials.resize(matCount);
@@ -919,7 +931,10 @@ void NzMesh::SetMaterialCount(unsigned int matCount)
 	{
 		unsigned int matIndex = subMesh->GetMaterialIndex();
 		if (matIndex >= matCount)
-			NazaraWarning("SubMesh " + NzString::Pointer(subMesh) + " material index is over mesh new material count (" + NzString::Number(matIndex) + " >= " + NzString::Number(matCount));
+		{
+			subMesh->SetMaterialIndex(0); // Pour empêcher un crash
+			NazaraWarning("SubMesh " + NzString::Pointer(subMesh) + " material index is over mesh new material count (" + NzString::Number(matIndex) + " >= " + NzString::Number(matCount) + "), setting it to first material");
+		}
 	}
 	#endif
 }
