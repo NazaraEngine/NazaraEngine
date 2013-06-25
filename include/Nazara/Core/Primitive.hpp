@@ -15,6 +15,30 @@
 
 struct NzPrimitive
 {
+	void MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	void MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	void MakeCubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	void MakeCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	void MakeIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	void MakeIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	void MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	void MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane);
+	void MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	void MakeUVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	void MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+
+	static NzPrimitive Box(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive Box(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	static NzPrimitive CubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive CubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	static NzPrimitive IcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive IcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane);
+	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+	static NzPrimitive UVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+
 	NzMatrix4f matrix;
 	nzPrimitiveType type;
 
@@ -55,8 +79,8 @@ struct NzPrimitive
 
 				struct
 				{
-					unsigned int slices;
-					unsigned int stacks;
+					unsigned int sliceCount;
+					unsigned int stackCount;
 				}
 				uv;
 			};
@@ -64,5 +88,7 @@ struct NzPrimitive
 		sphere;
 	};
 };
+
+#include <Nazara/Core/Primitive.inl>
 
 #endif // NAZARA_PRIMITIVE_HPP
