@@ -17,17 +17,17 @@ class NAZARA_API NzPrimitiveList
 		NzPrimitiveList() = default;
 		~NzPrimitiveList() = default;
 
-		void AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& matrix = NzMatrix4f::Identity());
+		void AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
 		void AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddCubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& matrix = NzMatrix4f::Identity());
+		void AddCubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
 		void AddCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& matrix = NzMatrix4f::Identity());
+		void AddIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
 		void AddIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& matrix = NzMatrix4f::Identity());
-		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane);
+		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& planeInfo);
 		void AddPlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-		void AddUVSphere(float size, unsigned int slices = 4, unsigned int stacks = 4, const NzMatrix4f& matrix = NzMatrix4f::Identity());
-		void AddUVSphere(float size, unsigned int slices, unsigned int stacks, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		void AddUVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		void AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		NzPrimitive& GetPrimitive(unsigned int i);
 		const NzPrimitive& GetPrimitive(unsigned int i) const;
