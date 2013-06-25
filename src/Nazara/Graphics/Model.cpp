@@ -490,6 +490,7 @@ void NzModel::SetMesh(NzMesh* mesh)
 		}
 
 		m_matCount = mesh->GetMaterialCount();
+		m_materials.clear();
 		m_materials.resize(m_matCount, NzMaterial::GetDefault());
 		m_skinCount = 1;
 	}
@@ -498,8 +499,8 @@ void NzModel::SetMesh(NzMesh* mesh)
 		m_boundingVolume.MakeNull();
 		m_boundingVolumeUpdated = true;
 		m_matCount = 0;
-		m_skinCount = 0;
 		m_materials.clear();
+		m_skinCount = 0;
 
 		SetAnimation(nullptr);
 	}
