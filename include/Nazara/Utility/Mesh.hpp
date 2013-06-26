@@ -59,10 +59,10 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		NzMesh() = default;
 		~NzMesh();
 
-		bool AddSubMesh(NzSubMesh* subMesh);
-		bool AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
+		void AddSubMesh(NzSubMesh* subMesh);
+		void AddSubMesh(const NzString& identifier, NzSubMesh* subMesh);
 
-		void BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params = NzMeshParams());
+		NzSubMesh* BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params = NzMeshParams());
 		void BuildSubMeshes(const NzPrimitiveList& list, const NzMeshParams& params = NzMeshParams());
 
 		bool CreateSkeletal(unsigned int jointCount);

@@ -34,6 +34,7 @@ namespace
 	bool Load(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)
 	{
 		NzOBJParser parser(stream);
+
 		if (!parser.Parse())
 		{
 			NazaraError("OBJ parser failed");
@@ -173,10 +174,8 @@ namespace
 			else
 				subMesh->GenerateNormals();
 
-			if (mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh.get()))
-				subMesh.release();
-			else
-				NazaraError("Failed to add SubMesh to Mesh");
+			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh.get());
+			subMesh.release();
 		}
 
 		mesh->SetMaterialCount(parser.GetMaterialCount());
@@ -218,6 +217,23 @@ namespace
 							material->SetSpecularColor(specularColor);
 							material->SetShininess(mtlMat->shininess);
 
+							bool hasAlphaMap = false;;
+							if (parameters.material.loadAlphaMap && !mtlMat->alphaMap.IsEmpty())
+							{
+								std::unique_ptr<NzTexture> alphaMap(new NzTexture);
+								alphaMap->SetPersistent(false);
+
+								if (alphaMap->LoadFromFile(baseDir + mtlMat->alphaMap))
+								{
+									hasAlphaMap = true;
+
+									material->SetAlphaMap(alphaMap.get());
+									alphaMap.release();
+								}
+								else
+									NazaraWarning("Failed to load alpha map (" + mtlMat->alphaMap + ')');
+							}
+
 							if (parameters.material.loadDiffuseMap && !mtlMat->diffuseMap.IsEmpty())
 							{
 								std::unique_ptr<NzTexture> diffuseMap(new NzTexture);
@@ -244,6 +260,17 @@ namespace
 								}
 								else
 									NazaraWarning("Failed to load specular map (" + mtlMat->diffuseMap + ')');
+							}
+
+							// Si nous avons une alpha map ou des couleurs transparentes,
+							// nous devons configurer le matériau pour accepter la transparence au mieux
+							if (hasAlphaMap || !NzNumberEquals(mtlMat->alpha, 1.f))
+							{
+								// On paramètre le matériau pour accepter la transparence au mieux
+								material->Enable(nzRendererParameter_Blend, true);
+								material->Enable(nzRendererParameter_DepthWrite, false);
+								material->SetDstBlend(nzBlendFunc_InvSrcAlpha);
+								material->SetSrcBlend(nzBlendFunc_SrcAlpha);
 							}
 
 							model->SetMaterial(meshes[i].material, material.get());
