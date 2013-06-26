@@ -77,8 +77,7 @@ namespace
 		if (flags & nzShaderFlags_AlphaMapping)
 			sourceCode += "uniform sampler2D MaterialAlphaMap;\n";
 
-		if ((flags & nzShaderFlags_DiffuseMapping) == 0 || flags & nzShaderFlags_Lighting)
-			sourceCode += "uniform vec4 MaterialDiffuse;\n";
+		sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
 		if (flags & nzShaderFlags_DiffuseMapping)
 			sourceCode += "uniform sampler2D MaterialDiffuseMap;\n";
@@ -298,10 +297,11 @@ namespace
 		}
 		else if (flags & nzShaderFlags_DiffuseMapping)
 		{
+			sourceCode += fragmentColorKW + " = MaterialDiffuse*";
 			if (flags & nzShaderFlags_AlphaMapping)
-				sourceCode += fragmentColorKW + " = vec4(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord).rgb, " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r);\n";
+				sourceCode += "vec4(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord).rgb, " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r);\n";
 			else
-				sourceCode += fragmentColorKW + " = " + textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
+				sourceCode += textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
 		}
 		else
 			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
