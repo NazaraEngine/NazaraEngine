@@ -46,7 +46,8 @@ NzScene::NzScene()
 
 NzScene::~NzScene()
 {
-	for (NzNode* child : m_impl->root.GetChilds())
+	const std::vector<NzNode*>& childs = m_impl->root.GetChilds();
+	for (NzNode* child : childs)
 	{
 		if (child->GetNodeType() == nzNodeType_Scene)
 			static_cast<NzSceneNode*>(child)->SetScene(nullptr);

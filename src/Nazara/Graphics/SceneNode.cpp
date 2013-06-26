@@ -56,7 +56,8 @@ void NzSceneNode::OnVisibilityChange(bool visibility)
 
 void NzSceneNode::RecursiveSetScene(NzScene* scene, NzNode* node)
 {
-	for (NzNode* child : node->GetChilds())
+	const std::vector<NzNode*>& childs = node->GetChilds();
+	for (NzNode* child : childs)
 	{
 		if (child->GetNodeType() == nzNodeType_Scene)
 		{
