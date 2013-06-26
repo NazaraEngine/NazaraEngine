@@ -164,7 +164,7 @@ NzMaterial* NzModel::GetMaterial(const NzString& subMeshName) const
 	unsigned int matIndex = subMesh->GetMaterialIndex();
 	if (matIndex >= m_matCount)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
 		return nullptr;
 	}
 
@@ -176,7 +176,7 @@ NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
 	#if NAZARA_GRAPHICS_SAFE
 	if (matIndex >= m_matCount)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
 		return nullptr;
 	}
 	#endif
@@ -189,7 +189,7 @@ NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, const NzString& subMesh
 	#if NAZARA_GRAPHICS_SAFE
 	if (skinIndex >= m_skinCount)
 	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
+		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount) + ')');
 		return nullptr;
 	}
 	#endif
@@ -204,7 +204,7 @@ NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, const NzString& subMesh
 	unsigned int matIndex = subMesh->GetMaterialIndex();
 	if (matIndex >= m_matCount)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
 		return nullptr;
 	}
 
@@ -216,13 +216,13 @@ NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, unsigned int matIndex) 
 	#if NAZARA_GRAPHICS_SAFE
 	if (skinIndex >= m_skinCount)
 	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
+		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount) + ')');
 		return nullptr;
 	}
 
 	if (matIndex >= m_matCount)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
 		return nullptr;
 	}
 	#endif
@@ -558,7 +558,7 @@ void NzModel::SetSkin(unsigned int skin)
 	#if NAZARA_GRAPHICS_SAFE
 	if (skin >= m_skinCount)
 	{
-		NazaraError("Skin index out of range (" + NzString::Number(skin) + " >= " + NzString::Number(m_skinCount));
+		NazaraError("Skin index out of range (" + NzString::Number(skin) + " >= " + NzString::Number(m_skinCount) + ')');
 		return;
 	}
 	#endif
