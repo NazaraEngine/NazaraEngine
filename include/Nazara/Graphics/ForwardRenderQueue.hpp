@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <map>
 
@@ -57,6 +58,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 
 		struct TransparentModel
 		{
+			NzBoxf aabb;
 			NzMatrix4f transformMatrix;
 			NzMaterial* material;
 		};
