@@ -40,6 +40,7 @@ using NzMaterialRef = NzResourceRef<NzMaterial>;
 class NAZARA_API NzMaterial : public NzResource
 {
 	friend NzMaterialLoader;
+	friend class NzRenderer;
 
 	public:
 		NzMaterial();
@@ -120,6 +121,9 @@ class NAZARA_API NzMaterial : public NzResource
 	private:
 		void Copy(const NzMaterial& material);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		nzUInt32 m_shaderFlags;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
@@ -137,6 +141,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool m_lightingEnabled;
 		float m_shininess;
 
+		static NzMaterial* s_defaultMaterial;
 		static NzMaterialLoader::LoaderList s_loaders;
 };
 

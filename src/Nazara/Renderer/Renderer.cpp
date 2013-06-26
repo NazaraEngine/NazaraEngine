@@ -755,6 +755,14 @@ bool NzRenderer::Initialize()
 	s_quadBuffer = new NzVertexBuffer(declaration.get(), 4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 	declaration.release();
 
+	if (!NzMaterial::Initialize())
+	{
+		NazaraError("Failed to initialize materials");
+		Uninitialize();
+
+		return false;
+	}
+
 	if (!NzShaderBuilder::Initialize())
 	{
 		NazaraError("Failed to initialize shader builder");
@@ -1293,6 +1301,7 @@ void NzRenderer::Uninitialize()
 	NzLoaders_Texture_Unregister();
 
 	NzDebugDrawer::Uninitialize();
+	NzMaterial::Uninitialize();
 	NzShaderBuilder::Uninitialize();
 	NzTextureSampler::Uninitialize();
 
@@ -1387,6 +1396,7 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
+					///FIXME: Cet appel ne fait-il pas redondance avec le rebinding des textures avant le return ?
 					if (!unit.textureUpdated)
 					{
 						NzOpenGL::SetTextureUnit(i);
