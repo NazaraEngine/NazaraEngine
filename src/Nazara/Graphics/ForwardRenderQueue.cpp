@@ -107,6 +107,8 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 					transparentStaticModels.resize(index+1);
 
 					TransparentStaticModel& data = transparentStaticModels.back();
+					data.aabb = staticMesh->GetAABB();
+					data.aabb.Transform(transformMatrix);
 					data.material = material;
 					data.mesh = staticMesh;
 					data.transformMatrix = transformMatrix;
@@ -139,22 +141,26 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 	{
 		bool operator()(const std::pair<unsigned int, bool>& index1, const std::pair<unsigned int, bool>& index2)
 		{
-			const NzMatrix4f& matrix1 = (index1.second) ?
-			                            queue->transparentStaticModels[index1.first].transformMatrix :
-			                            queue->transparentSkeletalModels[index1.first].transformMatrix;
+			const NzBoxf& aabb1 = (index1.second) ?
+			                     queue->transparentStaticModels[index1.first].aabb :
+			                     queue->transparentSkeletalModels[index1.first].aabb;
 
-			const NzMatrix4f& matrix2 = (index1.second) ?
-			                            queue->transparentStaticModels[index2.first].transformMatrix :
-			                            queue->transparentSkeletalModels[index2.first].transformMatrix;
+			const NzBoxf& aabb2 = (index1.second) ?
+			                     queue->transparentStaticModels[index2.first].aabb :
+			                     queue->transparentSkeletalModels[index2.first].aabb;
 
-			return nearPlane.Distance(matrix1.GetTranslation()) < nearPlane.Distance(matrix2.GetTranslation());
+			NzVector3f position1 = aabb1.GetNegativeVertex(cameraNormal);
+			NzVector3f position2 = aabb2.GetNegativeVertex(cameraNormal);
+
+			return nearPlane.Distance(position1) < nearPlane.Distance(position2);
 		}
 
 		NzForwardRenderQueue* queue;
 		NzPlanef nearPlane;
+		NzVector3f cameraNormal;
 	};
 
-	TransparentModelComparator comparator {this, camera.GetFrustum().GetPlane(nzFrustumPlane_Near)};
+	TransparentModelComparator comparator {this, camera.GetFrustum().GetPlane(nzFrustumPlane_Near), camera.GetForward()};
 	std::sort(visibleTransparentsModels.begin(), visibleTransparentsModels.end(), comparator);
 }
 
