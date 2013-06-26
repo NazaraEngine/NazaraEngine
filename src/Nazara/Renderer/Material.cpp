@@ -575,19 +575,7 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 
 NzMaterial* NzMaterial::GetDefault()
 {
-	static NzMaterial defaultMaterial;
-	static bool initialized = false;
-
-	if (!initialized)
-	{
-		defaultMaterial.EnableLighting(false);
-		defaultMaterial.SetDiffuseColor(NzColor::White);
-		defaultMaterial.SetFaceFilling(nzFaceFilling_Line);
-
-		initialized = true;
-	}
-
-	return &defaultMaterial;
+	return s_defaultMaterial;
 }
 
 void NzMaterial::Copy(const NzMaterial& material)
@@ -619,4 +607,18 @@ void NzMaterial::Copy(const NzMaterial& material)
 	m_specularMap = material.m_specularMap;
 }
 
+bool NzMaterial::Initialize()
+{
+	s_defaultMaterial = new NzMaterial;
+
+	return true;
+}
+
+void NzMaterial::Uninitialize()
+{
+	delete s_defaultMaterial;
+	s_defaultMaterial = nullptr;
+}
+
+NzMaterial* NzMaterial::s_defaultMaterial = nullptr;
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;
