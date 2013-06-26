@@ -260,12 +260,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
 			subMesh->SetMaterialIndex(i);
 
-			if (!mesh->AddSubMesh(subMesh.get()))
-			{
-				NazaraError("Failed to add submesh");
-				continue;
-			}
-
+			mesh->AddSubMesh(subMesh.get());
 			subMesh.release();
 
 			// Animation
@@ -360,12 +355,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			subMesh->GenerateNormalsAndTangents();
 			subMesh->SetMaterialIndex(i);
 
-			if (!mesh->AddSubMesh(subMesh.get()))
-			{
-				NazaraError("Failed to add submesh");
-				continue;
-			}
-
+			mesh->AddSubMesh(subMesh.get());
 			subMesh.release();
 		}
 	}
