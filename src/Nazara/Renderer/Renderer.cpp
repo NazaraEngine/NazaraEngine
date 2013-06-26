@@ -117,6 +117,9 @@ void NzRenderer::Clear(unsigned long flags)
 		if (flags & nzRendererClear_Stencil)
 			mask |= GL_STENCIL_BUFFER_BIT;
 
+		// Les états du rendu sont suceptibles d'influencer glClear
+		NzOpenGL::ApplyStates(s_states);
+
 		glClear(mask);
 	}
 }
