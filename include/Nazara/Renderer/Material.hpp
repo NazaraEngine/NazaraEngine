@@ -21,7 +21,11 @@
 
 struct NAZARA_API NzMaterialParams
 {
+	bool loadAlphaMap = true;
 	bool loadDiffuseMap = true;
+	bool loadEmissiveMap = true;
+	bool loadHeightMap = true;
+	bool loadNormalMap = true;
 	bool loadSpecularMap = true;
 
 	bool IsValid() const;

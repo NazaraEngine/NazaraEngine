@@ -69,25 +69,25 @@ NzMesh::~NzMesh()
 	Destroy();
 }
 
-bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
+void NzMesh::AddSubMesh(NzSubMesh* subMesh)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return false;
+		return;
 	}
 
 	if (!subMesh)
 	{
 		NazaraError("Invalid submesh");
-		return false;
+		return;
 	}
 
 	if (subMesh->GetAnimationType() != m_impl->animationType)
 	{
 		NazaraError("Submesh animation type must match mesh animation type");
-		return false;
+		return;
 	}
 	#endif
 
@@ -95,42 +95,40 @@ bool NzMesh::AddSubMesh(NzSubMesh* subMesh)
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
-
-	return true;
 }
 
-bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
+void NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return false;
+		return;
 	}
 
 	if (identifier.IsEmpty())
 	{
 		NazaraError("Identifier is empty");
-		return false;
+		return;
 	}
 
 	auto it = m_impl->subMeshMap.find(identifier);
 	if (it != m_impl->subMeshMap.end())
 	{
 		NazaraError("SubMesh identifier \"" + identifier + "\" is already used");
-		return false;
+		return;
 	}
 
 	if (!subMesh)
 	{
 		NazaraError("Invalid submesh");
-		return false;
+		return;
 	}
 
 	if (m_impl->animationType != subMesh->GetAnimationType())
 	{
 		NazaraError("Submesh animation type must match mesh animation type");
-		return false;
+		return;
 	}
 	#endif
 
@@ -141,29 +139,27 @@ bool NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
 	m_impl->subMeshMap[identifier] = index;
-
-	return true;
 }
 
-void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params)
+NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& params)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Mesh not created");
-		return;
+		return nullptr;
 	}
 
 	if (m_impl->animationType != nzAnimationType_Static)
 	{
 		NazaraError("Mesh must be static");
-		return;
+		return nullptr;
 	}
 
 	if (!params.IsValid())
 	{
 		NazaraError("Parameters must be valid");
-		return;
+		return nullptr;
 	}
 	#endif
 
@@ -283,7 +279,7 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 	if (!subMesh->Create(vertexBuffer.get()))
 	{
 		NazaraError("Failed to create StaticMesh");
-		return;
+		return nullptr;
 	}
 	vertexBuffer.release();
 
@@ -294,9 +290,9 @@ void NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams& para
 	indexBuffer.release();
 
 	subMesh->SetAABB(aabb);
+	AddSubMesh(subMesh.get());
 
-	if (AddSubMesh(subMesh.get()))
-		subMesh.release();
+	return subMesh.release();
 }
 
 void NzMesh::BuildSubMeshes(const NzPrimitiveList& list, const NzMeshParams& params)
