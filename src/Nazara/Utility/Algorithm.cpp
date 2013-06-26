@@ -723,7 +723,7 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 	// Face +X
 	transform.MakeTransform(NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, -90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector2f(lengths.y, lengths.z), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
@@ -744,7 +744,7 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 	// Face -X
 	transform.MakeTransform(-NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.y, subdivision.z), NzVector2f(lengths.y, lengths.z), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
