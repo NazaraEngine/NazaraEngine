@@ -32,16 +32,6 @@
 
 namespace
 {
-	///FIXME: Solution temporaire pour plus de facilité
-	enum nzMatrixCombination
-	{
-		nzMatrixCombination_ViewProj = nzMatrixType_Max+1,
-		nzMatrixCombination_WorldView,
-		nzMatrixCombination_WorldViewProj,
-
-		nzMatrixCombination_Max = nzMatrixCombination_WorldViewProj
-	};
-
 	enum UpdateFlags
 	{
 		Update_None = 0,
@@ -50,6 +40,14 @@ namespace
 		Update_Shader       = 0x02,
 		Update_Textures     = 0x04,
 		Update_VAO          = 0x08,
+	};
+
+	struct MatrixUnit
+	{
+		NzMatrix4f matrix;
+		bool sent;
+		bool updated;
+		int location;
 	};
 
 	struct TextureUnit
@@ -65,8 +63,6 @@ namespace
 		return new NzHardwareBuffer(parent, type);
 	}
 
-	constexpr unsigned int totalMatrixCount = nzMatrixCombination_Max+1;
-
 	using VAO_Key = std::tuple<const NzContext*, const NzIndexBuffer*, const NzVertexBuffer*, bool>;
 
 	std::map<VAO_Key, unsigned int> s_vaos;
@@ -75,7 +71,7 @@ namespace
 	GLuint s_currentVAO = 0;
 	NzBuffer* s_instancingBuffer = nullptr;
 	NzVertexBuffer* s_fullscreenQuadBuffer = nullptr;
-	NzMatrix4f s_matrix[totalMatrixCount];
+	MatrixUnit s_matrices[nzMatrixType_Max+1];
 	NzRenderStates s_states;
 	NzVector2ui s_targetSize;
 	nzUInt8 s_maxAnisotropyLevel;
@@ -86,10 +82,8 @@ namespace
 	const NzVertexBuffer* s_vertexBuffer;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
-	bool s_matrixUpdated[totalMatrixCount];
 	bool s_useSamplerObjects;
 	bool s_useVertexArrayObjects;
-	int s_matrixLocation[totalMatrixCount];
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 }
@@ -122,6 +116,29 @@ void NzRenderer::Clear(unsigned long flags)
 
 		glClear(mask);
 	}
+}
+
+void NzRenderer::DrawFullscreenQuad()
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	EnableInstancing(false);
+	SetIndexBuffer(nullptr);
+	SetVertexBuffer(s_fullscreenQuadBuffer);
+
+	if (!EnsureStateUpdate())
+	{
+		NazaraError("Failed to update states");
+		return;
+	}
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -329,20 +346,6 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	glBindVertexArray(0);
 }
 
-void NzRenderer::DrawFullscreenQuad()
-{
-	SetIndexBuffer(nullptr);
-	SetVertexBuffer(s_fullscreenQuadBuffer);
-
-	if (!EnsureStateUpdate())
-	{
-		NazaraError("Failed to update states");
-		return;
-	}
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
-
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 {
 	#ifdef NAZARA_DEBUG
@@ -387,40 +390,7 @@ float NzRenderer::GetLineWidth()
 
 	return s_states.lineWidth;
 }
-/*
-NzMatrix4f NzRenderer::GetMatrix(nzMatrixCombination combination)
-{
-	///FIXME: Duplication
-	switch (combination)
-	{
-		case nzMatrixCombination_ViewProj:
-			if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
-			{
-				s_matrix[nzMatrixCombination_ViewProj] = s_matrix[nzMatrixType_View] * s_matrix[nzMatrixType_Projection];
-				s_matrixUpdated[nzMatrixCombination_ViewProj] = true;
-			}
-			break;
 
-		case nzMatrixCombination_WorldView:
-			if (!s_matrixUpdated[nzMatrixCombination_WorldView])
-			{
-				s_matrix[nzMatrixCombination_WorldView] = NzMatrix4f::ConcatenateAffine(s_matrix[nzMatrixType_World], s_matrix[nzMatrixType_View]);
-				s_matrixUpdated[nzMatrixCombination_WorldView] = true;
-			}
-			break;
-
-		case nzMatrixCombination_WorldViewProj:
-			if (!s_matrixUpdated[nzMatrixCombination_WorldViewProj])
-			{
-				s_matrix[nzMatrixCombination_WorldViewProj] = s_matrix[nzMatrixCombination_WorldView] * s_matrix[nzMatrixType_Projection];
-				s_matrixUpdated[nzMatrixCombination_WorldViewProj] = true;
-			}
-			break;
-	}
-
-	return m_matrix[combination];
-}
-*/
 NzMatrix4f NzRenderer::GetMatrix(nzMatrixType type)
 {
 	#ifdef NAZARA_DEBUG
@@ -431,7 +401,10 @@ NzMatrix4f NzRenderer::GetMatrix(nzMatrixType type)
 	}
 	#endif
 
-	return s_matrix[type];
+	if (!s_matrices[type].updated)
+		UpdateMatrix(type);
+
+	return s_matrices[type].matrix;
 }
 
 nzUInt8 NzRenderer::GetMaxAnisotropyLevel()
@@ -545,11 +518,13 @@ bool NzRenderer::Initialize()
 
 	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
-	for (unsigned int i = 0; i < totalMatrixCount; ++i)
+	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
-		s_matrix[i].MakeIdentity();
-		s_matrixLocation[i] = -1;
-		s_matrixUpdated[i] = false;
+		MatrixUnit& unit = s_matrices[i];
+		unit.location = -1;
+		unit.matrix.MakeIdentity();
+		unit.sent = false;
+		unit.updated = true;
 	}
 
 	// Récupération des capacités d'OpenGL
@@ -901,21 +876,38 @@ void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 	}
 	#endif
 
-	s_matrix[type] = matrix;
-	s_matrixUpdated[type] = false;
+	s_matrices[type].matrix = matrix;
+	s_matrices[type].updated = true;
 
 	// Invalidation des combinaisons
-	if (type == nzMatrixType_View)
+	switch (type)
 	{
-		s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
-		s_matrixUpdated[nzMatrixCombination_WorldView] = false;
-	}
-	else if (type == nzMatrixType_Projection)
-		s_matrixUpdated[nzMatrixCombination_ViewProj] = false;
-	else if (type == nzMatrixType_World)
-		s_matrixUpdated[nzMatrixCombination_WorldView] = false;
+		case nzMatrixType_Projection:
+			s_matrices[nzMatrixType_ViewProj].updated = false;
+			s_matrices[nzMatrixType_WorldViewProj].updated = false;
+			break;
 
-	s_matrixUpdated[nzMatrixCombination_WorldViewProj] = false; // Toujours invalidée
+		case nzMatrixType_View:
+			s_matrices[nzMatrixType_ViewProj].updated = false;
+			s_matrices[nzMatrixType_World].updated = false;
+			s_matrices[nzMatrixType_WorldViewProj].updated = false;
+			break;
+
+		case nzMatrixType_World:
+			s_matrices[nzMatrixType_WorldView].updated = false;
+			s_matrices[nzMatrixType_WorldViewProj].updated = false;
+			break;
+
+		case nzMatrixType_ViewProj:
+			break;
+
+		case nzMatrixType_WorldView:
+			s_matrices[nzMatrixType_WorldViewProj].updated = false;
+			break;
+
+		case nzMatrixType_WorldViewProj:
+			break;
+	}
 
 	s_updateFlags |= Update_Matrices;
 }
@@ -1268,23 +1260,17 @@ bool NzRenderer::EnsureStateUpdate()
 	if (s_updateFlags & Update_Shader)
 	{
 		// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-		s_matrixLocation[nzMatrixType_Projection] = shaderImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
-		s_matrixLocation[nzMatrixType_View] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
-		s_matrixLocation[nzMatrixType_World] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
+		s_matrices[nzMatrixType_Projection].location = shaderImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
+		s_matrices[nzMatrixType_View].location = shaderImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
+		s_matrices[nzMatrixType_World].location = shaderImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
 
-		s_matrixLocation[nzMatrixCombination_ViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
-		s_matrixLocation[nzMatrixCombination_WorldView] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
-		s_matrixLocation[nzMatrixCombination_WorldViewProj] = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
+		s_matrices[nzMatrixType_ViewProj].location = shaderImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
+		s_matrices[nzMatrixType_WorldView].location = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
+		s_matrices[nzMatrixType_WorldViewProj].location = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
 
 		s_updateFlags |= Update_Matrices;
-		for (unsigned int i = 0; i < totalMatrixCount; ++i)
-		{
-			///TODO: Voir le FIXME au niveau de l'envoi des matrices
-			/*if (s_matrixLocation[i] != -1)
-				s_matrixUpdated[i] = false;
-			else*/
-				s_matrixUpdated[i] = false;
-		}
+		for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
+			s_matrices[i].sent = false; // Changement de shader, on renvoie toutes les matrices demandées
 
 		s_updateFlags &= ~Update_Shader;
 	}
@@ -1340,41 +1326,15 @@ bool NzRenderer::EnsureStateUpdate()
 		{
 			for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 			{
-				if (!s_matrixUpdated[i])
+				MatrixUnit& unit = s_matrices[i];
+				if (unit.location != -1) // On ne traite que les matrices existant dans le shader
 				{
-					shaderImpl->SendMatrix(s_matrixLocation[i], s_matrix[i]);
-					s_matrixUpdated[i] = true;
+					if (!unit.updated)
+						UpdateMatrix(static_cast<nzMatrixType>(i));
+
+					shaderImpl->SendMatrix(unit.location, unit.matrix);
+					unit.sent = true;
 				}
-			}
-
-			///FIXME: Optimiser les matrices
-			///TODO: Prendre en compte les FIXME...
-			// Cas spéciaux car il faut recalculer la matrice
-			if (!s_matrixUpdated[nzMatrixCombination_ViewProj])
-			{
-				s_matrix[nzMatrixCombination_ViewProj] = s_matrix[nzMatrixType_View];
-				s_matrix[nzMatrixCombination_ViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
-
-				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_ViewProj], s_matrix[nzMatrixCombination_ViewProj]);
-				s_matrixUpdated[nzMatrixCombination_ViewProj] = true;
-			}
-
-			if (!s_matrixUpdated[nzMatrixCombination_WorldView])
-			{
-				s_matrix[nzMatrixCombination_WorldView] = s_matrix[nzMatrixType_World];
-				s_matrix[nzMatrixCombination_WorldView].ConcatenateAffine(s_matrix[nzMatrixType_View]);
-
-				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldView], s_matrix[nzMatrixCombination_WorldView]);
-				s_matrixUpdated[nzMatrixCombination_WorldView] = true;
-			}
-
-			if (!s_matrixUpdated[nzMatrixCombination_WorldViewProj])
-			{
-				s_matrix[nzMatrixCombination_WorldViewProj] = s_matrix[nzMatrixCombination_WorldView];
-				s_matrix[nzMatrixCombination_WorldViewProj].Concatenate(s_matrix[nzMatrixType_Projection]);
-
-				shaderImpl->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldViewProj], s_matrix[nzMatrixCombination_WorldViewProj]);
-				s_matrixUpdated[nzMatrixCombination_WorldViewProj] = true;
 			}
 
 			s_updateFlags &= ~Update_Matrices;
@@ -1513,6 +1473,45 @@ bool NzRenderer::EnsureStateUpdate()
 	NzOpenGL::ApplyStates(s_states);
 
 	return true;
+}
+
+void NzRenderer::UpdateMatrix(nzMatrixType type)
+{
+	#ifdef NAZARA_DEBUG
+	if (type > nzMatrixType_Max)
+	{
+		NazaraError("Matrix type out of enum");
+		return;
+	}
+	#endif
+
+	switch (type)
+	{
+		case nzMatrixType_Projection:
+		case nzMatrixType_View:
+		case nzMatrixType_World:
+			break;
+
+		case nzMatrixType_ViewProj:
+			s_matrices[nzMatrixType_ViewProj].matrix = s_matrices[nzMatrixType_View].matrix * s_matrices[nzMatrixType_Projection].matrix;
+			s_matrices[nzMatrixType_ViewProj].updated = true;
+			break;
+
+		case nzMatrixType_WorldView:
+			s_matrices[nzMatrixType_WorldView].matrix = s_matrices[nzMatrixType_World].matrix;
+			s_matrices[nzMatrixType_WorldView].matrix.ConcatenateAffine(s_matrices[nzMatrixType_View].matrix);
+			s_matrices[nzMatrixType_WorldView].updated = true;
+			break;
+
+		case nzMatrixType_WorldViewProj:
+			if (!s_matrices[nzMatrixType_WorldView].updated)
+				UpdateMatrix(nzMatrixType_WorldView);
+
+			s_matrices[nzMatrixType_WorldViewProj].matrix = s_matrices[nzMatrixType_WorldView].matrix;
+			s_matrices[nzMatrixType_WorldViewProj].matrix.Concatenate(s_matrices[nzMatrixType_Projection].matrix);
+			s_matrices[nzMatrixType_WorldViewProj].updated = true;
+			break;
+	}
 }
 
 unsigned int NzRenderer::s_moduleReferenceCounter = 0;

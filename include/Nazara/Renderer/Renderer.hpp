@@ -37,18 +37,17 @@ class NAZARA_API NzRenderer
 
 		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
 
+		static void DrawFullscreenQuad();
 		static void DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
 		static void DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
 		static void DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
 		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
-		static void DrawFullscreenQuad();
 
 		static void Enable(nzRendererParameter parameter, bool enable);
 
 		static void Flush();
 
 		static float GetLineWidth();
-		//static NzMatrix4f GetMatrix(nzMatrixCombination combination);
 		static NzMatrix4f GetMatrix(nzMatrixType type);
 		static nzUInt8 GetMaxAnisotropyLevel();
 		static unsigned int GetMaxRenderTargets();
@@ -100,6 +99,7 @@ class NAZARA_API NzRenderer
 	private:
 		static void EnableInstancing(bool instancing);
 		static bool EnsureStateUpdate();
+		static void UpdateMatrix(nzMatrixType type);
 
 		static unsigned int s_moduleReferenceCounter;
 };
