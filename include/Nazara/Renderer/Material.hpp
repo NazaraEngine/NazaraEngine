@@ -51,9 +51,11 @@ class NAZARA_API NzMaterial : public NzResource
 		void Apply(const NzShader* shader) const;
 
 		void Enable(nzRendererParameter renderParameter, bool enable);
+		void EnableAlphaTest(bool alphaTest);
 		void EnableLighting(bool lighting);
 
 		NzTexture* GetAlphaMap() const;
+		float GetAlphaThreshold() const;
 		NzColor GetAmbientColor() const;
 		const NzShader* GetCustomShader() const;
 		nzRendererComparison GetDepthFunc() const;
@@ -79,6 +81,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool HasCustomShader() const;
 
 		bool IsEnabled(nzRendererParameter renderParameter) const;
+		bool IsAlphaTestEnabled() const;
 		bool IsLightingEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
@@ -89,6 +92,7 @@ class NAZARA_API NzMaterial : public NzResource
 
 		bool SetAlphaMap(const NzString& texturePath);
 		void SetAlphaMap(NzTexture* map);
+		void SetAlphaThreshold(float alphaThreshold);
 		void SetAmbientColor(const NzColor& ambient);
 		void SetCustomShader(const NzShader* shader);
 		void SetDepthFunc(nzRendererComparison depthFunc);
@@ -138,7 +142,9 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTextureRef m_heightMap;
 		NzTextureRef m_normalMap;
 		NzTextureRef m_specularMap;
+		bool m_alphaTestEnabled;
 		bool m_lightingEnabled;
+		float m_alphaThreshold;
 		float m_shininess;
 
 		static NzMaterial* s_defaultMaterial;
