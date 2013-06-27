@@ -203,14 +203,16 @@ namespace
 							std::unique_ptr<NzMaterial> material(new NzMaterial);
 							material->SetPersistent(false);
 
+							nzUInt8 alphaValue = static_cast<nzUInt8>(mtlMat->alpha*255.f);
+
 							NzColor ambientColor(mtlMat->ambient);
-							ambientColor.a = mtlMat->alpha;
+							ambientColor.a = alphaValue;
 
 							NzColor diffuseColor(mtlMat->diffuse);
-							diffuseColor.a = mtlMat->alpha;
+							diffuseColor.a = alphaValue;
 
 							NzColor specularColor(mtlMat->specular);
-							specularColor.a = mtlMat->alpha;
+							specularColor.a = alphaValue;
 
 							material->SetAmbientColor(ambientColor);
 							material->SetDiffuseColor(diffuseColor);
@@ -264,7 +266,7 @@ namespace
 
 							// Si nous avons une alpha map ou des couleurs transparentes,
 							// nous devons configurer le matériau pour accepter la transparence au mieux
-							if (hasAlphaMap || !NzNumberEquals(mtlMat->alpha, 1.f))
+							if (hasAlphaMap || alphaValue != 255)
 							{
 								// On paramètre le matériau pour accepter la transparence au mieux
 								material->Enable(nzRendererParameter_Blend, true);
