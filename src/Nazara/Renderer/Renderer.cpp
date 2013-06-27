@@ -74,7 +74,7 @@ namespace
 	std::vector<TextureUnit> s_textureUnits;
 	GLuint s_currentVAO = 0;
 	NzBuffer* s_instancingBuffer = nullptr;
-	NzVertexBuffer* s_quadBuffer = nullptr;
+	NzVertexBuffer* s_fullscreenQuadBuffer = nullptr;
 	NzMatrix4f s_matrix[totalMatrixCount];
 	NzRenderStates s_states;
 	NzVector2ui s_targetSize;
@@ -329,125 +329,18 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	glBindVertexArray(0);
 }
 
-void NzRenderer::DrawTexture(unsigned int unit, const NzRectf& rect, const NzVector2f& uv0, const NzVector2f& uv1, float z)
+void NzRenderer::DrawFullscreenQuad()
 {
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return;
-	}
-	#endif
+	SetIndexBuffer(nullptr);
+	SetVertexBuffer(s_fullscreenQuadBuffer);
 
-	#if NAZARA_RENDERER_SAFE
-	if (unit >= s_textureUnits.size())
+	if (!EnsureStateUpdate())
 	{
-		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_textureUnits.size()) + ')');
+		NazaraError("Failed to update states");
 		return;
 	}
 
-	if (!s_textureUnits[unit].texture)
-	{
-		NazaraError("No texture at unit #" + NzString::Number(unit));
-		return;
-	}
-
-	if (z < 0.f || z > 1.f)
-	{
-		NazaraError("Z must be in range [0..1] (Got " + NzString::Number(z) + ')');
-		return;
-	}
-	#endif
-
-	const NzTexture* texture = s_textureUnits[unit].texture;
-
-	if (glDrawTexture)
-	{
-		float xCorrect = 2.f/s_targetSize.x;
-		float yCorrect = 2.f/s_targetSize.y;
-
-		NzVector2f coords[2] =
-		{
-			{rect.x, rect.y},
-			{rect.x+rect.width, rect.y+rect.height}
-		};
-
-		for (unsigned int i = 0; i < 2; ++i)
-		{
-			coords[i].x *= xCorrect;
-			coords[i].x -= 1.f;
-
-			coords[i].y *= yCorrect;
-			coords[i].y -= 1.f;
-		}
-
-		const NzTextureSampler& sampler = s_textureUnits[unit].sampler;
-		GLuint samplerId;
-		if (s_useSamplerObjects)
-			samplerId = sampler.GetOpenGLID();
-		else
-		{
-			sampler.Apply(texture);
-			samplerId = 0;
-		}
-
-		glDrawTexture(texture->GetOpenGLID(), samplerId,
-		              coords[0].x, coords[0].y, coords[1].x, coords[1].y,
-		              z,
-		              uv0.x, 1.f-uv0.y, uv1.x, 1.f-uv1.y); // Inversion des UV sur Y
-	}
-	else
-	{
-		///FIXME: Remplacer cette immondice (Code fonctionnel mais à vomir)
-		// Ce code est horrible mais la version optimisée demanderait des fonctionnalités pas encore implémentées, à venir...
-
-		float vertices[4*(3 + 2)] =
-		{
-			rect.x, rect.y, z,
-			uv0.x, uv0.y,
-
-			rect.x+rect.width, rect.y, z,
-			uv1.x, uv0.y,
-
-			rect.x, rect.y+rect.height, z,
-			uv0.x, uv1.y,
-
-			rect.x+rect.width, rect.y+rect.height, z,
-			uv1.x, uv1.y
-		};
-
-		if (!s_quadBuffer->Fill(vertices, 0, 4, true))
-		{
-			NazaraError("Failed to fill vertex buffer");
-			return;
-		}
-
-		const NzShader* oldShader = s_shader;
-		const NzVertexBuffer* oldBuffer = s_vertexBuffer;
-
-		const NzShader* shader = NzShaderBuilder::Get(nzShaderFlags_DiffuseMapping | nzShaderFlags_FlipUVs);
-		shader->SendTexture(shader->GetUniformLocation("MaterialDiffuseMap"), texture);
-
-		bool faceCulling = IsEnabled(nzRendererParameter_FaceCulling);
-		Enable(nzRendererParameter_FaceCulling, false);
-		SetShader(shader);
-		SetVertexBuffer(s_quadBuffer);
-
-		if (!EnsureStateUpdate())
-		{
-			NazaraError("Failed to update states");
-			return;
-		}
-
-		shader->SendMatrix(s_matrixLocation[nzMatrixCombination_WorldViewProj], NzMatrix4f::Ortho(0.f, s_targetSize.x, 0.f, s_targetSize.y, 0.f));
-
-		glDrawArrays(NzOpenGL::PrimitiveMode[nzPrimitiveMode_TriangleStrip], 0, 4);
-
-		// Restauration
-		Enable(nzRendererParameter_FaceCulling, faceCulling);
-		SetShader(oldShader);
-		SetVertexBuffer(oldBuffer);
-	}
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
@@ -732,19 +625,15 @@ bool NzRenderer::Initialize()
 	s_vertexBuffer = nullptr;
 	s_updateFlags = (Update_Matrices | Update_Shader | Update_VAO);
 
-	NzVertexElement elements[2];
-	elements[0].offset = 0;
-	elements[0].type = nzElementType_Float3;
-	elements[0].usage = nzElementUsage_Position;
-
-	elements[1].offset = 3*sizeof(float);
-	elements[1].type = nzElementType_Float2;
-	elements[1].usage = nzElementUsage_TexCoord;
+	NzVertexElement element;
+	element.offset = 0;
+	element.type = nzElementType_Float2;
+	element.usage = nzElementUsage_Position;
 
 	std::unique_ptr<NzVertexDeclaration> declaration(new NzVertexDeclaration);
-	if (!declaration->Create(elements, 2))
+	if (!declaration->Create(&element, 1))
 	{
-		NazaraError("Failed to create quad declaration");
+		NazaraError("Failed to create fullscreen quad declaration");
 		Uninitialize();
 
 		return false;
@@ -752,8 +641,24 @@ bool NzRenderer::Initialize()
 
 	declaration->SetPersistent(false);
 
-	s_quadBuffer = new NzVertexBuffer(declaration.get(), 4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+	s_fullscreenQuadBuffer = new NzVertexBuffer(declaration.get(), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
 	declaration.release();
+
+	float vertices[4*2] =
+	{
+		-1.f, -1.f,
+		1.f, -1.f,
+		-1.f, 1.f,
+		1.f, 1.f,
+	};
+
+	if (!s_fullscreenQuadBuffer->Fill(vertices, 0, 4))
+	{
+		NazaraError("Failed to fill fullscreen quad buffer");
+		Uninitialize();
+
+		return false;
+	}
 
 	if (!NzMaterial::Initialize())
 	{
@@ -1306,7 +1211,7 @@ void NzRenderer::Uninitialize()
 	NzTextureSampler::Uninitialize();
 
 	// Libération des buffers
-	delete s_quadBuffer;
+	delete s_fullscreenQuadBuffer;
 
 	if (s_instancingBuffer)
 	{
@@ -1396,7 +1301,6 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					///FIXME: Cet appel ne fait-il pas redondance avec le rebinding des textures avant le return ?
 					if (!unit.textureUpdated)
 					{
 						NzOpenGL::SetTextureUnit(i);
