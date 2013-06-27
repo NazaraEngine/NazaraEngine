@@ -77,6 +77,9 @@ namespace
 		if (flags & nzShaderFlags_AlphaMapping)
 			sourceCode += "uniform sampler2D MaterialAlphaMap;\n";
 
+		if (flags & nzShaderFlags_AlphaTest)
+			sourceCode += "uniform float MaterialAlphaThreshold;\n";
+
 		sourceCode += "uniform vec4 MaterialDiffuse;\n";
 
 		if (flags & nzShaderFlags_DiffuseMapping)
@@ -127,6 +130,18 @@ namespace
 		/********************Fonctions********************/
 		sourceCode += "void main()\n"
 		              "{\n";
+
+		sourceCode += "float alpha = MaterialDiffuse.a";
+		if (flags & nzShaderFlags_AlphaMapping)
+			sourceCode += '*' + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r";
+
+		sourceCode += ";\n";
+
+		if (flags & nzShaderFlags_AlphaTest)
+		{
+			sourceCode += "if (alpha < MaterialAlphaThreshold)\n"
+			              "discard;\n";
+		}
 
 		if (flags & nzShaderFlags_Lighting)
 		{
@@ -281,11 +296,6 @@ namespace
 
 			sourceCode += ";\n";
 
-			if (flags & nzShaderFlags_AlphaMapping)
-				sourceCode += "float alpha = " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r;\n";
-			else
-				sourceCode += "float alpha = MaterialDiffuse.a;\n";
-
 			if (flags & nzShaderFlags_EmissiveMapping)
 			{
 				sourceCode += "float intensity = light.r*0.3 + light.g*0.59 + light.b*0.11;\n"
@@ -295,16 +305,15 @@ namespace
 			else
 				sourceCode += fragmentColorKW + " = vec4(lighting, alpha);\n";
 		}
-		else if (flags & nzShaderFlags_DiffuseMapping)
-		{
-			sourceCode += fragmentColorKW + " = MaterialDiffuse*";
-			if (flags & nzShaderFlags_AlphaMapping)
-				sourceCode += "vec4(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord).rgb, " + textureLookupKW + "(MaterialAlphaMap, vTexCoord).r);\n";
-			else
-				sourceCode += textureLookupKW + "(MaterialDiffuseMap, vTexCoord);\n";
-		}
 		else
-			sourceCode += fragmentColorKW + " = MaterialDiffuse;\n";
+		{
+			sourceCode += fragmentColorKW + " = MaterialDiffuse";
+
+			if (flags & nzShaderFlags_DiffuseMapping)
+				sourceCode += "*vec4(" + textureLookupKW + "(MaterialDiffuseMap, vTexCoord).rgb, alpha);\n";
+
+			sourceCode += ";\n";
+		}
 
 		sourceCode += "}\n";
 
