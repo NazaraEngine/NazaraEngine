@@ -42,6 +42,7 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 
 void NzMaterial::Apply(const NzShader* shader) const
 {
+	int alphaThresholdLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAlphaThreshold);
 	int ambientColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAmbient);
 	int diffuseColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
 	int shininessLocation = shader->GetUniformLocation(nzShaderUniform_MaterialShininess);
@@ -59,6 +60,9 @@ void NzMaterial::Apply(const NzShader* shader) const
 				NazaraWarning("Failed to send diffuse map");
 		}
 	}
+
+	if (alphaThresholdLocation != -1)
+		shader->SendFloat(alphaThresholdLocation, m_alphaThreshold);
 
 	if (ambientColorLocation != -1)
 		shader->SendColor(ambientColorLocation, m_ambientColor);
@@ -153,6 +157,15 @@ void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
 	m_states.parameters[renderParameter] = enable;
 }
 
+void NzMaterial::EnableAlphaTest(bool alphaTest)
+{
+	m_alphaTestEnabled = alphaTest;
+	if (m_alphaTestEnabled)
+		m_shaderFlags |= nzShaderFlags_AlphaTest;
+	else
+		m_shaderFlags &= ~nzShaderFlags_AlphaTest;
+}
+
 void NzMaterial::EnableLighting(bool lighting)
 {
 	m_lightingEnabled = lighting;
@@ -165,6 +178,11 @@ void NzMaterial::EnableLighting(bool lighting)
 NzTexture* NzMaterial::GetAlphaMap() const
 {
 	return m_alphaMap;
+}
+
+float NzMaterial::GetAlphaThreshold() const
+{
+	return m_alphaThreshold;
 }
 
 NzColor NzMaterial::GetAmbientColor() const
@@ -290,6 +308,11 @@ bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
 	return m_states.parameters[parameter];
 }
 
+bool NzMaterial::IsAlphaTestEnabled() const
+{
+	return m_alphaTestEnabled;
+}
+
 bool NzMaterial::IsLightingEnabled() const
 {
 	return m_lightingEnabled;
@@ -320,6 +343,8 @@ void NzMaterial::Reset()
 	m_normalMap.Reset();
 	m_specularMap.Reset();
 
+	m_alphaThreshold = 0.2f;
+	m_alphaTestEnabled = false;
 	m_ambientColor = NzColor(128, 128, 128);
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
@@ -357,6 +382,11 @@ void NzMaterial::SetAlphaMap(NzTexture* map)
 		m_shaderFlags |= nzShaderFlags_AlphaMapping;
 	else
 		m_shaderFlags &= ~nzShaderFlags_AlphaMapping;
+}
+
+void NzMaterial::SetAlphaThreshold(float alphaThreshold)
+{
+	m_alphaThreshold = alphaThreshold;
 }
 
 void NzMaterial::SetAmbientColor(const NzColor& ambient)
