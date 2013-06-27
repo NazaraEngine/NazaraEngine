@@ -8,14 +8,14 @@
 #define NAZARA_SKYBOXBACKGROUND_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Graphics/Background.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NAZARA_API NzSkyboxBackground : public NzBackground
+class NAZARA_API NzSkyboxBackground : public NzAbstractBackground
 {
 	public:
 		NzSkyboxBackground();
