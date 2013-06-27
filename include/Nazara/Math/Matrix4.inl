@@ -117,14 +117,14 @@ NzMatrix4<T>& NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix)
 	#ifdef NAZARA_DEBUG
 	if (!IsAffine())
 	{
-		NazaraError("First matrix not affine");
-		return *this;
+		NazaraWarning("First matrix not affine");
+		return Concatenate(matrix);
 	}
 
 	if (!matrix.IsAffine())
 	{
-		NazaraError("Second matrix not affine");
-		return *this;
+		NazaraWarning("Second matrix not affine");
+		return Concatenate(matrix);
 	}
 	#endif
 
