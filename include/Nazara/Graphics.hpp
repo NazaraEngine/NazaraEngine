@@ -29,9 +29,9 @@
 #ifndef NAZARA_GLOBAL_GRAPHICS_HPP
 #define NAZARA_GLOBAL_GRAPHICS_HPP
 
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
-#include <Nazara/Graphics/Background.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>

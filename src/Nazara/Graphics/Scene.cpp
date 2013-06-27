@@ -23,8 +23,8 @@ struct NzSceneImpl
 	{
 	}
 
+	std::unique_ptr<NzAbstractBackground> background;
 	std::unique_ptr<NzAbstractRenderTechnique> renderTechnique;
-	std::unique_ptr<NzBackground> background;
 	std::vector<NzUpdatable*> updateList;
 	std::vector<NzUpdatable*> visibleUpdateList;
 	NzClock updateClock;
@@ -92,7 +92,7 @@ NzColor NzScene::GetAmbientColor() const
 	return m_impl->ambientColor;
 }
 
-NzBackground* NzScene::GetBackground() const
+NzAbstractBackground* NzScene::GetBackground() const
 {
 	return m_impl->background.get();
 }
@@ -135,7 +135,7 @@ void NzScene::SetAmbientColor(const NzColor& color)
 	m_impl->ambientColor = color;
 }
 
-void NzScene::SetBackground(NzBackground* background)
+void NzScene::SetBackground(NzAbstractBackground* background)
 {
 	m_impl->background.reset(background);
 }

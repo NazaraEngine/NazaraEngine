@@ -10,8 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Updatable.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
-#include <Nazara/Graphics/Background.hpp>
 #include <Nazara/Math/Frustum.hpp>
 
 class NzAbstractRenderQueue;
@@ -38,7 +38,7 @@ class NAZARA_API NzScene
 
 		NzCamera* GetActiveCamera() const;
 		NzColor GetAmbientColor() const;
-		NzBackground* GetBackground() const;
+		NzAbstractBackground* GetBackground() const;
 		NzAbstractRenderTechnique* GetRenderTechnique() const;
 		NzSceneNode& GetRoot() const;
 		float GetUpdateTime() const;
@@ -47,7 +47,7 @@ class NAZARA_API NzScene
 		void RegisterForUpdate(NzUpdatable* object);
 
 		void SetAmbientColor(const NzColor& color);
-		void SetBackground(NzBackground* background);
+		void SetBackground(NzAbstractBackground* background);
 		void SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique);
 		void SetUpdatePerSecond(unsigned int updatePerSecond);
 

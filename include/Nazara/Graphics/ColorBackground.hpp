@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Graphics/Background.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 
-class NAZARA_API NzColorBackground : public NzBackground
+class NAZARA_API NzColorBackground : public NzAbstractBackground
 {
 	public:
 		NzColorBackground(const NzColor& color = NzColor::Black);

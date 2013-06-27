@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
-#include <Nazara/Graphics/Background.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
@@ -38,7 +38,7 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
 	NzRenderer::Clear(nzRendererClear_Depth);
 
-	NzBackground* background = scene->GetBackground();
+	NzAbstractBackground* background = scene->GetBackground();
 	if (background)
 		background->Draw(scene);
 }
