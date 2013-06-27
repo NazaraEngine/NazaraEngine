@@ -67,6 +67,7 @@ bool NzGLSLShader::Compile()
 		CacheUniform(CameraPosition);
 		CacheUniform(LightCount);
 		CacheUniform(MaterialAlphaMap);
+		CacheUniform(MaterialAlphaThreshold);
 		CacheUniform(MaterialAmbient);
 		CacheUniform(MaterialDiffuse);
 		CacheUniform(MaterialDiffuseMap);
