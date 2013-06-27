@@ -53,11 +53,17 @@ enum nzFaceFilling
 
 enum nzMatrixType
 {
+	// Matrices de base
 	nzMatrixType_Projection,
 	nzMatrixType_View,
 	nzMatrixType_World,
 
-	nzMatrixType_Max = nzMatrixType_World
+	// Matrices combinées
+	nzMatrixType_ViewProj,
+	nzMatrixType_WorldView,
+	nzMatrixType_WorldViewProj,
+
+	nzMatrixType_Max = nzMatrixType_WorldViewProj
 };
 
 enum nzPixelBufferType
