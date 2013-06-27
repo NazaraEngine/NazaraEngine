@@ -135,24 +135,43 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 
 	NzRenderStates& currentRenderStates = s_contextStates->renderStates;
 
-	if (currentRenderStates.dstBlend != states.dstBlend ||
-		currentRenderStates.srcBlend != states.srcBlend)
+	// Les fonctions de blend n'a aucun intérêt sans blending
+	if (states.parameters[nzRendererParameter_Blend])
 	{
-		glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
-		currentRenderStates.dstBlend = states.dstBlend;
-		currentRenderStates.srcBlend = states.srcBlend;
+		if (currentRenderStates.dstBlend != states.dstBlend ||
+		    currentRenderStates.srcBlend != states.srcBlend)
+		{
+			glBlendFunc(BlendFunc[states.srcBlend], BlendFunc[states.dstBlend]);
+			currentRenderStates.dstBlend = states.dstBlend;
+			currentRenderStates.srcBlend = states.srcBlend;
+		}
 	}
 
-	if (currentRenderStates.depthFunc != states.depthFunc)
+	if (states.parameters[nzRendererParameter_DepthBuffer])
 	{
-		glDepthFunc(RendererComparison[states.depthFunc]);
-		currentRenderStates.depthFunc = states.depthFunc;
+		// La comparaison de profondeur n'a aucun intérêt sans depth buffer
+		if (currentRenderStates.depthFunc != states.depthFunc)
+		{
+			glDepthFunc(RendererComparison[states.depthFunc]);
+			currentRenderStates.depthFunc = states.depthFunc;
+		}
+
+		// Le DepthWrite n'a aucune importance si le DepthBuffer est désactivé
+		if (currentRenderStates.parameters[nzRendererParameter_DepthWrite] != states.parameters[nzRendererParameter_DepthWrite])
+		{
+			glDepthMask((states.parameters[nzRendererParameter_DepthWrite]) ? GL_TRUE : GL_FALSE);
+			currentRenderStates.parameters[nzRendererParameter_DepthWrite] = states.parameters[nzRendererParameter_DepthWrite];
+		}
 	}
 
-	if (currentRenderStates.faceCulling != states.faceCulling)
+	// Inutile de changer le mode de face culling s'il n'est pas actif
+	if (states.parameters[nzRendererParameter_FaceCulling])
 	{
-		glCullFace(FaceCulling[states.faceCulling]);
-		currentRenderStates.faceCulling = states.faceCulling;
+		if (currentRenderStates.faceCulling != states.faceCulling)
+		{
+			glCullFace(FaceCulling[states.faceCulling]);
+			currentRenderStates.faceCulling = states.faceCulling;
+		}
 	}
 
 	if (currentRenderStates.faceFilling != states.faceFilling)
@@ -161,24 +180,29 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 		currentRenderStates.faceFilling = states.faceFilling;
 	}
 
-	if (currentRenderStates.stencilCompare != states.stencilCompare ||
-		currentRenderStates.stencilMask != states.stencilMask ||
-		currentRenderStates.stencilReference != states.stencilReference)
+	// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
+	if (states.parameters[nzRendererParameter_StencilTest])
 	{
-		glStencilFunc(RendererComparison[states.stencilCompare], states.stencilReference, states.stencilMask);
-		currentRenderStates.stencilCompare = states.stencilCompare;
-		currentRenderStates.stencilMask = states.stencilMask;
-		currentRenderStates.stencilReference = states.stencilReference;
-	}
+		if (currentRenderStates.stencilCompare != states.stencilCompare ||
+		    currentRenderStates.stencilMask != states.stencilMask ||
+		    currentRenderStates.stencilReference != states.stencilReference)
+		{
+			glStencilFunc(RendererComparison[states.stencilCompare], states.stencilReference, states.stencilMask);
+			currentRenderStates.stencilCompare = states.stencilCompare;
+			currentRenderStates.stencilMask = states.stencilMask;
+			currentRenderStates.stencilReference = states.stencilReference;
+		}
 
-	if (currentRenderStates.stencilFail != states.stencilFail ||
-		currentRenderStates.stencilPass != states.stencilPass ||
-		currentRenderStates.stencilZFail != states.stencilZFail)
-	{
-		glStencilOp(StencilOperation[states.stencilFail], StencilOperation[states.stencilZFail], StencilOperation[states.stencilPass]);
-		currentRenderStates.stencilFail = states.stencilFail;
-		currentRenderStates.stencilPass = states.stencilPass;
-		currentRenderStates.stencilZFail = states.stencilZFail;
+		// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
+		if (currentRenderStates.stencilFail != states.stencilFail ||
+		    currentRenderStates.stencilPass != states.stencilPass ||
+		    currentRenderStates.stencilZFail != states.stencilZFail)
+		{
+			glStencilOp(StencilOperation[states.stencilFail], StencilOperation[states.stencilZFail], StencilOperation[states.stencilPass]);
+			currentRenderStates.stencilFail = states.stencilFail;
+			currentRenderStates.stencilPass = states.stencilPass;
+			currentRenderStates.stencilZFail = states.stencilZFail;
+		}
 	}
 
 	if (!NzNumberEquals(currentRenderStates.lineWidth, states.lineWidth, 0.001f))
@@ -220,12 +244,6 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 			glDisable(GL_DEPTH_TEST);
 
 		currentRenderStates.parameters[nzRendererParameter_DepthBuffer] = states.parameters[nzRendererParameter_DepthBuffer];
-	}
-
-	if (currentRenderStates.parameters[nzRendererParameter_DepthWrite] != states.parameters[nzRendererParameter_DepthWrite])
-	{
-		glDepthMask((states.parameters[nzRendererParameter_DepthWrite]) ? GL_TRUE : GL_FALSE);
-		currentRenderStates.parameters[nzRendererParameter_DepthWrite] = states.parameters[nzRendererParameter_DepthWrite];
 	}
 
 	if (currentRenderStates.parameters[nzRendererParameter_FaceCulling] != states.parameters[nzRendererParameter_FaceCulling])
