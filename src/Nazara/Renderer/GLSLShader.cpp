@@ -123,26 +123,26 @@ bool NzGLSLShader::Create()
 		return false;
 	}
 
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+8, "InstanceMatrix");
-
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Position], "VertexPosition");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Normal], "VertexNormal");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Diffuse], "VertexDiffuse");
-	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_Tangent], "VertexTangent");
-
-	char texCoordsUniform[] = "VertexTexCoord*";
-
-	unsigned int maxTexCoords = std::min(8U, NzRenderer::GetMaxTextureUnits());
-	for (unsigned int i = 0; i < maxTexCoords; ++i)
-	{
-		texCoordsUniform[14] = '0' + i;
-		glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzElementUsage_TexCoord]+i, texCoordsUniform);
-	}
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData0], "InstanceData0");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData1], "InstanceData1");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData2], "InstanceData2");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData3], "InstanceData3");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData4], "InstanceData4");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_InstanceData5], "InstanceData5");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Normal], "VertexNormal");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Position], "VertexPosition");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Tangent], "VertexTangent");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_TexCoord], "VertexTexCoord");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata0], "VertexUserdata0");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata1], "VertexUserdata1");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata2], "VertexUserdata2");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata3], "VertexUserdata3");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata4], "VertexUserdata4");
+	glBindAttribLocation(m_program, NzOpenGL::AttributeIndex[nzAttributeUsage_Userdata5], "VertexUserdata5");
 
 	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
 	{
 		NzString uniform;
-		uniform.Reserve(14); // 12 + 2
 		uniform = "RenderTarget";
 
 		unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();

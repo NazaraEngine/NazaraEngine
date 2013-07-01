@@ -61,11 +61,6 @@ bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	return true;
 }
 
-void* NzSoftwareBuffer::GetPointer()
-{
-	return m_buffer;
-}
-
 bool NzSoftwareBuffer::IsHardware() const
 {
 	return false;

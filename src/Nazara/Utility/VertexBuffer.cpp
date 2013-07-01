@@ -7,80 +7,95 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
-///FIXME: Gérer efficacement les erreurs de création du buffer
-
-NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startVertex, unsigned int vertexCount) :
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset) :
 m_buffer(buffer),
 m_vertexDeclaration(vertexDeclaration),
-m_ownsBuffer(false),
-m_startVertex(startVertex),
-m_vertexCount(vertexCount)
+m_endOffset(endOffset),
+m_startOffset(startOffset)
 {
 	#ifdef NAZARA_DEBUG
+	if (!m_vertexDeclaration)
+	{
+		NazaraError("Vertex declaration is invalid");
+		throw std::invalid_argument("Invalid vertex declaration");
+	}
+
 	if (!m_buffer || !m_buffer->IsValid())
 	{
 		NazaraError("Buffer is invalid");
 		throw std::invalid_argument("Buffer must be valid");
 	}
 
-	if (!m_vertexDeclaration || !m_vertexDeclaration->IsValid())
+	if (endOffset > startOffset)
 	{
-		NazaraError("Vertex declaration is invalid");
-		throw std::invalid_argument("Invalid vertex declaration");
+		NazaraError("End offset cannot be over start offset");
+		throw std::invalid_argument("End offset cannot be over start offset");
+	}
+
+	unsigned int bufferSize = m_buffer->GetSize();
+	if (startOffset >= bufferSize)
+	{
+		NazaraError("Start offset is over buffer size");
+		throw std::invalid_argument("Start offset is over buffer size");
+	}
+
+	if (endOffset >= bufferSize)
+	{
+		NazaraError("End offset is over buffer size");
+		throw std::invalid_argument("End offset is over buffer size");
 	}
 	#endif
+
+	m_vertexCount = (endOffset - startOffset) / m_vertexDeclaration->GetStride();
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage) :
 m_vertexDeclaration(vertexDeclaration),
-m_ownsBuffer(true),
-m_startVertex(0),
+m_startOffset(0),
 m_vertexCount(length)
 {
 	#ifdef NAZARA_DEBUG
-	if (!m_vertexDeclaration || !m_vertexDeclaration->IsValid())
+	if (!m_vertexDeclaration)
 	{
 		NazaraError("Vertex declaration is invalid");
 		throw std::invalid_argument("Invalid vertex declaration");
 	}
 	#endif
 
-	m_buffer = new NzBuffer(nzBufferType_Vertex, length, vertexDeclaration->GetStride(nzElementStream_VertexData), storage, usage);
+	m_endOffset = length*vertexDeclaration->GetStride();
+
+	m_buffer = new NzBuffer(nzBufferType_Vertex, m_endOffset, storage, usage);
 	m_buffer->SetPersistent(false);
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexBuffer& vertexBuffer) :
-NzResource(true),
+NzResource(),
+m_buffer(vertexBuffer.m_buffer),
 m_vertexDeclaration(vertexBuffer.m_vertexDeclaration),
-m_ownsBuffer(vertexBuffer.m_ownsBuffer),
-m_startVertex(vertexBuffer.m_startVertex),
+m_endOffset(vertexBuffer.m_endOffset),
+m_startOffset(vertexBuffer.m_startOffset),
 m_vertexCount(vertexBuffer.m_vertexCount)
 {
-	if (m_ownsBuffer)
-	{
-		NzBuffer* buffer = vertexBuffer.m_buffer;
-
-		m_buffer = new NzBuffer(nzBufferType_Vertex, buffer->GetLength(), buffer->GetSize(), buffer->GetStorage(), buffer->GetUsage());
-		m_buffer->SetPersistent(false);
-		m_buffer->CopyContent(*vertexBuffer.m_buffer);
-	}
-	else
-		m_buffer = vertexBuffer.m_buffer;
 }
 
-NzVertexBuffer::~NzVertexBuffer() = default;
-
-bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
+bool NzVertexBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (offset+length > m_vertexCount)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
 		return false;
 	}
 	#endif
 
-	return m_buffer->Fill(data, m_startVertex+offset, length, forceDiscard);
+	return m_buffer->Fill(data, m_startOffset+offset, size, forceDiscard);
+}
+
+bool NzVertexBuffer::FillVertices(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard)
+{
+	unsigned int stride = m_vertexDeclaration->GetStride();
+
+	return Fill(data, startVertex*stride, length*stride, forceDiscard);
 }
 
 NzBuffer* NzVertexBuffer::GetBuffer() const
@@ -88,24 +103,19 @@ NzBuffer* NzVertexBuffer::GetBuffer() const
 	return m_buffer;
 }
 
-void* NzVertexBuffer::GetPointer()
+unsigned int NzVertexBuffer::GetEndOffset() const
 {
-	return reinterpret_cast<nzUInt8*>(m_buffer->GetPointer()) + m_startVertex*m_buffer->GetTypeSize();
+	return m_endOffset;
 }
 
-const void* NzVertexBuffer::GetPointer() const
+unsigned int NzVertexBuffer::GetStartOffset() const
 {
-	return reinterpret_cast<const nzUInt8*>(m_buffer->GetPointer()) + m_startVertex*m_buffer->GetTypeSize();
+	return m_startOffset;
 }
 
-unsigned int NzVertexBuffer::GetStartVertex() const
+unsigned int NzVertexBuffer::GetStride() const
 {
-	return m_startVertex;
-}
-
-nzUInt8 NzVertexBuffer::GetTypeSize() const
-{
-	return m_buffer->GetTypeSize();
+	return m_vertexDeclaration->GetStride();
 }
 
 unsigned int NzVertexBuffer::GetVertexCount() const
@@ -123,35 +133,63 @@ bool NzVertexBuffer::IsHardware() const
 	return m_buffer->IsHardware();
 }
 
-void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
+void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (offset+length > m_vertexCount)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
-		return nullptr;
+		return false;
 	}
 	#endif
 
-	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
+	return m_buffer->Map(access, offset, size);
 }
 
-void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (offset+length > m_vertexCount)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
 		return nullptr;
 	}
 	#endif
 
-	return m_buffer->Map(access, m_startVertex+offset, (length) ? length : m_vertexCount-offset);
+	return m_buffer->Map(access, offset, size);
+}
+
+void* NzVertexBuffer::MapVertices(nzBufferAccess access, unsigned int startVertex, unsigned int length)
+{
+	unsigned int stride = m_vertexDeclaration->GetStride();
+
+	return Map(access, startVertex*stride, length*stride);
+}
+
+void* NzVertexBuffer::MapVertices(nzBufferAccess access, unsigned int startVertex, unsigned int length) const
+{
+	unsigned int stride = m_vertexDeclaration->GetStride();
+
+	return Map(access, startVertex*stride, length*stride);
 }
 
 bool NzVertexBuffer::SetStorage(nzBufferStorage storage)
 {
 	return m_buffer->SetStorage(storage);
+}
+
+void NzVertexBuffer::SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!vertexDeclaration)
+	{
+		NazaraError("Vertex declaration is invalid");
+		return;
+	}
+	#endif
+
+	m_vertexCount = (m_endOffset - m_startOffset)/vertexDeclaration->GetStride();
+	m_vertexDeclaration = vertexDeclaration;
 }
 
 void NzVertexBuffer::Unmap() const

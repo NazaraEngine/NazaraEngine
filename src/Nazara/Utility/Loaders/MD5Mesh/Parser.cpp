@@ -292,7 +292,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
+			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(largeIndices, indexCount, m_parameters.storage));
 			indexBuffer->SetPersistent(false);
 
 			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
@@ -308,7 +308,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			indexMapper.Unmap();
 
 			// Vertex buffer
-			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, m_parameters.storage));
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, m_parameters.storage));
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 
 			NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());

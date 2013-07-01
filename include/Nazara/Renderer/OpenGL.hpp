@@ -102,7 +102,8 @@ class NAZARA_API NzOpenGL
 		static void Uninitialize();
 
 		static GLenum Attachment[nzAttachmentPoint_Max+1];
-		static nzUInt8 AttributeIndex[nzElementUsage_Max+1];
+		static nzUInt8 AttributeIndex[nzAttributeUsage_Max+1];
+		static GLenum AttributeType[nzAttributeType_Max+1];
 		static GLenum BlendFunc[nzBlendFunc_Max+1];
 		static GLenum BufferLock[nzBufferAccess_Max+1];
 		static GLenum BufferLockRange[nzBufferAccess_Max+1];
@@ -110,7 +111,6 @@ class NAZARA_API NzOpenGL
 		static GLenum BufferTargetBinding[nzBufferType_Max+1];
 		static GLenum BufferUsage[nzBufferUsage_Max+1];
 		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
-		static GLenum ElementType[nzElementType_Max+1];
 		static GLenum FaceCulling[nzFaceCulling_Max+1];
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
 		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];

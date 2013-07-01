@@ -28,31 +28,27 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		using BufferFunction = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
-		NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzBuffer(nzBufferType type, unsigned int size, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		~NzBuffer();
 
 		bool CopyContent(const NzBuffer& buffer);
 
-		bool Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		bool Create(unsigned int size, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard = false);
+		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
 
 		NzAbstractBuffer* GetImpl() const;
-		unsigned int GetLength() const;
-		void* GetPointer();
-		const void* GetPointer() const;
 		unsigned int GetSize() const;
 		nzBufferStorage GetStorage() const;
 		nzBufferType GetType() const;
-		nzUInt8 GetTypeSize() const;
 		nzBufferUsage GetUsage() const;
 
 		bool IsHardware() const;
 		bool IsValid() const;
 
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0) const;
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
+		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
 		bool SetStorage(nzBufferStorage storage);
 
@@ -68,9 +64,8 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		nzBufferStorage m_storage;
 		nzBufferType m_type;
 		nzBufferUsage m_usage;
-		nzUInt8 m_typeSize;
 		NzAbstractBuffer* m_impl;
-		unsigned int m_length;
+		unsigned int m_size;
 
 		static BufferFunction s_bufferFunctions[nzBufferStorage_Max+1];
 };

@@ -21,8 +21,6 @@ class NzSoftwareBuffer : public NzAbstractBuffer
 
 		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
 
-		void* GetPointer();
-
 		bool IsHardware() const;
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);

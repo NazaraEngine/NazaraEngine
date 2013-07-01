@@ -170,6 +170,8 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 	NzMatrix4f matrix(primitive.matrix);
 	matrix.ApplyScale(params.scale);
 
+	NzVertexDeclaration* declaration = NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent);
+
 	switch (primitive.type)
 	{
 		case nzPrimitiveType_Box:
@@ -181,7 +183,7 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 			indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 			indexBuffer->SetPersistent(false);
 
-			vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+			vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
 			vertexBuffer->SetPersistent(false);
 
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -200,7 +202,7 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 			indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 			indexBuffer->SetPersistent(false);
 
-			vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+			vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
 			vertexBuffer->SetPersistent(false);
 
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -223,7 +225,7 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 					indexBuffer->SetPersistent(false);
 
-					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
 					vertexBuffer->SetPersistent(false);
 
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -242,7 +244,7 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 					indexBuffer->SetPersistent(false);
 
-					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
 					vertexBuffer->SetPersistent(false);
 
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -261,7 +263,7 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 					indexBuffer.reset(new NzIndexBuffer(indexCount, vertexCount > std::numeric_limits<nzUInt16>::max(), params.storage, nzBufferUsage_Static));
 					indexBuffer->SetPersistent(false);
 
-					vertexBuffer.reset(new NzVertexBuffer(GetDeclaration(), vertexCount, params.storage, nzBufferUsage_Static));
+					vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
 					vertexBuffer->SetPersistent(false);
 
 					NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -977,36 +979,6 @@ void NzMesh::Transform(const NzMatrix4f& matrix)
 
 	// Il ne faut pas oublier d'invalider notre AABB
 	m_impl->aabbUpdated = false;
-}
-
-const NzVertexDeclaration* NzMesh::GetDeclaration()
-{
-	static NzVertexDeclaration declaration;
-
-	if (!declaration.IsValid())
-	{
-		// Déclaration correspondant à NzVertexStruct_XYZ_Normal_UV_Tangent
-		NzVertexElement elements[4];
-		elements[0].offset = 0;
-		elements[0].type = nzElementType_Float3;
-		elements[0].usage = nzElementUsage_Position;
-
-		elements[1].offset = 3*sizeof(float);
-		elements[1].type = nzElementType_Float3;
-		elements[1].usage = nzElementUsage_Normal;
-
-		elements[2].offset = 3*sizeof(float) + 3*sizeof(float);
-		elements[2].type = nzElementType_Float2;
-		elements[2].usage = nzElementUsage_TexCoord;
-
-		elements[3].offset = 3*sizeof(float) + 3*sizeof(float) + 2*sizeof(float);
-		elements[3].type = nzElementType_Float3;
-		elements[3].usage = nzElementUsage_Tangent;
-
-		declaration.Create(elements, 4);
-	}
-
-	return &declaration;
 }
 
 void NzMesh::OnResourceReleased(const NzResource* resource, int index)
