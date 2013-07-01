@@ -661,6 +661,20 @@ bool NzRenderer::IsInitialized()
 
 void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend)
 {
+	#ifdef NAZARA_DEBUG
+	if (srcBlend > nzBlendFunc_Max)
+	{
+		NazaraError("Blend func out of enum");
+		return;
+	}
+
+	if (dstBlend > nzBlendFunc_Max)
+	{
+		NazaraError("Blend func out of enum");
+		return;
+	}
+	#endif
+
 	s_states.srcBlend = srcBlend;
 	s_states.dstBlend = dstBlend;
 }
@@ -719,16 +733,40 @@ void NzRenderer::SetClearStencil(unsigned int value)
 
 void NzRenderer::SetDepthFunc(nzRendererComparison compareFunc)
 {
+	#ifdef NAZARA_DEBUG
+	if (compareFunc > nzRendererComparison_Max)
+	{
+		NazaraError("Renderer comparison out of enum");
+		return;
+	}
+	#endif
+
 	s_states.depthFunc = compareFunc;
 }
 
 void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
 {
+	#ifdef NAZARA_DEBUG
+	if (cullingMode > nzFaceCulling_Max)
+	{
+		NazaraError("Face culling out of enum");
+		return;
+	}
+	#endif
+
 	s_states.faceCulling = cullingMode;
 }
 
 void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
 {
+	#ifdef NAZARA_DEBUG
+	if (fillingMode > nzFaceFilling_Max)
+	{
+		NazaraError("Face filling out of enum");
+		return;
+	}
+	#endif
+
 	s_states.faceFilling = fillingMode;
 }
 
@@ -1363,7 +1401,7 @@ bool NzRenderer::EnsureStateUpdate()
 						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 				}
 
-				/*if (s_instancing)
+				if (s_instancing)
 				{
 					bufferOffset = s_instancingBuffer->GetStartOffset();
 					vertexDeclaration = s_instancingBuffer->GetVertexDeclaration();
@@ -1373,13 +1411,13 @@ bool NzRenderer::EnsureStateUpdate()
 						nzAttributeType type;
 						bool enabled;
 						unsigned int offset;
-						vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &offset, &type);
+						vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
 
 						if (enabled)
 						{
 							glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 							glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-												  NzVertexDeclaration::GetElementCount(type),
+												  NzVertexDeclaration::GetAttributeSize(type),
 												  NzOpenGL::AttributeType[type],
 												  (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
 												  stride,
@@ -1394,7 +1432,7 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
 						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-				}*/
+				}
 
 				// Et on active l'index buffer (Un seul index buffer par VAO)
 				if (s_indexBuffer)
