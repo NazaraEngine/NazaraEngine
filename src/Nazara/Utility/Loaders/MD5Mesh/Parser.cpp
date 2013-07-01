@@ -200,7 +200,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indexCount, largeIndices, m_parameters.storage));
+			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(largeIndices, indexCount, m_parameters.storage));
 			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
 			unsigned int index = 0;
