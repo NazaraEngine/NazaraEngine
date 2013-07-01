@@ -72,7 +72,7 @@ class NAZARA_API NzRenderer
 		static void SetFaceCulling(nzFaceCulling cullingMode);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		static void SetInstancingData(const void* instancingDatainstancingData, unsigned int instanceCount);
+		static void SetInstancingData(const void* instancingData, unsigned int instanceCount);
 		static void SetInstancingDeclaration(const NzVertexDeclaration* declaration, unsigned int* newMaxInstanceCount);
 		static void SetLineWidth(float size);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
