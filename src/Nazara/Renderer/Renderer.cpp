@@ -1149,6 +1149,9 @@ void NzRenderer::Uninitialize()
 	delete s_fullscreenQuadBuffer;
 	delete s_instancingBuffer;
 
+	s_fullscreenQuadBuffer = nullptr;
+	s_instancingBuffer = nullptr;
+
 	// Libération des VAOs
 	for (auto pair : s_vaos)
 	{
