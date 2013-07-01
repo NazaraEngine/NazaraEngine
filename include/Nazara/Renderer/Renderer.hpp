@@ -15,6 +15,7 @@
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NzColor;
 class NzContext;
@@ -27,11 +28,6 @@ class NzVertexBuffer;
 class NAZARA_API NzRenderer
 {
 	public:
-		struct InstancingData
-		{
-			NzMatrix4f worldMatrix;
-		};
-
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
@@ -52,6 +48,7 @@ class NAZARA_API NzRenderer
 		static nzUInt8 GetMaxAnisotropyLevel();
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
+		static unsigned int GetMaxVertexAttribs();
 		static float GetPointSize();
 		static const NzRenderStates& GetRenderStates();
 		static NzRectui GetScissorRect();
@@ -75,7 +72,8 @@ class NAZARA_API NzRenderer
 		static void SetFaceCulling(nzFaceCulling cullingMode);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		static void SetInstancingData(const InstancingData* instancingData, unsigned int instanceCount);
+		static void SetInstancingData(const void* instancingDatainstancingData, unsigned int instanceCount);
+		static void SetInstancingDeclaration(const NzVertexDeclaration* declaration, unsigned int* newMaxInstanceCount);
 		static void SetLineWidth(float size);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
 		static void SetPointSize(float size);

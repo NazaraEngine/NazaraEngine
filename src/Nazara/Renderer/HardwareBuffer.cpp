@@ -143,11 +143,6 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 	return true;
 }
 
-void* NzHardwareBuffer::GetPointer()
-{
-	return nullptr;
-}
-
 bool NzHardwareBuffer::IsHardware() const
 {
 	return true;

@@ -16,6 +16,7 @@
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -55,6 +56,14 @@ bool NzUtility::Initialize()
 	if (!NzPixelFormat::Initialize())
 	{
 		NazaraError("Failed to initialize pixel formats");
+		Uninitialize();
+
+		return false;
+	}
+
+	if (!NzVertexDeclaration::Initialize())
+	{
+		NazaraError("Failed to initialize vertex declarations");
 		Uninitialize();
 
 		return false;
@@ -117,6 +126,7 @@ void NzUtility::Uninitialize()
 	NzLoaders_STB_Unregister();
 
 	NzWindow::Uninitialize();
+	NzVertexDeclaration::Uninitialize();
 	NzPixelFormat::Uninitialize();
 	NzBuffer::Uninitialize();
 

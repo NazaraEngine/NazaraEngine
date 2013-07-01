@@ -22,7 +22,7 @@ namespace
 {
 	NzIndexBuffer* BuildIndexBuffer()
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(36, false, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, 36, nzBufferStorage_Hardware, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		nzUInt16 indices[6*6] =
@@ -35,7 +35,7 @@ namespace
 			1, 6, 2, 1, 5, 6
 		};
 
-		if (!indexBuffer->Fill(indices, 0, 36))
+		if (!indexBuffer->FillIndices(indices, 0, 36))
 		{
 			NazaraError("Failed to create vertex buffer");
 			return nullptr;
@@ -125,22 +125,7 @@ namespace
 
 	NzVertexBuffer* BuildVertexBuffer()
 	{
-		std::unique_ptr<NzVertexDeclaration> declaration(new NzVertexDeclaration);
-		declaration->SetPersistent(false);
-
-		NzVertexElement elements;
-		elements.offset = 0;
-		elements.type = nzElementType_Float3;
-		elements.usage = nzElementUsage_Position;
-
-		if (!declaration->Create(&elements, 1))
-		{
-			NazaraError("Failed to create declaration");
-			return nullptr;
-		}
-
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(declaration.get(), 8, nzBufferStorage_Hardware, nzBufferUsage_Static));
-		declaration.release();
+		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 8, nzBufferStorage_Hardware, nzBufferUsage_Static));
 		vertexBuffer->SetPersistent(false);
 
 		float vertices[8*(sizeof(float)*3)] =
@@ -155,7 +140,7 @@ namespace
 			 1.0,  1.0, -1.0,
 		};
 
-		if (!vertexBuffer->Fill(vertices, 0, 8))
+		if (!vertexBuffer->FillVertices(vertices, 0, 8))
 		{
 			NazaraError("Failed to create vertex buffer");
 			return nullptr;

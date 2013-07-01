@@ -40,7 +40,6 @@ class NAZARA_API NzResource
 {
 	public:
 		NzResource(bool persistent = true);
-		NzResource(const NzResource& resource);
 		virtual ~NzResource();
 
 		void AddResourceListener(NzResourceListener* listener, int index = 0) const;

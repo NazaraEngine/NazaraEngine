@@ -20,8 +20,6 @@ class NAZARA_API NzAbstractBuffer
 
 		virtual bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false) = 0;
 
-		virtual void* GetPointer() = 0;
-
 		virtual bool IsHardware() const = 0;
 
 		virtual void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) = 0;

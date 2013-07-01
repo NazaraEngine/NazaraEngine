@@ -22,17 +22,16 @@ namespace
 
 NzBuffer::NzBuffer(nzBufferType type) :
 m_type(type),
-m_typeSize(0),
 m_impl(nullptr),
-m_length(0)
+m_size(0)
 {
 }
 
-NzBuffer::NzBuffer(nzBufferType type, unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage) :
+NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzBufferStorage storage, nzBufferUsage usage) :
 m_type(type),
 m_impl(nullptr)
 {
-	Create(length, typeSize, storage, usage);
+	Create(size, storage, usage);
 
 	#ifdef NAZARA_DEBUG
 	if (!m_impl)
@@ -62,20 +61,14 @@ bool NzBuffer::CopyContent(const NzBuffer& buffer)
 		NazaraError("Source buffer must be valid");
 		return false;
 	}
-
-	if (!buffer.GetTypeSize() != m_typeSize)
-	{
-		NazaraError("Source buffer type size does not match buffer type size");
-		return false;
-	}
 	#endif
 
 	NzBufferMapper<NzBuffer> mapper(buffer, nzBufferAccess_ReadOnly);
 
-	return Fill(mapper.GetPointer(), 0, buffer.GetLength());
+	return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 }
 
-bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage storage, nzBufferUsage usage)
+bool NzBuffer::Create(unsigned int size, nzBufferStorage storage, nzBufferUsage usage)
 {
 	Destroy();
 
@@ -87,7 +80,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 	}
 
 	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
-	if (!impl->Create(length*typeSize, usage))
+	if (!impl->Create(size, usage))
 	{
 		NazaraError("Failed to create buffer");
 		delete impl;
@@ -96,8 +89,7 @@ bool NzBuffer::Create(unsigned int length, nzUInt8 typeSize, nzBufferStorage sto
 	}
 
 	m_impl = impl;
-	m_length = length;
-	m_typeSize = typeSize;
+	m_size = size;
 	m_storage = storage;
 	m_usage = usage;
 
@@ -117,7 +109,7 @@ void NzBuffer::Destroy()
 	}
 }
 
-bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
+bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -126,14 +118,14 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int length, 
 		return false;
 	}
 
-	if (offset+length > m_length)
+	if (offset+size > m_size)
 	{
 		NazaraError("Exceeding buffer size");
 		return false;
 	}
 	#endif
 
-	return m_impl->Fill(data, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize, forceDiscard);
+	return m_impl->Fill(data, offset, (size == 0) ? m_size-offset : size, forceDiscard);
 }
 
 NzAbstractBuffer* NzBuffer::GetImpl() const
@@ -141,40 +133,9 @@ NzAbstractBuffer* NzBuffer::GetImpl() const
 	return m_impl;
 }
 
-unsigned int NzBuffer::GetLength() const
-{
-	return m_length;
-}
-
-void* NzBuffer::GetPointer()
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Buffer not valid");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->GetPointer();
-}
-
-const void* NzBuffer::GetPointer() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Buffer not valid");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->GetPointer();
-}
-
 unsigned int NzBuffer::GetSize() const
 {
-	return m_length*m_typeSize;
+	return m_size;
 }
 
 nzBufferStorage NzBuffer::GetStorage() const
@@ -185,11 +146,6 @@ nzBufferStorage NzBuffer::GetStorage() const
 nzBufferType NzBuffer::GetType() const
 {
 	return m_type;
-}
-
-nzUInt8 NzBuffer::GetTypeSize() const
-{
-	return m_typeSize;
 }
 
 nzBufferUsage NzBuffer::GetUsage() const
@@ -207,7 +163,7 @@ bool NzBuffer::IsValid() const
 	return m_impl != nullptr;
 }
 
-void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
+void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -216,17 +172,17 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int len
 		return nullptr;
 	}
 
-	if (offset+length > m_length)
+	if (offset+size > m_size)
 	{
 		NazaraError("Exceeding buffer size");
 		return nullptr;
 	}
 	#endif
 
-	return m_impl->Map(access, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
+	return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
 }
 
-void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -241,14 +197,14 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int len
 		return nullptr;
 	}
 
-	if (offset+length > m_length)
+	if (offset+size > m_size)
 	{
 		NazaraError("Exceeding buffer size");
 		return nullptr;
 	}
 	#endif
 
-	return m_impl->Map(access, offset*m_typeSize, ((length == 0) ? m_length-offset : length)*m_typeSize);
+	return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
 }
 
 bool NzBuffer::SetStorage(nzBufferStorage storage)
@@ -272,7 +228,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	}
 	#endif
 
-	void* ptr = m_impl->Map(nzBufferAccess_ReadOnly, 0, m_length*m_typeSize);
+	void* ptr = m_impl->Map(nzBufferAccess_ReadOnly, 0, m_size);
 	if (!ptr)
 	{
 		NazaraError("Failed to map buffer");
@@ -280,7 +236,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	}
 
 	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
-	if (!impl->Create(m_length*m_typeSize, m_usage))
+	if (!impl->Create(m_size, m_usage))
 	{
 		NazaraError("Failed to create buffer");
 		delete impl;
@@ -289,7 +245,7 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 		return false;
 	}
 
-	if (!impl->Fill(ptr, 0, m_length*m_typeSize))
+	if (!impl->Fill(ptr, 0, m_size))
 	{
 		NazaraError("Failed to fill buffer");
 		impl->Destroy();

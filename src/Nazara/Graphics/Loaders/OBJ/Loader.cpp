@@ -97,10 +97,10 @@ namespace
 				}
 			}
 
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(indices.size(), vertexCount > std::numeric_limits<nzUInt16>::max(), parameters.mesh.storage, nzBufferUsage_Static));
+			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(vertexCount > std::numeric_limits<nzUInt16>::max(), indices.size(), parameters.mesh.storage, nzBufferUsage_Static));
 			indexBuffer->SetPersistent(false);
 
-			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), vertexCount, parameters.mesh.storage, nzBufferUsage_Static));
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.mesh.storage, nzBufferUsage_Static));
 			vertexBuffer->SetPersistent(false);
 
 			// Remplissage des indices
