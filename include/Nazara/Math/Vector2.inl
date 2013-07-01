@@ -368,7 +368,7 @@ template<typename T>
 NzVector2<T>& NzVector2<T>::operator/=(const NzVector2& vec)
 {
 	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)))
 	{
 		NzString error("Division by zero");
 
@@ -494,7 +494,7 @@ template<typename T>
 NzVector2<T> operator/(T scale, const NzVector2<T>& vec)
 {
 	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)))
+	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)))
 	{
 		NzString error("Division by zero");
 
