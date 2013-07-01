@@ -16,12 +16,6 @@ m_resourceReferenceCount(0)
 {
 }
 
-NzResource::NzResource(const NzResource& resource) :
-m_resourcePersistent(resource.m_resourcePersistent.load()),
-m_resourceReferenceCount(0)
-{
-}
-
 NzResource::~NzResource()
 {
 	EnsureResourceListenerUpdate();

@@ -113,8 +113,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 
 		void Transform(const NzMatrix4f& matrix);
 
-		static const NzVertexDeclaration* GetDeclaration();
-
 	private:
 		void OnResourceReleased(const NzResource* resource, int index) override;
 

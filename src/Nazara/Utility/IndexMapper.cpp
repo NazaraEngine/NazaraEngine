@@ -22,13 +22,6 @@ namespace
 		return ptr[i];
 	}
 
-	nzUInt32 GetterSequential(const void* buffer, unsigned int i)
-	{
-		NazaraUnused(buffer);
-
-		return static_cast<nzUInt32>(i);
-	}
-
 	void Setter16(void* buffer, unsigned int i, nzUInt32 value)
 	{
 		nzUInt16* ptr = reinterpret_cast<nzUInt16*>(buffer);
@@ -50,32 +43,32 @@ namespace
 NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access) :
 m_indexCount(indexBuffer->GetIndexCount())
 {
-	if (indexBuffer && !indexBuffer->IsSequential())
+	#if NAZARA_UTILITY_SAFE
+	if (!indexBuffer)
 	{
-		if (!m_mapper.Map(indexBuffer, access))
-			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+		NazaraError("Index buffer must be valid");
+		return;
+	}
+	#endif
 
-		if (indexBuffer->HasLargeIndices())
-		{
-			m_getter = Getter32;
-			if (access != nzBufferAccess_ReadOnly)
-				m_setter = Setter32;
-			else
-				m_setter = SetterError;
-		}
+	if (!m_mapper.Map(indexBuffer, access))
+		NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+
+	if (indexBuffer->HasLargeIndices())
+	{
+		m_getter = Getter32;
+		if (access != nzBufferAccess_ReadOnly)
+			m_setter = Setter32;
 		else
-		{
-			m_getter = Getter16;
-			if (access != nzBufferAccess_ReadOnly)
-				m_setter = Setter16;
-			else
-				m_setter = SetterError;
-		}
+			m_setter = SetterError;
 	}
 	else
 	{
-		m_getter = GetterSequential;
-		m_setter = SetterError;
+		m_getter = Getter16;
+		if (access != nzBufferAccess_ReadOnly)
+			m_setter = Setter16;
+		else
+			m_setter = SetterError;
 	}
 }
 
@@ -83,18 +76,21 @@ NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess ac
 m_setter(SetterError),
 m_indexCount(indexBuffer->GetIndexCount())
 {
-	if (indexBuffer && !indexBuffer->IsSequential())
+	#if NAZARA_UTILITY_SAFE
+	if (!indexBuffer)
 	{
-		if (!m_mapper.Map(indexBuffer, access))
-			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-		if (indexBuffer->HasLargeIndices())
-			m_getter = Getter32;
-		else
-			m_getter = Getter16;
+		NazaraError("Index buffer must be valid");
+		return;
 	}
+	#endif
+
+	if (!m_mapper.Map(indexBuffer, access))
+		NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+
+	if (indexBuffer->HasLargeIndices())
+		m_getter = Getter32;
 	else
-		m_getter = GetterSequential;
+		m_getter = Getter16;
 }
 
 NzIndexMapper::NzIndexMapper(const NzSubMesh* subMesh) :

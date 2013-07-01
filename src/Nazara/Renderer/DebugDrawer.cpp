@@ -539,26 +539,9 @@ bool NzDebugDrawer::Initialize()
 			colorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
 		}
 
-		// VertexDeclaration
-		{
-			NzVertexElement element;
-			element.offset = 0;
-			element.type = nzElementType_Float3;
-			element.usage = nzElementUsage_Position;
-
-			vertexDeclaration = new NzVertexDeclaration;
-			if (!vertexDeclaration->Create(&element, 1))
-			{
-				NazaraError("Failed to create declaration");
-				Uninitialize();
-
-				return false;
-			}
-		}
-
 		// VertexBuffer (Nécessite la déclaration)
 		{
-			vertexBuffer = new NzVertexBuffer(vertexDeclaration, 65365, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			vertexBuffer = new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), 65365, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 			if (!vertexBuffer->GetBuffer()->IsValid())
 			{
 				NazaraError("Failed to create buffer");
