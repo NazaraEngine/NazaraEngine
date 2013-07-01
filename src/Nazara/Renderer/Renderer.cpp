@@ -603,7 +603,7 @@ bool NzRenderer::Initialize()
 		{
 			s_capabilities[nzRendererCap_Instancing] = false;
 			s_instancingBuffer = nullptr;
-			NazaraError("Failed to create instancing buffer: " + e.what()); ///TODO: Noexcept
+			NazaraError("Failed to create instancing buffer: " + NzString(e.what())); ///TODO: Noexcept
 		}
 	}
 	else
