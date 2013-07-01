@@ -15,6 +15,48 @@ enum nzAnimationType
 	nzAnimationType_Max = nzAnimationType_Static
 };
 
+enum nzAttributeType
+{
+	nzAttributeType_Color,
+	nzAttributeType_Double1,
+	nzAttributeType_Double2,
+	nzAttributeType_Double3,
+	nzAttributeType_Double4,
+	nzAttributeType_Float1,
+	nzAttributeType_Float2,
+	nzAttributeType_Float3,
+	nzAttributeType_Float4,
+
+	nzAttributeType_Max = nzAttributeType_Float4
+};
+
+enum nzAttributeUsage
+{
+	nzAttributeUsage_InstanceData0,
+	nzAttributeUsage_InstanceData1,
+	nzAttributeUsage_InstanceData2,
+	nzAttributeUsage_InstanceData3,
+	nzAttributeUsage_InstanceData4,
+	nzAttributeUsage_InstanceData5,
+	nzAttributeUsage_Normal,
+	nzAttributeUsage_Position,
+	nzAttributeUsage_Tangent,
+	nzAttributeUsage_TexCoord,
+	nzAttributeUsage_Userdata0,
+	nzAttributeUsage_Userdata1,
+	nzAttributeUsage_Userdata2,
+	nzAttributeUsage_Userdata3,
+	nzAttributeUsage_Userdata4,
+	nzAttributeUsage_Userdata5,
+
+	nzAttributeUsage_FirstInstanceData = nzAttributeUsage_InstanceData0,
+	nzAttributeUsage_FirstVertexData = nzAttributeUsage_Normal,
+	nzAttributeUsage_LastInstanceData = nzAttributeUsage_InstanceData5,
+	nzAttributeUsage_LastVertexData = nzAttributeUsage_Userdata5,
+
+	nzAttributeUsage_Max = nzAttributeUsage_Userdata5
+};
+
 enum nzBufferAccess
 {
 	nzBufferAccess_DiscardAndWrite,
@@ -27,7 +69,7 @@ enum nzBufferAccess
 
 enum nzBufferStorage
 {
-	//nzBufferStorage_Both,
+	//nzBufferStorage_Both, ///TODO
 	nzBufferStorage_Hardware,
 	nzBufferStorage_Software,
 
@@ -62,40 +104,6 @@ enum nzCubemapFace
 	nzCubemapFace_NegativeZ = 5,
 
 	nzCubemapFace_Max = nzCubemapFace_NegativeZ
-};
-
-enum nzElementStream
-{
-	nzElementStream_VertexData,
-	nzElementStream_InstancedData,
-
-	nzElementStream_Max = nzElementStream_InstancedData
-};
-
-enum nzElementType
-{
-	nzElementType_Color,
-	nzElementType_Double1,
-	nzElementType_Double2,
-	nzElementType_Double3,
-	nzElementType_Double4,
-	nzElementType_Float1,
-	nzElementType_Float2,
-	nzElementType_Float3,
-	nzElementType_Float4,
-
-	nzElementType_Max = nzElementType_Float4
-};
-
-enum nzElementUsage
-{
-	nzElementUsage_Diffuse,
-	nzElementUsage_Normal,
-	nzElementUsage_Position,
-	nzElementUsage_Tangent,
-	nzElementUsage_TexCoord,
-
-	nzElementUsage_Max = nzElementUsage_TexCoord
 };
 
 enum nzEventType
@@ -207,6 +215,23 @@ enum nzPrimitiveMode
 	nzPrimitiveMode_TriangleFan,
 
 	nzPrimitiveMode_Max = nzPrimitiveMode_TriangleFan
+};
+
+enum nzVertexLayout
+{
+	// Déclarations destinées au rendu
+	nzVertexLayout_XY,
+	nzVertexLayout_XY_UV,
+	nzVertexLayout_XYZ,
+	nzVertexLayout_XYZ_Normal,
+	nzVertexLayout_XYZ_Normal_UV,
+	nzVertexLayout_XYZ_Normal_UV_Tangent,
+	nzVertexLayout_XYZ_UV,
+
+	// Déclarations destinées à l'instancing
+	nzVertexLayout_Matrix4,
+
+	nzVertexLayout_Max = nzVertexLayout_Matrix4
 };
 
 enum nzWindowCursor

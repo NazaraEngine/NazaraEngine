@@ -11,61 +11,64 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
-///FIXME: Gérer efficacement les erreurs de création du buffer
-
-NzIndexBuffer::NzIndexBuffer(NzBuffer* buffer, unsigned int startIndex, unsigned int indexCount) :
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset) :
 m_buffer(buffer),
-m_ownsBuffer(false),
-m_indexCount(indexCount),
-m_startIndex(startIndex)
+m_largeIndices(largeIndices),
+m_endOffset(endOffset),
+m_startOffset(startOffset)
 {
-	if (m_buffer)
+	#ifdef NAZARA_DEBUG
+	if (!m_buffer || !m_buffer->IsValid())
 	{
-		#ifdef NAZARA_DEBUG
-		nzUInt8 indexSize = m_buffer->GetSize();
-		if (indexSize != 2 && indexSize != 4)
-		{
-			NazaraError("Invalid index size (" + NzString::Number(indexSize) + ')');
-			m_buffer = nullptr;
-
-			throw std::runtime_error("Constructor failed");
-		}
-		#endif
+		NazaraError("Buffer is invalid");
+		throw std::invalid_argument("Buffer must be valid");
 	}
+
+	if (endOffset > startOffset)
+	{
+		NazaraError("End offset cannot be over start offset");
+		throw std::invalid_argument("End offset cannot be over start offset");
+	}
+
+	unsigned int bufferSize = m_buffer->GetSize();
+	if (startOffset >= bufferSize)
+	{
+		NazaraError("Start offset is over buffer size");
+		throw std::invalid_argument("Start offset is over buffer size");
+	}
+
+	if (endOffset >= bufferSize)
+	{
+		NazaraError("End offset is over buffer size");
+		throw std::invalid_argument("End offset is over buffer size");
+	}
+	#endif
+
+	unsigned int stride = (largeIndices) ? sizeof(nzUInt32) : sizeof(nzUInt16);
+
+	m_indexCount = (endOffset - startOffset) / stride;
 }
 
-NzIndexBuffer::NzIndexBuffer(unsigned int length, bool largeIndices, nzBufferStorage storage, nzBufferUsage usage) :
-m_ownsBuffer(true),
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage) :
+m_largeIndices(largeIndices),
 m_indexCount(length),
-m_startIndex(0)
+m_startOffset(0)
 {
-	m_buffer = new NzBuffer(nzBufferType_Index, length, (largeIndices) ? 4 : 2, storage, usage);
+	m_endOffset = length * ((largeIndices) ? sizeof(nzUInt32) : sizeof(nzUInt16));
+
+	m_buffer = new NzBuffer(nzBufferType_Index, m_endOffset, storage, usage);
 	m_buffer->SetPersistent(false);
 }
 
 NzIndexBuffer::NzIndexBuffer(const NzIndexBuffer& indexBuffer) :
-NzResource(true),
+NzResource(),
 m_buffer(indexBuffer.m_buffer),
-m_ownsBuffer(indexBuffer.m_ownsBuffer),
+m_largeIndices(indexBuffer.m_largeIndices),
+m_endOffset(indexBuffer.m_endOffset),
 m_indexCount(indexBuffer.m_indexCount),
-m_startIndex(indexBuffer.m_startIndex)
+m_startOffset(indexBuffer.m_startOffset)
 {
-	if (m_buffer)
-	{
-		if (m_ownsBuffer)
-		{
-			NzBuffer* buffer = indexBuffer.m_buffer;
-
-			m_buffer = new NzBuffer(nzBufferType_Index, buffer->GetLength(), buffer->GetSize(), buffer->GetStorage(), buffer->GetUsage());
-			m_buffer->SetPersistent(false);
-			m_buffer->CopyContent(*indexBuffer.m_buffer);
-		}
-		else
-			m_buffer = indexBuffer.m_buffer;
-	}
 }
-
-NzIndexBuffer::~NzIndexBuffer() = default;
 
 unsigned int NzIndexBuffer::ComputeCacheMissCount() const
 {
@@ -74,23 +77,23 @@ unsigned int NzIndexBuffer::ComputeCacheMissCount() const
 	return NzComputeCacheMissCount(mapper.begin(), m_indexCount);
 }
 
-bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int length, bool forceDiscard)
+bool NzIndexBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Impossible to fill sequential buffers");
-		return false;
-	}
-
-	if (offset+length > m_indexCount)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
 		return false;
 	}
 	#endif
 
-	return m_buffer->Fill(data, m_startIndex+offset, length, forceDiscard);
+	return m_buffer->Fill(data, m_startOffset+offset, size, forceDiscard);
+}
+
+bool NzIndexBuffer::FillIndices(const void* data, unsigned int startIndex, unsigned int length, bool forceDiscard)
+{
+	unsigned int stride = GetStride();
+	return Fill(data, startIndex*stride, length*stride, forceDiscard);
 }
 
 NzBuffer* NzIndexBuffer::GetBuffer() const
@@ -98,30 +101,9 @@ NzBuffer* NzIndexBuffer::GetBuffer() const
 	return m_buffer;
 }
 
-void* NzIndexBuffer::GetPointer()
+unsigned int NzIndexBuffer::GetEndOffset() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Sequential buffers have no pointer");
-		return nullptr;
-	}
-	#endif
-
-	return reinterpret_cast<nzUInt8*>(m_buffer->GetPointer()) + m_startIndex*m_buffer->GetTypeSize();
-}
-
-const void* NzIndexBuffer::GetPointer() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Sequential buffers have no pointer");
-		return nullptr;
-	}
-	#endif
-
-	return reinterpret_cast<const nzUInt8*>(m_buffer->GetPointer()) + m_startIndex*m_buffer->GetTypeSize();
+	return m_endOffset;
 }
 
 unsigned int NzIndexBuffer::GetIndexCount() const
@@ -129,78 +111,64 @@ unsigned int NzIndexBuffer::GetIndexCount() const
 	return m_indexCount;
 }
 
-unsigned int NzIndexBuffer::GetStartIndex() const
+unsigned int NzIndexBuffer::GetStride() const
 {
-	return m_startIndex;
+	return (m_largeIndices) ? sizeof(nzUInt32) : sizeof(nzUInt16);
+}
+
+unsigned int NzIndexBuffer::GetStartOffset() const
+{
+	return m_startOffset;
 }
 
 bool NzIndexBuffer::HasLargeIndices() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Sequential buffers have no index size");
-		return 0;
-	}
-	#endif
-
-	return (m_buffer->GetTypeSize() == 4);
+	return m_largeIndices;
 }
 
 bool NzIndexBuffer::IsHardware() const
 {
+	return m_buffer->IsHardware();
+}
+
+void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
+{
 	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
-		NazaraWarning("Sequential index buffers are neither hardware or software");
+		NazaraError("Exceeding virtual buffer size");
 		return false;
 	}
 	#endif
 
-	return m_buffer->IsHardware();
+	return m_buffer->Map(access, offset, size);
 }
 
-bool NzIndexBuffer::IsSequential() const
-{
-	return m_buffer == nullptr;
-}
-
-void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length)
+void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Impossible to map sequential buffers");
-		return nullptr;
-	}
-
-	if (offset+length > m_indexCount)
+	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
 		return nullptr;
 	}
 	#endif
 
-	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
+	return m_buffer->Map(access, offset, size);
 }
 
-void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int length) const
+void* NzIndexBuffer::MapIndices(nzBufferAccess access, unsigned int startIndex, unsigned int length)
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Impossible to map sequential buffers");
-		return nullptr;
-	}
+	unsigned int stride = GetStride();
 
-	if (offset+length > m_indexCount)
-	{
-		NazaraError("Exceeding virtual buffer size");
-		return nullptr;
-	}
-	#endif
+	return Map(access, startIndex*stride, length*stride);
+}
 
-	return m_buffer->Map(access, m_startIndex+offset, (length) ? length : m_indexCount-offset);
+void* NzIndexBuffer::MapIndices(nzBufferAccess access, unsigned int startIndex, unsigned int length) const
+{
+	unsigned int stride = GetStride();
+
+	return Map(access, startIndex*stride, length*stride);
 }
 
 void NzIndexBuffer::Optimize()
@@ -212,26 +180,10 @@ void NzIndexBuffer::Optimize()
 
 bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraWarning("Sequential buffers have no storage");
-		return true;
-	}
-	#endif
-
 	return m_buffer->SetStorage(storage);
 }
 
 void NzIndexBuffer::Unmap() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_buffer)
-	{
-		NazaraError("Impossible to unlock sequential buffers");
-		return;
-	}
-	#endif
-
 	m_buffer->Unmap();
 }

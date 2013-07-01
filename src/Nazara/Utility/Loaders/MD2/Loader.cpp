@@ -102,7 +102,7 @@ namespace
 
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(header.num_tris * 3, false, parameters.storage, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, header.num_tris * 3, parameters.storage, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		/// Lecture des triangles
@@ -149,7 +149,7 @@ namespace
 		}
 		#endif
 
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzMesh::GetDeclaration(), header.num_vertices, parameters.storage, nzBufferUsage_Static));
+		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, nzBufferUsage_Static));
 		std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
 		if (!subMesh->Create(vertexBuffer.get()))
 		{

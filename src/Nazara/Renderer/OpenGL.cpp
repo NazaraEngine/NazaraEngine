@@ -1161,14 +1161,37 @@ GLenum NzOpenGL::Attachment[nzAttachmentPoint_Max+1] =
 	GL_STENCIL_ATTACHMENT        // nzAttachmentPoint_Stencil
 };
 
-nzUInt8 NzOpenGL::AttributeIndex[nzElementUsage_Max+1] =
+nzUInt8 NzOpenGL::AttributeIndex[nzAttributeUsage_Max+1] =
 {
-	2, // nzElementUsage_Diffuse
-	1, // nzElementUsage_Normal
-	0, // nzElementUsage_Position
-	3, // nzElementUsage_Tangent
+	10, // nzAttributeUsage_InstanceData0
+	11, // nzAttributeUsage_InstanceData1
+	12, // nzAttributeUsage_InstanceData2
+	13, // nzAttributeUsage_InstanceData3
+	14, // nzAttributeUsage_InstanceData4
+	15, // nzAttributeUsage_InstanceData5
+	2, // nzAttributeUsage_Normal
+	0, // nzAttributeUsage_Position
+	3, // nzAttributeUsage_Tangent
+	1, // nzAttributeUsage_TexCoord
+	4, // nzAttributeUsage_Userdata0
+	5, // nzAttributeUsage_Userdata1
+	6, // nzAttributeUsage_Userdata2
+	7, // nzAttributeUsage_Userdata3
+	8, // nzAttributeUsage_Userdata4
+	9  // nzAttributeUsage_Userdata5
+};
 
-	4  // nzElementUsage_TexCoord (Doit être le dernier de la liste car extensible)
+GLenum NzOpenGL::AttributeType[nzAttributeType_Max+1] =
+{
+	GL_UNSIGNED_BYTE, // nzAttributeType_Color
+	GL_DOUBLE,        // nzAttributeType_Double1
+	GL_DOUBLE,        // nzAttributeType_Double2
+	GL_DOUBLE,        // nzAttributeType_Double3
+	GL_DOUBLE,        // nzAttributeType_Double4
+	GL_FLOAT,         // nzAttributeType_Float1
+	GL_FLOAT,         // nzAttributeType_Float2
+	GL_FLOAT,         // nzAttributeType_Float3
+	GL_FLOAT          // nzAttributeType_Float4
 };
 
 GLenum NzOpenGL::BlendFunc[nzBlendFunc_Max+1] =
@@ -1230,19 +1253,6 @@ GLenum NzOpenGL::CubemapFace[6] =
 	GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // nzCubemapFace_NegativeY (Inversion pour les standards OpenGL)
 	GL_TEXTURE_CUBE_MAP_POSITIVE_Z, // nzCubemapFace_PositiveZ
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // nzCubemapFace_NegativeZ
-};
-
-GLenum NzOpenGL::ElementType[nzElementType_Max+1] =
-{
-	GL_UNSIGNED_BYTE, // nzElementType_Color
-	GL_DOUBLE,        // nzElementType_Double1
-	GL_DOUBLE,        // nzElementType_Double2
-	GL_DOUBLE,        // nzElementType_Double3
-	GL_DOUBLE,        // nzElementType_Double4
-	GL_FLOAT,         // nzElementType_Float1
-	GL_FLOAT,         // nzElementType_Float2
-	GL_FLOAT,         // nzElementType_Float3
-	GL_FLOAT          // nzElementType_Float4
 };
 
 GLenum NzOpenGL::FaceCulling[nzFaceCulling_Max+1] =

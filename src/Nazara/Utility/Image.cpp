@@ -50,7 +50,7 @@ m_sharedImage(&emptyImage)
 }
 
 NzImage::NzImage(const NzImage& image) :
-NzResource(image),
+NzResource(),
 m_sharedImage(image.m_sharedImage)
 {
 	if (m_sharedImage != &emptyImage)
@@ -61,6 +61,11 @@ NzImage::NzImage(NzImage&& image) noexcept :
 m_sharedImage(image.m_sharedImage)
 {
 	image.m_sharedImage = &emptyImage;
+}
+
+NzImage::NzImage(SharedImage* sharedImage) :
+m_sharedImage(sharedImage)
+{
 }
 
 NzImage::~NzImage()
