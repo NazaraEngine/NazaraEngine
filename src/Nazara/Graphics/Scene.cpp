@@ -64,12 +64,12 @@ void NzScene::AddToVisibilityList(NzUpdatable* object)
 void NzScene::Cull()
 {
 	NzAbstractRenderQueue* renderQueue = m_impl->renderTechnique->GetRenderQueue();
-	renderQueue->Clear();
+	renderQueue->Clear(false);
 
 	m_impl->visibleUpdateList.clear();
 
 	// Frustum culling
-	RecursiveFrustumCull(renderQueue, m_impl->activeCamera->GetFrustum(), &m_impl->root);
+	RecursiveFrustumCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->activeCamera->GetFrustum(), &m_impl->root);
 
 	///TODO: Occlusion culling
 
