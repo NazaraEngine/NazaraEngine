@@ -1338,7 +1338,7 @@ bool NzRenderer::EnsureStateUpdate()
 			if (s_useVertexArrayObjects)
 			{
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
-				auto vaos = s_vaos[NzContext::GetCurrent()];
+				auto& vaos = s_vaos[NzContext::GetCurrent()];
 
 				// Notre clé est composée de ce qui définit un VAO
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, s_vertexBuffer->GetVertexDeclaration(), (s_instancing) ? s_instancingDeclaration : nullptr);
