@@ -366,7 +366,7 @@ namespace
 		}
 
 		if (uvMapping)
-			sourceCode += inKW + " vec2 VertexTexCoord0;\n";
+			sourceCode += inKW + " vec2 VertexTexCoord;\n";
 
 		sourceCode += '\n';
 
@@ -429,9 +429,9 @@ namespace
 		if (uvMapping)
 		{
 			if (flags & nzShaderFlags_FlipUVs)
-				sourceCode += "vTexCoord = vec2(VertexTexCoord0.x, 1.0 - VertexTexCoord0.y);\n";
+				sourceCode += "vTexCoord = vec2(VertexTexCoord.x, 1.0 - VertexTexCoord.y);\n";
 			else
-				sourceCode += "vTexCoord = VertexTexCoord0;\n";
+				sourceCode += "vTexCoord = VertexTexCoord;\n";
 		}
 
 		if (flags & nzShaderFlags_Lighting)
