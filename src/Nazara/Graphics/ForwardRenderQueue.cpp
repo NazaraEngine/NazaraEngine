@@ -124,15 +124,17 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 	}
 }
 
-void NzForwardRenderQueue::Clear()
+void NzForwardRenderQueue::Clear(bool fully)
 {
 	directionnalLights.clear();
 	otherDrawables.clear();
 	visibleLights.clear();
-	visibleModels.clear();
 	visibleTransparentsModels.clear();
 	transparentSkeletalModels.clear();
 	transparentStaticModels.clear();
+
+	if (fully)
+		visibleModels.clear();
 }
 
 void NzForwardRenderQueue::Sort(const NzCamera& camera)
@@ -162,6 +164,11 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 
 	TransparentModelComparator comparator {this, camera.GetFrustum().GetPlane(nzFrustumPlane_Near), camera.GetForward()};
 	std::sort(visibleTransparentsModels.begin(), visibleTransparentsModels.end(), comparator);
+}
+
+void NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
+{
+
 }
 
 bool NzForwardRenderQueue::SkeletalMeshComparator::operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2)

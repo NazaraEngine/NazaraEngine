@@ -24,7 +24,7 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddLight(const NzLight* light) = 0;
 		virtual void AddModel(const NzModel* model) = 0;
 
-		virtual void Clear() = 0;
+		virtual void Clear(bool fully) = 0;
 };
 
 #endif // NAZARA_ABSTRACTRENDERQUEUE_HPP

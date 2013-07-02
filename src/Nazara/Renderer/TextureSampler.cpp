@@ -126,7 +126,7 @@ void NzTextureSampler::SetDefaultAnisotropyLevel(nzUInt8 anisotropyLevel)
 
 	if (s_useAnisotropicFilter)
 	{
-		for (auto pair : s_samplers)
+		for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
 		{
 			if (((pair.first >> 5) & 0xFF) == 0)
 				glSamplerParameterf(pair.second, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(anisotropyLevel));
@@ -146,7 +146,7 @@ void NzTextureSampler::SetDefaultFilterMode(nzSamplerFilter filterMode)
 
 	s_defaultFilterMode = filterMode;
 
-	for (auto pair : s_samplers)
+	for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
 	{
 		if (((pair.first >> 1) & 0x3) == nzSamplerFilter_Default)
 		{
@@ -201,7 +201,7 @@ void NzTextureSampler::SetDefaultWrapMode(nzSamplerWrap wrapMode)
 	s_defaultWrapMode = wrapMode;
 
 	GLenum wrapEnum = NzOpenGL::SamplerWrapMode[wrapMode];
-	for (auto pair : s_samplers)
+	for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
 	{
 		if (((pair.first >> 3) & 0x3) == nzSamplerWrap_Default)
 		{
@@ -383,8 +383,8 @@ bool NzTextureSampler::Initialize()
 
 void NzTextureSampler::Uninitialize()
 {
-	for (auto it = s_samplers.begin(); it != s_samplers.end(); ++it)
-		glDeleteSamplers(1, &it->second);
+	for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
+		glDeleteSamplers(1, &pair.second);
 
 	s_samplers.clear();
 }

@@ -351,9 +351,9 @@ bool NzOBJParser::Parse()
 	std::unordered_map<NzString, unsigned int> materials;
 	unsigned int matCount = 0;
 
-	for (auto meshIt : meshes)
+	for (auto& meshIt : meshes)
 	{
-		for (auto matIt : meshIt.second)
+		for (auto& matIt : meshIt.second)
 		{
 			if (!matIt.second.empty())
 			{
@@ -382,8 +382,8 @@ bool NzOBJParser::Parse()
 	}
 
 	m_materials.resize(matCount);
-	for (auto it : materials)
-		m_materials[it.second] = it.first;
+	for (const std::pair<NzString, unsigned int>& pair : materials)
+		m_materials[pair.second] = pair.first;
 
 	return true;
 }

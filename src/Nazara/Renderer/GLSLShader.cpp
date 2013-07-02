@@ -34,9 +34,9 @@ bool NzGLSLShader::Bind()
 
 bool NzGLSLShader::BindTextures()
 {
-	for (auto it = m_textures.begin(); it != m_textures.end(); ++it)
+	for (const std::pair<GLint, TextureSlot>& pair : m_textures)
 	{
-		TextureSlot& slot = it->second;
+		const TextureSlot& slot = pair.second;
 		if (slot.enabled)
 			NzRenderer::SetTexture(slot.unit, slot.texture);
 	}
