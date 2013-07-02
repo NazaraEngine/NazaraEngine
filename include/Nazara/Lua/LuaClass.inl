@@ -72,15 +72,15 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 		m_info->methods.resize(m_methods.size());
 
 		unsigned int index = 0;
-		for (auto it = m_methods.begin(); it != m_methods.end(); ++it)
+		for (auto& pair : m_methods)
 		{
-			m_info->methods[index] = it->second;
+			m_info->methods[index] = pair.second;
 
 			lua.PushValue(1);
 			lua.PushInteger(index);
 
 			lua.PushCFunction(MethodProxy, 2);
-			lua.SetField(it->first); // Méthode
+			lua.SetField(pair.first); // Méthode
 
 			index++;
 		}

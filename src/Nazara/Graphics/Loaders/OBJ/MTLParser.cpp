@@ -151,123 +151,99 @@ bool NzMTLParser::Parse()
 		}
 		else if (keyword == "map_ka")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->ambientMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_kd")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->diffuseMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_ks")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->specularMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_bump" || keyword == "bump")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->bumpMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_d")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->alphaMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_decal" || keyword == "decal")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->decalMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_disp" || keyword == "disp")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->displacementMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "map_refl" || keyword == "refl")
 		{
-			NzString map = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-			if (!map.IsEmpty())
+			unsigned int mapPos = m_currentLine.GetWordPosition(1);
+			if (mapPos != NzString::npos)
 			{
+				NzString map = m_currentLine.SubString(mapPos);
 				if (!currentMaterial)
 					currentMaterial = &m_materials["default"];
 
 				currentMaterial->reflectionMap = map;
 			}
-			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
-			#endif
 		}
 		else if (keyword == "newmtl")
 		{

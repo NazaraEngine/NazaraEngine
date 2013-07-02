@@ -8,6 +8,8 @@
 #define NAZARA_FORWARDRENDERQUEUE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -18,7 +20,7 @@ class NzMaterial;
 class NzSkeletalMesh;
 class NzStaticMesh;
 
-class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
+class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResourceListener
 {
 	friend class NzForwardRenderTechnique;
 
@@ -30,11 +32,21 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 		void AddLight(const NzLight* light);
 		void AddModel(const NzModel* model);
 
-		void Clear();
+		void Clear(bool fully);
 
 		void Sort(const NzCamera& camera);
 
 	private:
+		void OnResourceDestroy(const NzResource* resource, int index);
+
+		struct BillboardData
+		{
+			NzColor color;
+			NzVector3f position;
+			NzVector2f size;
+			float rotation;
+		};
+
 		struct MaterialComparator
 		{
 			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
@@ -76,6 +88,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 		typedef std::map<NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
 		typedef std::map<NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
 
+		std::map<NzMaterial*, std::vector<BillboardData>, MaterialComparator> billboards;
 		std::map<NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, MaterialComparator> visibleModels;
 		std::vector<std::pair<unsigned int, bool>> visibleTransparentsModels;
 		std::vector<TransparentSkeletalModel> transparentSkeletalModels;
