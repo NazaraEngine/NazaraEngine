@@ -12,9 +12,9 @@
 template<typename Type, typename Parameters>
 bool NzResourceLoader<Type, Parameters>::IsExtensionSupported(const NzString& extension)
 {
-	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
+	for (Loader& loader : Type::s_loaders)
 	{
-		ExtensionGetter isExtensionSupported = std::get<0>(*loader);
+		ExtensionGetter isExtensionSupported = std::get<0>(loader);
 
 		if (isExtensionSupported && isExtensionSupported(extension))
 			return true;
@@ -45,15 +45,15 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	NzFile file(path); // Ouvert seulement en cas de besoin
 
 	bool found = false;
-	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
+	for (Loader& loader : Type::s_loaders)
 	{
-		ExtensionGetter isExtensionSupported = std::get<0>(*loader);
+		ExtensionGetter isExtensionSupported = std::get<0>(loader);
 		if (!isExtensionSupported || !isExtensionSupported(ext))
 			continue;
 
-		StreamChecker checkFunc = std::get<1>(*loader);
-		StreamLoader streamLoader = std::get<2>(*loader);
-		FileLoader fileLoader = std::get<3>(*loader);
+		StreamChecker checkFunc = std::get<1>(loader);
+		StreamLoader streamLoader = std::get<2>(loader);
+		FileLoader fileLoader = std::get<3>(loader);
 
 		if (checkFunc && !file.IsOpen())
 		{
@@ -141,10 +141,10 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 
 	nzUInt64 streamPos = stream.GetCursorPos();
 	bool found = false;
-	for (auto loader = Type::s_loaders.begin(); loader != Type::s_loaders.end(); ++loader)
+	for (Loader& loader : Type::s_loaders)
 	{
-		StreamChecker checkFunc = std::get<1>(*loader);
-		StreamLoader streamLoader = std::get<2>(*loader);
+		StreamChecker checkFunc = std::get<1>(loader);
+		StreamLoader streamLoader = std::get<2>(loader);
 
 		stream.SetCursorPos(streamPos);
 

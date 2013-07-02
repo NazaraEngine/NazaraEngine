@@ -1191,14 +1191,15 @@ void NzRenderer::Uninitialize()
 	s_instancingBuffer = nullptr;
 
 	// Libération des VAOs
-	for (auto pair : s_vaos)
+	for (auto& pair : s_vaos)
 	{
-		for (auto pair2 : pair.second)
+		for (auto& pair2 : pair.second)
 		{
 			GLuint vao = static_cast<GLuint>(pair2.second);
 			glDeleteVertexArrays(1, &vao);
 		}
 	}
+	s_vaos.clear();
 
 	NzOpenGL::Uninitialize();
 

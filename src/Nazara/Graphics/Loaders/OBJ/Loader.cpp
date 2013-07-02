@@ -115,11 +115,11 @@ namespace
 			bool hasTexCoords = true;
 			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
 			NzMeshVertex* meshVertices = static_cast<NzMeshVertex*>(vertexMapper.GetPointer());
-			for (auto uvIt : vertices)
+			for (auto& uvIt : vertices)
 			{
-				for (auto normalIt : uvIt.second)
+				for (auto& normalIt : uvIt.second)
 				{
-					for (auto positionIt : normalIt.second)
+					for (auto& positionIt : normalIt.second)
 					{
 						NzMeshVertex& vertex = meshVertices[positionIt.second];
 
@@ -261,7 +261,7 @@ namespace
 									specularMap.release();
 								}
 								else
-									NazaraWarning("Failed to load specular map (" + mtlMat->diffuseMap + ')');
+									NazaraWarning("Failed to load specular map (" + mtlMat->specularMap + ')');
 							}
 
 							// Si nous avons une alpha map ou des couleurs transparentes,

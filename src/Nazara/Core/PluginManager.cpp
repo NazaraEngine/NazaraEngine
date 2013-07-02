@@ -150,7 +150,7 @@ void NzPluginManager::Uninitialize()
 {
 	s_directories.clear();
 
-	for (auto pair : s_plugins)
+	for (auto& pair : s_plugins)
 	{
 		PluginUnload func = reinterpret_cast<PluginUnload>(pair.second->GetSymbol("NzPluginUnload"));
 		if (func)
