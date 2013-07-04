@@ -1031,8 +1031,6 @@ void SHA512_End(SHA_CTX* context, nzUInt8* digest)
 #endif
 	}
 
-	/* Zero out state data */
-	std::memset(context, 0, sizeof(context));
 }
 
 
@@ -1071,6 +1069,4 @@ void SHA384_End(SHA_CTX* context, nzUInt8* digest)
 #endif
 	}
 
-	/* Zero out state data */
-	std::memset(context, 0, sizeof(context));
 }
