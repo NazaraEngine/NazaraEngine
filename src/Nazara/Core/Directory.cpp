@@ -215,7 +215,7 @@ bool NzDirectory::Copy(const NzString& sourcePath, const NzString& destPath)
 		return false;
 	}
 
-	while (dir.NextResult(true));
+	while (dir.NextResult(true))
 	{
 		if (dir.IsResultDirectory())
 		{
