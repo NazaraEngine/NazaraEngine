@@ -33,12 +33,7 @@ void NzResource::AddResourceListener(NzResourceListener* listener, int index) co
 	NazaraLock(m_mutex)
 
 	if (m_resourceListeners.insert(NzResourceEntry(listener, index)).second)
-	{
 		m_resourceListenerUpdated = false;
-
-		// AddResourceReference()
-		m_resourceReferenceCount++;
-	}
 }
 
 void NzResource::AddResourceReference() const
@@ -56,16 +51,12 @@ bool NzResource::IsPersistent() const
 	return m_resourcePersistent;
 }
 
-bool NzResource::RemoveResourceListener(NzResourceListener* listener) const
+void NzResource::RemoveResourceListener(NzResourceListener* listener) const
 {
 	NazaraMutexLock(m_mutex);
 
 	if (m_resourceListeners.erase(listener) != 0)
 		m_resourceListenerUpdated = false;
-	else
-		NazaraError(NzString::Pointer(listener) + " is not a listener of " + NzString::Pointer(this));
-
-	return RemoveResourceReference();
 }
 
 bool NzResource::RemoveResourceReference() const
