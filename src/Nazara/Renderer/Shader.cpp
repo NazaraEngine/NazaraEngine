@@ -618,7 +618,7 @@ bool NzShader::IsTypeSupported(nzShaderType type)
 			return true;
 
 		case nzShaderType_Geometry:
-			return false; // ??
+			return NzOpenGL::GetVersion() >= 320;
 
 		default:
 			NazaraError("Shader type not handled (0x" + NzString::Number(type, 16) + ')');
