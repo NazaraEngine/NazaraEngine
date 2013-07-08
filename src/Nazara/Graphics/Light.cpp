@@ -23,7 +23,7 @@ m_boundingVolumeUpdated(false),
 m_attenuation(0.9f),
 m_innerAngle(15.f),
 m_outerAngle(45.f),
-m_radius(500.f)
+m_radius(5.f)
 {
 }
 
