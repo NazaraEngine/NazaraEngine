@@ -46,7 +46,6 @@ namespace
 	struct MatrixUnit
 	{
 		NzMatrix4f matrix;
-		bool sent;
 		bool updated;
 		int location;
 	};
@@ -84,6 +83,7 @@ namespace
 	const NzVertexDeclaration* s_instancingDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
+	bool s_uniformTargetSizeUpdated;
 	bool s_useSamplerObjects;
 	bool s_useVertexArrayObjects;
 	unsigned int s_maxRenderTarget;
@@ -512,7 +512,6 @@ bool NzRenderer::Initialize()
 		MatrixUnit& unit = s_matrices[i];
 		unit.location = -1;
 		unit.matrix.MakeIdentity();
-		unit.sent = false;
 		unit.updated = true;
 	}
 
@@ -555,7 +554,6 @@ bool NzRenderer::Initialize()
 		GLint maxTextureUnits;
 		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 
-		// Impossible de binder plus de texcoords que d'attributes (en sachant qu'un certain nombre est déjà pris par les autres attributs)
 		s_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
 	}
 	else
@@ -571,6 +569,7 @@ bool NzRenderer::Initialize()
 	s_shader = nullptr;
 	s_target = nullptr;
 	s_textureUnits.resize(s_maxTextureUnit);
+	s_uniformTargetSizeUpdated = false;
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
 	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 	s_vertexBuffer = nullptr;
@@ -1059,6 +1058,8 @@ bool NzRenderer::SetTarget(const NzRenderTarget* target)
 
 		s_target = target;
 		s_targetSize.Set(target->GetWidth(), target->GetHeight());
+
+		s_uniformTargetSizeUpdated = false;
 	}
 
 	return true;
@@ -1067,9 +1068,9 @@ bool NzRenderer::SetTarget(const NzRenderTarget* target)
 void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (unit >= s_textureUnits.size())
+	if (unit >= s_maxTextureUnit)
 	{
-		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_textureUnits.size()) + ')');
+		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_maxTextureUnit) + ')');
 		return;
 	}
 	#endif
@@ -1093,9 +1094,9 @@ void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 void NzRenderer::SetTextureSampler(nzUInt8 unit, const NzTextureSampler& sampler)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (unit >= s_textureUnits.size())
+	if (unit >= s_maxTextureUnit)
 	{
-		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_textureUnits.size()) + ')');
+		NazaraError("Texture unit out of range (" + NzString::Number(unit) + " >= " + NzString::Number(s_maxTextureUnit) + ')');
 		return;
 	}
 	#endif
@@ -1251,14 +1252,29 @@ bool NzRenderer::EnsureStateUpdate()
 		s_matrices[nzMatrixType_WorldView].location = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
 		s_matrices[nzMatrixType_WorldViewProj].location = shaderImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
 
-		s_updateFlags |= Update_Matrices;
-		for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
-			s_matrices[i].sent = false; // Changement de shader, on renvoie toutes les matrices demandées
+		s_uniformTargetSizeUpdated = false;
+		s_updateFlags |= Update_Matrices; // Changement de shader, on renvoie toutes les matrices demandées
 
 		s_updateFlags &= ~Update_Shader;
 	}
 
 	shaderImpl->BindTextures();
+
+	// Envoi des uniformes liées au Renderer
+	if (!s_uniformTargetSizeUpdated)
+	{
+		int location;
+
+		location = shaderImpl->GetUniformLocation(nzShaderUniform_InvTargetSize);
+		if (location != -1)
+			shaderImpl->SendVector(location, 1.f/NzVector2f(s_targetSize));
+
+		location = shaderImpl->GetUniformLocation(nzShaderUniform_TargetSize);
+		if (location != -1)
+			shaderImpl->SendVector(location, 1.f/NzVector2f(s_targetSize));
+
+		s_uniformTargetSizeUpdated = true;
+	}
 
 	if (s_updateFlags != Update_None)
 	{
@@ -1316,7 +1332,6 @@ bool NzRenderer::EnsureStateUpdate()
 						UpdateMatrix(static_cast<nzMatrixType>(i));
 
 					shaderImpl->SendMatrix(unit.location, unit.matrix);
-					unit.sent = true;
 				}
 			}
 

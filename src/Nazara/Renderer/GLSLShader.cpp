@@ -65,6 +65,7 @@ bool NzGLSLShader::Compile()
 		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = GetUniformLocation(#name)
 
 		CacheUniform(CameraPosition);
+		CacheUniform(InvTargetSize);
 		CacheUniform(LightCount);
 		CacheUniform(MaterialAlphaMap);
 		CacheUniform(MaterialAlphaThreshold);
@@ -79,6 +80,7 @@ bool NzGLSLShader::Compile()
 		CacheUniform(MaterialSpecularMap);
 		CacheUniform(ProjMatrix);
 		CacheUniform(SceneAmbient);
+		CacheUniform(TargetSize);
 		CacheUniform(ViewMatrix);
 		CacheUniform(ViewProjMatrix);
 		CacheUniform(WorldMatrix);

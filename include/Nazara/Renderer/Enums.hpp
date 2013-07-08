@@ -181,6 +181,7 @@ enum nzShaderLanguage
 enum nzShaderUniform
 {
 	nzShaderUniform_CameraPosition,
+	nzShaderUniform_InvTargetSize,
 	nzShaderUniform_LightCount,
 	nzShaderUniform_MaterialAlphaMap,
 	nzShaderUniform_MaterialAlphaThreshold,
@@ -195,6 +196,7 @@ enum nzShaderUniform
 	nzShaderUniform_MaterialSpecularMap,
 	nzShaderUniform_ProjMatrix,
 	nzShaderUniform_SceneAmbient,
+	nzShaderUniform_TargetSize,
 	nzShaderUniform_ViewMatrix,
 	nzShaderUniform_ViewProjMatrix,
 	nzShaderUniform_WorldMatrix,
