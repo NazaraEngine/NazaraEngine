@@ -2,6 +2,10 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#ifndef NAZARA_RENDERER_OPENGL
+#define NAZARA_RENDERER_OPENGL // Nécessaire pour inclure les headers OpenGL
+#endif
+
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -11,6 +15,9 @@
 
 namespace
 {
+	static NzShader* s_shader = nullptr;
+	static int s_textureLocation;
+
 	NzShader* BuildShader()
 	{
 		const char* fragmentSource110 =
@@ -76,20 +83,16 @@ namespace
 			return nullptr;
 		}
 
+		s_textureLocation = shader->GetUniformLocation("Texture");
+
 		return shader.release();
 	}
-
-	static NzShader* s_shader = nullptr;
-	static unsigned int s_textureLocation;
 }
 
 NzTextureBackground::NzTextureBackground()
 {
 	if (!s_shader)
-	{
 		s_shader = BuildShader();
-		s_textureLocation = s_shader->GetUniformLocation("Texture");
-	}
 
 	m_shader = s_shader;
 }
