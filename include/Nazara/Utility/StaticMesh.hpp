@@ -44,8 +44,8 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		void OnResourceReleased(const NzResource* resource, int index) override;
 
 		NzBoxf m_aabb;
-		const NzIndexBuffer* m_indexBuffer = nullptr;
-		NzVertexBuffer* m_vertexBuffer = nullptr;
+		NzIndexBufferConstRef m_indexBuffer = nullptr;
+		NzVertexBufferRef m_vertexBuffer = nullptr;
 };
 
 #endif // NAZARA_STATICMESH_HPP
