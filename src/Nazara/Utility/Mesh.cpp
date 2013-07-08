@@ -92,6 +92,7 @@ void NzMesh::AddSubMesh(NzSubMesh* subMesh)
 	#endif
 
 	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
+	subMesh->AddResourceReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -135,6 +136,7 @@ void NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	int index = m_impl->subMeshes.size();
 
 	subMesh->AddResourceListener(this, index);
+	subMesh->AddResourceReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -351,7 +353,10 @@ void NzMesh::Destroy()
 		NotifyDestroy();
 
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
+		{
 			subMesh->RemoveResourceListener(this);
+			subMesh->RemoveResourceReference();
+		}
 
 		delete m_impl;
 		m_impl = nullptr;
@@ -838,10 +843,13 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 
 	// On déplace l'itérateur du début d'une distance de x
 	auto it2 = m_impl->subMeshes.begin();
-	std::advance(it, index);
+	std::advance(it2, index);
 
 	// On libère la ressource
-	(*it2)->RemoveResourceListener(this);
+	NzSubMesh* subMesh = *it2;
+	subMesh->RemoveResourceListener(this);
+	subMesh->RemoveResourceReference();
+
 	m_impl->subMeshes.erase(it2);
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
@@ -868,7 +876,10 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	std::advance(it, index);
 
 	// On libère la ressource
-	(*it)->RemoveResourceListener(this);
+	NzSubMesh* subMesh = *it;
+	subMesh->RemoveResourceListener(this);
+	subMesh->RemoveResourceReference();
+
 	m_impl->subMeshes.erase(it);
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
