@@ -11,6 +11,21 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+namespace
+{
+	enum ResourceType
+	{
+		ResourceType_Material,
+		ResourceType_SkeletalMesh,
+		ResourceType_StaticMesh
+	};
+}
+
+NzForwardRenderQueue::~NzForwardRenderQueue()
+{
+	Clear(true);
+}
+
 void NzForwardRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	#if NAZARA_GRAPHICS_SAFE
@@ -42,7 +57,7 @@ void NzForwardRenderQueue::AddLight(const NzLight* light)
 
 		case nzLightType_Point:
 		case nzLightType_Spot:
-			visibleLights.push_back(light);
+			lights.push_back(light);
 			break;
 
 		#ifdef NAZARA_DEBUG
@@ -113,10 +128,22 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 					data.mesh = staticMesh;
 					data.transformMatrix = transformMatrix;
 
-					visibleTransparentsModels.push_back(std::make_pair(index, true));
+					transparentsModels.push_back(std::make_pair(index, true));
 				}
 				else
-					visibleModels[material].second[staticMesh].push_back(transformMatrix);
+				{
+					auto pair = opaqueModels.insert(std::make_pair(material, MeshContainer::mapped_type()));
+					if (pair.second)
+						material->AddResourceListener(this, ResourceType_Material);
+
+					auto& meshMap = pair.first->second.second;
+
+					auto pair2 = meshMap.insert(std::make_pair(staticMesh, StaticMeshContainer::mapped_type()));
+					if (pair2.second)
+						staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
+
+					pair2.first->second.push_back(transformMatrix);
+				}
 
 				break;
 			}
@@ -127,14 +154,14 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 void NzForwardRenderQueue::Clear(bool fully)
 {
 	directionnalLights.clear();
+	lights.clear();
 	otherDrawables.clear();
-	visibleLights.clear();
-	visibleTransparentsModels.clear();
+	transparentsModels.clear();
 	transparentSkeletalModels.clear();
 	transparentStaticModels.clear();
 
 	if (fully)
-		visibleModels.clear();
+		opaqueModels.clear();
 }
 
 void NzForwardRenderQueue::Sort(const NzCamera& camera)
@@ -163,12 +190,35 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 	};
 
 	TransparentModelComparator comparator {this, camera.GetFrustum().GetPlane(nzFrustumPlane_Near), camera.GetForward()};
-	std::sort(visibleTransparentsModels.begin(), visibleTransparentsModels.end(), comparator);
+	std::sort(transparentsModels.begin(), transparentsModels.end(), comparator);
 }
 
 void NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
 {
+	switch (index)
+	{
+		case ResourceType_Material:
+			opaqueModels.erase(static_cast<const NzMaterial*>(resource));
+			break;
 
+		case ResourceType_SkeletalMesh:
+		{
+			for (auto& pair : opaqueModels)
+				pair.second.first.erase(static_cast<const NzSkeletalMesh*>(resource));
+
+			break;
+		}
+
+		case ResourceType_StaticMesh:
+		{
+			for (auto& pair : opaqueModels)
+				pair.second.second.erase(static_cast<const NzStaticMesh*>(resource));
+
+			break;
+		}
+	}
+
+	resource->RemoveResourceListener(this);
 }
 
 bool NzForwardRenderQueue::SkeletalMeshComparator::operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2)
