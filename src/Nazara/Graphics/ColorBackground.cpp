@@ -2,6 +2,10 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#ifndef NAZARA_RENDERER_OPENGL
+#define NAZARA_RENDERER_OPENGL // Nécessaire pour inclure les headers OpenGL
+#endif
+
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Graphics/ColorBackGround.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
