@@ -26,7 +26,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 	public:
 		NzForwardRenderQueue() = default;
-		~NzForwardRenderQueue() = default;
+		~NzForwardRenderQueue();
 
 		void AddDrawable(const NzDrawable* drawable);
 		void AddLight(const NzLight* light);
@@ -38,14 +38,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 	private:
 		void OnResourceDestroy(const NzResource* resource, int index);
-
-		struct BillboardData
-		{
-			NzColor color;
-			NzVector3f position;
-			NzVector2f size;
-			float rotation;
-		};
 
 		struct MaterialComparator
 		{
@@ -85,17 +77,18 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 			NzStaticMesh* mesh;
 		};
 
-		typedef std::map<NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
-		typedef std::map<NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
+		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
+		typedef std::map<const NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
+		typedef std::map<const NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, MaterialComparator> MeshContainer;
 
-		std::map<NzMaterial*, std::vector<BillboardData>, MaterialComparator> billboards;
-		std::map<NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, MaterialComparator> visibleModels;
-		std::vector<std::pair<unsigned int, bool>> visibleTransparentsModels;
+		std::map<const NzMaterial*, std::vector<BillboardData>, MaterialComparator> billboards;
+		MeshContainer opaqueModels;
+		std::vector<std::pair<unsigned int, bool>> transparentsModels;
 		std::vector<TransparentSkeletalModel> transparentSkeletalModels;
 		std::vector<TransparentStaticModel> transparentStaticModels;
 		std::vector<const NzDrawable*> otherDrawables;
 		std::vector<const NzLight*> directionnalLights;
-		std::vector<const NzLight*> visibleLights;
+		std::vector<const NzLight*> lights;
 };
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP
