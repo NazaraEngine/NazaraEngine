@@ -1271,7 +1271,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 		location = shaderImpl->GetUniformLocation(nzShaderUniform_TargetSize);
 		if (location != -1)
-			shaderImpl->SendVector(location, 1.f/NzVector2f(s_targetSize));
+			shaderImpl->SendVector(location, NzVector2f(s_targetSize));
 
 		s_uniformTargetSizeUpdated = true;
 	}
