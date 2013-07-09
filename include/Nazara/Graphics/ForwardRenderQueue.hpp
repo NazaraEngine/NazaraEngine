@@ -81,7 +81,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		typedef std::map<const NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
 		typedef std::map<const NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, MaterialComparator> MeshContainer;
 
-		std::map<const NzMaterial*, std::vector<BillboardData>, MaterialComparator> billboards;
 		MeshContainer opaqueModels;
 		std::vector<std::pair<unsigned int, bool>> transparentsModels;
 		std::vector<TransparentSkeletalModel> transparentSkeletalModels;

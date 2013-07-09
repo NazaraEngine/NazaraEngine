@@ -56,14 +56,14 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	int lightCountLocation = -1;
 
 	// Rendu des modèles opaques
-	for (auto& matIt : m_renderQueue.visibleModels)
+	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
 		NzForwardRenderQueue::SkeletalMeshContainer& skeletalContainer = matIt.second.first;
 		NzForwardRenderQueue::StaticMeshContainer& staticContainer = matIt.second.second;
 
 		if (!skeletalContainer.empty() || !staticContainer.empty())
 		{
-			NzMaterial* material = matIt.first;
+			const NzMaterial* material = matIt.first;
 
 			// On commence par récupérer le shader du matériau
 			const NzShader* shader;
@@ -115,7 +115,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			// Meshs statiques
 			for (auto& subMeshIt : staticContainer)
 			{
-				NzStaticMesh* mesh = subMeshIt.first;
+				const NzStaticMesh* mesh = subMeshIt.first;
 				std::vector<NzMatrix4f>& matrices = subMeshIt.second;
 				if (!matrices.empty())
 				{
@@ -146,14 +146,14 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 						///TODO: LightManager ?
 						if (lightCountLocation != -1)
 						{
-							std::vector<const NzLight*>& visibleLights = m_renderQueue.visibleLights;
+							std::vector<const NzLight*>& lights = m_renderQueue.lights;
 
 							lightComparator.pos = matrix.GetTranslation();
-							std::sort(visibleLights.begin(), visibleLights.end(), lightComparator);
+							std::sort(lights.begin(), lights.end(), lightComparator);
 
-							unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(visibleLights.size()));
+							unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(lights.size()));
 							for (unsigned int i = 0; i < max; ++i)
-								visibleLights[i]->Apply(shader, lightCount++);
+								lights[i]->Apply(shader, lightCount++);
 
 							shader->SendInteger(lightCountLocation, lightCount);
 						}
@@ -167,7 +167,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 		}
 	}
 
-	for (const std::pair<unsigned int, bool>& pair : m_renderQueue.visibleTransparentsModels)
+	for (const std::pair<unsigned int, bool>& pair : m_renderQueue.transparentsModels)
 	{
 		// Matériau
 		NzMaterial* material = (pair.second) ?
@@ -244,14 +244,14 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			///TODO: LightManager ?
 			if (lightCountLocation != -1)
 			{
-				std::vector<const NzLight*>& visibleLights = m_renderQueue.visibleLights;
+				std::vector<const NzLight*>& lights = m_renderQueue.lights;
 
 				lightComparator.pos = matrix.GetTranslation();
-				std::sort(visibleLights.begin(), visibleLights.end(), lightComparator);
+				std::sort(lights.begin(), lights.end(), lightComparator);
 
-				unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(visibleLights.size()));
+				unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(lights.size()));
 				for (unsigned int i = 0; i < max; ++i)
-					visibleLights[i]->Apply(shader, lightCount++);
+					lights[i]->Apply(shader, lightCount++);
 
 				shader->SendInteger(lightCountLocation, lightCount);
 			}
