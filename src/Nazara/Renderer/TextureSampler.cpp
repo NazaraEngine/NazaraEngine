@@ -214,8 +214,10 @@ void NzTextureSampler::SetDefaultWrapMode(nzSamplerWrap wrapMode)
 
 void NzTextureSampler::Apply(const NzTexture* texture) const
 {
-	// On considère que la texture est déjà active lors de l'appel à cette fonction
-	GLenum target = NzOpenGL::TextureTarget[texture->GetType()];
+	nzImageType type = texture->GetType();
+	GLenum target = NzOpenGL::TextureTarget[type];
+
+	NzOpenGL::BindTexture(type, texture->GetOpenGLID());
 
 	if (s_useAnisotropicFilter)
 	{
@@ -259,7 +261,7 @@ void NzTextureSampler::Apply(const NzTexture* texture) const
 	}
 
 	GLenum wrapMode = NzOpenGL::SamplerWrapMode[(m_wrapMode == nzSamplerWrap_Default) ? s_defaultWrapMode : m_wrapMode];
-	switch (texture->GetType())
+	switch (type)
 	{
 		// Notez l'absence de "break" ici
 		case nzImageType_3D:
@@ -317,29 +319,18 @@ void NzTextureSampler::UpdateSamplerId() const
 		switch (filterMode)
 		{
 			case nzSamplerFilter_Bilinear:
-				if (m_mipmaps)
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-				else
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+				glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, (m_mipmaps) ? GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR);
 				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				break;
 
 			case nzSamplerFilter_Nearest:
-				if (m_mipmaps)
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-				else
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+				glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, (m_mipmaps) ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
 				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				break;
 
 			case nzSamplerFilter_Trilinear:
-				if (m_mipmaps)
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				else
-					glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtrage bilinéaire
-
+				// Équivalent au filtrage bilinéaire si les mipmaps sont absentes
+				glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, (m_mipmaps) ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 				glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				break;
 
