@@ -12,8 +12,6 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <map>
 
-class NzUtility;
-
 class NzPixelFormat
 {
 	friend class NzUtility;
