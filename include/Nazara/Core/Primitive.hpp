@@ -33,7 +33,7 @@ struct NzPrimitive
 	static NzPrimitive CubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 	static NzPrimitive IcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
 	static NzPrimitive IcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
-	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision = NzVector2ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
 	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane);
 	static NzPrimitive Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 	static NzPrimitive UVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
