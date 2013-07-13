@@ -36,6 +36,7 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_PixelBufferObject,
 	nzOpenGLExtension_SamplerObjects,
 	nzOpenGLExtension_SeparateShaderObjects,
+	nzOpenGLExtension_Shader_ImageLoadStore,
 	nzOpenGLExtension_TextureArray,
 	nzOpenGLExtension_TextureCompression_s3tc,
 	nzOpenGLExtension_TextureStorage,
@@ -84,6 +85,7 @@ class NAZARA_API NzOpenGL
 		static GLuint GetCurrentProgram();
 		static GLuint GetCurrentTexture();
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
+		static unsigned int GetGLSLVersion();
 		static NzString GetRendererName();
 		static unsigned int GetTextureUnit();
 		static NzString GetVendorName();

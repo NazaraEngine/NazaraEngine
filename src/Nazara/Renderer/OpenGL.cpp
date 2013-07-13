@@ -76,6 +76,7 @@ namespace
 	const char* s_vendorName = nullptr;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
+	unsigned int s_glslVersion = 0;
 	unsigned int s_openglVersion = 0;
 
 	bool LoadExtensionsString(const NzString& extensionString)
@@ -427,6 +428,11 @@ NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 	return LoadEntry(entryPoint.GetConstBuffer(), false);
 }
 
+unsigned int NzOpenGL::GetGLSLVersion()
+{
+	return s_glslVersion;
+}
+
 NzString NzOpenGL::GetRendererName()
 {
 	return s_rendererName;
@@ -502,7 +508,7 @@ bool NzOpenGL::Initialize()
 	glXCreateContextAttribs = reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(LoadEntry("glXCreateContextAttribsARB", false));
 	#endif
 
-	// Récupération de la version d'OpenGL
+	// Récupération de la version d'OpenGL et du GLSL
 	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
 	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
 	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString", false));
@@ -514,7 +520,11 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	const GLubyte* version = glGetString(GL_VERSION);
+	const GLubyte* version;
+	unsigned int major;
+	unsigned int minor;
+
+	version = glGetString(GL_VERSION);
 	if (!version)
 	{
 		NazaraError("Unable to retrieve OpenGL version");
@@ -523,8 +533,8 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	unsigned int major = version[0] - '0';
-	unsigned int minor = version[2] - '0';
+	major = version[0] - '0';
+	minor = version[2] - '0';
 
 	if (major == 0 || major > 9)
 	{
@@ -542,6 +552,39 @@ bool NzOpenGL::Initialize()
 	if (s_openglVersion < 200)
 	{
 		NazaraError("OpenGL version is too low, please upgrade your drivers or your video card");
+		Uninitialize();
+
+		return false;
+	}
+
+	version = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	if (!version)
+	{
+		NazaraError("Unable to retrieve GLSL version");
+		Uninitialize();
+
+		return false;
+	}
+
+	major = version[0] - '0';
+	minor = version[2] - '0';
+
+	if (major == 0 || major > 9)
+	{
+		NazaraError("Unable to retrieve GLSL major version");
+		return false;
+	}
+
+	if (minor > 9)
+	{
+		NazaraWarning("Unable to retrieve GLSL minor version (using 0)");
+		minor = 0;
+	}
+
+	s_glslVersion = major*100 + minor*10;
+	if (s_glslVersion < 110)
+	{
+		NazaraError("GLSL version is too low, please upgrade your drivers or your video card");
 		Uninitialize();
 
 		return false;
@@ -900,6 +943,9 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
+	// Shader_ImageLoadStore
+	s_openGLextensions[nzOpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));
+
 	// TextureArray
 	s_openGLextensions[nzOpenGLExtension_TextureArray] = (s_openglVersion >= 300 || IsSupported("GL_EXT_texture_array"));
 
@@ -1133,6 +1179,7 @@ void NzOpenGL::Uninitialize()
 		for (bool& ext : s_openGLextensions)
 			ext = false;
 
+		s_glslVersion = 0;
 		s_initialized = false;
 		s_openGLextensionSet.clear();
 		s_openglVersion = 0;
