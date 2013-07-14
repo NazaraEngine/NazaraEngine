@@ -7,7 +7,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderManager.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -529,7 +529,19 @@ bool NzDebugDrawer::Initialize()
 	{
 		// Shader
 		{
-			shader = NzShaderBuilder::Get(nzShaderFlags_None);
+			NzShaderManagerParams params;
+			params.target = nzShaderTarget_Model;
+			params.flags = 0;
+			params.model.alphaMapping = false;
+			params.model.alphaTest = false;
+			params.model.diffuseMapping = false;
+			params.model.emissiveMapping = false;
+			params.model.lighting = false;
+			params.model.normalMapping = false;
+			params.model.parallaxMapping = false;
+			params.model.specularMapping = false;
+
+			shader = NzShaderManager::Get(params);
 			if (!shader)
 			{
 				NazaraError("Failed to build debug shader");

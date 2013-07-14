@@ -57,7 +57,6 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTexture* GetAlphaMap() const;
 		float GetAlphaThreshold() const;
 		NzColor GetAmbientColor() const;
-		const NzShader* GetCustomShader() const;
 		nzRendererComparison GetDepthFunc() const;
 		NzColor GetDiffuseColor() const;
 		NzTexture* GetDiffuseMap() const;
@@ -70,7 +69,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTexture* GetHeightMap() const;
 		NzTexture* GetNormalMap() const;
 		const NzRenderStates& GetRenderStates() const;
-		nzUInt32 GetShaderFlags() const;
+		const NzShader* GetShader(nzShaderTarget target, nzUInt32 flags) const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		NzTexture* GetSpecularMap() const;
@@ -78,10 +77,15 @@ class NAZARA_API NzMaterial : public NzResource
 		const NzTextureSampler& GetSpecularSampler() const;
 		nzBlendFunc GetSrcBlend() const;
 
-		bool HasCustomShader() const;
+		bool HasAlphaMap() const;
+		bool HasDiffuseMap() const;
+		bool HasEmissiveMap() const;
+		bool HasHeightMap() const;
+		bool HasNormalMap() const;
+		bool HasSpecularMap() const;
 
-		bool IsEnabled(nzRendererParameter renderParameter) const;
 		bool IsAlphaTestEnabled() const;
+		bool IsEnabled(nzRendererParameter renderParameter) const;
 		bool IsLightingEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
@@ -94,7 +98,6 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetAlphaMap(NzTexture* map);
 		void SetAlphaThreshold(float alphaThreshold);
 		void SetAmbientColor(const NzColor& ambient);
-		void SetCustomShader(const NzShader* shader);
 		void SetDepthFunc(nzRendererComparison depthFunc);
 		void SetDiffuseColor(const NzColor& diffuse);
 		bool SetDiffuseMap(const NzString& texturePath);
@@ -110,6 +113,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool SetNormalMap(const NzString& texturePath);
 		void SetNormalMap(NzTexture* map);
 		void SetRenderStates(const NzRenderStates& states);
+		void SetShader(nzShaderTarget target, nzUInt32 flags, const NzShader* shader);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		bool SetSpecularMap(const NzString& texturePath);
@@ -123,19 +127,26 @@ class NAZARA_API NzMaterial : public NzResource
 		static NzMaterial* GetDefault();
 
 	private:
+		struct ShaderUnit
+		{
+			NzShaderConstRef shader;
+			bool custom = false;
+		};
+
 		void Copy(const NzMaterial& material);
+		void GenerateShader(nzShaderTarget target, nzUInt32 flags) const;
+		void InvalidateShaders(nzShaderTarget target);
 
 		static bool Initialize();
 		static void Uninitialize();
 
-		nzUInt32 m_shaderFlags;
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
 		NzRenderStates m_states;
+		mutable ShaderUnit m_shaders[nzShaderTarget_Max+1][nzShaderFlags_Max+1];
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
-		mutable NzShaderConstRef m_customShader;
 		NzTextureRef m_alphaMap;
 		NzTextureRef m_diffuseMap;
 		NzTextureRef m_emissiveMap;

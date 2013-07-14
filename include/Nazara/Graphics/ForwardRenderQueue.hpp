@@ -39,7 +39,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 	private:
 		void OnResourceDestroy(const NzResource* resource, int index);
 
-		struct MaterialComparator
+		struct ModelMaterialComparator
 		{
 			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
 		};
@@ -53,6 +53,12 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		struct SkeletalMeshComparator
 		{
 			bool operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2);
+		};
+
+		struct StaticData
+		{
+			NzBoxf aabb;
+			NzMatrix4f transformMatrix;
 		};
 
 		struct StaticMeshComparator
@@ -78,8 +84,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		};
 
 		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
-		typedef std::map<const NzStaticMesh*, std::vector<NzMatrix4f>, StaticMeshComparator> StaticMeshContainer;
-		typedef std::map<const NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, MaterialComparator> MeshContainer;
+		typedef std::map<const NzStaticMesh*, std::vector<StaticData>, StaticMeshComparator> StaticMeshContainer;
+		typedef std::map<const NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, ModelMaterialComparator> MeshContainer;
 
 		MeshContainer opaqueModels;
 		std::vector<std::pair<unsigned int, bool>> transparentsModels;

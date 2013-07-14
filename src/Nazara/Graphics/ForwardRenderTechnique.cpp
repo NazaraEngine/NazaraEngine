@@ -10,20 +10,107 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
+#include <limits>
+#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace
 {
-	struct LightComparator
+	class LightManager
 	{
-		bool operator()(const NzLight* light1, const NzLight* light2)
-		{
-			return light1->GetPosition().SquaredDistance(pos) < light2->GetPosition().SquaredDistance(pos);
-		}
+		public:
+			LightManager() = default;
+			~LightManager() = default;
 
-		NzVector3f pos;
+			unsigned int FindClosestLights(const NzLight** lights, unsigned int lightCount, const NzSpheref& object)
+			{
+				for (Light& light : m_lights)
+				{
+					light.light = nullptr;
+					light.score = std::numeric_limits<unsigned int>::max(); // Nous jouons au Golf
+				}
+
+				for (unsigned int i = 0; i < lightCount; ++i)
+				{
+					const NzLight* light = *lights;
+
+					unsigned int score = std::numeric_limits<unsigned int>::max();
+					switch (light->GetLightType())
+					{
+						case nzLightType_Directional:
+							score = 0; // Lumière choisie d'office
+							break;
+
+						case nzLightType_Point:
+						{
+							NzSpheref lightSphere(light->GetPosition(), light->GetRadius());
+
+							if (lightSphere.Intersect(object))
+								score = static_cast<unsigned int>(light->GetPosition().SquaredDistance(object.GetPosition())*1000.f);
+
+							break;
+						}
+
+						case nzLightType_Spot:
+						{
+							NzSpheref lightSphere(light->GetPosition(), light->GetRadius());
+
+							///TODO: Attribuer bonus/malus selon l'angle du spot ?
+							if (lightSphere.Intersect(object))
+								score = static_cast<unsigned int>(light->GetPosition().SquaredDistance(object.GetPosition())*1000.f);
+
+							break;
+						}
+					}
+
+					if (score < m_lights[0].score)
+					{
+						unsigned int j;
+						for (j = 1; j < 3; ++j) ///TODO: Constante
+						{
+							if (score > m_lights[j].score)
+								break;
+						}
+
+						j--; // Position de la nouvelle lumière
+
+						// Décalage
+						std::memcpy(&m_lights[0], &m_lights[1], j*sizeof(Light));
+
+						m_lights[j].light = light;
+						m_lights[j].score = score;
+					}
+
+					lights++;
+				}
+
+				unsigned int i;
+				for (i = 0; i < 3; ++i) ///TODO: Constante
+				{
+					if (m_lights[i].light)
+						break;
+				}
+
+				return 3-i; ///TODO: Constante
+			}
+
+			const NzLight* GetLight(unsigned int i) const
+			{
+				///TODO: Constante
+				return m_lights[3-i-1].light; // Les lumières sont stockées dans l'ordre inverse (De la plus éloignée à la plus proche)
+			}
+
+		private:
+			struct Light
+			{
+				const NzLight* light;
+				unsigned int score;
+			};
+
+			Light m_lights[3]; ///TODO: Constante
 	};
 }
 
@@ -46,14 +133,10 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 void NzForwardRenderTechnique::Draw(const NzScene* scene)
 {
 	///TODO: Regrouper les activations par méthode
-	LightComparator lightComparator;
+	LightManager lightManager;
 
 	const NzCamera* camera = scene->GetActiveCamera();
 	const NzShader* lastShader = nullptr;
-
-	// Externes à la boucle pour conserver leur valeurs si le shader ne change pas
-	unsigned int lightCount = 0;
-	int lightCountLocation = -1;
 
 	// Rendu des modèles opaques
 	for (auto& matIt : m_renderQueue.opaqueModels)
@@ -66,18 +149,13 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			const NzMaterial* material = matIt.first;
 
 			// On commence par récupérer le shader du matériau
-			const NzShader* shader;
-			if (material->HasCustomShader())
-				shader = material->GetCustomShader();
-			else
-				shader = NzShaderBuilder::Get(material->GetShaderFlags());
+			const NzShader* shader = material->GetShader(nzShaderTarget_Model, 0);
+
+			unsigned int lightCount = 0;
 
 			// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
 			if (shader != lastShader)
 			{
-				// On récupère l'information sur l'éclairage en même temps que la position de l'uniforme "LightCount"
-				lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
-
 				NzRenderer::SetShader(shader);
 
 				// Couleur ambiante de la scène
@@ -85,18 +163,11 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 				// Position de la caméra
 				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
 
-				lightCount = 0;
-
 				// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-				if (lightCountLocation != -1)
-				{
-					for (const NzLight* light : m_renderQueue.directionnalLights)
-					{
-						light->Apply(shader, lightCount++);
-						if (lightCount > NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT)
-							break; // Prévenons les bêtises des utilisateurs
-					}
-				}
+				lightCount = m_renderQueue.directionnalLights.size();
+				for (unsigned int i = 0; i < lightCount; ++i)
+					m_renderQueue.directionnalLights[i]->Enable(shader, i);
+
 				lastShader = shader;
 			}
 
@@ -116,8 +187,9 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			for (auto& subMeshIt : staticContainer)
 			{
 				const NzStaticMesh* mesh = subMeshIt.first;
-				std::vector<NzMatrix4f>& matrices = subMeshIt.second;
-				if (!matrices.empty())
+				std::vector<NzForwardRenderQueue::StaticData>& staticData = subMeshIt.second;
+
+				if (!staticData.empty())
 				{
 					const NzIndexBuffer* indexBuffer = mesh->GetIndexBuffer();
 					const NzVertexBuffer* vertexBuffer = mesh->GetVertexBuffer();
@@ -140,28 +212,25 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 					NzRenderer::SetIndexBuffer(indexBuffer);
 					NzRenderer::SetVertexBuffer(vertexBuffer);
 
-					for (const NzMatrix4f& matrix : matrices)
+					for (const NzForwardRenderQueue::StaticData& data : staticData)
 					{
 						// Calcul des lumières les plus proches
-						///TODO: LightManager ?
-						if (lightCountLocation != -1)
+						if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 						{
-							std::vector<const NzLight*>& lights = m_renderQueue.lights;
+							unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetBoundingSphere());
+							count -= lightCount;
 
-							lightComparator.pos = matrix.GetTranslation();
-							std::sort(lights.begin(), lights.end(), lightComparator);
-
-							unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(lights.size()));
-							for (unsigned int i = 0; i < max; ++i)
-								lights[i]->Apply(shader, lightCount++);
-
-							shader->SendInteger(lightCountLocation, lightCount);
+							for (unsigned int i = 0; i < count; ++i)
+								lightManager.GetLight(i)->Enable(shader, lightCount++);
 						}
 
-						NzRenderer::SetMatrix(nzMatrixType_World, matrix);
+						for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
+							NzLight::Disable(shader, i);
+
+						NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
 						drawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
 					}
-					matrices.clear();
+					staticData.clear();
 				}
 			}
 		}
@@ -175,18 +244,13 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 		                       m_renderQueue.transparentSkeletalModels[pair.first].material;
 
 		// On commence par récupérer le shader du matériau
-		const NzShader* shader;
-		if (material->HasCustomShader())
-			shader = material->GetCustomShader();
-		else
-			shader = NzShaderBuilder::Get(material->GetShaderFlags());
+		const NzShader* shader = material->GetShader(nzShaderTarget_Model, 0);
+
+		unsigned int lightCount = 0;
 
 		// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
 		if (shader != lastShader)
 		{
-			// On récupère l'information sur l'éclairage en même temps que la position de l'uniforme "LightCount"
-			lightCountLocation = shader->GetUniformLocation(nzShaderUniform_LightCount);
-
 			NzRenderer::SetShader(shader);
 
 			// Couleur ambiante de la scène
@@ -194,18 +258,11 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			// Position de la caméra
 			shader->SendVector(shader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
 
-			lightCount = 0;
-
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-			if (lightCountLocation != -1)
-			{
-				for (const NzLight* light : m_renderQueue.directionnalLights)
-				{
-					light->Apply(shader, lightCount++);
-					if (lightCount > NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT)
-						break; // Prévenons les bêtises des utilisateurs
-				}
-			}
+			lightCount = m_renderQueue.directionnalLights.size();
+			for (unsigned int i = 0; i < lightCount; ++i)
+				m_renderQueue.directionnalLights[i]->Enable(shader, i);
+
 			lastShader = shader;
 		}
 
@@ -241,20 +298,17 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			NzRenderer::SetVertexBuffer(vertexBuffer);
 
 			// Calcul des lumières les plus proches
-			///TODO: LightManager ?
-			if (lightCountLocation != -1)
+			if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 			{
-				std::vector<const NzLight*>& lights = m_renderQueue.lights;
+				unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), staticModel.aabb.GetBoundingSphere());
+				count -= lightCount;
 
-				lightComparator.pos = matrix.GetTranslation();
-				std::sort(lights.begin(), lights.end(), lightComparator);
-
-				unsigned int max = std::min(std::min(NAZARA_RENDERER_SHADER_MAX_LIGHTCOUNT - lightCount, m_maxLightsPerObject), static_cast<unsigned int>(lights.size()));
-				for (unsigned int i = 0; i < max; ++i)
-					lights[i]->Apply(shader, lightCount++);
-
-				shader->SendInteger(lightCountLocation, lightCount);
+				for (unsigned int i = 0; i < count; ++i)
+					lightManager.GetLight(i)->Enable(shader, lightCount++);
 			}
+
+			for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
+				NzLight::Disable(shader, i);
 
 			NzRenderer::SetMatrix(nzMatrixType_World, matrix);
 			drawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
@@ -264,6 +318,51 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			///TODO
 		}
 	}
+
+	// Les billboards
+	/*if (!m_renderQueue.billboards.empty())
+	{
+		//NzRenderer::SetIndexBuffer(m_billboardIndexBuffer);
+		NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
+		NzRenderer::SetShader(m_billboardShader);
+		NzRenderer::SetVertexBuffer(m_billboardVertexBuffer);
+
+		m_billboardShader->SendVector(s_cameraForwardLocation, camera->GetForward());
+		m_billboardShader->SendVector(s_cameraUpLocation, camera->GetUp());
+		m_billboardShader->SendVector(s_worldUpLocation, NzVector3f::Up());
+
+		// Couleur ambiante de la scène
+		m_billboardShader->SendColor(m_billboardShader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+		// Position de la caméra
+		m_billboardShader->SendVector(m_billboardShader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
+
+		lightCount = 0;
+
+		// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
+		m_renderQueue.lights[0]->Apply(m_billboardShader, 0);
+
+		for (auto& matIt : m_renderQueue.billboards)
+		{
+			const NzMaterial* material = matIt.first;
+			auto& billboards = matIt.second;
+
+			material->Apply(m_billboardShader);
+
+			unsigned int billboardCount = billboards.size();
+			const NzForwardRenderQueue::BillboardData* data = &billboards[0];
+			while (billboardCount > 0)
+			{
+				unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboards);
+				billboardCount -= renderedBillboardCount;
+
+				m_billboardVertexBuffer->FillVertices(data, 0, renderedBillboardCount, true);
+				data += renderedBillboardCount;
+
+				NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, renderedBillboardCount);
+			}
+			billboards.clear();
+		}
+	}*/
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -282,5 +381,5 @@ NzAbstractRenderQueue* NzForwardRenderTechnique::GetRenderQueue()
 
 void NzForwardRenderTechnique::SetMaxLightsPerObject(unsigned int lightCount)
 {
-	m_maxLightsPerObject = lightCount;
+	m_maxLightsPerObject = lightCount; ///TODO: Vérifier par rapport à la constante
 }

@@ -142,7 +142,14 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 					if (pair2.second)
 						staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
 
-					pair2.first->second.push_back(transformMatrix);
+					std::vector<StaticData>& staticDataContainer = pair2.first->second;
+
+					staticDataContainer.resize(staticDataContainer.size()+1);
+					StaticData& data = staticDataContainer.back();
+
+					data.aabb = staticMesh->GetAABB();
+					data.aabb.Transform(transformMatrix);
+					data.transformMatrix = transformMatrix;
 				}
 
 				break;
@@ -257,31 +264,22 @@ bool NzForwardRenderQueue::StaticMeshComparator::operator()(const NzStaticMesh* 
 		return buffer1 < buffer2;
 }
 
-bool NzForwardRenderQueue::MaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+bool NzForwardRenderQueue::ModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	const NzShader* shader1 = mat1->GetCustomShader();
-	const NzShader* shader2 = mat2->GetCustomShader();
-
-	if (shader1)
+	///TODO: Comparaison des shaders
+	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
 	{
-		if (shader2)
-		{
-			if (shader1 != shader2)
-				return shader1 < shader2;
-		}
-		else
-			return true;
-	}
-	else if (shader2)
-		return false;
-	else
-	{
-		nzUInt32 shaderFlags1 = mat1->GetShaderFlags();
-		nzUInt32 shaderFlags2 = mat2->GetShaderFlags();
+		const NzShader* shader1 = mat1->GetShader(nzShaderTarget_Model, i);
+		const NzShader* shader2 = mat2->GetShader(nzShaderTarget_Model, i);
 
-		if (shaderFlags1 != shaderFlags2)
-			return shaderFlags1 < shaderFlags2;
+		if (shader1 != shader2)
+			return shader1 < shader2;
 	}
+
+	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
+	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
+	if (diffuseMap1 != diffuseMap2)
+		return diffuseMap1 < diffuseMap2;
 
 	return mat1 < mat2;
 }

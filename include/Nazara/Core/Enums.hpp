@@ -115,7 +115,9 @@ enum nzStreamOptionFlags
 {
 	nzStreamOption_None = 0x0,
 
-	nzStreamOption_Text = 0x1
+	nzStreamOption_Text = 0x1,
+
+	nzStreamOption_Max = nzStreamOption_Text*2-1
 };
 
 enum nzTernary
