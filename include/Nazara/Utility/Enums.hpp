@@ -268,7 +268,8 @@ enum nzWindowStyleFlags
 	nzWindowStyle_Resizable  = 0x4,
 	nzWindowStyle_Titlebar   = 0x8,
 
-	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar
+	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar,
+	nzWindowStyle_Max = nzWindowStyle_Titlebar*2-1
 };
 
 #endif // NAZARA_ENUMS_UTILITY_HPP

@@ -38,7 +38,7 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	renderQueue->AddLight(this);
 }
 
-void NzLight::Apply(const NzShader* shader, unsigned int lightUnit) const
+void NzLight::Enable(const NzShader* shader, unsigned int lightUnit) const
 {
 	/*
 	struct Light
@@ -66,6 +66,7 @@ void NzLight::Apply(const NzShader* shader, unsigned int lightUnit) const
 	-P3: float cosInnerAngle + float cosOuterAngle
 	*/
 
+	///TODO: Optimiser
 	int typeLocation = shader->GetUniformLocation("Lights[0].type");
 	int ambientLocation = shader->GetUniformLocation("Lights[0].ambient");
 	int diffuseLocation = shader->GetUniformLocation("Lights[0].diffuse");
@@ -215,6 +216,12 @@ NzLight& NzLight::operator=(const NzLight& light)
 	std::memcpy(this, &light, sizeof(NzLight));
 
 	return *this;
+}
+
+void NzLight::Disable(const NzShader* shader, unsigned int lightUnit)
+{
+	///TODO: Optimiser
+	shader->SendInteger(shader->GetUniformLocation("Lights[" + NzString::Number(lightUnit) + "].type"), -1);
 }
 
 void NzLight::Invalidate()

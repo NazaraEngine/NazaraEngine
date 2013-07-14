@@ -43,7 +43,7 @@
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderManager.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 

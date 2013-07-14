@@ -16,7 +16,6 @@ class NAZARA_API NzColorBackground : public NzAbstractBackground
 {
 	public:
 		NzColorBackground(const NzColor& color = NzColor::Black);
-		~NzColorBackground();
 
 		void Draw(const NzScene* scene) const;
 
@@ -27,7 +26,7 @@ class NAZARA_API NzColorBackground : public NzAbstractBackground
 
 	private:
 		NzColor m_color;
-		NzShaderRef m_shader;
+		NzShaderConstRef m_shader;
 };
 
 #endif // NAZARA_COLORBACKGROUND_HPP
