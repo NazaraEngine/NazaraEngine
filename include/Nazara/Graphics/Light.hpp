@@ -23,7 +23,7 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		void Apply(const NzShader* shader, unsigned int lightUnit) const;
+		void Enable(const NzShader* shader, unsigned int lightUnit) const;
 
 		NzColor GetAmbientColor() const;
 		float GetAttenuation() const;
@@ -45,6 +45,8 @@ class NAZARA_API NzLight : public NzSceneNode
 		void SetSpecularColor(const NzColor& specular);
 
 		NzLight& operator=(const NzLight& light);
+
+		static void Disable(const NzShader* shader, unsigned int lightUnit);
 
 	private:
 		void Invalidate();
