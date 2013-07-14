@@ -94,9 +94,11 @@ enum nzRendererCap
 
 enum nzRendererClearFlags
 {
-	nzRendererClear_Color   = 0x01,
-	nzRendererClear_Depth   = 0x02,
-	nzRendererClear_Stencil = 0x04
+	nzRendererClear_Color   = 0x1,
+	nzRendererClear_Depth   = 0x2,
+	nzRendererClear_Stencil = 0x4,
+
+	nzRendererClear_Max = nzRendererClear_Stencil*2-1
 };
 
 enum nzRendererComparison
@@ -155,17 +157,11 @@ enum nzShaderFlags
 {
 	nzShaderFlags_None = 0,
 
-	nzShaderFlags_AlphaMapping    = 0x001,
-	nzShaderFlags_AlphaTest       = 0x002,
-	nzShaderFlags_Deferred        = 0x004,
-	nzShaderFlags_DiffuseMapping  = 0x008,
-	nzShaderFlags_EmissiveMapping = 0x010,
-	nzShaderFlags_FlipUVs         = 0x020,
-	nzShaderFlags_Instancing      = 0x040,
-	nzShaderFlags_Lighting        = 0x080,
-	nzShaderFlags_NormalMapping   = 0x100,
-	nzShaderFlags_ParallaxMapping = 0x200,
-	nzShaderFlags_SpecularMapping = 0x400
+	//nzShaderFlags_Deferred        = 0x1,
+	nzShaderFlags_FlipUVs           = 0x1,
+	nzShaderFlags_Instancing        = 0x2,
+
+	nzShaderFlags_Max = nzShaderFlags_Instancing*2-1
 };
 
 enum nzShaderLanguage
@@ -178,11 +174,19 @@ enum nzShaderLanguage
 	nzShaderLanguage_Max = nzShaderLanguage_GLSL
 };
 
+enum nzShaderTarget
+{
+	nzShaderTarget_FullscreenQuad,
+	nzShaderTarget_Model,
+	nzShaderTarget_None,
+
+	nzShaderTarget_Max = nzShaderTarget_None
+};
+
 enum nzShaderUniform
 {
 	nzShaderUniform_CameraPosition,
 	nzShaderUniform_InvTargetSize,
-	nzShaderUniform_LightCount,
 	nzShaderUniform_MaterialAlphaMap,
 	nzShaderUniform_MaterialAlphaThreshold,
 	nzShaderUniform_MaterialAmbient,

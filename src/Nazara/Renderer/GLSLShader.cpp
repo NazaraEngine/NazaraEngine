@@ -66,7 +66,6 @@ bool NzGLSLShader::Compile()
 
 		CacheUniform(CameraPosition);
 		CacheUniform(InvTargetSize);
-		CacheUniform(LightCount);
 		CacheUniform(MaterialAlphaMap);
 		CacheUniform(MaterialAlphaThreshold);
 		CacheUniform(MaterialAmbient);

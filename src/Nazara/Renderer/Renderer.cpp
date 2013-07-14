@@ -15,7 +15,7 @@
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderManager.hpp>
 #include <Nazara/Renderer/Loaders/Texture.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -37,10 +37,10 @@ namespace
 	{
 		Update_None = 0,
 
-		Update_Matrices     = 0x01,
-		Update_Shader       = 0x02,
-		Update_Textures     = 0x04,
-		Update_VAO          = 0x08,
+		Update_Matrices     = 0x1,
+		Update_Shader       = 0x2,
+		Update_Textures     = 0x4,
+		Update_VAO          = 0x8
 	};
 
 	struct MatrixUnit
@@ -500,6 +500,8 @@ bool NzRenderer::Initialize()
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");
+		Uninitialize();
+
 		return false;
 	}
 
@@ -616,9 +618,9 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	if (!NzShaderBuilder::Initialize())
+	if (!NzShaderManager::Initialize())
 	{
-		NazaraError("Failed to initialize shader builder");
+		NazaraError("Failed to initialize shader manager");
 		Uninitialize();
 
 		return false;
@@ -1180,7 +1182,7 @@ void NzRenderer::Uninitialize()
 	NzLoaders_Texture_Unregister();
 
 	NzTextureSampler::Uninitialize();
-	NzShaderBuilder::Uninitialize();
+	NzShaderManager::Uninitialize();
 	NzMaterial::Uninitialize();
 	NzDebugDrawer::Uninitialize();
 

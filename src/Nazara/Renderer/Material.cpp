@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderManager.hpp>
 #include <cstring>
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
@@ -31,13 +31,16 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 	Copy(material);
 
 	// Nous "volons" la référence du matériau
-	material.m_alphaMap = nullptr;
-	material.m_customShader = nullptr;
-	material.m_diffuseMap = nullptr;
-	material.m_emissiveMap = nullptr;
-	material.m_heightMap = nullptr;
-	material.m_normalMap = nullptr;
-	material.m_specularMap = nullptr;
+	material.m_alphaMap.Reset();
+	material.m_diffuseMap.Reset();
+	material.m_emissiveMap.Reset();
+	material.m_heightMap.Reset();
+	material.m_normalMap.Reset();
+	material.m_specularMap.Reset();
+
+	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
+		for (ShaderUnit& unit : material.m_shaders[i])
+			unit.shader.Reset();
 }
 
 void NzMaterial::Apply(const NzShader* shader) const
@@ -160,19 +163,11 @@ void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
 void NzMaterial::EnableAlphaTest(bool alphaTest)
 {
 	m_alphaTestEnabled = alphaTest;
-	if (m_alphaTestEnabled)
-		m_shaderFlags |= nzShaderFlags_AlphaTest;
-	else
-		m_shaderFlags &= ~nzShaderFlags_AlphaTest;
 }
 
 void NzMaterial::EnableLighting(bool lighting)
 {
 	m_lightingEnabled = lighting;
-	if (m_lightingEnabled)
-		m_shaderFlags |= nzShaderFlags_Lighting;
-	else
-		m_shaderFlags &= ~nzShaderFlags_Lighting;
 }
 
 NzTexture* NzMaterial::GetAlphaMap() const
@@ -188,11 +183,6 @@ float NzMaterial::GetAlphaThreshold() const
 NzColor NzMaterial::GetAmbientColor() const
 {
 	return m_ambientColor;
-}
-
-const NzShader* NzMaterial::GetCustomShader() const
-{
-	return m_customShader;
 }
 
 nzRendererComparison NzMaterial::GetDepthFunc() const
@@ -255,9 +245,13 @@ const NzRenderStates& NzMaterial::GetRenderStates() const
 	return m_states;
 }
 
-nzUInt32 NzMaterial::GetShaderFlags() const
+const NzShader* NzMaterial::GetShader(nzShaderTarget target, nzUInt32 flags) const
 {
-	return m_shaderFlags;
+	const ShaderUnit& unit = m_shaders[target][flags];
+	if (!unit.shader.IsValid())
+		GenerateShader(target, flags);
+
+	return unit.shader;
 }
 
 float NzMaterial::GetShininess() const
@@ -290,9 +284,39 @@ nzBlendFunc NzMaterial::GetSrcBlend() const
 	return m_states.srcBlend;
 }
 
-bool NzMaterial::HasCustomShader() const
+bool NzMaterial::HasAlphaMap() const
 {
-	return m_customShader != nullptr;
+	return m_alphaMap.IsValid();
+}
+
+bool NzMaterial::HasDiffuseMap() const
+{
+	return m_diffuseMap.IsValid();
+}
+
+bool NzMaterial::HasEmissiveMap() const
+{
+	return m_emissiveMap.IsValid();
+}
+
+bool NzMaterial::HasHeightMap() const
+{
+	return m_heightMap.IsValid();
+}
+
+bool NzMaterial::HasNormalMap() const
+{
+	return m_normalMap.IsValid();
+}
+
+bool NzMaterial::HasSpecularMap() const
+{
+	return m_specularMap.IsValid();
+}
+
+bool NzMaterial::IsAlphaTestEnabled() const
+{
+	return m_alphaTestEnabled;
 }
 
 bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
@@ -306,11 +330,6 @@ bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
 	#endif
 
 	return m_states.parameters[parameter];
-}
-
-bool NzMaterial::IsAlphaTestEnabled() const
-{
-	return m_alphaTestEnabled;
 }
 
 bool NzMaterial::IsLightingEnabled() const
@@ -336,12 +355,20 @@ bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& p
 void NzMaterial::Reset()
 {
 	m_alphaMap.Reset();
-	m_customShader.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
 	m_heightMap.Reset();
 	m_normalMap.Reset();
 	m_specularMap.Reset();
+
+	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
+	{
+		for (ShaderUnit& unit : m_shaders[i])
+		{
+			unit.custom = false;
+			unit.shader.Reset();
+		}
+	}
 
 	m_alphaThreshold = 0.2f;
 	m_alphaTestEnabled = false;
@@ -349,7 +376,6 @@ void NzMaterial::Reset()
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
 	m_lightingEnabled = true;
-	m_shaderFlags = nzShaderFlags_Lighting;
 	m_shininess = 50.f;
 	m_specularColor = NzColor::White;
 	m_specularSampler = NzTextureSampler();
@@ -378,10 +404,8 @@ bool NzMaterial::SetAlphaMap(const NzString& texturePath)
 void NzMaterial::SetAlphaMap(NzTexture* map)
 {
 	m_alphaMap = map;
-	if (m_alphaMap)
-		m_shaderFlags |= nzShaderFlags_AlphaMapping;
-	else
-		m_shaderFlags &= ~nzShaderFlags_AlphaMapping;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetAlphaThreshold(float alphaThreshold)
@@ -392,11 +416,6 @@ void NzMaterial::SetAlphaThreshold(float alphaThreshold)
 void NzMaterial::SetAmbientColor(const NzColor& ambient)
 {
 	m_ambientColor = ambient;
-}
-
-void NzMaterial::SetCustomShader(const NzShader* shader)
-{
-	m_customShader = shader;
 }
 
 void NzMaterial::SetDepthFunc(nzRendererComparison depthFunc)
@@ -429,10 +448,8 @@ bool NzMaterial::SetDiffuseMap(const NzString& texturePath)
 void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
 	m_diffuseMap = map;
-	if (m_diffuseMap)
-		m_shaderFlags |= nzShaderFlags_DiffuseMapping;
-	else
-		m_shaderFlags &= ~nzShaderFlags_DiffuseMapping;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
@@ -465,10 +482,8 @@ bool NzMaterial::SetEmissiveMap(const NzString& texturePath)
 void NzMaterial::SetEmissiveMap(NzTexture* map)
 {
 	m_emissiveMap = map;
-	if (m_emissiveMap)
-		m_shaderFlags |= nzShaderFlags_EmissiveMapping;
-	else
-		m_shaderFlags &= ~nzShaderFlags_EmissiveMapping;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetFaceCulling(nzFaceCulling culling)
@@ -501,6 +516,8 @@ bool NzMaterial::SetHeightMap(const NzString& texturePath)
 void NzMaterial::SetHeightMap(NzTexture* map)
 {
 	m_heightMap = map;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 bool NzMaterial::SetNormalMap(const NzString& texturePath)
@@ -523,15 +540,21 @@ bool NzMaterial::SetNormalMap(const NzString& texturePath)
 void NzMaterial::SetNormalMap(NzTexture* map)
 {
 	m_normalMap = map;
-	if (m_normalMap)
-		m_shaderFlags |= nzShaderFlags_NormalMapping;
-	else
-		m_shaderFlags &= ~nzShaderFlags_NormalMapping;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetRenderStates(const NzRenderStates& states)
 {
 	m_states = states;
+}
+
+void NzMaterial::SetShader(nzShaderTarget target, nzUInt32 flags, const NzShader* shader)
+{
+	ShaderUnit& unit = m_shaders[target][flags];
+
+	unit.custom = (shader != nullptr);
+	unit.shader = shader;
 }
 
 void NzMaterial::SetShininess(float shininess)
@@ -564,10 +587,8 @@ bool NzMaterial::SetSpecularMap(const NzString& texturePath)
 void NzMaterial::SetSpecularMap(NzTexture* map)
 {
 	m_specularMap = map;
-	if (m_specularMap)
-		m_shaderFlags |= nzShaderFlags_SpecularMapping;
-	else
-		m_shaderFlags &= ~nzShaderFlags_SpecularMapping;
+
+	InvalidateShaders(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetSpecularSampler(const NzTextureSampler& sampler)
@@ -592,13 +613,16 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	Copy(material);
 
 	// Comme ça nous volons la référence du matériau
-	material.m_alphaMap = nullptr;
-	material.m_customShader = nullptr;
-	material.m_diffuseMap = nullptr;
-	material.m_emissiveMap = nullptr;
-	material.m_heightMap = nullptr;
-	material.m_normalMap = nullptr;
-	material.m_specularMap = nullptr;
+	material.m_alphaMap.Reset();
+	material.m_diffuseMap.Reset();
+	material.m_emissiveMap.Reset();
+	material.m_heightMap.Reset();
+	material.m_normalMap.Reset();
+	material.m_specularMap.Reset();
+
+	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
+		for (ShaderUnit& unit : material.m_shaders[i])
+			unit.shader.Reset();
 
 	return *this;
 }
@@ -611,18 +635,20 @@ NzMaterial* NzMaterial::GetDefault()
 void NzMaterial::Copy(const NzMaterial& material)
 {
 	m_alphaMap.Reset();
-	m_customShader.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
 	m_heightMap.Reset();
 	m_normalMap.Reset();
 	m_specularMap.Reset();
 
+	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
+		for (ShaderUnit& unit : m_shaders[i])
+			unit.shader.Reset();
+
 	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
 
 	// Ensuite une petite astuce pour récupérer correctement les références
 	m_alphaMap.Release();
-	m_customShader.Release();
 	m_diffuseMap.Release();
 	m_emissiveMap.Release();
 	m_heightMap.Release();
@@ -630,11 +656,63 @@ void NzMaterial::Copy(const NzMaterial& material)
 	m_specularMap.Release();
 
 	m_alphaMap = material.m_alphaMap;
-	m_customShader = material.m_customShader;
 	m_diffuseMap = material.m_diffuseMap;
+	m_emissiveMap = material.m_emissiveMap;
 	m_heightMap = material.m_heightMap;
 	m_normalMap = material.m_normalMap;
 	m_specularMap = material.m_specularMap;
+
+	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
+	{
+		for (unsigned int j = 0; j <= nzShaderFlags_Max; ++j)
+		{
+			NzShaderConstRef& shader = m_shaders[i][j].shader;
+
+			shader.Release();
+			shader = material.m_shaders[i][j].shader;
+		}
+	}
+}
+
+void NzMaterial::GenerateShader(nzShaderTarget target, nzUInt32 flags) const
+{
+	NzShaderManagerParams params;
+	params.target = target;
+	params.flags = flags;
+
+	switch (target)
+	{
+		case nzShaderTarget_FullscreenQuad:
+            params.fullscreenQuad.alphaMapping = m_alphaMap.IsValid();
+            params.fullscreenQuad.alphaTest = m_alphaTestEnabled;
+			params.fullscreenQuad.diffuseMapping = m_diffuseMap.IsValid();
+			break;
+
+		case nzShaderTarget_Model:
+			params.model.alphaMapping = m_alphaMap.IsValid();
+			params.model.alphaTest = m_alphaTestEnabled;
+			params.model.diffuseMapping = m_diffuseMap.IsValid();
+			params.model.emissiveMapping = m_emissiveMap.IsValid();
+			params.model.lighting = m_lightingEnabled;
+			params.model.normalMapping = m_normalMap.IsValid();
+			params.model.parallaxMapping = m_heightMap.IsValid();
+			params.model.specularMapping = m_specularMap.IsValid();
+			break;
+
+		case nzShaderTarget_None:
+			break;
+	}
+
+	m_shaders[target][flags].shader = NzShaderManager::Get(params);
+}
+
+void NzMaterial::InvalidateShaders(nzShaderTarget target)
+{
+	for (ShaderUnit& unit : m_shaders[target])
+	{
+		if (!unit.custom)
+			unit.shader.Reset();
+	}
 }
 
 bool NzMaterial::Initialize()

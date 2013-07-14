@@ -17,7 +17,6 @@ class NAZARA_API NzTextureBackground : public NzAbstractBackground
 	public:
 		NzTextureBackground();
 		NzTextureBackground(NzTexture* texture);
-		~NzTextureBackground();
 
 		void Draw(const NzScene* scene) const;
 
@@ -27,7 +26,7 @@ class NAZARA_API NzTextureBackground : public NzAbstractBackground
 		void SetTexture(NzTexture* texture);
 
 	private:
-		NzShaderRef m_shader;
+		NzShaderConstRef m_shader;
 		NzTextureRef m_texture;
 };
 
