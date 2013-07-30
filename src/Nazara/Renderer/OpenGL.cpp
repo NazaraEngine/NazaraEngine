@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <cstring>
@@ -549,9 +550,12 @@ bool NzOpenGL::Initialize()
 	}
 
 	s_openglVersion = major*100 + minor*10;
+
+	NazaraDebug("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected");
+
 	if (s_openglVersion < 200)
 	{
-		NazaraError("OpenGL version is too low, please upgrade your drivers or your video card");
+		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (2.0 required). Please upgrade your drivers or your video card");
 		Uninitialize();
 
 		return false;
