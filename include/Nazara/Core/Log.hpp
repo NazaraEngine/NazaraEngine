@@ -18,6 +18,12 @@
 #include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
+#ifdef NAZARA_DEBUG
+#define NazaraDebug(txt) NazaraNotice(txt)
+#else
+#define NazaraDebug(txt)
+#endif
+
 #define NazaraLog NzLog::Instance()
 #define NazaraNotice(txt) NazaraLog->Write(txt)
 
