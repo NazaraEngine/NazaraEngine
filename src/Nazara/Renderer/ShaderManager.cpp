@@ -771,6 +771,7 @@ NzShader* NzShaderManager::GenerateShader(const NzShaderManagerParams& params)
 	}
 
 	NzString fragmentSource = BuildFragmentCode(params);
+	NazaraDebug("Fragment shader source:\n" + fragmentSource);
 	if (!shader->Load(nzShaderType_Fragment, fragmentSource))
 	{
 		NazaraError("Failed to load fragment shader: " + shader->GetLog());
@@ -779,17 +780,13 @@ NzShader* NzShaderManager::GenerateShader(const NzShaderManagerParams& params)
 	}
 
 	NzString vertexSource = BuildVertexCode(params);
+	NazaraDebug("Vertex shader source:\n" + vertexSource);
 	if (!shader->Load(nzShaderType_Vertex, vertexSource))
 	{
 		NazaraError("Failed to load vertex shader: " + shader->GetLog());
 		NazaraNotice("Source:\n" + vertexSource);
 		return nullptr;
 	}
-
-	#ifdef NAZARA_DEBUG
-	NazaraNotice("Fragment shader source:\n" + fragmentSource);
-	NazaraNotice("Vertex shader source:\n" + vertexSource);
-	#endif
 
 	if (!shader->Compile())
 	{
