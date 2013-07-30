@@ -500,8 +500,6 @@ bool NzRenderer::Initialize()
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");
-		Uninitialize();
-
 		return false;
 	}
 
