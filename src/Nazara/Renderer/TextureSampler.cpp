@@ -6,6 +6,7 @@
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <unordered_map>
@@ -374,10 +375,14 @@ bool NzTextureSampler::Initialize()
 
 void NzTextureSampler::Uninitialize()
 {
-	for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
-		glDeleteSamplers(1, &pair.second);
+	if (!s_samplers.empty())
+	{
+		NzContext::EnsureContext();
+		for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
+			glDeleteSamplers(1, &pair.second);
 
-	s_samplers.clear();
+		s_samplers.clear();
+	}
 }
 
 nzUInt8 NzTextureSampler::s_defaultAnisotropyLevel = 1;
