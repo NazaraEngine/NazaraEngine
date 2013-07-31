@@ -492,7 +492,9 @@ bool NzRenderer::Initialize()
 	// Initialisation des dépendances
 	if (!NzUtility::Initialize())
 	{
-		NazaraError("Failed to initialize utility module");
+		NazaraError("Failed to initialize Utility module");
+		Uninitialize();
+
 		return false;
 	}
 
@@ -500,10 +502,10 @@ bool NzRenderer::Initialize()
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");
+		Uninitialize();
+
 		return false;
 	}
-
-	NzContext::EnsureContext();
 
 	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
 
@@ -528,6 +530,8 @@ bool NzRenderer::Initialize()
 	s_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
 	s_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
 	s_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
+
+	NzContext::EnsureContext();
 
 	if (s_capabilities[nzRendererCap_AnisotropicFilter])
 	{
@@ -634,8 +638,6 @@ bool NzRenderer::Initialize()
 
 	// Loaders
 	NzLoaders_Texture_Register();
-
-	NazaraNotice("Initialized: Renderer module");
 
 	return true;
 }
@@ -1168,8 +1170,6 @@ void NzRenderer::Uninitialize()
 
 		return;
 	}
-
-	NzContext::EnsureContext();
 
 	// Libération du module
 	s_moduleReferenceCounter = 0;
