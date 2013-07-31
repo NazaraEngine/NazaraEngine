@@ -44,7 +44,7 @@ NzSphere<T>::NzSphere(const NzSphere<U>& sphere)
 template<typename T>
 bool NzSphere<T>::Contains(T X, T Y, T Z) const
 {
-	return Distance(X, Y, Z) < F(0.0);
+	return SquaredDistance(X, Y, Z) <= radius*radius;
 }
 /*
 template<typename T>
@@ -62,7 +62,7 @@ template<typename T>
 T NzSphere<T>::Distance(T X, T Y, T Z) const
 {
 	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.GetLength() - radius;
+	return distance.GetLength();
 }
 
 template<typename T>
@@ -74,10 +74,10 @@ T NzSphere<T>::Distance(const NzVector3<T>& point) const
 template<typename T>
 NzSphere<T>& NzSphere<T>::ExtendTo(T X, T Y, T Z)
 {
-	T distance = Distance(X, Y, Z);
+	T distance = SquaredDistance(X, Y, Z);
 
-	if (distance > F(0.0))
-		radius += distance;
+	if (distance > radius*radius)
+		radius = std::sqrt(distance);
 
 	return *this;
 }
@@ -122,7 +122,7 @@ bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 template<typename T>
 bool NzSphere<T>::Intersect(const NzSphere& sphere) const
 {
-	return Distance(sphere.x, sphere.y, sphere.z) <= sphere.radius;
+	return SquaredDistance(sphere.x, sphere.y, sphere.z) - radius*radius <= sphere.radius*sphere.radius;
 }
 
 template<typename T>
@@ -210,7 +210,7 @@ template<typename T>
 T NzSphere<T>::SquaredDistance(T X, T Y, T Z) const
 {
 	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.SquaredLength() - radius*radius;
+	return distance.SquaredLength();
 }
 
 template<typename T>
