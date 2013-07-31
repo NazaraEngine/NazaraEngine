@@ -25,7 +25,7 @@ namespace
 			LightManager() = default;
 			~LightManager() = default;
 
-			unsigned int FindClosestLights(const NzLight** lights, unsigned int lightCount, const NzSpheref& object)
+			unsigned int FindClosestLights(const NzLight** lights, unsigned int lightCount, const NzVector3f& position, float squaredRadius)
 			{
 				for (Light& light : m_lights)
 				{
@@ -46,21 +46,23 @@ namespace
 
 						case nzLightType_Point:
 						{
-							NzSpheref lightSphere(light->GetPosition(), light->GetRadius());
+							float lightRadius = light->GetRadius();
 
-							if (lightSphere.Intersect(object))
-								score = static_cast<unsigned int>(light->GetPosition().SquaredDistance(object.GetPosition())*1000.f);
+							float squaredDistance = position.SquaredDistance(light->GetPosition());
+							if (squaredDistance - squaredRadius <= lightRadius*lightRadius)
+								score = static_cast<unsigned int>(squaredDistance*1000.f);
 
 							break;
 						}
 
 						case nzLightType_Spot:
 						{
-							NzSpheref lightSphere(light->GetPosition(), light->GetRadius());
+							float lightRadius = light->GetRadius();
 
 							///TODO: Attribuer bonus/malus selon l'angle du spot ?
-							if (lightSphere.Intersect(object))
-								score = static_cast<unsigned int>(light->GetPosition().SquaredDistance(object.GetPosition())*1000.f);
+							float squaredDistance = position.SquaredDistance(light->GetPosition());
+							if (squaredDistance - squaredRadius <= lightRadius*lightRadius)
+								score = static_cast<unsigned int>(squaredDistance*1000.f);
 
 							break;
 						}
@@ -217,7 +219,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 						// Calcul des lumières les plus proches
 						if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 						{
-							unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetBoundingSphere());
+							unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetCenter(), data.aabb.GetSquaredRadius());
 							count -= lightCount;
 
 							for (unsigned int i = 0; i < count; ++i)
@@ -300,7 +302,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			// Calcul des lumières les plus proches
 			if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 			{
-				unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), staticModel.aabb.GetBoundingSphere());
+				unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), staticModel.aabb.GetCenter(), staticModel.aabb.GetSquaredRadius());
 				count -= lightCount;
 
 				for (unsigned int i = 0; i < count; ++i)
