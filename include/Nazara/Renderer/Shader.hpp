@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -42,6 +43,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		void Destroy();
 
+		NzByteArray GetBinary() const;
 		nzUInt32 GetFlags() const;
 		NzString GetLog() const;
 		nzShaderLanguage GetLanguage() const;
@@ -51,6 +53,7 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		bool HasUniform(const NzString& name) const;
 
+		bool IsBinaryRetrievable() const;
 		bool IsCompiled() const;
 		bool IsLoaded(nzShaderType type) const;
 		bool IsValid() const;
