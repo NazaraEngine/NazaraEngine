@@ -866,6 +866,23 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
+	// GetProgramBinary
+	if (s_openglVersion >= 410 || IsSupported("GL_ARB_get_program_binary"))
+	{
+		try
+		{
+			glGetProgramBinary = reinterpret_cast<PFNGLGETPROGRAMBINARYPROC>(LoadEntry("glGetProgramBinary"));
+			glProgramBinary = reinterpret_cast<PFNGLPROGRAMBINARYPROC>(LoadEntry("glProgramBinary"));
+			glProgramParameteri = reinterpret_cast<PFNGLPROGRAMPARAMETERIPROC>(LoadEntry("glProgramParameteri"));
+
+			s_openGLextensions[nzOpenGLExtension_GetProgramBinary] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning("Failed to load ARB_get_program_binary: (" + NzString(e.what()) + ")");
+		}
+	}
+
 	// InstancedArray
 	if (s_openglVersion >= 330)
 	{
@@ -1480,6 +1497,7 @@ PFNGLGETDEBUGMESSAGELOGPROC       glGetDebugMessageLog       = nullptr;
 PFNGLGETERRORPROC                 glGetError                 = nullptr;
 PFNGLGETFLOATVPROC                glGetFloatv                = nullptr;
 PFNGLGETINTEGERVPROC              glGetIntegerv              = nullptr;
+PFNGLGETPROGRAMBINARYPROC         glGetProgramBinary         = nullptr;
 PFNGLGETPROGRAMIVPROC             glGetProgramiv             = nullptr;
 PFNGLGETPROGRAMINFOLOGPROC        glGetProgramInfoLog        = nullptr;
 PFNGLGETQUERYIVPROC               glGetQueryiv               = nullptr;
@@ -1505,6 +1523,8 @@ PFNGLMAPBUFFERRANGEPROC           glMapBufferRange           = nullptr;
 PFNGLPIXELSTOREIPROC              glPixelStorei              = nullptr;
 PFNGLPOINTSIZEPROC                glPointSize                = nullptr;
 PFNGLPOLYGONMODEPROC              glPolygonMode              = nullptr;
+PFNGLPROGRAMBINARYPROC            glProgramBinary            = nullptr;
+PFNGLPROGRAMPARAMETERIPROC        glProgramParameteri        = nullptr;
 PFNGLPROGRAMUNIFORM1DPROC         glProgramUniform1d         = nullptr;
 PFNGLPROGRAMUNIFORM1FPROC         glProgramUniform1f         = nullptr;
 PFNGLPROGRAMUNIFORM1IPROC         glProgramUniform1i         = nullptr;
