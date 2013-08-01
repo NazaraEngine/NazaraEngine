@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -10,6 +9,7 @@
 #include <Nazara/Renderer/AbstractShader.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/GLSLShader.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>

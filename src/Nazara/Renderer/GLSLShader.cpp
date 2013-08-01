@@ -2,11 +2,11 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/GLSLShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -182,9 +182,9 @@ nzShaderLanguage NzGLSLShader::GetLanguage() const
 
 NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
 {
-	NzContext::EnsureContext();
-
 	NzString source;
+
+	NzContext::EnsureContext();
 
 	GLint length;
 	glGetShaderiv(m_shaders[type], GL_SHADER_SOURCE_LENGTH, &length);
