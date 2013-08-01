@@ -213,6 +213,42 @@ void NzByteArray::Reserve(unsigned int bufferSize)
 	m_sharedArray->size = size;
 }
 
+NzByteArray& NzByteArray::Resize(int size)
+{
+	if (size == 0)
+	{
+		Clear(true);
+		return *this;
+	}
+
+	if (size < 0)
+		size = std::max(static_cast<int>(m_sharedArray->size + size), 0);
+
+	unsigned int newSize = static_cast<unsigned int>(size);
+
+	if (m_sharedArray->capacity >= newSize)
+	{
+		EnsureOwnership();
+
+		// Nous avons déjà la place requise
+		m_sharedArray->size = newSize;
+	}
+	else // On veut forcément agrandir la chaine
+	{
+		nzUInt8* newBuffer = new nzUInt8[newSize];
+		if (m_sharedArray->size != 0)
+			std::memcpy(newBuffer, m_sharedArray->buffer, newSize);
+
+		ReleaseArray();
+		m_sharedArray = new SharedArray;
+		m_sharedArray->buffer = newBuffer;
+		m_sharedArray->capacity = newSize;
+		m_sharedArray->size = newSize;
+	}
+
+	return *this;
+}
+
 NzByteArray& NzByteArray::Resize(int size, nzUInt8 byte)
 {
 	if (size == 0)
@@ -252,6 +288,24 @@ NzByteArray& NzByteArray::Resize(int size, nzUInt8 byte)
 	}
 
 	return *this;
+}
+
+NzByteArray NzByteArray::Resized(int size) const
+{
+	if (size < 0)
+		size = m_sharedArray->size + size;
+
+	if (size <= 0)
+		return NzByteArray();
+
+	unsigned int newSize = static_cast<unsigned int>(size);
+	if (newSize == m_sharedArray->size)
+		return *this;
+
+	nzUInt8* buffer = new nzUInt8[newSize];
+	std::memcpy(buffer, m_sharedArray->buffer, (newSize > m_sharedArray->size) ? m_sharedArray->size : newSize);
+
+	return NzByteArray(new SharedArray(1, newSize, newSize, buffer));
 }
 
 NzByteArray NzByteArray::Resized(int size, nzUInt8 byte) const
