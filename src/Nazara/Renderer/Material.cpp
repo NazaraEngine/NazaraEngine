@@ -683,8 +683,8 @@ void NzMaterial::GenerateShader(nzShaderTarget target, nzUInt32 flags) const
 	switch (target)
 	{
 		case nzShaderTarget_FullscreenQuad:
-            params.fullscreenQuad.alphaMapping = m_alphaMap.IsValid();
-            params.fullscreenQuad.alphaTest = m_alphaTestEnabled;
+			params.fullscreenQuad.alphaMapping = m_alphaMap.IsValid();
+			params.fullscreenQuad.alphaTest = m_alphaTestEnabled;
 			params.fullscreenQuad.diffuseMapping = m_diffuseMap.IsValid();
 			break;
 
