@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp> // Pour éviter une redéfinition de WIN32_LEAN_AND_MEAN
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -13,6 +12,7 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/Material.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderManager.hpp>
@@ -1238,7 +1238,7 @@ bool NzRenderer::EnsureStateUpdate()
 	#endif
 
 	NzAbstractShader* shaderImpl = s_shader->m_impl;
-	shaderImpl->Bind();
+	shaderImpl->Bind(); // Active le shader si ce n'est pas déjà le cas
 
 	// Si le shader a été changé depuis la dernière fois
 	if (s_updateFlags & Update_Shader)
