@@ -51,6 +51,9 @@ bool NzGLSLShader::Compile()
 	m_idCache.clear();
 	m_textures.clear();
 
+	if (NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary))
+		glProgramParameteri(m_program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+
 	glLinkProgram(m_program);
 
 	GLint success;
@@ -170,6 +173,32 @@ void NzGLSLShader::Destroy()
 	NzOpenGL::DeleteProgram(m_program);
 }
 
+NzByteArray NzGLSLShader::GetBinary() const
+{
+	NzByteArray byteArray;
+
+	NzContext::EnsureContext();
+
+	GLint binaryLength;
+	glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
+
+	if (binaryLength > 0)
+	{
+		byteArray.Resize(sizeof(nzUInt64) + binaryLength);
+
+		nzUInt8* ptr = byteArray.GetBuffer();
+
+		GLenum binaryFormat;
+		glGetProgramBinary(m_program, binaryLength, nullptr, &binaryFormat, &ptr[sizeof(nzUInt64)]);
+
+		// On stocke le format au début du binaire
+		nzUInt64* format = reinterpret_cast<nzUInt64*>(&ptr[0]);
+		*format = binaryFormat;
+	}
+
+	return byteArray;
+}
+
 NzString NzGLSLShader::GetLog() const
 {
 	return m_log;
@@ -217,6 +246,11 @@ int NzGLSLShader::GetUniformLocation(const NzString& name) const
 int NzGLSLShader::GetUniformLocation(nzShaderUniform uniform) const
 {
 	return m_uniformLocations[uniform];
+}
+
+bool NzGLSLShader::IsBinaryRetrievable() const
+{
+	return NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary);
 }
 
 bool NzGLSLShader::IsLoaded(nzShaderType type) const

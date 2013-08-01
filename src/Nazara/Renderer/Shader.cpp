@@ -106,6 +106,31 @@ void NzShader::Destroy()
 	}
 }
 
+NzByteArray NzShader::GetBinary() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return NzByteArray();
+	}
+
+	if (!m_compiled)
+	{
+		NazaraError("Shader is not compiled");
+		return NzByteArray();
+	}
+
+	if (!m_impl->IsBinaryRetrievable())
+	{
+		NazaraError("Shader binary is not retrievable");
+		return NzByteArray();
+	}
+	#endif
+
+	return m_impl->GetBinary();
+}
+
 nzUInt32 NzShader::GetFlags() const
 {
 	return m_flags;
@@ -209,6 +234,19 @@ bool NzShader::HasUniform(const NzString& name) const
 	#endif
 
 	return m_impl->GetUniformLocation(name) != -1;
+}
+
+bool NzShader::IsBinaryRetrievable() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Shader not created");
+		return false;
+	}
+	#endif
+
+	return m_impl->IsBinaryRetrievable();
 }
 
 bool NzShader::IsCompiled() const

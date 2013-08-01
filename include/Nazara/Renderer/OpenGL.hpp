@@ -32,6 +32,7 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_DrawInstanced,
 	nzOpenGLExtension_FP64,
 	nzOpenGLExtension_FrameBufferObject,
+	nzOpenGLExtension_GetProgramBinary,
 	nzOpenGLExtension_InstancedArray,
 	nzOpenGLExtension_PixelBufferObject,
 	nzOpenGLExtension_SamplerObjects,
@@ -202,6 +203,7 @@ NAZARA_API extern PFNGLGETDEBUGMESSAGELOGPROC       glGetDebugMessageLog;
 NAZARA_API extern PFNGLGETERRORPROC                 glGetError;
 NAZARA_API extern PFNGLGETFLOATVPROC                glGetFloatv;
 NAZARA_API extern PFNGLGETINTEGERVPROC              glGetIntegerv;
+NAZARA_API extern PFNGLGETPROGRAMBINARYPROC         glGetProgramBinary;
 NAZARA_API extern PFNGLGETPROGRAMIVPROC             glGetProgramiv;
 NAZARA_API extern PFNGLGETPROGRAMINFOLOGPROC        glGetProgramInfoLog;
 NAZARA_API extern PFNGLGETQUERYIVPROC               glGetQueryiv;
@@ -227,6 +229,8 @@ NAZARA_API extern PFNGLMAPBUFFERRANGEPROC           glMapBufferRange;
 NAZARA_API extern PFNGLPIXELSTOREIPROC              glPixelStorei;
 NAZARA_API extern PFNGLPOINTSIZEPROC                glPointSize;
 NAZARA_API extern PFNGLPOLYGONMODEPROC              glPolygonMode;
+NAZARA_API extern PFNGLPROGRAMBINARYPROC            glProgramBinary;
+NAZARA_API extern PFNGLPROGRAMPARAMETERIPROC        glProgramParameteri;
 NAZARA_API extern PFNGLPROGRAMUNIFORM1DPROC         glProgramUniform1d;
 NAZARA_API extern PFNGLPROGRAMUNIFORM1FPROC         glProgramUniform1f;
 NAZARA_API extern PFNGLPROGRAMUNIFORM1IPROC         glProgramUniform1i;

@@ -25,12 +25,14 @@ class NzAbstractShader
 
 		virtual void Destroy() = 0;
 
+		virtual NzByteArray GetBinary() const = 0;
 		virtual NzString GetLog() const = 0;
 		virtual nzShaderLanguage GetLanguage() const = 0;
 		virtual NzString GetSourceCode(nzShaderType type) const = 0;
 		virtual int GetUniformLocation(const NzString& name) const = 0;
 		virtual int GetUniformLocation(nzShaderUniform uniform) const = 0;
 
+		virtual bool IsBinaryRetrievable() const = 0;
 		virtual bool IsLoaded(nzShaderType type) const = 0;
 
 		virtual bool Load(nzShaderType type, const NzString& source) = 0;
