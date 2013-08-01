@@ -31,12 +31,14 @@ class NzGLSLShader : public NzAbstractShader, NzResourceListener
 		bool Create();
 		void Destroy();
 
+		NzByteArray GetBinary() const;
 		NzString GetLog() const;
 		nzShaderLanguage GetLanguage() const;
 		NzString GetSourceCode(nzShaderType type) const;
 		int GetUniformLocation(const NzString& name) const;
 		int GetUniformLocation(nzShaderUniform uniform) const;
 
+		bool IsBinaryRetrievable() const;
 		bool IsLoaded(nzShaderType type) const;
 
 		bool Load(nzShaderType type, const NzString& source);
