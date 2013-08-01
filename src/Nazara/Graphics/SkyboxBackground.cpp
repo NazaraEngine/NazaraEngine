@@ -6,10 +6,10 @@
 #define NAZARA_RENDERER_OPENGL // Nécessaire pour inclure les headers OpenGL
 #endif
 
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Scene.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>

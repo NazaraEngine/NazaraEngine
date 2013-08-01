@@ -2,11 +2,11 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>

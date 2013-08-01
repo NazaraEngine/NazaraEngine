@@ -4,12 +4,12 @@
 
 // Code inspiré de NeHe (Lesson1) et de la SFML par Laurent Gomila
 
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
 #include <cstring>
 #include <Nazara/Renderer/Debug.hpp>
 
