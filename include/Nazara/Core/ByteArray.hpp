@@ -50,8 +50,10 @@ class NAZARA_API NzByteArray : public NzHashable
 
 		void Reserve(unsigned int bufferSize);
 
-		NzByteArray& Resize(int size, nzUInt8 byte = 0);
-		NzByteArray Resized(int size, nzUInt8 byte = 0) const;
+		NzByteArray& Resize(int size);
+		NzByteArray& Resize(int size, nzUInt8 byte);
+		NzByteArray Resized(int size) const;
+		NzByteArray Resized(int size, nzUInt8 byte) const;
 
 		NzByteArray SubArray(int startPos, int endPos = -1) const;
 
