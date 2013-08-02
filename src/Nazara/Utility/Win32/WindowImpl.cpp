@@ -960,6 +960,12 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 		}
 	}
 
+	#if NAZARA_UTILITY_WINDOWS_DISABLE_MENU_KEYS
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646360(v=vs.85).aspx
+	if (message == WM_SYSCOMMAND && wParam == SC_KEYMENU)
+		return true;
+	#endif
+
 	return false;
 }
 
