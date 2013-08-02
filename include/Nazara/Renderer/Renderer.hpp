@@ -22,7 +22,7 @@ class NzContext;
 class NzIndexBuffer;
 class NzMaterial;
 class NzRenderTarget;
-class NzShader;
+class NzShaderProgram;
 class NzVertexBuffer;
 
 class NAZARA_API NzRenderer
@@ -52,7 +52,7 @@ class NAZARA_API NzRenderer
 		static float GetPointSize();
 		static const NzRenderStates& GetRenderStates();
 		static NzRectui GetScissorRect();
-		static const NzShader* GetShader();
+		static const NzShaderProgram* GetShaderProgram();
 		static const NzRenderTarget* GetTarget();
 		static NzRectui GetViewport();
 
@@ -79,7 +79,7 @@ class NAZARA_API NzRenderer
 		static void SetPointSize(float size);
 		static void SetRenderStates(const NzRenderStates& states);
 		static void SetScissorRect(const NzRectui& viewport);
-		static void SetShader(const NzShader* shader);
+		static void SetShaderProgram(const NzShaderProgram* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
 		static void SetStencilFailOperation(nzStencilOperation failOperation);
 		static void SetStencilMask(nzUInt32 mask);

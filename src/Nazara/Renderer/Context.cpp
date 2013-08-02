@@ -50,7 +50,7 @@ namespace
 				break;
 
 			case GL_DEBUG_SOURCE_THIRD_PARTY:
-				ss << "Shader compiler";
+				ss << "Third party";
 				break;
 
 			case GL_DEBUG_SOURCE_APPLICATION:

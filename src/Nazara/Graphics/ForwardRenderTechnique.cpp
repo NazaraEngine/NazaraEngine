@@ -138,7 +138,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	LightManager lightManager;
 
 	const NzCamera* camera = scene->GetActiveCamera();
-	const NzShader* lastShader = nullptr;
+	const NzShaderProgram* lastProgram = nullptr;
 
 	// Rendu des modèles opaques
 	for (auto& matIt : m_renderQueue.opaqueModels)
@@ -150,30 +150,30 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 		{
 			const NzMaterial* material = matIt.first;
 
-			// On commence par récupérer le shader du matériau
-			const NzShader* shader = material->GetShader(nzShaderTarget_Model, 0);
+			// On commence par récupérer le programme du matériau
+			const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, 0);
 
 			unsigned int lightCount = 0;
 
-			// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
-			if (shader != lastShader)
+			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+			if (program != lastProgram)
 			{
-				NzRenderer::SetShader(shader);
+				NzRenderer::SetShaderProgram(program);
 
 				// Couleur ambiante de la scène
-				shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+				program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 				// Position de la caméra
-				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
+				program->SendVector(program->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
 
 				// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 				lightCount = m_renderQueue.directionnalLights.size();
 				for (unsigned int i = 0; i < lightCount; ++i)
-					m_renderQueue.directionnalLights[i]->Enable(shader, i);
+					m_renderQueue.directionnalLights[i]->Enable(program, i);
 
-				lastShader = shader;
+				lastProgram = program;
 			}
 
-			material->Apply(shader);
+			material->Apply(program);
 
 			// Meshs squelettiques
 			/*if (!skeletalContainer.empty())
@@ -223,11 +223,11 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 							count -= lightCount;
 
 							for (unsigned int i = 0; i < count; ++i)
-								lightManager.GetLight(i)->Enable(shader, lightCount++);
+								lightManager.GetLight(i)->Enable(program, lightCount++);
 						}
 
 						for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
-							NzLight::Disable(shader, i);
+							NzLight::Disable(program, i);
 
 						NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
 						drawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
@@ -246,29 +246,29 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 		                       m_renderQueue.transparentSkeletalModels[pair.first].material;
 
 		// On commence par récupérer le shader du matériau
-		const NzShader* shader = material->GetShader(nzShaderTarget_Model, 0);
+		const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, 0);
 
 		unsigned int lightCount = 0;
 
 		// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
-		if (shader != lastShader)
+		if (program != lastProgram)
 		{
-			NzRenderer::SetShader(shader);
+			NzRenderer::SetShaderProgram(program);
 
 			// Couleur ambiante de la scène
-			shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+			program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 			// Position de la caméra
-			shader->SendVector(shader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
+			program->SendVector(program->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 			lightCount = m_renderQueue.directionnalLights.size();
 			for (unsigned int i = 0; i < lightCount; ++i)
-				m_renderQueue.directionnalLights[i]->Enable(shader, i);
+				m_renderQueue.directionnalLights[i]->Enable(program, i);
 
-			lastShader = shader;
+			lastProgram = program;
 		}
 
-		material->Apply(shader);
+		material->Apply(program);
 
 		// Mesh
 		if (pair.second)
@@ -306,11 +306,11 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 				count -= lightCount;
 
 				for (unsigned int i = 0; i < count; ++i)
-					lightManager.GetLight(i)->Enable(shader, lightCount++);
+					lightManager.GetLight(i)->Enable(program, lightCount++);
 			}
 
 			for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
-				NzLight::Disable(shader, i);
+				NzLight::Disable(program, i);
 
 			NzRenderer::SetMatrix(nzMatrixType_World, matrix);
 			drawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
