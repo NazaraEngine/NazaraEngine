@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_HPP
-#define NAZARA_SHADER_HPP
+#ifndef NAZARA_SHADERPROGRAM_HPP
+#define NAZARA_SHADERPROGRAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -20,23 +20,23 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NzShader;
+class NzShaderProgram;
 
-using NzShaderConstRef = NzResourceRef<const NzShader>;
-using NzShaderRef = NzResourceRef<NzShader>;
+using NzShaderProgramConstRef = NzResourceRef<const NzShaderProgram>;
+using NzShaderProgramRef = NzResourceRef<NzShaderProgram>;
 
-class NzAbstractShader;
+class NzAbstractShaderProgram;
 class NzTexture;
 
-class NAZARA_API NzShader : public NzResource, NzNonCopyable
+class NAZARA_API NzShaderProgram : public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
 
 	public:
-		NzShader();
-		NzShader(nzShaderLanguage language);
-		NzShader(NzShader&& shader);
-		~NzShader();
+		NzShaderProgram();
+		NzShaderProgram(nzShaderLanguage language);
+		NzShaderProgram(NzShaderProgram&& shader);
+		~NzShaderProgram();
 
 		bool Create(nzShaderLanguage language);
 		bool Compile();
@@ -58,8 +58,8 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 		bool IsLoaded(nzShaderType type) const;
 		bool IsValid() const;
 
-		bool Load(nzShaderType type, const NzString& source);
-		bool LoadFromFile(nzShaderType type, const NzString& source);
+		bool LoadShader(nzShaderType type, const NzString& source);
+		bool LoadShaderFromFile(nzShaderType type, const NzString& source);
 
 		bool SendBoolean(int location, bool value) const;
 		bool SendColor(int location, const NzColor& color) const;
@@ -78,15 +78,15 @@ class NAZARA_API NzShader : public NzResource, NzNonCopyable
 
 		void SetFlags(nzUInt32 flags);
 
-		NzShader& operator=(NzShader&& shader);
+		NzShaderProgram& operator=(NzShaderProgram&& shader);
 
 		static bool IsLanguageSupported(nzShaderLanguage language);
-		static bool IsTypeSupported(nzShaderType type);
+		static bool IsShaderTypeSupported(nzShaderType type);
 
 	private:
 		nzUInt32 m_flags;
-		NzAbstractShader* m_impl;
+		NzAbstractShaderProgram* m_impl;
 		bool m_compiled;
 };
 
-#endif // NAZARA_SHADER_HPP
+#endif // NAZARA_SHADERPROGRAM_HPP

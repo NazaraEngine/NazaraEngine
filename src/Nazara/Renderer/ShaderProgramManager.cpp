@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
-#include <Nazara/Renderer/ShaderManager.hpp>
+#include <Nazara/Renderer/ShaderProgramManager.hpp>
 #include <cstring>
 #include <memory>
 #include <unordered_map>
@@ -14,7 +14,7 @@ namespace
 {
 	struct ParamsHash
 	{
-		std::size_t operator()(const NzShaderManagerParams& params) const
+		std::size_t operator()(const NzShaderProgramManagerParams& params) const
 		{
 			static_assert(nzShaderTarget_Max < 0x4, "Maximum shader target takes more than 2 bits");
 
@@ -50,7 +50,7 @@ namespace
 
 	struct ParamsEquality
 	{
-		bool operator()(const NzShaderManagerParams& first, const NzShaderManagerParams& second) const
+		bool operator()(const NzShaderProgramManagerParams& first, const NzShaderProgramManagerParams& second) const
 		{
 			if (first.target != second.target || first.flags != second.flags)
 				return false;
@@ -58,10 +58,10 @@ namespace
 			switch (first.target)
 			{
 				case nzShaderTarget_FullscreenQuad:
-					return std::memcmp(&first.fullscreenQuad, &second.fullscreenQuad, sizeof(NzShaderManagerParams::FullscreenQuad)) == 0;
+					return std::memcmp(&first.fullscreenQuad, &second.fullscreenQuad, sizeof(NzShaderProgramManagerParams::FullscreenQuad)) == 0;
 
 				case nzShaderTarget_Model:
-					return std::memcmp(&first.model, &second.model, sizeof(NzShaderManagerParams::Model)) == 0;
+					return std::memcmp(&first.model, &second.model, sizeof(NzShaderProgramManagerParams::Model)) == 0;
 
 				case nzShaderTarget_None:
 					return true;
@@ -71,7 +71,7 @@ namespace
 		}
 	};
 
-	std::unordered_map<NzShaderManagerParams, NzShaderRef, ParamsHash, ParamsEquality> s_shaders;
+	std::unordered_map<NzShaderProgramManagerParams, NzShaderProgramRef, ParamsHash, ParamsEquality> s_programs;
 	NzString s_inKW;
 	NzString s_outKW;
 	NzString s_fragmentColorKW;
@@ -81,33 +81,33 @@ namespace
 	unsigned int s_glslVersion;
 }
 
-const NzShader* NzShaderManager::Get(const NzShaderManagerParams& params)
+const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerParams& params)
 {
-	auto it = s_shaders.find(params);
-	if (it == s_shaders.end())
+	auto it = s_programs.find(params);
+	if (it == s_programs.end())
 	{
-		// Alors nous gébérons le shader
-		NzShader* shader = GenerateShader(params);
-		if (!shader)
+		// Alors nous gébérons le programme
+		NzShaderProgram* program = GenerateProgram(params);
+		if (!program)
 		{
-			NazaraWarning("Failed to build shader, using default one...");
+			NazaraWarning("Failed to build program, using default one...");
 
-			NzShaderManagerParams defaultParams;
+			NzShaderProgramManagerParams defaultParams;
 			defaultParams.flags = params.flags;
 			defaultParams.target = nzShaderTarget_None;
 
-			shader = s_shaders[defaultParams]; // Shader par défaut
+			program = s_programs[defaultParams]; // Shader par défaut
 		}
 
-		s_shaders[params] = shader;
+		s_programs[params] = program;
 
-		return shader;
+		return program;
 	}
 	else
 		return it->second;
 }
 
-NzString NzShaderManager::BuildFragmentCode(const NzShaderManagerParams& params)
+NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerParams& params)
 {
 	#ifdef NAZARA_DEBUG
 	if (params.target > nzShaderTarget_Max)
@@ -570,7 +570,7 @@ NzString NzShaderManager::BuildFragmentCode(const NzShaderManagerParams& params)
 	return source;
 }
 
-NzString NzShaderManager::BuildVertexCode(const NzShaderManagerParams& params)
+NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerParams& params)
 {
 	#ifdef NAZARA_DEBUG
 	if (params.target > nzShaderTarget_Max)
@@ -759,45 +759,45 @@ NzString NzShaderManager::BuildVertexCode(const NzShaderManagerParams& params)
 	return source;
 }
 
-NzShader* NzShaderManager::GenerateShader(const NzShaderManagerParams& params)
+NzShaderProgram* NzShaderProgramManager::GenerateProgram(const NzShaderProgramManagerParams& params)
 {
-	std::unique_ptr<NzShader> shader(new NzShader);
-	shader->SetPersistent(false);
+	std::unique_ptr<NzShaderProgram> program(new NzShaderProgram);
+	program->SetPersistent(false);
 
-	if (!shader->Create(nzShaderLanguage_GLSL))
+	if (!program->Create(nzShaderLanguage_GLSL))
 	{
-		NazaraError("Failed to create shader");
+		NazaraError("Failed to create program");
 		return nullptr;
 	}
 
 	NzString fragmentSource = BuildFragmentCode(params);
 	NazaraDebug("Fragment shader source:\n" + fragmentSource);
-	if (!shader->Load(nzShaderType_Fragment, fragmentSource))
+	if (!program->LoadShader(nzShaderType_Fragment, fragmentSource))
 	{
-		NazaraError("Failed to load fragment shader: " + shader->GetLog());
+		NazaraError("Failed to load fragment shader: " + program->GetLog());
 		NazaraNotice("Source:\n" + fragmentSource);
 		return nullptr;
 	}
 
 	NzString vertexSource = BuildVertexCode(params);
 	NazaraDebug("Vertex shader source:\n" + vertexSource);
-	if (!shader->Load(nzShaderType_Vertex, vertexSource))
+	if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
 	{
-		NazaraError("Failed to load vertex shader: " + shader->GetLog());
+		NazaraError("Failed to load vertex shader: " + program->GetLog());
 		NazaraNotice("Source:\n" + vertexSource);
 		return nullptr;
 	}
 
-	if (!shader->Compile())
+	if (!program->Compile())
 	{
-		NazaraError("Failed to compile shader: " + shader->GetLog());
+		NazaraError("Failed to compile program: " + program->GetLog());
 		return nullptr;
 	}
 
-	return shader.release();
+	return program.release();
 }
 
-bool NzShaderManager::Initialize()
+bool NzShaderProgramManager::Initialize()
 {
 	s_glslVersion = NzOpenGL::GetGLSLVersion();
 	s_earlyFragmentTest = (s_glslVersion >= 420 || NzOpenGL::IsSupported(nzOpenGLExtension_Shader_ImageLoadStore));
@@ -808,29 +808,29 @@ bool NzShaderManager::Initialize()
 	s_outKW = (s_glsl140) ? "out" : "varying";
 	s_textureLookupKW = (s_glsl140) ? "texture" : "texture2D";
 
-	NzShaderManagerParams params;
+	NzShaderProgramManagerParams params;
 	params.target = nzShaderTarget_None;
 	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
 	{
 		params.flags = i;
 
-		NzShader* shader = GenerateShader(params);
-		if (!shader)
+		NzShaderProgram* program = GenerateProgram(params);
+		if (!program)
 		{
-			NazaraError("Failed to generate default shader (flags: 0x" + NzString::Number(i, 16) + ')');
+			NazaraError("Failed to generate default program (flags: 0x" + NzString::Number(i, 16) + ')');
 			Uninitialize();
 			return false;
 		}
 
-		s_shaders[params] = shader;
+		s_programs[params] = program;
 	}
 
 	return true;
 }
 
-void NzShaderManager::Uninitialize()
+void NzShaderProgramManager::Uninitialize()
 {
-	s_shaders.clear();
+	s_programs.clear();
 	s_fragmentColorKW.Clear(false);
 	s_inKW.Clear(false);
 	s_outKW.Clear(false);

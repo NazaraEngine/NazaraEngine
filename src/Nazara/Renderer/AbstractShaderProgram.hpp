@@ -4,18 +4,18 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTSHADER_HPP
-#define NAZARA_ABSTRACTSHADER_HPP
+#ifndef NAZARA_ABSTRACTSHADERPROGRAM_HPP
+#define NAZARA_ABSTRACTSHADERPROGRAM_HPP
 
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
 
-class NzAbstractShader
+class NzAbstractShaderProgram
 {
 	friend class NzRenderer;
 
 	public:
-		NzAbstractShader() = default;
-		virtual ~NzAbstractShader();
+		NzAbstractShaderProgram() = default;
+		virtual ~NzAbstractShaderProgram();
 
 		virtual bool Bind() = 0;
 		virtual	bool BindTextures() = 0;
@@ -35,7 +35,7 @@ class NzAbstractShader
 		virtual bool IsBinaryRetrievable() const = 0;
 		virtual bool IsLoaded(nzShaderType type) const = 0;
 
-		virtual bool Load(nzShaderType type, const NzString& source) = 0;
+		virtual bool LoadShader(nzShaderType type, const NzString& source) = 0;
 
 		virtual bool SendBoolean(int location, bool value) = 0;
 		virtual bool SendColor(int location, const NzColor& color) = 0;
@@ -53,4 +53,4 @@ class NzAbstractShader
 		virtual bool SendVector(int location, const NzVector4f& vector) = 0;
 };
 
-#endif // NAZARA_ABSTRACTSHADER_HPP
+#endif // NAZARA_ABSTRACTSHADERPROGRAM_HPP

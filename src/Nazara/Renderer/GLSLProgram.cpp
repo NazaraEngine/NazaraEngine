@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/GLSLShader.hpp>
+#include <Nazara/Renderer/GLSLProgram.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Context.hpp>
@@ -12,12 +12,12 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzGLSLShader::NzGLSLShader(NzShader* parent) :
+NzGLSLProgram::NzGLSLProgram(NzShaderProgram* parent) :
 m_parent(parent)
 {
 }
 
-bool NzGLSLShader::Bind()
+bool NzGLSLProgram::Bind()
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -32,7 +32,7 @@ bool NzGLSLShader::Bind()
 	return true;
 }
 
-bool NzGLSLShader::BindTextures()
+bool NzGLSLProgram::BindTextures()
 {
 	for (const std::pair<GLint, TextureSlot>& pair : m_textures)
 	{
@@ -44,7 +44,7 @@ bool NzGLSLShader::BindTextures()
 	return true;
 }
 
-bool NzGLSLShader::Compile()
+bool NzGLSLProgram::Compile()
 {
 	NzContext::EnsureContext();
 
@@ -116,7 +116,7 @@ bool NzGLSLShader::Compile()
 	}
 }
 
-bool NzGLSLShader::Create()
+bool NzGLSLProgram::Create()
 {
 	NzContext::EnsureContext();
 
@@ -163,7 +163,7 @@ bool NzGLSLShader::Create()
 	return true;
 }
 
-void NzGLSLShader::Destroy()
+void NzGLSLProgram::Destroy()
 {
 	NzContext::EnsureContext();
 
@@ -173,7 +173,7 @@ void NzGLSLShader::Destroy()
 	NzOpenGL::DeleteProgram(m_program);
 }
 
-NzByteArray NzGLSLShader::GetBinary() const
+NzByteArray NzGLSLProgram::GetBinary() const
 {
 	NzByteArray byteArray;
 
@@ -199,17 +199,17 @@ NzByteArray NzGLSLShader::GetBinary() const
 	return byteArray;
 }
 
-NzString NzGLSLShader::GetLog() const
+NzString NzGLSLProgram::GetLog() const
 {
 	return m_log;
 }
 
-nzShaderLanguage NzGLSLShader::GetLanguage() const
+nzShaderLanguage NzGLSLProgram::GetLanguage() const
 {
 	return nzShaderLanguage_GLSL;
 }
 
-NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
+NzString NzGLSLProgram::GetSourceCode(nzShaderType type) const
 {
 	NzString source;
 
@@ -226,7 +226,7 @@ NzString NzGLSLShader::GetSourceCode(nzShaderType type) const
 	return source;
 }
 
-int NzGLSLShader::GetUniformLocation(const NzString& name) const
+int NzGLSLProgram::GetUniformLocation(const NzString& name) const
 {
 	auto it = m_idCache.find(name);
 	GLint id;
@@ -243,22 +243,22 @@ int NzGLSLShader::GetUniformLocation(const NzString& name) const
 	return id;
 }
 
-int NzGLSLShader::GetUniformLocation(nzShaderUniform uniform) const
+int NzGLSLProgram::GetUniformLocation(nzShaderUniform uniform) const
 {
 	return m_uniformLocations[uniform];
 }
 
-bool NzGLSLShader::IsBinaryRetrievable() const
+bool NzGLSLProgram::IsBinaryRetrievable() const
 {
 	return NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary);
 }
 
-bool NzGLSLShader::IsLoaded(nzShaderType type) const
+bool NzGLSLProgram::IsLoaded(nzShaderType type) const
 {
 	return m_shaders[type] != 0;
 }
 
-bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
+bool NzGLSLProgram::LoadShader(nzShaderType type, const NzString& source)
 {
 	NzContext::EnsureContext();
 
@@ -317,7 +317,7 @@ bool NzGLSLShader::Load(nzShaderType type, const NzString& source)
 	}
 }
 
-bool NzGLSLShader::SendBoolean(int location, bool value)
+bool NzGLSLProgram::SendBoolean(int location, bool value)
 {
 	if (glProgramUniform1i)
 		glProgramUniform1i(m_program, location, value);
@@ -330,7 +330,7 @@ bool NzGLSLShader::SendBoolean(int location, bool value)
 	return true;
 }
 
-bool NzGLSLShader::SendColor(int location, const NzColor& color)
+bool NzGLSLProgram::SendColor(int location, const NzColor& color)
 {
 	NzVector4f vecColor(color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f);
 
@@ -345,7 +345,7 @@ bool NzGLSLShader::SendColor(int location, const NzColor& color)
 	return true;
 }
 
-bool NzGLSLShader::SendDouble(int location, double value)
+bool NzGLSLProgram::SendDouble(int location, double value)
 {
 	if (glProgramUniform1d)
 		glProgramUniform1d(m_program, location, value);
@@ -358,7 +358,7 @@ bool NzGLSLShader::SendDouble(int location, double value)
 	return true;
 }
 
-bool NzGLSLShader::SendFloat(int location, float value)
+bool NzGLSLProgram::SendFloat(int location, float value)
 {
 	if (glProgramUniform1f)
 		glProgramUniform1f(m_program, location, value);
@@ -371,7 +371,7 @@ bool NzGLSLShader::SendFloat(int location, float value)
 	return true;
 }
 
-bool NzGLSLShader::SendInteger(int location, int value)
+bool NzGLSLProgram::SendInteger(int location, int value)
 {
 	if (glProgramUniform1i)
 		glProgramUniform1i(m_program, location, value);
@@ -384,7 +384,7 @@ bool NzGLSLShader::SendInteger(int location, int value)
 	return true;
 }
 
-bool NzGLSLShader::SendMatrix(int location, const NzMatrix4d& matrix)
+bool NzGLSLProgram::SendMatrix(int location, const NzMatrix4d& matrix)
 {
 	if (glProgramUniformMatrix4dv)
 		glProgramUniformMatrix4dv(m_program, location, 1, GL_FALSE, matrix);
@@ -397,7 +397,7 @@ bool NzGLSLShader::SendMatrix(int location, const NzMatrix4d& matrix)
 	return true;
 }
 
-bool NzGLSLShader::SendMatrix(int location, const NzMatrix4f& matrix)
+bool NzGLSLProgram::SendMatrix(int location, const NzMatrix4f& matrix)
 {
 	if (glProgramUniformMatrix4fv)
 		glProgramUniformMatrix4fv(m_program, location, 1, GL_FALSE, matrix);
@@ -410,7 +410,7 @@ bool NzGLSLShader::SendMatrix(int location, const NzMatrix4f& matrix)
 	return true;
 }
 
-bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit)
+bool NzGLSLProgram::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit)
 {
 	auto it = m_textures.find(location);
 	if (it != m_textures.end())
@@ -475,7 +475,7 @@ bool NzGLSLShader::SendTexture(int location, const NzTexture* texture, nzUInt8* 
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector2d& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector2d& vector)
 {
 	if (glProgramUniform2dv)
 		glProgramUniform2dv(m_program, location, 1, vector);
@@ -488,7 +488,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector2d& vector)
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector2f& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector2f& vector)
 {
 	if (glProgramUniform2fv)
 		glProgramUniform2fv(m_program, location, 1, vector);
@@ -501,7 +501,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector2f& vector)
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector3d& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector3d& vector)
 {
 	if (glProgramUniform3dv)
 		glProgramUniform3dv(m_program, location, 1, vector);
@@ -514,7 +514,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector3d& vector)
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector3f& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector3f& vector)
 {
 	if (glProgramUniform3fv)
 		glProgramUniform3fv(m_program, location, 1, vector);
@@ -527,7 +527,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector3f& vector)
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector4d& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector4d& vector)
 {
 	if (glProgramUniform4dv)
 		glProgramUniform4dv(m_program, location, 1, vector);
@@ -540,7 +540,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector4d& vector)
 	return true;
 }
 
-bool NzGLSLShader::SendVector(int location, const NzVector4f& vector)
+bool NzGLSLProgram::SendVector(int location, const NzVector4f& vector)
 {
 	if (glProgramUniform4fv)
 		glProgramUniform4fv(m_program, location, 1, vector);
@@ -553,7 +553,7 @@ bool NzGLSLShader::SendVector(int location, const NzVector4f& vector)
 	return true;
 }
 
-void NzGLSLShader::OnResourceCreated(const NzResource* resource, int index)
+void NzGLSLProgram::OnResourceCreated(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 
@@ -581,7 +581,7 @@ void NzGLSLShader::OnResourceCreated(const NzResource* resource, int index)
 	slot.updated = false;
 }
 
-void NzGLSLShader::OnResourceDestroy(const NzResource* resource, int index)
+void NzGLSLProgram::OnResourceDestroy(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 
@@ -608,7 +608,7 @@ void NzGLSLShader::OnResourceDestroy(const NzResource* resource, int index)
 	slot.enabled = false;
 }
 
-void NzGLSLShader::OnResourceReleased(const NzResource* resource, int index)
+void NzGLSLProgram::OnResourceReleased(const NzResource* resource, int index)
 {
 	if (m_textures.erase(index) == 0)
 		NazaraInternalError("Texture " + NzString::Pointer(resource) + " not found");

@@ -2,26 +2,26 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Renderer/AbstractShader.hpp>
+#include <Nazara/Renderer/AbstractShaderProgram.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/GLSLShader.hpp>
+#include <Nazara/Renderer/GLSLProgram.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzShader::NzShader() :
+NzShaderProgram::NzShaderProgram() :
 m_flags(nzShaderFlags_None),
 m_impl(nullptr),
 m_compiled(false)
 {
 }
 
-NzShader::NzShader(nzShaderLanguage language) :
+NzShaderProgram::NzShaderProgram(nzShaderLanguage language) :
 m_flags(nzShaderFlags_None),
 m_impl(nullptr),
 m_compiled(false)
@@ -29,20 +29,20 @@ m_compiled(false)
 	Create(language);
 }
 
-NzShader::NzShader(NzShader&& shader) :
-m_flags(shader.m_flags),
-m_impl(shader.m_impl),
-m_compiled(shader.m_compiled)
+NzShaderProgram::NzShaderProgram(NzShaderProgram&& program) :
+m_flags(program.m_flags),
+m_impl(program.m_impl),
+m_compiled(program.m_compiled)
 {
-	shader.m_impl = nullptr;
+	program.m_impl = nullptr;
 }
 
-NzShader::~NzShader()
+NzShaderProgram::~NzShaderProgram()
 {
 	Destroy();
 }
 
-bool NzShader::Create(nzShaderLanguage language)
+bool NzShaderProgram::Create(nzShaderLanguage language)
 {
 	Destroy();
 
@@ -53,17 +53,17 @@ bool NzShader::Create(nzShaderLanguage language)
 			return false;
 
 		case nzShaderLanguage_GLSL:
-			m_impl = new NzGLSLShader(this);
+			m_impl = new NzGLSLProgram(this);
 			break;
 
 		default:
-			NazaraError("Shader language not handled (0x" + NzString::Number(language, 16) + ')');
+			NazaraError("Program language not handled (0x" + NzString::Number(language, 16) + ')');
 			return false;
 	}
 
 	if (!m_impl->Create())
 	{
-		NazaraError("Failed to create shader");
+		NazaraError("Failed to create program");
 		delete m_impl;
 		m_impl = nullptr;
 
@@ -74,12 +74,12 @@ bool NzShader::Create(nzShaderLanguage language)
 	return true;
 }
 
-bool NzShader::Compile()
+bool NzShaderProgram::Compile()
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -94,7 +94,7 @@ bool NzShader::Compile()
 		return false;
 }
 
-void NzShader::Destroy()
+void NzShaderProgram::Destroy()
 {
 	if (m_impl)
 	{
@@ -106,24 +106,24 @@ void NzShader::Destroy()
 	}
 }
 
-NzByteArray NzShader::GetBinary() const
+NzByteArray NzShaderProgram::GetBinary() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return NzByteArray();
 	}
 
 	if (!m_compiled)
 	{
-		NazaraError("Shader is not compiled");
+		NazaraError("Program is not compiled");
 		return NzByteArray();
 	}
 
 	if (!m_impl->IsBinaryRetrievable())
 	{
-		NazaraError("Shader binary is not retrievable");
+		NazaraError("Program binary is not retrievable");
 		return NzByteArray();
 	}
 	#endif
@@ -131,17 +131,17 @@ NzByteArray NzShader::GetBinary() const
 	return m_impl->GetBinary();
 }
 
-nzUInt32 NzShader::GetFlags() const
+nzUInt32 NzShaderProgram::GetFlags() const
 {
 	return m_flags;
 }
 
-NzString NzShader::GetLog() const
+NzString NzShaderProgram::GetLog() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NzString error = "Shader not created";
+		NzString error = "Program not created";
 		NazaraError(error);
 
 		return error;
@@ -151,12 +151,12 @@ NzString NzShader::GetLog() const
 	return m_impl->GetLog();
 }
 
-nzShaderLanguage NzShader::GetLanguage() const
+nzShaderLanguage NzShaderProgram::GetLanguage() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NzString error = "Shader not created";
+		NzString error = "Program not created";
 		NazaraError(error);
 
 		return nzShaderLanguage_Unknown;
@@ -166,20 +166,20 @@ nzShaderLanguage NzShader::GetLanguage() const
 	return m_impl->GetLanguage();
 }
 
-NzString NzShader::GetSourceCode(nzShaderType type) const
+NzString NzShaderProgram::GetSourceCode(nzShaderType type) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NzString error = "Shader not created";
+		NzString error = "Program not created";
 		NazaraError(error);
 
 		return error;
 	}
 
-	if (!IsTypeSupported(type))
+	if (!IsShaderTypeSupported(type))
 	{
-		NzString error = "Shader type not supported";
+		NzString error = "Program type not supported";
 		NazaraError(error);
 
 		return error;
@@ -187,7 +187,7 @@ NzString NzShader::GetSourceCode(nzShaderType type) const
 
 	if (!m_impl->IsLoaded(type))
 	{
-		NzString error = "Shader not loaded";
+		NzString error = "Program not loaded";
 		NazaraError(error);
 
 		return error;
@@ -197,12 +197,12 @@ NzString NzShader::GetSourceCode(nzShaderType type) const
 	return m_impl->GetSourceCode(type);
 }
 
-int NzShader::GetUniformLocation(const NzString& name) const
+int NzShaderProgram::GetUniformLocation(const NzString& name) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -210,12 +210,12 @@ int NzShader::GetUniformLocation(const NzString& name) const
 	return m_impl->GetUniformLocation(name);
 }
 
-int NzShader::GetUniformLocation(nzShaderUniform uniform) const
+int NzShaderProgram::GetUniformLocation(nzShaderUniform uniform) const
 {
 	#ifdef NAZARA_DEBUG
 	if (uniform > nzShaderUniform_Max)
 	{
-		NazaraError("Shader uniform out of enum");
+		NazaraError("Program uniform out of enum");
 		return -1;
 	}
 	#endif
@@ -223,12 +223,12 @@ int NzShader::GetUniformLocation(nzShaderUniform uniform) const
 	return m_impl->GetUniformLocation(uniform);
 }
 
-bool NzShader::HasUniform(const NzString& name) const
+bool NzShaderProgram::HasUniform(const NzString& name) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -236,12 +236,12 @@ bool NzShader::HasUniform(const NzString& name) const
 	return m_impl->GetUniformLocation(name) != -1;
 }
 
-bool NzShader::IsBinaryRetrievable() const
+bool NzShaderProgram::IsBinaryRetrievable() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -249,12 +249,12 @@ bool NzShader::IsBinaryRetrievable() const
 	return m_impl->IsBinaryRetrievable();
 }
 
-bool NzShader::IsCompiled() const
+bool NzShaderProgram::IsCompiled() const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -262,18 +262,18 @@ bool NzShader::IsCompiled() const
 	return m_compiled;
 }
 
-bool NzShader::IsLoaded(nzShaderType type) const
+bool NzShaderProgram::IsLoaded(nzShaderType type) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 
-	if (!IsTypeSupported(type))
+	if (!IsShaderTypeSupported(type))
 	{
-		NazaraError("Shader type not supported");
+		NazaraError("Program type not supported");
 		return false;
 	}
 	#endif
@@ -281,23 +281,23 @@ bool NzShader::IsLoaded(nzShaderType type) const
 	return m_impl->IsLoaded(type);
 }
 
-bool NzShader::IsValid() const
+bool NzShaderProgram::IsValid() const
 {
 	return m_impl != nullptr;
 }
 
-bool NzShader::Load(nzShaderType type, const NzString& source)
+bool NzShaderProgram::LoadShader(nzShaderType type, const NzString& source)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 
-	if (!IsTypeSupported(type))
+	if (!IsShaderTypeSupported(type))
 	{
-		NazaraError("Shader type not supported");
+		NazaraError("Program type not supported");
 		return false;
 	}
 
@@ -309,32 +309,32 @@ bool NzShader::Load(nzShaderType type, const NzString& source)
 
 	if (m_impl->IsLoaded(type))
 	{
-		NazaraError("Shader already loaded");
+		NazaraError("Program already loaded");
 		return false;
 	}
 	#endif
 
-	return m_impl->Load(type, source);
+	return m_impl->LoadShader(type, source);
 }
 
-bool NzShader::LoadFromFile(nzShaderType type, const NzString& filePath)
+bool NzShaderProgram::LoadShaderFromFile(nzShaderType type, const NzString& filePath)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 
-	if (!IsTypeSupported(type))
+	if (!IsShaderTypeSupported(type))
 	{
-		NazaraError("Shader type not supported");
+		NazaraError("Program type not supported");
 		return false;
 	}
 
 	if (m_impl->IsLoaded(type))
 	{
-		NazaraError("Shader already loaded");
+		NazaraError("Program already loaded");
 		return false;
 	}
 	#endif
@@ -353,21 +353,21 @@ bool NzShader::LoadFromFile(nzShaderType type, const NzString& filePath)
 
 	if (file.Read(&source[0], length) != length)
 	{
-		NazaraError("Failed to read shader file");
+		NazaraError("Failed to read program file");
 		return false;
 	}
 
 	file.Close();
 
-	return m_impl->Load(type, source);
+	return m_impl->LoadShader(type, source);
 }
 
-bool NzShader::SendBoolean(int location, bool value) const
+bool NzShaderProgram::SendBoolean(int location, bool value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -378,12 +378,12 @@ bool NzShader::SendBoolean(int location, bool value) const
 	return m_impl->SendBoolean(location, value);
 }
 
-bool NzShader::SendColor(int location, const NzColor& color) const
+bool NzShaderProgram::SendColor(int location, const NzColor& color) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -394,7 +394,7 @@ bool NzShader::SendColor(int location, const NzColor& color) const
 	return m_impl->SendColor(location, color);
 }
 
-bool NzShader::SendDouble(int location, double value) const
+bool NzShaderProgram::SendDouble(int location, double value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -405,7 +405,7 @@ bool NzShader::SendDouble(int location, double value) const
 
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -416,12 +416,12 @@ bool NzShader::SendDouble(int location, double value) const
 	return m_impl->SendDouble(location, value);
 }
 
-bool NzShader::SendFloat(int location, float value) const
+bool NzShaderProgram::SendFloat(int location, float value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -432,12 +432,12 @@ bool NzShader::SendFloat(int location, float value) const
 	return m_impl->SendFloat(location, value);
 }
 
-bool NzShader::SendInteger(int location, int value) const
+bool NzShaderProgram::SendInteger(int location, int value) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -448,7 +448,7 @@ bool NzShader::SendInteger(int location, int value) const
 	return m_impl->SendInteger(location, value);
 }
 
-bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
+bool NzShaderProgram::SendMatrix(int location, const NzMatrix4d& matrix) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -459,7 +459,7 @@ bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -470,12 +470,12 @@ bool NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 	return m_impl->SendMatrix(location, matrix);
 }
 
-bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
+bool NzShaderProgram::SendMatrix(int location, const NzMatrix4f& matrix) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -486,12 +486,12 @@ bool NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
 	return m_impl->SendMatrix(location, matrix);
 }
 
-bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit) const
+bool NzShaderProgram::SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -502,7 +502,7 @@ bool NzShader::SendTexture(int location, const NzTexture* texture, nzUInt8* text
 	return m_impl->SendTexture(location, texture, textureUnit);
 }
 
-bool NzShader::SendVector(int location, const NzVector2d& vector) const
+bool NzShaderProgram::SendVector(int location, const NzVector2d& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -513,7 +513,7 @@ bool NzShader::SendVector(int location, const NzVector2d& vector) const
 
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -524,12 +524,12 @@ bool NzShader::SendVector(int location, const NzVector2d& vector) const
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector2f& vector) const
+bool NzShaderProgram::SendVector(int location, const NzVector2f& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -540,45 +540,7 @@ bool NzShader::SendVector(int location, const NzVector2f& vector) const
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector3d& vector) const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
-	{
-		NazaraError("FP64 is not supported");
-		return false;
-	}
-
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return false;
-	}
-	#endif
-
-	if (location == -1)
-		return false;
-
-	return m_impl->SendVector(location, vector);
-}
-
-bool NzShader::SendVector(int location, const NzVector3f& vector) const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Shader not created");
-		return false;
-	}
-	#endif
-
-	if (location == -1)
-		return false;
-
-	return m_impl->SendVector(location, vector);
-}
-
-bool NzShader::SendVector(int location, const NzVector4d& vector) const
+bool NzShaderProgram::SendVector(int location, const NzVector3d& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
@@ -589,7 +551,7 @@ bool NzShader::SendVector(int location, const NzVector4d& vector) const
 
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -600,12 +562,12 @@ bool NzShader::SendVector(int location, const NzVector4d& vector) const
 	return m_impl->SendVector(location, vector);
 }
 
-bool NzShader::SendVector(int location, const NzVector4f& vector) const
+bool NzShaderProgram::SendVector(int location, const NzVector3f& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
-		NazaraError("Shader not created");
+		NazaraError("Program not created");
 		return false;
 	}
 	#endif
@@ -616,22 +578,60 @@ bool NzShader::SendVector(int location, const NzVector4f& vector) const
 	return m_impl->SendVector(location, vector);
 }
 
-void NzShader::SetFlags(nzUInt32 flags)
+bool NzShaderProgram::SendVector(int location, const NzVector4d& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVector(location, vector);
+}
+
+bool NzShaderProgram::SendVector(int location, const NzVector4f& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVector(location, vector);
+}
+
+void NzShaderProgram::SetFlags(nzUInt32 flags)
 {
 	m_flags = flags;
 }
 
-NzShader& NzShader::operator=(NzShader&& shader)
+NzShaderProgram& NzShaderProgram::operator=(NzShaderProgram&& program)
 {
 	Destroy();
 
-	m_impl = shader.m_impl;
-	shader.m_impl = nullptr;
+	m_impl = program.m_impl;
+	program.m_impl = nullptr;
 
 	return *this;
 }
 
-bool NzShader::IsLanguageSupported(nzShaderLanguage language)
+bool NzShaderProgram::IsLanguageSupported(nzShaderLanguage language)
 {
 	switch (language)
 	{
@@ -642,12 +642,12 @@ bool NzShader::IsLanguageSupported(nzShaderLanguage language)
 			return true;
 
 		default:
-			NazaraError("Shader language not handled (0x" + NzString::Number(language, 16) + ')');
+			NazaraError("Program language not handled (0x" + NzString::Number(language, 16) + ')');
 			return false;
 	}
 }
 
-bool NzShader::IsTypeSupported(nzShaderType type)
+bool NzShaderProgram::IsShaderTypeSupported(nzShaderType type)
 {
 	switch (type)
 	{
@@ -659,7 +659,7 @@ bool NzShader::IsTypeSupported(nzShaderType type)
 			return NzOpenGL::GetVersion() >= 320;
 
 		default:
-			NazaraError("Shader type not handled (0x" + NzString::Number(type, 16) + ')');
+			NazaraError("Program type not handled (0x" + NzString::Number(type, 16) + ')');
 			return false;
 	}
 }

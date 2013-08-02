@@ -4,21 +4,21 @@
 
 #include <Nazara/Graphics/ColorBackGround.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderManager.hpp>
+#include <Nazara/Renderer/ShaderProgramManager.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 NzColorBackground::NzColorBackground(const NzColor& color) :
 m_color(color)
 {
-	NzShaderManagerParams params;
+	NzShaderProgramManagerParams params;
 	params.target = nzShaderTarget_FullscreenQuad;
 	params.flags = 0;
 	params.fullscreenQuad.alphaMapping = false;
 	params.fullscreenQuad.alphaTest = false;
 	params.fullscreenQuad.diffuseMapping = false;
 
-	m_shader = NzShaderManager::Get(params);
+	m_program = NzShaderProgramManager::Get(params);
 }
 
 void NzColorBackground::Draw(const NzScene* scene) const
@@ -27,10 +27,10 @@ void NzColorBackground::Draw(const NzScene* scene) const
 
 	static NzRenderStates states;
 
-	m_shader->SendColor(m_shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
+	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
 
 	NzRenderer::SetRenderStates(states);
-	NzRenderer::SetShader(m_shader);
+	NzRenderer::SetShaderProgram(m_program);
 
 	NzRenderer::DrawFullscreenQuad();
 }

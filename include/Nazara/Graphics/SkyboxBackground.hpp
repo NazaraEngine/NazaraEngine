@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -35,7 +35,7 @@ class NAZARA_API NzSkyboxBackground : public NzAbstractBackground
 		NzTextureRef m_texture;
 		NzTextureSampler m_sampler;
 		NzIndexBufferRef m_indexBuffer;
-		NzShaderRef m_shader;
+		NzShaderProgramRef m_program;
 		NzVertexBufferRef m_vertexBuffer;
 };
 
