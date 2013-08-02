@@ -50,4 +50,7 @@
 // Protège les classes des accès concurrentiels
 //#define NAZARA_UTILITY_THREADSAFE 1
 
+// Sous Windows, fait en sorte que les touches ALT et F10 n'activent pas le menu de la fenêtre
+#define NAZARA_UTILITY_WINDOWS_DISABLE_MENU_KEYS 1
+
 #endif // NAZARA_CONFIG_UTILITY_HPP
