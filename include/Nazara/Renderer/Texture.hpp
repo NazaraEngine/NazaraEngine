@@ -27,7 +27,6 @@ struct NzTextureImpl;
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 {
 	friend NzRenderTexture;
-	friend class NzShader;
 
 	public:
 		NzTexture() = default;

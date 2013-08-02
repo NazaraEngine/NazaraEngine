@@ -15,7 +15,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
@@ -48,7 +48,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial(NzMaterial&& material);
 		~NzMaterial() = default;
 
-		void Apply(const NzShader* shader) const;
+		void Apply(const NzShaderProgram* program) const;
 
 		void Enable(nzRendererParameter renderParameter, bool enable);
 		void EnableAlphaTest(bool alphaTest);
@@ -69,7 +69,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzTexture* GetHeightMap() const;
 		NzTexture* GetNormalMap() const;
 		const NzRenderStates& GetRenderStates() const;
-		const NzShader* GetShader(nzShaderTarget target, nzUInt32 flags) const;
+		const NzShaderProgram* GetShaderProgram(nzShaderTarget target, nzUInt32 flags) const;
 		float GetShininess() const;
 		NzColor GetSpecularColor() const;
 		NzTexture* GetSpecularMap() const;
@@ -113,7 +113,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool SetNormalMap(const NzString& texturePath);
 		void SetNormalMap(NzTexture* map);
 		void SetRenderStates(const NzRenderStates& states);
-		void SetShader(nzShaderTarget target, nzUInt32 flags, const NzShader* shader);
+		void SetShaderProgram(nzShaderTarget target, nzUInt32 flags, const NzShaderProgram* program);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
 		bool SetSpecularMap(const NzString& texturePath);
@@ -127,15 +127,15 @@ class NAZARA_API NzMaterial : public NzResource
 		static NzMaterial* GetDefault();
 
 	private:
-		struct ShaderUnit
+		struct ProgramUnit
 		{
-			NzShaderConstRef shader;
+			NzShaderProgramConstRef program;
 			bool custom = false;
 		};
 
 		void Copy(const NzMaterial& material);
-		void GenerateShader(nzShaderTarget target, nzUInt32 flags) const;
-		void InvalidateShaders(nzShaderTarget target);
+		void GenerateProgram(nzShaderTarget target, nzUInt32 flags) const;
+		void InvalidatePrograms(nzShaderTarget target);
 
 		static bool Initialize();
 		static void Uninitialize();
@@ -144,7 +144,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
 		NzRenderStates m_states;
-		mutable ShaderUnit m_shaders[nzShaderTarget_Max+1][nzShaderFlags_Max+1];
+		mutable ProgramUnit m_programs[nzShaderTarget_Max+1][nzShaderFlags_Max+1];
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
 		NzTextureRef m_alphaMap;

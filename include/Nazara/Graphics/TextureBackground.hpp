@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
 class NAZARA_API NzTextureBackground : public NzAbstractBackground
@@ -26,7 +26,7 @@ class NAZARA_API NzTextureBackground : public NzAbstractBackground
 		void SetTexture(NzTexture* texture);
 
 	private:
-		NzShaderConstRef m_shader;
+		NzShaderProgramConstRef m_program;
 		NzTextureRef m_texture;
 };
 

@@ -4,8 +4,8 @@
 
 #include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderManager.hpp>
+#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/ShaderProgramManager.hpp>
 #include <cstring>
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
@@ -39,25 +39,25 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 	material.m_specularMap.Reset();
 
 	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
-		for (ShaderUnit& unit : material.m_shaders[i])
-			unit.shader.Reset();
+		for (ProgramUnit& unit : material.m_programs[i])
+			unit.program.Reset();
 }
 
-void NzMaterial::Apply(const NzShader* shader) const
+void NzMaterial::Apply(const NzShaderProgram* program) const
 {
-	int alphaThresholdLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAlphaThreshold);
-	int ambientColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAmbient);
-	int diffuseColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
-	int shininessLocation = shader->GetUniformLocation(nzShaderUniform_MaterialShininess);
-	int specularColorLocation = shader->GetUniformLocation(nzShaderUniform_MaterialSpecular);
+	int alphaThresholdLocation = program->GetUniformLocation(nzShaderUniform_MaterialAlphaThreshold);
+	int ambientColorLocation = program->GetUniformLocation(nzShaderUniform_MaterialAmbient);
+	int diffuseColorLocation = program->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
+	int shininessLocation = program->GetUniformLocation(nzShaderUniform_MaterialShininess);
+	int specularColorLocation = program->GetUniformLocation(nzShaderUniform_MaterialSpecular);
 
 	if (m_alphaMap)
 	{
-		int alphaMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialAlphaMap);
+		int alphaMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialAlphaMap);
 		if (alphaMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(alphaMapLocation, m_alphaMap, &textureUnit))
+			if (program->SendTexture(alphaMapLocation, m_alphaMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send diffuse map");
@@ -65,21 +65,21 @@ void NzMaterial::Apply(const NzShader* shader) const
 	}
 
 	if (alphaThresholdLocation != -1)
-		shader->SendFloat(alphaThresholdLocation, m_alphaThreshold);
+		program->SendFloat(alphaThresholdLocation, m_alphaThreshold);
 
 	if (ambientColorLocation != -1)
-		shader->SendColor(ambientColorLocation, m_ambientColor);
+		program->SendColor(ambientColorLocation, m_ambientColor);
 
 	if (diffuseColorLocation != -1)
-		shader->SendColor(diffuseColorLocation, m_diffuseColor);
+		program->SendColor(diffuseColorLocation, m_diffuseColor);
 
 	if (m_diffuseMap)
 	{
-		int diffuseMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap);
+		int diffuseMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap);
 		if (diffuseMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(diffuseMapLocation, m_diffuseMap, &textureUnit))
+			if (program->SendTexture(diffuseMapLocation, m_diffuseMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send diffuse map");
@@ -88,11 +88,11 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_emissiveMap)
 	{
-		int emissiveMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialEmissiveMap);
+		int emissiveMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialEmissiveMap);
 		if (emissiveMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(emissiveMapLocation, m_emissiveMap, &textureUnit))
+			if (program->SendTexture(emissiveMapLocation, m_emissiveMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send emissive map");
@@ -101,11 +101,11 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_heightMap)
 	{
-		int heightMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialHeightMap);
+		int heightMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialHeightMap);
 		if (heightMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(heightMapLocation, m_heightMap, &textureUnit))
+			if (program->SendTexture(heightMapLocation, m_heightMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send height map");
@@ -114,11 +114,11 @@ void NzMaterial::Apply(const NzShader* shader) const
 
 	if (m_normalMap)
 	{
-		int normalMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialNormalMap);
+		int normalMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialNormalMap);
 		if (normalMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(normalMapLocation, m_normalMap, &textureUnit))
+			if (program->SendTexture(normalMapLocation, m_normalMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
 			else
 				NazaraWarning("Failed to send normal map");
@@ -126,18 +126,18 @@ void NzMaterial::Apply(const NzShader* shader) const
 	}
 
 	if (shininessLocation != -1)
-		shader->SendFloat(shininessLocation, m_shininess);
+		program->SendFloat(shininessLocation, m_shininess);
 
 	if (specularColorLocation != -1)
-		shader->SendColor(specularColorLocation, m_specularColor);
+		program->SendColor(specularColorLocation, m_specularColor);
 
 	if (m_specularMap)
 	{
-		int specularMapLocation = shader->GetUniformLocation(nzShaderUniform_MaterialSpecularMap);
+		int specularMapLocation = program->GetUniformLocation(nzShaderUniform_MaterialSpecularMap);
 		if (specularMapLocation != -1)
 		{
 			nzUInt8 textureUnit;
-			if (shader->SendTexture(specularMapLocation, m_specularMap, &textureUnit))
+			if (program->SendTexture(specularMapLocation, m_specularMap, &textureUnit))
 				NzRenderer::SetTextureSampler(textureUnit, m_specularSampler);
 			else
 				NazaraWarning("Failed to send specular map");
@@ -245,13 +245,13 @@ const NzRenderStates& NzMaterial::GetRenderStates() const
 	return m_states;
 }
 
-const NzShader* NzMaterial::GetShader(nzShaderTarget target, nzUInt32 flags) const
+const NzShaderProgram* NzMaterial::GetShaderProgram(nzShaderTarget target, nzUInt32 flags) const
 {
-	const ShaderUnit& unit = m_shaders[target][flags];
-	if (!unit.shader.IsValid())
-		GenerateShader(target, flags);
+	const ProgramUnit& unit = m_programs[target][flags];
+	if (!unit.program.IsValid())
+		GenerateProgram(target, flags);
 
-	return unit.shader;
+	return unit.program;
 }
 
 float NzMaterial::GetShininess() const
@@ -363,10 +363,10 @@ void NzMaterial::Reset()
 
 	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
 	{
-		for (ShaderUnit& unit : m_shaders[i])
+		for (ProgramUnit& unit : m_programs[i])
 		{
 			unit.custom = false;
-			unit.shader.Reset();
+			unit.program.Reset();
 		}
 	}
 
@@ -405,7 +405,7 @@ void NzMaterial::SetAlphaMap(NzTexture* map)
 {
 	m_alphaMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetAlphaThreshold(float alphaThreshold)
@@ -449,7 +449,7 @@ void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
 	m_diffuseMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
@@ -483,7 +483,7 @@ void NzMaterial::SetEmissiveMap(NzTexture* map)
 {
 	m_emissiveMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetFaceCulling(nzFaceCulling culling)
@@ -517,7 +517,7 @@ void NzMaterial::SetHeightMap(NzTexture* map)
 {
 	m_heightMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 bool NzMaterial::SetNormalMap(const NzString& texturePath)
@@ -541,7 +541,7 @@ void NzMaterial::SetNormalMap(NzTexture* map)
 {
 	m_normalMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetRenderStates(const NzRenderStates& states)
@@ -549,12 +549,12 @@ void NzMaterial::SetRenderStates(const NzRenderStates& states)
 	m_states = states;
 }
 
-void NzMaterial::SetShader(nzShaderTarget target, nzUInt32 flags, const NzShader* shader)
+void NzMaterial::SetShaderProgram(nzShaderTarget target, nzUInt32 flags, const NzShaderProgram* program)
 {
-	ShaderUnit& unit = m_shaders[target][flags];
+	ProgramUnit& unit = m_programs[target][flags];
 
-	unit.custom = (shader != nullptr);
-	unit.shader = shader;
+	unit.custom = (program != nullptr);
+	unit.program = program;
 }
 
 void NzMaterial::SetShininess(float shininess)
@@ -588,7 +588,7 @@ void NzMaterial::SetSpecularMap(NzTexture* map)
 {
 	m_specularMap = map;
 
-	InvalidateShaders(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 void NzMaterial::SetSpecularSampler(const NzTextureSampler& sampler)
@@ -621,8 +621,8 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	material.m_specularMap.Reset();
 
 	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
-		for (ShaderUnit& unit : material.m_shaders[i])
-			unit.shader.Reset();
+		for (ProgramUnit& unit : material.m_programs[i])
+			unit.program.Reset();
 
 	return *this;
 }
@@ -642,8 +642,8 @@ void NzMaterial::Copy(const NzMaterial& material)
 	m_specularMap.Reset();
 
 	for (unsigned int i = 0; i <= nzShaderTarget_Max; ++i)
-		for (ShaderUnit& unit : m_shaders[i])
-			unit.shader.Reset();
+		for (ProgramUnit& unit : m_programs[i])
+			unit.program.Reset();
 
 	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
 
@@ -666,17 +666,17 @@ void NzMaterial::Copy(const NzMaterial& material)
 	{
 		for (unsigned int j = 0; j <= nzShaderFlags_Max; ++j)
 		{
-			NzShaderConstRef& shader = m_shaders[i][j].shader;
+			NzShaderProgramConstRef& program = m_programs[i][j].program;
 
-			shader.Release();
-			shader = material.m_shaders[i][j].shader;
+			program.Release();
+			program = material.m_programs[i][j].program;
 		}
 	}
 }
 
-void NzMaterial::GenerateShader(nzShaderTarget target, nzUInt32 flags) const
+void NzMaterial::GenerateProgram(nzShaderTarget target, nzUInt32 flags) const
 {
-	NzShaderManagerParams params;
+	NzShaderProgramManagerParams params;
 	params.target = target;
 	params.flags = flags;
 
@@ -703,15 +703,15 @@ void NzMaterial::GenerateShader(nzShaderTarget target, nzUInt32 flags) const
 			break;
 	}
 
-	m_shaders[target][flags].shader = NzShaderManager::Get(params);
+	m_programs[target][flags].program = NzShaderProgramManager::Get(params);
 }
 
-void NzMaterial::InvalidateShaders(nzShaderTarget target)
+void NzMaterial::InvalidatePrograms(nzShaderTarget target)
 {
-	for (ShaderUnit& unit : m_shaders[target])
+	for (ProgramUnit& unit : m_programs[target])
 	{
 		if (!unit.custom)
-			unit.shader.Reset();
+			unit.program.Reset();
 	}
 }
 

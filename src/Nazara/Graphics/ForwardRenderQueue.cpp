@@ -269,11 +269,11 @@ bool NzForwardRenderQueue::ModelMaterialComparator::operator()(const NzMaterial*
 	///TODO: Comparaison des shaders
 	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
 	{
-		const NzShader* shader1 = mat1->GetShader(nzShaderTarget_Model, i);
-		const NzShader* shader2 = mat2->GetShader(nzShaderTarget_Model, i);
+		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, i);
+		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, i);
 
-		if (shader1 != shader2)
-			return shader1 < shader2;
+		if (program1 != program2)
+			return program1 < program2;
 	}
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
