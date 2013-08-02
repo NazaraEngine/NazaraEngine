@@ -4,12 +4,12 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERMANAGERPARAMS_HPP
-#define NAZARA_SHADERMANAGERPARAMS_HPP
+#ifndef NAZARA_SHADERPROGRAMMANAGERPARAMS_HPP
+#define NAZARA_SHADERPROGRAMMANAGERPARAMS_HPP
 
 #include <Nazara/Renderer/Enums.hpp>
 
-struct NzShaderManagerParams
+struct NzShaderProgramManagerParams
 {
 	struct FullscreenQuad
 	{
@@ -40,4 +40,4 @@ struct NzShaderManagerParams
 	};
 };
 
-#endif // NAZARA_SHADERMANAGERPARAMS_HPP
+#endif // NAZARA_SHADERPROGRAMMANAGERPARAMS_HPP

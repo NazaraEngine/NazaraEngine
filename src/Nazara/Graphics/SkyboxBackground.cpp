@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -44,7 +43,7 @@ namespace
 		return indexBuffer.release();
 	}
 
-	NzShader* BuildShader()
+	NzShaderProgram* BuildProgram()
 	{
 		const char* fragmentSource110 =
 		"#version 110\n"
@@ -88,30 +87,30 @@ namespace
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShader> shader(new NzShader(nzShaderLanguage_GLSL));
-		shader->SetPersistent(false);
+		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
+		program->SetPersistent(false);
 
 		bool useGLSL140 = (NzOpenGL::GetVersion() >= 310);
 
-		if (!shader->Load(nzShaderType_Fragment, (useGLSL140) ? fragmentSource140 : fragmentSource110))
+		if (!program->LoadShader(nzShaderType_Fragment, (useGLSL140) ? fragmentSource140 : fragmentSource110))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
 		}
 
-		if (!shader->Load(nzShaderType_Vertex, (useGLSL140) ? vertexSource140 : vertexSource110))
+		if (!program->LoadShader(nzShaderType_Vertex, (useGLSL140) ? vertexSource140 : vertexSource110))
 		{
 			NazaraError("Failed to load vertex shader");
 			return nullptr;
 		}
 
-		if (!shader->Compile())
+		if (!program->Compile())
 		{
-			NazaraError("Failed to compile shader");
+			NazaraError("Failed to compile program");
 			return nullptr;
 		}
 
-		return shader.release();
+		return program.release();
 	}
 
 	NzRenderStates BuildRenderStates()
@@ -150,7 +149,7 @@ namespace
 	}
 
 	static NzIndexBuffer* s_indexBuffer = nullptr;
-	static NzShader* s_shader = nullptr;
+	static NzShaderProgram* s_program = nullptr;
 	static NzVertexBuffer* s_vertexBuffer = nullptr;
 	static unsigned int s_skyboxLocation;
 }
@@ -160,17 +159,17 @@ NzSkyboxBackground::NzSkyboxBackground()
 	if (!s_indexBuffer)
 		s_indexBuffer = BuildIndexBuffer();
 
-	if (!s_shader)
+	if (!s_program)
 	{
-		s_shader = BuildShader();
-		s_skyboxLocation = s_shader->GetUniformLocation("Skybox");
+		s_program = BuildProgram();
+		s_skyboxLocation = s_program->GetUniformLocation("Skybox");
 	}
 
 	if (!s_vertexBuffer)
 		s_vertexBuffer = BuildVertexBuffer();
 
 	m_indexBuffer = s_indexBuffer;
-	m_shader = s_shader;
+	m_program = s_program;
 	m_sampler.SetWrapMode(nzSamplerWrap_Clamp); // Nécessaire pour ne pas voir les côtés
 	m_vertexBuffer = s_vertexBuffer;
 }
@@ -186,8 +185,8 @@ NzSkyboxBackground::~NzSkyboxBackground()
 	if (m_indexBuffer.Reset())
 		s_indexBuffer = nullptr;
 
-	if (m_shader.Reset())
-		s_shader = nullptr;
+	if (m_program.Reset())
+		s_program = nullptr;
 
 	if (m_vertexBuffer.Reset())
 		s_vertexBuffer = nullptr;
@@ -197,7 +196,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 {
 	static NzRenderStates states(BuildRenderStates());
 
-	m_shader->SendInteger(s_skyboxLocation, 0);
+	s_program->SendInteger(s_skyboxLocation, 0);
 
 	const NzMatrix4f& viewMatrix = NzRenderer::GetMatrix(nzMatrixType_View);
 	NzMatrix4f skyboxMatrix(viewMatrix);
@@ -207,7 +206,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(scene->GetActiveCamera()->GetZNear())));
 	NzRenderer::SetRenderStates(states);
-	NzRenderer::SetShader(m_shader);
+	NzRenderer::SetShaderProgram(s_program);
 	NzRenderer::SetTexture(0, m_texture);
 	NzRenderer::SetTextureSampler(0, m_sampler);
 	NzRenderer::SetVertexBuffer(m_vertexBuffer);
