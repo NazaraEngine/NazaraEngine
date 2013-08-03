@@ -23,6 +23,8 @@ namespace
 		4  // nzAttributeType_Float4
 	};
 
+	static_assert(sizeof(attributeSize)/sizeof(unsigned int) == nzAttributeType_Max+1, "Attribute size array is incomplete");
+
 	unsigned int attributeStride[nzAttributeType_Max+1] =
 	{
 		4*sizeof(nzUInt8), // nzAttributeType_Color
@@ -35,6 +37,8 @@ namespace
 		3*sizeof(float),   // nzAttributeType_Float3
 		4*sizeof(float)    // nzAttributeType_Float4
 	};
+
+	static_assert(sizeof(attributeStride)/sizeof(unsigned int) == nzAttributeType_Max+1, "Attribute stride array is incomplete");
 }
 
 NzVertexDeclaration::NzVertexDeclaration() :

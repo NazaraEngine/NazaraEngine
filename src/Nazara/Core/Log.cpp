@@ -24,6 +24,8 @@ namespace
 		"Error: ",			// nzErrorType_Normal
 		"Warning: "			// nzErrorType_Warning
 	};
+
+	static_assert(sizeof(errorType)/sizeof(const char*) == nzErrorType_Max+1, "Error type array is incomplete");
 }
 
 NzLog::NzLog() :

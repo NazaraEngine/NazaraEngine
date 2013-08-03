@@ -1229,6 +1229,8 @@ GLenum NzOpenGL::Attachment[nzAttachmentPoint_Max+1] =
 	GL_STENCIL_ATTACHMENT        // nzAttachmentPoint_Stencil
 };
 
+static_assert(sizeof(NzOpenGL::Attachment)/sizeof(GLenum) == nzAttachmentPoint_Max+1, "Attachment array is incomplete");
+
 nzUInt8 NzOpenGL::AttributeIndex[nzAttributeUsage_Max+1] =
 {
 	10, // nzAttributeUsage_InstanceData0
@@ -1249,6 +1251,8 @@ nzUInt8 NzOpenGL::AttributeIndex[nzAttributeUsage_Max+1] =
 	9  // nzAttributeUsage_Userdata5
 };
 
+static_assert(sizeof(NzOpenGL::AttributeIndex)/sizeof(nzUInt8) == nzAttributeUsage_Max+1, "Attribute index array is incomplete");
+
 GLenum NzOpenGL::AttributeType[nzAttributeType_Max+1] =
 {
 	GL_UNSIGNED_BYTE, // nzAttributeType_Color
@@ -1261,6 +1265,8 @@ GLenum NzOpenGL::AttributeType[nzAttributeType_Max+1] =
 	GL_FLOAT,         // nzAttributeType_Float3
 	GL_FLOAT          // nzAttributeType_Float4
 };
+
+static_assert(sizeof(NzOpenGL::AttributeType)/sizeof(GLenum) == nzAttributeType_Max+1, "Attribute type array is incomplete");
 
 GLenum NzOpenGL::BlendFunc[nzBlendFunc_Max+1] =
 {
@@ -1276,6 +1282,8 @@ GLenum NzOpenGL::BlendFunc[nzBlendFunc_Max+1] =
 	GL_ZERO                 // nzBlendFunc_Zero
 };
 
+static_assert(sizeof(NzOpenGL::BlendFunc)/sizeof(GLenum) == nzBlendFunc_Max+1, "Blend func array is incomplete");
+
 GLenum NzOpenGL::BufferLock[nzBufferAccess_Max+1] =
 {
 	GL_WRITE_ONLY, // nzBufferAccess_DiscardAndWrite
@@ -1283,6 +1291,8 @@ GLenum NzOpenGL::BufferLock[nzBufferAccess_Max+1] =
 	GL_READ_WRITE, // nzBufferAccess_ReadWrite
 	GL_WRITE_ONLY  // nzBufferAccess_WriteOnly
 };
+
+static_assert(sizeof(NzOpenGL::BufferLock)/sizeof(GLenum) == nzBufferAccess_Max+1, "Buffer lock array is incomplete");
 
 GLenum NzOpenGL::BufferLockRange[nzBufferAccess_Max+1] =
 {
@@ -1292,17 +1302,23 @@ GLenum NzOpenGL::BufferLockRange[nzBufferAccess_Max+1] =
 	GL_MAP_WRITE_BIT                                 // nzBufferAccess_WriteOnly
 };
 
+static_assert(sizeof(NzOpenGL::BufferLockRange)/sizeof(GLenum) == nzBufferAccess_Max+1, "Buffer lock range array is incomplete");
+
 GLenum NzOpenGL::BufferTarget[nzBufferType_Max+1] =
 {
 	GL_ELEMENT_ARRAY_BUFFER, // nzBufferType_Index,
 	GL_ARRAY_BUFFER,		 // nzBufferType_Vertex
 };
 
+static_assert(sizeof(NzOpenGL::BufferTarget)/sizeof(GLenum) == nzBufferType_Max+1, "Buffer target array is incomplete");
+
 GLenum NzOpenGL::BufferTargetBinding[nzBufferType_Max+1] =
 {
 	GL_ELEMENT_ARRAY_BUFFER_BINDING, // nzBufferType_Index,
 	GL_ARRAY_BUFFER_BINDING,		 // nzBufferType_Vertex
 };
+
+static_assert(sizeof(NzOpenGL::BufferTargetBinding)/sizeof(GLenum) == nzBufferType_Max+1, "Buffer target binding array is incomplete");
 
 GLenum NzOpenGL::BufferUsage[nzBufferUsage_Max+1] =
 {
@@ -1312,6 +1328,8 @@ GLenum NzOpenGL::BufferUsage[nzBufferUsage_Max+1] =
 	GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
 	GL_STATIC_DRAW   // nzBufferUsage_Static
 };
+
+static_assert(sizeof(NzOpenGL::BufferUsage)/sizeof(GLenum) == nzBufferUsage_Max+1, "Buffer usage array is incomplete");
 
 GLenum NzOpenGL::CubemapFace[6] =
 {
@@ -1323,6 +1341,8 @@ GLenum NzOpenGL::CubemapFace[6] =
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // nzCubemapFace_NegativeZ
 };
 
+static_assert(sizeof(NzOpenGL::CubemapFace)/sizeof(GLenum) == 6, "Cubemap face array is incomplete");
+
 GLenum NzOpenGL::FaceCulling[nzFaceCulling_Max+1] =
 {
 	GL_BACK,          // nzFaceCulling_Back
@@ -1330,12 +1350,16 @@ GLenum NzOpenGL::FaceCulling[nzFaceCulling_Max+1] =
 	GL_FRONT_AND_BACK // nzFaceCulling_FrontAndBack
 };
 
+static_assert(sizeof(NzOpenGL::FaceCulling)/sizeof(GLenum) == nzFaceCulling_Max+1, "Face culling array is incomplete");
+
 GLenum NzOpenGL::FaceFilling[nzFaceFilling_Max+1] =
 {
 	GL_POINT, // nzFaceFilling_Point
 	GL_LINE,  // nzFaceFilling_Line
 	GL_FILL   // nzFaceFilling_Fill
 };
+
+static_assert(sizeof(NzOpenGL::FaceFilling)/sizeof(GLenum) == nzFaceFilling_Max+1, "Face filling array is incomplete");
 
 GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 {
@@ -1346,6 +1370,8 @@ GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 	GL_TRIANGLE_STRIP, // nzPrimitiveMode_TriangleStrip
 	GL_TRIANGLE_FAN    // nzPrimitiveMode_TriangleFan
 };
+
+static_assert(sizeof(NzOpenGL::PrimitiveMode)/sizeof(GLenum) == nzPrimitiveMode_Max+1, "Primitive mode array is incomplete");
 
 GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
 {
@@ -1358,6 +1384,8 @@ GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
 	GL_NEVER    // nzRendererComparison_Never
 };
 
+static_assert(sizeof(NzOpenGL::RendererComparison)/sizeof(GLenum) == nzRendererComparison_Max+1, "Renderer comparison array is incomplete");
+
 GLenum NzOpenGL::RendererParameter[nzRendererParameter_Max+1] =
 {
 	GL_BLEND,        // nzRendererParameter_Blend
@@ -1369,6 +1397,8 @@ GLenum NzOpenGL::RendererParameter[nzRendererParameter_Max+1] =
 	GL_STENCIL_TEST  // nzRendererParameter_StencilTest
 };
 
+static_assert(sizeof(NzOpenGL::RendererParameter)/sizeof(GLenum) == nzRendererParameter_Max+1, "Renderer parameter array is incomplete");
+
 GLenum NzOpenGL::SamplerWrapMode[nzSamplerWrap_Max+1] =
 {
 	GL_CLAMP_TO_EDGE,   // nzTextureWrap_Clamp
@@ -1376,12 +1406,16 @@ GLenum NzOpenGL::SamplerWrapMode[nzSamplerWrap_Max+1] =
 	GL_REPEAT           // nzTextureWrap_Repeat
 };
 
+static_assert(sizeof(NzOpenGL::SamplerWrapMode)/sizeof(GLenum) == nzSamplerWrap_Max+1, "Sampler wrap mode array is incomplete");
+
 GLenum NzOpenGL::ShaderType[nzShaderType_Max+1] =
 {
 	GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
 	GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
 	GL_VERTEX_SHADER	// nzShaderType_Vertex
 };
+
+static_assert(sizeof(NzOpenGL::ShaderType)/sizeof(GLenum) == nzShaderType_Max+1, "Shader type array is incomplete");
 
 GLenum NzOpenGL::StencilOperation[nzStencilOperation_Max+1] =
 {
@@ -1395,6 +1429,8 @@ GLenum NzOpenGL::StencilOperation[nzStencilOperation_Max+1] =
 	GL_ZERO       // nzStencilOperation_Zero
 };
 
+static_assert(sizeof(NzOpenGL::StencilOperation)/sizeof(GLenum) == nzStencilOperation_Max+1, "Stencil operation array is incomplete");
+
 GLenum NzOpenGL::TextureTarget[nzImageType_Max+1] =
 {
 	GL_TEXTURE_1D,       // nzImageType_1D
@@ -1404,6 +1440,8 @@ GLenum NzOpenGL::TextureTarget[nzImageType_Max+1] =
 	GL_TEXTURE_3D,       // nzImageType_3D
 	GL_TEXTURE_CUBE_MAP  // nzImageType_Cubemap
 };
+
+static_assert(sizeof(NzOpenGL::TextureTarget)/sizeof(GLenum) == nzImageType_Max+1, "Texture target array is incomplete");
 
 GLenum NzOpenGL::TextureTargetBinding[nzImageType_Max+1] =
 {
@@ -1415,6 +1453,8 @@ GLenum NzOpenGL::TextureTargetBinding[nzImageType_Max+1] =
 	GL_TEXTURE_BINDING_CUBE_MAP  // nzImageType_Cubemap
 };
 
+static_assert(sizeof(NzOpenGL::TextureTargetBinding)/sizeof(GLenum) == nzImageType_Max+1, "Texture target binding array is incomplete");
+
 GLenum NzOpenGL::TextureTargetProxy[nzImageType_Max+1] =
 {
 	GL_PROXY_TEXTURE_1D,       // nzImageType_1D
@@ -1424,6 +1464,8 @@ GLenum NzOpenGL::TextureTargetProxy[nzImageType_Max+1] =
 	GL_PROXY_TEXTURE_3D,       // nzImageType_3D
 	GL_PROXY_TEXTURE_CUBE_MAP  // nzImageType_Cubemap
 };
+
+static_assert(sizeof(NzOpenGL::TextureTargetProxy)/sizeof(GLenum) == nzImageType_Max+1, "Texture target proxy array is incomplete");
 
 PFNGLACTIVETEXTUREPROC            glActiveTexture            = nullptr;
 PFNGLATTACHSHADERPROC             glAttachShader             = nullptr;
