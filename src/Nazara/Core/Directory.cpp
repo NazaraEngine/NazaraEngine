@@ -6,7 +6,6 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-//#include <Nazara/Core/ThreadLocal.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/DirectoryImpl.hpp>
@@ -20,8 +19,7 @@
 
 namespace
 {
-	NzString currentPath(NzDirectoryImpl::GetCurrent());
-	//static ThreadLocal<NzString> currentPath(NzDirectoryImpl::GetCurrent());
+	thread_local NzString currentPath(NzDirectoryImpl::GetCurrent());
 }
 
 NzDirectory::NzDirectory() :
