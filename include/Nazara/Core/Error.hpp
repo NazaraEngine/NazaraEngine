@@ -9,18 +9,19 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) NzError(nzErrorType_AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) if (!(a)) NzError(nzErrorType_AssertFailed, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 #else
 	#define NazaraAssert(a, err)
 #endif
 
-#define NazaraError(err) NzError(nzErrorType_Normal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraInternalError(err) NzError(nzErrorType_Internal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraWarning(err) NzError(nzErrorType_Warning, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraError(err) NzError(nzErrorType_Normal, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraInternalError(err) NzError(nzErrorType_Internal, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraWarning(err) NzError(nzErrorType_Warning, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 
 NAZARA_API void NzError(nzErrorType type, const NzString& error, unsigned int line, const char* file, const char* function);
 NAZARA_API unsigned int NzGetLastSystemErrorCode();
