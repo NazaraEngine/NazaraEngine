@@ -78,6 +78,7 @@ class NAZARA_API NzMaterial : public NzResource
 		nzBlendFunc GetSrcBlend() const;
 
 		bool HasAlphaMap() const;
+		bool HasCustomShaderProgram(nzShaderTarget target, nzUInt32 flags) const;
 		bool HasDiffuseMap() const;
 		bool HasEmissiveMap() const;
 		bool HasHeightMap() const;
