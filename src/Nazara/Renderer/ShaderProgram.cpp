@@ -96,6 +96,8 @@ bool NzShaderProgram::Compile()
 
 void NzShaderProgram::Destroy()
 {
+	m_compiled = false;
+
 	if (m_impl)
 	{
 		NotifyDestroy();
@@ -128,7 +130,19 @@ NzByteArray NzShaderProgram::GetBinary() const
 	}
 	#endif
 
-	return m_impl->GetBinary();
+	NzByteArray binary(m_impl->GetBinary());
+	if (binary.IsEmpty())
+		return NzByteArray();
+
+	NzByteArray byteArray;
+
+	///TODO: ByteStream
+
+	nzUInt32 language = static_cast<nzUInt32>(m_impl->GetLanguage());
+	byteArray.Append(&language, sizeof(nzUInt32));
+	byteArray.Append(binary);
+
+	return byteArray;
 }
 
 nzUInt32 NzShaderProgram::GetFlags() const
@@ -284,6 +298,43 @@ bool NzShaderProgram::IsLoaded(nzShaderType type) const
 bool NzShaderProgram::IsValid() const
 {
 	return m_impl != nullptr;
+}
+
+bool NzShaderProgram::LoadFromBinary(const void* buffer, unsigned int size)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (size <= sizeof(nzUInt32))
+	{
+		NazaraError("Invalid binary");
+		return false;
+	}
+	#endif
+
+	///TODO: ByteStream
+	const nzUInt8* ptr = static_cast<const nzUInt8*>(buffer);
+
+	nzShaderLanguage language = static_cast<nzShaderLanguage>(*reinterpret_cast<const nzUInt32*>(&ptr[0]));
+	ptr += sizeof(nzUInt32);
+
+	if (!Create(language))
+	{
+		NazaraError("Failed to create shader");
+		return false;
+	}
+
+	if (m_impl->LoadFromBinary(ptr, size-sizeof(nzUInt32)))
+	{
+		m_compiled = true;
+
+		return true;
+	}
+	else
+		return false;
+}
+
+bool NzShaderProgram::LoadFromBinary(const NzByteArray& byteArray)
+{
+	return LoadFromBinary(byteArray.GetConstBuffer(), byteArray.GetSize());
 }
 
 bool NzShaderProgram::LoadShader(nzShaderType type, const NzString& source)
