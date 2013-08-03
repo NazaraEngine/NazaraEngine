@@ -48,72 +48,11 @@ bool NzGLSLProgram::Compile()
 {
 	NzContext::EnsureContext();
 
-	m_idCache.clear();
-	m_textures.clear();
-
-	if (NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary))
-		glProgramParameteri(m_program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+	PreLinkage();
 
 	glLinkProgram(m_program);
 
-	GLint success;
-	glGetProgramiv(m_program, GL_LINK_STATUS, &success);
-
-	if (success == GL_TRUE)
-	{
-		static NzString successStr("Linkage successful");
-		m_log = successStr;
-
-		// Pour éviter de se tromper entre le nom et la constante
-		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = GetUniformLocation(#name)
-
-		CacheUniform(CameraPosition);
-		CacheUniform(InvTargetSize);
-		CacheUniform(MaterialAlphaMap);
-		CacheUniform(MaterialAlphaThreshold);
-		CacheUniform(MaterialAmbient);
-		CacheUniform(MaterialDiffuse);
-		CacheUniform(MaterialDiffuseMap);
-		CacheUniform(MaterialEmissiveMap);
-		CacheUniform(MaterialHeightMap);
-		CacheUniform(MaterialNormalMap);
-		CacheUniform(MaterialShininess);
-		CacheUniform(MaterialSpecular);
-		CacheUniform(MaterialSpecularMap);
-		CacheUniform(ProjMatrix);
-		CacheUniform(SceneAmbient);
-		CacheUniform(TargetSize);
-		CacheUniform(ViewMatrix);
-		CacheUniform(ViewProjMatrix);
-		CacheUniform(WorldMatrix);
-		CacheUniform(WorldViewMatrix);
-		CacheUniform(WorldViewProjMatrix);
-
-		#undef CacheUniform
-
-		return true;
-	}
-	else
-	{
-		// On remplit le log avec l'erreur de compilation
-		GLint length = 0;
-		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
-		if (length > 1)
-		{
-			m_log.Clear(true);
-			m_log.Reserve(length+15-2); // La taille retournée est celle du buffer (Avec caractère de fin)
-			m_log.Prepend("Linkage error: ");
-			m_log.Resize(length+15-2); // Extension du buffer d'écriture pour ajouter le log
-
-			glGetProgramInfoLog(m_program, length-1, nullptr, &m_log[19]);
-		}
-		else
-			m_log = "Linkage failed but no info log found";
-
-		NazaraError(m_log);
-
-		return false;
-	}
+	return PostLinkage();
 }
 
 bool NzGLSLProgram::Create()
@@ -160,6 +99,9 @@ bool NzGLSLProgram::Create()
 	for (int i = 0; i <= nzShaderType_Max; ++i)
 		m_shaders[i] = 0;
 
+	if (NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary))
+		glProgramParameteri(m_program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+
 	return true;
 }
 
@@ -179,21 +121,20 @@ NzByteArray NzGLSLProgram::GetBinary() const
 
 	NzContext::EnsureContext();
 
-	GLint binaryLength;
+	GLint binaryLength = 0;
 	glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
 
 	if (binaryLength > 0)
 	{
 		byteArray.Resize(sizeof(nzUInt64) + binaryLength);
 
-		nzUInt8* ptr = byteArray.GetBuffer();
+		nzUInt8* buffer = byteArray.GetBuffer();
 
 		GLenum binaryFormat;
-		glGetProgramBinary(m_program, binaryLength, nullptr, &binaryFormat, &ptr[sizeof(nzUInt64)]);
+		glGetProgramBinary(m_program, binaryLength, nullptr, &binaryFormat, &buffer[sizeof(nzUInt64)]);
 
 		// On stocke le format au début du binaire
-		nzUInt64* format = reinterpret_cast<nzUInt64*>(&ptr[0]);
-		*format = binaryFormat;
+		*reinterpret_cast<nzUInt64*>(&buffer[0]) = binaryFormat;
 	}
 
 	return byteArray;
@@ -211,11 +152,11 @@ nzShaderLanguage NzGLSLProgram::GetLanguage() const
 
 NzString NzGLSLProgram::GetSourceCode(nzShaderType type) const
 {
-	NzString source;
-
 	NzContext::EnsureContext();
 
-	GLint length;
+	NzString source;
+
+	GLint length = 0;
 	glGetShaderiv(m_shaders[type], GL_SHADER_SOURCE_LENGTH, &length);
 	if (length > 1)
 	{
@@ -256,6 +197,32 @@ bool NzGLSLProgram::IsBinaryRetrievable() const
 bool NzGLSLProgram::IsLoaded(nzShaderType type) const
 {
 	return m_shaders[type] != 0;
+}
+
+bool NzGLSLProgram::LoadFromBinary(const void* buffer, unsigned int size)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!glProgramBinary)
+	{
+		NazaraError("GL_ARB_get_program_binary not supported");
+		return false;
+	}
+	#endif
+
+	NzContext::EnsureContext();
+
+	const nzUInt8* ptr = reinterpret_cast<const nzUInt8*>(buffer);
+
+	// On récupère le format au début du binaire
+	///TODO: ByteStream ?
+	GLenum binaryFormat = static_cast<GLenum>(*reinterpret_cast<const nzUInt64*>(&ptr[0]));
+	ptr += sizeof(nzUInt64);
+
+	PreLinkage();
+
+	glProgramBinary(m_program, binaryFormat, ptr, size-sizeof(nzUInt64));
+
+	return PostLinkage();
 }
 
 bool NzGLSLProgram::LoadShader(nzShaderType type, const NzString& source)
@@ -614,4 +581,73 @@ void NzGLSLProgram::OnResourceReleased(const NzResource* resource, int index)
 		NazaraInternalError("Texture " + NzString::Pointer(resource) + " not found");
 
 	resource->RemoveResourceListener(this);
+}
+
+void NzGLSLProgram::PreLinkage()
+{
+	m_idCache.clear();
+	m_textures.clear();
+}
+
+bool NzGLSLProgram::PostLinkage()
+{
+	// On suppose qu'un contexte OpenGL est actif à l'appel de cette fonction
+	GLint success;
+	glGetProgramiv(m_program, GL_LINK_STATUS, &success);
+
+	if (success == GL_TRUE)
+	{
+		static NzString successStr("Linkage successful");
+		m_log = successStr;
+
+		// Pour éviter de se tromper entre le nom et la constante
+		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = GetUniformLocation(#name)
+
+		CacheUniform(CameraPosition);
+		CacheUniform(InvTargetSize);
+		CacheUniform(MaterialAlphaMap);
+		CacheUniform(MaterialAlphaThreshold);
+		CacheUniform(MaterialAmbient);
+		CacheUniform(MaterialDiffuse);
+		CacheUniform(MaterialDiffuseMap);
+		CacheUniform(MaterialEmissiveMap);
+		CacheUniform(MaterialHeightMap);
+		CacheUniform(MaterialNormalMap);
+		CacheUniform(MaterialShininess);
+		CacheUniform(MaterialSpecular);
+		CacheUniform(MaterialSpecularMap);
+		CacheUniform(ProjMatrix);
+		CacheUniform(SceneAmbient);
+		CacheUniform(TargetSize);
+		CacheUniform(ViewMatrix);
+		CacheUniform(ViewProjMatrix);
+		CacheUniform(WorldMatrix);
+		CacheUniform(WorldViewMatrix);
+		CacheUniform(WorldViewProjMatrix);
+
+		#undef CacheUniform
+
+		return true;
+	}
+	else
+	{
+		// On remplit le log avec l'erreur de compilation
+		GLint length = 0;
+		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
+		if (length > 1)
+		{
+			m_log.Clear(true);
+			m_log.Reserve(length+15-2); // La taille retournée est celle du buffer (Avec caractère de fin)
+			m_log.Prepend("Linkage error: ");
+			m_log.Resize(length+15-2); // Extension du buffer d'écriture pour ajouter le log
+
+			glGetProgramInfoLog(m_program, length-1, nullptr, &m_log[19]);
+		}
+		else
+			m_log = "Linkage failed but no info log found";
+
+		NazaraError(m_log);
+
+		return false;
+	}
 }
