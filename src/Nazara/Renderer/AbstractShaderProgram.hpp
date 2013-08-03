@@ -35,6 +35,7 @@ class NzAbstractShaderProgram
 		virtual bool IsBinaryRetrievable() const = 0;
 		virtual bool IsLoaded(nzShaderType type) const = 0;
 
+		virtual bool LoadFromBinary(const void* buffer, unsigned int size) = 0;
 		virtual bool LoadShader(nzShaderType type, const NzString& source) = 0;
 
 		virtual bool SendBoolean(int location, bool value) = 0;
