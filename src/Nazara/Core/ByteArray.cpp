@@ -29,6 +29,19 @@ m_sharedArray(&emptyArray)
 {
 }
 
+NzByteArray::NzByteArray(unsigned int size)
+{
+	if (size > 0)
+	{
+		m_sharedArray = new SharedArray;
+		m_sharedArray->buffer = new nzUInt8[size];
+		m_sharedArray->capacity = size;
+		m_sharedArray->size = size;
+	}
+	else
+		m_sharedArray = &emptyArray;
+}
+
 NzByteArray::NzByteArray(const void* buffer, unsigned int size)
 {
 	if (size > 0)
