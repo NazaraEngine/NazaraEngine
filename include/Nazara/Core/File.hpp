@@ -8,6 +8,7 @@
 #define NAZARA_FILE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Hashable.hpp>
@@ -88,6 +89,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		bool SetFile(const NzString& filePath);
 		bool SetOpenMode(unsigned int openMode);
 
+		bool Write(const NzByteArray& byteArray);
 		bool Write(const NzString& string);
 		std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 

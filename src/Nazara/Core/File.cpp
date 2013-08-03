@@ -398,10 +398,14 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 	return true;
 }
 
+bool NzFile::Write(const NzByteArray& byteArray)
+{
+	unsigned int size = byteArray.GetSize();
+	return Write(byteArray.GetConstBuffer(), 1, size) == size;
+}
+
 bool NzFile::Write(const NzString& string)
 {
-	NazaraLock(m_mutex)
-
 	NzString temp(string);
 
 	if (m_streamOptions & nzStreamOption_Text)
