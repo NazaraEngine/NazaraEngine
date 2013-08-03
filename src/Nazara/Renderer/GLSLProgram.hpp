@@ -41,6 +41,7 @@ class NzGLSLProgram : public NzAbstractShaderProgram, NzResourceListener
 		bool IsBinaryRetrievable() const;
 		bool IsLoaded(nzShaderType type) const;
 
+		bool LoadFromBinary(const void* buffer, unsigned int size);
 		bool LoadShader(nzShaderType type, const NzString& source);
 
 		bool SendBoolean(int location, bool value);
@@ -62,6 +63,8 @@ class NzGLSLProgram : public NzAbstractShaderProgram, NzResourceListener
 		void OnResourceCreated(const NzResource* resource, int index) override;
 		void OnResourceDestroy(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
+		void PreLinkage();
+		bool PostLinkage();
 
 		struct TextureSlot
 		{
