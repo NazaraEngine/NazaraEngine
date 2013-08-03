@@ -77,9 +77,7 @@ m_sharedString(&emptyString)
 
 NzString::NzString(char character)
 {
-	if (character == '\0')
-		m_sharedString = &emptyString;
-	else
+	if (character != '\0')
 	{
 		m_sharedString = new SharedString;
 		m_sharedString->capacity = 1;
@@ -88,6 +86,26 @@ NzString::NzString(char character)
 		m_sharedString->string[0] = character;
 		m_sharedString->string[1] = '\0';
 	}
+	else
+		m_sharedString = &emptyString;
+}
+
+NzString::NzString(unsigned int length, char character)
+{
+	if (length > 0)
+	{
+		m_sharedString = new SharedString;
+		m_sharedString->capacity = length;
+		m_sharedString->size = length;
+		m_sharedString->string = new char[length+1];
+
+		if (character != '\0')
+			std::memset(m_sharedString->string, character, length);
+
+		m_sharedString->string[length] = '\0';
+	}
+	else
+		m_sharedString = &emptyString;
 }
 
 NzString::NzString(const char* string) :

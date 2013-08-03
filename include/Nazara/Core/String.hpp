@@ -33,6 +33,7 @@ class NAZARA_API NzString : public NzHashable
 
 		NzString();
 		explicit NzString(char character);
+		explicit NzString(unsigned int length, char character = '\0');
 		NzString(const char* string);
 		NzString(const char* string, unsigned int length);
 		NzString(const std::string& string);

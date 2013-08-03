@@ -21,6 +21,7 @@ class NAZARA_API NzByteArray : public NzHashable
 		struct SharedArray;
 
 		NzByteArray();
+		explicit NzByteArray(unsigned int size);
 		NzByteArray(const void* buffer, unsigned int size);
 		NzByteArray(const NzByteArray& buffer);
 		NzByteArray(NzByteArray&& buffer) noexcept;
