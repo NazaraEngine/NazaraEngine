@@ -36,6 +36,8 @@ class NAZARA_API NzDirectory
 
 		void Close();
 
+		bool Exists() const;
+
 		NzString GetPattern() const;
 		NzString GetResultName() const;
 		NzString GetResultPath() const;
