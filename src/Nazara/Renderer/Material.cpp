@@ -289,6 +289,11 @@ bool NzMaterial::HasAlphaMap() const
 	return m_alphaMap.IsValid();
 }
 
+bool NzMaterial::HasCustomShaderProgram(nzShaderTarget target, nzUInt32 flags) const
+{
+	return m_programs[target][flags].custom;
+}
+
 bool NzMaterial::HasDiffuseMap() const
 {
 	return m_diffuseMap.IsValid();
