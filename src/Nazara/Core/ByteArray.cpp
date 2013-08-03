@@ -29,15 +29,15 @@ m_sharedArray(&emptyArray)
 {
 }
 
-NzByteArray::NzByteArray(const nzUInt8* buffer, unsigned int length)
+NzByteArray::NzByteArray(const void* buffer, unsigned int size)
 {
-	if (length > 0)
+	if (size > 0)
 	{
 		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = new nzUInt8[length];
-		m_sharedArray->capacity = length;
-		m_sharedArray->size = length;
-		std::memcpy(m_sharedArray->buffer, buffer, length);
+		m_sharedArray->buffer = new nzUInt8[size];
+		m_sharedArray->capacity = size;
+		m_sharedArray->size = size;
+		std::memcpy(m_sharedArray->buffer, buffer, size);
 	}
 	else
 		m_sharedArray = &emptyArray;
@@ -66,14 +66,9 @@ NzByteArray::~NzByteArray()
 	ReleaseArray();
 }
 
-NzByteArray& NzByteArray::Append(nzUInt8 byte)
+NzByteArray& NzByteArray::Append(const void* buffer, unsigned int size)
 {
-	return Insert(m_sharedArray->size, byte);
-}
-
-NzByteArray& NzByteArray::Append(const nzUInt8* buffer, unsigned int length)
-{
-	return Insert(m_sharedArray->size, buffer, length);
+	return Insert(m_sharedArray->size, buffer, size);
 }
 
 NzByteArray& NzByteArray::Append(const NzByteArray& array)
@@ -114,14 +109,9 @@ unsigned int NzByteArray::GetSize() const
 	return m_sharedArray->size;
 }
 
-NzByteArray& NzByteArray::Insert(int pos, nzUInt8 byte)
+NzByteArray& NzByteArray::Insert(int pos, const void* buffer, unsigned int size)
 {
-	return Insert(pos, &byte, 1);
-}
-
-NzByteArray& NzByteArray::Insert(int pos, const nzUInt8* buffer, unsigned int length)
-{
-	if (length == 0)
+	if (size == 0)
 		return *this;
 
 	if (pos < 0)
@@ -130,18 +120,18 @@ NzByteArray& NzByteArray::Insert(int pos, const nzUInt8* buffer, unsigned int le
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedArray->size);
 
 	// Si le buffer est déjà suffisamment grand
-	if (m_sharedArray->capacity >= m_sharedArray->size + length)
+	if (m_sharedArray->capacity >= m_sharedArray->size + size)
 	{
 		EnsureOwnership();
 
-		std::memmove(&m_sharedArray->buffer[start+length], &m_sharedArray->buffer[start], m_sharedArray->size - start);
-		std::memcpy(&m_sharedArray->buffer[start], buffer, length);
+		std::memmove(&m_sharedArray->buffer[start+size], &m_sharedArray->buffer[start], m_sharedArray->size - start);
+		std::memcpy(&m_sharedArray->buffer[start], buffer, size);
 
-		m_sharedArray->size += length;
+		m_sharedArray->size += size;
 	}
 	else
 	{
-		unsigned int newSize = m_sharedArray->size + length;
+		unsigned int newSize = m_sharedArray->size + size;
 		nzUInt8* newBuffer = new nzUInt8[newSize];
 
 		nzUInt8* ptr = newBuffer;
@@ -152,8 +142,8 @@ NzByteArray& NzByteArray::Insert(int pos, const nzUInt8* buffer, unsigned int le
 			ptr += start;
 		}
 
-		std::memcpy(ptr, buffer, length*sizeof(nzUInt8));
-		ptr += length;
+		std::memcpy(ptr, buffer, size*sizeof(nzUInt8));
+		ptr += size;
 
 		if (m_sharedArray->size > 0)
 			std::memcpy(ptr, &m_sharedArray->buffer[start], m_sharedArray->size - start);
@@ -180,14 +170,9 @@ bool NzByteArray::IsEmpty() const
 	return m_sharedArray->size == 0;
 }
 
-NzByteArray& NzByteArray::Prepend(nzUInt8 byte)
+NzByteArray& NzByteArray::Prepend(const void* buffer, unsigned int size)
 {
-	return Insert(0, byte);
-}
-
-NzByteArray& NzByteArray::Prepend(const nzUInt8* buffer, unsigned int length)
-{
-	return Insert(0, buffer, length);
+	return Insert(0, buffer, size);
 }
 
 NzByteArray& NzByteArray::Prepend(const NzByteArray& array)
@@ -383,16 +368,6 @@ const nzUInt8* NzByteArray::end() const
 	return &m_sharedArray->buffer[m_sharedArray->size];
 }
 
-void NzByteArray::push_front(nzUInt8 byte)
-{
-	Prepend(byte);
-}
-
-void NzByteArray::push_back(nzUInt8 byte)
-{
-	Append(byte);
-}
-
 nzUInt8& NzByteArray::operator[](unsigned int pos)
 {
 	EnsureOwnership();
@@ -434,19 +409,6 @@ NzByteArray& NzByteArray::operator=(NzByteArray&& array) noexcept
 	return *this;
 }
 
-NzByteArray NzByteArray::operator+(nzUInt8 byte) const
-{
-	if (m_sharedArray->size == 0)
-		return NzByteArray(&byte, 1);
-
-	unsigned int totalSize = m_sharedArray->size + 1;
-	nzUInt8* buffer = new nzUInt8[totalSize];
-	std::memcpy(buffer, m_sharedArray->buffer, m_sharedArray->size);
-	buffer[m_sharedArray->size] = byte;
-
-	return NzByteArray(new SharedArray(1, totalSize, totalSize, buffer));
-}
-
 NzByteArray NzByteArray::operator+(const NzByteArray& array) const
 {
 	if (array.m_sharedArray->size == 0)
@@ -461,11 +423,6 @@ NzByteArray NzByteArray::operator+(const NzByteArray& array) const
 	std::memcpy(&buffer[m_sharedArray->size], array.m_sharedArray->buffer, array.m_sharedArray->size);
 
 	return NzByteArray(new SharedArray(1, totalSize, totalSize, buffer));
-}
-
-NzByteArray& NzByteArray::operator+=(nzUInt8 byte)
-{
-	return Append(byte);
 }
 
 NzByteArray& NzByteArray::operator+=(const NzByteArray& array)
