@@ -51,6 +51,16 @@ void NzDirectory::Close()
 	}
 }
 
+bool NzDirectory::Exists() const
+{
+	NazaraLock(m_mutex);
+
+	if (IsOpen())
+		return true; // Le fichier est ouvert, donc il existe
+	else
+		return Exists(m_dirPath);
+}
+
 NzString NzDirectory::GetPattern() const
 {
 	NazaraLock(m_mutex);
