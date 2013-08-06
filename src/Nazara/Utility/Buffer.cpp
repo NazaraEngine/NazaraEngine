@@ -9,6 +9,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <cstring>
+#include <memory>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -79,16 +80,14 @@ bool NzBuffer::Create(unsigned int size, nzBufferStorage storage, nzBufferUsage 
 		return false;
 	}
 
-	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
+	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFunctions[storage](this, m_type));
 	if (!impl->Create(size, usage))
 	{
 		NazaraError("Failed to create buffer");
-		delete impl;
-
 		return false;
 	}
 
-	m_impl = impl;
+	m_impl = impl.release();
 	m_size = size;
 	m_storage = storage;
 	m_usage = usage;
@@ -120,7 +119,7 @@ bool NzBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bo
 
 	if (offset+size > m_size)
 	{
-		NazaraError("Exceeding buffer size");
+		NazaraError("Exceeding buffer size (" + NzString::Number(offset+size) + " > " + NzString::Number(m_size) + ')');
 		return false;
 	}
 	#endif
