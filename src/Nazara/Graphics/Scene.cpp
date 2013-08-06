@@ -63,6 +63,14 @@ void NzScene::AddToVisibilityList(NzUpdatable* object)
 
 void NzScene::Cull()
 {
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->activeCamera)
+	{
+		NazaraError("No active camera");
+		return;
+	}
+	#endif
+
 	NzAbstractRenderQueue* renderQueue = m_impl->renderTechnique->GetRenderQueue();
 	renderQueue->Clear(false);
 
@@ -78,6 +86,14 @@ void NzScene::Cull()
 
 void NzScene::Draw()
 {
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->activeCamera)
+	{
+		NazaraError("No active camera");
+		return;
+	}
+	#endif
+
 	m_impl->renderTechnique->Clear(this);
 	m_impl->renderTechnique->Draw(this);
 }
