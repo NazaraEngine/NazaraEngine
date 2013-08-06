@@ -30,7 +30,7 @@
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
 // Le nombre maximum d'instances pouvant être géré par le Renderer
-#define NAZARA_RENDERER_MAX_INSTANCES 8192
+#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 8192*64
 
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0

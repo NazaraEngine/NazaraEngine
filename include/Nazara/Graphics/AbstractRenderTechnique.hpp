@@ -17,13 +17,20 @@ class NzScene;
 class NAZARA_API NzAbstractRenderTechnique : NzNonCopyable
 {
 	public:
-		NzAbstractRenderTechnique() = default;
+		NzAbstractRenderTechnique();
 		virtual ~NzAbstractRenderTechnique();
 
 		virtual void Clear(const NzScene* scene) = 0;
 		virtual void Draw(const NzScene* scene) = 0;
 
+		virtual void EnableInstancing(bool instancing);
+
 		virtual NzAbstractRenderQueue* GetRenderQueue() = 0;
+
+		virtual bool IsInstancingEnabled() const;
+
+	protected:
+		bool m_instancingEnabled;
 };
 
 #endif // NAZARA_ABSTRACTRENDERTECHNIQUE_HPP

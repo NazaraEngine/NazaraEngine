@@ -41,8 +41,10 @@ class NAZARA_API NzRenderer
 
 		static void Enable(nzRendererParameter parameter, bool enable);
 
+
 		static void Flush();
 
+		static NzVertexBuffer* GetInstanceBuffer();
 		static float GetLineWidth();
 		static NzMatrix4f GetMatrix(nzMatrixType type);
 		static nzUInt8 GetMaxAnisotropyLevel();
@@ -72,8 +74,6 @@ class NAZARA_API NzRenderer
 		static void SetFaceCulling(nzFaceCulling cullingMode);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
-		static void SetInstancingData(const void* instancingData, unsigned int instanceCount);
-		static void SetInstancingDeclaration(const NzVertexDeclaration* declaration, unsigned int* newMaxInstanceCount);
 		static void SetLineWidth(float size);
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
 		static void SetPointSize(float size);
