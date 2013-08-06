@@ -76,7 +76,7 @@ void NzHardwareBuffer::Bind()
 	}
 	#endif
 
-	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
+	NzOpenGL::BindBuffer(m_type, m_buffer);
 }
 
 bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
@@ -87,6 +87,7 @@ bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 	glGenBuffers(1, &m_buffer);
 
 	NzOpenGL::BindBuffer(m_type, m_buffer);
+
 	glBufferData(NzOpenGL::BufferTarget[m_type], size, nullptr, NzOpenGL::BufferUsage[usage]);
 
 	return true;
@@ -134,7 +135,7 @@ bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int 
 			// Une erreur rare est survenue, nous devons réinitialiser le buffer
 			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
 
-			glBufferData(NzOpenGL::BufferTarget[m_type], totalSize, nullptr, NzOpenGL::BufferUsage[m_parent->GetStorage()]);
+			glBufferData(NzOpenGL::BufferTarget[m_type], totalSize, nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]);
 
 			return false;
 		}
@@ -168,7 +169,7 @@ bool NzHardwareBuffer::Unmap()
 
 	if (glUnmapBuffer(NzOpenGL::BufferTarget[m_type]) != GL_TRUE)
 	{
-		glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetStorage()]);
+		glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]);
 
 		// Une erreur rare est survenue, nous devons réinitialiser le buffer
 		NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
