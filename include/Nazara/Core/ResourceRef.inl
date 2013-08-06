@@ -22,7 +22,7 @@ m_resource(ref.m_resource)
 }
 
 template<typename T>
-NzResourceRef<T>::NzResourceRef(NzResourceRef&& ref) :
+NzResourceRef<T>::NzResourceRef(NzResourceRef&& ref) noexcept :
 m_resource(ref.m_resource)
 {
 	ref.m_resource = nullptr; // On vole la référence
@@ -113,7 +113,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 }
 
 template<typename T>
-NzResourceRef<T>& NzResourceRef<T>::operator=(NzResourceRef&& ref)
+NzResourceRef<T>& NzResourceRef<T>::operator=(NzResourceRef&& ref) noexcept
 {
 	Reset();
 
