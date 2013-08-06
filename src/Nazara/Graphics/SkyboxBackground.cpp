@@ -34,9 +34,9 @@ namespace
 			1, 6, 2, 1, 5, 6
 		};
 
-		if (!indexBuffer->FillIndices(indices, 0, 36))
+		if (!indexBuffer->Fill(indices, 0, 36))
 		{
-			NazaraError("Failed to create vertex buffer");
+			NazaraError("Failed to create index buffer");
 			return nullptr;
 		}
 
@@ -139,7 +139,7 @@ namespace
 			 1.0,  1.0, -1.0,
 		};
 
-		if (!vertexBuffer->FillVertices(vertices, 0, 8))
+		if (!vertexBuffer->Fill(vertices, 0, 8))
 		{
 			NazaraError("Failed to create vertex buffer");
 			return nullptr;
