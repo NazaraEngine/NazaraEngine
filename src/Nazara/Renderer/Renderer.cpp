@@ -69,8 +69,8 @@ namespace
 	std::set<unsigned int> s_dirtyTextureUnits;
 	std::vector<TextureUnit> s_textureUnits;
 	GLuint s_currentVAO = 0;
-	NzVertexBuffer* s_instancingBuffer = nullptr;
-	NzVertexBuffer* s_fullscreenQuadBuffer = nullptr;
+	NzVertexBuffer s_instanceBuffer;
+	NzVertexBuffer s_fullscreenQuadBuffer;
 	MatrixUnit s_matrices[nzMatrixType_Max+1];
 	NzRenderStates s_states;
 	NzVector2ui s_targetSize;
@@ -133,7 +133,7 @@ void NzRenderer::DrawFullscreenQuad()
 
 	EnableInstancing(false);
 	SetIndexBuffer(nullptr);
-	SetVertexBuffer(s_fullscreenQuadBuffer);
+	SetVertexBuffer(&s_fullscreenQuadBuffer);
 
 	if (!EnsureStateUpdate())
 	{
@@ -142,6 +142,9 @@ void NzRenderer::DrawFullscreenQuad()
 	}
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(0);
 }
 
 void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -191,7 +194,9 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstI
 	}
 
 	glDrawElements(NzOpenGL::PrimitiveMode[mode], indexCount, type, offset);
-	glBindVertexArray(0);
+
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(0);
 }
 
 void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -229,7 +234,8 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 		return;
 	}
 
-	if (instanceCount > NAZARA_RENDERER_MAX_INSTANCES)
+	unsigned int maxInstanceCount = s_instanceBuffer.GetVertexCount();
+	if (instanceCount > maxInstanceCount)
 	{
 		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " NazaraStringifyMacro(NAZARA_RENDERER_MAX_INSTANCES) ")" );
 		return;
@@ -259,7 +265,9 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	}
 
 	glDrawElementsInstanced(NzOpenGL::PrimitiveMode[mode], indexCount, type, offset, instanceCount);
-	glBindVertexArray(0);
+
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -287,7 +295,9 @@ void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, 
 	}
 
 	glDrawArrays(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount);
-	glBindVertexArray(0);
+
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -319,7 +329,8 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 		return;
 	}
 
-	if (instanceCount > NAZARA_RENDERER_MAX_INSTANCES)
+	unsigned int maxInstanceCount = s_instanceBuffer.GetVertexCount();
+	if (instanceCount > maxInstanceCount)
 	{
 		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " NazaraStringifyMacro(NAZARA_RENDERER_MAX_INSTANCES) ")" );
 		return;
@@ -335,7 +346,9 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	}
 
 	glDrawArraysInstanced(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount, instanceCount);
-	glBindVertexArray(0);
+
+	if (s_useVertexArrayObjects)
+		glBindVertexArray(0);
 }
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
@@ -368,6 +381,20 @@ void NzRenderer::Flush()
 	#endif
 
 	glFlush();
+}
+
+NzVertexBuffer* NzRenderer::GetInstanceBuffer()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_Instancing])
+	{
+		NazaraError("Instancing not supported");
+		return nullptr;
+	}
+	#endif
+
+	s_updateFlags |= Update_VAO;
+	return &s_instanceBuffer;
 }
 
 float NzRenderer::GetLineWidth()
@@ -579,7 +606,8 @@ bool NzRenderer::Initialize()
 	s_vertexBuffer = nullptr;
 	s_updateFlags = (Update_Matrices | Update_Program | Update_VAO);
 
-	s_fullscreenQuadBuffer = new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
+	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
+
 	float vertices[4*2] =
 	{
 		-1.f, -1.f,
@@ -588,7 +616,7 @@ bool NzRenderer::Initialize()
 		1.f, 1.f,
 	};
 
-	if (!s_fullscreenQuadBuffer->Fill(vertices, 0, 4))
+	if (!s_fullscreenQuadBuffer.Fill(vertices, 0, 4))
 	{
 		NazaraError("Failed to fill fullscreen quad buffer");
 		Uninitialize();
@@ -600,17 +628,14 @@ bool NzRenderer::Initialize()
 	{
 		try
 		{
-			s_instancingBuffer = new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_Matrix4), NAZARA_RENDERER_MAX_INSTANCES, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			s_instanceBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_Matrix4), NAZARA_RENDERER_INSTANCE_BUFFER_SIZE/sizeof(NzMatrix4f), nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
 		{
 			s_capabilities[nzRendererCap_Instancing] = false;
-			s_instancingBuffer = nullptr;
 			NazaraError("Failed to create instancing buffer: " + NzString(e.what())); ///TODO: Noexcept
 		}
 	}
-	else
-		s_instancingBuffer = nullptr;
 
 	if (!NzMaterial::Initialize())
 	{
@@ -786,61 +811,6 @@ void NzRenderer::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 		s_indexBuffer = indexBuffer;
 		s_updateFlags |= Update_VAO;
 	}
-}
-
-void NzRenderer::SetInstancingData(const void* instancingData, unsigned int instanceCount)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
-	{
-		NazaraError("Instancing not supported");
-		return;
-	}
-
-	if (!instancingData)
-	{
-		NazaraError("Instancing data must be valid");
-		return;
-	}
-
-	if (instanceCount == 0)
-	{
-		NazaraError("Instance count must be over 0");
-		return;
-	}
-
-	unsigned int maxInstanceCount = s_instancingBuffer->GetVertexCount();
-	if (instanceCount > maxInstanceCount)
-	{
-		NazaraError("Instance count is over maximum instance count (" + NzString::Number(instanceCount) + " >= " + NzString::Number(maxInstanceCount) + ")");
-		return;
-	}
-	#endif
-
-	if (!s_instancingBuffer->FillVertices(instancingData, 0, instanceCount, true))
-		NazaraError("Failed to fill instancing buffer");
-}
-
-void NzRenderer::SetInstancingDeclaration(const NzVertexDeclaration* declaration, unsigned int* newMaxInstanceCount)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
-	{
-		NazaraError("Instancing not supported");
-		return;
-	}
-
-	if (!declaration)
-	{
-		NazaraError("Declaration must be valid");
-		return;
-	}
-	#endif
-
-	s_instancingBuffer->SetVertexDeclaration(declaration);
-
-	if (newMaxInstanceCount)
-		*newMaxInstanceCount = s_instancingBuffer->GetVertexCount();
 }
 
 void NzRenderer::SetLineWidth(float width)
@@ -1185,11 +1155,8 @@ void NzRenderer::Uninitialize()
 	NzDebugDrawer::Uninitialize();
 
 	// Libération des buffers
-	delete s_fullscreenQuadBuffer;
-	delete s_instancingBuffer;
-
-	s_fullscreenQuadBuffer = nullptr;
-	s_instancingBuffer = nullptr;
+	s_fullscreenQuadBuffer.Reset();
+	s_instanceBuffer.Reset();
 
 	// Libération des VAOs
 	for (auto& pair : s_vaos)
@@ -1419,8 +1386,11 @@ bool NzRenderer::EnsureStateUpdate()
 
 				if (s_instancing)
 				{
-					bufferOffset = s_instancingBuffer->GetStartOffset();
-					vertexDeclaration = s_instancingBuffer->GetVertexDeclaration();
+					NzHardwareBuffer* instanceBufferImpl = static_cast<NzHardwareBuffer*>(s_instanceBuffer.GetBuffer()->GetImpl());
+					instanceBufferImpl->Bind();
+
+					bufferOffset = s_instanceBuffer.GetStartOffset();
+					vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
 					stride = vertexDeclaration->GetStride();
 					for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
 					{

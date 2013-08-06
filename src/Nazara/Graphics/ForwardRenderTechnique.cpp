@@ -150,8 +150,16 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 		{
 			const NzMaterial* material = matIt.first;
 
+			// Nous utilisons de l'instancing lorsqu'aucune lumière (autre que directionnelle) n'est active
+			// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
+			// (Le deferred shading n'a pas ce problème)
+
+			///FIXME: l'instancing fait-il réellement gagner en performances ?
+			///TODO: Activer l'instancing uniquement si plusieurs instances sont à rendre ?
+			bool instancing = m_instancingEnabled && m_renderQueue.lights.empty();
+
 			// On commence par récupérer le programme du matériau
-			const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, 0);
+			const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, (instancing) ? nzShaderFlags_Instancing : 0);
 
 			unsigned int lightCount = 0;
 
@@ -198,39 +206,79 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 
 					// Gestion du draw call avant la boucle de rendu
 					std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> drawFunc;
+					std::function<void(unsigned int, nzPrimitiveMode, unsigned int, unsigned int)> instancedDrawFunc;
 					unsigned int indexCount;
 
 					if (indexBuffer)
 					{
 						drawFunc = NzRenderer::DrawIndexedPrimitives;
 						indexCount = indexBuffer->GetIndexCount();
+						instancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
 					}
 					else
 					{
 						drawFunc = NzRenderer::DrawPrimitives;
 						indexCount = vertexBuffer->GetVertexCount();
+						instancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
 					}
 
 					NzRenderer::SetIndexBuffer(indexBuffer);
 					NzRenderer::SetVertexBuffer(vertexBuffer);
 
-					for (const NzForwardRenderQueue::StaticData& data : staticData)
+					nzPrimitiveMode primitiveMode = mesh->GetPrimitiveMode();
+					if (instancing)
 					{
-						// Calcul des lumières les plus proches
-						if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
+						NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
+
+						instanceBuffer->SetVertexDeclaration(NzVertexDeclaration::Get(nzVertexLayout_Matrix4));
+
+						unsigned int stride = instanceBuffer->GetStride();
+
+						const NzForwardRenderQueue::StaticData* data = &staticData[0];
+						unsigned int instanceCount = staticData.size();
+						unsigned int maxInstanceCount = instanceBuffer->GetVertexCount();
+
+						while (instanceCount > 0)
 						{
-							unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetCenter(), data.aabb.GetSquaredRadius());
-							count -= lightCount;
+							unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+							instanceCount -= renderedInstanceCount;
 
-							for (unsigned int i = 0; i < count; ++i)
-								lightManager.GetLight(i)->Enable(program, lightCount++);
+							NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite);
+							nzUInt8* ptr = reinterpret_cast<nzUInt8*>(mapper.GetPointer());
+
+							for (unsigned int i = 0; i < renderedInstanceCount; ++i)
+							{
+								std::memcpy(ptr, data->transformMatrix, sizeof(float)*16);
+
+								data++;
+								ptr += stride;
+							}
+
+							mapper.Unmap();
+
+							instancedDrawFunc(renderedInstanceCount, primitiveMode, 0, indexCount);
 						}
+					}
+					else
+					{
+						for (const NzForwardRenderQueue::StaticData& data : staticData)
+						{
+							// Calcul des lumières les plus proches
+							if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
+							{
+								unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetCenter(), data.aabb.GetSquaredRadius());
+								count -= lightCount;
 
-						for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
-							NzLight::Disable(program, i);
+								for (unsigned int i = 0; i < count; ++i)
+									lightManager.GetLight(i)->Enable(program, lightCount++);
+							}
 
-						NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
-						drawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
+							for (unsigned int i = lightCount; i < 3; ++i) ///TODO: Constante sur le nombre maximum de lumières
+								NzLight::Disable(program, i);
+
+							NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
+							drawFunc(primitiveMode, 0, indexCount);
+						}
 					}
 					staticData.clear();
 				}
