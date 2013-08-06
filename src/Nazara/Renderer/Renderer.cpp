@@ -588,7 +588,7 @@ bool NzRenderer::Initialize()
 		1.f, 1.f,
 	};
 
-	if (!s_fullscreenQuadBuffer->FillVertices(vertices, 0, 4))
+	if (!s_fullscreenQuadBuffer->Fill(vertices, 0, 4))
 	{
 		NazaraError("Failed to fill fullscreen quad buffer");
 		Uninitialize();
