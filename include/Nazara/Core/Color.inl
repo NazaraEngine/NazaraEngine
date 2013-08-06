@@ -52,17 +52,17 @@ inline NzString NzColor::ToString() const
 inline NzColor NzColor::operator+(const NzColor& color) const
 {
 	return NzColor(std::min(static_cast<nzUInt16>(r) + color.r, 255),
-	               std::min(static_cast<nzUInt16>(r) + color.r, 255),
-				   std::min(static_cast<nzUInt16>(r) + color.r, 255),
-	               std::min(static_cast<nzUInt16>(r) + color.r, 255));
+	               std::min(static_cast<nzUInt16>(g) + color.g, 255),
+	               std::min(static_cast<nzUInt16>(b) + color.b, 255),
+	               std::min(static_cast<nzUInt16>(a) + color.a, 255));
 }
 
 inline NzColor NzColor::operator*(const NzColor& color) const
 {
 	return NzColor(static_cast<nzUInt16>(r) * color.r/255,
-	               static_cast<nzUInt16>(r) * color.r/255,
-				   static_cast<nzUInt16>(r) * color.r/255,
-	               static_cast<nzUInt16>(r) * color.r/255);
+	               static_cast<nzUInt16>(g) * color.g/255,
+	               static_cast<nzUInt16>(b) * color.b/255,
+	               static_cast<nzUInt16>(a) * color.a/255);
 }
 
 inline NzColor NzColor::operator+=(const NzColor& color)
