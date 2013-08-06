@@ -20,7 +20,7 @@ class NzResourceRef
 		NzResourceRef() = default;
 		NzResourceRef(T* resource);
 		NzResourceRef(const NzResourceRef& ref);
-		NzResourceRef(NzResourceRef&& ref);
+		NzResourceRef(NzResourceRef&& ref) noexcept;
 		~NzResourceRef();
 
 		bool IsValid() const;
@@ -34,7 +34,7 @@ class NzResourceRef
 
 		NzResourceRef& operator=(T* resource);
 		NzResourceRef& operator=(const NzResourceRef& ref);
-		NzResourceRef& operator=(NzResourceRef&& ref);
+		NzResourceRef& operator=(NzResourceRef&& ref) noexcept;
 
 	private:
 		T* m_resource = nullptr;
