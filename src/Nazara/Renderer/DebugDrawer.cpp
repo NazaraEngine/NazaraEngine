@@ -52,7 +52,7 @@ void NzDebugDrawer::Draw(const NzBoxf& box)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -143,7 +143,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -225,7 +225,7 @@ void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -307,7 +307,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -358,7 +358,7 @@ void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -405,7 +405,7 @@ void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
@@ -452,7 +452,7 @@ void NzDebugDrawer::DrawTangents(const NzStaticMesh* subMesh)
 {
 	if (!s_initialized)
 	{
-		NazaraError("Debug drawer is not s_initialized");
+		NazaraError("Debug drawer is not initialized");
 		return;
 	}
 
