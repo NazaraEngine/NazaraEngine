@@ -243,7 +243,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 							unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 							instanceCount -= renderedInstanceCount;
 
-							NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite);
+							NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedInstanceCount);
 							nzUInt8* ptr = reinterpret_cast<nzUInt8*>(mapper.GetPointer());
 
 							for (unsigned int i = 0; i < renderedInstanceCount; ++i)
