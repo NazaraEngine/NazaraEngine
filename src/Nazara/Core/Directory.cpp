@@ -20,7 +20,7 @@
 
 namespace
 {
-	thread_local NzString currentPath(NzDirectoryImpl::GetCurrent());
+	/*thread_local*/ NzString currentPath(NzDirectoryImpl::GetCurrent());
 }
 
 NzDirectory::NzDirectory() :
