@@ -14,6 +14,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <map>
+#include <tuple>
 
 class NzCamera;
 class NzMaterial;
@@ -85,7 +86,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
 		typedef std::map<const NzStaticMesh*, std::vector<StaticData>, StaticMeshComparator> StaticMeshContainer;
-		typedef std::map<const NzMaterial*, std::pair<SkeletalMeshContainer, StaticMeshContainer>, ModelMaterialComparator> MeshContainer;
+		typedef std::map<const NzMaterial*, std::tuple<bool, SkeletalMeshContainer, StaticMeshContainer>, ModelMaterialComparator> MeshContainer;
 
 		MeshContainer opaqueModels;
 		std::vector<std::pair<unsigned int, bool>> transparentsModels;

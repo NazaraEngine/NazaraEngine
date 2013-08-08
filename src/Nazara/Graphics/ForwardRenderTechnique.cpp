@@ -143,20 +143,20 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	// Rendu des modèles opaques
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
-		NzForwardRenderQueue::SkeletalMeshContainer& skeletalContainer = matIt.second.first;
-		NzForwardRenderQueue::StaticMeshContainer& staticContainer = matIt.second.second;
+		NzForwardRenderQueue::SkeletalMeshContainer& skeletalContainer = std::get<1>(matIt.second);
+		NzForwardRenderQueue::StaticMeshContainer& staticContainer = std::get<2>(matIt.second);
 
 		if (!skeletalContainer.empty() || !staticContainer.empty())
 		{
 			const NzMaterial* material = matIt.first;
 
-			// Nous utilisons de l'instancing lorsqu'aucune lumière (autre que directionnelle) n'est active
+			// La RenderQueue active ou non l'instancing selon le nombre d'instances
+			bool renderQueueInstancing = std::get<0>(matIt.second);
+
+			// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
 			// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
 			// (Le deferred shading n'a pas ce problème)
-
-			///FIXME: l'instancing fait-il réellement gagner en performances ?
-			///TODO: Activer l'instancing uniquement si plusieurs instances sont à rendre ?
-			bool instancing = m_instancingEnabled && m_renderQueue.lights.empty();
+			bool instancing = m_instancingEnabled && m_renderQueue.lights.empty() && renderQueueInstancing;
 
 			// On commence par récupérer le programme du matériau
 			const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, (instancing) ? nzShaderFlags_Instancing : 0);
@@ -284,6 +284,9 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 				}
 			}
 		}
+
+		// Et on remet à zéro l'instancing
+		std::get<0>(matIt.second) = false;
 	}
 
 	for (const std::pair<unsigned int, bool>& pair : m_renderQueue.transparentsModels)
