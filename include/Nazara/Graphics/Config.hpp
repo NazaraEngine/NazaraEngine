@@ -29,6 +29,9 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
+// À partir de combien d'instances d'un même mesh/matériau l'instancing doit-il être utilisé ?
+#define NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT 100
+
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_GRAPHICS_MEMORYLEAKTRACKER 0
 
