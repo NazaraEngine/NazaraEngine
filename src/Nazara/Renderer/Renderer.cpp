@@ -664,6 +664,8 @@ bool NzRenderer::Initialize()
 	// Loaders
 	NzLoaders_Texture_Register();
 
+	NazaraNotice("Initialized: Renderer module");
+
 	return true;
 }
 
