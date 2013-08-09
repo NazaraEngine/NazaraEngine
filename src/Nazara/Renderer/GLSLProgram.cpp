@@ -520,7 +520,7 @@ bool NzGLSLProgram::SendVector(int location, const NzVector4f& vector)
 	return true;
 }
 
-void NzGLSLProgram::OnResourceCreated(const NzResource* resource, int index)
+bool NzGLSLProgram::OnResourceCreated(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 
@@ -530,7 +530,7 @@ void NzGLSLProgram::OnResourceCreated(const NzResource* resource, int index)
 	if (it == m_textures.end())
 	{
 		NazaraInternalError("Invalid index (" + NzString::Number(index) + ')');
-		return;
+		return false;
 	}
 	#endif
 
@@ -540,15 +540,17 @@ void NzGLSLProgram::OnResourceCreated(const NzResource* resource, int index)
 	if (slot.texture != resource)
 	{
 		NazaraInternalError("Wrong texture at location #" + NzString::Number(index));
-		return;
+		return false;
 	}
 	#endif
 
 	slot.enabled = true;
 	slot.updated = false;
+
+	return true;
 }
 
-void NzGLSLProgram::OnResourceDestroy(const NzResource* resource, int index)
+bool NzGLSLProgram::OnResourceDestroy(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 
@@ -558,7 +560,7 @@ void NzGLSLProgram::OnResourceDestroy(const NzResource* resource, int index)
 	if (it == m_textures.end())
 	{
 		NazaraInternalError("Invalid index (" + NzString::Number(index) + ')');
-		return;
+		return false;
 	}
 	#endif
 
@@ -568,19 +570,19 @@ void NzGLSLProgram::OnResourceDestroy(const NzResource* resource, int index)
 	if (slot.texture != resource)
 	{
 		NazaraInternalError("Wrong texture at location #" + NzString::Number(index));
-		return;
+		return false;
 	}
 	#endif
 
 	slot.enabled = false;
+
+	return true;
 }
 
 void NzGLSLProgram::OnResourceReleased(const NzResource* resource, int index)
 {
 	if (m_textures.erase(index) == 0)
 		NazaraInternalError("Texture " + NzString::Pointer(resource) + " not found");
-
-	resource->RemoveResourceListener(this);
 }
 
 void NzGLSLProgram::PreLinkage()

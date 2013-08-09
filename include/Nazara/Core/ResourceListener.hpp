@@ -17,8 +17,8 @@ class NAZARA_API NzResourceListener
 		NzResourceListener() = default;
 		virtual ~NzResourceListener();
 
-		virtual void OnResourceCreated(const NzResource* resource, int index);
-		virtual void OnResourceDestroy(const NzResource* resource, int index);
+		virtual bool OnResourceCreated(const NzResource* resource, int index);
+		virtual bool OnResourceDestroy(const NzResource* resource, int index);
 		virtual void OnResourceReleased(const NzResource* resource, int index);
 };
 

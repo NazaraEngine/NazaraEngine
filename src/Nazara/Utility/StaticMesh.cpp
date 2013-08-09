@@ -128,6 +128,4 @@ void NzStaticMesh::OnResourceReleased(const NzResource* resource, int index)
 		m_vertexBuffer = nullptr;
 	else
 		NazaraInternalError("Not listening to " + NzString::Pointer(resource));
-
-	resource->RemoveResourceListener(this);
 }

@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <atomic>
-#include <set>
+#include <unordered_map>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_RESOURCE
 #include <Nazara/Core/ThreadSafety.hpp>
@@ -18,23 +18,6 @@
 #endif
 
 class NzResourceListener;
-
-struct NzResourceEntry
-{
-	NzResourceEntry(NzResourceListener* resourceListener, int i = 0) :
-	listener(resourceListener),
-	index(i)
-	{
-	}
-
-	bool operator<(const NzResourceEntry& rhs) const
-	{
-		return listener < rhs.listener;
-	}
-
-	NzResourceListener* listener;
-	int index;
-};
 
 class NAZARA_API NzResource
 {
@@ -59,16 +42,13 @@ class NAZARA_API NzResource
 		void NotifyDestroy();
 
 	private:
-		void EnsureResourceListenerUpdate() const;
-
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
-		mutable std::set<NzResourceEntry> m_resourceListeners;
-		mutable std::set<NzResourceEntry> m_resourceListenersCache;
-		mutable bool m_resourceListenerUpdated;
+		mutable std::unordered_map<NzResourceListener*, int> m_resourceListeners;
 		        std::atomic_bool m_resourcePersistent;
 		mutable std::atomic_uint m_resourceReferenceCount;
+		        bool m_resourceListenersLocked;
 };
 
 #endif // NAZARA_RESOURCE_HPP
