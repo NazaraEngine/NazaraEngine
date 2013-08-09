@@ -140,6 +140,9 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	const NzCamera* camera = scene->GetActiveCamera();
 	const NzShaderProgram* lastProgram = nullptr;
 
+	NzRenderer::SetMatrix(nzMatrixType_Projection, camera->GetProjectionMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_View, camera->GetViewMatrix());
+
 	// Rendu des modèles opaques
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
