@@ -206,7 +206,7 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 	std::sort(transparentsModels.begin(), transparentsModels.end(), comparator);
 }
 
-void NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
+bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
 {
 	switch (index)
 	{
@@ -231,7 +231,7 @@ void NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 		}
 	}
 
-	resource->RemoveResourceListener(this);
+	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
 bool NzForwardRenderQueue::SkeletalMeshComparator::operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2)

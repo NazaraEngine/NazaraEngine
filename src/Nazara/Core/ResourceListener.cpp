@@ -7,16 +7,20 @@
 
 NzResourceListener::~NzResourceListener() = default;
 
-void NzResourceListener::OnResourceCreated(const NzResource* resource, int index)
+bool NzResourceListener::OnResourceCreated(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 	NazaraUnused(index);
+
+	return true;
 }
 
-void NzResourceListener::OnResourceDestroy(const NzResource* resource, int index)
+bool NzResourceListener::OnResourceDestroy(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
 	NazaraUnused(index);
+
+	return true;
 }
 
 void NzResourceListener::OnResourceReleased(const NzResource* resource, int index)
