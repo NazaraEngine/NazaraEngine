@@ -11,6 +11,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <memory>
+#include <set>
 #include <sndfile/sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
 
