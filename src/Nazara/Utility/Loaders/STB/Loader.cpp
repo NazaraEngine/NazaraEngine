@@ -10,6 +10,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <set>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace
