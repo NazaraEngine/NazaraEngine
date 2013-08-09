@@ -51,7 +51,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		void Desactivate() const override;
 
 	private:
-		void OnResourceDestroy(const NzResource* resource, int index) override;
+		bool OnResourceDestroy(const NzResource* resource, int index) override;
 
 		NzRenderTextureImpl* m_impl = nullptr;
 };

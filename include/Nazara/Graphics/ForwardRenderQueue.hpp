@@ -38,7 +38,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		void Sort(const NzCamera& camera);
 
 	private:
-		void OnResourceDestroy(const NzResource* resource, int index);
+		bool OnResourceDestroy(const NzResource* resource, int index) override;
 
 		struct ModelMaterialComparator
 		{
