@@ -20,10 +20,8 @@ NzRenderTarget::~NzRenderTarget()
 
 void NzRenderTarget::AddListener(Listener* listener, void* userdata) const
 {
-	NazaraError("What the");
 	if (!m_listenersLocked)
 		m_listeners.insert(std::make_pair(listener, userdata));
-	NazaraError("What the");
 }
 
 bool NzRenderTarget::IsActive() const

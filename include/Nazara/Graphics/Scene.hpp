@@ -59,7 +59,7 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
-		void RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node);
+		void RecursiveCameraCull(NzAbstractRenderQueue* renderQueue, const NzCamera* camera, NzNode* node);
 		void SetActiveCamera(NzCamera* camera);
 
 		NzSceneImpl* m_impl;

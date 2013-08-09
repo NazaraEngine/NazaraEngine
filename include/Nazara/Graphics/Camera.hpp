@@ -63,7 +63,7 @@ class NAZARA_API NzCamera : public NzSceneNode, NzRenderTarget::Listener
 		void UpdateViewMatrix() const;
 		void UpdateViewport() const;
 
-		bool VisibilityTest(const NzFrustumf& frustum) override;
+		bool VisibilityTest(const NzCamera* camera) override;
 
 		mutable NzFrustumf m_frustum;
 		mutable NzMatrix4f m_projectionMatrix;

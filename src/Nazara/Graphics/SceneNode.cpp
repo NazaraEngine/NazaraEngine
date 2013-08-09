@@ -97,11 +97,11 @@ void NzSceneNode::Update()
 {
 }
 
-void NzSceneNode::UpdateVisibility(const NzFrustumf& frustum)
+void NzSceneNode::UpdateVisibility(const NzCamera* camera)
 {
 	bool wasVisible = m_visible;
 
-	m_visible = VisibilityTest(frustum);
+	m_visible = VisibilityTest(camera);
 
 	if (m_visible != wasVisible)
 		OnVisibilityChange(m_visible);

@@ -40,13 +40,13 @@ class NAZARA_API NzSceneNode : public NzNode
 		void SetScene(NzScene* scene);
 		virtual void Unregister();
 		virtual void Update();
-		virtual bool VisibilityTest(const NzFrustumf& frustum) = 0;
+		virtual bool VisibilityTest(const NzCamera* camera) = 0;
 
 		NzScene* m_scene;
 		bool m_visible;
 
 	private:
-		void UpdateVisibility(const NzFrustumf& frustum);
+		void UpdateVisibility(const NzCamera* camera);
 };
 
 #endif // NAZARA_SCENENODE_HPP

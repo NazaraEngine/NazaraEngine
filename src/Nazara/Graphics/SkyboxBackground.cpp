@@ -204,6 +204,7 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
+	NzRenderer::SetMatrix(nzMatrixType_Projection, camera->GetProjectionMatrix());
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(camera->GetZNear())));
 	NzRenderer::SetRenderStates(states);

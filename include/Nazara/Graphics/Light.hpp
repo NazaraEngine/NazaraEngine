@@ -53,7 +53,7 @@ class NAZARA_API NzLight : public NzSceneNode
 		void Register();
 		void Unregister();
 		void UpdateBoundingVolume() const;
-		bool VisibilityTest(const NzFrustumf& frustum);
+		bool VisibilityTest(const NzCamera* camera) override;
 
 		nzLightType m_type;
 		mutable NzBoundingVolumef m_boundingVolume;
