@@ -28,7 +28,7 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 
 		void Register();
 		void Unregister();
-		bool VisibilityTest(const NzFrustumf& frustum) override;
+		bool VisibilityTest(const NzCamera* camera) override;
 };
 
 #endif // NAZARA_SCENEROOT_HPP

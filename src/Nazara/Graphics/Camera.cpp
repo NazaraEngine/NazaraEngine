@@ -158,7 +158,6 @@ void NzCamera::SetFOV(float fov)
 
 void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 {
-	NazaraError(NzString::Pointer(m_target));
 	if (m_target)
 		m_target->RemoveListener(this);
 
@@ -307,9 +306,9 @@ void NzCamera::UpdateViewport() const
 	m_viewportUpdated = true;
 }
 
-bool NzCamera::VisibilityTest(const NzFrustumf& frustum)
+bool NzCamera::VisibilityTest(const NzCamera* camera)
 {
-	NazaraUnused(frustum);
+	NazaraUnused(camera);
 	//NazaraInternalError("SceneNode::IsVisible() called on Camera");
 	return false;
 }

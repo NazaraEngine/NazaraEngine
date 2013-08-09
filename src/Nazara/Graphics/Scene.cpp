@@ -76,8 +76,8 @@ void NzScene::Cull()
 
 	m_impl->visibleUpdateList.clear();
 
-	// Frustum culling
-	RecursiveFrustumCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->activeCamera->GetFrustum(), &m_impl->root);
+	// Frustum culling/Viewport culling
+	RecursiveCameraCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->activeCamera, &m_impl->root);
 
 	///TODO: Occlusion culling
 
@@ -209,21 +209,22 @@ NzScene::operator const NzSceneNode&() const
 	return m_impl->root;
 }
 
-void NzScene::RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node)
+void NzScene::RecursiveCameraCull(NzAbstractRenderQueue* renderQueue, const NzCamera* camera, NzNode* node)
 {
 	for (NzNode* child : node->GetChilds())
 	{
 		if (child->GetNodeType() == nzNodeType_Scene)
 		{
 			NzSceneNode* sceneNode = static_cast<NzSceneNode*>(child);
+
 			///TODO: Empêcher le rendu des enfants si le parent est cullé selon un flag
-			sceneNode->UpdateVisibility(frustum);
+			sceneNode->UpdateVisibility(camera);
 			if (sceneNode->IsVisible())
 				sceneNode->AddToRenderQueue(renderQueue);
 		}
 
 		if (child->HasChilds())
-			RecursiveFrustumCull(renderQueue, frustum, child);
+			RecursiveCameraCull(renderQueue, camera, child);
 	}
 }
 
