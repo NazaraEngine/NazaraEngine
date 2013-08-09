@@ -317,6 +317,9 @@ bool NzRenderTexture::Create(unsigned int width, unsigned int height, bool lock)
 		return false;
 	}
 
+	NotifyParametersChange();
+	NotifySizeChange();
+
 	return true;
 }
 
@@ -435,6 +438,7 @@ NzRenderTargetParameters NzRenderTexture::GetParameters() const
 	}
 	#endif
 
+	///TODO
 	return NzRenderTargetParameters();
 }
 

@@ -294,6 +294,9 @@ bool NzRenderWindow::OnWindowCreated()
 	if (!SetActive(true)) // Les fenêtres s'activent à la création
 		NazaraWarning("Failed to activate window");
 
+	NotifyParametersChange();
+	NotifySizeChange();
+
 	m_clock.Restart();
 
     return true;

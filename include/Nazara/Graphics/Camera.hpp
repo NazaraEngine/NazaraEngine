@@ -13,10 +13,9 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 
-class NzRenderTarget;
-
-class NAZARA_API NzCamera : public NzSceneNode
+class NAZARA_API NzCamera : public NzSceneNode, NzRenderTarget::Listener
 {
 	public:
 		NzCamera();
@@ -35,36 +34,47 @@ class NAZARA_API NzCamera : public NzSceneNode
 		const NzMatrix4f& GetProjectionMatrix() const;
 		nzSceneNodeType GetSceneNodeType() const override;
 		const NzRenderTarget* GetTarget() const;
+		const NzRectf& GetTargetRegion() const;
 		const NzMatrix4f& GetViewMatrix() const;
-		const NzRectf& GetViewport() const;
+		const NzRectui& GetViewport() const;
 		float GetZFar() const;
 		float GetZNear() const;
 
 		void SetFOV(float fov);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
-		void SetViewport(const NzRectf& viewport);
+		void SetTargetRegion(const NzRectf& region);
+		void SetViewport(const NzRectui& viewport);
 		void SetZFar(float zFar);
 		void SetZNear(float zNear);
 
 	private:
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void Invalidate();
-		void Register();
-		void Unregister();
+
+		void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
+		bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
+
+		void Register() override;
+		void Unregister() override;
+
 		void UpdateFrustum() const;
 		void UpdateProjectionMatrix() const;
 		void UpdateViewMatrix() const;
+		void UpdateViewport() const;
+
 		bool VisibilityTest(const NzFrustumf& frustum) override;
 
 		mutable NzFrustumf m_frustum;
 		mutable NzMatrix4f m_projectionMatrix;
 		mutable NzMatrix4f m_viewMatrix;
-		NzRectf m_viewport;
+		NzRectf m_targetRegion;
+		mutable NzRectui m_viewport;
 		const NzRenderTarget* m_target;
 		mutable bool m_frustumUpdated;
 		mutable bool m_projectionMatrixUpdated;
 		mutable bool m_viewMatrixUpdated;
+		mutable bool m_viewportUpdated;
 		mutable float m_aspectRatio;
 		float m_fov;
 		float m_zFar;
