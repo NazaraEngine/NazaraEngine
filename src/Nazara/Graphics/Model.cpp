@@ -4,11 +4,11 @@
 
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <memory>
-#include <tuple>
 #include <Nazara/Graphics/Debug.hpp>
 
 bool NzModelParameters::IsValid() const
@@ -671,7 +671,7 @@ void NzModel::UpdateBoundingVolume() const
 	m_boundingVolumeUpdated = true;
 }
 
-bool NzModel::VisibilityTest(const NzFrustumf& frustum)
+bool NzModel::VisibilityTest(const NzCamera* camera)
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!IsDrawable())
@@ -687,7 +687,7 @@ bool NzModel::VisibilityTest(const NzFrustumf& frustum)
 	if (!m_boundingVolumeUpdated)
 		UpdateBoundingVolume();
 
-	return frustum.Contains(m_boundingVolume);
+	return camera->GetFrustum().Contains(m_boundingVolume);
 }
 
 NzModelLoader::LoaderList NzModel::s_loaders;

@@ -41,9 +41,9 @@ void NzSceneRoot::Unregister()
 	NazaraInternalError("SceneNode::Unregister() called on SceneRoot");
 }
 
-bool NzSceneRoot::VisibilityTest(const NzFrustumf& frustum)
+bool NzSceneRoot::VisibilityTest(const NzCamera* camera)
 {
-	NazaraUnused(frustum);
+	NazaraUnused(camera);
 
 	return true; // Toujours visible
 }

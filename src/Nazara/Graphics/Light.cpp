@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -307,7 +308,7 @@ void NzLight::UpdateBoundingVolume() const
 	m_boundingVolumeUpdated = true;
 }
 
-bool NzLight::VisibilityTest(const NzFrustumf& frustum)
+bool NzLight::VisibilityTest(const NzCamera* camera)
 {
 	switch (m_type)
 	{
@@ -319,13 +320,13 @@ bool NzLight::VisibilityTest(const NzFrustumf& frustum)
 				UpdateDerived();
 
 			// Un test sphérique est bien plus rapide et précis que celui de la bounding box
-			return frustum.Contains(NzSpheref(m_derivedPosition, m_radius));
+			return camera->GetFrustum().Contains(NzSpheref(m_derivedPosition, m_radius));
 
 		case nzLightType_Spot:
 			if (!m_boundingVolumeUpdated)
 				UpdateBoundingVolume();
 
-			return frustum.Contains(m_boundingVolume);
+			return camera->GetFrustum().Contains(m_boundingVolume);
 	}
 
 	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
