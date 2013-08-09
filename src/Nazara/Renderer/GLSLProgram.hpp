@@ -60,8 +60,8 @@ class NzGLSLProgram : public NzAbstractShaderProgram, NzResourceListener
 		bool SendVector(int location, const NzVector4f& vector);
 
 	private:
-		void OnResourceCreated(const NzResource* resource, int index) override;
-		void OnResourceDestroy(const NzResource* resource, int index) override;
+		bool OnResourceCreated(const NzResource* resource, int index) override;
+		bool OnResourceDestroy(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
 		void PreLinkage();
 		bool PostLinkage();
