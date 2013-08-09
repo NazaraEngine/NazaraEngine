@@ -93,7 +93,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void Unregister() override;
 		void Update() override;
 		void UpdateBoundingVolume() const;
-		bool VisibilityTest(const NzFrustumf& frustum) override;
+		bool VisibilityTest(const NzCamera* camera) override;
 
 		std::vector<NzMaterialRef> m_materials;
 		NzAnimationRef m_animation;
