@@ -40,7 +40,7 @@ class NAZARA_API NzRenderTarget
 		// Fonctions OpenGL
 		virtual bool HasContext() const = 0;
 
-		class Listener
+		class NAZARA_API Listener
 		{
 			public:
 				Listener() = default;
