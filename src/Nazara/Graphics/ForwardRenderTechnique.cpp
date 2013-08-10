@@ -199,8 +199,9 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			// Meshs statiques
 			for (auto& subMeshIt : staticContainer)
 			{
+				const NzSpheref& boundingSphere = subMeshIt.second.first;
 				const NzStaticMesh* mesh = subMeshIt.first;
-				std::vector<NzForwardRenderQueue::StaticData>& staticData = subMeshIt.second;
+				std::vector<NzForwardRenderQueue::StaticData>& staticData = subMeshIt.second.second;
 
 				if (!staticData.empty())
 				{
@@ -269,7 +270,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 							// Calcul des lumières les plus proches
 							if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 							{
-								unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.aabb.GetCenter(), data.aabb.GetSquaredRadius());
+								unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius);
 								count -= lightCount;
 
 								for (unsigned int i = 0; i < count; ++i)
@@ -356,7 +357,7 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 			// Calcul des lumières les plus proches
 			if (lightCount < m_maxLightsPerObject && !m_renderQueue.lights.empty())
 			{
-				unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), staticModel.aabb.GetCenter(), staticModel.aabb.GetSquaredRadius());
+				unsigned int count = lightManager.FindClosestLights(&m_renderQueue.lights[0], m_renderQueue.lights.size(), matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius);
 				count -= lightCount;
 
 				for (unsigned int i = 0; i < count; ++i)
