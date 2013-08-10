@@ -61,7 +61,7 @@ class NAZARA_API NzShaderProgram : public NzResource, NzNonCopyable
 		bool LoadFromBinary(const void* buffer, unsigned int size);
 		bool LoadFromBinary(const NzByteArray& byteArray);
 		bool LoadShader(nzShaderType type, const NzString& source);
-		bool LoadShaderFromFile(nzShaderType type, const NzString& source);
+		bool LoadShaderFromFile(nzShaderType type, const NzString& filePath);
 
 		bool SendBoolean(int location, bool value) const;
 		bool SendColor(int location, const NzColor& color) const;
