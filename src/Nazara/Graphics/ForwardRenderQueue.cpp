@@ -122,8 +122,7 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 					transparentStaticModels.resize(index+1);
 
 					TransparentStaticModel& data = transparentStaticModels.back();
-					data.aabb = staticMesh->GetAABB();
-					data.aabb.Transform(transformMatrix);
+					data.boundingSphere = staticMesh->GetAABB().GetSquaredBoundingSphere();
 					data.material = material;
 					data.mesh = staticMesh;
 					data.transformMatrix = transformMatrix;
@@ -140,9 +139,15 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 
 					auto pair2 = meshMap.insert(std::make_pair(staticMesh, StaticMeshContainer::mapped_type()));
 					if (pair2.second)
+					{
 						staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
 
-					std::vector<StaticData>& staticDataContainer = pair2.first->second;
+						NzSpheref& squaredBoundingSphere = pair2.first->second.first;
+						squaredBoundingSphere.Set(staticMesh->GetAABB().GetSquaredBoundingSphere());
+						///TODO: Écouter le StaticMesh pour repérer tout changement de géométrie
+					}
+
+					std::vector<StaticData>& staticDataContainer = pair2.first->second.second;
 
 					unsigned int instanceCount = staticDataContainer.size() + 1;
 
@@ -152,9 +157,6 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 
 					staticDataContainer.resize(instanceCount);
 					StaticData& data = staticDataContainer.back();
-
-					data.aabb = staticMesh->GetAABB();
-					data.aabb.Transform(transformMatrix);
 					data.transformMatrix = transformMatrix;
 				}
 
@@ -183,16 +185,16 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 	{
 		bool operator()(const std::pair<unsigned int, bool>& index1, const std::pair<unsigned int, bool>& index2)
 		{
-			const NzBoxf& aabb1 = (index1.second) ?
-			                     queue->transparentStaticModels[index1.first].aabb :
-			                     queue->transparentSkeletalModels[index1.first].aabb;
+			const NzSpheref& sphere1 = (index1.second) ?
+			                     queue->transparentStaticModels[index1.first].boundingSphere :
+			                     queue->transparentSkeletalModels[index1.first].boundingSphere;
 
-			const NzBoxf& aabb2 = (index1.second) ?
-			                     queue->transparentStaticModels[index2.first].aabb :
-			                     queue->transparentSkeletalModels[index2.first].aabb;
+			const NzSpheref& sphere2 = (index1.second) ?
+			                     queue->transparentStaticModels[index2.first].boundingSphere :
+			                     queue->transparentSkeletalModels[index2.first].boundingSphere;
 
-			NzVector3f position1 = aabb1.GetNegativeVertex(cameraNormal);
-			NzVector3f position2 = aabb2.GetNegativeVertex(cameraNormal);
+			NzVector3f position1 = sphere1.GetNegativeVertex(cameraNormal);
+			NzVector3f position2 = sphere2.GetNegativeVertex(cameraNormal);
 
 			return nearPlane.Distance(position1) < nearPlane.Distance(position2);
 		}
@@ -234,6 +236,25 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
+bool NzForwardRenderQueue::ModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+{
+	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
+	{
+		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, i);
+		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, i);
+
+		if (program1 != program2)
+			return program1 < program2;
+	}
+
+	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
+	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
+	if (diffuseMap1 != diffuseMap2)
+		return diffuseMap1 < diffuseMap2;
+
+	return mat1 < mat2;
+}
+
 bool NzForwardRenderQueue::SkeletalMeshComparator::operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2)
 {
 	const NzIndexBuffer* iBuffer1 = subMesh1->GetIndexBuffer();
@@ -253,7 +274,7 @@ bool NzForwardRenderQueue::StaticMeshComparator::operator()(const NzStaticMesh* 
 	const NzIndexBuffer* iBuffer1 = subMesh1->GetIndexBuffer();
 	const NzBuffer* buffer1 = (iBuffer1) ? iBuffer1->GetBuffer() : nullptr;
 
-	const NzIndexBuffer* iBuffer2 = subMesh1->GetIndexBuffer();
+	const NzIndexBuffer* iBuffer2 = subMesh2->GetIndexBuffer();
 	const NzBuffer* buffer2 = (iBuffer2) ? iBuffer2->GetBuffer() : nullptr;
 
 	if (buffer1 == buffer2)
@@ -268,24 +289,4 @@ bool NzForwardRenderQueue::StaticMeshComparator::operator()(const NzStaticMesh* 
 	}
 	else
 		return buffer1 < buffer2;
-}
-
-bool NzForwardRenderQueue::ModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
-{
-	///TODO: Comparaison des shaders
-	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
-	{
-		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, i);
-		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, i);
-
-		if (program1 != program2)
-			return program1 < program2;
-	}
-
-	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
-	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
-	if (diffuseMap1 != diffuseMap2)
-		return diffuseMap1 < diffuseMap2;
-
-	return mat1 < mat2;
 }

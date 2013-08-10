@@ -58,7 +58,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct StaticData
 		{
-			NzBoxf aabb;
 			NzMatrix4f transformMatrix;
 		};
 
@@ -69,8 +68,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct TransparentModel
 		{
-			NzBoxf aabb;
 			NzMatrix4f transformMatrix;
+			NzSpheref boundingSphere;
 			NzMaterial* material;
 		};
 
@@ -85,7 +84,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		};
 
 		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
-		typedef std::map<const NzStaticMesh*, std::vector<StaticData>, StaticMeshComparator> StaticMeshContainer;
+		typedef std::map<const NzStaticMesh*, std::pair<NzSpheref, std::vector<StaticData>>, StaticMeshComparator> StaticMeshContainer;
 		typedef std::map<const NzMaterial*, std::tuple<bool, SkeletalMeshContainer, StaticMeshContainer>, ModelMaterialComparator> MeshContainer;
 
 		MeshContainer opaqueModels;
