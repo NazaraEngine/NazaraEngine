@@ -1013,6 +1013,10 @@ bool NzOpenGL::Initialize()
 
 	/****************************************Initialisation****************************************/
 
+	s_contextStates = nullptr;
+	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+
 	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
 	if (!NzContext::Initialize())
 	{
@@ -1022,9 +1026,7 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-	s_contextStates = nullptr;
-	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+	// Le contexte OpenGL n'est plus assuré à partir d'ici
 
 	return true;
 }
