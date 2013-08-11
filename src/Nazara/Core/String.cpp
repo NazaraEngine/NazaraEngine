@@ -109,7 +109,7 @@ NzString::NzString(unsigned int length, char character)
 }
 
 NzString::NzString(const char* string) :
-NzString(string, std::strlen(string))
+NzString(string, (string) ? std::strlen(string) : 0)
 {
 }
 
