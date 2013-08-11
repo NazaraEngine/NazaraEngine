@@ -43,5 +43,5 @@ bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 	ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
 	ti.tv_nsec %= 1000000000;
 
-	return pthread_cond_timedwait(&m_cv,mutex, &tv) != ETIMEDOUT;
+	return pthread_cond_timedwait(&m_cv,&mutex->m_handle, &ti) != 0;
 }
