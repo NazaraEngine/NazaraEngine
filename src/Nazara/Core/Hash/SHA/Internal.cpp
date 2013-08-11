@@ -1031,9 +1031,6 @@ void SHA512_End(SHA_CTX* context, nzUInt8* digest)
 		std::memcpy(d, context->s512.state, SHA512_DIGEST_LENGTH);
 #endif
 	}
-
-	/* Zero out state data */
-	std::memset(context, 0, sizeof(SHA_CTX));
 }
 
 
@@ -1071,7 +1068,4 @@ void SHA384_End(SHA_CTX* context, nzUInt8* digest)
 		std::memcpy(d, context->s512.state, SHA384_DIGEST_LENGTH);
 #endif
 	}
-
-	/* Zero out state data */
-	std::memset(context, 0, sizeof(SHA_CTX));
 }
