@@ -174,6 +174,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 
 	close(fd1);
 	close(fd2);
+    return true;
 }
 
 bool NzFileImpl::Delete(const NzString& filePath)
