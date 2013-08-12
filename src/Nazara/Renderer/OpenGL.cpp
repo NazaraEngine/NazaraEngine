@@ -73,8 +73,8 @@ namespace
 	std::set<NzString> s_openGLextensionSet;
 	std::unordered_map<NzContext*, ContextStates> s_contexts;
 	thread_local ContextStates* s_contextStates = nullptr;
-	const char* s_rendererName = nullptr;
-	const char* s_vendorName = nullptr;
+	NzString s_rendererName;
+	NzString s_vendorName;
 	bool s_initialized = false;
 	bool s_openGLextensions[nzOpenGLExtension_Max+1] = {false};
 	unsigned int s_glslVersion = 0;
@@ -1206,8 +1206,8 @@ void NzOpenGL::Uninitialize()
 		s_initialized = false;
 		s_openGLextensionSet.clear();
 		s_openglVersion = 0;
-		s_rendererName = nullptr;
-		s_vendorName = nullptr;
+		s_rendererName.Clear(false);
+		s_vendorName.Clear(false);
 
 		UnloadLibrary();
 	}
