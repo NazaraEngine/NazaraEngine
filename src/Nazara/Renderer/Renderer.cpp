@@ -628,7 +628,7 @@ bool NzRenderer::Initialize()
 	{
 		try
 		{
-			s_instanceBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_Matrix4), NAZARA_RENDERER_INSTANCE_BUFFER_SIZE/sizeof(NzMatrix4f), nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
 		{
