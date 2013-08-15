@@ -42,10 +42,9 @@ m_transformMatrixUpdated(false)
 NzNode::~NzNode()
 {
 	for (NzNode* child : m_childs)
-		child->m_parent = nullptr;
+		child->SetParent(nullptr);
 
-	if (m_parent)
-		m_parent->RemoveChild(this);
+	SetParent(nullptr);
 }
 
 void NzNode::EnsureDerivedUpdate() const
