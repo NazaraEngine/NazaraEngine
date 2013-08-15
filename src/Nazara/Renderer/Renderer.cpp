@@ -1429,7 +1429,7 @@ bool NzRenderer::EnsureStateUpdate()
 					indexBufferImpl->Bind();
 				}
 				else
-					NzOpenGL::BindBuffer(nzBufferType_Index, 0);
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
 			}
 
 			if (s_useVertexArrayObjects)
