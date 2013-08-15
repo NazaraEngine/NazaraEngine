@@ -122,10 +122,16 @@ void* NzIndexBuffer::Map(nzBufferAccess access, unsigned int startIndex, unsigne
 void* NzIndexBuffer::MapRaw(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("No buffer");
+		return nullptr;
+	}
+
 	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
-		return false;
+		return nullptr;
 	}
 	#endif
 
