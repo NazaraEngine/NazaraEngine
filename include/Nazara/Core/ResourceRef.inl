@@ -6,6 +6,12 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
+NzResourceRef<T>::NzResourceRef() :
+m_resource(nullptr)
+{
+}
+
+template<typename T>
 NzResourceRef<T>::NzResourceRef(T* resource) :
 m_resource(resource)
 {
