@@ -29,8 +29,8 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-// Le nombre maximum d'instances pouvant être géré par le Renderer
-#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 8192*64
+// La taille du buffer d'Instancing (définit le nombre maximum d'instances en un rendu)
+#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 8192*64 // 8192 matrices 4x4 flottantes
 
 // Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
 #define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
