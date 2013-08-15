@@ -97,6 +97,14 @@ bool NzVertexBuffer::IsValid() const
 
 void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsigned int length)
 {
+	#if NAZARA_UTILITY_SAFE
+	if (!m_vertexDeclaration)
+	{
+		NazaraError("No vertex declaration");
+		return nullptr;
+	}
+	#endif
+
 	unsigned int stride = m_vertexDeclaration->GetStride();
 
 	return MapRaw(access, startVertex*stride, length*stride);
@@ -104,6 +112,14 @@ void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsig
 
 void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsigned int length) const
 {
+	#if NAZARA_UTILITY_SAFE
+	if (!m_vertexDeclaration)
+	{
+		NazaraError("No vertex declaration");
+		return nullptr;
+	}
+	#endif
+
 	unsigned int stride = m_vertexDeclaration->GetStride();
 
 	return MapRaw(access, startVertex*stride, length*stride);
@@ -112,10 +128,16 @@ void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsig
 void* NzVertexBuffer::MapRaw(nzBufferAccess access, unsigned int offset, unsigned int size)
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("No buffer");
+		return nullptr;
+	}
+
 	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
-		return false;
+		return nullptr;
 	}
 	#endif
 
@@ -144,15 +166,9 @@ void NzVertexBuffer::Reset()
 void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (!vertexDeclaration)
-	{
-		NazaraError("Vertex declaration is invalid");
-		return;
-	}
-
 	if (!buffer || !buffer->IsValid())
 	{
-		NazaraError("Buffer is invalid");
+		NazaraError("Invalid buffer");
 		return;
 	}
 
@@ -179,21 +195,13 @@ void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffe
 	m_buffer = buffer;
 	m_endOffset = endOffset;
 	m_startOffset = startOffset;
-	m_vertexCount = (endOffset - startOffset) / vertexDeclaration->GetStride();
+	m_vertexCount = (vertexDeclaration) ? ((endOffset - startOffset) / vertexDeclaration->GetStride()) : 0;
 	m_vertexDeclaration = vertexDeclaration;
 }
 
 void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!vertexDeclaration)
-	{
-		NazaraError("Vertex declaration is invalid");
-		return;
-	}
-	#endif
-
-	m_endOffset = length*vertexDeclaration->GetStride();
+	m_endOffset = length * ((vertexDeclaration) ? vertexDeclaration->GetStride() : 1);
 	m_startOffset = 0;
 	m_vertexCount = length;
 
