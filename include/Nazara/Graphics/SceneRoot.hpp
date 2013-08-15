@@ -10,8 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 
-struct NzSceneImpl;
-
 class NAZARA_API NzSceneRoot : public NzSceneNode
 {
 	friend struct NzSceneImpl;
