@@ -76,7 +76,7 @@ void NzHardwareBuffer::Bind()
 	}
 	#endif
 
-	NzOpenGL::BindBuffer(m_type, m_buffer);
+	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
 }
 
 bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
