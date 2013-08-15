@@ -1197,13 +1197,14 @@ void NzOpenGL::Uninitialize()
 {
 	if (s_initialized)
 	{
+		s_initialized = false;
+
 		NzContext::Uninitialize();
 
 		for (bool& ext : s_openGLextensions)
 			ext = false;
 
 		s_glslVersion = 0;
-		s_initialized = false;
 		s_openGLextensionSet.clear();
 		s_openglVersion = 0;
 		s_rendererName.Clear(false);

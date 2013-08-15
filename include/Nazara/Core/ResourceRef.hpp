@@ -17,7 +17,7 @@ class NzResourceRef
 	static_assert(std::is_base_of<NzResource, T>::value, "ResourceRef should only be used with resource type");
 
 	public:
-		NzResourceRef() = default;
+		NzResourceRef();
 		NzResourceRef(T* resource);
 		NzResourceRef(const NzResourceRef& ref);
 		NzResourceRef(NzResourceRef&& ref) noexcept;
@@ -37,7 +37,7 @@ class NzResourceRef
 		NzResourceRef& operator=(NzResourceRef&& ref) noexcept;
 
 	private:
-		T* m_resource = nullptr;
+		T* m_resource;
 };
 
 #include <Nazara/Core/ResourceRef.inl>
