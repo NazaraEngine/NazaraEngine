@@ -31,7 +31,7 @@ class NAZARA_API NzRenderer
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
-		static void Clear(unsigned long flags = nzRendererClear_Color | nzRendererClear_Depth);
+		static void Clear(nzUInt32 flags = nzRendererClear_Color | nzRendererClear_Depth);
 
 		static void DrawFullscreenQuad();
 		static void DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
@@ -40,7 +40,6 @@ class NAZARA_API NzRenderer
 		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
 
 		static void Enable(nzRendererParameter parameter, bool enable);
-
 
 		static void Flush();
 
