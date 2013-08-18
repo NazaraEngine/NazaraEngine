@@ -91,7 +91,7 @@ namespace
 	unsigned int s_maxVertexAttribs;
 }
 
-void NzRenderer::Clear(unsigned long flags)
+void NzRenderer::Clear(nzUInt32 flags)
 {
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
@@ -103,6 +103,9 @@ void NzRenderer::Clear(unsigned long flags)
 
 	if (flags)
 	{
+		// Les états du rendu sont suceptibles d'influencer glClear
+		NzOpenGL::ApplyStates(s_states);
+
 		GLenum mask = 0;
 
 		if (flags & nzRendererClear_Color)
@@ -113,9 +116,6 @@ void NzRenderer::Clear(unsigned long flags)
 
 		if (flags & nzRendererClear_Stencil)
 			mask |= GL_STENCIL_BUFFER_BIT;
-
-		// Les états du rendu sont suceptibles d'influencer glClear
-		NzOpenGL::ApplyStates(s_states);
 
 		glClear(mask);
 	}
