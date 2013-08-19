@@ -387,7 +387,7 @@ nzIntersectionSide NzFrustum<T>::Intersect(const NzBoundingVolume<T>& volume) co
 			}
 
 			NazaraError("Invalid intersection side (0x" + NzString::Number(side, 16) + ')');
-			return false;
+			return nzIntersectionSide_Outside;
 		}
 
 		case nzExtend_Infinite:
