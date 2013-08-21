@@ -59,7 +59,7 @@ class NzMatrix4
 
 		NzMatrix4& MakeIdentity();
 		NzMatrix4& MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
-		NzMatrix4& MakeOrtho(T left, T top, T width, T height, T zNear = -1.0, T zFar = 1.0);
+		NzMatrix4& MakeOrtho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
 		NzMatrix4& MakePerspective(T angle, T ratio, T zNear, T zFar);
 		NzMatrix4& MakeRotation(const NzQuaternion<T>& rotation);
 		NzMatrix4& MakeScale(const NzVector3<T>& scale);
