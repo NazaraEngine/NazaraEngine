@@ -49,11 +49,11 @@ class NAZARA_API NzLight : public NzSceneNode
 		static void Disable(const NzShaderProgram* program, unsigned int lightUnit);
 
 	private:
-		void Invalidate();
-		void Register();
-		void Unregister();
+		bool FrustumCull(const NzFrustumf& frustum) override;
+		void Invalidate() override;
+		void Register() override;
+		void Unregister() override;
 		void UpdateBoundingVolume() const;
-		bool VisibilityTest(const NzCamera* camera) override;
 
 		nzLightType m_type;
 		mutable NzBoundingVolumef m_boundingVolume;

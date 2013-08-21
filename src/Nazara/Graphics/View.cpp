@@ -2,72 +2,65 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/View.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzCamera::NzCamera() :
+NzView::NzView() :
 m_targetRegion(0.f, 0.f, 1.f, 1.f),
 m_target(nullptr),
 m_frustumUpdated(false),
 m_projectionMatrixUpdated(false),
 m_viewMatrixUpdated(false),
 m_viewportUpdated(false),
-m_aspectRatio(0.f),
-m_fov(70.f),
-m_zFar(100.f),
-m_zNear(1.f)
+m_zFar(1.f),
+m_zNear(-1.f)
 {
 }
 
-NzCamera::~NzCamera()
+NzView::~NzView()
 {
 	if (m_target)
 		m_target->RemoveListener(this);
 }
 
-void NzCamera::EnsureFrustumUpdate() const
+void NzView::EnsureFrustumUpdate() const
 {
 	if (!m_frustumUpdated)
 		UpdateFrustum();
 }
 
-void NzCamera::EnsureProjectionMatrixUpdate() const
+void NzView::EnsureProjectionMatrixUpdate() const
 {
 	if (!m_projectionMatrixUpdated)
 		UpdateProjectionMatrix();
 }
 
-void NzCamera::EnsureViewMatrixUpdate() const
+void NzView::EnsureViewMatrixUpdate() const
 {
 	if (!m_viewMatrixUpdated)
 		UpdateViewMatrix();
 }
 
-void NzCamera::EnsureViewportUpdate() const
+void NzView::EnsureViewportUpdate() const
 {
 	if (!m_viewportUpdated)
 		UpdateViewport();
 }
 
-float NzCamera::GetAspectRatio() const
+float NzView::GetAspectRatio() const
 {
-	return m_aspectRatio;
+	return 1.f;
 }
 
-NzVector3f NzCamera::GetEyePosition() const
+NzVector3f NzView::GetEyePosition() const
 {
 	return GetPosition(nzCoordSys_Global);
 }
 
-float NzCamera::GetFOV() const
-{
-	return m_fov;
-}
-
-const NzFrustumf& NzCamera::GetFrustum() const
+const NzFrustumf& NzView::GetFrustum() const
 {
 	if (!m_frustumUpdated)
 		UpdateFrustum();
@@ -75,7 +68,7 @@ const NzFrustumf& NzCamera::GetFrustum() const
 	return m_frustum;
 }
 
-const NzMatrix4f& NzCamera::GetProjectionMatrix() const
+const NzMatrix4f& NzView::GetProjectionMatrix() const
 {
 	if (!m_projectionMatrixUpdated)
 		UpdateProjectionMatrix();
@@ -83,17 +76,17 @@ const NzMatrix4f& NzCamera::GetProjectionMatrix() const
 	return m_projectionMatrix;
 }
 
-const NzRenderTarget* NzCamera::GetTarget() const
+const NzRenderTarget* NzView::GetTarget() const
 {
 	return m_target;
 }
 
-const NzRectf& NzCamera::GetTargetRegion() const
+const NzRectf& NzView::GetTargetRegion() const
 {
 	return m_targetRegion;
 }
 
-const NzMatrix4f& NzCamera::GetViewMatrix() const
+const NzMatrix4f& NzView::GetViewMatrix() const
 {
 	if (!m_viewMatrixUpdated)
 		UpdateViewMatrix();
@@ -101,7 +94,7 @@ const NzMatrix4f& NzCamera::GetViewMatrix() const
 	return m_viewMatrix;
 }
 
-const NzRectui& NzCamera::GetViewport() const
+const NzRectui& NzView::GetViewport() const
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -117,25 +110,17 @@ const NzRectui& NzCamera::GetViewport() const
 	return m_viewport;
 }
 
-float NzCamera::GetZFar() const
+float NzView::GetZFar() const
 {
 	return m_zFar;
 }
 
-float NzCamera::GetZNear() const
+float NzView::GetZNear() const
 {
 	return m_zNear;
 }
 
-void NzCamera::SetFOV(float fov)
-{
-	m_fov = fov;
-
-	m_frustumUpdated = false;
-	m_projectionMatrixUpdated = false;
-}
-
-void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
+void NzView::SetTarget(const NzRenderTarget* renderTarget)
 {
 	if (m_target)
 		m_target->RemoveListener(this);
@@ -145,12 +130,12 @@ void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 		m_target->AddListener(this);
 }
 
-void NzCamera::SetTarget(const NzRenderTarget& renderTarget)
+void NzView::SetTarget(const NzRenderTarget& renderTarget)
 {
 	SetTarget(&renderTarget);
 }
 
-void NzCamera::SetTargetRegion(const NzRectf& region)
+void NzView::SetTargetRegion(const NzRectf& region)
 {
 	m_targetRegion = region;
 
@@ -159,7 +144,7 @@ void NzCamera::SetTargetRegion(const NzRectf& region)
 	m_viewportUpdated = false;
 }
 
-void NzCamera::SetViewport(const NzRectui& viewport)
+void NzView::SetViewport(const NzRectui& viewport)
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -176,7 +161,7 @@ void NzCamera::SetViewport(const NzRectui& viewport)
 	SetTargetRegion(NzRectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
 }
 
-void NzCamera::SetZFar(float zFar)
+void NzView::SetZFar(float zFar)
 {
 	m_zFar = zFar;
 
@@ -184,7 +169,7 @@ void NzCamera::SetZFar(float zFar)
 	m_projectionMatrixUpdated = false;
 }
 
-void NzCamera::SetZNear(float zNear)
+void NzView::SetZNear(float zNear)
 {
 	m_zNear = zNear;
 
@@ -192,7 +177,7 @@ void NzCamera::SetZNear(float zNear)
 	m_projectionMatrixUpdated = false;
 }
 
-void NzCamera::ApplyView() const
+void NzView::ApplyView() const
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -216,7 +201,7 @@ void NzCamera::ApplyView() const
 	NzRenderer::SetViewport(m_viewport);
 }
 
-void NzCamera::Invalidate()
+void NzView::Invalidate()
 {
 	NzNode::Invalidate();
 
@@ -225,7 +210,7 @@ void NzCamera::Invalidate()
 	m_viewMatrixUpdated = false;
 }
 
-void NzCamera::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
+void NzView::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
 {
 	NazaraUnused(userdata);
 
@@ -235,7 +220,7 @@ void NzCamera::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* 
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
 }
 
-bool NzCamera::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
+bool NzView::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
 {
 	NazaraUnused(userdata);
 
@@ -251,7 +236,7 @@ bool NzCamera::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void
 	return true;
 }
 
-void NzCamera::UpdateFrustum() const
+void NzView::UpdateFrustum() const
 {
 	if (!m_projectionMatrixUpdated)
 		UpdateProjectionMatrix();
@@ -263,16 +248,16 @@ void NzCamera::UpdateFrustum() const
 	m_frustumUpdated = true;
 }
 
-void NzCamera::UpdateProjectionMatrix() const
+void NzView::UpdateProjectionMatrix() const
 {
 	if (!m_viewportUpdated)
-		UpdateViewport(); // Peut affecter l'aspect ratio
+		UpdateViewport();
 
-	m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
+	m_projectionMatrix.MakeOrtho(m_viewport.x, m_viewport.x + m_viewport.width, m_viewport.y, m_viewport.y + m_viewport.height, m_zNear, m_zFar);
 	m_projectionMatrixUpdated = true;
 }
 
-void NzCamera::UpdateViewMatrix() const
+void NzView::UpdateViewMatrix() const
 {
 	if (!m_derivedUpdated)
 		UpdateDerived();
@@ -281,25 +266,14 @@ void NzCamera::UpdateViewMatrix() const
 	m_viewMatrixUpdated = true;
 }
 
-void NzCamera::UpdateViewport() const
+void NzView::UpdateViewport() const
 {
 	unsigned int width = m_target->GetWidth();
 	unsigned int height = std::max(m_target->GetHeight(), 1U);
 
-	float vWidth = width * m_targetRegion.width;
-	float vHeight = height * m_targetRegion.height;
-	float aspectRatio = vWidth/vHeight;
-
-	if (!NzNumberEquals(m_aspectRatio, aspectRatio, 0.001f))
-	{
-		m_aspectRatio = aspectRatio;
-		m_frustumUpdated = false;
-		m_projectionMatrixUpdated = false;
-	}
-
 	m_viewport.x = width * m_targetRegion.x;
 	m_viewport.y = height * m_targetRegion.y;
-	m_viewport.width = vWidth;
-	m_viewport.height = vHeight;
+	m_viewport.width = width * m_targetRegion.width;
+	m_viewport.height = height * m_targetRegion.height;
 	m_viewportUpdated = true;
 }
