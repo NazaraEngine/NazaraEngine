@@ -92,6 +92,7 @@ class NAZARA_API NzWindow : NzNonCopyable
 	protected:
 		virtual bool OnWindowCreated();
 		virtual void OnWindowDestroy();
+		virtual void OnWindowResized();
 
 		NzWindowImpl* m_impl;
 
