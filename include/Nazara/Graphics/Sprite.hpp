@@ -34,12 +34,16 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 	private:
 		bool FrustumCull(const NzFrustumf& frustum) override;
+		void Invalidate() override;
 		void Register() override;
 		void Unregister() override;
+		void UpdateBoundingVolume() const;
 
+		mutable NzBoundingVolumef m_boundingVolume;
+		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
-		NzMaterialRef m_material;
+		mutable bool m_boundingVolumeUpdated;
 };
 
 #endif // NAZARA_SPRITE_HPP
