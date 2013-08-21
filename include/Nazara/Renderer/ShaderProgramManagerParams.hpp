@@ -30,6 +30,13 @@ struct NzShaderProgramManagerParams
 		bool specularMapping;
 	};
 
+	struct Sprite
+	{
+		bool alphaMapping;
+		bool alphaTest;
+		bool diffuseMapping;
+	};
+
 	nzShaderTarget target;
 	nzUInt32 flags;
 
@@ -37,6 +44,7 @@ struct NzShaderProgramManagerParams
 	{
 		FullscreenQuad fullscreenQuad;
 		Model model;
+		Sprite sprite;
 	};
 };
 
