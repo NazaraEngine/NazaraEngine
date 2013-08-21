@@ -13,6 +13,7 @@
 class NzDrawable;
 class NzLight;
 class NzModel;
+class NzSprite;
 
 class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 {
@@ -23,6 +24,7 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddDrawable(const NzDrawable* drawable) = 0;
 		virtual void AddLight(const NzLight* light) = 0;
 		virtual void AddModel(const NzModel* model) = 0;
+		virtual void AddSprite(const NzSprite* sprite) = 0;
 
 		virtual void Clear(bool fully) = 0;
 };
