@@ -1038,10 +1038,10 @@ NzMatrix4<T> NzMatrix4<T>::LookAt(const NzVector3<T>& eye, const NzVector3<T>& t
 }
 
 template<typename T>
-NzMatrix4<T> NzMatrix4<T>::Ortho(T left, T top, T width, T height, T zNear, T zFar)
+NzMatrix4<T> NzMatrix4<T>::Ortho(T left, T right, T top, T bottom, T zNear, T zFar)
 {
 	NzMatrix4 matrix;
-	matrix.MakeOrtho(left, top, width, height, zNear, zFar);
+	matrix.MakeOrtho(left, right, top, bottom, zNear, zFar);
 
 	return matrix;
 }
