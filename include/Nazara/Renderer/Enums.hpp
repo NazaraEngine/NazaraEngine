@@ -179,13 +179,14 @@ enum nzShaderTarget
 	nzShaderTarget_FullscreenQuad,
 	nzShaderTarget_Model,
 	nzShaderTarget_None,
+	nzShaderTarget_Sprite,
 
-	nzShaderTarget_Max = nzShaderTarget_None
+	nzShaderTarget_Max = nzShaderTarget_Sprite
 };
 
 enum nzShaderUniform
 {
-	nzShaderUniform_CameraPosition,
+	nzShaderUniform_EyePosition,
 	nzShaderUniform_InvTargetSize,
 	nzShaderUniform_MaterialAlphaMap,
 	nzShaderUniform_MaterialAlphaThreshold,

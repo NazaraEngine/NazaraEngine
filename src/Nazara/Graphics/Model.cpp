@@ -630,6 +630,25 @@ NzModel& NzModel::operator=(NzModel&& node)
 	return *this;
 }
 
+bool NzModel::FrustumCull(const NzFrustumf& frustum)
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!IsDrawable())
+	{
+		NazaraError("Model is not drawable");
+		return false;
+	}
+	#endif
+
+	if (!m_drawEnabled)
+		return false;
+
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
+
+	return frustum.Contains(m_boundingVolume);
+}
+
 void NzModel::Invalidate()
 {
 	NzSceneNode::Invalidate();
@@ -669,25 +688,6 @@ void NzModel::UpdateBoundingVolume() const
 
 	m_boundingVolume.Update(m_transformMatrix);
 	m_boundingVolumeUpdated = true;
-}
-
-bool NzModel::VisibilityTest(const NzCamera* camera)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!IsDrawable())
-	{
-		NazaraError("Model is not drawable");
-		return false;
-	}
-	#endif
-
-	if (!m_drawEnabled)
-		return false;
-
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return camera->GetFrustum().Contains(m_boundingVolume);
 }
 
 NzModelLoader::LoaderList NzModel::s_loaders;
