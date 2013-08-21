@@ -149,6 +149,9 @@ int main()
 	// La distance entre l'oeil et le plan rapproché (0 est une valeur interdite car la division par zéro l'est également)
 	camera.SetZNear(0.1f);
 
+	// On indique à la scène que le viewer (Le point de vue) sera la caméra
+	scene.SetViewer(&camera);
+
 	// Attention que le ratio entre les deux (zFar/zNear) doit rester raisonnable, dans le cas contraire vous risquez un phénomène
 	// de "Z-Fighting" (Impossibilité de déduire quelle surface devrait apparaître en premier) sur les surfaces éloignées.
 
@@ -326,14 +329,10 @@ int main()
 			updateClock.Restart();
 		}
 
-		// Rendu de la scène
-
-		// On active la caméra (Qui s'occupera de préparer la fenêtre au rendu)
-		camera.Activate();
-
+		// Rendu de la scène:
 		// On procède maintenant au rendu de la scène en elle-même, celui-ci se décompose en quatre étapes distinctes
 
-		// Pour commencer, on mets à jour la scène, ceci appelle la méthode Update de tous les SceneNode enregistrés
+		// Pour commencer, on met à jour la scène, ceci appelle la méthode Update de tous les SceneNode enregistrés
 		// pour la mise à jour globale (Scene::RegisterForUpdate)
 		scene.Update();
 

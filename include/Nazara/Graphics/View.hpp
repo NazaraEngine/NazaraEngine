@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CAMERA_HPP
-#define NAZARA_CAMERA_HPP
+#ifndef NAZARA_VIEW_HPP
+#define NAZARA_VIEW_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
@@ -16,11 +16,11 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 
-class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
+class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
 {
 	public:
-		NzCamera();
-		~NzCamera();
+		NzView();
+		~NzView();
 
 		void EnsureFrustumUpdate() const;
 		void EnsureProjectionMatrixUpdate() const;
@@ -29,7 +29,6 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 
 		float GetAspectRatio() const;
 		NzVector3f GetEyePosition() const;
-		float GetFOV() const;
 		const NzFrustumf& GetFrustum() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
 		const NzRenderTarget* GetTarget() const;
@@ -39,7 +38,6 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 		float GetZFar() const;
 		float GetZNear() const;
 
-		void SetFOV(float fov);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetTargetRegion(const NzRectf& region);
@@ -69,10 +67,8 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 		mutable bool m_projectionMatrixUpdated;
 		mutable bool m_viewMatrixUpdated;
 		mutable bool m_viewportUpdated;
-		mutable float m_aspectRatio;
-		float m_fov;
 		float m_zFar;
 		float m_zNear;
 };
 
-#endif // NAZARA_CAMERA_HPP
+#endif // NAZARA_VIEW_HPP

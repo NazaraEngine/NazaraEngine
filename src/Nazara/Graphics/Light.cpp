@@ -225,6 +225,31 @@ void NzLight::Disable(const NzShaderProgram* program, unsigned int lightUnit)
 	program->SendInteger(program->GetUniformLocation("Lights[" + NzString::Number(lightUnit) + "].type"), -1);
 }
 
+bool NzLight::FrustumCull(const NzFrustumf& frustum)
+{
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			return true; // Toujours visible
+
+		case nzLightType_Point:
+			if (!m_derivedUpdated)
+				UpdateDerived();
+
+			// Un test sphérique est bien plus rapide et précis que celui de la bounding box
+			return frustum.Contains(NzSpheref(m_derivedPosition, m_radius));
+
+		case nzLightType_Spot:
+			if (!m_boundingVolumeUpdated)
+				UpdateBoundingVolume();
+
+			return frustum.Contains(m_boundingVolume);
+	}
+
+	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
+	return false;
+}
+
 void NzLight::Invalidate()
 {
 	NzSceneNode::Invalidate();
@@ -306,29 +331,4 @@ void NzLight::UpdateBoundingVolume() const
 	}
 
 	m_boundingVolumeUpdated = true;
-}
-
-bool NzLight::VisibilityTest(const NzCamera* camera)
-{
-	switch (m_type)
-	{
-		case nzLightType_Directional:
-			return true; // Toujours visible
-
-		case nzLightType_Point:
-			if (!m_derivedUpdated)
-				UpdateDerived();
-
-			// Un test sphérique est bien plus rapide et précis que celui de la bounding box
-			return camera->GetFrustum().Contains(NzSpheref(m_derivedPosition, m_radius));
-
-		case nzLightType_Spot:
-			if (!m_boundingVolumeUpdated)
-				UpdateBoundingVolume();
-
-			return camera->GetFrustum().Contains(m_boundingVolume);
-	}
-
-	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-	return false;
 }

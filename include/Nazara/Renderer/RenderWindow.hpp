@@ -58,6 +58,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 	private:
 		bool OnWindowCreated() override;
 		void OnWindowDestroy() override;
+		void OnWindowResized() override;
 
 		NzClock m_clock;
 		NzContextParameters m_parameters;

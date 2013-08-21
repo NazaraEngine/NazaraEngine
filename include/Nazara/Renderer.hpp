@@ -1,4 +1,4 @@
-// This file was automatically generated on 13 Mar 2013 at 23:20:31
+// This file was automatically generated on 21 Aug 2013 at 19:43:23
 
 /*
 	Nazara Engine - Renderer module
@@ -38,12 +38,14 @@
 #include <Nazara/Renderer/OcclusionQuery.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/ShaderProgramManager.hpp>
+#include <Nazara/Renderer/ShaderProgramManagerParams.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
