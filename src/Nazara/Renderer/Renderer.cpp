@@ -1124,7 +1124,8 @@ void NzRenderer::SetViewport(const NzRectui& viewport)
 	unsigned int width = s_target->GetWidth();
 	if (viewport.x+viewport.width > width || viewport.y+viewport.height > height)
 	{
-		NazaraError("Rectangle dimensions are out of bounds");
+		NazaraError("Rectangle dimensions are out of bounds (" + NzString::Number(viewport.x+viewport.width) + ", " + NzString::Number(viewport.y+viewport.height) + " > "
+		                                                       + NzString::Number(width) + ", " + NzString::Number(height) + ")");
 		return;
 	}
 	#endif
