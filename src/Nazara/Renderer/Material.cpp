@@ -163,11 +163,17 @@ void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
 void NzMaterial::EnableAlphaTest(bool alphaTest)
 {
 	m_alphaTestEnabled = alphaTest;
+
+	InvalidatePrograms(nzShaderTarget_FullscreenQuad);
+	InvalidatePrograms(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Sprite);
 }
 
 void NzMaterial::EnableLighting(bool lighting)
 {
 	m_lightingEnabled = lighting;
+
+	InvalidatePrograms(nzShaderTarget_Model);
 }
 
 NzTexture* NzMaterial::GetAlphaMap() const
@@ -410,7 +416,9 @@ void NzMaterial::SetAlphaMap(NzTexture* map)
 {
 	m_alphaMap = map;
 
+	InvalidatePrograms(nzShaderTarget_FullscreenQuad);
 	InvalidatePrograms(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Sprite);
 }
 
 void NzMaterial::SetAlphaThreshold(float alphaThreshold)
@@ -454,7 +462,9 @@ void NzMaterial::SetDiffuseMap(NzTexture* map)
 {
 	m_diffuseMap = map;
 
+	InvalidatePrograms(nzShaderTarget_FullscreenQuad);
 	InvalidatePrograms(nzShaderTarget_Model);
+	InvalidatePrograms(nzShaderTarget_Sprite);
 }
 
 void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
@@ -705,6 +715,12 @@ void NzMaterial::GenerateProgram(nzShaderTarget target, nzUInt32 flags) const
 			break;
 
 		case nzShaderTarget_None:
+			break;
+
+		case nzShaderTarget_Sprite:
+			params.sprite.alphaMapping = m_alphaMap.IsValid();
+			params.sprite.alphaTest = m_alphaTestEnabled;
+			params.sprite.diffuseMapping = m_diffuseMap.IsValid();
 			break;
 	}
 

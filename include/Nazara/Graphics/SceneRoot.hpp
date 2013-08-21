@@ -10,8 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 
-struct NzSceneImpl;
-
 class NAZARA_API NzSceneRoot : public NzSceneNode
 {
 	friend struct NzSceneImpl;
@@ -26,9 +24,9 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 		NzSceneRoot(NzScene* scene);
 		virtual ~NzSceneRoot();
 
+		bool FrustumCull(const NzFrustumf& frustum) override;
 		void Register();
 		void Unregister();
-		bool VisibilityTest(const NzCamera* camera) override;
 };
 
 #endif // NAZARA_SCENEROOT_HPP
