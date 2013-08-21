@@ -704,6 +704,10 @@ void NzWindow::OnWindowDestroy()
 {
 }
 
+void NzWindow::OnWindowResized()
+{
+}
+
 void NzWindow::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -724,6 +728,8 @@ void NzWindow::PushEvent(const NzEvent& event)
 	#endif
 
 	m_events.push(event);
+	if (event.type == nzEventType_Resized)
+		OnWindowResized();
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	m_eventMutex.Unlock();
