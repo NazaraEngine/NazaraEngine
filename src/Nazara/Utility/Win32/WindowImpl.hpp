@@ -92,10 +92,9 @@ class NzWindowImpl : NzNonCopyable
 		NzVector2i m_maxSize;
 		NzVector2i m_minSize;
 		NzVector2i m_mousePos;
-		#if !NAZARA_UTILITY_THREADED_WINDOW
 		NzVector2i m_position;
 		NzVector2ui m_size;
-		#else
+		#if NAZARA_UTILITY_THREADED_WINDOW
 		NzThread* m_thread;
 		#endif
 		NzWindow* m_parent;
