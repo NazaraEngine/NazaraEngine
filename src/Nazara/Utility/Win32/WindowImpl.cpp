@@ -137,6 +137,9 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	m_handle = CreateWindowExW(win32StyleEx, className, wtitle.get(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
 	#endif
 
+	if (!m_handle)
+		return false;
+
 	if (fullscreen)
 	{
 		SetForegroundWindow(m_handle);
@@ -150,7 +153,15 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	#endif
 	m_style = style;
 
-	return m_handle != nullptr;
+	// Récupération de la position/taille de la fenêtre (Après sa création)
+	RECT clientRect, windowRect;
+	GetClientRect(m_handle, &clientRect);
+	GetWindowRect(m_handle, &windowRect);
+
+	m_position.Set(windowRect.left, windowRect.top);
+	m_size.Set(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
+
+	return true;
 }
 
 bool NzWindowImpl::Create(NzWindowHandle handle)
@@ -169,6 +180,13 @@ bool NzWindowImpl::Create(NzWindowHandle handle)
 	m_sizemove = false;
 	#endif
 	m_style = RetrieveStyle(m_handle);
+
+	RECT clientRect, windowRect;
+	GetClientRect(m_handle, &clientRect);
+	GetWindowRect(m_handle, &windowRect);
+
+	m_position.Set(windowRect.left, windowRect.top);
+	m_size.Set(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
 
 	return true;
 }
@@ -212,23 +230,17 @@ NzWindowHandle NzWindowImpl::GetHandle() const
 
 unsigned int NzWindowImpl::GetHeight() const
 {
-	RECT rect;
-	GetClientRect(m_handle, &rect);
-	return rect.bottom-rect.top;
+	return m_size.y;
 }
 
 NzVector2i NzWindowImpl::GetPosition() const
 {
-	RECT rect;
-	GetWindowRect(m_handle, &rect);
-	return NzVector2i(rect.left, rect.top);
+	return m_position;
 }
 
 NzVector2ui NzWindowImpl::GetSize() const
 {
-	RECT rect;
-	GetClientRect(m_handle, &rect);
-	return NzVector2ui(rect.right-rect.left, rect.bottom-rect.top);
+	return m_size;
 }
 
 nzUInt32 NzWindowImpl::GetStyle() const
@@ -252,9 +264,7 @@ NzString NzWindowImpl::GetTitle() const
 
 unsigned int NzWindowImpl::GetWidth() const
 {
-	RECT rect;
-	GetClientRect(m_handle, &rect);
-	return rect.right-rect.left;
+	return m_size.x;
 }
 
 bool NzWindowImpl::HasFocus() const
@@ -549,7 +559,11 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				m_sizemove = false;
 
 				// On vérifie ce qui a changé
-				NzVector2i position = GetPosition();
+				RECT clientRect, windowRect;
+				GetClientRect(m_handle, &clientRect);
+				GetWindowRect(m_handle, &windowRect);
+
+				NzVector2i position(windowRect.left, windowRect.top);
 				if (m_position != position)
 				{
 					m_position = position;
@@ -561,7 +575,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					m_parent->PushEvent(event);
 				}
 
-				NzVector2ui size = GetSize();
+				NzVector2ui size(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
 				if (m_size != size)
 				{
 					m_size = size;
@@ -797,12 +811,13 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 
 			case WM_MOVE:
 			{
-				NzVector2i position = GetPosition();
+				RECT windowRect;
+				GetWindowRect(m_handle, &windowRect);
 
 				NzEvent event;
 				event.type = nzEventType_Moved;
-				event.position.x = position.x;
-				event.position.y = position.y;
+				event.position.x = windowRect.left;
+				event.position.y = windowRect.top;
 				m_parent->PushEvent(event);
 
 				break;
@@ -865,13 +880,14 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 				if (!m_sizemove && wParam != SIZE_MINIMIZED)
 				#endif
 				{
-					NzVector2ui size = GetSize(); // On récupère uniquement la taille de la zone client
-					#if !NAZARA_UTILITY_THREADED_WINDOW
+					RECT rect;
+					GetClientRect(m_handle, &rect);
+
+					NzVector2ui size(rect.right-rect.left, rect.bottom-rect.top); // On récupère uniquement la taille de la zone client
 					if (m_size == size)
 						break;
 
 					m_size = size;
-					#endif
 
 					NzEvent event;
 					event.type = nzEventType_Resized;
@@ -1185,11 +1201,15 @@ nzUInt32 NzWindowImpl::RetrieveStyle(HWND handle)
 #if NAZARA_UTILITY_THREADED_WINDOW
 void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzConditionVariable* condition)
 {
-	*handle = CreateWindowExW(styleEx, className, title, style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+	HWND& winHandle = *handle;
+	winHandle = CreateWindowExW(styleEx, className, title, style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
 
 	mutex->Lock();
 	condition->Signal();
 	mutex->Unlock(); // mutex et condition sont considérés invalides à partir d'ici
+
+	if (!winHandle)
+		return;
 
 	while (window->m_threadActive)
 		window->ProcessEvents(true);
