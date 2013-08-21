@@ -30,7 +30,7 @@ struct NzSceneImpl
 	NzClock updateClock;
 	NzColor ambientColor = NzColor(25,25,25);
 	NzSceneRoot root;
-	NzCamera* activeCamera;
+	NzAbstractViewer* viewer;
 	bool update;
 	float frameTime;
 	float updateTime;
@@ -64,9 +64,9 @@ void NzScene::AddToVisibilityList(NzUpdatable* object)
 void NzScene::Cull()
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->activeCamera)
+	if (!m_impl->viewer)
 	{
-		NazaraError("No active camera");
+		NazaraError("No viewer");
 		return;
 	}
 	#endif
@@ -76,8 +76,8 @@ void NzScene::Cull()
 
 	m_impl->visibleUpdateList.clear();
 
-	// Frustum culling/Viewport culling
-	RecursiveCameraCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->activeCamera, &m_impl->root);
+	// Frustum culling
+	RecursiveFrustumCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->viewer->GetFrustum(), &m_impl->root);
 
 	///TODO: Occlusion culling
 
@@ -87,20 +87,16 @@ void NzScene::Cull()
 void NzScene::Draw()
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->activeCamera)
+	if (!m_impl->viewer)
 	{
-		NazaraError("No active camera");
+		NazaraError("No viewer");
 		return;
 	}
 	#endif
 
 	m_impl->renderTechnique->Clear(this);
+	m_impl->viewer->ApplyView();
 	m_impl->renderTechnique->Draw(this);
-}
-
-NzCamera* NzScene::GetActiveCamera() const
-{
-	return m_impl->activeCamera;
 }
 
 NzColor NzScene::GetAmbientColor() const
@@ -121,6 +117,11 @@ NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
 NzSceneNode& NzScene::GetRoot() const
 {
 	return m_impl->root;
+}
+
+NzAbstractViewer* NzScene::GetViewer() const
+{
+	return m_impl->viewer;
 }
 
 float NzScene::GetUpdateTime() const
@@ -159,6 +160,11 @@ void NzScene::SetBackground(NzAbstractBackground* background)
 void NzScene::SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique)
 {
 	m_impl->renderTechnique.reset(renderTechnique);
+}
+
+void NzScene::SetViewer(NzAbstractViewer* viewer)
+{
+	m_impl->viewer = viewer;
 }
 
 void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
@@ -209,7 +215,7 @@ NzScene::operator const NzSceneNode&() const
 	return m_impl->root;
 }
 
-void NzScene::RecursiveCameraCull(NzAbstractRenderQueue* renderQueue, const NzCamera* camera, NzNode* node)
+void NzScene::RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node)
 {
 	for (NzNode* child : node->GetChilds())
 	{
@@ -218,17 +224,12 @@ void NzScene::RecursiveCameraCull(NzAbstractRenderQueue* renderQueue, const NzCa
 			NzSceneNode* sceneNode = static_cast<NzSceneNode*>(child);
 
 			///TODO: Empêcher le rendu des enfants si le parent est cullé selon un flag
-			sceneNode->UpdateVisibility(camera);
+			sceneNode->UpdateVisibility(frustum);
 			if (sceneNode->IsVisible())
 				sceneNode->AddToRenderQueue(renderQueue);
 		}
 
 		if (child->HasChilds())
-			RecursiveCameraCull(renderQueue, camera, child);
+			RecursiveFrustumCull(renderQueue, frustum, child);
 	}
-}
-
-void NzScene::SetActiveCamera(NzCamera* camera)
-{
-	m_impl->activeCamera = camera;
 }

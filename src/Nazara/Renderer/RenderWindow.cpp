@@ -310,3 +310,9 @@ void NzRenderWindow::OnWindowDestroy()
 		m_context = nullptr;
 	}
 }
+
+void NzRenderWindow::OnWindowResized()
+{
+	NotifySizeChange();
+}
+

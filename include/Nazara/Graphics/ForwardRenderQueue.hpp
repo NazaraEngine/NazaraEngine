@@ -32,6 +32,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		void AddDrawable(const NzDrawable* drawable);
 		void AddLight(const NzLight* light);
 		void AddModel(const NzModel* model);
+		void AddSprite(const NzSprite* sprite);
 
 		void Clear(bool fully);
 
@@ -40,30 +41,15 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 	private:
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
 
-		struct ModelMaterialComparator
-		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
-		};
-
 		struct SkeletalData
 		{
 			///TODO
 			NzMatrix4f transformMatrix;
 		};
 
-		struct SkeletalMeshComparator
-		{
-			bool operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2);
-		};
-
 		struct StaticData
 		{
 			NzMatrix4f transformMatrix;
-		};
-
-		struct StaticMeshComparator
-		{
-			bool operator()(const NzStaticMesh* subMesh1, const NzStaticMesh* subMesh2);
 		};
 
 		struct TransparentModel
@@ -83,17 +69,42 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 			NzStaticMesh* mesh;
 		};
 
-		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, SkeletalMeshComparator> SkeletalMeshContainer;
-		typedef std::map<const NzStaticMesh*, std::pair<NzSpheref, std::vector<StaticData>>, StaticMeshComparator> StaticMeshContainer;
-		typedef std::map<const NzMaterial*, std::tuple<bool, SkeletalMeshContainer, StaticMeshContainer>, ModelMaterialComparator> MeshContainer;
 
-		MeshContainer opaqueModels;
-		std::vector<std::pair<unsigned int, bool>> transparentsModels;
+		struct BatchedModelMaterialComparator
+		{
+			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+		};
+
+		struct BatchedSpriteMaterialComparator
+		{
+			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+		};
+
+		struct BatchedSkeletalMeshComparator
+		{
+			bool operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2);
+		};
+
+		struct BatchedStaticMeshComparator
+		{
+			bool operator()(const NzStaticMesh* subMesh1, const NzStaticMesh* subMesh2);
+		};
+
+		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, BatchedSkeletalMeshComparator> BatchedSkeletalMeshContainer;
+		typedef std::map<const NzStaticMesh*, std::pair<NzSpheref, std::vector<StaticData>>, BatchedStaticMeshComparator> BatchedStaticMeshContainer;
+		typedef std::map<const NzMaterial*, std::tuple<bool, bool, BatchedSkeletalMeshContainer, BatchedStaticMeshContainer>, BatchedModelMaterialComparator> BatchedModelContainer;
+		typedef std::map<const NzMaterial*, std::vector<const NzSprite*>> BatchedSpriteContainer;
+		typedef std::vector<const NzLight*> LightContainer;
+		typedef std::vector<std::pair<unsigned int, bool>> TransparentModelContainer;
+
+		BatchedModelContainer opaqueModels;
+		BatchedSpriteContainer sprites;
+		TransparentModelContainer transparentsModels;
 		std::vector<TransparentSkeletalModel> transparentSkeletalModels;
 		std::vector<TransparentStaticModel> transparentStaticModels;
 		std::vector<const NzDrawable*> otherDrawables;
-		std::vector<const NzLight*> directionnalLights;
-		std::vector<const NzLight*> lights;
+		LightContainer directionnalLights;
+		LightContainer lights;
 };
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP

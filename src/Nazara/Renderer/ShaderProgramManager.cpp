@@ -3,6 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/Directory.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/ShaderProgramManager.hpp>
 #include <cstring>
@@ -24,9 +27,9 @@ namespace
 			switch (params.target)
 			{
 				case nzShaderTarget_FullscreenQuad:
-					h |= (params.fullscreenQuad.alphaMapping    << 10) | // 1 bit
-					     (params.fullscreenQuad.alphaTest       << 11) | // 1 bit
-					     (params.fullscreenQuad.diffuseMapping  << 12);  // 1 bit
+					h |= (params.fullscreenQuad.alphaMapping   << 10) | // 1 bit
+					     (params.fullscreenQuad.alphaTest      << 11) | // 1 bit
+					     (params.fullscreenQuad.diffuseMapping << 12);  // 1 bit
 					break;
 
 				case nzShaderTarget_Model:
@@ -41,6 +44,12 @@ namespace
 					break;
 
 				case nzShaderTarget_None:
+					break;
+
+				case nzShaderTarget_Sprite:
+					h |= (params.sprite.alphaMapping   << 10) | // 1 bit
+					     (params.sprite.alphaTest      << 11) | // 1 bit
+					     (params.sprite.diffuseMapping << 12);  // 1 bit
 					break;
 			}
 
@@ -65,6 +74,9 @@ namespace
 
 				case nzShaderTarget_None:
 					return true;
+
+				case nzShaderTarget_Sprite:
+					return std::memcmp(&first.sprite, &second.sprite, sizeof(NzShaderProgramManagerParams::Sprite)) == 0;
 			}
 
 			return false;
@@ -72,12 +84,15 @@ namespace
 	};
 
 	std::unordered_map<NzShaderProgramManagerParams, NzShaderProgramRef, ParamsHash, ParamsEquality> s_programs;
+	NzString s_cacheDirectory("shaderCache");
 	NzString s_inKW;
 	NzString s_outKW;
 	NzString s_fragmentColorKW;
 	NzString s_textureLookupKW;
+	bool s_cacheEnabled = false;
 	bool s_earlyFragmentTest;
 	bool s_glsl140;
+	//bool s_loadCachedPrograms = true;
 	unsigned int s_glslVersion;
 }
 
@@ -86,8 +101,68 @@ const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerP
 	auto it = s_programs.find(params);
 	if (it == s_programs.end())
 	{
-		// Alors nous gébérons le programme
-		NzShaderProgram* program = GenerateProgram(params);
+		// Alors nous générons le programme
+		std::unique_ptr<NzShaderProgram> program;
+
+		if (s_cacheEnabled)
+		{
+			NzString programFileName = NzNumberToString(ParamsHash()(params), 36) + ".nsb"; // Nazara Shader Binary, très original, je sais
+			NazaraDebug("Checking cache for program file \"" + programFileName + "\"...");
+
+			NzFile shaderFile(s_cacheDirectory + NAZARA_DIRECTORY_SEPARATOR + programFileName);
+			if (shaderFile.Open(NzFile::ReadOnly))
+			{
+				NazaraDebug("File found");
+
+				unsigned int size = shaderFile.GetSize();
+
+				NzByteArray binary;
+				binary.Resize(size);
+
+				if (shaderFile.Read(&binary[0], size) != size)
+				{
+					NazaraError("Failed to read program binary");
+					return false;
+				}
+
+				shaderFile.Close();
+
+				program.reset(new NzShaderProgram);
+				if (!program->LoadFromBinary(binary))
+				{
+					NazaraWarning("Program \"" + programFileName + "\" loading failed, this is mostly due to a driver/video card "
+					              "update or a file corruption, regenerating program...");
+
+					program.reset(GenerateProgram(params));
+				}
+			}
+			else
+			{
+				if (shaderFile.Exists())
+					NazaraWarning("Program file exists but couldn't be opened");
+
+				program.reset(GenerateProgram(params));
+				if (program)
+				{
+					if (program->IsBinaryRetrievable())
+					{
+						NazaraDebug("Program \"" + programFileName + "\" (re)generated, saving it into program cache directory...");
+
+						NzByteArray programBinary = program->GetBinary();
+						if (!programBinary.IsEmpty())
+						{
+							if (!shaderFile.Open(NzFile::Truncate | NzFile::WriteOnly) || !shaderFile.Write(programBinary))
+								NazaraWarning("Failed to save program binary to file \"" + programFileName + "\": " + NzGetLastSystemError());
+						}
+						else
+							NazaraWarning("Failed to retrieve shader program binary");
+					}
+				}
+			}
+		}
+		else
+			program.reset(GenerateProgram(params));
+
 		if (!program)
 		{
 			NazaraWarning("Failed to build program, using default one...");
@@ -96,12 +171,10 @@ const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerP
 			defaultParams.flags = params.flags;
 			defaultParams.target = nzShaderTarget_None;
 
-			program = s_programs[defaultParams]; // Shader par défaut
+			program.reset(s_programs[defaultParams]); // Shader par défaut
 		}
 
-		s_programs[params] = program;
-
-		return program;
+		return program.release();
 	}
 	else
 		return it->second;
@@ -125,13 +198,14 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 	source += NzString::Number(s_glslVersion);
 	source += "\n\n";
 
-	if (s_earlyFragmentTest)
-		source += "layout(early_fragment_tests) in;" "\n\n";
-
 	switch (params.target)
 	{
 		case nzShaderTarget_FullscreenQuad:
 		{
+			// "discard" ne s'entend pas bien avec les early fragment tests
+			if (s_earlyFragmentTest && !params.fullscreenQuad.alphaMapping)
+				source += "layout(early_fragment_tests) in;" "\n\n";
+
 			/********************Entrant********************/
 			if (params.fullscreenQuad.alphaMapping || params.fullscreenQuad.diffuseMapping)
 				source += s_inKW + " vec2 vTexCoord;" "\n\n";
@@ -162,23 +236,17 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 			if (params.fullscreenQuad.diffuseMapping)
 				source += '*' + s_textureLookupKW + "(MaterialDiffuseMap, vTexCoord)";
 
-			source += ";" "\n"
-			          "\t" "float fragmentAlpha = ";
-
-			if (params.fullscreenQuad.diffuseMapping)
-				source += "fragmentColor.a";
-			else
-				source += "MaterialDiffuse.a";
+			source += ";" "\n";
 
 			if (params.fullscreenQuad.alphaMapping)
-				source += '*' + s_textureLookupKW + "(MaterialAlphaMap, vTexCoord).r";
+				source += "fragmentColor.a *= " + s_textureLookupKW + "(MaterialAlphaMap, vTexCoord).r";
 
 			source += ";" "\n";
 
 			if (params.fullscreenQuad.alphaMapping)
 			{
-				source += "if (fragmentAlpha < MaterialAlphaThreshold)" "\n"
-						  "\t" "discard;" "\n";
+				source += "\t" "if (fragmentColor.a < MaterialAlphaThreshold)" "\n"
+						  "\t\t" "discard;" "\n";
 			}
 
 			source += "\t" "RenderTarget0 = fragmentColor;" "\n"
@@ -190,6 +258,10 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 		{
 			//bool parallaxMapping = (params.model.lighting && params.model.parallaxMapping);
 			bool uvMapping = (params.model.alphaMapping || params.model.diffuseMapping || params.model.normalMapping || params.model.specularMapping);
+
+			// "discard" ne s'entend pas bien avec les early fragment tests
+			if (s_earlyFragmentTest && !params.model.alphaMapping)
+				source += "layout(early_fragment_tests) in;" "\n\n";
 
 			if (params.model.lighting)
 			{
@@ -235,7 +307,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 				          "\t" "vec2 parameters3;" "\n"
 				          "};" "\n\n"
 
-				          "uniform vec3 CameraPosition;" "\n"
+				          "uniform vec3 EyePosition;" "\n"
 				          "uniform Light Lights[3];" "\n"
 				          "uniform vec4 MaterialAmbient;" "\n";
 			}
@@ -298,8 +370,8 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 			if (params.model.alphaTest)
 			{
-				source += "if (diffuseColor.a < MaterialAlphaThreshold)" "\n"
-						  "\t" "discard;" "\n";
+				source += "\t" "if (fragmentColor.a < MaterialAlphaThreshold)" "\n"
+						  "\t\t" "discard;" "\n";
 			}
 
 			if (params.model.lighting)
@@ -318,7 +390,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 				source += "\t" "if (MaterialShininess > 0.0)" "\n"
 				          "\t" "{" "\n"
-				          "\t\t" "vec3 eyeVec = normalize(CameraPosition - vWorldPos);" "\n\n"
+				          "\t\t" "vec3 eyeVec = normalize(EyePosition - vWorldPos);" "\n\n"
 
 				          "\t\t" "for (int i = 0; i < 3; ++i)" "\n"
 				          "\t\t" "{" "\n";
@@ -551,6 +623,9 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_None:
 		{
+			if (s_earlyFragmentTest)
+				source += "layout(early_fragment_tests) in;" "\n\n";
+
 			/********************Sortant********************/
 			if (s_glsl140)
 				source += "out vec4 RenderTarget0;" "\n\n";
@@ -563,6 +638,60 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 			          "{" "\n";
 			source += '\t' + s_fragmentColorKW + " = MaterialDiffuse;" "\n";
 			source += "}" "\n";
+			break;
+		}
+
+		case nzShaderTarget_Sprite:
+		{
+			// "discard" ne s'entend pas bien avec les early fragment tests
+			if (s_earlyFragmentTest && !params.sprite.alphaMapping)
+				source += "layout(early_fragment_tests) in;" "\n\n";
+
+			/********************Entrant********************/
+			if (params.sprite.alphaMapping || params.sprite.diffuseMapping)
+				source += s_inKW + " vec2 vTexCoord;" "\n\n";
+
+			/********************Sortant********************/
+			if (s_glsl140)
+				source += "out vec4 RenderTarget0;" "\n\n";
+
+			/********************Uniformes********************/
+			if (params.sprite.alphaMapping)
+				source += "uniform sampler2D MaterialAlphaMap;" "\n";
+
+			if (params.sprite.alphaTest)
+				source += "uniform float MaterialAlphaThreshold;" "\n";
+
+			source += "uniform vec4 MaterialDiffuse;" "\n";
+
+			if (params.sprite.diffuseMapping)
+				source += "uniform sampler2D MaterialDiffuseMap;" "\n";
+
+			source += '\n';
+
+			/********************Fonctions********************/
+			source += "void main()" "\n"
+			          "{" "\n";
+
+			source += "\t" "vec4 fragmentColor = MaterialDiffuse";
+			if (params.sprite.diffuseMapping)
+				source += '*' + s_textureLookupKW + "(MaterialDiffuseMap, vTexCoord)";
+
+			source += ";" "\n";
+
+			if (params.sprite.alphaMapping)
+				source += "fragmentColor.a *= " + s_textureLookupKW + "(MaterialAlphaMap, vTexCoord).r";
+
+			source += ";" "\n";
+
+			if (params.sprite.alphaMapping)
+			{
+				source += "\t" "if (fragmentColor.a < MaterialAlphaThreshold)" "\n"
+						  "\t\t" "discard;" "\n";
+			}
+
+			source += "\t" "RenderTarget0 = fragmentColor;" "\n"
+					  "}" "\n";
 			break;
 		}
 	}
@@ -754,6 +883,54 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 			source += "}" "\n";
 			break;
 		}
+
+		case nzShaderTarget_Sprite:
+		{
+			bool uvMapping = (params.fullscreenQuad.alphaMapping || params.fullscreenQuad.diffuseMapping);
+
+			/********************Entrant********************/
+			if (params.flags & nzShaderFlags_Instancing)
+				source += s_inKW + " mat4 InstanceData0;" "\n";
+
+			source += s_inKW + " vec3 VertexPosition;" "\n";
+
+			if (uvMapping)
+				source += s_inKW + " vec2 VertexTexCoord;" "\n";
+
+			source += '\n';
+
+			/********************Sortant********************/
+			if (uvMapping)
+				source += s_outKW + " vec2 vTexCoord;" "\n\n";
+
+			/********************Uniformes********************/
+			if (params.flags & nzShaderFlags_Instancing)
+				source += "uniform mat4 ViewProjMatrix;" "\n";
+			else
+				source += "uniform mat4 WorldViewProjMatrix;" "\n";
+
+			source += '\n';
+
+			/********************Code********************/
+			source += "void main()" "\n"
+			          "{" "\n";
+
+			if (params.flags & nzShaderFlags_Instancing)
+				source += "\t" "gl_Position = ViewProjMatrix * InstanceData0 * vec4(VertexPosition, 1.0);" "\n";
+			else
+				source += "\t" "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);" "\n";
+
+			if (uvMapping)
+			{
+				if (params.flags & nzShaderFlags_FlipUVs)
+					source += "\t" "vTexCoord = vec2(VertexTexCoord.x, 1.0 - VertexTexCoord.y);" "\n";
+				else
+					source += "\t" "vTexCoord = VertexTexCoord;" "\n";
+			}
+
+			source += "}" "\n";
+			break;
+		}
 	}
 
 	return source;
@@ -824,6 +1001,54 @@ bool NzShaderProgramManager::Initialize()
 
 		s_programs[params] = program;
 	}
+
+	/*if (s_loadCachedPrograms)
+	{
+		NzDirectory cacheDirectory(s_cacheDirectory);
+		cacheDirectory.SetPattern("*.nsb");
+
+		if (cacheDirectory.Open())
+		{
+			while (cacheDirectory.NextResult(true))
+			{
+				long long hash;
+				if (cacheDirectory.GetResultName().SubStringTo(".nsb", -1, true, false).ToInteger(&hash, 32))
+				{
+					std::size_t hashCode = static_cast<std::size_t>(hash);
+
+					if (s_programs.find(hashCode) == s_programs.end())
+					{
+						NzFile shaderFile(cacheDirectory.GetResultPath());
+						if (shaderFile.Open(NzFile::ReadOnly))
+						{
+							unsigned int size = cacheDirectory.GetResultSize();
+
+							NzByteArray binary;
+							binary.Resize(size);
+
+							if (shaderFile.Read(&binary[0], size) != size)
+							{
+								NazaraError("Failed to read program binary");
+								return false;
+							}
+
+							shaderFile.Close();
+
+							std::unique_ptr<NzShaderProgram> program(new NzShaderProgram);
+							if (program->LoadFromBinary(binary))
+								s_programs[hashCode] = binary.release();
+							else
+								NazaraWarning("Program binary \"" + cacheDirectory.GetResultName() + "\" loading failed, this is mostly due to a driver/video card "
+											  "update or a file corruption, regenerating program...");							}
+					}
+				}
+				else
+					NazaraWarning("Failed to parse program file name (" + cacheDirectory.GetResultName() + ')');
+			}
+		}
+		else if (cacheDirectory.Exists())
+			NazaraWarning("Failed to open shader cache directory");
+	}*/
 
 	return true;
 }

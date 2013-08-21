@@ -198,15 +198,15 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 
 	s_program->SendInteger(s_skyboxLocation, 0);
 
-	NzCamera* camera = scene->GetActiveCamera();
+	NzAbstractViewer* viewer = scene->GetViewer();
 
-	NzMatrix4f skyboxMatrix(camera->GetViewMatrix());
+	NzMatrix4f skyboxMatrix(viewer->GetViewMatrix());
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
-	NzRenderer::SetMatrix(nzMatrixType_Projection, camera->GetProjectionMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
-	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(camera->GetZNear())));
+	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(viewer->GetZNear())));
 	NzRenderer::SetRenderStates(states);
 	NzRenderer::SetShaderProgram(s_program);
 	NzRenderer::SetTexture(0, m_texture);
