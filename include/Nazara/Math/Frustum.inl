@@ -263,64 +263,68 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	// Je me base sur cette page: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
 
 	NzMatrix4f invClipMatrix;
-	clipMatrix.GetInverse(&invClipMatrix);
-	NzVector4f corner;
+	if (clipMatrix.GetInverse(&invClipMatrix))
+	{
+		NzVector4f corner;
 
-	// FarLeftBottom
-	corner.Set(F(-1.0), F(-1.0), F(1.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// FarLeftBottom
+		corner.Set(F(-1.0), F(-1.0), F(1.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_FarLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_FarLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// FarLeftTop
-	corner.Set(F(-1.0), F(1.0), F(1.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// FarLeftTop
+		corner.Set(F(-1.0), F(1.0), F(1.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_FarLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_FarLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// FarRightBottom
-	corner.Set(F(1.0), F(-1.0), F(1.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// FarRightBottom
+		corner.Set(F(1.0), F(-1.0), F(1.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_FarRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_FarRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// FarRightTop
-	corner.Set(F(1.0), F(1.0), F(1.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// FarRightTop
+		corner.Set(F(1.0), F(1.0), F(1.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_FarRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_FarRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// NearLeftBottom
-	corner.Set(F(-1.0), F(-1.0), F(0.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// NearLeftBottom
+		corner.Set(F(-1.0), F(-1.0), F(0.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_NearLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_NearLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// NearLeftTop
-	corner.Set(F(-1.0), F(1.0), F(0.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// NearLeftTop
+		corner.Set(F(-1.0), F(1.0), F(0.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_NearLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_NearLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// NearRightBottom
-	corner.Set(F(1.0), F(-1.0), F(0.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// NearRightBottom
+		corner.Set(F(1.0), F(-1.0), F(0.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_NearRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_NearRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
-	// NearRightTop
-	corner.Set(F(1.0), F(1.0), F(0.0));
-	corner = invClipMatrix.Transform(corner);
-	corner.Normalize();
+		// NearRightTop
+		corner.Set(F(1.0), F(1.0), F(0.0));
+		corner = invClipMatrix.Transform(corner);
+		corner.Normalize();
 
-	m_corners[nzCorner_NearRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzCorner_NearRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+	}
+	else
+		NazaraWarning("Clip matrix is not invertible, failed to compute frustum corners");
 
 	return *this;
 }
