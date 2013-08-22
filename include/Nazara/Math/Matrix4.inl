@@ -322,10 +322,7 @@ bool NzMatrix4<T>::GetInverse(NzMatrix4* dest) const
 		return true;
 	}
 	else
-	{
-		NazaraError("Matrix has no inverse");
 		return false;
-	}
 }
 
 template<typename T>
@@ -421,10 +418,7 @@ bool NzMatrix4<T>::GetInverseAffine(NzMatrix4* dest) const
 		return true;
 	}
 	else
-	{
-		NazaraError("Matrix has no inverse");
 		return false;
-	}
 }
 
 template<typename T>
