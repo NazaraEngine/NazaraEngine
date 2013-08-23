@@ -36,6 +36,8 @@ class NAZARA_API NzLight : public NzSceneNode
 		nzSceneNodeType GetSceneNodeType() const;
 		NzColor GetSpecularColor() const;
 
+		bool IsDrawable() const;
+
 		void SetAmbientColor(const NzColor& ambient);
 		void SetAttenuation(float attenuation);
 		void SetDiffuseColor(const NzColor& diffuse);
