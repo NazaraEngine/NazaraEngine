@@ -20,17 +20,24 @@ class NAZARA_API NzSceneNode : public NzNode
 
 	public:
 		NzSceneNode();
-		NzSceneNode(const NzSceneNode& node);
+		NzSceneNode(const NzSceneNode& sceneNode);
 		virtual ~NzSceneNode();
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;
+
+		void EnableDrawing(bool drawingEnabled);
 
 		virtual const NzBoundingVolumef& GetBoundingVolume() const = 0;
 		nzNodeType GetNodeType() const final;
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
 
+		virtual bool IsDrawable() const = 0;
+		bool IsDrawingEnabled() const;
 		bool IsVisible() const;
+
+		NzSceneNode& operator=(const NzSceneNode& sceneNode);
+		NzSceneNode& operator=(NzSceneNode&& sceneNode);
 
 	protected:
 		virtual void OnParenting(const NzNode* parent) override;
@@ -43,6 +50,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		virtual void Update();
 
 		NzScene* m_scene;
+		bool m_drawingEnabled;
 		bool m_visible;
 
 	private:

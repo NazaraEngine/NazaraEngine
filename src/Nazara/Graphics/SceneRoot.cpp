@@ -31,6 +31,11 @@ nzSceneNodeType NzSceneRoot::GetSceneNodeType() const
 	return nzSceneNodeType_Root;
 }
 
+bool NzSceneRoot::IsDrawable() const
+{
+	return true;
+}
+
 bool NzSceneRoot::FrustumCull(const NzFrustumf& frustum)
 {
 	NazaraUnused(frustum);

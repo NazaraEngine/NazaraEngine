@@ -27,6 +27,8 @@ class NAZARA_API NzSprite : public NzSceneNode
 		const NzVector2f& GetSize() const;
 		const NzRectf& GetTextureCoords() const;
 
+		bool IsDrawable() const;
+
 		void SetMaterial(NzMaterial* material);
 		void SetSize(const NzVector2f& size);
 		void SetTextureCoords(const NzRectf& coords);
