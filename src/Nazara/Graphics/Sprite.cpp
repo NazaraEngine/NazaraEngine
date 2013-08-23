@@ -66,6 +66,11 @@ const NzRectf& NzSprite::GetTextureCoords() const
 	return m_textureCoords;
 }
 
+bool NzSprite::IsDrawable() const
+{
+	return m_material != nullptr;
+}
+
 void NzSprite::SetMaterial(NzMaterial* material)
 {
 	m_material = material;
@@ -132,7 +137,7 @@ void NzSprite::Unregister()
 void NzSprite::UpdateBoundingVolume() const
 {
 	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0, m_size.x, m_size.y, 1.f);
+		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0, m_size.x, m_size.y, 0.f);
 
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
