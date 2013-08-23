@@ -17,8 +17,6 @@ class NzHardwareBuffer : public NzAbstractBuffer
 		NzHardwareBuffer(NzBuffer* parent, nzBufferType type);
 		~NzHardwareBuffer();
 
-		void Bind();
-
 		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
@@ -28,6 +26,10 @@ class NzHardwareBuffer : public NzAbstractBuffer
 
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
 		bool Unmap();
+
+		// Fonctions OpenGL
+		void Bind() const;
+		unsigned int GetOpenGLID() const;
 
 	private:
 		GLuint m_buffer;

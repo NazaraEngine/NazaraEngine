@@ -342,10 +342,19 @@ void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id
 
 	if (s_contextStates->texturesBinding[textureUnit] != id)
 	{
-		SetTextureUnit(textureUnit);
+		BindTextureUnit(textureUnit);
 
 		glBindTexture(TextureTarget[type], id);
 		s_contextStates->texturesBinding[textureUnit] = id;
+	}
+}
+
+void NzOpenGL::BindTextureUnit(unsigned int textureUnit)
+{
+	if (s_contextStates->textureUnit != textureUnit)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureUnit);
+		s_contextStates->textureUnit = textureUnit;
 	}
 }
 
@@ -422,6 +431,32 @@ GLuint NzOpenGL::GetCurrentProgram()
 	#endif
 
 	return s_contextStates->currentProgram;
+}
+
+GLuint NzOpenGL::GetCurrentTexture()
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->texturesBinding[s_contextStates->textureUnit];
+}
+
+GLuint NzOpenGL::GetCurrentTexture(unsigned int textureUnit)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->texturesBinding[textureUnit];
 }
 
 NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
@@ -1046,13 +1081,69 @@ bool NzOpenGL::IsSupported(const NzString& string)
 	return s_openGLextensionSet.find(string) != s_openGLextensionSet.end();
 }
 
+void NzOpenGL::SetBuffer(nzBufferType type, GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->buffersBinding[type] = id;
+}
+
+void NzOpenGL::SetProgram(GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentProgram = id;
+}
+
+void NzOpenGL::SetTexture(GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->texturesBinding[s_contextStates->textureUnit] = id;
+}
+
+void NzOpenGL::SetTexture(unsigned int textureUnit, GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->texturesBinding[textureUnit] = id;
+}
+
 void NzOpenGL::SetTextureUnit(unsigned int textureUnit)
 {
-	if (s_contextStates->textureUnit != textureUnit)
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
 	{
-		glActiveTexture(GL_TEXTURE0 + textureUnit);
-		s_contextStates->textureUnit = textureUnit;
+		NazaraError("No context activated");
+		return;
 	}
+	#endif
+
+	s_contextStates->textureUnit = textureUnit;
 }
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)

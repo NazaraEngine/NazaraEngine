@@ -66,19 +66,6 @@ m_parent(parent)
 
 NzHardwareBuffer::~NzHardwareBuffer() = default;
 
-void NzHardwareBuffer::Bind()
-{
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return;
-	}
-	#endif
-
-	glBindBuffer(NzOpenGL::BufferTarget[m_type], m_buffer);
-}
-
 bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
 {
 	NzContext::EnsureContext();
@@ -177,4 +164,14 @@ bool NzHardwareBuffer::Unmap()
 	}
 
 	return true;
+}
+
+void NzHardwareBuffer::Bind() const
+{
+	NzOpenGL::BindBuffer(m_type, m_buffer);
+}
+
+unsigned int NzHardwareBuffer::GetOpenGLID() const
+{
+	return m_buffer;
 }
