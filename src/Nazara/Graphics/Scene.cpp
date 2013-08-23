@@ -167,6 +167,11 @@ void NzScene::SetViewer(NzAbstractViewer* viewer)
 	m_impl->viewer = viewer;
 }
 
+void NzScene::SetViewer(NzAbstractViewer& viewer)
+{
+	SetViewer(&viewer);
+}
+
 void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
 {
 	m_impl->updatePerSecond = updatePerSecond;
