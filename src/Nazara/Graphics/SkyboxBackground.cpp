@@ -116,6 +116,7 @@ namespace
 	NzRenderStates BuildRenderStates()
 	{
 		NzRenderStates states;
+		states.parameters[nzRendererParameter_DepthBuffer] = false;
 		states.parameters[nzRendererParameter_FaceCulling] = true;
 		states.faceCulling = nzFaceCulling_Front;
 

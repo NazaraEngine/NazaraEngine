@@ -8,6 +8,17 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+namespace
+{
+	NzRenderStates BuildRenderStates()
+	{
+		NzRenderStates states;
+		states.parameters[nzRendererParameter_DepthBuffer] = false;
+
+		return states;
+	}
+}
+
 NzColorBackground::NzColorBackground(const NzColor& color) :
 m_color(color)
 {
@@ -25,7 +36,7 @@ void NzColorBackground::Draw(const NzScene* scene) const
 {
 	NazaraUnused(scene);
 
-	static NzRenderStates states;
+	static NzRenderStates states(BuildRenderStates());
 
 	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
 
