@@ -138,7 +138,6 @@ int main()
 	NzCamera camera;
 	camera.SetPosition(0.f, 0.25f, 2.f); // On place la caméra à l'écart
 	camera.SetRotation(camAngles);
-	camera.SetParent(scene); // On l'attache également à la scène
 
 	// Et on n'oublie pas de définir les plans délimitant le champs de vision
 	// (Seul ce qui se trouvera entre les deux plans sera rendu)
@@ -150,7 +149,7 @@ int main()
 	camera.SetZNear(0.1f);
 
 	// On indique à la scène que le viewer (Le point de vue) sera la caméra
-	scene.SetViewer(&camera);
+	scene.SetViewer(camera);
 
 	// Attention que le ratio entre les deux (zFar/zNear) doit rester raisonnable, dans le cas contraire vous risquez un phénomène
 	// de "Z-Fighting" (Impossibilité de déduire quelle surface devrait apparaître en premier) sur les surfaces éloignées.
