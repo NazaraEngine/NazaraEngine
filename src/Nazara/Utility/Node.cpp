@@ -682,7 +682,7 @@ void NzNode::UpdateDerived() const
 
 		if (m_inheritRotation)
 		{
-			m_derivedRotation = m_initialRotation * m_parent->m_derivedRotation * m_rotation;
+			m_derivedRotation = m_parent->m_derivedRotation * m_initialRotation * m_rotation;
 			m_derivedRotation.Normalize();
 		}
 		else
