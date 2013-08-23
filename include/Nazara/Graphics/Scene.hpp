@@ -51,6 +51,7 @@ class NAZARA_API NzScene
 		void SetBackground(NzAbstractBackground* background);
 		void SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique);
 		void SetViewer(NzAbstractViewer* viewer);
+		void SetViewer(NzAbstractViewer& viewer);
 		void SetUpdatePerSecond(unsigned int updatePerSecond);
 
 		void UnregisterForUpdate(NzUpdatable* object);
