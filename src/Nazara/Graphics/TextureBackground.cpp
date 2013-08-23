@@ -8,6 +8,17 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+namespace
+{
+	NzRenderStates BuildRenderStates()
+	{
+		NzRenderStates states;
+		states.parameters[nzRendererParameter_DepthBuffer] = false;
+
+		return states;
+	}
+}
+
 NzTextureBackground::NzTextureBackground()
 {
 	NzShaderProgramManagerParams params;
@@ -30,7 +41,7 @@ void NzTextureBackground::Draw(const NzScene* scene) const
 {
 	NazaraUnused(scene);
 
-	static NzRenderStates states;
+	static NzRenderStates states(BuildRenderStates());
 
 	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), NzColor::White);
 	m_program->SendInteger(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap), 0);
