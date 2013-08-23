@@ -1258,7 +1258,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 					if (!unit.textureUpdated)
 					{
-						NzOpenGL::SetTextureUnit(i);
+						NzOpenGL::BindTextureUnit(i);
 						unit.texture->Bind();
 
 						unit.textureUpdated = true;
@@ -1277,7 +1277,7 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					NzOpenGL::SetTextureUnit(i);
+					NzOpenGL::BindTextureUnit(i);
 
 					unit.texture->Bind();
 					unit.textureUpdated = true;
@@ -1361,7 +1361,7 @@ bool NzRenderer::EnsureStateUpdate()
 				unsigned int stride;
 
 				NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
-				vertexBufferImpl->Bind();
+				glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], vertexBufferImpl->GetOpenGLID());
 
 				bufferOffset = s_vertexBuffer->GetStartOffset();
 				vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
@@ -1390,7 +1390,7 @@ bool NzRenderer::EnsureStateUpdate()
 				if (s_instancing)
 				{
 					NzHardwareBuffer* instanceBufferImpl = static_cast<NzHardwareBuffer*>(s_instanceBuffer.GetBuffer()->GetImpl());
-					instanceBufferImpl->Bind();
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], instanceBufferImpl->GetOpenGLID());
 
 					bufferOffset = s_instanceBuffer.GetStartOffset();
 					vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
@@ -1427,7 +1427,7 @@ bool NzRenderer::EnsureStateUpdate()
 				if (s_indexBuffer)
 				{
 					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
-					indexBufferImpl->Bind();
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], indexBufferImpl->GetOpenGLID());
 				}
 				else
 					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
@@ -1442,6 +1442,10 @@ bool NzRenderer::EnsureStateUpdate()
 				// En cas de non-support des VAOs, les attributs doivent être respécifiés à chaque frame
 				s_updateFlags &= ~Update_VAO;
 			}
+
+			// On invalide les bindings des buffers (pour éviter des bugs)
+			NzOpenGL::SetBuffer(nzBufferType_Index, 0);
+			NzOpenGL::SetBuffer(nzBufferType_Vertex, 0);
 		}
 
 		#ifdef NAZARA_DEBUG
