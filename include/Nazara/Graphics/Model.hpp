@@ -45,7 +45,6 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		void AdvanceAnimation(float elapsedTime);
 
 		void EnableAnimation(bool animation);
-		void EnableDraw(bool draw);
 
 		NzAnimation* GetAnimation() const;
 		const NzBoundingVolumef& GetBoundingVolume() const;
@@ -65,7 +64,6 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 
 		bool IsAnimationEnabled() const;
 		bool IsDrawable() const;
-		bool IsDrawEnabled() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params = NzModelParameters());
@@ -103,7 +101,6 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		const NzSequence* m_currentSequence;
 		bool m_animationEnabled;
 		mutable bool m_boundingVolumeUpdated;
-		bool m_drawEnabled;
 		float m_interpolation;
 		unsigned int m_currentFrame;
 		unsigned int m_matCount;

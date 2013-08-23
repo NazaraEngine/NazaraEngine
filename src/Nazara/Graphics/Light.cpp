@@ -171,6 +171,11 @@ NzColor NzLight::GetSpecularColor() const
 	return m_specularColor;
 }
 
+bool NzLight::IsDrawable() const
+{
+	return true;
+}
+
 void NzLight::SetAmbientColor(const NzColor& ambient)
 {
 	m_ambientColor = ambient;

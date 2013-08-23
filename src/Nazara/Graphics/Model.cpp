@@ -26,7 +26,6 @@ NzModel::NzModel() :
 m_currentSequence(nullptr),
 m_animationEnabled(true),
 m_boundingVolumeUpdated(true),
-m_drawEnabled(true),
 m_matCount(0),
 m_skin(0),
 m_skinCount(1)
@@ -40,7 +39,6 @@ m_boundingVolume(model.m_boundingVolume),
 m_currentSequence(model.m_currentSequence),
 m_animationEnabled(model.m_animationEnabled),
 m_boundingVolumeUpdated(model.m_boundingVolumeUpdated),
-m_drawEnabled(model.m_drawEnabled),
 m_interpolation(model.m_interpolation),
 m_currentFrame(model.m_currentFrame),
 m_matCount(model.m_matCount),
@@ -114,11 +112,6 @@ void NzModel::AdvanceAnimation(float elapsedTime)
 void NzModel::EnableAnimation(bool animation)
 {
 	m_animationEnabled = animation;
-}
-
-void NzModel::EnableDraw(bool draw)
-{
-	m_drawEnabled = draw;
 }
 
 NzAnimation* NzModel::GetAnimation() const
@@ -278,11 +271,6 @@ bool NzModel::IsAnimationEnabled() const
 bool NzModel::IsDrawable() const
 {
 	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
-}
-
-bool NzModel::IsDrawEnabled() const
-{
-	return m_drawEnabled;
 }
 
 bool NzModel::LoadFromFile(const NzString& filePath, const NzModelParameters& params)
@@ -590,7 +578,6 @@ NzModel& NzModel::operator=(const NzModel& node)
 	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
 	m_currentFrame = node.m_currentFrame;
 	m_currentSequence = node.m_currentSequence;
-	m_drawEnabled = node.m_drawEnabled;
 	m_interpolation = node.m_interpolation;
 	m_matCount = node.m_matCount;
 	m_materials = node.m_materials;
@@ -609,40 +596,31 @@ NzModel& NzModel::operator=(NzModel&& node)
 {
 	NzSceneNode::operator=(node);
 
+	// Ressources
 	m_animation = std::move(node.m_animation);
+	m_mesh = std::move(node.m_mesh);
+	m_materials = std::move(node.m_materials);
+
+	if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
+		m_skeleton = std::move(node.m_skeleton);
+
+	// Paramètres
 	m_animationEnabled = node.m_animationEnabled;
 	m_boundingVolume = node.m_boundingVolume;
 	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
 	m_currentFrame = node.m_currentFrame;
 	m_currentSequence = node.m_currentSequence;
-	m_drawEnabled = node.m_drawEnabled;
 	m_interpolation = node.m_interpolation;
 	m_matCount = node.m_matCount;
-	m_materials = std::move(node.m_materials);
-	m_mesh = std::move(node.m_mesh);
 	m_nextFrame = node.m_nextFrame;
 	m_skin = node.m_skin;
 	m_skinCount = node.m_skinCount;
-
-	if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
-		m_skeleton = std::move(node.m_skeleton);
 
 	return *this;
 }
 
 bool NzModel::FrustumCull(const NzFrustumf& frustum)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!IsDrawable())
-	{
-		NazaraError("Model is not drawable");
-		return false;
-	}
-	#endif
-
-	if (!m_drawEnabled)
-		return false;
-
 	if (!m_boundingVolumeUpdated)
 		UpdateBoundingVolume();
 
