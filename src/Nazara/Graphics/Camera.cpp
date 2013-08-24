@@ -62,6 +62,11 @@ NzVector3f NzCamera::GetEyePosition() const
 	return GetPosition(nzCoordSys_Global);
 }
 
+NzVector3f NzCamera::GetForward() const
+{
+	return NzNode::GetForward();
+}
+
 float NzCamera::GetFOV() const
 {
 	return m_fov;

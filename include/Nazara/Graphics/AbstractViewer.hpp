@@ -26,6 +26,7 @@ class NAZARA_API NzAbstractViewer
 
 		virtual float GetAspectRatio() const = 0;
 		virtual NzVector3f GetEyePosition() const = 0;
+		virtual NzVector3f GetForward() const = 0;
 		virtual const NzFrustumf& GetFrustum() const = 0;
 		virtual const NzMatrix4f& GetProjectionMatrix() const = 0;
 		virtual const NzRenderTarget* GetTarget() const = 0;

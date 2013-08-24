@@ -29,6 +29,7 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 
 		float GetAspectRatio() const;
 		NzVector3f GetEyePosition() const;
+		NzVector3f GetForward() const;
 		float GetFOV() const;
 		const NzFrustumf& GetFrustum() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
