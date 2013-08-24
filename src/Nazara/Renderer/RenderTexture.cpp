@@ -645,24 +645,17 @@ void NzRenderTexture::Desactivate() const
 bool NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
 {
 	if (resource == m_impl->context)
-	{
 		// Notre contexte va être détruit, libérons la RenderTexture pour éviter un leak
 		Destroy();
-
-		return false;
-	}
-	else
+	else // Sinon, c'est une texture
 	{
-		// Sinon, c'est une texture
-		resource->RemoveResourceListener(this);
-
 		// La ressource n'est plus, du coup nous mettons à jour
 		Attachment& attachement = m_impl->attachements[index];
 		attachement.isUsed = false;
 
 		m_impl->checked = false;
 		m_impl->drawBuffersUpdated = false;
-
-		return true;
 	}
+
+	return false;
 }
