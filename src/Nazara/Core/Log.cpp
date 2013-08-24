@@ -10,7 +10,7 @@
 #include <ctime>
 #include <cstring>
 
-#if NAZARA_CORE_DUPLICATE_TO_COUT
+#if NAZARA_CORE_DUPLICATE_LOG_TO_COUT
 #include <cstdio>
 #endif
 
@@ -130,7 +130,7 @@ void NzLog::Write(const NzString& string)
 		if (m_file->IsOpen())
 			m_file->Write(line);
 
-		#if NAZARA_CORE_DUPLICATE_TO_COUT
+		#if NAZARA_CORE_DUPLICATE_LOG_TO_COUT
 		std::fputs(line.GetConstBuffer(), stdout);
 		#endif
 	}

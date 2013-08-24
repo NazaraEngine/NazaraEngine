@@ -29,11 +29,14 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-// Appelle exit dès qu'une assertion est invalide
-#define NAZARA_CORE_EXIT_ON_ASSERT_FAILURE 1
+// Duplique la sortie du log sur le flux de sortie standard (cout)
+#define NAZARA_CORE_DUPLICATE_LOG_TO_COUT 0
 
 // Teste les assertions
 #define NAZARA_CORE_ENABLE_ASSERTS 0
+
+// Appelle exit dès qu'une assertion est invalide
+#define NAZARA_CORE_EXIT_ON_ASSERT_FAILURE 1
 
 // Taille du buffer lors d'une lecture complète d'un fichier (ex: Hash)
 #define NAZARA_CORE_FILE_BUFFERSIZE 4096
@@ -46,9 +49,6 @@
 
 // Précision des réels lors de la transformation en texte (Max. chiffres après la virgule)
 #define NAZARA_CORE_REAL_PRECISION 6
-
-// Duplique la sortie du log sur le flux de sortie standard (cout)
-#define NAZARA_CORE_DUPLICATE_TO_COUT 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_CORE_SAFE 1
