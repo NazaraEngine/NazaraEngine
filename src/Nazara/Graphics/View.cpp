@@ -60,6 +60,11 @@ NzVector3f NzView::GetEyePosition() const
 	return GetPosition(nzCoordSys_Global);
 }
 
+NzVector3f NzView::GetForward() const
+{
+	return NzNode::GetForward();
+}
+
 const NzFrustumf& NzView::GetFrustum() const
 {
 	if (!m_frustumUpdated)
