@@ -249,7 +249,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 						  "\t\t" "discard;" "\n";
 			}
 
-			source += "\t" "RenderTarget0 = fragmentColor;" "\n"
+			source += "\t" + s_fragmentColorKW + " = fragmentColor;" "\n"
 					  "}" "\n";
 			break;
 		}
@@ -690,7 +690,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 						  "\t\t" "discard;" "\n";
 			}
 
-			source += "\t" "RenderTarget0 = fragmentColor;" "\n"
+			source += "\t" + s_fragmentColorKW + " = fragmentColor;" "\n"
 					  "}" "\n";
 			break;
 		}
