@@ -76,9 +76,9 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 
 void NzForwardRenderTechnique::Draw(const NzScene* scene)
 {
-	// Rendu en projection perspective (3D)
 	m_directionnalLights.SetLights(&m_renderQueue.directionnalLights[0], m_renderQueue.directionnalLights.size());
 	m_lights.SetLights(&m_renderQueue.lights[0], m_renderQueue.lights.size());
+	m_renderQueue.Sort(scene->GetViewer());
 
 	if (!m_renderQueue.opaqueModels.empty())
 		DrawOpaqueModels(scene, m_renderQueue.opaqueModels);
@@ -167,6 +167,8 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene, NzForwardR
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
 
+	unsigned int lightCount = 0;
+
 	for (auto& matIt : opaqueModels)
 	{
 		bool& used = std::get<0>(matIt.second);
@@ -187,8 +189,6 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene, NzForwardR
 
 				// On commence par récupérer le programme du matériau
 				const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, (instancing) ? nzShaderFlags_Instancing : 0);
-
-				unsigned int lightCount = 0;
 
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 				if (program != lastProgram)
@@ -404,18 +404,17 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene, NzFor
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
+	unsigned int lightCount = 0;
 
 	for (const std::pair<unsigned int, bool>& pair : transparentModels)
 	{
 		// Matériau
-		NzMaterial* material = (pair.second) ?
-							   m_renderQueue.transparentStaticModels[pair.first].material :
-							   m_renderQueue.transparentSkeletalModels[pair.first].material;
+		const NzMaterial* material = (pair.second) ?
+		                              m_renderQueue.transparentStaticModels[pair.first].material :
+		                              m_renderQueue.transparentSkeletalModels[pair.first].material;
 
 		// On commence par récupérer le shader du matériau
 		const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, 0);
-
-		unsigned int lightCount = 0;
 
 		// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
 		if (program != lastProgram)
@@ -443,7 +442,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene, NzFor
 			NzForwardRenderQueue::TransparentStaticModel& staticModel = m_renderQueue.transparentStaticModels[pair.first];
 
 			const NzMatrix4f& matrix = staticModel.transformMatrix;
-			NzStaticMesh* mesh = staticModel.mesh;
+			const NzStaticMesh* mesh = staticModel.mesh;
 
 			const NzIndexBuffer* indexBuffer = mesh->GetIndexBuffer();
 			const NzVertexBuffer* vertexBuffer = mesh->GetVertexBuffer();
