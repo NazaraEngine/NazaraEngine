@@ -203,6 +203,7 @@ void NzView::ApplyView() const
 
 	NzRenderer::SetMatrix(nzMatrixType_Projection, m_projectionMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_View, m_viewMatrix);
+	NzRenderer::SetTarget(m_target);
 	NzRenderer::SetViewport(m_viewport);
 }
 
