@@ -14,8 +14,6 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NzLightManager;
-
 class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 {
 	public:
