@@ -16,7 +16,7 @@
 #include <map>
 #include <tuple>
 
-class NzCamera;
+class NzAbstractViewer;
 class NzMaterial;
 class NzSkeletalMesh;
 class NzStaticMesh;
@@ -33,10 +33,11 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		void AddLight(const NzLight* light);
 		void AddModel(const NzModel* model);
 		void AddSprite(const NzSprite* sprite);
+		void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix);
 
 		void Clear(bool fully);
 
-		void Sort(const NzCamera& camera);
+		void Sort(const NzAbstractViewer* viewer);
 
 	private:
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
@@ -56,7 +57,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		{
 			NzMatrix4f transformMatrix;
 			NzSpheref boundingSphere;
-			NzMaterial* material;
+			const NzMaterial* material;
 		};
 
 		struct TransparentSkeletalModel : public TransparentModel
@@ -66,7 +67,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct TransparentStaticModel : public TransparentModel
 		{
-			NzStaticMesh* mesh;
+			const NzStaticMesh* mesh;
 		};
 
 

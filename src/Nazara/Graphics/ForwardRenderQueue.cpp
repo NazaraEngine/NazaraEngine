@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
-#include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -94,81 +94,7 @@ void NzForwardRenderQueue::AddModel(const NzModel* model)
 		NzSubMesh* subMesh = mesh->GetSubMesh(i);
 		NzMaterial* material = model->GetMaterial(subMesh->GetMaterialIndex());
 
-		switch (subMesh->GetAnimationType())
-		{
-			case nzAnimationType_Skeletal:
-			{
-				///TODO
-				/*
-				** Il y a ici deux choses importantes à gérer:
-				** -Pour commencer, la mise en cache de std::vector suffisamment grands pour contenir le résultat du skinning
-				**  l'objectif ici est d'éviter une allocation à chaque frame, donc de réutiliser un tableau existant
-				**  Note: Il faudrait évaluer aussi la possibilité de conserver le buffer d'une frame à l'autre.
-				**        Ceci permettant de ne pas skinner inutilement ce qui ne bouge pas, ou de skinner partiellement un mesh.
-				**        Il faut cependant voir où stocker ce set de buffers, qui doit être communs à toutes les RQ d'une même scène.
-				**
-				** -Ensuite, la possibilité de regrouper les modèles skinnés identiques, une centaine de soldats marchant au pas
-				**  ne devrait requérir qu'un skinning.
-				*/
-				NazaraError("Skeletal mesh not supported yet, sorry");
-				break;
-			}
-
-			case nzAnimationType_Static:
-			{
-				NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
-				if (material->IsEnabled(nzRendererParameter_Blend))
-				{
-					unsigned int index = transparentStaticModels.size();
-					transparentStaticModels.resize(index+1);
-
-					TransparentStaticModel& data = transparentStaticModels.back();
-					data.boundingSphere = staticMesh->GetAABB().GetSquaredBoundingSphere();
-					data.material = material;
-					data.mesh = staticMesh;
-					data.transformMatrix = transformMatrix;
-
-					transparentsModels.push_back(std::make_pair(index, true));
-				}
-				else
-				{
-					auto pair = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type()));
-					if (pair.second)
-						material->AddResourceListener(this, ResourceType_Material);
-
-					bool& used = std::get<0>(pair.first->second);
-					bool& enableInstancing = std::get<1>(pair.first->second);
-
-					used = true;
-
-					auto& meshMap = std::get<3>(pair.first->second);
-
-					auto pair2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type()));
-					if (pair2.second)
-					{
-						staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
-
-						NzSpheref& squaredBoundingSphere = pair2.first->second.first;
-						squaredBoundingSphere.Set(staticMesh->GetAABB().GetSquaredBoundingSphere());
-						///TODO: Écouter le StaticMesh pour repérer tout changement de géométrie
-					}
-
-					std::vector<StaticData>& staticDataContainer = pair2.first->second.second;
-
-					unsigned int instanceCount = staticDataContainer.size() + 1;
-
-					// As-t-on suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
-					if (instanceCount >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-						enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
-
-					staticDataContainer.resize(instanceCount);
-					StaticData& data = staticDataContainer.back();
-					data.transformMatrix = transformMatrix;
-				}
-
-				break;
-			}
-		}
+		AddSubMesh(material, subMesh, transformMatrix);
 	}
 }
 
@@ -180,9 +106,95 @@ void NzForwardRenderQueue::AddSprite(const NzSprite* sprite)
 		NazaraError("Invalid sprite");
 		return;
 	}
+
+	if (!sprite->IsDrawable())
+	{
+		NazaraError("Sprite is not drawable");
+		return;
+	}
 	#endif
 
 	sprites[sprite->GetMaterial()].push_back(sprite);
+}
+
+void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix)
+{
+	switch (subMesh->GetAnimationType())
+	{
+		case nzAnimationType_Skeletal:
+		{
+			///TODO
+			/*
+			** Il y a ici deux choses importantes à gérer:
+			** -Pour commencer, la mise en cache de std::vector suffisamment grands pour contenir le résultat du skinning
+			**  l'objectif ici est d'éviter une allocation à chaque frame, donc de réutiliser un tableau existant
+			**  Note: Il faudrait évaluer aussi la possibilité de conserver le buffer d'une frame à l'autre.
+			**        Ceci permettant de ne pas skinner inutilement ce qui ne bouge pas, ou de skinner partiellement un mesh.
+			**        Il faut cependant voir où stocker ce set de buffers, qui doit être communs à toutes les RQ d'une même scène.
+			**
+			** -Ensuite, la possibilité de regrouper les modèles skinnés identiques, une centaine de soldats marchant au pas
+			**  ne devrait requérir qu'un skinning.
+			*/
+			NazaraError("Skeletal mesh not supported yet, sorry");
+			break;
+		}
+
+		case nzAnimationType_Static:
+		{
+			const NzStaticMesh* staticMesh = static_cast<const NzStaticMesh*>(subMesh);
+
+			if (material->IsEnabled(nzRendererParameter_Blend))
+			{
+				unsigned int index = transparentStaticModels.size();
+				transparentStaticModels.resize(index+1);
+
+				TransparentStaticModel& data = transparentStaticModels.back();
+				data.boundingSphere = NzSpheref(transformMatrix.GetTranslation(), staticMesh->GetAABB().GetSquaredRadius());
+				data.material = material;
+				data.mesh = staticMesh;
+				data.transformMatrix = transformMatrix;
+
+				transparentsModels.push_back(std::make_pair(index, true));
+			}
+			else
+			{
+				auto pair = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type()));
+				if (pair.second)
+					material->AddResourceListener(this, ResourceType_Material);
+
+				bool& used = std::get<0>(pair.first->second);
+				bool& enableInstancing = std::get<1>(pair.first->second);
+
+				used = true;
+
+				auto& meshMap = std::get<3>(pair.first->second);
+
+				auto pair2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type()));
+				if (pair2.second)
+				{
+					staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
+
+					NzSpheref& squaredBoundingSphere = pair2.first->second.first;
+					squaredBoundingSphere.Set(staticMesh->GetAABB().GetSquaredBoundingSphere());
+					///TODO: Écouter le StaticMesh pour repérer tout changement de géométrie
+				}
+
+				std::vector<StaticData>& staticDataContainer = pair2.first->second.second;
+
+				unsigned int instanceCount = staticDataContainer.size() + 1;
+
+				// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
+				if (instanceCount >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
+					enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
+
+				staticDataContainer.resize(instanceCount);
+				StaticData& data = staticDataContainer.back();
+				data.transformMatrix = transformMatrix;
+			}
+
+			break;
+		}
+	}
 }
 
 void NzForwardRenderQueue::Clear(bool fully)
@@ -201,7 +213,7 @@ void NzForwardRenderQueue::Clear(bool fully)
 	}
 }
 
-void NzForwardRenderQueue::Sort(const NzCamera& camera)
+void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 {
 	struct TransparentModelComparator
 	{
@@ -211,22 +223,22 @@ void NzForwardRenderQueue::Sort(const NzCamera& camera)
 			                     queue->transparentStaticModels[index1.first].boundingSphere :
 			                     queue->transparentSkeletalModels[index1.first].boundingSphere;
 
-			const NzSpheref& sphere2 = (index1.second) ?
+			const NzSpheref& sphere2 = (index2.second) ?
 			                     queue->transparentStaticModels[index2.first].boundingSphere :
 			                     queue->transparentSkeletalModels[index2.first].boundingSphere;
 
-			NzVector3f position1 = sphere1.GetNegativeVertex(cameraNormal);
-			NzVector3f position2 = sphere2.GetNegativeVertex(cameraNormal);
+			NzVector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
+			NzVector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
 
-			return nearPlane.Distance(position1) < nearPlane.Distance(position2);
+			return nearPlane.Distance(position1) > nearPlane.Distance(position2);
 		}
 
 		NzForwardRenderQueue* queue;
 		NzPlanef nearPlane;
-		NzVector3f cameraNormal;
+		NzVector3f viewerNormal;
 	};
 
-	TransparentModelComparator comparator {this, camera.GetFrustum().GetPlane(nzFrustumPlane_Near), camera.GetForward()};
+	TransparentModelComparator comparator {this, viewer->GetFrustum().GetPlane(nzFrustumPlane_Near), viewer->GetForward()};
 	std::sort(transparentsModels.begin(), transparentsModels.end(), comparator);
 }
 
