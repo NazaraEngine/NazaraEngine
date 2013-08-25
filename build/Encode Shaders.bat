@@ -1,0 +1,2 @@
+premake4 encodeshaders
+pause
