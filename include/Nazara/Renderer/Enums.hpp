@@ -157,9 +157,9 @@ enum nzShaderFlags
 {
 	nzShaderFlags_None = 0,
 
-	//nzShaderFlags_Deferred        = 0x1,
-	nzShaderFlags_FlipUVs           = 0x1,
-	nzShaderFlags_Instancing        = 0x2,
+	nzShaderFlags_Deferred   = 0x1,
+	nzShaderFlags_FlipUVs    = 0x2,
+	nzShaderFlags_Instancing = 0x4,
 
 	nzShaderFlags_Max = nzShaderFlags_Instancing*2-1
 };
