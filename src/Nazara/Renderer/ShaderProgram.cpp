@@ -40,6 +40,7 @@ m_compiled(program.m_compiled)
 NzShaderProgram::~NzShaderProgram()
 {
 	Destroy();
+	NzRenderer::OnProgramReleased(this);
 }
 
 bool NzShaderProgram::Create(nzShaderLanguage language)

@@ -71,7 +71,7 @@ namespace
 	};
 
 	std::set<NzString> s_openGLextensionSet;
-	std::unordered_map<NzContext*, ContextStates> s_contexts;
+	std::unordered_map<const NzContext*, ContextStates> s_contexts;
 	thread_local ContextStates* s_contextStates = nullptr;
 	NzString s_rendererName;
 	NzString s_vendorName;
@@ -1305,12 +1305,12 @@ void NzOpenGL::Uninitialize()
 	}
 }
 
-void NzOpenGL::OnContextDestruction(NzContext* context)
+void NzOpenGL::OnContextDestruction(const NzContext* context)
 {
 	s_contexts.erase(context);
 }
 
-void NzOpenGL::OnContextChange(NzContext* newContext)
+void NzOpenGL::OnContextChange(const NzContext* newContext)
 {
 	s_contextStates = (newContext) ? &s_contexts[newContext] : nullptr;
 }

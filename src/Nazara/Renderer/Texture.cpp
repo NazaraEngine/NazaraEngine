@@ -164,6 +164,7 @@ NzTexture::NzTexture(const NzImage& image)
 NzTexture::~NzTexture()
 {
 	Destroy();
+	NzRenderer::OnTextureReleased(this);
 }
 
 bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)

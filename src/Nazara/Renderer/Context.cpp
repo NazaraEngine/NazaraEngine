@@ -22,8 +22,8 @@
 
 namespace
 {
-	thread_local NzContext* currentContext = nullptr;
-	thread_local NzContext* threadContext = nullptr;
+	thread_local const NzContext* currentContext = nullptr;
+	thread_local const NzContext* threadContext = nullptr;
 
 	std::vector<NzContext*> contexts;
 
@@ -219,7 +219,7 @@ bool NzContext::IsActive() const
 	return currentContext == this;
 }
 
-bool NzContext::SetActive(bool active)
+bool NzContext::SetActive(bool active) const
 {
 	#ifdef NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -302,17 +302,17 @@ bool NzContext::EnsureContext()
 	return true;
 }
 
-NzContext* NzContext::GetCurrent()
+const NzContext* NzContext::GetCurrent()
 {
 	return currentContext;
 }
 
-NzContext* NzContext::GetReference()
+const NzContext* NzContext::GetReference()
 {
 	return s_reference;
 }
 
-NzContext* NzContext::GetThreadContext()
+const NzContext* NzContext::GetThreadContext()
 {
 	EnsureContext();
 
