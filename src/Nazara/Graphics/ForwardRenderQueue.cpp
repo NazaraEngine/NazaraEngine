@@ -148,8 +148,10 @@ void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMes
 				unsigned int index = transparentStaticModels.size();
 				transparentStaticModels.resize(index+1);
 
+				const NzBoxf& aabb = staticMesh->GetAABB();
+
 				TransparentStaticModel& data = transparentStaticModels.back();
-				data.boundingSphere = NzSpheref(transformMatrix.GetTranslation(), staticMesh->GetAABB().GetSquaredRadius());
+				data.boundingSphere = NzSpheref(transformMatrix.GetTranslation() + aabb.GetCenter(), aabb.GetSquaredRadius());
 				data.material = material;
 				data.mesh = staticMesh;
 				data.transformMatrix = transformMatrix;
@@ -208,6 +210,25 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 	if (fully)
 	{
+		for (auto& matIt : opaqueModels)
+		{
+			const NzMaterial* material = matIt.first;
+			material->RemoveResourceListener(this);
+
+			BatchedSkeletalMeshContainer& skeletalContainer = std::get<2>(matIt.second);
+			for (auto& meshIt : skeletalContainer)
+			{
+				const NzSkeletalMesh* skeletalMesh = meshIt.first;
+				skeletalMesh->RemoveResourceListener(this);
+			}
+
+			BatchedStaticMeshContainer& staticContainer = std::get<3>(matIt.second);
+			for (auto& meshIt : staticContainer)
+			{
+				const NzStaticMesh* staticMesh = meshIt.first;
+				staticMesh->RemoveResourceListener(this);
+			}
+		}
 		opaqueModels.clear();
 		sprites.clear();
 	}
@@ -272,14 +293,11 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
-	{
-		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, i);
-		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, i);
+	const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, 0);
+	const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, 0);
 
-		if (program1 != program2)
-			return program1 < program2;
-	}
+	if (program1 != program2)
+		return program1 < program2;
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
@@ -291,14 +309,11 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	for (unsigned int i = 0; i <= nzShaderFlags_Max; ++i)
-	{
-		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Sprite, i);
-		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Sprite, i);
+	const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Sprite, 0);
+	const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Sprite, 0);
 
-		if (program1 != program2)
-			return program1 < program2;
-	}
+	if (program1 != program2)
+		return program1 < program2;
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
