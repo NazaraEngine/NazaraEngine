@@ -33,6 +33,14 @@
 
 namespace
 {
+	enum ResourceType
+	{
+		ResourceType_Context,
+		ResourceType_IndexBuffer,
+		ResourceType_VertexBuffer,
+		ResourceType_VertexDeclaration
+	};
+
 	enum UpdateFlags
 	{
 		Update_None = 0,
@@ -64,8 +72,9 @@ namespace
 	}
 
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
+	using VAO_Map = std::unordered_map<const NzContext*, std::map<VAO_Key, unsigned int>>;
 
-	std::unordered_map<NzContext*, std::map<VAO_Key, unsigned int>> s_vaos;
+	VAO_Map s_vaos;
 	std::set<unsigned int> s_dirtyTextureUnits;
 	std::vector<TextureUnit> s_textureUnits;
 	GLuint s_currentVAO = 0;
@@ -89,6 +98,90 @@ namespace
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
+
+	class ResourceListener : public NzResourceListener
+	{
+		public:
+			void OnResourceReleased(const NzResource* resource, int index) override
+			{
+				switch (index)
+				{
+					case ResourceType_Context:
+					{
+						const NzContext* context = static_cast<const NzContext*>(resource);
+						s_vaos.erase(context);
+						break;
+					}
+
+					case ResourceType_IndexBuffer:
+					{
+						const NzIndexBuffer* indexBuffer = static_cast<const NzIndexBuffer*>(resource);
+						for (auto& pair : s_vaos)
+						{
+							auto it = pair.second.begin();
+							while (it != pair.second.end())
+							{
+								const VAO_Key& key = it->first;
+								const NzIndexBuffer* vaoIndexBuffer = std::get<0>(key);
+
+								if (vaoIndexBuffer == indexBuffer)
+									pair.second.erase(it++);
+								else
+									++it;
+							}
+						}
+						break;
+					}
+
+					case ResourceType_VertexBuffer:
+					{
+						const NzVertexBuffer* vertexBuffer = static_cast<const NzVertexBuffer*>(resource);
+						for (auto& pair : s_vaos)
+						{
+							auto it = pair.second.begin();
+							while (it != pair.second.end())
+							{
+								const VAO_Key& key = it->first;
+								const NzVertexBuffer* vaoVertexBuffer = std::get<1>(key);
+
+								if (vaoVertexBuffer == vertexBuffer)
+									pair.second.erase(it++);
+								else
+									++it;
+							}
+						}
+						break;
+					}
+
+					case ResourceType_VertexDeclaration:
+					{
+						const NzVertexDeclaration* vertexDeclaration = static_cast<const NzVertexDeclaration*>(resource);
+						for (auto& pair : s_vaos)
+						{
+							auto it = pair.second.begin();
+							while (it != pair.second.end())
+							{
+								const VAO_Key& key = it->first;
+								const NzVertexDeclaration* vaoVertexDeclaration = std::get<2>(key);
+								const NzVertexDeclaration* vaoInstancingDeclaration = std::get<3>(key);
+
+								if (vaoVertexDeclaration == vertexDeclaration || vaoInstancingDeclaration == vertexDeclaration)
+									pair.second.erase(it++);
+								else
+									++it;
+							}
+						}
+						break;
+					}
+
+					default:
+						NazaraInternalError("Unknown resource type");
+						break;
+				}
+			}
+	};
+
+	ResourceListener s_listener;
 }
 
 void NzRenderer::Clear(nzUInt32 flags)
@@ -1164,12 +1257,33 @@ void NzRenderer::Uninitialize()
 	// Libération des VAOs
 	for (auto& pair : s_vaos)
 	{
+		const NzContext* context = pair.first;
+		context->SetActive(true);
+
 		for (auto& pair2 : pair.second)
 		{
+			const VAO_Key& key = pair2.first;
+			const NzIndexBuffer* indexBuffer = std::get<0>(key);
+			const NzVertexBuffer* vertexBuffer = std::get<1>(key);
+			const NzVertexDeclaration* vertexDeclaration = std::get<2>(key);
+			const NzVertexDeclaration* instancingDeclaration = std::get<3>(key);
+
+			if (indexBuffer)
+				indexBuffer->RemoveResourceListener(&s_listener);
+
+			vertexBuffer->RemoveResourceListener(&s_listener);
+			vertexDeclaration->RemoveResourceListener(&s_listener);
+
+			if (instancingDeclaration)
+				instancingDeclaration->RemoveResourceListener(&s_listener);
+
 			GLuint vao = static_cast<GLuint>(pair2.second);
 			glDeleteVertexArrays(1, &vao);
 		}
+
+		context->SetActive(false);
 	}
+
 	s_vaos.clear();
 
 	NzOpenGL::Uninitialize();
@@ -1256,18 +1370,21 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					if (!unit.textureUpdated)
+					if (unit.texture)
 					{
-						NzOpenGL::BindTextureUnit(i);
-						unit.texture->Bind();
+						if (!unit.textureUpdated)
+						{
+							NzOpenGL::BindTextureUnit(i);
+							unit.texture->Bind();
 
-						unit.textureUpdated = true;
-					}
+							unit.textureUpdated = true;
+						}
 
-					if (!unit.samplerUpdated)
-					{
-						unit.sampler.Bind(i);
-						unit.samplerUpdated = true;
+						if (!unit.samplerUpdated)
+						{
+							unit.sampler.Bind(i);
+							unit.samplerUpdated = true;
+						}
 					}
 				}
 			}
@@ -1277,13 +1394,16 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					NzOpenGL::BindTextureUnit(i);
+					if (unit.texture)
+					{
+						NzOpenGL::BindTextureUnit(i);
 
-					unit.texture->Bind();
-					unit.textureUpdated = true;
+						unit.texture->Bind();
+						unit.textureUpdated = true;
 
-					unit.sampler.Apply(unit.texture);
-					unit.samplerUpdated = true;
+						unit.sampler.Apply(unit.texture);
+						unit.samplerUpdated = true;
+					}
 				}
 			}
 
@@ -1324,10 +1444,18 @@ bool NzRenderer::EnsureStateUpdate()
 			if (s_useVertexArrayObjects)
 			{
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
-				auto& vaos = s_vaos[NzContext::GetCurrent()];
+				const NzContext* context = NzContext::GetCurrent();
+
+				auto pair = s_vaos.insert(std::make_pair(context, VAO_Map::mapped_type()));
+				if (pair.second)
+					context->AddResourceListener(&s_listener, ResourceType_Context);
+
+				auto& vaos = pair.first->second;
 
 				// Notre clé est composée de ce qui définit un VAO
-				VAO_Key key(s_indexBuffer, s_vertexBuffer, s_vertexBuffer->GetVertexDeclaration(), (s_instancing) ? s_instancingDeclaration : nullptr);
+				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
+				const NzVertexDeclaration* instancingDeclaration = (s_instancing) ? s_instancingDeclaration : nullptr;
+				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
 				auto it = vaos.find(key);
@@ -1339,6 +1467,14 @@ bool NzRenderer::EnsureStateUpdate()
 
 					// On l'ajoute à notre liste
 					vaos.insert(std::make_pair(key, static_cast<unsigned int>(s_currentVAO)));
+					if (s_indexBuffer)
+						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
+
+					s_vertexBuffer->AddResourceListener(&s_listener, ResourceType_VertexBuffer);
+					vertexDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
+
+					if (instancingDeclaration)
+						instancingDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
 
 					// Et on indique qu'on veut le programmer
 					update = true;
@@ -1472,6 +1608,25 @@ bool NzRenderer::EnsureStateUpdate()
 	NzOpenGL::ApplyStates(s_states);
 
 	return true;
+}
+
+void NzRenderer::OnProgramReleased(const NzShaderProgram* program)
+{
+	if (s_program == program)
+	{
+		s_program = nullptr;
+		s_updateFlags |= Update_Program;
+	}
+}
+
+void NzRenderer::OnTextureReleased(const NzTexture* texture)
+{
+	for (TextureUnit& unit : s_textureUnits)
+	{
+		if (unit.texture == texture)
+			unit.texture = nullptr;
+			// Inutile de changer le flag pour une texture désactivée
+	}
 }
 
 void NzRenderer::UpdateMatrix(nzMatrixType type)

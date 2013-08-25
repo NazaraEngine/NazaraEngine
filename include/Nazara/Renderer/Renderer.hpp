@@ -23,10 +23,14 @@ class NzIndexBuffer;
 class NzMaterial;
 class NzRenderTarget;
 class NzShaderProgram;
+class NzTexture;
 class NzVertexBuffer;
 
 class NAZARA_API NzRenderer
 {
+	friend NzShaderProgram;
+	friend NzTexture;
+
 	public:
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
@@ -96,6 +100,8 @@ class NAZARA_API NzRenderer
 	private:
 		static void EnableInstancing(bool instancing);
 		static bool EnsureStateUpdate();
+		static void OnProgramReleased(const NzShaderProgram* program);
+		static void OnTextureReleased(const NzTexture* texture);
 		static void UpdateMatrix(nzMatrixType type);
 
 		static unsigned int s_moduleReferenceCounter;
