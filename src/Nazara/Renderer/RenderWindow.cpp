@@ -59,7 +59,7 @@ bool NzRenderWindow::CopyToImage(NzImage* image) const
 	}
 	#endif
 
-	NzContext* currentContext = NzContext::GetCurrent();
+	const NzContext* currentContext = NzContext::GetCurrent();
 	if (m_context != currentContext)
 	{
 		if (!m_context->SetActive(true))
@@ -112,7 +112,7 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 	}
 	#endif
 
-	NzContext* currentContext = NzContext::GetCurrent();
+	const NzContext* currentContext = NzContext::GetCurrent();
 	if (m_context != currentContext)
 	{
 		if (!m_context->SetActive(true))
