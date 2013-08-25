@@ -42,10 +42,14 @@ class NAZARA_API NzResource
 		void NotifyDestroy();
 
 	private:
+		typedef std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>> ResourceListenerMap;
+
+		void RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const;
+
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
-		mutable std::unordered_map<NzResourceListener*, int> m_resourceListeners;
+		mutable ResourceListenerMap m_resourceListeners;
 		        std::atomic_bool m_resourcePersistent;
 		mutable std::atomic_uint m_resourceReferenceCount;
 		        bool m_resourceListenersLocked;

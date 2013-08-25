@@ -133,8 +133,8 @@ class NAZARA_API NzOpenGL
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
 
 	private:
-		static void OnContextDestruction(NzContext* context);
-		static void OnContextChange(NzContext* newContext);
+		static void OnContextDestruction(const NzContext* context);
+		static void OnContextChange(const NzContext* newContext);
 };
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
