@@ -99,7 +99,7 @@ const NzMatrix4f& NzView::GetViewMatrix() const
 	return m_viewMatrix;
 }
 
-const NzRectui& NzView::GetViewport() const
+const NzRecti& NzView::GetViewport() const
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -149,7 +149,7 @@ void NzView::SetTargetRegion(const NzRectf& region)
 	m_viewportUpdated = false;
 }
 
-void NzView::SetViewport(const NzRectui& viewport)
+void NzView::SetViewport(const NzRecti& viewport)
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
