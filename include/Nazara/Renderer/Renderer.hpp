@@ -56,10 +56,10 @@ class NAZARA_API NzRenderer
 		static unsigned int GetMaxVertexAttribs();
 		static float GetPointSize();
 		static const NzRenderStates& GetRenderStates();
-		static NzRectui GetScissorRect();
+		static NzRecti GetScissorRect();
 		static const NzShaderProgram* GetShaderProgram();
 		static const NzRenderTarget* GetTarget();
-		static NzRectui GetViewport();
+		static NzRecti GetViewport();
 
 		static bool HasCapability(nzRendererCap capability);
 
@@ -81,7 +81,7 @@ class NAZARA_API NzRenderer
 		static void SetMatrix(nzMatrixType type, const NzMatrix4f& matrix);
 		static void SetPointSize(float size);
 		static void SetRenderStates(const NzRenderStates& states);
-		static void SetScissorRect(const NzRectui& viewport);
+		static void SetScissorRect(const NzRecti& rect);
 		static void SetShaderProgram(const NzShaderProgram* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
 		static void SetStencilFailOperation(nzStencilOperation failOperation);
@@ -93,7 +93,7 @@ class NAZARA_API NzRenderer
 		static void SetTexture(nzUInt8 unit, const NzTexture* texture);
 		static void SetTextureSampler(nzUInt8 textureUnit, const NzTextureSampler& sampler);
 		static void SetVertexBuffer(const NzVertexBuffer* vertexBuffer);
-		static void SetViewport(const NzRectui& viewport);
+		static void SetViewport(const NzRecti& viewport);
 
 		static void Uninitialize();
 

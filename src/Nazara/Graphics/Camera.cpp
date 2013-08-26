@@ -106,7 +106,7 @@ const NzMatrix4f& NzCamera::GetViewMatrix() const
 	return m_viewMatrix;
 }
 
-const NzRectui& NzCamera::GetViewport() const
+const NzRecti& NzCamera::GetViewport() const
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -164,7 +164,7 @@ void NzCamera::SetTargetRegion(const NzRectf& region)
 	m_viewportUpdated = false;
 }
 
-void NzCamera::SetViewport(const NzRectui& viewport)
+void NzCamera::SetViewport(const NzRecti& viewport)
 {
 	#if NAZARA_GRAPHICS_SAFE
 	if (!m_target)
@@ -250,11 +250,14 @@ bool NzCamera::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void
 		m_frustumUpdated = false;
 		m_projectionMatrixUpdated = false;
 		m_viewportUpdated = false;
+
+		return true;
 	}
 	else
+	{
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
-
-	return true;
+		return false;
+	}
 }
 
 void NzCamera::UpdateFrustum() const

@@ -35,14 +35,14 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		const NzRenderTarget* GetTarget() const;
 		const NzRectf& GetTargetRegion() const;
 		const NzMatrix4f& GetViewMatrix() const;
-		const NzRectui& GetViewport() const;
+		const NzRecti& GetViewport() const;
 		float GetZFar() const;
 		float GetZNear() const;
 
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetTargetRegion(const NzRectf& region);
-		void SetViewport(const NzRectui& viewport);
+		void SetViewport(const NzRecti& viewport);
 		void SetZFar(float zFar);
 		void SetZNear(float zNear);
 
@@ -62,7 +62,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		mutable NzMatrix4f m_projectionMatrix;
 		mutable NzMatrix4f m_viewMatrix;
 		NzRectf m_targetRegion;
-		mutable NzRectui m_viewport;
+		mutable NzRecti m_viewport;
 		const NzRenderTarget* m_target;
 		mutable bool m_frustumUpdated;
 		mutable bool m_projectionMatrixUpdated;

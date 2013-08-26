@@ -289,10 +289,17 @@ bool NzRenderWindow::OnWindowCreated()
         return false;
     }
 
-    EnableVerticalSync(false);
-
 	if (!SetActive(true)) // Les fenêtres s'activent à la création
 		NazaraWarning("Failed to activate window");
+
+    EnableVerticalSync(false);
+
+	NzVector2ui size = GetSize();
+
+	// Le scissorBox/viewport (à la création) est de la taille de la fenêtre
+	// https://www.opengl.org/sdk/docs/man/xhtml/glGet.xml
+	NzOpenGL::SetScissorBox(NzRecti(0, 0, size.x, size.y));
+	NzOpenGL::SetViewport(NzRecti(0, 0, size.x, size.y));
 
 	NotifyParametersChange();
 	NotifySizeChange();

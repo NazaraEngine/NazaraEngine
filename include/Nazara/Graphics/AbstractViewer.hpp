@@ -31,7 +31,7 @@ class NAZARA_API NzAbstractViewer
 		virtual const NzMatrix4f& GetProjectionMatrix() const = 0;
 		virtual const NzRenderTarget* GetTarget() const = 0;
 		virtual const NzMatrix4f& GetViewMatrix() const = 0;
-		virtual const NzRectui& GetViewport() const = 0;
+		virtual const NzRecti& GetViewport() const = 0;
 		virtual float GetZFar() const = 0;
 		virtual float GetZNear() const = 0;
 };

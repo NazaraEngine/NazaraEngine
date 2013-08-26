@@ -549,20 +549,9 @@ const NzRenderStates& NzRenderer::GetRenderStates()
 	return s_states;
 }
 
-NzRectui NzRenderer::GetScissorRect()
+NzRecti NzRenderer::GetScissorRect()
 {
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return NzRectui();
-	}
-	#endif
-
-	GLint params[4];
-	glGetIntegerv(GL_SCISSOR_BOX, &params[0]);
-
-	return NzRectui(params[0], params[1], params[2], params[3]);
+	return NzOpenGL::GetCurrentScissorBox();
 }
 
 const NzShaderProgram* NzRenderer::GetShaderProgram()
@@ -575,20 +564,9 @@ const NzRenderTarget* NzRenderer::GetTarget()
 	return s_target;
 }
 
-NzRectui NzRenderer::GetViewport()
+NzRecti NzRenderer::GetViewport()
 {
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return NzRectui();
-	}
-	#endif
-
-	GLint params[4];
-	glGetIntegerv(GL_VIEWPORT, &params[0]);
-
-	return NzRectui(params[0], params[1], params[2], params[3]);
+	return NzOpenGL::GetCurrentViewport();
 }
 
 bool NzRenderer::HasCapability(nzRendererCap capability)
@@ -985,34 +963,9 @@ void NzRenderer::SetRenderStates(const NzRenderStates& states)
 	s_states = states;
 }
 
-void NzRenderer::SetScissorRect(const NzRectui& rect)
+void NzRenderer::SetScissorRect(const NzRecti& rect)
 {
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return;
-	}
-	#endif
-
-	unsigned int height = s_target->GetHeight();
-
-	#if NAZARA_RENDERER_SAFE
-	if (!s_target)
-	{
-		NazaraError("Renderer has no target");
-		return;
-	}
-
-	unsigned int width = s_target->GetWidth();
-	if (rect.x+rect.width > width || rect.y+rect.height > height)
-	{
-		NazaraError("Rectangle dimensions are out of bounds");
-		return;
-	}
-	#endif
-
-	glScissor(rect.x, height-rect.height-rect.y, rect.width, rect.height);
+	NzOpenGL::BindScissorBox(rect);
 }
 
 void NzRenderer::SetShaderProgram(const NzShaderProgram* program)
@@ -1129,6 +1082,8 @@ bool NzRenderer::SetTarget(const NzRenderTarget* target)
 		s_uniformTargetSizeUpdated = false;
 	}
 
+	NzOpenGL::SetTarget(s_target);
+
 	return true;
 }
 
@@ -1195,35 +1150,9 @@ void NzRenderer::SetVertexBuffer(const NzVertexBuffer* vertexBuffer)
 	}
 }
 
-void NzRenderer::SetViewport(const NzRectui& viewport)
+void NzRenderer::SetViewport(const NzRecti& viewport)
 {
-	#ifdef NAZARA_DEBUG
-	if (NzContext::GetCurrent() == nullptr)
-	{
-		NazaraError("No active context");
-		return;
-	}
-	#endif
-
-	unsigned int height = s_target->GetHeight();
-
-	#if NAZARA_RENDERER_SAFE
-	if (!s_target)
-	{
-		NazaraError("Renderer has no target");
-		return;
-	}
-
-	unsigned int width = s_target->GetWidth();
-	if (viewport.x+viewport.width > width || viewport.y+viewport.height > height)
-	{
-		NazaraError("Rectangle dimensions are out of bounds (" + NzString::Number(viewport.x+viewport.width) + ", " + NzString::Number(viewport.y+viewport.height) + " > "
-		                                                       + NzString::Number(width) + ", " + NzString::Number(height) + ")");
-		return;
-	}
-	#endif
-
-	glViewport(viewport.x, height-viewport.height-viewport.y, viewport.width, viewport.height);
+	NzOpenGL::BindViewport(viewport);
 }
 
 void NzRenderer::Uninitialize()
