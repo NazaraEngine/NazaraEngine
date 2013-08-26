@@ -81,13 +81,13 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	m_renderQueue.Sort(scene->GetViewer());
 
 	if (!m_renderQueue.opaqueModels.empty())
-		DrawOpaqueModels(scene, m_renderQueue.opaqueModels);
+		DrawOpaqueModels(scene);
 
 	if (!m_renderQueue.sprites.empty())
-		DrawSprites(scene, m_renderQueue.sprites);
+		DrawSprites(scene);
 
 	if (!m_renderQueue.transparentsModels.empty())
-		DrawTransparentModels(scene, m_renderQueue.transparentsModels);
+		DrawTransparentModels(scene);
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -162,14 +162,14 @@ void NzForwardRenderTechnique::SetMaxLightsPerObject(unsigned int lightCount)
 	m_maxLightsPerObject = lightCount;
 }
 
-void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene, NzForwardRenderQueue::BatchedModelContainer& opaqueModels)
+void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
 
 	unsigned int lightCount = 0;
 
-	for (auto& matIt : opaqueModels)
+	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
 		bool& used = std::get<0>(matIt.second);
 		if (used)
@@ -320,7 +320,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene, NzForwardR
 	}
 }
 
-void NzForwardRenderTechnique::DrawSprites(const NzScene* scene, NzForwardRenderQueue::BatchedSpriteContainer& sprites)
+void NzForwardRenderTechnique::DrawSprites(const NzScene* scene)
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
@@ -329,7 +329,7 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene, NzForwardRender
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
 	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
 
-	for (auto& matIt : sprites)
+	for (auto& matIt : m_renderQueue.sprites)
 	{
 		const NzMaterial* material = matIt.first;
 		auto& spriteVector = matIt.second;
@@ -400,13 +400,13 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene, NzForwardRender
 	}
 }
 
-void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene, NzForwardRenderQueue::TransparentModelContainer& transparentModels)
+void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene)
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
 	unsigned int lightCount = 0;
 
-	for (const std::pair<unsigned int, bool>& pair : transparentModels)
+	for (const std::pair<unsigned int, bool>& pair : m_renderQueue.transparentsModels)
 	{
 		// Matériau
 		const NzMaterial* material = (pair.second) ?
