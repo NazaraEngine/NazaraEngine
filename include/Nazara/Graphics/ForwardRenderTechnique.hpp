@@ -29,9 +29,9 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		void SetMaxLightsPerObject(unsigned int lightCount);
 
 	private:
-		void DrawOpaqueModels(const NzScene* scene, NzForwardRenderQueue::BatchedModelContainer& opaqueModels);
-		void DrawSprites(const NzScene* scene, NzForwardRenderQueue::BatchedSpriteContainer& sprites);
-		void DrawTransparentModels(const NzScene* scene, NzForwardRenderQueue::TransparentModelContainer& transparentModels);
+		void DrawOpaqueModels(const NzScene* scene);
+		void DrawSprites(const NzScene* scene);
+		void DrawTransparentModels(const NzScene* scene);
 
 		NzForwardRenderQueue m_renderQueue;
 		NzIndexBufferRef m_indexBuffer;
