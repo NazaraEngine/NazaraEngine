@@ -13,9 +13,10 @@
 #include <GL3/glcorearb.h>
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 // Inclusion des extensions
 #include <GL3/glext.h>
@@ -47,6 +48,8 @@ enum nzOpenGLExtension
 };
 
 class NzContext;
+class NzRenderTarget;
+
 using NzOpenGLFunc = void (*)();
 
 class NAZARA_API NzOpenGL
@@ -75,9 +78,11 @@ class NAZARA_API NzOpenGL
 
 		static void BindBuffer(nzBufferType type, GLuint id);
 		static void BindProgram(GLuint id);
+		static void BindScissorBox(const NzRecti& scissorBox);
 		static void BindTexture(nzImageType type, GLuint id);
 		static void BindTexture(unsigned int textureUnit, nzImageType type, GLuint id);
 		static void BindTextureUnit(unsigned int textureUnit);
+		static void BindViewport(const NzRecti& viewport);
 
 		static void DeleteBuffer(nzBufferType type, GLuint id);
 		static void DeleteProgram(GLuint id);
@@ -85,12 +90,16 @@ class NAZARA_API NzOpenGL
 
 		static GLuint GetCurrentBuffer(nzBufferType type);
 		static GLuint GetCurrentProgram();
+		static const NzRenderTarget* GetCurrentTarget();
+		static NzRecti GetCurrentScissorBox();
 		static GLuint GetCurrentTexture();
 		static GLuint GetCurrentTexture(unsigned int textureUnit);
+		static unsigned int GetCurrentTextureUnit();
+		static NzRecti GetCurrentViewport();
+
 		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
 		static unsigned int GetGLSLVersion();
 		static NzString GetRendererName();
-		static unsigned int GetTextureUnit();
 		static NzString GetVendorName();
 		static unsigned int GetVersion();
 
@@ -101,10 +110,13 @@ class NAZARA_API NzOpenGL
 		static bool IsSupported(const NzString& string);
 
 		static void SetBuffer(nzBufferType type, GLuint id);
+		static void SetScissorBox(const NzRecti& scissorBox);
 		static void SetProgram(GLuint id);
+		static void SetTarget(const NzRenderTarget* renderTarget);
 		static void SetTexture(GLuint id);
 		static void SetTexture(unsigned int textureUnit, GLuint id);
 		static void SetTextureUnit(unsigned int textureUnit);
+		static void SetViewport(const NzRecti& viewport);
 
 		static bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
 

@@ -7,6 +7,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <cstring>
 #include <set>
 #include <sstream>
@@ -66,7 +67,12 @@ namespace
 		GLuint buffersBinding[nzBufferType_Max+1] = {0};
 		GLuint currentProgram = 0;
 		GLuint texturesBinding[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+		NzRecti currentScissorBox = NzRecti(0,0,0,0);
+		NzRecti currentViewport = NzRecti(0,0,0,0);
 		NzRenderStates renderStates; // Toujours synchronisé avec OpenGL
+		const NzRenderTarget* currentTarget = nullptr;
+		bool scissorBoxUpdated = true;
+		bool viewportUpdated = true;
 		unsigned int textureUnit = 0;
 	};
 
@@ -313,6 +319,45 @@ void NzOpenGL::BindProgram(GLuint id)
 	}
 }
 
+void NzOpenGL::BindScissorBox(const NzRecti& scissorBox)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (scissorBox.width < 0)
+	{
+		NazaraError("Scissor box width must be positive");
+		return;
+	}
+
+	if (scissorBox.height < 0)
+	{
+		NazaraError("Scissor box height must be positive");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->currentScissorBox != scissorBox)
+	{
+		if (s_contextStates->currentTarget)
+		{
+			unsigned int height = s_contextStates->currentTarget->GetHeight();
+			glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
+			s_contextStates->scissorBoxUpdated = true;
+		}
+		else
+			s_contextStates->scissorBoxUpdated = false; // Sinon on attend d'avoir un target
+
+		s_contextStates->currentScissorBox = scissorBox;
+	}
+}
+
 void NzOpenGL::BindTexture(nzImageType type, GLuint id)
 {
 	#ifdef NAZARA_DEBUG
@@ -351,10 +396,57 @@ void NzOpenGL::BindTexture(unsigned int textureUnit, nzImageType type, GLuint id
 
 void NzOpenGL::BindTextureUnit(unsigned int textureUnit)
 {
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
 	if (s_contextStates->textureUnit != textureUnit)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureUnit);
 		s_contextStates->textureUnit = textureUnit;
+	}
+}
+
+void NzOpenGL::BindViewport(const NzRecti& viewport)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (viewport.width < 0)
+	{
+		NazaraError("Viewport width must be positive");
+		return;
+	}
+
+	if (viewport.height < 0)
+	{
+		NazaraError("Viewport height must be positive");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->currentViewport != viewport)
+	{
+		if (s_contextStates->currentTarget)
+		{
+			unsigned int height = s_contextStates->currentTarget->GetHeight();
+			glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
+			s_contextStates->viewportUpdated = true;
+		}
+		else
+			s_contextStates->viewportUpdated = false; // Sinon on attend d'avoir un target
+
+		s_contextStates->currentViewport = viewport;
 	}
 }
 
@@ -433,6 +525,32 @@ GLuint NzOpenGL::GetCurrentProgram()
 	return s_contextStates->currentProgram;
 }
 
+NzRecti NzOpenGL::GetCurrentScissorBox()
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return NzRecti();
+	}
+	#endif
+
+	return s_contextStates->currentScissorBox;
+}
+
+const NzRenderTarget* NzOpenGL::GetCurrentTarget()
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return nullptr;
+	}
+	#endif
+
+	return s_contextStates->currentTarget;
+}
+
 GLuint NzOpenGL::GetCurrentTexture()
 {
 	#ifdef NAZARA_DEBUG
@@ -459,6 +577,32 @@ GLuint NzOpenGL::GetCurrentTexture(unsigned int textureUnit)
 	return s_contextStates->texturesBinding[textureUnit];
 }
 
+unsigned int NzOpenGL::GetCurrentTextureUnit()
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return 0;
+	}
+	#endif
+
+	return s_contextStates->textureUnit;
+}
+
+NzRecti NzOpenGL::GetCurrentViewport()
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return NzRecti();
+	}
+	#endif
+
+	return s_contextStates->currentViewport;
+}
+
 NzOpenGLFunc NzOpenGL::GetEntry(const NzString& entryPoint)
 {
 	return LoadEntry(entryPoint.GetConstBuffer(), false);
@@ -472,19 +616,6 @@ unsigned int NzOpenGL::GetGLSLVersion()
 NzString NzOpenGL::GetRendererName()
 {
 	return s_rendererName;
-}
-
-unsigned int NzOpenGL::GetTextureUnit()
-{
-	#ifdef NAZARA_DEBUG
-	if (!s_contextStates)
-	{
-		NazaraError("No context activated");
-		return 0;
-	}
-	#endif
-
-	return s_contextStates->textureUnit;
 }
 
 NzString NzOpenGL::GetVendorName()
@@ -1094,6 +1225,19 @@ void NzOpenGL::SetBuffer(nzBufferType type, GLuint id)
 	s_contextStates->buffersBinding[type] = id;
 }
 
+void NzOpenGL::SetScissorBox(const NzRecti& scissorBox)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentScissorBox = scissorBox;
+}
+
 void NzOpenGL::SetProgram(GLuint id)
 {
 	#ifdef NAZARA_DEBUG
@@ -1105,6 +1249,41 @@ void NzOpenGL::SetProgram(GLuint id)
 	#endif
 
 	s_contextStates->currentProgram = id;
+}
+
+void NzOpenGL::SetTarget(const NzRenderTarget* renderTarget)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentTarget = renderTarget;
+	if (renderTarget)
+	{
+		if (!s_contextStates->scissorBoxUpdated)
+		{
+			const NzRecti& scissorBox = s_contextStates->currentViewport;
+
+			unsigned int height = s_contextStates->currentTarget->GetHeight();
+			glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
+
+			s_contextStates->scissorBoxUpdated = true;
+		}
+
+		if (!s_contextStates->viewportUpdated)
+		{
+			const NzRecti& viewport = s_contextStates->currentViewport;
+
+			unsigned int height = s_contextStates->currentTarget->GetHeight();
+			glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
+
+			s_contextStates->viewportUpdated = true;
+		}
+	}
 }
 
 void NzOpenGL::SetTexture(GLuint id)
@@ -1144,6 +1323,19 @@ void NzOpenGL::SetTextureUnit(unsigned int textureUnit)
 	#endif
 
 	s_contextStates->textureUnit = textureUnit;
+}
+
+void NzOpenGL::SetViewport(const NzRecti& viewport)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentViewport = viewport;
 }
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)
