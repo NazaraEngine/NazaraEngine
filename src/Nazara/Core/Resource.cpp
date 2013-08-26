@@ -114,7 +114,6 @@ void NzResource::NotifyCreated()
 	auto it = m_resourceListeners.begin();
 	while (it != m_resourceListeners.end())
 	{
-		ResourceListenerMap::iterator iterator = it++;
 		if (!it->first->OnResourceCreated(this, it->second.first))
 			RemoveResourceListenerIterator(it++);
 		else
