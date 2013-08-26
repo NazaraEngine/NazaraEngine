@@ -5,30 +5,30 @@ function encodeShaders()
 		for k, filePath in pairs(shaders) do
 			local ext = filePath:sub(-5)
 			if (ext == ".frag" or ext == ".geom" or ext == ".vert") then
-				local shader, err = io.open(filePath, "rb")
+				local shader, err = io.open(filePath, "r")
 				if (not shader) then
 					error("Failed to read shader file: " .. err)
 				end
-				
+
 				local header, err = io.open(filePath .. ".h", "w+")
 				if (not header) then
 					error("Failed to create header file: " .. err)
 				end
-				
-				local str = shader:read(64)
-				repeat
-					local l = str:len()
-					for i = 1, l do
-						local byte = str:sub(i, i):byte()
+
+				for line in shader:lines() do
+					line = line .. "\n"
+					local length = line:len()
+					for i = 1, length do
+						local byte = line:sub(i, i):byte()
 						if (byte >= 128) then
 							byte = byte - 256
 						end
 						header:write(string.format("%d,", byte))
 					end
-					str = shader:read(64)
-				until (not str)
-				
+				end
+
 				header:close()
+				shader:close()
 			end
 		end
 	end
