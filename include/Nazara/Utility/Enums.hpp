@@ -159,20 +159,18 @@ enum nzPixelFormat
 	nzPixelFormat_DXT5,
 	nzPixelFormat_L8,              // 1*nzUInt8
 	nzPixelFormat_LA8,             // 2*nzUInt8
-	/*
-	nzPixelFormat_RGB16F,
-	nzPixelFormat_RGB16I,          // 4*nzUInt16
-	nzPixelFormat_RGB32F,
-	nzPixelFormat_RGB32I,          // 4*nzUInt32
-	nzPixelFormat_RGBA16F,
-	nzPixelFormat_RGBA16I,         // 4*nzUInt16
-	nzPixelFormat_RGBA32F,
-	nzPixelFormat_RGBA32I,         // 4*nzUInt32
-	*/
 	nzPixelFormat_RGB5A1,          // 1*nzUInt16
 	nzPixelFormat_RGB8,            // 3*nzUInt8
+	nzPixelFormat_RGB16F,
+	nzPixelFormat_RGB16I,          // 4*nzUInt16
+	nzPixelFormat_RGB32F,          // 3*float
+	nzPixelFormat_RGB32I,          // 4*nzUInt32
 	nzPixelFormat_RGBA4,           // 1*nzUInt16
 	nzPixelFormat_RGBA8,           // 4*nzUInt8
+	nzPixelFormat_RGBA16F,
+	nzPixelFormat_RGBA16I,         // 4*nzUInt16
+	nzPixelFormat_RGBA32F,         // 4*float
+	nzPixelFormat_RGBA32I,         // 4*nzUInt32
 	nzPixelFormat_Depth16,
 	nzPixelFormat_Depth24,
 	nzPixelFormat_Depth24Stencil8,
