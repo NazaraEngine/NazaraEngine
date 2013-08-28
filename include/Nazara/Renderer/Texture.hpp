@@ -44,6 +44,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		unsigned int GetDepth() const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight() const;
+		NzVector2ui GetSize() const;
 		nzImageType GetType() const;
 		unsigned int GetWidth() const;
 
