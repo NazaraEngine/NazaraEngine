@@ -163,17 +163,9 @@ int main()
 	// Nous choisissons une lumière directionnelle représentant la nébuleuse de notre skybox
 	NzLight nebulaLight(nzLightType_Directional);
 
-	// Il nous faut ensuite configurer la lumière, pour commencer, les couleurs.
-
-	// La couleur ambiante est celle qui sera appliquée à toutes les faces, éclairées ou non, dans le rayon de la lumière
-	// Comme nous avons une lumière infinie, ceci est la couleur appliquée de base à toutes les faces de la scène
-	nebulaLight.SetAmbientColor(NzColor(30, 30, 30));
-
-	// Ensuite vient la couleur diffuse, celle-ci étant la couleur appliquée lorsque la lumière éclaire une face
-	nebulaLight.SetDiffuseColor(NzColor(255, 182, 90));
-
-	// Ensuite, la lumière spéculaire, appliquée aux faces éclairées faisant face à la lumière
-	nebulaLight.SetSpecularColor(NzColor::Orange);
+	// Il nous faut ensuite configurer la lumière
+	// Pour commencer, sa couleur, la nébuleuse étant d'une couleur jaune, j'ai choisi ces valeurs
+	nebulaLight.SetColor(NzColor(255, 182, 90));
 
 	// Nous appliquons ensuite une rotation de sorte que la lumière dans la même direction que la nébuleuse
 	nebulaLight.SetRotation(NzEulerAnglesf(0.f, 102.f, 0.f));
