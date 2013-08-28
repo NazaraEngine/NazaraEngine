@@ -63,7 +63,15 @@ enum nzMatrixType
 	nzMatrixType_WorldView,
 	nzMatrixType_WorldViewProj,
 
-	nzMatrixType_Max = nzMatrixType_WorldViewProj
+	// Matrice inversées
+	nzMatrixType_InvProjection,
+	nzMatrixType_InvView,
+	nzMatrixType_InvViewProj,
+	nzMatrixType_InvWorld,
+	nzMatrixType_InvWorldView,
+	nzMatrixType_InvWorldViewProj,
+
+	nzMatrixType_Max = nzMatrixType_InvWorldViewProj
 };
 
 enum nzPixelBufferType
@@ -187,7 +195,13 @@ enum nzShaderTarget
 enum nzShaderUniform
 {
 	nzShaderUniform_EyePosition,
+	nzShaderUniform_InvProjMatrix,
 	nzShaderUniform_InvTargetSize,
+	nzShaderUniform_InvViewMatrix,
+	nzShaderUniform_InvViewProjMatrix,
+	nzShaderUniform_InvWorldMatrix,
+	nzShaderUniform_InvWorldViewMatrix,
+	nzShaderUniform_InvWorldViewProjMatrix,
 	nzShaderUniform_MaterialAlphaMap,
 	nzShaderUniform_MaterialAlphaThreshold,
 	nzShaderUniform_MaterialAmbient,

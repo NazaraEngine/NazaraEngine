@@ -915,30 +915,53 @@ void NzRenderer::SetMatrix(nzMatrixType type, const NzMatrix4f& matrix)
 	// Invalidation des combinaisons
 	switch (type)
 	{
+		// Matrices de base
 		case nzMatrixType_Projection:
+			s_matrices[nzMatrixType_InvProjection].updated = false;
+			s_matrices[nzMatrixType_InvViewProj].updated = false;
+			s_matrices[nzMatrixType_InvWorldViewProj].updated = false;
 			s_matrices[nzMatrixType_ViewProj].updated = false;
 			s_matrices[nzMatrixType_WorldViewProj].updated = false;
 			break;
 
 		case nzMatrixType_View:
+			s_matrices[nzMatrixType_InvView].updated = false;
+			s_matrices[nzMatrixType_InvViewProj].updated = false;
+			s_matrices[nzMatrixType_InvWorld].updated = false;
+			s_matrices[nzMatrixType_InvWorldViewProj].updated = false;
 			s_matrices[nzMatrixType_ViewProj].updated = false;
 			s_matrices[nzMatrixType_World].updated = false;
 			s_matrices[nzMatrixType_WorldViewProj].updated = false;
 			break;
 
 		case nzMatrixType_World:
+			s_matrices[nzMatrixType_InvWorld].updated = false;
+			s_matrices[nzMatrixType_InvWorldView].updated = false;
+			s_matrices[nzMatrixType_InvWorldViewProj].updated = false;
 			s_matrices[nzMatrixType_WorldView].updated = false;
 			s_matrices[nzMatrixType_WorldViewProj].updated = false;
 			break;
 
+		// Matrices combinées
 		case nzMatrixType_ViewProj:
+			s_matrices[nzMatrixType_InvViewProj].updated = false;
 			break;
 
 		case nzMatrixType_WorldView:
+			s_matrices[nzMatrixType_InvWorldView].updated = false;
 			s_matrices[nzMatrixType_WorldViewProj].updated = false;
 			break;
 
 		case nzMatrixType_WorldViewProj:
+			s_matrices[nzMatrixType_InvWorldViewProj].updated = false;
+			break;
+
+		case nzMatrixType_InvProjection:
+		case nzMatrixType_InvView:
+		case nzMatrixType_InvViewProj:
+		case nzMatrixType_InvWorld:
+		case nzMatrixType_InvWorldView:
+		case nzMatrixType_InvWorldViewProj:
 			break;
 	}
 
@@ -1265,6 +1288,13 @@ bool NzRenderer::EnsureStateUpdate()
 		s_matrices[nzMatrixType_WorldView].location = programImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
 		s_matrices[nzMatrixType_WorldViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
 
+		s_matrices[nzMatrixType_InvProjection].location = programImpl->GetUniformLocation(nzShaderUniform_InvProjMatrix);
+		s_matrices[nzMatrixType_InvView].location = programImpl->GetUniformLocation(nzShaderUniform_InvViewMatrix);
+		s_matrices[nzMatrixType_InvViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_InvViewProjMatrix);
+		s_matrices[nzMatrixType_InvWorld].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldMatrix);
+		s_matrices[nzMatrixType_InvWorldView].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewMatrix);
+		s_matrices[nzMatrixType_InvWorldViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewProjMatrix);
+
 		s_uniformTargetSizeUpdated = false;
 		s_updateFlags |= Update_Matrices; // Changement de programme, on renvoie toutes les matrices demandées
 
@@ -1570,11 +1600,14 @@ void NzRenderer::UpdateMatrix(nzMatrixType type)
 
 	switch (type)
 	{
+		// Matrices de base
 		case nzMatrixType_Projection:
 		case nzMatrixType_View:
 		case nzMatrixType_World:
+			s_matrices[type].updated = true;
 			break;
 
+		// Matrices combinées
 		case nzMatrixType_ViewProj:
 			s_matrices[nzMatrixType_ViewProj].matrix = s_matrices[nzMatrixType_View].matrix * s_matrices[nzMatrixType_Projection].matrix;
 			s_matrices[nzMatrixType_ViewProj].updated = true;
@@ -1593,6 +1626,67 @@ void NzRenderer::UpdateMatrix(nzMatrixType type)
 			s_matrices[nzMatrixType_WorldViewProj].matrix = s_matrices[nzMatrixType_WorldView].matrix;
 			s_matrices[nzMatrixType_WorldViewProj].matrix.Concatenate(s_matrices[nzMatrixType_Projection].matrix);
 			s_matrices[nzMatrixType_WorldViewProj].updated = true;
+			break;
+
+		// Matrices inversées
+		case nzMatrixType_InvProjection:
+			if (!s_matrices[nzMatrixType_Projection].updated)
+				UpdateMatrix(nzMatrixType_Projection);
+
+			if (!s_matrices[nzMatrixType_Projection].matrix.GetInverse(&s_matrices[nzMatrixType_InvProjection].matrix))
+				NazaraWarning("Failed to inverse Proj matrix");
+
+			s_matrices[nzMatrixType_InvProjection].updated = true;
+			break;
+
+		case nzMatrixType_InvView:
+			if (!s_matrices[nzMatrixType_View].updated)
+				UpdateMatrix(nzMatrixType_View);
+
+			if (!s_matrices[nzMatrixType_View].matrix.GetInverse(&s_matrices[nzMatrixType_InvView].matrix))
+				NazaraWarning("Failed to inverse View matrix");
+
+			s_matrices[nzMatrixType_InvView].updated = true;
+			break;
+
+		case nzMatrixType_InvViewProj:
+			if (!s_matrices[nzMatrixType_ViewProj].updated)
+				UpdateMatrix(nzMatrixType_ViewProj);
+
+			if (!s_matrices[nzMatrixType_ViewProj].matrix.GetInverse(&s_matrices[nzMatrixType_InvViewProj].matrix))
+				NazaraWarning("Failed to inverse ViewProj matrix");
+
+			s_matrices[nzMatrixType_InvViewProj].updated = true;
+			break;
+
+		case nzMatrixType_InvWorld:
+			if (!s_matrices[nzMatrixType_World].updated)
+				UpdateMatrix(nzMatrixType_World);
+
+			if (!s_matrices[nzMatrixType_World].matrix.GetInverse(&s_matrices[nzMatrixType_InvWorld].matrix))
+				NazaraWarning("Failed to inverse World matrix");
+
+			s_matrices[nzMatrixType_InvWorld].updated = true;
+			break;
+
+		case nzMatrixType_InvWorldView:
+			if (!s_matrices[nzMatrixType_WorldView].updated)
+				UpdateMatrix(nzMatrixType_WorldView);
+
+			if (!s_matrices[nzMatrixType_WorldView].matrix.GetInverse(&s_matrices[nzMatrixType_InvWorldView].matrix))
+				NazaraWarning("Failed to inverse WorldView matrix");
+
+			s_matrices[nzMatrixType_InvWorldView].updated = true;
+			break;
+
+		case nzMatrixType_InvWorldViewProj:
+			if (!s_matrices[nzMatrixType_WorldViewProj].updated)
+				UpdateMatrix(nzMatrixType_WorldViewProj);
+
+			if (!s_matrices[nzMatrixType_WorldViewProj].matrix.GetInverse(&s_matrices[nzMatrixType_InvWorldViewProj].matrix))
+				NazaraWarning("Failed to inverse WorldViewProj matrix");
+
+			s_matrices[nzMatrixType_InvWorldViewProj].updated = true;
 			break;
 	}
 }
