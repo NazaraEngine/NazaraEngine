@@ -25,26 +25,26 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		void Enable(const NzShaderProgram* program, unsigned int lightUnit) const;
 
-		NzColor GetAmbientColor() const;
+		float GetAmbientFactor() const;
 		float GetAttenuation() const;
 		const NzBoundingVolumef& GetBoundingVolume() const;
-		NzColor GetDiffuseColor() const;
+		NzColor GetColor() const;
+		float GetDiffuseFactor() const;
 		float GetInnerAngle() const;
 		nzLightType GetLightType() const;
 		float GetOuterAngle() const;
 		float GetRadius() const;
 		nzSceneNodeType GetSceneNodeType() const;
-		NzColor GetSpecularColor() const;
 
 		bool IsDrawable() const;
 
-		void SetAmbientColor(const NzColor& ambient);
+		void SetAmbientFactor(float factor);
 		void SetAttenuation(float attenuation);
-		void SetDiffuseColor(const NzColor& diffuse);
+		void SetColor(const NzColor& color);
+		void SetDiffuseFactor(float factor);
 		void SetInnerAngle(float innerAngle);
 		void SetOuterAngle(float outerAngle);
 		void SetRadius(float radius);
-		void SetSpecularColor(const NzColor& specular);
 
 		NzLight& operator=(const NzLight& light);
 
@@ -59,11 +59,11 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		nzLightType m_type;
 		mutable NzBoundingVolumef m_boundingVolume;
-		NzColor m_ambientColor;
-		NzColor m_diffuseColor;
-		NzColor m_specularColor;
+		NzColor m_color;
 		mutable bool m_boundingVolumeUpdated;
+		float m_ambientFactor;
 		float m_attenuation;
+		float m_diffuseFactor;
 		float m_innerAngle;
 		float m_outerAngle;
 		float m_radius;
