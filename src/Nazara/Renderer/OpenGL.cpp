@@ -1388,6 +1388,30 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 			format->internalFormat = GL_RGB8;
 			return true;
 
+		case nzPixelFormat_RGB16F:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_RGB16F;
+			return true;
+
+		case nzPixelFormat_RGB16I:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_RGB16I;
+			return true;
+
+		case nzPixelFormat_RGB32F:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_RGB32F;
+			return true;
+
+		case nzPixelFormat_RGB32I:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_RGB32I;
+			return true;
+
 		case nzPixelFormat_RGBA4:
 			format->dataFormat = GL_RGBA;
 			format->dataType = GL_UNSIGNED_SHORT_4_4_4_4;
@@ -1398,6 +1422,30 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 			format->dataFormat = GL_RGBA;
 			format->dataType = GL_UNSIGNED_BYTE;
 			format->internalFormat = GL_RGBA8;
+			return true;
+
+		case nzPixelFormat_RGBA16F:
+			format->dataFormat = GL_RGBA;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_RGBA16F;
+			return true;
+
+		case nzPixelFormat_RGBA16I:
+			format->dataFormat = GL_RGBA;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_RGBA32I;
+			return true;
+
+		case nzPixelFormat_RGBA32F:
+			format->dataFormat = GL_RGBA;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_RGBA32F;
+			return true;
+
+		case nzPixelFormat_RGBA32I:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_RGB32I;
 			return true;
 
 		case nzPixelFormat_Depth16:
