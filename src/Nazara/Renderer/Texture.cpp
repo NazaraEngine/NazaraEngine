@@ -451,6 +451,19 @@ unsigned int NzTexture::GetHeight() const
 	return m_impl->height;
 }
 
+NzVector2ui NzTexture::GetSize() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+	#endif
+
+	return NzVector2ui(m_impl->width, m_impl->height);
+}
+
 nzImageType NzTexture::GetType() const
 {
 	#if NAZARA_RENDERER_SAFE
