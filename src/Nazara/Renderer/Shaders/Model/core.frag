@@ -17,9 +17,8 @@ out vec4 RenderTarget2;
 struct Light
 {
 	int type;
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+	vec4 color;
+	vec2 factors;
 
 	vec4 parameters1;
 	vec4 parameters2;
@@ -45,18 +44,18 @@ uniform vec4 SceneAmbient;
 /********************Fonctions********************/
 void main()
 {
-	vec4 fragmentColor = MaterialDiffuse;
+	vec4 diffuseColor = MaterialDiffuse;
 #if DIFFUSE_MAPPING
-	fragmentColor *= texture(MaterialDiffuseMap, vTexCoord);
+	diffuseColor *= texture(MaterialDiffuseMap, vTexCoord);
 #endif
 
 #if FLAG_DEFERRED
 	#if ALPHA_TEST
 		#if ALPHA_MAPPING // Inutile de faire de l'alpha-mapping sans alpha-test en Deferred (l'alpha n'est pas sauvegardé)
-	fragmentColor.a *= texture(MaterialAlphaMap, vTexCoord).r;
+	diffuseColor.a *= texture(MaterialAlphaMap, vTexCoord).r;
 		#endif
 		
-	if (fragmentColor.a < MaterialAlphaThreshold)
+	if (diffuseColor.a < MaterialAlphaThreshold)
 		discard;
 	#endif // ALPHA_TEST
 
@@ -67,39 +66,37 @@ void main()
 	vec3 normal = normalize(vNormal);
 		#endif // NORMAL_MAPPING
 
-	vec3 specular = MaterialSpecular.rgb;
+	vec3 specularColor = MaterialSpecular.rgb;
 		#if SPECULAR_MAPPING
-	specular *= texture(MaterialSpecularMap, vTexCoord).rgb;
+	specularColor *= texture(MaterialSpecularMap, vTexCoord).rgb;
 		#endif
 
 	/*
 	Texture0: Diffuse Color + Flags
 	Texture1: Normal map + Empty
-	Texture2: Specular value + Shininess
+	Texture2: Specular color + Shininess
 	Texture3: Depth texture
 	*/
-	RenderTarget0 = vec4(fragmentColor.rgb, 1.0);
-	RenderTarget1 = vec4(normal, 0.0);
-	RenderTarget2 = vec4(specular, MaterialShininess);
+	RenderTarget0 = vec4(diffuseColor.rgb, 1.0);
+	RenderTarget1 = vec4(normal*0.5 + 0.5, 0.0);
+	RenderTarget2 = vec4(specularColor, MaterialShininess);
 	#else // LIGHTING
-	RenderTarget0 = vec4(fragmentColor.rgb, 0.0);
+	RenderTarget0 = vec4(diffuseColor.rgb, 0.0);
 	#endif
 #else // FLAG_DEFERRED
 	#if ALPHA_MAPPING
-	fragmentColor.a *= texture(MaterialAlphaMap, vTexCoord).r;
+	diffuseColor.a *= texture(MaterialAlphaMap, vTexCoord).r;
 	#endif
 
 	#if ALPHA_TEST
-	if (fragmentColor.a < MaterialAlphaThreshold)
+	if (diffuseColor.a < MaterialAlphaThreshold)
 		discard;
 	#endif
 
 	#if LIGHTING
-	vec3 lightColor = vec3(0.0);
-
-		#if SPECULAR_MAPPING
-	vec3 specularColor = vec3(0.0);
-		#endif
+	vec3 lightAmbient = vec3(0.0);
+	vec3 lightDiffuse = vec3(0.0);
+	vec3 lightSpecular = vec3(0.0);
 
 		#if NORMAL_MAPPING
 	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, vTexCoord)) - 1.0));
@@ -117,80 +114,78 @@ void main()
 			{
 				case LIGHT_DIRECTIONAL:
 				{
-					vec3 lightDir = normalize(-Lights[i].parameters1.xyz);
-					
+					vec3 lightDir = -Lights[i].parameters1.xyz;
+
 					// Ambient
-					lightColor += Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
-					lightColor += lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
+
+					lightDiffuse += lambert * Lights[i].color.rgb * Lights[i].factors.y;
 
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
-					float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);
+					float specularFactor = max(dot(reflection, eyeVec), 0.0);
+					specularFactor = pow(specularFactor, MaterialShininess);
 
-		#if SPECULAR_MAPPING
-					specularColor += specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#else
-					lightColor += specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#endif
+					lightSpecular += specularFactor * Lights[i].color.rgb;
 					break;
 				}
 
 				case LIGHT_POINT:
 				{
 					vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);
-					lightDir = normalize(lightDir);
+					float lightDirLength = length(lightDir);
+					lightDir /= lightDirLength; // Normalisation
+					
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 					// Ambient
-					lightColor += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
-					lightColor += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
+					
+					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
-					float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);
+					float specularFactor = max(dot(reflection, eyeVec), 0.0);
+					specularFactor = pow(specularFactor, MaterialShininess);
 
-		#if SPECULAR_MAPPING
-					specularColor += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#else
-					lightColor += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#endif
+					lightSpecular += att * specularFactor * Lights[i].color.rgb;
 					break;
 				}
 
 				case LIGHT_SPOT:
 				{
 					vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);
-					lightDir = normalize(lightDir);
+					float lightDirLength = length(lightDir);
+					lightDir /= lightDirLength; // Normalisation
+					
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 					// Ambient
-					lightColor += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
 
-					// Modification de l'atténuation
+					// Diffuse
+					float lambert = max(dot(normal, lightDir), 0.0);
+
+					// Modification de l'atténuation pour gérer le spot
 					float curAngle = dot(Lights[i].parameters2.xyz, -lightDir);
 					float outerAngle = Lights[i].parameters3.y;
 					float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;
-					float lambert = max(dot(normal, lightDir), 0.0);
 					att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
 
-					// Diffuse
-					lightColor += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
+					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
-					float specular = pow(max(dot(reflection, eyeVec), 0.0), MaterialShininess);
+					float specularFactor = max(dot(reflection, eyeVec), 0.0);
+					specularFactor = pow(specularFactor, MaterialShininess);
 
-		#if SPECULAR_MAPPING
-					specularColor += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#else
-					lightColor += att * specular * Lights[i].specular.rgb * MaterialSpecular.rgb;
-		#endif
+					lightSpecular += att * specularFactor * Lights[i].color.rgb;
 					break;
 				}
 				
@@ -208,50 +203,56 @@ void main()
 				case LIGHT_DIRECTIONAL:
 				{
 					vec3 lightDir = normalize(-Lights[i].parameters1.xyz);
-					
+
 					// Ambient
-					lightColor += Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
-					lightColor += lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
+
+					lightDiffuse += lambert * Lights[i].color.rgb * Lights[i].factors.y;
 					break;
 				}
 
 				case LIGHT_POINT:
 				{
 					vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);
-					lightDir = normalize(lightDir);
+					float lightDirLength = length(lightDir);
+					lightDir /= lightDirLength; // Normalisation
+					
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 					// Ambient
-					lightColor += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
-					lightColor += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
+					
+					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 					break;
 				}
 
 				case LIGHT_SPOT:
 				{
 					vec3 lightDir = Lights[i].parameters1.xyz - vWorldPos;
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*length(lightDir), 0.0);
-					lightDir = normalize(lightDir);
+					float lightDirLength = length(lightDir);
+					lightDir /= lightDirLength; // Normalisation
+					
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 					// Ambient
-					lightColor += att * Lights[i].ambient.rgb * (MaterialAmbient.rgb + SceneAmbient.rgb);
+					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
 
-					// Modification de l'atténuation
+					// Diffuse
+					float lambert = max(dot(normal, lightDir), 0.0);
+
+					// Modification de l'atténuation pour gérer le spot
 					float curAngle = dot(Lights[i].parameters2.xyz, -lightDir);
 					float outerAngle = Lights[i].parameters3.y;
 					float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;
-					float lambert = max(dot(normal, lightDir), 0.0);
 					att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
 
-					// Diffuse
-					lightColor += att * lambert * Lights[i].diffuse.rgb * MaterialDiffuse.rgb;
-					break;
+					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 				}
 				
 				default:
@@ -260,17 +261,17 @@ void main()
 		}
 	}
 
-	fragmentColor *= vec4(lightColor, 1.0);
+	lightAmbient = (lightAmbient + SceneAmbient.rgb)*MaterialAmbient.rgb;
+	lightSpecular *= MaterialSpecular.rgb;
 		#if SPECULAR_MAPPING
-	fragmentColor *= vec4(specularColor * texture(MaterialSpecularMap, vTexCoord).rgb, 1.0); // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
+	lightSpecular *= texture(MaterialSpecularMap, vTexCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 		#endif
+		
+	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
+	vec4 fragmentColor = vec4(lightColor, 1.0) * diffuseColor;
 
 		#if EMISSIVE_MAPPING
-			#if SPECULAR_MAPPING
-	float lightIntensity = dot(lightColor + specularColor, vec3(0.3, 0.59, 0.11));
-			#else
 	float lightIntensity = dot(lightColor, vec3(0.3, 0.59, 0.11));
-			#endif // SPECULAR_MAPPING
 
 	vec3 emissionColor = MaterialDiffuse.rgb * texture(MaterialEmissiveMap, vTexCoord).rgb;
 	RenderTarget0 = vec4(mix(fragmentColor.rgb, emissionColor, clamp(1.0 - 3.0*lightIntensity, 0.0, 1.0)), fragmentColor.a);
@@ -278,7 +279,7 @@ void main()
 	RenderTarget0 = fragmentColor;
 		#endif // EMISSIVE_MAPPING
 	#else
-	RenderTarget0 = fragmentColor;
+	RenderTarget0 = diffuseColor;
 	#endif // LIGHTING
 #endif // FLAG_DEFERRED
 }

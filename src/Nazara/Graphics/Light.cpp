@@ -17,11 +17,11 @@
 
 NzLight::NzLight(nzLightType type) :
 m_type(type),
-m_ambientColor((type == nzLightType_Directional) ? NzColor(50, 50, 50) : NzColor::Black),
-m_diffuseColor(NzColor::White),
-m_specularColor(NzColor::White),
+m_color(NzColor::White),
 m_boundingVolumeUpdated(false),
+m_ambientFactor((type == nzLightType_Directional) ? 0.2f : 0.f),
 m_attenuation(0.9f),
+m_diffuseFactor(1.f),
 m_innerAngle(15.f),
 m_outerAngle(45.f),
 m_radius(5.f)
@@ -45,9 +45,8 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 	struct Light
 	{
 		int type;
-		vec4 ambient;
-		vec4 diffuse;
-		vec4 specular;
+		vec4 color;
+		vec2 factors;
 
 		vec4 parameters1;
 		vec4 parameters2;
@@ -69,9 +68,8 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 
 	///TODO: Optimiser
 	int typeLocation = program->GetUniformLocation("Lights[0].type");
-	int ambientLocation = program->GetUniformLocation("Lights[0].ambient");
-	int diffuseLocation = program->GetUniformLocation("Lights[0].diffuse");
-	int specularLocation = program->GetUniformLocation("Lights[0].specular");
+	int colorLocation = program->GetUniformLocation("Lights[0].color");
+	int factorsLocation = program->GetUniformLocation("Lights[0].factors");
 	int parameters1Location = program->GetUniformLocation("Lights[0].parameters1");
 	int parameters2Location = program->GetUniformLocation("Lights[0].parameters2");
 	int parameters3Location = program->GetUniformLocation("Lights[0].parameters3");
@@ -83,18 +81,16 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 
 		// On applique cet offset
 		typeLocation += offset;
-		ambientLocation += offset;
-		diffuseLocation += offset;
-		specularLocation += offset;
+		colorLocation += offset;
+		factorsLocation += offset;
 		parameters1Location += offset;
 		parameters2Location += offset;
 		parameters3Location += offset;
 	}
 
 	program->SendInteger(typeLocation, m_type);
-	program->SendColor(ambientLocation, m_ambientColor);
-	program->SendColor(diffuseLocation, m_diffuseColor);
-	program->SendColor(specularLocation, m_specularColor);
+	program->SendColor(colorLocation, m_color);
+	program->SendVector(factorsLocation, NzVector2f(m_ambientFactor, m_diffuseFactor));
 
 	if (!m_derivedUpdated)
 		UpdateDerived();
@@ -118,6 +114,16 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 	}
 }
 
+float NzLight::GetAmbientFactor() const
+{
+	return m_ambientFactor;
+}
+
+float NzLight::GetAttenuation() const
+{
+	return m_attenuation;
+}
+
 const NzBoundingVolumef& NzLight::GetBoundingVolume() const
 {
 	if (!m_boundingVolumeUpdated)
@@ -126,19 +132,14 @@ const NzBoundingVolumef& NzLight::GetBoundingVolume() const
 	return m_boundingVolume;
 }
 
-NzColor NzLight::GetAmbientColor() const
+NzColor NzLight::GetColor() const
 {
-	return m_ambientColor;
+	return m_color;
 }
 
-float NzLight::GetAttenuation() const
+float NzLight::GetDiffuseFactor() const
 {
-	return m_attenuation;
-}
-
-NzColor NzLight::GetDiffuseColor() const
-{
-	return m_diffuseColor;
+	return m_diffuseFactor;
 }
 
 float NzLight::GetInnerAngle() const
@@ -166,19 +167,14 @@ nzSceneNodeType NzLight::GetSceneNodeType() const
 	return nzSceneNodeType_Light;
 }
 
-NzColor NzLight::GetSpecularColor() const
-{
-	return m_specularColor;
-}
-
 bool NzLight::IsDrawable() const
 {
 	return true;
 }
 
-void NzLight::SetAmbientColor(const NzColor& ambient)
+void NzLight::SetAmbientFactor(float factor)
 {
-	m_ambientColor = ambient;
+	m_ambientFactor = factor;
 }
 
 void NzLight::SetAttenuation(float attenuation)
@@ -186,9 +182,14 @@ void NzLight::SetAttenuation(float attenuation)
 	m_attenuation = attenuation;
 }
 
-void NzLight::SetDiffuseColor(const NzColor& diffuse)
+void NzLight::SetColor(const NzColor& color)
 {
-	m_diffuseColor = diffuse;
+	m_color = color;
+}
+
+void NzLight::SetDiffuseFactor(float factor)
+{
+	m_diffuseFactor = factor;
 }
 
 void NzLight::SetInnerAngle(float innerAngle)
@@ -210,11 +211,6 @@ void NzLight::SetRadius(float radius)
 
 	m_boundingVolume.MakeNull();
 	m_boundingVolumeUpdated = false;
-}
-
-void NzLight::SetSpecularColor(const NzColor& specular)
-{
-	m_specularColor = specular;
 }
 
 NzLight& NzLight::operator=(const NzLight& light)
