@@ -293,11 +293,19 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, 0);
-	const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, 0);
+	nzUInt32 possibleFlags[] = {
+		nzShaderFlags_None,
+		nzShaderFlags_Instancing
+	};
 
-	if (program1 != program2)
-		return program1 < program2;
+	for (nzUInt32 flag : possibleFlags)
+	{
+		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, flag);
+		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, flag);
+
+		if (program1 != program2)
+			return program1 < program2;
+	}
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
@@ -309,11 +317,18 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Sprite, 0);
-	const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Sprite, 0);
+	nzUInt32 possibleFlags[] = {
+		nzShaderFlags_None
+	};
 
-	if (program1 != program2)
-		return program1 < program2;
+	for (nzUInt32 flag : possibleFlags)
+	{
+		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, flag);
+		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, flag);
+
+		if (program1 != program2)
+			return program1 < program2;
+	}
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
