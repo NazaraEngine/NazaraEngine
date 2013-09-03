@@ -41,6 +41,11 @@ m_startOffset(indexBuffer.m_startOffset)
 {
 }
 
+NzIndexBuffer::~NzIndexBuffer()
+{
+	NotifyDestroy();
+}
+
 unsigned int NzIndexBuffer::ComputeCacheMissCount() const
 {
 	NzIndexMapper mapper(this);
