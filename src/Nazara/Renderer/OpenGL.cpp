@@ -1707,6 +1707,18 @@ GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 
 static_assert(sizeof(NzOpenGL::PrimitiveMode)/sizeof(GLenum) == nzPrimitiveMode_Max+1, "Primitive mode array is incomplete");
 
+GLenum NzOpenGL::QueryMode[nzGpuQueryMode_Max+1] =
+{
+	GL_ANY_SAMPLES_PASSED,                   // nzGpuQueryMode_AnySamplesPassed
+	GL_ANY_SAMPLES_PASSED_CONSERVATIVE,      // nzGpuQueryMode_AnySamplesPassedConservative
+	GL_PRIMITIVES_GENERATED,                 // nzGpuQueryMode_PrimitiveGenerated
+	GL_SAMPLES_PASSED,                       // nzGpuQueryMode_SamplesPassed
+	GL_TIME_ELAPSED,                         // nzGpuQueryMode_TimeElapsed
+	GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN // nzGpuQueryMode_TransformFeedbackPrimitivesWritten
+};
+
+static_assert(sizeof(NzOpenGL::QueryMode)/sizeof(GLenum) == nzGpuQueryMode_Max+1, "Query mode array is incomplete");
+
 GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
 {
 	GL_ALWAYS,  // nzRendererComparison_Always
