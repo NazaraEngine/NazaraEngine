@@ -145,7 +145,7 @@ unsigned int NzLightManager::GetLightCount() const
 
 const NzLight* NzLightManager::GetResult(unsigned int i) const
 {
-	return m_results[i].light;
+	return m_results[m_results.size()-i-1].light;
 }
 
 bool NzLightManager::IsEmpty() const
