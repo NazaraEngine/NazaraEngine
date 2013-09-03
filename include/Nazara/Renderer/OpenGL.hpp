@@ -135,6 +135,7 @@ class NAZARA_API NzOpenGL
 		static GLenum FaceCulling[nzFaceCulling_Max+1];
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
 		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];
+		static GLenum QueryMode[nzGpuQueryMode_Max+1];
 		static GLenum RendererComparison[nzRendererComparison_Max+1];
 		static GLenum RendererParameter[nzRendererParameter_Max+1];
 		static GLenum SamplerWrapMode[nzSamplerWrap_Max+1];
