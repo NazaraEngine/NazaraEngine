@@ -26,7 +26,7 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 	public:
 		NzVertexDeclaration();
 		NzVertexDeclaration(NzVertexDeclaration& declaration);
-		~NzVertexDeclaration() = default;
+		~NzVertexDeclaration();
 
 		void DisableAttribute(nzAttributeUsage usage);
 		void EnableAttribute(nzAttributeUsage usage, nzAttributeType type, unsigned int offset);

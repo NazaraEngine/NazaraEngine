@@ -36,6 +36,11 @@ m_vertexCount(vertexBuffer.m_vertexCount)
 {
 }
 
+NzVertexBuffer::~NzVertexBuffer()
+{
+	NotifyDestroy();
+}
+
 bool NzVertexBuffer::Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard)
 {
 	unsigned int stride = m_vertexDeclaration->GetStride();
