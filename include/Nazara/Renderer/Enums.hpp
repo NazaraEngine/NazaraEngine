@@ -51,6 +51,18 @@ enum nzFaceFilling
 	nzFaceFilling_Max = nzFaceFilling_Fill
 };
 
+enum nzGpuQueryMode
+{
+	nzGpuQueryMode_AnySamplesPassed,
+	nzGpuQueryMode_AnySamplesPassedConservative,
+	nzGpuQueryMode_PrimitiveGenerated,
+	nzGpuQueryMode_SamplesPassed,
+	nzGpuQueryMode_TimeElapsed,
+	nzGpuQueryMode_TransformFeedbackPrimitivesWritten,
+
+	nzGpuQueryMode_Max = nzGpuQueryMode_TransformFeedbackPrimitivesWritten
+};
+
 enum nzMatrixType
 {
 	// Matrices de base
