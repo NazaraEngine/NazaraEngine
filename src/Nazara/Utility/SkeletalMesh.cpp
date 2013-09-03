@@ -182,6 +182,8 @@ void NzSkeletalMesh::Destroy()
 {
 	if (m_impl)
 	{
+		NotifyDestroy();
+
 		delete m_impl;
 		m_impl = nullptr;
 	}

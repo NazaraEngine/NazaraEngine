@@ -25,7 +25,7 @@ class NAZARA_API NzIndexBuffer : public NzResource
 		NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzIndexBuffer(const NzIndexBuffer& indexBuffer);
 		NzIndexBuffer(NzIndexBuffer&& indexBuffer) noexcept;
-		~NzIndexBuffer() = default;
+		~NzIndexBuffer();
 
 		unsigned int ComputeCacheMissCount() const;
 

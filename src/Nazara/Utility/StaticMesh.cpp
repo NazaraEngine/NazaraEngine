@@ -40,14 +40,16 @@ bool NzStaticMesh::Create(NzVertexBuffer* vertexBuffer)
 
 void NzStaticMesh::Destroy()
 {
-	if (m_indexBuffer)
-	{
-		m_indexBuffer->RemoveResourceListener(this);
-		m_indexBuffer = nullptr;
-	}
-
 	if (m_vertexBuffer)
 	{
+		NotifyDestroy();
+
+		if (m_indexBuffer)
+		{
+			m_indexBuffer->RemoveResourceListener(this);
+			m_indexBuffer = nullptr;
+		}
+
 		m_vertexBuffer->RemoveResourceListener(this);
 		m_vertexBuffer = nullptr;
 	}
