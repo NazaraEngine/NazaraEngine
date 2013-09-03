@@ -4,29 +4,31 @@
 
 #pragma once
 
-#ifndef NAZARA_OCCLUSIONQUERY_HPP
-#define NAZARA_OCCLUSIONQUERY_HPP
+#ifndef NAZARA_GPUQUERY_HPP
+#define NAZARA_GPUQUERY_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_API NzOcclusionQuery : NzNonCopyable
+class NAZARA_API NzGpuQuery : NzNonCopyable
 {
 	public:
-		NzOcclusionQuery();
-		~NzOcclusionQuery();
+		NzGpuQuery();
+		~NzGpuQuery();
 
-		void Begin();
+		void Begin(nzGpuQueryMode mode);
 		void End();
 
 		unsigned int GetResult() const;
 
 		bool IsResultAvailable() const;
 
+		static bool IsModeSupported(nzGpuQueryMode mode);
 		static bool IsSupported();
 
 	private:
 		unsigned int m_id;
 };
 
-#endif // NAZARA_OCCLUSIONQUERY_HPP
+#endif // NAZARA_GPUQUERY_HPP
