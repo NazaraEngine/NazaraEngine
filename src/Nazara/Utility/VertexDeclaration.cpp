@@ -53,6 +53,11 @@ m_stride(declaration.m_stride)
 	std::memcpy(m_attributes, declaration.m_attributes, sizeof(Attribute)*(nzAttributeUsage_Max+1));
 }
 
+NzVertexDeclaration::~NzVertexDeclaration()
+{
+	NotifyDestroy();
+}
+
 void NzVertexDeclaration::DisableAttribute(nzAttributeUsage usage)
 {
 	#ifdef NAZARA_DEBUG

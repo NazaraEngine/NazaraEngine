@@ -26,7 +26,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
 		NzVertexBuffer(NzVertexBuffer&& vertexBuffer) noexcept;
-		~NzVertexBuffer() = default;
+		~NzVertexBuffer();
 
 		bool Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard = false);
 		bool FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);

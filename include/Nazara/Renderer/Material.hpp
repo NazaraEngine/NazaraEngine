@@ -46,7 +46,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzMaterial();
 		NzMaterial(const NzMaterial& material);
 		NzMaterial(NzMaterial&& material);
-		~NzMaterial() = default;
+		~NzMaterial();
 
 		void Apply(const NzShaderProgram* program) const;
 

@@ -43,6 +43,11 @@ NzMaterial::NzMaterial(NzMaterial&& material)
 			unit.program.Reset();
 }
 
+NzMaterial::~NzMaterial()
+{
+	NotifyDestroy();
+}
+
 void NzMaterial::Apply(const NzShaderProgram* program) const
 {
 	int alphaThresholdLocation = program->GetUniformLocation(nzShaderUniform_MaterialAlphaThreshold);
