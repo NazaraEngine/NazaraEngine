@@ -17,20 +17,26 @@ struct NzRenderStates
 
 	NzRenderStates& operator=(const NzRenderStates& states);
 
+	struct Face
+	{
+		nzRendererComparison stencilCompare;
+		nzStencilOperation stencilFail;
+		nzStencilOperation stencilPass;
+		nzStencilOperation stencilZFail;
+		nzUInt32 stencilMask;
+		unsigned int stencilReference;
+	};
+
+	Face backFace;
+	Face frontFace;
 	nzBlendFunc dstBlend;
 	nzBlendFunc srcBlend;
 	nzFaceFilling faceFilling;
 	nzFaceSide faceCulling;
 	nzRendererComparison depthFunc;
-	nzRendererComparison stencilCompare;
-	nzStencilOperation stencilFail;
-	nzStencilOperation stencilPass;
-	nzStencilOperation stencilZFail;
-	nzUInt32 stencilMask;
 	bool parameters[nzRendererParameter_Max+1];
 	float lineWidth;
 	float pointSize;
-	unsigned int stencilReference;
 };
 
 #include <Nazara/Renderer/RenderStates.inl>

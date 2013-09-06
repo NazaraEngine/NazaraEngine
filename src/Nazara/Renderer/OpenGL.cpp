@@ -191,25 +191,32 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 	// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
 	if (states.parameters[nzRendererParameter_StencilTest])
 	{
-		if (currentRenderStates.stencilCompare != states.stencilCompare ||
-		    currentRenderStates.stencilMask != states.stencilMask ||
-		    currentRenderStates.stencilReference != states.stencilReference)
+		for (unsigned int i = 0; i < 2; ++i)
 		{
-			glStencilFunc(RendererComparison[states.stencilCompare], states.stencilReference, states.stencilMask);
-			currentRenderStates.stencilCompare = states.stencilCompare;
-			currentRenderStates.stencilMask = states.stencilMask;
-			currentRenderStates.stencilReference = states.stencilReference;
-		}
+			GLenum face = (i == 0) ? GL_BACK : GL_FRONT;
+			const NzRenderStates::Face& srcStates = (i == 0) ? states.backFace : states.frontFace;
+			NzRenderStates::Face& dstStates = (i == 0) ? currentRenderStates.backFace : currentRenderStates.frontFace;
 
-		// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
-		if (currentRenderStates.stencilFail != states.stencilFail ||
-		    currentRenderStates.stencilPass != states.stencilPass ||
-		    currentRenderStates.stencilZFail != states.stencilZFail)
-		{
-			glStencilOp(StencilOperation[states.stencilFail], StencilOperation[states.stencilZFail], StencilOperation[states.stencilPass]);
-			currentRenderStates.stencilFail = states.stencilFail;
-			currentRenderStates.stencilPass = states.stencilPass;
-			currentRenderStates.stencilZFail = states.stencilZFail;
+			if (dstStates.stencilCompare != srcStates.stencilCompare ||
+				dstStates.stencilMask != srcStates.stencilMask ||
+				dstStates.stencilReference != srcStates.stencilReference)
+			{
+				glStencilFuncSeparate(face, RendererComparison[srcStates.stencilCompare], srcStates.stencilReference, srcStates.stencilMask);
+				dstStates.stencilCompare = srcStates.stencilCompare;
+				dstStates.stencilMask = srcStates.stencilMask;
+				dstStates.stencilReference = srcStates.stencilReference;
+			}
+
+			// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
+			if (dstStates.stencilFail != srcStates.stencilFail ||
+				dstStates.stencilPass != srcStates.stencilPass ||
+				dstStates.stencilZFail != srcStates.stencilZFail)
+			{
+				glStencilOpSeparate(face, StencilOperation[srcStates.stencilFail], StencilOperation[srcStates.stencilZFail], StencilOperation[srcStates.stencilPass]);
+				dstStates.stencilFail = srcStates.stencilFail;
+				dstStates.stencilPass = srcStates.stencilPass;
+				dstStates.stencilZFail = srcStates.stencilZFail;
+			}
 		}
 	}
 
@@ -1259,19 +1266,6 @@ void NzOpenGL::SetBuffer(nzBufferType type, GLuint id)
 	s_contextStates->buffersBinding[type] = id;
 }
 
-void NzOpenGL::SetProgram(GLuint id)
-{
-	#ifdef NAZARA_DEBUG
-	if (!s_contextStates)
-	{
-		NazaraError("No context activated");
-		return;
-	}
-	#endif
-
-	s_contextStates->currentProgram = id;
-}
-
 void NzOpenGL::SetScissorBox(const NzRecti& scissorBox)
 {
 	#ifdef NAZARA_DEBUG
@@ -1283,6 +1277,19 @@ void NzOpenGL::SetScissorBox(const NzRecti& scissorBox)
 	#endif
 
 	s_contextStates->currentScissorBox = scissorBox;
+}
+
+void NzOpenGL::SetProgram(GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentProgram = id;
 }
 
 void NzOpenGL::SetTarget(const NzRenderTarget* renderTarget)
