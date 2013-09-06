@@ -291,6 +291,62 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
+void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int index)
+{
+	// La ressource vient d'être libérée, nous ne pouvons donc plus utiliser la méthode traditionnelle de recherche
+	// des pointeurs stockés (À cause de la fonction de triage utilisant des spécificités des ressources)
+
+	switch (index)
+	{
+		case ResourceType_Material:
+			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
+			{
+				if (it->first == resource)
+				{
+					opaqueModels.erase(it);
+					break;
+				}
+			}
+			break;
+
+		case ResourceType_SkeletalMesh:
+		{
+			for (auto& pair : opaqueModels)
+			{
+				BatchedSkeletalMeshContainer& container = std::get<2>(pair.second);
+
+				for (auto it = container.begin(); it != container.end(); ++it)
+				{
+					if (it->first == resource)
+					{
+						container.erase(it);
+						break;
+					}
+				}
+			}
+			break;
+		}
+
+		case ResourceType_StaticMesh:
+		{
+			for (auto& pair : opaqueModels)
+			{
+				BatchedStaticMeshContainer& container = std::get<3 >(pair.second);
+
+				for (auto it = container.begin(); it != container.end(); ++it)
+				{
+					if (it->first == resource)
+					{
+						container.erase(it);
+						break;
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
 	nzUInt32 possibleFlags[] = {
