@@ -130,6 +130,7 @@ namespace
 		}
 
 		program->SendInteger(program->GetUniformLocation("Skybox"), 0);
+		program->SendFloat(program->GetUniformLocation(nzShaderUniform_VertexDepth), 1.f);
 
 		return program.release();
 	}
