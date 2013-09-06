@@ -13,11 +13,12 @@ uniform sampler2D MaterialAlphaMap;
 uniform float MaterialAlphaThreshold;
 uniform vec4 MaterialDiffuse;
 uniform sampler2D MaterialDiffuseMap;
+uniform float VertexDepth;
 
 /********************Fonctions********************/
 void main()
 {
-	gl_Position = vec4(VertexPosition, 0.0, 1.0);
+	gl_Position = vec4(VertexPosition, VertexDepth, 1.0);
 
 #if ALPHA_MAPPING || DIFFUSE_MAPPING
 	#if FLAG_FLIP_UVS
