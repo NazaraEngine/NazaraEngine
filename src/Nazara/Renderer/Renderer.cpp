@@ -886,17 +886,17 @@ void NzRenderer::SetDepthFunc(nzRendererComparison compareFunc)
 	s_states.depthFunc = compareFunc;
 }
 
-void NzRenderer::SetFaceCulling(nzFaceCulling cullingMode)
+void NzRenderer::SetFaceCulling(nzFaceSide faceSide)
 {
 	#ifdef NAZARA_DEBUG
-	if (cullingMode > nzFaceCulling_Max)
+	if (faceSide > nzFaceSide_Max)
 	{
-		NazaraError("Face culling out of enum");
+		NazaraError("Face side out of enum");
 		return;
 	}
 	#endif
 
-	s_states.faceCulling = cullingMode;
+	s_states.faceCulling = faceSide;
 }
 
 void NzRenderer::SetFaceFilling(nzFaceFilling fillingMode)
