@@ -141,8 +141,9 @@ enum nzRendererComparison
 	nzRendererComparison_Less,
 	nzRendererComparison_LessOrEqual,
 	nzRendererComparison_Never,
+	nzRendererComparison_NotEqual,
 
-	nzRendererComparison_Max = nzRendererComparison_Never
+	nzRendererComparison_Max = nzRendererComparison_NotEqual
 };
 
 enum nzRendererParameter

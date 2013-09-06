@@ -1917,6 +1917,7 @@ GLenum NzOpenGL::RendererComparison[nzRendererComparison_Max+1] =
 	GL_LESS,    // nzRendererComparison_Less
 	GL_LEQUAL,  // nzRendererComparison_LessOrEqual
 	GL_NEVER    // nzRendererComparison_Never
+	GL_NOTEQUAL // nzRendererComparison_NotEqual
 };
 
 static_assert(sizeof(NzOpenGL::RendererComparison)/sizeof(GLenum) == nzRendererComparison_Max+1, "Renderer comparison array is incomplete");
