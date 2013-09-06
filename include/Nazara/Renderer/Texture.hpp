@@ -16,7 +16,6 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 
-class NzRenderTexture;
 class NzTexture;
 
 using NzTextureConstRef = NzResourceRef<const NzTexture>;
@@ -26,8 +25,6 @@ struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 {
-	friend NzRenderTexture;
-
 	public:
 		NzTexture() = default;
 		explicit NzTexture(const NzImage& image);
@@ -52,7 +49,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		bool IsCompressed() const;
 		bool IsCubemap() const;
-		bool IsTarget() const;
 		bool IsValid() const;
 
 		// Load
@@ -95,9 +91,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
-		NzRenderTexture* GetRenderTexture() const;
-		void SetRenderTexture(NzRenderTexture* renderTexture);
-
 		NzTextureImpl* m_impl = nullptr;
 };
 

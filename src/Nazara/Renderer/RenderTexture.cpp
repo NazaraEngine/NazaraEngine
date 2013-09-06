@@ -192,12 +192,6 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 		return false;
 	}
 
-	if (texture->GetRenderTexture() != nullptr)
-	{
-		NazaraError("Texture already used by another render texture");
-		return false;
-	}
-
 	if (formatTypeToAttachment[NzPixelFormat::GetType(texture->GetFormat())] != attachmentPoint)
 	{
 		NazaraError("Pixel format type does not match attachment point type");
@@ -250,7 +244,6 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.texture = texture;
 
 	texture->AddResourceListener(this);
-	texture->SetRenderTexture(this);
 
 	m_impl->checked = false;
 	m_impl->drawBuffersUpdated = false;
@@ -345,10 +338,7 @@ void NzRenderTexture::Destroy()
 				if (attachment.isBuffer)
 					glDeleteRenderbuffers(1, &attachment.buffer); // Les Renderbuffers sont partagés entre les contextes: Ne posera pas de problème
 				else
-				{
-					attachment.texture->SetRenderTexture(nullptr);
 					attachment.texture->RemoveResourceListener(this);
-				}
 			}
 		}
 
@@ -405,7 +395,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0, 0);
 
 		attachement.texture->RemoveResourceListener(this);
-		attachement.texture->SetRenderTexture(nullptr);
+		attachement.texture = nullptr;
 	}
 
 	Unlock();
