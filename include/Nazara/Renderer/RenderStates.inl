@@ -8,8 +8,8 @@
 inline NzRenderStates::NzRenderStates() :
 dstBlend(nzBlendFunc_Zero),
 srcBlend(nzBlendFunc_One),
-faceCulling(nzFaceCulling_Back),
 faceFilling(nzFaceFilling_Fill),
+faceCulling(nzFaceSide_Back),
 depthFunc(nzRendererComparison_Less),
 stencilCompare(nzRendererComparison_Always),
 stencilFail(nzStencilOperation_Keep),
