@@ -231,7 +231,7 @@ NzTexture* NzMaterial::GetEmissiveMap() const
 	return m_emissiveMap;
 }
 
-nzFaceCulling NzMaterial::GetFaceCulling() const
+nzFaceSide NzMaterial::GetFaceCulling() const
 {
 	return m_states.faceCulling;
 }
@@ -370,6 +370,8 @@ bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& p
 
 void NzMaterial::Reset()
 {
+	NotifyDestroy();
+
 	m_alphaMap.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
@@ -506,9 +508,9 @@ void NzMaterial::SetEmissiveMap(NzTexture* map)
 	InvalidatePrograms(nzShaderTarget_Model);
 }
 
-void NzMaterial::SetFaceCulling(nzFaceCulling culling)
+void NzMaterial::SetFaceCulling(nzFaceSide faceSide)
 {
-	m_states.faceCulling = culling;
+	m_states.faceCulling = faceSide;
 }
 
 void NzMaterial::SetFaceFilling(nzFaceFilling filling)

@@ -133,8 +133,8 @@ class NAZARA_API NzOpenGL
 		static GLenum BufferTargetBinding[nzBufferType_Max+1];
 		static GLenum BufferUsage[nzBufferUsage_Max+1];
 		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
-		static GLenum FaceCulling[nzFaceCulling_Max+1];
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
+		static GLenum FaceSide[nzFaceSide_Max+1];
 		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];
 		static GLenum QueryCondition[nzGpuQueryCondition_Max+1];
 		static GLenum QueryMode[nzGpuQueryMode_Max+1];

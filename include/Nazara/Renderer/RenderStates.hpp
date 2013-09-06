@@ -19,8 +19,8 @@ struct NzRenderStates
 
 	nzBlendFunc dstBlend;
 	nzBlendFunc srcBlend;
-	nzFaceCulling faceCulling;
 	nzFaceFilling faceFilling;
+	nzFaceSide faceCulling;
 	nzRendererComparison depthFunc;
 	nzRendererComparison stencilCompare;
 	nzStencilOperation stencilFail;
