@@ -923,6 +923,37 @@ bool NzOpenGL::Initialize()
 	// AnisotropicFilter
 	s_openGLextensions[nzOpenGLExtension_AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
 
+	// ConditionalRender
+	if (s_openglVersion >= 300)
+	{
+		try
+		{
+			glBeginConditionalRender = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERPROC>(LoadEntry("glBeginConditionalRender"));
+			glEndConditionalRender = reinterpret_cast<PFNGLENDCONDITIONALRENDERPROC>(LoadEntry("glEndConditionalRender"));
+
+			s_openGLextensions[nzOpenGLExtension_ConditionalRender] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning("Failed to load Conditional Render: " + NzString(e.what()));
+		}
+	}
+
+	if (!s_openGLextensions[nzOpenGLExtension_ConditionalRender] && IsSupported("GL_NV_conditional_render"))
+	{
+		try
+		{
+			glBeginConditionalRender = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERPROC>(LoadEntry("glBeginConditionalRenderNV"));
+			glEndConditionalRender = reinterpret_cast<PFNGLENDCONDITIONALRENDERPROC>(LoadEntry("glEndConditionalRenderNV"));
+
+			s_openGLextensions[nzOpenGLExtension_ConditionalRender] = true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning("Failed to load GL_NV_conditional_render: " + NzString(e.what()));
+		}
+	}
+
 	// DebugOutput
 	if (s_openglVersion >= 430 || IsSupported("GL_KHR_debug"))
 	{
@@ -1228,19 +1259,6 @@ void NzOpenGL::SetBuffer(nzBufferType type, GLuint id)
 	s_contextStates->buffersBinding[type] = id;
 }
 
-void NzOpenGL::SetScissorBox(const NzRecti& scissorBox)
-{
-	#ifdef NAZARA_DEBUG
-	if (!s_contextStates)
-	{
-		NazaraError("No context activated");
-		return;
-	}
-	#endif
-
-	s_contextStates->currentScissorBox = scissorBox;
-}
-
 void NzOpenGL::SetProgram(GLuint id)
 {
 	#ifdef NAZARA_DEBUG
@@ -1252,6 +1270,19 @@ void NzOpenGL::SetProgram(GLuint id)
 	#endif
 
 	s_contextStates->currentProgram = id;
+}
+
+void NzOpenGL::SetScissorBox(const NzRecti& scissorBox)
+{
+	#ifdef NAZARA_DEBUG
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	s_contextStates->currentScissorBox = scissorBox;
 }
 
 void NzOpenGL::SetTarget(const NzRenderTarget* renderTarget)
@@ -1855,6 +1886,16 @@ GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 
 static_assert(sizeof(NzOpenGL::PrimitiveMode)/sizeof(GLenum) == nzPrimitiveMode_Max+1, "Primitive mode array is incomplete");
 
+GLenum NzOpenGL::QueryCondition[nzGpuQueryCondition_Max+1] =
+{
+	GL_QUERY_WAIT,              // nzGpuQueryCondition_NoWait
+	GL_QUERY_BY_REGION_NO_WAIT, // nzGpuQueryCondition_Region_NoWait
+	GL_QUERY_BY_REGION_WAIT,    // nzGpuQueryCondition_Region_Wait
+	GL_QUERY_WAIT               // nzGpuQueryCondition_Wait
+};
+
+static_assert(sizeof(NzOpenGL::QueryCondition)/sizeof(GLenum) == nzGpuQueryCondition_Max+1, "Query condition array is incomplete");
+
 GLenum NzOpenGL::QueryMode[nzGpuQueryMode_Max+1] =
 {
 	GL_ANY_SAMPLES_PASSED,                   // nzGpuQueryMode_AnySamplesPassed
@@ -1963,6 +2004,7 @@ static_assert(sizeof(NzOpenGL::TextureTargetProxy)/sizeof(GLenum) == nzImageType
 
 PFNGLACTIVETEXTUREPROC            glActiveTexture            = nullptr;
 PFNGLATTACHSHADERPROC             glAttachShader             = nullptr;
+PFNGLBEGINCONDITIONALRENDERPROC   glBeginConditionalRender   = nullptr;
 PFNGLBEGINQUERYPROC               glBeginQuery               = nullptr;
 PFNGLBINDATTRIBLOCATIONPROC       glBindAttribLocation       = nullptr;
 PFNGLBINDBUFFERPROC               glBindBuffer               = nullptr;
@@ -2012,6 +2054,7 @@ PFNGLDRAWELEMENTSINSTANCEDPROC    glDrawElementsInstanced    = nullptr;
 PFNGLDRAWTEXTURENVPROC            glDrawTexture              = nullptr;
 PFNGLENABLEPROC                   glEnable                   = nullptr;
 PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray  = nullptr;
+PFNGLENDCONDITIONALRENDERPROC     glEndConditionalRender     = nullptr;
 PFNGLENDQUERYPROC                 glEndQuery                 = nullptr;
 PFNGLFLUSHPROC                    glFlush                    = nullptr;
 PFNGLFRAMEBUFFERRENDERBUFFERPROC  glFramebufferRenderbuffer  = nullptr;

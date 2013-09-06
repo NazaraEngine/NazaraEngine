@@ -184,6 +184,27 @@ namespace
 	ResourceListener s_listener;
 }
 
+void NzRenderer::BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition condition)
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_ConditionalRendering])
+	{
+		NazaraError("Conditional rendering is not supported");
+		return;
+	}
+	#endif
+
+	glBeginConditionalRender(query.GetOpenGLID(), NzOpenGL::QueryCondition[condition]);
+}
+
 void NzRenderer::Clear(nzUInt32 flags)
 {
 	#ifdef NAZARA_DEBUG
@@ -463,6 +484,27 @@ void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
 	s_states.parameters[parameter] = enable;
 }
 
+void NzRenderer::EndCondition()
+{
+	#ifdef NAZARA_DEBUG
+	if (NzContext::GetCurrent() == nullptr)
+	{
+		NazaraError("No active context");
+		return;
+	}
+	#endif
+
+	#if NAZARA_RENDERER_SAFE
+	if (!s_capabilities[nzRendererCap_ConditionalRendering])
+	{
+		NazaraError("Conditional rendering is not supported");
+		return;
+	}
+	#endif
+
+	glEndConditionalRender();
+}
+
 void NzRenderer::Flush()
 {
 	#ifdef NAZARA_DEBUG
@@ -617,6 +659,7 @@ bool NzRenderer::Initialize()
 
 	// Récupération des capacités d'OpenGL
 	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
+	s_capabilities[nzRendererCap_ConditionalRendering] = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
 	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
 	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
 	s_capabilities[nzRendererCap_Instancing] = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);

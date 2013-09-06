@@ -12,6 +12,7 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -35,6 +36,8 @@ class NAZARA_API NzRenderer
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
+		static void BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition condition);
+
 		static void Clear(nzUInt32 flags = nzRendererClear_Color | nzRendererClear_Depth);
 
 		static void DrawFullscreenQuad();
@@ -44,6 +47,8 @@ class NAZARA_API NzRenderer
 		static void DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
 
 		static void Enable(nzRendererParameter parameter, bool enable);
+
+		static void EndCondition();
 
 		static void Flush();
 
