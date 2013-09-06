@@ -261,9 +261,9 @@ enum nzShaderType
 enum nzStencilOperation
 {
 	nzStencilOperation_Decrement,
-	nzStencilOperation_DecrementToSaturation,
+	nzStencilOperation_DecrementNoClamp,
 	nzStencilOperation_Increment,
-	nzStencilOperation_IncrementToSaturation,
+	nzStencilOperation_IncrementNoClamp,
 	nzStencilOperation_Invert,
 	nzStencilOperation_Keep,
 	nzStencilOperation_Replace,

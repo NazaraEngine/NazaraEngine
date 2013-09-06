@@ -1956,9 +1956,9 @@ static_assert(sizeof(NzOpenGL::ShaderType)/sizeof(GLenum) == nzShaderType_Max+1,
 GLenum NzOpenGL::StencilOperation[nzStencilOperation_Max+1] =
 {
 	GL_DECR,      // nzStencilOperation_Decrement
-	GL_DECR_WRAP, // nzStencilOperation_DecrementToSaturation
+	GL_DECR_WRAP, // nzStencilOperation_DecrementNoClamp
 	GL_INCR,      // nzStencilOperation_Increment
-	GL_INCR_WRAP, // nzStencilOperation_IncrementToSaturation
+	GL_INCR_WRAP, // nzStencilOperation_IncrementNoClamp
 	GL_INVERT,    // nzStencilOperation_Invert
 	GL_KEEP,      // nzStencilOperation_Keep
 	GL_REPLACE,   // nzStencilOperation_Replace
