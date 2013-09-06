@@ -17,7 +17,6 @@ struct NzTextureImpl
 	nzImageType type;
 	nzPixelFormat format;
 	nzUInt8 levelCount;
-	NzRenderTexture* renderTexture = nullptr;
 	bool mipmapping = false;
 	bool mipmapsUpdated = true;
 	unsigned int depth;
@@ -529,19 +528,6 @@ bool NzTexture::IsCubemap() const
 	return m_impl->type == nzImageType_Cubemap;
 }
 
-bool NzTexture::IsTarget() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	return m_impl->renderTexture != nullptr;
-}
-
 bool NzTexture::IsValid() const
 {
 	return m_impl != nullptr;
@@ -1032,12 +1018,6 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int s
 		return false;
 	}
 
-	if (m_impl->renderTexture)
-	{
-		NazaraError("Texture is a target, it cannot be updated");
-		return false;
-	}
-
 	if (m_impl->type == nzImageType_Cubemap)
 	{
 		NazaraError("Update is not designed for cubemaps, use UpdateFace instead");
@@ -1181,12 +1161,6 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
-		return false;
-	}
-
-	if (m_impl->renderTexture)
-	{
-		NazaraError("Texture is a target, it cannot be updated");
 		return false;
 	}
 
@@ -1397,30 +1371,4 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 
 	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
-}
-
-NzRenderTexture* NzTexture::GetRenderTexture() const
-{
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraInternalError("Texture must be valid");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->renderTexture;
-}
-
-void NzTexture::SetRenderTexture(NzRenderTexture* renderTexture)
-{
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraInternalError("Texture must be valid");
-		return;
-	}
-	#endif
-
-	m_impl->renderTexture = renderTexture;
 }
