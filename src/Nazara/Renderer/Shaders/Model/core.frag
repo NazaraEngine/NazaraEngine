@@ -78,8 +78,8 @@ void main()
 	Texture3: Depth texture
 	*/
 	RenderTarget0 = vec4(diffuseColor.rgb, 1.0);
-	RenderTarget1 = vec4(normal*0.5 + 0.5, 0.0);
-	RenderTarget2 = vec4(specularColor, MaterialShininess);
+	RenderTarget1 = vec4(normal*0.5 + 0.5, gl_FragCoord.z);
+	RenderTarget2 = vec4(specularColor, log2(MaterialShininess)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
 	#else // LIGHTING
 	RenderTarget0 = vec4(diffuseColor.rgb, 0.0);
 	#endif
