@@ -14,11 +14,8 @@ namespace
 {
 	struct Attachment
 	{
-		union
-		{
-			GLuint buffer;
-			NzTexture* texture;
-		};
+		GLuint buffer;
+		NzTextureRef texture;
 
 		bool isBuffer;
 		bool isUsed = false;
@@ -26,10 +23,10 @@ namespace
 
 	unsigned int attachmentIndex[nzAttachmentPoint_Max+1] =
 	{
-		2, // nzAttachmentPoint_Color
+		3, // nzAttachmentPoint_Color
 		0, // nzAttachmentPoint_Depth
-		0, // nzAttachmentPoint_DepthStencil
-		1  // nzAttachmentPoint_Stencil
+		1, // nzAttachmentPoint_DepthStencil
+		2  // nzAttachmentPoint_Stencil
 	};
 
 	nzAttachmentPoint formatTypeToAttachment[nzPixelFormatType_Max+1] =
@@ -78,14 +75,23 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	}
 
 	unsigned int depthStencilIndex = attachmentIndex[nzAttachmentPoint_DepthStencil];
-	if (attachmentPoint == nzAttachmentPoint_Stencil && m_impl->attachements.size() > depthStencilIndex &&
-		m_impl->attachements[depthStencilIndex].isUsed)
+	if (m_impl->attachements.size() > depthStencilIndex && m_impl->attachements[depthStencilIndex].isUsed)
 	{
-		NazaraError("Stencil target already attached by DepthStencil attachment");
-		return false;
+		if (attachmentPoint == nzAttachmentPoint_Depth)
+		{
+			NazaraError("Depth target already attached by DepthStencil attachment");
+			return false;
+		}
+		else if (attachmentPoint == nzAttachmentPoint_Stencil)
+		{
+			NazaraError("Stencil target already attached by DepthStencil attachment");
+			return false;
+		}
 	}
 
-	if (formatTypeToAttachment[NzPixelFormat::GetType(format)] != attachmentPoint)
+	nzAttachmentPoint targetAttachmentPoint = formatTypeToAttachment[NzPixelFormat::GetType(format)];
+	if (targetAttachmentPoint != attachmentPoint && targetAttachmentPoint != nzAttachmentPoint_DepthStencil &&
+	    attachmentPoint != nzAttachmentPoint_Depth && attachmentPoint != nzAttachmentPoint_Stencil)
 	{
 		NazaraError("Pixel format type does not match attachment point type");
 		return false;
@@ -166,10 +172,10 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	}
 
 	unsigned int depthStencilIndex = attachmentIndex[nzAttachmentPoint_DepthStencil];
-	if (attachmentPoint == nzAttachmentPoint_Stencil && m_impl->attachements.size() > depthStencilIndex &&
+	if (attachmentPoint == nzAttachmentPoint_Depth && m_impl->attachements.size() > depthStencilIndex &&
 		m_impl->attachements[depthStencilIndex].isUsed)
 	{
-		NazaraError("Stencil target already attached by DepthStencil attachment");
+		NazaraError("Depth target already attached by DepthStencil attachment");
 		return false;
 	}
 
@@ -192,7 +198,9 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 		return false;
 	}
 
-	if (formatTypeToAttachment[NzPixelFormat::GetType(texture->GetFormat())] != attachmentPoint)
+	nzAttachmentPoint targetAttachmentPoint = formatTypeToAttachment[NzPixelFormat::GetType(texture->GetFormat())];
+	if (targetAttachmentPoint != attachmentPoint && targetAttachmentPoint != nzAttachmentPoint_DepthStencil &&
+		attachmentPoint != nzAttachmentPoint_Depth && attachmentPoint != nzAttachmentPoint_Stencil)
 	{
 		NazaraError("Pixel format type does not match attachment point type");
 		return false;
@@ -220,7 +228,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 			break;
 
 		case nzImageType_2D:
-			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, NzOpenGL::TextureTarget[texture->GetType()], texture->GetOpenGLID(), 0);
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_TEXTURE_2D, texture->GetOpenGLID(), 0);
 			break;
 
 		case nzImageType_3D:
