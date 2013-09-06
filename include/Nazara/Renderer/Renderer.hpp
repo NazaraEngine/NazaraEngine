@@ -79,7 +79,7 @@ class NAZARA_API NzRenderer
 		static void SetClearDepth(double depth);
 		static void SetClearStencil(unsigned int value);
 		static void SetDepthFunc(nzRendererComparison compareFunc);
-		static void SetFaceCulling(nzFaceCulling cullingMode);
+		static void SetFaceCulling(nzFaceSide faceSide);
 		static void SetFaceFilling(nzFaceFilling fillingMode);
 		static void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 		static void SetLineWidth(float size);
