@@ -189,28 +189,56 @@ inline nzUInt8 NzPixelFormat::GetBitsPerPixel(nzPixelFormat format)
 		case nzPixelFormat_LA8:
 			return 16;
 
-		case nzPixelFormat_RGB16F:
-			return 48;
+		case nzPixelFormat_R8:
+		case nzPixelFormat_R8I:
+		case nzPixelFormat_R8UI:
+			return 8;
 
+		case nzPixelFormat_R16:
+		case nzPixelFormat_R16F:
+		case nzPixelFormat_R16I:
+		case nzPixelFormat_R16UI:
+			return 16;
+
+		case nzPixelFormat_R32F:
+		case nzPixelFormat_R32I:
+		case nzPixelFormat_R32UI:
+			return 32;
+
+		case nzPixelFormat_RG8:
+		case nzPixelFormat_RG8I:
+		case nzPixelFormat_RG8UI:
+			return 16;
+
+		case nzPixelFormat_RG16:
+		case nzPixelFormat_RG16F:
+		case nzPixelFormat_RG16I:
+		case nzPixelFormat_RG16UI:
+			return 32;
+
+		case nzPixelFormat_RG32F:
+		case nzPixelFormat_RG32I:
+		case nzPixelFormat_RG32UI:
+			return 64;
+
+		case nzPixelFormat_RGB16F:
 		case nzPixelFormat_RGB16I:
+		case nzPixelFormat_RGB16UI:
 			return 48;
 
 		case nzPixelFormat_RGB32F:
-			return 96;
-
 		case nzPixelFormat_RGB32I:
+		case nzPixelFormat_RGB32UI:
 			return 96;
 
 		case nzPixelFormat_RGBA16F:
-			return 64;
-
 		case nzPixelFormat_RGBA16I:
+		case nzPixelFormat_RGBA16UI:
 			return 64;
 
 		case nzPixelFormat_RGBA32F:
-			return 128;
-
 		case nzPixelFormat_RGBA32I:
+		case nzPixelFormat_RGBA32UI:
 			return 128;
 
 		case nzPixelFormat_RGBA4:
@@ -280,18 +308,42 @@ inline nzPixelFormatType NzPixelFormat::GetType(nzPixelFormat format)
 		case nzPixelFormat_DXT5:
 		case nzPixelFormat_L8:
 		case nzPixelFormat_LA8:
+		case nzPixelFormat_R8:
+		case nzPixelFormat_R8I:
+		case nzPixelFormat_R8UI:
+		case nzPixelFormat_R16:
+		case nzPixelFormat_R16F:
+		case nzPixelFormat_R16I:
+		case nzPixelFormat_R16UI:
+		case nzPixelFormat_R32F:
+		case nzPixelFormat_R32I:
+		case nzPixelFormat_R32UI:
+		case nzPixelFormat_RG8:
+		case nzPixelFormat_RG8I:
+		case nzPixelFormat_RG8UI:
+		case nzPixelFormat_RG16:
+		case nzPixelFormat_RG16F:
+		case nzPixelFormat_RG16I:
+		case nzPixelFormat_RG16UI:
+		case nzPixelFormat_RG32F:
+		case nzPixelFormat_RG32I:
+		case nzPixelFormat_RG32UI:
 		case nzPixelFormat_RGB5A1:
 		case nzPixelFormat_RGB8:
 		case nzPixelFormat_RGB16F:
 		case nzPixelFormat_RGB16I:
+		case nzPixelFormat_RGB16UI:
 		case nzPixelFormat_RGB32F:
 		case nzPixelFormat_RGB32I:
+		case nzPixelFormat_RGB32UI:
 		case nzPixelFormat_RGBA4:
 		case nzPixelFormat_RGBA8:
 		case nzPixelFormat_RGBA16F:
 		case nzPixelFormat_RGBA16I:
+		case nzPixelFormat_RGBA16UI:
 		case nzPixelFormat_RGBA32F:
 		case nzPixelFormat_RGBA32I:
+		case nzPixelFormat_RGBA32UI:
 			return nzPixelFormatType_Color;
 
 		case nzPixelFormat_Depth16:
@@ -327,8 +379,10 @@ inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
 		case nzPixelFormat_RGB5A1:
 		case nzPixelFormat_RGBA16F:
 		case nzPixelFormat_RGBA16I:
+		case nzPixelFormat_RGBA16UI:
 		case nzPixelFormat_RGBA32F:
 		case nzPixelFormat_RGBA32I:
+		case nzPixelFormat_RGBA32UI:
 		case nzPixelFormat_RGBA4:
 		case nzPixelFormat_RGBA8:
 			return true;
@@ -336,11 +390,33 @@ inline bool NzPixelFormat::HasAlpha(nzPixelFormat format)
 		case nzPixelFormat_BGR8:
 		case nzPixelFormat_DXT1:
 		case nzPixelFormat_L8:
+		case nzPixelFormat_R8:
+		case nzPixelFormat_R8I:
+		case nzPixelFormat_R8UI:
+		case nzPixelFormat_R16:
+		case nzPixelFormat_R16F:
+		case nzPixelFormat_R16I:
+		case nzPixelFormat_R16UI:
+		case nzPixelFormat_R32F:
+		case nzPixelFormat_R32I:
+		case nzPixelFormat_R32UI:
+		case nzPixelFormat_RG8:
+		case nzPixelFormat_RG8I:
+		case nzPixelFormat_RG8UI:
+		case nzPixelFormat_RG16:
+		case nzPixelFormat_RG16F:
+		case nzPixelFormat_RG16I:
+		case nzPixelFormat_RG16UI:
+		case nzPixelFormat_RG32F:
+		case nzPixelFormat_RG32I:
+		case nzPixelFormat_RG32UI:
 		case nzPixelFormat_RGB8:
 		case nzPixelFormat_RGB16F:
 		case nzPixelFormat_RGB16I:
+		case nzPixelFormat_RGB16UI:
 		case nzPixelFormat_RGB32F:
 		case nzPixelFormat_RGB32I:
+		case nzPixelFormat_RGB32UI:
 		case nzPixelFormat_Depth16:
 		case nzPixelFormat_Depth24:
 		case nzPixelFormat_Depth24Stencil8:
@@ -372,18 +448,42 @@ inline bool NzPixelFormat::IsCompressed(nzPixelFormat format)
 		case nzPixelFormat_BGRA8:
 		case nzPixelFormat_L8:
 		case nzPixelFormat_LA8:
+		case nzPixelFormat_R8:
+		case nzPixelFormat_R8I:
+		case nzPixelFormat_R8UI:
+		case nzPixelFormat_R16:
+		case nzPixelFormat_R16F:
+		case nzPixelFormat_R16I:
+		case nzPixelFormat_R16UI:
+		case nzPixelFormat_R32F:
+		case nzPixelFormat_R32I:
+		case nzPixelFormat_R32UI:
+		case nzPixelFormat_RG8:
+		case nzPixelFormat_RG8I:
+		case nzPixelFormat_RG8UI:
+		case nzPixelFormat_RG16:
+		case nzPixelFormat_RG16F:
+		case nzPixelFormat_RG16I:
+		case nzPixelFormat_RG16UI:
+		case nzPixelFormat_RG32F:
+		case nzPixelFormat_RG32I:
+		case nzPixelFormat_RG32UI:
 		case nzPixelFormat_RGB5A1:
 		case nzPixelFormat_RGB8:
 		case nzPixelFormat_RGB16F:
 		case nzPixelFormat_RGB16I:
+		case nzPixelFormat_RGB16UI:
 		case nzPixelFormat_RGB32F:
 		case nzPixelFormat_RGB32I:
+		case nzPixelFormat_RGB32UI:
 		case nzPixelFormat_RGBA4:
 		case nzPixelFormat_RGBA8:
 		case nzPixelFormat_RGBA16F:
 		case nzPixelFormat_RGBA16I:
+		case nzPixelFormat_RGBA16UI:
 		case nzPixelFormat_RGBA32F:
 		case nzPixelFormat_RGBA32I:
+		case nzPixelFormat_RGBA32UI:
 		case nzPixelFormat_Depth16:
 		case nzPixelFormat_Depth24:
 		case nzPixelFormat_Depth24Stencil8:
@@ -450,6 +550,66 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_LA8:
 			return "LA8";
 
+		case nzPixelFormat_R8:
+			return "R8";
+
+		case nzPixelFormat_R8I:
+			return "R8I";
+
+		case nzPixelFormat_R8UI:
+			return "R8UI";
+
+		case nzPixelFormat_R16:
+			return "R16";
+
+		case nzPixelFormat_R16F:
+			return "R16F";
+
+		case nzPixelFormat_R16I:
+			return "R16I";
+
+		case nzPixelFormat_R16UI:
+			return "R16UI";
+
+		case nzPixelFormat_R32F:
+			return "R32F";
+
+		case nzPixelFormat_R32I:
+			return "R32I";
+
+		case nzPixelFormat_R32UI:
+			return "R32UI";
+
+		case nzPixelFormat_RG8:
+			return "RG8";
+
+		case nzPixelFormat_RG8I:
+			return "RG8I";
+
+		case nzPixelFormat_RG8UI:
+			return "RG8UI";
+
+		case nzPixelFormat_RG16:
+			return "RG16";
+
+		case nzPixelFormat_RG16F:
+			return "RG16F";
+
+		case nzPixelFormat_RG16I:
+			return "RG16I";
+
+		case nzPixelFormat_RG16UI:
+			return "RG16UI";
+
+		case nzPixelFormat_RG32F:
+			return "RG32F";
+
+		case nzPixelFormat_RG32I:
+			return "RG32I";
+
+		case nzPixelFormat_RG32UI:
+			return "RG32UI";
+
 		case nzPixelFormat_RGB5A1:
 			return "RGB5A1";
 
@@ -462,11 +622,17 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_RGB16I:
 			return "RGB16I";
 
+		case nzPixelFormat_RGB16UI:
+			return "RGB16UI";
+
 		case nzPixelFormat_RGB32F:
 			return "RGB32F";
 
 		case nzPixelFormat_RGB32I:
 			return "RGB32I";
+
+		case nzPixelFormat_RGB32UI:
+			return "RGB32UI";
 
 		case nzPixelFormat_RGBA4:
 			return "RGBA4";
@@ -480,11 +646,17 @@ inline NzString NzPixelFormat::ToString(nzPixelFormat format)
 		case nzPixelFormat_RGBA16I:
 			return "RGBA16I";
 
+		case nzPixelFormat_RGBA16UI:
+			return "RGBA16UI";
+
 		case nzPixelFormat_RGBA32F:
 			return "RGBA32F";
 
 		case nzPixelFormat_RGBA32I:
 			return "RGBA32I";
+
+		case nzPixelFormat_RGBA32UI:
+			return "RGBA32UI";
 
 		case nzPixelFormat_Depth16:
 			return "Depth16";
