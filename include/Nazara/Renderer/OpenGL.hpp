@@ -29,6 +29,7 @@
 enum nzOpenGLExtension
 {
 	nzOpenGLExtension_AnisotropicFilter,
+	nzOpenGLExtension_ConditionalRender,
 	nzOpenGLExtension_DebugOutput,
 	nzOpenGLExtension_DrawInstanced,
 	nzOpenGLExtension_FP64,
@@ -90,8 +91,8 @@ class NAZARA_API NzOpenGL
 
 		static GLuint GetCurrentBuffer(nzBufferType type);
 		static GLuint GetCurrentProgram();
-		static const NzRenderTarget* GetCurrentTarget();
 		static NzRecti GetCurrentScissorBox();
+		static const NzRenderTarget* GetCurrentTarget();
 		static GLuint GetCurrentTexture();
 		static GLuint GetCurrentTexture(unsigned int textureUnit);
 		static unsigned int GetCurrentTextureUnit();
@@ -110,8 +111,8 @@ class NAZARA_API NzOpenGL
 		static bool IsSupported(const NzString& string);
 
 		static void SetBuffer(nzBufferType type, GLuint id);
-		static void SetScissorBox(const NzRecti& scissorBox);
 		static void SetProgram(GLuint id);
+		static void SetScissorBox(const NzRecti& scissorBox);
 		static void SetTarget(const NzRenderTarget* renderTarget);
 		static void SetTexture(GLuint id);
 		static void SetTexture(unsigned int textureUnit, GLuint id);
@@ -135,6 +136,7 @@ class NAZARA_API NzOpenGL
 		static GLenum FaceCulling[nzFaceCulling_Max+1];
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
 		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];
+		static GLenum QueryCondition[nzGpuQueryCondition_Max+1];
 		static GLenum QueryMode[nzGpuQueryMode_Max+1];
 		static GLenum RendererComparison[nzRendererComparison_Max+1];
 		static GLenum RendererParameter[nzRendererParameter_Max+1];
@@ -152,6 +154,7 @@ class NAZARA_API NzOpenGL
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_API extern PFNGLATTACHSHADERPROC             glAttachShader;
+NAZARA_API extern PFNGLBEGINCONDITIONALRENDERPROC   glBeginConditionalRender;
 NAZARA_API extern PFNGLBEGINQUERYPROC               glBeginQuery;
 NAZARA_API extern PFNGLBINDATTRIBLOCATIONPROC       glBindAttribLocation;
 NAZARA_API extern PFNGLBINDBUFFERPROC               glBindBuffer;
@@ -201,6 +204,7 @@ NAZARA_API extern PFNGLDRAWELEMENTSINSTANCEDPROC    glDrawElementsInstanced;
 NAZARA_API extern PFNGLDRAWTEXTURENVPROC            glDrawTexture;
 NAZARA_API extern PFNGLENABLEPROC                   glEnable;
 NAZARA_API extern PFNGLENABLEVERTEXATTRIBARRAYPROC  glEnableVertexAttribArray;
+NAZARA_API extern PFNGLENDCONDITIONALRENDERPROC     glEndConditionalRender;
 NAZARA_API extern PFNGLENDQUERYPROC                 glEndQuery;
 NAZARA_API extern PFNGLFLUSHPROC                    glFlush;
 NAZARA_API extern PFNGLFRAMEBUFFERRENDERBUFFERPROC  glFramebufferRenderbuffer;
