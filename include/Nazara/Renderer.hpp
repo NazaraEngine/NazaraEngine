@@ -34,8 +34,8 @@
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/Material.hpp>
-#include <Nazara/Renderer/OcclusionQuery.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
