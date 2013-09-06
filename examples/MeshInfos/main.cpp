@@ -1,6 +1,6 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Math/Cube.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -33,7 +33,7 @@ int main()
 		while (resourceDirectory.NextResult())
 		{
 			NzString path = resourceDirectory.GetResultName();
-			NzString ext = path.SubstrFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
+			NzString ext = path.SubStringFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
 			if (NzMeshLoader::IsExtensionSupported(ext)) // L'extension est-elle supportée par le MeshLoader ?
 				models.push_back(path);
 		}
@@ -152,7 +152,7 @@ int main()
 				std::cout << "It's animable but has no animation information" << std::endl;
 		}
 
-		NzCubef cube = mesh.GetAABB();
+		NzBoxf cube = mesh.GetAABB();
 		std::cout << "Mesh is " << cube.width << " units wide, " << cube.height << " units height and " << cube.depth << " units depth" << std::endl;
 
 		unsigned int materialCount = mesh.GetMaterialCount();
