@@ -51,6 +51,16 @@ enum nzFaceFilling
 	nzFaceFilling_Max = nzFaceFilling_Fill
 };
 
+enum nzGpuQueryCondition
+{
+	nzGpuQueryCondition_Region_NoWait,
+	nzGpuQueryCondition_Region_Wait,
+	nzGpuQueryCondition_NoWait,
+	nzGpuQueryCondition_Wait,
+
+	nzGpuQueryCondition_Max = nzGpuQueryCondition_Wait
+};
+
 enum nzGpuQueryMode
 {
 	nzGpuQueryMode_AnySamplesPassed,
@@ -97,6 +107,7 @@ enum nzPixelBufferType
 enum nzRendererCap
 {
 	nzRendererCap_AnisotropicFilter,
+	nzRendererCap_ConditionalRendering,
 	nzRendererCap_FP64,
 	nzRendererCap_HardwareBuffer,
 	nzRendererCap_Instancing,
