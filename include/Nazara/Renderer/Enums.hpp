@@ -33,15 +33,6 @@ enum nzBlendFunc
 	nzBlendFunc_Max = nzBlendFunc_Zero
 };
 
-enum nzFaceCulling
-{
-	nzFaceCulling_Back,
-	nzFaceCulling_Front,
-	nzFaceCulling_FrontAndBack,
-
-	nzFaceCulling_Max = nzFaceCulling_FrontAndBack
-};
-
 enum nzFaceFilling
 {
 	nzFaceFilling_Point,
@@ -49,6 +40,15 @@ enum nzFaceFilling
 	nzFaceFilling_Fill,
 
 	nzFaceFilling_Max = nzFaceFilling_Fill
+};
+
+enum nzFaceSide
+{
+	nzFaceSide_Back,
+	nzFaceSide_Front,
+	nzFaceSide_FrontAndBack,
+
+	nzFaceSide_Max = nzFaceSide_FrontAndBack
 };
 
 enum nzGpuQueryCondition
