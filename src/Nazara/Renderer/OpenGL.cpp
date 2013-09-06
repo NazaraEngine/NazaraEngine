@@ -177,7 +177,7 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 	{
 		if (currentRenderStates.faceCulling != states.faceCulling)
 		{
-			glCullFace(FaceCulling[states.faceCulling]);
+			glCullFace(FaceSide[states.faceCulling]);
 			currentRenderStates.faceCulling = states.faceCulling;
 		}
 	}
@@ -1856,15 +1856,6 @@ GLenum NzOpenGL::CubemapFace[6] =
 
 static_assert(sizeof(NzOpenGL::CubemapFace)/sizeof(GLenum) == 6, "Cubemap face array is incomplete");
 
-GLenum NzOpenGL::FaceCulling[nzFaceCulling_Max+1] =
-{
-	GL_BACK,          // nzFaceCulling_Back
-	GL_FRONT,	      // nzFaceCulling_Front
-	GL_FRONT_AND_BACK // nzFaceCulling_FrontAndBack
-};
-
-static_assert(sizeof(NzOpenGL::FaceCulling)/sizeof(GLenum) == nzFaceCulling_Max+1, "Face culling array is incomplete");
-
 GLenum NzOpenGL::FaceFilling[nzFaceFilling_Max+1] =
 {
 	GL_POINT, // nzFaceFilling_Point
@@ -1873,6 +1864,15 @@ GLenum NzOpenGL::FaceFilling[nzFaceFilling_Max+1] =
 };
 
 static_assert(sizeof(NzOpenGL::FaceFilling)/sizeof(GLenum) == nzFaceFilling_Max+1, "Face filling array is incomplete");
+
+GLenum NzOpenGL::FaceSide[nzFaceSide_Max+1] =
+{
+	GL_BACK,          // nzFaceSide_Back
+	GL_FRONT,         // nzFaceSide_Front
+	GL_FRONT_AND_BACK // nzFaceSide_FrontAndBack
+};
+
+static_assert(sizeof(NzOpenGL::FaceSide)/sizeof(GLenum) == nzFaceSide_Max+1, "Face side array is incomplete");
 
 GLenum NzOpenGL::PrimitiveMode[nzPrimitiveMode_Max+1] =
 {
