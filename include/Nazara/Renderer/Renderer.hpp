@@ -88,12 +88,12 @@ class NAZARA_API NzRenderer
 		static void SetRenderStates(const NzRenderStates& states);
 		static void SetScissorRect(const NzRecti& rect);
 		static void SetShaderProgram(const NzShaderProgram* shader);
-		static void SetStencilCompareFunction(nzRendererComparison compareFunc);
-		static void SetStencilFailOperation(nzStencilOperation failOperation);
-		static void SetStencilMask(nzUInt32 mask);
-		static void SetStencilPassOperation(nzStencilOperation passOperation);
-		static void SetStencilReferenceValue(unsigned int refValue);
-		static void SetStencilZFailOperation(nzStencilOperation zfailOperation);
+		static void SetStencilCompareFunction(nzRendererComparison compareFunc, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
+		static void SetStencilFailOperation(nzStencilOperation failOperation, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
+		static void SetStencilMask(nzUInt32 mask, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
+		static void SetStencilPassOperation(nzStencilOperation passOperation, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
+		static void SetStencilReferenceValue(unsigned int refValue, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
+		static void SetStencilZFailOperation(nzStencilOperation zfailOperation, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
 		static bool SetTarget(const NzRenderTarget* target);
 		static void SetTexture(nzUInt8 unit, const NzTexture* texture);
 		static void SetTextureSampler(nzUInt8 textureUnit, const NzTextureSampler& sampler);

@@ -1051,7 +1051,7 @@ void NzRenderer::SetShaderProgram(const NzShaderProgram* program)
 	}
 }
 
-void NzRenderer::SetStencilCompareFunction(nzRendererComparison compareFunc)
+void NzRenderer::SetStencilCompareFunction(nzRendererComparison compareFunc, nzFaceSide faceSide)
 {
 	#ifdef NAZARA_DEBUG
 	if (compareFunc > nzRendererComparison_Max)
@@ -1059,12 +1059,32 @@ void NzRenderer::SetStencilCompareFunction(nzRendererComparison compareFunc)
 		NazaraError("Renderer comparison out of enum");
 		return;
 	}
+
+	if (faceSide > nzFaceSide_Max)
+	{
+		NazaraError("Face side out of enum");
+		return;
+	}
 	#endif
 
-	s_states.stencilCompare = compareFunc;
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilCompare = compareFunc;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilCompare = compareFunc;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilCompare = compareFunc;
+			s_states.frontFace.stencilCompare = compareFunc;
+			break;
+	}
 }
 
-void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation)
+void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation, nzFaceSide faceSide)
 {
 	#ifdef NAZARA_DEBUG
 	if (failOperation > nzStencilOperation_Max)
@@ -1072,17 +1092,59 @@ void NzRenderer::SetStencilFailOperation(nzStencilOperation failOperation)
 		NazaraError("Stencil fail operation out of enum");
 		return;
 	}
+
+	if (faceSide > nzFaceSide_Max)
+	{
+		NazaraError("Face side out of enum");
+		return;
+	}
 	#endif
 
-	s_states.stencilFail = failOperation;
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilFail = failOperation;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilFail = failOperation;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilFail = failOperation;
+			s_states.frontFace.stencilFail = failOperation;
+			break;
+	}
 }
 
-void NzRenderer::SetStencilMask(nzUInt32 mask)
+void NzRenderer::SetStencilMask(nzUInt32 mask, nzFaceSide faceSide)
 {
-	s_states.stencilMask = mask;
+	#ifdef NAZARA_DEBUG
+	if (faceSide > nzFaceSide_Max)
+	{
+		NazaraError("Face side out of enum");
+		return;
+	}
+	#endif
+
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilMask = mask;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilMask = mask;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilMask = mask;
+			s_states.frontFace.stencilMask = mask;
+			break;
+	}
 }
 
-void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation)
+void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation, nzFaceSide faceSide)
 {
 	#ifdef NAZARA_DEBUG
 	if (passOperation > nzStencilOperation_Max)
@@ -1090,27 +1152,89 @@ void NzRenderer::SetStencilPassOperation(nzStencilOperation passOperation)
 		NazaraError("Stencil pass operation out of enum");
 		return;
 	}
-	#endif
 
-	s_states.stencilPass = passOperation;
-}
-
-void NzRenderer::SetStencilReferenceValue(unsigned int refValue)
-{
-	s_states.stencilReference = refValue;
-}
-
-void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation)
-{
-	#ifdef NAZARA_DEBUG
-	if (zfailOperation > nzStencilOperation_Max)
+	if (faceSide > nzFaceSide_Max)
 	{
-		NazaraError("Stencil zfail operation out of enum");
+		NazaraError("Face side out of enum");
 		return;
 	}
 	#endif
 
-	s_states.stencilZFail = zfailOperation;
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilPass = passOperation;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilPass = passOperation;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilPass = passOperation;
+			s_states.frontFace.stencilPass = passOperation;
+			break;
+	}
+}
+
+void NzRenderer::SetStencilReferenceValue(unsigned int refValue, nzFaceSide faceSide)
+{
+	#ifdef NAZARA_DEBUG
+	if (faceSide > nzFaceSide_Max)
+	{
+		NazaraError("Face side out of enum");
+		return;
+	}
+	#endif
+
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilReference = refValue;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilReference = refValue;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilReference = refValue;
+			s_states.frontFace.stencilReference = refValue;
+			break;
+	}
+}
+
+void NzRenderer::SetStencilZFailOperation(nzStencilOperation zfailOperation, nzFaceSide faceSide)
+{
+	#ifdef NAZARA_DEBUG
+	if (zfailOperation > nzStencilOperation_Max)
+	{
+		NazaraError("Stencil pass operation out of enum");
+		return;
+	}
+
+	if (faceSide > nzFaceSide_Max)
+	{
+		NazaraError("Face side out of enum");
+		return;
+	}
+	#endif
+
+	switch (faceSide)
+	{
+		case nzFaceSide_Back:
+			s_states.backFace.stencilZFail = zfailOperation;
+			break;
+
+		case nzFaceSide_Front:
+			s_states.frontFace.stencilZFail = zfailOperation;
+			break;
+
+		case nzFaceSide_FrontAndBack:
+			s_states.backFace.stencilZFail = zfailOperation;
+			s_states.frontFace.stencilZFail = zfailOperation;
+			break;
+	}
 }
 
 bool NzRenderer::SetTarget(const NzRenderTarget* target)
