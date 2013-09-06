@@ -47,28 +47,43 @@ namespace
 	{
 		const char* fragmentSource110 =
 		"#version 110\n"
+
 		"varying vec3 vTexCoord;\n"
+
 		"uniform samplerCube Skybox;\n"
+		"uniform float VertexDepth;\n"
+
 		"void main()\n"
 		"{\n"
 		"	gl_FragColor = textureCube(Skybox, vTexCoord);\n"
+		"	gl_FragDepth = VertexDepth;\n"
 		"}\n";
 
 		const char* fragmentSource140 =
 		"#version 140\n"
+
 		"in vec3 vTexCoord;\n"
+
 		"out vec4 RenderTarget0;\n"
+
 		"uniform samplerCube Skybox;\n"
+		"uniform float VertexDepth;\n"
+
 		"void main()\n"
 		"{\n"
 		"	RenderTarget0 = texture(Skybox, vTexCoord);\n"
+		"	gl_FragDepth = VertexDepth;\n"
 		"}\n";
 
 		const char* vertexSource110 =
 		"#version 110\n"
+
 		"attribute vec3 VertexPosition;\n"
+
 		"varying vec3 vTexCoord;\n"
+
 		"uniform mat4 WorldViewProjMatrix;\n"
+
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
@@ -77,9 +92,13 @@ namespace
 
 		const char* vertexSource140 =
 		"#version 140\n"
+
 		"in vec3 VertexPosition;\n"
+
 		"out vec3 vTexCoord;\n"
+
 		"uniform mat4 WorldViewProjMatrix;\n"
+
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
@@ -110,15 +129,19 @@ namespace
 			return nullptr;
 		}
 
+		program->SendInteger(program->GetUniformLocation("Skybox"), 0);
+
 		return program.release();
 	}
 
 	NzRenderStates BuildRenderStates()
 	{
 		NzRenderStates states;
-		states.parameters[nzRendererParameter_DepthBuffer] = false;
+		states.depthFunc = nzRendererComparison_Equal;
+		states.faceCulling = nzFaceSide_Front;
+		states.parameters[nzRendererParameter_DepthBuffer] = true;
+		states.parameters[nzRendererParameter_DepthWrite] = false;
 		states.parameters[nzRendererParameter_FaceCulling] = true;
-		states.faceCulling = nzFaceCulling_Front;
 
 		return states;
 	}
@@ -152,7 +175,6 @@ namespace
 	static NzIndexBuffer* s_indexBuffer = nullptr;
 	static NzShaderProgram* s_program = nullptr;
 	static NzVertexBuffer* s_vertexBuffer = nullptr;
-	static unsigned int s_skyboxLocation;
 }
 
 NzSkyboxBackground::NzSkyboxBackground()
@@ -161,10 +183,7 @@ NzSkyboxBackground::NzSkyboxBackground()
 		s_indexBuffer = BuildIndexBuffer();
 
 	if (!s_program)
-	{
 		s_program = BuildProgram();
-		s_skyboxLocation = s_program->GetUniformLocation("Skybox");
-	}
 
 	if (!s_vertexBuffer)
 		s_vertexBuffer = BuildVertexBuffer();
@@ -196,8 +215,6 @@ NzSkyboxBackground::~NzSkyboxBackground()
 void NzSkyboxBackground::Draw(const NzScene* scene) const
 {
 	static NzRenderStates states(BuildRenderStates());
-
-	s_program->SendInteger(s_skyboxLocation, 0);
 
 	NzAbstractViewer* viewer = scene->GetViewer();
 

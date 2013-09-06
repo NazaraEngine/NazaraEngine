@@ -627,6 +627,7 @@ bool NzGLSLProgram::PostLinkage()
 		CacheUniform(ProjMatrix);
 		CacheUniform(SceneAmbient);
 		CacheUniform(TargetSize);
+		CacheUniform(VertexDepth);
 		CacheUniform(ViewMatrix);
 		CacheUniform(ViewProjMatrix);
 		CacheUniform(WorldMatrix);
