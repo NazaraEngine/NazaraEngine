@@ -11,14 +11,8 @@ srcBlend(nzBlendFunc_One),
 faceFilling(nzFaceFilling_Fill),
 faceCulling(nzFaceSide_Back),
 depthFunc(nzRendererComparison_Less),
-stencilCompare(nzRendererComparison_Always),
-stencilFail(nzStencilOperation_Keep),
-stencilPass(nzStencilOperation_Keep),
-stencilZFail(nzStencilOperation_Keep),
-stencilMask(0xFFFFFFFF),
 lineWidth(1.f),
-pointSize(1.f),
-stencilReference(0)
+pointSize(1.f)
 {
 	parameters[nzRendererParameter_Blend] = false;
 	parameters[nzRendererParameter_ColorWrite] = true;
@@ -27,6 +21,18 @@ stencilReference(0)
 	parameters[nzRendererParameter_FaceCulling] = false;
 	parameters[nzRendererParameter_ScissorTest] = false;
 	parameters[nzRendererParameter_StencilTest] = false;
+
+	for (unsigned int i = 0; i < 2; ++i)
+	{
+		Face& face = (i == 0) ? backFace : frontFace;
+
+		face.stencilCompare = nzRendererComparison_Always;
+		face.stencilFail = nzStencilOperation_Keep;
+		face.stencilMask = 0xFFFFFFFF;
+		face.stencilPass = nzStencilOperation_Keep;
+		face.stencilReference = 0;
+		face.stencilZFail = nzStencilOperation_Keep;
+	}
 }
 
 inline NzRenderStates::NzRenderStates(const NzRenderStates& states)
