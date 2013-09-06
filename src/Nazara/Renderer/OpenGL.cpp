@@ -1340,6 +1340,7 @@ void NzOpenGL::SetViewport(const NzRecti& viewport)
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)
 {
+	///FIXME: Vérifier certains dataType
 	switch (pixelFormat)
 	{
 		case nzPixelFormat_BGR8:
@@ -1376,6 +1377,126 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 		case nzPixelFormat_LA8:
 			return false;
 
+		case nzPixelFormat_R8:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_UNSIGNED_BYTE;
+			format->internalFormat = GL_R8;
+			return true;
+
+		case nzPixelFormat_R8I:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_BYTE;
+			format->internalFormat = GL_R8I;
+			return true;
+
+		case nzPixelFormat_R8UI:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_UNSIGNED_BYTE;
+			format->internalFormat = GL_R8UI;
+			return true;
+
+		case nzPixelFormat_R16:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_UNSIGNED_SHORT;
+			format->internalFormat = GL_R16;
+			return true;
+
+		case nzPixelFormat_R16F:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->internalFormat = GL_R16F;
+			return true;
+
+		case nzPixelFormat_R16I:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_SHORT;
+			format->internalFormat = GL_R16I;
+			return true;
+
+		case nzPixelFormat_R16UI:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_UNSIGNED_SHORT;
+			format->internalFormat = GL_R16UI;
+			return true;
+
+		case nzPixelFormat_R32F:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_R32F;
+			return true;
+
+		case nzPixelFormat_R32I:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_R32I;
+			return true;
+
+		case nzPixelFormat_R32UI:
+			format->dataFormat = GL_RED;
+			format->dataType = GL_UNSIGNED_INT;
+			format->internalFormat = GL_R32UI;
+			return true;
+
+		case nzPixelFormat_RG8:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_UNSIGNED_BYTE;
+			format->internalFormat = GL_RG8;
+			return true;
+
+		case nzPixelFormat_RG8I:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_BYTE;
+			format->internalFormat = GL_RG8I;
+			return true;
+
+		case nzPixelFormat_RG8UI:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_UNSIGNED_BYTE;
+			format->internalFormat = GL_RG8UI;
+			return true;
+
+		case nzPixelFormat_RG16:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_UNSIGNED_SHORT;
+			format->internalFormat = GL_RG16;
+			return true;
+
+		case nzPixelFormat_RG16F:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->internalFormat = GL_RG16F;
+			return true;
+
+		case nzPixelFormat_RG16I:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_SHORT;
+			format->internalFormat = GL_RG16I;
+			return true;
+
+		case nzPixelFormat_RG16UI:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_UNSIGNED_SHORT;
+			format->internalFormat = GL_RG16UI;
+			return true;
+
+		case nzPixelFormat_RG32F:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_FLOAT;
+			format->internalFormat = GL_RG32F;
+			return true;
+
+		case nzPixelFormat_RG32I:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_INT;
+			format->internalFormat = GL_RG32I;
+			return true;
+
+		case nzPixelFormat_RG32UI:
+			format->dataFormat = GL_RG;
+			format->dataType = GL_UNSIGNED_INT;
+			format->internalFormat = GL_RG32UI;
+			return true;
+
 		case nzPixelFormat_RGB5A1:
 			format->dataFormat = GL_RGBA;
 			format->dataType = GL_UNSIGNED_SHORT_5_5_5_1;
@@ -1390,14 +1511,20 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_RGB16F:
 			format->dataFormat = GL_RGB;
-			format->dataType = GL_FLOAT;
+			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
 			format->internalFormat = GL_RGB16F;
 			return true;
 
 		case nzPixelFormat_RGB16I:
 			format->dataFormat = GL_RGB;
-			format->dataType = GL_INT;
+			format->dataType = GL_SHORT;
 			format->internalFormat = GL_RGB16I;
+			return true;
+
+		case nzPixelFormat_RGB16UI:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_UNSIGNED_SHORT;
+			format->internalFormat = GL_RGB16UI;
 			return true;
 
 		case nzPixelFormat_RGB32F:
@@ -1410,6 +1537,12 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 			format->dataFormat = GL_RGB;
 			format->dataType = GL_INT;
 			format->internalFormat = GL_RGB32I;
+			return true;
+
+		case nzPixelFormat_RGB32UI:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_UNSIGNED_INT;
+			format->internalFormat = GL_RGB32UI;
 			return true;
 
 		case nzPixelFormat_RGBA4:
@@ -1426,14 +1559,20 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_RGBA16F:
 			format->dataFormat = GL_RGBA;
-			format->dataType = GL_FLOAT;
+			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
 			format->internalFormat = GL_RGBA16F;
 			return true;
 
 		case nzPixelFormat_RGBA16I:
 			format->dataFormat = GL_RGBA;
+			format->dataType = GL_SHORT;
+			format->internalFormat = GL_RGBA16I;
+			return true;
+
+		case nzPixelFormat_RGBA16UI:
+			format->dataFormat = GL_RGBA;
 			format->dataType = GL_INT;
-			format->internalFormat = GL_RGBA32I;
+			format->internalFormat = GL_RGBA16UI;
 			return true;
 
 		case nzPixelFormat_RGBA32F:
@@ -1448,21 +1587,27 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 			format->internalFormat = GL_RGB32I;
 			return true;
 
+		case nzPixelFormat_RGBA32UI:
+			format->dataFormat = GL_RGB;
+			format->dataType = GL_UNSIGNED_INT;
+			format->internalFormat = GL_RGB32UI;
+			return true;
+
 		case nzPixelFormat_Depth16:
 			format->dataFormat = GL_DEPTH_COMPONENT;
-			format->dataType = GL_UNSIGNED_BYTE;
+			format->dataType = GL_UNSIGNED_SHORT;
 			format->internalFormat = GL_DEPTH_COMPONENT16;
 			return true;
 
 		case nzPixelFormat_Depth24:
 			format->dataFormat = GL_DEPTH_COMPONENT;
-			format->dataType = GL_UNSIGNED_BYTE;
+			format->dataType = GL_UNSIGNED_INT;
 			format->internalFormat = GL_DEPTH_COMPONENT24;
 			return true;
 
 		case nzPixelFormat_Depth24Stencil8:
 			format->dataFormat = GL_DEPTH_STENCIL;
-			format->dataType = GL_UNSIGNED_BYTE;
+			format->dataType = GL_UNSIGNED_INT_24_8;
 			format->internalFormat = GL_DEPTH24_STENCIL8;
 			return true;
 

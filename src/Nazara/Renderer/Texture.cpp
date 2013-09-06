@@ -1307,14 +1307,38 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 			return true;
 
 		// Formats supportés depuis OpenGL 3
+		case nzPixelFormat_R8:
+		case nzPixelFormat_R8I:
+		case nzPixelFormat_R8UI:
+		case nzPixelFormat_R16:
+		case nzPixelFormat_R16F:
+		case nzPixelFormat_R16I:
+		case nzPixelFormat_R16UI:
+		case nzPixelFormat_R32F:
+		case nzPixelFormat_R32I:
+		case nzPixelFormat_R32UI:
+		case nzPixelFormat_RG8:
+		case nzPixelFormat_RG8I:
+		case nzPixelFormat_RG8UI:
+		case nzPixelFormat_RG16:
+		case nzPixelFormat_RG16F:
+		case nzPixelFormat_RG16I:
+		case nzPixelFormat_RG16UI:
+		case nzPixelFormat_RG32F:
+		case nzPixelFormat_RG32I:
+		case nzPixelFormat_RG32UI:
 		case nzPixelFormat_RGB16F:
 		case nzPixelFormat_RGB16I:
+		case nzPixelFormat_RGB16UI:
 		case nzPixelFormat_RGB32F:
 		case nzPixelFormat_RGB32I:
+		case nzPixelFormat_RGB32UI:
 		case nzPixelFormat_RGBA16F:
 		case nzPixelFormat_RGBA16I:
+		case nzPixelFormat_RGBA16UI:
 		case nzPixelFormat_RGBA32F:
 		case nzPixelFormat_RGBA32I:
+		case nzPixelFormat_RGBA32UI:
 			return NzOpenGL::GetVersion() >= 300;
 
 		// Formats de profondeur (Supportés avec les FBOs)
