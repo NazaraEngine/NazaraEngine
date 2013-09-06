@@ -64,6 +64,7 @@ void NzGpuQuery::Begin(nzGpuQueryMode mode)
 	}
 	#endif
 
+	m_mode = mode;
 	glBeginQuery(NzOpenGL::QueryMode[mode], m_id);
 }
 
@@ -77,7 +78,7 @@ void NzGpuQuery::End()
 	}
 	#endif
 
-	glEndQuery(GL_SAMPLES_PASSED);
+	glEndQuery(NzOpenGL::QueryMode[m_mode]);
 }
 
 unsigned int NzGpuQuery::GetResult() const
@@ -98,6 +99,11 @@ bool NzGpuQuery::IsResultAvailable() const
 	glGetQueryObjectiv(m_id, GL_QUERY_RESULT_AVAILABLE, &available);
 
 	return available == GL_TRUE;
+}
+
+unsigned int NzGpuQuery::GetOpenGLID() const
+{
+	return m_id;
 }
 
 bool NzGpuQuery::IsModeSupported(nzGpuQueryMode mode)

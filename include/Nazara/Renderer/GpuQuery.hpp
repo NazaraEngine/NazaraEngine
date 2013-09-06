@@ -24,10 +24,14 @@ class NAZARA_API NzGpuQuery : NzNonCopyable
 
 		bool IsResultAvailable() const;
 
+		// Fonctions OpenGL
+		unsigned int GetOpenGLID() const;
+
 		static bool IsModeSupported(nzGpuQueryMode mode);
 		static bool IsSupported();
 
 	private:
+		nzGpuQueryMode m_mode;
 		unsigned int m_id;
 };
 
