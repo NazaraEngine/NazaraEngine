@@ -240,6 +240,7 @@ enum nzShaderUniform
 	nzShaderUniform_ProjMatrix,
 	nzShaderUniform_SceneAmbient,
 	nzShaderUniform_TargetSize,
+	nzShaderUniform_VertexDepth,
 	nzShaderUniform_ViewMatrix,
 	nzShaderUniform_ViewProjMatrix,
 	nzShaderUniform_WorldMatrix,
