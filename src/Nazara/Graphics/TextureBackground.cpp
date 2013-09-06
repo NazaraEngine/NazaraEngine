@@ -13,7 +13,11 @@ namespace
 	NzRenderStates BuildRenderStates()
 	{
 		NzRenderStates states;
-		states.parameters[nzRendererParameter_DepthBuffer] = false;
+		states.depthFunc = nzRendererComparison_Equal;
+		states.faceCulling = nzFaceSide_Front;
+		states.parameters[nzRendererParameter_DepthBuffer] = true;
+		states.parameters[nzRendererParameter_DepthWrite] = false;
+		states.parameters[nzRendererParameter_FaceCulling] = true;
 
 		return states;
 	}
@@ -29,6 +33,9 @@ NzTextureBackground::NzTextureBackground()
 	params.fullscreenQuad.diffuseMapping = true;
 
 	m_program = NzShaderProgramManager::Get(params);
+	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), NzColor::White);
+	m_program->SendFloat(m_program->GetUniformLocation(nzShaderUniform_VertexDepth), 1.f);
+	m_program->SendInteger(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap), 0);
 }
 
 NzTextureBackground::NzTextureBackground(NzTexture* texture) :
@@ -42,9 +49,6 @@ void NzTextureBackground::Draw(const NzScene* scene) const
 	NazaraUnused(scene);
 
 	static NzRenderStates states(BuildRenderStates());
-
-	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), NzColor::White);
-	m_program->SendInteger(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuseMap), 0);
 
 	NzRenderer::SetRenderStates(states);
 	NzRenderer::SetShaderProgram(m_program);
