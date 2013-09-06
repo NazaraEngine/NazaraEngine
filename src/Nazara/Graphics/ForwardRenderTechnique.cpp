@@ -289,6 +289,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 						}
 						else
 						{
+							unsigned int originalLightCount = lightCount;
 							for (const NzForwardRenderQueue::StaticData& data : staticData)
 							{
 								// Calcul des lumières les plus proches
@@ -306,6 +307,8 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 
 								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
 								DrawFunc(primitiveMode, 0, indexCount);
+
+								lightCount = originalLightCount;
 							}
 						}
 						staticData.clear();
