@@ -191,13 +191,21 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 	NzString source;
 
 	/********************Header********************/
-	source.Reserve(14 + 24 + 1);
+	source.Reserve(14 + 24 + 24 + 26 + 1);
 	source += "#version ";
 	source += NzString::Number(s_glslVersion);
 	source += "\n\n";
 
 	source += "#define FLAG_DEFERRED ";
 	source += (params.flags & nzShaderFlags_Deferred) ? '1' : '0';
+	source += '\n';
+
+	source += "#define FLAG_FLIP_UVS ";
+	source += (params.flags & nzShaderFlags_FlipUVs) ? '1' : '0';
+	source += '\n';
+
+	source += "#define FLAG_INSTANCING ";
+	source += (params.flags & nzShaderFlags_Instancing) ? '1' : '0';
 	source += '\n';
 
 	source += '\n';
@@ -374,10 +382,14 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 	NzString source;
 
 	/********************Header********************/
-	source.Reserve(14 + 24 + 26 + 1);
+	source.Reserve(14 + 24 + 24 + 26 + 1);
 	source += "#version ";
 	source += NzString::Number(s_glslVersion);
 	source += "\n\n";
+
+	source += "#define FLAG_DEFERRED ";
+	source += (params.flags & nzShaderFlags_Deferred) ? '1' : '0';
+	source += '\n';
 
 	source += "#define FLAG_FLIP_UVS ";
 	source += (params.flags & nzShaderFlags_FlipUVs) ? '1' : '0';
