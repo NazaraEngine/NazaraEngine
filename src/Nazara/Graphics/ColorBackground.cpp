@@ -14,7 +14,7 @@ namespace
 	{
 		NzRenderStates states;
 		states.depthFunc = nzRendererComparison_Equal;
-		states.faceCulling = nzFaceSide_Front;
+		states.faceCulling = nzFaceSide_Back;
 		states.parameters[nzRendererParameter_DepthBuffer] = true;
 		states.parameters[nzRendererParameter_DepthWrite] = false;
 		states.parameters[nzRendererParameter_FaceCulling] = true;
@@ -34,8 +34,6 @@ m_color(color)
 	params.fullscreenQuad.diffuseMapping = false;
 
 	m_program = NzShaderProgramManager::Get(params);
-	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
-	m_program->SendFloat(m_program->GetUniformLocation(nzShaderUniform_VertexDepth), 1.f);
 }
 
 void NzColorBackground::Draw(const NzScene* scene) const
@@ -46,6 +44,9 @@ void NzColorBackground::Draw(const NzScene* scene) const
 
 	NzRenderer::SetRenderStates(states);
 	NzRenderer::SetShaderProgram(m_program);
+
+	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
+	m_program->SendFloat(m_program->GetUniformLocation(nzShaderUniform_VertexDepth), 1.f);
 
 	NzRenderer::DrawFullscreenQuad();
 }
