@@ -156,7 +156,7 @@ NzVector3<T>& NzOrientedBox<T>::operator()(unsigned int i)
 	}
 	#endif
 
-	return &m_corners[i];
+	return m_corners[i];
 }
 
 template<typename T>
@@ -173,7 +173,7 @@ NzVector3<T> NzOrientedBox<T>::operator()(unsigned int i) const
 	}
 	#endif
 
-	return &m_corners[i];
+	return m_corners[i];
 }
 
 template<typename T>
