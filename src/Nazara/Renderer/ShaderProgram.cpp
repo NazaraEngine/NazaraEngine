@@ -468,6 +468,34 @@ bool NzShaderProgram::SendDouble(int location, double value) const
 	return m_impl->SendDouble(location, value);
 }
 
+bool NzShaderProgram::SendDoubleArray(int location, const double* values, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!values && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendDoubleArray(location, values, count);
+}
+
 bool NzShaderProgram::SendFloat(int location, float value) const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -484,6 +512,28 @@ bool NzShaderProgram::SendFloat(int location, float value) const
 	return m_impl->SendFloat(location, value);
 }
 
+bool NzShaderProgram::SendFloatArray(int location, const float* values, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!values && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendFloatArray(location, values, count);
+}
+
 bool NzShaderProgram::SendInteger(int location, int value) const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -498,6 +548,28 @@ bool NzShaderProgram::SendInteger(int location, int value) const
 		return false;
 
 	return m_impl->SendInteger(location, value);
+}
+
+bool NzShaderProgram::SendIntegerArray(int location, const int* values, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!values && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendIntegerArray(location, values, count);
 }
 
 bool NzShaderProgram::SendMatrix(int location, const NzMatrix4d& matrix) const
@@ -592,6 +664,22 @@ bool NzShaderProgram::SendVector(int location, const NzVector2f& vector) const
 	return m_impl->SendVector(location, vector);
 }
 
+bool NzShaderProgram::SendVector(int location, const NzVector2i& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVector(location, vector);
+}
+
 bool NzShaderProgram::SendVector(int location, const NzVector3d& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -615,6 +703,22 @@ bool NzShaderProgram::SendVector(int location, const NzVector3d& vector) const
 }
 
 bool NzShaderProgram::SendVector(int location, const NzVector3f& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVector(location, vector);
+}
+
+bool NzShaderProgram::SendVector(int location, const NzVector3i& vector) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -666,6 +770,238 @@ bool NzShaderProgram::SendVector(int location, const NzVector4f& vector) const
 		return false;
 
 	return m_impl->SendVector(location, vector);
+}
+
+bool NzShaderProgram::SendVector(int location, const NzVector4i& vector) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVector(location, vector);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector2d* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector2f* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector2i* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector3d* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector3f* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector3i* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector4d* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!NzRenderer::HasCapability(nzRendererCap_FP64))
+	{
+		NazaraError("FP64 is not supported");
+		return false;
+	}
+
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector4f* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
+}
+
+bool NzShaderProgram::SendVectorArray(int location, const NzVector4i* vectors, unsigned int count) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Program not created");
+		return false;
+	}
+
+	if (!vectors && count > 0)
+	{
+		NazaraError("Invalid array");
+		return false;
+	}
+	#endif
+
+	if (location == -1)
+		return false;
+
+	return m_impl->SendVectorArray(location, vectors, count);
 }
 
 void NzShaderProgram::SetFlags(nzUInt32 flags)

@@ -325,6 +325,19 @@ bool NzGLSLProgram::SendDouble(int location, double value)
 	return true;
 }
 
+bool NzGLSLProgram::SendDoubleArray(int location, const double* values, unsigned int count)
+{
+	if (glProgramUniform1dv)
+		glProgramUniform1dv(m_program, location, count, values);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform1dv(location, count, values);
+	}
+
+	return true;
+}
+
 bool NzGLSLProgram::SendFloat(int location, float value)
 {
 	if (glProgramUniform1f)
@@ -338,6 +351,19 @@ bool NzGLSLProgram::SendFloat(int location, float value)
 	return true;
 }
 
+bool NzGLSLProgram::SendFloatArray(int location, const float* values, unsigned int count)
+{
+	if (glProgramUniform1fv)
+		glProgramUniform1fv(m_program, location, count, values);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform1fv(location, count, values);
+	}
+
+	return true;
+}
+
 bool NzGLSLProgram::SendInteger(int location, int value)
 {
 	if (glProgramUniform1i)
@@ -346,6 +372,19 @@ bool NzGLSLProgram::SendInteger(int location, int value)
 	{
 		NzOpenGL::BindProgram(m_program);
 		glUniform1i(location, value);
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendIntegerArray(int location, const int* values, unsigned int count)
+{
+	if (glProgramUniform1iv)
+		glProgramUniform1iv(m_program, location, count, values);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform1iv(location, count, values);
 	}
 
 	return true;
@@ -468,6 +507,19 @@ bool NzGLSLProgram::SendVector(int location, const NzVector2f& vector)
 	return true;
 }
 
+bool NzGLSLProgram::SendVector(int location, const NzVector2i& vector)
+{
+	if (glProgramUniform2fv)
+		glProgramUniform2iv(m_program, location, 1, vector);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform2iv(location, 1, vector);
+	}
+
+	return true;
+}
+
 bool NzGLSLProgram::SendVector(int location, const NzVector3d& vector)
 {
 	if (glProgramUniform3dv)
@@ -494,6 +546,19 @@ bool NzGLSLProgram::SendVector(int location, const NzVector3f& vector)
 	return true;
 }
 
+bool NzGLSLProgram::SendVector(int location, const NzVector3i& vector)
+{
+	if (glProgramUniform3iv)
+		glProgramUniform3iv(m_program, location, 1, vector);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform3iv(location, 1, vector);
+	}
+
+	return true;
+}
+
 bool NzGLSLProgram::SendVector(int location, const NzVector4d& vector)
 {
 	if (glProgramUniform4dv)
@@ -515,6 +580,136 @@ bool NzGLSLProgram::SendVector(int location, const NzVector4f& vector)
 	{
 		NzOpenGL::BindProgram(m_program);
 		glUniform4fv(location, 1, vector);
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVector(int location, const NzVector4i& vector)
+{
+	if (glProgramUniform4iv)
+		glProgramUniform4iv(m_program, location, 1, vector);
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform4iv(location, 1, vector);
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector2d* vectors, unsigned int count)
+{
+	if (glProgramUniform2dv)
+		glProgramUniform2dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform2dv(location, count, reinterpret_cast<const double*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector2f* vectors, unsigned int count)
+{
+	if (glProgramUniform2fv)
+		glProgramUniform2fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform2fv(location, count, reinterpret_cast<const float*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector2i* vectors, unsigned int count)
+{
+	if (glProgramUniform2iv)
+		glProgramUniform2iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform2iv(location, count, reinterpret_cast<const int*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector3d* vectors, unsigned int count)
+{
+	if (glProgramUniform3dv)
+		glProgramUniform3dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform3dv(location, count, reinterpret_cast<const double*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector3f* vectors, unsigned int count)
+{
+	if (glProgramUniform3fv)
+		glProgramUniform3fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform3fv(location, count, reinterpret_cast<const float*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector3i* vectors, unsigned int count)
+{
+	if (glProgramUniform3iv)
+		glProgramUniform3iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform3iv(location, count, reinterpret_cast<const int*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector4d* vectors, unsigned int count)
+{
+	if (glProgramUniform4dv)
+		glProgramUniform4dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform4dv(location, count, reinterpret_cast<const double*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector4f* vectors, unsigned int count)
+{
+	if (glProgramUniform4fv)
+		glProgramUniform4fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform4fv(location, count, reinterpret_cast<const float*>(vectors));
+	}
+
+	return true;
+}
+
+bool NzGLSLProgram::SendVectorArray(int location, const NzVector4i* vectors, unsigned int count)
+{
+	if (glProgramUniform4iv)
+		glProgramUniform4iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
+	else
+	{
+		NzOpenGL::BindProgram(m_program);
+		glUniform4iv(location, count, reinterpret_cast<const int*>(vectors));
 	}
 
 	return true;

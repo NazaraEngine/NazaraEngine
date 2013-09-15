@@ -66,17 +66,32 @@ class NAZARA_API NzShaderProgram : public NzResource, NzNonCopyable
 		bool SendBoolean(int location, bool value) const;
 		bool SendColor(int location, const NzColor& color) const;
 		bool SendDouble(int location, double value) const;
+		bool SendDoubleArray(int location, const double* values, unsigned int count) const;
 		bool SendFloat(int location, float value) const;
+		bool SendFloatArray(int location, const float* values, unsigned int count) const;
 		bool SendInteger(int location, int value) const;
+		bool SendIntegerArray(int location, const int* values, unsigned int count) const;
 		bool SendMatrix(int location, const NzMatrix4d& matrix) const;
 		bool SendMatrix(int location, const NzMatrix4f& matrix) const;
 		bool SendTexture(int location, const NzTexture* texture, nzUInt8* textureUnit = nullptr) const;
 		bool SendVector(int location, const NzVector2d& vector) const;
 		bool SendVector(int location, const NzVector2f& vector) const;
+		bool SendVector(int location, const NzVector2i& vector) const;
 		bool SendVector(int location, const NzVector3d& vector) const;
 		bool SendVector(int location, const NzVector3f& vector) const;
+		bool SendVector(int location, const NzVector3i& vector) const;
 		bool SendVector(int location, const NzVector4d& vector) const;
 		bool SendVector(int location, const NzVector4f& vector) const;
+		bool SendVector(int location, const NzVector4i& vector) const;
+		bool SendVectorArray(int location, const NzVector2d* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector2f* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector2i* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector3d* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector3f* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector3i* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector4d* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector4f* vectors, unsigned int count) const;
+		bool SendVectorArray(int location, const NzVector4i* vectors, unsigned int count) const;
 
 		void SetFlags(nzUInt32 flags);
 
