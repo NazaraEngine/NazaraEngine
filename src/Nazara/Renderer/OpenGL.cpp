@@ -864,9 +864,14 @@ bool NzOpenGL::Initialize()
 		glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DPROC>(LoadEntry("glTexSubImage3D"));
 		glUniform1f = reinterpret_cast<PFNGLUNIFORM1FPROC>(LoadEntry("glUniform1f"));
 		glUniform1i = reinterpret_cast<PFNGLUNIFORM1IPROC>(LoadEntry("glUniform1i"));
+		glUniform1fv = reinterpret_cast<PFNGLUNIFORM1FVPROC>(LoadEntry("glUniform1fv"));
+		glUniform1iv = reinterpret_cast<PFNGLUNIFORM1IVPROC>(LoadEntry("glUniform1iv"));
 		glUniform2fv = reinterpret_cast<PFNGLUNIFORM2FVPROC>(LoadEntry("glUniform2fv"));
+		glUniform2iv = reinterpret_cast<PFNGLUNIFORM2IVPROC>(LoadEntry("glUniform2iv"));
 		glUniform3fv = reinterpret_cast<PFNGLUNIFORM3FVPROC>(LoadEntry("glUniform3fv"));
+		glUniform3iv = reinterpret_cast<PFNGLUNIFORM3IVPROC>(LoadEntry("glUniform3iv"));
 		glUniform4fv = reinterpret_cast<PFNGLUNIFORM4FVPROC>(LoadEntry("glUniform4fv"));
+		glUniform4iv = reinterpret_cast<PFNGLUNIFORM4IVPROC>(LoadEntry("glUniform4iv"));
 		glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(LoadEntry("glUniformMatrix4fv"));
 		glUnmapBuffer = reinterpret_cast<PFNGLUNMAPBUFFERPROC>(LoadEntry("glUnmapBuffer"));
 		glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(LoadEntry("glUseProgram"));
@@ -1033,6 +1038,7 @@ bool NzOpenGL::Initialize()
 		try
 		{
 			glUniform1d = reinterpret_cast<PFNGLUNIFORM1DPROC>(LoadEntry("glUniform1d"));
+			glUniform1dv = reinterpret_cast<PFNGLUNIFORM1DVPROC>(LoadEntry("glUniform1dv"));
 			glUniform2dv = reinterpret_cast<PFNGLUNIFORM2DVPROC>(LoadEntry("glUniform2dv"));
 			glUniform3dv = reinterpret_cast<PFNGLUNIFORM3DVPROC>(LoadEntry("glUniform3dv"));
 			glUniform4dv = reinterpret_cast<PFNGLUNIFORM4DVPROC>(LoadEntry("glUniform4dv"));
@@ -1148,15 +1154,21 @@ bool NzOpenGL::Initialize()
 		{
 			glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FPROC>(LoadEntry("glProgramUniform1f"));
 			glProgramUniform1i = reinterpret_cast<PFNGLPROGRAMUNIFORM1IPROC>(LoadEntry("glProgramUniform1i"));
+			glProgramUniform1fv = reinterpret_cast<PFNGLPROGRAMUNIFORM1FVPROC>(LoadEntry("glProgramUniform1fv"));
+			glProgramUniform1iv = reinterpret_cast<PFNGLPROGRAMUNIFORM1IVPROC>(LoadEntry("glProgramUniform1iv"));
 			glProgramUniform2fv = reinterpret_cast<PFNGLPROGRAMUNIFORM2FVPROC>(LoadEntry("glProgramUniform2fv"));
+			glProgramUniform2iv = reinterpret_cast<PFNGLPROGRAMUNIFORM2IVPROC>(LoadEntry("glProgramUniform2iv"));
 			glProgramUniform3fv = reinterpret_cast<PFNGLPROGRAMUNIFORM3FVPROC>(LoadEntry("glProgramUniform3fv"));
+			glProgramUniform3iv = reinterpret_cast<PFNGLPROGRAMUNIFORM3IVPROC>(LoadEntry("glProgramUniform3iv"));
 			glProgramUniform4fv = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVPROC>(LoadEntry("glProgramUniform4fv"));
+			glProgramUniform4iv = reinterpret_cast<PFNGLPROGRAMUNIFORM4IVPROC>(LoadEntry("glProgramUniform4iv"));
 			glProgramUniformMatrix4fv = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVPROC>(LoadEntry("glProgramUniformMatrix4fv"));
 
 			// Si ARB_gpu_shader_fp64 est supporté, alors cette extension donne également accès aux fonctions utilisant des double
 			if (s_openGLextensions[nzOpenGLExtension_FP64])
 			{
 				glProgramUniform1d = reinterpret_cast<PFNGLPROGRAMUNIFORM1DPROC>(LoadEntry("glProgramUniform1d"));
+				glProgramUniform1dv = reinterpret_cast<PFNGLPROGRAMUNIFORM2DVPROC>(LoadEntry("glProgramUniform1dv"));
 				glProgramUniform2dv = reinterpret_cast<PFNGLPROGRAMUNIFORM2DVPROC>(LoadEntry("glProgramUniform2dv"));
 				glProgramUniform3dv = reinterpret_cast<PFNGLPROGRAMUNIFORM3DVPROC>(LoadEntry("glProgramUniform3dv"));
 				glProgramUniform4dv = reinterpret_cast<PFNGLPROGRAMUNIFORM4DVPROC>(LoadEntry("glProgramUniform4dv"));
@@ -2116,12 +2128,18 @@ PFNGLPROGRAMPARAMETERIPROC        glProgramParameteri        = nullptr;
 PFNGLPROGRAMUNIFORM1DPROC         glProgramUniform1d         = nullptr;
 PFNGLPROGRAMUNIFORM1FPROC         glProgramUniform1f         = nullptr;
 PFNGLPROGRAMUNIFORM1IPROC         glProgramUniform1i         = nullptr;
+PFNGLPROGRAMUNIFORM1DVPROC        glProgramUniform1dv        = nullptr;
+PFNGLPROGRAMUNIFORM1FVPROC        glProgramUniform1fv        = nullptr;
+PFNGLPROGRAMUNIFORM1IVPROC        glProgramUniform1iv        = nullptr;
 PFNGLPROGRAMUNIFORM2DVPROC        glProgramUniform2dv        = nullptr;
 PFNGLPROGRAMUNIFORM2FVPROC        glProgramUniform2fv        = nullptr;
+PFNGLPROGRAMUNIFORM2IVPROC        glProgramUniform2iv        = nullptr;
 PFNGLPROGRAMUNIFORM3DVPROC        glProgramUniform3dv        = nullptr;
 PFNGLPROGRAMUNIFORM3FVPROC        glProgramUniform3fv        = nullptr;
+PFNGLPROGRAMUNIFORM3IVPROC        glProgramUniform3iv        = nullptr;
 PFNGLPROGRAMUNIFORM4DVPROC        glProgramUniform4dv        = nullptr;
 PFNGLPROGRAMUNIFORM4FVPROC        glProgramUniform4fv        = nullptr;
+PFNGLPROGRAMUNIFORM4IVPROC        glProgramUniform4iv        = nullptr;
 PFNGLPROGRAMUNIFORMMATRIX4DVPROC  glProgramUniformMatrix4dv  = nullptr;
 PFNGLPROGRAMUNIFORMMATRIX4FVPROC  glProgramUniformMatrix4fv  = nullptr;
 PFNGLREADPIXELSPROC               glReadPixels               = nullptr;
@@ -2148,12 +2166,18 @@ PFNGLTEXSUBIMAGE3DPROC            glTexSubImage3D            = nullptr;
 PFNGLUNIFORM1DPROC                glUniform1d                = nullptr;
 PFNGLUNIFORM1FPROC                glUniform1f                = nullptr;
 PFNGLUNIFORM1IPROC                glUniform1i                = nullptr;
+PFNGLUNIFORM1DVPROC               glUniform1dv               = nullptr;
+PFNGLUNIFORM1FVPROC               glUniform1fv               = nullptr;
+PFNGLUNIFORM1IVPROC               glUniform1iv               = nullptr;
 PFNGLUNIFORM2DVPROC               glUniform2dv               = nullptr;
 PFNGLUNIFORM2FVPROC               glUniform2fv               = nullptr;
+PFNGLUNIFORM2IVPROC               glUniform2iv               = nullptr;
 PFNGLUNIFORM3DVPROC               glUniform3dv               = nullptr;
 PFNGLUNIFORM3FVPROC               glUniform3fv               = nullptr;
+PFNGLUNIFORM3IVPROC               glUniform3iv               = nullptr;
 PFNGLUNIFORM4DVPROC               glUniform4dv               = nullptr;
 PFNGLUNIFORM4FVPROC               glUniform4fv               = nullptr;
+PFNGLUNIFORM4IVPROC               glUniform4iv               = nullptr;
 PFNGLUNIFORMMATRIX4DVPROC         glUniformMatrix4dv         = nullptr;
 PFNGLUNIFORMMATRIX4FVPROC         glUniformMatrix4fv         = nullptr;
 PFNGLUNMAPBUFFERPROC              glUnmapBuffer              = nullptr;
