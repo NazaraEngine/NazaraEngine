@@ -1,0 +1,2 @@
+premake4 encoderesources
+pause
