@@ -2,10 +2,11 @@ function encodeResources()
 	print("Encoding resources ...")
 	local modules = os.matchdirs("../src/Nazara/*")
 	for k, modulePath in pairs(modules) do
-		local files = os.matchfiles(modulePath .. "/Resources/**")
-		local resourceContent
-		local headerContent
 		local file
+		local headerContent
+		local moduleName = modulePath:sub(15, -1)
+		local resourceContent
+		local files = os.matchfiles(modulePath .. "/Resources/**")
 		for k, filePath in pairs(files) do
 			if (filePath:sub(-2) ~= ".h") then
 				file = filePath:sub(modulePath:len() + 12, -1)
@@ -36,7 +37,7 @@ function encodeResources()
 				header:write(headerContent)
 				header:close()
 				
-				print(string.format("%s (raw: %.3g kB, header: %.3g kB)", file, contentLength/1024, string.format("%.3g", headerContent:len()/1024)))
+				print(string.format("%s: %s (raw: %.3g kB, header: %.3g kB)", moduleName, file, contentLength/1024, string.format("%.3g", headerContent:len()/1024)))
 			end
 		end
 	end
