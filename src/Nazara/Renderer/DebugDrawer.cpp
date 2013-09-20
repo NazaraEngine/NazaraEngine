@@ -50,9 +50,9 @@ void NzDebugDrawer::Draw(const NzBoxi& box)
 
 void NzDebugDrawer::Draw(const NzBoxf& box)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -141,9 +141,9 @@ void NzDebugDrawer::Draw(const NzBoxui& box)
 
 void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -223,9 +223,9 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 
 void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -305,9 +305,9 @@ void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 
 void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -356,9 +356,9 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 
 void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -403,9 +403,9 @@ void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 
 void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
@@ -450,9 +450,9 @@ void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 
 void NzDebugDrawer::DrawTangents(const NzStaticMesh* subMesh)
 {
-	if (!s_initialized)
+	if (!s_initialized && !Initialize())
 	{
-		NazaraError("Debug drawer is not initialized");
+		NazaraError("Failed to initialize Debug Drawer");
 		return;
 	}
 
