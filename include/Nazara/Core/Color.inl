@@ -89,7 +89,7 @@ inline bool NzColor::operator!=(const NzColor& color) const
 
 inline NzColor NzColor::FromCMY(float cyan, float magenta, float yellow)
 {
-	return NzColor((1.f-cyan)*255.f, (1.f-magenta)*255.f, (1.f-yellow)*255.f);
+	return NzColor(static_cast<nzUInt8>((1.f-cyan)*255.f), static_cast<nzUInt8>((1.f-magenta)*255.f), static_cast<nzUInt8>((1.f-yellow)*255.f));
 }
 
 inline NzColor NzColor::FromCMYK(float cyan, float magenta, float yellow, float black)
@@ -101,18 +101,17 @@ inline NzColor NzColor::FromCMYK(float cyan, float magenta, float yellow, float 
 
 inline NzColor NzColor::FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightness)
 {
-	// Norme Windows
-	float l = lightness/240.f;
-
 	if (saturation == 0)
 	{
 		// RGB results from 0 to 255
-		return NzColor(lightness * 255.f,
-		               lightness * 255.f,
-		               lightness * 255.f);
+		return NzColor(lightness * 255,
+		               lightness * 255,
+		               lightness * 255);
 	}
 	else
 	{
+		// Norme Windows
+		float l = lightness/240.f;
 		float h = hue/240.f;
 		float s = saturation/240.f;
 
@@ -124,9 +123,9 @@ inline NzColor NzColor::FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightne
 
 		float v1 = 2.f * l - v2;
 
-		return NzColor(255.f * Hue2RGB(v1, v2, h + (1.f/3.f)),
-		               255.f * Hue2RGB(v1, v2, h),
-		               255.f * Hue2RGB(v1, v2, h - (1.f/3.f)));
+		return NzColor(static_cast<nzUInt8>(255.f * Hue2RGB(v1, v2, h + (1.f/3.f))),
+		               static_cast<nzUInt8>(255.f * Hue2RGB(v1, v2, h)),
+		               static_cast<nzUInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
 	}
 }
 
@@ -182,7 +181,7 @@ inline NzColor NzColor::FromHSV(float hue, float saturation, float value)
 		}
 
 		// RGB results from 0 to 255
-		return NzColor(r*255.f, g*255.f, b*255.f);
+		return NzColor(static_cast<nzUInt8>(r*255.f), static_cast<nzUInt8>(g*255.f), static_cast<nzUInt8>(b*255.f));
 	}
 }
 inline NzColor NzColor::FromXYZ(const NzVector3f& vec)
@@ -192,9 +191,9 @@ inline NzColor NzColor::FromXYZ(const NzVector3f& vec)
 
 inline NzColor NzColor::FromXYZ(float x, float y, float z)
 {
-	x /= 100; // X from 0 to  95.047
-	y /= 100; // Y from 0 to 100.000
-	z /= 100; // Z from 0 to 108.883
+	x /= 100.f; // X from 0 to  95.047
+	y /= 100.f; // Y from 0 to 100.000
+	z /= 100.f; // Z from 0 to 108.883
 
 	float r = x *  3.2406f + y * -1.5372f + z * -0.4986f;
 	float g = x * -0.9689f + y *  1.8758f + z *  0.0415f;
@@ -215,7 +214,7 @@ inline NzColor NzColor::FromXYZ(float x, float y, float z)
 	else
 		b *= 12.92f;
 
-	return NzColor(r * 255.f, g * 255.f, b * 255.f);
+	return NzColor(static_cast<nzUInt8>(r * 255.f), static_cast<nzUInt8>(g * 255.f), static_cast<nzUInt8>(b * 255.f));
 }
 
 inline void NzColor::ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow)
@@ -272,11 +271,11 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 	{
 		//Chromatic data...
 		if (l < 0.5f)
-			*saturation = deltaMax/(max+min)*240.f;
+			*saturation = static_cast<nzUInt8>(deltaMax/(max+min)*240.f);
 		else
-			*saturation = deltaMax/(2.f-max-min)*240.f;
+			*saturation = static_cast<nzUInt8>(deltaMax/(2.f-max-min)*240.f);
 
-		*lightness = l*240.f;
+		*lightness = static_cast<nzUInt8>(l*240.f);
 
 		float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
 		float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
@@ -296,7 +295,7 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 		else if (h > 1.f)
 			h -= 1.f;
 
-		*hue = h*240.f;
+		*hue = static_cast<nzUInt8>(h*240.f);
 	}
 }
 
@@ -353,33 +352,33 @@ inline void NzColor::ToXYZ(const NzColor& color, NzVector3f* vec)
 
 inline void NzColor::ToXYZ(const NzColor& color, float* x, float* y, float* z)
 {
-	double r = color.r/255.0;        //R from 0 to 255
-	double g = color.g/255.0;        //G from 0 to 255
-	double b = color.b/255.0;        //B from 0 to 255
+	float r = color.r/255.f;        //R from 0 to 255
+	float g = color.g/255.f;        //G from 0 to 255
+	float b = color.b/255.f;        //B from 0 to 255
 
-	if (r > 0.04045)
-		r = std::pow((r + 0.055)/1.055, 2.4);
+	if (r > 0.04045f)
+		r = std::pow((r + 0.055f)/1.055f, 2.4f);
 	else
-		r /= 12.92;
+		r /= 12.92f;
 
-	if (g > 0.04045)
-		g = std::pow((g + 0.055)/1.055, 2.4);
+	if (g > 0.04045f)
+		g = std::pow((g + 0.055f)/1.055f, 2.4f);
 	else
-		g /= 12.92;
+		g /= 12.92f;
 
-	if (b > 0.04045)
-		b = std::pow((b + 0.055)/1.055, 2.4);
+	if (b > 0.04045f)
+		b = std::pow((b + 0.055f)/1.055f, 2.4f);
 	else
-		b /= 12.92;
+		b /= 12.92f;
 
-	r *= 100.0;
-	g *= 100.0;
-	b *= 100.0;
+	r *= 100.f;
+	g *= 100.f;
+	b *= 100.f;
 
 	//Observer. = 2°, Illuminant = D65
-	*x = r*0.4124 + g*0.3576 + b*0.1805;
-	*y = r*0.2126 + g*0.7152 + b*0.0722;
-	*z = r*0.0193 + g*0.1192 + b*0.9505;
+	*x = r*0.4124f + g*0.3576f + b*0.1805f;
+	*y = r*0.2126f + g*0.7152f + b*0.0722f;
+	*z = r*0.0193f + g*0.1192f + b*0.9505f;
 }
 
 inline float NzColor::Hue2RGB(float v1, float v2, float vH)
