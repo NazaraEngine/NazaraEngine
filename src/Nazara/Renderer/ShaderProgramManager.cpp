@@ -215,11 +215,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 		case nzShaderTarget_FullscreenQuad:
 		{
 			char coreFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/FullscreenQuad/core.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.frag.h>
 			};
 
 			char compatibilityFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/FullscreenQuad/compatibility.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.frag.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
@@ -229,7 +229,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 1 + shaderSourceSize);
 
 			// "discard" ne s'entend pas bien avec les early fragment tests
-			if (s_earlyFragmentTest && !params.fullscreenQuad.alphaMapping)
+			if (s_earlyFragmentTest && !params.fullscreenQuad.alphaTest)
 				source += "layout(early_fragment_tests) in;\n\n";
 
 			source += "#define ALPHA_MAPPING ";
@@ -253,11 +253,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 		case nzShaderTarget_Model:
 		{
 			char coreFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/Model/core.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/Model/core.frag.h>
 			};
 
 			char compatibilityFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/Model/compatibility.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.frag.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
@@ -265,7 +265,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 27 + 19 + 25 + 27 + 27 + 1 + shaderSourceSize);
 
-			if (s_earlyFragmentTest && !params.model.alphaMapping)
+			if (s_earlyFragmentTest && !params.model.alphaTest)
 				source += "layout(early_fragment_tests) in;\n\n";
 
 			source += "#define ALPHA_MAPPING ";
@@ -309,11 +309,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 		case nzShaderTarget_None:
 		{
 			char coreFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/None/core.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/None/core.frag.h>
 			};
 
 			char compatibilityFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/None/compatibility.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.frag.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
@@ -331,11 +331,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 		case nzShaderTarget_Sprite:
 		{
 			char coreFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/Sprite/core.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.frag.h>
 			};
 
 			char compatibilityFragmentShader[] = {
-				#include <Nazara/Renderer/Shaders/Sprite/compatibility.frag.h>
+				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.frag.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
@@ -344,7 +344,7 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 1 + shaderSourceSize);
 
 			// "discard" ne s'entend pas bien avec les early fragment tests
-			if (s_earlyFragmentTest && !params.sprite.alphaMapping)
+			if (s_earlyFragmentTest && !params.sprite.alphaTest)
 				source += "layout(early_fragment_tests) in;\n\n";
 
 			source += "#define ALPHA_MAPPING ";
@@ -406,11 +406,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 		case nzShaderTarget_FullscreenQuad:
 		{
 			char coreVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/FullscreenQuad/core.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.vert.h>
 			};
 
 			char compatibilityVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/FullscreenQuad/compatibility.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.vert.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
@@ -439,11 +439,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 		case nzShaderTarget_Model:
 		{
 			char coreVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/Model/core.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/Model/core.vert.h>
 			};
 
 			char compatibilityVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/Model/compatibility.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.vert.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
@@ -492,11 +492,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 		case nzShaderTarget_None:
 		{
 			char coreVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/None/core.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/None/core.vert.h>
 			};
 
 			char compatibilityVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/None/compatibility.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.vert.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
@@ -509,11 +509,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 		case nzShaderTarget_Sprite:
 		{
 			char coreVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/Sprite/core.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.vert.h>
 			};
 
 			char compatibilityVertexShader[] = {
-				#include <Nazara/Renderer/Shaders/Sprite/compatibility.vert.h>
+				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.vert.h>
 			};
 
 			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
