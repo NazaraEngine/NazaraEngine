@@ -9,9 +9,11 @@ in vec2 VertexTexCoord;
 out mat3 vLightToWorld;
 out vec3 vNormal;
 out vec2 vTexCoord;
+out vec3 vViewDir;
 out vec3 vWorldPos;
 
 /********************Uniformes********************/
+uniform vec3 EyePosition;
 uniform mat4 ViewProjMatrix;
 uniform mat4 WorldMatrix;
 uniform mat4 WorldViewProjMatrix;
@@ -32,7 +34,7 @@ void main()
 	mat3 rotationMatrix = mat3(WorldMatrix);
 	#endif
 	
-	#if NORMAL_MAPPING
+	#if NORMAL_MAPPING || PARALLAX_MAPPING
 	vec3 binormal = cross(VertexNormal, VertexTangent);
 	vLightToWorld[0] = normalize(rotationMatrix * VertexTangent);
 	vLightToWorld[1] = normalize(rotationMatrix * binormal);
@@ -50,7 +52,12 @@ void main()
 	#endif
 #endif
 
-#if LIGHTING
+#if LIGHTING && PARALLAX_MAPPING
+	vViewDir = EyePosition - VertexPosition; 
+	vViewDir *= vLightToWorld;
+#endif
+
+#if LIGHTING && !FLAG_DEFERRED
 	#if FLAG_INSTANCING
 	vWorldPos = vec3(InstanceData0 * vec4(VertexPosition, 1.0));
 	#else
