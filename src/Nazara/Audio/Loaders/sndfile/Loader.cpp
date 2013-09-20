@@ -26,7 +26,7 @@ namespace
     sf_count_t Read(void* ptr, sf_count_t count, void* user_data)
     {
         NzInputStream* stream = static_cast<NzInputStream*>(user_data);
-        return stream->Read(ptr, count);
+        return static_cast<sf_count_t>(stream->Read(ptr, static_cast<std::size_t>(count)));
     }
 
     sf_count_t Seek(sf_count_t offset, int whence, void* user_data)
@@ -35,7 +35,7 @@ namespace
         switch (whence)
         {
 			case SEEK_CUR:
-				stream->Read(nullptr, offset);
+				stream->Read(nullptr, static_cast<std::size_t>(offset));
 				break;
 
 			case SEEK_END:
@@ -113,7 +113,7 @@ namespace
 		if (infos.format & SF_FORMAT_VORBIS)
 			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
-		unsigned int sampleCount = infos.frames*infos.channels;
+		sf_count_t sampleCount = infos.frames*infos.channels;
 		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
@@ -124,7 +124,7 @@ namespace
 			return false;
 		}
 
-		if (!soundBuffer->Create(format, infos.frames*infos.channels, infos.samplerate, samples.get()))
+		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), infos.samplerate, samples.get()))
 		{
 			sf_close(file);
 			NazaraError("Failed to create sound buffer");

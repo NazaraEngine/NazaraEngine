@@ -237,7 +237,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 
 		m_impl->SetCursorPos(NzFile::AtCurrent, size);
 
-		return m_impl->GetCursorPos()-currentPos;
+		return static_cast<std::size_t>(m_impl->GetCursorPos()-currentPos);
 	}
 }
 
