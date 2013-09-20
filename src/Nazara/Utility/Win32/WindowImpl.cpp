@@ -281,12 +281,12 @@ void NzWindowImpl::IgnoreNextMouseEvent(int mouseX, int mouseY)
 
 bool NzWindowImpl::IsMinimized() const
 {
-	return IsIconic(m_handle);
+	return IsIconic(m_handle) == TRUE;
 }
 
 bool NzWindowImpl::IsVisible() const
 {
-	return IsWindowVisible(m_handle);
+	return IsWindowVisible(m_handle) == TRUE;
 }
 
 void NzWindowImpl::ProcessEvents(bool block)
@@ -800,7 +800,7 @@ bool NzWindowImpl::HandleMessage(HWND window, UINT message, WPARAM wParam, LPARA
 					{
 						NzEvent event;
 						event.type = nzEventType_MouseWheelMoved;
-						event.mouseWheel.delta = m_scrolling/WHEEL_DELTA;
+						event.mouseWheel.delta = static_cast<float>(m_scrolling/WHEEL_DELTA);
 						m_parent->PushEvent(event);
 
 						m_scrolling %= WHEEL_DELTA;
@@ -1001,7 +1001,7 @@ bool NzWindowImpl::Initialize()
 	windowClass.lpszMenuName = nullptr;
 	windowClass.style = CS_DBLCLKS; // Gestion du double-clic
 
-	return RegisterClassW(&windowClass);
+	return RegisterClassW(&windowClass) != 0;
 }
 
 void NzWindowImpl::Uninitialize()

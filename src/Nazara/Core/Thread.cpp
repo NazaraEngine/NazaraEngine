@@ -135,7 +135,7 @@ bool operator>=(const NzThread::Id& lhs, const NzThread::Id& rhs)
 	return lhs.m_id >= rhs.m_id;
 }
 
-bool operator<<(std::ostream& o, const NzThread::Id& id)
+std::ostream& operator<<(std::ostream& o, const NzThread::Id& id)
 {
 	o << id.m_id;
 	return o;

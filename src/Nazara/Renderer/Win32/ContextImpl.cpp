@@ -19,7 +19,7 @@ NzContextImpl::NzContextImpl()
 
 bool NzContextImpl::Activate()
 {
-	return wglMakeCurrent(m_deviceContext, m_context);
+	return wglMakeCurrent(m_deviceContext, m_context) == TRUE;
 }
 
 bool NzContextImpl::Create(NzContextParameters& parameters)
@@ -74,7 +74,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 
 			do
 			{
-				valid = wglChoosePixelFormat(m_deviceContext, attributes, nullptr, 1, &pixelFormat, &numFormats);
+				valid = (wglChoosePixelFormat(m_deviceContext, attributes, nullptr, 1, &pixelFormat, &numFormats) == TRUE);
 			}
 			while ((!valid || numFormats == 0) && --attributes[19] > 0);
 
@@ -229,6 +229,6 @@ void NzContextImpl::SwapBuffers()
 
 bool NzContextImpl::Desactivate()
 {
-	return wglMakeCurrent(nullptr, nullptr);
+	return wglMakeCurrent(nullptr, nullptr) == TRUE;
 }
 

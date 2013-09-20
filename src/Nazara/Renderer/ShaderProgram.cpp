@@ -398,7 +398,7 @@ bool NzShaderProgram::LoadShaderFromFile(nzShaderType type, const NzString& file
 		return false;
 	}
 
-	unsigned int length = file.GetSize();
+	unsigned int length = static_cast<unsigned int>(file.GetSize());
 
 	NzString source;
 	source.Resize(length);
