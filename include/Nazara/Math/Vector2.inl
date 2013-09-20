@@ -145,7 +145,7 @@ template<typename T>
 NzVector2<T>& NzVector2<T>::Normalize(T* length)
 {
 	T norm = std::sqrt(GetSquaredLength());
-	T invNorm = F(1.0) / length;
+	T invNorm = F(1.0) / norm;
 
 	x *= invNorm;
 	y *= invNorm;
