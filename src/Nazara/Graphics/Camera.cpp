@@ -306,9 +306,9 @@ void NzCamera::UpdateViewport() const
 		m_projectionMatrixUpdated = false;
 	}
 
-	m_viewport.x = width * m_targetRegion.x;
-	m_viewport.y = height * m_targetRegion.y;
-	m_viewport.width = vWidth;
-	m_viewport.height = vHeight;
+	m_viewport.x = static_cast<int>(width * m_targetRegion.x);
+	m_viewport.y = static_cast<int>(height * m_targetRegion.y);
+	m_viewport.width = static_cast<int>(vWidth);
+	m_viewport.height = static_cast<int>(vHeight);
 	m_viewportUpdated = true;
 }

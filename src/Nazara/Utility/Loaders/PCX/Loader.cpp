@@ -217,7 +217,7 @@ namespace
 				nzUInt8 palette[768];
 
 				/* the palette is contained in the last 769 bytes of the file */
-				unsigned int curPos = stream.GetCursorPos();
+				nzUInt64 curPos = stream.GetCursorPos();
 				stream.SetCursorPos(stream.GetSize()-769);
 				nzUInt8 magic;
 				if (!stream.Read(&magic, 1))

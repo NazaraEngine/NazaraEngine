@@ -1279,9 +1279,9 @@ nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned i
 {
 	static const float invLog2 = 1.f/std::log(2.f);
 
-	unsigned int widthLevel = invLog2 * std::log(static_cast<float>(width));
-	unsigned int heightLevel = invLog2 * std::log(static_cast<float>(height));
-	unsigned int depthLevel = invLog2 * std::log(static_cast<float>(depth));
+	unsigned int widthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(width)));
+	unsigned int heightLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(height)));
+	unsigned int depthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(depth)));
 
 	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
 }
