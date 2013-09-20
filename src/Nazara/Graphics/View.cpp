@@ -277,9 +277,9 @@ void NzView::UpdateViewport() const
 	unsigned int width = m_target->GetWidth();
 	unsigned int height = std::max(m_target->GetHeight(), 1U);
 
-	m_viewport.x = width * m_targetRegion.x;
-	m_viewport.y = height * m_targetRegion.y;
-	m_viewport.width = width * m_targetRegion.width;
-	m_viewport.height = height * m_targetRegion.height;
+	m_viewport.x = static_cast<int>(width * m_targetRegion.x);
+	m_viewport.y = static_cast<int>(height * m_targetRegion.y);
+	m_viewport.width = static_cast<int>(width * m_targetRegion.width);
+	m_viewport.height = static_cast<int>(height * m_targetRegion.height);
 	m_viewportUpdated = true;
 }

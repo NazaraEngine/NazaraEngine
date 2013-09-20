@@ -110,7 +110,7 @@ const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerP
 			{
 				NazaraDebug("File found");
 
-				unsigned int size = shaderFile.GetSize();
+				unsigned int size = static_cast<unsigned int>(shaderFile.GetSize());
 
 				NzByteArray binary;
 				binary.Resize(size);

@@ -180,7 +180,7 @@ bool NzLuaInstance::Compare(int index1, int index2, nzLuaComparison comparison) 
 	}
 	#endif
 
-	return lua_compare(m_state, index1, index2, s_comparisons[comparison]);
+	return (lua_compare(m_state, index1, index2, s_comparisons[comparison]) == 1);
 }
 
 void NzLuaInstance::Compute(nzLuaOperation operation)
@@ -236,7 +236,7 @@ bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
 		return false;
 	}
 
-	unsigned int length = file.GetSize();
+	unsigned int length = static_cast<unsigned int>(file.GetSize());
 
 	NzString source;
 	source.Resize(length);
@@ -331,7 +331,7 @@ void NzLuaInstance::GetMetatable(const NzString& tname) const
 
 bool NzLuaInstance::GetMetatable(int index) const
 {
-	return lua_getmetatable(m_state, index);
+	return lua_getmetatable(m_state, index) == 1;
 }
 
 unsigned int NzLuaInstance::GetStackTop() const
@@ -411,34 +411,34 @@ bool NzLuaInstance::IsOfType(int index, nzLuaType type) const
 	switch (type)
 	{
 		case nzLuaType_Boolean:
-			return lua_isboolean(m_state, index);
+			return lua_isboolean(m_state, index) == 1;
 
 		case nzLuaType_Function:
-			return lua_isfunction(m_state, index);
+			return lua_isfunction(m_state, index) == 1;
 
 		case nzLuaType_LightUserdata:
-			return lua_islightuserdata(m_state, index);
+			return lua_islightuserdata(m_state, index) == 1;
 
 		case nzLuaType_Nil:
-			return lua_isnil(m_state, index);
+			return lua_isnil(m_state, index) == 1;
 
 		case nzLuaType_None:
-			return lua_isnone(m_state, index);
+			return lua_isnone(m_state, index) == 1;
 
 		case nzLuaType_Number:
-			return lua_isnumber(m_state, index);
+			return lua_isnumber(m_state, index) == 1;
 
 		case nzLuaType_String:
-			return lua_isstring(m_state, index);
+			return lua_isstring(m_state, index) == 1;
 
 		case nzLuaType_Table:
-			return lua_istable(m_state, index);
+			return lua_istable(m_state, index) == 1;
 
 		case nzLuaType_Thread:
-			return lua_isthread(m_state, index);
+			return lua_isthread(m_state, index) == 1;
 
 		case nzLuaType_Userdata:
-			return lua_isuserdata(m_state, index);
+			return lua_isuserdata(m_state, index) == 1;
 	}
 
 	NazaraError("Lua type unhandled (0x" + NzString::Number(type, 16) + ')');
@@ -473,7 +473,7 @@ void NzLuaInstance::MoveTo(NzLuaInstance* instance, int n)
 
 bool NzLuaInstance::NewMetatable(const char* str)
 {
-	return luaL_newmetatable(m_state, str);
+	return luaL_newmetatable(m_state, str) == 1;
 }
 
 bool NzLuaInstance::NewMetatable(const NzString& str)
@@ -483,12 +483,12 @@ bool NzLuaInstance::NewMetatable(const NzString& str)
 
 bool NzLuaInstance::Next(int index)
 {
-	return lua_next(m_state, index);
+	return lua_next(m_state, index) == 1;
 }
 
 void NzLuaInstance::Pop(unsigned int n)
 {
-	lua_pop(m_state, n);
+	lua_pop(m_state, static_cast<int>(n));
 }
 
 void NzLuaInstance::PushBoolean(bool value)
@@ -639,7 +639,7 @@ void NzLuaInstance::SetTimeLimit(nzUInt32 timeLimit)
 
 bool NzLuaInstance::ToBoolean(int index) const
 {
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) == 1;
 }
 
 int NzLuaInstance::ToInteger(int index, bool* succeeded) const
@@ -648,9 +648,9 @@ int NzLuaInstance::ToInteger(int index, bool* succeeded) const
 	int result = lua_tointegerx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = success;
+		*succeeded = (success  == 1);
 
-	return result;
+	return result == 1;
 }
 
 double NzLuaInstance::ToNumber(int index, bool* succeeded) const
@@ -659,9 +659,9 @@ double NzLuaInstance::ToNumber(int index, bool* succeeded) const
 	double result = lua_tonumberx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = success;
+		*succeeded = (success  == 1);
 
-	return result;
+	return result == 1;
 }
 
 const char* NzLuaInstance::ToString(int index, std::size_t* length) const
@@ -675,9 +675,9 @@ unsigned int NzLuaInstance::ToUnsigned(int index, bool* succeeded) const
 	unsigned int result = lua_tounsignedx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = success;
+		*succeeded = (success  == 1);
 
-	return result;
+	return result == 1;
 }
 
 void* NzLuaInstance::ToUserdata(int index) const

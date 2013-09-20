@@ -54,7 +54,7 @@ class NAZARA_API NzThread::Id
 		NAZARA_API friend bool operator>(const Id& lhs, const Id& rhs);
 		NAZARA_API friend bool operator>=(const Id& lhs, const Id& rhs);
 
-		NAZARA_API friend bool operator<<(std::ostream& o, const Id& id);
+		NAZARA_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
 	private:
 		Id(NzThreadImpl* thread);
