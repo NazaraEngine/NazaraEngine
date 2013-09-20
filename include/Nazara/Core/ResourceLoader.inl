@@ -109,7 +109,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 	if (found)
 		NazaraError("Failed to load file: all loaders failed");
 	else
-		NazaraError("Failed to load file: no loader found");
+		NazaraError("Failed to load file: no loader found for extension \"" + ext + '"');
 
 	return false;
 }
