@@ -42,7 +42,7 @@ namespace
 			{
 			}
 
-			void Generate(float size, unsigned int recursionLevel, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+			void Generate(float size, unsigned int recursionLevel, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 			{
 				// Grandement inspiré de http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
 				const float t = (1.f + 2.236067f)/2.f;
@@ -708,7 +708,7 @@ void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int sta
 
 /**********************************NzGenerate*********************************/
 
-void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
 	unsigned int xVertexCount, yVertexCount, zVertexCount;
@@ -723,42 +723,42 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 	// Face +X
 	transform.MakeTransform(NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, -90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face +Y
 	transform.MakeTransform(NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 0.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face +Z
 	transform.MakeTransform(NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, 90.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
 
 	// Face -X
 	transform.MakeTransform(-NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face -Y
 	transform.MakeTransform(-NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 180.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face -Z
 	transform.MakeTransform(-NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, -90.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
@@ -772,13 +772,13 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 	}
 }
 
-void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	unsigned int vertexCount;
 	NzComputeBoxIndexVertexCount(NzVector3ui(subdivision), nullptr, &vertexCount);
 
 	// On envoie une matrice identité de sorte à ce que la boîte ne subisse aucune transformation (rendant plus facile l'étape suivante)
-	NzGenerateBox(NzVector3f(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), vertices, indices, nullptr, indexOffset);
+	NzGenerateBox(NzVector3f(size, size, size), NzVector3ui(subdivision), NzMatrix4f::Identity(), textureCoords, vertices, indices, nullptr, indexOffset);
 
 	if (aabb)
 	{
@@ -795,13 +795,13 @@ void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4
 	}
 }
 
-void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	IcoSphereBuilder builder(matrix);
-	builder.Generate(size, recursionLevel, vertices, indices, aabb, indexOffset);
+	builder.Generate(size, recursionLevel, textureCoords, vertices, indices, aabb, indexOffset);
 }
 
-void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// Pour plus de facilité, on va construire notre plan en considérant que la normale est de 0,1,0
 	// Et appliquer ensuite une matrice "finissant le travail"
@@ -833,7 +833,7 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, con
 		{
 			NzVector3f localPos((2.f*x*invHorizontalVertexCount - 1.f) * halfSizeX, 0.f, (2.f*y*invVerticalVertexCount - 1.f) * halfSizeY);
 			vertices->position = matrix * localPos;
-			vertices->uv.Set(x*invHorizontalVertexCount, y*invVerticalVertexCount);
+			vertices->uv.Set(textureCoords.x + x*invHorizontalVertexCount*textureCoords.width, textureCoords.y + y*invVerticalVertexCount*textureCoords.height);
 			vertices->normal = normal;
 			vertices->tangent = tangent;
 			vertices++;
@@ -855,13 +855,13 @@ void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, con
 		aabb->Set(matrix.Transform(NzVector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(NzVector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 }
 
-void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
 	// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 	float invSliceCount = 1.f / (sliceCount-1);
 	float invStackCount = 1.f / (stackCount-1);
 
-	const float pi = M_PI; // Pour éviter toute promotion en double
+	const float pi = static_cast<float>(M_PI); // Pour éviter toute promotion en double
 	const float pi2 = pi * 2.f;
 	const float pi_2 = pi / 2.f;
 
@@ -883,7 +883,7 @@ void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackC
 
 			vertices->position = matrix.Transform(size * normal);
 			vertices->normal = matrix.Transform(normal, 0.f);
-			vertices->uv.Set(1.f - sliceVal, stackVal);
+			vertices->uv.Set(textureCoords.x + textureCoords.width*(1.f - sliceVal), textureCoords.y + textureCoords.height*stackVal);
 			vertices++;
 
 			if (stack != stackCount-1 && slice != sliceCount-1)
