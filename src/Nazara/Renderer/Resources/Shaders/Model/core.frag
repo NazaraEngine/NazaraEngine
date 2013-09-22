@@ -129,7 +129,7 @@ void main()
 					vec3 lightDir = -Lights[i].parameters1.xyz;
 
 					// Ambient
-					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
+					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x * SceneAmbient.rgb;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
@@ -176,19 +176,19 @@ void main()
 					float lightDirLength = length(lightDir);
 					lightDir /= lightDirLength; // Normalisation
 					
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*lightDirLength, 0.0);
 
 					// Ambient
 					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
-
-					// Diffuse
-					float lambert = max(dot(normal, lightDir), 0.0);
 
 					// Modification de l'atténuation pour gérer le spot
 					float curAngle = dot(Lights[i].parameters2.xyz, -lightDir);
 					float outerAngle = Lights[i].parameters3.y;
 					float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;
 					att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
+
+					// Diffuse
+					float lambert = max(dot(normal, lightDir), 0.0);
 
 					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 
@@ -217,7 +217,7 @@ void main()
 					vec3 lightDir = normalize(-Lights[i].parameters1.xyz);
 
 					// Ambient
-					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
+					lightAmbient += Lights[i].color.rgb * Lights[i].factors.x * SceneAmbient.rgb;
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
@@ -250,19 +250,19 @@ void main()
 					float lightDirLength = length(lightDir);
 					lightDir /= lightDirLength; // Normalisation
 					
-					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
+					float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*lightDirLength, 0.0);
 
 					// Ambient
 					lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
-
-					// Diffuse
-					float lambert = max(dot(normal, lightDir), 0.0);
 
 					// Modification de l'atténuation pour gérer le spot
 					float curAngle = dot(Lights[i].parameters2.xyz, -lightDir);
 					float outerAngle = Lights[i].parameters3.y;
 					float innerMinusOuterAngle = Lights[i].parameters3.x - outerAngle;
 					att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
+
+					// Diffuse
+					float lambert = max(dot(normal, lightDir), 0.0);
 
 					lightDiffuse += att * lambert * Lights[i].color.rgb * Lights[i].factors.y;
 				}
@@ -273,7 +273,7 @@ void main()
 		}
 	}
 
-	lightAmbient = (lightAmbient + SceneAmbient.rgb)*MaterialAmbient.rgb;
+	lightAmbient *= MaterialAmbient.rgb;
 	lightSpecular *= MaterialSpecular.rgb;
 		#if SPECULAR_MAPPING
 	lightSpecular *= texture(MaterialSpecularMap, texCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
