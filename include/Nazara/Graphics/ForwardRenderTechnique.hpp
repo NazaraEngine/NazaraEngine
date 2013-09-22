@@ -35,7 +35,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 
 		NzForwardRenderQueue m_renderQueue;
 		NzIndexBufferRef m_indexBuffer;
-		NzLightManager m_directionnalLights;
+		NzLightManager m_directionalLights;
 		NzLightManager m_lights;
 		NzVertexBuffer m_spriteBuffer;
 		unsigned int m_maxLightsPerObject;
