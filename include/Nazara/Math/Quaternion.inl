@@ -337,7 +337,7 @@ NzQuaternion<T> NzQuaternion<T>::operator*(T scale) const
 template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator/(const NzQuaternion& quat) const
 {
-	return GetConjugate(quat) * (*this);
+	return quat.GetConjugate() * (*this);
 }
 
 template<typename T>
