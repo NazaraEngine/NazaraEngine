@@ -185,7 +185,9 @@ namespace
 
 		// Un personnage de taille moyenne fait ~50 unités de haut dans Quake 2
 		// Avec Nazara, 1 unité = 1 mètre, nous devons donc adapter l'échelle
-		scale *= parameters.scale/29.f; // 50/29 = 1.72 (Soit 1.72 mètre, proche de la taille moyenne d'un individu)
+		NzVector3f s(parameters.scale/29.f); // 50/29 = 1.72 (Soit 1.72 mètre, proche de la taille moyenne d'un individu)
+		scale *= s;
+		translate *= s;
 
 		NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 		NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
