@@ -76,7 +76,7 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 
 void NzForwardRenderTechnique::Draw(const NzScene* scene)
 {
-	m_directionnalLights.SetLights(&m_renderQueue.directionnalLights[0], m_renderQueue.directionnalLights.size());
+	m_directionalLights.SetLights(&m_renderQueue.directionalLights[0], m_renderQueue.directionalLights.size());
 	m_lights.SetLights(&m_renderQueue.lights[0], m_renderQueue.lights.size());
 	m_renderQueue.Sort(scene->GetViewer());
 
@@ -201,9 +201,9 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 					program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
 					// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-					lightCount = std::min(m_directionnalLights.GetLightCount(), 3U);
+					lightCount = std::min(m_directionalLights.GetLightCount(), 3U);
 					for (unsigned int i = 0; i < lightCount; ++i)
-						m_directionnalLights.GetLight(i)->Enable(program, i);
+						m_directionalLights.GetLight(i)->Enable(program, i);
 
 					lastProgram = program;
 				}
@@ -430,9 +430,9 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene)
 			program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-			lightCount = std::min(m_directionnalLights.GetLightCount(), 3U);
+			lightCount = std::min(m_directionalLights.GetLightCount(), 3U);
 			for (unsigned int i = 0; i < lightCount; ++i)
-				m_directionnalLights.GetLight(i)->Enable(program, i);
+				m_directionalLights.GetLight(i)->Enable(program, i);
 
 			lastProgram = program;
 		}
