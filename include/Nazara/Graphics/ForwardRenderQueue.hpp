@@ -105,7 +105,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		std::vector<TransparentSkeletalModel> transparentSkeletalModels;
 		std::vector<TransparentStaticModel> transparentStaticModels;
 		std::vector<const NzDrawable*> otherDrawables;
-		LightContainer directionnalLights;
+		LightContainer directionalLights;
 		LightContainer lights;
 };
 
