@@ -53,7 +53,7 @@ void NzForwardRenderQueue::AddLight(const NzLight* light)
 	switch (light->GetLightType())
 	{
 		case nzLightType_Directional:
-			directionnalLights.push_back(light);
+			directionalLights.push_back(light);
 			break;
 
 		case nzLightType_Point:
@@ -201,7 +201,7 @@ void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMes
 
 void NzForwardRenderQueue::Clear(bool fully)
 {
-	directionnalLights.clear();
+	directionalLights.clear();
 	lights.clear();
 	otherDrawables.clear();
 	transparentsModels.clear();
