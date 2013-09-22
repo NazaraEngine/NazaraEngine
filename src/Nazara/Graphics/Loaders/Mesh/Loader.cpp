@@ -25,7 +25,7 @@ namespace
 
 		std::unique_ptr<NzMesh> mesh(new NzMesh);
 		mesh->SetPersistent(false);
-		if (!mesh->LoadFromStream(stream))
+		if (!mesh->LoadFromStream(stream, parameters.mesh))
 		{
 			NazaraError("Failed to load model mesh");
 			return false;
