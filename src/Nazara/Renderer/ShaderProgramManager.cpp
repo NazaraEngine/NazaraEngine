@@ -214,11 +214,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 	{
 		case nzShaderTarget_FullscreenQuad:
 		{
-			char coreFragmentShader[] = {
+			const char coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.frag.h>
 			};
 
-			char compatibilityFragmentShader[] = {
+			const char compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.frag.h>
 			};
 
@@ -252,11 +252,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_Model:
 		{
-			char coreFragmentShader[] = {
+			const char coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/core.frag.h>
 			};
 
-			char compatibilityFragmentShader[] = {
+			const char compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.frag.h>
 			};
 
@@ -308,11 +308,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_None:
 		{
-			char coreFragmentShader[] = {
+			const char coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/core.frag.h>
 			};
 
-			char compatibilityFragmentShader[] = {
+			const char compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.frag.h>
 			};
 
@@ -330,11 +330,11 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_Sprite:
 		{
-			char coreFragmentShader[] = {
+			const char coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.frag.h>
 			};
 
-			char compatibilityFragmentShader[] = {
+			const char compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.frag.h>
 			};
 
@@ -405,11 +405,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 	{
 		case nzShaderTarget_FullscreenQuad:
 		{
-			char coreVertexShader[] = {
+			const char coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.vert.h>
 			};
 
-			char compatibilityVertexShader[] = {
+			const char compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.vert.h>
 			};
 
@@ -438,11 +438,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_Model:
 		{
-			char coreVertexShader[] = {
+			const char coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/core.vert.h>
 			};
 
-			char compatibilityVertexShader[] = {
+			const char compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.vert.h>
 			};
 
@@ -491,11 +491,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_None:
 		{
-			char coreVertexShader[] = {
+			const char coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/core.vert.h>
 			};
 
-			char compatibilityVertexShader[] = {
+			const char compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.vert.h>
 			};
 
@@ -508,11 +508,11 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_Sprite:
 		{
-			char coreVertexShader[] = {
+			const char coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.vert.h>
 			};
 
-			char compatibilityVertexShader[] = {
+			const char compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.vert.h>
 			};
 
