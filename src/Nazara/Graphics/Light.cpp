@@ -29,9 +29,18 @@ m_radius(5.f)
 }
 
 NzLight::NzLight(const NzLight& light) :
-NzSceneNode(light)
+NzSceneNode(light),
+m_type(light.m_type),
+m_boundingVolume(light.m_boundingVolume),
+m_color(light.m_color),
+m_boundingVolumeUpdated(light.m_boundingVolumeUpdated),
+m_ambientFactor(light.m_ambientFactor),
+m_attenuation(light.m_attenuation),
+m_diffuseFactor(light.m_diffuseFactor),
+m_innerAngle(light.m_innerAngle),
+m_outerAngle(light.m_outerAngle),
+m_radius(light.m_radius)
 {
-	std::memcpy(this, &light, sizeof(NzLight)); // Aussi simple que ça
 }
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
@@ -215,7 +224,18 @@ void NzLight::SetRadius(float radius)
 
 NzLight& NzLight::operator=(const NzLight& light)
 {
-	std::memcpy(this, &light, sizeof(NzLight));
+	NzSceneNode::operator=(light);
+
+	m_ambientFactor = light.m_ambientFactor;
+	m_attenuation = light.m_attenuation;
+	m_boundingVolume = light.m_boundingVolume;
+	m_boundingVolumeUpdated = light.m_boundingVolumeUpdated;
+	m_color = light.m_color;
+	m_diffuseFactor = light.m_diffuseFactor;
+	m_innerAngle = light.m_innerAngle;
+	m_outerAngle = light.m_outerAngle;
+	m_radius = light.m_radius;
+	m_type = light.m_type;
 
 	return *this;
 }
