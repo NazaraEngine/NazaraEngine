@@ -43,6 +43,7 @@ class NAZARA_API NzLight : public NzSceneNode
 		void SetColor(const NzColor& color);
 		void SetDiffuseFactor(float factor);
 		void SetInnerAngle(float innerAngle);
+		void SetLightType(nzLightType type);
 		void SetOuterAngle(float outerAngle);
 		void SetRadius(float radius);
 
