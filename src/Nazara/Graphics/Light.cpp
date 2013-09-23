@@ -206,6 +206,11 @@ void NzLight::SetInnerAngle(float innerAngle)
 	m_innerAngle = innerAngle;
 }
 
+void NzLight::SetLightType(nzLightType type)
+{
+	m_type = type;
+}
+
 void NzLight::SetOuterAngle(float outerAngle)
 {
 	m_outerAngle = outerAngle;
