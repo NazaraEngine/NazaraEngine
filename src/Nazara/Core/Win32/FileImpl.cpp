@@ -38,7 +38,7 @@ bool NzFileImpl::EndOfFile() const
 void NzFileImpl::Flush()
 {
 	if (!FlushFileBuffers(m_handle))
-		NazaraError("Unable to flush file: " + NzGetLastSystemError());
+		NazaraError("Unable to flush file: " + NzError::GetLastSystemError());
 }
 
 nzUInt64 NzFileImpl::GetCursorPos() const
@@ -191,7 +191,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 		return true;
 	else
 	{
-		NazaraError("Failed to copy file: " + NzGetLastSystemError());
+		NazaraError("Failed to copy file: " + NzError::GetLastSystemError());
 
 		return false;
 	}
@@ -205,7 +205,7 @@ bool NzFileImpl::Delete(const NzString& filePath)
 		return true;
 	else
 	{
-		NazaraError("Failed to delete file (" + filePath + "): " + NzGetLastSystemError());
+		NazaraError("Failed to delete file (" + filePath + "): " + NzError::GetLastSystemError());
 
 		return false;
 	}
@@ -235,7 +235,7 @@ time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 	FILETIME creationTime;
 	if (!GetFileTime(handle, &creationTime, nullptr, nullptr))
 	{
-		NazaraError("Unable to get creation time: " + NzGetLastSystemError());
+		NazaraError("Unable to get creation time: " + NzError::GetLastSystemError());
 
 		CloseHandle(handle);
 		return 0;
@@ -257,7 +257,7 @@ time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 	FILETIME accessTime;
 	if (!GetFileTime(handle, nullptr, &accessTime, nullptr))
 	{
-		NazaraError("Unable to get last access time: " + NzGetLastSystemError());
+		NazaraError("Unable to get last access time: " + NzError::GetLastSystemError());
 
 		CloseHandle(handle);
 		return 0;
@@ -279,7 +279,7 @@ time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 	FILETIME writeTime;
 	if (!GetFileTime(handle, nullptr, nullptr, &writeTime))
 	{
-		NazaraError("Unable to get last write time: " + NzGetLastSystemError());
+		NazaraError("Unable to get last write time: " + NzError::GetLastSystemError());
 		CloseHandle(handle);
 
 		return 0;
@@ -316,7 +316,7 @@ bool NzFileImpl::Rename(const NzString& sourcePath, const NzString& targetPath)
 		return true;
 	else
 	{
-		NazaraError("Unable to rename file: " + NzGetLastSystemError());
+		NazaraError("Unable to rename file: " + NzError::GetLastSystemError());
 		return false;
 	}
 }

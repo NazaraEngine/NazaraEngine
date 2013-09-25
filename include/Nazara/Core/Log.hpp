@@ -43,6 +43,7 @@ class NAZARA_API NzLog : NzNonCopyable
 		void SetFile(const NzString& filePath);
 
 		void Write(const NzString& string);
+		void WriteError(nzErrorType type, const NzString& error);
 		void WriteError(nzErrorType type, const NzString& error, unsigned int line, const NzString& file, const NzString& func);
 
 		static NzLog* Instance();

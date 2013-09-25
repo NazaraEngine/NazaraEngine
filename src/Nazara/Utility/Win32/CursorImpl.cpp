@@ -34,7 +34,7 @@ bool NzCursorImpl::Create(const NzImage& cursor, int hotSpotX, int hotSpotY)
 
 	if (!m_cursor)
 	{
-		NazaraError("Failed to create cursor: " + NzGetLastSystemError());
+		NazaraError("Failed to create cursor: " + NzError::GetLastSystemError());
 		return false;
 	}
 

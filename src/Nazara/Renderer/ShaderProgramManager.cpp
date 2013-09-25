@@ -118,7 +118,7 @@ const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerP
 				if (shaderFile.Read(&binary[0], size) != size)
 				{
 					NazaraError("Failed to read program binary");
-					return false;
+					return nullptr;
 				}
 
 				shaderFile.Close();
@@ -148,7 +148,7 @@ const NzShaderProgram* NzShaderProgramManager::Get(const NzShaderProgramManagerP
 						if (!programBinary.IsEmpty())
 						{
 							if (!shaderFile.Open(NzFile::Truncate | NzFile::WriteOnly) || !shaderFile.Write(programBinary))
-								NazaraWarning("Failed to save program binary to file \"" + programFileName + "\": " + NzGetLastSystemError());
+								NazaraWarning("Failed to save program binary to file \"" + programFileName + '"');
 						}
 						else
 							NazaraWarning("Failed to retrieve shader program binary");
