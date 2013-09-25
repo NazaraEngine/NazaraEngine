@@ -25,6 +25,18 @@ enum nzEndianness
 	nzEndianness_Max = nzEndianness_LittleEndian
 };
 
+enum nzErrorFlag
+{
+	nzErrorFlag_None = 0,
+
+	nzErrorFlag_Silent                 = 0x1,
+	nzErrorFlag_SilentDisabled         = 0x2,
+	nzErrorFlag_ThrowException         = 0x4,
+	nzErrorFlag_ThrowExceptionDisabled = 0x8,
+
+	nzErrorFlag_Max = nzErrorFlag_ThrowExceptionDisabled*2-1
+};
+
 enum nzErrorType
 {
 	nzErrorType_AssertFailed,
@@ -113,7 +125,7 @@ enum nzSphereType
 
 enum nzStreamOptionFlags
 {
-	nzStreamOption_None = 0x0,
+	nzStreamOption_None = 0,
 
 	nzStreamOption_Text = 0x1,
 

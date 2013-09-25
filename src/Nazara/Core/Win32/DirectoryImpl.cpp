@@ -52,7 +52,7 @@ bool NzDirectoryImpl::NextResult()
 	else
 	{
 		if (GetLastError() != ERROR_NO_MORE_FILES)
-			NazaraError("Unable to get next result: " + NzGetLastSystemError());
+			NazaraError("Unable to get next result: " + NzError::GetLastSystemError());
 
 		return false;
 	}
@@ -67,7 +67,7 @@ bool NzDirectoryImpl::Open(const NzString& dirPath)
 
 	if (m_handle == INVALID_HANDLE_VALUE)
 	{
-		NazaraError("Unable to open directory: " + NzGetLastSystemError());
+		NazaraError("Unable to open directory: " + NzError::GetLastSystemError());
 		return false;
 	}
 
@@ -106,10 +106,10 @@ NzString NzDirectoryImpl::GetCurrent()
 		if (GetCurrentDirectoryW(size, path.get()) != 0)
 			currentPath = NzString::Unicode(path.get());
 		else
-			NazaraError("Unable to get current directory: " + NzGetLastSystemError());
+			NazaraError("Unable to get current directory: " + NzError::GetLastSystemError());
 	}
 	else if (size == 0)
-		NazaraError("Unable to get current directory: " + NzGetLastSystemError());
+		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError());
 	else
 		currentPath = NzString::Unicode(path.get());
 

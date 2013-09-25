@@ -184,7 +184,7 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 			NzLockGuard lock(mutex);
 
 			if (!wglShareLists(shareContext, m_context))
-				NazaraWarning("Failed to share the context: " + NzGetLastSystemError());
+				NazaraWarning("Failed to share the context: " + NzError::GetLastSystemError());
 		}
 	}
 
