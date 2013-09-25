@@ -136,21 +136,17 @@ void NzLog::Write(const NzString& string)
 	}
 }
 
+void NzLog::WriteError(nzErrorType type, const NzString& error)
+{
+	NzStringStream stream;
+	stream << errorType[type] << error;
+	Write(stream);
+}
+
 void NzLog::WriteError(nzErrorType type, const NzString& error, unsigned int line, const NzString& file, const NzString& func)
 {
-	NzString stream;
-	stream.Reserve(std::strlen(errorType[type]) + error.GetSize() + 2 + file.GetSize() + 1 + NzGetNumberLength(line) +2 + func.GetSize() + 1);
-	stream += errorType[type];
-	stream += error;
-	stream += " (";
-	stream += file;
-	stream += ':';
-	stream += NzString::Number(line);
-	stream += ": ";
-	stream += func;
-	stream += ')';
-	/*NzStringStream stream;
-	stream << errorType[type] << error << " (" << file << ':' << line << ": " << func << ')';*/
+	NzStringStream stream;
+	stream << errorType[type] << error << " (" << file << ':' << line << ": " << func << ')';
 	Write(stream);
 }
 

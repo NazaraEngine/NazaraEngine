@@ -18,7 +18,7 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol) const
 {
 	NzDynLibFunc sym = reinterpret_cast<NzDynLibFunc>(GetProcAddress(m_handle, symbol.GetConstBuffer()));
 	if (!sym)
-		m_parent->SetLastError(NzGetLastSystemError());
+		m_parent->SetLastError(NzError::GetLastSystemError());
 
 	return sym;
 }
@@ -36,7 +36,7 @@ bool NzDynLibImpl::Load(const NzString& libraryPath)
 		return true;
 	else
 	{
-		m_parent->SetLastError(NzGetLastSystemError());
+		m_parent->SetLastError(NzError::GetLastSystemError());
 		return false;
 	}
 }
