@@ -31,7 +31,7 @@ bool NzIconImpl::Create(const NzImage& icon)
 
 	if (!m_icon)
 	{
-		NazaraError("Failed to create icon: " + NzGetLastSystemError());
+		NazaraError("Failed to create icon: " + NzError::GetLastSystemError());
 		return false;
 	}
 
