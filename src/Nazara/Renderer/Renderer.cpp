@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/AbstractShaderProgram.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -46,7 +47,7 @@ namespace
 		Update_None = 0,
 
 		Update_Matrices     = 0x1,
-		Update_Program       = 0x2,
+		Update_Program      = 0x2,
 		Update_Textures     = 0x4,
 		Update_VAO          = 0x8
 	};
@@ -92,9 +93,9 @@ namespace
 	const NzVertexDeclaration* s_instancingDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
-	bool s_uniformTargetSizeUpdated;
 	bool s_useSamplerObjects;
 	bool s_useVertexArrayObjects;
+	unsigned int s_maxColorAttachments;
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
@@ -217,6 +218,8 @@ void NzRenderer::Clear(nzUInt32 flags)
 
 	if (flags)
 	{
+		// On n'oublie pas de mettre à jour la cible
+		s_target->EnsureTargetUpdated();
 		// Les états du rendu sont suceptibles d'influencer glClear
 		NzOpenGL::ApplyStates(s_states);
 
@@ -298,12 +301,12 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstI
 
 	if (s_indexBuffer->HasLargeIndices())
 	{
-		offset += firstIndex*sizeof(nzUInt64);
+		offset += firstIndex*sizeof(nzUInt32);
 		type = GL_UNSIGNED_INT;
 	}
 	else
 	{
-		offset += firstIndex*sizeof(nzUInt32);
+		offset += firstIndex*sizeof(nzUInt16);
 		type = GL_UNSIGNED_SHORT;
 	}
 
@@ -369,12 +372,12 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 	if (s_indexBuffer->HasLargeIndices())
 	{
-		offset += firstIndex*sizeof(nzUInt64);
+		offset += firstIndex*sizeof(nzUInt32);
 		type = GL_UNSIGNED_INT;
 	}
 	else
 	{
-		offset += firstIndex*sizeof(nzUInt32);
+		offset += firstIndex*sizeof(nzUInt16);
 		type = GL_UNSIGNED_SHORT;
 	}
 
@@ -566,6 +569,11 @@ nzUInt8 NzRenderer::GetMaxAnisotropyLevel()
 	return s_maxAnisotropyLevel;
 }
 
+unsigned int NzRenderer::GetMaxColorAttachments()
+{
+	return s_maxColorAttachments;
+}
+
 unsigned int NzRenderer::GetMaxRenderTargets()
 {
 	return s_maxRenderTarget;
@@ -684,6 +692,16 @@ bool NzRenderer::Initialize()
 	else
 		s_maxAnisotropyLevel = 1;
 
+	if (s_capabilities[nzRendererCap_RenderTexture])
+	{
+		GLint maxColorAttachments;
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+
+		s_maxColorAttachments = static_cast<unsigned int>(maxColorAttachments);
+	}
+	else
+		s_maxColorAttachments = 1;
+
 	if (s_capabilities[nzRendererCap_MultipleRenderTargets])
 	{
 		GLint maxDrawBuffers;
@@ -713,8 +731,8 @@ bool NzRenderer::Initialize()
 	s_indexBuffer = nullptr;
 	s_program = nullptr;
 	s_target = nullptr;
+	s_targetSize.Set(0U);
 	s_textureUnits.resize(s_maxTextureUnit);
-	s_uniformTargetSizeUpdated = false;
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
 	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 	s_vertexBuffer = nullptr;
@@ -742,6 +760,7 @@ bool NzRenderer::Initialize()
 	{
 		try
 		{
+			NzErrorFlags errFlags(nzErrorFlag_ThrowException);
 			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
@@ -1267,9 +1286,6 @@ bool NzRenderer::SetTarget(const NzRenderTarget* target)
 		}
 
 		s_target = target;
-		s_targetSize.Set(target->GetWidth(), target->GetHeight());
-
-		s_uniformTargetSizeUpdated = false;
 	}
 
 	NzOpenGL::SetTarget(s_target);
@@ -1438,7 +1454,15 @@ bool NzRenderer::EnsureStateUpdate()
 		NazaraError("No shader program");
 		return false;
 	}
+
+	if (!s_target)
+	{
+		NazaraError("No target");
+		return false;
+	}
 	#endif
+
+	s_target->EnsureTargetUpdated();
 
 	NzAbstractShaderProgram* programImpl = s_program->m_impl;
 	programImpl->Bind(); // Active le programme si ce n'est pas déjà le cas
@@ -1462,7 +1486,7 @@ bool NzRenderer::EnsureStateUpdate()
 		s_matrices[nzMatrixType_InvWorldView].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewMatrix);
 		s_matrices[nzMatrixType_InvWorldViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewProjMatrix);
 
-		s_uniformTargetSizeUpdated = false;
+		s_targetSize.Set(0U); // On force l'envoi des uniformes
 		s_updateFlags |= Update_Matrices; // Changement de programme, on renvoie toutes les matrices demandées
 
 		s_updateFlags &= ~Update_Program;
@@ -1471,19 +1495,20 @@ bool NzRenderer::EnsureStateUpdate()
 	programImpl->BindTextures();
 
 	// Envoi des uniformes liées au Renderer
-	if (!s_uniformTargetSizeUpdated)
+	NzVector2ui targetSize(s_target->GetWidth(), s_target->GetHeight());
+	if (s_targetSize != targetSize)
 	{
 		int location;
 
 		location = programImpl->GetUniformLocation(nzShaderUniform_InvTargetSize);
 		if (location != -1)
-			programImpl->SendVector(location, 1.f/NzVector2f(s_targetSize));
+			programImpl->SendVector(location, 1.f/NzVector2f(targetSize));
 
 		location = programImpl->GetUniformLocation(nzShaderUniform_TargetSize);
 		if (location != -1)
-			programImpl->SendVector(location, NzVector2f(s_targetSize));
+			programImpl->SendVector(location, NzVector2f(targetSize));
 
-		s_uniformTargetSizeUpdated = true;
+		s_targetSize.Set(targetSize);
 	}
 
 	if (s_updateFlags != Update_None)
@@ -1501,7 +1526,7 @@ bool NzRenderer::EnsureStateUpdate()
 						if (!unit.textureUpdated)
 						{
 							NzOpenGL::BindTextureUnit(i);
-							unit.texture->Bind();
+							unit.texture->EnsureMipmapsUpdate();
 
 							unit.textureUpdated = true;
 						}
@@ -1524,7 +1549,7 @@ bool NzRenderer::EnsureStateUpdate()
 					{
 						NzOpenGL::BindTextureUnit(i);
 
-						unit.texture->Bind();
+						unit.texture->EnsureMipmapsUpdate();
 						unit.textureUpdated = true;
 
 						unit.sampler.Apply(unit.texture);

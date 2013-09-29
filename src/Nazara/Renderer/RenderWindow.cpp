@@ -162,7 +162,7 @@ void NzRenderWindow::Display()
 {
 	if (m_framerateLimit > 0)
 	{
-		int remainingTime = 1000/m_framerateLimit - m_clock.GetMilliseconds();
+		int remainingTime = 1000/static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
 		if (remainingTime > 0)
 			NzThread::Sleep(remainingTime);
 
@@ -273,6 +273,11 @@ bool NzRenderWindow::Activate() const
 		NazaraError("Failed to activate window's context");
 		return false;
 	}
+}
+
+void NzRenderWindow::EnsureTargetUpdated() const
+{
+	// Rien à faire
 }
 
 bool NzRenderWindow::OnWindowCreated()
