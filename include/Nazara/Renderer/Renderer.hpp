@@ -56,6 +56,7 @@ class NAZARA_API NzRenderer
 		static float GetLineWidth();
 		static NzMatrix4f GetMatrix(nzMatrixType type);
 		static nzUInt8 GetMaxAnisotropyLevel();
+		static unsigned int GetMaxColorAttachments();
 		static unsigned int GetMaxRenderTargets();
 		static unsigned int GetMaxTextureUnits();
 		static unsigned int GetMaxVertexAttribs();
