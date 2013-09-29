@@ -25,6 +25,9 @@ struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 {
+	friend class NzRenderer;
+	friend class NzRenderTexture;
+
 	public:
 		NzTexture() = default;
 		explicit NzTexture(const NzImage& image);
@@ -36,6 +39,8 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool Download(NzImage* image) const;
 
 		bool EnableMipmapping(bool enable);
+
+		void EnsureMipmapsUpdate() const;
 
 		nzUInt8 GetBytesPerPixel() const;
 		unsigned int GetDepth() const;
@@ -82,7 +87,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		// Fonctions OpenGL
-		bool Bind() const;
 		unsigned int GetOpenGLID() const;
 
 		static unsigned int GetValidSize(unsigned int size);
@@ -91,6 +95,8 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
+		void InvalidateMipmaps();
+
 		NzTextureImpl* m_impl = nullptr;
 };
 
