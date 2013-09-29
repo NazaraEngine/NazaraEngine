@@ -79,7 +79,7 @@ void main()
 				vec3 lightDir = -Lights[i].parameters1.xyz;
 
 				// Ambient
-				lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -102,7 +102,7 @@ void main()
 				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 				// Ambient
-				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -122,10 +122,10 @@ void main()
 				float lightDirLength = length(lightDir);
 				lightDir /= lightDirLength; // Normalisation
 				
-				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
+				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*lightDirLength, 0.0);
 
 				// Ambient
-				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -156,7 +156,7 @@ void main()
 				vec3 lightDir = -Lights[i].parameters1.xyz;
 
 				// Ambient
-				lightAmbient += Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -172,7 +172,7 @@ void main()
 				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
 
 				// Ambient
-				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -185,10 +185,10 @@ void main()
 				float lightDirLength = length(lightDir);
 				lightDir /= lightDirLength; // Normalisation
 				
-				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
+				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*lightDirLength, 0.0);
 
 				// Ambient
-				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x;
+				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 				// Diffuse
 				float lambert = max(dot(normal, lightDir), 0.0);
@@ -204,7 +204,6 @@ void main()
 		}
 	}
 
-	lightAmbient = (lightAmbient + SceneAmbient.rgb)*MaterialAmbient.rgb;
 	lightSpecular *= MaterialSpecular.rgb;
 	#if SPECULAR_MAPPING
 	lightSpecular *= texture(MaterialSpecularMap, vTexCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
