@@ -398,6 +398,16 @@ bool NzTexture::EnableMipmapping(bool enable)
 	return true;
 }
 
+void NzTexture::EnsureMipmapsUpdate() const
+{
+	if (m_impl->mipmapping && !m_impl->mipmapsUpdated)
+	{
+		NzOpenGL::BindTexture(m_impl->type, m_impl->id);
+		glGenerateMipmap(NzOpenGL::TextureTarget[m_impl->type]);
+		m_impl->mipmapsUpdated = true;
+	}
+}
+
 nzUInt8 NzTexture::GetBytesPerPixel() const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -1224,19 +1234,6 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 	return true;
 }
 
-bool NzTexture::Bind() const
-{
-	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
-
-	if (m_impl->mipmapping && !m_impl->mipmapsUpdated)
-	{
-		glGenerateMipmap(NzOpenGL::TextureTarget[m_impl->type]);
-		m_impl->mipmapsUpdated = true;
-	}
-
-	return true;
-}
-
 unsigned int NzTexture::GetOpenGLID() const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -1371,4 +1368,17 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 
 	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
+}
+
+void NzTexture::InvalidateMipmaps()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraInternalError("Texture must be valid");
+		return;
+	}
+	#endif
+
+	m_impl->mipmapsUpdated = false;
 }
