@@ -24,10 +24,10 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		NzRenderTexture() = default;
 		~NzRenderTexture();
 
-		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format);
+		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height);
 		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z = 0);
 
-		bool Create(unsigned int width, unsigned int height, bool lock = false);
+		bool Create(bool lock = false);
 		void Destroy();
 
 		void Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index);
@@ -41,6 +41,11 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		bool IsValid() const;
 
 		bool Lock() const;
+
+		void SetColorTarget(nzUInt8 target);
+		void SetColorTargets(const nzUInt8* targets, unsigned int targetCount);
+		void SetColorTargets(const std::initializer_list<nzUInt8>& targets);
+
 		void Unlock() const;
 
 		// Fonctions OpenGL
@@ -51,9 +56,12 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 	protected:
 		bool Activate() const override;
 		void Desactivate() const override;
+		void EnsureTargetUpdated() const override;
 
 	private:
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
+		void UpdateDrawBuffers() const;
+		void UpdateTargets() const;
 
 		NzRenderTextureImpl* m_impl = nullptr;
 };

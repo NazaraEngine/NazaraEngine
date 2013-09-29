@@ -54,6 +54,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 	protected:
 		bool Activate() const override;
+		void EnsureTargetUpdated() const override;
 
 	private:
 		bool OnWindowCreated() override;
