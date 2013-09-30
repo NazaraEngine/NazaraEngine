@@ -488,8 +488,8 @@ template<typename T>
 bool NzVector3<T>::operator==(const NzVector3& vec) const
 {
 	return NzNumberEquals(x, vec.x) &&
-		   NzNumberEquals(y, vec.y) &&
-		   NzNumberEquals(z, vec.z);
+	NzNumberEquals(y, vec.y) &&
+	NzNumberEquals(z, vec.z);
 }
 
 template<typename T>
@@ -503,7 +503,7 @@ bool NzVector3<T>::operator<(const NzVector3& vec) const
 {
 	if (x == vec.x)
 	{
-		if (y < vec.y)
+		if (y == vec.y)
 			return z < vec.z;
 		else
 			return y < vec.y;
@@ -517,7 +517,7 @@ bool NzVector3<T>::operator<=(const NzVector3& vec) const
 {
 	if (x == vec.x)
 	{
-		if (y < vec.y)
+		if (y == vec.y)
 			return z <= vec.z;
 		else
 			return y < vec.y;
