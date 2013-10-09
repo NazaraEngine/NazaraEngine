@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 NzSprite::NzSprite() :
@@ -11,6 +12,30 @@ m_textureCoords(0.f, 0.f, 1.f, 1.f),
 m_size(64.f, 64.f),
 m_boundingVolumeUpdated(true)
 {
+}
+
+NzSprite::NzSprite(NzTexture* texture) :
+m_boundingVolume(NzBoundingVolumef::Null()),
+m_textureCoords(0.f, 0.f, 1.f, 1.f)
+{
+	if (texture)
+	{
+		m_material = new NzMaterial;
+		m_material->SetPersistent(false);
+		m_material->SetDiffuseMap(texture);
+
+		if (texture->IsValid())
+			m_size.Set(texture->GetWidth(), texture->GetHeight());
+		else
+			m_size.Set(64.f, 64.f);
+
+		m_boundingVolumeUpdated = false;
+	}
+	else
+	{
+		m_size.Set(64.f, 64.f);
+		m_boundingVolumeUpdated = true;
+	}
 }
 
 NzSprite::NzSprite(const NzSprite& sprite) :
@@ -71,15 +96,32 @@ bool NzSprite::IsDrawable() const
 	return m_material != nullptr;
 }
 
-void NzSprite::SetMaterial(NzMaterial* material)
+void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
 {
 	m_material = material;
+
+	NzTexture* diffuseMap = m_material->GetDiffuseMap();
+	if (resizeSprite && diffuseMap && diffuseMap->IsValid())
+		SetSize(NzVector2f(diffuseMap->GetSize()));
 }
 
 void NzSprite::SetSize(const NzVector2f& size)
 {
 	m_size = size;
 	m_boundingVolume.MakeNull();
+	m_boundingVolumeUpdated = false;
+}
+
+void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)
+{
+	std::unique_ptr<NzMaterial> material(new NzMaterial);
+	material->Enable(nzRendererParameter_DepthBuffer, false);
+	material->EnableLighting(false);
+	material->SetDiffuseMap(texture);
+	material->SetPersistent(false);
+
+	SetMaterial(material.get(), resizeSprite);
+	material.release();
 }
 
 void NzSprite::SetTextureCoords(const NzRectf& coords)
