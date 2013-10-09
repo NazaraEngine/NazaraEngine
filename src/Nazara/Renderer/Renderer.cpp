@@ -67,11 +67,6 @@ namespace
 		bool textureUpdated = true;
 	};
 
-	NzAbstractBuffer* HardwareBufferFunction(NzBuffer* parent, nzBufferType type)
-	{
-		return new NzHardwareBuffer(parent, type);
-	}
-
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
 	using VAO_Map = std::unordered_map<const NzContext*, std::map<VAO_Key, unsigned int>>;
 
@@ -655,7 +650,7 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, HardwareBufferFunction);
+	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer* { return new NzHardwareBuffer(parent, type); } );
 
 	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
