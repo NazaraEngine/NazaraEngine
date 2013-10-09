@@ -358,6 +358,9 @@ void NzRenderTexture::Destroy()
 {
 	if (m_impl)
 	{
+		if (IsActive())
+			NzRenderer::SetTarget(nullptr);
+
 		bool canFreeFBO = true;
 		#if NAZARA_RENDERER_SAFE
 		if (NzContext::GetCurrent() != m_impl->context)
