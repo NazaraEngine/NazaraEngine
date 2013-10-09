@@ -970,7 +970,7 @@ bool NzTexture::Update(const NzImage& image, const NzBoxui& box, nzUInt8 level)
 	}
 	#endif
 
-	const nzUInt8* pixels = image.GetConstPixels(box.x, box.y, box.z, level);
+	const nzUInt8* pixels = image.GetConstPixels(0, 0, 0, level);
 	if (!pixels)
 	{
 		NazaraError("Failed to access image's pixels");
@@ -996,7 +996,7 @@ bool NzTexture::Update(const NzImage& image, const NzRectui& rect, unsigned int 
 	}
 	#endif
 
-	const nzUInt8* pixels = image.GetConstPixels(rect.x, rect.y, z, level);
+	const nzUInt8* pixels = image.GetConstPixels(0, 0, 0, level);
 	if (!pixels)
 	{
 		NazaraError("Failed to access image's pixels");
