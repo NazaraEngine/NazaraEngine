@@ -54,6 +54,7 @@ class NAZARA_API NzRenderTarget
 	protected:
 		virtual bool Activate() const = 0;
 		virtual void Desactivate() const;
+		virtual void EnsureTargetUpdated() const = 0;
 
 		void NotifyParametersChange();
 		void NotifySizeChange();
