@@ -26,6 +26,17 @@ enum nzLightType
 	nzLightType_Max = nzLightType_Spot
 };
 
+enum nzRenderTechniqueType
+{
+	nzRenderTechniqueType_AdvancedForward, // NzAdvancedForwardRenderTechnique
+	nzRenderTechniqueType_BasicForward,    // NzBasicForwardRenderTechnique
+	nzRenderTechniqueType_DeferredShading, // NzDeferredRenderTechnique
+	nzRenderTechniqueType_LightPrePass,    // NzLightPrePassRenderTechnique
+	nzRenderTechniqueType_User,
+
+	nzRenderTechniqueType_Max = nzRenderTechniqueType_User
+};
+
 enum nzSceneNodeType
 {
 	nzSceneNodeType_Light,  // NzLight

@@ -223,7 +223,6 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
-	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(viewer->GetZNear())));
 	NzRenderer::SetRenderStates(states);
@@ -233,6 +232,8 @@ void NzSkyboxBackground::Draw(const NzScene* scene) const
 	NzRenderer::SetVertexBuffer(m_vertexBuffer);
 
 	NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, 36);
+
+	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
 }
 
 nzBackgroundType NzSkyboxBackground::GetBackgroundType() const

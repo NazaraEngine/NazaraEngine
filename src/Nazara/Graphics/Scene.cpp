@@ -5,9 +5,10 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <functional>
@@ -34,6 +35,7 @@ struct NzSceneImpl
 	bool update;
 	float frameTime;
 	float updateTime;
+	int renderTechniqueRanking;
 	unsigned int updatePerSecond = 60;
 };
 
@@ -41,7 +43,7 @@ NzScene::NzScene()
 {
 	m_impl = new NzSceneImpl(this);
 	m_impl->background.reset(new NzColorBackground);
-	m_impl->renderTechnique.reset(new NzForwardRenderTechnique);
+	m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
 }
 
 NzScene::~NzScene()
@@ -94,9 +96,21 @@ void NzScene::Draw()
 	}
 	#endif
 
-	m_impl->renderTechnique->Clear(this);
 	m_impl->viewer->ApplyView();
-	m_impl->renderTechnique->Draw(this);
+
+	try
+	{
+		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
+		m_impl->renderTechnique->Clear(this);
+		m_impl->renderTechnique->Draw(this);
+	}
+	catch (const std::exception& e)
+	{
+		NzString oldName = m_impl->renderTechnique->GetName();
+		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(m_impl->renderTechniqueRanking-1, &m_impl->renderTechniqueRanking));
+		NazaraError("Render technique \"" + oldName + "\" failed, switched to \"" + m_impl->renderTechnique->GetName() + '"');
+		return;
+	}
 }
 
 NzColor NzScene::GetAmbientColor() const
