@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -28,6 +29,11 @@ void NzAbstractRenderTechnique::EnableInstancing(bool instancing)
 		m_instancingEnabled = instancing;
 	else if (instancing)
 		NazaraError("NazaraRenderer does not support instancing");
+}
+
+NzString NzAbstractRenderTechnique::GetName() const
+{
+	return NzRenderTechniques::ToString(GetType());
 }
 
 bool NzAbstractRenderTechnique::IsInstancingEnabled() const
