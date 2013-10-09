@@ -74,7 +74,7 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 		background->Draw(scene);
 }
 
-void NzForwardRenderTechnique::Draw(const NzScene* scene)
+bool NzForwardRenderTechnique::Draw(const NzScene* scene)
 {
 	m_directionalLights.SetLights(&m_renderQueue.directionalLights[0], m_renderQueue.directionalLights.size());
 	m_lights.SetLights(&m_renderQueue.lights[0], m_renderQueue.lights.size());
@@ -92,6 +92,8 @@ void NzForwardRenderTechnique::Draw(const NzScene* scene)
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
 		drawable->Draw();
+
+	return true;
 
 	// Les billboards
 	/*if (!m_renderQueue.billboards.empty())
@@ -147,6 +149,11 @@ unsigned int NzForwardRenderTechnique::GetMaxLightsPerObject() const
 NzAbstractRenderQueue* NzForwardRenderTechnique::GetRenderQueue()
 {
 	return &m_renderQueue;
+}
+
+nzRenderTechniqueType NzForwardRenderTechnique::GetType() const
+{
+	return nzRenderTechniqueType_BasicForward;
 }
 
 void NzForwardRenderTechnique::SetMaxLightsPerObject(unsigned int lightCount)
