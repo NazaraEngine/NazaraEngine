@@ -15,6 +15,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 {
 	public:
 		NzSprite();
+		NzSprite(NzTexture* texture);
 		NzSprite(const NzSprite& sprite);
 		NzSprite(NzSprite&& sprite);
 		~NzSprite();
@@ -29,8 +30,9 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		bool IsDrawable() const;
 
-		void SetMaterial(NzMaterial* material);
+		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
 		void SetSize(const NzVector2f& size);
+		void SetTexture(NzTexture* texture, bool resizeSprite = true);
 		void SetTextureCoords(const NzRectf& coords);
 		void SetTextureRect(const NzRectui& rect);
 
