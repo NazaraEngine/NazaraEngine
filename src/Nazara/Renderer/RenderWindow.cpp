@@ -7,6 +7,7 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
@@ -318,6 +319,9 @@ void NzRenderWindow::OnWindowDestroy()
 {
 	if (m_context)
 	{
+		if (IsActive())
+			NzRenderer::SetTarget(nullptr);
+
 		delete m_context;
 		m_context = nullptr;
 	}
