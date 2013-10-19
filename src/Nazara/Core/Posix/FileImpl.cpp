@@ -39,7 +39,7 @@ bool NzFileImpl::EndOfFile() const
 void NzFileImpl::Flush()
 {
 	if (fsync(m_fileDescriptor) == -1)
-		NazaraError("Unable to flush file: " + NzGetLastSystemError());
+		NazaraError("Unable to flush file: " + NzError::GetLastSystemError());
 }
 
 nzUInt64 NzFileImpl::GetCursorPos() const
@@ -143,7 +143,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 	int fd1 = open64(sourcePath.GetConstBuffer(), O_RDONLY);
 	if (fd1 == -1)
 	{
-		NazaraError("Fail to open input file (" + sourcePath + "): " + NzGetLastSystemError());
+		NazaraError("Fail to open input file (" + sourcePath + "): " + NzError::GetLastSystemError());
 		return false;
 	}
 
@@ -151,7 +151,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 	int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
 	if (fd2 == -1)
 	{
-		NazaraError("Fail to open output file (" + targetPath + "): " + NzGetLastSystemError()); // TODO: more info ?
+		NazaraError("Fail to open output file (" + targetPath + "): " + NzError::GetLastSystemError()); // TODO: more info ?
 		close(fd1);
 		return false;
 	}
@@ -165,7 +165,7 @@ bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 		{
 			close(fd1);
 			close(fd2);
-			NazaraError("An error occured from copy : " + NzGetLastSystemError());
+			NazaraError("An error occured from copy : " + NzError::GetLastSystemError());
 			return false;
 		}
 		write(fd2,buffer,bytes);
@@ -185,7 +185,7 @@ bool NzFileImpl::Delete(const NzString& filePath)
 		return true;
 	else
 	{
-		NazaraError("Failed to delete file (" + filePath + "): " + NzGetLastSystemError());
+		NazaraError("Failed to delete file (" + filePath + "): " + NzError::GetLastSystemError());
 		return false;
 	}
 }
@@ -238,7 +238,7 @@ bool NzFileImpl::Rename(const NzString& sourcePath, const NzString& targetPath)
 		return true;
 	else
 	{
-		NazaraError("Unable to rename file: " + NzGetLastSystemError());
+		NazaraError("Unable to rename file: " + NzError::GetLastSystemError());
 		return false;
 	}
 }
