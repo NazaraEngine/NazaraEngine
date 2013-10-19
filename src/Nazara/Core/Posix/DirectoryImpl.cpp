@@ -45,7 +45,7 @@ bool NzDirectoryImpl::NextResult()
 	else
 	{
 		if (errno != ENOENT)
-			NazaraError("Unable to get next result: " + NzGetLastSystemError());
+			NazaraError("Unable to get next result: " + NzError::GetLastSystemError());
 
 		return false;
 	}
@@ -56,7 +56,7 @@ bool NzDirectoryImpl::Open(const NzString& dirPath)
 	m_handle = opendir(dirPath.GetConstBuffer());
 	if (!m_handle)
 	{
-		NazaraError("Unable to open directory: " + NzGetLastSystemError());
+		NazaraError("Unable to open directory: " + NzError::GetLastSystemError());
 		return false;
 	}
 
@@ -87,7 +87,7 @@ NzString NzDirectoryImpl::GetCurrent()
 	if (getcwd(path, _PC_PATH_MAX))
 		currentPath = path;
 	else
-		NazaraError("Unable to get current directory: " + NzGetLastSystemError());
+		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError());
 
 	delete[] path;
 
