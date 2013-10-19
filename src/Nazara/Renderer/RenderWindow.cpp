@@ -176,35 +176,35 @@ void NzRenderWindow::Display()
 
 void NzRenderWindow::EnableVerticalSync(bool enabled)
 {
-    if (m_context)
-    {
+	if (m_context)
+	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
-        if (!m_context->SetActive(true))
+		if (!m_context->SetActive(true))
 		{
 			NazaraError("Failed to activate context");
 			return;
 		}
 
-        if (wglSwapInterval)
-            wglSwapInterval(enabled ? 1 : 0);
-        else
+		if (wglSwapInterval)
+			wglSwapInterval(enabled ? 1 : 0);
+		else
 		#elif defined(NAZARA_PLATFORM_LINUX)
-        if (!m_context->SetActive(true))
-        {
-            NazaraError("Failed to activate context");
-            return;
-        }
+		if (!m_context->SetActive(true))
+		{
+			NazaraError("Failed to activate context");
+			return;
+		}
 
-        if (glXSwapInterval)
-            glXSwapInterval(enabled ? 1 : 0);
-        else
+		if (glXSwapInterval)
+			glXSwapInterval(enabled ? 1 : 0);
+		else
 		#else
 			#error Vertical Sync is not supported on this platform
 		#endif
-            NazaraError("Vertical Sync is not supported on this platform");
-    }
-    else
-        NazaraError("No context");
+			NazaraError("Vertical Sync is not supported on this platform");
+	}
+	else
+		NazaraError("No context");
 }
 
 unsigned int NzRenderWindow::GetHeight() const
