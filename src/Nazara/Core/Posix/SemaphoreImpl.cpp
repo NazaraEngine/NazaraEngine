@@ -12,7 +12,7 @@
 NzSemaphoreImpl::NzSemaphoreImpl(unsigned int count)
 {
 	if(sem_init(&m_semaphore, 0, count) != 0)
-		NazaraError("Failed to create semaphore: " + NzGetLastSystemError());
+		NazaraError("Failed to create semaphore: " + NzError::GetLastSystemError());
 }
 
 NzSemaphoreImpl::~NzSemaphoreImpl()
@@ -31,7 +31,7 @@ void NzSemaphoreImpl::Post()
 {
 	#if NAZARA_CORE_SAFE
 	if (sem_post(&m_semaphore)==-1)
-		NazaraError("Failed to release semaphore: " + NzGetLastSystemError());
+		NazaraError("Failed to release semaphore: " + NzError::GetLastSystemError());
 	#else
 	sem_post(&m_semaphore);
 	#endif
@@ -41,7 +41,7 @@ void NzSemaphoreImpl::Wait()
 {
 	#if NAZARA_CORE_SAFE
 	if (sem_wait(&m_semaphore) == -1 )
-		NazaraError("Failed to wait for semaphore: " + NzGetLastSystemError());
+		NazaraError("Failed to wait for semaphore: " + NzError::GetLastSystemError());
 	#else
 	sem_wait(&m_semaphore);
 	#endif
@@ -60,7 +60,7 @@ bool NzSemaphoreImpl::Wait(nzUInt32 timeout)
 	#if NAZARA_CORE_SAFE
 	if (sem_timedwait(&m_semaphore, &ti) != 0)
 	{
-		NazaraError("Failed to wait for semaphore: " + NzGetLastSystemError());
+		NazaraError("Failed to wait for semaphore: " + NzError::GetLastSystemError());
 		return false;
 	}
 
