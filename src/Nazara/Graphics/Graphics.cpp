@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
@@ -37,6 +38,9 @@ bool NzGraphics::Initialize()
 
 	// RenderTechniques
 	NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_BasicForward), 0, []() -> NzAbstractRenderTechnique* { return new NzForwardRenderTechnique; });
+
+	if (NzDeferredRenderTechnique::IsSupported())
+		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
 
 	NazaraNotice("Initialized: Graphics module");
 
