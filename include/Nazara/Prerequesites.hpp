@@ -75,11 +75,14 @@
 #if defined(_WIN32)
 	#define NAZARA_PLATFORM_WINDOWS
 
+	#define NAZARA_EXPORT __declspec(dllexport)
+	#define NAZARA_IMPORT __declspec(dllimport)
+
 	#if !defined(NAZARA_STATIC)
 		#ifdef NAZARA_BUILD
-			#define NAZARA_API __declspec(dllexport)
+			#define NAZARA_API NAZARA_EXPORT
 		#else
-			#define NAZARA_API __declspec(dllimport)
+			#define NAZARA_API NAZARA_IMPORT
 		#endif
 	#else
 		#define NAZARA_API
@@ -116,8 +119,11 @@
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
 
+	#define NAZARA_EXPORT __attribute__((visibility ("default")))
+	#define NAZARA_IMPORT __attribute__((visibility ("default")))
+
 	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
-		#define NAZARA_API __attribute__((visibility ("default")))
+		#define NAZARA_API NAZARA_EXPORT
 	#else
 		#define NAZARA_API
 	#endif
