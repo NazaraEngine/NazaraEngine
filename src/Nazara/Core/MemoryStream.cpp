@@ -36,7 +36,10 @@ nzUInt64 NzMemoryStream::GetSize() const
 std::size_t NzMemoryStream::Read(void* buffer, std::size_t size)
 {
 	unsigned int readSize = std::min(static_cast<unsigned int>(size), static_cast<unsigned int>(m_size-m_pos));
-	std::memcpy(buffer, &m_ptr[m_pos], readSize);
+
+	if (buffer)
+		std::memcpy(buffer, &m_ptr[m_pos], readSize);
+
 	m_pos += readSize;
 
 	return readSize;
