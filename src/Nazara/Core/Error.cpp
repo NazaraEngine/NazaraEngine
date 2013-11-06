@@ -122,4 +122,3 @@ NzString NzError::s_lastError;
 const char* NzError::s_lastErrorFunction = "";
 const char* NzError::s_lastErrorFile = "";
 unsigned int NzError::s_lastErrorLine = 0;
-
