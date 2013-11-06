@@ -664,9 +664,13 @@ m_texturesUpdated(false)
 	m_ssaoNoiseTexture->Create(nzImageType_2D, nzPixelFormat_RG8, 4, 4);
 	m_ssaoNoiseTexture->Update(&noiseData[0]);*/
 
+	const char noiseTexture[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Textures/ssaoNoise.jpg.h>
+	};
+
 	m_ssaoNoiseTexture = new NzTexture;
 	m_ssaoNoiseTexture->SetPersistent(false);
-	m_ssaoNoiseTexture->LoadFromFile("resources/noise.jpg");
+	m_ssaoNoiseTexture->LoadFromMemory(noiseTexture, sizeof(noiseTexture));
 
 	m_ssaoProgram = BuildSSAOProgram();
 	m_ssaoProgram->SendInteger(m_ssaoProgram->GetUniformLocation("NoiseTextureSize"), m_ssaoNoiseTexture->GetWidth());
