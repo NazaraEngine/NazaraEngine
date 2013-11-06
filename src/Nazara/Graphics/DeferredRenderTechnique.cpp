@@ -825,7 +825,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 	NzRenderer::SetRenderStates(states);
 
 	/****************************SSAO***************************/
-	NzRenderer::SetShaderProgram(m_ssaoProgram);
+/*	NzRenderer::SetShaderProgram(m_ssaoProgram);
 
 	NzRenderer::SetTarget(&m_ssaoRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_GBufferSize.x/4, m_GBufferSize.y/4));
@@ -868,13 +868,13 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 	NzRenderer::SetTextureSampler(1, m_bilinearSampler);
 	NzRenderer::DrawFullscreenQuad();
-
+*/
 	/****************************AA***************************/
 	NzRenderer::SetShaderProgram(m_aaProgram);
 
-	m_geometryRTT.SetColorTarget(4); // workTextureA
+	m_geometryRTT.SetColorTarget(5); // workTextureB
 
-	NzRenderer::SetTexture(0, m_workTextureB);
+	NzRenderer::SetTexture(0, m_workTextureA);
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 	NzRenderer::DrawFullscreenQuad();
 
@@ -882,7 +882,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 	NzRenderer::SetTextureSampler(0, m_bilinearSampler);
 	NzRenderer::SetTextureSampler(1, m_bilinearSampler);
 
-	m_geometryRTT.SetColorTarget(5); // workTextureB
+	m_geometryRTT.SetColorTarget(4); // workTextureA
 
 	NzRenderer::SetShaderProgram(m_bloomBrightProgram);
 
@@ -914,10 +914,10 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 	NzRenderer::SetTarget(&m_geometryRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_GBufferSize.x, m_GBufferSize.y));
-	m_geometryRTT.SetColorTarget(5); // workTextureB
+	m_geometryRTT.SetColorTarget(4); // workTextureA
 
 	NzRenderer::SetShaderProgram(m_bloomFinalProgram);
-	NzRenderer::SetTexture(0, m_workTextureA);
+	NzRenderer::SetTexture(0, m_workTextureB);
 	NzRenderer::SetTexture(1, m_bloomTextureB);
 	NzRenderer::DrawFullscreenQuad();
 
@@ -938,7 +938,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 		m_gaussianBlurProgram->SendVector(m_gaussianBlurProgramFilterLocation, NzVector2f(1.f, 0.f));
 
-		NzRenderer::SetTexture(0, (i == 0) ? m_workTextureB : m_dofTextureB);
+		NzRenderer::SetTexture(0, (i == 0) ? m_workTextureA : m_dofTextureB);
 		NzRenderer::DrawFullscreenQuad();
 
 		m_dofRTT.SetColorTarget(1); // dofTextureB
@@ -951,20 +951,20 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 	NzRenderer::SetTarget(&m_geometryRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_GBufferSize.x, m_GBufferSize.y));
-	m_geometryRTT.SetColorTarget(4); // workTextureA
+	m_geometryRTT.SetColorTarget(5); // workTextureB
 
 	NzRenderer::SetShaderProgram(m_depthOfFieldProgram);
-	NzRenderer::SetTexture(0, m_workTextureB);
+	NzRenderer::SetTexture(0, m_workTextureA);
 	NzRenderer::SetTexture(1, m_dofTextureB);
 	NzRenderer::SetTexture(2, m_GBuffer[1]);
-	NzRenderer::DrawFullscreenQuad();
-*/
+	NzRenderer::DrawFullscreenQuad();*/
+
 	/*******************************Passe finale******************************/
 	scene->GetViewer()->ApplyView();
 
 	NzRenderer::SetRenderStates(states);
 	NzRenderer::SetShaderProgram(m_blitProgram);
-	NzRenderer::SetTexture(0, m_workTextureB);
+	NzRenderer::SetTexture(0, m_workTextureA);
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 
 	NzRenderer::DrawFullscreenQuad();
