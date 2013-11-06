@@ -11,7 +11,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NzPluginManager
+class NAZARA_API NzPluginManager
 {
 	public:
 		NzPluginManager() = delete;
