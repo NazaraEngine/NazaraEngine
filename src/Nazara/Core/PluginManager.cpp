@@ -46,7 +46,7 @@ bool NzPluginManager::Initialize()
 {
 	s_directories.push_back(NzFile::AbsolutePath("."));
 
-	NzString libDir = NzFile::AbsolutePath("lib");
+	NzString libDir = NzFile::AbsolutePath("plugins");
 	if (NzDirectory::Exists(libDir))
 		s_directories.push_back(libDir);
 
