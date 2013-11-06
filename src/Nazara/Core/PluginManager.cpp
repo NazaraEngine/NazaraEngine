@@ -14,7 +14,7 @@
 
 namespace
 {
-	using PluginLoad = bool (*)();
+	using PluginLoad = int (*)();
 	using PluginUnload = void (*)();
 
 	std::list<NzString> s_directories;
