@@ -23,9 +23,6 @@ function encodeResources()
 				headerContent = ""
 				for i = 1, contentLength do
 					local b = resourceContent:sub(i, i):byte()
-					if (b >= 128) then
-						b = b - 256
-					end
 					headerContent = headerContent .. string.format("%d,", b)
 				end
 
