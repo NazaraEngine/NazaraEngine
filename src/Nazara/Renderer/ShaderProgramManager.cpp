@@ -214,17 +214,16 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 	{
 		case nzShaderTarget_FullscreenQuad:
 		{
-			const char coreFragmentShader[] = {
+			const nzUInt8 coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.frag.h>
 			};
 
-			const char compatibilityFragmentShader[] = {
+			const nzUInt8 compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.frag.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreFragmentShader : compatibilityFragmentShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreFragmentShader) : sizeof(compatibilityFragmentShader);
-
 
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 1 + shaderSourceSize);
 
@@ -252,15 +251,15 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_Model:
 		{
-			const char coreFragmentShader[] = {
+			const nzUInt8 coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/core.frag.h>
 			};
 
-			const char compatibilityFragmentShader[] = {
+			const nzUInt8 compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.frag.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreFragmentShader : compatibilityFragmentShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreFragmentShader) : sizeof(compatibilityFragmentShader);
 
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 27 + 19 + 25 + 27 + 27 + 1 + shaderSourceSize);
@@ -308,15 +307,15 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_None:
 		{
-			const char coreFragmentShader[] = {
+			const nzUInt8 coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/core.frag.h>
 			};
 
-			const char compatibilityFragmentShader[] = {
+			const nzUInt8 compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.frag.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreFragmentShader : compatibilityFragmentShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreFragmentShader) : sizeof(compatibilityFragmentShader);
 
 			source.Reserve(source.GetCapacity() + 34 + shaderSourceSize);
@@ -330,15 +329,15 @@ NzString NzShaderProgramManager::BuildFragmentCode(const NzShaderProgramManagerP
 
 		case nzShaderTarget_Sprite:
 		{
-			const char coreFragmentShader[] = {
+			const nzUInt8 coreFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.frag.h>
 			};
 
-			const char compatibilityFragmentShader[] = {
+			const nzUInt8 compatibilityFragmentShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.frag.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreFragmentShader : compatibilityFragmentShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreFragmentShader : compatibilityFragmentShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreFragmentShader) : sizeof(compatibilityFragmentShader);
 
 			source.Reserve(source.GetCapacity() + 34 + 24 + 21 + 26 + 1 + shaderSourceSize);
@@ -405,15 +404,15 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 	{
 		case nzShaderTarget_FullscreenQuad:
 		{
-			const char coreVertexShader[] = {
+			const nzUInt8 coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/core.vert.h>
 			};
 
-			const char compatibilityVertexShader[] = {
+			const nzUInt8 compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/FullscreenQuad/compatibility.vert.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreVertexShader : compatibilityVertexShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreVertexShader) : sizeof(compatibilityVertexShader);
 
 			source.Reserve(source.GetCapacity() + 24 + 21 + 26 + 1 + shaderSourceSize);
@@ -438,15 +437,15 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_Model:
 		{
-			const char coreVertexShader[] = {
+			const nzUInt8 coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/core.vert.h>
 			};
 
-			const char compatibilityVertexShader[] = {
+			const nzUInt8 compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Model/compatibility.vert.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreVertexShader : compatibilityVertexShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreVertexShader) : sizeof(compatibilityVertexShader);
 
 			source.Reserve(source.GetCapacity() + 24 + 21 + 26 + 27 + 19 + 25 + 27 + 27 + 1 + shaderSourceSize);
@@ -491,15 +490,15 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_None:
 		{
-			const char coreVertexShader[] = {
+			const nzUInt8 coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/core.vert.h>
 			};
 
-			const char compatibilityVertexShader[] = {
+			const nzUInt8 compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/None/compatibility.vert.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreVertexShader : compatibilityVertexShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreVertexShader) : sizeof(compatibilityVertexShader);
 
 			source.Append(shaderSource, shaderSourceSize);
@@ -508,15 +507,15 @@ NzString NzShaderProgramManager::BuildVertexCode(const NzShaderProgramManagerPar
 
 		case nzShaderTarget_Sprite:
 		{
-			const char coreVertexShader[] = {
+			const nzUInt8 coreVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/core.vert.h>
 			};
 
-			const char compatibilityVertexShader[] = {
+			const nzUInt8 compatibilityVertexShader[] = {
 				#include <Nazara/Renderer/Resources/Shaders/Sprite/compatibility.vert.h>
 			};
 
-			const char* shaderSource = (s_glsl140) ? coreVertexShader : compatibilityVertexShader;
+			const char* shaderSource = reinterpret_cast<const char*>((s_glsl140) ? coreVertexShader : compatibilityVertexShader);
 			unsigned int shaderSourceSize = (s_glsl140) ? sizeof(coreVertexShader) : sizeof(compatibilityVertexShader);
 
 			source.Reserve(source.GetCapacity() + 24 + 21 + 26 + 1 + shaderSourceSize);
