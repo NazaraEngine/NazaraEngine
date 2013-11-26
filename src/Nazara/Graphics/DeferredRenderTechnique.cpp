@@ -26,7 +26,7 @@ namespace
 {
 	NzShaderProgram* BuildClearProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/ClearGBuffer.frag.h>
 		};
 
@@ -44,7 +44,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -67,7 +67,7 @@ namespace
 
 	NzShaderProgram* BuildDirectionalLightProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/DirectionalLight.frag.h>
 		};
 
@@ -85,7 +85,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -112,7 +112,7 @@ namespace
 
 	NzShaderProgram* BuildPointLightProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/PointLight.frag.h>
 		};
 
@@ -132,7 +132,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -159,7 +159,7 @@ namespace
 
 	NzShaderProgram* BuildSpotLightProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/SpotLight.frag.h>
 		};
 
@@ -179,7 +179,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -206,7 +206,7 @@ namespace
 
 	NzShaderProgram* BuildBloomBrightProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomBright.frag.h>
 		};
 
@@ -224,7 +224,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -249,7 +249,7 @@ namespace
 
 	NzShaderProgram* BuildGaussianBlurProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/GaussianBlur.frag.h>
 		};
 
@@ -267,7 +267,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -292,7 +292,7 @@ namespace
 
 	NzShaderProgram* BuildBloomFinalProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomFinal.frag.h>
 		};
 
@@ -310,7 +310,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -336,7 +336,7 @@ namespace
 
 	NzShaderProgram* BuildAAProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/FXAA.frag.h>
 		};
 
@@ -354,7 +354,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -380,7 +380,7 @@ namespace
 
 	NzShaderProgram* BuildSSAOProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/SSAO.frag.h>
 		};
 
@@ -398,7 +398,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -424,7 +424,7 @@ namespace
 
 	NzShaderProgram* BuildSSAOFinalProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/SSAOFinal.frag.h>
 		};
 
@@ -442,7 +442,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -546,7 +546,7 @@ namespace
 
 	NzShaderProgram* BuildBlitProgram()
 	{
-		const char fragmentSource[] = {
+		const nzUInt8 fragmentSource[] = {
 			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/Blit.frag.h>
 		};
 
@@ -564,7 +564,7 @@ namespace
 		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
 		program->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(fragmentSource, sizeof(fragmentSource))))
+		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
@@ -664,7 +664,7 @@ m_texturesUpdated(false)
 	m_ssaoNoiseTexture->Create(nzImageType_2D, nzPixelFormat_RG8, 4, 4);
 	m_ssaoNoiseTexture->Update(&noiseData[0]);*/
 
-	const char noiseTexture[] = {
+	const nzUInt8 noiseTexture[] = {
 		#include <Nazara/Graphics/Resources/DeferredShading/Textures/ssaoNoise.jpg.h>
 	};
 
@@ -890,7 +890,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 	NzRenderer::SetShaderProgram(m_bloomBrightProgram);
 
-	NzRenderer::SetTexture(0, m_workTextureA);
+	NzRenderer::SetTexture(0, m_workTextureB);
 	NzRenderer::DrawFullscreenQuad();
 
 	NzRenderer::SetTarget(&m_bloomRTT);
@@ -905,7 +905,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 		m_gaussianBlurProgram->SendVector(m_gaussianBlurProgramFilterLocation, NzVector2f(1.f, 0.f));
 
-		NzRenderer::SetTexture(0, (i == 0) ? m_workTextureB : m_bloomTextureB);
+		NzRenderer::SetTexture(0, (i == 0) ? m_workTextureA : m_bloomTextureB);
 		NzRenderer::DrawFullscreenQuad();
 
 		m_bloomRTT.SetColorTarget(1); // bloomTextureB
@@ -918,7 +918,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 	NzRenderer::SetTarget(&m_geometryRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_GBufferSize.x, m_GBufferSize.y));
-	m_geometryRTT.SetColorTarget(4); // workTextureA
+	m_geometryRTT.SetColorTarget(5); // workTextureB
 
 	NzRenderer::SetShaderProgram(m_bloomFinalProgram);
 	NzRenderer::SetTexture(0, m_workTextureB);
@@ -968,7 +968,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene)
 
 	NzRenderer::SetRenderStates(states);
 	NzRenderer::SetShaderProgram(m_blitProgram);
-	NzRenderer::SetTexture(0, m_workTextureA);
+	NzRenderer::SetTexture(0, m_workTextureB);
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 
 	NzRenderer::DrawFullscreenQuad();
