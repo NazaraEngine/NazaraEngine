@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ConditionVariable.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Mutex.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -37,10 +38,12 @@ void NzConditionVariable::SignalAll()
 
 void NzConditionVariable::Wait(NzMutex* mutex)
 {
+	NazaraAssert(mutex != nullptr, "Mutex must be valid");
 	m_impl->Wait(mutex->m_impl);
 }
 
 bool NzConditionVariable::Wait(NzMutex* mutex, nzUInt32 timeout)
 {
+	NazaraAssert(mutex != nullptr, "Mutex must be valid");
 	return m_impl->Wait(mutex->m_impl, timeout);
 }
