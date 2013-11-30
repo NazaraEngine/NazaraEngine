@@ -102,7 +102,18 @@ void NzTaskSchedulerImpl::Uninitialize()
 	WaitForMultipleObjects(s_workerCount, &s_workerThreads[0], true, INFINITE);
 
 	for (unsigned int i = 0; i < s_workerCount; ++i)
+	{
+		Worker& worker = s_workers[i];
+		CloseHandle(s_doneEvents[i]);
 		CloseHandle(s_workerThreads[i]);
+		CloseHandle(worker.wakeEvent);
+		DeleteCriticalSection(&worker.queueMutex);
+	}
+
+	s_doneEvents.reset();
+	s_workers.reset();
+	s_workerThreads.reset();
+	s_workerCount = 0;
 }
 
 void NzTaskSchedulerImpl::WaitForTasks()
@@ -196,6 +207,8 @@ unsigned int __stdcall NzTaskSchedulerImpl::WorkerProc(void* userdata)
 			WaitForSingleObject(worker.wakeEvent, INFINITE);
 		}
 	}
+
+	SetEvent(s_doneEvents[workerID]); // Au cas où un thread attendrait sur WaitForTasks() pendant qu'un autre appellerait Uninitialize()
 
 	return 0;
 }
