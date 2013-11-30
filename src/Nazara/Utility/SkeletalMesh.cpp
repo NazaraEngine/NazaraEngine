@@ -377,6 +377,7 @@ void NzSkeletalMesh::Skin(NzMeshVertex* outputBuffer, const NzSkeleton* skeleton
 	for (unsigned int i = 0; i < workerCount; ++i)
 		NzTaskScheduler::AddTask(Skin_PositionNormalTangent, skinningInfos, i*div.quot, (i == workerCount-1) ? div.quot + div.rem : div.quot);
 
+	NzTaskScheduler::Run();
 	NzTaskScheduler::WaitForTasks();
 	#else
 	Skin_PositionNormalTangent(skinningInfos, 0, m_impl->vertexCount);
