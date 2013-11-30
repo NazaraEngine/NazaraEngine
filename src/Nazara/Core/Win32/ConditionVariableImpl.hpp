@@ -10,6 +10,7 @@
 #define NAZARA_CONDITIONVARIABLEIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <atomic>
 #include <windows.h>
 
 class NzMutexImpl;
@@ -41,9 +42,8 @@ class NzConditionVariableImpl
 			MAX_EVENTS
 		};
 
-		CRITICAL_SECTION m_countLock;
+		std::atomic_uint m_count;
 		HANDLE m_events[MAX_EVENTS];
-		unsigned int m_count;
 		#endif
 
 };
