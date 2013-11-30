@@ -156,7 +156,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 	NzString baseDir = m_stream.GetDirectory();
 
 	// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
-	// Nous réduisons donc sa taille de 1/40
+	// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
 	NzVector3f scale(m_parameters.scale/40.f);
 
 	if (m_parameters.animated)
