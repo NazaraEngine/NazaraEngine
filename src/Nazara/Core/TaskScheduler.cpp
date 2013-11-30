@@ -53,7 +53,8 @@ void NzTaskScheduler::SetWorkerCount(unsigned int workerCount)
 
 void NzTaskScheduler::Uninitialize()
 {
-	NzTaskSchedulerImpl::Uninitialize();
+	if (NzTaskSchedulerImpl::IsInitialized())
+		NzTaskSchedulerImpl::Uninitialize();
 }
 
 void NzTaskScheduler::WaitForTasks()
