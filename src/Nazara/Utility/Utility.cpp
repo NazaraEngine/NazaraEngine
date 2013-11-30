@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
