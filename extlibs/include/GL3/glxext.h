@@ -33,10 +33,10 @@ extern "C" {
 ** used to make the header, and the header can be found at
 **   http://www.opengl.org/registry/
 **
-** Khronos $Revision$ on $Date$
+** Khronos $Revision: 24264 $ on $Date: 2013-12-02 03:42:47 -0800 (Mon, 02 Dec 2013) $
 */
 
-#define GLX_GLXEXT_VERSION 20130710
+#define GLX_GLXEXT_VERSION 20131202
 
 /* Generated C header for:
  * API: glx
