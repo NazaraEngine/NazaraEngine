@@ -207,7 +207,6 @@ void NzOpenGL::ApplyStates(const NzRenderStates& states)
 				dstStates.stencilReference = srcStates.stencilReference;
 			}
 
-			// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
 			if (dstStates.stencilFail != srcStates.stencilFail ||
 				dstStates.stencilPass != srcStates.stencilPass ||
 				dstStates.stencilZFail != srcStates.stencilZFail)
