@@ -9,8 +9,6 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-// gl3.h définit WIN32_LEAN_AND_MEAN qui entre en conflit avec la définition de Nazara et doit donc être inclut en premier
-#include <GL3/glcorearb.h>
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -18,7 +16,8 @@
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-// Inclusion des extensions
+// Inclusion des headers OpenGL
+#include <GL3/glcorearb.h>
 #include <GL3/glext.h>
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <GL3/wglext.h>
