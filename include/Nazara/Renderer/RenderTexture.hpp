@@ -16,6 +16,8 @@
 
 ///TODO: Faire fonctionner les RenderTexture indépendamment du contexte (un FBO par classe et par contexte l'utilisant)
 
+class NzRenderBuffer;
+
 struct NzRenderTextureImpl;
 
 class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, NzNonCopyable
@@ -24,6 +26,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		NzRenderTexture() = default;
 		~NzRenderTexture();
 
+		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzRenderBuffer* buffer);
 		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height);
 		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z = 0);
 
@@ -42,14 +45,15 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 
 		bool Lock() const;
 
-		void SetColorTarget(nzUInt8 target);
-		void SetColorTargets(const nzUInt8* targets, unsigned int targetCount);
-		void SetColorTargets(const std::initializer_list<nzUInt8>& targets);
+		void SetColorTarget(nzUInt8 target) const;
+		void SetColorTargets(const nzUInt8* targets, unsigned int targetCount) const;
+		void SetColorTargets(const std::initializer_list<nzUInt8>& targets) const;
 
 		void Unlock() const;
 
 		// Fonctions OpenGL
-		bool HasContext() const;
+		unsigned int GetOpenGLID() const;
+		bool HasContext() const override;
 
 		static bool IsSupported();
 
