@@ -50,7 +50,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 
 		// Fonctions OpenGL
 		NzContextParameters GetContextParameters() const;
-		bool HasContext() const;
+		bool HasContext() const override;
 
 	protected:
 		bool Activate() const override;
