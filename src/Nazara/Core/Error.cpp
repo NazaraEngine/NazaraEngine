@@ -30,7 +30,7 @@ void NzError::Error(nzErrorType type, const NzString& error)
 		std::exit(EXIT_FAILURE);
 	#endif
 
-	if ((s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
+	if (type != nzErrorType_Warning && (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
 		throw std::runtime_error(error);
 }
 
@@ -49,7 +49,7 @@ void NzError::Error(nzErrorType type, const NzString& error, unsigned int line, 
 		std::exit(EXIT_FAILURE);
 	#endif
 
-	if ((s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
+	if (type != nzErrorType_Warning && (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
 		throw std::runtime_error(error);
 }
 
