@@ -7,7 +7,9 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <limits>
+#include <memory>
 #include <vector>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -15,9 +17,10 @@ namespace
 {
 	struct Attachment
 	{
-		GLuint buffer;
+		NzRenderBufferRef buffer;
 		NzTextureRef texture;
 
+		nzAttachmentPoint attachmentPoint;
 		bool isBuffer;
 		bool isUsed = false;
 		unsigned int height;
@@ -65,7 +68,7 @@ NzRenderTexture::~NzRenderTexture()
 	Destroy();
 }
 
-bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height)
+bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzRenderBuffer* buffer)
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -86,9 +89,15 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	{
 		if (index >= NzRenderer::GetMaxColorAttachments())
 		{
-			NazaraError("Color index is over max color attachments (" + NzString::Number(index) + ", " + NzString::Number(NzRenderer::GetMaxColorAttachments()) + ")");
+			NazaraError("Color index is over max color attachments (" + NzString::Number(index) + " >= " + NzString::Number(NzRenderer::GetMaxColorAttachments()) + ")");
 			return false;
 		}
+	}
+
+	if (!buffer || !buffer->IsValid())
+	{
+		NazaraError("Invalid render buffer");
+		return false;
 	}
 
 	unsigned int depthStencilIndex = attachmentIndex[nzAttachmentPoint_DepthStencil];
@@ -106,27 +115,14 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 		}
 	}
 
-	nzAttachmentPoint targetAttachmentPoint = formatTypeToAttachment[NzPixelFormat::GetType(format)];
+	nzAttachmentPoint targetAttachmentPoint = formatTypeToAttachment[NzPixelFormat::GetType(buffer->GetFormat())];
 	if (targetAttachmentPoint != attachmentPoint && targetAttachmentPoint != nzAttachmentPoint_DepthStencil &&
 	    attachmentPoint != nzAttachmentPoint_Depth && attachmentPoint != nzAttachmentPoint_Stencil)
 	{
 		NazaraError("Pixel format type does not match attachment point type");
 		return false;
 	}
-
-	if (width == 0 || height == 0)
-	{
-		NazaraError("Invalid size");
-		return false;
-	}
 	#endif
-
-	NzOpenGL::Format openglFormat;
-	if (!NzOpenGL::TranslateFormat(format, &openglFormat, NzOpenGL::FormatType_RenderBuffer))
-	{
-		NazaraError("Failed to translate pixel format into OpenGL format");
-		return false;
-	}
 
 	if (!Lock())
 	{
@@ -137,37 +133,23 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	// Détachement de l'attache précédente (Si il y a)
 	Detach(attachmentPoint, index);
 
-	GLuint renderBuffer = 0;
+	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, buffer->GetOpenGLID());
 
-	glGenRenderbuffers(1, &renderBuffer);
-	if (!renderBuffer)
-	{
-		NazaraError("Failed to create renderbuffer");
-		return false;
-	}
-
-	GLint previous;
-	glGetIntegerv(GL_RENDERBUFFER_BINDING, &previous);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, openglFormat.internalFormat, width, height);
-
-	if (previous != 0)
-		glBindRenderbuffer(GL_RENDERBUFFER, previous);
-
-	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, renderBuffer);
 	Unlock();
 
-	unsigned int minSize = attachmentIndex[attachmentPoint]+index+1;
-	if (m_impl->attachments.size() < minSize)
-		m_impl->attachments.resize(minSize);
+	unsigned int attachIndex = attachmentIndex[attachmentPoint]+index;
+	if (m_impl->attachments.size() <= attachIndex)
+		m_impl->attachments.resize(attachIndex+1);
 
-	Attachment& attachment = m_impl->attachments[minSize-1];
-	attachment.buffer = renderBuffer;
+	Attachment& attachment = m_impl->attachments[attachIndex];
+	attachment.attachmentPoint = attachmentPoint;
+	attachment.buffer = buffer;
 	attachment.isBuffer = true;
 	attachment.isUsed = true;
-	attachment.height = height;
-	attachment.width = width;
+	attachment.height = buffer->GetHeight();
+	attachment.width = buffer->GetWidth();
+
+	buffer->AddResourceListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -178,6 +160,27 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 		m_impl->targetsUpdated = false;
 	}
 
+	return true;
+}
+
+bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height)
+{
+	std::unique_ptr<NzRenderBuffer> renderBuffer(new NzRenderBuffer);
+	renderBuffer->SetPersistent(false);
+
+	if (!renderBuffer->Create(format, width, height))
+	{
+		NazaraError("Failed to create RenderBuffer");
+		return false;
+	}
+
+	if (!AttachBuffer(attachmentPoint, index, renderBuffer.get()))
+	{
+		NazaraError("Failed to attach buffer");
+		return false;
+	}
+
+	renderBuffer.release();
 	return true;
 }
 
@@ -202,7 +205,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	{
 		if (index >= NzRenderer::GetMaxColorAttachments())
 		{
-			NazaraError("Color index is over max color attachments (" + NzString::Number(index) + ", " + NzString::Number(NzRenderer::GetMaxColorAttachments()) + ")");
+			NazaraError("Color index is over max color attachments (" + NzString::Number(index) + " >= " + NzString::Number(NzRenderer::GetMaxColorAttachments()) + ")");
 			return false;
 		}
 	}
@@ -278,18 +281,19 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 
 	Unlock();
 
-	unsigned int minSize = attachmentIndex[attachmentPoint]+index+1;
-	if (m_impl->attachments.size() < minSize)
-		m_impl->attachments.resize(minSize);
+	unsigned int attachIndex = attachmentIndex[attachmentPoint]+index;
+	if (m_impl->attachments.size() <= attachIndex)
+		m_impl->attachments.resize(attachIndex+1);
 
-	Attachment& attachment = m_impl->attachments[minSize-1];
+	Attachment& attachment = m_impl->attachments[attachIndex];
+	attachment.attachmentPoint = attachmentPoint;
 	attachment.isBuffer = false;
 	attachment.isUsed = true;
 	attachment.height = texture->GetHeight();
 	attachment.texture = texture;
 	attachment.width = texture->GetWidth();
 
-	texture->AddResourceListener(this);
+	texture->AddResourceListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -377,7 +381,7 @@ void NzRenderTexture::Destroy()
 			if (attachment.isUsed)
 			{
 				if (attachment.isBuffer)
-					glDeleteRenderbuffers(1, &attachment.buffer); // Les Renderbuffers sont partagés entre les contextes: Ne posera pas de problème
+					attachment.buffer->RemoveResourceListener(this);
 				else
 					attachment.texture->RemoveResourceListener(this);
 			}
@@ -426,7 +430,9 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	if (attachement.isBuffer)
 	{
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, 0);
-		glDeleteRenderbuffers(1, &attachement.buffer);
+
+		attachement.buffer->RemoveResourceListener(this);
+		attachement.buffer = nullptr;
 	}
 	else
 	{
@@ -437,7 +443,10 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 
 		attachement.texture->RemoveResourceListener(this);
 		attachement.texture = nullptr;
+	}
 
+	if (attachement.attachmentPoint == nzAttachmentPoint_Color)
+	{
 		m_impl->drawBuffersUpdated = false;
 		m_impl->targetsUpdated = false;
 	}
@@ -600,12 +609,12 @@ bool NzRenderTexture::Lock() const
 	return true;
 }
 
-void NzRenderTexture::SetColorTarget(nzUInt8 target)
+void NzRenderTexture::SetColorTarget(nzUInt8 target) const
 {
 	SetColorTargets(&target, 1);
 }
 
-void NzRenderTexture::SetColorTargets(const nzUInt8* targets, unsigned int targetCount)
+void NzRenderTexture::SetColorTargets(const nzUInt8* targets, unsigned int targetCount) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -633,7 +642,7 @@ void NzRenderTexture::SetColorTargets(const nzUInt8* targets, unsigned int targe
 	m_impl->userDefinedTargets = true;
 }
 
-void NzRenderTexture::SetColorTargets(const std::initializer_list<nzUInt8>& targets)
+void NzRenderTexture::SetColorTargets(const std::initializer_list<nzUInt8>& targets) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -690,6 +699,25 @@ void NzRenderTexture::Unlock() const
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, lockedPrevious);
 }
 
+unsigned int NzRenderTexture::GetOpenGLID() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Render texture not created");
+		return 0;
+	}
+
+	if (NzContext::GetCurrent() != m_impl->context)
+	{
+		NazaraError("RenderTexture cannot be used with this context");
+		return 0;
+	}
+	#endif
+
+    return m_impl->fbo;
+}
+
 bool NzRenderTexture::HasContext() const
 {
 	return false;
@@ -703,6 +731,12 @@ bool NzRenderTexture::IsSupported()
 bool NzRenderTexture::Activate() const
 {
 	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Render texture not created");
+		return false;
+	}
+
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -720,6 +754,12 @@ bool NzRenderTexture::Activate() const
 void NzRenderTexture::Desactivate() const
 {
 	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Render texture not created");
+		return;
+	}
+
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -753,8 +793,13 @@ bool NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
 	else // Sinon, c'est une texture
 	{
 		// La ressource n'est plus, du coup nous mettons à jour
-		Attachment& attachement = m_impl->attachments[index];
-		attachement.isUsed = false;
+		Attachment& attachment = m_impl->attachments[index];
+		if (attachment.isBuffer)
+			attachment.buffer = nullptr;
+		else
+			attachment.texture = nullptr;
+
+		attachment.isUsed = false;
 
 		m_impl->checked = false;
 		m_impl->targetsUpdated = false;
