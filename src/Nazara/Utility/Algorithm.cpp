@@ -659,6 +659,15 @@ unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int index
 	return cache.GetMissCount();
 }
 
+void NzComputeConeIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+{
+	if (indexCount)
+		*indexCount = (subdivision-1)*6;
+
+	if (vertexCount)
+		*vertexCount = subdivision + 2;
+}
+
 void NzComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount)
 {
 	// Comme tous nos plans sont identiques, on peut optimiser un peu
@@ -768,7 +777,53 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 	if (aabb)
 	{
 		aabb->Set(-halfLengths, halfLengths);
-		aabb->Transform(matrix, 0.f);
+		aabb->Transform(matrix, false);
+	}
+}
+
+void NzGenerateCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
+{
+	const float round = 2.f*static_cast<float>(M_PI);
+	float delta = round/subdivision;
+
+	vertices->position = matrix.GetTranslation(); // matrix.Transform(NzVector3f(0.f));
+	vertices->normal = matrix.Transform(NzVector3f::Up(), 0.f);
+	vertices++;
+
+	for (unsigned int i = 0; i < subdivision; ++i)
+	{
+		float angle = delta*i;
+		vertices->position = matrix.Transform(NzVector3f(radius*std::sin(angle), -length, radius*std::cos(angle)));
+		vertices++;
+
+		*indices++ = indexOffset + 0;
+		*indices++ = indexOffset + i+1;
+		*indices++ = indexOffset + ((i != subdivision-1) ? i+2 : 1);
+
+		if (i != 0 && i != subdivision-1)
+		{
+			*indices++ = indexOffset + ((i != subdivision-1) ? i+2 : 1);
+			*indices++ = indexOffset + i+1;
+			*indices++ = indexOffset + 1;
+		}
+	}
+
+	if (aabb)
+	{
+		aabb->MakeZero();
+
+		// On calcule le reste des points
+		NzVector3f base(NzVector3f::Down()*length);
+
+		NzVector3f lExtend = NzVector3f::Left()*radius;
+		NzVector3f fExtend = NzVector3f::Forward()*radius;
+
+				// Et on ajoute ensuite les quatres extrémités de la pyramide
+		aabb->ExtendTo(base + lExtend + fExtend);
+		aabb->ExtendTo(base + lExtend - fExtend);
+		aabb->ExtendTo(base - lExtend + fExtend);
+		aabb->ExtendTo(base - lExtend - fExtend);
+		aabb->Transform(matrix, false);
 	}
 }
 
@@ -788,8 +843,8 @@ void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4
 
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
+		vertices->position = matrix.Transform(size * vertices->position.GetNormal());
 		vertices->normal = vertices->position.GetNormal();
-		vertices->position = matrix.Transform(size * vertices->normal);
 		//vertices->tangent = ???
 		vertices++;
 	}

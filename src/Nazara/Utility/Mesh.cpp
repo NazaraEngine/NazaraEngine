@@ -195,6 +195,25 @@ NzSubMesh* NzMesh::BuildSubMesh(const NzPrimitive& primitive, const NzMeshParams
 			break;
 		}
 
+		case nzPrimitiveType_Cone:
+		{
+			unsigned int indexCount;
+			unsigned int vertexCount;
+			NzComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
+
+			indexBuffer.reset(new NzIndexBuffer(vertexCount > std::numeric_limits<nzUInt16>::max(), indexCount, params.storage, nzBufferUsage_Static));
+			indexBuffer->SetPersistent(false);
+
+			vertexBuffer.reset(new NzVertexBuffer(declaration, vertexCount, params.storage, nzBufferUsage_Static));
+			vertexBuffer->SetPersistent(false);
+
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+
+			NzGenerateCone(primitive.cone.length, primitive.cone.radius, primitive.cone.subdivision, matrix, primitive.textureCoords, static_cast<NzMeshVertex*>(vertexMapper.GetPointer()), indexMapper.begin(), &aabb);
+			break;
+		}
+
 		case nzPrimitiveType_Plane:
 		{
 			unsigned int indexCount;

@@ -18,6 +18,21 @@ inline void NzPrimitive::MakeBox(const NzVector3f& lengths, const NzVector3ui& s
 	MakeBox(lengths, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
 }
 
+inline void NzPrimitive::MakeCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
+{
+	matrix = transformMatrix;
+	textureCoords = uvCoords;
+	type = nzPrimitiveType_Cone;
+	cone.length = length;
+	cone.radius = radius;
+	cone.subdivision = subdivision;
+}
+
+inline void NzPrimitive::MakeCone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
+{
+	MakeCone(length, radius, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
+}
+
 inline void NzPrimitive::MakeCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
 {
 	matrix = transformMatrix;
@@ -95,6 +110,22 @@ inline NzPrimitive NzPrimitive::Box(const NzVector3f& lengths, const NzVector3ui
 {
 	NzPrimitive primitive;
 	primitive.MakeBox(lengths, subdivision, position, rotation, uvCoords);
+
+	return primitive;
+}
+
+inline NzPrimitive NzPrimitive::Cone(float length, float radius, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
+{
+	NzPrimitive primitive;
+	primitive.MakeCone(length, radius, subdivision, transformMatrix, uvCoords);
+
+	return primitive;
+}
+
+inline NzPrimitive NzPrimitive::Cone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
+{
+	NzPrimitive primitive;
+	primitive.MakeCone(length, radius, subdivision, position, rotation, uvCoords);
 
 	return primitive;
 }
