@@ -18,6 +18,8 @@ struct NzPrimitive
 {
 	void MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	void MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
+	void MakeCone(float length, float radius, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
+	void MakeCone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	void MakeCubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	void MakeCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	void MakeIcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
@@ -30,6 +32,8 @@ struct NzPrimitive
 
 	static NzPrimitive Box(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	static NzPrimitive Box(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
+	static NzPrimitive Cone(float length, float radius, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
+	static NzPrimitive Cone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	static NzPrimitive CubicSphere(float size, unsigned int subdivision = 4, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	static NzPrimitive CubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation = NzQuaternionf::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
 	static NzPrimitive IcoSphere(float size, unsigned int recursionLevel = 3, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity(), const NzRectf& uvCoords = NzRectf(0.f, 0.f, 1.f, 1.f));
@@ -52,6 +56,14 @@ struct NzPrimitive
 			NzVector3ui subdivision;
 		}
 		box;
+
+		struct
+		{
+			float length;
+			float radius;
+			unsigned int subdivision;
+		}
+		cone;
 
 		struct
 		{
