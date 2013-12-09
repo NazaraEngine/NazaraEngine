@@ -315,12 +315,11 @@ void NzLight::UpdateBoundingVolume() const
 				NzBoxf box(NzVector3f::Zero());
 
 				// On calcule le reste des points
-				float height = m_radius;
-				NzVector3f base(NzVector3f::Forward()*height);
+				NzVector3f base(NzVector3f::Forward()*m_radius);
 
 				// Il nous faut maintenant le rayon du cercle projeté à cette distance
 				// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
-				float radius = height*std::tan(NzDegreeToRadian(m_outerAngle));
+				float radius = m_radius*std::tan(NzDegreeToRadian(m_outerAngle));
 				NzVector3f lExtend = NzVector3f::Left()*radius;
 				NzVector3f uExtend = NzVector3f::Up()*radius;
 
@@ -349,10 +348,10 @@ void NzLight::UpdateBoundingVolume() const
 			break;
 
 		case nzLightType_Spot:
-			if (!m_transformMatrixUpdated)
-				UpdateTransformMatrix();
+			if (!m_derivedUpdated)
+				UpdateDerived();
 
-			m_boundingVolume.Update(m_transformMatrix);
+			m_boundingVolume.Update(NzMatrix4f::Transform(m_derivedPosition, m_derivedRotation));
 			break;
 	}
 
