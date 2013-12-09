@@ -50,6 +50,36 @@ T NzDegreeToRadian(T degrees)
 	return degrees * F(M_PI/180.0);
 }
 
+template<typename T>
+T NzMultiplyAdd(T x, T y, T z)
+{
+	return x*y + z;
+}
+
+#ifdef FP_FAST_FMAF
+template<>
+inline float NzMultiplyAdd(float x, float y, float z)
+{
+	return std::fmaf(x, y, z);
+}
+#endif
+
+#ifdef FP_FAST_FMA
+template<>
+inline double NzMultiplyAdd(double x, double y, double z)
+{
+	return std::fma(x, y, z);
+}
+#endif
+
+#ifdef FP_FAST_FMAL
+template<>
+inline long double NzMultiplyAdd(long double x, long double y, long double z)
+{
+	return std::fmal(x, y, z);
+}
+#endif
+
 inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 {
 	unsigned int r = 1;
