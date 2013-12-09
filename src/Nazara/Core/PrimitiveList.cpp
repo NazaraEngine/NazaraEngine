@@ -16,6 +16,16 @@ void NzPrimitiveList::AddBox(const NzVector3f& lengths, const NzVector3ui& subdi
 	m_primitives.push_back(NzPrimitive::Box(lengths, subdivision, position, rotation));
 }
 
+void NzPrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& transformMatrix)
+{
+	m_primitives.push_back(NzPrimitive::Cone(length, radius, subdivision, transformMatrix));
+}
+
+void NzPrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation)
+{
+	m_primitives.push_back(NzPrimitive::Cone(length, radius, subdivision, position, rotation));
+}
+
 void NzPrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& transformMatrix)
 {
 	m_primitives.push_back(NzPrimitive::CubicSphere(size, subdivision, transformMatrix));
