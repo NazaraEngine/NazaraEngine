@@ -401,6 +401,82 @@ void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 	}
 }
 
+void NzDebugDrawer::DrawCone(const NzVector3f& origin, const NzQuaternionf& rotation, float angle, float length)
+{
+	if (!s_initialized && !Initialize())
+	{
+		NazaraError("Failed to initialize Debug Drawer");
+		return;
+	}
+
+	NzMatrix4f transformMatrix;
+	transformMatrix.MakeIdentity();
+	transformMatrix.SetRotation(rotation);
+	transformMatrix.SetTranslation(origin);
+
+	NzBufferMapper<NzVertexBuffer> mapper(s_vertexBuffer, nzBufferAccess_DiscardAndWrite, 0, 16);
+	NzVertexStruct_XYZ* vertex = reinterpret_cast<NzVertexStruct_XYZ*>(mapper.GetPointer());
+
+	// On calcule le reste des points
+	NzVector3f base(NzVector3f::Forward()*length);
+
+	// Il nous faut maintenant le rayon du cercle projeté à cette distance
+	// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
+	float radius = length*std::tan(NzDegreeToRadian(angle));
+	NzVector3f lExtend = NzVector3f::Left()*radius;
+	NzVector3f uExtend = NzVector3f::Up()*radius;
+
+	vertex->position.Set(transformMatrix * NzVector3f::Zero());
+	vertex++;
+	vertex->position.Set(transformMatrix * (base + lExtend + uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * (base + lExtend + uExtend));
+	vertex++;
+	vertex->position.Set(transformMatrix * (base + lExtend - uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * NzVector3f::Zero());
+	vertex++;
+	vertex->position.Set(transformMatrix * (base + lExtend - uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * (base + lExtend - uExtend));
+	vertex++;
+	vertex->position.Set(transformMatrix * (base - lExtend - uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * NzVector3f::Zero());
+	vertex++;
+	vertex->position.Set(transformMatrix * (base - lExtend + uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * (base - lExtend + uExtend));
+	vertex++;
+	vertex->position.Set(transformMatrix * (base - lExtend - uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * NzVector3f::Zero());
+	vertex++;
+	vertex->position.Set(transformMatrix * (base - lExtend - uExtend));
+	vertex++;
+
+	vertex->position.Set(transformMatrix * (base - lExtend + uExtend));
+	vertex++;
+	vertex->position.Set(transformMatrix * (base + lExtend + uExtend));
+	vertex++;
+
+	mapper.Unmap();
+
+	NzRenderer::SetRenderStates(s_renderStates);
+	NzRenderer::SetShaderProgram(s_program);
+	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
+
+	s_program->SendColor(s_colorLocation, s_primaryColor);
+
+	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 16);
+}
+
 void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 {
 	if (!s_initialized && !Initialize())
