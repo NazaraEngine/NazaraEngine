@@ -64,6 +64,7 @@ namespace
 
 		// Pavé numérique
 		VK_ADD,		 // Key::Add
+		VK_DECIMAL,  // Key::Decimal
 		VK_DIVIDE,	 // Key::Divide
 		VK_MULTIPLY, // Key::Multiply
 		VK_NUMPAD0,	 // Key::Numpad0
@@ -108,7 +109,7 @@ namespace
 		VK_NEXT,	   // Key::PageDown
 		VK_PRIOR,	   // Key::PageUp
 		VK_PAUSE,	   // Key::Pause
-		VK_OEM_PERIOD, // Key::Period,
+		VK_OEM_PERIOD, // Key::Period
 		VK_PRINT,	   // Key::Print
 		VK_SNAPSHOT,   // Key::PrintScreen
 		VK_OEM_7,	   // Key::Quote
@@ -162,6 +163,7 @@ NzString NzEventImpl::GetKeyName(NzKeyboard::Key key)
 	{
 		case VK_ATTN:
 		case VK_DOWN:
+		case VK_DECIMAL:
 		case VK_DELETE:
 		case VK_DIVIDE:
 		case VK_END:
