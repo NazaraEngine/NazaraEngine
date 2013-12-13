@@ -1068,6 +1068,7 @@ NzKeyboard::Key NzWindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
 		case VK_BROWSER_STOP:	   return NzKeyboard::Browser_Stop;
 		case VK_CAPITAL:		   return NzKeyboard::CapsLock;
 		case VK_CLEAR:			   return NzKeyboard::Clear;
+		case VK_DECIMAL:           return NzKeyboard::Decimal;
 		case VK_DELETE:			   return NzKeyboard::Delete;
 		case VK_DIVIDE:			   return NzKeyboard::Divide;
 		case VK_DOWN:			   return NzKeyboard::Down;
