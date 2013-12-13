@@ -72,6 +72,7 @@ class NAZARA_API NzKeyboard
 
 			// Pavé numérique
 			Add,
+			Decimal,
 			Divide,
 			Multiply,
 			Numpad0,
