@@ -302,9 +302,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 								// Calcul des lumières les plus proches
 								if (lightCount < m_maxLightsPerObject && !m_lights.IsEmpty())
 								{
-									unsigned int count = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, maxLightCount);
-									count -= lightCount;
-
+									unsigned int count = std::min(m_maxLightsPerObject-lightCount, m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, maxLightCount));
 									for (unsigned int i = 0; i < count; ++i)
 										m_lights.GetResult(i)->Enable(program, lightCount++);
 								}
@@ -478,9 +476,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene)
 			// Calcul des lumières les plus proches
 			if (lightCount < m_maxLightsPerObject && !m_lights.IsEmpty())
 			{
-				unsigned int count = m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, maxLightCount);
-				count -= lightCount;
-
+				unsigned int count = std::min(m_maxLightsPerObject-lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, maxLightCount));
 				for (unsigned int i = 0; i < count; ++i)
 					m_lights.GetResult(i)->Enable(program, lightCount++);
 			}
