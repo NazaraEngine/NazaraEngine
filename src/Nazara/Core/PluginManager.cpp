@@ -142,6 +142,7 @@ void NzPluginManager::Unmount(const NzString& pluginPath)
 		func();
 
 	it->second->Unload();
+	delete it->second;
 
 	s_plugins.erase(it);
 }
@@ -157,6 +158,7 @@ void NzPluginManager::Uninitialize()
 			func();
 
 		pair.second->Unload();
+		delete pair.second;
 	}
 
 	s_plugins.clear();
