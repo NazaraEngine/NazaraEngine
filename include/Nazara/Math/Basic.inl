@@ -26,12 +26,7 @@ T NzApproach(T value, T objective, T increment)
 template<typename T>
 T NzClamp(T value, T min, T max)
 {
-	if (value < min)
-		return min;
-	else if (value > max)
-		return max;
-	else
-		return value;
+	return std::max(std::min(value, max), min);
 }
 
 template<typename T>
@@ -186,10 +181,7 @@ T NzLerp(T from, T to, T2 interpolation)
 {
 	#ifdef NAZARA_DEBUG
 	if (interpolation < F2(0.0) || interpolation > F2(1.0))
-	{
-		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
-		return F(0.0);
-	}
+		NazaraWarning("Interpolation should be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
 	#endif
 
 	return from + interpolation*(to - from);
