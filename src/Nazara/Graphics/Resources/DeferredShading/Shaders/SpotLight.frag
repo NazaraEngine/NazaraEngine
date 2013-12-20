@@ -83,8 +83,6 @@ void main()
 
 	lightSpecular *= specularColor;
 
-	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
-	vec4 fragmentColor = vec4(lightColor * diffuseColor, 1.0);
-
-	RenderTarget0 = fragmentColor;
+	vec3 fragmentColor = diffuseColor * (lightAmbient + lightDiffuse + lightSpecular);
+	RenderTarget0 = vec4(fragmentColor, 1.0);
 }
