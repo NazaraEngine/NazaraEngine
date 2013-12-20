@@ -65,6 +65,8 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		bool IsAnimationEnabled() const;
 		bool IsDrawable() const;
 
+		void InvalidateBoundingVolume();
+
 		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params = NzModelParameters());
 		bool LoadFromStream(NzInputStream& stream, const NzModelParameters& params = NzModelParameters());
