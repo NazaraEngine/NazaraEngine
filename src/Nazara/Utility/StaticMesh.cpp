@@ -7,6 +7,7 @@
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -18,6 +19,20 @@ NzSubMesh(parent)
 NzStaticMesh::~NzStaticMesh()
 {
 	Destroy();
+}
+
+void NzStaticMesh::Center()
+{
+	NzVector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
+
+	NzVertexMapper mapper(this);
+	unsigned int vertexCount = mapper.GetVertexCount();
+	for (unsigned int i = 0; i < vertexCount; ++i)
+		mapper.SetPosition(i, mapper.GetPosition(i) - offset);
+
+	m_aabb.x -= offset.x;
+	m_aabb.y -= offset.y;
+	m_aabb.z -= offset.z;
 }
 
 bool NzStaticMesh::Create(NzVertexBuffer* vertexBuffer)

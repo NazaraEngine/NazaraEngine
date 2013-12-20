@@ -351,9 +351,13 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			// Material
 			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+
 			subMesh->GenerateAABB();
 			subMesh->GenerateNormalsAndTangents();
 			subMesh->SetMaterialIndex(i);
+
+			if (m_parameters.center)
+				subMesh->Center();
 
 			mesh->AddSubMesh(subMesh.get());
 			subMesh.release();

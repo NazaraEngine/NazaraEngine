@@ -22,6 +22,8 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		NzStaticMesh(const NzMesh* parent);
 		virtual ~NzStaticMesh();
 
+		void Center();
+
 		bool Create(NzVertexBuffer* vertexBuffer);
 		void Destroy();
 
