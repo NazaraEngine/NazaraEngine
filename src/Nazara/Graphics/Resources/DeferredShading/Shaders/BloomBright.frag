@@ -6,7 +6,6 @@ uniform float BrightLuminance = 0.8;
 uniform float BrightMiddleGrey = 0.5;
 uniform float BrightThreshold = 0.8;
 uniform sampler2D ColorTexture;
-uniform sampler2D BloomTexture;
 uniform vec2 InvTargetSize;
 
 void main()
@@ -21,4 +20,4 @@ void main()
 	color /= (1.0 + color);
 
 	RenderTarget0 = vec4(color, 1.0);
-};
+}
