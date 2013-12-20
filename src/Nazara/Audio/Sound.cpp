@@ -72,6 +72,16 @@ bool NzSound::IsLooping() const
 	return loop != AL_FALSE;
 }
 
+bool NzSound::IsPlayable() const
+{
+	return m_buffer != nullptr;
+}
+
+bool NzSound::IsPlaying() const
+{
+	return GetStatus() == nzSoundStatus_Playing;
+}
+
 bool NzSound::LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params)
 {
 	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);

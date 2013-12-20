@@ -28,6 +28,8 @@ class NAZARA_API NzSound : public NzSoundEmitter
 		nzSoundStatus GetStatus() const;
 
 		bool IsLooping() const;
+		bool IsPlayable() const;
+		bool IsPlaying() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params = NzSoundBufferParams());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params = NzSoundBufferParams());
