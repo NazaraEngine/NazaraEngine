@@ -227,6 +227,10 @@ namespace
 		subMesh->GenerateAABB();
 		subMesh->GenerateTangents();
 		subMesh->SetMaterialIndex(0);
+
+		if (parameters.center)
+			subMesh->Center();
+
 		mesh->AddSubMesh(subMesh.release());
 
 		return true;

@@ -63,7 +63,7 @@ namespace
 			unsigned int faceCount = meshes[i].faces.size();
 
 			std::vector<unsigned int> indices;
-			indices.reserve(faceCount*3); // Pire cas (si les faces sont des triangles)
+			indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
 
 			// Bien plus rapide qu'un vector (pour la recherche)
 			std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, unsigned int>>> vertices;
@@ -166,6 +166,9 @@ namespace
 			subMesh->GenerateAABB();
 			subMesh->SetMaterialIndex(meshes[i].material);
 			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
+
+			if (parameters.mesh.center)
+				subMesh->Center();
 
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();

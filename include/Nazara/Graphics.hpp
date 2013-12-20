@@ -1,4 +1,4 @@
-// This file was automatically generated on 21 Aug 2013 at 19:43:23
+// This file was automatically generated on 20 Dec 2013 at 20:02:16
 
 /*
 	Nazara Engine - Graphics module
@@ -36,6 +36,15 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/DeferredBloomPass.hpp>
+#include <Nazara/Graphics/DeferredFogPass.hpp>
+#include <Nazara/Graphics/DeferredForwardPass.hpp>
+#include <Nazara/Graphics/DeferredFXAAPass.hpp>
+#include <Nazara/Graphics/DeferredGeometryPass.hpp>
+#include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
+#include <Nazara/Graphics/DeferredRenderPass.hpp>
+#include <Nazara/Graphics/DeferredRenderQueue.hpp>
+#include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
@@ -44,6 +53,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightManager.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/SceneLayer.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
