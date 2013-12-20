@@ -13,9 +13,9 @@ void main()
 
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
 
-    vec3 rgbNW = textureLod(ColorTexture, texCoord, 0.0).rgb;
-    vec3 rgbNE = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(1,0)).rgb;
-    vec3 rgbSW = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(0,1)).rgb;
+    vec3 rgbNW = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(-1,-1)).rgb;
+    vec3 rgbNE = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(1,-1)).rgb;
+    vec3 rgbSW = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(-1,1)).rgb;
     vec3 rgbSE = textureLodOffset(ColorTexture, texCoord, 0.0, ivec2(1,1)).rgb;
     vec3 rgbM  = textureLod(ColorTexture, texCoord, 0.0).rgb;
 
