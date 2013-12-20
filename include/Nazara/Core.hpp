@@ -1,4 +1,4 @@
-// This file was automatically generated on 09 Jun 2013 at 11:23:10
+// This file was automatically generated on 20 Dec 2013 at 20:02:16
 
 /*
 	Nazara Engine - Core module
@@ -41,6 +41,7 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
