@@ -33,6 +33,9 @@ struct NAZARA_API NzMeshParams
 	// Charger une version animée du mesh si possible ?
 	bool animated = true;
 
+	// Faut-il centrer le mesh autour de l'origine ?
+	bool center = false;
+
 	// Faut-il optimiser les index buffers ? (Rendu plus rapide, mais le chargement dure plus longtemps)
 	bool optimizeIndexBuffers = true;
 
