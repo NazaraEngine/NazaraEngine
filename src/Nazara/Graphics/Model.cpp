@@ -273,6 +273,12 @@ bool NzModel::IsDrawable() const
 	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
 }
 
+void NzModel::InvalidateBoundingVolume()
+{
+	m_boundingVolume.MakeNull();
+	m_boundingVolumeUpdated = false;
+}
+
 bool NzModel::LoadFromFile(const NzString& filePath, const NzModelParameters& params)
 {
 	return NzModelLoader::LoadFromFile(this, filePath, params);
@@ -366,7 +372,7 @@ bool NzModel::SetMaterial(const NzString& subMeshName, NzMaterial* material)
 	unsigned int matIndex = subMesh->GetMaterialIndex();
 	if (matIndex >= m_matCount)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
+		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
 		return false;
 	}
 
