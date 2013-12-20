@@ -76,6 +76,8 @@ namespace
 		NazaraUnused(parameters);
 
 		SF_INFO info;
+		info.format = 0;
+
 		SNDFILE* file = sf_open_virtual(&callbacks, SFM_READ, &info, &stream);
 		if (file)
 		{
@@ -90,15 +92,17 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		SF_INFO infos;
-		SNDFILE* file = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
+		SF_INFO info;
+		info.format = 0;
+
+		SNDFILE* file = sf_open_virtual(&callbacks, SFM_READ, &info, &stream);
 		if (!file)
 		{
 			NazaraError("Failed to load sound file: " + NzString(sf_strerror(file)));
 			return false;
 		}
 
-		nzAudioFormat format = NzAudio::GetAudioFormat(infos.channels);
+		nzAudioFormat format = NzAudio::GetAudioFormat(info.channels);
 		if (format == nzAudioFormat_Unknown)
 		{
 			NazaraError("Channel count not handled");
@@ -110,10 +114,10 @@ namespace
 		// https://github.com/LaurentGomila/SFML/issues/271
 		// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
 		///FIXME: Seulement le Vorbis ?
-		if (infos.format & SF_FORMAT_VORBIS)
+		if (info.format & SF_FORMAT_VORBIS)
 			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
-		sf_count_t sampleCount = infos.frames*infos.channels;
+		sf_count_t sampleCount = info.frames * info.channels;
 		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
@@ -124,7 +128,7 @@ namespace
 			return false;
 		}
 
-		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), infos.samplerate, samples.get()))
+		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), info.samplerate, samples.get()))
 		{
 			sf_close(file);
 			NazaraError("Failed to create sound buffer");
