@@ -32,7 +32,7 @@ NzSoundEmitter::~NzSoundEmitter()
 
 void NzSoundEmitter::EnableSpatialization(bool spatialization)
 {
-	alSourcei(m_source, AL_SOURCE_RELATIVE, spatialization);
+	alSourcei(m_source, AL_SOURCE_RELATIVE, !spatialization);
 }
 
 float NzSoundEmitter::GetAttenuation() const
@@ -88,7 +88,7 @@ bool NzSoundEmitter::IsSpatialized() const
 	ALint relative;
 	alGetSourcei(m_source, AL_SOURCE_RELATIVE, &relative);
 
-	return relative != AL_FALSE;
+	return relative == AL_FALSE;
 }
 
 void NzSoundEmitter::SetAttenuation(float attenuation)
