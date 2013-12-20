@@ -7,6 +7,7 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
+#include <memory>
 #include <stdexcept>
 #include <AL/al.h>
 #include <Nazara/Audio/Debug.hpp>
@@ -42,7 +43,7 @@ nzUInt32 NzSound::GetDuration() const
 	#if NAZARA_AUDIO_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("No sound buffer");
+		NazaraError("Invalid sound buffer");
 		return 0;
 	}
 	#endif
@@ -73,54 +74,51 @@ bool NzSound::IsLooping() const
 
 bool NzSound::LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params)
 {
-	NzSoundBuffer* buffer = new NzSoundBuffer;
+	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
+	buffer->SetPersistent(false);
+
 	if (!buffer->LoadFromFile(filePath, params))
 	{
 		NazaraError("Failed to load buffer from file (" + filePath + ')');
-		delete buffer;
-
 		return false;
 	}
 
-	SetBuffer(buffer);
-
-	buffer->SetPersistent(false);
+	SetBuffer(buffer.get());
+	buffer.release();
 
 	return true;
 }
 
 bool NzSound::LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params)
 {
-	NzSoundBuffer* buffer = new NzSoundBuffer;
+	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
+	buffer->SetPersistent(false);
+
 	if (!buffer->LoadFromMemory(data, size, params))
 	{
 		NazaraError("Failed to load buffer from memory (" + NzString::Pointer(data) + ')');
-		delete buffer;
-
 		return false;
 	}
 
-	SetBuffer(buffer);
-
-	buffer->SetPersistent(false);
+	SetBuffer(buffer.get());
+	buffer.release();
 
 	return true;
 }
 
 bool NzSound::LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params)
 {
-	NzSoundBuffer* buffer = new NzSoundBuffer;
+	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
+	buffer->SetPersistent(false);
+
 	if (!buffer->LoadFromStream(stream, params))
 	{
 		NazaraError("Failed to load buffer from stream");
-		delete buffer;
-
 		return false;
 	}
 
-	SetBuffer(buffer);
-
-	buffer->SetPersistent(false);
+	SetBuffer(buffer.get());
+	buffer.release();
 
 	return true;
 }
@@ -135,7 +133,7 @@ bool NzSound::Play()
 	#if NAZARA_AUDIO_SAFE
 	if (!m_buffer)
 	{
-		NazaraError("No sound buffer to play");
+		NazaraError("Invalid sound buffer");
 		return false;
 	}
 	#endif
@@ -147,6 +145,14 @@ bool NzSound::Play()
 
 void NzSound::SetBuffer(const NzSoundBuffer* buffer)
 {
+	#if NAZARA_AUDIO_SAFE
+	if (buffer && !buffer->IsValid())
+	{
+		NazaraError("Invalid sound buffer");
+		return;
+	}
+	#endif
+
 	if (m_buffer == buffer)
 		return;
 
