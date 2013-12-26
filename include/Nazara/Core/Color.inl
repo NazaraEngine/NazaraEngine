@@ -51,18 +51,24 @@ inline NzString NzColor::ToString() const
 
 inline NzColor NzColor::operator+(const NzColor& color) const
 {
-	return NzColor(std::min(static_cast<nzUInt16>(r) + color.r, 255),
-	               std::min(static_cast<nzUInt16>(g) + color.g, 255),
-	               std::min(static_cast<nzUInt16>(b) + color.b, 255),
-	               std::min(static_cast<nzUInt16>(a) + color.a, 255));
+	NzColor c;
+	c.r = std::min(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U);
+	c.g = std::min(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U);
+	c.b = std::min(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U);
+	c.a = std::min(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U);
+
+	return c;
 }
 
 inline NzColor NzColor::operator*(const NzColor& color) const
 {
-	return NzColor(static_cast<nzUInt16>(r) * color.r/255,
-	               static_cast<nzUInt16>(g) * color.g/255,
-	               static_cast<nzUInt16>(b) * color.b/255,
-	               static_cast<nzUInt16>(a) * color.a/255);
+	NzColor c;
+	c.r = (static_cast<unsigned int>(r) * static_cast<unsigned int>(color.r)) / 255U;
+	c.g = (static_cast<unsigned int>(g) * static_cast<unsigned int>(color.g)) / 255U;
+	c.b = (static_cast<unsigned int>(b) * static_cast<unsigned int>(color.b)) / 255U;
+	c.a = (static_cast<unsigned int>(a) * static_cast<unsigned int>(color.a)) / 255U;
+
+	return c;
 }
 
 inline NzColor NzColor::operator+=(const NzColor& color)
@@ -72,7 +78,7 @@ inline NzColor NzColor::operator+=(const NzColor& color)
 
 inline NzColor NzColor::operator*=(const NzColor& color)
 {
-	return operator=(operator+(color));
+	return operator=(operator*(color));
 }
 
 inline bool NzColor::operator==(const NzColor& color) const
