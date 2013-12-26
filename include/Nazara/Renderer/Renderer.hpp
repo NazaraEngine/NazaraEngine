@@ -52,6 +52,7 @@ class NAZARA_API NzRenderer
 
 		static void Flush();
 
+		static nzRendererComparison GetDepthFunc();
 		static NzVertexBuffer* GetInstanceBuffer();
 		static float GetLineWidth();
 		static NzMatrix4f GetMatrix(nzMatrixType type);
