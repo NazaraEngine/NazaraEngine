@@ -516,6 +516,11 @@ void NzRenderer::Flush()
 	glFlush();
 }
 
+nzRendererComparison NzRenderer::GetDepthFunc()
+{
+	return s_states.depthFunc;
+}
+
 NzVertexBuffer* NzRenderer::GetInstanceBuffer()
 {
 	#if NAZARA_RENDERER_SAFE
