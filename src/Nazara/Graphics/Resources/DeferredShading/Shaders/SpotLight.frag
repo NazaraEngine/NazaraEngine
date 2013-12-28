@@ -29,11 +29,11 @@ void main()
 {
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
 	vec4 gVec0 = textureLod(GBuffer0, texCoord, 0.0);
-	if (gVec0.w == 0.0)
+/*	if (gVec0.w == 0.0)
 	{
 		RenderTarget0 = vec4(gVec0.xyz, 1.0);
 		return;
-	}
+	}*/
 
 	vec4 gVec1 = textureLod(GBuffer1, texCoord, 0.0);
 	vec4 gVec2 = textureLod(GBuffer2, texCoord, 0.0);

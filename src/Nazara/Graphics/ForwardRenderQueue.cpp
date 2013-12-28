@@ -186,7 +186,8 @@ void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMes
 				unsigned int instanceCount = staticDataContainer.size() + 1;
 
 				// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
-				if (instanceCount >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
+				unsigned int tumasoublie = NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT;
+				if (instanceCount >= 10)
 					enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
 
 				staticDataContainer.resize(instanceCount);
