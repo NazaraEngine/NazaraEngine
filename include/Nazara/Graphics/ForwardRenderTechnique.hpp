@@ -20,26 +20,26 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		NzForwardRenderTechnique();
 		~NzForwardRenderTechnique();
 
-		void Clear(const NzScene* scene);
-		bool Draw(const NzScene* scene);
+		void Clear(const NzScene* scene) const;
+		bool Draw(const NzScene* scene) const;
 
-		unsigned int GetMaxLightsPerObject() const;
+		unsigned int GetMaxLightPassPerObject() const;
 		NzAbstractRenderQueue* GetRenderQueue() override;
 		nzRenderTechniqueType GetType() const override;
 
-		void SetMaxLightsPerObject(unsigned int lightCount);
+		void SetMaxLightPassPerObject(unsigned int passCount);
 
 	private:
-		void DrawOpaqueModels(const NzScene* scene);
-		void DrawSprites(const NzScene* scene);
-		void DrawTransparentModels(const NzScene* scene);
+		void DrawOpaqueModels(const NzScene* scene) const;
+		void DrawSprites(const NzScene* scene) const;
+		void DrawTransparentModels(const NzScene* scene) const;
 
-		NzForwardRenderQueue m_renderQueue;
+		mutable NzForwardRenderQueue m_renderQueue;
 		NzIndexBufferRef m_indexBuffer;
-		NzLightManager m_directionalLights;
-		NzLightManager m_lights;
+		mutable NzLightManager m_directionalLights;
+		mutable NzLightManager m_lights;
 		NzVertexBuffer m_spriteBuffer;
-		unsigned int m_maxLightsPerObject;
+		unsigned int m_maxLightPassPerObject;
 };
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP

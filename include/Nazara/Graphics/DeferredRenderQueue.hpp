@@ -23,8 +23,6 @@ class NzStaticMesh;
 
 class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourceListener
 {
-	friend class NzDeferredRenderTechnique;
-
 	public:
 		NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue);
 		~NzDeferredRenderQueue();
@@ -36,10 +34,6 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 		void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix);
 
 		void Clear(bool fully);
-
-	private:
-		bool OnResourceDestroy(const NzResource* resource, int index) override;
-		void OnResourceReleased(const NzResource* resource, int index) override;
 
 		struct SkeletalData
 		{
@@ -84,6 +78,10 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 		LightContainer pointLights;
 		LightContainer spotLights;
 		NzForwardRenderQueue* m_forwardQueue;
+
+	private:
+		bool OnResourceDestroy(const NzResource* resource, int index) override;
+		void OnResourceReleased(const NzResource* resource, int index) override;
 };
 
 #endif // NAZARA_DEFERREDRENDERQUEUE_HPP

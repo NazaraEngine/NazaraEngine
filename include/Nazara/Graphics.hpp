@@ -1,4 +1,4 @@
-// This file was automatically generated on 20 Dec 2013 at 20:02:16
+// This file was automatically generated on 27 Dec 2013 at 22:07:53
 
 /*
 	Nazara Engine - Graphics module
@@ -37,6 +37,8 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
+#include <Nazara/Graphics/DeferredDOFPass.hpp>
+#include <Nazara/Graphics/DeferredFinalPass.hpp>
 #include <Nazara/Graphics/DeferredFogPass.hpp>
 #include <Nazara/Graphics/DeferredForwardPass.hpp>
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
