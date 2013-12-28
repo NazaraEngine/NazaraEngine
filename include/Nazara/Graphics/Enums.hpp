@@ -26,6 +26,21 @@ enum nzLightType
 	nzLightType_Max = nzLightType_Spot
 };
 
+enum nzRenderPassType
+{
+	nzRenderPassType_AA,
+	nzRenderPassType_Bloom,
+	nzRenderPassType_DOF,
+	nzRenderPassType_Final,
+	nzRenderPassType_Fog,
+	nzRenderPassType_Forward,
+	nzRenderPassType_Lighting,
+	nzRenderPassType_Geometry,
+	nzRenderPassType_SSAO,
+
+	nzRenderPassType_Max = nzRenderPassType_SSAO
+};
+
 enum nzRenderTechniqueType
 {
 	nzRenderTechniqueType_AdvancedForward, // NzAdvancedForwardRenderTechnique

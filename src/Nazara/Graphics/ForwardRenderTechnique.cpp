@@ -21,7 +21,7 @@
 namespace
 {
 	static NzIndexBuffer* s_indexBuffer = nullptr;
-	unsigned int maxLightCount = 3; ///TODO: Constante sur le nombre maximum de lumières
+	unsigned int s_maxLightPerPass = 3; ///TODO: Constante sur le nombre maximum de lumières
 	unsigned int s_maxSprites = 8192;
 
 	NzIndexBuffer* BuildIndexBuffer()
@@ -49,7 +49,7 @@ namespace
 
 NzForwardRenderTechnique::NzForwardRenderTechnique() :
 m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_UV), s_maxSprites*4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic),
-m_maxLightsPerObject(maxLightCount)
+m_maxLightPassPerObject(3)
 {
 	if (!s_indexBuffer)
 		s_indexBuffer = BuildIndexBuffer();
@@ -63,7 +63,7 @@ NzForwardRenderTechnique::~NzForwardRenderTechnique()
 		s_indexBuffer = nullptr;
 }
 
-void NzForwardRenderTechnique::Clear(const NzScene* scene)
+void NzForwardRenderTechnique::Clear(const NzScene* scene) const
 {
 	NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
 	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
@@ -74,7 +74,7 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene)
 		background->Draw(scene);
 }
 
-bool NzForwardRenderTechnique::Draw(const NzScene* scene)
+bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 {
 	m_directionalLights.SetLights(&m_renderQueue.directionalLights[0], m_renderQueue.directionalLights.size());
 	m_lights.SetLights(&m_renderQueue.lights[0], m_renderQueue.lights.size());
@@ -141,9 +141,9 @@ bool NzForwardRenderTechnique::Draw(const NzScene* scene)
 	}*/
 }
 
-unsigned int NzForwardRenderTechnique::GetMaxLightsPerObject() const
+unsigned int NzForwardRenderTechnique::GetMaxLightPassPerObject() const
 {
-	return m_maxLightsPerObject;
+	return m_maxLightPassPerObject;
 }
 
 NzAbstractRenderQueue* NzForwardRenderTechnique::GetRenderQueue()
@@ -156,25 +156,15 @@ nzRenderTechniqueType NzForwardRenderTechnique::GetType() const
 	return nzRenderTechniqueType_BasicForward;
 }
 
-void NzForwardRenderTechnique::SetMaxLightsPerObject(unsigned int lightCount)
+void NzForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (lightCount > maxLightCount)
-	{
-		NazaraError("Light count is over maximum light count (" + NzString::Number(lightCount) + " > " + NzString::Number(lightCount) + ')');
-		return;
-	}
-	#endif
-
-	m_maxLightsPerObject = lightCount;
+	m_maxLightPassPerObject = passCount;
 }
 
-void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
+void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
-
-	unsigned int lightCount = 0;
 
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
@@ -206,11 +196,6 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 					program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 					// Position de la caméra
 					program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
-
-					// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-					lightCount = std::min(m_directionalLights.GetLightCount(), 3U);
-					for (unsigned int i = 0; i < lightCount; ++i)
-						m_directionalLights.GetLight(i)->Enable(program, i);
 
 					lastProgram = program;
 				}
@@ -269,51 +254,110 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 
 							unsigned int stride = instanceBuffer->GetStride();
 
-							const NzForwardRenderQueue::StaticData* data = &staticData[0];
-							unsigned int instanceCount = staticData.size();
-							unsigned int maxInstanceCount = instanceBuffer->GetVertexCount();
+							// Avec l'instancing, impossible de sélectionner les lumières pour chaque objet
+							// Du coup, il n'est activé que pour les lumières directionnelles
+							unsigned int lightCount = m_directionalLights.GetLightCount();
+							unsigned int lightIndex = 0;
+							nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
 
-							while (instanceCount > 0)
+							unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/s_maxLightPerPass + 1;
+							for (unsigned int pass = 0; pass < passCount; ++pass)
 							{
-								unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-								instanceCount -= renderedInstanceCount;
+								unsigned int renderedLightCount = std::min(lightCount, s_maxLightPerPass);
+								lightCount -= renderedLightCount;
 
-								NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedInstanceCount);
-								nzUInt8* ptr = reinterpret_cast<nzUInt8*>(mapper.GetPointer());
-
-								for (unsigned int i = 0; i < renderedInstanceCount; ++i)
+								if (pass == 1)
 								{
-									std::memcpy(ptr, data->transformMatrix, sizeof(float)*16);
-
-									data++;
-									ptr += stride;
+									// Pour additionner le résultat des calculs de lumière
+									// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
+									// (Autrement dit, sans blending)
+									// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+									NzRenderer::Enable(nzRendererParameter_Blend, true);
+									NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
+									NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
 								}
 
-								mapper.Unmap();
+								for (unsigned int i = 0; i < renderedLightCount; ++i)
+									m_directionalLights.GetLight(lightIndex++)->Enable(program, i);
 
-								InstancedDrawFunc(renderedInstanceCount, primitiveMode, 0, indexCount);
+								for (unsigned int i = renderedLightCount; i < s_maxLightPerPass; ++i)
+									NzLight::Disable(program, i);
+
+								const NzForwardRenderQueue::StaticData* data = &staticData[0];
+								unsigned int instanceCount = staticData.size();
+								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount();
+
+								while (instanceCount > 0)
+								{
+									unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+									instanceCount -= renderedInstanceCount;
+
+									NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedInstanceCount);
+									nzUInt8* ptr = reinterpret_cast<nzUInt8*>(mapper.GetPointer());
+
+									for (unsigned int i = 0; i < renderedInstanceCount; ++i)
+									{
+										std::memcpy(ptr, data->transformMatrix, sizeof(float)*16);
+
+										data++;
+										ptr += stride;
+									}
+
+									mapper.Unmap();
+
+									InstancedDrawFunc(renderedInstanceCount, primitiveMode, 0, indexCount);
+								}
 							}
+
+							NzRenderer::Enable(nzRendererParameter_Blend, false);
+							NzRenderer::SetDepthFunc(oldDepthFunc);
 						}
 						else
 						{
-							unsigned int originalLightCount = lightCount;
 							for (const NzForwardRenderQueue::StaticData& data : staticData)
 							{
-								// Calcul des lumières les plus proches
-								if (lightCount < m_maxLightsPerObject && !m_lights.IsEmpty())
+								unsigned int directionalLightCount = m_directionalLights.GetLightCount();
+								unsigned int otherLightCount = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*s_maxLightPerPass - directionalLightCount);
+                                unsigned int lightCount = directionalLightCount + otherLightCount;
+
+ 								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
+ 								unsigned int directionalLightIndex = 0;
+ 								unsigned int otherLightIndex = 0;
+ 								nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
+
+								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/s_maxLightPerPass + 1;
+								for (unsigned int pass = 0; pass < passCount; ++pass)
 								{
-									unsigned int count = std::min(m_maxLightsPerObject-lightCount, m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, maxLightCount));
-									for (unsigned int i = 0; i < count; ++i)
-										m_lights.GetResult(i)->Enable(program, lightCount++);
+									unsigned int renderedLightCount = std::min(lightCount, s_maxLightPerPass);
+									lightCount -= renderedLightCount;
+
+									if (pass == 1)
+									{
+										// Pour additionner le résultat des calculs de lumière
+										// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
+										// (Autrement dit, sans blending)
+										// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+										NzRenderer::Enable(nzRendererParameter_Blend, true);
+										NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
+										NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
+									}
+
+									for (unsigned int i = 0; i < renderedLightCount; ++i)
+									{
+										if (directionalLightIndex >= directionalLightCount)
+											m_lights.GetResult(otherLightIndex++)->Enable(program, i);
+										else
+											m_directionalLights.GetLight(directionalLightIndex++)->Enable(program, i);
+									}
+
+									for (unsigned int i = renderedLightCount; i < s_maxLightPerPass; ++i)
+										NzLight::Disable(program, i);
+
+									DrawFunc(primitiveMode, 0, indexCount);
 								}
 
-								for (unsigned int i = lightCount; i < maxLightCount; ++i)
-									NzLight::Disable(program, i);
-
-								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
-								DrawFunc(primitiveMode, 0, indexCount);
-
-								lightCount = originalLightCount;
+								NzRenderer::Enable(nzRendererParameter_Blend, false);
+								NzRenderer::SetDepthFunc(oldDepthFunc);
 							}
 						}
 						staticData.clear();
@@ -328,7 +372,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene)
 	}
 }
 
-void NzForwardRenderTechnique::DrawSprites(const NzScene* scene)
+void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
@@ -408,7 +452,7 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene)
 	}
 }
 
-void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene)
+void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
 	const NzShaderProgram* lastProgram = nullptr;
@@ -474,14 +518,14 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene)
 			NzRenderer::SetVertexBuffer(vertexBuffer);
 
 			// Calcul des lumières les plus proches
-			if (lightCount < m_maxLightsPerObject && !m_lights.IsEmpty())
+			if (lightCount < s_maxLightPerPass && !m_lights.IsEmpty())
 			{
-				unsigned int count = std::min(m_maxLightsPerObject-lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, maxLightCount));
+				unsigned int count = std::min(s_maxLightPerPass - lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, s_maxLightPerPass));
 				for (unsigned int i = 0; i < count; ++i)
 					m_lights.GetResult(i)->Enable(program, lightCount++);
 			}
 
-			for (unsigned int i = lightCount; i < maxLightCount; ++i)
+			for (unsigned int i = lightCount; i < s_maxLightPerPass; ++i)
 				NzLight::Disable(program, i);
 
 			NzRenderer::SetMatrix(nzMatrixType_World, matrix);
