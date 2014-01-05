@@ -58,10 +58,10 @@ bool NzPluginManager::Mount(nzPlugin plugin)
 	return Mount(s_pluginFiles[plugin]);
 }
 
-bool NzPluginManager::Mount(const NzString& pluginPath)
+bool NzPluginManager::Mount(const NzString& pluginPath, bool appendExtension)
 {
 	NzString path = pluginPath;
-	if (!path.EndsWith(NAZARA_DYNLIB_EXTENSION))
+	if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
 		path += NAZARA_DYNLIB_EXTENSION;
 
 	bool exists = false;
@@ -93,8 +93,8 @@ bool NzPluginManager::Mount(const NzString& pluginPath)
 		return false;
 	}
 
-	std::unique_ptr<NzDynLib> library(new NzDynLib(path));
-	if (!library->Load())
+	std::unique_ptr<NzDynLib> library(new NzDynLib);
+	if (!library->Load(path, false))
 	{
 		NazaraError("Failed to load plugin");
 		return false;
