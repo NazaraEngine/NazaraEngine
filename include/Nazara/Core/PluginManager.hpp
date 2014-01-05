@@ -22,7 +22,7 @@ class NAZARA_API NzPluginManager
 		static bool Initialize();
 
 		static bool Mount(nzPlugin plugin);
-		static bool Mount(const NzString& pluginPath);
+		static bool Mount(const NzString& pluginPath, bool appendExtension = true);
 
 		static void RemoveDirectory(const NzString& directoryPath);
 

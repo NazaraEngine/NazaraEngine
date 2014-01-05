@@ -36,21 +36,21 @@ class NzDynLib : NzNonCopyable
 	friend NzDynLibImpl;
 
 	public:
-		NzDynLib(const NzString& libraryPath);
+		NzDynLib();
 		~NzDynLib();
 
 		NzString GetLastError() const;
 		NzDynLibFunc GetSymbol(const NzString& symbol) const;
-		bool Load();
+
+		bool IsLoaded() const;
+
+		bool Load(const NzString& libraryPath, bool appendExtension = true);
 		void Unload();
 
 	private:
-		void SetLastError(const NzString& error);
-
 		NazaraMutexAttrib(m_mutex, mutable)
 
-		NzString m_lastError;
-		NzString m_path;
+		mutable NzString m_lastError;
 		NzDynLibImpl* m_impl;
 };
 
