@@ -68,6 +68,8 @@
 	#define NAZARA_COMPILER_UNKNOWN
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __func__ // __func__ est standard depuis le C++11
+
+	/// Cette ligne n'est là que pour prévenir, n'hésitez pas à la commenter si elle vous empêche de compiler
 	#error This compiler is not fully supported
 #endif
 
