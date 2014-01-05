@@ -155,8 +155,8 @@ m_blurPassCount(5)
 	m_bloomBrightProgram->SendInteger(m_bloomBrightProgram->GetUniformLocation("ColorTexture"), 0);
 
 	m_bloomFinalProgram = BuildBloomFinalProgram();
-	m_bloomFinalProgram->SendInteger(m_bloomBrightProgram->GetUniformLocation("BloomTexture"), 1);
-	m_bloomFinalProgram->SendInteger(m_bloomBrightProgram->GetUniformLocation("ColorTexture"), 0);
+	m_bloomFinalProgram->SendInteger(m_bloomFinalProgram->GetUniformLocation("BloomTexture"), 1);
+	m_bloomFinalProgram->SendInteger(m_bloomFinalProgram->GetUniformLocation("ColorTexture"), 0);
 
 	m_bloomStates.parameters[nzRendererParameter_DepthBuffer] = false;
 
