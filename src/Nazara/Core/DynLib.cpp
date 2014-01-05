@@ -16,8 +16,7 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzDynLib::NzDynLib(const NzString& libraryPath) :
-m_path(libraryPath),
+NzDynLib::NzDynLib() :
 m_impl(nullptr)
 {
 }
@@ -46,17 +45,22 @@ NzDynLibFunc NzDynLib::GetSymbol(const NzString& symbol) const
 	}
 	#endif
 
-	return m_impl->GetSymbol(symbol);
+	return m_impl->GetSymbol(symbol, &m_lastError);
 }
 
-bool NzDynLib::Load()
+bool NzDynLib::IsLoaded() const
+{
+	return m_impl != nullptr;
+}
+
+bool NzDynLib::Load(const NzString& libraryPath, bool appendExtension)
 {
 	NazaraLock(m_mutex)
 
 	Unload();
 
 	m_impl = new NzDynLibImpl(this);
-	if (!m_impl->Load(m_path))
+	if (!m_impl->Load(libraryPath, appendExtension, &m_lastError))
 	{
 		delete m_impl;
 		m_impl = nullptr;
@@ -77,11 +81,4 @@ void NzDynLib::Unload()
 		delete m_impl;
 		m_impl = nullptr;
 	}
-}
-
-void NzDynLib::SetLastError(const NzString& error)
-{
-	NazaraLock(m_mutex)
-
-	m_lastError = error;
 }
