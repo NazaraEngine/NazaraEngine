@@ -7,8 +7,8 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-#include <list>
 #include <memory>
+#include <set>
 #include <unordered_map>
 #include <Nazara/Core/Debug.hpp>
 
@@ -17,7 +17,7 @@ namespace
 	using PluginLoad = int (*)();
 	using PluginUnload = void (*)();
 
-	std::list<NzString> s_directories;
+	std::set<NzString> s_directories;
 	std::unordered_map<NzString, NzDynLib*> s_plugins;
 
 	NzString s_pluginFiles[] =
@@ -29,26 +29,15 @@ namespace
 
 bool NzPluginManager::AddDirectory(const NzString& directoryPath)
 {
-	NzString path = NzFile::AbsolutePath(directoryPath);
-
-	if (!NzDirectory::Exists(path))
-	{
-		NazaraWarning("Directory not existing: " + directoryPath);
-		return false;
-	}
-
-	s_directories.push_back(path);
+	s_directories.insert(NzFile::AbsolutePath(directoryPath));
 
 	return true;
 }
 
 bool NzPluginManager::Initialize()
 {
-	s_directories.push_back(NzFile::AbsolutePath("."));
-
-	NzString libDir = NzFile::AbsolutePath("plugins");
-	if (NzDirectory::Exists(libDir))
-		s_directories.push_back(libDir);
+	AddDirectory(".");
+	AddDirectory("plugins");
 
 	return true;
 }
@@ -120,7 +109,7 @@ bool NzPluginManager::Mount(const NzString& pluginPath, bool appendExtension)
 
 void NzPluginManager::RemoveDirectory(const NzString& directoryPath)
 {
-	s_directories.remove(directoryPath);
+	s_directories.erase(NzFile::AbsolutePath(directoryPath));
 }
 
 void NzPluginManager::Unmount(nzPlugin plugin)
