@@ -646,7 +646,7 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	// Initialisation du module
+	// Initialisation d'OpenGL
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");

@@ -723,7 +723,7 @@ bool NzOpenGL::Initialize()
 
 	s_openglVersion = major*100 + minor*10;
 
-	NazaraDebug("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected");
+	NazaraDebug("OpenGL version: " + NzString::Number(major) + '.' + NzString::Number(minor));
 
 	if (s_openglVersion < 200)
 	{
