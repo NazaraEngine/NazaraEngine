@@ -182,7 +182,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
 				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
 				// (Le deferred shading n'a pas ce problème)
-				bool instancing = m_instancingEnabled && m_lights.IsEmpty() && renderQueueInstancing;
+				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || m_lights.IsEmpty()) && renderQueueInstancing;
 
 				// On commence par récupérer le programme du matériau
 				const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, (instancing) ? nzShaderFlags_Instancing : 0);
