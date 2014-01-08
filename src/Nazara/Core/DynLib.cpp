@@ -5,6 +5,7 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <memory>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/DynLibImpl.hpp>
@@ -66,14 +67,15 @@ bool NzDynLib::Load(const NzString& libraryPath, bool appendExtension)
 
 	Unload();
 
-	m_impl = new NzDynLibImpl(this);
-	if (!m_impl->Load(libraryPath, appendExtension, &m_lastError))
-	{
-		delete m_impl;
-		m_impl = nullptr;
+	NzString path = libraryPath;
+	if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
+		path += NAZARA_DYNLIB_EXTENSION;
 
+	std::unique_ptr<NzDynLibImpl> impl(new NzDynLibImpl(this));
+	if (!impl->Load(path, &m_lastError))
 		return false;
-	}
+
+	m_impl = impl.release();
 
 	return true;
 }
