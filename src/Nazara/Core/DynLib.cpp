@@ -21,6 +21,13 @@ m_impl(nullptr)
 {
 }
 
+NzDynLib::NzDynLib(NzDynLib&& lib) :
+m_lastError(std::move(lib.m_lastError)),
+m_impl(lib.m_impl)
+{
+	lib.m_impl = nullptr;
+}
+
 NzDynLib::~NzDynLib()
 {
 	Unload();
@@ -81,4 +88,16 @@ void NzDynLib::Unload()
 		delete m_impl;
 		m_impl = nullptr;
 	}
+}
+
+NzDynLib& NzDynLib::operator=(NzDynLib&& lib)
+{
+	Unload();
+
+	m_impl = lib.m_impl;
+	m_lastError = std::move(lib.m_lastError);
+
+	lib.m_impl = nullptr;
+
+	return *this;
 }

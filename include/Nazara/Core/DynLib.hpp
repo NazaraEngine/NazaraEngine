@@ -37,6 +37,7 @@ class NzDynLib : NzNonCopyable
 
 	public:
 		NzDynLib();
+		NzDynLib(NzDynLib&& lib);
 		~NzDynLib();
 
 		NzString GetLastError() const;
@@ -46,6 +47,8 @@ class NzDynLib : NzNonCopyable
 
 		bool Load(const NzString& libraryPath, bool appendExtension = true);
 		void Unload();
+
+		NzDynLib& operator=(NzDynLib&& lib);
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)
