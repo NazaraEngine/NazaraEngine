@@ -37,7 +37,7 @@ class NAZARA_API NzSoundEmitter
 		bool IsSpatialized() const;
 
 		virtual void Pause() = 0;
-		virtual bool Play() = 0;
+		virtual void Play() = 0;
 
 		void SetAttenuation(float attenuation);
 		void SetMinDistance(float minDistance);
