@@ -32,8 +32,10 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
 
 #endif // NAZARA_GLOBAL_AUDIO_HPP
