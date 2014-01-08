@@ -23,13 +23,9 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMess
 	return sym;
 }
 
-bool NzDynLibImpl::Load(const NzString& libraryPath, bool appendExtension, NzString* errorMessage)
+bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
 {
-	NzString path = libraryPath;
-	if (appendExtension && !path.EndsWith(".dll"))
-		path += ".dll";
-
-	std::unique_ptr<wchar_t[]> wPath(path.GetWideBuffer());
+	std::unique_ptr<wchar_t[]> wPath(libraryPath.GetWideBuffer());
 	m_handle = LoadLibraryW(wPath.get());
 
 	if (m_handle)
