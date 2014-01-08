@@ -5,11 +5,11 @@
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
-#include <AL/al.h>
 #include <Nazara/Audio/Debug.hpp>
 
 NzSound::NzSound(const NzSoundBuffer* soundBuffer)

@@ -5,10 +5,10 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <stdexcept>
-#include <AL/al.h>
 #include <Nazara/Audio/Debug.hpp>
 
 ///FIXME: Adapter la création
@@ -88,7 +88,7 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 		return false;
 	}
 
-	alBufferData(buffer, NzAudio::GetOpenALFormat(format), samples, sampleCount*sizeof(nzInt16), sampleRate);
+	alBufferData(buffer, NzOpenAL::AudioFormat[format], samples, sampleCount*sizeof(nzInt16), sampleRate);
 
 	if (alGetError() != AL_NO_ERROR)
 	{
@@ -100,7 +100,7 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 
 	m_impl = new NzSoundBufferImpl;
 	m_impl->buffer = buffer;
-	m_impl->duration = 1000 * (sampleCount / (format * sampleRate));
+	m_impl->duration = (1000*sampleCount / (format * sampleRate));
 	m_impl->format = format;
 	m_impl->sampleCount = sampleCount;
 	m_impl->sampleRate = sampleRate;
