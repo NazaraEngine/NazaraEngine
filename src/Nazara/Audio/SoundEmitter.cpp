@@ -5,8 +5,8 @@
 // http://connect.creativelabs.com/openal/Documentation/OpenAL_Programmers_Guide.pdf
 
 #include <Nazara/Audio/SoundEmitter.hpp>
+#include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <AL/al.h>
 #include <Nazara/Audio/Debug.hpp>
 
 NzSoundEmitter::NzSoundEmitter()
