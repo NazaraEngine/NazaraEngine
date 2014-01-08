@@ -4,10 +4,10 @@
 
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <vector>
-#include <AL/al.h>
 #include <Nazara/Audio/Debug.hpp>
 
 bool NzMusicParams::IsValid() const
@@ -48,7 +48,7 @@ bool NzMusic::Create(NzSoundStream* soundStream)
 
 	m_impl = new NzMusicImpl;
 	m_impl->sampleRate = soundStream->GetSampleRate();
-	m_impl->audioFormat = NzAudio::GetOpenALFormat(format);
+	m_impl->audioFormat = NzOpenAL::AudioFormat[format];
 	m_impl->chunkSamples.resize(format * m_impl->sampleRate); // Une seconde de samples
 	m_impl->stream = soundStream;
 
