@@ -73,7 +73,10 @@ bool NzDynLib::Load(const NzString& libraryPath, bool appendExtension)
 
 	std::unique_ptr<NzDynLibImpl> impl(new NzDynLibImpl(this));
 	if (!impl->Load(path, &m_lastError))
+	{
+		NazaraError("Failed to load library: " + m_lastError);
 		return false;
+	}
 
 	m_impl = impl.release();
 
