@@ -199,22 +199,25 @@ void NzMusic::Stop()
 	}
 }
 
-bool NzMusic::FillBuffer(unsigned int buffer)
+bool NzMusic::FillAndQueueBuffer(unsigned int buffer)
 {
 	unsigned int sampleCount = m_impl->chunkSamples.size();
 	unsigned int sampleRead = 0;
 
 	for (;;)
 	{
-		sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount-sampleRead);
-		if (sampleRead != sampleCount && m_impl->loop)
+		sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
+		if (sampleRead < sampleCount && m_impl->loop)
 			m_impl->stream->Seek(0);
 		else
 			break;
 	}
 
 	if (sampleRead > 0)
+	{
 		alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], sampleRead*sizeof(nzInt16), m_impl->sampleRate);
+		alSourceQueueBuffers(m_source, 1, &buffer);
+	}
 
 	return sampleRead != sampleCount; // Fin du fichier (N'arrive pas en cas de loop)
 }
@@ -226,11 +229,8 @@ void NzMusic::MusicThread()
 
 	for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMEDBUFFERCOUNT; ++i)
 	{
-		bool eof = FillBuffer(buffers[i]);
-		alSourceQueueBuffers(m_source, 1, &buffers[i]);
-
-		if (eof)
-			break; // Nous avons fini, nous ne continuons pas
+		if (FillAndQueueBuffer(buffers[i])) // Fin du fichier ?
+			break; // Nous avons atteint la fin du fichier, inutile de rajouter des buffers
 	}
 
 	alSourcePlay(m_source);
@@ -251,8 +251,8 @@ void NzMusic::MusicThread()
 		while (processedCount--)
 		{
 			alSourceUnqueueBuffers(m_source, 1, &buffer);
-			if (!FillBuffer(buffer)) // Fin du fichier ?
-				alSourceQueueBuffers(m_source, 1, &buffer);
+			if (FillAndQueueBuffer(buffer))
+				break;
 		}
 
 		NzThread::Sleep(50);

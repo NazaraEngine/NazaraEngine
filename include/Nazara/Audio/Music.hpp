@@ -61,7 +61,7 @@ class NAZARA_API NzMusic : public NzSoundEmitter
 	private:
 		NzMusicImpl* m_impl = nullptr;
 
-		bool FillBuffer(unsigned int buffer);
+		bool FillAndQueueBuffer(unsigned int buffer);
 		void MusicThread();
 
 		static NzMusicLoader::LoaderList s_loaders;
