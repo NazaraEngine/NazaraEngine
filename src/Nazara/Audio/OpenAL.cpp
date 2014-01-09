@@ -208,18 +208,6 @@ bool NzOpenAL::Initialize(bool openDevice)
 		return false;
 	}
 
-	// On complète le tableau de formats
-	// The presence of an enum value does not guarantee the applicability of an extension to the current context.
-	if (alIsExtensionPresent("AL_EXT_MCFORMATS"))
-	{
-		AudioFormat[nzAudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
-		AudioFormat[nzAudioFormat_5_1]  = alGetEnumValue("AL_FORMAT_51CHN16");
-		AudioFormat[nzAudioFormat_6_1]  = alGetEnumValue("AL_FORMAT_61CHN16");
-		AudioFormat[nzAudioFormat_7_1]  = alGetEnumValue("AL_FORMAT_71CHN16");
-	}
-	else if (alIsExtensionPresent("AL_LOKI_quadriphonic"))
-		AudioFormat[nzAudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
-
 	if (openDevice)
 		OpenDevice();
 
@@ -271,19 +259,8 @@ void NzOpenAL::Uninitialize()
 	s_library.Unload();
 }
 
-ALenum NzOpenAL::AudioFormat[nzAudioFormat_Max+1] =
-{
-	AL_FORMAT_MONO16,   // nzAudioFormat_Mono
-	AL_FORMAT_STEREO16, // nzAudioFormat_Stereo
-
-	// Les valeurs suivantes sont récupérées à l'initialisation car faisant partie d'une extension
-	0, // nzAudioFormat_Quad
-	0, // nzAudioFormat_5_1
-	0, // nzAudioFormat_6_1
-	0  // nzAudioFormat_7_1
-};
-
-static_assert(sizeof(NzOpenAL::AudioFormat)/sizeof(ALenum) == nzAudioFormat_Max+1, "Audio format array is incomplete");
+///ATTENTION: La valeur entière est le nombre de canaux possédés par ce format
+ALenum NzOpenAL::AudioFormat[nzAudioFormat_Max+1] = {0}; // Valeur ajoutées au chargement d'OpenAL
 
 void NzOpenAL::CloseDevice()
 {
@@ -360,6 +337,21 @@ bool NzOpenAL::OpenDevice()
 		NazaraDebug("Unable to retrieve OpenAL version");
 		s_version = 0;
 	}
+
+	// On complète le tableau de formats
+	AudioFormat[nzAudioFormat_Mono] = AL_FORMAT_MONO16;
+	AudioFormat[nzAudioFormat_Stereo] = AL_FORMAT_STEREO16;
+
+	// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
+	if (alIsExtensionPresent("AL_EXT_MCFORMATS"))
+	{
+		AudioFormat[nzAudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
+		AudioFormat[nzAudioFormat_5_1]  = alGetEnumValue("AL_FORMAT_51CHN16");
+		AudioFormat[nzAudioFormat_6_1]  = alGetEnumValue("AL_FORMAT_61CHN16");
+		AudioFormat[nzAudioFormat_7_1]  = alGetEnumValue("AL_FORMAT_71CHN16");
+	}
+	else if (alIsExtensionPresent("AL_LOKI_quadriphonic"))
+		AudioFormat[nzAudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 	return true;
 }
