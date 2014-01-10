@@ -14,6 +14,8 @@
 
 struct NzMusicParams
 {
+	bool forceMono = false;
+
 	bool IsValid() const;
 };
 
