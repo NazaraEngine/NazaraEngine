@@ -93,6 +93,19 @@ nzUInt32 NzMusic::GetDuration() const
 	return m_impl->stream->GetDuration();
 }
 
+nzAudioFormat NzMusic::GetFormat() const
+{
+	#if NAZARA_AUDIO_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Music not created");
+		return nzAudioFormat_Unknown;
+	}
+	#endif
+
+	return m_impl->stream->GetFormat();
+}
+
 nzUInt32 NzMusic::GetPlayingOffset() const
 {
 	#if NAZARA_AUDIO_SAFE
