@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Loaders/sndfile.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Music.hpp>
@@ -89,7 +90,10 @@ namespace
 
 			nzAudioFormat GetFormat() const
 			{
-				return m_format;
+				if (m_mixToMono)
+					return nzAudioFormat_Mono;
+				else
+					return m_format;
 			}
 
 			unsigned int GetSampleCount() const
@@ -102,7 +106,7 @@ namespace
 				return m_sampleRate;
 			}
 
-			bool Open(const NzString& filePath)
+			bool Open(const NzString& filePath, bool forceMono)
 			{
 				m_file = new NzFile(filePath);
 				if (!m_file->Open(NzFile::ReadOnly))
@@ -111,12 +115,14 @@ namespace
 					return false;
 				}
 
-				return Open(*m_file);
+				return Open(*m_file, forceMono);
 			}
 
-			bool Open(NzInputStream& stream)
+			bool Open(NzInputStream& stream, bool forceMono)
 			{
 				SF_INFO infos;
+				infos.format = 0;
+
 				m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
 				if (!m_handle)
 				{
@@ -127,10 +133,10 @@ namespace
 				m_format = NzAudio::GetAudioFormat(infos.channels);
 				if (m_format == nzAudioFormat_Unknown)
 				{
-					NazaraError("Channel count not handled");
 					sf_close(m_handle);
 					m_handle = nullptr;
 
+					NazaraError("Channel count not handled");
 					return false;
 				}
 
@@ -145,12 +151,29 @@ namespace
 				if (infos.format & SF_FORMAT_VORBIS)
 					sf_command(m_handle, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
+				if (forceMono && m_format != nzAudioFormat_Mono)
+				{
+					m_mixToMono = true;
+					m_sampleCount = infos.frames;
+				}
+				else
+					m_mixToMono = false;
+
 				return true;
 			}
 
 			unsigned int Read(void* buffer, unsigned int sampleCount)
 			{
-				return sf_read_short(m_handle, reinterpret_cast<nzInt16*>(buffer), sampleCount);
+				if (m_mixToMono)
+				{
+					std::unique_ptr<nzInt16[]> samples(new nzInt16[m_format*sampleCount]);
+					unsigned int readSampleCount = sf_read_short(m_handle, samples.get(), m_format*sampleCount);
+					NzMixToMono(samples.get(), reinterpret_cast<nzInt16*>(buffer), m_format, sampleCount);
+
+					return readSampleCount / m_format;
+				}
+				else
+					return sf_read_short(m_handle, reinterpret_cast<nzInt16*>(buffer), sampleCount);
 			}
 
 			void Seek(nzUInt32 offset)
@@ -162,6 +185,7 @@ namespace
 			nzAudioFormat m_format;
 			NzFile* m_file;
 			SNDFILE* m_handle;
+			bool m_mixToMono;
 			unsigned int m_duration;
 			unsigned int m_sampleCount;
 			unsigned int m_sampleRate;
@@ -199,7 +223,7 @@ namespace
 		NazaraUnused(parameters);
 
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
-		if (!musicStream->Open(filePath))
+		if (!musicStream->Open(filePath, parameters.forceMono))
 		{
 			NazaraError("Failed to open music stream");
 			return false;
@@ -221,7 +245,7 @@ namespace
 		NazaraUnused(parameters);
 
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
-		if (!musicStream->Open(stream))
+		if (!musicStream->Open(stream, parameters.forceMono))
 		{
 			NazaraError("Failed to open music stream");
 			return false;
@@ -293,6 +317,16 @@ namespace
 
 			NazaraError("Failed to read samples");
 			return false;
+		}
+
+		if (parameters.forceMono && format != nzAudioFormat_Mono)
+		{
+			std::unique_ptr<nzInt16[]> monoSamples(new nzInt16[info.frames]);
+			NzMixToMono(samples.get(), monoSamples.get(), info.channels, info.frames);
+
+			format = nzAudioFormat_Mono;
+			samples = std::move(monoSamples);
+			sampleCount = info.frames;
 		}
 
 		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), info.samplerate, samples.get()))
