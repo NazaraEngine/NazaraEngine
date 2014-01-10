@@ -17,6 +17,8 @@
 
 struct NzSoundBufferParams
 {
+	bool forceMono = false;
+
 	bool IsValid() const;
 };
 
