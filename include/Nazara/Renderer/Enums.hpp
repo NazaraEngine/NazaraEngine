@@ -123,13 +123,13 @@ enum nzRendererCap
 	nzRendererCap_Max = nzRendererCap_TextureNPOT
 };
 
-enum nzRendererClearFlags
+enum nzRendererBufferFlags
 {
-	nzRendererClear_Color   = 0x1,
-	nzRendererClear_Depth   = 0x2,
-	nzRendererClear_Stencil = 0x4,
+	nzRendererBuffer_Color   = 0x1,
+	nzRendererBuffer_Depth   = 0x2,
+	nzRendererBuffer_Stencil = 0x4,
 
-	nzRendererClear_Max = nzRendererClear_Stencil*2-1
+	nzRendererBuffer_Max = nzRendererBuffer_Stencil*2-1
 };
 
 enum nzRendererComparison
