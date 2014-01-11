@@ -254,24 +254,19 @@ bool NzDeferredGeometryPass::Resize(const NzVector2ui& dimensions)
 
 		m_depthStencilBuffer->Create(nzPixelFormat_Depth24Stencil8, width, height);
 
-		m_GBuffer[0]->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height);
-		m_GBuffer[1]->Create(nzImageType_2D, nzPixelFormat_RGBA32F, width, height);
-		m_GBuffer[2]->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height);
+		m_GBuffer[0]->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
+		m_GBuffer[1]->Create(nzImageType_2D, nzPixelFormat_RG16F, width, height); // Texture 1 : Encoded normal
+		m_GBuffer[2]->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height); // Texture 2 : Depth (24bits) + Shininess
 
 		m_GBufferRTT->Create(true);
 
-		// Texture 0 : Diffuse Color + Flags
 		m_GBufferRTT->AttachTexture(nzAttachmentPoint_Color, 0, m_GBuffer[0]);
-
-		// Texture 1 : Normal map + Depth
 		m_GBufferRTT->AttachTexture(nzAttachmentPoint_Color, 1, m_GBuffer[1]);
-
-		// Texture 2 : Specular value + Shininess
 		m_GBufferRTT->AttachTexture(nzAttachmentPoint_Color, 2, m_GBuffer[2]);
 
 		// Texture 3 : Emission map ?
 
-		m_GBufferRTT->AttachBuffer(nzAttachmentPoint_DepthStencil, 0, m_deferredTechnique->GetDepthStencilBuffer());
+		m_GBufferRTT->AttachBuffer(nzAttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
 
 		m_GBufferRTT->Unlock();
 
