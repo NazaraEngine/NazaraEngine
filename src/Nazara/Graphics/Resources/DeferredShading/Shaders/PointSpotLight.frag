@@ -25,15 +25,21 @@ uniform mat4 InvViewProjMatrix;
 uniform vec2 InvTargetSize;
 uniform vec4 SceneAmbient;
 
+uniform bool Discard = false;
+uniform bool SpotLight;
+
 void main()
 {
+	if (Discard)
+		return;
+
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
 	vec4 gVec0 = textureLod(GBuffer0, texCoord, 0.0);
-/*	if (gVec0.w == 0.0)
+	if (gVec0.w == 0.0)
 	{
 		RenderTarget0 = vec4(gVec0.xyz, 1.0);
 		return;
-	}*/
+	}
 
 	vec4 gVec1 = textureLod(GBuffer1, texCoord, 0.0);
 	vec4 gVec2 = textureLod(GBuffer2, texCoord, 0.0);
@@ -53,11 +59,20 @@ void main()
 	float lightDirLength = length(lightDir);
 	lightDir /= lightDirLength;
 
-	float att = max(Lights[0].parameters1.w - Lights[0].parameters2.x*lightDirLength, 0.0);
+	float att = max(Lights[0].parameters1.w - Lights[0].parameters2.w*lightDirLength, 0.0);
 
 	// Ambient
 	vec3 lightAmbient = att * Lights[0].color.rgb * Lights[0].factors.x * (vec3(1.0) + SceneAmbient.rgb);
 
+	if (SpotLight)
+	{
+		// Modification de l'atténuation pour gérer le spot
+		float curAngle = dot(Lights[0].parameters2.xyz, -lightDir);
+		float outerAngle = Lights[0].parameters3.y;
+		float innerMinusOuterAngle = Lights[0].parameters3.x - outerAngle;
+		att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
+	}
+	
 	// Diffuse
 	float lambert = max(dot(normal, lightDir), 0.0);
 

@@ -31,12 +31,13 @@ class NAZARA_API NzDeferredPhongLightingPass : public NzDeferredRenderPass
 		NzMeshRef m_cone;
 		NzMeshRef m_sphere;
 		NzShaderProgramRef m_directionalLightProgram;
-		NzShaderProgramRef m_pointLightProgram;
-		NzShaderProgramRef m_spotLightProgram;
+		NzShaderProgramRef m_pointSpotLightProgram;
 		NzTextureSampler m_pointSampler;
 		NzStaticMesh* m_coneMesh;
 		NzStaticMesh* m_sphereMesh;
 		bool m_lightMeshesDrawing;
+		int m_pointSpotLightProgramDiscardLocation;
+		int m_pointSpotLightProgramSpotLightLocation;
 };
 
 #endif // NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP
