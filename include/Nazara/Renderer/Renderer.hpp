@@ -38,7 +38,7 @@ class NAZARA_API NzRenderer
 
 		static void BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition condition);
 
-		static void Clear(nzUInt32 flags = nzRendererClear_Color | nzRendererClear_Depth);
+		static void Clear(nzUInt32 flags = nzRendererBuffer_Color | nzRendererBuffer_Depth);
 
 		static void DrawFullscreenQuad();
 		static void DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
