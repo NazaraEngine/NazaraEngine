@@ -165,6 +165,7 @@ NAZARA_API extern PFNGLBINDTEXTUREPROC              glBindTexture;
 NAZARA_API extern PFNGLBINDVERTEXARRAYPROC          glBindVertexArray;
 NAZARA_API extern PFNGLBLENDFUNCPROC                glBlendFunc;
 NAZARA_API extern PFNGLBLENDFUNCSEPARATEPROC        glBlendFuncSeparate;
+NAZARA_API extern PFNGLBLITFRAMEBUFFERPROC          glBlitFramebuffer;
 NAZARA_API extern PFNGLBUFFERDATAPROC               glBufferData;
 NAZARA_API extern PFNGLBUFFERSUBDATAPROC            glBufferSubData;
 NAZARA_API extern PFNGLCLEARPROC                    glClear;
