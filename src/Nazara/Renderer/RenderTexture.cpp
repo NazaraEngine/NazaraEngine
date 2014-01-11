@@ -486,6 +486,22 @@ NzRenderTargetParameters NzRenderTexture::GetParameters() const
 	return NzRenderTargetParameters();
 }
 
+NzVector2ui NzRenderTexture::GetSize() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Render texture not created");
+		return 0;
+	}
+	#endif
+
+	if (!m_impl->targetsUpdated)
+		UpdateTargets();
+
+	return NzVector2ui(m_impl->width, m_impl->height);
+}
+
 unsigned int NzRenderTexture::GetWidth() const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -726,6 +742,84 @@ bool NzRenderTexture::HasContext() const
 bool NzRenderTexture::IsSupported()
 {
 	return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
+}
+
+void NzRenderTexture::Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers, bool bilinearFilter)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!src)
+	{
+		NazaraError("Invalid source render texture");
+		return;
+	}
+
+	if (!dst)
+	{
+		NazaraError("Invalid source render texture");
+		return;
+	}
+	#endif
+
+	Blit(src, src->GetSize(), dst, dst->GetSize(), buffers, bilinearFilter);
+}
+
+void NzRenderTexture::Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers, bool bilinearFilter)
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!src || !src->IsValid())
+	{
+		NazaraError("Invalid source render texture");
+		return;
+	}
+
+	if (srcRect.x+srcRect.width > src->GetWidth() || srcRect.y+srcRect.height > src->GetHeight())
+	{
+		NazaraError("Source rectangle dimensions are out of bounds");
+		return;
+	}
+
+	if (!dst || !dst->IsValid())
+	{
+		NazaraError("Invalid source render texture");
+		return;
+	}
+
+	if (dstRect.x+dstRect.width > dst->GetWidth() || dstRect.y+dstRect.height > dst->GetHeight())
+	{
+		NazaraError("Destination rectangle dimensions are out of bounds");
+		return;
+	}
+
+	if (bilinearFilter && (buffers & nzRendererBuffer_Depth || buffers & nzRendererBuffer_Stencil))
+	{
+		NazaraError("Filter cannot be bilinear when blitting depth/stencil buffers");
+		return;
+	}
+	#endif
+
+	GLbitfield mask = 0;
+	if (buffers & nzRendererBuffer_Color)
+		mask |= GL_COLOR_BUFFER_BIT;
+
+	if (buffers & nzRendererBuffer_Depth)
+		mask |= GL_DEPTH_BUFFER_BIT;
+
+	if (buffers & nzRendererBuffer_Stencil)
+		mask |= GL_STENCIL_BUFFER_BIT;
+
+	GLint previousDrawBuffer, previousReadBuffer;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previousDrawBuffer);
+	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &previousReadBuffer);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->GetOpenGLID());
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, src->GetOpenGLID());
+
+	glBlitFramebuffer(srcRect.x, srcRect.y, srcRect.x + srcRect.width, srcRect.y + srcRect.height,
+	                  dstRect.x, dstRect.y, dstRect.x + dstRect.width, dstRect.y + dstRect.height,
+	                  mask, (bilinearFilter) ? GL_LINEAR : GL_NEAREST);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousDrawBuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, previousReadBuffer);
 }
 
 bool NzRenderTexture::Activate() const

@@ -1057,6 +1057,7 @@ bool NzOpenGL::Initialize()
 		{
 			glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
 			glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
+			glBlitFramebuffer = reinterpret_cast<PFNGLBLITFRAMEBUFFERPROC>(LoadEntry("glBlitFramebuffer"));
 			glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
 			glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
 			glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
@@ -2035,6 +2036,7 @@ PFNGLBINDTEXTUREPROC              glBindTexture              = nullptr;
 PFNGLBINDVERTEXARRAYPROC          glBindVertexArray          = nullptr;
 PFNGLBLENDFUNCPROC                glBlendFunc                = nullptr;
 PFNGLBLENDFUNCSEPARATEPROC        glBlendFuncSeparate        = nullptr;
+PFNGLBLITFRAMEBUFFERPROC          glBlitFramebuffer          = nullptr;
 PFNGLBUFFERDATAPROC               glBufferData               = nullptr;
 PFNGLBUFFERSUBDATAPROC            glBufferSubData            = nullptr;
 PFNGLCLEARPROC                    glClear                    = nullptr;
