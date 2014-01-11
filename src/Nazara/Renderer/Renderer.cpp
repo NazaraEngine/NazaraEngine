@@ -220,13 +220,13 @@ void NzRenderer::Clear(nzUInt32 flags)
 
 		GLenum mask = 0;
 
-		if (flags & nzRendererClear_Color)
+		if (flags & nzRendererBuffer_Color)
 			mask |= GL_COLOR_BUFFER_BIT;
 
-		if (flags & nzRendererClear_Depth)
+		if (flags & nzRendererBuffer_Depth)
 			mask |= GL_DEPTH_BUFFER_BIT;
 
-		if (flags & nzRendererClear_Stencil)
+		if (flags & nzRendererBuffer_Stencil)
 			mask |= GL_STENCIL_BUFFER_BIT;
 
 		glClear(mask);
