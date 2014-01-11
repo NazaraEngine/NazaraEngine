@@ -37,6 +37,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 
 		unsigned int GetHeight() const;
 		NzRenderTargetParameters GetParameters() const;
+		NzVector2ui GetSize() const;
 		unsigned int GetWidth() const;
 
 		bool IsComplete() const;
@@ -55,6 +56,8 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		unsigned int GetOpenGLID() const;
 		bool HasContext() const override;
 
+		static void Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
+		static void Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
 		static bool IsSupported();
 
 	protected:
