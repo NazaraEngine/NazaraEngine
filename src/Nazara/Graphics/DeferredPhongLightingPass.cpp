@@ -209,7 +209,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 	NzRenderer::SetTextureSampler(2, m_pointSampler);
 
 	NzRenderer::SetClearColor(NzColor::Black);
-	NzRenderer::Clear(nzRendererClear_Color);
+	NzRenderer::Clear(nzRendererBuffer_Color);
 
 	NzRenderStates lightStates;
 	lightStates.dstBlend = nzBlendFunc_One;
