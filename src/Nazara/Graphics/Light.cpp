@@ -67,7 +67,7 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 
 	Point
 	-P1: vec3 position + float attenuation
-	-P2: float invRadius
+	-P2: vec3 NON-USED + float invRadius
 
 	Spot
 	-P1: vec3 position + float attenuation
@@ -112,7 +112,7 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 
 		case nzLightType_Point:
 			program->SendVector(parameters1Location, NzVector4f(m_derivedPosition, m_attenuation));
-			program->SendVector(parameters2Location, NzVector4f(1.f/m_radius, 0.f, 0.f, 0.f));
+			program->SendVector(parameters2Location, NzVector4f(0.f, 0.f, 0.f, 1.f/m_radius));
 			break;
 
 		case nzLightType_Spot:
