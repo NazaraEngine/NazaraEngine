@@ -46,6 +46,30 @@ uniform float ParallaxScale = 0.02;
 uniform vec4 SceneAmbient;
 
 /********************Fonctions********************/
+vec3 FloatToColor(float f)
+{
+	vec3 color;
+
+	f *= 256.0;
+	color.x = floor(f);
+
+	f = (f - color.x) * 256.0;
+	color.y = floor(f);
+
+	color.z = f - color.y;
+	color.xy *= 0.00390625; // *= 1.0/256
+
+	return color;
+}
+
+#define kPI 3.1415926536
+
+vec4 EncodeNormal(in vec3 normal)
+{
+	//return vec4(normal*0.5 + 0.5, 0.0);
+	return vec4(vec2(atan(normal.y, normal.x)/kPI, normal.z), 0.0, 0.0);
+}
+
 void main()
 {
 	vec4 diffuseColor = MaterialDiffuse;
@@ -85,13 +109,13 @@ void main()
 		#endif
 
 	/*
-	Texture0: Diffuse Color + Flags
-	Texture1: Normal map + Depth
-	Texture2: Specular color + Shininess
+	Texture0: Diffuse Color + Specular
+	Texture1: Normal + Specular
+	Texture2: Encoded depth + Shininess
 	*/
-	RenderTarget0 = vec4(diffuseColor.rgb, 1.0);
-	RenderTarget1 = vec4(normal*0.5 + 0.5, gl_FragCoord.z);
-	RenderTarget2 = vec4(specularColor, (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
+	RenderTarget0 = vec4(diffuseColor.rgb, dot(specularColor, vec3(0.3, 0.59, 0.11)));
+	RenderTarget1 = vec4(EncodeNormal(normal));
+	RenderTarget2 = vec4(FloatToColor(gl_FragCoord.z), (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
 	#else // LIGHTING
 	RenderTarget0 = vec4(diffuseColor.rgb, 0.0);
 	#endif

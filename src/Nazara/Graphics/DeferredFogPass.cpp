@@ -24,7 +24,7 @@ namespace
 		"out vec4 RenderTarget0;\n"
 
 		"uniform sampler2D ColorTexture;\n"
-		"uniform sampler2D NormalBuffer;\n"
+		"uniform sampler2D GBuffer2;\n"
 		"uniform mat4 InvViewProjMatrix;\n"
 		"uniform vec2 InvTargetSize;\n"
 		"uniform vec3 EyePosition;\n"
@@ -32,12 +32,18 @@ namespace
 		"float n = 0.1;"
 		"float f = 1000.0;"
 
+		"float color_to_float(vec3 color)\n"
+		"{\n"
+			"const vec3 byte_to_float = vec3(1.0, 1.0/256, 1.0/(256*256));\n"
+			"return dot(color, byte_to_float);\n"
+		"}\n"
+
 		"void main()\n"
 		"{"
 		"vec2 texCoord = gl_FragCoord.xy * InvTargetSize;\n"
 		"\t" "vec3 color = texture(ColorTexture, texCoord).xyz;\n"
-		"vec4 gVec1 = textureLod(NormalBuffer, texCoord, 0.0);\n"
-		"float depth = gVec1.w*2.0 - 1.0;\n"
+		"vec4 gVec2 = textureLod(GBuffer2, texCoord, 0.0);\n"
+		"float depth = color_to_float(gVec2.xyz)*2.0 - 1.0;\n"
 		"float linearDepth = (2 * n) / (f + n - depth * (f - n));"
 
 		"vec3 viewSpace = vec3(texCoord*2.0 - 1.0, depth);\n"
@@ -107,7 +113,7 @@ NzDeferredFogPass::NzDeferredFogPass()
 {
 	m_program = BuildFogProgram();
 	m_program->SendInteger(m_program->GetUniformLocation("ColorTexture"), 0);
-	m_program->SendInteger(m_program->GetUniformLocation("NormalBuffer"), 1);
+	m_program->SendInteger(m_program->GetUniformLocation("GBuffer2"), 1);
 
 	m_pointSampler.SetAnisotropyLevel(1);
 	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
@@ -129,7 +135,7 @@ bool NzDeferredFogPass::Process(const NzScene* scene, unsigned int firstWorkText
 
 	NzRenderer::SetRenderStates(m_states);
 	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);
-	NzRenderer::SetTexture(1, m_GBuffer[1]);
+	NzRenderer::SetTexture(1, m_GBuffer[2]);
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 	NzRenderer::SetTextureSampler(1, m_pointSampler);
 	NzRenderer::DrawFullscreenQuad();
