@@ -121,7 +121,8 @@ NzString::NzString(const char* string, unsigned int length)
 		m_sharedString->capacity = length;
 		m_sharedString->size = length;
 		m_sharedString->string = new char[length+1];
-		std::memcpy(m_sharedString->string, string, length+1);
+		std::memcpy(m_sharedString->string, string, length);
+		m_sharedString->string[length] = '\0';
 	}
 	else
 		m_sharedString = &emptyString;
