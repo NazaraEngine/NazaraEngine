@@ -40,10 +40,10 @@ vec3 DecodeNormal(in vec4 encodedNormal)
 {
 	//return encodedNormal.xyz*2.0 - 1.0;
 	float a = encodedNormal.x * kPI;
-    vec2 scth = vec2(sin(a), cos(a));
+	vec2 scth = vec2(sin(a), cos(a));
 
-    vec2 scphi = vec2(sqrt(1.0 - encodedNormal.y*encodedNormal.y), encodedNormal.y);
-    return vec3(scth.y*scphi.x, scth.x*scphi.x, scphi.y);
+	vec2 scphi = vec2(sqrt(1.0 - encodedNormal.y*encodedNormal.y), encodedNormal.y);
+	return vec3(scth.y*scphi.x, scth.x*scphi.x, scphi.y);
 }
 
 void main()
@@ -58,7 +58,7 @@ void main()
 
 	vec3 diffuseColor = gVec0.xyz;
 	vec3 normal = DecodeNormal(gVec1);
-	vec3 specularColor = vec3(gVec0.w);
+	float specularMultiplier = gVec0.w;
 	float depth = ColorToFloat(gVec2.xyz);
 	float shininess = (gVec2.w == 0.0) ? 0.0 : exp2(gVec2.w*10.5);
 
@@ -91,7 +91,7 @@ void main()
 	vec3 lightDiffuse = att * lambert * Lights[0].color.rgb * Lights[0].factors.y;
 
 	// Specular
-	vec3 lightSpecular = vec3(0.0);
+	vec3 lightSpecular;
 	if (shininess > 0.0)
 	{
 		vec3 eyeVec = normalize(EyePosition - worldPos.xyz);
@@ -99,10 +99,10 @@ void main()
 		float specularFactor = max(dot(reflection, eyeVec), 0.0);
 		specularFactor = pow(specularFactor, shininess);
 
-		lightSpecular = att * specularFactor * Lights[0].color.rgb;
+		lightSpecular = att * specularFactor * Lights[0].color.rgb * specularMultiplier;
 	}
-
-	lightSpecular *= specularColor;
+	else
+		lightSpecular = vec3(0.0);
 
 	vec3 fragmentColor = diffuseColor * (lightAmbient + lightDiffuse + lightSpecular);
 	RenderTarget0 = vec4(fragmentColor, 1.0);

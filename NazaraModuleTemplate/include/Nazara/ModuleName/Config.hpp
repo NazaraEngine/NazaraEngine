@@ -1,7 +1,7 @@
 /*
 	Nazara Engine - Module name
 
-	Copyright (C) 2013 AUTHORS (EMAIL)
+	Copyright (C) 2014 AUTHORS (EMAIL)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in

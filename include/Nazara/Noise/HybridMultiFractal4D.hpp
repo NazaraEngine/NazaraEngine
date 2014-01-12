@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Rémi Bèges
+// Copyright (C) 2014 Rémi Bèges
 // This file is part of the "Nazara Engine".
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
