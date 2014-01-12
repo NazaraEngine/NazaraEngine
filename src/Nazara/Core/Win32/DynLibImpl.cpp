@@ -5,6 +5,7 @@
 #include <Nazara/Core/Win32/DynLibImpl.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/String.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
@@ -25,8 +26,12 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMess
 
 bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
 {
-	std::unique_ptr<wchar_t[]> wPath(libraryPath.GetWideBuffer());
-	m_handle = LoadLibraryW(wPath.get());
+	NzString path = libraryPath;
+	if (!path.EndsWith(".dll"))
+		path += ".dll";
+
+	std::unique_ptr<wchar_t[]> wPath(path.GetWideBuffer());
+	m_handle = LoadLibraryExW(wPath.get(), nullptr, (NzFile::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
 
 	if (m_handle)
 		return true;

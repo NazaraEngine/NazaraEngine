@@ -25,7 +25,6 @@ class NzDynLibImpl : NzNonCopyable
 
 	private:
 		void* m_handle;
-		NzDynLib* m_parent;
 };
 
 #endif // NAZARA_DYNLIBIMPL_HPP

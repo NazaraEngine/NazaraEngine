@@ -8,12 +8,12 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzDynLibImpl::NzDynLibImpl(NzDynLib* parent) :
-m_parent(parent)
+NzDynLibImpl::NzDynLibImpl(NzDynLib* parent)
 {
+	NazaraUnused(parent);
 }
 
-NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol) const
+NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMessage) const
 {
 	/*
 		Il n'est pas standard de cast un pointeur d'objet vers un pointeur de fonction.
@@ -31,26 +31,27 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol) const
 
 	converter.pointer = dlsym(m_handle, symbol.GetConstBuffer());
 	if (!converter.pointer)
-		m_parent->SetLastError(dlerror());
+		*errorMessage = dlerror();
 
 	return converter.func;
 }
 
-bool NzDynLibImpl::Load(const NzString& libraryPath)
+bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
 {
 	NzString path = libraryPath;
-	if (!path.EndsWith(".so"))
+	
+	unsigned int pos = path.FindLast(".so");
+	if (pos == NzString::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
 		path += ".so";
 
 	dlerror(); // Clear error flag
-
 	m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
 
 	if (m_handle)
 		return true;
 	else
 	{
-		m_parent->SetLastError(dlerror());
+		*errorMessage = dlerror();
 		return false;
 	}
 }

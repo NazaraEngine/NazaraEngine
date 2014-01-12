@@ -33,8 +33,6 @@ class NzDynLibImpl;
 
 class NzDynLib : NzNonCopyable
 {
-	friend NzDynLibImpl;
-
 	public:
 		NzDynLib();
 		NzDynLib(NzDynLib&& lib);
@@ -45,7 +43,7 @@ class NzDynLib : NzNonCopyable
 
 		bool IsLoaded() const;
 
-		bool Load(const NzString& libraryPath, bool appendExtension = true);
+		bool Load(const NzString& libraryPath);
 		void Unload();
 
 		NzDynLib& operator=(NzDynLib&& lib);

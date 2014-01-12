@@ -88,7 +88,7 @@ bool NzOpenAL::Initialize(bool openDevice)
 	for (const char* path : libs)
 	{
 		NzString libPath(path);
-		if (!s_library.Load(libPath, false))
+		if (!s_library.Load(libPath))
 			continue;
 
 		try
