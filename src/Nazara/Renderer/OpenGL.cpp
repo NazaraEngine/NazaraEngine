@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Jérôme Leclercq
+// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -1012,7 +1012,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraWarning("Failed to load GL_ARB_draw_instanced: " + NzString(e.what()));
+			NazaraWarning("Failed to load Draw Instanced: " + NzString(e.what()));
 		}
 	}
 
@@ -1107,7 +1107,7 @@ bool NzOpenGL::Initialize()
 		}
 		catch (const std::exception& e)
 		{
-			NazaraWarning("Failed to load GL_ARB_instanced_arrays: " + NzString(e.what()));
+			NazaraWarning("Failed to load Instanced Array: " + NzString(e.what()));
 		}
 	}
 
@@ -1236,7 +1236,7 @@ bool NzOpenGL::Initialize()
 	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 	s_vendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
-	///FIXME: Utiliser le contexte de chargement comme référence ? (Vérifier mode debug)
+	// On initialise les vrais contextes OpenGL
 	if (!NzContext::Initialize())
 	{
 		NazaraError("Failed to initialize contexts");
@@ -1393,7 +1393,6 @@ void NzOpenGL::SetViewport(const NzRecti& viewport)
 
 bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType type)
 {
-	///FIXME: Vérifier certains dataType
 	switch (pixelFormat)
 	{
 		case nzPixelFormat_BGR8:
@@ -1456,7 +1455,7 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_R16F:
 			format->dataFormat = GL_RED;
-			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->dataType = GL_HALF_FLOAT;
 			format->internalFormat = GL_R16F;
 			return true;
 
@@ -1516,7 +1515,7 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_RG16F:
 			format->dataFormat = GL_RG;
-			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->dataType = GL_HALF_FLOAT;
 			format->internalFormat = GL_RG16F;
 			return true;
 
@@ -1564,7 +1563,7 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_RGB16F:
 			format->dataFormat = GL_RGB;
-			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->dataType = GL_HALF_FLOAT;
 			format->internalFormat = GL_RGB16F;
 			return true;
 
@@ -1612,7 +1611,7 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 
 		case nzPixelFormat_RGBA16F:
 			format->dataFormat = GL_RGBA;
-			format->dataType = GL_HALF_FLOAT; ///FIXME: Correct ?
+			format->dataType = GL_HALF_FLOAT;
 			format->internalFormat = GL_RGBA16F;
 			return true;
 

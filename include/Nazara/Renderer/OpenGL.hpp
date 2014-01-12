@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Jérôme Leclercq
+// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -131,7 +131,7 @@ class NAZARA_API NzOpenGL
 		static GLenum BufferTarget[nzBufferType_Max+1];
 		static GLenum BufferTargetBinding[nzBufferType_Max+1];
 		static GLenum BufferUsage[nzBufferUsage_Max+1];
-		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas prêt de changer
+		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
 		static GLenum FaceSide[nzFaceSide_Max+1];
 		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];

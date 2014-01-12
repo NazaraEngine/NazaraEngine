@@ -52,7 +52,7 @@ void main()
 
 	vec3 diffuseColor = gVec0.xyz;
 	vec3 normal = DecodeNormal(gVec1);
-	vec3 specularColor = vec3(gVec0.w);
+	float specularMultiplier = gVec0.w;
 	float depth = ColorToFloat(gVec2.xyz);
 	float shininess = (gVec2.w == 0.0) ? 0.0 : exp2(gVec2.w*10.5);
 
@@ -67,7 +67,7 @@ void main()
 	vec3 lightDiffuse = lambert * Lights[0].color.rgb * Lights[0].factors.y;
 
 	// Specular
-	vec3 lightSpecular = vec3(0.0);
+	vec3 lightSpecular;
 	if (shininess > 0.0)
 	{
 		vec3 viewSpace = vec3(texCoord*2.0 - 1.0, depth*2.0 - 1.0);
@@ -81,10 +81,10 @@ void main()
 		float specularFactor = max(dot(reflection, eyeVec), 0.0);
 		specularFactor = pow(specularFactor, shininess);
 
-		lightSpecular = specularFactor * Lights[0].color.rgb;
+		lightSpecular = specularFactor * Lights[0].color.rgb * specularMultiplier;
 	}
-
-	lightSpecular *= specularColor;
+	else
+		lightSpecular = vec3(0.0);
 
 	vec3 fragmentColor = diffuseColor * (lightAmbient + lightDiffuse + lightSpecular);
 	RenderTarget0 = vec4(fragmentColor, 1.0);
