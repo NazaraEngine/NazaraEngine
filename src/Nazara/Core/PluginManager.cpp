@@ -83,7 +83,7 @@ bool NzPluginManager::Mount(const NzString& pluginPath, bool appendExtension)
 	}
 
 	std::unique_ptr<NzDynLib> library(new NzDynLib);
-	if (!library->Load(path, false))
+	if (!library->Load(path))
 	{
 		NazaraError("Failed to load plugin");
 		return false;

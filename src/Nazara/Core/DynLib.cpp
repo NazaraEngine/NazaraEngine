@@ -61,18 +61,14 @@ bool NzDynLib::IsLoaded() const
 	return m_impl != nullptr;
 }
 
-bool NzDynLib::Load(const NzString& libraryPath, bool appendExtension)
+bool NzDynLib::Load(const NzString& libraryPath)
 {
 	NazaraLock(m_mutex)
 
 	Unload();
 
-	NzString path = libraryPath;
-	if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
-		path += NAZARA_DYNLIB_EXTENSION;
-
 	std::unique_ptr<NzDynLibImpl> impl(new NzDynLibImpl(this));
-	if (!impl->Load(path, &m_lastError))
+	if (!impl->Load(libraryPath, &m_lastError))
 	{
 		NazaraError("Failed to load library: " + m_lastError);
 		return false;
