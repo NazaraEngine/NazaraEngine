@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Jérôme Leclercq
+// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -92,9 +92,9 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 
 	if (alGetError() != AL_NO_ERROR)
 	{
-		NazaraError("Failed to set OpenAL buffer");
 		alDeleteBuffers(1, &buffer);
 
+		NazaraError("Failed to set OpenAL buffer");
 		return false;
 	}
 
