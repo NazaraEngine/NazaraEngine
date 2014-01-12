@@ -22,13 +22,13 @@ Use the premake build system in the build directory then compile the engine for 
 How to use
 ----------
 
-You can find tutorials on installation, compilation and use on the [official wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara:Tutorials) (**\*Broken link\***)
+You can find tutorials on installation, compilation and use on the [official wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara:Tutorials) (**\*Broken link***)
 
 Contribute
 ----------
 
 #####Don't hesitate to contribute to Nazara Engine by:#####
-- Extending the [wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Broken link\***)  
+- Extending the [wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Broken link***)  
 - Submitting a patch to GitHub  
 - Post suggestions/bugs on the forum or the [GitHub tracker](https://github.com/DigitalPulseSoftware/NazaraEngine/issues)    
 - [Fork the project](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) on GitHub and [pull your changes](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
@@ -38,10 +38,10 @@ Contribute
 Links
 -----
 [Website](http://www.digitalpulsesoftware.com)  
-[Wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Lien brisé\***)  
+[Wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Broken link***)  
 [Forum](http://forum.digitalpulsesoftware.com)
 
 ###Thanks to:###
-- **RafBill and Raakz:** Finding bugs and/or testing  
+- **RafBill** and **Raakz:** Finding bugs and/or testing  
 - **Fissal "DrFisher" Hannoun**: Helped a lot in architecture design  
 - **Alexandre "Danman" Janniaux**: Made the Core POSIX implementation

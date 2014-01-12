@@ -22,13 +22,13 @@ Utilisez le système premake pour construire le projet du moteur, dans le dossie
 Utilisation
 -----------
 
-Vous pouvez lire des tutoriaux sur l'installation, la compilation et l'utilisation sur le [wiki officiel](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara:Tutorials) (**\*Lien brisé\***)
+Vous pouvez lire des tutoriaux sur l'installation, la compilation et l'utilisation sur le [wiki officiel](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara:Tutorials) (**\*Lien brisé***)
 
 Contribution
 ----------
 
 #####N'hésitez pas à contribuer à Nazara Engine en :#####
-- Contribuant au [wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Lien brisé\***)  
+- Contribuant au [wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Lien brisé***)  
 - Soumettant un patch sur GitHub  
 - Postant des suggestions/bugs sur le forum ou sur le [tracker GitHub](https://github.com/DigitalPulseSoftware/NazaraEngine/issues)  
 - Faisant un [fork du projet](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) sur GitHub et en [proposant vos changements](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
@@ -38,10 +38,10 @@ Contribution
 Liens
 -----
 [Website](http://www.digitalpulsesoftware.com)  
-[Wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Lien brisé\***)  
+[Wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Lien brisé***)  
 [Forum](http://forum.digitalpulsesoftware.com)
 
 ###Remerciements:###
-- **RafBill et Raakz:** Recherche de bugs et/ou tests  
+- **RafBill** et **Raakz:** Recherche de bugs et/ou tests  
 - **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur  
 - **Alexandre "Danman" Janniaux**: Implémentation POSIX du noyau
