@@ -12,7 +12,6 @@ files
 
 if (os.is("windows")) then
 	excludes { "../src/Nazara/Audio/Posix/*.hpp", "../src/Nazara/Audio/Posix/*.cpp" }
-	links "OpenAL32"
 	links "sndfile-1"
 else
 	excludes { "../src/Nazara/Audio/Win32/*.hpp", "../src/Nazara/Audio/Win32/*.cpp" }
