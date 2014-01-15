@@ -639,7 +639,7 @@ void NzLuaInstance::SetTimeLimit(nzUInt32 timeLimit)
 
 bool NzLuaInstance::ToBoolean(int index) const
 {
-	return lua_toboolean(m_state, index) == 1;
+	return lua_toboolean(m_state, index);
 }
 
 int NzLuaInstance::ToInteger(int index, bool* succeeded) const
@@ -650,7 +650,7 @@ int NzLuaInstance::ToInteger(int index, bool* succeeded) const
 	if (succeeded)
 		*succeeded = (success  == 1);
 
-	return result == 1;
+	return result;
 }
 
 double NzLuaInstance::ToNumber(int index, bool* succeeded) const
@@ -661,7 +661,7 @@ double NzLuaInstance::ToNumber(int index, bool* succeeded) const
 	if (succeeded)
 		*succeeded = (success  == 1);
 
-	return result == 1;
+	return result;
 }
 
 const char* NzLuaInstance::ToString(int index, std::size_t* length) const
@@ -677,7 +677,7 @@ unsigned int NzLuaInstance::ToUnsigned(int index, bool* succeeded) const
 	if (succeeded)
 		*succeeded = (success  == 1);
 
-	return result == 1;
+	return result;
 }
 
 void* NzLuaInstance::ToUserdata(int index) const
