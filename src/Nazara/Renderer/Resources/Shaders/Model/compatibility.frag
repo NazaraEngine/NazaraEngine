@@ -169,7 +169,7 @@ void main()
 				float lightDirLength = length(lightDir);
 				lightDir /= lightDirLength; // Normalisation
 				
-				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.x*lightDirLength, 0.0);
+				float att = max(Lights[i].parameters1.w - Lights[i].parameters2.w*lightDirLength, 0.0);
 
 				// Ambient
 				lightAmbient += att * Lights[i].color.rgb * Lights[i].factors.x * (MaterialAmbient.rgb + SceneAmbient.rgb);
