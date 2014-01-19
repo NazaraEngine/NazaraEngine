@@ -32,14 +32,11 @@ void NzParameterList::Clear()
 	m_parameters.clear();
 }
 
-bool NzParameterList::GetBooleanParameter(const NzString& name, bool* succeeded) const
+bool NzParameterList::GetBooleanParameter(const NzString& name, bool* value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
 		return false;
 	}
@@ -47,26 +44,20 @@ bool NzParameterList::GetBooleanParameter(const NzString& name, bool* succeeded)
 	switch (it->second.type)
 	{
 		case nzParameterType_Boolean:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.boolVal;
+			*value = it->second.value.boolVal;
+			return true;
 
 		case nzParameterType_Integer:
-			if (succeeded)
-				*succeeded = true;
-
-			return (it->second.value.intVal != 0);
+			*value = (it->second.value.intVal != 0);
+			return true;
 
 		case nzParameterType_String:
 		{
-			bool value;
-			if (it->second.value.stringVal.ToBool(&value, NzString::CaseInsensitive))
+			bool converted;
+			if (it->second.value.stringVal.ToBool(&converted, NzString::CaseInsensitive))
 			{
-				if (succeeded)
-					*succeeded = true;
-
-				return value;
+				*value = converted;
+				return true;
 			}
 
 			break;
@@ -78,49 +69,37 @@ bool NzParameterList::GetBooleanParameter(const NzString& name, bool* succeeded)
 		case nzParameterType_Userdata:
 			break;
 	}
-
-	if (succeeded)
-		*succeeded = false;
 
 	NazaraError("Parameter value is not representable as a boolean");
 	return false;
 }
 
-float NzParameterList::GetFloatParameter(const NzString& name, bool* succeeded) const
+bool NzParameterList::GetFloatParameter(const NzString& name, float* value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
-		return std::numeric_limits<float>::quiet_NaN();
+		return false;
 	}
 
 	switch (it->second.type)
 	{
 		case nzParameterType_Float:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.floatVal;
+			*value = it->second.value.floatVal;
+			return true;
 
 		case nzParameterType_Integer:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.intVal;
+			*value = it->second.value.intVal;
+			return true;
 
 		case nzParameterType_String:
 		{
-			double value;
-			if (it->second.value.stringVal.ToDouble(&value))
+			double converted;
+			if (it->second.value.stringVal.ToDouble(&converted))
 			{
-				if (succeeded)
-					*succeeded = true;
-
-				return value;
+				*value = converted;
+				return true;
 			}
 
 			break;
@@ -132,57 +111,45 @@ float NzParameterList::GetFloatParameter(const NzString& name, bool* succeeded) 
 		case nzParameterType_Userdata:
 			break;
 	}
-
-	if (succeeded)
-		*succeeded = false;
 
 	NazaraError("Parameter value is not representable as a float");
-	return std::numeric_limits<float>::quiet_NaN();
+	return false;
 }
 
-int NzParameterList::GetIntegerParameter(const NzString& name, bool* succeeded) const
+bool NzParameterList::GetIntegerParameter(const NzString& name, int* value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
-		return 0;
+		return false;
 	}
 
 	switch (it->second.type)
 	{
 		case nzParameterType_Boolean:
-			return (it->second.value.boolVal) ? 1 : 0;
+			*value = (it->second.value.boolVal) ? 1 : 0;
+			return true;
 
 		case nzParameterType_Float:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.floatVal;
+			*value = it->second.value.floatVal;
+			return true;
 
 		case nzParameterType_Integer:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.intVal;
+			*value = it->second.value.intVal;
+			return false;
 
 		case nzParameterType_String:
 		{
-			long long value;
-			if (it->second.value.stringVal.ToInteger(&value))
+			long long converted;
+			if (it->second.value.stringVal.ToInteger(&converted))
 			{
-				if (value <= std::numeric_limits<int>::max() && value >= std::numeric_limits<int>::min())
+				if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
 				{
-					if (succeeded)
-						*succeeded = true;
-
-					return value;
+					*value = converted;
+					return true;
 				}
 			}
-
 			break;
 		}
 
@@ -192,54 +159,39 @@ int NzParameterList::GetIntegerParameter(const NzString& name, bool* succeeded) 
 			break;
 	}
 
-	if (succeeded)
-		*succeeded = false;
-
 	NazaraError("Parameter value is not representable as a integer");
-	return 0;
+	return false;
 }
 
-nzParameterType NzParameterList::GetParameterType(const NzString& name, bool* existing) const
+bool NzParameterList::GetParameterType(const NzString& name, nzParameterType* type) const
+{
+	auto it = m_parameters.find(name);
+	if (it == m_parameters.end())
+		return false;
+
+	*type = it->second.type;
+
+	return true;
+}
+
+bool NzParameterList::GetPointerParameter(const NzString& name, void** value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (existing)
-			*existing = false;
-
-		return nzParameterType_None;
-	}
-
-	if (existing)
-		*existing = true;
-
-	return it->second.type;
-}
-
-void* NzParameterList::GetPointerParameter(const NzString& name, bool* succeeded) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
-		return nullptr;
+		return false;
 	}
 
 	switch (it->second.type)
 	{
 		case nzParameterType_Pointer:
-			if (succeeded)
-				*succeeded = true;
+			*value = it->second.value.ptrVal;
+			return true;
 
-			return it->second.value.ptrVal;
 		case nzParameterType_Userdata:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.userdataVal->ptr;
+			*value = it->second.value.userdataVal->ptr;
+			return true;
 
 		case nzParameterType_Boolean:
 		case nzParameterType_Float:
@@ -248,112 +200,74 @@ void* NzParameterList::GetPointerParameter(const NzString& name, bool* succeeded
 		case nzParameterType_String:
 			break;
 	}
-
-	if (succeeded)
-		*succeeded = false;
 
 	NazaraError("Parameter value is not a pointer");
-	return nullptr;
+	return false;
 }
 
-NzString NzParameterList::GetStringParameter(const NzString& name, bool* succeeded) const
+bool NzParameterList::GetStringParameter(const NzString& name, NzString* value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
-		return NzString();
+		return false;
 	}
 
 	switch (it->second.type)
 	{
 		case nzParameterType_Boolean:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString::Boolean(it->second.value.boolVal);
+			*value = NzString::Boolean(it->second.value.boolVal);
+			return true;
 
 		case nzParameterType_Float:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString::Number(it->second.value.floatVal);
+			*value = NzString::Number(it->second.value.floatVal);
+			return true;
 
 		case nzParameterType_Integer:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString::Number(it->second.value.intVal);
+			*value = NzString::Number(it->second.value.intVal);
+			return true;
 
 		case nzParameterType_String:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.stringVal;
+			*value = it->second.value.stringVal;
+			return true;
 
 		case nzParameterType_Pointer:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString::Pointer(it->second.value.ptrVal);
+			*value = NzString::Pointer(it->second.value.ptrVal);
+			return true;
 
 		case nzParameterType_Userdata:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString::Pointer(it->second.value.userdataVal->ptr);
+			*value = NzString::Pointer(it->second.value.userdataVal->ptr);
+			return true;
 
 		case nzParameterType_None:
-			if (succeeded)
-				*succeeded = true;
-
-			return NzString();
+			*value = NzString();
+			return true;
 	}
-
-	if (succeeded)
-		*succeeded = false;
 
 	NazaraInternalError("Parameter value is not valid");
-	return NzString();
+	return false;
 }
 
-void* NzParameterList::GetUserdataParameter(const NzString& name, bool* succeeded) const
+bool NzParameterList::GetUserdataParameter(const NzString& name, void** value) const
 {
 	auto it = m_parameters.find(name);
 	if (it == m_parameters.end())
 	{
-		if (succeeded)
-			*succeeded = false;
-
 		NazaraError("Parameter \"" + name + "\" is not present");
+		return false;
+	}
+
+	if (it->second.type == nzParameterType_Userdata)
+	{
+		*value = it->second.value.userdataVal->ptr;
+		return true;
+	}
+	else
+	{
+		NazaraError("Parameter value is not an userdata");
 		return nullptr;
 	}
-
-	switch (it->second.type)
-	{
-		case nzParameterType_Userdata:
-			if (succeeded)
-				*succeeded = true;
-
-			return it->second.value.userdataVal->ptr;
-
-		case nzParameterType_Boolean:
-		case nzParameterType_Float:
-		case nzParameterType_Integer:
-		case nzParameterType_None:
-		case nzParameterType_Pointer:
-		case nzParameterType_String:
-			break;
-	}
-
-	if (succeeded)
-		*succeeded = false;
-
-	NazaraError("Parameter value is not an userdata");
-	return nullptr;
 }
 
 bool NzParameterList::HasParameter(const NzString& name) const

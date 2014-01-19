@@ -24,13 +24,13 @@ class NAZARA_API NzParameterList
 
 		void Clear();
 
-		bool GetBooleanParameter(const NzString& name, bool* succeeded = nullptr) const;
-		float GetFloatParameter(const NzString& name, bool* succeeded = nullptr) const;
-		int GetIntegerParameter(const NzString& name, bool* succeeded = nullptr) const;
-		nzParameterType GetParameterType(const NzString& name, bool* existing = nullptr) const;
-		void* GetPointerParameter(const NzString& name, bool* succeeded = nullptr) const;
-		NzString GetStringParameter(const NzString& name, bool* succeeded = nullptr) const;
-		void* GetUserdataParameter(const NzString& name, bool* succeeded = nullptr) const;
+		bool GetBooleanParameter(const NzString& name, bool* value) const;
+		bool GetFloatParameter(const NzString& name, float* value) const;
+		bool GetIntegerParameter(const NzString& name, int* value) const;
+		bool GetParameterType(const NzString& name, nzParameterType* type) const;
+		bool GetPointerParameter(const NzString& name, void** value) const;
+		bool GetStringParameter(const NzString& name, NzString* value) const;
+		bool GetUserdataParameter(const NzString& name, void** value) const;
 
 		bool HasParameter(const NzString& name) const;
 
