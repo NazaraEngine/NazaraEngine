@@ -60,6 +60,19 @@ enum nzHash
 	nzHash_Whirlpool
 };
 
+enum nzParameterType
+{
+	nzParameterType_Boolean,
+	nzParameterType_Float,
+	nzParameterType_Integer,
+	nzParameterType_None,
+	nzParameterType_Pointer,
+	nzParameterType_String,
+	nzParameterType_Userdata,
+
+	nzParameterType_Max = nzParameterType_Userdata
+};
+
 enum nzPlugin
 {
 	nzPlugin_Assimp,
