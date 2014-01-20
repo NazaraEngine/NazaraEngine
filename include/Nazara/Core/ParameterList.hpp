@@ -20,7 +20,7 @@ class NAZARA_API NzParameterList
 		NzParameterList() = default;
 		NzParameterList(const NzParameterList& list);
 		NzParameterList(NzParameterList&& list);
-		virtual ~NzParameterList();
+		~NzParameterList();
 
 		void Clear();
 
