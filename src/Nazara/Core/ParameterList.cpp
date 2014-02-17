@@ -2,6 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// Notre utilisation du placement new n'est pas (encore ?) compatible avec les définitions du MLT
+#define NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
+
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
