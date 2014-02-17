@@ -4,6 +4,9 @@
 
 #include <Nazara/Physics/Config.hpp>
 #if NAZARA_PHYSICS_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
+
+#define NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
+
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <new>
 
@@ -26,4 +29,5 @@ void operator delete[](void* pointer) noexcept
 {
 	NzMemoryManager::Free(pointer, true);
 }
+
 #endif
