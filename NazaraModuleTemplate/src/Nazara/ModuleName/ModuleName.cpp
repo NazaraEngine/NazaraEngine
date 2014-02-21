@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ModuleName/ModuleName.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -11,8 +12,11 @@
 
 bool NzModuleName::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
@@ -21,10 +25,14 @@ bool NzModuleName::Initialize()
 		return false;
 	}
 
+	s_moduleReferenceCounter++;
+
 	// Initialisation du module
+	NzCallOnExit onExit(NzModuleName::Uninitialize);
+
+	onExit.Reset();
 
 	NazaraNotice("Initialized: ModuleName module");
-
 	return true;
 }
 

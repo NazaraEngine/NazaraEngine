@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -16,19 +17,23 @@
 
 bool NzGraphics::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzRenderer::Initialize())
 	{
 		NazaraError("Failed to initialize Renderer module");
-		Uninitialize();
-
 		return false;
 	}
 
+	s_moduleReferenceCounter++;
+
 	// Initialisation du module
+	NzCallOnExit onExit(NzGraphics::Uninitialize);
 
 	// Loaders
 	NzLoaders_OBJ_Register();
@@ -42,8 +47,9 @@ bool NzGraphics::Initialize()
 	if (NzDeferredRenderTechnique::IsSupported())
 		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
 
-	NazaraNotice("Initialized: Graphics module");
+	onExit.Reset();
 
+	NazaraNotice("Initialized: Graphics module");
 	return true;
 }
 
