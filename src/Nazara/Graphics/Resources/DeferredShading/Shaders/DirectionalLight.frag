@@ -2,20 +2,11 @@
 
 out vec4 RenderTarget0;
 
-struct Light
-{
-	int type;
-	vec4 ambient;
-	vec4 color;
-	vec2 factors;
-
-	vec4 parameters1;
-	vec4 parameters2;
-	vec2 parameters3;
-};
-
 uniform vec3 EyePosition;
-uniform Light Lights[1];
+
+uniform vec4 LightColor;
+uniform vec2 LightFactors;
+uniform vec4 LightDirection;
 
 uniform sampler2D GBuffer0;
 uniform sampler2D GBuffer1;
@@ -56,15 +47,15 @@ void main()
 	float depth = ColorToFloat(gVec2.xyz);
 	float shininess = (gVec2.w == 0.0) ? 0.0 : exp2(gVec2.w*10.5);
 
-	vec3 lightDir = -Lights[0].parameters1.xyz;
+	vec3 lightDir = -LightDirection.xyz;
 
 	// Ambient
-	vec3 lightAmbient = Lights[0].color.rgb * Lights[0].factors.x * (vec3(1.0) + SceneAmbient.rgb);
+	vec3 lightAmbient = LightColor.rgb * LightFactors.x * (vec3(1.0) + SceneAmbient.rgb);
 
 	// Diffuse
 	float lambert = max(dot(normal, lightDir), 0.0);
 
-	vec3 lightDiffuse = lambert * Lights[0].color.rgb * Lights[0].factors.y;
+	vec3 lightDiffuse = lambert * LightColor.rgb * LightFactors.y;
 
 	// Specular
 	vec3 lightSpecular;
@@ -81,7 +72,7 @@ void main()
 		float specularFactor = max(dot(reflection, eyeVec), 0.0);
 		specularFactor = pow(specularFactor, shininess);
 
-		lightSpecular = specularFactor * Lights[0].color.rgb * specularMultiplier;
+		lightSpecular = specularFactor * LightColor.rgb * specularMultiplier;
 	}
 	else
 		lightSpecular = vec3(0.0);

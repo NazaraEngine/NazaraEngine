@@ -21,15 +21,13 @@
 class NzColor;
 class NzContext;
 class NzIndexBuffer;
-class NzMaterial;
 class NzRenderTarget;
-class NzShaderProgram;
+class NzShader;
 class NzTexture;
 class NzVertexBuffer;
 
 class NAZARA_API NzRenderer
 {
-	friend NzShaderProgram;
 	friend NzTexture;
 
 	public:
@@ -64,7 +62,7 @@ class NAZARA_API NzRenderer
 		static float GetPointSize();
 		static const NzRenderStates& GetRenderStates();
 		static NzRecti GetScissorRect();
-		static const NzShaderProgram* GetShaderProgram();
+		static const NzShader* GetShader();
 		static const NzRenderTarget* GetTarget();
 		static NzRecti GetViewport();
 
@@ -89,7 +87,7 @@ class NAZARA_API NzRenderer
 		static void SetPointSize(float size);
 		static void SetRenderStates(const NzRenderStates& states);
 		static void SetScissorRect(const NzRecti& rect);
-		static void SetShaderProgram(const NzShaderProgram* shader);
+		static void SetShader(const NzShader* shader);
 		static void SetStencilCompareFunction(nzRendererComparison compareFunc, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
 		static void SetStencilFailOperation(nzStencilOperation failOperation, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
 		static void SetStencilMask(nzUInt32 mask, nzFaceSide faceSide = nzFaceSide_FrontAndBack);
@@ -107,7 +105,7 @@ class NAZARA_API NzRenderer
 	private:
 		static void EnableInstancing(bool instancing);
 		static bool EnsureStateUpdate();
-		static void OnProgramReleased(const NzShaderProgram* program);
+		static void OnShaderReleased(const NzShader* shader);
 		static void OnTextureReleased(const NzTexture* texture);
 		static void UpdateMatrix(nzMatrixType type);
 

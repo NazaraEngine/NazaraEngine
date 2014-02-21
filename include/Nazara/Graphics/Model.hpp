@@ -10,8 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Updatable.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
@@ -22,6 +22,7 @@ struct NAZARA_API NzModelParameters
 	NzAnimationParams animation;
 	NzMaterialParams material;
 	NzMeshParams mesh;
+	NzString shaderName = "PhongLighting";
 
 	bool IsValid() const;
 };
@@ -89,7 +90,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 
 	private:
 		bool FrustumCull(const NzFrustumf& frustum) override;
-		void Invalidate() override;
+		void InvalidateNode() override;
 		void Register() override;
 		void Unregister() override;
 		void Update() override;

@@ -207,9 +207,9 @@ void NzView::ApplyView() const
 	NzRenderer::SetViewport(m_viewport);
 }
 
-void NzView::Invalidate()
+void NzView::InvalidateNode()
 {
-	NzNode::Invalidate();
+	NzNode::InvalidateNode();
 
 	// Le frustum et la view matrix dépendent des paramètres du node, invalidons-les
 	m_frustumUpdated = false;

@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/ColorBackGround.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
+#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -26,14 +26,15 @@ namespace
 NzColorBackground::NzColorBackground(const NzColor& color) :
 m_color(color)
 {
-	NzShaderProgramManagerParams params;
-	params.target = nzShaderTarget_FullscreenQuad;
-	params.flags = 0;
-	params.fullscreenQuad.alphaMapping = false;
-	params.fullscreenQuad.alphaTest = false;
-	params.fullscreenQuad.diffuseMapping = false;
+	m_uberShader = NzUberShaderLibrary::Get("Basic");
 
-	m_program = NzShaderProgramManager::Get(params);
+	NzParameterList list;
+	list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
+	m_uberShaderInstance = m_uberShader->Get(list);
+
+	const NzShader* shader = m_uberShaderInstance->GetShader();
+	m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
+	m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
 }
 
 void NzColorBackground::Draw(const NzScene* scene) const
@@ -43,10 +44,12 @@ void NzColorBackground::Draw(const NzScene* scene) const
 	static NzRenderStates states(BuildRenderStates());
 
 	NzRenderer::SetRenderStates(states);
-	NzRenderer::SetShaderProgram(m_program);
 
-	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
-	m_program->SendFloat(m_program->GetUniformLocation(nzShaderUniform_VertexDepth), 1.f);
+	m_uberShaderInstance->Activate();
+
+	const NzShader* shader = m_uberShaderInstance->GetShader();
+	shader->SendColor(m_materialDiffuseUniform, m_color);
+	shader->SendFloat(m_vertexDepthUniform, 1.f);
 
 	NzRenderer::DrawFullscreenQuad();
 }
@@ -64,6 +67,5 @@ NzColor NzColorBackground::GetColor() const
 void NzColorBackground::SetColor(const NzColor& color)
 {
 	m_color = color;
-	m_program->SendColor(m_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), m_color);
 }
 
