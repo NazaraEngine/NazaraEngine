@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -634,24 +635,28 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 
 bool NzRenderer::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzUtility::Initialize())
 	{
 		NazaraError("Failed to initialize Utility module");
-		Uninitialize();
-
 		return false;
 	}
+
+	s_moduleReferenceCounter++;
+
+	// Initialisation du module
+	NzCallOnExit onExit(NzRenderer::Uninitialize);
 
 	// Initialisation d'OpenGL
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -751,8 +756,6 @@ bool NzRenderer::Initialize()
 	if (!s_fullscreenQuadBuffer.Fill(vertices, 0, 4))
 	{
 		NazaraError("Failed to fill fullscreen quad buffer");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -773,32 +776,27 @@ bool NzRenderer::Initialize()
 	if (!NzMaterial::Initialize())
 	{
 		NazaraError("Failed to initialize materials");
-		Uninitialize();
-
 		return false;
 	}
 
 	if (!NzShaderProgramManager::Initialize())
 	{
 		NazaraError("Failed to initialize shader program manager");
-		Uninitialize();
-
 		return false;
 	}
 
 	if (!NzTextureSampler::Initialize())
 	{
 		NazaraError("Failed to initialize texture sampler");
-		Uninitialize();
-
 		return false;
 	}
 
 	// Loaders
 	NzLoaders_Texture_Register();
 
-	NazaraNotice("Initialized: Renderer module");
+	onExit.Reset();
 
+	NazaraNotice("Initialized: Renderer module");
 	return true;
 }
 

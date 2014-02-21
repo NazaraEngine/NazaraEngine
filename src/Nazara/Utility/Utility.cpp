@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
@@ -23,58 +24,53 @@
 
 bool NzUtility::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
-		Uninitialize();
-
 		return false;
 	}
+
+	s_moduleReferenceCounter++;
 
 	// Initialisation du module
-	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
-	if (!NzTaskScheduler::Initialize())
-	{
-		NazaraError("Failed to initialize task scheduler");
-		Uninitialize();
-
-		return false;
-	}
-	#endif
+	NzCallOnExit onExit(NzUtility::Uninitialize);
 
 	if (!NzBuffer::Initialize())
 	{
 		NazaraError("Failed to initialize buffers");
-		Uninitialize();
-
 		return false;
 	}
 
 	if (!NzPixelFormat::Initialize())
 	{
 		NazaraError("Failed to initialize pixel formats");
-		Uninitialize();
-
 		return false;
 	}
+
+	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
+	if (!NzTaskScheduler::Initialize())
+	{
+		NazaraError("Failed to initialize task scheduler");
+		return false;
+	}
+	#endif
 
 	if (!NzVertexDeclaration::Initialize())
 	{
 		NazaraError("Failed to initialize vertex declarations");
-		Uninitialize();
-
 		return false;
 	}
 
 	if (!NzWindow::Initialize())
 	{
 		NazaraError("Failed to initialize window's system");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -96,8 +92,9 @@ bool NzUtility::Initialize()
 	// Image
 	NzLoaders_PCX_Register(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
 
-	NazaraNotice("Initialized: Utility module");
+	onExit.Reset();
 
+	NazaraNotice("Initialized: Utility module");
 	return true;
 }
 
