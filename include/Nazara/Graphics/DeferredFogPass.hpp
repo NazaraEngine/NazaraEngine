@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
 class NAZARA_API NzDeferredFogPass : public NzDeferredRenderPass
@@ -23,7 +23,7 @@ class NAZARA_API NzDeferredFogPass : public NzDeferredRenderPass
 
 	protected:
 		NzRenderStates m_states;
-		NzShaderProgramRef m_program;
+		NzShaderRef m_shader;
 		NzTextureSampler m_pointSampler;
 };
 

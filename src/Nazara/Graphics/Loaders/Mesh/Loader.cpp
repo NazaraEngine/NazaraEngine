@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -63,8 +63,11 @@ namespace
 				{
 					std::unique_ptr<NzMaterial> material(new NzMaterial);
 					material->SetPersistent(false);
+
 					if (material->LoadFromFile(mat, parameters.material))
 					{
+						material->SetShader(parameters.shaderName);
+
 						model->SetMaterial(i, material.get());
 						material.release();
 					}

@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Loaders/OBJ.hpp>
+#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/Loaders/OBJ/MTLParser.hpp>
 #include <Nazara/Graphics/Loaders/OBJ/OBJParser.hpp>
-#include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -211,6 +211,8 @@ namespace
 							{
 								std::unique_ptr<NzMaterial> material(new NzMaterial);
 								material->SetPersistent(false);
+
+								material->SetShader(parameters.shaderName);
 
 								nzUInt8 alphaValue = static_cast<nzUInt8>(mtlMat->alpha*255.f);
 

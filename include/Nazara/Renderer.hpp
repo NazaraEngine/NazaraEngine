@@ -1,4 +1,4 @@
-// This file was automatically generated on 12 Jan 2014 at 20:08:11
+// This file was automatically generated on 21 Feb 2014 at 18:17:18
 
 /*
 	Nazara Engine - Renderer module
@@ -35,7 +35,6 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/GpuQuery.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -44,10 +43,17 @@
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
-#include <Nazara/Renderer/ShaderProgramManagerParams.hpp>
+#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
+#include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Renderer/UberShader.hpp>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
+#include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
+#include <Nazara/Renderer/UberShaderLibrary.hpp>
+#include <Nazara/Renderer/UberShaderPreprocessor.hpp>
+#include <Nazara/Renderer/UberShaderPUniform.hpp>
+#include <Nazara/Renderer/UberShaderPUSubroutine.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP

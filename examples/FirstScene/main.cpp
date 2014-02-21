@@ -337,6 +337,9 @@ int main()
 		// Pour terminer, il y a l'affichage en lui-même, de façon organisée et optimisée (Batching)
 		scene.Draw();
 
+		NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
+		NzDebugDrawer::Draw(spaceship.GetBoundingVolume().aabb);
+
 		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
 		window.Display();

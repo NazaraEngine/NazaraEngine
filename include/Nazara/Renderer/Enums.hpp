@@ -185,27 +185,6 @@ enum nzSamplerWrap
 	nzSamplerWrap_Max = nzSamplerWrap_Repeat
 };
 
-enum nzShaderFlags
-{
-	nzShaderFlags_None = 0,
-
-	nzShaderFlags_Deferred   = 0x1,
-	nzShaderFlags_FlipUVs    = 0x2,
-	nzShaderFlags_Instancing = 0x4,
-
-	nzShaderFlags_Max = nzShaderFlags_Instancing*2-1
-};
-
-enum nzShaderLanguage
-{
-	nzShaderLanguage_Unknown = -1,
-
-	nzShaderLanguage_Cg,
-	nzShaderLanguage_GLSL,
-
-	nzShaderLanguage_Max = nzShaderLanguage_GLSL
-};
-
 enum nzShaderTarget
 {
 	nzShaderTarget_FullscreenQuad,
@@ -226,21 +205,9 @@ enum nzShaderUniform
 	nzShaderUniform_InvWorldMatrix,
 	nzShaderUniform_InvWorldViewMatrix,
 	nzShaderUniform_InvWorldViewProjMatrix,
-	nzShaderUniform_MaterialAlphaMap,
-	nzShaderUniform_MaterialAlphaThreshold,
-	nzShaderUniform_MaterialAmbient,
-	nzShaderUniform_MaterialDiffuse,
-	nzShaderUniform_MaterialDiffuseMap,
-	nzShaderUniform_MaterialEmissiveMap,
-	nzShaderUniform_MaterialHeightMap,
-	nzShaderUniform_MaterialNormalMap,
-	nzShaderUniform_MaterialShininess,
-	nzShaderUniform_MaterialSpecular,
-	nzShaderUniform_MaterialSpecularMap,
 	nzShaderUniform_ProjMatrix,
 	nzShaderUniform_SceneAmbient,
 	nzShaderUniform_TargetSize,
-	nzShaderUniform_VertexDepth,
 	nzShaderUniform_ViewMatrix,
 	nzShaderUniform_ViewProjMatrix,
 	nzShaderUniform_WorldMatrix,
@@ -250,13 +217,13 @@ enum nzShaderUniform
 	nzShaderUniform_Max = nzShaderUniform_WorldViewProjMatrix
 };
 
-enum nzShaderType
+enum nzShaderStage
 {
-	nzShaderType_Fragment,
-	nzShaderType_Geometry,
-	nzShaderType_Vertex,
+	nzShaderStage_Fragment,
+	nzShaderStage_Geometry,
+	nzShaderStage_Vertex,
 
-	nzShaderType_Max = nzShaderType_Vertex
+	nzShaderStage_Max = nzShaderStage_Vertex
 };
 
 enum nzStencilOperation
