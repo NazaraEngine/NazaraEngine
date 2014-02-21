@@ -12,11 +12,15 @@
 
 bool NzCore::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
+
+	s_moduleReferenceCounter++;
 
 	NazaraNotice("Initialized: Core");
-
 	return true;
 }
 

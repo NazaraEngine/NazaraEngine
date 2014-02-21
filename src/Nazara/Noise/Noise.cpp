@@ -11,8 +11,11 @@
 
 bool NzNoise::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
@@ -23,10 +26,11 @@ bool NzNoise::Initialize()
 		return false;
 	}
 
+	s_moduleReferenceCounter++;
+
 	// Initialisation du module
 
 	NazaraNotice("Initialized: Noise module");
-
 	return true;
 }
 
