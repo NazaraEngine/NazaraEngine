@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#define NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
+
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <cstdio>
 #include <cstdlib>
