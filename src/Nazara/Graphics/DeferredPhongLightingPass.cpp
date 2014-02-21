@@ -2,15 +2,10 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifndef NAZARA_RENDERER_OPENGL
-#define NAZARA_RENDERER_OPENGL
-#endif // NAZARA_RENDERER_OPENGL
-
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/Scene.hpp>
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/ShaderLibrary.hpp>

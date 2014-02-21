@@ -18,6 +18,8 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+///TODO: Surveiller les shaders et supprimer les données uniformes en cas de changement (recompilation/destruction)
+
 namespace
 {
 	static NzIndexBuffer* s_indexBuffer = nullptr;
