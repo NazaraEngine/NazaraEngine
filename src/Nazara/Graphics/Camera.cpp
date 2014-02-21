@@ -222,9 +222,9 @@ void NzCamera::ApplyView() const
 	NzRenderer::SetViewport(m_viewport);
 }
 
-void NzCamera::Invalidate()
+void NzCamera::InvalidateNode()
 {
-	NzNode::Invalidate();
+	NzNode::InvalidateNode();
 
 	// Le frustum et la view matrix dépendent des paramètres du node, invalidons-les
 	m_frustumUpdated = false;

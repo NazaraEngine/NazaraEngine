@@ -11,7 +11,7 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
@@ -27,12 +27,12 @@ class NAZARA_API NzDeferredDOFPass : public NzDeferredRenderPass
 	protected:
 		NzRenderTexture m_dofRTT;
 		NzRenderStates m_states;
-		NzShaderProgramRef m_blurProgram;
-		NzShaderProgramRef m_dofProgram;
+		NzShaderConstRef m_dofShader;
+		NzShaderConstRef m_gaussianBlurShader;
 		NzTextureRef m_dofTextures[2];
 		NzTextureSampler m_bilinearSampler;
 		NzTextureSampler m_pointSampler;
-		int m_blurProgramFilterLocation;
+		int m_gaussianBlurShaderFilterLocation;
 };
 
 #endif // NAZARA_DEFERREDDOFPASS_HPP
