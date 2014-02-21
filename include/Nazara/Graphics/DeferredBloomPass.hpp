@@ -11,7 +11,7 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
@@ -38,16 +38,16 @@ class NAZARA_API NzDeferredBloomPass : public NzDeferredRenderPass
 	protected:
 		NzRenderStates m_bloomStates;
 		NzRenderTexture m_bloomRTT;
-		NzShaderProgramRef m_bloomBrightProgram;
-		NzShaderProgramRef m_bloomFinalProgram;
-		NzShaderProgramRef m_gaussianBlurProgram;
+		NzShaderRef m_bloomBrightShader;
+		NzShaderRef m_bloomFinalShader;
+		NzShaderRef m_gaussianBlurShader;
 		NzTextureRef m_bloomTextures[2];
 		NzTextureSampler m_bilinearSampler;
 		mutable bool m_uniformUpdated;
 		float m_brightLuminance;
 		float m_brightMiddleGrey;
 		float m_brightThreshold;
-		int m_gaussianBlurProgramFilterLocation;
+		int m_gaussianBlurShaderFilterLocation;
 		unsigned int m_blurPassCount;
 };
 

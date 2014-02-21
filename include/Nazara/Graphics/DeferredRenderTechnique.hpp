@@ -16,7 +16,6 @@
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -50,7 +49,9 @@ class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique, p
 
 		void SetPass(nzRenderPassType relativeTo, int position, NzDeferredRenderPass* pass);
 
+		static bool Initialize();
 		static bool IsSupported();
+		static void Uninitialize();
 
 	private:
 		bool Resize(const NzVector2ui& dimensions) const;

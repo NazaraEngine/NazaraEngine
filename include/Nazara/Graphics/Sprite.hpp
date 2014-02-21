@@ -8,8 +8,8 @@
 #define NAZARA_SPRITE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
-#include <Nazara/Renderer/Material.hpp>
 
 class NAZARA_API NzSprite : public NzSceneNode
 {
@@ -38,7 +38,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 	private:
 		bool FrustumCull(const NzFrustumf& frustum) override;
-		void Invalidate() override;
+		void InvalidateNode() override;
 		void Register() override;
 		void Unregister() override;
 		void UpdateBoundingVolume() const;

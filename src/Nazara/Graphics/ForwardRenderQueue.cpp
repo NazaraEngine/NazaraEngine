@@ -5,9 +5,9 @@
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -186,8 +186,7 @@ void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMes
 				unsigned int instanceCount = staticDataContainer.size() + 1;
 
 				// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
-				unsigned int tumasoublie = NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT;
-				if (instanceCount >= 10)
+				if (instanceCount >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
 					enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
 
 				staticDataContainer.resize(instanceCount);
@@ -350,19 +349,16 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	nzUInt32 possibleFlags[] = {
-		nzShaderFlags_None,
-		nzShaderFlags_Instancing
-	};
+	const NzUberShader* uberShader1 = mat1->GetShader();
+	const NzUberShader* uberShader2 = mat2->GetShader();
+	if (uberShader1 != uberShader2)
+		return uberShader1 < uberShader2;
 
-	for (nzUInt32 flag : possibleFlags)
-	{
-		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, flag);
-		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, flag);
+	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
+	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
 
-		if (program1 != program2)
-			return program1 < program2;
-	}
+	if (shader1 != shader2)
+		return shader1 < shader2;
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
@@ -374,18 +370,16 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
-	nzUInt32 possibleFlags[] = {
-		nzShaderFlags_None
-	};
+	const NzUberShader* uberShader1 = mat1->GetShader();
+	const NzUberShader* uberShader2 = mat2->GetShader();
+	if (uberShader1 != uberShader2)
+		return uberShader1 < uberShader2;
 
-	for (nzUInt32 flag : possibleFlags)
-	{
-		const NzShaderProgram* program1 = mat1->GetShaderProgram(nzShaderTarget_Model, flag);
-		const NzShaderProgram* program2 = mat2->GetShaderProgram(nzShaderTarget_Model, flag);
+	const NzShader* shader1 = mat1->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
+	const NzShader* shader2 = mat2->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
 
-		if (program1 != program2)
-			return program1 < program2;
-	}
+	if (shader1 != shader2)
+		return shader1 < shader2;
 
 	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
 	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();

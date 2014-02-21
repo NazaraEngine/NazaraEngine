@@ -46,6 +46,7 @@ m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
 m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated)
 {
+	SetParent(sprite);
 }
 
 NzSprite::NzSprite(NzSprite&& sprite) :
@@ -161,9 +162,9 @@ bool NzSprite::FrustumCull(const NzFrustumf& frustum)
 	return frustum.Contains(m_boundingVolume);
 }
 
-void NzSprite::Invalidate()
+void NzSprite::InvalidateNode()
 {
-	NzSceneNode::Invalidate();
+	NzSceneNode::InvalidateNode();
 
 	m_boundingVolumeUpdated = false;
 }
