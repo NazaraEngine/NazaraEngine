@@ -4,6 +4,9 @@
 
 #include <Nazara/Core/Config.hpp>
 #if NAZARA_CORE_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
+
+#define NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
+
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <new>
 

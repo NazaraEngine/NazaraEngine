@@ -9,7 +9,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
@@ -28,16 +29,17 @@ class NAZARA_API NzDeferredPhongLightingPass : public NzDeferredRenderPass
 		bool Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 
 	protected:
+		NzLightUniforms m_directionalLightUniforms;
+		NzLightUniforms m_pointSpotLightUniforms;
 		NzMeshRef m_cone;
 		NzMeshRef m_sphere;
-		NzShaderProgramRef m_directionalLightProgram;
-		NzShaderProgramRef m_pointSpotLightProgram;
+		NzShaderRef m_directionalLightShader;
+		NzShaderRef m_pointSpotLightShader;
 		NzTextureSampler m_pointSampler;
 		NzStaticMesh* m_coneMesh;
 		NzStaticMesh* m_sphereMesh;
 		bool m_lightMeshesDrawing;
-		int m_pointSpotLightProgramDiscardLocation;
-		int m_pointSpotLightProgramSpotLightLocation;
+		int m_pointSpotLightShaderDiscardLocation;
 };
 
 #endif // NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP

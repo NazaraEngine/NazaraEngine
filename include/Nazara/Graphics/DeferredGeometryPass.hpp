@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 
 class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 {
@@ -23,7 +23,7 @@ class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 
 	protected:
 		NzRenderStates m_clearStates;
-		NzShaderProgramRef m_clearProgram;
+		NzShaderRef m_clearShader;
 };
 
 #endif // NAZARA_DEFERREDGEOMETRYPASS_HPP

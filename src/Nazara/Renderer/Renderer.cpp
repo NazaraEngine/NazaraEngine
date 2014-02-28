@@ -3,21 +3,21 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Renderer/AbstractShaderProgram.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
-#include <Nazara/Renderer/Loaders/Texture.hpp>
+#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -47,7 +47,7 @@ namespace
 		Update_None = 0,
 
 		Update_Matrices     = 0x1,
-		Update_Program      = 0x2,
+		Update_Shader       = 0x2,
 		Update_Textures     = 0x4,
 		Update_VAO          = 0x8
 	};
@@ -83,7 +83,7 @@ namespace
 	nzUInt32 s_updateFlags;
 	const NzIndexBuffer* s_indexBuffer;
 	const NzRenderTarget* s_target;
-	const NzShaderProgram* s_program;
+	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
 	const NzVertexDeclaration* s_instancingDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
@@ -604,9 +604,9 @@ NzRecti NzRenderer::GetScissorRect()
 	return NzOpenGL::GetCurrentScissorBox();
 }
 
-const NzShaderProgram* NzRenderer::GetShaderProgram()
+const NzShader* NzRenderer::GetShader()
 {
-	return s_program;
+	return s_shader;
 }
 
 const NzRenderTarget* NzRenderer::GetTarget()
@@ -634,24 +634,28 @@ bool NzRenderer::HasCapability(nzRendererCap capability)
 
 bool NzRenderer::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzUtility::Initialize())
 	{
 		NazaraError("Failed to initialize Utility module");
-		Uninitialize();
-
 		return false;
 	}
+
+	s_moduleReferenceCounter++;
+
+	// Initialisation du module
+	NzCallOnExit onExit(NzRenderer::Uninitialize);
 
 	// Initialisation d'OpenGL
 	if (!NzOpenGL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenGL");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -729,14 +733,14 @@ bool NzRenderer::Initialize()
 	s_states = NzRenderStates();
 
 	s_indexBuffer = nullptr;
-	s_program = nullptr;
+	s_shader = nullptr;
 	s_target = nullptr;
 	s_targetSize.Set(0U);
 	s_textureUnits.resize(s_maxTextureUnit);
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
 	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
+	s_updateFlags = (Update_Matrices | Update_Shader | Update_VAO);
 	s_vertexBuffer = nullptr;
-	s_updateFlags = (Update_Matrices | Update_Program | Update_VAO);
 
 	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
 
@@ -751,8 +755,6 @@ bool NzRenderer::Initialize()
 	if (!s_fullscreenQuadBuffer.Fill(vertices, 0, 4))
 	{
 		NazaraError("Failed to fill fullscreen quad buffer");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -766,39 +768,99 @@ bool NzRenderer::Initialize()
 		catch (const std::exception& e)
 		{
 			s_capabilities[nzRendererCap_Instancing] = false;
-			NazaraError("Failed to create instancing buffer: " + NzString(e.what())); ///TODO: Noexcept
+
+			NzErrorFlags flags(nzErrorFlag_ThrowExceptionDisabled);
+			NazaraError("Failed to create instancing buffer: " + NzString(e.what()));
 		}
 	}
 
-	if (!NzMaterial::Initialize())
+	if (!NzShaderLibrary::Initialize())
 	{
-		NazaraError("Failed to initialize materials");
-		Uninitialize();
-
-		return false;
-	}
-
-	if (!NzShaderProgramManager::Initialize())
-	{
-		NazaraError("Failed to initialize shader program manager");
-		Uninitialize();
-
+		NazaraError("Failed to initialize shader library");
 		return false;
 	}
 
 	if (!NzTextureSampler::Initialize())
 	{
 		NazaraError("Failed to initialize texture sampler");
-		Uninitialize();
-
 		return false;
 	}
 
-	// Loaders
-	NzLoaders_Texture_Register();
+	if (!NzUberShaderLibrary::Initialize())
+	{
+		NazaraError("Failed to initialize uber shader library");
+		return false;
+	}
+
+	// Création du shader de Debug
+	std::unique_ptr<NzShader> shader(new NzShader);
+	shader->SetPersistent(false);
+
+	if (!shader->Create())
+	{
+		NazaraError("Failed to create debug shader");
+		return false;
+	}
+
+	const nzUInt8 coreFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
+	};
+
+	const nzUInt8 coreVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
+	};
+
+	const nzUInt8 compatibilityFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
+	};
+
+	const nzUInt8 compatibilityVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
+	};
+
+	const char* fragmentShader;
+	const char* vertexShader;
+	unsigned int fragmentShaderLength;
+	unsigned int vertexShaderLength;
+	if (NzOpenGL::GetGLSLVersion() >= 140)
+	{
+		fragmentShader = reinterpret_cast<const char*>(coreFragmentShader);
+		fragmentShaderLength = sizeof(coreFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(coreVertexShader);
+		vertexShaderLength = sizeof(coreVertexShader);
+	}
+	else
+	{
+		fragmentShader = reinterpret_cast<const char*>(compatibilityFragmentShader);
+		fragmentShaderLength = sizeof(compatibilityFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(compatibilityVertexShader);
+		vertexShaderLength = sizeof(compatibilityVertexShader);
+	}
+
+	if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))
+	{
+		NazaraError("Failed to attach fragment stage");
+		return false;
+	}
+
+	if (!shader->AttachStageFromSource(nzShaderStage_Vertex, vertexShader, vertexShaderLength))
+	{
+		NazaraError("Failed to attach vertex stage");
+		return false;
+	}
+
+	if (!shader->Link())
+	{
+		NazaraError("Failed to link shader");
+		return false;
+	}
+
+	NzShaderLibrary::Register("DebugSimple", shader.get());
+	shader.release();
+
+	onExit.Reset();
 
 	NazaraNotice("Initialized: Renderer module");
-
 	return true;
 }
 
@@ -1053,20 +1115,23 @@ void NzRenderer::SetScissorRect(const NzRecti& rect)
 	NzOpenGL::BindScissorBox(rect);
 }
 
-void NzRenderer::SetShaderProgram(const NzShaderProgram* program)
+void NzRenderer::SetShader(const NzShader* shader)
 {
 	#if NAZARA_RENDERER_SAFE
-	if (program && !program->IsCompiled())
+	if (shader)
 	{
-		NazaraError("Shader program is not compiled");
-		return;
+		if (!shader->IsValid() || !shader->IsLinked())
+		{
+			NazaraError("Invalid shader");
+			return;
+		}
 	}
 	#endif
 
-	if (s_program != program)
+	if (s_shader != shader)
 	{
-		s_program = program;
-		s_updateFlags |= Update_Program;
+		s_shader = shader;
+		s_updateFlags |= Update_Shader;
 	}
 }
 
@@ -1375,15 +1440,14 @@ void NzRenderer::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
-	s_textureUnits.clear();
+	NzShaderLibrary::Unregister("DebugSimple");
 
-	// Loaders
-	NzLoaders_Texture_Unregister();
-
+	NzUberShaderLibrary::Uninitialize();
 	NzTextureSampler::Uninitialize();
-	NzShaderProgramManager::Uninitialize();
-	NzMaterial::Uninitialize();
+	NzShaderLibrary::Uninitialize();
 	NzDebugDrawer::Uninitialize();
+
+	s_textureUnits.clear();
 
 	// Libération des buffers
 	s_fullscreenQuadBuffer.Reset();
@@ -1449,9 +1513,9 @@ bool NzRenderer::EnsureStateUpdate()
 	#endif
 
 	#if NAZARA_RENDERER_SAFE
-	if (!s_program)
+	if (!s_shader)
 	{
-		NazaraError("No shader program");
+		NazaraError("No shader");
 		return false;
 	}
 
@@ -1464,35 +1528,32 @@ bool NzRenderer::EnsureStateUpdate()
 
 	s_target->EnsureTargetUpdated();
 
-	NzAbstractShaderProgram* programImpl = s_program->m_impl;
-	programImpl->Bind(); // Active le programme si ce n'est pas déjà le cas
+	s_shader->Bind(); // Active le programme si ce n'est pas déjà le cas
 
 	// Si le programme a été changé depuis la dernière fois
-	if (s_updateFlags & Update_Program)
+	if (s_updateFlags & Update_Shader)
 	{
 		// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-		s_matrices[nzMatrixType_Projection].location = programImpl->GetUniformLocation(nzShaderUniform_ProjMatrix);
-		s_matrices[nzMatrixType_View].location = programImpl->GetUniformLocation(nzShaderUniform_ViewMatrix);
-		s_matrices[nzMatrixType_World].location = programImpl->GetUniformLocation(nzShaderUniform_WorldMatrix);
+		s_matrices[nzMatrixType_Projection].location = s_shader->GetUniformLocation(nzShaderUniform_ProjMatrix);
+		s_matrices[nzMatrixType_View].location = s_shader->GetUniformLocation(nzShaderUniform_ViewMatrix);
+		s_matrices[nzMatrixType_World].location = s_shader->GetUniformLocation(nzShaderUniform_WorldMatrix);
 
-		s_matrices[nzMatrixType_ViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
-		s_matrices[nzMatrixType_WorldView].location = programImpl->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
-		s_matrices[nzMatrixType_WorldViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
+		s_matrices[nzMatrixType_ViewProj].location = s_shader->GetUniformLocation(nzShaderUniform_ViewProjMatrix);
+		s_matrices[nzMatrixType_WorldView].location = s_shader->GetUniformLocation(nzShaderUniform_WorldViewMatrix);
+		s_matrices[nzMatrixType_WorldViewProj].location = s_shader->GetUniformLocation(nzShaderUniform_WorldViewProjMatrix);
 
-		s_matrices[nzMatrixType_InvProjection].location = programImpl->GetUniformLocation(nzShaderUniform_InvProjMatrix);
-		s_matrices[nzMatrixType_InvView].location = programImpl->GetUniformLocation(nzShaderUniform_InvViewMatrix);
-		s_matrices[nzMatrixType_InvViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_InvViewProjMatrix);
-		s_matrices[nzMatrixType_InvWorld].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldMatrix);
-		s_matrices[nzMatrixType_InvWorldView].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewMatrix);
-		s_matrices[nzMatrixType_InvWorldViewProj].location = programImpl->GetUniformLocation(nzShaderUniform_InvWorldViewProjMatrix);
+		s_matrices[nzMatrixType_InvProjection].location = s_shader->GetUniformLocation(nzShaderUniform_InvProjMatrix);
+		s_matrices[nzMatrixType_InvView].location = s_shader->GetUniformLocation(nzShaderUniform_InvViewMatrix);
+		s_matrices[nzMatrixType_InvViewProj].location = s_shader->GetUniformLocation(nzShaderUniform_InvViewProjMatrix);
+		s_matrices[nzMatrixType_InvWorld].location = s_shader->GetUniformLocation(nzShaderUniform_InvWorldMatrix);
+		s_matrices[nzMatrixType_InvWorldView].location = s_shader->GetUniformLocation(nzShaderUniform_InvWorldViewMatrix);
+		s_matrices[nzMatrixType_InvWorldViewProj].location = s_shader->GetUniformLocation(nzShaderUniform_InvWorldViewProjMatrix);
 
 		s_targetSize.Set(0U); // On force l'envoi des uniformes
 		s_updateFlags |= Update_Matrices; // Changement de programme, on renvoie toutes les matrices demandées
 
-		s_updateFlags &= ~Update_Program;
+		s_updateFlags &= ~Update_Shader;
 	}
-
-	programImpl->BindTextures();
 
 	// Envoi des uniformes liées au Renderer
 	NzVector2ui targetSize(s_target->GetWidth(), s_target->GetHeight());
@@ -1500,13 +1561,13 @@ bool NzRenderer::EnsureStateUpdate()
 	{
 		int location;
 
-		location = programImpl->GetUniformLocation(nzShaderUniform_InvTargetSize);
+		location = s_shader->GetUniformLocation(nzShaderUniform_InvTargetSize);
 		if (location != -1)
-			programImpl->SendVector(location, 1.f/NzVector2f(targetSize));
+			s_shader->SendVector(location, 1.f/NzVector2f(targetSize));
 
-		location = programImpl->GetUniformLocation(nzShaderUniform_TargetSize);
+		location = s_shader->GetUniformLocation(nzShaderUniform_TargetSize);
 		if (location != -1)
-			programImpl->SendVector(location, NzVector2f(targetSize));
+			s_shader->SendVector(location, NzVector2f(targetSize));
 
 		s_targetSize.Set(targetSize);
 	}
@@ -1572,7 +1633,7 @@ bool NzRenderer::EnsureStateUpdate()
 					if (!unit.updated)
 						UpdateMatrix(static_cast<nzMatrixType>(i));
 
-					programImpl->SendMatrix(unit.location, unit.matrix);
+					s_shader->SendMatrix(unit.location, unit.matrix);
 				}
 			}
 
@@ -1746,7 +1807,7 @@ bool NzRenderer::EnsureStateUpdate()
 		glBindVertexArray(s_currentVAO);
 
 	// On vérifie que les textures actuellement bindées sont bien nos textures
-	// Ceci à cause du fait qu'il est possible que des opérations sur les textures ait eu lieu
+	// Ceci à cause du fait qu'il est possible que des opérations sur les textures aient eu lieu
 	// entre le dernier rendu et maintenant
 	for (unsigned int i = 0; i < s_maxTextureUnit; ++i)
 	{
@@ -1755,18 +1816,18 @@ bool NzRenderer::EnsureStateUpdate()
 			NzOpenGL::BindTexture(i, texture->GetType(), texture->GetOpenGLID());
 	}
 
-	// Et on termine par envoyer nos états à OpenGL
+	// Et on termine par envoyer nos états au driver
 	NzOpenGL::ApplyStates(s_states);
 
 	return true;
 }
 
-void NzRenderer::OnProgramReleased(const NzShaderProgram* program)
+void NzRenderer::OnShaderReleased(const NzShader* shader)
 {
-	if (s_program == program)
+	if (s_shader == shader)
 	{
-		s_program = nullptr;
-		s_updateFlags |= Update_Program;
+		s_shader = nullptr;
+		s_updateFlags |= Update_Shader;
 	}
 }
 

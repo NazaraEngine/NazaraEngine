@@ -140,15 +140,15 @@ class NAZARA_API NzOpenGL
 		static GLenum RendererComparison[nzRendererComparison_Max+1];
 		static GLenum RendererParameter[nzRendererParameter_Max+1];
 		static GLenum SamplerWrapMode[nzSamplerWrap_Max+1];
-		static GLenum ShaderType[nzShaderType_Max+1];
+		static GLenum ShaderStage[nzShaderStage_Max+1];
 		static GLenum StencilOperation[nzStencilOperation_Max+1];
 		static GLenum TextureTarget[nzImageType_Max+1];
 		static GLenum TextureTargetBinding[nzImageType_Max+1];
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
 
 	private:
-		static void OnContextDestruction(const NzContext* context);
 		static void OnContextChange(const NzContext* newContext);
+		static void OnContextDestruction(const NzContext* context);
 };
 
 NAZARA_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
@@ -221,6 +221,7 @@ NAZARA_API extern PFNGLGENRENDERBUFFERSPROC         glGenRenderbuffers;
 NAZARA_API extern PFNGLGENSAMPLERSPROC              glGenSamplers;
 NAZARA_API extern PFNGLGENTEXTURESPROC              glGenTextures;
 NAZARA_API extern PFNGLGENVERTEXARRAYSPROC          glGenVertexArrays;
+NAZARA_API extern PFNGLGETACTIVEUNIFORMPROC         glGetActiveUniform;
 NAZARA_API extern PFNGLGETBOOLEANVPROC              glGetBooleanv;
 NAZARA_API extern PFNGLGETBUFFERPARAMETERIVPROC     glGetBufferParameteriv;
 NAZARA_API extern PFNGLGETDEBUGMESSAGELOGPROC       glGetDebugMessageLog;

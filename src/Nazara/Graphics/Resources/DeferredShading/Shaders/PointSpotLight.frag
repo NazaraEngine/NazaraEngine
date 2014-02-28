@@ -1,21 +1,20 @@
 #version 140
 
+#define LIGHT_DIRECTIONAL 0
+#define LIGHT_POINT 1
+#define LIGHT_SPOT 2
+
 out vec4 RenderTarget0;
 
-struct Light
-{
-	int type;
-	vec4 ambient;
-	vec4 color;
-	vec2 factors;
-
-	vec4 parameters1;
-	vec4 parameters2;
-	vec2 parameters3;
-};
-
 uniform vec3 EyePosition;
-uniform Light Lights[1];
+
+uniform int LightType;
+uniform vec4 LightColor;
+uniform vec2 LightFactors;
+uniform vec4 LightDirection;
+uniform vec4 LightParameters1;
+uniform vec4 LightParameters2;
+uniform vec2 LightParameters3;
 
 uniform sampler2D GBuffer0;
 uniform sampler2D GBuffer1;
@@ -26,7 +25,6 @@ uniform vec2 InvTargetSize;
 uniform vec4 SceneAmbient;
 
 uniform bool Discard = false;
-uniform bool SpotLight;
 
 float ColorToFloat(vec3 color)
 { 	
@@ -67,28 +65,28 @@ void main()
 	vec4 worldPos = InvViewProjMatrix * vec4(viewSpace, 1.0);
 	worldPos.xyz /= worldPos.w;
 
-	vec3 lightDir = Lights[0].parameters1.xyz - worldPos.xyz;
+	vec3 lightDir = LightParameters1.xyz - worldPos.xyz;
 	float lightDirLength = length(lightDir);
 	lightDir /= lightDirLength;
 
-	float att = max(Lights[0].parameters1.w - Lights[0].parameters2.w*lightDirLength, 0.0);
+	float att = max(LightParameters1.w - LightParameters2.w*lightDirLength, 0.0);
 
 	// Ambient
-	vec3 lightAmbient = att * Lights[0].color.rgb * Lights[0].factors.x * (vec3(1.0) + SceneAmbient.rgb);
+	vec3 lightAmbient = att * LightColor.rgb * LightFactors.x * (vec3(1.0) + SceneAmbient.rgb);
 
-	if (SpotLight)
+	if (LightType == LIGHT_SPOT)
 	{
 		// Modification de l'atténuation pour gérer le spot
-		float curAngle = dot(Lights[0].parameters2.xyz, -lightDir);
-		float outerAngle = Lights[0].parameters3.y;
-		float innerMinusOuterAngle = Lights[0].parameters3.x - outerAngle;
+		float curAngle = dot(LightParameters2.xyz, -lightDir);
+		float outerAngle = LightParameters3.y;
+		float innerMinusOuterAngle = LightParameters3.x - outerAngle;
 		att *= max((curAngle - outerAngle) / innerMinusOuterAngle, 0.0);
 	}
 	
 	// Diffuse
 	float lambert = max(dot(normal, lightDir), 0.0);
 
-	vec3 lightDiffuse = att * lambert * Lights[0].color.rgb * Lights[0].factors.y;
+	vec3 lightDiffuse = att * lambert * LightColor.rgb * LightFactors.y;
 
 	// Specular
 	vec3 lightSpecular;
@@ -99,7 +97,7 @@ void main()
 		float specularFactor = max(dot(reflection, eyeVec), 0.0);
 		specularFactor = pow(specularFactor, shininess);
 
-		lightSpecular = att * specularFactor * Lights[0].color.rgb * specularMultiplier;
+		lightSpecular = att * specularFactor * LightColor.rgb * specularMultiplier;
 	}
 	else
 		lightSpecular = vec3(0.0);

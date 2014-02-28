@@ -7,6 +7,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/Loaders/sndfile.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -84,24 +85,28 @@ float NzAudio::GetSpeedOfSound()
 
 bool NzAudio::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
-		Uninitialize();
-
 		return false;
 	}
+
+	s_moduleReferenceCounter++;
+
+	// Initialisation du module
+	NzCallOnExit onExit(NzAudio::Uninitialize);
 
 	// Initialisation d'OpenGL
 	if (!NzOpenAL::Initialize())
 	{
 		NazaraError("Failed to initialize OpenAL");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -111,8 +116,9 @@ bool NzAudio::Initialize()
 	// Loaders
 	NzLoaders_sndfile_Register();
 
-	NazaraNotice("Initialized: Audio module");
+	onExit.Reset();
 
+	NazaraNotice("Initialized: Audio module");
 	return true;
 }
 

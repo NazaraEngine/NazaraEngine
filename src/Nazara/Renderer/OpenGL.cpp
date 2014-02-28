@@ -822,6 +822,7 @@ bool NzOpenGL::Initialize()
 		glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(LoadEntry("glGenBuffers"));
 		glGenQueries = reinterpret_cast<PFNGLGENQUERIESPROC>(LoadEntry("glGenQueries"));
 		glGenTextures = reinterpret_cast<PFNGLGENTEXTURESPROC>(LoadEntry("glGenTextures"));
+		glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(LoadEntry("glGetActiveUniform"));
 		glGetBooleanv = reinterpret_cast<PFNGLGETBOOLEANVPROC>(LoadEntry("glGetBooleanv"));
 		glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(LoadEntry("glGetBufferParameteriv"));
 		glGetError = reinterpret_cast<PFNGLGETERRORPROC>(LoadEntry("glGetError"));
@@ -1742,14 +1743,14 @@ void NzOpenGL::Uninitialize()
 	}
 }
 
-void NzOpenGL::OnContextDestruction(const NzContext* context)
-{
-	s_contexts.erase(context);
-}
-
 void NzOpenGL::OnContextChange(const NzContext* newContext)
 {
 	s_contextStates = (newContext) ? &s_contexts[newContext] : nullptr;
+}
+
+void NzOpenGL::OnContextDestruction(const NzContext* context)
+{
+	s_contexts.erase(context);
 }
 
 GLenum NzOpenGL::Attachment[] =
@@ -1962,14 +1963,14 @@ GLenum NzOpenGL::SamplerWrapMode[] =
 
 static_assert(sizeof(NzOpenGL::SamplerWrapMode)/sizeof(GLenum) == nzSamplerWrap_Max+1, "Sampler wrap mode array is incomplete");
 
-GLenum NzOpenGL::ShaderType[] =
+GLenum NzOpenGL::ShaderStage[] =
 {
-	GL_FRAGMENT_SHADER,	// nzShaderType_Fragment
-	GL_GEOMETRY_SHADER,	// nzShaderType_Geometry
-	GL_VERTEX_SHADER	// nzShaderType_Vertex
+	GL_FRAGMENT_SHADER,	// nzShaderStage_Fragment
+	GL_GEOMETRY_SHADER,	// nzShaderStage_Geometry
+	GL_VERTEX_SHADER	// nzShaderStage_Vertex
 };
 
-static_assert(sizeof(NzOpenGL::ShaderType)/sizeof(GLenum) == nzShaderType_Max+1, "Shader type array is incomplete");
+static_assert(sizeof(NzOpenGL::ShaderStage)/sizeof(GLenum) == nzShaderStage_Max+1, "Shader stage array is incomplete");
 
 GLenum NzOpenGL::StencilOperation[] =
 {
@@ -2091,6 +2092,7 @@ PFNGLGENQUERIESPROC               glGenQueries               = nullptr;
 PFNGLGENSAMPLERSPROC              glGenSamplers              = nullptr;
 PFNGLGENTEXTURESPROC              glGenTextures              = nullptr;
 PFNGLGENVERTEXARRAYSPROC          glGenVertexArrays          = nullptr;
+PFNGLGETACTIVEUNIFORMPROC         glGetActiveUniform         = nullptr;
 PFNGLGETBOOLEANVPROC              glGetBooleanv              = nullptr;
 PFNGLGETBUFFERPARAMETERIVPROC     glGetBufferParameteriv     = nullptr;
 PFNGLGETDEBUGMESSAGELOGPROC       glGetDebugMessageLog       = nullptr;

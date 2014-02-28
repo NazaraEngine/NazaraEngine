@@ -9,7 +9,7 @@
 #include <Nazara/Math/Basic.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <cstring>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -41,6 +41,7 @@ m_innerAngle(light.m_innerAngle),
 m_outerAngle(light.m_outerAngle),
 m_radius(light.m_radius)
 {
+	SetParent(light);
 }
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
@@ -48,7 +49,7 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	renderQueue->AddLight(this);
 }
 
-void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) const
+void NzLight::Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset) const
 {
 	/*
 	struct Light
@@ -75,31 +76,9 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 	-P3: float cosInnerAngle + float cosOuterAngle
 	*/
 
-	///TODO: Optimiser
-	int typeLocation = program->GetUniformLocation("Lights[0].type");
-	int colorLocation = program->GetUniformLocation("Lights[0].color");
-	int factorsLocation = program->GetUniformLocation("Lights[0].factors");
-	int parameters1Location = program->GetUniformLocation("Lights[0].parameters1");
-	int parameters2Location = program->GetUniformLocation("Lights[0].parameters2");
-	int parameters3Location = program->GetUniformLocation("Lights[0].parameters3");
-
-	if (lightUnit > 0)
-	{
-		int type2Location = program->GetUniformLocation("Lights[1].type");
-		int offset = lightUnit * (type2Location - typeLocation); // type2Location - typeLocation donne la taille de la structure
-
-		// On applique cet offset
-		typeLocation += offset;
-		colorLocation += offset;
-		factorsLocation += offset;
-		parameters1Location += offset;
-		parameters2Location += offset;
-		parameters3Location += offset;
-	}
-
-	program->SendInteger(typeLocation, m_type);
-	program->SendColor(colorLocation, m_color);
-	program->SendVector(factorsLocation, NzVector2f(m_ambientFactor, m_diffuseFactor));
+	shader->SendInteger(uniforms.locations.type + offset, m_type);
+	shader->SendColor(uniforms.locations.color + offset, m_color);
+	shader->SendVector(uniforms.locations.factors + offset, NzVector2f(m_ambientFactor, m_diffuseFactor));
 
 	if (!m_derivedUpdated)
 		UpdateDerived();
@@ -107,18 +86,18 @@ void NzLight::Enable(const NzShaderProgram* program, unsigned int lightUnit) con
 	switch (m_type)
 	{
 		case nzLightType_Directional:
-			program->SendVector(parameters1Location, NzVector4f(m_derivedRotation * NzVector3f::Forward()));
+			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedRotation * NzVector3f::Forward()));
 			break;
 
 		case nzLightType_Point:
-			program->SendVector(parameters1Location, NzVector4f(m_derivedPosition, m_attenuation));
-			program->SendVector(parameters2Location, NzVector4f(0.f, 0.f, 0.f, 1.f/m_radius));
+			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedPosition, m_attenuation));
+			shader->SendVector(uniforms.locations.parameters2 + offset, NzVector4f(0.f, 0.f, 0.f, 1.f/m_radius));
 			break;
 
 		case nzLightType_Spot:
-			program->SendVector(parameters1Location, NzVector4f(m_derivedPosition, m_attenuation));
-			program->SendVector(parameters2Location, NzVector4f(m_derivedRotation * NzVector3f::Forward(), 1.f/m_radius));
-			program->SendVector(parameters3Location, NzVector2f(std::cos(NzDegreeToRadian(m_innerAngle)), std::cos(NzDegreeToRadian(m_outerAngle))));
+			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedPosition, m_attenuation));
+			shader->SendVector(uniforms.locations.parameters2 + offset, NzVector4f(m_derivedRotation * NzVector3f::Forward(), 1.f/m_radius));
+			shader->SendVector(uniforms.locations.parameters3 + offset, NzVector2f(std::cos(NzDegreeToRadian(m_innerAngle)), std::cos(NzDegreeToRadian(m_outerAngle))));
 			break;
 	}
 }
@@ -245,10 +224,9 @@ NzLight& NzLight::operator=(const NzLight& light)
 	return *this;
 }
 
-void NzLight::Disable(const NzShaderProgram* program, unsigned int lightUnit)
+void NzLight::Disable(const NzShader* shader, const NzLightUniforms& uniforms, int offset)
 {
-	///TODO: Optimiser
-	program->SendInteger(program->GetUniformLocation("Lights[" + NzString::Number(lightUnit) + "].type"), -1);
+	shader->SendInteger(uniforms.locations.type + offset, -1);
 }
 
 bool NzLight::FrustumCull(const NzFrustumf& frustum)
@@ -276,9 +254,9 @@ bool NzLight::FrustumCull(const NzFrustumf& frustum)
 	return false;
 }
 
-void NzLight::Invalidate()
+void NzLight::InvalidateNode()
 {
-	NzSceneNode::Invalidate();
+	NzSceneNode::InvalidateNode();
 
 	m_boundingVolumeUpdated = false;
 }

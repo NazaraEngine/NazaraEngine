@@ -28,15 +28,14 @@ m_initialPosition(node.m_initialPosition),
 m_initialScale(node.m_initialScale),
 m_position(node.m_position),
 m_scale(node.m_scale),
-m_parent(node.m_parent),
+m_parent(nullptr),
 m_derivedUpdated(false),
 m_inheritPosition(node.m_inheritPosition),
 m_inheritRotation(node.m_inheritRotation),
 m_inheritScale(node.m_inheritScale),
 m_transformMatrixUpdated(false)
 {
-	if (m_parent)
-		m_parent->AddChild(this);
+	SetParent(node.m_parent, false);
 }
 
 NzNode::~NzNode()
@@ -247,7 +246,7 @@ NzNode& NzNode::Interpolate(const NzNode& nodeA, const NzNode& nodeB, float inte
 			break;
 	}
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -275,7 +274,7 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 			break;
 	}
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -308,7 +307,7 @@ NzNode& NzNode::Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys)
 
 	m_rotation.Normalize();
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -316,7 +315,7 @@ NzNode& NzNode::Scale(const NzVector3f& scale)
 {
 	m_scale *= scale;
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -324,7 +323,7 @@ NzNode& NzNode::Scale(float scale)
 {
 	m_scale *= scale;
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -334,7 +333,7 @@ NzNode& NzNode::Scale(float scaleX, float scaleY, float scaleZ)
 	m_scale.y *= scaleY;
 	m_scale.z *= scaleZ;
 
-	Invalidate();
+	InvalidateNode();
 	return *this;
 }
 
@@ -345,7 +344,7 @@ void NzNode::SetInheritPosition(bool inheritPosition)
 	{
 		m_inheritPosition = inheritPosition;
 
-		Invalidate();
+		InvalidateNode();
 	}
 }
 
@@ -356,7 +355,7 @@ void NzNode::SetInheritRotation(bool inheritRotation)
 	{
 		m_inheritRotation = inheritRotation;
 
-		Invalidate();
+		InvalidateNode();
 	}
 }
 
@@ -367,7 +366,7 @@ void NzNode::SetInheritScale(bool inheritScale)
 	{
 		m_inheritScale = inheritScale;
 
-		Invalidate();
+		InvalidateNode();
 	}
 }
 
@@ -375,14 +374,14 @@ void NzNode::SetInitialPosition(const NzVector3f& position)
 {
 	m_initialPosition = position;
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetInitialPosition(float positionX, float positionY, float positionZ)
 {
 	m_initialPosition.Set(positionX, positionY, positionZ);
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetInitialRotation(const NzQuaternionf& rotation)
@@ -390,28 +389,28 @@ void NzNode::SetInitialRotation(const NzQuaternionf& rotation)
 	m_initialRotation = rotation;
 	m_initialRotation.Normalize(); // Évitons toute mauvaise surprise ...
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetInitialScale(const NzVector3f& scale)
 {
 	m_initialScale = scale;
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetInitialScale(float scale)
 {
 	m_initialScale.Set(scale);
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
 {
 	m_initialScale.Set(scaleX, scaleY, scaleZ);
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetName(const NzString& name)
@@ -457,7 +456,7 @@ void NzNode::SetParent(const NzNode* node, bool keepDerived)
 		if (m_parent)
 			m_parent->AddChild(this);
 
-		Invalidate();
+		InvalidateNode();
 	}
 
 	OnParenting(node);
@@ -489,7 +488,7 @@ void NzNode::SetPosition(const NzVector3f& position, nzCoordSys coordSys)
 			break;
 	}
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetPosition(float positionX, float positionY, float positionZ, nzCoordSys coordSys)
@@ -522,7 +521,7 @@ void NzNode::SetRotation(const NzQuaternionf& rotation, nzCoordSys coordSys)
 			break;
 	}
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetScale(const NzVector3f& scale, nzCoordSys coordSys)
@@ -541,7 +540,7 @@ void NzNode::SetScale(const NzVector3f& scale, nzCoordSys coordSys)
 			break;
 	}
 
-	Invalidate();
+	InvalidateNode();
 }
 
 void NzNode::SetScale(float scale, nzCoordSys coordSys)
@@ -627,7 +626,7 @@ NzNode& NzNode::operator=(const NzNode& node)
 	m_rotation = node.m_rotation;
 	m_scale = node.m_scale;
 
-	Invalidate();
+	InvalidateNode();
 
 	return *this;
 }
@@ -645,13 +644,13 @@ void NzNode::AddChild(NzNode* node) const
 	m_childs.push_back(node);
 }
 
-void NzNode::Invalidate()
+void NzNode::InvalidateNode()
 {
 	m_derivedUpdated = false;
 	m_transformMatrixUpdated = false;
 
 	for (NzNode* node : m_childs)
-		node->Invalidate();
+		node->InvalidateNode();
 }
 
 void NzNode::OnParenting(const NzNode* parent)

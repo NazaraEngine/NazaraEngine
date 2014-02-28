@@ -2,6 +2,10 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#ifndef NAZARA_RENDERER_OPENGL
+#define NAZARA_RENDERER_OPENGL // Nécessaire pour inclure les headers OpenGL
+#endif
+
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
@@ -16,12 +20,14 @@
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
+#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
+#include <Nazara/Renderer/ShaderStage.hpp>
 #include <limits>
 #include <memory>
 #include <random>
@@ -43,6 +49,37 @@ namespace
 	};
 
 	static_assert(sizeof(RenderPassPriority)/sizeof(unsigned int) == nzRenderPassType_Max+1, "Render pass priority array is incomplete");
+
+	inline NzShader* RegisterDeferredShader(const NzString& name, const nzUInt8* fragmentSource, unsigned int fragmentSourceLength, const NzShaderStage& vertexStage, NzString* err)
+	{
+		NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
+
+		std::unique_ptr<NzShader> shader(new NzShader);
+		shader->SetPersistent(false);
+
+		if (!shader->Create())
+		{
+			err->Set("Failed to create shader");
+			return nullptr;
+		}
+
+		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, reinterpret_cast<const char*>(fragmentSource), fragmentSourceLength))
+		{
+			err->Set("Failed to attach fragment stage");
+			return nullptr;
+		}
+
+		shader->AttachStage(nzShaderStage_Vertex, vertexStage);
+
+		if (!shader->Link())
+		{
+			err->Set("Failed to link shader");
+			return nullptr;
+		}
+
+		NzShaderLibrary::Register(name, shader.get());
+		return shader.release();
+	}
 }
 
 NzDeferredRenderTechnique::NzDeferredRenderTechnique() :
@@ -67,7 +104,6 @@ m_GBufferSize(0U)
 	try
 	{
 		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
-		std::unique_ptr<NzDeferredRenderPass> smartPtr; // Nous évite un leak en cas d'exception
 
 		ResetPass(nzRenderPassType_Final, 0);
 		ResetPass(nzRenderPassType_Geometry, 0);
@@ -343,14 +379,186 @@ void NzDeferredRenderTechnique::SetPass(nzRenderPassType relativeTo, int positio
 		m_passes[relativeTo].erase(position);
 }
 
+bool NzDeferredRenderTechnique::Initialize()
+{
+	const nzUInt8 fragmentSource_BloomBright[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomBright.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_BloomFinal[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomFinal.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_DirectionalLight[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/DirectionalLight.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_FXAA[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/FXAA.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_GBufferClear[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/GBufferClear.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_GaussianBlur[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/GaussianBlur.frag.h>
+	};
+
+	const nzUInt8 fragmentSource_PointSpotLight[] = {
+		#include <Nazara/Graphics/Resources/DeferredShading/Shaders/PointSpotLight.frag.h>
+	};
+
+	const char vertexSource_Basic[] =
+	"#version 140\n"
+
+	"in vec3 VertexPosition;\n"
+	"uniform mat4 WorldViewProjMatrix;\n"
+
+	"void main()\n"
+	"{\n"
+		"gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
+	"}\n";
+
+	const char vertexSource_PostProcess[] =
+	"#version 140\n"
+
+	"in vec3 VertexPosition;\n"
+
+	"void main()\n"
+	"{\n"
+		"gl_Position = vec4(VertexPosition, 1.0);"
+	"}\n";
+
+	NzShaderStage basicVertexStage(nzShaderStage_Vertex);
+	if (!basicVertexStage.IsValid())
+	{
+		NazaraError("Failed to create basic vertex shader");
+		return false;
+	}
+
+	basicVertexStage.SetSource(vertexSource_Basic, sizeof(vertexSource_Basic));
+
+	if (!basicVertexStage.Compile())
+	{
+		NazaraError("Failed to compile basic vertex shader");
+		return false;
+	}
+
+
+	NzShaderStage ppVertexStage(nzShaderStage_Vertex);
+	if (!ppVertexStage.IsValid())
+	{
+		NazaraError("Failed to create vertex shader");
+		return false;
+	}
+
+	ppVertexStage.SetSource(vertexSource_PostProcess, sizeof(vertexSource_PostProcess));
+
+	if (!ppVertexStage.Compile())
+	{
+		NazaraError("Failed to compile vertex shader");
+		return false;
+	}
+
+
+	NzString error;
+	NzShader* shader;
+
+	// Shaders critiques (Nécessaires pour le Deferred Shading minimal)
+	shader = RegisterDeferredShader("DeferredGBufferClear", fragmentSource_GBufferClear, sizeof(fragmentSource_GBufferClear), ppVertexStage, &error);
+	if (!shader)
+	{
+		NazaraError("Failed to register critical shader: " + error);
+		return false;
+	}
+
+
+	shader = RegisterDeferredShader("DeferredDirectionnalLight", fragmentSource_DirectionalLight, sizeof(fragmentSource_DirectionalLight), ppVertexStage, &error);
+	if (!shader)
+	{
+		NazaraError("Failed to register critical shader: " + error);
+		return false;
+	}
+
+	shader->SendInteger(shader->GetUniformLocation("GBuffer0"), 0);
+	shader->SendInteger(shader->GetUniformLocation("GBuffer1"), 1);
+	shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 2);
+
+
+	shader = RegisterDeferredShader("DeferredPointSpotLight", fragmentSource_PointSpotLight, sizeof(fragmentSource_PointSpotLight), basicVertexStage, &error);
+	if (!shader)
+	{
+		NazaraError("Failed to register critical shader: " + error);
+		return false;
+	}
+
+	shader->SendInteger(shader->GetUniformLocation("GBuffer0"), 0);
+	shader->SendInteger(shader->GetUniformLocation("GBuffer1"), 1);
+	shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 2);
+
+
+	// Shaders optionnels (S'ils ne sont pas présents, le rendu minimal sera quand même assuré)
+	shader = RegisterDeferredShader("DeferredBloomBright", fragmentSource_BloomBright, sizeof(fragmentSource_BloomBright), ppVertexStage, &error);
+	if (shader)
+		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
+	else
+	{
+		NazaraWarning("Failed to register bloom (bright pass) shader, certain features will not work: " + error);
+	}
+
+
+	shader = RegisterDeferredShader("DeferredBloomFinal", fragmentSource_BloomFinal, sizeof(fragmentSource_BloomFinal), ppVertexStage, &error);
+	if (shader)
+	{
+		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
+		shader->SendInteger(shader->GetUniformLocation("BloomTexture"), 1);
+	}
+	else
+	{
+		NazaraWarning("Failed to register bloom (final pass) shader, certain features will not work: " + error);
+	}
+
+
+	shader = RegisterDeferredShader("DeferredFXAA", fragmentSource_FXAA, sizeof(fragmentSource_FXAA), ppVertexStage, &error);
+	if (shader)
+		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
+	else
+	{
+		NazaraWarning("Failed to register FXAA shader, certain features will not work: " + error);
+	}
+
+
+	shader = RegisterDeferredShader("DeferredGaussianBlur", fragmentSource_GaussianBlur, sizeof(fragmentSource_GaussianBlur), ppVertexStage, &error);
+	if (shader)
+		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
+	else
+	{
+		NazaraWarning("Failed to register gaussian blur shader, certain features will not work: " + error);
+	}
+
+	return true;
+}
+
 bool NzDeferredRenderTechnique::IsSupported()
 {
 	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait lent et inutile (OpenGL 2 garanti cette fonctionnalité en plus)
-	return NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
+	return NzOpenGL::GetGLSLVersion() >= 140 && // On ne va pas s'embêter non plus avec le mode de compatibilité
+	       NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
 	       NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets) &&
 	       NzRenderer::GetMaxColorAttachments() >= 4 &&
-	       NzRenderer::GetMaxRenderTargets() >= 4 &&
-	       NzTexture::IsFormatSupported(nzPixelFormat_RGBA32F);
+	       NzRenderer::GetMaxRenderTargets() >= 4;
+}
+
+void NzDeferredRenderTechnique::Uninitialize()
+{
+	NzShaderLibrary::Unregister("DeferredGBufferClear");
+	NzShaderLibrary::Unregister("DeferredDirectionnalLight");
+	NzShaderLibrary::Unregister("DeferredPointSpotLight");
+	NzShaderLibrary::Unregister("DeferredBloomBright");
+	NzShaderLibrary::Unregister("DeferredBloomFinal");
+	NzShaderLibrary::Unregister("DeferredFXAA");
+	NzShaderLibrary::Unregister("DeferredGaussianBlur");
 }
 
 bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const
