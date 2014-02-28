@@ -12,7 +12,8 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 
-class NzShaderProgram;
+class NzShader;
+struct NzLightUniforms;
 
 class NAZARA_API NzLight : public NzSceneNode
 {
@@ -23,7 +24,7 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		void Enable(const NzShaderProgram* program, unsigned int lightUnit) const;
+		void Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset = 0) const;
 
 		float GetAmbientFactor() const;
 		float GetAttenuation() const;
@@ -49,11 +50,11 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		NzLight& operator=(const NzLight& light);
 
-		static void Disable(const NzShaderProgram* program, unsigned int lightUnit);
+		static void Disable(const NzShader* program, const NzLightUniforms& uniforms, int offset = 0);
 
 	private:
 		bool FrustumCull(const NzFrustumf& frustum) override;
-		void Invalidate() override;
+		void InvalidateNode() override;
 		void Register() override;
 		void Unregister() override;
 		void UpdateBoundingVolume() const;
@@ -68,6 +69,27 @@ class NAZARA_API NzLight : public NzSceneNode
 		float m_innerAngle;
 		float m_outerAngle;
 		float m_radius;
+};
+
+struct NzLightUniforms
+{
+	struct UniformLocations
+	{
+		int type;
+		int color;
+		int factors;
+		int parameters1;
+		int parameters2;
+		int parameters3;
+	};
+
+	bool ubo;
+
+	union
+	{
+		UniformLocations locations;
+		int blockLocation;
+	};
 };
 
 #endif // NAZARA_LIGHT_HPP

@@ -4,141 +4,9 @@
 
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
-
-namespace
-{
-	NzShaderProgram* BuildBloomBrightProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomBright.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec3 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		program->SendInteger(program->GetUniformLocation("ColorTexture"), 0);
-
-		return program.release();
-	}
-
-	NzShaderProgram* BuildBloomFinalProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/BloomFinal.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec3 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		program->SendInteger(program->GetUniformLocation("ColorTexture"), 0);
-		program->SendInteger(program->GetUniformLocation("BloomTexture"), 1);
-
-		return program.release();
-	}
-
-	NzShaderProgram* BuildGaussianBlurProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/GaussianBlur.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec3 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		program->SendInteger(program->GetUniformLocation("ColorTexture"), 0);
-
-		return program.release();
-	}
-}
 
 NzDeferredBloomPass::NzDeferredBloomPass() :
 m_uniformUpdated(false),
@@ -151,23 +19,17 @@ m_blurPassCount(5)
 	m_bilinearSampler.SetFilterMode(nzSamplerFilter_Bilinear);
 	m_bilinearSampler.SetWrapMode(nzSamplerWrap_Clamp);
 
-	m_bloomBrightProgram = BuildBloomBrightProgram();
-	m_bloomBrightProgram->SendInteger(m_bloomBrightProgram->GetUniformLocation("ColorTexture"), 0);
-
-	m_bloomFinalProgram = BuildBloomFinalProgram();
-	m_bloomFinalProgram->SendInteger(m_bloomFinalProgram->GetUniformLocation("BloomTexture"), 1);
-	m_bloomFinalProgram->SendInteger(m_bloomFinalProgram->GetUniformLocation("ColorTexture"), 0);
-
+	m_bloomBrightShader = NzShaderLibrary::Get("DeferredBloomBright");
+	m_bloomFinalShader = NzShaderLibrary::Get("DeferredBloomFinal");
 	m_bloomStates.parameters[nzRendererParameter_DepthBuffer] = false;
+	m_gaussianBlurShader = NzShaderLibrary::Get("DeferredGaussianBlur");
+	m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
 	for (unsigned int i = 0; i < 2; ++i)
 	{
 		m_bloomTextures[i] = new NzTexture;
 		m_bloomTextures[i]->SetPersistent(false);
 	}
-
-	m_gaussianBlurProgram = BuildGaussianBlurProgram();
-	m_gaussianBlurProgramFilterLocation = m_gaussianBlurProgram->GetUniformLocation("Filter");
 }
 
 NzDeferredBloomPass::~NzDeferredBloomPass() = default;
@@ -217,12 +79,12 @@ bool NzDeferredBloomPass::Process(const NzScene* scene, unsigned int firstWorkTe
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetShaderProgram(m_bloomBrightProgram);
+	NzRenderer::SetShader(m_bloomBrightShader);
 	if (!m_uniformUpdated)
 	{
-		m_bloomBrightProgram->SendFloat(m_bloomBrightProgram->GetUniformLocation("BrightLuminance"), m_brightLuminance);
-		m_bloomBrightProgram->SendFloat(m_bloomBrightProgram->GetUniformLocation("BrightMiddleGrey"), m_brightMiddleGrey);
-		m_bloomBrightProgram->SendFloat(m_bloomBrightProgram->GetUniformLocation("BrightThreshold"), m_brightThreshold);
+		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightLuminance"), m_brightLuminance);
+		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightMiddleGrey"), m_brightMiddleGrey);
+		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightThreshold"), m_brightThreshold);
 
 		m_uniformUpdated = true;
 	}
@@ -233,20 +95,20 @@ bool NzDeferredBloomPass::Process(const NzScene* scene, unsigned int firstWorkTe
 	NzRenderer::SetTarget(&m_bloomRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x/8, m_dimensions.y/8));
 
-	NzRenderer::SetShaderProgram(m_gaussianBlurProgram);
+	NzRenderer::SetShader(m_gaussianBlurShader);
 
 	for (unsigned int i = 0; i < m_blurPassCount; ++i)
 	{
 		m_bloomRTT.SetColorTarget(0); // bloomTextureA
 
-		m_gaussianBlurProgram->SendVector(m_gaussianBlurProgramFilterLocation, NzVector2f(1.f, 0.f));
+		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(1.f, 0.f));
 
 		NzRenderer::SetTexture(0, (i == 0) ? m_workTextures[firstWorkTexture] : static_cast<const NzTexture*>(m_bloomTextures[1]));
 		NzRenderer::DrawFullscreenQuad();
 
 		m_bloomRTT.SetColorTarget(1); // bloomTextureB
 
-		m_gaussianBlurProgram->SendVector(m_gaussianBlurProgramFilterLocation, NzVector2f(0.f, 1.f));
+		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(0.f, 1.f));
 
 		NzRenderer::SetTexture(0, m_bloomTextures[0]);
 		NzRenderer::DrawFullscreenQuad();
@@ -256,7 +118,7 @@ bool NzDeferredBloomPass::Process(const NzScene* scene, unsigned int firstWorkTe
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetShaderProgram(m_bloomFinalProgram);
+	NzRenderer::SetShader(m_bloomFinalShader);
 	NzRenderer::SetTexture(0, m_bloomTextures[1]);
 	NzRenderer::SetTexture(1, m_workTextures[secondWorkTexture]);
 	NzRenderer::DrawFullscreenQuad();

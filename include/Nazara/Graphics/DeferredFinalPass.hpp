@@ -10,8 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/ShaderProgram.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Renderer/UberShader.hpp>
 
 class NAZARA_API NzDeferredFinalPass : public NzDeferredRenderPass
 {
@@ -23,8 +23,11 @@ class NAZARA_API NzDeferredFinalPass : public NzDeferredRenderPass
 
 	protected:
 		NzRenderStates m_states;
-		NzShaderProgramRef m_program;
 		NzTextureSampler m_pointSampler;
+		NzUberShaderConstRef m_uberShader;
+		const NzUberShaderInstance* m_uberShaderInstance;
+		int m_materialDiffuseUniform;
+		int m_materialDiffuseMapUniform;
 };
 
 #endif // NAZARA_DEFERREDFINALPASS_HPP

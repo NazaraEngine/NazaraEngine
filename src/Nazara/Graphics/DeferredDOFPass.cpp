@@ -7,13 +7,14 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace
 {
 	// http://digitalerr0r.wordpress.com/2009/05/16/xna-shader-programming-tutorial-20-depth-of-field/
-	NzShaderProgram* BuildDepthOfFieldProgram()
+	NzShader* BuildDepthOfFieldShader()
 	{
 		const char* fragmentSource =
 		"#version 140\n"
@@ -62,84 +63,46 @@ namespace
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
+		std::unique_ptr<NzShader> shader(new NzShader);
+		shader->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, fragmentSource))
+		if (!shader->Create())
+		{
+				NazaraError("Failed to load create shader");
+				return nullptr;
+		}
+
+		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentSource))
 		{
 				NazaraError("Failed to load fragment shader");
 				return nullptr;
 		}
 
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
+		if (!shader->AttachStageFromSource(nzShaderStage_Vertex, vertexSource))
 		{
 				NazaraError("Failed to load vertex shader");
 				return nullptr;
 		}
 
-		if (!program->Compile())
+		if (!shader->Link())
 		{
-				NazaraError("Failed to compile program");
+				NazaraError("Failed to link shader");
 				return nullptr;
 		}
 
-		return program.release();
-	}
-
-
-	NzShaderProgram* BuildGaussianBlurProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/GaussianBlur.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec3 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		return program.release();
+		return shader.release();
 	}
 }
 
 NzDeferredDOFPass::NzDeferredDOFPass()
 {
-	m_blurProgram = BuildGaussianBlurProgram();
-	m_blurProgram->SendInteger(m_blurProgram->GetUniformLocation("ColorTexture"), 0);
+	m_dofShader = BuildDepthOfFieldShader();
+	m_dofShader->SendInteger(m_dofShader->GetUniformLocation("ColorTexture"), 0);
+	m_dofShader->SendInteger(m_dofShader->GetUniformLocation("BlurTexture"), 1);
+	m_dofShader->SendInteger(m_dofShader->GetUniformLocation("GBuffer1"), 2);
 
-	m_blurProgramFilterLocation = m_blurProgram->GetUniformLocation("Filer");
-
-	m_dofProgram = BuildDepthOfFieldProgram();
-	m_dofProgram->SendInteger(m_dofProgram->GetUniformLocation("ColorTexture"), 0);
-	m_dofProgram->SendInteger(m_dofProgram->GetUniformLocation("BlurTexture"), 1);
-	m_dofProgram->SendInteger(m_dofProgram->GetUniformLocation("GBuffer1"), 2);
+	m_gaussianBlurShader = NzShaderLibrary::Get("DeferredGaussianBlur");
+	m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
 	for (unsigned int i = 0; i < 2; ++i)
 	{
@@ -169,21 +132,21 @@ bool NzDeferredDOFPass::Process(const NzScene* scene, unsigned int firstWorkText
 	NzRenderer::SetTarget(&m_dofRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x/4, m_dimensions.y/4));
 
-	NzRenderer::SetShaderProgram(m_blurProgram);
+	NzRenderer::SetShader(m_gaussianBlurShader);
 
 	const unsigned int dofBlurPass = 2;
 	for (unsigned int i = 0; i < dofBlurPass; ++i)
 	{
 		m_dofRTT.SetColorTarget(0); // dofTextureA
 
-		m_blurProgram->SendVector(m_blurProgramFilterLocation, NzVector2f(1.f, 0.f));
+		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(1.f, 0.f));
 
 		NzRenderer::SetTexture(0, (i == 0) ? m_workTextures[secondWorkTexture] : static_cast<const NzTexture*>(m_dofTextures[1]));
 		NzRenderer::DrawFullscreenQuad();
 
 		m_dofRTT.SetColorTarget(1); // dofTextureB
 
-		m_blurProgram->SendVector(m_blurProgramFilterLocation, NzVector2f(0.f, 1.f));
+		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(0.f, 1.f));
 
 		NzRenderer::SetTexture(0, m_dofTextures[0]);
 		NzRenderer::DrawFullscreenQuad();
@@ -193,7 +156,7 @@ bool NzDeferredDOFPass::Process(const NzScene* scene, unsigned int firstWorkText
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetShaderProgram(m_dofProgram);
+	NzRenderer::SetShader(m_dofShader);
 	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);
 	NzRenderer::SetTexture(1, m_dofTextures[1]);
 	NzRenderer::SetTexture(2, m_GBuffer[1]);

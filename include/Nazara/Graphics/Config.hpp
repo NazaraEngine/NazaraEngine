@@ -38,4 +38,7 @@
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_GRAPHICS_SAFE 1
 
+// Le nombre maximum de lumières qu'un shader standard supportera
+#define NAZARA_GRAPHICS_MAX_LIGHTPERPASS 3U // Unsigned
+
 #endif // NAZARA_CONFIG_GRAPHICS_HPP

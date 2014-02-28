@@ -12,7 +12,7 @@
 
 namespace
 {
-	NzShaderProgram* BuildFogProgram()
+	NzShader* BuildFogShader()
 	{
 		/*const nzUInt8 fragmentSource[] = {
 				#include <Nazara/Graphics/Resources/DeferredShading/Shaders/FXAA.frag.h>
@@ -84,40 +84,47 @@ namespace
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
+		std::unique_ptr<NzShader> shader(new NzShader);
+		shader->SetPersistent(false);
 
-		if (!program->LoadShader(nzShaderType_Fragment, fragmentSource/*NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))*/))
+		if (!shader->Create())
+		{
+				NazaraError("Failed to load create shader");
+				return nullptr;
+		}
+
+		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentSource/*NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))*/))
 		{
 				NazaraError("Failed to load fragment shader");
 				return nullptr;
 		}
 
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
+		if (!shader->AttachStageFromSource(nzShaderStage_Vertex, vertexSource))
 		{
 				NazaraError("Failed to load vertex shader");
 				return nullptr;
 		}
 
-		if (!program->Compile())
+		if (!shader->Link())
 		{
-				NazaraError("Failed to compile program");
+				NazaraError("Failed to link shader");
 				return nullptr;
 		}
 
-		return program.release();
+		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
+		shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 1);
+
+		return shader.release();
 	}
 }
 
 NzDeferredFogPass::NzDeferredFogPass()
 {
-	m_program = BuildFogProgram();
-	m_program->SendInteger(m_program->GetUniformLocation("ColorTexture"), 0);
-	m_program->SendInteger(m_program->GetUniformLocation("GBuffer2"), 1);
-
 	m_pointSampler.SetAnisotropyLevel(1);
 	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
 	m_pointSampler.SetWrapMode(nzSamplerWrap_Clamp);
+
+	m_shader = BuildFogShader();
 
 	m_states.parameters[nzRendererParameter_DepthBuffer] = false;
 }
@@ -130,8 +137,8 @@ bool NzDeferredFogPass::Process(const NzScene* scene, unsigned int firstWorkText
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetShaderProgram(m_program);
-	m_program->SendVector(m_program->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
+	NzRenderer::SetShader(m_shader);
+	m_shader->SendVector(m_shader->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
 
 	NzRenderer::SetRenderStates(m_states);
 	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);

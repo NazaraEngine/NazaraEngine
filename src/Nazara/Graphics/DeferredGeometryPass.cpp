@@ -6,63 +6,20 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Scene.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
-{
-	NzShaderProgram* BuildClearProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/ClearGBuffer.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec2 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 0.0, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		return program.release();
-	}
-}
-
 NzDeferredGeometryPass::NzDeferredGeometryPass()
 {
-	m_clearProgram = BuildClearProgram();
+	m_clearShader = NzShaderLibrary::Get("DeferredGBufferClear");
 	m_clearStates.parameters[nzRendererParameter_DepthBuffer] = true;
 	m_clearStates.parameters[nzRendererParameter_FaceCulling] = true;
 	m_clearStates.parameters[nzRendererParameter_StencilTest] = true;
@@ -86,14 +43,14 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
 	NzRenderer::SetRenderStates(m_clearStates);
-	NzRenderer::SetShaderProgram(m_clearProgram);
+	NzRenderer::SetShader(m_clearShader);
 	NzRenderer::DrawFullscreenQuad();
 
 
 	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
 	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
 
-	const NzShaderProgram* lastProgram = nullptr;
+	const NzShader* lastShader = nullptr;
 
 	for (auto& matIt : m_renderQueue->opaqueModels)
 	{
@@ -118,22 +75,18 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 				if (useInstancing)
 					flags |= nzShaderFlags_Instancing;
 
-				const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, flags);
+				const NzShader* shader = material->Apply(flags);
 
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-				if (program != lastProgram)
+				if (shader != lastShader)
 				{
-					NzRenderer::SetShaderProgram(program);
-
 					// Couleur ambiante de la scène
-					program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 					// Position de la caméra
-					program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
-					lastProgram = program;
+					lastShader = shader;
 				}
-
-				material->Apply(program);
 
 				// Meshs squelettiques
 				/*if (!skeletalContainer.empty())

@@ -7,9 +7,9 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Material.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -18,10 +18,11 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+///TODO: Surveiller les shaders et supprimer les données uniformes en cas de changement (recompilation/destruction)
+
 namespace
 {
 	static NzIndexBuffer* s_indexBuffer = nullptr;
-	unsigned int s_maxLightPerPass = 3; ///TODO: Constante sur le nombre maximum de lumières
 	unsigned int s_maxSprites = 8192;
 
 	NzIndexBuffer* BuildIndexBuffer()
@@ -164,7 +165,8 @@ void NzForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
 void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
-	const NzShaderProgram* lastProgram = nullptr;
+	const LightUniforms* lightUniforms = nullptr;
+	const NzShader* lastShader = nullptr;
 
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
@@ -184,23 +186,23 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				// (Le deferred shading n'a pas ce problème)
 				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || m_lights.IsEmpty()) && renderQueueInstancing;
 
-				// On commence par récupérer le programme du matériau
-				const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, (instancing) ? nzShaderFlags_Instancing : 0);
+				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+				const NzShader* shader = material->Apply((instancing) ? nzShaderFlags_Instancing : 0);
 
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-				if (program != lastProgram)
+				if (shader != lastShader)
 				{
-					NzRenderer::SetShaderProgram(program);
-
 					// Couleur ambiante de la scène
-					program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 					// Position de la caméra
-					program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
-					lastProgram = program;
+					// Index des uniformes d'éclairage dans le shader
+					lightUniforms = GetLightUniforms(shader);
+
+					lastShader = shader;
 				}
 
-				material->Apply(program);
 
 				// Meshs squelettiques
 				/*if (!skeletalContainer.empty())
@@ -260,10 +262,10 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							unsigned int lightIndex = 0;
 							nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
 
-							unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/s_maxLightPerPass + 1;
+							unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHTPERPASS + 1;
 							for (unsigned int pass = 0; pass < passCount; ++pass)
 							{
-								unsigned int renderedLightCount = std::min(lightCount, s_maxLightPerPass);
+								unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
 								lightCount -= renderedLightCount;
 
 								if (pass == 1)
@@ -278,10 +280,10 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 								}
 
 								for (unsigned int i = 0; i < renderedLightCount; ++i)
-									m_directionalLights.GetLight(lightIndex++)->Enable(program, i);
+									m_directionalLights.GetLight(lightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
-								for (unsigned int i = renderedLightCount; i < s_maxLightPerPass; ++i)
-									NzLight::Disable(program, i);
+								for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
+									NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
 								const NzForwardRenderQueue::StaticData* data = &staticData[0];
 								unsigned int instanceCount = staticData.size();
@@ -317,7 +319,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							for (const NzForwardRenderQueue::StaticData& data : staticData)
 							{
 								unsigned int directionalLightCount = m_directionalLights.GetLightCount();
-								unsigned int otherLightCount = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*s_maxLightPerPass - directionalLightCount);
+								unsigned int otherLightCount = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHTPERPASS - directionalLightCount);
                                 unsigned int lightCount = directionalLightCount + otherLightCount;
 
  								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
@@ -325,10 +327,10 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
  								unsigned int otherLightIndex = 0;
  								nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
 
-								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/s_maxLightPerPass + 1;
+								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHTPERPASS + 1;
 								for (unsigned int pass = 0; pass < passCount; ++pass)
 								{
-									unsigned int renderedLightCount = std::min(lightCount, s_maxLightPerPass);
+									unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
 									lightCount -= renderedLightCount;
 
 									if (pass == 1)
@@ -345,13 +347,13 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 									for (unsigned int i = 0; i < renderedLightCount; ++i)
 									{
 										if (directionalLightIndex >= directionalLightCount)
-											m_lights.GetResult(otherLightIndex++)->Enable(program, i);
+											m_lights.GetResult(otherLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 										else
-											m_directionalLights.GetLight(directionalLightIndex++)->Enable(program, i);
+											m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 									}
 
-									for (unsigned int i = renderedLightCount; i < s_maxLightPerPass; ++i)
-										NzLight::Disable(program, i);
+									for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
+										NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
 									DrawFunc(primitiveMode, 0, indexCount);
 								}
@@ -375,7 +377,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
-	const NzShaderProgram* lastProgram = nullptr;
+	const NzShader* lastShader = nullptr;
 
 	NzRenderer::SetIndexBuffer(m_indexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
@@ -389,23 +391,19 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 		unsigned int spriteCount = spriteVector.size();
 		if (spriteCount > 0)
 		{
-			// On commence par récupérer le programme du matériau
-			const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Sprite, 0);
+			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+			const NzShader* shader = material->Apply();
 
-			// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
-			if (program != lastProgram)
+			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+			if (shader != lastShader)
 			{
-				NzRenderer::SetShaderProgram(program);
-
 				// Couleur ambiante de la scène
-				program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+				shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 				// Position de la caméra
-				program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
-				lastProgram = program;
+				lastShader = shader;
 			}
-
-			material->Apply(program);
 
 			const NzSprite** spritePtr = &spriteVector[0];
 			do
@@ -455,7 +453,8 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
-	const NzShaderProgram* lastProgram = nullptr;
+	const LightUniforms* lightUniforms = nullptr;
+	const NzShader* lastShader = nullptr;
 	unsigned int lightCount = 0;
 
 	for (const std::pair<unsigned int, bool>& pair : m_renderQueue.transparentsModels)
@@ -465,28 +464,27 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		                              m_renderQueue.transparentStaticModels[pair.first].material :
 		                              m_renderQueue.transparentSkeletalModels[pair.first].material;
 
-		// On commence par récupérer le shader du matériau
-		const NzShaderProgram* program = material->GetShaderProgram(nzShaderTarget_Model, 0);
+		// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+		const NzShader* shader = material->Apply();
 
-		// Les uniformes sont conservées au sein du shader, inutile de les renvoyer tant que le shader reste le même
-		if (program != lastProgram)
+		// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+		if (shader != lastShader)
 		{
-			NzRenderer::SetShaderProgram(program);
-
 			// Couleur ambiante de la scène
-			program->SendColor(program->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+			shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 			// Position de la caméra
-			program->SendVector(program->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+			shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+
+			// Index des uniformes d'éclairage dans le shader
+			lightUniforms = GetLightUniforms(shader);
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-			lightCount = std::min(m_directionalLights.GetLightCount(), 3U);
+			lightCount = std::min(m_directionalLights.GetLightCount(), NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
 			for (unsigned int i = 0; i < lightCount; ++i)
-				m_directionalLights.GetLight(i)->Enable(program, i);
+				m_directionalLights.GetLight(i)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
-			lastProgram = program;
+			lastShader = shader;
 		}
-
-		material->Apply(program);
 
 		// Mesh
 		if (pair.second)
@@ -518,15 +516,15 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 			NzRenderer::SetVertexBuffer(vertexBuffer);
 
 			// Calcul des lumières les plus proches
-			if (lightCount < s_maxLightPerPass && !m_lights.IsEmpty())
+			if (lightCount < NAZARA_GRAPHICS_MAX_LIGHTPERPASS && !m_lights.IsEmpty())
 			{
-				unsigned int count = std::min(s_maxLightPerPass - lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, s_maxLightPerPass));
+				unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHTPERPASS - lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + staticModel.boundingSphere.GetPosition(), staticModel.boundingSphere.radius, NAZARA_GRAPHICS_MAX_LIGHTPERPASS));
 				for (unsigned int i = 0; i < count; ++i)
-					m_lights.GetResult(i)->Enable(program, lightCount++);
+					m_lights.GetResult(i)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*(lightCount++));
 			}
 
-			for (unsigned int i = lightCount; i < s_maxLightPerPass; ++i)
-				NzLight::Disable(program, i);
+			for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
+				NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
 			NzRenderer::SetMatrix(nzMatrixType_World, matrix);
 			DrawFunc(mesh->GetPrimitiveMode(), 0, indexCount);
@@ -535,5 +533,37 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		{
 			///TODO
 		}
+	}
+}
+
+const NzForwardRenderTechnique::LightUniforms* NzForwardRenderTechnique::GetLightUniforms(const NzShader* shader) const
+{
+	auto it = m_lightUniforms.find(shader);
+	if (it != m_lightUniforms.end())
+		return &(it->second);
+	else
+	{
+		int type0Location = shader->GetUniformLocation("Lights[0].type");
+		int type1Location = shader->GetUniformLocation("Lights[1].type");
+
+		LightUniforms lightUniforms;
+
+		if (type0Location > 0 && type1Location > 0)
+		{
+			lightUniforms.exists = true;
+			lightUniforms.offset = type1Location - type0Location;
+			lightUniforms.uniforms.ubo = false;
+			lightUniforms.uniforms.locations.type = type0Location;
+			lightUniforms.uniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
+			lightUniforms.uniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
+			lightUniforms.uniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
+			lightUniforms.uniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
+			lightUniforms.uniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
+		}
+		else
+			lightUniforms.exists = false;
+
+		auto pair = m_lightUniforms.emplace(shader, lightUniforms);
+		return &(pair.first->second);
 	}
 }

@@ -26,6 +26,23 @@ enum nzLightType
 	nzLightType_Max = nzLightType_Spot
 };
 
+enum nzMaterialUniform
+{
+	nzMaterialUniform_AlphaMap,
+	nzMaterialUniform_AlphaThreshold,
+	nzMaterialUniform_Ambient,
+	nzMaterialUniform_Diffuse,
+	nzMaterialUniform_DiffuseMap,
+	nzMaterialUniform_EmissiveMap,
+	nzMaterialUniform_HeightMap,
+	nzMaterialUniform_NormalMap,
+	nzMaterialUniform_Shininess,
+	nzMaterialUniform_Specular,
+	nzMaterialUniform_SpecularMap,
+
+	nzMaterialUniform_Max = nzMaterialUniform_SpecularMap
+};
+
 enum nzRenderPassType
 {
 	nzRenderPassType_AA,
@@ -61,6 +78,17 @@ enum nzSceneNodeType
 	nzSceneNodeType_User,
 
 	nzSceneNodeType_Max = nzSceneNodeType_User
+};
+
+// Ces paramètres sont indépendants du matériau: ils peuvent être demandés à tout moment
+enum nzShaderFlags
+{
+	nzShaderFlags_None = 0,
+
+	nzShaderFlags_Deferred   = 0x1,
+	nzShaderFlags_Instancing = 0x2,
+
+	nzShaderFlags_Max = nzShaderFlags_Instancing*2-1
 };
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

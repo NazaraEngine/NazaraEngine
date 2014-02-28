@@ -11,8 +11,11 @@
 
 bool NzLua::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
@@ -21,10 +24,11 @@ bool NzLua::Initialize()
 		return false;
 	}
 
+	s_moduleReferenceCounter++;
+
 	// Initialisation du module
 
 	NazaraNotice("Initialized: Lua module");
-
 	return true;
 }
 
