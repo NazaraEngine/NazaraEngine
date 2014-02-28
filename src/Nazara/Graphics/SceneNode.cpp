@@ -7,6 +7,8 @@
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+///FIXME: Constructeur de copie
+
 NzSceneNode::NzSceneNode() :
 m_scene(nullptr),
 m_drawingEnabled(true),
@@ -15,7 +17,8 @@ m_visible(false)
 }
 
 NzSceneNode::NzSceneNode(const NzSceneNode& sceneNode) :
-NzNode(sceneNode), // La scène est affectée via le parenting du node
+NzNode(sceneNode),
+m_scene(nullptr),
 m_drawingEnabled(sceneNode.m_drawingEnabled),
 m_visible(false)
 {

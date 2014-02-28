@@ -3,26 +3,29 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
+#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 ///TODO: Améliorer
 
 namespace
 {
+	static NzShader* s_shader = nullptr;
 	static NzColor s_primaryColor;
 	static NzColor s_secondaryColor;
 	static NzRenderStates s_renderStates;
-	static const NzShaderProgram* s_program = nullptr;
 	static NzVertexBuffer s_vertexBuffer;
 	static bool s_initialized = false;
 	static int s_colorLocation = -1;
@@ -126,10 +129,10 @@ void NzDebugDrawer::Draw(const NzBoxf& box)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShaderProgram(s_program);
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-	s_program->SendColor(s_colorLocation, s_primaryColor);
+	s_shader->SendColor(s_colorLocation, s_primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
@@ -213,10 +216,10 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShaderProgram(s_program);
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-	s_program->SendColor(s_colorLocation, s_primaryColor);
+	s_shader->SendColor(s_colorLocation, s_primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
@@ -295,10 +298,10 @@ void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShaderProgram(s_program);
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-	s_program->SendColor(s_colorLocation, s_primaryColor);
+	s_shader->SendColor(s_colorLocation, s_primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 24);
 }
@@ -343,13 +346,13 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShaderProgram(s_program);
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-		s_program->SendColor(s_colorLocation, s_primaryColor);
+		s_shader->SendColor(s_colorLocation, s_primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 
-		s_program->SendColor(s_colorLocation, s_secondaryColor);
+		s_shader->SendColor(s_colorLocation, s_secondaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, vertexCount);
 	}
 }
@@ -393,10 +396,10 @@ void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShaderProgram(s_program);
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-		s_program->SendColor(s_colorLocation, s_primaryColor);
+		s_shader->SendColor(s_colorLocation, s_primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 	}
 }
@@ -469,10 +472,10 @@ void NzDebugDrawer::DrawCone(const NzVector3f& origin, const NzQuaternionf& rota
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShaderProgram(s_program);
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-	s_program->SendColor(s_colorLocation, s_primaryColor);
+	s_shader->SendColor(s_colorLocation, s_primaryColor);
 
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 16);
 }
@@ -516,10 +519,10 @@ void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShaderProgram(s_program);
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-		s_program->SendColor(s_colorLocation, s_primaryColor);
+		s_shader->SendColor(s_colorLocation, s_primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 	}
 }
@@ -563,10 +566,10 @@ void NzDebugDrawer::DrawTangents(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShaderProgram(s_program);
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
-		s_program->SendColor(s_colorLocation, s_primaryColor);
+		s_shader->SendColor(s_colorLocation, s_primaryColor);
 		NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, vertexCount);
 	}
 }
@@ -600,35 +603,14 @@ bool NzDebugDrawer::Initialize()
 {
 	if (!s_initialized)
 	{
-		// s_program
-		{
-			NzShaderProgramManagerParams params;
-			params.target = nzShaderTarget_Model;
-			params.flags = 0;
-			params.model.alphaMapping = false;
-			params.model.alphaTest = false;
-			params.model.diffuseMapping = false;
-			params.model.emissiveMapping = false;
-			params.model.lighting = false;
-			params.model.normalMapping = false;
-			params.model.parallaxMapping = false;
-			params.model.specularMapping = false;
-
-			s_program = NzShaderProgramManager::Get(params);
-			if (!s_program)
-			{
-				NazaraError("Failed to build debug s_program");
-
-				Uninitialize();
-				return false;
-			}
-
-			s_colorLocation = s_program->GetUniformLocation(nzShaderUniform_MaterialDiffuse);
-		}
+		// s_shader
+		s_shader = NzShaderLibrary::Get("DebugSimple");
+		s_colorLocation = s_shader->GetUniformLocation("Color");
 
 		// s_vertexBuffer
 		try
 		{
+			NzErrorFlags flags(nzErrorFlag_ThrowException);
 			s_vertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 65365, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
@@ -676,6 +658,7 @@ void NzDebugDrawer::SetSecondaryColor(const NzColor& color)
 
 void NzDebugDrawer::Uninitialize()
 {
+	s_shader = nullptr;
 	s_vertexBuffer.Reset();
 	s_initialized = false;
 }

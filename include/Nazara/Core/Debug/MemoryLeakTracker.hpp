@@ -14,14 +14,14 @@
 class NAZARA_API NzMemoryManager
 {
 	public:
-		NzMemoryManager();
-		~NzMemoryManager();
-
 		static void* Allocate(std::size_t size, bool multi, const char* file = nullptr, unsigned int line = 0);
 		static void Free(void* pointer, bool multi);
 		static void NextFree(const char* file, unsigned int line);
 
 	private:
+		NzMemoryManager();
+		~NzMemoryManager();
+
 		static void Initialize();
 		static char* TimeInfo();
 		static void Uninitialize();
@@ -33,3 +33,8 @@ NAZARA_API void operator delete(void* ptr, const char* file, unsigned int line) 
 NAZARA_API void operator delete[](void* ptr, const char* file, unsigned int line) throw();
 
 #endif // NAZARA_DEBUG_MEMORYLEAKTRACKER_HPP
+
+#ifndef NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
+	#define delete NzMemoryManager::NextFree(__FILE__, __LINE__), delete
+	#define new new(__FILE__, __LINE__)
+#endif

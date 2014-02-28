@@ -50,7 +50,7 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 
 	private:
 		void ApplyView() const override;
-		void Invalidate() override;
+		void InvalidateNode() override;
 
 		void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
 		bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
