@@ -125,6 +125,8 @@ NzDeferredDOFPass::~NzDeferredDOFPass() = default;
 
 bool NzDeferredDOFPass::Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
+	NazaraUnused(scene);
+
 	NzRenderer::SetTextureSampler(0, m_pointSampler);
 	NzRenderer::SetTextureSampler(1, m_bilinearSampler);
 	NzRenderer::SetTextureSampler(2, m_pointSampler);
