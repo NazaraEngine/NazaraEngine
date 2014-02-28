@@ -313,8 +313,6 @@ inline long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 			total += c-symbols;
 		else
 		{
-			NazaraError("str is not a valid number");
-
 			if (ok)
 				*ok = false;
 

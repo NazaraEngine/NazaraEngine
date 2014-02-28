@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <memory>
@@ -17,6 +18,9 @@ bool NzModelParameters::IsValid() const
 		return false;
 
 	if (loadMaterials && !material.IsValid())
+		return false;
+
+	if (!NzUberShaderLibrary::Has(shaderName))
 		return false;
 
 	return mesh.IsValid();
@@ -56,6 +60,8 @@ m_skinCount(model.m_skinCount)
 		if (m_mesh->GetAnimationType() == nzAnimationType_Skeletal)
 			m_skeleton = model.m_skeleton;
 	}
+
+	SetParent(model);
 }
 
 NzModel::~NzModel()
@@ -633,9 +639,9 @@ bool NzModel::FrustumCull(const NzFrustumf& frustum)
 	return frustum.Contains(m_boundingVolume);
 }
 
-void NzModel::Invalidate()
+void NzModel::InvalidateNode()
 {
-	NzSceneNode::Invalidate();
+	NzSceneNode::InvalidateNode();
 
 	m_boundingVolumeUpdated = false;
 }

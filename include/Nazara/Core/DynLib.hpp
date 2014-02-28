@@ -31,7 +31,7 @@ using NzDynLibFunc =  int (*)(); // Type "générique" de pointeur sur fonction
 
 class NzDynLibImpl;
 
-class NzDynLib : NzNonCopyable
+class NAZARA_API NzDynLib : NzNonCopyable
 {
 	public:
 		NzDynLib();

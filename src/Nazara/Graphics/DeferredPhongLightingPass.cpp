@@ -5,119 +5,37 @@
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
-#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <Nazara/Renderer/ShaderProgramManager.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <memory>
-#include <Nazara/Renderer/OpenGL.hpp> // Supprimer
 #include <Nazara/Graphics/Debug.hpp>
-
-namespace
-{
-	NzShaderProgram* BuildDirectionalLightProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/DirectionalLight.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec2 VertexPosition;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = vec4(VertexPosition, 0.0, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		program->SendInteger(program->GetUniformLocation("GBuffer0"), 0);
-		program->SendInteger(program->GetUniformLocation("GBuffer1"), 1);
-		program->SendInteger(program->GetUniformLocation("GBuffer2"), 2);
-
-		return program.release();
-	}
-
-	NzShaderProgram* BuildPointSpotLightProgram()
-	{
-		const nzUInt8 fragmentSource[] = {
-			#include <Nazara/Graphics/Resources/DeferredShading/Shaders/PointSpotLight.frag.h>
-		};
-
-		const char* vertexSource =
-		"#version 140\n"
-
-		"in vec3 VertexPosition;\n"
-
-		"uniform mat4 WorldViewProjMatrix;\n"
-
-		"void main()\n"
-		"{\n"
-		"\t" "gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);" "\n"
-		"}\n";
-
-		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShaderProgram> program(new NzShaderProgram(nzShaderLanguage_GLSL));
-		program->SetPersistent(false);
-
-		if (!program->LoadShader(nzShaderType_Fragment, NzString(reinterpret_cast<const char*>(fragmentSource), sizeof(fragmentSource))))
-		{
-			NazaraError("Failed to load fragment shader");
-			return nullptr;
-		}
-
-		if (!program->LoadShader(nzShaderType_Vertex, vertexSource))
-		{
-			NazaraError("Failed to load vertex shader");
-			return nullptr;
-		}
-
-		if (!program->Compile())
-		{
-			NazaraError("Failed to compile program");
-			return nullptr;
-		}
-
-		program->SendInteger(program->GetUniformLocation("GBuffer0"), 0);
-		program->SendInteger(program->GetUniformLocation("GBuffer1"), 1);
-		program->SendInteger(program->GetUniformLocation("GBuffer2"), 2);
-
-		return program.release();
-	}
-}
 
 NzDeferredPhongLightingPass::NzDeferredPhongLightingPass() :
 m_lightMeshesDrawing(false)
 {
-	m_directionalLightProgram = BuildDirectionalLightProgram();
-	m_pointSpotLightProgram = BuildPointSpotLightProgram();
+	m_directionalLightShader = NzShaderLibrary::Get("DeferredDirectionnalLight");
 
-	m_pointSpotLightProgramDiscardLocation = m_pointSpotLightProgram->GetUniformLocation("Discard");
-	m_pointSpotLightProgramSpotLightLocation = m_pointSpotLightProgram->GetUniformLocation("SpotLight");
+	m_directionalLightUniforms.ubo = false;
+	m_directionalLightUniforms.locations.type = -1; // Type déjà connu
+	m_directionalLightUniforms.locations.color = m_directionalLightShader->GetUniformLocation("LightColor");
+	m_directionalLightUniforms.locations.factors = m_directionalLightShader->GetUniformLocation("LightFactors");
+	m_directionalLightUniforms.locations.parameters1 = m_directionalLightShader->GetUniformLocation("LightDirection");
+	m_directionalLightUniforms.locations.parameters2 = -1;
+	m_directionalLightUniforms.locations.parameters3 = -1;
+
+	m_pointSpotLightShader = NzShaderLibrary::Get("DeferredPointSpotLight");
+	m_pointSpotLightShaderDiscardLocation = m_pointSpotLightShader->GetUniformLocation("Discard");
+
+	m_pointSpotLightUniforms.ubo = false;
+	m_pointSpotLightUniforms.locations.type = m_pointSpotLightShader->GetUniformLocation("LightType");
+	m_pointSpotLightUniforms.locations.color = m_pointSpotLightShader->GetUniformLocation("LightColor");
+	m_pointSpotLightUniforms.locations.factors = m_pointSpotLightShader->GetUniformLocation("LightFactors");
+	m_pointSpotLightUniforms.locations.parameters1 = m_pointSpotLightShader->GetUniformLocation("LightParameters1");
+	m_pointSpotLightUniforms.locations.parameters2 = m_pointSpotLightShader->GetUniformLocation("LightParameters2");
+	m_pointSpotLightUniforms.locations.parameters3 = m_pointSpotLightShader->GetUniformLocation("LightParameters3");
 
 	m_pointSampler.SetAnisotropyLevel(1);
 	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
@@ -177,13 +95,13 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 	if (!m_renderQueue->directionalLights.empty())
 	{
 		NzRenderer::SetRenderStates(lightStates);
-		NzRenderer::SetShaderProgram(m_directionalLightProgram);
-		m_directionalLightProgram->SendColor(m_directionalLightProgram->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-		m_directionalLightProgram->SendVector(m_directionalLightProgram->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
+		NzRenderer::SetShader(m_directionalLightShader);
+		m_directionalLightShader->SendColor(m_directionalLightShader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+		m_directionalLightShader->SendVector(m_directionalLightShader->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
 
 		for (const NzLight* light : m_renderQueue->directionalLights)
 		{
-			light->Enable(m_directionalLightProgram, 0);
+			light->Enable(m_directionalLightShader, m_directionalLightUniforms);
 			NzRenderer::DrawFullscreenQuad();
 		}
 	}
@@ -207,23 +125,21 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 		NzRenderer::SetRenderStates(lightStates);
 
-		NzRenderer::SetShaderProgram(m_pointSpotLightProgram);
-		m_pointSpotLightProgram->SendColor(m_pointSpotLightProgram->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-		m_pointSpotLightProgram->SendVector(m_pointSpotLightProgram->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
+		NzRenderer::SetShader(m_pointSpotLightShader);
+		m_pointSpotLightShader->SendColor(m_pointSpotLightShader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+		m_pointSpotLightShader->SendVector(m_pointSpotLightShader->GetUniformLocation(nzShaderUniform_EyePosition), scene->GetViewer()->GetEyePosition());
 
 		NzMatrix4f lightMatrix;
 		lightMatrix.MakeIdentity();
 		if (!m_renderQueue->pointLights.empty())
 		{
-			m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramSpotLightLocation, false);
-
 			const NzIndexBuffer* indexBuffer = m_sphereMesh->GetIndexBuffer();
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_sphereMesh->GetVertexBuffer());
 
 			for (const NzLight* light : m_renderQueue->pointLights)
 			{
-				light->Enable(m_pointSpotLightProgram, 0);
+				light->Enable(m_pointSpotLightShader, m_pointSpotLightUniforms);
 				lightMatrix.SetScale(NzVector3f(light->GetRadius()*1.1f)); // Pour corriger les imperfections liées à la sphère
 				lightMatrix.SetTranslation(light->GetPosition());
 
@@ -235,7 +151,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
 				NzRenderer::SetStencilCompareFunction(nzRendererComparison_Always);
 
-				m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramDiscardLocation, true);
+				m_pointSpotLightShader->SendBoolean(m_pointSpotLightShaderDiscardLocation, true);
 
 				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 
@@ -246,7 +162,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::SetStencilCompareFunction(nzRendererComparison_NotEqual, nzFaceSide_Back);
 				NzRenderer::SetStencilPassOperation(nzStencilOperation_Zero, nzFaceSide_Back);
 
-				m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramDiscardLocation, false);
+				m_pointSpotLightShader->SendBoolean(m_pointSpotLightShaderDiscardLocation, false);
 
 				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 			}
@@ -259,20 +175,8 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::Enable(nzRendererParameter_StencilTest, false);
 				NzRenderer::SetFaceFilling(nzFaceFilling_Line);
 
-				NzShaderProgramManagerParams params;
-				params.flags = nzShaderFlags_None;
-				params.target = nzShaderTarget_Model;
-				params.model.alphaMapping = false;
-				params.model.alphaTest = false;
-				params.model.diffuseMapping = false;
-				params.model.emissiveMapping = false;
-				params.model.lighting = false;
-				params.model.normalMapping = false;
-				params.model.parallaxMapping = false;
-				params.model.specularMapping = false;
-
-				const NzShaderProgram* program = NzShaderProgramManager::Get(params);
-				NzRenderer::SetShaderProgram(program);
+				const NzShader* shader = NzShaderLibrary::Get("DebugSimple");
+				NzRenderer::SetShader(shader);
 				for (const NzLight* light : m_renderQueue->pointLights)
 				{
 					lightMatrix.SetScale(NzVector3f(light->GetRadius()*1.1f)); // Pour corriger les imperfections liées à la sphère
@@ -280,7 +184,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					program->SendColor(program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), light->GetColor());
+					shader->SendColor(0, light->GetColor());
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}
@@ -295,15 +199,13 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 		if (!m_renderQueue->spotLights.empty())
 		{
-			m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramSpotLightLocation, true);
-
 			const NzIndexBuffer* indexBuffer = m_coneMesh->GetIndexBuffer();
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_coneMesh->GetVertexBuffer());
 
 			for (const NzLight* light : m_renderQueue->spotLights)
 			{
-				light->Enable(m_pointSpotLightProgram, 0);
+				light->Enable(m_pointSpotLightShader, m_pointSpotLightUniforms);
 				float radius = light->GetRadius()*std::tan(NzDegreeToRadian(light->GetOuterAngle()))*1.1f;
 				lightMatrix.MakeTransform(light->GetPosition(), light->GetRotation(), NzVector3f(radius, radius, light->GetRadius()));
 
@@ -315,7 +217,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::Enable(nzRendererParameter_FaceCulling, false);
 				NzRenderer::SetStencilCompareFunction(nzRendererComparison_Always);
 
-				m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramDiscardLocation, true);
+				m_pointSpotLightShader->SendBoolean(m_pointSpotLightShaderDiscardLocation, true);
 
 				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 
@@ -327,7 +229,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::SetStencilCompareFunction(nzRendererComparison_NotEqual, nzFaceSide_Back);
 				NzRenderer::SetStencilPassOperation(nzStencilOperation_Zero, nzFaceSide_Back);
 
-				m_pointSpotLightProgram->SendBoolean(m_pointSpotLightProgramDiscardLocation, false);
+				m_pointSpotLightShader->SendBoolean(m_pointSpotLightShaderDiscardLocation, false);
 
 				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 			}
@@ -340,20 +242,8 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::Enable(nzRendererParameter_StencilTest, false);
 				NzRenderer::SetFaceFilling(nzFaceFilling_Line);
 
-				NzShaderProgramManagerParams params;
-				params.flags = nzShaderFlags_None;
-				params.target = nzShaderTarget_Model;
-				params.model.alphaMapping = false;
-				params.model.alphaTest = false;
-				params.model.diffuseMapping = false;
-				params.model.emissiveMapping = false;
-				params.model.lighting = false;
-				params.model.normalMapping = false;
-				params.model.parallaxMapping = false;
-				params.model.specularMapping = false;
-
-				const NzShaderProgram* program = NzShaderProgramManager::Get(params);
-				NzRenderer::SetShaderProgram(program);
+				const NzShader* shader = NzShaderLibrary::Get("DebugSimple");
+				NzRenderer::SetShader(shader);
 				for (const NzLight* light : m_renderQueue->spotLights)
 				{
 					float baseRadius = light->GetRadius()*std::tan(NzDegreeToRadian(light->GetOuterAngle()))*1.1f;
@@ -361,7 +251,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					program->SendColor(program->GetUniformLocation(nzShaderUniform_MaterialDiffuse), light->GetColor());
+					shader->SendColor(0, light->GetColor());
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}

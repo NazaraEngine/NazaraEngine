@@ -17,22 +17,24 @@ unsigned int NzPhysics::GetMemoryUsed()
 
 bool NzPhysics::Initialize()
 {
-	if (s_moduleReferenceCounter++ != 0)
+	if (s_moduleReferenceCounter > 0)
+	{
+		s_moduleReferenceCounter++;
 		return true; // Déjà initialisé
+	}
 
 	// Initialisation des dépendances
 	if (!NzCore::Initialize())
 	{
 		NazaraError("Failed to initialize core module");
-		Uninitialize();
-
 		return false;
 	}
+
+	s_moduleReferenceCounter++;
 
 	// Initialisation du module
 
 	NazaraNotice("Initialized: Physics module");
-
 	return true;
 }
 
