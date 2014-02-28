@@ -8,6 +8,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -21,7 +22,7 @@
 
 namespace
 {
-	static std::unique_ptr<NzShader> s_shader = nullptr;
+	static NzShader* s_shader = nullptr;
 	static NzColor s_primaryColor;
 	static NzColor s_secondaryColor;
 	static NzRenderStates s_renderStates;
@@ -128,7 +129,7 @@ void NzDebugDrawer::Draw(const NzBoxf& box)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShader(s_shader.get());
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 	s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -215,7 +216,7 @@ void NzDebugDrawer::Draw(const NzFrustumf& frustum)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShader(s_shader.get());
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 	s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -297,7 +298,7 @@ void NzDebugDrawer::Draw(const NzOrientedBoxf& orientedBox)
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShader(s_shader.get());
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 	s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -345,7 +346,7 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShader(s_shader.get());
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 		s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -395,7 +396,7 @@ void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShader(s_shader.get());
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 		s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -471,7 +472,7 @@ void NzDebugDrawer::DrawCone(const NzVector3f& origin, const NzQuaternionf& rota
 	mapper.Unmap();
 
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShader(s_shader.get());
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 	s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -518,7 +519,7 @@ void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShader(s_shader.get());
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 		s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -565,7 +566,7 @@ void NzDebugDrawer::DrawTangents(const NzStaticMesh* subMesh)
 	if (vertexCount > 0)
 	{
 		NzRenderer::SetRenderStates(s_renderStates);
-		NzRenderer::SetShader(s_shader.get());
+		NzRenderer::SetShader(s_shader);
 		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
 
 		s_shader->SendColor(s_colorLocation, s_primaryColor);
@@ -603,79 +604,8 @@ bool NzDebugDrawer::Initialize()
 	if (!s_initialized)
 	{
 		// s_shader
-		{
-			const char* fragmentSource110 =
-			"#version 110\n"
-			"uniform vec3 color;\n"
-			"void main()\n"
-			"{\n"
-			"	gl_FragColor = vec4(color, 1.0);\n"
-			"}\n";
-
-			const char* fragmentSource140 =
-			"#version 140\n"
-			"uniform vec3 color;\n"
-			"out vec4 RenderTarget0;\n"
-			"void main()\n"
-			"{\n"
-			"	RenderTarget0 = vec4(color, 1.0);\n"
-			"}\n";
-
-			const char* vertexSource110 =
-			"#version 110\n"
-			"attribute vec3 Position;\n"
-			"uniform mat4 WorldViewProjMatrix;\n"
-			"void main()\n"
-			"{\n"
-			"    gl_Position = WorldViewProjMatrix * vec4(Position, 1.0);\n"
-			"}\n";
-
-			const char* vertexSource140 =
-			"#version 140\n"
-			"in vec3 Position;\n"
-			"uniform mat4 WorldViewProjMatrix;\n"
-			"void main()\n"
-			"{\n"
-			"    gl_Position = WorldViewProjMatrix * vec4(Position, 1.0);\n"
-			"}\n";
-
-			bool useGLSL140 = (NzOpenGL::GetVersion() >= 310);
-
-			s_shader.reset(new NzShader);
-			if (!s_shader->Create())
-			{
-				Uninitialize();
-
-				NazaraError("Failed to create shader");
-				return false;
-			}
-
-			if (!s_shader->AttachStageFromSource(nzShaderStage_Fragment, (useGLSL140) ? fragmentSource140 : fragmentSource110))
-			{
-				Uninitialize();
-
-				NazaraError("Failed to load fragment shader");
-				return false;
-			}
-
-			if (!s_shader->AttachStageFromSource(nzShaderStage_Vertex, (useGLSL140) ? vertexSource140 : vertexSource110))
-			{
-				Uninitialize();
-
-				NazaraError("Failed to load vertex shader");
-				return false;
-			}
-
-			if (!s_shader->Link())
-			{
-				Uninitialize();
-
-				NazaraError("Failed to link shader");
-				return false;
-			}
-
-			s_colorLocation = s_shader->GetUniformLocation("color");
-		}
+		s_shader = NzShaderLibrary::Get("DebugSimple");
+		s_colorLocation = s_shader->GetUniformLocation("Color");
 
 		// s_vertexBuffer
 		try
@@ -728,7 +658,7 @@ void NzDebugDrawer::SetSecondaryColor(const NzColor& color)
 
 void NzDebugDrawer::Uninitialize()
 {
-	s_shader.reset();
+	s_shader = nullptr;
 	s_vertexBuffer.Reset();
 	s_initialized = false;
 }
