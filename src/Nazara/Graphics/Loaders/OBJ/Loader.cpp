@@ -212,7 +212,7 @@ namespace
 								std::unique_ptr<NzMaterial> material(new NzMaterial);
 								material->SetPersistent(false);
 
-								material->SetShader(parameters.shaderName);
+								material->SetShader(parameters.material.shaderName);
 
 								nzUInt8 alphaValue = static_cast<nzUInt8>(mtlMat->alpha*255.f);
 
