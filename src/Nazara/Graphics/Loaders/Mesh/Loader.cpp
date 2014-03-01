@@ -66,8 +66,6 @@ namespace
 
 					if (material->LoadFromFile(mat, parameters.material))
 					{
-						material->SetShader(parameters.shaderName);
-
 						model->SetMaterial(i, material.get());
 						material.release();
 					}
