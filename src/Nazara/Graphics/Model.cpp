@@ -6,7 +6,6 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <memory>
@@ -23,9 +22,6 @@ bool NzModelParameters::IsValid() const
 		return false;
 
 	if (loadMaterials && !material.IsValid())
-		return false;
-
-	if (!NzUberShaderLibrary::Has(shaderName))
 		return false;
 
 	return mesh.IsValid();
