@@ -35,6 +35,8 @@ namespace
 		material->SetDiffuseMap(texture.get());
 		texture.release();
 
+		material->SetShader(parameters.shaderName);
+
 		return true;
 	}
 }
