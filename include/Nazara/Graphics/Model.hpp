@@ -17,12 +17,13 @@
 
 struct NAZARA_API NzModelParameters
 {
+	NzModelParameters();
+
 	bool loadAnimation = true;
 	bool loadMaterials = true;
 	NzAnimationParams animation;
 	NzMaterialParams material;
 	NzMeshParams mesh;
-	NzString shaderName = "PhongLighting";
 
 	bool IsValid() const;
 };

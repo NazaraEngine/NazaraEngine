@@ -12,6 +12,11 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+NzModelParameters::NzModelParameters()
+{
+	material.shaderName = "PhongLighting";
+}
+
 bool NzModelParameters::IsValid() const
 {
 	if (loadAnimation && !animation.IsValid())
