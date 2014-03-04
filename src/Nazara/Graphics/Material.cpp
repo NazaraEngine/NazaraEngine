@@ -557,6 +557,7 @@ void NzMaterial::SetRenderStates(const NzRenderStates& states)
 void NzMaterial::SetShader(const NzUberShader* uberShader)
 {
 	m_uberShader = uberShader;
+
 	InvalidateShaders();
 }
 

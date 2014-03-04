@@ -648,7 +648,7 @@ int NzLuaInstance::ToInteger(int index, bool* succeeded) const
 	int result = lua_tointegerx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = (success  == 1);
+		*succeeded = (success == 1);
 
 	return result;
 }
@@ -659,7 +659,7 @@ double NzLuaInstance::ToNumber(int index, bool* succeeded) const
 	double result = lua_tonumberx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = (success  == 1);
+		*succeeded = (success == 1);
 
 	return result;
 }
@@ -675,7 +675,7 @@ unsigned int NzLuaInstance::ToUnsigned(int index, bool* succeeded) const
 	unsigned int result = lua_tounsignedx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = (success  == 1);
+		*succeeded = (success == 1);
 
 	return result;
 }
