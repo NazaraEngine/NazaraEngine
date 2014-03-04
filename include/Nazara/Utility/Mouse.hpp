@@ -28,6 +28,9 @@ class NAZARA_API NzMouse
 			Max = XButton2
 		};
 
+		NzMouse() = delete;
+		~NzMouse() = delete;
+
 		static NzVector2i GetPosition();
 		static NzVector2i GetPosition(const NzWindow& relativeTo);
 		static bool IsButtonPressed(Button button);

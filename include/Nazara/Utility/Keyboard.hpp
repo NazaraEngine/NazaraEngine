@@ -161,6 +161,9 @@ class NAZARA_API NzKeyboard
 			Count
 		};
 
+		NzKeyboard() = delete;
+		~NzKeyboard() = delete;
+
 		static NzString GetKeyName(Key key);
 		static bool IsKeyPressed(Key key);
 };
