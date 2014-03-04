@@ -31,7 +31,7 @@ struct NzSceneImpl
 	NzClock updateClock;
 	NzColor ambientColor = NzColor(25,25,25);
 	NzSceneRoot root;
-	NzAbstractViewer* viewer;
+	NzAbstractViewer* viewer = nullptr;
 	bool update;
 	float frameTime;
 	float updateTime;
@@ -42,8 +42,6 @@ struct NzSceneImpl
 NzScene::NzScene()
 {
 	m_impl = new NzSceneImpl(this);
-	m_impl->background.reset(new NzColorBackground);
-	m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
 }
 
 NzScene::~NzScene()
@@ -66,13 +64,16 @@ void NzScene::Cull()
 	}
 	#endif
 
+	if (!m_impl->renderTechnique)
+		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
+
 	NzAbstractRenderQueue* renderQueue = m_impl->renderTechnique->GetRenderQueue();
 	renderQueue->Clear(false);
 
 	m_impl->visibleUpdateList.clear();
 
 	// Frustum culling
-	RecursiveFrustumCull(m_impl->renderTechnique->GetRenderQueue(), m_impl->viewer->GetFrustum(), &m_impl->root);
+	RecursiveFrustumCull(renderQueue, m_impl->viewer->GetFrustum(), &m_impl->root);
 
 	///TODO: Occlusion culling
 
@@ -90,6 +91,9 @@ void NzScene::Draw()
 	#endif
 
 	m_impl->viewer->ApplyView();
+
+	if (!m_impl->background)
+		m_impl->background.reset(new NzColorBackground);
 
 	try
 	{
