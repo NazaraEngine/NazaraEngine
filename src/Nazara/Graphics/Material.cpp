@@ -723,6 +723,7 @@ bool NzMaterial::Initialize()
 
 	s_defaultMaterial = new NzMaterial;
 	s_defaultMaterial->SetPersistent(true);
+	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
 
 	return true;
 }
