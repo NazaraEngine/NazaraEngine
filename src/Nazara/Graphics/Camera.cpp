@@ -292,6 +292,14 @@ void NzCamera::UpdateViewMatrix() const
 
 void NzCamera::UpdateViewport() const
 {
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_target)
+	{
+		NazaraError("Camera has no render target");
+		return;
+	}
+	#endif
+
 	unsigned int width = m_target->GetWidth();
 	unsigned int height = std::max(m_target->GetHeight(), 1U);
 
