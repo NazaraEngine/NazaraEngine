@@ -265,25 +265,28 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHTPERPASS + 1;
 							for (unsigned int pass = 0; pass < passCount; ++pass)
 							{
-								unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
-								lightCount -= renderedLightCount;
-
-								if (pass == 1)
+								if (lightUniforms->exists)
 								{
-									// Pour additionner le résultat des calculs de lumière
-									// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
-									// (Autrement dit, sans blending)
-									// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
-									NzRenderer::Enable(nzRendererParameter_Blend, true);
-									NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
-									NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
+									unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
+									lightCount -= renderedLightCount;
+
+									if (pass == 1)
+									{
+										// Pour additionner le résultat des calculs de lumière
+										// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
+										// (Autrement dit, sans blending)
+										// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+										NzRenderer::Enable(nzRendererParameter_Blend, true);
+										NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
+										NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
+									}
+
+									for (unsigned int i = 0; i < renderedLightCount; ++i)
+										m_directionalLights.GetLight(lightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+
+									for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
+										NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 								}
-
-								for (unsigned int i = 0; i < renderedLightCount; ++i)
-									m_directionalLights.GetLight(lightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
-
-								for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
-									NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
 
 								const NzForwardRenderQueue::StaticData* data = &staticData[0];
 								unsigned int instanceCount = staticData.size();
@@ -316,50 +319,61 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 						}
 						else
 						{
-							for (const NzForwardRenderQueue::StaticData& data : staticData)
+							if (lightUniforms->exists)
 							{
-								unsigned int directionalLightCount = m_directionalLights.GetLightCount();
-								unsigned int otherLightCount = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHTPERPASS - directionalLightCount);
-                                unsigned int lightCount = directionalLightCount + otherLightCount;
-
- 								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
- 								unsigned int directionalLightIndex = 0;
- 								unsigned int otherLightIndex = 0;
- 								nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
-
-								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHTPERPASS + 1;
-								for (unsigned int pass = 0; pass < passCount; ++pass)
+								for (const NzForwardRenderQueue::StaticData& data : staticData)
 								{
-									unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
-									lightCount -= renderedLightCount;
+									unsigned int directionalLightCount = m_directionalLights.GetLightCount();
+									unsigned int otherLightCount = m_lights.ComputeClosestLights(data.transformMatrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHTPERPASS - directionalLightCount);
+									unsigned int lightCount = directionalLightCount + otherLightCount;
 
-									if (pass == 1)
+									NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
+									unsigned int directionalLightIndex = 0;
+									unsigned int otherLightIndex = 0;
+									nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
+
+									unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHTPERPASS + 1;
+									for (unsigned int pass = 0; pass < passCount; ++pass)
 									{
-										// Pour additionner le résultat des calculs de lumière
-										// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
-										// (Autrement dit, sans blending)
-										// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
-										NzRenderer::Enable(nzRendererParameter_Blend, true);
-										NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
-										NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
+										unsigned int renderedLightCount = std::min(lightCount, NAZARA_GRAPHICS_MAX_LIGHTPERPASS);
+										lightCount -= renderedLightCount;
+
+										if (pass == 1)
+										{
+											// Pour additionner le résultat des calculs de lumière
+											// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
+											// (Autrement dit, sans blending)
+											// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+											NzRenderer::Enable(nzRendererParameter_Blend, true);
+											NzRenderer::SetBlendFunc(nzBlendFunc_One, nzBlendFunc_One);
+											NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
+										}
+
+										for (unsigned int i = 0; i < renderedLightCount; ++i)
+										{
+											if (directionalLightIndex >= directionalLightCount)
+												m_lights.GetResult(otherLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+											else
+												m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+										}
+
+										for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
+											NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+
+										DrawFunc(primitiveMode, 0, indexCount);
 									}
 
-									for (unsigned int i = 0; i < renderedLightCount; ++i)
-									{
-										if (directionalLightIndex >= directionalLightCount)
-											m_lights.GetResult(otherLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
-										else
-											m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
-									}
-
-									for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHTPERPASS; ++i)
-										NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
-
+									NzRenderer::Enable(nzRendererParameter_Blend, false);
+									NzRenderer::SetDepthFunc(oldDepthFunc);
+								}
+							}
+							else
+							{
+								for (const NzForwardRenderQueue::StaticData& data : staticData)
+								{
+									NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
 									DrawFunc(primitiveMode, 0, indexCount);
 								}
-
-								NzRenderer::Enable(nzRendererParameter_Blend, false);
-								NzRenderer::SetDepthFunc(oldDepthFunc);
 							}
 						}
 						staticData.clear();
