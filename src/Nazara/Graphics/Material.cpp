@@ -726,6 +726,8 @@ bool NzMaterial::Initialize()
 
 	s_defaultMaterial = new NzMaterial;
 	s_defaultMaterial->SetPersistent(true);
+
+	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
 	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
 
 	return true;
