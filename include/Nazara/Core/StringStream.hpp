@@ -12,12 +12,6 @@
 #include <string>
 #include <vector>
 
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_STRINGSTREAM
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 class NAZARA_API NzStringStream
 {
 	public:
@@ -48,8 +42,6 @@ class NAZARA_API NzStringStream
 		operator NzString() const;
 
 	private:
-		NazaraMutexAttrib(m_mutex, mutable)
-
 		std::vector<NzString> m_strings;
 		unsigned int m_bufferSize;
 };

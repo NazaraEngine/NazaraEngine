@@ -11,7 +11,13 @@
 #include <cstring>
 
 #if NAZARA_CORE_DUPLICATE_LOG_TO_COUT
-#include <cstdio>
+	#include <cstdio>
+#endif
+
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
 #include <Nazara/Core/Debug.hpp>
@@ -116,7 +122,7 @@ void NzLog::Write(const NzString& string)
 		if (m_writeTime)
 		{
 			line.Reserve(23 + string.GetSize() + 1);
-			line.Resize(23);
+			line.Set(23, '\0'); // Buffer non-initialisé
 
 			time_t currentTime = std::time(nullptr);
 			std::strftime(&line[0], 24, "%d/%m/%Y - %H:%M:%S: ", std::localtime(&currentTime));
