@@ -13,15 +13,15 @@
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
-#include <Nazara/Core/ThreadSafety.hpp>
+	#include <Nazara/Core/ThreadSafety.hpp>
 #else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
 #ifdef NAZARA_DEBUG
-#define NazaraDebug(txt) NazaraNotice(txt)
+	#define NazaraDebug(txt) NazaraNotice(txt)
 #else
-#define NazaraDebug(txt)
+	#define NazaraDebug(txt)
 #endif
 
 #define NazaraLog NzLog::Instance()

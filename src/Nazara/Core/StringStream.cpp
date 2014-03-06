@@ -18,8 +18,6 @@ m_bufferSize(str.GetSize())
 
 NzString NzStringStream::ToString() const
 {
-	NazaraLock(m_mutex)
-
 	NzString string;
 	string.Reserve(m_bufferSize);
 
@@ -31,8 +29,6 @@ NzString NzStringStream::ToString() const
 
 NzStringStream& NzStringStream::operator<<(bool boolean)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Boolean(boolean));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -41,8 +37,6 @@ NzStringStream& NzStringStream::operator<<(bool boolean)
 
 NzStringStream& NzStringStream::operator<<(short number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -51,8 +45,6 @@ NzStringStream& NzStringStream::operator<<(short number)
 
 NzStringStream& NzStringStream::operator<<(unsigned short number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -61,8 +53,6 @@ NzStringStream& NzStringStream::operator<<(unsigned short number)
 
 NzStringStream& NzStringStream::operator<<(int number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -71,8 +61,6 @@ NzStringStream& NzStringStream::operator<<(int number)
 
 NzStringStream& NzStringStream::operator<<(unsigned int number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -81,8 +69,6 @@ NzStringStream& NzStringStream::operator<<(unsigned int number)
 
 NzStringStream& NzStringStream::operator<<(long number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -91,8 +77,6 @@ NzStringStream& NzStringStream::operator<<(long number)
 
 NzStringStream& NzStringStream::operator<<(unsigned long number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -101,8 +85,6 @@ NzStringStream& NzStringStream::operator<<(unsigned long number)
 
 NzStringStream& NzStringStream::operator<<(long long number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -111,8 +93,6 @@ NzStringStream& NzStringStream::operator<<(long long number)
 
 NzStringStream& NzStringStream::operator<<(unsigned long long number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -121,8 +101,6 @@ NzStringStream& NzStringStream::operator<<(unsigned long long number)
 
 NzStringStream& NzStringStream::operator<<(float number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -131,8 +109,6 @@ NzStringStream& NzStringStream::operator<<(float number)
 
 NzStringStream& NzStringStream::operator<<(double number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -141,8 +117,6 @@ NzStringStream& NzStringStream::operator<<(double number)
 
 NzStringStream& NzStringStream::operator<<(long double number)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Number(number));
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -151,8 +125,6 @@ NzStringStream& NzStringStream::operator<<(long double number)
 
 NzStringStream& NzStringStream::operator<<(char character)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString(character));
 	m_bufferSize++;
 
@@ -161,8 +133,6 @@ NzStringStream& NzStringStream::operator<<(char character)
 
 NzStringStream& NzStringStream::operator<<(unsigned char character)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString(static_cast<char>(character)));
 	m_bufferSize++;
 
@@ -171,8 +141,6 @@ NzStringStream& NzStringStream::operator<<(unsigned char character)
 
 NzStringStream& NzStringStream::operator<<(const char* string)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(string);
 	m_bufferSize += m_strings.back().GetSize();
 
@@ -181,8 +149,6 @@ NzStringStream& NzStringStream::operator<<(const char* string)
 
 NzStringStream& NzStringStream::operator<<(const std::string& string)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(string);
 	m_bufferSize += string.size();
 
@@ -191,8 +157,6 @@ NzStringStream& NzStringStream::operator<<(const std::string& string)
 
 NzStringStream& NzStringStream::operator<<(const NzString& string)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(string);
 	m_bufferSize += string.GetSize();
 
@@ -201,8 +165,6 @@ NzStringStream& NzStringStream::operator<<(const NzString& string)
 
 NzStringStream& NzStringStream::operator<<(const void* ptr)
 {
-	NazaraLock(m_mutex)
-
 	m_strings.push_back(NzString::Pointer(ptr));
 	m_bufferSize += sizeof(void*)*2;
 
