@@ -90,22 +90,52 @@ NzString::NzString(char character)
 		m_sharedString = &emptyString;
 }
 
-NzString::NzString(unsigned int length, char character)
+NzString::NzString(unsigned int rep, char character)
 {
-	if (length > 0)
+	if (rep > 0)
 	{
 		m_sharedString = new SharedString;
-		m_sharedString->capacity = length;
-		m_sharedString->size = length;
-		m_sharedString->string = new char[length+1];
+		m_sharedString->capacity = rep;
+		m_sharedString->size = rep;
+		m_sharedString->string = new char[rep+1];
 
 		if (character != '\0')
-			std::memset(m_sharedString->string, character, length);
+			std::memset(m_sharedString->string, character, rep);
 
-		m_sharedString->string[length] = '\0';
+		m_sharedString->string[rep] = '\0';
 	}
 	else
 		m_sharedString = &emptyString;
+}
+
+NzString::NzString(unsigned int rep, const char* string) :
+NzString(rep, string, (string) ? std::strlen(string) : 0)
+{
+}
+
+NzString::NzString(unsigned int rep, const char* string, unsigned int length)
+{
+	unsigned int totalSize = rep*length;
+
+	if (totalSize > 0)
+	{
+		m_sharedString = new SharedString;
+		m_sharedString->capacity = totalSize;
+		m_sharedString->size = totalSize;
+		m_sharedString->string = new char[totalSize+1];
+
+		for (unsigned int i = 0; i < rep; ++i)
+			std::memcpy(&m_sharedString->string[i*length], string, length);
+
+		m_sharedString->string[totalSize] = '\0';
+	}
+	else
+		m_sharedString = &emptyString;
+}
+
+NzString::NzString(unsigned int rep, const NzString& string) :
+NzString(rep, string.m_sharedString->string, string.m_sharedString->size)
+{
 }
 
 NzString::NzString(const char* string) :
@@ -2655,31 +2685,70 @@ NzString& NzString::Set(char character)
 	return *this;
 }
 
-NzString& NzString::Set(unsigned int length, char character)
+NzString& NzString::Set(unsigned int rep, char character)
 {
-	if (length > 0)
+	if (rep > 0)
 	{
-		if (m_sharedString->capacity >= length)
+		if (m_sharedString->capacity >= rep)
 			EnsureOwnership(true);
 		else
 		{
 			ReleaseString();
 			m_sharedString = new SharedString;
-			m_sharedString->capacity = length;
-			m_sharedString->string = new char[length+1];
+			m_sharedString->capacity = rep;
+			m_sharedString->string = new char[rep+1];
 		}
 
-		m_sharedString->size = length;
+		m_sharedString->size = rep;
 
 		if (character != '\0')
-			std::memset(m_sharedString->string, character, length);
+			std::memset(m_sharedString->string, character, rep);
 
-		m_sharedString->string[length] = '\0';
+		m_sharedString->string[rep] = '\0';
 	}
 	else
 		ReleaseString();
 
 	return *this;
+}
+
+NzString& NzString::Set(unsigned int rep, const char* string)
+{
+	return Set(rep, string, (string) ? std::strlen(string) : 0);
+}
+
+NzString& NzString::Set(unsigned int rep, const char* string, unsigned int length)
+{
+	unsigned int totalSize = rep*length;
+
+	if (totalSize > 0)
+	{
+		if (m_sharedString->capacity >= totalSize)
+			EnsureOwnership(true);
+		else
+		{
+			ReleaseString();
+			m_sharedString = new SharedString;
+			m_sharedString->capacity = totalSize;
+			m_sharedString->string = new char[totalSize+1];
+		}
+
+		m_sharedString->size = totalSize;
+
+		for (unsigned int i = 0; i < rep; ++i)
+			std::memcpy(&m_sharedString->string[i*length], string, length);
+
+		m_sharedString->string[totalSize] = '\0';
+	}
+	else
+		ReleaseString();
+
+	return *this;
+}
+
+NzString& NzString::Set(unsigned int rep, const NzString& string)
+{
+	return Set(rep, string.m_sharedString->string, string.m_sharedString->size);
 }
 
 NzString& NzString::Set(const char* string)
