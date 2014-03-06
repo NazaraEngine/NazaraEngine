@@ -71,7 +71,10 @@ void NzShaderStage::Destroy()
 {
 	m_compiled = false;
 	if (m_id)
+	{
 		glDeleteShader(m_id);
+		m_id = 0;
+	}
 }
 
 NzString NzShaderStage::GetLog() const
