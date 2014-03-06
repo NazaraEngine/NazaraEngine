@@ -68,10 +68,11 @@ namespace
 	};
 
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
-	using VAO_Map = std::unordered_map<const NzContext*, std::map<VAO_Key, unsigned int>>;
+	using VAO_Map = std::map<VAO_Key, unsigned int>;
+	using Context_Map = std::unordered_map<const NzContext*, VAO_Map>;
 
-	VAO_Map s_vaos;
-	std::set<unsigned int> s_dirtyTextureUnits;
+	Context_Map s_vaos;
+	std::vector<unsigned int> s_dirtyTextureUnits;
 	std::vector<TextureUnit> s_textureUnits;
 	GLuint s_currentVAO = 0;
 	NzVertexBuffer s_instanceBuffer;
@@ -1379,7 +1380,7 @@ void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 				s_textureUnits[unit].samplerUpdated = false;
 		}
 
-		s_dirtyTextureUnits.insert(unit);
+		s_dirtyTextureUnits.push_back(unit);
 		s_updateFlags |= Update_Textures;
 	}
 }
@@ -1400,7 +1401,7 @@ void NzRenderer::SetTextureSampler(nzUInt8 unit, const NzTextureSampler& sampler
 	if (s_textureUnits[unit].texture)
 		s_textureUnits[unit].sampler.UseMipmaps(s_textureUnits[unit].texture->HasMipmaps());
 
-	s_dirtyTextureUnits.insert(unit);
+	s_dirtyTextureUnits.push_back(unit);
 	s_updateFlags |= Update_Textures;
 }
 
@@ -1658,11 +1659,16 @@ bool NzRenderer::EnsureStateUpdate()
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
 				const NzContext* context = NzContext::GetCurrent();
 
-				auto pair = s_vaos.insert(std::make_pair(context, VAO_Map::mapped_type()));
-				if (pair.second)
+				VAO_Map* vaos;
+				auto vaoIt = s_vaos.find(context);
+				if (vaoIt == s_vaos.end())
+				{
 					context->AddResourceListener(&s_listener, ResourceType_Context);
-
-				auto& vaos = pair.first->second;
+					auto pair = s_vaos.insert(std::make_pair(context, Context_Map::mapped_type()));
+					vaos = &pair.first->second;
+				}
+				else
+					vaos = &vaoIt->second;
 
 				// Notre clé est composée de ce qui définit un VAO
 				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
@@ -1670,15 +1676,15 @@ bool NzRenderer::EnsureStateUpdate()
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
-				auto it = vaos.find(key);
-				if (it == vaos.end())
+				auto it = vaos->find(key);
+				if (it == vaos->end())
 				{
 					// On créé notre VAO
 					glGenVertexArrays(1, &s_currentVAO);
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					vaos.insert(std::make_pair(key, static_cast<unsigned int>(s_currentVAO)));
+					vaos->insert(std::make_pair(key, static_cast<unsigned int>(s_currentVAO)));
 					if (s_indexBuffer)
 						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
 
