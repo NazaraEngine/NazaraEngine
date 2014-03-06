@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Math/Basic.hpp>
@@ -647,6 +648,8 @@ bool NzOpenGL::Initialize()
 
 	s_initialized = true;
 
+	NzCallOnExit onExit(NzOpenGL::Uninitialize);
+
 	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
 	NzContextParameters parameters;
 	parameters.majorVersion = 2;
@@ -667,8 +670,6 @@ bool NzOpenGL::Initialize()
 	if (!loadContext.Create(parameters))
 	{
 		NazaraError("Failed to create load context");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -688,8 +689,6 @@ bool NzOpenGL::Initialize()
 	if (!glGetString)
 	{
 		NazaraError("Unable to load OpenGL: failed to load glGetString");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -701,8 +700,6 @@ bool NzOpenGL::Initialize()
 	if (!version)
 	{
 		NazaraError("Unable to retrieve OpenGL version");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -728,8 +725,6 @@ bool NzOpenGL::Initialize()
 	if (s_openglVersion < 200)
 	{
 		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (2.0 required). Please upgrade your drivers or your video card");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -737,8 +732,6 @@ bool NzOpenGL::Initialize()
 	if (!version)
 	{
 		NazaraError("Unable to retrieve GLSL version");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -761,8 +754,6 @@ bool NzOpenGL::Initialize()
 	if (s_glslVersion < 110)
 	{
 		NazaraError("GLSL version is too low, please upgrade your drivers or your video card");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -773,8 +764,6 @@ bool NzOpenGL::Initialize()
 	if (!loadContext.Create(parameters)) // Destruction implicite du premier contexte
 	{
 		NazaraError("Failed to create load context");
-		Uninitialize();
-
 		return false;
 	}
 
@@ -882,8 +871,6 @@ bool NzOpenGL::Initialize()
 	catch (const std::exception& e)
 	{
 		NazaraError("Unable to load OpenGL: " + NzString(e.what()));
-		Uninitialize();
-
 		return false;
 	}
 
@@ -1241,12 +1228,11 @@ bool NzOpenGL::Initialize()
 	if (!NzContext::Initialize())
 	{
 		NazaraError("Failed to initialize contexts");
-		Uninitialize();
-
 		return false;
 	}
 
 	// Le contexte OpenGL n'est plus assuré à partir d'ici
+	onExit.Reset();
 
 	return true;
 }
