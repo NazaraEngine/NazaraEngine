@@ -33,7 +33,10 @@ class NAZARA_API NzString : public NzHashable
 
 		NzString();
 		explicit NzString(char character);
-		explicit NzString(unsigned int length, char character);
+		NzString(unsigned int rep, char character);
+		NzString(unsigned int rep, const char* string);
+		NzString(unsigned int rep, const char* string, unsigned int length);
+		NzString(unsigned int rep, const NzString& string);
 		NzString(const char* string);
 		NzString(const char* string, unsigned int length);
 		NzString(const std::string& string);
@@ -125,7 +128,10 @@ class NAZARA_API NzString : public NzHashable
 		NzString Reversed() const;
 
 		NzString& Set(char character);
-		NzString& Set(unsigned int length, char character);
+		NzString& Set(unsigned int rep, char character);
+		NzString& Set(unsigned int rep, const char* string);
+		NzString& Set(unsigned int rep, const char* string, unsigned int length);
+		NzString& Set(unsigned int rep, const NzString& string);
 		NzString& Set(const char* string);
 		NzString& Set(const char* string, unsigned int length);
 		NzString& Set(const std::string& string);
