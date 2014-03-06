@@ -52,6 +52,7 @@ $RECYCLE.BIN/
 
 *_i.c
 *_p.c
+*.idb
 *.ilk
 *.meta
 *.pch
