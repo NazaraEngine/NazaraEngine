@@ -9,6 +9,13 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <typeinfo>
+
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_RESOURCE
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 NzResource::NzResource(bool persistent) :

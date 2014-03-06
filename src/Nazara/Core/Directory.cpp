@@ -16,6 +16,12 @@
 	#error OS not handled
 #endif
 
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DIRECTORY
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace
