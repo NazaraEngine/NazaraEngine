@@ -15,6 +15,12 @@
 	#error No implementation for this platform
 #endif
 
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DYNLIB
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 NzDynLib::NzDynLib() :

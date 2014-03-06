@@ -19,6 +19,12 @@
 	#error OS not handled
 #endif
 
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 NzFile::NzFile() :

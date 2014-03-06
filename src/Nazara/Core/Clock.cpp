@@ -13,6 +13,12 @@
 	#error OS not handled
 #endif
 
+#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
+	#include <Nazara/Core/ThreadSafety.hpp>
+#else
+	#include <Nazara/Core/ThreadSafetyOff.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace
@@ -47,7 +53,7 @@ float NzClock::GetSeconds() const
 
 nzUInt64 NzClock::GetMicroseconds() const
 {
-	NazaraMutex(m_mutex);
+	NazaraLock(m_mutex);
 
 	return m_elapsedTime + (NzGetMicroseconds()-m_refTime);
 }
@@ -59,14 +65,14 @@ nzUInt64 NzClock::GetMilliseconds() const
 
 bool NzClock::IsPaused() const
 {
-	NazaraMutex(m_mutex);
+	NazaraLock(m_mutex);
 
 	return m_paused;
 }
 
 void NzClock::Pause()
 {
-	NazaraMutex(m_mutex);
+	NazaraLock(m_mutex);
 
 	if (!m_paused)
 	{
@@ -79,7 +85,7 @@ void NzClock::Pause()
 
 void NzClock::Restart()
 {
-	NazaraMutex(m_mutex);
+	NazaraLock(m_mutex);
 
 	m_elapsedTime = 0;
 	m_refTime = NzGetMicroseconds();
@@ -88,7 +94,7 @@ void NzClock::Restart()
 
 void NzClock::Unpause()
 {
-	NazaraMutex(m_mutex);
+	NazaraLock(m_mutex);
 
 	if (m_paused)
 	{
