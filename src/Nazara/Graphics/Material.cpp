@@ -645,6 +645,7 @@ bool NzMaterial::Initialize()
 	// Basic shader
 	{
 		std::unique_ptr<NzUberShaderPreprocessor> uberShader(new NzUberShaderPreprocessor);
+		uberShader->SetPersistent(false);
 
 		NzString fragmentShader;
 		NzString vertexShader;
@@ -685,6 +686,7 @@ bool NzMaterial::Initialize()
 	// PhongLighting shader
 	{
 		std::unique_ptr<NzUberShaderPreprocessor> uberShader(new NzUberShaderPreprocessor);
+		uberShader->SetPersistent(false);
 
 		NzString fragmentShader;
 		NzString vertexShader;
