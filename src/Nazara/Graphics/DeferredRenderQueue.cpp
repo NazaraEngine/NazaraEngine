@@ -119,22 +119,28 @@ void NzDeferredRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMe
 			{
 				const NzStaticMesh* staticMesh = static_cast<const NzStaticMesh*>(subMesh);
 
-				auto pair = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type()));
-				if (pair.second)
+				auto it = opaqueModels.find(material);
+				if (it == opaqueModels.end())
+				{
+					it = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type())).first;
 					material->AddResourceListener(this, ResourceType_Material);
+				}
 
-				bool& used = std::get<0>(pair.first->second);
-				bool& enableInstancing = std::get<1>(pair.first->second);
+				bool& used = std::get<0>(it->second);
+				bool& enableInstancing = std::get<1>(it->second);
 
 				used = true;
 
-				auto& meshMap = std::get<3>(pair.first->second);
+				auto& meshMap = std::get<3>(it->second);
 
-				auto pair2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type()));
-				if (pair2.second)
+				auto it2 = meshMap.find(staticMesh);
+				if (it2 == meshMap.end())
+				{
+					it2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type())).first;
 					staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
+				}
 
-				std::vector<StaticData>& staticDataContainer = pair2.first->second;
+				std::vector<StaticData>& staticDataContainer = it2->second;
 
 				unsigned int instanceCount = staticDataContainer.size() + 1;
 
