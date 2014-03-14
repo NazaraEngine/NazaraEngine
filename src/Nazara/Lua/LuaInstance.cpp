@@ -238,8 +238,7 @@ bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
 
 	unsigned int length = static_cast<unsigned int>(file.GetSize());
 
-	NzString source;
-	source.Resize(length);
+	NzString source(length, '\0');
 
 	if (file.Read(&source[0], length) != length)
 	{

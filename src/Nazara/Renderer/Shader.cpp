@@ -233,7 +233,7 @@ NzString NzShader::GetLog() const
 	glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
 	if (length > 1) // Le caractère de fin faisant partie du compte
 	{
-		log.Resize(length - 1); // La taille retournée est celle du buffer (Avec caractère de fin)
+		log.Set(length - 1, '\0'); // La taille retournée est celle du buffer (Avec caractère de fin)
 		glGetProgramInfoLog(m_program, length, nullptr, &log[0]);
 	}
 	else
@@ -262,8 +262,7 @@ NzString NzShader::GetSourceCode(nzShaderStage stage) const
 
 	totalLength += (m_attachedShaders[stage].size()-1)*(sizeof(sep)/sizeof(char));
 
-	NzString source;
-	source.Resize(totalLength);
+	NzString source(totalLength, '\0');
 
 	unsigned int offset = 0;
 	for (unsigned int shader : m_attachedShaders[stage])
