@@ -72,7 +72,16 @@ NzModel::~NzModel()
 
 void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
-	renderQueue->AddModel(this);
+	const NzMatrix4f& transformMatrix = GetTransformMatrix();
+
+	unsigned int submeshCount = m_mesh->GetSubMeshCount();
+	for (unsigned int i = 0; i < submeshCount; ++i)
+	{
+		NzSubMesh* subMesh = m_mesh->GetSubMesh(i);
+		NzMaterial* material = m_materials[subMesh->GetMaterialIndex()];
+
+		renderQueue->AddSubMesh(material, subMesh, transformMatrix);
+	}
 }
 
 void NzModel::AdvanceAnimation(float elapsedTime)

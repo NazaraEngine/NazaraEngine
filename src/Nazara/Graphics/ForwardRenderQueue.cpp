@@ -68,36 +68,6 @@ void NzForwardRenderQueue::AddLight(const NzLight* light)
 	}
 }
 
-void NzForwardRenderQueue::AddModel(const NzModel* model)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!model)
-	{
-		NazaraError("Invalid model");
-		return;
-	}
-
-	if (!model->IsDrawable())
-	{
-		NazaraError("Model is not drawable");
-		return;
-	}
-	#endif
-
-	const NzMatrix4f& transformMatrix = model->GetTransformMatrix();
-
-	NzMesh* mesh = model->GetMesh();
-	unsigned int submeshCount = mesh->GetSubMeshCount();
-
-	for (unsigned int i = 0; i < submeshCount; ++i)
-	{
-		NzSubMesh* subMesh = mesh->GetSubMesh(i);
-		NzMaterial* material = model->GetMaterial(subMesh->GetMaterialIndex());
-
-		AddSubMesh(material, subMesh, transformMatrix);
-	}
-}
-
 void NzForwardRenderQueue::AddSprite(const NzSprite* sprite)
 {
 	#if NAZARA_GRAPHICS_SAFE
