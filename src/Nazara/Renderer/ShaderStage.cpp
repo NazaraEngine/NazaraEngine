@@ -93,7 +93,7 @@ NzString NzShaderStage::GetLog() const
 	glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &length);
 	if (length > 1) // Le caractère de fin faisant partie du compte
 	{
-		log.Resize(length - 1); // La taille retournée est celle du buffer (Avec caractère de fin)
+		log.Set(length - 1, '\0'); // La taille retournée est celle du buffer (Avec caractère de fin)
 		glGetShaderInfoLog(m_id, length, nullptr, &log[0]);
 	}
 	else
@@ -118,7 +118,7 @@ NzString NzShaderStage::GetSource() const
 	glGetShaderiv(m_id, GL_SHADER_SOURCE_LENGTH, &length);
 	if (length > 1) // Le caractère de fin compte
 	{
-		source.Resize(length - 1); // La taille retournée est celle du buffer (Avec caractère de fin)
+		source.Set(length - 1, '\0'); // La taille retournée est celle du buffer (Avec caractère de fin)
 		glGetShaderSource(m_id, length, nullptr, &source[0]);
 	}
 
@@ -182,8 +182,7 @@ bool NzShaderStage::SetSourceFromFile(const NzString& filePath)
 
 	unsigned int length = static_cast<unsigned int>(file.GetSize());
 
-	NzString source;
-	source.Resize(length);
+	NzString source(length, '\0');
 
 	if (file.Read(&source[0], length) != length)
 	{
