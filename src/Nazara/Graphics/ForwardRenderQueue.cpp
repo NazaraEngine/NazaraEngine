@@ -130,28 +130,32 @@ void NzForwardRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMes
 			}
 			else
 			{
-				auto pair = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type()));
-				if (pair.second)
+				auto it = opaqueModels.find(material);
+				if (it == opaqueModels.end())
+				{
+					it = opaqueModels.insert(std::make_pair(material, BatchedModelContainer::mapped_type())).first;
 					material->AddResourceListener(this, ResourceType_Material);
+				}
 
-				bool& used = std::get<0>(pair.first->second);
-				bool& enableInstancing = std::get<1>(pair.first->second);
+				bool& used = std::get<0>(it->second);
+				bool& enableInstancing = std::get<1>(it->second);
 
 				used = true;
 
-				auto& meshMap = std::get<3>(pair.first->second);
+				auto& meshMap = std::get<3>(it->second);
 
-				auto pair2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type()));
-				if (pair2.second)
+				auto it2 = meshMap.find(staticMesh);
+				if (it2 == meshMap.end())
 				{
+					it2 = meshMap.insert(std::make_pair(staticMesh, BatchedStaticMeshContainer::mapped_type())).first;
 					staticMesh->AddResourceListener(this, ResourceType_StaticMesh);
 
-					NzSpheref& squaredBoundingSphere = pair2.first->second.first;
+					NzSpheref& squaredBoundingSphere = it2->second.first;
 					squaredBoundingSphere.Set(staticMesh->GetAABB().GetSquaredBoundingSphere());
 					///TODO: Écouter le StaticMesh pour repérer tout changement de géométrie
 				}
 
-				std::vector<StaticData>& staticDataContainer = pair2.first->second.second;
+				std::vector<StaticData>& staticDataContainer = it2->second.second;
 
 				unsigned int instanceCount = staticDataContainer.size() + 1;
 
