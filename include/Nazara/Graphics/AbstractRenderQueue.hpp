@@ -26,7 +26,6 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 
 		virtual void AddDrawable(const NzDrawable* drawable) = 0;
 		virtual void AddLight(const NzLight* light) = 0;
-		virtual void AddModel(const NzModel* model) = 0;
 		virtual void AddSprite(const NzSprite* sprite) = 0;
 		virtual void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix) = 0;
 

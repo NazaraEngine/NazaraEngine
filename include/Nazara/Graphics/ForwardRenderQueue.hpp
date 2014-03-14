@@ -29,11 +29,10 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		NzForwardRenderQueue() = default;
 		~NzForwardRenderQueue();
 
-		void AddDrawable(const NzDrawable* drawable);
-		void AddLight(const NzLight* light);
-		void AddModel(const NzModel* model);
-		void AddSprite(const NzSprite* sprite);
-		void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix);
+		void AddDrawable(const NzDrawable* drawable) override;
+		void AddLight(const NzLight* light) override;
+		void AddSprite(const NzSprite* sprite) override;
+		void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix) override;
 
 		void Clear(bool fully);
 
