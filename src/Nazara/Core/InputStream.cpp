@@ -47,10 +47,10 @@ NzString NzInputStream::ReadLine(unsigned int lineSize)
 	}
 	else
 	{
-		line.Resize(lineSize);
+		line.Set(lineSize, '\0');
 		unsigned int readSize = Read(&line[0], lineSize);
 		unsigned int pos = line.Find('\n');
-		if (pos <= readSize) // Forcément trouvé, npos étant le plus grand des entiers
+		if (pos <= readSize) // Faux uniquement si le caractère n'est pas présent (npos étant le plus grand entier)
 		{
 			if (m_streamOptions & nzStreamOption_Text && pos > 0 && line[pos-1] == '\r')
 				line.Resize(pos);
