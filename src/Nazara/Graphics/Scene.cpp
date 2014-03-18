@@ -64,10 +64,7 @@ void NzScene::Cull()
 	}
 	#endif
 
-	if (!m_impl->renderTechnique)
-		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
-
-	NzAbstractRenderQueue* renderQueue = m_impl->renderTechnique->GetRenderQueue();
+	NzAbstractRenderQueue* renderQueue = GetRenderTechnique()->GetRenderQueue();
 	renderQueue->Clear(false);
 
 	m_impl->visibleUpdateList.clear();
@@ -92,9 +89,6 @@ void NzScene::Draw()
 
 	m_impl->viewer->ApplyView();
 
-	if (!m_impl->background)
-		m_impl->background.reset(new NzColorBackground);
-
 	try
 	{
 		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
@@ -117,11 +111,17 @@ NzColor NzScene::GetAmbientColor() const
 
 NzAbstractBackground* NzScene::GetBackground() const
 {
+	if (!m_impl->background)
+		m_impl->background.reset(new NzColorBackground);
+
 	return m_impl->background.get();
 }
 
 NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
 {
+	if (!m_impl->renderTechnique)
+		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
+
 	return m_impl->renderTechnique.get();
 }
 
