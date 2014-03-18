@@ -82,11 +82,13 @@ void NzDeferredRenderQueue::AddSprite(const NzSprite* sprite)
 	}
 	#endif
 
-	NzMaterial* material = sprite->GetMaterial();
-	if (material->IsEnabled(nzRendererParameter_Blend))
+	/*NzMaterial* material = sprite->GetMaterial();
+	if (!material->IsLightingEnabled() || material->IsEnabled(nzRendererParameter_Blend))
 		m_forwardQueue->AddSprite(sprite);
 	else
-		sprites[material].push_back(sprite);
+		sprites[material].push_back(sprite);*/
+
+	m_forwardQueue->AddSprite(sprite);
 }
 
 void NzDeferredRenderQueue::AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix)
