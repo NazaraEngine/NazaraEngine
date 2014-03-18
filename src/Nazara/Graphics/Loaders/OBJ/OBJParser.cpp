@@ -243,7 +243,7 @@ bool NzOBJParser::Parse()
 			case 'g':
 			case 'o':
 			{
-				if (m_currentLine[1] != ' ')
+				if (m_currentLine.GetSize() <= 2 || m_currentLine[1] != ' ')
 				{
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 					UnrecognizedLine();
@@ -267,7 +267,7 @@ bool NzOBJParser::Parse()
 
 			case 's':
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				if (m_currentLine[1] == ' ')
+				if (m_currentLine.GetSize() <= 2 || m_currentLine[1] == ' ')
 				{
 					NzString param = m_currentLine.SubString(2);
 					if (param != "all" && param != "on" && param != "off" && !param.IsNumber())
