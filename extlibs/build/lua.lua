@@ -3,8 +3,6 @@ language "C++"
 kind "StaticLib"
 targetname "lua-s"
 
-includedirs "../extlibs/include/Lua"
-
 files
 {
 	"../include/Lua/*.h",
