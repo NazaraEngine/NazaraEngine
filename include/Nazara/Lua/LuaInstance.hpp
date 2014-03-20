@@ -30,6 +30,8 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		~NzLuaInstance();
 
 		void CheckAny(int index) const;
+		bool CheckBoolean(int index) const;
+		bool CheckBoolean(int index, bool defValue) const;
 		int CheckInteger(int index) const;
 		int CheckInteger(int index, int defValue) const;
 		double CheckNumber(int index) const;

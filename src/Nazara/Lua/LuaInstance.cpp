@@ -97,6 +97,26 @@ void NzLuaInstance::CheckAny(int index) const
 	luaL_checkany(m_state, index);
 }
 
+bool NzLuaInstance::CheckBoolean(int index) const
+{
+	if (lua_isnoneornil(m_state, index))
+	{
+		const char* msg = lua_pushfstring(m_state, "%s expected, got %s", lua_typename(m_state, LUA_TBOOLEAN), luaL_typename(m_state, index));
+		luaL_argerror(m_state, index, msg); // Lance une exception
+		return false;
+	}
+
+	return lua_toboolean(m_state, index);
+}
+
+bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
+{
+	if (lua_isnoneornil(m_state, index))
+		return defValue;
+
+	return lua_toboolean(m_state, index);
+}
+
 int NzLuaInstance::CheckInteger(int index) const
 {
 	return luaL_checkint(m_state, index);
