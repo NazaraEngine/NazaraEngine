@@ -39,10 +39,10 @@ namespace
 	}
 }
 
-NzClock::NzClock() :
-m_elapsedTime(0),
+NzClock::NzClock(nzUInt64 startingValue, bool paused) :
+m_elapsedTime(startingValue),
 m_refTime(NzGetMicroseconds()),
-m_paused(false)
+m_paused(paused)
 {
 }
 
