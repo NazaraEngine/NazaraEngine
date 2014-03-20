@@ -28,7 +28,7 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 	// J'utilise donc une astuce, la stocker dans une UserData associée avec chaque fonction de la metatable du type,
 	// cette UserData disposera d'un finalizer qui libérera le ClassInfo
 	// Ainsi c'est Lua qui va s'occuper de la destruction pour nous :-)
-	// PS: L'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
+	// De même, l'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
 	void* info = lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>));
 	new (info) std::shared_ptr<ClassInfo>(m_info);
 
@@ -137,7 +137,7 @@ int NzLuaClass<T>::ConstructorProxy(lua_State* state)
 	if (!instance)
 	{
 		lua.Error("Constructor failed");
-		return 0; // Normalement pas nécessaire
+		return 0; // Normalement jamais exécuté (l'erreur provoquant une exception)
 	}
 
 	T** ud = static_cast<T**>(lua.PushUserdata(sizeof(T*)));
