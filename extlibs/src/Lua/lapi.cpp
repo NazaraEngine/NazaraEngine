@@ -11,7 +11,7 @@
 #define lapi_c
 #define LUA_CORE
 
-#include "lua.h"
+#include <Lua/lua.h>
 
 #include "lapi.h"
 #include "ldebug.h"
