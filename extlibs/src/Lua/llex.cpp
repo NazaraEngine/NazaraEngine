@@ -1,5 +1,5 @@
 /*
-** $Id: llex.c,v 2.61 2012/01/23 23:05:51 roberto Exp $
+** $Id: llex.c,v 2.63.1.2 2013/08/30 15:49:41 roberto Exp $
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
@@ -37,11 +37,11 @@ static const char *const luaX_tokens [] = {
     "and", "break", "do", "else", "elseif",
     "end", "false", "for", "function", "goto", "if",
     "in", "local", "nil", "not", "or", "repeat",
-    "return", "then", "true", "until", "while",
-    "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
 #ifdef LUA_CPPNEG
     "!=",
 #endif
+    "return", "then", "true", "until", "while",
+    "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
     "<number>", "<name>", "<string>"
 };
 
@@ -76,16 +76,16 @@ void luaX_init (lua_State *L) {
 
 
 const char *luaX_token2str (LexState *ls, int token) {
-  if (token < FIRST_RESERVED) {
+  if (token < FIRST_RESERVED) {  /* single-byte symbols? */
     lua_assert(token == cast(unsigned char, token));
     return (lisprint(token)) ? luaO_pushfstring(ls->L, LUA_QL("%c"), token) :
                               luaO_pushfstring(ls->L, "char(%d)", token);
   }
   else {
     const char *s = luaX_tokens[token - FIRST_RESERVED];
-    if (token < TK_EOS)
+    if (token < TK_EOS)  /* fixed format (symbols and reserved words)? */
       return luaO_pushfstring(ls->L, LUA_QS, s);
-    else
+    else  /* names, strings, and numerals */
       return s;
   }
 }
@@ -135,6 +135,9 @@ TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
        table has no metatable, so it does not need to invalidate cache */
     setbvalue(o, 1);  /* t[string] = true */
     luaC_checkGC(L);
+  }
+  else {  /* string already present */
+    ts = rawtsvalue(keyfromval(o));  /* re-use value previously stored */
   }
   L->top--;  /* remove string from stack */
   return ts;
@@ -316,7 +319,7 @@ static int readhexaesc (LexState *ls) {
   int c[3], i;  /* keep input for error message */
   int r = 0;  /* result accumulator */
   c[0] = 'x';  /* for error message */
-  for (i = 1; i < 3; i++) {  /* read two hexa digits */
+  for (i = 1; i < 3; i++) {  /* read two hexadecimal digits */
     c[i] = next(ls);
     if (!lisxdigit(c[i]))
       escerror(ls, c, i + 1, "hexadecimal digit expected");
@@ -432,7 +435,6 @@ static int llex (LexState *ls, SemInfo *seminfo) {
           next(ls);  /* skip until end of line (or end of file) */
         break;
       }
-
       /* bn 01/2012: added C++-style comments */
 #if defined(LUA_CPPCOMT_SHORT) || defined(LUA_CPPCOMT_LONG)
       case '/': {  /* '/' or '/''/' (line comment) or '/''*' (long comment) */
@@ -465,7 +467,6 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
 #endif /* LUA_CPPCOMT_SHORT || LUA_CPPCOMT_LONG */
       /* end changes */
-
       case '[': {  /* long string or simply '[' */
         int sep = skip_sep(ls);
         if (sep >= 0) {
