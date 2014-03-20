@@ -19,9 +19,9 @@
 #define lauxlib_c
 #define LUA_LIB
 
-#include "lua.h"
+#include <Lua/lua.h>
 
-#include "lauxlib.h"
+#include <Lua/lauxlib.h>
 
 
 /*
