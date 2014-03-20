@@ -18,7 +18,7 @@
 class NAZARA_API NzClock
 {
 	public:
-		NzClock();
+		NzClock(nzUInt64 startingValue = 0, bool paused = false);
 
 		float GetSeconds() const;
 		nzUInt64 GetMicroseconds() const;
