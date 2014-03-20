@@ -55,7 +55,11 @@ nzUInt64 NzClock::GetMicroseconds() const
 {
 	NazaraLock(m_mutex);
 
-	return m_elapsedTime + (NzGetMicroseconds()-m_refTime);
+	nzUInt64 elapsedMicroseconds = m_elapsedTime;
+	if (!m_paused)
+		elapsedMicroseconds += (NzGetMicroseconds() - m_refTime);
+
+	return elapsedMicroseconds;
 }
 
 nzUInt64 NzClock::GetMilliseconds() const
