@@ -85,7 +85,7 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 			index++;
 		}
 	}
-	lua.Pop();
+	lua.Pop(); // On pop la metatable
 
 	if (m_info->constructor)
 	{
@@ -93,6 +93,7 @@ void NzLuaClass<T>::Register(NzLuaInstance& lua)
 		lua.PushCFunction(ConstructorProxy, 1);
 		lua.SetGlobal(m_info->name);
 	}
+	lua.Pop(); // On pop l'Userdata (contenant nos informations)
 }
 
 template<class T>
