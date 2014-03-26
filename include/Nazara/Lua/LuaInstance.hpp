@@ -51,6 +51,8 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 
 		void Concatenate(int count);
 
+		NzString DumpStack() const;
+
 		void Error(const char* message);
 		void Error(const NzString& message);
 

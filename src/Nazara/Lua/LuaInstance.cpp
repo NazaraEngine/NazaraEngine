@@ -10,6 +10,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/StringStream.hpp>
 #include <cstdlib>
 #include <stdexcept>
 #include <unordered_map>
@@ -219,6 +220,65 @@ void NzLuaInstance::Compute(nzLuaOperation operation)
 void NzLuaInstance::Concatenate(int count)
 {
 	lua_concat(m_state, count);
+}
+
+NzString NzLuaInstance::DumpStack() const
+{
+	NzStringStream stream;
+	unsigned int stackTop = GetStackTop();
+	stream << stackTop << " entries\n";
+
+	for (unsigned int i = 1; i <= stackTop; ++i)
+	{
+		stream << i << ": ";
+		switch (GetType(i))
+		{
+			case nzLuaType_Boolean:
+				stream << "Boolean(" << ToBoolean(i) << ')';
+				break;
+
+			case nzLuaType_Function:
+				stream << "Function";
+				break;
+
+			case nzLuaType_LightUserdata:
+			case nzLuaType_Userdata:
+				stream << "Userdata(" << ToUserdata(i) << ')';
+				break;
+
+			case nzLuaType_Nil:
+				stream << "Nil";
+				break;
+
+			case nzLuaType_None:
+				stream << "None";
+				break;
+
+			case nzLuaType_Number:
+				stream << "Number(" << ToNumber(i) << ')';
+				break;
+
+			case nzLuaType_String:
+				stream << "String(" << ToString(i) << ')';
+				break;
+
+			case nzLuaType_Table:
+				stream << "Table";
+				break;
+
+			case nzLuaType_Thread:
+				stream << "Thread";
+				break;
+
+			default:
+				stream << "Unknown";
+				break;
+		}
+
+		stream << '\n';
+	}
+
+	return stream.ToString();
 }
 
 void NzLuaInstance::Error(const char* message)
