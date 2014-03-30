@@ -9,24 +9,23 @@ namespace std
     template<>
     struct hash<NzString>
     {
-		public:
-			size_t operator()(const NzString& str) const
+		size_t operator()(const NzString& str) const
+		{
+			// Algorithme DJB2
+			// http://www.cse.yorku.ca/~oz/hash.html
+
+			size_t h = 5381;
+			if (!str.IsEmpty())
 			{
-				// Algorithme DJB2
-				// http://www.cse.yorku.ca/~oz/hash.html
+				const char* ptr = str.GetConstBuffer();
 
-				size_t h = 5381;
-				if (!str.IsEmpty())
-				{
-					const char* ptr = str.GetConstBuffer();
-
-					do
-						h = ((h << 5) + h) + *ptr;
-					while (*++ptr);
-				}
-
-				return h;
+				do
+					h = ((h << 5) + h) + *ptr;
+				while (*++ptr);
 			}
+
+			return h;
+		}
     };
 }
 
