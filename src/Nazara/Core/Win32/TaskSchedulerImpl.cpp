@@ -26,6 +26,7 @@ bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 	s_workers.reset(new Worker[workerCount]);
 	s_workerThreads.reset(new HANDLE[workerCount]);
 
+	// L'identifiant de chaque worker doit rester en vie jusqu'à ce que chaque thread soit correctement lancé
 	std::unique_ptr<unsigned int[]> workerIDs(new unsigned int[workerCount]);
 
 	for (unsigned int i = 0; i < workerCount; ++i)
@@ -42,6 +43,7 @@ bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 		s_workerThreads[i] = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &WorkerProc, &workerIDs[i], 0, nullptr));
 	}
 
+	// On attend que les workers se mettent en attente
 	WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
 
 	return true;
@@ -67,6 +69,7 @@ void NzTaskSchedulerImpl::Run(NzFunctor** tasks, unsigned int count)
 		worker.workCount = taskCount;
 	}
 
+	// On les lance une fois qu'ils sont tous initialisés (pour éviter qu'un worker ne passe en pause détectant une absence de travaux)
 	for (unsigned int i = 0; i < s_workerCount; ++i)
 	{
 		ResetEvent(s_doneEvents[i]);
@@ -88,6 +91,7 @@ void NzTaskSchedulerImpl::Uninitialize()
 	{
 		Worker& worker = s_workers[i];
 		worker.running = false;
+		worker.workCount = 0;
 
 		EnterCriticalSection(&worker.queueMutex);
 
@@ -177,6 +181,8 @@ unsigned int __stdcall NzTaskSchedulerImpl::WorkerProc(void* userdata)
 	SetEvent(s_doneEvents[workerID]);
 
 	Worker& worker = s_workers[workerID];
+	WaitForSingleObject(worker.wakeEvent, INFINITE);
+
 	while (worker.running)
 	{
 		NzFunctor* task = nullptr;
@@ -184,7 +190,7 @@ unsigned int __stdcall NzTaskSchedulerImpl::WorkerProc(void* userdata)
 		if (worker.workCount > 0) // Permet d'éviter d'entrer inutilement dans une section critique
 		{
 			EnterCriticalSection(&worker.queueMutex);
-			if (!worker.queue.empty())
+			if (!worker.queue.empty()) // Nécessaire car le workCount peut être tombé à zéro juste avant l'entrée dans la section critique
 			{
 				task = worker.queue.front();
 				worker.queue.pop();

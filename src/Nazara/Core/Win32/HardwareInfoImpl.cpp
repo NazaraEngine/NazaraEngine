@@ -7,7 +7,7 @@
 #include <windows.h>
 
 #ifdef NAZARA_COMPILER_MSVC
-#include <intrin.h>
+	#include <intrin.h>
 #endif
 
 #include <Nazara/Core/Debug.hpp>
