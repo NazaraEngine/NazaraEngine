@@ -21,9 +21,9 @@
 #endif
 
 template<typename T> T NzApproach(T value, T objective, T increment);
-template<typename T> T NzClamp(T value, T min, T max);
-template<typename T> T NzDegrees(T degrees);
-template<typename T> T NzDegreeToRadian(T degrees);
+template<typename T> constexpr T NzClamp(T value, T min, T max);
+template<typename T> constexpr T NzDegrees(T degrees);
+template<typename T> constexpr T NzDegreeToRadian(T degrees);
 template<typename T> T NzMultiplyAdd(T x, T y, T z);
 unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
 unsigned int NzGetNearestPowerOfTwo(unsigned int number);

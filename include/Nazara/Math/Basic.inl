@@ -15,6 +15,7 @@
 template<typename T>
 T NzApproach(T value, T objective, T increment)
 {
+	///TODO: Marquer comme constexpr en C++14
 	if (value < objective)
 		return std::min(value + increment, objective);
 	else if (value > objective)
@@ -24,13 +25,13 @@ T NzApproach(T value, T objective, T increment)
 }
 
 template<typename T>
-T NzClamp(T value, T min, T max)
+constexpr T NzClamp(T value, T min, T max)
 {
 	return std::max(std::min(value, max), min);
 }
 
 template<typename T>
-T NzDegrees(T degrees)
+constexpr T NzDegrees(T degrees)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
 	return NzDegreeToRadian(degrees);
@@ -40,7 +41,7 @@ T NzDegrees(T degrees)
 }
 
 template<typename T>
-T NzDegreeToRadian(T degrees)
+constexpr T NzDegreeToRadian(T degrees)
 {
 	return degrees * F(M_PI/180.0);
 }
@@ -77,6 +78,7 @@ inline long double NzMultiplyAdd(long double x, long double y, long double z)
 
 inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 {
+	///TODO: Marquer comme constexpr en C++14
 	unsigned int r = 1;
 	for (unsigned int i = 0; i < exponent; ++i)
 		r *= base;
@@ -86,6 +88,7 @@ inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
 
 inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
 {
+	///TODO: Marquer comme constexpr en C++14
 	unsigned int x = 1;
 	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
 	while(x <= number)
@@ -96,6 +99,7 @@ inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
 
 inline unsigned int NzGetNumberLength(signed char number)
 {
+	///TODO: Marquer comme constexpr en C++14
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
@@ -115,6 +119,7 @@ inline unsigned int NzGetNumberLength(signed char number)
 
 inline unsigned int NzGetNumberLength(unsigned char number)
 {
+	///TODO: Marquer comme constexpr en C++14
 	// Le standard définit le char comme étant codé sur un octet
 	static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
 
