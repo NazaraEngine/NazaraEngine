@@ -783,7 +783,7 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 void NzGenerateCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb, unsigned int indexOffset)
 {
-	const float round = 2.f*static_cast<float>(M_PI);
+	constexpr float round = 2.f*static_cast<float>(M_PI);
 	float delta = round/subdivision;
 
 	vertices->position = matrix.GetTranslation(); // matrix.Transform(NzVector3f(0.f));
