@@ -39,7 +39,7 @@ NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMess
 bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
 {
 	NzString path = libraryPath;
-	
+
 	unsigned int pos = path.FindLast(".so");
 	if (pos == NzString::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
 		path += ".so";
