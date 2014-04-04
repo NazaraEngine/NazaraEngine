@@ -176,6 +176,8 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::SetFaceFilling(nzFaceFilling_Line);
 
 				const NzShader* shader = NzShaderLibrary::Get("DebugSimple");
+				static int colorLocation = shader->GetUniformLocation("Color");
+
 				NzRenderer::SetShader(shader);
 				for (const NzLight* light : m_renderQueue->pointLights)
 				{
@@ -184,7 +186,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					shader->SendColor(0, light->GetColor());
+					shader->SendColor(colorLocation, light->GetColor());
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}
@@ -243,6 +245,8 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				NzRenderer::SetFaceFilling(nzFaceFilling_Line);
 
 				const NzShader* shader = NzShaderLibrary::Get("DebugSimple");
+				static int colorLocation = shader->GetUniformLocation("Color");
+
 				NzRenderer::SetShader(shader);
 				for (const NzLight* light : m_renderQueue->spotLights)
 				{
@@ -251,7 +255,7 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					shader->SendColor(0, light->GetColor());
+					shader->SendColor(colorLocation, light->GetColor());
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}
