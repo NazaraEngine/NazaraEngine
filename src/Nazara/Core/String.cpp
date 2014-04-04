@@ -2055,8 +2055,8 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 	{
 		if (flags & CaseInsensitive)
 		{
-			char limitLower = 'a'+base-1;
-			char limitUpper = 'A'+base-1;
+			char limitLower = 'a' + base-10 - 1;
+			char limitUpper = 'A' + base-10 - 1;
 
 			do
 			{
@@ -2068,7 +2068,7 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 		}
 		else
 		{
-			char limit = 'a'+base-1;
+			char limit = 'a' + base-10 - 1;
 			do
 			{
 				char c = *ptr;
@@ -2080,7 +2080,7 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 	}
 	else
 	{
-		char limit = '0'+base-1;
+		char limit = '0' + base - 1;
 
 		do
 		{
