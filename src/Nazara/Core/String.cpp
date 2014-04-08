@@ -2581,7 +2581,6 @@ NzString& NzString::Resize(int size, char character)
 			std::memset(&m_sharedString->string[m_sharedString->size], character, newSize-m_sharedString->size);
 
 		m_sharedString->size = newSize;
-		m_sharedString->string[newSize] = '\0';
 	}
 	else // On veut forcément agrandir la chaine
 	{
@@ -2597,6 +2596,9 @@ NzString& NzString::Resize(int size, char character)
 		m_sharedString->size = newSize;
 		m_sharedString->string = newString;
 	}
+
+	// On rajoute le caractère de fin
+	m_sharedString->string[newSize] = '\0';
 
 	return *this;
 }
