@@ -148,6 +148,24 @@ void NzResource::NotifyDestroy()
 	m_resourceListenersLocked = false;
 }
 
+void NzResource::NotifyModified(unsigned int code)
+{
+	NazaraLock(m_mutex)
+
+	m_resourceListenersLocked = true;
+
+	auto it = m_resourceListeners.begin();
+	while (it != m_resourceListeners.end())
+	{
+		if (!it->first->OnResourceModified(this, it->second.first, code))
+			RemoveResourceListenerIterator(it++);
+		else
+			++it;
+	}
+
+	m_resourceListenersLocked = false;
+}
+
 void NzResource::RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const
 {
 	unsigned int& referenceCount = iterator->second.second;
