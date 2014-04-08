@@ -40,9 +40,10 @@ class NAZARA_API NzResource
 	protected:
 		void NotifyCreated();
 		void NotifyDestroy();
+		void NotifyModified(unsigned int code);
 
 	private:
-		typedef std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>> ResourceListenerMap;
+		using ResourceListenerMap = std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>>;
 
 		void RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const;
 
