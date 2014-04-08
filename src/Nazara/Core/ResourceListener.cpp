@@ -23,6 +23,15 @@ bool NzResourceListener::OnResourceDestroy(const NzResource* resource, int index
 	return true;
 }
 
+bool NzResourceListener::OnResourceModified(const NzResource* resource, int index, unsigned int code)
+{
+	NazaraUnused(resource);
+	NazaraUnused(index);
+	NazaraUnused(code);
+
+	return true;
+}
+
 void NzResourceListener::OnResourceReleased(const NzResource* resource, int index)
 {
 	NazaraUnused(resource);
