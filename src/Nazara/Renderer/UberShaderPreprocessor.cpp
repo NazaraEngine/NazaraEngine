@@ -92,7 +92,7 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			auto pair = m_cache.emplace(flags, shader.get());
 			shader.release();
 
-			return &(pair.first)->second;
+			return &(pair.first)->second; // On retourne l'objet construit
 		}
 		catch (const std::exception& e)
 		{
@@ -151,4 +151,9 @@ bool NzUberShaderPreprocessor::SetShaderFromFile(nzShaderStage stage, const NzSt
 
 	SetShader(stage, source, flags);
 	return true;
+}
+
+bool NzUberShaderPreprocessor::IsSupported()
+{
+	return true; // Forcément supporté
 }
