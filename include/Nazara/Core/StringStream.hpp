@@ -17,6 +17,8 @@ class NAZARA_API NzStringStream
 	public:
 		NzStringStream();
 		NzStringStream(const NzString& str);
+		
+		~NzStringStream();
 
 		NzString ToString() const;
 

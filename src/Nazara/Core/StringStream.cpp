@@ -16,6 +16,11 @@ m_bufferSize(str.GetSize())
 	m_strings.push_back(str);
 }
 
+NzStringStream::~NzStringStream()
+{
+    m_strings.clear();
+}
+
 NzString NzStringStream::ToString() const
 {
 	NzString string;
