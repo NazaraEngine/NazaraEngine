@@ -52,20 +52,20 @@ namespace
 
 	inline NzShader* RegisterDeferredShader(const NzString& name, const nzUInt8* fragmentSource, unsigned int fragmentSourceLength, const NzShaderStage& vertexStage, NzString* err)
 	{
-		NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
+		NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowExceptionDisabled);
 
 		std::unique_ptr<NzShader> shader(new NzShader);
 		shader->SetPersistent(false);
 
 		if (!shader->Create())
 		{
-			err->Set("Failed to create shader");
+			err->Set("Failed to create shader: " + NzError::GetLastError());
 			return nullptr;
 		}
 
 		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, reinterpret_cast<const char*>(fragmentSource), fragmentSourceLength))
 		{
-			err->Set("Failed to attach fragment stage");
+			err->Set("Failed to attach fragment stage: " + NzError::GetLastError());
 			return nullptr;
 		}
 
@@ -73,7 +73,7 @@ namespace
 
 		if (!shader->Link())
 		{
-			err->Set("Failed to link shader");
+			err->Set("Failed to link shader: " + NzError::GetLastError());
 			return nullptr;
 		}
 
@@ -542,7 +542,7 @@ bool NzDeferredRenderTechnique::Initialize()
 
 bool NzDeferredRenderTechnique::IsSupported()
 {
-	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait lent et inutile (OpenGL 2 garanti cette fonctionnalité en plus)
+	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait trop lent pour servir...
 	return NzOpenGL::GetGLSLVersion() >= 140 && // On ne va pas s'embêter non plus avec le mode de compatibilité
 	       NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
 	       NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets) &&
