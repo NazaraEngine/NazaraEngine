@@ -183,7 +183,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 			if (parent >= 0)
 				bindMatrix.MakeTransform(m_joints[i].bindPos, m_joints[i].bindOrient);
 			else
-				bindMatrix.MakeTransform(rotationQuat * m_joints[i].bindPos, rotationQuat * m_joints[i].bindOrient, scale);
+				bindMatrix.MakeTransform(rotationQuat * m_joints[i].bindPos, rotationQuat * m_joints[i].bindOrient);
 
 			joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 		}
@@ -250,7 +250,7 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 					vertexWeight->weights[j] = vertex.startWeight + j;
 				}
 
-				bindPosVertex->position = scale * finalPos;
+				bindPosVertex->position = finalPos;
 				bindPosVertex->uv.Set(vertex.uv.x, 1.f-vertex.uv.y);
 				bindPosVertex++;
 				vertexWeight++;
@@ -258,6 +258,8 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			// Material
 			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+
+			subMesh->GenerateNormalsAndTangents();
 			subMesh->SetMaterialIndex(i);
 
 			mesh->AddSubMesh(subMesh.get());

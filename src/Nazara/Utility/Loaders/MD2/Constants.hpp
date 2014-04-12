@@ -8,7 +8,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-struct md2_header
+struct MD2_Header
 {
 	nzUInt32 ident;         // nombre magique : "IDP2"
 	nzUInt32 version;       // version du format : 8
@@ -33,28 +33,30 @@ struct md2_header
 	nzUInt32 offset_end;    // offset fin de fichier
 };
 
-struct md2_vertex
+static_assert(sizeof(MD2_Header) == 17*sizeof(nzUInt32), "MD2_Header must be packed");
+
+struct MD2_Vertex
 {
 	nzUInt8 x, y, z;
 	nzUInt8 n;
 };
 
-static_assert(sizeof(md2_vertex) == 4*sizeof(nzUInt8), "md2_vertex must be packed");
+static_assert(sizeof(MD2_Vertex) == 4*sizeof(nzUInt8), "MD2_Vertex must be packed");
 
-struct md2_texCoord
+struct MD2_TexCoord
 {
 	nzInt16 u, v;
 };
 
-static_assert(sizeof(md2_texCoord) == 2*sizeof(nzUInt16), "md2_texCoord must be packed");
+static_assert(sizeof(MD2_TexCoord) == 2*sizeof(nzInt16), "MD2_TexCoord must be packed");
 
-struct md2_triangle
+struct MD2_Triangle
 {
 	nzUInt16 vertices[3];
 	nzUInt16 texCoords[3];
 };
 
-static_assert(sizeof(md2_triangle) == 2*3*sizeof(nzUInt16), "md2_triangle must be packed");
+static_assert(sizeof(MD2_Triangle) == 2*3*sizeof(nzUInt16), "MD2_Triangle must be packed");
 
 extern const nzUInt32 md2Ident;
 extern const NzVector3f md2Normals[162];
