@@ -5,9 +5,7 @@
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
@@ -38,7 +36,7 @@ namespace
 		nzUInt8 padding[54];
 	};
 
-	//static_assert(sizeof(pcx_header) == 1024, "PCX header must be 1024 bytes sized");
+	static_assert(sizeof(pcx_header) == (6+48+54)*sizeof(nzUInt8) + 10*sizeof(nzUInt16), "pcx_header struct must be packed");
 
 	bool IsSupported(const NzString& extension)
 	{
