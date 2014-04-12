@@ -241,7 +241,7 @@ bool NzMD5AnimParser::Parse(NzAnimation* animation)
 				sequenceJoint.rotation = rotationQuat * m_frames[j].joints[i].orient;
 			}
 
-			sequenceJoint.scale = NzVector3f(1.f, 1.f, 1.f);
+			sequenceJoint.scale.Set(1.f);
 		}
 	}
 
