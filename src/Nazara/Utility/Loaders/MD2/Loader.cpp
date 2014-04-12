@@ -45,8 +45,8 @@ namespace
 
 	bool Load(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
 	{
-		md2_header header;
-		if (stream.Read(&header, sizeof(md2_header)) != sizeof(md2_header))
+		MD2_Header header;
+		if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
 		{
 			NazaraError("Failed to read header");
 			return false;
@@ -106,10 +106,10 @@ namespace
 		indexBuffer->SetPersistent(false);
 
 		/// Lecture des triangles
-		std::vector<md2_triangle> triangles(header.num_tris);
+		std::vector<MD2_Triangle> triangles(header.num_tris);
 
 		stream.SetCursorPos(header.offset_tris);
-		stream.Read(&triangles[0], header.num_tris*sizeof(md2_triangle));
+		stream.Read(&triangles[0], header.num_tris*sizeof(MD2_Triangle));
 
 		NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 		nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
@@ -136,10 +136,10 @@ namespace
 		indexMapper.Unmap();
 
 		/// Lecture des coordonnées de texture
-		std::vector<md2_texCoord> texCoords(header.num_st);
+		std::vector<MD2_TexCoord> texCoords(header.num_st);
 
 		stream.SetCursorPos(header.offset_st);
-		stream.Read(&texCoords[0], header.num_st*sizeof(md2_texCoord));
+		stream.Read(&texCoords[0], header.num_st*sizeof(MD2_TexCoord));
 
 		#ifdef NAZARA_BIG_ENDIAN
 		for (unsigned int i = 0; i < header.num_st; ++i)
@@ -166,12 +166,12 @@ namespace
 		/// Chargement des vertices
 		stream.SetCursorPos(header.offset_frames);
 
-		std::unique_ptr<md2_vertex[]> vertices(new md2_vertex[header.num_vertices]);
+		std::unique_ptr<MD2_Vertex[]> vertices(new MD2_Vertex[header.num_vertices]);
 		NzVector3f scale, translate;
 		stream.Read(scale, sizeof(NzVector3f));
 		stream.Read(translate, sizeof(NzVector3f));
-		stream.Read(nullptr, 16*sizeof(char)); // On avance en ignorant le nom de la frame (Géré par l'animation)
-		stream.Read(vertices.get(), header.num_vertices*sizeof(md2_vertex));
+		stream.Read(nullptr, 16*sizeof(char)); // Nom de la frame, inutile ici
+		stream.Read(vertices.get(), header.num_vertices*sizeof(MD2_Vertex));
 
 		#ifdef NAZARA_BIG_ENDIAN
 		NzByteSwap(&scale.x, sizeof(float));
@@ -199,7 +199,7 @@ namespace
 			for (unsigned int j = 0; j < 3; ++j)
 			{
 				const unsigned int fixedIndex = indexFix[j];
-				const md2_texCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
+				const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
 				vertex[triangles[i].vertices[fixedIndex]].uv.Set(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight);
 			}
 		}
@@ -210,7 +210,7 @@ namespace
 
 		for (unsigned int v = 0; v < header.num_vertices; ++v)
 		{
-			const md2_vertex& vert = vertices[v];
+			const MD2_Vertex& vert = vertices[v];
 			NzVector3f position = rotationQuat * NzVector3f(vert.x*scale.x + translate.x, vert.y*scale.y + translate.y, vert.z*scale.z + translate.z);
 
 			vertex->position = position;
