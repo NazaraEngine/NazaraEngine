@@ -223,7 +223,12 @@ int NzLuaClass<T>::SetterProxy(lua_State* state)
 	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 
 	if (!setter(lua, instance))
-		lua.Error("Field not found");
+	{
+		std::size_t length;
+		const char* str = lua.Tostring(2, &length);
+
+		lua.Error("Class "\"" + info->name + "\" has no field \"" + NzString(str, length) + ')');
+	}
 
 	return 1;
 }
