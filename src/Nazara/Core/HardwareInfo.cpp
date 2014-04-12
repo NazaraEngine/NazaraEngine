@@ -70,6 +70,9 @@ namespace
 
 NzString NzHardwareInfo::GetProcessorBrandString()
 {
+	if (!Initialize())
+		NazaraError("Failed to initialize HardwareInfo");
+
 	return s_brandString;
 }
 
@@ -82,11 +85,17 @@ unsigned int NzHardwareInfo::GetProcessorCount()
 
 nzProcessorVendor NzHardwareInfo::GetProcessorVendor()
 {
+	if (!Initialize())
+		NazaraError("Failed to initialize HardwareInfo");
+
 	return s_vendorEnum;
 }
 
 NzString NzHardwareInfo::GetProcessorVendorName()
 {
+	if (!Initialize())
+		NazaraError("Failed to initialize HardwareInfo");
+
 	return vendorNames[s_vendorEnum+1];
 }
 
