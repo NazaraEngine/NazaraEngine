@@ -78,6 +78,7 @@ class NAZARA_API NzOpenGL
 
 		static void BindBuffer(nzBufferType type, GLuint id);
 		static void BindProgram(GLuint id);
+		static void BindSampler(GLuint unit, GLuint id);
 		static void BindScissorBox(const NzRecti& scissorBox);
 		static void BindTexture(nzImageType type, GLuint id);
 		static void BindTexture(unsigned int textureUnit, nzImageType type, GLuint id);
@@ -86,6 +87,7 @@ class NAZARA_API NzOpenGL
 
 		static void DeleteBuffer(nzBufferType type, GLuint id);
 		static void DeleteProgram(GLuint id);
+		static void DeleteSampler(GLuint id);
 		static void DeleteTexture(GLuint id);
 
 		static GLuint GetCurrentBuffer(nzBufferType type);

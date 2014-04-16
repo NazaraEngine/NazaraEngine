@@ -286,7 +286,7 @@ void NzTextureSampler::Bind(unsigned int unit) const
 	if (!m_samplerId)
 		UpdateSamplerId();
 
-	glBindSampler(unit, m_samplerId);
+	NzOpenGL::BindSampler(unit, m_samplerId);
 }
 
 unsigned int NzTextureSampler::GetOpenGLID() const
@@ -379,7 +379,7 @@ void NzTextureSampler::Uninitialize()
 	{
 		NzContext::EnsureContext();
 		for (const std::pair<nzUInt32, GLuint>& pair : s_samplers)
-			glDeleteSamplers(1, &pair.second);
+			NzOpenGL::DeleteSampler(pair.second);
 
 		s_samplers.clear();
 	}
