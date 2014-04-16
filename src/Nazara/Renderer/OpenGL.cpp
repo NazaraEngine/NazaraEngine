@@ -67,6 +67,7 @@ namespace
 	{
 		GLuint buffersBinding[nzBufferType_Max+1] = {0};
 		GLuint currentProgram = 0;
+		GLuint samplers[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 		GLuint texturesBinding[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 		NzRecti currentScissorBox = NzRecti(0,0,0,0);
 		NzRecti currentViewport = NzRecti(0,0,0,0);
@@ -326,6 +327,29 @@ void NzOpenGL::BindProgram(GLuint id)
 	}
 }
 
+void NzOpenGL::BindSampler(GLuint unit, GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!glBindSampler)
+	{
+		NazaraError("Sampler are not supported");
+		return;
+	}
+
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	if (s_contextStates->samplers[unit] != id)
+	{
+		glBindSampler(unit, id);
+		s_contextStates->samplers[unit] = id;
+	}
+}
+
 void NzOpenGL::BindScissorBox(const NzRecti& scissorBox)
 {
 	#ifdef NAZARA_DEBUG
@@ -485,6 +509,31 @@ void NzOpenGL::DeleteProgram(GLuint id)
 	glDeleteProgram(id);
 	if (s_contextStates->currentProgram == id)
 		s_contextStates->currentProgram = 0;
+}
+
+void NzOpenGL::DeleteSampler(GLuint id)
+{
+	#ifdef NAZARA_DEBUG
+	if (!glDeleteSamplers)
+	{
+		NazaraError("Sampler are not supported");
+		return;
+	}
+
+	if (!s_contextStates)
+	{
+		NazaraError("No context activated");
+		return;
+	}
+	#endif
+
+	glDeleteSamplers(1, &id);
+
+	for (GLuint& binding : s_contextStates->samplers)
+	{
+		if (binding == id)
+			binding = 0;
+	}
 }
 
 void NzOpenGL::DeleteTexture(GLuint id)
