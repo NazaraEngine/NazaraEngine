@@ -64,7 +64,6 @@ namespace
 		NzTextureSampler sampler;
 		const NzTexture* texture = nullptr;
 		bool samplerUpdated = false;
-		bool textureUpdated = true;
 	};
 
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
@@ -1372,7 +1371,6 @@ void NzRenderer::SetTexture(nzUInt8 unit, const NzTexture* texture)
 	if (s_textureUnits[unit].texture != texture)
 	{
 		s_textureUnits[unit].texture = texture;
-		s_textureUnits[unit].textureUpdated = false;
 
 		if (texture)
 		{
@@ -1583,21 +1581,10 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					if (unit.texture)
+					if (unit.texture && !unit.samplerUpdated)
 					{
-						if (!unit.textureUpdated)
-						{
-							NzOpenGL::BindTextureUnit(i);
-							unit.texture->EnsureMipmapsUpdate();
-
-							unit.textureUpdated = true;
-						}
-
-						if (!unit.samplerUpdated)
-						{
-							unit.sampler.Bind(i);
-							unit.samplerUpdated = true;
-						}
+						unit.sampler.Bind(i);
+						unit.samplerUpdated = true;
 					}
 				}
 			}
@@ -1607,13 +1594,9 @@ bool NzRenderer::EnsureStateUpdate()
 				{
 					TextureUnit& unit = s_textureUnits[i];
 
-					if (unit.texture)
+					if (unit.texture && !unit.samplerUpdated)
 					{
 						NzOpenGL::BindTextureUnit(i);
-
-						unit.texture->EnsureMipmapsUpdate();
-						unit.textureUpdated = true;
-
 						unit.sampler.Apply(unit.texture);
 						unit.samplerUpdated = true;
 					}
@@ -1819,7 +1802,10 @@ bool NzRenderer::EnsureStateUpdate()
 	{
 		const NzTexture* texture = s_textureUnits[i].texture;
 		if (texture)
+		{
 			NzOpenGL::BindTexture(i, texture->GetType(), texture->GetOpenGLID());
+			texture->EnsureMipmapsUpdate();
+		}
 	}
 
 	// Et on termine par envoyer nos états au driver
