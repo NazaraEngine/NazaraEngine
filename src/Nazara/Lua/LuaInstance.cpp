@@ -583,7 +583,7 @@ void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
 void NzLuaInstance::PushFunction(NzLuaFunction func)
 {
 	NzLuaFunction* luaFunc = reinterpret_cast<NzLuaFunction*>(lua_newuserdata(m_state, sizeof(NzLuaFunction)));
-	*luaFunc = std::move(func);
+	new (luaFunc) NzLuaFunction(std::move(func));
 
 	lua_pushcclosure(m_state, ProxyFunc, 1);
 }
@@ -840,8 +840,8 @@ void* NzLuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std
 
 int NzLuaInstance::ProxyFunc(lua_State* state)
 {
-	NzLuaFunction* func = static_cast<NzLuaFunction*>(lua_touserdata(state, lua_upvalueindex(1)));
-	return (*func)(*GetInstance(state));
+	NzLuaFunction& func = *static_cast<NzLuaFunction*>(lua_touserdata(state, lua_upvalueindex(1)));
+	return func(*GetInstance(state));
 }
 
 void NzLuaInstance::TimeLimiter(lua_State* state, lua_Debug* debug)
