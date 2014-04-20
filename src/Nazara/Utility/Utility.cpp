@@ -135,4 +135,3 @@ void NzUtility::Uninitialize()
 }
 
 unsigned int NzUtility::s_moduleReferenceCounter = 0;
-
