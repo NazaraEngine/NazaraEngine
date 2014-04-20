@@ -225,9 +225,9 @@ int NzLuaClass<T>::SetterProxy(lua_State* state)
 	if (!setter(lua, instance))
 	{
 		std::size_t length;
-		const char* str = lua.Tostring(2, &length);
+		const char* str = lua.ToString(2, &length);
 
-		lua.Error("Class "\"" + info->name + "\" has no field \"" + NzString(str, length) + ')');
+		lua.Error("Class \"" + info->name + "\" has no field \"" + NzString(str, length) + ')');
 	}
 
 	return 1;
