@@ -49,8 +49,7 @@ m_endianness(nzEndianness_Unknown),
 m_impl(nullptr),
 m_openMode(0)
 {
-	SetFile(filePath);
-	Open(openMode);
+	Open(filePath, openMode);
 }
 
 NzFile::NzFile(NzFile&& file) noexcept :
@@ -311,6 +310,16 @@ bool NzFile::Open(unsigned long openMode)
 		m_streamOptions |= nzStreamOption_Text;
 
 	return true;
+}
+
+bool NzFile::Open(const NzString& filePath, unsigned long openMode)
+{
+	NazaraLock(m_mutex)
+
+	Close();
+
+	SetFile(filePath);
+	return Open(openMode);
 }
 
 bool NzFile::SetCursorPos(CursorPosition pos, nzInt64 offset)
