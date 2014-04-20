@@ -22,6 +22,7 @@ class NzContextImpl;
 class NAZARA_API NzContext : public NzResource
 {
 	friend NzContextImpl;
+	friend class NzOpenGL;
 
 	public:
 		NzContext() = default;
@@ -39,10 +40,11 @@ class NAZARA_API NzContext : public NzResource
 		static const NzContext* GetCurrent();
 		static const NzContext* GetReference();
 		static const NzContext* GetThreadContext();
+
+	private:
 		static bool Initialize();
 		static void Uninitialize();
 
-	private:
 		NzContextParameters m_parameters;
 		NzContextImpl* m_impl = nullptr;
 

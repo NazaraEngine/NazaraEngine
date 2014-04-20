@@ -23,15 +23,21 @@ bool NzShaderLibrary::Has(const NzString& name)
 	return s_library.find(name) != s_library.end();
 }
 
-bool NzShaderLibrary::Initialize()
-{
-	return true; // Que faire
-}
-
 void NzShaderLibrary::Register(const NzString& name, NzShader* shader)
 {
 	s_library.emplace(name, shader);
 	NazaraDebug("Shader \"" + name + "\" registred");
+}
+
+void NzShaderLibrary::Unregister(const NzString& name)
+{
+	s_library.erase(name);
+	NazaraDebug("Shader \"" + name + "\" unregistred");
+}
+
+bool NzShaderLibrary::Initialize()
+{
+	return true; // Que faire
 }
 
 void NzShaderLibrary::Uninitialize()
@@ -40,12 +46,6 @@ void NzShaderLibrary::Uninitialize()
 		NazaraWarning("Shader \"" + it.first + "\" has not been unregistred");
 
 	s_library.clear();
-}
-
-void NzShaderLibrary::Unregister(const NzString& name)
-{
-	s_library.erase(name);
-	NazaraDebug("Shader \"" + name + "\" unregistred");
 }
 
 std::unordered_map<NzString, NzShaderRef> NzShaderLibrary::s_library;
