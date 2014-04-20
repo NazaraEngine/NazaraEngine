@@ -118,7 +118,10 @@ bool NzHardwareInfo::Initialize()
 		return true;
 
 	if (!NzHardwareInfoImpl::IsCpuidSupported())
+	{
+		NazaraError("Cpuid is not supported");
 		return false;
+	}
 
 	s_initialized = true;
 

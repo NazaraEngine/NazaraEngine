@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/PluginManager.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Debug.hpp>
 
@@ -44,6 +45,7 @@ void NzCore::Uninitialize()
 	s_moduleReferenceCounter = 0;
 
 	NzHardwareInfo::Uninitialize();
+	NzPluginManager::Uninitialize();
 	NzTaskScheduler::Uninitialize();
 
 	NazaraNotice("Uninitialized: Core");

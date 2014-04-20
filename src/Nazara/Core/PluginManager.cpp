@@ -8,17 +8,12 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <memory>
-#include <set>
-#include <unordered_map>
 #include <Nazara/Core/Debug.hpp>
 
 namespace
 {
 	using PluginLoad = int (*)();
 	using PluginUnload = void (*)();
-
-	std::set<NzString> s_directories;
-	std::unordered_map<NzString, NzDynLib*> s_plugins;
 
 	NzString s_pluginFiles[] =
 	{
@@ -29,6 +24,12 @@ namespace
 
 bool NzPluginManager::AddDirectory(const NzString& directoryPath)
 {
+	if (!Initialize())
+	{
+		NazaraError("Failed to initialize PluginManager");
+		return false;
+	}
+
 	s_directories.insert(NzFile::AbsolutePath(directoryPath));
 
 	return true;
@@ -36,9 +37,13 @@ bool NzPluginManager::AddDirectory(const NzString& directoryPath)
 
 bool NzPluginManager::Initialize()
 {
+	if (s_initialized)
+		return true;
+
 	AddDirectory(".");
 	AddDirectory("plugins");
 
+	s_initialized = true;
 	return true;
 }
 
@@ -49,6 +54,12 @@ bool NzPluginManager::Mount(nzPlugin plugin)
 
 bool NzPluginManager::Mount(const NzString& pluginPath, bool appendExtension)
 {
+	if (!Initialize())
+	{
+		NazaraError("Failed to initialize PluginManager");
+		return false;
+	}
+
 	NzString path = pluginPath;
 	if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
 		path += NAZARA_DYNLIB_EXTENSION;
@@ -109,6 +120,12 @@ bool NzPluginManager::Mount(const NzString& pluginPath, bool appendExtension)
 
 void NzPluginManager::RemoveDirectory(const NzString& directoryPath)
 {
+	if (!Initialize())
+	{
+		NazaraError("Failed to initialize PluginManager");
+		return;
+	}
+
 	s_directories.erase(NzFile::AbsolutePath(directoryPath));
 }
 
@@ -119,6 +136,12 @@ void NzPluginManager::Unmount(nzPlugin plugin)
 
 void NzPluginManager::Unmount(const NzString& pluginPath)
 {
+	if (!Initialize())
+	{
+		NazaraError("Failed to initialize PluginManager");
+		return;
+	}
+
 	auto it = s_plugins.find(pluginPath);
 	if (it == s_plugins.end())
 	{
@@ -138,6 +161,9 @@ void NzPluginManager::Unmount(const NzString& pluginPath)
 
 void NzPluginManager::Uninitialize()
 {
+	if (!s_initialized)
+		return;
+
 	s_directories.clear();
 
 	for (auto& pair : s_plugins)
@@ -151,4 +177,10 @@ void NzPluginManager::Uninitialize()
 	}
 
 	s_plugins.clear();
+
+	s_initialized = false;
 }
+
+std::set<NzString> NzPluginManager::s_directories;
+std::unordered_map<NzString, NzDynLib*> NzPluginManager::s_plugins;
+bool NzPluginManager::s_initialized = false;
