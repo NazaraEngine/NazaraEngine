@@ -14,6 +14,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
+#include <functional>
 
 struct lua_Debug;
 struct lua_State;
@@ -21,7 +22,7 @@ struct lua_State;
 class NzLuaInstance;
 
 using NzLuaCFunction = int (*)(lua_State* state);
-using NzLuaFunction = int (*)(NzLuaInstance& instance);
+using NzLuaFunction = std::function<int(NzLuaInstance& instance)>;
 
 class NAZARA_API NzLuaInstance : NzNonCopyable
 {
