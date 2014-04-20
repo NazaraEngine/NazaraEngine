@@ -583,7 +583,7 @@ void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
 void NzLuaInstance::PushFunction(NzLuaFunction func)
 {
 	NzLuaFunction* luaFunc = reinterpret_cast<NzLuaFunction*>(lua_newuserdata(m_state, sizeof(NzLuaFunction)));
-	*luaFunc = func;
+	*luaFunc = std::move(func);
 
 	lua_pushcclosure(m_state, ProxyFunc, 1);
 }
