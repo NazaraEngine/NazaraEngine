@@ -63,7 +63,6 @@ NzMatrix4<T>& NzMatrix4<T>::ApplyScale(const NzVector3<T>& scale)
 	m31 *= scale.z;
 	m32 *= scale.z;
 	m33 *= scale.z;
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -74,7 +73,6 @@ NzMatrix4<T>& NzMatrix4<T>::ApplyTranslation(const NzVector3<T>& translation)
 	m41 += translation.x;
 	m42 += translation.y;
 	m43 += translation.z;
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -86,9 +84,6 @@ NzMatrix4<T>& NzMatrix4<T>::Concatenate(const NzMatrix4& matrix)
 	if (IsAffine() && matrix.IsAffine())
 		return ConcatenateAffine(matrix);
 	#endif
-
-	if (m_isIdentity)
-		return Set(matrix);
 
 	return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31 + m14*matrix.m41,
 	           m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32 + m14*matrix.m42,
@@ -128,9 +123,6 @@ NzMatrix4<T>& NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix)
 	}
 	#endif
 
-	if (m_isIdentity)
-		return Set(matrix);
-
 	return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31,
 	           m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
 	           m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
@@ -155,9 +147,6 @@ NzMatrix4<T>& NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix)
 template<typename T>
 T NzMatrix4<T>::GetDeterminant() const
 {
-	if (m_isIdentity)
-		return F(1.0);
-
 	T A = m22*(m33*m44 - m43*m34) - m32*(m23*m44 - m43*m24) + m42*(m23*m34 - m33*m24);
 	T B = m12*(m33*m44 - m43*m34) - m32*(m13*m44 - m43*m14) + m42*(m13*m34 - m33*m14);
 	T C = m12*(m23*m44 - m43*m24) - m22*(m13*m44 - m43*m14) + m42*(m13*m24 - m23*m14);
@@ -169,9 +158,6 @@ T NzMatrix4<T>::GetDeterminant() const
 template<typename T>
 T NzMatrix4<T>::GetDeterminantAffine() const
 {
-	if (m_isIdentity)
-		return F(1.0);
-
 	T A = m22*m33 - m32*m23;
 	T B = m12*m33 - m32*m13;
 	T C = m12*m23 - m22*m13;
@@ -190,12 +176,6 @@ bool NzMatrix4<T>::GetInverse(NzMatrix4* dest) const
 		return false;
 	}
 	#endif
-
-	if (m_isIdentity)
-	{
-		dest->MakeIdentity();
-		return true;
-	}
 
 	T det = GetDeterminant();
 	if (!NzNumberEquals(det, F(0.0)))
@@ -343,12 +323,6 @@ bool NzMatrix4<T>::GetInverseAffine(NzMatrix4* dest) const
 	}
 	#endif
 
-	if (m_isIdentity)
-	{
-		dest->MakeIdentity();
-		return true;
-	}
-
 	T det = GetDeterminantAffine();
 	if (!NzNumberEquals(det, F(0.0)))
 	{
@@ -424,9 +398,6 @@ bool NzMatrix4<T>::GetInverseAffine(NzMatrix4* dest) const
 template<typename T>
 NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 {
-	if (m_isIdentity)
-		return NzQuaternion<T>::Identity();
-
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 	NzQuaternion<T> quat;
 
@@ -476,9 +447,6 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 template<typename T>
 NzVector3<T> NzMatrix4<T>::GetScale() const
 {
-	if (m_isIdentity)
-		return NzVector3<T>::Unit();
-
 	return NzVector3<T>(std::sqrt(m11*m11 + m21*m21 + m31*m31),
 						std::sqrt(m12*m12 + m22*m22 + m32*m32),
 						std::sqrt(m13*m13 + m23*m23 + m33*m33));
@@ -497,25 +465,17 @@ void NzMatrix4<T>::GetTransposed(NzMatrix4* dest) const
 	          m12, m22, m32, m42,
 	          m13, m23, m33, m43,
 	          m14, m24, m34, m44);
-
-	dest->m_isIdentity = m_isIdentity;
 }
 
 template<typename T>
 bool NzMatrix4<T>::HasNegativeScale() const
 {
-	if (m_isIdentity)
-		return false;
-
 	return GetDeterminant() < F(0.0);
 }
 
 template<typename T>
 bool NzMatrix4<T>::HasScale() const
 {
-	if (m_isIdentity)
-		return false;
-
 	T t = m11*m11 + m21*m21 + m31*m31;
 	if (!NzNumberEquals(t, F(1.0)))
 		return true;
@@ -563,19 +523,10 @@ bool NzMatrix4<T>::IsAffine() const
 template<typename T>
 bool NzMatrix4<T>::IsIdentity() const
 {
-	if (m_isIdentity)
-		return true;
-
-	if (NzNumberEquals(m11, F(1.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	    NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(1.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	    NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(1.0)) && NzNumberEquals(m14, F(0.0)) &&
-	    NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(1.0)))
-	{
-		m_isIdentity = true;
-		return true;
-	}
-
-	return false;
+	return (NzNumberEquals(m11, F(1.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
+	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(1.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
+	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(1.0)) && NzNumberEquals(m14, F(0.0)) &&
+	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(1.0)));
 }
 
 template<typename T>
@@ -585,8 +536,6 @@ NzMatrix4<T>& NzMatrix4<T>::MakeIdentity()
 		F(0.0), F(1.0), F(0.0), F(0.0),
 		F(0.0), F(0.0), F(1.0), F(0.0),
 		F(0.0), F(0.0), F(0.0), F(1.0));
-
-	m_isIdentity = true;
 
 	return *this;
 }
@@ -652,7 +601,6 @@ NzMatrix4<T>& NzMatrix4<T>::MakeRotation(const NzQuaternion<T>& rotation)
 	m42 = F(0.0);
 	m43 = F(0.0);
 	m44 = F(1.0);
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -748,7 +696,6 @@ NzMatrix4<T>& NzMatrix4<T>::Set(T r11, T r12, T r13, T r14,
 	m42 = r42;
 	m43 = r43;
 	m44 = r44;
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -758,7 +705,6 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 {
 	// Ici nous sommes certains de la continuité des éléments en mémoire
 	std::memcpy(&m11, matrix, 16*sizeof(T));
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -780,8 +726,6 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4<U>& matrix)
 	    F(matrix[ 4]), F(matrix[ 5]), F(matrix[ 6]), F(matrix[ 7]),
 	    F(matrix[ 8]), F(matrix[ 9]), F(matrix[10]), F(matrix[11]),
 	    F(matrix[12]), F(matrix[13]), F(matrix[14]), F(matrix[15]));
-
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -813,7 +757,6 @@ NzMatrix4<T>& NzMatrix4<T>::SetRotation(const NzQuaternion<T>& rotation)
 	m31 = txz + twy;
 	m32 = tyz - twx;
 	m33 = F(1.0) - (txx + tyy);
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -824,7 +767,6 @@ NzMatrix4<T>& NzMatrix4<T>::SetScale(const NzVector3<T>& scale)
 	m11 = scale.x;
 	m22 = scale.y;
 	m33 = scale.z;
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -835,7 +777,6 @@ NzMatrix4<T>& NzMatrix4<T>::SetTranslation(const NzVector3<T>& translation)
 	m41 = translation.x;
 	m42 = translation.y;
 	m43 = translation.z;
-	m_isIdentity = false;
 
 	return *this;
 }
@@ -853,9 +794,6 @@ NzString NzMatrix4<T>::ToString() const
 template<typename T>
 NzVector2<T> NzMatrix4<T>::Transform(const NzVector2<T>& vector, T z, T w) const
 {
-	if (m_isIdentity)
-		return vector;
-
 	return NzVector2<T>(m11*vector.x + m21*vector.y + m31*z + m41*w,
 	                    m12*vector.x + m22*vector.y + m32*z + m42*w);
 }
@@ -863,9 +801,6 @@ NzVector2<T> NzMatrix4<T>::Transform(const NzVector2<T>& vector, T z, T w) const
 template<typename T>
 NzVector3<T> NzMatrix4<T>::Transform(const NzVector3<T>& vector, T w) const
 {
-	if (m_isIdentity)
-		return vector;
-
 	return NzVector3<T>(m11*vector.x + m21*vector.y + m31*vector.z + m41*w,
 	                    m12*vector.x + m22*vector.y + m32*vector.z + m42*w,
 	                    m13*vector.x + m23*vector.y + m33*vector.z + m43*w);
@@ -874,9 +809,6 @@ NzVector3<T> NzMatrix4<T>::Transform(const NzVector3<T>& vector, T w) const
 template<typename T>
 NzVector4<T> NzMatrix4<T>::Transform(const NzVector4<T>& vector) const
 {
-	if (m_isIdentity)
-		return vector;
-
 	return NzVector4<T>(m11*vector.x + m21*vector.y + m31*vector.z + m41*vector.w,
 	                    m12*vector.x + m22*vector.y + m32*vector.z + m42*vector.w,
 	                    m13*vector.x + m23*vector.y + m33*vector.z + m43*vector.w,
@@ -900,7 +832,6 @@ NzMatrix4<T>& NzMatrix4<T>::Transpose()
 template<typename T>
 NzMatrix4<T>::operator T*()
 {
-	m_isIdentity = false;
 	return &m11;
 }
 
@@ -923,7 +854,6 @@ T& NzMatrix4<T>::operator()(unsigned int x, unsigned int y)
 	}
 	#endif
 
-	m_isIdentity = false;
 	return (&m11)[y*4+x];
 }
 
@@ -990,7 +920,6 @@ NzMatrix4<T>& NzMatrix4<T>::operator*=(const NzMatrix4& matrix)
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::operator*=(T scalar)
 {
-	m_isIdentity = false;
 	for (unsigned int i = 0; i < 16; ++i)
 		(&m11)[i] *= scalar;
 

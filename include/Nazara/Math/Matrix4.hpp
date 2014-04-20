@@ -122,12 +122,10 @@ class NzMatrix4
 		static NzMatrix4 ViewMatrix(const NzVector3<T>& translation, const NzQuaternion<T>& rotation);
 		static NzMatrix4 Zero();
 
-		private:
-			T m11, m12, m13, m14,
-			  m21, m22, m23, m24,
-			  m31, m32, m33, m34,
-			  m41, m42, m43, m44;
-			mutable bool m_isIdentity;
+		T m11, m12, m13, m14,
+		  m21, m22, m23, m24,
+		  m31, m32, m33, m34,
+		  m41, m42, m43, m44;
 };
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const NzMatrix4<T>& matrix);
