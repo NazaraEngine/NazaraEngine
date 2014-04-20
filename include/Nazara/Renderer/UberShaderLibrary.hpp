@@ -14,6 +14,8 @@
 
 class NAZARA_API NzUberShaderLibrary
 {
+	friend class NzRenderer;
+
 	public:
 		NzUberShaderLibrary() = delete;
 		~NzUberShaderLibrary() = delete;
@@ -21,12 +23,13 @@ class NAZARA_API NzUberShaderLibrary
 		static NzUberShader* Get(const NzString& name);
 		static bool Has(const NzString& name);
 
-		static bool Initialize();
 		static void Register(const NzString& name, NzUberShader* uberShader);
-		static void Uninitialize();
 		static void Unregister(const NzString& name);
 
 	private:
+		static bool Initialize();
+		static void Uninitialize();
+
 		static std::unordered_map<NzString, NzUberShaderRef> s_library;
 };
 

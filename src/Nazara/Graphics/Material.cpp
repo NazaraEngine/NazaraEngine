@@ -638,6 +638,88 @@ NzMaterial& NzMaterial::operator=(NzMaterial&& material)
 	return *this;
 }
 
+NzMaterial* NzMaterial::GetDefault()
+{
+	return s_defaultMaterial;
+}
+
+void NzMaterial::Copy(const NzMaterial& material)
+{
+	// On relache les références proprement
+	m_alphaMap.Reset();
+	m_diffuseMap.Reset();
+	m_emissiveMap.Reset();
+	m_heightMap.Reset();
+	m_normalMap.Reset();
+	m_specularMap.Reset();
+	m_uberShader.Reset();
+
+	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
+
+	// Ensuite une petite astuce pour récupérer correctement les références
+	m_alphaMap.Release();
+	m_diffuseMap.Release();
+	m_emissiveMap.Release();
+	m_heightMap.Release();
+	m_normalMap.Release();
+	m_specularMap.Release();
+	m_uberShader.Release();
+
+	m_alphaMap = material.m_alphaMap;
+	m_diffuseMap = material.m_diffuseMap;
+	m_emissiveMap = material.m_emissiveMap;
+	m_heightMap = material.m_heightMap;
+	m_normalMap = material.m_normalMap;
+	m_specularMap = material.m_specularMap;
+	m_uberShader = material.m_uberShader;
+}
+
+void NzMaterial::GenerateShader(nzUInt32 flags) const
+{
+	NzParameterList list;
+	list.SetParameter("ALPHA_MAPPING", m_alphaMap.IsValid());
+	list.SetParameter("ALPHA_TEST", m_alphaTestEnabled);
+	list.SetParameter("COMPUTE_TBNMATRIX", m_normalMap.IsValid() || m_heightMap.IsValid());
+	list.SetParameter("DIFFUSE_MAPPING", m_diffuseMap.IsValid());
+	list.SetParameter("EMISSIVE_MAPPING", m_emissiveMap.IsValid());
+	list.SetParameter("LIGHTING", m_lightingEnabled);
+	list.SetParameter("NORMAL_MAPPING", m_normalMap.IsValid());
+	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
+	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
+	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
+	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid());
+	list.SetParameter("TRANSFORM", m_transformEnabled);
+
+	list.SetParameter("FLAG_DEFERRED", static_cast<bool>(flags & nzShaderFlags_Deferred));
+	list.SetParameter("FLAG_INSTANCING", static_cast<bool>(flags & nzShaderFlags_Instancing));
+
+	ShaderInstance& instance = m_shaders[flags];
+	instance.uberInstance = m_uberShader->Get(list);
+	instance.shader = instance.uberInstance->GetShader();
+
+	#define CacheUniform(name) instance.uniforms[nzMaterialUniform_##name] = instance.shader->GetUniformLocation("Material" #name)
+
+	CacheUniform(AlphaMap);
+	CacheUniform(AlphaThreshold);
+	CacheUniform(Ambient);
+	CacheUniform(Diffuse);
+	CacheUniform(DiffuseMap);
+	CacheUniform(EmissiveMap);
+	CacheUniform(HeightMap);
+	CacheUniform(NormalMap);
+	CacheUniform(Shininess);
+	CacheUniform(Specular);
+	CacheUniform(SpecularMap);
+
+	#undef CacheUniform
+}
+
+void NzMaterial::InvalidateShaders()
+{
+	for (ShaderInstance& instance : m_shaders)
+		instance.uberInstance = nullptr;
+}
+
 bool NzMaterial::Initialize()
 {
 	bool glsl140 = (NzOpenGL::GetGLSLVersion() >= 140);
@@ -733,11 +815,6 @@ bool NzMaterial::Initialize()
 	return true;
 }
 
-NzMaterial* NzMaterial::GetDefault()
-{
-	return s_defaultMaterial;
-}
-
 void NzMaterial::Uninitialize()
 {
 	NzUberShaderLibrary::Unregister("PhongLighting");
@@ -745,83 +822,6 @@ void NzMaterial::Uninitialize()
 
 	s_defaultMaterial->SetPersistent(false, true);
 	s_defaultMaterial = nullptr;
-}
-
-void NzMaterial::Copy(const NzMaterial& material)
-{
-	// On relache les références proprement
-	m_alphaMap.Reset();
-	m_diffuseMap.Reset();
-	m_emissiveMap.Reset();
-	m_heightMap.Reset();
-	m_normalMap.Reset();
-	m_specularMap.Reset();
-	m_uberShader.Reset();
-
-	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
-
-	// Ensuite une petite astuce pour récupérer correctement les références
-	m_alphaMap.Release();
-	m_diffuseMap.Release();
-	m_emissiveMap.Release();
-	m_heightMap.Release();
-	m_normalMap.Release();
-	m_specularMap.Release();
-	m_uberShader.Release();
-
-	m_alphaMap = material.m_alphaMap;
-	m_diffuseMap = material.m_diffuseMap;
-	m_emissiveMap = material.m_emissiveMap;
-	m_heightMap = material.m_heightMap;
-	m_normalMap = material.m_normalMap;
-	m_specularMap = material.m_specularMap;
-	m_uberShader = material.m_uberShader;
-}
-
-void NzMaterial::GenerateShader(nzUInt32 flags) const
-{
-	NzParameterList list;
-	list.SetParameter("ALPHA_MAPPING", m_alphaMap.IsValid());
-	list.SetParameter("ALPHA_TEST", m_alphaTestEnabled);
-	list.SetParameter("COMPUTE_TBNMATRIX", m_normalMap.IsValid() || m_heightMap.IsValid());
-	list.SetParameter("DIFFUSE_MAPPING", m_diffuseMap.IsValid());
-	list.SetParameter("EMISSIVE_MAPPING", m_emissiveMap.IsValid());
-	list.SetParameter("LIGHTING", m_lightingEnabled);
-	list.SetParameter("NORMAL_MAPPING", m_normalMap.IsValid());
-	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
-	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
-	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
-	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid());
-	list.SetParameter("TRANSFORM", m_transformEnabled);
-
-	list.SetParameter("FLAG_DEFERRED", static_cast<bool>(flags & nzShaderFlags_Deferred));
-	list.SetParameter("FLAG_INSTANCING", static_cast<bool>(flags & nzShaderFlags_Instancing));
-
-	ShaderInstance& instance = m_shaders[flags];
-	instance.uberInstance = m_uberShader->Get(list);
-	instance.shader = instance.uberInstance->GetShader();
-
-	#define CacheUniform(name) instance.uniforms[nzMaterialUniform_##name] = instance.shader->GetUniformLocation("Material" #name)
-
-	CacheUniform(AlphaMap);
-	CacheUniform(AlphaThreshold);
-	CacheUniform(Ambient);
-	CacheUniform(Diffuse);
-	CacheUniform(DiffuseMap);
-	CacheUniform(EmissiveMap);
-	CacheUniform(HeightMap);
-	CacheUniform(NormalMap);
-	CacheUniform(Shininess);
-	CacheUniform(Specular);
-	CacheUniform(SpecularMap);
-
-	#undef CacheUniform
-}
-
-void NzMaterial::InvalidateShaders()
-{
-	for (ShaderInstance& instance : m_shaders)
-		instance.uberInstance = nullptr;
 }
 
 NzMaterial* NzMaterial::s_defaultMaterial = nullptr;
