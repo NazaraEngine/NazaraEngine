@@ -360,6 +360,9 @@ bool NzShader::LoadFromBinary(const NzByteArray& byteArray)
 
 void NzShader::SendBoolean(int location, bool value) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1i)
 		glProgramUniform1i(m_program, location, value);
 	else
@@ -371,6 +374,9 @@ void NzShader::SendBoolean(int location, bool value) const
 
 void NzShader::SendColor(int location, const NzColor& color) const
 {
+	if (location == -1)
+		return;
+
 	NzVector4f vecColor(color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f);
 
 	if (glProgramUniform4fv)
@@ -384,6 +390,9 @@ void NzShader::SendColor(int location, const NzColor& color) const
 
 void NzShader::SendDouble(int location, double value) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1d)
 		glProgramUniform1d(m_program, location, value);
 	else
@@ -395,6 +404,9 @@ void NzShader::SendDouble(int location, double value) const
 
 void NzShader::SendDoubleArray(int location, const double* values, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1dv)
 		glProgramUniform1dv(m_program, location, count, values);
 	else
@@ -406,6 +418,9 @@ void NzShader::SendDoubleArray(int location, const double* values, unsigned int 
 
 void NzShader::SendFloat(int location, float value) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1f)
 		glProgramUniform1f(m_program, location, value);
 	else
@@ -417,6 +432,9 @@ void NzShader::SendFloat(int location, float value) const
 
 void NzShader::SendFloatArray(int location, const float* values, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1fv)
 		glProgramUniform1fv(m_program, location, count, values);
 	else
@@ -428,6 +446,9 @@ void NzShader::SendFloatArray(int location, const float* values, unsigned int co
 
 void NzShader::SendInteger(int location, int value) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1i)
 		glProgramUniform1i(m_program, location, value);
 	else
@@ -439,6 +460,9 @@ void NzShader::SendInteger(int location, int value) const
 
 void NzShader::SendIntegerArray(int location, const int* values, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform1iv)
 		glProgramUniform1iv(m_program, location, count, values);
 	else
@@ -450,6 +474,9 @@ void NzShader::SendIntegerArray(int location, const int* values, unsigned int co
 
 void NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniformMatrix4dv)
 		glProgramUniformMatrix4dv(m_program, location, 1, GL_FALSE, matrix);
 	else
@@ -461,6 +488,9 @@ void NzShader::SendMatrix(int location, const NzMatrix4d& matrix) const
 
 void NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniformMatrix4fv)
 		glProgramUniformMatrix4fv(m_program, location, 1, GL_FALSE, matrix);
 	else
@@ -472,6 +502,9 @@ void NzShader::SendMatrix(int location, const NzMatrix4f& matrix) const
 
 void NzShader::SendVector(int location, const NzVector2d& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2dv)
 		glProgramUniform2dv(m_program, location, 1, vector);
 	else
@@ -483,6 +516,9 @@ void NzShader::SendVector(int location, const NzVector2d& vector) const
 
 void NzShader::SendVector(int location, const NzVector2f& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2fv)
 		glProgramUniform2fv(m_program, location, 1, vector);
 	else
@@ -494,6 +530,9 @@ void NzShader::SendVector(int location, const NzVector2f& vector) const
 
 void NzShader::SendVector(int location, const NzVector2i& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2fv)
 		glProgramUniform2iv(m_program, location, 1, vector);
 	else
@@ -505,6 +544,9 @@ void NzShader::SendVector(int location, const NzVector2i& vector) const
 
 void NzShader::SendVector(int location, const NzVector3d& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3dv)
 		glProgramUniform3dv(m_program, location, 1, vector);
 	else
@@ -516,6 +558,9 @@ void NzShader::SendVector(int location, const NzVector3d& vector) const
 
 void NzShader::SendVector(int location, const NzVector3f& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3fv)
 		glProgramUniform3fv(m_program, location, 1, vector);
 	else
@@ -527,6 +572,9 @@ void NzShader::SendVector(int location, const NzVector3f& vector) const
 
 void NzShader::SendVector(int location, const NzVector3i& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3iv)
 		glProgramUniform3iv(m_program, location, 1, vector);
 	else
@@ -538,6 +586,9 @@ void NzShader::SendVector(int location, const NzVector3i& vector) const
 
 void NzShader::SendVector(int location, const NzVector4d& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4dv)
 		glProgramUniform4dv(m_program, location, 1, vector);
 	else
@@ -549,6 +600,9 @@ void NzShader::SendVector(int location, const NzVector4d& vector) const
 
 void NzShader::SendVector(int location, const NzVector4f& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4fv)
 		glProgramUniform4fv(m_program, location, 1, vector);
 	else
@@ -560,6 +614,9 @@ void NzShader::SendVector(int location, const NzVector4f& vector) const
 
 void NzShader::SendVector(int location, const NzVector4i& vector) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4iv)
 		glProgramUniform4iv(m_program, location, 1, vector);
 	else
@@ -571,6 +628,9 @@ void NzShader::SendVector(int location, const NzVector4i& vector) const
 
 void NzShader::SendVectorArray(int location, const NzVector2d* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2dv)
 		glProgramUniform2dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
 	else
@@ -582,6 +642,9 @@ void NzShader::SendVectorArray(int location, const NzVector2d* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector2f* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2fv)
 		glProgramUniform2fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
 	else
@@ -593,6 +656,9 @@ void NzShader::SendVectorArray(int location, const NzVector2f* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector2i* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform2iv)
 		glProgramUniform2iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
 	else
@@ -604,6 +670,9 @@ void NzShader::SendVectorArray(int location, const NzVector2i* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector3d* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3dv)
 		glProgramUniform3dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
 	else
@@ -615,6 +684,9 @@ void NzShader::SendVectorArray(int location, const NzVector3d* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector3f* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3fv)
 		glProgramUniform3fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
 	else
@@ -626,6 +698,9 @@ void NzShader::SendVectorArray(int location, const NzVector3f* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector3i* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform3iv)
 		glProgramUniform3iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
 	else
@@ -637,6 +712,9 @@ void NzShader::SendVectorArray(int location, const NzVector3i* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector4d* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4dv)
 		glProgramUniform4dv(m_program, location, count, reinterpret_cast<const double*>(vectors));
 	else
@@ -648,6 +726,9 @@ void NzShader::SendVectorArray(int location, const NzVector4d* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector4f* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4fv)
 		glProgramUniform4fv(m_program, location, count, reinterpret_cast<const float*>(vectors));
 	else
@@ -659,6 +740,9 @@ void NzShader::SendVectorArray(int location, const NzVector4f* vectors, unsigned
 
 void NzShader::SendVectorArray(int location, const NzVector4i* vectors, unsigned int count) const
 {
+	if (location == -1)
+		return;
+
 	if (glProgramUniform4iv)
 		glProgramUniform4iv(m_program, location, count, reinterpret_cast<const int*>(vectors));
 	else
