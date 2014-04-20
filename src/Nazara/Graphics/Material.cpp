@@ -749,6 +749,7 @@ void NzMaterial::Uninitialize()
 
 void NzMaterial::Copy(const NzMaterial& material)
 {
+	// On relache les références proprement
 	m_alphaMap.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
