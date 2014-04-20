@@ -24,6 +24,8 @@
 
 class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique, public NzRenderTarget::Listener
 {
+	friend class NzGraphics;
+
 	public:
 		NzDeferredRenderTechnique();
 		~NzDeferredRenderTechnique();
@@ -49,12 +51,13 @@ class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique, p
 
 		void SetPass(nzRenderPassType relativeTo, int position, NzDeferredRenderPass* pass);
 
-		static bool Initialize();
 		static bool IsSupported();
-		static void Uninitialize();
 
 	private:
 		bool Resize(const NzVector2ui& dimensions) const;
+
+		static bool Initialize();
+		static void Uninitialize();
 
 		struct RenderPassComparator
 		{

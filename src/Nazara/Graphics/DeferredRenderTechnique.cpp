@@ -379,6 +379,37 @@ void NzDeferredRenderTechnique::SetPass(nzRenderPassType relativeTo, int positio
 		m_passes[relativeTo].erase(position);
 }
 
+bool NzDeferredRenderTechnique::IsSupported()
+{
+	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait trop lent pour servir...
+	return NzOpenGL::GetGLSLVersion() >= 140 && // On ne va pas s'embêter non plus avec le mode de compatibilité
+	       NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
+	       NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets) &&
+	       NzRenderer::GetMaxColorAttachments() >= 4 &&
+	       NzRenderer::GetMaxRenderTargets() >= 4;
+}
+
+bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const
+{
+	try
+	{
+		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
+
+		for (auto& passIt : m_passes)
+			for (auto& passIt2 : passIt.second)
+				passIt2.second->Resize(dimensions);
+
+		m_GBufferSize = dimensions;
+
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to create work RTT/G-Buffer");
+		return false;
+	}
+}
+
 bool NzDeferredRenderTechnique::Initialize()
 {
 	const nzUInt8 fragmentSource_BloomBright[] = {
@@ -540,16 +571,6 @@ bool NzDeferredRenderTechnique::Initialize()
 	return true;
 }
 
-bool NzDeferredRenderTechnique::IsSupported()
-{
-	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait trop lent pour servir...
-	return NzOpenGL::GetGLSLVersion() >= 140 && // On ne va pas s'embêter non plus avec le mode de compatibilité
-	       NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
-	       NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets) &&
-	       NzRenderer::GetMaxColorAttachments() >= 4 &&
-	       NzRenderer::GetMaxRenderTargets() >= 4;
-}
-
 void NzDeferredRenderTechnique::Uninitialize()
 {
 	NzShaderLibrary::Unregister("DeferredGBufferClear");
@@ -559,27 +580,6 @@ void NzDeferredRenderTechnique::Uninitialize()
 	NzShaderLibrary::Unregister("DeferredBloomFinal");
 	NzShaderLibrary::Unregister("DeferredFXAA");
 	NzShaderLibrary::Unregister("DeferredGaussianBlur");
-}
-
-bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const
-{
-	try
-	{
-		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
-
-		for (auto& passIt : m_passes)
-			for (auto& passIt2 : passIt.second)
-				passIt2.second->Resize(dimensions);
-
-		m_GBufferSize = dimensions;
-
-		return true;
-	}
-	catch (const std::exception& e)
-	{
-		NazaraError("Failed to create work RTT/G-Buffer");
-		return false;
-	}
 }
 
 bool NzDeferredRenderTechnique::RenderPassComparator::operator()(nzRenderPassType pass1, nzRenderPassType pass2)
