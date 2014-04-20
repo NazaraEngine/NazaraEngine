@@ -78,6 +78,7 @@ class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 		bool IsOpen() const;
 
 		bool Open(unsigned long openMode = Current);
+		bool Open(const NzString& filePath, unsigned long openMode = Current);
 
 		std::size_t Read(void* buffer, std::size_t size);
 		std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
