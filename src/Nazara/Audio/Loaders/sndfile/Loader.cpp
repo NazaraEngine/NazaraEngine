@@ -9,6 +9,7 @@
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -16,6 +17,7 @@
 #include <Nazara/Core/MemoryStream.hpp>
 #include <memory>
 #include <set>
+#include <vector>
 #include <sndfile/sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -166,14 +168,14 @@ namespace
 			{
 				if (m_mixToMono)
 				{
-					std::unique_ptr<nzInt16[]> samples(new nzInt16[m_format*sampleCount]);
-					unsigned int readSampleCount = sf_read_short(m_handle, samples.get(), m_format*sampleCount);
-					NzMixToMono(samples.get(), reinterpret_cast<nzInt16*>(buffer), m_format, sampleCount);
+					m_mixBuffer.resize(m_format*sampleCount);
+					unsigned int readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format*sampleCount);
+					NzMixToMono(m_mixBuffer.data(), static_cast<nzInt16*>(buffer), m_format, sampleCount);
 
 					return readSampleCount / m_format;
 				}
 				else
-					return sf_read_short(m_handle, reinterpret_cast<nzInt16*>(buffer), sampleCount);
+					return sf_read_short(m_handle, static_cast<nzInt16*>(buffer), sampleCount);
 			}
 
 			void Seek(nzUInt32 offset)
@@ -182,6 +184,7 @@ namespace
 			}
 
 		private:
+			std::vector<nzInt16> m_mixBuffer;
 			nzAudioFormat m_format;
 			NzFile* m_file;
 			SNDFILE* m_handle;
@@ -293,12 +296,12 @@ namespace
 			return false;
 		}
 
+		NzCallOnExit onExit([file] { sf_close(file); });
+
 		nzAudioFormat format = NzAudio::GetAudioFormat(info.channels);
 		if (format == nzAudioFormat_Unknown)
 		{
 			NazaraError("Channel count not handled");
-			sf_close(file);
-
 			return false;
 		}
 
@@ -313,8 +316,6 @@ namespace
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
 		{
-			sf_close(file);
-
 			NazaraError("Failed to read samples");
 			return false;
 		}
@@ -331,8 +332,6 @@ namespace
 
 		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), info.samplerate, samples.get()))
 		{
-			sf_close(file);
-
 			NazaraError("Failed to create sound buffer");
 			return false;
 		}
