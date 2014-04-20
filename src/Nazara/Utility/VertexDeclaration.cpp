@@ -69,7 +69,6 @@ void NzVertexDeclaration::DisableAttribute(nzAttributeUsage usage)
 	#endif
 
 	Attribute& attribute = m_attributes[usage];
-
 	if (attribute.enabled)
 	{
 		attribute.enabled = false;
@@ -88,7 +87,6 @@ void NzVertexDeclaration::EnableAttribute(nzAttributeUsage usage, nzAttributeTyp
 	#endif
 
 	Attribute& attribute = m_attributes[usage];
-
 	if (attribute.enabled)
 		m_stride -= attributeStride[attribute.type];
 	else
@@ -200,6 +198,7 @@ bool NzVertexDeclaration::Initialize()
 
 void NzVertexDeclaration::Uninitialize()
 {
+	// Rien à faire
 }
 
 NzVertexDeclaration NzVertexDeclaration::s_declarations[nzVertexLayout_Max+1];
