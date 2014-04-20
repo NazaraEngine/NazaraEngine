@@ -71,7 +71,6 @@ namespace
 	{
 		public:
 			sndfileStream() :
-			m_file(nullptr),
 			m_handle(nullptr)
 			{
 			}
@@ -80,9 +79,6 @@ namespace
 			{
 				if (m_handle)
 					sf_close(m_handle);
-
-				if (m_file)
-					delete m_file;
 			}
 
 			nzUInt32 GetDuration() const
@@ -110,14 +106,13 @@ namespace
 
 			bool Open(const NzString& filePath, bool forceMono)
 			{
-				m_file = new NzFile(filePath);
-				if (!m_file->Open(NzFile::ReadOnly))
+				if (!m_file.Open(filePath, NzFile::ReadOnly))
 				{
-					NazaraError("Failed to open file " + filePath);
+					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
 				}
 
-				return Open(*m_file, forceMono);
+				return Open(m_file, forceMono);
 			}
 
 			bool Open(NzInputStream& stream, bool forceMono)
@@ -132,12 +127,15 @@ namespace
 					return false;
 				}
 
-				m_format = NzAudio::GetAudioFormat(infos.channels);
-				if (m_format == nzAudioFormat_Unknown)
+				NzCallOnExit onExit([this]
 				{
 					sf_close(m_handle);
 					m_handle = nullptr;
+				});
 
+				m_format = NzAudio::GetAudioFormat(infos.channels);
+				if (m_format == nzAudioFormat_Unknown)
+				{
 					NazaraError("Channel count not handled");
 					return false;
 				}
@@ -160,6 +158,8 @@ namespace
 				}
 				else
 					m_mixToMono = false;
+
+				onExit.Reset();
 
 				return true;
 			}
@@ -186,7 +186,7 @@ namespace
 		private:
 			std::vector<nzInt16> m_mixBuffer;
 			nzAudioFormat m_format;
-			NzFile* m_file;
+			NzFile m_file;
 			SNDFILE* m_handle;
 			bool m_mixToMono;
 			unsigned int m_duration;
