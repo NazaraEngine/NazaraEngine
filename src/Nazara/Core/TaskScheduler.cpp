@@ -35,7 +35,10 @@ bool NzTaskScheduler::Initialize()
 void NzTaskScheduler::Run()
 {
 	if (!Initialize())
-		NazaraError("Failed to initialize TaskScheduler");
+	{
+		NazaraError("Failed to initialize Task Scheduler");
+		return;
+	}
 
 	if (!s_pendingWorks.empty())
 	{
@@ -66,7 +69,10 @@ void NzTaskScheduler::Uninitialize()
 void NzTaskScheduler::WaitForTasks()
 {
 	if (!Initialize())
-		NazaraError("Failed to initialize TaskScheduler");
+	{
+		NazaraError("Failed to initialize Task Scheduler");
+		return;
+	}
 
 	NzTaskSchedulerImpl::WaitForTasks();
 }
@@ -74,7 +80,10 @@ void NzTaskScheduler::WaitForTasks()
 void NzTaskScheduler::AddTaskFunctor(NzFunctor* taskFunctor)
 {
 	if (!Initialize())
-		NazaraError("Failed to initialize TaskScheduler");
+	{
+		NazaraError("Failed to initialize Task Scheduler");
+		return;
+	}
 
 	s_pendingWorks.push_back(taskFunctor);
 }
