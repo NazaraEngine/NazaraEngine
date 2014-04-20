@@ -10,6 +10,10 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
+#include <set>
+#include <unordered_map>
+
+class NzDynLib;
 
 class NAZARA_API NzPluginManager
 {
@@ -30,6 +34,12 @@ class NAZARA_API NzPluginManager
 		static void Unmount(const NzString& pluginPath);
 
 		static void Uninitialize();
+
+	private:
+		static std::set<NzString> s_directories;
+		static std::unordered_map<NzString, NzDynLib*> s_plugins;
+		static bool s_initialized;
+
 };
 
 #endif // NAZARA_PLUGINMANAGER_HPP
