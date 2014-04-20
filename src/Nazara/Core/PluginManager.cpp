@@ -22,17 +22,15 @@ namespace
 	};
 }
 
-bool NzPluginManager::AddDirectory(const NzString& directoryPath)
+void NzPluginManager::AddDirectory(const NzString& directoryPath)
 {
 	if (!Initialize())
 	{
 		NazaraError("Failed to initialize PluginManager");
-		return false;
+		return;
 	}
 
 	s_directories.insert(NzFile::AbsolutePath(directoryPath));
-
-	return true;
 }
 
 bool NzPluginManager::Initialize()

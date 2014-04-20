@@ -21,7 +21,7 @@ class NAZARA_API NzPluginManager
 		NzPluginManager() = delete;
 		~NzPluginManager() = delete;
 
-		static bool AddDirectory(const NzString& directoryPath);
+		static void AddDirectory(const NzString& directoryPath);
 
 		static bool Initialize();
 
