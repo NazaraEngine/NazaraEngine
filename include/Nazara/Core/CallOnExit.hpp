@@ -8,10 +8,12 @@
 #define NAZARA_CALLONEXIT_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
+#include <functional>
 
-class NzCallOnExit
+class NzCallOnExit : NzNonCopyable
 {
-	using Func = void (*)();
+	using Func = std::function<void()>;
 
 	public:
 		NzCallOnExit(Func func = nullptr);
