@@ -85,7 +85,6 @@ namespace
 	const NzRenderTarget* s_target;
 	const NzShader* s_shader;
 	const NzVertexBuffer* s_vertexBuffer;
-	const NzVertexDeclaration* s_instancingDeclaration;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
 	bool s_useSamplerObjects;
@@ -1655,7 +1654,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 				// Notre clé est composée de ce qui définit un VAO
 				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
-				const NzVertexDeclaration* instancingDeclaration = (s_instancing) ? s_instancingDeclaration : nullptr;
+				const NzVertexDeclaration* instancingDeclaration = (s_instancing) ? s_instanceBuffer.GetVertexDeclaration() : nullptr;
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
