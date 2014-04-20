@@ -50,10 +50,14 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 			nzAttributeType type;
 			bool enabled = false;
 			unsigned int offset;
-			// Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
-			// pour décomplexifier l'interface en enlevant quelque chose d'inutile.
-			// Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
-			// PS: Même cas pour le diviseur (instancing)
+
+			/*
+			** -Lynix:
+			** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
+			** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
+			** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
+			** PS: Même cas pour le diviseur (instancing)
+			*/
 		};
 
 		Attribute m_attributes[nzAttributeUsage_Max+1];
