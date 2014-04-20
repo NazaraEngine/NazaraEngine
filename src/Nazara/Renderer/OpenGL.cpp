@@ -1863,10 +1863,11 @@ static_assert(sizeof(NzOpenGL::BufferLock)/sizeof(GLenum) == nzBufferAccess_Max+
 
 GLenum NzOpenGL::BufferLockRange[] =
 {
-	GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT, // nzBufferAccess_DiscardAndWrite
-	GL_MAP_READ_BIT,                                 // nzBufferAccess_ReadOnly
-	GL_MAP_READ_BIT | GL_MAP_WRITE_BIT,              // nzBufferAccess_ReadWrite
-	GL_MAP_WRITE_BIT                                 // nzBufferAccess_WriteOnly
+	// http://www.opengl.org/discussion_boards/showthread.php/170118-VBOs-strangely-slow?p=1198118#post1198118
+	GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_WRITE_BIT, // nzBufferAccess_DiscardAndWrite
+	GL_MAP_READ_BIT,                                                               // nzBufferAccess_ReadOnly
+	GL_MAP_READ_BIT | GL_MAP_WRITE_BIT,                                            // nzBufferAccess_ReadWrite
+	GL_MAP_WRITE_BIT                                                               // nzBufferAccess_WriteOnly
 };
 
 static_assert(sizeof(NzOpenGL::BufferLockRange)/sizeof(GLenum) == nzBufferAccess_Max+1, "Buffer lock range array is incomplete");
@@ -1889,11 +1890,10 @@ static_assert(sizeof(NzOpenGL::BufferTargetBinding)/sizeof(GLenum) == nzBufferTy
 
 GLenum NzOpenGL::BufferUsage[] =
 {
-	// J'ai choisi DYNAMIC à la place de STREAM car DYNAMIC semble plus adapté au profil "une mise à jour pour quelques rendus"
-	// Ce qui est je pense le scénario qui arrivera le plus souvent (Prévoir une option pour permettre d'utiliser le STREAM_DRAW ?)
-	// Source: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=160839
-	GL_DYNAMIC_DRAW, // nzBufferUsage_Dynamic
-	GL_STATIC_DRAW   // nzBufferUsage_Static
+	// D'après la documentation, GL_STREAM_DRAW semble être plus adapté à notre cas (ratio modification/rendu 1:2-3)
+	// Source: http://www.opengl.org/sdk/docs/man/html/glBufferData.xhtml
+	GL_STREAM_DRAW, // nzBufferUsage_Dynamic
+	GL_STATIC_DRAW  // nzBufferUsage_Static
 };
 
 static_assert(sizeof(NzOpenGL::BufferUsage)/sizeof(GLenum) == nzBufferUsage_Max+1, "Buffer usage array is incomplete");
