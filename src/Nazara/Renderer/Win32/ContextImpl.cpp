@@ -231,4 +231,3 @@ bool NzContextImpl::Desactivate()
 {
 	return wglMakeCurrent(nullptr, nullptr) == TRUE;
 }
-
