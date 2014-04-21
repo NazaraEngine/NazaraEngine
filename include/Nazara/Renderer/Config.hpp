@@ -32,8 +32,8 @@
 // La taille du buffer d'Instancing (définit le nombre maximum d'instances en un rendu)
 #define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 8192*64 // 8192 matrices 4x4 flottantes
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
-#define NAZARA_RENDERER_MEMORYLEAKTRACKER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
+#define NAZARA_RENDERER_MEMORYMANAGER 0
 
 // Active le paramère debug des paramètres des contextes par défaut (Perte de performances mais capable de recevoir des messages d'OpenGL)
 #define NAZARA_RENDERER_OPENGL_DEBUG 0
