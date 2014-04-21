@@ -44,8 +44,8 @@
 // Incorpore la table Unicode Character Data (Nécessaires pour faire fonctionner le flag NzString::HandleUTF8)
 #define NAZARA_CORE_INCLUDE_UNICODEDATA 0
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
-#define NAZARA_CORE_MEMORYLEAKTRACKER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
+#define NAZARA_CORE_MEMORYMANAGER 0
 
 // Précision des réels lors de la transformation en texte (Max. chiffres après la virgule)
 #define NAZARA_CORE_REAL_PRECISION 6

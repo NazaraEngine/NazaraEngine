@@ -32,8 +32,8 @@
 // À partir de combien d'instances d'un même mesh/matériau l'instancing doit-il être utilisé ?
 #define NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT 10
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
-#define NAZARA_GRAPHICS_MEMORYLEAKTRACKER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
+#define NAZARA_GRAPHICS_MEMORYMANAGER 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_GRAPHICS_SAFE 1

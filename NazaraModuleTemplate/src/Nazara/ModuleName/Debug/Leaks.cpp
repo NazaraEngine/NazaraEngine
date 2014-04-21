@@ -3,7 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ModuleName/Config.hpp>
-#if NAZARA_MODULENAME_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
+#if NAZARA_MODULENAME_MEMORYMANAGER || defined(NAZARA_DEBUG)
+#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
 #include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
 #include <new>
 
