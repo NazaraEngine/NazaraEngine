@@ -35,8 +35,9 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowException);
 
 			std::unique_ptr<NzShader> shader(new NzShader);
-			shader->Create();
+			shader->SetPersistent(false);
 
+			shader->Create();
 			for (unsigned int i = 0; i <= nzShaderStage_Max; ++i)
 			{
 				const Shader& shaderStage = m_shaders[i];
