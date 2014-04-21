@@ -32,8 +32,8 @@
 // Force les buffers à posséder un stride multiple de 32 bytes (Gain de performances sur certaines cartes/plus de consommation mémoire)
 #define NAZARA_UTILITY_FORCE_DECLARATION_STRIDE_MULTIPLE_OF_32 0 ///FIXME: Ne peut pas être utilisé pour l'instant
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
-#define NAZARA_UTILITY_MEMORYLEAKTRACKER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
+#define NAZARA_UTILITY_MEMORYMANAGER 0
 
 // Le skinning doit-il prendre avantage du multi-threading ? (Boost de performances sur les processeurs multi-coeurs)
 #define NAZARA_UTILITY_MULTITHREADED_SKINNING 0

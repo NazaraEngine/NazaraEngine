@@ -29,8 +29,8 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-// Utilise un tracker pour repérer les éventuels leaks (Ralentit l'exécution)
-#define NAZARA_MODULENAME_MEMORYLEAKTRACKER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
+#define NAZARA_MODULENAME_MEMORYMANAGER 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_MODULENAME_SAFE 1
