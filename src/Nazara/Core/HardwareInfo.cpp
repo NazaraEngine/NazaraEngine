@@ -25,22 +25,29 @@ namespace
 		nzProcessorVendor vendorEnum;
 	};
 
-	const char* vendorNames[nzProcessorVendor_Max+2] = // +1 pour gérer le cas Unknown
+	// Exceptionellement, la valeur "unknown" est intégrée
+	const char* vendorNames[] =
 	{
 		"Unknown",                             // nzProcessorVendor_Unknown
 		"Advanced Micro Devices",              // nzProcessorVendor_AMD
 		"Centaur Technology",                  // nzProcessorVendor_Centaur
 		"Cyrix Corporation",                   // nzProcessorVendor_Cyrix
 		"Intel Corporation",                   // nzProcessorVendor_Intel
-		"Transmeta Corporation",               // nzProcessorVendor_Transmeta
+		"Kernel-based Virtual Machine",        // nzProcessorVendor_KVM
+		"Microsoft Hyper-V",                   // nzProcessorVendor_HyperV
 		"National Semiconductor",              // nzProcessorVendor_NSC
 		"NexGen",                              // nzProcessorVendor_NexGen
 		"Rise Technology",                     // nzProcessorVendor_Rise
 		"Silicon Integrated Systems",          // nzProcessorVendor_SIS
+		"Transmeta Corporation",               // nzProcessorVendor_Transmeta
 		"United Microelectronics Corporation", // nzProcessorVendor_UMC
 		"VIA Technologies",                    // nzProcessorVendor_VIA
+		"VMware",                              // nzProcessorVendor_VMware
 		"Vortex86",                            // nzProcessorVendor_Vortex
+		"Xen"                                  // nzProcessorVendor_XenHVM
 	};
+
+	static_assert(sizeof(vendorNames)/sizeof(const char*) == nzProcessorVendor_Max+2, "Processor vendor name array is incomplete");
 
 	VendorString vendorStrings[] =
 	{
@@ -52,12 +59,17 @@ namespace
 		{"GenuineIntel", nzProcessorVendor_Intel},
 		{"GenuineTMx86", nzProcessorVendor_Transmeta},
 		{"Geode by NSC", nzProcessorVendor_NSC},
+		{"KVMKVMKVMKVM", nzProcessorVendor_KVM},
+		{"Microsoft Hv", nzProcessorVendor_HyperV},
 		{"NexGenDriven", nzProcessorVendor_NexGen},
+		{"RiseRiseRise", nzProcessorVendor_Rise},
 		{"SiS SiS SiS ", nzProcessorVendor_SIS},
 		{"TransmetaCPU", nzProcessorVendor_Transmeta},
 		{"UMC UMC UMC ", nzProcessorVendor_UMC},
 		{"VIA VIA VIA ", nzProcessorVendor_VIA},
-		{"Vortex86 SoC", nzProcessorVendor_VIA}
+		{"VMwareVMware", nzProcessorVendor_VMware},
+		{"Vortex86 SoC", nzProcessorVendor_Vortex},
+		{"XenVMMXenVMM", nzProcessorVendor_XenHVM}
 	};
 
 	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
