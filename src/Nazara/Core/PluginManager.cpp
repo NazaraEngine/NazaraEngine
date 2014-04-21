@@ -38,10 +38,11 @@ bool NzPluginManager::Initialize()
 	if (s_initialized)
 		return true;
 
+	s_initialized = true;
+
 	AddDirectory(".");
 	AddDirectory("plugins");
 
-	s_initialized = true;
 	return true;
 }
 
@@ -162,6 +163,8 @@ void NzPluginManager::Uninitialize()
 	if (!s_initialized)
 		return;
 
+	s_initialized = false;
+
 	s_directories.clear();
 
 	for (auto& pair : s_plugins)
@@ -175,8 +178,6 @@ void NzPluginManager::Uninitialize()
 	}
 
 	s_plugins.clear();
-
-	s_initialized = false;
 }
 
 std::set<NzString> NzPluginManager::s_directories;
