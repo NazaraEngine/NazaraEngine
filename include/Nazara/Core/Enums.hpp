@@ -116,16 +116,20 @@ enum nzProcessorVendor
 	nzProcessorVendor_Centaur,
 	nzProcessorVendor_Cyrix,
 	nzProcessorVendor_Intel,
-	nzProcessorVendor_Transmeta,
+	nzProcessorVendor_KVM,
+	nzProcessorVendor_HyperV,
 	nzProcessorVendor_NSC,
 	nzProcessorVendor_NexGen,
 	nzProcessorVendor_Rise,
 	nzProcessorVendor_SIS,
+	nzProcessorVendor_Transmeta,
 	nzProcessorVendor_UMC,
 	nzProcessorVendor_VIA,
+	nzProcessorVendor_VMware,
 	nzProcessorVendor_Vortex,
+	nzProcessorVendor_XenHVM,
 
-	nzProcessorVendor_Max = nzProcessorVendor_Vortex
+	nzProcessorVendor_Max = nzProcessorVendor_XenHVM
 };
 
 enum nzSphereType
