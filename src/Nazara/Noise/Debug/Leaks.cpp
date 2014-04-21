@@ -3,11 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/Config.hpp>
-#if NAZARA_NOISE_MEMORYLEAKTRACKER || defined(NAZARA_DEBUG)
-
-#define NAZARA_DEBUG_MEMORYLEAKTRACKER_DISABLE_REDEFINITION
-
-#include <Nazara/Core/Debug/MemoryLeakTracker.hpp>
+#if NAZARA_NOISE_MEMORYMANAGER || defined(NAZARA_DEBUG)
+#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
+#include <Nazara/Core/Debug/MemoryManager.hpp>
 #include <new>
 
 void* operator new(std::size_t size)
