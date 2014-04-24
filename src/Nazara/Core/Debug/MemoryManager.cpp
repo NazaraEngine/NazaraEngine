@@ -47,6 +47,8 @@ namespace
 		0,
 		s_magic
 	};
+
+	unsigned int s_allocationCount = 0;
 	unsigned int s_allocatedBlock = 0;
 	std::size_t s_allocatedSize = 0;
 
@@ -101,6 +103,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 
 	s_allocatedBlock++;
 	s_allocatedSize += size;
+	s_allocationCount++;
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	LeaveCriticalSection(&s_mutex);
@@ -133,20 +136,11 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 
 		FILE* log = std::fopen(s_MLTFileName, "a");
 
+		const char* error = (multi) ? "delete[] after new" : "delete after new[]";
 		if (s_nextFreeFile)
-		{
-			if (multi)
-				std::fprintf(log, "%s Warning: delete[] after new at %s:%u\n", timeStr, s_nextFreeFile, s_nextFreeLine);
-			else
-				std::fprintf(log, "%s Warning: delete after new[] at %s:%u\n", timeStr, s_nextFreeFile, s_nextFreeLine);
-		}
+			std::fprintf(log, "%s Warning: %s at %s:%u\n", timeStr, error, s_nextFreeFile, s_nextFreeLine);
 		else
-		{
-			if (multi)
-				std::fprintf(log, "%s Warning: delete[] after new at unknown position\n", timeStr);
-			else
-				std::fprintf(log, "%s Warning: delete after new[] at unknown position\n", timeStr);
-		}
+			std::fprintf(log, "%s Warning: %s at unknown position\n", error, timeStr);
 
 		std::fclose(log);
 	}
@@ -178,6 +172,11 @@ unsigned int NzMemoryManager::GetAllocatedBlockCount()
 std::size_t NzMemoryManager::GetAllocatedSize()
 {
 	return s_allocatedSize;
+}
+
+unsigned int NzMemoryManager::GetAllocationCount()
+{
+	return s_allocationCount;
 }
 
 void NzMemoryManager::NextFree(const char* file, unsigned int line)
