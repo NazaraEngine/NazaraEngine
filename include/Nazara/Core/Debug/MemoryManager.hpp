@@ -18,6 +18,7 @@ class NAZARA_API NzMemoryManager
 
 		static unsigned int GetAllocatedBlockCount();
 		static std::size_t GetAllocatedSize();
+		static unsigned int GetAllocationCount();
 
 		static void NextFree(const char* file, unsigned int line);
 
