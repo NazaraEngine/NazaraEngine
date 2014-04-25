@@ -67,7 +67,8 @@ namespace
 	};
 
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
-	using VAO_Map = std::map<VAO_Key, unsigned int>;
+	using VAO_Map = std::map<VAO_Key, GLuint>;
+
 	using Context_Map = std::unordered_map<const NzContext*, VAO_Map>;
 
 	Context_Map s_vaos;
@@ -113,14 +114,25 @@ namespace
 						const NzIndexBuffer* indexBuffer = static_cast<const NzIndexBuffer*>(resource);
 						for (auto& pair : s_vaos)
 						{
-							auto it = pair.second.begin();
-							while (it != pair.second.end())
+							const NzContext* context = pair.first;
+							VAO_Map& vaos = pair.second;
+
+							auto it = vaos.begin();
+							while (it != vaos.end())
 							{
 								const VAO_Key& key = it->first;
 								const NzIndexBuffer* vaoIndexBuffer = std::get<0>(key);
 
 								if (vaoIndexBuffer == indexBuffer)
-									pair.second.erase(it++);
+								{
+									// Suppression du VAO:
+									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+									NzOpenGL::DeleteVertexArray(context, it->second);
+									vaos.erase(it++);
+								}
 								else
 									++it;
 							}
@@ -133,14 +145,25 @@ namespace
 						const NzVertexBuffer* vertexBuffer = static_cast<const NzVertexBuffer*>(resource);
 						for (auto& pair : s_vaos)
 						{
-							auto it = pair.second.begin();
-							while (it != pair.second.end())
+							const NzContext* context = pair.first;
+							VAO_Map& vaos = pair.second;
+
+							auto it = vaos.begin();
+							while (it != vaos.end())
 							{
 								const VAO_Key& key = it->first;
 								const NzVertexBuffer* vaoVertexBuffer = std::get<1>(key);
 
 								if (vaoVertexBuffer == vertexBuffer)
-									pair.second.erase(it++);
+								{
+									// Suppression du VAO:
+									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+									NzOpenGL::DeleteVertexArray(context, it->second);
+									vaos.erase(it++);
+								}
 								else
 									++it;
 							}
@@ -153,15 +176,26 @@ namespace
 						const NzVertexDeclaration* vertexDeclaration = static_cast<const NzVertexDeclaration*>(resource);
 						for (auto& pair : s_vaos)
 						{
-							auto it = pair.second.begin();
-							while (it != pair.second.end())
+							const NzContext* context = pair.first;
+							VAO_Map& vaos = pair.second;
+
+							auto it = vaos.begin();
+							while (it != vaos.end())
 							{
 								const VAO_Key& key = it->first;
 								const NzVertexDeclaration* vaoVertexDeclaration = std::get<2>(key);
 								const NzVertexDeclaration* vaoInstancingDeclaration = std::get<3>(key);
 
 								if (vaoVertexDeclaration == vertexDeclaration || vaoInstancingDeclaration == vertexDeclaration)
-									pair.second.erase(it++);
+								{
+									// Suppression du VAO:
+									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+									NzOpenGL::DeleteVertexArray(context, it->second);
+									vaos.erase(it++);
+								}
 								else
 									++it;
 							}
@@ -738,7 +772,7 @@ bool NzRenderer::Initialize()
 	s_textureUnits.resize(s_maxTextureUnit);
 	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
 	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
-	s_updateFlags = (Update_Matrices | Update_Shader | Update_VAO);
+	s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 	s_vertexBuffer = nullptr;
 
 	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
@@ -1455,7 +1489,6 @@ void NzRenderer::Uninitialize()
 	for (auto& pair : s_vaos)
 	{
 		const NzContext* context = pair.first;
-		context->SetActive(true);
 
 		for (auto& pair2 : pair.second)
 		{
@@ -1474,11 +1507,8 @@ void NzRenderer::Uninitialize()
 			if (instancingDeclaration)
 				instancingDeclaration->RemoveResourceListener(&s_listener);
 
-			GLuint vao = static_cast<GLuint>(pair2.second);
-			glDeleteVertexArrays(1, &vao);
+			NzOpenGL::DeleteVertexArray(context, pair2.second);
 		}
-
-		context->SetActive(false);
 	}
 
 	s_vaos.clear();
@@ -1666,7 +1696,7 @@ bool NzRenderer::EnsureStateUpdate()
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					vaos->insert(std::make_pair(key, static_cast<unsigned int>(s_currentVAO)));
+					vaos->insert(std::make_pair(key, s_currentVAO));
 					if (s_indexBuffer)
 						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
 
@@ -1742,11 +1772,11 @@ bool NzRenderer::EnsureStateUpdate()
 						{
 							glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 							glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-												  NzVertexDeclaration::GetAttributeSize(type),
-												  NzOpenGL::AttributeType[type],
-												  (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
-												  stride,
-												  reinterpret_cast<void*>(bufferOffset + offset));
+							                      NzVertexDeclaration::GetAttributeSize(type),
+							                      NzOpenGL::AttributeType[type],
+							                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
+							                      stride,
+							                      reinterpret_cast<void*>(bufferOffset + offset));
 							glVertexAttribDivisor(NzOpenGL::AttributeIndex[i], 1);
 						}
 						else
