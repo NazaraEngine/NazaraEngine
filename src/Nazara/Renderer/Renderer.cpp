@@ -282,7 +282,7 @@ void NzRenderer::DrawFullscreenQuad()
 
 	if (!EnsureStateUpdate())
 	{
-		NazaraError("Failed to update states");
+		NazaraError("Failed to update states: " + NzError::GetLastError());
 		return;
 	}
 
@@ -320,7 +320,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstI
 
 	if (!EnsureStateUpdate())
 	{
-		NazaraError("Failed to update states");
+		NazaraError("Failed to update states: " + NzError::GetLastError());
 		return;
 	}
 
@@ -391,7 +391,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 	if (!EnsureStateUpdate())
 	{
-		NazaraError("Failed to update states");
+		NazaraError("Failed to update states: " + NzError::GetLastError());
 		return;
 	}
 
@@ -435,7 +435,7 @@ void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, 
 
 	if (!EnsureStateUpdate())
 	{
-		NazaraError("Failed to update states");
+		NazaraError("Failed to update states: " + NzError::GetLastError());
 		return;
 	}
 
@@ -486,7 +486,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 
 	if (!EnsureStateUpdate())
 	{
-		NazaraError("Failed to update states");
+		NazaraError("Failed to update states: " + NzError::GetLastError());
 		return;
 	}
 
@@ -913,6 +913,34 @@ bool NzRenderer::IsEnabled(nzRendererParameter parameter)
 bool NzRenderer::IsInitialized()
 {
 	return s_moduleReferenceCounter != 0;
+}
+
+bool NzRenderer::IsVertexAttributeSupported(nzAttributeType attributeType)
+{
+	switch (attributeType)
+	{
+		case nzAttributeType_Color:
+		case nzAttributeType_Float1:
+		case nzAttributeType_Float2:
+		case nzAttributeType_Float3:
+		case nzAttributeType_Float4:
+			return true; // Supportés nativement
+
+		case nzAttributeType_Double1:
+		case nzAttributeType_Double2:
+		case nzAttributeType_Double3:
+		case nzAttributeType_Double4:
+			return glVertexAttribLPointer != nullptr; // Fonction requise pour envoyer des doubles
+
+		case nzAttributeType_Int1:
+		case nzAttributeType_Int2:
+		case nzAttributeType_Int3:
+		case nzAttributeType_Int4:
+			return glVertexAttribIPointer != nullptr; // Fonction requise pour envoyer des entiers
+	}
+
+	NazaraError("Attribute type out of enum");
+	return false;
 }
 
 void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend)
@@ -1532,6 +1560,9 @@ void NzRenderer::EnableInstancing(bool instancing)
 
 bool NzRenderer::EnsureStateUpdate()
 {
+	// Toutes les erreurs sont silencieuses car l'erreur est gérée par la fonction appelante
+	NzErrorFlags flags(nzErrorFlag_Silent);
+
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
 	{
@@ -1664,6 +1695,7 @@ bool NzRenderer::EnsureStateUpdate()
 			#endif
 
 			bool update;
+			VAO_Map::iterator vaoIt;
 
 			// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
 			if (s_useVertexArrayObjects)
@@ -1672,15 +1704,15 @@ bool NzRenderer::EnsureStateUpdate()
 				const NzContext* context = NzContext::GetCurrent();
 
 				VAO_Map* vaos;
-				auto vaoIt = s_vaos.find(context);
-				if (vaoIt == s_vaos.end())
+				auto it = s_vaos.find(context);
+				if (it == s_vaos.end())
 				{
 					context->AddResourceListener(&s_listener, ResourceType_Context);
 					auto pair = s_vaos.insert(std::make_pair(context, Context_Map::mapped_type()));
 					vaos = &pair.first->second;
 				}
 				else
-					vaos = &vaoIt->second;
+					vaos = &it->second;
 
 				// Notre clé est composée de ce qui définit un VAO
 				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
@@ -1688,15 +1720,15 @@ bool NzRenderer::EnsureStateUpdate()
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
-				auto it = vaos->find(key);
-				if (it == vaos->end())
+				vaoIt = vaos->find(key);
+				if (vaoIt == vaos->end())
 				{
 					// On créé notre VAO
 					glGenVertexArrays(1, &s_currentVAO);
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					vaos->insert(std::make_pair(key, s_currentVAO));
+					vaoIt = vaos->insert(std::make_pair(key, s_currentVAO)).first;
 					if (s_indexBuffer)
 						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
 
@@ -1712,13 +1744,15 @@ bool NzRenderer::EnsureStateUpdate()
 				else
 				{
 					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-					s_currentVAO = it->second;
+					s_currentVAO = vaoIt->second;
 
 					update = false;
 				}
 			}
 			else
 				update = true; // Fallback si les VAOs ne sont pas supportés
+
+			bool updateFailed = false;
 
 			if (update)
 			{
@@ -1739,79 +1773,144 @@ bool NzRenderer::EnsureStateUpdate()
 					unsigned int offset;
 					vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
 
+					if (!IsVertexAttributeSupported(type))
+					{
+						NazaraError("Invalid declaration: Vertex attribute 0x" + NzString::Number(i, 16) + " (0x" + NzString::Number(type, 16) + ") is not supported");
+						updateFailed = true;
+						break;
+					}
+
 					if (enabled)
 					{
 						glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-						glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-						                      NzVertexDeclaration::GetAttributeSize(type),
-						                      NzOpenGL::AttributeType[type],
-						                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
-						                      stride,
-						                      reinterpret_cast<void*>(bufferOffset + offset));
-					}
-					else
-						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-				}
-
-				if (s_instancing)
-				{
-					NzHardwareBuffer* instanceBufferImpl = static_cast<NzHardwareBuffer*>(s_instanceBuffer.GetBuffer()->GetImpl());
-					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], instanceBufferImpl->GetOpenGLID());
-
-					bufferOffset = s_instanceBuffer.GetStartOffset();
-					vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
-					stride = vertexDeclaration->GetStride();
-					for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
-					{
-						nzAttributeType type;
-						bool enabled;
-						unsigned int offset;
-						vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
-
-						if (enabled)
+						if (type <= nzAttributeType_Double1 && type >= nzAttributeType_Double4)
 						{
-							glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+							glVertexAttribLPointer(NzOpenGL::AttributeIndex[i],
+							                       NzVertexDeclaration::GetAttributeSize(type),
+							                       NzOpenGL::AttributeType[type],
+							                       stride,
+							                       reinterpret_cast<void*>(bufferOffset + offset));
+						}
+						else if (type <= nzAttributeType_Int1 && type >= nzAttributeType_Int4)
+						{
+							glVertexAttribIPointer(NzOpenGL::AttributeIndex[i],
+							                       NzVertexDeclaration::GetAttributeSize(type),
+							                       NzOpenGL::AttributeType[type],
+							                       stride,
+							                       reinterpret_cast<void*>(bufferOffset + offset));
+						}
+						else
+						{
 							glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
 							                      NzVertexDeclaration::GetAttributeSize(type),
 							                      NzOpenGL::AttributeType[type],
 							                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
 							                      stride,
 							                      reinterpret_cast<void*>(bufferOffset + offset));
-							glVertexAttribDivisor(NzOpenGL::AttributeIndex[i], 1);
 						}
-						else
-							glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 					}
-				}
-				else
-				{
-					for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
+					else
 						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
 				}
 
-				// Et on active l'index buffer (Un seul index buffer par VAO)
-				if (s_indexBuffer)
+				if (!updateFailed)
 				{
-					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
-					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], indexBufferImpl->GetOpenGLID());
+					if (s_instancing)
+					{
+						NzHardwareBuffer* instanceBufferImpl = static_cast<NzHardwareBuffer*>(s_instanceBuffer.GetBuffer()->GetImpl());
+						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], instanceBufferImpl->GetOpenGLID());
+
+						bufferOffset = s_instanceBuffer.GetStartOffset();
+						vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
+						stride = vertexDeclaration->GetStride();
+						for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
+						{
+							nzAttributeType type;
+							bool enabled;
+							unsigned int offset;
+							vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
+
+							if (!IsVertexAttributeSupported(type))
+							{
+								NazaraError("Invalid declaration: Vertex attribute 0x" + NzString::Number(i, 16) + " (0x" + NzString::Number(type, 16) + ") is not supported");
+								updateFailed = true;
+								break;
+							}
+
+							if (enabled)
+							{
+								glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+								if (type <= nzAttributeType_Double1 && type >= nzAttributeType_Double4)
+								{
+									glVertexAttribLPointer(NzOpenGL::AttributeIndex[i],
+														   NzVertexDeclaration::GetAttributeSize(type),
+														   NzOpenGL::AttributeType[type],
+														   stride,
+														   reinterpret_cast<void*>(bufferOffset + offset));
+								}
+								else if (type <= nzAttributeType_Int1 && type >= nzAttributeType_Int4)
+								{
+									glVertexAttribIPointer(NzOpenGL::AttributeIndex[i],
+									                       NzVertexDeclaration::GetAttributeSize(type),
+									                       NzOpenGL::AttributeType[type],
+									                       stride,
+									                       reinterpret_cast<void*>(bufferOffset + offset));
+								}
+								else
+								{
+									glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
+									                      NzVertexDeclaration::GetAttributeSize(type),
+									                      NzOpenGL::AttributeType[type],
+									                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
+									                      stride,
+									                      reinterpret_cast<void*>(bufferOffset + offset));
+								}
+
+								glVertexAttribDivisor(NzOpenGL::AttributeIndex[i], 1);
+							}
+							else
+								glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+						}
+					}
+					else
+					{
+						for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
+							glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+					}
+
+					// Et on active l'index buffer (Un seul index buffer par VAO)
+					if (s_indexBuffer)
+					{
+						NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
+						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], indexBufferImpl->GetOpenGLID());
+					}
+					else
+						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
 				}
-				else
-					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
+
+				// On invalide les bindings des buffers (car nous les avons défini manuellement)
+				NzOpenGL::SetBuffer(nzBufferType_Index, 0);
+				NzOpenGL::SetBuffer(nzBufferType_Vertex, 0);
 			}
 
 			if (s_useVertexArrayObjects)
 			{
-				// Si nous venons de définir notre VAO, nous devons le débinder pour indiquer la fin de sa construction
 				if (update)
-					glBindVertexArray(0);
+				{
+					if (updateFailed)
+					{
+						// La création de notre VAO a échoué, libérons-le et marquons-le comme problématique
+						glDeleteVertexArrays(1, &vaoIt->second);
+						vaoIt->second = 0;
+						s_currentVAO = 0;
+					}
+					else
+						glBindVertexArray(0); // On marque la fin de la construction du VAO en le débindant
+				}
 
 				// En cas de non-support des VAOs, les attributs doivent être respécifiés à chaque frame
 				s_updateFlags &= ~Update_VAO;
 			}
-
-			// On invalide les bindings des buffers (pour éviter des bugs)
-			NzOpenGL::SetBuffer(nzBufferType_Index, 0);
-			NzOpenGL::SetBuffer(nzBufferType_Vertex, 0);
 		}
 
 		#ifdef NAZARA_DEBUG
@@ -1822,7 +1921,15 @@ bool NzRenderer::EnsureStateUpdate()
 
 	// On bind notre VAO
 	if (s_useVertexArrayObjects)
+	{
+		if (!s_currentVAO)
+		{
+			NazaraError("Failed to create VAO");
+			return false;
+		}
+
 		glBindVertexArray(s_currentVAO);
+	}
 
 	// On vérifie que les textures actuellement bindées sont bien nos textures
 	// Ceci à cause du fait qu'il est possible que des opérations sur les textures aient eu lieu

@@ -20,22 +20,30 @@ namespace
 		1, // nzAttributeType_Float1
 		2, // nzAttributeType_Float2
 		3, // nzAttributeType_Float3
-		4  // nzAttributeType_Float4
+		4, // nzAttributeType_Float4
+		1, // nzAttributeType_Int1
+		2, // nzAttributeType_Int2
+		3, // nzAttributeType_Int3
+		4  // nzAttributeType_Int4
 	};
 
 	static_assert(sizeof(attributeSize)/sizeof(unsigned int) == nzAttributeType_Max+1, "Attribute size array is incomplete");
 
 	unsigned int attributeStride[] =
 	{
-		4*sizeof(nzUInt8), // nzAttributeType_Color
-		1*sizeof(double),  // nzAttributeType_Double1
-		2*sizeof(double),  // nzAttributeType_Double2
-		3*sizeof(double),  // nzAttributeType_Double3
-		4*sizeof(double),  // nzAttributeType_Double4
-		1*sizeof(float),   // nzAttributeType_Float1
-		2*sizeof(float),   // nzAttributeType_Float2
-		3*sizeof(float),   // nzAttributeType_Float3
-		4*sizeof(float)    // nzAttributeType_Float4
+		4*sizeof(nzUInt8),  // nzAttributeType_Color
+		1*sizeof(double),   // nzAttributeType_Double1
+		2*sizeof(double),   // nzAttributeType_Double2
+		3*sizeof(double),   // nzAttributeType_Double3
+		4*sizeof(double),   // nzAttributeType_Double4
+		1*sizeof(float),    // nzAttributeType_Float1
+		2*sizeof(float),    // nzAttributeType_Float2
+		3*sizeof(float),    // nzAttributeType_Float3
+		4*sizeof(float),    // nzAttributeType_Float4
+		1*sizeof(nzUInt32), // nzAttributeType_Int1
+		2*sizeof(nzUInt32), // nzAttributeType_Int2
+		3*sizeof(nzUInt32), // nzAttributeType_Int3
+		4*sizeof(nzUInt32)  // nzAttributeType_Int4
 	};
 
 	static_assert(sizeof(attributeStride)/sizeof(unsigned int) == nzAttributeType_Max+1, "Attribute stride array is incomplete");

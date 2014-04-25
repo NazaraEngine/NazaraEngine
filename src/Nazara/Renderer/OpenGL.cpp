@@ -1886,10 +1886,14 @@ GLenum NzOpenGL::AttributeType[] =
 	GL_FLOAT,         // nzAttributeType_Float1
 	GL_FLOAT,         // nzAttributeType_Float2
 	GL_FLOAT,         // nzAttributeType_Float3
-	GL_FLOAT          // nzAttributeType_Float4
+	GL_FLOAT,         // nzAttributeType_Float4
+	GL_INT,           // nzAttributeType_Int1
+	GL_INT,           // nzAttributeType_Int2
+	GL_INT,           // nzAttributeType_Int3
+	GL_INT            // nzAttributeType_Int4
 };
 
-static_assert(nzAttributeType_Max+1 == 9, "Attribute type array is incomplete");
+static_assert(nzAttributeType_Max+1 == 13, "Attribute type array is incomplete");
 
 GLenum NzOpenGL::BlendFunc[] =
 {
