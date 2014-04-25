@@ -248,7 +248,7 @@ bool NzContext::SetActive(bool active) const
 		currentContext = nullptr;
 	}
 
-	NzOpenGL::OnContextChange(currentContext);
+	NzOpenGL::OnContextChanged(currentContext);
 
 	return true;
 }
