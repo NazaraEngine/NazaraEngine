@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -325,31 +326,36 @@ bool NzRenderTexture::Create(bool lock)
 	}
 	#endif
 
-	NzRenderTextureImpl* impl = new NzRenderTextureImpl;
-
-	impl->context = NzContext::GetCurrent();
-	impl->context->AddResourceListener(this);
+	std::unique_ptr<NzRenderTextureImpl> impl(new NzRenderTextureImpl);
 
 	impl->fbo = 0;
 	glGenFramebuffers(1, &impl->fbo);
 
 	if (!impl->fbo)
 	{
-		delete impl;
-
 		NazaraError("Failed to create framebuffer");
 		return false;
 	}
 
-	m_impl = impl;
+	m_impl = impl.release();
+	m_impl->context = NzContext::GetCurrent();
+	m_impl->context->AddResourceListener(this);
 
-	if (lock && !Lock())
+	if (lock)
 	{
-		delete impl;
-		m_impl = nullptr;
+		// En cas d'exception, la ressource sera quand même libérée
+		NzCallOnExit onExit([this] ()
+		{
+			Destroy();
+		});
 
-		NazaraError("Failed to lock render texture");
-		return false;
+		if (!Lock())
+		{
+			NazaraError("Failed to lock render texture");
+			return false;
+		}
+
+		onExit.Reset();
 	}
 
 	NotifyParametersChange();
@@ -365,15 +371,6 @@ void NzRenderTexture::Destroy()
 		if (IsActive())
 			NzRenderer::SetTarget(nullptr);
 
-		bool canFreeFBO = true;
-		#if NAZARA_RENDERER_SAFE
-		if (NzContext::GetCurrent() != m_impl->context)
-		{
-			NazaraWarning("RenderTexture should be destroyed by it's creation context, this will cause leaks");
-			canFreeFBO = false;
-		}
-		#endif
-
 		m_impl->context->RemoveResourceListener(this);
 
 		for (const Attachment& attachment : m_impl->attachments)
@@ -387,10 +384,11 @@ void NzRenderTexture::Destroy()
 			}
 		}
 
-		if (canFreeFBO)
-			glDeleteFramebuffers(1, &m_impl->fbo);
+		// Le FBO devant être supprimé dans son contexte d'origine, nous déléguons sa suppression à la classe OpenGL
+		// Celle-ci va libérer le FBO dès que possible (la prochaine fois que son contexte d'origine sera actif)
+		NzOpenGL::DeleteFrameBuffer(m_impl->context, m_impl->fbo);
 
-		delete m_impl;
+		delete m_impl; // Enlève également une références sur les Texture/RenderBuffer
 		m_impl = nullptr;
 	}
 }

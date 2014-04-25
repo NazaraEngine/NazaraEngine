@@ -86,9 +86,11 @@ class NAZARA_API NzOpenGL
 		static void BindViewport(const NzRecti& viewport);
 
 		static void DeleteBuffer(nzBufferType type, GLuint id);
+		static void DeleteFrameBuffer(const NzContext* context, GLuint id);
 		static void DeleteProgram(GLuint id);
 		static void DeleteSampler(GLuint id);
 		static void DeleteTexture(GLuint id);
+		static void DeleteVertexArray(const NzContext* context, GLuint id);
 
 		static GLuint GetCurrentBuffer(nzBufferType type);
 		static GLuint GetCurrentProgram();
@@ -149,7 +151,7 @@ class NAZARA_API NzOpenGL
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
 
 	private:
-		static void OnContextChange(const NzContext* newContext);
+		static void OnContextChanged(const NzContext* newContext);
 		static void OnContextDestruction(const NzContext* context);
 };
 
