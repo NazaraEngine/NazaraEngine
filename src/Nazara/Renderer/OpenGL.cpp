@@ -787,7 +787,7 @@ bool NzOpenGL::Initialize()
 		return false;
 	}
 
-	if (minor < 0 || minor > 9) // 0 est une valeur correcte ici (ex: OpenGL 3.0)
+	if (minor > 9) // 0 est une valeur correcte ici (ex: OpenGL 3.0)
 	{
 		NazaraWarning("Unable to retrieve OpenGL minor version (assuming 0)");
 		minor = 0;
@@ -815,13 +815,13 @@ bool NzOpenGL::Initialize()
 	major = version[0] - '0';
 	minor = version[2] - '0';
 
-	if (major <= 0 || major > 9)
+	if (major == 0 || major > 9)
 	{
 		NazaraError("Unable to retrieve GLSL major version");
 		return false;
 	}
 
-	if (minor < 0 || minor > 9) // 0 est une valeur correcte ici (ex: GLSL 4.0)
+	if (minor > 9) // 0 est une valeur correcte ici (ex: GLSL 4.0)
 	{
 		NazaraWarning("Unable to retrieve GLSL minor version (using 0)");
 		minor = 0;
@@ -967,6 +967,8 @@ bool NzOpenGL::Initialize()
 	glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi", false));
 	glInvalidateBufferData = reinterpret_cast<PFNGLINVALIDATEBUFFERDATAPROC>(LoadEntry("glInvalidateBufferData", false));
 	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
+	glVertexAttribIPointer = reinterpret_cast<PFNGLVERTEXATTRIBIPOINTERPROC>(LoadEntry("glVertexAttribIPointer", false));
+	glVertexAttribLPointer = reinterpret_cast<PFNGLVERTEXATTRIBLPOINTERPROC>(LoadEntry("glVertexAttribLPointer", false));
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	wglGetExtensionsStringARB = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGARBPROC>(LoadEntry("wglGetExtensionsStringARB", false));
@@ -2276,6 +2278,8 @@ PFNGLUSEPROGRAMPROC               glUseProgram               = nullptr;
 PFNGLVERTEXATTRIB4FPROC           glVertexAttrib4f           = nullptr;
 PFNGLVERTEXATTRIBDIVISORPROC      glVertexAttribDivisor      = nullptr;
 PFNGLVERTEXATTRIBPOINTERPROC      glVertexAttribPointer      = nullptr;
+PFNGLVERTEXATTRIBIPOINTERPROC     glVertexAttribIPointer     = nullptr;
+PFNGLVERTEXATTRIBLPOINTERPROC     glVertexAttribLPointer     = nullptr;
 PFNGLVIEWPORTPROC                 glViewport                 = nullptr;
 #if defined(NAZARA_PLATFORM_WINDOWS)
 PFNWGLCHOOSEPIXELFORMATARBPROC    wglChoosePixelFormat       = nullptr;
