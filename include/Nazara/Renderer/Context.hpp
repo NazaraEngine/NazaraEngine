@@ -11,6 +11,8 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
+#include <memory>
+#include <vector>
 
 class NzContext;
 
@@ -48,7 +50,8 @@ class NAZARA_API NzContext : public NzResource
 		NzContextParameters m_parameters;
 		NzContextImpl* m_impl = nullptr;
 
-		static NzContext* s_reference;
+		static std::unique_ptr<NzContext> s_reference;
+		static std::vector<std::unique_ptr<NzContext>> s_contexts;
 };
 
 #endif // NAZARA_CONTEXT_HPP
