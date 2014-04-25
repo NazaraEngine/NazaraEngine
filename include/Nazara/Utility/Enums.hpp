@@ -26,8 +26,12 @@ enum nzAttributeType
 	nzAttributeType_Float2,
 	nzAttributeType_Float3,
 	nzAttributeType_Float4,
+	nzAttributeType_Int1,
+	nzAttributeType_Int2,
+	nzAttributeType_Int3,
+	nzAttributeType_Int4,
 
-	nzAttributeType_Max = nzAttributeType_Float4
+	nzAttributeType_Max = nzAttributeType_Int4
 };
 
 enum nzAttributeUsage
