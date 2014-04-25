@@ -63,8 +63,15 @@ namespace
 		#endif
 	}
 
+	enum GarbageResourceType
+	{
+		GarbageResourceType_FrameBuffer,
+		GarbageResourceType_VertexArray
+	};
+
 	struct ContextStates
 	{
+		std::vector<std::pair<GarbageResourceType, GLuint>> garbage; // Les ressources à supprimer dès que possible
 		GLuint buffersBinding[nzBufferType_Max+1] = {0};
 		GLuint currentProgram = 0;
 		GLuint samplers[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
@@ -496,6 +503,15 @@ void NzOpenGL::DeleteBuffer(nzBufferType type, GLuint id)
 		s_contextStates->buffersBinding[type] = 0;
 }
 
+void NzOpenGL::DeleteFrameBuffer(const NzContext* context, GLuint id)
+{
+	// Si le contexte est actif, ne nous privons pas
+	if (NzContext::GetCurrent() == context)
+		glDeleteFramebuffers(1, &id);
+	else
+		s_contexts[context].garbage.emplace_back(GarbageResourceType_FrameBuffer, id);
+}
+
 void NzOpenGL::DeleteProgram(GLuint id)
 {
 	#ifdef NAZARA_DEBUG
@@ -553,6 +569,15 @@ void NzOpenGL::DeleteTexture(GLuint id)
 		if (binding == id)
 			binding = 0;
 	}
+}
+
+void NzOpenGL::DeleteVertexArray(const NzContext* context, GLuint id)
+{
+	// Si le contexte est actif, ne nous privons pas
+	if (NzContext::GetCurrent() == context)
+		glDeleteFramebuffers(1, &id);
+	else
+		s_contexts[context].garbage.emplace_back(GarbageResourceType_VertexArray, id);
 }
 
 GLuint NzOpenGL::GetCurrentBuffer(nzBufferType type)
@@ -1778,9 +1803,27 @@ void NzOpenGL::Uninitialize()
 	}
 }
 
-void NzOpenGL::OnContextChange(const NzContext* newContext)
+void NzOpenGL::OnContextChanged(const NzContext* newContext)
 {
 	s_contextStates = (newContext) ? &s_contexts[newContext] : nullptr;
+	if (s_contextStates)
+	{
+		// On supprime les éventuelles ressources mortes-vivantes (Qui ne peuvent être libérées que dans notre contexte)
+		for (std::pair<GarbageResourceType, GLuint>& pair : s_contextStates->garbage)
+		{
+			switch (pair.first)
+			{
+				case GarbageResourceType_FrameBuffer:
+					glDeleteFramebuffers(1, &pair.second);
+					break;
+
+				case GarbageResourceType_VertexArray:
+					glDeleteVertexArrays(1, &pair.second);
+					break;
+			}
+		}
+		s_contextStates->garbage.clear();
+	}
 }
 
 void NzOpenGL::OnContextDestruction(const NzContext* context)
