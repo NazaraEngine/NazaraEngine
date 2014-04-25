@@ -722,6 +722,7 @@ bool NzOpenGL::Initialize()
 
 	s_initialized = true;
 
+	// En cas d'erreur, on libèrera OpenGL
 	NzCallOnExit onExit(NzOpenGL::Uninitialize);
 
 	// Le chargement des fonctions OpenGL nécessite un contexte OpenGL
@@ -735,10 +736,10 @@ bool NzOpenGL::Initialize()
 		Pour cette raison, deux contextes sont créés, le premier sert à récupérer les fonctions permetttant
 		de créer le second avec les bons paramètres.
 
-		Non sérieusement si vous avez une meilleure idée contactez-moi
+		Non sérieusement si vous avez une meilleure idée, contactez-moi
 	*/
 
-	/****************************************Chargement OpenGL****************************************/
+	/****************************Chargement OpenGL****************************/
 
 	NzContext loadContext;
 	if (!loadContext.Create(parameters))
@@ -758,7 +759,7 @@ bool NzOpenGL::Initialize()
 
 	// Récupération de la version d'OpenGL et du GLSL
 	// Ce code se base sur le fait que la carte graphique renverra un contexte de compatibilité avec la plus haute version supportée
-	// Ce qui semble vrai au moins chez ATI/AMD et NVidia, mais si quelqu'un à une meilleure idée ...
+	// Ce qui semble vrai chez AMD, NVidia et Intel, mais j'aimerai une preuve que ça sera toujours le cas...
 	glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(LoadEntry("glGetString", false));
 	if (!glGetString)
 	{
@@ -780,28 +781,30 @@ bool NzOpenGL::Initialize()
 	major = version[0] - '0';
 	minor = version[2] - '0';
 
-	if (major == 0 || major > 9)
+	if (major <= 0 || major > 9)
 	{
 		NazaraError("Unable to retrieve OpenGL major version");
 		return false;
 	}
 
-	if (minor > 9)
+	if (minor < 0 || minor > 9) // 0 est une valeur correcte ici (ex: OpenGL 3.0)
 	{
-		NazaraWarning("Unable to retrieve OpenGL minor version (using 0)");
+		NazaraWarning("Unable to retrieve OpenGL minor version (assuming 0)");
 		minor = 0;
 	}
 
-	s_openglVersion = major*100 + minor*10;
+	s_openglVersion = major*100 + minor*10; // Donnera 330 pour OpenGL 3.3, 410 pour OpenGL 4.1, bien plus facile à comparer
 
 	NazaraDebug("OpenGL version: " + NzString::Number(major) + '.' + NzString::Number(minor));
 
+	// Le moteur ne fonctionnera pas avec OpenGL 1.x, autant s'arrêter là si c'est le cas
 	if (s_openglVersion < 200)
 	{
 		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (2.0 required). Please upgrade your drivers or your video card");
 		return false;
 	}
 
+	// Récupération de la version du GLSL, même technique
 	version = glGetString(GL_SHADING_LANGUAGE_VERSION);
 	if (!version)
 	{
@@ -812,19 +815,23 @@ bool NzOpenGL::Initialize()
 	major = version[0] - '0';
 	minor = version[2] - '0';
 
-	if (major == 0 || major > 9)
+	if (major <= 0 || major > 9)
 	{
 		NazaraError("Unable to retrieve GLSL major version");
 		return false;
 	}
 
-	if (minor > 9)
+	if (minor < 0 || minor > 9) // 0 est une valeur correcte ici (ex: GLSL 4.0)
 	{
 		NazaraWarning("Unable to retrieve GLSL minor version (using 0)");
 		minor = 0;
 	}
 
-	s_glslVersion = major*100 + minor*10;
+	s_glslVersion = major*100 + minor*10; // GLSL 3.3 => 330
+
+	// Possible uniquement dans le cas où le GLSL vient d'une extension d'OpenGL 1
+	// Ce qui est rejeté il y a un moment déjà, mais on doit s'attendre à tout de la part d'un driver...
+	// (Exemple: Un driver OpenGL 2 mais ne supportant que le GLSL 100)
 	if (s_glslVersion < 110)
 	{
 		NazaraError("GLSL version is too low, please upgrade your drivers or your video card");
@@ -1292,7 +1299,7 @@ bool NzOpenGL::Initialize()
 	if (!glGenerateMipmap)
 		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
-	/****************************************Initialisation****************************************/
+	/******************************Initialisation*****************************/
 
 	s_contextStates = nullptr;
 	s_rendererName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
@@ -1828,6 +1835,10 @@ void NzOpenGL::OnContextChanged(const NzContext* newContext)
 
 void NzOpenGL::OnContextDestruction(const NzContext* context)
 {
+	/*
+	** Il serait possible d'activer le contexte avant sa destruction afin de libérer les éventuelles ressources mortes-vivantes,
+	** mais un driver bien conçu va libérer ces ressources de lui-même.
+	*/
 	s_contexts.erase(context);
 }
 
