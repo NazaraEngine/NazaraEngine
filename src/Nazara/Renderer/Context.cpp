@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringStream.hpp>
@@ -149,14 +150,13 @@ bool NzContext::Create(const NzContextParameters& parameters)
 		return false;
 	}
 
+	m_impl = impl.release();
+
+	NzCallOnExit onExit([this] () { Destroy(); });
+
 	if (!SetActive(true))
 	{
 		NazaraError("Failed to activate context");
-
-		m_impl->Destroy();
-		delete m_impl;
-		m_impl = nullptr;
-
 		return false;
 	}
 
@@ -171,6 +171,8 @@ bool NzContext::Create(const NzContextParameters& parameters)
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		#endif
 	}
+
+	onExit.Reset();
 
 	NotifyCreated();
 
