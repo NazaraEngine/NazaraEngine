@@ -149,14 +149,14 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 
 bool NzRenderWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
-    m_parameters = parameters;
-    return NzWindow::Create(mode, title, style);
+	m_parameters = parameters;
+	return NzWindow::Create(mode, title, style);
 }
 
 bool NzRenderWindow::Create(NzWindowHandle handle, const NzContextParameters& parameters)
 {
-    m_parameters = parameters;
-    return NzWindow::Create(handle);
+	m_parameters = parameters;
+	return NzWindow::Create(handle);
 }
 
 void NzRenderWindow::Display()
@@ -284,21 +284,21 @@ void NzRenderWindow::EnsureTargetUpdated() const
 bool NzRenderWindow::OnWindowCreated()
 {
 	m_parameters.doubleBuffered = true;
-    m_parameters.window = GetHandle();
+	m_parameters.window = GetHandle();
 
-    m_context = new NzContext;
-    if (!m_context->Create(m_parameters))
-    {
-        NazaraError("Failed not create context");
-        delete m_context;
+	std::unique_ptr<NzContext> context(new NzContext);
+	if (!context->Create(m_parameters))
+	{
+		NazaraError("Failed not create context");
+		return false;
+	}
 
-        return false;
-    }
+	m_context = context.release();
 
 	if (!SetActive(true)) // Les fenêtres s'activent à la création
 		NazaraWarning("Failed to activate window");
 
-    EnableVerticalSync(false);
+	EnableVerticalSync(false);
 
 	NzVector2ui size = GetSize();
 
@@ -312,7 +312,7 @@ bool NzRenderWindow::OnWindowCreated()
 
 	m_clock.Restart();
 
-    return true;
+	return true;
 }
 
 void NzRenderWindow::OnWindowDestroy()
