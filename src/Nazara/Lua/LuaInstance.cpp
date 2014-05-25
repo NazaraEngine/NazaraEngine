@@ -28,9 +28,9 @@ namespace
 
 	int AtPanic(lua_State* state)
 	{
-		NazaraUnused(state);
+		NzString lastError(lua_tostring(state, -1));
 
-		throw std::runtime_error("Lua panic !");
+		throw std::runtime_error("Lua panic: " + lastError);
 	}
 
 	const char* StreamReader(lua_State* state, void* data, std::size_t* size)
@@ -48,13 +48,15 @@ namespace
 		}
 	}
 
-	int s_comparisons[nzLuaComparison_Max+1] = {
+	int s_comparisons[] = {
 		LUA_OPEQ, // nzLuaComparison_Equality
 		LUA_OPLT, // nzLuaComparison_Less
 		LUA_OPLE  // nzLuaComparison_LessOrEqual
 	};
 
-	int s_operations[nzLuaOperation_Max+1] = {
+	static_assert(sizeof(s_comparisons)/sizeof(int) == nzLuaComparison_Max+1, "Lua comparison array is incomplete");
+
+	int s_operations[] = {
 		LUA_OPADD, // nzLuaOperation_Addition
 		LUA_OPDIV, // nzLuaOperation_Division
 		LUA_OPPOW, // nzLuaOperation_Exponentiation
@@ -64,7 +66,9 @@ namespace
 		LUA_OPSUB  // nzLuaOperation_Substraction
 	};
 
-	int s_types[nzLuaType_Max+1] = {
+	static_assert(sizeof(s_operations)/sizeof(int) == nzLuaOperation_Max+1, "Lua operation array is incomplete");
+
+	int s_types[] = {
 		LUA_TBOOLEAN,       // nzLuaType_Boolean
 		LUA_TFUNCTION,      // nzLuaType_Function
 		LUA_TLIGHTUSERDATA, // nzLuaType_LightUserdata
@@ -76,6 +80,8 @@ namespace
 		LUA_TTHREAD,        // nzLuaType_Thread
 		LUA_TUSERDATA       // nzLuaType_Userdata
 	};
+
+	static_assert(sizeof(s_types)/sizeof(int) == nzLuaType_Max+1, "Lua type array is incomplete");
 }
 
 NzLuaInstance::NzLuaInstance() :
@@ -93,6 +99,26 @@ m_level(0)
 NzLuaInstance::~NzLuaInstance()
 {
 	lua_close(m_state);
+}
+
+void NzLuaInstance::ArgCheck(bool condition, unsigned int argNum, const char* error)
+{
+	luaL_argcheck(m_state, condition, argNum, error);
+}
+
+void NzLuaInstance::ArgCheck(bool condition, unsigned int argNum, const NzString& error)
+{
+	luaL_argcheck(m_state, condition, argNum, error.GetConstBuffer());
+}
+
+int NzLuaInstance::ArgError(unsigned int argNum, const char* error)
+{
+	return luaL_argerror(m_state, argNum, error);
+}
+
+int NzLuaInstance::ArgError(unsigned int argNum, const NzString& error)
+{
+	return luaL_argerror(m_state, argNum, error.GetConstBuffer());
 }
 
 void NzLuaInstance::CheckAny(int index) const
@@ -224,6 +250,16 @@ void NzLuaInstance::Concatenate(int count)
 	lua_concat(m_state, count);
 }
 
+int NzLuaInstance::CreateReference()
+{
+	return luaL_ref(m_state, LUA_REGISTRYINDEX);
+}
+
+void NzLuaInstance::DestroyReference(int ref)
+{
+	luaL_unref(m_state, LUA_REGISTRYINDEX, ref);
+}
+
 NzString NzLuaInstance::DumpStack() const
 {
 	NzStringStream stream;
@@ -240,7 +276,7 @@ NzString NzLuaInstance::DumpStack() const
 				break;
 
 			case nzLuaType_Function:
-				stream << "Function";
+				stream << "Function(" << ToPointer(i) << ')';
 				break;
 
 			case nzLuaType_LightUserdata:
@@ -265,15 +301,15 @@ NzString NzLuaInstance::DumpStack() const
 				break;
 
 			case nzLuaType_Table:
-				stream << "Table";
+				stream << "Table(" << ToPointer(i) << ')';
 				break;
 
 			case nzLuaType_Thread:
-				stream << "Thread";
+				stream << "Thread(" << ToPointer(i) << ')';
 				break;
 
 			default:
-				stream << "Unknown";
+				stream << "Unknown(" << ToPointer(i) << ')';
 				break;
 		}
 
@@ -620,6 +656,11 @@ void NzLuaInstance::PushNumber(double value)
 	lua_pushnumber(m_state, value);
 }
 
+void NzLuaInstance::PushReference(int ref)
+{
+	lua_rawgeti(m_state, LUA_REGISTRYINDEX, ref);
+}
+
 void NzLuaInstance::PushString(const char* str)
 {
 	lua_pushstring(m_state, str);
@@ -743,6 +784,11 @@ double NzLuaInstance::ToNumber(int index, bool* succeeded) const
 		*succeeded = (success == 1);
 
 	return result;
+}
+
+const void* NzLuaInstance::ToPointer(int index) const
+{
+	return lua_topointer(m_state, index);
 }
 
 const char* NzLuaInstance::ToString(int index, std::size_t* length) const
