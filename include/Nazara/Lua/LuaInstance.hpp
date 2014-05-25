@@ -30,6 +30,11 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		NzLuaInstance();
 		~NzLuaInstance();
 
+		void ArgCheck(bool condition, unsigned int argNum, const char* error);
+		void ArgCheck(bool condition, unsigned int argNum, const NzString& error);
+		int ArgError(unsigned int argNum, const char* error);
+		int ArgError(unsigned int argNum, const NzString& error);
+
 		void CheckAny(int index) const;
 		bool CheckBoolean(int index) const;
 		bool CheckBoolean(int index, bool defValue) const;
@@ -51,6 +56,9 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void Compute(nzLuaOperation operation);
 
 		void Concatenate(int count);
+
+		int CreateReference();
+		void DestroyReference(int ref);
 
 		NzString DumpStack() const;
 
@@ -106,6 +114,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void PushMetatable(const NzString& str);
 		void PushNil();
 		void PushNumber(double value);
+		void PushReference(int ref);
 		void PushString(const char* str);
 		void PushString(const NzString& str);
 		void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
@@ -130,6 +139,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		bool ToBoolean(int index) const;
 		int ToInteger(int index, bool* succeeded = nullptr) const;
 		double ToNumber(int index, bool* succeeded = nullptr) const;
+		const void* ToPointer(int index) const;
 		const char* ToString(int index, std::size_t* length = nullptr) const;
 		unsigned int ToUnsigned(int index, bool* succeeded = nullptr) const;
 		void* ToUserdata(int index) const;
