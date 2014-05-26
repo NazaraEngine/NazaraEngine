@@ -1,4 +1,6 @@
-Changement:
+﻿Changement:
+----------------------------Erreurs via exceptions-----------------------------
+Remplacement de l'extension de tous les fichiers .c en .cpp
 
 ---------------------------------Compatibilité---------------------------------
 -Dans tous les fichiers:
@@ -14,32 +16,23 @@ Changement:
     #include <Lua/luaconf.h>
     #include <Lua/lualib.h>
 
-------------------------Support des commentaires du C++------------------------
--Fichier llex.c (Aux alentours de la ligne 405)
+---------------------Support des commentaires longs du C++----------------------
+-Fichier llex.cpp (Aux alentours de la ligne 405)
 static int llex (LexState *ls, SemInfo *seminfo) {
 +#if defined(LUA_CPPCOMT_LONG)
 +  int last;
 +#endif
   luaZ_resetbuffer(ls->buff);
   for (;;) {
--Fichier llex.c (Aux alentours de la ligne 425):
+-Fichier llex.cpp (Aux alentours de la ligne 425):
            next(ls);  /* skip until end of line (or end of file) */
          break;
        }
 +
 +      /* bn 01/2012: added C++-style comments */
-+#if defined(LUA_CPPCOMT_SHORT) || defined(LUA_CPPCOMT_LONG)
++#if defined(LUA_CPPCOMT_LONG)
 +      case '/': {  /* '/' or '/''/' (line comment) or '/''*' (long comment) */
 +        next(ls);
-+#if defined(LUA_CPPCOMT_SHORT)
-+        if (ls->current == '/') {
-+          /* line comment */
-+          next(ls);
-+          while (!currIsNewline(ls) && ls->current != EOZ)
-+            next(ls);  /* skip until end of line (or end of file) */
-+        } else
-+#endif /* LUA_CPPCOMT_SHORT */
-+#if defined(LUA_CPPCOMT_LONG)
 +        if (ls->current == '*') {
 +          /* long comment */
 +          next(ls);
@@ -53,11 +46,10 @@ static int llex (LexState *ls, SemInfo *seminfo) {
 +            lexerror(ls, "unfinished long comment", TK_EOS);
 +          else next(ls);
 +        } else
-+#endif /* LUA_CPPCOMT_LONG */
 +        return '/';
 +        break;
 +      }
-+#endif /* LUA_CPPCOMT_SHORT || LUA_CPPCOMT_LONG */
++#endif /* LUA_CPPCOMT_LONG */
 +      /* end changes */
 +
        case '[': {  /* long string or simply '[' */
@@ -66,7 +58,6 @@ static int llex (LexState *ls, SemInfo *seminfo) {
 -Fichier llex.h (Aux alentours de la ligne 15):
  
 +/* bn 01/2012: added C++-style comments */
-+#define LUA_CPPCOMT_SHORT
 +#define LUA_CPPCOMT_LONG
 +/* end changes */
 +
@@ -88,13 +79,13 @@ static int llex (LexState *ls, SemInfo *seminfo) {
 +#endif
   TK_NUMBER, TK_NAME, TK_STRING
 
--Fichier llex.c (Aux alentours de la ligne 40)
+-Fichier llex.cpp (Aux alentours de la ligne 40)
     "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
 +#ifdef LUA_CPPNEG
 +    "!=",
 +#endif
     "<number>", "<name>", "<string>"
--Fichier llex.c (Aux alentours de la ligne 490)
+-Fichier llex.cpp (Aux alentours de la ligne 490)
         else { next(ls); return TK_GE; }
       }
 +#ifdef LUA_CPPNEG
