@@ -30,13 +30,15 @@ namespace
 }
 
 NzDirectory::NzDirectory() :
-m_pattern('*')
+m_pattern('*'),
+m_impl(nullptr)
 {
 }
 
 NzDirectory::NzDirectory(const NzString& dirPath) :
 m_dirPath(dirPath),
-m_pattern('*')
+m_pattern('*'),
+m_impl(nullptr)
 {
 }
 
@@ -65,6 +67,13 @@ bool NzDirectory::Exists() const
 		return true; // Le fichier est ouvert, donc il existe
 	else
 		return Exists(m_dirPath);
+}
+
+NzString NzDirectory::GetPath() const
+{
+	NazaraLock(m_mutex);
+
+	return m_dirPath;
 }
 
 NzString NzDirectory::GetPattern() const
@@ -193,7 +202,7 @@ bool NzDirectory::Open()
 	return true;
 }
 
-void NzDirectory::SetDirectory(const NzString& dirPath)
+void NzDirectory::SetPath(const NzString& dirPath)
 {
 	NazaraLock(m_mutex);
 
