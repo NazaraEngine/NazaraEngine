@@ -38,6 +38,7 @@ class NAZARA_API NzDirectory
 
 		bool Exists() const;
 
+		NzString GetPath() const;
 		NzString GetPattern() const;
 		NzString GetResultName() const;
 		NzString GetResultPath() const;
@@ -50,7 +51,7 @@ class NAZARA_API NzDirectory
 
 		bool Open();
 
-		void SetDirectory(const NzString& dirPath);
+		void SetPath(const NzString& dirPath);
 		void SetPattern(const NzString& pattern);
 
 		static bool Copy(const NzString& sourcePath, const NzString& destPath);
@@ -66,7 +67,7 @@ class NAZARA_API NzDirectory
 
 		NzString m_dirPath;
 		NzString m_pattern;
-		NzDirectoryImpl* m_impl = nullptr;
+		NzDirectoryImpl* m_impl;
 };
 
 #endif // NAZARA_DIRECTORY_HPP
