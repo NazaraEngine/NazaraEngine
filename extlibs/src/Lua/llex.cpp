@@ -37,11 +37,11 @@ static const char *const luaX_tokens [] = {
     "and", "break", "do", "else", "elseif",
     "end", "false", "for", "function", "goto", "if",
     "in", "local", "nil", "not", "or", "repeat",
+    "return", "then", "true", "until", "while",
+    "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
 #ifdef LUA_CPPNEG
     "!=",
 #endif
-    "return", "then", "true", "until", "while",
-    "..", "...", "==", ">=", "<=", "~=", "::", "<eof>",
     "<number>", "<name>", "<string>"
 };
 
@@ -435,19 +435,11 @@ static int llex (LexState *ls, SemInfo *seminfo) {
           next(ls);  /* skip until end of line (or end of file) */
         break;
       }
+
       /* bn 01/2012: added C++-style comments */
-#if defined(LUA_CPPCOMT_SHORT) || defined(LUA_CPPCOMT_LONG)
+#if defined(LUA_CPPCOMT_LONG)
       case '/': {  /* '/' or '/''/' (line comment) or '/''*' (long comment) */
         next(ls);
-#if defined(LUA_CPPCOMT_SHORT)
-        if (ls->current == '/') {
-          /* line comment */
-          next(ls);
-          while (!currIsNewline(ls) && ls->current != EOZ)
-            next(ls);  /* skip until end of line (or end of file) */
-        } else
-#endif /* LUA_CPPCOMT_SHORT */
-#if defined(LUA_CPPCOMT_LONG)
         if (ls->current == '*') {
           /* long comment */
           next(ls);
@@ -461,12 +453,11 @@ static int llex (LexState *ls, SemInfo *seminfo) {
             lexerror(ls, "unfinished long comment", TK_EOS);
           else next(ls);
         } else
-#endif /* LUA_CPPCOMT_LONG */
         return '/';
         break;
       }
-#endif /* LUA_CPPCOMT_SHORT || LUA_CPPCOMT_LONG */
-      /* end changes */
+#endif /* LUA_CPPCOMT_LONG */
+
       case '[': {  /* long string or simply '[' */
         int sep = skip_sep(ls);
         if (sep >= 0) {
@@ -572,4 +563,3 @@ int luaX_lookahead (LexState *ls) {
   ls->lookahead.token = llex(ls, &ls->lookahead.seminfo);
   return ls->lookahead.token;
 }
-

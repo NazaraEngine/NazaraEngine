@@ -14,7 +14,6 @@
 #define FIRST_RESERVED	257
 
 /* bn 01/2012: added C++-style comments */
-#define LUA_CPPCOMT_SHORT
 #define LUA_CPPCOMT_LONG
 /* end changes */
 
