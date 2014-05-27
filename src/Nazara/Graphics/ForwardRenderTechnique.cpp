@@ -70,7 +70,7 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene) const
 	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
 	NzRenderer::Clear(nzRendererBuffer_Depth);
 
-	NzAbstractBackground* background = scene->GetBackground();
+	NzAbstractBackground* background = (scene->IsBackgroundEnabled()) ? scene->GetBackground() : nullptr;
 	if (background)
 		background->Draw(scene);
 }
