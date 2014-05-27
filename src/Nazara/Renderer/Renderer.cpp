@@ -1561,7 +1561,7 @@ void NzRenderer::EnableInstancing(bool instancing)
 bool NzRenderer::EnsureStateUpdate()
 {
 	// Toutes les erreurs sont silencieuses car l'erreur est gérée par la fonction appelante
-	NzErrorFlags flags(nzErrorFlag_Silent);
+	NzErrorFlags flags(nzErrorFlag_Silent | nzErrorFlag_ThrowExceptionDisabled);
 
 	#ifdef NAZARA_DEBUG
 	if (NzContext::GetCurrent() == nullptr)
