@@ -4206,6 +4206,9 @@ bool operator==(const NzString& first, const NzString& second)
 	if (first.m_sharedString->size != second.m_sharedString->size)
 		return false;
 
+	if (first.m_sharedString == second.m_sharedString)
+		return true;
+
 	return std::strcmp(first.m_sharedString->string, second.m_sharedString->string) == 0;
 }
 
