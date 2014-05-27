@@ -16,6 +16,7 @@ struct NzSkeletonImpl
 };
 
 NzSkeleton::NzSkeleton(const NzSkeleton& skeleton) :
+NzResource(),
 m_impl(nullptr)
 {
 	operator=(skeleton);
@@ -105,8 +106,7 @@ NzJoint* NzSkeleton::GetJoint(const NzString& jointName)
 	}
 	#endif
 
-	// Invalidation de l'AABB
-	m_impl->aabbUpdated = false;
+	InvalidateJoints();
 
 	return &m_impl->joints[it->second];
 }
@@ -127,8 +127,7 @@ NzJoint* NzSkeleton::GetJoint(unsigned int index)
 	}
 	#endif
 
-	// Invalidation de l'AABB
-	m_impl->aabbUpdated = false;
+	InvalidateJoints();
 
 	return &m_impl->joints[index];
 }
@@ -276,7 +275,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
 		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, nzCoordSys_Local);
 
-	m_impl->aabbUpdated = false;
+	InvalidateJoints();
 }
 
 void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
@@ -324,7 +323,7 @@ void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skel
 		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, nzCoordSys_Local);
 	}
 
-	m_impl->aabbUpdated = false;
+	InvalidateJoints();
 }
 
 bool NzSkeleton::IsValid() const
@@ -365,6 +364,12 @@ NzSkeleton& NzSkeleton::operator=(const NzSkeleton& skeleton)
 	}
 
 	return *this;
+}
+
+void NzSkeleton::InvalidateJoints()
+{
+	m_impl->aabbUpdated = false;
+	NotifyModified(0);
 }
 
 void NzSkeleton::InvalidateJointMap()
