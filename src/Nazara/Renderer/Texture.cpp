@@ -105,9 +105,9 @@ namespace
 
 			case nzImageType_Cubemap:
 			{
-				/*if (glTexStorage2D)
+				if (glTexStorage2D)
 					glTexStorage2D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height);
-				else*/
+				else
 				{
 					unsigned int size = impl->width; // Les cubemaps ont une longueur et largeur identique
 					for (nzUInt8 level = 0; level < impl->levelCount; ++level)
@@ -275,13 +275,13 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	NzOpenGL::BindTexture(impl->type, impl->id);
 
 	// Vérification du support par la carte graphique
-	/*if (!CreateTexture(impl, true))
+	if (!CreateTexture(impl.get(), true))
 	{
 		NzOpenGL::DeleteTexture(m_impl->id);
 
 		NazaraError("Texture's parameters not supported by driver");
 		return false;
-	}*/
+	}
 
 	// Création de la texture
 	if (!CreateTexture(impl.get(), false))
