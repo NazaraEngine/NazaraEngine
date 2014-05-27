@@ -72,6 +72,7 @@ class NAZARA_API NzRenderer
 
 		static bool IsEnabled(nzRendererParameter parameter);
 		static bool IsInitialized();
+		static bool IsVertexAttributeSupported(nzAttributeType attributeType);
 
 		static void SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend);
 		static void SetClearColor(const NzColor& color);
