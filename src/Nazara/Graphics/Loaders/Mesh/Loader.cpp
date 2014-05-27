@@ -11,7 +11,7 @@
 
 namespace
 {
-	nzTernary Check(NzInputStream& stream, const NzModelParameters& parameters)
+	nzTernary CheckStatic(NzInputStream& stream, const NzModelParameters& parameters)
 	{
 		NazaraUnused(stream);
 		NazaraUnused(parameters);
@@ -19,7 +19,7 @@ namespace
 		return nzTernary_Unknown;
 	}
 
-	bool Load(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)
+	bool LoadStatic(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)
 	{
 		NazaraUnused(parameters);
 
@@ -31,26 +31,18 @@ namespace
 			return false;
 		}
 
+		if (mesh->IsAnimable())
+		{
+			NazaraError("Can't load static mesh into animated model");
+			return false;
+		}
+
 		// Nous ne pouvons plus avoir recours au smart pointeur à partir d'ici si nous voulons être exception-safe
 		NzMesh* meshPtr = mesh.get();
 
 		model->Reset();
 		model->SetMesh(meshPtr);
 		mesh.release();
-
-		if (parameters.loadAnimation && meshPtr->IsAnimable())
-		{
-			NzString animationPath = meshPtr->GetAnimation();
-			if (!animationPath.IsEmpty())
-			{
-				std::unique_ptr<NzAnimation> animation(new NzAnimation);
-				animation->SetPersistent(false);
-				if (animation->LoadFromFile(animationPath, parameters.animation) && model->SetAnimation(animation.get()))
-					animation.release();
-				else
-					NazaraWarning("Failed to load animation");
-			}
-		}
 
 		if (parameters.loadMaterials)
 		{
@@ -81,10 +73,10 @@ namespace
 
 void NzLoaders_Mesh_Register()
 {
-	NzModelLoader::RegisterLoader(NzMeshLoader::IsExtensionSupported, Check, Load);
+	NzModelLoader::RegisterLoader(NzMeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
 }
 
 void NzLoaders_Mesh_Unregister()
 {
-	NzModelLoader::UnregisterLoader(NzMeshLoader::IsExtensionSupported, Check, Load);
+	NzModelLoader::UnregisterLoader(NzMeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
 }
