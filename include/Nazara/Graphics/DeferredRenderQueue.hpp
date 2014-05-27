@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Utility/MeshData.hpp>
 #include <map>
 #include <tuple>
 
@@ -29,21 +30,10 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
+		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
 		void AddSprite(const NzSprite* sprite) override;
-		void AddSubMesh(const NzMaterial* material, const NzSubMesh* subMesh, const NzMatrix4f& transformMatrix) override;
 
 		void Clear(bool fully);
-
-		struct SkeletalData
-		{
-			///TODO
-			NzMatrix4f transformMatrix;
-		};
-
-		struct StaticData
-		{
-			NzMatrix4f transformMatrix;
-		};
 
 		struct BatchedModelMaterialComparator
 		{
@@ -55,23 +45,17 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
 		};
 
-		struct BatchedSkeletalMeshComparator
+		struct MeshDataComparator
 		{
-			bool operator()(const NzSkeletalMesh* subMesh1, const NzSkeletalMesh* subMesh2);
+			bool operator()(const NzMeshData& data1, const NzMeshData& data2);
 		};
 
-		struct BatchedStaticMeshComparator
-		{
-			bool operator()(const NzStaticMesh* subMesh1, const NzStaticMesh* subMesh2);
-		};
-
-		typedef std::map<const NzSkeletalMesh*, std::vector<SkeletalData>, BatchedSkeletalMeshComparator> BatchedSkeletalMeshContainer;
-		typedef std::map<const NzStaticMesh*, std::vector<StaticData>, BatchedStaticMeshComparator> BatchedStaticMeshContainer;
-		typedef std::map<const NzMaterial*, std::tuple<bool, bool, BatchedSkeletalMeshContainer, BatchedStaticMeshContainer>, BatchedModelMaterialComparator> BatchedModelContainer;
+		typedef std::map<NzMeshData, std::vector<NzMatrix4f>, MeshDataComparator> MeshInstanceContainer;
+		typedef std::map<const NzMaterial*, std::tuple<bool, bool, MeshInstanceContainer>, BatchedModelMaterialComparator> ModelBatches;
 		typedef std::map<const NzMaterial*, std::vector<const NzSprite*>> BatchedSpriteContainer;
 		typedef std::vector<const NzLight*> LightContainer;
 
-		BatchedModelContainer opaqueModels;
+		ModelBatches opaqueModels;
 		BatchedSpriteContainer sprites;
 		LightContainer directionalLights;
 		LightContainer pointLights;

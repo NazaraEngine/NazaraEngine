@@ -58,10 +58,9 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 		if (used)
 		{
 			bool& renderQueueInstancing = std::get<1>(matIt.second);
-			NzDeferredRenderQueue::BatchedSkeletalMeshContainer& skeletalContainer = std::get<2>(matIt.second);
-			NzDeferredRenderQueue::BatchedStaticMeshContainer& staticContainer = std::get<3>(matIt.second);
+			NzDeferredRenderQueue::MeshInstanceContainer& meshInstances = std::get<2>(matIt.second);
 
-			if (!skeletalContainer.empty() || !staticContainer.empty())
+			if (!meshInstances.empty())
 			{
 				const NzMaterial* material = matIt.first;
 
@@ -88,26 +87,16 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 					lastShader = shader;
 				}
 
-				// Meshs squelettiques
-				/*if (!skeletalContainer.empty())
+				// Meshes
+				for (auto& meshIt : meshInstances)
 				{
-					NzRenderer::SetVertexBuffer(m_skinningBuffer); // Vertex buffer commun
-					for (auto& subMeshIt : container)
-					{
-						///TODO
-					}
-				}*/
+					const NzMeshData& meshData = meshIt.first;
+					std::vector<NzMatrix4f>& instances = meshIt.second;
 
-				// Meshs statiques
-				for (auto& subMeshIt : staticContainer)
-				{
-					const NzStaticMesh* mesh = subMeshIt.first;
-					std::vector<NzDeferredRenderQueue::StaticData>& staticData = subMeshIt.second;
-
-					if (!staticData.empty())
+					if (!instances.empty())
 					{
-						const NzIndexBuffer* indexBuffer = mesh->GetIndexBuffer();
-						const NzVertexBuffer* vertexBuffer = mesh->GetVertexBuffer();
+						const NzIndexBuffer* indexBuffer = meshData.indexBuffer;
+						const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
 						// Gestion du draw call avant la boucle de rendu
 						std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> DrawFunc;
@@ -130,49 +119,43 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 						NzRenderer::SetIndexBuffer(indexBuffer);
 						NzRenderer::SetVertexBuffer(vertexBuffer);
 
-						nzPrimitiveMode primitiveMode = mesh->GetPrimitiveMode();
 						if (useInstancing)
 						{
+							// On récupère le buffer d'instancing du Renderer et on le configure pour fonctionner avec des matrices
 							NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
-
 							instanceBuffer->SetVertexDeclaration(NzVertexDeclaration::Get(nzVertexLayout_Matrix4));
 
-							unsigned int stride = instanceBuffer->GetStride();
-
-							const NzDeferredRenderQueue::StaticData* data = &staticData[0];
-							unsigned int instanceCount = staticData.size();
-							unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de sommets maximum avec la déclaration donnée plus hautg
+							const NzMatrix4f* instanceMatrices = &instances[0];
+							unsigned int instanceCount = instances.size();
+							unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de matrices que peut contenir le buffer
 
 							while (instanceCount > 0)
 							{
+								// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
 								unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 								instanceCount -= renderedInstanceCount;
 
-								NzBufferMapper<NzVertexBuffer> mapper(instanceBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedInstanceCount);
-								nzUInt8* ptr = reinterpret_cast<nzUInt8*>(mapper.GetPointer());
+								// On remplit l'instancing buffer avec nos matrices world
+								instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+								instanceMatrices += renderedInstanceCount;
 
-								for (unsigned int i = 0; i < renderedInstanceCount; ++i)
-								{
-									std::memcpy(ptr, data->transformMatrix, sizeof(float)*16);
-
-									data++;
-									ptr += stride;
-								}
-
-								mapper.Unmap();
-
-								InstancedDrawFunc(renderedInstanceCount, primitiveMode, 0, indexCount);
+								// Et on affiche
+								InstancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 							}
 						}
 						else
 						{
-							for (const NzDeferredRenderQueue::StaticData& data : staticData)
+							// Sans instancing, on doit effectuer un drawcall pour chaque instance
+							// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
+							// À cause du temps de modification du buffer d'instancing
+							for (const NzMatrix4f& matrix : instances)
 							{
-								NzRenderer::SetMatrix(nzMatrixType_World, data.transformMatrix);
-								DrawFunc(primitiveMode, 0, indexCount);
+								NzRenderer::SetMatrix(nzMatrixType_World, matrix);
+								DrawFunc(meshData.primitiveMode, 0, indexCount);
 							}
 						}
-						staticData.clear();
+
+						instances.clear();
 					}
 				}
 			}
