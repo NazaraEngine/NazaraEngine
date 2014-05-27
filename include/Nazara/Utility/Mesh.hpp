@@ -43,8 +43,8 @@ struct NAZARA_API NzMeshParams
 };
 
 class NzAnimation;
-class NzPrimitiveList;
 class NzMesh;
+class NzPrimitiveList;
 
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 
