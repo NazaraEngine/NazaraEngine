@@ -37,6 +37,8 @@ class NAZARA_API NzScene
 		void Cull();
 		void Draw();
 
+		void EnableBackground(bool enable);
+
 		NzColor GetAmbientColor() const;
 		NzAbstractBackground* GetBackground() const;
 		NzAbstractRenderTechnique* GetRenderTechnique() const;
@@ -44,6 +46,8 @@ class NAZARA_API NzScene
 		NzAbstractViewer* GetViewer() const;
 		float GetUpdateTime() const;
 		unsigned int GetUpdatePerSecond() const;
+
+		bool IsBackgroundEnabled() const;
 
 		void RegisterForUpdate(NzUpdatable* object);
 
