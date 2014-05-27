@@ -29,7 +29,7 @@ bool NzDeferredForwardPass::Process(const NzScene* scene, unsigned int workTextu
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzAbstractBackground* background = scene->GetBackground();
+	NzAbstractBackground* background = (scene->IsBackgroundEnabled()) ? scene->GetBackground() : nullptr;
 	if (background)
 		background->Draw(scene);
 
