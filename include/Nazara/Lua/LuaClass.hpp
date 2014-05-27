@@ -24,6 +24,8 @@ class NzLuaClass
 		using ClassIndexFunc = bool (*)(NzLuaInstance& lua, T& instance);
 		using ConstructorFunc = T* (*)(NzLuaInstance& lua);
 		using FinalizerFunc = bool (*)(NzLuaInstance& lua, T& instance);
+		using StaticIndexFunc = bool (*)(NzLuaInstance& lua);
+		using StaticFunc = int (*)(NzLuaInstance& lua);
 
 		NzLuaClass(const NzString& name);
 
@@ -31,11 +33,16 @@ class NzLuaClass
 
 		void Register(NzLuaInstance& lua);
 
+		void PushGlobalTable(NzLuaInstance& lua);
+
 		void SetConstructor(ConstructorFunc constructor);
 		void SetFinalizer(FinalizerFunc finalizer);
 		void SetGetter(ClassIndexFunc getter);
 		void SetMethod(const NzString& name, ClassFunc method);
 		void SetSetter(ClassIndexFunc setter);
+		void SetStaticGetter(StaticIndexFunc getter);
+		void SetStaticMethod(const NzString& name, StaticFunc func);
+		void SetStaticSetter(StaticIndexFunc getter);
 
 	private:
 		static int ConstructorProxy(lua_State* state);
@@ -44,18 +51,26 @@ class NzLuaClass
 		static int GetterProxy(lua_State* state);
 		static int MethodProxy(lua_State* state);
 		static int SetterProxy(lua_State* state);
+		static int StaticGetterProxy(lua_State* state);
+		static int StaticMethodProxy(lua_State* state);
+		static int StaticSetterProxy(lua_State* state);
 
 		struct ClassInfo
 		{
 			std::vector<ClassFunc> methods;
+			std::vector<StaticFunc> staticMethods;
 			ClassIndexFunc getter = nullptr;
 			ClassIndexFunc setter = nullptr;
 			ConstructorFunc constructor = nullptr;
 			FinalizerFunc finalizer = nullptr;
+			StaticIndexFunc staticGetter = nullptr;
+			StaticIndexFunc staticSetter = nullptr;
 			NzString name;
+			int globalTableRef = -1;
 		};
 
 		std::map<NzString, ClassFunc> m_methods;
+		std::map<NzString, StaticFunc> m_staticMethods;
 		std::shared_ptr<ClassInfo> m_info;
 };
 
