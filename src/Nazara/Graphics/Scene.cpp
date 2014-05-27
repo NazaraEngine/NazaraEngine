@@ -32,6 +32,7 @@ struct NzSceneImpl
 	NzColor ambientColor = NzColor(25,25,25);
 	NzSceneRoot root;
 	NzAbstractViewer* viewer = nullptr;
+	bool backgroundEnabled = true;
 	bool update;
 	float frameTime;
 	float updateTime;
@@ -104,6 +105,11 @@ void NzScene::Draw()
 	}
 }
 
+void NzScene::EnableBackground(bool enable)
+{
+	m_impl->backgroundEnabled = enable;
+}
+
 NzColor NzScene::GetAmbientColor() const
 {
 	return m_impl->ambientColor;
@@ -143,6 +149,11 @@ float NzScene::GetUpdateTime() const
 unsigned int NzScene::GetUpdatePerSecond() const
 {
 	return m_impl->updatePerSecond;
+}
+
+bool NzScene::IsBackgroundEnabled() const
+{
+	return m_impl->backgroundEnabled;
 }
 
 void NzScene::RegisterForUpdate(NzUpdatable* object)
