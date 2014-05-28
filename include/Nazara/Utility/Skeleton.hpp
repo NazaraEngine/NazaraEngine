@@ -8,13 +8,14 @@
 #define NAZARA_SKELETON_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
 
 struct NzSkeletonImpl;
 
-class NAZARA_API NzSkeleton
+class NAZARA_API NzSkeleton : public NzResource
 {
 	friend NzJoint;
 
@@ -44,6 +45,7 @@ class NAZARA_API NzSkeleton
 		NzSkeleton& operator=(const NzSkeleton& skeleton);
 
 	private:
+		void InvalidateJoints();
 		void InvalidateJointMap();
 		void UpdateJointMap() const;
 
