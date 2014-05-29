@@ -9,19 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 struct NAZARA_API NzModelParameters
 {
 	NzModelParameters();
 
-	bool loadAnimation = true;
 	bool loadMaterials = true;
-	NzAnimationParams animation;
 	NzMaterialParams material;
 	NzMeshParams mesh;
 
@@ -32,7 +28,7 @@ class NzModel;
 
 using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
 
-class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
+class NAZARA_API NzModel : public NzSceneNode
 {
 	friend NzModelLoader;
 	friend class NzScene;
@@ -41,7 +37,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		NzModel();
 		NzModel(const NzModel& model);
 		NzModel(NzModel&& model);
-		~NzModel();
+		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void AdvanceAnimation(float elapsedTime);
@@ -65,6 +61,7 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		bool HasAnimation() const;
 
 		bool IsAnimationEnabled() const;
+		virtual bool IsAnimated() const;
 		bool IsDrawable() const;
 
 		void InvalidateBoundingVolume();
@@ -75,12 +72,11 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 
 		void Reset();
 
-		bool SetAnimation(NzAnimation* animation);
 		bool SetMaterial(const NzString& subMeshName, NzMaterial* material);
 		void SetMaterial(unsigned int matIndex, NzMaterial* material);
 		bool SetMaterial(unsigned int skinIndex, const NzString& subMeshName, NzMaterial* material);
 		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
-		void SetMesh(NzMesh* mesh);
+		virtual void SetMesh(NzMesh* mesh);
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
 		void SetSkin(unsigned int skin);
@@ -89,26 +85,16 @@ class NAZARA_API NzModel : public NzSceneNode, public NzUpdatable
 		NzModel& operator=(const NzModel& node);
 		NzModel& operator=(NzModel&& node);
 
-	private:
+	protected:
 		bool FrustumCull(const NzFrustumf& frustum) override;
 		void InvalidateNode() override;
-		void Register() override;
-		void Unregister() override;
-		void Update() override;
-		void UpdateBoundingVolume() const;
+		virtual void UpdateBoundingVolume() const;
 
 		std::vector<NzMaterialRef> m_materials;
-		NzAnimationRef m_animation;
 		mutable NzBoundingVolumef m_boundingVolume;
 		NzMeshRef m_mesh;
-		NzSkeleton m_skeleton; // Uniquement pour les animations squelettiques
-		const NzSequence* m_currentSequence;
-		bool m_animationEnabled;
 		mutable bool m_boundingVolumeUpdated;
-		float m_interpolation;
-		unsigned int m_currentFrame;
 		unsigned int m_matCount;
-		unsigned int m_nextFrame;
 		unsigned int m_skin;
 		unsigned int m_skinCount;
 
