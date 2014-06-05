@@ -438,14 +438,6 @@ NzModel& NzModel::operator=(NzModel&& node)
 	return *this;
 }
 
-bool NzModel::FrustumCull(const NzFrustumf& frustum)
-{
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return frustum.Contains(m_boundingVolume);
-}
-
 void NzModel::InvalidateNode()
 {
 	NzSceneNode::InvalidateNode();

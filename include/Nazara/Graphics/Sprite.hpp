@@ -37,7 +37,6 @@ class NAZARA_API NzSprite : public NzSceneNode
 		void SetTextureRect(const NzRectui& rect);
 
 	private:
-		bool FrustumCull(const NzFrustumf& frustum) override;
 		void InvalidateNode() override;
 		void Register() override;
 		void Unregister() override;
