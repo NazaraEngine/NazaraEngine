@@ -229,7 +229,7 @@ void NzLight::Disable(const NzShader* shader, const NzLightUniforms& uniforms, i
 	shader->SendInteger(uniforms.locations.type + offset, -1);
 }
 
-bool NzLight::FrustumCull(const NzFrustumf& frustum)
+bool NzLight::FrustumCull(const NzFrustumf& frustum) const
 {
 	switch (m_type)
 	{
@@ -244,10 +244,7 @@ bool NzLight::FrustumCull(const NzFrustumf& frustum)
 			return frustum.Contains(NzSpheref(m_derivedPosition, m_radius));
 
 		case nzLightType_Spot:
-			if (!m_boundingVolumeUpdated)
-				UpdateBoundingVolume();
-
-			return frustum.Contains(m_boundingVolume);
+			return NzSceneNode::FrustumCull(frustum);
 	}
 
 	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');

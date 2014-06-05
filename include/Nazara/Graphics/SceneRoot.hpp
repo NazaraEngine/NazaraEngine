@@ -26,7 +26,6 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 		NzSceneRoot(NzScene* scene);
 		virtual ~NzSceneRoot();
 
-		bool FrustumCull(const NzFrustumf& frustum) override;
 		void Register();
 		void Unregister();
 };
