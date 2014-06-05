@@ -86,7 +86,6 @@ class NAZARA_API NzModel : public NzSceneNode
 		NzModel& operator=(NzModel&& node);
 
 	protected:
-		bool FrustumCull(const NzFrustumf& frustum) override;
 		void InvalidateNode() override;
 		virtual void UpdateBoundingVolume() const;
 

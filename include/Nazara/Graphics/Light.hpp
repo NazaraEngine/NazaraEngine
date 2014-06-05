@@ -53,7 +53,7 @@ class NAZARA_API NzLight : public NzSceneNode
 		static void Disable(const NzShader* program, const NzLightUniforms& uniforms, int offset = 0);
 
 	private:
-		bool FrustumCull(const NzFrustumf& frustum) override;
+		bool FrustumCull(const NzFrustumf& frustum) const override;
 		void InvalidateNode() override;
 		void Register() override;
 		void Unregister() override;

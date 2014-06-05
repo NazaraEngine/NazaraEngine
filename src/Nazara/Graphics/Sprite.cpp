@@ -116,10 +116,11 @@ void NzSprite::SetSize(const NzVector2f& size)
 void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)
 {
 	std::unique_ptr<NzMaterial> material(new NzMaterial);
-	material->Enable(nzRendererParameter_DepthBuffer, false);
+	material->SetPersistent(false);
+
+	material->Enable(nzRendererParameter_FaceCulling, false);
 	material->EnableLighting(false);
 	material->SetDiffuseMap(texture);
-	material->SetPersistent(false);
 
 	SetMaterial(material.get(), resizeSprite);
 	material.release();
@@ -154,14 +155,6 @@ void NzSprite::SetTextureRect(const NzRectui& rect)
 	SetTextureCoords(NzRectf(invWidth*rect.x, invHeight*rect.y, invWidth*rect.width, invHeight*rect.height));
 }
 
-bool NzSprite::FrustumCull(const NzFrustumf& frustum)
-{
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return frustum.Contains(m_boundingVolume);
-}
-
 void NzSprite::InvalidateNode()
 {
 	NzSceneNode::InvalidateNode();
@@ -180,7 +173,7 @@ void NzSprite::Unregister()
 void NzSprite::UpdateBoundingVolume() const
 {
 	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0, m_size.x, m_size.y, 0.f);
+		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0.f, m_size.x, m_size.y, 0.f);
 
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();

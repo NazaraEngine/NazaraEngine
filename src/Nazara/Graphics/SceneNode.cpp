@@ -73,6 +73,11 @@ NzSceneNode& NzSceneNode::operator=(NzSceneNode&& sceneNode)
 	return *this;
 }
 
+bool NzSceneNode::FrustumCull(const NzFrustumf& frustum) const
+{
+	return frustum.Contains(GetBoundingVolume());
+}
+
 void NzSceneNode::OnParenting(const NzNode* parent)
 {
 	if (parent)
