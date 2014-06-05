@@ -63,11 +63,21 @@ void NzMemoryPool<typeSize, count, canGrow>::Free(void* ptr)
 	if (ptr)
 	{
 		// Le pointer nous appartient-il ?
-		if (ptr >= m_pool.get() && ptr < m_pool.get() + typeSize*count)
+		nzUInt8* freePtr = static_cast<nzUInt8*>(ptr);
+		nzUInt8* poolPtr = m_pool.get();
+		if (freePtr >= poolPtr && freePtr < poolPtr + typeSize*count)
 		{
+			#if NAZARA_CORE_SAFE
+			if ((freePtr - poolPtr) % typeSize != 0)
+			{
+				throw std::runtime_error("Pointer does not belong to memory pool");
+				return;
+			}
+			#endif
+
 			m_freeList[m_freeCount++] = ptr;
 
-			// Si nous somme vide et l'extension d'un autre pool, on se suicide
+			// Si nous sommes vide et l'extension d'un autre pool, on se suicide
 			if (m_freeCount == count && m_previous && !m_next)
 			{
 				m_previous->m_next.release();
