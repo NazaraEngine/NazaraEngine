@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -46,7 +46,7 @@ NzMatrix4<T>::NzMatrix4(const NzMatrix4<U>& matrix)
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::ApplyRotation(const NzQuaternion<T>& rotation)
 {
-	return Concatenate(NzMatrix4f::Rotate(rotation));
+	return Concatenate(NzMatrix4<T>::Rotate(rotation));
 }
 
 template<typename T>
@@ -404,7 +404,7 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 	T trace = m11 + m22 + m33;
 	if (trace > F(0.0))
 	{
-		float s = F(0.5)/std::sqrt(trace + F(1.0));
+		T s = F(0.5)/std::sqrt(trace + F(1.0));
 		quat.w = F(0.25) / s;
 		quat.x = (m23 - m32) * s;
 		quat.y = (m31 - m13) * s;
@@ -414,7 +414,7 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 	{
 		if (m11 > m22 && m11 > m33)
 		{
-			float s = F(2.0) * std::sqrt(F(1.0) + m11 - m22 - m33);
+			T s = F(2.0) * std::sqrt(F(1.0) + m11 - m22 - m33);
 
 			quat.w = (m23 - m32) / s;
 			quat.x = F(0.25) * s;
@@ -423,7 +423,7 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 		}
 		else if (m22 > m33)
 		{
-			float s = F(2.0) * std::sqrt(F(1.0) + m22 - m11 - m33);
+			T s = F(2.0) * std::sqrt(F(1.0) + m22 - m11 - m33);
 
 			quat.w = (m31 - m13) / s;
 			quat.x = (m21 + m12) / s;
@@ -432,7 +432,7 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 		}
 		else
 		{
-			float s = F(2.0) * std::sqrt(F(1.0) + m33 - m11 - m22);
+			T s = F(2.0) * std::sqrt(F(1.0) + m33 - m11 - m22);
 
 			quat.w = (m12 - m21) / s;
 			quat.x = (m31 + m13) / s;
@@ -658,7 +658,7 @@ template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::MakeViewMatrix(const NzVector3<T>& translation, const NzQuaternion<T>& rotation)
 {
 	// Une matrice de vue doit appliquer une transformation opposée à la matrice "monde"
-	NzQuaternionf invRot = rotation.GetConjugate(); // Inverse de la rotation
+	NzQuaternion<T> invRot = rotation.GetConjugate(); // Inverse de la rotation
 
 	return MakeTransform(-(invRot*translation), invRot);
 }

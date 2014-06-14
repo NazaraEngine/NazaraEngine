@@ -63,9 +63,13 @@ class NzRect
 
 		NzRect operator*(T scalar) const;
 		NzRect operator*(const NzVector2<T>& vec) const;
+		NzRect operator/(T scalar) const;
+		NzRect operator/(const NzVector2<T>& vec) const;
 
 		NzRect& operator*=(T scalar);
 		NzRect& operator*=(const NzVector2<T>& vec);
+        NzRect& operator/=(T scalar);
+		NzRect& operator/=(const NzVector2<T>& vec);
 
 		bool operator==(const NzRect& rect) const;
 		bool operator!=(const NzRect& rect) const;

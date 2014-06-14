@@ -29,7 +29,7 @@ NzSphere<T>::NzSphere(const NzVector3<T>& center, T Radius)
 }
 
 template<typename T>
-NzSphere<T>::NzSphere(const T sphere[6])
+NzSphere<T>::NzSphere(const T sphere[4])
 {
 	Set(sphere);
 }
@@ -46,12 +46,18 @@ bool NzSphere<T>::Contains(T X, T Y, T Z) const
 {
 	return SquaredDistance(X, Y, Z) <= radius*radius;
 }
-/*
+
 template<typename T>
 bool NzSphere<T>::Contains(const NzBox<T>& box) const
 {
+    if (box.GetMinimum().SquaredDistance(GetPosition()) <= radius * radius)
+    {
+        if (box.GetMaximum().SquaredDistance(GetPosition()) <= radius * radius)
+            return true;
+    }
+
+    return false;
 }
-*/
 template<typename T>
 bool NzSphere<T>::Contains(const NzVector3<T>& point) const
 {
@@ -85,7 +91,7 @@ NzSphere<T>& NzSphere<T>::ExtendTo(T X, T Y, T Z)
 template<typename T>
 NzSphere<T>& NzSphere<T>::ExtendTo(const NzVector3<T>& point)
 {
-	return ExtendTo(point);
+	return ExtendTo(point.x, point.y, point.z);
 }
 
 template<typename T>
@@ -111,18 +117,35 @@ NzVector3<T> NzSphere<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 
 	return pos;
 }
-/*
 template<typename T>
 bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 {
+    // Arvo's algorithm.
+    T dmin = T(0);
+    if (x < box.x)
+        dmin += (x - box.x) * (x - box.x);
+    else if (x > box.x + box.width)
+        dmin += (x - (box.x + box.width)) * (x - (box.x + box.width));
 
+    if (y < box.y)
+        dmin += (y - box.y) * (y - box.y);
+    else if (x > box.x + box.width)
+        dmin += (y - (box.y + box.height)) * (y - (box.y + box.height));
+
+    if (z < box.z)
+        dmin += (z - box.z) * (z - box.z);
+    else if (x > box.x + box.width)
+        dmin += (z - (box.z + box.depth)) * (z - (box.z + box.depth));
+
+    if (dmin <= radius * radius)
+        return true;
+    return false;
 }
-*/
 
 template<typename T>
 bool NzSphere<T>::Intersect(const NzSphere& sphere) const
 {
-	return SquaredDistance(sphere.x, sphere.y, sphere.z) - radius*radius <= sphere.radius*sphere.radius;
+	return std::abs(SquaredDistance(sphere.x, sphere.y, sphere.z) - radius*radius) <= sphere.radius*sphere.radius;
 }
 
 template<typename T>
@@ -210,7 +233,7 @@ template<typename T>
 T NzSphere<T>::SquaredDistance(T X, T Y, T Z) const
 {
 	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.SquaredLength();
+	return distance.GetSquaredLength();
 }
 
 template<typename T>

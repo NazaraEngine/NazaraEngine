@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -33,6 +33,12 @@ template<typename T>
 NzBoundingVolume<T>::NzBoundingVolume(const NzBox<T>& box)
 {
 	Set(box);
+}
+
+template<typename T>
+NzBoundingVolume<T>::NzBoundingVolume(const NzOrientedBox<T>& orientedBox)
+{
+	Set(orientedBox);
 }
 
 template<typename T>
@@ -103,6 +109,7 @@ template<typename T>
 NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzBoundingVolume<T>& volume)
 {
 	obb.Set(volume.obb); // Seul l'OBB est importante pour la suite
+	extend = volume.extend;
 
 	return *this;
 }
@@ -111,6 +118,15 @@ template<typename T>
 NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzBox<T>& box)
 {
 	obb.Set(box);
+	extend = nzExtend_Finite;
+
+	return *this;
+}
+
+template<typename T>
+NzBoundingVolume<T>& NzBoundingVolume<T>::Set(const NzOrientedBox<T>& orientedBox)
+{
+	obb.Set(orientedBox);
 	extend = nzExtend_Finite;
 
 	return *this;
@@ -209,17 +225,17 @@ template<typename T>
 NzBoundingVolume<T> NzBoundingVolume<T>::Lerp(const NzBoundingVolume& from, const NzBoundingVolume& to, T interpolation)
 {
 	#ifdef NAZARA_DEBUG
-	if (interpolation < 0.f || interpolation > 1.f)
+	if (interpolation < F(0.0) || interpolation > F(1.0))
 	{
 		NazaraError("Interpolation must be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
 		return Null();
 	}
 	#endif
 
-	if (NzNumberEquals(interpolation, 0.f))
+	if (NzNumberEquals(interpolation, F(0.0)))
 		return from;
 
-	if (NzNumberEquals(interpolation, 1.f))
+	if (NzNumberEquals(interpolation, F(1.0)))
 		return to;
 
 	switch (to.extend)
