@@ -8,7 +8,11 @@
 #define NAZARA_SPHERE_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
+
+template<typename T>
+class NzBox;
 
 template<typename T>
 class NzSphere
@@ -24,7 +28,7 @@ class NzSphere
 		~NzSphere() = default;
 
 		bool Contains(T X, T Y, T Z) const;
-		//bool Contains(const NzBox<T>& box) const;
+		bool Contains(const NzBox<T>& box) const;
 		bool Contains(const NzVector3<T>& point) const;
 
 		T Distance(T X, T Y, T Z) const;
@@ -37,7 +41,7 @@ class NzSphere
 		NzVector3<T> GetPosition() const;
 		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
 
-		//bool Intersect(const NzBox<T>& box) const;
+		bool Intersect(const NzBox<T>& box) const;
 		bool Intersect(const NzSphere& sphere) const;
 
 		bool IsValid() const;
