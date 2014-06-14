@@ -262,10 +262,10 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	// Une fois les plans extraits, il faut extraire les points du frustum
 	// Je me base sur cette page: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
 
-	NzMatrix4f invClipMatrix;
+	NzMatrix4<T> invClipMatrix;
 	if (clipMatrix.GetInverse(&invClipMatrix))
 	{
-		NzVector4f corner;
+		NzVector4<T> corner;
 
 		// FarLeftBottom
 		corner.Set(F(-1.0), F(-1.0), F(1.0));
@@ -332,7 +332,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 template<typename T>
 NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& view, const NzMatrix4<T>& projection)
 {
-	NzMatrix4f clipMatrix(view);
+	NzMatrix4<T> clipMatrix(view);
 	clipMatrix *= projection;
 
 	return Extract(clipMatrix);

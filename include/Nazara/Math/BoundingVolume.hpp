@@ -20,6 +20,7 @@ class NzBoundingVolume
 		NzBoundingVolume(nzExtend Extend);
 		NzBoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzBoundingVolume(const NzBox<T>& box);
+		NzBoundingVolume(const NzOrientedBox<T>& orientedBox);
 		NzBoundingVolume(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> explicit NzBoundingVolume(const NzBoundingVolume<U>& volume);
 		NzBoundingVolume(const NzBoundingVolume& volume) = default;
@@ -36,6 +37,7 @@ class NzBoundingVolume
 		NzBoundingVolume& Set(T X, T Y, T Z, T Width, T Height, T Depth);
 		NzBoundingVolume& Set(const NzBoundingVolume<T>& volume);
 		NzBoundingVolume& Set(const NzBox<T>& box);
+		NzBoundingVolume& Set(const NzOrientedBox<T>& orientedBox);
 		NzBoundingVolume& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
 		template<typename U> NzBoundingVolume& Set(const NzBoundingVolume<U>& volume);
 
