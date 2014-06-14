@@ -22,8 +22,8 @@ struct NzMusicImpl
 	NzSoundStream* stream;
 	NzThread thread;
 	bool loop = false;
-	bool streaming = false;
 	bool paused = false;
+	bool streaming = false;
 	unsigned int sampleRate;
 };
 
