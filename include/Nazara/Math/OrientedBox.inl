@@ -7,6 +7,8 @@
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
+///DOC: Pour que les coins soient valides, la méthode Update doit être appelée
+
 #define F(a) static_cast<T>(a)
 
 template<typename T>
