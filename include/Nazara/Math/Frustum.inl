@@ -24,9 +24,9 @@ template<typename T>
 NzFrustum<T>& NzFrustum<T>::Build(T angle, T ratio, T zNear, T zFar, const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
-	angle *= F(0.5);
+	angle /= F(2.0);
 	#else
-	angle = NzDegreeToRadian(angle * F(0.5));
+	angle = NzDegreeToRadian(angle/F(2.0));
 	#endif
 
 	T tangent = std::tan(angle);

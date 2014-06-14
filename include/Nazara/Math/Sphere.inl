@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <algorithm>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
@@ -81,7 +82,6 @@ template<typename T>
 NzSphere<T>& NzSphere<T>::ExtendTo(T X, T Y, T Z)
 {
 	T distance = SquaredDistance(X, Y, Z);
-
 	if (distance > radius*radius)
 		radius = std::sqrt(distance);
 
@@ -120,32 +120,48 @@ NzVector3<T> NzSphere<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 template<typename T>
 bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 {
-    // Arvo's algorithm.
-    T dmin = T(0);
-    if (x < box.x)
-        dmin += (x - box.x) * (x - box.x);
-    else if (x > box.x + box.width)
-        dmin += (x - (box.x + box.width)) * (x - (box.x + box.width));
+	// Arvo's algorithm.
+	T squaredDistance = T(0.0);
+	if (x < box.x)
+	{
+		T diff = x - box.x;
+		squaredDistance += diff*diff;
+	}
+	else if (x > box.x + box.width)
+	{
+		T diff = x - (box.x + box.width);
+		squaredDistance += diff*diff;
+	}
 
-    if (y < box.y)
-        dmin += (y - box.y) * (y - box.y);
-    else if (x > box.x + box.width)
-        dmin += (y - (box.y + box.height)) * (y - (box.y + box.height));
+	if (y < box.y)
+	{
+		T diff = y - box.y;
+		squaredDistance += diff*diff;
+	}
+	else if (y > box.y + box.height)
+	{
+		T diff = y - (box.y + box.height);
+		squaredDistance += diff*diff;
+	}
 
-    if (z < box.z)
-        dmin += (z - box.z) * (z - box.z);
-    else if (x > box.x + box.width)
-        dmin += (z - (box.z + box.depth)) * (z - (box.z + box.depth));
+	if (z < box.z)
+	{
+		T diff = z - box.z;
+		squaredDistance += diff*diff;
+	}
+	else if (z > box.z + box.depth)
+	{
+		T diff = z - (box.z + box.depth);
+		squaredDistance += diff*diff;
+	}
 
-    if (dmin <= radius * radius)
-        return true;
-    return false;
+    return squaredDistance <= radius * radius;
 }
 
 template<typename T>
 bool NzSphere<T>::Intersect(const NzSphere& sphere) const
 {
-	return std::abs(SquaredDistance(sphere.x, sphere.y, sphere.z) - radius*radius) <= sphere.radius*sphere.radius;
+	return SquaredDistance(sphere.x, sphere.y, sphere.z) - radius*radius <= sphere.radius*sphere.radius;
 }
 
 template<typename T>
