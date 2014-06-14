@@ -8,7 +8,6 @@
 #define NAZARA_SPHERE_HPP
 
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 template<typename T>
