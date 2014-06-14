@@ -5,6 +5,7 @@
 #include <Nazara/Core/Win32/TaskSchedulerImpl.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <cstdlib> // std::ldiv
 #include <process.h>
 #include <Nazara/Core/Debug.hpp>
 

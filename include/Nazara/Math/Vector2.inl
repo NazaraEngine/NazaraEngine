@@ -102,7 +102,7 @@ T NzVector2<T>::GetSquaredLength() const
 template<typename T>
 NzVector2<T>& NzVector2<T>::MakeUnitX()
 {
-	Set(F(1.0), F(0.0));
+	return Set(F(1.0), F(0.0));
 }
 
 template<typename T>
