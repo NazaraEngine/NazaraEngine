@@ -122,32 +122,32 @@ NzVector3<T> NzBox<T>::GetCorner(nzCorner corner) const
 	switch (corner)
 	{
 		case nzCorner_FarLeftBottom:
-			return NzVector3f(x, y, z);
+			return NzVector3<T>(x, y, z);
 
 		case nzCorner_FarLeftTop:
-			return NzVector3f(x, y + height, z);
+			return NzVector3<T>(x, y + height, z);
 
 		case nzCorner_FarRightBottom:
-			return NzVector3f(x + width, y, z);
+			return NzVector3<T>(x + width, y, z);
 
 		case nzCorner_FarRightTop:
-			return NzVector3f(x + width, y + height, z);
+			return NzVector3<T>(x + width, y + height, z);
 
 		case nzCorner_NearLeftBottom:
-			return NzVector3f(x, y, z + depth);
+			return NzVector3<T>(x, y, z + depth);
 
 		case nzCorner_NearLeftTop:
-			return NzVector3f(x, y + height, z + depth);
+			return NzVector3<T>(x, y + height, z + depth);
 
 		case nzCorner_NearRightBottom:
-			return NzVector3f(x + width, y, z + depth);
+			return NzVector3<T>(x + width, y, z + depth);
 
 		case nzCorner_NearRightTop:
-			return NzVector3f(x + width, y + height, z + depth);
+			return NzVector3<T>(x + width, y + height, z + depth);
 	}
 
 	NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
-	return NzVector3f();
+	return NzVector3<T>();
 }
 
 template<typename T>
@@ -465,6 +465,7 @@ NzBox<T>& NzBox<T>::operator*=(T scalar)
 	width *= scalar;
 	height *= scalar;
 	depth *= scalar;
+	return *this;
 }
 
 template<typename T>
@@ -473,6 +474,7 @@ NzBox<T>& NzBox<T>::operator*=(const NzVector3<T>& vec)
 	width *= vec.x;
 	height *= vec.y;
 	depth *= vec.z;
+	return *this;
 }
 
 template<typename T>

@@ -4,9 +4,10 @@
 
 #include <Nazara/Core/Win32/TaskSchedulerImpl.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <process.h>
 #include <Nazara/Core/Debug.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <cstdlib>
+#include <process.h>
 
 bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 {
