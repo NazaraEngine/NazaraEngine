@@ -24,6 +24,9 @@ int main()
 	// On va afficher le tout via un ostringstream, pour écrire dans la console et aussi dans un fichier
 	std::ostringstream oss;
 
+
+    char accentAigu = static_cast<char>(130); // C'est crade, mais ça marche chez 95% des Windowsiens
+
 	oss << "--Processeur--" << std::endl;
 	// Plutôt que d'initialiser le Renderer de Nazara, nous initialisons les deux classes utilisées ici
 	// Elles sont compatibles avec NzInitialiser et seront donc libérées automatiquement
@@ -41,7 +44,7 @@ int main()
 		oss << std::endl;
 
 		// Ensuite, Nazara récupère les capacités du processeur, dont des jeux d'extensions supplémentaires
-		oss << "Report des capacites: " << std::endl;
+		oss << "Report des capacit" << accentAigu << "s: " << std::endl;
 		printCap(oss, "-64bits", NzHardwareInfo::HasCapability(nzProcessorCap_x64));
 		printCap(oss, "-AVX", NzHardwareInfo::HasCapability(nzProcessorCap_AVX));
 		printCap(oss, "-FMA3", NzHardwareInfo::HasCapability(nzProcessorCap_FMA3));
@@ -78,7 +81,7 @@ int main()
 		oss << std::endl;
 
 		// Ainsi qu'un report des capacités de la carte graphique (avec le driver actuel)
-		oss << "Report des capacites: " << std::endl;
+		oss << "Report des capacit" << accentAigu << "s: " << std::endl;
 		printCap(oss, "-Calculs 64bits", NzOpenGL::IsSupported(nzOpenGLExtension_FP64));
 		printCap(oss, "-Compression de textures (s3tc)", NzOpenGL::IsSupported(nzOpenGLExtension_TextureCompression_s3tc));
 		printCap(oss, "-Filtrage anisotrope", NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter));
@@ -105,8 +108,7 @@ int main()
 		reportFile.Write(oss.str()); // Conversion implicite en NzString
 		reportFile.Close();
 
-		char accent = (char) 130; // C'est crade, mais ça marche chez 95% des Windowsiens
-		std::cout << "Un fichier (RapportHardwareInfo.txt) contenant le rapport a " << accent << 't' << accent << " cr" << accent << accent << std::endl;
+		std::cout << "Un fichier (RapportHardwareInfo.txt) contenant le rapport a " << accentAigu << 't' << accentAigu << " cr" << accentAigu << accentAigu << std::endl;
 	}
 	else
 		std::cout << "Impossible de sauvegarder le rapport" << std::endl;

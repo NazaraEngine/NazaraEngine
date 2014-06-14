@@ -60,7 +60,8 @@ template<typename T>
 NzOrientedBox<T>& NzOrientedBox<T>::MakeZero()
 {
 	localBox.MakeZero();
-
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		m_corners[i].Set(NzVector3<T>::Zero());
 	return *this;
 }
 
@@ -69,6 +70,8 @@ NzOrientedBox<T>& NzOrientedBox<T>::Set(T X, T Y, T Z, T Width, T Height, T Dept
 {
 	localBox.Set(X, Y, Z, Width, Height, Depth);
 
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		m_corners[i].Set(localBox.GetCorner(static_cast<nzCorner>(i)));
 	return *this;
 }
 
@@ -77,6 +80,8 @@ NzOrientedBox<T>& NzOrientedBox<T>::Set(const NzBox<T>& box)
 {
 	localBox.Set(box);
 
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		m_corners[i].Set(localBox.GetCorner(static_cast<nzCorner>(i)));
 	return *this;
 }
 
@@ -93,6 +98,8 @@ NzOrientedBox<T>& NzOrientedBox<T>::Set(const NzVector3<T>& vec1, const NzVector
 {
 	localBox.Set(vec1, vec2);
 
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		m_corners[i].Set(localBox.GetCorner(static_cast<nzCorner>(i)));
 	return *this;
 }
 
@@ -127,7 +134,7 @@ template<typename T>
 void NzOrientedBox<T>::Update(const NzMatrix4<T>& transformMatrix)
 {
 	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
-		m_corners[i] = transformMatrix.Transform(localBox.GetCorner(static_cast<nzCorner>(i)));
+		m_corners[i] = transformMatrix.Transform(m_corners[i]);
 }
 
 template<typename T>
@@ -182,6 +189,8 @@ NzOrientedBox<T> NzOrientedBox<T>::operator*(T scalar) const
 	NzOrientedBox box(*this);
 	box *= scalar;
 
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		box.m_corners[i].Set(box.GetCorner(static_cast<nzCorner>(i)));
 	return box;
 }
 
@@ -190,6 +199,8 @@ NzOrientedBox<T>& NzOrientedBox<T>::operator*=(T scalar)
 {
 	localBox *= scalar;
 
+	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+		m_corners[i].Set(localBox.GetCorner(static_cast<nzCorner>(i)));
 	return *this;
 }
 
