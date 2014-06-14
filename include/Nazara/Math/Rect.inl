@@ -353,6 +353,7 @@ NzRect<T>& NzRect<T>::operator*=(T scalar)
 {
 	width *= scalar;
 	height *= scalar;
+
 	return *this;
 }
 
@@ -361,6 +362,7 @@ NzRect<T>& NzRect<T>::operator*=(const NzVector2<T>& vec)
 {
 	width *= vec.x;
 	height *= vec.y;
+
 	return *this;
 }
 
