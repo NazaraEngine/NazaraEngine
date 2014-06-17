@@ -213,7 +213,7 @@ NzQuaternion<T>& NzQuaternion<T>::Set(T angle, const NzVector3<T>& axis)
 	angle = NzDegreeToRadian(angle);
 	#endif
 
-	angle *= F(0.5);
+	angle /= F(2.0);
 
 	NzVector3<T> normalizedAxis = axis.GetNormal();
 
