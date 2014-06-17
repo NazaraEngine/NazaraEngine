@@ -31,7 +31,7 @@ Contribute
 - Extending the [wiki](http://wiki.digitalpulsesoftware.com/index.php?title=Nazara) (**\*Broken link***)  
 - Submitting a patch to GitHub  
 - Post suggestions/bugs on the forum or the [GitHub tracker](https://github.com/DigitalPulseSoftware/NazaraEngine/issues)    
-- [Fork the project](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) on GitHub and [pull your changes](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
+- [Fork the project](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) on GitHub and [push your changes](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
 - Talking about Nazara Engine to other people  
 - Doing anything else that might help us
 
@@ -43,5 +43,6 @@ Links
 
 ###Thanks to:###
 - **RafBill** and **Raakz:** Finding bugs and/or testing  
-- **Fissal "DrFisher" Hannoun**: Helped a lot in architecture design  
-- **Alexandre "Danman" Janniaux**: Made the Core POSIX implementation
+- **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design  
+- **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation
+- **Gawaboumga**: Improving the engine code by merging on GitHub
