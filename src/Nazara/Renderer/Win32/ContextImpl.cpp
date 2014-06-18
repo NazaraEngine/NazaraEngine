@@ -5,6 +5,7 @@
 // Code inspiré de NeHe (Lesson1) et de la SFML par Laurent Gomila
 
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
@@ -42,11 +43,16 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		m_ownsWindow = true;
 	}
 
+	// En cas d'exception, la ressource sera quand même libérée
+	NzCallOnExit onExit([this] ()
+	{
+		Destroy();
+	});
+
 	m_deviceContext = GetDC(m_window);
 	if (!m_deviceContext)
 	{
 		NazaraError("Failed to get device context");
-		Destroy();
 		return false;
 	}
 
@@ -116,8 +122,6 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		if (pixelFormat == 0)
 		{
 			NazaraError("Failed to choose pixel format");
-			Destroy();
-
 			return false;
 		}
 	}
@@ -125,7 +129,6 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 	if (!SetPixelFormat(m_deviceContext, pixelFormat, &descriptor))
 	{
 		NazaraError("Failed to set pixel format");
-		Destroy();
 		return false;
 	}
 
@@ -191,9 +194,10 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 	if (!m_context)
 	{
 		NazaraError("Failed to create context");
-		Destroy();
 		return false;
 	}
+
+	onExit.Reset();
 
 	return true;
 }
