@@ -36,6 +36,30 @@
 
 namespace
 {
+	LPTSTR windowsCursors[] =
+	{
+		IDC_CROSS,       // nzWindowCursor_Crosshair
+		IDC_ARROW,       // nzWindowCursor_Default
+		IDC_HAND,        // nzWindowCursor_Hand
+		IDC_HAND,        // nzWindowCursor_Pointer
+		IDC_HELP,        // nzWindowCursor_Help
+		IDC_SIZEALL,     // nzWindowCursor_Move
+		nullptr,         // nzWindowCursor_None
+		IDC_APPSTARTING, // nzWindowCursor_Progress
+		IDC_SIZENS,      // nzWindowCursor_ResizeN
+		IDC_SIZENS,      // nzWindowCursor_ResizeS
+		IDC_SIZENWSE,    // nzWindowCursor_ResizeNW
+		IDC_SIZENWSE,    // nzWindowCursor_ResizeSE
+		IDC_SIZENESW,    // nzWindowCursor_ResizeNE
+		IDC_SIZENESW,    // nzWindowCursor_ResizeSW
+		IDC_SIZEWE,      // nzWindowCursor_ResizeE
+		IDC_SIZEWE,      // nzWindowCursor_ResizeW
+		IDC_IBEAM,       // nzWindowCursor_Text
+		IDC_WAIT         // nzWindowCursor_Wait
+	};
+
+	static_assert(sizeof(windowsCursors)/sizeof(LPTSTR) == nzWindowCursor_Max+1, "Cursor type array is incomplete");
+
 	const wchar_t* className = L"Nazara Window";
 	NzWindowImpl* fullscreenWindow = nullptr;
 }
@@ -307,65 +331,18 @@ void NzWindowImpl::ProcessEvents(bool block)
 
 void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 {
-	switch (cursor)
+	#ifdef NAZARA_DEBUG
+	if (cursor > nzWindowCursor_Max)
 	{
-		case nzWindowCursor_Crosshair:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_CROSS, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Default:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Hand:
-		case nzWindowCursor_Pointer:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_HAND, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Help:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_HELP, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Move:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZEALL, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_None:
-			m_cursor = nullptr;
-			break;
-
-		case nzWindowCursor_Progress:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_APPSTARTING, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_ResizeN:
-		case nzWindowCursor_ResizeS:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENS, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_ResizeNW:
-		case nzWindowCursor_ResizeSE:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENWSE, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_ResizeNE:
-		case nzWindowCursor_ResizeSW:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZENESW, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_ResizeE:
-		case nzWindowCursor_ResizeW:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_SIZEWE, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Text:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_IBEAM, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
-
-		case nzWindowCursor_Wait:
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, IDC_WAIT, IMAGE_CURSOR, 0, 0, LR_SHARED));
-			break;
+		NazaraError("Window cursor out of enum");
+		return false;
 	}
+	#endif
+
+	if (cursor != nzWindowCursor_None)
+		m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, windowsCursors[cursor], IMAGE_CURSOR, 0, 0, LR_SHARED));
+	else
+		m_cursor = nullptr;
 
 	// Pas besoin de libérer le curseur par la suite s'il est partagé
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
