@@ -33,7 +33,7 @@ struct NzSceneImpl
 	NzSceneRoot root;
 	NzAbstractViewer* viewer = nullptr;
 	bool backgroundEnabled = true;
-	bool update;
+	bool update = false;
 	float frameTime;
 	float updateTime;
 	int renderTechniqueRanking;
@@ -99,8 +99,18 @@ void NzScene::Draw()
 	catch (const std::exception& e)
 	{
 		NzString oldName = m_impl->renderTechnique->GetName();
-		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(m_impl->renderTechniqueRanking-1, &m_impl->renderTechniqueRanking));
-		NazaraError("Render technique \"" + oldName + "\" failed, switched to \"" + m_impl->renderTechnique->GetName() + '"');
+
+		if (m_impl->renderTechniqueRanking > 0)
+		{
+			m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(m_impl->renderTechniqueRanking-1, &m_impl->renderTechniqueRanking));
+			NazaraError("Render technique \"" + oldName + "\" failed, fallback to \"" + m_impl->renderTechnique->GetName() + '"');
+		}
+		else
+		{
+			NzErrorFlags errFlags(nzErrorFlag_ThrowException);
+			NazaraError("Render technique \"" + oldName + "\" failed and no fallback is available");
+		}
+
 		return;
 	}
 }
