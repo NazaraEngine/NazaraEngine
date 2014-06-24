@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
+#include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
 #include <Nazara/Graphics/Loaders/OBJ.hpp>
 #include <Nazara/Graphics/Loaders/Texture.hpp>
@@ -39,7 +40,13 @@ bool NzGraphics::Initialize()
 
 	if (!NzMaterial::Initialize())
 	{
-		NazaraError("Failed to create material");
+		NazaraError("Failed to initialize materials");
+		return false;
+	}
+
+	if (!NzSkinningManager::Initialize())
+	{
+		NazaraError("Failed to initialize skinning cache");
 		return false;
 	}
 
@@ -89,9 +96,9 @@ void NzGraphics::Uninitialize()
 	NzLoaders_OBJ_Unregister();
 	NzLoaders_Texture_Unregister();
 
-	NzMaterial::Uninitialize();
-
 	NzDeferredRenderTechnique::Uninitialize();
+	NzMaterial::Uninitialize();
+	NzSkinningManager::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");
 
