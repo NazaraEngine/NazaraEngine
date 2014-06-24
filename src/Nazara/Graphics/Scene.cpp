@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
+#include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <functional>
 #include <memory>
@@ -240,6 +241,8 @@ void NzScene::Update()
 
 void NzScene::UpdateVisible()
 {
+	NzSkinningManager::Skin();
+
 	if (m_impl->update)
 	{
 		for (NzUpdatable* node : m_impl->visibleUpdateList)
