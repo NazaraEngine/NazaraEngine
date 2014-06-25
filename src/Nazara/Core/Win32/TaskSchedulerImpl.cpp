@@ -34,11 +34,11 @@ bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 	{
 		Worker& worker = s_workers[i];
 		InitializeCriticalSection(&worker.queueMutex);
-		worker.wakeEvent = CreateEventA(nullptr, false, false, nullptr);
+		worker.wakeEvent = CreateEventW(nullptr, false, false, nullptr);
 		worker.running = true;
 		worker.workCount = 0;
 
-		s_doneEvents[i] = CreateEventA(nullptr, true, false, nullptr);
+		s_doneEvents[i] = CreateEventW(nullptr, true, false, nullptr);
 
 		workerIDs[i] = i;
 		s_workerThreads[i] = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &WorkerProc, &workerIDs[i], 0, nullptr));
@@ -149,7 +149,8 @@ NzFunctor* NzTaskSchedulerImpl::StealTask(unsigned int workerID)
 
 			if (worker.workCount > 0)
 			{
-				NzFunctor* task;
+				NzFunctor* task = nullptr;
+
 				if (TryEnterCriticalSection(&worker.queueMutex))
 				{
 					if (!worker.queue.empty())
@@ -158,8 +159,6 @@ NzFunctor* NzTaskSchedulerImpl::StealTask(unsigned int workerID)
 						worker.queue.pop();
 						worker.workCount = worker.queue.size();
 					}
-					else
-						task = nullptr;
 
 					LeaveCriticalSection(&worker.queueMutex);
 				}
