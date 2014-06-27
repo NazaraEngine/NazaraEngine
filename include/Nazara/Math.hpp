@@ -41,6 +41,7 @@
 #include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Ray.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector2.hpp>
