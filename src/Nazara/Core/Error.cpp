@@ -44,13 +44,13 @@ void NzError::Error(nzErrorType type, const NzString& error, unsigned int line, 
 	s_lastErrorFunction = function;
 	s_lastErrorLine = line;
 
+	if (type != nzErrorType_Warning && (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
+		throw std::runtime_error(error);
+
 	#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
 	if (type == nzErrorType_AssertFailed)
 		std::exit(EXIT_FAILURE);
 	#endif
-
-	if (type != nzErrorType_Warning && (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0)
-		throw std::runtime_error(error);
 }
 
 nzUInt32 NzError::GetFlags()
