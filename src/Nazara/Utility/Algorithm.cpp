@@ -818,7 +818,7 @@ void NzGenerateCone(float length, float radius, unsigned int subdivision, const 
 		NzVector3f lExtend = NzVector3f::Left()*radius;
 		NzVector3f fExtend = NzVector3f::Forward()*radius;
 
-				// Et on ajoute ensuite les quatres extrémités de la pyramide
+		// Et on ajoute ensuite les quatres extrémités de la pyramide
 		aabb->ExtendTo(base + lExtend + fExtend);
 		aabb->ExtendTo(base + lExtend - fExtend);
 		aabb->ExtendTo(base - lExtend + fExtend);
@@ -961,11 +961,114 @@ void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackC
 	}
 }
 
-/************************************Autres***********************************/
+/************************************NzOptimize***********************************/
 
 void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount)
 {
 	VertexCacheOptimizer optimizer;
 	if (optimizer.Optimize(indices, indexCount) != VertexCacheOptimizer::Success)
 		NazaraWarning("Indices optimizer failed");
+}
+
+/************************************NzSkin***********************************/
+
+void NzSkinPosition(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount)
+{
+	const NzMeshVertex* inputVertex = &data.inputVertex[startVertex];
+	NzMeshVertex* outputVertex = &data.outputVertex[startVertex];
+
+	unsigned int endVertex = startVertex + vertexCount - 1;
+	for (unsigned int i = startVertex; i <= endVertex; ++i)
+	{
+		NzVector3f finalPosition(NzVector3f::Zero());
+
+		unsigned int weightCount = data.vertexWeights[i].weights.size();
+		for (unsigned int j = 0; j < weightCount; ++j)
+		{
+			const NzWeight& weight = data.weights[data.vertexWeights[i].weights[j]];
+
+			NzMatrix4f mat(data.joints[weight.jointIndex].GetSkinningMatrix());
+			mat *= weight.weight;
+
+			finalPosition += mat.Transform(inputVertex->position);
+		}
+
+		outputVertex->position = finalPosition;
+		outputVertex->uv = inputVertex->uv;
+
+		inputVertex++;
+		outputVertex++;
+	}
+}
+
+void NzSkinPositionNormal(const NzSkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
+{
+	const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+	NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
+
+	unsigned int endVertex = startVertex + vertexCount - 1;
+	for (unsigned int i = startVertex; i <= endVertex; ++i)
+	{
+		NzVector3f finalPosition(NzVector3f::Zero());
+		NzVector3f finalNormal(NzVector3f::Zero());
+
+		unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
+		for (unsigned int j = 0; j < weightCount; ++j)
+		{
+			const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
+
+			NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetSkinningMatrix());
+			mat *= weight.weight;
+
+			finalPosition += mat.Transform(inputVertex->position);
+			finalNormal += mat.Transform(inputVertex->normal, 0.f);
+		}
+
+		finalNormal.Normalize();
+
+		outputVertex->normal = finalNormal;
+		outputVertex->position = finalPosition;
+		outputVertex->uv = inputVertex->uv;
+
+		inputVertex++;
+		outputVertex++;
+	}
+}
+
+void NzSkinPositionNormalTangent(const NzSkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
+{
+	const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+	NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
+
+	unsigned int endVertex = startVertex + vertexCount - 1;
+	for (unsigned int i = startVertex; i <= endVertex; ++i)
+	{
+		NzVector3f finalPosition(NzVector3f::Zero());
+		NzVector3f finalNormal(NzVector3f::Zero());
+		NzVector3f finalTangent(NzVector3f::Zero());
+
+		unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
+		for (unsigned int j = 0; j < weightCount; ++j)
+		{
+			const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
+
+			NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetSkinningMatrix());
+			mat *= weight.weight;
+
+			finalPosition += mat.Transform(inputVertex->position);
+			finalNormal += mat.Transform(inputVertex->normal, 0.f);
+			finalTangent += mat.Transform(inputVertex->tangent, 0.f);
+		}
+
+		finalNormal.Normalize();
+		finalTangent.Normalize();
+
+		outputVertex->normal = finalNormal;
+		outputVertex->position = finalPosition;
+		outputVertex->tangent = finalTangent;
+		outputVertex->uv = inputVertex->uv;
+
+		inputVertex++;
+		outputVertex++;
+	}
 }
