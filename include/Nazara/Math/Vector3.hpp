@@ -67,9 +67,6 @@ template<typename T> class NzVector3
 		operator T*();
 		operator const T*() const;
 
-		T& operator[](unsigned int i);
-		T operator[](unsigned int i) const;
-
 		const NzVector3& operator+() const;
 		NzVector3 operator-() const;
 
