@@ -11,6 +11,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
+///TODO: Rendre les méthodes exception-safe
 
 namespace
 {
@@ -768,7 +769,7 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 
 	EnsureOwnership();
 
-	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 }
 
 unsigned int NzImage::GetSize() const
