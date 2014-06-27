@@ -59,6 +59,18 @@ T NzPlane<T>::Distance(T x, T y, T z) const
 }
 
 template<typename T>
+NzVector3 NzPlane<T>::GetNormal() const
+{
+    return normal;
+}
+
+template<typename T>
+T NzPlane<T>::GetDistance() const
+{
+    return distance;
+}
+
+template<typename T>
 NzPlane<T>& NzPlane<T>::Set(T normalX, T normalY, T normalZ, T D)
 {
 	distance = D;
@@ -150,6 +162,24 @@ NzPlane<T> NzPlane<T>::Lerp(const NzPlane& from, const NzPlane& to, T interpolat
 	plane.normal.Normalize();
 
 	return plane;
+}
+
+template<typename T>
+NzPlane<T> NzPlane<T>::XY()
+{
+    return NzPlane<T>(F(0.0), F(0.0), F(1.0), F(0.0));
+}
+
+template<typename T>
+NzPlane<T> NzPlane<T>::XZ()
+{
+    return NzPlane<T>(F(0.0), F(1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+NzPlane<T> NzPlane<T>::YZ()
+{
+    return NzPlane<T>(F(1.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>

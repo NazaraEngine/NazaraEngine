@@ -61,6 +61,30 @@ inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsig
 }
 
 template<typename T>
+T NzVector3<T>::AngleBetween(const NzVector3& vec, bool toDegree) const
+{
+    T alpha = DotProduct(vec);
+    T divisor = (GetLength() * vec.GetLength());
+
+    #if NAZARA_MATH_SAFE
+	if (NzNumberEquals(divisor, F(0.0)))
+	{
+		NzString error("Division by zero");
+
+		NazaraError(error);
+		throw std::domain_error(error);
+	}
+	#endif
+
+	alpha /= divisor;
+
+	if (toDegree)
+        return NzRadianToDegree(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
+    else
+        return std::acos(NzClamp(alpha, F(-1.0), F(1.0)));
+}
+
+template<typename T>
 NzVector3<T> NzVector3<T>::CrossProduct(const NzVector3& vec) const
 {
 	return NzVector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
