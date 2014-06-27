@@ -55,9 +55,6 @@ class NzVector2
 		operator T*();
 		operator const T*() const;
 
-		T& operator[](unsigned int i);
-		T operator[](unsigned int i) const;
-
 		const NzVector2& operator+() const;
 		NzVector2 operator-() const;
 
