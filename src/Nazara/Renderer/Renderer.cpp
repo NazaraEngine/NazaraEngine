@@ -795,7 +795,7 @@ bool NzRenderer::Initialize()
 	{
 		try
 		{
-			NzErrorFlags errFlags(nzErrorFlag_ThrowException);
+			NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
 			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
