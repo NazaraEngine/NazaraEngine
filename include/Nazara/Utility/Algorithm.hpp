@@ -14,6 +14,16 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/SkeletalMesh.hpp>
+
+struct NzSkinningData
+{
+	const NzJoint* joints;
+	const NzMeshVertex* inputVertex;
+	NzMeshVertex* outputVertex;
+	const NzVertexWeight* vertexWeights;
+	const NzWeight* weights;
+};
 
 NAZARA_API void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
 NAZARA_API unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int indexCount);
@@ -32,6 +42,10 @@ NAZARA_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f
 NAZARA_API void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 
 NAZARA_API void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount);
+
+NAZARA_API void NzSkinPosition(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
+NAZARA_API void NzSkinPositionNormal(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
+NAZARA_API void NzSkinPositionNormalTangent(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
 template<typename T> void NzTransformVertices(T* vertices, unsigned int vertexCount, const NzMatrix4f& matrix);
 
