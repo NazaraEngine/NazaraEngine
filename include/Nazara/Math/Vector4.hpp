@@ -50,9 +50,6 @@ template<typename T> class NzVector4
 		operator T*();
 		operator const T*() const;
 
-		T& operator[](unsigned int i);
-		T operator[](unsigned int i) const;
-
 		const NzVector4& operator+() const;
 		NzVector4 operator-() const;
 
