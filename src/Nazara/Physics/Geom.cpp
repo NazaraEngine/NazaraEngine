@@ -17,6 +17,9 @@ namespace
 			case nzPrimitiveType_Box:
 				return new NzBoxGeom(physWorld, primitive.box.lengths, primitive.matrix);
 
+			case nzPrimitiveType_Cone:
+				return new NzConeGeom(physWorld, primitive.cone.length, primitive.cone.radius, primitive.matrix);
+
 			case nzPrimitiveType_Plane:
 				return new NzBoxGeom(physWorld, NzVector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
 				///TODO: PlaneGeom?

@@ -83,9 +83,9 @@ template<typename T>
 template<typename U>
 void NzEulerAngles<T>::Set(const NzEulerAngles<U>& angles)
 {
-	pitch = static_cast<T>(angles.pitch);
-	yaw = static_cast<T>(angles.yaw);
-	roll = static_cast<T>(angles.roll);
+	pitch = F(angles.pitch);
+	yaw = F(angles.yaw);
+	roll = F(angles.roll);
 }
 
 template<typename T>
