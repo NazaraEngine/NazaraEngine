@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,6 +27,9 @@ class NzPlane
 		T Distance(const NzVector3<T>& point) const;
 		T Distance(T x, T y, T z) const;
 
+		NzVector3 GetNormal() const;
+		T GetDistance() const;
+
 		NzPlane& Set(T normalX, T normalY, T normalZ, T Distance);
 		NzPlane& Set(const T plane[4]);
 		NzPlane& Set(const NzPlane& plane);
@@ -38,6 +41,9 @@ class NzPlane
 		NzString ToString() const;
 
 		static NzPlane Lerp(const NzPlane& from, const NzPlane& to, T interpolation);
+		static NzPlane XY();
+		static NzPlane XZ();
+		static NzPlane YZ();
 
 		NzVector3<T> normal;
 		T distance;
