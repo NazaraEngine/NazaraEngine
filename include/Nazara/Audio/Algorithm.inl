@@ -18,7 +18,7 @@ void NzMixToMono(T* input, T* output, unsigned int channelCount, unsigned int fr
 		for (unsigned int j = 0; j < channelCount; ++j)
 			acc += input[i*channelCount + j];
 
-		output[i] = acc/channelCount;
+		output[i] = static_cast<T>(acc/channelCount);
 	}
 }
 

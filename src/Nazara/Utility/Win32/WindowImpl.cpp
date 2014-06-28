@@ -335,7 +335,7 @@ void NzWindowImpl::SetCursor(nzWindowCursor cursor)
 	if (cursor > nzWindowCursor_Max)
 	{
 		NazaraError("Window cursor out of enum");
-		return false;
+		return;
 	}
 	#endif
 
