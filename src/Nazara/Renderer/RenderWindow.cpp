@@ -289,7 +289,7 @@ bool NzRenderWindow::OnWindowCreated()
 	std::unique_ptr<NzContext> context(new NzContext);
 	if (!context->Create(m_parameters))
 	{
-		NazaraError("Failed not create context");
+		NazaraError("Failed to create context");
 		return false;
 	}
 

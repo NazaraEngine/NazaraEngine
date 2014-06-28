@@ -236,40 +236,6 @@ NzVector2<T>::operator const T*() const
 }
 
 template<typename T>
-T& NzVector2<T>::operator[](unsigned int i)
-{
-	#if NAZARA_MATH_SAFE
-	if (i >= 2)
-	{
-		NzStringStream ss;
-		ss << "Index out of range: (" << i << " >= 2)";
-
-		NazaraError(ss);
-		throw std::domain_error(ss.ToString());
-	}
-	#endif
-
-	return *(&x+i);
-}
-
-template<typename T>
-T NzVector2<T>::operator[](unsigned int i) const
-{
-	#if NAZARA_MATH_SAFE
-	if (i >= 2)
-	{
-		NzStringStream ss;
-		ss << "Index out of range: (" << i << " >= 2)";
-
-		NazaraError(ss);
-		throw std::domain_error(ss.ToString());
-	}
-	#endif
-
-	return *(&x+i);
-}
-
-template<typename T>
 const NzVector2<T>& NzVector2<T>::operator+() const
 {
 	return *this;
