@@ -10,7 +10,7 @@
 
 NzSemaphoreImpl::NzSemaphoreImpl(unsigned int count)
 {
-	m_semaphore = CreateSemaphore(nullptr, count, std::numeric_limits<LONG>::max(), nullptr);
+	m_semaphore = CreateSemaphoreW(nullptr, count, std::numeric_limits<LONG>::max(), nullptr);
 	if (!m_semaphore)
 		NazaraError("Failed to create semaphore: " + NzError::GetLastSystemError());
 }
