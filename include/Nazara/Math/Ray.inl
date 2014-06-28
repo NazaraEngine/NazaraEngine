@@ -119,12 +119,12 @@ bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>
     T tMin = F(0.0);
     T tMax = INFINITY;
 
-    NzVector3<T> OBBposition_worldspace(matrix[3].x, matrix[3].y, matrix[3].z);
+    NzVector3<T> OBBposition_worldspace(matrix(3, 0), matrix(3, 1), matrix(3, 2));
 
     NzVector3<T> delta = OBBposition_worldspace - origin;
 
     // Test intersection with the 2 planes perpendicular to the OBB's X axis
-    NzVector3<T> xaxis(matrix[0].x, matrix[0].y, matrix[0].z);
+    NzVector3<T> xaxis(matrix(0, 0), matrix(0, 1), matrix(0, 2));
     T e = xaxis.DotProduct(delta);
     T f = direction.DotProduct(xaxis);
 
@@ -160,7 +160,7 @@ bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>
 
     // Test intersection with the 2 planes perpendicular to the OBB's Y axis
     // Exactly the same thing than above.
-    NzVector3<T> yaxis(matrix[1].x, matrix[1].y, matrix[1].z);
+    NzVector3<T> yaxis(matrix(1, 0), matrix(1, 1), matrix(1, 2));
     e = yaxis.DotProduct(delta);
     f = direction.DotProduct(yaxis);
 
@@ -188,7 +188,7 @@ bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>
 
     // Test intersection with the 2 planes perpendicular to the OBB's Z axis
     // Exactly the same thing than above.
-    NzVector3<T> zaxis(matrix[2].x, matrix[2].y, matrix[2].z);
+    NzVector3<T> zaxis(matrix(2, 0), matrix(2, 1), matrix(2, 2));
     e = zaxis.DotProduct(delta);
     f = direction.DotProduct(zaxis);
 
@@ -383,7 +383,7 @@ NzString NzRay<T>::ToString() const
 template<typename T>
 NzRay<T> NzRay<T>::Lerp(const NzRay& from, const NzRay& to, T interpolation)
 {
-	return NzRay<T>(from.origin.Lerp(to.origin, interpolation), from.direction.Lerp(to.direction, interpolation));    
+	return NzRay<T>(from.origin.Lerp(to.origin, interpolation), from.direction.Lerp(to.direction, interpolation));
 }
 
 template<typename T>
