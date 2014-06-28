@@ -59,7 +59,7 @@ T NzPlane<T>::Distance(T x, T y, T z) const
 }
 
 template<typename T>
-NzVector3 NzPlane<T>::GetNormal() const
+NzVector3<T> NzPlane<T>::GetNormal() const
 {
     return normal;
 }
