@@ -27,7 +27,7 @@ class NzPlane
 		T Distance(const NzVector3<T>& point) const;
 		T Distance(T x, T y, T z) const;
 
-		NzVector3 GetNormal() const;
+		NzVector3<T> GetNormal() const;
 		T GetDistance() const;
 
 		NzPlane& Set(T normalX, T normalY, T normalZ, T Distance);
