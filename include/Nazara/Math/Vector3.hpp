@@ -119,6 +119,8 @@ typedef NzVector3<double> NzVector3d;
 typedef NzVector3<float> NzVector3f;
 typedef NzVector3<int> NzVector3i;
 typedef NzVector3<unsigned int> NzVector3ui;
+typedef NzVector3<nzInt32> NzVector3i32;
+typedef NzVector3<nzUInt32> NzVector3ui32;
 
 #include <Nazara/Math/Vector3.inl>
 
