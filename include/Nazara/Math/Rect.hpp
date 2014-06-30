@@ -87,6 +87,8 @@ typedef NzRect<double> NzRectd;
 typedef NzRect<float> NzRectf;
 typedef NzRect<int> NzRecti;
 typedef NzRect<unsigned int> NzRectui;
+typedef NzRect<nzInt32> NzRecti32;
+typedef NzRect<nzUInt32> NzRectui32;
 
 #include <Nazara/Math/Rect.inl>
 

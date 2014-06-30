@@ -96,6 +96,8 @@ typedef NzVector2<double> NzVector2d;
 typedef NzVector2<float> NzVector2f;
 typedef NzVector2<int> NzVector2i;
 typedef NzVector2<unsigned int> NzVector2ui;
+typedef NzVector2<nzInt32> NzVector2i32;
+typedef NzVector2<nzUInt32> NzVector2ui32;
 
 #include <Nazara/Math/Vector2.inl>
 
