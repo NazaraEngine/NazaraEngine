@@ -57,7 +57,7 @@ void NzTextureSampler::SetAnisotropyLevel(nzUInt8 anisotropyLevel)
 	{
 		if (anisotropyLevel > s_maxAnisotropyLevel)
 		{
-			NazaraWarning("Anisotropy level is over maximum anisotropy level (" + NzString::Number(anisotropyLevel) + " > " + NzString::Number(s_maxAnisotropyLevel));
+			NazaraWarning("Anisotropy level is over maximum anisotropy level (" + NzString::Number(anisotropyLevel) + " > " + NzString::Number(s_maxAnisotropyLevel) + ')');
 			anisotropyLevel = s_maxAnisotropyLevel;
 		}
 
@@ -299,10 +299,10 @@ unsigned int NzTextureSampler::GetOpenGLID() const
 
 void NzTextureSampler::UpdateSamplerId() const
 {
-	nzUInt32 key = (m_mipmaps          << 0) | // 1 bit
-				   (m_filterMode       << 1) | // 2 bits
-				   (m_wrapMode         << 3) | // 2 bits
-				   (m_anisotropicLevel << 5);  // 8 bits
+	nzUInt32 key = (((m_mipmaps) ? 1 : 0) << 0) | // 1 bit
+				   (m_filterMode          << 1) | // 2 bits
+				   (m_wrapMode            << 3) | // 2 bits
+				   (m_anisotropicLevel    << 5);  // 8 bits
 
 	auto it = s_samplers.find(key);
 	if (it == s_samplers.end())
