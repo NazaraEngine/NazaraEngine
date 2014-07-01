@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2014 RÃ©mi BÃ¨ges - JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
