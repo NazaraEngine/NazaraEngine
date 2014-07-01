@@ -114,6 +114,8 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, NzVector3<T> * hitPoint, NzVector3
 template<typename T>
 bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>& matrix, NzVector3<T> * hitPoint, NzVector3<T> * hitSecondPoint) const
 {
+    // Traduction from http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/ written by Arnaud Masserann
+
     // Intersection method from Real-Time Rendering and Essential Mathematics for Games
 
     T tMin = F(0.0);
@@ -184,7 +186,6 @@ bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>
     else
         if (-e + orientedBox.localBox.y > F(0.0) || -e + (orientedBox.localBox.y + orientedBox.localBox.height) < F(0.0))
             return false;
-
 
     // Test intersection with the 2 planes perpendicular to the OBB's Z axis
     // Exactly the same thing than above.
