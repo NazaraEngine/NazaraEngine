@@ -59,18 +59,6 @@ T NzPlane<T>::Distance(T x, T y, T z) const
 }
 
 template<typename T>
-NzVector3<T> NzPlane<T>::GetNormal() const
-{
-    return normal;
-}
-
-template<typename T>
-T NzPlane<T>::GetDistance() const
-{
-    return distance;
-}
-
-template<typename T>
 NzPlane<T>& NzPlane<T>::Set(T normalX, T normalY, T normalZ, T D)
 {
 	distance = D;
