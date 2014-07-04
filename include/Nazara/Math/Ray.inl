@@ -56,18 +56,6 @@ NzVector3<T> NzRay<T>::GetClosestPoint(const NzVector3<T>& point) const
 }
 
 template<typename T>
-NzVector3<T> NzRay<T>::GetDirection() const
-{
-    return direction;
-}
-
-template<typename T>
-NzVector3<T> NzRay<T>::GetOrigin() const
-{
-    return origin;
-}
-
-template<typename T>
 NzVector3<T> NzRay<T>::GetPoint(T lambda) const
 {
     return NzVector3<T>(origin + direction * lambda);
@@ -302,7 +290,7 @@ NzString NzRay<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "Ray(" << origin.x << ", " << origin.y << ", " << origin.z << " | direction: " << direction.x << ", " << direction.y << ", " << direction.z << ')';
+	return ss << "Ray(origin: " << origin.ToString() << ", direction: " << direction.ToString() << ")";
 }
 
 template<typename T>

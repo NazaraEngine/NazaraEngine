@@ -119,12 +119,6 @@ NzVector3<T> NzSphere<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 }
 
 template<typename T>
-T NzSphere<T>::GetRadius() const
-{
-    return radius;
-}
-
-template<typename T>
 bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 {
 	// Arvo's algorithm.
