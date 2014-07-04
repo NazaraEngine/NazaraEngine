@@ -34,7 +34,7 @@ template<typename T> class NzRay
 		NzVector3<T> GetPoint(T lambda) const;
 
 		bool Intersect(const NzBox<T>& box, NzVector3<T> * hitPoint = nullptr, NzVector3<T> * hitSecondPoint = nullptr) const;
-		bool Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>& matrix, NzVector3<T> * hitPoint = nullptr, NzVector3<T> * hitSecondPoint = nullptr) const;
+		bool Intersect(const NzOrientedBox<T>& orientedBox, NzVector3<T> * hitPoint = nullptr, NzVector3<T> * hitSecondPoint = nullptr) const;
 		bool Intersect(const NzPlane<T>& plane, NzVector3<T> * hitPoint = nullptr) const;
 		bool Intersect(const NzSphere<T>& sphere, NzVector3<T> * hitPoint = nullptr, NzVector3<T> * hitSecondPoint = nullptr) const;
 

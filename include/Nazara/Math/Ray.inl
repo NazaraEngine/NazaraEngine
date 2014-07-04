@@ -112,113 +112,37 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, NzVector3<T> * hitPoint, NzVector3
 }
 
 template<typename T>
-bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, const NzMatrix4<T>& matrix, NzVector3<T> * hitPoint, NzVector3<T> * hitSecondPoint) const
+bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, NzVector3<T> * hitPoint, NzVector3<T> * hitSecondPoint) const
 {
-    // Traduction from http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/ written by Arnaud Masserann
+    NzVector3<T> width = (orientedBox.GetCorner(nzCorner_NearLeftBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> height = (orientedBox.GetCorner(nzCorner_FarLeftTop) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> depth = (orientedBox.GetCorner(nzCorner_FarRightBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
 
-    // Intersection method from Real-Time Rendering and Essential Mathematics for Games
+    // Construction of the inverse of the matrix who did the rotation -> orthogonal matrix.
+    NzMatrix4<T> transformation(width.x, height.x, depth.x, F(0.0),
+                                width.y, height.y, depth.y, F(0.0),
+                                width.z, height.z, depth.z, F(0.0),
+                                F(0.0),  F(0.0),   F(0.0),  F(1.0));
 
-    T tMin = F(0.0);
-    T tMax = INFINITY;
+    // Reduction to aabb problem
+    NzVector3<T> newOrigin = transformation.Transform(origin);
+    NzVector3<T> newDirection = transformation.Transform(direction);
 
-    NzVector3<T> OBBposition_worldspace(matrix(3, 0), matrix(3, 1), matrix(3, 2));
-
-    NzVector3<T> delta = OBBposition_worldspace - origin;
-
-    // Test intersection with the 2 planes perpendicular to the OBB's X axis
-    NzVector3<T> xaxis(matrix(0, 0), matrix(0, 1), matrix(0, 2));
-    T e = xaxis.DotProduct(delta);
-    T f = direction.DotProduct(xaxis);
-
-    if (std::abs(f) > F(0.0))
-    { // Standard case
-
-            T t1 = (e + orientedBox.localBox.x) / f; // Intersection with the "left" plane
-            T t2 = (e + (orientedBox.localBox.x + orientedBox.localBox.width)) / f; // Intersection with the "right" plane
-            // t1 and t2 now contain distances betwen ray origin and ray-plane intersections
-
-            // We want t1 to represent the nearest intersection,
-            // so if it's not the case, invert t1 and t2
-            if (t1 > t2)
-                { T w = t1; t1 = t2; t2 = w; } // swap t1 and t2
-
-            // tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
-            if (t2 < tMax)
-                tMax = t2;
-            // tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
-            if (t1 > tMin)
-                tMin = t1;
-
-            // And here's the trick :
-            // If "far" is closer than "near", then there is NO intersection.
-            // See the images in the tutorials for the visual explanation.
-            if (tMax < tMin)
-                return false;
-    }
-    else
-        // Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
-        if (-e + orientedBox.localBox.x > F(0.0) || -e + (orientedBox.localBox.x + orientedBox.localBox.width) < F(0.0))
-            return false;
-
-    // Test intersection with the 2 planes perpendicular to the OBB's Y axis
-    // Exactly the same thing than above.
-    NzVector3<T> yaxis(matrix(1, 0), matrix(1, 1), matrix(1, 2));
-    e = yaxis.DotProduct(delta);
-    f = direction.DotProduct(yaxis);
-
-    if (std::abs(f) > F(0.0))
+    NzVector3<T> tmp, tmp2;
+    if (NzRay<T>(newOrigin, newDirection).Intersect(NzBox<T>(orientedBox.GetCorner(nzCorner_NearRightTop), orientedBox.GetCorner(nzCorner_FarLeftBottom)), &tmp, &tmp2))
     {
+        if (hitPoint)
+        {
+            transformation.Transpose();
+            hitPoint->Set(transformation.Transform(tmp));
+            if (hitSecondPoint)
+                hitSecondPoint->Set(transformation.Transform(tmp2));
+        }
 
-            T t1 = (e + orientedBox.localBox.y) / f;
-            T t2 = (e + (orientedBox.localBox.y + orientedBox.localBox.height)) / f;
-
-            if (t1 > t2)
-                { T w = t1; t1 = t2; t2 = w; } // swap t1 and t2
-
-            if (t2 < tMax)
-                tMax = t2;
-            if (t1 > tMin)
-                tMin = t1;
-            if (tMin > tMax)
-                return false;
-
+        return true;
     }
-    else
-        if (-e + orientedBox.localBox.y > F(0.0) || -e + (orientedBox.localBox.y + orientedBox.localBox.height) < F(0.0))
-            return false;
 
-    // Test intersection with the 2 planes perpendicular to the OBB's Z axis
-    // Exactly the same thing than above.
-    NzVector3<T> zaxis(matrix(2, 0), matrix(2, 1), matrix(2, 2));
-    e = zaxis.DotProduct(delta);
-    f = direction.DotProduct(zaxis);
-
-    if (std::abs(f) > F(0.0))
-    {
-            T t1 = (e + orientedBox.localBox.z) / f;
-            T t2 = (e + (orientedBox.localBox.z + orientedBox.localBox.depth)) / f;
-
-            if (t1 > t2)
-                { T w = t1; t1 = t2; t2 = w; } // swap t1 and t2
-
-            if (t2 < tMax)
-                tMax = t2;
-            if (t1 > tMin)
-                tMin = t1;
-            if (tMin > tMax)
-                return false;
-
-    }
-    else
-        if (-e + orientedBox.localBox.z > F(0.0) || -e + (orientedBox.localBox.z + orientedBox.localBox.depth) < F(0.0))
-            return false;
-
-    if (hitPoint)
-        hitPoint->Set(GetPoint(tMin));
-    if (hitSecondPoint)
-        hitSecondPoint->Set(GetPoint(tMax));
-
-	return true;
+	return false;
 }
 
 template<typename T>
