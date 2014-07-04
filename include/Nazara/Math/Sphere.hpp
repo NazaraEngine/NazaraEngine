@@ -39,7 +39,6 @@ class NzSphere
 		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
 		NzVector3<T> GetPosition() const;
 		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
-		T GetRadius() const;
 
 		bool Intersect(const NzBox<T>& box) const;
 		bool Intersect(const NzSphere& sphere) const;

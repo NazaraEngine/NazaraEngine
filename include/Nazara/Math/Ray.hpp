@@ -29,8 +29,6 @@ template<typename T> class NzRay
 		~NzRay() = default;
 
         NzVector3<T> GetClosestPoint(const NzVector3<T>& point) const;
-        NzVector3<T> GetDirection() const;
-        NzVector3<T> GetOrigin() const;
 		NzVector3<T> GetPoint(T lambda) const;
 
 		bool Intersect(const NzBox<T>& box, NzVector3<T> * hitPoint = nullptr, NzVector3<T> * hitSecondPoint = nullptr) const;
