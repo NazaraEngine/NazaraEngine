@@ -41,12 +41,12 @@ inline NzIndexIterator& NzIndexIterator::operator=(const NzIndexIterator& iterat
 	return *this;
 }
 
-inline NzIndexIterator NzIndexIterator::operator+(unsigned int indexCount)
+inline NzIndexIterator NzIndexIterator::operator+(unsigned int indexCount) const
 {
 	return NzIndexIterator(m_mapper, m_index + indexCount);
 }
 
-inline NzIndexIterator NzIndexIterator::operator-(unsigned int indexCount)
+inline NzIndexIterator NzIndexIterator::operator-(unsigned int indexCount) const
 {
 	return NzIndexIterator(m_mapper, m_index - indexCount);
 }
