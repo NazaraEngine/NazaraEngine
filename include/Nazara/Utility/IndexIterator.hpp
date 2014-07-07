@@ -28,8 +28,8 @@ class NzIndexIterator
 
 		NzIndexIterator& operator=(const NzIndexIterator& iterator);
 
-		NzIndexIterator operator+(unsigned int indexCount);
-		NzIndexIterator operator-(unsigned int indexCount);
+		NzIndexIterator operator+(unsigned int indexCount) const;
+		NzIndexIterator operator-(unsigned int indexCount) const;
 
 		NzIndexIterator& operator+=(unsigned int indexCount);
 		NzIndexIterator& operator-=(unsigned int indexCount);
