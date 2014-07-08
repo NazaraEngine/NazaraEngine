@@ -54,14 +54,6 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
-	#if NAZARA_UTILITY_MULTITHREADED_SKINNING
-	if (!NzTaskScheduler::Initialize())
-	{
-		NazaraError("Failed to initialize task scheduler");
-		return false;
-	}
-	#endif
-
 	if (!NzVertexDeclaration::Initialize())
 	{
 		NazaraError("Failed to initialize vertex declarations");

@@ -32,9 +32,6 @@
 // Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
 #define NAZARA_UTILITY_MANAGE_MEMORY 0
 
-// Le skinning doit-il prendre avantage du multi-threading ? (Boost de performances sur les processeurs multi-coeurs)
-#define NAZARA_UTILITY_MULTITHREADED_SKINNING 0
-
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_UTILITY_SAFE 1
 
