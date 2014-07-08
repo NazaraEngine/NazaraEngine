@@ -173,26 +173,19 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 {
-	struct TransparentModelComparator
+	NzPlanef nearPlane = viewer->GetFrustum().GetPlane(nzFrustumPlane_Near);
+	NzVector3f viewerNormal = viewer->GetForward();
+
+	std::sort(transparentModels.begin(), transparentModels.end(), [this, &nearPlane, &viewerNormal](unsigned int index1, unsigned int index2)
 	{
-		bool operator()(unsigned int index1, unsigned int index2)
-		{
-			const NzSpheref& sphere1 = queue->transparentModelData[index1].boundingSphere;
-			const NzSpheref& sphere2 = queue->transparentModelData[index2].boundingSphere;
+		const NzSpheref& sphere1 = transparentModelData[index1].boundingSphere;
+		const NzSpheref& sphere2 = transparentModelData[index2].boundingSphere;
 
-			NzVector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
-			NzVector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
+		NzVector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
+		NzVector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
 
-			return nearPlane.Distance(position1) > nearPlane.Distance(position2);
-		}
-
-		NzForwardRenderQueue* queue;
-		NzPlanef nearPlane;
-		NzVector3f viewerNormal;
-	};
-
-	TransparentModelComparator comparator {this, viewer->GetFrustum().GetPlane(nzFrustumPlane_Near), viewer->GetForward()};
-	std::sort(transparentModels.begin(), transparentModels.end(), comparator);
+		return nearPlane.Distance(position1) > nearPlane.Distance(position2);
+	});
 }
 
 bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
