@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2014 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,6 +38,9 @@ class NzPlane
 		NzString ToString() const;
 
 		static NzPlane Lerp(const NzPlane& from, const NzPlane& to, T interpolation);
+		static NzPlane XY();
+		static NzPlane XZ();
+		static NzPlane YZ();
 
 		NzVector3<T> normal;
 		T distance;
