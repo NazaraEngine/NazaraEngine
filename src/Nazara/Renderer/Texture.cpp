@@ -40,7 +40,7 @@ namespace
 		{
 			case nzImageType_1D:
 			{
-				if (glTexStorage1D)
+				if (glTexStorage1D && !proxy) // Les drivers AMD semblent ne pas aimer glTexStorage avec un format proxy
 					glTexStorage1D(target, impl->levelCount, openGLFormat.internalFormat, impl->width);
 				else
 				{
@@ -58,7 +58,7 @@ namespace
 			case nzImageType_1D_Array:
 			case nzImageType_2D:
 			{
-				if (glTexStorage2D)
+				if (glTexStorage2D && !proxy)
 					glTexStorage2D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height);
 				else
 				{
@@ -80,7 +80,7 @@ namespace
 			case nzImageType_2D_Array:
 			case nzImageType_3D:
 			{
-				if (glTexStorage3D)
+				if (glTexStorage3D && !proxy)
 					glTexStorage3D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height, impl->depth);
 				else
 				{
@@ -105,7 +105,7 @@ namespace
 
 			case nzImageType_Cubemap:
 			{
-				if (glTexStorage2D)
+				if (glTexStorage2D && !proxy)
 					glTexStorage2D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height);
 				else
 				{
