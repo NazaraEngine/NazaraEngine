@@ -4,7 +4,11 @@
 
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/OffsetOf.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <cstring>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -76,6 +80,14 @@ void NzVertexDeclaration::DisableAttribute(nzAttributeUsage usage)
 	}
 	#endif
 
+	#if NAZARA_UTILITY_SAFE
+	if (usage == nzAttributeUsage_Unused)
+	{
+		NazaraError("Cannot disable \"unused\" attribute");
+		return;
+	}
+	#endif
+
 	Attribute& attribute = m_attributes[usage];
 	if (attribute.enabled)
 	{
@@ -94,14 +106,17 @@ void NzVertexDeclaration::EnableAttribute(nzAttributeUsage usage, nzAttributeTyp
 	}
 	#endif
 
-	Attribute& attribute = m_attributes[usage];
-	if (attribute.enabled)
-		m_stride -= attributeStride[attribute.type];
-	else
-		attribute.enabled = true;
+	if (usage != nzAttributeUsage_Unused)
+	{
+		Attribute& attribute = m_attributes[usage];
+		if (attribute.enabled)
+			m_stride -= attributeStride[attribute.type];
+		else
+			attribute.enabled = true;
 
-	attribute.offset = offset;
-	attribute.type = type;
+		attribute.offset = offset;
+		attribute.type = type;
+	}
 
 	m_stride += attributeStride[type];
 }
@@ -112,6 +127,14 @@ void NzVertexDeclaration::GetAttribute(nzAttributeUsage usage, bool* enabled, nz
 	if (usage > nzAttributeUsage_Max)
 	{
 		NazaraError("Attribute usage out of enum");
+		return;
+	}
+	#endif
+
+	#if NAZARA_UTILITY_SAFE
+	if (usage == nzAttributeUsage_Unused)
+	{
+		NazaraError("Cannot get \"unused\" attribute");
 		return;
 	}
 	#endif
@@ -174,32 +197,77 @@ unsigned int NzVertexDeclaration::GetAttributeSize(nzAttributeType type)
 
 bool NzVertexDeclaration::Initialize()
 {
-	s_declarations[nzVertexLayout_XY].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float2, 0);
+	try
+	{
+		NzErrorFlags flags(nzErrorFlag_Silent | nzErrorFlag_ThrowException);
 
-	s_declarations[nzVertexLayout_XY_UV].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float2, 0);
-	s_declarations[nzVertexLayout_XY_UV].EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, 2*sizeof(float));
+		// Layout : Type
+		NzVertexDeclaration* declaration;
 
-	s_declarations[nzVertexLayout_XYZ].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, 0);
+		// nzVertexLayout_XY : NzVertexStruct_XY
+		declaration = &s_declarations[nzVertexLayout_XY];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XY, position));
 
-	s_declarations[nzVertexLayout_XYZ_Normal].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, 0);
-	s_declarations[nzVertexLayout_XYZ_Normal].EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, 3*sizeof(float));
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY), "Invalid stride for declaration NzVertexStruct_XY");
 
-	s_declarations[nzVertexLayout_XYZ_Normal_UV].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, 0);
-	s_declarations[nzVertexLayout_XYZ_Normal_UV].EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, 3*sizeof(float));
-	s_declarations[nzVertexLayout_XYZ_Normal_UV].EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, (3+3)*sizeof(float));
+		// nzVertexLayout_XY_UV : NzVertexStruct_XY_UV
+		declaration = &s_declarations[nzVertexLayout_XY_UV];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XY_UV, position));
+		declaration->EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XY_UV, uv));
 
-	s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, 0);
-	s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent].EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, 3*sizeof(float));
-	s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent].EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, (3+3)*sizeof(float));
-	s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent].EnableAttribute(nzAttributeUsage_Tangent, nzAttributeType_Float3, (3+3+2)*sizeof(float));
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY_UV), "Invalid stride for declaration nzVertexLayout_XY_UV");
 
-	s_declarations[nzVertexLayout_XYZ_UV].EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, 0);
-	s_declarations[nzVertexLayout_XYZ_UV].EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, 3*sizeof(float));
+		// nzVertexLayout_XYZ : NzVertexStruct_XYZ
+		declaration = &s_declarations[nzVertexLayout_XYZ];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ, position));
 
-	s_declarations[nzVertexLayout_Matrix4].EnableAttribute(nzAttributeUsage_InstanceData0, nzAttributeType_Float4, 0*4*sizeof(float));
-	s_declarations[nzVertexLayout_Matrix4].EnableAttribute(nzAttributeUsage_InstanceData1, nzAttributeType_Float4, 1*4*sizeof(float));
-	s_declarations[nzVertexLayout_Matrix4].EnableAttribute(nzAttributeUsage_InstanceData2, nzAttributeType_Float4, 2*4*sizeof(float));
-	s_declarations[nzVertexLayout_Matrix4].EnableAttribute(nzAttributeUsage_InstanceData3, nzAttributeType_Float4, 3*4*sizeof(float));
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ), "Invalid stride for declaration nzVertexLayout_XYZ");
+
+		// nzVertexLayout_XYZ_Normal : NzVertexStruct_XYZ_Normal
+		declaration = &s_declarations[nzVertexLayout_XYZ_Normal];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal, position));
+		declaration->EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal, normal));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Normal), "Invalid stride for declaration nzVertexLayout_XYZ_Normal");
+
+		// nzVertexLayout_XYZ_Normal_UV : NzVertexStruct_XYZ_Normal_UV
+		declaration = &s_declarations[nzVertexLayout_XYZ_Normal_UV];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV, position));
+		declaration->EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV, normal));
+		declaration->EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV, uv));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Normal_UV), "Invalid stride for declaration nzVertexLayout_XYZ_Normal_UV");
+
+		// nzVertexLayout_XYZ_Normal_UV_Tangent : NzVertexStruct_XYZ_Normal_UV_Tangent
+		declaration = &s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent, position));
+		declaration->EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent, normal));
+		declaration->EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent, uv));
+		declaration->EnableAttribute(nzAttributeUsage_Tangent, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent, tangent));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Normal_UV_Tangent), "Invalid stride for declaration nzVertexLayout_XYZ_Normal_UV_Tangent");
+
+		// nzVertexLayout_XYZ_UV : NzVertexStruct_XYZ_UV
+		declaration = &s_declarations[nzVertexLayout_XYZ_UV];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_UV, position));
+		declaration->EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XYZ_UV, uv));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_UV), "Invalid stride for declaration nzVertexLayout_XYZ_UV");
+
+		// nzVertexLayout_Matrix4 : NzMatrix4f
+		declaration = &s_declarations[nzVertexLayout_Matrix4];
+		declaration->EnableAttribute(nzAttributeUsage_InstanceData0, nzAttributeType_Float4, NzOffsetOf(NzMatrix4f, m11));
+		declaration->EnableAttribute(nzAttributeUsage_InstanceData1, nzAttributeType_Float4, NzOffsetOf(NzMatrix4f, m21));
+		declaration->EnableAttribute(nzAttributeUsage_InstanceData2, nzAttributeType_Float4, NzOffsetOf(NzMatrix4f, m31));
+		declaration->EnableAttribute(nzAttributeUsage_InstanceData3, nzAttributeType_Float4, NzOffsetOf(NzMatrix4f, m41));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzMatrix4f), "Invalid stride for declaration nzVertexLayout_Matrix4");
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to initialize vertex declaration: " + NzString(e.what()));
+		return false;
+	}
 
 	return true;
 }

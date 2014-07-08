@@ -36,6 +36,8 @@ enum nzAttributeType
 
 enum nzAttributeUsage
 {
+	nzAttributeUsage_Unused = -1,
+
 	nzAttributeUsage_InstanceData0,
 	nzAttributeUsage_InstanceData1,
 	nzAttributeUsage_InstanceData2,
