@@ -50,6 +50,11 @@
 // Sous Windows, fait en sorte que les touches ALT et F10 n'activent pas le menu de la fenêtre
 #define NAZARA_UTILITY_WINDOWS_DISABLE_MENU_KEYS 1
 
+/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
+
+// Le nombre maximum de poids affectant un sommet (En cas de dépassement, les poids supplémentaires seront ignorés et les autres renormalisés)
+#define NAZARA_UTILITY_SKINNING_MAX_WEIGHTS 4
+
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Utility/ConfigCheck.hpp>
 
