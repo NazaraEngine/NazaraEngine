@@ -24,6 +24,8 @@ template<typename T> class NzVector3
 
 		T AbsDotProduct(const NzVector3& vec) const;
 
+		T AngleBetween(const NzVector3& vec, bool toDegree = true) const;
+
 		NzVector3 CrossProduct(const NzVector3& vec) const;
 
 		T Distance(const NzVector3& vec) const;
