@@ -28,9 +28,6 @@ NzBoxf NzComputeVerticesAABB(const T* vertices, unsigned int vertexCount)
 template<typename T>
 void NzTransformVertices(T* vertices, unsigned int vertexCount, const NzMatrix4f& matrix)
 {
-	if (matrix.IsIdentity())
-		return;
-
 	NzVector3f scale = matrix.GetScale();
 
 	for (unsigned int i = 0; i < vertexCount; ++i)
