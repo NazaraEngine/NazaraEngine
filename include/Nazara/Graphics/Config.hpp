@@ -32,13 +32,18 @@
 // À partir de combien d'instances d'un même mesh/matériau l'instancing doit-il être utilisé ?
 #define NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT 10
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
-#define NAZARA_GRAPHICS_MEMORYMANAGER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+#define NAZARA_GRAPHICS_MANAGE_MEMORY 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_GRAPHICS_SAFE 1
 
+/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
+
 // Le nombre maximum de lumières qu'un shader standard supportera
-#define NAZARA_GRAPHICS_MAX_LIGHTPERPASS 3U // Unsigned
+#define NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS 3
+
+/// Vérification des valeurs et types de certaines constantes
+#include <Nazara/Graphics/ConfigCheck.hpp>
 
 #endif // NAZARA_CONFIG_GRAPHICS_HPP

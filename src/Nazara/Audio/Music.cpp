@@ -237,10 +237,10 @@ bool NzMusic::FillAndQueueBuffer(unsigned int buffer)
 
 void NzMusic::MusicThread()
 {
-	ALuint buffers[NAZARA_AUDIO_STREAMEDBUFFERCOUNT];
-	alGenBuffers(NAZARA_AUDIO_STREAMEDBUFFERCOUNT, buffers);
+	ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
+	alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 
-	for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMEDBUFFERCOUNT; ++i)
+	for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
 	{
 		if (FillAndQueueBuffer(buffers[i])) // Fin du fichier ?
 			break; // Nous avons atteint la fin du fichier, inutile de rajouter des buffers
@@ -280,7 +280,7 @@ void NzMusic::MusicThread()
 	for (ALint i = 0; i < queuedBufferCount; ++i)
 		alSourceUnqueueBuffers(m_source, 1, &buffer);
 
-	alDeleteBuffers(NAZARA_AUDIO_STREAMEDBUFFERCOUNT, buffers);
+	alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 }
 
 NzMusicLoader::LoaderList NzMusic::s_loaders;

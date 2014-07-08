@@ -1,12 +1,12 @@
 // Copyright (C) 2014 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Lua module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics/Config.hpp>
-#if NAZARA_PHYSICS_MEMORYMANAGER || defined(NAZARA_DEBUG)
-#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
-#include <Nazara/Core/Debug/MemoryManager.hpp>
-#include <new>
+#include <Nazara/Lua/Config.hpp>
+#if NAZARA_LUA_MANAGE_MEMORY
+
+#include <Nazara/Core/MemoryManager.hpp>
+#include <new> // Nécessaire ?
 
 void* operator new(std::size_t size)
 {
@@ -28,4 +28,4 @@ void operator delete[](void* pointer) noexcept
 	NzMemoryManager::Free(pointer, true);
 }
 
-#endif
+#endif // NAZARA_LUA_MANAGE_MEMORY
