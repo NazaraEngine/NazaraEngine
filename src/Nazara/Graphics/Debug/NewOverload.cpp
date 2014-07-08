@@ -1,12 +1,12 @@
 // Copyright (C) 2014 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/Config.hpp>
-#if NAZARA_RENDERER_MEMORYMANAGER || defined(NAZARA_DEBUG)
-#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
-#include <Nazara/Core/Debug/MemoryManager.hpp>
-#include <new>
+#include <Nazara/Graphics/Config.hpp>
+#if NAZARA_GRAPHICS_MANAGE_MEMORY
+
+#include <Nazara/Core/MemoryManager.hpp>
+#include <new> // Nécessaire ?
 
 void* operator new(std::size_t size)
 {
@@ -28,4 +28,4 @@ void operator delete[](void* pointer) noexcept
 	NzMemoryManager::Free(pointer, true);
 }
 
-#endif
+#endif // NAZARA_GRAPHICS_MANAGE_MEMORY

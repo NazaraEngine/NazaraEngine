@@ -17,7 +17,7 @@ else
 end
 
 if (_OPTIONS["united"]) then
-	excludes "../src/Nazara/Noise/Debug/Leaks.cpp"
+	excludes "../src/Nazara/Noise/Debug/NewOverload.cpp"
 else
 	configuration "DebugStatic"
 		links "NazaraCore-s-d"
