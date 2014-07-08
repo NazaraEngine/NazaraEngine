@@ -153,6 +153,24 @@ NzPlane<T> NzPlane<T>::Lerp(const NzPlane& from, const NzPlane& to, T interpolat
 }
 
 template<typename T>
+NzPlane<T> NzPlane<T>::XY()
+{
+    return NzPlane<T>(F(0.0), F(0.0), F(1.0), F(0.0));
+}
+
+template<typename T>
+NzPlane<T> NzPlane<T>::XZ()
+{
+    return NzPlane<T>(F(0.0), F(1.0), F(0.0), F(0.0));
+}
+
+template<typename T>
+NzPlane<T> NzPlane<T>::YZ()
+{
+    return NzPlane<T>(F(1.0), F(0.0), F(0.0), F(0.0));
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& out, const NzPlane<T>& plane)
 {
 	return out << plane.ToString();
