@@ -9,16 +9,6 @@
 #include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
-struct NzSkeletalMeshImpl
-{
-	std::unique_ptr<NzMeshVertex[]> bindPoseBuffer;
-	std::vector<NzVertexWeight> vertexWeights;
-	std::vector<NzWeight> weights;
-	NzBoxf aabb;
-	NzIndexBufferConstRef indexBuffer;
-	unsigned int vertexCount;
-};
-
 NzSkeletalMesh::NzSkeletalMesh(const NzMesh* parent) :
 NzSubMesh(parent)
 {
@@ -29,57 +19,36 @@ NzSkeletalMesh::~NzSkeletalMesh()
 	Destroy();
 }
 
-bool NzSkeletalMesh::Create(unsigned int vertexCount, unsigned int weightCount)
+bool NzSkeletalMesh::Create(NzVertexBuffer* vertexBuffer)
 {
 	Destroy();
 
 	#if NAZARA_UTILITY_SAFE
-	if (vertexCount == 0)
+	if (!vertexBuffer)
 	{
-		NazaraError("Vertex count must be over 0");
-		return false;
-	}
-
-	if (weightCount == 0)
-	{
-		NazaraError("Weight count must be over 0");
+		NazaraError("Invalid vertex buffer");
 		return false;
 	}
 	#endif
 
-	m_impl = new NzSkeletalMeshImpl;
-	m_impl->bindPoseBuffer.reset(new NzMeshVertex[vertexCount]);
-	m_impl->vertexCount = vertexCount;
-	m_impl->vertexWeights.resize(vertexCount);
-	m_impl->weights.resize(weightCount);
-
+	m_vertexBuffer = vertexBuffer;
 	return true;
 }
 
 void NzSkeletalMesh::Destroy()
 {
-	if (m_impl)
+	if (m_vertexBuffer)
 	{
 		NotifyDestroy();
 
-		delete m_impl;
-		m_impl = nullptr;
+		m_indexBuffer.Reset();
+		m_vertexBuffer.Reset();
 	}
 }
 
 const NzBoxf& NzSkeletalMesh::GetAABB() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-
-		static NzBoxf dummy;
-		return dummy;
-	}
-	#endif
-
-	return m_impl->aabb;
+	return m_aabb;
 }
 
 nzAnimationType NzSkeletalMesh::GetAnimationType() const
@@ -87,121 +56,24 @@ nzAnimationType NzSkeletalMesh::GetAnimationType() const
 	return nzAnimationType_Skeletal;
 }
 
-NzMeshVertex* NzSkeletalMesh::GetBindPoseBuffer()
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->bindPoseBuffer.get();
-}
-
-const NzMeshVertex* NzSkeletalMesh::GetBindPoseBuffer() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->bindPoseBuffer.get();
-}
-
 const NzIndexBuffer* NzSkeletalMesh::GetIndexBuffer() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
+	return m_indexBuffer;
+}
 
-	return m_impl->indexBuffer;
+NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer()
+{
+	return m_vertexBuffer;
+}
+
+const NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer() const
+{
+	return m_vertexBuffer;
 }
 
 unsigned int NzSkeletalMesh::GetVertexCount() const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return 0;
-	}
-	#endif
-
-	return m_impl->vertexCount;
-}
-
-NzVertexWeight* NzSkeletalMesh::GetVertexWeight(unsigned int vertexIndex)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->vertexWeights[vertexIndex];
-}
-
-const NzVertexWeight* NzSkeletalMesh::GetVertexWeight(unsigned int vertexIndex) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->vertexWeights[vertexIndex];
-}
-
-NzWeight* NzSkeletalMesh::GetWeight(unsigned int weightIndex)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->weights[weightIndex];
-}
-
-const NzWeight* NzSkeletalMesh::GetWeight(unsigned int weightIndex) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->weights[weightIndex];
-}
-
-unsigned int NzSkeletalMesh::GetWeightCount() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeletal mesh not created");
-		return 0;
-	}
-	#endif
-
-	return m_impl->weights.size();
+	return m_vertexBuffer->GetVertexCount();
 }
 
 bool NzSkeletalMesh::IsAnimated() const
@@ -211,10 +83,15 @@ bool NzSkeletalMesh::IsAnimated() const
 
 bool NzSkeletalMesh::IsValid() const
 {
-	return m_impl != nullptr;
+	return m_vertexBuffer != nullptr;
+}
+
+void NzSkeletalMesh::SetAABB(const NzBoxf& aabb)
+{
+	m_aabb = aabb;
 }
 
 void NzSkeletalMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
-	m_impl->indexBuffer = indexBuffer;
+	m_indexBuffer = indexBuffer;
 }

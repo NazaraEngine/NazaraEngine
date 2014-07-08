@@ -195,12 +195,16 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			unsigned int indexCount = md5Mesh.triangles.size()*3;
 			unsigned int vertexCount = md5Mesh.vertices.size();
-			unsigned int weightCount = md5Mesh.weights.size();
 
-			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(largeIndices, indexCount, m_parameters.storage));
+			indexBuffer->SetPersistent(false);
+
+			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, m_parameters.storage, nzBufferUsage_Static));
+			vertexBuffer->SetPersistent(false);
+
+			// Index buffer
 			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
 
 			unsigned int index = 0;
@@ -214,53 +218,99 @@ bool NzMD5MeshParser::Parse(NzMesh* mesh)
 
 			indexMapper.Unmap();
 
-			std::unique_ptr<NzSkeletalMesh> subMesh(new NzSkeletalMesh(mesh));
-			if (!subMesh->Create(vertexCount, weightCount))
+			// Vertex buffer
+			struct Weight
 			{
-				NazaraError("Failed to create skeletal mesh");
-				continue;
-			}
+				float bias;
+				unsigned int jointIndex;
+			};
 
-			subMesh->SetIndexBuffer(indexBuffer.get());
-			indexBuffer->SetPersistent(false);
-			indexBuffer.release();
+			std::vector<Weight> tempWeights(NAZARA_UTILITY_SKINNING_MAX_WEIGHTS);
 
-			NzWeight* weights = subMesh->GetWeight();
-			for (unsigned int j = 0; j < weightCount; ++j)
-			{
-				weights->jointIndex = md5Mesh.weights[j].joint;
-				weights->weight = md5Mesh.weights[j].bias;
-				weights++;
-			}
-
-			NzMeshVertex* bindPosVertex = reinterpret_cast<NzMeshVertex*>(subMesh->GetBindPoseBuffer());
-			NzVertexWeight* vertexWeight = subMesh->GetVertexWeight();
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzSkeletalMeshVertex* vertices = static_cast<NzSkeletalMeshVertex*>(vertexMapper.GetPointer());
 			for (const Mesh::Vertex& vertex : md5Mesh.vertices)
 			{
 				// Skinning MD5 (Formule d'Id Tech)
 				NzVector3f finalPos(NzVector3f::Zero());
 
-				vertexWeight->weights.resize(vertex.weightCount);
+				tempWeights.resize(vertex.weightCount);
 				for (unsigned int j = 0; j < vertex.weightCount; ++j)
 				{
 					const Mesh::Weight& weight = md5Mesh.weights[vertex.startWeight + j];
 					const Joint& joint = m_joints[weight.joint];
 
 					finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
-					vertexWeight->weights[j] = vertex.startWeight + j;
+
+					// Avant d'ajouter les poids, il faut s'assurer qu'il n'y en ait pas plus que le maximum supporté
+					// et dans le cas contraire, garder les poids les plus importants et les renormaliser
+					tempWeights[j] = {weight.bias, weight.joint};
 				}
 
-				bindPosVertex->position = finalPos;
-				bindPosVertex->uv.Set(vertex.uv.x, 1.f-vertex.uv.y);
-				bindPosVertex++;
-				vertexWeight++;
+				unsigned int weightCount = vertex.weightCount;
+				if (weightCount > NAZARA_UTILITY_SKINNING_MAX_WEIGHTS)
+				{
+					// Pour augmenter la qualité du skinning tout en ne gardant que X poids, on ne garde que les poids
+					// les plus importants, ayant le plus d'impact sur le sommet final
+					std::sort(tempWeights.begin(), tempWeights.end(), [] (const Weight& a, const Weight& b) -> bool {
+						return a.bias > b.bias;
+					});
+
+					// Sans oublier bien sûr de renormaliser les poids (que leur somme soit 1)
+					float weightSum = 0.f;
+					for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+						weightSum += tempWeights[j].bias;
+
+					for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+						tempWeights[j].bias /= weightSum;
+
+					weightCount = NAZARA_UTILITY_SKINNING_MAX_WEIGHTS;
+				}
+
+				vertices->weightCount = weightCount;
+				for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+				{
+					// On donne une valeur aux poids présents, et 0 pour les autres (nécessaire pour le GPU Skinning)
+					if (j < weightCount)
+					{
+						vertices->weights[j] = tempWeights[j].bias;
+						vertices->jointIndexes[j] = tempWeights[j].jointIndex;
+					}
+					else
+					{
+						vertices->weights[j] = 0.f;
+						vertices->jointIndexes[j] = 0;
+					}
+				}
+
+				vertices->position = finalPos;
+				vertices->uv.Set(vertex.uv.x, 1.f-vertex.uv.y);
+				vertices++;
 			}
+
+			vertexMapper.Unmap();
 
 			// Material
 			mesh->SetMaterial(i, baseDir + md5Mesh.shader);
 
+			// Submesh
+			std::unique_ptr<NzSkeletalMesh> subMesh(new NzSkeletalMesh(mesh));
+			if (!subMesh->Create(vertexBuffer.get()))
+			{
+				NazaraError("Failed to create skeletal mesh");
+				continue;
+			}
+			vertexBuffer.release();
+
+			if (m_parameters.optimizeIndexBuffers)
+				indexBuffer->Optimize();
+
+			subMesh->SetIndexBuffer(indexBuffer.get());
+			indexBuffer.release();
+
 			subMesh->GenerateNormalsAndTangents();
 			subMesh->SetMaterialIndex(i);
+			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
 			mesh->AddSubMesh(subMesh.get());
 			subMesh.release();
