@@ -24,61 +24,67 @@ NzSubMesh::~NzSubMesh() = default;
 
 void NzSubMesh::GenerateNormals()
 {
-	NzVertexMapper mapper1(this);
-	unsigned int vertexCount = mapper1.GetVertexCount();
-	for (unsigned int i = 0; i < vertexCount; ++i)
-		mapper1.SetNormal(i, NzVector3f::Zero());
+	NzVertexMapper mapper(this);
+	unsigned int vertexCount = mapper.GetVertexCount();
 
-	mapper1.Unmap();
+	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
+
+	for (unsigned int i = 0; i < vertexCount; ++i)
+		normals[i].MakeZero();
 
 	NzTriangleIterator iterator(this);
 	do
 	{
-		NzVector3f pos0 = iterator.GetPosition(0);
+		NzVector3f pos0 = positions[iterator[0]];
 
 		NzVector3f dv[2];
-		dv[0] = iterator.GetPosition(1) - pos0;
-		dv[1] = iterator.GetPosition(2) - pos0;
+		dv[0] = positions[iterator[1]] - pos0;
+		dv[1] = positions[iterator[2]] - pos0;
 
 		NzVector3f normal = dv[0].CrossProduct(dv[1]);
 
 		for (unsigned int i = 0; i < 3; ++i)
-			iterator.SetNormal(i, iterator.GetNormal(i) + normal);
+			normals[iterator[i]] += normal;
 	}
 	while (iterator.Advance());
 
-	NzVertexMapper mapper2(this);
 	for (unsigned int i = 0; i < vertexCount; ++i)
-		mapper2.SetNormal(i, NzVector3f::Normalize(mapper2.GetNormal(i)));
+		normals[i].Normalize();
 }
 
 void NzSubMesh::GenerateNormalsAndTangents()
 {
-	NzVertexMapper mapper1(this);
-	unsigned int vertexCount = mapper1.GetVertexCount();
+	NzVertexMapper mapper(this);
+	unsigned int vertexCount = mapper.GetVertexCount();
+
+	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
+	NzSparsePtr<NzVector3f> tangents = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Tangent);
+	NzSparsePtr<NzVector2f> texCoords = mapper.GetAttributePtr<NzVector2f>(nzAttributeUsage_TexCoord);
+
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
-		mapper1.SetNormal(i, NzVector3f::Zero());
-		mapper1.SetTangent(i, NzVector3f::Zero());
+		normals[i].MakeZero();
+		tangents[i].MakeZero();
 	}
-
-	mapper1.Unmap();
 
 	NzTriangleIterator iterator(this);
 	do
 	{
-		NzVector3f pos0 = iterator.GetPosition(0);
-		NzVector2f uv0 = iterator.GetTexCoord(0);
+		NzVector3f pos0 = positions[iterator[0]];
 
 		NzVector3f dv[2];
-		dv[0] = iterator.GetPosition(1) - pos0;
-		dv[1] = iterator.GetPosition(2) - pos0;
+		dv[0] = positions[iterator[1]] - pos0;
+		dv[1] = positions[iterator[2]] - pos0;
 
 		NzVector3f normal = dv[0].CrossProduct(dv[1]);
 
+		NzVector2f uv0 = texCoords[iterator[0]];
+
 		NzVector2f duv[2];
-		duv[0] = iterator.GetTexCoord(1) - uv0;
-		duv[1] = iterator.GetTexCoord(2) - uv0;
+		duv[0] = texCoords[iterator[1]] - uv0;
+		duv[1] = texCoords[iterator[2]] - uv0;
 
 		float coef = 1.f / (duv[0].x*duv[1].y - duv[1].x*duv[0].y);
 
@@ -89,39 +95,48 @@ void NzSubMesh::GenerateNormalsAndTangents()
 
 		for (unsigned int i = 0; i < 3; ++i)
 		{
-			iterator.SetNormal(i, iterator.GetNormal(i) + normal);
-			iterator.SetTangent(i, iterator.GetTangent(i) + tangent);
+			nzUInt32 index = iterator[i];
+			normals[index] += normal;
+			tangents[index] += tangent;
 		}
 	}
 	while (iterator.Advance());
 
-	NzVertexMapper mapper2(this);
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
-		mapper2.SetNormal(i, NzVector3f::Normalize(mapper2.GetNormal(i)));
-		mapper2.SetTangent(i, NzVector3f::Normalize(mapper2.GetTangent(i)));
+		normals[i].Normalize();
+		tangents[i].Normalize();
 	}
 }
 
 void NzSubMesh::GenerateTangents()
 {
+	NzVertexMapper mapper(this);
+
+	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
+	NzSparsePtr<NzVector3f> tangents = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Tangent);
+	NzSparsePtr<NzVector2f> texCoords = mapper.GetAttributePtr<NzVector2f>(nzAttributeUsage_TexCoord);
+
 	NzTriangleIterator iterator(this);
 	do
 	{
-		NzVector3f pos0 = iterator.GetPosition(0);
-		NzVector2f uv0 = iterator.GetTexCoord(0);
+		NzVector3f pos0 = positions[iterator[0]];
+		NzVector2f uv0 = texCoords[iterator[0]];
+		NzVector2f uv1 = texCoords[iterator[1]];
+		NzVector2f uv2 = texCoords[iterator[2]];
 
 		NzVector3f dv[2];
-		dv[0] = iterator.GetPosition(1) - pos0;
-		dv[1] = iterator.GetPosition(2) - pos0;
+		dv[0] = positions[iterator[1]] - pos0;
+		dv[1] = positions[iterator[2]] - pos0;
 
 		NzVector2f duv[2];
-		duv[0] = iterator.GetTexCoord(1) - uv0;
-		duv[1] = iterator.GetTexCoord(2) - uv0;
+		duv[0] = uv1 - uv0;
+		duv[1] = uv2 - uv0;
 
 		float ds[2];
-		ds[0] = iterator.GetTexCoord(1).x - uv0.x;
-		ds[1] = iterator.GetTexCoord(2).x - uv0.x;
+		ds[0] = uv1.x - uv0.x;
+		ds[1] = uv2.x - uv0.x;
 
 		NzVector3f ppt;
 		ppt.x = ds[0]*dv[1].x - dv[0].x*ds[1];
@@ -131,12 +146,10 @@ void NzSubMesh::GenerateTangents()
 
 		for (unsigned int i = 0; i < 3; ++i)
 		{
-			NzVector3f normal = iterator.GetNormal(i);
+			NzVector3f normal = normals[iterator[i]];
 			float d = ppt.DotProduct(normal);
 
-			NzVector3f tangent = ppt - (d * normal);
-
-			iterator.SetTangent(i, tangent);
+			tangents[iterator[i]] = ppt - (d * normal);
 		}
 	}
 	while (iterator.Advance());
