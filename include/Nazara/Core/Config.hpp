@@ -29,6 +29,9 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
+// Précision des réels lors de la transformation en chaîne de caractère (Max. chiffres après la virgule)
+#define NAZARA_CORE_DECIMAL_DIGITS 6
+
 // Duplique la sortie du log sur le flux de sortie standard (cout)
 #define NAZARA_CORE_DUPLICATE_LOG_TO_COUT 0
 
@@ -44,11 +47,8 @@
 // Incorpore la table Unicode Character Data (Nécessaires pour faire fonctionner le flag NzString::HandleUTF8)
 #define NAZARA_CORE_INCLUDE_UNICODEDATA 0
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
-#define NAZARA_CORE_MEMORYMANAGER 0
-
-// Précision des réels lors de la transformation en texte (Max. chiffres après la virgule)
-#define NAZARA_CORE_REAL_PRECISION 6
+// Utilise le MemoryManager pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+#define NAZARA_CORE_MANAGE_MEMORY 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_CORE_SAFE 1
@@ -64,7 +64,7 @@
 #define NAZARA_THREADSAFETY_LOG 1          // NzLog
 #define NAZARA_THREADSAFETY_RESOURCE 1     // NzResource
 
-// Le nombre de spinlocks à utiliser avec les critical sections de Windows (0 pour désactiver)
+// Le nombre de spinlocks à utiliser avec les sections critiques de Windows (0 pour désactiver)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 
 // Optimise l'implémentation Windows avec certaines avancées de Windows vista (Casse la compatibilité XP)
@@ -74,5 +74,8 @@
 // Règle le temps entre le réveil du thread des timers et l'activation d'un timer (En millisecondes)
 #define NAZARA_CORE_TIMER_WAKEUPTIME 10
 */
+
+/// Vérification des valeurs et types de certaines constantes
+#include <Nazara/Core/ConfigCheck.hpp>
 
 #endif // NAZARA_CONFIG_CORE_HPP

@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
+#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Lua/lauxlib.h>

@@ -3,6 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Config.hpp>
-#if NAZARA_GRAPHICS_MEMORYMANAGER || defined(NAZARA_DEBUG)
-	#include <Nazara/Core/Debug/MemoryManager.hpp>
+#if NAZARA_GRAPHICS_MANAGE_MEMORY
+	#include <Nazara/Core/Debug/NewRedefinition.hpp>
 #endif

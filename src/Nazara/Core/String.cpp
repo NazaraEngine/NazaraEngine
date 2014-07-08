@@ -3930,7 +3930,7 @@ int NzString::Compare(const NzString& first, const NzString& second)
 NzString NzString::Number(float number)
 {
 	std::ostringstream oss;
-	oss.precision(NAZARA_CORE_REAL_PRECISION);
+	oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 	oss << number;
 
 	return NzString(oss.str());
@@ -3939,7 +3939,7 @@ NzString NzString::Number(float number)
 NzString NzString::Number(double number)
 {
 	std::ostringstream oss;
-	oss.precision(NAZARA_CORE_REAL_PRECISION);
+	oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 	oss << number;
 
 	return NzString(oss.str());
@@ -3948,7 +3948,7 @@ NzString NzString::Number(double number)
 NzString NzString::Number(long double number)
 {
 	std::ostringstream oss;
-	oss.precision(NAZARA_CORE_REAL_PRECISION);
+	oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 	oss << number;
 
 	return NzString(oss.str());
