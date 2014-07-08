@@ -732,47 +732,45 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 
 	// Face +X
 	transform.MakeTransform(NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, -90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face +Y
 	transform.MakeTransform(NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 0.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face +Z
 	transform.MakeTransform(NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, 90.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
 
 	// Face -X
 	transform.MakeTransform(-NzVector3f::UnitX() * halfLengths.x, NzEulerAnglesf(-90.f, 0.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.z, subdivision.y), NzVector2f(lengths.z, lengths.y), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += xVertexCount;
 	indices += xIndexCount;
 	vertices += xVertexCount;
 
 	// Face -Y
 	transform.MakeTransform(-NzVector3f::UnitY() * halfLengths.y, NzEulerAnglesf(0.f, 0.f, 180.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.z), NzVector2f(lengths.x, lengths.z), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += yVertexCount;
 	indices += yIndexCount;
 	vertices += yVertexCount;
 
 	// Face -Z
 	transform.MakeTransform(-NzVector3f::UnitZ() * halfLengths.z, NzEulerAnglesf(-90.f, -90.f, 90.f));
-	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), transform, textureCoords, vertices, indices, nullptr, indexOffset);
+	NzGeneratePlane(NzVector2ui(subdivision.x, subdivision.y), NzVector2f(lengths.x, lengths.y), matrix.ConcatenateAffine(transform), textureCoords, vertices, indices, nullptr, indexOffset);
 	indexOffset += zVertexCount;
 	indices += zIndexCount;
 	vertices += zVertexCount;
-
-	NzTransformVertices(oldVertices, vertices-oldVertices, matrix);
 
 	if (aabb)
 	{
