@@ -961,7 +961,7 @@ void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackC
 	}
 }
 
-/************************************NzOptimize***********************************/
+/**********************************NzOptimize*********************************/
 
 void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount)
 {
@@ -972,23 +972,20 @@ void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount)
 
 /************************************NzSkin***********************************/
 
-void NzSkinPosition(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount)
+void NzSkinPosition(const NzSkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 {
-	const NzMeshVertex* inputVertex = &data.inputVertex[startVertex];
-	NzMeshVertex* outputVertex = &data.outputVertex[startVertex];
+	const NzSkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+	NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
 	unsigned int endVertex = startVertex + vertexCount - 1;
 	for (unsigned int i = startVertex; i <= endVertex; ++i)
 	{
 		NzVector3f finalPosition(NzVector3f::Zero());
 
-		unsigned int weightCount = data.vertexWeights[i].weights.size();
-		for (unsigned int j = 0; j < weightCount; ++j)
+		for (int j = 0; j < inputVertex->weightCount; ++j)
 		{
-			const NzWeight& weight = data.weights[data.vertexWeights[i].weights[j]];
-
-			NzMatrix4f mat(data.joints[weight.jointIndex].GetSkinningMatrix());
-			mat *= weight.weight;
+			NzMatrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
+			mat *= inputVertex->weights[j];
 
 			finalPosition += mat.Transform(inputVertex->position);
 		}
@@ -1003,7 +1000,7 @@ void NzSkinPosition(const NzSkinningData& data, unsigned int startVertex, unsign
 
 void NzSkinPositionNormal(const NzSkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 {
-	const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+	const NzSkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 	NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
 	unsigned int endVertex = startVertex + vertexCount - 1;
@@ -1012,13 +1009,10 @@ void NzSkinPositionNormal(const NzSkinningData& skinningInfos, unsigned int star
 		NzVector3f finalPosition(NzVector3f::Zero());
 		NzVector3f finalNormal(NzVector3f::Zero());
 
-		unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
-		for (unsigned int j = 0; j < weightCount; ++j)
+		for (int j = 0; j < inputVertex->weightCount; ++j)
 		{
-			const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
-
-			NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetSkinningMatrix());
-			mat *= weight.weight;
+			NzMatrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
+			mat *= inputVertex->weights[j];
 
 			finalPosition += mat.Transform(inputVertex->position);
 			finalNormal += mat.Transform(inputVertex->normal, 0.f);
@@ -1037,7 +1031,7 @@ void NzSkinPositionNormal(const NzSkinningData& skinningInfos, unsigned int star
 
 void NzSkinPositionNormalTangent(const NzSkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
 {
-	const NzMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
+	const NzSkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 	NzMeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
 	unsigned int endVertex = startVertex + vertexCount - 1;
@@ -1047,13 +1041,10 @@ void NzSkinPositionNormalTangent(const NzSkinningData& skinningInfos, unsigned i
 		NzVector3f finalNormal(NzVector3f::Zero());
 		NzVector3f finalTangent(NzVector3f::Zero());
 
-		unsigned int weightCount = skinningInfos.vertexWeights[i].weights.size();
-		for (unsigned int j = 0; j < weightCount; ++j)
+		for (int j = 0; j < inputVertex->weightCount; ++j)
 		{
-			const NzWeight& weight = skinningInfos.weights[skinningInfos.vertexWeights[i].weights[j]];
-
-			NzMatrix4f mat(skinningInfos.joints[weight.jointIndex].GetSkinningMatrix());
-			mat *= weight.weight;
+			NzMatrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
+			mat *= inputVertex->weights[j];
 
 			finalPosition += mat.Transform(inputVertex->position);
 			finalNormal += mat.Transform(inputVertex->normal, 0.f);
