@@ -26,9 +26,11 @@ void NzStaticMesh::Center()
 	NzVector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
 
 	NzVertexMapper mapper(this);
+	NzSparsePtr<NzVector3f> position = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
+
 	unsigned int vertexCount = mapper.GetVertexCount();
 	for (unsigned int i = 0; i < vertexCount; ++i)
-		mapper.SetPosition(i, mapper.GetPosition(i) - offset);
+		position[i] -= offset;
 
 	m_aabb.x -= offset.x;
 	m_aabb.y -= offset.y;
@@ -48,8 +50,6 @@ bool NzStaticMesh::Create(NzVertexBuffer* vertexBuffer)
 	#endif
 
 	m_vertexBuffer = vertexBuffer;
-	m_vertexBuffer->AddResourceListener(this);
-
 	return true;
 }
 
@@ -59,14 +59,8 @@ void NzStaticMesh::Destroy()
 	{
 		NotifyDestroy();
 
-		if (m_indexBuffer)
-		{
-			m_indexBuffer->RemoveResourceListener(this);
-			m_indexBuffer = nullptr;
-		}
-
-		m_vertexBuffer->RemoveResourceListener(this);
-		m_vertexBuffer = nullptr;
+		m_indexBuffer.Reset();
+		m_vertexBuffer.Reset();
 	}
 }
 
@@ -126,23 +120,5 @@ void NzStaticMesh::SetAABB(const NzBoxf& aabb)
 
 void NzStaticMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
 {
-	if (m_indexBuffer)
-		m_indexBuffer->RemoveResourceListener(this);
-
-	if (indexBuffer)
-		indexBuffer->AddResourceListener(this);
-
 	m_indexBuffer = indexBuffer;
-}
-
-void NzStaticMesh::OnResourceReleased(const NzResource* resource, int index)
-{
-	NazaraUnused(index);
-
-	if (resource == m_indexBuffer)
-		m_indexBuffer = nullptr;
-	else if (resource == m_vertexBuffer)
-		m_vertexBuffer = nullptr;
-	else
-		NazaraInternalError("Not listening to " + NzString::Pointer(resource));
 }
