@@ -29,10 +29,13 @@
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks, ralenti l'exécution)
-#define NAZARA_PHYSICS_MEMORYMANAGER 0
+// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+#define NAZARA_PHYSICS_MANAGE_MEMORY 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
 #define NAZARA_PHYSICS_SAFE 1
+
+/// Vérification des valeurs et types de certaines constantes
+#include <Nazara/Physics/ConfigCheck.hpp>
 
 #endif // NAZARA_CONFIG_PHYSICS_HPP

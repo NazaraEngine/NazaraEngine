@@ -2,9 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#define NAZARA_DEBUG_MEMORYMANAGER_DISABLE_REDEFINITION
-
-#include <Nazara/Core/Debug/MemoryManager.hpp>
+#include <Nazara/Core/MemoryManager.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -258,26 +256,4 @@ void NzMemoryManager::Uninitialize()
 	}
 
 	std::fclose(log);
-}
-
-void* operator new(std::size_t size, const char* file, unsigned int line)
-{
-	return NzMemoryManager::Allocate(size, false, file, line);
-}
-
-void* operator new[](std::size_t size, const char* file, unsigned int line)
-{
-	return NzMemoryManager::Allocate(size, true, file, line);
-}
-
-void operator delete(void* ptr, const char* file, unsigned int line) noexcept
-{
-	NzMemoryManager::NextFree(file, line);
-	NzMemoryManager::Free(ptr, false);
-}
-
-void operator delete[](void* ptr, const char* file, unsigned int line) noexcept
-{
-	NzMemoryManager::NextFree(file, line);
-	NzMemoryManager::Free(ptr, true);
 }
