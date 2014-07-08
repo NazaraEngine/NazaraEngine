@@ -247,6 +247,18 @@ bool NzVertexDeclaration::Initialize()
 
 		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Normal_UV_Tangent), "Invalid stride for declaration nzVertexLayout_XYZ_Normal_UV_Tangent");
 
+		// nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning : NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning
+		declaration = &s_declarations[nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning];
+		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, position));
+		declaration->EnableAttribute(nzAttributeUsage_Normal, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, normal));
+		declaration->EnableAttribute(nzAttributeUsage_TexCoord, nzAttributeType_Float2, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, uv));
+		declaration->EnableAttribute(nzAttributeUsage_Tangent, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, tangent));
+		declaration->EnableAttribute(nzAttributeUsage_Unused, nzAttributeType_Int1, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, weightCount));
+		declaration->EnableAttribute(nzAttributeUsage_Userdata0, nzAttributeType_Float4, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, weights));
+		declaration->EnableAttribute(nzAttributeUsage_Userdata1, nzAttributeType_Int4, NzOffsetOf(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning, jointIndexes));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning), "Invalid stride for declaration nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning");
+
 		// nzVertexLayout_XYZ_UV : NzVertexStruct_XYZ_UV
 		declaration = &s_declarations[nzVertexLayout_XYZ_UV];
 		declaration->EnableAttribute(nzAttributeUsage_Position, nzAttributeType_Float3, NzOffsetOf(NzVertexStruct_XYZ_UV, position));

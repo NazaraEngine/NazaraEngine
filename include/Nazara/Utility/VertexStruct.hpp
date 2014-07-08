@@ -10,6 +10,8 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
+/******************************* Structures 2D *******************************/
+
 struct NzVertexStruct_XY
 {
 	NzVector2f position;
@@ -20,7 +22,7 @@ struct NzVertexStruct_XY_UV : public NzVertexStruct_XY
 	NzVector2f uv;
 };
 
-/////////////////////////////////////////
+/******************************* Structures 3D *******************************/
 
 struct NzVertexStruct_XYZ
 {
@@ -46,5 +48,16 @@ struct NzVertexStruct_XYZ_UV : public NzVertexStruct_XYZ
 {
 	NzVector2f uv;
 };
+
+/************************* Structures 3D (+ Skinning) ************************/
+
+struct NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning : public NzVertexStruct_XYZ_Normal_UV_Tangent
+{
+	nzInt32 weightCount;
+
+	NzVector4f weights;
+	NzVector4i32 jointIndexes;
+};
+
 
 #endif // NAZARA_VERTEXSTRUCT_HPP

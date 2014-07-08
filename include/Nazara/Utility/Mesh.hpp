@@ -47,6 +47,7 @@ class NzMesh;
 class NzPrimitiveList;
 
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
+typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
 using NzMeshConstRef = NzResourceRef<const NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;

@@ -254,6 +254,7 @@ enum nzVertexLayout
 	nzVertexLayout_XYZ_Normal,
 	nzVertexLayout_XYZ_Normal_UV,
 	nzVertexLayout_XYZ_Normal_UV_Tangent,
+	nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 	nzVertexLayout_XYZ_UV,
 
 	// Déclarations destinées à l'instancing
