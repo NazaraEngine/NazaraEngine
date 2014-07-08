@@ -6,23 +6,21 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzTriangleIterator::NzTriangleIterator(NzSubMesh* subMesh, nzBufferAccess access) :
-m_primitiveMode(subMesh->GetPrimitiveMode()),
-m_indexMapper(subMesh->GetIndexBuffer(), nzBufferAccess_ReadOnly),
-m_vertexMapper(subMesh)
+NzTriangleIterator::NzTriangleIterator(nzPrimitiveMode primitiveMode, const NzIndexBuffer* indexBuffer) :
+m_primitiveMode(primitiveMode),
+m_indexMapper(indexBuffer, nzBufferAccess_ReadOnly)
 {
-	NazaraUnused(access);
-
 	m_currentIndex = 3;
 	m_triangleIndices[0] = m_indexMapper.Get(0);
 	m_triangleIndices[1] = m_indexMapper.Get(1);
 	m_triangleIndices[2] = m_indexMapper.Get(2);
 
-	const NzIndexBuffer* indexBuffer = m_indexMapper.GetBuffer();
-	if (indexBuffer)
-		m_indexCount = indexBuffer->GetIndexCount();
-	else
-		m_indexCount = subMesh->GetVertexCount();
+	m_indexCount = indexBuffer->GetIndexCount();
+}
+
+NzTriangleIterator::NzTriangleIterator(NzSubMesh* subMesh) :
+NzTriangleIterator(subMesh->GetPrimitiveMode(), subMesh->GetIndexBuffer())
+{
 }
 
 bool NzTriangleIterator::Advance()
@@ -59,113 +57,24 @@ bool NzTriangleIterator::Advance()
 	return true;
 }
 
-NzVector3f NzTriangleIterator::GetNormal(unsigned int i) const
+nzUInt32 NzTriangleIterator::operator[](unsigned int i) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
+	if (i >= 3)
 	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return NzVector3f();
+		NzStringStream ss;
+		ss << "Index out of range: (" << i << " >= 3)";
+
+		NazaraError(ss);
+		throw std::domain_error(ss.ToString());
 	}
 	#endif
 
-	return m_vertexMapper.GetNormal(m_triangleIndices[i]);
-}
-
-NzVector3f NzTriangleIterator::GetPosition(unsigned int i) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return NzVector3f();
-	}
-	#endif
-
-	return m_vertexMapper.GetPosition(m_triangleIndices[i]);
-}
-
-NzVector3f NzTriangleIterator::GetTangent(unsigned int i) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return NzVector3f();
-	}
-	#endif
-
-	return m_vertexMapper.GetTangent(m_triangleIndices[i]);
-}
-
-NzVector2f NzTriangleIterator::GetTexCoord(unsigned int i) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return NzVector2f();
-	}
-	#endif
-
-	return m_vertexMapper.GetTexCoord(m_triangleIndices[i]);
-}
-
-void NzTriangleIterator::SetNormal(unsigned int i, const NzVector3f& normal)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return;
-	}
-	#endif
-
-	m_vertexMapper.SetNormal(m_triangleIndices[i], normal);
-}
-
-void NzTriangleIterator::SetPosition(unsigned int i, const NzVector3f& position)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return;
-	}
-	#endif
-
-	m_vertexMapper.SetPosition(m_triangleIndices[i], position);
-}
-
-void NzTriangleIterator::SetTangent(unsigned int i, const NzVector3f& tangent)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return;
-	}
-	#endif
-
-	m_vertexMapper.SetTangent(m_triangleIndices[i], tangent);
-}
-
-void NzTriangleIterator::SetTexCoord(unsigned int i, const NzVector2f& texCoords)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i > 2)
-	{
-		NazaraError("Index out of range: (" + NzString::Number(i) + " > 2)");
-		return;
-	}
-	#endif
-
-	m_vertexMapper.SetTexCoord(m_triangleIndices[i], texCoords);
+	return m_triangleIndices[i];
 }
 
 void NzTriangleIterator::Unmap()
 {
 	// Peut très bien être appellé plusieurs fois de suite, seul le premier appel sera pris en compte
 	m_indexMapper.Unmap();
-	m_vertexMapper.Unmap();
 }

@@ -8,31 +8,21 @@
 #define NAZARA_TRIANGLEITERATOR_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
-#include <Nazara/Utility/VertexMapper.hpp>
 
 class NzSubMesh;
 
 class NAZARA_API NzTriangleIterator
 {
 	public:
-		NzTriangleIterator(NzSubMesh* subMesh, nzBufferAccess access = nzBufferAccess_ReadWrite);
+		NzTriangleIterator(nzPrimitiveMode primitiveMode, const NzIndexBuffer* indexBuffer);
+		NzTriangleIterator(NzSubMesh* subMesh);
 		~NzTriangleIterator() = default;
 
 		bool Advance();
 
-		NzVector3f GetNormal(unsigned int i) const;
-		NzVector3f GetPosition(unsigned int i) const;
-		NzVector3f GetTangent(unsigned int i) const;
-		NzVector2f GetTexCoord(unsigned int i) const;
-
-		void SetNormal(unsigned int i, const NzVector3f& normal);
-		void SetPosition(unsigned int i, const NzVector3f& position);
-		void SetTangent(unsigned int i, const NzVector3f& tangent);
-		void SetTexCoord(unsigned int i, const NzVector2f& texCoords);
+		nzUInt32 operator[](unsigned int i) const;
 
 		void Unmap();
 
@@ -40,7 +30,6 @@ class NAZARA_API NzTriangleIterator
 		nzPrimitiveMode m_primitiveMode;
 		nzUInt32 m_triangleIndices[3];
 		NzIndexMapper m_indexMapper;
-		NzVertexMapper m_vertexMapper;
 		unsigned int m_currentIndex;
 		unsigned int m_indexCount;
 };
