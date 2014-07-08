@@ -943,6 +943,24 @@ bool NzMatrix4<T>::operator!=(const NzMatrix4& mat) const
 }
 
 template<typename T>
+NzMatrix4<T> NzMatrix4<T>::Concatenate(const NzMatrix4& left, const NzMatrix4& right)
+{
+	NzMatrix4 matrix(left); // Copie de la matrice de gauche
+	matrix.Concatenate(right); // Concaténation avec la matrice de droite
+
+	return matrix; // Et on renvoie la matrice
+}
+
+template<typename T>
+NzMatrix4<T> NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& left, const NzMatrix4& right)
+{
+	NzMatrix4 matrix(left); // Copie de la matrice de gauche
+	matrix.ConcatenateAffine(right); // Concaténation (affine) avec la matrice de droite
+
+	return matrix; // Et on renvoie la matrice
+}
+
+template<typename T>
 NzMatrix4<T> NzMatrix4<T>::Identity()
 {
 	NzMatrix4 matrix;

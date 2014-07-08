@@ -110,6 +110,8 @@ class NzMatrix4
 		bool operator==(const NzMatrix4& mat) const;
 		bool operator!=(const NzMatrix4& mat) const;
 
+		static NzMatrix4 Concatenate(const NzMatrix4& left, const NzMatrix4& right);
+		static NzMatrix4 ConcatenateAffine(const NzMatrix4& left, const NzMatrix4& right);
 		static NzMatrix4 Identity();
 		static NzMatrix4 LookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
 		static NzMatrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
