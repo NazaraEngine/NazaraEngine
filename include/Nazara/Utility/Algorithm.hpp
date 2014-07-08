@@ -19,10 +19,8 @@
 struct NzSkinningData
 {
 	const NzJoint* joints;
-	const NzMeshVertex* inputVertex;
+	const NzSkeletalMeshVertex* inputVertex;
 	NzMeshVertex* outputVertex;
-	const NzVertexWeight* vertexWeights;
-	const NzWeight* weights;
 };
 
 NAZARA_API void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
