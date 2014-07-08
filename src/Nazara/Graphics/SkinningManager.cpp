@@ -103,28 +103,26 @@ namespace
 
 	void Skin_MonoCPU(const NzSkeletalMesh* mesh, const NzSkeleton* skeleton, NzVertexBuffer* buffer)
 	{
-		NzBufferMapper<NzVertexBuffer> mapper(buffer, nzBufferAccess_DiscardAndWrite);
+		NzBufferMapper<NzVertexBuffer> inputMapper(mesh->GetVertexBuffer(), nzBufferAccess_ReadOnly);
+		NzBufferMapper<NzVertexBuffer> outputMapper(buffer, nzBufferAccess_DiscardAndWrite);
 
 		NzSkinningData skinningData;
-		skinningData.inputVertex = mesh->GetBindPoseBuffer();
-		skinningData.outputVertex = static_cast<NzMeshVertex*>(mapper.GetPointer());
+		skinningData.inputVertex = static_cast<NzSkeletalMeshVertex*>(inputMapper.GetPointer());
+		skinningData.outputVertex = static_cast<NzMeshVertex*>(outputMapper.GetPointer());
 		skinningData.joints = skeleton->GetJoints();
-		skinningData.vertexWeights = mesh->GetVertexWeight(0);
-		skinningData.weights = mesh->GetWeight(0);
 
 		NzSkinPositionNormalTangent(skinningData, 0, mesh->GetVertexCount());
 	}
 
 	void Skin_MultiCPU(const NzSkeletalMesh* mesh, const NzSkeleton* skeleton, NzVertexBuffer* buffer)
 	{
-		NzBufferMapper<NzVertexBuffer> mapper(buffer, nzBufferAccess_DiscardAndWrite);
+		NzBufferMapper<NzVertexBuffer> inputMapper(mesh->GetVertexBuffer(), nzBufferAccess_ReadOnly);
+		NzBufferMapper<NzVertexBuffer> outputMapper(buffer, nzBufferAccess_DiscardAndWrite);
 
 		NzSkinningData skinningData;
-		skinningData.inputVertex = mesh->GetBindPoseBuffer();
-		skinningData.outputVertex = static_cast<NzMeshVertex*>(mapper.GetPointer());
+		skinningData.inputVertex = static_cast<NzSkeletalMeshVertex*>(inputMapper.GetPointer());
+		skinningData.outputVertex = static_cast<NzMeshVertex*>(outputMapper.GetPointer());
 		skinningData.joints = skeleton->GetJoints();
-		skinningData.vertexWeights = mesh->GetVertexWeight(0);
-		skinningData.weights = mesh->GetWeight(0);
 
 		// Afin d'empêcher les différents threads de vouloir mettre à jour la même matrice en même temps,
 		// on se charge de la mettre à jour avant de les lancer
