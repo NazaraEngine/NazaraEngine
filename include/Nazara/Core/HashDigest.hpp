@@ -28,7 +28,7 @@ class NAZARA_API NzHashDigest
 
 		NzString ToHex() const;
 
-		nzUInt8 operator[](unsigned short pos) const;
+		nzUInt8 operator[](unsigned int pos) const;
 
 		NzHashDigest& operator=(const NzHashDigest& rhs);
 		NzHashDigest& operator=(NzHashDigest&& rhs) noexcept;
@@ -45,7 +45,7 @@ class NAZARA_API NzHashDigest
 	private:
 		NzString m_hashName;
 		nzUInt8* m_digest;
-		unsigned short m_digestLength;
+		unsigned int m_digestLength;
 };
 
 #endif // NAZARA_HASHDIGEST_HPP

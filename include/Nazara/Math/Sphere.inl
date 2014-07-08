@@ -117,6 +117,7 @@ NzVector3<T> NzSphere<T>::GetPositiveVertex(const NzVector3<T>& normal) const
 
 	return pos;
 }
+
 template<typename T>
 bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 {
