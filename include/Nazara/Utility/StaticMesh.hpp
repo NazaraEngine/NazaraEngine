@@ -20,7 +20,7 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);
-		virtual ~NzStaticMesh();
+		~NzStaticMesh();
 
 		void Center();
 
@@ -43,8 +43,6 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 	private:
-		void OnResourceReleased(const NzResource* resource, int index) override;
-
 		NzBoxf m_aabb;
 		NzIndexBufferConstRef m_indexBuffer = nullptr;
 		NzVertexBufferRef m_vertexBuffer = nullptr;
