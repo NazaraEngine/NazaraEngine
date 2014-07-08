@@ -11,54 +11,37 @@
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
-class NzSkeleton;
-
-struct NzVertexWeight
-{
-	std::vector<unsigned int> weights; ///FIXME: Niveau fragmentation mémoire ça doit pas être génial
-};
-
-struct NzWeight
-{
-	float weight;
-	unsigned int jointIndex;
-};
-
 class NzSkeletalMesh;
 
 using NzSkeletalMeshConstRef = NzResourceRef<const NzSkeletalMesh>;
 using NzSkeletalMeshRef = NzResourceRef<NzSkeletalMesh>;
 
-struct NzSkeletalMeshImpl;
-
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 {
 	public:
 		NzSkeletalMesh(const NzMesh* parent);
-		virtual ~NzSkeletalMesh();
+		~NzSkeletalMesh();
 
-		bool Create(unsigned int vertexCount, unsigned int weightCount);
+		bool Create(NzVertexBuffer* vertexBuffer);
 		void Destroy();
 
-		const NzBoxf& GetAABB() const;
+		const NzBoxf& GetAABB() const override;
 		nzAnimationType GetAnimationType() const final;
-		NzMeshVertex* GetBindPoseBuffer();
-		const NzMeshVertex* GetBindPoseBuffer() const;
 		const NzIndexBuffer* GetIndexBuffer() const override;
+		NzVertexBuffer* GetVertexBuffer();
+		const NzVertexBuffer* GetVertexBuffer() const;
 		unsigned int GetVertexCount() const override;
-		NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0);
-		const NzVertexWeight* GetVertexWeight(unsigned int vertexIndex = 0) const;
-		NzWeight* GetWeight(unsigned int weightIndex = 0);
-		const NzWeight* GetWeight(unsigned int weightIndex = 0) const;
-		unsigned int GetWeightCount() const;
 
 		bool IsAnimated() const final;
 		bool IsValid() const;
 
+		void SetAABB(const NzBoxf& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 	private:
-		NzSkeletalMeshImpl* m_impl = nullptr;
+		NzBoxf m_aabb;
+		NzIndexBufferConstRef m_indexBuffer = nullptr;
+		NzVertexBufferRef m_vertexBuffer = nullptr;
 };
 
 #endif // NAZARA_SKELETALMESH_HPP
