@@ -153,6 +153,10 @@
 #endif
 
 // Macros supplémentaires
+#define NazaraPrefix(a, prefix) prefix ## a
+#define NazaraPrefixMacro(a, prefix) NazaraPrefix(a, prefix)
+#define NazaraSuffix(a, suffix) a ## suffix
+#define NazaraSuffixMacro(a, suffix) NazaraSuffix(a, suffix)
 #define NazaraStringify(s) #s
 #define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraUnused(a) (void) a
