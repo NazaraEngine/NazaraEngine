@@ -23,7 +23,7 @@ class NzVector2
 
 		T AbsDotProduct(const NzVector2& vec) const;
 
-		T AngleBetween(const NzVector2& vec, bool toDegree = true) const;
+		T AngleBetween(const NzVector2& vec) const;
 
 		T Distance(const NzVector2& vec) const;
 		float Distancef(const NzVector2& vec) const;

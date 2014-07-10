@@ -61,10 +61,10 @@ inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsig
 }
 
 template<typename T>
-T NzVector3<T>::AngleBetween(const NzVector3& vec, bool toDegree) const
+T NzVector3<T>::AngleBetween(const NzVector3& vec) const
 {
-    T alpha = DotProduct(vec);
-    T divisor = (GetLength() * vec.GetLength());
+	// sqrt(a) * sqrt(b) = sqrt(a*b)
+    T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
 
     #if NAZARA_MATH_SAFE
 	if (NzNumberEquals(divisor, F(0.0)))
@@ -76,12 +76,8 @@ T NzVector3<T>::AngleBetween(const NzVector3& vec, bool toDegree) const
 	}
 	#endif
 
-	alpha /= divisor;
-
-	if (toDegree)
-        return NzRadianToDegree(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
-    else
-        return std::acos(NzClamp(alpha, F(-1.0), F(1.0)));
+	T alpha = DotProduct(vec)/divisor;
+	return NzRadians(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
 }
 
 template<typename T>
@@ -478,8 +474,8 @@ template<typename T>
 bool NzVector3<T>::operator==(const NzVector3& vec) const
 {
 	return NzNumberEquals(x, vec.x) &&
-	NzNumberEquals(y, vec.y) &&
-	NzNumberEquals(z, vec.z);
+	       NzNumberEquals(y, vec.y) &&
+	       NzNumberEquals(z, vec.z);
 }
 
 template<typename T>
