@@ -486,6 +486,51 @@ void NzDebugDrawer::DrawCone(const NzVector3f& origin, const NzQuaternionf& rota
 	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 16);
 }
 
+void NzDebugDrawer::DrawLine(const NzVector3f& p1, const NzVector3f& p2)
+{
+	if (!s_initialized && !Initialize())
+	{
+		NazaraError("Failed to initialize Debug Drawer");
+		return;
+	}
+
+	NzVertexStruct_XYZ buffer[2];
+	buffer[0].position = p1;
+	buffer[1].position = p2;
+
+	s_vertexBuffer.Fill(&buffer[0], 0, 2);
+
+	NzRenderer::SetRenderStates(s_renderStates);
+	NzRenderer::SetShader(s_shader);
+	NzRenderer::SetVertexBuffer(&s_vertexBuffer);
+
+	s_shader->SendColor(s_colorLocation, s_primaryColor);
+	NzRenderer::DrawPrimitives(nzPrimitiveMode_LineList, 0, 2);
+}
+
+void NzDebugDrawer::DrawPoints(const NzVector3f* ptr, unsigned int pointCount)
+{
+	static_assert(sizeof(NzVertexStruct_XYZ) == sizeof(NzVector3f), "NzVertexStruct_XYZ is no longer equal to NzVector3f, please rewrite this");
+
+	if (!s_initialized && !Initialize())
+	{
+		NazaraError("Failed to initialize Debug Drawer");
+		return;
+	}
+
+	if (pointCount > 0)
+	{
+		s_vertexBuffer.Fill(ptr, 0, pointCount);
+
+		NzRenderer::SetRenderStates(s_renderStates);
+		NzRenderer::SetShader(s_shader);
+		NzRenderer::SetVertexBuffer(&s_vertexBuffer);
+
+		s_shader->SendColor(s_colorLocation, s_primaryColor);
+		NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, pointCount);
+	}
+}
+
 void NzDebugDrawer::DrawNormals(const NzStaticMesh* subMesh)
 {
 	if (!s_initialized && !Initialize())
