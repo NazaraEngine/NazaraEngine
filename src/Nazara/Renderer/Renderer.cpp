@@ -897,6 +897,34 @@ bool NzRenderer::Initialize()
 	return true;
 }
 
+bool NzRenderer::IsComponentTypeSupported(nzComponentType type)
+{
+	switch (type)
+	{
+		case nzComponentType_Color:
+		case nzComponentType_Float1:
+		case nzComponentType_Float2:
+		case nzComponentType_Float3:
+		case nzComponentType_Float4:
+			return true; // Supportés nativement
+
+		case nzComponentType_Double1:
+		case nzComponentType_Double2:
+		case nzComponentType_Double3:
+		case nzComponentType_Double4:
+			return glVertexAttribLPointer != nullptr; // Fonction requise pour envoyer des doubles
+
+		case nzComponentType_Int1:
+		case nzComponentType_Int2:
+		case nzComponentType_Int3:
+		case nzComponentType_Int4:
+			return glVertexAttribIPointer != nullptr; // Fonction requise pour envoyer des entiers
+	}
+
+	NazaraError("Attribute type out of enum (0x" + NzString::Number(type, 16) + ')');
+	return false;
+}
+
 bool NzRenderer::IsEnabled(nzRendererParameter parameter)
 {
 	#ifdef NAZARA_DEBUG
@@ -913,34 +941,6 @@ bool NzRenderer::IsEnabled(nzRendererParameter parameter)
 bool NzRenderer::IsInitialized()
 {
 	return s_moduleReferenceCounter != 0;
-}
-
-bool NzRenderer::IsVertexAttributeSupported(nzAttributeType attributeType)
-{
-	switch (attributeType)
-	{
-		case nzAttributeType_Color:
-		case nzAttributeType_Float1:
-		case nzAttributeType_Float2:
-		case nzAttributeType_Float3:
-		case nzAttributeType_Float4:
-			return true; // Supportés nativement
-
-		case nzAttributeType_Double1:
-		case nzAttributeType_Double2:
-		case nzAttributeType_Double3:
-		case nzAttributeType_Double4:
-			return glVertexAttribLPointer != nullptr; // Fonction requise pour envoyer des doubles
-
-		case nzAttributeType_Int1:
-		case nzAttributeType_Int2:
-		case nzAttributeType_Int3:
-		case nzAttributeType_Int4:
-			return glVertexAttribIPointer != nullptr; // Fonction requise pour envoyer des entiers
-	}
-
-	NazaraError("Attribute type out of enum");
-	return false;
 }
 
 void NzRenderer::SetBlendFunc(nzBlendFunc srcBlend, nzBlendFunc dstBlend)
@@ -1766,51 +1766,51 @@ bool NzRenderer::EnsureStateUpdate()
 				bufferOffset = s_vertexBuffer->GetStartOffset();
 				vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
 				stride = vertexDeclaration->GetStride();
-				for (unsigned int i = nzAttributeUsage_FirstVertexData; i <= nzAttributeUsage_LastVertexData; ++i)
+				for (unsigned int i = nzVertexComponent_FirstVertexData; i <= nzVertexComponent_LastVertexData; ++i)
 				{
-					nzAttributeType type;
+					nzComponentType type;
 					bool enabled;
 					unsigned int offset;
-					vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
+					vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(i), &enabled, &type, &offset);
 
-					if (!IsVertexAttributeSupported(type))
+					if (!IsComponentTypeSupported(type))
 					{
-						NazaraError("Invalid declaration: Vertex attribute 0x" + NzString::Number(i, 16) + " (0x" + NzString::Number(type, 16) + ") is not supported");
+						NazaraError("Invalid declaration: Vertex component 0x" + NzString::Number(i, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
 						updateFailed = true;
 						break;
 					}
 
 					if (enabled)
 					{
-						glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-						if (type <= nzAttributeType_Double1 && type >= nzAttributeType_Double4)
+						glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
+						if (type <= nzComponentType_Double1 && type >= nzComponentType_Double4)
 						{
-							glVertexAttribLPointer(NzOpenGL::AttributeIndex[i],
-							                       NzVertexDeclaration::GetAttributeSize(type),
-							                       NzOpenGL::AttributeType[type],
+							glVertexAttribLPointer(NzOpenGL::VertexComponentIndex[i],
+							                       NzUtility::ComponentCount[type],
+							                       NzOpenGL::ComponentType[type],
 							                       stride,
 							                       reinterpret_cast<void*>(bufferOffset + offset));
 						}
-						else if (type <= nzAttributeType_Int1 && type >= nzAttributeType_Int4)
+						else if (type <= nzComponentType_Int1 && type >= nzComponentType_Int4)
 						{
-							glVertexAttribIPointer(NzOpenGL::AttributeIndex[i],
-							                       NzVertexDeclaration::GetAttributeSize(type),
-							                       NzOpenGL::AttributeType[type],
+							glVertexAttribIPointer(NzOpenGL::VertexComponentIndex[i],
+							                       NzUtility::ComponentCount[type],
+							                       NzOpenGL::ComponentType[type],
 							                       stride,
 							                       reinterpret_cast<void*>(bufferOffset + offset));
 						}
 						else
 						{
-							glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-							                      NzVertexDeclaration::GetAttributeSize(type),
-							                      NzOpenGL::AttributeType[type],
-							                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
+							glVertexAttribPointer(NzOpenGL::VertexComponentIndex[i],
+							                      NzUtility::ComponentCount[type],
+							                      NzOpenGL::ComponentType[type],
+							                      (type == nzComponentType_Color) ? GL_TRUE : GL_FALSE,
 							                      stride,
 							                      reinterpret_cast<void*>(bufferOffset + offset));
 						}
 					}
 					else
-						glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+						glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
 				}
 
 				if (!updateFailed)
@@ -1823,59 +1823,59 @@ bool NzRenderer::EnsureStateUpdate()
 						bufferOffset = s_instanceBuffer.GetStartOffset();
 						vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
 						stride = vertexDeclaration->GetStride();
-						for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
+						for (unsigned int i = nzVertexComponent_FirstInstanceData; i <= nzVertexComponent_LastInstanceData; ++i)
 						{
-							nzAttributeType type;
+							nzComponentType type;
 							bool enabled;
 							unsigned int offset;
-							vertexDeclaration->GetAttribute(static_cast<nzAttributeUsage>(i), &enabled, &type, &offset);
+							vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(i), &enabled, &type, &offset);
 
-							if (!IsVertexAttributeSupported(type))
+							if (!IsComponentTypeSupported(type))
 							{
-								NazaraError("Invalid declaration: Vertex attribute 0x" + NzString::Number(i, 16) + " (0x" + NzString::Number(type, 16) + ") is not supported");
+								NazaraError("Invalid declaration: Vertex component 0x" + NzString::Number(i, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
 								updateFailed = true;
 								break;
 							}
 
 							if (enabled)
 							{
-								glEnableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
-								if (type <= nzAttributeType_Double1 && type >= nzAttributeType_Double4)
+								glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
+								if (type <= nzComponentType_Double1 && type >= nzComponentType_Double4)
 								{
-									glVertexAttribLPointer(NzOpenGL::AttributeIndex[i],
-														   NzVertexDeclaration::GetAttributeSize(type),
-														   NzOpenGL::AttributeType[type],
+									glVertexAttribLPointer(NzOpenGL::VertexComponentIndex[i],
+														   NzUtility::ComponentCount[type],
+														   NzOpenGL::ComponentType[type],
 														   stride,
 														   reinterpret_cast<void*>(bufferOffset + offset));
 								}
-								else if (type <= nzAttributeType_Int1 && type >= nzAttributeType_Int4)
+								else if (type <= nzComponentType_Int1 && type >= nzComponentType_Int4)
 								{
-									glVertexAttribIPointer(NzOpenGL::AttributeIndex[i],
-									                       NzVertexDeclaration::GetAttributeSize(type),
-									                       NzOpenGL::AttributeType[type],
+									glVertexAttribIPointer(NzOpenGL::VertexComponentIndex[i],
+									                       NzUtility::ComponentCount[type],
+									                       NzOpenGL::ComponentType[type],
 									                       stride,
 									                       reinterpret_cast<void*>(bufferOffset + offset));
 								}
 								else
 								{
-									glVertexAttribPointer(NzOpenGL::AttributeIndex[i],
-									                      NzVertexDeclaration::GetAttributeSize(type),
-									                      NzOpenGL::AttributeType[type],
-									                      (type == nzAttributeType_Color) ? GL_TRUE : GL_FALSE,
+									glVertexAttribPointer(NzOpenGL::VertexComponentIndex[i],
+									                      NzUtility::ComponentCount[type],
+									                      NzOpenGL::ComponentType[type],
+									                      (type == nzComponentType_Color) ? GL_TRUE : GL_FALSE,
 									                      stride,
 									                      reinterpret_cast<void*>(bufferOffset + offset));
 								}
 
-								glVertexAttribDivisor(NzOpenGL::AttributeIndex[i], 1);
+								glVertexAttribDivisor(NzOpenGL::VertexComponentIndex[i], 1);
 							}
 							else
-								glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+								glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
 						}
 					}
 					else
 					{
-						for (unsigned int i = nzAttributeUsage_FirstInstanceData; i <= nzAttributeUsage_LastInstanceData; ++i)
-							glDisableVertexAttribArray(NzOpenGL::AttributeIndex[i]);
+						for (unsigned int i = nzVertexComponent_FirstInstanceData; i <= nzVertexComponent_LastInstanceData; ++i)
+							glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
 					}
 
 					// Et on active l'index buffer (Un seul index buffer par VAO)

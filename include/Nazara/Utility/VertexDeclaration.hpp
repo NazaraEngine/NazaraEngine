@@ -28,10 +28,10 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		NzVertexDeclaration(NzVertexDeclaration& declaration);
 		~NzVertexDeclaration();
 
-		void DisableAttribute(nzAttributeUsage usage);
-		void EnableAttribute(nzAttributeUsage usage, nzAttributeType type, unsigned int offset);
+		void DisableComponent(nzVertexComponent component);
+		void EnableComponent(nzVertexComponent component, nzComponentType type, unsigned int offset);
 
-		void GetAttribute(nzAttributeUsage usage, bool* enabled, nzAttributeType* type, unsigned int* offset) const;
+		void GetComponent(nzVertexComponent component, bool* enabled, nzComponentType* type, unsigned int* offset) const;
 		unsigned int GetStride() const;
 
 		void SetStride(unsigned int stride);
@@ -39,15 +39,15 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
 
 		static NzVertexDeclaration* Get(nzVertexLayout layout);
-		static unsigned int GetAttributeSize(nzAttributeType type);
+		static bool IsTypeSupported(nzComponentType type);
 
 	private:
 		static bool Initialize();
 		static void Uninitialize();
 
-		struct Attribute
+		struct Component
 		{
-			nzAttributeType type;
+			nzComponentType type;
 			bool enabled = false;
 			unsigned int offset;
 
@@ -60,7 +60,7 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 			*/
 		};
 
-		Attribute m_attributes[nzAttributeUsage_Max+1];
+		Component m_components[nzVertexComponent_Max+1];
 		unsigned int m_stride;
 
 		static NzVertexDeclaration s_declarations[nzVertexLayout_Max+1];
