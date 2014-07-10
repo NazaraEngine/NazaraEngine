@@ -213,7 +213,6 @@ bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* 
 	                    width.y, height.y, depth.y, F(0.0),
 	                    width.z, height.z, depth.z, F(0.0),
 	                    F(0.0),  F(0.0),   F(0.0),  F(1.0));
-	matrix.Transpose();
 
 	// Test en tant qu'AABB avec une matrice de rotation
 	return Intersect(orientedBox.localBox, matrix, closestHit, farthestHit);
