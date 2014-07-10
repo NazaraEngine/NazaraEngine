@@ -55,12 +55,9 @@ inline unsigned int NzVector2<unsigned int>::AbsDotProduct(const NzVector2<unsig
 }
 
 template<typename T>
-T NzVector2<T>::AngleBetween(const NzVector2& vec, bool toDegree) const
+T NzVector2<T>::AngleBetween(const NzVector2& vec) const
 {
-    if (toDegree)
-        return NzRadianToDegree(std::atan2(vec.y, vec.x) - std::atan2(y, x));
-    else
-        return std::atan2(vec.y, vec.x) - std::atan2(y, x);
+	return NzRadians(std::atan2(vec.y, vec.x) - std::atan2(y, x));
 }
 
 template<typename T>
