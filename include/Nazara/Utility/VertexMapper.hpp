@@ -24,7 +24,7 @@ class NAZARA_API NzVertexMapper
 		NzVertexMapper(NzSubMesh* subMesh);
 		~NzVertexMapper();
 
-		template<typename T> NzSparsePtr<T> GetAttributePtr(nzAttributeUsage attribute);
+		template<typename T> NzSparsePtr<T> GetComponentPtr(nzVertexComponent component);
 		unsigned int GetVertexCount() const;
 
 		void Unmap();

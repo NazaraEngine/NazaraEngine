@@ -1854,47 +1854,6 @@ GLenum NzOpenGL::Attachment[] =
 
 static_assert(nzAttachmentPoint_Max+1 == 4, "Attachment array is incomplete");
 
-nzUInt8 NzOpenGL::AttributeIndex[] =
-{
-	10, // nzAttributeUsage_InstanceData0
-	11, // nzAttributeUsage_InstanceData1
-	12, // nzAttributeUsage_InstanceData2
-	13, // nzAttributeUsage_InstanceData3
-	14, // nzAttributeUsage_InstanceData4
-	15, // nzAttributeUsage_InstanceData5
-	2,  // nzAttributeUsage_Normal
-	0,  // nzAttributeUsage_Position
-	3,  // nzAttributeUsage_Tangent
-	1,  // nzAttributeUsage_TexCoord
-	4,  // nzAttributeUsage_Userdata0
-	5,  // nzAttributeUsage_Userdata1
-	6,  // nzAttributeUsage_Userdata2
-	7,  // nzAttributeUsage_Userdata3
-	8,  // nzAttributeUsage_Userdata4
-	9   // nzAttributeUsage_Userdata5
-};
-
-static_assert(nzAttributeUsage_Max+1 == 16, "Attribute index array is incomplete");
-
-GLenum NzOpenGL::AttributeType[] =
-{
-	GL_UNSIGNED_BYTE, // nzAttributeType_Color
-	GL_DOUBLE,        // nzAttributeType_Double1
-	GL_DOUBLE,        // nzAttributeType_Double2
-	GL_DOUBLE,        // nzAttributeType_Double3
-	GL_DOUBLE,        // nzAttributeType_Double4
-	GL_FLOAT,         // nzAttributeType_Float1
-	GL_FLOAT,         // nzAttributeType_Float2
-	GL_FLOAT,         // nzAttributeType_Float3
-	GL_FLOAT,         // nzAttributeType_Float4
-	GL_INT,           // nzAttributeType_Int1
-	GL_INT,           // nzAttributeType_Int2
-	GL_INT,           // nzAttributeType_Int3
-	GL_INT            // nzAttributeType_Int4
-};
-
-static_assert(nzAttributeType_Max+1 == 13, "Attribute type array is incomplete");
-
 GLenum NzOpenGL::BlendFunc[] =
 {
 	GL_DST_ALPHA,           // nzBlendFunc_DestAlpha
@@ -1957,6 +1916,25 @@ GLenum NzOpenGL::BufferUsage[] =
 };
 
 static_assert(nzBufferUsage_Max+1 == 2, "Buffer usage array is incomplete");
+
+GLenum NzOpenGL::ComponentType[] =
+{
+	GL_UNSIGNED_BYTE, // nzComponentType_Color
+	GL_DOUBLE,        // nzComponentType_Double1
+	GL_DOUBLE,        // nzComponentType_Double2
+	GL_DOUBLE,        // nzComponentType_Double3
+	GL_DOUBLE,        // nzComponentType_Double4
+	GL_FLOAT,         // nzComponentType_Float1
+	GL_FLOAT,         // nzComponentType_Float2
+	GL_FLOAT,         // nzComponentType_Float3
+	GL_FLOAT,         // nzComponentType_Float4
+	GL_INT,           // nzComponentType_Int1
+	GL_INT,           // nzComponentType_Int2
+	GL_INT,           // nzComponentType_Int3
+	GL_INT            // nzComponentType_Int4
+};
+
+static_assert(nzComponentType_Max+1 == 13, "Attribute type array is incomplete");
 
 GLenum NzOpenGL::CubemapFace[] =
 {
@@ -2116,6 +2094,28 @@ GLenum NzOpenGL::TextureTargetProxy[] =
 };
 
 static_assert(nzImageType_Max+1 == 6, "Texture target proxy array is incomplete");
+
+nzUInt8 NzOpenGL::VertexComponentIndex[] =
+{
+	10, // nzVertexComponent_InstanceData0
+	11, // nzVertexComponent_InstanceData1
+	12, // nzVertexComponent_InstanceData2
+	13, // nzVertexComponent_InstanceData3
+	14, // nzVertexComponent_InstanceData4
+	15, // nzVertexComponent_InstanceData5
+	2,  // nzVertexComponent_Normal
+	0,  // nzVertexComponent_Position
+	3,  // nzVertexComponent_Tangent
+	1,  // nzVertexComponent_TexCoord
+	4,  // nzVertexComponent_Userdata0
+	5,  // nzVertexComponent_Userdata1
+	6,  // nzVertexComponent_Userdata2
+	7,  // nzVertexComponent_Userdata3
+	8,  // nzVertexComponent_Userdata4
+	9   // nzVertexComponent_Userdata5
+};
+
+static_assert(nzVertexComponent_Max+1 == 16, "Attribute index array is incomplete");
 
 PFNGLACTIVETEXTUREPROC            glActiveTexture            = nullptr;
 PFNGLATTACHSHADERPROC             glAttachShader             = nullptr;

@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 class NAZARA_API NzUtility
 {
@@ -21,6 +22,9 @@ class NAZARA_API NzUtility
 		static bool IsInitialized();
 
 		static void Uninitialize();
+
+		static unsigned int ComponentCount[nzComponentType_Max+1];
+		static std::size_t ComponentStride[nzComponentType_Max+1];
 
 	private:
 		static unsigned int s_moduleReferenceCounter;
