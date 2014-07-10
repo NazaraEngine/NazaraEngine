@@ -7,6 +7,8 @@
 #ifndef NAZARA_HASHDIGEST_HPP
 #define NAZARA_HASHDIGEST_HPP
 
+///TODO: Remplacer par ByteArray
+
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <ostream>
