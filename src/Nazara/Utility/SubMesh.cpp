@@ -27,8 +27,8 @@ void NzSubMesh::GenerateNormals()
 	NzVertexMapper mapper(this);
 	unsigned int vertexCount = mapper.GetVertexCount();
 
-	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
-	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
+	NzSparsePtr<NzVector3f> normals = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
 
 	for (unsigned int i = 0; i < vertexCount; ++i)
 		normals[i].MakeZero();
@@ -58,10 +58,10 @@ void NzSubMesh::GenerateNormalsAndTangents()
 	NzVertexMapper mapper(this);
 	unsigned int vertexCount = mapper.GetVertexCount();
 
-	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
-	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
-	NzSparsePtr<NzVector3f> tangents = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Tangent);
-	NzSparsePtr<NzVector2f> texCoords = mapper.GetAttributePtr<NzVector2f>(nzAttributeUsage_TexCoord);
+	NzSparsePtr<NzVector3f> normals = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
+	NzSparsePtr<NzVector3f> tangents = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Tangent);
+	NzSparsePtr<NzVector2f> texCoords = mapper.GetComponentPtr<NzVector2f>(nzVertexComponent_TexCoord);
 
 	for (unsigned int i = 0; i < vertexCount; ++i)
 	{
@@ -113,10 +113,10 @@ void NzSubMesh::GenerateTangents()
 {
 	NzVertexMapper mapper(this);
 
-	NzSparsePtr<NzVector3f> normals = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Normal);
-	NzSparsePtr<NzVector3f> positions = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Position);
-	NzSparsePtr<NzVector3f> tangents = mapper.GetAttributePtr<NzVector3f>(nzAttributeUsage_Tangent);
-	NzSparsePtr<NzVector2f> texCoords = mapper.GetAttributePtr<NzVector2f>(nzAttributeUsage_TexCoord);
+	NzSparsePtr<NzVector3f> normals = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Normal);
+	NzSparsePtr<NzVector3f> positions = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
+	NzSparsePtr<NzVector3f> tangents = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Tangent);
+	NzSparsePtr<NzVector2f> texCoords = mapper.GetComponentPtr<NzVector2f>(nzVertexComponent_TexCoord);
 
 	NzTriangleIterator iterator(this);
 	do

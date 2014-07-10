@@ -5,12 +5,12 @@
 #include <Nazara/Utility/Debug.hpp>
 
 template <typename T>
-NzSparsePtr<T> NzVertexMapper::GetAttributePtr(nzAttributeUsage attribute)
+NzSparsePtr<T> NzVertexMapper::GetComponentPtr(nzVertexComponent component)
 {
 	bool enabled;
-	nzAttributeType type;
+	nzComponentType type;
 	unsigned int offset;
-	m_declaration->GetAttribute(attribute, &enabled, &type, &offset);
+	m_declaration->GetComponent(component, &enabled, &type, &offset);
 
 	if (enabled)
 	{
@@ -19,7 +19,7 @@ NzSparsePtr<T> NzVertexMapper::GetAttributePtr(nzAttributeUsage attribute)
 	}
 	else
 	{
-		NazaraError("Attribute 0x" + NzString::Number(attribute, 16) + " is not enabled");
+		NazaraError("Attribute 0x" + NzString::Number(component, 16) + " is not enabled");
 		return NzSparsePtr<T>();
 	}
 }

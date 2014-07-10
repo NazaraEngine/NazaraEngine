@@ -126,4 +126,42 @@ void NzUtility::Uninitialize()
 	NzCore::Uninitialize();
 }
 
+unsigned int NzUtility::ComponentCount[nzComponentType_Max+1] =
+{
+	4, // nzComponentType_Color
+	1, // nzComponentType_Double1
+	2, // nzComponentType_Double2
+	3, // nzComponentType_Double3
+	4, // nzComponentType_Double4
+	1, // nzComponentType_Float1
+	2, // nzComponentType_Float2
+	3, // nzComponentType_Float3
+	4, // nzComponentType_Float4
+	1, // nzComponentType_Int1
+	2, // nzComponentType_Int2
+	3, // nzComponentType_Int3
+	4  // nzComponentType_Int4
+};
+
+static_assert(nzComponentType_Max+1 == 13, "Component count array is incomplete");
+
+unsigned int NzUtility::ComponentStride[nzComponentType_Max+1] =
+{
+	4*sizeof(nzUInt8),  // nzComponentType_Color
+	1*sizeof(double),   // nzComponentType_Double1
+	2*sizeof(double),   // nzComponentType_Double2
+	3*sizeof(double),   // nzComponentType_Double3
+	4*sizeof(double),   // nzComponentType_Double4
+	1*sizeof(float),    // nzComponentType_Float1
+	2*sizeof(float),    // nzComponentType_Float2
+	3*sizeof(float),    // nzComponentType_Float3
+	4*sizeof(float),    // nzComponentType_Float4
+	1*sizeof(nzUInt32), // nzComponentType_Int1
+	2*sizeof(nzUInt32), // nzComponentType_Int2
+	3*sizeof(nzUInt32), // nzComponentType_Int3
+	4*sizeof(nzUInt32)  // nzComponentType_Int4
+};
+
+static_assert(nzComponentType_Max+1 == 13, "Component stride array is incomplete");
+
 unsigned int NzUtility::s_moduleReferenceCounter = 0;

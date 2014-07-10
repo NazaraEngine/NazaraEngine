@@ -127,14 +127,13 @@ class NAZARA_API NzOpenGL
 		static void Uninitialize();
 
 		static GLenum Attachment[nzAttachmentPoint_Max+1];
-		static nzUInt8 AttributeIndex[nzAttributeUsage_Max+1];
-		static GLenum AttributeType[nzAttributeType_Max+1];
 		static GLenum BlendFunc[nzBlendFunc_Max+1];
 		static GLenum BufferLock[nzBufferAccess_Max+1];
 		static GLenum BufferLockRange[nzBufferAccess_Max+1];
 		static GLenum BufferTarget[nzBufferType_Max+1];
 		static GLenum BufferTargetBinding[nzBufferType_Max+1];
 		static GLenum BufferUsage[nzBufferUsage_Max+1];
+		static GLenum ComponentType[nzComponentType_Max+1];
 		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 		static GLenum FaceFilling[nzFaceFilling_Max+1];
 		static GLenum FaceSide[nzFaceSide_Max+1];
@@ -149,6 +148,7 @@ class NAZARA_API NzOpenGL
 		static GLenum TextureTarget[nzImageType_Max+1];
 		static GLenum TextureTargetBinding[nzImageType_Max+1];
 		static GLenum TextureTargetProxy[nzImageType_Max+1];
+		static nzUInt8 VertexComponentIndex[nzVertexComponent_Max+1];
 
 	private:
 		static void OnContextChanged(const NzContext* newContext);
