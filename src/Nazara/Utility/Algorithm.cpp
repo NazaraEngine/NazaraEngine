@@ -726,7 +726,6 @@ void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, co
 	NzComputePlaneIndexVertexCount(NzVector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
 	NzComputePlaneIndexVertexCount(NzVector2ui(subdivision.x, subdivision.y), &zIndexCount, &zVertexCount);
 
-	NzMeshVertex* oldVertices = vertices;
 	NzMatrix4f transform;
 	NzVector3f halfLengths = lengths/2.f;
 
