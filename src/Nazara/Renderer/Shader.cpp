@@ -812,7 +812,7 @@ bool NzShader::PostLinkage()
 	}
 	else
 	{
-		NazaraError("Failed to compile shader stage: " + GetLog());
+		NazaraError("Failed to link shader: " + GetLog());
 		return false;
 	}
 }
