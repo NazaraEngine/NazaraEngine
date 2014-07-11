@@ -1,4 +1,4 @@
-// This file was automatically generated on 21 Feb 2014 at 18:17:18
+// This file was automatically generated on 11 Jul 2014 at 10:21:52
 
 /*
 	Nazara Engine - Core module
@@ -54,9 +54,12 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryManager.hpp>
+#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/PluginManager.hpp>
 #include <Nazara/Core/Primitive.hpp>
@@ -66,6 +69,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/Semaphore.hpp>
+#include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/StringStream.hpp>
