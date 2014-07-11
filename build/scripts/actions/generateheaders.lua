@@ -36,7 +36,8 @@ function generateHeaders()
 		local count = 0
 		for k, filePath in pairs(files) do
 			local include, fileName = filePath:match(".*(Nazara/.*/(.*))")
-			if (fileName ~= "Debug.hpp" and
+			if (fileName ~= "ConfigCheck.hpp" and
+			    fileName ~= "Debug.hpp" and
 			    fileName ~= "DebugOff.hpp" and
 			    fileName ~= "ThreadSafety.hpp" and
 			    fileName ~= "ThreadSafetyOff.hpp") then
@@ -48,7 +49,7 @@ function generateHeaders()
 		header:write("\n#endif // " .. preprocessorName .. "\n")
 		header:close()
 
-		print(string.format("-# of includes: %d", count))
+		print(string.format("-#include count: %d", count))
 	end
 end
 
