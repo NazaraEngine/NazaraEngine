@@ -18,7 +18,7 @@ m_stride(0)
 {
 }
 
-NzVertexDeclaration::NzVertexDeclaration(NzVertexDeclaration& declaration) :
+NzVertexDeclaration::NzVertexDeclaration(const NzVertexDeclaration& declaration) :
 NzResource(),
 m_stride(declaration.m_stride)
 {

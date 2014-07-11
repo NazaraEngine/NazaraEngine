@@ -17,15 +17,13 @@ class NzVertexDeclaration;
 using NzVertexDeclarationConstRef = NzResourceRef<const NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzResourceRef<NzVertexDeclaration>;
 
-struct NzVertexDeclarationImpl;
-
 class NAZARA_API NzVertexDeclaration : public NzResource
 {
 	friend class NzUtility;
 
 	public:
 		NzVertexDeclaration();
-		NzVertexDeclaration(NzVertexDeclaration& declaration);
+		NzVertexDeclaration(const NzVertexDeclaration& declaration);
 		~NzVertexDeclaration();
 
 		void DisableComponent(nzVertexComponent component);
