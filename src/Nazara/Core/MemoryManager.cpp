@@ -80,12 +80,20 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
 	if (!ptr)
 	{
-		// Pas d'information de temps (Car nécessitant une allocation)
+		char timeStr[23];
+		TimeInfo(timeStr);
+
 		FILE* log = std::fopen(s_MLTFileName, "a");
-		std::fprintf(log, "Failed to allocate memory (%zu bytes)\n", size);
+
+		if (file)
+			std::fprintf(log, "%s Failed to allocate %zu bytes at %s:%u\n", timeStr, size, file, line);
+		else
+			std::fprintf(log, "%s Failed to allocate %zu bytes at unknown position\n", timeStr, size);
+
 		std::fclose(log);
 
-		return nullptr; // Impossible d'envoyer une exception car cela allouerait de la mémoire avec new (boucle infinie)
+		throw std::bad_alloc();
+		return nullptr; // Ça me rassure d'avoir un return, aussi inutile soit-il
 	}
 
 	ptr->array = multi;
