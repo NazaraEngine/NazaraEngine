@@ -1760,133 +1760,123 @@ bool NzRenderer::EnsureStateUpdate()
 				unsigned int bufferOffset;
 				unsigned int stride;
 
-				NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(s_vertexBuffer->GetBuffer()->GetImpl());
-				glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], vertexBufferImpl->GetOpenGLID());
-
-				bufferOffset = s_vertexBuffer->GetStartOffset();
-				vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
-				stride = vertexDeclaration->GetStride();
-				for (unsigned int i = nzVertexComponent_FirstVertexData; i <= nzVertexComponent_LastVertexData; ++i)
+				// Pour éviter la duplication de code, on va utiliser une astuce via une boucle for
+				for (unsigned int i = 0; i < (s_instancing ? 2 : 1); ++i)
 				{
-					nzComponentType type;
-					bool enabled;
-					unsigned int offset;
-					vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(i), &enabled, &type, &offset);
+					// Selon l'itération nous choisissons un buffer différent
+					const NzVertexBuffer* vertexBuffer = (i == 0) ? s_vertexBuffer : &s_instanceBuffer;
 
-					if (!IsComponentTypeSupported(type))
+					NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(vertexBuffer->GetBuffer()->GetImpl());
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], vertexBufferImpl->GetOpenGLID());
+
+					bufferOffset = vertexBuffer->GetStartOffset();
+					vertexDeclaration = vertexBuffer->GetVertexDeclaration();
+					stride = vertexDeclaration->GetStride();
+
+					// On définit les bornes (une fois de plus selon l'itération)
+					unsigned int start = (i == 0) ? nzVertexComponent_FirstVertexData : nzVertexComponent_FirstInstanceData;
+					unsigned int end = (i == 0) ? nzVertexComponent_LastVertexData : nzVertexComponent_LastInstanceData;
+					for (unsigned int j = start; j <= end; ++j)
 					{
-						NazaraError("Invalid declaration: Vertex component 0x" + NzString::Number(i, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
-						updateFailed = true;
-						break;
-					}
+						nzComponentType type;
+						bool enabled;
+						unsigned int offset;
+						vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(j), &enabled, &type, &offset);
 
-					if (enabled)
-					{
-						glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
-						if (type <= nzComponentType_Double1 && type >= nzComponentType_Double4)
+						if (!IsComponentTypeSupported(type))
 						{
-							glVertexAttribLPointer(NzOpenGL::VertexComponentIndex[i],
-							                       NzUtility::ComponentCount[type],
-							                       NzOpenGL::ComponentType[type],
-							                       stride,
-							                       reinterpret_cast<void*>(bufferOffset + offset));
+							NazaraError("Invalid vertex declaration " + NzString::Pointer(vertexDeclaration) + ": Vertex component 0x" + NzString::Number(j, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
+							updateFailed = true;
+							break;
 						}
-						else if (type <= nzComponentType_Int1 && type >= nzComponentType_Int4)
-						{
-							glVertexAttribIPointer(NzOpenGL::VertexComponentIndex[i],
-							                       NzUtility::ComponentCount[type],
-							                       NzOpenGL::ComponentType[type],
-							                       stride,
-							                       reinterpret_cast<void*>(bufferOffset + offset));
-						}
-						else
-						{
-							glVertexAttribPointer(NzOpenGL::VertexComponentIndex[i],
-							                      NzUtility::ComponentCount[type],
-							                      NzOpenGL::ComponentType[type],
-							                      (type == nzComponentType_Color) ? GL_TRUE : GL_FALSE,
-							                      stride,
-							                      reinterpret_cast<void*>(bufferOffset + offset));
-						}
-					}
-					else
-						glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
-				}
 
-				if (!updateFailed)
-				{
-					if (s_instancing)
-					{
-						NzHardwareBuffer* instanceBufferImpl = static_cast<NzHardwareBuffer*>(s_instanceBuffer.GetBuffer()->GetImpl());
-						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], instanceBufferImpl->GetOpenGLID());
-
-						bufferOffset = s_instanceBuffer.GetStartOffset();
-						vertexDeclaration = s_instanceBuffer.GetVertexDeclaration();
-						stride = vertexDeclaration->GetStride();
-						for (unsigned int i = nzVertexComponent_FirstInstanceData; i <= nzVertexComponent_LastInstanceData; ++i)
+						if (enabled)
 						{
-							nzComponentType type;
-							bool enabled;
-							unsigned int offset;
-							vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(i), &enabled, &type, &offset);
+							glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[j]);
 
-							if (!IsComponentTypeSupported(type))
+							switch (type)
 							{
-								NazaraError("Invalid declaration: Vertex component 0x" + NzString::Number(i, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
-								updateFailed = true;
-								break;
-							}
-
-							if (enabled)
-							{
-								glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
-								if (type <= nzComponentType_Double1 && type >= nzComponentType_Double4)
+								case nzComponentType_Color:
 								{
-									glVertexAttribLPointer(NzOpenGL::VertexComponentIndex[i],
-														   NzUtility::ComponentCount[type],
-														   NzOpenGL::ComponentType[type],
-														   stride,
-														   reinterpret_cast<void*>(bufferOffset + offset));
+									glVertexAttribPointer(NzOpenGL::VertexComponentIndex[j],
+									                      NzUtility::ComponentCount[type],
+									                      NzOpenGL::ComponentType[type],
+									                      GL_TRUE,
+									                      stride,
+									                      reinterpret_cast<void*>(bufferOffset + offset));
+
+									break;
 								}
-								else if (type <= nzComponentType_Int1 && type >= nzComponentType_Int4)
+
+								case nzComponentType_Double1:
+								case nzComponentType_Double2:
+								case nzComponentType_Double3:
+								case nzComponentType_Double4:
 								{
-									glVertexAttribIPointer(NzOpenGL::VertexComponentIndex[i],
+									glVertexAttribLPointer(NzOpenGL::VertexComponentIndex[j],
 									                       NzUtility::ComponentCount[type],
 									                       NzOpenGL::ComponentType[type],
 									                       stride,
 									                       reinterpret_cast<void*>(bufferOffset + offset));
+
+									break;
 								}
-								else
+
+								case nzComponentType_Float1:
+								case nzComponentType_Float2:
+								case nzComponentType_Float3:
+								case nzComponentType_Float4:
 								{
-									glVertexAttribPointer(NzOpenGL::VertexComponentIndex[i],
+									glVertexAttribPointer(NzOpenGL::VertexComponentIndex[j],
 									                      NzUtility::ComponentCount[type],
 									                      NzOpenGL::ComponentType[type],
-									                      (type == nzComponentType_Color) ? GL_TRUE : GL_FALSE,
+									                      GL_FALSE,
 									                      stride,
 									                      reinterpret_cast<void*>(bufferOffset + offset));
+
+									break;
 								}
 
-								glVertexAttribDivisor(NzOpenGL::VertexComponentIndex[i], 1);
-							}
-							else
-								glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
-						}
-					}
-					else
-					{
-						for (unsigned int i = nzVertexComponent_FirstInstanceData; i <= nzVertexComponent_LastInstanceData; ++i)
-							glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
-					}
+								case nzComponentType_Int1:
+								case nzComponentType_Int2:
+								case nzComponentType_Int3:
+								case nzComponentType_Int4:
+								{
+									glVertexAttribIPointer(NzOpenGL::VertexComponentIndex[j],
+									                       NzUtility::ComponentCount[type],
+									                       NzOpenGL::ComponentType[type],
+									                       stride,
+									                       reinterpret_cast<void*>(bufferOffset + offset));
 
-					// Et on active l'index buffer (Un seul index buffer par VAO)
-					if (s_indexBuffer)
-					{
-						NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
-						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], indexBufferImpl->GetOpenGLID());
+									break;
+								}
+
+							}
+							// Les attributs d'instancing ont un diviseur spécifique (pour dépendre de l'instance en cours)
+							if (i == 1)
+								glVertexAttribDivisor(NzOpenGL::VertexComponentIndex[j], 1);
+						}
+						else
+							glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[j]);
 					}
-					else
-						glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
 				}
+
+				if (!s_instancing)
+				{
+					// Je ne sais pas si c'est vraiment nécessaire de désactiver les attributs, sur mon ordinateur ça ne pose aucun problème
+					// mais dans le doute, je laisse ça comme ça.
+					for (unsigned int i = nzVertexComponent_FirstInstanceData; i <= nzVertexComponent_LastInstanceData; ++i)
+						glDisableVertexAttribArray(NzOpenGL::VertexComponentIndex[i]);
+				}
+
+				// Et on active l'index buffer (Un seul index buffer par VAO)
+				if (s_indexBuffer)
+				{
+					NzHardwareBuffer* indexBufferImpl = static_cast<NzHardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], indexBufferImpl->GetOpenGLID());
+				}
+				else
+					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Index], 0);
 
 				// On invalide les bindings des buffers (car nous les avons défini manuellement)
 				NzOpenGL::SetBuffer(nzBufferType_Index, 0);
