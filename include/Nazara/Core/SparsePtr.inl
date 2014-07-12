@@ -43,31 +43,31 @@ void NzSparsePtr<T>::SetStride(unsigned int stride)
 }
 
 template<typename T>
-T& NzSparsePtr<T>::operator*()
+T& NzSparsePtr<T>::operator*() const
 {
 	return *reinterpret_cast<T*>(m_ptr);
 }
 
 template<typename T>
-T& NzSparsePtr<T>::operator->()
+T& NzSparsePtr<T>::operator->() const
 {
 	return *reinterpret_cast<T*>(m_ptr);
 }
 
 template<typename T>
-T& NzSparsePtr<T>::operator[](unsigned int index)
+T& NzSparsePtr<T>::operator[](unsigned int index) const
 {
 	return *reinterpret_cast<T*>(m_ptr + index*m_stride);
 }
 
 template<typename T>
-NzSparsePtr<T> NzSparsePtr<T>::operator+(unsigned int count)
+NzSparsePtr<T> NzSparsePtr<T>::operator+(unsigned int count) const
 {
 	return NzSparsePtr(m_ptr + count*m_stride, m_stride);
 }
 
 template<typename T>
-NzSparsePtr<T> NzSparsePtr<T>::operator-(unsigned int count)
+NzSparsePtr<T> NzSparsePtr<T>::operator-(unsigned int count) const
 {
 	return NzSparsePtr(m_ptr - count*m_stride, m_stride);
 }
@@ -96,9 +96,13 @@ NzSparsePtr<T>& NzSparsePtr<T>::operator++()
 template<typename T>
 NzSparsePtr<T> NzSparsePtr<T>::operator++(int)
 {
+	// On fait une copie de l'objet
 	NzSparsePtr tmp(*this);
+
+	// On modifie l'objet
 	operator++();
 
+	// On retourne la copie
 	return tmp;
 }
 
@@ -112,9 +116,13 @@ NzSparsePtr<T>& NzSparsePtr<T>::operator--()
 template<typename T>
 NzSparsePtr<T> NzSparsePtr<T>::operator--(int)
 {
+	// On fait une copie de l'objet
 	NzSparsePtr tmp(*this);
+
+	// On modifie l'objet
 	operator--();
 
+	// On retourne la copie
 	return tmp;
 }
 
@@ -153,6 +161,5 @@ bool NzSparsePtr<T>::operator>=(const NzSparsePtr& ptr) const
 {
 	return m_ptr >= ptr.m_ptr;
 }
-
 
 #include <Nazara/Core/DebugOff.hpp>
