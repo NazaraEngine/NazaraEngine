@@ -25,12 +25,12 @@ class NzSparsePtr
 		void Set(void* ptr);
 		void SetStride(unsigned int stride);
 
-		T& operator*();
-		T& operator->();
-		T& operator[](unsigned int index);
+		T& operator*() const;
+		T& operator->() const;
+		T& operator[](unsigned int index) const;
 
-		NzSparsePtr operator+(unsigned int count);
-		NzSparsePtr operator-(unsigned int count);
+		NzSparsePtr operator+(unsigned int count) const;
+		NzSparsePtr operator-(unsigned int count) const;
 
 		NzSparsePtr& operator+=(unsigned int count);
 		NzSparsePtr& operator-=(unsigned int count);
