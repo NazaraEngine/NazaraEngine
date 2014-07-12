@@ -4006,7 +4006,8 @@ NzString NzString::Number(unsigned long long number, nzUInt8 radix)
 
 NzString NzString::Pointer(const void* ptr)
 {
-	unsigned int size = sizeof(ptr)*2+2;
+	const unsigned int size = sizeof(void*)*2 + 2;
+
 	char* str = new char[size+1];
 	std::sprintf(str, "0x%p", ptr);
 
