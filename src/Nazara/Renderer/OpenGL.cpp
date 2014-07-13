@@ -1931,10 +1931,11 @@ GLenum NzOpenGL::ComponentType[] =
 	GL_INT,           // nzComponentType_Int1
 	GL_INT,           // nzComponentType_Int2
 	GL_INT,           // nzComponentType_Int3
-	GL_INT            // nzComponentType_Int4
+	GL_INT,           // nzComponentType_Int4
+	GL_FLOAT          // nzComponentType_Quaternion
 };
 
-static_assert(nzComponentType_Max+1 == 13, "Attribute type array is incomplete");
+static_assert(nzComponentType_Max+1 == 14, "Attribute type array is incomplete");
 
 GLenum NzOpenGL::CubemapFace[] =
 {
