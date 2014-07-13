@@ -59,5 +59,4 @@ struct NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning : public NzVertexStruct_XYZ
 	NzVector4i32 jointIndexes;
 };
 
-
 #endif // NAZARA_VERTEXSTRUCT_HPP
