@@ -919,6 +919,9 @@ bool NzRenderer::IsComponentTypeSupported(nzComponentType type)
 		case nzComponentType_Int3:
 		case nzComponentType_Int4:
 			return glVertexAttribIPointer != nullptr; // Fonction requise pour envoyer des entiers
+
+		case nzComponentType_Quaternion:
+			return false;
 	}
 
 	NazaraError("Attribute type out of enum (0x" + NzString::Number(type, 16) + ')');
@@ -1851,6 +1854,11 @@ bool NzRenderer::EnsureStateUpdate()
 									break;
 								}
 
+								default:
+								{
+									NazaraInternalError("Unsupported component type");
+									break;
+								}
 							}
 							// Les attributs d'instancing ont un diviseur spécifique (pour dépendre de l'instance en cours)
 							if (i == 1)
