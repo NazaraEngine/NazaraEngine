@@ -168,6 +168,9 @@ bool NzVertexDeclaration::IsTypeSupported(nzComponentType type)
 		case nzComponentType_Int3:
 		case nzComponentType_Int4:
 			return true;
+
+		case nzComponentType_Quaternion:
+			return false;
 	}
 
 	NazaraError("Component type not handled (0x" + NzString::Number(type, 16) + ')');
@@ -187,7 +190,7 @@ bool NzVertexDeclaration::Initialize()
 		declaration = &s_declarations[nzVertexLayout_XY];
 		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float2, NzOffsetOf(NzVertexStruct_XY, position));
 
-		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY), "Invalid stride for declaration NzVertexStruct_XY");
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY), "Invalid stride for declaration nzVertexLayout_XY");
 
 		// nzVertexLayout_XY_UV : NzVertexStruct_XY_UV
 		declaration = &s_declarations[nzVertexLayout_XY_UV];
