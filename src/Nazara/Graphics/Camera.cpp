@@ -141,6 +141,7 @@ void NzCamera::SetFOV(float fov)
 		return;
 	}
 	#endif
+	
 	m_fov = fov;
 
 	m_frustumUpdated = false;
@@ -190,13 +191,14 @@ void NzCamera::SetViewport(const NzRecti& viewport)
 
 void NzCamera::SetZFar(float zFar)
 {
-    #if NAZARA_GRAPHICS_SAFE
+	#if NAZARA_GRAPHICS_SAFE
 	if (m_zNear > zFar)
 	{
 		NazaraError("zNear is greater than zFar.");
 		return;
 	}
 	#endif
+	
 	m_zFar = zFar;
 
 	m_frustumUpdated = false;
@@ -212,6 +214,7 @@ void NzCamera::SetZNear(float zNear)
 		return;
 	}
 	#endif
+	
 	m_zNear = zNear;
 
 	m_frustumUpdated = false;
