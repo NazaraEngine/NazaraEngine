@@ -46,7 +46,7 @@ bool NzGraphics::Initialize()
 
 	if (!NzSkinningManager::Initialize())
 	{
-		NazaraError("Failed to initialize skinning cache");
+		NazaraError("Failed to initialize skinning manager");
 		return false;
 	}
 
