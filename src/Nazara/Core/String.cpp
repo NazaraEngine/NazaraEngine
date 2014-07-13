@@ -4351,9 +4351,9 @@ void NzString::EnsureOwnership(bool discardContent)
 	}
 }
 
-bool NzString::FillHash(NzAbstractHash* hazh) const
+bool NzString::FillHash(NzAbstractHash* hash) const
 {
-	hazh->Append(reinterpret_cast<const nzUInt8*>(m_sharedString->string), m_sharedString->size);
+	hash->Append(reinterpret_cast<const nzUInt8*>(m_sharedString->string), m_sharedString->size);
 
 	return true;
 }
