@@ -65,8 +65,9 @@ enum nzComponentType
 	nzComponentType_Int2,
 	nzComponentType_Int3,
 	nzComponentType_Int4,
+	nzComponentType_Quaternion,
 
-	nzComponentType_Max = nzComponentType_Int4
+	nzComponentType_Max = nzComponentType_Quaternion
 };
 
 enum nzCubemapFace
