@@ -169,8 +169,6 @@ NzByteArray& NzByteArray::Insert(int pos, const void* buffer, unsigned int size)
 	}
 
 	return *this;
-
-	return *this;
 }
 
 NzByteArray& NzByteArray::Insert(int pos, const NzByteArray& array)
@@ -464,9 +462,9 @@ void NzByteArray::EnsureOwnership()
 	}
 }
 
-bool NzByteArray::FillHash(NzAbstractHash* hazh) const
+bool NzByteArray::FillHash(NzAbstractHash* hash) const
 {
-	hazh->Append(m_sharedArray->buffer, m_sharedArray->size);
+	hash->Append(m_sharedArray->buffer, m_sharedArray->size);
 
 	return true;
 }
