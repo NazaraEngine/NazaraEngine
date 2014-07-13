@@ -167,7 +167,6 @@ bool NzVertexDeclaration::IsTypeSupported(nzComponentType type)
 		case nzComponentType_Int2:
 		case nzComponentType_Int3:
 		case nzComponentType_Int4:
-		case nzComponentType_Quaternion:
 			return true;
 
 		case nzComponentType_Quaternion:
