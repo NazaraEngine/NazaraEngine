@@ -137,11 +137,11 @@ void NzCamera::SetFOV(float fov)
 	#if NAZARA_GRAPHICS_SAFE
 	if (NzNumberEquals(fov, 0.f))
 	{
-		NazaraError("Fov is null.");
+		NazaraError("FOV must be different from zero");
 		return;
 	}
 	#endif
-	
+
 	m_fov = fov;
 
 	m_frustumUpdated = false;
@@ -191,14 +191,6 @@ void NzCamera::SetViewport(const NzRecti& viewport)
 
 void NzCamera::SetZFar(float zFar)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (m_zNear > zFar)
-	{
-		NazaraError("zNear is greater than zFar.");
-		return;
-	}
-	#endif
-	
 	m_zFar = zFar;
 
 	m_frustumUpdated = false;
@@ -210,11 +202,11 @@ void NzCamera::SetZNear(float zNear)
 	#if NAZARA_GRAPHICS_SAFE
 	if (zNear < 0.f || NzNumberEquals(zNear, 0.f))
 	{
-		NazaraError("zNear is less than/equals 0.");
+		NazaraError("ZNear shall be a strictly positive number");
 		return;
 	}
 	#endif
-	
+
 	m_zNear = zNear;
 
 	m_frustumUpdated = false;
@@ -298,6 +290,12 @@ void NzCamera::UpdateFrustum() const
 
 void NzCamera::UpdateProjectionMatrix() const
 {
+	#if NAZARA_GRAPHICS_SAFE
+	// Il n'y a pas grand chose à faire d'autre qu'un avertissement à ce stade
+	if (m_zNear >= m_zFar)
+		NazaraWarning("ZNear is greater or equal to ZFar (" + NzString::Number(m_zNear) + " >= " + NzString::Number(m_zFar) + ").");
+	#endif
+
 	if (!m_viewportUpdated)
 		UpdateViewport(); // Peut affecter l'aspect ratio
 
