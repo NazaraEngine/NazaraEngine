@@ -62,7 +62,7 @@ NzVector3f NzAudio::GetListenerPosition()
 
 NzQuaternionf NzAudio::GetListenerRotation()
 {
-	float orientation[6];
+	ALfloat orientation[6];
 	alGetListenerfv(AL_ORIENTATION, orientation);
 
 	NzVector3f forward(orientation[0], orientation[1], orientation[2]);
