@@ -632,19 +632,19 @@ bool NzMD5MeshParser::ParseMesh()
 		}
 	}
 
-	if (m_meshes[m_meshIndex].triangles.size() == 0)
+	if (m_meshes[m_meshIndex].triangles.empty())
 	{
 		NazaraError("Mesh has no triangles");
 		return false;
 	}
 
-	if (m_meshes[m_meshIndex].vertices.size() == 0)
+	if (m_meshes[m_meshIndex].vertices.empty())
 	{
 		NazaraError("Mesh has no vertices");
 		return false;
 	}
 
-	if (m_meshes[m_meshIndex].weights.size() == 0)
+	if (m_meshes[m_meshIndex].weights.empty())
 	{
 		NazaraError("Mesh has no weights");
 		return false;

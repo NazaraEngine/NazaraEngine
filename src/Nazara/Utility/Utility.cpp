@@ -143,7 +143,7 @@ unsigned int NzUtility::ComponentCount[nzComponentType_Max+1] =
 	4  // nzComponentType_Int4
 };
 
-static_assert(nzComponentType_Max+1 == 13, "Component count array is incomplete");
+static_assert(nzComponentType_Max+1 == 14, "Component count array is incomplete");
 
 unsigned int NzUtility::ComponentStride[nzComponentType_Max+1] =
 {
@@ -162,6 +162,6 @@ unsigned int NzUtility::ComponentStride[nzComponentType_Max+1] =
 	4*sizeof(nzUInt32)  // nzComponentType_Int4
 };
 
-static_assert(nzComponentType_Max+1 == 13, "Component stride array is incomplete");
+static_assert(nzComponentType_Max+1 == 14, "Component stride array is incomplete");
 
 unsigned int NzUtility::s_moduleReferenceCounter = 0;
