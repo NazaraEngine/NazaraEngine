@@ -43,8 +43,8 @@ template<typename T> class NzEulerAngles
 		/*NzEulerAngles operator*(const NzEulerAngles& angles) const;
 		NzEulerAngles operator/(const NzEulerAngles& angles) const;*/
 
-		NzEulerAngles operator+=(const NzEulerAngles& angles);
-		NzEulerAngles operator-=(const NzEulerAngles& angles);
+		NzEulerAngles& operator+=(const NzEulerAngles& angles);
+		NzEulerAngles& operator-=(const NzEulerAngles& angles);
 		/*NzEulerAngles operator*=(const NzEulerAngles& angles);
 		NzEulerAngles operator/=(const NzEulerAngles& angles);*/
 
