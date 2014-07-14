@@ -62,7 +62,7 @@
 #define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
 #define NAZARA_THREADSAFETY_FILE 1         // NzFile
 #define NAZARA_THREADSAFETY_LOG 1          // NzLog
-#define NAZARA_THREADSAFETY_RESOURCE 1     // NzResource
+#define NAZARA_THREADSAFETY_REFCOUNTED 1   // NzRefCounted
 
 // Le nombre de spinlocks à utiliser avec les sections critiques de Windows (0 pour désactiver)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096

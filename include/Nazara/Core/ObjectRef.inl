@@ -6,49 +6,49 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
-NzResourceRef<T>::NzResourceRef() :
+NzObjectRef<T>::NzObjectRef() :
 m_resource(nullptr)
 {
 }
 
 template<typename T>
-NzResourceRef<T>::NzResourceRef(T* resource) :
+NzObjectRef<T>::NzObjectRef(T* resource) :
 m_resource(resource)
 {
 	if (m_resource)
-		m_resource->AddResourceReference();
+		m_resource->AddReference();
 }
 
 template<typename T>
-NzResourceRef<T>::NzResourceRef(const NzResourceRef& ref) :
+NzObjectRef<T>::NzObjectRef(const NzObjectRef& ref) :
 m_resource(ref.m_resource)
 {
 	if (m_resource)
-		m_resource->AddResourceReference();
+		m_resource->AddReference();
 }
 
 template<typename T>
-NzResourceRef<T>::NzResourceRef(NzResourceRef&& ref) noexcept :
+NzObjectRef<T>::NzObjectRef(NzObjectRef&& ref) noexcept :
 m_resource(ref.m_resource)
 {
 	ref.m_resource = nullptr; // On vole la référence
 }
 
 template<typename T>
-NzResourceRef<T>::~NzResourceRef()
+NzObjectRef<T>::~NzObjectRef()
 {
 	if (m_resource)
-		m_resource->RemoveResourceReference();
+		m_resource->RemoveReference();
 }
 
 template<typename T>
-bool NzResourceRef<T>::IsValid() const
+bool NzObjectRef<T>::IsValid() const
 {
 	return m_resource != nullptr;
 }
 
 template<typename T>
-T* NzResourceRef<T>::Release()
+T* NzObjectRef<T>::Release()
 {
 	T* resource = m_resource;
 	m_resource = nullptr;
@@ -57,27 +57,27 @@ T* NzResourceRef<T>::Release()
 }
 
 template<typename T>
-bool NzResourceRef<T>::Reset(T* resource)
+bool NzObjectRef<T>::Reset(T* resource)
 {
 	bool destroyed = false;
 	if (m_resource != resource)
 	{
 		if (m_resource)
 		{
-			destroyed = m_resource->RemoveResourceReference();
+			destroyed = m_resource->RemoveReference();
 			m_resource = nullptr;
 		}
 
 		m_resource = resource;
 		if (m_resource)
-			m_resource->AddResourceReference();
+			m_resource->AddReference();
 	}
 
 	return destroyed;
 }
 
 template<typename T>
-NzResourceRef<T>& NzResourceRef<T>::Swap(NzResourceRef& ref)
+NzObjectRef<T>& NzObjectRef<T>::Swap(NzObjectRef& ref)
 {
 	std::swap(m_resource, ref.m_resource);
 
@@ -85,25 +85,25 @@ NzResourceRef<T>& NzResourceRef<T>::Swap(NzResourceRef& ref)
 }
 
 template<typename T>
-NzResourceRef<T>::operator bool() const
+NzObjectRef<T>::operator bool() const
 {
 	return IsValid();
 }
 
 template<typename T>
-NzResourceRef<T>::operator T*() const
+NzObjectRef<T>::operator T*() const
 {
 	return m_resource;
 }
 
 template<typename T>
-T* NzResourceRef<T>::operator->() const
+T* NzObjectRef<T>::operator->() const
 {
 	return m_resource;
 }
 
 template<typename T>
-NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
+NzObjectRef<T>& NzObjectRef<T>::operator=(T* resource)
 {
 	Reset(resource);
 
@@ -111,7 +111,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(T* resource)
 }
 
 template<typename T>
-NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
+NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef& ref)
 {
 	Reset(ref.m_resource);
 
@@ -119,7 +119,7 @@ NzResourceRef<T>& NzResourceRef<T>::operator=(const NzResourceRef& ref)
 }
 
 template<typename T>
-NzResourceRef<T>& NzResourceRef<T>::operator=(NzResourceRef&& ref) noexcept
+NzObjectRef<T>& NzObjectRef<T>::operator=(NzObjectRef&& ref) noexcept
 {
 	Reset();
 

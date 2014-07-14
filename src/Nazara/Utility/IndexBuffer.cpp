@@ -22,7 +22,7 @@ NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferSto
 }
 
 NzIndexBuffer::NzIndexBuffer(const NzIndexBuffer& indexBuffer) :
-NzResource(),
+NzRefCounted(),
 m_buffer(indexBuffer.m_buffer),
 m_largeIndices(indexBuffer.m_largeIndices),
 m_endOffset(indexBuffer.m_endOffset),
@@ -32,7 +32,7 @@ m_startOffset(indexBuffer.m_startOffset)
 }
 
 NzIndexBuffer::NzIndexBuffer(NzIndexBuffer&& indexBuffer) noexcept :
-NzResource(),
+NzRefCounted(),
 m_buffer(std::move(indexBuffer.m_buffer)),
 m_largeIndices(indexBuffer.m_largeIndices),
 m_endOffset(indexBuffer.m_endOffset),

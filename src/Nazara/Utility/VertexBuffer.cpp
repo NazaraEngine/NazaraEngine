@@ -18,7 +18,7 @@ NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, uns
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexBuffer& vertexBuffer) :
-NzResource(),
+NzRefCounted(),
 m_buffer(vertexBuffer.m_buffer),
 m_vertexDeclaration(vertexBuffer.m_vertexDeclaration),
 m_endOffset(vertexBuffer.m_endOffset),

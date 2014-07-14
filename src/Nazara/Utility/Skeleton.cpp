@@ -16,7 +16,7 @@ struct NzSkeletonImpl
 };
 
 NzSkeleton::NzSkeleton(const NzSkeleton& skeleton) :
-NzResource(),
+NzRefCounted(),
 m_impl(nullptr)
 {
 	operator=(skeleton);

@@ -9,9 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -34,11 +35,11 @@ struct NAZARA_API NzMaterialParams
 
 class NzMaterial;
 
-using NzMaterialConstRef = NzResourceRef<const NzMaterial>;
+using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
-using NzMaterialRef = NzResourceRef<NzMaterial>;
+using NzMaterialRef = NzObjectRef<NzMaterial>;
 
-class NAZARA_API NzMaterial : public NzResource
+class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 {
 	friend NzMaterialLoader;
 	friend class NzGraphics;

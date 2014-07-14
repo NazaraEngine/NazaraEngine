@@ -9,11 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Primitive.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -49,13 +50,13 @@ class NzPrimitiveList;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
-using NzMeshConstRef = NzResourceRef<const NzMesh>;
+using NzMeshConstRef = NzObjectRef<const NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
-using NzMeshRef = NzResourceRef<NzMesh>;
+using NzMeshRef = NzObjectRef<NzMesh>;
 
 struct NzMeshImpl;
 
-class NAZARA_API NzMesh : public NzResource, NzResourceListener
+class NAZARA_API NzMesh : public NzRefCounted, public NzResource, NzObjectListener
 {
 	friend NzMeshLoader;
 
@@ -118,7 +119,7 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void Transform(const NzMatrix4f& matrix);
 
 	private:
-		void OnResourceReleased(const NzResource* resource, int index) override;
+		void OnObjectReleased(const NzRefCounted* object, int index) override;
 
 		NzMeshImpl* m_impl = nullptr;
 

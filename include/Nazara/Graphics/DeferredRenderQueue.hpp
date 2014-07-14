@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -22,7 +22,7 @@ class NzMaterial;
 class NzSkeletalMesh;
 class NzStaticMesh;
 
-class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourceListener
+class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectListener
 {
 	public:
 		NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue);
@@ -63,8 +63,8 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 		NzForwardRenderQueue* m_forwardQueue;
 
 	private:
-		bool OnResourceDestroy(const NzResource* resource, int index) override;
-		void OnResourceReleased(const NzResource* resource, int index) override;
+		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
+		void OnObjectReleased(const NzRefCounted* object, int index) override;
 };
 
 #endif // NAZARA_DEFERREDRENDERQUEUE_HPP

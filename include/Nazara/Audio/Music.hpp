@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 
 struct NzMusicParams
@@ -27,7 +28,7 @@ using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
 
 struct NzMusicImpl;
 
-class NAZARA_API NzMusic : public NzSoundEmitter
+class NAZARA_API NzMusic : public NzResource, public NzSoundEmitter
 {
 	friend NzMusicLoader;
 

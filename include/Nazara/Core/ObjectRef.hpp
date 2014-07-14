@@ -8,38 +8,38 @@
 #define NAZARA_RESOURCEREF_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>
 
 template<typename T>
-class NzResourceRef
+class NzObjectRef
 {
-	static_assert(std::is_base_of<NzResource, T>::value, "ResourceRef should only be used with resource type");
+	static_assert(std::is_base_of<NzRefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
 
 	public:
-		NzResourceRef();
-		NzResourceRef(T* resource);
-		NzResourceRef(const NzResourceRef& ref);
-		NzResourceRef(NzResourceRef&& ref) noexcept;
-		~NzResourceRef();
+		NzObjectRef();
+		NzObjectRef(T* resource);
+		NzObjectRef(const NzObjectRef& ref);
+		NzObjectRef(NzObjectRef&& ref) noexcept;
+		~NzObjectRef();
 
 		bool IsValid() const;
 		T* Release();
 		bool Reset(T* resource = nullptr);
-		NzResourceRef& Swap(NzResourceRef& ref);
+		NzObjectRef& Swap(NzObjectRef& ref);
 
 		operator bool() const;
 		operator T*() const;
 		T* operator->() const;
 
-		NzResourceRef& operator=(T* resource);
-		NzResourceRef& operator=(const NzResourceRef& ref);
-		NzResourceRef& operator=(NzResourceRef&& ref) noexcept;
+		NzObjectRef& operator=(T* resource);
+		NzObjectRef& operator=(const NzObjectRef& ref);
+		NzObjectRef& operator=(NzObjectRef&& ref) noexcept;
 
 	private:
 		T* m_resource;
 };
 
-#include <Nazara/Core/ResourceRef.inl>
+#include <Nazara/Core/ObjectRef.inl>
 
 #endif // NAZARA_RESOURCEREF_HPP
