@@ -8,6 +8,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
@@ -34,12 +35,12 @@
 
 namespace
 {
-	enum ResourceType
+	enum ObjectType
 	{
-		ResourceType_Context,
-		ResourceType_IndexBuffer,
-		ResourceType_VertexBuffer,
-		ResourceType_VertexDeclaration
+		ObjectType_Context,
+		ObjectType_IndexBuffer,
+		ObjectType_VertexBuffer,
+		ObjectType_VertexDeclaration
 	};
 
 	enum UpdateFlags
@@ -95,23 +96,23 @@ namespace
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
 
-	class ResourceListener : public NzResourceListener
+	class ObjectListener : public NzObjectListener
 	{
 		public:
-			void OnResourceReleased(const NzResource* resource, int index) override
+			void OnObjectReleased(const NzRefCounted* object, int index) override
 			{
 				switch (index)
 				{
-					case ResourceType_Context:
+					case ObjectType_Context:
 					{
-						const NzContext* context = static_cast<const NzContext*>(resource);
+						const NzContext* context = static_cast<const NzContext*>(object);
 						s_vaos.erase(context);
 						break;
 					}
 
-					case ResourceType_IndexBuffer:
+					case ObjectType_IndexBuffer:
 					{
-						const NzIndexBuffer* indexBuffer = static_cast<const NzIndexBuffer*>(resource);
+						const NzIndexBuffer* indexBuffer = static_cast<const NzIndexBuffer*>(object);
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
@@ -140,9 +141,9 @@ namespace
 						break;
 					}
 
-					case ResourceType_VertexBuffer:
+					case ObjectType_VertexBuffer:
 					{
-						const NzVertexBuffer* vertexBuffer = static_cast<const NzVertexBuffer*>(resource);
+						const NzVertexBuffer* vertexBuffer = static_cast<const NzVertexBuffer*>(object);
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
@@ -171,9 +172,9 @@ namespace
 						break;
 					}
 
-					case ResourceType_VertexDeclaration:
+					case ObjectType_VertexDeclaration:
 					{
-						const NzVertexDeclaration* vertexDeclaration = static_cast<const NzVertexDeclaration*>(resource);
+						const NzVertexDeclaration* vertexDeclaration = static_cast<const NzVertexDeclaration*>(object);
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
@@ -210,7 +211,7 @@ namespace
 			}
 	};
 
-	ResourceListener s_listener;
+	ObjectListener s_listener;
 }
 
 void NzRenderer::BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition condition)
@@ -1530,13 +1531,13 @@ void NzRenderer::Uninitialize()
 			const NzVertexDeclaration* instancingDeclaration = std::get<3>(key);
 
 			if (indexBuffer)
-				indexBuffer->RemoveResourceListener(&s_listener);
+				indexBuffer->RemoveObjectListener(&s_listener);
 
-			vertexBuffer->RemoveResourceListener(&s_listener);
-			vertexDeclaration->RemoveResourceListener(&s_listener);
+			vertexBuffer->RemoveObjectListener(&s_listener);
+			vertexDeclaration->RemoveObjectListener(&s_listener);
 
 			if (instancingDeclaration)
-				instancingDeclaration->RemoveResourceListener(&s_listener);
+				instancingDeclaration->RemoveObjectListener(&s_listener);
 
 			NzOpenGL::DeleteVertexArray(context, pair2.second);
 		}
@@ -1710,7 +1711,7 @@ bool NzRenderer::EnsureStateUpdate()
 				auto it = s_vaos.find(context);
 				if (it == s_vaos.end())
 				{
-					context->AddResourceListener(&s_listener, ResourceType_Context);
+					context->AddObjectListener(&s_listener, ObjectType_Context);
 					auto pair = s_vaos.insert(std::make_pair(context, Context_Map::mapped_type()));
 					vaos = &pair.first->second;
 				}
@@ -1733,13 +1734,13 @@ bool NzRenderer::EnsureStateUpdate()
 					// On l'ajoute à notre liste
 					vaoIt = vaos->insert(std::make_pair(key, s_currentVAO)).first;
 					if (s_indexBuffer)
-						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
+						s_indexBuffer->AddObjectListener(&s_listener, ObjectType_IndexBuffer);
 
-					s_vertexBuffer->AddResourceListener(&s_listener, ResourceType_VertexBuffer);
-					vertexDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
+					s_vertexBuffer->AddObjectListener(&s_listener, ObjectType_VertexBuffer);
+					vertexDeclaration->AddObjectListener(&s_listener, ObjectType_VertexDeclaration);
 
 					if (instancingDeclaration)
-						instancingDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
+						instancingDeclaration->AddObjectListener(&s_listener, ObjectType_VertexDeclaration);
 
 					// Et on indique qu'on veut le programmer
 					update = true;

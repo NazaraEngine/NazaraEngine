@@ -19,7 +19,7 @@ m_stride(0)
 }
 
 NzVertexDeclaration::NzVertexDeclaration(const NzVertexDeclaration& declaration) :
-NzResource(),
+NzRefCounted(),
 m_stride(declaration.m_stride)
 {
 	std::memcpy(m_components, declaration.m_components, sizeof(Component)*(nzVertexComponent_Max+1));

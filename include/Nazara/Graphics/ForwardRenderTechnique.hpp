@@ -8,7 +8,6 @@
 #define NAZARA_FORWARDRENDERTECHNIQUE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
@@ -16,7 +15,7 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, NzResourceListener
+class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 {
 	public:
 		NzForwardRenderTechnique();

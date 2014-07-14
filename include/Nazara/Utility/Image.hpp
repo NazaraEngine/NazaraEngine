@@ -10,9 +10,10 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -36,11 +37,11 @@ struct NAZARA_API NzImageParams
 
 class NzImage;
 
-using NzImageConstRef = NzResourceRef<const NzImage>;
+using NzImageConstRef = NzObjectRef<const NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
-using NzImageRef = NzResourceRef<NzImage>;
+using NzImageRef = NzObjectRef<NzImage>;
 
-class NAZARA_API NzImage : public NzResource
+class NAZARA_API NzImage : public NzRefCounted, public NzResource
 {
 	friend NzImageLoader;
 

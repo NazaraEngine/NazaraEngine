@@ -84,7 +84,10 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 			}
 
 			if (fileLoader(resource, filePath, parameters))
+			{
+				resource->SetFilePath(filePath);
 				return true;
+			}
 		}
 		else
 		{
@@ -99,7 +102,10 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 			file.SetCursorPos(0);
 
 			if (streamLoader(resource, file, parameters))
+			{
+				resource->SetFilePath(filePath);
 				return true;
+			}
 		}
 
 		if (recognized == nzTernary_True)

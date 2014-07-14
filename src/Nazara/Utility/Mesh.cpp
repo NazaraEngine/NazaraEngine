@@ -91,8 +91,8 @@ void NzMesh::AddSubMesh(NzSubMesh* subMesh)
 	}
 	#endif
 
-	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
-	subMesh->AddResourceReference();
+	subMesh->AddObjectListener(this, m_impl->subMeshes.size());
+	subMesh->AddReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -135,8 +135,8 @@ void NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 
 	int index = m_impl->subMeshes.size();
 
-	subMesh->AddResourceListener(this, index);
-	subMesh->AddResourceReference();
+	subMesh->AddObjectListener(this, index);
+	subMesh->AddReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -373,8 +373,8 @@ void NzMesh::Destroy()
 
 		for (NzSubMesh* subMesh : m_impl->subMeshes)
 		{
-			subMesh->RemoveResourceListener(this);
-			subMesh->RemoveResourceReference();
+			subMesh->RemoveObjectListener(this);
+			subMesh->RemoveReference();
 		}
 
 		delete m_impl;
@@ -866,8 +866,8 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 
 	// On libère la ressource
 	NzSubMesh* subMesh = *it2;
-	subMesh->RemoveResourceListener(this);
-	subMesh->RemoveResourceReference();
+	subMesh->RemoveObjectListener(this);
+	subMesh->RemoveReference();
 
 	m_impl->subMeshes.erase(it2);
 
@@ -896,8 +896,8 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 
 	// On libère la ressource
 	NzSubMesh* subMesh = *it;
-	subMesh->RemoveResourceListener(this);
-	subMesh->RemoveResourceReference();
+	subMesh->RemoveObjectListener(this);
+	subMesh->RemoveReference();
 
 	m_impl->subMeshes.erase(it);
 
@@ -1011,9 +1011,9 @@ void NzMesh::Transform(const NzMatrix4f& matrix)
 	m_impl->aabbUpdated = false;
 }
 
-void NzMesh::OnResourceReleased(const NzResource* resource, int index)
+void NzMesh::OnObjectReleased(const NzRefCounted* object, int index)
 {
-	NazaraUnused(resource);
+	NazaraUnused(object);
 
 	RemoveSubMesh(index);
 }

@@ -8,8 +8,8 @@
 #define NAZARA_SUBMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -19,10 +19,10 @@
 class NzMesh;
 class NzSubMesh;
 
-using NzSubMeshConstRef = NzResourceRef<const NzSubMesh>;
-using NzSubMeshRef = NzResourceRef<NzSubMesh>;
+using NzSubMeshConstRef = NzObjectRef<const NzSubMesh>;
+using NzSubMeshRef = NzObjectRef<NzSubMesh>;
 
-class NAZARA_API NzSubMesh : public NzResource
+class NAZARA_API NzSubMesh : public NzRefCounted
 {
 	friend NzMesh;
 

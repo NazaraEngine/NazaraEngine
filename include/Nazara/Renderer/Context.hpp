@@ -8,20 +8,20 @@
 #define NAZARA_CONTEXT_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <memory>
 #include <vector>
 
 class NzContext;
 
-using NzContextConstRef = NzResourceRef<const NzContext>;
-using NzContextRef = NzResourceRef<NzContext>;
+using NzContextConstRef = NzObjectRef<const NzContext>;
+using NzContextRef = NzObjectRef<NzContext>;
 
 class NzContextImpl;
 
-class NAZARA_API NzContext : public NzResource
+class NAZARA_API NzContext : public NzRefCounted
 {
 	friend NzContextImpl;
 	friend class NzOpenGL;
