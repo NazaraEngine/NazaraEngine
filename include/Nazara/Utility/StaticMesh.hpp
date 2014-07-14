@@ -8,15 +8,14 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzStaticMesh;
 
-using NzStaticMeshConstRef = NzResourceRef<const NzStaticMesh>;
-using NzStaticMeshRef = NzResourceRef<NzStaticMesh>;
+using NzStaticMeshConstRef = NzObjectRef<const NzStaticMesh>;
+using NzStaticMeshRef = NzObjectRef<NzStaticMesh>;
 
-class NAZARA_API NzStaticMesh final : public NzSubMesh, NzResourceListener
+class NAZARA_API NzStaticMesh final : public NzSubMesh
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);

@@ -8,6 +8,7 @@
 #define NAZARA_MODEL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
@@ -28,7 +29,7 @@ class NzModel;
 
 using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
 
-class NAZARA_API NzModel : public NzSceneNode
+class NAZARA_API NzModel : public NzResource, public NzSceneNode
 {
 	friend NzModelLoader;
 	friend class NzScene;

@@ -13,7 +13,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 NzSubMesh::NzSubMesh(const NzMesh* parent) :
-NzResource(false), // Un SubMesh n'est pas persistant par défaut
+NzRefCounted(false), // Un SubMesh n'est pas persistant par défaut
 m_primitiveMode(nzPrimitiveMode_TriangleList),
 m_parent(parent),
 m_matIndex(0)

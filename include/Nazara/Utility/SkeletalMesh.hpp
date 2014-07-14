@@ -13,8 +13,8 @@
 
 class NzSkeletalMesh;
 
-using NzSkeletalMeshConstRef = NzResourceRef<const NzSkeletalMesh>;
-using NzSkeletalMeshRef = NzResourceRef<NzSkeletalMesh>;
+using NzSkeletalMeshConstRef = NzObjectRef<const NzSkeletalMesh>;
+using NzSkeletalMeshRef = NzObjectRef<NzSkeletalMesh>;
 
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 {

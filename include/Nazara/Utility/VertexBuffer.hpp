@@ -8,17 +8,17 @@
 #define NAZARA_VERTEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NzVertexBuffer;
 
-using NzVertexBufferConstRef = NzResourceRef<NzVertexBuffer>;
-using NzVertexBufferRef = NzResourceRef<NzVertexBuffer>;
+using NzVertexBufferConstRef = NzObjectRef<NzVertexBuffer>;
+using NzVertexBufferRef = NzObjectRef<NzVertexBuffer>;
 
-class NAZARA_API NzVertexBuffer : public NzResource
+class NAZARA_API NzVertexBuffer : public NzRefCounted
 {
 	public:
 		NzVertexBuffer() = default;

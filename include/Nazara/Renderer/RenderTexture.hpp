@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -20,7 +20,7 @@ class NzRenderBuffer;
 
 struct NzRenderTextureImpl;
 
-class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, NzNonCopyable
+class NAZARA_API NzRenderTexture : public NzRenderTarget, NzObjectListener, NzNonCopyable
 {
 	public:
 		NzRenderTexture() = default;
@@ -66,7 +66,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzResourceListener, Nz
 		void EnsureTargetUpdated() const override;
 
 	private:
-		bool OnResourceDestroy(const NzResource* resource, int index) override;
+		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
 		void UpdateDrawBuffers() const;
 		void UpdateTargets() const;
 

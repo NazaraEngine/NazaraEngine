@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -22,7 +22,7 @@ class NzMaterial;
 class NzSkeletalMesh;
 class NzStaticMesh;
 
-class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResourceListener
+class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectListener
 {
 	friend class NzForwardRenderTechnique;
 
@@ -40,8 +40,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		void Sort(const NzAbstractViewer* viewer);
 
 	private:
-		bool OnResourceDestroy(const NzResource* resource, int index) override;
-		void OnResourceReleased(const NzResource* resource, int index) override;
+		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
+		void OnObjectReleased(const NzRefCounted* object, int index) override;
 
 		struct TransparentModelData
 		{
