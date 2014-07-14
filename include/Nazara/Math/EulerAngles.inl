@@ -123,7 +123,7 @@ NzEulerAngles<T> NzEulerAngles<T>::operator-(const NzEulerAngles& angles) const
 }
 
 template<typename T>
-NzEulerAngles<T> NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
+NzEulerAngles<T>& NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
 {
 	pitch += angles.pitch;
 	yaw += angles.yaw;
@@ -133,7 +133,7 @@ NzEulerAngles<T> NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
 }
 
 template<typename T>
-NzEulerAngles<T> NzEulerAngles<T>::operator-=(const NzEulerAngles& angles)
+NzEulerAngles<T>& NzEulerAngles<T>::operator-=(const NzEulerAngles& angles)
 {
 	pitch -= angles.pitch;
 	yaw -= angles.yaw;
