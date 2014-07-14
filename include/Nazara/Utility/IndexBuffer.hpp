@@ -8,16 +8,16 @@
 #define NAZARA_INDEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 
 class NzIndexBuffer;
 
-using NzIndexBufferConstRef = NzResourceRef<const NzIndexBuffer>;
-using NzIndexBufferRef = NzResourceRef<NzIndexBuffer>;
+using NzIndexBufferConstRef = NzObjectRef<const NzIndexBuffer>;
+using NzIndexBufferRef = NzObjectRef<NzIndexBuffer>;
 
-class NAZARA_API NzIndexBuffer : public NzResource
+class NAZARA_API NzIndexBuffer : public NzRefCounted
 {
 	public:
 		NzIndexBuffer() = default;

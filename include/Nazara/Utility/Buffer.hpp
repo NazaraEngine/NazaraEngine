@@ -9,18 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzBuffer;
 
-using NzBufferConstRef = NzResourceRef<const NzBuffer>;
-using NzBufferRef = NzResourceRef<NzBuffer>;
+using NzBufferConstRef = NzObjectRef<const NzBuffer>;
+using NzBufferRef = NzObjectRef<NzBuffer>;
 
 class NzAbstractBuffer;
 
-class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
+class NAZARA_API NzBuffer : public NzRefCounted, NzNonCopyable
 {
 	friend class NzUtility;
 

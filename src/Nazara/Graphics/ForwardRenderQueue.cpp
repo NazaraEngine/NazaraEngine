@@ -89,7 +89,7 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 		if (it == opaqueModels.end())
 		{
 			it = opaqueModels.insert(std::make_pair(material, ModelBatches::mapped_type())).first;
-			material->AddResourceListener(this, ResourceType_Material);
+			material->AddObjectListener(this, ResourceType_Material);
 		}
 
 		bool& used = std::get<0>(it->second);
@@ -107,9 +107,9 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 			squaredBoundingSphere.Set(meshAABB.GetSquaredBoundingSphere());
 
 			if (meshData.indexBuffer)
-				meshData.indexBuffer->AddResourceListener(this, ResourceType_IndexBuffer);
+				meshData.indexBuffer->AddObjectListener(this, ResourceType_IndexBuffer);
 
-			meshData.vertexBuffer->AddResourceListener(this, ResourceType_VertexBuffer);
+			meshData.vertexBuffer->AddObjectListener(this, ResourceType_VertexBuffer);
 		}
 
 		std::vector<NzMatrix4f>& instances = it2->second.second;
@@ -153,7 +153,7 @@ void NzForwardRenderQueue::Clear(bool fully)
 		for (auto& matIt : opaqueModels)
 		{
 			const NzMaterial* material = matIt.first;
-			material->RemoveResourceListener(this);
+			material->RemoveObjectListener(this);
 
 			MeshInstanceContainer& instances = std::get<2>(matIt.second);
 			for (auto& instanceIt : instances)
@@ -161,9 +161,9 @@ void NzForwardRenderQueue::Clear(bool fully)
 				const NzMeshData& renderData = instanceIt.first;
 
 				if (renderData.indexBuffer)
-					renderData.indexBuffer->RemoveResourceListener(this);
+					renderData.indexBuffer->RemoveObjectListener(this);
 
-				renderData.vertexBuffer->RemoveResourceListener(this);
+				renderData.vertexBuffer->RemoveObjectListener(this);
 			}
 		}
 		opaqueModels.clear();
@@ -188,7 +188,7 @@ void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 	});
 }
 
-bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
+bool NzForwardRenderQueue::OnObjectDestroy(const NzRefCounted* object, int index)
 {
 	switch (index)
 	{
@@ -200,7 +200,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == resource)
+					if (renderData.indexBuffer == object)
 						it = meshes.erase(it);
 					else
 						++it;
@@ -210,7 +210,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 		}
 
 		case ResourceType_Material:
-			opaqueModels.erase(static_cast<const NzMaterial*>(resource));
+			opaqueModels.erase(static_cast<const NzMaterial*>(object));
 			break;
 
 		case ResourceType_VertexBuffer:
@@ -221,7 +221,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == resource)
+					if (renderData.vertexBuffer == object)
 						it = meshes.erase(it);
 					else
 						++it;
@@ -234,7 +234,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
-void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int index)
+void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int index)
 {
 	// La ressource vient d'être libérée, nous ne pouvons donc plus utiliser la méthode traditionnelle de recherche
 	// des pointeurs stockés (À cause de la fonction de triage utilisant des spécificités des ressources)
@@ -249,7 +249,7 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == resource)
+					if (renderData.indexBuffer == object)
 						it = meshes.erase(it);
 					else
 						++it;
@@ -262,7 +262,7 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 		{
 			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
 			{
-				if (it->first == resource)
+				if (it->first == object)
 				{
 					opaqueModels.erase(it);
 					break;
@@ -279,7 +279,7 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == resource)
+					if (renderData.vertexBuffer == object)
 						it = meshes.erase(it);
 					else
 						++it;

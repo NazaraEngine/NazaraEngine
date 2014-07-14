@@ -29,6 +29,7 @@ NzMaterial::NzMaterial()
 }
 
 NzMaterial::NzMaterial(const NzMaterial& material) :
+NzRefCounted(),
 NzResource()
 {
 	Copy(material);

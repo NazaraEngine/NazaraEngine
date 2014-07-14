@@ -11,8 +11,8 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -23,10 +23,10 @@
 class NzShader;
 class NzShaderStage;
 
-using NzShaderConstRef = NzResourceRef<const NzShader>;
-using NzShaderRef = NzResourceRef<NzShader>;
+using NzShaderConstRef = NzObjectRef<const NzShader>;
+using NzShaderRef = NzObjectRef<NzShader>;
 
-class NAZARA_API NzShader : public NzResource, NzNonCopyable
+class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 {
 	friend class NzRenderer;
 

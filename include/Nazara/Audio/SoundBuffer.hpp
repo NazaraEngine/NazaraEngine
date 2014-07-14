@@ -11,9 +11,10 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 
 struct NzSoundBufferParams
 {
@@ -25,13 +26,13 @@ struct NzSoundBufferParams
 class NzSound;
 class NzSoundBuffer;
 
-using NzSoundBufferConstRef = NzResourceRef<const NzSoundBuffer>;
+using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
-using NzSoundBufferRef = NzResourceRef<NzSoundBuffer>;
+using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
 
 struct NzSoundBufferImpl;
 
-class NAZARA_API NzSoundBuffer : public NzResource, public NzNonCopyable
+class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzSound;
 	friend NzSoundBufferLoader;

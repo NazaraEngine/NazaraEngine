@@ -51,6 +51,7 @@ m_sharedImage(&emptyImage)
 }
 
 NzImage::NzImage(const NzImage& image) :
+NzRefCounted(),
 NzResource(),
 m_sharedImage(image.m_sharedImage)
 {

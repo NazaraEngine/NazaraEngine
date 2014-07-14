@@ -9,16 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzRenderBuffer;
 
-using NzRenderBufferConstRef = NzResourceRef<const NzRenderBuffer>;
-using NzRenderBufferRef = NzResourceRef<NzRenderBuffer>;
+using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
+using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
-class NAZARA_API NzRenderBuffer : public NzResource, NzNonCopyable
+class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 {
 	public:
 		NzRenderBuffer();

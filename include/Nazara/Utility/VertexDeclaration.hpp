@@ -8,16 +8,16 @@
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzVertexDeclaration;
 
-using NzVertexDeclarationConstRef = NzResourceRef<const NzVertexDeclaration>;
-using NzVertexDeclarationRef = NzResourceRef<NzVertexDeclaration>;
+using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
+using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
 
-class NAZARA_API NzVertexDeclaration : public NzResource
+class NAZARA_API NzVertexDeclaration : public NzRefCounted
 {
 	friend class NzUtility;
 

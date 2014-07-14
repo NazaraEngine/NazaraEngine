@@ -8,9 +8,11 @@
 #define NAZARA_RESOURCELOADER_HPP
 
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/String.hpp>
 #include <list>
 #include <tuple>
+#include <type_traits>
 
 class NzInputStream;
 

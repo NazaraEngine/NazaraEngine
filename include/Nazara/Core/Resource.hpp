@@ -8,52 +8,20 @@
 #define NAZARA_RESOURCE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <atomic>
-#include <unordered_map>
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_RESOURCE
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
-class NzResourceListener;
+#include <Nazara/Core/String.hpp>
 
 class NAZARA_API NzResource
 {
 	public:
-		NzResource(bool persistent = true);
+		NzResource() = default;
 		virtual ~NzResource();
 
-		void AddResourceListener(NzResourceListener* listener, int index = 0) const;
-		void AddResourceReference() const;
+		NzString GetFilePath() const;
 
-		unsigned int GetResourceReferenceCount() const;
-
-		bool IsPersistent() const;
-
-		void RemoveResourceListener(NzResourceListener* listener) const;
-		bool RemoveResourceReference() const;
-
-		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
-
-	protected:
-		void NotifyCreated();
-		void NotifyDestroy();
-		void NotifyModified(unsigned int code);
+		void SetFilePath(const NzString& filePath);
 
 	private:
-		using ResourceListenerMap = std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>>;
-
-		void RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const;
-
-		NazaraMutexAttrib(m_mutex, mutable)
-
-		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
-		mutable ResourceListenerMap m_resourceListeners;
-		        std::atomic_bool m_resourcePersistent;
-		mutable std::atomic_uint m_resourceReferenceCount;
-		        bool m_resourceListenersLocked;
+		NzString m_filePath;
 };
 
 #endif // NAZARA_RESOURCE_HPP

@@ -8,9 +8,10 @@
 #define NAZARA_ANIMATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -28,13 +29,13 @@ struct NAZARA_API NzAnimationParams
 class NzAnimation;
 class NzSkeleton;
 
-using NzAnimationConstRef = NzResourceRef<const NzAnimation>;
+using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
-using NzAnimationRef = NzResourceRef<NzAnimation>;
+using NzAnimationRef = NzObjectRef<NzAnimation>;
 
 struct NzAnimationImpl;
 
-class NAZARA_API NzAnimation : public NzResource
+class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 {
 	friend NzAnimationLoader;
 

@@ -150,7 +150,7 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	attachment.height = buffer->GetHeight();
 	attachment.width = buffer->GetWidth();
 
-	buffer->AddResourceListener(this, attachIndex);
+	buffer->AddObjectListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -294,7 +294,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.texture = texture;
 	attachment.width = texture->GetWidth();
 
-	texture->AddResourceListener(this, attachIndex);
+	texture->AddObjectListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -339,7 +339,7 @@ bool NzRenderTexture::Create(bool lock)
 
 	m_impl = impl.release();
 	m_impl->context = NzContext::GetCurrent();
-	m_impl->context->AddResourceListener(this);
+	m_impl->context->AddObjectListener(this);
 
 	if (lock)
 	{
@@ -371,16 +371,16 @@ void NzRenderTexture::Destroy()
 		if (IsActive())
 			NzRenderer::SetTarget(nullptr);
 
-		m_impl->context->RemoveResourceListener(this);
+		m_impl->context->RemoveObjectListener(this);
 
 		for (const Attachment& attachment : m_impl->attachments)
 		{
 			if (attachment.isUsed)
 			{
 				if (attachment.isBuffer)
-					attachment.buffer->RemoveResourceListener(this);
+					attachment.buffer->RemoveObjectListener(this);
 				else
-					attachment.texture->RemoveResourceListener(this);
+					attachment.texture->RemoveObjectListener(this);
 			}
 		}
 
@@ -429,7 +429,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	{
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, 0);
 
-		attachement.buffer->RemoveResourceListener(this);
+		attachement.buffer->RemoveObjectListener(this);
 		attachement.buffer = nullptr;
 	}
 	else
@@ -439,7 +439,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 		else
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0, 0);
 
-		attachement.texture->RemoveResourceListener(this);
+		attachement.texture->RemoveObjectListener(this);
 		attachement.texture = nullptr;
 	}
 
@@ -877,10 +877,10 @@ void NzRenderTexture::EnsureTargetUpdated() const
 	}
 }
 
-bool NzRenderTexture::OnResourceDestroy(const NzResource* resource, int index)
+bool NzRenderTexture::OnObjectDestroy(const NzRefCounted* object, int index)
 {
-	if (resource == m_impl->context)
-		// Notre contexte va être détruit, libérons la RenderTexture pour éviter un leak
+	if (object == m_impl->context)
+		// Notre contexte va être détruit, libérons la RenderTexture pour éviter un éventuel leak
 		Destroy();
 	else // Sinon, c'est une texture
 	{

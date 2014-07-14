@@ -9,17 +9,17 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <unordered_map>
 
 class NzUberShader;
 
-using NzUberShaderConstRef = NzResourceRef<const NzUberShader>;
-using NzUberShaderRef = NzResourceRef<NzUberShader>;
+using NzUberShaderConstRef = NzObjectRef<const NzUberShader>;
+using NzUberShaderRef = NzObjectRef<NzUberShader>;
 
-class NAZARA_API NzUberShader : public NzResource
+class NAZARA_API NzUberShader : public NzRefCounted
 {
 	public:
 		NzUberShader() = default;
