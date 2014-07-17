@@ -13,9 +13,8 @@
 #include <limits>
 #include <Nazara/Utility/Debug.hpp>
 
-NzMD5AnimParser::NzMD5AnimParser(NzInputStream& stream, const NzAnimationParams& parameters) :
+NzMD5AnimParser::NzMD5AnimParser(NzInputStream& stream) :
 m_stream(stream),
-m_parameters(parameters),
 m_keepLastLine(false),
 m_frameIndex(0),
 m_frameRate(0),
@@ -47,7 +46,37 @@ nzTernary NzMD5AnimParser::Check()
 	return nzTernary_False;
 }
 
-bool NzMD5AnimParser::Parse(NzAnimation* animation)
+unsigned int NzMD5AnimParser::GetAnimatedComponentCount() const
+{
+	return m_animatedComponents.size();
+}
+
+const NzMD5AnimParser::Frame* NzMD5AnimParser::GetFrames() const
+{
+	return m_frames.data();
+}
+
+unsigned int NzMD5AnimParser::GetFrameCount() const
+{
+	return m_frames.size();
+}
+
+unsigned int NzMD5AnimParser::GetFrameRate() const
+{
+	return m_frameRate;
+}
+
+const NzMD5AnimParser::Joint* NzMD5AnimParser::GetJoints() const
+{
+	return m_joints.data();
+}
+
+unsigned int NzMD5AnimParser::GetJointCount() const
+{
+	return m_joints.size();
+}
+
+bool NzMD5AnimParser::Parse()
 {
 	while (Advance(false))
 	{
@@ -204,47 +233,6 @@ bool NzMD5AnimParser::Parse(NzAnimation* animation)
 		m_frameRate = 24;
 	}
 
-	// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
-	if (!animation->CreateSkeletal(frameCount, jointCount))
-	{
-		NazaraError("Failed to create animation");
-		return false;
-	}
-
-	NzSequence sequence;
-	sequence.firstFrame = 0;
-	sequence.frameCount = m_frames.size();
-	sequence.frameRate = m_frameRate;
-	sequence.name = m_stream.GetPath().SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
-	if (!animation->AddSequence(sequence))
-		NazaraWarning("Failed to add sequence");
-
-	NzSequenceJoint* sequenceJoints = animation->GetSequenceJoints();
-
-	// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
-	NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
-	for (unsigned int i = 0; i < jointCount; ++i)
-	{
-		int parent = m_joints[i].parent;
-		for (unsigned int j = 0; j < frameCount; ++j)
-		{
-			NzSequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
-
-			if (parent >= 0)
-			{
-				sequenceJoint.position = m_frames[j].joints[i].pos;
-				sequenceJoint.rotation = m_frames[j].joints[i].orient;
-			}
-			else
-			{
-				sequenceJoint.position = rotationQuat * m_frames[j].joints[i].pos;
-				sequenceJoint.rotation = rotationQuat * m_frames[j].joints[i].orient;
-			}
-
-			sequenceJoint.scale.Set(1.f);
-		}
-	}
-
 	return true;
 }
 
@@ -340,7 +328,7 @@ bool NzMD5AnimParser::ParseBounds()
 			return false;
 		}
 
-		m_frames[i].aabb.Set(min, max);
+		m_frames[i].bounds.Set(min, max);
 	}
 
 	if (!Advance())

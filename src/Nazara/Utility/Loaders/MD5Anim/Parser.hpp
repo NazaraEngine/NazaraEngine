@@ -18,23 +18,16 @@
 class NzMD5AnimParser
 {
 	public:
-		NzMD5AnimParser(NzInputStream& stream, const NzAnimationParams& parameters);
-		~NzMD5AnimParser();
+		struct FrameJoint
+		{
+			NzQuaternionf orient;
+			NzVector3f pos;
+		};
 
-		nzTernary Check();
-		bool Parse(NzAnimation* animation);
-
-	private:
 		struct Frame
 		{
-			struct Joint
-			{
-				NzQuaternionf orient;
-				NzVector3f pos;
-			};
-
-			std::vector<Joint> joints;
-			NzBoxf aabb;
+			std::vector<FrameJoint> joints;
+			NzBoxf bounds;
 		};
 
 		struct Joint
@@ -47,6 +40,21 @@ class NzMD5AnimParser
 			unsigned int index;
 		};
 
+		NzMD5AnimParser(NzInputStream& stream);
+		~NzMD5AnimParser();
+
+		nzTernary Check();
+
+		unsigned int GetAnimatedComponentCount() const;
+		const Frame* GetFrames() const;
+		unsigned int GetFrameCount() const;
+		unsigned int GetFrameRate() const;
+		const Joint* GetJoints() const;
+		unsigned int GetJointCount() const;
+
+		bool Parse();
+
+	private:
 		bool Advance(bool required = true);
 		void Error(const NzString& message);
 		bool ParseBaseframe();
@@ -61,7 +69,6 @@ class NzMD5AnimParser
 		std::vector<Joint> m_joints;
 		NzInputStream& m_stream;
 		NzString m_currentLine;
-		const NzAnimationParams& m_parameters;
 		bool m_keepLastLine;
 		unsigned int m_frameIndex;
 		unsigned int m_frameRate;
