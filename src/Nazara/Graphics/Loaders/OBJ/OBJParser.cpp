@@ -27,7 +27,7 @@ NzOBJParser::~NzOBJParser()
 
 const NzString* NzOBJParser::GetMaterials() const
 {
-	return &m_materials[0];
+	return m_materials.data();
 }
 
 unsigned int NzOBJParser::GetMaterialCount() const
@@ -37,7 +37,7 @@ unsigned int NzOBJParser::GetMaterialCount() const
 
 const NzOBJParser::Mesh* NzOBJParser::GetMeshes() const
 {
-	return &m_meshes[0];
+	return m_meshes.data();
 }
 
 unsigned int NzOBJParser::GetMeshCount() const
@@ -52,7 +52,7 @@ const NzString& NzOBJParser::GetMtlLib() const
 
 const NzVector3f* NzOBJParser::GetNormals() const
 {
-	return &m_normals[0];
+	return m_normals.data();
 }
 
 unsigned int NzOBJParser::GetNormalCount() const
@@ -62,7 +62,7 @@ unsigned int NzOBJParser::GetNormalCount() const
 
 const NzVector4f* NzOBJParser::GetPositions() const
 {
-	return &m_positions[0];
+	return m_positions.data();
 }
 
 unsigned int NzOBJParser::GetPositionCount() const
@@ -72,7 +72,7 @@ unsigned int NzOBJParser::GetPositionCount() const
 
 const NzVector3f* NzOBJParser::GetTexCoords() const
 {
-	return &m_texCoords[0];
+	return m_texCoords.data();
 }
 
 unsigned int NzOBJParser::GetTexCoordCount() const
@@ -265,8 +265,8 @@ bool NzOBJParser::Parse()
 				break;
 			}
 
+			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			case 's':
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				if (m_currentLine.GetSize() <= 2 || m_currentLine[1] == ' ')
 				{
 					NzString param = m_currentLine.SubString(2);
@@ -275,8 +275,8 @@ bool NzOBJParser::Parse()
 				}
 				else
 					UnrecognizedLine();
-				#endif
 				break;
+			#endif
 
 			case 'u':
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
