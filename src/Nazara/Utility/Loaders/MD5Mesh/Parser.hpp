@@ -18,13 +18,6 @@
 class NzMD5MeshParser
 {
 	public:
-		NzMD5MeshParser(NzInputStream& stream, const NzMeshParams& parameters);
-		~NzMD5MeshParser();
-
-		nzTernary Check();
-		bool Parse(NzMesh* mesh);
-
-	private:
 		struct Joint
 		{
 			NzQuaternionf bindOrient;
@@ -33,30 +26,43 @@ class NzMD5MeshParser
 			int parent;
 		};
 
+		typedef NzVector3ui Triangle;
+
+		struct Vertex
+		{
+			NzVector2f uv;
+			unsigned int startWeight;
+			unsigned int weightCount;
+		};
+
+		struct Weight
+		{
+			NzVector3f pos;
+			float bias;
+			unsigned int joint;
+		};
+
 		struct Mesh
 		{
-			typedef NzVector3ui Triangle;
-
-			struct Vertex
-			{
-				NzVector2f uv;
-				unsigned int startWeight;
-				unsigned int weightCount;
-			};
-
-			struct Weight
-			{
-				NzVector3f pos;
-				float bias;
-				unsigned int joint;
-			};
-
 			std::vector<Triangle> triangles;
 			std::vector<Vertex> vertices;
 			std::vector<Weight> weights;
 			NzString shader;
 		};
 
+		NzMD5MeshParser(NzInputStream& stream);
+		~NzMD5MeshParser();
+
+		nzTernary Check();
+
+		const Joint* GetJoints() const;
+		unsigned int GetJointCount() const;
+		const Mesh* GetMeshes() const;
+		unsigned int GetMeshCount() const;
+
+		bool Parse();
+
+	private:
 		bool Advance(bool required = true);
 		void Error(const NzString& message);
 		bool ParseJoints();
@@ -68,7 +74,6 @@ class NzMD5MeshParser
 		std::vector<Mesh> m_meshes;
 		NzInputStream& m_stream;
 		NzString m_currentLine;
-		const NzMeshParams& m_parameters;
 		bool m_keepLastLine;
 		unsigned int m_lineCount;
 		unsigned int m_meshIndex;
