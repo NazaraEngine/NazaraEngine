@@ -2,11 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Notre utilisation du placement new n'est pas (encore ?) compatible avec les définitions du MLT
-#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
-
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <cstring>
 #include <limits>
 #include <new>
@@ -309,7 +307,7 @@ void NzParameterList::SetParameter(const NzString& name, const NzString& value)
 
 	parameter.type = nzParameterType_String;
 
-	new (&parameter.value.stringVal) NzString(value);
+	NzPlacementNew<NzString>(&parameter.value.stringVal, value);
 }
 
 void NzParameterList::SetParameter(const NzString& name, const char* value)
@@ -322,7 +320,7 @@ void NzParameterList::SetParameter(const NzString& name, const char* value)
 
 	parameter.type = nzParameterType_String;
 
-	new (&parameter.value.stringVal) NzString(value);
+	NzPlacementNew<NzString>(&parameter.value.stringVal, value);
 }
 
 void NzParameterList::SetParameter(const NzString& name, void* value)
@@ -405,7 +403,7 @@ NzParameterList& NzParameterList::operator=(const NzParameterList& list)
 			case nzParameterType_String:
 				parameter.type = nzParameterType_String;
 
-				new (&parameter.value.stringVal) NzString(it->second.value.stringVal);
+				NzPlacementNew<NzString>(&parameter.value.stringVal, it->second.value.stringVal);
 				break;
 
 			case nzParameterType_Userdata:
