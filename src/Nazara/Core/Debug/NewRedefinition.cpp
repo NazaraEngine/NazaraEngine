@@ -5,11 +5,11 @@
 #include <Nazara/Core/Config.hpp>
 #if NAZARA_CORE_MANAGE_MEMORY
 
-#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
-
-#include <Nazara/Core/Debug/NewRedefinition.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
 #include <new> // Nécessaire ?
+
+#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
+#include <Nazara/Core/Debug/NewRedefinition.hpp>
 
 void* operator new(std::size_t size, const char* file, unsigned int line)
 {
