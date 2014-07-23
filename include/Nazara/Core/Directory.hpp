@@ -8,6 +8,7 @@
 #define NAZARA_DIRECTORY_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -27,7 +28,7 @@
 
 class NzDirectoryImpl;
 
-class NAZARA_API NzDirectory
+class NAZARA_API NzDirectory : NzNonCopyable
 {
 	public:
 		NzDirectory();
