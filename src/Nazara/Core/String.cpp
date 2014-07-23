@@ -2785,35 +2785,19 @@ NzString& NzString::Set(const char* string, unsigned int length)
 
 NzString& NzString::Set(const std::string& string)
 {
-	if (string.size() > 0)
-	{
-		if (m_sharedString->capacity >= string.size())
-			EnsureOwnership(true);
-		else
-		{
-			ReleaseString();
-
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = string.size();
-			m_sharedString->string = new char[string.size()+1];
-		}
-
-		m_sharedString->size = string.size();
-		std::memcpy(m_sharedString->string, string.c_str(), string.size()+1);
-	}
-	else
-		ReleaseString();
-
-	return *this;
+	return Set(string.data(), string.size());
 }
 
 NzString& NzString::Set(const NzString& string)
 {
-	ReleaseString();
+	if (this != &string)
+	{
+		ReleaseString();
 
-	m_sharedString = string.m_sharedString;
-	if (m_sharedString != &emptyString)
-		m_sharedString->refCount++;
+		m_sharedString = string.m_sharedString;
+		if (m_sharedString != &emptyString)
+			m_sharedString->refCount++;
+	}
 
 	return *this;
 }

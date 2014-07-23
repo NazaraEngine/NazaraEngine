@@ -404,11 +404,14 @@ nzUInt8 NzByteArray::operator[](unsigned int pos) const
 
 NzByteArray& NzByteArray::operator=(const NzByteArray& array)
 {
-	ReleaseArray();
+	if (this != &array)
+	{
+		ReleaseArray();
 
-	m_sharedArray = array.m_sharedArray;
-	if (m_sharedArray != &emptyArray)
-		m_sharedArray->refCount++;
+		m_sharedArray = array.m_sharedArray;
+		if (m_sharedArray != &emptyArray)
+			m_sharedArray->refCount++;
+	}
 
 	return *this;
 }
