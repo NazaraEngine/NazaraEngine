@@ -44,7 +44,7 @@ void main()
 	#endif
 #endif
 
-//#if LIGHTING
+#if LIGHTING
 	#if FLAG_INSTANCING
 	mat3 rotationMatrix = mat3(InstanceData0);
 	#else
@@ -59,14 +59,14 @@ void main()
 	#else
 	vNormal = normalize(rotationMatrix * VertexNormal);
 	#endif
-//#endif
+#endif
 
 #if TEXTURE_MAPPING
-/*	#if FLAG_FLIP_UVS
+	#if FLAG_FLIP_UVS
 	vTexCoord = vec2(VertexTexCoord.x, 1.0 - VertexTexCoord.y);
-	#else*/
+	#else
 	vTexCoord = VertexTexCoord;
-//	#endif
+	#endif
 #endif
 
 #if LIGHTING && PARALLAX_MAPPING
