@@ -61,9 +61,9 @@ void main()
 #endif
 
 #if TEXTURE_MAPPING
-/*	#if FLAG_FLIP_UVS
+	#if FLAG_FLIP_UVS
 	vTexCoord = vec2(VertexTexCoord.x, 1.0 - VertexTexCoord.y);
-	#else*/
+	#else
 	vTexCoord = VertexTexCoord;
 	#endif
 #endif
