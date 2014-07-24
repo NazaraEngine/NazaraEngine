@@ -8,6 +8,7 @@
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
+#include <memory>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -23,7 +24,7 @@ struct NzSoundBufferImpl
 	ALuint buffer;
 	nzAudioFormat format;
 	nzUInt32 duration;
-	nzInt16* samples;
+	std::unique_ptr<nzInt16[]> samples;
 	unsigned int sampleCount;
 	unsigned int sampleRate;
 };
@@ -104,7 +105,7 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 	m_impl->format = format;
 	m_impl->sampleCount = sampleCount;
 	m_impl->sampleRate = sampleRate;
-	m_impl->samples = new nzInt16[sampleCount];
+	m_impl->samples.reset(new nzInt16[sampleCount]);
 	std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(nzInt16));
 
 	NotifyCreated();
@@ -117,7 +118,6 @@ void NzSoundBuffer::Destroy()
 	{
 		NotifyDestroy();
 
-		delete[] m_impl->samples;
 		delete m_impl;
 		m_impl = nullptr;
 	}
@@ -159,7 +159,7 @@ const nzInt16* NzSoundBuffer::GetSamples() const
 	}
 	#endif
 
-	return m_impl->samples;
+	return m_impl->samples.get();
 }
 
 unsigned int NzSoundBuffer::GetSampleCount() const
