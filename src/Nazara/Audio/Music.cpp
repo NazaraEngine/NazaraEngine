@@ -7,6 +7,7 @@
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <memory>
 #include <vector>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -18,8 +19,8 @@ bool NzMusicParams::IsValid() const
 struct NzMusicImpl
 {
 	ALenum audioFormat;
+	std::unique_ptr<NzSoundStream> stream;
 	std::vector<nzInt16> chunkSamples;
-	NzSoundStream* stream;
 	NzThread thread;
 	bool loop = false;
 	bool paused = false;
@@ -50,7 +51,7 @@ bool NzMusic::Create(NzSoundStream* soundStream)
 	m_impl->sampleRate = soundStream->GetSampleRate();
 	m_impl->audioFormat = NzOpenAL::AudioFormat[format];
 	m_impl->chunkSamples.resize(format * m_impl->sampleRate); // Une seconde de samples
-	m_impl->stream = soundStream;
+	m_impl->stream.reset(soundStream);
 
 	return true;
 }
@@ -61,7 +62,6 @@ void NzMusic::Destroy()
 	{
 		Stop();
 
-		delete m_impl->stream;
 		delete m_impl;
 		m_impl = nullptr;
 	}
