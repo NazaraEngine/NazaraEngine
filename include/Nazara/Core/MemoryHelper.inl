@@ -34,7 +34,7 @@ inline void* NzOperatorNew(std::size_t size)
 template<typename T, typename... Args>
 T* NzPlacementNew(void* ptr, Args... args)
 {
-	return new (ptr) T(args...);
+	return new (ptr) T(std::forward<Args>(args)...);
 }
 
 #include <Nazara/Core/DebugOff.hpp>
