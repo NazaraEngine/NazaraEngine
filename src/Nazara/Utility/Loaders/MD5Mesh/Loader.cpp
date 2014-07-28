@@ -36,7 +36,9 @@ namespace
 		}
 
 		// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
-		NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 180.f, 0.f);
+		NzQuaternionf rotationQuat = NzQuaternionf::RotationBetween(NzVector3f::UnitX(), NzVector3f::Forward()) *
+		                             NzQuaternionf::RotationBetween(NzVector3f::UnitZ(), NzVector3f::Up());
+
 		NzString baseDir = stream.GetDirectory();
 
 		// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
