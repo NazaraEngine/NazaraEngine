@@ -46,46 +46,6 @@ constexpr T NzDegreeToRadian(T degrees)
 	return degrees * F(M_PI/180.0);
 }
 
-template<typename T>
-T NzMultiplyAdd(T x, T y, T z)
-{
-	return x*y + z;
-}
-
-#ifdef FP_FAST_FMAF
-template<>
-inline float NzMultiplyAdd(float x, float y, float z)
-{
-	return std::fmaf(x, y, z);
-}
-#endif
-
-#ifdef FP_FAST_FMA
-template<>
-inline double NzMultiplyAdd(double x, double y, double z)
-{
-	return std::fma(x, y, z);
-}
-#endif
-
-#ifdef FP_FAST_FMAL
-template<>
-inline long double NzMultiplyAdd(long double x, long double y, long double z)
-{
-	return std::fmal(x, y, z);
-}
-#endif
-
-inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
-{
-	///TODO: Marquer comme constexpr en C++14
-	unsigned int r = 1;
-	for (unsigned int i = 0; i < exponent; ++i)
-		r *= base;
-
-	return r;
-}
-
 inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
 {
 	///TODO: Marquer comme constexpr en C++14
@@ -181,6 +141,16 @@ inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
+inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
+{
+	///TODO: Marquer comme constexpr en C++14
+	unsigned int r = 1;
+	for (unsigned int i = 0; i < exponent; ++i)
+		r *= base;
+
+	return r;
+}
+
 template<typename T, typename T2>
 T NzLerp(T from, T to, T2 interpolation)
 {
@@ -191,6 +161,36 @@ T NzLerp(T from, T to, T2 interpolation)
 
 	return from + interpolation*(to - from);
 }
+
+template<typename T>
+T NzMultiplyAdd(T x, T y, T z)
+{
+	return x*y + z;
+}
+
+#ifdef FP_FAST_FMAF
+template<>
+inline float NzMultiplyAdd(float x, float y, float z)
+{
+	return std::fmaf(x, y, z);
+}
+#endif
+
+#ifdef FP_FAST_FMA
+template<>
+inline double NzMultiplyAdd(double x, double y, double z)
+{
+	return std::fma(x, y, z);
+}
+#endif
+
+#ifdef FP_FAST_FMAL
+template<>
+inline long double NzMultiplyAdd(long double x, long double y, long double z)
+{
+	return std::fmal(x, y, z);
+}
+#endif
 
 template<typename T>
 T NzNormalizeAngle(T angle)
@@ -298,12 +298,13 @@ inline long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 	}
 	#endif
 
+	static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 	str.Simplify();
 	if (radix > 10)
-		str.ToUpper();
+		str = str.ToUpper();
 
 	bool negative = str.StartsWith('-');
-	static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	char* digit = &str[(negative) ? 1 : 0];
 	unsigned long long total = 0;
