@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
 #include <limits>

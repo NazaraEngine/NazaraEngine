@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>

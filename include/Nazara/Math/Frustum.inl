@@ -7,7 +7,7 @@
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
