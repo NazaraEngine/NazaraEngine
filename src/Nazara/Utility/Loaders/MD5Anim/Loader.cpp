@@ -15,12 +15,15 @@ namespace
 
 	nzTernary Check(NzInputStream& stream, const NzAnimationParams& parameters)
 	{
+		NazaraUnused(parameters);
+
 		NzMD5AnimParser parser(stream);
 		return parser.Check();
 	}
 
 	bool Load(NzAnimation* animation, NzInputStream& stream, const NzAnimationParams& parameters)
 	{
+		///TODO: Utiliser les paramètres
 		NzMD5AnimParser parser(stream);
 
 		if (!parser.Parse())
@@ -49,7 +52,9 @@ namespace
 		NzSequenceJoint* sequenceJoints = animation->GetSequenceJoints();
 
 		// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
-		NzQuaternionf rotationQuat = NzEulerAnglesf(-90.f, 90.f, 0.f);
+		NzQuaternionf rotationQuat = NzQuaternionf::RotationBetween(NzVector3f::UnitX(), NzVector3f::Forward()) *
+		                             NzQuaternionf::RotationBetween(NzVector3f::UnitZ(), NzVector3f::Up());
+
 		for (unsigned int i = 0; i < jointCount; ++i)
 		{
 			int parent = joints[i].parent;
@@ -71,6 +76,8 @@ namespace
 				sequenceJoint.scale.Set(1.f);
 			}
 		}
+
+		return true;
 	}
 }
 
