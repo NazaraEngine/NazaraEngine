@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -640,8 +640,6 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const
 	m34 = F(0.0);
 	m44 = F(1.0);
 
-	// Pas besoin de mettre à jour l'identité (Déjà fait par Set*)
-
 	return *this;
 }
 
@@ -818,7 +816,6 @@ NzVector4<T> NzMatrix4<T>::Transform(const NzVector4<T>& vector) const
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Transpose()
 {
-	// N'affecte pas l'identité (La transposée d'une matrice identité est la matrice identité elle-même)
 	std::swap(m12, m21);
 	std::swap(m13, m31);
 	std::swap(m14, m41);

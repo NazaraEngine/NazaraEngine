@@ -125,19 +125,19 @@ inline unsigned int NzGetNumberLength(unsigned long long number)
 
 inline unsigned int NzGetNumberLength(float number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
 inline unsigned int NzGetNumberLength(double number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 
 inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 {
-	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 1)
+	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
 }
 

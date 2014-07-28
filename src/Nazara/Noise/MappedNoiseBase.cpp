@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <stdexcept>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
