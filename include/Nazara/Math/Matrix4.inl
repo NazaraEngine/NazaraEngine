@@ -145,6 +145,25 @@ NzMatrix4<T>& NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix)
 }
 
 template<typename T>
+NzVector4<T> NzMatrix4<T>::GetColumn(unsigned int column) const
+{
+	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
+
+	#if NAZARA_MATH_SAFE
+	if (row > 3)
+	{
+		NzStringStream ss;
+		ss << "Row out of range: (" << row << ") > 3";
+
+		throw std::out_of_range(ss.ToString());
+	}
+	#endif
+
+	T* ptr = (&m11) + row*4;
+	return NzVector4<T>(ptr);
+}
+
+template<typename T>
 T NzMatrix4<T>::GetDeterminant() const
 {
 	T A = m22*(m33*m44 - m43*m34) - m32*(m23*m44 - m43*m24) + m42*(m23*m34 - m33*m24);
@@ -442,6 +461,25 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 	}
 
 	return quat;
+}
+
+template<typename T>
+NzVector4<T> NzMatrix4<T>::GetRow(unsigned int row) const
+{
+	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
+
+	#if NAZARA_MATH_SAFE
+	if (column > 3)
+	{
+		NzStringStream ss;
+		ss << "Column out of range: (" << column << ") > 3";
+
+		throw std::out_of_range(ss.ToString());
+	}
+	#endif
+
+	T* ptr = &m11;
+	return NzVector4<T>(ptr[column], ptr[column+4], ptr[column+8], ptr[column+12]);
 }
 
 template<typename T>
