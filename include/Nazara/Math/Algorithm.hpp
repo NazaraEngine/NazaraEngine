@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BASIC_HPP
-#define NAZARA_BASIC_HPP
+#ifndef NAZARA_ALGORITHM_MATH_HPP
+#define NAZARA_ALGORITHM_MATH_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
@@ -44,6 +44,6 @@ template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);
 long long NzStringToNumber(NzString str, nzUInt8 radix = 10, bool* ok = nullptr);
 
-#include <Nazara/Math/Basic.inl>
+#include <Nazara/Math/Algorithm.inl>
 
-#endif // NAZARA_BASIC_HPP
+#endif // NAZARA_ALGORITHM_MATH_HPP

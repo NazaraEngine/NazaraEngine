@@ -6,7 +6,6 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
 #include <ctime>
 #include <cstring>
 

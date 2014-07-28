@@ -26,7 +26,7 @@
  */
 
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <algorithm>
 #include <unordered_map>
@@ -546,15 +546,14 @@ namespace
 				TriangleCacheData* t = &m_triangles[tri];
 
 				// calculate vertex scores
-				float sum = 0.0f;
+				float sum = 0.f;
 				for (unsigned int i = 0; i < 3; ++i)
 				{
 					VertexCacheData *v = &m_vertices[t->verts[i]];
 					float sc = v->current_score;
 					if (!v->calculated)
-					{
 						sc = CalculateVertexScore(t->verts[i]);
-					}
+
 					v->current_score = sc;
 					v->calculated = true;
 					sum += sc;

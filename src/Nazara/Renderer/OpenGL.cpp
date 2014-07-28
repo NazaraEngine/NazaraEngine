@@ -6,7 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <cstring>
