@@ -4,7 +4,7 @@
 
 #include <Nazara/Utility/Loaders/MD5Mesh/Parser.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
