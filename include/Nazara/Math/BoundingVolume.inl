@@ -175,6 +175,7 @@ template<typename T>
 void NzBoundingVolume<T>::Update(const NzMatrix4<T>& transformMatrix)
 {
 	obb.Update(transformMatrix);
+
 	aabb.Set(obb(0), obb(1));
 	for (unsigned int i = 2; i < 8; ++i)
 		aabb.ExtendTo(obb(i));
