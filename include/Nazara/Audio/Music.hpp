@@ -21,7 +21,6 @@ struct NzMusicParams
 
 class NzMusic;
 class NzSoundStream;
-class NzThread;
 
 using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
 
