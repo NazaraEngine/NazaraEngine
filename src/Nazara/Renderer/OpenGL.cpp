@@ -1072,7 +1072,7 @@ bool NzOpenGL::Initialize()
 	}
 
 	// DrawInstanced
-	if (s_openglVersion >= 330)
+	if (s_openglVersion >= 310)
 	{
 		try
 		{
