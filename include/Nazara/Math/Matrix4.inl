@@ -150,16 +150,16 @@ NzVector4<T> NzMatrix4<T>::GetColumn(unsigned int column) const
 	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
 
 	#if NAZARA_MATH_SAFE
-	if (row > 3)
+	if (column > 3)
 	{
 		NzStringStream ss;
-		ss << "Row out of range: (" << row << ") > 3";
+		ss << "Row out of range: (" << column << ") > 3";
 
 		throw std::out_of_range(ss.ToString());
 	}
 	#endif
 
-	T* ptr = (&m11) + row*4;
+	T* ptr = (&m11) + column*4;
 	return NzVector4<T>(ptr);
 }
 
@@ -469,17 +469,17 @@ NzVector4<T> NzMatrix4<T>::GetRow(unsigned int row) const
 	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
 
 	#if NAZARA_MATH_SAFE
-	if (column > 3)
+	if (row > 3)
 	{
 		NzStringStream ss;
-		ss << "Column out of range: (" << column << ") > 3";
+		ss << "Column out of range: (" << row << ") > 3";
 
 		throw std::out_of_range(ss.ToString());
 	}
 	#endif
 
 	T* ptr = &m11;
-	return NzVector4<T>(ptr[column], ptr[column+4], ptr[column+8], ptr[column+12]);
+	return NzVector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
 }
 
 template<typename T>
