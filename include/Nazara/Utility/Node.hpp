@@ -8,13 +8,16 @@
 #define NAZARA_NODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <vector>
 
-class NAZARA_API NzNode
+class NzAnimator;
+
+class NAZARA_API NzNode : public NzUpdatable
 {
 	public:
 		NzNode();
@@ -24,6 +27,7 @@ class NAZARA_API NzNode
 		void EnsureDerivedUpdate() const;
 		void EnsureTransformMatrixUpdate() const;
 
+		NzAnimator* GetAnimator() const;
 		NzVector3f GetBackward() const;
 		const std::vector<NzNode*>& GetChilds() const;
 		NzVector3f GetDown() const;
@@ -52,11 +56,15 @@ class NAZARA_API NzNode
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
 		NzNode& Move(float movementX, float movementY, float movementZ, nzCoordSys coordSys = nzCoordSys_Local);
 
+        void RemoveAnimator();
+
 		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Scale(const NzVector3f& scale);
 		NzNode& Scale(float scale);
 		NzNode& Scale(float scaleX, float scaleY, float scaleZ);
+
+		void SetAnimator(NzAnimator* animator);
 
 		void SetInheritRotation(bool inheritRotation);
 		void SetInheritScale(bool inheritScale);
@@ -95,9 +103,11 @@ class NAZARA_API NzNode
 		virtual void InvalidateNode();
 		virtual void OnParenting(const NzNode* parent);
 		void RemoveChild(NzNode* node) const;
+		virtual void Update(float deltaTime);
 		void UpdateDerived() const;
 		virtual void UpdateTransformMatrix() const;
 
+        NzAnimator* m_animator;
 		mutable std::vector<NzNode*> m_childs;
 		mutable NzMatrix4f m_transformMatrix;
 		mutable NzQuaternionf m_derivedRotation;

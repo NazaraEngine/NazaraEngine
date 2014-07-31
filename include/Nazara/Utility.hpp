@@ -32,6 +32,7 @@
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/Animator.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>

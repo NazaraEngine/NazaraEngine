@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Node.hpp>
+#include <Nazara/Utility/Animator.hpp>
+#include <algorithm>
 #include <Nazara/Utility/Debug.hpp>
 
 NzNode::NzNode() :
@@ -56,6 +58,11 @@ void NzNode::EnsureTransformMatrixUpdate() const
 {
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
+}
+
+NzAnimator* NzNode::GetAnimator() const
+{
+    return m_animator;
 }
 
 NzVector3f NzNode::GetBackward() const
@@ -283,6 +290,11 @@ NzNode& NzNode::Move(float moveX, float moveY, float moveZ, nzCoordSys coordSys)
 	return Move(NzVector3f(moveX, moveY, moveZ), coordSys);
 }
 
+void NzNode::RemoveAnimator()
+{
+	m_animator = nullptr;
+}
+
 NzNode& NzNode::Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys)
 {
 	// Évitons toute mauvaise surprise ..
@@ -335,6 +347,19 @@ NzNode& NzNode::Scale(float scaleX, float scaleY, float scaleZ)
 
 	InvalidateNode();
 	return *this;
+}
+
+void NzNode::SetAnimator(NzAnimator* animator)
+{
+	#ifdef NAZARA_DEBUG
+	if (animator == m_animator)
+	{
+		NazaraWarning("Animator is already assigned to the node");
+		return;
+	}
+	#endif
+
+	m_animator = animator;
 }
 
 void NzNode::SetInheritPosition(bool inheritPosition)
@@ -665,6 +690,12 @@ void NzNode::RemoveChild(NzNode* node) const
 		m_childs.erase(it);
 	else
 		NazaraWarning("Child not found");
+}
+
+void NzNode::Update(float deltaTime)
+{
+    if (m_animator)
+        m_animator->Update(this, deltaTime);
 }
 
 void NzNode::UpdateDerived() const

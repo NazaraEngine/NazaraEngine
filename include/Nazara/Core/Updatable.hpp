@@ -12,7 +12,7 @@
 class NzUpdatable
 {
 	public:
-		virtual void Update() = 0;
+		virtual void Update(float deltaTime) = 0;
 };
 
 #endif // NAZARA_UPDATABLE_HPP

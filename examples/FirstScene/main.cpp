@@ -221,6 +221,10 @@ int main()
 	bool smoothMovement = true;
 	NzVector3f targetPos = camera.GetPosition();
 
+	NzAnimatorCircle example(NzVector3f::Zero(), 5.f, 5.f);
+	spaceship.SetAnimator(&example);
+	scene.RegisterForUpdate(&spaceship);
+
 	// Début de la boucle de rendu du programme
 	while (window.IsOpen())
 	{

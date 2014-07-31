@@ -15,6 +15,14 @@ enum nzAnimationType
 	nzAnimationType_Max = nzAnimationType_Static
 };
 
+enum nzAnimatorType
+{
+	nzAnimatorType_Circle,
+	nzAnimatorType_Line,
+
+	nzAnimatorType_Max = nzAnimatorType_Line
+};
+
 enum nzBufferAccess
 {
 	nzBufferAccess_DiscardAndWrite,
