@@ -50,6 +50,12 @@ bool NzVertexBuffer::Fill(const void* data, unsigned int startVertex, unsigned i
 bool NzVertexBuffer::FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("No buffer");
+		return nullptr;
+	}
+
 	if (m_startOffset + offset + size > m_endOffset)
 	{
 		NazaraError("Exceeding virtual buffer size");
@@ -118,6 +124,12 @@ void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsig
 void* NzVertexBuffer::Map(nzBufferAccess access, unsigned int startVertex, unsigned int length) const
 {
 	#if NAZARA_UTILITY_SAFE
+	if (!m_buffer)
+	{
+		NazaraError("No buffer");
+		return nullptr;
+	}
+
 	if (!m_vertexDeclaration)
 	{
 		NazaraError("No vertex declaration");
