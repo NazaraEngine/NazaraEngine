@@ -93,13 +93,15 @@ bool NzOBJParser::Parse()
 	m_positions.clear();
 	m_texCoords.clear();
 
-	// Beaucoup de meshs font plus de 100 sommets, on prépare le terrain
+	// Beaucoup de meshs font plus de 100 sommets, préparons le terrain
 	m_normals.reserve(100);
 	m_positions.reserve(100);
 	m_texCoords.reserve(100);
 
+	// On va regrouper les meshs par nom et par matériau
 	std::unordered_map<NzString, std::unordered_map<NzString, std::vector<Face>>> meshes;
 
+	// On prépare le mesh par défaut
 	std::vector<Face>* currentMesh = &meshes[meshName][matName];
 
 	while (Advance(false))

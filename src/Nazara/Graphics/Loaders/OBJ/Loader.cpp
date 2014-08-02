@@ -61,6 +61,8 @@ namespace
 		for (unsigned int i = 0; i < meshCount; ++i)
 		{
 			unsigned int faceCount = meshes[i].faces.size();
+			if (faceCount == 0)
+				continue;
 
 			std::vector<unsigned int> indices;
 			indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
@@ -97,6 +99,7 @@ namespace
 				}
 			}
 
+			// Création des buffers
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(vertexCount > std::numeric_limits<nzUInt16>::max(), indices.size(), parameters.mesh.storage, nzBufferUsage_Static));
 			indexBuffer->SetPersistent(false);
 
@@ -108,7 +111,7 @@ namespace
 			for (unsigned int j = 0; j < indices.size(); ++j)
 				indexMapper.Set(j, indices[j]);
 
-			indexMapper.Unmap();
+			indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
 			// Remplissage des vertices
 			bool hasNormals = true;
@@ -170,6 +173,7 @@ namespace
 			if (parameters.mesh.center)
 				subMesh->Center();
 
+			// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();
 			else if (hasTexCoords)
