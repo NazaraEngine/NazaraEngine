@@ -9,18 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
-#include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NzSubMesh;
 
 class NAZARA_API NzVertexMapper
 {
 	public:
+		NzVertexMapper(NzVertexBuffer* vertexBuffer, unsigned int vertexCount);
 		NzVertexMapper(NzSubMesh* subMesh);
 		~NzVertexMapper();
 
@@ -31,7 +28,6 @@ class NAZARA_API NzVertexMapper
 
 	private:
 		NzBufferMapper<NzVertexBuffer> m_mapper;
-		NzVertexDeclarationConstRef m_declaration;
 		unsigned int m_vertexCount;
 };
 
