@@ -5,7 +5,6 @@
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
@@ -13,7 +12,8 @@
 
 NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh)
 {
-	NzErrorFlags flags(nzErrorFlag_ThrowException);
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
+
 	NzVertexBuffer* buffer = nullptr;
 	switch (subMesh->GetAnimationType())
 	{
@@ -37,10 +37,17 @@ NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh)
 		NazaraInternalError("Animation type not handled (0x" + NzString::Number(subMesh->GetAnimationType(), 16) + ')');
 	}
 
-	m_declaration = buffer->GetVertexDeclaration();
 	m_vertexCount = subMesh->GetVertexCount();
 
 	m_mapper.Map(buffer, nzBufferAccess_ReadWrite);
+}
+
+NzVertexMapper::NzVertexMapper(NzVertexBuffer* vertexBuffer, unsigned int vertexCount)
+{
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
+
+	m_mapper.Map(vertexBuffer, nzBufferAccess_ReadWrite);
+	m_vertexCount = vertexCount;
 }
 
 NzVertexMapper::~NzVertexMapper() = default;
