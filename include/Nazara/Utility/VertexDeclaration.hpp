@@ -45,9 +45,9 @@ class NAZARA_API NzVertexDeclaration : public NzResource
 
 		struct Component
 		{
-			nzComponentType type;
-			bool enabled = false;
-			unsigned int offset;
+			nzComponentType type; // Le type de donnée
+			bool enabled = false; // Ce composant est-il activé ?/
+			unsigned int offset;  // La position, en octets, de la première donnée
 
 			/*
 			** -Lynix:
