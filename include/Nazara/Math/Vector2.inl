@@ -150,11 +150,13 @@ NzVector2<T>& NzVector2<T>::Minimize(const NzVector2& vec)
 template<typename T>
 NzVector2<T>& NzVector2<T>::Normalize(T* length)
 {
-	T norm = std::sqrt(GetSquaredLength());
-	T invNorm = F(1.0) / norm;
-
-	x *= invNorm;
-	y *= invNorm;
+	T norm = GetLength();
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+		x *= invNorm;
+		y *= invNorm;
+	}
 
 	if (length)
 		*length = norm;
