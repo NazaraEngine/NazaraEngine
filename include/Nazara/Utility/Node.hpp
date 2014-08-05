@@ -56,7 +56,7 @@ class NAZARA_API NzNode : public NzUpdatable
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
 		NzNode& Move(float movementX, float movementY, float movementZ, nzCoordSys coordSys = nzCoordSys_Local);
 
-		void RemoveAnimator();
+        void RemoveAnimator();
 
 		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
 
@@ -107,7 +107,7 @@ class NAZARA_API NzNode : public NzUpdatable
 		void UpdateDerived() const;
 		virtual void UpdateTransformMatrix() const;
 
-		NzAnimator* m_animator;
+        NzAnimator* m_animator;
 		mutable std::vector<NzNode*> m_childs;
 		mutable NzMatrix4f m_transformMatrix;
 		mutable NzQuaternionf m_derivedRotation;

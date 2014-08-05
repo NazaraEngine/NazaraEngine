@@ -19,7 +19,7 @@ struct NzSkeletonImpl;
 
 class NAZARA_API NzSkeleton : public NzResource
 {
-		friend NzJoint;
+    friend NzJoint;
 
 	public:
 		NzSkeleton() = default;
