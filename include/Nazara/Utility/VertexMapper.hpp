@@ -11,6 +11,7 @@
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
 
 class NzSubMesh;
 
