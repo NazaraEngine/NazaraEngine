@@ -11,7 +11,6 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Node.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
 
 class NzSkeleton;
 

@@ -35,6 +35,7 @@ struct NzSceneImpl
 	NzAbstractViewer* viewer = nullptr;
 	bool backgroundEnabled = true;
 	bool update = false;
+	float frameTime;
 	float updateTime;
 	int renderTechniqueRanking;
 	unsigned int updatePerSecond = 60;
@@ -234,7 +235,7 @@ void NzScene::Update()
 
 		for (NzUpdatable* updatable : m_impl->updateList)
 			///TODO: Multihreading
-			updatable->Update(m_impl->updateTime);
+			updatable->Update();
 	}
 }
 
@@ -245,7 +246,7 @@ void NzScene::UpdateVisible()
 	if (m_impl->update)
 	{
 		for (NzUpdatable* node : m_impl->visibleUpdateList)
-			node->Update(m_impl->updateTime);
+			node->Update();
 	}
 }
 

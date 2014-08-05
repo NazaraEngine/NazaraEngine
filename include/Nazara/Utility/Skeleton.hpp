@@ -9,17 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
 
-class NzJoint;
 struct NzSkeletonImpl;
 
 class NAZARA_API NzSkeleton : public NzResource
 {
-    friend NzJoint;
+	friend NzJoint;
 
 	public:
 		NzSkeleton() = default;
