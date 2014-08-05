@@ -23,8 +23,8 @@ class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 
 		NzUberShaderInstance* Get(const NzParameterList& parameters) const;
 
-		void SetShader(nzShaderStage stage, const NzString& source, const NzString& flags);
-		bool SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& flags);
+		void SetShader(nzShaderStage stage, const NzString& source, const NzString& shaderFlags, const NzString& requiredFlags = NzString());
+		bool SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& shaderFlags, const NzString& requiredFlags = NzString());
 
 		static bool IsSupported();
 
@@ -33,6 +33,7 @@ class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 		{
 			mutable std::unordered_map<nzUInt32, NzShaderStage> cache;
 			std::unordered_map<NzString, nzUInt32> flags;
+			nzUInt32 requiredFlags;
 			NzString source;
 			bool present = false;
 		};
