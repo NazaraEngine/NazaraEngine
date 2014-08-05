@@ -231,11 +231,13 @@ template<typename T>
 NzVector3<T>& NzVector3<T>::Normalize(T* length)
 {
 	T norm = GetLength();
-	T invNorm = F(1.0) / norm;
-
-	x *= invNorm;
-	y *= invNorm;
-	z *= invNorm;
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+		x *= invNorm;
+		y *= invNorm;
+		z *= invNorm;
+	}
 
 	if (length)
 		*length = norm;
