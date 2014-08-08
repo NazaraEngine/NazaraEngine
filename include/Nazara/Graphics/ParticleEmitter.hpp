@@ -44,6 +44,7 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 
 		unsigned int GetEmissionCount() const;
 		float GetEmissionRate() const;
+		float GetFixedStepSize() const;
 		unsigned int GetMaxParticleCount() const;
 		unsigned int GetParticleCount() const;
 		unsigned int GetParticleSize() const;
@@ -61,7 +62,7 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 
 		void SetEmissionCount(unsigned int count);
 		void SetEmissionRate(float rate);
-		void SetFixedStepSize(float step);
+		void SetFixedStepSize(float stepSize);
 		void SetRenderer(NzParticleRenderer* renderer);
 
 		NzParticleEmitter& operator=(const NzParticleEmitter& emitter);
