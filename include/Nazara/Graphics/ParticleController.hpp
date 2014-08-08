@@ -25,7 +25,7 @@ class NAZARA_API NzParticleController : public NzResource
 		NzParticleController(const NzParticleController& controller);
 		virtual ~NzParticleController();
 
-		virtual void Apply(NzParticleEmitter& emitter, NzParticleMapper& mapper, unsigned int offset, unsigned int particleCount, float elapsedTime) = 0;
+		virtual void Apply(NzParticleEmitter& emitter, NzParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
 };
 
 #endif // NAZARA_PARTICLECONTROLLER_HPP
