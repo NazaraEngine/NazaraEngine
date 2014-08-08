@@ -49,6 +49,7 @@ enum nzParticleComponent
 
 	nzParticleComponent_Color,
 	nzParticleComponent_Life,
+	nzParticleComponent_Mass,
 	nzParticleComponent_Normal,
 	nzParticleComponent_Position,
 	nzParticleComponent_Radius,
