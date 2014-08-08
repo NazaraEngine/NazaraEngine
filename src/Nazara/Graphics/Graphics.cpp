@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
@@ -41,6 +42,12 @@ bool NzGraphics::Initialize()
 	if (!NzMaterial::Initialize())
 	{
 		NazaraError("Failed to initialize materials");
+		return false;
+	}
+
+	if (!NzParticleDeclaration::Initialize())
+	{
+		NazaraError("Failed to initialize particle declarations");
 		return false;
 	}
 
@@ -98,6 +105,7 @@ void NzGraphics::Uninitialize()
 
 	NzDeferredRenderTechnique::Uninitialize();
 	NzMaterial::Uninitialize();
+	NzParticleDeclaration::Uninitialize();
 	NzSkinningManager::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");
