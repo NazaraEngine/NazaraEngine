@@ -72,9 +72,11 @@ void NzParticleEmitter::AddGenerator(NzParticleGenerator* generator)
 void NzParticleEmitter::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
 	///FIXME: Vérifier le renderer
-	NzParticleMapper mapper(m_buffer.data(), m_declaration);
-
-	m_renderer->Render(*this, mapper, 0, m_particleCount, renderQueue);
+	if (m_particleCount > 0)
+	{
+		NzParticleMapper mapper(m_buffer.data(), m_declaration);
+		m_renderer->Render(*this, mapper, 0, m_particleCount-1, renderQueue);
+	}
 }
 
 void* NzParticleEmitter::CreateParticle()
@@ -106,7 +108,7 @@ void* NzParticleEmitter::GenerateParticles(unsigned int count)
 
 	NzParticleMapper mapper(ptr, m_declaration);
 	for (NzParticleGenerator* generator : m_generators)
-		generator->Generate(*this, mapper, 0, m_particleCount);
+		generator->Generate(*this, mapper, 0, m_particleCount-1);
 
 	return ptr;
 }
@@ -329,33 +331,36 @@ void NzParticleEmitter::Update()
 		}
 	}
 
-	NzParticleMapper mapper(m_buffer.data(), m_declaration);
-
-	m_processing = true;
-
-	// Pour éviter un verrouillage en cas d'exception
-	NzCallOnExit onExit([this]()
+	if (m_particleCount > 0)
 	{
+		NzParticleMapper mapper(m_buffer.data(), m_declaration);
+
+		m_processing = true;
+
+		// Pour éviter un verrouillage en cas d'exception
+		NzCallOnExit onExit([this]()
+		{
+			m_processing = false;
+		});
+
+		for (NzParticleController* controller : m_controllers)
+			controller->Apply(*this, mapper, 0, m_particleCount-1, elapsedTime);
+
 		m_processing = false;
-	});
+		onExit.Reset();
 
-	for (NzParticleController* controller : m_controllers)
-		controller->Apply(*this, mapper, 0, m_particleCount, elapsedTime);
+		// On tue maintenant les particules mortes durant la mise à jour
+		if (m_dyingParticles.size() < m_particleCount)
+		{
+			// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
+			// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
+			// sans cette solution certaines particules pourraient échapper à la mort
+			for (unsigned int index : m_dyingParticles)
+				KillParticle(index);
+		}
+		else
+			KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
 
-	m_processing = false;
-	onExit.Reset();
-
-	// On tue maintenant les particules mortes durant la mise à jour
-	if (m_dyingParticles.size() < m_particleCount)
-	{
-		// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
-		// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
-		// sans cette solution certaines particules pourraient échapper à la mort
-		for (unsigned int index : m_dyingParticles)
-			KillParticle(index);
+		m_dyingParticles.clear();
 	}
-	else
-		KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
-
-	m_dyingParticles.clear();
 }

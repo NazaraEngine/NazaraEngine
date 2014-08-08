@@ -26,7 +26,7 @@ class NAZARA_API NzParticleRenderer : public NzResource
 		NzParticleRenderer(const NzParticleRenderer& renderer);
 		virtual ~NzParticleRenderer();
 
-		virtual void Render(const NzParticleEmitter& emitter, const NzParticleMapper& mapper, unsigned int offset, unsigned int particleCount, NzAbstractRenderQueue* renderQueue) = 0;
+		virtual void Render(const NzParticleEmitter& emitter, const NzParticleMapper& mapper, unsigned int startId, unsigned int endId, NzAbstractRenderQueue* renderQueue) = 0;
 };
 
 #endif // NAZARA_PARTICLERENDERER_HPP
