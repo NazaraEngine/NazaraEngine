@@ -19,8 +19,12 @@ NzParticleEmitter(maxParticleCount, NzParticleDeclaration::Get(layout))
 NzParticleEmitter::NzParticleEmitter(unsigned int maxParticleCount, NzParticleDeclaration* declaration) :
 m_declaration(declaration),
 m_boundingVolumeUpdated(false),
+m_fixedStepEnabled(false),
+m_processing(false),
 m_emissionAccumulator(0.f),
 m_emissionRate(0.f),
+m_stepAccumulator(0.f),
+m_stepSize(1.f/60.f),
 m_emissionCount(1),
 m_maxParticleCount(maxParticleCount),
 m_particleCount(0)
@@ -41,9 +45,12 @@ m_boundingVolume(emitter.m_boundingVolume),
 m_declaration(emitter.m_declaration),
 m_renderer(emitter.m_renderer),
 m_boundingVolumeUpdated(emitter.m_boundingVolumeUpdated),
+m_fixedStepEnabled(emitter.m_fixedStepEnabled),
 m_processing(false),
 m_emissionAccumulator(0.f),
 m_emissionRate(emitter.m_emissionRate),
+m_stepAccumulator(0.f),
+m_stepSize(emitter.m_stepSize),
 m_emissionCount(emitter.m_emissionCount),
 m_maxParticleCount(emitter.m_maxParticleCount),
 m_particleCount(emitter.m_particleCount),
@@ -93,6 +100,16 @@ void* NzParticleEmitter::CreateParticles(unsigned int count)
 	m_particleCount += count;
 
 	return &m_buffer[particlesIndex*m_particleSize];
+}
+
+void NzParticleEmitter::EnableFixedStep(bool fixedStep)
+{
+	// On teste pour empêcher que cette méthode ne remette systématiquement le step accumulator à zéro
+	if (m_fixedStepEnabled != fixedStep)
+	{
+		m_fixedStepEnabled = fixedStep;
+		m_stepAccumulator = 0.f;
+	}
 }
 
 void* NzParticleEmitter::GenerateParticle()
@@ -154,6 +171,11 @@ nzSceneNodeType NzParticleEmitter::GetSceneNodeType() const
 bool NzParticleEmitter::IsDrawable() const
 {
 	return true;
+}
+
+bool NzParticleEmitter::IsFixedStepEnabled() const
+{
+	return m_fixedStepEnabled;
 }
 
 void NzParticleEmitter::KillParticle(unsigned int index)
@@ -218,47 +240,25 @@ NzParticleEmitter& NzParticleEmitter::operator=(const NzParticleEmitter& emitter
 	m_declaration = emitter.m_declaration;
 	m_emissionCount = emitter.m_emissionCount;
 	m_emissionRate = emitter.m_emissionRate;
+	m_fixedStepEnabled = emitter.m_fixedStepEnabled;
 	m_generators = emitter.m_generators;
 	m_maxParticleCount = emitter.m_maxParticleCount;
 	m_particleCount = emitter.m_particleCount;
 	m_particleSize = emitter.m_particleSize;
 	m_renderer = emitter.m_renderer;
+	m_stepSize = emitter.m_stepSize;
 
 	// La copie ne peut pas (ou plutôt ne devrait pas) avoir lieu pendant une mise à jour, inutile de copier
 	m_dyingParticles.clear();
 	m_emissionAccumulator = 0.f;
 	m_processing = false;
+	m_stepAccumulator = 0.f;
 
 	m_buffer.clear(); // Pour éviter une recopie lors du resize() qui ne servira pas à grand chose
 	ResizeBuffer();
 
 	// On ne copie que les particules vivantes
 	std::memcpy(m_buffer.data(), emitter.m_buffer.data(), emitter.m_particleCount*m_particleSize);
-
-	return *this;
-}
-
-NzParticleEmitter& NzParticleEmitter::operator=(NzParticleEmitter&& emitter)
-{
-	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-
-	NzSceneNode::operator=(emitter);
-
-	m_boundingVolume = std::move(emitter.m_boundingVolume);
-	m_boundingVolumeUpdated = std::move(emitter.m_boundingVolumeUpdated);
-	m_buffer = std::move(emitter.m_buffer);
-	m_controllers = std::move(emitter.m_controllers);
-	m_declaration = std::move(emitter.m_declaration);
-	m_dyingParticles = std::move(emitter.m_dyingParticles);
-	m_emissionAccumulator = std::move(emitter.m_emissionAccumulator);
-	m_emissionCount = std::move(emitter.m_emissionCount);
-	m_emissionRate = std::move(emitter.m_emissionRate);
-	m_generators = std::move(emitter.m_generators);
-	m_maxParticleCount = std::move(emitter.m_maxParticleCount);
-	m_particleCount = std::move(emitter.m_particleCount);
-	m_particleSize = std::move(emitter.m_particleSize);
-	m_processing = std::move(emitter.m_processing);
-	m_renderer = std::move(emitter.m_renderer);
 
 	return *this;
 }
@@ -343,8 +343,22 @@ void NzParticleEmitter::Update()
 			m_processing = false;
 		});
 
-		for (NzParticleController* controller : m_controllers)
-			controller->Apply(*this, mapper, 0, m_particleCount-1, elapsedTime);
+		if (m_fixedStepEnabled)
+		{
+			m_stepAccumulator += elapsedTime;
+			while (m_stepAccumulator >= m_stepSize)
+			{
+				for (NzParticleController* controller : m_controllers)
+					controller->Apply(*this, mapper, 0, m_particleCount-1, m_stepAccumulator);
+
+				m_stepAccumulator -= m_stepSize;
+			}
+		}
+		else
+		{
+			for (NzParticleController* controller : m_controllers)
+				controller->Apply(*this, mapper, 0, m_particleCount-1, elapsedTime);
+		}
 
 		m_processing = false;
 		onExit.Reset();
