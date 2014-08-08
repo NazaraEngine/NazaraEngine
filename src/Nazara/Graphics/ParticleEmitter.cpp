@@ -148,6 +148,11 @@ float NzParticleEmitter::GetEmissionRate() const
 	return m_emissionRate;
 }
 
+float NzParticleEmitter::GetFixedStepSize() const
+{
+	return m_stepSize;
+}
+
 unsigned int NzParticleEmitter::GetMaxParticleCount() const
 {
 	return m_maxParticleCount;
@@ -221,6 +226,11 @@ void NzParticleEmitter::SetEmissionCount(unsigned int count)
 void NzParticleEmitter::SetEmissionRate(float rate)
 {
 	m_emissionRate = rate;
+}
+
+void NzParticleEmitter::SetFixedStepSize(float stepSize)
+{
+	m_stepSize = stepSize;
 }
 
 void NzParticleEmitter::SetRenderer(NzParticleRenderer* renderer)
