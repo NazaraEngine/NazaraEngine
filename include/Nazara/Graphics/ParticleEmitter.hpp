@@ -35,6 +35,8 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 		void* CreateParticle();
 		void* CreateParticles(unsigned int count);
 
+		void EnableFixedStep(bool fixedStep);
+
 		void* GenerateParticle();
 		void* GenerateParticles(unsigned int count);
 
@@ -49,6 +51,7 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 		nzSceneNodeType GetSceneNodeType() const override;
 
 		bool IsDrawable() const;
+		bool IsFixedStepEnabled() const;
 
 		void KillParticle(unsigned int index);
 		void KillParticles();
@@ -58,10 +61,11 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 
 		void SetEmissionCount(unsigned int count);
 		void SetEmissionRate(float rate);
+		void SetFixedStepSize(float step);
 		void SetRenderer(NzParticleRenderer* renderer);
 
 		NzParticleEmitter& operator=(const NzParticleEmitter& emitter);
-		NzParticleEmitter& operator=(NzParticleEmitter&& emitter);
+		NzParticleEmitter& operator=(NzParticleEmitter&& emitter) = default;
 
 	private:
 		void GenerateAABB() const;
@@ -79,9 +83,12 @@ class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
 		NzParticleDeclarationConstRef m_declaration;
 		NzParticleRendererRef m_renderer;
 		mutable bool m_boundingVolumeUpdated;
+		bool m_fixedStepEnabled;
 		bool m_processing;
 		float m_emissionAccumulator;
 		float m_emissionRate;
+		float m_stepAccumulator;
+		float m_stepSize;
 		unsigned int m_emissionCount;
 		unsigned int m_maxParticleCount;
 		unsigned int m_particleCount;
