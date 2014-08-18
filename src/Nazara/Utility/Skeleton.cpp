@@ -32,7 +32,7 @@ bool NzSkeleton::Create(unsigned int jointCount)
 	#if NAZARA_UTILITY_SAFE
 	if (jointCount == 0)
 	{
-		NazaraError("Joint count must be over 0");
+		NazaraError("Joint count must be over zero");
 		return false;
 	}
 	#endif

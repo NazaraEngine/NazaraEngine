@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Image.hpp>
@@ -45,15 +46,8 @@ m_waitForEvent(false)
 m_impl(nullptr)
 #endif
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(mode, title, style);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create window");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzWindow::NzWindow(NzWindowHandle handle) :
@@ -65,15 +59,8 @@ m_waitForEvent(false)
 m_impl(nullptr)
 #endif
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(handle);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create window");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzWindow::~NzWindow()
