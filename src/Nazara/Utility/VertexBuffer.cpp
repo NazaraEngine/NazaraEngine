@@ -7,6 +7,11 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer)
+{
+	Reset(vertexDeclaration, buffer);
+}
+
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	Reset(vertexDeclaration, buffer, startOffset, endOffset);
@@ -178,6 +183,11 @@ void NzVertexBuffer::Reset()
 {
 	m_buffer.Reset();
 	m_vertexDeclaration.Reset();
+}
+
+void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer)
+{
+	Reset(vertexDeclaration, buffer, 0, buffer->GetSize()-1);
 }
 
 void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)

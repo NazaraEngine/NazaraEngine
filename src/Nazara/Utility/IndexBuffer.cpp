@@ -11,6 +11,11 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer)
+{
+	Reset(largeIndices, buffer);
+}
+
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	Reset(largeIndices, buffer, startOffset, endOffset);
@@ -166,6 +171,11 @@ void NzIndexBuffer::Optimize()
 void NzIndexBuffer::Reset()
 {
 	m_buffer.Reset();
+}
+
+void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer)
+{
+	Reset(largeIndices, buffer, 0, buffer->GetSize()-1);
 }
 
 void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
