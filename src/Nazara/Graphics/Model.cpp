@@ -396,7 +396,7 @@ void NzModel::SetSkinCount(unsigned int skinCount)
 	#if NAZARA_GRAPHICS_SAFE
 	if (skinCount == 0)
 	{
-		NazaraError("Skin count must be over 0");
+		NazaraError("Skin count must be over zero");
 		return;
 	}
 	#endif
