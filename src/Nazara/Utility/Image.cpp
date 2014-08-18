@@ -271,7 +271,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 	}
 	#endif
 
-	levelCount = std::min(levelCount, GetMaxLevel(width, height, depth));
+	levelCount = std::min(levelCount, GetMaxLevel(type, width, height, depth));
 
 	nzUInt8** levels = new nzUInt8*[levelCount];
 
@@ -673,7 +673,7 @@ nzUInt8 NzImage::GetLevelCount() const
 
 nzUInt8 NzImage::GetMaxLevel() const
 {
-	return GetMaxLevel(m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+	return GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 }
 
 NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -1003,7 +1003,7 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 	}
 	#endif
 
-	levelCount = std::min(levelCount, GetMaxLevel(m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
+	levelCount = std::min(levelCount, GetMaxLevel());
 
 	if (m_sharedImage->levelCount == levelCount)
 		return;
@@ -1285,6 +1285,29 @@ nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned i
 	unsigned int depthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(depth)));
 
 	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
+}
+
+nzUInt8 NzImage::GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth)
+{
+	// Pour éviter que la profondeur ne soit comptée dans le calcul des niveaux
+	switch (type)
+	{
+		case nzImageType_1D:
+		case nzImageType_1D_Array:
+			return GetMaxLevel(width, 1U, 1U);
+
+		case nzImageType_2D:
+		case nzImageType_2D_Array:
+		case nzImageType_Cubemap:
+			return GetMaxLevel(width, height, 1U);
+
+		case nzImageType_3D:
+			return GetMaxLevel(width, height, depth);
+	}
+
+	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
+	return 0;
+
 }
 
 void NzImage::EnsureOwnership()

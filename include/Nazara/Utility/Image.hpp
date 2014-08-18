@@ -109,6 +109,7 @@ class NAZARA_API NzImage : public NzResource
 
 		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
+		static nzUInt8 GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
 		struct SharedImage
 		{
