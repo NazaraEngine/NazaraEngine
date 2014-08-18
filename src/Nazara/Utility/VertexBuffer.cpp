@@ -4,16 +4,25 @@
 
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer)
+{
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
+	Reset(vertexDeclaration, buffer);
+}
+
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, buffer, startOffset, endOffset);
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, length, storage, usage);
 }
 
@@ -180,6 +189,11 @@ void NzVertexBuffer::Reset()
 	m_vertexDeclaration.Reset();
 }
 
+void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer)
+{
+	Reset(vertexDeclaration, buffer, 0, buffer->GetSize()-1);
+}
+
 void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -189,9 +203,9 @@ void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffe
 		return;
 	}
 
-	if (endOffset > startOffset)
+	if (startOffset > endOffset)
 	{
-		NazaraError("End offset cannot be over start offset");
+		NazaraError("Start offset cannot be over end offset");
 		return;
 	}
 

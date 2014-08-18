@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -11,13 +12,21 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer)
+{
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
+	Reset(largeIndices, buffer);
+}
+
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, buffer, startOffset, endOffset);
 }
 
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, length, storage, usage);
 }
 
@@ -168,6 +177,11 @@ void NzIndexBuffer::Reset()
 	m_buffer.Reset();
 }
 
+void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer)
+{
+	Reset(largeIndices, buffer, 0, buffer->GetSize()-1);
+}
+
 void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -177,9 +191,9 @@ void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int star
 		return;
 	}
 
-	if (endOffset > startOffset)
+	if (startOffset > endOffset)
 	{
-		NazaraError("End offset cannot be over start offset");
+		NazaraError("Start offset cannot be over end offset");
 		return;
 	}
 

@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
+///TODO: Virer les méthodes faisant référence aux faces et gérer ces dernières comme de simples niveaux de profondeurs (malgré OpenGL)
+
 struct NzTextureImpl
 {
 	GLuint id;
@@ -659,124 +661,100 @@ bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& param
 	return LoadFromImage(image, generateMipmaps);
 }
 
-bool NzTexture::LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams, bool generateMipmaps, const NzCubemapParams& cubemapParams)
+bool NzTexture::LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
 {
-	NzImage image;
-	if (!image.LoadFromFile(filePath, imageParams))
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromFile(filePath, imageParams, atlasSize))
 	{
-		NazaraError("Failed to load image");
+		NazaraError("Failed to load cubemap");
 		return false;
 	}
 
-	return LoadCubemapFromImage(image, generateMipmaps, cubemapParams);
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromImage(const NzImage& image, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromImage(image, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromMemory(data, size, imageParams, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromStream(stream, imageParams, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams, bool generateMipmaps, const NzCubemapParams& cubemapParams)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadCubemapFromFile(filePath, imageParams, cubemapParams))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
 }
 
 bool NzTexture::LoadCubemapFromImage(const NzImage& image, bool generateMipmaps, const NzCubemapParams& params)
 {
-	// Implémentation presque identique à celle de Image::LoadCubemapFromImage
-	#if NAZARA_UTILITY_SAFE
-	if (!image.IsValid())
+	NzImage cubemap;
+	if (!cubemap.LoadCubemapFromImage(image, params))
 	{
-		NazaraError("Image must be valid");
-		return false;
-	}
-	#endif
-
-	unsigned int width = image.GetWidth();
-	unsigned int height = image.GetHeight();
-	unsigned int faceSize = (params.faceSize == 0) ? std::max(width, height)/4 : params.faceSize;
-
-	// Sans cette vérification, celles des rectangles pourrait réussir via un overflow
-	if (width < faceSize || height < faceSize)
-	{
-		NazaraError("Image is too small for this face size");
+		NazaraError("Failed to load cubemap");
 		return false;
 	}
 
-	// Calcul et vérification des surfaces
-	unsigned limitX = width - faceSize;
-	unsigned limitY = height - faceSize;
-
-	NzVector2ui backPos = params.backPosition * faceSize;
-	if (backPos.x > limitX || backPos.y > limitY)
-	{
-		NazaraError("Back rectangle is out of image");
-		return false;
-	}
-
-	NzVector2ui downPos = params.downPosition * faceSize;
-	if (downPos.x > limitX || downPos.y > limitY)
-	{
-		NazaraError("Down rectangle is out of image");
-		return false;
-	}
-
-	NzVector2ui forwardPos = params.forwardPosition * faceSize;
-	if (forwardPos.x > limitX || forwardPos.y > limitY)
-	{
-		NazaraError("Forward rectangle is out of image");
-		return false;
-	}
-
-	NzVector2ui leftPos = params.leftPosition * faceSize;
-	if (leftPos.x > limitX || leftPos.y > limitY)
-	{
-		NazaraError("Left rectangle is out of image");
-		return false;
-	}
-
-	NzVector2ui rightPos = params.rightPosition * faceSize;
-	if (rightPos.x > limitX || rightPos.y > limitY)
-	{
-		NazaraError("Right rectangle is out of image");
-		return false;
-	}
-
-	NzVector2ui upPos = params.upPosition * faceSize;
-	if (upPos.x > limitX || upPos.y > limitY)
-	{
-		NazaraError("Up rectangle is out of image");
-		return false;
-	}
-
-	if (!Create(nzImageType_Cubemap, image.GetFormat(), faceSize, faceSize, 1, (generateMipmaps) ? 0xFF : 1))
-	{
-		NazaraError("Failed to create texture");
-		return false;
-	}
-
-	UpdateFace(nzCubemapFace_NegativeX, image.GetConstPixels(leftPos.x, leftPos.y), width, height);
-	UpdateFace(nzCubemapFace_NegativeY, image.GetConstPixels(downPos.x, downPos.y), width, height);
-	UpdateFace(nzCubemapFace_NegativeZ, image.GetConstPixels(backPos.x, backPos.y), width, height);
-	UpdateFace(nzCubemapFace_PositiveX, image.GetConstPixels(rightPos.x, rightPos.y), width, height);
-	UpdateFace(nzCubemapFace_PositiveY, image.GetConstPixels(upPos.x, upPos.y), width, height);
-	UpdateFace(nzCubemapFace_PositiveZ, image.GetConstPixels(forwardPos.x, forwardPos.y), width, height);
-
-	return true;
+	return LoadFromImage(cubemap, generateMipmaps);
 }
 
 bool NzTexture::LoadCubemapFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams, bool generateMipmaps, const NzCubemapParams& cubemapParams)
 {
-	NzImage image;
-	if (!image.LoadFromMemory(data, size, imageParams))
+	NzImage cubemap;
+	if (!cubemap.LoadCubemapFromMemory(data, size, imageParams, cubemapParams))
 	{
-		NazaraError("Failed to load image");
+		NazaraError("Failed to load cubemap");
 		return false;
 	}
 
-	return LoadCubemapFromImage(image, generateMipmaps, cubemapParams);
+	return LoadFromImage(cubemap, generateMipmaps);
 }
 
 bool NzTexture::LoadCubemapFromStream(NzInputStream& stream, const NzImageParams& imageParams, bool generateMipmaps, const NzCubemapParams& cubemapParams)
 {
-	NzImage image;
-	if (!image.LoadFromStream(stream, imageParams))
+	NzImage cubemap;
+	if (!cubemap.LoadCubemapFromStream(stream, imageParams, cubemapParams))
 	{
-		NazaraError("Failed to load image");
+		NazaraError("Failed to load cubemap");
 		return false;
 	}
 
-	return LoadCubemapFromImage(image, generateMipmaps, cubemapParams);
+	return LoadFromImage(cubemap, generateMipmaps);
 }
 
 bool NzTexture::LoadFaceFromFile(nzCubemapFace face, const NzString& filePath, const NzImageParams& params)
@@ -809,7 +787,6 @@ bool NzTexture::LoadFaceFromFile(nzCubemapFace face, const NzString& filePath, c
 	}
 
 	unsigned int faceSize = m_impl->width;
-
 	if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
 	{
 		NazaraError("Image size must match texture face size");
@@ -849,7 +826,6 @@ bool NzTexture::LoadFaceFromMemory(nzCubemapFace face, const void* data, std::si
 	}
 
 	unsigned int faceSize = m_impl->width;
-
 	if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
 	{
 		NazaraError("Image size must match texture face size");

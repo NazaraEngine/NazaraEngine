@@ -227,13 +227,13 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_1D:
 			if (height > 1)
 			{
-				NazaraError("1D textures must be 1 height");
+				NazaraError("1D textures must be 1 tall");
 				return false;
 			}
 
 			if (depth > 1)
 			{
-				NazaraError("1D textures must be 1 depth");
+				NazaraError("1D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -242,7 +242,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_2D:
 			if (depth > 1)
 			{
-				NazaraError("2D textures must be 1 depth");
+				NazaraError("2D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -254,7 +254,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_Cubemap:
 			if (depth > 1)
 			{
-				NazaraError("Cubemaps must be 1 depth");
+				NazaraError("Cubemaps must be 1 deep");
 				return false;
 			}
 
@@ -271,7 +271,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 	}
 	#endif
 
-	levelCount = std::min(levelCount, GetMaxLevel(width, height, depth));
+	levelCount = std::min(levelCount, GetMaxLevel(type, width, height, depth));
 
 	nzUInt8** levels = new nzUInt8*[levelCount];
 
@@ -673,7 +673,7 @@ nzUInt8 NzImage::GetLevelCount() const
 
 nzUInt8 NzImage::GetMaxLevel() const
 {
-	return GetMaxLevel(m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+	return GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 }
 
 NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -863,6 +863,103 @@ bool NzImage::LoadFromStream(NzInputStream& stream, const NzImageParams& params)
 	return NzImageLoader::LoadFromStream(this, stream, params);
 }
 
+// LoadArray
+bool NzImage::LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams, const NzVector2ui& atlasSize)
+{
+	NzImage image;
+	if (!image.LoadFromFile(filePath, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadArrayFromImage(image, atlasSize);
+}
+
+bool NzImage::LoadArrayFromImage(const NzImage& image, const NzVector2ui& atlasSize)
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!image.IsValid())
+	{
+		NazaraError("Image must be valid");
+		return false;
+	}
+
+	if (atlasSize.x == 0)
+	{
+		NazaraError("Atlas width must be over zero");
+		return false;
+	}
+
+	if (atlasSize.y == 0)
+	{
+		NazaraError("Atlas height must be over zero");
+		return false;
+	}
+	#endif
+
+	nzImageType type = image.GetType();
+
+	#if NAZARA_UTILITY_SAFE
+	if (type != nzImageType_1D && type != nzImageType_2D)
+	{
+		NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
+		return false;
+	}
+	#endif
+
+	NzVector2ui imageSize(image.GetWidth(), image.GetHeight());
+
+	if (imageSize.x % atlasSize.x != 0)
+	{
+		NazaraWarning("Image width is not divisible by atlas width (" + NzString::Number(imageSize.x) + " mod " + NzString::Number(atlasSize.x) + " != 0)");
+	}
+
+	if (imageSize.y % atlasSize.y != 0)
+	{
+		NazaraWarning("Image height is not divisible by atlas height (" + NzString::Number(imageSize.y) + " mod " + NzString::Number(atlasSize.y) + " != 0)");
+	}
+
+	NzVector2ui faceSize = imageSize/atlasSize;
+
+	// Selon le type de l'image de base, on va créer un array d'images 2D ou 1D
+	if (type == nzImageType_2D)
+		Create(nzImageType_2D_Array, image.GetFormat(), faceSize.x, faceSize.y);
+	else
+		Create(nzImageType_1D_Array, image.GetFormat(), faceSize.x, 1);
+
+	unsigned int layer = 0;
+	for (unsigned int i = 0; i < atlasSize.x; ++i)
+		for (unsigned int j = 0; j < atlasSize.y; ++j)
+			Copy(image, NzRectui(i*faceSize.x, j*faceSize.y, faceSize.x, faceSize.y), NzVector3ui(0, 0, layer++));
+
+	return true;
+}
+
+bool NzImage::LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams, const NzVector2ui& atlasSize)
+{
+	NzImage image;
+	if (!image.LoadFromMemory(data, size, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadArrayFromImage(image, atlasSize);
+}
+
+bool NzImage::LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams, const NzVector2ui& atlasSize)
+{
+	NzImage image;
+	if (!image.LoadFromStream(stream, imageParams))
+	{
+		NazaraError("Failed to load image");
+		return false;
+	}
+
+	return LoadArrayFromImage(image, atlasSize);
+}
+
 bool NzImage::LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams, const NzCubemapParams& cubemapParams)
 {
 	NzImage image;
@@ -881,6 +978,13 @@ bool NzImage::LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& 
 	if (!image.IsValid())
 	{
 		NazaraError("Image must be valid");
+		return false;
+	}
+
+	nzImageType type = image.GetType();
+	if (type != nzImageType_2D)
+	{
+		NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
 		return false;
 	}
 	#endif
@@ -1003,7 +1107,7 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 	}
 	#endif
 
-	levelCount = std::min(levelCount, GetMaxLevel(m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
+	levelCount = std::min(levelCount, GetMaxLevel());
 
 	if (m_sharedImage->levelCount == levelCount)
 		return;
@@ -1285,6 +1389,29 @@ nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned i
 	unsigned int depthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(depth)));
 
 	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
+}
+
+nzUInt8 NzImage::GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth)
+{
+	// Pour éviter que la profondeur ne soit comptée dans le calcul des niveaux
+	switch (type)
+	{
+		case nzImageType_1D:
+		case nzImageType_1D_Array:
+			return GetMaxLevel(width, 1U, 1U);
+
+		case nzImageType_2D:
+		case nzImageType_2D_Array:
+		case nzImageType_Cubemap:
+			return GetMaxLevel(width, height, 1U);
+
+		case nzImageType_3D:
+			return GetMaxLevel(width, height, depth);
+	}
+
+	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
+	return 0;
+
 }
 
 void NzImage::EnsureOwnership()
