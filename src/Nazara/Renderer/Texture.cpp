@@ -661,6 +661,54 @@ bool NzTexture::LoadFromStream(NzInputStream& stream, const NzImageParams& param
 	return LoadFromImage(image, generateMipmaps);
 }
 
+bool NzTexture::LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromFile(filePath, imageParams, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromImage(const NzImage& image, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromImage(image, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromMemory(data, size, imageParams, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
+bool NzTexture::LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams, bool generateMipmaps, const NzVector2ui& atlasSize)
+{
+	NzImage cubemap;
+	if (!cubemap.LoadArrayFromStream(stream, imageParams, atlasSize))
+	{
+		NazaraError("Failed to load cubemap");
+		return false;
+	}
+
+	return LoadFromImage(cubemap, generateMipmaps);
+}
+
 bool NzTexture::LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams, bool generateMipmaps, const NzCubemapParams& cubemapParams)
 {
 	NzImage cubemap;
