@@ -48,7 +48,7 @@ bool NzAnimation::AddSequence(const NzSequence& sequence)
 
 	if (sequence.frameCount == 0)
 	{
-		NazaraError("Sequence frame count must be over 0");
+		NazaraError("Sequence frame count must be over zero");
 		return false;
 	}
 	#endif

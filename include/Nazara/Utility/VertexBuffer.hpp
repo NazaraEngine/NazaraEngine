@@ -22,6 +22,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 {
 	public:
 		NzVertexBuffer() = default;
+		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
 		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
 		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
@@ -47,6 +48,7 @@ class NAZARA_API NzVertexBuffer : public NzResource
 		void* MapRaw(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
 		void Reset();
+		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
 		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
 		void Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Reset(const NzVertexBuffer& vertexBuffer);

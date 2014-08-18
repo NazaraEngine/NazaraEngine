@@ -375,7 +375,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
@@ -470,7 +470,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
@@ -1786,15 +1786,15 @@ bool NzRenderer::EnsureStateUpdate()
 						unsigned int offset;
 						vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(j), &enabled, &type, &offset);
 
-						if (!IsComponentTypeSupported(type))
-						{
-							NazaraError("Invalid vertex declaration " + NzString::Pointer(vertexDeclaration) + ": Vertex component 0x" + NzString::Number(j, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
-							updateFailed = true;
-							break;
-						}
-
 						if (enabled)
 						{
+							if (!IsComponentTypeSupported(type))
+							{
+								NazaraError("Invalid vertex declaration " + NzString::Pointer(vertexDeclaration) + ": Vertex component 0x" + NzString::Number(j, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
+								updateFailed = true;
+								break;
+							}
+
 							glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[j]);
 
 							switch (type)
