@@ -227,13 +227,13 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_1D:
 			if (height > 1)
 			{
-				NazaraError("1D textures must be 1 height");
+				NazaraError("1D textures must be 1 tall");
 				return false;
 			}
 
 			if (depth > 1)
 			{
-				NazaraError("1D textures must be 1 depth");
+				NazaraError("1D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -242,7 +242,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_2D:
 			if (depth > 1)
 			{
-				NazaraError("2D textures must be 1 depth");
+				NazaraError("2D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -254,7 +254,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		case nzImageType_Cubemap:
 			if (depth > 1)
 			{
-				NazaraError("Cubemaps must be 1 depth");
+				NazaraError("Cubemaps must be 1 deep");
 				return false;
 			}
 
@@ -881,6 +881,13 @@ bool NzImage::LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& 
 	if (!image.IsValid())
 	{
 		NazaraError("Image must be valid");
+		return false;
+	}
+
+	nzImageType type = image.GetType();
+	if (type != nzImageType_2D)
+	{
+		NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
 		return false;
 	}
 	#endif
