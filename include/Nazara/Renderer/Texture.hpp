@@ -62,6 +62,12 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams(), bool generateMipmaps = true);
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams(), bool generateMipmaps = true);
 
+		// LoadArray
+		bool LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromImage(const NzImage& image, bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+
 		// LoadCubemap
 		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzCubemapParams& cubemapParams = NzCubemapParams());
 		bool LoadCubemapFromImage(const NzImage& image, bool generateMipmaps = true, const NzCubemapParams& params = NzCubemapParams());
