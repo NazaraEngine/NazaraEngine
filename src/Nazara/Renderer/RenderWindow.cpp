@@ -14,28 +14,14 @@
 
 NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(mode, title, style, parameters);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create render window");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters)
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(handle, parameters);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create render window");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzRenderWindow::~NzRenderWindow()
