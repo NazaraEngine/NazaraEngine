@@ -4,21 +4,25 @@
 
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, buffer);
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, buffer, startOffset, endOffset);
 }
 
 NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, length, storage, usage);
 }
 
