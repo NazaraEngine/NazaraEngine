@@ -189,9 +189,9 @@ void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffe
 		return;
 	}
 
-	if (endOffset > startOffset)
+	if (startOffset > endOffset)
 	{
-		NazaraError("End offset cannot be over start offset");
+		NazaraError("Start offset cannot be over end offset");
 		return;
 	}
 
