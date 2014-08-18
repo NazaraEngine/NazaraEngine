@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -11,6 +12,8 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
+
+///TODO: Améliorer les méthode CopyTo*
 
 NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {

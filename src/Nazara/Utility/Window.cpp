@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Image.hpp>
