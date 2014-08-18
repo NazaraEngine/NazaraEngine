@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -13,16 +14,19 @@
 
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, buffer);
 }
 
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, buffer, startOffset, endOffset);
 }
 
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, length, storage, usage);
 }
 
