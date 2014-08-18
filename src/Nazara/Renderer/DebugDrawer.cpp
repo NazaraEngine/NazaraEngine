@@ -661,7 +661,7 @@ bool NzDebugDrawer::Initialize()
 		// s_vertexBuffer
 		try
 		{
-			NzErrorFlags flags(nzErrorFlag_ThrowException);
+			NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 			s_vertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 65365, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)

@@ -91,6 +91,12 @@ class NAZARA_API NzImage : public NzResource
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
 
+		// LoadArray
+		bool LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromImage(const NzImage& image, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+
 		// LoadCubemap
 		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
 		bool LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& params = NzCubemapParams());
@@ -109,6 +115,7 @@ class NAZARA_API NzImage : public NzResource
 
 		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
+		static nzUInt8 GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
 		struct SharedImage
 		{
