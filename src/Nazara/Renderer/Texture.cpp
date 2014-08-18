@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
+///TODO: Virer les méthodes faisant référence aux faces et gérer ces dernières comme de simples niveaux de profondeurs (malgré OpenGL)
+
 struct NzTextureImpl
 {
 	GLuint id;
