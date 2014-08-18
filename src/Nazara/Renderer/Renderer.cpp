@@ -375,7 +375,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
@@ -470,7 +470,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
