@@ -221,12 +221,14 @@ enum nzVertexComponent
 {
 	nzVertexComponent_Unused = -1,
 
+	// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
 	nzVertexComponent_InstanceData0,
 	nzVertexComponent_InstanceData1,
 	nzVertexComponent_InstanceData2,
 	nzVertexComponent_InstanceData3,
 	nzVertexComponent_InstanceData4,
 	nzVertexComponent_InstanceData5,
+	nzVertexComponent_Color,
 	nzVertexComponent_Normal,
 	nzVertexComponent_Position,
 	nzVertexComponent_Tangent,
@@ -236,14 +238,13 @@ enum nzVertexComponent
 	nzVertexComponent_Userdata2,
 	nzVertexComponent_Userdata3,
 	nzVertexComponent_Userdata4,
-	nzVertexComponent_Userdata5,
 
 	nzVertexComponent_FirstInstanceData = nzVertexComponent_InstanceData0,
-	nzVertexComponent_FirstVertexData = nzVertexComponent_Normal,
+	nzVertexComponent_FirstVertexData = nzVertexComponent_Color,
 	nzVertexComponent_LastInstanceData = nzVertexComponent_InstanceData5,
-	nzVertexComponent_LastVertexData = nzVertexComponent_Userdata5,
+	nzVertexComponent_LastVertexData = nzVertexComponent_Userdata4,
 
-	nzVertexComponent_Max = nzVertexComponent_Userdata5
+	nzVertexComponent_Max = nzVertexComponent_Userdata4
 };
 
 enum nzVertexLayout
