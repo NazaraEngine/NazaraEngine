@@ -9,6 +9,7 @@
 #ifndef NAZARA_EVENT_HPP
 #define NAZARA_EVENT_HPP
 
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 
