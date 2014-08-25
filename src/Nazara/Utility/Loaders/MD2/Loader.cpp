@@ -200,7 +200,10 @@ namespace
 			{
 				const unsigned int fixedIndex = indexFix[j];
 				const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
-				vertex[triangles[i].vertices[fixedIndex]].uv.Set(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight);
+				float u = static_cast<float>(texC.u) / header.skinwidth;
+				float v = static_cast<float>(texC.v) / header.skinheight;
+
+				vertex[triangles[i].vertices[fixedIndex]].uv.Set(u, (parameters.flipUVs) ? 1.f - v : v);
 			}
 		}
 

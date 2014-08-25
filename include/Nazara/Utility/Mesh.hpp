@@ -36,6 +36,9 @@ struct NAZARA_API NzMeshParams
 	// Faut-il centrer le mesh autour de l'origine ?
 	bool center = false;
 
+	// Faut-il retourner les UV ?
+	bool flipUVs = false;
+
 	// Faut-il optimiser les index buffers ? (Rendu plus rapide, mais le chargement dure plus longtemps)
 	bool optimizeIndexBuffers = true;
 

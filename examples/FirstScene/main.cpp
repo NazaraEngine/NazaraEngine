@@ -95,6 +95,10 @@ int main()
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
 	params.mesh.scale.Set(0.01f); // Un centième de la taille originelle
 
+	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend
+	// Nous devons dire au moteur de les retourner lors du chargement
+	params.mesh.flipUVs = true;
+
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
 	if (!spaceship.LoadFromFile("resources/Spaceship/spaceship.obj", params))
