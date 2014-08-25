@@ -922,15 +922,17 @@ bool NzImage::LoadArrayFromImage(const NzImage& image, const NzVector2ui& atlasS
 
 	NzVector2ui faceSize = imageSize/atlasSize;
 
+	unsigned int layerCount = atlasSize.x*atlasSize.y;
+
 	// Selon le type de l'image de base, on va créer un array d'images 2D ou 1D
 	if (type == nzImageType_2D)
-		Create(nzImageType_2D_Array, image.GetFormat(), faceSize.x, faceSize.y);
+		Create(nzImageType_2D_Array, image.GetFormat(), faceSize.x, faceSize.y, layerCount);
 	else
-		Create(nzImageType_1D_Array, image.GetFormat(), faceSize.x, 1);
+		Create(nzImageType_1D_Array, image.GetFormat(), faceSize.x, layerCount);
 
 	unsigned int layer = 0;
-	for (unsigned int i = 0; i < atlasSize.x; ++i)
-		for (unsigned int j = 0; j < atlasSize.y; ++j)
+	for (unsigned int j = 0; j < atlasSize.y; ++j)
+		for (unsigned int i = 0; i < atlasSize.x; ++i)
 			Copy(image, NzRectui(i*faceSize.x, j*faceSize.y, faceSize.x, faceSize.y), NzVector3ui(0, 0, layer++));
 
 	return true;
