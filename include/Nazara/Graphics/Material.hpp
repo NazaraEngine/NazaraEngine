@@ -135,7 +135,7 @@ class NAZARA_API NzMaterial : public NzResource
 		struct ShaderInstance
 		{
 			const NzShader* shader;
-			NzUberShaderInstance* uberInstance;
+			NzUberShaderInstance* uberInstance = nullptr;
 			int uniforms[nzMaterialUniform_Max+1];
 		};
 
