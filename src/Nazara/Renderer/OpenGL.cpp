@@ -2104,16 +2104,16 @@ nzUInt8 NzOpenGL::VertexComponentIndex[] =
 	13, // nzVertexComponent_InstanceData3
 	14, // nzVertexComponent_InstanceData4
 	15, // nzVertexComponent_InstanceData5
+	4,  // nzVertexComponent_Color
 	2,  // nzVertexComponent_Normal
 	0,  // nzVertexComponent_Position
 	3,  // nzVertexComponent_Tangent
 	1,  // nzVertexComponent_TexCoord
-	4,  // nzVertexComponent_Userdata0
-	5,  // nzVertexComponent_Userdata1
-	6,  // nzVertexComponent_Userdata2
-	7,  // nzVertexComponent_Userdata3
-	8,  // nzVertexComponent_Userdata4
-	9   // nzVertexComponent_Userdata5
+	5,  // nzVertexComponent_Userdata0
+	6,  // nzVertexComponent_Userdata1
+	7,  // nzVertexComponent_Userdata2
+	8,  // nzVertexComponent_Userdata3
+	9   // nzVertexComponent_Userdata4
 };
 
 static_assert(nzVertexComponent_Max+1 == 16, "Attribute index array is incomplete");
