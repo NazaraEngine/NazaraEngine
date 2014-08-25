@@ -155,6 +155,7 @@ bool NzShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData3], "InstanceData3");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData4], "InstanceData4");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData5], "InstanceData5");
+	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Color],         "VertexColor");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Normal],        "VertexNormal");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Position],      "VertexPosition");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Tangent],       "VertexTangent");
@@ -164,7 +165,6 @@ bool NzShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata2],     "VertexUserdata2");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata3],     "VertexUserdata3");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata4],     "VertexUserdata4");
-	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata5],     "VertexUserdata5");
 
 	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
 	{

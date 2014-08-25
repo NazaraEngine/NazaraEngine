@@ -178,10 +178,7 @@ namespace
 					}
 
 					vertices->position = finalPos;
-
-					// Le format MD5 spécifie ses UV avec l'origine en bas à gauche, contrairement au moteur
-					// dont l'origine est en haut à gauche, nous inversons donc la valeur en Y.
-					vertices->uv.Set(vertex.uv.x, 1.f - vertex.uv.y);
+					vertices->uv.Set(vertex.uv.x, (parameters.flipUVs) ? 1.f - vertex.uv.y : vertex.uv.y); // Inversion des UV si demandé
 					vertices++;
 				}
 
@@ -271,7 +268,7 @@ namespace
 
 					// On retourne le modèle dans le bon sens
 					vertex->position = scale * (rotationQuat * finalPos);
-					vertex->uv.Set(md5Vertex.uv.x, 1.f - md5Vertex.uv.y);
+					vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
 					vertex++;
 				}
 
