@@ -142,7 +142,7 @@ namespace
 						if (index >= 0)
 						{
 							const NzVector3f& uvw = texCoords[index];
-							vertex.uv.Set(uvw.x, uvw.y);
+							vertex.uv.Set(uvw.x, (parameters.mesh.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
 						}
 						else
 							hasTexCoords = false;
