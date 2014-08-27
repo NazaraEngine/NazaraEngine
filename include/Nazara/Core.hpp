@@ -54,6 +54,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>

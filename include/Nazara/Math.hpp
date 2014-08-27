@@ -30,7 +30,7 @@
 #ifndef NAZARA_GLOBAL_MATH_HPP
 #define NAZARA_GLOBAL_MATH_HPP
 
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Config.hpp>
