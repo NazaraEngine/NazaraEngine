@@ -146,7 +146,7 @@ unsigned int NzUtility::ComponentCount[nzComponentType_Max+1] =
 
 static_assert(nzComponentType_Max+1 == 14, "Component count array is incomplete");
 
-unsigned int NzUtility::ComponentStride[nzComponentType_Max+1] =
+std::size_t NzUtility::ComponentStride[nzComponentType_Max+1] =
 {
 	4*sizeof(nzUInt8),  // nzComponentType_Color
 	1*sizeof(double),   // nzComponentType_Double1
