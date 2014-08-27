@@ -37,10 +37,10 @@ unsigned int NzLightManager::ComputeClosestLights(const NzVector3f& position, fl
 		light.score = std::numeric_limits<unsigned int>::max(); // Nous jouons au Golf
 	}
 
-	for (unsigned int i = 0; i < m_lights.size(); ++i)
+	for (auto it = m_lights.begin(); it != m_lights.end(); ++it)
 	{
-		const NzLight** lights = m_lights[i].first;
-		unsigned int lightCount = m_lights[i].second;
+		const NzLight** lights = it->first;
+		unsigned int lightCount = it->second;
 
 		for (unsigned int j = 0; j < lightCount; ++j)
 		{
