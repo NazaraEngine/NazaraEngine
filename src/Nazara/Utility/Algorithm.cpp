@@ -189,11 +189,9 @@ namespace
 		void MoveTriangleToEnd(int tri)
 		{
 			auto it = std::find(tri_indices.begin(), tri_indices.end(), tri);
-			int t_ind = (it != tri_indices.end()) ? std::distance(tri_indices.begin(), it) : -1;
+			NazaraAssert(it != tri_indices.end(), "Triangle not found");
 
-			NazaraAssert(t_ind >= 0, "Triangle not found");
-
-			tri_indices.erase(tri_indices.begin() + t_ind, tri_indices.begin() + t_ind + 1);
+			tri_indices.erase(it);
 			tri_indices.push_back(tri);
 		}
 	};
