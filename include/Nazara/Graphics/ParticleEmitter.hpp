@@ -8,92 +8,36 @@
 #define NAZARA_PARTICLEEMITTER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Updatable.hpp>
-#include <Nazara/Graphics/ParticleController.hpp>
-#include <Nazara/Graphics/ParticleDeclaration.hpp>
-#include <Nazara/Graphics/ParticleGenerator.hpp>
-#include <Nazara/Graphics/ParticleRenderer.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
-#include <Nazara/Math/BoundingVolume.hpp>
-#include <memory>
-#include <set>
-#include <vector>
+#include <Nazara/Utility/Node.hpp>
 
-class NAZARA_API NzParticleEmitter : public NzSceneNode, NzUpdatable
+class NzParticleMapper;
+class NzParticleSystem;
+
+class NAZARA_API NzParticleEmitter : public NzNode
 {
 	public:
-		NzParticleEmitter(unsigned int maxParticleCount, nzParticleLayout layout);
-		NzParticleEmitter(unsigned int maxParticleCount, NzParticleDeclaration* declaration);
-		NzParticleEmitter(const NzParticleEmitter& emitter);
+		NzParticleEmitter();
+		NzParticleEmitter(const NzParticleEmitter& emitter) = default;
 		NzParticleEmitter(NzParticleEmitter&& emitter) = default;
-		~NzParticleEmitter();
+		virtual ~NzParticleEmitter();
 
-		void AddController(NzParticleController* controller);
-		void AddGenerator(NzParticleGenerator* generator);
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
-
-		void* CreateParticle();
-		void* CreateParticles(unsigned int count);
-
-		void EnableFixedStep(bool fixedStep);
-
-		void* GenerateParticle();
-		void* GenerateParticles(unsigned int count);
-
-		const NzBoundingVolumef& GetBoundingVolume() const override;
+		virtual void Emit(NzParticleSystem& system, float elapsedTime) const;
 
 		unsigned int GetEmissionCount() const;
 		float GetEmissionRate() const;
-		float GetFixedStepSize() const;
-		unsigned int GetMaxParticleCount() const;
-		unsigned int GetParticleCount() const;
-		unsigned int GetParticleSize() const;
-
-		nzSceneNodeType GetSceneNodeType() const override;
-
-		bool IsDrawable() const;
-		bool IsFixedStepEnabled() const;
-
-		void KillParticle(unsigned int index);
-		void KillParticles();
-
-		void RemoveController(NzParticleController* controller);
-		void RemoveGenerator(NzParticleGenerator* generator);
 
 		void SetEmissionCount(unsigned int count);
 		void SetEmissionRate(float rate);
-		void SetFixedStepSize(float stepSize);
-		void SetRenderer(NzParticleRenderer* renderer);
 
-		NzParticleEmitter& operator=(const NzParticleEmitter& emitter);
+		NzParticleEmitter& operator=(const NzParticleEmitter& emitter) = default;
 		NzParticleEmitter& operator=(NzParticleEmitter&& emitter) = default;
 
 	private:
-		void GenerateAABB() const;
-		void Register() override;
-		void ResizeBuffer();
-		void Unregister() override;
-		void UpdateBoundingVolume() const;
-		void Update() override;
+		virtual void SetupParticles(NzParticleMapper& mapper, unsigned int count) const = 0;
 
-		std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
-		mutable std::vector<nzUInt8> m_buffer;
-		std::vector<NzParticleControllerRef> m_controllers;
-		std::vector<NzParticleGeneratorRef> m_generators;
-		mutable NzBoundingVolumef m_boundingVolume;
-		NzParticleDeclarationConstRef m_declaration;
-		NzParticleRendererRef m_renderer;
-		mutable bool m_boundingVolumeUpdated;
-		bool m_fixedStepEnabled;
-		bool m_processing;
-		float m_emissionAccumulator;
+		mutable float m_emissionAccumulator;
 		float m_emissionRate;
-		float m_stepAccumulator;
-		float m_stepSize;
 		unsigned int m_emissionCount;
-		unsigned int m_maxParticleCount;
-		unsigned int m_particleCount;
-		unsigned int m_particleSize;
 };
 
 #endif // NAZARA_PARTICLEEMITTER_HPP

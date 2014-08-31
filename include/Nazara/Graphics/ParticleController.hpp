@@ -12,8 +12,8 @@
 #include <Nazara/Core/ResourceRef.hpp>
 
 class NzParticleController;
-class NzParticleEmitter;
 class NzParticleMapper;
+class NzParticleSystem;
 
 using NzParticleControllerConstRef = NzResourceRef<const NzParticleController>;
 using NzParticleControllerRef = NzResourceRef<NzParticleController>;
@@ -25,7 +25,7 @@ class NAZARA_API NzParticleController : public NzResource
 		NzParticleController(const NzParticleController& controller);
 		virtual ~NzParticleController();
 
-		virtual void Apply(NzParticleEmitter& emitter, NzParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
+		virtual void Apply(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
 };
 
 #endif // NAZARA_PARTICLECONTROLLER_HPP
