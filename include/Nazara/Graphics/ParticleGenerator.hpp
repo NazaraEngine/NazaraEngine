@@ -11,9 +11,9 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 
-class NzParticleEmitter;
 class NzParticleGenerator;
 class NzParticleMapper;
+class NzParticleSystem;
 
 using NzParticleGeneratorConstRef = NzResourceRef<const NzParticleGenerator>;
 using NzParticleGeneratorRef = NzResourceRef<NzParticleGenerator>;
@@ -25,7 +25,7 @@ class NAZARA_API NzParticleGenerator : public NzResource
 		NzParticleGenerator(const NzParticleGenerator& generator);
 		virtual ~NzParticleGenerator();
 
-		virtual void Generate(NzParticleEmitter& emitter, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
+		virtual void Generate(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
 };
 
 #endif // NAZARA_PARTICLEGENERATOR_HPP
