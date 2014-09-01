@@ -12,6 +12,7 @@ in vec3 vNormal;
 in vec2 vTexCoord;
 in vec3 vViewDir;
 in vec3 vWorldPos;
+in vec4 vColor;
 
 /********************Sortant********************/
 out vec4 RenderTarget0;
@@ -30,9 +31,10 @@ struct Light
 	vec2 parameters3;
 };
 
-uniform vec3 EyePosition;
+// Lumières
 uniform Light Lights[3];
 
+// Matériau
 uniform sampler2D MaterialAlphaMap;
 uniform float MaterialAlphaThreshold;
 uniform vec4 MaterialAmbient;
@@ -45,8 +47,11 @@ uniform float MaterialShininess;
 uniform vec4 MaterialSpecular;
 uniform sampler2D MaterialSpecularMap;
 
+// Autres
 uniform float ParallaxBias = -0.03;
 uniform float ParallaxScale = 0.02;
+uniform vec2 InvTargetSize;
+uniform vec3 EyePosition;
 uniform vec4 SceneAmbient;
 
 /********************Fonctions********************/
@@ -76,8 +81,14 @@ vec4 EncodeNormal(in vec3 normal)
 
 void main()
 {
-	vec4 diffuseColor = MaterialDiffuse;
+	vec4 diffuseColor = MaterialDiffuse * vColor;
+
+#if AUTO_TEXCOORDS
+	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
+#else
 	vec2 texCoord = vTexCoord;
+#endif
+
 #if LIGHTING && PARALLAX_MAPPING
 	float height = texture(MaterialHeightMap, texCoord).r;
 	float v = height*ParallaxScale + ParallaxBias;
@@ -92,7 +103,8 @@ void main()
 
 #if FLAG_DEFERRED
 	#if ALPHA_TEST
-		#if ALPHA_MAPPING // Inutile de faire de l'alpha-mapping sans alpha-test en Deferred (l'alpha n'est pas sauvegardé)
+		// Inutile de faire de l'alpha-mapping sans alpha-test en Deferred (l'alpha n'est pas sauvegardé dans le G-Buffer)
+		#if ALPHA_MAPPING
 	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
 		#endif
 		
