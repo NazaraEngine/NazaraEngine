@@ -4,6 +4,7 @@ layout(early_fragment_tests) in;
 
 /********************Entrant********************/
 in vec2 vTexCoord;
+in vec4 vColor;
 
 /********************Sortant********************/
 out vec4 RenderTarget0;
@@ -18,7 +19,7 @@ uniform vec2 InvTargetSize;
 /********************Fonctions********************/
 void main()
 {
-	vec4 fragmentColor = MaterialDiffuse;
+	vec4 fragmentColor = MaterialDiffuse * vColor;
 
 #if AUTO_TEXCOORDS
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
