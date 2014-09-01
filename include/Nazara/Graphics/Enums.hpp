@@ -121,10 +121,12 @@ enum nzShaderFlags
 {
 	nzShaderFlags_None = 0,
 
-	nzShaderFlags_Deferred   = 0x1,
-	nzShaderFlags_Instancing = 0x2,
+	nzShaderFlags_Billboard   = 0x1,
+	nzShaderFlags_Deferred    = 0x2,
+	nzShaderFlags_Instancing  = 0x4,
+	nzShaderFlags_VertexColor = 0x8,
 
-	nzShaderFlags_Max = nzShaderFlags_Instancing*2-1
+	nzShaderFlags_Max = nzShaderFlags_VertexColor*2-1
 };
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP
