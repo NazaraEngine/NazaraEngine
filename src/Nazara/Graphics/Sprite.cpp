@@ -8,6 +8,7 @@
 
 NzSprite::NzSprite() :
 m_boundingVolume(NzBoundingVolumef::Null()),
+m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f),
 m_size(64.f, 64.f),
 m_boundingVolumeUpdated(true)
@@ -16,6 +17,7 @@ m_boundingVolumeUpdated(true)
 
 NzSprite::NzSprite(NzTexture* texture) :
 m_boundingVolume(NzBoundingVolumef::Null()),
+m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f)
 {
 	if (texture)
@@ -41,6 +43,7 @@ m_textureCoords(0.f, 0.f, 1.f, 1.f)
 NzSprite::NzSprite(const NzSprite& sprite) :
 NzSceneNode(sprite),
 m_boundingVolume(sprite.m_boundingVolume),
+m_color(sprite.m_color),
 m_material(sprite.m_material),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
@@ -52,6 +55,7 @@ m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated)
 NzSprite::NzSprite(NzSprite&& sprite) :
 NzSceneNode(sprite),
 m_boundingVolume(sprite.m_boundingVolume),
+m_color(std::move(sprite.m_color)),
 m_material(std::move(sprite.m_material)),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
@@ -70,6 +74,11 @@ const NzBoundingVolumef& NzSprite::GetBoundingVolume() const
 {
 	static NzBoundingVolumef infinity(NzBoundingVolumef::Infinite());
 	return infinity;
+}
+
+const NzColor& NzSprite::GetColor() const
+{
+	return m_color;
 }
 
 NzMaterial* NzSprite::GetMaterial() const
@@ -95,6 +104,11 @@ const NzRectf& NzSprite::GetTextureCoords() const
 bool NzSprite::IsDrawable() const
 {
 	return m_material != nullptr;
+}
+
+void NzSprite::SetColor(const NzColor& color)
+{
+	m_color = color;
 }
 
 void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
@@ -173,7 +187,7 @@ void NzSprite::Unregister()
 void NzSprite::UpdateBoundingVolume() const
 {
 	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0.f, m_size.x, m_size.y, 0.f);
+		m_boundingVolume.Set(0.f, 0.f, 0.f, m_size.x, m_size.y, 0.f);
 
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
