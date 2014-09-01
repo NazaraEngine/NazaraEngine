@@ -23,6 +23,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
 		const NzBoundingVolumef& GetBoundingVolume() const override;
+		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;
 		const NzVector2f& GetSize() const;
@@ -30,6 +31,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		bool IsDrawable() const;
 
+		void SetColor(const NzColor& color);
 		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
 		void SetSize(const NzVector2f& size);
 		void SetTexture(NzTexture* texture, bool resizeSprite = true);
@@ -43,6 +45,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 		void UpdateBoundingVolume() const;
 
 		mutable NzBoundingVolumef m_boundingVolume;
+		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
