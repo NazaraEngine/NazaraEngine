@@ -31,6 +31,18 @@ NzDeferredRenderQueue::~NzDeferredRenderQueue()
 	Clear(true);
 }
 
+void NzDeferredRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
+{
+	///TODO: Rendre les billboards via Deferred Shading si possible
+	m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///TODO: Rendre les billboards via Deferred Shading si possible
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+}
+
 void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	m_forwardQueue->AddDrawable(drawable);
@@ -81,8 +93,10 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 		bool& enableInstancing = std::get<1>(it->second);
 		MeshInstanceContainer& meshMap = std::get<2>(it->second);
 
+		// On indique la présence de modèles dans cette partie de la map
 		used = true;
 
+		// Si nous insérons ce mesh pour la première fois, nous ajoutons des listeners sur ses buffers
 		MeshInstanceContainer::iterator it2 = meshMap.find(meshData);
 		if (it2 == meshMap.end())
 		{
@@ -94,6 +108,7 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 			meshData.vertexBuffer->AddResourceListener(this, ResourceType_VertexBuffer);
 		}
 
+		// On ajoute la matrice à la liste des instances de cet objet
 		std::vector<NzMatrix4f>& instances = it2->second;
 		instances.push_back(transformMatrix);
 
