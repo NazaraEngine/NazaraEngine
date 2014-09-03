@@ -28,6 +28,8 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzResourc
 		NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue);
 		~NzDeferredRenderQueue();
 
+		void AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos = NzVector2f(0.f, 1.f), const NzColor& color = NzColor::White) override;
+		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr = nullptr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
