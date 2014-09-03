@@ -409,6 +409,12 @@ NzQuaternion<T> NzQuaternion<T>::Lerp(const NzQuaternion& from, const NzQuaterni
 }
 
 template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Normalize(const NzQuaternion& quat, T* length)
+{
+	return quat.GetNormal(length);
+}
+
+template<typename T>
 NzQuaternion<T> NzQuaternion<T>::RotationBetween(const NzVector3<T>& from, const NzVector3<T>& to)
 {
 	NzQuaternion quaternion;
