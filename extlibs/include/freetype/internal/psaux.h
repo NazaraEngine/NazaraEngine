@@ -21,7 +21,7 @@
 #define __PSAUX_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_INTERNAL_OBJECTS_H
 #include FT_INTERNAL_TYPE1_TYPES_H
 #include FT_SERVICE_POSTSCRIPT_CMAPS_H
@@ -100,6 +100,9 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    capacity  :: The current size of the heap block.  Increments by    */
   /*                 1kByte chunks.                                        */
+  /*                                                                       */
+  /*    init      :: Set to 0xDEADBEEF if `elements' and `lengths' have    */
+  /*                 been allocated.                                       */
   /*                                                                       */
   /*    max_elems :: The maximum number of elements in table.              */
   /*                                                                       */
@@ -183,6 +186,7 @@ FT_BEGIN_HEADER
     T1_FIELD_TYPE_STRING,
     T1_FIELD_TYPE_KEY,
     T1_FIELD_TYPE_BBOX,
+    T1_FIELD_TYPE_MM_BBOX,
     T1_FIELD_TYPE_INTEGER_ARRAY,
     T1_FIELD_TYPE_FIXED_ARRAY,
     T1_FIELD_TYPE_CALLBACK,

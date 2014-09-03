@@ -5,7 +5,7 @@
 /*    Basic SFNT/TrueType tables definitions and interface                 */
 /*    (specification only).                                                */
 /*                                                                         */
-/*  Copyright 1996-2005, 2008-2012 by                                      */
+/*  Copyright 1996-2005, 2008-2013 by                                      */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -21,7 +21,7 @@
 #define __TTTABLES_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H
@@ -170,8 +170,8 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    IMPORTANT: The TT_HoriHeader and TT_VertHeader structures should   */
-  /*               be identical except for the names of their fields which */
-  /*               are different.                                          */
+  /*               be identical except for the names of their fields,      */
+  /*               which are different.                                    */
   /*                                                                       */
   /*               This ensures that a single function in the `ttload'     */
   /*               module is able to read both the horizontal and vertical */
@@ -296,8 +296,8 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    IMPORTANT: The TT_HoriHeader and TT_VertHeader structures should   */
-  /*               be identical except for the names of their fields which */
-  /*               are different.                                          */
+  /*               be identical except for the names of their fields,      */
+  /*               which are different.                                    */
   /*                                                                       */
   /*               This ensures that a single function in the `ttload'     */
   /*               module is able to read both the horizontal and vertical */
@@ -340,12 +340,11 @@ FT_BEGIN_HEADER
   /*    TT_OS2                                                             */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A structure used to model a TrueType OS/2 table. This is the long  */
-  /*    table version.  All fields comply to the TrueType specification.   */
+  /*    A structure used to model a TrueType OS/2 table.  All fields       */
+  /*    comply to the OpenType specification.                              */
   /*                                                                       */
-  /*    Note that we now support old Mac fonts which do not include an     */
-  /*    OS/2 table.  In this case, the `version' field is always set to    */
-  /*    0xFFFF.                                                            */
+  /*    Note that we now support old Mac fonts that do not include an OS/2 */
+  /*    table.  In this case, the `version' field is always set to 0xFFFF. */
   /*                                                                       */
   typedef struct  TT_OS2_
   {
@@ -384,18 +383,23 @@ FT_BEGIN_HEADER
     FT_UShort  usWinAscent;
     FT_UShort  usWinDescent;
 
-    /* only version 1 tables: */
+    /* only version 1 and higher: */
 
     FT_ULong   ulCodePageRange1;       /* Bits 0-31   */
     FT_ULong   ulCodePageRange2;       /* Bits 32-63  */
 
-    /* only version 2 tables: */
+    /* only version 2 and higher: */
 
     FT_Short   sxHeight;
     FT_Short   sCapHeight;
     FT_UShort  usDefaultChar;
     FT_UShort  usBreakChar;
     FT_UShort  usMaxContext;
+
+    /* only version 5 and higher: */
+
+    FT_UShort  usLowerOpticalPointSize;       /* in twips (1/20th points) */
+    FT_UShort  usUpperOpticalPointSize;       /* in twips (1/20th points) */
 
   } TT_OS2;
 
@@ -465,7 +469,7 @@ FT_BEGIN_HEADER
   /*    TT_MaxProfile                                                      */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    The maximum profile is a table containing many max values which    */
+  /*    The maximum profile is a table containing many max values, which   */
   /*    can be used to pre-allocate arrays.  This ensures that no memory   */
   /*    allocation occurs during a glyph load.                             */
   /*                                                                       */
@@ -672,6 +676,12 @@ FT_BEGIN_HEADER
   *       error = FT_Load_Sfnt_Table( face, tag, 0, buffer, &length );
   *       if ( error ) { ... could not load table ... }
   *     }
+  *
+  *   Note that structures like @TT_Header or @TT_OS2 can't be used with
+  *   this function; they are limited to @FT_Get_Sfnt_Table.  Reason is that
+  *   those structures depend on the processor architecture, with varying
+  *   size (e.g. 32bit vs. 64bit) or order (big endian vs. little endian).
+  *
   */
   FT_EXPORT( FT_Error )
   FT_Load_Sfnt_Table( FT_Face    face,
@@ -730,7 +740,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    Return TrueType/sfnt specific cmap language ID.  Definitions of    */
-  /*    language ID values are in `freetype/ttnameid.h'.                   */
+  /*    language ID values are in `ttnameid.h'.                            */
   /*                                                                       */
   /* <Input>                                                               */
   /*    charmap ::                                                         */
