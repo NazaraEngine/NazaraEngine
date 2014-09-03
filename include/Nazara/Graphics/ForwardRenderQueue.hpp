@@ -30,6 +30,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		NzForwardRenderQueue() = default;
 		~NzForwardRenderQueue();
 
+		void AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos = NzVector2f(0.f, 1.f), const NzColor& color = NzColor::White) override;
+		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr = nullptr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
@@ -42,6 +44,14 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 	private:
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
+
+		struct BillboardData
+		{
+			NzColor color;
+			NzVector3f center;
+			NzVector2f size;
+			NzVector2f sinCos;
+		};
 
 		struct TransparentModelData
 		{
@@ -68,11 +78,13 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		typedef std::map<NzMeshData, std::pair<NzSpheref, std::vector<NzMatrix4f>>, MeshDataComparator> MeshInstanceContainer;
 		typedef std::map<const NzMaterial*, std::tuple<bool, bool, MeshInstanceContainer>, BatchedModelMaterialComparator> ModelBatches;
+		typedef std::map<const NzMaterial*, std::vector<BillboardData>> BatchedBillboardContainer;
 		typedef std::map<const NzMaterial*, std::vector<const NzSprite*>> BatchedSpriteContainer;
 		typedef std::vector<const NzLight*> LightContainer;
 		typedef std::vector<unsigned int> TransparentModelContainer;
 
 		ModelBatches opaqueModels;
+		BatchedBillboardContainer billboards;
 		BatchedSpriteContainer sprites;
 		TransparentModelContainer transparentModels;
 		std::vector<TransparentModelData> transparentModelData;
