@@ -5,21 +5,25 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
-NzSparsePtr<T>::NzSparsePtr() :
-m_ptr(nullptr),
-m_stride(0)
+NzSparsePtr<T>::NzSparsePtr()
 {
+	Reset();
 }
 
 template<typename T>
-NzSparsePtr<T>::NzSparsePtr(void* ptr, unsigned int stride)
+NzSparsePtr<T>::NzSparsePtr(T* ptr)
 {
-	Set(ptr);
-	SetStride(stride);
+	Reset(ptr);
 }
 
 template<typename T>
-void* NzSparsePtr<T>::Get() const
+NzSparsePtr<T>::NzSparsePtr(VoidPtr ptr, unsigned int stride)
+{
+	Reset(ptr, stride);
+}
+
+template<typename T>
+typename NzSparsePtr<T>::VoidPtr NzSparsePtr<T>::GetPtr() const
 {
 	return m_ptr;
 }
@@ -31,15 +35,55 @@ unsigned int NzSparsePtr<T>::GetStride() const
 }
 
 template<typename T>
-void NzSparsePtr<T>::Set(void* ptr)
+void NzSparsePtr<T>::Reset()
 {
-	m_ptr = reinterpret_cast<nzUInt8*>(ptr);
+	SetPtr(nullptr);
+	SetStride(0);
+}
+
+template<typename T>
+void NzSparsePtr<T>::Reset(T* ptr)
+{
+	SetPtr(ptr);
+	SetStride(sizeof(T));
+}
+
+template<typename T>
+void NzSparsePtr<T>::Reset(VoidPtr ptr, unsigned int stride)
+{
+	SetPtr(ptr);
+	SetStride(stride);
+}
+
+template<typename T>
+void NzSparsePtr<T>::Reset(const NzSparsePtr& ptr)
+{
+	SetPtr(ptr.GetPtr());
+	SetStride(ptr.GetStride());
+}
+
+template<typename T>
+void NzSparsePtr<T>::SetPtr(VoidPtr ptr)
+{
+	m_ptr = reinterpret_cast<BytePtr>(ptr);
 }
 
 template<typename T>
 void NzSparsePtr<T>::SetStride(unsigned int stride)
 {
 	m_stride = stride;
+}
+
+template<typename T>
+NzSparsePtr<T>::operator bool() const
+{
+	return m_ptr != nullptr;
+}
+
+template<typename T>
+NzSparsePtr<T>::operator T*() const
+{
+	return reinterpret_cast<T*>(m_ptr);
 }
 
 template<typename T>
