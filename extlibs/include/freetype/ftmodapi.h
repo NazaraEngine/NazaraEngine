@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType modules public interface (specification).                   */
 /*                                                                         */
-/*  Copyright 1996-2003, 2006, 2008-2010, 2012 by                          */
+/*  Copyright 1996-2003, 2006, 2008-2010, 2012, 2013 by                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -20,7 +20,7 @@
 #define __FTMODAPI_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H
@@ -298,7 +298,7 @@ FT_BEGIN_HEADER
    *       Note that only a few modules have properties.
    *
    *    value ::
-   *       A generic pointer to a variable or structure which gives the new
+   *       A generic pointer to a variable or structure that gives the new
    *       value of the property.  The exact definition of `value' is
    *       dependent on the property; see the `Synopsis' subsection of the
    *       module's documentation.
@@ -322,14 +322,21 @@ FT_BEGIN_HEADER
    *      FT_Property_Set( library, "foo", "bar", &bar );
    *    }
    *
+   *    Note that the FreeType Cache sub-system doesn't recognize module
+   *    property changes.  To avoid glyph lookup confusion within the cache
+   *    you should call @FTC_Manager_Reset to completely flush the cache if
+   *    a module property gets changed after @FTC_Manager_New has been
+   *    called.
+   *
    *    It is not possible to set properties of the FreeType Cache
-   *    sub-system with FT_Property_Set; use @FTC_Property_Set instead.
+   *    sub-system itself with FT_Property_Set; use @FTC_Property_Set
+   *    instead.
    *
    *  @since:
    *    2.4.11
    *
    */
-  FT_Error
+  FT_EXPORT( FT_Error )
   FT_Property_Set( FT_Library        library,
                    const FT_String*  module_name,
                    const FT_String*  property_name,
@@ -357,7 +364,7 @@ FT_BEGIN_HEADER
    *
    * @inout:
    *    value ::
-   *       A generic pointer to a variable or structure which gives the
+   *       A generic pointer to a variable or structure that gives the
    *       value of the property.  The exact definition of `value' is
    *       dependent on the property; see the `Synopsis' subsection of the
    *       module's documentation.
@@ -393,7 +400,7 @@ FT_BEGIN_HEADER
    *    2.4.11
    *
    */
-  FT_Error
+  FT_EXPORT( FT_Error )
   FT_Property_Get( FT_Library        library,
                    const FT_String*  module_name,
                    const FT_String*  property_name,
@@ -411,7 +418,7 @@ FT_BEGIN_HEADER
   /*    @FT_Done_Library then only destroys a library if the counter is~1, */
   /*    otherwise it simply decrements the counter.                        */
   /*                                                                       */
-  /*    This function helps in managing life-cycles of structures which    */
+  /*    This function helps in managing life-cycles of structures that     */
   /*    reference @FT_Library objects.                                     */
   /*                                                                       */
   /* <Input>                                                               */
@@ -577,7 +584,7 @@ FT_BEGIN_HEADER
    *       The library implements a bytecode interpreter that doesn't
    *       support the patented operations of the TrueType virtual machine.
    *
-   *       Its main use is to load certain Asian fonts which position and
+   *       Its main use is to load certain Asian fonts that position and
    *       scale glyph components with bytecode instructions.  It produces
    *       bad output for most other fonts.
    *
