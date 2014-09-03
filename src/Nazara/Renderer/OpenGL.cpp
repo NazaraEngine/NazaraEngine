@@ -1941,8 +1941,8 @@ GLenum NzOpenGL::CubemapFace[] =
 {
 	GL_TEXTURE_CUBE_MAP_POSITIVE_X, // nzCubemapFace_PositiveX
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_X, // nzCubemapFace_NegativeX
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, // nzCubemapFace_PositiveY (Inversion pour les standards OpenGL)
-	GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // nzCubemapFace_NegativeY (Inversion pour les standards OpenGL)
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // nzCubemapFace_PositiveY
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, // nzCubemapFace_NegativeY
 	GL_TEXTURE_CUBE_MAP_POSITIVE_Z, // nzCubemapFace_PositiveZ
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // nzCubemapFace_NegativeZ
 };
