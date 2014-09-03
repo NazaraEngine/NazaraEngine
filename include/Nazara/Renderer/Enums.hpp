@@ -185,16 +185,6 @@ enum nzSamplerWrap
 	nzSamplerWrap_Max = nzSamplerWrap_Repeat
 };
 
-enum nzShaderTarget
-{
-	nzShaderTarget_FullscreenQuad,
-	nzShaderTarget_Model,
-	nzShaderTarget_None,
-	nzShaderTarget_Sprite,
-
-	nzShaderTarget_Max = nzShaderTarget_Sprite
-};
-
 enum nzShaderUniform
 {
 	nzShaderUniform_EyePosition,
