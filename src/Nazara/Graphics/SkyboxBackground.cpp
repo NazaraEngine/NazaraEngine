@@ -87,7 +87,7 @@ namespace
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    vTexCoord = vec3(VertexPosition.x, -VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
 		const char* vertexSource140 =
@@ -102,7 +102,7 @@ namespace
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    vTexCoord = vec3(VertexPosition.x, -VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
