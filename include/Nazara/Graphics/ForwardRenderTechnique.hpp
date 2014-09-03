@@ -20,7 +20,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 {
 	public:
 		NzForwardRenderTechnique();
-		~NzForwardRenderTechnique();
+		~NzForwardRenderTechnique() = default;
 
 		void Clear(const NzScene* scene) const;
 		bool Draw(const NzScene* scene) const;
@@ -31,9 +31,13 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 
 		void SetMaxLightPassPerObject(unsigned int passCount);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 	private:
 		struct LightUniforms;
 
+		void DrawBillboards(const NzScene* scene) const;
 		void DrawOpaqueModels(const NzScene* scene) const;
 		void DrawSprites(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
@@ -49,12 +53,19 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 		};
 
 		mutable std::unordered_map<const NzShader*, LightUniforms> m_lightUniforms;
+		NzBuffer m_vertexBuffer;
 		mutable NzForwardRenderQueue m_renderQueue;
-		NzIndexBufferRef m_indexBuffer;
 		mutable NzLightManager m_directionalLights;
 		mutable NzLightManager m_lights;
+		NzVertexBuffer m_billboardPointBuffer;
 		NzVertexBuffer m_spriteBuffer;
 		unsigned int m_maxLightPassPerObject;
+
+		static NzIndexBuffer s_quadIndexBuffer;
+		static NzVertexBuffer s_quadVertexBuffer;
+		static NzVertexDeclaration s_billboardInstanceDeclaration;
+		static NzVertexDeclaration s_billboardVertexDeclaration;
+		static NzVertexDeclaration s_spriteDeclaration;
 };
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP
