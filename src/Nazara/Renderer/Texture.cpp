@@ -468,7 +468,7 @@ NzVector2ui NzTexture::GetSize() const
 	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
-		return 0;
+		return NzVector2ui(0, 0);
 	}
 	#endif
 
