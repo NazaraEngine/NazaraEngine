@@ -31,7 +31,13 @@ constexpr T NzClamp(T value, T min, T max)
 }
 
 template<typename T>
-constexpr T NzDegrees(T degrees)
+constexpr T NzDegreeToRadian(T degrees)
+{
+	return degrees * F(M_PI/180.0);
+}
+
+template<typename T>
+constexpr T NzFromDegrees(T degrees)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
 	return NzDegreeToRadian(degrees);
@@ -41,9 +47,13 @@ constexpr T NzDegrees(T degrees)
 }
 
 template<typename T>
-constexpr T NzDegreeToRadian(T degrees)
+constexpr T NzFromRadians(T radians)
 {
-	return degrees * F(M_PI/180.0);
+	#if NAZARA_MATH_ANGLE_RADIAN
+	return radians;
+	#else
+	return NzRadianToDegree(radians);
+	#endif
 }
 
 inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
@@ -51,7 +61,7 @@ inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
 	///TODO: Marquer comme constexpr en C++14
 	unsigned int x = 1;
 	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
-	while(x <= number)
+	while (x <= number)
 		x <<= 1;
 
 	return x;
@@ -269,16 +279,6 @@ inline NzString NzNumberToString(long long number, nzUInt8 radix)
 }
 
 template<typename T>
-T NzRadians(T radians)
-{
-	#if NAZARA_MATH_ANGLE_RADIAN
-	return radians;
-	#else
-	return NzRadianToDegree(radians);
-	#endif
-}
-
-template<typename T>
 T NzRadianToDegree(T radians)
 {
 	return radians * F(180.0/M_PI);
@@ -331,6 +331,26 @@ inline long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
 		*ok = true;
 
 	return (negative) ? -static_cast<long long>(total) : total;
+}
+
+template<typename T>
+constexpr T NzToDegrees(T angle)
+{
+	#if NAZARA_MATH_ANGLE_RADIAN
+	return NzRadianToDegree(angle);
+	#else
+	return angle;
+	#endif
+}
+
+template<typename T>
+constexpr T NzToRadians(T angle)
+{
+	#if NAZARA_MATH_ANGLE_RADIAN
+	return angle;
+	#else
+	return NzDegreeToRadian(angle);
+	#endif
 }
 
 #undef F2
