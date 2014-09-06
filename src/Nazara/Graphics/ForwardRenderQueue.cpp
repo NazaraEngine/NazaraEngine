@@ -58,6 +58,212 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	}
 }
 
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	std::vector<BillboardData>& billboardVec = billboards[material];
+	unsigned int prevSize = billboardVec.size();
+	billboardVec.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVec[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
 void NzForwardRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	#if NAZARA_GRAPHICS_SAFE
