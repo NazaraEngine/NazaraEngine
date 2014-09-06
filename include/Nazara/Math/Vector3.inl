@@ -77,7 +77,7 @@ T NzVector3<T>::AngleBetween(const NzVector3& vec) const
 	#endif
 
 	T alpha = DotProduct(vec)/divisor;
-	return NzRadians(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
+	return NzFromRadians(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
 }
 
 template<typename T>
