@@ -434,7 +434,7 @@ void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 		const NzMaterial* mat = pair.first;
 		auto& container = pair.second;
 
-		if (mat->IsEnabled(nzRendererParameter_Blend))
+		if (mat->IsDepthSortingEnabled())
 		{
 			std::sort(container.begin(), container.end(), [&viewerPos](const BillboardData& data1, const BillboardData& data2)
 			{

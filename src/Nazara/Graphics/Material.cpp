@@ -152,6 +152,11 @@ void NzMaterial::EnableAlphaTest(bool alphaTest)
 	InvalidateShaders();
 }
 
+void NzMaterial::EnableDepthSorting(bool depthSorting)
+{
+	m_depthSortingEnabled = depthSorting;
+}
+
 void NzMaterial::EnableLighting(bool lighting)
 {
 	m_lightingEnabled = lighting;
@@ -320,6 +325,11 @@ bool NzMaterial::IsAlphaTestEnabled() const
 	return m_alphaTestEnabled;
 }
 
+bool NzMaterial::IsDepthSortingEnabled() const
+{
+	return m_depthSortingEnabled;
+}
+
 bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
 {
 	#ifdef NAZARA_DEBUG
@@ -376,6 +386,7 @@ void NzMaterial::Reset()
 	m_alphaThreshold = 0.2f;
 	m_alphaTestEnabled = false;
 	m_ambientColor = NzColor(128, 128, 128);
+	m_depthSortingEnabled = false;
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
 	m_lightingEnabled = true;
