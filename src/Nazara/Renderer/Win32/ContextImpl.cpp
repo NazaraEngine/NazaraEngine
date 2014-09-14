@@ -160,15 +160,15 @@ bool NzContextImpl::Create(NzContextParameters& parameters)
 		{
 			*attrib++ = WGL_CONTEXT_PROFILE_MASK_ARB;
 			*attrib++ = (parameters.compatibilityProfile) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
+
+			// Les contextes forward-compatible ne sont plus utilisés pour cette raison :
+			// http://www.opengl.org/discussion_boards/showthread.php/175052-Forward-compatible-vs-Core-profile
 		}
 
 		if (parameters.debugMode)
 		{
 			*attrib++ = WGL_CONTEXT_FLAGS_ARB;
 			*attrib++ = WGL_CONTEXT_DEBUG_BIT_ARB;
-
-			// Les contextes forward-compatible ne sont plus utilisés pour cette raison :
-			// http://www.opengl.org/discussion_boards/showthread.php/175052-Forward-compatible-vs-Core-profile
 		}
 
 		*attrib++ = 0;
