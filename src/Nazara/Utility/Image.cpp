@@ -1247,6 +1247,7 @@ void NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 	}
 
 	// Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois (Nous prenons donc la profondeur de base)
+	///FIXME: Ce code n'autorise même pas la modification d'une autre face du cubemap Oo
 	if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > GetLevelSize(m_sharedImage->depth, level))
 	{
 		NazaraError("Box dimensions are out of bounds");
@@ -1267,6 +1268,7 @@ void NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 
 void NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
+	///FIXME: Cette surcharge possède-t-elle la moindre utilité ? (Update(pixels, NzBoxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, ..) devrait donner le même résultat
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
