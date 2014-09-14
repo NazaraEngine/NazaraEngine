@@ -223,6 +223,7 @@ bool NzForwardRenderTechnique::Initialize()
 void NzForwardRenderTechnique::Uninitialize()
 {
 	s_quadIndexBuffer.Reset();
+	s_quadVertexBuffer.Reset();
 }
 
 void NzForwardRenderTechnique::DrawBillboards(const NzScene* scene) const
