@@ -75,12 +75,12 @@ float NzSimplex4D::GetValue(float x, float y, float z, float w, float resolution
     unskewedDistToOrigin.z = z - unskewedCubeOrigin.z;
     unskewedDistToOrigin.w = w - unskewedCubeOrigin.w;
 
-    c1 = (unskewedDistToOrigin.x > unskewedDistToOrigin.y) ? 32 : 0;
-    c2 = (unskewedDistToOrigin.x > unskewedDistToOrigin.z) ? 16 : 0;
-    c3 = (unskewedDistToOrigin.y > unskewedDistToOrigin.z) ? 8  : 0;
-    c4 = (unskewedDistToOrigin.x > unskewedDistToOrigin.w) ? 4  : 0;
-    c5 = (unskewedDistToOrigin.y > unskewedDistToOrigin.w) ? 2  : 0;
-    c6 = (unskewedDistToOrigin.z > unskewedDistToOrigin.w) ? 1  : 0;
+    c1 = (unskewedDistToOrigin.x > unskewedDistToOrigin.y) ? 32.f : 0.f;
+    c2 = (unskewedDistToOrigin.x > unskewedDistToOrigin.z) ? 16.f : 0.f;
+    c3 = (unskewedDistToOrigin.y > unskewedDistToOrigin.z) ? 8.f  : 0.f;
+    c4 = (unskewedDistToOrigin.x > unskewedDistToOrigin.w) ? 4.f  : 0.f;
+    c5 = (unskewedDistToOrigin.y > unskewedDistToOrigin.w) ? 2.f  : 0.f;
+    c6 = (unskewedDistToOrigin.z > unskewedDistToOrigin.w) ? 1.f  : 0.f;
     c = c1 + c2 + c3 + c4 + c5 + c6;
 
     off1.x = lookupTable4D[c][0] >= 3 ? 1 : 0;

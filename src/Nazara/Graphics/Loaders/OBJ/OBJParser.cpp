@@ -8,6 +8,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <memory>
+#include <locale>
 #include <unordered_map>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -103,10 +104,11 @@ bool NzOBJParser::Parse()
 
 	// On prépare le mesh par défaut
 	std::vector<Face>* currentMesh = &meshes[meshName][matName];
+    std::locale loc;
 
 	while (Advance(false))
 	{
-		switch (std::tolower(m_currentLine[0]))
+        switch (std::tolower(m_currentLine[0], loc))
 		{
 			case 'f': // Une face
 			{

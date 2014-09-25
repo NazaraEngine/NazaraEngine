@@ -140,8 +140,8 @@ namespace
 					return false;
 				}
 
-				m_sampleCount = infos.channels*infos.frames;
-				m_sampleRate = infos.samplerate;
+				m_sampleCount = (unsigned int)(infos.channels*infos.frames);
+                m_sampleRate = (unsigned int)(infos.samplerate);
 
 				m_duration = 1000*m_sampleCount / (m_format*m_sampleRate);
 
@@ -154,7 +154,7 @@ namespace
 				if (forceMono && m_format != nzAudioFormat_Mono)
 				{
 					m_mixToMono = true;
-					m_sampleCount = infos.frames;
+					m_sampleCount = (unsigned int)infos.frames;
 				}
 				else
 					m_mixToMono = false;
@@ -169,13 +169,13 @@ namespace
 				if (m_mixToMono)
 				{
 					m_mixBuffer.resize(m_format*sampleCount);
-					unsigned int readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format*sampleCount);
+                    unsigned int readSampleCount = (unsigned int)(sf_read_short(m_handle, m_mixBuffer.data(), m_format*sampleCount));
 					NzMixToMono(m_mixBuffer.data(), static_cast<nzInt16*>(buffer), m_format, sampleCount);
 
 					return readSampleCount / m_format;
 				}
 				else
-					return sf_read_short(m_handle, static_cast<nzInt16*>(buffer), sampleCount);
+                    return (unsigned int)sf_read_short(m_handle, static_cast<nzInt16*>(buffer), sampleCount);
 			}
 
 			void Seek(nzUInt32 offset)
@@ -312,7 +312,7 @@ namespace
 			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
 		sf_count_t sampleCount = info.frames * info.channels;
-		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
+        std::unique_ptr<nzInt16[]> samples(new nzInt16[(unsigned int)sampleCount]);
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
 		{
@@ -322,8 +322,8 @@ namespace
 
 		if (parameters.forceMono && format != nzAudioFormat_Mono)
 		{
-			std::unique_ptr<nzInt16[]> monoSamples(new nzInt16[info.frames]);
-			NzMixToMono(samples.get(), monoSamples.get(), info.channels, info.frames);
+            std::unique_ptr<nzInt16[]> monoSamples(new nzInt16[(unsigned int)info.frames]);
+            NzMixToMono(samples.get(), monoSamples.get(), (unsigned int)info.channels, (unsigned int)info.frames);
 
 			format = nzAudioFormat_Mono;
 			samples = std::move(monoSamples);

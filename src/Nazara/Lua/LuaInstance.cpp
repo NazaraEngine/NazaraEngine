@@ -134,7 +134,7 @@ bool NzLuaInstance::CheckBoolean(int index) const
 		return false;
 	}
 
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
@@ -142,7 +142,7 @@ bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
 	if (lua_isnoneornil(m_state, index))
 		return defValue;
 
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 int NzLuaInstance::CheckInteger(int index) const
@@ -594,7 +594,7 @@ bool NzLuaInstance::NewMetatable(const char* str)
 
 bool NzLuaInstance::NewMetatable(const NzString& str)
 {
-	return luaL_newmetatable(m_state, str.GetConstBuffer());
+	return luaL_newmetatable(m_state, str.GetConstBuffer()) != 0;
 }
 
 bool NzLuaInstance::Next(int index)
@@ -760,7 +760,7 @@ void NzLuaInstance::SetTimeLimit(nzUInt32 timeLimit)
 
 bool NzLuaInstance::ToBoolean(int index) const
 {
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 int NzLuaInstance::ToInteger(int index, bool* succeeded) const

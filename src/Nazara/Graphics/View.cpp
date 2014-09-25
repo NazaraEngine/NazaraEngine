@@ -259,7 +259,7 @@ void NzView::UpdateProjectionMatrix() const
 	if (!m_viewportUpdated)
 		UpdateViewport();
 
-	m_projectionMatrix.MakeOrtho(m_viewport.x, m_viewport.x + m_viewport.width, m_viewport.y, m_viewport.y + m_viewport.height, m_zNear, m_zFar);
+    m_projectionMatrix.MakeOrtho((float)m_viewport.x, (float)(m_viewport.x + m_viewport.width), (float)m_viewport.y, (float)(m_viewport.y + m_viewport.height), m_zNear, m_zFar);
 	m_projectionMatrixUpdated = true;
 }
 

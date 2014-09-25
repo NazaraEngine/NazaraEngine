@@ -108,3 +108,8 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
+*.obj
+*.filters
+*.vcxproj
+*.tlog
+*.sln

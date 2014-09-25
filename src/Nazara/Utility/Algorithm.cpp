@@ -200,8 +200,15 @@ namespace
 	{
 		bool rendered = false; // has the triangle been added to the draw list yet?
 		float current_score = 0.f; // sum of the score of its vertices
-		int verts[3] = {-1, -1, -1}; // indices to the triangle's vertices
+		int verts[3]; // indices to the triangle's vertices
 		bool calculated = false; // was the score calculated during this iteration?
+
+        TriangleCacheData()
+        {
+            verts[0] = -1;
+            verts[1] = -1;
+            verts[2] = -1;
+        }
 	};
 
 	class VertexCache

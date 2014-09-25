@@ -25,8 +25,12 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-#if !defined(__cplusplus) || __cplusplus < 201103L
+#if !defined(__cplusplus) || (!defined(_MSC_VER) && __cplusplus < 201103L) || (defined(_MSC_VER) && _MSC_VER < 1900)
 	#error Nazara requires a C++11 compliant compiler
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4251)
 #endif
 
 // Version du moteur
@@ -160,6 +164,9 @@
 #define NazaraStringify(s) #s
 #define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraUnused(a) (void) a
+
+#define NZ_MIN(a, b) (a < b ? a : b)
+#define NZ_MAX(a, b) (a > b ? a : b)
 
 #include <cstdint>
 

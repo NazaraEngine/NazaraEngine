@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstring>
 #include <utility>
+#include <algorithm>
 #include <Nazara/Core/Debug.hpp>
 
 NzHashDigest::NzHashDigest() :
