@@ -1764,7 +1764,7 @@ bool NzRenderer::EnsureStateUpdate()
 				unsigned int stride;
 
 				// Pour éviter la duplication de code, on va utiliser une astuce via une boucle for
-				for (unsigned int i = 0; i < (s_instancing ? 2 : 1); ++i)
+				for (unsigned int i = 0; i < (s_instancing ? 2U : 1U); ++i)
 				{
 					// Selon l'itération nous choisissons un buffer différent
 					const NzVertexBuffer* vertexBuffer = (i == 0) ? s_vertexBuffer : &s_instanceBuffer;

@@ -72,10 +72,10 @@ namespace
 	struct ContextStates
 	{
 		std::vector<std::pair<GarbageResourceType, GLuint>> garbage; // Les ressources à supprimer dès que possible
-		GLuint buffersBinding[nzBufferType_Max+1] = {0};
+		GLuint buffersBinding[nzBufferType_Max+1];
 		GLuint currentProgram = 0;
-		GLuint samplers[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
-		GLuint texturesBinding[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+		GLuint samplers[32]; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+		GLuint texturesBinding[32]; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 		NzRecti currentScissorBox = NzRecti(0,0,0,0);
 		NzRecti currentViewport = NzRecti(0,0,0,0);
 		NzRenderStates renderStates; // Toujours synchronisé avec OpenGL
@@ -83,6 +83,13 @@ namespace
 		bool scissorBoxUpdated = true;
 		bool viewportUpdated = true;
 		unsigned int textureUnit = 0;
+
+        ContextStates()
+        {
+            memset(buffersBinding, 0, sizeof(buffersBinding));
+            memset(samplers, 0, sizeof(samplers));
+            memset(texturesBinding, 0, sizeof(texturesBinding));
+        }
 	};
 
 	std::set<NzString> s_openGLextensionSet;

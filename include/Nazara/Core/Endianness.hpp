@@ -15,7 +15,7 @@
 	#if defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || (defined(__MIPS__) && defined(__MISPEB__)) || \
 		defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__sparc__) || defined(__hppa__)
 		#define NAZARA_BIG_ENDIAN
-	#elif defined(__i386__) || defined(__i386) || defined(__X86__) || defined (__x86_64)
+    #elif defined(__i386__) || defined(__i386) || defined(__X86__) || defined (__x86_64) || defined (_MSC_VER)
 		#define NAZARA_LITTLE_ENDIAN
 	#else
 		#error Failed to identify endianness, you must define either NAZARA_BIG_ENDIAN or NAZARA_LITTLE_ENDIAN

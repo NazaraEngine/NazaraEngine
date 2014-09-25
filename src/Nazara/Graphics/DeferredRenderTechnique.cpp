@@ -111,6 +111,8 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
+
 		NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
 
 		NazaraError("Failed to add geometry and/or phong lighting pass");
@@ -124,6 +126,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add FXAA pass");
 	}
 
@@ -134,6 +137,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add bloom pass");
 	}
 
@@ -146,6 +150,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add DOF pass");
 	}
 
@@ -158,6 +163,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add fog pass");
 	}
 
@@ -168,6 +174,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add forward pass");
 	}
 
@@ -178,11 +185,15 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraWarning("Failed to add SSAO pass");
 	}
 }
 
-NzDeferredRenderTechnique::~NzDeferredRenderTechnique() = default;
+NzDeferredRenderTechnique::~NzDeferredRenderTechnique()
+{
+
+}
 
 void NzDeferredRenderTechnique::Clear(const NzScene* scene) const
 {
@@ -405,6 +416,7 @@ bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NazaraError("Failed to create work RTT/G-Buffer");
 		return false;
 	}

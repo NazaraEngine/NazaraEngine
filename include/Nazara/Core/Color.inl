@@ -52,10 +52,10 @@ inline NzString NzColor::ToString() const
 inline NzColor NzColor::operator+(const NzColor& color) const
 {
 	NzColor c;
-	c.r = std::min(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U);
-	c.g = std::min(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U);
-	c.b = std::min(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U);
-	c.a = std::min(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U);
+	c.r = NZ_MIN(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U);
+	c.g = NZ_MIN(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U);
+	c.b = NZ_MIN(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U);
+	c.a = NZ_MIN(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U);
 
 	return c;
 }
@@ -147,47 +147,47 @@ inline NzColor NzColor::FromHSV(float hue, float saturation, float value)
 		if (NzNumberEquals(h, 6.f))
 			h = 0; // hue must be < 1
 
-		int i = h;
+		int i = (int)h;
 		float v1 = value * (1.f - s);
-		float v2 = value * (1.f - s * (h - i));
-		float v3 = value * (1.f - s * (1.f - (h - i)));
+		float v2 = value * (1.f - s * (h - (float)i));
+        float v3 = value * (1.f - s * (1.f - (h - (float)i)));
 
-		float r, g, b;
+        float rr, gg, bb;
 		switch (i)
 		{
 			case 0:
-				r = value;
-				g = v3;
-				b = v1;
+				rr = value;
+				gg = v3;
+				bb = v1;
 
 			case 1:
-				r = v2;
-				g = value;
-				b = v1;
+				rr = v2;
+				gg = value;
+				bb = v1;
 
 			case 2:
-				r = v1;
-				g = value;
-				b = v3;
+                rr = v1;
+                gg = value;
+                bb = v3;
 
 			case 3:
-				r = v1;
-				g = v2;
-				b = value;
+                rr = v1;
+                gg = v2;
+                bb = value;
 
 			case 4:
-				r = v3;
-				g = v1;
-				b = value;
+                rr = v3;
+                gg = v1;
+                bb = value;
 
 			default:
-				r = value;
-				g = v1;
-				b = v2;
+                rr = value;
+                gg = v1;
+                bb = v2;
 		}
 
 		// RGB results from 0 to 255
-		return NzColor(static_cast<nzUInt8>(r*255.f), static_cast<nzUInt8>(g*255.f), static_cast<nzUInt8>(b*255.f));
+        return NzColor(static_cast<nzUInt8>(rr*255.f), static_cast<nzUInt8>(gg*255.f), static_cast<nzUInt8>(bb*255.f));
 	}
 }
 inline NzColor NzColor::FromXYZ(const NzVector3f& vec)
@@ -201,26 +201,26 @@ inline NzColor NzColor::FromXYZ(float x, float y, float z)
 	y /= 100.f; // Y from 0 to 100.000
 	z /= 100.f; // Z from 0 to 108.883
 
-	float r = x *  3.2406f + y * -1.5372f + z * -0.4986f;
-	float g = x * -0.9689f + y *  1.8758f + z *  0.0415f;
-	float b = x *  0.0557f + y * -0.2040f + z *  1.0570f;
+	float rr = x *  3.2406f + y * -1.5372f + z * -0.4986f;
+	float gg = x * -0.9689f + y *  1.8758f + z *  0.0415f;
+	float bb = x *  0.0557f + y * -0.2040f + z *  1.0570f;
 
-	if (r > 0.0031308f)
-		r = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
+    if (rr > 0.0031308f)
+        rr = 1.055f * (std::pow(rr, 1.f / 2.4f)) - 0.055f;
 	else
-		r *= 12.92f;
+        rr *= 12.92f;
 
-	if (g > 0.0031308f)
-		g = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
+    if (gg > 0.0031308f)
+        gg = 1.055f * (std::pow(rr, 1.f / 2.4f)) - 0.055f;
 	else
-		g *= 12.92f;
+        gg *= 12.92f;
 
-	if (b > 0.0031308f)
-		b = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
+    if (bb > 0.0031308f)
+        bb = 1.055f * (std::pow(rr, 1.f / 2.4f)) - 0.055f;
 	else
-		b *= 12.92f;
+        bb *= 12.92f;
 
-	return NzColor(static_cast<nzUInt8>(r * 255.f), static_cast<nzUInt8>(g * 255.f), static_cast<nzUInt8>(b * 255.f));
+    return NzColor(static_cast<nzUInt8>(rr * 255.f), static_cast<nzUInt8>(gg * 255.f), static_cast<nzUInt8>(bb * 255.f));
 }
 
 inline void NzColor::ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow)
@@ -235,7 +235,7 @@ inline void NzColor::ToCMYK(const NzColor& color, float* cyan, float* magenta, f
 	float c, m, y;
 	ToCMY(color, &c, &m, &y);
 
-	float k = std::min(std::min(std::min(1.f, c), m), y);
+    float k = NZ_MIN(NZ_MIN(NZ_MIN(1.f, c), m), y);
 
 	if (NzNumberEquals(k, 1.f))
 	{
@@ -256,12 +256,12 @@ inline void NzColor::ToCMYK(const NzColor& color, float* cyan, float* magenta, f
 
 inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, nzUInt8* lightness)
 {
-	float r = color.r / 255.f;
-	float g = color.g / 255.f;
-	float b = color.b / 255.f;
+	float rr = color.r / 255.f;
+	float gg = color.g / 255.f;
+	float bb = color.b / 255.f;
 
-	float min = std::min(std::min(r, g), b); // Min. value of RGB
-	float max = std::max(std::max(r, g), b); // Max. value of RGB
+    float min = NZ_MIN(NZ_MIN(rr, gg), bb); // Min. value of RGB
+    float max = NZ_MAX(NZ_MAX(rr, gg), bb); // Max. value of RGB
 
 	float deltaMax = max - min; //Delta RGB value
 
@@ -283,17 +283,17 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 
 		*lightness = static_cast<nzUInt8>(l*240.f);
 
-		float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
-		float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
-		float deltaB = ((max - b)/6.f + deltaMax/2.f)/deltaMax;
+        float deltaR = ((max - rr) / 6.f + deltaMax / 2.f) / deltaMax;
+        float deltaG = ((max - gg) / 6.f + deltaMax / 2.f) / deltaMax;
+        float deltaB = ((max - bb) / 6.f + deltaMax / 2.f) / deltaMax;
 
 		float h;
 
-		if (NzNumberEquals(r, max))
+        if (NzNumberEquals(rr, max))
 			h = deltaB - deltaG;
-		else if (NzNumberEquals(g, max))
+        else if (NzNumberEquals(gg, max))
 			h = (1.f/3.f) + deltaR - deltaB;
-		else if (NzNumberEquals(b, max))
+        else if (NzNumberEquals(bb, max))
 			h = (2.f/3.f) + deltaG - deltaR;
 
 		if (h < 0.f)
@@ -307,12 +307,12 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 
 inline void NzColor::ToHSV(const NzColor& color, float* hue, float* saturation, float* value)
 {
-	float r = color.r / 255.f;
-	float g = color.g / 255.f;
-	float b = color.b / 255.f;
+	float rr = color.r / 255.f;
+	float gg = color.g / 255.f;
+	float bb = color.b / 255.f;
 
-	float min = std::min(std::min(r, g), b);    //Min. value of RGB
-	float max = std::max(std::max(r, g), b);    //Max. value of RGB
+    float min = NZ_MIN(NZ_MIN(rr, gg), bb);    //Min. value of RGB
+    float max = NZ_MAX(NZ_MAX(rr, gg), bb);    //Max. value of RGB
 
 	float deltaMax = max - min; //Delta RGB value
 
@@ -329,17 +329,17 @@ inline void NzColor::ToHSV(const NzColor& color, float* hue, float* saturation, 
 		//Chromatic data...
 		*saturation = deltaMax/max*360.f;
 
-		float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
-		float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
-		float deltaB = ((max - b)/6.f + deltaMax/2.f)/deltaMax;
+		float deltaR = ((max - rr)/6.f + deltaMax/2.f)/deltaMax;
+		float deltaG = ((max - gg)/6.f + deltaMax/2.f)/deltaMax;
+		float deltaB = ((max - bb)/6.f + deltaMax/2.f)/deltaMax;
 
 		float h;
 
-		if (NzNumberEquals(r, max))
+		if (NzNumberEquals(rr, max))
 			h = deltaB - deltaG;
-		else if (NzNumberEquals(g, max))
+		else if (NzNumberEquals(gg, max))
 			h = (1.f/3.f) + deltaR - deltaB;
-		else if (NzNumberEquals(b, max))
+		else if (NzNumberEquals(bb, max))
 			h = (2.f/3.f) + deltaG - deltaR;
 
 		if (h < 0.f)
@@ -358,33 +358,33 @@ inline void NzColor::ToXYZ(const NzColor& color, NzVector3f* vec)
 
 inline void NzColor::ToXYZ(const NzColor& color, float* x, float* y, float* z)
 {
-	float r = color.r/255.f;        //R from 0 to 255
-	float g = color.g/255.f;        //G from 0 to 255
-	float b = color.b/255.f;        //B from 0 to 255
+	float rr = color.r/255.f;        //R from 0 to 255
+	float gg = color.g/255.f;        //G from 0 to 255
+	float bb = color.b/255.f;        //B from 0 to 255
 
-	if (r > 0.04045f)
-		r = std::pow((r + 0.055f)/1.055f, 2.4f);
+	if (rr > 0.04045f)
+		rr = std::pow((rr + 0.055f)/1.055f, 2.4f);
 	else
-		r /= 12.92f;
+		rr /= 12.92f;
 
-	if (g > 0.04045f)
-		g = std::pow((g + 0.055f)/1.055f, 2.4f);
+    if (gg > 0.04045f)
+        gg = std::pow((gg + 0.055f) / 1.055f, 2.4f);
 	else
-		g /= 12.92f;
+        gg /= 12.92f;
 
-	if (b > 0.04045f)
-		b = std::pow((b + 0.055f)/1.055f, 2.4f);
+    if (bb > 0.04045f)
+        bb = std::pow((bb + 0.055f) / 1.055f, 2.4f);
 	else
-		b /= 12.92f;
+        bb /= 12.92f;
 
-	r *= 100.f;
-	g *= 100.f;
-	b *= 100.f;
+	rr *= 100.f;
+    gg *= 100.f;
+	bb *= 100.f;
 
 	//Observer. = 2°, Illuminant = D65
-	*x = r*0.4124f + g*0.3576f + b*0.1805f;
-	*y = r*0.2126f + g*0.7152f + b*0.0722f;
-	*z = r*0.0193f + g*0.1192f + b*0.9505f;
+    *x = rr*0.4124f + gg*0.3576f + bb*0.1805f;
+    *y = rr*0.2126f + gg*0.7152f + bb*0.0722f;
+    *z = rr*0.0193f + gg*0.1192f + bb*0.9505f;
 }
 
 inline float NzColor::Hue2RGB(float v1, float v2, float vH)

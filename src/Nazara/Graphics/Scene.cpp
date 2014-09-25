@@ -99,6 +99,7 @@ void NzScene::Draw()
 	}
 	catch (const std::exception& e)
 	{
+        NazaraUnused(e);
 		NzString oldName = m_impl->renderTechnique->GetName();
 
 		if (m_impl->renderTechniqueRanking > 0)

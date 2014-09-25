@@ -27,7 +27,7 @@ T NzApproach(T value, T objective, T increment)
 template<typename T>
 constexpr T NzClamp(T value, T min, T max)
 {
-	return std::max(std::min(value, max), min);
+    return NZ_MAX(NZ_MIN(value, max), min);
 }
 
 template<typename T>
@@ -221,11 +221,15 @@ T NzNormalizeAngle(T angle)
 template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
-	T diff = a - b;
-	if (diff < 0)
-		diff = -diff;
+    if (maxDifference == 0xFFFFEFFF)
+        maxDifference = std::numeric_limits<T>::epsilon();
 
-	return diff <= maxDifference;
+    T diff = a - b;
+
+    if (diff < 0)
+        diff = -diff;
+
+    return diff <= maxDifference;
 }
 
 inline NzString NzNumberToString(long long number, nzUInt8 radix)

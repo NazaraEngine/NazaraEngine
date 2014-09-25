@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/HardwareInfoImpl.hpp>

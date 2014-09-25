@@ -100,6 +100,7 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 		}
 		catch (const std::exception& e)
 		{
+            NazaraUnused(e);
 			NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
 
 			NazaraError("Failed to build UberShader instance: " + NzError::GetLastError());

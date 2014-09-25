@@ -38,7 +38,7 @@ unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
 template<typename T, typename T2> T NzLerp(T from, T to, T2 interpolation);
 template<typename T> T NzMultiplyAdd(T x, T y, T z);
 template<typename T> T NzNormalizeAngle(T angle);
-template<typename T> bool NzNumberEquals(T a, T b, T maxDifference = std::numeric_limits<T>::epsilon());
+template<typename T> inline bool NzNumberEquals(T a, T b, T maxDifference = 0xFFFFEFFF);
 NzString NzNumberToString(long long number, nzUInt8 radix = 10);
 template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);

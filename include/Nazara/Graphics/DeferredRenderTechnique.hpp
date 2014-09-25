@@ -64,7 +64,7 @@ class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique, p
 			bool operator()(nzRenderPassType pass1, nzRenderPassType pass2);
 		};
 
-		std::map<nzRenderPassType, std::map<int, std::unique_ptr<NzDeferredRenderPass>>, RenderPassComparator> m_passes;
+		std::map<nzRenderPassType, std::map<int, std::shared_ptr<NzDeferredRenderPass>>, RenderPassComparator> m_passes;
 		NzForwardRenderTechnique m_forwardTechnique; // Doit être initialisé avant la RenderQueue
 		NzDeferredRenderQueue m_renderQueue;
 		mutable NzRenderBufferRef m_depthStencilBuffer;

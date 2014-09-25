@@ -5,6 +5,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <Nazara/Utility/Debug.hpp>
+#include <algorithm>
 
 inline bool NzPixelFormat::Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* src, void* dst)
 {

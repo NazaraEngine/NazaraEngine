@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#include <locale>
 #include <sstream>
 #include <Utfcpp/utf8.h>
 #include <Nazara/Core/Debug.hpp>
@@ -1174,6 +1175,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 	}
 	else
 	{
+        std::locale loc;
 		if (flags & CaseInsensitive)
 		{
 			char c = nzToLower(string[0]);
@@ -1181,7 +1183,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+                    if (ptr != m_sharedString->string && !std::isspace(*(ptr - 1), loc))
 						continue;
 
 					const char* p = &string[1];
@@ -1190,7 +1192,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					{
 						if (*p == '\0')
 						{
-							if (*tPtr == '\0' || std::isspace(*tPtr))
+                            if (*tPtr == '\0' || std::isspace(*tPtr, loc))
 								return ptr-m_sharedString->string;
 							else
 								break;
@@ -1215,7 +1217,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (*ptr == string[0])
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+                    if (ptr != m_sharedString->string && !std::isspace(*(ptr - 1), loc))
 						continue;
 
 					const char* p = &string[1];
@@ -1224,7 +1226,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					{
 						if (*p == '\0')
 						{
-							if (*tPtr == '\0' || std::isspace(*tPtr))
+                            if (*tPtr == '\0' || std::isspace(*tPtr, loc))
 								return ptr-m_sharedString->string;
 							else
 								break;
@@ -1357,6 +1359,8 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 	}
 	else
 	{
+        std::locale loc;
+
 		///Algo 2.FindLastWord#2 (Taille du pattern connue)
 		if (flags & CaseInsensitive)
 		{
@@ -1365,7 +1369,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (*(ptr+1) != '\0' && !std::isspace(*(ptr+1)))
+                    if (*(ptr + 1) != '\0' && !std::isspace(*(ptr + 1), loc))
 						continue;
 
 					const char* p = &string.m_sharedString->string[string.m_sharedString->size-1];
@@ -1376,7 +1380,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 
 						if (p == &string.m_sharedString->string[0])
 						{
-							if (ptr == m_sharedString->string || std::isspace(*(ptr-1)))
+                            if (ptr == m_sharedString->string || std::isspace(*(ptr - 1), loc))
 								return ptr-m_sharedString->string;
 							else
 								break;
@@ -1395,7 +1399,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 			{
 				if (*ptr == string.m_sharedString->string[string.m_sharedString->size-1])
 				{
-					if (*(ptr+1) != '\0' && !std::isspace(*(ptr+1)))
+                    if (*(ptr + 1) != '\0' && !std::isspace(*(ptr + 1), loc))
 						continue;
 
 					const char* p = &string.m_sharedString->string[string.m_sharedString->size-1];
@@ -1406,7 +1410,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 
 						if (p == &string.m_sharedString->string[0])
 						{
-							if (ptr == m_sharedString->string || std::isspace(*(ptr-1)))
+                            if (ptr == m_sharedString->string || std::isspace(*(ptr - 1), loc))
 								return ptr-m_sharedString->string;
 							else
 								break;
@@ -1528,6 +1532,8 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 	}
 	else
 	{
+        std::locale loc;
+
 		if (flags & CaseInsensitive)
 		{
 			char c = nzToLower(string[0]);
@@ -1535,7 +1541,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+                    if (ptr != m_sharedString->string && !std::isspace(*(ptr - 1), loc))
 						continue;
 
 					const char* p = &string[1];
@@ -1544,7 +1550,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 					{
 						if (*p == '\0')
 						{
-							if (*tPtr == '\0' || std::isspace(*tPtr))
+                            if (*tPtr == '\0' || std::isspace(*tPtr, loc))
 								return ptr - m_sharedString->string;
 							else
 								break;
@@ -1566,7 +1572,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (*ptr == string[0])
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+                    if (ptr != m_sharedString->string && !std::isspace(*(ptr - 1), loc))
 						continue;
 
 					const char* p = &string[1];
@@ -1575,7 +1581,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 					{
 						if (*p == '\0')
 						{
-							if (*tPtr == '\0' || std::isspace(*tPtr))
+                            if (*tPtr == '\0' || std::isspace(*tPtr, loc))
 								return ptr - m_sharedString->string;
 							else
 								break;
@@ -1700,6 +1706,8 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 	}
 	else
 	{
+        std::locale loc;
+
 		///Algo 3.FindWord#2 (Taille du pattern connue)
 		if (flags & CaseInsensitive)
 		{
@@ -1708,7 +1716,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+                    if (ptr != m_sharedString->string && !std::isspace(*(ptr - 1), loc))
 						continue;
 
 					const char* p = &string.m_sharedString->string[1];
@@ -1717,7 +1725,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 					{
 						if (*p == '\0')
 						{
-							if (*tPtr == '\0' || std::isspace(*tPtr))
+                            if (*tPtr == '\0' || std::isspace(*tPtr, loc))
 								return ptr - m_sharedString->string;
 							else
 								break;
@@ -1738,7 +1746,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 			while ((ptr = std::strstr(ptr, string.m_sharedString->string)))
 			{
 				// Si le mot est bien isolé
-				if ((ptr == m_sharedString->string || std::isspace(*(ptr-1))) && (*(ptr+m_sharedString->size) == '\0' || std::isspace(*(ptr+m_sharedString->size))))
+                if ((ptr == m_sharedString->string || std::isspace(*(ptr - 1), loc)) && (*(ptr + m_sharedString->size) == '\0' || std::isspace(*(ptr + m_sharedString->size), loc)))
 					return ptr - m_sharedString->string;
 
 				ptr++;
@@ -1891,9 +1899,10 @@ NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
 	}
 	else
 	{
+        std::locale loc;
 		do
 		{
-			if (std::isspace(*ptr))
+            if (std::isspace(*ptr, loc))
 			{
 				endPos = static_cast<int>(ptr - m_sharedString->string - 1);
 				break;
@@ -1935,9 +1944,10 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 	}
 	else
 	{
+        std::locale loc;
 		do
 		{
-			if (std::isspace(*ptr))
+            if (std::isspace(*ptr, loc))
 				inWord = false;
 			else
 			{
@@ -2851,9 +2861,10 @@ NzString NzString::Simplified(nzUInt32 flags) const
 	else
 	{
 		const char* limit = &m_sharedString->string[m_sharedString->size];
+        std::locale loc;
 		do
 		{
-			if (std::isspace(*ptr))
+            if (std::isspace(*ptr, loc))
 			{
 				if (inword)
 				{
@@ -3162,7 +3173,7 @@ NzString NzString::SubStringFrom(char character, int startPos, bool fromLast, bo
 	else
 		pos = Find(character, startPos, flags);
 
-	if (pos == 0 and include)
+	if (pos == 0 && include)
 		return *this;
 	else if (pos == npos)
 		return NzString();
@@ -3423,12 +3434,14 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 	}
 	else
 	{
+        std::locale loc;
+
 		startPos = 0;
 		if ((flags & TrimOnlyRight) == 0)
 		{
 			for (; startPos < m_sharedString->size; ++startPos)
 			{
-				if (!std::isspace(m_sharedString->string[startPos]))
+                if (!std::isspace(m_sharedString->string[startPos], loc))
 					break;
 			}
 		}
@@ -3438,7 +3451,7 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 		{
 			for (; endPos > 0; --endPos)
 			{
-				if (!std::isspace(m_sharedString->string[endPos]))
+                if (!std::isspace(m_sharedString->string[endPos], loc))
 					break;
 			}
 		}
@@ -4104,6 +4117,7 @@ NzString NzString::Unicode(const wchar_t* wString)
 std::istream& operator>>(std::istream& is, NzString& str)
 {
 	str.Clear();
+    std::locale loc;
 
 	char c;
 	do
@@ -4111,7 +4125,7 @@ std::istream& operator>>(std::istream& is, NzString& str)
 		is.get(c);
 		if (c == '\0')
 			break;
-		else if (std::isspace(c))
+        else if (std::isspace(c, loc))
 		{
 			if (str.IsNull())
 				continue;

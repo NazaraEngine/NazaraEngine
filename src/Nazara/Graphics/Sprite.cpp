@@ -25,7 +25,7 @@ m_textureCoords(0.f, 0.f, 1.f, 1.f)
 		m_material->SetDiffuseMap(texture);
 
 		if (texture->IsValid())
-			m_size.Set(texture->GetWidth(), texture->GetHeight());
+            m_size.Set((float)texture->GetWidth(), (float)texture->GetHeight());
 		else
 			m_size.Set(64.f, 64.f);
 
