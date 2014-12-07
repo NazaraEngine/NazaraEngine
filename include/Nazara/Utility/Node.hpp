@@ -50,13 +50,13 @@ class NAZARA_API NzNode
 		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation, nzCoordSys coordSys = nzCoordSys_Global);
 
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
-		NzNode& Move(float movementX, float movementY, float movementZ, nzCoordSys coordSys = nzCoordSys_Local);
+		NzNode& Move(float movementX, float movementY, float movementZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Scale(const NzVector3f& scale);
 		NzNode& Scale(float scale);
-		NzNode& Scale(float scaleX, float scaleY, float scaleZ);
+		NzNode& Scale(float scaleX, float scaleY, float scaleZ = 1.f);
 
 		void SetInheritRotation(bool inheritRotation);
 		void SetInheritScale(bool inheritScale);
@@ -64,18 +64,18 @@ class NAZARA_API NzNode
 		void SetInitialRotation(const NzQuaternionf& quat);
 		void SetInitialScale(const NzVector3f& scale);
 		void SetInitialScale(float scale);
-		void SetInitialScale(float scaleX, float scaleY, float scaleZ);
+		void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
 		void SetInitialPosition(const NzVector3f& translation);
-		void SetInitialPosition(float translationX, float translationXY, float translationZ);
+		void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
 		void SetName(const NzString& name);
 		void SetParent(const NzNode* node = nullptr, bool keepDerived = false);
 		void SetParent(const NzNode& node, bool keepDerived = false);
 		void SetPosition(const NzVector3f& translation, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetPosition(float translationX, float translationXY, float translationZ, nzCoordSys coordSys = nzCoordSys_Local);
+		void SetPosition(float translationX, float translationY, float translationZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetRotation(const NzQuaternionf& quat, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys = nzCoordSys_Local);
+		void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetTransformMatrix(const NzMatrix4f& matrix);
 
 		// Local -> global
