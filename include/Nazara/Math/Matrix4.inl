@@ -562,9 +562,9 @@ template<typename T>
 bool NzMatrix4<T>::IsIdentity() const
 {
 	return (NzNumberEquals(m11, F(1.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(1.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(1.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(1.0)));
+	        NzNumberEquals(m21, F(0.0)) && NzNumberEquals(m22, F(1.0)) && NzNumberEquals(m23, F(0.0)) && NzNumberEquals(m24, F(0.0)) &&
+	        NzNumberEquals(m31, F(0.0)) && NzNumberEquals(m32, F(0.0)) && NzNumberEquals(m33, F(1.0)) && NzNumberEquals(m34, F(0.0)) &&
+	        NzNumberEquals(m41, F(0.0)) && NzNumberEquals(m42, F(0.0)) && NzNumberEquals(m43, F(0.0)) && NzNumberEquals(m44, F(1.0)));
 }
 
 template<typename T>
