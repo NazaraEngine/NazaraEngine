@@ -22,6 +22,7 @@ class NzSparsePtr
 		NzSparsePtr();
 		NzSparsePtr(T* ptr);
 		NzSparsePtr(VoidPtr ptr, unsigned int stride);
+		template<typename U> NzSparsePtr(const NzSparsePtr<U>& ptr);
 		NzSparsePtr(const NzSparsePtr& ptr) = default;
 		~NzSparsePtr() = default;
 
@@ -32,6 +33,7 @@ class NzSparsePtr
 		void Reset(T* ptr);
 		void Reset(VoidPtr ptr, unsigned int stride);
 		void Reset(const NzSparsePtr& ptr);
+		template<typename U> void Reset(const NzSparsePtr<U>& ptr);
 
 		void SetPtr(VoidPtr ptr);
 		void SetStride(unsigned int stride);
