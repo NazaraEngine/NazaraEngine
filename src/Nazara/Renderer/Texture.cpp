@@ -1272,6 +1272,13 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_RGBA32UI:
 			return NzOpenGL::GetVersion() >= 300;
 
+		// Dépréciés depuis OpenGL 3
+		///FIXME: Accepter si le contexte OpenGL est de compatibilité/OpenGL 2 ?
+		case nzPixelFormat_A8:
+		case nzPixelFormat_L8:
+		case nzPixelFormat_LA8:
+			return false;
+
 		// Formats de profondeur (Supportés avec les FBOs)
 		case nzPixelFormat_Depth16:
 		case nzPixelFormat_Depth24:
@@ -1286,12 +1293,7 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_Stencil16:
 			return false;
 
-		// Dépréciés depuis OpenGL 3
-		///FIXME: Il doit bien exister des remplaçants (GL_RED ?)
-		case nzPixelFormat_L8:
-		case nzPixelFormat_LA8:
-			return false;
-
+		// Formats compressés
 		case nzPixelFormat_DXT1:
 		case nzPixelFormat_DXT3:
 		case nzPixelFormat_DXT5:
@@ -1302,7 +1304,6 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 	}
 
 	NazaraError("Invalid pixel format");
-
 	return false;
 }
 
