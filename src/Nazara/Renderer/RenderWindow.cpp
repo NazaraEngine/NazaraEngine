@@ -320,4 +320,3 @@ void NzRenderWindow::OnWindowResized()
 {
 	NotifySizeChange();
 }
-
