@@ -23,6 +23,13 @@ NzSparsePtr<T>::NzSparsePtr(VoidPtr ptr, unsigned int stride)
 }
 
 template<typename T>
+template<typename U>
+NzSparsePtr<T>::NzSparsePtr(const NzSparsePtr<U>& ptr)
+{
+	Reset(ptr);
+}
+
+template<typename T>
 typename NzSparsePtr<T>::VoidPtr NzSparsePtr<T>::GetPtr() const
 {
 	return m_ptr;
@@ -59,6 +66,16 @@ template<typename T>
 void NzSparsePtr<T>::Reset(const NzSparsePtr& ptr)
 {
 	SetPtr(ptr.GetPtr());
+	SetStride(ptr.GetStride());
+}
+
+template<typename T>
+template<typename U>
+void NzSparsePtr<T>::Reset(const NzSparsePtr<U>& ptr)
+{
+	static_assert(std::is_convertible<U*, T*>::value, "Source type pointer cannot be implicitely converted to target type pointer");
+
+	SetPtr(static_cast<T*>(ptr.GetPtr()));
 	SetStride(ptr.GetStride());
 }
 
@@ -120,6 +137,7 @@ template<typename T>
 NzSparsePtr<T>& NzSparsePtr<T>::operator+=(unsigned int count)
 {
 	m_ptr += count*m_stride;
+
 	return *this;
 }
 
@@ -127,6 +145,7 @@ template<typename T>
 NzSparsePtr<T>& NzSparsePtr<T>::operator-=(unsigned int count)
 {
 	m_ptr -= count*m_stride;
+
 	return *this;
 }
 
@@ -134,6 +153,7 @@ template<typename T>
 NzSparsePtr<T>& NzSparsePtr<T>::operator++()
 {
 	m_ptr += m_stride;
+
 	return *this;
 }
 
