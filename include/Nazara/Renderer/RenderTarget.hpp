@@ -61,7 +61,7 @@ class NAZARA_API NzRenderTarget
 
 	private:
 		mutable std::unordered_map<Listener*, void*> m_listeners;
-		        bool m_listenersLocked;
+		bool m_listenersLocked;
 };
 
 #endif // NAZARA_RENDERTARGET_HPP
