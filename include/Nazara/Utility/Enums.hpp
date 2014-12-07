@@ -130,6 +130,7 @@ enum nzPixelFormat
 {
 	nzPixelFormat_Undefined = -1,
 
+	nzPixelFormat_A8,              // 1*uint8
 	nzPixelFormat_BGR8,            // 3*uint8
 	nzPixelFormat_BGRA8,           // 4*uint8
 	nzPixelFormat_DXT1,
