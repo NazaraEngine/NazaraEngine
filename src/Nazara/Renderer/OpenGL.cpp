@@ -1465,6 +1465,9 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 {
 	switch (pixelFormat)
 	{
+		case nzPixelFormat_A8:
+			return false; ///FIXME: Tester le mode d'OpenGL pour se permettre une fonctionnalité dépréciée ?
+
 		case nzPixelFormat_BGR8:
 			format->dataFormat = GL_BGR;
 			format->dataType = GL_UNSIGNED_BYTE;
