@@ -7,6 +7,7 @@
 // Je n'ai vraiment fait qu'adapter le code au moteur (Avec quelques améliorations), je n'ai aucun mérite sur le code ci-dessous
 
 #include <Nazara/Core/GuillotineBinPack.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -63,12 +64,40 @@ NzGuillotineBinPack::NzGuillotineBinPack(unsigned int width, unsigned int height
 	Reset(width, height);
 }
 
+NzGuillotineBinPack::NzGuillotineBinPack(const NzVector2ui& size)
+{
+	Reset(size);
+}
+
 void NzGuillotineBinPack::Clear()
 {
 	m_freeRectangles.clear();
 	m_freeRectangles.push_back(NzRectui(0, 0, m_width, m_height));
 
-	m_occupancy = 0.f;
+	m_usedArea = 0;
+}
+
+void NzGuillotineBinPack::Expand(unsigned int newWidth, unsigned newHeight)
+{
+	unsigned int oldWidth = m_width;
+	unsigned int oldHeight = m_height;
+
+	m_width = std::max(newWidth, m_width);
+	m_height = std::max(newHeight, m_height);
+
+	if (m_width > oldWidth)
+		m_freeRectangles.push_back(NzRectui(oldWidth, 0, m_width - oldWidth, oldHeight));
+
+	if (m_height > oldHeight)
+		m_freeRectangles.push_back(NzRectui(0, oldHeight, m_width, m_height - oldHeight));
+
+	// On va ensuite fusionner les rectangles tant que possible
+	while (MergeFreeRectangles());
+}
+
+void NzGuillotineBinPack::Expand(const NzVector2ui& newSize)
+{
+	Expand(newSize.x, newSize.y);
 }
 
 void NzGuillotineBinPack::FreeRectangle(const NzRectui& rect)
@@ -76,7 +105,7 @@ void NzGuillotineBinPack::FreeRectangle(const NzRectui& rect)
 	///DOC: Cette méthode ne devrait recevoir que des rectangles calculés par la méthode Insert et peut provoquer de la fragmentation
 	m_freeRectangles.push_back(rect);
 
-	m_occupancy -= static_cast<float>(rect.width * rect.height) / (m_width*m_height);
+	m_usedArea -= rect.width * rect.height;
 }
 
 unsigned int NzGuillotineBinPack::GetHeight() const
@@ -86,7 +115,7 @@ unsigned int NzGuillotineBinPack::GetHeight() const
 
 float NzGuillotineBinPack::GetOccupancy() const
 {
-	return m_occupancy;
+	return static_cast<float>(m_usedArea)/(m_width*m_height);
 }
 
 NzVector2ui NzGuillotineBinPack::GetSize() const
@@ -99,7 +128,17 @@ unsigned int NzGuillotineBinPack::GetWidth() const
 	return m_width;
 }
 
+bool NzGuillotineBinPack::Insert(NzRectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
+{
+	return Insert(rects, nullptr, nullptr, count, merge, rectChoice, splitMethod);
+}
+
 bool NzGuillotineBinPack::Insert(NzRectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
+{
+	return Insert(rects, flipped, nullptr, count, merge, rectChoice, splitMethod);
+}
+
+bool NzGuillotineBinPack::Insert(NzRectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 {
 	std::vector<NzRectui*> remainingRects(count); // La position du rectangle
 	for (unsigned int i = 0; i < count; ++i)
@@ -171,7 +210,19 @@ bool NzGuillotineBinPack::Insert(NzRectui* rects, bool* flipped, unsigned int co
 
 		// If we didn't manage to find any rectangle to pack, abort.
 		if (bestScore == std::numeric_limits<int>::max())
+		{
+			// Si nous le pouvons, on marque les rectangles n'ayant pas pu être insérés
+			if (inserted)
+			{
+				for (NzRectui* rect : remainingRects)
+				{
+					unsigned int position = rect - rects;
+					inserted[position] = false;
+				}
+			}
+
 			return false;
+		}
 
 		// Otherwise, we're good to go and do the actual packing.
 		unsigned int position = remainingRects[bestRect] - rects;
@@ -185,6 +236,9 @@ bool NzGuillotineBinPack::Insert(NzRectui* rects, bool* flipped, unsigned int co
 		if (flipped)
 			flipped[position] = bestFlipped;
 
+		if (inserted)
+			inserted[position] = true;
+
 		// Remove the free space we lost in the bin.
 		SplitFreeRectByHeuristic(m_freeRectangles[bestFreeRect], rect, splitMethod);
 		m_freeRectangles.erase(m_freeRectangles.begin() + bestFreeRect);
@@ -196,7 +250,7 @@ bool NzGuillotineBinPack::Insert(NzRectui* rects, bool* flipped, unsigned int co
 		if (merge)
 			MergeFreeRectangles();
 
-		m_occupancy += static_cast<float>(rect.width * rect.height) / (m_width*m_height);
+		m_usedArea += rect.width * rect.height;
 	}
 
 	return true;
@@ -269,6 +323,11 @@ void NzGuillotineBinPack::Reset(unsigned int width, unsigned int height)
 	m_width = width;
 
 	Clear();
+}
+
+void NzGuillotineBinPack::Reset(const NzVector2ui& size)
+{
+	Reset(size.x, size.y);
 }
 
 void NzGuillotineBinPack::SplitFreeRectAlongAxis(const NzRectui& freeRect, const NzRectui& placedRect, bool splitHorizontal)
