@@ -40,9 +40,15 @@ class NAZARA_API NzGuillotineBinPack
 
 		NzGuillotineBinPack();
 		NzGuillotineBinPack(unsigned int width, unsigned int height);
+		NzGuillotineBinPack(const NzVector2ui& size);
+		NzGuillotineBinPack(const NzGuillotineBinPack&) = default;
+		NzGuillotineBinPack(NzGuillotineBinPack&&) = default;
 		~NzGuillotineBinPack() = default;
 
 		void Clear();
+
+		void Expand(unsigned int newWidth, unsigned newHeight);
+		void Expand(const NzVector2ui& newSize);
 
 		void FreeRectangle(const NzRectui& rect);
 
@@ -51,12 +57,18 @@ class NAZARA_API NzGuillotineBinPack
 		NzVector2ui GetSize() const;
 		unsigned int GetWidth() const;
 
+		bool Insert(NzRectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
 		bool Insert(NzRectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+		bool Insert(NzRectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
 
 		bool MergeFreeRectangles();
 
 		void Reset();
 		void Reset(unsigned int width, unsigned int height);
+		void Reset(const NzVector2ui& size);
+
+		NzGuillotineBinPack& operator=(const NzGuillotineBinPack&) = default;
+		NzGuillotineBinPack& operator=(NzGuillotineBinPack&&) = default;
 
 	private:
 		void SplitFreeRectAlongAxis(const NzRectui& freeRect, const NzRectui& placedRect, bool splitHorizontal);
@@ -65,8 +77,8 @@ class NAZARA_API NzGuillotineBinPack
 		static int ScoreByHeuristic(int width, int height, const NzRectui& freeRect, FreeRectChoiceHeuristic rectChoice);
 
 		std::vector<NzRectui> m_freeRectangles;
-		float m_occupancy;
 		unsigned int m_height;
+		unsigned int m_usedArea;
 		unsigned int m_width;
 };
 
