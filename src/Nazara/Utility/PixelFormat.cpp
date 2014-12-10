@@ -87,9 +87,9 @@ namespace
 		nzUInt16* ptr = reinterpret_cast<nzUInt16*>(dst);
 		while (start < end)
 		{
-			*ptr = (static_cast<nzUInt16>(c8to5(start[2])) << 11) |
-			       (static_cast<nzUInt16>(c8to5(start[1])) << 6)  |
-			       (static_cast<nzUInt16>(c8to5(start[0])) << 1)  |
+			*ptr = (static_cast<nzUInt16>(0x1F) << 11) |
+			       (static_cast<nzUInt16>(0x1F) << 6)  |
+			       (static_cast<nzUInt16>(0x1F) << 1)  |
 			       ((*start > 0xF) ? 1 : 0); // > 128
 
 			#ifdef NAZARA_BIG_ENDIAN
