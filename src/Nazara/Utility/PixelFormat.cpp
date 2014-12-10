@@ -259,6 +259,19 @@ namespace
 
 	/**********************************BGRA8**********************************/
 	template<>
+	nzUInt8* ConvertPixels<nzPixelFormat_BGRA8, nzPixelFormat_A8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
+	{
+		while (start < end)
+		{
+			*dst++ = start[3];
+
+			start += 4;
+		}
+
+		return dst;
+	}
+
+	template<>
 	nzUInt8* ConvertPixels<nzPixelFormat_BGRA8, nzPixelFormat_BGR8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
 	{
 		while (start < end)
@@ -502,6 +515,19 @@ namespace
 
 	/***********************************LA8***********************************/
 	template<>
+	nzUInt8* ConvertPixels<nzPixelFormat_LA8, nzPixelFormat_A8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
+	{
+		while (start < end)
+		{
+			*dst++ = start[1];
+
+			start += 2;
+		}
+
+		return dst;
+	}
+
+	template<>
 	nzUInt8* ConvertPixels<nzPixelFormat_LA8, nzPixelFormat_BGR8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
 	{
 		while (start < end)
@@ -619,6 +645,25 @@ namespace
 	}
 
 	/*********************************RGBA4***********************************/
+	template<>
+	nzUInt8* ConvertPixels<nzPixelFormat_RGBA4, nzPixelFormat_A8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
+	{
+		while (start < end)
+		{
+			nzUInt16 pixel = *reinterpret_cast<const nzUInt16*>(start);
+
+			#ifdef NAZARA_BIG_ENDIAN
+			NzByteSwap(&pixel, sizeof(nzUInt16));
+			#endif
+
+			*dst++ = c4to8(pixel & 0x000F);
+
+			start += 2;
+		}
+
+		return dst;
+	}
+
 	template<>
 	nzUInt8* ConvertPixels<nzPixelFormat_RGBA4, nzPixelFormat_BGR8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
 	{
@@ -783,6 +828,25 @@ namespace
 	}
 
 	/*********************************RGB5A1**********************************/
+	template<>
+	nzUInt8* ConvertPixels<nzPixelFormat_RGB5A1, nzPixelFormat_A8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
+	{
+		while (start < end)
+		{
+			nzUInt16 pixel = *reinterpret_cast<const nzUInt16*>(start);
+
+			#ifdef NAZARA_BIG_ENDIAN
+			NzByteSwap(&pixel, sizeof(nzUInt16));
+			#endif
+
+			*dst++ = static_cast<nzUInt8>((pixel & 0x1)*0xFF);
+
+			start += 2;
+		}
+
+		return dst;
+	}
+
 	template<>
 	nzUInt8* ConvertPixels<nzPixelFormat_RGB5A1, nzPixelFormat_BGR8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
 	{
@@ -1066,6 +1130,19 @@ namespace
 
 	/**********************************RGBA8**********************************/
 	template<>
+	nzUInt8* ConvertPixels<nzPixelFormat_RGBA8, nzPixelFormat_A8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
+	{
+		while (start < end)
+		{
+			*dst++ = start[3];
+
+			start += 4;
+		}
+
+		return dst;
+	}
+
+	template<>
 	nzUInt8* ConvertPixels<nzPixelFormat_RGBA8, nzPixelFormat_BGR8>(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)
 	{
 		while (start < end)
@@ -1219,6 +1296,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_BGR8, nzPixelFormat_RGBA8>();
 
 	/**********************************BGRA8**********************************/
+	RegisterConverter<nzPixelFormat_BGRA8, nzPixelFormat_A8>();
 	RegisterConverter<nzPixelFormat_BGRA8, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_BGRA8, nzPixelFormat_L8>();
 	RegisterConverter<nzPixelFormat_BGRA8, nzPixelFormat_LA8>();/*
@@ -1322,6 +1400,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_L8, nzPixelFormat_RGBA8>();
 
 	/***********************************LA8***********************************/
+	RegisterConverter<nzPixelFormat_LA8, nzPixelFormat_A8>();
 	RegisterConverter<nzPixelFormat_LA8, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_LA8, nzPixelFormat_BGRA8>();
 	RegisterConverter<nzPixelFormat_LA8, nzPixelFormat_L8>();/*
@@ -1339,6 +1418,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_LA8, nzPixelFormat_RGBA8>();
 
 	/**********************************RGBA4**********************************/
+	RegisterConverter<nzPixelFormat_RGBA4, nzPixelFormat_A8>();
 	RegisterConverter<nzPixelFormat_RGBA4, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_RGBA4, nzPixelFormat_BGRA8>();
 	RegisterConverter<nzPixelFormat_RGBA4, nzPixelFormat_L8>();
@@ -1356,6 +1436,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_RGBA4, nzPixelFormat_RGBA8>();
 
 	/*********************************RGB5A1**********************************/
+	RegisterConverter<nzPixelFormat_RGB5A1, nzPixelFormat_A8>();
 	RegisterConverter<nzPixelFormat_RGB5A1, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_RGB5A1, nzPixelFormat_BGRA8>();
 	RegisterConverter<nzPixelFormat_RGB5A1, nzPixelFormat_L8>();
@@ -1390,6 +1471,7 @@ bool NzPixelFormat::Initialize()
 	RegisterConverter<nzPixelFormat_RGB8, nzPixelFormat_RGBA8>();
 
 	/**********************************RGBA8**********************************/
+	RegisterConverter<nzPixelFormat_RGBA8, nzPixelFormat_A8>();
 	RegisterConverter<nzPixelFormat_RGBA8, nzPixelFormat_BGR8>();
 	RegisterConverter<nzPixelFormat_RGBA8, nzPixelFormat_BGRA8>();
 	RegisterConverter<nzPixelFormat_RGBA8, nzPixelFormat_L8>();
