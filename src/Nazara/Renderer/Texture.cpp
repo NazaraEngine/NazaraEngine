@@ -133,6 +133,15 @@ namespace
 				return false;
 		}
 
+		// Application du swizzle
+		if (NzOpenGL::GetVersion() >= 300)
+		{
+			glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, openGLFormat.swizzle[0]);
+			glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, openGLFormat.swizzle[1]);
+			glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, openGLFormat.swizzle[2]);
+			glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
+		}
+
 		return true;
 	}
 
@@ -1226,8 +1235,11 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 	switch (format)
 	{
 		// Formats de base
+		case nzPixelFormat_A8:
 		case nzPixelFormat_BGR8:
 		case nzPixelFormat_BGRA8:
+		case nzPixelFormat_L8:
+		case nzPixelFormat_LA8:
 		case nzPixelFormat_RGB8:
 		case nzPixelFormat_RGBA8:
 			return true;
@@ -1271,13 +1283,6 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_RGBA32I:
 		case nzPixelFormat_RGBA32UI:
 			return NzOpenGL::GetVersion() >= 300;
-
-		// Dépréciés depuis OpenGL 3
-		///FIXME: Accepter si le contexte OpenGL est de compatibilité/OpenGL 2 ?
-		case nzPixelFormat_A8:
-		case nzPixelFormat_L8:
-		case nzPixelFormat_LA8:
-			return false;
 
 		// Formats de profondeur (Supportés avec les FBOs)
 		case nzPixelFormat_Depth16:
