@@ -17,7 +17,7 @@ NzSparsePtr<T>::NzSparsePtr(T* ptr)
 }
 
 template<typename T>
-NzSparsePtr<T>::NzSparsePtr(VoidPtr ptr, unsigned int stride)
+NzSparsePtr<T>::NzSparsePtr(VoidPtr ptr, int stride)
 {
 	Reset(ptr, stride);
 }
@@ -36,7 +36,7 @@ typename NzSparsePtr<T>::VoidPtr NzSparsePtr<T>::GetPtr() const
 }
 
 template<typename T>
-unsigned int NzSparsePtr<T>::GetStride() const
+int NzSparsePtr<T>::GetStride() const
 {
 	return m_stride;
 }
@@ -56,7 +56,7 @@ void NzSparsePtr<T>::Reset(T* ptr)
 }
 
 template<typename T>
-void NzSparsePtr<T>::Reset(VoidPtr ptr, unsigned int stride)
+void NzSparsePtr<T>::Reset(VoidPtr ptr, int stride)
 {
 	SetPtr(ptr);
 	SetStride(stride);
@@ -86,7 +86,7 @@ void NzSparsePtr<T>::SetPtr(VoidPtr ptr)
 }
 
 template<typename T>
-void NzSparsePtr<T>::SetStride(unsigned int stride)
+void NzSparsePtr<T>::SetStride(int stride)
 {
 	m_stride = stride;
 }
@@ -116,25 +116,25 @@ T& NzSparsePtr<T>::operator->() const
 }
 
 template<typename T>
-T& NzSparsePtr<T>::operator[](unsigned int index) const
+T& NzSparsePtr<T>::operator[](int index) const
 {
 	return *reinterpret_cast<T*>(m_ptr + index*m_stride);
 }
 
 template<typename T>
-NzSparsePtr<T> NzSparsePtr<T>::operator+(unsigned int count) const
+NzSparsePtr<T> NzSparsePtr<T>::operator+(int count) const
 {
 	return NzSparsePtr(m_ptr + count*m_stride, m_stride);
 }
 
 template<typename T>
-NzSparsePtr<T> NzSparsePtr<T>::operator-(unsigned int count) const
+NzSparsePtr<T> NzSparsePtr<T>::operator-(int count) const
 {
 	return NzSparsePtr(m_ptr - count*m_stride, m_stride);
 }
 
 template<typename T>
-NzSparsePtr<T>& NzSparsePtr<T>::operator+=(unsigned int count)
+NzSparsePtr<T>& NzSparsePtr<T>::operator+=(int count)
 {
 	m_ptr += count*m_stride;
 
@@ -142,7 +142,7 @@ NzSparsePtr<T>& NzSparsePtr<T>::operator+=(unsigned int count)
 }
 
 template<typename T>
-NzSparsePtr<T>& NzSparsePtr<T>::operator-=(unsigned int count)
+NzSparsePtr<T>& NzSparsePtr<T>::operator-=(int count)
 {
 	m_ptr -= count*m_stride;
 
