@@ -690,8 +690,8 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid());
 	list.SetParameter("TRANSFORM", m_transformEnabled);
 
-	list.SetParameter("FLAG_DEFERRED", static_cast<bool>(flags & nzShaderFlags_Deferred));
-	list.SetParameter("FLAG_INSTANCING", static_cast<bool>(flags & nzShaderFlags_Instancing));
+	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
+	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
 
 	ShaderInstance& instance = m_shaders[flags];
 	instance.uberInstance = m_uberShader->Get(list);
