@@ -20,6 +20,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 {
 	public:
 		NzView();
+		NzView(const NzVector2f& size);
 		~NzView();
 
 		void EnsureFrustumUpdate() const;
@@ -32,6 +33,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		NzVector3f GetForward() const;
 		const NzFrustumf& GetFrustum() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
+		const NzVector2f& GetSize() const;
 		const NzRenderTarget* GetTarget() const;
 		const NzRectf& GetTargetRegion() const;
 		const NzMatrix4f& GetViewMatrix() const;
@@ -39,6 +41,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		float GetZFar() const;
 		float GetZNear() const;
 
+		void SetSize(const NzVector2f& size);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetTargetRegion(const NzRectf& region);
@@ -63,6 +66,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		mutable NzMatrix4f m_viewMatrix;
 		NzRectf m_targetRegion;
 		mutable NzRecti m_viewport;
+		NzVector2f m_size;
 		const NzRenderTarget* m_target;
 		mutable bool m_frustumUpdated;
 		mutable bool m_projectionMatrixUpdated;

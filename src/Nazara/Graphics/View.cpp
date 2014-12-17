@@ -10,6 +10,7 @@
 
 NzView::NzView() :
 m_targetRegion(0.f, 0.f, 1.f, 1.f),
+m_size(0.f),
 m_target(nullptr),
 m_frustumUpdated(false),
 m_projectionMatrixUpdated(false),
@@ -18,6 +19,12 @@ m_viewportUpdated(false),
 m_zFar(1.f),
 m_zNear(-1.f)
 {
+}
+
+NzView::NzView(const NzVector2f& size) :
+NzView() // On délègue
+{
+	m_size = size;
 }
 
 NzView::~NzView()
@@ -256,10 +263,16 @@ void NzView::UpdateFrustum() const
 
 void NzView::UpdateProjectionMatrix() const
 {
-	if (!m_viewportUpdated)
-		UpdateViewport();
+	if (m_size.x <= 0.f || m_size.y <= 0.f) // Si la taille est nulle, on prendra la taille du viewport
+	{
+		if (!m_viewportUpdated)
+			UpdateViewport();
 
-	m_projectionMatrix.MakeOrtho(m_viewport.x, m_viewport.x + m_viewport.width, m_viewport.y, m_viewport.y + m_viewport.height, m_zNear, m_zFar);
+		m_projectionMatrix.MakeOrtho(0.f, m_viewport.width, 0.f, m_viewport.height, m_zNear, m_zFar);
+	}
+	else
+		m_projectionMatrix.MakeOrtho(0.f, m_size.x, 0.f, m_size.y, m_zNear, m_zFar);
+
 	m_projectionMatrixUpdated = true;
 }
 

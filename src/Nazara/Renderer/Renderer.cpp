@@ -1856,7 +1856,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 								default:
 								{
-									NazaraInternalError("Unsupported component type");
+									NazaraInternalError("Unsupported component type (0x" + NzString::Number(type, 16) + ')');
 									break;
 								}
 							}

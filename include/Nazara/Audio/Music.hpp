@@ -26,7 +26,7 @@ using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
 
 struct NzMusicImpl;
 
-class NAZARA_API NzMusic : public NzSoundEmitter
+class NAZARA_API NzMusic : public NzSoundEmitter, NzNonCopyable
 {
 	friend NzMusicLoader;
 
