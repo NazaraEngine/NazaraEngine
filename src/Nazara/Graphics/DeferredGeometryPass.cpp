@@ -228,7 +228,7 @@ bool NzDeferredGeometryPass::Resize(const NzVector2ui& dimensions)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraError("Failed to create G-Buffer RTT");
+		NazaraError("Failed to create G-Buffer RTT: " + NzString(e.what()));
 		return false;
 	}
 }

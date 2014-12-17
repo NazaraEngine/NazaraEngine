@@ -34,7 +34,7 @@ class NzWindowImpl : NzNonCopyable
 		NzWindowImpl(NzWindow* parent);
 		~NzWindowImpl() = default;
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style);
+		bool Create(const NzVideoMode& mode, const NzString& title, nzUInt32 style);
 		bool Create(NzWindowHandle handle);
 
 		void Destroy();

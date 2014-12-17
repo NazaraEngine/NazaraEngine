@@ -191,7 +191,7 @@ end
 
 newaction
 {
-	trigger     = "unicode",
+	trigger     = "parseunicode",
 	description = "Parse the Unicode Character Data and put the useful informations into a header",
 	execute     = parseUnicodeData
 }
