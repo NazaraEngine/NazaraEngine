@@ -32,6 +32,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
 		void SetSize(const NzVector2f& size);
+		void SetSize(float sizeX, float sizeY);
 		void SetTexture(NzTexture* texture, bool resizeSprite = true);
 		void SetTextureCoords(const NzRectf& coords);
 		void SetTextureRect(const NzRectui& rect);

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
@@ -235,7 +236,7 @@ inline void NzColor::ToCMYK(const NzColor& color, float* cyan, float* magenta, f
 	float c, m, y;
 	ToCMY(color, &c, &m, &y);
 
-	float k = std::min(std::min(std::min(1.f, c), m), y);
+	float k = std::min({1.f, c, m, y});
 
 	if (NzNumberEquals(k, 1.f))
 	{
@@ -260,8 +261,8 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 	float g = color.g / 255.f;
 	float b = color.b / 255.f;
 
-	float min = std::min(std::min(r, g), b); // Min. value of RGB
-	float max = std::max(std::max(r, g), b); // Max. value of RGB
+	float min = std::min({r, g, b}); // Min. value of RGB
+	float max = std::max({r, g, b}); // Max. value of RGB
 
 	float deltaMax = max - min; //Delta RGB value
 

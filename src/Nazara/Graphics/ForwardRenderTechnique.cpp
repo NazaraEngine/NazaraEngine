@@ -421,19 +421,19 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 					NzVector3f center = sprite->GetPosition();
 					NzQuaternionf rotation = sprite->GetRotation();
 
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, -halfSize.y, 0.f);
+					vertices->position = center + rotation * NzVector3f(-halfSize.x, halfSize.y, 0.f);
 					vertices->uv.Set(textureCoords.x, textureCoords.y + textureCoords.height);
 					vertices++;
 
-					vertices->position = center + rotation * NzVector3f(halfSize.x, -halfSize.y, 0.f);
+					vertices->position = center + rotation * NzVector3f(halfSize.x, halfSize.y, 0.f);
 					vertices->uv.Set(textureCoords.width, textureCoords.y + textureCoords.height);
 					vertices++;
 
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, halfSize.y, 0.f);
+					vertices->position = center + rotation * NzVector3f(-halfSize.x, -halfSize.y, 0.f);
 					vertices->uv.Set(textureCoords.x, textureCoords.y);
 					vertices++;
 
-					vertices->position = center + rotation * NzVector3f(halfSize.x, halfSize.y, 0.f);
+					vertices->position = center + rotation * NzVector3f(halfSize.x, -halfSize.y, 0.f);
 					vertices->uv.Set(textureCoords.width, textureCoords.y);
 					vertices++;
 				}

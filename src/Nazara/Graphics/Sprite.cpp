@@ -109,8 +109,15 @@ void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
 void NzSprite::SetSize(const NzVector2f& size)
 {
 	m_size = size;
+
+	// On invalide la bounding box
 	m_boundingVolume.MakeNull();
 	m_boundingVolumeUpdated = false;
+}
+
+void NzSprite::SetSize(float sizeX, float sizeY)
+{
+	SetSize(NzVector2f(sizeX, sizeY));
 }
 
 void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)

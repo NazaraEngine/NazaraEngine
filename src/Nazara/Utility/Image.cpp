@@ -11,12 +11,16 @@
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
-///TODO: Rendre les méthodes exception-safe
+///TODO: Rendre les méthodes exception-safe (Virer toute cette merde de calcul de pointeurs, faire usage du RAII)
+///FIXME: Gérer correctement les formats utilisant moins d'un octet par pixel
 
 namespace
 {
 	inline unsigned int GetLevelSize(unsigned int size, nzUInt8 level)
 	{
+		if (size == 0) // Possible dans le cas d'une image invalide
+			return 0;
+
 		return std::max(size >> level, 1U);
 	}
 
@@ -28,7 +32,7 @@ namespace
 
 bool NzImageParams::IsValid() const
 {
-	return true;
+	return true; // Rien à vérifier
 }
 
 NzImage::NzImage() :
@@ -195,7 +199,7 @@ void NzImage::Copy(const NzImage& source, const NzBoxui& srcBox, const NzVector3
 
 bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)
 {
-	ReleaseImage();
+	Destroy();
 
 	#if NAZARA_UTILITY_SAFE
 	if (!NzPixelFormat::IsValid(format))
