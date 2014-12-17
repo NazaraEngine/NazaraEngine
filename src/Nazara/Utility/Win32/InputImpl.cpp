@@ -222,7 +222,7 @@ NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
 	}
 	else
 	{
-		NazaraError("Window's handle is invalid");
+		NazaraError("Invalid window handle");
 
 		// Attention que (-1, -1) est une position tout à fait valide et ne doit pas servir de test
 		return NzVector2i(-1, -1);
@@ -289,5 +289,5 @@ void NzEventImpl::SetMousePosition(int x, int y, const NzWindow& relativeTo)
 		SetCursorPos(pos.x, pos.y);
 	}
 	else
-		NazaraError("Window's handle is invalid");
+		NazaraError("Invalid window handle");
 }
