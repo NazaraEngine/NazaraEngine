@@ -5,6 +5,7 @@
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/VideoModeImpl.hpp>
 #include <algorithm>
+#include <functional>
 #include <Nazara/Utility/Debug.hpp>
 
 NzVideoMode::NzVideoMode() :
