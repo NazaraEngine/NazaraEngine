@@ -79,7 +79,7 @@ m_scrolling(0)
 {
 }
 
-bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 style)
+bool NzWindowImpl::Create(const NzVideoMode& mode, const NzString& title, nzUInt32 style)
 {
 	bool fullscreen = (style & nzWindowStyle_Fullscreen) != 0;
 	DWORD win32Style, win32StyleEx;
@@ -183,7 +183,7 @@ bool NzWindowImpl::Create(NzVideoMode mode, const NzString& title, nzUInt32 styl
 	GetWindowRect(m_handle, &windowRect);
 
 	m_position.Set(windowRect.left, windowRect.top);
-	m_size.Set(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
+	m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 
 	return true;
 }
