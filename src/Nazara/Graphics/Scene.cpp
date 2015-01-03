@@ -134,12 +134,77 @@ NzAbstractBackground* NzScene::GetBackground() const
 	return m_impl->background.get();
 }
 
+NzVector3f NzScene::GetBackward() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Backward();
+	}
+	#endif
+
+	return -m_impl->viewer->GetGlobalForward();
+}
+
+NzVector3f NzScene::GetDown() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Down();
+	}
+	#endif
+
+	return -m_impl->viewer->GetGlobalUp();
+}
+
+NzVector3f NzScene::GetForward() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Forward();
+	}
+	#endif
+
+	return m_impl->viewer->GetGlobalForward();
+}
+
+NzVector3f NzScene::GetLeft() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Left();
+	}
+	#endif
+
+	return -m_impl->viewer->GetGlobalRight();
+}
+
 NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
 {
 	if (!m_impl->renderTechnique)
 		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
 
 	return m_impl->renderTechnique.get();
+}
+
+NzVector3f NzScene::GetRight() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Right();
+	}
+	#endif
+
+	return m_impl->viewer->GetGlobalRight();
 }
 
 NzSceneNode& NzScene::GetRoot() const
@@ -150,6 +215,19 @@ NzSceneNode& NzScene::GetRoot() const
 NzAbstractViewer* NzScene::GetViewer() const
 {
 	return m_impl->viewer;
+}
+
+NzVector3f NzScene::GetUp() const
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!m_impl->viewer)
+	{
+		NazaraError("No viewer");
+		return NzVector3f::Up();
+	}
+	#endif
+
+	return m_impl->viewer->GetGlobalUp();
 }
 
 float NzScene::GetUpdateTime() const
@@ -197,7 +275,13 @@ void NzScene::SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique)
 
 void NzScene::SetViewer(NzAbstractViewer* viewer)
 {
-	m_impl->viewer = viewer;
+	if (m_impl->viewer != viewer)
+	{
+		m_impl->viewer = viewer;
+
+		// Invalidation de tous les nodes de la scène (utile pour la régénération des sommets dépendant du viewer)
+		m_impl->root.InvalidateNode();
+	}
 }
 
 void NzScene::SetViewer(NzAbstractViewer& viewer)

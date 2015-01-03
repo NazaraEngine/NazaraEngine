@@ -32,6 +32,9 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 		NzVector3f GetForward() const;
 		float GetFOV() const;
 		const NzFrustumf& GetFrustum() const;
+		NzVector3f GetGlobalForward() const;
+		NzVector3f GetGlobalRight() const;
+		NzVector3f GetGlobalUp() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
 		const NzRenderTarget* GetTarget() const;
 		const NzRectf& GetTargetRegion() const;

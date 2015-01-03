@@ -80,6 +80,21 @@ const NzFrustumf& NzView::GetFrustum() const
 	return m_frustum;
 }
 
+NzVector3f NzView::GetGlobalForward() const
+{
+	return NzVector3f::UnitZ();
+}
+
+NzVector3f NzView::GetGlobalRight() const
+{
+	return NzVector3f::UnitX();
+}
+
+NzVector3f NzView::GetGlobalUp() const
+{
+	return -NzVector3f::UnitY();
+}
+
 const NzMatrix4f& NzView::GetProjectionMatrix() const
 {
 	if (!m_projectionMatrixUpdated)
