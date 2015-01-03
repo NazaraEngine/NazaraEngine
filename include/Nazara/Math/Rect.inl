@@ -110,6 +110,28 @@ NzVector2<T> NzRect<T>::GetCenter() const
 }
 
 template<typename T>
+NzVector2<T> NzRect<T>::GetCorner(nzRectCorner corner) const
+{
+	switch (corner)
+	{
+		case nzRectCorner_LeftBottom:
+			return NzVector2<T>(x, y + height);
+
+		case nzRectCorner_LeftTop:
+			return NzVector2<T>(x, y);
+
+		case nzRectCorner_RightBottom:
+			return NzVector2<T>(x + width, y + height);
+
+		case nzRectCorner_RightTop:
+			return NzVector2<T>(x + width, y);
+	}
+
+	NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
+	return NzVector2<T>();
+}
+
+template<typename T>
 NzVector2<T> NzRect<T>::GetLengths() const
 {
 	return NzVector2<T>(width, height);
