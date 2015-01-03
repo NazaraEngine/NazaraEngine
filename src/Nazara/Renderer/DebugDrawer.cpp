@@ -363,6 +363,11 @@ void NzDebugDrawer::Draw(const NzSkeleton* skeleton)
 	}
 }
 
+void NzDebugDrawer::Draw(const NzVector3f& position, float size)
+{
+	Draw(NzBoxf(position.x - size*0.5f, position.y - size*0.5f, position.z - size*0.5f, size, size, size));
+}
+
 void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 {
 	if (!Initialize())
