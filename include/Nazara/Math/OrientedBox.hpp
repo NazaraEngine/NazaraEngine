@@ -24,7 +24,7 @@ class NzOrientedBox
 		NzOrientedBox(const NzOrientedBox& orientedBox) = default;
 		~NzOrientedBox() = default;
 
-		const NzVector3<T>& GetCorner(nzCorner corner) const;
+		const NzVector3<T>& GetCorner(nzBoxCorner corner) const;
 
 		bool IsValid() const;
 
@@ -59,7 +59,7 @@ class NzOrientedBox
 		NzBox<T> localBox;
 
 	private:
-		NzVector3<T> m_corners[nzCorner_Max+1]; // Ne peuvent pas être modifiés directement
+		NzVector3<T> m_corners[nzBoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
 };
 
 template<typename T>
