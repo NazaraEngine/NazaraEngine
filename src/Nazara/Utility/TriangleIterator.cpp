@@ -46,8 +46,8 @@ bool NzTriangleIterator::Advance()
 
 		case nzPrimitiveMode_TriangleStrip:
 			m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
-			m_triangleIndices[1] = m_triangleIndices[2];
 			m_triangleIndices[0] = m_triangleIndices[1];
+			m_triangleIndices[1] = m_triangleIndices[2];
 			break;
 
 		default:
