@@ -254,10 +254,10 @@ NzString NzShader::GetSourceCode(nzShaderStage stage) const
 	unsigned int totalLength = 0;
 	for (unsigned int shader : m_attachedShaders[stage])
 	{
-        GLint length;
-        glGetShaderiv(shader, GL_SHADER_SOURCE_LENGTH, &length);
+		GLint length;
+		glGetShaderiv(shader, GL_SHADER_SOURCE_LENGTH, &length);
 
-        totalLength += length - 1;
+		totalLength += length - 1;
 	}
 
 	totalLength += (m_attachedShaders[stage].size()-1)*(sizeof(sep)/sizeof(char));
