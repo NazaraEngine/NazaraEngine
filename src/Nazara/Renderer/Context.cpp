@@ -38,7 +38,7 @@ namespace
 		switch (source)
 		{
 			case GL_DEBUG_SOURCE_API:
-				ss << "OpenGL";
+				ss << "OpenGL API";
 				break;
 
 			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
