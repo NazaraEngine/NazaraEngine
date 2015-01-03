@@ -134,6 +134,12 @@ NzSparsePtr<T> NzSparsePtr<T>::operator-(int count) const
 }
 
 template<typename T>
+std::ptrdiff_t NzSparsePtr<T>::operator-(const NzSparsePtr& ptr) const
+{
+	return (m_ptr - ptr.m_ptr)/m_stride;
+}
+
+template<typename T>
 NzSparsePtr<T>& NzSparsePtr<T>::operator+=(int count)
 {
 	m_ptr += count*m_stride;
