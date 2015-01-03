@@ -557,7 +557,7 @@ bool NzLuaInstance::IsOfType(int index, nzLuaType type) const
 			return lua_isuserdata(m_state, index) == 1;
 	}
 
-	NazaraError("Lua type unhandled (0x" + NzString::Number(type, 16) + ')');
+	NazaraError("Lua type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
 }
 

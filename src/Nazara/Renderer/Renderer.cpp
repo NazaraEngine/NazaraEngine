@@ -924,7 +924,7 @@ bool NzRenderer::IsComponentTypeSupported(nzComponentType type)
 			return false;
 	}
 
-	NazaraError("Attribute type out of enum (0x" + NzString::Number(type, 16) + ')');
+	NazaraError("Attribute type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
 }
 

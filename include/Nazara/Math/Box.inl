@@ -247,27 +247,30 @@ bool NzBox<T>::Intersect(const NzBox& box, NzBox* intersection) const
 {
 	T left = std::max(x, box.x);
 	T right = std::min(x + width, box.x + box.width);
+	if (left >= right)
+		return false;
+
 	T top = std::max(y, box.y);
 	T bottom = std::min(y + height, box.y + box.height);
+	if (top >= bottom)
+		return false;
+
 	T up = std::max(z, box.z);
 	T down = std::min(z + depth, box.z + box.depth);
-
-	if (left < right && top < bottom && up < down)
-	{
-		if (intersection)
-		{
-			intersection->x = left;
-			intersection->y = top;
-			intersection->z = up;
-			intersection->width = right - left;
-			intersection->height = bottom - top;
-			intersection->depth = down - up;
-		}
-
-		return true;
-	}
-	else
+	if (up >= down)
 		return false;
+
+	if (intersection)
+	{
+		intersection->x = left;
+		intersection->y = top;
+		intersection->z = up;
+		intersection->width = right - left;
+		intersection->height = bottom - top;
+		intersection->depth = down - up;
+	}
+
+	return true;
 }
 
 template<typename T>
