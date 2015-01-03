@@ -166,24 +166,24 @@ template<typename T>
 bool NzRect<T>::Intersect(const NzRect& rect, NzRect* intersection) const
 {
 	T left = std::max(x, rect.x);
-	T right = std::min(x+width, rect.x+rect.width);
-	T top = std::max(y, rect.y);
-	T bottom = std::min(y+height, rect.y+rect.height);
-
-	if (left < right && top < bottom)
-	{
-		if (intersection)
-		{
-			intersection->x = left;
-			intersection->y = top;
-			intersection->width = right-left;
-			intersection->height = bottom-top;
-		}
-
-		return true;
-	}
-	else
+	T right = std::min(x + width, rect.x + rect.width);
+	if (left >= right)
 		return false;
+
+	T top = std::max(y, rect.y);
+	T bottom = std::min(y + height, rect.y + rect.height);
+	if (top >= bottom)
+		return false;
+
+	if (intersection)
+	{
+		intersection->x = left;
+		intersection->y = top;
+		intersection->width = right - left;
+		intersection->height = bottom - top;
+	}
+
+	return true;
 }
 
 template<typename T>
