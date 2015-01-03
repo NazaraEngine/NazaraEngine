@@ -468,7 +468,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 		return false;
 	}
 
-	if (rect.x+rect.width > m_sharedImage->width || rect.y+rect.height > m_sharedImage->height)
+	if (rect.x + rect.width > m_sharedImage->width || rect.y + rect.height > m_sharedImage->height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
@@ -477,7 +477,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
 		return false;
 	}
 	#endif
@@ -697,20 +697,20 @@ NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) c
 
 	if (x >= m_sharedImage->width)
 	{
-		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= (" + NzString::Number(m_sharedImage->width) + ')');
+		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= " + NzString::Number(m_sharedImage->width) + ')');
 		return NzColor();
 	}
 
 	if (y >= m_sharedImage->height)
 	{
-		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= (" + NzString::Number(m_sharedImage->height) + ')');
+		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= " + NzString::Number(m_sharedImage->height) + ')');
 		return NzColor();
 	}
 
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
 		return NzColor();
 	}
 	#endif
@@ -744,7 +744,7 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 	#if NAZARA_UTILITY_SAFE
 	if (x >= width)
 	{
-		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= (" + NzString::Number(width) + ')');
+		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= " + NzString::Number(width) + ')');
 		return nullptr;
 	}
 	#endif
@@ -753,14 +753,14 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 	#if NAZARA_UTILITY_SAFE
 	if (y >= height)
 	{
-		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= (" + NzString::Number(height) + ')');
+		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= " + NzString::Number(height) + ')');
 		return nullptr;
 	}
 
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
 		return nullptr;
 	}
 
@@ -1157,20 +1157,20 @@ bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y
 
 	if (x >= m_sharedImage->width)
 	{
-		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= (" + NzString::Number(m_sharedImage->width) + ')');
+		NazaraError("X value exceeds width (" + NzString::Number(x) + " >= " + NzString::Number(m_sharedImage->width) + ')');
 		return false;
 	}
 
 	if (y >= m_sharedImage->height)
 	{
-		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= (" + NzString::Number(m_sharedImage->height) + ')');
+		NazaraError("Y value exceeds height (" + NzString::Number(y) + " >= " + NzString::Number(m_sharedImage->height) + ')');
 		return false;
 	}
 
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 	if (z >= depth)
 	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= (" + NzString::Number(depth) + ')');
+		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
 		return false;
 	}
 	#endif
