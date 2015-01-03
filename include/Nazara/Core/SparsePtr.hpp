@@ -10,6 +10,7 @@
 ///FIXME: Est-ce que SparsePtr est vraiment le meilleur nom pour cette classe ?
 
 #include <Nazara/Prerequesites.hpp>
+#include <cstddef>
 #include <type_traits>
 
 template<typename T>
@@ -46,6 +47,7 @@ class NzSparsePtr
 
 		NzSparsePtr operator+(int count) const;
 		NzSparsePtr operator-(int count) const;
+		std::ptrdiff_t operator-(const NzSparsePtr& ptr) const;
 
 		NzSparsePtr& operator+=(int count);
 		NzSparsePtr& operator-=(int count);
