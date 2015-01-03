@@ -80,6 +80,21 @@ const NzFrustumf& NzCamera::GetFrustum() const
 	return m_frustum;
 }
 
+NzVector3f NzCamera::GetGlobalForward() const
+{
+	return NzVector3f::Forward();
+}
+
+NzVector3f NzCamera::GetGlobalRight() const
+{
+	return NzVector3f::Right();
+}
+
+NzVector3f NzCamera::GetGlobalUp() const
+{
+	return NzVector3f::Up();
+}
+
 const NzMatrix4f& NzCamera::GetProjectionMatrix() const
 {
 	if (!m_projectionMatrixUpdated)

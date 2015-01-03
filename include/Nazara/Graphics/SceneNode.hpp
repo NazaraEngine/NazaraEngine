@@ -27,10 +27,16 @@ class NAZARA_API NzSceneNode : public NzNode
 
 		void EnableDrawing(bool drawingEnabled);
 
+		NzVector3f GetBackward() const;
 		virtual const NzBoundingVolumef& GetBoundingVolume() const = 0;
+		NzVector3f GetDown() const;
+		NzVector3f GetForward() const;
+		NzVector3f GetLeft() const;
 		nzNodeType GetNodeType() const final;
+		NzVector3f GetRight() const;
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
+		NzVector3f GetUp() const;
 
 		virtual bool IsDrawable() const = 0;
 		bool IsDrawingEnabled() const;

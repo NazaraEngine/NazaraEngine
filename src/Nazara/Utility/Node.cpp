@@ -685,7 +685,7 @@ void NzNode::UpdateDerived() const
 			m_derivedRotation.Normalize();
 		}
 		else
-			m_derivedRotation = m_initialRotation * m_rotation; ///FIXME: Besoin d'une normalisation ?
+			m_derivedRotation = m_initialRotation * m_rotation;
 
 		m_derivedScale = m_initialScale * m_scale;
 		if (m_inheritScale)
