@@ -3,20 +3,25 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 NzSprite::NzSprite() :
 m_boundingVolume(NzBoundingVolumef::Null()),
+m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f),
 m_size(64.f, 64.f),
-m_boundingVolumeUpdated(true)
+m_boundingVolumeUpdated(true),
+m_verticesUpdated(false)
 {
 }
 
 NzSprite::NzSprite(NzTexture* texture) :
 m_boundingVolume(NzBoundingVolumef::Null()),
-m_textureCoords(0.f, 0.f, 1.f, 1.f)
+m_color(NzColor::White),
+m_textureCoords(0.f, 0.f, 1.f, 1.f),
+m_verticesUpdated(false)
 {
 	if (texture)
 	{
@@ -44,7 +49,9 @@ m_boundingVolume(sprite.m_boundingVolume),
 m_material(sprite.m_material),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
-m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated)
+m_vertices(sprite.m_vertices),
+m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
+m_verticesUpdated(sprite.m_verticesUpdated)
 {
 	SetParent(sprite);
 }
@@ -55,7 +62,9 @@ m_boundingVolume(sprite.m_boundingVolume),
 m_material(std::move(sprite.m_material)),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
-m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated)
+m_vertices(sprite.m_vertices),
+m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
+m_verticesUpdated(sprite.m_verticesUpdated)
 {
 }
 
@@ -63,13 +72,23 @@ NzSprite::~NzSprite() = default;
 
 void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
-	renderQueue->AddSprite(this);
+	if (!m_verticesUpdated)
+		UpdateVertices();
+
+	renderQueue->AddSprites(m_material, m_vertices, 1);
 }
 
 const NzBoundingVolumef& NzSprite::GetBoundingVolume() const
 {
-	static NzBoundingVolumef infinity(NzBoundingVolumef::Infinite());
-	return infinity;
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
+
+	return m_boundingVolume;
+}
+
+const NzColor& NzSprite::GetColor() const
+{
+	return m_color;
 }
 
 NzMaterial* NzSprite::GetMaterial() const
@@ -97,6 +116,12 @@ bool NzSprite::IsDrawable() const
 	return m_material != nullptr;
 }
 
+void NzSprite::SetColor(const NzColor& color)
+{
+	m_color = color;
+	m_verticesUpdated = false;
+}
+
 void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
 {
 	m_material = material;
@@ -113,6 +138,7 @@ void NzSprite::SetSize(const NzVector2f& size)
 	// On invalide la bounding box
 	m_boundingVolume.MakeNull();
 	m_boundingVolumeUpdated = false;
+	m_verticesUpdated = false;
 }
 
 void NzSprite::SetSize(float sizeX, float sizeY)
@@ -136,6 +162,7 @@ void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)
 void NzSprite::SetTextureCoords(const NzRectf& coords)
 {
 	m_textureCoords = coords;
+	m_verticesUpdated = false;
 }
 
 void NzSprite::SetTextureRect(const NzRectui& rect)
@@ -167,10 +194,13 @@ void NzSprite::InvalidateNode()
 	NzSceneNode::InvalidateNode();
 
 	m_boundingVolumeUpdated = false;
+	m_verticesUpdated = false;
 }
 
 void NzSprite::Register()
 {
+	// Le changement de scène peut affecter les sommets
+	m_verticesUpdated = false;
 }
 
 void NzSprite::Unregister()
@@ -180,11 +210,43 @@ void NzSprite::Unregister()
 void NzSprite::UpdateBoundingVolume() const
 {
 	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(-m_size.x*0.5f, -m_size.y*0.5f, 0.f, m_size.x, m_size.y, 0.f);
+	{
+		NzVector3f down = m_scene->GetDown();
+		NzVector3f right = m_scene->GetRight();
+
+		m_boundingVolume.Set(NzVector3f(0.f), m_size.x*right + m_size.y*down);
+	}
 
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
 	m_boundingVolume.Update(m_transformMatrix);
 	m_boundingVolumeUpdated = true;
+}
+
+void NzSprite::UpdateVertices() const
+{
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
+
+	NzVector3f down = m_scene->GetDown();
+	NzVector3f right = m_scene->GetRight();
+
+	m_vertices[0].color = m_color;
+	m_vertices[0].position = m_transformMatrix.Transform(NzVector3f(0.f));
+	m_vertices[0].uv.Set(m_textureCoords.GetCorner(nzRectCorner_LeftTop));
+
+	m_vertices[1].color = m_color;
+	m_vertices[1].position = m_transformMatrix.Transform(m_size.x*right);
+	m_vertices[1].uv.Set(m_textureCoords.GetCorner(nzRectCorner_RightTop));
+
+	m_vertices[2].color = m_color;
+	m_vertices[2].position = m_transformMatrix.Transform(m_size.y*down);
+	m_vertices[2].uv.Set(m_textureCoords.GetCorner(nzRectCorner_LeftBottom));
+
+	m_vertices[3].color = m_color;
+	m_vertices[3].position = m_transformMatrix.Transform(m_size.x*right + m_size.y*down);
+	m_vertices[3].uv.Set(m_textureCoords.GetCorner(nzRectCorner_RightBottom));
+
+	m_verticesUpdated = true;
 }

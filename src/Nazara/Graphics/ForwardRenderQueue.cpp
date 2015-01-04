@@ -12,6 +12,8 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+///FIXME: Régler ce problème de dépendance aux ressources
+
 namespace
 {
 	enum ResourceType
@@ -121,23 +123,17 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 	}
 }
 
-void NzForwardRenderQueue::AddSprite(const NzSprite* sprite)
+void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!sprite)
+	BasicSpriteBatches::iterator it = basicSprites.find(material);
+	if (it == basicSprites.end())
 	{
-		NazaraError("Invalid sprite");
-		return;
+		it = basicSprites.insert(std::make_pair(material, BasicSpriteBatches::mapped_type())).first;
+		material->AddResourceListener(this, ResourceType_Material);
 	}
 
-	if (!sprite->IsDrawable())
-	{
-		NazaraError("Sprite is not drawable");
-		return;
-	}
-	#endif
-
-	sprites[sprite->GetMaterial()].push_back(sprite);
+	auto& spriteVector = it->second;
+	spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 }
 
 void NzForwardRenderQueue::Clear(bool fully)
@@ -150,6 +146,13 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 	if (fully)
 	{
+		for (auto& matIt : basicSprites)
+		{
+			const NzMaterial* material = matIt.first;
+			material->RemoveResourceListener(this);
+		}
+		basicSprites.clear();
+
 		for (auto& matIt : opaqueModels)
 		{
 			const NzMaterial* material = matIt.first;
@@ -167,7 +170,6 @@ void NzForwardRenderQueue::Clear(bool fully)
 			}
 		}
 		opaqueModels.clear();
-		sprites.clear();
 	}
 }
 
@@ -210,6 +212,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 		}
 
 		case ResourceType_Material:
+			basicSprites.erase(static_cast<const NzMaterial*>(resource));
 			opaqueModels.erase(static_cast<const NzMaterial*>(resource));
 			break;
 
@@ -260,6 +263,15 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 
 		case ResourceType_Material:
 		{
+			for (auto it = basicSprites.begin(); it != basicSprites.end(); ++it)
+			{
+				if (it->first == resource)
+				{
+					basicSprites.erase(it);
+					break;
+				}
+			}
+
 			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
 			{
 				if (it->first == resource)
@@ -268,6 +280,7 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 					break;
 				}
 			}
+
 			break;
 		}
 
@@ -299,7 +312,6 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 
@@ -320,7 +332,6 @@ bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzM
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 

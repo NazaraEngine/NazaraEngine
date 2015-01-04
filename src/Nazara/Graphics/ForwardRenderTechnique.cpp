@@ -49,7 +49,7 @@ namespace
 }
 
 NzForwardRenderTechnique::NzForwardRenderTechnique() :
-m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_UV), s_maxSprites*4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic),
+m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), s_maxSprites*4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic),
 m_maxLightPassPerObject(3)
 {
 	if (!s_indexBuffer)
@@ -87,8 +87,8 @@ bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 	if (!m_renderQueue.transparentModels.empty())
 		DrawTransparentModels(scene);
 
-	if (!m_renderQueue.sprites.empty())
-		DrawSprites(scene);
+	if (!m_renderQueue.basicSprites.empty())
+		DrawBasicSprites(scene);
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -160,6 +160,77 @@ nzRenderTechniqueType NzForwardRenderTechnique::GetType() const
 void NzForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
 {
 	m_maxLightPassPerObject = passCount;
+}
+
+void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
+{
+	NzAbstractViewer* viewer = scene->GetViewer();
+	const NzShader* lastShader = nullptr;
+
+	NzRenderer::SetIndexBuffer(m_indexBuffer);
+	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
+	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
+
+	for (auto& matIt : m_renderQueue.basicSprites)
+	{
+		const NzMaterial* material = matIt.first;
+		auto& spriteChainVector = matIt.second;
+
+		unsigned int spriteChainCount = spriteChainVector.size();
+		if (spriteChainCount > 0)
+		{
+			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+			const NzShader* shader = material->Apply(nzShaderFlags_VertexColor);
+
+			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+			if (shader != lastShader)
+			{
+				// Couleur ambiante de la scène
+				shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+				// Position de la caméra
+				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+
+				lastShader = shader;
+			}
+
+			unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
+			unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+
+			do
+			{
+				// On ouvre le buffer en écriture
+				NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite);
+				NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+				unsigned int spriteCount = 0;
+				{
+					NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+					unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
+
+					std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
+					vertices += count*4;
+
+					spriteCount += count;
+					spriteChainOffset += count;
+
+					// Avons-nous traité la chaîne entière ?
+					if (spriteChainOffset == currentChain.spriteCount)
+					{
+						spriteChain++;
+						spriteChainOffset = 0;
+					}
+				}
+				while (spriteCount < s_maxSprites && spriteChain < spriteChainCount);
+
+				vertexMapper.Unmap();
+
+				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, spriteCount*6);
+			}
+			while (spriteChain < spriteChainCount);
+
+			spriteChainVector.clear();
+		}
+	}
 }
 
 void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
@@ -275,7 +346,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 
 								const NzMatrix4f* instanceMatrices = &instances[0];
 								unsigned int instanceCount = instances.size();
-								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
 
 								while (instanceCount > 0)
 								{
@@ -351,7 +422,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							}
 							else
 							{
-								// Sans instancing, on doit effectuer un drawcall pour chaque instance
+								// Sans instancing, on doit effectuer un draw call pour chaque instance
 								// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
 								// À cause du temps de modification du buffer d'instancing
 								for (const NzMatrix4f& matrix : instances)
@@ -369,82 +440,6 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 			// Et on remet à zéro les données
 			renderQueueInstancing = false;
 			used = false;
-		}
-	}
-}
-
-void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
-{
-	NzAbstractViewer* viewer = scene->GetViewer();
-	const NzShader* lastShader = nullptr;
-
-	NzRenderer::SetIndexBuffer(m_indexBuffer);
-	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
-	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
-
-	for (auto& matIt : m_renderQueue.sprites)
-	{
-		const NzMaterial* material = matIt.first;
-		auto& spriteVector = matIt.second;
-
-		unsigned int spriteCount = spriteVector.size();
-		if (spriteCount > 0)
-		{
-			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-			const NzShader* shader = material->Apply();
-
-			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-			if (shader != lastShader)
-			{
-				// Couleur ambiante de la scène
-				shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-				// Position de la caméra
-				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
-
-				lastShader = shader;
-			}
-
-			const NzSprite** spritePtr = &spriteVector[0];
-			do
-			{
-				unsigned int renderedSpriteCount = std::min(spriteCount, 64U);
-				spriteCount -= renderedSpriteCount;
-
-				NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedSpriteCount*4);
-				NzVertexStruct_XYZ_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_UV*>(vertexMapper.GetPointer());
-
-				for (unsigned int i = 0; i < renderedSpriteCount; ++i)
-				{
-					const NzSprite* sprite = *spritePtr++;
-					const NzRectf& textureCoords = sprite->GetTextureCoords();
-					const NzVector2f& halfSize = sprite->GetSize()*0.5f;
-					NzVector3f center = sprite->GetPosition();
-					NzQuaternionf rotation = sprite->GetRotation();
-
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.x, textureCoords.y + textureCoords.height);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(halfSize.x, halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.width, textureCoords.y + textureCoords.height);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, -halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.x, textureCoords.y);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(halfSize.x, -halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.width, textureCoords.y);
-					vertices++;
-				}
-
-				vertexMapper.Unmap();
-
-				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, renderedSpriteCount*6);
-			}
-			while (spriteCount > 0);
-
-			spriteVector.clear();
 		}
 	}
 }

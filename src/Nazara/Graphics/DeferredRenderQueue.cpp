@@ -103,29 +103,15 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 	}
 }
 
-void NzDeferredRenderQueue::AddSprite(const NzSprite* sprite)
+void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!sprite)
-	{
-		NazaraError("Invalid sprite");
-		return;
-	}
-
-	if (!sprite->IsDrawable())
-	{
-		NazaraError("Sprite is not drawable");
-		return;
-	}
-	#endif
-
 	/*NzMaterial* material = sprite->GetMaterial();
 	if (!material->IsLightingEnabled() || material->IsEnabled(nzRendererParameter_Blend))
 		m_forwardQueue->AddSprite(sprite);
 	else
 		sprites[material].push_back(sprite);*/
 
-	m_forwardQueue->AddSprite(sprite);
+	m_forwardQueue->AddSprites(material, vertices, spriteCount);
 }
 
 void NzDeferredRenderQueue::Clear(bool fully)
