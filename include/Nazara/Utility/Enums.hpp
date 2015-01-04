@@ -25,15 +25,6 @@ enum nzBufferAccess
 	nzBufferAccess_Max = nzBufferAccess_WriteOnly
 };
 
-enum nzBufferStorage
-{
-	//nzBufferStorage_Both, ///TODO
-	nzBufferStorage_Hardware,
-	nzBufferStorage_Software,
-
-	nzBufferStorage_Max = nzBufferStorage_Software
-};
-
 enum nzBufferType
 {
 	nzBufferType_Index,
@@ -82,6 +73,15 @@ enum nzCubemapFace
 	nzCubemapFace_NegativeZ = 5,
 
 	nzCubemapFace_Max = nzCubemapFace_NegativeZ
+};
+
+enum nzDataStorage
+{
+	nzDataStorage_Both,
+	nzDataStorage_Hardware,
+	nzDataStorage_Software,
+
+	nzDataStorage_Max = nzDataStorage_Software
 };
 
 enum nzEventType
