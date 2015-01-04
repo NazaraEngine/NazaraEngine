@@ -12,6 +12,7 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Loaders/FreeType.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Utility/Loaders/MD5Anim.hpp>
 #include <Nazara/Utility/Loaders/MD5Mesh.hpp>
@@ -70,6 +71,9 @@ bool NzUtility::Initialize()
 	// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
 	/// Loaders génériques
+	// Font
+	NzLoaders_FreeType_Register();
+
 	// Image
 	NzLoaders_STB_Register(); // Loader générique (STB)
 
@@ -109,6 +113,7 @@ void NzUtility::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	NzLoaders_FreeType_Unregister();
 	NzLoaders_MD2_Unregister();
 	NzLoaders_MD5Anim_Unregister();
 	NzLoaders_MD5Mesh_Unregister();
