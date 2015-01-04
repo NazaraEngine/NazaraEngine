@@ -67,7 +67,7 @@ bool NzBuffer::Create(unsigned int size, nzDataStorage storage, nzBufferUsage us
 	Destroy();
 
 	// Notre buffer est-il supporté ?
-	if (!IsSupported(storage))
+	if (!IsStorageSupported(storage))
 	{
 		NazaraError("Buffer storage not supported");
 		return false;
@@ -212,13 +212,11 @@ bool NzBuffer::SetStorage(nzDataStorage storage)
 	if (m_storage == storage)
 		return true;
 
-	#if NAZARA_UTILITY_SAFE
-	if (!IsSupported(storage))
+	if (!IsStorageSupported(storage))
 	{
 		NazaraError("Storage not supported");
 		return false;
 	}
-	#endif
 
 	void* ptr = m_impl->Map(nzBufferAccess_ReadOnly, 0, m_size);
 	if (!ptr)
@@ -271,7 +269,7 @@ void NzBuffer::Unmap() const
 		NazaraWarning("Failed to unmap buffer (it's content may be undefined)"); ///TODO: Unexpected ?
 }
 
-bool NzBuffer::IsSupported(nzDataStorage storage)
+bool NzBuffer::IsStorageSupported(nzDataStorage storage)
 {
 	return s_bufferFactories[storage] != nullptr;
 }
