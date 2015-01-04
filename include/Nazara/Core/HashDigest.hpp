@@ -11,7 +11,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <ostream>
+#include <iosfwd>
 
 class NAZARA_API NzHashDigest
 {
