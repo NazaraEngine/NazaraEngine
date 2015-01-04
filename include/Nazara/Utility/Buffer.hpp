@@ -25,7 +25,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 	friend class NzUtility;
 
 	public:
-		using BufferFunction = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
+		using BufferFactory = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int size, nzDataStorage storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
@@ -55,7 +55,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		void Unmap() const;
 
 		static bool IsSupported(nzDataStorage storage);
-		static void SetBufferFunction(nzDataStorage storage, BufferFunction func);
+		static void SetBufferFactory(nzDataStorage storage, BufferFactory func);
 
 	private:
 		static bool Initialize();
@@ -67,7 +67,7 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		NzAbstractBuffer* m_impl;
 		unsigned int m_size;
 
-		static BufferFunction s_bufferFunctions[nzDataStorage_Max+1];
+		static BufferFactory s_bufferFactories[nzDataStorage_Max+1];
 };
 
 #endif // NAZARA_BUFFER_HPP
