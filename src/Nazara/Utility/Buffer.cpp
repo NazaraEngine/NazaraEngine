@@ -16,7 +16,7 @@
 
 namespace
 {
-	NzAbstractBuffer* SoftwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	NzAbstractBuffer* SoftwareBufferFactory(NzBuffer* parent, nzBufferType type)
 	{
 		return new NzSoftwareBuffer(parent, type);
 	}
@@ -59,7 +59,6 @@ bool NzBuffer::CopyContent(const NzBuffer& buffer)
 	#endif
 
 	NzBufferMapper<NzBuffer> mapper(buffer, nzBufferAccess_ReadOnly);
-
 	return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 }
 
@@ -68,13 +67,13 @@ bool NzBuffer::Create(unsigned int size, nzDataStorage storage, nzBufferUsage us
 	Destroy();
 
 	// Notre buffer est-il supporté ?
-	if (!s_bufferFunctions[storage])
+	if (!IsSupported(storage))
 	{
 		NazaraError("Buffer storage not supported");
 		return false;
 	}
 
-	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFunctions[storage](this, m_type));
+	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
 	if (!impl->Create(size, usage))
 	{
 		NazaraError("Failed to create buffer");
@@ -228,7 +227,7 @@ bool NzBuffer::SetStorage(nzDataStorage storage)
 		return false;
 	}
 
-	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
+	NzAbstractBuffer* impl = s_bufferFactories[storage](this, m_type);
 	if (!impl->Create(m_size, m_usage))
 	{
 		NazaraError("Failed to create buffer");
@@ -269,29 +268,29 @@ void NzBuffer::Unmap() const
 	#endif
 
 	if (!m_impl->Unmap())
-		NazaraWarning("Failed to unmap buffer (it's content is undefined)"); ///TODO: Unexpected ?
+		NazaraWarning("Failed to unmap buffer (it's content may be undefined)"); ///TODO: Unexpected ?
 }
 
 bool NzBuffer::IsSupported(nzDataStorage storage)
 {
-	return s_bufferFunctions[storage] != nullptr;
+	return s_bufferFactories[storage] != nullptr;
 }
 
-void NzBuffer::SetBufferFunction(nzDataStorage storage, BufferFunction func)
+void NzBuffer::SetBufferFactory(nzDataStorage storage, BufferFactory func)
 {
-	s_bufferFunctions[storage] = func;
+	s_bufferFactories[storage] = func;
 }
 
 bool NzBuffer::Initialize()
 {
-	s_bufferFunctions[nzDataStorage_Software] = SoftwareBufferFunction;
+	s_bufferFactories[nzDataStorage_Software] = SoftwareBufferFactory;
 
 	return true;
 }
 
 void NzBuffer::Uninitialize()
 {
-	std::memset(s_bufferFunctions, 0, (nzDataStorage_Max+1)*sizeof(NzBuffer::BufferFunction));
+	std::memset(s_bufferFactories, 0, (nzDataStorage_Max+1)*sizeof(NzBuffer::BufferFactory));
 }
 
-NzBuffer::BufferFunction NzBuffer::s_bufferFunctions[nzDataStorage_Max+1] = {0};
+NzBuffer::BufferFactory NzBuffer::s_bufferFactories[nzDataStorage_Max+1] = {0};

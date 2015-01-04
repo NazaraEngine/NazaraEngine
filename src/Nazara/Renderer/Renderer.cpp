@@ -692,7 +692,10 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	NzBuffer::SetBufferFunction(nzDataStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer* { return new NzHardwareBuffer(parent, type); } );
+	NzBuffer::SetBufferFactory(nzDataStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer*
+	{
+		return new NzHardwareBuffer(parent, type);
+	});
 
 	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
