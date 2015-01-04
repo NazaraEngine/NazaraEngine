@@ -770,14 +770,6 @@ void SHA224_Init(SHA_CTX* context)
 	SHA256_Internal_Init(context, sha224_initial_hash_value);
 }
 
-namespace
-{
-	void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
-	{
-		SHA256_Internal_Transform(context, data);
-	}
-}
-
 void SHA224_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)
 {
 	SHA256_Update(context, data, len);

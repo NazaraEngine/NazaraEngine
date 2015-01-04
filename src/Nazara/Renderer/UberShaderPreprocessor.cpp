@@ -81,22 +81,18 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 						stage.SetSource(code);
 						stage.Compile();
 
-						shader->AttachStage(static_cast<nzShaderStage>(i), stage);
-
-						shaderStage.cache.emplace(flags, std::move(stage));
+						stageIt = shaderStage.cache.emplace(flags, std::move(stage)).first;
 					}
-					else
-						shader->AttachStage(static_cast<nzShaderStage>(i), stageIt->second);
+
+					shader->AttachStage(static_cast<nzShaderStage>(i), stageIt->second);
 				}
 			}
 
 			shader->Link();
 
 			// On construit l'instant
-			auto pair = m_cache.emplace(flags, shader.get());
+			shaderIt = m_cache.emplace(flags, shader.get()).first;
 			shader.release();
-
-			return &(pair.first)->second; // On retourne l'objet construit
 		}
 		catch (const std::exception& e)
 		{
@@ -106,8 +102,8 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			throw;
 		}
 	}
-	else
-		return &shaderIt->second;
+
+	return &shaderIt->second;
 }
 
 void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& source, const NzString& shaderFlags, const NzString& requiredFlags)
