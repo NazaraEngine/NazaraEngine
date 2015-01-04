@@ -21,7 +21,7 @@ namespace
 {
 	NzIndexBuffer* BuildIndexBuffer()
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, 36, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, 36, nzDataStorage_Hardware, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		nzUInt16 indices[6*6] =
@@ -155,7 +155,7 @@ namespace
 
 	NzVertexBuffer* BuildVertexBuffer()
 	{
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 8, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 8, nzDataStorage_Hardware, nzBufferUsage_Static));
 		vertexBuffer->SetPersistent(false);
 
 		float vertices[8*(sizeof(float)*3)] =

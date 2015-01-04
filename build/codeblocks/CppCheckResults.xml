@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<results>
+    <error file="..\..\include\Nazara\Prerequesites.hpp" line="29" id="preprocessorErrorDirective" severity="error" msg="#error" />
+    <error file="..\..\include\Nazara\Renderer\RenderStates.inl" line="8" id="uninitMemberVar" severity="style" msg="Member variable &apos;NzRenderStates::backFace&apos; is not initialized in the constructor." />
+    <error file="..\..\include\Nazara\Renderer\RenderStates.inl" line="8" id="uninitMemberVar" severity="style" msg="Member variable &apos;NzRenderStates::frontFace&apos; is not initialized in the constructor." />
+    <error file="..\..\include\Nazara\Utility\MeshData.hpp" line="17" id="unusedStructMember" severity="style" msg="struct or union member &apos;NzMeshData::primitiveMode&apos; is never used." />
+    <error file="..\..\src\Nazara\Utility\Loaders\DDS\Constants.hpp" line="15" id="unusedFunction" severity="style" msg="The function &apos;FourCC&apos; is never used." />
+    <error file="..\..\src\Nazara\Core\Win32\MutexImpl.cpp" line="22" id="unusedFunction" severity="style" msg="The function &apos;Lock&apos; is never used." />
+    <error file="..\..\include\Nazara\Core\Endianness.inl" line="8" id="unusedFunction" severity="style" msg="The function &apos;NzByteSwap&apos; is never used." />
+    <error file="..\..\src\Nazara\Core\Win32\Time.cpp" line="8" id="unusedFunction" severity="style" msg="The function &apos;NzFileTimeToTime&apos; is never used." />
+    <error file="..\..\include\Nazara\Core\Endianness.inl" line="18" id="unusedFunction" severity="style" msg="The function &apos;NzGetPlatformEndianness&apos; is never used." />
+    <error file="..\..\src\Nazara\Core\Win32\MutexImpl.cpp" line="27" id="unusedFunction" severity="style" msg="The function &apos;TryLock&apos; is never used." />
+    <error file="..\..\src\Nazara\Core\Win32\MutexImpl.cpp" line="32" id="unusedFunction" severity="style" msg="The function &apos;Unlock&apos; is never used." />
+    <error id="missingIncludeSystem" severity="style" msg="Cppcheck cannot find all the include files. Cppcheck can check the code without the include files found. But the results will probably be more accurate if all the include files are found. Please check your project&apos;s include directories and add all of them as include directories for Cppcheck. To see what files Cppcheck cannot find use --check-config." />
+</results>
