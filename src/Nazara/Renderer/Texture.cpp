@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -28,123 +29,6 @@ struct NzTextureImpl
 
 namespace
 {
-	bool CreateTexture(NzTextureImpl* impl, bool proxy)
-	{
-		NzOpenGL::Format openGLFormat;
-		if (!NzOpenGL::TranslateFormat(impl->format, &openGLFormat, NzOpenGL::FormatType_Texture))
-		{
-			NazaraError("Format " + NzPixelFormat::ToString(impl->format) + " not supported by OpenGL");
-			return false;
-		}
-
-		GLenum target = (proxy) ? NzOpenGL::TextureTargetProxy[impl->type] : NzOpenGL::TextureTarget[impl->type];
-		switch (impl->type)
-		{
-			case nzImageType_1D:
-			{
-				if (glTexStorage1D && !proxy) // Les drivers AMD semblent ne pas aimer glTexStorage avec un format proxy
-					glTexStorage1D(target, impl->levelCount, openGLFormat.internalFormat, impl->width);
-				else
-				{
-					unsigned int w = impl->width;
-					for (nzUInt8 level = 0; level < impl->levelCount; ++level)
-					{
-						glTexImage1D(target, level, openGLFormat.internalFormat, w, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
-						if (w > 1U)
-							w >>= 1;
-					}
-				}
-				break;
-			}
-
-			case nzImageType_1D_Array:
-			case nzImageType_2D:
-			{
-				if (glTexStorage2D && !proxy)
-					glTexStorage2D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height);
-				else
-				{
-					unsigned int w = impl->width;
-					unsigned int h = impl->height;
-					for (nzUInt8 level = 0; level < impl->levelCount; ++level)
-					{
-						glTexImage2D(target, level, openGLFormat.internalFormat, w, h, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
-						if (w > 1U)
-							w >>= 1;
-
-						if (h > 1U)
-							h >>= 1;
-					}
-				}
-				break;
-			}
-
-			case nzImageType_2D_Array:
-			case nzImageType_3D:
-			{
-				if (glTexStorage3D && !proxy)
-					glTexStorage3D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height, impl->depth);
-				else
-				{
-					unsigned int w = impl->width;
-					unsigned int h = impl->height;
-					unsigned int d = impl->depth;
-					for (nzUInt8 level = 0; level < impl->levelCount; ++level)
-					{
-						glTexImage3D(target, level, openGLFormat.internalFormat, w, h, d, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
-						if (w > 1U)
-							w >>= 1;
-
-						if (h > 1U)
-							h >>= 1;
-
-						if (d > 1U)
-							d >>= 1;
-					}
-				}
-				break;
-			}
-
-			case nzImageType_Cubemap:
-			{
-				if (glTexStorage2D && !proxy)
-					glTexStorage2D(target, impl->levelCount, openGLFormat.internalFormat, impl->width, impl->height);
-				else
-				{
-					unsigned int size = impl->width; // Les cubemaps ont une longueur et largeur identique
-					for (nzUInt8 level = 0; level < impl->levelCount; ++level)
-					{
-						for (GLenum face : NzOpenGL::CubemapFace)
-							glTexImage2D(face, level, openGLFormat.internalFormat, size, size, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
-
-						if (size > 1U)
-							size >>= 1;
-					}
-				}
-				break;
-			}
-		}
-
-		if (proxy)
-		{
-			GLint internalFormat = 0;
-			glGetTexLevelParameteriv(target, 0, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
-			if (internalFormat == 0)
-				return false;
-		}
-
-		// Application du swizzle
-		if (NzOpenGL::GetVersion() >= 300)
-		{
-			glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, openGLFormat.swizzle[0]);
-			glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, openGLFormat.swizzle[1]);
-			glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, openGLFormat.swizzle[2]);
-			glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
-		}
-
-		return true;
-	}
-
 	inline void SetUnpackAlignement(nzUInt8 bpp)
 	{
 		if (bpp % 8 == 0)
@@ -273,40 +157,44 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 		levelCount = 1;
 	}
 
-	std::unique_ptr<NzTextureImpl> impl(new NzTextureImpl);
-	glGenTextures(1, &impl->id);
+	m_impl = new NzTextureImpl;
+	m_impl->depth = GetValidSize(depth);
+	m_impl->format = format;
+	m_impl->height = GetValidSize(height);
+	m_impl->levelCount = levelCount;
+	m_impl->type = type;
+	m_impl->width = GetValidSize(width);
 
-	impl->depth = GetValidSize(depth);
-	impl->format = format;
-	impl->height = GetValidSize(height);
-	impl->levelCount = levelCount;
-	impl->type = type;
-	impl->width = GetValidSize(width);
+	glGenTextures(1, &m_impl->id);
+	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 
-	NzOpenGL::BindTexture(impl->type, impl->id);
-
-	// Vérification du support par la carte graphique
-	if (!CreateTexture(impl.get(), true))
+	// En cas d'erreur (sortie prématurée), on détruit la texture
+	NzCallOnExit onExit([this]()
 	{
-		NzOpenGL::DeleteTexture(m_impl->id);
+		Destroy();
+	});
 
+	// On précise le nombre de mipmaps avant la spécification de la texture
+	// https://www.opengl.org/wiki/Hardware_specifics:_NVidia
+	SetMipmapRange(0, m_impl->levelCount-1);
+	if (m_impl->levelCount > 1U)
+		EnableMipmapping(true);
+
+	// Vérification du support par la carte graphique (texture proxy)
+	if (!CreateTexture(true))
+	{
 		NazaraError("Texture's parameters not supported by driver");
 		return false;
 	}
 
 	// Création de la texture
-	if (!CreateTexture(impl.get(), false))
+	if (!CreateTexture(false))
 	{
-		NzOpenGL::DeleteTexture(m_impl->id);
-
 		NazaraError("Failed to create texture");
 		return false;
 	}
 
-	m_impl = impl.release();
-
-	if (m_impl->levelCount > 1U)
-		EnableMipmapping(true);
+	onExit.Reset();
 
 	NotifyCreated();
 	return true;
@@ -1334,6 +1222,123 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 
 	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
+}
+
+bool NzTexture::CreateTexture(bool proxy)
+{
+	NzOpenGL::Format openGLFormat;
+	if (!NzOpenGL::TranslateFormat(m_impl->format, &openGLFormat, NzOpenGL::FormatType_Texture))
+	{
+		NazaraError("Format " + NzPixelFormat::ToString(m_impl->format) + " not supported by OpenGL");
+		return false;
+	}
+
+	GLenum target = (proxy) ? NzOpenGL::TextureTargetProxy[m_impl->type] : NzOpenGL::TextureTarget[m_impl->type];
+	switch (m_impl->type)
+	{
+		case nzImageType_1D:
+		{
+			if (glTexStorage1D && !proxy) // Les drivers AMD semblent ne pas aimer glTexStorage avec un format proxy
+				glTexStorage1D(target, m_impl->levelCount, openGLFormat.internalFormat, m_impl->width);
+			else
+			{
+				unsigned int w = m_impl->width;
+				for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
+				{
+					glTexImage1D(target, level, openGLFormat.internalFormat, w, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
+					if (w > 1U)
+						w >>= 1;
+				}
+			}
+			break;
+		}
+
+		case nzImageType_1D_Array:
+		case nzImageType_2D:
+		{
+			if (glTexStorage2D && !proxy)
+				glTexStorage2D(target, m_impl->levelCount, openGLFormat.internalFormat, m_impl->width, m_impl->height);
+			else
+			{
+				unsigned int w = m_impl->width;
+				unsigned int h = m_impl->height;
+				for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
+				{
+					glTexImage2D(target, level, openGLFormat.internalFormat, w, h, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
+					if (w > 1U)
+						w >>= 1;
+
+					if (h > 1U)
+						h >>= 1;
+				}
+			}
+			break;
+		}
+
+		case nzImageType_2D_Array:
+		case nzImageType_3D:
+		{
+			if (glTexStorage3D && !proxy)
+				glTexStorage3D(target, m_impl->levelCount, openGLFormat.internalFormat, m_impl->width, m_impl->height, m_impl->depth);
+			else
+			{
+				unsigned int w = m_impl->width;
+				unsigned int h = m_impl->height;
+				unsigned int d = m_impl->depth;
+				for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
+				{
+					glTexImage3D(target, level, openGLFormat.internalFormat, w, h, d, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
+					if (w > 1U)
+						w >>= 1;
+
+					if (h > 1U)
+						h >>= 1;
+
+					if (d > 1U)
+						d >>= 1;
+				}
+			}
+			break;
+		}
+
+		case nzImageType_Cubemap:
+		{
+			if (glTexStorage2D && !proxy)
+				glTexStorage2D(target, m_impl->levelCount, openGLFormat.internalFormat, m_impl->width, m_impl->height);
+			else
+			{
+				unsigned int size = m_impl->width; // Les cubemaps ont une longueur et largeur identique
+				for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
+				{
+					for (GLenum face : NzOpenGL::CubemapFace)
+						glTexImage2D(face, level, openGLFormat.internalFormat, size, size, 0, openGLFormat.dataFormat, openGLFormat.dataType, nullptr);
+
+					if (size > 1U)
+						size >>= 1;
+				}
+			}
+			break;
+		}
+	}
+
+	if (proxy)
+	{
+		GLint internalFormat = 0;
+		glGetTexLevelParameteriv(target, 0, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+		if (internalFormat == 0)
+			return false;
+	}
+
+	// Application du swizzle
+	if (!proxy && NzOpenGL::GetVersion() >= 300)
+	{
+		glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, openGLFormat.swizzle[0]);
+		glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, openGLFormat.swizzle[1]);
+		glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, openGLFormat.swizzle[2]);
+		glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
+	}
+
+	return true;
 }
 
 void NzTexture::InvalidateMipmaps()
