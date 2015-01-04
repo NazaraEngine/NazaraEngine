@@ -692,6 +692,7 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 
 	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
 	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
+	list.SetParameter("FLAG_VERTEXCOLOR", static_cast<bool>((flags & nzShaderFlags_VertexColor) != 0));
 
 	ShaderInstance& instance = m_shaders[flags];
 	instance.uberInstance = m_uberShader->Get(list);
@@ -759,7 +760,7 @@ bool NzMaterial::Initialize()
 		}
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("Basic", uberShader.get());
 		uberShader.release();
@@ -800,7 +801,7 @@ bool NzMaterial::Initialize()
 		}
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("PhongLighting", uberShader.get());
 		uberShader.release();

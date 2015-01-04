@@ -33,7 +33,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
-		void AddSprite(const NzSprite* sprite) override;
+		void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount) override;
 
 		void Clear(bool fully);
 
@@ -42,6 +42,12 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 	private:
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
+
+		struct SpriteChain_XYZ_Color_UV
+		{
+			const NzVertexStruct_XYZ_Color_UV* vertices;
+			unsigned int spriteCount;
+		};
 
 		struct TransparentModelData
 		{
@@ -68,12 +74,12 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		typedef std::map<NzMeshData, std::pair<NzSpheref, std::vector<NzMatrix4f>>, MeshDataComparator> MeshInstanceContainer;
 		typedef std::map<const NzMaterial*, std::tuple<bool, bool, MeshInstanceContainer>, BatchedModelMaterialComparator> ModelBatches;
-		typedef std::map<const NzMaterial*, std::vector<const NzSprite*>> BatchedSpriteContainer;
+		typedef std::map<const NzMaterial*, std::vector<SpriteChain_XYZ_Color_UV>> BasicSpriteBatches;
 		typedef std::vector<const NzLight*> LightContainer;
 		typedef std::vector<unsigned int> TransparentModelContainer;
 
+		BasicSpriteBatches basicSprites;
 		ModelBatches opaqueModels;
-		BatchedSpriteContainer sprites;
 		TransparentModelContainer transparentModels;
 		std::vector<TransparentModelData> transparentModelData;
 		std::vector<const NzDrawable*> otherDrawables;

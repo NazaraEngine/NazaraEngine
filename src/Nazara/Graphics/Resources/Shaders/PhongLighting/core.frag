@@ -7,6 +7,7 @@ layout(early_fragment_tests) in;
 #define LIGHT_SPOT 2
 
 /********************Entrant********************/
+in vec4 vColor;
 in mat3 vLightToWorld;
 in vec3 vNormal;
 in vec2 vTexCoord;
@@ -76,7 +77,7 @@ vec4 EncodeNormal(in vec3 normal)
 
 void main()
 {
-	vec4 diffuseColor = MaterialDiffuse;
+	vec4 diffuseColor = MaterialDiffuse * vColor;
 	vec2 texCoord = vTexCoord;
 #if LIGHTING && PARALLAX_MAPPING
 	float height = texture(MaterialHeightMap, texCoord).r;

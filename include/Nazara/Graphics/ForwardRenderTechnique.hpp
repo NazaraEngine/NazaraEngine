@@ -34,8 +34,8 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 	private:
 		struct LightUniforms;
 
+		void DrawBasicSprites(const NzScene* scene) const;
 		void DrawOpaqueModels(const NzScene* scene) const;
-		void DrawSprites(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
 		const LightUniforms* GetLightUniforms(const NzShader* shader) const;
 
