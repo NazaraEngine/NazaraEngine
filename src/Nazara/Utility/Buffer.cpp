@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
@@ -225,31 +226,36 @@ bool NzBuffer::SetStorage(nzDataStorage storage)
 		return false;
 	}
 
-	NzAbstractBuffer* impl = s_bufferFactories[storage](this, m_type);
+	NzCallOnExit unmapMyImpl([this]()
+	{
+		m_impl->Unmap();
+	});
+
+	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
 	if (!impl->Create(m_size, m_usage))
 	{
 		NazaraError("Failed to create buffer");
-		delete impl;
-		m_impl->Unmap();
-
 		return false;
 	}
+
+	NzCallOnExit destroyImpl([&impl]()
+	{
+		impl->Destroy();
+	});
 
 	if (!impl->Fill(ptr, 0, m_size))
 	{
 		NazaraError("Failed to fill buffer");
-		impl->Destroy();
-		delete impl;
-		m_impl->Unmap();
-
 		return false;
 	}
 
-	m_impl->Unmap();
+	destroyImpl.Reset();
+
+	unmapMyImpl.CallAndReset();
 	m_impl->Destroy();
 	delete m_impl;
 
-	m_impl = impl;
+	m_impl = impl.release();
 	m_storage = storage;
 
 	return true;
