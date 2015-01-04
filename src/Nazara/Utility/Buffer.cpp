@@ -29,7 +29,7 @@ m_size(0)
 {
 }
 
-NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzBufferStorage storage, nzBufferUsage usage) :
+NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzDataStorage storage, nzBufferUsage usage) :
 m_type(type),
 m_impl(nullptr)
 {
@@ -63,7 +63,7 @@ bool NzBuffer::CopyContent(const NzBuffer& buffer)
 	return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 }
 
-bool NzBuffer::Create(unsigned int size, nzBufferStorage storage, nzBufferUsage usage)
+bool NzBuffer::Create(unsigned int size, nzDataStorage storage, nzBufferUsage usage)
 {
 	Destroy();
 
@@ -131,7 +131,7 @@ unsigned int NzBuffer::GetSize() const
 	return m_size;
 }
 
-nzBufferStorage NzBuffer::GetStorage() const
+nzDataStorage NzBuffer::GetStorage() const
 {
 	return m_storage;
 }
@@ -148,7 +148,7 @@ nzBufferUsage NzBuffer::GetUsage() const
 
 bool NzBuffer::IsHardware() const
 {
-	return m_storage == nzBufferStorage_Hardware;
+	return m_storage == nzDataStorage_Hardware;
 }
 
 bool NzBuffer::IsValid() const
@@ -200,7 +200,7 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int siz
 	return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
 }
 
-bool NzBuffer::SetStorage(nzBufferStorage storage)
+bool NzBuffer::SetStorage(nzDataStorage storage)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -272,26 +272,26 @@ void NzBuffer::Unmap() const
 		NazaraWarning("Failed to unmap buffer (it's content is undefined)"); ///TODO: Unexpected ?
 }
 
-bool NzBuffer::IsSupported(nzBufferStorage storage)
+bool NzBuffer::IsSupported(nzDataStorage storage)
 {
 	return s_bufferFunctions[storage] != nullptr;
 }
 
-void NzBuffer::SetBufferFunction(nzBufferStorage storage, BufferFunction func)
+void NzBuffer::SetBufferFunction(nzDataStorage storage, BufferFunction func)
 {
 	s_bufferFunctions[storage] = func;
 }
 
 bool NzBuffer::Initialize()
 {
-	s_bufferFunctions[nzBufferStorage_Software] = SoftwareBufferFunction;
+	s_bufferFunctions[nzDataStorage_Software] = SoftwareBufferFunction;
 
 	return true;
 }
 
 void NzBuffer::Uninitialize()
 {
-	std::memset(s_bufferFunctions, 0, (nzBufferStorage_Max+1)*sizeof(NzBuffer::BufferFunction));
+	std::memset(s_bufferFunctions, 0, (nzDataStorage_Max+1)*sizeof(NzBuffer::BufferFunction));
 }
 
-NzBuffer::BufferFunction NzBuffer::s_bufferFunctions[nzBufferStorage_Max+1] = {0};
+NzBuffer::BufferFunction NzBuffer::s_bufferFunctions[nzDataStorage_Max+1] = {0};
