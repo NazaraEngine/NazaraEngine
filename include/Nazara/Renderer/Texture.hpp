@@ -101,6 +101,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
+		bool CreateTexture(bool proxy);
 		void InvalidateMipmaps();
 
 		NzTextureImpl* m_impl = nullptr;
