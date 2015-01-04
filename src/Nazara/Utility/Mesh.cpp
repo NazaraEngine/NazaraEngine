@@ -25,13 +25,13 @@
 
 NzMeshParams::NzMeshParams()
 {
-	if (!NzBuffer::IsSupported(storage))
+	if (!NzBuffer::IsStorageSupported(storage))
 		storage = nzDataStorage_Software;
 }
 
 bool NzMeshParams::IsValid() const
 {
-	if (!NzBuffer::IsSupported(storage))
+	if (!NzBuffer::IsStorageSupported(storage))
 	{
 		NazaraError("Storage not supported");
 		return false;
