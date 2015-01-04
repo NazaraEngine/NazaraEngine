@@ -61,7 +61,7 @@ namespace
 
     sf_count_t Tell(void* user_data)
     {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(user_data);
+        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
         return stream->GetCursorPos();
     }
 
