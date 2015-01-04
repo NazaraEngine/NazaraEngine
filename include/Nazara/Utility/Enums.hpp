@@ -254,6 +254,8 @@ enum nzVertexLayout
 	nzVertexLayout_XY,
 	nzVertexLayout_XY_UV,
 	nzVertexLayout_XYZ,
+	nzVertexLayout_XYZ_Color,
+	nzVertexLayout_XYZ_Color_UV,
 	nzVertexLayout_XYZ_Normal,
 	nzVertexLayout_XYZ_Normal_UV,
 	nzVertexLayout_XYZ_Normal_UV_Tangent,
