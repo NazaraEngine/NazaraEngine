@@ -27,7 +27,7 @@ namespace
 
 	NzIndexBuffer* BuildIndexBuffer()
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, s_maxSprites*6, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, s_maxSprites*6, nzDataStorage_Hardware, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		NzBufferMapper<NzIndexBuffer> mapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -49,7 +49,7 @@ namespace
 }
 
 NzForwardRenderTechnique::NzForwardRenderTechnique() :
-m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), s_maxSprites*4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic),
+m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), s_maxSprites*4, nzDataStorage_Hardware, nzBufferUsage_Dynamic),
 m_maxLightPassPerObject(3)
 {
 	if (!s_indexBuffer)

@@ -26,7 +26,7 @@
 NzMeshParams::NzMeshParams()
 {
 	if (!NzBuffer::IsSupported(storage))
-		storage = nzBufferStorage_Software;
+		storage = nzDataStorage_Software;
 }
 
 bool NzMeshParams::IsValid() const

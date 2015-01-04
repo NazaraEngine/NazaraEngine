@@ -24,7 +24,7 @@ NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int s
 	Reset(largeIndices, buffer, startOffset, endOffset);
 }
 
-NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzDataStorage storage, nzBufferUsage usage)
 {
 	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, length, storage, usage);
@@ -220,7 +220,7 @@ void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int star
 	m_startOffset = startOffset;
 }
 
-void NzIndexBuffer::Reset(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+void NzIndexBuffer::Reset(bool largeIndices, unsigned int length, nzDataStorage storage, nzBufferUsage usage)
 {
 	unsigned int stride = (largeIndices) ? sizeof(nzUInt32) : sizeof(nzUInt16);
 
@@ -251,7 +251,7 @@ void NzIndexBuffer::Reset(NzIndexBuffer&& indexBuffer) noexcept
 	m_startOffset = indexBuffer.m_startOffset;
 }
 
-bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
+bool NzIndexBuffer::SetStorage(nzDataStorage storage)
 {
 	return m_buffer->SetStorage(storage);
 }

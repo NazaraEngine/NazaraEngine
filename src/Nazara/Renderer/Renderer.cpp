@@ -692,7 +692,7 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer* { return new NzHardwareBuffer(parent, type); } );
+	NzBuffer::SetBufferFunction(nzDataStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer* { return new NzHardwareBuffer(parent, type); } );
 
 	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
@@ -775,7 +775,7 @@ bool NzRenderer::Initialize()
 	s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 	s_vertexBuffer = nullptr;
 
-	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
+	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
 
 	float vertices[4*2] =
 	{
@@ -796,7 +796,7 @@ bool NzRenderer::Initialize()
 		try
 		{
 			NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
-			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
 		{
