@@ -218,6 +218,27 @@ enum nzPrimitiveMode
 	nzPrimitiveMode_Max = nzPrimitiveMode_TriangleFan
 };
 
+enum nzTextAlign
+{
+	nzTextAlign_Left,
+	nzTextAlign_Middle,
+	nzTextAlign_Right,
+
+	nzTextAlign_Max = nzTextAlign_Right
+};
+
+enum nzTextStyleFlags
+{
+	nzTextStyle_None = 0x0,
+
+	nzTextStyle_Bold          = 0x1,
+	nzTextStyle_Italic        = 0x2,
+	nzTextStyle_StrikeThrough = 0x4,
+	nzTextStyle_Underlined    = 0x8,
+
+	nzTextStyle_Max = nzTextStyle_Underlined*2-1
+};
+
 enum nzVertexComponent
 {
 	nzVertexComponent_Unused = -1,
