@@ -1263,9 +1263,9 @@ void NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 		return;
 	}
 
-	// Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois (Nous prenons donc la profondeur de base)
-	///FIXME: Ce code n'autorise même pas la modification d'une autre face du cubemap Oo
-	if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > GetLevelSize(m_sharedImage->depth, level))
+	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+	if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > depth ||
+	    (m_sharedImage->type == nzImageType_Cubemap && box.depth > 1)) // Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
 	{
 		NazaraError("Box dimensions are out of bounds");
 		return;
@@ -1285,60 +1285,7 @@ void NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 
 void NzImage::Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
 {
-	///FIXME: Cette surcharge possède-t-elle la moindre utilité ? (Update(pixels, NzBoxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, ..) devrait donner le même résultat
-	#if NAZARA_UTILITY_SAFE
-	if (m_sharedImage == &emptyImage)
-	{
-		NazaraError("Image must be valid");
-		return;
-	}
-
-	if (!pixels)
-	{
-		NazaraError("Invalid pixel source");
-		return;
-	}
-
-	if (!rect.IsValid())
-	{
-		NazaraError("Invalid rectangle");
-		return;
-	}
-
-	if (level >= m_sharedImage->levelCount)
-	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return;
-	}
-	#endif
-
-	unsigned int width = GetLevelSize(m_sharedImage->width, level);
-	unsigned int height = GetLevelSize(m_sharedImage->height, level);
-
-	#if NAZARA_UTILITY_SAFE
-	if (rect.x+rect.width > width || rect.y+rect.height > height)
-	{
-		NazaraError("Rectangle dimensions are out of bounds");
-		return;
-	}
-
-	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
-	if (z >= depth)
-	{
-		NazaraError("Z value exceeds depth (" + NzString::Number(z) + " >= " + NzString::Number(depth) + ')');
-		return;
-	}
-	#endif
-
-	EnsureOwnership();
-
-	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[level], bpp, rect.x, rect.y, z, width, height);
-
-	Copy(dstPixels, pixels, bpp,
-	     rect.width, rect.height, 1,
-	     width, height,
-	     srcWidth, srcHeight);
+	return Update(pixels, NzBoxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, srcHeight, level);
 }
 
 NzImage& NzImage::operator=(const NzImage& image)
