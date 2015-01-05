@@ -9,6 +9,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <limits>
 #include <memory>
 #include <vector>

@@ -13,12 +13,8 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
-#include <Nazara/Math/Box.hpp>
-#include <Nazara/Math/Rect.hpp>
-#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <atomic>
 
 ///TODO: Filtres
@@ -40,7 +36,7 @@ using NzImageConstRef = NzResourceRef<const NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageRef = NzResourceRef<NzImage>;
 
-class NAZARA_API NzImage : public NzResource
+class NAZARA_API NzImage : public NzAbstractImage, public NzResource
 {
 	friend NzImageLoader;
 
@@ -68,7 +64,6 @@ class NAZARA_API NzImage : public NzResource
 		bool FlipHorizontally();
 		bool FlipVertically();
 
-		nzUInt8 GetBytesPerPixel() const;
 		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
@@ -83,8 +78,6 @@ class NAZARA_API NzImage : public NzResource
 		nzImageType GetType() const;
 		unsigned int GetWidth(nzUInt8 level = 0) const;
 
-		bool IsCompressed() const;
-		bool IsCubemap() const;
 		bool IsValid() const;
 
 		// Load
@@ -107,9 +100,9 @@ class NAZARA_API NzImage : public NzResource
 		void SetLevelCount(nzUInt8 levelCount);
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
-		void Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		void Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		void Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
 		NzImage& operator=(NzImage&& image) noexcept;
