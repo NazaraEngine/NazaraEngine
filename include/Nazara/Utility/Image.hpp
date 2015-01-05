@@ -75,10 +75,11 @@ class NAZARA_API NzImage : public NzResource
 		unsigned int GetHeight(nzUInt8 level = 0) const;
 		nzUInt8 GetLevelCount() const;
 		nzUInt8 GetMaxLevel() const;
+		unsigned int GetMemoryUsage() const;
+		unsigned int GetMemoryUsage(nzUInt8 level) const;
 		NzColor GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
 		nzUInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0);
-		unsigned int GetSize() const;
-		unsigned int GetSize(nzUInt8 level) const;
+		NzVector3ui GetSize(nzUInt8 level = 0) const;
 		nzImageType GetType() const;
 		unsigned int GetWidth(nzUInt8 level = 0) const;
 
