@@ -680,6 +680,49 @@ nzUInt8 NzImage::GetMaxLevel() const
 	return GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 }
 
+unsigned int NzImage::GetMemoryUsage() const
+{
+	unsigned int width = m_sharedImage->width;
+	unsigned int height = m_sharedImage->height;
+	unsigned int depth = m_sharedImage->depth;
+
+	unsigned int size = 0;
+	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
+	{
+		size += width * height * depth;
+
+		if (width > 1)
+			width >>= 1;
+
+		if (height > 1)
+			height >>= 1;
+
+		if (depth > 1)
+			depth >>= 1;
+	}
+
+	if (m_sharedImage->type == nzImageType_Cubemap)
+		size *= 6;
+
+	return size * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
+}
+
+unsigned int NzImage::GetMemoryUsage(nzUInt8 level) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (level >= m_sharedImage->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
+	return (GetLevelSize(m_sharedImage->width, level)) *
+	       (GetLevelSize(m_sharedImage->height, level)) *
+	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)) *
+	       NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
+}
+
 NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
 {
 	#if NAZARA_UTILITY_SAFE
@@ -776,34 +819,7 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 }
 
-unsigned int NzImage::GetSize() const
-{
-	unsigned int width = m_sharedImage->width;
-	unsigned int height = m_sharedImage->height;
-	unsigned int depth = m_sharedImage->depth;
-
-	unsigned int size = 0;
-	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
-	{
-		size += width * height * depth;
-
-		if (width > 1)
-			width >>= 1;
-
-		if (height > 1)
-			height >>= 1;
-
-		if (depth > 1)
-			depth >>= 1;
-	}
-
-	if (m_sharedImage->type == nzImageType_Cubemap)
-		size *= 6;
-
-	return size * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-}
-
-unsigned int NzImage::GetSize(nzUInt8 level) const
+NzVector3ui NzImage::GetSize(nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
 	if (level >= m_sharedImage->levelCount)
@@ -813,10 +829,7 @@ unsigned int NzImage::GetSize(nzUInt8 level) const
 	}
 	#endif
 
-	return (GetLevelSize(m_sharedImage->width, level)) *
-	       (GetLevelSize(m_sharedImage->height, level)) *
-	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)) *
-	       NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
+	return NzVector3ui(GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), GetLevelSize(m_sharedImage->depth, level));
 }
 
 nzImageType	NzImage::GetType() const
@@ -1122,7 +1135,7 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 
 	nzUInt8 oldLevelCount = m_sharedImage->levelCount;
 	nzUInt8 maxLevelCount = std::max(levelCount, oldLevelCount);
-	m_sharedImage->levelCount = levelCount; // Pour faire fonctionner GetSize
+	m_sharedImage->levelCount = levelCount; // Pour faire fonctionner GetMemoryUsage
 
 	nzUInt8** pixels = new nzUInt8*[levelCount];
 	for (unsigned int i = 0; i < maxLevelCount; ++i)
@@ -1130,7 +1143,7 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 		if (i < oldLevelCount)
 			pixels[i] = m_sharedImage->pixels[i];
 		else if (i < levelCount)
-			pixels[i] = new nzUInt8[GetSize(i)];
+			pixels[i] = new nzUInt8[GetMemoryUsage(i)];
 		else
 			delete[] m_sharedImage->pixels[i];
 	}
@@ -1434,7 +1447,7 @@ void NzImage::EnsureOwnership()
 		nzUInt8** pixels = new nzUInt8*[m_sharedImage->levelCount];
 		for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
 		{
-			unsigned int size = GetSize(i);
+			unsigned int size = GetMemoryUsage(i);
 			pixels[i] = new nzUInt8[size];
 			std::memcpy(pixels[i], m_sharedImage->pixels[i], size);
 		}
