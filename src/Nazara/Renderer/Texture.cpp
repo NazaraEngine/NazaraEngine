@@ -8,6 +8,7 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <memory>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
@@ -311,19 +312,6 @@ void NzTexture::EnsureMipmapsUpdate() const
 	}
 }
 
-nzUInt8 NzTexture::GetBytesPerPixel() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return 0;
-	}
-	#endif
-
-	return NzPixelFormat::GetBytesPerPixel(m_impl->format);
-}
-
 unsigned int NzTexture::GetDepth(nzUInt8 level) const
 {
 	#if NAZARA_RENDERER_SAFE
@@ -361,6 +349,89 @@ unsigned int NzTexture::GetHeight(nzUInt8 level) const
 	#endif
 
 	return GetLevelSize(m_impl->height, level);
+}
+
+nzUInt8 NzTexture::GetLevelCount() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+	#endif
+
+	return m_impl->levelCount;
+}
+
+nzUInt8 NzTexture::GetMaxLevel() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+	#endif
+
+	return NzImage::GetMaxLevel(m_impl->type, m_impl->width, m_impl->height, m_impl->depth);
+}
+
+unsigned int NzTexture::GetMemoryUsage() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+	#endif
+
+	unsigned int width = m_impl->width;
+	unsigned int height = m_impl->height;
+	unsigned int depth = m_impl->depth;
+
+	unsigned int size = 0;
+	for (unsigned int i = 0; i < m_impl->levelCount; ++i)
+	{
+		size += width * height * depth;
+
+		if (width > 1)
+			width >>= 1;
+
+		if (height > 1)
+			height >>= 1;
+
+		if (depth > 1)
+			depth >>= 1;
+	}
+
+	if (m_impl->type == nzImageType_Cubemap)
+		size *= 6;
+
+	return size * NzPixelFormat::GetBytesPerPixel(m_impl->format);
+}
+
+unsigned int NzTexture::GetMemoryUsage(nzUInt8 level) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Texture must be valid");
+		return 0;
+	}
+
+	if (level >= m_impl->levelCount)
+	{
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_impl->levelCount) + ')');
+		return 0;
+	}
+	#endif
+
+	return (GetLevelSize(m_impl->width, level)) *
+	       (GetLevelSize(m_impl->height, level)) *
+	       ((m_impl->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_impl->depth, level)) *
+	       NzPixelFormat::GetBytesPerPixel(m_impl->format);
 }
 
 NzVector3ui NzTexture::GetSize(nzUInt8 level) const
@@ -413,32 +484,6 @@ bool NzTexture::HasMipmaps() const
 	#endif
 
 	return m_impl->levelCount > 1;
-}
-
-bool NzTexture::IsCompressed() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	return NzPixelFormat::IsCompressed(m_impl->format);
-}
-
-bool NzTexture::IsCubemap() const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Texture must be valid");
-		return false;
-	}
-	#endif
-
-	return m_impl->type == nzImageType_Cubemap;
 }
 
 bool NzTexture::IsValid() const

@@ -12,9 +12,9 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 
 class NzTexture;
 
@@ -23,7 +23,7 @@ using NzTextureRef = NzResourceRef<NzTexture>;
 
 struct NzTextureImpl;
 
-class NAZARA_API NzTexture : public NzResource, NzNonCopyable
+class NAZARA_API NzTexture : public NzAbstractImage, public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
 	friend class NzRenderTexture;
@@ -42,18 +42,19 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		void EnsureMipmapsUpdate() const;
 
-		nzUInt8 GetBytesPerPixel() const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight(nzUInt8 level = 0) const;
+		nzUInt8 GetLevelCount() const;
+		nzUInt8 GetMaxLevel() const;
+		unsigned int GetMemoryUsage() const;
+		unsigned int GetMemoryUsage(nzUInt8 level) const;
 		NzVector3ui GetSize(nzUInt8 level = 0) const;
 		nzImageType GetType() const;
 		unsigned int GetWidth(nzUInt8 level = 0) const;
 
 		bool HasMipmaps() const;
 
-		bool IsCompressed() const;
-		bool IsCubemap() const;
 		bool IsValid() const;
 
 		// Load
