@@ -43,12 +43,12 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		void EnsureMipmapsUpdate() const;
 
 		nzUInt8 GetBytesPerPixel() const;
-		unsigned int GetDepth() const;
+		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
-		unsigned int GetHeight() const;
-		NzVector2ui GetSize() const;
+		unsigned int GetHeight(nzUInt8 level = 0) const;
+		NzVector3ui GetSize(nzUInt8 level = 0) const;
 		nzImageType GetType() const;
-		unsigned int GetWidth() const;
+		unsigned int GetWidth(nzUInt8 level = 0) const;
 
 		bool HasMipmaps() const;
 
