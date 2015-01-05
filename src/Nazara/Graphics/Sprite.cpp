@@ -128,7 +128,7 @@ void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
 
 	NzTexture* diffuseMap = m_material->GetDiffuseMap();
 	if (resizeSprite && diffuseMap && diffuseMap->IsValid())
-		SetSize(NzVector2f(diffuseMap->GetSize()));
+		SetSize(NzVector2f(NzVector2ui(diffuseMap->GetSize())));
 }
 
 void NzSprite::SetSize(const NzVector2f& size)
