@@ -19,6 +19,24 @@ NzVector4<T>::NzVector4(T X, T Y, T Z, T W)
 }
 
 template<typename T>
+NzVector4<T>::NzVector4(T X, T Y, const NzVector2<T>& vec)
+{
+	Set(X, Y, vec);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(T X, const NzVector2<T>& vec, T W)
+{
+	Set(X, vec, W);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(T X, const NzVector3<T>& vec)
+{
+	Set(X, vec);
+}
+
+template<typename T>
 NzVector4<T>::NzVector4(T scale)
 {
 	Set(scale);
@@ -28,6 +46,12 @@ template<typename T>
 NzVector4<T>::NzVector4(const T vec[4])
 {
 	Set(vec);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(const NzVector2<T>& vec, T Z, T W)
+{
+	Set(vec, Z, W);
 }
 
 template<typename T>
@@ -155,10 +179,43 @@ NzVector4<T>& NzVector4<T>::Normalize(T* length)
 template<typename T>
 NzVector4<T>& NzVector4<T>::Set(T X, T Y, T Z, T W)
 {
-	w = W;
 	x = X;
 	y = Y;
 	z = Z;
+	w = W;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, T Y, const NzVector2<T>& vec)
+{
+	x = X;
+	y = Y;
+	z = vec.x;
+	w = vec.y;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, const NzVector2<T>& vec, T W)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
+	w = W;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, const NzVector3<T>& vec)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
+	w = vec.z;
 
 	return *this;
 }
@@ -166,10 +223,10 @@ NzVector4<T>& NzVector4<T>::Set(T X, T Y, T Z, T W)
 template<typename T>
 NzVector4<T>& NzVector4<T>::Set(T scale)
 {
-	w = scale;
 	x = scale;
 	y = scale;
 	z = scale;
+	w = scale;
 
 	return *this;
 }
@@ -178,6 +235,17 @@ template<typename T>
 NzVector4<T>& NzVector4<T>::Set(const T vec[4])
 {
 	std::memcpy(&x, vec, 4*sizeof(T));
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(const NzVector2<T>& vec, T Z, T W)
+{
+	x = vec.x;
+	y = vec.y;
+	z = Z;
+	w = W;
 
 	return *this;
 }
@@ -205,10 +273,10 @@ template<typename T>
 template<typename U>
 NzVector4<T>& NzVector4<T>::Set(const NzVector4<U>& vec)
 {
-	w = F(vec.w);
 	x = F(vec.x);
 	y = F(vec.y);
 	z = F(vec.z);
+	w = F(vec.w);
 
 	return *this;
 }
