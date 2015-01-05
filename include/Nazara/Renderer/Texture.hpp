@@ -87,10 +87,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const NzImage& image, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const NzImage& image, const NzRectui& rect, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
