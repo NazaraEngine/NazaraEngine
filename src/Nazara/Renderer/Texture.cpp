@@ -29,6 +29,12 @@ struct NzTextureImpl
 
 namespace
 {
+	inline unsigned int GetLevelSize(unsigned int size, nzUInt8 level)
+	{
+		// Contrairement à la classe Image, un appel à GetLevelSize(0, level) n'est pas possible
+		return std::max(size >> level, 1U);
+	}
+
 	inline void SetUnpackAlignement(nzUInt8 bpp)
 	{
 		if (bpp % 8 == 0)
@@ -113,7 +119,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 
 			if (depth > 1)
 			{
-				NazaraError("1D textures must be 1 depth");
+				NazaraError("1D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -122,7 +128,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 		case nzImageType_2D:
 			if (depth > 1)
 			{
-				NazaraError("2D textures must be 1 depth");
+				NazaraError("2D textures must be 1 deep");
 				return false;
 			}
 			break;
@@ -134,7 +140,7 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 		case nzImageType_Cubemap:
 			if (depth > 1)
 			{
-				NazaraError("Cubemaps must be 1 depth");
+				NazaraError("Cubemaps must be 1 deep");
 				return false;
 			}
 
@@ -320,7 +326,7 @@ nzUInt8 NzTexture::GetBytesPerPixel() const
 	return NzPixelFormat::GetBytesPerPixel(m_impl->format);
 }
 
-unsigned int NzTexture::GetDepth() const
+unsigned int NzTexture::GetDepth(nzUInt8 level) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -330,7 +336,7 @@ unsigned int NzTexture::GetDepth() const
 	}
 	#endif
 
-	return m_impl->depth;
+	return GetLevelSize(m_impl->depth, level);
 }
 
 nzPixelFormat NzTexture::GetFormat() const
@@ -346,7 +352,7 @@ nzPixelFormat NzTexture::GetFormat() const
 	return m_impl->format;
 }
 
-unsigned int NzTexture::GetHeight() const
+unsigned int NzTexture::GetHeight(nzUInt8 level) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -356,20 +362,20 @@ unsigned int NzTexture::GetHeight() const
 	}
 	#endif
 
-	return m_impl->height;
+	return GetLevelSize(m_impl->height, level);
 }
 
-NzVector2ui NzTexture::GetSize() const
+NzVector3ui NzTexture::GetSize(nzUInt8 level) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
 	{
 		NazaraError("Texture must be valid");
-		return NzVector2ui(0, 0);
+		return NzVector3ui(0, 0, 0);
 	}
 	#endif
 
-	return NzVector2ui(m_impl->width, m_impl->height);
+	return NzVector3ui(GetLevelSize(m_impl->width, level), GetLevelSize(m_impl->height, level), GetLevelSize(m_impl->depth, level));
 }
 
 nzImageType NzTexture::GetType() const
@@ -385,7 +391,7 @@ nzImageType NzTexture::GetType() const
 	return m_impl->type;
 }
 
-unsigned int NzTexture::GetWidth() const
+unsigned int NzTexture::GetWidth(nzUInt8 level) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_impl)
@@ -395,7 +401,7 @@ unsigned int NzTexture::GetWidth() const
 	}
 	#endif
 
-	return m_impl->width;
+	return GetLevelSize(m_impl->width, level);
 }
 
 bool NzTexture::HasMipmaps() const
@@ -470,6 +476,7 @@ bool NzTexture::LoadFromImage(const NzImage& image, bool generateMipmaps)
 	nzPixelFormat format = newImage.GetFormat();
 	if (!IsFormatSupported(format))
 	{
+		///TODO: Sélectionner le format le plus adapté selon les composantes présentes dans le premier format
 		nzPixelFormat newFormat = (NzPixelFormat::HasAlpha(format)) ? nzPixelFormat_BGRA8 : nzPixelFormat_BGR8;
 		NazaraWarning("Format " + NzPixelFormat::ToString(format) + " not supported, trying to convert it to " + NzPixelFormat::ToString(newFormat) + "...");
 
@@ -889,7 +896,7 @@ bool NzTexture::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned in
 	}
 	#endif
 
-	return Update(pixels, NzBoxui(std::max(m_impl->width >> level, 1U), std::max(m_impl->height >> level, 1U), std::max(m_impl->depth >> level, 1U)), srcWidth, srcHeight, level);
+	return Update(pixels, NzBoxui(GetLevelSize(m_impl->width, level), GetLevelSize(m_impl->height, level), GetLevelSize(m_impl->depth, level)), srcWidth, srcHeight, level);
 }
 
 bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth, unsigned int srcHeight, nzUInt8 level)
@@ -920,12 +927,12 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int s
 	}
 	#endif
 
-	unsigned int height = std::max(m_impl->height >> level, 1U);
+	unsigned int height = GetLevelSize(m_impl->height, level);
 
 	#if NAZARA_RENDERER_SAFE
-	if (box.x+box.width > std::max(m_impl->width >> level, 1U) ||
+	if (box.x+box.width > GetLevelSize(m_impl->width, level) ||
 	    box.y+box.height > height ||
-		box.z+box.depth > std::max(m_impl->depth >> level, 1U))
+		box.z+box.depth > GetLevelSize(m_impl->depth, level))
 	{
 		NazaraError("Cube dimensions are out of bounds");
 		return false;
@@ -1058,10 +1065,10 @@ bool NzTexture::UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRe
 	}
 	#endif
 
-	unsigned int height = std::max(m_impl->height >> level, 1U);
+	unsigned int height = GetLevelSize(m_impl->height, level);
 
 	#if NAZARA_RENDERER_SAFE
-	if (rect.x+rect.width > std::max(m_impl->width >> level, 1U) || rect.y+rect.height > height)
+	if (rect.x+rect.width > GetLevelSize(m_impl->width, level) || rect.y+rect.height > height)
 	{
 		NazaraError("Rectangle dimensions are out of bounds");
 		return false;
