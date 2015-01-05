@@ -37,6 +37,18 @@ NzVector2<T>::NzVector2(const NzVector2<U>& vec)
 }
 
 template<typename T>
+NzVector2<T>::NzVector2(const NzVector3<T>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
+NzVector2<T>::NzVector2(const NzVector4<T>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
 T NzVector2<T>::AbsDotProduct(const NzVector2& vec) const
 {
 	return std::fabs(x * vec.x) + std::fabs(y * vec.y);
@@ -204,6 +216,24 @@ NzVector2<T>& NzVector2<T>::Set(const NzVector2<U>& vec)
 {
 	x = F(vec.x);
 	y = F(vec.y);
+
+	return *this;
+}
+
+template<typename T>
+NzVector2<T>& NzVector2<T>::Set(const NzVector3<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
+
+	return *this;
+}
+
+template<typename T>
+NzVector2<T>& NzVector2<T>::Set(const NzVector4<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
 
 	return *this;
 }
