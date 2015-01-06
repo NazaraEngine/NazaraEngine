@@ -30,7 +30,7 @@ m_size(0)
 {
 }
 
-NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzDataStorage storage, nzBufferUsage usage) :
+NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage, nzBufferUsage usage) :
 m_type(type),
 m_impl(nullptr)
 {
@@ -63,7 +63,7 @@ bool NzBuffer::CopyContent(const NzBuffer& buffer)
 	return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 }
 
-bool NzBuffer::Create(unsigned int size, nzDataStorage storage, nzBufferUsage usage)
+bool NzBuffer::Create(unsigned int size, nzUInt32 storage, nzBufferUsage usage)
 {
 	Destroy();
 
@@ -131,7 +131,7 @@ unsigned int NzBuffer::GetSize() const
 	return m_size;
 }
 
-nzDataStorage NzBuffer::GetStorage() const
+nzUInt32 NzBuffer::GetStorage() const
 {
 	return m_storage;
 }
@@ -148,7 +148,7 @@ nzBufferUsage NzBuffer::GetUsage() const
 
 bool NzBuffer::IsHardware() const
 {
-	return m_storage == nzDataStorage_Hardware;
+	return m_storage & nzDataStorage_Hardware;
 }
 
 bool NzBuffer::IsValid() const
@@ -200,7 +200,7 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int siz
 	return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
 }
 
-bool NzBuffer::SetStorage(nzDataStorage storage)
+bool NzBuffer::SetStorage(nzUInt32 storage)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -275,12 +275,12 @@ void NzBuffer::Unmap() const
 		NazaraWarning("Failed to unmap buffer (it's content may be undefined)"); ///TODO: Unexpected ?
 }
 
-bool NzBuffer::IsStorageSupported(nzDataStorage storage)
+bool NzBuffer::IsStorageSupported(nzUInt32 storage)
 {
 	return s_bufferFactories[storage] != nullptr;
 }
 
-void NzBuffer::SetBufferFactory(nzDataStorage storage, BufferFactory func)
+void NzBuffer::SetBufferFactory(nzUInt32 storage, BufferFactory func)
 {
 	s_bufferFactories[storage] = func;
 }
