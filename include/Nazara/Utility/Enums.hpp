@@ -75,13 +75,14 @@ enum nzCubemapFace
 	nzCubemapFace_Max = nzCubemapFace_NegativeZ
 };
 
-enum nzDataStorage
+enum nzDataStorageFlags
 {
-	nzDataStorage_Both,
-	nzDataStorage_Hardware,
-	nzDataStorage_Software,
+	nzDataStorage_Hardware = 0x1,
+	nzDataStorage_Software = 0x2,
 
-	nzDataStorage_Max = nzDataStorage_Software
+	nzDataStorage_Both = nzDataStorage_Hardware | nzDataStorage_Software,
+
+	nzDataStorage_Max = nzDataStorage_Software*2-1
 };
 
 enum nzEventType
