@@ -92,6 +92,7 @@ namespace
 	bool s_useVertexArrayObjects;
 	unsigned int s_maxColorAttachments;
 	unsigned int s_maxRenderTarget;
+	unsigned int s_maxTextureSize;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
 
@@ -612,6 +613,11 @@ unsigned int NzRenderer::GetMaxRenderTargets()
 	return s_maxRenderTarget;
 }
 
+unsigned int NzRenderer::GetMaxTextureSize()
+{
+	return s_maxTextureSize;
+}
+
 unsigned int NzRenderer::GetMaxTextureUnits()
 {
 	return s_maxTextureUnit;
@@ -706,19 +712,19 @@ bool NzRenderer::Initialize()
 	}
 
 	// Récupération des capacités d'OpenGL
-	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
-	s_capabilities[nzRendererCap_ConditionalRendering] = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
-	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
-	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_Instancing] = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
+	s_capabilities[nzRendererCap_AnisotropicFilter]     = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
+	s_capabilities[nzRendererCap_ConditionalRendering]  = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
+	s_capabilities[nzRendererCap_FP64]                  = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
+	s_capabilities[nzRendererCap_HardwareBuffer]        = true; // Natif depuis OpenGL 1.5
+	s_capabilities[nzRendererCap_Instancing]            = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
 	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr); // Natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation
-	s_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
-	s_capabilities[nzRendererCap_RenderTexture] = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
-	s_capabilities[nzRendererCap_Texture3D] = true; // Natif depuis OpenGL 1.2
-	s_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
+	s_capabilities[nzRendererCap_OcclusionQuery]        = true; // Natif depuis OpenGL 1.5
+	s_capabilities[nzRendererCap_PixelBufferObject]     = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
+	s_capabilities[nzRendererCap_RenderTexture]         = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
+	s_capabilities[nzRendererCap_Texture3D]             = true; // Natif depuis OpenGL 1.2
+	s_capabilities[nzRendererCap_TextureCubemap]        = true; // Natif depuis OpenGL 1.3
+	s_capabilities[nzRendererCap_TextureMulti]          = true; // Natif depuis OpenGL 1.3
+	s_capabilities[nzRendererCap_TextureNPOT]           = true; // Natif depuis OpenGL 2.0
 
 	NzContext::EnsureContext();
 
@@ -761,6 +767,10 @@ bool NzRenderer::Initialize()
 	}
 	else
 		s_maxTextureUnit = 1;
+
+	GLint maxTextureSize;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+	s_maxTextureSize = maxTextureSize;
 
 	GLint maxVertexAttribs;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
@@ -1966,7 +1976,8 @@ void NzRenderer::OnTextureReleased(const NzTexture* texture)
 	{
 		if (unit.texture == texture)
 			unit.texture = nullptr;
-			// Inutile de changer le flag pour une texture désactivée
+
+		// Inutile de changer le flag pour une texture désactivée
 	}
 }
 
