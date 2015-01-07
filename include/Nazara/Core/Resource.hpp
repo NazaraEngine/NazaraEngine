@@ -17,6 +17,7 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
+class NzResourceConstListener;
 class NzResourceListener;
 
 class NAZARA_API NzResource
@@ -25,6 +26,7 @@ class NAZARA_API NzResource
 		NzResource(bool persistent = true);
 		virtual ~NzResource();
 
+		void AddResourceConstListener(const NzResourceConstListener* listener, int index = 0) const;
 		void AddResourceListener(NzResourceListener* listener, int index = 0) const;
 		void AddResourceReference() const;
 
@@ -32,6 +34,7 @@ class NAZARA_API NzResource
 
 		bool IsPersistent() const;
 
+		void RemoveResourceConstListener(const NzResourceConstListener* listener) const;
 		void RemoveResourceListener(NzResourceListener* listener) const;
 		bool RemoveResourceReference() const;
 
@@ -43,13 +46,16 @@ class NAZARA_API NzResource
 		void NotifyModified(unsigned int code);
 
 	private:
+		using ResourceConstListenerMap = std::unordered_map<const NzResourceConstListener*, std::pair<int, unsigned int>>;
 		using ResourceListenerMap = std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>>;
 
+		void RemoveResourceConstListenerIterator(ResourceConstListenerMap::iterator iterator) const;
 		void RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const;
 
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
+		mutable ResourceConstListenerMap m_resourceConstListeners;
 		mutable ResourceListenerMap m_resourceListeners;
 		        std::atomic_bool m_resourcePersistent;
 		mutable std::atomic_uint m_resourceReferenceCount;
