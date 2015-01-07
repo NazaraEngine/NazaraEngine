@@ -257,7 +257,7 @@ bool NzTexture::Download(NzImage* image) const
 	// Téléchargement...
 	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
-		glGetTexImage(NzOpenGL::TextureTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(level));
+		glGetTexImage(NzOpenGL::TextureTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(0, 0, 0, level));
 
 	return true;
 }
