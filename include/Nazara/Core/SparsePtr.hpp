@@ -46,7 +46,9 @@ class NzSparsePtr
 		T& operator[](int index) const;
 
 		NzSparsePtr operator+(int count) const;
+		NzSparsePtr operator+(unsigned int count) const;
 		NzSparsePtr operator-(int count) const;
+		NzSparsePtr operator-(unsigned int count) const;
 		std::ptrdiff_t operator-(const NzSparsePtr& ptr) const;
 
 		NzSparsePtr& operator+=(int count);
