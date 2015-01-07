@@ -687,11 +687,13 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
 	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
 	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
-	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid());
+	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid() ||
+	                                     flags & nzShaderFlags_TextureOverlay);
 	list.SetParameter("TRANSFORM", m_transformEnabled);
 
 	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
 	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
+	list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & nzShaderFlags_TextureOverlay) != 0));
 	list.SetParameter("FLAG_VERTEXCOLOR", static_cast<bool>((flags & nzShaderFlags_VertexColor) != 0));
 
 	ShaderInstance& instance = m_shaders[flags];
@@ -759,7 +761,7 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("Basic", uberShader.get());
@@ -800,7 +802,7 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("PhongLighting", uberShader.get());

@@ -50,6 +50,8 @@ uniform float ParallaxBias = -0.03;
 uniform float ParallaxScale = 0.02;
 uniform vec4 SceneAmbient;
 
+uniform sampler2D TextureOverlay;
+
 /********************Fonctions********************/
 vec3 FloatToColor(float f)
 {
@@ -89,6 +91,10 @@ void main()
 
 #if DIFFUSE_MAPPING
 	diffuseColor *= texture(MaterialDiffuseMap, texCoord);
+#endif
+
+#if FLAG_TEXTUREOVERLAY
+	diffuseColor *= texture(TextureOverlay, texCoord);
 #endif
 
 #if FLAG_DEFERRED

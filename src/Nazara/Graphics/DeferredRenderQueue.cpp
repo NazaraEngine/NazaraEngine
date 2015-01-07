@@ -103,7 +103,7 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 	}
 }
 
-void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount)
+void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
 	/*NzMaterial* material = sprite->GetMaterial();
 	if (!material->IsLightingEnabled() || material->IsEnabled(nzRendererParameter_Blend))
@@ -111,7 +111,7 @@ void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVerte
 	else
 		sprites[material].push_back(sprite);*/
 
-	m_forwardQueue->AddSprites(material, vertices, spriteCount);
+	m_forwardQueue->AddSprites(material, vertices, spriteCount, overlay);
 }
 
 void NzDeferredRenderQueue::Clear(bool fully)
