@@ -20,6 +20,7 @@ namespace
 	{
 		ResourceType_IndexBuffer,
 		ResourceType_Material,
+		ResourceType_Texture,
 		ResourceType_VertexBuffer
 	};
 }
@@ -123,16 +124,25 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 	}
 }
 
-void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount)
+void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
-	BasicSpriteBatches::iterator it = basicSprites.find(material);
-	if (it == basicSprites.end())
+	auto matIt = basicSprites.find(material);
+	if (matIt == basicSprites.end())
 	{
-		it = basicSprites.insert(std::make_pair(material, BasicSpriteBatches::mapped_type())).first;
+		matIt = basicSprites.insert(std::make_pair(material, BasicSpriteBatches::mapped_type())).first;
 		material->AddResourceListener(this, ResourceType_Material);
 	}
 
-	auto& spriteVector = it->second;
+	auto& overlayMap = matIt->second;
+	auto overlayIt = overlayMap.find(overlay);
+	if (overlayIt == overlayMap.end())
+	{
+		overlayIt = overlayMap.insert(std::make_pair(overlay, BasicSpriteOverlayContainer::mapped_type())).first;
+		if (overlay)
+			overlay->AddResourceListener(this, ResourceType_Texture);
+	}
+
+	auto& spriteVector = overlayIt->second;
 	spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 }
 
@@ -146,19 +156,26 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 	if (fully)
 	{
-		for (auto& matIt : basicSprites)
+		for (auto& matPair : basicSprites)
 		{
-			const NzMaterial* material = matIt.first;
+			const NzMaterial* material = matPair.first;
 			material->RemoveResourceListener(this);
+
+			auto& overlayMap = matPair.second;
+			for (auto& overlayPair : overlayMap)
+			{
+				const NzTexture* overlay = overlayPair.first;
+				overlay->RemoveResourceListener(this);
+			}
 		}
 		basicSprites.clear();
 
-		for (auto& matIt : opaqueModels)
+		for (auto& matPair : opaqueModels)
 		{
-			const NzMaterial* material = matIt.first;
+			const NzMaterial* material = matPair.first;
 			material->RemoveResourceListener(this);
 
-			MeshInstanceContainer& instances = std::get<2>(matIt.second);
+			MeshInstanceContainer& instances = std::get<2>(matPair.second);
 			for (auto& instanceIt : instances)
 			{
 				const NzMeshData& renderData = instanceIt.first;
@@ -278,6 +295,24 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 				{
 					opaqueModels.erase(it);
 					break;
+				}
+			}
+
+			break;
+		}
+
+		case ResourceType_Texture:
+		{
+			for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
+			{
+				auto& overlayMap = matIt->second;
+				for (auto overlayIt = overlayMap.begin(); overlayIt != overlayMap.end(); ++overlayIt)
+				{
+					if (overlayIt->first == resource)
+					{
+						overlayMap.erase(overlayIt);
+						break;
+					}
 				}
 			}
 
