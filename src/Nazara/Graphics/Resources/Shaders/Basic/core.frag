@@ -10,11 +10,12 @@ in vec2 vTexCoord;
 out vec4 RenderTarget0;
 
 /********************Uniformes********************/
+uniform vec2 InvTargetSize;
 uniform sampler2D MaterialAlphaMap;
 uniform float MaterialAlphaThreshold;
 uniform vec4 MaterialDiffuse;
 uniform sampler2D MaterialDiffuseMap;
-uniform vec2 InvTargetSize;
+uniform sampler2D TextureOverlay;
 
 /********************Fonctions********************/
 void main()
@@ -33,6 +34,10 @@ void main()
 
 #if ALPHA_MAPPING
 	fragmentColor.a *= texture(MaterialAlphaMap, texCoord).r;
+#endif
+
+#if FLAG_TEXTUREOVERLAY
+	fragmentColor *= texture(TextureOverlay, texCoord);
 #endif
 
 #if ALPHA_TEST
