@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <cmath>
@@ -44,15 +45,8 @@ m_sharedImage(&emptyImage)
 NzImage::NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount) :
 m_sharedImage(&emptyImage)
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException);
 	Create(type, format, width, height, depth, levelCount);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_sharedImage)
-	{
-		NazaraError("Failed to create image");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
 }
 
 NzImage::NzImage(const NzImage& image) :
