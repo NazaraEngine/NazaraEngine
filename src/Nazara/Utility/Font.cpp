@@ -8,18 +8,12 @@
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-namespace
-{
-	const unsigned int s_atlasStartSize = 512;
-}
-
 bool NzFontParams::IsValid() const
 {
 	return true; // Rien à tester
 }
 
 NzFont::NzFont() :
-m_maxAtlasSize(0),
 m_minimumSizeStep(1)
 {
 }
@@ -31,25 +25,39 @@ NzFont::~NzFont()
 
 void NzFont::ClearGlyphCache()
 {
-	// Destruction des atlas et glyphes mémorisés
-	m_atlases.clear();
-	m_glyphes.clear();
-	m_glyphQueue.clear();
+	if (m_atlas)
+	{
+		if (m_atlas.use_count() > 1) // Au moins une autre police utilise cet atlas, on vire nos glyphes
+		{
+			for (auto mapIt = m_glyphes.begin(); mapIt != m_glyphes.end(); ++mapIt)
+			{
+				GlyphMap& glyphMap = mapIt->second;
+				for (auto glyphIt = glyphMap.begin(); glyphIt != glyphMap.end(); ++glyphIt)
+				{
+					Glyph& glyph = glyphIt->second;
+					m_atlas->Free(&glyph.atlasRect, &glyph.layerIndex, 1);
+				}
+			}
 
-	// Création du premier atlas
-	m_atlases.resize(1);
-	Atlas& atlas = m_atlases.back();
-	atlas.binPack.Reset(s_atlasStartSize, s_atlasStartSize);
+			// Destruction des glyphes mémorisés
+			m_glyphes.clear();
+			NotifyModified(ModificationCode_GlyphCacheCleared);
+		}
+		else
+			m_atlas->Clear();
+	}
 }
 
 void NzFont::ClearKerningCache()
 {
 	m_kerningCache.clear();
+	NotifyModified(ModificationCode_KerningCacheCleared);
 }
 
 void NzFont::ClearSizeInfoCache()
 {
 	m_sizeInfoCache.clear();
+	NotifyModified(ModificationCode_SizeInfoCacheCleared);
 }
 
 bool NzFont::Create(NzFontData* data)
@@ -66,18 +74,15 @@ bool NzFont::Create(NzFontData* data)
 
 	m_data.reset(data);
 
-	ClearGlyphCache(); // Création du premier atlas en mémoire
-
 	return true;
 }
 
 void NzFont::Destroy()
 {
-	m_atlases.clear();
+	ClearGlyphCache();
+
 	m_data.reset();
 	m_kerningCache.clear();
-	m_glyphes.clear();
-	m_glyphQueue.clear();
 	m_sizeInfoCache.clear();
 }
 
@@ -94,17 +99,9 @@ bool NzFont::ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt
 	return m_data->ExtractGlyph(characterSize, character, style & nzTextStyle_Bold, glyph);
 }
 
-const NzFont::Atlas& NzFont::GetAtlas(unsigned int atlasIndex) const
+const NzAbstractFontAtlas* NzFont::GetAtlas() const
 {
-	if (!m_glyphQueue.empty())
-		ProcessGlyphQueue();
-
-	return m_atlases.at(atlasIndex);
-}
-
-unsigned int NzFont::GetAtlasCount() const
-{
-	return m_atlases.size();
+	return m_atlas.get();
 }
 
 unsigned int NzFont::GetCachedGlyphCount(unsigned int characterSize, nzUInt32 style) const
@@ -171,11 +168,6 @@ const NzFont::Glyph& NzFont::GetGlyph(unsigned int characterSize, nzUInt32 style
 {
 	nzUInt64 key = ComputeKey(characterSize, style);
 	return PrecacheGlyph(m_glyphes[key], characterSize, style, character);
-}
-
-unsigned int NzFont::GetMaxAtlasSize() const
-{
-	return m_maxAtlasSize;
 }
 
 unsigned int NzFont::GetMinimumStepSize() const
@@ -266,26 +258,11 @@ bool NzFont::OpenFromStream(NzInputStream& stream, const NzFontParams& params)
 	return NzFontLoader::LoadFromStream(this, stream, params);
 }
 
-void NzFont::SetMaxAtlasSize(unsigned int maxAtlasSize)
+void NzFont::SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas)
 {
-	unsigned int oldMaxAtlasSize = GetRealMaxAtlasSize();
-	m_maxAtlasSize = maxAtlasSize;
+	ClearGlyphCache();
 
-	// Si l'un de nos atlas dépasse la nouvelle taille, on doit vider le cache
-	maxAtlasSize = GetRealMaxAtlasSize();
-	if (maxAtlasSize < oldMaxAtlasSize)
-	{
-		for (Atlas& atlas : m_atlases)
-		{
-			unsigned int atlasSize = atlas.binPack.GetWidth();
-			if (atlasSize > maxAtlasSize)
-			{
-				NazaraWarning("At least one atlas was over new max atlas size (" + NzString::Number(atlasSize) + " > " + NzString::Number(maxAtlasSize) + "), clearing glyph cache...");
-				ClearGlyphCache();
-				return;
-			}
-		}
-	}
+	m_atlas = atlas;
 }
 
 void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
@@ -299,16 +276,7 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 	#endif
 
 	m_minimumSizeStep = minimumStepSize;
-}
-
-unsigned int NzFont::GetDefaultMaxAtlasSize()
-{
-	return s_maxAtlasSize;
-}
-
-void NzFont::SetDefaultMaxAtlasSize(unsigned int maxAtlasSize)
-{
-	s_maxAtlasSize = maxAtlasSize;
+	ClearGlyphCache();
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -326,58 +294,12 @@ nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 	return (stylePart << 32) | sizePart;
 }
 
-unsigned int NzFont::GetRealMaxAtlasSize() const
+void NzFont::OnAtlasCleared()
 {
-	unsigned int maxAtlasSize = (m_maxAtlasSize == 0) ? s_maxAtlasSize : m_maxAtlasSize;
-	if (maxAtlasSize == 0)
-		maxAtlasSize = std::numeric_limits<unsigned int>::max();
+	// Notre atlas vient d'être vidé, détruisons le cache de glyphe
+	m_glyphes.clear();
 
-	return maxAtlasSize;
-}
-
-unsigned int NzFont::InsertRect(NzRectui* rect, bool* flipped) const
-{
-	///DOC: Tous les pointeurs doivent être valides
-	// Précondition: Un rectangle ne peut pas être plus grand dans une dimension que la taille maximale de l'atlas
-
-	unsigned int maxAtlasSize = GetRealMaxAtlasSize();
-
-	// Cette fonction ne fait qu'insérer un rectangle de façon virtuelle, l'insertion des images se fait après
-	for (unsigned int i = 0; i < m_atlases.size(); ++i)
-	{
-		Atlas& atlas = m_atlases[i];
-		if (atlas.binPack.Insert(rect, flipped, 1, false, NzGuillotineBinPack::RectBestAreaFit, NzGuillotineBinPack::SplitMinimizeArea))
-			// Insertion réussie dans l'un des atlas, pas de question à se poser
-			return i;
-		else if (i == m_atlases.size() - 1) // Dernière itération ?
-		{
-			// Dernier atlas, et le glyphe ne rentre pas, peut-on agrandir la taille de l'atlas ?
-			unsigned int size = atlas.binPack.GetWidth(); // l'atlas étant carré, on ne teste qu'une dimension
-			if (size < maxAtlasSize)
-			{
-				// On peut encore agrandir l'atlas
-				size = std::min(size*2, maxAtlasSize);
-				atlas.binPack.Expand(size, size);
-
-				// On relance la boucle sur le dernier atlas
-				i--;
-			}
-			else
-			{
-				// On ne peut plus agrandir le dernier atlas, il est temps d'en créer un nouveau
-				m_atlases.resize(m_atlases.size() + 1);
-				Atlas& newAtlas = m_atlases.back();
-
-				newAtlas.binPack.Reset(s_atlasStartSize, s_atlasStartSize);
-
-				// On laisse la boucle insérer toute seule le rectangle à la prochaine itération
-			}
-		}
-	}
-
-	// Si nous arrivons ici, c'est qu'une erreur a eu lieu en amont
-	NazaraInternalError("This shouldn't happen");
-	return std::numeric_limits<unsigned int>::max();
+	NotifyModified(ModificationCode_GlyphCacheCleared);
 }
 
 const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, bool bold, char32_t character) const
@@ -386,7 +308,7 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 	if (it != glyphMap.end()) // Si le glyphe n'est pas déjà chargé
 		return it->second;
 
-	Glyph glyph;
+	Glyph& glyph = glyphMap[character]; // Insertion du glyphe
 	glyph.valid = false;
 
 	// On extrait le glyphe depuis la police
@@ -396,112 +318,39 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 		glyph.atlasRect.width = fontGlyph.image.GetWidth();
 		glyph.atlasRect.height = fontGlyph.image.GetHeight();
 
-		unsigned int maxAtlasSize = GetRealMaxAtlasSize();
-		if (glyph.atlasRect.width <= maxAtlasSize && glyph.atlasRect.height <= maxAtlasSize)
+		// Insertion du rectangle dans l'un des atlas
+		if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
 		{
-			// Insertion du rectangle dans l'un des atlas
-			glyph.aabb = fontGlyph.aabb;
-			glyph.advance = fontGlyph.advance;
-			glyph.valid = true;
+			// Padding (pour éviter le débordement lors du filtrage)
+			const unsigned int padding = 1; // Un pixel de contour
 
-			if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
+			glyph.atlasRect.width += padding*2;
+			glyph.atlasRect.height += padding*2;
+
+			// Insertion du rectangle dans l'atlas virtuel
+			if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
 			{
-				// Padding (pour éviter le débordement lors du filtrage)
-				const unsigned int padding = 1; // Un pixel entre chaque glyphe
-
-				glyph.atlasRect.width += padding;
-				glyph.atlasRect.height += padding;
-
-				// Insertion du rectangle dans l'atlas virtuel
-				glyph.atlasIndex = InsertRect(&glyph.atlasRect, &glyph.flipped);
-
-				glyph.atlasRect.width -= padding;
-				glyph.atlasRect.height -= padding;
-
-				// Mise en queue pour insertion dans l'atlas réel
-				m_glyphQueue.resize(m_glyphQueue.size()+1);
-				QueuedGlyph& queuedGlyph = m_glyphQueue.back();
-				queuedGlyph.codepoint = character;
-				queuedGlyph.image = std::move(fontGlyph.image);
-				queuedGlyph.map = &glyphMap;
+				NazaraError("Failed to insert glyph into atlas");
+				return glyph;
 			}
+
+			// Compensation du contour (centrage du glyphe)
+			glyph.atlasRect.x += padding;
+			glyph.atlasRect.y += padding;
+			glyph.atlasRect.width -= padding*2;
+			glyph.atlasRect.height -= padding*2;
 		}
-		else
-		{
-			NazaraWarning("Glyph \"" + NzString::Unicode(character) + "\" is bigger than max atlas size");
-		}
+
+		glyph.aabb = fontGlyph.aabb;
+		glyph.advance = fontGlyph.advance;
+		glyph.valid = true;
 	}
 	else
 	{
 		NazaraWarning("Failed to extract glyph \"" + NzString::Unicode(character) + "\"");
 	}
 
-	return glyphMap.insert(std::make_pair(character, std::move(glyph))).first->second;
-}
-
-void NzFont::ProcessGlyphQueue() const
-{
-	for (QueuedGlyph& queuedGlyph : m_glyphQueue)
-	{
-		GlyphMap& glyphMap = *queuedGlyph.map;
-		auto glyphIt = glyphMap.find(queuedGlyph.codepoint);
-		if (glyphIt == glyphMap.end())
-			continue; // Le glyphe a certainement été supprimé du cache avant la mise à jour de l'atlas
-
-		Glyph& glyph = glyphIt->second;
-		Atlas& atlas = m_atlases[glyph.atlasIndex];
-
-		// On s'assure que l'atlas est de la bonne taille
-		NzVector2ui atlasSize(atlas.image.GetWidth(), atlas.image.GetHeight());
-		NzVector2ui binPackSize = atlas.binPack.GetSize();
-		if (atlasSize != binPackSize)
-		{
-			// Création d'une nouvelle image
-			NzImage newAtlas(nzImageType_2D, nzPixelFormat_A8, binPackSize.x, binPackSize.y);
-			if (atlas.image.IsValid())
-			{
-				newAtlas.Copy(atlas.image, NzRectui(atlasSize), NzVector2ui(0, 0)); // On copie les anciennes données
-
-				// On initialise les nouvelles régions
-				newAtlas.Fill(NzColor(255, 255, 255, 0), NzRectui(0, atlasSize.y, binPackSize.x, binPackSize.y - atlasSize.y));
-				newAtlas.Fill(NzColor(255, 255, 255, 0), NzRectui(atlasSize.x, 0, binPackSize.x - atlasSize.x, atlasSize.y));
-			}
-			else
-				newAtlas.Fill(NzColor(255, 255, 255, 0)); // On initialise les pixels
-
-			atlas.image = std::move(newAtlas); // On déplace la nouvelle image vers l'atlas
-		}
-
-		unsigned int glyphWidth = queuedGlyph.image.GetWidth();
-		unsigned int glyphHeight = queuedGlyph.image.GetHeight();
-
-		// On copie le glyphe dans l'atlas
-		if (glyph.flipped)
-		{
-			// On tourne le glyphe pour qu'il rentre dans le rectangle
-			const nzUInt8* src = queuedGlyph.image.GetConstPixels();
-			nzUInt8* ptr = atlas.image.GetPixels(glyph.atlasRect.x, glyph.atlasRect.y + glyphWidth - 1);
-
-			unsigned int lineStride = atlas.image.GetWidth(); // BPP = 1
-			for (unsigned int y = 0; y < glyphHeight; ++y)
-			{
-				for (unsigned int x = 0; x < glyphWidth; ++x)
-				{
-					*ptr = *src++; // On copie et on avance dans le glyphe
-					ptr -= lineStride; // On remonte d'une ligne
-				}
-
-				ptr += lineStride*glyphWidth + 1;
-			}
-		}
-		else
-			atlas.image.Copy(queuedGlyph.image, NzRectui(glyphWidth, glyphHeight), glyph.atlasRect.GetPosition());
-
-		queuedGlyph.image.Destroy(); // On libère l'image dès que possible (pour réduire la consommation)
-	}
-
-	m_glyphQueue.clear();
+	return glyph;
 }
 
 NzFontLoader::LoaderList NzFont::s_loaders;
-unsigned int NzFont::s_maxAtlasSize = 8192; // Valeur totalement arbitraire
