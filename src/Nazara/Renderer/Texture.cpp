@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
@@ -47,17 +48,22 @@ namespace
 	}
 }
 
+NzTexture::NzTexture(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)
+{
+	NzErrorFlags flags(nzErrorFlag_ThrowException);
+	Create(type, format, width, height, depth, levelCount);
+}
+
 NzTexture::NzTexture(const NzImage& image)
 {
+	NzErrorFlags flags(nzErrorFlag_ThrowException);
 	LoadFromImage(image);
+}
 
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraError("Failed to create texture");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
+NzTexture::NzTexture(NzTexture&& texture) :
+m_impl(texture.m_impl)
+{
+	texture.m_impl = nullptr;
 }
 
 NzTexture::~NzTexture()
@@ -248,29 +254,10 @@ bool NzTexture::Download(NzImage* image) const
 		return false;
 	}
 
-	unsigned int width = m_impl->width;
-	unsigned int height = m_impl->height;
-	unsigned int depth = m_impl->depth;
-
 	// Téléchargement...
 	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
 	for (nzUInt8 level = 0; level < m_impl->levelCount; ++level)
-	{
 		glGetTexImage(NzOpenGL::TextureTarget[m_impl->type], level, format.dataFormat, format.dataType, image->GetPixels(level));
-
-		if (width > 1)
-			width >>= 1;
-
-		if (height > 1)
-			height >>= 1;
-
-		if (depth > 1)
-			depth >>= 1;
-	}
-
-	// Inversion de la texture pour le repère d'OpenGL
-	if (!image->FlipVertically())
-		NazaraWarning("Failed to flip image");
 
 	return true;
 }
@@ -292,7 +279,11 @@ bool NzTexture::EnableMipmapping(bool enable)
 	}
 
 	if (m_impl->levelCount == 1) // Transformation d'une texture sans mipmaps vers une texture avec mipmaps
+	{
+		///FIXME: Est-ce que cette opération est seulement possible ?
 		m_impl->levelCount = NzImage::GetMaxLevel(m_impl->width, m_impl->height, m_impl->depth);
+		SetMipmapRange(0, m_impl->levelCount-1);
+	}
 
 	if (!m_impl->mipmapping && enable)
 		m_impl->mipmapsUpdated = false;
@@ -1006,16 +997,16 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int s
 
 		case nzImageType_1D_Array:
 		case nzImageType_2D:
-			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, height-box.height-box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+			glTexSubImage2D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
 			break;
 
 		case nzImageType_2D_Array:
 		case nzImageType_3D:
-			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, height-box.height-box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
+			glTexSubImage3D(NzOpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
 			break;
 
 		case nzImageType_Cubemap:
-			glTexSubImage2D(NzOpenGL::CubemapFace[box.z], level, box.x, height-box.height-box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+			glTexSubImage2D(NzOpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
 			break;
 	}
 
@@ -1038,6 +1029,16 @@ unsigned int NzTexture::GetOpenGLID() const
 	#endif
 
 	return m_impl->id;
+}
+
+NzTexture& NzTexture::operator=(NzTexture&& texture)
+{
+	Destroy();
+
+	m_impl = texture.m_impl;
+	texture.m_impl = nullptr;
+
+	return *this;
 }
 
 unsigned int NzTexture::GetValidSize(unsigned int size)
