@@ -1,0 +1,68 @@
+// Copyright (C) 2015 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Utility module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_GUILLOTINEIMAGEATLAS_HPP
+#define NAZARA_GUILLOTINEIMAGEATLAS_HPP
+
+#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/GuillotineBinPack.hpp>
+#include <Nazara/Utility/AbstractFontAtlas.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
+#include <Nazara/Utility/Image.hpp>
+#include <memory>
+#include <set>
+#include <vector>
+
+class NAZARA_API NzGuillotineImageAtlas : public NzAbstractFontAtlas
+{
+	public:
+		NzGuillotineImageAtlas();
+		virtual ~NzGuillotineImageAtlas();
+
+		void Clear();
+		void Free(NzSparsePtr<const NzRectui> rects, NzSparsePtr<unsigned int> layers, unsigned int count);
+
+		NzGuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
+		NzGuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
+		NzAbstractImage* GetLayer(unsigned int layerIndex) const;
+		unsigned int GetLayerCount() const;
+
+		bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex);
+
+		void SetRectChoiceHeuristic(NzGuillotineBinPack::FreeRectChoiceHeuristic heuristic);
+		void SetRectSplitHeuristic(NzGuillotineBinPack::GuillotineSplitHeuristic heuristic);
+
+	protected:
+		struct Layer;
+
+		virtual unsigned int GetMaxAtlasSize() const;
+		virtual bool ResizeImage(Layer& layer, const NzVector2ui& size) const;
+
+		struct QueuedGlyph
+		{
+            NzImage image;
+			NzRectui rect;
+			bool flipped;
+		};
+
+		struct Layer
+		{
+			std::vector<QueuedGlyph> queuedGlyphs;
+			std::unique_ptr<NzAbstractImage> image;
+			NzGuillotineBinPack binPack;
+			unsigned int freedRectangles = 0;
+		};
+
+	private:
+		void ProcessGlyphQueue(Layer& layer) const;
+
+		std::set<NzFont*> m_fonts;
+		mutable std::vector<Layer> m_layers;
+		NzGuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
+		NzGuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
+};
+
+#endif // NAZARA_GUILLOTINEIMAGEATLAS_HPP
