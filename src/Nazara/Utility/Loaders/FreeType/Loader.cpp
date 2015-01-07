@@ -95,7 +95,7 @@ namespace
 
 				FT_GlyphSlot& glyph = m_face->glyph;
 
-				const FT_Pos boldStrength = 1 << 6;
+				const FT_Pos boldStrength = 2 << 6;
 
 				bool outlineFormat = (glyph->format == FT_GLYPH_FORMAT_OUTLINE);
 				if (outlineFormat && bold)
