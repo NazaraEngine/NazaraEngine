@@ -96,7 +96,7 @@ bool NzFont::ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt
 	}
 	#endif
 
-	return m_data->ExtractGlyph(characterSize, character, style & nzTextStyle_Bold, glyph);
+	return m_data->ExtractGlyph(characterSize, character, style, glyph);
 }
 
 const NzAbstractFontAtlas* NzFont::GetAtlas() const
@@ -284,12 +284,11 @@ nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 	nzUInt64 sizePart = static_cast<nzUInt32>((characterSize/m_minimumSizeStep)*m_minimumSizeStep);
 	nzUInt64 stylePart = 0;
 
-	if (style & nzTextStyle_Bold) // Les caractères gras sont générés différemment
+	if (style & nzTextStyle_Bold)
 		stylePart |= nzTextStyle_Bold;
 
-	// Les caractères italiques peuvent venir d'une autre police, dans le cas contraire ils sont générés au runtime
-	//if (style & nzTextStyle_Italic)
-	//	stylePart |= nzTextStyle_Italic;
+	if (style & nzTextStyle_Italic)
+		stylePart |= nzTextStyle_Italic;
 
 	return (stylePart << 32) | sizePart;
 }
@@ -302,52 +301,88 @@ void NzFont::OnAtlasCleared()
 	NotifyModified(ModificationCode_GlyphCacheCleared);
 }
 
-const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, bool bold, char32_t character) const
+const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const
 {
 	auto it = glyphMap.find(character);
 	if (it != glyphMap.end()) // Si le glyphe n'est pas déjà chargé
 		return it->second;
 
 	Glyph& glyph = glyphMap[character]; // Insertion du glyphe
+	glyph.requireFauxBold = false;
+	glyph.requireFauxItalic = false;
 	glyph.valid = false;
 
-	// On extrait le glyphe depuis la police
-	NzFontGlyph fontGlyph;
-	if (ExtractGlyph(characterSize, character, bold, &fontGlyph))
+	// On vérifie que le style demandé est supporté par la police (dans le cas contraire il devra être simulé au rendu)
+	nzUInt32 supportedStyle = style;
+	if (style & nzTextStyle_Bold && !m_data->SupportsStyle(nzTextStyle_Bold))
 	{
-		glyph.atlasRect.width = fontGlyph.image.GetWidth();
-		glyph.atlasRect.height = fontGlyph.image.GetHeight();
+		glyph.requireFauxBold = true;
+		supportedStyle &= ~nzTextStyle_Bold;
+	}
 
-		// Insertion du rectangle dans l'un des atlas
-		if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
+	if (style & nzTextStyle_Italic && !m_data->SupportsStyle(nzTextStyle_Italic))
+	{
+		glyph.requireFauxItalic = true;
+		supportedStyle &= ~nzTextStyle_Italic;
+	}
+
+	// Est-ce que la police supporte le style demandé ?
+	if (style == supportedStyle)
+	{
+		// On extrait le glyphe depuis la police
+		NzFontGlyph fontGlyph;
+		if (ExtractGlyph(characterSize, character, style, &fontGlyph))
 		{
-			// Padding (pour éviter le débordement lors du filtrage)
-			const unsigned int padding = 1; // Un pixel de contour
+			glyph.atlasRect.width = fontGlyph.image.GetWidth();
+			glyph.atlasRect.height = fontGlyph.image.GetHeight();
 
-			glyph.atlasRect.width += padding*2;
-			glyph.atlasRect.height += padding*2;
-
-			// Insertion du rectangle dans l'atlas virtuel
-			if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
+			// Insertion du rectangle dans l'un des atlas
+			if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
 			{
-				NazaraError("Failed to insert glyph into atlas");
-				return glyph;
+				// Padding (pour éviter le débordement lors du filtrage)
+				const unsigned int padding = 1; // Un pixel de contour
+
+				glyph.atlasRect.width += padding*2;
+				glyph.atlasRect.height += padding*2;
+
+				// Insertion du rectangle dans l'atlas virtuel
+				if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
+				{
+					NazaraError("Failed to insert glyph into atlas");
+					return glyph;
+				}
+
+				// Compensation du contour (centrage du glyphe)
+				glyph.atlasRect.x += padding;
+				glyph.atlasRect.y += padding;
+				glyph.atlasRect.width -= padding*2;
+				glyph.atlasRect.height -= padding*2;
 			}
 
-			// Compensation du contour (centrage du glyphe)
-			glyph.atlasRect.x += padding;
-			glyph.atlasRect.y += padding;
-			glyph.atlasRect.width -= padding*2;
-			glyph.atlasRect.height -= padding*2;
+			glyph.aabb = fontGlyph.aabb;
+			glyph.advance = fontGlyph.advance;
+			glyph.valid = true;
 		}
-
-		glyph.aabb = fontGlyph.aabb;
-		glyph.advance = fontGlyph.advance;
-		glyph.valid = true;
+		else
+		{
+			NazaraWarning("Failed to extract glyph \"" + NzString::Unicode(character) + "\"");
+		}
 	}
 	else
 	{
-		NazaraWarning("Failed to extract glyph \"" + NzString::Unicode(character) + "\"");
+		// La police ne supporte pas le style demandé, nous allons donc précharger le glyphe supportant le style "minimum" supporté
+		// et copier ses données
+		nzUInt64 newKey = ComputeKey(characterSize, supportedStyle);
+		const Glyph& referenceGlyph = PrecacheGlyph(m_glyphes[newKey], characterSize, supportedStyle, character);
+		if (referenceGlyph.valid)
+		{
+			glyph.aabb = referenceGlyph.aabb;
+			glyph.advance = referenceGlyph.advance;
+			glyph.atlasRect = referenceGlyph.atlasRect;
+			glyph.flipped = referenceGlyph.flipped;
+			glyph.layerIndex = referenceGlyph.layerIndex;
+			glyph.valid = true;
+		}
 	}
 
 	return glyph;
