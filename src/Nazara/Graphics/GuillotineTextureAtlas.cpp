@@ -12,8 +12,6 @@ bool NzGuillotineTextureAtlas::ResizeImage(Layer& layer, const NzVector2ui& size
 	NzTexture newTexture;
 	if (newTexture.Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1, 0xFF))
 	{
-		newTexture.EnableMipmapping(true);
-
 		if (layer.image)
 		{
 			NzTexture& texture = *static_cast<NzTexture*>(layer.image.get());
