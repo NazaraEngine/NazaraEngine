@@ -57,6 +57,7 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 		NzString GetFamilyName() const;
 		int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
 		const Glyph& GetGlyph(unsigned int characterSize, nzUInt32 style, char32_t character) const;
+		unsigned int GetGlyphBorder() const;
 		unsigned int GetMinimumStepSize() const;
 		const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
 		NzString GetStyleName() const;
@@ -72,6 +73,7 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 		bool OpenFromStream(NzInputStream& stream, const NzFontParams& params = NzFontParams());
 
 		void SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas);
+		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumSizeStep);
 
 		NzFont& operator=(NzFont&& font) = default;
@@ -114,6 +116,7 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 		mutable std::unordered_map<nzUInt64, std::unordered_map<nzUInt64, int>> m_kerningCache;
 		mutable std::unordered_map<nzUInt64, GlyphMap> m_glyphes;
 		mutable std::unordered_map<nzUInt64, SizeInfo> m_sizeInfoCache;
+		unsigned int m_glyphBorder;
 		unsigned int m_minimumSizeStep;
 
 		static NzFontLoader::LoaderList s_loaders;
