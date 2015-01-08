@@ -18,7 +18,7 @@ class NAZARA_API NzFontData
 		NzFontData() = default;
 		virtual ~NzFontData();
 
-		virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, bool bold, NzFontGlyph* dst) = 0;
+		virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* dst) = 0;
 
 		virtual NzString GetFamilyName() const = 0;
 		virtual NzString GetStyleName() const = 0;
@@ -31,6 +31,8 @@ class NAZARA_API NzFontData
 		virtual unsigned int QueryLineHeight(unsigned int characterSize) const = 0;
 		virtual float QueryUnderlinePosition(unsigned int characterSize) const = 0;
 		virtual float QueryUnderlineThickness(unsigned int characterSize) const = 0;
+
+		virtual bool SupportsStyle(nzUInt32 style) const = 0;
 };
 
 #endif // NAZARA_FONTDATA_HPP

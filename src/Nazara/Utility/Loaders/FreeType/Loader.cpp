@@ -75,7 +75,7 @@ namespace
 				return FT_Open_Face(s_library, &m_args, -1, nullptr) == 0;
 			}
 
-			bool ExtractGlyph(unsigned int characterSize, char32_t character, bool bold, NzFontGlyph* dst)
+			bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* dst) override
 			{
 				#ifdef NAZARA_DEBUG
 				if (!dst)
@@ -97,10 +97,16 @@ namespace
 
 				const FT_Pos boldStrength = 2 << 6;
 
-				bool outlineFormat = (glyph->format == FT_GLYPH_FORMAT_OUTLINE);
-				if (outlineFormat && bold)
+				bool embolden = (style & nzTextStyle_Bold);
+
+				dst->advance = (embolden) ? boldStrength >> 6 : 0;
+
+				if (embolden && glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+				{
 					// http://www.freetype.org/freetype2/docs/reference/ft2-outline_processing.html#FT_Outline_Embolden
 					FT_Outline_Embolden(&glyph->outline, boldStrength);
+					embolden = false;
+				}
 
 				// http://www.freetype.org/freetype2/docs/reference/ft2-glyph_management.html#FT_Glyph_To_Bitmap
 				// Conversion du glyphe vers le format bitmap
@@ -113,18 +119,16 @@ namespace
 
 				// Dans le cas où nous voulons des caractères gras mais que nous n'avons pas pu agir plus tôt
 				// nous demandons à FreeType d'agir directement sur le bitmap généré
-				if (!outlineFormat && bold)
+				if (embolden)
 				{
 					// http://www.freetype.org/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
 					// "If you want to embolden the bitmap owned by a FT_GlyphSlot_Rec, you should call FT_GlyphSlot_Own_Bitmap on the slot first"
 					FT_GlyphSlot_Own_Bitmap(glyph);
 					FT_Bitmap_Embolden(s_library, &glyph->bitmap, boldStrength, boldStrength);
+					embolden = false;
 				}
 
-				dst->advance = glyph->metrics.horiAdvance >> 6;
-				if (bold)
-					dst->advance += boldStrength >> 6;
-
+				dst->advance += glyph->metrics.horiAdvance >> 6;
 				dst->aabb.x = glyph->metrics.horiBearingX >> 6;
 				dst->aabb.y = -(glyph->metrics.horiBearingY >> 6); // Inversion du repère
 				dst->aabb.width = glyph->metrics.width >> 6;
@@ -177,22 +181,22 @@ namespace
 				return true;
 			}
 
-			NzString GetFamilyName() const
+			NzString GetFamilyName() const override
 			{
 				return m_face->family_name;
 			}
 
-			NzString GetStyleName() const
+			NzString GetStyleName() const override
 			{
 				return m_face->style_name;
 			}
 
-			bool HasKerning() const
+			bool HasKerning() const override
 			{
 				return FT_HAS_KERNING(m_face);
 			}
 
-			bool IsScalable() const
+			bool IsScalable() const override
 			{
 				return FT_IS_SCALABLE(m_face);
 			}
@@ -202,7 +206,7 @@ namespace
 				return FT_Open_Face(s_library, &m_args, 0, &m_face) == 0;
 			}
 
-			int QueryKerning(unsigned int characterSize, char32_t first, char32_t second) const
+			int QueryKerning(unsigned int characterSize, char32_t first, char32_t second) const override
 			{
 				if (FT_HAS_KERNING(m_face))
 				{
@@ -220,7 +224,7 @@ namespace
 					return 0;
 			}
 
-			unsigned int QueryLineHeight(unsigned int characterSize) const
+			unsigned int QueryLineHeight(unsigned int characterSize) const override
 			{
 				SetCharacterSize(characterSize);
 
@@ -228,7 +232,7 @@ namespace
 				return m_face->size->metrics.height >> 6;
 			}
 
-			float QueryUnderlinePosition(unsigned int characterSize) const
+			float QueryUnderlinePosition(unsigned int characterSize) const override
 			{
 				if (FT_IS_SCALABLE(m_face))
 				{
@@ -241,7 +245,7 @@ namespace
 					return characterSize / 10.f; // Joker ?
 			}
 
-			float QueryUnderlineThickness(unsigned int characterSize) const
+			float QueryUnderlineThickness(unsigned int characterSize) const override
 			{
 				if (FT_IS_SCALABLE(m_face))
 				{
@@ -280,6 +284,12 @@ namespace
 				m_args.stream = &m_stream;
 			}
 
+			bool SupportsStyle(nzUInt32 style) const override
+			{
+				///TODO
+				return style == nzTextStyle_None || style == nzTextStyle_Bold;
+			}
+
 		private:
 			void SetCharacterSize(unsigned int characterSize) const
 			{
@@ -299,7 +309,7 @@ namespace
 
 	bool IsSupported(const NzString& extension)
 	{
-		///FIXME: Je suppose qu'il en manque quelques uns..
+		///FIXME: Je suppose qu'il en manque quelques unes..
 		static std::set<NzString> supportedExtensions = {
 			"afm", "bdf", "cff", "cid", "dfont", "fnt", "pfa", "pfb", "pfm", "pfr", "sfnt", "tte", "ttf"
 		};
