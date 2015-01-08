@@ -14,6 +14,7 @@ bool NzFontParams::IsValid() const
 }
 
 NzFont::NzFont() :
+m_glyphBorder(1),
 m_minimumSizeStep(1)
 {
 }
@@ -170,6 +171,11 @@ const NzFont::Glyph& NzFont::GetGlyph(unsigned int characterSize, nzUInt32 style
 	return PrecacheGlyph(m_glyphes[key], characterSize, style, character);
 }
 
+unsigned int NzFont::GetGlyphBorder() const
+{
+	return m_glyphBorder;
+}
+
 unsigned int NzFont::GetMinimumStepSize() const
 {
 	return m_minimumSizeStep;
@@ -265,6 +271,12 @@ void NzFont::SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas)
 	m_atlas = atlas;
 }
 
+void NzFont::SetGlyphBorder(unsigned int borderSize)
+{
+	m_glyphBorder = borderSize;
+	ClearGlyphCache();
+}
+
 void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -339,11 +351,9 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 			// Insertion du rectangle dans l'un des atlas
 			if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
 			{
-				// Padding (pour éviter le débordement lors du filtrage)
-				const unsigned int padding = 1; // Un pixel de contour
-
-				glyph.atlasRect.width += padding*2;
-				glyph.atlasRect.height += padding*2;
+				// Bordure (pour éviter le débordement lors du filtrage)
+				glyph.atlasRect.width += m_glyphBorder*2;
+				glyph.atlasRect.height += m_glyphBorder*2;
 
 				// Insertion du rectangle dans l'atlas virtuel
 				if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
@@ -352,11 +362,11 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 					return glyph;
 				}
 
-				// Compensation du contour (centrage du glyphe)
-				glyph.atlasRect.x += padding;
-				glyph.atlasRect.y += padding;
-				glyph.atlasRect.width -= padding*2;
-				glyph.atlasRect.height -= padding*2;
+				// Compensation de la bordure (centrage du glyphe)
+				glyph.atlasRect.x += m_glyphBorder;
+				glyph.atlasRect.y += m_glyphBorder;
+				glyph.atlasRect.width -= m_glyphBorder*2;
+				glyph.atlasRect.height -= m_glyphBorder*2;
 			}
 
 			glyph.aabb = fontGlyph.aabb;
