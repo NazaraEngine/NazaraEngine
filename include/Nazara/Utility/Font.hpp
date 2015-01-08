@@ -87,6 +87,8 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 		{
 			NzRecti aabb;
 			NzRectui atlasRect;
+			bool requireFauxBold;
+			bool requireFauxItalic;
 			bool flipped;
 			bool valid;
 			int advance;
@@ -105,7 +107,7 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 
 		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
 		void OnAtlasCleared();
-		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, bool bold, char32_t character) const;
+		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
 		std::shared_ptr<NzAbstractFontAtlas> m_atlas;
 		std::unique_ptr<NzFontData> m_data;
