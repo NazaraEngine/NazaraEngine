@@ -53,22 +53,8 @@ m_vertices(sprite.m_vertices),
 m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
 m_verticesUpdated(sprite.m_verticesUpdated)
 {
-	SetParent(sprite);
+	SetParent(sprite.GetParent());
 }
-
-NzSprite::NzSprite(NzSprite&& sprite) :
-NzSceneNode(sprite),
-m_boundingVolume(sprite.m_boundingVolume),
-m_material(std::move(sprite.m_material)),
-m_textureCoords(sprite.m_textureCoords),
-m_size(sprite.m_size),
-m_vertices(sprite.m_vertices),
-m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
-m_verticesUpdated(sprite.m_verticesUpdated)
-{
-}
-
-NzSprite::~NzSprite() = default;
 
 void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
@@ -187,6 +173,22 @@ void NzSprite::SetTextureRect(const NzRectui& rect)
 	float invHeight = 1.f/diffuseMap->GetHeight();
 
 	SetTextureCoords(NzRectf(invWidth*rect.x, invHeight*rect.y, invWidth*rect.width, invHeight*rect.height));
+}
+
+NzSprite& NzSprite::operator=(const NzSprite& sprite)
+{
+	NzSceneNode::operator=(sprite);
+
+	m_color = sprite.m_color;
+	m_material = sprite.m_material;
+	m_textureCoords = sprite.m_textureCoords;
+	m_size = sprite.m_size;
+
+	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
+	m_boundingVolumeUpdated = false;
+	m_verticesUpdated = false;
+
+	return *this;
 }
 
 void NzSprite::InvalidateNode()

@@ -21,6 +21,7 @@ class NAZARA_API NzSceneNode : public NzNode
 	public:
 		NzSceneNode();
 		NzSceneNode(const NzSceneNode& sceneNode);
+		NzSceneNode(NzSceneNode& sceneNode) = delete;
 		virtual ~NzSceneNode();
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;
@@ -43,7 +44,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		bool IsVisible() const;
 
 		NzSceneNode& operator=(const NzSceneNode& sceneNode);
-		NzSceneNode& operator=(NzSceneNode&& sceneNode);
+		NzSceneNode& operator=(NzSceneNode&& sceneNode) = delete;
 
 	protected:
 		virtual bool FrustumCull(const NzFrustumf& frustum) const;
