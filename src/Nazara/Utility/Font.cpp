@@ -22,6 +22,7 @@ m_minimumSizeStep(1)
 NzFont::~NzFont()
 {
 	Destroy();
+	SetAtlas(nullptr); // On libère l'atlas par la même occasion
 }
 
 void NzFont::ClearGlyphCache()
@@ -351,6 +352,28 @@ bool NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 	// Notre atlas vient d'être vidé, détruisons le cache de glyphe
 	m_glyphes.clear();
 	NotifyModified(ModificationCode_GlyphCacheCleared);
+
+	return true;
+}
+
+bool NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata)
+{
+	NazaraUnused(atlas);
+	NazaraUnused(oldLayer);
+	NazaraUnused(newLayer);
+	NazaraUnused(userdata);
+
+	#ifdef NAZARA_DEBUG
+	// Est-ce qu'il s'agit bien de notre atlas ?
+	if (m_atlas.get() != atlas)
+	{
+		NazaraInternalError("Notified by a non-listening-to resource");
+		return false; // On ne veut plus être notifié par cette ressource, évidemment
+	}
+	#endif
+
+	// Pour faciliter le travail des ressources qui nous écoutent
+	NotifyModified(ModificationCode_AtlasLayerChanged);
 
 	return true;
 }
