@@ -60,12 +60,6 @@ NzTexture::NzTexture(const NzImage& image)
 	LoadFromImage(image);
 }
 
-NzTexture::NzTexture(NzTexture&& texture) :
-m_impl(texture.m_impl)
-{
-	texture.m_impl = nullptr;
-}
-
 NzTexture::~NzTexture()
 {
 	Destroy();
@@ -475,6 +469,19 @@ bool NzTexture::HasMipmaps() const
 	#endif
 
 	return m_impl->levelCount > 1;
+}
+
+void NzTexture::InvalidateMipmaps()
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraInternalError("Texture must be valid");
+		return;
+	}
+	#endif
+
+	m_impl->mipmapsUpdated = false;
 }
 
 bool NzTexture::IsValid() const
@@ -1031,16 +1038,6 @@ unsigned int NzTexture::GetOpenGLID() const
 	return m_impl->id;
 }
 
-NzTexture& NzTexture::operator=(NzTexture&& texture)
-{
-	Destroy();
-
-	m_impl = texture.m_impl;
-	texture.m_impl = nullptr;
-
-	return *this;
-}
-
 unsigned int NzTexture::GetValidSize(unsigned int size)
 {
 	if (NzRenderer::HasCapability(nzRendererCap_TextureNPOT))
@@ -1276,17 +1273,4 @@ bool NzTexture::CreateTexture(bool proxy)
 	}
 
 	return true;
-}
-
-void NzTexture::InvalidateMipmaps()
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraInternalError("Texture must be valid");
-		return;
-	}
-	#endif
-
-	m_impl->mipmapsUpdated = false;
 }

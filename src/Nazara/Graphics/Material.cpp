@@ -34,11 +34,6 @@ NzResource()
 	Copy(material);
 }
 
-NzMaterial::NzMaterial(NzMaterial&& material)
-{
-	Move(material);
-}
-
 NzMaterial::~NzMaterial()
 {
 	NotifyDestroy();
@@ -613,13 +608,6 @@ NzMaterial& NzMaterial::operator=(const NzMaterial& material)
 	return *this;
 }
 
-NzMaterial& NzMaterial::operator=(NzMaterial&& material)
-{
-	Move(material);
-
-	return *this;
-}
-
 NzMaterial* NzMaterial::GetDefault()
 {
 	return s_defaultMaterial;
@@ -650,36 +638,6 @@ void NzMaterial::Copy(const NzMaterial& material)
 
 	// Copie de la référence vers l'Über-Shader
 	m_uberShader = material.m_uberShader;
-
-	// On copie les instances de shader par la même occasion
-	std::memcpy(&m_shaders[0], &material.m_shaders[0], (nzShaderFlags_Max+1)*sizeof(ShaderInstance));
-}
-
-void NzMaterial::Move(NzMaterial&& material)
-{
-	// Copie des états de base
-	m_alphaTestEnabled = material.m_alphaTestEnabled;
-	m_alphaThreshold = material.m_alphaThreshold;
-	m_ambientColor = material.m_ambientColor;
-	m_diffuseColor = material.m_diffuseColor;
-	m_diffuseSampler = material.m_diffuseSampler;
-	m_lightingEnabled = material.m_lightingEnabled;
-	m_shininess = material.m_shininess;
-	m_specularColor = material.m_specularColor;
-	m_specularSampler = material.m_specularSampler;
-	m_states = material.m_states;
-	m_transformEnabled = material.m_transformEnabled;
-
-	// Vol des références de texture
-	m_alphaMap = std::move(material.m_alphaMap);
-	m_diffuseMap = std::move(material.m_diffuseMap);
-	m_emissiveMap = std::move(material.m_emissiveMap);
-	m_heightMap = std::move(material.m_heightMap);
-	m_normalMap = std::move(material.m_normalMap);
-	m_specularMap = std::move(material.m_specularMap);
-
-	// Vol de la référence vers l'Über-Shader
-	m_uberShader = std::move(material.m_uberShader);
 
 	// On copie les instances de shader par la même occasion
 	std::memcpy(&m_shaders[0], &material.m_shaders[0], (nzShaderFlags_Max+1)*sizeof(ShaderInstance));
