@@ -35,8 +35,8 @@ m_skinCount(1)
 NzModel::NzModel(const NzModel& model) :
 NzSceneNode(model),
 m_materials(model.m_materials),
-m_mesh(model.m_mesh),
 m_boundingVolume(model.m_boundingVolume),
+m_mesh(model.m_mesh),
 m_boundingVolumeUpdated(model.m_boundingVolumeUpdated),
 m_matCount(model.m_matCount),
 m_skin(model.m_skin),
