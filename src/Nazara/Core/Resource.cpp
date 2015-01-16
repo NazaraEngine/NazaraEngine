@@ -5,7 +5,6 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ResourceConstListener.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_RESOURCE
@@ -35,19 +34,6 @@ NzResource::~NzResource()
 	#endif
 }
 
-void NzResource::AddResourceConstListener(const NzResourceConstListener* listener, int index) const
-{
-	///DOC: Est ignoré si appelé depuis un évènement
-	NazaraLock(m_mutex)
-
-	if (!m_resourceListenersLocked)
-	{
-		auto pair = m_resourceConstListeners.insert(std::make_pair(listener, std::make_pair(index, 1U)));
-		if (!pair.second)
-			pair.first->second.second++;
-	}
-}
-
 void NzResource::AddResourceListener(NzResourceListener* listener, int index) const
 {
 	///DOC: Est ignoré si appelé depuis un évènement
@@ -74,19 +60,6 @@ unsigned int NzResource::GetResourceReferenceCount() const
 bool NzResource::IsPersistent() const
 {
 	return m_resourcePersistent;
-}
-
-void NzResource::RemoveResourceConstListener(const NzResourceConstListener* listener) const
-{
-	///DOC: Est ignoré si appelé depuis un évènement
-	NazaraLock(m_mutex);
-
-	if (!m_resourceListenersLocked)
-	{
-		ResourceConstListenerMap::iterator it = m_resourceConstListeners.find(listener);
-		if (it != m_resourceConstListeners.end())
-			RemoveResourceConstListenerIterator(it);
-	}
 }
 
 void NzResource::RemoveResourceListener(NzResourceListener* listener) const
@@ -142,15 +115,6 @@ void NzResource::NotifyCreated()
 
 	m_resourceListenersLocked = true;
 
-	auto constIt = m_resourceConstListeners.begin();
-	while (constIt != m_resourceConstListeners.end())
-	{
-		if (!constIt->first->OnResourceCreated(this, constIt->second.first))
-			RemoveResourceConstListenerIterator(constIt++);
-		else
-			++constIt;
-	}
-
 	auto it = m_resourceListeners.begin();
 	while (it != m_resourceListeners.end())
 	{
@@ -168,15 +132,6 @@ void NzResource::NotifyDestroy()
 	NazaraLock(m_mutex)
 
 	m_resourceListenersLocked = true;
-
-	auto constIt = m_resourceConstListeners.begin();
-	while (constIt != m_resourceConstListeners.end())
-	{
-		if (!constIt->first->OnResourceDestroy(this, constIt->second.first))
-			RemoveResourceConstListenerIterator(constIt++);
-		else
-			++constIt;
-	}
 
 	auto it = m_resourceListeners.begin();
 	while (it != m_resourceListeners.end())
@@ -196,15 +151,6 @@ void NzResource::NotifyModified(unsigned int code)
 
 	m_resourceListenersLocked = true;
 
-	auto constIt = m_resourceConstListeners.begin();
-	while (constIt != m_resourceConstListeners.end())
-	{
-		if (!constIt->first->OnResourceModified(this, constIt->second.first, code))
-			RemoveResourceConstListenerIterator(constIt++);
-		else
-			++constIt;
-	}
-
 	auto it = m_resourceListeners.begin();
 	while (it != m_resourceListeners.end())
 	{
@@ -215,15 +161,6 @@ void NzResource::NotifyModified(unsigned int code)
 	}
 
 	m_resourceListenersLocked = false;
-}
-
-void NzResource::RemoveResourceConstListenerIterator(ResourceConstListenerMap::iterator iterator) const
-{
-	unsigned int& referenceCount = iterator->second.second;
-	if (referenceCount == 1)
-		m_resourceConstListeners.erase(iterator);
-	else
-		referenceCount--;
 }
 
 void NzResource::RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const
