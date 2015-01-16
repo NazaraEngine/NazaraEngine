@@ -25,22 +25,22 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 	friend class NzUtility;
 
 	public:
-		using BufferFunction = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
+		using BufferFactory = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
 
 		NzBuffer(nzBufferType type);
-		NzBuffer(nzBufferType type, unsigned int size, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		~NzBuffer();
 
 		bool CopyContent(const NzBuffer& buffer);
 
-		bool Create(unsigned int size, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		bool Create(unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Destroy();
 
 		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
 
 		NzAbstractBuffer* GetImpl() const;
 		unsigned int GetSize() const;
-		nzBufferStorage GetStorage() const;
+		nzUInt32 GetStorage() const;
 		nzBufferType GetType() const;
 		nzBufferUsage GetUsage() const;
 
@@ -50,24 +50,24 @@ class NAZARA_API NzBuffer : public NzResource, NzNonCopyable
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
 		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
-		bool SetStorage(nzBufferStorage storage);
+		bool SetStorage(nzUInt32 storage);
 
 		void Unmap() const;
 
-		static bool IsSupported(nzBufferStorage storage);
-		static void SetBufferFunction(nzBufferStorage storage, BufferFunction func);
+		static bool IsStorageSupported(nzUInt32 storage);
+		static void SetBufferFactory(nzUInt32 storage, BufferFactory func);
 
 	private:
 		static bool Initialize();
 		static void Uninitialize();
 
-		nzBufferStorage m_storage;
 		nzBufferType m_type;
 		nzBufferUsage m_usage;
+		nzUInt32 m_storage;
 		NzAbstractBuffer* m_impl;
 		unsigned int m_size;
 
-		static BufferFunction s_bufferFunctions[nzBufferStorage_Max+1];
+		static BufferFactory s_bufferFactories[nzDataStorage_Max+1];
 };
 
 #endif // NAZARA_BUFFER_HPP

@@ -69,6 +69,7 @@ class NAZARA_API NzOpenGL
 			GLenum dataFormat;
 			GLenum dataType;
 			GLint internalFormat;
+			GLint swizzle[4];
 		};
 
 		NzOpenGL() = delete;

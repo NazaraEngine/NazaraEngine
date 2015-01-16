@@ -41,9 +41,15 @@ class NAZARA_API NzScene
 
 		NzColor GetAmbientColor() const;
 		NzAbstractBackground* GetBackground() const;
+		NzVector3f GetBackward() const;
+		NzVector3f GetDown() const;
+		NzVector3f GetForward() const;
+		NzVector3f GetLeft() const;
 		NzAbstractRenderTechnique* GetRenderTechnique() const;
+		NzVector3f GetRight() const;
 		NzSceneNode& GetRoot() const;
 		NzAbstractViewer* GetViewer() const;
+		NzVector3f GetUp() const;
 		float GetUpdateTime() const;
 		unsigned int GetUpdatePerSecond() const;
 

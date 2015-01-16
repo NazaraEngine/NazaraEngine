@@ -37,7 +37,7 @@ class NzFrustum
 		NzFrustum& Extract(const NzMatrix4<T>& clipMatrix);
 		NzFrustum& Extract(const NzMatrix4<T>& view, const NzMatrix4<T>& projection);
 
-		const NzVector3<T>& GetCorner(nzCorner corner) const;
+		const NzVector3<T>& GetCorner(nzBoxCorner corner) const;
 		const NzPlane<T>& GetPlane(nzFrustumPlane plane) const;
 
 		nzIntersectionSide Intersect(const NzBoundingVolume<T>& volume) const;
@@ -52,7 +52,7 @@ class NzFrustum
 		NzString ToString() const;
 
 	private:
-		NzVector3<T> m_corners[nzCorner_Max+1];
+		NzVector3<T> m_corners[nzBoxCorner_Max+1];
 		NzPlane<T> m_planes[nzFrustumPlane_Max+1];
 };
 

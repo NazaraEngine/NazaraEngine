@@ -24,26 +24,26 @@ class NAZARA_API NzNode
 		void EnsureDerivedUpdate() const;
 		void EnsureTransformMatrixUpdate() const;
 
-		NzVector3f GetBackward() const;
+		virtual NzVector3f GetBackward() const;
 		const std::vector<NzNode*>& GetChilds() const;
-		NzVector3f GetDown() const;
-		NzVector3f GetForward() const;
+		virtual NzVector3f GetDown() const;
+		virtual NzVector3f GetForward() const;
 		bool GetInheritPosition() const;
 		bool GetInheritRotation() const;
 		bool GetInheritScale() const;
 		NzVector3f GetInitialPosition() const;
 		NzQuaternionf GetInitialRotation() const;
 		NzVector3f GetInitialScale() const;
-		NzVector3f GetLeft() const;
+		virtual NzVector3f GetLeft() const;
 		const NzString& GetName() const;
 		virtual nzNodeType GetNodeType() const;
 		const NzNode* GetParent() const;
 		NzVector3f GetPosition(nzCoordSys coordSys = nzCoordSys_Global) const;
-		NzVector3f GetRight() const;
+		virtual NzVector3f GetRight() const;
 		NzQuaternionf GetRotation(nzCoordSys coordSys = nzCoordSys_Global) const;
 		NzVector3f GetScale(nzCoordSys coordSys = nzCoordSys_Global) const;
 		const NzMatrix4f& GetTransformMatrix() const;
-		NzVector3f GetUp() const;
+		virtual NzVector3f GetUp() const;
 
 		bool HasChilds() const;
 
@@ -95,7 +95,7 @@ class NAZARA_API NzNode
 		virtual void InvalidateNode();
 		virtual void OnParenting(const NzNode* parent);
 		void RemoveChild(NzNode* node) const;
-		void UpdateDerived() const;
+		virtual void UpdateDerived() const;
 		virtual void UpdateTransformMatrix() const;
 
 		mutable std::vector<NzNode*> m_childs;

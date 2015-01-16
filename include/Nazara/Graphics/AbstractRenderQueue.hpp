@@ -12,11 +12,13 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
 
 class NzDrawable;
 class NzLight;
 class NzMaterial;
 class NzSprite;
+class NzTexture;
 struct NzMeshData;
 
 class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
@@ -28,7 +30,7 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddDrawable(const NzDrawable* drawable) = 0;
 		virtual void AddLight(const NzLight* light) = 0;
 		virtual void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) = 0;
-		virtual void AddSprite(const NzSprite* sprite) = 0;
+		virtual void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) = 0;
 
 		virtual void Clear(bool fully) = 0;
 };

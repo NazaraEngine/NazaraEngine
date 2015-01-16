@@ -174,7 +174,7 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
 	{
 		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer);
 		vertexBuffer->SetPersistent(false);
-		vertexBuffer->Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+		vertexBuffer->Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 
 		BufferData data({vertexBuffer.get(), true});
 		meshMap.insert(std::make_pair(mesh, data));

@@ -24,7 +24,7 @@ m_zNear(-1.f)
 NzView::NzView(const NzVector2f& size) :
 NzView() // On délègue
 {
-	m_size = size;
+	SetSize(size);
 }
 
 NzView::~NzView()
@@ -80,6 +80,21 @@ const NzFrustumf& NzView::GetFrustum() const
 	return m_frustum;
 }
 
+NzVector3f NzView::GetGlobalForward() const
+{
+	return NzVector3f::UnitZ();
+}
+
+NzVector3f NzView::GetGlobalRight() const
+{
+	return NzVector3f::UnitX();
+}
+
+NzVector3f NzView::GetGlobalUp() const
+{
+	return -NzVector3f::UnitY();
+}
+
 const NzMatrix4f& NzView::GetProjectionMatrix() const
 {
 	if (!m_projectionMatrixUpdated)
@@ -130,6 +145,17 @@ float NzView::GetZFar() const
 float NzView::GetZNear() const
 {
 	return m_zNear;
+}
+
+void NzView::SetSize(const NzVector2f& size)
+{
+	SetSize(size.x, size.y);
+}
+
+void NzView::SetSize(float width, float height)
+{
+	m_size.Set(width, height);
+	m_projectionMatrixUpdated = false;
 }
 
 void NzView::SetTarget(const NzRenderTarget* renderTarget)

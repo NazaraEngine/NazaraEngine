@@ -21,23 +21,30 @@ class NAZARA_API NzSceneNode : public NzNode
 	public:
 		NzSceneNode();
 		NzSceneNode(const NzSceneNode& sceneNode);
+		NzSceneNode(NzSceneNode& sceneNode) = delete;
 		virtual ~NzSceneNode();
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;
 
 		void EnableDrawing(bool drawingEnabled);
 
+		NzVector3f GetBackward() const;
 		virtual const NzBoundingVolumef& GetBoundingVolume() const = 0;
+		NzVector3f GetDown() const;
+		NzVector3f GetForward() const;
+		NzVector3f GetLeft() const;
 		nzNodeType GetNodeType() const final;
+		NzVector3f GetRight() const;
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
+		NzVector3f GetUp() const;
 
 		virtual bool IsDrawable() const = 0;
 		bool IsDrawingEnabled() const;
 		bool IsVisible() const;
 
 		NzSceneNode& operator=(const NzSceneNode& sceneNode);
-		NzSceneNode& operator=(NzSceneNode&& sceneNode);
+		NzSceneNode& operator=(NzSceneNode&& sceneNode) = delete;
 
 	protected:
 		virtual bool FrustumCull(const NzFrustumf& frustum) const;
