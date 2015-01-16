@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTFONTATLAS_HPP
-#define NAZARA_ABSTRACTFONTATLAS_HPP
+#ifndef NAZARA_ABSTRACTATLAS_HPP
+#define NAZARA_ABSTRACTATLAS_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
@@ -15,13 +15,13 @@
 class NzAbstractImage;
 class NzImage;
 
-class NAZARA_API NzAbstractFontAtlas
+class NAZARA_API NzAbstractAtlas
 {
 	public:
 		class Listener;
 
-		NzAbstractFontAtlas();
-		virtual ~NzAbstractFontAtlas();
+		NzAbstractAtlas();
+		virtual ~NzAbstractAtlas();
 
 		void AddListener(Listener* font, void* userdata = nullptr) const;
 
@@ -39,8 +39,8 @@ class NAZARA_API NzAbstractFontAtlas
 				Listener() = default;
 				virtual ~Listener();
 
-				virtual bool OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata);
-				virtual void OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata);
+				virtual bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata);
+				virtual void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata);
 		};
 
 	protected:
@@ -51,4 +51,4 @@ class NAZARA_API NzAbstractFontAtlas
 		bool m_listenersLocked;
 };
 
-#endif // NAZARA_ABSTRACTFONTATLAS_HPP
+#endif // NAZARA_ABSTRACTATLAS_HPP
