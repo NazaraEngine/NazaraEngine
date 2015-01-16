@@ -1,4 +1,4 @@
-// This file was automatically generated on 11 Jul 2014 at 10:21:52
+// This file was automatically generated on 17 Jan 2015 at 00:38:08
 
 /*
 	Nazara Engine - Graphics module
@@ -52,6 +52,7 @@
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightManager.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -61,9 +62,11 @@
 #include <Nazara/Graphics/SceneLayer.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
+#include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
 #include <Nazara/Graphics/View.hpp>
 
