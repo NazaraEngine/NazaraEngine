@@ -29,7 +29,7 @@ using NzFontConstRef = NzResourceRef<const NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzResourceRef<NzFont>;
 
-class NAZARA_API NzFont : public NzResource, NzNonCopyable
+class NAZARA_API NzFont : public NzResource, NzAbstractFontAtlas::Listener, NzNonCopyable
 {
 	friend NzAbstractFontAtlas;
 	friend NzFontLoader;
@@ -108,7 +108,8 @@ class NAZARA_API NzFont : public NzResource, NzNonCopyable
 		using GlyphMap = std::unordered_map<char32_t, Glyph>;
 
 		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
-		void OnAtlasCleared();
+		bool OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata) override;
+		void OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata) override;
 		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
 		std::shared_ptr<NzAbstractFontAtlas> m_atlas;

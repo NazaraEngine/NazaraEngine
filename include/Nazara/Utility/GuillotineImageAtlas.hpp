@@ -13,7 +13,6 @@
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <memory>
-#include <set>
 #include <vector>
 
 class NAZARA_API NzGuillotineImageAtlas : public NzAbstractFontAtlas
@@ -59,7 +58,6 @@ class NAZARA_API NzGuillotineImageAtlas : public NzAbstractFontAtlas
 	private:
 		void ProcessGlyphQueue(Layer& layer) const;
 
-		std::set<NzFont*> m_fonts;
 		mutable std::vector<Layer> m_layers;
 		NzGuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
 		NzGuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
