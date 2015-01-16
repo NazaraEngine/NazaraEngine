@@ -75,8 +75,6 @@ unsigned int NzGuillotineImageAtlas::GetLayerCount() const
 
 bool NzGuillotineImageAtlas::Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex)
 {
-	unsigned int maxAtlasSize = GetMaxAtlasSize();
-
 	if (m_layers.empty())
 	{
 		// On créé une première couche s'il n'y en a pas
@@ -112,30 +110,39 @@ bool NzGuillotineImageAtlas::Insert(const NzImage& image, NzRectui* rect, bool* 
 		else if (i == m_layers.size() - 1) // Dernière itération ?
 		{
 			// Dernière couche, et le glyphe ne rentre pas, peut-on agrandir la taille de l'image ?
-			unsigned int size = layer.binPack.GetWidth(); // l'image étant carrée, on ne teste qu'une dimension
-			if (size < maxAtlasSize)
+			NzVector2ui newSize = layer.binPack.GetSize()*2;
+			if (ResizeLayer(layer, newSize))
 			{
-				// On peut encore agrandir la couche
-				size = std::min(size*2, maxAtlasSize);
-				layer.binPack.Expand(size, size);
+				// Oui on peut !
+				layer.binPack.Expand(newSize); // On ajuste l'atlas virtuel
 
-				// On relance la boucle sur la nouvelle dernière couche
+				// Et on relance la boucle sur la nouvelle dernière couche
 				i--;
 			}
 			else
 			{
 				// On ne peut plus agrandir la dernière couche, il est temps d'en créer une nouvelle
-				m_layers.resize(m_layers.size() + 1);
-				Layer& newLayer = m_layers.back();
+				newSize.Set(s_atlasStartSize);
 
-				newLayer.binPack.Reset(s_atlasStartSize, s_atlasStartSize);
+				Layer newLayer;
+				if (!ResizeLayer(newLayer, newSize))
+				{
+					// Impossible d'allouer une nouvelle couche, nous manquons probablement de mémoire (ou le glyphe est trop grand)
+					NazaraError("Failed to allocate new layer, we are probably out of memory");
+					return false;
+				}
+
+				newLayer.binPack.Reset(newSize);
+
+				m_layers.emplace_back(std::move(newLayer)); // Insertion du layer
 
 				// On laisse la boucle insérer toute seule le rectangle à la prochaine itération
 			}
 		}
 	}
 
-	return false; // Normalement impossible
+	NazaraInternalError("Unknown error"); // Normalement on ne peut pas arriver ici
+	return false;
 }
 
 void NzGuillotineImageAtlas::SetRectChoiceHeuristic(NzGuillotineBinPack::FreeRectChoiceHeuristic heuristic)
@@ -148,20 +155,45 @@ void NzGuillotineImageAtlas::SetRectSplitHeuristic(NzGuillotineBinPack::Guilloti
 	m_rectSplitHeuristic = heuristic;
 }
 
-unsigned int NzGuillotineImageAtlas::GetMaxAtlasSize() const
+NzAbstractImage* NzGuillotineImageAtlas::ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const
 {
-	return 8192; // Valeur totalement arbitraire
+	std::unique_ptr<NzImage> newImage(new NzImage(nzImageType_2D, nzPixelFormat_A8, size.x, size.y));
+	if (oldImage)
+	{
+		NzImage& image = *static_cast<NzImage*>(oldImage);
+		newImage->Copy(image, NzRectui(size), NzVector2ui(0, 0)); // Copie des anciennes données
+	}
+
+	return newImage.release();
+}
+
+bool NzGuillotineImageAtlas::ResizeLayer(Layer& layer, const NzVector2ui& size)
+{
+	NzAbstractImage* oldLayer = layer.image.get();
+
+	std::unique_ptr<NzAbstractImage> newImage(ResizeImage(layer.image.get(), size));
+	if (!newImage)
+		return false; // Nous n'avons pas pu allouer
+
+	if (newImage.get() == oldLayer) // Le layer a été agrandi dans le même objet, pas de souci
+	{
+		newImage.release(); // On possède déjà un unique_ptr sur cette ressource
+		return true;
+	}
+
+	// On indique à ceux que ça intéresse qu'on a changé de pointeur
+	// (chose très importante pour ceux qui le stockent)
+	NotifyLayerChange(layer.image.get(), newImage.get());
+
+	// Et on ne met à jour le pointeur qu'après (car cette ligne libère également l'ancienne image)
+	layer.image = std::move(newImage);
+
+	return true;
 }
 
 void NzGuillotineImageAtlas::ProcessGlyphQueue(Layer& layer) const
 {
 	std::vector<nzUInt8> pixelBuffer;
-
-	// On s'assure que l'image est de la bonne taille
-	NzVector2ui binPackSize(layer.binPack.GetSize());
-	NzVector2ui imageSize((layer.image) ? layer.image->GetSize() : NzVector3ui(0U));
-	if (binPackSize != imageSize)
-		ResizeImage(layer, binPackSize);
 
 	for (QueuedGlyph& glyph : layer.queuedGlyphs)
 	{
@@ -225,20 +257,4 @@ void NzGuillotineImageAtlas::ProcessGlyphQueue(Layer& layer) const
 	}
 
 	layer.queuedGlyphs.clear();
-}
-
-bool NzGuillotineImageAtlas::ResizeImage(Layer& layer, const NzVector2ui& size) const
-{
-	NzImage newImage(nzImageType_2D, nzPixelFormat_A8, size.x, size.y);
-	if (layer.image)
-	{
-		NzImage& image = *static_cast<NzImage*>(layer.image.get());
-		newImage.Copy(image, NzRectui(size), NzVector2ui(0, 0)); // Copie des anciennes données
-
-		image = std::move(newImage);
-	}
-	else
-		layer.image.reset(new NzImage(std::move(newImage)));
-
-	return true;
 }

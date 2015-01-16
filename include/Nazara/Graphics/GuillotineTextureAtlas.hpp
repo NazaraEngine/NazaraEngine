@@ -17,8 +17,7 @@ class NAZARA_API NzGuillotineTextureAtlas : public NzGuillotineImageAtlas
 		~NzGuillotineTextureAtlas() = default;
 
 	private:
-		unsigned int GetMaxAtlasSize() const override;
-		bool ResizeImage(Layer& layer, const NzVector2ui& size) const override;
+		NzAbstractImage* ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const override;
 };
 
 #endif // NAZARA_GUILLOTINETEXTUREATLAS_HPP
