@@ -71,10 +71,11 @@ enum nzRenderTechniqueType
 
 enum nzSceneNodeType
 {
-	nzSceneNodeType_Light,  // NzLight
-	nzSceneNodeType_Model,  // NzModel
-	nzSceneNodeType_Root,   // NzSceneRoot
-	nzSceneNodeType_Sprite, // NzSprite
+	nzSceneNodeType_Light,      // NzLight
+	nzSceneNodeType_Model,      // NzModel
+	nzSceneNodeType_Root,       // NzSceneRoot
+	nzSceneNodeType_Sprite,     // NzSprite
+	nzSceneNodeType_TextSprite, // NzTextSprite
 	nzSceneNodeType_User,
 
 	nzSceneNodeType_Max = nzSceneNodeType_User
