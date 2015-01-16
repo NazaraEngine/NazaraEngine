@@ -36,7 +36,6 @@ class NAZARA_API NzModel : public NzSceneNode
 	public:
 		NzModel();
 		NzModel(const NzModel& model);
-		NzModel(NzModel&& model);
 		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
@@ -83,7 +82,6 @@ class NAZARA_API NzModel : public NzSceneNode
 		void SetSkinCount(unsigned int skinCount);
 
 		NzModel& operator=(const NzModel& node);
-		NzModel& operator=(NzModel&& node);
 
 	protected:
 		void InvalidateNode() override;

@@ -140,17 +140,6 @@ NzSceneNode& NzSceneNode::operator=(const NzSceneNode& sceneNode)
 	return *this;
 }
 
-NzSceneNode& NzSceneNode::operator=(NzSceneNode&& sceneNode)
-{
-	NzNode::operator=(sceneNode);
-
-	// La scène est affectée via le parenting du node
-	m_drawingEnabled = sceneNode.m_drawingEnabled;
-	m_visible = sceneNode.m_visible;
-
-	return *this;
-}
-
 bool NzSceneNode::FrustumCull(const NzFrustumf& frustum) const
 {
 	return frustum.Contains(GetBoundingVolume());
