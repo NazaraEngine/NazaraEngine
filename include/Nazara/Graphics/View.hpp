@@ -45,6 +45,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		float GetZNear() const;
 
 		void SetSize(const NzVector2f& size);
+		void SetSize(float width, float height);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetTargetRegion(const NzRectf& region);
