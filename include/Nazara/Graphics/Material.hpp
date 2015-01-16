@@ -140,6 +140,7 @@ class NAZARA_API NzMaterial : public NzResource
 		};
 
 		void Copy(const NzMaterial& material);
+		void Move(NzMaterial&& material);
 		void GenerateShader(nzUInt32 flags) const;
 		void InvalidateShaders();
 
