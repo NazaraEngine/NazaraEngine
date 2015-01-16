@@ -192,6 +192,13 @@ bool NzVertexDeclaration::Initialize()
 
 		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY), "Invalid stride for declaration nzVertexLayout_XY");
 
+		// nzVertexLayout_XY_Color : NzVertexStruct_XY_Color
+		declaration = &s_declarations[nzVertexLayout_XY_Color];
+		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float2, NzOffsetOf(NzVertexStruct_XY_Color, position));
+		declaration->EnableComponent(nzVertexComponent_Color,    nzComponentType_Color,  NzOffsetOf(NzVertexStruct_XY_Color, color));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XY_Color), "Invalid stride for declaration nzVertexLayout_XY_Color");
+
 		// nzVertexLayout_XY_UV : NzVertexStruct_XY_UV
 		declaration = &s_declarations[nzVertexLayout_XY_UV];
 		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float2, NzOffsetOf(NzVertexStruct_XY_UV, position));
@@ -204,6 +211,21 @@ bool NzVertexDeclaration::Initialize()
 		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float3, NzOffsetOf(NzVertexStruct_XYZ, position));
 
 		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ), "Invalid stride for declaration nzVertexLayout_XYZ");
+
+		// nzVertexLayout_XYZ_Color : NzVertexStruct_XYZ_Color
+		declaration = &s_declarations[nzVertexLayout_XYZ_Color];
+		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Color, position));
+		declaration->EnableComponent(nzVertexComponent_Color,    nzComponentType_Color,  NzOffsetOf(NzVertexStruct_XYZ_Color, color));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Color), "Invalid stride for declaration nzVertexLayout_XYZ_Color");
+
+		// nzVertexLayout_XYZ_Color_UV : NzVertexStruct_XYZ_Color_UV
+		declaration = &s_declarations[nzVertexLayout_XYZ_Color_UV];
+		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Color_UV, position));
+		declaration->EnableComponent(nzVertexComponent_Color,    nzComponentType_Color,  NzOffsetOf(NzVertexStruct_XYZ_Color_UV, color));
+		declaration->EnableComponent(nzVertexComponent_TexCoord, nzComponentType_Float2, NzOffsetOf(NzVertexStruct_XYZ_Color_UV, uv));
+
+		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ_Color_UV), "Invalid stride for declaration nzVertexLayout_XYZ_Color_UV");
 
 		// nzVertexLayout_XYZ_Normal : NzVertexStruct_XYZ_Normal
 		declaration = &s_declarations[nzVertexLayout_XYZ_Normal];

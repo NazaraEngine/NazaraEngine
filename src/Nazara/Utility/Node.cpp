@@ -270,7 +270,7 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 		}
 
 		case nzCoordSys_Local:
-			m_position += m_scale * (m_rotation * movement);
+			m_position += m_rotation * movement;
 			break;
 	}
 
@@ -685,7 +685,7 @@ void NzNode::UpdateDerived() const
 			m_derivedRotation.Normalize();
 		}
 		else
-			m_derivedRotation = m_initialRotation * m_rotation; ///FIXME: Besoin d'une normalisation ?
+			m_derivedRotation = m_initialRotation * m_rotation;
 
 		m_derivedScale = m_initialScale * m_scale;
 		if (m_inheritScale)

@@ -23,6 +23,8 @@ class NAZARA_API NzResource
 {
 	public:
 		NzResource(bool persistent = true);
+		NzResource(const NzResource& resource) = delete;
+		NzResource(NzResource&& resource) = delete;
 		virtual ~NzResource();
 
 		void AddResourceListener(NzResourceListener* listener, int index = 0) const;
@@ -36,6 +38,9 @@ class NAZARA_API NzResource
 		bool RemoveResourceReference() const;
 
 		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
+
+		NzResource& operator=(const NzResource& resource) = delete;
+		NzResource& operator=(NzResource&& resource) = delete;
 
 	protected:
 		void NotifyCreated();

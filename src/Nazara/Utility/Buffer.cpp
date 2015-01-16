@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
@@ -16,7 +17,7 @@
 
 namespace
 {
-	NzAbstractBuffer* SoftwareBufferFunction(NzBuffer* parent, nzBufferType type)
+	NzAbstractBuffer* SoftwareBufferFactory(NzBuffer* parent, nzBufferType type)
 	{
 		return new NzSoftwareBuffer(parent, type);
 	}
@@ -29,7 +30,7 @@ m_size(0)
 {
 }
 
-NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzBufferStorage storage, nzBufferUsage usage) :
+NzBuffer::NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage, nzBufferUsage usage) :
 m_type(type),
 m_impl(nullptr)
 {
@@ -59,22 +60,21 @@ bool NzBuffer::CopyContent(const NzBuffer& buffer)
 	#endif
 
 	NzBufferMapper<NzBuffer> mapper(buffer, nzBufferAccess_ReadOnly);
-
 	return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 }
 
-bool NzBuffer::Create(unsigned int size, nzBufferStorage storage, nzBufferUsage usage)
+bool NzBuffer::Create(unsigned int size, nzUInt32 storage, nzBufferUsage usage)
 {
 	Destroy();
 
 	// Notre buffer est-il supporté ?
-	if (!s_bufferFunctions[storage])
+	if (!IsStorageSupported(storage))
 	{
 		NazaraError("Buffer storage not supported");
 		return false;
 	}
 
-	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFunctions[storage](this, m_type));
+	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
 	if (!impl->Create(size, usage))
 	{
 		NazaraError("Failed to create buffer");
@@ -131,7 +131,7 @@ unsigned int NzBuffer::GetSize() const
 	return m_size;
 }
 
-nzBufferStorage NzBuffer::GetStorage() const
+nzUInt32 NzBuffer::GetStorage() const
 {
 	return m_storage;
 }
@@ -148,7 +148,7 @@ nzBufferUsage NzBuffer::GetUsage() const
 
 bool NzBuffer::IsHardware() const
 {
-	return m_storage == nzBufferStorage_Hardware;
+	return m_storage & nzDataStorage_Hardware;
 }
 
 bool NzBuffer::IsValid() const
@@ -200,7 +200,7 @@ void* NzBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int siz
 	return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
 }
 
-bool NzBuffer::SetStorage(nzBufferStorage storage)
+bool NzBuffer::SetStorage(nzUInt32 storage)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (!m_impl)
@@ -213,13 +213,11 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 	if (m_storage == storage)
 		return true;
 
-	#if NAZARA_UTILITY_SAFE
-	if (!IsSupported(storage))
+	if (!IsStorageSupported(storage))
 	{
 		NazaraError("Storage not supported");
 		return false;
 	}
-	#endif
 
 	void* ptr = m_impl->Map(nzBufferAccess_ReadOnly, 0, m_size);
 	if (!ptr)
@@ -228,31 +226,36 @@ bool NzBuffer::SetStorage(nzBufferStorage storage)
 		return false;
 	}
 
-	NzAbstractBuffer* impl = s_bufferFunctions[storage](this, m_type);
+	NzCallOnExit unmapMyImpl([this]()
+	{
+		m_impl->Unmap();
+	});
+
+	std::unique_ptr<NzAbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
 	if (!impl->Create(m_size, m_usage))
 	{
 		NazaraError("Failed to create buffer");
-		delete impl;
-		m_impl->Unmap();
-
 		return false;
 	}
+
+	NzCallOnExit destroyImpl([&impl]()
+	{
+		impl->Destroy();
+	});
 
 	if (!impl->Fill(ptr, 0, m_size))
 	{
 		NazaraError("Failed to fill buffer");
-		impl->Destroy();
-		delete impl;
-		m_impl->Unmap();
-
 		return false;
 	}
 
-	m_impl->Unmap();
+	destroyImpl.Reset();
+
+	unmapMyImpl.CallAndReset();
 	m_impl->Destroy();
 	delete m_impl;
 
-	m_impl = impl;
+	m_impl = impl.release();
 	m_storage = storage;
 
 	return true;
@@ -269,29 +272,29 @@ void NzBuffer::Unmap() const
 	#endif
 
 	if (!m_impl->Unmap())
-		NazaraWarning("Failed to unmap buffer (it's content is undefined)"); ///TODO: Unexpected ?
+		NazaraWarning("Failed to unmap buffer (it's content may be undefined)"); ///TODO: Unexpected ?
 }
 
-bool NzBuffer::IsSupported(nzBufferStorage storage)
+bool NzBuffer::IsStorageSupported(nzUInt32 storage)
 {
-	return s_bufferFunctions[storage] != nullptr;
+	return s_bufferFactories[storage] != nullptr;
 }
 
-void NzBuffer::SetBufferFunction(nzBufferStorage storage, BufferFunction func)
+void NzBuffer::SetBufferFactory(nzUInt32 storage, BufferFactory func)
 {
-	s_bufferFunctions[storage] = func;
+	s_bufferFactories[storage] = func;
 }
 
 bool NzBuffer::Initialize()
 {
-	s_bufferFunctions[nzBufferStorage_Software] = SoftwareBufferFunction;
+	s_bufferFactories[nzDataStorage_Software] = SoftwareBufferFactory;
 
 	return true;
 }
 
 void NzBuffer::Uninitialize()
 {
-	std::memset(s_bufferFunctions, 0, (nzBufferStorage_Max+1)*sizeof(NzBuffer::BufferFunction));
+	std::memset(s_bufferFactories, 0, (nzDataStorage_Max+1)*sizeof(NzBuffer::BufferFactory));
 }
 
-NzBuffer::BufferFunction NzBuffer::s_bufferFunctions[nzBufferStorage_Max+1] = {0};
+NzBuffer::BufferFactory NzBuffer::s_bufferFactories[nzDataStorage_Max+1] = {0};

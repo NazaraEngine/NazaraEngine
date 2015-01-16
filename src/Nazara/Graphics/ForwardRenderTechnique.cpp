@@ -27,7 +27,7 @@ namespace
 
 	NzIndexBuffer* BuildIndexBuffer()
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, s_maxSprites*6, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, s_maxSprites*6, nzDataStorage_Hardware, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		NzBufferMapper<NzIndexBuffer> mapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
@@ -49,7 +49,7 @@ namespace
 }
 
 NzForwardRenderTechnique::NzForwardRenderTechnique() :
-m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_UV), s_maxSprites*4, nzBufferStorage_Hardware, nzBufferUsage_Dynamic),
+m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), s_maxSprites*4, nzDataStorage_Hardware, nzBufferUsage_Dynamic),
 m_maxLightPassPerObject(3)
 {
 	if (!s_indexBuffer)
@@ -87,8 +87,8 @@ bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 	if (!m_renderQueue.transparentModels.empty())
 		DrawTransparentModels(scene);
 
-	if (!m_renderQueue.sprites.empty())
-		DrawSprites(scene);
+	if (!m_renderQueue.basicSprites.empty())
+		DrawBasicSprites(scene);
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -162,11 +162,108 @@ void NzForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
 	m_maxLightPassPerObject = passCount;
 }
 
+void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
+{
+	NzAbstractViewer* viewer = scene->GetViewer();
+	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
+
+	NzRenderer::SetIndexBuffer(m_indexBuffer);
+	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
+	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
+
+	for (auto& matIt : m_renderQueue.basicSprites)
+	{
+		const NzMaterial* material = matIt.first;
+		auto& overlayMap = matIt.second;
+
+		for (auto& overlayIt : overlayMap)
+		{
+			const NzTexture* overlay = overlayIt.first;
+			auto& spriteChainVector = overlayIt.second;
+
+			unsigned int spriteChainCount = spriteChainVector.size();
+			if (spriteChainCount > 0)
+			{
+				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+				nzUInt32 flags = nzShaderFlags_VertexColor;
+				if (overlay)
+					flags |= nzShaderFlags_TextureOverlay;
+
+				nzUInt8 overlayUnit;
+				const NzShader* shader = material->Apply(flags, 0, &overlayUnit);
+
+				if (overlay)
+				{
+					overlayUnit++;
+					NzRenderer::SetTexture(overlayUnit, overlay);
+					NzRenderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+				}
+
+				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+				if (shader != lastShader)
+				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
+					// Couleur ambiante de la scène
+					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					// Overlay
+					shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+					// Position de la caméra
+					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+
+					lastShader = shader;
+				}
+
+				unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
+				unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+
+				do
+				{
+					// On ouvre le buffer en écriture
+					NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite);
+					NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+					unsigned int spriteCount = 0;
+
+					do
+					{
+						NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+						unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
+
+						std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
+						vertices += count*4;
+
+						spriteCount += count;
+						spriteChainOffset += count;
+
+						// Avons-nous traité la chaîne entière ?
+						if (spriteChainOffset == currentChain.spriteCount)
+						{
+							spriteChain++;
+							spriteChainOffset = 0;
+						}
+					}
+					while (spriteCount < s_maxSprites && spriteChain < spriteChainCount);
+
+					vertexMapper.Unmap();
+
+					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, spriteCount*6);
+				}
+				while (spriteChain < spriteChainCount);
+
+				spriteChainVector.clear();
+			}
+		}
+	}
+}
+
 void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
-	const LightUniforms* lightUniforms = nullptr;
 	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
 
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
@@ -191,13 +288,13 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 				if (shader != lastShader)
 				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
 					// Couleur ambiante de la scène
 					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 					// Position de la caméra
 					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
-
-					// Index des uniformes d'éclairage dans le shader
-					lightUniforms = GetLightUniforms(shader);
 
 					lastShader = shader;
 				}
@@ -250,7 +347,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 							for (unsigned int pass = 0; pass < passCount; ++pass)
 							{
-								if (lightUniforms->exists)
+								if (shaderUniforms->hasLightUniforms)
 								{
 									unsigned int renderedLightCount = std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
 									lightCount -= renderedLightCount;
@@ -267,15 +364,15 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 									}
 
 									for (unsigned int i = 0; i < renderedLightCount; ++i)
-										m_directionalLights.GetLight(lightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+										m_directionalLights.GetLight(lightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 									for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-										NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+										NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 								}
 
 								const NzMatrix4f* instanceMatrices = &instances[0];
 								unsigned int instanceCount = instances.size();
-								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
 
 								while (instanceCount > 0)
 								{
@@ -298,7 +395,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 						}
 						else
 						{
-							if (lightUniforms->exists)
+							if (shaderUniforms->hasLightUniforms)
 							{
 								for (const NzMatrix4f& matrix : instances)
 								{
@@ -332,14 +429,14 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 										for (unsigned int i = 0; i < renderedLightCount; ++i)
 										{
 											if (directionalLightIndex >= directionalLightCount)
-												m_lights.GetResult(otherLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+												m_lights.GetResult(otherLightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 											else
-												m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+												m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 										}
 
 										// On désactive l'éventuel surplus
 										for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-											NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+											NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 										// Et on passe à l'affichage
 										DrawFunc(meshData.primitiveMode, 0, indexCount);
@@ -351,7 +448,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							}
 							else
 							{
-								// Sans instancing, on doit effectuer un drawcall pour chaque instance
+								// Sans instancing, on doit effectuer un draw call pour chaque instance
 								// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
 								// À cause du temps de modification du buffer d'instancing
 								for (const NzMatrix4f& matrix : instances)
@@ -367,84 +464,8 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 			}
 
 			// Et on remet à zéro les données
-			renderQueueInstancing = false;
 			used = false;
-		}
-	}
-}
-
-void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
-{
-	NzAbstractViewer* viewer = scene->GetViewer();
-	const NzShader* lastShader = nullptr;
-
-	NzRenderer::SetIndexBuffer(m_indexBuffer);
-	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
-	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
-
-	for (auto& matIt : m_renderQueue.sprites)
-	{
-		const NzMaterial* material = matIt.first;
-		auto& spriteVector = matIt.second;
-
-		unsigned int spriteCount = spriteVector.size();
-		if (spriteCount > 0)
-		{
-			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-			const NzShader* shader = material->Apply();
-
-			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-			if (shader != lastShader)
-			{
-				// Couleur ambiante de la scène
-				shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-				// Position de la caméra
-				shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
-
-				lastShader = shader;
-			}
-
-			const NzSprite** spritePtr = &spriteVector[0];
-			do
-			{
-				unsigned int renderedSpriteCount = std::min(spriteCount, 64U);
-				spriteCount -= renderedSpriteCount;
-
-				NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedSpriteCount*4);
-				NzVertexStruct_XYZ_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_UV*>(vertexMapper.GetPointer());
-
-				for (unsigned int i = 0; i < renderedSpriteCount; ++i)
-				{
-					const NzSprite* sprite = *spritePtr++;
-					const NzRectf& textureCoords = sprite->GetTextureCoords();
-					const NzVector2f& halfSize = sprite->GetSize()*0.5f;
-					NzVector3f center = sprite->GetPosition();
-					NzQuaternionf rotation = sprite->GetRotation();
-
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.x, textureCoords.y + textureCoords.height);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(halfSize.x, halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.width, textureCoords.y + textureCoords.height);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(-halfSize.x, -halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.x, textureCoords.y);
-					vertices++;
-
-					vertices->position = center + rotation * NzVector3f(halfSize.x, -halfSize.y, 0.f);
-					vertices->uv.Set(textureCoords.width, textureCoords.y);
-					vertices++;
-				}
-
-				vertexMapper.Unmap();
-
-				NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, renderedSpriteCount*6);
-			}
-			while (spriteCount > 0);
-
-			spriteVector.clear();
+			renderQueueInstancing = false;
 		}
 	}
 }
@@ -452,8 +473,8 @@ void NzForwardRenderTechnique::DrawSprites(const NzScene* scene) const
 void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 {
 	NzAbstractViewer* viewer = scene->GetViewer();
-	const LightUniforms* lightUniforms = nullptr;
 	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
 	unsigned int lightCount = 0;
 
 	for (unsigned int index : m_renderQueue.transparentModels)
@@ -469,18 +490,18 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 		if (shader != lastShader)
 		{
+			// Index des uniformes dans le shader
+			shaderUniforms = GetShaderUniforms(shader);
+
 			// Couleur ambiante de la scène
 			shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
 			// Position de la caméra
 			shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
-			// Index des uniformes d'éclairage dans le shader
-			lightUniforms = GetLightUniforms(shader);
-
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 			lightCount = std::min(m_directionalLights.GetLightCount(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
 			for (unsigned int i = 0; i < lightCount; ++i)
-				m_directionalLights.GetLight(i)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+				m_directionalLights.GetLight(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 			lastShader = shader;
 		}
@@ -515,45 +536,46 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		{
 			unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + modelData.boundingSphere.GetPosition(), modelData.boundingSphere.radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
 			for (unsigned int i = 0; i < count; ++i)
-				m_lights.GetResult(i)->Enable(shader, lightUniforms->uniforms, lightUniforms->offset*(lightCount++));
+				m_lights.GetResult(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*(lightCount++));
 		}
 
 		for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-			NzLight::Disable(shader, lightUniforms->uniforms, lightUniforms->offset*i);
+			NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 		NzRenderer::SetMatrix(nzMatrixType_World, matrix);
 		DrawFunc(meshData.primitiveMode, 0, indexCount);
 	}
 }
 
-const NzForwardRenderTechnique::LightUniforms* NzForwardRenderTechnique::GetLightUniforms(const NzShader* shader) const
+const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetShaderUniforms(const NzShader* shader) const
 {
-	auto it = m_lightUniforms.find(shader);
-	if (it != m_lightUniforms.end())
+	auto it = m_shaderUniforms.find(shader);
+	if (it != m_shaderUniforms.end())
 		return &(it->second);
 	else
 	{
+		ShaderUniforms uniforms;
+		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
+
 		int type0Location = shader->GetUniformLocation("Lights[0].type");
 		int type1Location = shader->GetUniformLocation("Lights[1].type");
 
-		LightUniforms lightUniforms;
-
 		if (type0Location > 0 && type1Location > 0)
 		{
-			lightUniforms.exists = true;
-			lightUniforms.offset = type1Location - type0Location;
-			lightUniforms.uniforms.ubo = false;
-			lightUniforms.uniforms.locations.type = type0Location;
-			lightUniforms.uniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
-			lightUniforms.uniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
-			lightUniforms.uniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
-			lightUniforms.uniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
-			lightUniforms.uniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
+			uniforms.hasLightUniforms = true;
+			uniforms.lightOffset = type1Location - type0Location;
+			uniforms.lightUniforms.ubo = false;
+			uniforms.lightUniforms.locations.type = type0Location;
+			uniforms.lightUniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
+			uniforms.lightUniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
+			uniforms.lightUniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
+			uniforms.lightUniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
+			uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
 		}
 		else
-			lightUniforms.exists = false;
+			uniforms.hasLightUniforms = false;
 
-		auto pair = m_lightUniforms.emplace(shader, lightUniforms);
+		auto pair = m_shaderUniforms.emplace(shader, uniforms);
 		return &(pair.first->second);
 	}
 }

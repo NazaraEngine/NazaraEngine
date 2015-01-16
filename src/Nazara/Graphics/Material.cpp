@@ -34,20 +34,6 @@ NzResource()
 	Copy(material);
 }
 
-NzMaterial::NzMaterial(NzMaterial&& material)
-{
-	Copy(material);
-
-	// Nous "volons" la référence du matériau
-	material.m_alphaMap.Reset();
-	material.m_diffuseMap.Reset();
-	material.m_emissiveMap.Reset();
-	material.m_heightMap.Reset();
-	material.m_normalMap.Reset();
-	material.m_specularMap.Reset();
-	material.m_uberShader.Reset();
-}
-
 NzMaterial::~NzMaterial()
 {
 	NotifyDestroy();
@@ -622,22 +608,6 @@ NzMaterial& NzMaterial::operator=(const NzMaterial& material)
 	return *this;
 }
 
-NzMaterial& NzMaterial::operator=(NzMaterial&& material)
-{
-	Copy(material);
-
-	// Comme ça nous volons la référence du matériau
-	material.m_alphaMap.Reset();
-	material.m_diffuseMap.Reset();
-	material.m_emissiveMap.Reset();
-	material.m_heightMap.Reset();
-	material.m_normalMap.Reset();
-	material.m_specularMap.Reset();
-	material.m_uberShader.Reset();
-
-	return *this;
-}
-
 NzMaterial* NzMaterial::GetDefault()
 {
 	return s_defaultMaterial;
@@ -645,33 +615,32 @@ NzMaterial* NzMaterial::GetDefault()
 
 void NzMaterial::Copy(const NzMaterial& material)
 {
-	// On relache les références proprement
-	m_alphaMap.Reset();
-	m_diffuseMap.Reset();
-	m_emissiveMap.Reset();
-	m_heightMap.Reset();
-	m_normalMap.Reset();
-	m_specularMap.Reset();
-	m_uberShader.Reset();
+	// Copie des états de base
+	m_alphaTestEnabled = material.m_alphaTestEnabled;
+	m_alphaThreshold = material.m_alphaThreshold;
+	m_ambientColor = material.m_ambientColor;
+	m_diffuseColor = material.m_diffuseColor;
+	m_diffuseSampler = material.m_diffuseSampler;
+	m_lightingEnabled = material.m_lightingEnabled;
+	m_shininess = material.m_shininess;
+	m_specularColor = material.m_specularColor;
+	m_specularSampler = material.m_specularSampler;
+	m_states = material.m_states;
+	m_transformEnabled = material.m_transformEnabled;
 
-	std::memcpy(this, &material, sizeof(NzMaterial)); // Autorisé dans notre cas, et bien plus rapide
-
-	// Ensuite une petite astuce pour récupérer correctement les références
-	m_alphaMap.Release();
-	m_diffuseMap.Release();
-	m_emissiveMap.Release();
-	m_heightMap.Release();
-	m_normalMap.Release();
-	m_specularMap.Release();
-	m_uberShader.Release();
-
+	// Copie des références de texture
 	m_alphaMap = material.m_alphaMap;
 	m_diffuseMap = material.m_diffuseMap;
 	m_emissiveMap = material.m_emissiveMap;
 	m_heightMap = material.m_heightMap;
 	m_normalMap = material.m_normalMap;
 	m_specularMap = material.m_specularMap;
+
+	// Copie de la référence vers l'Über-Shader
 	m_uberShader = material.m_uberShader;
+
+	// On copie les instances de shader par la même occasion
+	std::memcpy(&m_shaders[0], &material.m_shaders[0], (nzShaderFlags_Max+1)*sizeof(ShaderInstance));
 }
 
 void NzMaterial::GenerateShader(nzUInt32 flags) const
@@ -687,11 +656,14 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
 	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
 	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
-	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid());
+	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid() ||
+	                                     flags & nzShaderFlags_TextureOverlay);
 	list.SetParameter("TRANSFORM", m_transformEnabled);
 
 	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
 	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
+	list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & nzShaderFlags_TextureOverlay) != 0));
+	list.SetParameter("FLAG_VERTEXCOLOR", static_cast<bool>((flags & nzShaderFlags_VertexColor) != 0));
 
 	ShaderInstance& instance = m_shaders[flags];
 	instance.uberInstance = m_uberShader->Get(list);
@@ -758,8 +730,8 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("Basic", uberShader.get());
 		uberShader.release();
@@ -799,8 +771,8 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("PhongLighting", uberShader.get());
 		uberShader.release();

@@ -37,10 +37,10 @@ NzOrientedBox<T>::NzOrientedBox(const NzOrientedBox<U>& orientedBox)
 }
 
 template<typename T>
-const NzVector3<T>& NzOrientedBox<T>::GetCorner(nzCorner corner) const
+const NzVector3<T>& NzOrientedBox<T>::GetCorner(nzBoxCorner corner) const
 {
 	#ifdef NAZARA_DEBUG
-	if (corner > nzCorner_Max)
+	if (corner > nzBoxCorner_Max)
 	{
 		NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
 
@@ -102,7 +102,7 @@ template<typename T>
 template<typename U>
 NzOrientedBox<T>& NzOrientedBox<T>::Set(const NzOrientedBox<U>& orientedBox)
 {
-	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+	for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
 		m_corners[i].Set(orientedBox.m_corners[i]);
 
 	localBox = orientedBox.localBox;
@@ -115,21 +115,21 @@ NzString NzOrientedBox<T>::ToString() const
 {
 	NzStringStream ss;
 
-	return ss << "OrientedBox(FLB: " << m_corners[nzCorner_FarLeftBottom].ToString() << "\n"
-	          << "            FLT: " << m_corners[nzCorner_FarLeftTop].ToString() << "\n"
-	          << "            FRB: " << m_corners[nzCorner_FarRightBottom].ToString() << "\n"
-	          << "            FRT: " << m_corners[nzCorner_FarRightTop].ToString() << "\n"
-	          << "            NLB: " << m_corners[nzCorner_NearLeftBottom].ToString() << "\n"
-	          << "            NLT: " << m_corners[nzCorner_NearLeftTop].ToString() << "\n"
-	          << "            NRB: " << m_corners[nzCorner_NearRightBottom].ToString() << "\n"
-	          << "            NRT: " << m_corners[nzCorner_NearRightTop].ToString() << ")\n";
+	return ss << "OrientedBox(FLB: " << m_corners[nzBoxCorner_FarLeftBottom].ToString() << "\n"
+	          << "            FLT: " << m_corners[nzBoxCorner_FarLeftTop].ToString() << "\n"
+	          << "            FRB: " << m_corners[nzBoxCorner_FarRightBottom].ToString() << "\n"
+	          << "            FRT: " << m_corners[nzBoxCorner_FarRightTop].ToString() << "\n"
+	          << "            NLB: " << m_corners[nzBoxCorner_NearLeftBottom].ToString() << "\n"
+	          << "            NLT: " << m_corners[nzBoxCorner_NearLeftTop].ToString() << "\n"
+	          << "            NRB: " << m_corners[nzBoxCorner_NearRightBottom].ToString() << "\n"
+	          << "            NRT: " << m_corners[nzBoxCorner_NearRightTop].ToString() << ")\n";
 }
 
 template<typename T>
 void NzOrientedBox<T>::Update(const NzMatrix4<T>& transformMatrix)
 {
-	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
-		m_corners[i] = transformMatrix.Transform(localBox.GetCorner(static_cast<nzCorner>(i)));
+	for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
+		m_corners[i] = transformMatrix.Transform(localBox.GetCorner(static_cast<nzBoxCorner>(i)));
 }
 
 template<typename T>
@@ -148,7 +148,7 @@ template<typename T>
 NzVector3<T>& NzOrientedBox<T>::operator()(unsigned int i)
 {
 	#if NAZARA_MATH_SAFE
-	if (i > nzCorner_Max)
+	if (i > nzBoxCorner_Max)
 	{
 		NzStringStream ss;
 		ss << "Index out of range: (" << i << " >= 3)";
@@ -165,7 +165,7 @@ template<typename T>
 NzVector3<T> NzOrientedBox<T>::operator()(unsigned int i) const
 {
 	#if NAZARA_MATH_SAFE
-	if (i > nzCorner_Max)
+	if (i > nzBoxCorner_Max)
 	{
 		NzStringStream ss;
 		ss << "Index out of range: (" << i << " >= 3)";

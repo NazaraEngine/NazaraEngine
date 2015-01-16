@@ -20,7 +20,7 @@ NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzB
 	Reset(vertexDeclaration, buffer, startOffset, endOffset);
 }
 
-NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+NzVertexBuffer::NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage, nzBufferUsage usage)
 {
 	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(vertexDeclaration, length, storage, usage);
@@ -230,7 +230,7 @@ void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffe
 	m_vertexDeclaration = vertexDeclaration;
 }
 
-void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage, nzBufferUsage usage)
 {
 	m_endOffset = length * ((vertexDeclaration) ? vertexDeclaration->GetStride() : 1);
 	m_startOffset = 0;
@@ -259,7 +259,7 @@ void NzVertexBuffer::Reset(NzVertexBuffer&& vertexBuffer) noexcept
 	m_vertexDeclaration = std::move(vertexBuffer.m_vertexDeclaration);
 }
 
-bool NzVertexBuffer::SetStorage(nzBufferStorage storage)
+bool NzVertexBuffer::SetStorage(nzUInt32 storage)
 {
 	return m_buffer->SetStorage(storage);
 }
