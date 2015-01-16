@@ -270,7 +270,7 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 		}
 
 		case nzCoordSys_Local:
-			m_position += m_scale * (m_rotation * movement);
+			m_position += m_rotation * movement;
 			break;
 	}
 
