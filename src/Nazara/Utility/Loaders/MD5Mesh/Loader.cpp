@@ -294,11 +294,19 @@ namespace
 				subMesh->GenerateNormalsAndTangents();
 				subMesh->SetMaterialIndex(i);
 
-				if (parameters.center)
-					subMesh->Center();
-
 				mesh->AddSubMesh(subMesh.get());
 				subMesh.release();
+			}
+
+			if (parameters.center)
+			{
+				for (unsigned int i = 0; i < meshCount; ++i)
+				{
+					NzStaticMesh* subMesh = static_cast<NzStaticMesh*>(mesh->GetSubMesh(i));
+					subMesh->Center();
+				}
+
+				mesh->InvalidateAABB();
 			}
 		}
 
