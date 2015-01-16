@@ -330,7 +330,7 @@ bool NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 
 	#ifdef NAZARA_DEBUG
 	// Est-ce qu'il s'agit bien de notre atlas ?
-	if (m_atlas != atlas)
+	if (m_atlas.get() != atlas)
 	{
 		NazaraInternalError("Notified by a non-listening-to resource");
 		return false; // On ne veut plus être notifié par cette ressource, évidemment
@@ -351,7 +351,7 @@ void NzFont::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 
 	#ifdef NAZARA_DEBUG
 	// Est-ce qu'il s'agit bien de notre atlas ?
-	if (m_atlas != atlas)
+	if (m_atlas.get() != atlas)
 	{
 		NazaraInternalError("Notified by a non-listening-to resource");
 		return;
