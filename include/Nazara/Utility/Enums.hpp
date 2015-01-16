@@ -274,6 +274,7 @@ enum nzVertexLayout
 {
 	// Déclarations destinées au rendu
 	nzVertexLayout_XY,
+	nzVertexLayout_XY_Color,
 	nzVertexLayout_XY_UV,
 	nzVertexLayout_XYZ,
 	nzVertexLayout_XYZ_Color,

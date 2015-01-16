@@ -18,6 +18,11 @@ struct NzVertexStruct_XY
 	NzVector2f position;
 };
 
+struct NzVertexStruct_XY_Color : NzVertexStruct_XY
+{
+	NzColor color;
+};
+
 struct NzVertexStruct_XY_UV : NzVertexStruct_XY
 {
 	NzVector2f uv;
