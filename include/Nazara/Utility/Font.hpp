@@ -98,6 +98,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 
 		struct SizeInfo
 		{
+			int spaceAdvance;
 			unsigned int lineHeight;
 			float underlinePosition;
 			float underlineThickness;
