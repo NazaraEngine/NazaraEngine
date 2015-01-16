@@ -9,13 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
-#include <Nazara/Utility/AbstractFontAtlas.hpp>
+#include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <memory>
 #include <vector>
 
-class NAZARA_API NzGuillotineImageAtlas : public NzAbstractFontAtlas
+class NAZARA_API NzGuillotineImageAtlas : public NzAbstractAtlas
 {
 	public:
 		NzGuillotineImageAtlas();

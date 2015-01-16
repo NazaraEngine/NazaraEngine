@@ -101,7 +101,7 @@ bool NzFont::ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt
 	return m_data->ExtractGlyph(characterSize, character, style, glyph);
 }
 
-const NzAbstractFontAtlas* NzFont::GetAtlas() const
+const NzAbstractAtlas* NzFont::GetAtlas() const
 {
 	return m_atlas.get();
 }
@@ -265,7 +265,7 @@ bool NzFont::OpenFromStream(NzInputStream& stream, const NzFontParams& params)
 	return NzFontLoader::LoadFromStream(this, stream, params);
 }
 
-void NzFont::SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas)
+void NzFont::SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas)
 {
 	ClearGlyphCache();
 
@@ -314,7 +314,7 @@ nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 	return (stylePart << 32) | sizePart;
 }
 
-bool NzFont::OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata)
+bool NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 {
 	NazaraUnused(atlas);
 	NazaraUnused(userdata);
@@ -335,7 +335,7 @@ bool NzFont::OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata)
 	return true;
 }
 
-void NzFont::OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata)
+void NzFont::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 {
 	NazaraUnused(atlas);
 	NazaraUnused(userdata);
