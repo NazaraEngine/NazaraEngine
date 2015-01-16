@@ -80,6 +80,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		enum ModicationCode
 		{
 			ModificationCode_AtlasChanged,
+			ModificationCode_AtlasLayerChanged,
 			ModificationCode_GlyphCacheCleared,
 			ModificationCode_KerningCacheCleared,
 			ModificationCode_SizeInfoCacheCleared
@@ -110,6 +111,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 
 		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
 		bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata) override;
+		bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata) override;
 		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
 		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
