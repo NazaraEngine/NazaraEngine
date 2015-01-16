@@ -203,7 +203,7 @@ const NzFont::SizeInfo& NzFont::GetSizeInfo(unsigned int characterSize) const
 		sizeInfo.underlineThickness = m_data->QueryUnderlineThickness(characterSize);
 
 		NzFontGlyph glyph;
-		if (m_data->ExtractGlyph(characterSize, ' ', nzTextStyle_None, &glyph))
+		if (m_data->ExtractGlyph(characterSize, ' ', nzTextStyle_Regular, &glyph))
 			sizeInfo.spaceAdvance = glyph.advance;
 		else
 		{
