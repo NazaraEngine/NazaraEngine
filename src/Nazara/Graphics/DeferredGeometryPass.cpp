@@ -64,9 +64,6 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 			{
 				const NzMaterial* material = matIt.first;
 
-				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
-				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
-				// (Le deferred shading n'a pas ce problème)
 				bool useInstancing = instancingEnabled && renderQueueInstancing;
 
 				// On commence par récupérer le programme du matériau
@@ -145,7 +142,7 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 						}
 						else
 						{
-							// Sans instancing, on doit effectuer un drawcall pour chaque instance
+							// Sans instancing, on doit effectuer un draw call pour chaque instance
 							// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
 							// À cause du temps de modification du buffer d'instancing
 							for (const NzMatrix4f& matrix : instances)
