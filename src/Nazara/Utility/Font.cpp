@@ -28,8 +28,11 @@ void NzFont::ClearGlyphCache()
 {
 	if (m_atlas)
 	{
-		if (m_atlas.use_count() > 1) // Au moins une autre police utilise cet atlas, on vire nos glyphes
+		if (m_atlas.unique())
+			m_atlas->Clear(); // Appellera OnAtlasCleared
+		else
 		{
+			// Au moins une autre police utilise cet atlas, on vire nos glyphes un par un
 			for (auto mapIt = m_glyphes.begin(); mapIt != m_glyphes.end(); ++mapIt)
 			{
 				GlyphMap& glyphMap = mapIt->second;
@@ -40,12 +43,10 @@ void NzFont::ClearGlyphCache()
 				}
 			}
 
-			// Destruction des glyphes mémorisés
+			// Destruction des glyphes mémorisés et notification
 			m_glyphes.clear();
 			NotifyModified(ModificationCode_GlyphCacheCleared);
 		}
-		else
-			m_atlas->Clear();
 	}
 }
 
@@ -268,7 +269,12 @@ void NzFont::SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas)
 {
 	ClearGlyphCache();
 
+	if (m_atlas)
+		m_atlas->RemoveListener(this);
+
 	m_atlas = atlas;
+	if (m_atlas)
+		m_atlas->AddListener(this);
 }
 
 void NzFont::SetGlyphBorder(unsigned int borderSize)
@@ -293,7 +299,10 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 {
+	// On prend le pas en compte
 	nzUInt64 sizePart = static_cast<nzUInt32>((characterSize/m_minimumSizeStep)*m_minimumSizeStep);
+
+	// Ainsi que le style (uniquement le gras et l'italique, les autres sont gérés par un TextDrawer)
 	nzUInt64 stylePart = 0;
 
 	if (style & nzTextStyle_Bold)
@@ -305,12 +314,43 @@ nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 	return (stylePart << 32) | sizePart;
 }
 
-void NzFont::OnAtlasCleared()
+bool NzFont::OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata)
 {
+	NazaraUnused(atlas);
+	NazaraUnused(userdata);
+
+	#ifdef NAZARA_DEBUG
+	// Est-ce qu'il s'agit bien de notre atlas ?
+	if (m_atlas != atlas)
+	{
+		NazaraInternalError("Notified by a non-listening-to resource");
+		return false; // On ne veut plus être notifié par cette ressource, évidemment
+	}
+	#endif
+
 	// Notre atlas vient d'être vidé, détruisons le cache de glyphe
 	m_glyphes.clear();
-
 	NotifyModified(ModificationCode_GlyphCacheCleared);
+
+	return true;
+}
+
+void NzFont::OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata)
+{
+	NazaraUnused(atlas);
+	NazaraUnused(userdata);
+
+	#ifdef NAZARA_DEBUG
+	// Est-ce qu'il s'agit bien de notre atlas ?
+	if (m_atlas != atlas)
+	{
+		NazaraInternalError("Notified by a non-listening-to resource");
+		return;
+	}
+	#endif
+
+	// Nous ne pouvons pas faire grand chose d'autre que se balancer une erreur à la tête de l'utilisateur avant un potentiel crash...
+	NazaraError("Atlas has been released while in use");
 }
 
 const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const
