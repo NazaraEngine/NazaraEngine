@@ -11,7 +11,7 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Utility/AbstractFontAtlas.hpp>
+#include <Nazara/Utility/AbstractAtlas.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -29,9 +29,8 @@ using NzFontConstRef = NzResourceRef<const NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzResourceRef<NzFont>;
 
-class NAZARA_API NzFont : public NzResource, NzAbstractFontAtlas::Listener, NzNonCopyable
+class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCopyable
 {
-	friend NzAbstractFontAtlas;
 	friend NzFontLoader;
 
 	public:
@@ -51,7 +50,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractFontAtlas::Listener, NzNo
 
 		bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* glyph) const;
 
-		const NzAbstractFontAtlas* GetAtlas() const;
+		const NzAbstractAtlas* GetAtlas() const;
 		unsigned int GetCachedGlyphCount(unsigned int characterSize, nzUInt32 style) const;
 		unsigned int GetCachedGlyphCount() const;
 		NzString GetFamilyName() const;
@@ -72,7 +71,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractFontAtlas::Listener, NzNo
 		bool OpenFromMemory(const void* data, std::size_t size, const NzFontParams& params = NzFontParams());
 		bool OpenFromStream(NzInputStream& stream, const NzFontParams& params = NzFontParams());
 
-		void SetAtlas(std::shared_ptr<NzAbstractFontAtlas> atlas);
+		void SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas);
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumSizeStep);
 
@@ -108,11 +107,11 @@ class NAZARA_API NzFont : public NzResource, NzAbstractFontAtlas::Listener, NzNo
 		using GlyphMap = std::unordered_map<char32_t, Glyph>;
 
 		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
-		bool OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata) override;
-		void OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata) override;
+		bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata) override;
+		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
 		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
-		std::shared_ptr<NzAbstractFontAtlas> m_atlas;
+		std::shared_ptr<NzAbstractAtlas> m_atlas;
 		std::unique_ptr<NzFontData> m_data;
 		mutable std::unordered_map<nzUInt64, std::unordered_map<nzUInt64, int>> m_kerningCache;
 		mutable std::unordered_map<nzUInt64, GlyphMap> m_glyphes;
