@@ -1,11 +1,13 @@
 /********************Entrant********************/
 in mat4 InstanceData0;
+in vec4 VertexColor;
 in vec3 VertexPosition;
 in vec3 VertexNormal;
 in vec3 VertexTangent;
 in vec2 VertexTexCoord;
 
 /********************Sortant********************/
+out vec4 vColor;
 out mat3 vLightToWorld;
 out vec3 vNormal;
 out vec2 vTexCoord;
@@ -22,6 +24,12 @@ uniform mat4 WorldViewProjMatrix;
 /********************Fonctions********************/
 void main()
 {
+#if FLAG_VERTEXCOLOR
+	vec4 color = VertexColor;
+#else
+	vec4 color = vec4(1.0);
+#endif
+
 #if FLAG_INSTANCING
 	#if TRANSFORM
 	gl_Position = ViewProjMatrix * InstanceData0 * vec4(VertexPosition, 1.0);
@@ -43,6 +51,8 @@ void main()
 		#endif
 	#endif
 #endif
+
+	vColor = color;
 
 #if LIGHTING
 	#if FLAG_INSTANCING

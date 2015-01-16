@@ -12,9 +12,9 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 
 class NzTexture;
 
@@ -23,13 +23,13 @@ using NzTextureRef = NzResourceRef<NzTexture>;
 
 struct NzTextureImpl;
 
-class NAZARA_API NzTexture : public NzResource, NzNonCopyable
+class NAZARA_API NzTexture : public NzAbstractImage, public NzResource, NzNonCopyable
 {
 	friend class NzRenderer;
-	friend class NzRenderTexture;
 
 	public:
 		NzTexture() = default;
+		NzTexture(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		explicit NzTexture(const NzImage& image);
 		~NzTexture();
 
@@ -42,18 +42,20 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 
 		void EnsureMipmapsUpdate() const;
 
-		nzUInt8 GetBytesPerPixel() const;
-		unsigned int GetDepth() const;
+		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
-		unsigned int GetHeight() const;
-		NzVector2ui GetSize() const;
+		unsigned int GetHeight(nzUInt8 level = 0) const;
+		nzUInt8 GetLevelCount() const;
+		nzUInt8 GetMaxLevel() const;
+		unsigned int GetMemoryUsage() const;
+		unsigned int GetMemoryUsage(nzUInt8 level) const;
+		NzVector3ui GetSize(nzUInt8 level = 0) const;
 		nzImageType GetType() const;
-		unsigned int GetWidth() const;
+		unsigned int GetWidth(nzUInt8 level = 0) const;
 
 		bool HasMipmaps() const;
 
-		bool IsCompressed() const;
-		bool IsCubemap() const;
+		void InvalidateMipmaps();
 		bool IsValid() const;
 
 		// Load
@@ -87,10 +89,6 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const NzImage& image, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const NzImage& image, const NzRectui& rect, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool UpdateFace(nzCubemapFace face, const nzUInt8* pixels, const NzRectui& rect, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
@@ -101,7 +99,7 @@ class NAZARA_API NzTexture : public NzResource, NzNonCopyable
 		static bool IsTypeSupported(nzImageType type);
 
 	private:
-		void InvalidateMipmaps();
+		bool CreateTexture(bool proxy);
 
 		NzTextureImpl* m_impl = nullptr;
 };

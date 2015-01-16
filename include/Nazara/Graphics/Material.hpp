@@ -46,7 +46,6 @@ class NAZARA_API NzMaterial : public NzResource
 	public:
 		NzMaterial();
 		NzMaterial(const NzMaterial& material);
-		NzMaterial(NzMaterial&& material);
 		~NzMaterial();
 
 		const NzShader* Apply(nzUInt32 shaderFlags = 0, nzUInt8 textureUnit = 0, nzUInt8* lastUsedUnit = nullptr) const;
@@ -127,7 +126,6 @@ class NAZARA_API NzMaterial : public NzResource
 		void SetSrcBlend(nzBlendFunc func);
 
 		NzMaterial& operator=(const NzMaterial& material);
-		NzMaterial& operator=(NzMaterial&& material);
 
 		static NzMaterial* GetDefault();
 
@@ -140,6 +138,7 @@ class NAZARA_API NzMaterial : public NzResource
 		};
 
 		void Copy(const NzMaterial& material);
+		void Move(NzMaterial&& material);
 		void GenerateShader(nzUInt32 flags) const;
 		void InvalidateShaders();
 

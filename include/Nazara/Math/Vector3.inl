@@ -18,6 +18,12 @@ NzVector3<T>::NzVector3(T X, T Y, T Z)
 }
 
 template<typename T>
+NzVector3<T>::NzVector3(T X, const NzVector2<T>& vec)
+{
+	Set(X, vec);
+}
+
+template<typename T>
 NzVector3<T>::NzVector3(T scale)
 {
 	Set(scale);
@@ -38,6 +44,12 @@ NzVector3<T>::NzVector3(const NzVector2<T>& vec, T Z)
 template<typename T>
 template<typename U>
 NzVector3<T>::NzVector3(const NzVector3<U>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
+NzVector3<T>::NzVector3(const NzVector4<T>& vec)
 {
 	Set(vec);
 }
@@ -256,6 +268,16 @@ NzVector3<T>& NzVector3<T>::Set(T X, T Y, T Z)
 }
 
 template<typename T>
+NzVector3<T>& NzVector3<T>::Set(T X, const NzVector2<T>& vec)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
+
+	return *this;
+}
+
+template<typename T>
 NzVector3<T>& NzVector3<T>::Set(T scale)
 {
 	x = scale;
@@ -298,6 +320,16 @@ NzVector3<T>& NzVector3<T>::Set(const NzVector3<U>& vec)
 	x = F(vec.x);
 	y = F(vec.y);
 	z = F(vec.z);
+
+	return *this;
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::Set(const NzVector4<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
+	z = vec.z;
 
 	return *this;
 }

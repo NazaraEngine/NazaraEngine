@@ -32,6 +32,9 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		NzVector3f GetEyePosition() const;
 		NzVector3f GetForward() const;
 		const NzFrustumf& GetFrustum() const;
+		NzVector3f GetGlobalForward() const;
+		NzVector3f GetGlobalRight() const;
+		NzVector3f GetGlobalUp() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
 		const NzVector2f& GetSize() const;
 		const NzRenderTarget* GetTarget() const;
@@ -42,6 +45,7 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		float GetZNear() const;
 
 		void SetSize(const NzVector2f& size);
+		void SetSize(float width, float height);
 		void SetTarget(const NzRenderTarget* renderTarget);
 		void SetTarget(const NzRenderTarget& renderTarget);
 		void SetTargetRegion(const NzRectf& region);
