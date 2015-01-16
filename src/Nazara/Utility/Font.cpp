@@ -276,20 +276,28 @@ bool NzFont::OpenFromStream(NzInputStream& stream, const NzFontParams& params)
 
 void NzFont::SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas)
 {
-	ClearGlyphCache();
+	if (m_atlas != atlas)
+	{
+		ClearGlyphCache();
 
-	if (m_atlas)
-		m_atlas->RemoveListener(this);
+		if (m_atlas)
+			m_atlas->RemoveListener(this);
 
-	m_atlas = atlas;
-	if (m_atlas)
-		m_atlas->AddListener(this);
+		m_atlas = atlas;
+		if (m_atlas)
+			m_atlas->AddListener(this);
+
+		NotifyModified(ModificationCode_AtlasChanged);
+	}
 }
 
 void NzFont::SetGlyphBorder(unsigned int borderSize)
 {
-	m_glyphBorder = borderSize;
-	ClearGlyphCache();
+	if (m_glyphBorder != borderSize)
+	{
+		m_glyphBorder = borderSize;
+		ClearGlyphCache();
+	}
 }
 
 void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
@@ -302,8 +310,11 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 	}
 	#endif
 
-	m_minimumSizeStep = minimumStepSize;
-	ClearGlyphCache();
+	if (m_minimumSizeStep != minimumStepSize)
+	{
+		m_minimumSizeStep = minimumStepSize;
+		ClearGlyphCache();
+	}
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const

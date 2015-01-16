@@ -79,6 +79,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 
 		enum ModicationCode
 		{
+			ModificationCode_AtlasChanged,
 			ModificationCode_GlyphCacheCleared,
 			ModificationCode_KerningCacheCleared,
 			ModificationCode_SizeInfoCacheCleared
