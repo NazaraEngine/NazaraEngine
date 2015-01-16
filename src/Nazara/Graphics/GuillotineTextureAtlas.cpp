@@ -7,49 +7,37 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-bool NzGuillotineTextureAtlas::ResizeImage(Layer& layer, const NzVector2ui& size) const
+NzAbstractImage* NzGuillotineTextureAtlas::ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const
 {
-	NzTexture newTexture;
-	if (newTexture.Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1, 0xFF))
+	std::unique_ptr<NzTexture> newTexture(new NzTexture);
+	if (newTexture->Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1, 0xFF))
 	{
-		if (layer.image)
+		if (oldImage)
 		{
-			NzTexture& texture = *static_cast<NzTexture*>(layer.image.get());
+			NzTexture* oldTexture = static_cast<NzTexture*>(oldImage);
 
 			// Copie des anciennes données
 			///TODO: Copie de texture à texture
 			NzImage image;
-			if (!texture.Download(&image))
+			if (!oldTexture->Download(&image))
 			{
 				NazaraError("Failed to download old texture");
-				return false;
+				return nullptr;
 			}
 
-			if (!newTexture.Update(image, NzRectui(0, 0, image.GetWidth(), image.GetHeight())))
+			if (!newTexture->Update(image, NzRectui(0, 0, image.GetWidth(), image.GetHeight())))
 			{
 				NazaraError("Failed to update texture");
-				return false;
+				return nullptr;
 			}
-
-			texture = std::move(newTexture);
 		}
-		else
-			layer.image.reset(new NzTexture(std::move(newTexture)));
 
-		return true;
+		return newTexture.release();
 	}
 	else
 	{
-		NazaraError("Failed to create texture");
-		return false;
+		// Si on arrive ici c'est que la taille demandée est trop grande pour la carte graphique
+		// ou que nous manquons de mémoire
+		return nullptr;
 	}
-}
-
-unsigned int NzGuillotineTextureAtlas::GetMaxAtlasSize() const
-{
-	///FIXME: D'après la documentation OpenGL, cette valeur n'est qu'une approximation et les texture proxies sont une meilleure solution
-	///       Cependant le test ne se fait pas au même moment, penser à adapter le code pour gérer ce cas ?
-	///       (Cela permettrait au passage de gérer le cas où une image ne peut être allouée car il n'y a pas assez de mémoire contigüe pour la contenir)
-
-	return NzRenderer::GetMaxTextureSize();
 }
