@@ -57,12 +57,6 @@ m_sharedImage(image.m_sharedImage)
 		m_sharedImage->refCount++;
 }
 
-NzImage::NzImage(NzImage&& image) noexcept :
-m_sharedImage(image.m_sharedImage)
-{
-	image.m_sharedImage = &emptyImage;
-}
-
 NzImage::NzImage(SharedImage* sharedImage) :
 m_sharedImage(sharedImage)
 {
@@ -1279,13 +1273,6 @@ NzImage& NzImage::operator=(const NzImage& image)
 	m_sharedImage = image.m_sharedImage;
 	if (m_sharedImage != &emptyImage)
 		m_sharedImage->refCount++;
-
-	return *this;
-}
-
-NzImage& NzImage::operator=(NzImage&& image) noexcept
-{
-	std::swap(m_sharedImage, image.m_sharedImage);
 
 	return *this;
 }

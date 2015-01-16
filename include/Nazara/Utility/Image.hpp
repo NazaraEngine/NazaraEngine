@@ -46,7 +46,6 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzResource
 		NzImage();
 		NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		NzImage(const NzImage& image);
-		NzImage(NzImage&& image) noexcept;
 		NzImage(SharedImage* sharedImage);
 		~NzImage();
 
@@ -105,7 +104,6 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzResource
 		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
-		NzImage& operator=(NzImage&& image) noexcept;
 
 		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);

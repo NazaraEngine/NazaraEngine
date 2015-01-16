@@ -31,7 +31,6 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzResource, NzNonCop
 		NzTexture() = default;
 		NzTexture(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		explicit NzTexture(const NzImage& image);
-		NzTexture(NzTexture&& texture);
 		~NzTexture();
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
@@ -93,8 +92,6 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzResource, NzNonCop
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
-
-		NzTexture& operator=(NzTexture&& texture);
 
 		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
