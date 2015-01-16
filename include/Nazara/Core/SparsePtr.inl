@@ -128,7 +128,19 @@ NzSparsePtr<T> NzSparsePtr<T>::operator+(int count) const
 }
 
 template<typename T>
+NzSparsePtr<T> NzSparsePtr<T>::operator+(unsigned int count) const
+{
+	return NzSparsePtr(m_ptr + count*m_stride, m_stride);
+}
+
+template<typename T>
 NzSparsePtr<T> NzSparsePtr<T>::operator-(int count) const
+{
+	return NzSparsePtr(m_ptr - count*m_stride, m_stride);
+}
+
+template<typename T>
+NzSparsePtr<T> NzSparsePtr<T>::operator-(unsigned int count) const
 {
 	return NzSparsePtr(m_ptr - count*m_stride, m_stride);
 }

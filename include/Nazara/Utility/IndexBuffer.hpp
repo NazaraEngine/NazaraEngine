@@ -23,7 +23,7 @@ class NAZARA_API NzIndexBuffer : public NzResource
 		NzIndexBuffer() = default;
 		NzIndexBuffer(bool largeIndices, NzBuffer* buffer);
 		NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzIndexBuffer(bool largeIndices, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzIndexBuffer(const NzIndexBuffer& indexBuffer);
 		NzIndexBuffer(NzIndexBuffer&& indexBuffer) noexcept;
 		~NzIndexBuffer();
@@ -54,11 +54,11 @@ class NAZARA_API NzIndexBuffer : public NzResource
 		void Reset();
 		void Reset(bool largeIndices, NzBuffer* buffer);
 		void Reset(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		void Reset(bool largeIndices, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		void Reset(bool largeIndices, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Reset(const NzIndexBuffer& indexBuffer);
 		void Reset(NzIndexBuffer&& indexBuffer) noexcept;
 
-		bool SetStorage(nzBufferStorage storage);
+		bool SetStorage(nzUInt32 storage);
 
 		void Unmap() const;
 

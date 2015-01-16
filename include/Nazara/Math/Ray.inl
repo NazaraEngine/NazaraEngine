@@ -204,9 +204,9 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* 
 template<typename T>
 bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* farthestHit) const
 {
-    NzVector3<T> width = (orientedBox.GetCorner(nzCorner_NearLeftBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> height = (orientedBox.GetCorner(nzCorner_FarLeftTop) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> depth = (orientedBox.GetCorner(nzCorner_FarRightBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> width = (orientedBox.GetCorner(nzBoxCorner_NearLeftBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> height = (orientedBox.GetCorner(nzBoxCorner_FarLeftTop) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> depth = (orientedBox.GetCorner(nzBoxCorner_FarRightBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
 
 	// Construction de la matrice de transformation de l'OBB
 	NzMatrix4<T> matrix(width.x, height.x, depth.x, F(0.0),

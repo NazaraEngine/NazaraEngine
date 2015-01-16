@@ -44,7 +44,7 @@ class NAZARA_API NzRenderTarget
 		{
 			public:
 				Listener() = default;
-				~Listener();
+				virtual ~Listener();
 
 				virtual bool OnRenderTargetParametersChange(const NzRenderTarget* renderTarget, void* userdata);
 				virtual void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata);

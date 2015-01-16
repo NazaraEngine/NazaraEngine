@@ -12,12 +12,15 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+///FIXME: Régler ce problème de dépendance aux ressources
+
 namespace
 {
 	enum ResourceType
 	{
 		ResourceType_IndexBuffer,
 		ResourceType_Material,
+		ResourceType_Texture,
 		ResourceType_VertexBuffer
 	};
 }
@@ -121,23 +124,26 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 	}
 }
 
-void NzForwardRenderQueue::AddSprite(const NzSprite* sprite)
+void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!sprite)
+	auto matIt = basicSprites.find(material);
+	if (matIt == basicSprites.end())
 	{
-		NazaraError("Invalid sprite");
-		return;
+		matIt = basicSprites.insert(std::make_pair(material, BasicSpriteBatches::mapped_type())).first;
+		material->AddResourceListener(this, ResourceType_Material);
 	}
 
-	if (!sprite->IsDrawable())
+	auto& overlayMap = matIt->second;
+	auto overlayIt = overlayMap.find(overlay);
+	if (overlayIt == overlayMap.end())
 	{
-		NazaraError("Sprite is not drawable");
-		return;
+		overlayIt = overlayMap.insert(std::make_pair(overlay, BasicSpriteOverlayContainer::mapped_type())).first;
+		if (overlay)
+			overlay->AddResourceListener(this, ResourceType_Texture);
 	}
-	#endif
 
-	sprites[sprite->GetMaterial()].push_back(sprite);
+	auto& spriteVector = overlayIt->second;
+	spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 }
 
 void NzForwardRenderQueue::Clear(bool fully)
@@ -150,12 +156,27 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 	if (fully)
 	{
-		for (auto& matIt : opaqueModels)
+		for (auto& matPair : basicSprites)
 		{
-			const NzMaterial* material = matIt.first;
+			const NzMaterial* material = matPair.first;
 			material->RemoveResourceListener(this);
 
-			MeshInstanceContainer& instances = std::get<2>(matIt.second);
+			auto& overlayMap = matPair.second;
+			for (auto& overlayPair : overlayMap)
+			{
+				const NzTexture* overlay = overlayPair.first;
+				if (overlay)
+					overlay->RemoveResourceListener(this);
+			}
+		}
+		basicSprites.clear();
+
+		for (auto& matPair : opaqueModels)
+		{
+			const NzMaterial* material = matPair.first;
+			material->RemoveResourceListener(this);
+
+			MeshInstanceContainer& instances = std::get<2>(matPair.second);
 			for (auto& instanceIt : instances)
 			{
 				const NzMeshData& renderData = instanceIt.first;
@@ -167,7 +188,6 @@ void NzForwardRenderQueue::Clear(bool fully)
 			}
 		}
 		opaqueModels.clear();
-		sprites.clear();
 	}
 }
 
@@ -210,6 +230,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 		}
 
 		case ResourceType_Material:
+			basicSprites.erase(static_cast<const NzMaterial*>(resource));
 			opaqueModels.erase(static_cast<const NzMaterial*>(resource));
 			break;
 
@@ -260,6 +281,15 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 
 		case ResourceType_Material:
 		{
+			for (auto it = basicSprites.begin(); it != basicSprites.end(); ++it)
+			{
+				if (it->first == resource)
+				{
+					basicSprites.erase(it);
+					break;
+				}
+			}
+
 			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
 			{
 				if (it->first == resource)
@@ -268,6 +298,25 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 					break;
 				}
 			}
+
+			break;
+		}
+
+		case ResourceType_Texture:
+		{
+			for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
+			{
+				auto& overlayMap = matIt->second;
+				for (auto overlayIt = overlayMap.begin(); overlayIt != overlayMap.end(); ++overlayIt)
+				{
+					if (overlayIt->first == resource)
+					{
+						overlayMap.erase(overlayIt);
+						break;
+					}
+				}
+			}
+
 			break;
 		}
 
@@ -299,7 +348,6 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 
@@ -320,7 +368,6 @@ bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzM
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 

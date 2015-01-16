@@ -19,6 +19,7 @@ class NzCallOnExit : NzNonCopyable
 		NzCallOnExit(Func func = nullptr);
 		~NzCallOnExit();
 
+		void CallAndReset(Func func = nullptr);
 		void Reset(Func func = nullptr);
 
 	private:

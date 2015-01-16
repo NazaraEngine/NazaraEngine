@@ -36,19 +36,13 @@ NzModel::NzModel(const NzModel& model) :
 NzSceneNode(model),
 m_materials(model.m_materials),
 m_boundingVolume(model.m_boundingVolume),
+m_mesh(model.m_mesh),
 m_boundingVolumeUpdated(model.m_boundingVolumeUpdated),
 m_matCount(model.m_matCount),
 m_skin(model.m_skin),
 m_skinCount(model.m_skinCount)
 {
-	if (model.m_mesh)
-	{
-		// Nous n'avons des matériaux que si nous avons un mesh
-		m_mesh = model.m_mesh;
-		m_materials = model.m_materials;
-	}
-
-	SetParent(model);
+	SetParent(model.GetParent());
 }
 
 NzModel::~NzModel()
@@ -414,24 +408,6 @@ NzModel& NzModel::operator=(const NzModel& node)
 	m_matCount = node.m_matCount;
 	m_materials = node.m_materials;
 	m_mesh = node.m_mesh;
-	m_skin = node.m_skin;
-	m_skinCount = node.m_skinCount;
-
-	return *this;
-}
-
-NzModel& NzModel::operator=(NzModel&& node)
-{
-	NzSceneNode::operator=(node);
-
-	// Ressources
-	m_mesh = std::move(node.m_mesh);
-	m_materials = std::move(node.m_materials);
-
-	// Paramètres
-	m_boundingVolume = node.m_boundingVolume;
-	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
-	m_matCount = node.m_matCount;
 	m_skin = node.m_skin;
 	m_skinCount = node.m_skinCount;
 

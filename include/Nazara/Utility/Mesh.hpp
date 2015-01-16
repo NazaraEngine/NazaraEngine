@@ -24,11 +24,11 @@ struct NAZARA_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 
-	// Si ceci sera le stockage utilisé par les buffers
-	nzBufferStorage storage = nzBufferStorage_Hardware;
-
 	// La mise à l'échelle éventuelle que subira le mesh
 	NzVector3f scale = NzVector3f::Unit();
+
+	// Si ceci sera le stockage utilisé par les buffers
+	nzUInt32 storage = nzDataStorage_Hardware;
 
 	// Charger une version animée du mesh si possible ?
 	bool animated = true;

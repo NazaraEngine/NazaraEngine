@@ -38,7 +38,7 @@ class NzBox
 		NzBox& ExtendTo(const NzVector3<T>& point);
 
 		NzSphere<T> GetBoundingSphere() const;
-		NzVector3<T> GetCorner(nzCorner corner) const;
+		NzVector3<T> GetCorner(nzBoxCorner corner) const;
 		NzVector3<T> GetCenter() const;
 		NzVector3<T> GetLengths() const;
 		NzVector3<T> GetMaximum() const;

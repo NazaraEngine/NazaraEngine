@@ -7,6 +7,7 @@ layout(early_fragment_tests) in;
 #define LIGHT_SPOT 2
 
 /********************Entrant********************/
+in vec4 vColor;
 in mat3 vLightToWorld;
 in vec3 vNormal;
 in vec2 vTexCoord;
@@ -49,6 +50,8 @@ uniform float ParallaxBias = -0.03;
 uniform float ParallaxScale = 0.02;
 uniform vec4 SceneAmbient;
 
+uniform sampler2D TextureOverlay;
+
 /********************Fonctions********************/
 vec3 FloatToColor(float f)
 {
@@ -76,7 +79,7 @@ vec4 EncodeNormal(in vec3 normal)
 
 void main()
 {
-	vec4 diffuseColor = MaterialDiffuse;
+	vec4 diffuseColor = MaterialDiffuse * vColor;
 	vec2 texCoord = vTexCoord;
 #if LIGHTING && PARALLAX_MAPPING
 	float height = texture(MaterialHeightMap, texCoord).r;
@@ -88,6 +91,10 @@ void main()
 
 #if DIFFUSE_MAPPING
 	diffuseColor *= texture(MaterialDiffuseMap, texCoord);
+#endif
+
+#if FLAG_TEXTUREOVERLAY
+	diffuseColor *= texture(TextureOverlay, texCoord);
 #endif
 
 #if FLAG_DEFERRED

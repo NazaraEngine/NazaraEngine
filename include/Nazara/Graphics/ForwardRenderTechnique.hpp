@@ -32,23 +32,27 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 		void SetMaxLightPassPerObject(unsigned int passCount);
 
 	private:
-		struct LightUniforms;
+		struct ShaderUniforms;
 
+		void DrawBasicSprites(const NzScene* scene) const;
 		void DrawOpaqueModels(const NzScene* scene) const;
-		void DrawSprites(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
-		const LightUniforms* GetLightUniforms(const NzShader* shader) const;
+		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
 
-		struct LightUniforms
+		struct ShaderUniforms
 		{
-			NzLightUniforms uniforms;
-			bool exists;
-			int offset; // "Distance" entre Lights[0].type et Lights[1].type
+			NzLightUniforms lightUniforms;
+			bool hasLightUniforms;
+
 			/// Moins coûteux en mémoire que de stocker un NzLightUniforms par index de lumière,
 			/// à voir si ça fonctionne chez tout le monde
+			int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
+
+			// Autre uniformes
+			int textureOverlay;
 		};
 
-		mutable std::unordered_map<const NzShader*, LightUniforms> m_lightUniforms;
+		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
 		mutable NzForwardRenderQueue m_renderQueue;
 		NzIndexBufferRef m_indexBuffer;
 		mutable NzLightManager m_directionalLights;
