@@ -24,7 +24,7 @@ m_zNear(-1.f)
 NzView::NzView(const NzVector2f& size) :
 NzView() // On délègue
 {
-	m_size = size;
+	SetSize(size);
 }
 
 NzView::~NzView()
@@ -145,6 +145,17 @@ float NzView::GetZFar() const
 float NzView::GetZNear() const
 {
 	return m_zNear;
+}
+
+void NzView::SetSize(const NzVector2f& size)
+{
+	SetSize(size.x, size.y);
+}
+
+void NzView::SetSize(float width, float height)
+{
+	m_size.Set(width, height);
+	m_projectionMatrixUpdated = false;
 }
 
 void NzView::SetTarget(const NzRenderTarget* renderTarget)
