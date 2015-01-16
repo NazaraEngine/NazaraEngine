@@ -202,6 +202,15 @@ const NzFont::SizeInfo& NzFont::GetSizeInfo(unsigned int characterSize) const
 		sizeInfo.underlinePosition = m_data->QueryUnderlinePosition(characterSize);
 		sizeInfo.underlineThickness = m_data->QueryUnderlineThickness(characterSize);
 
+		NzFontGlyph glyph;
+		if (m_data->ExtractGlyph(characterSize, ' ', nzTextStyle_None, &glyph))
+			sizeInfo.spaceAdvance = glyph.advance;
+		else
+		{
+			NazaraWarning("Failed to extract space character from font, using half the size");
+			sizeInfo.spaceAdvance = characterSize/2;
+		}
+
 		it = m_sizeInfoCache.insert(std::make_pair(characterSize, sizeInfo)).first;
 	}
 
