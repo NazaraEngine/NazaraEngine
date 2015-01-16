@@ -2,35 +2,34 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/AbstractFontAtlas.hpp>
-#include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzAbstractFontAtlas::NzAbstractFontAtlas() :
+NzAbstractAtlas::NzAbstractAtlas() :
 m_listenersLocked(false)
 {
 }
 
-NzAbstractFontAtlas::~NzAbstractFontAtlas()
+NzAbstractAtlas::~NzAbstractAtlas()
 {
 	m_listenersLocked = true;
 	for (auto& pair : m_listeners)
 		pair.first->OnAtlasReleased(this, pair.second);
 }
 
-void NzAbstractFontAtlas::AddListener(Listener* listener, void* userdata) const
+void NzAbstractAtlas::AddListener(Listener* listener, void* userdata) const
 {
 	if (!m_listenersLocked)
 		m_listeners.insert(std::make_pair(listener, userdata));
 }
 
-void NzAbstractFontAtlas::RemoveListener(Listener* listener) const
+void NzAbstractAtlas::RemoveListener(Listener* listener) const
 {
 	if (!m_listenersLocked)
 		m_listeners.erase(listener);
 }
 
-void NzAbstractFontAtlas::NotifyCleared()
+void NzAbstractAtlas::NotifyCleared()
 {
 	m_listenersLocked = true;
 
@@ -46,9 +45,9 @@ void NzAbstractFontAtlas::NotifyCleared()
 	m_listenersLocked = false;
 }
 
-NzAbstractFontAtlas::Listener::~Listener() = default;
+NzAbstractAtlas::Listener::~Listener() = default;
 
-bool NzAbstractFontAtlas::Listener::OnAtlasCleared(const NzAbstractFontAtlas* atlas, void* userdata)
+bool NzAbstractAtlas::Listener::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 {
 	NazaraUnused(atlas);
 	NazaraUnused(userdata);
@@ -56,7 +55,7 @@ bool NzAbstractFontAtlas::Listener::OnAtlasCleared(const NzAbstractFontAtlas* at
 	return true;
 }
 
-void NzAbstractFontAtlas::Listener::OnAtlasReleased(const NzAbstractFontAtlas* atlas, void* userdata)
+void NzAbstractAtlas::Listener::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 {
 	NazaraUnused(atlas);
 	NazaraUnused(userdata);
