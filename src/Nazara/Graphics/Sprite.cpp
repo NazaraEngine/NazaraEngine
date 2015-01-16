@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <cstring>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -15,32 +16,18 @@ m_size(64.f, 64.f),
 m_boundingVolumeUpdated(true),
 m_verticesUpdated(false)
 {
+	SetDefaultMaterial();
 }
 
 NzSprite::NzSprite(NzTexture* texture) :
 m_boundingVolume(NzBoundingVolumef::Null()),
 m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f),
+m_size(64.f, 64.f),
+m_boundingVolumeUpdated(false),
 m_verticesUpdated(false)
 {
-	if (texture)
-	{
-		m_material = new NzMaterial;
-		m_material->SetPersistent(false);
-		m_material->SetDiffuseMap(texture);
-
-		if (texture->IsValid())
-			m_size.Set(texture->GetWidth(), texture->GetHeight());
-		else
-			m_size.Set(64.f, 64.f);
-
-		m_boundingVolumeUpdated = false;
-	}
-	else
-	{
-		m_size.Set(64.f, 64.f);
-		m_boundingVolumeUpdated = true;
-	}
+	SetTexture(texture, true);
 }
 
 NzSprite::NzSprite(const NzSprite& sprite) :
@@ -108,13 +95,27 @@ void NzSprite::SetColor(const NzColor& color)
 	m_verticesUpdated = false;
 }
 
+void NzSprite::SetDefaultMaterial()
+{
+	std::unique_ptr<NzMaterial> material(new NzMaterial);
+	material->Enable(nzRendererParameter_FaceCulling, false);
+	material->EnableLighting(false);
+
+	SetMaterial(material.get());
+
+	material->SetPersistent(false);
+	material.release();
+}
+
 void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
 {
 	m_material = material;
-
-	NzTexture* diffuseMap = m_material->GetDiffuseMap();
-	if (resizeSprite && diffuseMap && diffuseMap->IsValid())
-		SetSize(NzVector2f(NzVector2ui(diffuseMap->GetSize())));
+	if (m_material && resizeSprite)
+	{
+		NzTexture* diffuseMap = m_material->GetDiffuseMap();
+		if (diffuseMap && diffuseMap->IsValid())
+			SetSize(NzVector2f(NzVector2ui(diffuseMap->GetSize())));
+	}
 }
 
 void NzSprite::SetSize(const NzVector2f& size)
@@ -134,15 +135,17 @@ void NzSprite::SetSize(float sizeX, float sizeY)
 
 void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)
 {
-	std::unique_ptr<NzMaterial> material(new NzMaterial);
-	material->SetPersistent(false);
+	if (!m_material)
+		SetDefaultMaterial();
+	else if (m_material->GetResourceReferenceCount() > 1)
+	{
+		m_material = new NzMaterial(*m_material);
+		m_material->SetPersistent(false);
+	}
 
-	material->Enable(nzRendererParameter_FaceCulling, false);
-	material->EnableLighting(false);
-	material->SetDiffuseMap(texture);
-
-	SetMaterial(material.get(), resizeSprite);
-	material.release();
+	m_material->SetDiffuseMap(texture);
+	if (resizeSprite && texture && texture->IsValid())
+		SetSize(NzVector2f(NzVector2ui(texture->GetSize())));
 }
 
 void NzSprite::SetTextureCoords(const NzRectf& coords)
