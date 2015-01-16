@@ -18,8 +18,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 		NzSprite();
 		NzSprite(NzTexture* texture);
 		NzSprite(const NzSprite& sprite);
-		NzSprite(NzSprite&& sprite);
-		~NzSprite();
+		~NzSprite() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
@@ -39,6 +38,8 @@ class NAZARA_API NzSprite : public NzSceneNode
 		void SetTexture(NzTexture* texture, bool resizeSprite = true);
 		void SetTextureCoords(const NzRectf& coords);
 		void SetTextureRect(const NzRectui& rect);
+
+		NzSprite& operator=(const NzSprite& sprite);
 
 	private:
 		void InvalidateNode() override;

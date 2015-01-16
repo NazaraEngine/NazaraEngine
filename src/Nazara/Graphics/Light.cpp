@@ -41,7 +41,7 @@ m_innerAngle(light.m_innerAngle),
 m_outerAngle(light.m_outerAngle),
 m_radius(light.m_radius)
 {
-	SetParent(light);
+	SetParent(light.GetParent());
 }
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
