@@ -287,7 +287,7 @@ namespace
 			bool SupportsStyle(nzUInt32 style) const override
 			{
 				///TODO
-				return style == nzTextStyle_None || style == nzTextStyle_Bold;
+				return style == nzTextStyle_Regular || style == nzTextStyle_Bold;
 			}
 
 		private:

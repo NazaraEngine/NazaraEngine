@@ -230,7 +230,7 @@ enum nzTextAlign
 
 enum nzTextStyleFlags
 {
-	nzTextStyle_None = 0x0,
+	nzTextStyle_Regular = 0x0,
 
 	nzTextStyle_Bold          = 0x1,
 	nzTextStyle_Italic        = 0x2,
