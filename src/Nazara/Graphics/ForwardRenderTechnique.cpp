@@ -226,6 +226,8 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 					NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 					unsigned int spriteCount = 0;
+
+					do
 					{
 						NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
 						unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
