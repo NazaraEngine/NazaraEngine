@@ -40,11 +40,13 @@ class NAZARA_API NzAbstractAtlas
 				virtual ~Listener();
 
 				virtual bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata);
+				virtual bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata);
 				virtual void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata);
 		};
 
 	protected:
 		void NotifyCleared();
+		void NotifyLayerChange(NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
 
 	private:
 		mutable std::unordered_map<Listener*, void*> m_listeners;

@@ -37,8 +37,8 @@ class NAZARA_API NzGuillotineImageAtlas : public NzAbstractAtlas
 	protected:
 		struct Layer;
 
-		virtual unsigned int GetMaxAtlasSize() const;
-		virtual bool ResizeImage(Layer& layer, const NzVector2ui& size) const;
+		virtual NzAbstractImage* ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const;
+		bool ResizeLayer(Layer& layer, const NzVector2ui& size);
 
 		struct QueuedGlyph
 		{
