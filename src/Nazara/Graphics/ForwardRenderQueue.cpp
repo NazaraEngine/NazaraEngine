@@ -165,7 +165,8 @@ void NzForwardRenderQueue::Clear(bool fully)
 			for (auto& overlayPair : overlayMap)
 			{
 				const NzTexture* overlay = overlayPair.first;
-				overlay->RemoveResourceListener(this);
+				if (overlay)
+					overlay->RemoveResourceListener(this);
 			}
 		}
 		basicSprites.clear();
