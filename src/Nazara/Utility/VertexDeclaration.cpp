@@ -213,7 +213,7 @@ bool NzVertexDeclaration::Initialize()
 		NazaraAssert(declaration->GetStride() == sizeof(NzVertexStruct_XYZ), "Invalid stride for declaration nzVertexLayout_XYZ");
 
 		// nzVertexLayout_XYZ_Color : NzVertexStruct_XYZ_Color
-		declaration = &s_declarations[nzVertexLayout_XYZ_Color_UV];
+		declaration = &s_declarations[nzVertexLayout_XYZ_Color];
 		declaration->EnableComponent(nzVertexComponent_Position, nzComponentType_Float3, NzOffsetOf(NzVertexStruct_XYZ_Color, position));
 		declaration->EnableComponent(nzVertexComponent_Color,    nzComponentType_Color,  NzOffsetOf(NzVertexStruct_XYZ_Color, color));
 
