@@ -311,7 +311,7 @@ namespace
 	{
 		///FIXME: Je suppose qu'il en manque quelques unes..
 		static std::set<NzString> supportedExtensions = {
-			"afm", "bdf", "cff", "cid", "dfont", "fnt", "pfa", "pfb", "pfm", "pfr", "sfnt", "tte", "ttf"
+			"afm", "bdf", "cff", "cid", "dfont", "fnt", "fon", "otf", "pfa", "pfb", "pfm", "pfr", "sfnt", "ttc", "tte", "ttf"
 		};
 
 		return supportedExtensions.find(extension) != supportedExtensions.end();
