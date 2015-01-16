@@ -32,6 +32,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 		bool IsDrawable() const;
 
 		void SetColor(const NzColor& color);
+		void SetDefaultMaterial();
 		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
 		void SetSize(const NzVector2f& size);
 		void SetSize(float sizeX, float sizeY);
