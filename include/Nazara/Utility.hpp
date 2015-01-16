@@ -1,4 +1,4 @@
-// This file was automatically generated on 11 Jul 2014 at 10:21:52
+// This file was automatically generated on 17 Jan 2015 at 00:38:08
 
 /*
 	Nazara Engine - Utility module
@@ -29,7 +29,10 @@
 #ifndef NAZARA_GLOBAL_UTILITY_HPP
 #define NAZARA_GLOBAL_UTILITY_HPP
 
+#include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
+#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -39,6 +42,10 @@
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
+#include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/FontData.hpp>
+#include <Nazara/Utility/FontGlyph.hpp>
+#include <Nazara/Utility/GuillotineImageAtlas.hpp>
 #include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -52,6 +59,7 @@
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Sequence.hpp>
+#include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
