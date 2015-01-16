@@ -17,7 +17,7 @@ class NAZARA_API NzAbstractImage
 {
 	public:
 		NzAbstractImage() = default;
-		~NzAbstractImage();
+		virtual ~NzAbstractImage();
 
 		nzUInt8 GetBytesPerPixel() const;
 		virtual unsigned int GetDepth(nzUInt8 level = 0) const = 0;
