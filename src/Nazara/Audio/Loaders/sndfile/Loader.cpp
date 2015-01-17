@@ -106,13 +106,21 @@ namespace
 
 			bool Open(const NzString& filePath, bool forceMono)
 			{
-				if (!m_file.Open(filePath, NzFile::ReadOnly))
+				std::unique_ptr<NzFile> file(new NzFile);
+				if (!file->Open(filePath, NzFile::ReadOnly))
 				{
 					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
 				}
+				m_ownedStream = std::move(file);
 
-				return Open(m_file, forceMono);
+				return Open(*m_ownedStream, forceMono);
+			}
+
+			bool Open(const void* data, std::size_t size, bool forceMono)
+			{
+				m_ownedStream.reset(new NzMemoryStream(data, size));
+				return Open(*m_ownedStream, forceMono);
 			}
 
 			bool Open(NzInputStream& stream, bool forceMono)
@@ -185,8 +193,8 @@ namespace
 
 		private:
 			std::vector<nzInt16> m_mixBuffer;
+			std::unique_ptr<NzInputStream> m_ownedStream;
 			nzAudioFormat m_format;
-			NzFile m_file;
 			SNDFILE* m_handle;
 			bool m_mixToMono;
 			unsigned int m_duration;
@@ -227,6 +235,28 @@ namespace
 
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
 		if (!musicStream->Open(filePath, parameters.forceMono))
+		{
+			NazaraError("Failed to open music stream");
+			return false;
+		}
+
+		if (!music->Create(musicStream.get()))
+		{
+			NazaraError("Failed to create music");
+			return false;
+		}
+
+		musicStream.release();
+
+		return true;
+	}
+
+	bool LoadMusicMemory(NzMusic* music, const void* data, std::size_t size, const NzMusicParams& parameters)
+	{
+		NazaraUnused(parameters);
+
+		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
+		if (!musicStream->Open(data, size, parameters.forceMono))
 		{
 			NazaraError("Failed to open music stream");
 			return false;
@@ -342,12 +372,12 @@ namespace
 
 void NzLoaders_sndfile_Register()
 {
-	NzMusicLoader::RegisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile);
+	NzMusicLoader::RegisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile, LoadMusicMemory);
 	NzSoundBufferLoader::RegisterLoader(IsSupported, CheckSoundBuffer, LoadSoundBuffer);
 }
 
 void NzLoaders_sndfile_Unregister()
 {
-	NzMusicLoader::UnregisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile);
+	NzMusicLoader::UnregisterLoader(IsSupported, CheckMusic, LoadMusicStream, LoadMusicFile, LoadMusicMemory);
 	NzSoundBufferLoader::UnregisterLoader(IsSupported, CheckSoundBuffer, LoadSoundBuffer);
 }
