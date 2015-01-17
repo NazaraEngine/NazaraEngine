@@ -89,7 +89,7 @@ void NzSimpleTextDrawer::SetText(const NzString& str)
 	m_glyphUpdated = false;
 }
 
-NzSimpleTextDrawer NzSimpleTextDrawer::Draw(unsigned int characterSize, const NzString& str, nzUInt32 style, const NzColor& color)
+NzSimpleTextDrawer NzSimpleTextDrawer::Draw(const NzString& str, unsigned int characterSize, nzUInt32 style, const NzColor& color)
 {
 	///FIXME: Sans default font ça n'a aucun intérêt
 	NzSimpleTextDrawer drawer;
@@ -101,7 +101,7 @@ NzSimpleTextDrawer NzSimpleTextDrawer::Draw(unsigned int characterSize, const Nz
 	return drawer;
 }
 
-NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, unsigned int characterSize, const NzString& str, nzUInt32 style, const NzColor& color)
+NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style, const NzColor& color)
 {
 	NzSimpleTextDrawer drawer;
 	drawer.SetCharacterSize(characterSize);
