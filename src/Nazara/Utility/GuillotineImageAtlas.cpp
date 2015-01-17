@@ -76,12 +76,8 @@ unsigned int NzGuillotineImageAtlas::GetLayerCount() const
 bool NzGuillotineImageAtlas::Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex)
 {
 	if (m_layers.empty())
-	{
 		// On créé une première couche s'il n'y en a pas
 		m_layers.resize(1);
-		Layer& layer = m_layers.back();
-		layer.binPack.Reset(s_atlasStartSize, s_atlasStartSize);
-	}
 
 	// Cette fonction ne fait qu'insérer un rectangle de façon virtuelle, l'insertion des images se fait après
 	for (unsigned int i = 0; i < m_layers.size(); ++i)
