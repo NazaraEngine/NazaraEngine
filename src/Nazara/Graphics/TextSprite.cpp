@@ -132,7 +132,7 @@ void NzTextSprite::SetText(const NzAbstractTextDrawer& drawer)
 	unsigned int fontCount = drawer.GetFontCount();
 	for (unsigned int i = 0; i < fontCount; ++i)
 	{
-		const NzAbstractAtlas* atlas = drawer.GetFont(i)->GetAtlas();
+		const NzAbstractAtlas* atlas = drawer.GetFont(i)->GetAtlas().get();
 		if (m_atlases.insert(atlas).second)
 			atlas->AddListener(this);
 	}

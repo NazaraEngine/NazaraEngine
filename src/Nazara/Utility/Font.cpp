@@ -104,9 +104,9 @@ bool NzFont::ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt
 	return m_data->ExtractGlyph(characterSize, character, style, glyph);
 }
 
-const NzAbstractAtlas* NzFont::GetAtlas() const
+const std::shared_ptr<NzAbstractAtlas>& NzFont::GetAtlas() const
 {
-	return m_atlas.get();
+	return m_atlas;
 }
 
 unsigned int NzFont::GetCachedGlyphCount(unsigned int characterSize, nzUInt32 style) const
@@ -277,7 +277,7 @@ bool NzFont::OpenFromStream(NzInputStream& stream, const NzFontParams& params)
 	return NzFontLoader::LoadFromStream(this, stream, params);
 }
 
-void NzFont::SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas)
+void NzFont::SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 {
 	if (m_atlas != atlas)
 	{
