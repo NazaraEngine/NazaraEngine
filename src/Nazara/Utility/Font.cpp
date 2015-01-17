@@ -6,6 +6,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
+#include <Nazara/Utility/GuillotineImageAtlas.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 bool NzFontParams::IsValid() const
@@ -14,6 +15,7 @@ bool NzFontParams::IsValid() const
 }
 
 NzFont::NzFont() :
+m_atlas(s_defaultAtlas),
 m_glyphBorder(s_defaultGlyphBorder),
 m_minimumSizeStep(s_defaultMinimumSizeStep)
 {
@@ -318,6 +320,11 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 	}
 }
 
+std::shared_ptr<NzAbstractAtlas> NzFont::GetDefaultAtlas()
+{
+	return s_defaultAtlas;
+}
+
 unsigned int NzFont::GetDefaultGlyphBorder()
 {
 	return s_defaultGlyphBorder;
@@ -330,10 +337,16 @@ unsigned int NzFont::GetDefaultMinimumStepSize()
 
 bool NzFont::Initialize()
 {
+	s_defaultAtlas.reset(new NzGuillotineImageAtlas);
 	s_defaultGlyphBorder = 1;
 	s_defaultMinimumSizeStep = 1;
 
 	return true;
+}
+
+void NzFont::SetDefaultAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
+{
+	s_defaultAtlas = atlas;
 }
 
 void NzFont::SetDefaultGlyphBorder(unsigned int borderSize)
@@ -356,7 +369,7 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumSizeStep)
 
 void NzFont::Uninitialize()
 {
-
+	s_defaultAtlas.reset();
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -531,6 +544,7 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 	return glyph;
 }
 
+std::shared_ptr<NzAbstractAtlas> NzFont::s_defaultAtlas;
 NzFontLoader::LoaderList NzFont::s_loaders;
 unsigned int NzFont::s_defaultGlyphBorder;
 unsigned int NzFont::s_defaultMinimumSizeStep;

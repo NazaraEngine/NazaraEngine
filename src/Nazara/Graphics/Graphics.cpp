@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
@@ -65,6 +66,8 @@ bool NzGraphics::Initialize()
 		NzDeferredRenderTechnique::Initialize();
 		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
 	}
+
+	NzFont::SetDefaultAtlas(new NzGuillotineTextureAtlas);
 
 	onExit.Reset();
 
