@@ -95,6 +95,10 @@ void NzGraphics::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	// Libération de l'atlas s'il vient de nous
+	if (NzFont::GetDefaultAtlas()->GetStorage() & nzDataStorage_Hardware)
+		NzFont::SetDefaultAtlas(nullptr);
+
 	// Loaders
 	NzLoaders_Mesh_Unregister();
 	NzLoaders_OBJ_Unregister();

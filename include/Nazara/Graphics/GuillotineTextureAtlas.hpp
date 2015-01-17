@@ -16,6 +16,8 @@ class NAZARA_API NzGuillotineTextureAtlas : public NzGuillotineImageAtlas
 		NzGuillotineTextureAtlas() = default;
 		~NzGuillotineTextureAtlas() = default;
 
+		nzUInt32 GetStorage() const;
+
 	private:
 		NzAbstractImage* ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const override;
 };
