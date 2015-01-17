@@ -14,15 +14,15 @@ bool NzFontParams::IsValid() const
 }
 
 NzFont::NzFont() :
-m_glyphBorder(1),
-m_minimumSizeStep(1)
+m_glyphBorder(s_defaultGlyphBorder),
+m_minimumSizeStep(s_defaultMinimumSizeStep)
 {
 }
 
 NzFont::~NzFont()
 {
 	Destroy();
-	SetAtlas(nullptr); // On libère l'atlas par la même occasion
+	SetAtlas(nullptr); // On libère l'atlas proprement
 }
 
 void NzFont::ClearGlyphCache()
@@ -303,6 +303,38 @@ void NzFont::SetGlyphBorder(unsigned int borderSize)
 
 void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 {
+	if (m_minimumSizeStep != minimumStepSize)
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (minimumStepSize == 0)
+		{
+			NazaraError("Minimum step size cannot be zero as it implies division by zero");
+			return;
+		}
+		#endif
+
+		m_minimumSizeStep = minimumStepSize;
+		ClearGlyphCache();
+	}
+}
+
+unsigned int NzFont::GetDefaultGlyphBorder()
+{
+	return s_defaultGlyphBorder;
+}
+
+unsigned int NzFont::GetDefaultMinimumStepSize()
+{
+	return s_defaultMinimumSizeStep;
+}
+
+void NzFont::SetDefaultGlyphBorder(unsigned int borderSize)
+{
+	s_defaultGlyphBorder = borderSize;
+}
+
+void NzFont::SetDefaultMinimumStepSize(unsigned int minimumSizeStep)
+{
 	#if NAZARA_UTILITY_SAFE
 	if (minimumStepSize == 0)
 	{
@@ -311,11 +343,7 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 	}
 	#endif
 
-	if (m_minimumSizeStep != minimumStepSize)
-	{
-		m_minimumSizeStep = minimumStepSize;
-		ClearGlyphCache();
-	}
+	s_defaultMinimumSizeStep = minimumSizeStep;
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -482,3 +510,5 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 }
 
 NzFontLoader::LoaderList NzFont::s_loaders;
+unsigned int NzFont::s_defaultGlyphBorder = 1;
+unsigned int NzFont::s_defaultMinimumSizeStep = 1;
