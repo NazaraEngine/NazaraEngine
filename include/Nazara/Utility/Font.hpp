@@ -38,7 +38,6 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		struct SizeInfo;
 
 		NzFont();
-		NzFont(NzFont&& font) = default;
 		~NzFont();
 
 		void ClearGlyphCache();
@@ -74,8 +73,6 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		void SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas);
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumSizeStep);
-
-		NzFont& operator=(NzFont&& font) = default;
 
 		enum ModicationCode
 		{
