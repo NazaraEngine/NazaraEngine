@@ -76,8 +76,13 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 
 		static unsigned int GetDefaultGlyphBorder();
 		static unsigned int GetDefaultMinimumStepSize();
+
+		static bool Initialize();
+
 		static void SetDefaultGlyphBorder(unsigned int borderSize);
 		static void SetDefaultMinimumStepSize(unsigned int minimumSizeStep);
+
+		static void Uninitialize();
 
 		enum ModicationCode
 		{
