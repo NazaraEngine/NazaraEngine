@@ -17,7 +17,7 @@ bool NzFontParams::IsValid() const
 NzFont::NzFont() :
 m_atlas(s_defaultAtlas),
 m_glyphBorder(s_defaultGlyphBorder),
-m_minimumSizeStep(s_defaultMinimumSizeStep)
+m_minimumStepSize(s_defaultMinimumStepSize)
 {
 }
 
@@ -182,7 +182,7 @@ unsigned int NzFont::GetGlyphBorder() const
 
 unsigned int NzFont::GetMinimumStepSize() const
 {
-	return m_minimumSizeStep;
+	return m_minimumStepSize;
 }
 
 const NzFont::SizeInfo& NzFont::GetSizeInfo(unsigned int characterSize) const
@@ -305,7 +305,7 @@ void NzFont::SetGlyphBorder(unsigned int borderSize)
 
 void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 {
-	if (m_minimumSizeStep != minimumStepSize)
+	if (m_minimumStepSize != minimumStepSize)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (minimumStepSize == 0)
@@ -315,7 +315,7 @@ void NzFont::SetMinimumStepSize(unsigned int minimumStepSize)
 		}
 		#endif
 
-		m_minimumSizeStep = minimumStepSize;
+		m_minimumStepSize = minimumStepSize;
 		ClearGlyphCache();
 	}
 }
@@ -332,14 +332,14 @@ unsigned int NzFont::GetDefaultGlyphBorder()
 
 unsigned int NzFont::GetDefaultMinimumStepSize()
 {
-	return s_defaultMinimumSizeStep;
+	return s_defaultMinimumStepSize;
 }
 
 bool NzFont::Initialize()
 {
 	s_defaultAtlas.reset(new NzGuillotineImageAtlas);
 	s_defaultGlyphBorder = 1;
-	s_defaultMinimumSizeStep = 1;
+	s_defaultMinimumStepSize = 1;
 
 	return true;
 }
@@ -354,7 +354,7 @@ void NzFont::SetDefaultGlyphBorder(unsigned int borderSize)
 	s_defaultGlyphBorder = borderSize;
 }
 
-void NzFont::SetDefaultMinimumStepSize(unsigned int minimumSizeStep)
+void NzFont::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (minimumStepSize == 0)
@@ -364,7 +364,7 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumSizeStep)
 	}
 	#endif
 
-	s_defaultMinimumSizeStep = minimumSizeStep;
+	s_defaultMinimumStepSize = minimumStepSize;
 }
 
 void NzFont::Uninitialize()
@@ -375,7 +375,7 @@ void NzFont::Uninitialize()
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 {
 	// On prend le pas en compte
-	nzUInt64 sizePart = static_cast<nzUInt32>((characterSize/m_minimumSizeStep)*m_minimumSizeStep);
+	nzUInt64 sizePart = static_cast<nzUInt32>((characterSize/m_minimumStepSize)*m_minimumStepSize);
 
 	// Ainsi que le style (uniquement le gras et l'italique, les autres sont gérés par un TextDrawer)
 	nzUInt64 stylePart = 0;
@@ -547,4 +547,4 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 std::shared_ptr<NzAbstractAtlas> NzFont::s_defaultAtlas;
 NzFontLoader::LoaderList NzFont::s_loaders;
 unsigned int NzFont::s_defaultGlyphBorder;
-unsigned int NzFont::s_defaultMinimumSizeStep;
+unsigned int NzFont::s_defaultMinimumStepSize;
