@@ -33,8 +33,8 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzResourceLis
 		void SetStyle(nzUInt32 style);
 		void SetText(const NzString& str);
 
-		static NzSimpleTextDrawer Draw(unsigned int characterSize, const NzString& str, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
-		static NzSimpleTextDrawer Draw(NzFont* font, unsigned int characterSize, const NzString& str, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
+		static NzSimpleTextDrawer Draw(const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
+		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 
 	private:
 		NzFont* GetFont(unsigned int index) const override;
