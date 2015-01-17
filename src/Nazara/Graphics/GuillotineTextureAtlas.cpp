@@ -7,6 +7,11 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+nzUInt32 NzGuillotineTextureAtlas::GetStorage() const
+{
+	return nzDataStorage_Hardware;
+}
+
 NzAbstractImage* NzGuillotineTextureAtlas::ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const
 {
 	std::unique_ptr<NzTexture> newTexture(new NzTexture);

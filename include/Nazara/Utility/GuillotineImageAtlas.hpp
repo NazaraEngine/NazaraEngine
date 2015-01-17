@@ -28,6 +28,7 @@ class NAZARA_API NzGuillotineImageAtlas : public NzAbstractAtlas
 		NzGuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
 		NzAbstractImage* GetLayer(unsigned int layerIndex) const;
 		unsigned int GetLayerCount() const;
+		nzUInt32 GetStorage() const;
 
 		bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex);
 
