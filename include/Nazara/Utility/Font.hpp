@@ -74,6 +74,11 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumSizeStep);
 
+		static unsigned int GetDefaultGlyphBorder();
+		static unsigned int GetDefaultMinimumStepSize();
+		static void SetDefaultGlyphBorder(unsigned int borderSize);
+		static void SetDefaultMinimumStepSize(unsigned int minimumSizeStep);
+
 		enum ModicationCode
 		{
 			ModificationCode_AtlasChanged,
@@ -121,6 +126,8 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		unsigned int m_minimumSizeStep;
 
 		static NzFontLoader::LoaderList s_loaders;
+		static unsigned int s_defaultGlyphBorder;
+		static unsigned int s_defaultMinimumSizeStep;
 };
 
 #endif // NAZARA_FONT_HPP
