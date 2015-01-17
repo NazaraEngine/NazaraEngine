@@ -10,6 +10,8 @@ files
 	"../src/Nazara/Utility/**.cpp"
 }
 
+links "freetype-s"
+
 if (os.is("windows")) then
 	excludes { "../src/Nazara/Utility/Posix/*.hpp", "../src/Nazara/Utility/Posix/*.cpp" }
 	links "gdi32"
