@@ -68,7 +68,7 @@ bool NzGraphics::Initialize()
 		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
 	}
 
-	NzFont::SetDefaultAtlas(new NzGuillotineTextureAtlas);
+	NzFont::SetDefaultAtlas(std::make_shared<NzGuillotineTextureAtlas>());
 
 	onExit.Reset();
 
