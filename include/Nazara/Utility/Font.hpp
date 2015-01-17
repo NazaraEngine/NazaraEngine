@@ -49,7 +49,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 
 		bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* glyph) const;
 
-		const NzAbstractAtlas* GetAtlas() const;
+		const std::shared_ptr<NzAbstractAtlas>& GetAtlas() const;
 		unsigned int GetCachedGlyphCount(unsigned int characterSize, nzUInt32 style) const;
 		unsigned int GetCachedGlyphCount() const;
 		NzString GetFamilyName() const;
@@ -70,7 +70,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		bool OpenFromMemory(const void* data, std::size_t size, const NzFontParams& params = NzFontParams());
 		bool OpenFromStream(NzInputStream& stream, const NzFontParams& params = NzFontParams());
 
-		void SetAtlas(std::shared_ptr<NzAbstractAtlas> atlas);
+		void SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumStepSize);
 
