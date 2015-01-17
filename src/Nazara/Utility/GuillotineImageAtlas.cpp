@@ -112,6 +112,9 @@ bool NzGuillotineImageAtlas::Insert(const NzImage& image, NzRectui* rect, bool* 
 		{
 			// Dernière couche, et le glyphe ne rentre pas, peut-on agrandir la taille de l'image ?
 			NzVector2ui newSize = layer.binPack.GetSize()*2;
+			if (newSize == NzVector2ui::Zero())
+				newSize.Set(s_atlasStartSize);
+
 			if (ResizeLayer(layer, newSize))
 			{
 				// Oui on peut !
