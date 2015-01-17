@@ -17,6 +17,7 @@
 #include <Nazara/Graphics/Loaders/OBJ.hpp>
 #include <Nazara/Graphics/Loaders/Texture.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 bool NzGraphics::Initialize()
