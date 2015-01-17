@@ -328,6 +328,14 @@ unsigned int NzFont::GetDefaultMinimumStepSize()
 	return s_defaultMinimumSizeStep;
 }
 
+bool NzFont::Initialize()
+{
+	s_defaultGlyphBorder = 1;
+	s_defaultMinimumSizeStep = 1;
+
+	return true;
+}
+
 void NzFont::SetDefaultGlyphBorder(unsigned int borderSize)
 {
 	s_defaultGlyphBorder = borderSize;
@@ -344,6 +352,11 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumSizeStep)
 	#endif
 
 	s_defaultMinimumSizeStep = minimumSizeStep;
+}
+
+void NzFont::Uninitialize()
+{
+
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -519,5 +532,5 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 }
 
 NzFontLoader::LoaderList NzFont::s_loaders;
-unsigned int NzFont::s_defaultGlyphBorder = 1;
-unsigned int NzFont::s_defaultMinimumSizeStep = 1;
+unsigned int NzFont::s_defaultGlyphBorder;
+unsigned int NzFont::s_defaultMinimumSizeStep;
