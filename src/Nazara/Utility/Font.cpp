@@ -431,11 +431,20 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 		return it->second;
 
 	Glyph& glyph = glyphMap[character]; // Insertion du glyphe
-	glyph.requireFauxBold = false;
-	glyph.requireFauxItalic = false;
 	glyph.valid = false;
 
+	#if NAZARA_UTILITY_SAFE
+	if (!m_atlas)
+	{
+		NazaraError("Font has no atlas");
+		return glyph;
+	}
+	#endif
+
 	// On vérifie que le style demandé est supporté par la police (dans le cas contraire il devra être simulé au rendu)
+	glyph.requireFauxBold = false;
+	glyph.requireFauxItalic = false;
+
 	nzUInt32 supportedStyle = style;
 	if (style & nzTextStyle_Bold && !m_data->SupportsStyle(nzTextStyle_Bold))
 	{
