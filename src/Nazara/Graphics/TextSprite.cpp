@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <memory>
@@ -129,10 +130,26 @@ void NzTextSprite::SetText(const NzAbstractTextDrawer& drawer)
 {
 	ClearAtlases();
 
+	NzCallOnExit clearOnFail([this]()
+	{
+		Clear();
+	});
+
 	unsigned int fontCount = drawer.GetFontCount();
 	for (unsigned int i = 0; i < fontCount; ++i)
 	{
-		const NzAbstractAtlas* atlas = drawer.GetFont(i)->GetAtlas().get();
+		NzFont* font = drawer.GetFont(i);
+		const NzAbstractAtlas* atlas = font->GetAtlas().get();
+
+		#if NAZARA_GRAPHICS_SAFE
+		if ((atlas->GetStorage() & nzDataStorage_Hardware) == 0)
+		{
+			// Cet atlas ne nous donnera pas de texture, nous ne pouvons pas l'utiliser
+			NazaraError("Font " + NzString::Pointer(font) + " uses a non-hardware atlas which cannot be used by text sprites");
+			return;
+		}
+		#endif
+
 		if (m_atlases.insert(atlas).second)
 			atlas->AddListener(this);
 	}
@@ -233,6 +250,8 @@ void NzTextSprite::SetText(const NzAbstractTextDrawer& drawer)
 	m_boundingVolume.MakeNull();
 	m_boundingVolumeUpdated = false;
 	m_verticesUpdated = false;
+
+	clearOnFail.Reset();
 }
 
 NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
