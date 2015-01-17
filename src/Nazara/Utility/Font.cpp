@@ -420,7 +420,7 @@ void NzFont::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 	}
 	#endif
 
-	// Nous ne pouvons pas faire grand chose d'autre que se balancer une erreur à la tête de l'utilisateur avant un potentiel crash...
+	// Nous ne pouvons pas faire grand chose d'autre que de balancer une erreur à la tête de l'utilisateur avant un potentiel crash...
 	NazaraError("Atlas has been released while in use");
 }
 
