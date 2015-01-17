@@ -9,8 +9,6 @@
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-///TODO: Gérer allocation nouvel atlas
-
 NzTextSprite::NzTextSprite() :
 m_boundingVolume(NzBoundingVolumef::Null()),
 m_color(NzColor::White),
