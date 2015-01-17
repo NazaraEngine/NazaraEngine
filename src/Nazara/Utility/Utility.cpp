@@ -12,6 +12,7 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Loaders/FreeType.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Utility/Loaders/MD5Anim.hpp>
@@ -46,6 +47,12 @@ bool NzUtility::Initialize()
 	if (!NzBuffer::Initialize())
 	{
 		NazaraError("Failed to initialize buffers");
+		return false;
+	}
+
+	if (!NzFont::Initialize())
+	{
+		NazaraError("Failed to initialize fonts");
 		return false;
 	}
 
@@ -123,6 +130,7 @@ void NzUtility::Uninitialize()
 	NzWindow::Uninitialize();
 	NzVertexDeclaration::Uninitialize();
 	NzPixelFormat::Uninitialize();
+	NzFont::Uninitialize();
 	NzBuffer::Uninitialize();
 
 	NazaraNotice("Uninitialized: Utility module");
