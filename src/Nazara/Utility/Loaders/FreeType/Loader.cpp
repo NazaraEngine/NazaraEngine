@@ -9,6 +9,7 @@
 #include FT_OUTLINE_H
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
@@ -260,14 +261,22 @@ namespace
 
 			bool SetFile(const NzString& filePath)
 			{
-				if (!m_file.Open(filePath, NzFile::ReadOnly))
+				std::unique_ptr<NzFile> file(new NzFile);
+				if (!file->Open(filePath, NzFile::ReadOnly))
 				{
 					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
 				}
+				m_ownedStream = std::move(file);
 
-				SetStream(m_file);
+				SetStream(*m_ownedStream);
 				return true;
+			}
+
+			void SetMemory(const void* data, std::size_t size)
+			{
+				m_ownedStream.reset(new NzMemoryStream(data, size));
+				SetStream(*m_ownedStream);
 			}
 
 			void SetStream(NzInputStream& stream)
@@ -303,7 +312,7 @@ namespace
 			FT_Open_Args m_args;
 			FT_Face m_face;
 			FT_StreamRec m_stream;
-			NzFile m_file;
+			std::unique_ptr<NzInputStream> m_ownedStream;
 			mutable unsigned int m_characterSize;
 	};
 
@@ -357,6 +366,28 @@ namespace
 			return false;
 	}
 
+	bool LoadMemory(NzFont* font, const void* data, std::size_t size, const NzFontParams& parameters)
+	{
+		NazaraUnused(parameters);
+
+		std::unique_ptr<FreeTypeStream> face(new FreeTypeStream);
+		face->SetMemory(data, size);
+
+		if (!face->Open())
+		{
+			NazaraError("Failed to open face");
+			return false;
+		}
+
+		if (font->Create(face.get()))
+		{
+			face.release();
+			return true;
+		}
+		else
+			return false;
+	}
+
 	bool LoadStream(NzFont* font, NzInputStream& stream, const NzFontParams& parameters)
 	{
 		NazaraUnused(parameters);
@@ -383,7 +414,7 @@ namespace
 void NzLoaders_FreeType_Register()
 {
 	if (FT_Init_FreeType(&s_library) == 0)
-		NzFontLoader::RegisterLoader(IsSupported, Check, LoadStream, LoadFile);
+		NzFontLoader::RegisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
 	else
 	{
 		s_library = nullptr; // On s'assure que le pointeur ne pointe pas sur n'importe quoi
@@ -395,7 +426,7 @@ void NzLoaders_FreeType_Unregister()
 {
 	if (s_library)
 	{
-		NzFontLoader::UnregisterLoader(IsSupported, Check, LoadStream, LoadFile);
+		NzFontLoader::UnregisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
 
 		FT_Done_FreeType(s_library);
 		s_library = nullptr;
