@@ -73,6 +73,11 @@ unsigned int NzGuillotineImageAtlas::GetLayerCount() const
 	return m_layers.size();
 }
 
+nzUInt32 NzGuillotineImageAtlas::GetStorage() const
+{
+	return nzDataStorage_Software;
+}
+
 bool NzGuillotineImageAtlas::Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex)
 {
 	if (m_layers.empty())

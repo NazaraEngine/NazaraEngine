@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <unordered_map>
 
 class NzAbstractImage;
@@ -29,6 +30,7 @@ class NAZARA_API NzAbstractAtlas
 		virtual void Free(NzSparsePtr<const NzRectui> rects, NzSparsePtr<unsigned int> layers, unsigned int count) = 0;
 		virtual NzAbstractImage* GetLayer(unsigned int layerIndex) const = 0;
 		virtual unsigned int GetLayerCount() const = 0;
+		virtual nzUInt32 GetStorage() const = 0;
 		virtual bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
 
 		void RemoveListener(Listener* font) const;
