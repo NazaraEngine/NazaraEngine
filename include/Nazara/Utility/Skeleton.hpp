@@ -9,9 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
+
+class NzSkeleton;
+
+using NzSkeletonConstRef = NzResourceRef<const NzSkeleton>;
+using NzSkeletonRef = NzResourceRef<NzSkeleton>;
 
 struct NzSkeletonImpl;
 
