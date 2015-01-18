@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/ResourceRef.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <memory>
 #include <unordered_map>
@@ -25,7 +26,9 @@ class NzFontData;
 
 struct NzFontGlyph;
 
+using NzFontConstListener = NzResourceListenerWrapper<const NzFont>;
 using NzFontConstRef = NzResourceRef<const NzFont>;
+using NzFontListener = NzResourceListenerWrapper<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzResourceRef<NzFont>;
 
