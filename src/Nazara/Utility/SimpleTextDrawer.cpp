@@ -6,13 +6,11 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-///TODO: Listener de font (cas où l'atlas a changé)
-
 NzSimpleTextDrawer::NzSimpleTextDrawer() :
 m_color(NzColor::White),
 m_style(nzTextStyle_Regular)
 {
-	// SetFont(NzFont::GetDefault());
+	SetFont(NzFont::GetDefault());
 }
 
 NzSimpleTextDrawer::~NzSimpleTextDrawer()
@@ -91,7 +89,6 @@ void NzSimpleTextDrawer::SetText(const NzString& str)
 
 NzSimpleTextDrawer NzSimpleTextDrawer::Draw(const NzString& str, unsigned int characterSize, nzUInt32 style, const NzColor& color)
 {
-	///FIXME: Sans default font ça n'a aucun intérêt
 	NzSimpleTextDrawer drawer;
 	drawer.SetCharacterSize(characterSize);
 	drawer.SetColor(color);
