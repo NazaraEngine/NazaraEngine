@@ -187,7 +187,7 @@ enum nzSamplerWrap
 
 enum nzShaderUniform
 {
-	///FIXME: Virer EyePosition, SceneAmbient et TargetSize de l'énumération (ils n'ont rien à faire dans le module de rendu)
+	///FIXME: Virer EyePosition et SceneAmbient de l'énumération (ils n'ont rien à faire dans le module de rendu)
 	nzShaderUniform_EyePosition,
 	nzShaderUniform_InvProjMatrix,
 	nzShaderUniform_InvTargetSize,
