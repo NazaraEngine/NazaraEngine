@@ -71,7 +71,11 @@ void NzResource::RemoveResourceListener(NzResourceListener* listener) const
 	{
 		ResourceListenerMap::iterator it = m_resourceListeners.find(listener);
 		if (it != m_resourceListeners.end())
-			RemoveResourceListenerIterator(it);
+		{
+			unsigned int& referenceCount = it->second.second;
+			if (--referenceCount == 0)
+				m_resourceListeners.erase(it);
+		}
 	}
 }
 
@@ -119,7 +123,7 @@ void NzResource::NotifyCreated()
 	while (it != m_resourceListeners.end())
 	{
 		if (!it->first->OnResourceCreated(this, it->second.first))
-			RemoveResourceListenerIterator(it++);
+			m_resourceListeners.erase(it++);
 		else
 			++it;
 	}
@@ -137,7 +141,7 @@ void NzResource::NotifyDestroy()
 	while (it != m_resourceListeners.end())
 	{
 		if (!it->first->OnResourceDestroy(this, it->second.first))
-			RemoveResourceListenerIterator(it++);
+			m_resourceListeners.erase(it++);
 		else
 			++it;
 	}
@@ -155,7 +159,7 @@ void NzResource::NotifyModified(unsigned int code)
 	while (it != m_resourceListeners.end())
 	{
 		if (!it->first->OnResourceModified(this, it->second.first, code))
-			RemoveResourceListenerIterator(it++);
+			m_resourceListeners.erase(it++);
 		else
 			++it;
 	}
@@ -163,11 +167,3 @@ void NzResource::NotifyModified(unsigned int code)
 	m_resourceListenersLocked = false;
 }
 
-void NzResource::RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const
-{
-	unsigned int& referenceCount = iterator->second.second;
-	if (referenceCount == 1)
-		m_resourceListeners.erase(iterator);
-	else
-		referenceCount--;
-}
