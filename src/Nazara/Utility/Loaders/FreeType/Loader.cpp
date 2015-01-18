@@ -19,7 +19,10 @@
 
 namespace
 {
-	FT_Library s_library = nullptr;
+	class FreeTypeLibrary;
+
+	FT_Library s_library;
+	std::shared_ptr<FreeTypeLibrary> s_libraryOwner;
 	float s_invScaleFactor = 1.f / (1 << 6); // 1/64
 
 	extern "C"
@@ -55,11 +58,26 @@ namespace
 		NazaraUnused(stream);
 	}
 
+	class FreeTypeLibrary
+	{
+		// Cette classe ne sert qu'à être utilisée avec un std::shared_ptr
+		// pour ne libérer FreeType que lorsque plus personne ne l'utilise
+
+		public:
+			FreeTypeLibrary() = default;
+			~FreeTypeLibrary()
+			{
+				FT_Done_FreeType(s_library);
+				s_library = nullptr;
+			}
+	};
+
 	class FreeTypeStream : public NzFontData
 	{
 		public:
 			FreeTypeStream() :
 			m_face(nullptr),
+			m_library(s_libraryOwner),
 			m_characterSize(0)
 			{
 			}
@@ -312,6 +330,7 @@ namespace
 			FT_Open_Args m_args;
 			FT_Face m_face;
 			FT_StreamRec m_stream;
+			std::shared_ptr<FreeTypeLibrary> m_library;
 			std::unique_ptr<NzInputStream> m_ownedStream;
 			mutable unsigned int m_characterSize;
 	};
@@ -414,7 +433,10 @@ namespace
 void NzLoaders_FreeType_Register()
 {
 	if (FT_Init_FreeType(&s_library) == 0)
+	{
+		s_libraryOwner.reset(new FreeTypeLibrary);
 		NzFontLoader::RegisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
+	}
 	else
 	{
 		s_library = nullptr; // On s'assure que le pointeur ne pointe pas sur n'importe quoi
@@ -427,8 +449,6 @@ void NzLoaders_FreeType_Unregister()
 	if (s_library)
 	{
 		NzFontLoader::UnregisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
-
-		FT_Done_FreeType(s_library);
-		s_library = nullptr;
+		s_libraryOwner.reset();
 	}
 }
