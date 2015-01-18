@@ -50,8 +50,6 @@ class NAZARA_API NzResource
 	private:
 		using ResourceListenerMap = std::unordered_map<NzResourceListener*, std::pair<int, unsigned int>>;
 
-		void RemoveResourceListenerIterator(ResourceListenerMap::iterator iterator) const;
-
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		// Je fais précéder le nom par 'resource' pour éviter les éventuels conflits de noms
