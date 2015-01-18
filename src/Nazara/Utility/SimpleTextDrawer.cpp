@@ -8,15 +8,10 @@
 
 NzSimpleTextDrawer::NzSimpleTextDrawer() :
 m_color(NzColor::White),
+m_fontListener(this),
 m_style(nzTextStyle_Regular)
 {
 	SetFont(NzFont::GetDefault());
-}
-
-NzSimpleTextDrawer::~NzSimpleTextDrawer()
-{
-	if (m_font)
-		m_font->RemoveResourceListener(this);
 }
 
 const NzRectui& NzSimpleTextDrawer::GetBounds() const
@@ -63,12 +58,8 @@ void NzSimpleTextDrawer::SetColor(const NzColor& color)
 
 void NzSimpleTextDrawer::SetFont(NzFont* font)
 {
-	if (m_font)
-		m_font->RemoveResourceListener(this);
-
 	m_font = font;
-	if (m_font)
-		m_font->AddResourceListener(this);
+	m_fontListener = font;
 
 	m_glyphUpdated = false;
 }

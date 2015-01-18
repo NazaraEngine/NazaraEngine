@@ -10,13 +10,16 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <unordered_map>
 
 class NzUberShader;
 
+using NzUberShaderConstListener = NzResourceListenerWrapper<const NzUberShader>;
 using NzUberShaderConstRef = NzResourceRef<const NzUberShader>;
+using NzUberShaderListener = NzResourceListenerWrapper<NzUberShader>;
 using NzUberShaderRef = NzResourceRef<NzUberShader>;
 
 class NAZARA_API NzUberShader : public NzResource

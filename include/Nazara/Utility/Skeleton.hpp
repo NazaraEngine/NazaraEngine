@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
@@ -16,7 +17,9 @@
 
 class NzSkeleton;
 
+using NzSkeletonConstListener = NzResourceListenerWrapper<const NzSkeleton>;
 using NzSkeletonConstRef = NzResourceRef<const NzSkeleton>;
+using NzSkeletonListener = NzResourceListenerWrapper<NzSkeleton>;
 using NzSkeletonRef = NzResourceRef<NzSkeleton>;
 
 struct NzSkeletonImpl;

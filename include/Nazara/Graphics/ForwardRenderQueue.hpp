@@ -11,16 +11,16 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ResourceListener.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/MeshData.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
 #include <map>
 #include <tuple>
 
 class NzAbstractViewer;
-class NzMaterial;
-class NzSkeletalMesh;
-class NzStaticMesh;
 
 class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResourceListener
 {
@@ -28,7 +28,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 	public:
 		NzForwardRenderQueue() = default;
-		~NzForwardRenderQueue();
+		~NzForwardRenderQueue() = default;
 
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
@@ -49,17 +49,15 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 			unsigned int spriteCount;
 		};
 
-		struct TransparentModelData
+		struct BatchedSpriteEntry
 		{
-			NzMatrix4f transformMatrix;
-			NzMeshData meshData;
-			NzSpheref boundingSphere;
-			const NzMaterial* material;
-		};
+			BatchedSpriteEntry(NzForwardRenderQueue* listener, int textureValue) :
+			textureListener(listener, textureValue)
+			{
+			}
 
-		struct BatchedModelMaterialComparator
-		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+			std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
+			NzTextureConstListener textureListener;
 		};
 
 		struct BatchedSpriteMaterialComparator
@@ -67,15 +65,71 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
 		};
 
+		typedef std::map<const NzTexture*, BatchedSpriteEntry> BasicSpriteOverlayContainer;
+
+		struct BatchedBasicSpriteEntry
+		{
+			BatchedBasicSpriteEntry(NzForwardRenderQueue* listener, int materialValue) :
+			materialListener(listener, materialValue)
+			{
+			}
+
+			NzMaterialConstListener materialListener;
+			BasicSpriteOverlayContainer overlayMap;
+			bool enabled = false;
+		};
+
+		typedef std::map<const NzMaterial*, BatchedBasicSpriteEntry> BasicSpriteBatches;
+
 		struct MeshDataComparator
 		{
 			bool operator()(const NzMeshData& data1, const NzMeshData& data2);
 		};
 
-		typedef std::map<NzMeshData, std::pair<NzSpheref, std::vector<NzMatrix4f>>, MeshDataComparator> MeshInstanceContainer;
-		typedef std::map<const NzMaterial*, std::tuple<bool, bool, MeshInstanceContainer>, BatchedModelMaterialComparator> ModelBatches;
-		typedef std::map<const NzTexture*, std::vector<SpriteChain_XYZ_Color_UV>> BasicSpriteOverlayContainer;
-		typedef std::map<const NzMaterial*, BasicSpriteOverlayContainer> BasicSpriteBatches;
+		struct MeshInstanceEntry
+		{
+			MeshInstanceEntry(NzForwardRenderQueue* listener, int indexBufferValue, int vertexBufferValue) :
+			indexBufferListener(listener, indexBufferValue),
+			vertexBufferListener(listener, vertexBufferValue)
+			{
+			}
+
+			std::vector<NzMatrix4f> instances;
+			NzIndexBufferConstListener indexBufferListener;
+			NzSpheref squaredBoundingSphere;
+			NzVertexBufferConstListener vertexBufferListener;
+		};
+
+		typedef std::map<NzMeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
+
+		struct BatchedModelMaterialComparator
+		{
+			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+		};
+
+		struct BatchedModelEntry
+		{
+			BatchedModelEntry(NzForwardRenderQueue* listener, int materialValue) :
+			materialListener(listener, materialValue)
+			{
+			}
+
+			NzMaterialConstListener materialListener;
+			MeshInstanceContainer meshMap;
+			bool enabled = false;
+			bool instancingEnabled = false;
+		};
+
+		typedef std::map<const NzMaterial*, BatchedModelEntry, BatchedModelMaterialComparator> ModelBatches;
+
+		struct TransparentModelData
+		{
+			NzMatrix4f transformMatrix;
+			NzMeshData meshData;
+			NzSpheref squaredBoundingSphere;
+			const NzMaterial* material;
+		};
+
 		typedef std::vector<const NzLight*> LightContainer;
 		typedef std::vector<unsigned int> TransparentModelContainer;
 

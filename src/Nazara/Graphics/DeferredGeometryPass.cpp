@@ -54,17 +54,17 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 
 	for (auto& matIt : m_renderQueue->opaqueModels)
 	{
-		bool& used = std::get<0>(matIt.second);
-		if (used)
+		auto& matEntry = matIt.second;
+
+		if (matEntry.enabled)
 		{
-			bool& renderQueueInstancing = std::get<1>(matIt.second);
-			NzDeferredRenderQueue::MeshInstanceContainer& meshInstances = std::get<2>(matIt.second);
+			NzDeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
 			if (!meshInstances.empty())
 			{
 				const NzMaterial* material = matIt.first;
 
-				bool useInstancing = instancingEnabled && renderQueueInstancing;
+				bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
 
 				// On commence par récupérer le programme du matériau
 				nzUInt32 flags = nzShaderFlags_Deferred;
@@ -88,8 +88,9 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 				for (auto& meshIt : meshInstances)
 				{
 					const NzMeshData& meshData = meshIt.first;
-					std::vector<NzMatrix4f>& instances = meshIt.second;
+					auto& meshEntry = meshIt.second;
 
+					std::vector<NzMatrix4f>& instances = meshEntry.instances;
 					if (!instances.empty())
 					{
 						const NzIndexBuffer* indexBuffer = meshData.indexBuffer;
@@ -158,8 +159,8 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 			}
 
 			// Et on remet à zéro les données
-			renderQueueInstancing = false;
-			used = false;
+			matEntry.enabled = false;
+			matEntry.instancingEnabled = false;
 		}
 	}
 

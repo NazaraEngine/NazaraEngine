@@ -19,7 +19,7 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzResourceLis
 {
 	public:
 		NzSimpleTextDrawer();
-		virtual ~NzSimpleTextDrawer();
+		virtual ~NzSimpleTextDrawer() = default;
 
 		const NzRectui& GetBounds() const;
 		unsigned int GetCharacterSize() const;
@@ -49,6 +49,7 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzResourceLis
 		mutable std::vector<Glyph> m_glyphs;
 		NzColor m_color;
 		NzFontRef m_font;
+		NzFontListener m_fontListener; // Doit se situer après le FontRef (pour être libéré avant)
 		mutable NzRectui m_bounds;
 		NzString m_text;
 		nzUInt32 m_style;

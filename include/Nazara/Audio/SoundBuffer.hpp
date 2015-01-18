@@ -12,6 +12,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 
@@ -25,7 +26,9 @@ struct NzSoundBufferParams
 class NzSound;
 class NzSoundBuffer;
 
+using NzSoundBufferConstListener = NzResourceListenerWrapper<const NzSoundBuffer>;
 using NzSoundBufferConstRef = NzResourceRef<const NzSoundBuffer>;
+using NzSoundBufferListener = NzResourceListenerWrapper<NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferRef = NzResourceRef<NzSoundBuffer>;
 

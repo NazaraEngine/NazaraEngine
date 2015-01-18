@@ -9,13 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
 class NzVertexBuffer;
 
+using NzVertexBufferConstListener = NzResourceListenerWrapper<const NzVertexBuffer>;
 using NzVertexBufferConstRef = NzResourceRef<NzVertexBuffer>;
+using NzVertexBufferListener = NzResourceListenerWrapper<NzVertexBuffer>;
 using NzVertexBufferRef = NzResourceRef<NzVertexBuffer>;
 
 class NAZARA_API NzVertexBuffer : public NzResource

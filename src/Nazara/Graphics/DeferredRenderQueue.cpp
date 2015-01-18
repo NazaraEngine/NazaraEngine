@@ -3,12 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
-#include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace
@@ -26,11 +23,6 @@ m_forwardQueue(forwardQueue)
 {
 }
 
-NzDeferredRenderQueue::~NzDeferredRenderQueue()
-{
-	Clear(true);
-}
-
 void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	m_forwardQueue->AddDrawable(drawable);
@@ -46,6 +38,7 @@ void NzDeferredRenderQueue::AddLight(const NzLight* light)
 	}
 	#endif
 
+	// On trie la lumière (elles sont traitées différement selon leur type)
 	switch (light->GetLightType())
 	{
 		case nzLightType_Directional:
@@ -61,56 +54,53 @@ void NzDeferredRenderQueue::AddLight(const NzLight* light)
 			break;
 	}
 
+	// On envoie également la lumière au forward-shading
+	///TODO: Possibilité pour une lumière de se réserver au Deferred Shading
 	m_forwardQueue->AddLight(light);
 }
 
 void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
 {
 	if (material->IsEnabled(nzRendererParameter_Blend))
+		// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
 		m_forwardQueue->AddMesh(material, meshData, meshAABB, transformMatrix);
 	else
 	{
-		ModelBatches::iterator it = opaqueModels.find(material);
+		auto it = opaqueModels.find(material);
 		if (it == opaqueModels.end())
 		{
-			it = opaqueModels.insert(std::make_pair(material, ModelBatches::mapped_type())).first;
-			material->AddResourceListener(this, ResourceType_Material);
+			BatchedModelEntry entry(this, ResourceType_Material);
+			entry.materialListener = material;
+
+			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
 
-		bool& used = std::get<0>(it->second);
-		bool& enableInstancing = std::get<1>(it->second);
-		MeshInstanceContainer& meshMap = std::get<2>(it->second);
+		BatchedModelEntry& entry = it->second;
+		entry.enabled = true;
 
-		used = true;
+		auto& meshMap = entry.meshMap;
 
-		MeshInstanceContainer::iterator it2 = meshMap.find(meshData);
+		auto it2 = meshMap.find(meshData);
 		if (it2 == meshMap.end())
 		{
-			it2 = meshMap.insert(std::make_pair(meshData, MeshInstanceContainer::mapped_type())).first;
+			MeshInstanceEntry instanceEntry(this, ResourceType_IndexBuffer, ResourceType_VertexBuffer);
+			instanceEntry.indexBufferListener = meshData.indexBuffer;
+			instanceEntry.vertexBufferListener = meshData.vertexBuffer;
 
-			if (meshData.indexBuffer)
-				meshData.indexBuffer->AddResourceListener(this, ResourceType_IndexBuffer);
-
-			meshData.vertexBuffer->AddResourceListener(this, ResourceType_VertexBuffer);
+			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
 
-		std::vector<NzMatrix4f>& instances = it2->second;
+		std::vector<NzMatrix4f>& instances = it2->second.instances;
 		instances.push_back(transformMatrix);
 
 		// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
 		if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-			enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
+			entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
 	}
 }
 
 void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
-	/*NzMaterial* material = sprite->GetMaterial();
-	if (!material->IsLightingEnabled() || material->IsEnabled(nzRendererParameter_Blend))
-		m_forwardQueue->AddSprite(sprite);
-	else
-		sprites[material].push_back(sprite);*/
-
 	m_forwardQueue->AddSprites(material, vertices, spriteCount, overlay);
 }
 
@@ -121,27 +111,7 @@ void NzDeferredRenderQueue::Clear(bool fully)
 	spotLights.clear();
 
 	if (fully)
-	{
-		for (auto& matIt : opaqueModels)
-		{
-			const NzMaterial* material = matIt.first;
-			material->RemoveResourceListener(this);
-
-			MeshInstanceContainer& instances = std::get<2>(matIt.second);
-			for (auto& instanceIt : instances)
-			{
-				const NzMeshData& renderData = instanceIt.first;
-
-				if (renderData.indexBuffer)
-					renderData.indexBuffer->RemoveResourceListener(this);
-
-				renderData.vertexBuffer->RemoveResourceListener(this);
-			}
-		}
-
 		opaqueModels.clear();
-		sprites.clear();
-	}
 
 	m_forwardQueue->Clear(fully);
 }
@@ -154,7 +124,7 @@ bool NzDeferredRenderQueue::OnResourceDestroy(const NzResource* resource, int in
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -168,14 +138,18 @@ bool NzDeferredRenderQueue::OnResourceDestroy(const NzResource* resource, int in
 		}
 
 		case ResourceType_Material:
-			opaqueModels.erase(static_cast<const NzMaterial*>(resource));
+		{
+			const NzMaterial* material = static_cast<const NzMaterial*>(resource);
+
+			opaqueModels.erase(material);
 			break;
+		}
 
 		case ResourceType_VertexBuffer:
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -203,7 +177,7 @@ void NzDeferredRenderQueue::OnResourceReleased(const NzResource* resource, int i
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -233,7 +207,7 @@ void NzDeferredRenderQueue::OnResourceReleased(const NzResource* resource, int i
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -249,26 +223,6 @@ void NzDeferredRenderQueue::OnResourceReleased(const NzResource* resource, int i
 }
 
 bool NzDeferredRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
-{
-	const NzUberShader* uberShader1 = mat1->GetShader();
-	const NzUberShader* uberShader2 = mat2->GetShader();
-	if (uberShader1 != uberShader2)
-		return uberShader1 < uberShader2;
-
-	const NzShader* shader1 = mat1->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
-	const NzShader* shader2 = mat2->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
-	if (shader1 != shader2)
-		return shader1 < shader2;
-
-	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
-	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
-	if (diffuseMap1 != diffuseMap2)
-		return diffuseMap1 < diffuseMap2;
-
-	return mat1 < mat2;
-}
-
-bool NzDeferredRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
 	const NzUberShader* uberShader1 = mat1->GetShader();
 	const NzUberShader* uberShader2 = mat2->GetShader();
