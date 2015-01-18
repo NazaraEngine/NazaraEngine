@@ -49,6 +49,8 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique, Nz
 			int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
 
 			// Autre uniformes
+			int eyePosition;
+			int sceneAmbient;
 			int textureOverlay;
 		};
 

@@ -51,6 +51,7 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
 
 	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
 
 	for (auto& matIt : m_renderQueue->opaqueModels)
 	{
@@ -76,10 +77,13 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 				if (shader != lastShader)
 				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
 					// Couleur ambiante de la scène
-					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
 					// Position de la caméra
-					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -229,4 +233,20 @@ bool NzDeferredGeometryPass::Resize(const NzVector2ui& dimensions)
 		NazaraError("Failed to create G-Buffer RTT: " + NzString(e.what()));
 		return false;
 	}
+}
+
+const NzDeferredGeometryPass::ShaderUniforms* NzDeferredGeometryPass::GetShaderUniforms(const NzShader* shader) const
+{
+	auto it = m_shaderUniforms.find(shader);
+	if (it == m_shaderUniforms.end())
+	{
+		ShaderUniforms uniforms;
+		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
+		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
+
+		it = m_shaderUniforms.emplace(shader, uniforms).first;
+	}
+
+	return &it->second;
 }
