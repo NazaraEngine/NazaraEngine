@@ -213,7 +213,6 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 
 	// "Curseur" de dessin
 	NzVector2ui drawPos(0, m_characterSize);
-	NzVector2ui lastPos(0, 0);
 
 	m_glyphs.reserve(size);
 	nzUInt32 previousCharacter = 0;
@@ -294,9 +293,25 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 
 		m_glyphs.push_back(glyph);
 
-		lastPos = drawPos;
 		drawPos.x += advance;
 	}
 
-	m_bounds.ExtendTo(lastPos);
+	// Calcul des bornes
+	if (!m_glyphs.empty())
+	{
+		for (unsigned int i = 0; i < m_glyphs.size(); ++i)
+		{
+			Glyph& glyph = m_glyphs[i];
+
+			for (unsigned int j = 0; j < 4; ++j)
+			{
+				NzVector2ui corner(std::ceil(glyph.corners[j].x), std::ceil(glyph.corners[j].y));
+
+				if (i == 0 && j == 0)
+					m_bounds.Set(corner.x, corner.y, 0, 0);
+				else
+					m_bounds.ExtendTo(corner);
+			}
+		}
+	}
 }
