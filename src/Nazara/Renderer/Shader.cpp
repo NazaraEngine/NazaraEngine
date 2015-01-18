@@ -789,7 +789,6 @@ bool NzShader::PostLinkage()
 		// Pour éviter de se tromper entre le nom et la constante
 		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = glGetUniformLocation(m_program, #name)
 
-		CacheUniform(EyePosition);
 		CacheUniform(InvProjMatrix);
 		CacheUniform(InvTargetSize);
 		CacheUniform(InvViewMatrix);
@@ -798,7 +797,6 @@ bool NzShader::PostLinkage()
 		CacheUniform(InvWorldViewMatrix);
 		CacheUniform(InvWorldViewProjMatrix);
 		CacheUniform(ProjMatrix);
-		CacheUniform(SceneAmbient);
 		CacheUniform(TargetSize);
 		CacheUniform(ViewMatrix);
 		CacheUniform(ViewProjMatrix);
