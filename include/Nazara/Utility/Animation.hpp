@@ -9,16 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
+#include <limits>
 
 struct NAZARA_API NzAnimationParams
 {
 	// La frame de fin à charger
-	unsigned int endFrame = static_cast<unsigned int>(-1);
+	unsigned int endFrame = std::numeric_limits<unsigned int>::max();
 	// La frame de début à charger
 	unsigned int startFrame = 0;
 
@@ -28,7 +30,9 @@ struct NAZARA_API NzAnimationParams
 class NzAnimation;
 class NzSkeleton;
 
+using NzAnimationConstListener = NzResourceListenerWrapper<const NzAnimation>;
 using NzAnimationConstRef = NzResourceRef<const NzAnimation>;
+using NzAnimationListener = NzResourceListenerWrapper<NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 using NzAnimationRef = NzResourceRef<NzAnimation>;
 

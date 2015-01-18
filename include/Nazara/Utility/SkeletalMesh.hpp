@@ -8,12 +8,16 @@
 #define NAZARA_SKELETALMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
+#include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzSkeletalMesh;
 
+using NzSkeletalMeshConstListener = NzResourceListenerWrapper<const NzSkeletalMesh>;
 using NzSkeletalMeshConstRef = NzResourceRef<const NzSkeletalMesh>;
+using NzSkeletalMeshListener = NzResourceListenerWrapper<NzSkeletalMesh>;
 using NzSkeletalMeshRef = NzResourceRef<NzSkeletalMesh>;
 
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh

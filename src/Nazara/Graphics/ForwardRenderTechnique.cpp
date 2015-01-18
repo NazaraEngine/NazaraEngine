@@ -175,86 +175,93 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 	for (auto& matIt : m_renderQueue.basicSprites)
 	{
 		const NzMaterial* material = matIt.first;
-		auto& overlayMap = matIt.second;
+		auto& matEntry = matIt.second;
 
-		for (auto& overlayIt : overlayMap)
+		if (matEntry.enabled)
 		{
-			const NzTexture* overlay = overlayIt.first;
-			auto& spriteChainVector = overlayIt.second;
-
-			unsigned int spriteChainCount = spriteChainVector.size();
-			if (spriteChainCount > 0)
+			auto& overlayMap = matEntry.overlayMap;
+			for (auto& overlayIt : overlayMap)
 			{
-				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-				nzUInt32 flags = nzShaderFlags_VertexColor;
-				if (overlay)
-					flags |= nzShaderFlags_TextureOverlay;
+				const NzTexture* overlay = overlayIt.first;
+				auto& spriteChainVector = overlayIt.second.spriteChains;
 
-				nzUInt8 overlayUnit;
-				const NzShader* shader = material->Apply(flags, 0, &overlayUnit);
-
-				if (overlay)
+				unsigned int spriteChainCount = spriteChainVector.size();
+				if (spriteChainCount > 0)
 				{
-					overlayUnit++;
-					NzRenderer::SetTexture(overlayUnit, overlay);
-					NzRenderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
-				}
+					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					nzUInt32 flags = nzShaderFlags_VertexColor;
+					if (overlay)
+						flags |= nzShaderFlags_TextureOverlay;
 
-				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-				if (shader != lastShader)
-				{
-					// Index des uniformes dans le shader
-					shaderUniforms = GetShaderUniforms(shader);
+					nzUInt8 overlayUnit;
+					const NzShader* shader = material->Apply(flags, 0, &overlayUnit);
 
-					// Couleur ambiante de la scène
-					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-					// Overlay
-					shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
-					// Position de la caméra
-					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					if (overlay)
+					{
+						overlayUnit++;
+						NzRenderer::SetTexture(overlayUnit, overlay);
+						NzRenderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+					}
 
-					lastShader = shader;
-				}
+					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					if (shader != lastShader)
+					{
+						// Index des uniformes dans le shader
+						shaderUniforms = GetShaderUniforms(shader);
 
-				unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
-				unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+						// Couleur ambiante de la scène
+						shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+						// Overlay
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+						// Position de la caméra
+						shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
 
-				do
-				{
-					// On ouvre le buffer en écriture
-					NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite);
-					NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+						lastShader = shader;
+					}
 
-					unsigned int spriteCount = 0;
+					unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
+					unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
 
 					do
 					{
-						NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-						unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
+						// On ouvre le buffer en écriture
+						NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite);
+						NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
-						std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
-						vertices += count*4;
+						unsigned int spriteCount = 0;
 
-						spriteCount += count;
-						spriteChainOffset += count;
-
-						// Avons-nous traité la chaîne entière ?
-						if (spriteChainOffset == currentChain.spriteCount)
+						do
 						{
-							spriteChain++;
-							spriteChainOffset = 0;
+							NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+							unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
+
+							std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
+							vertices += count*4;
+
+							spriteCount += count;
+							spriteChainOffset += count;
+
+							// Avons-nous traité la chaîne entière ?
+							if (spriteChainOffset == currentChain.spriteCount)
+							{
+								spriteChain++;
+								spriteChainOffset = 0;
+							}
 						}
+						while (spriteCount < s_maxSprites && spriteChain < spriteChainCount);
+
+						vertexMapper.Unmap();
+
+						NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, spriteCount*6);
 					}
-					while (spriteCount < s_maxSprites && spriteChain < spriteChainCount);
+					while (spriteChain < spriteChainCount);
 
-					vertexMapper.Unmap();
-
-					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, spriteCount*6);
+					spriteChainVector.clear();
 				}
-				while (spriteChain < spriteChainCount);
-
-				spriteChainVector.clear();
 			}
+
+			// On remet à zéro
+			matEntry.enabled = false;
 		}
 	}
 }
@@ -267,11 +274,11 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 
 	for (auto& matIt : m_renderQueue.opaqueModels)
 	{
-		bool& used = std::get<0>(matIt.second);
-		if (used)
+		auto& matEntry = matIt.second;
+
+		if (matEntry.enabled)
 		{
-			bool& renderQueueInstancing = std::get<1>(matIt.second);
-			NzForwardRenderQueue::MeshInstanceContainer& meshInstances = std::get<2>(matIt.second);
+			NzForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
 			if (!meshInstances.empty())
 			{
@@ -280,7 +287,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
 				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
 				// (Le deferred shading n'a pas ce problème)
-				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || m_lights.IsEmpty()) && renderQueueInstancing;
+				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || m_lights.IsEmpty()) && matEntry.instancingEnabled;
 
 				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
 				const NzShader* shader = material->Apply((instancing) ? nzShaderFlags_Instancing : 0);
@@ -300,11 +307,13 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				}
 
 				// Meshes
-				for (auto& subMeshIt : meshInstances)
+				for (auto& meshIt : meshInstances)
 				{
-					const NzMeshData& meshData = subMeshIt.first;
-					const NzSpheref& boundingSphere = subMeshIt.second.first;
-					std::vector<NzMatrix4f>& instances = subMeshIt.second.second;
+					const NzMeshData& meshData = meshIt.first;
+					auto& meshEntry = meshIt.second;
+
+					const NzSpheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
+					std::vector<NzMatrix4f>& instances = meshEntry.instances;
 
 					if (!instances.empty())
 					{
@@ -400,7 +409,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 								for (const NzMatrix4f& matrix : instances)
 								{
 									unsigned int directionalLightCount = m_directionalLights.GetLightCount();
-									unsigned int otherLightCount = m_lights.ComputeClosestLights(matrix.GetTranslation() + boundingSphere.GetPosition(), boundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - directionalLightCount);
+									unsigned int otherLightCount = m_lights.ComputeClosestLights(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - directionalLightCount);
 									unsigned int lightCount = directionalLightCount + otherLightCount;
 
 									NzRenderer::SetMatrix(nzMatrixType_World, matrix);
@@ -464,8 +473,8 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 			}
 
 			// Et on remet à zéro les données
-			used = false;
-			renderQueueInstancing = false;
+			matEntry.enabled = false;
+			matEntry.instancingEnabled = false;
 		}
 	}
 }
@@ -534,7 +543,11 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		// Calcul des lumières les plus proches
 		if (lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS && !m_lights.IsEmpty())
 		{
-			unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, m_lights.ComputeClosestLights(matrix.GetTranslation() + modelData.boundingSphere.GetPosition(), modelData.boundingSphere.radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
+			NzVector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
+			float radius = modelData.squaredBoundingSphere.radius;
+			unsigned int closestLightCount = m_lights.ComputeClosestLights(position, radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
+
+			unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, closestLightCount);
 			for (unsigned int i = 0; i < count; ++i)
 				m_lights.GetResult(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*(lightCount++));
 		}

@@ -10,12 +10,15 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzRenderBuffer;
 
+using NzRenderBufferConstListener = NzResourceListenerWrapper<const NzRenderBuffer>;
 using NzRenderBufferConstRef = NzResourceRef<const NzRenderBuffer>;
+using NzRenderBufferListener = NzResourceListenerWrapper<NzRenderBuffer>;
 using NzRenderBufferRef = NzResourceRef<NzRenderBuffer>;
 
 class NAZARA_API NzRenderBuffer : public NzResource, NzNonCopyable

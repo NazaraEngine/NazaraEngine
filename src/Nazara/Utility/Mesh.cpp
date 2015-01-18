@@ -55,7 +55,7 @@ struct NzMeshImpl
 
 	std::unordered_map<NzString, unsigned int> subMeshMap;
 	std::vector<NzString> materials;
-	std::vector<NzSubMesh*> subMeshes;
+	std::vector<NzSubMeshRef> subMeshes;
 	nzAnimationType animationType;
 	NzBoxf aabb;
 	NzSkeleton skeleton; // Uniquement pour les meshs squelettiques
@@ -90,9 +90,6 @@ void NzMesh::AddSubMesh(NzSubMesh* subMesh)
 		return;
 	}
 	#endif
-
-	subMesh->AddResourceListener(this, m_impl->subMeshes.size());
-	subMesh->AddResourceReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -134,9 +131,6 @@ void NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	#endif
 
 	int index = m_impl->subMeshes.size();
-
-	subMesh->AddResourceListener(this, index);
-	subMesh->AddResourceReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -370,12 +364,6 @@ void NzMesh::Destroy()
 	if (m_impl)
 	{
 		NotifyDestroy();
-
-		for (NzSubMesh* subMesh : m_impl->subMeshes)
-		{
-			subMesh->RemoveResourceListener(this);
-			subMesh->RemoveResourceReference();
-		}
 
 		delete m_impl;
 		m_impl = nullptr;
@@ -864,11 +852,6 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 	auto it2 = m_impl->subMeshes.begin();
 	std::advance(it2, index);
 
-	// On libère la ressource
-	NzSubMesh* subMesh = *it2;
-	subMesh->RemoveResourceListener(this);
-	subMesh->RemoveResourceReference();
-
 	m_impl->subMeshes.erase(it2);
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
@@ -893,11 +876,6 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	// On déplace l'itérateur du début de x
 	auto it = m_impl->subMeshes.begin();
 	std::advance(it, index);
-
-	// On libère la ressource
-	NzSubMesh* subMesh = *it;
-	subMesh->RemoveResourceListener(this);
-	subMesh->RemoveResourceReference();
 
 	m_impl->subMeshes.erase(it);
 
@@ -1009,13 +987,6 @@ void NzMesh::Transform(const NzMatrix4f& matrix)
 
 	// Il ne faut pas oublier d'invalider notre AABB
 	m_impl->aabbUpdated = false;
-}
-
-void NzMesh::OnResourceReleased(const NzResource* resource, int index)
-{
-	NazaraUnused(resource);
-
-	RemoveSubMesh(index);
 }
 
 NzMeshLoader::LoaderList NzMesh::s_loaders;

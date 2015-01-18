@@ -66,10 +66,38 @@ namespace
 		bool samplerUpdated = false;
 	};
 
-	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
-	using VAO_Map = std::map<VAO_Key, GLuint>;
+	struct VAO_Entry
+	{
+		VAO_Entry(NzResourceListener* listener, int indexBufferIndex, int vertexBufferIndex, int vertexDeclarationIndex, int instancingDeclarationIndex) :
+		indexBufferListener(listener, indexBufferIndex),
+		vertexBufferListener(listener, vertexBufferIndex),
+		instancingDeclarationListener(listener, instancingDeclarationIndex),
+		vertexDeclarationListener(listener, vertexDeclarationIndex)
+		{
+		}
 
-	using Context_Map = std::unordered_map<const NzContext*, VAO_Map>;
+		GLuint vao;
+		NzIndexBufferConstListener indexBufferListener;
+		NzVertexBufferConstListener vertexBufferListener;
+		NzVertexDeclarationConstListener instancingDeclarationListener;
+		NzVertexDeclarationConstListener vertexDeclarationListener;
+	};
+
+	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
+	using VAO_Map = std::map<VAO_Key, VAO_Entry>;
+
+	struct Context_Entry
+	{
+		Context_Entry(NzResourceListener* listener, int index) :
+		contextListener(listener, index)
+		{
+		}
+
+		NzContextConstListener contextListener;
+		VAO_Map vaoMap;
+	};
+
+	using Context_Map = std::unordered_map<const NzContext*, Context_Entry>;
 
 	Context_Map s_vaos;
 	std::vector<unsigned int> s_dirtyTextureUnits;
@@ -116,7 +144,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -131,7 +159,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -147,7 +175,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -162,7 +190,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -178,7 +206,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -194,7 +222,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -1533,28 +1561,14 @@ void NzRenderer::Uninitialize()
 	for (auto& pair : s_vaos)
 	{
 		const NzContext* context = pair.first;
+		const Context_Entry& contextEntry = pair.second;
 
-		for (auto& pair2 : pair.second)
+		for (auto& pair2 : contextEntry.vaoMap)
 		{
-			const VAO_Key& key = pair2.first;
-			const NzIndexBuffer* indexBuffer = std::get<0>(key);
-			const NzVertexBuffer* vertexBuffer = std::get<1>(key);
-			const NzVertexDeclaration* vertexDeclaration = std::get<2>(key);
-			const NzVertexDeclaration* instancingDeclaration = std::get<3>(key);
-
-			if (indexBuffer)
-				indexBuffer->RemoveResourceListener(&s_listener);
-
-			vertexBuffer->RemoveResourceListener(&s_listener);
-			vertexDeclaration->RemoveResourceListener(&s_listener);
-
-			if (instancingDeclaration)
-				instancingDeclaration->RemoveResourceListener(&s_listener);
-
-			NzOpenGL::DeleteVertexArray(context, pair2.second);
+			const VAO_Entry& entry = pair2.second;
+			NzOpenGL::DeleteVertexArray(context, entry.vao);
 		}
 	}
-
 	s_vaos.clear();
 
 	NzOpenGL::Uninitialize();
@@ -1719,16 +1733,16 @@ bool NzRenderer::EnsureStateUpdate()
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
 				const NzContext* context = NzContext::GetCurrent();
 
-				VAO_Map* vaos;
 				auto it = s_vaos.find(context);
 				if (it == s_vaos.end())
 				{
-					context->AddResourceListener(&s_listener, ResourceType_Context);
-					auto pair = s_vaos.insert(std::make_pair(context, Context_Map::mapped_type()));
-					vaos = &pair.first->second;
+					Context_Entry entry(&s_listener, ResourceType_Context);
+					entry.contextListener = context;
+
+					it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
 				}
-				else
-					vaos = &it->second;
+
+				VAO_Map& vaoMap = it->second.vaoMap;
 
 				// Notre clé est composée de ce qui définit un VAO
 				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
@@ -1736,23 +1750,22 @@ bool NzRenderer::EnsureStateUpdate()
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
-				vaoIt = vaos->find(key);
-				if (vaoIt == vaos->end())
+				vaoIt = vaoMap.find(key);
+				if (vaoIt == vaoMap.end())
 				{
 					// On créé notre VAO
 					glGenVertexArrays(1, &s_currentVAO);
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					vaoIt = vaos->insert(std::make_pair(key, s_currentVAO)).first;
-					if (s_indexBuffer)
-						s_indexBuffer->AddResourceListener(&s_listener, ResourceType_IndexBuffer);
+					VAO_Entry entry(&s_listener, ResourceType_IndexBuffer, ResourceType_VertexBuffer, ResourceType_VertexDeclaration, ResourceType_VertexDeclaration);
+					entry.indexBufferListener = std::get<0>(key);
+					entry.instancingDeclarationListener = std::get<3>(key);
+					entry.vertexBufferListener = std::get<1>(key);
+					entry.vertexDeclarationListener = std::get<2>(key);
+					entry.vao = s_currentVAO;
 
-					s_vertexBuffer->AddResourceListener(&s_listener, ResourceType_VertexBuffer);
-					vertexDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
-
-					if (instancingDeclaration)
-						instancingDeclaration->AddResourceListener(&s_listener, ResourceType_VertexDeclaration);
+					vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
 
 					// Et on indique qu'on veut le programmer
 					update = true;
@@ -1760,7 +1773,7 @@ bool NzRenderer::EnsureStateUpdate()
 				else
 				{
 					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-					s_currentVAO = vaoIt->second;
+					s_currentVAO = vaoIt->second.vao;
 
 					update = false;
 				}
@@ -1911,8 +1924,8 @@ bool NzRenderer::EnsureStateUpdate()
 					if (updateFailed)
 					{
 						// La création de notre VAO a échoué, libérons-le et marquons-le comme problématique
-						glDeleteVertexArrays(1, &vaoIt->second);
-						vaoIt->second = 0;
+						glDeleteVertexArrays(1, &vaoIt->second.vao);
+						vaoIt->second.vao = 0;
 						s_currentVAO = 0;
 					}
 					else
