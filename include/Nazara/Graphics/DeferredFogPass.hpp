@@ -25,6 +25,7 @@ class NAZARA_API NzDeferredFogPass : public NzDeferredRenderPass
 		NzRenderStates m_states;
 		NzShaderRef m_shader;
 		NzTextureSampler m_pointSampler;
+		int m_shaderEyePositionLocation;
 };
 
 #endif // NAZARA_DEFERREDFOGPASS_HPP
