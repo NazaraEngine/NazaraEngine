@@ -96,8 +96,29 @@ void NzGraphics::Uninitialize()
 	s_moduleReferenceCounter = 0;
 
 	// Libération de l'atlas s'il vient de nous
-	if (NzFont::GetDefaultAtlas()->GetStorage() & nzDataStorage_Hardware)
+	std::shared_ptr<NzAbstractAtlas> defaultAtlas = NzFont::GetDefaultAtlas();
+	if (defaultAtlas && defaultAtlas->GetStorage() & nzDataStorage_Hardware)
+	{
 		NzFont::SetDefaultAtlas(nullptr);
+
+		// La police par défaut peut faire vivre un atlas hardware après la libération du module (ce qui va être problématique)
+		// du coup, si la police par défaut utilise un atlas hardware, on lui enlève.
+		// Je n'aime pas cette solution mais je n'en ai pas de meilleure sous la main pour l'instant
+		if (!defaultAtlas.unique())
+		{
+			// Encore au moins une police utilise l'atlas
+			NzFont* defaultFont = NzFont::GetDefault();
+			defaultFont->SetAtlas(nullptr);
+
+			if (!defaultAtlas.unique())
+			{
+				// Toujours pas seuls propriétaires ? Ah ben zut.
+				NazaraWarning("Default font atlas uses hardware storage and is still used");
+			}
+		}
+	}
+
+	defaultAtlas.reset();
 
 	// Loaders
 	NzLoaders_Mesh_Unregister();

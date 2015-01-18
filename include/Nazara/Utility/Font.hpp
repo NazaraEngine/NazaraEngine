@@ -75,6 +75,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		void SetMinimumStepSize(unsigned int minimumStepSize);
 
 		static std::shared_ptr<NzAbstractAtlas> GetDefaultAtlas();
+		static NzFont* GetDefault();
 		static unsigned int GetDefaultGlyphBorder();
 		static unsigned int GetDefaultMinimumStepSize();
 
@@ -133,6 +134,7 @@ class NAZARA_API NzFont : public NzResource, NzAbstractAtlas::Listener, NzNonCop
 		unsigned int m_minimumStepSize;
 
 		static std::shared_ptr<NzAbstractAtlas> s_defaultAtlas;
+		static NzFont* s_defaultFont;
 		static NzFontLoader::LoaderList s_loaders;
 		static unsigned int s_defaultGlyphBorder;
 		static unsigned int s_defaultMinimumStepSize;
