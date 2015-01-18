@@ -210,11 +210,11 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 						shaderUniforms = GetShaderUniforms(shader);
 
 						// Couleur ambiante de la scène
-						shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+						shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
 						// Overlay
 						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
 						// Position de la caméra
-						shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+						shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -299,9 +299,9 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 					shaderUniforms = GetShaderUniforms(shader);
 
 					// Couleur ambiante de la scène
-					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
 					// Position de la caméra
-					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -503,9 +503,9 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 			shaderUniforms = GetShaderUniforms(shader);
 
 			// Couleur ambiante de la scène
-			shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+			shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
 			// Position de la caméra
-			shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+			shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 			lightCount = std::min(m_directionalLights.GetLightCount(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
@@ -563,11 +563,11 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetShaderUniforms(const NzShader* shader) const
 {
 	auto it = m_shaderUniforms.find(shader);
-	if (it != m_shaderUniforms.end())
-		return &(it->second);
-	else
+	if (it == m_shaderUniforms.end())
 	{
 		ShaderUniforms uniforms;
+		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
 		int type0Location = shader->GetUniformLocation("Lights[0].type");
@@ -588,7 +588,8 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 		else
 			uniforms.hasLightUniforms = false;
 
-		auto pair = m_shaderUniforms.emplace(shader, uniforms);
-		return &(pair.first->second);
+		it = m_shaderUniforms.emplace(shader, uniforms).first;
 	}
+
+	return &it->second;
 }

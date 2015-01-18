@@ -22,6 +22,18 @@ class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 		bool Resize(const NzVector2ui& dimensions);
 
 	protected:
+		struct ShaderUniforms;
+
+		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+
+		struct ShaderUniforms
+		{
+			int eyePosition;
+			int sceneAmbient;
+			int textureOverlay;
+		};
+
+		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
 		NzRenderStates m_clearStates;
 		NzShaderRef m_clearShader;
 };
