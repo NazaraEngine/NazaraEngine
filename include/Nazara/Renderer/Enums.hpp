@@ -35,11 +35,11 @@ enum nzBlendFunc
 
 enum nzFaceFilling
 {
-	nzFaceFilling_Point,
-	nzFaceFilling_Line,
 	nzFaceFilling_Fill,
+	nzFaceFilling_Line,
+	nzFaceFilling_Point,
 
-	nzFaceFilling_Max = nzFaceFilling_Fill
+	nzFaceFilling_Max = nzFaceFilling_Point
 };
 
 enum nzFaceSide
