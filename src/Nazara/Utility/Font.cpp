@@ -402,8 +402,11 @@ void NzFont::Uninitialize()
 	s_defaultAtlas.reset();
 
 	// On rend la police non-persistente et on demande la vérification du compteur (pouvant entraîner la libération de la ressource)
-	s_defaultFont->SetPersistent(false, true);
-	s_defaultFont = nullptr;
+	if (s_defaultFont)
+	{
+		s_defaultFont->SetPersistent(false, true);
+		s_defaultFont = nullptr;
+	}
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
