@@ -9,12 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 
 class NzIndexBuffer;
 
+using NzIndexBufferConstListener = NzResourceListenerWrapper<const NzIndexBuffer>;
 using NzIndexBufferConstRef = NzResourceRef<const NzIndexBuffer>;
+using NzIndexBufferListener = NzResourceListenerWrapper<NzIndexBuffer>;
 using NzIndexBufferRef = NzResourceRef<NzIndexBuffer>;
 
 class NAZARA_API NzIndexBuffer : public NzResource

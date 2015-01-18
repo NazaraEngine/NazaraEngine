@@ -11,7 +11,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceListener.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
@@ -52,13 +52,15 @@ class NzPrimitiveList;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
+using NzMeshConstListener = NzResourceListenerWrapper<const NzMesh>;
 using NzMeshConstRef = NzResourceRef<const NzMesh>;
+using NzMeshListener = NzResourceListenerWrapper<NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 using NzMeshRef = NzResourceRef<NzMesh>;
 
 struct NzMeshImpl;
 
-class NAZARA_API NzMesh : public NzResource, NzResourceListener
+class NAZARA_API NzMesh : public NzResource
 {
 	friend NzMeshLoader;
 
@@ -121,8 +123,6 @@ class NAZARA_API NzMesh : public NzResource, NzResourceListener
 		void Transform(const NzMatrix4f& matrix);
 
 	private:
-		void OnResourceReleased(const NzResource* resource, int index) override;
-
 		NzMeshImpl* m_impl = nullptr;
 
 		static NzMeshLoader::LoaderList s_loaders;

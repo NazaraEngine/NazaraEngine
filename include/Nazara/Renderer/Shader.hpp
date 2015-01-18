@@ -12,6 +12,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -23,7 +24,9 @@
 class NzShader;
 class NzShaderStage;
 
+using NzShaderConstListener = NzResourceListenerWrapper<const NzShader>;
 using NzShaderConstRef = NzResourceRef<const NzShader>;
+using NzShaderListener = NzResourceListenerWrapper<NzShader>;
 using NzShaderRef = NzResourceRef<NzShader>;
 
 class NAZARA_API NzShader : public NzResource, NzNonCopyable

@@ -35,8 +35,8 @@ namespace
     	NzVertexBuffer* buffer;
     };
 
-	using MeshMap = std::unordered_map<const NzSkeletalMesh*, BufferData>;
-	using SkeletonMap = std::unordered_map<const NzSkeleton*, MeshMap>;
+	using MeshMap = std::unordered_map<const NzSkeletalMesh*, std::pair<NzSkeletalMeshConstListener, BufferData>>;
+	using SkeletonMap = std::unordered_map<const NzSkeleton*, std::pair<NzSkeletonConstListener, MeshMap>>;
 	SkeletonMap s_cache;
 	std::vector<SkinningData> s_skinningQueue;
 
@@ -51,7 +51,7 @@ namespace
 					{
 						for (auto& pair : s_cache)
 						{
-							MeshMap& meshMap = pair.second;
+							MeshMap& meshMap = pair.second.second;
 							meshMap.erase(static_cast<const NzSkeletalMesh*>(resource));
 						}
 						break;
@@ -75,17 +75,19 @@ namespace
 					{
 						for (auto& pair : s_cache)
 						{
-							MeshMap& meshMap = pair.second;
+							MeshMap& meshMap = pair.second.second;
 							for (auto& pair2 : meshMap)
-								pair2.second.updated = false;
+								pair2.second.second.updated = false;
 						}
 						break;
 					}
 
 					case ResourceType_Skeleton:
 					{
-						for (auto& pair : s_cache.at(static_cast<const NzSkeleton*>(resource)))
-							pair.second.updated = false;
+						const NzSkeleton* skeleton = static_cast<const NzSkeleton*>(resource);
+						for (auto& pair : s_cache.at(skeleton).second)
+							pair.second.second.updated = false;
+
 						break;
 					}
 				}
@@ -161,14 +163,11 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
 
 	SkeletonMap::iterator it = s_cache.find(skeleton);
 	if (it == s_cache.end())
-	{
-		it = s_cache.insert(std::make_pair(skeleton, SkeletonMap::mapped_type())).first;
-		skeleton->AddResourceListener(&listener, ResourceType_Skeleton);
-	}
+		it = s_cache.insert(std::make_pair(skeleton, std::make_pair(NzSkeletonConstListener(&listener, ResourceType_Skeleton, skeleton), MeshMap{}))).first;
 
 	NzVertexBuffer* buffer;
 
-    MeshMap& meshMap = it->second;
+    MeshMap& meshMap = it->second.second;
     MeshMap::iterator it2 = meshMap.find(mesh);
     if (it2 == meshMap.end())
 	{
@@ -177,9 +176,7 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
 		vertexBuffer->Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 
 		BufferData data({vertexBuffer.get(), true});
-		meshMap.insert(std::make_pair(mesh, data));
-
-		mesh->AddResourceListener(&listener, ResourceType_SkeletalMesh);
+		meshMap.insert(std::make_pair(mesh, std::make_pair(NzSkeletalMeshConstListener(&listener, ResourceType_SkeletalMesh, mesh), data)));
 
 		s_skinningQueue.push_back(SkinningData{mesh, skeleton, vertexBuffer.get()});
 
@@ -187,7 +184,7 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
 	}
 	else
 	{
-		BufferData& data = it2->second;
+		BufferData& data = it2->second.second;
 		if (!data.updated)
 		{
 			s_skinningQueue.push_back(SkinningData{mesh, skeleton, data.buffer});
@@ -221,13 +218,6 @@ bool NzSkinningManager::Initialize()
 
 void NzSkinningManager::Uninitialize()
 {
-	for (auto& pair : s_cache)
-	{
-		pair.first->RemoveResourceListener(&listener);
-		MeshMap& meshMap = pair.second;
-		for (auto& pair2 : meshMap)
-			pair2.first->RemoveResourceListener(&listener);
-	}
 	s_cache.clear();
 	s_skinningQueue.clear();
 }

@@ -11,6 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
@@ -32,7 +33,9 @@ struct NAZARA_API NzImageParams
 
 class NzImage;
 
+using NzImageConstListener = NzResourceListenerWrapper<const NzImage>;
 using NzImageConstRef = NzResourceRef<const NzImage>;
+using NzImageListener = NzResourceListenerWrapper<NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageRef = NzResourceRef<NzImage>;
 

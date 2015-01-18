@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <memory>
@@ -16,7 +17,9 @@
 
 class NzContext;
 
+using NzContextConstListener = NzResourceListenerWrapper<const NzContext>;
 using NzContextConstRef = NzResourceRef<const NzContext>;
+using NzContextListener = NzResourceListenerWrapper<NzContext>;
 using NzContextRef = NzResourceRef<NzContext>;
 
 class NzContextImpl;

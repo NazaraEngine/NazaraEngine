@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Core/String.hpp>
@@ -34,7 +35,9 @@ struct NAZARA_API NzMaterialParams
 
 class NzMaterial;
 
+using NzMaterialConstListener = NzResourceListenerWrapper<const NzMaterial>;
 using NzMaterialConstRef = NzResourceRef<const NzMaterial>;
+using NzMaterialListener = NzResourceListenerWrapper<NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzResourceRef<NzMaterial>;
 

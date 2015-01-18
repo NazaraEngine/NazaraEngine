@@ -9,12 +9,15 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzVertexDeclaration;
 
+using NzVertexDeclarationConstListener = NzResourceListenerWrapper<const NzVertexDeclaration>;
 using NzVertexDeclarationConstRef = NzResourceRef<const NzVertexDeclaration>;
+using NzVertexDeclarationListener = NzResourceListenerWrapper<NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzResourceRef<NzVertexDeclaration>;
 
 class NAZARA_API NzVertexDeclaration : public NzResource

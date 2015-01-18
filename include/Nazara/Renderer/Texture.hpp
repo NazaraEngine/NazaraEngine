@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceListenerWrapper.hpp>
 #include <Nazara/Core/ResourceRef.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
@@ -18,7 +19,9 @@
 
 class NzTexture;
 
+using NzTextureConstListener = NzResourceListenerWrapper<const NzTexture>;
 using NzTextureConstRef = NzResourceRef<const NzTexture>;
+using NzTextureListener = NzResourceListenerWrapper<NzTexture>;
 using NzTextureRef = NzResourceRef<NzTexture>;
 
 struct NzTextureImpl;
