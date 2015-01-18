@@ -380,7 +380,11 @@ void NzTextSprite::UpdateBoundingVolume() const
 		NzVector3f down = m_scene->GetDown();
 		NzVector3f right = m_scene->GetRight();
 
-		m_boundingVolume.Set(NzVector3f(0.f), static_cast<float>(m_localBounds.width)*right + static_cast<float>(m_localBounds.height)*down);
+		NzRectf bounds(m_localBounds);
+		NzVector2f max = bounds.GetMaximum();
+		NzVector2f min = bounds.GetMinimum();
+
+		m_boundingVolume.Set(min.x*right + min.y*down, max.x*right + max.y*down);
 	}
 
 	if (!m_transformMatrixUpdated)
