@@ -9,6 +9,13 @@
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
+namespace
+{
+	const nzUInt8 r_cabinRegular[] = {
+		#include <Nazara/Utility/Resources/Fonts/Cabin-Regular.ttf.h>
+	};
+}
+
 bool NzFontParams::IsValid() const
 {
 	return true; // Rien à tester
@@ -325,6 +332,29 @@ std::shared_ptr<NzAbstractAtlas> NzFont::GetDefaultAtlas()
 	return s_defaultAtlas;
 }
 
+NzFont* NzFont::GetDefault()
+{
+	// Nous n'initialisons la police par défaut qu'à la demande pour qu'elle prenne
+	// les paramètres par défaut (qui peuvent avoir étés changés par l'utilisateur),
+	// et pour ne pas consommer de la mémoire vive inutilement (si elle n'est jamais utilisée, elle n'est jamais ouverte).
+
+	if (!s_defaultFont)
+	{
+		std::unique_ptr<NzFont> cabin(new NzFont);
+		cabin->SetPersistent(true);
+
+		if (!cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
+		{
+			NazaraError("Failed to open default font");
+			return nullptr;
+		}
+
+		s_defaultFont = cabin.release();
+	}
+
+	return s_defaultFont;
+}
+
 unsigned int NzFont::GetDefaultGlyphBorder()
 {
 	return s_defaultGlyphBorder;
@@ -370,6 +400,10 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 void NzFont::Uninitialize()
 {
 	s_defaultAtlas.reset();
+
+	// On rend la police non-persistente et on demande la vérification du compteur (pouvant entraîner la libération de la ressource)
+	s_defaultFont->SetPersistent(false, true);
+	s_defaultFont = nullptr;
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -545,6 +579,7 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 }
 
 std::shared_ptr<NzAbstractAtlas> NzFont::s_defaultAtlas;
+NzFont* NzFont::s_defaultFont;
 NzFontLoader::LoaderList NzFont::s_loaders;
 unsigned int NzFont::s_defaultGlyphBorder;
 unsigned int NzFont::s_defaultMinimumStepSize;
