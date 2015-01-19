@@ -15,6 +15,25 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
+namespace
+{
+	const nzUInt8 r_coreFragmentShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/Basic/core.frag.h>
+	};
+
+	const nzUInt8 r_coreVertexShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/Basic/core.vert.h>
+	};
+
+	const nzUInt8 r_compatibilityFragmentShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.frag.h>
+	};
+
+	const nzUInt8 r_compatibilityVertexShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.vert.h>
+	};
+}
+
 bool NzMaterialParams::IsValid() const
 {
 	if (!NzUberShaderLibrary::Has(shaderName))
@@ -719,29 +738,13 @@ bool NzMaterial::Initialize()
 		NzString vertexShader;
 		if (glsl140)
 		{
-			const nzUInt8 coreFragmentShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/Basic/core.frag.h>
-			};
-
-			const nzUInt8 coreVertexShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/Basic/core.vert.h>
-			};
-
-			fragmentShader.Set(reinterpret_cast<const char*>(coreFragmentShader), sizeof(coreFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(coreVertexShader), sizeof(coreVertexShader));
+			fragmentShader.Set(reinterpret_cast<const char*>(r_coreFragmentShader), sizeof(r_coreFragmentShader));
+			vertexShader.Set(reinterpret_cast<const char*>(r_coreVertexShader), sizeof(r_coreVertexShader));
 		}
 		else
 		{
-			const nzUInt8 compatibilityFragmentShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.frag.h>
-			};
-
-			const nzUInt8 compatibilityVertexShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.vert.h>
-			};
-
-			fragmentShader.Set(reinterpret_cast<const char*>(compatibilityFragmentShader), sizeof(compatibilityFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
+			fragmentShader.Set(reinterpret_cast<const char*>(r_compatibilityFragmentShader), sizeof(r_compatibilityFragmentShader));
+			vertexShader.Set(reinterpret_cast<const char*>(r_compatibilityVertexShader), sizeof(r_compatibilityVertexShader));
 		}
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
