@@ -205,6 +205,9 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 	// "Curseur" de dessin
 	NzVector2ui drawPos(0, m_characterSize);
 
+	// On calcule les bornes en flottants pour accélérer les calculs (il est coûteux de changer de type trop souvent)
+	bool firstGlyph = true;
+	NzRectf textBounds = NzRectf::Zero();
 	m_glyphs.reserve(size);
 	nzUInt32 previousCharacter = 0;
 	for (unsigned int i = 0; i < size; ++i)
@@ -250,7 +253,7 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 		glyph.color = m_color;
 		glyph.flipped = fontGlyph.flipped;
 
-		float advance = fontGlyph.advance;
+		int advance = fontGlyph.advance;
 
 		NzRectf bounds(fontGlyph.aabb);
 		bounds.x += drawPos.x;
@@ -269,7 +272,7 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 			bounds.y -= offset.y;
 
 			// On ajuste l'espacement
-			advance *= 1.1f;
+			advance += advance/10;
 		}
 
 		// On "penche" le glyphe pour obtenir un semblant d'italique
@@ -282,27 +285,18 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 		glyph.corners[2].Set(bounds.x - italicBottom, bounds.y + bounds.height);
 		glyph.corners[3].Set(bounds.x + bounds.width - italicBottom, bounds.y + bounds.height);
 
-		m_glyphs.push_back(glyph);
+		if (firstGlyph)
+		{
+			textBounds.Set(glyph.corners[0]);
+			firstGlyph = false;
+		}
+
+		for (unsigned int j = 0; j < 4; ++j)
+			textBounds.ExtendTo(glyph.corners[j]);
 
 		drawPos.x += advance;
+		m_glyphs.push_back(glyph);
 	}
 
-	// Calcul des bornes
-	if (!m_glyphs.empty())
-	{
-		for (unsigned int i = 0; i < m_glyphs.size(); ++i)
-		{
-			Glyph& glyph = m_glyphs[i];
-
-			for (unsigned int j = 0; j < 4; ++j)
-			{
-				NzVector2ui corner(std::ceil(glyph.corners[j].x), std::ceil(glyph.corners[j].y));
-
-				if (i == 0 && j == 0)
-					m_bounds.Set(corner.x, corner.y, 0, 0);
-				else
-					m_bounds.ExtendTo(corner);
-			}
-		}
-	}
+	m_bounds.Set(std::floor(textBounds.x), std::floor(textBounds.y), std::ceil(textBounds.width), std::ceil(textBounds.height));
 }
