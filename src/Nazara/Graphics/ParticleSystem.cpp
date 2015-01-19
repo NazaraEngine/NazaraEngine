@@ -295,18 +295,6 @@ void NzParticleSystem::Unregister()
 	m_scene->UnregisterForUpdate(this);
 }
 
-void NzParticleSystem::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-		GenerateAABB();
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
-}
-
 void NzParticleSystem::Update()
 {
 	float elapsedTime = m_scene->GetUpdateTime();
@@ -345,8 +333,7 @@ void NzParticleSystem::Update()
 				controller->Apply(*this, mapper, 0, m_particleCount-1, elapsedTime);
 		}
 
-		m_processing = false;
-		onExit.Reset();
+		onExit.CallAndReset();
 
 		// On tue maintenant les particules mortes durant la mise à jour
 		if (m_dyingParticles.size() < m_particleCount)
@@ -362,4 +349,16 @@ void NzParticleSystem::Update()
 
 		m_dyingParticles.clear();
 	}
+}
+
+void NzParticleSystem::UpdateBoundingVolume() const
+{
+	if (m_boundingVolume.IsNull())
+		GenerateAABB();
+
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
+
+	m_boundingVolume.Update(m_transformMatrix);
+	m_boundingVolumeUpdated = true;
 }
