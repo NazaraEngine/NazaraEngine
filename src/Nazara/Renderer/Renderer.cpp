@@ -34,6 +34,22 @@
 
 namespace
 {
+	const nzUInt8 r_coreFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
+	};
+
+	const nzUInt8 r_coreVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
+	};
+
+	const nzUInt8 r_compatibilityFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
+	};
+
+	const nzUInt8 r_compatibilityVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
+	};
+
 	enum ResourceType
 	{
 		ResourceType_Context,
@@ -876,39 +892,23 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	const nzUInt8 coreFragmentShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
-	};
-
-	const nzUInt8 coreVertexShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
-	};
-
-	const nzUInt8 compatibilityFragmentShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
-	};
-
-	const nzUInt8 compatibilityVertexShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
-	};
-
 	const char* fragmentShader;
 	const char* vertexShader;
 	unsigned int fragmentShaderLength;
 	unsigned int vertexShaderLength;
 	if (NzOpenGL::GetGLSLVersion() >= 140)
 	{
-		fragmentShader = reinterpret_cast<const char*>(coreFragmentShader);
-		fragmentShaderLength = sizeof(coreFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(coreVertexShader);
-		vertexShaderLength = sizeof(coreVertexShader);
+		fragmentShader = reinterpret_cast<const char*>(r_coreFragmentShader);
+		fragmentShaderLength = sizeof(r_coreFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(r_coreVertexShader);
+		vertexShaderLength = sizeof(r_coreVertexShader);
 	}
 	else
 	{
-		fragmentShader = reinterpret_cast<const char*>(compatibilityFragmentShader);
-		fragmentShaderLength = sizeof(compatibilityFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(compatibilityVertexShader);
-		vertexShaderLength = sizeof(compatibilityVertexShader);
+		fragmentShader = reinterpret_cast<const char*>(r_compatibilityFragmentShader);
+		fragmentShaderLength = sizeof(r_compatibilityFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(r_compatibilityVertexShader);
+		vertexShaderLength = sizeof(r_compatibilityVertexShader);
 	}
 
 	if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))

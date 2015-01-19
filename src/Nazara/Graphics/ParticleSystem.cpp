@@ -279,7 +279,7 @@ void NzParticleSystem::ResizeBuffer()
 	// Histoire de décrire un peu mieux l'erreur en cas d'échec
 	try
 	{
-		m_buffer.resize(m_maxParticleCount*m_particleSize);
+		m_buffer.resize(m_maxParticleCount*m_particleSize*2);
 	}
 	catch (const std::exception& e)
 	{
