@@ -628,24 +628,25 @@ NzMaterial* NzMaterial::GetDefault()
 void NzMaterial::Copy(const NzMaterial& material)
 {
 	// Copie des états de base
-	m_alphaTestEnabled = material.m_alphaTestEnabled;
-	m_alphaThreshold = material.m_alphaThreshold;
-	m_ambientColor = material.m_ambientColor;
-	m_diffuseColor = material.m_diffuseColor;
-	m_diffuseSampler = material.m_diffuseSampler;
-	m_lightingEnabled = material.m_lightingEnabled;
-	m_shininess = material.m_shininess;
-	m_specularColor = material.m_specularColor;
-	m_specularSampler = material.m_specularSampler;
-	m_states = material.m_states;
-	m_transformEnabled = material.m_transformEnabled;
+	m_alphaTestEnabled    = material.m_alphaTestEnabled;
+	m_alphaThreshold      = material.m_alphaThreshold;
+	m_ambientColor        = material.m_ambientColor;
+	m_depthSortingEnabled = material.m_depthSortingEnabled;
+	m_diffuseColor        = material.m_diffuseColor;
+	m_diffuseSampler      = material.m_diffuseSampler;
+	m_lightingEnabled     = material.m_lightingEnabled;
+	m_shininess           = material.m_shininess;
+	m_specularColor       = material.m_specularColor;
+	m_specularSampler     = material.m_specularSampler;
+	m_states              = material.m_states;
+	m_transformEnabled    = material.m_transformEnabled;
 
 	// Copie des références de texture
-	m_alphaMap = material.m_alphaMap;
-	m_diffuseMap = material.m_diffuseMap;
+	m_alphaMap    = material.m_alphaMap;
+	m_diffuseMap  = material.m_diffuseMap;
 	m_emissiveMap = material.m_emissiveMap;
-	m_heightMap = material.m_heightMap;
-	m_normalMap = material.m_normalMap;
+	m_heightMap   = material.m_heightMap;
+	m_normalMap   = material.m_normalMap;
 	m_specularMap = material.m_specularMap;
 
 	// Copie de la référence vers l'Über-Shader
