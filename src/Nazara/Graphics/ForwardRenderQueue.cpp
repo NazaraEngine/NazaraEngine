@@ -85,11 +85,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!alphaPtr)
 		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		billboardData->center = *positionPtr++;
@@ -111,11 +122,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!colorPtr)
 		colorPtr.Reset(&NzColor::White, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		float sin = std::sin(NzToRadians(*anglePtr));
@@ -143,11 +165,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!alphaPtr)
 		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		float sin = std::sin(NzToRadians(*anglePtr));
@@ -173,11 +206,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!colorPtr)
 		colorPtr.Reset(&NzColor::White, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		billboardData->center = *positionPtr++;
@@ -201,11 +245,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!alphaPtr)
 		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		billboardData->center = *positionPtr++;
@@ -227,11 +282,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!colorPtr)
 		colorPtr.Reset(&NzColor::White, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		float sin = std::sin(NzToRadians(*anglePtr));
@@ -259,11 +325,22 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (!alphaPtr)
 		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
 
-	std::vector<BillboardData>& billboardVec = billboards[material];
-	unsigned int prevSize = billboardVec.size();
-	billboardVec.resize(prevSize + count);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
 
-	BillboardData* billboardData = &billboardVec[prevSize];
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
 	for (unsigned int i = 0; i < count; ++i)
 	{
 		float sin = std::sin(NzToRadians(*anglePtr));
