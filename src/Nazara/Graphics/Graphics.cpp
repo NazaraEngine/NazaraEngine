@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
@@ -46,6 +47,12 @@ bool NzGraphics::Initialize()
 		return false;
 	}
 
+	if (!NzParticleDeclaration::Initialize())
+	{
+		NazaraError("Failed to initialize particle declarations");
+		return false;
+	}
+
 	if (!NzSkinningManager::Initialize())
 	{
 		NazaraError("Failed to initialize skinning manager");
@@ -60,12 +67,22 @@ bool NzGraphics::Initialize()
 	NzLoaders_Texture_Register();
 
 	// RenderTechniques
+	if (!NzForwardRenderTechnique::Initialize())
+	{
+		NazaraError("Failed to initialize Forward Rendering");
+		return false;
+	}
+
 	NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_BasicForward), 0, []() -> NzAbstractRenderTechnique* { return new NzForwardRenderTechnique; });
 
 	if (NzDeferredRenderTechnique::IsSupported())
 	{
-		NzDeferredRenderTechnique::Initialize();
-		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
+		if (NzDeferredRenderTechnique::Initialize())
+			NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
+		else
+		{
+			NazaraWarning("Failed to initialize Deferred Rendering");
+		}
 	}
 
 	NzFont::SetDefaultAtlas(std::make_shared<NzGuillotineTextureAtlas>());
@@ -126,7 +143,9 @@ void NzGraphics::Uninitialize()
 	NzLoaders_Texture_Unregister();
 
 	NzDeferredRenderTechnique::Uninitialize();
+	NzForwardRenderTechnique::Uninitialize();
 	NzMaterial::Uninitialize();
+	NzParticleDeclaration::Uninitialize();
 	NzSkinningManager::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");

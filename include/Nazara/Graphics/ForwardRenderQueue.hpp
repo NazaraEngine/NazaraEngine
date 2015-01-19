@@ -30,6 +30,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		NzForwardRenderQueue() = default;
 		~NzForwardRenderQueue() = default;
 
+		void AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos = NzVector2f(0.f, 1.f), const NzColor& color = NzColor::White) override;
+		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr = nullptr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
 		void AddDrawable(const NzDrawable* drawable) override;
 		void AddLight(const NzLight* light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
@@ -43,6 +45,34 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		bool OnResourceDestroy(const NzResource* resource, int index) override;
 		void OnResourceReleased(const NzResource* resource, int index) override;
 
+		/// Billboards
+		struct BillboardData
+		{
+			NzColor color;
+			NzVector3f center;
+			NzVector2f size;
+			NzVector2f sinCos;
+		};
+
+		struct BatchedBillboardComparator
+		{
+			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+		};
+
+		struct BatchedBillboardEntry
+		{
+			BatchedBillboardEntry(NzResourceListener* listener, int materialValue) :
+			materialListener(listener, materialValue)
+			{
+			}
+
+			NzMaterialConstListener materialListener;
+			std::vector<BillboardData> billboards;
+		};
+
+		typedef std::map<const NzMaterial*, BatchedBillboardEntry, BatchedBillboardComparator> BatchedBillboardContainer;
+
+		/// Sprites
 		struct SpriteChain_XYZ_Color_UV
 		{
 			const NzVertexStruct_XYZ_Color_UV* vertices;
@@ -51,7 +81,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct BatchedSpriteEntry
 		{
-			BatchedSpriteEntry(NzForwardRenderQueue* listener, int textureValue) :
+			BatchedSpriteEntry(NzResourceListener* listener, int textureValue) :
 			textureListener(listener, textureValue)
 			{
 			}
@@ -69,7 +99,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct BatchedBasicSpriteEntry
 		{
-			BatchedBasicSpriteEntry(NzForwardRenderQueue* listener, int materialValue) :
+			BatchedBasicSpriteEntry(NzResourceListener* listener, int materialValue) :
 			materialListener(listener, materialValue)
 			{
 			}
@@ -81,6 +111,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		typedef std::map<const NzMaterial*, BatchedBasicSpriteEntry> BasicSpriteBatches;
 
+		/// Meshes
 		struct MeshDataComparator
 		{
 			bool operator()(const NzMeshData& data1, const NzMeshData& data2);
@@ -88,7 +119,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct MeshInstanceEntry
 		{
-			MeshInstanceEntry(NzForwardRenderQueue* listener, int indexBufferValue, int vertexBufferValue) :
+			MeshInstanceEntry(NzResourceListener* listener, int indexBufferValue, int vertexBufferValue) :
 			indexBufferListener(listener, indexBufferValue),
 			vertexBufferListener(listener, vertexBufferValue)
 			{
@@ -109,7 +140,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 
 		struct BatchedModelEntry
 		{
-			BatchedModelEntry(NzForwardRenderQueue* listener, int materialValue) :
+			BatchedModelEntry(NzResourceListener* listener, int materialValue) :
 			materialListener(listener, materialValue)
 			{
 			}
@@ -133,6 +164,7 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzResource
 		typedef std::vector<const NzLight*> LightContainer;
 		typedef std::vector<unsigned int> TransparentModelContainer;
 
+		BatchedBillboardContainer billboards;
 		BasicSpriteBatches basicSprites;
 		ModelBatches opaqueModels;
 		TransparentModelContainer transparentModels;

@@ -23,6 +23,18 @@ m_forwardQueue(forwardQueue)
 {
 }
 
+void NzDeferredRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
+{
+	///TODO: Rendre les billboards via Deferred Shading si possible
+	m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///TODO: Rendre les billboards via Deferred Shading si possible
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+}
+
 void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	m_forwardQueue->AddDrawable(drawable);
@@ -90,6 +102,7 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
 
+		// On ajoute la matrice à la liste des instances de cet objet
 		std::vector<NzMatrix4f>& instances = it2->second.instances;
 		instances.push_back(transformMatrix);
 
