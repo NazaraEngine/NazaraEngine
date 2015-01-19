@@ -22,7 +22,8 @@
 
 template<typename T> T NzApproach(T value, T objective, T increment);
 template<typename T> constexpr T NzClamp(T value, T min, T max);
-template<typename T> constexpr T NzDegrees(T degrees);
+template<typename T> constexpr T NzFromDegrees(T degrees);
+template<typename T> constexpr T NzFromRadians(T radians);
 template<typename T> constexpr T NzDegreeToRadian(T degrees);
 unsigned int NzGetNearestPowerOfTwo(unsigned int number);
 unsigned int NzGetNumberLength(signed char number);
@@ -40,9 +41,10 @@ template<typename T> T NzMultiplyAdd(T x, T y, T z);
 template<typename T> T NzNormalizeAngle(T angle);
 template<typename T> bool NzNumberEquals(T a, T b, T maxDifference = std::numeric_limits<T>::epsilon());
 NzString NzNumberToString(long long number, nzUInt8 radix = 10);
-template<typename T> T NzRadians(T radians);
 template<typename T> T NzRadianToDegree(T radians);
 long long NzStringToNumber(NzString str, nzUInt8 radix = 10, bool* ok = nullptr);
+template<typename T> constexpr T NzToDegrees(T angle);
+template<typename T> constexpr T NzToRadians(T angle);
 
 #include <Nazara/Math/Algorithm.inl>
 
