@@ -18,6 +18,60 @@ namespace
 	};
 }
 
+void NzForwardRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
+{
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	billboardVector.push_back(BillboardData{color, position, size, sinCos});
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ResourceType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
 void NzForwardRenderQueue::AddDrawable(const NzDrawable* drawable)
 {
 	#if NAZARA_GRAPHICS_SAFE
@@ -63,6 +117,7 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 {
 	if (material->IsEnabled(nzRendererParameter_Blend))
 	{
+		// Le matériau est transparent, nous devons rendre ce mesh d'une autre façon (après le rendu des objets opaques et en les triant)
 		unsigned int index = transparentModelData.size();
 		transparentModelData.resize(index+1);
 
@@ -76,7 +131,7 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 	}
 	else
 	{
-		ModelBatches::iterator it = opaqueModels.find(material);
+		auto it = opaqueModels.find(material);
 		if (it == opaqueModels.end())
 		{
 			BatchedModelEntry entry(this, ResourceType_Material);
@@ -150,6 +205,7 @@ void NzForwardRenderQueue::Clear(bool fully)
 	if (fully)
 	{
 		basicSprites.clear();
+		billboards.clear();
 		opaqueModels.clear();
 	}
 }
@@ -157,6 +213,7 @@ void NzForwardRenderQueue::Clear(bool fully)
 void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 {
 	NzPlanef nearPlane = viewer->GetFrustum().GetPlane(nzFrustumPlane_Near);
+	NzVector3f viewerPos = viewer->GetEyePosition();
 	NzVector3f viewerNormal = viewer->GetForward();
 
 	std::sort(transparentModels.begin(), transparentModels.end(), [this, &nearPlane, &viewerNormal](unsigned int index1, unsigned int index2)
@@ -169,6 +226,22 @@ void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 
 		return nearPlane.Distance(position1) > nearPlane.Distance(position2);
 	});
+
+	for (auto& pair : billboards)
+	{
+		const NzMaterial* mat = pair.first;
+
+		if (mat->IsEnabled(nzRendererParameter_Blend))
+		{
+			BatchedBillboardEntry& entry = pair.second;
+			auto& billboardVector = entry.billboards;
+
+			std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos](const BillboardData& data1, const BillboardData& data2)
+			{
+				return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
+			});
+		}
+	}
 }
 
 bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int index)
@@ -197,6 +270,7 @@ bool NzForwardRenderQueue::OnResourceDestroy(const NzResource* resource, int ind
 			const NzMaterial* material = static_cast<const NzMaterial*>(resource);
 
 			basicSprites.erase(material);
+			billboards.erase(material);
 			opaqueModels.erase(material);
 			break;
 		}
@@ -257,6 +331,15 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 				}
 			}
 
+			for (auto it = billboards.begin(); it != billboards.end(); ++it)
+			{
+				if (it->first == resource)
+				{
+					billboards.erase(it);
+					break;
+				}
+			}
+
 			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
 			{
 				if (it->first == resource)
@@ -304,6 +387,26 @@ void NzForwardRenderQueue::OnResourceReleased(const NzResource* resource, int in
 			break;
 		}
 	}
+}
+
+bool NzForwardRenderQueue::BatchedBillboardComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+{
+	const NzUberShader* uberShader1 = mat1->GetShader();
+	const NzUberShader* uberShader2 = mat2->GetShader();
+	if (uberShader1 != uberShader2)
+		return uberShader1 < uberShader2;
+
+	const NzShader* shader1 = mat1->GetShaderInstance(nzShaderFlags_Billboard | nzShaderFlags_VertexColor)->GetShader();
+	const NzShader* shader2 = mat2->GetShaderInstance(nzShaderFlags_Billboard | nzShaderFlags_VertexColor)->GetShader();
+	if (shader1 != shader2)
+		return shader1 < shader2;
+
+	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
+	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
+	if (diffuseMap1 != diffuseMap2)
+		return diffuseMap1 < diffuseMap2;
+
+	return mat1 < mat2;
 }
 
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
