@@ -127,7 +127,7 @@ void* NzParticleSystem::GenerateParticles(unsigned int count)
 
 	NzParticleMapper mapper(ptr, m_declaration);
 	for (NzParticleGenerator* generator : m_generators)
-		generator->Generate(*this, mapper, 0, m_particleCount-1);
+		generator->Generate(*this, mapper, 0, count-1);
 
 	return ptr;
 }
@@ -279,7 +279,7 @@ void NzParticleSystem::ResizeBuffer()
 	// Histoire de décrire un peu mieux l'erreur en cas d'échec
 	try
 	{
-		m_buffer.resize(m_maxParticleCount*m_particleSize*2);
+		m_buffer.resize(m_maxParticleCount*m_particleSize);
 	}
 	catch (const std::exception& e)
 	{
