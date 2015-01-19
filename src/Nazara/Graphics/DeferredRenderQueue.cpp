@@ -8,6 +8,8 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+///TODO: Rendre les billboards via Deferred Shading si possible
+
 namespace
 {
 	enum ResourceType
@@ -25,14 +27,47 @@ m_forwardQueue(forwardQueue)
 
 void NzDeferredRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
 {
-	///TODO: Rendre les billboards via Deferred Shading si possible
 	m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
 }
 
 void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
 {
-	///TODO: Rendre les billboards via Deferred Shading si possible
 	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+}
+
+void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 }
 
 void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
