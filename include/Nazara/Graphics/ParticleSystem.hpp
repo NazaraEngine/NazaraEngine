@@ -69,8 +69,8 @@ class NAZARA_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		void Register() override;
 		void ResizeBuffer();
 		void Unregister() override;
-		void UpdateBoundingVolume() const;
 		void Update() override;
+		void UpdateBoundingVolume() const;
 
 		std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
 		mutable std::vector<nzUInt8> m_buffer;
