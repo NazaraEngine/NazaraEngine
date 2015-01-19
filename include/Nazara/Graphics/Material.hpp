@@ -55,6 +55,7 @@ class NAZARA_API NzMaterial : public NzResource
 
 		void Enable(nzRendererParameter renderParameter, bool enable);
 		void EnableAlphaTest(bool alphaTest);
+		void EnableDepthSorting(bool depthSorting);
 		void EnableLighting(bool lighting);
 		void EnableTransform(bool transform);
 
@@ -90,6 +91,7 @@ class NAZARA_API NzMaterial : public NzResource
 		bool HasSpecularMap() const;
 
 		bool IsAlphaTestEnabled() const;
+		bool IsDepthSortingEnabled() const;
 		bool IsEnabled(nzRendererParameter renderParameter) const;
 		bool IsLightingEnabled() const;
 		bool IsTransformEnabled() const;
@@ -163,6 +165,7 @@ class NAZARA_API NzMaterial : public NzResource
 		NzUberShaderConstRef m_uberShader;
 		mutable ShaderInstance m_shaders[nzShaderFlags_Max+1];
 		bool m_alphaTestEnabled;
+		bool m_depthSortingEnabled;
 		bool m_lightingEnabled;
 		bool m_transformEnabled;
 		float m_alphaThreshold;
