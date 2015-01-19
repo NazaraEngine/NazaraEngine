@@ -33,6 +33,7 @@ m_verticesUpdated(false)
 NzSprite::NzSprite(const NzSprite& sprite) :
 NzSceneNode(sprite),
 m_boundingVolume(sprite.m_boundingVolume),
+m_color(sprite.m_color),
 m_material(sprite.m_material),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),

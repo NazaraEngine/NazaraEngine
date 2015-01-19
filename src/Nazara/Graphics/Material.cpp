@@ -234,10 +234,11 @@ const NzUberShader* NzMaterial::GetShader() const
 
 const NzUberShaderInstance* NzMaterial::GetShaderInstance(nzUInt32 flags) const
 {
-	if (!m_shaders[flags].uberInstance)
+	const ShaderInstance& instance = m_shaders[flags];
+	if (!instance.uberInstance)
 		GenerateShader(flags);
 
-    return m_shaders[flags].uberInstance;
+    return instance.uberInstance;
 }
 
 float NzMaterial::GetShininess() const
@@ -660,6 +661,7 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 	                                     flags & nzShaderFlags_TextureOverlay);
 	list.SetParameter("TRANSFORM", m_transformEnabled);
 
+	list.SetParameter("FLAG_BILLBOARD", static_cast<bool>(flags & nzShaderFlags_Billboard));
 	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
 	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
 	list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & nzShaderFlags_TextureOverlay) != 0));
@@ -731,7 +733,7 @@ bool NzMaterial::Initialize()
 		}
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("Basic", uberShader.get());
 		uberShader.release();
@@ -771,8 +773,8 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("PhongLighting", uberShader.get());
 		uberShader.release();
