@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
@@ -22,46 +24,29 @@
 
 namespace
 {
-	static NzIndexBuffer* s_indexBuffer = nullptr;
-	unsigned int s_maxSprites = 8192;
-
-	NzIndexBuffer* BuildIndexBuffer()
+	struct BillboardPoint
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, s_maxSprites*6, nzDataStorage_Hardware, nzBufferUsage_Static));
-		indexBuffer->SetPersistent(false);
+		NzColor color;
+		NzVector3f position;
+		NzVector2f size;
+		NzVector2f sinCos; // doit suivre size
+		NzVector2f uv;
+	};
 
-		NzBufferMapper<NzIndexBuffer> mapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
-		nzUInt16* indices = static_cast<nzUInt16*>(mapper.GetPointer());
-
-		for (unsigned int i = 0; i < s_maxSprites; ++i)
-		{
-			*indices++ = i*4 + 0;
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 1;
-
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 3;
-			*indices++ = i*4 + 1;
-		}
-
-		return indexBuffer.release();
-	}
+	unsigned int s_maxQuads = std::numeric_limits<nzUInt16>::max()/6;
+	unsigned int s_vertexBufferSize = 4*1024*1024; // 4 MiB
 }
 
 NzForwardRenderTechnique::NzForwardRenderTechnique() :
-m_spriteBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), s_maxSprites*4, nzDataStorage_Hardware, nzBufferUsage_Dynamic),
+m_vertexBuffer(nzBufferType_Vertex),
 m_maxLightPassPerObject(3)
 {
-	if (!s_indexBuffer)
-		s_indexBuffer = BuildIndexBuffer();
+	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 
-	m_indexBuffer = s_indexBuffer;
-}
+	m_vertexBuffer.Create(s_vertexBufferSize, nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 
-NzForwardRenderTechnique::~NzForwardRenderTechnique()
-{
-	if (m_indexBuffer.Reset())
-		s_indexBuffer = nullptr;
+	m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
+	m_spriteBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 }
 
 void NzForwardRenderTechnique::Clear(const NzScene* scene) const
@@ -89,6 +74,9 @@ bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 
 	if (!m_renderQueue.basicSprites.empty())
 		DrawBasicSprites(scene);
+
+	if (!m_renderQueue.billboards.empty())
+		DrawBillboards(scene);
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -168,7 +156,7 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
 
-	NzRenderer::SetIndexBuffer(m_indexBuffer);
+	NzRenderer::SetIndexBuffer(&s_quadIndexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
 	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
 
@@ -229,11 +217,12 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 						NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 						unsigned int spriteCount = 0;
+						unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
 
 						do
 						{
 							NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-							unsigned int count = std::min(s_maxSprites - spriteCount, currentChain.spriteCount - spriteChainOffset);
+							unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
 
 							std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
 							vertices += count*4;
@@ -248,7 +237,7 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 								spriteChainOffset = 0;
 							}
 						}
-						while (spriteCount < s_maxSprites && spriteChain < spriteChainCount);
+						while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
 
 						vertexMapper.Unmap();
 
@@ -262,6 +251,211 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 
 			// On remet à zéro
 			matEntry.enabled = false;
+		}
+	}
+}
+
+bool NzForwardRenderTechnique::Initialize()
+{
+	try
+	{
+		NzErrorFlags flags(nzErrorFlag_ThrowException, true);
+
+		s_quadIndexBuffer.Reset(false, s_maxQuads*6, nzDataStorage_Hardware, nzBufferUsage_Static);
+
+		NzBufferMapper<NzIndexBuffer> mapper(s_quadIndexBuffer, nzBufferAccess_WriteOnly);
+		nzUInt16* indices = static_cast<nzUInt16*>(mapper.GetPointer());
+
+		for (unsigned int i = 0; i < s_maxQuads; ++i)
+		{
+			*indices++ = i*4 + 0;
+			*indices++ = i*4 + 2;
+			*indices++ = i*4 + 1;
+
+			*indices++ = i*4 + 2;
+			*indices++ = i*4 + 3;
+			*indices++ = i*4 + 1;
+		}
+
+		mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
+
+		// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
+		//Note: Les UV sont calculés dans le shader
+		s_quadVertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
+
+		float vertices[2*4] = {
+		   -0.5f, -0.5f,
+			0.5f, -0.5f,
+		   -0.5f, 0.5f,
+			0.5f, 0.5f,
+		};
+
+		s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
+
+		// Déclaration lors du rendu des billboards par sommet
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Color,     nzComponentType_Color,  NzOffsetOf(BillboardPoint, color));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Position,  nzComponentType_Float3, NzOffsetOf(BillboardPoint, position));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_TexCoord,  nzComponentType_Float2, NzOffsetOf(BillboardPoint, uv));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Userdata0, nzComponentType_Float4, NzOffsetOf(BillboardPoint, size)); // Englobe sincos
+
+		// Declaration utilisée lors du rendu des billboards par instancing
+		// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData0, nzComponentType_Float3, NzOffsetOf(NzForwardRenderQueue::BillboardData, center));
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData1, nzComponentType_Float4, NzOffsetOf(NzForwardRenderQueue::BillboardData, size)); // Englobe sincos
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData2, nzComponentType_Color,  NzOffsetOf(NzForwardRenderQueue::BillboardData, color));
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to initialise: " + NzString(e.what()));
+		return false;
+	}
+
+	return true;
+}
+
+void NzForwardRenderTechnique::Uninitialize()
+{
+	s_quadIndexBuffer.Reset();
+	s_quadVertexBuffer.Reset();
+}
+
+void NzForwardRenderTechnique::DrawBillboards(const NzScene* scene) const
+{
+	NzAbstractViewer* viewer = scene->GetViewer();
+	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
+
+	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
+	{
+		NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
+		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
+
+		NzRenderer::SetVertexBuffer(&s_quadVertexBuffer);
+
+		for (auto& matIt : m_renderQueue.billboards)
+		{
+			const NzMaterial* material = matIt.first;
+			auto& entry = matIt.second;
+			auto& billboardVector = entry.billboards;
+
+			unsigned int billboardCount = billboardVector.size();
+			if (billboardCount > 0)
+			{
+				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+				const NzShader* shader = material->Apply(nzShaderFlags_Billboard | nzShaderFlags_Instancing | nzShaderFlags_VertexColor);
+
+				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+				if (shader != lastShader)
+				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
+					// Couleur ambiante de la scène
+					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
+					// Position de la caméra
+					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+
+					lastShader = shader;
+				}
+
+				const NzForwardRenderQueue::BillboardData* data = &billboardVector[0];
+				unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+				do
+				{
+					unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+					billboardCount -= renderedBillboardCount;
+
+					instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
+					data += renderedBillboardCount;
+
+					NzRenderer::DrawPrimitivesInstanced(renderedBillboardCount, nzPrimitiveMode_TriangleStrip, 0, 4);
+				}
+				while (billboardCount > 0);
+
+				billboardVector.clear();
+			}
+		}
+	}
+	else
+	{
+		NzRenderer::SetIndexBuffer(&s_quadIndexBuffer);
+		NzRenderer::SetVertexBuffer(&m_billboardPointBuffer);
+
+		for (auto& matIt : m_renderQueue.billboards)
+		{
+			const NzMaterial* material = matIt.first;
+			auto& entry = matIt.second;
+			auto& billboardVector = entry.billboards;
+
+			unsigned int billboardCount = billboardVector.size();
+			if (billboardCount > 0)
+			{
+				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+				const NzShader* shader = material->Apply(nzShaderFlags_Billboard | nzShaderFlags_VertexColor);
+
+				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+				if (shader != lastShader)
+				{
+					// Couleur ambiante de la scène
+					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
+					// Position de la caméra
+					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+
+					lastShader = shader;
+				}
+
+				const NzForwardRenderQueue::BillboardData* data = &billboardVector[0];
+				unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount()/4);
+
+				do
+				{
+					unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+					billboardCount -= renderedBillboardCount;
+
+					NzBufferMapper<NzVertexBuffer> vertexMapper(m_billboardPointBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
+					BillboardPoint* vertices = reinterpret_cast<BillboardPoint*>(vertexMapper.GetPointer());
+
+					for (unsigned int i = 0; i < renderedBillboardCount; ++i)
+					{
+						const NzForwardRenderQueue::BillboardData& billboard = *data++;
+
+						vertices->color = billboard.color;
+						vertices->position = billboard.center;
+						vertices->sinCos = billboard.sinCos;
+						vertices->size = billboard.size;
+						vertices->uv.Set(0.f, 1.f);
+						vertices++;
+
+						vertices->color = billboard.color;
+						vertices->position = billboard.center;
+						vertices->sinCos = billboard.sinCos;
+						vertices->size = billboard.size;
+						vertices->uv.Set(1.f, 1.f);
+						vertices++;
+
+						vertices->color = billboard.color;
+						vertices->position = billboard.center;
+						vertices->sinCos = billboard.sinCos;
+						vertices->size = billboard.size;
+						vertices->uv.Set(0.f, 0.f);
+						vertices++;
+
+						vertices->color = billboard.color;
+						vertices->position = billboard.center;
+						vertices->sinCos = billboard.sinCos;
+						vertices->size = billboard.size;
+						vertices->uv.Set(1.f, 0.f);
+						vertices++;
+					}
+
+					vertexMapper.Unmap();
+
+					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, renderedBillboardCount*6);
+				}
+				while (billboardCount > 0);
+
+				billboardVector.clear();
+			}
 		}
 	}
 }
@@ -593,3 +787,8 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 
 	return &it->second;
 }
+
+NzIndexBuffer NzForwardRenderTechnique::s_quadIndexBuffer;
+NzVertexBuffer NzForwardRenderTechnique::s_quadVertexBuffer;
+NzVertexDeclaration NzForwardRenderTechnique::s_billboardInstanceDeclaration;
+NzVertexDeclaration NzForwardRenderTechnique::s_billboardVertexDeclaration;

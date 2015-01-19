@@ -1,5 +1,5 @@
 #if FLAG_DEFERRED
-	#error Deferred Shading needs core profile
+	#error Deferred Shading is not supported by compatibility shaders
 #endif
 
 #define LIGHT_DIRECTIONAL 0
@@ -11,6 +11,7 @@ varying mat3 vLightToWorld;
 varying vec3 vNormal;
 varying vec2 vTexCoord;
 varying vec3 vWorldPos;
+varying vec4 vColor;
 
 /********************Uniformes********************/
 struct Light
@@ -24,9 +25,10 @@ struct Light
 	vec2 parameters3;
 };
 
-uniform vec3 EyePosition;
+// Lumières
 uniform Light Lights[3];
 
+// Matériau
 uniform sampler2D MaterialAlphaMap;
 uniform float MaterialAlphaThreshold;
 uniform vec4 MaterialAmbient;
@@ -38,18 +40,27 @@ uniform float MaterialShininess;
 uniform vec4 MaterialSpecular;
 uniform sampler2D MaterialSpecularMap;
 
+// Autres
+uniform vec3 EyePosition;
 uniform vec4 SceneAmbient;
 
 /********************Fonctions********************/
 void main()
 {
-	vec4 diffuseColor = MaterialDiffuse;
+	vec4 diffuseColor = MaterialDiffuse * vColor;
+
+#if AUTO_TEXCOORDS
+	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
+#else
+	vec2 texCoord = vTexCoord;
+#endif
+
 #if DIFFUSE_MAPPING
-	diffuseColor *= texture(MaterialDiffuseMap, vTexCoord);
+	diffuseColor *= texture(MaterialDiffuseMap, texCoord);
 #endif
 
 #if ALPHA_MAPPING
-	diffuseColor.a *= texture(MaterialAlphaMap, vTexCoord).r;
+	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
 #endif
 
 #if ALPHA_TEST
@@ -63,7 +74,7 @@ void main()
 	vec3 lightSpecular = vec3(0.0);
 
 	#if NORMAL_MAPPING
-	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, vTexCoord)) - 1.0));
+	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, texCoord)) - 1.0));
 	#else
 	vec3 normal = normalize(vNormal);
 	#endif
@@ -206,7 +217,7 @@ void main()
 
 	lightSpecular *= MaterialSpecular.rgb;
 	#if SPECULAR_MAPPING
-	lightSpecular *= texture(MaterialSpecularMap, vTexCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
+	lightSpecular *= texture(MaterialSpecularMap, texCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
 	#endif
 		
 	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
@@ -215,7 +226,7 @@ void main()
 	#if EMISSIVE_MAPPING
 	float lightIntensity = dot(lightColor, vec3(0.3, 0.59, 0.11));
 
-	vec3 emissionColor = MaterialDiffuse.rgb * texture(MaterialEmissiveMap, vTexCoord).rgb;
+	vec3 emissionColor = MaterialDiffuse.rgb * texture(MaterialEmissiveMap, texCoord).rgb;
 	RenderTarget0 = vec4(mix(fragmentColor.rgb, emissionColor, clamp(1.0 - 3.0*lightIntensity, 0.0, 1.0)), fragmentColor.a);
 	#else
 	RenderTarget0 = fragmentColor;
