@@ -325,6 +325,11 @@ NzSkeletalModel& NzSkeletalModel::operator=(NzSkeletalModel&& node)
 	return *this;
 }
 
+void NzSkeletalModel::MakeBoundingVolume() const
+{
+	m_boundingVolume.Set(m_skeleton.GetAABB());
+}
+
 void NzSkeletalModel::Register()
 {
 	if (m_animation)
@@ -340,18 +345,6 @@ void NzSkeletalModel::Update()
 {
 	if (m_animationEnabled && m_animation)
 		AdvanceAnimation(m_scene->GetUpdateTime());
-}
-
-void NzSkeletalModel::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(m_skeleton.GetAABB());
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
 }
 
 NzSkeletalModelLoader::LoaderList NzSkeletalModel::s_loaders;

@@ -17,7 +17,6 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 	public:
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		const NzBoundingVolumef& GetBoundingVolume() const override;
 		nzSceneNodeType GetSceneNodeType() const override;
 
 		bool IsDrawable() const;
@@ -26,6 +25,7 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 		NzSceneRoot(NzScene* scene);
 		virtual ~NzSceneRoot();
 
+		void MakeBoundingVolume() const override;
 		void Register();
 		void Unregister();
 };

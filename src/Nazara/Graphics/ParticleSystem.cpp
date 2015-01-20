@@ -18,7 +18,6 @@ NzParticleSystem(maxParticleCount, NzParticleDeclaration::Get(layout))
 
 NzParticleSystem::NzParticleSystem(unsigned int maxParticleCount, const NzParticleDeclaration* declaration) :
 m_declaration(declaration),
-m_boundingVolumeUpdated(false),
 m_fixedStepEnabled(false),
 m_processing(false),
 m_stepAccumulator(0.f),
@@ -38,10 +37,8 @@ NzParticleSystem::NzParticleSystem(const NzParticleSystem& system) :
 NzSceneNode(system),
 m_controllers(system.m_controllers),
 m_generators(system.m_generators),
-m_boundingVolume(system.m_boundingVolume),
 m_declaration(system.m_declaration),
 m_renderer(system.m_renderer),
-m_boundingVolumeUpdated(system.m_boundingVolumeUpdated),
 m_fixedStepEnabled(system.m_fixedStepEnabled),
 m_processing(false),
 m_stepAccumulator(0.f),
@@ -130,14 +127,6 @@ void* NzParticleSystem::GenerateParticles(unsigned int count)
 		generator->Generate(*this, mapper, 0, count-1);
 
 	return ptr;
-}
-
-const NzBoundingVolumef& NzParticleSystem::GetBoundingVolume() const
-{
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return m_boundingVolume;
 }
 
 const NzParticleDeclaration* NzParticleSystem::GetDeclaration() const
@@ -238,8 +227,6 @@ NzParticleSystem& NzParticleSystem::operator=(const NzParticleSystem& system)
 
 	NzSceneNode::operator=(system);
 
-	m_boundingVolume = system.m_boundingVolume;
-	m_boundingVolumeUpdated = system.m_boundingVolumeUpdated;
 	m_controllers = system.m_controllers;
 	m_declaration = system.m_declaration;
 	m_fixedStepEnabled = system.m_fixedStepEnabled;
@@ -308,7 +295,7 @@ void NzParticleSystem::ApplyControllers(NzParticleMapper& mapper, unsigned int p
 	m_dyingParticles.clear();
 }
 
-void NzParticleSystem::GenerateAABB() const
+void NzParticleSystem::MakeBoundingVolume() const
 {
 	///TODO: Calculer l'AABB (prendre la taille des particules en compte s'il y a)
 	m_boundingVolume.MakeInfinite();
@@ -355,17 +342,4 @@ void NzParticleSystem::Update()
 		NzParticleMapper mapper(m_buffer.data(), m_declaration);
 		ApplyControllers(mapper, m_particleCount, elapsedTime, m_stepAccumulator);
 	}
-}
-
-void NzParticleSystem::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-		GenerateAABB();
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	///FIXME: Pourquoi est-ce que le particle system est un node ? Il serait trop coûteux de calculer les particules relativement
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
 }

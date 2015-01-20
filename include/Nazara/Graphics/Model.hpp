@@ -44,7 +44,6 @@ class NAZARA_API NzModel : public NzSceneNode
 		void EnableAnimation(bool animation);
 
 		NzAnimation* GetAnimation() const;
-		const NzBoundingVolumef& GetBoundingVolume() const;
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
 		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
@@ -84,13 +83,10 @@ class NAZARA_API NzModel : public NzSceneNode
 		NzModel& operator=(const NzModel& node);
 
 	protected:
-		void InvalidateNode() override;
-		virtual void UpdateBoundingVolume() const;
+		void MakeBoundingVolume() const override;
 
 		std::vector<NzMaterialRef> m_materials;
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzMeshRef m_mesh;
-		mutable bool m_boundingVolumeUpdated;
 		unsigned int m_matCount;
 		unsigned int m_skin;
 		unsigned int m_skinCount;
