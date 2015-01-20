@@ -33,6 +33,8 @@ class NAZARA_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		void AddGenerator(NzParticleGenerator* generator);
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
 
+		void ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime, float& stepAccumulator);
+
 		void* CreateParticle();
 		void* CreateParticles(unsigned int count);
 

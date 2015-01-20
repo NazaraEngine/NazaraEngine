@@ -186,7 +186,7 @@ void NzParticleSystem::KillParticle(unsigned int index)
 
 	if (m_processing)
 	{
-		// Le buffer est en train d'être modifié, nous ne pouvons pas réduire sa taille, on place alors la particule dans une liste de secours
+		// Le buffer est en train d'être modifié, nous ne pouvons pas réduire sa taille, on place alors la particule dans une liste d'attente
 		m_dyingParticles.insert(index);
 		return;
 	}
@@ -264,8 +264,53 @@ NzParticleSystem& NzParticleSystem::operator=(const NzParticleSystem& system)
 	return *this;
 }
 
+void NzParticleSystem::ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime, float& stepAccumulator)
+{
+	m_processing = true;
+
+	// Pour éviter un verrouillage en cas d'exception
+	NzCallOnExit onExit([this]()
+	{
+		m_processing = false;
+	});
+
+	if (m_fixedStepEnabled)
+	{
+		stepAccumulator += elapsedTime;
+		while (stepAccumulator >= m_stepSize)
+		{
+			for (NzParticleController* controller : m_controllers)
+				controller->Apply(*this, mapper, 0, particleCount-1, m_stepSize);
+
+			stepAccumulator -= m_stepSize;
+		}
+	}
+	else
+	{
+		for (NzParticleController* controller : m_controllers)
+			controller->Apply(*this, mapper, 0, particleCount-1, elapsedTime);
+	}
+
+	onExit.CallAndReset();
+
+	// On tue maintenant les particules mortes durant la mise à jour
+	if (m_dyingParticles.size() < m_particleCount)
+	{
+		// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
+		// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
+		// sans cette solution certaines particules pourraient échapper à la mort
+		for (unsigned int index : m_dyingParticles)
+			KillParticle(index);
+	}
+	else
+		KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
+
+	m_dyingParticles.clear();
+}
+
 void NzParticleSystem::GenerateAABB() const
 {
+	///TODO: Calculer l'AABB (prendre la taille des particules en compte s'il y a)
 	m_boundingVolume.MakeInfinite();
 }
 
@@ -306,48 +351,9 @@ void NzParticleSystem::Update()
 	// Mise à jour
 	if (m_particleCount > 0)
 	{
+		///TODO: Mettre à jour en utilisant des threads
 		NzParticleMapper mapper(m_buffer.data(), m_declaration);
-
-		m_processing = true;
-
-		// Pour éviter un verrouillage en cas d'exception
-		NzCallOnExit onExit([this]()
-		{
-			m_processing = false;
-		});
-
-		if (m_fixedStepEnabled)
-		{
-			m_stepAccumulator += elapsedTime;
-			while (m_stepAccumulator >= m_stepSize)
-			{
-				for (NzParticleController* controller : m_controllers)
-					controller->Apply(*this, mapper, 0, m_particleCount-1, m_stepAccumulator);
-
-				m_stepAccumulator -= m_stepSize;
-			}
-		}
-		else
-		{
-			for (NzParticleController* controller : m_controllers)
-				controller->Apply(*this, mapper, 0, m_particleCount-1, elapsedTime);
-		}
-
-		onExit.CallAndReset();
-
-		// On tue maintenant les particules mortes durant la mise à jour
-		if (m_dyingParticles.size() < m_particleCount)
-		{
-			// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
-			// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
-			// sans cette solution certaines particules pourraient échapper à la mort
-			for (unsigned int index : m_dyingParticles)
-				KillParticle(index);
-		}
-		else
-			KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
-
-		m_dyingParticles.clear();
+		ApplyControllers(mapper, m_particleCount, elapsedTime, m_stepAccumulator);
 	}
 }
 
@@ -359,6 +365,7 @@ void NzParticleSystem::UpdateBoundingVolume() const
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
+	///FIXME: Pourquoi est-ce que le particle system est un node ? Il serait trop coûteux de calculer les particules relativement
 	m_boundingVolume.Update(m_transformMatrix);
 	m_boundingVolumeUpdated = true;
 }
