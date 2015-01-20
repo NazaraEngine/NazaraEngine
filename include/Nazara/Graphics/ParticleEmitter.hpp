@@ -23,8 +23,12 @@ class NAZARA_API NzParticleEmitter : public NzNode
 
 		virtual void Emit(NzParticleSystem& system, float elapsedTime) const;
 
+		void EnableLagCompensation(bool enable);
+
 		unsigned int GetEmissionCount() const;
 		float GetEmissionRate() const;
+
+		bool IsLagCompensationEnabled() const;
 
 		void SetEmissionCount(unsigned int count);
 		void SetEmissionRate(float rate);
@@ -35,6 +39,7 @@ class NAZARA_API NzParticleEmitter : public NzNode
 	private:
 		virtual void SetupParticles(NzParticleMapper& mapper, unsigned int count) const = 0;
 
+		bool m_lagCompensationEnabled;
 		mutable float m_emissionAccumulator;
 		float m_emissionRate;
 		unsigned int m_emissionCount;

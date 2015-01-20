@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Debug.hpp>
 
 NzParticleEmitter::NzParticleEmitter() :
+m_lagCompensationEnabled(false),
 m_emissionAccumulator(0.f),
 m_emissionRate(0.f),
 m_emissionCount(1)
@@ -34,18 +35,35 @@ void NzParticleEmitter::Emit(NzParticleSystem& system, float elapsedTime) const
 		if (emissionCount >= 1.f)
 		{
 			// On calcule le nombre maximum de particules pouvant être émises cette fois-ci
-			unsigned int maxParticleCount = static_cast<unsigned int>(emissionCount)*m_emissionCount;
+			unsigned int emissionCountInt = static_cast<unsigned int>(emissionCount);
+			unsigned int maxParticleCount = emissionCountInt*m_emissionCount;
 
 			// On récupère le nombre de particules qu'il est possible de créer selon l'espace libre
 			unsigned int particleCount = std::min(maxParticleCount, system.GetMaxParticleCount() - system.GetParticleCount());
+			if (particleCount == 0)
+				return;
 
 			// Et on émet nos particules
 			void* particles = system.GenerateParticles(particleCount);
 			NzParticleMapper mapper(particles, system.GetDeclaration());
 
 			SetupParticles(mapper, particleCount);
+
+			if (m_lagCompensationEnabled)
+			{
+				// On va maintenant appliquer les contrôleurs
+				float accumulator = 0.f;
+				float invEmissionRate = 1.f/m_emissionRate;
+				for (unsigned int i = 1; i <= emissionCountInt; ++i)
+					system.ApplyControllers(mapper, std::min(m_emissionCount*i, particleCount), 20*invEmissionRate, accumulator);
+			}
 		}
 	}
+}
+
+void NzParticleEmitter::EnableLagCompensation(bool enable)
+{
+	m_lagCompensationEnabled = enable;
 }
 
 unsigned int NzParticleEmitter::GetEmissionCount() const
@@ -56,6 +74,11 @@ unsigned int NzParticleEmitter::GetEmissionCount() const
 float NzParticleEmitter::GetEmissionRate() const
 {
 	return m_emissionRate;
+}
+
+bool NzParticleEmitter::IsLagCompensationEnabled() const
+{
+	return m_lagCompensationEnabled;
 }
 
 void NzParticleEmitter::SetEmissionCount(unsigned int count)
