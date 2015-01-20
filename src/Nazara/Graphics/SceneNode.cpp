@@ -11,6 +11,7 @@
 
 NzSceneNode::NzSceneNode() :
 m_scene(nullptr),
+m_boundingVolumeUpdated(false),
 m_drawingEnabled(true),
 m_visible(false)
 {
@@ -19,6 +20,7 @@ m_visible(false)
 NzSceneNode::NzSceneNode(const NzSceneNode& sceneNode) :
 NzNode(sceneNode),
 m_scene(nullptr),
+m_boundingVolumeUpdated(false),
 m_drawingEnabled(sceneNode.m_drawingEnabled),
 m_visible(false)
 {
@@ -42,6 +44,14 @@ NzVector3f NzSceneNode::GetBackward() const
 	}
 	else
 		return NzNode::GetBackward();
+}
+
+const NzBoundingVolumef& NzSceneNode::GetBoundingVolume() const
+{
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
+
+	return m_boundingVolume;
 }
 
 NzVector3f NzSceneNode::GetDown() const
@@ -145,6 +155,13 @@ bool NzSceneNode::FrustumCull(const NzFrustumf& frustum) const
 	return frustum.Contains(GetBoundingVolume());
 }
 
+void NzSceneNode::InvalidateNode()
+{
+	NzNode::InvalidateNode();
+
+	m_boundingVolumeUpdated = false;
+}
+
 void NzSceneNode::OnParenting(const NzNode* parent)
 {
 	if (parent)
@@ -205,6 +222,18 @@ void NzSceneNode::Unregister()
 
 void NzSceneNode::Update()
 {
+}
+
+void NzSceneNode::UpdateBoundingVolume() const
+{
+	if (m_boundingVolume.IsNull())
+		MakeBoundingVolume();
+
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
+
+	m_boundingVolume.Update(m_transformMatrix);
+	m_boundingVolumeUpdated = true;
 }
 
 void NzSceneNode::UpdateVisibility(const NzFrustumf& frustum)
