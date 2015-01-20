@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Utility/Node.hpp>
 
 class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
 {

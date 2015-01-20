@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/Debug.hpp>
 
 NzTextSprite::NzTextSprite() :
-m_boundingVolume(NzBoundingVolumef::Null()),
 m_color(NzColor::White),
 m_verticesUpdated(false)
 {
@@ -24,11 +23,9 @@ m_atlases(sprite.m_atlases),
 m_renderInfos(sprite.m_renderInfos),
 m_localVertices(sprite.m_localVertices),
 m_vertices(sprite.m_vertices),
-m_boundingVolume(sprite.m_boundingVolume),
 m_color(sprite.m_color),
 m_material(sprite.m_material),
 m_localBounds(sprite.m_localBounds),
-m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
 m_verticesUpdated(sprite.m_verticesUpdated)
 {
 	SetParent(sprite.GetParent());
@@ -64,14 +61,6 @@ void NzTextSprite::Clear()
 	m_localVertices.clear();
 	m_renderInfos.clear();
 	m_vertices.clear();
-}
-
-const NzBoundingVolumef& NzTextSprite::GetBoundingVolume() const
-{
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return m_boundingVolume;
 }
 
 const NzColor& NzTextSprite::GetColor() const
@@ -266,7 +255,6 @@ NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 	m_localVertices = text.m_localVertices;
 
 	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
-	m_boundingVolumeUpdated = false;
 	m_verticesUpdated = false;
 
 	return *this;
@@ -284,8 +272,19 @@ void NzTextSprite::InvalidateNode()
 {
 	NzSceneNode::InvalidateNode();
 
-	m_boundingVolumeUpdated = false;
 	m_verticesUpdated = false;
+}
+
+void NzTextSprite::MakeBoundingVolume() const
+{
+	NzVector3f down = (m_scene) ? m_scene->GetDown() : NzVector3f::Down();
+	NzVector3f right = (m_scene) ? m_scene->GetRight() : NzVector3f::Right();
+
+	NzRectf bounds(m_localBounds);
+	NzVector2f max = bounds.GetMaximum();
+	NzVector2f min = bounds.GetMinimum();
+
+	m_boundingVolume.Set(min.x*right + min.y*down, max.x*right + max.y*down);
 }
 
 bool NzTextSprite::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
@@ -373,34 +372,13 @@ void NzTextSprite::Unregister()
 {
 }
 
-void NzTextSprite::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-	{
-		NzVector3f down = m_scene->GetDown();
-		NzVector3f right = m_scene->GetRight();
-
-		NzRectf bounds(m_localBounds);
-		NzVector2f max = bounds.GetMaximum();
-		NzVector2f min = bounds.GetMinimum();
-
-		m_boundingVolume.Set(min.x*right + min.y*down, max.x*right + max.y*down);
-	}
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
-}
-
 void NzTextSprite::UpdateVertices() const
 {
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
-	NzVector3f down = m_scene->GetDown();
-	NzVector3f right = m_scene->GetRight();
+	NzVector3f down = (m_scene) ? m_scene->GetDown() : NzVector3f::Down();
+	NzVector3f right = (m_scene) ? m_scene->GetRight() : NzVector3f::Right();
 
 	NzSparsePtr<NzColor> colorPtr(&m_vertices[0].color, sizeof(NzVertexStruct_XYZ_Color_UV));
 	NzSparsePtr<NzVector3f> posPtr(&m_vertices[0].position, sizeof(NzVertexStruct_XYZ_Color_UV));

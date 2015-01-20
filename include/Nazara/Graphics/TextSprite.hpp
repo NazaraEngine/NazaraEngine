@@ -28,7 +28,6 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 
 		void Clear();
 
-		const NzBoundingVolumef& GetBoundingVolume() const override;
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;
@@ -47,12 +46,12 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 	private:
 		void ClearAtlases();
 		void InvalidateNode() override;
+		void MakeBoundingVolume() const override;
 		bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata) override;
 		bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata) override;
 		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
 		void Register() override;
 		void Unregister() override;
-		void UpdateBoundingVolume() const;
 		void UpdateVertices() const;
 
 		struct RenderIndices
@@ -65,11 +64,9 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 		mutable std::unordered_map<NzTexture*, RenderIndices> m_renderInfos;
 		mutable std::vector<NzVertexStruct_XY_Color> m_localVertices;
 		mutable std::vector<NzVertexStruct_XYZ_Color_UV> m_vertices;
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectui m_localBounds;
-		mutable bool m_boundingVolumeUpdated;
 		mutable bool m_verticesUpdated;
 };
 

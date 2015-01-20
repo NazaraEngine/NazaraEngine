@@ -69,10 +69,10 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 		NzSkeletalModel& operator=(NzSkeletalModel&& node);
 
 	private:
+		void MakeBoundingVolume() const override;
 		void Register() override;
 		void Unregister() override;
 		void Update() override;
-		void UpdateBoundingVolume() const;
 
 		NzAnimationRef m_animation;
 		NzSkeleton m_skeleton;
