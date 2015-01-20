@@ -210,29 +210,20 @@ T NzNormalizeAngle(T angle)
 	#else
 	const T limit = F(180.0);
 	#endif
+	const T twoLimit = limit*F(2.0);
 
-	///TODO: Trouver une solution sans duplication
-	if (angle > F(0.0))
-	{
-		angle += limit;
-		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
-		angle -= limit;
-	}
-	else
-	{
-		angle -= limit;
-		angle -= static_cast<int>(angle / (F(2.0)*limit)) * (F(2.0)*limit);
-		angle += limit;
-	}
+	angle = std::fmod(angle + limit, twoLimit);
+	if (angle < F(0.0))
+		angle += twoLimit;
 
-	return angle;
+	return angle - limit;
 }
 
 template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
 	T diff = a - b;
-	if (diff < 0)
+	if (diff < F(0.0))
 		diff = -diff;
 
 	return diff <= maxDifference;
