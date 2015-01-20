@@ -1,33 +1,5 @@
-if (not _OPTIONS["united"]) then
-	project "NazaraNoise"
-end
+MODULE.Name = "Noise"
 
-files
-{
-	"../include/Nazara/Noise/**.hpp",
-	"../include/Nazara/Noise/**.inl",
-	"../src/Nazara/Noise/**.hpp",
-	"../src/Nazara/Noise/**.cpp"
+MODULE.Libraries = {
+	"NazaraCore"
 }
-
-if (os.is("windows")) then
-	excludes { "../src/Nazara/Noise/Posix/*.hpp", "../src/Nazara/Noise/Posix/*.cpp" }
-else
-	excludes { "../src/Nazara/Noise/Win32/*.hpp", "../src/Nazara/Noise/Win32/*.cpp" }
-end
-
-if (_OPTIONS["united"]) then
-	excludes "../src/Nazara/Noise/Debug/NewOverload.cpp"
-else
-	configuration "DebugStatic"
-		links "NazaraCore-s-d"
-
-	configuration "ReleaseStatic"
-		links "NazaraCore-s"
-
-	configuration "DebugDLL"
-		links "NazaraCore-d"
-
-	configuration "ReleaseDLL"
-		links "NazaraCore"
-end

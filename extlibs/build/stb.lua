@@ -1,12 +1,16 @@
-project "stb_image" -- Bug de premake si à le même nom que la biblio linkée dans Utility
-language "C++" -- On compile en C++ car le C99 n'est pas supporté partout
-kind "StaticLib"
-targetname "stb_image-s"
+LIBRARY.Name = "stb_image"
 
-defines "STBI_NO_STDIO"
+LIBRARY.Defines = {
+	"STBI_NO_STDIO"
+}
 
-files
-{
-	"../include/stb_image/stb_image.h",
-	"../src/stb_image/stb_image.c"
+LIBRARY.Flags = {
+	"EnableSSE2"
+}
+
+LIBRARY.Language = "C++" -- On compile en C++ car le C99 n'est pas supporté partout
+
+LIBRARY.Files = {
+	"../extlibs/include/stb_image/stb_image.h",
+	"../extlibs/src/stb_image/stb_image.c"
 }

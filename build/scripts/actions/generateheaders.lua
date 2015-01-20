@@ -1,4 +1,7 @@
-function generateHeaders()
+ACTION.Name = "GenerateHeaders"
+ACTION.Description = "Generate a global header for each module"
+
+ACTION.Function = function ()
 	local modules = os.matchdirs("../include/Nazara/*")
 	for k, modulePath in pairs(modules) do
 		local moduleName = modulePath:match(".*/(.*)")
@@ -52,10 +55,3 @@ function generateHeaders()
 		print(string.format("-#include count: %d", count))
 	end
 end
-
-newaction
-{
-	trigger     = "generateheaders",
-	description = "Generate a global header for each module",
-	execute     = generateHeaders
-}
