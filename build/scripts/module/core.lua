@@ -1,9 +1,6 @@
-if (not _OPTIONS["united"]) then
-	project "NazaraCore"
-end
+MODULE.Name = "Core"
 
-files
-{
+MODULE.Files = {
 	"../include/Nazara/Prerequesites.hpp",
 	"../include/Nazara/Core/**.hpp",
 	"../include/Nazara/Core/**.inl",
@@ -13,8 +10,12 @@ files
 	"../src/Nazara/Core/**.cpp"
 }
 
-if (os.is("windows")) then
-	excludes { "../src/Nazara/Core/Posix/**.hpp", "../src/Nazara/Core/Posix/**.cpp" }
-else
-	excludes { "../src/Nazara/Core/Win32/**.hpp", "../src/Nazara/Core/Win32/**.cpp" }
-end
+MODULE.OsFiles.Windows = {
+	"../src/Nazara/Core/Win32/**.hpp",
+	"../src/Nazara/Core/Win32/**.cpp"
+}
+
+MODULE.OsFiles.Posix = {
+	"../src/Nazara/Core/Posix/**.hpp",
+	"../src/Nazara/Core/Posix/**.cpp"
+}
