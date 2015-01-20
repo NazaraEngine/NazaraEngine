@@ -39,7 +39,8 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 		void SetColor(const NzColor& color);
 		void SetDefaultMaterial();
 		void SetMaterial(NzMaterial* material);
-		void SetText(const NzAbstractTextDrawer& drawer);
+
+		void Update(const NzAbstractTextDrawer& drawer);
 
 		NzTextSprite& operator=(const NzTextSprite& text);
 
