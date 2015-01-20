@@ -28,7 +28,6 @@ class NAZARA_API NzLight : public NzSceneNode
 
 		float GetAmbientFactor() const;
 		float GetAttenuation() const;
-		const NzBoundingVolumef& GetBoundingVolume() const;
 		NzColor GetColor() const;
 		float GetDiffuseFactor() const;
 		float GetInnerAngle() const;
@@ -54,15 +53,13 @@ class NAZARA_API NzLight : public NzSceneNode
 
 	private:
 		bool FrustumCull(const NzFrustumf& frustum) const override;
-		void InvalidateNode() override;
+		void MakeBoundingVolume() const override;
 		void Register() override;
 		void Unregister() override;
 		void UpdateBoundingVolume() const;
 
 		nzLightType m_type;
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzColor m_color;
-		mutable bool m_boundingVolumeUpdated;
 		float m_ambientFactor;
 		float m_attenuation;
 		float m_diffuseFactor;

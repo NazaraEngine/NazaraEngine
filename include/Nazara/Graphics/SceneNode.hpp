@@ -14,6 +14,8 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/Node.hpp>
 
+class NzScene;
+
 class NAZARA_API NzSceneNode : public NzNode
 {
 	friend class NzScene;
@@ -29,7 +31,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		void EnableDrawing(bool drawingEnabled);
 
 		NzVector3f GetBackward() const;
-		virtual const NzBoundingVolumef& GetBoundingVolume() const = 0;
+		virtual const NzBoundingVolumef& GetBoundingVolume() const;
 		NzVector3f GetDown() const;
 		NzVector3f GetForward() const;
 		NzVector3f GetLeft() const;
@@ -38,6 +40,8 @@ class NAZARA_API NzSceneNode : public NzNode
 		NzScene* GetScene() const;
 		virtual nzSceneNodeType GetSceneNodeType() const = 0;
 		NzVector3f GetUp() const;
+
+		void InvalidateAABB();
 
 		virtual bool IsDrawable() const = 0;
 		bool IsDrawingEnabled() const;
@@ -48,6 +52,8 @@ class NAZARA_API NzSceneNode : public NzNode
 
 	protected:
 		virtual bool FrustumCull(const NzFrustumf& frustum) const;
+		virtual void InvalidateNode() override;
+		virtual void MakeBoundingVolume() const = 0;
 		virtual void OnParenting(const NzNode* parent) override;
 		virtual void OnVisibilityChange(bool visibility);
 		void RecursiveSetScene(NzScene* scene, NzNode* node);
@@ -55,8 +61,11 @@ class NAZARA_API NzSceneNode : public NzNode
 		void SetScene(NzScene* scene);
 		virtual void Unregister();
 		virtual void Update();
+		virtual void UpdateBoundingVolume() const;
 
+		mutable NzBoundingVolumef m_boundingVolume;
 		NzScene* m_scene;
+		mutable bool m_boundingVolumeUpdated;
 		bool m_drawingEnabled;
 		bool m_visible;
 
