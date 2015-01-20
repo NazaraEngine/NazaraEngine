@@ -126,7 +126,7 @@ void NzTextSprite::SetMaterial(NzMaterial* material)
 	m_material = material;
 }
 
-void NzTextSprite::SetText(const NzAbstractTextDrawer& drawer)
+void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 {
 	ClearAtlases();
 
