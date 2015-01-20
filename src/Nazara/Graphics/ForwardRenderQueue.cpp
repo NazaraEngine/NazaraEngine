@@ -7,6 +7,8 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
+///TODO: Remplacer les sinus/cosinus par une lookup table (va booster les perfs d'un bon x10)
+
 namespace
 {
 	enum ResourceType
