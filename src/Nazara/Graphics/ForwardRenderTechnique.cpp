@@ -83,51 +83,6 @@ bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 		drawable->Draw();
 
 	return true;
-
-	// Les billboards
-	/*if (!m_renderQueue.billboards.empty())
-	{
-		//NzRenderer::SetIndexBuffer(m_billboardIndexBuffer);
-		NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
-		NzRenderer::SetShader(m_billboardShader);
-		NzRenderer::SetVertexBuffer(m_billboardVertexBuffer);
-
-		m_billboardShader->SendVector(s_cameraForwardLocation, camera->GetForward());
-		m_billboardShader->SendVector(s_cameraUpLocation, camera->GetUp());
-		m_billboardShader->SendVector(s_worldUpLocation, NzVector3f::Up());
-
-		// Couleur ambiante de la scène
-		m_billboardShader->SendColor(m_billboardShader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
-		// Position de la caméra
-		m_billboardShader->SendVector(m_billboardShader->GetUniformLocation(nzShaderUniform_CameraPosition), camera->GetPosition());
-
-		lightCount = 0;
-
-		// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-		m_renderQueue.lights[0]->Apply(m_billboardShader, 0);
-
-		for (auto& matIt : m_renderQueue.billboards)
-		{
-			const NzMaterial* material = matIt.first;
-			auto& billboards = matIt.second;
-
-			material->Apply(m_billboardShader);
-
-			unsigned int billboardCount = billboards.size();
-			const NzForwardRenderQueue::BillboardData* data = &billboards[0];
-			while (billboardCount > 0)
-			{
-				unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboards);
-				billboardCount -= renderedBillboardCount;
-
-				m_billboardVertexBuffer->FillVertices(data, 0, renderedBillboardCount, true);
-				data += renderedBillboardCount;
-
-				NzRenderer::DrawPrimitives(nzPrimitiveMode_PointList, 0, renderedBillboardCount);
-			}
-			billboards.clear();
-		}
-	}*/
 }
 
 unsigned int NzForwardRenderTechnique::GetMaxLightPassPerObject() const
