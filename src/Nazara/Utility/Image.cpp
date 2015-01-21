@@ -809,7 +809,7 @@ NzVector3ui NzImage::GetSize(nzUInt8 level) const
 	if (level >= m_sharedImage->levelCount)
 	{
 		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return 0;
+		return NzVector3ui::Zero();
 	}
 	#endif
 

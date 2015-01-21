@@ -297,4 +297,4 @@ void NzBuffer::Uninitialize()
 	std::memset(s_bufferFactories, 0, (nzDataStorage_Max+1)*sizeof(NzBuffer::BufferFactory));
 }
 
-NzBuffer::BufferFactory NzBuffer::s_bufferFactories[nzDataStorage_Max+1] = {0};
+NzBuffer::BufferFactory NzBuffer::s_bufferFactories[nzDataStorage_Max+1] = {nullptr};
