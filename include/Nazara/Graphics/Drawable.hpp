@@ -13,7 +13,7 @@ class NAZARA_API NzDrawable
 {
 	public:
 		NzDrawable() = default;
-		~NzDrawable();
+		virtual ~NzDrawable();
 
 		virtual void Draw() const = 0;
 };
