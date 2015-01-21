@@ -57,19 +57,7 @@ NzVector3<T>::NzVector3(const NzVector4<T>& vec)
 template<typename T>
 T NzVector3<T>::AbsDotProduct(const NzVector3& vec) const
 {
-	return std::fabs(x * vec.x) + std::fabs(y * vec.y) + std::fabs(z * vec.z);
-}
-
-template<>
-inline int NzVector3<int>::AbsDotProduct(const NzVector3<int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z);
-}
-
-template<>
-inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsigned int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z);
+	return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z);
 }
 
 template<typename T>

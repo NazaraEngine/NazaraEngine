@@ -9,9 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzUpdatable
+class NAZARA_API NzUpdatable
 {
 	public:
+		NzUpdatable() = default;
+		virtual ~NzUpdatable();
+
 		virtual void Update() = 0;
 };
 

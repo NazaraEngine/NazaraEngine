@@ -35,7 +35,7 @@ class NAZARA_API NzAbstractAtlas
 
 		void RemoveListener(Listener* font) const;
 
-		class Listener
+		class NAZARA_API Listener
 		{
 			public:
 				Listener() = default;
