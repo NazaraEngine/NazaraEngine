@@ -245,6 +245,22 @@ bool NzScene::IsBackgroundEnabled() const
 	return m_impl->backgroundEnabled;
 }
 
+void NzScene::RenderFrame()
+{
+	try
+	{
+		NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
+		Update();
+		Cull();
+		UpdateVisible();
+		Draw();
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to render frame: " + NzString(e.what()));
+	}
+}
+
 void NzScene::RegisterForUpdate(NzUpdatable* object)
 {
 	#if NAZARA_GRAPHICS_SAFE
