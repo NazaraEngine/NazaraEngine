@@ -225,11 +225,6 @@ int main()
 	bool smoothMovement = true;
 	NzVector3f targetPos = camera.GetPosition();
 
-	NzTextSprite text;
-	text.SetParent(scene);
-	text.Update(NzSimpleTextDrawer::Draw("Hello world !", 72));
-	text.Scale(0.1f);
-
 	// Début de la boucle de rendu du programme
 	while (window.IsOpen())
 	{
