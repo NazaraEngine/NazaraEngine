@@ -19,7 +19,7 @@ class NzDynLibImpl : NzNonCopyable
 		NzDynLibImpl(NzDynLib* m_parent);
 		~NzDynLibImpl() = default;
 
-		NzDynLibFunc GetSymbol(const NzString& symbol, NzString& errorMessage) const;
+		NzDynLibFunc GetSymbol(const NzString& symbol, NzString* errorMessage) const;
 		bool Load(const NzString& libraryPath, NzString* errorMessage);
 		void Unload();
 
