@@ -57,6 +57,8 @@ class NAZARA_API NzScene
 
 		void RegisterForUpdate(NzUpdatable* object);
 
+		void RenderFrame();
+
 		void SetAmbientColor(const NzColor& color);
 		void SetBackground(NzAbstractBackground* background);
 		void SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique);
