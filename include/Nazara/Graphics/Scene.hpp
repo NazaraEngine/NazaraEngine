@@ -10,12 +10,14 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 class NzAbstractRenderQueue;
@@ -36,6 +38,12 @@ class NAZARA_API NzScene
 		~NzScene() = default;
 
 		void AddToVisibilityList(NzUpdatable* object);
+
+		template<typename T, typename... Args> T* CreateNode(Args&&... args);
+		template<typename T, typename... Args> T* CreateNode(const NzString& name, Args&&... args);
+		template<typename T, typename... Args> T* CreateNode(const NzString& name, const NzString& templateNodeName);
+
+		void Clear();
 
 		void Cull();
 		void Draw();
@@ -78,10 +86,13 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
+		bool RegisterSceneNode(const NzString& name, NzSceneNode* node);
 		void RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node);
 
 		mutable std::unique_ptr<NzAbstractBackground> m_background;
 		mutable std::unique_ptr<NzAbstractRenderTechnique> m_renderTechnique;
+		std::unordered_map<NzString, NzSceneNode*> m_nodeMap;
+		std::vector<std::unique_ptr<NzSceneNode>> m_nodes;
 		std::vector<NzUpdatable*> m_updateList;
 		std::vector<NzUpdatable*> m_visibleUpdateList;
 		NzClock m_updateClock;
@@ -95,5 +106,7 @@ class NAZARA_API NzScene
 		mutable int m_renderTechniqueRanking;
 		unsigned int m_updatePerSecond;
 };
+
+#include <Nazara/Graphics/Scene.inl>
 
 #endif // NAZARA_SCENE_HPP
