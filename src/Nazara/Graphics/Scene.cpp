@@ -9,57 +9,30 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
-#include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <functional>
-#include <memory>
-#include <set>
-#include <vector>
 #include <Nazara/Graphics/Debug.hpp>
 
-struct NzSceneImpl
+NzScene::NzScene() :
+m_ambientColor(25, 25, 25),
+m_root(this),
+m_viewer(nullptr),
+m_backgroundEnabled(true),
+m_update(false),
+m_updatePerSecond(60)
 {
-	NzSceneImpl(NzScene* scene) :
-	root(scene)
-	{
-	}
-
-	std::unique_ptr<NzAbstractBackground> background;
-	std::unique_ptr<NzAbstractRenderTechnique> renderTechnique;
-	std::vector<NzUpdatable*> updateList;
-	std::vector<NzUpdatable*> visibleUpdateList;
-	NzClock updateClock;
-	NzColor ambientColor = NzColor(25,25,25);
-	NzSceneRoot root;
-	NzAbstractViewer* viewer = nullptr;
-	bool backgroundEnabled = true;
-	bool update = false;
-	float frameTime;
-	float updateTime;
-	int renderTechniqueRanking;
-	unsigned int updatePerSecond = 60;
-};
-
-NzScene::NzScene()
-{
-	m_impl = new NzSceneImpl(this);
-}
-
-NzScene::~NzScene()
-{
-	delete m_impl;
 }
 
 void NzScene::AddToVisibilityList(NzUpdatable* object)
 {
-	m_impl->visibleUpdateList.push_back(object);
+	m_visibleUpdateList.push_back(object);
 }
 
 void NzScene::Cull()
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return;
@@ -69,10 +42,10 @@ void NzScene::Cull()
 	NzAbstractRenderQueue* renderQueue = GetRenderTechnique()->GetRenderQueue();
 	renderQueue->Clear(false);
 
-	m_impl->visibleUpdateList.clear();
+	m_visibleUpdateList.clear();
 
 	// Frustum culling
-	RecursiveFrustumCull(renderQueue, m_impl->viewer->GetFrustum(), &m_impl->root);
+	RecursiveFrustumCull(renderQueue, m_viewer->GetFrustum(), &m_root);
 
 	///TODO: Occlusion culling
 
@@ -82,29 +55,29 @@ void NzScene::Cull()
 void NzScene::Draw()
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return;
 	}
 	#endif
 
-	m_impl->viewer->ApplyView();
+	m_viewer->ApplyView();
 
 	try
 	{
-		NzErrorFlags errFlags(nzErrorFlag_ThrowException);
-		m_impl->renderTechnique->Clear(this);
-		m_impl->renderTechnique->Draw(this);
+		NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
+		m_renderTechnique->Clear(this);
+		m_renderTechnique->Draw(this);
 	}
 	catch (const std::exception& e)
 	{
-		NzString oldName = m_impl->renderTechnique->GetName();
+		NzString oldName = m_renderTechnique->GetName();
 
-		if (m_impl->renderTechniqueRanking > 0)
+		if (m_renderTechniqueRanking > 0)
 		{
-			m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(m_impl->renderTechniqueRanking-1, &m_impl->renderTechniqueRanking));
-			NazaraError("Render technique \"" + oldName + "\" failed, fallback to \"" + m_impl->renderTechnique->GetName() + '"');
+			m_renderTechnique.reset(NzRenderTechniques::GetByRanking(m_renderTechniqueRanking-1, &m_renderTechniqueRanking));
+			NazaraError("Render technique \"" + oldName + "\" failed, fallback to \"" + m_renderTechnique->GetName() + '"');
 		}
 		else
 		{
@@ -118,131 +91,136 @@ void NzScene::Draw()
 
 void NzScene::EnableBackground(bool enable)
 {
-	m_impl->backgroundEnabled = enable;
+	m_backgroundEnabled = enable;
 }
 
 NzColor NzScene::GetAmbientColor() const
 {
-	return m_impl->ambientColor;
+	return m_ambientColor;
 }
 
 NzAbstractBackground* NzScene::GetBackground() const
 {
-	if (!m_impl->background)
-		m_impl->background.reset(new NzColorBackground);
+	if (!m_background)
+		m_background.reset(new NzColorBackground);
 
-	return m_impl->background.get();
+	return m_background.get();
 }
 
 NzVector3f NzScene::GetBackward() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Backward();
 	}
 	#endif
 
-	return -m_impl->viewer->GetGlobalForward();
+	return -m_viewer->GetGlobalForward();
 }
 
 NzVector3f NzScene::GetDown() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Down();
 	}
 	#endif
 
-	return -m_impl->viewer->GetGlobalUp();
+	return -m_viewer->GetGlobalUp();
 }
 
 NzVector3f NzScene::GetForward() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Forward();
 	}
 	#endif
 
-	return m_impl->viewer->GetGlobalForward();
+	return m_viewer->GetGlobalForward();
 }
 
 NzVector3f NzScene::GetLeft() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Left();
 	}
 	#endif
 
-	return -m_impl->viewer->GetGlobalRight();
+	return -m_viewer->GetGlobalRight();
 }
 
 NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
 {
-	if (!m_impl->renderTechnique)
-		m_impl->renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_impl->renderTechniqueRanking));
+	if (!m_renderTechnique)
+		m_renderTechnique.reset(NzRenderTechniques::GetByRanking(-1, &m_renderTechniqueRanking));
 
-	return m_impl->renderTechnique.get();
+	return m_renderTechnique.get();
 }
 
 NzVector3f NzScene::GetRight() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Right();
 	}
 	#endif
 
-	return m_impl->viewer->GetGlobalRight();
+	return m_viewer->GetGlobalRight();
 }
 
-NzSceneNode& NzScene::GetRoot() const
+NzSceneNode& NzScene::GetRoot()
 {
-	return m_impl->root;
+	return m_root;
+}
+
+const NzSceneNode& NzScene::GetRoot() const
+{
+	return m_root;
 }
 
 NzAbstractViewer* NzScene::GetViewer() const
 {
-	return m_impl->viewer;
+	return m_viewer;
 }
 
 NzVector3f NzScene::GetUp() const
 {
 	#if NAZARA_GRAPHICS_SAFE
-	if (!m_impl->viewer)
+	if (!m_viewer)
 	{
 		NazaraError("No viewer");
 		return NzVector3f::Up();
 	}
 	#endif
 
-	return m_impl->viewer->GetGlobalUp();
+	return m_viewer->GetGlobalUp();
 }
 
 float NzScene::GetUpdateTime() const
 {
-	return m_impl->updateTime;
+	return m_updateTime;
 }
 
 unsigned int NzScene::GetUpdatePerSecond() const
 {
-	return m_impl->updatePerSecond;
+	return m_updatePerSecond;
 }
 
 bool NzScene::IsBackgroundEnabled() const
 {
-	return m_impl->backgroundEnabled;
+	return m_backgroundEnabled;
 }
 
 void NzScene::RenderFrame()
@@ -271,32 +249,32 @@ void NzScene::RegisterForUpdate(NzUpdatable* object)
 	}
 	#endif
 
-	m_impl->updateList.push_back(object);
+	m_updateList.push_back(object);
 }
 
 void NzScene::SetAmbientColor(const NzColor& color)
 {
-	m_impl->ambientColor = color;
+	m_ambientColor = color;
 }
 
 void NzScene::SetBackground(NzAbstractBackground* background)
 {
-	m_impl->background.reset(background);
+	m_background.reset(background);
 }
 
 void NzScene::SetRenderTechnique(NzAbstractRenderTechnique* renderTechnique)
 {
-	m_impl->renderTechnique.reset(renderTechnique);
+	m_renderTechnique.reset(renderTechnique);
 }
 
 void NzScene::SetViewer(NzAbstractViewer* viewer)
 {
-	if (m_impl->viewer != viewer)
+	if (m_viewer != viewer)
 	{
-		m_impl->viewer = viewer;
+		m_viewer = viewer;
 
 		// Invalidation de tous les nodes de la scène (utile pour la régénération des sommets dépendant du viewer)
-		m_impl->root.InvalidateNode();
+		m_root.InvalidateNode();
 	}
 }
 
@@ -307,7 +285,7 @@ void NzScene::SetViewer(NzAbstractViewer& viewer)
 
 void NzScene::SetUpdatePerSecond(unsigned int updatePerSecond)
 {
-	m_impl->updatePerSecond = updatePerSecond;
+	m_updatePerSecond = updatePerSecond;
 }
 
 void NzScene::UnregisterForUpdate(NzUpdatable* object)
@@ -320,20 +298,20 @@ void NzScene::UnregisterForUpdate(NzUpdatable* object)
 	}
 	#endif
 
-	auto it = std::find(m_impl->updateList.begin(), m_impl->updateList.end(), object);
-	if (it != m_impl->updateList.end())
-		m_impl->updateList.erase(it);
+	auto it = std::find(m_updateList.begin(), m_updateList.end(), object);
+	if (it != m_updateList.end())
+		m_updateList.erase(it);
 }
 
 void NzScene::Update()
 {
-	m_impl->update = (m_impl->updatePerSecond == 0 || m_impl->updateClock.GetMilliseconds() > 1000/m_impl->updatePerSecond);
-	if (m_impl->update)
+	m_update = (m_updatePerSecond == 0 || m_updateClock.GetMilliseconds() > 1000/m_updatePerSecond);
+	if (m_update)
 	{
-		m_impl->updateTime = m_impl->updateClock.GetSeconds();
-		m_impl->updateClock.Restart();
+		m_updateTime = m_updateClock.GetSeconds();
+		m_updateClock.Restart();
 
-		for (NzUpdatable* updatable : m_impl->updateList)
+		for (NzUpdatable* updatable : m_updateList)
 			///TODO: Multihreading
 			updatable->Update();
 	}
@@ -343,16 +321,16 @@ void NzScene::UpdateVisible()
 {
 	NzSkinningManager::Skin();
 
-	if (m_impl->update)
+	if (m_update)
 	{
-		for (NzUpdatable* node : m_impl->visibleUpdateList)
+		for (NzUpdatable* node : m_visibleUpdateList)
 			node->Update();
 	}
 }
 
 NzScene::operator const NzSceneNode&() const
 {
-	return m_impl->root;
+	return m_root;
 }
 
 void NzScene::RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node)

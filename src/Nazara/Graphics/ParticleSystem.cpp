@@ -7,6 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <cstdlib>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
