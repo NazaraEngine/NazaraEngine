@@ -14,8 +14,8 @@
 #include <map>
 
 ///TODO: Permettre la conversion automatique entre les formats via des renseignements de bits et de type pour chaque format.
-///      Ce serait plus lent que la conversion spécialisée (qui ne disparaît donc pas) mais ça permettrait au moteur de faire la conversion
-///      entre n'importe quel formats non-compressés.
+///      Ce serait plus lent que la conversion spécialisée (qui ne disparaîtra donc pas) mais ça permettrait au moteur de faire la conversion
+///      entre n'importe quels formats non-compressés.
 
 class NzPixelFormat
 {
