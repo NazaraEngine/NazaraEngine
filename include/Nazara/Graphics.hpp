@@ -59,7 +59,6 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/Scene.hpp>
-#include <Nazara/Graphics/SceneLayer.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
