@@ -29,6 +29,12 @@ void NzScene::AddToVisibilityList(NzUpdatable* object)
 	m_visibleUpdateList.push_back(object);
 }
 
+void NzScene::Clear()
+{
+	m_nodeMap.clear();
+	m_nodes.clear();
+}
+
 void NzScene::Cull()
 {
 	#if NAZARA_GRAPHICS_SAFE
@@ -48,8 +54,6 @@ void NzScene::Cull()
 	RecursiveFrustumCull(renderQueue, m_viewer->GetFrustum(), &m_root);
 
 	///TODO: Occlusion culling
-
-	///TODO: Light culling
 }
 
 void NzScene::Draw()
@@ -77,7 +81,7 @@ void NzScene::Draw()
 		if (m_renderTechniqueRanking > 0)
 		{
 			m_renderTechnique.reset(NzRenderTechniques::GetByRanking(m_renderTechniqueRanking-1, &m_renderTechniqueRanking));
-			NazaraError("Render technique \"" + oldName + "\" failed, fallback to \"" + m_renderTechnique->GetName() + '"');
+			NazaraError("Render technique \"" + oldName + "\" failed, falling back to \"" + m_renderTechnique->GetName() + '"');
 		}
 		else
 		{
@@ -331,6 +335,25 @@ void NzScene::UpdateVisible()
 NzScene::operator const NzSceneNode&() const
 {
 	return m_root;
+}
+
+bool NzScene::RegisterSceneNode(const NzString& name, NzSceneNode* node)
+{
+	if (!name.IsEmpty())
+	{
+		if (m_nodeMap.find(name) != m_nodeMap.end())
+		{
+			NazaraError("Node " + name + " is already registred");
+			return false;
+		}
+
+		m_nodeMap[name] = node;
+	}
+
+	node->SetParent(m_root, true);
+
+	m_nodes.emplace_back(node);
+	return true;
 }
 
 void NzScene::RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node)

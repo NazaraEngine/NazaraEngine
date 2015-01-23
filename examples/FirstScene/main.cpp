@@ -84,7 +84,7 @@ int main()
 	// Ensuite, nous allons rajouter un modèle à notre scène.
 	// Les modèles représentent, globalement, tout ce qui est visible en trois dimensions.
 	// Nous choisirons ici un vaisseau spatial (Quoi de mieux pour une scène spatiale ?)
-	NzModel spaceship;
+	NzModel* spaceship = scene.CreateNode<NzModel>(); // Création depuis la scène
 
 	// Une structure permettant de paramétrer le chargement des modèles
 	NzModelParameters params;
@@ -101,7 +101,7 @@ int main()
 
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
-	if (!spaceship.LoadFromFile("resources/Spaceship/spaceship.obj", params))
+	if (!spaceship->LoadFromFile("resources/Spaceship/spaceship.obj", params))
 	{
 		std::cout << "Failed to load spaceship" << std::endl;
 		std::getchar();
@@ -111,7 +111,7 @@ int main()
 
 	// Nous voulons afficher quelques statistiques relatives au modèle, comme le nombre de sommets et de triangles
 	// Pour cela, nous devons accéder au mesh (maillage 3D)
-	NzMesh* mesh = spaceship.GetMesh();
+	NzMesh* mesh = spaceship->GetMesh();
 
 	std::cout << mesh->GetVertexCount() << " sommets" << std::endl;
 	std::cout << mesh->GetTriangleCount() << " triangles" << std::endl;
@@ -119,7 +119,7 @@ int main()
 	// En revanche, le format OBJ ne précise pas l'utilisation d'une normal map, nous devons donc la charger manuellement
 	// Pour commencer on récupère le matériau du mesh, celui-ci en possède plusieurs mais celui qui nous intéresse,
 	// celui de la coque, est le second (Cela est bien entendu lié au modèle en lui-même)
-	NzMaterial* material = spaceship.GetMaterial(1);
+	NzMaterial* material = spaceship->GetMaterial(1);
 
 	// On lui indique ensuite le chemin vers la normal map
 	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
@@ -128,10 +128,6 @@ int main()
 		// Mais ce n'est pas une erreur critique, le rendu peut quand même se faire (Mais sera moins détaillé)
 		std::cout << "Failed to load normal map" << std::endl;
 	}
-
-	// Il nous reste à attacher le modèle à la scène, ce qui se fait simplement via cet appel
-	spaceship.SetParent(scene);
-	// Et voilà, à partir de maintenant le modèle fait partie de la hiérarchie de la scène, et sera donc rendu avec cette dernière
 
 	// Nous avons besoin également d'une caméra, pour des raisons évidentes, celle-ci sera à l'écart du modèle
 	// regardant dans sa direction.
@@ -164,18 +160,15 @@ int main()
 	// -PointLight: Lumière située à un endroit précis, envoyant de la lumière finie dans toutes les directions
 	// -SpotLight: Lumière située à un endroit précis, envoyant de la lumière vers un endroit donné, avec un angle de diffusion
 
-	// Nous choisissons une lumière directionnelle représentant la nébuleuse de notre skybox
-	NzLight nebulaLight(nzLightType_Directional);
+	// Nous créons une lumière directionnelle pour représenter la nébuleuse de notre skybox
+	NzLight* nebulaLight = scene.CreateNode<NzLight>(nzLightType_Directional);
 
 	// Il nous faut ensuite configurer la lumière
 	// Pour commencer, sa couleur, la nébuleuse étant d'une couleur jaune, j'ai choisi ces valeurs
-	nebulaLight.SetColor(NzColor(255, 182, 90));
+	nebulaLight->SetColor(NzColor(255, 182, 90));
 
 	// Nous appliquons ensuite une rotation de sorte que la lumière dans la même direction que la nébuleuse
-	nebulaLight.SetRotation(NzEulerAnglesf(0.f, 102.f, 0.f));
-
-	// Et nous ajoutons la lumière à la scène
-	nebulaLight.SetParent(scene);
+	nebulaLight->SetRotation(NzEulerAnglesf(0.f, 102.f, 0.f));
 
 	// Nous allons maintenant créer la fenêtre, dans laquelle nous ferons nos rendus
 	// Celle-ci demande des paramètres plus complexes
