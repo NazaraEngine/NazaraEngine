@@ -470,20 +470,20 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 						const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
 						// Gestion du draw call avant la boucle de rendu
-						std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> DrawFunc;
-						std::function<void(unsigned int, nzPrimitiveMode, unsigned int, unsigned int)> InstancedDrawFunc;
+						NzRenderer::DrawCall drawFunc;
+						NzRenderer::DrawCallInstanced instancedDrawFunc;
 						unsigned int indexCount;
 
 						if (indexBuffer)
 						{
-							DrawFunc = NzRenderer::DrawIndexedPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawIndexedPrimitives;
+							instancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
 							indexCount = indexBuffer->GetIndexCount();
 						}
 						else
 						{
-							DrawFunc = NzRenderer::DrawPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawPrimitives;
+							instancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
 							indexCount = vertexBuffer->GetVertexCount();
 						}
 
@@ -672,17 +672,17 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
 		// Gestion du draw call avant la boucle de rendu
-		std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> DrawFunc;
+		NzRenderer::DrawCall drawFunc;
 		unsigned int indexCount;
 
 		if (indexBuffer)
 		{
-			DrawFunc = NzRenderer::DrawIndexedPrimitives;
+			drawFunc = NzRenderer::DrawIndexedPrimitives;
 			indexCount = indexBuffer->GetIndexCount();
 		}
 		else
 		{
-			DrawFunc = NzRenderer::DrawPrimitives;
+			drawFunc = NzRenderer::DrawPrimitives;
 			indexCount = vertexBuffer->GetVertexCount();
 		}
 

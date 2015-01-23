@@ -101,20 +101,20 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 						const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
 						// Gestion du draw call avant la boucle de rendu
-						std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> DrawFunc;
-						std::function<void(unsigned int, nzPrimitiveMode, unsigned int, unsigned int)> InstancedDrawFunc;
+						NzRenderer::DrawCall drawFunc;
+						NzRenderer::DrawCallInstanced instancedDrawFunc;
 						unsigned int indexCount;
 
 						if (indexBuffer)
 						{
-							DrawFunc = NzRenderer::DrawIndexedPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawIndexedPrimitives;
+							instancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
 							indexCount = indexBuffer->GetIndexCount();
 						}
 						else
 						{
-							DrawFunc = NzRenderer::DrawPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawPrimitives;
+							instancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
 							indexCount = vertexBuffer->GetVertexCount();
 						}
 
