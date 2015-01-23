@@ -41,6 +41,9 @@ class NAZARA_API NzModel : public NzSceneNode
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void AdvanceAnimation(float elapsedTime);
 
+		NzModel* Clone() const;
+		NzModel* Create() const;
+
 		void EnableAnimation(bool animation);
 
 		NzAnimation* GetAnimation() const;

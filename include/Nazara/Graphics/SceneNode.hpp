@@ -28,6 +28,10 @@ class NAZARA_API NzSceneNode : public NzNode
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;
 
+		// Idiôme "virtual constructor"
+		virtual NzSceneNode* Clone() const = 0;
+		virtual NzSceneNode* Create() const = 0;
+
 		void EnableDrawing(bool drawingEnabled);
 
 		NzVector3f GetBackward() const;
