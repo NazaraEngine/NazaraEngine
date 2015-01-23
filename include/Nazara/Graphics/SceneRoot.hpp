@@ -10,9 +10,11 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 
+class NzScene;
+
 class NAZARA_API NzSceneRoot : public NzSceneNode
 {
-	friend struct NzSceneImpl;
+	friend NzScene;
 
 	public:
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
