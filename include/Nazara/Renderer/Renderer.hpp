@@ -31,6 +31,9 @@ class NAZARA_API NzRenderer
 	friend NzTexture;
 
 	public:
+		using DrawCall = void (*)(nzPrimitiveMode, unsigned int, unsigned int);
+		using DrawCallInstanced = void (*)(unsigned int, nzPrimitiveMode, unsigned int, unsigned int);
+
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
