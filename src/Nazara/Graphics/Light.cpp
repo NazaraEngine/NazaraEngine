@@ -47,6 +47,16 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	renderQueue->AddLight(this);
 }
 
+NzLight* NzLight::Clone() const
+{
+	return new NzLight(*this);
+}
+
+NzLight* NzLight::Create() const
+{
+	return new NzLight;
+}
+
 void NzLight::Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset) const
 {
 	/*

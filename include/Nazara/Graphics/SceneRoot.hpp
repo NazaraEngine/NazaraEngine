@@ -27,6 +27,9 @@ class NAZARA_API NzSceneRoot : public NzSceneNode
 		NzSceneRoot(NzScene* scene);
 		virtual ~NzSceneRoot();
 
+		NzSceneRoot* Clone() const;
+		NzSceneRoot* Create() const;
+
 		void MakeBoundingVolume() const override;
 		void Register();
 		void Unregister();

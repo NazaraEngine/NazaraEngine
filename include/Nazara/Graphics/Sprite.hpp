@@ -22,6 +22,9 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
+		NzSprite* Clone() const;
+		NzSprite* Create() const;
+
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;

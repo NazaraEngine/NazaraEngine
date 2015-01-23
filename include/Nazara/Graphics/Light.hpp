@@ -18,11 +18,14 @@ struct NzLightUniforms;
 class NAZARA_API NzLight : public NzSceneNode
 {
 	public:
-		NzLight(nzLightType type);
+		NzLight(nzLightType type = nzLightType_Point);
 		NzLight(const NzLight& light);
 		~NzLight() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+
+		NzLight* Clone() const;
+		NzLight* Create() const;
 
 		void Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset = 0) const;
 
