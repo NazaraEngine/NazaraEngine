@@ -28,6 +28,9 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 
 		void Clear();
 
+		NzTextSprite* Clone() const;
+		NzTextSprite* Create() const;
+
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;
