@@ -30,6 +30,18 @@ bool NzSceneRoot::IsDrawable() const
 	return true;
 }
 
+NzSceneRoot* NzSceneRoot::Clone() const
+{
+	NazaraInternalError("SceneNode::Clone() called on SceneRoot");
+	return nullptr;
+}
+
+NzSceneRoot* NzSceneRoot::Create() const
+{
+	NazaraInternalError("SceneNode::Create() called on SceneRoot");
+	return nullptr;
+}
+
 void NzSceneRoot::MakeBoundingVolume() const
 {
 	m_boundingVolume.MakeInfinite();

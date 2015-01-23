@@ -48,6 +48,16 @@ void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	renderQueue->AddSprites(m_material, m_vertices, 1);
 }
 
+NzSprite* NzSprite::Clone() const
+{
+	return new NzSprite(*this);
+}
+
+NzSprite* NzSprite::Create() const
+{
+	return new NzSprite;
+}
+
 const NzColor& NzSprite::GetColor() const
 {
 	return m_color;

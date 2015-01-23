@@ -65,6 +65,16 @@ void NzTextSprite::Clear()
 	m_vertices.clear();
 }
 
+NzTextSprite* NzTextSprite::Clone() const
+{
+	return new NzTextSprite(*this);
+}
+
+NzTextSprite* NzTextSprite::Create() const
+{
+	return new NzTextSprite;
+}
+
 const NzColor& NzTextSprite::GetColor() const
 {
 	return m_color;

@@ -66,6 +66,16 @@ void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	}
 }
 
+NzModel* NzModel::Clone() const
+{
+	return new NzModel(*this);
+}
+
+NzModel* NzModel::Create() const
+{
+	return new NzModel;
+}
+
 NzMaterial* NzModel::GetMaterial(const NzString& subMeshName) const
 {
 	#if NAZARA_GRAPHICS_SAFE
