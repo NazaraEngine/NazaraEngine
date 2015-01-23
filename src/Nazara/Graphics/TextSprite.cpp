@@ -5,7 +5,9 @@
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <memory>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>

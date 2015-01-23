@@ -8,11 +8,15 @@
 #define NAZARA_SCENE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
+#include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Math/Frustum.hpp>
+#include <memory>
+#include <vector>
 
 class NzAbstractRenderQueue;
 class NzAbstractViewer;
@@ -22,7 +26,6 @@ class NzModel;
 class NzNode;
 class NzRenderQueue;
 class NzSceneNode;
-struct NzSceneImpl;
 
 class NAZARA_API NzScene
 {
@@ -30,7 +33,7 @@ class NAZARA_API NzScene
 
 	public:
 		NzScene();
-		~NzScene();
+		~NzScene() = default;
 
 		void AddToVisibilityList(NzUpdatable* object);
 
@@ -47,7 +50,8 @@ class NAZARA_API NzScene
 		NzVector3f GetLeft() const;
 		NzAbstractRenderTechnique* GetRenderTechnique() const;
 		NzVector3f GetRight() const;
-		NzSceneNode& GetRoot() const;
+		NzSceneNode& GetRoot();
+		const NzSceneNode& GetRoot() const;
 		NzAbstractViewer* GetViewer() const;
 		NzVector3f GetUp() const;
 		float GetUpdateTime() const;
@@ -76,7 +80,20 @@ class NAZARA_API NzScene
 	private:
 		void RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node);
 
-		NzSceneImpl* m_impl;
+		mutable std::unique_ptr<NzAbstractBackground> m_background;
+		mutable std::unique_ptr<NzAbstractRenderTechnique> m_renderTechnique;
+		std::vector<NzUpdatable*> m_updateList;
+		std::vector<NzUpdatable*> m_visibleUpdateList;
+		NzClock m_updateClock;
+		NzColor m_ambientColor;
+		NzSceneRoot m_root;
+		NzAbstractViewer* m_viewer;
+		bool m_backgroundEnabled;
+		bool m_update;
+		float m_frameTime;
+		float m_updateTime;
+		mutable int m_renderTechniqueRanking;
+		unsigned int m_updatePerSecond;
 };
 
 #endif // NAZARA_SCENE_HPP

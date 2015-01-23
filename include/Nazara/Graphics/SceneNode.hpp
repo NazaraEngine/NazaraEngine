@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/Node.hpp>
 
+class NzAbstractRenderQueue;
 class NzScene;
 
 class NAZARA_API NzSceneNode : public NzNode

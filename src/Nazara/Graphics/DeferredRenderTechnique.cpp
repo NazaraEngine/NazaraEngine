@@ -21,6 +21,7 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
