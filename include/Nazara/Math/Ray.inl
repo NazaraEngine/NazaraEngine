@@ -225,7 +225,7 @@ bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
 	if (NzNumberEquals(divisor, F(0.0)))
 		return false; // perpendicular
 
-	T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax+by+cz=d
+	T lambda = -(plane.normal.DotProduct(origin) + plane.distance) / divisor; // The plane is ax+by+cz=d
 	if (lambda < F(0.0))
 		return false; // Le plan est derrière le rayon
 
