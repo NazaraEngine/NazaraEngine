@@ -31,7 +31,6 @@ using NzSkeletalModelLoader = NzResourceLoader<NzSkeletalModel, NzSkeletalModelP
 class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 {
 	friend NzSkeletalModelLoader;
-	//friend class NzScene;
 
 	public:
 		NzSkeletalModel();
@@ -41,6 +40,9 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void AdvanceAnimation(float elapsedTime);
+
+		NzSkeletalModel* Clone() const;
+		NzSkeletalModel* Create() const;
 
 		void EnableAnimation(bool animation);
 
