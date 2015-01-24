@@ -93,6 +93,11 @@ NzVector3f NzSceneNode::GetLeft() const
 		return NzNode::GetLeft();
 }
 
+const NzString& NzSceneNode::GetName() const
+{
+	return m_name;
+}
+
 nzNodeType NzSceneNode::GetNodeType() const
 {
 	return nzNodeType_Scene;
@@ -137,6 +142,11 @@ bool NzSceneNode::IsDrawingEnabled() const
 bool NzSceneNode::IsVisible() const
 {
 	return m_visible;
+}
+
+void NzSceneNode::SetName(const NzString& name)
+{
+	m_name = name;
 }
 
 NzSceneNode& NzSceneNode::operator=(const NzSceneNode& sceneNode)
