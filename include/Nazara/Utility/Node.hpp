@@ -35,7 +35,6 @@ class NAZARA_API NzNode
 		NzQuaternionf GetInitialRotation() const;
 		NzVector3f GetInitialScale() const;
 		virtual NzVector3f GetLeft() const;
-		const NzString& GetName() const;
 		virtual nzNodeType GetNodeType() const;
 		const NzNode* GetParent() const;
 		NzVector3f GetPosition(nzCoordSys coordSys = nzCoordSys_Global) const;
@@ -67,7 +66,6 @@ class NAZARA_API NzNode
 		void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
 		void SetInitialPosition(const NzVector3f& translation);
 		void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
-		void SetName(const NzString& name);
 		void SetParent(const NzNode* node = nullptr, bool keepDerived = false);
 		void SetParent(const NzNode& node, bool keepDerived = false);
 		void SetPosition(const NzVector3f& translation, nzCoordSys coordSys = nzCoordSys_Local);
@@ -103,7 +101,6 @@ class NAZARA_API NzNode
 		mutable NzQuaternionf m_derivedRotation;
 		NzQuaternionf m_initialRotation;
 		NzQuaternionf m_rotation;
-		NzString m_name;
 		mutable NzVector3f m_derivedPosition;
 		mutable NzVector3f m_derivedScale;
 		NzVector3f m_initialPosition;

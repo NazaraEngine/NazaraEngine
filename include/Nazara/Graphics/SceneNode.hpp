@@ -18,7 +18,7 @@ class NzScene;
 
 class NAZARA_API NzSceneNode : public NzNode
 {
-	friend class NzScene;
+	friend NzScene;
 
 	public:
 		NzSceneNode();
@@ -39,6 +39,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		NzVector3f GetDown() const;
 		NzVector3f GetForward() const;
 		NzVector3f GetLeft() const;
+		const NzString& GetName() const;
 		nzNodeType GetNodeType() const final;
 		NzVector3f GetRight() const;
 		NzScene* GetScene() const;
@@ -50,6 +51,8 @@ class NAZARA_API NzSceneNode : public NzNode
 		virtual bool IsDrawable() const = 0;
 		bool IsDrawingEnabled() const;
 		bool IsVisible() const;
+
+		void SetName(const NzString& name);
 
 		NzSceneNode& operator=(const NzSceneNode& sceneNode);
 		NzSceneNode& operator=(NzSceneNode&& sceneNode) = delete;
@@ -75,6 +78,8 @@ class NAZARA_API NzSceneNode : public NzNode
 
 	private:
 		void UpdateVisibility(const NzFrustumf& frustum);
+
+		NzString m_name;
 };
 
 #endif // NAZARA_SCENENODE_HPP
