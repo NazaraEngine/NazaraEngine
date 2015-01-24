@@ -61,7 +61,7 @@ inline unsigned int NzGetNearestPowerOfTwo(unsigned int number)
 	///TODO: Marquer comme constexpr en C++14
 	unsigned int x = 1;
 	// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
-	while (x <= number)
+	while (x < number)
 		x <<= 1;
 
 	return x;
