@@ -43,7 +43,7 @@ m_nextFrame(model.m_nextFrame)
 
 NzSkeletalModel::~NzSkeletalModel()
 {
-	Reset();
+	m_scene->UnregisterForUpdate(this);
 }
 
 void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
@@ -168,9 +168,6 @@ void NzSkeletalModel::Reset()
 	NzModel::Reset();
 
 	m_skeleton.Destroy();
-
-	if (m_scene)
-		m_scene->UnregisterForUpdate(this);
 }
 
 bool NzSkeletalModel::SetAnimation(NzAnimation* animation)
@@ -211,12 +208,7 @@ bool NzSkeletalModel::SetAnimation(NzAnimation* animation)
 		m_interpolation = 0.f;
 
 		SetSequence(0);
-
-		if (m_scene)
-			m_scene->RegisterForUpdate(this);
 	}
-	else if (m_scene)
-		m_scene->UnregisterForUpdate(this);
 
 	return true;
 }
@@ -327,8 +319,7 @@ NzSkeletalModel& NzSkeletalModel::operator=(NzSkeletalModel&& node)
 
 void NzSkeletalModel::Register()
 {
-	if (m_animation)
-		m_scene->RegisterForUpdate(this);
+	m_scene->RegisterForUpdate(this);
 }
 
 void NzSkeletalModel::Unregister()
