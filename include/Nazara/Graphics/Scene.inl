@@ -91,7 +91,7 @@ T* NzScene::CreateNode(const NzString& name, const NzString& templateNodeName)
 	}
 
 	NzSceneNode* sceneNode = it->second;
-	if (NzImplGetType<T>() != sceneNode->GetSceneNodeType())
+	if (sceneNode->GetSceneNodeType() != NzImplGetType<T>())
 	{
 		NazaraError("Scene node type of T (" + NzString::Number(NzImplGetType<T>()) + ") doesn't match template scene node type (" + NzString::Number(sceneNode->GetSceneNodeType()) + ")");
 		return nullptr;
@@ -102,6 +102,38 @@ T* NzScene::CreateNode(const NzString& name, const NzString& templateNodeName)
 		return nullptr;
 
 	return node.release();
+}
+
+template<typename T>
+T* NzScene::FindNodeAs(const NzString& name)
+{
+	NzSceneNode* sceneNode = FindNode(name);
+	if (!sceneNode)
+		return nullptr;
+
+	if (sceneNode->GetSceneNodeType() != NzImplGetType<T>())
+	{
+		NazaraError("Scene node type of T (" + NzString::Number(NzImplGetType<T>()) + ") doesn't match \"" + name + "\" scene node type (" + NzString::Number(sceneNode->GetSceneNodeType()) + ")");
+		return nullptr;
+	}
+
+	return static_cast<T*>(sceneNode);
+}
+
+template<typename T>
+const T* NzScene::FindNodeAs(const NzString& name) const
+{
+	const NzSceneNode* sceneNode = FindNode(name);
+	if (!sceneNode)
+		return nullptr;
+
+	if (sceneNode->GetSceneNodeType() != NzImplGetType<T>())
+	{
+		NazaraError("Scene node type of T (" + NzString::Number(NzImplGetType<T>()) + ") doesn't match \"" + name + "\" scene node type (" + NzString::Number(sceneNode->GetSceneNodeType()) + ")");
+		return nullptr;
+	}
+
+	return static_cast<const T*>(sceneNode);
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
