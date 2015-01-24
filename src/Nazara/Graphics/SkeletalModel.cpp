@@ -107,6 +107,16 @@ void NzSkeletalModel::AdvanceAnimation(float elapsedTime)
 	InvalidateBoundingVolume();
 }
 
+NzSkeletalModel* NzSkeletalModel::Clone() const
+{
+	return new NzSkeletalModel(*this);
+}
+
+NzSkeletalModel* NzSkeletalModel::Create() const
+{
+	return new NzSkeletalModel;
+}
+
 void NzSkeletalModel::EnableAnimation(bool animation)
 {
 	m_animationEnabled = animation;
