@@ -2035,9 +2035,9 @@ static_assert(nzCubemapFace_Max+1 == 6, "Cubemap face array is incomplete");
 
 GLenum NzOpenGL::FaceFilling[] =
 {
-	GL_POINT, // nzFaceFilling_Point
+	GL_FILL,  // nzFaceFilling_Fill
 	GL_LINE,  // nzFaceFilling_Line
-	GL_FILL   // nzFaceFilling_Fill
+	GL_POINT  // nzFaceFilling_Point
 };
 
 static_assert(nzFaceFilling_Max+1 == 3, "Face filling array is incomplete");
