@@ -98,6 +98,24 @@ void NzScene::EnableBackground(bool enable)
 	m_backgroundEnabled = enable;
 }
 
+NzSceneNode* NzScene::FindNode(const NzString& name)
+{
+	auto it = m_nodeMap.find(name);
+	if (it == m_nodeMap.end())
+		return nullptr;
+
+	return it->second;
+}
+
+const NzSceneNode* NzScene::FindNode(const NzString& name) const
+{
+	auto it = m_nodeMap.find(name);
+	if (it == m_nodeMap.end())
+		return nullptr;
+
+	return it->second;
+}
+
 NzColor NzScene::GetAmbientColor() const
 {
 	return m_ambientColor;
@@ -227,6 +245,47 @@ bool NzScene::IsBackgroundEnabled() const
 	return m_backgroundEnabled;
 }
 
+void NzScene::RegisterForUpdate(NzUpdatable* object)
+{
+	#if NAZARA_GRAPHICS_SAFE
+	if (!object)
+	{
+		NazaraError("Invalid object");
+		return;
+	}
+	#endif
+
+	m_updateList.push_back(object);
+}
+
+void NzScene::RemoveNode(NzSceneNode* node)
+{
+	if (!node)
+		return;
+
+	// C'est moche mais je n'ai pas d'autre choix que d'utiliser un std::unique_ptr pour utiliser std::find
+	std::unique_ptr<NzSceneNode> ptr(node);
+	auto it = std::find(m_nodes.begin(), m_nodes.end(), ptr);
+	ptr.release();
+
+	if (it == m_nodes.end())
+	{
+		NazaraError("This scene node doesn't belong to this scene");
+		return;
+	}
+
+	NzString nodeName = node->GetName();
+	if (!nodeName.IsEmpty())
+		m_nodeMap.erase(nodeName);
+
+	m_nodes.erase(it);
+}
+
+void NzScene::RemoveNode(const NzString& name)
+{
+	RemoveNode(FindNode(name));
+}
+
 void NzScene::RenderFrame()
 {
 	try
@@ -241,19 +300,6 @@ void NzScene::RenderFrame()
 	{
 		NazaraError("Failed to render frame: " + NzString(e.what()));
 	}
-}
-
-void NzScene::RegisterForUpdate(NzUpdatable* object)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!object)
-	{
-		NazaraError("Invalid object");
-		return;
-	}
-	#endif
-
-	m_updateList.push_back(object);
 }
 
 void NzScene::SetAmbientColor(const NzColor& color)

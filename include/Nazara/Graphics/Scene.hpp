@@ -44,6 +44,11 @@ class NAZARA_API NzScene
 
 		void EnableBackground(bool enable);
 
+		NzSceneNode* FindNode(const NzString& name);
+		const NzSceneNode* FindNode(const NzString& name) const;
+		template<typename T> T* FindNodeAs(const NzString& name);
+		template<typename T> const T* FindNodeAs(const NzString& name) const;
+
 		NzColor GetAmbientColor() const;
 		NzAbstractBackground* GetBackground() const;
 		NzVector3f GetBackward() const;
@@ -62,6 +67,9 @@ class NAZARA_API NzScene
 		bool IsBackgroundEnabled() const;
 
 		void RegisterForUpdate(NzUpdatable* object);
+
+		void RemoveNode(NzSceneNode* node);
+		void RemoveNode(const NzString& name);
 
 		void RenderFrame();
 
