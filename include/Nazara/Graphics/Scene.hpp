@@ -22,17 +22,11 @@
 
 class NzAbstractRenderQueue;
 class NzAbstractViewer;
-class NzCamera;
-class NzLight;
-class NzModel;
 class NzNode;
-class NzRenderQueue;
 class NzSceneNode;
 
 class NAZARA_API NzScene
 {
-	friend NzCamera;
-
 	public:
 		NzScene();
 		~NzScene() = default;
