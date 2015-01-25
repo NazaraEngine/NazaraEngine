@@ -20,12 +20,6 @@ void NzSceneRoot::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	NazaraInternalError("SceneNode::AddToRenderQueue() called on SceneRoot");
 }
 
-const NzBoundingVolumef& NzSceneRoot::GetBoundingVolume() const
-{
-	static NzBoundingVolumef infinite(nzExtend_Infinite);
-	return infinite;
-}
-
 nzSceneNodeType NzSceneRoot::GetSceneNodeType() const
 {
 	return nzSceneNodeType_Root;
@@ -34,6 +28,23 @@ nzSceneNodeType NzSceneRoot::GetSceneNodeType() const
 bool NzSceneRoot::IsDrawable() const
 {
 	return true;
+}
+
+NzSceneRoot* NzSceneRoot::Clone() const
+{
+	NazaraInternalError("SceneNode::Clone() called on SceneRoot");
+	return nullptr;
+}
+
+NzSceneRoot* NzSceneRoot::Create() const
+{
+	NazaraInternalError("SceneNode::Create() called on SceneRoot");
+	return nullptr;
+}
+
+void NzSceneRoot::MakeBoundingVolume() const
+{
+	m_boundingVolume.MakeInfinite();
 }
 
 void NzSceneRoot::Register()

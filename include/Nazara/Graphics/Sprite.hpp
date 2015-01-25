@@ -22,7 +22,9 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		const NzBoundingVolumef& GetBoundingVolume() const override;
+		NzSprite* Clone() const;
+		NzSprite* Create() const;
+
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;
@@ -44,18 +46,16 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 	private:
 		void InvalidateNode() override;
+		void MakeBoundingVolume() const override;
 		void Register() override;
 		void Unregister() override;
-		void UpdateBoundingVolume() const;
 		void UpdateVertices() const;
 
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
 		mutable NzVertexStruct_XYZ_Color_UV m_vertices[4];
-		mutable bool m_boundingVolumeUpdated;
 		mutable bool m_verticesUpdated;
 };
 

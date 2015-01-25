@@ -3,28 +3,26 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <cstring>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 NzSprite::NzSprite() :
-m_boundingVolume(NzBoundingVolumef::Null()),
 m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f),
 m_size(64.f, 64.f),
-m_boundingVolumeUpdated(true),
 m_verticesUpdated(false)
 {
 	SetDefaultMaterial();
 }
 
 NzSprite::NzSprite(NzTexture* texture) :
-m_boundingVolume(NzBoundingVolumef::Null()),
 m_color(NzColor::White),
 m_textureCoords(0.f, 0.f, 1.f, 1.f),
 m_size(64.f, 64.f),
-m_boundingVolumeUpdated(false),
 m_verticesUpdated(false)
 {
 	SetTexture(texture, true);
@@ -32,13 +30,11 @@ m_verticesUpdated(false)
 
 NzSprite::NzSprite(const NzSprite& sprite) :
 NzSceneNode(sprite),
-m_boundingVolume(sprite.m_boundingVolume),
 m_color(sprite.m_color),
 m_material(sprite.m_material),
 m_textureCoords(sprite.m_textureCoords),
 m_size(sprite.m_size),
 m_vertices(sprite.m_vertices),
-m_boundingVolumeUpdated(sprite.m_boundingVolumeUpdated),
 m_verticesUpdated(sprite.m_verticesUpdated)
 {
 	SetParent(sprite.GetParent());
@@ -52,12 +48,14 @@ void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	renderQueue->AddSprites(m_material, m_vertices, 1);
 }
 
-const NzBoundingVolumef& NzSprite::GetBoundingVolume() const
+NzSprite* NzSprite::Clone() const
 {
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
+	return new NzSprite(*this);
+}
 
-	return m_boundingVolume;
+NzSprite* NzSprite::Create() const
+{
+	return new NzSprite;
 }
 
 const NzColor& NzSprite::GetColor() const
@@ -189,7 +187,6 @@ NzSprite& NzSprite::operator=(const NzSprite& sprite)
 	m_size = sprite.m_size;
 
 	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
-	m_boundingVolumeUpdated = false;
 	m_verticesUpdated = false;
 
 	return *this;
@@ -199,7 +196,6 @@ void NzSprite::InvalidateNode()
 {
 	NzSceneNode::InvalidateNode();
 
-	m_boundingVolumeUpdated = false;
 	m_verticesUpdated = false;
 }
 
@@ -213,21 +209,12 @@ void NzSprite::Unregister()
 {
 }
 
-void NzSprite::UpdateBoundingVolume() const
+void NzSprite::MakeBoundingVolume() const
 {
-	if (m_boundingVolume.IsNull())
-	{
-		NzVector3f down = m_scene->GetDown();
-		NzVector3f right = m_scene->GetRight();
+	NzVector3f down = (m_scene) ? m_scene->GetDown() : NzVector3f::Down();
+	NzVector3f right = (m_scene) ? m_scene->GetRight() : NzVector3f::Right();
 
-		m_boundingVolume.Set(NzVector3f(0.f), m_size.x*right + m_size.y*down);
-	}
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
+	m_boundingVolume.Set(NzVector3f(0.f), m_size.x*right + m_size.y*down);
 }
 
 void NzSprite::UpdateVertices() const
@@ -235,8 +222,8 @@ void NzSprite::UpdateVertices() const
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
-	NzVector3f down = m_scene->GetDown();
-	NzVector3f right = m_scene->GetRight();
+	NzVector3f down = (m_scene) ? m_scene->GetDown() : NzVector3f::Down();
+	NzVector3f right = (m_scene) ? m_scene->GetRight() : NzVector3f::Right();
 
 	m_vertices[0].color = m_color;
 	m_vertices[0].position = m_transformMatrix.Transform(NzVector3f(0.f));
