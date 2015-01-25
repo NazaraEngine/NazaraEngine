@@ -544,7 +544,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 									instanceMatrices += renderedInstanceCount;
 
 									// Et on affiche
-									InstancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+									instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 								}
 							}
 
@@ -598,7 +598,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 											NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 										// Et on passe à l'affichage
-										DrawFunc(meshData.primitiveMode, 0, indexCount);
+										drawFunc(meshData.primitiveMode, 0, indexCount);
 									}
 
 									NzRenderer::Enable(nzRendererParameter_Blend, false);
@@ -613,7 +613,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 								for (const NzMatrix4f& matrix : instances)
 								{
 									NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-									DrawFunc(meshData.primitiveMode, 0, indexCount);
+									drawFunc(meshData.primitiveMode, 0, indexCount);
 								}
 							}
 						}
@@ -706,7 +706,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 			NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 		NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-		DrawFunc(meshData.primitiveMode, 0, indexCount);
+		drawFunc(meshData.primitiveMode, 0, indexCount);
 	}
 }
 
