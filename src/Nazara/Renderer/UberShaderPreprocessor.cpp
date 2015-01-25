@@ -35,10 +35,9 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			// Une exception sera lancée à la moindre erreur et celle-ci ne sera pas enregistrée dans le log (car traitée dans le bloc catch)
 			NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowException, true);
 
-			std::unique_ptr<NzShader> shader(new NzShader);
-			shader->SetPersistent(false);
-
+			NzShaderRef shader = NzShader::New();
 			shader->Create();
+
 			for (unsigned int i = 0; i <= nzShaderStage_Max; ++i)
 			{
 				const Shader& shaderStage = m_shaders[i];
@@ -91,8 +90,7 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			shader->Link();
 
 			// On construit l'instant
-			shaderIt = m_cache.emplace(flags, shader.get()).first;
-			shader.release();
+			shaderIt = m_cache.emplace(flags, shader.Get()).first;
 		}
 		catch (const std::exception& e)
 		{

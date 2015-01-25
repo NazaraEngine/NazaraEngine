@@ -227,8 +227,7 @@ void NzVertexBuffer::Reset(const NzVertexDeclaration* vertexDeclaration, unsigne
 	m_startOffset = 0;
 	m_vertexCount = length;
 
-	m_buffer = new NzBuffer(nzBufferType_Vertex, m_endOffset, storage, usage);
-	m_buffer->SetPersistent(false);
+	m_buffer = NzBuffer::New(nzBufferType_Vertex, m_endOffset, storage, usage);
 	m_vertexDeclaration = vertexDeclaration;
 }
 

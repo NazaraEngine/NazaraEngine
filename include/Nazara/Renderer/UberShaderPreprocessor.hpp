@@ -9,11 +9,20 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
 #include <unordered_map>
+
+class NzUberShaderPreprocessor;
+
+using NzUberShaderPreprocessorConstListener = NzObjectListenerWrapper<const NzUberShaderPreprocessor>;
+using NzUberShaderPreprocessorConstRef = NzObjectRef<const NzUberShaderPreprocessor>;
+using NzUberShaderPreprocessorListener = NzObjectListenerWrapper<NzUberShaderPreprocessor>;
+using NzUberShaderPreprocessorRef = NzObjectRef<NzUberShaderPreprocessor>;
 
 class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 {
@@ -27,6 +36,7 @@ class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 		bool SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& shaderFlags, const NzString& requiredFlags = NzString());
 
 		static bool IsSupported();
+		template<typename... Args> static NzUberShaderPreprocessorRef New(Args&&... args);
 
 	private:
 		struct Shader
@@ -42,5 +52,7 @@ class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 		std::unordered_map<NzString, nzUInt32> m_flags;
 		Shader m_shaders[nzShaderStage_Max+1];
 };
+
+#include <Nazara/Renderer/UberShaderPreprocessor.inl>
 
 #endif // NAZARA_UBERSHADERPREPROCESSOR_HPP

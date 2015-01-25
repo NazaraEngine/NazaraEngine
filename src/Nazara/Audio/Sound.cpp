@@ -84,52 +84,40 @@ bool NzSound::IsPlaying() const
 
 bool NzSound::LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params)
 {
-	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
-	buffer->SetPersistent(false);
-
+	NzSoundBufferRef buffer = NzSoundBuffer::New();
 	if (!buffer->LoadFromFile(filePath, params))
 	{
 		NazaraError("Failed to load buffer from file (" + filePath + ')');
 		return false;
 	}
 
-	SetBuffer(buffer.get());
-	buffer.release();
-
+	SetBuffer(buffer);
 	return true;
 }
 
 bool NzSound::LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params)
 {
-	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
-	buffer->SetPersistent(false);
-
+	NzSoundBufferRef buffer = NzSoundBuffer::New();
 	if (!buffer->LoadFromMemory(data, size, params))
 	{
 		NazaraError("Failed to load buffer from memory (" + NzString::Pointer(data) + ')');
 		return false;
 	}
 
-	SetBuffer(buffer.get());
-	buffer.release();
-
+	SetBuffer(buffer);
 	return true;
 }
 
 bool NzSound::LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params)
 {
-	std::unique_ptr<NzSoundBuffer> buffer(new NzSoundBuffer);
-	buffer->SetPersistent(false);
-
+	NzSoundBufferRef buffer = NzSoundBuffer::New();
 	if (!buffer->LoadFromStream(stream, params))
 	{
 		NazaraError("Failed to load buffer from stream");
 		return false;
 	}
 
-	SetBuffer(buffer.get());
-	buffer.release();
-
+	SetBuffer(buffer);
 	return true;
 }
 

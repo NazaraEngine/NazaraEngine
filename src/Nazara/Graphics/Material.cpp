@@ -409,18 +409,14 @@ void NzMaterial::Reset()
 
 bool NzMaterial::SetAlphaMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetAlphaMap(texture.get());
-	texture.release();
-
+	SetAlphaMap(texture);
 	return true;
 }
 
@@ -453,18 +449,14 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 
 bool NzMaterial::SetDiffuseMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetDiffuseMap(texture.get());
-	texture.release();
-
+	SetDiffuseMap(texture);
 	return true;
 }
 
@@ -487,18 +479,14 @@ void NzMaterial::SetDstBlend(nzBlendFunc func)
 
 bool NzMaterial::SetEmissiveMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetEmissiveMap(texture.get());
-	texture.release();
-
+	SetEmissiveMap(texture);
 	return true;
 }
 
@@ -521,18 +509,14 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 
 bool NzMaterial::SetHeightMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetHeightMap(texture.get());
-	texture.release();
-
+	SetHeightMap(texture);
 	return true;
 }
 
@@ -545,18 +529,14 @@ void NzMaterial::SetHeightMap(NzTexture* map)
 
 bool NzMaterial::SetNormalMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetNormalMap(texture.get());
-	texture.release();
-
+	SetNormalMap(texture);
 	return true;
 }
 
@@ -601,18 +581,14 @@ void NzMaterial::SetSpecularColor(const NzColor& specular)
 
 bool NzMaterial::SetSpecularMap(const NzString& texturePath)
 {
-	std::unique_ptr<NzTexture> texture(new NzTexture);
+	NzTextureRef texture = NzTexture::New();
 	if (!texture->LoadFromFile(texturePath))
 	{
 		NazaraError("Failed to load texture from \"" + texturePath + '"');
 		return false;
 	}
 
-	texture->SetPersistent(false);
-
-	SetSpecularMap(texture.get());
-	texture.release();
-
+	SetSpecularMap(texture);
 	return true;
 }
 
@@ -734,8 +710,7 @@ bool NzMaterial::Initialize()
 
 	// Basic shader
 	{
-		std::unique_ptr<NzUberShaderPreprocessor> uberShader(new NzUberShaderPreprocessor);
-		uberShader->SetPersistent(false);
+		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
 
 		NzString fragmentShader;
 		NzString vertexShader;
@@ -753,14 +728,12 @@ bool NzMaterial::Initialize()
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
-		NzUberShaderLibrary::Register("Basic", uberShader.get());
-		uberShader.release();
+		NzUberShaderLibrary::Register("Basic", uberShader);
 	}
 
 	// PhongLighting shader
 	{
-		std::unique_ptr<NzUberShaderPreprocessor> uberShader(new NzUberShaderPreprocessor);
-		uberShader->SetPersistent(false);
+		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
 
 		NzString fragmentShader;
 		NzString vertexShader;
@@ -794,13 +767,10 @@ bool NzMaterial::Initialize()
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
-		NzUberShaderLibrary::Register("PhongLighting", uberShader.get());
-		uberShader.release();
+		NzUberShaderLibrary::Register("PhongLighting", uberShader);
 	}
 
-	s_defaultMaterial = new NzMaterial;
-	s_defaultMaterial->SetPersistent(true);
-
+	s_defaultMaterial = NzMaterial::New();
 	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
 	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
 
@@ -809,12 +779,10 @@ bool NzMaterial::Initialize()
 
 void NzMaterial::Uninitialize()
 {
+	s_defaultMaterial.Reset();
 	NzUberShaderLibrary::Unregister("PhongLighting");
 	NzUberShaderLibrary::Unregister("Basic");
-
-	s_defaultMaterial->SetPersistent(false, true);
-	s_defaultMaterial = nullptr;
 }
 
-NzMaterial* NzMaterial::s_defaultMaterial = nullptr;
+NzMaterialRef NzMaterial::s_defaultMaterial = nullptr;
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;

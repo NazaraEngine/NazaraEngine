@@ -53,6 +53,8 @@ class NAZARA_API NzSkeleton : public NzRefCounted
 
 		NzSkeleton& operator=(const NzSkeleton& skeleton);
 
+		template<typename... Args> static NzSkeletonRef New(Args&&... args);
+
 	private:
 		void InvalidateJoints();
 		void InvalidateJointMap();
@@ -60,5 +62,7 @@ class NAZARA_API NzSkeleton : public NzRefCounted
 
 		NzSkeletonImpl* m_impl = nullptr;
 };
+
+#include <Nazara/Utility/Skeleton.inl>
 
 #endif // NAZARA_SKELETON_HPP

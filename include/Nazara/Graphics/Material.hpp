@@ -134,6 +134,7 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		NzMaterial& operator=(const NzMaterial& material);
 
 		static NzMaterial* GetDefault();
+		template<typename... Args> static NzMaterialRef New(Args&&... args);
 
 	private:
 		struct ShaderInstance
@@ -172,8 +173,10 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		float m_alphaThreshold;
 		float m_shininess;
 
-		static NzMaterial* s_defaultMaterial;
+		static NzMaterialRef s_defaultMaterial;
 		static NzMaterialLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Graphics/Material.inl>
 
 #endif // NAZARA_MATERIAL_HPP

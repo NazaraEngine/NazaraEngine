@@ -97,6 +97,7 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 		unsigned int GetOpenGLID() const;
 
 		static bool IsStageSupported(nzShaderStage stage);
+		template<typename... Args> static NzShaderRef New(Args&&... args);
 
 	private:
 		bool PostLinkage();
@@ -106,5 +107,7 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 		int m_uniformLocations[nzShaderUniform_Max+1];
 		unsigned int m_program;
 };
+
+#include <Nazara/Renderer/Shader.inl>
 
 #endif // NAZARA_SHADER_HPP

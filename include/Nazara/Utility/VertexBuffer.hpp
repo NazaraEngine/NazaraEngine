@@ -62,6 +62,8 @@ class NAZARA_API NzVertexBuffer : public NzRefCounted
 
 		NzVertexBuffer& operator=(const NzVertexBuffer& vertexBuffer);
 
+		template<typename... Args> static NzVertexBufferRef New(Args&&... args);
+
 	private:
 		NzBufferRef m_buffer;
 		NzVertexDeclarationConstRef m_vertexDeclaration;
@@ -69,5 +71,7 @@ class NAZARA_API NzVertexBuffer : public NzRefCounted
 		unsigned int m_startOffset;
 		unsigned int m_vertexCount;
 };
+
+#include <Nazara/Utility/VertexBuffer.inl>
 
 #endif // NAZARA_VERTEXBUFFER_HPP

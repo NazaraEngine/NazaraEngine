@@ -12,7 +12,7 @@
 
 namespace
 {
-	NzShader* BuildFogShader()
+	NzShaderRef BuildFogShader()
 	{
 		/*const nzUInt8 fragmentSource[] = {
 				#include <Nazara/Graphics/Resources/DeferredShading/Shaders/FXAA.frag.h>
@@ -84,9 +84,7 @@ namespace
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShader> shader(new NzShader);
-		shader->SetPersistent(false);
-
+		NzShaderRef shader = NzShader::New();
 		if (!shader->Create())
 		{
 				NazaraError("Failed to load create shader");
@@ -114,7 +112,7 @@ namespace
 		shader->SendInteger(shader->GetUniformLocation("ColorTexture"), 0);
 		shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 1);
 
-		return shader.release();
+		return shader;
 	}
 }
 

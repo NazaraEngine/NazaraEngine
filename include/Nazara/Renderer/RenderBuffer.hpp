@@ -40,6 +40,7 @@ class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 		bool IsValid() const;
 
 		static bool IsSupported();
+		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
 
 	private:
 		nzPixelFormat m_pixelFormat;
@@ -47,5 +48,7 @@ class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 		unsigned int m_id;
 		unsigned int m_width;
 };
+
+#include <Nazara/Renderer/RenderBuffer.inl>
 
 #endif // NAZARA_RENDERBUFFER_HPP

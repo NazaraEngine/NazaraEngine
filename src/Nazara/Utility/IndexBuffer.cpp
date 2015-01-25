@@ -219,8 +219,7 @@ void NzIndexBuffer::Reset(bool largeIndices, unsigned int length, nzUInt32 stora
 	m_largeIndices = largeIndices;
 	m_startOffset = 0;
 
-	m_buffer = new NzBuffer(nzBufferType_Index, m_endOffset, storage, usage);
-	m_buffer->SetPersistent(false);
+	m_buffer = NzBuffer::New(nzBufferType_Index, m_endOffset, storage, usage);
 }
 
 void NzIndexBuffer::Reset(const NzIndexBuffer& indexBuffer)

@@ -45,13 +45,11 @@ m_lightMeshesDrawing(false)
 	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
 	m_pointSampler.SetWrapMode(nzSamplerWrap_Clamp);
 
-	m_cone = new NzMesh;
-	m_cone->SetPersistent(false);
+	m_cone = NzMesh::New();
 	m_cone->CreateStatic();
 	m_coneMesh = static_cast<NzStaticMesh*>(m_cone->BuildSubMesh(NzPrimitive::Cone(1.f, 1.f, 16, NzMatrix4f::Rotate(NzEulerAnglesf(90.f, 0.f, 0.f)))));
 
-	m_sphere = new NzMesh;
-	m_sphere->SetPersistent(false);
+	m_sphere = NzMesh::New();
 	m_sphere->CreateStatic();
 	m_sphereMesh = static_cast<NzStaticMesh*>(m_sphere->BuildSubMesh(NzPrimitive::IcoSphere(1.f, 1)));
 }

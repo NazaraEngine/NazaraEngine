@@ -184,22 +184,19 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 
 bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height)
 {
-	std::unique_ptr<NzRenderBuffer> renderBuffer(new NzRenderBuffer);
-	renderBuffer->SetPersistent(false);
-
+	NzRenderBufferRef renderBuffer = NzRenderBuffer::New();
 	if (!renderBuffer->Create(format, width, height))
 	{
 		NazaraError("Failed to create RenderBuffer");
 		return false;
 	}
 
-	if (!AttachBuffer(attachmentPoint, index, renderBuffer.get()))
+	if (!AttachBuffer(attachmentPoint, index, renderBuffer))
 	{
 		NazaraError("Failed to attach buffer");
 		return false;
 	}
 
-	renderBuffer.release();
 	return true;
 }
 

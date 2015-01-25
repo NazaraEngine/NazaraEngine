@@ -172,16 +172,14 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
     MeshMap::iterator it2 = meshMap.find(mesh);
     if (it2 == meshMap.end())
 	{
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer);
-		vertexBuffer->SetPersistent(false);
-		vertexBuffer->Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzDataStorage_Hardware, nzBufferUsage_Dynamic);
+		NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 
-		BufferData data({vertexBuffer.get(), true});
+		BufferData data({vertexBuffer, true});
 		meshMap.insert(std::make_pair(mesh, std::make_pair(NzSkeletalMeshConstListener(&listener, ObjectType_SkeletalMesh, mesh), data)));
 
-		s_skinningQueue.push_back(SkinningData{mesh, skeleton, vertexBuffer.get()});
+		s_skinningQueue.push_back(SkinningData{mesh, skeleton, vertexBuffer});
 
-		buffer = vertexBuffer.release();
+		buffer = vertexBuffer;
 	}
 	else
 	{

@@ -58,6 +58,7 @@ class NAZARA_API NzBuffer : public NzRefCounted, NzNonCopyable
 		void Unmap() const;
 
 		static bool IsStorageSupported(nzUInt32 storage);
+		template<typename... Args> static NzBufferRef New(Args&&... args);
 		static void SetBufferFactory(nzUInt32 storage, BufferFactory func);
 
 	private:
@@ -72,5 +73,7 @@ class NAZARA_API NzBuffer : public NzRefCounted, NzNonCopyable
 
 		static BufferFactory s_bufferFactories[nzDataStorage_Max+1];
 };
+
+#include <Nazara/Utility/Buffer.inl>
 
 #endif // NAZARA_BUFFER_HPP

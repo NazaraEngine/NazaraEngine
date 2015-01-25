@@ -64,6 +64,8 @@ class NAZARA_API NzIndexBuffer : public NzRefCounted
 
 		NzIndexBuffer& operator=(const NzIndexBuffer& indexBuffer);
 
+		template<typename... Args> static NzIndexBufferRef New(Args&&... args);
+
 	private:
 		NzBufferRef m_buffer;
 		bool m_largeIndices;
@@ -71,5 +73,7 @@ class NAZARA_API NzIndexBuffer : public NzRefCounted
 		unsigned int m_indexCount;
 		unsigned int m_startOffset;
 };
+
+#include <Nazara/Utility/IndexBuffer.inl>
 
 #endif // NAZARA_INDEXBUFFER_HPP
