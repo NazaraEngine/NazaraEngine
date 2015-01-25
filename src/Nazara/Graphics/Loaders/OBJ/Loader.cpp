@@ -163,6 +163,9 @@ namespace
 			subMesh->SetMaterialIndex(meshes[i].material);
 			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
+			if (parameters.mesh.center)
+				subMesh->Center();
+
 			// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();
@@ -172,18 +175,6 @@ namespace
 				subMesh->GenerateNormals();
 
 			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh);
-		}
-
-		if (parameters.mesh.center)
-		{
-			unsigned int subMeshCount = mesh->GetSubMeshCount();
-            for (unsigned int i = 0; i < subMeshCount; ++i)
-			{
-				NzStaticMesh* subMesh = static_cast<NzStaticMesh*>(mesh->GetSubMesh(i));
-				subMesh->Center();
-			}
-
-			mesh->InvalidateAABB();
 		}
 
 		mesh->SetMaterialCount(parser.GetMaterialCount());
