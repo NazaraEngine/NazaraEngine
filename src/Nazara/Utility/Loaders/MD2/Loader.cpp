@@ -225,10 +225,10 @@ namespace
 		subMesh->SetIndexBuffer(indexBuffer);
 		subMesh->SetMaterialIndex(0);
 
-		if (parameters.center)
-			subMesh->Center();
-
 		mesh->AddSubMesh(subMesh);
+
+		if (parameters.center)
+			mesh->Recenter();
 
 		return true;
 	}
