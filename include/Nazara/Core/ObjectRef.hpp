@@ -23,6 +23,7 @@ class NzObjectRef
 		NzObjectRef(NzObjectRef&& ref) noexcept;
 		~NzObjectRef();
 
+		T* Get() const;
 		bool IsValid() const;
 		T* Release();
 		bool Reset(T* object = nullptr);

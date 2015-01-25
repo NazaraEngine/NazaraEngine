@@ -41,10 +41,14 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		void SetAABB(const NzBoxf& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
+		template<typename... Args> static NzSkeletalMeshRef New(Args&&... args);
+
 	private:
 		NzBoxf m_aabb;
 		NzIndexBufferConstRef m_indexBuffer = nullptr;
 		NzVertexBufferRef m_vertexBuffer = nullptr;
 };
+
+#include <Nazara/Utility/SkeletalMesh.inl>
 
 #endif // NAZARA_SKELETALMESH_HPP

@@ -96,14 +96,11 @@ void NzSprite::SetColor(const NzColor& color)
 
 void NzSprite::SetDefaultMaterial()
 {
-	std::unique_ptr<NzMaterial> material(new NzMaterial);
+	NzMaterialRef material = NzMaterial::New();
 	material->Enable(nzRendererParameter_FaceCulling, false);
 	material->EnableLighting(false);
 
-	SetMaterial(material.get());
-
-	material->SetPersistent(false);
-	material.release();
+	SetMaterial(material);
 }
 
 void NzSprite::SetMaterial(NzMaterial* material, bool resizeSprite)
@@ -137,10 +134,7 @@ void NzSprite::SetTexture(NzTexture* texture, bool resizeSprite)
 	if (!m_material)
 		SetDefaultMaterial();
 	else if (m_material->GetReferenceCount() > 1)
-	{
-		m_material = new NzMaterial(*m_material);
-		m_material->SetPersistent(false);
-	}
+		m_material = NzMaterial::New(*m_material); // Copie
 
 	m_material->SetDiffuseMap(texture);
 	if (resizeSprite && texture && texture->IsValid())

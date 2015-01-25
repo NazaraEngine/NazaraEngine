@@ -41,6 +41,7 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 
 		static NzVertexDeclaration* Get(nzVertexLayout layout);
 		static bool IsTypeSupported(nzComponentType type);
+		template<typename... Args> static NzVertexDeclarationRef New(Args&&... args);
 
 	private:
 		static bool Initialize();
@@ -66,5 +67,7 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 
 		static NzVertexDeclaration s_declarations[nzVertexLayout_Max+1];
 };
+
+#include <Nazara/Utility/VertexDeclaration.hpp>
 
 #endif // NAZARA_VERTEXDECLARATION_HPP

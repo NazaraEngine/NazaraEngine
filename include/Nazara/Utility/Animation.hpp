@@ -80,10 +80,14 @@ class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 		void RemoveSequence(const NzString& sequenceName);
 		void RemoveSequence(unsigned int index);
 
+		template<typename... Args> static NzAnimationRef New(Args&&... args);
+
 	private:
 		NzAnimationImpl* m_impl = nullptr;
 
 		static NzAnimationLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Utility/Animation.inl>
 
 #endif // NAZARA_ANIMATION_HPP

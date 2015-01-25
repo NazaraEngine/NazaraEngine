@@ -22,9 +22,7 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		std::unique_ptr<NzTexture> texture(new NzTexture);
-		texture->SetPersistent(false);
-
+		NzTextureRef texture = NzTexture::New();
 		if (!texture->LoadFromStream(stream))
 		{
 			NazaraError("Failed to load diffuse map");
@@ -32,9 +30,7 @@ namespace
 		}
 
 		material->Reset();
-		material->SetDiffuseMap(texture.get());
-		texture.release();
-
+		material->SetDiffuseMap(texture);
 		material->SetShader(parameters.shaderName);
 
 		return true;

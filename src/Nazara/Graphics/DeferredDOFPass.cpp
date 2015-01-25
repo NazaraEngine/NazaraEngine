@@ -14,7 +14,7 @@
 namespace
 {
 	// http://digitalerr0r.wordpress.com/2009/05/16/xna-shader-programming-tutorial-20-depth-of-field/
-	NzShader* BuildDepthOfFieldShader()
+	NzShaderRef BuildDepthOfFieldShader()
 	{
 		const char* fragmentSource =
 		"#version 140\n"
@@ -63,9 +63,7 @@ namespace
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
-		std::unique_ptr<NzShader> shader(new NzShader);
-		shader->SetPersistent(false);
-
+		NzShaderRef shader = NzShader::New();
 		if (!shader->Create())
 		{
 				NazaraError("Failed to load create shader");
@@ -90,7 +88,7 @@ namespace
 				return nullptr;
 		}
 
-		return shader.release();
+		return shader;
 	}
 }
 
@@ -105,10 +103,7 @@ NzDeferredDOFPass::NzDeferredDOFPass()
 	m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
 	for (unsigned int i = 0; i < 2; ++i)
-	{
-		m_dofTextures[i] = new NzTexture;
-		m_dofTextures[i]->SetPersistent(false);
-	}
+		m_dofTextures[i] = NzTexture::New();
 
 	m_bilinearSampler.SetAnisotropyLevel(1);
 	m_bilinearSampler.SetFilterMode(nzSamplerFilter_Bilinear);

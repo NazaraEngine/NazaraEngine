@@ -45,10 +45,14 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh
 		void SetAABB(const NzBoxf& aabb);
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
+		template<typename... Args> static NzStaticMeshRef New(Args&&... args);
+
 	private:
 		NzBoxf m_aabb;
 		NzIndexBufferConstRef m_indexBuffer = nullptr;
 		NzVertexBufferRef m_vertexBuffer = nullptr;
 };
+
+#include <Nazara/Utility/StaticMesh.inl>
 
 #endif // NAZARA_STATICMESH_HPP

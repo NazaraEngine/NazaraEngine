@@ -123,10 +123,14 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 
 		void Transform(const NzMatrix4f& matrix);
 
+		template<typename... Args> static NzMeshRef New(Args&&... args);
+
 	private:
 		NzMeshImpl* m_impl = nullptr;
 
 		static NzMeshLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Utility/Mesh.inl>
 
 #endif // NAZARA_MESH_HPP

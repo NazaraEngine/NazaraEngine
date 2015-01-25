@@ -102,8 +102,7 @@ namespace
 
 		/// Chargement des submesh
 		// Actuellement le loader ne charge qu'un submesh
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, header.num_tris * 3, parameters.storage, nzBufferUsage_Static));
-		indexBuffer->SetPersistent(false);
+		NzIndexBufferRef indexBuffer = NzIndexBuffer::New(false, header.num_tris*3, parameters.storage, nzBufferUsage_Static);
 
 		/// Lecture des triangles
 		std::vector<MD2_Triangle> triangles(header.num_tris);
@@ -111,7 +110,7 @@ namespace
 		stream.SetCursorPos(header.offset_tris);
 		stream.Read(&triangles[0], header.num_tris*sizeof(MD2_Triangle));
 
-		NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+		NzBufferMapper<NzIndexBuffer> indexMapper(indexBuffer, nzBufferAccess_DiscardAndWrite);
 		nzUInt16* index = reinterpret_cast<nzUInt16*>(indexMapper.GetPointer());
 
 		for (unsigned int i = 0; i < header.num_tris; ++i)
@@ -127,13 +126,16 @@ namespace
 			NzByteSwap(&triangles[i].texCoords[2], sizeof(nzUInt16));
 			#endif
 
-			// On respécifie le triangle dans le bon ordre
+			// On respécifie le triangle dans l'ordre attendu
 			*index++ = triangles[i].vertices[0];
 			*index++ = triangles[i].vertices[2];
 			*index++ = triangles[i].vertices[1];
 		}
 
 		indexMapper.Unmap();
+
+		if (parameters.optimizeIndexBuffers)
+			indexBuffer->Optimize();
 
 		/// Lecture des coordonnées de texture
 		std::vector<MD2_TexCoord> texCoords(header.num_st);
@@ -149,19 +151,13 @@ namespace
 		}
 		#endif
 
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, nzBufferUsage_Static));
-		std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
-		if (!subMesh->Create(vertexBuffer.get()))
+		NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, nzBufferUsage_Static);
+		NzStaticMeshRef subMesh = NzStaticMesh::New(mesh);
+		if (!subMesh->Create(vertexBuffer))
 		{
 			NazaraError("Failed to create SubMesh");
 			return false;
 		}
-
-		if (parameters.optimizeIndexBuffers)
-			indexBuffer->Optimize();
-
-		subMesh->SetIndexBuffer(indexBuffer.get());
-		indexBuffer.release();
 
 		/// Chargement des vertices
 		stream.SetCursorPos(header.offset_frames);
@@ -189,7 +185,7 @@ namespace
 		scale *= s;
 		translate *= s;
 
-		NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+		NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_DiscardAndWrite);
 		NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
 
 		/// Chargement des coordonnées de texture
@@ -224,17 +220,15 @@ namespace
 
 		vertexMapper.Unmap();
 
-		vertexBuffer->SetPersistent(false);
-		vertexBuffer.release();
-
 		subMesh->GenerateAABB();
 		subMesh->GenerateTangents();
+		subMesh->SetIndexBuffer(indexBuffer);
 		subMesh->SetMaterialIndex(0);
 
 		if (parameters.center)
 			subMesh->Center();
 
-		mesh->AddSubMesh(subMesh.release());
+		mesh->AddSubMesh(subMesh);
 
 		return true;
 	}
