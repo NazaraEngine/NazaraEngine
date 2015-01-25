@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,11 +14,16 @@ class NAZARA_API NzResource
 {
 	public:
 		NzResource() = default;
+		NzResource(const NzResource&) = default;
+		NzResource(NzResource&&) = default;
 		virtual ~NzResource();
 
-		NzString GetFilePath() const;
+		const NzString& GetFilePath() const;
 
 		void SetFilePath(const NzString& filePath);
+
+		NzResource& operator=(const NzResource&) = default;
+		NzResource& operator=(NzResource&&) = default;
 
 	private:
 		NzString m_filePath;

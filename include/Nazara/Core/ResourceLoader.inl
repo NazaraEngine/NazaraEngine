@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -123,9 +123,77 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 template<typename Type, typename Parameters>
 bool NzResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
 {
+	#if NAZARA_CORE_SAFE
+	if (!parameters.IsValid())
+	{
+		NazaraError("Invalid parameters");
+		return false;
+	}
+
+	if (size == 0)
+	{
+		NazaraError("No data to load");
+		return false;
+	}
+	#endif
+
 	NzMemoryStream stream(data, size);
 
-	return LoadFromStream(resource, stream, parameters);
+	bool found = false;
+	for (Loader& loader : Type::s_loaders)
+	{
+		StreamChecker checkFunc = std::get<1>(loader);
+		StreamLoader streamLoader = std::get<2>(loader);
+		MemoryLoader memoryLoader = std::get<4>(loader);
+
+		nzTernary recognized = nzTernary_Unknown;
+		if (memoryLoader)
+		{
+			if (checkFunc)
+			{
+				stream.SetCursorPos(0);
+
+				recognized = checkFunc(stream, parameters);
+				if (recognized == nzTernary_False)
+					continue;
+				else
+					found = true;
+			}
+			else
+			{
+				recognized = nzTernary_Unknown;
+				found = true;
+			}
+
+			if (memoryLoader(resource, data, size, parameters))
+				return true;
+		}
+		else
+		{
+			stream.SetCursorPos(0);
+
+			recognized = checkFunc(stream, parameters);
+			if (recognized == nzTernary_False)
+				continue;
+			else if (recognized == nzTernary_True)
+				found = true;
+
+			stream.SetCursorPos(0);
+
+			if (streamLoader(resource, stream, parameters))
+				return true;
+		}
+
+		if (recognized == nzTernary_True)
+			NazaraWarning("Loader failed");
+	}
+
+	if (found)
+		NazaraError("Failed to load file: all loaders failed");
+	else
+		NazaraError("Failed to load file: no loader found");
+
+	return false;
 }
 
 template<typename Type, typename Parameters>
@@ -181,7 +249,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, NzInputS
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader)
+void NzResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
 {
 	#if NAZARA_CORE_SAFE
 	if (streamLoader)
@@ -192,20 +260,20 @@ void NzResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensio
 			return;
 		}
 	}
-	else if (!fileLoader)
+	else if (!fileLoader && !memoryLoader)
 	{
-		NazaraError("Neither FileLoader nor StreamLoader were present");
+		NazaraError("Neither FileLoader nor MemoryLoader nor StreamLoader were present");
 		return;
 	}
 	#endif
 
-	Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader));
+	Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
 }
 
 template<typename Type, typename Parameters>
-void NzResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader)
+void NzResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
 {
-	Type::s_loaders.remove(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader));
+	Type::s_loaders.remove(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
 }
 
 #include <Nazara/Core/DebugOff.hpp>

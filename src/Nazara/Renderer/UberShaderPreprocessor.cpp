@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,7 +32,8 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 	{
 		try
 		{
-			NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowException);
+			// Une exception sera lancée à la moindre erreur et celle-ci ne sera pas enregistrée dans le log (car traitée dans le bloc catch)
+			NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowException, true);
 
 			std::unique_ptr<NzShader> shader(new NzShader);
 			shader->SetPersistent(false);
@@ -42,7 +43,8 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			{
 				const Shader& shaderStage = m_shaders[i];
 
-				if (shaderStage.present)
+				// Le shader stage est-il activé dans cette version du shader ?
+				if (shaderStage.present && (flags & shaderStage.requiredFlags) == shaderStage.requiredFlags)
 				{
 					nzUInt32 stageFlags = 0;
 					for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
@@ -73,49 +75,46 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 						for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
 							code << "#define " << it->first << ' ' << ((stageFlags & it->second) ? '1' : '0') << '\n';
 
-						code << "\n#line 1\n";
+						code << "\n#line 1\n"; // Pour que les éventuelles erreurs du shader se réfèrent à la bonne ligne
 						code << shaderStage.source;
 
 						stage.SetSource(code);
 						stage.Compile();
 
-						shader->AttachStage(static_cast<nzShaderStage>(i), stage);
-
-						shaderStage.cache.emplace(flags, std::move(stage));
+						stageIt = shaderStage.cache.emplace(flags, std::move(stage)).first;
 					}
-					else
-						shader->AttachStage(static_cast<nzShaderStage>(i), stageIt->second);
+
+					shader->AttachStage(static_cast<nzShaderStage>(i), stageIt->second);
 				}
 			}
 
 			shader->Link();
 
-			auto pair = m_cache.emplace(flags, shader.get());
+			// On construit l'instant
+			shaderIt = m_cache.emplace(flags, shader.get()).first;
 			shader.release();
-
-			return &(pair.first)->second; // On retourne l'objet construit
 		}
 		catch (const std::exception& e)
 		{
 			NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
 
-			NazaraError("Failed to build uber shader instance: " + NzError::GetLastError());
+			NazaraError("Failed to build UberShader instance: " + NzError::GetLastError());
 			throw;
 		}
-
 	}
-	else
-		return &shaderIt->second;
+
+	return &shaderIt->second;
 }
 
-void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& source, const NzString& flagString)
+void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& source, const NzString& shaderFlags, const NzString& requiredFlags)
 {
     Shader& shader = m_shaders[stage];
     shader.present = true;
     shader.source = source;
 
+    // On extrait les flags de la chaîne
     std::vector<NzString> flags;
-    flagString.Split(flags, ' ');
+    shaderFlags.Split(flags, ' ');
 
     for (NzString& flag : flags)
 	{
@@ -127,9 +126,31 @@ void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& so
 		if (it2 == shader.flags.end())
 			shader.flags[flag] = 1U << shader.flags.size();
 	}
+
+	// On construit les flags requis pour l'activation du shader
+	shader.requiredFlags = 0;
+
+	flags.clear();
+	requiredFlags.Split(flags, ' ');
+
+    for (NzString& flag : flags)
+	{
+		nzUInt32 flagVal;
+
+		auto it = m_flags.find(flag);
+		if (it == m_flags.end())
+		{
+			flagVal = 1U << m_flags.size();
+			m_flags[flag] = flagVal;
+		}
+		else
+			flagVal = it->second;
+
+		shader.requiredFlags |= flagVal;
+	}
 }
 
-bool NzUberShaderPreprocessor::SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& flags)
+bool NzUberShaderPreprocessor::SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& shaderFlags, const NzString& requiredFlags)
 {
 	NzFile file(filePath);
 	if (!file.Open(NzFile::ReadOnly | NzFile::Text))
@@ -150,7 +171,7 @@ bool NzUberShaderPreprocessor::SetShaderFromFile(nzShaderStage stage, const NzSt
 
 	file.Close();
 
-	SetShader(stage, source, flags);
+	SetShader(stage, source, shaderFlags, requiredFlags);
 	return true;
 }
 

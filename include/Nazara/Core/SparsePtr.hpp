@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,30 +10,49 @@
 ///FIXME: Est-ce que SparsePtr est vraiment le meilleur nom pour cette classe ?
 
 #include <Nazara/Prerequesites.hpp>
+#include <cstddef>
+#include <type_traits>
 
 template<typename T>
 class NzSparsePtr
 {
 	public:
+		using BytePtr = typename std::conditional<std::is_const<T>::value, const nzUInt8*, nzUInt8*>::type;
+		using VoidPtr = typename std::conditional<std::is_const<T>::value, const void*, void*>::type;
+
 		NzSparsePtr();
-		NzSparsePtr(void* ptr, unsigned int stride);
+		NzSparsePtr(T* ptr);
+		NzSparsePtr(VoidPtr ptr, int stride);
+		template<typename U> NzSparsePtr(const NzSparsePtr<U>& ptr);
 		NzSparsePtr(const NzSparsePtr& ptr) = default;
 		~NzSparsePtr() = default;
 
-		void* Get() const;
-		unsigned int GetStride() const;
-		void Set(void* ptr);
-		void SetStride(unsigned int stride);
+		VoidPtr GetPtr() const;
+		int GetStride() const;
 
+		void Reset();
+		void Reset(T* ptr);
+		void Reset(VoidPtr ptr, int stride);
+		void Reset(const NzSparsePtr& ptr);
+		template<typename U> void Reset(const NzSparsePtr<U>& ptr);
+
+		void SetPtr(VoidPtr ptr);
+		void SetStride(int stride);
+
+		operator bool() const;
+		operator T*() const;
 		T& operator*() const;
 		T& operator->() const;
-		T& operator[](unsigned int index) const;
+		T& operator[](int index) const;
 
+		NzSparsePtr operator+(int count) const;
 		NzSparsePtr operator+(unsigned int count) const;
+		NzSparsePtr operator-(int count) const;
 		NzSparsePtr operator-(unsigned int count) const;
+		std::ptrdiff_t operator-(const NzSparsePtr& ptr) const;
 
-		NzSparsePtr& operator+=(unsigned int count);
-		NzSparsePtr& operator-=(unsigned int count);
+		NzSparsePtr& operator+=(int count);
+		NzSparsePtr& operator-=(int count);
 
 		NzSparsePtr& operator++();
 		NzSparsePtr operator++(int);
@@ -51,8 +70,8 @@ class NzSparsePtr
 		NzSparsePtr& operator=(const NzSparsePtr& ptr) = default;
 
 	private:
-		nzUInt8* m_ptr;
-		unsigned int m_stride;
+		BytePtr m_ptr;
+		int m_stride;
 };
 
 #include <Nazara/Core/SparsePtr.inl>

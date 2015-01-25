@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
@@ -117,32 +117,32 @@ NzBox<T>& NzBox<T>::ExtendTo(const NzVector3<T>& point)
 }
 
 template<typename T>
-NzVector3<T> NzBox<T>::GetCorner(nzCorner corner) const
+NzVector3<T> NzBox<T>::GetCorner(nzBoxCorner corner) const
 {
 	switch (corner)
 	{
-		case nzCorner_FarLeftBottom:
+		case nzBoxCorner_FarLeftBottom:
 			return NzVector3<T>(x, y, z);
 
-		case nzCorner_FarLeftTop:
+		case nzBoxCorner_FarLeftTop:
 			return NzVector3<T>(x, y + height, z);
 
-		case nzCorner_FarRightBottom:
+		case nzBoxCorner_FarRightBottom:
 			return NzVector3<T>(x + width, y, z);
 
-		case nzCorner_FarRightTop:
+		case nzBoxCorner_FarRightTop:
 			return NzVector3<T>(x + width, y + height, z);
 
-		case nzCorner_NearLeftBottom:
+		case nzBoxCorner_NearLeftBottom:
 			return NzVector3<T>(x, y, z + depth);
 
-		case nzCorner_NearLeftTop:
+		case nzBoxCorner_NearLeftTop:
 			return NzVector3<T>(x, y + height, z + depth);
 
-		case nzCorner_NearRightBottom:
+		case nzBoxCorner_NearRightBottom:
 			return NzVector3<T>(x + width, y, z + depth);
 
-		case nzCorner_NearRightTop:
+		case nzBoxCorner_NearRightTop:
 			return NzVector3<T>(x + width, y + height, z + depth);
 	}
 
@@ -247,27 +247,30 @@ bool NzBox<T>::Intersect(const NzBox& box, NzBox* intersection) const
 {
 	T left = std::max(x, box.x);
 	T right = std::min(x + width, box.x + box.width);
+	if (left >= right)
+		return false;
+
 	T top = std::max(y, box.y);
 	T bottom = std::min(y + height, box.y + box.height);
+	if (top >= bottom)
+		return false;
+
 	T up = std::max(z, box.z);
 	T down = std::min(z + depth, box.z + box.depth);
-
-	if (left < right && top < bottom && up < down)
-	{
-		if (intersection)
-		{
-			intersection->x = left;
-			intersection->y = top;
-			intersection->z = up;
-			intersection->width = right - left;
-			intersection->height = bottom - top;
-			intersection->depth = down - up;
-		}
-
-		return true;
-	}
-	else
+	if (up >= down)
 		return false;
+
+	if (intersection)
+	{
+		intersection->x = left;
+		intersection->y = top;
+		intersection->z = up;
+		intersection->width = right - left;
+		intersection->height = bottom - top;
+		intersection->depth = down - up;
+	}
+
+	return true;
 }
 
 template<typename T>

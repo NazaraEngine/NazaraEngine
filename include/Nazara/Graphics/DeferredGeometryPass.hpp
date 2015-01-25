@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,6 +22,18 @@ class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 		bool Resize(const NzVector2ui& dimensions);
 
 	protected:
+		struct ShaderUniforms;
+
+		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+
+		struct ShaderUniforms
+		{
+			int eyePosition;
+			int sceneAmbient;
+			int textureOverlay;
+		};
+
+		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
 		NzRenderStates m_clearStates;
 		NzShaderRef m_clearShader;
 };

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,8 @@
 
 #ifndef NAZARA_MATRIX4_HPP
 #define NAZARA_MATRIX4_HPP
+
+///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
@@ -38,12 +40,14 @@ class NzMatrix4
 		NzMatrix4& Concatenate(const NzMatrix4& matrix);
 		NzMatrix4& ConcatenateAffine(const NzMatrix4& matrix);
 
+		NzVector4<T> GetColumn(unsigned int column) const;
 		T GetDeterminant() const;
 		T GetDeterminantAffine() const;
 		bool GetInverse(NzMatrix4* dest) const;
 		bool GetInverseAffine(NzMatrix4* dest) const;
 		NzQuaternion<T> GetRotation() const;
 		//NzMatrix3 GetRotationMatrix() const;
+		NzVector4<T> GetRow(unsigned int row) const;
 		NzVector3<T> GetScale() const;
 		NzVector3<T> GetTranslation() const;
 		void GetTransposed(NzMatrix4* dest) const;

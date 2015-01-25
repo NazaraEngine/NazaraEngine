@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -768,14 +768,6 @@ void SHA256_End(SHA_CTX* context, nzUInt8* digest)
 void SHA224_Init(SHA_CTX* context)
 {
 	SHA256_Internal_Init(context, sha224_initial_hash_value);
-}
-
-namespace
-{
-	void SHA224_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
-	{
-		SHA256_Internal_Transform(context, data);
-	}
 }
 
 void SHA224_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)

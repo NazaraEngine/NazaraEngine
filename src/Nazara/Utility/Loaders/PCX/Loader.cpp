@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -287,7 +287,7 @@ namespace
 					/* for each color plane */
 					for (int c = 0; c < 3; ++c)
 					{
-						nzUInt8* ptr = &pixels[y * width * 4];
+						nzUInt8* ptr = &pixels[y * width * 3];
 						int bytes = header.bytesPerScanLine;
 
 						/* decode line number y */
@@ -324,7 +324,7 @@ namespace
 			}
 
 			default:
-				NazaraError("Failed to load " + NzString::Number(bitCount) + " bitcount pcx files");
+				NazaraError("Unsupported " + NzString::Number(bitCount) + " bitcount for pcx files");
 				return false;
 		}
 

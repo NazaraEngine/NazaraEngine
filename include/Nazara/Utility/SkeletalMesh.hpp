@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,12 +8,15 @@
 #define NAZARA_SKELETALMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzSkeletalMesh;
 
+using NzSkeletalMeshConstListener = NzObjectListenerWrapper<const NzSkeletalMesh>;
 using NzSkeletalMeshConstRef = NzObjectRef<const NzSkeletalMesh>;
+using NzSkeletalMeshListener = NzObjectListenerWrapper<NzSkeletalMesh>;
 using NzSkeletalMeshRef = NzObjectRef<NzSkeletalMesh>;
 
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh

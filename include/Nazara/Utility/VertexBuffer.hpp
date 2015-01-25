@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_VERTEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -15,17 +16,19 @@
 
 class NzVertexBuffer;
 
+using NzVertexBufferConstListener = NzObjectListenerWrapper<const NzVertexBuffer>;
 using NzVertexBufferConstRef = NzObjectRef<NzVertexBuffer>;
+using NzVertexBufferListener = NzObjectListenerWrapper<NzVertexBuffer>;
 using NzVertexBufferRef = NzObjectRef<NzVertexBuffer>;
 
 class NAZARA_API NzVertexBuffer : public NzRefCounted
 {
 	public:
 		NzVertexBuffer() = default;
+		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
 		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
-		NzVertexBuffer(NzVertexBuffer&& vertexBuffer) noexcept;
 		~NzVertexBuffer();
 
 		bool Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard = false);
@@ -47,18 +50,17 @@ class NAZARA_API NzVertexBuffer : public NzRefCounted
 		void* MapRaw(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
 		void Reset();
+		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
 		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		void Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		void Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Reset(const NzVertexBuffer& vertexBuffer);
-		void Reset(NzVertexBuffer&& vertexBuffer) noexcept;
 
-		bool SetStorage(nzBufferStorage storage);
+		bool SetStorage(nzUInt32 storage);
 		void SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
 
 		void Unmap() const;
 
 		NzVertexBuffer& operator=(const NzVertexBuffer& vertexBuffer);
-		NzVertexBuffer& operator=(NzVertexBuffer&& vertexBuffer) noexcept;
 
 	private:
 		NzBufferRef m_buffer;

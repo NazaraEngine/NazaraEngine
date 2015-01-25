@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -123,7 +123,7 @@ NzEulerAngles<T> NzEulerAngles<T>::operator-(const NzEulerAngles& angles) const
 }
 
 template<typename T>
-NzEulerAngles<T> NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
+NzEulerAngles<T>& NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
 {
 	pitch += angles.pitch;
 	yaw += angles.yaw;
@@ -133,7 +133,7 @@ NzEulerAngles<T> NzEulerAngles<T>::operator+=(const NzEulerAngles& angles)
 }
 
 template<typename T>
-NzEulerAngles<T> NzEulerAngles<T>::operator-=(const NzEulerAngles& angles)
+NzEulerAngles<T>& NzEulerAngles<T>::operator-=(const NzEulerAngles& angles)
 {
 	pitch -= angles.pitch;
 	yaw -= angles.yaw;

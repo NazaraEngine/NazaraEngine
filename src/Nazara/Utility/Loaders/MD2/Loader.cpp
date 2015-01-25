@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,7 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -200,7 +200,10 @@ namespace
 			{
 				const unsigned int fixedIndex = indexFix[j];
 				const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
-				vertex[triangles[i].vertices[fixedIndex]].uv.Set(static_cast<float>(texC.u) / header.skinwidth, 1.f - static_cast<float>(texC.v)/header.skinheight);
+				float u = static_cast<float>(texC.u) / header.skinwidth;
+				float v = static_cast<float>(texC.v) / header.skinheight;
+
+				vertex[triangles[i].vertices[fixedIndex]].uv.Set(u, (parameters.flipUVs) ? 1.f - v : v);
 			}
 		}
 

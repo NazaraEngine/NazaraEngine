@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -25,13 +25,13 @@
 
 NzMeshParams::NzMeshParams()
 {
-	if (!NzBuffer::IsSupported(storage))
-		storage = nzBufferStorage_Software;
+	if (!NzBuffer::IsStorageSupported(storage))
+		storage = nzDataStorage_Software;
 }
 
 bool NzMeshParams::IsValid() const
 {
-	if (!NzBuffer::IsSupported(storage))
+	if (!NzBuffer::IsStorageSupported(storage))
 	{
 		NazaraError("Storage not supported");
 		return false;
@@ -55,7 +55,7 @@ struct NzMeshImpl
 
 	std::unordered_map<NzString, unsigned int> subMeshMap;
 	std::vector<NzString> materials;
-	std::vector<NzSubMesh*> subMeshes;
+	std::vector<NzSubMeshRef> subMeshes;
 	nzAnimationType animationType;
 	NzBoxf aabb;
 	NzSkeleton skeleton; // Uniquement pour les meshs squelettiques
@@ -90,9 +90,6 @@ void NzMesh::AddSubMesh(NzSubMesh* subMesh)
 		return;
 	}
 	#endif
-
-	subMesh->AddObjectListener(this, m_impl->subMeshes.size());
-	subMesh->AddReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -134,9 +131,6 @@ void NzMesh::AddSubMesh(const NzString& identifier, NzSubMesh* subMesh)
 	#endif
 
 	int index = m_impl->subMeshes.size();
-
-	subMesh->AddObjectListener(this, index);
-	subMesh->AddReference();
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
 	m_impl->subMeshes.push_back(subMesh);
@@ -370,12 +364,6 @@ void NzMesh::Destroy()
 	if (m_impl)
 	{
 		NotifyDestroy();
-
-		for (NzSubMesh* subMesh : m_impl->subMeshes)
-		{
-			subMesh->RemoveObjectListener(this);
-			subMesh->RemoveReference();
-		}
 
 		delete m_impl;
 		m_impl = nullptr;
@@ -863,12 +851,6 @@ void NzMesh::RemoveSubMesh(const NzString& identifier)
 	// On déplace l'itérateur du début d'une distance de x
 	auto it2 = m_impl->subMeshes.begin();
 	std::advance(it2, index);
-
-	// On libère la ressource
-	NzSubMesh* subMesh = *it2;
-	subMesh->RemoveObjectListener(this);
-	subMesh->RemoveReference();
-
 	m_impl->subMeshes.erase(it2);
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
@@ -893,12 +875,6 @@ void NzMesh::RemoveSubMesh(unsigned int index)
 	// On déplace l'itérateur du début de x
 	auto it = m_impl->subMeshes.begin();
 	std::advance(it, index);
-
-	// On libère la ressource
-	NzSubMesh* subMesh = *it;
-	subMesh->RemoveObjectListener(this);
-	subMesh->RemoveReference();
-
 	m_impl->subMeshes.erase(it);
 
 	m_impl->aabbUpdated = false; // On invalide l'AABB
@@ -1009,13 +985,6 @@ void NzMesh::Transform(const NzMatrix4f& matrix)
 
 	// Il ne faut pas oublier d'invalider notre AABB
 	m_impl->aabbUpdated = false;
-}
-
-void NzMesh::OnObjectReleased(const NzRefCounted* object, int index)
-{
-	NazaraUnused(object);
-
-	RemoveSubMesh(index);
 }
 
 NzMeshLoader::LoaderList NzMesh::s_loaders;

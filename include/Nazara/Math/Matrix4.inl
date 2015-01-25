@@ -1,10 +1,10 @@
-﻿// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -142,6 +142,25 @@ NzMatrix4<T>& NzMatrix4<T>::ConcatenateAffine(const NzMatrix4& matrix)
 	           m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + matrix.m42,
 	           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
 	           F(1.0));
+}
+
+template<typename T>
+NzVector4<T> NzMatrix4<T>::GetColumn(unsigned int column) const
+{
+	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
+
+	#if NAZARA_MATH_SAFE
+	if (column > 3)
+	{
+		NzStringStream ss;
+		ss << "Row out of range: (" << column << ") > 3";
+
+		throw std::out_of_range(ss.ToString());
+	}
+	#endif
+
+	T* ptr = (&m11) + column*4;
+	return NzVector4<T>(ptr);
 }
 
 template<typename T>
@@ -445,6 +464,25 @@ NzQuaternion<T> NzMatrix4<T>::GetRotation() const
 }
 
 template<typename T>
+NzVector4<T> NzMatrix4<T>::GetRow(unsigned int row) const
+{
+	///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
+
+	#if NAZARA_MATH_SAFE
+	if (row > 3)
+	{
+		NzStringStream ss;
+		ss << "Column out of range: (" << row << ") > 3";
+
+		throw std::out_of_range(ss.ToString());
+	}
+	#endif
+
+	T* ptr = &m11;
+	return NzVector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
+}
+
+template<typename T>
 NzVector3<T> NzMatrix4<T>::GetScale() const
 {
 	return NzVector3<T>(std::sqrt(m11*m11 + m21*m21 + m31*m31),
@@ -524,9 +562,9 @@ template<typename T>
 bool NzMatrix4<T>::IsIdentity() const
 {
 	return (NzNumberEquals(m11, F(1.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(1.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(1.0)) && NzNumberEquals(m14, F(0.0)) &&
-	        NzNumberEquals(m11, F(0.0)) && NzNumberEquals(m12, F(0.0)) && NzNumberEquals(m13, F(0.0)) && NzNumberEquals(m14, F(1.0)));
+	        NzNumberEquals(m21, F(0.0)) && NzNumberEquals(m22, F(1.0)) && NzNumberEquals(m23, F(0.0)) && NzNumberEquals(m24, F(0.0)) &&
+	        NzNumberEquals(m31, F(0.0)) && NzNumberEquals(m32, F(0.0)) && NzNumberEquals(m33, F(1.0)) && NzNumberEquals(m34, F(0.0)) &&
+	        NzNumberEquals(m41, F(0.0)) && NzNumberEquals(m42, F(0.0)) && NzNumberEquals(m43, F(0.0)) && NzNumberEquals(m44, F(1.0)));
 }
 
 template<typename T>
@@ -639,8 +677,6 @@ NzMatrix4<T>& NzMatrix4<T>::MakeTransform(const NzVector3<T>& translation, const
 	m24 = F(0.0);
 	m34 = F(0.0);
 	m44 = F(1.0);
-
-	// Pas besoin de mettre à jour l'identité (Déjà fait par Set*)
 
 	return *this;
 }
@@ -818,7 +854,6 @@ NzVector4<T> NzMatrix4<T>::Transform(const NzVector4<T>& vector) const
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Transpose()
 {
-	// N'affecte pas l'identité (La transposée d'une matrice identité est la matrice identité elle-même)
 	std::swap(m12, m21);
 	std::swap(m13, m31);
 	std::swap(m14, m41);

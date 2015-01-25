@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,6 +12,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -26,7 +27,9 @@ struct NzSoundBufferParams
 class NzSound;
 class NzSoundBuffer;
 
+using NzSoundBufferConstListener = NzObjectListenerWrapper<const NzSoundBuffer>;
 using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
+using NzSoundBufferListener = NzObjectListenerWrapper<NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
 

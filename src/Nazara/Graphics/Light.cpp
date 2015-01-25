@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Camera.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
@@ -14,11 +14,11 @@
 #include <Nazara/Graphics/Debug.hpp>
 
 ///TODO: Utilisation des UBOs
+///TODO: Scale ?
 
 NzLight::NzLight(nzLightType type) :
 m_type(type),
 m_color(NzColor::White),
-m_boundingVolumeUpdated(false),
 m_ambientFactor((type == nzLightType_Directional) ? 0.2f : 0.f),
 m_attenuation(0.9f),
 m_diffuseFactor(1.f),
@@ -31,9 +31,7 @@ m_radius(5.f)
 NzLight::NzLight(const NzLight& light) :
 NzSceneNode(light),
 m_type(light.m_type),
-m_boundingVolume(light.m_boundingVolume),
 m_color(light.m_color),
-m_boundingVolumeUpdated(light.m_boundingVolumeUpdated),
 m_ambientFactor(light.m_ambientFactor),
 m_attenuation(light.m_attenuation),
 m_diffuseFactor(light.m_diffuseFactor),
@@ -41,12 +39,22 @@ m_innerAngle(light.m_innerAngle),
 m_outerAngle(light.m_outerAngle),
 m_radius(light.m_radius)
 {
-	SetParent(light);
+	SetParent(light.GetParent());
 }
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 {
 	renderQueue->AddLight(this);
+}
+
+NzLight* NzLight::Clone() const
+{
+	return new NzLight(*this);
+}
+
+NzLight* NzLight::Create() const
+{
+	return new NzLight;
 }
 
 void NzLight::Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset) const
@@ -110,14 +118,6 @@ float NzLight::GetAmbientFactor() const
 float NzLight::GetAttenuation() const
 {
 	return m_attenuation;
-}
-
-const NzBoundingVolumef& NzLight::GetBoundingVolume() const
-{
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return m_boundingVolume;
 }
 
 NzColor NzLight::GetColor() const
@@ -251,11 +251,45 @@ bool NzLight::FrustumCull(const NzFrustumf& frustum) const
 	return false;
 }
 
-void NzLight::InvalidateNode()
+void NzLight::MakeBoundingVolume() const
 {
-	NzSceneNode::InvalidateNode();
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			m_boundingVolume.MakeInfinite();
+			break;
 
-	m_boundingVolumeUpdated = false;
+		case nzLightType_Point:
+		{
+			NzVector3f radius(m_radius);
+			m_boundingVolume.Set(-radius, radius);
+			break;
+		}
+
+		case nzLightType_Spot:
+		{
+			// On forme une boite sur l'origine
+			NzBoxf box(NzVector3f::Zero());
+
+			// On calcule le reste des points
+			NzVector3f base(NzVector3f::Forward()*m_radius);
+
+			// Il nous faut maintenant le rayon du cercle projeté à cette distance
+			// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
+			float radius = m_radius*std::tan(NzDegreeToRadian(m_outerAngle));
+			NzVector3f lExtend = NzVector3f::Left()*radius;
+			NzVector3f uExtend = NzVector3f::Up()*radius;
+
+			// Et on ajoute ensuite les quatres extrémités de la pyramide
+			box.ExtendTo(base + lExtend + uExtend);
+			box.ExtendTo(base + lExtend - uExtend);
+			box.ExtendTo(base - lExtend + uExtend);
+			box.ExtendTo(base - lExtend - uExtend);
+
+			m_boundingVolume.Set(box);
+			break;
+		}
+	}
 }
 
 void NzLight::Register()
@@ -269,46 +303,7 @@ void NzLight::Unregister()
 void NzLight::UpdateBoundingVolume() const
 {
 	if (m_boundingVolume.IsNull())
-	{
-		switch (m_type)
-		{
-			case nzLightType_Directional:
-				m_boundingVolume.MakeInfinite();
-				m_boundingVolumeUpdated = true;
-				return; // Rien d'autre à faire
-
-			case nzLightType_Point:
-			{
-				NzVector3f radius(m_radius);
-				m_boundingVolume.Set(-radius, radius);
-				break;
-			}
-
-			case nzLightType_Spot:
-			{
-				// On forme une boite sur l'origine
-				NzBoxf box(NzVector3f::Zero());
-
-				// On calcule le reste des points
-				NzVector3f base(NzVector3f::Forward()*m_radius);
-
-				// Il nous faut maintenant le rayon du cercle projeté à cette distance
-				// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
-				float radius = m_radius*std::tan(NzDegreeToRadian(m_outerAngle));
-				NzVector3f lExtend = NzVector3f::Left()*radius;
-				NzVector3f uExtend = NzVector3f::Up()*radius;
-
-				// Et on ajoute ensuite les quatres extrémités de la pyramide
-				box.ExtendTo(base + lExtend + uExtend);
-				box.ExtendTo(base + lExtend - uExtend);
-				box.ExtendTo(base - lExtend + uExtend);
-				box.ExtendTo(base - lExtend - uExtend);
-
-				m_boundingVolume.Set(box);
-				break;
-			}
-		}
-	}
+		MakeBoundingVolume();
 
 	switch (m_type)
 	{

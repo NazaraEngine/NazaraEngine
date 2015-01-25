@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -37,27 +37,27 @@ NzVector2<T>::NzVector2(const NzVector2<U>& vec)
 }
 
 template<typename T>
+NzVector2<T>::NzVector2(const NzVector3<T>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
+NzVector2<T>::NzVector2(const NzVector4<T>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
 T NzVector2<T>::AbsDotProduct(const NzVector2& vec) const
 {
-	return std::fabs(x * vec.x) + std::fabs(y * vec.y);
-}
-
-template<>
-inline int NzVector2<int>::AbsDotProduct(const NzVector2<int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y);
-}
-
-template<>
-inline unsigned int NzVector2<unsigned int>::AbsDotProduct(const NzVector2<unsigned int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y);
+	return std::abs(x * vec.x) + std::abs(y * vec.y);
 }
 
 template<typename T>
 T NzVector2<T>::AngleBetween(const NzVector2& vec) const
 {
-	return NzRadians(std::atan2(vec.y, vec.x) - std::atan2(y, x));
+	return NzFromRadians(std::atan2(vec.y, vec.x) - std::atan2(y, x));
 }
 
 template<typename T>
@@ -150,11 +150,13 @@ NzVector2<T>& NzVector2<T>::Minimize(const NzVector2& vec)
 template<typename T>
 NzVector2<T>& NzVector2<T>::Normalize(T* length)
 {
-	T norm = std::sqrt(GetSquaredLength());
-	T invNorm = F(1.0) / norm;
-
-	x *= invNorm;
-	y *= invNorm;
+	T norm = GetLength();
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+		x *= invNorm;
+		y *= invNorm;
+	}
 
 	if (length)
 		*length = norm;
@@ -202,6 +204,24 @@ NzVector2<T>& NzVector2<T>::Set(const NzVector2<U>& vec)
 {
 	x = F(vec.x);
 	y = F(vec.y);
+
+	return *this;
+}
+
+template<typename T>
+NzVector2<T>& NzVector2<T>::Set(const NzVector3<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
+
+	return *this;
+}
+
+template<typename T>
+NzVector2<T>& NzVector2<T>::Set(const NzVector4<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
 
 	return *this;
 }
