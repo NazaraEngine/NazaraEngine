@@ -27,6 +27,8 @@ class NzSceneNode;
 
 class NAZARA_API NzScene
 {
+	friend NzSceneNode;
+
 	public:
 		NzScene();
 		~NzScene() = default;
@@ -88,6 +90,7 @@ class NAZARA_API NzScene
 		operator const NzSceneNode&() const;
 
 	private:
+		bool ChangeNodeName(NzSceneNode* node, const NzString& newName);
 		bool RegisterSceneNode(const NzString& name, NzSceneNode* node);
 		void RecursiveFrustumCull(NzAbstractRenderQueue* renderQueue, const NzFrustumf& frustum, NzNode* node);
 
