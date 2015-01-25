@@ -144,6 +144,14 @@ bool NzSceneNode::IsVisible() const
 	return m_visible;
 }
 
+void NzSceneNode::Remove()
+{
+	if (m_scene)
+		m_scene->RemoveNode(this);
+	else
+		NazaraError("SceneNode::Remove() called on a template node");
+}
+
 bool NzSceneNode::SetName(const NzString& name)
 {
 	if (m_scene)
