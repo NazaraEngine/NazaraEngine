@@ -52,6 +52,8 @@ class NAZARA_API NzSceneNode : public NzNode
 		bool IsDrawingEnabled() const;
 		bool IsVisible() const;
 
+		void Remove();
+
 		bool SetName(const NzString& name);
 
 		NzSceneNode& operator=(const NzSceneNode& sceneNode);
