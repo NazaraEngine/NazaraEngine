@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
@@ -104,6 +105,16 @@ void NzSkeletalModel::AdvanceAnimation(float elapsedTime)
 	m_animation->AnimateSkeleton(&m_skeleton, m_currentFrame, m_nextFrame, m_interpolation);
 
 	InvalidateBoundingVolume();
+}
+
+NzSkeletalModel* NzSkeletalModel::Clone() const
+{
+	return new NzSkeletalModel(*this);
+}
+
+NzSkeletalModel* NzSkeletalModel::Create() const
+{
+	return new NzSkeletalModel;
 }
 
 void NzSkeletalModel::EnableAnimation(bool animation)
@@ -317,6 +328,11 @@ NzSkeletalModel& NzSkeletalModel::operator=(NzSkeletalModel&& node)
 	return *this;
 }
 
+void NzSkeletalModel::MakeBoundingVolume() const
+{
+	m_boundingVolume.Set(m_skeleton.GetAABB());
+}
+
 void NzSkeletalModel::Register()
 {
 	m_scene->RegisterForUpdate(this);
@@ -331,18 +347,6 @@ void NzSkeletalModel::Update()
 {
 	if (m_animationEnabled && m_animation)
 		AdvanceAnimation(m_scene->GetUpdateTime());
-}
-
-void NzSkeletalModel::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-		m_boundingVolume.Set(m_skeleton.GetAABB());
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
 }
 
 NzSkeletalModelLoader::LoaderList NzSkeletalModel::s_loaders;
