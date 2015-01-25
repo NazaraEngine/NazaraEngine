@@ -278,14 +278,14 @@ namespace
 				subMesh->GenerateNormalsAndTangents();
 				subMesh->SetMaterialIndex(i);
 
-				if (parameters.center)
-					subMesh->Center();
-
 				mesh->AddSubMesh(subMesh);
 
 				// Material
 				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
 			}
+
+			if (parameters.center)
+				mesh->Recenter();
 		}
 
 		return true;
