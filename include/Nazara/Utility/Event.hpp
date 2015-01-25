@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 #ifndef NAZARA_EVENT_HPP
 #define NAZARA_EVENT_HPP
 
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 

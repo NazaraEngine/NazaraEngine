@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -123,11 +123,6 @@ NzVector3f NzNode::GetLeft() const
 		UpdateDerived();
 
 	return m_derivedRotation * NzVector3f::Left();
-}
-
-const NzString& NzNode::GetName() const
-{
-	return m_name;
 }
 
 nzNodeType NzNode::GetNodeType() const
@@ -270,7 +265,7 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 		}
 
 		case nzCoordSys_Local:
-			m_position += m_scale * (m_rotation * movement);
+			m_position += m_rotation * movement;
 			break;
 	}
 
@@ -411,11 +406,6 @@ void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
 	m_initialScale.Set(scaleX, scaleY, scaleZ);
 
 	InvalidateNode();
-}
-
-void NzNode::SetName(const NzString& name)
-{
-	m_name = name;
 }
 
 void NzNode::SetParent(const NzNode* node, bool keepDerived)
@@ -621,7 +611,6 @@ NzNode& NzNode::operator=(const NzNode& node)
 	m_initialPosition = node.m_initialPosition;
 	m_initialRotation = node.m_initialRotation;
 	m_initialScale = node.m_initialScale;
-	m_name = node.m_name;
 	m_position = node.m_position;
 	m_rotation = node.m_rotation;
 	m_scale = node.m_scale;
@@ -685,7 +674,7 @@ void NzNode::UpdateDerived() const
 			m_derivedRotation.Normalize();
 		}
 		else
-			m_derivedRotation = m_initialRotation * m_rotation; ///FIXME: Besoin d'une normalisation ?
+			m_derivedRotation = m_initialRotation * m_rotation;
 
 		m_derivedScale = m_initialScale * m_scale;
 		if (m_inheritScale)

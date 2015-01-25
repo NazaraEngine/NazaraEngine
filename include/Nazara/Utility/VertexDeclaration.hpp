@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,13 +8,16 @@
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzVertexDeclaration;
 
+using NzVertexDeclarationConstListener = NzObjectListenerWrapper<const NzVertexDeclaration>;
 using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
+using NzVertexDeclarationListener = NzObjectListenerWrapper<NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
 
 class NAZARA_API NzVertexDeclaration : public NzRefCounted
@@ -45,9 +48,9 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 
 		struct Component
 		{
-			nzComponentType type;
-			bool enabled = false;
-			unsigned int offset;
+			nzComponentType type; // Le type de donnée
+			bool enabled = false; // Ce composant est-il activé ?/
+			unsigned int offset;  // La position, en octets, de la première donnée
 
 			/*
 			** -Lynix:

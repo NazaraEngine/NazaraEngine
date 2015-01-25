@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
+// Copyright (C) 2015 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -204,9 +204,9 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* 
 template<typename T>
 bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* farthestHit) const
 {
-    NzVector3<T> width = (orientedBox.GetCorner(nzCorner_NearLeftBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> height = (orientedBox.GetCorner(nzCorner_FarLeftTop) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> depth = (orientedBox.GetCorner(nzCorner_FarRightBottom) - orientedBox.GetCorner(nzCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> width = (orientedBox.GetCorner(nzBoxCorner_NearLeftBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> height = (orientedBox.GetCorner(nzBoxCorner_FarLeftTop) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
+    NzVector3<T> depth = (orientedBox.GetCorner(nzBoxCorner_FarRightBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
 
 	// Construction de la matrice de transformation de l'OBB
 	NzMatrix4<T> matrix(width.x, height.x, depth.x, F(0.0),
@@ -225,7 +225,7 @@ bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
 	if (NzNumberEquals(divisor, F(0.0)))
 		return false; // perpendicular
 
-	T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax+by+cz=d
+	T lambda = -(plane.normal.DotProduct(origin) + plane.distance) / divisor; // The plane is ax+by+cz=d
 	if (lambda < F(0.0))
 		return false; // Le plan est derrière le rayon
 

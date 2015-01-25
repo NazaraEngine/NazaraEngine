@@ -23,6 +23,8 @@ class NAZARA_API NzRefCounted
 {
 	public:
 		NzRefCounted(bool persistent = true);
+		NzRefCounted(const NzRefCounted&) = delete;
+		NzRefCounted(NzRefCounted&&) = delete;
 		virtual ~NzRefCounted();
 
 		void AddObjectListener(NzObjectListener* listener, int index = 0) const;
@@ -36,6 +38,9 @@ class NAZARA_API NzRefCounted
 		bool RemoveReference() const;
 
 		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
+
+		NzRefCounted& operator=(const NzRefCounted&) = delete;
+		NzRefCounted& operator=(NzRefCounted&&) = delete;
 
 	protected:
 		void NotifyCreated();

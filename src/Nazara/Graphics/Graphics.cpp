@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,13 +9,16 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
 #include <Nazara/Graphics/Loaders/OBJ.hpp>
 #include <Nazara/Graphics/Loaders/Texture.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 bool NzGraphics::Initialize()
@@ -44,6 +47,12 @@ bool NzGraphics::Initialize()
 		return false;
 	}
 
+	if (!NzParticleDeclaration::Initialize())
+	{
+		NazaraError("Failed to initialize particle declarations");
+		return false;
+	}
+
 	if (!NzSkinningManager::Initialize())
 	{
 		NazaraError("Failed to initialize skinning manager");
@@ -58,13 +67,25 @@ bool NzGraphics::Initialize()
 	NzLoaders_Texture_Register();
 
 	// RenderTechniques
+	if (!NzForwardRenderTechnique::Initialize())
+	{
+		NazaraError("Failed to initialize Forward Rendering");
+		return false;
+	}
+
 	NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_BasicForward), 0, []() -> NzAbstractRenderTechnique* { return new NzForwardRenderTechnique; });
 
 	if (NzDeferredRenderTechnique::IsSupported())
 	{
-		NzDeferredRenderTechnique::Initialize();
-		NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
+		if (NzDeferredRenderTechnique::Initialize())
+			NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
+		else
+		{
+			NazaraWarning("Failed to initialize Deferred Rendering");
+		}
 	}
+
+	NzFont::SetDefaultAtlas(std::make_shared<NzGuillotineTextureAtlas>());
 
 	onExit.Reset();
 
@@ -91,13 +112,40 @@ void NzGraphics::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	// Libération de l'atlas s'il vient de nous
+	std::shared_ptr<NzAbstractAtlas> defaultAtlas = NzFont::GetDefaultAtlas();
+	if (defaultAtlas && defaultAtlas->GetStorage() & nzDataStorage_Hardware)
+	{
+		NzFont::SetDefaultAtlas(nullptr);
+
+		// La police par défaut peut faire vivre un atlas hardware après la libération du module (ce qui va être problématique)
+		// du coup, si la police par défaut utilise un atlas hardware, on lui enlève.
+		// Je n'aime pas cette solution mais je n'en ai pas de meilleure sous la main pour l'instant
+		if (!defaultAtlas.unique())
+		{
+			// Encore au moins une police utilise l'atlas
+			NzFont* defaultFont = NzFont::GetDefault();
+			defaultFont->SetAtlas(nullptr);
+
+			if (!defaultAtlas.unique())
+			{
+				// Toujours pas seuls propriétaires ? Ah ben zut.
+				NazaraWarning("Default font atlas uses hardware storage and is still used");
+			}
+		}
+	}
+
+	defaultAtlas.reset();
+
 	// Loaders
 	NzLoaders_Mesh_Unregister();
 	NzLoaders_OBJ_Unregister();
 	NzLoaders_Texture_Unregister();
 
 	NzDeferredRenderTechnique::Uninitialize();
+	NzForwardRenderTechnique::Uninitialize();
 	NzMaterial::Uninitialize();
+	NzParticleDeclaration::Uninitialize();
 	NzSkinningManager::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");

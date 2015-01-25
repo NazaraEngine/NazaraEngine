@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_CONTEXT_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
@@ -16,7 +17,9 @@
 
 class NzContext;
 
+using NzContextConstListener = NzObjectListenerWrapper<const NzContext>;
 using NzContextConstRef = NzObjectRef<const NzContext>;
+using NzContextListener = NzObjectListenerWrapper<NzContext>;
 using NzContextRef = NzObjectRef<NzContext>;
 
 class NzContextImpl;

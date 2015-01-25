@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -15,6 +15,12 @@ template<typename T>
 NzVector3<T>::NzVector3(T X, T Y, T Z)
 {
 	Set(X, Y, Z);
+}
+
+template<typename T>
+NzVector3<T>::NzVector3(T X, const NzVector2<T>& vec)
+{
+	Set(X, vec);
 }
 
 template<typename T>
@@ -43,21 +49,15 @@ NzVector3<T>::NzVector3(const NzVector3<U>& vec)
 }
 
 template<typename T>
+NzVector3<T>::NzVector3(const NzVector4<T>& vec)
+{
+	Set(vec);
+}
+
+template<typename T>
 T NzVector3<T>::AbsDotProduct(const NzVector3& vec) const
 {
-	return std::fabs(x * vec.x) + std::fabs(y * vec.y) + std::fabs(z * vec.z);
-}
-
-template<>
-inline int NzVector3<int>::AbsDotProduct(const NzVector3<int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z);
-}
-
-template<>
-inline unsigned int NzVector3<unsigned int>::AbsDotProduct(const NzVector3<unsigned int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z);
+	return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z);
 }
 
 template<typename T>
@@ -77,7 +77,7 @@ T NzVector3<T>::AngleBetween(const NzVector3& vec) const
 	#endif
 
 	T alpha = DotProduct(vec)/divisor;
-	return NzRadians(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
+	return NzFromRadians(std::acos(NzClamp(alpha, F(-1.0), F(1.0))));
 }
 
 template<typename T>
@@ -231,11 +231,13 @@ template<typename T>
 NzVector3<T>& NzVector3<T>::Normalize(T* length)
 {
 	T norm = GetLength();
-	T invNorm = F(1.0) / norm;
-
-	x *= invNorm;
-	y *= invNorm;
-	z *= invNorm;
+	if (norm > F(0.0))
+	{
+		T invNorm = F(1.0) / norm;
+		x *= invNorm;
+		y *= invNorm;
+		z *= invNorm;
+	}
 
 	if (length)
 		*length = norm;
@@ -249,6 +251,16 @@ NzVector3<T>& NzVector3<T>::Set(T X, T Y, T Z)
 	x = X;
 	y = Y;
 	z = Z;
+
+	return *this;
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::Set(T X, const NzVector2<T>& vec)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
 
 	return *this;
 }
@@ -296,6 +308,16 @@ NzVector3<T>& NzVector3<T>::Set(const NzVector3<U>& vec)
 	x = F(vec.x);
 	y = F(vec.y);
 	z = F(vec.z);
+
+	return *this;
+}
+
+template<typename T>
+NzVector3<T>& NzVector3<T>::Set(const NzVector4<T>& vec)
+{
+	x = vec.x;
+	y = vec.y;
+	z = vec.z;
 
 	return *this;
 }

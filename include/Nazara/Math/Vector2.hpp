@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,9 @@
 #define NAZARA_VECTOR2_HPP
 
 #include <Nazara/Core/String.hpp>
+
+template<typename T> class NzVector3;
+template<typename T> class NzVector4;
 
 template<typename T>
 class NzVector2
@@ -19,6 +22,8 @@ class NzVector2
 		NzVector2(const T vec[2]);
 		template<typename U> explicit NzVector2(const NzVector2<U>& vec);
 		NzVector2(const NzVector2& vec) = default;
+		explicit NzVector2(const NzVector3<T>& vec);
+		explicit NzVector2(const NzVector4<T>& vec);
 		~NzVector2() = default;
 
 		T AbsDotProduct(const NzVector2& vec) const;
@@ -48,6 +53,8 @@ class NzVector2
 		NzVector2& Set(T scale);
 		NzVector2& Set(const T vec[2]);
 		NzVector2& Set(const NzVector2& vec);
+		NzVector2& Set(const NzVector3<T>& vec);
+		NzVector2& Set(const NzVector4<T>& vec);
 		template<typename U> NzVector2& Set(const NzVector2<U>& vec);
 
 		T SquaredDistance(const NzVector2& vec) const;

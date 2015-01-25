@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,7 +9,7 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -2785,35 +2785,19 @@ NzString& NzString::Set(const char* string, unsigned int length)
 
 NzString& NzString::Set(const std::string& string)
 {
-	if (string.size() > 0)
-	{
-		if (m_sharedString->capacity >= string.size())
-			EnsureOwnership(true);
-		else
-		{
-			ReleaseString();
-
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = string.size();
-			m_sharedString->string = new char[string.size()+1];
-		}
-
-		m_sharedString->size = string.size();
-		std::memcpy(m_sharedString->string, string.c_str(), string.size()+1);
-	}
-	else
-		ReleaseString();
-
-	return *this;
+	return Set(string.data(), string.size());
 }
 
 NzString& NzString::Set(const NzString& string)
 {
-	ReleaseString();
+	if (this != &string)
+	{
+		ReleaseString();
 
-	m_sharedString = string.m_sharedString;
-	if (m_sharedString != &emptyString)
-		m_sharedString->refCount++;
+		m_sharedString = string.m_sharedString;
+		if (m_sharedString != &emptyString)
+			m_sharedString->refCount++;
+	}
 
 	return *this;
 }

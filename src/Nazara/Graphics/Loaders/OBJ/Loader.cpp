@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -61,6 +61,8 @@ namespace
 		for (unsigned int i = 0; i < meshCount; ++i)
 		{
 			unsigned int faceCount = meshes[i].faces.size();
+			if (faceCount == 0)
+				continue;
 
 			std::vector<unsigned int> indices;
 			indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
@@ -97,6 +99,7 @@ namespace
 				}
 			}
 
+			// Création des buffers
 			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(vertexCount > std::numeric_limits<nzUInt16>::max(), indices.size(), parameters.mesh.storage, nzBufferUsage_Static));
 			indexBuffer->SetPersistent(false);
 
@@ -108,7 +111,7 @@ namespace
 			for (unsigned int j = 0; j < indices.size(); ++j)
 				indexMapper.Set(j, indices[j]);
 
-			indexMapper.Unmap();
+			indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
 			// Remplissage des vertices
 			bool hasNormals = true;
@@ -139,7 +142,7 @@ namespace
 						if (index >= 0)
 						{
 							const NzVector3f& uvw = texCoords[index];
-							vertex.uv.Set(uvw.x, uvw.y);
+							vertex.uv.Set(uvw.x, (parameters.mesh.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
 						}
 						else
 							hasTexCoords = false;
@@ -167,9 +170,7 @@ namespace
 			subMesh->SetMaterialIndex(meshes[i].material);
 			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
-			if (parameters.mesh.center)
-				subMesh->Center();
-
+			// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();
 			else if (hasTexCoords)
@@ -179,6 +180,18 @@ namespace
 
 			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh.get());
 			subMesh.release();
+		}
+
+		if (parameters.mesh.center)
+		{
+			unsigned int subMeshCount = mesh->GetSubMeshCount();
+            for (unsigned int i = 0; i < subMeshCount; ++i)
+			{
+				NzStaticMesh* subMesh = static_cast<NzStaticMesh*>(mesh->GetSubMesh(i));
+				subMesh->Center();
+			}
+
+			mesh->InvalidateAABB();
 		}
 
 		mesh->SetMaterialCount(parser.GetMaterialCount());

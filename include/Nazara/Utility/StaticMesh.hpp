@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,11 +8,15 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzStaticMesh;
 
+using NzStaticMeshConstListener = NzObjectListenerWrapper<const NzStaticMesh>;
 using NzStaticMeshConstRef = NzObjectRef<const NzStaticMesh>;
+using NzStaticMeshListener = NzObjectListenerWrapper<NzStaticMesh>;
 using NzStaticMeshRef = NzObjectRef<NzStaticMesh>;
 
 class NAZARA_API NzStaticMesh final : public NzSubMesh

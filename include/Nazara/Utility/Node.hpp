@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,39 +24,38 @@ class NAZARA_API NzNode
 		void EnsureDerivedUpdate() const;
 		void EnsureTransformMatrixUpdate() const;
 
-		NzVector3f GetBackward() const;
+		virtual NzVector3f GetBackward() const;
 		const std::vector<NzNode*>& GetChilds() const;
-		NzVector3f GetDown() const;
-		NzVector3f GetForward() const;
+		virtual NzVector3f GetDown() const;
+		virtual NzVector3f GetForward() const;
 		bool GetInheritPosition() const;
 		bool GetInheritRotation() const;
 		bool GetInheritScale() const;
 		NzVector3f GetInitialPosition() const;
 		NzQuaternionf GetInitialRotation() const;
 		NzVector3f GetInitialScale() const;
-		NzVector3f GetLeft() const;
-		const NzString& GetName() const;
+		virtual NzVector3f GetLeft() const;
 		virtual nzNodeType GetNodeType() const;
 		const NzNode* GetParent() const;
 		NzVector3f GetPosition(nzCoordSys coordSys = nzCoordSys_Global) const;
-		NzVector3f GetRight() const;
+		virtual NzVector3f GetRight() const;
 		NzQuaternionf GetRotation(nzCoordSys coordSys = nzCoordSys_Global) const;
 		NzVector3f GetScale(nzCoordSys coordSys = nzCoordSys_Global) const;
 		const NzMatrix4f& GetTransformMatrix() const;
-		NzVector3f GetUp() const;
+		virtual NzVector3f GetUp() const;
 
 		bool HasChilds() const;
 
 		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation, nzCoordSys coordSys = nzCoordSys_Global);
 
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
-		NzNode& Move(float movementX, float movementY, float movementZ, nzCoordSys coordSys = nzCoordSys_Local);
+		NzNode& Move(float movementX, float movementY, float movementZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Scale(const NzVector3f& scale);
 		NzNode& Scale(float scale);
-		NzNode& Scale(float scaleX, float scaleY, float scaleZ);
+		NzNode& Scale(float scaleX, float scaleY, float scaleZ = 1.f);
 
 		void SetInheritRotation(bool inheritRotation);
 		void SetInheritScale(bool inheritScale);
@@ -64,18 +63,17 @@ class NAZARA_API NzNode
 		void SetInitialRotation(const NzQuaternionf& quat);
 		void SetInitialScale(const NzVector3f& scale);
 		void SetInitialScale(float scale);
-		void SetInitialScale(float scaleX, float scaleY, float scaleZ);
+		void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
 		void SetInitialPosition(const NzVector3f& translation);
-		void SetInitialPosition(float translationX, float translationXY, float translationZ);
-		void SetName(const NzString& name);
+		void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
 		void SetParent(const NzNode* node = nullptr, bool keepDerived = false);
 		void SetParent(const NzNode& node, bool keepDerived = false);
 		void SetPosition(const NzVector3f& translation, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetPosition(float translationX, float translationXY, float translationZ, nzCoordSys coordSys = nzCoordSys_Local);
+		void SetPosition(float translationX, float translationY, float translationZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetRotation(const NzQuaternionf& quat, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetScale(float scaleX, float scaleY, float scaleZ, nzCoordSys coordSys = nzCoordSys_Local);
+		void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, nzCoordSys coordSys = nzCoordSys_Local);
 		void SetTransformMatrix(const NzMatrix4f& matrix);
 
 		// Local -> global
@@ -95,7 +93,7 @@ class NAZARA_API NzNode
 		virtual void InvalidateNode();
 		virtual void OnParenting(const NzNode* parent);
 		void RemoveChild(NzNode* node) const;
-		void UpdateDerived() const;
+		virtual void UpdateDerived() const;
 		virtual void UpdateTransformMatrix() const;
 
 		mutable std::vector<NzNode*> m_childs;
@@ -103,7 +101,6 @@ class NAZARA_API NzNode
 		mutable NzQuaternionf m_derivedRotation;
 		NzQuaternionf m_initialRotation;
 		NzQuaternionf m_rotation;
-		NzString m_name;
 		mutable NzVector3f m_derivedPosition;
 		mutable NzVector3f m_derivedScale;
 		NzVector3f m_initialPosition;

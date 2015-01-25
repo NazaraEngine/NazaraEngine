@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,14 +15,69 @@ namespace
 
 	nzTernary Check(NzInputStream& stream, const NzAnimationParams& parameters)
 	{
-		NzMD5AnimParser parser(stream, parameters);
+		NazaraUnused(parameters);
+
+		NzMD5AnimParser parser(stream);
 		return parser.Check();
 	}
 
 	bool Load(NzAnimation* animation, NzInputStream& stream, const NzAnimationParams& parameters)
 	{
-		NzMD5AnimParser parser(stream, parameters);
-		return parser.Parse(animation);
+		///TODO: Utiliser les paramètres
+		NzMD5AnimParser parser(stream);
+
+		if (!parser.Parse())
+		{
+			NazaraError("MD5Anim parser failed");
+			return false;
+		}
+
+		const NzMD5AnimParser::Frame* frames = parser.GetFrames();
+		unsigned int frameCount = parser.GetFrameCount();
+		unsigned int frameRate = parser.GetFrameRate();
+		const NzMD5AnimParser::Joint* joints = parser.GetJoints();
+		unsigned int jointCount = parser.GetJointCount();
+
+		// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
+		animation->CreateSkeletal(frameCount, jointCount);
+
+		NzSequence sequence;
+		sequence.firstFrame = 0;
+		sequence.frameCount = frameCount;
+		sequence.frameRate = frameRate;
+		sequence.name = stream.GetPath().SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
+
+		animation->AddSequence(sequence);
+
+		NzSequenceJoint* sequenceJoints = animation->GetSequenceJoints();
+
+		// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
+		NzQuaternionf rotationQuat = NzQuaternionf::RotationBetween(NzVector3f::UnitX(), NzVector3f::Forward()) *
+		                             NzQuaternionf::RotationBetween(NzVector3f::UnitZ(), NzVector3f::Up());
+
+		for (unsigned int i = 0; i < jointCount; ++i)
+		{
+			int parent = joints[i].parent;
+			for (unsigned int j = 0; j < frameCount; ++j)
+			{
+				NzSequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
+
+				if (parent >= 0)
+				{
+					sequenceJoint.position = frames[j].joints[i].pos;
+					sequenceJoint.rotation = frames[j].joints[i].orient;
+				}
+				else
+				{
+					sequenceJoint.position = rotationQuat * frames[j].joints[i].pos;
+					sequenceJoint.rotation = rotationQuat * frames[j].joints[i].orient;
+				}
+
+				sequenceJoint.scale.Set(1.f);
+			}
+		}
+
+		return true;
 	}
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,16 +10,13 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Math/Box.hpp>
-#include <Nazara/Math/Rect.hpp>
-#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <atomic>
 
 ///TODO: Filtres
@@ -37,11 +34,13 @@ struct NAZARA_API NzImageParams
 
 class NzImage;
 
+using NzImageConstListener = NzObjectListenerWrapper<const NzImage>;
 using NzImageConstRef = NzObjectRef<const NzImage>;
+using NzImageListener = NzObjectListenerWrapper<NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageRef = NzObjectRef<NzImage>;
 
-class NAZARA_API NzImage : public NzRefCounted, public NzResource
+class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
 {
 	friend NzImageLoader;
 
@@ -51,7 +50,6 @@ class NAZARA_API NzImage : public NzRefCounted, public NzResource
 		NzImage();
 		NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		NzImage(const NzImage& image);
-		NzImage(NzImage&& image) noexcept;
 		NzImage(SharedImage* sharedImage);
 		~NzImage();
 
@@ -69,28 +67,32 @@ class NAZARA_API NzImage : public NzRefCounted, public NzResource
 		bool FlipHorizontally();
 		bool FlipVertically();
 
-		nzUInt8 GetBytesPerPixel() const;
 		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
 		unsigned int GetDepth(nzUInt8 level = 0) const;
 		nzPixelFormat GetFormat() const;
 		unsigned int GetHeight(nzUInt8 level = 0) const;
 		nzUInt8 GetLevelCount() const;
 		nzUInt8 GetMaxLevel() const;
+		unsigned int GetMemoryUsage() const;
+		unsigned int GetMemoryUsage(nzUInt8 level) const;
 		NzColor GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
 		nzUInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0);
-		unsigned int GetSize() const;
-		unsigned int GetSize(nzUInt8 level) const;
+		NzVector3ui GetSize(nzUInt8 level = 0) const;
 		nzImageType GetType() const;
 		unsigned int GetWidth(nzUInt8 level = 0) const;
 
-		bool IsCompressed() const;
-		bool IsCubemap() const;
 		bool IsValid() const;
 
 		// Load
 		bool LoadFromFile(const NzString& filePath, const NzImageParams& params = NzImageParams());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
 		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
+
+		// LoadArray
+		bool LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromImage(const NzImage& image, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+		bool LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
 
 		// LoadCubemap
 		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
@@ -101,15 +103,15 @@ class NAZARA_API NzImage : public NzRefCounted, public NzResource
 		void SetLevelCount(nzUInt8 levelCount);
 		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
-		void Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		void Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		void Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
 
 		NzImage& operator=(const NzImage& image);
-		NzImage& operator=(NzImage&& image) noexcept;
 
 		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
+		static nzUInt8 GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
 		struct SharedImage
 		{

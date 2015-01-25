@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
@@ -19,6 +19,24 @@ NzVector4<T>::NzVector4(T X, T Y, T Z, T W)
 }
 
 template<typename T>
+NzVector4<T>::NzVector4(T X, T Y, const NzVector2<T>& vec)
+{
+	Set(X, Y, vec);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(T X, const NzVector2<T>& vec, T W)
+{
+	Set(X, vec, W);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(T X, const NzVector3<T>& vec)
+{
+	Set(X, vec);
+}
+
+template<typename T>
 NzVector4<T>::NzVector4(T scale)
 {
 	Set(scale);
@@ -28,6 +46,12 @@ template<typename T>
 NzVector4<T>::NzVector4(const T vec[4])
 {
 	Set(vec);
+}
+
+template<typename T>
+NzVector4<T>::NzVector4(const NzVector2<T>& vec, T Z, T W)
+{
+	Set(vec, Z, W);
 }
 
 template<typename T>
@@ -46,19 +70,7 @@ NzVector4<T>::NzVector4(const NzVector4<U>& vec)
 template<typename T>
 T NzVector4<T>::AbsDotProduct(const NzVector4& vec) const
 {
-	return std::fabs(x * vec.x) + std::fabs(y * vec.y) + std::fabs(z * vec.z) + std::fabs(w * vec.w);
-}
-
-template<>
-inline int NzVector4<int>::AbsDotProduct(const NzVector4<int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z) + std::labs(w * vec.w);
-}
-
-template<>
-inline unsigned int NzVector4<unsigned int>::AbsDotProduct(const NzVector4<unsigned int>& vec) const
-{
-	return std::labs(x * vec.x) + std::labs(y * vec.y) + std::labs(z * vec.z) + std::labs(w * vec.w);
+	return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z) + std::abs(w * vec.w);
 }
 
 template<typename T>
@@ -155,10 +167,43 @@ NzVector4<T>& NzVector4<T>::Normalize(T* length)
 template<typename T>
 NzVector4<T>& NzVector4<T>::Set(T X, T Y, T Z, T W)
 {
-	w = W;
 	x = X;
 	y = Y;
 	z = Z;
+	w = W;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, T Y, const NzVector2<T>& vec)
+{
+	x = X;
+	y = Y;
+	z = vec.x;
+	w = vec.y;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, const NzVector2<T>& vec, T W)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
+	w = W;
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(T X, const NzVector3<T>& vec)
+{
+	x = X;
+	y = vec.x;
+	z = vec.y;
+	w = vec.z;
 
 	return *this;
 }
@@ -166,10 +211,10 @@ NzVector4<T>& NzVector4<T>::Set(T X, T Y, T Z, T W)
 template<typename T>
 NzVector4<T>& NzVector4<T>::Set(T scale)
 {
-	w = scale;
 	x = scale;
 	y = scale;
 	z = scale;
+	w = scale;
 
 	return *this;
 }
@@ -178,6 +223,17 @@ template<typename T>
 NzVector4<T>& NzVector4<T>::Set(const T vec[4])
 {
 	std::memcpy(&x, vec, 4*sizeof(T));
+
+	return *this;
+}
+
+template<typename T>
+NzVector4<T>& NzVector4<T>::Set(const NzVector2<T>& vec, T Z, T W)
+{
+	x = vec.x;
+	y = vec.y;
+	z = Z;
+	w = W;
 
 	return *this;
 }
@@ -205,10 +261,10 @@ template<typename T>
 template<typename U>
 NzVector4<T>& NzVector4<T>::Set(const NzVector4<U>& vec)
 {
-	w = F(vec.w);
 	x = F(vec.x);
 	y = F(vec.y);
 	z = F(vec.z);
+	w = F(vec.w);
 
 	return *this;
 }

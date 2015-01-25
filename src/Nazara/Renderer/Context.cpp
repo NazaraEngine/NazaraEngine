@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,7 +38,7 @@ namespace
 		switch (source)
 		{
 			case GL_DEBUG_SOURCE_API:
-				ss << "OpenGL";
+				ss << "OpenGL API";
 				break;
 
 			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:

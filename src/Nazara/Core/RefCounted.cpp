@@ -71,7 +71,11 @@ void NzRefCounted::RemoveObjectListener(NzObjectListener* listener) const
 	{
 		ObjectListenerMap::iterator it = m_objectListeners.find(listener);
 		if (it != m_objectListeners.end())
-			RemoveObjectListenerIterator(it);
+		{
+			unsigned int& referenceCount = it->second.second;
+			if (--referenceCount == 0)
+				m_objectListeners.erase(it);
+		}
 	}
 }
 
@@ -119,7 +123,7 @@ void NzRefCounted::NotifyCreated()
 	while (it != m_objectListeners.end())
 	{
 		if (!it->first->OnObjectCreated(this, it->second.first))
-			RemoveObjectListenerIterator(it++);
+			m_objectListeners.erase(it++);
 		else
 			++it;
 	}
@@ -137,7 +141,7 @@ void NzRefCounted::NotifyDestroy()
 	while (it != m_objectListeners.end())
 	{
 		if (!it->first->OnObjectDestroy(this, it->second.first))
-			RemoveObjectListenerIterator(it++);
+			m_objectListeners.erase(it++);
 		else
 			++it;
 	}
@@ -155,19 +159,10 @@ void NzRefCounted::NotifyModified(unsigned int code)
 	while (it != m_objectListeners.end())
 	{
 		if (!it->first->OnObjectModified(this, it->second.first, code))
-			RemoveObjectListenerIterator(it++);
+			m_objectListeners.erase(it++);
 		else
 			++it;
 	}
 
 	m_objectListenersLocked = false;
-}
-
-void NzRefCounted::RemoveObjectListenerIterator(ObjectListenerMap::iterator iterator) const
-{
-	unsigned int& referenceCount = iterator->second.second;
-	if (referenceCount == 1)
-		m_objectListeners.erase(iterator);
-	else
-		referenceCount--;
 }

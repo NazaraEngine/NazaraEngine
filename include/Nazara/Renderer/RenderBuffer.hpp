@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,13 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzRenderBuffer;
 
+using NzRenderBufferConstListener = NzObjectListenerWrapper<const NzRenderBuffer>;
 using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
+using NzRenderBufferListener = NzObjectListenerWrapper<NzRenderBuffer>;
 using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
 class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable

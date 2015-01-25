@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,6 +27,7 @@ class NAZARA_API NzDebugDrawer
 		static void Draw(const NzFrustumf& frustum);
 		static void Draw(const NzOrientedBoxf& orientedBox);
 		static void Draw(const NzSkeleton* skeleton);
+		static void Draw(const NzVector3f& position, float size = 0.1f);
 		static void DrawBinormals(const NzStaticMesh* subMesh);
 		static void DrawCone(const NzVector3f& origin, const NzQuaternionf& rotation, float angle, float length);
 		static void DrawLine(const NzVector3f& p1, const NzVector3f& p2);

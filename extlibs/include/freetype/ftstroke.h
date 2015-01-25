@@ -19,7 +19,7 @@
 #ifndef __FT_STROKE_H__
 #define __FT_STROKE_H__
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_OUTLINE_H
 #include FT_GLYPH_H
 
@@ -271,7 +271,7 @@ FT_BEGIN_HEADER
    *   miter_limit ::
    *     The miter limit for the FT_STROKER_LINEJOIN_MITER_FIXED and
    *     FT_STROKER_LINEJOIN_MITER_VARIABLE line join styles,
-   *     expressed as 16.16 fixed point value.
+   *     expressed as 16.16 fixed-point value.
    *
    * @note:
    *   The radius is expressed in the same units as the outline

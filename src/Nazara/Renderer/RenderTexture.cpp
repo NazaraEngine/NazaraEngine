@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -18,8 +19,17 @@ namespace
 {
 	struct Attachment
 	{
+		Attachment(NzObjectListener* listener, int bufferIndex = 0, int textureIndex = 0) :
+		bufferListener(listener, bufferIndex),
+		textureListener(listener, textureIndex)
+		{
+		}
+
 		NzRenderBufferRef buffer;
 		NzTextureRef texture;
+		// Les listeners doivent se trouver après les références (pour être libérés avant elles)
+		NzRenderBufferListener bufferListener;
+		NzTextureListener textureListener;
 
 		nzAttachmentPoint attachmentPoint;
 		bool isBuffer;
@@ -50,11 +60,16 @@ namespace
 
 struct NzRenderTextureImpl
 {
+	NzRenderTextureImpl(NzObjectListener* listener, int contextIndex = 0) :
+	context(listener, contextIndex)
+	{
+	}
+
 	GLuint fbo;
 	std::vector<Attachment> attachments;
 	std::vector<nzUInt8> colorTargets;
 	mutable std::vector<GLenum> drawBuffers;
-	const NzContext* context;
+	NzContextConstListener context;
 	bool checked = false;
 	bool complete = false;
 	bool userDefinedTargets = false;
@@ -138,19 +153,22 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 
 	Unlock();
 
-	unsigned int attachIndex = attachmentIndex[attachmentPoint]+index;
-	if (m_impl->attachments.size() <= attachIndex)
-		m_impl->attachments.resize(attachIndex+1);
+	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+	// On créé les attachements si ça n'a pas déjà été fait
+	for (unsigned int i = m_impl->attachments.size(); i <= attachIndex; ++i)
+	{
+		Attachment attachment(this, attachIndex, attachIndex);
+		m_impl->attachments.emplace_back(std::move(attachment));
+	}
 
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.buffer = buffer;
+	attachment.bufferListener = buffer;
 	attachment.isBuffer = true;
 	attachment.isUsed = true;
 	attachment.height = buffer->GetHeight();
 	attachment.width = buffer->GetWidth();
-
-	buffer->AddObjectListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -282,9 +300,14 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 
 	Unlock();
 
-	unsigned int attachIndex = attachmentIndex[attachmentPoint]+index;
-	if (m_impl->attachments.size() <= attachIndex)
-		m_impl->attachments.resize(attachIndex+1);
+	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+
+	// On créé les attachements si ça n'a pas déjà été fait
+	for (unsigned int i = m_impl->attachments.size(); i <= attachIndex; ++i)
+	{
+		Attachment attachment(this, attachIndex, attachIndex);
+		m_impl->attachments.emplace_back(std::move(attachment));
+	}
 
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
@@ -292,9 +315,8 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.isUsed = true;
 	attachment.height = texture->GetHeight();
 	attachment.texture = texture;
+	attachment.textureListener = texture;
 	attachment.width = texture->GetWidth();
-
-	texture->AddObjectListener(this, attachIndex);
 
 	m_impl->checked = false;
 
@@ -326,7 +348,7 @@ bool NzRenderTexture::Create(bool lock)
 	}
 	#endif
 
-	std::unique_ptr<NzRenderTextureImpl> impl(new NzRenderTextureImpl);
+	std::unique_ptr<NzRenderTextureImpl> impl(new NzRenderTextureImpl(this));
 
 	impl->fbo = 0;
 	glGenFramebuffers(1, &impl->fbo);
@@ -339,7 +361,6 @@ bool NzRenderTexture::Create(bool lock)
 
 	m_impl = impl.release();
 	m_impl->context = NzContext::GetCurrent();
-	m_impl->context->AddObjectListener(this);
 
 	if (lock)
 	{
@@ -371,19 +392,6 @@ void NzRenderTexture::Destroy()
 		if (IsActive())
 			NzRenderer::SetTarget(nullptr);
 
-		m_impl->context->RemoveObjectListener(this);
-
-		for (const Attachment& attachment : m_impl->attachments)
-		{
-			if (attachment.isUsed)
-			{
-				if (attachment.isBuffer)
-					attachment.buffer->RemoveObjectListener(this);
-				else
-					attachment.texture->RemoveObjectListener(this);
-			}
-		}
-
 		// Le FBO devant être supprimé dans son contexte d'origine, nous déléguons sa suppression à la classe OpenGL
 		// Celle-ci va libérer le FBO dès que possible (la prochaine fois que son contexte d'origine sera actif)
 		NzOpenGL::DeleteFrameBuffer(m_impl->context, m_impl->fbo);
@@ -409,7 +417,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	}
 	#endif
 
-	unsigned int attachIndex = attachmentIndex[attachmentPoint]+index;
+	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
 	if (attachIndex >= m_impl->attachments.size())
 		return;
 
@@ -429,7 +437,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	{
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, 0);
 
-		attachement.buffer->RemoveObjectListener(this);
+		attachement.bufferListener = nullptr;
 		attachement.buffer = nullptr;
 	}
 	else
@@ -439,7 +447,7 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 		else
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0, 0);
 
-		attachement.texture->RemoveObjectListener(this);
+		attachement.textureListener = nullptr;
 		attachement.texture = nullptr;
 	}
 

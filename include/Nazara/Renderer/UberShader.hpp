@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Renderer/UberShaderInstance.hpp>
@@ -16,7 +17,9 @@
 
 class NzUberShader;
 
+using NzUberShaderConstListener = NzObjectListenerWrapper<const NzUberShader>;
 using NzUberShaderConstRef = NzObjectRef<const NzUberShader>;
+using NzUberShaderListener = NzObjectListenerWrapper<NzUberShader>;
 using NzUberShaderRef = NzObjectRef<NzUberShader>;
 
 class NAZARA_API NzUberShader : public NzRefCounted

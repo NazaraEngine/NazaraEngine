@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,6 +31,9 @@ class NAZARA_API NzRenderer
 	friend NzTexture;
 
 	public:
+		using DrawCall = void (*)(nzPrimitiveMode, unsigned int, unsigned int);
+		using DrawCallInstanced = void (*)(unsigned int, nzPrimitiveMode, unsigned int, unsigned int);
+
 		NzRenderer() = delete;
 		~NzRenderer() = delete;
 
@@ -57,6 +60,7 @@ class NAZARA_API NzRenderer
 		static nzUInt8 GetMaxAnisotropyLevel();
 		static unsigned int GetMaxColorAttachments();
 		static unsigned int GetMaxRenderTargets();
+		static unsigned int GetMaxTextureSize();
 		static unsigned int GetMaxTextureUnits();
 		static unsigned int GetMaxVertexAttribs();
 		static float GetPointSize();

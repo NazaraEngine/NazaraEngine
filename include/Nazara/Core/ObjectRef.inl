@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,70 +7,70 @@
 
 template<typename T>
 NzObjectRef<T>::NzObjectRef() :
-m_resource(nullptr)
+m_object(nullptr)
 {
 }
 
 template<typename T>
-NzObjectRef<T>::NzObjectRef(T* resource) :
-m_resource(resource)
+NzObjectRef<T>::NzObjectRef(T* object) :
+m_object(object)
 {
-	if (m_resource)
-		m_resource->AddReference();
+	if (m_object)
+		m_object->AddReference();
 }
 
 template<typename T>
 NzObjectRef<T>::NzObjectRef(const NzObjectRef& ref) :
-m_resource(ref.m_resource)
+m_object(ref.m_object)
 {
-	if (m_resource)
-		m_resource->AddReference();
+	if (m_object)
+		m_object->AddReference();
 }
 
 template<typename T>
 NzObjectRef<T>::NzObjectRef(NzObjectRef&& ref) noexcept :
-m_resource(ref.m_resource)
+m_object(ref.m_object)
 {
-	ref.m_resource = nullptr; // On vole la référence
+	ref.m_object = nullptr; // On vole la référence
 }
 
 template<typename T>
 NzObjectRef<T>::~NzObjectRef()
 {
-	if (m_resource)
-		m_resource->RemoveReference();
+	if (m_object)
+		m_object->RemoveReference();
 }
 
 template<typename T>
 bool NzObjectRef<T>::IsValid() const
 {
-	return m_resource != nullptr;
+	return m_object != nullptr;
 }
 
 template<typename T>
 T* NzObjectRef<T>::Release()
 {
-	T* resource = m_resource;
-	m_resource = nullptr;
+	T* object = m_object;
+	m_object = nullptr;
 
-	return resource;
+	return object;
 }
 
 template<typename T>
-bool NzObjectRef<T>::Reset(T* resource)
+bool NzObjectRef<T>::Reset(T* object)
 {
 	bool destroyed = false;
-	if (m_resource != resource)
+	if (m_object != object)
 	{
-		if (m_resource)
+		if (m_object)
 		{
-			destroyed = m_resource->RemoveReference();
-			m_resource = nullptr;
+			destroyed = m_object->RemoveReference();
+			m_object = nullptr;
 		}
 
-		m_resource = resource;
-		if (m_resource)
-			m_resource->AddReference();
+		m_object = object;
+		if (m_object)
+			m_object->AddReference();
 	}
 
 	return destroyed;
@@ -79,7 +79,7 @@ bool NzObjectRef<T>::Reset(T* resource)
 template<typename T>
 NzObjectRef<T>& NzObjectRef<T>::Swap(NzObjectRef& ref)
 {
-	std::swap(m_resource, ref.m_resource);
+	std::swap(m_object, ref.m_object);
 
 	return *this;
 }
@@ -93,19 +93,19 @@ NzObjectRef<T>::operator bool() const
 template<typename T>
 NzObjectRef<T>::operator T*() const
 {
-	return m_resource;
+	return m_object;
 }
 
 template<typename T>
 T* NzObjectRef<T>::operator->() const
 {
-	return m_resource;
+	return m_object;
 }
 
 template<typename T>
-NzObjectRef<T>& NzObjectRef<T>::operator=(T* resource)
+NzObjectRef<T>& NzObjectRef<T>::operator=(T* object)
 {
-	Reset(resource);
+	Reset(object);
 
 	return *this;
 }
@@ -113,7 +113,7 @@ NzObjectRef<T>& NzObjectRef<T>::operator=(T* resource)
 template<typename T>
 NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef& ref)
 {
-	Reset(ref.m_resource);
+	Reset(ref.m_object);
 
 	return *this;
 }
@@ -123,7 +123,7 @@ NzObjectRef<T>& NzObjectRef<T>::operator=(NzObjectRef&& ref) noexcept
 {
 	Reset();
 
-	std::swap(m_resource, ref.m_resource);
+	std::swap(m_object, ref.m_object);
 
 	return *this;
 }
