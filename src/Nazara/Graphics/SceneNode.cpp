@@ -144,9 +144,17 @@ bool NzSceneNode::IsVisible() const
 	return m_visible;
 }
 
-void NzSceneNode::SetName(const NzString& name)
+bool NzSceneNode::SetName(const NzString& name)
 {
-	m_name = name;
+	if (m_scene)
+		// On demande à la scène de changer notre nom
+		return m_scene->ChangeNodeName(this, name);
+	else
+	{
+		// Pas de scène ? Changeons notre nom nous-même
+		SetNameInternal(name);
+		return true;
+	}
 }
 
 NzSceneNode& NzSceneNode::operator=(const NzSceneNode& sceneNode)
@@ -209,6 +217,11 @@ void NzSceneNode::RecursiveSetScene(NzScene* scene, NzNode* node)
 
 void NzSceneNode::Register()
 {
+}
+
+void NzSceneNode::SetNameInternal(const NzString& name)
+{
+	m_name = name;
 }
 
 void NzSceneNode::SetScene(NzScene* scene)

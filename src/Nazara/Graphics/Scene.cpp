@@ -383,6 +383,38 @@ NzScene::operator const NzSceneNode&() const
 	return m_root;
 }
 
+bool NzScene::ChangeNodeName(NzSceneNode* node, const NzString& newName)
+{
+	#ifdef NAZARA_DEBUG
+	std::unique_ptr<NzSceneNode> ptr(node);
+	auto it = std::find(m_nodes.begin(), m_nodes.end(), ptr);
+	ptr.release();
+
+	if (it == m_nodes.end())
+	{
+		NazaraInternalError("Node isn't part of the scene");
+		return false;
+	}
+	#endif
+
+	if (!newName.IsEmpty())
+	{
+		auto pair = m_nodeMap.insert(std::make_pair(newName, node));
+		if (!pair.second)
+		{
+			NazaraError("Name \"" + newName + "\" is already in use");
+			return false;
+		}
+	}
+
+	NzString oldName = node->GetName();
+	if (!oldName.IsEmpty())
+		m_nodeMap.erase(oldName);
+
+	node->SetNameInternal(newName);
+	return true;
+}
+
 bool NzScene::RegisterSceneNode(const NzString& name, NzSceneNode* node)
 {
 	if (!name.IsEmpty())
@@ -396,6 +428,7 @@ bool NzScene::RegisterSceneNode(const NzString& name, NzSceneNode* node)
 		m_nodeMap[name] = node;
 	}
 
+	node->SetNameInternal(name);
 	node->SetParent(m_root, true);
 
 	m_nodes.emplace_back(node);
