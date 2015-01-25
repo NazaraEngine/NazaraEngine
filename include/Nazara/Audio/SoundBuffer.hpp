@@ -61,6 +61,7 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 		bool LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params = NzSoundBufferParams());
 
 		static bool IsFormatSupported(nzAudioFormat format);
+		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
 
 	private:
 		unsigned int GetOpenALBuffer() const;
@@ -69,5 +70,7 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 
 		static NzSoundBufferLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Audio/SoundBuffer.inl>
 
 #endif // NAZARA_SOUNDBUFFER_HPP

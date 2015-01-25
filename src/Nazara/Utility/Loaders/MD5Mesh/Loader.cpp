@@ -85,14 +85,11 @@ namespace
 
 				bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-				std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(largeIndices, indexCount, parameters.storage));
-				indexBuffer->SetPersistent(false);
-
-				std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, nzBufferUsage_Static));
-				vertexBuffer->SetPersistent(false);
+				NzIndexBufferRef indexBuffer = NzIndexBuffer::New(largeIndices, indexCount, parameters.storage);
+				NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, nzBufferUsage_Static);
 
 				// Index buffer
-				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+				NzIndexMapper indexMapper(indexBuffer, nzBufferAccess_DiscardAndWrite);
 
 				// Le format définit un set de triangles nous permettant de retrouver facilement les indices
 				// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
@@ -108,6 +105,9 @@ namespace
 
 				indexMapper.Unmap();
 
+				if (parameters.optimizeIndexBuffers)
+					indexBuffer->Optimize();
+
 				// Vertex buffer
 				struct Weight
 				{
@@ -117,7 +117,7 @@ namespace
 
 				std::vector<Weight> tempWeights;
 
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_WriteOnly);
 				NzSkeletalMeshVertex* vertices = static_cast<NzSkeletalMeshVertex*>(vertexMapper.GetPointer());
 				for (const NzMD5MeshParser::Vertex& vertex : md5Mesh.vertices)
 				{
@@ -188,22 +188,15 @@ namespace
 				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
 
 				// Submesh
-				std::unique_ptr<NzSkeletalMesh> subMesh(new NzSkeletalMesh(mesh));
-				subMesh->Create(vertexBuffer.get());
-				vertexBuffer.release();
+				NzSkeletalMeshRef subMesh = NzSkeletalMesh::New(mesh);
+				subMesh->Create(vertexBuffer);
 
-				if (parameters.optimizeIndexBuffers)
-					indexBuffer->Optimize();
-
-				subMesh->SetIndexBuffer(indexBuffer.get());
-				indexBuffer.release();
-
+				subMesh->SetIndexBuffer(indexBuffer);
 				subMesh->GenerateNormalsAndTangents();
 				subMesh->SetMaterialIndex(i);
 				subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
-				mesh->AddSubMesh(subMesh.get());
-				subMesh.release();
+				mesh->AddSubMesh(subMesh);
 
 				// Animation
 				// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
@@ -234,10 +227,9 @@ namespace
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
 
-				std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(largeIndices, indexCount, parameters.storage));
-				indexBuffer->SetPersistent(false);
+				NzIndexBufferRef indexBuffer = NzIndexBuffer::New(largeIndices, indexCount, parameters.storage);
 
-				NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_DiscardAndWrite);
+				NzIndexMapper indexMapper(indexBuffer, nzBufferAccess_DiscardAndWrite);
 				NzIndexIterator index = indexMapper.begin();
 
 				for (const NzMD5MeshParser::Triangle& triangle : md5Mesh.triangles)
@@ -250,8 +242,8 @@ namespace
 				indexMapper.Unmap();
 
 				// Vertex buffer
-				std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage));
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+				NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
+				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_WriteOnly);
 
 				NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
 				for (const NzMD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
@@ -275,27 +267,21 @@ namespace
 				vertexMapper.Unmap();
 
 				// Submesh
-				std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh));
-				subMesh->Create(vertexBuffer.get());
-
-				vertexBuffer->SetPersistent(false);
-				vertexBuffer.release();
+				NzStaticMeshRef subMesh = NzStaticMesh::New(mesh);
+				subMesh->Create(vertexBuffer);
 
 				if (parameters.optimizeIndexBuffers)
 					indexBuffer->Optimize();
 
-				subMesh->SetIndexBuffer(indexBuffer.get());
-				indexBuffer.release();
-
-				// Material
-				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
-
+				subMesh->SetIndexBuffer(indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->GenerateNormalsAndTangents();
 				subMesh->SetMaterialIndex(i);
 
-				mesh->AddSubMesh(subMesh.get());
-				subMesh.release();
+				mesh->AddSubMesh(subMesh);
+
+				// Material
+				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
 			}
 
 			if (parameters.center)

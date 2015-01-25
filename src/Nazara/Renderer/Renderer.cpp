@@ -884,10 +884,8 @@ bool NzRenderer::Initialize()
 	}
 
 	// Création du shader de Debug
-	std::unique_ptr<NzShader> shader(new NzShader);
-	shader->SetPersistent(false);
-
-	if (!shader->Create())
+	NzShaderRef debugShader = NzShader::New();
+	if (!debugShader->Create())
 	{
 		NazaraError("Failed to create debug shader");
 		return false;
@@ -912,26 +910,25 @@ bool NzRenderer::Initialize()
 		vertexShaderLength = sizeof(r_compatibilityVertexShader);
 	}
 
-	if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))
+	if (!debugShader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))
 	{
 		NazaraError("Failed to attach fragment stage");
 		return false;
 	}
 
-	if (!shader->AttachStageFromSource(nzShaderStage_Vertex, vertexShader, vertexShaderLength))
+	if (!debugShader->AttachStageFromSource(nzShaderStage_Vertex, vertexShader, vertexShaderLength))
 	{
 		NazaraError("Failed to attach vertex stage");
 		return false;
 	}
 
-	if (!shader->Link())
+	if (!debugShader->Link())
 	{
 		NazaraError("Failed to link shader");
 		return false;
 	}
 
-	NzShaderLibrary::Register("DebugSimple", shader.get());
-	shader.release();
+	NzShaderLibrary::Register("DebugSimple", debugShader);
 
 	onExit.Reset();
 

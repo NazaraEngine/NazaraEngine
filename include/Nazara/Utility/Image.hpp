@@ -112,6 +112,7 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 		static nzUInt8 GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
+		template<typename... Args> static NzImageRef New(Args&&... args);
 
 		struct SharedImage
 		{
@@ -148,5 +149,7 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 
 		static NzImageLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Utility/Image.inl>
 
 #endif // NAZARA_IMAGE_HPP

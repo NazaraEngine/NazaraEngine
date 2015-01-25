@@ -41,8 +41,7 @@ namespace
 			return false;
 		}
 
-		std::unique_ptr<NzMesh> mesh(new NzMesh);
-		mesh->SetPersistent(false);
+		NzMeshRef mesh = NzMesh::New();
 		if (!mesh->CreateStatic()) // Ne devrait jamais échouer
 		{
 			NazaraInternalError("Failed to create mesh");
@@ -100,14 +99,11 @@ namespace
 			}
 
 			// Création des buffers
-			std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(vertexCount > std::numeric_limits<nzUInt16>::max(), indices.size(), parameters.mesh.storage, nzBufferUsage_Static));
-			indexBuffer->SetPersistent(false);
-
-			std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.mesh.storage, nzBufferUsage_Static));
-			vertexBuffer->SetPersistent(false);
+			NzIndexBufferRef indexBuffer = NzIndexBuffer::New(vertexCount > std::numeric_limits<nzUInt16>::max(), indices.size(), parameters.mesh.storage, nzBufferUsage_Static);
+			NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.mesh.storage, nzBufferUsage_Static);
 
 			// Remplissage des indices
-			NzIndexMapper indexMapper(indexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzIndexMapper indexMapper(indexBuffer, nzBufferAccess_WriteOnly);
 			for (unsigned int j = 0; j < indices.size(); ++j)
 				indexMapper.Set(j, indices[j]);
 
@@ -116,7 +112,7 @@ namespace
 			// Remplissage des vertices
 			bool hasNormals = true;
 			bool hasTexCoords = true;
-			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer.get(), nzBufferAccess_WriteOnly);
+			NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_WriteOnly);
 			NzMeshVertex* meshVertices = static_cast<NzMeshVertex*>(vertexMapper.GetPointer());
 			for (auto& uvIt : vertices)
 			{
@@ -152,21 +148,18 @@ namespace
 
 			vertexMapper.Unmap();
 
-			std::unique_ptr<NzStaticMesh> subMesh(new NzStaticMesh(mesh.get()));
-			if (!subMesh->Create(vertexBuffer.get()))
+			NzStaticMeshRef subMesh = NzStaticMesh::New(mesh);
+			if (!subMesh->Create(vertexBuffer))
 			{
 				NazaraError("Failed to create StaticMesh");
 				continue;
 			}
-			vertexBuffer.release();
 
 			if (parameters.mesh.optimizeIndexBuffers)
 				indexBuffer->Optimize();
 
-			subMesh->SetIndexBuffer(indexBuffer.get());
-			indexBuffer.release();
-
 			subMesh->GenerateAABB();
+			subMesh->SetIndexBuffer(indexBuffer);
 			subMesh->SetMaterialIndex(meshes[i].material);
 			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
@@ -178,8 +171,7 @@ namespace
 			else
 				subMesh->GenerateNormals();
 
-			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh.get());
-			subMesh.release();
+			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh);
 		}
 
 		if (parameters.mesh.center)
@@ -196,8 +188,7 @@ namespace
 
 		mesh->SetMaterialCount(parser.GetMaterialCount());
 
-		model->SetMesh(mesh.get());
-		mesh.release();
+		model->SetMesh(mesh);
 
 		// On charge les matériaux si demandé
 		NzString mtlLib = parser.GetMtlLib();
@@ -209,7 +200,7 @@ namespace
 				NzMTLParser materialParser(file);
 				if (materialParser.Parse())
 				{
-					std::unordered_map<NzString, NzMaterial*> materialCache;
+					std::unordered_map<NzString, NzMaterialRef> materialCache;
 					NzString baseDir = file.GetDirectory();
 					for (unsigned int i = 0; i < meshCount; ++i)
 					{
@@ -222,9 +213,7 @@ namespace
 								model->SetMaterial(meshes[i].material, it->second);
 							else
 							{
-								std::unique_ptr<NzMaterial> material(new NzMaterial);
-								material->SetPersistent(false);
-
+								NzMaterialRef material = NzMaterial::New();
 								material->SetShader(parameters.material.shaderName);
 
 								nzUInt8 alphaValue = static_cast<nzUInt8>(mtlMat->alpha*255.f);
@@ -246,15 +235,11 @@ namespace
 								bool hasAlphaMap = false;;
 								if (parameters.material.loadAlphaMap && !mtlMat->alphaMap.IsEmpty())
 								{
-									std::unique_ptr<NzTexture> alphaMap(new NzTexture);
-									alphaMap->SetPersistent(false);
-
+									NzTextureRef alphaMap = NzTexture::New();
 									if (alphaMap->LoadFromFile(baseDir + mtlMat->alphaMap))
 									{
 										hasAlphaMap = true;
-
-										material->SetAlphaMap(alphaMap.get());
-										alphaMap.release();
+										material->SetAlphaMap(alphaMap);
 									}
 									else
 										NazaraWarning("Failed to load alpha map (" + mtlMat->alphaMap + ')');
@@ -262,28 +247,18 @@ namespace
 
 								if (parameters.material.loadDiffuseMap && !mtlMat->diffuseMap.IsEmpty())
 								{
-									std::unique_ptr<NzTexture> diffuseMap(new NzTexture);
-									diffuseMap->SetPersistent(false);
-
+									NzTextureRef diffuseMap = NzTexture::New();
 									if (diffuseMap->LoadFromFile(baseDir + mtlMat->diffuseMap))
-									{
-										material->SetDiffuseMap(diffuseMap.get());
-										diffuseMap.release();
-									}
+										material->SetDiffuseMap(diffuseMap);
 									else
 										NazaraWarning("Failed to load diffuse map (" + mtlMat->diffuseMap + ')');
 								}
 
 								if (parameters.material.loadSpecularMap && !mtlMat->specularMap.IsEmpty())
 								{
-									std::unique_ptr<NzTexture> specularMap(new NzTexture);
-									specularMap->SetPersistent(false);
-
+									NzTextureRef specularMap = NzTexture::New();
 									if (specularMap->LoadFromFile(baseDir + mtlMat->specularMap))
-									{
-										material->SetSpecularMap(specularMap.get());
-										specularMap.release();
-									}
+										material->SetSpecularMap(specularMap);
 									else
 										NazaraWarning("Failed to load specular map (" + mtlMat->specularMap + ')');
 								}
@@ -299,10 +274,9 @@ namespace
 									material->SetSrcBlend(nzBlendFunc_SrcAlpha);
 								}
 
-								materialCache[matName] = material.get();
+								materialCache[matName] = material;
 
-								model->SetMaterial(meshes[i].material, material.get());
-								material.release();
+								model->SetMaterial(meshes[i].material, material);
 							}
 						}
 						else
