@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,16 +8,23 @@
 #define NAZARA_VECTOR4_HPP
 
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Math/Vector3.hpp>
 
-template<typename T> class NzVector4
+template<typename T> class NzVector2;
+template<typename T> class NzVector3;
+
+template<typename T>
+class NzVector4
 {
 	public:
 		NzVector4() = default;
 		NzVector4(T X, T Y, T Z, T W = 1.0);
+		NzVector4(T X, T Y, const NzVector2<T>& vec);
+		NzVector4(T X, const NzVector2<T>& vec, T W);
+		NzVector4(T X, const NzVector3<T>& vec);
 		explicit NzVector4(T scale);
 		NzVector4(const T vec[4]);
-		NzVector4(const NzVector3<T>& vec, T W = 1.0);
+		NzVector4(const NzVector2<T>& vec, T Z = 0.0, T W = 1.0);
+		NzVector4(const NzVector3<T>& vec, T W = 0.0);
 		template<typename U> explicit NzVector4(const NzVector4<U>& vec);
 		NzVector4(const NzVector4& vec) = default;
 		~NzVector4() = default;
@@ -39,8 +46,12 @@ template<typename T> class NzVector4
 		NzVector4& Normalize(T* length = nullptr);
 
 		NzVector4& Set(T X, T Y, T Z, T W = 1.0);
+		NzVector4& Set(T X, T Y, const NzVector2<T>& vec);
+		NzVector4& Set(T X, const NzVector2<T>& vec, T W);
+		NzVector4& Set(T X, const NzVector3<T>& vec);
 		NzVector4& Set(T scale);
 		NzVector4& Set(const T vec[4]);
+		NzVector4& Set(const NzVector2<T>& vec, T Z = 0.0, T W = 1.0);
 		NzVector4& Set(const NzVector3<T>& vec, T W = 1.0);
 		NzVector4& Set(const NzVector4<T>& vec);
 		template<typename U> NzVector4& Set(const NzVector4<U>& vec);

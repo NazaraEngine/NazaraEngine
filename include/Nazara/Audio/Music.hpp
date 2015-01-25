@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,13 +22,12 @@ struct NzMusicParams
 
 class NzMusic;
 class NzSoundStream;
-class NzThread;
 
 using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
 
 struct NzMusicImpl;
 
-class NAZARA_API NzMusic : public NzResource, public NzSoundEmitter
+class NAZARA_API NzMusic : public NzResource, public NzSoundEmitter, NzNonCopyable
 {
 	friend NzMusicLoader;
 

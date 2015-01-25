@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
 
 class NAZARA_API NzSprite : public NzSceneNode
 {
@@ -17,12 +18,14 @@ class NAZARA_API NzSprite : public NzSceneNode
 		NzSprite();
 		NzSprite(NzTexture* texture);
 		NzSprite(const NzSprite& sprite);
-		NzSprite(NzSprite&& sprite);
-		~NzSprite();
+		~NzSprite() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
-		const NzBoundingVolumef& GetBoundingVolume() const override;
+		NzSprite* Clone() const;
+		NzSprite* Create() const;
+
+		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
 		nzSceneNodeType GetSceneNodeType() const override;
 		const NzVector2f& GetSize() const;
@@ -30,23 +33,30 @@ class NAZARA_API NzSprite : public NzSceneNode
 
 		bool IsDrawable() const;
 
+		void SetColor(const NzColor& color);
+		void SetDefaultMaterial();
 		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
 		void SetSize(const NzVector2f& size);
+		void SetSize(float sizeX, float sizeY);
 		void SetTexture(NzTexture* texture, bool resizeSprite = true);
 		void SetTextureCoords(const NzRectf& coords);
 		void SetTextureRect(const NzRectui& rect);
 
+		NzSprite& operator=(const NzSprite& sprite);
+
 	private:
 		void InvalidateNode() override;
+		void MakeBoundingVolume() const override;
 		void Register() override;
 		void Unregister() override;
-		void UpdateBoundingVolume() const;
+		void UpdateVertices() const;
 
-		mutable NzBoundingVolumef m_boundingVolume;
+		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
-		mutable bool m_boundingVolumeUpdated;
+		mutable NzVertexStruct_XYZ_Color_UV m_vertices[4];
+		mutable bool m_verticesUpdated;
 };
 
 #endif // NAZARA_SPRITE_HPP

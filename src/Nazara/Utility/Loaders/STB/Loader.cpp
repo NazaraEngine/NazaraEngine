@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,29 +15,29 @@
 
 namespace
 {
-    int Read(void* userdata, char* data, int size)
+	int Read(void* userdata, char* data, int size)
+	{
+		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+		return static_cast<int>(stream->Read(data, size));
+	}
+
+    void Skip(void* userdata, int size)
     {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
-        return static_cast<int>(stream->Read(data, size));
+		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+		stream->SetCursorPos(static_cast<nzInt64>(stream->GetCursorPos()) + static_cast<nzInt64>(size));
     }
 
-    void Skip(void* userdata, unsigned int size)
-    {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
-        stream->Read(nullptr, size);
-    }
-
-    int Eof(void* userdata)
-    {
-        NzInputStream* stream = reinterpret_cast<NzInputStream*>(userdata);
-        return stream->GetCursorPos() >= stream->GetSize();
-    }
+	int Eof(void* userdata)
+	{
+		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
+		return stream->GetCursorPos() >= stream->GetSize();
+	}
 
 	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
 	bool IsSupported(const NzString& extension)
 	{
-		static std::set<NzString> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "psd", "tga"};
+		static std::set<NzString> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
 		return supportedExtensions.find(extension) != supportedExtensions.end();
 	}
 

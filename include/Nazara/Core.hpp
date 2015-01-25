@@ -1,4 +1,4 @@
-// This file was automatically generated on 11 Jul 2014 at 10:21:52
+// This file was automatically generated on 17 Jan 2015 at 00:38:08
 
 /*
 	Nazara Engine - Core module
@@ -46,6 +46,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Hash.hpp>
 #include <Nazara/Core/Hashable.hpp>
@@ -54,6 +55,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -44,7 +44,7 @@ class NAZARA_API NzRenderTarget
 		{
 			public:
 				Listener() = default;
-				~Listener();
+				virtual ~Listener();
 
 				virtual bool OnRenderTargetParametersChange(const NzRenderTarget* renderTarget, void* userdata);
 				virtual void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata);
@@ -61,7 +61,7 @@ class NAZARA_API NzRenderTarget
 
 	private:
 		mutable std::unordered_map<Listener*, void*> m_listeners;
-		        bool m_listenersLocked;
+		bool m_listenersLocked;
 };
 
 #endif // NAZARA_RENDERTARGET_HPP

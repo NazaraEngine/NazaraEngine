@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -16,7 +16,7 @@ template <typename T, typename M> M NzImplGetMemberType(M T::*);
 template <typename T, typename R, R T::*M>
 constexpr std::size_t NzImplOffsetOf()
 {
-	return reinterpret_cast<std::size_t>(&(((T*)0)->*M));
+	return reinterpret_cast<std::size_t>(&((static_cast<T*>(0))->*M));
 }
 
 #define NzOffsetOf(type, member) NzImplOffsetOf<decltype(NzImplGetClassType(&type::member)), decltype(NzImplGetMemberType(&type::member)), &type::member>()

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_RECT_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
 template<typename T>
@@ -33,6 +34,7 @@ class NzRect
 		NzRect& ExtendTo(const NzRect& rect);
 
 		NzVector2<T> GetCenter() const;
+		NzVector2<T> GetCorner(nzRectCorner corner) const;
 		NzVector2<T> GetLengths() const;
 		NzVector2<T> GetMaximum() const;
 		NzVector2<T> GetMinimum() const;

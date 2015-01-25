@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,6 +19,7 @@ class NzCallOnExit : NzNonCopyable
 		NzCallOnExit(Func func = nullptr);
 		~NzCallOnExit();
 
+		void CallAndReset(Func func = nullptr);
 		void Reset(Func func = nullptr);
 
 	private:

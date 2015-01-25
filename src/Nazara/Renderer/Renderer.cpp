@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -35,6 +35,22 @@
 
 namespace
 {
+	const nzUInt8 r_coreFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
+	};
+
+	const nzUInt8 r_coreVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
+	};
+
+	const nzUInt8 r_compatibilityFragmentShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
+	};
+
+	const nzUInt8 r_compatibilityVertexShader[] = {
+		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
+	};
+
 	enum ObjectType
 	{
 		ObjectType_Context,
@@ -67,10 +83,38 @@ namespace
 		bool samplerUpdated = false;
 	};
 
-	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
-	using VAO_Map = std::map<VAO_Key, GLuint>;
+	struct VAO_Entry
+	{
+		VAO_Entry(NzObjectListener* listener, int indexBufferIndex, int vertexBufferIndex, int vertexDeclarationIndex, int instancingDeclarationIndex) :
+		indexBufferListener(listener, indexBufferIndex),
+		vertexBufferListener(listener, vertexBufferIndex),
+		instancingDeclarationListener(listener, instancingDeclarationIndex),
+		vertexDeclarationListener(listener, vertexDeclarationIndex)
+		{
+		}
 
-	using Context_Map = std::unordered_map<const NzContext*, VAO_Map>;
+		GLuint vao;
+		NzIndexBufferConstListener indexBufferListener;
+		NzVertexBufferConstListener vertexBufferListener;
+		NzVertexDeclarationConstListener instancingDeclarationListener;
+		NzVertexDeclarationConstListener vertexDeclarationListener;
+	};
+
+	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
+	using VAO_Map = std::map<VAO_Key, VAO_Entry>;
+
+	struct Context_Entry
+	{
+		Context_Entry(NzObjectListener* listener, int index) :
+		contextListener(listener, index)
+		{
+		}
+
+		NzContextConstListener contextListener;
+		VAO_Map vaoMap;
+	};
+
+	using Context_Map = std::unordered_map<const NzContext*, Context_Entry>;
 
 	Context_Map s_vaos;
 	std::vector<unsigned int> s_dirtyTextureUnits;
@@ -93,6 +137,7 @@ namespace
 	bool s_useVertexArrayObjects;
 	unsigned int s_maxColorAttachments;
 	unsigned int s_maxRenderTarget;
+	unsigned int s_maxTextureSize;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
 
@@ -116,7 +161,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -131,7 +176,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -147,7 +192,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -162,7 +207,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -178,7 +223,7 @@ namespace
 						for (auto& pair : s_vaos)
 						{
 							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second;
+							VAO_Map& vaos = pair.second.vaoMap;
 
 							auto it = vaos.begin();
 							while (it != vaos.end())
@@ -194,7 +239,7 @@ namespace
 									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
 									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
 
-									NzOpenGL::DeleteVertexArray(context, it->second);
+									NzOpenGL::DeleteVertexArray(context, it->second.vao);
 									vaos.erase(it++);
 								}
 								else
@@ -376,7 +421,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
@@ -471,7 +516,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 
 	if (instanceCount == 0)
 	{
-		NazaraError("Instance count must be over 0");
+		NazaraError("Instance count must be over zero");
 		return;
 	}
 
@@ -613,6 +658,11 @@ unsigned int NzRenderer::GetMaxRenderTargets()
 	return s_maxRenderTarget;
 }
 
+unsigned int NzRenderer::GetMaxTextureSize()
+{
+	return s_maxTextureSize;
+}
+
 unsigned int NzRenderer::GetMaxTextureUnits()
 {
 	return s_maxTextureUnit;
@@ -693,7 +743,10 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	NzBuffer::SetBufferFunction(nzBufferStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer* { return new NzHardwareBuffer(parent, type); } );
+	NzBuffer::SetBufferFactory(nzDataStorage_Hardware, [](NzBuffer* parent, nzBufferType type) -> NzAbstractBuffer*
+	{
+		return new NzHardwareBuffer(parent, type);
+	});
 
 	for (unsigned int i = 0; i <= nzMatrixType_Max; ++i)
 	{
@@ -704,19 +757,19 @@ bool NzRenderer::Initialize()
 	}
 
 	// Récupération des capacités d'OpenGL
-	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
-	s_capabilities[nzRendererCap_ConditionalRendering] = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
-	s_capabilities[nzRendererCap_FP64] = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
-	s_capabilities[nzRendererCap_HardwareBuffer] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_Instancing] = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
+	s_capabilities[nzRendererCap_AnisotropicFilter]     = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
+	s_capabilities[nzRendererCap_ConditionalRendering]  = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
+	s_capabilities[nzRendererCap_FP64]                  = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
+	s_capabilities[nzRendererCap_HardwareBuffer]        = true; // Natif depuis OpenGL 1.5
+	s_capabilities[nzRendererCap_Instancing]            = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
 	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr); // Natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation
-	s_capabilities[nzRendererCap_OcclusionQuery] = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
-	s_capabilities[nzRendererCap_RenderTexture] = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
-	s_capabilities[nzRendererCap_Texture3D] = true; // Natif depuis OpenGL 1.2
-	s_capabilities[nzRendererCap_TextureCubemap] = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureMulti] = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureNPOT] = true; // Natif depuis OpenGL 2.0
+	s_capabilities[nzRendererCap_OcclusionQuery]        = true; // Natif depuis OpenGL 1.5
+	s_capabilities[nzRendererCap_PixelBufferObject]     = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
+	s_capabilities[nzRendererCap_RenderTexture]         = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
+	s_capabilities[nzRendererCap_Texture3D]             = true; // Natif depuis OpenGL 1.2
+	s_capabilities[nzRendererCap_TextureCubemap]        = true; // Natif depuis OpenGL 1.3
+	s_capabilities[nzRendererCap_TextureMulti]          = true; // Natif depuis OpenGL 1.3
+	s_capabilities[nzRendererCap_TextureNPOT]           = true; // Natif depuis OpenGL 2.0
 
 	NzContext::EnsureContext();
 
@@ -760,6 +813,10 @@ bool NzRenderer::Initialize()
 	else
 		s_maxTextureUnit = 1;
 
+	GLint maxTextureSize;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+	s_maxTextureSize = maxTextureSize;
+
 	GLint maxVertexAttribs;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 	s_maxVertexAttribs = static_cast<unsigned int>(maxVertexAttribs);
@@ -776,7 +833,7 @@ bool NzRenderer::Initialize()
 	s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 	s_vertexBuffer = nullptr;
 
-	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzBufferStorage_Hardware, nzBufferUsage_Static);
+	s_fullscreenQuadBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
 
 	float vertices[4*2] =
 	{
@@ -797,7 +854,7 @@ bool NzRenderer::Initialize()
 		try
 		{
 			NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
-			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzBufferStorage_Hardware, nzBufferUsage_Dynamic);
+			s_instanceBuffer.Reset(nullptr, NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 		}
 		catch (const std::exception& e)
 		{
@@ -836,39 +893,23 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	const nzUInt8 coreFragmentShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
-	};
-
-	const nzUInt8 coreVertexShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
-	};
-
-	const nzUInt8 compatibilityFragmentShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
-	};
-
-	const nzUInt8 compatibilityVertexShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
-	};
-
 	const char* fragmentShader;
 	const char* vertexShader;
 	unsigned int fragmentShaderLength;
 	unsigned int vertexShaderLength;
 	if (NzOpenGL::GetGLSLVersion() >= 140)
 	{
-		fragmentShader = reinterpret_cast<const char*>(coreFragmentShader);
-		fragmentShaderLength = sizeof(coreFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(coreVertexShader);
-		vertexShaderLength = sizeof(coreVertexShader);
+		fragmentShader = reinterpret_cast<const char*>(r_coreFragmentShader);
+		fragmentShaderLength = sizeof(r_coreFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(r_coreVertexShader);
+		vertexShaderLength = sizeof(r_coreVertexShader);
 	}
 	else
 	{
-		fragmentShader = reinterpret_cast<const char*>(compatibilityFragmentShader);
-		fragmentShaderLength = sizeof(compatibilityFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(compatibilityVertexShader);
-		vertexShaderLength = sizeof(compatibilityVertexShader);
+		fragmentShader = reinterpret_cast<const char*>(r_compatibilityFragmentShader);
+		fragmentShaderLength = sizeof(r_compatibilityFragmentShader);
+		vertexShader = reinterpret_cast<const char*>(r_compatibilityVertexShader);
+		vertexShaderLength = sizeof(r_compatibilityVertexShader);
 	}
 
 	if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))
@@ -925,7 +966,7 @@ bool NzRenderer::IsComponentTypeSupported(nzComponentType type)
 			return false;
 	}
 
-	NazaraError("Attribute type out of enum (0x" + NzString::Number(type, 16) + ')');
+	NazaraError("Attribute type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
 }
 
@@ -1521,28 +1562,14 @@ void NzRenderer::Uninitialize()
 	for (auto& pair : s_vaos)
 	{
 		const NzContext* context = pair.first;
+		const Context_Entry& contextEntry = pair.second;
 
-		for (auto& pair2 : pair.second)
+		for (auto& pair2 : contextEntry.vaoMap)
 		{
-			const VAO_Key& key = pair2.first;
-			const NzIndexBuffer* indexBuffer = std::get<0>(key);
-			const NzVertexBuffer* vertexBuffer = std::get<1>(key);
-			const NzVertexDeclaration* vertexDeclaration = std::get<2>(key);
-			const NzVertexDeclaration* instancingDeclaration = std::get<3>(key);
-
-			if (indexBuffer)
-				indexBuffer->RemoveObjectListener(&s_listener);
-
-			vertexBuffer->RemoveObjectListener(&s_listener);
-			vertexDeclaration->RemoveObjectListener(&s_listener);
-
-			if (instancingDeclaration)
-				instancingDeclaration->RemoveObjectListener(&s_listener);
-
-			NzOpenGL::DeleteVertexArray(context, pair2.second);
+			const VAO_Entry& entry = pair2.second;
+			NzOpenGL::DeleteVertexArray(context, entry.vao);
 		}
 	}
-
 	s_vaos.clear();
 
 	NzOpenGL::Uninitialize();
@@ -1707,16 +1734,16 @@ bool NzRenderer::EnsureStateUpdate()
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
 				const NzContext* context = NzContext::GetCurrent();
 
-				VAO_Map* vaos;
 				auto it = s_vaos.find(context);
 				if (it == s_vaos.end())
 				{
-					context->AddObjectListener(&s_listener, ObjectType_Context);
-					auto pair = s_vaos.insert(std::make_pair(context, Context_Map::mapped_type()));
-					vaos = &pair.first->second;
+					Context_Entry entry(&s_listener, ObjectType_Context);
+					entry.contextListener = context;
+
+					it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
 				}
-				else
-					vaos = &it->second;
+
+				VAO_Map& vaoMap = it->second.vaoMap;
 
 				// Notre clé est composée de ce qui définit un VAO
 				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
@@ -1724,23 +1751,22 @@ bool NzRenderer::EnsureStateUpdate()
 				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
 
 				// On recherche un VAO existant avec notre configuration
-				vaoIt = vaos->find(key);
-				if (vaoIt == vaos->end())
+				vaoIt = vaoMap.find(key);
+				if (vaoIt == vaoMap.end())
 				{
 					// On créé notre VAO
 					glGenVertexArrays(1, &s_currentVAO);
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					vaoIt = vaos->insert(std::make_pair(key, s_currentVAO)).first;
-					if (s_indexBuffer)
-						s_indexBuffer->AddObjectListener(&s_listener, ObjectType_IndexBuffer);
+					VAO_Entry entry(&s_listener, ObjectType_IndexBuffer, ObjectType_VertexBuffer, ObjectType_VertexDeclaration, ObjectType_VertexDeclaration);
+					entry.indexBufferListener = std::get<0>(key);
+					entry.instancingDeclarationListener = std::get<3>(key);
+					entry.vertexBufferListener = std::get<1>(key);
+					entry.vertexDeclarationListener = std::get<2>(key);
+					entry.vao = s_currentVAO;
 
-					s_vertexBuffer->AddObjectListener(&s_listener, ObjectType_VertexBuffer);
-					vertexDeclaration->AddObjectListener(&s_listener, ObjectType_VertexDeclaration);
-
-					if (instancingDeclaration)
-						instancingDeclaration->AddObjectListener(&s_listener, ObjectType_VertexDeclaration);
+					vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
 
 					// Et on indique qu'on veut le programmer
 					update = true;
@@ -1748,7 +1774,7 @@ bool NzRenderer::EnsureStateUpdate()
 				else
 				{
 					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-					s_currentVAO = vaoIt->second;
+					s_currentVAO = vaoIt->second.vao;
 
 					update = false;
 				}
@@ -1787,15 +1813,15 @@ bool NzRenderer::EnsureStateUpdate()
 						unsigned int offset;
 						vertexDeclaration->GetComponent(static_cast<nzVertexComponent>(j), &enabled, &type, &offset);
 
-						if (!IsComponentTypeSupported(type))
-						{
-							NazaraError("Invalid vertex declaration " + NzString::Pointer(vertexDeclaration) + ": Vertex component 0x" + NzString::Number(j, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
-							updateFailed = true;
-							break;
-						}
-
 						if (enabled)
 						{
+							if (!IsComponentTypeSupported(type))
+							{
+								NazaraError("Invalid vertex declaration " + NzString::Pointer(vertexDeclaration) + ": Vertex component 0x" + NzString::Number(j, 16) + " (type: 0x" + NzString::Number(type, 16) + ") is not supported");
+								updateFailed = true;
+								break;
+							}
+
 							glEnableVertexAttribArray(NzOpenGL::VertexComponentIndex[j]);
 
 							switch (type)
@@ -1857,7 +1883,7 @@ bool NzRenderer::EnsureStateUpdate()
 
 								default:
 								{
-									NazaraInternalError("Unsupported component type");
+									NazaraInternalError("Unsupported component type (0x" + NzString::Number(type, 16) + ')');
 									break;
 								}
 							}
@@ -1899,8 +1925,8 @@ bool NzRenderer::EnsureStateUpdate()
 					if (updateFailed)
 					{
 						// La création de notre VAO a échoué, libérons-le et marquons-le comme problématique
-						glDeleteVertexArrays(1, &vaoIt->second);
-						vaoIt->second = 0;
+						glDeleteVertexArrays(1, &vaoIt->second.vao);
+						vaoIt->second.vao = 0;
 						s_currentVAO = 0;
 					}
 					else
@@ -1964,7 +1990,8 @@ void NzRenderer::OnTextureReleased(const NzTexture* texture)
 	{
 		if (unit.texture == texture)
 			unit.texture = nullptr;
-			// Inutile de changer le flag pour une texture désactivée
+
+		// Inutile de changer le flag pour une texture désactivée
 	}
 }
 

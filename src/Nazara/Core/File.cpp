@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -733,7 +733,7 @@ bool NzFile::FillHash(NzAbstractHash* hash) const
 	unsigned int size;
 	while (remainingSize > 0)
 	{
-		size = (remainingSize >= NAZARA_CORE_FILE_BUFFERSIZE) ? NAZARA_CORE_FILE_BUFFERSIZE : static_cast<unsigned int>(remainingSize);
+		size = std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE));
 		if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
 		{
 			NazaraError("Unable to read file");

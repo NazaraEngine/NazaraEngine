@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -35,11 +35,11 @@ enum nzBlendFunc
 
 enum nzFaceFilling
 {
-	nzFaceFilling_Point,
-	nzFaceFilling_Line,
 	nzFaceFilling_Fill,
+	nzFaceFilling_Line,
+	nzFaceFilling_Point,
 
-	nzFaceFilling_Max = nzFaceFilling_Fill
+	nzFaceFilling_Max = nzFaceFilling_Point
 };
 
 enum nzFaceSide
@@ -185,19 +185,8 @@ enum nzSamplerWrap
 	nzSamplerWrap_Max = nzSamplerWrap_Repeat
 };
 
-enum nzShaderTarget
-{
-	nzShaderTarget_FullscreenQuad,
-	nzShaderTarget_Model,
-	nzShaderTarget_None,
-	nzShaderTarget_Sprite,
-
-	nzShaderTarget_Max = nzShaderTarget_Sprite
-};
-
 enum nzShaderUniform
 {
-	nzShaderUniform_EyePosition,
 	nzShaderUniform_InvProjMatrix,
 	nzShaderUniform_InvTargetSize,
 	nzShaderUniform_InvViewMatrix,
@@ -206,7 +195,6 @@ enum nzShaderUniform
 	nzShaderUniform_InvWorldViewMatrix,
 	nzShaderUniform_InvWorldViewProjMatrix,
 	nzShaderUniform_ProjMatrix,
-	nzShaderUniform_SceneAmbient,
 	nzShaderUniform_TargetSize,
 	nzShaderUniform_ViewMatrix,
 	nzShaderUniform_ViewProjMatrix,

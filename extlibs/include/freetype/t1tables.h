@@ -21,7 +21,7 @@
 #define __T1TABLES_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H

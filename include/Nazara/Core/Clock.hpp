@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,6 +19,7 @@ class NAZARA_API NzClock
 {
 	public:
 		NzClock(nzUInt64 startingValue = 0, bool paused = false);
+		NzClock(const NzClock& clock) = default;
 
 		float GetSeconds() const;
 		nzUInt64 GetMicroseconds() const;
@@ -29,6 +30,8 @@ class NAZARA_API NzClock
 		void Pause();
 		void Restart();
 		void Unpause();
+
+		NzClock& operator=(const NzClock& clock) = default;
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)

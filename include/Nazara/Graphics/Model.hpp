@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -37,16 +37,17 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 	public:
 		NzModel();
 		NzModel(const NzModel& model);
-		NzModel(NzModel&& model);
 		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 		void AdvanceAnimation(float elapsedTime);
 
+		NzModel* Clone() const;
+		NzModel* Create() const;
+
 		void EnableAnimation(bool animation);
 
 		NzAnimation* GetAnimation() const;
-		const NzBoundingVolumef& GetBoundingVolume() const;
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
 		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
@@ -84,16 +85,12 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 		void SetSkinCount(unsigned int skinCount);
 
 		NzModel& operator=(const NzModel& node);
-		NzModel& operator=(NzModel&& node);
 
 	protected:
-		void InvalidateNode() override;
-		virtual void UpdateBoundingVolume() const;
+		void MakeBoundingVolume() const override;
 
 		std::vector<NzMaterialRef> m_materials;
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzMeshRef m_mesh;
-		mutable bool m_boundingVolumeUpdated;
 		unsigned int m_matCount;
 		unsigned int m_skin;
 		unsigned int m_skinCount;

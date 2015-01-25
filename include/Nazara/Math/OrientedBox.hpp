@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,7 +24,7 @@ class NzOrientedBox
 		NzOrientedBox(const NzOrientedBox& orientedBox) = default;
 		~NzOrientedBox() = default;
 
-		const NzVector3<T>& GetCorner(nzCorner corner) const;
+		const NzVector3<T>& GetCorner(nzBoxCorner corner) const;
 
 		bool IsValid() const;
 
@@ -59,7 +59,7 @@ class NzOrientedBox
 		NzBox<T> localBox;
 
 	private:
-		NzVector3<T> m_corners[nzCorner_Max+1]; // Ne peuvent pas être modifiés directement
+		NzVector3<T> m_corners[nzBoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
 };
 
 template<typename T>

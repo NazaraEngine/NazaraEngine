@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,7 +38,7 @@ class NzBox
 		NzBox& ExtendTo(const NzVector3<T>& point);
 
 		NzSphere<T> GetBoundingSphere() const;
-		NzVector3<T> GetCorner(nzCorner corner) const;
+		NzVector3<T> GetCorner(nzBoxCorner corner) const;
 		NzVector3<T> GetCenter() const;
 		NzVector3<T> GetLengths() const;
 		NzVector3<T> GetMaximum() const;

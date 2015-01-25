@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,18 +7,18 @@
 #ifndef NAZARA_ENUMS_MATH_HPP
 #define NAZARA_ENUMS_MATH_HPP
 
-enum nzCorner
+enum nzBoxCorner
 {
-	nzCorner_FarLeftBottom,
-	nzCorner_FarLeftTop,
-	nzCorner_FarRightBottom,
-	nzCorner_FarRightTop,
-	nzCorner_NearLeftBottom,
-	nzCorner_NearLeftTop,
-	nzCorner_NearRightBottom,
-	nzCorner_NearRightTop,
+	nzBoxCorner_FarLeftBottom,
+	nzBoxCorner_FarLeftTop,
+	nzBoxCorner_FarRightBottom,
+	nzBoxCorner_FarRightTop,
+	nzBoxCorner_NearLeftBottom,
+	nzBoxCorner_NearLeftTop,
+	nzBoxCorner_NearRightBottom,
+	nzBoxCorner_NearRightTop,
 
-	nzCorner_Max = nzCorner_NearRightTop
+	nzBoxCorner_Max = nzBoxCorner_NearRightTop
 };
 
 enum nzExtend
@@ -49,6 +49,16 @@ enum nzIntersectionSide
 	nzIntersectionSide_Outside,
 
 	nzIntersectionSide_Max = nzIntersectionSide_Outside
+};
+
+enum nzRectCorner
+{
+	nzRectCorner_LeftBottom,
+	nzRectCorner_LeftTop,
+	nzRectCorner_RightBottom,
+	nzRectCorner_RightTop,
+
+	nzRectCorner_Max = nzRectCorner_RightTop
 };
 
 #endif // NAZARA_ENUMS_MATH_HPP

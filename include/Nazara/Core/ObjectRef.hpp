@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,26 +18,26 @@ class NzObjectRef
 
 	public:
 		NzObjectRef();
-		NzObjectRef(T* resource);
+		NzObjectRef(T* object);
 		NzObjectRef(const NzObjectRef& ref);
 		NzObjectRef(NzObjectRef&& ref) noexcept;
 		~NzObjectRef();
 
 		bool IsValid() const;
 		T* Release();
-		bool Reset(T* resource = nullptr);
+		bool Reset(T* object = nullptr);
 		NzObjectRef& Swap(NzObjectRef& ref);
 
 		operator bool() const;
 		operator T*() const;
 		T* operator->() const;
 
-		NzObjectRef& operator=(T* resource);
+		NzObjectRef& operator=(T* object);
 		NzObjectRef& operator=(const NzObjectRef& ref);
 		NzObjectRef& operator=(NzObjectRef&& ref) noexcept;
 
 	private:
-		T* m_resource;
+		T* m_object;
 };
 
 #include <Nazara/Core/ObjectRef.inl>

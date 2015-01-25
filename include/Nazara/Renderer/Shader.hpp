@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/String.hpp>
@@ -23,7 +24,9 @@
 class NzShader;
 class NzShaderStage;
 
+using NzShaderConstListener = NzObjectListenerWrapper<const NzShader>;
 using NzShaderConstRef = NzObjectRef<const NzShader>;
+using NzShaderListener = NzObjectListenerWrapper<NzShader>;
 using NzShaderRef = NzObjectRef<NzShader>;
 
 class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
@@ -32,7 +35,6 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 
 	public:
 		NzShader();
-		NzShader(NzShader&& shader);
 		~NzShader();
 
 		void AttachStage(nzShaderStage stage, const NzShaderStage& shaderStage);
@@ -93,8 +95,6 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
-
-		NzShader& operator=(NzShader&& shader);
 
 		static bool IsStageSupported(nzShaderStage stage);
 

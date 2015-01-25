@@ -1,9 +1,10 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -11,29 +12,27 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer)
+{
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
+	Reset(largeIndices, buffer);
+}
+
 NzIndexBuffer::NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, buffer, startOffset, endOffset);
 }
 
-NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+NzIndexBuffer::NzIndexBuffer(bool largeIndices, unsigned int length, nzUInt32 storage, nzBufferUsage usage)
 {
+	NzErrorFlags(nzErrorFlag_ThrowException, true);
 	Reset(largeIndices, length, storage, usage);
 }
 
 NzIndexBuffer::NzIndexBuffer(const NzIndexBuffer& indexBuffer) :
 NzRefCounted(),
 m_buffer(indexBuffer.m_buffer),
-m_largeIndices(indexBuffer.m_largeIndices),
-m_endOffset(indexBuffer.m_endOffset),
-m_indexCount(indexBuffer.m_indexCount),
-m_startOffset(indexBuffer.m_startOffset)
-{
-}
-
-NzIndexBuffer::NzIndexBuffer(NzIndexBuffer&& indexBuffer) noexcept :
-NzRefCounted(),
-m_buffer(std::move(indexBuffer.m_buffer)),
 m_largeIndices(indexBuffer.m_largeIndices),
 m_endOffset(indexBuffer.m_endOffset),
 m_indexCount(indexBuffer.m_indexCount),
@@ -168,6 +167,11 @@ void NzIndexBuffer::Reset()
 	m_buffer.Reset();
 }
 
+void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer)
+{
+	Reset(largeIndices, buffer, 0, buffer->GetSize()-1);
+}
+
 void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -177,9 +181,9 @@ void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int star
 		return;
 	}
 
-	if (endOffset > startOffset)
+	if (startOffset > endOffset)
 	{
-		NazaraError("End offset cannot be over start offset");
+		NazaraError("Start offset cannot be over end offset");
 		return;
 	}
 
@@ -206,7 +210,7 @@ void NzIndexBuffer::Reset(bool largeIndices, NzBuffer* buffer, unsigned int star
 	m_startOffset = startOffset;
 }
 
-void NzIndexBuffer::Reset(bool largeIndices, unsigned int length, nzBufferStorage storage, nzBufferUsage usage)
+void NzIndexBuffer::Reset(bool largeIndices, unsigned int length, nzUInt32 storage, nzBufferUsage usage)
 {
 	unsigned int stride = (largeIndices) ? sizeof(nzUInt32) : sizeof(nzUInt16);
 
@@ -228,16 +232,7 @@ void NzIndexBuffer::Reset(const NzIndexBuffer& indexBuffer)
 	m_startOffset = indexBuffer.m_startOffset;
 }
 
-void NzIndexBuffer::Reset(NzIndexBuffer&& indexBuffer) noexcept
-{
-	m_buffer = std::move(indexBuffer.m_buffer);
-	m_endOffset = indexBuffer.m_endOffset;
-	m_indexCount = indexBuffer.m_indexCount;
-	m_largeIndices = indexBuffer.m_largeIndices;
-	m_startOffset = indexBuffer.m_startOffset;
-}
-
-bool NzIndexBuffer::SetStorage(nzBufferStorage storage)
+bool NzIndexBuffer::SetStorage(nzUInt32 storage)
 {
 	return m_buffer->SetStorage(storage);
 }
@@ -248,13 +243,6 @@ void NzIndexBuffer::Unmap() const
 }
 
 NzIndexBuffer& NzIndexBuffer::operator=(const NzIndexBuffer& indexBuffer)
-{
-	Reset(indexBuffer);
-
-	return *this;
-}
-
-NzIndexBuffer& NzIndexBuffer::operator=(NzIndexBuffer&& indexBuffer) noexcept
 {
 	Reset(indexBuffer);
 

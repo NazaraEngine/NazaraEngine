@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,7 +27,7 @@ NzOBJParser::~NzOBJParser()
 
 const NzString* NzOBJParser::GetMaterials() const
 {
-	return &m_materials[0];
+	return m_materials.data();
 }
 
 unsigned int NzOBJParser::GetMaterialCount() const
@@ -37,7 +37,7 @@ unsigned int NzOBJParser::GetMaterialCount() const
 
 const NzOBJParser::Mesh* NzOBJParser::GetMeshes() const
 {
-	return &m_meshes[0];
+	return m_meshes.data();
 }
 
 unsigned int NzOBJParser::GetMeshCount() const
@@ -52,7 +52,7 @@ const NzString& NzOBJParser::GetMtlLib() const
 
 const NzVector3f* NzOBJParser::GetNormals() const
 {
-	return &m_normals[0];
+	return m_normals.data();
 }
 
 unsigned int NzOBJParser::GetNormalCount() const
@@ -62,7 +62,7 @@ unsigned int NzOBJParser::GetNormalCount() const
 
 const NzVector4f* NzOBJParser::GetPositions() const
 {
-	return &m_positions[0];
+	return m_positions.data();
 }
 
 unsigned int NzOBJParser::GetPositionCount() const
@@ -72,7 +72,7 @@ unsigned int NzOBJParser::GetPositionCount() const
 
 const NzVector3f* NzOBJParser::GetTexCoords() const
 {
-	return &m_texCoords[0];
+	return m_texCoords.data();
 }
 
 unsigned int NzOBJParser::GetTexCoordCount() const
@@ -93,13 +93,15 @@ bool NzOBJParser::Parse()
 	m_positions.clear();
 	m_texCoords.clear();
 
-	// Beaucoup de meshs font plus de 100 sommets, on prépare le terrain
+	// Beaucoup de meshs font plus de 100 sommets, préparons le terrain
 	m_normals.reserve(100);
 	m_positions.reserve(100);
 	m_texCoords.reserve(100);
 
+	// On va regrouper les meshs par nom et par matériau
 	std::unordered_map<NzString, std::unordered_map<NzString, std::vector<Face>>> meshes;
 
+	// On prépare le mesh par défaut
 	std::vector<Face>* currentMesh = &meshes[meshName][matName];
 
 	while (Advance(false))
@@ -265,8 +267,8 @@ bool NzOBJParser::Parse()
 				break;
 			}
 
+			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			case 's':
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				if (m_currentLine.GetSize() <= 2 || m_currentLine[1] == ' ')
 				{
 					NzString param = m_currentLine.SubString(2);
@@ -275,8 +277,8 @@ bool NzOBJParser::Parse()
 				}
 				else
 					UnrecognizedLine();
-				#endif
 				break;
+			#endif
 
 			case 'u':
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING

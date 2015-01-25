@@ -1,30 +1,360 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Graphics/Debug.hpp>
+
+///TODO: Remplacer les sinus/cosinus par une lookup table (va booster les perfs d'un bon x10)
 
 namespace
 {
-	enum ResourceType
+	enum ObjectType
 	{
-		ResourceType_IndexBuffer,
-		ResourceType_Material,
-		ResourceType_VertexBuffer
+		ObjectType_IndexBuffer,
+		ObjectType_Material,
+		ObjectType_Texture,
+		ObjectType_VertexBuffer
 	};
 }
 
-NzForwardRenderQueue::~NzForwardRenderQueue()
+void NzForwardRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
 {
-	Clear(true);
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	billboardVector.push_back(BillboardData{color, position, size, sinCos});
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size = *sizePtr++;
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+	if (!sinCosPtr)
+		sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos = *sinCosPtr++;
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
+{
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	if (!colorPtr)
+		colorPtr.Reset(&NzColor::White, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = *colorPtr++;
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
+}
+
+void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
+{
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	float defaultRotation = 0.f;
+
+	if (!anglePtr)
+		anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+
+	float defaultAlpha = 1.f;
+
+	if (!alphaPtr)
+		alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+	auto it = billboards.find(material);
+	if (it == billboards.end())
+	{
+		BatchedBillboardEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+	}
+
+	BatchedBillboardEntry& entry = it->second;
+
+	auto& billboardVector = entry.billboards;
+	unsigned int prevSize = billboardVector.size();
+	billboardVector.resize(prevSize + count);
+
+	BillboardData* billboardData = &billboardVector[prevSize];
+	for (unsigned int i = 0; i < count; ++i)
+	{
+		float sin = std::sin(NzToRadians(*anglePtr));
+		float cos = std::cos(NzToRadians(*anglePtr));
+		anglePtr++;
+
+		billboardData->center = *positionPtr++;
+		billboardData->color = NzColor(255, 255, 255, static_cast<nzUInt8>(255.f * (*alphaPtr++)));
+		billboardData->sinCos.Set(sin, cos);
+		billboardData->size.Set(*sizePtr++);
+		billboardData++;
+	}
 }
 
 void NzForwardRenderQueue::AddDrawable(const NzDrawable* drawable)
@@ -72,72 +402,81 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 {
 	if (material->IsEnabled(nzRendererParameter_Blend))
 	{
+		// Le matériau est transparent, nous devons rendre ce mesh d'une autre façon (après le rendu des objets opaques et en les triant)
 		unsigned int index = transparentModelData.size();
 		transparentModelData.resize(index+1);
 
 		TransparentModelData& data = transparentModelData.back();
-		data.boundingSphere = NzSpheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
 		data.material = material;
 		data.meshData = meshData;
+		data.squaredBoundingSphere = NzSpheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
 		data.transformMatrix = transformMatrix;
 
 		transparentModels.push_back(index);
 	}
 	else
 	{
-		ModelBatches::iterator it = opaqueModels.find(material);
+		auto it = opaqueModels.find(material);
 		if (it == opaqueModels.end())
 		{
-			it = opaqueModels.insert(std::make_pair(material, ModelBatches::mapped_type())).first;
-			material->AddObjectListener(this, ResourceType_Material);
+			BatchedModelEntry entry(this, ObjectType_Material);
+			entry.materialListener = material;
+
+			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
 
-		bool& used = std::get<0>(it->second);
-		bool& enableInstancing = std::get<1>(it->second);
-		MeshInstanceContainer& meshMap = std::get<2>(it->second);
+		BatchedModelEntry& entry = it->second;
+		entry.enabled = true;
 
-		used = true;
+		auto& meshMap = entry.meshMap;
 
-		MeshInstanceContainer::iterator it2 = meshMap.find(meshData);
+		auto it2 = meshMap.find(meshData);
 		if (it2 == meshMap.end())
 		{
-			it2 = meshMap.insert(std::make_pair(meshData, MeshInstanceContainer::mapped_type())).first;
+			MeshInstanceEntry instanceEntry(this, ObjectType_IndexBuffer, ObjectType_VertexBuffer);
+			instanceEntry.indexBufferListener = meshData.indexBuffer;
+			instanceEntry.squaredBoundingSphere = meshAABB.GetSquaredBoundingSphere();
+			instanceEntry.vertexBufferListener = meshData.vertexBuffer;
 
-			NzSpheref& squaredBoundingSphere = it2->second.first;
-			squaredBoundingSphere.Set(meshAABB.GetSquaredBoundingSphere());
-
-			if (meshData.indexBuffer)
-				meshData.indexBuffer->AddObjectListener(this, ResourceType_IndexBuffer);
-
-			meshData.vertexBuffer->AddObjectListener(this, ResourceType_VertexBuffer);
+			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
 
-		std::vector<NzMatrix4f>& instances = it2->second.second;
+		std::vector<NzMatrix4f>& instances = it2->second.instances;
 		instances.push_back(transformMatrix);
 
 		// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
 		if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-			enableInstancing = true; // Apparemment oui, activons l'instancing avec ce matériau
+			entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
 	}
 }
 
-void NzForwardRenderQueue::AddSprite(const NzSprite* sprite)
+void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!sprite)
+	auto matIt = basicSprites.find(material);
+	if (matIt == basicSprites.end())
 	{
-		NazaraError("Invalid sprite");
-		return;
+		BatchedBasicSpriteEntry entry(this, ObjectType_Material);
+		entry.materialListener = material;
+
+		matIt = basicSprites.insert(std::make_pair(material, std::move(entry))).first;
 	}
 
-	if (!sprite->IsDrawable())
-	{
-		NazaraError("Sprite is not drawable");
-		return;
-	}
-	#endif
+	BatchedBasicSpriteEntry& entry = matIt->second;
+	entry.enabled = true;
 
-	sprites[sprite->GetMaterial()].push_back(sprite);
+	auto& overlayMap = entry.overlayMap;
+
+	auto overlayIt = overlayMap.find(overlay);
+	if (overlayIt == overlayMap.end())
+	{
+		BatchedSpriteEntry overlayEntry(this, ObjectType_Texture);
+		overlayEntry.textureListener = overlay;
+
+		overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
+	}
+
+	auto& spriteVector = overlayIt->second.spriteChains;
+	spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 }
 
 void NzForwardRenderQueue::Clear(bool fully)
@@ -150,53 +489,55 @@ void NzForwardRenderQueue::Clear(bool fully)
 
 	if (fully)
 	{
-		for (auto& matIt : opaqueModels)
-		{
-			const NzMaterial* material = matIt.first;
-			material->RemoveObjectListener(this);
-
-			MeshInstanceContainer& instances = std::get<2>(matIt.second);
-			for (auto& instanceIt : instances)
-			{
-				const NzMeshData& renderData = instanceIt.first;
-
-				if (renderData.indexBuffer)
-					renderData.indexBuffer->RemoveObjectListener(this);
-
-				renderData.vertexBuffer->RemoveObjectListener(this);
-			}
-		}
+		basicSprites.clear();
+		billboards.clear();
 		opaqueModels.clear();
-		sprites.clear();
 	}
 }
 
 void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 {
 	NzPlanef nearPlane = viewer->GetFrustum().GetPlane(nzFrustumPlane_Near);
+	NzVector3f viewerPos = viewer->GetEyePosition();
 	NzVector3f viewerNormal = viewer->GetForward();
 
 	std::sort(transparentModels.begin(), transparentModels.end(), [this, &nearPlane, &viewerNormal](unsigned int index1, unsigned int index2)
 	{
-		const NzSpheref& sphere1 = transparentModelData[index1].boundingSphere;
-		const NzSpheref& sphere2 = transparentModelData[index2].boundingSphere;
+		const NzSpheref& sphere1 = transparentModelData[index1].squaredBoundingSphere;
+		const NzSpheref& sphere2 = transparentModelData[index2].squaredBoundingSphere;
 
 		NzVector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
 		NzVector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
 
 		return nearPlane.Distance(position1) > nearPlane.Distance(position2);
 	});
+
+	for (auto& pair : billboards)
+	{
+		const NzMaterial* mat = pair.first;
+
+		if (mat->IsDepthSortingEnabled())
+		{
+			BatchedBillboardEntry& entry = pair.second;
+			auto& billboardVector = entry.billboards;
+
+			std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos](const BillboardData& data1, const BillboardData& data2)
+			{
+				return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
+			});
+		}
+	}
 }
 
 bool NzForwardRenderQueue::OnObjectDestroy(const NzRefCounted* object, int index)
 {
 	switch (index)
 	{
-		case ResourceType_IndexBuffer:
+		case ObjectType_IndexBuffer:
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -209,15 +550,21 @@ bool NzForwardRenderQueue::OnObjectDestroy(const NzRefCounted* object, int index
 			break;
 		}
 
-		case ResourceType_Material:
-			opaqueModels.erase(static_cast<const NzMaterial*>(object));
-			break;
+		case ObjectType_Material:
+		{
+			const NzMaterial* material = static_cast<const NzMaterial*>(object);
 
-		case ResourceType_VertexBuffer:
+			basicSprites.erase(material);
+			billboards.erase(material);
+			opaqueModels.erase(material);
+			break;
+		}
+
+		case ObjectType_VertexBuffer:
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -241,11 +588,11 @@ void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int inde
 
 	switch (index)
 	{
-		case ResourceType_IndexBuffer:
+		case ObjectType_IndexBuffer:
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -258,8 +605,26 @@ void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int inde
 			break;
 		}
 
-		case ResourceType_Material:
+		case ObjectType_Material:
 		{
+			for (auto it = basicSprites.begin(); it != basicSprites.end(); ++it)
+			{
+				if (it->first == object)
+				{
+					basicSprites.erase(it);
+					break;
+				}
+			}
+
+			for (auto it = billboards.begin(); it != billboards.end(); ++it)
+			{
+				if (it->first == object)
+				{
+					billboards.erase(it);
+					break;
+				}
+			}
+
 			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
 			{
 				if (it->first == object)
@@ -268,14 +633,33 @@ void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int inde
 					break;
 				}
 			}
+
 			break;
 		}
 
-		case ResourceType_VertexBuffer:
+		case ObjectType_Texture:
+		{
+			for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
+			{
+				auto& overlayMap = matIt->second.overlayMap;
+				for (auto overlayIt = overlayMap.begin(); overlayIt != overlayMap.end(); ++overlayIt)
+				{
+					if (overlayIt->first == object)
+					{
+						overlayMap.erase(overlayIt);
+						break;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case ObjectType_VertexBuffer:
 		{
 			for (auto& modelPair : opaqueModels)
 			{
-				MeshInstanceContainer& meshes = std::get<2>(modelPair.second);
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
 				for (auto it = meshes.begin(); it != meshes.end();)
 				{
 					const NzMeshData& renderData = it->first;
@@ -290,6 +674,26 @@ void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int inde
 	}
 }
 
+bool NzForwardRenderQueue::BatchedBillboardComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+{
+	const NzUberShader* uberShader1 = mat1->GetShader();
+	const NzUberShader* uberShader2 = mat2->GetShader();
+	if (uberShader1 != uberShader2)
+		return uberShader1 < uberShader2;
+
+	const NzShader* shader1 = mat1->GetShaderInstance(nzShaderFlags_Billboard | nzShaderFlags_VertexColor)->GetShader();
+	const NzShader* shader2 = mat2->GetShaderInstance(nzShaderFlags_Billboard | nzShaderFlags_VertexColor)->GetShader();
+	if (shader1 != shader2)
+		return shader1 < shader2;
+
+	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
+	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
+	if (diffuseMap1 != diffuseMap2)
+		return diffuseMap1 < diffuseMap2;
+
+	return mat1 < mat2;
+}
+
 bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
 {
 	const NzUberShader* uberShader1 = mat1->GetShader();
@@ -299,7 +703,6 @@ bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMa
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 
@@ -320,7 +723,6 @@ bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzM
 
 	const NzShader* shader1 = mat1->GetShaderInstance()->GetShader();
 	const NzShader* shader2 = mat2->GetShaderInstance()->GetShader();
-
 	if (shader1 != shader2)
 		return shader1 < shader2;
 

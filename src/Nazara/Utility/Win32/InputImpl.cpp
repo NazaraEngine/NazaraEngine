@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -222,7 +222,7 @@ NzVector2i NzEventImpl::GetMousePosition(const NzWindow& relativeTo)
 	}
 	else
 	{
-		NazaraError("Window's handle is invalid");
+		NazaraError("Invalid window handle");
 
 		// Attention que (-1, -1) est une position tout à fait valide et ne doit pas servir de test
 		return NzVector2i(-1, -1);
@@ -289,5 +289,5 @@ void NzEventImpl::SetMousePosition(int x, int y, const NzWindow& relativeTo)
 		SetCursorPos(pos.x, pos.y);
 	}
 	else
-		NazaraError("Window's handle is invalid");
+		NazaraError("Invalid window handle");
 }

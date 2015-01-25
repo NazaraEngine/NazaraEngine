@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -44,23 +44,23 @@ NzFrustum<T>& NzFrustum<T>::Build(T angle, T ratio, T zNear, T zFar, const NzVec
 	NzVector3<T> fc = eye + f * zFar;
 
 	// Calcul du frustum
-	m_corners[nzCorner_FarLeftBottom] = fc - u*farH - s*farW;
-	m_corners[nzCorner_FarLeftTop] = fc + u*farH - s*farW;
-	m_corners[nzCorner_FarRightTop] = fc + u*farH + s*farW;
-	m_corners[nzCorner_FarRightBottom] = fc - u*farH + s*farW;
+	m_corners[nzBoxCorner_FarLeftBottom] = fc - u*farH - s*farW;
+	m_corners[nzBoxCorner_FarLeftTop] = fc + u*farH - s*farW;
+	m_corners[nzBoxCorner_FarRightTop] = fc + u*farH + s*farW;
+	m_corners[nzBoxCorner_FarRightBottom] = fc - u*farH + s*farW;
 
-	m_corners[nzCorner_NearLeftBottom] = nc - u*nearH - s*nearW;
-	m_corners[nzCorner_NearLeftTop] = nc + u*nearH - s*nearW;
-	m_corners[nzCorner_NearRightTop] = nc + u*nearH + s*nearW;
-	m_corners[nzCorner_NearRightBottom] = nc - u*nearH + s*nearW;
+	m_corners[nzBoxCorner_NearLeftBottom] = nc - u*nearH - s*nearW;
+	m_corners[nzBoxCorner_NearLeftTop] = nc + u*nearH - s*nearW;
+	m_corners[nzBoxCorner_NearRightTop] = nc + u*nearH + s*nearW;
+	m_corners[nzBoxCorner_NearRightBottom] = nc - u*nearH + s*nearW;
 
 	// Construction des plans du frustum
-	m_planes[nzFrustumPlane_Bottom].Set(m_corners[nzCorner_NearLeftBottom], m_corners[nzCorner_NearRightBottom], m_corners[nzCorner_FarRightBottom]);
-	m_planes[nzFrustumPlane_Far].Set(m_corners[nzCorner_FarRightTop], m_corners[nzCorner_FarLeftTop], m_corners[nzCorner_FarLeftBottom]);
-	m_planes[nzFrustumPlane_Left].Set(m_corners[nzCorner_NearLeftTop], m_corners[nzCorner_NearLeftBottom], m_corners[nzCorner_FarLeftBottom]);
-	m_planes[nzFrustumPlane_Near].Set(m_corners[nzCorner_NearLeftTop], m_corners[nzCorner_NearRightTop], m_corners[nzCorner_NearRightBottom]);
-	m_planes[nzFrustumPlane_Right].Set(m_corners[nzCorner_NearRightBottom], m_corners[nzCorner_NearRightTop], m_corners[nzCorner_FarRightBottom]);
-	m_planes[nzFrustumPlane_Top].Set(m_corners[nzCorner_NearRightTop], m_corners[nzCorner_NearLeftTop], m_corners[nzCorner_FarLeftTop]);
+	m_planes[nzFrustumPlane_Bottom].Set(m_corners[nzBoxCorner_NearLeftBottom], m_corners[nzBoxCorner_NearRightBottom], m_corners[nzBoxCorner_FarRightBottom]);
+	m_planes[nzFrustumPlane_Far].Set(m_corners[nzBoxCorner_FarRightTop], m_corners[nzBoxCorner_FarLeftTop], m_corners[nzBoxCorner_FarLeftBottom]);
+	m_planes[nzFrustumPlane_Left].Set(m_corners[nzBoxCorner_NearLeftTop], m_corners[nzBoxCorner_NearLeftBottom], m_corners[nzBoxCorner_FarLeftBottom]);
+	m_planes[nzFrustumPlane_Near].Set(m_corners[nzBoxCorner_NearLeftTop], m_corners[nzBoxCorner_NearRightTop], m_corners[nzBoxCorner_NearRightBottom]);
+	m_planes[nzFrustumPlane_Right].Set(m_corners[nzBoxCorner_NearRightBottom], m_corners[nzBoxCorner_NearRightTop], m_corners[nzBoxCorner_FarRightBottom]);
+	m_planes[nzFrustumPlane_Top].Set(m_corners[nzBoxCorner_NearRightTop], m_corners[nzBoxCorner_NearLeftTop], m_corners[nzBoxCorner_FarLeftTop]);
 
 	return *this;
 }
@@ -272,56 +272,56 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_FarLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_FarLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// FarLeftTop
 		corner.Set(F(-1.0), F(1.0), F(1.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_FarLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_FarLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// FarRightBottom
 		corner.Set(F(1.0), F(-1.0), F(1.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_FarRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_FarRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// FarRightTop
 		corner.Set(F(1.0), F(1.0), F(1.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_FarRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_FarRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// NearLeftBottom
 		corner.Set(F(-1.0), F(-1.0), F(0.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_NearLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_NearLeftBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// NearLeftTop
 		corner.Set(F(-1.0), F(1.0), F(0.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_NearLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_NearLeftTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// NearRightBottom
 		corner.Set(F(1.0), F(-1.0), F(0.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_NearRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_NearRightBottom] = NzVector3<T>(corner.x, corner.y, corner.z);
 
 		// NearRightTop
 		corner.Set(F(1.0), F(1.0), F(0.0));
 		corner = invClipMatrix.Transform(corner);
 		corner.Normalize();
 
-		m_corners[nzCorner_NearRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
+		m_corners[nzBoxCorner_NearRightTop] = NzVector3<T>(corner.x, corner.y, corner.z);
 	}
 	else
 		NazaraWarning("Clip matrix is not invertible, failed to compute frustum corners");
@@ -339,10 +339,10 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& view, const NzMatrix4<T>
 }
 
 template<typename T>
-const NzVector3<T>& NzFrustum<T>::GetCorner(nzCorner corner) const
+const NzVector3<T>& NzFrustum<T>::GetCorner(nzBoxCorner corner) const
 {
 	#ifdef NAZARA_DEBUG
-	if (corner > nzCorner_Max)
+	if (corner > nzBoxCorner_Max)
 	{
 		NazaraError("Corner not handled (0x" + NzString::Number(corner, 16) + ')');
 
@@ -481,7 +481,7 @@ template<typename T>
 template<typename U>
 NzFrustum<T>& NzFrustum<T>::Set(const NzFrustum<U>& frustum)
 {
-	for (unsigned int i = 0; i <= nzCorner_Max; ++i)
+	for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
 		m_corners[i].Set(frustum.m_corners[i]);
 
  	for (unsigned int i = 0; i <= nzFrustumPlane_Max; ++i)

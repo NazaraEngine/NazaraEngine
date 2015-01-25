@@ -1,9 +1,9 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -265,14 +265,14 @@ NzEulerAngles<T> NzQuaternion<T>::ToEulerAngles() const
 	T test = x*y + z*w;
 	if (test > F(0.499))
 		// singularity at north pole
-		return NzEulerAngles<T>(NzDegrees(F(90.0)), NzRadians(F(2.0) * std::atan2(x, w)), F(0.0));
+		return NzEulerAngles<T>(NzFromDegrees(F(90.0)), NzFromRadians(F(2.0) * std::atan2(x, w)), F(0.0));
 
 	if (test < F(-0.499))
-		return NzEulerAngles<T>(NzDegrees(F(-90.0)), NzRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
+		return NzEulerAngles<T>(NzFromDegrees(F(-90.0)), NzFromRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
 
-	return NzEulerAngles<T>(NzRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x* - F(2.0)*z*z)),
-							NzRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
-							NzRadians(std::asin(F(2.0)*test)));
+	return NzEulerAngles<T>(NzFromRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x* - F(2.0)*z*z)),
+							NzFromRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
+							NzFromRadians(std::asin(F(2.0)*test)));
 }
 
 template<typename T>
@@ -406,6 +406,12 @@ NzQuaternion<T> NzQuaternion<T>::Lerp(const NzQuaternion& from, const NzQuaterni
 	interpolated.z = NzLerp(from.z, to.z, interpolation);
 
 	return interpolated;
+}
+
+template<typename T>
+NzQuaternion<T> NzQuaternion<T>::Normalize(const NzQuaternion& quat, T* length)
+{
+	return quat.GetNormal(length);
 }
 
 template<typename T>

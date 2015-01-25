@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_ANIMATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -15,11 +16,12 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
+#include <limits>
 
 struct NAZARA_API NzAnimationParams
 {
 	// La frame de fin à charger
-	unsigned int endFrame = static_cast<unsigned int>(-1);
+	unsigned int endFrame = std::numeric_limits<unsigned int>::max();
 	// La frame de début à charger
 	unsigned int startFrame = 0;
 
@@ -29,7 +31,9 @@ struct NAZARA_API NzAnimationParams
 class NzAnimation;
 class NzSkeleton;
 
+using NzAnimationConstListener = NzObjectListenerWrapper<const NzAnimation>;
 using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
+using NzAnimationListener = NzObjectListenerWrapper<NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 using NzAnimationRef = NzObjectRef<NzAnimation>;
 

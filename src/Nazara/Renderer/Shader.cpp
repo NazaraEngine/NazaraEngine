@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,17 +14,6 @@ NzShader::NzShader() :
 m_linked(false),
 m_program(0)
 {
-}
-
-NzShader::NzShader(NzShader&& shader) :
-m_linked(shader.m_linked),
-m_program(shader.m_program)
-{
-	for (unsigned int i = 0; i <= nzShaderStage_Max; ++i)
-		m_attachedShaders[i] = std::move(shader.m_attachedShaders[i]);
-
-	shader.m_linked = false;
-	shader.m_program = 0;
 }
 
 NzShader::~NzShader()
@@ -155,6 +144,7 @@ bool NzShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData3], "InstanceData3");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData4], "InstanceData4");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_InstanceData5], "InstanceData5");
+	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Color],         "VertexColor");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Normal],        "VertexNormal");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Position],      "VertexPosition");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Tangent],       "VertexTangent");
@@ -164,7 +154,6 @@ bool NzShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata2],     "VertexUserdata2");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata3],     "VertexUserdata3");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata4],     "VertexUserdata4");
-	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata5],     "VertexUserdata5");
 
 	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
 	{
@@ -254,10 +243,10 @@ NzString NzShader::GetSourceCode(nzShaderStage stage) const
 	unsigned int totalLength = 0;
 	for (unsigned int shader : m_attachedShaders[stage])
 	{
-        GLint length;
-        glGetShaderiv(shader, GL_SHADER_SOURCE_LENGTH, &length);
+		GLint length;
+		glGetShaderiv(shader, GL_SHADER_SOURCE_LENGTH, &length);
 
-        totalLength += length - 1;
+		totalLength += length - 1;
 	}
 
 	totalLength += (m_attachedShaders[stage].size()-1)*(sizeof(sep)/sizeof(char));
@@ -757,22 +746,6 @@ unsigned int NzShader::GetOpenGLID() const
 	return m_program;
 }
 
-NzShader& NzShader::operator=(NzShader&& shader)
-{
-	Destroy();
-
-	for (unsigned int i = 0; i <= nzShaderStage_Max; ++i)
-		m_attachedShaders[i] = std::move(shader.m_attachedShaders[i]);
-
-	m_linked = shader.m_linked;
-	m_program = shader.m_program;
-
-	shader.m_linked = false;
-	shader.m_program = 0;
-
-	return *this;
-}
-
 bool NzShader::IsStageSupported(nzShaderStage stage)
 {
 	return NzShaderStage::IsSupported(stage);
@@ -789,7 +762,6 @@ bool NzShader::PostLinkage()
 		// Pour éviter de se tromper entre le nom et la constante
 		#define CacheUniform(name) m_uniformLocations[nzShaderUniform_##name] = glGetUniformLocation(m_program, #name)
 
-		CacheUniform(EyePosition);
 		CacheUniform(InvProjMatrix);
 		CacheUniform(InvTargetSize);
 		CacheUniform(InvViewMatrix);
@@ -798,7 +770,6 @@ bool NzShader::PostLinkage()
 		CacheUniform(InvWorldViewMatrix);
 		CacheUniform(InvWorldViewProjMatrix);
 		CacheUniform(ProjMatrix);
-		CacheUniform(SceneAmbient);
 		CacheUniform(TargetSize);
 		CacheUniform(ViewMatrix);
 		CacheUniform(ViewProjMatrix);
