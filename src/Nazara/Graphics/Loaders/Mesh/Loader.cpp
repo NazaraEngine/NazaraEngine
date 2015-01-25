@@ -24,8 +24,7 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		std::unique_ptr<NzMesh> mesh(new NzMesh);
-		mesh->SetPersistent(false);
+		NzMeshRef mesh = NzMesh::New();
 		if (!mesh->LoadFromStream(stream, parameters.mesh))
 		{
 			NazaraError("Failed to load model mesh");
@@ -38,12 +37,8 @@ namespace
 			return false;
 		}
 
-		// Nous ne pouvons plus avoir recours au smart pointeur à partir d'ici si nous voulons être exception-safe
-		NzMesh* meshPtr = mesh.get();
-
 		model->Reset();
-		model->SetMesh(meshPtr);
-		mesh.release();
+		model->SetMesh(mesh);
 
 		if (parameters.loadMaterials)
 		{
@@ -51,17 +46,12 @@ namespace
 
 			for (unsigned int i = 0; i < matCount; ++i)
 			{
-				NzString mat = meshPtr->GetMaterial(i);
+				NzString mat = mesh->GetMaterial(i);
 				if (!mat.IsEmpty())
 				{
-					std::unique_ptr<NzMaterial> material(new NzMaterial);
-					material->SetPersistent(false);
-
+					NzMaterialRef material = NzMaterial::New();
 					if (material->LoadFromFile(mat, parameters.material))
-					{
-						model->SetMaterial(i, material.get());
-						material.release();
-					}
+						model->SetMaterial(i, material);
 					else
 						NazaraWarning("Failed to load material #" + NzString::Number(i));
 				}
@@ -83,8 +73,7 @@ namespace
 	{
 		NazaraUnused(parameters);
 
-		std::unique_ptr<NzMesh> mesh(new NzMesh);
-		mesh->SetPersistent(false);
+		NzMeshRef mesh = NzMesh::New();
 		if (!mesh->LoadFromStream(stream, parameters.mesh))
 		{
 			NazaraError("Failed to load model mesh");
@@ -97,13 +86,8 @@ namespace
 			return false;
 		}
 
-
-		// Nous ne pouvons plus avoir recours au smart pointeur à partir d'ici si nous voulons être exception-safe
-		NzMesh* meshPtr = mesh.get();
-
 		model->Reset();
-		model->SetMesh(meshPtr);
-		mesh.release();
+		model->SetMesh(mesh);
 
 		if (parameters.loadMaterials)
 		{
@@ -111,17 +95,12 @@ namespace
 
 			for (unsigned int i = 0; i < matCount; ++i)
 			{
-				NzString mat = meshPtr->GetMaterial(i);
+				NzString mat = mesh->GetMaterial(i);
 				if (!mat.IsEmpty())
 				{
-					std::unique_ptr<NzMaterial> material(new NzMaterial);
-					material->SetPersistent(false);
-
+					NzMaterialRef material = NzMaterial::New();
 					if (material->LoadFromFile(mat, parameters.material))
-					{
-						model->SetMaterial(i, material.get());
-						material.release();
-					}
+						model->SetMaterial(i, material);
 					else
 						NazaraWarning("Failed to load material #" + NzString::Number(i));
 				}

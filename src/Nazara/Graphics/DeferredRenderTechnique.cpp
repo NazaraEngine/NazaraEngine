@@ -79,13 +79,11 @@ namespace
 
 	static_assert(sizeof(RenderPassPriority)/sizeof(unsigned int) == nzRenderPassType_Max+1, "Render pass priority array is incomplete");
 
-	inline NzShader* RegisterDeferredShader(const NzString& name, const nzUInt8* fragmentSource, unsigned int fragmentSourceLength, const NzShaderStage& vertexStage, NzString* err)
+	inline NzShaderRef RegisterDeferredShader(const NzString& name, const nzUInt8* fragmentSource, unsigned int fragmentSourceLength, const NzShaderStage& vertexStage, NzString* err)
 	{
 		NzErrorFlags errFlags(nzErrorFlag_Silent | nzErrorFlag_ThrowExceptionDisabled);
 
-		std::unique_ptr<NzShader> shader(new NzShader);
-		shader->SetPersistent(false);
-
+		NzShaderRef shader = NzShader::New();
 		if (!shader->Create())
 		{
 			err->Set("Failed to create shader: " + NzError::GetLastError());
@@ -106,8 +104,8 @@ namespace
 			return nullptr;
 		}
 
-		NzShaderLibrary::Register(name, shader.get());
-		return shader.release();
+		NzShaderLibrary::Register(name, shader);
+		return shader;
 	}
 }
 
@@ -115,20 +113,13 @@ NzDeferredRenderTechnique::NzDeferredRenderTechnique() :
 m_renderQueue(static_cast<NzForwardRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
 m_GBufferSize(0U)
 {
-	m_depthStencilBuffer = new NzRenderBuffer;
-	m_depthStencilBuffer->SetPersistent(false);
+	m_depthStencilBuffer = NzRenderBuffer::New();
 
 	for (unsigned int i = 0; i < 2; ++i)
-	{
-		m_workTextures[i] = new NzTexture;
-		m_workTextures[i]->SetPersistent(false);
-	}
+		m_workTextures[i] = NzTexture::New();
 
 	for (unsigned int i = 0; i < 3; ++i)
-	{
-		m_GBuffer[i] = new NzTexture;
-		m_GBuffer[i]->SetPersistent(false);
-	}
+		m_GBuffer[i] = NzTexture::New();
 
 	try
 	{

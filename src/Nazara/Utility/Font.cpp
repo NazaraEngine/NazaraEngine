@@ -340,16 +340,14 @@ NzFont* NzFont::GetDefault()
 
 	if (!s_defaultFont)
 	{
-		std::unique_ptr<NzFont> cabin(new NzFont);
-		cabin->SetPersistent(true);
-
+		NzFontRef cabin = NzFont::New();
 		if (!cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
 		{
 			NazaraError("Failed to open default font");
 			return nullptr;
 		}
 
-		s_defaultFont = cabin.release();
+		s_defaultFont = cabin;
 	}
 
 	return s_defaultFont;
@@ -400,13 +398,7 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 void NzFont::Uninitialize()
 {
 	s_defaultAtlas.reset();
-
-	// On rend la police non-persistente et on demande la vérification du compteur (pouvant entraîner la libération de la ressource)
-	if (s_defaultFont)
-	{
-		s_defaultFont->SetPersistent(false, true);
-		s_defaultFont = nullptr;
-	}
+	s_defaultFont.Reset();
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -582,7 +574,7 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 }
 
 std::shared_ptr<NzAbstractAtlas> NzFont::s_defaultAtlas;
-NzFont* NzFont::s_defaultFont;
+NzFontRef NzFont::s_defaultFont;
 NzFontLoader::LoaderList NzFont::s_loaders;
 unsigned int NzFont::s_defaultGlyphBorder;
 unsigned int NzFont::s_defaultMinimumStepSize;

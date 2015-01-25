@@ -26,10 +26,7 @@ m_blurPassCount(5)
 	m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
 	for (unsigned int i = 0; i < 2; ++i)
-	{
-		m_bloomTextures[i] = new NzTexture;
-		m_bloomTextures[i]->SetPersistent(false);
-	}
+		m_bloomTextures[i] = NzTexture::New();
 }
 
 NzDeferredBloomPass::~NzDeferredBloomPass() = default;

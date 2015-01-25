@@ -42,6 +42,12 @@ NzObjectRef<T>::~NzObjectRef()
 }
 
 template<typename T>
+T* NzObjectRef<T>::Get() const
+{
+	return m_object;
+}
+
+template<typename T>
 bool NzObjectRef<T>::IsValid() const
 {
 	return m_object != nullptr;

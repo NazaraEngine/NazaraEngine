@@ -85,6 +85,8 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 
 		static bool Initialize();
 
+		template<typename... Args> static NzFontRef New(Args&&... args);
+
 		static void SetDefaultAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
 		static void SetDefaultGlyphBorder(unsigned int borderSize);
 		static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
@@ -138,10 +140,12 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 		unsigned int m_minimumStepSize;
 
 		static std::shared_ptr<NzAbstractAtlas> s_defaultAtlas;
-		static NzFont* s_defaultFont;
+		static NzFontRef s_defaultFont;
 		static NzFontLoader::LoaderList s_loaders;
 		static unsigned int s_defaultGlyphBorder;
 		static unsigned int s_defaultMinimumStepSize;
 };
+
+#include <Nazara/Utility/Font.inl>
 
 #endif // NAZARA_FONT_HPP

@@ -108,7 +108,7 @@ void NzTextSprite::SetColor(const NzColor& color)
 
 void NzTextSprite::SetDefaultMaterial()
 {
-	std::unique_ptr<NzMaterial> material(new NzMaterial);
+	NzMaterialRef material = NzMaterial::New();
 	material->Enable(nzRendererParameter_Blend, true);
 	material->Enable(nzRendererParameter_DepthWrite, false);
 	material->Enable(nzRendererParameter_FaceCulling, false);
@@ -116,10 +116,7 @@ void NzTextSprite::SetDefaultMaterial()
 	material->SetDstBlend(nzBlendFunc_InvSrcAlpha);
 	material->SetSrcBlend(nzBlendFunc_SrcAlpha);
 
-	SetMaterial(material.get());
-
-	material->SetPersistent(false);
-	material.release();
+	SetMaterial(material);
 }
 
 void NzTextSprite::SetMaterial(NzMaterial* material)

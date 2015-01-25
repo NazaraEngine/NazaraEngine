@@ -101,11 +101,14 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public
 		static bool IsFormatSupported(nzPixelFormat format);
 		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);
+		template<typename... Args> static NzTextureRef New(Args&&... args);
 
 	private:
 		bool CreateTexture(bool proxy);
 
 		NzTextureImpl* m_impl = nullptr;
 };
+
+#include <Nazara/Renderer/Texture.inl>
 
 #endif // NAZARA_TEXTURE_HPP
