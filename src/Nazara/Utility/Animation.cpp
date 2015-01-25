@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -48,7 +48,7 @@ bool NzAnimation::AddSequence(const NzSequence& sequence)
 
 	if (sequence.frameCount == 0)
 	{
-		NazaraError("Sequence frame count must be over 0");
+		NazaraError("Sequence frame count must be over zero");
 		return false;
 	}
 	#endif

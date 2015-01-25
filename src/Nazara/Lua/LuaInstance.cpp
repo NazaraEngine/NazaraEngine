@@ -1,8 +1,6 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Lua/lauxlib.h>
@@ -11,6 +9,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <cstdlib>
@@ -558,7 +557,7 @@ bool NzLuaInstance::IsOfType(int index, nzLuaType type) const
 			return lua_isuserdata(m_state, index) == 1;
 	}
 
-	NazaraError("Lua type unhandled (0x" + NzString::Number(type, 16) + ')');
+	NazaraError("Lua type not handled (0x" + NzString::Number(type, 16) + ')');
 	return false;
 }
 
@@ -621,7 +620,7 @@ void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
 void NzLuaInstance::PushFunction(NzLuaFunction func)
 {
 	NzLuaFunction* luaFunc = reinterpret_cast<NzLuaFunction*>(lua_newuserdata(m_state, sizeof(NzLuaFunction)));
-	new (luaFunc) NzLuaFunction(std::move(func));
+	NzPlacementNew<NzLuaFunction>(luaFunc, std::move(func));
 
 	lua_pushcclosure(m_state, ProxyFunc, 1);
 }

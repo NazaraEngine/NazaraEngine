@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,7 +26,7 @@
  */
 
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <algorithm>
 #include <unordered_map>
@@ -189,11 +189,9 @@ namespace
 		void MoveTriangleToEnd(int tri)
 		{
 			auto it = std::find(tri_indices.begin(), tri_indices.end(), tri);
-			int t_ind = (it != tri_indices.end()) ? std::distance(tri_indices.begin(), it) : -1;
+			NazaraAssert(it != tri_indices.end(), "Triangle not found");
 
-			NazaraAssert(t_ind >= 0, "Triangle not found");
-
-			tri_indices.erase(tri_indices.begin() + t_ind, tri_indices.begin() + t_ind + 1);
+			tri_indices.erase(it);
 			tri_indices.push_back(tri);
 		}
 	};
@@ -546,15 +544,14 @@ namespace
 				TriangleCacheData* t = &m_triangles[tri];
 
 				// calculate vertex scores
-				float sum = 0.0f;
+				float sum = 0.f;
 				for (unsigned int i = 0; i < 3; ++i)
 				{
 					VertexCacheData *v = &m_vertices[t->verts[i]];
 					float sc = v->current_score;
 					if (!v->calculated)
-					{
 						sc = CalculateVertexScore(t->verts[i]);
-					}
+
 					v->current_score = sc;
 					v->calculated = true;
 					sum += sc;

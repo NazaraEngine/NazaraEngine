@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Utility/Node.hpp>
 
 class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
 {
@@ -32,6 +32,9 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 		NzVector3f GetForward() const;
 		float GetFOV() const;
 		const NzFrustumf& GetFrustum() const;
+		NzVector3f GetGlobalForward() const;
+		NzVector3f GetGlobalRight() const;
+		NzVector3f GetGlobalUp() const;
 		const NzMatrix4f& GetProjectionMatrix() const;
 		const NzRenderTarget* GetTarget() const;
 		const NzRectf& GetTargetRegion() const;

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,10 +8,19 @@
 #define NAZARA_SKELETON_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
+
+class NzSkeleton;
+
+using NzSkeletonConstListener = NzObjectListenerWrapper<const NzSkeleton>;
+using NzSkeletonConstRef = NzObjectRef<const NzSkeleton>;
+using NzSkeletonListener = NzObjectListenerWrapper<NzSkeleton>;
+using NzSkeletonRef = NzObjectRef<NzSkeleton>;
 
 struct NzSkeletonImpl;
 

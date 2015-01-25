@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,23 +8,25 @@
 #define NAZARA_INDEXBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/Resource.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 
 class NzIndexBuffer;
 
+using NzIndexBufferConstListener = NzObjectListenerWrapper<const NzIndexBuffer>;
 using NzIndexBufferConstRef = NzObjectRef<const NzIndexBuffer>;
+using NzIndexBufferListener = NzObjectListenerWrapper<NzIndexBuffer>;
 using NzIndexBufferRef = NzObjectRef<NzIndexBuffer>;
 
 class NAZARA_API NzIndexBuffer : public NzRefCounted
 {
 	public:
 		NzIndexBuffer() = default;
+		NzIndexBuffer(bool largeIndices, NzBuffer* buffer);
 		NzIndexBuffer(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		NzIndexBuffer(bool largeIndices, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		NzIndexBuffer(bool largeIndices, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		NzIndexBuffer(const NzIndexBuffer& indexBuffer);
-		NzIndexBuffer(NzIndexBuffer&& indexBuffer) noexcept;
 		~NzIndexBuffer();
 
 		unsigned int ComputeCacheMissCount() const;
@@ -51,17 +53,16 @@ class NAZARA_API NzIndexBuffer : public NzRefCounted
 		void Optimize();
 
 		void Reset();
+		void Reset(bool largeIndices, NzBuffer* buffer);
 		void Reset(bool largeIndices, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		void Reset(bool largeIndices, unsigned int length, nzBufferStorage storage = nzBufferStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+		void Reset(bool largeIndices, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
 		void Reset(const NzIndexBuffer& indexBuffer);
-		void Reset(NzIndexBuffer&& indexBuffer) noexcept;
 
-		bool SetStorage(nzBufferStorage storage);
+		bool SetStorage(nzUInt32 storage);
 
 		void Unmap() const;
 
 		NzIndexBuffer& operator=(const NzIndexBuffer& indexBuffer);
-		NzIndexBuffer& operator=(NzIndexBuffer&& indexBuffer) noexcept;
 
 	private:
 		NzBufferRef m_buffer;

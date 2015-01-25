@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -46,8 +46,8 @@ bool NzTriangleIterator::Advance()
 
 		case nzPrimitiveMode_TriangleStrip:
 			m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
-			m_triangleIndices[1] = m_triangleIndices[2];
 			m_triangleIndices[0] = m_triangleIndices[1];
+			m_triangleIndices[1] = m_triangleIndices[2];
 			break;
 
 		default:

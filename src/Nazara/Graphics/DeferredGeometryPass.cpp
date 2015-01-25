@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -51,23 +51,21 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
 
 	const NzShader* lastShader = nullptr;
+	const ShaderUniforms* shaderUniforms = nullptr;
 
 	for (auto& matIt : m_renderQueue->opaqueModels)
 	{
-		bool& used = std::get<0>(matIt.second);
-		if (used)
+		auto& matEntry = matIt.second;
+
+		if (matEntry.enabled)
 		{
-			bool& renderQueueInstancing = std::get<1>(matIt.second);
-			NzDeferredRenderQueue::MeshInstanceContainer& meshInstances = std::get<2>(matIt.second);
+			NzDeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
 			if (!meshInstances.empty())
 			{
 				const NzMaterial* material = matIt.first;
 
-				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
-				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
-				// (Le deferred shading n'a pas ce problème)
-				bool useInstancing = instancingEnabled && renderQueueInstancing;
+				bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
 
 				// On commence par récupérer le programme du matériau
 				nzUInt32 flags = nzShaderFlags_Deferred;
@@ -79,10 +77,13 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 				if (shader != lastShader)
 				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
 					// Couleur ambiante de la scène
-					shader->SendColor(shader->GetUniformLocation(nzShaderUniform_SceneAmbient), scene->GetAmbientColor());
+					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
 					// Position de la caméra
-					shader->SendVector(shader->GetUniformLocation(nzShaderUniform_EyePosition), viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -91,28 +92,29 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 				for (auto& meshIt : meshInstances)
 				{
 					const NzMeshData& meshData = meshIt.first;
-					std::vector<NzMatrix4f>& instances = meshIt.second;
+					auto& meshEntry = meshIt.second;
 
+					std::vector<NzMatrix4f>& instances = meshEntry.instances;
 					if (!instances.empty())
 					{
 						const NzIndexBuffer* indexBuffer = meshData.indexBuffer;
 						const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
 						// Gestion du draw call avant la boucle de rendu
-						std::function<void(nzPrimitiveMode, unsigned int, unsigned int)> DrawFunc;
-						std::function<void(unsigned int, nzPrimitiveMode, unsigned int, unsigned int)> InstancedDrawFunc;
+						NzRenderer::DrawCall drawFunc;
+						NzRenderer::DrawCallInstanced instancedDrawFunc;
 						unsigned int indexCount;
 
 						if (indexBuffer)
 						{
-							DrawFunc = NzRenderer::DrawIndexedPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawIndexedPrimitives;
+							instancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
 							indexCount = indexBuffer->GetIndexCount();
 						}
 						else
 						{
-							DrawFunc = NzRenderer::DrawPrimitives;
-							InstancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
+							drawFunc = NzRenderer::DrawPrimitives;
+							instancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
 							indexCount = vertexBuffer->GetVertexCount();
 						}
 
@@ -140,18 +142,18 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 								instanceMatrices += renderedInstanceCount;
 
 								// Et on affiche
-								InstancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+								instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 							}
 						}
 						else
 						{
-							// Sans instancing, on doit effectuer un drawcall pour chaque instance
+							// Sans instancing, on doit effectuer un draw call pour chaque instance
 							// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
 							// À cause du temps de modification du buffer d'instancing
 							for (const NzMatrix4f& matrix : instances)
 							{
 								NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-								DrawFunc(meshData.primitiveMode, 0, indexCount);
+								drawFunc(meshData.primitiveMode, 0, indexCount);
 							}
 						}
 
@@ -161,8 +163,8 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 			}
 
 			// Et on remet à zéro les données
-			renderQueueInstancing = false;
-			used = false;
+			matEntry.enabled = false;
+			matEntry.instancingEnabled = false;
 		}
 	}
 
@@ -228,7 +230,23 @@ bool NzDeferredGeometryPass::Resize(const NzVector2ui& dimensions)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraError("Failed to create G-Buffer RTT");
+		NazaraError("Failed to create G-Buffer RTT: " + NzString(e.what()));
 		return false;
 	}
+}
+
+const NzDeferredGeometryPass::ShaderUniforms* NzDeferredGeometryPass::GetShaderUniforms(const NzShader* shader) const
+{
+	auto it = m_shaderUniforms.find(shader);
+	if (it == m_shaderUniforms.end())
+	{
+		ShaderUniforms uniforms;
+		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
+		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
+
+		it = m_shaderUniforms.emplace(shader, uniforms).first;
+	}
+
+	return &it->second;
 }

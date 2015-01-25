@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,9 +10,9 @@
 
 NzDeferredBloomPass::NzDeferredBloomPass() :
 m_uniformUpdated(false),
-m_brightLuminance(0.8),
-m_brightMiddleGrey(0.5),
-m_brightThreshold(0.8),
+m_brightLuminance(0.8f),
+m_brightMiddleGrey(0.5f),
+m_brightThreshold(0.8f),
 m_blurPassCount(5)
 {
 	m_bilinearSampler.SetAnisotropyLevel(1);

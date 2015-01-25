@@ -1,10 +1,10 @@
-﻿// Copyright (C) 2014 Jérôme Leclercq
+﻿// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Basic.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
@@ -175,6 +175,7 @@ template<typename T>
 void NzBoundingVolume<T>::Update(const NzMatrix4<T>& transformMatrix)
 {
 	obb.Update(transformMatrix);
+
 	aabb.Set(obb(0), obb(1));
 	for (unsigned int i = 2; i < 8; ++i)
 		aabb.ExtendTo(obb(i));

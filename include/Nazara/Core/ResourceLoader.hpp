@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,6 +22,7 @@ class NzResourceLoader
 	public:
 		using ExtensionGetter = bool (*)(const NzString& extension);
 		using FileLoader = bool (*)(Type* resource, const NzString& filePath, const Parameters& parameters);
+		using MemoryLoader = bool (*)(Type* resource, const void* data, std::size_t size, const Parameters& parameters);
 		using StreamChecker = nzTernary (*)(NzInputStream& stream, const Parameters& parameters);
 		using StreamLoader = bool (*)(Type* resource, NzInputStream& stream, const Parameters& parameters);
 
@@ -31,10 +32,10 @@ class NzResourceLoader
 		static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
 		static bool LoadFromStream(Type* resource, NzInputStream& stream, const Parameters& parameters = Parameters());
 
-		static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr);
-		static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr);
+		static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
+		static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
 
-		using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader>;
+		using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader, MemoryLoader>;
 		using LoaderList = std::list<Loader>;
 };
 

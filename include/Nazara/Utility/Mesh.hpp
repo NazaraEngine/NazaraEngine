@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -25,17 +25,20 @@ struct NAZARA_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 
-	// Si ceci sera le stockage utilisé par les buffers
-	nzBufferStorage storage = nzBufferStorage_Hardware;
-
 	// La mise à l'échelle éventuelle que subira le mesh
 	NzVector3f scale = NzVector3f::Unit();
+
+	// Si ceci sera le stockage utilisé par les buffers
+	nzUInt32 storage = nzDataStorage_Hardware;
 
 	// Charger une version animée du mesh si possible ?
 	bool animated = true;
 
 	// Faut-il centrer le mesh autour de l'origine ?
 	bool center = false;
+
+	// Faut-il retourner les UV ?
+	bool flipUVs = false;
 
 	// Faut-il optimiser les index buffers ? (Rendu plus rapide, mais le chargement dure plus longtemps)
 	bool optimizeIndexBuffers = true;
@@ -50,13 +53,15 @@ class NzPrimitiveList;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
+using NzMeshConstListener = NzObjectListenerWrapper<const NzMesh>;
 using NzMeshConstRef = NzObjectRef<const NzMesh>;
+using NzMeshListener = NzObjectListenerWrapper<NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 using NzMeshRef = NzObjectRef<NzMesh>;
 
 struct NzMeshImpl;
 
-class NAZARA_API NzMesh : public NzRefCounted, public NzResource, NzObjectListener
+class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 {
 	friend NzMeshLoader;
 
@@ -119,8 +124,6 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource, NzObjectListen
 		void Transform(const NzMatrix4f& matrix);
 
 	private:
-		void OnObjectReleased(const NzRefCounted* object, int index) override;
-
 		NzMeshImpl* m_impl = nullptr;
 
 		static NzMeshLoader::LoaderList s_loaders;

@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,18 +8,23 @@
 #define NAZARA_VECTOR3_HPP
 
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Math/Vector2.hpp>
 
-template<typename T> class NzVector3
+template<typename T> class NzVector2;
+template<typename T> class NzVector4;
+
+template<typename T>
+class NzVector3
 {
 	public:
 		NzVector3() = default;
 		NzVector3(T X, T Y, T Z);
+		NzVector3(T X, const NzVector2<T>& vec);
 		explicit NzVector3(T scale);
 		NzVector3(const T vec[3]);
 		NzVector3(const NzVector2<T>& vec, T Z = 0.0);
 		template<typename U> explicit NzVector3(const NzVector3<U>& vec);
 		NzVector3(const NzVector3& vec) = default;
+		explicit NzVector3(const NzVector4<T>& vec);
 		~NzVector3() = default;
 
 		T AbsDotProduct(const NzVector3& vec) const;
@@ -56,11 +61,13 @@ template<typename T> class NzVector3
 		NzVector3& Normalize(T* length = nullptr);
 
 		NzVector3& Set(T X, T Y, T Z);
+		NzVector3& Set(T X, const NzVector2<T>& vec);
 		NzVector3& Set(T scale);
 		NzVector3& Set(const T vec[3]);
 		NzVector3& Set(const NzVector2<T>& vec, T Z = 0.0);
 		NzVector3& Set(const NzVector3<T>& vec);
 		template<typename U> NzVector3& Set(const NzVector3<U>& vec);
+		NzVector3& Set(const NzVector4<T>& vec);
 
 		T SquaredDistance(const NzVector3& vec) const;
 

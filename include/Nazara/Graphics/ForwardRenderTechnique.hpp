@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,7 +19,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 {
 	public:
 		NzForwardRenderTechnique();
-		~NzForwardRenderTechnique();
+		~NzForwardRenderTechnique() = default;
 
 		void Clear(const NzScene* scene) const;
 		bool Draw(const NzScene* scene) const;
@@ -30,30 +30,46 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 
 		void SetMaxLightPassPerObject(unsigned int passCount);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 	private:
-		struct LightUniforms;
+		struct ShaderUniforms;
 
+		void DrawBasicSprites(const NzScene* scene) const;
+		void DrawBillboards(const NzScene* scene) const;
 		void DrawOpaqueModels(const NzScene* scene) const;
-		void DrawSprites(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
-		const LightUniforms* GetLightUniforms(const NzShader* shader) const;
+		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
 
-		struct LightUniforms
+		struct ShaderUniforms
 		{
-			NzLightUniforms uniforms;
-			bool exists;
-			int offset; // "Distance" entre Lights[0].type et Lights[1].type
+			NzLightUniforms lightUniforms;
+			bool hasLightUniforms;
+
 			/// Moins coûteux en mémoire que de stocker un NzLightUniforms par index de lumière,
 			/// à voir si ça fonctionne chez tout le monde
+			int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
+
+			// Autre uniformes
+			int eyePosition;
+			int sceneAmbient;
+			int textureOverlay;
 		};
 
-		mutable std::unordered_map<const NzShader*, LightUniforms> m_lightUniforms;
+		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
+		NzBuffer m_vertexBuffer;
 		mutable NzForwardRenderQueue m_renderQueue;
-		NzIndexBufferRef m_indexBuffer;
 		mutable NzLightManager m_directionalLights;
 		mutable NzLightManager m_lights;
+		NzVertexBuffer m_billboardPointBuffer;
 		NzVertexBuffer m_spriteBuffer;
 		unsigned int m_maxLightPassPerObject;
+
+		static NzIndexBuffer s_quadIndexBuffer;
+		static NzVertexBuffer s_quadVertexBuffer;
+		static NzVertexDeclaration s_billboardInstanceDeclaration;
+		static NzVertexDeclaration s_billboardVertexDeclaration;
 };
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP

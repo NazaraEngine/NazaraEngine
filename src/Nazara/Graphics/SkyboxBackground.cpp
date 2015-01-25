@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,7 +21,7 @@ namespace
 {
 	NzIndexBuffer* BuildIndexBuffer()
 	{
-		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, 36, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzIndexBuffer> indexBuffer(new NzIndexBuffer(false, 36, nzDataStorage_Hardware, nzBufferUsage_Static));
 		indexBuffer->SetPersistent(false);
 
 		nzUInt16 indices[6*6] =
@@ -87,7 +87,7 @@ namespace
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    vTexCoord = vec3(VertexPosition.x, -VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
 		const char* vertexSource140 =
@@ -102,7 +102,7 @@ namespace
 		"void main()\n"
 		"{\n"
 		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    vTexCoord = vec3(VertexPosition.x, -VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
 		///TODO: Remplacer ça par des ShaderNode
@@ -155,7 +155,7 @@ namespace
 
 	NzVertexBuffer* BuildVertexBuffer()
 	{
-		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 8, nzBufferStorage_Hardware, nzBufferUsage_Static));
+		std::unique_ptr<NzVertexBuffer> vertexBuffer(new NzVertexBuffer(NzVertexDeclaration::Get(nzVertexLayout_XYZ), 8, nzDataStorage_Hardware, nzBufferUsage_Static));
 		vertexBuffer->SetPersistent(false);
 
 		float vertices[8*(sizeof(float)*3)] =

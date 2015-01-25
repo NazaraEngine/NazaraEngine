@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,15 +23,6 @@ enum nzBufferAccess
 	nzBufferAccess_WriteOnly,
 
 	nzBufferAccess_Max = nzBufferAccess_WriteOnly
-};
-
-enum nzBufferStorage
-{
-	//nzBufferStorage_Both, ///TODO
-	nzBufferStorage_Hardware,
-	nzBufferStorage_Software,
-
-	nzBufferStorage_Max = nzBufferStorage_Software
 };
 
 enum nzBufferType
@@ -84,6 +75,16 @@ enum nzCubemapFace
 	nzCubemapFace_Max = nzCubemapFace_NegativeZ
 };
 
+enum nzDataStorageFlags
+{
+	nzDataStorage_Hardware = 0x1,
+	nzDataStorage_Software = 0x2,
+
+	nzDataStorage_Both = nzDataStorage_Hardware | nzDataStorage_Software,
+
+	nzDataStorage_Max = nzDataStorage_Software*2-1
+};
+
 enum nzEventType
 {
 	nzEventType_GainedFocus,
@@ -130,6 +131,7 @@ enum nzPixelFormat
 {
 	nzPixelFormat_Undefined = -1,
 
+	nzPixelFormat_A8,              // 1*uint8
 	nzPixelFormat_BGR8,            // 3*uint8
 	nzPixelFormat_BGRA8,           // 4*uint8
 	nzPixelFormat_DXT1,
@@ -217,16 +219,39 @@ enum nzPrimitiveMode
 	nzPrimitiveMode_Max = nzPrimitiveMode_TriangleFan
 };
 
+enum nzTextAlign
+{
+	nzTextAlign_Left,
+	nzTextAlign_Middle,
+	nzTextAlign_Right,
+
+	nzTextAlign_Max = nzTextAlign_Right
+};
+
+enum nzTextStyleFlags
+{
+	nzTextStyle_Regular = 0x0,
+
+	nzTextStyle_Bold          = 0x1,
+	nzTextStyle_Italic        = 0x2,
+	nzTextStyle_StrikeThrough = 0x4,
+	nzTextStyle_Underlined    = 0x8,
+
+	nzTextStyle_Max = nzTextStyle_Underlined*2-1
+};
+
 enum nzVertexComponent
 {
 	nzVertexComponent_Unused = -1,
 
+	// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
 	nzVertexComponent_InstanceData0,
 	nzVertexComponent_InstanceData1,
 	nzVertexComponent_InstanceData2,
 	nzVertexComponent_InstanceData3,
 	nzVertexComponent_InstanceData4,
 	nzVertexComponent_InstanceData5,
+	nzVertexComponent_Color,
 	nzVertexComponent_Normal,
 	nzVertexComponent_Position,
 	nzVertexComponent_Tangent,
@@ -236,22 +261,24 @@ enum nzVertexComponent
 	nzVertexComponent_Userdata2,
 	nzVertexComponent_Userdata3,
 	nzVertexComponent_Userdata4,
-	nzVertexComponent_Userdata5,
 
 	nzVertexComponent_FirstInstanceData = nzVertexComponent_InstanceData0,
-	nzVertexComponent_FirstVertexData = nzVertexComponent_Normal,
+	nzVertexComponent_FirstVertexData = nzVertexComponent_Color,
 	nzVertexComponent_LastInstanceData = nzVertexComponent_InstanceData5,
-	nzVertexComponent_LastVertexData = nzVertexComponent_Userdata5,
+	nzVertexComponent_LastVertexData = nzVertexComponent_Userdata4,
 
-	nzVertexComponent_Max = nzVertexComponent_Userdata5
+	nzVertexComponent_Max = nzVertexComponent_Userdata4
 };
 
 enum nzVertexLayout
 {
 	// Déclarations destinées au rendu
 	nzVertexLayout_XY,
+	nzVertexLayout_XY_Color,
 	nzVertexLayout_XY_UV,
 	nzVertexLayout_XYZ,
+	nzVertexLayout_XYZ_Color,
+	nzVertexLayout_XYZ_Color_UV,
 	nzVertexLayout_XYZ_Normal,
 	nzVertexLayout_XYZ_Normal_UV,
 	nzVertexLayout_XYZ_Normal_UV_Tangent,

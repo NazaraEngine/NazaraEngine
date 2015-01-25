@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,7 +23,9 @@ NzStaticMesh::~NzStaticMesh()
 
 void NzStaticMesh::Center()
 {
-	NzVector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
+	///DOC: Invalider l'AABB après ça
+	NzBoxf aabb(m_parent->GetAABB());
+	NzVector3f offset(aabb.x + aabb.width/2.f, aabb.y + aabb.height/2.f, aabb.z + aabb.depth/2.f);
 
 	NzVertexMapper mapper(this);
 	NzSparsePtr<NzVector3f> position = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);

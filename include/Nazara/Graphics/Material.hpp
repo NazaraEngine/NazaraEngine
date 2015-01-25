@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -35,7 +36,9 @@ struct NAZARA_API NzMaterialParams
 
 class NzMaterial;
 
+using NzMaterialConstListener = NzObjectListenerWrapper<const NzMaterial>;
 using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
+using NzMaterialListener = NzObjectListenerWrapper<NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzObjectRef<NzMaterial>;
 
@@ -47,13 +50,13 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 	public:
 		NzMaterial();
 		NzMaterial(const NzMaterial& material);
-		NzMaterial(NzMaterial&& material);
 		~NzMaterial();
 
 		const NzShader* Apply(nzUInt32 shaderFlags = 0, nzUInt8 textureUnit = 0, nzUInt8* lastUsedUnit = nullptr) const;
 
 		void Enable(nzRendererParameter renderParameter, bool enable);
 		void EnableAlphaTest(bool alphaTest);
+		void EnableDepthSorting(bool depthSorting);
 		void EnableLighting(bool lighting);
 		void EnableTransform(bool transform);
 
@@ -89,6 +92,7 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		bool HasSpecularMap() const;
 
 		bool IsAlphaTestEnabled() const;
+		bool IsDepthSortingEnabled() const;
 		bool IsEnabled(nzRendererParameter renderParameter) const;
 		bool IsLightingEnabled() const;
 		bool IsTransformEnabled() const;
@@ -128,7 +132,6 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		void SetSrcBlend(nzBlendFunc func);
 
 		NzMaterial& operator=(const NzMaterial& material);
-		NzMaterial& operator=(NzMaterial&& material);
 
 		static NzMaterial* GetDefault();
 
@@ -136,11 +139,12 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		struct ShaderInstance
 		{
 			const NzShader* shader;
-			NzUberShaderInstance* uberInstance;
+			NzUberShaderInstance* uberInstance = nullptr;
 			int uniforms[nzMaterialUniform_Max+1];
 		};
 
 		void Copy(const NzMaterial& material);
+		void Move(NzMaterial&& material);
 		void GenerateShader(nzUInt32 flags) const;
 		void InvalidateShaders();
 
@@ -162,6 +166,7 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		NzUberShaderConstRef m_uberShader;
 		mutable ShaderInstance m_shaders[nzShaderFlags_Max+1];
 		bool m_alphaTestEnabled;
+		bool m_depthSortingEnabled;
 		bool m_lightingEnabled;
 		bool m_transformEnabled;
 		float m_alphaThreshold;

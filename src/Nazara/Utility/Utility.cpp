@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,6 +12,8 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/Loaders/FreeType.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Utility/Loaders/MD5Anim.hpp>
 #include <Nazara/Utility/Loaders/MD5Mesh.hpp>
@@ -48,6 +50,12 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
+	if (!NzFont::Initialize())
+	{
+		NazaraError("Failed to initialize fonts");
+		return false;
+	}
+
 	if (!NzPixelFormat::Initialize())
 	{
 		NazaraError("Failed to initialize pixel formats");
@@ -70,6 +78,9 @@ bool NzUtility::Initialize()
 	// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
 	/// Loaders génériques
+	// Font
+	NzLoaders_FreeType_Register();
+
 	// Image
 	NzLoaders_STB_Register(); // Loader générique (STB)
 
@@ -109,6 +120,7 @@ void NzUtility::Uninitialize()
 	// Libération du module
 	s_moduleReferenceCounter = 0;
 
+	NzLoaders_FreeType_Unregister();
 	NzLoaders_MD2_Unregister();
 	NzLoaders_MD5Anim_Unregister();
 	NzLoaders_MD5Mesh_Unregister();
@@ -118,6 +130,7 @@ void NzUtility::Uninitialize()
 	NzWindow::Uninitialize();
 	NzVertexDeclaration::Uninitialize();
 	NzPixelFormat::Uninitialize();
+	NzFont::Uninitialize();
 	NzBuffer::Uninitialize();
 
 	NazaraNotice("Uninitialized: Utility module");
@@ -146,7 +159,7 @@ unsigned int NzUtility::ComponentCount[nzComponentType_Max+1] =
 
 static_assert(nzComponentType_Max+1 == 14, "Component count array is incomplete");
 
-unsigned int NzUtility::ComponentStride[nzComponentType_Max+1] =
+std::size_t NzUtility::ComponentStride[nzComponentType_Max+1] =
 {
 	4*sizeof(nzUInt8),  // nzComponentType_Color
 	1*sizeof(double),   // nzComponentType_Double1
