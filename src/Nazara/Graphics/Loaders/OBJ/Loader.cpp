@@ -163,9 +163,6 @@ namespace
 			subMesh->SetMaterialIndex(meshes[i].material);
 			subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
 
-			if (parameters.mesh.center)
-				subMesh->Center();
-
 			// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 			if (hasNormals && hasTexCoords)
 				subMesh->GenerateTangents();
@@ -176,8 +173,10 @@ namespace
 
 			mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh);
 		}
-
 		mesh->SetMaterialCount(parser.GetMaterialCount());
+
+		if (parameters.mesh.center)
+			mesh->Recenter();
 
 		model->SetMesh(mesh);
 
