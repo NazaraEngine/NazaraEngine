@@ -11,6 +11,7 @@
 
 NzSceneNode::NzSceneNode() :
 m_scene(nullptr),
+m_boundingVolumeUpdated(false),
 m_drawingEnabled(true),
 m_visible(false)
 {
@@ -19,6 +20,7 @@ m_visible(false)
 NzSceneNode::NzSceneNode(const NzSceneNode& sceneNode) :
 NzNode(sceneNode),
 m_scene(nullptr),
+m_boundingVolumeUpdated(false),
 m_drawingEnabled(sceneNode.m_drawingEnabled),
 m_visible(false)
 {
@@ -42,6 +44,14 @@ NzVector3f NzSceneNode::GetBackward() const
 	}
 	else
 		return NzNode::GetBackward();
+}
+
+const NzBoundingVolumef& NzSceneNode::GetBoundingVolume() const
+{
+	if (!m_boundingVolumeUpdated)
+		UpdateBoundingVolume();
+
+	return m_boundingVolume;
 }
 
 NzVector3f NzSceneNode::GetDown() const
@@ -81,6 +91,11 @@ NzVector3f NzSceneNode::GetLeft() const
 	}
 	else
 		return NzNode::GetLeft();
+}
+
+const NzString& NzSceneNode::GetName() const
+{
+	return m_name;
 }
 
 nzNodeType NzSceneNode::GetNodeType() const
@@ -129,6 +144,19 @@ bool NzSceneNode::IsVisible() const
 	return m_visible;
 }
 
+bool NzSceneNode::SetName(const NzString& name)
+{
+	if (m_scene)
+		// On demande à la scène de changer notre nom
+		return m_scene->ChangeNodeName(this, name);
+	else
+	{
+		// Pas de scène ? Changeons notre nom nous-même
+		SetNameInternal(name);
+		return true;
+	}
+}
+
 NzSceneNode& NzSceneNode::operator=(const NzSceneNode& sceneNode)
 {
 	NzNode::operator=(sceneNode);
@@ -143,6 +171,13 @@ NzSceneNode& NzSceneNode::operator=(const NzSceneNode& sceneNode)
 bool NzSceneNode::FrustumCull(const NzFrustumf& frustum) const
 {
 	return frustum.Contains(GetBoundingVolume());
+}
+
+void NzSceneNode::InvalidateNode()
+{
+	NzNode::InvalidateNode();
+
+	m_boundingVolumeUpdated = false;
 }
 
 void NzSceneNode::OnParenting(const NzNode* parent)
@@ -184,6 +219,11 @@ void NzSceneNode::Register()
 {
 }
 
+void NzSceneNode::SetNameInternal(const NzString& name)
+{
+	m_name = name;
+}
+
 void NzSceneNode::SetScene(NzScene* scene)
 {
 	if (m_scene != scene)
@@ -205,6 +245,18 @@ void NzSceneNode::Unregister()
 
 void NzSceneNode::Update()
 {
+}
+
+void NzSceneNode::UpdateBoundingVolume() const
+{
+	if (m_boundingVolume.IsNull())
+		MakeBoundingVolume();
+
+	if (!m_transformMatrixUpdated)
+		UpdateTransformMatrix();
+
+	m_boundingVolume.Update(m_transformMatrix);
+	m_boundingVolumeUpdated = true;
 }
 
 void NzSceneNode::UpdateVisibility(const NzFrustumf& frustum)

@@ -43,7 +43,6 @@ class NAZARA_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		void* GenerateParticle();
 		void* GenerateParticles(unsigned int count);
 
-		const NzBoundingVolumef& GetBoundingVolume() const override;
 		const NzParticleDeclaration* GetDeclaration() const;
 		float GetFixedStepSize() const;
 		unsigned int GetMaxParticleCount() const;
@@ -67,22 +66,19 @@ class NAZARA_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		NzParticleSystem& operator=(const NzParticleSystem& emitter);
 
 	private:
-		void GenerateAABB() const;
+		void MakeBoundingVolume() const override;
 		void Register() override;
 		void ResizeBuffer();
 		void Unregister() override;
 		void Update() override;
-		void UpdateBoundingVolume() const;
 
 		std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
 		mutable std::vector<nzUInt8> m_buffer;
 		std::vector<NzParticleControllerRef> m_controllers;
 		std::vector<NzParticleEmitter*> m_emitters;
 		std::vector<NzParticleGeneratorRef> m_generators;
-		mutable NzBoundingVolumef m_boundingVolume;
 		NzParticleDeclarationConstRef m_declaration;
 		NzParticleRendererRef m_renderer;
-		mutable bool m_boundingVolumeUpdated;
 		bool m_fixedStepEnabled;
 		bool m_processing;
 		float m_stepAccumulator;
