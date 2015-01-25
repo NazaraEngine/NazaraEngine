@@ -52,7 +52,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		bool IsDrawingEnabled() const;
 		bool IsVisible() const;
 
-		void SetName(const NzString& name);
+		bool SetName(const NzString& name);
 
 		NzSceneNode& operator=(const NzSceneNode& sceneNode);
 		NzSceneNode& operator=(NzSceneNode&& sceneNode) = delete;
@@ -65,6 +65,7 @@ class NAZARA_API NzSceneNode : public NzNode
 		virtual void OnVisibilityChange(bool visibility);
 		void RecursiveSetScene(NzScene* scene, NzNode* node);
 		virtual void Register();
+		void SetNameInternal(const NzString& name);
 		void SetScene(NzScene* scene);
 		virtual void Unregister();
 		virtual void Update();
