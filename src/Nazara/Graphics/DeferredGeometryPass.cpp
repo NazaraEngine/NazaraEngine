@@ -142,7 +142,7 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 								instanceMatrices += renderedInstanceCount;
 
 								// Et on affiche
-								InstancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+								instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 							}
 						}
 						else
@@ -153,7 +153,7 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 							for (const NzMatrix4f& matrix : instances)
 							{
 								NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-								DrawFunc(meshData.primitiveMode, 0, indexCount);
+								drawFunc(meshData.primitiveMode, 0, indexCount);
 							}
 						}
 
