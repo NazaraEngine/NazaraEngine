@@ -125,11 +125,6 @@ NzVector3f NzNode::GetLeft() const
 	return m_derivedRotation * NzVector3f::Left();
 }
 
-const NzString& NzNode::GetName() const
-{
-	return m_name;
-}
-
 nzNodeType NzNode::GetNodeType() const
 {
 	return nzNodeType_Default;
@@ -413,11 +408,6 @@ void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
 	InvalidateNode();
 }
 
-void NzNode::SetName(const NzString& name)
-{
-	m_name = name;
-}
-
 void NzNode::SetParent(const NzNode* node, bool keepDerived)
 {
 	#if NAZARA_UTILITY_SAFE
@@ -621,7 +611,6 @@ NzNode& NzNode::operator=(const NzNode& node)
 	m_initialPosition = node.m_initialPosition;
 	m_initialRotation = node.m_initialRotation;
 	m_initialScale = node.m_initialScale;
-	m_name = node.m_name;
 	m_position = node.m_position;
 	m_rotation = node.m_rotation;
 	m_scale = node.m_scale;

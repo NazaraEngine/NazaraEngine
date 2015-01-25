@@ -25,7 +25,6 @@ bool NzModelParameters::IsValid() const
 }
 
 NzModel::NzModel() :
-m_boundingVolumeUpdated(true),
 m_matCount(0),
 m_skin(0),
 m_skinCount(1)
@@ -35,9 +34,7 @@ m_skinCount(1)
 NzModel::NzModel(const NzModel& model) :
 NzSceneNode(model),
 m_materials(model.m_materials),
-m_boundingVolume(model.m_boundingVolume),
 m_mesh(model.m_mesh),
-m_boundingVolumeUpdated(model.m_boundingVolumeUpdated),
 m_matCount(model.m_matCount),
 m_skin(model.m_skin),
 m_skinCount(model.m_skinCount)
@@ -69,22 +66,14 @@ void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	}
 }
 
-const NzBoundingVolumef& NzModel::GetBoundingVolume() const
+NzModel* NzModel::Clone() const
 {
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_mesh)
-	{
-		NazaraError("Model has no mesh");
+	return new NzModel(*this);
+}
 
-		static NzBoundingVolumef dummy(nzExtend_Null);
-		return dummy;
-	}
-	#endif
-
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-
-	return m_boundingVolume;
+NzModel* NzModel::Create() const
+{
+	return new NzModel;
 }
 
 NzMaterial* NzModel::GetMaterial(const NzString& subMeshName) const
@@ -414,23 +403,12 @@ NzModel& NzModel::operator=(const NzModel& node)
 	return *this;
 }
 
-void NzModel::InvalidateNode()
+void NzModel::MakeBoundingVolume() const
 {
-	NzSceneNode::InvalidateNode();
-
-	m_boundingVolumeUpdated = false;
-}
-
-void NzModel::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
+	if (m_mesh)
 		m_boundingVolume.Set(m_mesh->GetAABB());
-
-	if (!m_transformMatrixUpdated)
-		UpdateTransformMatrix();
-
-	m_boundingVolume.Update(m_transformMatrix);
-	m_boundingVolumeUpdated = true;
+	else
+		m_boundingVolume.MakeNull();
 }
 
 NzModelLoader::LoaderList NzModel::s_loaders;
