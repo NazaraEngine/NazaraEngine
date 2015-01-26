@@ -110,9 +110,9 @@ T& NzSparsePtr<T>::operator*() const
 }
 
 template<typename T>
-T& NzSparsePtr<T>::operator->() const
+T* NzSparsePtr<T>::operator->() const
 {
-	return *reinterpret_cast<T*>(m_ptr);
+	return reinterpret_cast<T*>(m_ptr);
 }
 
 template<typename T>
