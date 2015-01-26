@@ -632,6 +632,23 @@ namespace
 
 /**********************************NzCompute**********************************/
 
+NzBoxf NzComputeAABB(NzSparsePtr<const NzVector3f> positionPtr, unsigned int vertexCount)
+{
+	NzBoxf aabb;
+	if (vertexCount > 0)
+	{
+		aabb.Set(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
+		positionPtr++;
+
+		for (unsigned int i = 1; i < vertexCount; ++i)
+			aabb.ExtendTo(*positionPtr++);
+	}
+	else
+		aabb.MakeZero();
+
+	return aabb;
+}
+
 void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
 {
 	unsigned int xIndexCount, yIndexCount, zIndexCount;
@@ -1126,5 +1143,24 @@ void NzSkinPositionNormalTangent(const NzSkinningData& skinningInfos, unsigned i
 
 		inputVertex++;
 		outputVertex++;
+	}
+}
+
+/*********************************NzTransform*********************************/
+
+void NzTransformVertices(NzVertexPointers vertexPointers, unsigned int vertexCount, const NzMatrix4f& matrix)
+{
+	///DOC: Pointeur read/write
+	NzVector3f scale = matrix.GetScale();
+
+	for (unsigned int i = 0; i < vertexCount; ++i)
+	{
+		*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
+
+		if (vertexPointers.normalPtr)
+			*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
+
+		if (vertexPointers.tangentPtr)
+			*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
 	}
 }
