@@ -25,12 +25,12 @@ void NzStaticMesh::Center()
 {
 	NzVector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
 
-	NzVertexMapper mapper(this);
+	NzVertexMapper mapper(m_vertexBuffer);
 	NzSparsePtr<NzVector3f> position = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
 
-	unsigned int vertexCount = mapper.GetVertexCount();
+	unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
 	for (unsigned int i = 0; i < vertexCount; ++i)
-		position[i] -= offset;
+		*position++ -= offset;
 
 	m_aabb.x -= offset.x;
 	m_aabb.y -= offset.y;
