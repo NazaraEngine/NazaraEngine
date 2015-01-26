@@ -68,7 +68,7 @@ bool NzStaticMesh::GenerateAABB()
 {
 	// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
 	NzBufferMapper<NzVertexBuffer> mapper(m_vertexBuffer, nzBufferAccess_ReadOnly);
-	m_aabb = NzComputeVerticesAABB(static_cast<const NzMeshVertex*>(mapper.GetPointer()), m_vertexBuffer->GetVertexCount());
+	m_aabb = NzComputeAABB(static_cast<const NzMeshVertex*>(mapper.GetPointer()), m_vertexBuffer->GetVertexCount());
 
 	return true;
 }
