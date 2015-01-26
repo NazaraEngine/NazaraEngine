@@ -8,6 +8,7 @@
 #define NAZARA_ALGORITHM_UTILITY_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -23,6 +24,14 @@ struct NzSkinningData
 	NzMeshVertex* outputVertex;
 };
 
+struct NzVertexPointers
+{
+	NzSparsePtr<NzVector3f> normalPtr;
+	NzSparsePtr<NzVector3f> positionPtr;
+	NzSparsePtr<NzVector3f> tangentPtr;
+	NzSparsePtr<NzVector2f> uvPtr;
+};
+
 NAZARA_API void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
 NAZARA_API unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int indexCount);
 NAZARA_API void NzComputeConeIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
@@ -33,12 +42,12 @@ NAZARA_API void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsig
 template<typename T> NzBoxf NzComputeVerticesAABB(const T* vertices, unsigned int vertexCount);
 
 ///TODO: Remplacer le pointeur vertices par une structure composée de plusieurs SparsePtr
-NAZARA_API void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_API void NzGenerateCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_API void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_API void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_API void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzMeshVertex* vertices, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+NAZARA_API void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
 
 NAZARA_API void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount);
 
