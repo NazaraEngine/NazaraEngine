@@ -14,7 +14,7 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
-///TODO: Faire fonctionner les RenderTexture indépendamment du contexte (un FBO par classe et par contexte l'utilisant)
+///TODO: Faire fonctionner les RenderTexture indépendamment du contexte (un FBO par instance et par contexte l'utilisant)
 
 class NzRenderBuffer;
 
