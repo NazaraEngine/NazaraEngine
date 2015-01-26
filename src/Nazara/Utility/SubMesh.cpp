@@ -25,7 +25,7 @@ NzSubMesh::~NzSubMesh() = default;
 void NzSubMesh::GenerateNormals()
 {
 	NzVertexMapper mapper(this);
-	unsigned int vertexCount = mapper.GetVertexCount();
+	unsigned int vertexCount = GetVertexCount();
 
 	NzSparsePtr<NzVector3f> normals = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Normal);
 	NzSparsePtr<NzVector3f> positions = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
@@ -56,7 +56,7 @@ void NzSubMesh::GenerateNormals()
 void NzSubMesh::GenerateNormalsAndTangents()
 {
 	NzVertexMapper mapper(this);
-	unsigned int vertexCount = mapper.GetVertexCount();
+	unsigned int vertexCount = GetVertexCount();
 
 	NzSparsePtr<NzVector3f> normals = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Normal);
 	NzSparsePtr<NzVector3f> positions = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
