@@ -5,7 +5,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 template<typename T>
-NzBoxf NzComputeVerticesAABB(const T* vertices, unsigned int vertexCount)
+NzBoxf NzComputeAABB(const T* vertices, unsigned int vertexCount)
 {
 	NzBoxf aabb;
 	if (vertexCount > 0)
