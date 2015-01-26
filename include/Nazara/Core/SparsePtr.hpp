@@ -42,7 +42,7 @@ class NzSparsePtr
 		operator bool() const;
 		operator T*() const;
 		T& operator*() const;
-		T& operator->() const;
+		T* operator->() const;
 		T& operator[](int index) const;
 
 		NzSparsePtr operator+(int count) const;
