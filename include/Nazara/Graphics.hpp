@@ -57,6 +57,7 @@
 #include <Nazara/Graphics/LightManager.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/RayPicking.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
