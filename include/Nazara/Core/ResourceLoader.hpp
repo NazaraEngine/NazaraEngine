@@ -19,6 +19,8 @@ class NzInputStream;
 template<typename Type, typename Parameters>
 class NzResourceLoader
 {
+	friend Type;
+
 	public:
 		using ExtensionGetter = bool (*)(const NzString& extension);
 		using FileLoader = bool (*)(Type* resource, const NzString& filePath, const Parameters& parameters);
@@ -38,6 +40,7 @@ class NzResourceLoader
 		static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
 		static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
 
+	private:
 		using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader, MemoryLoader>;
 		using LoaderList = std::list<Loader>;
 };
