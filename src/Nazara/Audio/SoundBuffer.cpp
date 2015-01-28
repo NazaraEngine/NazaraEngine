@@ -234,13 +234,22 @@ bool NzSoundBuffer::Initialize()
 		return false;
 	}
 
+	if (!NzSoundBufferManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
+
 	return true;
 }
 
 void NzSoundBuffer::Uninitialize()
 {
+	NzSoundBufferManager::Uninitialize();
 	NzSoundBufferLibrary::Uninitialize();
 }
 
 NzSoundBufferLibrary::LibraryMap NzSoundBuffer::s_library;
 NzSoundBufferLoader::LoaderList NzSoundBuffer::s_loaders;
+NzSoundBufferManager::ManagerMap NzSoundBuffer::s_managerMap;
+NzSoundBufferManager::ManagerParams NzSoundBuffer::s_managerParameters;

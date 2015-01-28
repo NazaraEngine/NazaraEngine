@@ -17,6 +17,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 
 struct NzSoundBufferParams
 {
@@ -33,6 +34,7 @@ using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
 using NzSoundBufferLibrary = NzObjectLibrary<NzSoundBuffer>;
 using NzSoundBufferListener = NzObjectListenerWrapper<NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
+using NzSoundBufferManager = NzResourceManager<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
 
 struct NzSoundBufferImpl;
@@ -42,6 +44,7 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 	friend NzSound;
 	friend NzSoundBufferLibrary;
 	friend NzSoundBufferLoader;
+	friend NzSoundBufferManager;
 	friend class NzAudio;
 
 	public:
@@ -77,6 +80,8 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 
 		static NzSoundBufferLibrary::LibraryMap s_library;
 		static NzSoundBufferLoader::LoaderList s_loaders;
+		static NzSoundBufferManager::ManagerMap s_managerMap;
+		static NzSoundBufferManager::ManagerParams s_managerParameters;
 };
 
 #include <Nazara/Audio/SoundBuffer.inl>
