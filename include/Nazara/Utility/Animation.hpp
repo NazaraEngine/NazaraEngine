@@ -14,6 +14,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -37,6 +38,7 @@ using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
 using NzAnimationLibrary = NzObjectLibrary<NzAnimation>;
 using NzAnimationListener = NzObjectListenerWrapper<NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
+using NzAnimationManager = NzResourceManager<NzAnimation, NzAnimationParams>;
 using NzAnimationRef = NzObjectRef<NzAnimation>;
 
 struct NzAnimationImpl;
@@ -45,6 +47,7 @@ class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 {
 	friend NzAnimationLibrary;
 	friend NzAnimationLoader;
+	friend NzAnimationManager;
 	friend class NzUtility;
 
 	public:
@@ -94,6 +97,8 @@ class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 
 		static NzAnimationLibrary::LibraryMap s_library;
 		static NzAnimationLoader::LoaderList s_loaders;
+		static NzAnimationManager::ManagerMap s_managerMap;
+		static NzAnimationManager::ManagerParams s_managerParameters;
 };
 
 #include <Nazara/Utility/Animation.inl>

@@ -1283,12 +1283,21 @@ bool NzTexture::Initialize()
 		return false;
 	}
 
+	if (!NzTextureManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
+
 	return true;
 }
 
 void NzTexture::Uninitialize()
 {
+	NzTextureManager::Uninitialize();
 	NzTextureLibrary::Uninitialize();
 }
 
 NzTextureLibrary::LibraryMap NzTexture::s_library;
+NzTextureManager::ManagerMap NzTexture::s_managerMap;
+NzTextureManager::ManagerParams NzTexture::s_managerParameters;

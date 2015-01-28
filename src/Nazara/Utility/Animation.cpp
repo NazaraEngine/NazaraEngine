@@ -519,13 +519,22 @@ bool NzAnimation::Initialize()
 		return false;
 	}
 
+	if (!NzAnimationManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
+
 	return true;
 }
 
 void NzAnimation::Uninitialize()
 {
+	NzAnimationManager::Uninitialize();
 	NzAnimationLibrary::Uninitialize();
 }
 
 NzAnimationLibrary::LibraryMap NzAnimation::s_library;
 NzAnimationLoader::LoaderList NzAnimation::s_loaders;
+NzAnimationManager::ManagerMap NzAnimation::s_managerMap;
+NzAnimationManager::ManagerParams NzAnimation::s_managerParameters;
