@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
