@@ -114,3 +114,21 @@ bool NzRenderBuffer::IsSupported()
 {
 	return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
 }
+
+bool NzRenderBuffer::Initialize()
+{
+	if (!NzRenderBufferLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzRenderBuffer::Uninitialize()
+{
+	NzRenderBufferLibrary::Uninitialize();
+}
+
+NzRenderBufferLibrary::LibraryMap NzRenderBuffer::s_library;

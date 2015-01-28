@@ -12,3 +12,21 @@ NzRefCounted()
 }
 
 NzParticleController::~NzParticleController() = default;
+
+bool NzParticleController::Initialize()
+{
+	if (!NzParticleControllerLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzParticleController::Uninitialize()
+{
+	NzParticleControllerLibrary::Uninitialize();
+}
+
+NzParticleControllerLibrary::LibraryMap NzParticleController::s_library;

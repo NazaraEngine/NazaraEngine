@@ -363,15 +363,6 @@ unsigned int NzFont::GetDefaultMinimumStepSize()
 	return s_defaultMinimumStepSize;
 }
 
-bool NzFont::Initialize()
-{
-	s_defaultAtlas.reset(new NzGuillotineImageAtlas);
-	s_defaultGlyphBorder = 1;
-	s_defaultMinimumStepSize = 1;
-
-	return true;
-}
-
 void NzFont::SetDefaultAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 {
 	s_defaultAtlas = atlas;
@@ -393,12 +384,6 @@ void NzFont::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 	#endif
 
 	s_defaultMinimumStepSize = minimumStepSize;
-}
-
-void NzFont::Uninitialize()
-{
-	s_defaultAtlas.reset();
-	s_defaultFont.Reset();
 }
 
 nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
@@ -573,8 +558,31 @@ const NzFont::Glyph& NzFont::PrecacheGlyph(GlyphMap& glyphMap, unsigned int char
 	return glyph;
 }
 
+bool NzFont::Initialize()
+{
+	if (!NzFontLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	s_defaultAtlas.reset(new NzGuillotineImageAtlas);
+	s_defaultGlyphBorder = 1;
+	s_defaultMinimumStepSize = 1;
+
+	return true;
+}
+
+void NzFont::Uninitialize()
+{
+	s_defaultAtlas.reset();
+	s_defaultFont.Reset();
+	NzFontLibrary::Uninitialize();
+}
+
 std::shared_ptr<NzAbstractAtlas> NzFont::s_defaultAtlas;
 NzFontRef NzFont::s_defaultFont;
+NzFontLibrary::LibraryMap NzFont::s_library;
 NzFontLoader::LoaderList NzFont::s_loaders;
 unsigned int NzFont::s_defaultGlyphBorder;
 unsigned int NzFont::s_defaultMinimumStepSize;

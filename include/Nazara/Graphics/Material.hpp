@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -38,12 +39,14 @@ class NzMaterial;
 
 using NzMaterialConstListener = NzObjectListenerWrapper<const NzMaterial>;
 using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
+using NzMaterialLibrary = NzObjectLibrary<NzMaterial>;
 using NzMaterialListener = NzObjectListenerWrapper<NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzObjectRef<NzMaterial>;
 
 class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 {
+	friend NzMaterialLibrary;
 	friend NzMaterialLoader;
 	friend class NzGraphics;
 
@@ -172,8 +175,9 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 		float m_alphaThreshold;
 		float m_shininess;
 
-		static NzMaterialRef s_defaultMaterial;
+		static NzMaterialLibrary::LibraryMap s_library;
 		static NzMaterialLoader::LoaderList s_loaders;
+		static NzMaterialRef s_defaultMaterial;
 };
 
 #include <Nazara/Graphics/Material.inl>

@@ -10,16 +10,20 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Loaders/FreeType.hpp>
 #include <Nazara/Utility/Loaders/MD2.hpp>
 #include <Nazara/Utility/Loaders/MD5Anim.hpp>
 #include <Nazara/Utility/Loaders/MD5Mesh.hpp>
 #include <Nazara/Utility/Loaders/PCX.hpp>
 #include <Nazara/Utility/Loaders/STB.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/Debug.hpp>
@@ -44,6 +48,12 @@ bool NzUtility::Initialize()
 	// Initialisation du module
 	NzCallOnExit onExit(NzUtility::Uninitialize);
 
+	if (!NzAnimation::Initialize())
+	{
+		NazaraError("Failed to initialize animations");
+		return false;
+	}
+
 	if (!NzBuffer::Initialize())
 	{
 		NazaraError("Failed to initialize buffers");
@@ -56,9 +66,27 @@ bool NzUtility::Initialize()
 		return false;
 	}
 
+	if (!NzImage::Initialize())
+	{
+		NazaraError("Failed to initialize images");
+		return false;
+	}
+
+	if (!NzMesh::Initialize())
+	{
+		NazaraError("Failed to initialize meshes");
+		return false;
+	}
+
 	if (!NzPixelFormat::Initialize())
 	{
 		NazaraError("Failed to initialize pixel formats");
+		return false;
+	}
+
+	if (!NzSkeleton::Initialize())
+	{
+		NazaraError("Failed to initialize skeletons");
 		return false;
 	}
 
@@ -129,9 +157,13 @@ void NzUtility::Uninitialize()
 
 	NzWindow::Uninitialize();
 	NzVertexDeclaration::Uninitialize();
+	NzSkeleton::Uninitialize();
 	NzPixelFormat::Uninitialize();
+	NzMesh::Uninitialize();
+	NzImage::Uninitialize();
 	NzFont::Uninitialize();
 	NzBuffer::Uninitialize();
+	NzAnimation::Uninitialize();
 
 	NazaraNotice("Uninitialized: Utility module");
 

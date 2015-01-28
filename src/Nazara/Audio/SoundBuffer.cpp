@@ -226,4 +226,21 @@ unsigned int NzSoundBuffer::GetOpenALBuffer() const
 	return m_impl->buffer;
 }
 
+bool NzSoundBuffer::Initialize()
+{
+	if (!NzSoundBufferLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzSoundBuffer::Uninitialize()
+{
+	NzSoundBufferLibrary::Uninitialize();
+}
+
+NzSoundBufferLibrary::LibraryMap NzSoundBuffer::s_library;
 NzSoundBufferLoader::LoaderList NzSoundBuffer::s_loaders;
