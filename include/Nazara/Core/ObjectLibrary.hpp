@@ -25,6 +25,7 @@ class NzObjectLibrary
 		static bool Has(const NzString& name);
 
 		static void Register(const NzString& name, NzObjectRef<Type> object);
+		static NzObjectRef<Type> Query(const NzString& name);
 		static void Unregister(const NzString& name);
 
 	private:
