@@ -8,14 +8,11 @@
 template<typename Type>
 NzObjectRef<Type> NzObjectLibrary<Type>::Get(const NzString& name)
 {
-	auto it = Type::s_library.find(name);
-	if (it != Type::s_library.end())
-		return it->second;
-	else
-	{
+	NzObjectRef<Type> ref = Query(name);
+	if (!ref)
 		NazaraError("Object \"" + name + "\" is not present");
-		return nullptr;
-	}
+
+	return ref;
 }
 
 template<typename Type>
@@ -28,6 +25,16 @@ template<typename Type>
 void NzObjectLibrary<Type>::Register(const NzString& name, NzObjectRef<Type> object)
 {
 	Type::s_library.emplace(name, object);
+}
+
+template<typename Type>
+NzObjectRef<Type> NzObjectLibrary<Type>::Query(const NzString& name)
+{
+	auto it = Type::s_library.find(name);
+	if (it != Type::s_library.end())
+		return it->second;
+	else
+		return nullptr;
 }
 
 template<typename Type>
