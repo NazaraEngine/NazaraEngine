@@ -1274,3 +1274,21 @@ bool NzTexture::CreateTexture(bool proxy)
 
 	return true;
 }
+
+bool NzTexture::Initialize()
+{
+	if (!NzTextureLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzTexture::Uninitialize()
+{
+	NzTextureLibrary::Uninitialize();
+}
+
+NzTextureLibrary::LibraryMap NzTexture::s_library;

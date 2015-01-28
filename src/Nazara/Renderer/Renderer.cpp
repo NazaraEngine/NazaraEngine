@@ -14,6 +14,7 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -736,7 +737,7 @@ bool NzRenderer::Initialize()
 	NzCallOnExit onExit(NzRenderer::Uninitialize);
 
 	// Initialisation d'OpenGL
-	if (!NzOpenGL::Initialize())
+	if (!NzOpenGL::Initialize()) // Initialise également Context
 	{
 		NazaraError("Failed to initialize OpenGL");
 		return false;
@@ -864,15 +865,27 @@ bool NzRenderer::Initialize()
 		}
 	}
 
+	if (!NzRenderBuffer::Initialize())
+	{
+		NazaraError("Failed to initialize render buffers");
+		return false;
+	}
+
 	if (!NzShader::Initialize())
 	{
 		NazaraError("Failed to initialize shaders");
 		return false;
 	}
 
+	if (!NzTexture::Initialize())
+	{
+		NazaraError("Failed to initialize textures");
+		return false;
+	}
+
 	if (!NzTextureSampler::Initialize())
 	{
-		NazaraError("Failed to initialize texture sampler");
+		NazaraError("Failed to initialize texture samplers");
 		return false;
 	}
 
@@ -1545,7 +1558,9 @@ void NzRenderer::Uninitialize()
 
 	NzUberShader::Uninitialize();
 	NzTextureSampler::Uninitialize();
+	NzTexture::Uninitialize();
 	NzShader::Uninitialize();
+	NzRenderBuffer::Uninitialize();
 	NzDebugDrawer::Uninitialize();
 
 	s_textureUnits.clear();

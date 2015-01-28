@@ -177,6 +177,12 @@ bool NzParticleDeclaration::IsTypeSupported(nzComponentType type)
 
 bool NzParticleDeclaration::Initialize()
 {
+	if (!NzParticleDeclarationLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
 	try
 	{
 		NzErrorFlags flags(nzErrorFlag_Silent | nzErrorFlag_ThrowException);
@@ -225,7 +231,8 @@ bool NzParticleDeclaration::Initialize()
 
 void NzParticleDeclaration::Uninitialize()
 {
-	// Rien à faire
+	NzParticleDeclarationLibrary::Uninitialize();
 }
 
 NzParticleDeclaration NzParticleDeclaration::s_declarations[nzParticleLayout_Max+1];
+NzParticleDeclarationLibrary::LibraryMap NzParticleDeclaration::s_library;

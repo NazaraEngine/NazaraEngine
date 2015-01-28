@@ -8,6 +8,7 @@
 #define NAZARA_PARTICLEGENERATOR_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,17 +19,27 @@ class NzParticleSystem;
 
 using NzParticleGeneratorConstListener = NzObjectListenerWrapper<const NzParticleGenerator>;
 using NzParticleGeneratorConstRef = NzObjectRef<const NzParticleGenerator>;
+using NzParticleGeneratorLibrary = NzObjectLibrary<NzParticleGenerator>;
 using NzParticleGeneratorListener = NzObjectListenerWrapper<NzParticleGenerator>;
 using NzParticleGeneratorRef = NzObjectRef<NzParticleGenerator>;
 
 class NAZARA_API NzParticleGenerator : public NzRefCounted
 {
+	friend NzParticleGeneratorLibrary;
+	friend class NzGraphics;
+
 	public:
 		NzParticleGenerator() = default;
 		NzParticleGenerator(const NzParticleGenerator& generator);
 		virtual ~NzParticleGenerator();
 
 		virtual void Generate(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
+
+	private:
+		static bool Initialize();
+		static void Uninitialize();
+
+		static NzParticleGeneratorLibrary::LibraryMap s_library;
 };
 
 #endif // NAZARA_PARTICLEGENERATOR_HPP

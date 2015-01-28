@@ -179,6 +179,12 @@ bool NzVertexDeclaration::IsTypeSupported(nzComponentType type)
 
 bool NzVertexDeclaration::Initialize()
 {
+	if (!NzVertexDeclarationLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
 	try
 	{
 		NzErrorFlags flags(nzErrorFlag_Silent | nzErrorFlag_ThrowException);
@@ -290,7 +296,8 @@ bool NzVertexDeclaration::Initialize()
 
 void NzVertexDeclaration::Uninitialize()
 {
-	// Rien à faire
+	NzVertexDeclarationLibrary::Uninitialize();
 }
 
 NzVertexDeclaration NzVertexDeclaration::s_declarations[nzVertexLayout_Max+1];
+NzVertexDeclarationLibrary::LibraryMap NzVertexDeclaration::s_library;

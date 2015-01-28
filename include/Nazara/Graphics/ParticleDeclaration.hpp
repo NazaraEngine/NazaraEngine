@@ -8,6 +8,7 @@
 #define NAZARA_PARTICLEDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,11 +19,13 @@ class NzParticleDeclaration;
 
 using NzParticleDeclarationConstListener = NzObjectListenerWrapper<const NzParticleDeclaration>;
 using NzParticleDeclarationConstRef = NzObjectRef<const NzParticleDeclaration>;
+using NzParticleDeclarationLibrary = NzObjectLibrary<NzParticleDeclaration>;
 using NzParticleDeclarationListener = NzObjectListenerWrapper<NzParticleDeclaration>;
 using NzParticleDeclarationRef = NzObjectRef<NzParticleDeclaration>;
 
 class NAZARA_API NzParticleDeclaration : public NzRefCounted
 {
+	friend NzParticleDeclarationLibrary;
 	friend class NzGraphics;
 
 	public:
@@ -65,6 +68,7 @@ class NAZARA_API NzParticleDeclaration : public NzRefCounted
 		unsigned int m_stride;
 
 		static NzParticleDeclaration s_declarations[nzParticleLayout_Max+1];
+		static NzParticleDeclarationLibrary::LibraryMap s_library;
 };
 
 #endif // NAZARA_PARTICLEDECLARATION_HPP

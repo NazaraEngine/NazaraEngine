@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,11 +19,15 @@ class NzRenderBuffer;
 
 using NzRenderBufferConstListener = NzObjectListenerWrapper<const NzRenderBuffer>;
 using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
+using NzRenderBufferLibrary = NzObjectLibrary<NzRenderBuffer>;
 using NzRenderBufferListener = NzObjectListenerWrapper<NzRenderBuffer>;
 using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
 class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 {
+	friend NzRenderBufferLibrary;
+	friend class NzRenderer;
+
 	public:
 		NzRenderBuffer();
 		~NzRenderBuffer();
@@ -43,10 +48,15 @@ class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
 
 	private:
+		static bool Initialize();
+		static void Uninitialize();
+
 		nzPixelFormat m_pixelFormat;
 		unsigned int m_height;
 		unsigned int m_id;
 		unsigned int m_width;
+
+		static NzRenderBufferLibrary::LibraryMap s_library;
 };
 
 #include <Nazara/Renderer/RenderBuffer.inl>

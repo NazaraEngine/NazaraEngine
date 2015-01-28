@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Primitive.hpp>
@@ -55,6 +56,7 @@ typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
 using NzMeshConstListener = NzObjectListenerWrapper<const NzMesh>;
 using NzMeshConstRef = NzObjectRef<const NzMesh>;
+using NzMeshLibrary = NzObjectLibrary<NzMesh>;
 using NzMeshListener = NzObjectListenerWrapper<NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 using NzMeshRef = NzObjectRef<NzMesh>;
@@ -63,7 +65,9 @@ struct NzMeshImpl;
 
 class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 {
+	friend NzMeshLibrary;
 	friend NzMeshLoader;
+	friend class NzUtility;
 
 	public:
 		NzMesh() = default;
@@ -128,6 +132,10 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 	private:
 		NzMeshImpl* m_impl = nullptr;
 
+		static bool Initialize();
+		static void Uninitialize();
+
+		static NzMeshLibrary::LibraryMap s_library;
 		static NzMeshLoader::LoaderList s_loaders;
 };
 
