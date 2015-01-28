@@ -1002,4 +1002,21 @@ void NzMesh::Transform(const NzMatrix4f& matrix)
 	m_impl->aabbUpdated = false;
 }
 
+bool NzMesh::Initialize()
+{
+	if (!NzMeshLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzMesh::Uninitialize()
+{
+	NzMeshLibrary::Uninitialize();
+}
+
+NzMeshLibrary::LibraryMap NzMesh::s_library;
 NzMeshLoader::LoaderList NzMesh::s_loaders;

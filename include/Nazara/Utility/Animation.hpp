@@ -8,6 +8,7 @@
 #define NAZARA_ANIMATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -33,6 +34,7 @@ class NzSkeleton;
 
 using NzAnimationConstListener = NzObjectListenerWrapper<const NzAnimation>;
 using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
+using NzAnimationLibrary = NzObjectLibrary<NzAnimation>;
 using NzAnimationListener = NzObjectListenerWrapper<NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 using NzAnimationRef = NzObjectRef<NzAnimation>;
@@ -41,7 +43,9 @@ struct NzAnimationImpl;
 
 class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 {
+	friend NzAnimationLibrary;
 	friend NzAnimationLoader;
+	friend class NzUtility;
 
 	public:
 		NzAnimation() = default;
@@ -83,8 +87,12 @@ class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 		template<typename... Args> static NzAnimationRef New(Args&&... args);
 
 	private:
+		static bool Initialize();
+		static void Uninitialize();
+
 		NzAnimationImpl* m_impl = nullptr;
 
+		static NzAnimationLibrary::LibraryMap s_library;
 		static NzAnimationLoader::LoaderList s_loaders;
 };
 

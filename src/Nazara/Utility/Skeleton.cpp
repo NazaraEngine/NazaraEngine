@@ -416,3 +416,21 @@ void NzSkeleton::UpdateJointMap() const
 
 	m_impl->jointMapUpdated = true;
 }
+
+bool NzSkeleton::Initialize()
+{
+	if (!NzSkeletonLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzSkeleton::Uninitialize()
+{
+	NzSkeletonLibrary::Uninitialize();
+}
+
+NzSkeletonLibrary::LibraryMap NzSkeleton::s_library;

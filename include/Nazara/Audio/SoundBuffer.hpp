@@ -12,6 +12,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -29,6 +30,7 @@ class NzSoundBuffer;
 
 using NzSoundBufferConstListener = NzObjectListenerWrapper<const NzSoundBuffer>;
 using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
+using NzSoundBufferLibrary = NzObjectLibrary<NzSoundBuffer>;
 using NzSoundBufferListener = NzObjectListenerWrapper<NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
@@ -38,7 +40,9 @@ struct NzSoundBufferImpl;
 class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzSound;
+	friend NzSoundBufferLibrary;
 	friend NzSoundBufferLoader;
+	friend class NzAudio;
 
 	public:
 		NzSoundBuffer() = default;
@@ -66,8 +70,12 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 	private:
 		unsigned int GetOpenALBuffer() const;
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		NzSoundBufferImpl* m_impl = nullptr;
 
+		static NzSoundBufferLibrary::LibraryMap s_library;
 		static NzSoundBufferLoader::LoaderList s_loaders;
 };
 

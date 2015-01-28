@@ -11,7 +11,10 @@
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
+#include <Nazara/Graphics/ParticleGenerator.hpp>
+#include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/Loaders/Mesh.hpp>
@@ -47,9 +50,27 @@ bool NzGraphics::Initialize()
 		return false;
 	}
 
+	if (!NzParticleController::Initialize())
+	{
+		NazaraError("Failed to initialize particle controllers");
+		return false;
+	}
+
 	if (!NzParticleDeclaration::Initialize())
 	{
 		NazaraError("Failed to initialize particle declarations");
+		return false;
+	}
+
+	if (!NzParticleGenerator::Initialize())
+	{
+		NazaraError("Failed to initialize particle generators");
+		return false;
+	}
+
+	if (!NzParticleRenderer::Initialize())
+	{
+		NazaraError("Failed to initialize particle renderers");
 		return false;
 	}
 
@@ -144,9 +165,12 @@ void NzGraphics::Uninitialize()
 
 	NzDeferredRenderTechnique::Uninitialize();
 	NzForwardRenderTechnique::Uninitialize();
-	NzMaterial::Uninitialize();
-	NzParticleDeclaration::Uninitialize();
 	NzSkinningManager::Uninitialize();
+	NzParticleRenderer::Uninitialize();
+	NzParticleGenerator::Uninitialize();
+	NzParticleDeclaration::Uninitialize();
+	NzParticleController::Uninitialize();
+	NzMaterial::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");
 

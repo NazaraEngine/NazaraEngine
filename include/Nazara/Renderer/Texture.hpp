@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -22,6 +23,7 @@ class NzTexture;
 
 using NzTextureConstListener = NzObjectListenerWrapper<const NzTexture>;
 using NzTextureConstRef = NzObjectRef<const NzTexture>;
+using NzTextureLibrary = NzObjectLibrary<NzTexture>;
 using NzTextureListener = NzObjectListenerWrapper<NzTexture>;
 using NzTextureRef = NzObjectRef<NzTexture>;
 
@@ -29,6 +31,7 @@ struct NzTextureImpl;
 
 class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public NzResource, NzNonCopyable
 {
+	friend NzTextureLibrary;
 	friend class NzRenderer;
 
 	public:
@@ -106,7 +109,12 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public
 	private:
 		bool CreateTexture(bool proxy);
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		NzTextureImpl* m_impl = nullptr;
+
+		static NzTextureLibrary::LibraryMap s_library;
 };
 
 #include <Nazara/Renderer/Texture.inl>

@@ -8,6 +8,7 @@
 #define NAZARA_CONTEXT_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -19,6 +20,7 @@ class NzContext;
 
 using NzContextConstListener = NzObjectListenerWrapper<const NzContext>;
 using NzContextConstRef = NzObjectRef<const NzContext>;
+using NzContextLibrary = NzObjectLibrary<NzContext>;
 using NzContextListener = NzObjectListenerWrapper<NzContext>;
 using NzContextRef = NzObjectRef<NzContext>;
 
@@ -27,6 +29,7 @@ class NzContextImpl;
 class NAZARA_API NzContext : public NzRefCounted
 {
 	friend NzContextImpl;
+	friend NzContextLibrary;
 	friend class NzOpenGL;
 
 	public:
@@ -55,6 +58,7 @@ class NAZARA_API NzContext : public NzRefCounted
 
 		static std::unique_ptr<NzContext> s_reference;
 		static std::vector<std::unique_ptr<NzContext>> s_contexts;
+		static NzContextLibrary::LibraryMap s_library;
 };
 
 #endif // NAZARA_CONTEXT_HPP
