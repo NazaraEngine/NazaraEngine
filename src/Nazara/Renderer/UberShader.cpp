@@ -6,3 +6,21 @@
 #include <Nazara/Renderer/Debug.hpp>
 
 NzUberShader::~NzUberShader() = default;
+
+bool NzUberShader::Initialize()
+{
+	if (!NzUberShaderLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzUberShader::Uninitialize()
+{
+	NzUberShaderLibrary::Uninitialize();
+}
+
+NzUberShaderLibrary::LibraryMap NzUberShader::s_library;

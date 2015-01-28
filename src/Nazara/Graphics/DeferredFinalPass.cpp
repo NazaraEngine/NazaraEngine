@@ -6,7 +6,6 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 

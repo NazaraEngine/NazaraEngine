@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/TextureBackground.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 

@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -26,11 +27,13 @@ class NzShaderStage;
 
 using NzShaderConstListener = NzObjectListenerWrapper<const NzShader>;
 using NzShaderConstRef = NzObjectRef<const NzShader>;
+using NzShaderLibrary = NzObjectLibrary<NzShader>;
 using NzShaderListener = NzObjectListenerWrapper<NzShader>;
 using NzShaderRef = NzObjectRef<NzShader>;
 
 class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 {
+	friend NzShaderLibrary;
 	friend class NzRenderer;
 
 	public:
@@ -102,10 +105,15 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 	private:
 		bool PostLinkage();
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		std::vector<unsigned int> m_attachedShaders[nzShaderStage_Max+1];
 		bool m_linked;
 		int m_uniformLocations[nzShaderUniform_Max+1];
 		unsigned int m_program;
+
+		static NzShaderLibrary::LibraryMap s_library;
 };
 
 #include <Nazara/Renderer/Shader.inl>
