@@ -26,6 +26,9 @@ class NzResourceLoader
 		using StreamChecker = nzTernary (*)(NzInputStream& stream, const Parameters& parameters);
 		using StreamLoader = bool (*)(Type* resource, NzInputStream& stream, const Parameters& parameters);
 
+		NzResourceLoader() = delete;
+		~NzResourceLoader() = delete;
+
 		static bool IsExtensionSupported(const NzString& extension);
 
 		static bool LoadFromFile(Type* resource, const NzString& filePath, const Parameters& parameters = Parameters());
