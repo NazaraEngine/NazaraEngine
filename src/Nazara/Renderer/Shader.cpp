@@ -787,3 +787,21 @@ bool NzShader::PostLinkage()
 		return false;
 	}
 }
+
+bool NzShader::Initialize()
+{
+	if (!NzShaderLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzShader::Uninitialize()
+{
+	NzShaderLibrary::Uninitialize();
+}
+
+NzShaderLibrary::LibraryMap NzShader::s_library;

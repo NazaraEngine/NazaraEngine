@@ -16,9 +16,8 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
+#include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -865,9 +864,9 @@ bool NzRenderer::Initialize()
 		}
 	}
 
-	if (!NzShaderLibrary::Initialize())
+	if (!NzShader::Initialize())
 	{
-		NazaraError("Failed to initialize shader library");
+		NazaraError("Failed to initialize shaders");
 		return false;
 	}
 
@@ -877,9 +876,9 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	if (!NzUberShaderLibrary::Initialize())
+	if (!NzUberShader::Initialize())
 	{
-		NazaraError("Failed to initialize uber shader library");
+		NazaraError("Failed to initialize uber shaders");
 		return false;
 	}
 
@@ -1544,9 +1543,9 @@ void NzRenderer::Uninitialize()
 
 	NzShaderLibrary::Unregister("DebugSimple");
 
-	NzUberShaderLibrary::Uninitialize();
+	NzUberShader::Uninitialize();
 	NzTextureSampler::Uninitialize();
-	NzShaderLibrary::Uninitialize();
+	NzShader::Uninitialize();
 	NzDebugDrawer::Uninitialize();
 
 	s_textureUnits.clear();

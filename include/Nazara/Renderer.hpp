@@ -44,14 +44,12 @@
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP
