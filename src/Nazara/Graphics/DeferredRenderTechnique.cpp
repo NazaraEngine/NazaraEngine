@@ -27,7 +27,6 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
-#include <Nazara/Renderer/ShaderLibrary.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
 #include <limits>
 #include <memory>

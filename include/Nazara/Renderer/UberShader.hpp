@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -19,16 +20,26 @@ class NzUberShader;
 
 using NzUberShaderConstListener = NzObjectListenerWrapper<const NzUberShader>;
 using NzUberShaderConstRef = NzObjectRef<const NzUberShader>;
+using NzUberShaderLibrary = NzObjectLibrary<NzUberShader>;
 using NzUberShaderListener = NzObjectListenerWrapper<NzUberShader>;
 using NzUberShaderRef = NzObjectRef<NzUberShader>;
 
 class NAZARA_API NzUberShader : public NzRefCounted
 {
+	friend NzUberShaderLibrary;
+	friend class NzRenderer;
+
 	public:
 		NzUberShader() = default;
 		virtual ~NzUberShader();
 
 		virtual NzUberShaderInstance* Get(const NzParameterList& parameters) const = 0;
+
+	private:
+		static bool Initialize();
+		static void Uninitialize();
+
+		static NzUberShaderLibrary::LibraryMap s_library;
 };
 
 #endif // NAZARA_UBERSHADER_HPP

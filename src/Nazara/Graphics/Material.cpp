@@ -9,7 +9,6 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/UberShaderLibrary.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <cstring>
 #include <memory>
