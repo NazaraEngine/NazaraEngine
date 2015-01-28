@@ -20,6 +20,7 @@ class NzObjectRef
 		NzObjectRef();
 		NzObjectRef(T* object);
 		NzObjectRef(const NzObjectRef& ref);
+		template<typename U> NzObjectRef(const NzObjectRef<U>& ref);
 		NzObjectRef(NzObjectRef&& ref) noexcept;
 		~NzObjectRef();
 
@@ -35,6 +36,7 @@ class NzObjectRef
 
 		NzObjectRef& operator=(T* object);
 		NzObjectRef& operator=(const NzObjectRef& ref);
+		template<typename U> NzObjectRef& operator=(const NzObjectRef<U>& ref);
 		NzObjectRef& operator=(NzObjectRef&& ref) noexcept;
 
 	private:

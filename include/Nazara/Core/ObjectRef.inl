@@ -28,6 +28,13 @@ m_object(ref.m_object)
 }
 
 template<typename T>
+template<typename U>
+NzObjectRef<T>::NzObjectRef(const NzObjectRef<U>& ref) :
+NzObjectRef(ref.Get())
+{
+}
+
+template<typename T>
 NzObjectRef<T>::NzObjectRef(NzObjectRef&& ref) noexcept :
 m_object(ref.m_object)
 {
@@ -120,6 +127,15 @@ template<typename T>
 NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef& ref)
 {
 	Reset(ref.m_object);
+
+	return *this;
+}
+
+template<typename T>
+template<typename U>
+NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef<U>& ref)
+{
+	Reset(ref.Get());
 
 	return *this;
 }
