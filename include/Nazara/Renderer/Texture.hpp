@@ -14,6 +14,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
@@ -25,6 +26,7 @@ using NzTextureConstListener = NzObjectListenerWrapper<const NzTexture>;
 using NzTextureConstRef = NzObjectRef<const NzTexture>;
 using NzTextureLibrary = NzObjectLibrary<NzTexture>;
 using NzTextureListener = NzObjectListenerWrapper<NzTexture>;
+using NzTextureManager = NzResourceManager<NzTexture, NzImageParams>;
 using NzTextureRef = NzObjectRef<NzTexture>;
 
 struct NzTextureImpl;
@@ -32,6 +34,7 @@ struct NzTextureImpl;
 class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzTextureLibrary;
+	friend NzTextureManager;
 	friend class NzRenderer;
 
 	public:
@@ -115,6 +118,8 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public
 		NzTextureImpl* m_impl = nullptr;
 
 		static NzTextureLibrary::LibraryMap s_library;
+		static NzTextureManager::ManagerMap s_managerMap;
+		static NzTextureManager::ManagerParams s_managerParameters;
 };
 
 #include <Nazara/Renderer/Texture.inl>

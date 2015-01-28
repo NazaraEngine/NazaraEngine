@@ -225,31 +225,21 @@ namespace
 								bool hasAlphaMap = false;;
 								if (parameters.material.loadAlphaMap && !mtlMat->alphaMap.IsEmpty())
 								{
-									NzTextureRef alphaMap = NzTexture::New();
-									if (alphaMap->LoadFromFile(baseDir + mtlMat->alphaMap))
-									{
+									if (material->SetAlphaMap(baseDir + mtlMat->alphaMap))
 										hasAlphaMap = true;
-										material->SetAlphaMap(alphaMap);
-									}
 									else
 										NazaraWarning("Failed to load alpha map (" + mtlMat->alphaMap + ')');
 								}
 
 								if (parameters.material.loadDiffuseMap && !mtlMat->diffuseMap.IsEmpty())
 								{
-									NzTextureRef diffuseMap = NzTexture::New();
-									if (diffuseMap->LoadFromFile(baseDir + mtlMat->diffuseMap))
-										material->SetDiffuseMap(diffuseMap);
-									else
+									if (!material->SetDiffuseMap(baseDir + mtlMat->diffuseMap))
 										NazaraWarning("Failed to load diffuse map (" + mtlMat->diffuseMap + ')');
 								}
 
 								if (parameters.material.loadSpecularMap && !mtlMat->specularMap.IsEmpty())
 								{
-									NzTextureRef specularMap = NzTexture::New();
-									if (specularMap->LoadFromFile(baseDir + mtlMat->specularMap))
-										material->SetSpecularMap(specularMap);
-									else
+									if (!material->SetSpecularMap(baseDir + mtlMat->specularMap))
 										NazaraWarning("Failed to load specular map (" + mtlMat->specularMap + ')');
 								}
 

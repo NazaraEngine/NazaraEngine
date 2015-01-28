@@ -1010,13 +1010,23 @@ bool NzMesh::Initialize()
 		return false;
 	}
 
+	if (!NzMeshManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
+
 	return true;
 }
 
 void NzMesh::Uninitialize()
 {
+	NzMeshManager::Uninitialize();
 	NzMeshLibrary::Uninitialize();
 }
 
 NzMeshLibrary::LibraryMap NzMesh::s_library;
 NzMeshLoader::LoaderList NzMesh::s_loaders;
+NzMeshManager::ManagerMap NzMesh::s_managerMap;
+NzMeshManager::ManagerParams NzMesh::s_managerParameters;
+

@@ -16,6 +16,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -59,6 +60,7 @@ using NzMeshConstRef = NzObjectRef<const NzMesh>;
 using NzMeshLibrary = NzObjectLibrary<NzMesh>;
 using NzMeshListener = NzObjectListenerWrapper<NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
+using NzMeshManager = NzResourceManager<NzMesh, NzMeshParams>;
 using NzMeshRef = NzObjectRef<NzMesh>;
 
 struct NzMeshImpl;
@@ -67,6 +69,7 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 {
 	friend NzMeshLibrary;
 	friend NzMeshLoader;
+	friend NzMeshManager;
 	friend class NzUtility;
 
 	public:
@@ -137,6 +140,8 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 
 		static NzMeshLibrary::LibraryMap s_library;
 		static NzMeshLoader::LoaderList s_loaders;
+		static NzMeshManager::ManagerMap s_managerMap;
+		static NzMeshManager::ManagerParams s_managerParameters;
 };
 
 #include <Nazara/Utility/Mesh.inl>
