@@ -16,6 +16,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <atomic>
@@ -40,12 +41,14 @@ using NzImageConstRef = NzObjectRef<const NzImage>;
 using NzImageLibrary = NzObjectLibrary<NzImage>;
 using NzImageListener = NzObjectListenerWrapper<NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
+using NzImageManager = NzResourceManager<NzImage, NzImageParams>;
 using NzImageRef = NzObjectRef<NzImage>;
 
 class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
 {
 	friend NzImageLibrary;
 	friend NzImageLoader;
+	friend NzImageManager;
 	friend class NzUtility;
 
 	public:
@@ -156,6 +159,8 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 
 		static NzImageLibrary::LibraryMap s_library;
 		static NzImageLoader::LoaderList s_loaders;
+		static NzImageManager::ManagerMap s_managerMap;
+		static NzImageManager::ManagerParams s_managerParameters;
 };
 
 #include <Nazara/Utility/Image.inl>

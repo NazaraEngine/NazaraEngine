@@ -1400,14 +1400,23 @@ bool NzImage::Initialize()
 		return false;
 	}
 
+	if (!NzImageManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
+
 	return true;
 }
 
 void NzImage::Uninitialize()
 {
+	NzImageManager::Uninitialize();
 	NzImageLibrary::Uninitialize();
 }
 
 NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 1, nullptr, 0, 0, 0);
 NzImageLibrary::LibraryMap NzImage::s_library;
 NzImageLoader::LoaderList NzImage::s_loaders;
+NzImageManager::ManagerMap NzImage::s_managerMap;
+NzImageManager::ManagerParams NzImage::s_managerParameters;

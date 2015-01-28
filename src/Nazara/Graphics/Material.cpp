@@ -406,13 +406,14 @@ void NzMaterial::Reset()
 	SetShader("Basic");
 }
 
-bool NzMaterial::SetAlphaMap(const NzString& texturePath)
+bool NzMaterial::SetAlphaMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetAlphaMap(texture);
@@ -446,13 +447,14 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 	m_diffuseColor = diffuse;
 }
 
-bool NzMaterial::SetDiffuseMap(const NzString& texturePath)
+bool NzMaterial::SetDiffuseMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetDiffuseMap(texture);
@@ -476,13 +478,14 @@ void NzMaterial::SetDstBlend(nzBlendFunc func)
 	m_states.dstBlend = func;
 }
 
-bool NzMaterial::SetEmissiveMap(const NzString& texturePath)
+bool NzMaterial::SetEmissiveMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetEmissiveMap(texture);
@@ -506,13 +509,14 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 	m_states.faceFilling = filling;
 }
 
-bool NzMaterial::SetHeightMap(const NzString& texturePath)
+bool NzMaterial::SetHeightMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetHeightMap(texture);
@@ -526,13 +530,14 @@ void NzMaterial::SetHeightMap(NzTexture* map)
 	InvalidateShaders();
 }
 
-bool NzMaterial::SetNormalMap(const NzString& texturePath)
+bool NzMaterial::SetNormalMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetNormalMap(texture);
@@ -578,13 +583,14 @@ void NzMaterial::SetSpecularColor(const NzColor& specular)
 	m_specularColor = specular;
 }
 
-bool NzMaterial::SetSpecularMap(const NzString& texturePath)
+bool NzMaterial::SetSpecularMap(const NzString& name)
 {
-	NzTextureRef texture = NzTexture::New();
-	if (!texture->LoadFromFile(texturePath))
+	NzTextureRef texture = NzTextureLibrary::Query(name);
+	if (!texture)
 	{
-		NazaraError("Failed to load texture from \"" + texturePath + '"');
-		return false;
+		texture = NzTextureManager::Get(name);
+		if (!texture)
+			return false;
 	}
 
 	SetSpecularMap(texture);
@@ -613,11 +619,10 @@ NzMaterial& NzMaterial::operator=(const NzMaterial& material)
 	NzResource::operator=(material);
 
 	Copy(material);
-
 	return *this;
 }
 
-NzMaterial* NzMaterial::GetDefault()
+NzMaterialRef NzMaterial::GetDefault()
 {
 	return s_defaultMaterial;
 }
@@ -711,10 +716,11 @@ bool NzMaterial::Initialize()
 		return false;
 	}
 
-	s_defaultMaterial = NzMaterial::New();
-	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
-	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
-	NzMaterialLibrary::Register("Default", s_defaultMaterial);
+	if (!NzMaterialManager::Initialize())
+	{
+		NazaraError("Failed to initialise manager");
+		return false;
+	}
 
 	bool glsl140 = (NzOpenGL::GetGLSLVersion() >= 140);
 
@@ -780,6 +786,12 @@ bool NzMaterial::Initialize()
 		NzUberShaderLibrary::Register("PhongLighting", uberShader);
 	}
 
+	// Une fois les shaders de base enregistrés, on peut créer le matériau par défaut
+	s_defaultMaterial = NzMaterial::New();
+	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
+	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
+	NzMaterialLibrary::Register("Default", s_defaultMaterial);
+
 	return true;
 }
 
@@ -788,9 +800,12 @@ void NzMaterial::Uninitialize()
 	s_defaultMaterial.Reset();
 	NzUberShaderLibrary::Unregister("PhongLighting");
 	NzUberShaderLibrary::Unregister("Basic");
+	NzMaterialManager::Uninitialize();
 	NzMaterialLibrary::Uninitialize();
 }
 
 NzMaterialLibrary::LibraryMap NzMaterial::s_library;
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;
+NzMaterialManager::ManagerMap NzMaterial::s_managerMap;
+NzMaterialManager::ManagerParams NzMaterial::s_managerParameters;
 NzMaterialRef NzMaterial::s_defaultMaterial = nullptr;

@@ -15,6 +15,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -42,12 +43,14 @@ using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
 using NzMaterialLibrary = NzObjectLibrary<NzMaterial>;
 using NzMaterialListener = NzObjectListenerWrapper<NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
+using NzMaterialManager = NzResourceManager<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzObjectRef<NzMaterial>;
 
 class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 {
 	friend NzMaterialLibrary;
 	friend NzMaterialLoader;
+	friend NzMaterialManager;
 	friend class NzGraphics;
 
 	public:
@@ -106,37 +109,37 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 
 		void Reset();
 
-		bool SetAlphaMap(const NzString& texturePath);
+		bool SetAlphaMap(const NzString& name);
 		void SetAlphaMap(NzTexture* map);
 		void SetAlphaThreshold(float alphaThreshold);
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDepthFunc(nzRendererComparison depthFunc);
 		void SetDiffuseColor(const NzColor& diffuse);
-		bool SetDiffuseMap(const NzString& texturePath);
+		bool SetDiffuseMap(const NzString& name);
 		void SetDiffuseMap(NzTexture* map);
 		void SetDiffuseSampler(const NzTextureSampler& sampler);
 		void SetDstBlend(nzBlendFunc func);
-		bool SetEmissiveMap(const NzString& texturePath);
+		bool SetEmissiveMap(const NzString& name);
 		void SetEmissiveMap(NzTexture* map);
 		void SetFaceCulling(nzFaceSide faceSide);
 		void SetFaceFilling(nzFaceFilling filling);
-		bool SetHeightMap(const NzString& texturePath);
+		bool SetHeightMap(const NzString& name);
 		void SetHeightMap(NzTexture* map);
-		bool SetNormalMap(const NzString& texturePath);
+		bool SetNormalMap(const NzString& name);
 		void SetNormalMap(NzTexture* map);
 		void SetRenderStates(const NzRenderStates& states);
 		void SetShader(const NzUberShader* uberShader);
 		bool SetShader(const NzString& uberShaderName);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
-		bool SetSpecularMap(const NzString& texturePath);
+		bool SetSpecularMap(const NzString& name);
 		void SetSpecularMap(NzTexture* map);
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
 
 		NzMaterial& operator=(const NzMaterial& material);
 
-		static NzMaterial* GetDefault();
+		static NzMaterialRef GetDefault();
 		template<typename... Args> static NzMaterialRef New(Args&&... args);
 
 	private:
@@ -177,6 +180,8 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 
 		static NzMaterialLibrary::LibraryMap s_library;
 		static NzMaterialLoader::LoaderList s_loaders;
+		static NzMaterialManager::ManagerMap s_managerMap;
+		static NzMaterialManager::ManagerParams s_managerParameters;
 		static NzMaterialRef s_defaultMaterial;
 };
 
