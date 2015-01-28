@@ -317,6 +317,12 @@ const NzContext* NzContext::GetThreadContext()
 
 bool NzContext::Initialize()
 {
+	if (!NzContextLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
 	NzContextParameters parameters;
 	parameters.shared = false; // Difficile de partager le contexte de référence avec lui-même
 
@@ -343,9 +349,11 @@ bool NzContext::Initialize()
 
 void NzContext::Uninitialize()
 {
+	NzContextLibrary::Uninitialize();
 	s_contexts.clear(); // On supprime tous les contextes créés
 	s_reference.reset();
 }
 
 std::unique_ptr<NzContext> NzContext::s_reference;
 std::vector<std::unique_ptr<NzContext>> NzContext::s_contexts;
+NzContextLibrary::LibraryMap NzContext::s_library;

@@ -705,6 +705,17 @@ void NzMaterial::InvalidateShaders()
 
 bool NzMaterial::Initialize()
 {
+	if (!NzMaterialLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	s_defaultMaterial = NzMaterial::New();
+	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
+	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
+	NzMaterialLibrary::Register("Default", s_defaultMaterial);
+
 	bool glsl140 = (NzOpenGL::GetGLSLVersion() >= 140);
 
 	// Basic shader
@@ -769,10 +780,6 @@ bool NzMaterial::Initialize()
 		NzUberShaderLibrary::Register("PhongLighting", uberShader);
 	}
 
-	s_defaultMaterial = NzMaterial::New();
-	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
-	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
-
 	return true;
 }
 
@@ -781,7 +788,9 @@ void NzMaterial::Uninitialize()
 	s_defaultMaterial.Reset();
 	NzUberShaderLibrary::Unregister("PhongLighting");
 	NzUberShaderLibrary::Unregister("Basic");
+	NzMaterialLibrary::Uninitialize();
 }
 
-NzMaterialRef NzMaterial::s_defaultMaterial = nullptr;
+NzMaterialLibrary::LibraryMap NzMaterial::s_library;
 NzMaterialLoader::LoaderList NzMaterial::s_loaders;
+NzMaterialRef NzMaterial::s_defaultMaterial = nullptr;

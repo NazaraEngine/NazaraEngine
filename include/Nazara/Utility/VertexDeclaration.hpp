@@ -8,6 +8,7 @@
 #define NAZARA_VERTEXDECLARATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -17,11 +18,13 @@ class NzVertexDeclaration;
 
 using NzVertexDeclarationConstListener = NzObjectListenerWrapper<const NzVertexDeclaration>;
 using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
+using NzVertexDeclarationLibrary = NzObjectLibrary<NzVertexDeclaration>;
 using NzVertexDeclarationListener = NzObjectListenerWrapper<NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
 
 class NAZARA_API NzVertexDeclaration : public NzRefCounted
 {
+	friend NzVertexDeclarationLibrary;
 	friend class NzUtility;
 
 	public:
@@ -66,6 +69,7 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 		unsigned int m_stride;
 
 		static NzVertexDeclaration s_declarations[nzVertexLayout_Max+1];
+		static NzVertexDeclarationLibrary::LibraryMap s_library;
 };
 
 #include <Nazara/Utility/VertexDeclaration.hpp>

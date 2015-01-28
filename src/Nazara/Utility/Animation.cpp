@@ -511,4 +511,21 @@ void NzAnimation::RemoveSequence(unsigned int index)
 	m_impl->sequences.erase(it);
 }
 
+bool NzAnimation::Initialize()
+{
+	if (!NzAnimationLibrary::Initialize())
+	{
+		NazaraError("Failed to initialise library");
+		return false;
+	}
+
+	return true;
+}
+
+void NzAnimation::Uninitialize()
+{
+	NzAnimationLibrary::Uninitialize();
+}
+
+NzAnimationLibrary::LibraryMap NzAnimation::s_library;
 NzAnimationLoader::LoaderList NzAnimation::s_loaders;

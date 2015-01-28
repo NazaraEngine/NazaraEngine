@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -29,13 +30,16 @@ struct NzFontGlyph;
 
 using NzFontConstListener = NzObjectListenerWrapper<const NzFont>;
 using NzFontConstRef = NzObjectRef<const NzFont>;
+using NzFontLibrary = NzObjectLibrary<NzFont>;
 using NzFontListener = NzObjectListenerWrapper<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzObjectRef<NzFont>;
 
 class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtlas::Listener, NzNonCopyable
 {
+	friend NzFontLibrary;
 	friend NzFontLoader;
+	friend class NzUtility;
 
 	public:
 		struct Glyph;
@@ -83,15 +87,11 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 		static unsigned int GetDefaultGlyphBorder();
 		static unsigned int GetDefaultMinimumStepSize();
 
-		static bool Initialize();
-
 		template<typename... Args> static NzFontRef New(Args&&... args);
 
 		static void SetDefaultAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
 		static void SetDefaultGlyphBorder(unsigned int borderSize);
 		static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
-
-		static void Uninitialize();
 
 		enum ModicationCode
 		{
@@ -131,6 +131,9 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
 		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		std::shared_ptr<NzAbstractAtlas> m_atlas;
 		std::unique_ptr<NzFontData> m_data;
 		mutable std::unordered_map<nzUInt64, std::unordered_map<nzUInt64, int>> m_kerningCache;
@@ -141,6 +144,7 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 
 		static std::shared_ptr<NzAbstractAtlas> s_defaultAtlas;
 		static NzFontRef s_defaultFont;
+		static NzFontLibrary::LibraryMap s_library;
 		static NzFontLoader::LoaderList s_loaders;
 		static unsigned int s_defaultGlyphBorder;
 		static unsigned int s_defaultMinimumStepSize;

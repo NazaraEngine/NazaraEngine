@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -36,13 +37,16 @@ class NzImage;
 
 using NzImageConstListener = NzObjectListenerWrapper<const NzImage>;
 using NzImageConstRef = NzObjectRef<const NzImage>;
+using NzImageLibrary = NzObjectLibrary<NzImage>;
 using NzImageListener = NzObjectListenerWrapper<NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageRef = NzObjectRef<NzImage>;
 
 class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
 {
+	friend NzImageLibrary;
 	friend NzImageLoader;
+	friend class NzUtility;
 
 	public:
 		struct SharedImage;
@@ -145,8 +149,12 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 		void EnsureOwnership();
 		void ReleaseImage();
 
+		static bool Initialize();
+		static void Uninitialize();
+
 		SharedImage* m_sharedImage;
 
+		static NzImageLibrary::LibraryMap s_library;
 		static NzImageLoader::LoaderList s_loaders;
 };
 
