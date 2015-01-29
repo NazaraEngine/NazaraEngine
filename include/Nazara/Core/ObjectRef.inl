@@ -135,6 +135,8 @@ template<typename T>
 template<typename U>
 NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef<U>& ref)
 {
+	static_assert(std::is_convertible<U*, T*>::value, "U is not implicitly convertible to T");
+
 	Reset(ref.Get());
 
 	return *this;
