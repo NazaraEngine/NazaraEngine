@@ -16,8 +16,6 @@ void NzResourceManager<Type, Parameters>::Clear()
 template<typename Type, typename Parameters>
 NzObjectRef<Type> NzResourceManager<Type, Parameters>::Get(const NzString& filePath)
 {
-	NzObjectRef<Type> ref;
-
 	NzString absolutePath = NzFile::AbsolutePath(filePath);
 	auto it = Type::s_managerMap.find(absolutePath);
 	if (it == Type::s_managerMap.end())
@@ -26,13 +24,13 @@ NzObjectRef<Type> NzResourceManager<Type, Parameters>::Get(const NzString& fileP
 		if (!resource)
 		{
 			NazaraError("Failed to create resource");
-			return ref;
+			return NzObjectRef<Type>();
 		}
 
 		if (!resource->LoadFromFile(absolutePath, GetDefaultParameters()))
 		{
 			NazaraError("Failed to load resource from file: " + absolutePath);
-			return ref;
+			return NzObjectRef<Type>();
 		}
 
 		NazaraDebug("Loaded resource from file " + absolutePath);
@@ -57,7 +55,10 @@ void NzResourceManager<Type, Parameters>::Purge()
 	{
 		const NzObjectRef<Type>& ref = it->second;
 		if (ref.GetReferenceCount() == 1) // Sommes-nous les seuls à détenir la ressource ?
+		{
+			NazaraDebug("Purging resource from file " + ref->GetFilePath());
 			Type::s_managerMap.erase(it++); // Alors on la supprime
+		}
 		else
 			++it;
 	}
