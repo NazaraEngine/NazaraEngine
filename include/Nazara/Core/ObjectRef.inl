@@ -76,10 +76,7 @@ bool NzObjectRef<T>::Reset(T* object)
 	if (m_object != object)
 	{
 		if (m_object)
-		{
 			destroyed = m_object->RemoveReference();
-			m_object = nullptr;
-		}
 
 		m_object = object;
 		if (m_object)
