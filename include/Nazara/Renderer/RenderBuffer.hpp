@@ -44,7 +44,6 @@ class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 
 		bool IsValid() const;
 
-		static bool IsSupported();
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
 
 	private:
