@@ -33,6 +33,8 @@
 #include <vector>
 #include <Nazara/Renderer/Debug.hpp>
 
+///TODO: Manager les VAO (permettre plusieurs draw calls sans rebinder le VAO)
+
 namespace
 {
 	const nzUInt8 r_coreFragmentShader[] = {
@@ -41,14 +43,6 @@ namespace
 
 	const nzUInt8 r_coreVertexShader[] = {
 		#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
-	};
-
-	const nzUInt8 r_compatibilityFragmentShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.frag.h>
-	};
-
-	const nzUInt8 r_compatibilityVertexShader[] = {
-		#include <Nazara/Renderer/Resources/Shaders/Debug/compatibility.vert.h>
 	};
 
 	enum ObjectType
@@ -133,8 +127,6 @@ namespace
 	const NzVertexBuffer* s_vertexBuffer;
 	bool s_capabilities[nzRendererCap_Max+1];
 	bool s_instancing;
-	bool s_useSamplerObjects;
-	bool s_useVertexArrayObjects;
 	unsigned int s_maxColorAttachments;
 	unsigned int s_maxRenderTarget;
 	unsigned int s_maxTextureSize;
@@ -269,14 +261,6 @@ void NzRenderer::BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition con
 	}
 	#endif
 
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_ConditionalRendering])
-	{
-		NazaraError("Conditional rendering is not supported");
-		return;
-	}
-	#endif
-
 	glBeginConditionalRender(query.GetOpenGLID(), NzOpenGL::QueryCondition[condition]);
 }
 
@@ -333,9 +317,7 @@ void NzRenderer::DrawFullscreenQuad()
 	}
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	if (s_useVertexArrayObjects)
-		glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -385,9 +367,7 @@ void NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode mode, unsigned int firstI
 	}
 
 	glDrawElements(NzOpenGL::PrimitiveMode[mode], indexCount, type, offset);
-
-	if (s_useVertexArrayObjects)
-		glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount)
@@ -407,12 +387,6 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	#endif
 
 	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
-	{
-		NazaraError("Instancing not supported");
-		return;
-	}
-
 	if (!s_indexBuffer)
 	{
 		NazaraError("No index buffer");
@@ -456,9 +430,7 @@ void NzRenderer::DrawIndexedPrimitivesInstanced(unsigned int instanceCount, nzPr
 	}
 
 	glDrawElementsInstanced(NzOpenGL::PrimitiveMode[mode], indexCount, type, offset, instanceCount);
-
-	if (s_useVertexArrayObjects)
-		glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -486,9 +458,7 @@ void NzRenderer::DrawPrimitives(nzPrimitiveMode mode, unsigned int firstVertex, 
 	}
 
 	glDrawArrays(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount);
-
-	if (s_useVertexArrayObjects)
-		glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount)
@@ -508,12 +478,6 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	#endif
 
 	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
-	{
-		NazaraError("Instancing not supported");
-		return;
-	}
-
 	if (instanceCount == 0)
 	{
 		NazaraError("Instance count must be over zero");
@@ -537,9 +501,7 @@ void NzRenderer::DrawPrimitivesInstanced(unsigned int instanceCount, nzPrimitive
 	}
 
 	glDrawArraysInstanced(NzOpenGL::PrimitiveMode[mode], firstVertex, vertexCount, instanceCount);
-
-	if (s_useVertexArrayObjects)
-		glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 void NzRenderer::Enable(nzRendererParameter parameter, bool enable)
@@ -571,14 +533,6 @@ void NzRenderer::EndCondition()
 	}
 	#endif
 
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_ConditionalRendering])
-	{
-		NazaraError("Conditional rendering is not supported");
-		return;
-	}
-	#endif
-
 	glEndConditionalRender();
 }
 
@@ -602,14 +556,6 @@ nzRendererComparison NzRenderer::GetDepthFunc()
 
 NzVertexBuffer* NzRenderer::GetInstanceBuffer()
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!s_capabilities[nzRendererCap_Instancing])
-	{
-		NazaraError("Instancing not supported");
-		return nullptr;
-	}
-	#endif
-
 	s_updateFlags |= Update_VAO;
 	return &s_instanceBuffer;
 }
@@ -757,19 +703,10 @@ bool NzRenderer::Initialize()
 	}
 
 	// Récupération des capacités d'OpenGL
-	s_capabilities[nzRendererCap_AnisotropicFilter]     = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
-	s_capabilities[nzRendererCap_ConditionalRendering]  = NzOpenGL::IsSupported(nzOpenGLExtension_ConditionalRender);
-	s_capabilities[nzRendererCap_FP64]                  = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
-	s_capabilities[nzRendererCap_HardwareBuffer]        = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_Instancing]            = NzOpenGL::IsSupported(nzOpenGLExtension_DrawInstanced) && NzOpenGL::IsSupported(nzOpenGLExtension_InstancedArray);
-	s_capabilities[nzRendererCap_MultipleRenderTargets] = (glBindFragDataLocation != nullptr); // Natif depuis OpenGL 2.0 mais inutile sans glBindFragDataLocation
-	s_capabilities[nzRendererCap_OcclusionQuery]        = true; // Natif depuis OpenGL 1.5
-	s_capabilities[nzRendererCap_PixelBufferObject]     = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
-	s_capabilities[nzRendererCap_RenderTexture]         = NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
-	s_capabilities[nzRendererCap_Texture3D]             = true; // Natif depuis OpenGL 1.2
-	s_capabilities[nzRendererCap_TextureCubemap]        = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureMulti]          = true; // Natif depuis OpenGL 1.3
-	s_capabilities[nzRendererCap_TextureNPOT]           = true; // Natif depuis OpenGL 2.0
+	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
+	s_capabilities[nzRendererCap_FP64]              = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
+	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
+	s_capabilities[nzRendererCap_Instancing]        = true; // Supporté par OpenGL 3.3
 
 	NzContext::EnsureContext();
 
@@ -783,39 +720,21 @@ bool NzRenderer::Initialize()
 	else
 		s_maxAnisotropyLevel = 1;
 
-	if (s_capabilities[nzRendererCap_RenderTexture])
-	{
-		GLint maxColorAttachments;
-		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+	GLint maxColorAttachments;
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+	s_maxColorAttachments = static_cast<unsigned int>(maxColorAttachments);
 
-		s_maxColorAttachments = static_cast<unsigned int>(maxColorAttachments);
-	}
-	else
-		s_maxColorAttachments = 1;
+	GLint maxDrawBuffers;
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
+	s_maxRenderTarget = static_cast<unsigned int>(maxDrawBuffers);
 
-	if (s_capabilities[nzRendererCap_MultipleRenderTargets])
-	{
-		GLint maxDrawBuffers;
-		glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
-
-		s_maxRenderTarget = static_cast<unsigned int>(maxDrawBuffers);
-	}
-	else
-		s_maxRenderTarget = 1;
-
-	if (s_capabilities[nzRendererCap_TextureMulti])
-	{
-		GLint maxTextureUnits;
-		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-
-		s_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
-	}
-	else
-		s_maxTextureUnit = 1;
+	GLint maxTextureUnits;
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+	s_maxTextureUnit = static_cast<unsigned int>(maxTextureUnits);
 
 	GLint maxTextureSize;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-	s_maxTextureSize = maxTextureSize;
+	s_maxTextureSize = static_cast<unsigned int>(maxTextureSize);
 
 	GLint maxVertexAttribs;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
@@ -828,8 +747,6 @@ bool NzRenderer::Initialize()
 	s_target = nullptr;
 	s_targetSize.Set(0U);
 	s_textureUnits.resize(s_maxTextureUnit);
-	s_useSamplerObjects = NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects);
-	s_useVertexArrayObjects = NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects);
 	s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 	s_vertexBuffer = nullptr;
 
@@ -903,32 +820,13 @@ bool NzRenderer::Initialize()
 		return false;
 	}
 
-	const char* fragmentShader;
-	const char* vertexShader;
-	unsigned int fragmentShaderLength;
-	unsigned int vertexShaderLength;
-	if (NzOpenGL::GetGLSLVersion() >= 140)
-	{
-		fragmentShader = reinterpret_cast<const char*>(r_coreFragmentShader);
-		fragmentShaderLength = sizeof(r_coreFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(r_coreVertexShader);
-		vertexShaderLength = sizeof(r_coreVertexShader);
-	}
-	else
-	{
-		fragmentShader = reinterpret_cast<const char*>(r_compatibilityFragmentShader);
-		fragmentShaderLength = sizeof(r_compatibilityFragmentShader);
-		vertexShader = reinterpret_cast<const char*>(r_compatibilityVertexShader);
-		vertexShaderLength = sizeof(r_compatibilityVertexShader);
-	}
-
-	if (!debugShader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShader, fragmentShaderLength))
+	if (!debugShader->AttachStageFromSource(nzShaderStage_Fragment, reinterpret_cast<const char*>(r_coreFragmentShader), sizeof(r_coreFragmentShader)))
 	{
 		NazaraError("Failed to attach fragment stage");
 		return false;
 	}
 
-	if (!debugShader->AttachStageFromSource(nzShaderStage_Vertex, vertexShader, vertexShaderLength))
+	if (!debugShader->AttachStageFromSource(nzShaderStage_Vertex, reinterpret_cast<const char*>(r_coreVertexShader),  sizeof(r_coreVertexShader)))
 	{
 		NazaraError("Failed to attach vertex stage");
 		return false;
@@ -1677,36 +1575,16 @@ bool NzRenderer::EnsureStateUpdate()
 	{
 		if (s_updateFlags & Update_Textures)
 		{
-			if (s_useSamplerObjects)
+			for (unsigned int i : s_dirtyTextureUnits)
 			{
-				for (unsigned int i : s_dirtyTextureUnits)
-				{
-					TextureUnit& unit = s_textureUnits[i];
+				TextureUnit& unit = s_textureUnits[i];
 
-					if (unit.texture && !unit.samplerUpdated)
-					{
-						unit.sampler.Bind(i);
-						unit.samplerUpdated = true;
-					}
+				if (unit.texture && !unit.samplerUpdated)
+				{
+					unit.sampler.Bind(i);
+					unit.samplerUpdated = true;
 				}
 			}
-			else
-			{
-				for (unsigned int i : s_dirtyTextureUnits)
-				{
-					TextureUnit& unit = s_textureUnits[i];
-
-					if (unit.texture && !unit.samplerUpdated)
-					{
-						NzOpenGL::BindTextureUnit(i);
-						unit.sampler.Apply(unit.texture);
-						unit.samplerUpdated = true;
-					}
-				}
-			}
-
-			s_dirtyTextureUnits.clear(); // Ne change pas la capacité
-			s_updateFlags &= ~Update_Textures;
 		}
 
 		if (s_updateFlags & Update_Matrices)
@@ -1736,68 +1614,45 @@ bool NzRenderer::EnsureStateUpdate()
 			}
 			#endif
 
-			bool update;
-			VAO_Map::iterator vaoIt;
+			// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
+			const NzContext* context = NzContext::GetCurrent();
 
-			// Si les VAOs sont supportés, on entoure nos appels par ceux-ci
-			if (s_useVertexArrayObjects)
+			auto it = s_vaos.find(context);
+			if (it == s_vaos.end())
 			{
-				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
-				const NzContext* context = NzContext::GetCurrent();
+				Context_Entry entry(&s_listener, ObjectType_Context);
+				entry.contextListener = context;
 
-				auto it = s_vaos.find(context);
-				if (it == s_vaos.end())
-				{
-					Context_Entry entry(&s_listener, ObjectType_Context);
-					entry.contextListener = context;
-
-					it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
-				}
-
-				VAO_Map& vaoMap = it->second.vaoMap;
-
-				// Notre clé est composée de ce qui définit un VAO
-				const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
-				const NzVertexDeclaration* instancingDeclaration = (s_instancing) ? s_instanceBuffer.GetVertexDeclaration() : nullptr;
-				VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
-
-				// On recherche un VAO existant avec notre configuration
-				vaoIt = vaoMap.find(key);
-				if (vaoIt == vaoMap.end())
-				{
-					// On créé notre VAO
-					glGenVertexArrays(1, &s_currentVAO);
-					glBindVertexArray(s_currentVAO);
-
-					// On l'ajoute à notre liste
-					VAO_Entry entry(&s_listener, ObjectType_IndexBuffer, ObjectType_VertexBuffer, ObjectType_VertexDeclaration, ObjectType_VertexDeclaration);
-					entry.indexBufferListener = std::get<0>(key);
-					entry.instancingDeclarationListener = std::get<3>(key);
-					entry.vertexBufferListener = std::get<1>(key);
-					entry.vertexDeclarationListener = std::get<2>(key);
-					entry.vao = s_currentVAO;
-
-					vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
-
-					// Et on indique qu'on veut le programmer
-					update = true;
-				}
-				else
-				{
-					// Notre VAO existe déjà, il est donc inutile de le reprogrammer
-					s_currentVAO = vaoIt->second.vao;
-
-					update = false;
-				}
+				it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
 			}
-			else
-				update = true; // Fallback si les VAOs ne sont pas supportés
 
-			bool updateFailed = false;
+			VAO_Map& vaoMap = it->second.vaoMap;
 
-			if (update)
+			// Notre clé est composée de ce qui définit un VAO
+			const NzVertexDeclaration* vertexDeclaration = s_vertexBuffer->GetVertexDeclaration();
+			const NzVertexDeclaration* instancingDeclaration = (s_instancing) ? s_instanceBuffer.GetVertexDeclaration() : nullptr;
+			VAO_Key key(s_indexBuffer, s_vertexBuffer, vertexDeclaration, instancingDeclaration);
+
+			// On recherche un VAO existant avec notre configuration
+			auto vaoIt = vaoMap.find(key);
+			if (vaoIt == vaoMap.end())
 			{
-				const NzVertexDeclaration* vertexDeclaration;
+				// On créé notre VAO
+				glGenVertexArrays(1, &s_currentVAO);
+				glBindVertexArray(s_currentVAO);
+
+				// On l'ajoute à notre liste
+				VAO_Entry entry(&s_listener, ObjectType_IndexBuffer, ObjectType_VertexBuffer, ObjectType_VertexDeclaration, ObjectType_VertexDeclaration);
+				entry.indexBufferListener = std::get<0>(key);
+				entry.instancingDeclarationListener = std::get<3>(key);
+				entry.vertexBufferListener = std::get<1>(key);
+				entry.vertexDeclarationListener = std::get<2>(key);
+				entry.vao = s_currentVAO;
+
+				vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
+
+				// Et on le programme
+				bool updateFailed = false;
 				unsigned int bufferOffset;
 				unsigned int stride;
 
@@ -1927,45 +1782,33 @@ bool NzRenderer::EnsureStateUpdate()
 				// On invalide les bindings des buffers (car nous les avons défini manuellement)
 				NzOpenGL::SetBuffer(nzBufferType_Index, 0);
 				NzOpenGL::SetBuffer(nzBufferType_Vertex, 0);
-			}
 
-			if (s_useVertexArrayObjects)
-			{
-				if (update)
+				if (updateFailed)
 				{
-					if (updateFailed)
-					{
-						// La création de notre VAO a échoué, libérons-le et marquons-le comme problématique
-						glDeleteVertexArrays(1, &vaoIt->second.vao);
-						vaoIt->second.vao = 0;
-						s_currentVAO = 0;
-					}
-					else
-						glBindVertexArray(0); // On marque la fin de la construction du VAO en le débindant
+					// La création de notre VAO a échoué, libérons-le et marquons-le comme problématique
+					glDeleteVertexArrays(1, &vaoIt->second.vao);
+					vaoIt->second.vao = 0;
+					s_currentVAO = 0;
 				}
-
-				// En cas de non-support des VAOs, les attributs doivent être respécifiés à chaque frame
-				s_updateFlags &= ~Update_VAO;
+				else
+					glBindVertexArray(0); // On marque la fin de la construction du VAO en le débindant
 			}
-		}
+			else
+				// Notre VAO existe déjà, il est donc inutile de le reprogrammer
+				s_currentVAO = vaoIt->second.vao;
 
-		#ifdef NAZARA_DEBUG
-		if (s_updateFlags != Update_None && !s_useVertexArrayObjects && s_updateFlags != Update_VAO)
-			NazaraWarning("Update flags not fully cleared");
-		#endif
+			s_updateFlags &= ~Update_VAO;
+		}
 	}
 
 	// On bind notre VAO
-	if (s_useVertexArrayObjects)
+	if (!s_currentVAO)
 	{
-		if (!s_currentVAO)
-		{
-			NazaraError("Failed to create VAO");
-			return false;
-		}
-
-		glBindVertexArray(s_currentVAO);
+		NazaraError("Failed to create VAO");
+		return false;
 	}
+
+	glBindVertexArray(s_currentVAO);
 
 	// On vérifie que les textures actuellement bindées sont bien nos textures
 	// Ceci à cause du fait qu'il est possible que des opérations sur les textures aient eu lieu

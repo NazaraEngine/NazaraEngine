@@ -28,7 +28,6 @@ class NAZARA_API NzGpuQuery : NzNonCopyable
 		unsigned int GetOpenGLID() const;
 
 		static bool IsModeSupported(nzGpuQueryMode mode);
-		static bool IsSupported();
 
 	private:
 		nzGpuQueryMode m_mode;

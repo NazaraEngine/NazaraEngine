@@ -45,20 +45,6 @@ namespace
 
 	NzShader* BuildShader()
 	{
-		const char* fragmentSource110 =
-		"#version 110\n"
-
-		"varying vec3 vTexCoord;\n"
-
-		"uniform samplerCube Skybox;\n"
-		"uniform float VertexDepth;\n"
-
-		"void main()\n"
-		"{\n"
-		"	gl_FragColor = textureCube(Skybox, vTexCoord);\n"
-		"	gl_FragDepth = VertexDepth;\n"
-		"}\n";
-
 		const char* fragmentSource140 =
 		"#version 140\n"
 
@@ -73,21 +59,6 @@ namespace
 		"{\n"
 		"	RenderTarget0 = texture(Skybox, vTexCoord);\n"
 		"	gl_FragDepth = VertexDepth;\n"
-		"}\n";
-
-		const char* vertexSource110 =
-		"#version 110\n"
-
-		"attribute vec3 VertexPosition;\n"
-
-		"varying vec3 vTexCoord;\n"
-
-		"uniform mat4 WorldViewProjMatrix;\n"
-
-		"void main()\n"
-		"{\n"
-		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
 		const char* vertexSource140 =
@@ -115,15 +86,13 @@ namespace
 			return nullptr;
 		}
 
-		bool useGLSL140 = (NzOpenGL::GetVersion() >= 310);
-
-		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, (useGLSL140) ? fragmentSource140 : fragmentSource110))
+		if (!shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentSource140))
 		{
 			NazaraError("Failed to load fragment shader");
 			return nullptr;
 		}
 
-		if (!shader->AttachStageFromSource(nzShaderStage_Vertex, (useGLSL140) ? vertexSource140 : vertexSource110))
+		if (!shader->AttachStageFromSource(nzShaderStage_Vertex, vertexSource140))
 		{
 			NazaraError("Failed to load vertex shader");
 			return nullptr;
