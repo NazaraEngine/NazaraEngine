@@ -705,7 +705,6 @@ bool NzRenderer::Initialize()
 	// Récupération des capacités d'OpenGL
 	s_capabilities[nzRendererCap_AnisotropicFilter] = NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter);
 	s_capabilities[nzRendererCap_FP64]              = NzOpenGL::IsSupported(nzOpenGLExtension_FP64);
-	s_capabilities[nzRendererCap_PixelBufferObject] = NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject);
 	s_capabilities[nzRendererCap_Instancing]        = true; // Supporté par OpenGL 3.3
 
 	NzContext::EnsureContext();
