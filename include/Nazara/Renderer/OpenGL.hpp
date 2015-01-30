@@ -31,7 +31,6 @@ enum nzOpenGLExtension
 	nzOpenGLExtension_DebugOutput,
 	nzOpenGLExtension_FP64,
 	nzOpenGLExtension_GetProgramBinary,
-	nzOpenGLExtension_PixelBufferObject,
 	nzOpenGLExtension_SeparateShaderObjects,
 	nzOpenGLExtension_Shader_ImageLoadStore,
 	nzOpenGLExtension_TextureCompression_s3tc,
