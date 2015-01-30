@@ -797,10 +797,10 @@ bool NzOpenGL::Initialize()
 
 	NazaraDebug("OpenGL version: " + NzString::Number(major) + '.' + NzString::Number(minor));
 
-	// Le moteur ne fonctionnera pas avec OpenGL 1.x, autant s'arrêter là si c'est le cas
-	if (s_openglVersion < 200)
+	// Le moteur nécessite OpenGL 3.3, autant s'arrêter là si c'est le cas
+	if (s_openglVersion < 330)
 	{
-		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (2.0 required). Please upgrade your drivers or your video card");
+		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (3.3 required). Please upgrade your drivers or your video card");
 		return false;
 	}
 
@@ -829,10 +829,8 @@ bool NzOpenGL::Initialize()
 
 	s_glslVersion = major*100 + minor*10; // GLSL 3.3 => 330
 
-	// Possible uniquement dans le cas où le GLSL vient d'une extension d'OpenGL 1
-	// Ce qui est rejeté il y a un moment déjà, mais on doit s'attendre à tout de la part d'un driver...
-	// (Exemple: Un driver OpenGL 2 mais ne supportant que le GLSL 100)
-	if (s_glslVersion < 110)
+	// Normalement rejeté il y a un moment déjà, mais on doit s'attendre à tout de la part d'un driver...
+	if (s_glslVersion < 330)
 	{
 		NazaraError("GLSL version is too low, please upgrade your drivers or your video card");
 		return false;
@@ -854,18 +852,26 @@ bool NzOpenGL::Initialize()
 	{
 		glActiveTexture = reinterpret_cast<PFNGLACTIVETEXTUREPROC>(LoadEntry("glActiveTexture"));
 		glAttachShader = reinterpret_cast<PFNGLATTACHSHADERPROC>(LoadEntry("glAttachShader"));
+		glBeginConditionalRender = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERPROC>(LoadEntry("glBeginConditionalRender"));
 		glBeginQuery = reinterpret_cast<PFNGLBEGINQUERYPROC>(LoadEntry("glBeginQuery"));
 		glBindAttribLocation = reinterpret_cast<PFNGLBINDATTRIBLOCATIONPROC>(LoadEntry("glBindAttribLocation"));
 		glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(LoadEntry("glBindBuffer"));
+		glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONPROC>(LoadEntry("glBindFragDataLocation"));
+		glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
+		glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
+		glBindSampler = reinterpret_cast<PFNGLBINDSAMPLERPROC>(LoadEntry("glBindSampler"));
 		glBindTexture = reinterpret_cast<PFNGLBINDTEXTUREPROC>(LoadEntry("glBindTexture"));
+		glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(LoadEntry("glBindVertexArray"));
 		glBlendFunc = reinterpret_cast<PFNGLBLENDFUNCPROC>(LoadEntry("glBlendFunc"));
 		glBlendFuncSeparate = reinterpret_cast<PFNGLBLENDFUNCSEPARATEPROC>(LoadEntry("glBlendFuncSeparate"));
+		glBlitFramebuffer = reinterpret_cast<PFNGLBLITFRAMEBUFFERPROC>(LoadEntry("glBlitFramebuffer"));
 		glBufferData = reinterpret_cast<PFNGLBUFFERDATAPROC>(LoadEntry("glBufferData"));
 		glBufferSubData = reinterpret_cast<PFNGLBUFFERSUBDATAPROC>(LoadEntry("glBufferSubData"));
 		glClear = reinterpret_cast<PFNGLCLEARPROC>(LoadEntry("glClear"));
 		glClearColor = reinterpret_cast<PFNGLCLEARCOLORPROC>(LoadEntry("glClearColor"));
 		glClearDepth = reinterpret_cast<PFNGLCLEARDEPTHPROC>(LoadEntry("glClearDepth"));
 		glClearStencil = reinterpret_cast<PFNGLCLEARSTENCILPROC>(LoadEntry("glClearStencil"));
+		glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
 		glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(LoadEntry("glCreateProgram"));
 		glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(LoadEntry("glCreateShader"));
 		glColorMask = reinterpret_cast<PFNGLCOLORMASKPROC>(LoadEntry("glColorMask"));
@@ -873,25 +879,43 @@ bool NzOpenGL::Initialize()
 		glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(LoadEntry("glCompileShader"));
 		glCopyTexSubImage2D = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE2DPROC>(LoadEntry("glCopyTexSubImage2D"));
 		glDeleteBuffers = reinterpret_cast<PFNGLDELETEBUFFERSPROC>(LoadEntry("glDeleteBuffers"));
+		glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
 		glDeleteQueries = reinterpret_cast<PFNGLDELETEQUERIESPROC>(LoadEntry("glDeleteQueries"));
 		glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(LoadEntry("glDeleteProgram"));
+		glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
+		glDeleteSamplers = reinterpret_cast<PFNGLDELETESAMPLERSPROC>(LoadEntry("glDeleteSamplers"));
 		glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(LoadEntry("glDeleteShader"));
 		glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(LoadEntry("glDeleteTextures"));
+		glDeleteVertexArrays = reinterpret_cast<PFNGLDELETEVERTEXARRAYSPROC>(LoadEntry("glDeleteVertexArrays"));
 		glDepthFunc = reinterpret_cast<PFNGLDEPTHFUNCPROC>(LoadEntry("glDepthFunc"));
 		glDepthMask = reinterpret_cast<PFNGLDEPTHMASKPROC>(LoadEntry("glDepthMask"));
 		glDisable = reinterpret_cast<PFNGLDISABLEPROC>(LoadEntry("glDisable"));
 		glDisableVertexAttribArray = reinterpret_cast<PFNGLDISABLEVERTEXATTRIBARRAYPROC>(LoadEntry("glDisableVertexAttribArray"));
 		glDrawArrays = reinterpret_cast<PFNGLDRAWARRAYSPROC>(LoadEntry("glDrawArrays"));
+		glDrawArraysInstanced = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDPROC>(LoadEntry("glDrawArraysInstanced"));
 		glDrawBuffer = reinterpret_cast<PFNGLDRAWBUFFERPROC>(LoadEntry("glDrawBuffer"));
 		glDrawBuffers = reinterpret_cast<PFNGLDRAWBUFFERSPROC>(LoadEntry("glDrawBuffers"));
 		glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(LoadEntry("glDrawElements"));
+		glDrawElementsInstanced = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDPROC>(LoadEntry("glDrawElementsInstanced"));
 		glEnable = reinterpret_cast<PFNGLENABLEPROC>(LoadEntry("glEnable"));
 		glEnableVertexAttribArray = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(LoadEntry("glEnableVertexAttribArray"));
+		glEndConditionalRender = reinterpret_cast<PFNGLENDCONDITIONALRENDERPROC>(LoadEntry("glEndConditionalRender"));
 		glEndQuery = reinterpret_cast<PFNGLENDQUERYPROC>(LoadEntry("glEndQuery"));
 		glFlush = reinterpret_cast<PFNGLFLUSHPROC>(LoadEntry("glFlush"));
+		glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
+		glFramebufferTexture = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREPROC>(LoadEntry("glFramebufferTexture"));
+		glFramebufferTexture1D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE1DPROC>(LoadEntry("glFramebufferTexture1D"));
+		glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
+		glFramebufferTexture3D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE3DPROC>(LoadEntry("glFramebufferTexture3D"));
+		glFramebufferTextureLayer = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURELAYERPROC>(LoadEntry("glFramebufferTextureLayer"));
+		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
 		glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(LoadEntry("glGenBuffers"));
+		glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
 		glGenQueries = reinterpret_cast<PFNGLGENQUERIESPROC>(LoadEntry("glGenQueries"));
+		glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
+		glGenSamplers = reinterpret_cast<PFNGLGENSAMPLERSPROC>(LoadEntry("glGenSamplers"));
 		glGenTextures = reinterpret_cast<PFNGLGENTEXTURESPROC>(LoadEntry("glGenTextures"));
+		glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(LoadEntry("glGenVertexArrays"));
 		glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(LoadEntry("glGetActiveUniform"));
 		glGetBooleanv = reinterpret_cast<PFNGLGETBOOLEANVPROC>(LoadEntry("glGetBooleanv"));
 		glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(LoadEntry("glGetBufferParameteriv"));
@@ -906,6 +930,7 @@ bool NzOpenGL::Initialize()
 		glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(LoadEntry("glGetShaderInfoLog"));
 		glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(LoadEntry("glGetShaderiv"));
 		glGetShaderSource = reinterpret_cast<PFNGLGETSHADERSOURCEPROC>(LoadEntry("glGetShaderSource"));
+		glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi"));
 		glGetTexImage = reinterpret_cast<PFNGLGETTEXIMAGEPROC>(LoadEntry("glGetTexImage"));
 		glGetTexLevelParameterfv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERFVPROC>(LoadEntry("glGetTexLevelParameterfv"));
 		glGetTexLevelParameteriv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERIVPROC>(LoadEntry("glGetTexLevelParameteriv"));
@@ -916,10 +941,14 @@ bool NzOpenGL::Initialize()
 		glLineWidth = reinterpret_cast<PFNGLLINEWIDTHPROC>(LoadEntry("glLineWidth"));
 		glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(LoadEntry("glLinkProgram"));
 		glMapBuffer = reinterpret_cast<PFNGLMAPBUFFERPROC>(LoadEntry("glMapBuffer"));
+		glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange"));
 		glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(LoadEntry("glPixelStorei"));
 		glPointSize = reinterpret_cast<PFNGLPOINTSIZEPROC>(LoadEntry("glPointSize"));
 		glPolygonMode = reinterpret_cast<PFNGLPOLYGONMODEPROC>(LoadEntry("glPolygonMode"));
 		glReadPixels = reinterpret_cast<PFNGLREADPIXELSPROC>(LoadEntry("glReadPixels"));
+		glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
+		glSamplerParameterf = reinterpret_cast<PFNGLSAMPLERPARAMETERFPROC>(LoadEntry("glSamplerParameterf"));
+		glSamplerParameteri = reinterpret_cast<PFNGLSAMPLERPARAMETERIPROC>(LoadEntry("glSamplerParameteri"));
 		glScissor = reinterpret_cast<PFNGLSCISSORPROC>(LoadEntry("glScissor"));
 		glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(LoadEntry("glShaderSource"));
 		glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(LoadEntry("glStencilFunc"));
@@ -946,7 +975,9 @@ bool NzOpenGL::Initialize()
 		glUnmapBuffer = reinterpret_cast<PFNGLUNMAPBUFFERPROC>(LoadEntry("glUnmapBuffer"));
 		glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(LoadEntry("glUseProgram"));
 		glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(LoadEntry("glVertexAttrib4f"));
+		glVertexAttribDivisor = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORPROC>(LoadEntry("glVertexAttribDivisor"));
 		glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(LoadEntry("glVertexAttribPointer"));
+		glVertexAttribIPointer = reinterpret_cast<PFNGLVERTEXATTRIBIPOINTERPROC>(LoadEntry("glVertexAttribIPointer"));
 		glViewport = reinterpret_cast<PFNGLVIEWPORTPROC>(LoadEntry("glViewport"));
 	}
 	catch (const std::exception& e)
@@ -958,16 +989,10 @@ bool NzOpenGL::Initialize()
 	/****************************************Extensions****************************************/
 
 	// Fonctions optionnelles
-	glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONPROC>(LoadEntry("glBindFragDataLocation", false));
-	if (!glBindFragDataLocation)
-		glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONEXTPROC>(LoadEntry("glBindFragDataLocationEXT", false));
+	glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONPROC>(LoadEntry("glBindFragDataLocation"));
 
 	glDrawTexture = reinterpret_cast<PFNGLDRAWTEXTURENVPROC>(LoadEntry("glDrawTextureNV", false));
-	glFramebufferTexture = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREPROC>(LoadEntry("glFramebufferTexture", false));
-	glGetStringi = reinterpret_cast<PFNGLGETSTRINGIPROC>(LoadEntry("glGetStringi", false));
 	glInvalidateBufferData = reinterpret_cast<PFNGLINVALIDATEBUFFERDATAPROC>(LoadEntry("glInvalidateBufferData", false));
-	glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(LoadEntry("glMapBufferRange", false));
-	glVertexAttribIPointer = reinterpret_cast<PFNGLVERTEXATTRIBIPOINTERPROC>(LoadEntry("glVertexAttribIPointer", false));
 	glVertexAttribLPointer = reinterpret_cast<PFNGLVERTEXATTRIBLPOINTERPROC>(LoadEntry("glVertexAttribLPointer", false));
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
@@ -980,8 +1005,7 @@ bool NzOpenGL::Initialize()
 
 	if (!glGetStringi || !LoadExtensions3())
 	{
-		if (s_openglVersion >= 300) // Dans le cas contraire c'est normal
-			NazaraWarning("Failed to load OpenGL 3 extension system, switching to OpenGL 2 extension system...");
+		NazaraWarning("Failed to load OpenGL 3 extension system, falling back to OpenGL 2 extension system...");
 
 		if (!LoadExtensionsString(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS))))
 			NazaraWarning("Failed to load extension system");
@@ -1004,37 +1028,6 @@ bool NzOpenGL::Initialize()
 
 	// AnisotropicFilter
 	s_openGLextensions[nzOpenGLExtension_AnisotropicFilter] = IsSupported("GL_EXT_texture_filter_anisotropic");
-
-	// ConditionalRender
-	if (s_openglVersion >= 300)
-	{
-		try
-		{
-			glBeginConditionalRender = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERPROC>(LoadEntry("glBeginConditionalRender"));
-			glEndConditionalRender = reinterpret_cast<PFNGLENDCONDITIONALRENDERPROC>(LoadEntry("glEndConditionalRender"));
-
-			s_openGLextensions[nzOpenGLExtension_ConditionalRender] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load Conditional Render: " + NzString(e.what()));
-		}
-	}
-
-	if (!s_openGLextensions[nzOpenGLExtension_ConditionalRender] && IsSupported("GL_NV_conditional_render"))
-	{
-		try
-		{
-			glBeginConditionalRender = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERPROC>(LoadEntry("glBeginConditionalRenderNV"));
-			glEndConditionalRender = reinterpret_cast<PFNGLENDCONDITIONALRENDERPROC>(LoadEntry("glEndConditionalRenderNV"));
-
-			s_openGLextensions[nzOpenGLExtension_ConditionalRender] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load GL_NV_conditional_render: " + NzString(e.what()));
-		}
-	}
 
 	// DebugOutput
 	if (s_openglVersion >= 430 || IsSupported("GL_KHR_debug"))
@@ -1071,37 +1064,6 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	// DrawInstanced
-	if (s_openglVersion >= 310)
-	{
-		try
-		{
-			glDrawArraysInstanced = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDPROC>(LoadEntry("glDrawArraysInstanced"));
-			glDrawElementsInstanced = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDPROC>(LoadEntry("glDrawElementsInstanced"));
-
-			s_openGLextensions[nzOpenGLExtension_DrawInstanced] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load Draw Instanced: " + NzString(e.what()));
-		}
-	}
-
-	if (!s_openGLextensions[nzOpenGLExtension_DrawInstanced] && IsSupported("GL_ARB_draw_instanced"))
-	{
-		try
-		{
-			glDrawArraysInstanced = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDARBPROC>(LoadEntry("glDrawArraysInstancedARB"));
-			glDrawElementsInstanced = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDARBPROC>(LoadEntry("glDrawElementsInstancedARB"));
-
-			s_openGLextensions[nzOpenGLExtension_DrawInstanced] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load GL_ARB_draw_instanced: " + NzString(e.what()));
-		}
-	}
-
 	// FP64
 	if (s_openglVersion >= 400 || IsSupported("GL_ARB_gpu_shader_fp64"))
 	{
@@ -1121,35 +1083,6 @@ bool NzOpenGL::Initialize()
 		}
 	}
 
-	// FrameBufferObject
-	if (s_openglVersion >= 300 || IsSupported("GL_ARB_framebuffer_object"))
-	{
-		try
-		{
-			glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
-			glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
-			glBlitFramebuffer = reinterpret_cast<PFNGLBLITFRAMEBUFFERPROC>(LoadEntry("glBlitFramebuffer"));
-			glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(LoadEntry("glCheckFramebufferStatus"));
-			glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(LoadEntry("glDeleteFramebuffers"));
-			glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(LoadEntry("glDeleteRenderbuffers"));
-			glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(LoadEntry("glFramebufferRenderbuffer"));
-			glFramebufferTexture1D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE1DPROC>(LoadEntry("glFramebufferTexture1D"));
-			glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(LoadEntry("glFramebufferTexture2D"));
-			glFramebufferTexture3D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE3DPROC>(LoadEntry("glFramebufferTexture3D"));
-			glFramebufferTextureLayer = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURELAYERPROC>(LoadEntry("glFramebufferTextureLayer"));
-			glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(LoadEntry("glGenerateMipmap"));
-			glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(LoadEntry("glGenFramebuffers"));
-			glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(LoadEntry("glGenRenderbuffers"));
-			glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(LoadEntry("glRenderbufferStorage"));
-
-			s_openGLextensions[nzOpenGLExtension_FrameBufferObject] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load ARB_framebuffer_object: (" + NzString(e.what()) + ")");
-		}
-	}
-
 	// GetProgramBinary
 	if (s_openglVersion >= 410 || IsSupported("GL_ARB_get_program_binary"))
 	{
@@ -1164,57 +1097,6 @@ bool NzOpenGL::Initialize()
 		catch (const std::exception& e)
 		{
 			NazaraWarning("Failed to load ARB_get_program_binary: (" + NzString(e.what()) + ")");
-		}
-	}
-
-	// InstancedArray
-	if (s_openglVersion >= 330)
-	{
-		try
-		{
-			glVertexAttribDivisor = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORPROC>(LoadEntry("glVertexAttribDivisor"));
-
-			s_openGLextensions[nzOpenGLExtension_InstancedArray] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load Instanced Array: " + NzString(e.what()));
-		}
-	}
-
-	if (!s_openGLextensions[nzOpenGLExtension_InstancedArray] && IsSupported("GL_ARB_instanced_arrays"))
-	{
-		try
-		{
-			glVertexAttribDivisor = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORARBPROC>(LoadEntry("glVertexAttribDivisorARB"));
-
-			s_openGLextensions[nzOpenGLExtension_InstancedArray] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load GL_ARB_instanced_arrays: " + NzString(e.what()));
-		}
-	}
-
-	// PixelBufferObject
-	s_openGLextensions[nzOpenGLExtension_PixelBufferObject] = (s_openglVersion >= 210 || IsSupported("GL_ARB_pixel_buffer_object"));
-
-	// SamplerObjects
-	if (s_openglVersion >= 330 || IsSupported("GL_ARB_sampler_objects"))
-	{
-		try
-		{
-			glBindSampler = reinterpret_cast<PFNGLBINDSAMPLERPROC>(LoadEntry("glBindSampler"));
-			glDeleteSamplers = reinterpret_cast<PFNGLDELETESAMPLERSPROC>(LoadEntry("glDeleteSamplers"));
-			glGenSamplers = reinterpret_cast<PFNGLGENSAMPLERSPROC>(LoadEntry("glGenSamplers"));
-			glSamplerParameterf = reinterpret_cast<PFNGLSAMPLERPARAMETERFPROC>(LoadEntry("glSamplerParameterf"));
-			glSamplerParameteri = reinterpret_cast<PFNGLSAMPLERPARAMETERIPROC>(LoadEntry("glSamplerParameteri"));
-
-			s_openGLextensions[nzOpenGLExtension_SamplerObjects] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load ARB_sampler_objects: (" + NzString(e.what()) + ")");
 		}
 	}
 
@@ -1257,9 +1139,6 @@ bool NzOpenGL::Initialize()
 	// Shader_ImageLoadStore
 	s_openGLextensions[nzOpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));
 
-	// TextureArray
-	s_openGLextensions[nzOpenGLExtension_TextureArray] = (s_openglVersion >= 300 || IsSupported("GL_EXT_texture_array"));
-
 	// TextureCompression_s3tc
 	s_openGLextensions[nzOpenGLExtension_TextureCompression_s3tc] = IsSupported("GL_EXT_texture_compression_s3tc");
 
@@ -1279,27 +1158,6 @@ bool NzOpenGL::Initialize()
 			NazaraWarning("Failed to load ARB_texture_storage: " + NzString(e.what()));
 		}
 	}
-
-	// VertexArrayObject
-	if (s_openglVersion >= 300 || IsSupported("GL_ARB_vertex_array_object"))
-	{
-		try
-		{
-			glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(LoadEntry("glBindVertexArray"));
-			glDeleteVertexArrays = reinterpret_cast<PFNGLDELETEVERTEXARRAYSPROC>(LoadEntry("glDeleteVertexArrays"));
-			glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(LoadEntry("glGenVertexArrays"));
-
-			s_openGLextensions[nzOpenGLExtension_VertexArrayObjects] = true;
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning("Failed to load ARB_vertex_array_object: " + NzString(e.what()));
-		}
-	}
-
-	// Fonctions de substitut
-	if (!glGenerateMipmap)
-		glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPEXTPROC>(LoadEntry("glGenerateMipmapEXT", false));
 
 	/******************************Initialisation*****************************/
 
