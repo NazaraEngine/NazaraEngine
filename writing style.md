@@ -4,7 +4,7 @@ Alphabetical order for everything and try to regroup each methods beginning with
 
 Class header:
 
-// Copyright (C) 2014 AUTHOR
+// Copyright (C) YEAR AUTHOR
 // This file is part of the "Nazara Engine - MODULE module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -43,7 +43,7 @@ class NAZARA_API NzClassName
 
 Class source:
 
-// Copyright (C) 2014 AUTHOR
+// Copyright (C) YEAR AUTHOR
 // This file is part of the "Nazara Engine - MODULE module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 

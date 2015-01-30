@@ -1,9 +1,9 @@
-// This file was automatically generated on 17 Jan 2015 at 00:38:08
+// This file was automatically generated on 30 Jan 2015 at 22:28:30
 
 /*
 	Nazara Engine - Utility module
 
-	Copyright (C) 2014 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -52,6 +52,7 @@
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
+#include <Nazara/Utility/Joystick.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/MeshData.hpp>
