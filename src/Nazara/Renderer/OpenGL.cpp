@@ -797,7 +797,7 @@ bool NzOpenGL::Initialize()
 
 	NazaraDebug("OpenGL version: " + NzString::Number(major) + '.' + NzString::Number(minor));
 
-	// Le moteur nécessite OpenGL 3.3, autant s'arrêter là si c'est le cas
+	// Le moteur nécessite OpenGL 3.3, autant s'arrêter là si ce n'est pas le cas
 	if (s_openglVersion < 330)
 	{
 		NazaraError("OpenGL " + NzString::Number(major) + '.' + NzString::Number(minor) + " detected (3.3 required). Please upgrade your drivers or your video card");

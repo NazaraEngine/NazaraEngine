@@ -109,9 +109,8 @@ enum nzRendererCap
 	nzRendererCap_AnisotropicFilter,
 	nzRendererCap_FP64,
 	nzRendererCap_Instancing,
-	nzRendererCap_PixelBufferObject,
 
-	nzRendererCap_Max = nzRendererCap_PixelBufferObject
+	nzRendererCap_Max = nzRendererCap_Instancing
 };
 
 enum nzRendererBufferFlags
