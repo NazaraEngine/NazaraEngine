@@ -16,21 +16,22 @@
 
 namespace
 {
-	const nzUInt8 r_coreFragmentShader[] = {
+	const nzUInt8 r_basicFragmentShader[] = {
 		#include <Nazara/Graphics/Resources/Shaders/Basic/core.frag.h>
 	};
 
-	const nzUInt8 r_coreVertexShader[] = {
+	const nzUInt8 r_basicVertexShader[] = {
 		#include <Nazara/Graphics/Resources/Shaders/Basic/core.vert.h>
 	};
 
-	const nzUInt8 r_compatibilityFragmentShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.frag.h>
+	const nzUInt8 r_phongLightingFragmentShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.frag.h>
 	};
 
-	const nzUInt8 r_compatibilityVertexShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/Basic/compatibility.vert.h>
+	const nzUInt8 r_phongLightingVertexShader[] = {
+		#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
 	};
+
 }
 
 bool NzMaterialParams::IsValid() const
@@ -722,24 +723,12 @@ bool NzMaterial::Initialize()
 		return false;
 	}
 
-	bool glsl140 = (NzOpenGL::GetGLSLVersion() >= 140);
-
 	// Basic shader
 	{
 		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
 
-		NzString fragmentShader;
-		NzString vertexShader;
-		if (glsl140)
-		{
-			fragmentShader.Set(reinterpret_cast<const char*>(r_coreFragmentShader), sizeof(r_coreFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(r_coreVertexShader), sizeof(r_coreVertexShader));
-		}
-		else
-		{
-			fragmentShader.Set(reinterpret_cast<const char*>(r_compatibilityFragmentShader), sizeof(r_compatibilityFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(r_compatibilityVertexShader), sizeof(r_compatibilityVertexShader));
-		}
+		NzString fragmentShader(reinterpret_cast<const char*>(r_basicFragmentShader), sizeof(r_basicFragmentShader));
+		NzString vertexShader(reinterpret_cast<const char*>(r_basicVertexShader), sizeof(r_basicVertexShader));
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
@@ -751,34 +740,8 @@ bool NzMaterial::Initialize()
 	{
 		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
 
-		NzString fragmentShader;
-		NzString vertexShader;
-		if (glsl140)
-		{
-			const nzUInt8 coreFragmentShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.frag.h>
-			};
-
-			const nzUInt8 coreVertexShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
-			};
-
-			fragmentShader.Set(reinterpret_cast<const char*>(coreFragmentShader), sizeof(coreFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(coreVertexShader), sizeof(coreVertexShader));
-		}
-		else
-		{
-			const nzUInt8 compatibilityFragmentShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/PhongLighting/compatibility.frag.h>
-			};
-
-			const nzUInt8 compatibilityVertexShader[] = {
-				#include <Nazara/Graphics/Resources/Shaders/PhongLighting/compatibility.vert.h>
-			};
-
-			fragmentShader.Set(reinterpret_cast<const char*>(compatibilityFragmentShader), sizeof(compatibilityFragmentShader));
-			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
-		}
+		NzString fragmentShader(reinterpret_cast<const char*>(r_phongLightingFragmentShader), sizeof(r_phongLightingFragmentShader));
+		NzString vertexShader(reinterpret_cast<const char*>(r_phongLightingVertexShader), sizeof(r_phongLightingVertexShader));
 
 		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
 		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");

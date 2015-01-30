@@ -110,11 +110,6 @@ bool NzRenderBuffer::IsValid() const
 	return m_id != 0;
 }
 
-bool NzRenderBuffer::IsSupported()
-{
-	return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
-}
-
 bool NzRenderBuffer::Initialize()
 {
 	if (!NzRenderBufferLibrary::Initialize())
