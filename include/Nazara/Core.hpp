@@ -1,9 +1,9 @@
-// This file was automatically generated on 17 Jan 2015 at 00:38:08
+// This file was automatically generated on 30 Jan 2015 at 22:28:30
 
 /*
 	Nazara Engine - Core module
 
-	Copyright (C) 2014 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -61,15 +61,19 @@
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/PluginManager.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Semaphore.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
