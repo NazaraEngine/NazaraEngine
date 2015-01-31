@@ -247,7 +247,7 @@ unsigned int NzString::Count(char character, int start, nzUInt32 flags) const
 		return 0;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -284,7 +284,7 @@ unsigned int NzString::Count(const char* string, int start, nzUInt32 flags) cons
 		return 0;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -386,7 +386,7 @@ unsigned int NzString::CountAny(const char* string, int start, nzUInt32 flags) c
 		return 0;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -516,7 +516,7 @@ unsigned int NzString::Find(char character, int start, nzUInt32 flags) const
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -551,7 +551,7 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -729,7 +729,7 @@ unsigned int NzString::FindLast(char character, int start, nzUInt32 flags) const
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -766,7 +766,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -874,7 +874,7 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size || string.m_sharedString->size > m_sharedString->size)
@@ -1071,7 +1071,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -1254,7 +1254,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -1430,7 +1430,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -1602,7 +1602,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 		return npos;
 
 	if (start < 0)
-		start = std::max(static_cast<int>(m_sharedString->size + start), 0);
+		start = std::max(m_sharedString->size + start, 0U);
 
 	unsigned int pos = static_cast<unsigned int>(start);
 	if (pos >= m_sharedString->size)
@@ -1971,7 +1971,7 @@ NzString& NzString::Insert(int pos, const char* string, unsigned int length)
 		return *this;
 
 	if (pos < 0)
-		pos = std::max(static_cast<int>(m_sharedString->size + pos), 0);
+		pos = std::max(m_sharedString->size + pos, 0U);
 
 	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
 
@@ -2568,7 +2568,7 @@ NzString& NzString::Resize(int size, char character)
 	}
 
 	if (size < 0)
-		size = std::max(static_cast<int>(m_sharedString->size + size), 0);
+		size = std::max(m_sharedString->size + size, 0U);
 
 	unsigned int newSize = static_cast<unsigned int>(size);
 
