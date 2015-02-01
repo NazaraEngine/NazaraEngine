@@ -183,7 +183,7 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 		indices.first = index;
 
 		index += indices.count;
-		indices.count = 0; // On réinitialise count à zéro (on va s'en servir pour compteur dans la boucle suivante)
+		indices.count = 0; // On réinitialise count à zéro (on va s'en servir comme compteur dans la boucle suivante)
 	}
 
 	NzSparsePtr<NzVector2f> texCoordPtr(&m_vertices[0].uv, sizeof(NzVertexStruct_XYZ_Color_UV));
@@ -240,7 +240,7 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 			*texCoord++ = uvRect.GetCorner(nzRectCorner_RightTop);
 		}
 
-		// Et on passe au prochain
+		// Et on passe au prochain sommet
 		indices->count++;
 	}
 
@@ -327,6 +327,9 @@ bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 	}
 	#endif
 
+	// La texture d'un atlas vient d'être recréée (changement de taille)
+	// nous devons ajuster les coordonnées de textures et la texture du rendu
+
 	NzTexture* oldTexture = static_cast<NzTexture*>(oldLayer);
 	NzTexture* newTexture = static_cast<NzTexture*>(newLayer);
 
@@ -338,8 +341,9 @@ bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 
 		NzVector2ui oldSize(oldTexture->GetSize());
 		NzVector2ui newSize(newTexture->GetSize());
-		NzVector2f scale = NzVector2f(oldSize)/NzVector2f(newSize);
+		NzVector2f scale = NzVector2f(oldSize)/NzVector2f(newSize); // ratio ancienne et nouvelle taille
 
+		// On va maintenant parcourir toutes les coordonnées de texture pour les multiplier par ce ratio
 		NzSparsePtr<NzVector2f> texCoordPtr(&m_vertices[indices.first].uv, sizeof(NzVertexStruct_XYZ_Color_UV));
 		for (unsigned int i = 0; i < indices.count; ++i)
 		{
@@ -367,6 +371,7 @@ void NzTextSprite::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 	}
 	#endif
 
+	// L'atlas a été libéré alors que le TextSprite l'utilisait encore, notre seule option (pour éviter un crash) est de nous réinitialiser
 	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " that was under use has been released");
 	Clear();
 }
@@ -386,12 +391,15 @@ void NzTextSprite::UpdateVertices() const
 	if (!m_transformMatrixUpdated)
 		UpdateTransformMatrix();
 
+	// On récupère le repère de la scène
 	NzVector3f down = (m_scene) ? m_scene->GetDown() : NzVector3f::Down();
 	NzVector3f right = (m_scene) ? m_scene->GetRight() : NzVector3f::Right();
 
 	NzSparsePtr<NzColor> colorPtr(&m_vertices[0].color, sizeof(NzVertexStruct_XYZ_Color_UV));
 	NzSparsePtr<NzVector3f> posPtr(&m_vertices[0].position, sizeof(NzVertexStruct_XYZ_Color_UV));
 
+	// Nous allons maintenant initialiser les sommets finaux (ceux envoyés à la RenderQueue)
+	// à l'aide du repère, de la matrice et de notre attribut de couleur
 	for (auto& pair : m_renderInfos)
 	{
 		RenderIndices& indices = pair.second;
