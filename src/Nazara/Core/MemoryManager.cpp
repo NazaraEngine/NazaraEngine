@@ -29,6 +29,7 @@ namespace
 		unsigned int magic;
 	};
 
+	bool s_allocationLogging = false;
 	bool s_initialized = false;
 	const unsigned int s_magic = 0x51429EE;
 	const char* s_MLTFileName = "NazaraLeaks.log";
@@ -111,6 +112,21 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	s_allocatedSize += size;
 	s_allocationCount++;
 
+	if (s_allocationLogging)
+	{
+		char timeStr[23];
+ 		TimeInfo(timeStr);
+
+		FILE* log = std::fopen(s_MLTFileName, "a");
+
+		if (file)
+			std::fprintf(log, "%s Allocated %zu bytes at %s:%u\n", timeStr, size, file, line);
+		else
+			std::fprintf(log, "%s Allocated %zu bytes at unknown position\n", timeStr, size);
+
+		std::fclose(log);
+	}
+
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	LeaveCriticalSection(&s_mutex);
 	#elif defined(NAZARA_PLATFORM_POSIX)
@@ -118,6 +134,11 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	#endif
 
 	return reinterpret_cast<nzUInt8*>(ptr) + sizeof(Block);
+}
+
+void NzMemoryManager::EnableAllocationLogging(bool logAllocations)
+{
+	s_allocationLogging = logAllocations;
 }
 
 void NzMemoryManager::Free(void* pointer, bool multi)
@@ -183,6 +204,11 @@ std::size_t NzMemoryManager::GetAllocatedSize()
 unsigned int NzMemoryManager::GetAllocationCount()
 {
 	return s_allocationCount;
+}
+
+bool NzMemoryManager::IsAllocationLoggingEnabled()
+{
+	return s_allocationLogging;
 }
 
 void NzMemoryManager::NextFree(const char* file, unsigned int line)
