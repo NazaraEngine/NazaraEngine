@@ -31,8 +31,8 @@ namespace
 
 	bool s_allocationLogging = false;
 	bool s_initialized = false;
-	const unsigned int s_magic = 0x51429EE;
-	const char* s_MLTFileName = "NazaraLeaks.log";
+	const unsigned int s_magic = 0xDEADB33FUL;
+	const char* s_logFileName = "NazaraMemory.log";
 	const char* s_nextFreeFile = "(Internal error)";
 	unsigned int s_nextFreeLine = 0;
 
@@ -84,7 +84,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 		char timeStr[23];
 		TimeInfo(timeStr);
 
-		FILE* log = std::fopen(s_MLTFileName, "a");
+		FILE* log = std::fopen(s_logFileName, "a");
 
 		if (file)
 			std::fprintf(log, "%s Failed to allocate %zu bytes at %s:%u\n", timeStr, size, file, line);
@@ -117,7 +117,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 		char timeStr[23];
  		TimeInfo(timeStr);
 
-		FILE* log = std::fopen(s_MLTFileName, "a");
+		FILE* log = std::fopen(s_logFileName, "a");
 
 		if (file)
 			std::fprintf(log, "%s Allocated %zu bytes at %s:%u\n", timeStr, size, file, line);
@@ -161,7 +161,7 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 		char timeStr[23];
 		TimeInfo(timeStr);
 
-		FILE* log = std::fopen(s_MLTFileName, "a");
+		FILE* log = std::fopen(s_logFileName, "a");
 
 		const char* error = (multi) ? "delete[] after new" : "delete after new[]";
 		if (s_nextFreeFile)
@@ -222,7 +222,7 @@ void NzMemoryManager::Initialize()
 	char timeStr[23];
 	TimeInfo(timeStr);
 
-	FILE* file = std::fopen(s_MLTFileName, "w");
+	FILE* file = std::fopen(s_logFileName, "w");
 	std::fprintf(file, "%s ==============================\n", timeStr);
 	std::fprintf(file, "%s   Nazara Memory Leak Tracker  \n", timeStr);
 	std::fprintf(file, "%s ==============================\n", timeStr);
@@ -252,7 +252,7 @@ void NzMemoryManager::Uninitialize()
 	DeleteCriticalSection(&s_mutex);
 	#endif
 
-	FILE* log = std::fopen(s_MLTFileName, "a");
+	FILE* log = std::fopen(s_logFileName, "a");
 
 	char timeStr[23];
 	TimeInfo(timeStr);
