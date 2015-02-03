@@ -192,9 +192,8 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 		return;
 
 	///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
-	unsigned int size;
-	std::unique_ptr<char32_t[]> characters(m_text.GetUtf32Buffer(&size));
-	if (!characters)
+	std::u32string characters = m_text.GetUtf32String();
+	if (characters.empty())
 	{
 		NazaraError("Invalid character set");
 		return;
@@ -208,12 +207,11 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 	// On calcule les bornes en flottants pour accélérer les calculs (il est coûteux de changer de type trop souvent)
 	bool firstGlyph = true;
 	NzRectf textBounds = NzRectf::Zero();
-	m_glyphs.reserve(size);
 	nzUInt32 previousCharacter = 0;
-	for (unsigned int i = 0; i < size; ++i)
-	{
-		char32_t character = characters[i];
 
+	m_glyphs.reserve(characters.size());
+	for (char32_t character : characters)
+	{
 		if (previousCharacter != 0)
 			drawPos.x += m_font->GetKerning(m_characterSize, previousCharacter, character);
 
@@ -291,8 +289,8 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 			firstGlyph = false;
 		}
 
-		for (unsigned int j = 0; j < 4; ++j)
-			textBounds.ExtendTo(glyph.corners[j]);
+		for (unsigned int i = 0; i < 4; ++i)
+			textBounds.ExtendTo(glyph.corners[i]);
 
 		drawPos.x += advance;
 		m_glyphs.push_back(glyph);

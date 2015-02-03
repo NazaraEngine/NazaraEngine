@@ -145,8 +145,6 @@ bool NzWindowImpl::Create(const NzVideoMode& mode, const NzString& title, nzUInt
 
 	m_callback = 0;
 
-	std::unique_ptr<wchar_t[]> wtitle(title.GetWideBuffer());
-
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	NzMutex mutex;
 	NzConditionVariable condition;
@@ -154,11 +152,11 @@ bool NzWindowImpl::Create(const NzVideoMode& mode, const NzString& title, nzUInt
 
 	// On attend que la fenêtre soit créée
 	mutex.Lock();
-	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, wtitle.get(), win32Style, x, y, width, height, this, &mutex, &condition);
+	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, title.GetWideString().data(), win32Style, x, y, width, height, this, &mutex, &condition);
 	condition.Wait(&mutex);
 	mutex.Unlock();
 	#else
-	m_handle = CreateWindowExW(win32StyleEx, className, wtitle.get(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
+	m_handle = CreateWindowExW(win32StyleEx, className, title.GetWideString().data(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
 	#endif
 
 	if (!m_handle)
@@ -445,8 +443,7 @@ void NzWindowImpl::SetStayOnTop(bool stayOnTop)
 
 void NzWindowImpl::SetTitle(const NzString& title)
 {
-	std::unique_ptr<wchar_t[]> wTitle(title.GetWideBuffer());
-	SetWindowTextW(m_handle, wTitle.get());
+	SetWindowTextW(m_handle, title.GetWideString().data());
 }
 
 void NzWindowImpl::SetVisible(bool visible)
