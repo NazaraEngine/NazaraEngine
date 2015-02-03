@@ -92,9 +92,7 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 	if ((mode & NzFile::Lock) == 0)
 		shareMode |= FILE_SHARE_WRITE;
 
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	m_handle = CreateFileW(path.get(), access, shareMode, nullptr, openMode, 0, nullptr);
-
+	m_handle = CreateFileW(filePath.GetWideString().data(), access, shareMode, nullptr, openMode, 0, nullptr);
 	return m_handle != INVALID_HANDLE_VALUE;
 }
 
@@ -184,117 +182,96 @@ std::size_t NzFileImpl::Write(const void* buffer, std::size_t size)
 
 bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
 {
-	std::unique_ptr<wchar_t[]> srcPath(sourcePath.GetWideBuffer());
-	std::unique_ptr<wchar_t[]> dstPath(targetPath.GetWideBuffer());
-
-	if (CopyFileW(srcPath.get(), dstPath.get(), false))
+	if (CopyFileW(sourcePath.GetWideString().data(), targetPath.GetWideString().data(), false))
 		return true;
 	else
 	{
 		NazaraError("Failed to copy file: " + NzError::GetLastSystemError());
-
 		return false;
 	}
 }
 
 bool NzFileImpl::Delete(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-
-	if (DeleteFileW(path.get()))
+	if (DeleteFileW(filePath.GetWideString().data()))
 		return true;
 	else
 	{
 		NazaraError("Failed to delete file (" + filePath + "): " + NzError::GetLastSystemError());
-
 		return false;
 	}
 }
 
 bool NzFileImpl::Exists(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-
+	HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (handle == INVALID_HANDLE_VALUE)
 		return false;
 
 	CloseHandle(handle);
-
 	return true;
 }
 
 time_t NzFileImpl::GetCreationTime(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-
+	HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 
 	FILETIME creationTime;
 	if (!GetFileTime(handle, &creationTime, nullptr, nullptr))
 	{
-		NazaraError("Unable to get creation time: " + NzError::GetLastSystemError());
-
 		CloseHandle(handle);
+
+		NazaraError("Unable to get creation time: " + NzError::GetLastSystemError());
 		return 0;
 	}
 
 	CloseHandle(handle);
-
 	return NzFileTimeToTime(&creationTime);
 }
 
 time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-
+	HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 
 	FILETIME accessTime;
 	if (!GetFileTime(handle, nullptr, &accessTime, nullptr))
 	{
-		NazaraError("Unable to get last access time: " + NzError::GetLastSystemError());
-
 		CloseHandle(handle);
+
+		NazaraError("Unable to get last access time: " + NzError::GetLastSystemError());
 		return 0;
 	}
 
 	CloseHandle(handle);
-
 	return NzFileTimeToTime(&accessTime);
 }
 
 time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-
+	HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 
 	FILETIME writeTime;
 	if (!GetFileTime(handle, nullptr, nullptr, &writeTime))
 	{
-		NazaraError("Unable to get last write time: " + NzError::GetLastSystemError());
 		CloseHandle(handle);
 
+		NazaraError("Unable to get last write time: " + NzError::GetLastSystemError());
 		return 0;
 	}
 
 	CloseHandle(handle);
-
 	return NzFileTimeToTime(&writeTime);
 }
 
 nzUInt64 NzFileImpl::GetSize(const NzString& filePath)
 {
-	std::unique_ptr<wchar_t[]> path(filePath.GetWideBuffer());
-	HANDLE handle = CreateFileW(path.get(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-
+	HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 
@@ -303,16 +280,12 @@ nzUInt64 NzFileImpl::GetSize(const NzString& filePath)
 		fileSize.QuadPart = 0;
 
 	CloseHandle(handle);
-
 	return fileSize.QuadPart;
 }
 
 bool NzFileImpl::Rename(const NzString& sourcePath, const NzString& targetPath)
 {
-	std::unique_ptr<wchar_t[]> srcPath(sourcePath.GetWideBuffer());
-	std::unique_ptr<wchar_t[]> dstPath(targetPath.GetWideBuffer());
-
-	if (MoveFileExW(srcPath.get(), dstPath.get(), MOVEFILE_COPY_ALLOWED))
+	if (MoveFileExW(sourcePath.GetWideString().data(), targetPath.GetWideString().data(), MOVEFILE_COPY_ALLOWED))
 		return true;
 	else
 	{
