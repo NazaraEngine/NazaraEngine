@@ -19,6 +19,45 @@
 
 namespace
 {
+	nzLuaType FromLuaType(int type)
+	{
+		switch (type)
+		{
+			case LUA_TBOOLEAN:
+				return nzLuaType_Boolean;
+
+			case LUA_TFUNCTION:
+				return nzLuaType_Function;
+
+			case LUA_TLIGHTUSERDATA:
+				return nzLuaType_LightUserdata;
+
+			case LUA_TNIL:
+				return nzLuaType_Nil;
+
+			case LUA_TNONE:
+				return nzLuaType_None;
+
+			case LUA_TNUMBER:
+				return nzLuaType_Number;
+
+			case LUA_TSTRING:
+				return nzLuaType_String;
+
+			case LUA_TTABLE:
+				return nzLuaType_Table;
+
+			case LUA_TTHREAD:
+				return nzLuaType_Thread;
+
+			case LUA_TUSERDATA:
+				return nzLuaType_Userdata;
+
+			default:
+				return nzLuaType_None;
+		}
+	}
+
 	struct StreamData
 	{
 		NzInputStream* stream;
@@ -145,14 +184,14 @@ bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
 	return lua_toboolean(m_state, index);
 }
 
-int NzLuaInstance::CheckInteger(int index) const
+long long NzLuaInstance::CheckInteger(int index) const
 {
-	return luaL_checkint(m_state, index);
+	return luaL_checkinteger(m_state, index);
 }
 
-int NzLuaInstance::CheckInteger(int index, int defValue) const
+long long NzLuaInstance::CheckInteger(int index, long long defValue) const
 {
-	return luaL_optint(m_state, index, defValue);
+	return luaL_optinteger(m_state, index, defValue);
 }
 
 double NzLuaInstance::CheckNumber(int index) const
@@ -196,16 +235,6 @@ void NzLuaInstance::CheckType(int index, nzLuaType type) const
 	#endif
 
 	luaL_checktype(m_state, index, s_types[type]);
-}
-
-unsigned int NzLuaInstance::CheckUnsigned(int index) const
-{
-	return luaL_checkunsigned(m_state, index);
-}
-
-unsigned int NzLuaInstance::CheckUnsigned(int index, unsigned int defValue) const
-{
-	return luaL_optunsigned(m_state, index, defValue);
 }
 
 void* NzLuaInstance::CheckUserdata(int index, const char* tname) const
@@ -395,24 +424,24 @@ int NzLuaInstance::GetAbsIndex(int index) const
 	return lua_absindex(m_state, index);
 }
 
-void NzLuaInstance::GetField(const char* fieldName, int index) const
+nzLuaType NzLuaInstance::GetField(const char* fieldName, int index) const
 {
-	lua_getfield(m_state, index, fieldName);
+	return FromLuaType(lua_getfield(m_state, index, fieldName));
 }
 
-void NzLuaInstance::GetField(const NzString& fieldName, int index) const
+nzLuaType NzLuaInstance::GetField(const NzString& fieldName, int index) const
 {
-	lua_getfield(m_state, index, fieldName.GetConstBuffer());
+	return FromLuaType(lua_getfield(m_state, index, fieldName.GetConstBuffer()));
 }
 
-void NzLuaInstance::GetGlobal(const char* name) const
+nzLuaType NzLuaInstance::GetGlobal(const char* name) const
 {
-	lua_getglobal(m_state, name);
+	return FromLuaType(lua_getglobal(m_state, name));
 }
 
-void NzLuaInstance::GetGlobal(const NzString& name) const
+nzLuaType NzLuaInstance::GetGlobal(const NzString& name) const
 {
-	lua_getglobal(m_state, name.GetConstBuffer());
+	return FromLuaType(lua_getglobal(m_state, name.GetConstBuffer()));
 }
 
 lua_State* NzLuaInstance::GetInternalState() const
@@ -435,14 +464,14 @@ nzUInt32 NzLuaInstance::GetMemoryUsage() const
 	return m_memoryUsage;
 }
 
-void NzLuaInstance::GetMetatable(const char* tname) const
+nzLuaType NzLuaInstance::GetMetatable(const char* tname) const
 {
-	luaL_getmetatable(m_state, tname);
+	return FromLuaType(luaL_getmetatable(m_state, tname));
 }
 
-void NzLuaInstance::GetMetatable(const NzString& tname) const
+nzLuaType NzLuaInstance::GetMetatable(const NzString& tname) const
 {
-	luaL_getmetatable(m_state, tname.GetConstBuffer());
+	return FromLuaType(luaL_getmetatable(m_state, tname.GetConstBuffer()));
 }
 
 bool NzLuaInstance::GetMetatable(int index) const
@@ -455,9 +484,9 @@ unsigned int NzLuaInstance::GetStackTop() const
 	return lua_gettop(m_state);
 }
 
-void NzLuaInstance::GetTable(int index) const
+nzLuaType NzLuaInstance::GetTable(int index) const
 {
-	lua_gettable(m_state, index);
+	return FromLuaType(lua_gettable(m_state, index));
 }
 
 nzUInt32 NzLuaInstance::GetTimeLimit() const
@@ -467,41 +496,7 @@ nzUInt32 NzLuaInstance::GetTimeLimit() const
 
 nzLuaType NzLuaInstance::GetType(int index) const
 {
-	switch (lua_type(m_state, index))
-	{
-		case LUA_TBOOLEAN:
-			return nzLuaType_Boolean;
-
-		case LUA_TFUNCTION:
-			return nzLuaType_Function;
-
-		case LUA_TLIGHTUSERDATA:
-			return nzLuaType_LightUserdata;
-
-		case LUA_TNIL:
-			return nzLuaType_Nil;
-
-		case LUA_TNONE:
-			return nzLuaType_None;
-
-		case LUA_TNUMBER:
-			return nzLuaType_Number;
-
-		case LUA_TSTRING:
-			return nzLuaType_String;
-
-		case LUA_TTABLE:
-			return nzLuaType_Table;
-
-		case LUA_TTHREAD:
-			return nzLuaType_Thread;
-
-		case LUA_TUSERDATA:
-			return nzLuaType_Userdata;
-
-		default:
-			return nzLuaType_None;
-	}
+	return FromLuaType(lua_type(m_state, index));
 }
 
 const char* NzLuaInstance::GetTypeName(nzLuaType type) const
@@ -625,7 +620,7 @@ void NzLuaInstance::PushFunction(NzLuaFunction func)
 	lua_pushcclosure(m_state, ProxyFunc, 1);
 }
 
-void NzLuaInstance::PushInteger(int value)
+void NzLuaInstance::PushInteger(long long value)
 {
 	lua_pushinteger(m_state, value);
 }
@@ -673,11 +668,6 @@ void NzLuaInstance::PushString(const NzString& str)
 void NzLuaInstance::PushTable(unsigned int sequenceElementCount, unsigned int arrayElementCount)
 {
 	lua_createtable(m_state, sequenceElementCount, arrayElementCount);
-}
-
-void NzLuaInstance::PushUnsigned(unsigned int value)
-{
-	lua_pushunsigned(m_state, value);
 }
 
 void* NzLuaInstance::PushUserdata(unsigned int size)
@@ -763,10 +753,10 @@ bool NzLuaInstance::ToBoolean(int index) const
 	return lua_toboolean(m_state, index);
 }
 
-int NzLuaInstance::ToInteger(int index, bool* succeeded) const
+long long NzLuaInstance::ToInteger(int index, bool* succeeded) const
 {
 	int success;
-	int result = lua_tointegerx(m_state, index, &success);
+	long long result = lua_tointegerx(m_state, index, &success);
 
 	if (succeeded)
 		*succeeded = (success == 1);
@@ -793,17 +783,6 @@ const void* NzLuaInstance::ToPointer(int index) const
 const char* NzLuaInstance::ToString(int index, std::size_t* length) const
 {
 	return lua_tolstring(m_state, index, length);
-}
-
-unsigned int NzLuaInstance::ToUnsigned(int index, bool* succeeded) const
-{
-	int success;
-	unsigned int result = lua_tounsignedx(m_state, index, &success);
-
-	if (succeeded)
-		*succeeded = (success == 1);
-
-	return result;
 }
 
 void* NzLuaInstance::ToUserdata(int index) const
