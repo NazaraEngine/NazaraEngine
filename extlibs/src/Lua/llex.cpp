@@ -43,6 +43,9 @@ static const char *const luaX_tokens [] = {
     "return", "then", "true", "until", "while",
     "//", "..", "...", "==", ">=", "<=", "~=",
     "<<", ">>", "::", "<eof>",
+#ifdef LUA_CPPNEG
+    "!=",
+#endif
     "<number>", "<integer>", "<name>", "<string>"
 };
 
@@ -465,6 +468,9 @@ static void read_string (LexState *ls, int del, SemInfo *seminfo) {
 
 
 static int llex (LexState *ls, SemInfo *seminfo) {
+#if defined(LUA_CPPCOMT_LONG)
+  int last;
+#endif
   luaZ_resetbuffer(ls->buff);
   for (;;) {
     switch (ls->current) {
@@ -524,8 +530,30 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       case '/': {
         next(ls);
         if (check_next1(ls, '/')) return TK_IDIV;
+#if defined(LUA_CPPCOMT_LONG)
+        /* bn 01/2012: added C++-style comments */
+        /* Lynix 02/2015: Fixed it for Lua 5.3.0 */
+        else if (check_next1(ls, '*')) {
+          last = 0;
+          while (ls->current != EOZ) {
+            if (last == '*' && ls->current == '/') break;
+            last = ls->current;
+            next(ls); /* skip until closing marker (or end of file) */
+          }
+          if (ls->current == EOZ)
+            lexerror(ls, "unfinished long comment", TK_EOS);
+          else next(ls);
+		}
+#endif /* LUA_CPPCOMT_LONG */
         else return '/';
       }
+#ifdef LUA_CPPNEG
+      case '!': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_NE;
+        else return '!';
+      }
+#endif
       case '~': {
         next(ls);
         if (check_next1(ls, '=')) return TK_NE;
