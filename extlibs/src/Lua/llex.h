@@ -18,6 +18,9 @@
 #define LUA_ENV		"_ENV"
 #endif
 
+/* bn 01/2012: added C++-style comments */
+#define LUA_CPPCOMT_LONG
+/* end changes */
 
 /*
 * WARNING: if you change the order of this enumeration,
@@ -33,6 +36,9 @@ enum RESERVED {
   TK_IDIV, TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE,
   TK_SHL, TK_SHR,
   TK_DBCOLON, TK_EOS,
+#ifdef LUA_CPPNEG
+  TK_CNE,
+#endif
   TK_FLT, TK_INT, TK_NAME, TK_STRING
 };
 
