@@ -10,7 +10,7 @@
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
 #include <type_traits>
-#define CheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
+#define NazaraCheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
 
 // On force la valeur de MANAGE_MEMORY en mode debug
 #if defined(NAZARA_DEBUG) && !NAZARA_CORE_MANAGE_MEMORY
@@ -18,8 +18,10 @@
 	#define NAZARA_CORE_MANAGE_MEMORY 1
 #endif
 
-CheckTypeAndVal(NAZARA_CORE_DECIMAL_DIGITS, integral, >, 0, " shall be a strictly positive integer");
-CheckTypeAndVal(NAZARA_CORE_FILE_BUFFERSIZE, integral, >, 0, " shall be a strictly positive integer");
-CheckTypeAndVal(NAZARA_CORE_WINDOWS_CS_SPINLOCKS, integral, >=, 0, " shall be a positive integer");
+NazaraCheckTypeAndVal(NAZARA_CORE_DECIMAL_DIGITS, integral, >, 0, " shall be a strictly positive integer");
+NazaraCheckTypeAndVal(NAZARA_CORE_FILE_BUFFERSIZE, integral, >, 0, " shall be a strictly positive integer");
+NazaraCheckTypeAndVal(NAZARA_CORE_WINDOWS_CS_SPINLOCKS, integral, >=, 0, " shall be a positive integer");
+
+#undef NazaraCheckTypeAndVal
 
 #endif // NAZARA_CONFIG_CHECK_CORE_HPP
