@@ -177,7 +177,7 @@ bool NzDeferredGeometryPass::Resize(const NzVector2ui& dimensions)
 	/*
 	G-Buffer:
 	Texture0: Diffuse Color + Flags
-	Texture1: Normal map + Depth
+	Texture1: Encoded normal
 	Texture2: Specular value + Shininess
 	Texture3: N/A
 	*/
