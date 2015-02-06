@@ -48,7 +48,6 @@ struct NAZARA_API NzMeshParams
 	bool IsValid() const;
 };
 
-class NzAnimation;
 class NzMesh;
 class NzPrimitiveList;
 
