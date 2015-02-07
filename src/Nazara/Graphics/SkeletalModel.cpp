@@ -44,7 +44,8 @@ m_nextFrame(model.m_nextFrame)
 
 NzSkeletalModel::~NzSkeletalModel()
 {
-	m_scene->UnregisterForUpdate(this);
+	if (m_scene)
+		m_scene->UnregisterForUpdate(this);
 }
 
 void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
