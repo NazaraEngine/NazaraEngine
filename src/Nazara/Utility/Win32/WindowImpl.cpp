@@ -1189,6 +1189,6 @@ void NzWindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* titl
 	while (window->m_threadActive)
 		window->ProcessEvents(true);
 
-	DestroyWindow(*handle);
+	DestroyWindow(winHandle);
 }
 #endif
