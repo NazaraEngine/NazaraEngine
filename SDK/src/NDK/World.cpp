@@ -65,6 +65,8 @@ namespace Ndk
 
 	void World::KillEntity(Entity& entity)
 	{
+		///DOC: Ignoré si l'entité est invalide
+
 		if (IsEntityValid(entity))
 			m_killedEntities.push_back(entity);
 	}
@@ -89,11 +91,15 @@ namespace Ndk
 
 	bool World::IsEntityValid(const Entity& entity) const
 	{
+		///DOC: Cette méthode vérifie également l'appartenance de l'entité au monde (et est donc plus sûre)
 		return entity.GetWorld() == this && IsEntityIdValid(entity.GetId());
 	}
 
 	bool World::IsEntityIdValid(Entity::Id id) const
 	{
+		///DOC: Il est possible que si l'identifiant vienne d'un autre monde, il soit considéré valide
+		///     alors qu'aucune entité de ce monde-ci ne l'utilise (encore)
+
 		return m_entitiesCounter[id.part.index] == id.part.counter;
 	}
 
