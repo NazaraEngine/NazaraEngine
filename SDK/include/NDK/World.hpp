@@ -25,6 +25,8 @@ namespace Ndk
 			Entity CreateEntity();
 			EntityList CreateEntities(unsigned int count);
 
+			void Clear();
+
 			void KillEntity(Entity& entity);
 			void KillEntities(EntityList& list);
 
