@@ -52,7 +52,8 @@ namespace Ndk
 
 	void World::KillEntity(Entity& entity)
 	{
-		m_killedEntities.push_back(entity);
+		if (IsEntityValid(entity))
+			m_killedEntities.push_back(entity);
 	}
 
 	void World::KillEntities(EntityList& list)
@@ -87,12 +88,11 @@ namespace Ndk
 	{
 		if (!m_killedEntities.empty())
 		{
-			///FIXME: Inverser les deux boucles ?
-			for (unsigned int i = 0; i < m_aliveEntities.size(); ++i)
+			for (unsigned int i = 0; i < m_killedEntities.size(); ++i)
 			{
 				Entity::Id e1 = m_aliveEntities[i].GetId();
 
-				for (unsigned int j = 0; j < m_killedEntities.size(); ++j)
+				for (unsigned int j = 0; j < m_aliveEntities.size(); ++j)
 				{
 					Entity::Id e2 = m_killedEntities[j].GetId();
 					if (e1 == e2)
@@ -105,14 +105,15 @@ namespace Ndk
 						m_freeIdList.push_back(e1);
 
 						// Suppression de l'entité des deux tableaux
-						m_aliveEntities.erase(m_aliveEntities.begin() + i);
-						m_killedEntities.erase(m_killedEntities.begin() + j);
+						m_aliveEntities.erase(m_aliveEntities.begin() + j);
+						m_killedEntities.erase(m_killedEntities.begin() + i);
+
+						// Correction des indices (pour ne pas sauter une case)
+						i--;
+						j--;
 						break;
 					}
 				}
-
-				if (m_killedEntities.empty())
-					break;
 			}
 		}
 	}
