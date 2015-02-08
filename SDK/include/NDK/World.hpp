@@ -20,7 +20,7 @@ namespace Ndk
 			using EntityList = std::vector<Entity>;
 
 			World();
-			~World();
+			~World() = default;
 
 			Entity CreateEntity();
 			EntityList CreateEntities(unsigned int count);
@@ -45,5 +45,7 @@ namespace Ndk
 			nzUInt32 m_nextIndex;
 	};
 }
+
+#include <NDK/World.inl>
 
 #endif // NDK_WORLD_HPP
