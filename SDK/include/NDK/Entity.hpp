@@ -50,15 +50,8 @@ namespace Ndk
 					nzUInt64 value;
 				};
 
-				bool operator==(const Id& other) const
-				{
-					return value == other.value;
-				}
-
-				bool operator!=(const Id& other) const
-				{
-					return !operator==(other);
-				}
+				bool operator==(const Id& other) const;
+				bool operator!=(const Id& other) const;
 			};
 
 		private:
@@ -68,5 +61,7 @@ namespace Ndk
 			World* m_world;
 	};
 }
+
+#include <NDK/Entity.inl>
 
 #endif // NDK_ENTITY_HPP
