@@ -12,6 +12,8 @@ namespace Ndk
 	inline World::EntityList World::CreateEntities(unsigned int count)
 	{
 		EntityList list;
+		list.reserve(count);
+
 		for (unsigned int i = 0; i < count; ++i)
 			list.push_back(CreateEntity());
 
