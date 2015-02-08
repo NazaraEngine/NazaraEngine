@@ -5,13 +5,6 @@
 
 namespace Ndk
 {
-	World::World() :
-	m_nextIndex(0)
-	{
-	}
-
-	World::~World() = default;
-
 	Entity World::CreateEntity()
 	{
 		Entity::Id id;
@@ -41,15 +34,6 @@ namespace Ndk
 		return entity;
 	}
 
-	World::EntityList World::CreateEntities(unsigned int count)
-	{
-		EntityList list;
-		for (unsigned int i = 0; i < count; ++i)
-			list.push_back(CreateEntity());
-
-		return list;
-	}
-
 	void World::Clear()
 	{
 		///DOC: Les handles existants avant Clear ne sont plus garantis de ne pas être réutilisés
@@ -71,13 +55,6 @@ namespace Ndk
 			m_killedEntities.push_back(entity);
 	}
 
-	void World::KillEntities(EntityList& list)
-	{
-		m_killedEntities.reserve(m_killedEntities.size() + list.size());
-		for (Entity& entity : list)
-			KillEntity(entity);
-	}
-
 	Entity World::GetEntity(Entity::Id id)
 	{
 		if (IsEntityIdValid(id))
@@ -87,20 +64,6 @@ namespace Ndk
 			NazaraError("Invalid ID");
 			return Entity();
 		}
-	}
-
-	bool World::IsEntityValid(const Entity& entity) const
-	{
-		///DOC: Cette méthode vérifie également l'appartenance de l'entité au monde (et est donc plus sûre)
-		return entity.GetWorld() == this && IsEntityIdValid(entity.GetId());
-	}
-
-	bool World::IsEntityIdValid(Entity::Id id) const
-	{
-		///DOC: Il est possible que si l'identifiant vienne d'un autre monde, il soit considéré valide
-		///     alors qu'aucune entité de ce monde-ci ne l'utilise (encore)
-
-		return m_entitiesCounter[id.part.index] == id.part.counter;
 	}
 
 	void World::Update()
