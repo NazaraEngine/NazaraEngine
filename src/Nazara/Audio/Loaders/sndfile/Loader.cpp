@@ -363,8 +363,8 @@ namespace
 		// Une conversion en mono est-elle nécessaire ?
 		if (parameters.forceMono && format != nzAudioFormat_Mono)
 		{
-			std::unique_ptr<nzInt16[]> monoSamples(new nzInt16[info.frames]);
-			NzMixToMono(samples.get(), monoSamples.get(), info.channels, info.frames);
+			// Nous effectuons la conversion en mono dans le même buffer (il va de toute façon être copié)
+			NzMixToMono(monoSamples.get(), monoSamples.get(), info.channels, info.frames);
 
 			format = nzAudioFormat_Mono;
 			samples = std::move(monoSamples);
