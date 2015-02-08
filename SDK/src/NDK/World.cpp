@@ -50,6 +50,19 @@ namespace Ndk
 		return list;
 	}
 
+	void World::Clear()
+	{
+		///DOC: Les handles existants avant Clear ne sont plus garantis de ne pas être réutilisés
+		///     et devraient être détruits avant la création d'une nouvelle entité.
+
+		m_aliveEntities.clear();
+		m_entitiesCounter.clear();
+		m_freeIdList.clear();
+		m_killedEntities.clear();
+
+		m_nextIndex = 0;
+	}
+
 	void World::KillEntity(Entity& entity)
 	{
 		if (IsEntityValid(entity))
