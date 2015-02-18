@@ -109,31 +109,31 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 
 		void Reset();
 
-		bool SetAlphaMap(const NzString& name);
-		void SetAlphaMap(NzTexture* map);
+		bool SetAlphaMap(const NzString& textureName);
+		void SetAlphaMap(NzTextureRef alphaMap);
 		void SetAlphaThreshold(float alphaThreshold);
 		void SetAmbientColor(const NzColor& ambient);
 		void SetDepthFunc(nzRendererComparison depthFunc);
 		void SetDiffuseColor(const NzColor& diffuse);
-		bool SetDiffuseMap(const NzString& name);
-		void SetDiffuseMap(NzTexture* map);
+		bool SetDiffuseMap(const NzString& textureName);
+		void SetDiffuseMap(NzTextureRef diffuseMap);
 		void SetDiffuseSampler(const NzTextureSampler& sampler);
 		void SetDstBlend(nzBlendFunc func);
-		bool SetEmissiveMap(const NzString& name);
-		void SetEmissiveMap(NzTexture* map);
+		bool SetEmissiveMap(const NzString& textureName);
+		void SetEmissiveMap(NzTextureRef textureName);
 		void SetFaceCulling(nzFaceSide faceSide);
 		void SetFaceFilling(nzFaceFilling filling);
-		bool SetHeightMap(const NzString& name);
-		void SetHeightMap(NzTexture* map);
-		bool SetNormalMap(const NzString& name);
-		void SetNormalMap(NzTexture* map);
+		bool SetHeightMap(const NzString& textureName);
+		void SetHeightMap(NzTextureRef textureName);
+		bool SetNormalMap(const NzString& textureName);
+		void SetNormalMap(NzTextureRef textureName);
 		void SetRenderStates(const NzRenderStates& states);
-		void SetShader(const NzUberShader* uberShader);
+		void SetShader(NzUberShaderConstRef uberShader);
 		bool SetShader(const NzString& uberShaderName);
 		void SetShininess(float shininess);
 		void SetSpecularColor(const NzColor& specular);
-		bool SetSpecularMap(const NzString& name);
-		void SetSpecularMap(NzTexture* map);
+		bool SetSpecularMap(const NzString& textureName);
+		void SetSpecularMap(NzTextureRef specularMap);
 		void SetSpecularSampler(const NzTextureSampler& sampler);
 		void SetSrcBlend(nzBlendFunc func);
 
