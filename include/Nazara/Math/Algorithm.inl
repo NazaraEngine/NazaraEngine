@@ -258,15 +258,15 @@ inline NzString NzNumberToString(long long number, nzUInt8 radix)
 
 	do
 	{
-		str += symbols[number % radix];
+		str.Append(symbols[number % radix]);
 		number /= radix;
 	}
 	while (number > 0);
 
 	if (negative)
-		str += '-';
+		str.Append('-');
 
-	return str.Reversed();
+	return str.Reverse();
 }
 
 template<typename T>
