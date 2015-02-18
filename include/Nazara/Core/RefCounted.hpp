@@ -50,8 +50,6 @@ class NAZARA_API NzRefCounted
 	private:
 		using ObjectListenerMap = std::unordered_map<NzObjectListener*, std::pair<int, unsigned int>>;
 
-		void RemoveObjectListenerIterator(ObjectListenerMap::iterator iterator) const;
-
 		NazaraMutexAttrib(m_mutex, mutable)
 
 		mutable ObjectListenerMap m_objectListeners;
