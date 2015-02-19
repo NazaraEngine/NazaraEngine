@@ -10,39 +10,41 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <NDK/Prerequesites.hpp>
 #include <NDK/Entity.hpp>
+#include <NDK/EntityHandle.hpp>
 #include <vector>
 
 namespace Ndk
 {
+	class EntityHandle;
+
 	class NDK_API World : NzNonCopyable
 	{
 		public:
-			using EntityList = std::vector<Entity>;
+			using EntityList = std::vector<EntityHandle>;
 
-			World();
-			~World() = default;
+			World() = default;
+			~World();
 
-			Entity CreateEntity();
+			EntityHandle CreateEntity();
 			EntityList CreateEntities(unsigned int count);
 
 			void Clear();
 
-			void KillEntity(Entity& entity);
-			void KillEntities(EntityList& list);
+			void KillEntity(Entity* entity);
+			void KillEntities(const EntityList& list);
 
-			Entity GetEntity(Entity::Id id);
+			Entity* GetEntity(Entity::Id id);
 
-			bool IsEntityValid(const Entity& entity) const;
+			bool IsEntityValid(Entity* entity) const;
 			bool IsEntityIdValid(Entity::Id id) const;
 
 			void Update();
 
 		private:
-			std::vector<nzUInt32> m_entitiesCounter;
 			std::vector<Entity::Id> m_freeIdList;
+			std::vector<Entity> m_entities;
 			EntityList m_aliveEntities;
 			EntityList m_killedEntities;
-			nzUInt32 m_nextIndex;
 	};
 }
 

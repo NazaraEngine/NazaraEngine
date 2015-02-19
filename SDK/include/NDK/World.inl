@@ -4,40 +4,31 @@
 
 namespace Ndk
 {
-	inline World::World() :
-	m_nextIndex(0)
-	{
-	}
-
 	inline World::EntityList World::CreateEntities(unsigned int count)
 	{
 		EntityList list;
 		list.reserve(count);
 
 		for (unsigned int i = 0; i < count; ++i)
-			list.push_back(CreateEntity());
+			list.emplace_back(CreateEntity());
 
 		return list;
 	}
 
-	inline void World::KillEntities(EntityList& list)
+	inline void World::KillEntities(const EntityList& list)
 	{
 		m_killedEntities.reserve(m_killedEntities.size() + list.size());
-		for (Entity& entity : list)
+		for (const EntityHandle& entity : list)
 			KillEntity(entity);
 	}
 
-	inline bool World::IsEntityValid(const Entity& entity) const
+	inline bool World::IsEntityValid(Entity* entity) const
 	{
-		///DOC: Cette méthode vérifie également l'appartenance de l'entité au monde (et est donc plus sûre)
-		return entity.GetWorld() == this && IsEntityIdValid(entity.GetId());
+		return entity != nullptr && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
 	}
 
 	inline bool World::IsEntityIdValid(Entity::Id id) const
 	{
-		///DOC: Il est possible que si l'identifiant vienne d'un autre monde, il soit considéré valide
-		///     alors qu'aucune entité de ce monde-ci ne l'utilise (encore)
-
-		return m_entitiesCounter[id.part.index] == id.part.counter;
+		return id < m_entities.size() && m_entities[id].IsValid();
 	}
 }

@@ -6,15 +6,9 @@
 
 namespace Ndk
 {
-	inline Entity::Entity() :
-	m_world(nullptr)
-	{
-		m_id.value = 0;
-	}
-
-	inline Entity::Entity(Id id, World* world) :
+	inline Entity::Entity(World& world, Id id) :
 	m_id(id),
-	m_world(world)
+	m_world(&world)
 	{
 	}
 
@@ -28,23 +22,13 @@ namespace Ndk
 		return m_world;
 	}
 
-	inline bool Entity::operator==(const Entity& other) const
+	inline void Entity::RegisterHandle(EntityHandle* handle)
 	{
-		return m_world == other.m_world && m_id == other.m_id;
+		m_handles.insert(handle);
 	}
 
-	inline bool Entity::operator!=(const Entity& other) const
+	inline void Entity::UnregisterHandle(EntityHandle* handle)
 	{
-		return !operator==(other);
-	}
-
-	inline bool Entity::Id::operator==(const Id& other) const
-	{
-		return value == other.value;
-	}
-
-	inline bool Entity::Id::operator!=(const Id& other) const
-	{
-		return !operator==(other);
+		m_handles.erase(handle);
 	}
 }
