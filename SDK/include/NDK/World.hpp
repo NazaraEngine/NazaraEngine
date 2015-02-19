@@ -30,12 +30,12 @@ namespace Ndk
 
 			void Clear();
 
-			void KillEntity(Entity* entity);
+			void KillEntity(EntityHandle entity);
 			void KillEntities(const EntityList& list);
 
-			Entity* GetEntity(Entity::Id id);
+			EntityHandle GetEntity(Entity::Id id);
 
-			bool IsEntityValid(Entity* entity) const;
+			bool IsEntityValid(EntityHandle entity) const;
 			bool IsEntityIdValid(Entity::Id id) const;
 
 			void Update();
