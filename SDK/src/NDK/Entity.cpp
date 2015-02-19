@@ -28,7 +28,7 @@ namespace Ndk
 
 	void Entity::Kill()
 	{
-		m_world->KillEntity(this);
+		m_world->KillEntity(CreateHandle());
 	}
 
 	bool Entity::IsValid() const

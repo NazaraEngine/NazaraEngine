@@ -50,7 +50,7 @@ namespace Ndk
 		m_killedEntities.clear();
 	}
 
-	void World::KillEntity(Entity* entity)
+	void World::KillEntity(EntityHandle entity)
 	{
 		///DOC: Ignoré si l'entité est invalide
 
@@ -58,14 +58,14 @@ namespace Ndk
 			m_killedEntities.emplace_back(entity);
 	}
 
-	Entity* World::GetEntity(Entity::Id id)
+	EntityHandle World::GetEntity(Entity::Id id)
 	{
 		if (IsEntityIdValid(id))
-			return &m_entities[id];
+			return m_entities[id].CreateHandle();
 		else
 		{
 			NazaraError("Invalid ID");
-			return nullptr;
+			return EntityHandle();
 		}
 	}
 
