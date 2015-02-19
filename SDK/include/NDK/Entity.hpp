@@ -8,57 +8,50 @@
 #define NDK_ENTITY_HPP
 
 #include <NDK/Prerequesites.hpp>
+#include <set>
 
 namespace Ndk
 {
+	class EntityHandle;
 	class World;
 
 	class NDK_API Entity
 	{
+		friend EntityHandle;
 		friend World;
 
 		public:
-			class Id;
+			using Id = nzUInt32;
 
-			Entity();
-			Entity(const Entity&) = default;
-			~Entity() = default;
+			Entity(const Entity&) = delete;
+			Entity(Entity&& entity);
+			~Entity();
 
-			void Kill();
+			EntityHandle CreateHandle();
 
 			Id GetId() const;
 			World* GetWorld() const;
 
+			void Kill();
+
 			bool IsValid() const;
 
-			Entity& operator=(const Entity&) = default;
-
-			bool operator==(const Entity& other) const;
-			bool operator!=(const Entity& other) const;
-
-			// Identifiant
-			struct Id
-			{
-				struct Part
-				{
-					nzUInt32 counter, index;
-				};
-
-				union
-				{
-					Part part;
-					nzUInt64 value;
-				};
-
-				bool operator==(const Id& other) const;
-				bool operator!=(const Id& other) const;
-			};
+			Entity& operator=(const Entity&) = delete;
+			Entity& operator=(Entity&&) = delete;
 
 		private:
-			Entity(Id id, World* world);
+			Entity(World& world, Id id);
 
+			void Create();
+			void Destroy();
+
+			void RegisterHandle(EntityHandle* handle);
+			void UnregisterHandle(EntityHandle* handle);
+
+			std::set<EntityHandle*> m_handles;
 			Id m_id;
 			World* m_world;
+			bool m_valid;
 	};
 }
 
