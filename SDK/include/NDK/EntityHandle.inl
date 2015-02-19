@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -46,13 +46,13 @@ namespace Ndk
 
 	inline void EntityHandle::Reset(Entity* entity)
 	{
-		// Si nous avions déjà une entité, nous devons l'informer que nous ne pointons plus vers elle
+		// Si nous avions dÃ©jÃ  une entitÃ©, nous devons l'informer que nous ne pointons plus vers elle
 		if (m_entity)
 			m_entity->UnregisterHandle(this);
 
 		m_entity = entity;
 		if (m_entity)
-			// On informe la nouvelle entité que nous pointons vers elle
+			// On informe la nouvelle entitÃ© que nous pointons vers elle
 			m_entity->RegisterHandle(this);
 	}
 
@@ -103,15 +103,15 @@ namespace Ndk
 
 	inline void EntityHandle::OnEntityDestroyed()
 	{
-		// Un raccourci, un appel à Reset nous enlèverait de la liste des handles que nous ne pouvons pas modifier
+		// Un raccourci, un appel Ã  Reset nous enlÃ¨verait de la liste des handles que nous ne pouvons pas modifier
 		// maintenant car elle est actuellement parcourue
 		m_entity = nullptr;
 	}
 
 	inline void EntityHandle::OnEntityMoved(Entity* newEntity)
 	{
-		// L'entité a été déplacée (peut arriver lors d'un changement de taille du conteneur du monde)
-		// nous mettons à jour notre pointeur
+		// L'entitÃ© a Ã©tÃ© dÃ©placÃ©e (peut arriver lors d'un changement de taille du conteneur du monde)
+		// nous mettons Ã  jour notre pointeur
 		m_entity = newEntity;
 	}
 
