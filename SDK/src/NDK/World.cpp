@@ -5,7 +5,13 @@
 
 namespace Ndk
 {
-	Entity World::CreateEntity()
+	World::~World()
+	{
+		// La destruction doit se faire dans un ordre précis
+		Clear();
+	}
+
+	EntityHandle World::CreateEntity()
 	{
 		Entity::Id id;
 		if (!m_freeIdList.empty())
@@ -16,19 +22,17 @@ namespace Ndk
 		}
 		else
 		{
-			// On alloue un nouvel identifiant
-			m_entitiesCounter.resize(m_entitiesCounter.size() + 1);
+			// On alloue une nouvelle entité
+			id = m_entities.size();
 
-			auto& counter = m_entitiesCounter.back();
-			counter = 1;
-
-			id.part.counter = counter;
-			id.part.index = m_nextIndex;
-
-			m_nextIndex++;
+			// Impossible d'utiliser emplace_back à cause de la portée
+			m_entities.push_back(Entity(*this, id));
 		}
 
-		Entity entity(id, this);
+		EntityHandle entity = m_entities[id].CreateHandle();
+
+		// On initialise l'entité et on l'ajoute à la liste des entités vivantes
+		entity->Create();
 		m_aliveEntities.push_back(entity);
 
 		return entity;
@@ -36,33 +40,32 @@ namespace Ndk
 
 	void World::Clear()
 	{
-		///DOC: Les handles existants avant Clear ne sont plus garantis de ne pas être réutilisés
-		///     et devraient être détruits avant la création d'une nouvelle entité.
+		///DOC: Tous les handles sont correctement invalidés
+
+		// Destruction des entités d'abord, et des handles ensuite
+		// ceci pour éviter que les handles n'informent les entités inutilement lors de leur destruction
+		m_entities.clear();
 
 		m_aliveEntities.clear();
-		m_entitiesCounter.clear();
-		m_freeIdList.clear();
 		m_killedEntities.clear();
-
-		m_nextIndex = 0;
 	}
 
-	void World::KillEntity(Entity& entity)
+	void World::KillEntity(Entity* entity)
 	{
 		///DOC: Ignoré si l'entité est invalide
 
 		if (IsEntityValid(entity))
-			m_killedEntities.push_back(entity);
+			m_killedEntities.emplace_back(entity);
 	}
 
-	Entity World::GetEntity(Entity::Id id)
+	Entity* World::GetEntity(Entity::Id id)
 	{
 		if (IsEntityIdValid(id))
-			return Entity(id, this);
+			return &m_entities[id];
 		else
 		{
 			NazaraError("Invalid ID");
-			return Entity();
+			return nullptr;
 		}
 	}
 
@@ -72,19 +75,17 @@ namespace Ndk
 		{
 			for (unsigned int i = 0; i < m_killedEntities.size(); ++i)
 			{
-				Entity::Id e1 = m_aliveEntities[i].GetId();
+				EntityHandle entity = m_killedEntities[i];
 
 				for (unsigned int j = 0; j < m_aliveEntities.size(); ++j)
 				{
-					Entity::Id e2 = m_killedEntities[j].GetId();
-					if (e1 == e2)
+					if (entity == m_aliveEntities[j])
 					{
-						// Remise en file de l'identifiant d'entité
-						nzUInt32& counter = m_entitiesCounter[e1.part.index];
-						counter++;
+						// Remise en file d'attente de l'identifiant d'entité
+						m_freeIdList.push_back(entity->GetId());
 
-						e1.part.counter = counter;
-						m_freeIdList.push_back(e1);
+						// Destruction de l'entité (invalidation du handle par la même occasion)
+						entity->Destroy();
 
 						// Suppression de l'entité des deux tableaux
 						m_aliveEntities.erase(m_aliveEntities.begin() + j);
