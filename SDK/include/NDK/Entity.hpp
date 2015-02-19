@@ -8,7 +8,7 @@
 #define NDK_ENTITY_HPP
 
 #include <NDK/Prerequesites.hpp>
-#include <set>
+#include <vector>
 
 namespace Ndk
 {
@@ -48,7 +48,7 @@ namespace Ndk
 			void RegisterHandle(EntityHandle* handle);
 			void UnregisterHandle(EntityHandle* handle);
 
-			std::set<EntityHandle*> m_handles;
+			std::vector<EntityHandle*> m_handles;
 			Id m_id;
 			World* m_world;
 			bool m_valid;
