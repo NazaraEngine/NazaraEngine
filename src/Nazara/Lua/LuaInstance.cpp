@@ -173,7 +173,7 @@ bool NzLuaInstance::CheckBoolean(int index) const
 		return false;
 	}
 
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
@@ -181,7 +181,7 @@ bool NzLuaInstance::CheckBoolean(int index, bool defValue) const
 	if (lua_isnoneornil(m_state, index))
 		return defValue;
 
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 long long NzLuaInstance::CheckInteger(int index) const
@@ -257,7 +257,7 @@ bool NzLuaInstance::Compare(int index1, int index2, nzLuaComparison comparison) 
 	}
 	#endif
 
-	return (lua_compare(m_state, index1, index2, s_comparisons[comparison]) == 1);
+	return (lua_compare(m_state, index1, index2, s_comparisons[comparison]) != 0);
 }
 
 void NzLuaInstance::Compute(nzLuaOperation operation)
@@ -476,7 +476,7 @@ nzLuaType NzLuaInstance::GetMetatable(const NzString& tname) const
 
 bool NzLuaInstance::GetMetatable(int index) const
 {
-	return lua_getmetatable(m_state, index) == 1;
+	return lua_getmetatable(m_state, index) != 0;
 }
 
 unsigned int NzLuaInstance::GetStackTop() const
@@ -522,34 +522,34 @@ bool NzLuaInstance::IsOfType(int index, nzLuaType type) const
 	switch (type)
 	{
 		case nzLuaType_Boolean:
-			return lua_isboolean(m_state, index) == 1;
+			return lua_isboolean(m_state, index) != 0;
 
 		case nzLuaType_Function:
-			return lua_isfunction(m_state, index) == 1;
+			return lua_isfunction(m_state, index) != 0;
 
 		case nzLuaType_LightUserdata:
-			return lua_islightuserdata(m_state, index) == 1;
+			return lua_islightuserdata(m_state, index) != 0;
 
 		case nzLuaType_Nil:
-			return lua_isnil(m_state, index) == 1;
+			return lua_isnil(m_state, index) != 0;
 
 		case nzLuaType_None:
-			return lua_isnone(m_state, index) == 1;
+			return lua_isnone(m_state, index) != 0;
 
 		case nzLuaType_Number:
-			return lua_isnumber(m_state, index) == 1;
+			return lua_isnumber(m_state, index) != 0;
 
 		case nzLuaType_String:
-			return lua_isstring(m_state, index) == 1;
+			return lua_isstring(m_state, index) != 0;
 
 		case nzLuaType_Table:
-			return lua_istable(m_state, index) == 1;
+			return lua_istable(m_state, index) != 0;
 
 		case nzLuaType_Thread:
-			return lua_isthread(m_state, index) == 1;
+			return lua_isthread(m_state, index) != 0;
 
 		case nzLuaType_Userdata:
-			return lua_isuserdata(m_state, index) == 1;
+			return lua_isuserdata(m_state, index) != 0;
 	}
 
 	NazaraError("Lua type not handled (0x" + NzString::Number(type, 16) + ')');
@@ -569,7 +569,7 @@ bool NzLuaInstance::IsOfType(int index, const NzString& tname) const
 
 bool NzLuaInstance::IsValid(int index) const
 {
-	return !lua_isnoneornil(m_state, index);
+	return lua_isnoneornil(m_state, index) == 0;
 }
 
 unsigned int NzLuaInstance::Length(int index) const
@@ -584,17 +584,17 @@ void NzLuaInstance::MoveTo(NzLuaInstance* instance, int n)
 
 bool NzLuaInstance::NewMetatable(const char* str)
 {
-	return luaL_newmetatable(m_state, str) == 1;
+	return luaL_newmetatable(m_state, str) != 0;
 }
 
 bool NzLuaInstance::NewMetatable(const NzString& str)
 {
-	return luaL_newmetatable(m_state, str.GetConstBuffer());
+	return luaL_newmetatable(m_state, str.GetConstBuffer()) != 0;
 }
 
 bool NzLuaInstance::Next(int index)
 {
-	return lua_next(m_state, index) == 1;
+	return lua_next(m_state, index) != 0;
 }
 
 void NzLuaInstance::Pop(unsigned int n)
@@ -604,7 +604,7 @@ void NzLuaInstance::Pop(unsigned int n)
 
 void NzLuaInstance::PushBoolean(bool value)
 {
-	lua_pushboolean(m_state, value);
+	lua_pushboolean(m_state, (value) ? 1 : 0);
 }
 
 void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
@@ -750,7 +750,7 @@ void NzLuaInstance::SetTimeLimit(nzUInt32 timeLimit)
 
 bool NzLuaInstance::ToBoolean(int index) const
 {
-	return lua_toboolean(m_state, index);
+	return lua_toboolean(m_state, index) != 0;
 }
 
 long long NzLuaInstance::ToInteger(int index, bool* succeeded) const
@@ -759,7 +759,7 @@ long long NzLuaInstance::ToInteger(int index, bool* succeeded) const
 	long long result = lua_tointegerx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = (success == 1);
+		*succeeded = (success != 0);
 
 	return result;
 }
@@ -770,7 +770,7 @@ double NzLuaInstance::ToNumber(int index, bool* succeeded) const
 	double result = lua_tonumberx(m_state, index, &success);
 
 	if (succeeded)
-		*succeeded = (success == 1);
+		*succeeded = (success != 0);
 
 	return result;
 }

@@ -23,7 +23,7 @@ class NAZARA_API NzSceneNode : public NzNode
 	public:
 		NzSceneNode();
 		NzSceneNode(const NzSceneNode& sceneNode);
-		NzSceneNode(NzSceneNode& sceneNode) = delete;
+		NzSceneNode(NzSceneNode&& sceneNode) = delete;
 		virtual ~NzSceneNode();
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const = 0;

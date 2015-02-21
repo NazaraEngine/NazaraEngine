@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 
