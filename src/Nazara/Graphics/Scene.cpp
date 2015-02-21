@@ -81,12 +81,12 @@ void NzScene::Draw()
 		if (m_renderTechniqueRanking > 0)
 		{
 			m_renderTechnique.reset(NzRenderTechniques::GetByRanking(m_renderTechniqueRanking-1, &m_renderTechniqueRanking));
-			NazaraError("Render technique \"" + oldName + "\" failed, falling back to \"" + m_renderTechnique->GetName() + '"');
+			NazaraError("Render technique \"" + oldName + "\" failed (" + NzString(e.what()) + "), falling back to \"" + m_renderTechnique->GetName() + '"');
 		}
 		else
 		{
 			NzErrorFlags errFlags(nzErrorFlag_ThrowException);
-			NazaraError("Render technique \"" + oldName + "\" failed and no fallback is available");
+			NazaraError("Render technique \"" + oldName + "\" failed (" + NzString(e.what()) + ") and no fallback is available");
 		}
 
 		return;

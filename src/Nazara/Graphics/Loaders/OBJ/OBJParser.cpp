@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <cstdio>
+#include <cctype>
 #include <memory>
 #include <unordered_map>
 #include <Nazara/Graphics/Debug.hpp>

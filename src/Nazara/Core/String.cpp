@@ -3129,7 +3129,7 @@ NzString NzString::SubStringFrom(char character, int startPos, bool fromLast, bo
 	else
 		pos = Find(character, startPos, flags);
 
-	if (pos == 0 and include)
+	if (pos == 0 && include)
 		return *this;
 	else if (pos == npos)
 		return NzString();

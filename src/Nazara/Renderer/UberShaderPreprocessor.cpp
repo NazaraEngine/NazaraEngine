@@ -92,7 +92,7 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 			// On construit l'instant
 			shaderIt = m_cache.emplace(flags, shader.Get()).first;
 		}
-		catch (const std::exception& e)
+		catch (const std::exception&)
 		{
 			NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
 

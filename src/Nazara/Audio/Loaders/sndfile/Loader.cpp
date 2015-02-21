@@ -351,7 +351,7 @@ namespace
 		if (info.format & SF_FORMAT_VORBIS)
 			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
-		sf_count_t sampleCount = info.frames * info.channels;
+		unsigned int sampleCount = static_cast<unsigned int>(info.frames * info.channels);
 		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
@@ -364,14 +364,13 @@ namespace
 		if (parameters.forceMono && format != nzAudioFormat_Mono)
 		{
 			// Nous effectuons la conversion en mono dans le même buffer (il va de toute façon être copié)
-			NzMixToMono(monoSamples.get(), monoSamples.get(), info.channels, info.frames);
+			NzMixToMono(samples.get(), samples.get(), static_cast<unsigned int>(info.channels), static_cast<unsigned int>(info.frames));
 
 			format = nzAudioFormat_Mono;
-			samples = std::move(monoSamples);
-			sampleCount = info.frames;
+			sampleCount = static_cast<unsigned int>(info.frames);
 		}
 
-		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), info.samplerate, samples.get()))
+		if (!soundBuffer->Create(format, sampleCount, info.samplerate, samples.get()))
 		{
 			NazaraError("Failed to create sound buffer");
 			return false;

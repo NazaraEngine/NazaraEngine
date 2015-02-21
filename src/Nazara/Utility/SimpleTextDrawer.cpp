@@ -296,5 +296,5 @@ void NzSimpleTextDrawer::UpdateGlyphs() const
 		m_glyphs.push_back(glyph);
 	}
 
-	m_bounds.Set(std::floor(textBounds.x), std::floor(textBounds.y), std::ceil(textBounds.width), std::ceil(textBounds.height));
+	m_bounds.Set(NzRectf(std::floor(textBounds.x), std::floor(textBounds.y), std::ceil(textBounds.width), std::ceil(textBounds.height)));
 }
