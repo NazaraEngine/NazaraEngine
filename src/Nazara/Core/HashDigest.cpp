@@ -5,9 +5,9 @@
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 NzHashDigest::NzHashDigest() :
