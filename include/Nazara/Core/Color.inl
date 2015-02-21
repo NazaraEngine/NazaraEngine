@@ -148,7 +148,7 @@ inline NzColor NzColor::FromHSV(float hue, float saturation, float value)
 		if (NzNumberEquals(h, 6.f))
 			h = 0; // hue must be < 1
 
-		int i = h;
+		int i = static_cast<unsigned int>(h);
 		float v1 = value * (1.f - s);
 		float v2 = value * (1.f - s * (h - i));
 		float v3 = value * (1.f - s * (1.f - (h - i)));

@@ -212,12 +212,12 @@ namespace
 
 			bool HasKerning() const override
 			{
-				return FT_HAS_KERNING(m_face);
+				return FT_HAS_KERNING(m_face) != 0;
 			}
 
 			bool IsScalable() const override
 			{
-				return FT_IS_SCALABLE(m_face);
+				return FT_IS_SCALABLE(m_face) != 0;
 			}
 
 			bool Open()

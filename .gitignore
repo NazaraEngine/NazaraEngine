@@ -3,6 +3,9 @@ examples/bin/*.exe
 lib/libNazara*.a
 lib/Nazara*.dll
 lib/Nazara*.so
+SDK/lib/libNazaraSDK*.a
+SDK/lib/NazaraSDK*.dll
+SDK/lib/NazaraSDK*.so
 
 # Codeblocks
 *.cbp
@@ -15,13 +18,23 @@ lib/Nazara*.so
 # CodeLite
 *.project
 
+# Visual Studio
+*.filters
+*.vcxproj
+*.tlog
+*.sln
+*.vcxprojResolveAssemblyReference.cache
+*.exp
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
+*.obj
 
 # Compiled Dynamic libraries
 *.so
+*.lib
 
 # Compiled Static libraries
 *.lai

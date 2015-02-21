@@ -40,14 +40,10 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
-		void AdvanceAnimation(float elapsedTime);
 
 		NzModel* Clone() const;
 		NzModel* Create() const;
 
-		void EnableAnimation(bool animation);
-
-		NzAnimation* GetAnimation() const;
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
 		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
@@ -57,12 +53,7 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 		unsigned int GetSkinCount() const;
 		NzMesh* GetMesh() const;
 		nzSceneNodeType GetSceneNodeType() const override;
-		NzSkeleton* GetSkeleton();
-		const NzSkeleton* GetSkeleton() const;
 
-		bool HasAnimation() const;
-
-		bool IsAnimationEnabled() const;
 		virtual bool IsAnimated() const;
 		bool IsDrawable() const;
 

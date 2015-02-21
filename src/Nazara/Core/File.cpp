@@ -733,7 +733,7 @@ bool NzFile::FillHash(NzAbstractHash* hash) const
 	unsigned int size;
 	while (remainingSize > 0)
 	{
-		size = std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE));
+		size = static_cast<unsigned int>(std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
 		if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
 		{
 			NazaraError("Unable to read file");
