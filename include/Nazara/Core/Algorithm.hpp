@@ -4,13 +4,14 @@
 
 #pragma once
 
-#ifndef NAZARA_TUPLE_HPP
-#define NAZARA_TUPLE_HPP
+#ifndef NAZARA_ALGORITHM_CORE_HPP
+#define NAZARA_ALGORITHM_CORE_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <tuple>
 
 template<typename F, typename... ArgsT> void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t);
 
-#include <Nazara/Core/Tuple.inl>
+#include <Nazara/Core/Algorithm.inl>
 
-#endif // NAZARA_TUPLE_HPP
+#endif // NAZARA_ALGORITHM_CORE_HPP
