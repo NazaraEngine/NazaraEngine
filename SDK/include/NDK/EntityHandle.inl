@@ -46,13 +46,13 @@ namespace Ndk
 
 	inline void EntityHandle::Reset(Entity* entity)
 	{
-		// Si nous avions déjà une entité, nous devons l'informer que nous ne pointons plus vers elle
+		// Si nous avions déjà une entité, nous devons l'informer que nous ne pointons plus sur elle
 		if (m_entity)
 			m_entity->UnregisterHandle(this);
 
 		m_entity = entity;
 		if (m_entity)
-			// On informe la nouvelle entité que nous pointons vers elle
+			// On informe la nouvelle entité que nous pointons sur elle
 			m_entity->RegisterHandle(this);
 	}
 
