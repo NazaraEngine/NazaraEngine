@@ -48,5 +48,7 @@ namespace Ndk
 		// On informe chaque handle de notre destruction pour éviter qu'il ne continue de pointer sur nous
 		for (EntityHandle* handle : m_handles)
 			handle->OnEntityDestroyed();
+
+		m_handles.clear();
 	}
 }
