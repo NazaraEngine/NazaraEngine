@@ -15,12 +15,14 @@
 void NzHardwareInfoImpl::Cpuid(nzUInt32 code, nzUInt32 result[4])
 {
 #if defined(NAZARA_COMPILER_MSVC)
+	static_assert(sizeof(nzUInt32) == sizeof(int), "Assertion failed");
+
 	__cpuid(reinterpret_cast<int*>(result), static_cast<int>(code)); // Visual propose une fonction intrinsèque pour le cpuid
 #elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 	// Source: http://stackoverflow.com/questions/1666093/cpuid-implementations-in-c
 	asm volatile ("cpuid" // Besoin d'être volatile ?
-				  : "=a" (result[0]), "=b" (result[1]), "=c" (result[2]), "=d" (result[3]) // output
-                  : "a" (code), "c" (0));                                                  // input
+	              : "=a" (result[0]), "=b" (result[1]), "=c" (result[2]), "=d" (result[3]) // output
+	              : "a" (code), "c" (0));                                                  // input
 #else
 	NazaraInternalError("Cpuid has been called although it is not supported");
 #endif
@@ -37,10 +39,10 @@ unsigned int NzHardwareInfoImpl::GetProcessorCount()
 
 bool NzHardwareInfoImpl::IsCpuidSupported()
 {
-#if defined(NAZARA_COMPILER_MSVC)
-	#ifdef NAZARA_PLATFORM_x64
+#ifdef NAZARA_PLATFORM_x64
 	return true; // Toujours supporté sur un processeur 64 bits
-	#else
+#else
+	#if defined(NAZARA_COMPILER_MSVC)
 	int supported;
 	__asm
 	{
@@ -59,31 +61,27 @@ bool NzHardwareInfoImpl::IsCpuidSupported()
 	};
 
 	return supported != 0;
-	#endif // NAZARA_PLATFORM_x64
-#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
-	#ifdef NAZARA_PLATFORM_x64
-	return true; // Toujours supporté sur un processeur 64 bits
-	#else
+	#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 	int supported;
-	asm volatile ("	pushfl\n"
-				  "	pop %%eax\n"
-				  "	mov %%eax, %%ecx\n"
-				  "	xor $0x200000, %%eax\n"
-				  "	push %%eax\n"
-				  "	popfl\n"
-				  "	pushfl\n"
-				  "	pop %%eax\n"
-				  "	xor %%ecx, %%eax\n"
-				  "	mov %%eax, %0\n"
-				  "	push %%ecx\n"
-				  "	popfl"
-				  : "=m" (supported)         // output
-				  :                          // input
-				  : "eax", "ecx", "memory"); // clobbered register
+	asm volatile (" pushfl\n"
+	              " pop %%eax\n"
+	              " mov %%eax, %%ecx\n"
+	              " xor $0x200000, %%eax\n"
+	              " push %%eax\n"
+	              " popfl\n"
+	              " pushfl\n"
+	              " pop %%eax\n"
+	              " xor %%ecx, %%eax\n"
+	              " mov %%eax, %0\n"
+	              " push %%ecx\n"
+	              " popfl"
+	              : "=m" (supported)         // output
+	              :                          // input
+	              : "eax", "ecx", "memory"); // clobbered register
 
 	return supported != 0;
-	#endif // NAZARA_PLATFORM_x64
-#else
+	#else
 	return false;
+	#endif
 #endif
 }
