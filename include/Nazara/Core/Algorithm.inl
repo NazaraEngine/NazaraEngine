@@ -35,16 +35,16 @@ struct NzImplTupleUnpack<0>
 template<typename T>
 void NzHashCombine(std::size_t& seed, const T& v)
 {
-    const std::size_t kMul = 0x9ddfea08eb382d69ULL;
+    const nzUInt64 kMul = 0x9ddfea08eb382d69ULL;
 
     std::hash<T> hasher;
-    std::size_t a = (hasher(v) ^ seed) * kMul;
+    nzUInt64 a = (hasher(v) ^ seed) * kMul;
     a ^= (a >> 47);
 
-    std::size_t b = (seed ^ a) * kMul;
+    nzUInt64 b = (seed ^ a) * kMul;
     b ^= (b >> 47);
 
-    seed = b * kMul;
+    seed = static_cast<std::size_t>(b * kMul);
 }
 
 template<typename F, typename... ArgsT>
