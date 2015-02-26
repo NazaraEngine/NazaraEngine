@@ -220,10 +220,11 @@ namespace
 
 		vertexMapper.Unmap();
 
-		subMesh->GenerateAABB();
-		subMesh->GenerateTangents();
 		subMesh->SetIndexBuffer(indexBuffer);
 		subMesh->SetMaterialIndex(0);
+
+		subMesh->GenerateAABB();
+		subMesh->GenerateTangents();
 
 		mesh->AddSubMesh(subMesh);
 
