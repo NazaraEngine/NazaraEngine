@@ -17,7 +17,7 @@ class NAZARA_API NzTaskScheduler
 		~NzTaskScheduler() = delete;
 
 		template<typename F> static void AddTask(F function);
-		template<typename F, typename... Args> static void AddTask(F function, Args... args);
+		template<typename F, typename... Args> static void AddTask(F function, Args&&... args);
 		template<typename C> static void AddTask(void (C::*function)(), C* object);
 		static unsigned int GetWorkerCount();
 		static bool Initialize();

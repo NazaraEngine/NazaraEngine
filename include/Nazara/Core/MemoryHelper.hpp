@@ -13,7 +13,7 @@ void NzOperatorDelete(void* ptr);
 void* NzOperatorNew(std::size_t size);
 
 template<typename T, typename... Args>
-T* NzPlacementNew(void* ptr, Args... args);
+T* NzPlacementNew(void* ptr, Args&&... args);
 
 #include <Nazara/Core/MemoryHelper.inl>
 

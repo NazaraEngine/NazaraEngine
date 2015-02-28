@@ -32,7 +32,7 @@ struct NzFunctorWithoutArgs : NzFunctor
 template<typename F, typename... Args>
 struct NzFunctorWithArgs : NzFunctor
 {
-	NzFunctorWithArgs(F func, Args&... args);
+	NzFunctorWithArgs(F func, Args&&... args);
 
 	void Run();
 
