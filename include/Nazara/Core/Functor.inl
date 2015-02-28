@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <utility>
+
 template<typename F>
 NzFunctorWithoutArgs<F>::NzFunctorWithoutArgs(F func) :
 m_func(func)
@@ -15,9 +17,9 @@ void NzFunctorWithoutArgs<F>::Run()
 }
 
 template<typename F, typename... Args>
-NzFunctorWithArgs<F, Args...>::NzFunctorWithArgs(F func, Args&... args) :
+NzFunctorWithArgs<F, Args...>::NzFunctorWithArgs(F func, Args&&... args) :
 m_func(func),
-m_args(args...)
+m_args(std::forward<Args>(args)...)
 {
 }
 

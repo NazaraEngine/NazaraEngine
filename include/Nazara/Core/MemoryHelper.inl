@@ -11,6 +11,7 @@
 
 #include <Nazara/Core/MemoryManager.hpp>
 #include <new>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 inline void NzOperatorDelete(void* ptr)
@@ -32,7 +33,7 @@ inline void* NzOperatorNew(std::size_t size)
 }
 
 template<typename T, typename... Args>
-T* NzPlacementNew(void* ptr, Args... args)
+T* NzPlacementNew(void* ptr, Args&&... args)
 {
 	return new (ptr) T(std::forward<Args>(args)...);
 }

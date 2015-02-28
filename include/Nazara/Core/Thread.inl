@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 template<typename F>
@@ -11,9 +12,9 @@ NzThread::NzThread(F function)
 }
 
 template<typename F, typename... Args>
-NzThread::NzThread(F function, Args... args)
+NzThread::NzThread(F function, Args&&... args)
 {
-	CreateImpl(new NzFunctorWithArgs<F, Args...>(function, args...));
+	CreateImpl(new NzFunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
 }
 
 template<typename C>
