@@ -34,6 +34,7 @@ NzMemoryPool(pool->m_blockSize, pool->m_size, pool->m_canGrow)
 
 inline void* NzMemoryPool::Allocate(unsigned int size)
 {
+	///DOC: Si la taille est supérieure à celle d'un bloc du pool, l'opérateur new est utilisé
 	if (size <= m_blockSize)
 	{
 		if (m_freeCount > 0)
@@ -53,6 +54,7 @@ inline void* NzMemoryPool::Allocate(unsigned int size)
 template<typename T>
 inline void NzMemoryPool::Delete(T* ptr)
 {
+	///DOC: Va appeler le destructeur de l'objet avant de le libérer
 	if (ptr)
 	{
 		ptr->~T();
@@ -62,6 +64,7 @@ inline void NzMemoryPool::Delete(T* ptr)
 
 inline void NzMemoryPool::Free(void* ptr)
 {
+	///DOC: Si appelé avec un pointeur ne faisant pas partie du pool, l'opérateur delete est utilisé
 	if (ptr)
 	{
 		// Le pointeur nous appartient-il ?
@@ -111,6 +114,7 @@ inline unsigned int NzMemoryPool::GetSize() const
 template<typename T, typename... Args>
 inline T* NzMemoryPool::New(Args&&... args)
 {
+	///DOC: Permet de construire un objet directement dans le pook
 	T* object = static_cast<T*>(Allocate(sizeof(T)));
 	NzPlacementNew<T>(object, std::forward<Args>(args)...);
 
