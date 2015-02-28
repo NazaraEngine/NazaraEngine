@@ -11,11 +11,12 @@
 #include <atomic>
 #include <memory>
 
-template<unsigned int blockSize, bool canGrow = true>
 class NzMemoryPool
 {
 	public:
-		NzMemoryPool(unsigned int size = 1024);
+		NzMemoryPool(unsigned int blockSize, unsigned int size = 1024, bool canGrow = true);
+		NzMemoryPool(const NzMemoryPool&) = delete;
+		NzMemoryPool(NzMemoryPool&& pool) noexcept;
 		~NzMemoryPool() = default;
 
 		template<typename T> T* Allocate();
@@ -23,8 +24,12 @@ class NzMemoryPool
 
 		void Free(void* ptr);
 
+		unsigned int GetBlockSize() const;
 		unsigned int GetFreeBlocks() const;
 		unsigned int GetSize() const;
+
+		NzMemoryPool& operator=(const NzMemoryPool&) = delete;
+		NzMemoryPool& operator=(NzMemoryPool&& pool) noexcept;
 
 	private:
 		NzMemoryPool(NzMemoryPool* pool);
@@ -34,6 +39,8 @@ class NzMemoryPool
 		std::unique_ptr<NzMemoryPool> m_next;
 		std::atomic_uint m_freeCount;
 		NzMemoryPool* m_previous;
+		bool m_canGrow;
+		unsigned int m_blockSize;
 		unsigned int m_size;
 };
 
