@@ -32,12 +32,6 @@ NzMemoryPool(pool->m_blockSize, pool->m_size, pool->m_canGrow)
 	m_previous = pool;
 }
 
-template<typename T>
-inline T* NzMemoryPool::Allocate()
-{
-	return static_cast<T*>(Allocate(sizeof(T)));
-}
-
 inline void* NzMemoryPool::Allocate(unsigned int size)
 {
 	if (size <= m_blockSize)
@@ -56,6 +50,16 @@ inline void* NzMemoryPool::Allocate(unsigned int size)
 	return NzOperatorNew(size);
 }
 
+template<typename T>
+inline void NzMemoryPool::Delete(T* ptr)
+{
+	if (ptr)
+	{
+		ptr->~T();
+		Free(ptr);
+	}
+}
+
 inline void NzMemoryPool::Free(void* ptr)
 {
 	if (ptr)
@@ -72,7 +76,7 @@ inline void NzMemoryPool::Free(void* ptr)
 
 			m_freeList[m_freeCount++] = ptr;
 
-			// Si nous sommes vide et l'extension d'un autre pool, on se suicide
+			// Si nous sommes vide et l'extension d'un autre pool, nous nous suicidons
 			if (m_freeCount == m_size && m_previous && !m_next)
 			{
 				m_previous->m_next.release();
@@ -104,11 +108,20 @@ inline unsigned int NzMemoryPool::GetSize() const
 	return m_size;
 }
 
+template<typename T, typename... Args>
+inline T* NzMemoryPool::New(Args&&... args)
+{
+	T* object = static_cast<T*>(Allocate(sizeof(T)));
+	NzPlacementNew<T>(object, std::forward<Args>(args)...);
+
+	return object;
+}
+
 inline NzMemoryPool& NzMemoryPool::operator=(NzMemoryPool&& pool) noexcept
 {
 	m_blockSize = m_blockSize;
 	m_canGrow = m_canGrow;
-	m_freeCount = m_freeCount.load();
+	m_freeCount = m_freeCount.load(std::memory_order_relaxed);
 	m_freeList = std::move(m_freeList);
 	m_pool = std::move(m_pool);
 	m_previous = m_previous;
