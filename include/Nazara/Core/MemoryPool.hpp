@@ -19,14 +19,15 @@ class NzMemoryPool
 		NzMemoryPool(NzMemoryPool&& pool) noexcept;
 		~NzMemoryPool() = default;
 
-		template<typename T> T* Allocate();
 		void* Allocate(unsigned int size);
-
+		template<typename T> void Delete(T* ptr);
 		void Free(void* ptr);
 
 		unsigned int GetBlockSize() const;
 		unsigned int GetFreeBlocks() const;
 		unsigned int GetSize() const;
+
+		template<typename T, typename... Args> T* New(Args&&... args);
 
 		NzMemoryPool& operator=(const NzMemoryPool&) = delete;
 		NzMemoryPool& operator=(NzMemoryPool&& pool) noexcept;
