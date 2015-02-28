@@ -11,9 +11,9 @@ void NzTaskScheduler::AddTask(F function)
 }
 
 template<typename F, typename... Args>
-void NzTaskScheduler::AddTask(F function, Args... args)
+void NzTaskScheduler::AddTask(F function, Args&&... args)
 {
-	AddTaskFunctor(new NzFunctorWithArgs<F, Args...>(function, args...));
+	AddTaskFunctor(new NzFunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
 }
 
 template<typename C>
