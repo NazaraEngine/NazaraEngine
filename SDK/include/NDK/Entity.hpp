@@ -29,23 +29,23 @@ namespace Ndk
 			Entity(Entity&& entity);
 			~Entity();
 
-			template<typename Component, typename... Args> Component& AddComponent(Args&&... args);
+			template<typename ComponentType, typename... Args> ComponentType& AddComponent(Args&&... args);
 
 			EntityHandle CreateHandle();
 
-			template<typename Component> Component& GetComponent();
-			template<typename Component> const Component& GetComponent() const;
+			template<typename ComponentType> ComponentType& GetComponent();
+			template<typename ComponentType> const ComponentType& GetComponent() const;
 			Id GetId() const;
 			World* GetWorld() const;
 
-			template<typename Component> bool HasComponent() const;
+			template<typename ComponentType> bool HasComponent() const;
 
 			void Kill();
 
 			bool IsValid() const;
 
 			void RemoveAllComponent();
-			template<typename Component> void RemoveComponent();
+			template<typename ComponentType> void RemoveComponent();
 
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;
