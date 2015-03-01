@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/World.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <algorithm>
+#include <stdexcept>
 #include <utility>
 
 namespace Ndk
@@ -14,6 +16,60 @@ namespace Ndk
 	{
 	}
 
+	template<typename C, typename... Args>
+	C& Entity::AddComponent(Args&&... args)
+	{
+        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+
+		// Nous supprimons l'ancien component, s'il existe
+		RemoveComponent<C>();
+
+		// Récupération de l'identification du component, qui va nous servir d'indice
+		nzUInt32 componentId = C::ComponentId;
+
+		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
+		if (m_components.size() <= componentId)
+			m_components.resize(componentId + 1);
+
+		// Allocation et affectation du component
+		std::unique_ptr<C> ptr(new C(std::forward(args)...));
+		C* component = ptr.get();
+
+		m_components[componentId] = std::move(ptr);
+
+		return *component;
+	}
+
+	template<typename C>
+	C& Entity::GetComponent()
+	{
+		///DOC: Lance une exception si le component n'est pas présent
+        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+
+		if (!HasComponent<C>())
+			throw std::runtime_error("Tried to get a non-present component");
+
+		BaseComponent* component = m_components[C::ComponentId].get();
+		NazaraAssert(component, "Invalid component pointer");
+
+		return *static_cast<C*>(component);
+	}
+
+	template<typename C>
+	const C& Entity::GetComponent() const
+	{
+		///DOC: Lance une exception si le component n'est pas présent
+        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+
+		if (!HasComponent<C>())
+			throw std::runtime_error("Tried to get a non-present component");
+
+		BaseComponent* component = m_components[C::ComponentId].get();
+		NazaraAssert(component, "Invalid component pointer");
+
+		return *static_cast<C*>(component);
+	}
+
 	inline Entity::Id Entity::GetId() const
 	{
 		return m_id;
@@ -22,6 +78,29 @@ namespace Ndk
 	inline World* Entity::GetWorld() const
 	{
 		return m_world;
+	}
+
+	template<typename C>
+	bool Entity::HasComponent() const
+	{
+        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+
+		nzUInt32 componentId = C::ComponentId;
+		return m_components.size() > componentId && m_components[componentId];
+	}
+
+	inline void Entity::RemoveAllComponent()
+	{
+		m_components.clear();
+	}
+
+	template<typename C>
+	void Entity::RemoveComponent()
+	{
+        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+
+        if (HasComponent<C>())
+			m_components[C::ComponentId].reset();
 	}
 
 	inline void Entity::RegisterHandle(EntityHandle* handle)
