@@ -1,4 +1,6 @@
-// This file was automatically generated on 26 May 2014 at 01:05:31
+// Copyright (C) 2015 Jérôme Leclercq
+// This file is part of the "Nazara Development Kit"
+// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Entity.hpp>
 #include <NDK/EntityHandle.hpp>
