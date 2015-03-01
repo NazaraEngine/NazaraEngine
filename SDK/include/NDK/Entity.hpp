@@ -8,6 +8,8 @@
 #define NDK_ENTITY_HPP
 
 #include <NDK/Prerequesites.hpp>
+#include <NDK/BaseComponent.hpp>
+#include <memory>
 #include <vector>
 
 namespace Ndk
@@ -27,14 +29,23 @@ namespace Ndk
 			Entity(Entity&& entity);
 			~Entity();
 
+			template<typename Component, typename... Args> Component& AddComponent(Args&&... args);
+
 			EntityHandle CreateHandle();
 
+			template<typename Component> Component& GetComponent();
+			template<typename Component> const Component& GetComponent() const;
 			Id GetId() const;
 			World* GetWorld() const;
+
+			template<typename Component> bool HasComponent() const;
 
 			void Kill();
 
 			bool IsValid() const;
+
+			void RemoveAllComponent();
+			template<typename Component> void RemoveComponent();
 
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;
@@ -48,6 +59,7 @@ namespace Ndk
 			void RegisterHandle(EntityHandle* handle);
 			void UnregisterHandle(EntityHandle* handle);
 
+			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			std::vector<EntityHandle*> m_handles;
 			Id m_id;
 			World* m_world;
