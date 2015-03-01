@@ -19,11 +19,10 @@ namespace Ndk
 			Component();
 			virtual ~Component();
 
-			virtual BaseComponent* Clone() const override;
+			BaseComponent* Clone() const override;
 	};
 
-	template<typename ComponentType>
-	constexpr nzUInt32 GetComponentId();
+	template<typename ComponentType> constexpr nzUInt32 GetComponentId();
 }
 
 #include <NDK/Component.inl>
