@@ -8,7 +8,7 @@
 #define NDK_ENTITY_HPP
 
 #include <NDK/Prerequesites.hpp>
-#include <NDK/BaseComponent.hpp>
+#include <NDK/Component.hpp>
 #include <memory>
 #include <vector>
 
@@ -29,15 +29,17 @@ namespace Ndk
 			Entity(Entity&& entity);
 			~Entity();
 
+			BaseComponent& AddComponent(std::unique_ptr<BaseComponent>&& component);
 			template<typename ComponentType, typename... Args> ComponentType& AddComponent(Args&&... args);
 
 			EntityHandle CreateHandle();
 
+			BaseComponent& GetComponent(nzUInt32 componentId);
 			template<typename ComponentType> ComponentType& GetComponent();
-			template<typename ComponentType> const ComponentType& GetComponent() const;
 			Id GetId() const;
 			World* GetWorld() const;
 
+			bool HasComponent(nzUInt32 componentId) const;
 			template<typename ComponentType> bool HasComponent() const;
 
 			void Kill();
@@ -45,6 +47,7 @@ namespace Ndk
 			bool IsValid() const;
 
 			void RemoveAllComponent();
+			void RemoveComponent(nzUInt32 componentId);
 			template<typename ComponentType> void RemoveComponent();
 
 			Entity& operator=(const Entity&) = delete;
