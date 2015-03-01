@@ -9,7 +9,7 @@ namespace Ndk
 	{
 	}
 
-	inline nzUInt32 BaseComponent::GetComponentId() const
+	inline nzUInt32 BaseComponent::GetId() const
 	{
 		return m_componentId;
 	}

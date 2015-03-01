@@ -19,7 +19,7 @@ namespace Ndk
 
 			virtual BaseComponent* Clone() const = 0;
 
-			nzUInt32 GetComponentId() const;
+			nzUInt32 GetId() const;
 
 			static nzUInt32 GetNextId();
 
