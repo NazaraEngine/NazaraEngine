@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 namespace Ndk
@@ -16,58 +17,58 @@ namespace Ndk
 	{
 	}
 
-	template<typename C, typename... Args>
-	C& Entity::AddComponent(Args&&... args)
+	template<typename ComponentType, typename... Args>
+	ComponentType& Entity::AddComponent(Args&&... args)
 	{
-        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
 		// Nous supprimons l'ancien component, s'il existe
-		RemoveComponent<C>();
+		RemoveComponent<ComponentType>();
 
 		// Récupération de l'identification du component, qui va nous servir d'indice
-		nzUInt32 componentId = C::ComponentId;
+		nzUInt32 componentId = ComponentType::ComponentId;
 
 		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
 		if (m_components.size() <= componentId)
 			m_components.resize(componentId + 1);
 
 		// Allocation et affectation du component
-		std::unique_ptr<C> ptr(new C(std::forward(args)...));
-		C* component = ptr.get();
+		std::unique_ptr<ComponentType> ptr(new ComponentType(std::forward(args)...));
+		ComponentType* component = ptr.get();
 
 		m_components[componentId] = std::move(ptr);
 
 		return *component;
 	}
 
-	template<typename C>
-	C& Entity::GetComponent()
+	template<typename ComponentType>
+	ComponentType& Entity::GetComponent()
 	{
 		///DOC: Lance une exception si le component n'est pas présent
-        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		if (!HasComponent<C>())
+		if (!HasComponent<ComponentType>())
 			throw std::runtime_error("Tried to get a non-present component");
 
-		BaseComponent* component = m_components[C::ComponentId].get();
+		BaseComponent* component = m_components[ComponentType::ComponentId].get();
 		NazaraAssert(component, "Invalid component pointer");
 
-		return *static_cast<C*>(component);
+		return *static_cast<ComponentType*>(component);
 	}
 
-	template<typename C>
-	const C& Entity::GetComponent() const
+	template<typename ComponentType>
+	const ComponentType& Entity::GetComponent() const
 	{
 		///DOC: Lance une exception si le component n'est pas présent
-        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		if (!HasComponent<C>())
+		if (!HasComponent<ComponentType>())
 			throw std::runtime_error("Tried to get a non-present component");
 
-		BaseComponent* component = m_components[C::ComponentId].get();
+		BaseComponent* component = m_components[ComponentType::ComponentId].get();
 		NazaraAssert(component, "Invalid component pointer");
 
-		return *static_cast<C*>(component);
+		return *static_cast<ComponentType*>(component);
 	}
 
 	inline Entity::Id Entity::GetId() const
@@ -80,12 +81,12 @@ namespace Ndk
 		return m_world;
 	}
 
-	template<typename C>
+	template<typename ComponentType>
 	bool Entity::HasComponent() const
 	{
-        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		nzUInt32 componentId = C::ComponentId;
+		nzUInt32 componentId = ComponentType::ComponentId;
 		return m_components.size() > componentId && m_components[componentId];
 	}
 
@@ -94,13 +95,13 @@ namespace Ndk
 		m_components.clear();
 	}
 
-	template<typename C>
+	template<typename ComponentType>
 	void Entity::RemoveComponent()
 	{
-        static_assert(std::is_base_of<BaseComponent, C>(), "C is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-        if (HasComponent<C>())
-			m_components[C::ComponentId].reset();
+		if (HasComponent<ComponentType>())
+			m_components[ComponentType::ComponentId].reset();
 	}
 
 	inline void Entity::RegisterHandle(EntityHandle* handle)
