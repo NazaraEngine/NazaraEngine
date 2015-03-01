@@ -16,11 +16,12 @@ namespace Ndk
 	Component<ComponentType>::~Component() = default;
 
 	template<typename ComponentType>
-	virtual BaseComponent* Component<ComponentType>::Clone() const
+	BaseComponent* Component<ComponentType>::Clone() const
 	{
-		static_assert<std::is_trivially_copy_constructible<ComponentType>::value, "ComponentType should be copy-constructible">
+		///FIXME: Pas encore supporté par GCC (4.9.2)
+		//static_assert(std::is_trivially_copy_constructible<ComponentType>::value, "ComponentType should be copy-constructible");
 
-		return new ComponentType(static_cast<ComponentType&>(*this));
+		return new ComponentType(static_cast<const ComponentType&>(*this));
 	}
 
 	template<typename ComponentType>
