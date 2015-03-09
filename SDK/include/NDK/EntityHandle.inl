@@ -68,6 +68,22 @@ namespace Ndk
 
 	inline EntityHandle& EntityHandle::Swap(EntityHandle& handle)
 	{
+		// Comme nous inversons les handles, nous devons prévenir les entités
+		// La version par défaut de swap (à base de move) aurait fonctionné,
+		// mais en enregistrant les handles une fois de plus que nécessaire (à cause de la copie temporaire).
+		if (m_entity)
+		{
+			m_entity->UnregisterHandle(this);
+			m_entity->RegisterHandle(&handle);
+		}
+
+		if (handle.m_entity)
+		{
+			handle.m_entity->UnregisterHandle(&handle);
+			handle.m_entity->RegisterHandle(this);
+		}
+
+		// On effectue l'échange
 		std::swap(m_entity, handle.m_entity);
 	}
 
