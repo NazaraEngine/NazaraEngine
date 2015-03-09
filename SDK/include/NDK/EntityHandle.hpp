@@ -13,8 +13,6 @@
 
 namespace Ndk
 {
-	class Entity;
-
 	class EntityHandle
 	{
 		friend Entity;
