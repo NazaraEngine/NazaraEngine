@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -47,8 +46,8 @@ namespace Ndk
 
 	inline BaseComponent& Entity::GetComponent(nzUInt32 componentId)
 	{
-		if (!HasComponent(componentId))
-			throw std::runtime_error("Tried to get a non-present component");
+		///DOC: Le component doit être présent
+		NazaraAssert(HasComponent(componentId), "This component is not part of the entity");
 
 		BaseComponent* component = m_components[componentId].get();
 		NazaraAssert(component, "Invalid component pointer");
@@ -59,7 +58,7 @@ namespace Ndk
 	template<typename ComponentType>
 	ComponentType& Entity::GetComponent()
 	{
-		///DOC: Lance une exception si le component n'est pas présent
+		///DOC: Le component doit être présent
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
 		nzUInt32 componentId = GetComponentId<ComponentType>();
@@ -97,6 +96,7 @@ namespace Ndk
 
 	inline void Entity::RemoveComponent(nzUInt32 componentId)
 	{
+		///DOC: N'a aucun effet si le component n'est pas présent
 		if (HasComponent(componentId))
 			m_components[componentId].reset();
 	}
