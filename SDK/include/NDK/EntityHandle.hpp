@@ -7,7 +7,6 @@
 #ifndef NDK_ENTITYHANDLE_HPP
 #define NDK_ENTITYHANDLE_HPP
 
-#include <NDK/Prerequesites.hpp>
 #include <NDK/Entity.hpp>
 #include <ostream>
 

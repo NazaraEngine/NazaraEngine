@@ -7,7 +7,6 @@
 #ifndef NDK_ENTITY_HPP
 #define NDK_ENTITY_HPP
 
-#include <NDK/Prerequesites.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 #include <vector>
