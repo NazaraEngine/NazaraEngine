@@ -7,7 +7,6 @@
 #ifndef NDK_COMPONENT_HPP
 #define NDK_COMPONENT_HPP
 
-#include <NDK/Prerequesites.hpp>
 #include <NDK/BaseComponent.hpp>
 
 namespace Ndk
