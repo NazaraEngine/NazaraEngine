@@ -46,7 +46,7 @@ namespace Ndk
 
 			bool IsValid() const;
 
-			void RemoveAllComponent();
+			void RemoveAllComponents();
 			void RemoveComponent(nzUInt32 componentId);
 			template<typename ComponentType> void RemoveComponent();
 
