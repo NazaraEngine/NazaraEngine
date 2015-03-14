@@ -8,7 +8,6 @@
 #define NDK_WORLD_HPP
 
 #include <Nazara/Core/NonCopyable.hpp>
-#include <NDK/Prerequesites.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityHandle.hpp>
 #include <vector>
