@@ -90,7 +90,7 @@ namespace Ndk
 		return HasComponent(componentId);
 	}
 
-	inline void Entity::RemoveAllComponent()
+	inline void Entity::RemoveAllComponents()
 	{
 		m_components.clear();
 	}
