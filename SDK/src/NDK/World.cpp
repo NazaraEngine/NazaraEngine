@@ -52,7 +52,7 @@ namespace Ndk
 		m_killedEntities.clear();
 	}
 
-	void World::KillEntity(EntityHandle entity)
+	void World::KillEntity(const EntityHandle& entity)
 	{
 		///DOC: Ignoré si l'entité est invalide
 
@@ -77,7 +77,7 @@ namespace Ndk
 		{
 			for (unsigned int i = 0; i < m_killedEntities.size(); ++i)
 			{
-				EntityHandle entity = m_killedEntities[i];
+				const EntityHandle& entity = m_killedEntities[i];
 
 				for (unsigned int j = 0; j < m_aliveEntities.size(); ++j)
 				{
