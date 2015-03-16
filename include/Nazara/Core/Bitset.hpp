@@ -70,6 +70,10 @@ class NzBitset
 		template<typename T> T To() const;
 		NzString ToString() const;
 
+		void UnboundedReset(unsigned int bit);
+		void UnboundedSet(unsigned int bit, bool val = true);
+		bool UnboundedTest(unsigned int bit) const;
+
 		Bit operator[](int index);
 		bool operator[](int index) const;
 

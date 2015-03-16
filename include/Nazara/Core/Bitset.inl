@@ -380,6 +380,34 @@ NzString NzBitset<Block, Allocator>::ToString() const
 }
 
 template<typename Block, class Allocator>
+void NzBitset<Block, Allocator>::UnboundedReset(unsigned int bit)
+{
+	UnboundedSet(bit, false);
+}
+
+template<typename Block, class Allocator>
+void NzBitset<Block, Allocator>::UnboundedSet(unsigned int bit, bool val)
+{
+	if (bit < m_bitCount)
+		Set(bit, val);
+	else if (val)
+	{
+		// On élargit le bitset seulement s'il y a un bit à marquer
+		Resize(bit + 1, false);
+		Set(bit, true);
+	}
+}
+
+template<typename Block, class Allocator>
+bool NzBitset<Block, Allocator>::UnboundedTest(unsigned int bit) const
+{
+	if (bit < m_bitCount)
+		return Test(bit);
+	else
+		return false;
+}
+
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit NzBitset<Block, Allocator>::operator[](int index)
 {
 	return Bit(m_blocks[GetBlockIndex(index)], Block(1U) << GetBitIndex(index));
