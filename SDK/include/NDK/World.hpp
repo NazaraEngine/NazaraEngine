@@ -14,8 +14,6 @@
 
 namespace Ndk
 {
-	class EntityHandle;
-
 	class NDK_API World : NzNonCopyable
 	{
 		public:
