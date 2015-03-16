@@ -482,7 +482,7 @@ unsigned int NzBitset<Block, Allocator>::FindFirstFrom(unsigned int blockIndex) 
 	}
 
 	// Est-ce qu'on a un bloc non-nul ?
-	if (i == m_blocks.size()-1)
+	if (i == m_blocks.size())
 		return npos;
 
 	Block block = m_blocks[i];
