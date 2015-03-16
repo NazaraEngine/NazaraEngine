@@ -31,13 +31,15 @@ namespace Ndk
 			m_entities.push_back(Entity(*this, id));
 		}
 
-		EntityHandle entity = m_entities[id].CreateHandle();
-
 		// On initialise l'entité et on l'ajoute à la liste des entités vivantes
-		entity->Create();
-		m_aliveEntities.push_back(entity);
+		Entity& entity = m_entities[id].entity;
+		entity.Create();
 
-		return entity;
+		EntityHandle handle = entity.CreateHandle();
+		m_aliveEntities.push_back(handle);
+		m_entities[id].aliveIndex = m_aliveEntities.size()-1;
+
+		return handle;
 	}
 
 	void World::Clear()
@@ -49,7 +51,7 @@ namespace Ndk
 		m_entities.clear();
 
 		m_aliveEntities.clear();
-		m_killedEntities.clear();
+		m_killedEntities.Clear();
 	}
 
 	void World::KillEntity(const EntityHandle& entity)
@@ -57,13 +59,13 @@ namespace Ndk
 		///DOC: Ignoré si l'entité est invalide
 
 		if (IsEntityValid(entity))
-			m_killedEntities.emplace_back(entity);
+			m_killedEntities.UnboundedSet(entity->GetId(), true);
 	}
 
 	EntityHandle World::GetEntity(Entity::Id id)
 	{
 		if (IsEntityIdValid(id))
-			return m_entities[id].CreateHandle();
+			return m_aliveEntities[m_entities[id].aliveIndex];
 		else
 		{
 			NazaraError("Invalid ID");
@@ -73,33 +75,36 @@ namespace Ndk
 
 	void World::Update()
 	{
-		if (!m_killedEntities.empty())
+		for (unsigned int i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
-			for (unsigned int i = 0; i < m_killedEntities.size(); ++i)
+			EntityBlock& block = m_entities[i];
+			Entity& entity = block.entity;
+
+			NazaraAssert(entity.IsValid(), "Entity must be valid");
+
+			// Remise en file d'attente de l'identifiant d'entité
+			m_freeIdList.push_back(entity.GetId());
+
+			// Destruction de l'entité (invalidation du handle par la même occasion)
+			entity.Destroy();
+
+			// Nous allons sortir le handle de la liste des entités vivantes
+			// en swappant le handle avec le dernier handle, avant de pop
+
+			NazaraAssert(block.aliveIndex < m_aliveEntities.size(), "Alive index out of range");
+
+			if (block.aliveIndex < m_aliveEntities.size()-1) // S'il ne s'agit pas du dernier handle
 			{
-				const EntityHandle& entity = m_killedEntities[i];
+				EntityHandle& lastHandle = m_aliveEntities.back();
+				EntityHandle& myHandle = m_aliveEntities[block.aliveIndex];
 
-				for (unsigned int j = 0; j < m_aliveEntities.size(); ++j)
-				{
-					if (entity == m_aliveEntities[j])
-					{
-						// Remise en file d'attente de l'identifiant d'entité
-						m_freeIdList.push_back(entity->GetId());
+				myHandle = std::move(lastHandle);
 
-						// Destruction de l'entité (invalidation du handle par la même occasion)
-						entity->Destroy();
-
-						// Suppression de l'entité des deux tableaux
-						m_aliveEntities.erase(m_aliveEntities.begin() + j);
-						m_killedEntities.erase(m_killedEntities.begin() + i);
-
-						// Correction des indices (pour ne pas sauter une case)
-						i--;
-						j--;
-						break;
-					}
-				}
+				// On n'oublie pas de corriger l'indice associé à l'entité
+				m_entities[myHandle->GetId()].aliveIndex = block.aliveIndex;
 			}
+			m_aliveEntities.pop_back();
 		}
+		m_killedEntities.Reset();
 	}
 }

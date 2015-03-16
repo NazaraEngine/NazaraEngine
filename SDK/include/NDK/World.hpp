@@ -7,9 +7,11 @@
 #ifndef NDK_WORLD_HPP
 #define NDK_WORLD_HPP
 
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityHandle.hpp>
+#include <algorithm>
 #include <vector>
 
 namespace Ndk
@@ -27,10 +29,10 @@ namespace Ndk
 
 			void Clear();
 
+			EntityHandle GetEntity(Entity::Id id);
+
 			void KillEntity(const EntityHandle& entity);
 			void KillEntities(const EntityList& list);
-
-			EntityHandle GetEntity(Entity::Id id);
 
 			bool IsEntityValid(const EntityHandle& entity) const;
 			bool IsEntityIdValid(Entity::Id id) const;
@@ -38,10 +40,21 @@ namespace Ndk
 			void Update();
 
 		private:
+			struct EntityBlock
+			{
+				EntityBlock(Entity&& e) :
+				entity(std::move(e))
+				{
+				}
+
+				Entity entity;
+				unsigned int aliveIndex;
+			};
+
 			std::vector<Entity::Id> m_freeIdList;
-			std::vector<Entity> m_entities;
+			std::vector<EntityBlock> m_entities;
 			EntityList m_aliveEntities;
-			EntityList m_killedEntities;
+			NzBitset<nzUInt64> m_killedEntities;
 	};
 }
 
