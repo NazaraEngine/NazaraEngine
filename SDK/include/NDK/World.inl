@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <Nazara/Core/Error.hpp>
+
 namespace Ndk
 {
 	inline World::EntityList World::CreateEntities(unsigned int count)
@@ -17,7 +19,6 @@ namespace Ndk
 
 	inline void World::KillEntities(const EntityList& list)
 	{
-		m_killedEntities.reserve(m_killedEntities.size() + list.size());
 		for (const EntityHandle& entity : list)
 			KillEntity(entity);
 	}
@@ -29,6 +30,6 @@ namespace Ndk
 
 	inline bool World::IsEntityIdValid(Entity::Id id) const
 	{
-		return id < m_entities.size() && m_entities[id].IsValid();
+		return id < m_entities.size() && m_entities[id].entity.IsValid();
 	}
 }
