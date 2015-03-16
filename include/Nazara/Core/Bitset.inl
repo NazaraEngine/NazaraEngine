@@ -480,6 +480,11 @@ unsigned int NzBitset<Block, Allocator>::FindFirstFrom(unsigned int blockIndex) 
 		if (m_blocks[i])
 			break;
 	}
+
+	// Est-ce qu'on a un bloc non-nul ?
+	if (i == m_blocks.size()-1)
+		return npos;
+
 	Block block = m_blocks[i];
 
 	// Calcul de la position du LSB dans le bloc (et ajustement de la position)
