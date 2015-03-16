@@ -1322,13 +1322,8 @@ void NzImage::Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, uns
 
 nzUInt8 NzImage::GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth)
 {
-	static const float invLog2 = 1.f/std::log(2.f);
-
-	unsigned int widthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(width)));
-	unsigned int heightLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(height)));
-	unsigned int depthLevel = static_cast<unsigned int>(invLog2 * std::log(static_cast<float>(depth)));
-
-	return std::max(std::max(std::max(widthLevel, heightLevel), depthLevel), 1U);
+	// Le niveau maximal est le niveau requis pour la plus grande taille
+	return std::max(NzIntegralLog2(std::max({width, height, depth})), 1U);
 }
 
 nzUInt8 NzImage::GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth)
