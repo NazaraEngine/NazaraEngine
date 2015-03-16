@@ -115,6 +115,20 @@ constexpr T NzClamp(T value, T min, T max)
 }
 
 template<typename T>
+T NzCountBits(T value)
+{
+	// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
+	unsigned int count = 0;
+	while (value)
+	{
+		value &= value - 1;
+		count++;
+	}
+
+	return count;
+}
+
+template<typename T>
 constexpr T NzDegreeToRadian(T degrees)
 {
 	return degrees * F(M_PI/180.0);

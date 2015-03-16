@@ -22,6 +22,7 @@
 
 template<typename T> T NzApproach(T value, T objective, T increment);
 template<typename T> constexpr T NzClamp(T value, T min, T max);
+template<typename T> T NzCountBits(T value);
 template<typename T> constexpr T NzFromDegrees(T degrees);
 template<typename T> constexpr T NzFromRadians(T radians);
 template<typename T> constexpr T NzDegreeToRadian(T degrees);
