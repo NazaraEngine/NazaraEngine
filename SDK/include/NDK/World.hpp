@@ -29,7 +29,7 @@ namespace Ndk
 
 			void Clear();
 
-			EntityHandle GetEntity(Entity::Id id);
+			const EntityHandle& GetEntity(Entity::Id id);
 
 			void KillEntity(const EntityHandle& entity);
 			void KillEntities(const EntityList& list);
