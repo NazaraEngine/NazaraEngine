@@ -62,7 +62,7 @@ namespace Ndk
 			m_killedEntities.UnboundedSet(entity->GetId(), true);
 	}
 
-	EntityHandle World::GetEntity(Entity::Id id)
+	const EntityHandle& World::GetEntity(Entity::Id id)
 	{
 		if (IsEntityIdValid(id))
 			return m_aliveEntities[m_entities[id].aliveIndex];
