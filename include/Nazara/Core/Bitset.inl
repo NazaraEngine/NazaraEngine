@@ -494,6 +494,39 @@ unsigned int NzBitset<Block, Allocator>::npos = std::numeric_limits<unsigned int
 
 
 template<typename Block, typename Allocator>
+bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	// La comparaison part du principe que (uint8) 00001100 == (uint16) 00000000 00001100
+	// et conserve donc cette propriété
+	const NzBitset<Block, Allocator>& greater = (lhs.GetBlockCount() > rhs.GetBlockCount()) ? lhs : rhs;
+	const NzBitset<Block, Allocator>& lesser = (lhs.GetBlockCount() > rhs.GetBlockCount()) ? rhs : lhs;
+
+	unsigned int maxBlockCount = greater.GetBlockCount();
+	unsigned int minBlockCount = lesser.GetBlockCount();
+
+	// Nous testons les blocs en commun pour vérifier l'égalité des bits
+	for (unsigned int i = 0; i < minBlockCount; ++i)
+	{
+		if (lhs.GetBlock(i) != rhs.GetBlock(i))
+			return false;
+	}
+
+	// Nous vérifions maintenant les blocs que seul le plus grand bitset possède, pour prétendre à l'égalité
+	// ils doivent tous être nuls
+	for (unsigned int i = minBlockCount; i < maxBlockCount; ++i)
+		if (greater.GetBlock(i))
+			return false;
+
+	return true;
+}
+
+template<typename Block, typename Allocator>
+bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	return !(lhs == rhs);
+}
+
+template<typename Block, typename Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	NzBitset<Block, Allocator> bitset;
