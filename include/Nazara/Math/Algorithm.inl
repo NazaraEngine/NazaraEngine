@@ -48,10 +48,16 @@ namespace
 	{
 		static_assert(sizeof(T) % sizeof(nzUInt32) == 0, "Assertion failed");
 
+		// L'algorithme pour le logarithme base 2 (au dessus) ne fonctionne qu'avec des nombres au plus 32bits
+		// ce code décompose les nombres plus grands en nombres 32 bits par masquage et bit shifting
 		for (int i = sizeof(T)-sizeof(nzUInt32); i >= 0; i -= sizeof(nzUInt32))
 		{
+			// Le masque 32 bits sur la partie du nombre qu'on traite actuellement
 			T mask = T(std::numeric_limits<nzUInt32>::max()) << i*8;
-			unsigned int log2 = NzImplIntegralLog2<nzUInt32>((number & mask) >> i*8);
+			T val = (number & mask) >> i*8; // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
+
+			// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
+			unsigned int log2 = NzImplIntegralLog2<nzUInt32>(val);
 			if (log2)
 				return log2 + i*8;
 		}
@@ -72,10 +78,16 @@ namespace
 	{
 		static_assert(sizeof(T) % sizeof(nzUInt32) == 0, "Assertion failed");
 
+		// L'algorithme pour le logarithme base 2 (au dessus) ne fonctionne qu'avec des nombres au plus 32bits
+		// ce code décompose les nombres plus grands en nombres 32 bits par masquage et bit shifting
 		for (int i = sizeof(T)-sizeof(nzUInt32); i >= 0; i -= sizeof(nzUInt32))
 		{
+			// Le masque 32 bits sur la partie du nombre qu'on traite actuellement
 			T mask = T(std::numeric_limits<nzUInt32>::max()) << i*8;
-			unsigned int log2 = NzImplIntegralLog2Pot<nzUInt32>((number & mask) >> i*8);
+			T val = (number & mask) >> i*8; // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
+
+			// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
+			unsigned int log2 = NzImplIntegralLog2Pot<nzUInt32>(val);
 			if (log2)
 				return log2 + i*8;
 		}
