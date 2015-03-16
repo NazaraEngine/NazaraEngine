@@ -7,10 +7,82 @@
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
 #include <cstring>
+#include <type_traits>
 #include <Nazara/Core/Debug.hpp>
 
 #define F(a) static_cast<T>(a)
 #define F2(a) static_cast<T2>(a)
+
+namespace
+{
+	// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+	static const unsigned int MultiplyDeBruijnBitPosition[32] =
+	{
+		0,  9,  1, 10, 13, 21,  2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
+		8, 12, 20, 28, 15, 17, 24,  7, 19, 27, 23,  6, 26,  5, 4, 31
+	};
+
+	static const unsigned int MultiplyDeBruijnBitPosition2[32] =
+	{
+		 0,  1, 28,  2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17,  4, 8,
+		31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18,  6, 11,  5, 10, 9
+	};
+
+
+	template<typename T>
+	typename std::enable_if<sizeof(T) <= sizeof(nzUInt32), unsigned int>::type NzImplIntegralLog2(T number)
+	{
+		// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+		number |= number >> 1; // first round down to one less than a power of 2
+		number |= number >> 2;
+		number |= number >> 4;
+		number |= number >> 8;
+		number |= number >> 16;
+
+		return MultiplyDeBruijnBitPosition[static_cast<nzUInt32>(number * 0x07C4ACDDU) >> 27];
+	}
+
+	template<typename T>
+	// Les parenthèses autour de la condition sont nécesaires pour que GCC compile ça
+	typename std::enable_if<(sizeof(T) > sizeof(nzUInt32)), unsigned int>::type NzImplIntegralLog2(T number)
+	{
+		static_assert(sizeof(T) % sizeof(nzUInt32) == 0, "Assertion failed");
+
+		for (int i = sizeof(T)-sizeof(nzUInt32); i >= 0; i -= sizeof(nzUInt32))
+		{
+			T mask = T(std::numeric_limits<nzUInt32>::max()) << i*8;
+			unsigned int log2 = NzImplIntegralLog2<nzUInt32>((number & mask) >> i*8);
+			if (log2)
+				return log2 + i*8;
+		}
+
+		return 0;
+	}
+
+	template<typename T>
+	typename std::enable_if<sizeof(T) <= sizeof(nzUInt32), unsigned int>::type NzImplIntegralLog2Pot(T number)
+	{
+		// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+		return MultiplyDeBruijnBitPosition2[static_cast<nzUInt32>(number * 0x077CB531U) >> 27];
+	}
+
+	template<typename T>
+	// Les parenthèses autour de la condition sont nécesaires pour que GCC compile ça
+	typename std::enable_if<(sizeof(T) > sizeof(nzUInt32)), unsigned int>::type NzImplIntegralLog2Pot(T number)
+	{
+		static_assert(sizeof(T) % sizeof(nzUInt32) == 0, "Assertion failed");
+
+		for (int i = sizeof(T)-sizeof(nzUInt32); i >= 0; i -= sizeof(nzUInt32))
+		{
+			T mask = T(std::numeric_limits<nzUInt32>::max()) << i*8;
+			unsigned int log2 = NzImplIntegralLog2Pot<nzUInt32>((number & mask) >> i*8);
+			if (log2)
+				return log2 + i*8;
+		}
+
+		return 0;
+	}
+}
 
 template<typename T>
 T NzApproach(T value, T objective, T increment)
@@ -149,6 +221,19 @@ inline unsigned int NzGetNumberLength(long double number, nzUInt8 precision)
 {
 	// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
 	return NzGetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
+}
+
+template<typename T>
+unsigned int NzIntegralLog2(T number)
+{
+	// Proxy nécessaire pour éviter un problème de surcharge
+	return NzImplIntegralLog2<T>(number);
+}
+
+template<typename T>
+unsigned int NzIntegralLog2Pot(T pot)
+{
+	return NzImplIntegralLog2Pot<T>(pot);
 }
 
 inline unsigned int NzIntegralPow(unsigned int base, unsigned int exponent)
