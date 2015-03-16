@@ -35,6 +35,8 @@ unsigned int NzGetNumberLength(unsigned long long number);
 unsigned int NzGetNumberLength(float number, nzUInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 unsigned int NzGetNumberLength(double number, nzUInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 unsigned int NzGetNumberLength(long double number, nzUInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
+template<typename T> unsigned int NzIntegralLog2(T number);
+template<typename T> unsigned int NzIntegralLog2Pot(T pot);
 unsigned int NzIntegralPow(unsigned int base, unsigned int exponent);
 template<typename T, typename T2> T NzLerp(T from, T to, T2 interpolation);
 template<typename T> T NzMultiplyAdd(T x, T y, T z);
