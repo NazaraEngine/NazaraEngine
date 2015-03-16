@@ -268,6 +268,12 @@ void NzBitset<Block, Allocator>::Reset()
 }
 
 template<typename Block, class Allocator>
+void NzBitset<Block, Allocator>::Reset(unsigned int bit)
+{
+	Set(bit, false);
+}
+
+template<typename Block, class Allocator>
 void NzBitset<Block, Allocator>::Set(bool val)
 {
 	std::fill(m_blocks.begin(), m_blocks.end(), (val) ? fullBitMask : Block(0U));
