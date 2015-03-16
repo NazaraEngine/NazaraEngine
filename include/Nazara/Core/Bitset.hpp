@@ -100,6 +100,12 @@ class NzBitset
 };
 
 template<typename Block, typename Allocator>
+bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, typename Allocator>
+bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, typename Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
 template<typename Block, typename Allocator>
