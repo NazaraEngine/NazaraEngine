@@ -11,18 +11,26 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityHandle.hpp>
+#include <NDK/System.hpp>
 #include <algorithm>
+#include <memory>
 #include <vector>
+#include <unordered_map>
 
 namespace Ndk
 {
 	class NDK_API World : NzNonCopyable
 	{
+		friend Entity;
+
 		public:
 			using EntityList = std::vector<EntityHandle>;
 
 			World() = default;
 			~World();
+
+			BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
+			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);
 
 			EntityHandle CreateEntity();
 			EntityList CreateEntities(unsigned int count);
@@ -30,6 +38,11 @@ namespace Ndk
 			void Clear();
 
 			const EntityHandle& GetEntity(EntityId id);
+			BaseSystem& GetSystem(SystemId systemId);
+			template<typename SystemType> SystemType& GetSystem();
+
+			bool HasSystem(SystemId systemId) const;
+			template<typename SystemType> bool HasSystem() const;
 
 			void KillEntity(const EntityHandle& entity);
 			void KillEntities(const EntityList& list);
@@ -37,9 +50,16 @@ namespace Ndk
 			bool IsEntityValid(const EntityHandle& entity) const;
 			bool IsEntityIdValid(EntityId id) const;
 
+			void RemoveAllSystems();
+			void RemoveSystem(SystemId systemId);
+			template<typename SystemType> void RemoveSystem();
+
 			void Update();
 
 		private:
+			void MarkAllAsDirty();
+			void MarkAsDirty(EntityId id);
+
 			struct EntityBlock
 			{
 				EntityBlock(Entity&& e) :
@@ -53,7 +73,9 @@ namespace Ndk
 
 			std::vector<EntityId> m_freeIdList;
 			std::vector<EntityBlock> m_entities;
+			std::unordered_map<SystemId, std::unique_ptr<BaseSystem>> m_systems;
 			EntityList m_aliveEntities;
+			NzBitset<nzUInt64> m_dirtyEntities;
 			NzBitset<nzUInt64> m_killedEntities;
 	};
 }

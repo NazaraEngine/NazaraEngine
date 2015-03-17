@@ -32,6 +32,9 @@ namespace Ndk
 		// Affectation et retour du component
 		m_components[componentId] = std::move(component);
 
+		// On informe le monde que nous avons besoin d'une mise à jour
+		m_world->MarkAsDirty(m_id);
+
 		return *m_components[componentId].get();
 	}
 
@@ -53,13 +56,21 @@ namespace Ndk
 	void Entity::RemoveAllComponents()
 	{
 		m_components.clear();
+
+		// On informe le monde que nous avons besoin d'une mise à jour
+		m_world->MarkAsDirty(m_id);
 	}
 
 	void Entity::RemoveComponent(ComponentId componentId)
 	{
 		///DOC: N'a aucun effet si le component n'est pas présent
 		if (HasComponent(componentId))
+		{
 			m_components[componentId].reset();
+
+			// On informe le monde que nous avons besoin d'une mise à jour
+			m_world->MarkAsDirty(m_id);
+		}
 	}
 
 	void Entity::Create()
@@ -70,6 +81,17 @@ namespace Ndk
 	void Entity::Destroy()
 	{
 		m_valid = false;
+
+		// On informe chaque système
+		for (SystemId systemId : m_systems)
+		{
+			if (m_world->HasSystem(systemId))
+			{
+				BaseSystem& system = m_world->GetSystem(systemId);
+				system.RemoveEntity(CreateHandle());
+			}
+		}
+		m_systems.clear();
 
 		// On informe chaque handle de notre destruction pour éviter qu'il ne continue de pointer sur nous
 		for (EntityHandle* handle : m_handles)

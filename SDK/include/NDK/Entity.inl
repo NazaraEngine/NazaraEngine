@@ -85,6 +85,11 @@ namespace Ndk
 		m_handles.push_back(handle);
 	}
 
+	inline void Entity::RegisterSystem(SystemId systemId)
+	{
+		m_systems.insert(systemId);
+	}
+
 	inline void Entity::UnregisterHandle(EntityHandle* handle)
 	{
 		///DOC: Un handle ne doit être libéré qu'une fois, et doit faire partie de la liste, sous peine de crash
@@ -93,5 +98,10 @@ namespace Ndk
 		// On échange cet élément avec le dernier, et on diminue la taille du vector de 1
 		std::swap(*it, m_handles.back());
 		m_handles.pop_back();
+	}
+
+	inline void Entity::UnregisterSystem(SystemId systemId)
+	{
+		m_systems.erase(systemId);
 	}
 }
