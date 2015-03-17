@@ -9,7 +9,7 @@
 
 namespace Ndk
 {
-	inline Entity::Entity(World& world, Id id) :
+	inline Entity::Entity(World& world, EntityId id) :
 	m_id(id),
 	m_world(&world)
 	{
@@ -25,7 +25,7 @@ namespace Ndk
 		return static_cast<ComponentType&>(AddComponent(std::move(ptr)));
 	}
 
-	inline BaseComponent& Entity::GetComponent(nzUInt32 componentId)
+	inline BaseComponent& Entity::GetComponent(ComponentId componentId)
 	{
 		///DOC: Le component doit être présent
 		NazaraAssert(HasComponent(componentId), "This component is not part of the entity");
@@ -42,16 +42,11 @@ namespace Ndk
 		///DOC: Le component doit être présent
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		nzUInt32 componentId = GetComponentId<ComponentType>();
+		ComponentId componentId = GetComponentId<ComponentType>();
 		return static_cast<ComponentType&>(GetComponent(componentId));
 	}
 
-	inline const NzBitset<>& Entity::GetComponentBits() const
-	{
-		return m_componentBits;
-	}
-
-	inline Entity::Id Entity::GetId() const
+	inline EntityId Entity::GetId() const
 	{
 		return m_id;
 	}
@@ -61,9 +56,9 @@ namespace Ndk
 		return m_world;
 	}
 
-	inline bool Entity::HasComponent(nzUInt32 componentId) const
+	inline bool Entity::HasComponent(ComponentId componentId) const
 	{
-		return m_components.size() > componentId && m_components[componentId];
+		return m_components.count(componentId) > 0;
 	}
 
 	template<typename ComponentType>
@@ -71,7 +66,7 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		nzUInt32 componentId = GetComponentId<ComponentType>();
+		ComponentId componentId = GetComponentId<ComponentType>();
 		return HasComponent(componentId);
 	}
 
@@ -80,7 +75,7 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		nzUInt32 componentId = GetComponentId<ComponentType>();
+		ComponentId componentId = GetComponentId<ComponentType>();
 		RemoveComponent(componentId);
 	}
 
