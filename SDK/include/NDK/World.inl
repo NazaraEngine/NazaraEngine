@@ -84,9 +84,9 @@ namespace Ndk
 			KillEntity(entity);
 	}
 
-	inline bool World::IsEntityValid(const EntityHandle& entity) const
+	inline bool World::IsEntityValid(const Entity* entity) const
 	{
-		return entity.IsValid() && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
+		return entity && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
 	}
 
 	inline bool World::IsEntityIdValid(EntityId id) const

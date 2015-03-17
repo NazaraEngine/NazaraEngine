@@ -32,7 +32,7 @@ namespace Ndk
 			BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);
 
-			EntityHandle CreateEntity();
+			const EntityHandle& CreateEntity();
 			EntityList CreateEntities(unsigned int count);
 
 			void Clear();
@@ -44,10 +44,10 @@ namespace Ndk
 			bool HasSystem(SystemId systemId) const;
 			template<typename SystemType> bool HasSystem() const;
 
-			void KillEntity(const EntityHandle& entity);
+			void KillEntity(Entity* entity);
 			void KillEntities(const EntityList& list);
 
-			bool IsEntityValid(const EntityHandle& entity) const;
+			bool IsEntityValid(const Entity* entity) const;
 			bool IsEntityIdValid(EntityId id) const;
 
 			void RemoveAllSystems();
