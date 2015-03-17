@@ -236,26 +236,13 @@ template<typename Block, class Allocator>
 void NzBitset<Block, Allocator>::Resize(unsigned int bitCount, bool defaultVal)
 {
 	// On commence par changer la taille du conteneur, avec la valeur correcte d'initialisation
-	auto oldSize = m_blocks.size();
+	unsigned int lastBlockIndex = m_blocks.size()-1;
 	m_blocks.resize(ComputeBlockCount(bitCount), (defaultVal) ? fullBitMask : 0U);
 
 	unsigned int remainingBits = GetBitIndex(m_bitCount);
 	if (bitCount > m_bitCount && remainingBits > 0 && defaultVal)
-	{
 		// Initialisation des bits non-utilisés du dernier bloc avant le changement de taille
-		Block& block = m_blocks[oldSize-1]; // Le bloc à corriger
-		Block mask = fullBitMask << remainingBits; // Le masque sur les bits en question
-
-		// Set/Reset des bits
-		/*
-		if (defaultVal)
-			block |= mask;
-		else
-			block &= ~mask;
-		*/
-		// https://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching
-		block = (block & ~mask) | (-defaultVal & mask);
-	}
+		m_blocks[lastBlockIndex] |= fullBitMask << remainingBits;
 
 	m_bitCount = bitCount;
 	ResetExtraBits();
