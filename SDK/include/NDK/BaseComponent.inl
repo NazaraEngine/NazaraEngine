@@ -4,18 +4,13 @@
 
 namespace Ndk
 {
-	inline BaseComponent::BaseComponent(nzUInt32 componentId) :
+	inline BaseComponent::BaseComponent(ComponentId componentId) :
 	m_componentId(componentId)
 	{
 	}
 
-	inline nzUInt32 BaseComponent::GetId() const
+	inline ComponentId BaseComponent::GetId() const
 	{
 		return m_componentId;
-	}
-
-	inline nzUInt32 BaseComponent::GetNextId()
-	{
-		return s_nextId++;
 	}
 }

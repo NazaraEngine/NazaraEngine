@@ -20,8 +20,6 @@ namespace Ndk
 
 			BaseComponent* Clone() const override;
 	};
-
-	template<typename ComponentType> constexpr nzUInt32 GetComponentId();
 }
 
 #include <NDK/Component.inl>
