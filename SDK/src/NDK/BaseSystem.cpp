@@ -12,8 +12,11 @@ namespace Ndk
 			entity->UnregisterSystem(m_systemId);
 	}
 
-	bool BaseSystem::Filters(const EntityHandle& entity) const
+	bool BaseSystem::Filters(const Entity* entity) const
 	{
+		if (!entity)
+			return false;
+
 		for (ComponentId component : m_requiredComponents)
 		{
 			if (!entity->HasComponent(component))
@@ -29,12 +32,12 @@ namespace Ndk
 		return true;
 	}
 
-	void BaseSystem::OnEntityAdded(const EntityHandle& entity)
+	void BaseSystem::OnEntityAdded(Entity* entity)
 	{
 		NazaraUnused(entity);
 	}
 
-	void BaseSystem::OnEntityRemoved(const EntityHandle& entity)
+	void BaseSystem::OnEntityRemoved(Entity* entity)
 	{
 		NazaraUnused(entity);
 	}

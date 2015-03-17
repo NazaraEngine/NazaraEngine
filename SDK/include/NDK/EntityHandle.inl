@@ -149,7 +149,27 @@ namespace Ndk
 		return lhs.m_entity == rhs.m_entity;
 	}
 
+	inline bool operator==(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return &lhs == rhs.m_entity;
+	}
+
+	inline bool operator==(const EntityHandle& lhs, const Entity& rhs)
+	{
+		return lhs.m_entity == &rhs;
+	}
+
 	inline bool operator!=(const EntityHandle& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	inline bool operator!=(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	inline bool operator!=(const EntityHandle& lhs, const Entity& rhs)
 	{
 		return !(lhs == rhs);
 	}
@@ -159,7 +179,27 @@ namespace Ndk
 		return lhs.m_entity < rhs.m_entity;
 	}
 
+	inline bool operator<(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return &lhs < rhs.m_entity;
+	}
+
+	inline bool operator<(const EntityHandle& lhs, const Entity& rhs)
+	{
+		return lhs.m_entity < &rhs;
+	}
+
 	inline bool operator<=(const EntityHandle& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs > rhs);
+	}
+
+	inline bool operator<=(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs > rhs);
+	}
+
+	inline bool operator<=(const EntityHandle& lhs, const Entity& rhs)
 	{
 		return !(lhs > rhs);
 	}
@@ -169,7 +209,27 @@ namespace Ndk
 		return rhs < lhs;
 	}
 
+	inline bool operator>(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return rhs < lhs;
+	}
+
+	inline bool operator>(const EntityHandle& lhs, const Entity& rhs)
+	{
+		return rhs < lhs;
+	}
+
 	inline bool operator>=(const EntityHandle& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs < rhs);
+	}
+
+	inline bool operator>=(const Entity& lhs, const EntityHandle& rhs)
+	{
+		return !(lhs < rhs);
+	}
+
+	inline bool operator>=(const EntityHandle& lhs, const Entity& rhs)
 	{
 		return !(lhs < rhs);
 	}
