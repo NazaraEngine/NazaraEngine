@@ -44,11 +44,28 @@ namespace Ndk
 			friend std::ostream& operator<<(std::ostream& out, const EntityHandle& handle);
 
 			friend bool operator==(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator==(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator==(const EntityHandle& lhs, const Entity& rhs);
+
 			friend bool operator!=(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator!=(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator!=(const EntityHandle& lhs, const Entity& rhs);
+
 			friend bool operator<(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator<(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator<(const EntityHandle& lhs, const Entity& rhs);
+
 			friend bool operator<=(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator<=(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator<=(const EntityHandle& lhs, const Entity& rhs);
+
 			friend bool operator>(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator>(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator>(const EntityHandle& lhs, const Entity& rhs);
+
 			friend bool operator>=(const EntityHandle& lhs, const EntityHandle& rhs);
+			friend bool operator>=(const Entity& lhs, const EntityHandle& rhs);
+			friend bool operator>=(const EntityHandle& lhs, const Entity& rhs);
 
 		private:
 			void OnEntityDestroyed();

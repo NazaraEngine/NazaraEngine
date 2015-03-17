@@ -45,7 +45,7 @@ namespace Ndk
 
 	void Entity::Kill()
 	{
-		m_world->KillEntity(CreateHandle());
+		m_world->KillEntity(this);
 	}
 
 	bool Entity::IsValid() const
@@ -88,7 +88,7 @@ namespace Ndk
 			if (m_world->HasSystem(systemId))
 			{
 				BaseSystem& system = m_world->GetSystem(systemId);
-				system.RemoveEntity(CreateHandle());
+				system.RemoveEntity(this);
 			}
 		}
 		m_systems.clear();

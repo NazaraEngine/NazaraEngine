@@ -13,7 +13,7 @@ namespace Ndk
 		Clear();
 	}
 
-	EntityHandle World::CreateEntity()
+	const EntityHandle& World::CreateEntity()
 	{
 		EntityId id;
 		if (!m_freeIdList.empty())
@@ -35,11 +35,10 @@ namespace Ndk
 		Entity& entity = m_entities[id].entity;
 		entity.Create();
 
-		EntityHandle handle = entity.CreateHandle();
-		m_aliveEntities.push_back(handle);
+		m_aliveEntities.emplace_back(&entity);
 		m_entities[id].aliveIndex = m_aliveEntities.size()-1;
 
-		return handle;
+		return m_aliveEntities.back();
 	}
 
 	void World::Clear()
@@ -54,7 +53,7 @@ namespace Ndk
 		m_killedEntities.Clear();
 	}
 
-	void World::KillEntity(const EntityHandle& entity)
+	void World::KillEntity(Entity* entity)
 	{
 		///DOC: Ignoré si l'entité est invalide
 
@@ -111,9 +110,7 @@ namespace Ndk
 		{
 			NazaraAssert(i < m_entities.size(), "Entity index out of range");
 
-			EntityBlock& block = m_entities[i];
-			Entity& entity = block.entity;
-			EntityHandle& handle = m_aliveEntities[block.aliveIndex];
+			Entity& entity = m_entities[i].entity;
 
 			// Aucun intérêt de traiter une entité n'existant plus
 			if (entity.IsValid())
@@ -123,20 +120,20 @@ namespace Ndk
 					BaseSystem* system = systemPair.second.get();
 
 					// L'entité est-elle enregistrée comme faisant partie du système ?
-					bool partOfSystem = system->HasEntity(handle);
-					if (system->Filters(handle))
+					bool partOfSystem = system->HasEntity(&entity);
+					if (system->Filters(&entity))
 					{
 						// L'entité doit faire partie du système, est-ce que c'est déjà le cas ?
 						if (!partOfSystem)
 							// Non, rajoutons-là
-							system->AddEntity(handle);
+							system->AddEntity(&entity);
 					}
 					else
 					{
 						// L'entité ne doit pas faire partie du système, était-ce le cas ?
 						if (partOfSystem)
 							// Oui, enlevons-là
-							system->RemoveEntity(handle);
+							system->RemoveEntity(&entity);
 					}
 				}
 			}

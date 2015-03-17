@@ -27,8 +27,11 @@ namespace Ndk
 		return *m_world;
 	}
 
-	inline bool BaseSystem::HasEntity(const EntityHandle& entity) const
+	inline bool BaseSystem::HasEntity(const Entity* entity) const
 	{
+		if (!entity)
+			return false;
+
 		return m_entityBits.UnboundedTest(entity->GetId());
 	}
 
@@ -72,9 +75,11 @@ namespace Ndk
 		m_requiredComponents.insert(componentId);
 	}
 
-	inline void BaseSystem::AddEntity(const EntityHandle& entity)
+	inline void BaseSystem::AddEntity(Entity* entity)
 	{
-		m_entities.push_back(entity);
+		NazaraAssert(entity, "Invalid entity");
+
+		m_entities.push_back(entity->CreateHandle());
 		m_entityBits.UnboundedSet(entity->GetId(), true);
 
 		entity->RegisterSystem(m_systemId);
@@ -82,9 +87,11 @@ namespace Ndk
 		OnEntityAdded(entity);
 	}
 
-	inline void BaseSystem::RemoveEntity(const EntityHandle& entity)
+	inline void BaseSystem::RemoveEntity(Entity* entity)
 	{
-		auto it = std::find(m_entities.begin(), m_entities.end(), entity);
+		NazaraAssert(entity, "Invalid entity");
+
+		auto it = std::find(m_entities.begin(), m_entities.end(), *entity);
 		NazaraAssert(it != m_entities.end(), "Entity is not part of this system");
 
 		// Pour éviter de déplacer beaucoup de handles, on swap le dernier avec celui à supprimer
