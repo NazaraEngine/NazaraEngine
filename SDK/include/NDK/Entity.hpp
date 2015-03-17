@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Ndk
 {
@@ -20,6 +21,7 @@ namespace Ndk
 
 	class NDK_API Entity
 	{
+		friend class BaseSystem;
 		friend EntityHandle;
 		friend World;
 
@@ -59,10 +61,13 @@ namespace Ndk
 			void Destroy();
 
 			void RegisterHandle(EntityHandle* handle);
+			void RegisterSystem(SystemId systemId);
 			void UnregisterHandle(EntityHandle* handle);
+			void UnregisterSystem(SystemId systemId);
 
 			std::vector<EntityHandle*> m_handles;
 			std::unordered_map<ComponentId, std::unique_ptr<BaseComponent>> m_components;
+			std::unordered_set<SystemId> m_systems;
 			EntityId m_id;
 			World* m_world;
 			bool m_valid;
