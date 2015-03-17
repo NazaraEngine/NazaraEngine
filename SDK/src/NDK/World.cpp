@@ -106,5 +106,41 @@ namespace Ndk
 			m_aliveEntities.pop_back();
 		}
 		m_killedEntities.Reset();
+
+		for (unsigned int i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
+		{
+			NazaraAssert(i < m_entities.size(), "Entity index out of range");
+
+			EntityBlock& block = m_entities[i];
+			Entity& entity = block.entity;
+			EntityHandle& handle = m_aliveEntities[block.aliveIndex];
+
+			// Aucun intérêt de traiter une entité n'existant plus
+			if (entity.IsValid())
+			{
+				for (auto& systemPair : m_systems)
+				{
+					BaseSystem* system = systemPair.second.get();
+
+					// L'entité est-elle enregistrée comme faisant partie du système ?
+					bool partOfSystem = system->HasEntity(handle);
+					if (system->Filters(handle))
+					{
+						// L'entité doit faire partie du système, est-ce que c'est déjà le cas ?
+						if (!partOfSystem)
+							// Non, rajoutons-là
+							system->AddEntity(handle);
+					}
+					else
+					{
+						// L'entité ne doit pas faire partie du système, était-ce le cas ?
+						if (partOfSystem)
+							// Oui, enlevons-là
+							system->RemoveEntity(handle);
+					}
+				}
+			}
+		}
+		m_dirtyEntities.Reset();
 	}
 }

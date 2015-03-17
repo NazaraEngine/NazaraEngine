@@ -12,7 +12,9 @@
 namespace Ndk
 {
 	template<unsigned int N> ComponentId BuildComponentId(const char (&id)[N]);
+	template<unsigned int N> SystemId BuildSystemId(const char (&id)[N]);
 	template<typename ComponentType> constexpr ComponentId GetComponentId();
+	template<typename SystemType> constexpr SystemId GetSystemId();
 }
 
 #include <Ndk/Algorithm.inl>
