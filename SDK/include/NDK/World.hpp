@@ -29,13 +29,13 @@ namespace Ndk
 
 			void Clear();
 
-			const EntityHandle& GetEntity(Entity::Id id);
+			const EntityHandle& GetEntity(EntityId id);
 
 			void KillEntity(const EntityHandle& entity);
 			void KillEntities(const EntityList& list);
 
 			bool IsEntityValid(const EntityHandle& entity) const;
-			bool IsEntityIdValid(Entity::Id id) const;
+			bool IsEntityIdValid(EntityId id) const;
 
 			void Update();
 
@@ -51,7 +51,7 @@ namespace Ndk
 				unsigned int aliveIndex;
 			};
 
-			std::vector<Entity::Id> m_freeIdList;
+			std::vector<EntityId> m_freeIdList;
 			std::vector<EntityBlock> m_entities;
 			EntityList m_aliveEntities;
 			NzBitset<nzUInt64> m_killedEntities;

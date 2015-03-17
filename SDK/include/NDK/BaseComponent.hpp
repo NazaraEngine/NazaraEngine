@@ -14,20 +14,15 @@ namespace Ndk
 	class NDK_API BaseComponent
 	{
 		public:
-			BaseComponent(nzUInt32 componentId);
+			BaseComponent(ComponentId componentId);
 			virtual ~BaseComponent();
 
 			virtual BaseComponent* Clone() const = 0;
 
-			nzUInt32 GetId() const;
-
-			static nzUInt32 GetNextId();
+			ComponentId GetId() const;
 
 		protected:
-			nzUInt32 m_componentId;
-
-		private:
-			static nzUInt32 s_nextId;
+			ComponentId m_componentId;
 	};
 }
 

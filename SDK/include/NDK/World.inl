@@ -28,7 +28,7 @@ namespace Ndk
 		return entity.IsValid() && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
 	}
 
-	inline bool World::IsEntityIdValid(Entity::Id id) const
+	inline bool World::IsEntityIdValid(EntityId id) const
 	{
 		return id < m_entities.size() && m_entities[id].entity.IsValid();
 	}

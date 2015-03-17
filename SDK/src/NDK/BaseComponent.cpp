@@ -7,6 +7,4 @@
 namespace Ndk
 {
 	BaseComponent::~BaseComponent() = default;
-
-	nzUInt32 BaseComponent::s_nextId = 0;
 }

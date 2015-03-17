@@ -55,4 +55,10 @@
 	#define NDK_API
 #endif
 
+namespace Ndk
+{
+	using ComponentId = nzUInt32;
+	using EntityId = nzUInt32;
+}
+
 #endif // NDK_PREREQUESITES_HPP
