@@ -95,6 +95,7 @@ class NzBitset
 		unsigned int FindFirstFrom(unsigned int blockIndex) const;
 		Block GetLastBlockMask() const;
 		void ResetExtraBits();
+
 		static unsigned int ComputeBlockCount(unsigned int bitCount);
 		static unsigned int GetBitIndex(unsigned int bit);
 		static unsigned int GetBlockIndex(unsigned int bit);
@@ -103,22 +104,22 @@ class NzBitset
 		unsigned int m_bitCount;
 };
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator|(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator^(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 class NzBitset<Block, Allocator>::Bit
 {
 	friend NzBitset<Block, Allocator>;

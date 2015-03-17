@@ -533,7 +533,7 @@ template<typename Block, class Allocator>
 unsigned int NzBitset<Block, Allocator>::npos = std::numeric_limits<unsigned int>::max();
 
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	// La comparaison part du principe que (uint8) 00001100 == (uint16) 00000000 00001100
@@ -560,13 +560,13 @@ bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, All
 	return true;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	return !(lhs == rhs);
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	NzBitset<Block, Allocator> bitset;
@@ -575,7 +575,7 @@ NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, cons
 	return bitset;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator|(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	NzBitset<Block, Allocator> bitset;
@@ -584,7 +584,7 @@ NzBitset<Block, Allocator> operator|(const NzBitset<Block, Allocator>& lhs, cons
 	return bitset;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator^(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	NzBitset<Block, Allocator> bitset;
@@ -594,7 +594,7 @@ NzBitset<Block, Allocator> operator^(const NzBitset<Block, Allocator>& lhs, cons
 }
 
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::Flip()
 {
 	m_block ^= m_mask;
@@ -602,13 +602,13 @@ typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::Flip(
 	return *this;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::Reset()
 {
 	return Set(false);
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::Set(bool val)
 {
 	// https://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching
@@ -617,13 +617,13 @@ typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::Set(b
 	return *this;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 bool NzBitset<Block, Allocator>::Bit::Test() const
 {
 	return m_block & m_mask;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 template<bool BadCall>
 void* NzBitset<Block, Allocator>::Bit::operator&() const
 {
@@ -633,25 +633,25 @@ void* NzBitset<Block, Allocator>::Bit::operator&() const
 	return nullptr;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator>::Bit::operator bool() const
 {
 	return Test();
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator=(bool val)
 {
 	return Set(val);
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator=(const Bit& bit)
 {
 	return Set(bit);
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator|=(bool val)
 {
 	// Version sans branching:
@@ -666,7 +666,7 @@ typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::opera
 	return *this;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator&=(bool val)
 {
 	// Version sans branching:
@@ -681,7 +681,7 @@ typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::opera
 	return *this;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator^=(bool val)
 {
 	// Version sans branching:
@@ -696,7 +696,7 @@ typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::opera
 	return *this;
 }
 
-template<typename Block, typename Allocator>
+template<typename Block, class Allocator>
 typename NzBitset<Block, Allocator>::Bit& NzBitset<Block, Allocator>::Bit::operator-=(bool val)
 {
 	// Version sans branching:
