@@ -27,18 +27,10 @@ namespace Ndk
 	{
 		NazaraAssert(component, "Component must be valid");
 
-		nzUInt32 componentId = component->GetId();
-
-		// Nous supprimons l'ancien component, s'il existe
-		RemoveComponent(componentId);
-
-		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
-		if (m_components.size() <= componentId)
-			m_components.resize(componentId + 1);
+		ComponentId componentId = component->GetId();
 
 		// Affectation et retour du component
 		m_components[componentId] = std::move(component);
-		m_componentBits.UnboundedSet(componentId);
 
 		return *m_components[componentId].get();
 	}
@@ -61,17 +53,13 @@ namespace Ndk
 	void Entity::RemoveAllComponents()
 	{
 		m_components.clear();
-		m_componentBits.Clear();
 	}
 
-	void Entity::RemoveComponent(nzUInt32 componentId)
+	void Entity::RemoveComponent(ComponentId componentId)
 	{
 		///DOC: N'a aucun effet si le component n'est pas présent
 		if (HasComponent(componentId))
-		{
 			m_components[componentId].reset();
-			m_componentBits.Reset(componentId);
-		}
 	}
 
 	void Entity::Create()

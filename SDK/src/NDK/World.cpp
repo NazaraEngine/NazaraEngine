@@ -15,7 +15,7 @@ namespace Ndk
 
 	EntityHandle World::CreateEntity()
 	{
-		Entity::Id id;
+		EntityId id;
 		if (!m_freeIdList.empty())
 		{
 			// On récupère un identifiant
@@ -62,7 +62,7 @@ namespace Ndk
 			m_killedEntities.UnboundedSet(entity->GetId(), true);
 	}
 
-	const EntityHandle& World::GetEntity(Entity::Id id)
+	const EntityHandle& World::GetEntity(EntityId id)
 	{
 		if (IsEntityIdValid(id))
 			return m_aliveEntities[m_entities[id].aliveIndex];
