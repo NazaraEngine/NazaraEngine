@@ -15,25 +15,6 @@ namespace Ndk
 	{
 	}
 
-	inline BaseComponent& Entity::AddComponent(std::unique_ptr<BaseComponent>&& component)
-	{
-		NazaraAssert(component, "Component must be valid");
-
-		nzUInt32 componentId = component->GetId();
-
-		// Nous supprimons l'ancien component, s'il existe
-		RemoveComponent(componentId);
-
-		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
-		if (m_components.size() <= componentId)
-			m_components.resize(componentId + 1);
-
-		// Affectation et retour du component
-		m_components[componentId] = std::move(component);
-
-		return *m_components[componentId].get();
-	}
-
 	template<typename ComponentType, typename... Args>
 	ComponentType& Entity::AddComponent(Args&&... args)
 	{
@@ -65,6 +46,11 @@ namespace Ndk
 		return static_cast<ComponentType&>(GetComponent(componentId));
 	}
 
+	inline const NzBitset<>& Entity::GetComponentBits() const
+	{
+		return m_componentBits;
+	}
+
 	inline Entity::Id Entity::GetId() const
 	{
 		return m_id;
@@ -87,18 +73,6 @@ namespace Ndk
 
 		nzUInt32 componentId = GetComponentId<ComponentType>();
 		return HasComponent(componentId);
-	}
-
-	inline void Entity::RemoveAllComponents()
-	{
-		m_components.clear();
-	}
-
-	inline void Entity::RemoveComponent(nzUInt32 componentId)
-	{
-		///DOC: N'a aucun effet si le component n'est pas présent
-		if (HasComponent(componentId))
-			m_components[componentId].reset();
 	}
 
 	template<typename ComponentType>

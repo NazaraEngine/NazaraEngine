@@ -7,6 +7,7 @@
 #ifndef NDK_ENTITY_HPP
 #define NDK_ENTITY_HPP
 
+#include <Nazara/Core/Bitset.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 #include <vector>
@@ -35,6 +36,7 @@ namespace Ndk
 
 			BaseComponent& GetComponent(nzUInt32 componentId);
 			template<typename ComponentType> ComponentType& GetComponent();
+			const NzBitset<>& GetComponentBits() const;
 			Id GetId() const;
 			World* GetWorld() const;
 
@@ -64,6 +66,7 @@ namespace Ndk
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			std::vector<EntityHandle*> m_handles;
 			Id m_id;
+			NzBitset<> m_componentBits;
 			World* m_world;
 			bool m_valid;
 	};
