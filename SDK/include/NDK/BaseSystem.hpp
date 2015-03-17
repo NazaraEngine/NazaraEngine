@@ -27,13 +27,13 @@ namespace Ndk
 
 			virtual BaseSystem* Clone() const = 0;
 
-			bool Filters(const EntityHandle& entity) const;
+			bool Filters(const Entity* entity) const;
 
 			const std::vector<EntityHandle>& GetEntities() const;
 			SystemId GetId() const;
 			World& GetWorld() const;
 
-			bool HasEntity(const EntityHandle& entity) const;
+			bool HasEntity(const Entity* entity) const;
 
 		protected:
 			template<typename ComponentType> void Excludes();
@@ -45,12 +45,12 @@ namespace Ndk
 			void RequiresComponent(ComponentId componentId);
 
 		private:
-			void AddEntity(const EntityHandle& entity);
+			void AddEntity(Entity* entity);
 
-			virtual void OnEntityAdded(const EntityHandle& entity);
-			virtual void OnEntityRemoved(const EntityHandle& entity);
+			virtual void OnEntityAdded(Entity* entity);
+			virtual void OnEntityRemoved(Entity* entity);
 
-			void RemoveEntity(const EntityHandle& entity);
+			void RemoveEntity(Entity* entity);
 
 			void SetWorld(World& world);
 
