@@ -50,6 +50,7 @@ namespace Ndk
 		m_entities.clear();
 
 		m_aliveEntities.clear();
+		m_dirtyEntities.Clear();
 		m_killedEntities.Clear();
 	}
 
