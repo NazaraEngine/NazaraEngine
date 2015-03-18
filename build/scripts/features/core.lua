@@ -33,7 +33,7 @@ return {
 				},
 				{
 					Title = "OffsetOf",
-					Description = "Fonction permettant de récupérer à la compilation l'adresse locale (déclage d'octets) d'un membre de n'importe quelle structure/classe."
+					Description = "Fonction permettant de récupérer à la compilation l'adresse locale (décalage d'octets) d'un membre de n'importe quelle structure/classe."
 				},
 				{
 					Title = "Pointeurs à écart (stride) indépendant (SparsePtr)",
