@@ -41,7 +41,12 @@ m_transformMatrixUpdated(false)
 NzNode::~NzNode()
 {
 	for (NzNode* child : m_childs)
-		child->SetParent(nullptr);
+	{
+		// child->SetParent(nullptr); serait problématique car elle nous appellerait
+		child->m_parent = nullptr;
+		child->InvalidateNode();
+		child->OnParenting(nullptr);
+	}
 
 	SetParent(nullptr);
 }
