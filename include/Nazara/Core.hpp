@@ -1,4 +1,4 @@
-// This file was automatically generated on 30 Jan 2015 at 22:28:30
+// This file was automatically generated on 18 Mar 2015 at 20:51:14
 
 /*
 	Nazara Engine - Core module
@@ -30,6 +30,8 @@
 #define NAZARA_GLOBAL_CORE_HPP
 
 #include <Nazara/Core/AbstractHash.hpp>
+#include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Clock.hpp>
@@ -81,7 +83,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Thread.hpp>
-#include <Nazara/Core/Tuple.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
 
