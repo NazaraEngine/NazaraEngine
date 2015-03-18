@@ -9,6 +9,7 @@
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <algorithm>
+#include <cstdlib>
 #include <cmath>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
@@ -22,8 +23,8 @@ namespace
 
 	int ScoreBestLongSideFit(int width, int height, const NzRectui& freeRectSize)
 	{
-		int leftoverHoriz = std::abs(freeRectSize.width - width);
-		int leftoverVert = std::abs(freeRectSize.height - height);
+		int leftoverHoriz = std::abs(static_cast<int>(freeRectSize.width - width));
+		int leftoverVert = std::abs(static_cast<int>(freeRectSize.height - height));
 		int leftover = std::max(leftoverHoriz, leftoverVert);
 
 		return leftover;
@@ -31,8 +32,8 @@ namespace
 
 	int ScoreBestShortSideFit(int width, int height, const NzRectui& freeRectSize)
 	{
-		int leftoverHoriz = std::abs(freeRectSize.width - width);
-		int leftoverVert = std::abs(freeRectSize.height - height);
+		int leftoverHoriz = std::abs(static_cast<int>(freeRectSize.width - width));
+		int leftoverVert = std::abs(static_cast<int>(freeRectSize.height - height));
 		int leftover = std::min(leftoverHoriz, leftoverVert);
 
 		return leftover;

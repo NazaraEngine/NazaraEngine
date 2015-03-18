@@ -8,6 +8,7 @@
 template<typename T>
 void NzMixToMono(T* input, T* output, unsigned int channelCount, unsigned int frameCount)
 {
+	///DOC: Le buffer d'entrée peut être le même que le buffer de sortie
 	// Pour éviter l'overflow, on utilise comme accumulateur un type assez grand, (u)int 64 bits pour les entiers, double pour les flottants
 	typedef typename std::conditional<std::is_unsigned<T>::value, nzUInt64, nzInt64>::type BiggestInt;
     typedef typename std::conditional<std::is_integral<T>::value, BiggestInt, double>::type Biggest;

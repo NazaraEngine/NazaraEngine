@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 
@@ -77,7 +78,11 @@ namespace
 	bool s_initialized = false;
 
 	char s_brandString[48] = "Not initialized";
-	char s_vendor[12] = {'C', 'P', 'U', 'i', 's', 'U', 'n', 'k', 'n', 'o', 'w', 'n'};
+}
+
+void NzHardwareInfo::Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4])
+{
+	return NzHardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
 }
 
 NzString NzHardwareInfo::GetProcessorBrandString()
@@ -137,65 +142,84 @@ bool NzHardwareInfo::Initialize()
 
 	s_initialized = true;
 
-	nzUInt32 result[4];
+	nzUInt32 registers[4]; // Récupère les quatre registres (EAX, EBX, ECX et EDX)
 
-	NzHardwareInfoImpl::Cpuid(0, result);
-	std::memcpy(&s_vendor[0], &result[1], 4);
-	std::memcpy(&s_vendor[4], &result[3], 4);
-	std::memcpy(&s_vendor[8], &result[2], 4);
+	// Pour plus de clarté
+	nzUInt32& eax = registers[0];
+	nzUInt32& ebx = registers[1];
+	nzUInt32& ecx = registers[2];
+	nzUInt32& edx = registers[3];
+
+	// Pour commencer, on va récupérer l'identifiant du constructeur ainsi que l'id de fonction maximal supporté par le CPUID
+	NzHardwareInfoImpl::Cpuid(0, 0, registers);
+
+	// Attention à l'ordre : EBX, EDX, ECX
+	nzUInt32 manufacturerId[3] = {ebx, edx, ecx};
 
 	// Identification du concepteur
 	s_vendorEnum = nzProcessorVendor_Unknown;
 	for (const VendorString& vendorString : vendorStrings)
 	{
-		if (std::memcmp(s_vendor, vendorString.vendor, 12) == 0)
+		if (std::memcmp(manufacturerId, vendorString.vendor, 12) == 0)
 		{
 			s_vendorEnum = vendorString.vendorEnum;
 			break;
 		}
 	}
 
-	unsigned int ids = result[0];
-
-	if (ids >= 1)
+	if (eax >= 1)
 	{
-		NzHardwareInfoImpl::Cpuid(1, result);
-		s_capabilities[nzProcessorCap_AVX]   = (result[2] & (1U << 28)) != 0;
-		s_capabilities[nzProcessorCap_FMA3]  = (result[2] & (1U << 12)) != 0;
-		s_capabilities[nzProcessorCap_MMX]   = (result[3] & (1U << 23)) != 0;
-		s_capabilities[nzProcessorCap_SSE]   = (result[3] & (1U << 25)) != 0;
-		s_capabilities[nzProcessorCap_SSE2]  = (result[3] & (1U << 26)) != 0;
-		s_capabilities[nzProcessorCap_SSE3]  = (result[2] & (1U <<  0)) != 0;
-		s_capabilities[nzProcessorCap_SSSE3] = (result[2] & (1U <<  9)) != 0;
-		s_capabilities[nzProcessorCap_SSE41] = (result[2] & (1U << 19)) != 0;
-		s_capabilities[nzProcessorCap_SSE42] = (result[2] & (1U << 20)) != 0;
+		// Récupération de certaines capacités du processeur (ECX et EDX, fonction 1)
+		NzHardwareInfoImpl::Cpuid(1, 0, registers);
 
-		NzHardwareInfoImpl::Cpuid(0x80000000, result);
-		unsigned int exIds = result[0];
+		s_capabilities[nzProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
+		s_capabilities[nzProcessorCap_FMA3]  = (ecx & (1U << 12)) != 0;
+		s_capabilities[nzProcessorCap_MMX]   = (edx & (1U << 23)) != 0;
+		s_capabilities[nzProcessorCap_SSE]   = (edx & (1U << 25)) != 0;
+		s_capabilities[nzProcessorCap_SSE2]  = (edx & (1U << 26)) != 0;
+		s_capabilities[nzProcessorCap_SSE3]  = (ecx & (1U <<  0)) != 0;
+		s_capabilities[nzProcessorCap_SSSE3] = (ecx & (1U <<  9)) != 0;
+		s_capabilities[nzProcessorCap_SSE41] = (ecx & (1U << 19)) != 0;
+		s_capabilities[nzProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
+	}
 
-		if (exIds >= 0x80000001)
+	// Récupération de la plus grande fonction étendue supportée (EAX, fonction 0x80000000)
+	NzHardwareInfoImpl::Cpuid(0x80000000, 0, registers);
+
+	nzUInt32 maxSupportedExtendedFunction = eax;
+	if (maxSupportedExtendedFunction >= 0x80000001)
+	{
+		// Récupération des capacités étendues du processeur (ECX et EDX, fonction 0x80000001)
+		NzHardwareInfoImpl::Cpuid(0x80000001, 0, registers);
+
+		s_capabilities[nzProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support du 64bits, indépendant de l'OS
+		s_capabilities[nzProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
+		s_capabilities[nzProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
+		s_capabilities[nzProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
+
+		if (maxSupportedExtendedFunction >= 0x80000004)
 		{
-			NzHardwareInfoImpl::Cpuid(0x80000001, result);
-			s_capabilities[nzProcessorCap_x64]   = (result[3] & (1U << 29)) != 0;
-			s_capabilities[nzProcessorCap_FMA4]  = (result[2] & (1U << 16)) != 0;
-			s_capabilities[nzProcessorCap_SSE4a] = (result[2] & (1U <<  6)) != 0;
-			s_capabilities[nzProcessorCap_XOP]   = (result[2] & (1U << 11)) != 0;
-
-			if (exIds >= 0x80000004)
+			// Récupération d'une chaîne de caractère décrivant le processeur (EAX, EBX, ECX et EDX,
+			// fonctions de 0x80000002 à 0x80000004 compris)
+			char* ptr = &s_brandString[0];
+			for (nzUInt32 code = 0x80000002; code <= 0x80000004; ++code)
 			{
-				char* ptr = &s_brandString[0];
-				for (nzUInt32 code = 0x80000002; code <= 0x80000004; ++code)
-				{
-					NzHardwareInfoImpl::Cpuid(code, result);
-					std::memcpy(ptr, &result[0], 16);
+				NzHardwareInfoImpl::Cpuid(code, 0, registers);
+				std::memcpy(ptr, &registers[0], 4*sizeof(nzUInt32)); // On rajoute les 16 octets à la chaîne
 
-					ptr += 16;
-				}
+				ptr += 4*sizeof(nzUInt32);
 			}
+
+			// Le caractère nul faisant partie de la chaîne retournée par le CPUID, pas besoin de le rajouter
 		}
 	}
 
 	return true;
+}
+
+bool NzHardwareInfo::IsCpuidSupported()
+{
+	return NzHardwareInfoImpl::IsCpuidSupported();
 }
 
 bool NzHardwareInfo::IsInitialized()

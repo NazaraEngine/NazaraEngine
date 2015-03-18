@@ -62,9 +62,7 @@ bool NzDirectoryImpl::Open(const NzString& dirPath)
 {
 	NzString searchPath = dirPath + "\\*";
 
-	std::unique_ptr<wchar_t[]> wPath(searchPath.GetWideBuffer());
-	m_handle = FindFirstFileW(wPath.get(), &m_result);
-
+	m_handle = FindFirstFileW(searchPath.GetWideString().data(), &m_result);
 	if (m_handle == INVALID_HANDLE_VALUE)
 	{
 		NazaraError("Unable to open directory: " + NzError::GetLastSystemError());
@@ -78,16 +76,12 @@ bool NzDirectoryImpl::Open(const NzString& dirPath)
 
 bool NzDirectoryImpl::Create(const NzString& dirPath)
 {
-	std::unique_ptr<wchar_t[]> wPath(dirPath.GetWideBuffer());
-
-	return (CreateDirectoryW(wPath.get(), nullptr) != 0) || GetLastError() == ERROR_ALREADY_EXISTS;
+	return (CreateDirectoryW(dirPath.GetWideString().data(), nullptr) != 0) || GetLastError() == ERROR_ALREADY_EXISTS;
 }
 
 bool NzDirectoryImpl::Exists(const NzString& dirPath)
 {
-	std::unique_ptr<wchar_t[]> wPath(dirPath.GetWideBuffer());
-	DWORD attributes = GetFileAttributesW(wPath.get());
-
+	DWORD attributes = GetFileAttributesW(dirPath.GetWideString().data());
 	if (attributes != INVALID_FILE_ATTRIBUTES)
 		return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 	else
@@ -118,8 +112,7 @@ NzString NzDirectoryImpl::GetCurrent()
 
 bool NzDirectoryImpl::Remove(const NzString& dirPath)
 {
-	std::unique_ptr<wchar_t[]> path(dirPath.GetWideBuffer());
-	bool success = RemoveDirectoryW(path.get()) != 0;
+	bool success = RemoveDirectoryW(dirPath.GetWideString().data()) != 0;
 
 	DWORD error = GetLastError();
 	return success || error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND;

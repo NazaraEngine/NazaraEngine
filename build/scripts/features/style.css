@@ -1,0 +1,108 @@
+/* Je ne suis pas développeur HTML/CSS, je dois y toucher une fois l'an, désolé pour les quelques atrocités que vous pourrez trouver ici */
+
+body
+{
+	background-color: black;
+	color: white;
+}
+
+a
+{
+	color: #007ACC;
+}
+
+a:hover
+{
+	color: lightblue;
+}
+
+h1
+{
+	display: inline;
+}
+
+h2
+{
+	display: inline;
+	text-decoration: underline;
+}
+
+h4
+{
+	text-decoration: underline;
+}
+	
+ol
+{
+	list-style-type: none;
+}
+
+table
+{
+	border-collapse: collapse;
+	text-align: center;
+	display: inline-block; 
+	border: white groove; 
+	border-radius: 10px;
+	box-shadow: 0px 0px 10px lightblue;
+}
+
+th
+{
+	text-shadow: 2px 2px 4px black;
+}
+
+tr
+{
+	border: 1px solid white;
+}
+
+tbody tr:hover
+{
+	text-shadow: 0px 0px 4px white;
+}
+
+.centre
+{
+	text-align: center;
+}
+
+.description
+{
+	margin-left: 20px;
+}
+
+.lastupdate
+{
+	font-size: x-large;
+	font-weight: bold;
+	color: yellow;
+}
+
+.module
+{
+}
+	
+.modulename
+{
+	font-size: x-large;
+	font-weight: bold;
+	text-shadow: 2px 2px 10px #007ACC;
+}
+
+.note
+{
+	margin-left: 20px;
+	color: #007ACC;
+}
+
+.notedesc
+{
+	color: rgb(200, 200, 255);
+}
+
+.portability
+{
+	margin-left: 20px;
+	color: red;
+}

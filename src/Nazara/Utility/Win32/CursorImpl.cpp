@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Win32/CursorImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 bool NzCursorImpl::Create(const NzImage& cursor, int hotSpotX, int hotSpotY)

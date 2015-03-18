@@ -406,23 +406,23 @@ void NzMaterial::Reset()
 	SetShader("Basic");
 }
 
-bool NzMaterial::SetAlphaMap(const NzString& name)
+bool NzMaterial::SetAlphaMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetAlphaMap(texture);
+	SetAlphaMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetAlphaMap(NzTexture* map)
+void NzMaterial::SetAlphaMap(NzTextureRef alphaMap)
 {
-	m_alphaMap = map;
+	m_alphaMap = std::move(alphaMap);
 
 	InvalidateShaders();
 }
@@ -447,23 +447,23 @@ void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
 	m_diffuseColor = diffuse;
 }
 
-bool NzMaterial::SetDiffuseMap(const NzString& name)
+bool NzMaterial::SetDiffuseMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetDiffuseMap(texture);
+	SetDiffuseMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetDiffuseMap(NzTexture* map)
+void NzMaterial::SetDiffuseMap(NzTextureRef diffuseMap)
 {
-	m_diffuseMap = map;
+	m_diffuseMap = std::move(diffuseMap);
 
 	InvalidateShaders();
 }
@@ -478,23 +478,23 @@ void NzMaterial::SetDstBlend(nzBlendFunc func)
 	m_states.dstBlend = func;
 }
 
-bool NzMaterial::SetEmissiveMap(const NzString& name)
+bool NzMaterial::SetEmissiveMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetEmissiveMap(texture);
+	SetEmissiveMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetEmissiveMap(NzTexture* map)
+void NzMaterial::SetEmissiveMap(NzTextureRef emissiveMap)
 {
-	m_emissiveMap = map;
+	m_emissiveMap = std::move(emissiveMap);
 
 	InvalidateShaders();
 }
@@ -509,44 +509,44 @@ void NzMaterial::SetFaceFilling(nzFaceFilling filling)
 	m_states.faceFilling = filling;
 }
 
-bool NzMaterial::SetHeightMap(const NzString& name)
+bool NzMaterial::SetHeightMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetHeightMap(texture);
+	SetHeightMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetHeightMap(NzTexture* map)
+void NzMaterial::SetHeightMap(NzTextureRef heightMap)
 {
-	m_heightMap = map;
+	m_heightMap = std::move(heightMap);
 
 	InvalidateShaders();
 }
 
-bool NzMaterial::SetNormalMap(const NzString& name)
+bool NzMaterial::SetNormalMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetNormalMap(texture);
+	SetNormalMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetNormalMap(NzTexture* map)
+void NzMaterial::SetNormalMap(NzTextureRef normalMap)
 {
-	m_normalMap = map;
+	m_normalMap = std::move(normalMap);
 
 	InvalidateShaders();
 }
@@ -556,20 +556,20 @@ void NzMaterial::SetRenderStates(const NzRenderStates& states)
 	m_states = states;
 }
 
-void NzMaterial::SetShader(const NzUberShader* uberShader)
+void NzMaterial::SetShader(NzUberShaderConstRef uberShader)
 {
-	m_uberShader = uberShader;
+	m_uberShader = std::move(uberShader);
 
 	InvalidateShaders();
 }
 
 bool NzMaterial::SetShader(const NzString& uberShaderName)
 {
-	NzUberShader* uberShader = NzUberShaderLibrary::Get(uberShaderName);
+	NzUberShaderConstRef uberShader = NzUberShaderLibrary::Get(uberShaderName);
 	if (!uberShader)
 		return false;
 
-	SetShader(uberShader);
+	SetShader(std::move(uberShader));
 	return true;
 }
 
@@ -583,23 +583,23 @@ void NzMaterial::SetSpecularColor(const NzColor& specular)
 	m_specularColor = specular;
 }
 
-bool NzMaterial::SetSpecularMap(const NzString& name)
+bool NzMaterial::SetSpecularMap(const NzString& textureName)
 {
-	NzTextureRef texture = NzTextureLibrary::Query(name);
+	NzTextureRef texture = NzTextureLibrary::Query(textureName);
 	if (!texture)
 	{
-		texture = NzTextureManager::Get(name);
+		texture = NzTextureManager::Get(textureName);
 		if (!texture)
 			return false;
 	}
 
-	SetSpecularMap(texture);
+	SetSpecularMap(std::move(texture));
 	return true;
 }
 
-void NzMaterial::SetSpecularMap(NzTexture* map)
+void NzMaterial::SetSpecularMap(NzTextureRef specularMap)
 {
-	m_specularMap = map;
+	m_specularMap = std::move(specularMap);
 
 	InvalidateShaders();
 }

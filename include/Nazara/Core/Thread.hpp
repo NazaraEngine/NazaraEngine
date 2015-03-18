@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <ostream>
+#include <iosfwd>
 
 class NzThreadImpl;
 
