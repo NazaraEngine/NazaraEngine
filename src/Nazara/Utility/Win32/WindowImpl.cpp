@@ -160,7 +160,10 @@ bool NzWindowImpl::Create(const NzVideoMode& mode, const NzString& title, nzUInt
 	#endif
 
 	if (!m_handle)
+	{
+		NazaraError("Failed to create window: " + NzError::GetLastSystemError());
 		return false;
+	}
 
 	if (fullscreen)
 	{
