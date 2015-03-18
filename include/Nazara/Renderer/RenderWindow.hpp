@@ -11,13 +11,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Math/Rect.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/Window.hpp>
+#include <vector>
 
+class NzAbstractImage;
 class NzContext;
-class NzImage;
 class NzTexture;
 struct NzContextParameters;
 
@@ -29,8 +32,8 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
 		virtual ~NzRenderWindow();
 
-		bool CopyToImage(NzImage* image) const;
-		bool CopyToTexture(NzTexture* texture) const;
+		bool CopyToImage(NzAbstractImage* image, const NzVector3ui& dstPos = NzVector3ui(0U)) const;
+		bool CopyToImage(NzAbstractImage* image, const NzRectui& rect, const NzVector3ui& dstPos = NzVector3ui(0U)) const;
 
 		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		bool Create(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
@@ -61,6 +64,7 @@ class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
 		void OnWindowDestroy() override;
 		void OnWindowResized() override;
 
+		mutable std::vector<nzUInt8> m_buffer;
 		NzClock m_clock;
 		NzContextParameters m_parameters;
 		mutable NzContext* m_context = nullptr;
