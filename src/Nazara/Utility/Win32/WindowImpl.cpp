@@ -27,7 +27,7 @@
 	#define GWL_USERDATA GWLP_USERDATA
 #endif
 
-// N'est pas définit avec MinGW
+// N'est pas défini avec MinGW
 #ifndef MAPVK_VK_TO_VSC
     #define MAPVK_VK_TO_VSC 0
 #endif
@@ -152,7 +152,7 @@ bool NzWindowImpl::Create(const NzVideoMode& mode, const NzString& title, nzUInt
 
 	// On attend que la fenêtre soit créée
 	mutex.Lock();
-	m_thread = new NzThread(WindowThread, &m_handle, win32StyleEx, title.GetWideString().data(), win32Style, x, y, width, height, this, &mutex, &condition);
+	m_thread = NzThread(WindowThread, &m_handle, win32StyleEx, title.GetWideString().data(), win32Style, x, y, width, height, this, &mutex, &condition);
 	condition.Wait(&mutex);
 	mutex.Unlock();
 	#else
@@ -221,13 +221,12 @@ void NzWindowImpl::Destroy()
 	if (m_ownsWindow)
 	{
 		#if NAZARA_UTILITY_THREADED_WINDOW
-		if (m_thread)
+		if (m_thread.IsJoinable())
 		{
 			m_threadActive = false;
 			PostMessageW(m_handle, WM_NULL, 0, 0); // Pour réveiller le thread
 
-			m_thread->Join();
-			delete m_thread;
+			m_thread.Join();
 		}
 		#else
 		if (m_handle)
