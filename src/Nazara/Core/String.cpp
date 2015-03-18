@@ -1776,96 +1776,63 @@ unsigned int NzString::GetSize() const
 	return m_sharedString->size;
 }
 
-char* NzString::GetUtf8Buffer(unsigned int* size) const
+std::string NzString::GetUtf8String() const
 {
-	if (m_sharedString->size == 0)
-		return nullptr;
-
-	char* buffer = new char[m_sharedString->size+1];
-	std::memcpy(buffer, m_sharedString->string, m_sharedString->size+1);
-
-	if (size)
-		*size = m_sharedString->size;
-
-	return buffer;
+	return std::string(m_sharedString->string, m_sharedString->size);
 }
 
-char16_t* NzString::GetUtf16Buffer(unsigned int* size) const
+std::u16string NzString::GetUtf16String() const
 {
 	if (m_sharedString->size == 0)
-		return nullptr;
+		return std::u16string();
 
-	std::vector<char16_t> utf16;
-	utf16.reserve(m_sharedString->size);
+	std::u16string str;
+	str.reserve(m_sharedString->size);
 
-	utf8::utf8to16(m_sharedString->string, &m_sharedString->string[m_sharedString->size], std::back_inserter(utf16));
+	utf8::utf8to16(begin(), end(), std::back_inserter(str));
 
-	unsigned int bufferSize = utf16.size();
-	if (bufferSize == 0)
-		return nullptr;
-
-	char16_t* buffer = new char16_t[bufferSize+1];
-	std::memcpy(buffer, &utf16[0], bufferSize*sizeof(char16_t));
-	buffer[bufferSize] ='\0';
-
-	if (size)
-		*size = bufferSize;
-
-	return buffer;
+	return str;
 }
 
-char32_t* NzString::GetUtf32Buffer(unsigned int* size) const
+std::u32string NzString::GetUtf32String() const
 {
 	if (m_sharedString->size == 0)
-		return nullptr;
+		return std::u32string();
 
-	unsigned int bufferSize = utf8::distance(m_sharedString->string, &m_sharedString->string[m_sharedString->size]);
-	if (bufferSize == 0)
-		return nullptr;
+	std::u32string str;
+	str.reserve(m_sharedString->size);
 
-	char32_t* buffer = new char32_t[bufferSize+1];
-	utf8::utf8to32(m_sharedString->string, &m_sharedString->string[m_sharedString->size], buffer);
-	buffer[bufferSize] ='\0';
+	utf8::utf8to32(begin(), end(), std::back_inserter(str));
 
-	if (size)
-		*size = bufferSize;
-
-	return buffer;
+	return str;
 }
 
-wchar_t* NzString::GetWideBuffer(unsigned int* size) const
+std::wstring NzString::GetWideString() const
 {
 	static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4, "wchar_t size is not supported");
 	if (m_sharedString->size == 0)
-		return nullptr;
+		return std::wstring();
 
-	unsigned int bufferSize = utf8::distance(m_sharedString->string, &m_sharedString->string[m_sharedString->size]);
-	if (bufferSize == 0)
-		return nullptr;
+	std::wstring str;
+	str.reserve(m_sharedString->size);
 
-	wchar_t* buffer = new wchar_t[bufferSize+1];
 	if (sizeof(wchar_t) == 4) // Je veux du static_if :(
-		utf8::utf8to32(m_sharedString->string, &m_sharedString->string[m_sharedString->size], buffer);
+		utf8::utf8to32(begin(), end(), std::back_inserter(str));
 	else
 	{
-		wchar_t* ptr = buffer;
-
 		utf8::unchecked::iterator<const char*> it(m_sharedString->string);
 		do
 		{
 			char32_t cp = *it;
 			if (cp <= 0xFFFF && (cp < 0xD800 || cp > 0xDFFF)) // @Laurent Gomila
-				*ptr++ = static_cast<wchar_t>(cp);
+				str.push_back(static_cast<wchar_t>(cp));
 			else
-				*ptr++ = L'?';
+				str.push_back(L'?');
 		}
 		while (*it++);
 	}
 
-	if (size)
-		*size = bufferSize;
-
-	return buffer;
+	return str;
 }
 
 NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
@@ -3162,7 +3129,7 @@ NzString NzString::SubStringFrom(char character, int startPos, bool fromLast, bo
 	else
 		pos = Find(character, startPos, flags);
 
-	if (pos == 0 and include)
+	if (pos == 0 && include)
 		return *this;
 	else if (pos == npos)
 		return NzString();

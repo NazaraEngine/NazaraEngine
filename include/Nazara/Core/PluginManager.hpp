@@ -13,6 +13,8 @@
 #include <set>
 #include <unordered_map>
 
+///TODO: Révision
+
 class NzDynLib;
 
 class NAZARA_API NzPluginManager

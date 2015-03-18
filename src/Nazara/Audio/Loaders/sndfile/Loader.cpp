@@ -88,6 +88,7 @@ namespace
 
 			nzAudioFormat GetFormat() const
 			{
+				// Nous avons besoin du nombre de canaux d'origine pour convertir en mono, nous trichons donc un peu...
 				if (m_mixToMono)
 					return nzAudioFormat_Mono;
 				else
@@ -106,14 +107,16 @@ namespace
 
 			bool Open(const NzString& filePath, bool forceMono)
 			{
+				// Nous devons gérer nous-même le flux car il doit rester ouvert après le passage du loader
+				// (les flux automatiquement ouverts par le ResourceLoader étant fermés après celui-ci)
 				std::unique_ptr<NzFile> file(new NzFile);
 				if (!file->Open(filePath, NzFile::ReadOnly))
 				{
 					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
 				}
-				m_ownedStream = std::move(file);
 
+				m_ownedStream = std::move(file);
 				return Open(*m_ownedStream, forceMono);
 			}
 
@@ -126,7 +129,7 @@ namespace
 			bool Open(NzInputStream& stream, bool forceMono)
 			{
 				SF_INFO infos;
-				infos.format = 0;
+				infos.format = 0; // Format inconnu
 
 				m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
 				if (!m_handle)
@@ -135,6 +138,7 @@ namespace
 					return false;
 				}
 
+				// Un peu de RAII
 				NzCallOnExit onExit([this]
 				{
 					sf_close(m_handle);
@@ -151,6 +155,7 @@ namespace
 				m_sampleCount = infos.channels*infos.frames;
 				m_sampleRate = infos.samplerate;
 
+				// Durée de la musique (s) = samples / channels*rate
 				m_duration = 1000*m_sampleCount / (m_format*m_sampleRate);
 
 				// https://github.com/LaurentGomila/SFML/issues/271
@@ -159,6 +164,7 @@ namespace
 				if (infos.format & SF_FORMAT_VORBIS)
 					sf_command(m_handle, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
+				// On mixera en mono lors de la lecture
 				if (forceMono && m_format != nzAudioFormat_Mono)
 				{
 					m_mixToMono = true;
@@ -174,8 +180,10 @@ namespace
 
 			unsigned int Read(void* buffer, unsigned int sampleCount)
 			{
+				// Si la musique a été demandée en mono, nous devons la convertir à la volée lors de la lecture
 				if (m_mixToMono)
 				{
+					// On garde un buffer sur le côté pour éviter la réallocation
 					m_mixBuffer.resize(m_format*sampleCount);
 					unsigned int readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format*sampleCount);
 					NzMixToMono(m_mixBuffer.data(), static_cast<nzInt16*>(buffer), m_format, sampleCount);
@@ -217,8 +225,9 @@ namespace
 		NazaraUnused(parameters);
 
 		SF_INFO info;
-		info.format = 0;
+		info.format = 0; // Format inconnu
 
+		// Si on peut ouvrir le flux, c'est qu'il est dans un format compatible
 		SNDFILE* file = sf_open_virtual(&callbacks, SFM_READ, &info, &stream);
 		if (file)
 		{
@@ -231,8 +240,6 @@ namespace
 
 	bool LoadMusicFile(NzMusic* music, const NzString& filePath, const NzMusicParams& parameters)
 	{
-		NazaraUnused(parameters);
-
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
 		if (!musicStream->Open(filePath, parameters.forceMono))
 		{
@@ -240,12 +247,13 @@ namespace
 			return false;
 		}
 
-		if (!music->Create(musicStream.get()))
+		if (!music->Create(musicStream.get())) // Transfert de propriété
 		{
 			NazaraError("Failed to create music");
 			return false;
 		}
 
+		// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
 		musicStream.release();
 
 		return true;
@@ -253,8 +261,6 @@ namespace
 
 	bool LoadMusicMemory(NzMusic* music, const void* data, std::size_t size, const NzMusicParams& parameters)
 	{
-		NazaraUnused(parameters);
-
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
 		if (!musicStream->Open(data, size, parameters.forceMono))
 		{
@@ -262,12 +268,13 @@ namespace
 			return false;
 		}
 
-		if (!music->Create(musicStream.get()))
+		if (!music->Create(musicStream.get())) // Transfert de propriété
 		{
 			NazaraError("Failed to create music");
 			return false;
 		}
 
+		// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
 		musicStream.release();
 
 		return true;
@@ -275,8 +282,6 @@ namespace
 
 	bool LoadMusicStream(NzMusic* music, NzInputStream& stream, const NzMusicParams& parameters)
 	{
-		NazaraUnused(parameters);
-
 		std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
 		if (!musicStream->Open(stream, parameters.forceMono))
 		{
@@ -284,12 +289,13 @@ namespace
 			return false;
 		}
 
-		if (!music->Create(musicStream.get()))
+		if (!music->Create(musicStream.get())) // Transfert de propriété
 		{
 			NazaraError("Failed to create music");
 			return false;
 		}
 
+		// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
 		musicStream.release();
 
 		return true;
@@ -314,8 +320,6 @@ namespace
 
 	bool LoadSoundBuffer(NzSoundBuffer* soundBuffer, NzInputStream& stream, const NzSoundBufferParams& parameters)
 	{
-		NazaraUnused(parameters);
-
 		SF_INFO info;
 		info.format = 0;
 
@@ -326,7 +330,13 @@ namespace
 			return false;
 		}
 
-		NzCallOnExit onExit([file] { sf_close(file); });
+		// Lynix utilise RAII...
+		// C'est très efficace !
+		// MemoryLeak est confus...
+		NzCallOnExit onExit([file]
+		{
+			sf_close(file);
+		});
 
 		nzAudioFormat format = NzAudio::GetAudioFormat(info.channels);
 		if (format == nzAudioFormat_Unknown)
@@ -341,7 +351,7 @@ namespace
 		if (info.format & SF_FORMAT_VORBIS)
 			sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
-		sf_count_t sampleCount = info.frames * info.channels;
+		unsigned int sampleCount = static_cast<unsigned int>(info.frames * info.channels);
 		std::unique_ptr<nzInt16[]> samples(new nzInt16[sampleCount]);
 
 		if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
@@ -350,17 +360,17 @@ namespace
 			return false;
 		}
 
+		// Une conversion en mono est-elle nécessaire ?
 		if (parameters.forceMono && format != nzAudioFormat_Mono)
 		{
-			std::unique_ptr<nzInt16[]> monoSamples(new nzInt16[info.frames]);
-			NzMixToMono(samples.get(), monoSamples.get(), info.channels, info.frames);
+			// Nous effectuons la conversion en mono dans le même buffer (il va de toute façon être copié)
+			NzMixToMono(samples.get(), samples.get(), static_cast<unsigned int>(info.channels), static_cast<unsigned int>(info.frames));
 
 			format = nzAudioFormat_Mono;
-			samples = std::move(monoSamples);
-			sampleCount = info.frames;
+			sampleCount = static_cast<unsigned int>(info.frames);
 		}
 
-		if (!soundBuffer->Create(format, static_cast<unsigned int>(sampleCount), info.samplerate, samples.get()))
+		if (!soundBuffer->Create(format, sampleCount, info.samplerate, samples.get()))
 		{
 			NazaraError("Failed to create sound buffer");
 			return false;
