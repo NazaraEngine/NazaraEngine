@@ -14,6 +14,8 @@
 class NAZARA_API NzHardwareInfo
 {
 	public:
+		static void Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4]);
+
 		static NzString GetProcessorBrandString();
 		static unsigned int GetProcessorCount();
 		static nzProcessorVendor GetProcessorVendor();
@@ -23,6 +25,7 @@ class NAZARA_API NzHardwareInfo
 
 		static bool Initialize();
 
+		static bool IsCpuidSupported();
 		static bool IsInitialized();
 
 		static void Uninitialize();

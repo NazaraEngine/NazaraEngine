@@ -8,6 +8,8 @@
 
 #include <Nazara/Core/Debug.hpp>
 
+///TODO: Améliorer l'implémentation de UnpackTuple
+
 template<unsigned int N>
 struct NzImplTupleUnpack
 {
@@ -27,6 +29,23 @@ struct NzImplTupleUnpack<0>
 		func(args...);
 	}
 };
+
+// Algorithme venant de CityHash par Google
+// http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
+template<typename T>
+void NzHashCombine(std::size_t& seed, const T& v)
+{
+    const nzUInt64 kMul = 0x9ddfea08eb382d69ULL;
+
+    std::hash<T> hasher;
+    nzUInt64 a = (hasher(v) ^ seed) * kMul;
+    a ^= (a >> 47);
+
+    nzUInt64 b = (seed ^ a) * kMul;
+    b ^= (b >> 47);
+
+    seed = static_cast<std::size_t>(b * kMul);
+}
 
 template<typename F, typename... ArgsT>
 void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)

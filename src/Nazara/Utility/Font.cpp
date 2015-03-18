@@ -253,9 +253,9 @@ bool NzFont::Precache(unsigned int characterSize, nzUInt32 style, char32_t chara
 
 bool NzFont::Precache(unsigned int characterSize, nzUInt32 style, const NzString& characterSet) const
 {
-	unsigned int size;
-	std::unique_ptr<char32_t[]> characters(characterSet.GetUtf32Buffer(&size));
-	if (!characters)
+	///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
+	std::u32string set = characterSet.GetUtf32String();
+	if (set.empty())
 	{
 		NazaraError("Invalid character set");
 		return false;
@@ -263,8 +263,8 @@ bool NzFont::Precache(unsigned int characterSize, nzUInt32 style, const NzString
 
 	nzUInt64 key = ComputeKey(characterSize, style);
 	auto& glyphMap = m_glyphes[key];
-	for (unsigned int i = 0; i < size; ++i)
-		PrecacheGlyph(glyphMap, characterSize, style, characters[i]);
+	for (char32_t character : set)
+		PrecacheGlyph(glyphMap, characterSize, style, character);
 
 	return true;
 }

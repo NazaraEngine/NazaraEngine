@@ -11,6 +11,7 @@
 
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
@@ -22,7 +23,6 @@
 #if NAZARA_UTILITY_THREADED_WINDOW
 class NzConditionVariable;
 class NzMutex;
-class NzThread;
 #endif
 class NzWindow;
 
@@ -95,7 +95,7 @@ class NzWindowImpl : NzNonCopyable
 		NzVector2i m_position;
 		NzVector2ui m_size;
 		#if NAZARA_UTILITY_THREADED_WINDOW
-		NzThread* m_thread;
+		NzThread m_thread;
 		#endif
 		NzWindow* m_parent;
 		bool m_eventListener;

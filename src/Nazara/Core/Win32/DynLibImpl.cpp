@@ -30,9 +30,7 @@ bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
 	if (!path.EndsWith(".dll"))
 		path += ".dll";
 
-	std::unique_ptr<wchar_t[]> wPath(path.GetWideBuffer());
-	m_handle = LoadLibraryExW(wPath.get(), nullptr, (NzFile::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
-
+	m_handle = LoadLibraryExW(path.GetWideString().data(), nullptr, (NzFile::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
 	if (m_handle)
 		return true;
 	else
