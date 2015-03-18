@@ -373,7 +373,7 @@ void NzTextSprite::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 	#endif
 
 	// L'atlas a été libéré alors que le TextSprite l'utilisait encore, notre seule option (pour éviter un crash) est de nous réinitialiser
-	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " that was under use has been released");
+	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " has been released");
 	Clear();
 }
 
