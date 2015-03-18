@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Win32/IconImpl.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 bool NzIconImpl::Create(const NzImage& icon)

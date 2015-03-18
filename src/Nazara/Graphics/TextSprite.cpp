@@ -333,6 +333,7 @@ bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 	NzTexture* oldTexture = static_cast<NzTexture*>(oldLayer);
 	NzTexture* newTexture = static_cast<NzTexture*>(newLayer);
 
+	// Il est possible que nous n'utilisions pas la texture en question (l'atlas nous prévenant pour chacun de ses layers)
 	auto it = m_renderInfos.find(oldTexture);
 	if (it != m_renderInfos.end())
 	{
@@ -343,7 +344,7 @@ bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 		NzVector2ui newSize(newTexture->GetSize());
 		NzVector2f scale = NzVector2f(oldSize)/NzVector2f(newSize); // ratio ancienne et nouvelle taille
 
-		// On va maintenant parcourir toutes les coordonnées de texture pour les multiplier par ce ratio
+		// On va maintenant parcourir toutes les coordonnées de texture concernées pour les multiplier par ce ratio
 		NzSparsePtr<NzVector2f> texCoordPtr(&m_vertices[indices.first].uv, sizeof(NzVertexStruct_XYZ_Color_UV));
 		for (unsigned int i = 0; i < indices.count; ++i)
 		{
@@ -372,7 +373,7 @@ void NzTextSprite::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
 	#endif
 
 	// L'atlas a été libéré alors que le TextSprite l'utilisait encore, notre seule option (pour éviter un crash) est de nous réinitialiser
-	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " that was under use has been released");
+	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " has been released");
 	Clear();
 }
 

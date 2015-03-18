@@ -38,8 +38,8 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void CheckAny(int index) const;
 		bool CheckBoolean(int index) const;
 		bool CheckBoolean(int index, bool defValue) const;
-		int CheckInteger(int index) const;
-		int CheckInteger(int index, int defValue) const;
+		long long CheckInteger(int index) const;
+		long long CheckInteger(int index, long long defValue) const;
 		double CheckNumber(int index) const;
 		double CheckNumber(int index, double defValue) const;
 		void CheckStack(int space, const char* error = nullptr) const;
@@ -47,8 +47,6 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		const char* CheckString(int index, std::size_t* length = nullptr) const;
 		const char* CheckString(int index, const char* defValue, std::size_t* length = nullptr) const;
 		void CheckType(int index, nzLuaType type) const;
-		unsigned int CheckUnsigned(int index) const;
-		unsigned int CheckUnsigned(int index, unsigned int defValue) const;
 		void* CheckUserdata(int index, const char* tname) const;
 		void* CheckUserdata(int index, const NzString& tname) const;
 
@@ -71,19 +69,19 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		bool ExecuteFromStream(NzInputStream& stream);
 
 		int GetAbsIndex(int index) const;
-		void GetField(const char* fieldName, int index = -1) const;
-		void GetField(const NzString& fieldName, int index = -1) const;
-		void GetGlobal(const char* name) const;
-		void GetGlobal(const NzString& name) const;
+		nzLuaType GetField(const char* fieldName, int index = -1) const;
+		nzLuaType GetField(const NzString& fieldName, int index = -1) const;
+		nzLuaType GetGlobal(const char* name) const;
+		nzLuaType GetGlobal(const NzString& name) const;
 		lua_State* GetInternalState() const;
 		NzString GetLastError() const;
 		nzUInt32 GetMemoryLimit() const;
 		nzUInt32 GetMemoryUsage() const;
-		void GetMetatable(const char* tname) const;
-		void GetMetatable(const NzString& tname) const;
+		nzLuaType GetMetatable(const char* tname) const;
+		nzLuaType GetMetatable(const NzString& tname) const;
 		bool GetMetatable(int index) const;
 		unsigned int GetStackTop() const;
-		void GetTable(int index = -2) const;
+		nzLuaType GetTable(int index = -2) const;
 		nzUInt32 GetTimeLimit() const;
 		nzLuaType GetType(int index) const;
 		const char* GetTypeName(nzLuaType type) const;
@@ -108,7 +106,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void PushBoolean(bool value);
 		void PushCFunction(NzLuaCFunction func, int upvalueCount = 0);
 		void PushFunction(NzLuaFunction func);
-		void PushInteger(int value);
+		void PushInteger(long long value);
 		void PushLightUserdata(void* value);
 		void PushMetatable(const char* str);
 		void PushMetatable(const NzString& str);
@@ -118,7 +116,6 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void PushString(const char* str);
 		void PushString(const NzString& str);
 		void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
-		void PushUnsigned(unsigned int value);
 		void* PushUserdata(unsigned int size);
 		void PushValue(int index);
 
@@ -137,11 +134,10 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		void SetTimeLimit(nzUInt32 timeLimit);
 
 		bool ToBoolean(int index) const;
-		int ToInteger(int index, bool* succeeded = nullptr) const;
+		long long ToInteger(int index, bool* succeeded = nullptr) const;
 		double ToNumber(int index, bool* succeeded = nullptr) const;
 		const void* ToPointer(int index) const;
 		const char* ToString(int index, std::size_t* length = nullptr) const;
-		unsigned int ToUnsigned(int index, bool* succeeded = nullptr) const;
 		void* ToUserdata(int index) const;
 		void* ToUserdata(int index, const char* tname) const;
 		void* ToUserdata(int index, const NzString& tname) const;
