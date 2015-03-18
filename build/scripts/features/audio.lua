@@ -72,7 +72,7 @@ return {
 			Progress = 0
 		},
 		{
-			Title = "Environnement (EAX)",
+			Title = "Environnement (EFX)",
 			Description = "Prise en charge de l'environnement",
 			Progress = 0
 		},
