@@ -87,7 +87,7 @@ tbody tr:hover
 {
 	font-size: x-large;
 	font-weight: bold;
-	text-shadow: 2px 2px 10px white;
+	text-shadow: 2px 2px 10px #007ACC;
 }
 
 .note
