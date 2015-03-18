@@ -13,8 +13,10 @@ m_targetRegion(0.f, 0.f, 1.f, 1.f),
 m_size(0.f),
 m_target(nullptr),
 m_frustumUpdated(false),
+m_invViewProjMatrixUpdated(false),
 m_projectionMatrixUpdated(false),
 m_viewMatrixUpdated(false),
+m_viewProjMatrixUpdated(false),
 m_viewportUpdated(false),
 m_zFar(1.f),
 m_zNear(-1.f)
@@ -95,6 +97,14 @@ NzVector3f NzView::GetGlobalUp() const
 	return -NzVector3f::UnitY();
 }
 
+const NzMatrix4f& NzView::GetInvViewProjMatrix() const
+{
+	if (!m_invViewProjMatrixUpdated)
+		UpdateInvViewProjMatrix();
+
+	return m_invViewProjMatrix;
+}
+
 const NzMatrix4f& NzView::GetProjectionMatrix() const
 {
 	if (!m_projectionMatrixUpdated)
@@ -121,6 +131,14 @@ const NzMatrix4f& NzView::GetViewMatrix() const
 	return m_viewMatrix;
 }
 
+const NzMatrix4f& NzView::GetViewProjMatrix() const
+{
+	if (!m_viewProjMatrixUpdated)
+		UpdateViewProjMatrix();
+
+	return m_viewProjMatrix;
+}
+
 const NzRecti& NzView::GetViewport() const
 {
 	#if NAZARA_GRAPHICS_SAFE
@@ -145,6 +163,44 @@ float NzView::GetZFar() const
 float NzView::GetZNear() const
 {
 	return m_zNear;
+}
+
+NzVector2i NzView::MapWorldToPixel(const NzVector2f& coords)
+{
+	if (!m_viewProjMatrixUpdated)
+		UpdateViewProjMatrix();
+
+	if (!m_viewportUpdated)
+		UpdateViewport();
+
+	// Conversion du viewport en flottant
+	NzRectf viewport(m_viewport);
+
+	NzVector2f normalized = m_viewProjMatrix.Transform(coords);
+
+	NzVector2i pixel;
+	pixel.x = static_cast<int>(( normalized.x + 1.f) * viewport.width / 2.f + viewport.x);
+	pixel.y = static_cast<int>((-normalized.y + 1.f) * viewport.width / 2.f + viewport.y);
+
+	return pixel;
+}
+
+NzVector2f NzView::MapPixelToWorld(const NzVector2i& pixel)
+{
+	if (!m_invViewProjMatrixUpdated)
+		UpdateInvViewProjMatrix();
+
+	if (!m_viewportUpdated)
+		UpdateViewport();
+
+	// Conversion du viewport en flottant
+	NzRectf viewport(m_viewport);
+
+	NzVector2f normalized;
+	normalized.x = -1.f + 2.f * (pixel.x - viewport.x) / viewport.width;
+	normalized.y =  1.f - 2.f * (pixel.y - viewport.y) / viewport.height;
+
+	return m_invViewProjMatrix.Transform(normalized);
 }
 
 void NzView::SetSize(const NzVector2f& size)
@@ -178,7 +234,9 @@ void NzView::SetTargetRegion(const NzRectf& region)
 	m_targetRegion = region;
 
 	m_frustumUpdated = false;
+	m_invViewProjMatrixUpdated = false;
 	m_projectionMatrixUpdated = false;
+	m_viewProjMatrixUpdated = false;
 	m_viewportUpdated = false;
 }
 
@@ -204,7 +262,9 @@ void NzView::SetZFar(float zFar)
 	m_zFar = zFar;
 
 	m_frustumUpdated = false;
+	m_invViewProjMatrixUpdated = false;
 	m_projectionMatrixUpdated = false;
+	m_viewProjMatrixUpdated = false;
 }
 
 void NzView::SetZNear(float zNear)
@@ -212,7 +272,9 @@ void NzView::SetZNear(float zNear)
 	m_zNear = zNear;
 
 	m_frustumUpdated = false;
+	m_invViewProjMatrixUpdated = false;
 	m_projectionMatrixUpdated = false;
+	m_viewProjMatrixUpdated = false;
 }
 
 void NzView::ApplyView() const
@@ -246,7 +308,9 @@ void NzView::InvalidateNode()
 
 	// Le frustum et la view matrix dépendent des paramètres du node, invalidons-les
 	m_frustumUpdated = false;
+	m_invViewProjMatrixUpdated = false;
 	m_viewMatrixUpdated = false;
+	m_viewProjMatrixUpdated = false;
 }
 
 void NzView::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
@@ -287,6 +351,15 @@ void NzView::UpdateFrustum() const
 	m_frustumUpdated = true;
 }
 
+void NzView::UpdateInvViewProjMatrix() const
+{
+	if (!m_viewProjMatrixUpdated)
+		UpdateViewProjMatrix();
+
+	m_viewProjMatrix.GetInverseAffine(&m_invViewProjMatrix);
+	m_invViewProjMatrixUpdated = true;
+}
+
 void NzView::UpdateProjectionMatrix() const
 {
 	if (m_size.x <= 0.f || m_size.y <= 0.f) // Si la taille est nulle, on prendra la taille du viewport
@@ -309,6 +382,19 @@ void NzView::UpdateViewMatrix() const
 
 	m_viewMatrix.MakeViewMatrix(m_derivedPosition, m_derivedRotation);
 	m_viewMatrixUpdated = true;
+}
+
+void NzView::UpdateViewProjMatrix() const
+{
+	if (!m_projectionMatrixUpdated)
+		UpdateProjectionMatrix();
+
+	if (!m_viewMatrixUpdated)
+		UpdateViewMatrix();
+
+	// La matrice de projection orthogonale est affine
+	m_viewProjMatrix = NzMatrix4f::ConcatenateAffine(m_viewMatrix, m_projectionMatrix);
+	m_viewProjMatrixUpdated = true;
 }
 
 void NzView::UpdateViewport() const
