@@ -113,6 +113,11 @@ const NzMatrix4f& NzView::GetProjectionMatrix() const
 	return m_projectionMatrix;
 }
 
+const NzVector2f& NzView::GetSize() const
+{
+	return m_size;
+}
+
 const NzRenderTarget* NzView::GetTarget() const
 {
 	return m_target;

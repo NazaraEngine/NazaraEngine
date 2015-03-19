@@ -1,4 +1,4 @@
-// This file was automatically generated on 18 Mar 2015 at 20:51:14
+// This file was automatically generated on 19 Mar 2015 at 13:11:33
 
 /*
 	Nazara Engine - Renderer module
@@ -51,5 +51,7 @@
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
+#include <Nazara/Renderer/UberShaderPUniform.hpp>
+#include <Nazara/Renderer/UberShaderPUSubroutine.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP
