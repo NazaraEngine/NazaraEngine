@@ -42,6 +42,11 @@ nzUInt32 NzSimpleTextDrawer::GetStyle() const
 	return m_style;
 }
 
+const NzString& NzSimpleTextDrawer::GetText() const
+{
+	return m_text;
+}
+
 void NzSimpleTextDrawer::SetCharacterSize(unsigned int characterSize)
 {
 	m_characterSize = characterSize;
