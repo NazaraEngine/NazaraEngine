@@ -26,6 +26,7 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzObjectListe
 		const NzColor& GetColor() const;
 		NzFont* GetFont() const;
 		nzUInt32 GetStyle() const;
+		const NzString& GetText() const;
 
 		void SetCharacterSize(unsigned int characterSize);
 		void SetColor(const NzColor& color);
