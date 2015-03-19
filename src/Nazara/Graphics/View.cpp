@@ -170,6 +170,24 @@ float NzView::GetZNear() const
 	return m_zNear;
 }
 
+NzVector2f NzView::MapPixelToWorld(const NzVector2i& pixel)
+{
+	if (!m_invViewProjMatrixUpdated)
+		UpdateInvViewProjMatrix();
+
+	if (!m_viewportUpdated)
+		UpdateViewport();
+
+	// Conversion du viewport en flottant
+	NzRectf viewport(m_viewport);
+
+	NzVector2f normalized;
+	normalized.x = -1.f + 2.f * (pixel.x - viewport.x) / viewport.width;
+	normalized.y =  1.f - 2.f * (pixel.y - viewport.y) / viewport.height;
+
+	return m_invViewProjMatrix.Transform(normalized);
+}
+
 NzVector2i NzView::MapWorldToPixel(const NzVector2f& coords)
 {
 	if (!m_viewProjMatrixUpdated)
@@ -188,24 +206,6 @@ NzVector2i NzView::MapWorldToPixel(const NzVector2f& coords)
 	pixel.y = static_cast<int>((-normalized.y + 1.f) * viewport.width / 2.f + viewport.y);
 
 	return pixel;
-}
-
-NzVector2f NzView::MapPixelToWorld(const NzVector2i& pixel)
-{
-	if (!m_invViewProjMatrixUpdated)
-		UpdateInvViewProjMatrix();
-
-	if (!m_viewportUpdated)
-		UpdateViewport();
-
-	// Conversion du viewport en flottant
-	NzRectf viewport(m_viewport);
-
-	NzVector2f normalized;
-	normalized.x = -1.f + 2.f * (pixel.x - viewport.x) / viewport.width;
-	normalized.y =  1.f - 2.f * (pixel.y - viewport.y) / viewport.height;
-
-	return m_invViewProjMatrix.Transform(normalized);
 }
 
 void NzView::SetSize(const NzVector2f& size)
