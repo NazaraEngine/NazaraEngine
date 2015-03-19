@@ -50,8 +50,8 @@ NzRect<T>::NzRect(const NzRect<U>& rect)
 template<typename T>
 bool NzRect<T>::Contains(T X, T Y) const
 {
-	return X >= x && X < x+width &&
-	       Y >= y && Y < y+height;
+	return X >= x && X <= x+width &&
+	       Y >= y && Y <= y+height;
 }
 
 template<typename T>
