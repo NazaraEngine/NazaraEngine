@@ -56,9 +56,9 @@ NzBox<T>::NzBox(const NzBox<U>& box)
 template<typename T>
 bool NzBox<T>::Contains(T X, T Y, T Z) const
 {
-	return X >= x && X < x+width &&
-	       Y >= y && Y < y+height &&
-	       Z >= z && Z < z+depth;
+	return X >= x && X <= x+width &&
+	       Y >= y && Y <= y+height &&
+	       Z >= z && Z <= z+depth;
 }
 
 template<typename T>
