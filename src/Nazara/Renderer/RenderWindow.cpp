@@ -13,8 +13,6 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-///TODO: Améliorer les méthode CopyTo*
-
 NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
 	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
@@ -33,7 +31,7 @@ NzRenderWindow::~NzRenderWindow()
 	OnWindowDestroy();
 }
 
-bool NzRenderWindow::CopyToImage(NzImage* image) const
+bool NzRenderWindow::CopyToImage(NzAbstractImage* image, const NzVector3ui& dstPos) const
 {
 	#if NAZARA_RENDERER_SAFE
 	if (!m_context)
@@ -41,63 +39,47 @@ bool NzRenderWindow::CopyToImage(NzImage* image) const
 		NazaraError("Window has not been created");
 		return false;
 	}
+	#endif
 
+	return CopyToImage(image, NzRectui(NzVector2ui(0U), GetSize()));
+}
+
+bool NzRenderWindow::CopyToImage(NzAbstractImage* image, const NzRectui& rect, const NzVector3ui& dstPos) const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_context)
+	{
+		NazaraError("Window has not been created");
+		return false;
+	}
+	#endif
+
+	NzVector2ui windowSize = GetSize();
+
+	#if NAZARA_RENDERER_SAFE
 	if (!image)
 	{
 		NazaraError("Image must be valid");
 		return false;
 	}
-	#endif
 
-	const NzContext* currentContext = NzContext::GetCurrent();
-	if (m_context != currentContext)
+	if (image->GetFormat() != nzPixelFormat_RGBA8)
 	{
-		if (!m_context->SetActive(true))
-		{
-			NazaraError("Failed to activate context");
-			return false;
-		}
-	}
-
-	NzVector2ui size = GetSize();
-
-	if (!image->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1))
-	{
-		NazaraError("Failed to create image");
+		// Pour plus de facilité, évidemment on peut faire sauter cette règle avec un peu de gestion
+		NazaraError("Image must be RGBA8-formatted");
 		return false;
 	}
 
-	nzUInt8* pixels = image->GetPixels();
-	glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-	image->FlipVertically();
-
-	if (m_context != currentContext)
+	if (rect.x + rect.width > windowSize.x || rect.y + rect.height > windowSize.y)
 	{
-		if (currentContext)
-		{
-			if (!currentContext->SetActive(true))
-				NazaraWarning("Failed to reset current context");
-		}
-		else
-			m_context->SetActive(false);
-	}
-
-	return true;
-}
-
-bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!m_context)
-	{
-		NazaraError("Window has not been created");
+		NazaraError("Rectangle dimensions are out of window's bounds");
 		return false;
 	}
 
-	if (!texture)
+	NzVector3ui imageSize = image->GetSize();
+	if (dstPos.x + rect.width > imageSize.x || dstPos.y + rect.height > imageSize.y || dstPos.z > imageSize.z)
 	{
-		NazaraError("Texture must be valid");
+		NazaraError("Cube dimensions are out of image's bounds");
 		return false;
 	}
 	#endif
@@ -112,22 +94,21 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 		}
 	}
 
-	NzVector2ui size = GetSize();
+	///TODO: Fast-path pour les images en cas de copie du buffer entier
 
-	if (!texture->Create(nzImageType_2D, nzPixelFormat_RGBA8, size.x, size.y, 1, 1))
-	{
-		NazaraError("Failed to create texture");
-		return false;
-	}
+	m_buffer.resize(rect.width*rect.height*4);
+	glReadPixels(rect.x, windowSize.y - rect.height - rect.y, rect.width, rect.height, GL_RGBA, GL_UNSIGNED_BYTE, m_buffer.data());
 
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, size.x, size.y);
+	// Les pixels sont retournés, nous devons envoyer les pixels par rangée
+	for (unsigned int i = 0; i < rect.height; ++i)
+		image->Update(&m_buffer[rect.width*4*i], NzBoxui(dstPos.x, rect.height - i - 1, dstPos.z, rect.width, 1, 1), rect.width);
 
 	if (m_context != currentContext)
 	{
 		if (currentContext)
 		{
 			if (!currentContext->SetActive(true))
-				NazaraWarning("Failed to reset current context");
+				NazaraWarning("Failed to reset old context");
 		}
 		else
 			m_context->SetActive(false);
@@ -135,6 +116,7 @@ bool NzRenderWindow::CopyToTexture(NzTexture* texture) const
 
 	return true;
 }
+
 
 bool NzRenderWindow::Create(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
 {
