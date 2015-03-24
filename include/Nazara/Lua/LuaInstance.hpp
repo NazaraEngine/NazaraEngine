@@ -35,6 +35,9 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		int ArgError(unsigned int argNum, const char* error);
 		int ArgError(unsigned int argNum, const NzString& error);
 
+		bool Call(unsigned int argCount);
+		bool Call(unsigned int argCount, unsigned int resultCount);
+
 		void CheckAny(int index) const;
 		bool CheckBoolean(int index) const;
 		bool CheckBoolean(int index, bool defValue) const;

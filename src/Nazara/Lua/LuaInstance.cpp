@@ -159,6 +159,16 @@ int NzLuaInstance::ArgError(unsigned int argNum, const NzString& error)
 	return luaL_argerror(m_state, argNum, error.GetConstBuffer());
 }
 
+bool NzLuaInstance::Call(unsigned int argCount)
+{
+	return lua_pcall(m_state, argCount, LUA_MULTRET, 0) == LUA_OK;
+}
+
+bool NzLuaInstance::Call(unsigned int argCount, unsigned int resultCount)
+{
+	return lua_pcall(m_state, argCount, resultCount, 0) == LUA_OK;
+}
+
 void NzLuaInstance::CheckAny(int index) const
 {
 	luaL_checkany(m_state, index);
