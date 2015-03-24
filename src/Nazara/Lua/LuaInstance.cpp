@@ -95,13 +95,20 @@ namespace
 	static_assert(sizeof(s_comparisons)/sizeof(int) == nzLuaComparison_Max+1, "Lua comparison array is incomplete");
 
 	int s_operations[] = {
-		LUA_OPADD, // nzLuaOperation_Addition
-		LUA_OPDIV, // nzLuaOperation_Division
-		LUA_OPPOW, // nzLuaOperation_Exponentiation
-		LUA_OPMOD, // nzLuaOperation_Modulo
-		LUA_OPMUL, // nzLuaOperation_Multiplication
-		LUA_OPUNM, // nzLuaOperation_Negation
-		LUA_OPSUB  // nzLuaOperation_Substraction
+		LUA_OPADD,  // nzLuaOperation_Addition
+		LUA_OPBAND, // nzLuaOperation_BitwiseAnd
+		LUA_OPSHL,  // nzLuaOperation_BitwiseLeftShift
+		LUA_OPBNOT, // nzLuaOperation_BitwiseNot
+		LUA_OPBOR,  // nzLuaOperation_BitwiseOr
+		LUA_OPSHR,  // nzLuaOperation_BitwiseRightShift
+		LUA_OPBXOR, // nzLuaOperation_BitwiseXOr
+		LUA_OPDIV,  // nzLuaOperation_Division
+		LUA_OPPOW,  // nzLuaOperation_Exponentiation
+		LUA_OPIDIV, // nzLuaOperation_FloorDivision
+		LUA_OPMUL,  // nzLuaOperation_Multiplication
+		LUA_OPMOD,  // nzLuaOperation_Modulo
+		LUA_OPUNM,  // nzLuaOperation_Negation
+		LUA_OPSUB   // nzLuaOperation_Substraction
 	};
 
 	static_assert(sizeof(s_operations)/sizeof(int) == nzLuaOperation_Max+1, "Lua operation array is incomplete");

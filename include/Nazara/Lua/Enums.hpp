@@ -19,8 +19,15 @@ enum nzLuaComparison
 enum nzLuaOperation
 {
 	nzLuaOperation_Addition,
+	nzLuaOperation_BitwiseAnd,
+	nzLuaOperation_BitwiseLeftShift,
+	nzLuaOperation_BitwiseNot,
+	nzLuaOperation_BitwiseOr,
+	nzLuaOperation_BitwideRightShift,
+	nzLuaOperation_BitwiseXOr,
 	nzLuaOperation_Division,
 	nzLuaOperation_Exponentiation,
+	nzLuaOperation_FloorDivision,
 	nzLuaOperation_Modulo,
 	nzLuaOperation_Multiplication,
 	nzLuaOperation_Negation,
