@@ -149,7 +149,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		static NzLuaInstance* GetInstance(lua_State* state);
 
 	private:
-		bool Run();
+		bool Run(int argCount, int resultCount);
 
 		static void* MemoryAllocator(void *ud, void *ptr, std::size_t osize, std::size_t nsize);
 		static int ProxyFunc(lua_State* state);
