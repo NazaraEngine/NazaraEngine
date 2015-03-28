@@ -168,12 +168,12 @@ int NzLuaInstance::ArgError(unsigned int argNum, const NzString& error)
 
 bool NzLuaInstance::Call(unsigned int argCount)
 {
-	return lua_pcall(m_state, argCount, LUA_MULTRET, 0) == LUA_OK;
+	return Run(argCount, LUA_MULTRET);
 }
 
 bool NzLuaInstance::Call(unsigned int argCount, unsigned int resultCount)
 {
-	return lua_pcall(m_state, argCount, resultCount, 0) == LUA_OK;
+	return Run(argCount, resultCount);
 }
 
 void NzLuaInstance::CheckAny(int index) const
@@ -387,7 +387,7 @@ bool NzLuaInstance::Execute(const NzString& code)
 		return false;
 	}
 
-	return Run();
+	return Run(0, 0);
 }
 
 bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
@@ -433,7 +433,7 @@ bool NzLuaInstance::ExecuteFromStream(NzInputStream& stream)
 		return false;
 	}
 
-	return Run();
+	return Run(0, 0);
 }
 
 int NzLuaInstance::GetAbsIndex(int index) const
@@ -830,12 +830,12 @@ NzLuaInstance* NzLuaInstance::GetInstance(lua_State* state)
 	return instance;
 }
 
-bool NzLuaInstance::Run()
+bool NzLuaInstance::Run(int argCount, int resultCount)
 {
 	if (m_level++ == 0)
 		m_clock.Restart();
 
-	int status = lua_pcall(m_state, 0, 0, 0);
+	int status = lua_pcall(m_state, argCount, resultCount, 0);
 
 	m_level--;
 
