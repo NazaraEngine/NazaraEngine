@@ -68,6 +68,7 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzObjectListener, NzNo
 	private:
 		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
 		void UpdateDrawBuffers() const;
+		void UpdateSize() const;
 		void UpdateTargets() const;
 
 		NzRenderTextureImpl* m_impl = nullptr;
