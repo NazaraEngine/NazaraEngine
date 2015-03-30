@@ -116,10 +116,8 @@ namespace Ndk
 			// Aucun intérêt de traiter une entité n'existant plus
 			if (entity.IsValid())
 			{
-				for (auto& systemPair : m_systems)
+				for (auto& system : m_systems)
 				{
-					BaseSystem* system = systemPair.second.get();
-
 					// L'entité est-elle enregistrée comme faisant partie du système ?
 					bool partOfSystem = system->HasEntity(&entity);
 					if (system->Filters(&entity))

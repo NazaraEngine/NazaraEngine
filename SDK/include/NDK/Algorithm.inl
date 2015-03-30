@@ -8,38 +8,26 @@ namespace Ndk
 {
 	///TODO: constexpr avec le C++14
 	template<unsigned int N>
-	ComponentId BuildComponentId(const char (&id)[N])
+	ComponentId BuildComponentId(const char (&name)[N])
 	{
-		static_assert(N-1 <= sizeof(ComponentId), "ID too long for this size of component id");
+		static_assert(N-1 <= sizeof(ComponentId), "Name too long for this size of component id");
 
 		ComponentId componentId = 0;
 		for (int i = 0; i < N; ++i)
-			componentId |= static_cast<ComponentId>(id[i]) << i*8;
-
-		return componentId;
-	}
-
-	template<unsigned int N>
-	SystemId BuildSystemId(const char (&id)[N])
-	{
-		static_assert(N-1 <= sizeof(ComponentId), "ID too long for this size of component id");
-
-		ComponentId componentId = 0;
-		for (int i = 0; i < N; ++i)
-			componentId |= static_cast<ComponentId>(id[i]) << i*8;
+			componentId |= static_cast<ComponentId>(name[i]) << i*8;
 
 		return componentId;
 	}
 
 	template<typename ComponentType>
-	constexpr ComponentId GetComponentId()
+	constexpr ComponentIndex GetComponentIndex()
 	{
-		return ComponentType::ComponentId;
+		return ComponentType::ComponentIndex;
 	}
 
 	template<typename SystemType>
-	constexpr SystemId GetSystemId()
+	constexpr SystemIndex GetSystemIndex()
 	{
-		return SystemType::SystemId;
+		return SystemType::SystemIndex;
 	}
 }
