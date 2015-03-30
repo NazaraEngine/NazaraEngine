@@ -48,7 +48,7 @@ namespace Ndk
 		entry.id = id;
 
 		// Une petite assertion pour s'assurer que l'identifiant n'est pas déjà utilisé
-		NazaraAssert(s_idToInsert.find(id) == s_idToInsert.end(), "This id is already in use");
+		NazaraAssert(s_idToIndex.find(id) == s_idToIndex.end(), "This id is already in use");
 
 		s_idToIndex[id] = index;
 
