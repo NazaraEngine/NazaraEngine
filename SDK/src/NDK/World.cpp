@@ -75,6 +75,7 @@ namespace Ndk
 
 	void World::Update()
 	{
+		// Gestion des entités tuées depuis le dernier appel
 		for (unsigned int i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
 			EntityBlock& block = m_entities[i];
@@ -107,6 +108,7 @@ namespace Ndk
 		}
 		m_killedEntities.Reset();
 
+		// Gestion des entités nécessitant une mise à jour de leurs systèmes
 		for (unsigned int i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
 		{
 			NazaraAssert(i < m_entities.size(), "Entity index out of range");
@@ -120,19 +122,16 @@ namespace Ndk
 				{
 					// L'entité est-elle enregistrée comme faisant partie du système ?
 					bool partOfSystem = system->HasEntity(&entity);
-					if (system->Filters(&entity))
+
+					// Doit-elle en faire partie ?
+					if (system->Filters(&entity) != partOfSystem)
 					{
-						// L'entité doit faire partie du système, est-ce que c'est déjà le cas ?
-						if (!partOfSystem)
-							// Non, rajoutons-là
-							system->AddEntity(&entity);
-					}
-					else
-					{
-						// L'entité ne doit pas faire partie du système, était-ce le cas ?
+						// L'entité n'est pas dans l'état dans lequel elle devrait être vis-à-vis de ce système
+						// si elle en fait partie, nous devons l'en enlever, et inversément
 						if (partOfSystem)
-							// Oui, enlevons-là
 							system->RemoveEntity(&entity);
+						else
+							system->AddEntity(&entity);
 					}
 				}
 			}

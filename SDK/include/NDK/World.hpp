@@ -72,8 +72,8 @@ namespace Ndk
 			};
 
 			std::vector<std::unique_ptr<BaseSystem>> m_systems;
-			std::vector<EntityId> m_freeIdList;
 			std::vector<EntityBlock> m_entities;
+			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
 			NzBitset<nzUInt64> m_dirtyEntities;
 			NzBitset<nzUInt64> m_killedEntities;
