@@ -9,7 +9,7 @@ namespace Ndk
 	BaseSystem::~BaseSystem()
 	{
 		for (const EntityHandle& entity : m_entities)
-			entity->UnregisterSystem(m_systemId);
+			entity->UnregisterSystem(m_systemIndex);
 	}
 
 	bool BaseSystem::Filters(const Entity* entity) const
@@ -17,19 +17,17 @@ namespace Ndk
 		if (!entity)
 			return false;
 
-		for (ComponentId component : m_requiredComponents)
-		{
-			if (!entity->HasComponent(component))
-				return false; // Au moins un component requis n'est pas présent
-		}
+        const NzBitset<>& components = entity->GetComponentBits();
 
-		for (ComponentId component : m_excludedComponents)
-		{
-			if (entity->HasComponent(component))
-				return false; // Au moins un component exclu est présent
-		}
+        m_filterResult.PerformsAND(m_requiredComponents, components);
+        if (m_filterResult != m_requiredComponents)
+            return false; // Au moins un component requis n'est pas présent
 
-		return true;
+        m_filterResult.PerformsAND(m_excludedComponents, components);
+        if (m_filterResult.TestAny())
+            return false; // Au moins un component exclu est présent
+
+        return true;
 	}
 
 	void BaseSystem::OnEntityAdded(Entity* entity)
@@ -41,4 +39,6 @@ namespace Ndk
 	{
 		NazaraUnused(entity);
 	}
+
+	SystemIndex BaseSystem::s_nextIndex = 0;
 }

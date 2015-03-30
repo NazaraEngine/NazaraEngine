@@ -9,7 +9,7 @@ namespace Ndk
 {
 	template<typename SystemType>
 	System<SystemType>::System() :
-	BaseSystem(GetSystemId<SystemType>())
+	BaseSystem(GetSystemIndex<SystemType>())
 	{
 	}
 

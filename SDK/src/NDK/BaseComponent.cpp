@@ -7,4 +7,7 @@
 namespace Ndk
 {
 	BaseComponent::~BaseComponent() = default;
+
+	std::vector<BaseComponent::ComponentEntry> BaseComponent::s_entries;
+	std::unordered_map<ComponentId, ComponentIndex> BaseComponent::s_idToIndex;
 }
