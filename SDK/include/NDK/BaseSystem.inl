@@ -7,8 +7,8 @@
 
 namespace Ndk
 {
-	inline BaseSystem::BaseSystem(SystemId systemId) :
-	m_systemId(systemId)
+	inline BaseSystem::BaseSystem(SystemIndex systemId) :
+	m_systemIndex(systemId)
 	{
 	}
 
@@ -17,9 +17,9 @@ namespace Ndk
 		return m_entities;
 	}
 
-	inline SystemId BaseSystem::GetId() const
+	inline SystemIndex BaseSystem::GetIndex() const
 	{
-		return m_systemId;
+		return m_systemIndex;
 	}
 
 	inline World& BaseSystem::GetWorld() const
@@ -35,12 +35,17 @@ namespace Ndk
 		return m_entityBits.UnboundedTest(entity->GetId());
 	}
 
+	inline SystemIndex BaseSystem::GetNextIndex()
+	{
+		return s_nextIndex++;
+	}
+
 	template<typename ComponentType>
 	void BaseSystem::Excludes()
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		ExcludesComponent(GetComponentId<ComponentType>());
+		ExcludesComponent(GetComponentIndex<ComponentType>());
 	}
 
 	template<typename ComponentType1, typename ComponentType2, typename... Rest>
@@ -50,9 +55,9 @@ namespace Ndk
 		Excludes<ComponentType2, Rest...>();
 	}
 
-	inline void BaseSystem::ExcludesComponent(ComponentId componentId)
+	inline void BaseSystem::ExcludesComponent(ComponentIndex index)
 	{
-		m_excludedComponents.insert(componentId);
+		m_excludedComponents.UnboundedSet(index);
 	}
 
 	template<typename ComponentType>
@@ -60,7 +65,7 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		RequiresComponent(GetComponentId<ComponentType>());
+		RequiresComponent(GetComponentIndex<ComponentType>());
 	}
 
 	template<typename ComponentType1, typename ComponentType2, typename... Rest>
@@ -70,9 +75,9 @@ namespace Ndk
 		Requires<ComponentType2, Rest...>();
 	}
 
-	inline void BaseSystem::RequiresComponent(ComponentId componentId)
+	inline void BaseSystem::RequiresComponent(ComponentIndex index)
 	{
-		m_requiredComponents.insert(componentId);
+		m_requiredComponents.UnboundedSet(index);
 	}
 
 	inline void BaseSystem::AddEntity(Entity* entity)
@@ -82,7 +87,7 @@ namespace Ndk
 		m_entities.push_back(entity->CreateHandle());
 		m_entityBits.UnboundedSet(entity->GetId(), true);
 
-		entity->RegisterSystem(m_systemId);
+		entity->RegisterSystem(m_systemIndex);
 
 		OnEntityAdded(entity);
 	}
@@ -99,7 +104,7 @@ namespace Ndk
 		m_entities.pop_back(); // On le sort du vector
 
 		m_entityBits.Reset(entity->GetId());
-		entity->UnregisterSystem(m_systemId);
+		entity->UnregisterSystem(m_systemIndex);
 
 		OnEntityRemoved(entity); // Et on appelle le callback
 	}

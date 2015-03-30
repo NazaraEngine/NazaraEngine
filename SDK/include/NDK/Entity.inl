@@ -25,12 +25,12 @@ namespace Ndk
 		return static_cast<ComponentType&>(AddComponent(std::move(ptr)));
 	}
 
-	inline BaseComponent& Entity::GetComponent(ComponentId componentId)
+	inline BaseComponent& Entity::GetComponent(ComponentIndex index)
 	{
 		///DOC: Le component doit être présent
-		NazaraAssert(HasComponent(componentId), "This component is not part of the entity");
+		NazaraAssert(HasComponent(index), "This component is not part of the entity");
 
-		BaseComponent* component = m_components[componentId].get();
+		BaseComponent* component = m_components[index].get();
 		NazaraAssert(component, "Invalid component pointer");
 
 		return *component;
@@ -42,8 +42,13 @@ namespace Ndk
 		///DOC: Le component doit être présent
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		ComponentId componentId = GetComponentId<ComponentType>();
-		return static_cast<ComponentType&>(GetComponent(componentId));
+		ComponentIndex index = GetComponentIndex<ComponentType>();
+		return static_cast<ComponentType&>(GetComponent(index));
+	}
+
+	inline const NzBitset<>& Entity::GetComponentBits() const
+	{
+		return m_componentBits;
 	}
 
 	inline EntityId Entity::GetId() const
@@ -51,14 +56,19 @@ namespace Ndk
 		return m_id;
 	}
 
+	inline const NzBitset<>& Entity::GetSystemBits() const
+	{
+		return m_systemBits;
+	}
+
 	inline World* Entity::GetWorld() const
 	{
 		return m_world;
 	}
 
-	inline bool Entity::HasComponent(ComponentId componentId) const
+	inline bool Entity::HasComponent(ComponentIndex index) const
 	{
-		return m_components.count(componentId) > 0;
+		return m_componentBits.UnboundedTest(index);
 	}
 
 	template<typename ComponentType>
@@ -66,8 +76,8 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		ComponentId componentId = GetComponentId<ComponentType>();
-		return HasComponent(componentId);
+		ComponentIndex index = GetComponentIndex<ComponentType>();
+		return HasComponent(index);
 	}
 
 	template<typename ComponentType>
@@ -75,8 +85,8 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
-		ComponentId componentId = GetComponentId<ComponentType>();
-		RemoveComponent(componentId);
+		ComponentIndex index = GetComponentIndex<ComponentType>();
+		RemoveComponent(index);
 	}
 
 	inline void Entity::RegisterHandle(EntityHandle* handle)
@@ -85,9 +95,9 @@ namespace Ndk
 		m_handles.push_back(handle);
 	}
 
-	inline void Entity::RegisterSystem(SystemId systemId)
+	inline void Entity::RegisterSystem(SystemIndex index)
 	{
-		m_systems.insert(systemId);
+		m_systemBits.UnboundedSet(index);
 	}
 
 	inline void Entity::UnregisterHandle(EntityHandle* handle)
@@ -100,8 +110,8 @@ namespace Ndk
 		m_handles.pop_back();
 	}
 
-	inline void Entity::UnregisterSystem(SystemId systemId)
+	inline void Entity::UnregisterSystem(SystemIndex index)
 	{
-		m_systems.erase(systemId);
+		m_systemBits.UnboundedReset(index);
 	}
 }

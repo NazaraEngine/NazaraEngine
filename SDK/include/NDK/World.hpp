@@ -38,10 +38,10 @@ namespace Ndk
 			void Clear();
 
 			const EntityHandle& GetEntity(EntityId id);
-			BaseSystem& GetSystem(SystemId systemId);
+			BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
 
-			bool HasSystem(SystemId systemId) const;
+			bool HasSystem(SystemIndex index) const;
 			template<typename SystemType> bool HasSystem() const;
 
 			void KillEntity(Entity* entity);
@@ -51,7 +51,7 @@ namespace Ndk
 			bool IsEntityIdValid(EntityId id) const;
 
 			void RemoveAllSystems();
-			void RemoveSystem(SystemId systemId);
+			void RemoveSystem(SystemIndex index);
 			template<typename SystemType> void RemoveSystem();
 
 			void Update();
@@ -71,9 +71,9 @@ namespace Ndk
 				unsigned int aliveIndex;
 			};
 
+			std::vector<std::unique_ptr<BaseSystem>> m_systems;
 			std::vector<EntityId> m_freeIdList;
 			std::vector<EntityBlock> m_entities;
-			std::unordered_map<SystemId, std::unique_ptr<BaseSystem>> m_systems;
 			EntityList m_aliveEntities;
 			NzBitset<nzUInt64> m_dirtyEntities;
 			NzBitset<nzUInt64> m_killedEntities;

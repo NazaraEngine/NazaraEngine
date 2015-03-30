@@ -10,7 +10,6 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <NDK/EntityHandle.hpp>
 #include <vector>
-#include <unordered_set>
 
 namespace Ndk
 {
@@ -22,7 +21,7 @@ namespace Ndk
 		friend World;
 
 		public:
-			BaseSystem(SystemId systemId);
+			BaseSystem(SystemIndex systemId);
 			virtual ~BaseSystem();
 
 			virtual BaseSystem* Clone() const = 0;
@@ -30,19 +29,21 @@ namespace Ndk
 			bool Filters(const Entity* entity) const;
 
 			const std::vector<EntityHandle>& GetEntities() const;
-			SystemId GetId() const;
+			SystemIndex GetIndex() const;
 			World& GetWorld() const;
 
 			bool HasEntity(const Entity* entity) const;
 
+			static SystemIndex GetNextIndex();
+
 		protected:
 			template<typename ComponentType> void Excludes();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Excludes();
-			void ExcludesComponent(ComponentId componentId);
+			void ExcludesComponent(ComponentIndex index);
 
 			template<typename ComponentType> void Requires();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Requires();
-			void RequiresComponent(ComponentId componentId);
+			void RequiresComponent(ComponentIndex index);
 
 		private:
 			void AddEntity(Entity* entity);
@@ -56,10 +57,13 @@ namespace Ndk
 
 			std::vector<EntityHandle> m_entities;
 			NzBitset<nzUInt64> m_entityBits;
-			std::unordered_set<ComponentId> m_excludedComponents;
-			std::unordered_set<ComponentId> m_requiredComponents;
-			SystemId m_systemId;
+			NzBitset<> m_excludedComponents;
+			mutable NzBitset<> m_filterResult;
+			NzBitset<> m_requiredComponents;
+			SystemIndex m_systemIndex;
 			World* m_world;
+
+			static SystemIndex s_nextIndex;
 	};
 }
 

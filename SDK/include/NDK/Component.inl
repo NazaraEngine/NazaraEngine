@@ -2,14 +2,13 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <Ndk/Algorithm.hpp>
 #include <type_traits>
 
 namespace Ndk
 {
 	template<typename ComponentType>
 	Component<ComponentType>::Component() :
-	BaseComponent(GetComponentId<ComponentType>())
+	BaseComponent(GetComponentIndex<ComponentType>())
 	{
 	}
 
