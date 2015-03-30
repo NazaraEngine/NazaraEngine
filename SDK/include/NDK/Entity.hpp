@@ -11,8 +11,6 @@
 #include <NDK/Component.hpp>
 #include <memory>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
 
 namespace Ndk
 {
@@ -35,12 +33,14 @@ namespace Ndk
 
 			EntityHandle CreateHandle();
 
-			BaseComponent& GetComponent(ComponentId componentId);
+			BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
+			const NzBitset<>& GetComponentBits() const;
 			EntityId GetId() const;
+			const NzBitset<>& GetSystemBits() const;
 			World* GetWorld() const;
 
-			bool HasComponent(ComponentId componentId) const;
+			bool HasComponent(ComponentIndex index) const;
 			template<typename ComponentType> bool HasComponent() const;
 
 			void Kill();
@@ -48,7 +48,7 @@ namespace Ndk
 			bool IsValid() const;
 
 			void RemoveAllComponents();
-			void RemoveComponent(ComponentId componentId);
+			void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
 
 			Entity& operator=(const Entity&) = delete;
@@ -61,14 +61,15 @@ namespace Ndk
 			void Destroy();
 
 			void RegisterHandle(EntityHandle* handle);
-			void RegisterSystem(SystemId systemId);
+			void RegisterSystem(SystemIndex index);
 			void UnregisterHandle(EntityHandle* handle);
-			void UnregisterSystem(SystemId systemId);
+			void UnregisterSystem(SystemIndex index);
 
+			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			std::vector<EntityHandle*> m_handles;
-			std::unordered_map<ComponentId, std::unique_ptr<BaseComponent>> m_components;
-			std::unordered_set<SystemId> m_systems;
 			EntityId m_id;
+			NzBitset<> m_componentBits;
+			NzBitset<> m_systemBits;
 			World* m_world;
 			bool m_valid;
 	};

@@ -11,15 +11,19 @@ namespace Ndk
 	{
 		NazaraAssert(system, "System must be valid");
 
-		SystemId systemId = system->GetId();
+		SystemIndex index = system->GetIndex();
+
+		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
+		if (index >= m_systems.size())
+			m_systems.resize(index + 1);
 
 		// Affectation et retour du système
-		m_systems[systemId] = std::move(system);
-		m_systems[systemId]->SetWorld(*this);
+		m_systems[index] = std::move(system);
+		m_systems[index]->SetWorld(*this);
 
 		MarkAllAsDirty(); // On force une mise à jour de toutes les entités
 
-		return *m_systems[systemId].get();
+		return *m_systems[index].get();
 	}
 
 	template<typename SystemType, typename... Args>
@@ -43,12 +47,12 @@ namespace Ndk
 		return list;
 	}
 
-	inline BaseSystem& World::GetSystem(SystemId systemId)
+	inline BaseSystem& World::GetSystem(SystemIndex index)
 	{
 		///DOC: Le système doit être présent
-		NazaraAssert(HasSystem(systemId), "This system is not part of the world");
+		NazaraAssert(HasSystem(index), "This system is not part of the world");
 
-		BaseSystem* system = m_systems[systemId].get();
+		BaseSystem* system = m_systems[index].get();
 		NazaraAssert(system, "Invalid system pointer");
 
 		return *system;
@@ -60,13 +64,13 @@ namespace Ndk
 		///DOC: Le système doit être présent
 		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a system");
 
-		SystemId systemId = GetSystemId<SystemType>();
-		return static_cast<SystemType&>(GetSystem(systemId));
+		SystemIndex index = GetSystemIndex<SystemType>();
+		return static_cast<SystemType&>(GetSystem(index));
 	}
 
-	inline bool World::HasSystem(SystemId systemId) const
+	inline bool World::HasSystem(SystemIndex index) const
 	{
-		return m_systems.count(systemId) > 0;
+		return index < m_systems.size() && m_systems[index];
 	}
 
 	template<typename SystemType>
@@ -74,8 +78,8 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a component");
 
-		SystemId systemId = GetSystemId<SystemType>();
-		return HasSystem(systemId);
+		SystemIndex index = GetSystemIndex<SystemType>();
+		return HasSystem(index);
 	}
 
 	inline void World::KillEntities(const EntityList& list)
@@ -99,11 +103,11 @@ namespace Ndk
 		m_systems.clear();
 	}
 
-	inline void World::RemoveSystem(SystemId systemId)
+	inline void World::RemoveSystem(SystemIndex index)
 	{
 		///DOC: N'a aucun effet si le système n'est pas présent
-		if (HasSystem(systemId))
-			m_systems[systemId].reset();
+		if (HasSystem(index))
+			m_systems[index].reset();
 	}
 
 	template<typename SystemType>
@@ -111,8 +115,8 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a system");
 
-		SystemId systemId = GetSystemId<SystemType>();
-		RemoveSystem(systemId);
+		SystemIndex index = GetSystemIndex<SystemType>();
+		RemoveSystem(index);
 	}
 
 	inline void World::MarkAllAsDirty()

@@ -8,21 +8,41 @@
 #define NDK_BASECOMPONENT_HPP
 
 #include <NDK/Prerequesites.hpp>
+#include <functional>
+#include <unordered_map>
+#include <vector>
 
 namespace Ndk
 {
 	class NDK_API BaseComponent
 	{
 		public:
-			BaseComponent(ComponentId componentId);
+			using Factory = std::function<BaseComponent*()>;
+
+			BaseComponent(ComponentIndex componentIndex);
 			virtual ~BaseComponent();
 
 			virtual BaseComponent* Clone() const = 0;
 
-			ComponentId GetId() const;
+			ComponentIndex GetIndex() const;
+
+			template<typename ComponentType, unsigned int N>
+			static ComponentIndex Register(const char (&name)[N]);
+
+			static ComponentIndex Register(ComponentId id, Factory factoryFunc);
 
 		protected:
-			ComponentId m_componentId;
+			ComponentIndex m_componentIndex;
+
+		private:
+			struct ComponentEntry
+			{
+				ComponentId id;
+				Factory factory;
+			};
+
+			static std::vector<ComponentEntry> s_entries;
+			static std::unordered_map<ComponentId, ComponentIndex> s_idToIndex;
 	};
 }
 
