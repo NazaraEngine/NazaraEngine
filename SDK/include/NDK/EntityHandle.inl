@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <functional>
+#include <limits>
 
 namespace Ndk
 {
@@ -242,7 +243,11 @@ namespace std
     {
 		size_t operator()(const Ndk::EntityHandle& handle) const
 		{
-			return hash<Ndk::Entity*>()(handle.GetEntity());
+			// Hasher le pointeur fonctionnerait jusqu'à ce que l'entité soit mise à jour et déplacée
+			// pour cette raison, nous devons hasher l'ID de l'entité (qui reste constante)
+			Ndk::EntityId id = (handle.IsValid()) ? handle->GetId() : std::numeric_limits<Ndk::EntityId>::max();
+
+			return hash<Ndk::EntityId>()(id);
 		}
     };
 
