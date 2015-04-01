@@ -25,6 +25,10 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzObjectListe
 		unsigned int GetCharacterSize() const;
 		const NzColor& GetColor() const;
 		NzFont* GetFont() const;
+		NzFont* GetFont(unsigned int index) const override;
+		unsigned int GetFontCount() const override;
+		const Glyph& GetGlyph(unsigned int index) const override;
+		unsigned int GetGlyphCount() const override;
 		nzUInt32 GetStyle() const;
 		const NzString& GetText() const;
 
@@ -38,11 +42,6 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzObjectListe
 		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 
 	private:
-		NzFont* GetFont(unsigned int index) const override;
-		unsigned int GetFontCount() const override;
-		const Glyph& GetGlyph(unsigned int index) const override;
-		unsigned int GetGlyphCount() const override;
-
 		bool OnObjectModified(const NzRefCounted* object, int index, unsigned int code) override;
 		void OnObjectReleased(const NzRefCounted* object, int index) override;
 		void UpdateGlyphs() const;
