@@ -37,6 +37,40 @@ NzFont* NzSimpleTextDrawer::GetFont() const
 	return m_font;
 }
 
+NzFont* NzSimpleTextDrawer::GetFont(unsigned int index) const
+{
+	#if NAZARA_UTILITY_SAFE
+	if (index > 0)
+	{
+		NazaraError("Font index out of range (" + NzString::Number(index) + " >= 1)");
+		return nullptr;
+	}
+	#endif
+
+	return m_font;
+}
+
+unsigned int NzSimpleTextDrawer::GetFontCount() const
+{
+	return 1;
+}
+
+const NzAbstractTextDrawer::Glyph& NzSimpleTextDrawer::GetGlyph(unsigned int index) const
+{
+	if (!m_glyphUpdated)
+		UpdateGlyphs();
+
+	return m_glyphs[index];
+}
+
+unsigned int NzSimpleTextDrawer::GetGlyphCount() const
+{
+	if (!m_glyphUpdated)
+		UpdateGlyphs();
+
+	return m_glyphs.size();
+}
+
 nzUInt32 NzSimpleTextDrawer::GetStyle() const
 {
 	return m_style;
@@ -104,40 +138,6 @@ NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, const NzString& str, u
 	drawer.SetText(str);
 
 	return drawer;
-}
-
-NzFont* NzSimpleTextDrawer::GetFont(unsigned int index) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (index > 0)
-	{
-		NazaraError("Font index out of range (" + NzString::Number(index) + " >= 1)");
-		return nullptr;
-	}
-	#endif
-
-	return m_font;
-}
-
-unsigned int NzSimpleTextDrawer::GetFontCount() const
-{
-	return 1;
-}
-
-const NzAbstractTextDrawer::Glyph& NzSimpleTextDrawer::GetGlyph(unsigned int index) const
-{
-	if (!m_glyphUpdated)
-		UpdateGlyphs();
-
-	return m_glyphs[index];
-}
-
-unsigned int NzSimpleTextDrawer::GetGlyphCount() const
-{
-	if (!m_glyphUpdated)
-		UpdateGlyphs();
-
-	return m_glyphs.size();
 }
 
 bool NzSimpleTextDrawer::OnObjectModified(const NzRefCounted* object, int index, unsigned int code)
