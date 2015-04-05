@@ -35,11 +35,6 @@ namespace Ndk
 		return m_entityBits.UnboundedTest(entity->GetId());
 	}
 
-	inline SystemIndex BaseSystem::GetNextIndex()
-	{
-		return s_nextIndex++;
-	}
-
 	template<typename ComponentType>
 	void BaseSystem::Excludes()
 	{
@@ -58,6 +53,11 @@ namespace Ndk
 	inline void BaseSystem::ExcludesComponent(ComponentIndex index)
 	{
 		m_excludedComponents.UnboundedSet(index);
+	}
+
+	inline SystemIndex BaseSystem::GetNextIndex()
+	{
+		return s_nextIndex++;
 	}
 
 	template<typename ComponentType>
