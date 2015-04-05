@@ -50,5 +50,4 @@ namespace Ndk
 		ComponentId id = BuildComponentId(name);
 		return RegisterComponent(id);
 	}
-
 }
