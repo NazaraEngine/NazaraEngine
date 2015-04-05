@@ -34,12 +34,12 @@ namespace Ndk
 
 			bool HasEntity(const Entity* entity) const;
 
-			static SystemIndex GetNextIndex();
-
 		protected:
 			template<typename ComponentType> void Excludes();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Excludes();
 			void ExcludesComponent(ComponentIndex index);
+
+			static SystemIndex GetNextIndex();
 
 			template<typename ComponentType> void Requires();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Requires();

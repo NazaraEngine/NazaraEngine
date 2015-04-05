@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <Ndk/Algorithm.hpp>
 #include <type_traits>
 
 namespace Ndk
@@ -23,4 +24,31 @@ namespace Ndk
 
 		return new ComponentType(static_cast<const ComponentType&>(*this));
 	}
+
+	template<typename ComponentType>
+	ComponentIndex Component<ComponentType>::RegisterComponent(ComponentId id)
+	{
+		// Il faut que notre composant possède un constructeur par défaut (pour la factory)
+		static_assert(std::is_default_constructible<ComponentType>::value, "ComponentType should be default-constructible");
+
+		// On utilise les lambda pour créer une fonction factory
+		auto factory = []() -> BaseComponent*
+		{
+			return new ComponentType;
+		};
+
+		// Je ne sais pas si c'est un bug de GCC ou si c'est quelque chose que j'ai mal compris
+		// mais le fait est que ça ne compile pas si je ne précise pas Basecomponent::
+		return BaseComponent::RegisterComponent(id, factory);
+	}
+
+	template<typename ComponentType>
+	template<unsigned int N>
+	ComponentIndex Component<ComponentType>::RegisterComponent(const char (&name)[N])
+	{
+		// On récupère la chaîne de caractère sous la forme d'un nombre qui servira d'identifiant unique
+		ComponentId id = BuildComponentId(name);
+		return RegisterComponent(id);
+	}
+
 }

@@ -19,6 +19,8 @@ namespace Ndk
 			virtual ~System();
 
 			BaseSystem* Clone() const override;
+
+			static SystemIndex RegisterSystem();
 	};
 }
 

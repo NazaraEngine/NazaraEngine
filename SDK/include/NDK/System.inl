@@ -24,4 +24,11 @@ namespace Ndk
 
 		return new SystemType(static_cast<const SystemType&>(*this));
 	}
+
+	template<typename SystemType>
+	SystemIndex System<SystemType>::RegisterSystem()
+	{
+		return GetNextIndex();
+	}
+
 }
