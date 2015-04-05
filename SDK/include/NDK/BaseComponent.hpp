@@ -26,13 +26,10 @@ namespace Ndk
 
 			ComponentIndex GetIndex() const;
 
-			template<typename ComponentType, unsigned int N>
-			static ComponentIndex Register(const char (&name)[N]);
-
-			static ComponentIndex Register(ComponentId id, Factory factoryFunc);
-
 		protected:
 			ComponentIndex m_componentIndex;
+
+			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
 			struct ComponentEntry

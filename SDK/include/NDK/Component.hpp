@@ -19,6 +19,11 @@ namespace Ndk
 			virtual ~Component();
 
 			BaseComponent* Clone() const override;
+
+			static ComponentIndex RegisterComponent(ComponentId id);
+
+			template<unsigned int N>
+			static ComponentIndex RegisterComponent(const char (&name)[N]);
 	};
 }
 
