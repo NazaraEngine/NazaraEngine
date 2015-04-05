@@ -22,12 +22,12 @@ namespace Ndk
 	template<typename ComponentType>
 	constexpr ComponentIndex GetComponentIndex()
 	{
-		return ComponentType::ComponentIndex;
+		return ComponentType::componentIndex;
 	}
 
 	template<typename SystemType>
 	constexpr SystemIndex GetSystemIndex()
 	{
-		return SystemType::SystemIndex;
+		return SystemType::systemIndex;
 	}
 }
