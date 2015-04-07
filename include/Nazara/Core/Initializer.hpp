@@ -13,10 +13,12 @@ template<typename... Args>
 class NzInitializer
 {
 	public:
-		NzInitializer();
+		NzInitializer(bool initialize = true);
 		~NzInitializer();
 
+		bool Initialize();
 		bool IsInitialized() const;
+		void Uninitialize();
 
 		operator bool() const;
 

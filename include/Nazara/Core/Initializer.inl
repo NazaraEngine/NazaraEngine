@@ -43,16 +43,24 @@ struct NzImplInitializer<>
 };
 
 template<typename... Args>
-NzInitializer<Args...>::NzInitializer()
+NzInitializer<Args...>::NzInitializer(bool initialize) :
+m_initialized(false)
 {
-	m_initialized = NzImplInitializer<Args...>::Init();
+	if (initialize)
+		Initialize();
 }
 
 template<typename... Args>
 NzInitializer<Args...>::~NzInitializer()
 {
-	if (m_initialized)
-		NzImplInitializer<Args...>::Uninit();
+	Uninitialize();
+}
+
+template<typename... Args>
+bool NzInitializer<Args...>::Initialize()
+{
+	if (!m_initialized)
+		m_initialized = NzImplInitializer<Args...>::Init();
 }
 
 template<typename... Args>
@@ -62,9 +70,16 @@ bool NzInitializer<Args...>::IsInitialized() const
 }
 
 template<typename... Args>
+void NzInitializer<Args...>::Uninitialize()
+{
+	if (m_initialized)
+		NzImplInitializer<Args...>::Uninit();
+}
+
+template<typename... Args>
 NzInitializer<Args...>::operator bool() const
 {
-	return m_initialized;
+	return IsInitialized();
 }
 
 #include <Nazara/Core/DebugOff.hpp>
