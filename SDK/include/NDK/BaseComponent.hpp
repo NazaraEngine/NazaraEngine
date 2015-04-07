@@ -16,6 +16,8 @@ namespace Ndk
 {
 	class NDK_API BaseComponent
 	{
+		friend class Sdk;
+
 		public:
 			using Factory = std::function<BaseComponent*()>;
 
@@ -32,6 +34,9 @@ namespace Ndk
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
+			static bool Initialize();
+			static void Uninitialize();
+
 			struct ComponentEntry
 			{
 				ComponentId id;

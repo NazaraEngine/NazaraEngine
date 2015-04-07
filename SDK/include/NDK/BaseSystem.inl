@@ -113,4 +113,17 @@ namespace Ndk
 	{
 		m_world = &world;
 	}
+
+	inline bool BaseSystem::Initialize()
+	{
+		s_nextIndex = 0;
+
+		return true;
+	}
+
+	inline void BaseSystem::Uninitialize()
+	{
+		// Rien à faire
+	}
+
 }
