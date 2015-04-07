@@ -47,6 +47,11 @@ namespace Ndk
 		return list;
 	}
 
+	inline const World::EntityList& World::GetEntities()
+	{
+		return m_aliveEntities;
+	}
+
 	inline BaseSystem& World::GetSystem(SystemIndex index)
 	{
 		///DOC: Le système doit être présent
