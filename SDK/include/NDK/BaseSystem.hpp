@@ -17,7 +17,8 @@ namespace Ndk
 
 	class NDK_API BaseSystem
 	{
-		friend class Entity;
+		friend class Sdk;
+		friend Entity;
 		friend World;
 
 		public:
@@ -54,6 +55,9 @@ namespace Ndk
 			void RemoveEntity(Entity* entity);
 
 			void SetWorld(World& world);
+
+			static bool Initialize();
+			static void Uninitialize();
 
 			std::vector<EntityHandle> m_entities;
 			NzBitset<nzUInt64> m_entityBits;

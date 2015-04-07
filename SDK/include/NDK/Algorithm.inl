@@ -30,4 +30,18 @@ namespace Ndk
 	{
 		return SystemType::systemIndex;
 	}
+
+	template<typename ComponentType, unsigned int N>
+	ComponentIndex InitializeComponent(const char (&name)[N])
+	{
+		ComponentType::componentIndex = ComponentType::RegisterComponent(name);
+		return ComponentType::componentIndex;
+	}
+
+	template<typename SystemType>
+	SystemIndex InitializeSystem()
+	{
+		SystemType::systemIndex = SystemType::RegisterSystem();
+		return SystemType::systemIndex;
+	}
 }

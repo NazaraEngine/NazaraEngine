@@ -40,5 +40,5 @@ namespace Ndk
 		NazaraUnused(entity);
 	}
 
-	SystemIndex BaseSystem::s_nextIndex = 0;
+	SystemIndex BaseSystem::s_nextIndex;
 }
