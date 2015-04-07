@@ -38,7 +38,7 @@ namespace Ndk
 		m_componentBits.UnboundedSet(index);
 
 		// On informe le monde que nous avons besoin d'une mise à jour
-		m_world->MarkAsDirty(m_id);
+		m_world->Invalidate(m_id);
 
 		return *m_components[index].get();
 	}
@@ -64,7 +64,7 @@ namespace Ndk
 		m_componentBits.Clear();
 
 		// On informe le monde que nous avons besoin d'une mise à jour
-		m_world->MarkAsDirty(m_id);
+		m_world->Invalidate(m_id);
 	}
 
 	void Entity::RemoveComponent(ComponentIndex index)
@@ -76,7 +76,7 @@ namespace Ndk
 			m_componentBits.Reset(index);
 
 			// On informe le monde que nous avons besoin d'une mise à jour
-			m_world->MarkAsDirty(m_id);
+			m_world->Invalidate(m_id);
 		}
 	}
 
