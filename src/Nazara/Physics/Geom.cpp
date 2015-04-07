@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -48,7 +48,7 @@ NzBoxf NzBaseGeom::ComputeAABB(const NzVector3f& translation, const NzQuaternion
 	NzVector3f min, max;
 	NewtonCollisionCalculateAABB(m_collision, NzMatrix4f::Transform(translation, rotation), min, max);
 
-	// Et on applique le scale à la fin
+	// Et on applique le scale Ã  la fin
 	return NzBoxf(scale*min, scale*max);
 }
 
