@@ -38,6 +38,7 @@ namespace Ndk
 			void Clear();
 
 			const EntityHandle& GetEntity(EntityId id);
+			const EntityList& GetEntities();
 			BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
 
