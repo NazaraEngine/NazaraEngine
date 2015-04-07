@@ -34,4 +34,16 @@ namespace Ndk
 
 		return index;
 	}
+
+	inline bool BaseComponent::Initialize()
+	{
+		// Rien à faire
+		return true;
+	}
+
+	inline void BaseComponent::Uninitialize()
+	{
+		s_entries.clear();
+		s_idToIndex.clear();
+	}
 }
