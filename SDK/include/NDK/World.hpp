@@ -58,8 +58,8 @@ namespace Ndk
 			void Update();
 
 		private:
-			void MarkAllAsDirty();
-			void MarkAsDirty(EntityId id);
+			void Invalidate();
+			void Invalidate(EntityId id);
 
 			struct EntityBlock
 			{

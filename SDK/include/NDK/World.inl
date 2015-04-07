@@ -21,7 +21,7 @@ namespace Ndk
 		m_systems[index] = std::move(system);
 		m_systems[index]->SetWorld(*this);
 
-		MarkAllAsDirty(); // On force une mise à jour de toutes les entités
+		Invalidate(); // On force une mise à jour de toutes les entités
 
 		return *m_systems[index].get();
 	}
@@ -124,13 +124,13 @@ namespace Ndk
 		RemoveSystem(index);
 	}
 
-	inline void World::MarkAllAsDirty()
+	inline void World::Invalidate()
 	{
 		m_dirtyEntities.Resize(m_entities.size(), false);
 		m_dirtyEntities.Set(true); // Activation de tous les bits
 	}
 
-	inline void World::MarkAsDirty(EntityId id)
+	inline void World::Invalidate(EntityId id)
 	{
 		m_dirtyEntities.UnboundedSet(id, true);
 	}
