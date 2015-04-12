@@ -7,6 +7,12 @@
 
 namespace Ndk
 {
+	inline World::World(bool addDefaultSystems)
+	{
+		if (addDefaultSystems)
+			AddDefaultSystems();
+	}
+
 	inline BaseSystem& World::AddSystem(std::unique_ptr<BaseSystem>&& system)
 	{
 		NazaraAssert(system, "System must be valid");
