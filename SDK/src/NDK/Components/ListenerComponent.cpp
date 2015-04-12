@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/ListenerComponent.hpp>
 
 namespace Ndk
 {
-	ComponentIndex NodeComponent::componentIndex;
+	ComponentIndex ListenerComponent::componentIndex;
 }

@@ -13,7 +13,9 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
+#include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Systems/ListenerSystem.hpp>
 
 namespace Ndk
 {
@@ -45,7 +47,11 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Composants
+			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<NodeComponent>("NdkNode");
+
+			// Systèmes
+			InitializeSystem<ListenerSystem>();
 
 			NazaraNotice("Initialized: SDK");
 			return true;
