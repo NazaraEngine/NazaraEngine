@@ -15,7 +15,9 @@
 #include <NDK/BaseSystem.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/VelocityComponent.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
 {
@@ -49,9 +51,11 @@ namespace Ndk
 			// Composants
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<NodeComponent>("NdkNode");
+			InitializeComponent<VelocityComponent>("NdkVeloc");
 
 			// Systèmes
 			InitializeSystem<ListenerSystem>();
+			InitializeSystem<VelocitySystem>();
 
 			NazaraNotice("Initialized: SDK");
 			return true;
