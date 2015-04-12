@@ -21,6 +21,7 @@ namespace Ndk
 			~NodeComponent() = default;
 
 			void SetParent(Entity* entity, bool keepDerived = false);
+			using NzNode::SetParent;
 
 			static ComponentIndex componentIndex;
 	};
