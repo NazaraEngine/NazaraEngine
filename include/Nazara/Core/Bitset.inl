@@ -148,7 +148,9 @@ void NzBitset<Block, Allocator>::PerformsAND(const NzBitset& a, const NzBitset& 
 {
 	std::pair<unsigned int, unsigned int> minmax = std::minmax(a.GetBlockCount(), b.GetBlockCount());
 
-	m_blocks.resize(minmax.second);
+	// On réinitialise nos blocs à zéro
+	m_blocks.clear();
+	m_blocks.resize(minmax.second, 0U);
 	m_bitCount = std::max(a.GetSize(), b.GetSize());
 
 	// Dans le cas du AND, nous pouvons nous arrêter à la plus petite taille (car x & 0 = 0)
