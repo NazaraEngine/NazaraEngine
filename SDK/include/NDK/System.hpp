@@ -16,9 +16,14 @@ namespace Ndk
 	{
 		public:
 			System();
+			System(const System&) = default;
+			System(System&&) = default;
 			virtual ~System();
 
 			BaseSystem* Clone() const override;
+
+			System& operator=(const System&) = delete;
+			System& operator=(System&&) = default;
 
 			static SystemIndex RegisterSystem();
 	};

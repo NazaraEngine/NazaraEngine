@@ -23,7 +23,9 @@ namespace Ndk
 
 		public:
 			BaseSystem(SystemIndex systemId);
-			virtual ~BaseSystem();
+			BaseSystem(const BaseSystem&);
+			BaseSystem(BaseSystem&&) noexcept = default;
+			~BaseSystem();
 
 			virtual BaseSystem* Clone() const = 0;
 
@@ -34,6 +36,9 @@ namespace Ndk
 			World& GetWorld() const;
 
 			bool HasEntity(const Entity* entity) const;
+
+			BaseSystem& operator=(const BaseSystem&) = delete;
+			BaseSystem& operator=(BaseSystem&&) noexcept = default;
 
 		protected:
 			template<typename ComponentType> void Excludes();
