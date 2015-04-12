@@ -12,6 +12,13 @@ namespace Ndk
 	{
 	}
 
+	inline BaseSystem::BaseSystem(const BaseSystem& system) :
+	m_excludedComponents(system.m_excludedComponents),
+	m_requiredComponents(system.m_requiredComponents),
+	m_systemIndex(system.m_systemIndex)
+	{
+	}
+
 	inline const std::vector<EntityHandle>& BaseSystem::GetEntities() const
 	{
 		return m_entities;

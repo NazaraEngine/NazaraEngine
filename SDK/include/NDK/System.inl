@@ -30,5 +30,4 @@ namespace Ndk
 	{
 		return GetNextIndex();
 	}
-
 }
