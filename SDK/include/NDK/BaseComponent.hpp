@@ -22,11 +22,16 @@ namespace Ndk
 			using Factory = std::function<BaseComponent*()>;
 
 			BaseComponent(ComponentIndex componentIndex);
+			BaseComponent(const BaseComponent&) = default;
+			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent();
 
 			virtual BaseComponent* Clone() const = 0;
 
 			ComponentIndex GetIndex() const;
+
+			BaseComponent& operator=(const BaseComponent&) = default;
+			BaseComponent& operator=(BaseComponent&&) noexcept = default;
 
 		protected:
 			ComponentIndex m_componentIndex;
