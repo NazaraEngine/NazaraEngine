@@ -5,6 +5,7 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
 {
@@ -17,6 +18,7 @@ namespace Ndk
 	void World::AddDefaultSystems()
 	{
 		AddSystem<ListenerSystem>();
+		AddSystem<VelocitySystem>();
 	}
 
 	const EntityHandle& World::CreateEntity()
