@@ -16,6 +16,6 @@ namespace Ndk
 			NzNode::SetParent(entity->GetComponent<NodeComponent>(), keepDerived);
 		}
 		else
-			SetParent(nullptr, keepDerived);
+			NzNode::SetParent(nullptr, keepDerived);
 	}
 }
