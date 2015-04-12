@@ -26,8 +26,10 @@ namespace Ndk
 		public:
 			using EntityList = std::vector<EntityHandle>;
 
-			World() = default;
+			World(bool addDefaultSystems = true);
 			~World();
+
+			void AddDefaultSystems();
 
 			BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);

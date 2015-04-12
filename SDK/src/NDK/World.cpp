@@ -4,6 +4,7 @@
 
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <NDK/Systems/ListenerSystem.hpp>
 
 namespace Ndk
 {
@@ -11,6 +12,11 @@ namespace Ndk
 	{
 		// La destruction doit se faire dans un ordre précis
 		Clear();
+	}
+
+	void World::AddDefaultSystems()
+	{
+		AddSystem<ListenerSystem>();
 	}
 
 	const EntityHandle& World::CreateEntity()
