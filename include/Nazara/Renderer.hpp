@@ -51,7 +51,5 @@
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
-#include <Nazara/Renderer/UberShaderPUniform.hpp>
-#include <Nazara/Renderer/UberShaderPUSubroutine.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP
