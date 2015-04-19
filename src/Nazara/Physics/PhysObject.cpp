@@ -10,7 +10,7 @@
 #include <Nazara/Physics/Debug.hpp>
 
 NzPhysObject::NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat) :
-NzPhysObject(world, NzNullGeom::New(world), mat)
+NzPhysObject(world, NzNullGeom::New(), mat)
 {
 }
 
@@ -26,7 +26,7 @@ m_mass(0.f)
 	NazaraAssert(m_world, "Invalid world");
 	NazaraAssert(m_geom, "Invalid geometry");
 
-	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(), m_matrix);
+	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 	NewtonBodySetUserData(m_body, this);
 }
 
@@ -42,13 +42,13 @@ m_mass(0.f)
 	NazaraAssert(m_world, "Invalid world");
 	NazaraAssert(m_geom, "Invalid geometry");
 
-	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(), m_matrix);
+	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 	NewtonBodySetUserData(m_body, this);
 	SetMass(object.m_mass);
 }
 
 NzPhysObject::NzPhysObject(NzPhysObject&& object) :
-m_matrix(std::move(object)),
+m_matrix(std::move(object.m_matrix)),
 m_forceAccumulator(std::move(object.m_forceAccumulator)),
 m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
 m_body(object.m_body),
@@ -220,7 +220,7 @@ void NzPhysObject::SetGeom(NzPhysGeomRef geom)
 	if (geom)
 		m_geom = geom;
 	else
-		m_geom = NzNullGeom::New(m_world);
+		m_geom = NzNullGeom::New();
 }
 
 void NzPhysObject::SetGravityFactor(float gravityFactor)
@@ -271,6 +271,8 @@ void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
 
 NzPhysObject& NzPhysObject::operator=(const NzPhysObject& object)
 {
+	NzPhysObject physObj(object);
+	return operator=(std::move(physObj));
 }
 
 void NzPhysObject::UpdateBody()
@@ -279,8 +281,6 @@ void NzPhysObject::UpdateBody()
 
 	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 		(*it)->PhysObjectOnUpdate(this);*/
-	NzPhysObject physObj(object);
-	return operator=(std::move(physObj));
 }
 
 NzPhysObject& NzPhysObject::operator=(NzPhysObject&& object)
