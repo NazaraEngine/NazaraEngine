@@ -4,55 +4,35 @@
 
 #include <Nazara/Physics/PhysObject.hpp>
 #include <Nazara/Physics/Config.hpp>
-#include <Nazara/Physics/Geom.hpp>
 #include <Nazara/Physics/PhysWorld.hpp>
 #include <Newton/Newton.h>
+#include <algorithm>
 #include <Nazara/Physics/Debug.hpp>
 
 NzPhysObject::NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat) :
-m_matrix(mat),
-m_forceAccumulator(NzVector3f::Zero()),
-m_torqueAccumulator(NzVector3f::Zero()),
-m_world(world),
-m_ownsGeom(true),
-m_gravityFactor(1.f),
-m_mass(0.f)
+NzPhysObject(world, NzNullGeom::New(world), mat)
 {
-	#if NAZARA_PHYSICS_SAFE
-	if (!world)
-		NazaraError("Invalid physics world"); ///TODO: Unexcepted
-	#endif
-
-	m_geom = new NzNullGeom(world);
-	m_body = NewtonCreateDynamicBody(world->GetHandle(), m_geom->GetHandle(), mat);
-	NewtonBodySetUserData(m_body, this);
 }
 
-NzPhysObject::NzPhysObject(NzPhysWorld* world, const NzBaseGeom* geom, const NzMatrix4f& mat) :
+NzPhysObject::NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat) :
 m_matrix(mat),
 m_forceAccumulator(NzVector3f::Zero()),
 m_torqueAccumulator(NzVector3f::Zero()),
-m_geom(geom),
+m_geom(std::move(geom)),
 m_world(world),
-m_ownsGeom(false),
 m_gravityFactor(1.f),
 m_mass(0.f)
 {
-	#if NAZARA_PHYSICS_SAFE
-	if (!world)
-		NazaraError("Invalid physics world"); ///TODO: Unexcepted
-	#endif
+	NazaraAssert(m_world, "Invalid world");
+	NazaraAssert(m_geom, "Invalid geometry");
 
-	m_body = NewtonCreateDynamicBody(world->GetHandle(), geom->GetHandle(), mat);
+	m_body = NewtonCreateDynamicBody(world->GetHandle(), m_geom->GetHandle(), mat);
 	NewtonBodySetUserData(m_body, this);
 }
 
 NzPhysObject::~NzPhysObject()
 {
 	NewtonDestroyBody(m_world->GetHandle(), m_body);
-
-	if (m_ownsGeom)
-		delete m_geom;
 }
 
 void NzPhysObject::AddForce(const NzVector3f& force, nzCoordSys coordSys)
@@ -112,12 +92,25 @@ void NzPhysObject::EnableAutoSleep(bool autoSleep)
 	NewtonBodySetAutoSleep(m_body, autoSleep);
 }
 
+NzBoxf NzPhysObject::GetAABB() const
+{
+	NzVector3f min, max;
+	NewtonBodyGetAABB(m_body, min, max);
+
+	return NzBoxf(min, max);
+}
+
 NzVector3f NzPhysObject::GetAngularVelocity() const
 {
 	NzVector3f angularVelocity;
 	NewtonBodyGetOmega(m_body, angularVelocity);
 
 	return angularVelocity;
+}
+
+const NzPhysGeomRef& NzPhysObject::GetGeom() const
+{
+	return m_geom;
 }
 
 float NzPhysObject::GetGravityFactor() const
@@ -191,6 +184,14 @@ bool NzPhysObject::IsSleeping() const
 	return NewtonBodyGetSleepState(m_body) != 0;
 }
 
+void NzPhysObject::SetGeom(NzPhysGeomRef geom)
+{
+	if (geom)
+		m_geom = geom;
+	else
+		m_geom = NzNullGeom::New(m_world);
+}
+
 void NzPhysObject::SetGravityFactor(float gravityFactor)
 {
 	m_gravityFactor = gravityFactor;
@@ -240,6 +241,7 @@ void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
 void NzPhysObject::UpdateBody()
 {
 	NewtonBodySetMatrix(m_body, m_matrix);
+
 	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 		(*it)->PhysObjectOnUpdate(this);*/
 }
