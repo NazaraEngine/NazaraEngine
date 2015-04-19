@@ -23,24 +23,34 @@ namespace Ndk
 		Destroy();
 	}
 
-	BaseComponent& Entity::AddComponent(std::unique_ptr<BaseComponent>&& component)
+	BaseComponent& Entity::AddComponent(std::unique_ptr<BaseComponent>&& componentPtr)
 	{
-		NazaraAssert(component, "Component must be valid");
+		NazaraAssert(componentPtr, "Component must be valid");
 
-		ComponentIndex index = component->GetIndex();
+		ComponentIndex index = componentPtr->GetIndex();
 
 		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
 		if (index >= m_components.size())
 			m_components.resize(index + 1);
 
 		// Affectation et retour du component
-		m_components[index] = std::move(component);
+		m_components[index] = std::move(componentPtr);
 		m_componentBits.UnboundedSet(index);
 
 		// On informe le monde que nous avons besoin d'une mise à jour
 		m_world->Invalidate(m_id);
 
-		return *m_components[index].get();
+		// On récupère le component et on informe les composants existants du nouvel arrivant
+		BaseComponent& component = *m_components[index].get();
+		component.SetEntity(this);
+
+		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+		{
+			if (i != index)
+				m_components[index]->OnComponentAttached(component);
+		}
+
+		return component;
 	}
 
 	EntityHandle Entity::CreateHandle()
@@ -60,8 +70,12 @@ namespace Ndk
 
 	void Entity::RemoveAllComponents()
 	{
+		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			RemoveComponent(i);
+
+		NazaraAssert(m_componentBits.TestNone(), "All components should be gone");
+
 		m_components.clear();
-		m_componentBits.Clear();
 
 		// On informe le monde que nous avons besoin d'une mise à jour
 		m_world->Invalidate(m_id);
@@ -72,6 +86,16 @@ namespace Ndk
 		///DOC: N'a aucun effet si le component n'est pas présent
 		if (HasComponent(index))
 		{
+			// On récupère le component et on informe les composants du détachement
+			BaseComponent& component = *m_components[index].get();
+			for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			{
+				if (i != index)
+					m_components[index]->OnComponentDetached(component);
+			}
+
+			component.SetEntity(nullptr);
+
 			m_components[index].reset();
 			m_componentBits.Reset(index);
 
