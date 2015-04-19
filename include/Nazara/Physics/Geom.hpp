@@ -118,9 +118,13 @@ class NAZARA_API NzCompoundGeom : public NzPhysGeom
 	public:
 		NzCompoundGeom(NzPhysWorld* physWorld, NzPhysGeom** geoms, unsigned int geomCount);
 
+		const std::vector<NzPhysGeomRef>& GetGeoms() const;
 		nzGeomType GetType() const override;
 
 		template<typename... Args> static NzCompoundGeomRef New(Args&&... args);
+
+	private:
+		std::vector<NzPhysGeomRef> m_geoms;
 };
 
 class NzConeGeom;

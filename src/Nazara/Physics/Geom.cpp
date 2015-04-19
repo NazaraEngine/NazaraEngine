@@ -178,15 +178,27 @@ NzPhysGeom(physWorld)
 	m_collision = NewtonCreateCompoundCollision(physWorld->GetHandle(), 0);
 	NewtonCompoundCollisionBeginAddRemove(m_collision);
 
+	m_geoms.reserve(geomCount);
 	for (unsigned int i = 0; i < geomCount; ++i)
 	{
 		if (geoms[i]->GetType() == nzGeomType_Compound)
-			NazaraError("Cannot add compound geoms to other compound geoms");
+		{
+			NzCompoundGeom* compoundGeom = static_cast<NzCompoundGeom*>(geoms[i]);
+			for (const NzPhysGeomRef& geom : compoundGeom->GetGeoms())
+				NewtonCompoundCollisionAddSubCollision(m_collision, geom->GetHandle());
+		}
 		else
 			NewtonCompoundCollisionAddSubCollision(m_collision, geoms[i]->GetHandle());
+
+		m_geoms.emplace_back(geoms[i]);
 	}
 
 	NewtonCompoundCollisionEndAddRemove(m_collision);
+}
+
+const std::vector<NzPhysGeomRef>& NzCompoundGeom::GetGeoms() const
+{
+	return m_geoms;
 }
 
 nzGeomType NzCompoundGeom::GetType() const
