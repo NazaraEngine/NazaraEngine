@@ -23,6 +23,8 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 	public:
 		NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat = NzMatrix4f::Identity());
 		NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat = NzMatrix4f::Identity());
+		NzPhysObject(const NzPhysObject& object);
+		NzPhysObject(NzPhysObject&& object);
 		~NzPhysObject();
 
 		void AddForce(const NzVector3f& force, nzCoordSys coordSys = nzCoordSys_Global);
@@ -54,16 +56,19 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 		void SetPosition(const NzVector3f& position);
 		void SetRotation(const NzQuaternionf& rotation);
 
+		NzPhysObject& operator=(NzPhysObject object);
+		NzPhysObject& operator=(NzPhysObject&& object);
+
 	private:
 		void UpdateBody();
 		static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
 		static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
 		NzMatrix4f m_matrix;
+		NzPhysGeomRef m_geom;
 		NzVector3f m_forceAccumulator;
 		NzVector3f m_torqueAccumulator;
 		NewtonBody* m_body;
-		NzPhysGeomRef m_geom;
 		NzPhysWorld* m_world;
 		float m_gravityFactor;
 		float m_mass;
