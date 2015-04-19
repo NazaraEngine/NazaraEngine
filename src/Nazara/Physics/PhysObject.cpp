@@ -16,9 +16,9 @@ NzPhysObject(world, NzNullGeom::New(world), mat)
 
 NzPhysObject::NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat) :
 m_matrix(mat),
+m_geom(std::move(geom)),
 m_forceAccumulator(NzVector3f::Zero()),
 m_torqueAccumulator(NzVector3f::Zero()),
-m_geom(std::move(geom)),
 m_world(world),
 m_gravityFactor(1.f),
 m_mass(0.f)
@@ -26,13 +26,44 @@ m_mass(0.f)
 	NazaraAssert(m_world, "Invalid world");
 	NazaraAssert(m_geom, "Invalid geometry");
 
-	m_body = NewtonCreateDynamicBody(world->GetHandle(), m_geom->GetHandle(), mat);
+	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(), m_matrix);
 	NewtonBodySetUserData(m_body, this);
+}
+
+NzPhysObject::NzPhysObject(const NzPhysObject& object) :
+m_matrix(object.m_matrix),
+m_geom(object.m_geom),
+m_forceAccumulator(NzVector3f::Zero()),
+m_torqueAccumulator(NzVector3f::Zero()),
+m_world(object.m_world),
+m_gravityFactor(object.m_gravityFactor),
+m_mass(0.f)
+{
+	NazaraAssert(m_world, "Invalid world");
+	NazaraAssert(m_geom, "Invalid geometry");
+
+	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(), m_matrix);
+	NewtonBodySetUserData(m_body, this);
+	SetMass(object.m_mass);
+}
+
+NzPhysObject::NzPhysObject(NzPhysObject&& object) :
+m_matrix(std::move(object)),
+m_forceAccumulator(std::move(object.m_forceAccumulator)),
+m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
+m_body(object.m_body),
+m_geom(std::move(object.m_geom)),
+m_world(object.m_world),
+m_gravityFactor(object.m_gravityFactor),
+m_mass(object.m_mass)
+{
+	object.m_body = nullptr;
 }
 
 NzPhysObject::~NzPhysObject()
 {
-	NewtonDestroyBody(m_world->GetHandle(), m_body);
+	if (m_body)
+		NewtonDestroyBody(m_world->GetHandle(), m_body);
 }
 
 void NzPhysObject::AddForce(const NzVector3f& force, nzCoordSys coordSys)
@@ -238,12 +269,35 @@ void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
 	UpdateBody();
 }
 
+NzPhysObject& NzPhysObject::operator=(NzPhysObject object)
+{
+	std::swap(*this, object);
+
+	return *this;
+}
+
 void NzPhysObject::UpdateBody()
 {
 	NewtonBodySetMatrix(m_body, m_matrix);
 
 	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 		(*it)->PhysObjectOnUpdate(this);*/
+}
+
+NzPhysObject& NzPhysObject::operator=(NzPhysObject&& object)
+{
+	m_body               = object.m_body;
+	m_forceAccumulator   = std::move(object.m_forceAccumulator);
+	m_geom               = std::move(object.m_geom);
+	m_gravityFactor      = object.m_gravityFactor;
+	m_mass               = object.m_mass;
+	m_matrix             = std::move(object.m_matrix);
+	m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
+	m_world              = object.m_world;
+
+	object.m_body = nullptr;
+
+	return *this;
 }
 
 void NzPhysObject::ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex)
