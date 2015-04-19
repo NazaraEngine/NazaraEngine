@@ -269,11 +269,8 @@ void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
 	UpdateBody();
 }
 
-NzPhysObject& NzPhysObject::operator=(NzPhysObject object)
+NzPhysObject& NzPhysObject::operator=(const NzPhysObject& object)
 {
-	std::swap(*this, object);
-
-	return *this;
 }
 
 void NzPhysObject::UpdateBody()
@@ -282,10 +279,15 @@ void NzPhysObject::UpdateBody()
 
 	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 		(*it)->PhysObjectOnUpdate(this);*/
+	NzPhysObject physObj(object);
+	return operator=(std::move(physObj));
 }
 
 NzPhysObject& NzPhysObject::operator=(NzPhysObject&& object)
 {
+	if (m_body)
+		NewtonDestroyBody(m_world->GetHandle(), m_body);
+
 	m_body               = object.m_body;
 	m_forceAccumulator   = std::move(object.m_forceAccumulator);
 	m_geom               = std::move(object.m_geom);

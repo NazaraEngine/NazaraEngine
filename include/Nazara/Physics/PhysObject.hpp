@@ -56,7 +56,7 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 		void SetPosition(const NzVector3f& position);
 		void SetRotation(const NzQuaternionf& rotation);
 
-		NzPhysObject& operator=(NzPhysObject object);
+		NzPhysObject& operator=(const NzPhysObject& object);
 		NzPhysObject& operator=(NzPhysObject&& object);
 
 	private:
