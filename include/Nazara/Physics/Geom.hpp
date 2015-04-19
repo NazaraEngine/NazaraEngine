@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,6 +18,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Enums.hpp>
+#include <unordered_map>
 
 ///TODO: CollisionModifier
 ///TODO: HeightfieldGeom
@@ -38,24 +39,23 @@ using NzPhysGeomRef = NzObjectRef<NzPhysGeom>;
 class NAZARA_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 {
 	public:
-		NzPhysGeom(NzPhysWorld* physWorld);
+		NzPhysGeom() = default;
 		virtual ~NzPhysGeom();
 
-		virtual NzBoxf ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
-		virtual NzBoxf ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity()) const;
+		NzBoxf ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
+		virtual NzBoxf ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity(), const NzVector3f& scale = NzVector3f::Unit()) const;
 		virtual void ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const;
 		virtual float ComputeVolume() const;
 
-		NewtonCollision* GetHandle() const;
+		NewtonCollision* GetHandle(NzPhysWorld* world) const;
 		virtual nzGeomType GetType() const = 0;
 
-		NzPhysWorld* GetWorld() const;
-
-		static NzPhysGeomRef Build(NzPhysWorld* physWorld, const NzPrimitiveList& list);
+		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 
 	protected:
-		NewtonCollision* m_collision;
-		NzPhysWorld* m_world;
+		virtual NewtonCollision* CreateHandle(NzPhysWorld* world) const = 0;
+
+		mutable std::unordered_map<NzPhysWorld*, NewtonCollision*> m_handles;
 
 		static NzPhysGeomLibrary::LibraryMap s_library;
 };
@@ -70,8 +70,11 @@ using NzBoxGeomRef = NzObjectRef<NzBoxGeom>;
 class NAZARA_API NzBoxGeom : public NzPhysGeom
 {
 	public:
-		NzBoxGeom(NzPhysWorld* physWorld, const NzVector3f& lengths, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzBoxGeom(NzPhysWorld* physWorld, const NzVector3f& lengths, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzBoxGeom(const NzVector3f& lengths, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzBoxGeom(const NzVector3f& lengths, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+
+		NzBoxf ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity(), const NzVector3f& scale = NzVector3f::Unit()) const override;
+		float ComputeVolume() const override;
 
 		NzVector3f GetLengths() const;
 		nzGeomType GetType() const override;
@@ -79,6 +82,9 @@ class NAZARA_API NzBoxGeom : public NzPhysGeom
 		template<typename... Args> static NzBoxGeomRef New(Args&&... args);
 
 	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		NzMatrix4f m_matrix;
 		NzVector3f m_lengths;
 };
 
@@ -92,8 +98,8 @@ using NzCapsuleGeomRef = NzObjectRef<NzCapsuleGeom>;
 class NAZARA_API NzCapsuleGeom : public NzPhysGeom
 {
 	public:
-		NzCapsuleGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzCapsuleGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzCapsuleGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzCapsuleGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -102,6 +108,9 @@ class NAZARA_API NzCapsuleGeom : public NzPhysGeom
 		template<typename... Args> static NzCapsuleGeomRef New(Args&&... args);
 
 	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		NzMatrix4f m_matrix;
 		float m_length;
 		float m_radius;
 };
@@ -116,7 +125,7 @@ using NzCompoundGeomRef = NzObjectRef<NzCompoundGeom>;
 class NAZARA_API NzCompoundGeom : public NzPhysGeom
 {
 	public:
-		NzCompoundGeom(NzPhysWorld* physWorld, NzPhysGeom** geoms, unsigned int geomCount);
+		NzCompoundGeom(NzPhysGeom** geoms, unsigned int geomCount);
 
 		const std::vector<NzPhysGeomRef>& GetGeoms() const;
 		nzGeomType GetType() const override;
@@ -124,6 +133,8 @@ class NAZARA_API NzCompoundGeom : public NzPhysGeom
 		template<typename... Args> static NzCompoundGeomRef New(Args&&... args);
 
 	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
 		std::vector<NzPhysGeomRef> m_geoms;
 };
 
@@ -137,8 +148,8 @@ using NzConeGeomRef = NzObjectRef<NzConeGeom>;
 class NAZARA_API NzConeGeom : public NzPhysGeom
 {
 	public:
-		NzConeGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzConeGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzConeGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzConeGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -147,6 +158,9 @@ class NAZARA_API NzConeGeom : public NzPhysGeom
 		template<typename... Args> static NzConeGeomRef New(Args&&... args);
 
 	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		NzMatrix4f m_matrix;
 		float m_length;
 		float m_radius;
 };
@@ -161,12 +175,20 @@ using NzConvexHullGeomRef = NzObjectRef<NzConvexHullGeom>;
 class NAZARA_API NzConvexHullGeom : public NzPhysGeom
 {
 	public:
-		NzConvexHullGeom(NzPhysWorld* physWorld, const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(NzVector3f), float tolerance = 0.002f, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzConvexHullGeom(NzPhysWorld* physWorld, const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(NzVector3f), float tolerance = 0.002f, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		nzGeomType GetType() const override;
 
 		template<typename... Args> static NzConvexHullGeomRef New(Args&&... args);
+
+	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		std::vector<NzVector3f> m_vertices;
+		NzMatrix4f m_matrix;
+		float m_tolerance;
+		unsigned int m_vertexStride;
 };
 
 class NzCylinderGeom;
@@ -179,8 +201,8 @@ using NzCylinderGeomRef = NzObjectRef<NzCylinderGeom>;
 class NAZARA_API NzCylinderGeom : public NzPhysGeom
 {
 	public:
-		NzCylinderGeom(NzPhysWorld* physWorld, float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzCylinderGeom(NzPhysWorld* physWorld, float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzCylinderGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzCylinderGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
 		float GetLength() const;
 		float GetRadius() const;
@@ -189,6 +211,9 @@ class NAZARA_API NzCylinderGeom : public NzPhysGeom
 		template<typename... Args> static NzCylinderGeomRef New(Args&&... args);
 
 	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		NzMatrix4f m_matrix;
 		float m_length;
 		float m_radius;
 };
@@ -203,11 +228,14 @@ using NzNullGeomRef = NzObjectRef<NzNullGeom>;
 class NAZARA_API NzNullGeom : public NzPhysGeom
 {
 	public:
-		NzNullGeom(NzPhysWorld* physWorld);
+		NzNullGeom();
 
 		nzGeomType GetType() const override;
 
 		template<typename... Args> static NzNullGeomRef New(Args&&... args);
+
+	private:
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
 };
 
 class NzSphereGeom;
@@ -220,16 +248,22 @@ using NzSphereGeomRef = NzObjectRef<NzSphereGeom>;
 class NAZARA_API NzSphereGeom : public NzPhysGeom
 {
 	public:
-		NzSphereGeom(NzPhysWorld* physWorld, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
-		NzSphereGeom(NzPhysWorld* physWorld, float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
+		NzSphereGeom(float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
+		NzSphereGeom(float radius, const NzVector3f& translation, const NzQuaternionf& rotation = NzQuaternionf::Identity());
 
-		NzVector3f GetRadius() const;
+		NzBoxf ComputeAABB(const NzMatrix4f& offsetMatrix = NzMatrix4f::Identity(), const NzVector3f& scale = NzVector3f::Unit()) const override;
+		float ComputeVolume() const override;
+
+		float GetRadius() const;
 		nzGeomType GetType() const override;
 
 		template<typename... Args> static NzSphereGeomRef New(Args&&... args);
 
 	private:
-		NzVector3f m_radius;
+		NewtonCollision* CreateHandle(NzPhysWorld* world) const override;
+
+		NzVector3f m_position;
+		float m_radius;
 };
 
 #include <Nazara/Physics/Geom.inl>
