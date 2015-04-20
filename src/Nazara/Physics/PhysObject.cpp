@@ -24,7 +24,9 @@ m_gravityFactor(1.f),
 m_mass(0.f)
 {
 	NazaraAssert(m_world, "Invalid world");
-	NazaraAssert(m_geom, "Invalid geometry");
+
+	if (!m_geom)
+		m_geom = NzNullGeom::New();
 
 	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 	NewtonBodySetUserData(m_body, this);
