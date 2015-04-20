@@ -217,10 +217,15 @@ bool NzPhysObject::IsSleeping() const
 
 void NzPhysObject::SetGeom(NzPhysGeomRef geom)
 {
-	if (geom)
-		m_geom = geom;
-	else
-		m_geom = NzNullGeom::New();
+	if (m_geom != geom)
+	{
+		if (geom)
+			m_geom = geom;
+		else
+			m_geom = NzNullGeom::New();
+
+		NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
+	}
 }
 
 void NzPhysObject::SetGravityFactor(float gravityFactor)
