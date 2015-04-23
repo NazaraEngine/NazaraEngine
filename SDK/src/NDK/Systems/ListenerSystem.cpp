@@ -6,6 +6,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/VelocityComponent.hpp>
 
 namespace Ndk
 {
@@ -16,6 +17,8 @@ namespace Ndk
 
 	void ListenerSystem::Update(float elapsedTime)
 	{
+		NazaraUnused(elapsedTime);
+
 		unsigned int activeListenerCount = 0;
 
 		for (const Ndk::EntityHandle& entity : GetEntities())
@@ -25,9 +28,18 @@ namespace Ndk
 			if (!listener.IsActive())
 				continue;
 
+			// On récupère la position et la rotation pour les affecter au listener
 			const NodeComponent& node = entity->GetComponent<NodeComponent>();
 			NzAudio::SetListenerPosition(node.GetPosition(nzCoordSys_Global));
 			NzAudio::SetListenerRotation(node.GetRotation(nzCoordSys_Global));
+
+			// On vérifie la présence d'une donnée de vitesse, et on l'affecte
+			// (La vitesse du listener Audio ne le fait pas se déplacer, mais affecte par exemple l'effet Doppler)
+			if (entity->HasComponent<VelocityComponent>())
+			{
+				const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
+				NzAudio::SetListenerVelocity(velocity.linearVelocity);
+			}
 
 			activeListenerCount++;
 		}
