@@ -224,7 +224,7 @@ void NzPhysObject::SetAngularVelocity(const NzVector3f& angularVelocity)
 
 void NzPhysObject::SetGeom(NzPhysGeomRef geom)
 {
-	if (m_geom != geom)
+	if (m_geom.Get() != geom)
 	{
 		if (geom)
 			m_geom = geom;
