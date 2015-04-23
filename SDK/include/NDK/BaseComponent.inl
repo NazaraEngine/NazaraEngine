@@ -38,7 +38,15 @@ namespace Ndk
 
 	inline void BaseComponent::SetEntity(Entity* entity)
 	{
-		m_entity = entity;
+		if (m_entity != entity)
+		{
+			if (m_entity)
+				OnDetached();
+
+			m_entity = entity;
+			if (m_entity)
+				OnAttached();
+		}
 	}
 
 	inline bool BaseComponent::Initialize()
