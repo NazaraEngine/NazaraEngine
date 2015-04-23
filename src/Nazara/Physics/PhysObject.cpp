@@ -217,6 +217,11 @@ bool NzPhysObject::IsSleeping() const
 	return NewtonBodyGetSleepState(m_body) != 0;
 }
 
+void NzPhysObject::SetAngularVelocity(const NzVector3f& angularVelocity)
+{
+	NewtonBodySetOmega(m_body, angularVelocity);
+}
+
 void NzPhysObject::SetGeom(NzPhysGeomRef geom)
 {
 	if (m_geom != geom)
@@ -274,6 +279,11 @@ void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
 {
 	m_matrix.SetRotation(rotation);
 	UpdateBody();
+}
+
+void NzPhysObject::SetVelocity(const NzVector3f& velocity)
+{
+	NewtonBodySetVelocity(m_body, velocity);
 }
 
 NzPhysObject& NzPhysObject::operator=(const NzPhysObject& object)
