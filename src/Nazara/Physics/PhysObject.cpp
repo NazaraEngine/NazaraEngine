@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics/PhysObject.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Physics/Config.hpp>
 #include <Nazara/Physics/PhysWorld.hpp>
 #include <Newton/Newton.h>
@@ -296,6 +297,18 @@ void NzPhysObject::UpdateBody()
 {
 	NewtonBodySetMatrix(m_body, m_matrix);
 
+	if (NzNumberEquals(m_mass, 0.f))
+	{
+		// http://newtondynamics.com/wiki/index.php5?title=Can_i_dynamicly_move_a_TriMesh%3F
+		NzVector3f min, max;
+		NewtonBodyGetAABB(m_body, min, max);
+
+		NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData)
+		{
+			NazaraUnused(userData);
+			NewtonBodySetSleepState(body, 0);
+		}, nullptr);
+	}
 	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 		(*it)->PhysObjectOnUpdate(this);*/
 }
