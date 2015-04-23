@@ -9,8 +9,11 @@
 namespace Ndk
 {
 	Entity::Entity(Entity&& entity) :
+	m_components(std::move(entity.m_components)),
 	m_handles(std::move(entity.m_handles)),
 	m_id(entity.m_id),
+	m_componentBits(std::move(entity.m_componentBits)),
+	m_systemBits(std::move(entity.m_systemBits)),
 	m_world(entity.m_world),
 	m_valid(entity.m_valid)
 	{
