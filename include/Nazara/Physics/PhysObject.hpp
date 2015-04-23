@@ -49,12 +49,14 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 		bool IsMoveable() const;
 		bool IsSleeping() const;
 
+		void SetAngularVelocity(const NzVector3f& angularVelocity);
 		void SetGeom(NzPhysGeomRef geom);
 		void SetGravityFactor(float gravityFactor);
 		void SetMass(float mass);
 		void SetMassCenter(const NzVector3f& center);
 		void SetPosition(const NzVector3f& position);
 		void SetRotation(const NzQuaternionf& rotation);
+		void SetVelocity(const NzVector3f& velocity);
 
 		NzPhysObject& operator=(const NzPhysObject& object);
 		NzPhysObject& operator=(NzPhysObject&& object);
