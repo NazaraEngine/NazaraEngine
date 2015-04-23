@@ -43,8 +43,10 @@ namespace Ndk
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
+			virtual void OnAttached();
 			virtual void OnComponentAttached(BaseComponent& component);
 			virtual void OnComponentDetached(BaseComponent& component);
+			virtual void OnDetached();
 			void SetEntity(Entity* entity);
 
 			static bool Initialize();

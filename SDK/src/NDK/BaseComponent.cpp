@@ -8,6 +8,10 @@ namespace Ndk
 {
 	BaseComponent::~BaseComponent() = default;
 
+	void BaseComponent::OnAttached()
+	{
+	}
+
 	void BaseComponent::OnComponentAttached(BaseComponent& component)
 	{
 		NazaraUnused(component);
@@ -16,6 +20,10 @@ namespace Ndk
 	void BaseComponent::OnComponentDetached(BaseComponent& component)
 	{
 		NazaraUnused(component);
+	}
+
+	void BaseComponent::OnDetached()
+	{
 	}
 
 	std::vector<BaseComponent::ComponentEntry> BaseComponent::s_entries;
