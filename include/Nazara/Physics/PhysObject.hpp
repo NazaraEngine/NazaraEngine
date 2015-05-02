@@ -18,7 +18,7 @@
 class NzPhysWorld;
 struct NewtonBody;
 
-class NAZARA_API NzPhysObject : NzNonCopyable
+class NAZARA_API NzPhysObject
 {
 	public:
 		NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat = NzMatrix4f::Identity());
