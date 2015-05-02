@@ -7,7 +7,7 @@
 
 NzMutexImpl::NzMutexImpl()
 {
-	pthread_mutex_init(&m_handle, NULL);
+	pthread_mutex_init(&m_handle, nullptr);
 }
 
 NzMutexImpl::~NzMutexImpl()

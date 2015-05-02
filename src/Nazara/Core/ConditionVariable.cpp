@@ -11,7 +11,7 @@
 #elif defined(NAZARA_PLATFORM_POSIX)
 	#include <Nazara/Core/Posix/ConditionVariableImpl.hpp>
 #else
-	#error Thread condition has no implementation
+	#error Condition variable has no implementation
 #endif
 
 #include <Nazara/Core/Debug.hpp>
