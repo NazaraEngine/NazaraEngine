@@ -78,7 +78,7 @@ void NzPhysObject::AddForce(const NzVector3f& force, nzCoordSys coordSys)
 			break;
 
 		case nzCoordSys_Local:
-			m_forceAccumulator += GetRotation()*force;
+			m_forceAccumulator += GetRotation() * force;
 			break;
 	}
 
@@ -96,8 +96,7 @@ void NzPhysObject::AddForce(const NzVector3f& force, const NzVector3f& point, nz
 			break;
 
 		case nzCoordSys_Local:
-			AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point));
-			return;
+			return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), nzCoordSys_Global);
 	}
 
 	// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
