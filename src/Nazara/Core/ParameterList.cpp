@@ -267,7 +267,7 @@ bool NzParameterList::GetUserdataParameter(const NzString& name, void** value) c
 	else
 	{
 		NazaraError("Parameter value is not an userdata");
-		return nullptr;
+		return false;
 	}
 }
 
