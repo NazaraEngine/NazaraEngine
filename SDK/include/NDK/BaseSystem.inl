@@ -132,5 +132,4 @@ namespace Ndk
 	{
 		// Rien à faire
 	}
-
 }

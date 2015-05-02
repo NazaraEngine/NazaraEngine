@@ -20,7 +20,7 @@ namespace Ndk
 	BaseComponent* Component<ComponentType>::Clone() const
 	{
 		///FIXME: Pas encore supporté par GCC (4.9.2)
-		//static_assert(std::is_trivially_copy_constructible<ComponentType>::value, "ComponentType should be copy-constructible");
+		//static_assert(std::is_trivially_copy_constructible<ComponentType>::value, "ComponentType must be copy-constructible");
 
 		return new ComponentType(static_cast<const ComponentType&>(*this));
 	}
@@ -29,7 +29,7 @@ namespace Ndk
 	ComponentIndex Component<ComponentType>::RegisterComponent(ComponentId id)
 	{
 		// Il faut que notre composant possède un constructeur par défaut (pour la factory)
-		static_assert(std::is_default_constructible<ComponentType>::value, "ComponentType should be default-constructible");
+		static_assert(std::is_default_constructible<ComponentType>::value, "ComponentType must be default-constructible");
 
 		// On utilise les lambda pour créer une fonction factory
 		auto factory = []() -> BaseComponent*
@@ -37,8 +37,6 @@ namespace Ndk
 			return new ComponentType;
 		};
 
-		// Je ne sais pas si c'est un bug de GCC ou si c'est quelque chose que j'ai mal compris
-		// mais le fait est que ça ne compile pas si je ne précise pas Basecomponent::
 		return BaseComponent::RegisterComponent(id, factory);
 	}
 
