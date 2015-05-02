@@ -35,7 +35,7 @@ bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
 {
 	// get the current time
 	timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 
 	// construct the time limit (current time + time to wait)
 	timespec ti;

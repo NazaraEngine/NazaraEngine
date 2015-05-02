@@ -209,6 +209,7 @@ void NzMemoryManager::Initialize()
 
 	#ifdef NAZARA_PLATFORM_WINDOWS
 	InitializeCriticalSection(&s_mutex);
+	//#elif defined(NAZARA_PLATFORM_POSIX) is already done in the namespace
 	#endif
 
 	s_initialized = true;
@@ -224,6 +225,8 @@ void NzMemoryManager::Uninitialize()
 {
 	#ifdef NAZARA_PLATFORM_WINDOWS
 	DeleteCriticalSection(&s_mutex);
+	#elif defined(NAZARA_PLATFORM_POSIX)
+	pthread_mutex_destroy(&s_mutex);
 	#endif
 
 	FILE* log = std::fopen(s_MLTFileName, "a");
