@@ -4,6 +4,7 @@
 
 #include <NDK/Components/PhysicsComponent.hpp>
 #include <Nazara/Physics/PhysObject.hpp>
+#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -34,7 +35,7 @@ namespace Ndk
 
 	void PhysicsComponent::OnComponentAttached(BaseComponent& component)
 	{
-		if (component.GetIndex() == GetComponentIndex<CollisionComponent>())
+		if (IsComponent<CollisionComponent>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
 			m_object->SetGeom(static_cast<CollisionComponent&>(component).GetGeom());
@@ -43,7 +44,7 @@ namespace Ndk
 
 	void PhysicsComponent::OnComponentDetached(BaseComponent& component)
 	{
-		if (component.GetIndex() == GetComponentIndex<CollisionComponent>())
+		if (IsComponent<CollisionComponent>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
 			m_object->SetGeom(NzNullGeom::New());
