@@ -5,6 +5,8 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/StaticCollisionSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
@@ -18,6 +20,8 @@ namespace Ndk
 	void World::AddDefaultSystems()
 	{
 		AddSystem<ListenerSystem>();
+		AddSystem<PhysicsSystem>();
+		AddSystem<StaticCollisionSystem>();
 		AddSystem<VelocitySystem>();
 	}
 
