@@ -4,6 +4,7 @@
 
 #include <NDK/Components/CollisionComponent.hpp>
 #include <Nazara/Physics/PhysObject.hpp>
+#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/PhysicsComponent.hpp>
 #include <NDK/Systems/PhysicsSystem.hpp>
@@ -48,13 +49,13 @@ namespace Ndk
 
 	void CollisionComponent::OnComponentAttached(BaseComponent& component)
 	{
-		if (component.GetIndex() == GetComponentIndex<PhysicsComponent>())
+		if (IsComponent<PhysicsComponent>(component))
 			m_staticBody.reset();
 	}
 
 	void CollisionComponent::OnComponentDetached(BaseComponent& component)
 	{
-		if (component.GetIndex() == GetComponentIndex<PhysicsComponent>())
+		if (IsComponent<PhysicsComponent>(component))
 			InitializeStaticBody();
 	}
 
