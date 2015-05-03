@@ -60,10 +60,13 @@ namespace Ndk
 
 			virtual void OnEntityAdded(Entity* entity);
 			virtual void OnEntityRemoved(Entity* entity);
+			virtual void OnEntityValidation(Entity* entity, bool justAdded);
 
 			void RemoveEntity(Entity* entity);
 
 			void SetWorld(World& world);
+
+			void ValidateEntity(Entity* entity, bool justAdded);
 
 			static bool Initialize();
 			static void Uninitialize();

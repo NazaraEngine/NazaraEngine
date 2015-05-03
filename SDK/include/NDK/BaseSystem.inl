@@ -136,6 +136,14 @@ namespace Ndk
 		OnEntityRemoved(entity); // Et on appelle le callback
 	}
 
+	inline void BaseSystem::ValidateEntity(Entity* entity, bool justAdded)
+	{
+		NazaraAssert(entity, "Invalid entity");
+		NazaraAssert(HasEntity(entity), "Entity should be part of system");
+
+		OnEntityValidation(entity, justAdded);
+	}
+
 	inline void BaseSystem::SetWorld(World& world)
 	{
 		m_world = &world;
