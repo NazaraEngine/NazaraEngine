@@ -8,6 +8,7 @@
 #define NDK_SYSTEMS_PHYSICSSYSTEM_HPP
 
 #include <Nazara/Physics/PhysWorld.hpp>
+#include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 
 namespace Ndk
@@ -29,8 +30,8 @@ namespace Ndk
 		private:
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 
-			std::vector<EntityHandle> m_dynamicObjects;
-			std::vector<EntityHandle> m_staticObjects;
+			EntityList m_dynamicObjects;
+			EntityList m_staticObjects;
 			NzPhysWorld m_world;
 	};
 }

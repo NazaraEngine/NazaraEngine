@@ -82,23 +82,11 @@ namespace Ndk
 		{
 			// On prend le tableau inverse de celui dont l'entité devrait faire partie
 			auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_staticObjects : m_dynamicObjects;
-
-			auto it = std::find(entities.begin(), entities.end(), *entity);
-			if (it != entities.end())
-			{
-				// Pour éviter de déplacer beaucoup de handles, on swap le dernier avec celui à supprimer
-				std::swap(*it, entities.back());
-				entities.pop_back(); // On le sort du vector
-			}
+			entities.Remove(entity);
 		}
 
-        if (entity->HasComponent<PhysicsComponent>())
-			m_dynamicObjects.emplace_back(entity);
-		else
-		{
-			NazaraAssert(entity->HasComponent<CollisionComponent>(), "Validated entity should have component CollisionComponent");
-			m_staticObjects.emplace_back(entity);
-		}
+		auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_dynamicObjects : m_staticObjects;
+		entities.Insert(entity);
 	}
 
 	SystemIndex PhysicsSystem::systemIndex;
