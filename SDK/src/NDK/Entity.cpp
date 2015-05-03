@@ -66,11 +66,6 @@ namespace Ndk
 		m_world->KillEntity(this);
 	}
 
-	bool Entity::IsValid() const
-	{
-		return m_valid;
-	}
-
 	void Entity::RemoveAllComponents()
 	{
 		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
