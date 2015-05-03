@@ -47,5 +47,11 @@ namespace Ndk
 		NazaraUnused(entity);
 	}
 
+	void BaseSystem::OnEntityValidation(Entity* entity, bool justAdded)
+	{
+		NazaraUnused(entity);
+		NazaraUnused(justAdded);
+	}
+
 	SystemIndex BaseSystem::s_nextIndex;
 }
