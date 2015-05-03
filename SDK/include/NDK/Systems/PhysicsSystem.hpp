@@ -27,6 +27,10 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
+			void OnEntityValidation(Entity* entity, bool justAdded) override;
+
+			std::vector<EntityHandle> m_dynamicObjects;
+			std::vector<EntityHandle> m_staticObjects;
 			NzPhysWorld m_world;
 	};
 }
