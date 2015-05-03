@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <Nazara/Core/Endianness.hpp>
-#include <Ndk/BaseComponent.hpp>
-#include <Ndk/BaseSystem.hpp>
 
 namespace Ndk
 {
@@ -47,14 +45,14 @@ namespace Ndk
 		return SystemType::systemIndex;
 	}
 
-	template<typename ComponentType>
-	bool IsComponent(BaseComponent& component)
+	template<typename ComponentType, typename C>
+	bool IsComponent(C& component)
 	{
 		return component.GetIndex() == GetComponentIndex<ComponentType>();
 	}
 
-	template<typename SystemType>
-	bool IsSystem(BaseSystem& system)
+	template<typename SystemType, typename S>
+	bool IsSystem(S& system)
 	{
 		return system.GetIndex() == GetSystemIndex<SystemType>();
 	}
