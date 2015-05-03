@@ -85,9 +85,9 @@ void NzFile::Close()
 
 bool NzFile::Delete()
 {
-	Close();
-
 	NazaraLock(m_mutex)
+
+	Close();
 
 	return Delete(m_filePath);
 }
@@ -266,11 +266,10 @@ std::size_t NzFile::Read(void* buffer, std::size_t typeSize, unsigned int count)
 
 bool NzFile::Rename(const NzString& newFilePath)
 {
-	bool opened = IsOpen();
-
-	Close();
-
 	NazaraLock(m_mutex)
+
+	bool opened = IsOpen();
+	Close();
 
 	bool success = Rename(m_filePath, newFilePath);
 	if (success)
@@ -284,9 +283,9 @@ bool NzFile::Rename(const NzString& newFilePath)
 
 bool NzFile::Open(unsigned long openMode)
 {
-	Close();
-
 	NazaraLock(m_mutex)
+
+	Close();
 
 	if (m_filePath.IsEmpty())
 		return false;
@@ -315,6 +314,8 @@ bool NzFile::Open(unsigned long openMode)
 
 bool NzFile::Open(const NzString& filePath, unsigned long openMode)
 {
+	NazaraLock(m_mutex)
+
 	Close();
 
 	SetFile(filePath);
@@ -360,10 +361,10 @@ void NzFile::SetEndianness(nzEndianness endianness)
 
 bool NzFile::SetFile(const NzString& filePath)
 {
+	NazaraLock(m_mutex)
+
 	if (IsOpen())
 	{
-		NazaraLock(m_mutex)
-
 		if (filePath.IsEmpty())
 			return false;
 
@@ -445,6 +446,8 @@ bool NzFile::Write(const NzString& string)
 
 std::size_t NzFile::Write(const void* buffer, std::size_t typeSize, unsigned int count)
 {
+	NazaraLock(m_mutex)
+
 	#if NAZARA_CORE_SAFE
 	if (!IsOpen())
 	{
@@ -458,8 +461,6 @@ std::size_t NzFile::Write(const void* buffer, std::size_t typeSize, unsigned int
 		return 0;
 	}
 	#endif
-
-	NazaraLock(m_mutex)
 
 	if (!buffer || count == 0 || typeSize == 0)
 		return 0;
@@ -732,7 +733,7 @@ bool NzFile::FillHash(NzAbstractHash* hash) const
 	unsigned int size;
 	while (remainingSize > 0)
 	{
-		size = std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE));
+		size = static_cast<unsigned int>(std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
 		if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
 		{
 			NazaraError("Unable to read file");
