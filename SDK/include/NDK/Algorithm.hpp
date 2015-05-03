@@ -11,16 +11,13 @@
 
 namespace Ndk
 {
-	class BaseComponent;
-	class BaseSystem;
-
 	template<unsigned int N> ComponentId BuildComponentId(const char (&name)[N]);
 	template<typename ComponentType> constexpr ComponentIndex GetComponentIndex();
 	template<typename SystemType> constexpr SystemIndex GetSystemIndex();
 	template<typename ComponentType, unsigned int N> ComponentIndex InitializeComponent(const char (&name)[N]);
 	template<typename SystemType> SystemIndex InitializeSystem();
-	template<typename ComponentType> bool IsComponent(BaseComponent& component);
-	template<typename SystemType> bool IsSystem(BaseSystem& system);
+	template<typename ComponentType, typename C> bool IsComponent(C& component);
+	template<typename SystemType, typename S> bool IsSystem(S& system);
 }
 
 #include <Ndk/Algorithm.inl>
