@@ -33,8 +33,8 @@ namespace
 	bool s_initialized = false;
 	const unsigned int s_magic = 0xDEADB33FUL;
 	const char* s_logFileName = "NazaraMemory.log";
-	const char* s_nextFreeFile = "(Internal error)";
-	unsigned int s_nextFreeLine = 0;
+	thread_local const char* s_nextFreeFile = "(Internal error)";
+	thread_local unsigned int s_nextFreeLine = 0;
 
 	Block s_list =
 	{
