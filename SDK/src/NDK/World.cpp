@@ -5,6 +5,7 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/PhysicsSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
@@ -18,6 +19,7 @@ namespace Ndk
 	void World::AddDefaultSystems()
 	{
 		AddSystem<ListenerSystem>();
+		AddSystem<PhysicsSystem>();
 		AddSystem<VelocitySystem>();
 	}
 
@@ -121,25 +123,30 @@ namespace Ndk
 		{
 			NazaraAssert(i < m_entities.size(), "Entity index out of range");
 
-			Entity& entity = m_entities[i].entity;
+			Entity* entity = &m_entities[i].entity;
 
 			// Aucun intérêt de traiter une entité n'existant plus
-			if (entity.IsValid())
+			if (entity->IsValid())
 			{
 				for (auto& system : m_systems)
 				{
 					// L'entité est-elle enregistrée comme faisant partie du système ?
-					bool partOfSystem = system->HasEntity(&entity);
+					bool partOfSystem = system->HasEntity(entity);
 
 					// Doit-elle en faire partie ?
-					if (system->Filters(&entity) != partOfSystem)
+					if (system->Filters(entity))
 					{
-						// L'entité n'est pas dans l'état dans lequel elle devrait être vis-à-vis de ce système
-						// si elle en fait partie, nous devons l'en enlever, et inversément
+						// L'entité doit faire partie du système, revalidons-là (événement système) ou ajoutons-la au système
+						if (!partOfSystem)
+							system->AddEntity(entity);
+
+						system->ValidateEntity(entity, !partOfSystem);
+					}
+					else
+					{
+						// Elle ne doit pas en faire partie, si elle en faisait partie nous devons la retirer
 						if (partOfSystem)
-							system->RemoveEntity(&entity);
-						else
-							system->AddEntity(&entity);
+							system->RemoveEntity(entity);
 					}
 				}
 			}

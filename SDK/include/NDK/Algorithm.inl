@@ -44,4 +44,16 @@ namespace Ndk
 		SystemType::systemIndex = SystemType::RegisterSystem();
 		return SystemType::systemIndex;
 	}
+
+	template<typename ComponentType, typename C>
+	bool IsComponent(C& component)
+	{
+		return component.GetIndex() == GetComponentIndex<ComponentType>();
+	}
+
+	template<typename SystemType, typename S>
+	bool IsSystem(S& system)
+	{
+		return system.GetIndex() == GetSystemIndex<SystemType>();
+	}
 }
