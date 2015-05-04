@@ -7,7 +7,8 @@
 namespace Ndk
 {
 	inline BaseComponent::BaseComponent(ComponentIndex index) :
-	m_componentIndex(index)
+	m_componentIndex(index),
+	m_entity(nullptr)
 	{
 	}
 
@@ -33,6 +34,19 @@ namespace Ndk
 		s_idToIndex[id] = index;
 
 		return index;
+	}
+
+	inline void BaseComponent::SetEntity(Entity* entity)
+	{
+		if (m_entity != entity)
+		{
+			if (m_entity)
+				OnDetached();
+
+			m_entity = entity;
+			if (m_entity)
+				OnAttached();
+		}
 	}
 
 	inline bool BaseComponent::Initialize()

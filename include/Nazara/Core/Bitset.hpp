@@ -63,9 +63,9 @@ class NzBitset
 		void Swap(NzBitset& bitset);
 
 		bool Test(unsigned int bit) const;
-		bool TestAll();
-		bool TestAny();
-		bool TestNone();
+		bool TestAll() const;
+		bool TestAny() const;
+		bool TestNone() const;
 
 		template<typename T> T To() const;
 		NzString ToString() const;

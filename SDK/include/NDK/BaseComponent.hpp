@@ -14,8 +14,11 @@
 
 namespace Ndk
 {
+	class Entity;
+
 	class NDK_API BaseComponent
 	{
+		friend Entity;
 		friend class Sdk;
 
 		public:
@@ -35,10 +38,17 @@ namespace Ndk
 
 		protected:
 			ComponentIndex m_componentIndex;
+			Entity* m_entity;
 
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
+			virtual void OnAttached();
+			virtual void OnComponentAttached(BaseComponent& component);
+			virtual void OnComponentDetached(BaseComponent& component);
+			virtual void OnDetached();
+			void SetEntity(Entity* entity);
+
 			static bool Initialize();
 			static void Uninitialize();
 

@@ -87,11 +87,31 @@ namespace Ndk
 		m_requiredComponents.UnboundedSet(index);
 	}
 
+	template<typename ComponentType>
+	void BaseSystem::RequiresAny()
+	{
+		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+
+		RequiresAnyComponent(GetComponentIndex<ComponentType>());
+	}
+
+	template<typename ComponentType1, typename ComponentType2, typename... Rest>
+	void BaseSystem::RequiresAny()
+	{
+		RequiresAny<ComponentType1>();
+		RequiresAny<ComponentType2, Rest...>();
+	}
+
+	inline void BaseSystem::RequiresAnyComponent(ComponentIndex index)
+	{
+		m_requiredAnyComponents.UnboundedSet(index);
+	}
+
 	inline void BaseSystem::AddEntity(Entity* entity)
 	{
 		NazaraAssert(entity, "Invalid entity");
 
-		m_entities.push_back(entity->CreateHandle());
+		m_entities.emplace_back(entity);
 		m_entityBits.UnboundedSet(entity->GetId(), true);
 
 		entity->RegisterSystem(m_systemIndex);
@@ -116,6 +136,14 @@ namespace Ndk
 		OnEntityRemoved(entity); // Et on appelle le callback
 	}
 
+	inline void BaseSystem::ValidateEntity(Entity* entity, bool justAdded)
+	{
+		NazaraAssert(entity, "Invalid entity");
+		NazaraAssert(HasEntity(entity), "Entity should be part of system");
+
+		OnEntityValidation(entity, justAdded);
+	}
+
 	inline void BaseSystem::SetWorld(World& world)
 	{
 		m_world = &world;
@@ -132,5 +160,4 @@ namespace Ndk
 	{
 		// Rien à faire
 	}
-
 }

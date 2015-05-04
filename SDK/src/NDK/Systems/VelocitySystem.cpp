@@ -4,6 +4,7 @@
 
 #include <NDK/Systems/VelocitySystem.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/PhysicsComponent.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 
 namespace Ndk
@@ -11,6 +12,7 @@ namespace Ndk
 	VelocitySystem::VelocitySystem()
 	{
 		Requires<NodeComponent, VelocityComponent>();
+		Excludes<PhysicsComponent>();
 	}
 
 	void VelocitySystem::Update(float elapsedTime)
