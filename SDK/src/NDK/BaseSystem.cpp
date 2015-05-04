@@ -27,6 +27,13 @@ namespace Ndk
         if (m_filterResult.TestAny())
             return false; // Au moins un component exclu est présent
 
+		// Si nous avons une liste de composants nécessaires
+		if (m_requiredAnyComponents.TestAny())
+		{
+			if (!m_requiredAnyComponents.Intersects(components))
+				return false;
+		}
+
         return true;
 	}
 
@@ -38,6 +45,12 @@ namespace Ndk
 	void BaseSystem::OnEntityRemoved(Entity* entity)
 	{
 		NazaraUnused(entity);
+	}
+
+	void BaseSystem::OnEntityValidation(Entity* entity, bool justAdded)
+	{
+		NazaraUnused(entity);
+		NazaraUnused(justAdded);
 	}
 
 	SystemIndex BaseSystem::s_nextIndex;

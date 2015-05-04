@@ -13,16 +13,18 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics/Geom.hpp>
 
-class NzBaseGeom;
 class NzPhysWorld;
 struct NewtonBody;
 
-class NAZARA_API NzPhysObject : NzNonCopyable
+class NAZARA_API NzPhysObject
 {
 	public:
 		NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat = NzMatrix4f::Identity());
-		NzPhysObject(NzPhysWorld* world, const NzBaseGeom* geom, const NzMatrix4f& mat = NzMatrix4f::Identity());
+		NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat = NzMatrix4f::Identity());
+		NzPhysObject(const NzPhysObject& object);
+		NzPhysObject(NzPhysObject&& object);
 		~NzPhysObject();
 
 		void AddForce(const NzVector3f& force, nzCoordSys coordSys = nzCoordSys_Global);
@@ -31,7 +33,9 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 
 		void EnableAutoSleep(bool autoSleep);
 
+		NzBoxf GetAABB() const;
 		NzVector3f GetAngularVelocity() const;
+		const NzPhysGeomRef& GetGeom() const;
 		float GetGravityFactor() const;
 		NewtonBody* GetHandle() const;
 		float GetMass() const;
@@ -45,11 +49,17 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 		bool IsMoveable() const;
 		bool IsSleeping() const;
 
+		void SetAngularVelocity(const NzVector3f& angularVelocity);
+		void SetGeom(NzPhysGeomRef geom);
 		void SetGravityFactor(float gravityFactor);
 		void SetMass(float mass);
 		void SetMassCenter(const NzVector3f& center);
 		void SetPosition(const NzVector3f& position);
 		void SetRotation(const NzQuaternionf& rotation);
+		void SetVelocity(const NzVector3f& velocity);
+
+		NzPhysObject& operator=(const NzPhysObject& object);
+		NzPhysObject& operator=(NzPhysObject&& object);
 
 	private:
 		void UpdateBody();
@@ -57,12 +67,11 @@ class NAZARA_API NzPhysObject : NzNonCopyable
 		static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
 		NzMatrix4f m_matrix;
+		NzPhysGeomRef m_geom;
 		NzVector3f m_forceAccumulator;
 		NzVector3f m_torqueAccumulator;
 		NewtonBody* m_body;
-		const NzBaseGeom* m_geom;
 		NzPhysWorld* m_world;
-		bool m_ownsGeom;
 		float m_gravityFactor;
 		float m_mass;
 };

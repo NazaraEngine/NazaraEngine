@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 
 class NzIndexBuffer;
 class NzIndexIterator;

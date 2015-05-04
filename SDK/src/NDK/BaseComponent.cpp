@@ -8,6 +8,24 @@ namespace Ndk
 {
 	BaseComponent::~BaseComponent() = default;
 
+	void BaseComponent::OnAttached()
+	{
+	}
+
+	void BaseComponent::OnComponentAttached(BaseComponent& component)
+	{
+		NazaraUnused(component);
+	}
+
+	void BaseComponent::OnComponentDetached(BaseComponent& component)
+	{
+		NazaraUnused(component);
+	}
+
+	void BaseComponent::OnDetached()
+	{
+	}
+
 	std::vector<BaseComponent::ComponentEntry> BaseComponent::s_entries;
 	std::unordered_map<ComponentId, ComponentIndex> BaseComponent::s_idToIndex;
 }

@@ -80,6 +80,11 @@ namespace Ndk
 		return HasComponent(index);
 	}
 
+	inline bool Entity::IsValid() const
+	{
+		return m_valid;
+	}
+
 	template<typename ComponentType>
 	void Entity::RemoveComponent()
 	{
