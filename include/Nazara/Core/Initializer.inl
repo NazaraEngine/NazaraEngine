@@ -61,6 +61,8 @@ bool NzInitializer<Args...>::Initialize()
 {
 	if (!m_initialized)
 		m_initialized = NzImplInitializer<Args...>::Init();
+
+	return m_initialized;
 }
 
 template<typename... Args>
