@@ -67,6 +67,8 @@ namespace Ndk
 			friend bool operator>=(const Entity& lhs, const EntityHandle& rhs);
 			friend bool operator>=(const EntityHandle& lhs, const Entity& rhs);
 
+			static const EntityHandle InvalidHandle;
+
 		private:
 			void OnEntityDestroyed();
 			void OnEntityMoved(Entity* newEntity);
