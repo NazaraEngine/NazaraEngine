@@ -86,6 +86,7 @@ namespace Ndk
 
 		// On effectue l'échange
 		std::swap(m_entity, handle.m_entity);
+		return *this;
 	}
 
 	inline EntityHandle::operator bool() const
@@ -106,16 +107,22 @@ namespace Ndk
 	inline EntityHandle& EntityHandle::operator=(Entity* entity)
 	{
 		Reset(entity);
+
+		return *this;
 	}
 
 	inline EntityHandle& EntityHandle::operator=(const EntityHandle& handle)
 	{
 		Reset(handle);
+
+		return *this;
 	}
 
 	inline EntityHandle& EntityHandle::operator=(EntityHandle&& handle)
 	{
 		Reset(handle);
+
+		return *this;
 	}
 
 	inline void EntityHandle::OnEntityDestroyed()

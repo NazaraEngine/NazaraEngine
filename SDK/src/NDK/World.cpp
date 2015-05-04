@@ -79,7 +79,7 @@ namespace Ndk
 		else
 		{
 			NazaraError("Invalid ID");
-			return EntityHandle();
+			return EntityHandle::InvalidHandle;
 		}
 	}
 
