@@ -14,7 +14,7 @@ namespace Ndk
 		return m_isActive;
 	}
 
-	inline bool ListenerComponent::SetActive(bool active)
+	inline void ListenerComponent::SetActive(bool active)
 	{
 		m_isActive = active;
 	}

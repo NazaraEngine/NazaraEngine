@@ -18,7 +18,7 @@ namespace Ndk
 			~ListenerComponent() = default;
 
 			bool IsActive() const;
-			bool SetActive(bool active = true);
+			void SetActive(bool active = true);
 
 			static ComponentIndex componentIndex;
 
