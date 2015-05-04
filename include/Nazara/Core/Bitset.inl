@@ -309,7 +309,7 @@ bool NzBitset<Block, Allocator>::Test(unsigned int bit) const
 }
 
 template<typename Block, class Allocator>
-bool NzBitset<Block, Allocator>::TestAll()
+bool NzBitset<Block, Allocator>::TestAll() const
 {
 	// Cas particulier du dernier bloc
 	Block lastBlockMask = GetLastBlockMask();
@@ -325,7 +325,7 @@ bool NzBitset<Block, Allocator>::TestAll()
 }
 
 template<typename Block, class Allocator>
-bool NzBitset<Block, Allocator>::TestAny()
+bool NzBitset<Block, Allocator>::TestAny() const
 {
 	if (m_blocks.empty())
 		return false;
@@ -340,7 +340,7 @@ bool NzBitset<Block, Allocator>::TestAny()
 }
 
 template<typename Block, class Allocator>
-bool NzBitset<Block, Allocator>::TestNone()
+bool NzBitset<Block, Allocator>::TestNone() const
 {
 	return !TestAny();
 }

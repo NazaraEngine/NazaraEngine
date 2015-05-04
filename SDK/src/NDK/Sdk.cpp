@@ -13,10 +13,13 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
+#include <NDK/Components/CollisionComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/PhysicsComponent.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/PhysicsSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
@@ -49,12 +52,15 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Composants
+			InitializeComponent<CollisionComponent>("NdkColli");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<NodeComponent>("NdkNode");
+			InitializeComponent<PhysicsComponent>("NdkPhys");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
 
 			// Systèmes
 			InitializeSystem<ListenerSystem>();
+			InitializeSystem<PhysicsSystem>();
 			InitializeSystem<VelocitySystem>();
 
 			NazaraNotice("Initialized: SDK");
