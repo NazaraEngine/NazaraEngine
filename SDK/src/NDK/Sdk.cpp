@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
+#include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -52,6 +53,7 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Composants
+			InitializeComponent<CameraComponent>("NdkCam");
 			InitializeComponent<CollisionComponent>("NdkColli");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<NodeComponent>("NdkNode");
