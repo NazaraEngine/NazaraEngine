@@ -40,8 +40,7 @@ namespace Ndk
 		m_components[index] = std::move(componentPtr);
 		m_componentBits.UnboundedSet(index);
 
-		// On informe le monde que nous avons besoin d'une mise à jour
-		m_world->Invalidate(m_id);
+		Invalidate();
 
 		// On récupère le component et on informe les composants existants du nouvel arrivant
 		BaseComponent& component = *m_components[index].get();
@@ -66,6 +65,12 @@ namespace Ndk
 		m_world->KillEntity(this);
 	}
 
+	void Entity::Invalidate()
+	{
+		// On informe le monde que nous avons besoin d'une mise à jour
+		m_world->Invalidate(m_id);
+	}
+
 	void Entity::RemoveAllComponents()
 	{
 		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
@@ -75,8 +80,7 @@ namespace Ndk
 
 		m_components.clear();
 
-		// On informe le monde que nous avons besoin d'une mise à jour
-		m_world->Invalidate(m_id);
+		Invalidate();
 	}
 
 	void Entity::RemoveComponent(ComponentIndex index)
@@ -97,8 +101,7 @@ namespace Ndk
 			m_components[index].reset();
 			m_componentBits.Reset(index);
 
-			// On informe le monde que nous avons besoin d'une mise à jour
-			m_world->Invalidate(m_id);
+			Invalidate();
 		}
 	}
 
