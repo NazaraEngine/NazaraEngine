@@ -8,6 +8,13 @@
 
 namespace Ndk
 {
+	void CameraComponent::SetLayer(unsigned int layer)
+	{
+		m_layer = layer;
+
+		m_entity->Invalidate(); // Invalidate the entity to make it passes through RenderSystem validation
+	}
+
 	void CameraComponent::OnAttached()
 	{
 		InvalidateViewMatrix();
@@ -45,7 +52,7 @@ namespace Ndk
 		NazaraUnused(node);
 		NazaraUnused(userdata);
 
-		// La matrice de vue dépend directement des données du node, invalidons-là
+		// Our view matrix depends on NodeComponent position/rotation
 		InvalidateViewMatrix();
 		return true;
 	}
@@ -82,13 +89,14 @@ namespace Ndk
 		EnsureProjectionMatrixUpdate();
 		EnsureViewMatrixUpdate();
 
+		// Extract the frustum from the view and projection matrices
 		m_frustum.Extract(m_viewMatrix, m_projectionMatrix);
 		m_frustumUpdated = true;
 	}
 
 	void CameraComponent::UpdateProjectionMatrix() const
 	{
-		EnsureViewportUpdate(); // Peut affecter l'aspect ratio
+		EnsureViewportUpdate(); // Can affect aspect ratio
 
 		m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
 		m_projectionMatrixUpdated = true;
@@ -100,6 +108,7 @@ namespace Ndk
 
 		NodeComponent& nodeComponent = m_entity->GetComponent<NodeComponent>();
 
+		// Build the view matrix using the NodeComponent position/rotation
 		m_viewMatrix.MakeViewMatrix(nodeComponent.GetPosition(nzCoordSys_Global), nodeComponent.GetRotation(nzCoordSys_Global));
 		m_viewMatrixUpdated = true;
 	}
@@ -109,16 +118,16 @@ namespace Ndk
 		NazaraAssert(m_target, "CameraComponent has no target");
 
 		unsigned int targetWidth = m_target->GetWidth();
-		unsigned int targetHeight = std::max(m_target->GetHeight(), 1U); // Pour éviter une division par zéro
+		unsigned int targetHeight = std::max(m_target->GetHeight(), 1U); // Let's make sure we won't divide by zero
 
-		// La zone visée est définie en "pourcentage" (0...1), on calcule les valeurs en pixel
+		// Our target region is expressed as % of the viewport dimensions, let's compute it in pixels
 		NzRectf fViewport(m_targetRegion);
 		fViewport.x *= targetWidth;
 		fViewport.y *= targetHeight;
 		fViewport.width *= targetWidth;
 		fViewport.height *= targetHeight;
 
-		// On calcule le rapport largeur/hauteur, et s'il est différent on invalide
+		// Compute the new aspect ratio, if it's different we need to invalidate the projection matrix
 		float aspectRatio = fViewport.width/fViewport.height;
 		if (!NzNumberEquals(m_aspectRatio, aspectRatio, 0.001f))
 		{
@@ -127,6 +136,7 @@ namespace Ndk
 			InvalidateProjectionMatrix();
 		}
 
+		// Convert it back to int
 		m_viewport.Set(fViewport);
 		m_viewportUpdated = true;
 	}
