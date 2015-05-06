@@ -95,13 +95,20 @@ namespace
 	static_assert(sizeof(s_comparisons)/sizeof(int) == nzLuaComparison_Max+1, "Lua comparison array is incomplete");
 
 	int s_operations[] = {
-		LUA_OPADD, // nzLuaOperation_Addition
-		LUA_OPDIV, // nzLuaOperation_Division
-		LUA_OPPOW, // nzLuaOperation_Exponentiation
-		LUA_OPMOD, // nzLuaOperation_Modulo
-		LUA_OPMUL, // nzLuaOperation_Multiplication
-		LUA_OPUNM, // nzLuaOperation_Negation
-		LUA_OPSUB  // nzLuaOperation_Substraction
+		LUA_OPADD,  // nzLuaOperation_Addition
+		LUA_OPBAND, // nzLuaOperation_BitwiseAnd
+		LUA_OPSHL,  // nzLuaOperation_BitwiseLeftShift
+		LUA_OPBNOT, // nzLuaOperation_BitwiseNot
+		LUA_OPBOR,  // nzLuaOperation_BitwiseOr
+		LUA_OPSHR,  // nzLuaOperation_BitwiseRightShift
+		LUA_OPBXOR, // nzLuaOperation_BitwiseXOr
+		LUA_OPDIV,  // nzLuaOperation_Division
+		LUA_OPPOW,  // nzLuaOperation_Exponentiation
+		LUA_OPIDIV, // nzLuaOperation_FloorDivision
+		LUA_OPMUL,  // nzLuaOperation_Multiplication
+		LUA_OPMOD,  // nzLuaOperation_Modulo
+		LUA_OPUNM,  // nzLuaOperation_Negation
+		LUA_OPSUB   // nzLuaOperation_Substraction
 	};
 
 	static_assert(sizeof(s_operations)/sizeof(int) == nzLuaOperation_Max+1, "Lua operation array is incomplete");
@@ -157,6 +164,16 @@ int NzLuaInstance::ArgError(unsigned int argNum, const char* error)
 int NzLuaInstance::ArgError(unsigned int argNum, const NzString& error)
 {
 	return luaL_argerror(m_state, argNum, error.GetConstBuffer());
+}
+
+bool NzLuaInstance::Call(unsigned int argCount)
+{
+	return Run(argCount, LUA_MULTRET);
+}
+
+bool NzLuaInstance::Call(unsigned int argCount, unsigned int resultCount)
+{
+	return Run(argCount, resultCount);
 }
 
 void NzLuaInstance::CheckAny(int index) const
@@ -370,7 +387,7 @@ bool NzLuaInstance::Execute(const NzString& code)
 		return false;
 	}
 
-	return Run();
+	return Run(0, 0);
 }
 
 bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
@@ -416,7 +433,7 @@ bool NzLuaInstance::ExecuteFromStream(NzInputStream& stream)
 		return false;
 	}
 
-	return Run();
+	return Run(0, 0);
 }
 
 int NzLuaInstance::GetAbsIndex(int index) const
@@ -813,12 +830,12 @@ NzLuaInstance* NzLuaInstance::GetInstance(lua_State* state)
 	return instance;
 }
 
-bool NzLuaInstance::Run()
+bool NzLuaInstance::Run(int argCount, int resultCount)
 {
 	if (m_level++ == 0)
 		m_clock.Restart();
 
-	int status = lua_pcall(m_state, 0, 0, 0);
+	int status = lua_pcall(m_state, argCount, resultCount, 0);
 
 	m_level--;
 

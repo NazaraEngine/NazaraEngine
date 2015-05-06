@@ -74,6 +74,7 @@ struct NzRenderTextureImpl
 	bool complete = false;
 	bool userDefinedTargets = false;
 	mutable bool drawBuffersUpdated = true;
+	mutable bool sizeUpdated = false;
 	mutable bool targetsUpdated = true;
 	unsigned int height;
 	unsigned int width;
@@ -171,6 +172,7 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	attachment.width = buffer->GetWidth();
 
 	m_impl->checked = false;
+	m_impl->sizeUpdated = false;
 
 	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
 	{
@@ -316,6 +318,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.width = texture->GetWidth();
 
 	m_impl->checked = false;
+	m_impl->sizeUpdated = false;
 
 	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
 	{
@@ -469,8 +472,8 @@ unsigned int NzRenderTexture::GetHeight() const
 	}
 	#endif
 
-	if (!m_impl->targetsUpdated)
-		UpdateTargets();
+	if (!m_impl->sizeUpdated)
+		UpdateSize();
 
 	return m_impl->height;
 }
@@ -499,8 +502,8 @@ NzVector2ui NzRenderTexture::GetSize() const
 	}
 	#endif
 
-	if (!m_impl->targetsUpdated)
-		UpdateTargets();
+	if (!m_impl->sizeUpdated)
+		UpdateSize();
 
 	return NzVector2ui(m_impl->width, m_impl->height);
 }
@@ -515,8 +518,8 @@ unsigned int NzRenderTexture::GetWidth() const
 	}
 	#endif
 
-	if (!m_impl->targetsUpdated)
-		UpdateTargets();
+	if (!m_impl->sizeUpdated)
+		UpdateSize();
 
 	return m_impl->width;
 }
@@ -915,11 +918,21 @@ void NzRenderTexture::UpdateDrawBuffers() const
 	m_impl->drawBuffersUpdated = true;
 }
 
+void NzRenderTexture::UpdateSize() const
+{
+	m_impl->width = 0;
+	m_impl->height = 0;
+	for (Attachment& attachment : m_impl->attachments)
+	{
+		m_impl->height = std::max(m_impl->height, attachment.height);
+		m_impl->width = std::max(m_impl->width, attachment.width);
+	}
+
+	m_impl->sizeUpdated = true;
+}
+
 void NzRenderTexture::UpdateTargets() const
 {
-	m_impl->width = std::numeric_limits<unsigned int>::max();
-	m_impl->height = std::numeric_limits<unsigned int>::max();
-
 	if (m_impl->colorTargets.empty())
 	{
 		m_impl->drawBuffers.resize(1);
@@ -930,13 +943,7 @@ void NzRenderTexture::UpdateTargets() const
 		m_impl->drawBuffers.resize(m_impl->colorTargets.size());
 		GLenum* ptr = &m_impl->drawBuffers[0];
 		for (nzUInt8 index : m_impl->colorTargets)
-		{
 			*ptr++ = GL_COLOR_ATTACHMENT0 + index;
-
-			Attachment& attachment = m_impl->attachments[attachmentIndex[nzAttachmentPoint_Color] + index];
-			m_impl->height = std::min(m_impl->height, attachment.height);
-			m_impl->width = std::min(m_impl->width, attachment.width);
-		}
 	}
 
 	m_impl->targetsUpdated = true;

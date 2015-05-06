@@ -7,7 +7,11 @@
 
 NzMutexImpl::NzMutexImpl()
 {
-	pthread_mutex_init(&m_handle, NULL);
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+
+	pthread_mutex_init(&m_handle, &attr);
 }
 
 NzMutexImpl::~NzMutexImpl()

@@ -46,8 +46,8 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		float GetZFar() const;
 		float GetZNear() const;
 
-		NzVector2i MapWorldToPixel(const NzVector2f& coords);
 		NzVector2f MapPixelToWorld(const NzVector2i& pixel);
+		NzVector2i MapWorldToPixel(const NzVector2f& coords);
 
 		void SetSize(const NzVector2f& size);
 		void SetSize(float width, float height);
