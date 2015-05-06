@@ -70,6 +70,11 @@ namespace Ndk
 		return m_frustum;
 	}
 
+	inline unsigned int CameraComponent::GetLayer() const
+	{
+		return m_layer;
+	}
+
 	inline const NzMatrix4f& CameraComponent::GetProjectionMatrix() const
 	{
 		EnsureProjectionMatrixUpdate();
