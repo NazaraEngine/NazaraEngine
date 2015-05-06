@@ -82,14 +82,15 @@ bool NzDirectoryImpl::Exists(const NzString& dirPath)
 NzString NzDirectoryImpl::GetCurrent()
 {
 	NzString currentPath;
-	char* path = new char[_PC_PATH_MAX];
+	char* path = getcwd(nullptr, 0);
 
-	if (getcwd(path, _PC_PATH_MAX))
+	if (path)
+	{
 		currentPath = path;
+		free(path);
+	}
 	else
-		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError());
-
-	delete[] path;
+		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError()); // Bug: initialisation -> if no path for log !
 
 	return currentPath;
 }

@@ -127,8 +127,8 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 		NzRenderer::SetRenderStates(lightStates);
 
 		NzRenderer::SetShader(m_pointSpotLightShader);
-		m_pointSpotLightShader->SendColor(m_pointSpotLightShaderEyePositionLocation, scene->GetAmbientColor());
-		m_pointSpotLightShader->SendVector(m_pointSpotLightShaderSceneAmbientLocation, scene->GetViewer()->GetEyePosition());
+		m_pointSpotLightShader->SendColor(m_pointSpotLightShaderSceneAmbientLocation, scene->GetAmbientColor());
+		m_pointSpotLightShader->SendVector(m_pointSpotLightShaderEyePositionLocation, scene->GetViewer()->GetEyePosition());
 
 		NzMatrix4f lightMatrix;
 		lightMatrix.MakeIdentity();
