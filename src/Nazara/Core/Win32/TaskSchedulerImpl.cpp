@@ -11,7 +11,7 @@
 
 bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 {
-	if (s_workerCount > 0)
+	if (IsInitialized())
 		return true; // Déjà initialisé
 
 	#if NAZARA_CORE_SAFE

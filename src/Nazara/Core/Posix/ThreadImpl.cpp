@@ -57,9 +57,9 @@ void NzThreadImpl::Sleep(nzUInt32 time)
 
     // create a mutex and thread condition
     pthread_mutex_t mutex;
-    pthread_mutex_init(&mutex, 0);
+    pthread_mutex_init(&mutex, nullptr);
     pthread_cond_t condition;
-    pthread_cond_init(&condition, 0);
+    pthread_cond_init(&condition, nullptr);
 
     // wait...
     pthread_mutex_lock(&mutex);
