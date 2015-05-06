@@ -50,15 +50,7 @@ NzNode::~NzNode()
 
 	SetParent(nullptr);
 
-	m_listenersLocked = true;
-	for (auto& pair : m_listeners)
-		pair.first->OnNodeReleased(this, pair.second);
-}
-
-void NzNode::AddListener(Listener* listener, void* userdata) const
-{
-	if (!m_listenersLocked)
-		m_listeners.insert(std::make_pair(listener, userdata));
+	NotifyRelease(Listener::OnNodeReleased);
 }
 
 void NzNode::EnsureDerivedUpdate() const
@@ -291,12 +283,6 @@ NzNode& NzNode::Move(const NzVector3f& movement, nzCoordSys coordSys)
 NzNode& NzNode::Move(float moveX, float moveY, float moveZ, nzCoordSys coordSys)
 {
 	return Move(NzVector3f(moveX, moveY, moveZ), coordSys);
-}
-
-void NzNode::RemoveListener(Listener* listener) const
-{
-	if (!m_listenersLocked)
-		m_listeners.erase(listener);
 }
 
 NzNode& NzNode::Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys)
@@ -662,12 +648,12 @@ void NzNode::InvalidateNode()
 	for (NzNode* node : m_childs)
 		node->InvalidateNode();
 
-	NotifyInvalidation();
+	Notify(Listener::OnNodeInvalidated);
 }
 
 void NzNode::OnParenting(const NzNode* parent)
 {
-	NotifyParented(parent);
+	Notify(Listener::OnNodeParented, parent);
 }
 
 void NzNode::RemoveChild(NzNode* node) const
@@ -720,38 +706,6 @@ void NzNode::UpdateTransformMatrix() const
 
 	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 	m_transformMatrixUpdated = true;
-}
-
-void NzNode::NotifyInvalidation()
-{
-	m_listenersLocked = true;
-
-	auto it = m_listeners.begin();
-	while (it != m_listeners.end())
-	{
-		if (!it->first->OnNodeInvalidated(this, it->second))
-			m_listeners.erase(it++);
-		else
-			++it;
-	}
-
-	m_listenersLocked = false;
-}
-
-void NzNode::NotifyParented(const NzNode* parent)
-{
-	m_listenersLocked = true;
-
-	auto it = m_listeners.begin();
-	while (it != m_listeners.end())
-	{
-		if (!it->first->OnNodeParented(this, parent, it->second))
-			m_listeners.erase(it++);
-		else
-			++it;
-	}
-
-	m_listenersLocked = false;
 }
 
 NzNode::Listener::~Listener() = default;
