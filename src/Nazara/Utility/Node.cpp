@@ -49,6 +49,8 @@ NzNode::~NzNode()
 	}
 
 	SetParent(nullptr);
+
+	NotifyRelease(Listener::OnNodeReleased);
 }
 
 void NzNode::EnsureDerivedUpdate() const
@@ -652,11 +654,13 @@ void NzNode::InvalidateNode()
 
 	for (NzNode* node : m_childs)
 		node->InvalidateNode();
+
+	Notify(Listener::OnNodeInvalidated);
 }
 
 void NzNode::OnParenting(const NzNode* parent)
 {
-	NazaraUnused(parent);
+	Notify(Listener::OnNodeParented, parent);
 }
 
 void NzNode::RemoveChild(NzNode* node) const
@@ -709,4 +713,29 @@ void NzNode::UpdateTransformMatrix() const
 
 	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 	m_transformMatrixUpdated = true;
+}
+
+NzNode::Listener::~Listener() = default;
+
+bool NzNode::Listener::OnNodeInvalidated(const NzNode* node, void* userdata)
+{
+	NazaraUnused(node);
+	NazaraUnused(userdata);
+
+	return true;
+}
+
+bool NzNode::Listener::OnNodeParented(const NzNode* node, const NzNode* parent, void* userdata)
+{
+	NazaraUnused(node);
+	NazaraUnused(parent);
+	NazaraUnused(userdata);
+
+	return true;
+}
+
+void NzNode::Listener::OnNodeReleased(const NzNode* node, void* userdata)
+{
+	NazaraUnused(node);
+	NazaraUnused(userdata);
 }

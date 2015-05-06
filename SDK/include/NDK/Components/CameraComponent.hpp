@@ -11,13 +11,14 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, NzRenderTarget::Listener
+	class NDK_API CameraComponent : public Component<CameraComponent>, NzNode::Listener, NzRenderTarget::Listener
 	{
 		public:
 			CameraComponent();
@@ -62,6 +63,7 @@ namespace Ndk
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
+			bool OnNodeInvalidated(const NzNode* node, void* userdata) override;
 			void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
 			bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
 

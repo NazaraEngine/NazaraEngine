@@ -22,7 +22,7 @@ NzGuillotineImageAtlas::~NzGuillotineImageAtlas() = default;
 void NzGuillotineImageAtlas::Clear()
 {
 	m_layers.clear();
-	NotifyCleared();
+	Notify(Listener::OnAtlasCleared);
 }
 
 void NzGuillotineImageAtlas::Free(NzSparsePtr<const NzRectui> rects, NzSparsePtr<unsigned int> layers, unsigned int count)
@@ -187,7 +187,7 @@ bool NzGuillotineImageAtlas::ResizeLayer(Layer& layer, const NzVector2ui& size)
 
 	// On indique à ceux que ça intéresse qu'on a changé de pointeur
 	// (chose très importante pour ceux qui le stockent)
-	NotifyLayerChange(layer.image.get(), newImage.get());
+	Notify(Listener::OnAtlasLayerChange, layer.image.get(), newImage.get());
 
 	// Et on ne met à jour le pointeur qu'après (car cette ligne libère également l'ancienne image)
 	layer.image = std::move(newImage);
