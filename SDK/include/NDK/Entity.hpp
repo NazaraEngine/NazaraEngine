@@ -45,6 +45,7 @@ namespace Ndk
 
 			void Kill();
 
+			void Invalidate();
 			bool IsValid() const;
 
 			void RemoveAllComponents();
