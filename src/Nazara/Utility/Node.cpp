@@ -416,10 +416,17 @@ void NzNode::SetInitialScale(float scaleX, float scaleY, float scaleZ)
 void NzNode::SetParent(const NzNode* node, bool keepDerived)
 {
 	#if NAZARA_UTILITY_SAFE
-	if (node == this)
+	// On vérifie que le node n'est pas son propre parent
+	const NzNode* parentNode = node;
+	while (parentNode)
 	{
-		NazaraError("A node cannot be it's own parent");
-		return;
+		if (parentNode == this)
+		{
+			NazaraError("A node cannot be it's own parent");
+			return;
+		}
+
+		parentNode = parentNode->GetParent();
 	}
 	#endif
 
