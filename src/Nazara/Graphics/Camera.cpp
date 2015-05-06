@@ -171,6 +171,10 @@ void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 	m_target = renderTarget;
 	if (m_target)
 		m_target->AddListener(this);
+
+	m_frustumUpdated = false;
+	m_projectionMatrixUpdated = false;
+	m_viewportUpdated = false;
 }
 
 void NzCamera::SetTarget(const NzRenderTarget& renderTarget)

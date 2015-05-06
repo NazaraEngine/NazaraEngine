@@ -35,6 +35,9 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		int ArgError(unsigned int argNum, const char* error);
 		int ArgError(unsigned int argNum, const NzString& error);
 
+		bool Call(unsigned int argCount);
+		bool Call(unsigned int argCount, unsigned int resultCount);
+
 		void CheckAny(int index) const;
 		bool CheckBoolean(int index) const;
 		bool CheckBoolean(int index, bool defValue) const;
@@ -146,7 +149,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		static NzLuaInstance* GetInstance(lua_State* state);
 
 	private:
-		bool Run();
+		bool Run(int argCount, int resultCount);
 
 		static void* MemoryAllocator(void *ud, void *ptr, std::size_t osize, std::size_t nsize);
 		static int ProxyFunc(lua_State* state);

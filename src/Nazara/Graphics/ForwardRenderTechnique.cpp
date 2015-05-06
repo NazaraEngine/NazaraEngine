@@ -658,9 +658,12 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 			shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
-			lightCount = std::min(m_directionalLights.GetLightCount(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
-			for (unsigned int i = 0; i < lightCount; ++i)
-				m_directionalLights.GetLight(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+			if (shaderUniforms->hasLightUniforms)
+			{
+				lightCount = std::min(m_directionalLights.GetLightCount(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+				for (unsigned int i = 0; i < lightCount; ++i)
+					m_directionalLights.GetLight(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+			}
 
 			lastShader = shader;
 		}
@@ -690,20 +693,23 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		NzRenderer::SetIndexBuffer(indexBuffer);
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
-		// Calcul des lumières les plus proches
-		if (lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS && !m_lights.IsEmpty())
+		if (shaderUniforms->hasLightUniforms)
 		{
-			NzVector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
-			float radius = modelData.squaredBoundingSphere.radius;
-			unsigned int closestLightCount = m_lights.ComputeClosestLights(position, radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
+			// Calcul des lumières les plus proches
+			if (lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS && !m_lights.IsEmpty())
+			{
+				NzVector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
+				float radius = modelData.squaredBoundingSphere.radius;
+				unsigned int closestLightCount = m_lights.ComputeClosestLights(position, radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
 
-			unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, closestLightCount);
-			for (unsigned int i = 0; i < count; ++i)
-				m_lights.GetResult(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*(lightCount++));
+				unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, closestLightCount);
+				for (unsigned int i = 0; i < count; ++i)
+					m_lights.GetResult(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*(lightCount++));
+			}
+
+			for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+				NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 		}
-
-		for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-			NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
 
 		NzRenderer::SetMatrix(nzMatrixType_World, matrix);
 		drawFunc(meshData.primitiveMode, 0, indexCount);
