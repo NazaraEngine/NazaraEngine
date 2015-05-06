@@ -8,13 +8,15 @@
 #define NAZARA_NODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Listenable.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <unordered_map>
 #include <vector>
 
-class NAZARA_API NzNode
+class NAZARA_API NzNode : public NzListenable<NzNode>
 {
 	public:
 		NzNode();
@@ -88,6 +90,17 @@ class NAZARA_API NzNode
 
 		NzNode& operator=(const NzNode& node);
 
+		class NAZARA_API Listener
+		{
+			public:
+				Listener() = default;
+				virtual ~Listener();
+
+				virtual bool OnNodeInvalidated(const NzNode* node, void* userdata);
+				virtual bool OnNodeParented(const NzNode* node, const NzNode* parent, void* userdata);
+				virtual void OnNodeReleased(const NzNode* node, void* userdata);
+		};
+
 	protected:
 		void AddChild(NzNode* node) const;
 		virtual void InvalidateNode();
@@ -113,6 +126,7 @@ class NAZARA_API NzNode
 		bool m_inheritRotation;
 		bool m_inheritScale;
 		mutable bool m_transformMatrixUpdated;
+
 };
 
 #endif // NAZARA_NODE_HPP

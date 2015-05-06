@@ -8,23 +8,20 @@
 #define NAZARA_RENDERTARGET_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Listenable.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <unordered_map>
 
 class NzRenderer;
 
-class NAZARA_API NzRenderTarget
+class NAZARA_API NzRenderTarget : public NzListenable<NzRenderTarget>
 {
 	friend class NzRenderer;
 
 	public:
-		class Listener;
-
-		NzRenderTarget();
+		NzRenderTarget() = default;
 		virtual ~NzRenderTarget();
-
-		void AddListener(Listener* listener, void* userdata = nullptr) const;
 
 		virtual unsigned int GetHeight() const = 0;
 		virtual NzRenderTargetParameters GetParameters() const = 0;
@@ -32,8 +29,6 @@ class NAZARA_API NzRenderTarget
 
 		bool IsActive() const;
 		virtual bool IsRenderable() const = 0;
-
-		void RemoveListener(Listener* listener) const;
 
 		bool SetActive(bool active);
 
@@ -55,13 +50,6 @@ class NAZARA_API NzRenderTarget
 		virtual bool Activate() const = 0;
 		virtual void Desactivate() const;
 		virtual void EnsureTargetUpdated() const = 0;
-
-		void NotifyParametersChange();
-		void NotifySizeChange();
-
-	private:
-		mutable std::unordered_map<Listener*, void*> m_listeners;
-		bool m_listenersLocked;
 };
 
 #endif // NAZARA_RENDERTARGET_HPP

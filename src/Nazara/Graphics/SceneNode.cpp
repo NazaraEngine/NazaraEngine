@@ -190,6 +190,8 @@ void NzSceneNode::InvalidateNode()
 
 void NzSceneNode::OnParenting(const NzNode* parent)
 {
+	NzNode::OnParenting(parent);
+
 	if (parent)
 	{
 		///FIXME: Remonter jusqu'au premier parent de type SceneNode plutôt que de s'arrêter au premier venu
