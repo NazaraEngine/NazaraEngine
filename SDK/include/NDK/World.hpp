@@ -66,7 +66,8 @@ namespace Ndk
 			struct EntityBlock
 			{
 				EntityBlock(Entity&& e) :
-				entity(std::move(e))
+				entity(std::move(e)),
+				aliveIndex(e.aliveIndex)
 				{
 				}
 
