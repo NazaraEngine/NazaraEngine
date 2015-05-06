@@ -8,15 +8,6 @@
 
 namespace Ndk
 {
-	/*void CameraComponent::InvalidateNode()
-	{
-		NzNode::InvalidateNode();
-
-		// Le frustum et la view matrix dépendent des paramètres du node, invalidons-les
-		m_frustumUpdated = false;
-		m_viewMatrixUpdated = false;
-	}*/
-
 	void CameraComponent::OnAttached()
 	{
 		InvalidateViewMatrix();
@@ -25,18 +16,38 @@ namespace Ndk
 	void CameraComponent::OnComponentAttached(BaseComponent& component)
 	{
 		if (IsComponent<NodeComponent>(component))
+		{
+			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
+			nodeComponent.AddListener(this);
+
 			InvalidateViewMatrix();
+		}
 	}
 
 	void CameraComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<NodeComponent>(component))
+		{
+			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
+			nodeComponent.RemoveListener(this);
+
 			InvalidateViewMatrix();
+		}
 	}
 
 	void CameraComponent::OnDetached()
 	{
 		InvalidateViewMatrix();
+	}
+
+	bool CameraComponent::OnNodeInvalidated(const NzNode* node, void* userdata)
+	{
+		NazaraUnused(node);
+		NazaraUnused(userdata);
+
+		// La matrice de vue dépend directement des données du node, invalidons-là
+		InvalidateViewMatrix();
+		return true;
 	}
 
 	void CameraComponent::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
