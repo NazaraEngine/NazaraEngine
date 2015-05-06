@@ -12,14 +12,19 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <unordered_map>
 #include <vector>
 
 class NAZARA_API NzNode
 {
 	public:
+		class Listener;
+
 		NzNode();
 		NzNode(const NzNode& node);
 		virtual ~NzNode();
+
+		void AddListener(Listener* listener, void* userdata = nullptr) const;
 
 		void EnsureDerivedUpdate() const;
 		void EnsureTransformMatrixUpdate() const;
@@ -51,6 +56,7 @@ class NAZARA_API NzNode
 		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
 		NzNode& Move(float movementX, float movementY, float movementZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
 
+		void RemoveListener(Listener* listener) const;
 		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
 
 		NzNode& Scale(const NzVector3f& scale);
@@ -88,6 +94,17 @@ class NAZARA_API NzNode
 
 		NzNode& operator=(const NzNode& node);
 
+		class NAZARA_API Listener
+		{
+			public:
+				Listener() = default;
+				virtual ~Listener();
+
+				virtual bool OnNodeInvalidated(const NzNode* node, void* userdata);
+				virtual bool OnNodeParented(const NzNode* node, const NzNode* parent, void* userdata);
+				virtual void OnNodeReleased(const NzNode* node, void* userdata);
+		};
+
 	protected:
 		void AddChild(NzNode* node) const;
 		virtual void InvalidateNode();
@@ -113,6 +130,15 @@ class NAZARA_API NzNode
 		bool m_inheritRotation;
 		bool m_inheritScale;
 		mutable bool m_transformMatrixUpdated;
+
+	private:
+		void NotifyInvalidation();
+		void NotifyParented(const NzNode* parent);
+
+	private:
+		mutable std::unordered_map<Listener*, void*> m_listeners;
+		bool m_listenersLocked;
+
 };
 
 #endif // NAZARA_NODE_HPP
