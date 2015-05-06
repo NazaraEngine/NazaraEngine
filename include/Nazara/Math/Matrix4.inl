@@ -748,7 +748,6 @@ NzMatrix4<T>& NzMatrix4<T>::Set(const T matrix[16])
 template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::Set(const NzMatrix4& matrix)
 {
-	// Le membre isIdentity est copié en même temps que les valeurs
 	std::memcpy(this, &matrix, sizeof(NzMatrix4));
 
 	return *this;

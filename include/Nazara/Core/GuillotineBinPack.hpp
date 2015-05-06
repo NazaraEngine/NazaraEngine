@@ -18,25 +18,8 @@
 class NAZARA_API NzGuillotineBinPack
 {
 	public:
-		enum FreeRectChoiceHeuristic
-		{
-			RectBestAreaFit,
-			RectBestLongSideFit,
-			RectBestShortSideFit,
-			RectWorstAreaFit,
-			RectWorstLongSideFit,
-			RectWorstShortSideFit
-		};
-
-		enum GuillotineSplitHeuristic
-		{
-			SplitLongerAxis,
-			SplitLongerLeftoverAxis,
-			SplitMaximizeArea,
-			SplitMinimizeArea,
-			SplitShorterAxis,
-			SplitShorterLeftoverAxis
-		};
+		enum FreeRectChoiceHeuristic : int;
+		enum GuillotineSplitHeuristic : int;
 
 		NzGuillotineBinPack();
 		NzGuillotineBinPack(unsigned int width, unsigned int height);
@@ -69,6 +52,26 @@ class NAZARA_API NzGuillotineBinPack
 
 		NzGuillotineBinPack& operator=(const NzGuillotineBinPack&) = default;
 		NzGuillotineBinPack& operator=(NzGuillotineBinPack&&) = default;
+
+		enum FreeRectChoiceHeuristic : int
+		{
+			RectBestAreaFit,
+			RectBestLongSideFit,
+			RectBestShortSideFit,
+			RectWorstAreaFit,
+			RectWorstLongSideFit,
+			RectWorstShortSideFit
+		};
+
+		enum GuillotineSplitHeuristic : int
+		{
+			SplitLongerAxis,
+			SplitLongerLeftoverAxis,
+			SplitMaximizeArea,
+			SplitMinimizeArea,
+			SplitShorterAxis,
+			SplitShorterLeftoverAxis
+		};
 
 	private:
 		void SplitFreeRectAlongAxis(const NzRectui& freeRect, const NzRectui& placedRect, bool splitHorizontal);
