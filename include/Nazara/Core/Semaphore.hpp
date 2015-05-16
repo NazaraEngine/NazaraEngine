@@ -19,7 +19,9 @@ class NAZARA_API NzSemaphore : NzNonCopyable
 		~NzSemaphore();
 
 		unsigned int GetCount() const;
+
 		void Post();
+
 		void Wait();
 		bool Wait(nzUInt32 timeout);
 
