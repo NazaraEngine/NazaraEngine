@@ -76,17 +76,14 @@ void NzTaskSchedulerImpl::Uninitialize()
 	}
 	#endif
 
+	// On réveille les threads pour qu'ils sortent de la boucle et terminent.
+	pthread_mutex_lock(&s_mutexQueue);
 	// On commence par vider la queue et demander qu'ils s'arrêtent.
+	std::queue<NzFunctor*> emptyQueue;
+	std::swap(s_tasks, emptyQueue);
 	s_shouldFinish = true;
-
-	ClearQueue();
-
-	{
-		// On réveille les threads pour qu'ils sortent de la boucle et terminent.
-		pthread_mutex_lock(&s_mutexQueue);
-		pthread_cond_broadcast(&s_cvNotEmpty);
-		pthread_mutex_unlock(&s_mutexQueue);
-	}
+	pthread_cond_broadcast(&s_cvNotEmpty);
+	pthread_mutex_unlock(&s_mutexQueue);
 
 	// On attend que chaque thread se termine
 	for (unsigned int i = 0; i < s_workerCount; ++i)
@@ -114,14 +111,6 @@ void NzTaskSchedulerImpl::WaitForTasks()
 	Wait();
 }
 
-void NzTaskSchedulerImpl::ClearQueue()
-{
-	pthread_mutex_lock(&s_mutexQueue);
-	std::queue<NzFunctor*> emptyQueue;
-	std::swap(s_tasks, emptyQueue);
-	pthread_mutex_unlock(&s_mutexQueue);
-}
-
 NzFunctor* NzTaskSchedulerImpl::PopQueue()
 {
 	NzFunctor* task = nullptr;
@@ -144,14 +133,12 @@ void NzTaskSchedulerImpl::Wait()
 	if (s_isDone)
 		return;
 
-	if (!s_isDone)
-	{
-		s_isWaiting = true;
-		pthread_mutex_lock(&s_mutexQueue);
-		pthread_cond_broadcast(&s_cvNotEmpty);
-		pthread_cond_wait(&s_cvEmpty, &s_mutexQueue);
-		pthread_mutex_unlock(&s_mutexQueue);
-	}
+	pthread_mutex_lock(&s_mutexQueue);
+	s_isWaiting = true;
+	pthread_cond_broadcast(&s_cvNotEmpty);
+	pthread_cond_wait(&s_cvEmpty, &s_mutexQueue);
+	pthread_mutex_unlock(&s_mutexQueue);
+
 	s_isDone = true;
 }
 

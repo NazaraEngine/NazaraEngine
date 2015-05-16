@@ -27,7 +27,6 @@ class NzTaskSchedulerImpl
 		static void WaitForTasks();
 
 	private:
-		static void ClearQueue();
 		static NzFunctor* PopQueue();
 		static void Wait();
 		static void* WorkerProc(void* userdata);
