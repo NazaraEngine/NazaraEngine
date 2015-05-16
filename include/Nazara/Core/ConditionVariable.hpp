@@ -8,11 +8,12 @@
 #define NAZARA_CONDITIONVARIABLE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/NonCopyable.hpp>
 
 class NzConditionVariableImpl;
 class NzMutex;
 
-class NAZARA_API NzConditionVariable
+class NAZARA_API NzConditionVariable : NzNonCopyable
 {
 	public:
 		NzConditionVariable();
