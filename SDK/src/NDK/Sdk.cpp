@@ -22,6 +22,7 @@
 #include <NDK/Components/VelocityComponent.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 namespace Ndk
@@ -65,6 +66,7 @@ namespace Ndk
 			// Systèmes
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<PhysicsSystem>();
+			InitializeSystem<RenderSystem>();
 			InitializeSystem<VelocitySystem>();
 
 			NazaraNotice("Initialized: SDK");
