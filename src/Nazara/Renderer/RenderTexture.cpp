@@ -451,6 +451,8 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 		attachement.texture = nullptr;
 	}
 
+	m_impl->sizeUpdated = false;
+
 	if (attachement.attachmentPoint == nzAttachmentPoint_Color)
 	{
 		m_impl->drawBuffersUpdated = false;
@@ -924,8 +926,11 @@ void NzRenderTexture::UpdateSize() const
 	m_impl->height = 0;
 	for (Attachment& attachment : m_impl->attachments)
 	{
-		m_impl->height = std::max(m_impl->height, attachment.height);
-		m_impl->width = std::max(m_impl->width, attachment.width);
+		if (attachment.isUsed)
+		{
+			m_impl->height = std::max(m_impl->height, attachment.height);
+			m_impl->width = std::max(m_impl->width, attachment.width);
+		}
 	}
 
 	m_impl->sizeUpdated = true;
