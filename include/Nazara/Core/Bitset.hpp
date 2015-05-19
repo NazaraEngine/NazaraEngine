@@ -111,6 +111,18 @@ template<typename Block, class Allocator>
 bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
 template<typename Block, class Allocator>
+bool operator<(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, class Allocator>
+bool operator<=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, class Allocator>
+bool operator>(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, class Allocator>
+bool operator>=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
 
 template<typename Block, class Allocator>

@@ -42,8 +42,8 @@ return {
 				{
 					Title = "Stockage et gestion de champs de bits dynamiques (Bitset)",
 					Description = "Classe permettant le stockage et la manipulation optimisée d'un nombre élevé et dynamique de bits (=booléens, opérations de comptage, recherche de bits activés, opérations entre champs de bits, etc.)",
-					Note = "Il manque des opérateurs de comparaison et une spécialisation de la fonction de hachage",
-					Progress = 90
+					Note = "Il manque une spécialisation de la fonction de hachage",
+					Progress = 95
 				}
 			}
 		},
