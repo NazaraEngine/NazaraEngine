@@ -24,6 +24,14 @@ unsigned int NzHardwareInfoImpl::GetProcessorCount()
 	return sysconf(_SC_NPROCESSORS_CONF);
 }
 
+nzUInt64 NzHardwareInfoImpl::GetTotalMemory()
+{
+	nzUInt64 pages = sysconf(_SC_PHYS_PAGES);
+	nzUInt64 page_size = sysconf(_SC_PAGE_SIZE);
+
+    return pages * page_size;
+}
+
 bool NzHardwareInfoImpl::IsCpuidSupported()
 {
 #ifdef NAZARA_PLATFORM_x64
