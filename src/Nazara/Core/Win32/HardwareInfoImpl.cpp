@@ -38,6 +38,15 @@ unsigned int NzHardwareInfoImpl::GetProcessorCount()
 	return infos.dwNumberOfProcessors;
 }
 
+nzUInt64 NzHardwareInfoImpl::GetTotalMemory()
+{
+	MEMORYSTATUSEX memStatus;
+	memStatus.dwLength = sizeof(memStatus);
+	GlobalMemoryStatusEx(&memStatus);
+
+	return memStatus.ullTotalPhys;
+}
+
 bool NzHardwareInfoImpl::IsCpuidSupported()
 {
 #ifdef NAZARA_PLATFORM_x64

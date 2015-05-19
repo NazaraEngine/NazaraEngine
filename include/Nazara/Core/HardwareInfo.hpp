@@ -20,6 +20,7 @@ class NAZARA_API NzHardwareInfo
 		static unsigned int GetProcessorCount();
 		static nzProcessorVendor GetProcessorVendor();
 		static NzString GetProcessorVendorName();
+		static nzUInt64 GetTotalMemory();
 
 		static bool HasCapability(nzProcessorCap capability);
 
