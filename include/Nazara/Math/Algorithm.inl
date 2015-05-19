@@ -6,6 +6,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 

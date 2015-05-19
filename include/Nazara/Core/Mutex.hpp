@@ -21,7 +21,9 @@ class NAZARA_API NzMutex : NzNonCopyable
 		~NzMutex();
 
 		void Lock();
+
 		bool TryLock();
+
 		void Unlock();
 
 	private:
