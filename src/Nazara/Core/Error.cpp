@@ -11,6 +11,7 @@
 	#include <windows.h>
 #elif defined(NAZARA_PLATFORM_POSIX)
 	#include <cstring>
+	#include <errno.h>
 #endif
 
 #include <Nazara/Core/Debug.hpp>
