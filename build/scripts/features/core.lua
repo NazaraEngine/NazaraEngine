@@ -128,7 +128,7 @@ return {
 				{
 					Title = "TaskScheduler",
 					Description = "Classe permettant de répartir X tâches sur Y workers de façon efficace.",
-					Portability = Feature.Windows
+					Portability = Feature.Windows + Feature.POSIX
 				}
 			}
 		},
