@@ -116,6 +116,13 @@ NzString NzHardwareInfo::GetProcessorVendorName()
 	return vendorNames[s_vendorEnum+1];
 }
 
+nzUInt64 NzHardwareInfo::GetTotalMemory()
+{
+	///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
+	static nzUInt64 totalMemory = NzHardwareInfoImpl::GetTotalMemory();
+	return totalMemory;
+}
+
 bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
 {
 	#ifdef NAZARA_DEBUG
