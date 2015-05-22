@@ -16,6 +16,12 @@ namespace Ndk
 	{
 	}
 
+	void RenderSystem::OnEntityRemoved(Entity* entity)
+	{
+		m_cameras.Remove(entity);
+		m_drawables.Remove(entity);
+	}
+
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
 		if (entity->HasComponent<CameraComponent>())
