@@ -182,6 +182,16 @@ void NzBoundingVolume<T>::Update(const NzMatrix4<T>& transformMatrix)
 }
 
 template<typename T>
+void NzBoundingVolume<T>::Update(const NzVector3<T>& translation)
+{
+	obb.Update(translation);
+
+	aabb.Set(obb(0), obb(1));
+	for (unsigned int i = 2; i < 8; ++i)
+		aabb.ExtendTo(obb(i));
+}
+
+template<typename T>
 NzBoundingVolume<T> NzBoundingVolume<T>::operator*(T scalar) const
 {
 	NzBoundingVolume volume(*this);
