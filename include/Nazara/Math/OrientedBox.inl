@@ -133,6 +133,13 @@ void NzOrientedBox<T>::Update(const NzMatrix4<T>& transformMatrix)
 }
 
 template<typename T>
+void NzOrientedBox<T>::Update(const NzVector3<T>& translation)
+{
+	for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
+		m_corners[i] = localBox.GetCorner(static_cast<nzBoxCorner>(i)) + translation;
+}
+
+template<typename T>
 NzOrientedBox<T>::operator NzVector3<T>*()
 {
 	return &m_corners[0];

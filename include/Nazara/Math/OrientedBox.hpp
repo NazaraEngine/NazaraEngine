@@ -39,6 +39,7 @@ class NzOrientedBox
 		NzString ToString() const;
 
 		void Update(const NzMatrix4<T>& transformMatrix);
+		void Update(const NzVector3<T>& transformMatrix);
 
 		operator NzVector3<T>*();
 		operator const NzVector3<T>*() const;
