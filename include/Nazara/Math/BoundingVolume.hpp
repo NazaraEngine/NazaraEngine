@@ -44,6 +44,7 @@ class NzBoundingVolume
 		NzString ToString() const;
 
 		void Update(const NzMatrix4<T>& transformMatrix);
+		void Update(const NzVector3<T>& translation);
 
 		NzBoundingVolume operator*(T scalar) const;
 
