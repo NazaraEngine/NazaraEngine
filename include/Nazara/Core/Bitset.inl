@@ -556,6 +556,51 @@ bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, All
 }
 
 template<typename Block, class Allocator>
+bool operator<(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	const NzBitset<Block, Allocator>& greater = (lhs.GetBlockCount() > rhs.GetBlockCount()) ? lhs : rhs;
+	const NzBitset<Block, Allocator>& lesser = (lhs.GetBlockCount() > rhs.GetBlockCount()) ? rhs : lhs;
+
+	unsigned int maxBlockCount = greater.GetBlockCount();
+	unsigned int minBlockCount = lesser.GetBlockCount();
+
+	// If the greatest bitset has a single bit active in a block outside the lesser bitset range, then it is greater
+	for (unsigned int i = maxBlockCount; i > minBlockCount; ++i)
+	{
+		if (greater.GetBlock(i))
+			return lhs.GetBlockCount() < rhs.GetBlockCount();
+	}
+
+	// Compare the common blocks
+	for (unsigned int i = 0; i < minBlockCount; ++i)
+	{
+		unsigned int index = (minBlockCount - i - 1); // Compare from the most significant block to the less significant block
+		if (lhs.GetBlock(index) < rhs.GetBlock(index))
+			return true;
+	}
+
+	return false; // They are equal
+}
+
+template<typename Block, class Allocator>
+bool operator<=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	return lhs < rhs || lhs == rhs;
+}
+
+template<typename Block, class Allocator>
+bool operator>(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	return rhs < lhs;
+}
+
+template<typename Block, class Allocator>
+bool operator>=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
+{
+	return rhs <= lhs;
+}
+
+template<typename Block, class Allocator>
 NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs)
 {
 	NzBitset<Block, Allocator> bitset;
