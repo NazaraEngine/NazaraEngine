@@ -27,6 +27,7 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
+			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 
 			EntityList m_cameras;
