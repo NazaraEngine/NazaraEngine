@@ -15,11 +15,10 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <vector>
 
 class NzDrawable;
-class NzLight;
 class NzMaterial;
-class NzSprite;
 class NzTexture;
 struct NzMeshData;
 
@@ -41,11 +40,49 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) = 0;
 		virtual void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) = 0;
 		virtual void AddDrawable(const NzDrawable* drawable) = 0;
-		virtual void AddLight(const NzLight* light) = 0;
+		virtual void AddDirectionalLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& direction);
 		virtual void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) = 0;
+		virtual void AddPointLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, float radius, float attenuation);
+		virtual void AddSpotLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, const NzVector3f& direction, float radius, float attenuation, float innerAngle, float outerAngle);
 		virtual void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) = 0;
 
-		virtual void Clear(bool fully) = 0;
+		virtual void Clear(bool fully);
+
+	protected:
+		struct DirectionalLight
+		{
+			NzColor color;
+			NzVector3f direction;
+			float ambientFactor;
+			float diffuseFactor;
+		};
+
+		struct PointLight
+		{
+			NzColor color;
+			NzVector3f position;
+			float ambientFactor;
+			float attenuation;
+			float diffuseFactor;
+			float radius;
+		};
+
+		struct SpotLight
+		{
+			NzColor color;
+			NzVector3f direction;
+			NzVector3f position;
+			float ambientFactor;
+			float attenuation;
+			float diffuseFactor;
+			float innerAngle;
+			float outerAngle;
+			float radius;
+		};
+
+		std::vector<DirectionalLight> m_directionalLights;
+		std::vector<PointLight> m_pointLights;
+		std::vector<SpotLight> m_spotLights;
 };
 
 #endif // NAZARA_ABSTRACTRENDERQUEUE_HPP

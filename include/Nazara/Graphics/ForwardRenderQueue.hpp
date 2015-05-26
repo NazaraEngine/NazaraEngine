@@ -40,7 +40,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
 		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) override;
 		void AddDrawable(const NzDrawable* drawable) override;
-		void AddLight(const NzLight* light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
 		void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) override;
 
@@ -168,7 +167,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 			const NzMaterial* material;
 		};
 
-		typedef std::vector<const NzLight*> LightContainer;
 		typedef std::vector<unsigned int> TransparentModelContainer;
 
 		BatchedBillboardContainer billboards;
@@ -177,8 +175,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 		TransparentModelContainer transparentModels;
 		std::vector<TransparentModelData> transparentModelData;
 		std::vector<const NzDrawable*> otherDrawables;
-		LightContainer directionalLights;
-		LightContainer lights;
 };
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP
