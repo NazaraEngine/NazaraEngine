@@ -194,7 +194,7 @@ void NzLight::MakeBoundingVolume() const
 
 		case nzLightType_Point:
 		{
-			NzVector3f radius(m_radius); ///FIXME: Incorrect
+			NzVector3f radius(m_radius * M_SQRT3);
 			m_boundingVolume.Set(-radius, radius);
 			break;
 		}
