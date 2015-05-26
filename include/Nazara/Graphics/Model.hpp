@@ -11,7 +11,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
+#include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 struct NAZARA_API NzModelParameters
@@ -29,17 +29,17 @@ class NzModel;
 
 using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
 
-class NAZARA_API NzModel : public NzResource, public NzSceneNode
+class NAZARA_API NzModel : public NzRenderable, public NzResource
 {
 	friend NzModelLoader;
 	friend class NzScene;
 
 	public:
 		NzModel();
-		NzModel(const NzModel& model);
+		NzModel(const NzModel& model) = default;
 		virtual ~NzModel();
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
 
 		NzModel* Clone() const;
 		NzModel* Create() const;
@@ -52,12 +52,8 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 		unsigned int GetSkin() const;
 		unsigned int GetSkinCount() const;
 		NzMesh* GetMesh() const;
-		nzSceneNodeType GetSceneNodeType() const override;
 
 		virtual bool IsAnimated() const;
-		bool IsDrawable() const;
-
-		void InvalidateBoundingVolume();
 
 		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params = NzModelParameters());
@@ -75,7 +71,7 @@ class NAZARA_API NzModel : public NzResource, public NzSceneNode
 		void SetSkin(unsigned int skin);
 		void SetSkinCount(unsigned int skinCount);
 
-		NzModel& operator=(const NzModel& node);
+		NzModel& operator=(const NzModel& node) = default;
 
 	protected:
 		void MakeBoundingVolume() const override;
