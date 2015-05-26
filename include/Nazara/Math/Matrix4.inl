@@ -485,9 +485,16 @@ NzVector4<T> NzMatrix4<T>::GetRow(unsigned int row) const
 template<typename T>
 NzVector3<T> NzMatrix4<T>::GetScale() const
 {
-	return NzVector3<T>(std::sqrt(m11*m11 + m21*m21 + m31*m31),
-						std::sqrt(m12*m12 + m22*m22 + m32*m32),
-						std::sqrt(m13*m13 + m23*m23 + m33*m33));
+	NzVector3<T> squaredScale = GetSquaredScale();
+	return NzVector3<T>(std::sqrt(squaredScale.x), std::sqrt(squaredScale.y), std::sqrt(squaredScale.z));
+}
+
+template<typename T>
+NzVector3<T> NzMatrix4<T>::GetSquaredScale() const
+{
+	return NzVector3<T>(m11*m11 + m21*m21 + m31*m31,
+	                    m12*m12 + m22*m22 + m32*m32,
+	                    m13*m13 + m23*m23 + m33*m33);
 }
 
 template<typename T>
