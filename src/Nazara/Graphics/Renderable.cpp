@@ -7,6 +7,13 @@
 
 NzRenderable::~NzRenderable() = default;
 
+bool NzRenderable::Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const
+{
+	NazaraUnused(transformMatrix);
+
+	return frustum.Contains(volume);
+}
+
 const NzBoundingVolumef& NzRenderable::GetBoundingVolume() const
 {
 	EnsureBoundingVolumeUpdated();
