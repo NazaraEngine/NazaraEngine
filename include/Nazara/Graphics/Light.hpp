@@ -34,8 +34,12 @@ class NAZARA_API NzLight : public NzRenderable
 		NzColor GetColor() const;
 		float GetDiffuseFactor() const;
 		float GetInnerAngle() const;
+		float GetInnerAngleCosine() const;
+		float GetInvRadius() const;
 		nzLightType GetLightType() const;
 		float GetOuterAngle() const;
+		float GetOuterAngleCosine() const;
+		float GetOuterAngleTangent() const;
 		float GetRadius() const;
 
 		void SetAmbientFactor(float factor);
@@ -60,7 +64,11 @@ class NAZARA_API NzLight : public NzRenderable
 		float m_attenuation;
 		float m_diffuseFactor;
 		float m_innerAngle;
+		float m_innerAngleCosine;
+		float m_invRadius;
 		float m_outerAngle;
+		float m_outerAngleCosine;
+		float m_outerAngleTangent;
 		float m_radius;
 };
 
@@ -84,5 +92,7 @@ struct NzLightUniforms
 		int blockLocation;
 	};
 };
+
+#include <Nazara/Graphics/Light.inl>
 
 #endif // NAZARA_LIGHT_HPP

@@ -17,15 +17,15 @@
 ///TODO: Scale ?
 
 NzLight::NzLight(nzLightType type) :
-m_type(type),
-m_color(NzColor::White),
-m_ambientFactor((type == nzLightType_Directional) ? 0.2f : 0.f),
-m_attenuation(0.9f),
-m_diffuseFactor(1.f),
-m_innerAngle(15.f),
-m_outerAngle(45.f),
-m_radius(5.f)
+m_type(type)
 {
+	SetAmbientFactor((type == nzLightType_Directional) ? 0.2f : 0.f);
+	SetAttenuation(0.9f);
+	SetColor(NzColor::White);
+	SetDiffuseFactor(1.f);
+	SetInnerAngle(15.f);
+	SetOuterAngle(45.f);
+	SetRadius(5.f);
 }
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
@@ -77,90 +77,6 @@ bool NzLight::Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, c
 	return false;
 }
 
-float NzLight::GetAmbientFactor() const
-{
-	return m_ambientFactor;
-}
-
-float NzLight::GetAttenuation() const
-{
-	return m_attenuation;
-}
-
-NzColor NzLight::GetColor() const
-{
-	return m_color;
-}
-
-float NzLight::GetDiffuseFactor() const
-{
-	return m_diffuseFactor;
-}
-
-float NzLight::GetInnerAngle() const
-{
-	return m_innerAngle;
-}
-
-nzLightType NzLight::GetLightType() const
-{
-	return m_type;
-}
-
-float NzLight::GetOuterAngle() const
-{
-	return m_outerAngle;
-}
-
-float NzLight::GetRadius() const
-{
-	return m_radius;
-}
-
-void NzLight::SetAmbientFactor(float factor)
-{
-	m_ambientFactor = factor;
-}
-
-void NzLight::SetAttenuation(float attenuation)
-{
-	m_attenuation = attenuation;
-}
-
-void NzLight::SetColor(const NzColor& color)
-{
-	m_color = color;
-}
-
-void NzLight::SetDiffuseFactor(float factor)
-{
-	m_diffuseFactor = factor;
-}
-
-void NzLight::SetInnerAngle(float innerAngle)
-{
-	m_innerAngle = innerAngle;
-}
-
-void NzLight::SetLightType(nzLightType type)
-{
-	m_type = type;
-}
-
-void NzLight::SetOuterAngle(float outerAngle)
-{
-	m_outerAngle = outerAngle;
-
-	InvalidateBoundingVolume();
-}
-
-void NzLight::SetRadius(float radius)
-{
-	m_radius = radius;
-
-	InvalidateBoundingVolume();
-}
-
 void NzLight::UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const
 {
 	NazaraAssert(boundingVolume, "Invalid bounding volume");
@@ -209,7 +125,7 @@ void NzLight::MakeBoundingVolume() const
 
 			// Il nous faut maintenant le rayon du cercle projeté à cette distance
 			// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
-			float radius = m_radius*std::tan(NzDegreeToRadian(m_outerAngle));
+			float radius = m_radius * m_outerAngleTangent;
 			NzVector3f lExtend = NzVector3f::Left()*radius;
 			NzVector3f uExtend = NzVector3f::Up()*radius;
 
