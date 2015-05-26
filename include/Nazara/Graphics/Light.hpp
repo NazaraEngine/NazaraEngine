@@ -10,24 +10,24 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
+#include <Nazara/Graphics/Renderable.hpp>
 
 class NzShader;
 struct NzLightUniforms;
 
-class NAZARA_API NzLight : public NzSceneNode
+class NAZARA_API NzLight : public NzRenderable
 {
 	public:
 		NzLight(nzLightType type = nzLightType_Point);
-		NzLight(const NzLight& light);
+		NzLight(const NzLight& light) = default;
 		~NzLight() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
 
 		NzLight* Clone() const;
 		NzLight* Create() const;
 
-		void Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset = 0) const;
+		bool Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const override;
 
 		float GetAmbientFactor() const;
 		float GetAttenuation() const;
@@ -37,9 +37,6 @@ class NAZARA_API NzLight : public NzSceneNode
 		nzLightType GetLightType() const;
 		float GetOuterAngle() const;
 		float GetRadius() const;
-		nzSceneNodeType GetSceneNodeType() const;
-
-		bool IsDrawable() const;
 
 		void SetAmbientFactor(float factor);
 		void SetAttenuation(float attenuation);
@@ -50,16 +47,12 @@ class NAZARA_API NzLight : public NzSceneNode
 		void SetOuterAngle(float outerAngle);
 		void SetRadius(float radius);
 
-		NzLight& operator=(const NzLight& light);
+		void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
 
-		static void Disable(const NzShader* program, const NzLightUniforms& uniforms, int offset = 0);
+		NzLight& operator=(const NzLight& light) = default;
 
 	private:
-		bool FrustumCull(const NzFrustumf& frustum) const override;
 		void MakeBoundingVolume() const override;
-		void Register() override;
-		void Unregister() override;
-		void UpdateBoundingVolume() const;
 
 		nzLightType m_type;
 		NzColor m_color;

@@ -28,23 +28,25 @@ m_radius(5.f)
 {
 }
 
-NzLight::NzLight(const NzLight& light) :
-NzSceneNode(light),
-m_type(light.m_type),
-m_color(light.m_color),
-m_ambientFactor(light.m_ambientFactor),
-m_attenuation(light.m_attenuation),
-m_diffuseFactor(light.m_diffuseFactor),
-m_innerAngle(light.m_innerAngle),
-m_outerAngle(light.m_outerAngle),
-m_radius(light.m_radius)
+void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
-	SetParent(light.GetParent());
-}
+	switch (m_type)
+	{
+		case nzLightType_Directional:
+			renderQueue->AddDirectionalLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.Transform(NzVector3f::Forward(), 0.f));
+			break;
 
-void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
-{
-	renderQueue->AddLight(this);
+		case nzLightType_Point:
+			renderQueue->AddPointLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.GetTranslation(), m_radius, m_attenuation);
+
+		case nzLightType_Spot:
+			renderQueue->AddSpotLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.GetTranslation(), transformMatrix.Transform(NzVector3f::Forward(), 0.f), m_radius, m_attenuation, m_innerAngle, m_outerAngle);
+			break;
+
+		default:
+			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
+			break;
+	}
 }
 
 NzLight* NzLight::Clone() const
@@ -57,57 +59,22 @@ NzLight* NzLight::Create() const
 	return new NzLight;
 }
 
-void NzLight::Enable(const NzShader* shader, const NzLightUniforms& uniforms, int offset) const
+bool NzLight::Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const
 {
-	/*
-	struct Light
-	{
-		int type;
-		vec4 color;
-		vec2 factors;
-
-		vec4 parameters1;
-		vec4 parameters2;
-		vec2 parameters3;
-	};
-
-	Directional
-	-P1: vec3 direction
-
-	Point
-	-P1: vec3 position + float attenuation
-	-P2: vec3 NON-USED + float invRadius
-
-	Spot
-	-P1: vec3 position + float attenuation
-	-P2: vec3 direction + float invRadius
-	-P3: float cosInnerAngle + float cosOuterAngle
-	*/
-
-	shader->SendInteger(uniforms.locations.type + offset, m_type);
-	shader->SendColor(uniforms.locations.color + offset, m_color);
-	shader->SendVector(uniforms.locations.factors + offset, NzVector2f(m_ambientFactor, m_diffuseFactor));
-
-	if (!m_derivedUpdated)
-		UpdateDerived();
-
 	switch (m_type)
 	{
 		case nzLightType_Directional:
-			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedRotation * NzVector3f::Forward()));
-			break;
+			return true; // Always visible
 
 		case nzLightType_Point:
-			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedPosition, m_attenuation));
-			shader->SendVector(uniforms.locations.parameters2 + offset, NzVector4f(0.f, 0.f, 0.f, 1.f/m_radius));
-			break;
+			return frustum.Contains(NzSpheref(transformMatrix.GetTranslation(), m_radius)); // A sphere test is much faster (and precise)
 
 		case nzLightType_Spot:
-			shader->SendVector(uniforms.locations.parameters1 + offset, NzVector4f(m_derivedPosition, m_attenuation));
-			shader->SendVector(uniforms.locations.parameters2 + offset, NzVector4f(m_derivedRotation * NzVector3f::Forward(), 1.f/m_radius));
-			shader->SendVector(uniforms.locations.parameters3 + offset, NzVector2f(std::cos(NzDegreeToRadian(m_innerAngle)), std::cos(NzDegreeToRadian(m_outerAngle))));
-			break;
+			return frustum.Contains(volume);
 	}
+
+	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
+	return false;
 }
 
 float NzLight::GetAmbientFactor() const
@@ -150,16 +117,6 @@ float NzLight::GetRadius() const
 	return m_radius;
 }
 
-nzSceneNodeType NzLight::GetSceneNodeType() const
-{
-	return nzSceneNodeType_Light;
-}
-
-bool NzLight::IsDrawable() const
-{
-	return true;
-}
-
 void NzLight::SetAmbientFactor(float factor)
 {
 	m_ambientFactor = factor;
@@ -194,61 +151,37 @@ void NzLight::SetOuterAngle(float outerAngle)
 {
 	m_outerAngle = outerAngle;
 
-	m_boundingVolume.MakeNull();
-	m_boundingVolumeUpdated = false;
+	InvalidateBoundingVolume();
 }
 
 void NzLight::SetRadius(float radius)
 {
 	m_radius = radius;
 
-	m_boundingVolume.MakeNull();
-	m_boundingVolumeUpdated = false;
+	InvalidateBoundingVolume();
 }
 
-NzLight& NzLight::operator=(const NzLight& light)
+void NzLight::UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const
 {
-	NzSceneNode::operator=(light);
+	NazaraAssert(boundingVolume, "Invalid bounding volume");
 
-	m_ambientFactor = light.m_ambientFactor;
-	m_attenuation = light.m_attenuation;
-	m_boundingVolume = light.m_boundingVolume;
-	m_boundingVolumeUpdated = light.m_boundingVolumeUpdated;
-	m_color = light.m_color;
-	m_diffuseFactor = light.m_diffuseFactor;
-	m_innerAngle = light.m_innerAngle;
-	m_outerAngle = light.m_outerAngle;
-	m_radius = light.m_radius;
-	m_type = light.m_type;
-
-	return *this;
-}
-
-void NzLight::Disable(const NzShader* shader, const NzLightUniforms& uniforms, int offset)
-{
-	shader->SendInteger(uniforms.locations.type + offset, -1);
-}
-
-bool NzLight::FrustumCull(const NzFrustumf& frustum) const
-{
 	switch (m_type)
 	{
 		case nzLightType_Directional:
-			return true; // Toujours visible
+			break; // Nothing to do (bounding volume should be infinite)
 
 		case nzLightType_Point:
-			if (!m_derivedUpdated)
-				UpdateDerived();
-
-			// Un test sphérique est bien plus rapide et précis que celui de la bounding box
-			return frustum.Contains(NzSpheref(m_derivedPosition, m_radius));
+			boundingVolume->Update(transformMatrix.GetTranslation()); // The bounding volume only needs to be shifted
+			break;
 
 		case nzLightType_Spot:
-			return NzSceneNode::FrustumCull(frustum);
-	}
+			boundingVolume->Update(transformMatrix);
+			break;
 
-	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-	return false;
+		default:
+			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
+			break;
+	}
 }
 
 void NzLight::MakeBoundingVolume() const
@@ -261,7 +194,7 @@ void NzLight::MakeBoundingVolume() const
 
 		case nzLightType_Point:
 		{
-			NzVector3f radius(m_radius);
+			NzVector3f radius(m_radius); ///FIXME: Incorrect
 			m_boundingVolume.Set(-radius, radius);
 			break;
 		}
@@ -289,41 +222,9 @@ void NzLight::MakeBoundingVolume() const
 			m_boundingVolume.Set(box);
 			break;
 		}
-	}
-}
 
-void NzLight::Register()
-{
-}
-
-void NzLight::Unregister()
-{
-}
-
-void NzLight::UpdateBoundingVolume() const
-{
-	if (m_boundingVolume.IsNull())
-		MakeBoundingVolume();
-
-	switch (m_type)
-	{
-		case nzLightType_Directional:
-			break;
-
-		case nzLightType_Point:
-			if (!m_derivedUpdated)
-				UpdateDerived();
-
-			m_boundingVolume.Update(NzMatrix4f::Translate(m_derivedPosition)); // Notre BoundingBox ne changera que selon la position
-			break;
-
-		case nzLightType_Spot:
-			if (!m_derivedUpdated)
-				UpdateDerived();
-
-			m_boundingVolume.Update(NzMatrix4f::Transform(m_derivedPosition, m_derivedRotation));
+		default:
+			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
 			break;
 	}
-
-	m_boundingVolumeUpdated = true;
 }
