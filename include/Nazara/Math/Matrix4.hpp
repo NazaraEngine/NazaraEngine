@@ -49,6 +49,7 @@ class NzMatrix4
 		//NzMatrix3 GetRotationMatrix() const;
 		NzVector4<T> GetRow(unsigned int row) const;
 		NzVector3<T> GetScale() const;
+		NzVector3<T> GetSquaredScale() const;
 		NzVector3<T> GetTranslation() const;
 		void GetTransposed(NzMatrix4* dest) const;
 
