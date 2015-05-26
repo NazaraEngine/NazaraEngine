@@ -7,19 +7,19 @@
 
 NzAbstractRenderQueue::~NzAbstractRenderQueue() = default;
 
-void NzAbstractRenderQueue::AddDirectionalLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& direction)
+void NzAbstractRenderQueue::AddDirectionalLight(const DirectionalLight& light)
 {
-	directionalLights.push_back(DirectionalLight{color, direction, ambientFactor, diffuseFactor});
+	directionalLights.push_back(light);
 }
 
-void NzAbstractRenderQueue::AddPointLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, float radius, float attenuation)
+void NzAbstractRenderQueue::AddPointLight(const PointLight& light)
 {
-	pointLights.push_back(PointLight{color, position, ambientFactor, attenuation, diffuseFactor, radius});
+	pointLights.push_back(light);
 }
 
-void NzAbstractRenderQueue::AddSpotLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, const NzVector3f& direction, float radius, float attenuation, float innerAngle, float outerAngle)
+void NzAbstractRenderQueue::AddSpotLight(const SpotLight& light)
 {
-	spotLights.push_back(SpotLight{color, direction, position, ambientFactor, attenuation, diffuseFactor, innerAngle, outerAngle, radius});
+	spotLights.push_back(light);
 }
 
 void NzAbstractRenderQueue::Clear(bool fully)
