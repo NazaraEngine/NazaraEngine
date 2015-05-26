@@ -31,27 +31,13 @@ m_skinCount(1)
 {
 }
 
-NzModel::NzModel(const NzModel& model) :
-NzResource(model),
-NzSceneNode(model),
-m_materials(model.m_materials),
-m_mesh(model.m_mesh),
-m_matCount(model.m_matCount),
-m_skin(model.m_skin),
-m_skinCount(model.m_skinCount)
-{
-	SetParent(model.GetParent());
-}
-
 NzModel::~NzModel()
 {
 	Reset();
 }
 
-void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
+void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
-	const NzMatrix4f& transformMatrix = GetTransformMatrix();
-
 	unsigned int submeshCount = m_mesh->GetSubMeshCount();
 	for (unsigned int i = 0; i < submeshCount; ++i)
 	{
@@ -173,11 +159,6 @@ NzMesh* NzModel::GetMesh() const
 	return m_mesh;
 }
 
-nzSceneNodeType NzModel::GetSceneNodeType() const
-{
-	return nzSceneNodeType_Model;
-}
-
 unsigned int NzModel::GetSkin() const
 {
 	return m_skin;
@@ -191,17 +172,6 @@ unsigned int NzModel::GetSkinCount() const
 bool NzModel::IsAnimated() const
 {
 	return false;
-}
-
-bool NzModel::IsDrawable() const
-{
-	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
-}
-
-void NzModel::InvalidateBoundingVolume()
-{
-	m_boundingVolume.MakeNull();
-	m_boundingVolumeUpdated = false;
 }
 
 bool NzModel::LoadFromFile(const NzString& filePath, const NzModelParameters& params)
@@ -387,22 +357,6 @@ void NzModel::SetSkinCount(unsigned int skinCount)
 
 	m_materials.resize(m_matCount*skinCount, NzMaterial::GetDefault());
 	m_skinCount = skinCount;
-}
-
-NzModel& NzModel::operator=(const NzModel& node)
-{
-	NzResource::operator=(node);
-	NzSceneNode::operator=(node);
-
-	m_boundingVolume = node.m_boundingVolume;
-	m_boundingVolumeUpdated = node.m_boundingVolumeUpdated;
-	m_matCount = node.m_matCount;
-	m_materials = node.m_materials;
-	m_mesh = node.m_mesh;
-	m_skin = node.m_skin;
-	m_skinCount = node.m_skinCount;
-
-	return *this;
 }
 
 void NzModel::MakeBoundingVolume() const
