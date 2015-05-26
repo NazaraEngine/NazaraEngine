@@ -30,7 +30,7 @@ class NAZARA_API NzRenderable : public NzRefCounted
 {
 	public:
 		NzRenderable() = default;
-		NzRenderable(const NzRenderable& renderable) = default;
+		NzRenderable(const NzRenderable& renderable);
 		virtual ~NzRenderable();
 
 		void EnsureBoundingVolumeUpdated() const;
@@ -40,7 +40,7 @@ class NAZARA_API NzRenderable : public NzRefCounted
 		virtual const NzBoundingVolumef& GetBoundingVolume() const;
 		virtual void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
 
-		NzRenderable& operator=(const NzRenderable& renderable) = default;
+		NzRenderable& operator=(const NzRenderable& renderable);
 
 	protected:
 		virtual void MakeBoundingVolume() const = 0;
