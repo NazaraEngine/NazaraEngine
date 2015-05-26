@@ -100,9 +100,12 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 		m_directionalLightShader->SendColor(m_directionalLightShaderSceneAmbientLocation, scene->GetAmbientColor());
 		m_directionalLightShader->SendVector(m_directionalLightShaderEyePositionLocation, scene->GetViewer()->GetEyePosition());
 
-		for (const NzLight* light : m_renderQueue->directionalLights)
+		for (auto& light : m_renderQueue->directionalLights)
 		{
-			light->Enable(m_directionalLightShader, m_directionalLightUniforms);
+			m_directionalLightShader->SendColor(m_directionalLightUniforms.locations.color, light.color);
+			m_directionalLightShader->SendVector(m_directionalLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
+            m_directionalLightShader->SendVector(m_directionalLightUniforms.locations.parameters1, NzVector4f(light.direction));
+
 			NzRenderer::DrawFullscreenQuad();
 		}
 	}
@@ -138,11 +141,16 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_sphereMesh->GetVertexBuffer());
 
-			for (const NzLight* light : m_renderQueue->pointLights)
+			m_directionalLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Point);
+			for (const auto& light : m_renderQueue->pointLights)
 			{
-				light->Enable(m_pointSpotLightShader, m_pointSpotLightUniforms);
-				lightMatrix.SetScale(NzVector3f(light->GetRadius()*1.1f)); // Pour corriger les imperfections liées à la sphère
-				lightMatrix.SetTranslation(light->GetPosition());
+				m_directionalLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.position, light.attenuation));
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(0.f, 0.f, 0.f, light.invRadius));
+
+				lightMatrix.SetScale(NzVector3f(light.radius * 1.1f)); // Pour corriger les imperfections liées à la sphère
+				lightMatrix.SetTranslation(light.position);
 
 				NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
@@ -180,14 +188,14 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				static int colorLocation = shader->GetUniformLocation("Color");
 
 				NzRenderer::SetShader(shader);
-				for (const NzLight* light : m_renderQueue->pointLights)
+				for (const auto& light : m_renderQueue->pointLights)
 				{
-					lightMatrix.SetScale(NzVector3f(light->GetRadius()*1.1f)); // Pour corriger les imperfections liées à la sphère
-					lightMatrix.SetTranslation(light->GetPosition());
+					lightMatrix.SetScale(NzVector3f(light.radius * 1.1f)); // Pour corriger les imperfections liées à la sphère
+					lightMatrix.SetTranslation(light.position);
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					shader->SendColor(colorLocation, light->GetColor());
+					shader->SendColor(colorLocation, light.color);
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}
@@ -206,11 +214,17 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_coneMesh->GetVertexBuffer());
 
-			for (const NzLight* light : m_renderQueue->spotLights)
+			m_directionalLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Spot);
+			for (const auto& light : m_renderQueue->spotLights)
 			{
-				light->Enable(m_pointSpotLightShader, m_pointSpotLightUniforms);
-				float radius = light->GetRadius()*std::tan(NzDegreeToRadian(light->GetOuterAngle()))*1.1f;
-				lightMatrix.MakeTransform(light->GetPosition(), light->GetRotation(), NzVector3f(radius, radius, light->GetRadius()));
+				m_directionalLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.direction, light.attenuation));
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(light.position, light.invRadius));
+				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters3, NzVector2f(light.innerAngleCosine, light.outerAngleCosine));
+
+				float baseRadius = light.radius * light.outerAngleTangent * 1.1f;
+				lightMatrix.MakeTransform(light.position, NzQuaternionf::RotationBetween(NzVector3f::Forward(), light.direction), NzVector3f(baseRadius, baseRadius, light.radius));
 
 				NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
@@ -249,14 +263,14 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 				static int colorLocation = shader->GetUniformLocation("Color");
 
 				NzRenderer::SetShader(shader);
-				for (const NzLight* light : m_renderQueue->spotLights)
+				for (const auto& light : m_renderQueue->spotLights)
 				{
-					float baseRadius = light->GetRadius()*std::tan(NzDegreeToRadian(light->GetOuterAngle()))*1.1f;
-					lightMatrix.MakeTransform(light->GetPosition(), light->GetRotation(), NzVector3f(baseRadius, baseRadius, light->GetRadius()));
+					float baseRadius = light.radius * light.outerAngleTangent * 1.1f;
+					lightMatrix.MakeTransform(light.position, NzQuaternionf::RotationBetween(NzVector3f::Forward(), light.direction), NzVector3f(baseRadius, baseRadius, light.radius));
 
 					NzRenderer::SetMatrix(nzMatrixType_World, lightMatrix);
 
-					shader->SendColor(colorLocation, light->GetColor());
+					shader->SendColor(colorLocation, light.color);
 
 					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 				}
