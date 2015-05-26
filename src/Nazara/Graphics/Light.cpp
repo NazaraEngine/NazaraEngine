@@ -33,15 +33,50 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatri
 	switch (m_type)
 	{
 		case nzLightType_Directional:
-			renderQueue->AddDirectionalLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.Transform(NzVector3f::Forward(), 0.f));
+		{
+			NzAbstractRenderQueue::DirectionalLight light;
+			light.ambientFactor = m_ambientFactor;
+			light.color = m_color;
+			light.diffuseFactor = m_diffuseFactor;
+			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
+
+			renderQueue->AddDirectionalLight(light);
 			break;
+		}
 
 		case nzLightType_Point:
-			renderQueue->AddPointLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.GetTranslation(), m_radius, m_attenuation);
+		{
+			NzAbstractRenderQueue::PointLight light;
+			light.ambientFactor = m_ambientFactor;
+			light.attenuation = m_attenuation;
+			light.color = m_color;
+			light.diffuseFactor = m_diffuseFactor;
+			light.invRadius = m_invRadius;
+			light.position = transformMatrix.GetTranslation();
+			light.radius = m_radius;
+
+			renderQueue->AddPointLight(light);
+			break;
+		}
 
 		case nzLightType_Spot:
-			renderQueue->AddSpotLight(m_color, m_ambientFactor, m_diffuseFactor, transformMatrix.GetTranslation(), transformMatrix.Transform(NzVector3f::Forward(), 0.f), m_radius, m_attenuation, m_innerAngle, m_outerAngle);
+		{
+			NzAbstractRenderQueue::SpotLight light;
+			light.ambientFactor = m_ambientFactor;
+			light.attenuation = m_attenuation;
+			light.color = m_color;
+			light.diffuseFactor = m_diffuseFactor;
+			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
+			light.innerAngleCosine = m_innerAngleCosine;
+			light.invRadius = m_invRadius;
+			light.outerAngleCosine = m_outerAngleCosine;
+			light.outerAngleTangent = m_outerAngleTangent;
+			light.position = transformMatrix.GetTranslation();
+			light.radius = m_radius;
+
+			renderQueue->AddSpotLight(light);
 			break;
+		}
 
 		default:
 			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
