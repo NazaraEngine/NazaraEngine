@@ -25,6 +25,10 @@ struct NzMeshData;
 class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 {
 	public:
+		struct DirectionalLight;
+		struct PointLight;
+		struct SpotLight;
+
 		NzAbstractRenderQueue() = default;
 		virtual ~NzAbstractRenderQueue();
 
@@ -40,13 +44,14 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) = 0;
 		virtual void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) = 0;
 		virtual void AddDrawable(const NzDrawable* drawable) = 0;
-		virtual void AddDirectionalLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& direction);
+		virtual void AddDirectionalLight(const DirectionalLight& light);
 		virtual void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) = 0;
-		virtual void AddPointLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, float radius, float attenuation);
-		virtual void AddSpotLight(const NzColor& color, float ambientFactor, float diffuseFactor, const NzVector3f& position, const NzVector3f& direction, float radius, float attenuation, float innerAngle, float outerAngle);
+		virtual void AddPointLight(const PointLight& light);
+		virtual void AddSpotLight(const SpotLight& light);
 		virtual void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) = 0;
 
 		virtual void Clear(bool fully);
+
 
 		struct DirectionalLight
 		{
@@ -63,6 +68,7 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 			float ambientFactor;
 			float attenuation;
 			float diffuseFactor;
+			float invRadius;
 			float radius;
 		};
 
@@ -74,8 +80,10 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 			float ambientFactor;
 			float attenuation;
 			float diffuseFactor;
-			float innerAngle;
-			float outerAngle;
+			float innerAngleCosine;
+			float invRadius;
+			float outerAngleCosine;
+			float outerAngleTangent;
 			float radius;
 		};
 
