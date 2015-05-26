@@ -75,37 +75,6 @@ void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
 	m_forwardQueue->AddDrawable(drawable);
 }
 
-void NzDeferredRenderQueue::AddLight(const NzLight* light)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!light)
-	{
-		NazaraError("Invalid light");
-		return;
-	}
-	#endif
-
-	// On trie la lumière (elles sont traitées différement selon leur type)
-	switch (light->GetLightType())
-	{
-		case nzLightType_Directional:
-			directionalLights.push_back(light);
-			break;
-
-		case nzLightType_Point:
-			pointLights.push_back(light);
-			break;
-
-		case nzLightType_Spot:
-			spotLights.push_back(light);
-			break;
-	}
-
-	// On envoie également la lumière au forward-shading
-	///TODO: Possibilité pour une lumière de se réserver au Deferred Shading
-	m_forwardQueue->AddLight(light);
-}
-
 void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
 {
 	if (material->IsEnabled(nzRendererParameter_Blend))
@@ -154,9 +123,7 @@ void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVerte
 
 void NzDeferredRenderQueue::Clear(bool fully)
 {
-	directionalLights.clear();
-	pointLights.clear();
-	spotLights.clear();
+	NzAbstractRenderQueue::Clear(fully);
 
 	if (fully)
 		opaqueModels.clear();

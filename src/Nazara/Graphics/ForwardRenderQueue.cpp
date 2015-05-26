@@ -370,34 +370,6 @@ void NzForwardRenderQueue::AddDrawable(const NzDrawable* drawable)
 	otherDrawables.push_back(drawable);
 }
 
-void NzForwardRenderQueue::AddLight(const NzLight* light)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!light)
-	{
-		NazaraError("Invalid light");
-		return;
-	}
-	#endif
-
-	switch (light->GetLightType())
-	{
-		case nzLightType_Directional:
-			directionalLights.push_back(light);
-			break;
-
-		case nzLightType_Point:
-		case nzLightType_Spot:
-			lights.push_back(light);
-			break;
-
-		#ifdef NAZARA_DEBUG
-		default:
-			NazaraError("Light type not handled (0x" + NzString::Number(light->GetLightType(), 16) + ')');
-		#endif
-	}
-}
-
 void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
 {
 	if (material->IsEnabled(nzRendererParameter_Blend))
@@ -481,8 +453,8 @@ void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertex
 
 void NzForwardRenderQueue::Clear(bool fully)
 {
-	directionalLights.clear();
-	lights.clear();
+	NzAbstractRenderQueue::Clear(fully);
+
 	otherDrawables.clear();
 	transparentModels.clear();
 	transparentModelData.clear();
