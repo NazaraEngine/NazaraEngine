@@ -36,7 +36,7 @@ class NAZARA_API NzRenderable : public NzRefCounted
 		void EnsureBoundingVolumeUpdated() const;
 
 		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const = 0;
-		virtual void Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const = 0;
+		virtual bool Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const;
 		virtual const NzBoundingVolumef& GetBoundingVolume() const;
 		virtual void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
 
