@@ -20,6 +20,10 @@
 #define M_SQRT2 1.4142135623730950488016887
 #endif
 
+#ifndef M_SQRT3
+#define M_SQRT3 1.7320508075688772935274463
+#endif
+
 template<typename T> T NzApproach(T value, T objective, T increment);
 template<typename T> constexpr T NzClamp(T value, T min, T max);
 template<typename T> T NzCountBits(T value);
