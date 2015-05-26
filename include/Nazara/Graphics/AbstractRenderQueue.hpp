@@ -48,7 +48,6 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 
 		virtual void Clear(bool fully);
 
-	protected:
 		struct DirectionalLight
 		{
 			NzColor color;
@@ -80,9 +79,9 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 			float radius;
 		};
 
-		std::vector<DirectionalLight> m_directionalLights;
-		std::vector<PointLight> m_pointLights;
-		std::vector<SpotLight> m_spotLights;
+		std::vector<DirectionalLight> directionalLights;
+		std::vector<PointLight> pointLights;
+		std::vector<SpotLight> spotLights;
 };
 
 #endif // NAZARA_ABSTRACTRENDERQUEUE_HPP
