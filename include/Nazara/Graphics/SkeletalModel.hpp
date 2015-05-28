@@ -34,11 +34,12 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 
 	public:
 		NzSkeletalModel();
-		NzSkeletalModel(const NzSkeletalModel& model);
-		NzSkeletalModel(NzSkeletalModel&& model);
+		NzSkeletalModel(const NzSkeletalModel& model) = default;
+		NzSkeletalModel(NzSkeletalModel&& model) = default;
 		~NzSkeletalModel();
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
+
 		void AdvanceAnimation(float elapsedTime);
 
 		NzSkeletalModel* Clone() const;
@@ -54,7 +55,6 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 
 		bool IsAnimated() const;
 		bool IsAnimationEnabled() const;
-		bool IsDrawable() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
@@ -67,8 +67,8 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
 
-		NzSkeletalModel& operator=(const NzSkeletalModel& node);
-		NzSkeletalModel& operator=(NzSkeletalModel&& node);
+		NzSkeletalModel& operator=(const NzSkeletalModel& node) = default;
+		NzSkeletalModel& operator=(NzSkeletalModel&& node) = default:
 
 	private:
 		void MakeBoundingVolume() const override;
