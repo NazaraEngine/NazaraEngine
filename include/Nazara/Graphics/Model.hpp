@@ -37,6 +37,7 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 	public:
 		NzModel();
 		NzModel(const NzModel& model) = default;
+		NzModel(NzModel&& model) = default;
 		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
@@ -72,6 +73,7 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 		void SetSkinCount(unsigned int skinCount);
 
 		NzModel& operator=(const NzModel& node) = default;
+		NzModel& operator=(NzModel&& node) = default;
 
 	protected:
 		void MakeBoundingVolume() const override;
