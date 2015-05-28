@@ -31,27 +31,14 @@ m_animationEnabled(true)
 {
 }
 
-NzSkeletalModel::NzSkeletalModel(const NzSkeletalModel& model) :
-NzModel(model),
-m_skeleton(model.m_skeleton),
-m_currentSequence(model.m_currentSequence),
-m_animationEnabled(model.m_animationEnabled),
-m_interpolation(model.m_interpolation),
-m_currentFrame(model.m_currentFrame),
-m_nextFrame(model.m_nextFrame)
-{
-}
-
 NzSkeletalModel::~NzSkeletalModel()
 {
 	if (m_scene)
 		m_scene->UnregisterForUpdate(this);
 }
 
-void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
+void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
-	const NzMatrix4f& transformMatrix = GetTransformMatrix();
-
 	unsigned int submeshCount = m_mesh->GetSubMeshCount();
 	for (unsigned int i = 0; i < submeshCount; ++i)
 	{
@@ -153,11 +140,6 @@ bool NzSkeletalModel::IsAnimated() const
 bool NzSkeletalModel::IsAnimationEnabled() const
 {
 	return m_animationEnabled;
-}
-
-bool NzSkeletalModel::IsDrawable() const
-{
-	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
 }
 
 bool NzSkeletalModel::LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params)
@@ -294,39 +276,6 @@ void NzSkeletalModel::SetSequence(unsigned int sequenceIndex)
 
 	m_currentSequence = currentSequence;
 	m_nextFrame = m_currentSequence->firstFrame;
-}
-
-NzSkeletalModel& NzSkeletalModel::operator=(const NzSkeletalModel& node)
-{
-	NzSkeletalModel::operator=(node);
-
-	m_animation = node.m_animation;
-	m_animationEnabled = node.m_animationEnabled;
-	m_currentFrame = node.m_currentFrame;
-	m_currentSequence = node.m_currentSequence;
-	m_interpolation = node.m_interpolation;
-	m_nextFrame = node.m_nextFrame;
-	m_skeleton = node.m_skeleton;
-
-	return *this;
-}
-
-NzSkeletalModel& NzSkeletalModel::operator=(NzSkeletalModel&& node)
-{
-	NzModel::operator=(node);
-
-	// Ressources
-	m_animation = std::move(node.m_animation);
-	m_skeleton = std::move(node.m_skeleton);
-
-	// Paramètres
-	m_animationEnabled = node.m_animationEnabled;
-	m_currentFrame = node.m_currentFrame;
-	m_currentSequence = node.m_currentSequence;
-	m_interpolation = node.m_interpolation;
-	m_nextFrame = node.m_nextFrame;
-
-	return *this;
 }
 
 void NzSkeletalModel::MakeBoundingVolume() const
