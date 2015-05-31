@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/LightManager.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
@@ -21,8 +20,8 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		NzForwardRenderTechnique();
 		~NzForwardRenderTechnique() = default;
 
-		void Clear(const NzScene* scene) const;
-		bool Draw(const NzScene* scene) const;
+		void Clear(const NzScene* scene) const override;
+		bool Draw(const NzScene* scene) const override;
 
 		unsigned int GetMaxLightPassPerObject() const;
 		NzAbstractRenderQueue* GetRenderQueue() override;
@@ -36,11 +35,27 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 	private:
 		struct ShaderUniforms;
 
+		bool ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
 		void DrawBasicSprites(const NzScene* scene) const;
 		void DrawBillboards(const NzScene* scene) const;
 		void DrawOpaqueModels(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int uniformOffset, unsigned int index) const;
+
+		static float ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
+		static float ComputePointLightScore(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
+		static float ComputeSpotLightScore(const NzSpheref& object, const NzAbstractRenderQueue::SpotLight& light);
+		static bool IsDirectionalLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
+		static bool IsPointLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
+		static bool IsSpotLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::SpotLight& light);
+
+		struct LightIndex
+		{
+			nzLightType type;
+			float score;
+			unsigned int index;
+		};
 
 		struct ShaderUniforms
 		{
@@ -58,10 +73,9 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		};
 
 		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
+		mutable std::vector<LightIndex> m_lights;
 		NzBuffer m_vertexBuffer;
 		mutable NzForwardRenderQueue m_renderQueue;
-		mutable NzLightManager m_directionalLights;
-		mutable NzLightManager m_lights;
 		NzVertexBuffer m_billboardPointBuffer;
 		NzVertexBuffer m_spriteBuffer;
 		unsigned int m_maxLightPassPerObject;
@@ -71,5 +85,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		static NzVertexDeclaration s_billboardInstanceDeclaration;
 		static NzVertexDeclaration s_billboardVertexDeclaration;
 };
+
+#include <Nazara/Graphics/ForwardRenderTechnique.inl>
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP

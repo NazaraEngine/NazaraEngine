@@ -63,8 +63,6 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene) const
 
 bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 {
-	m_directionalLights.SetLights(&m_renderQueue.directionalLights[0], m_renderQueue.directionalLights.size());
-	m_lights.SetLights(&m_renderQueue.lights[0], m_renderQueue.lights.size());
 	m_renderQueue.Sort(scene->GetViewer());
 
 	if (!m_renderQueue.opaqueModels.empty())
@@ -104,6 +102,108 @@ nzRenderTechniqueType NzForwardRenderTechnique::GetType() const
 void NzForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
 {
 	m_maxLightPassPerObject = passCount;
+}
+
+bool NzForwardRenderTechnique::Initialize()
+{
+	try
+	{
+		NzErrorFlags flags(nzErrorFlag_ThrowException, true);
+
+		s_quadIndexBuffer.Reset(false, s_maxQuads*6, nzDataStorage_Hardware, nzBufferUsage_Static);
+
+		NzBufferMapper<NzIndexBuffer> mapper(s_quadIndexBuffer, nzBufferAccess_WriteOnly);
+		nzUInt16* indices = static_cast<nzUInt16*>(mapper.GetPointer());
+
+		for (unsigned int i = 0; i < s_maxQuads; ++i)
+		{
+			*indices++ = i*4 + 0;
+			*indices++ = i*4 + 2;
+			*indices++ = i*4 + 1;
+
+			*indices++ = i*4 + 2;
+			*indices++ = i*4 + 3;
+			*indices++ = i*4 + 1;
+		}
+
+		mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
+
+		// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
+		//Note: Les UV sont calculés dans le shader
+		s_quadVertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
+
+		float vertices[2*4] = {
+		   -0.5f, -0.5f,
+			0.5f, -0.5f,
+		   -0.5f, 0.5f,
+			0.5f, 0.5f,
+		};
+
+		s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
+
+		// Déclaration lors du rendu des billboards par sommet
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Color,     nzComponentType_Color,  NzOffsetOf(BillboardPoint, color));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Position,  nzComponentType_Float3, NzOffsetOf(BillboardPoint, position));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_TexCoord,  nzComponentType_Float2, NzOffsetOf(BillboardPoint, uv));
+		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Userdata0, nzComponentType_Float4, NzOffsetOf(BillboardPoint, size)); // Englobe sincos
+
+		// Declaration utilisée lors du rendu des billboards par instancing
+		// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData0, nzComponentType_Float3, NzOffsetOf(NzForwardRenderQueue::BillboardData, center));
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData1, nzComponentType_Float4, NzOffsetOf(NzForwardRenderQueue::BillboardData, size)); // Englobe sincos
+		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData2, nzComponentType_Color,  NzOffsetOf(NzForwardRenderQueue::BillboardData, color));
+	}
+	catch (const std::exception& e)
+	{
+		NazaraError("Failed to initialise: " + NzString(e.what()));
+		return false;
+	}
+
+	return true;
+}
+
+void NzForwardRenderTechnique::Uninitialize()
+{
+	s_quadIndexBuffer.Reset();
+	s_quadVertexBuffer.Reset();
+}
+
+bool NzForwardRenderTechnique::ChooseLights(const NzSpheref& object, bool includeDirectionalLights) const
+{
+	m_lights.clear();
+
+	// First step: add all the lights into a common list and compute their score, exlucing those who have no chance of lighting the object
+	// (Those who are too far away).
+
+	if (includeDirectionalLights)
+	{
+		for (unsigned int i = 0; i < m_renderQueue.directionalLights.size(); ++i)
+		{
+			const auto& light = m_renderQueue.directionalLights[i];
+			if (IsDirectionalLightSuitable(object, light))
+				m_lights.push_back({nzLightType_Directional, ComputeDirectionalLightScore(object, light), i});
+		}
+	}
+
+	for (unsigned int i = 0; i < m_renderQueue.pointLights.size(); ++i)
+	{
+		const auto& light = m_renderQueue.pointLights[i];
+		if (IsPointLightSuitable(object, light))
+			m_lights.push_back({nzLightType_Point, ComputePointLightScore(object, light), i});
+	}
+
+	for (unsigned int i = 0; i < m_renderQueue.spotLights.size(); ++i)
+	{
+		const auto& light = m_renderQueue.spotLights[i];
+		if (IsSpotLightSuitable(object, light))
+			m_lights.push_back({nzLightType_Spot, ComputeSpotLightScore(object, light), i});
+	}
+
+	// Then, sort the lights according to their score
+	std::sort(m_lights.begin(), m_lights.end(), [](const LightIndex& light1, const LightIndex& light2)
+	{
+		return light1.score < light2.score;
+	});
 }
 
 void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
@@ -209,70 +309,6 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzScene* scene) const
 			matEntry.enabled = false;
 		}
 	}
-}
-
-bool NzForwardRenderTechnique::Initialize()
-{
-	try
-	{
-		NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-
-		s_quadIndexBuffer.Reset(false, s_maxQuads*6, nzDataStorage_Hardware, nzBufferUsage_Static);
-
-		NzBufferMapper<NzIndexBuffer> mapper(s_quadIndexBuffer, nzBufferAccess_WriteOnly);
-		nzUInt16* indices = static_cast<nzUInt16*>(mapper.GetPointer());
-
-		for (unsigned int i = 0; i < s_maxQuads; ++i)
-		{
-			*indices++ = i*4 + 0;
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 1;
-
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 3;
-			*indices++ = i*4 + 1;
-		}
-
-		mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
-
-		// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
-		//Note: Les UV sont calculés dans le shader
-		s_quadVertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
-
-		float vertices[2*4] = {
-		   -0.5f, -0.5f,
-			0.5f, -0.5f,
-		   -0.5f, 0.5f,
-			0.5f, 0.5f,
-		};
-
-		s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
-
-		// Déclaration lors du rendu des billboards par sommet
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Color,     nzComponentType_Color,  NzOffsetOf(BillboardPoint, color));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Position,  nzComponentType_Float3, NzOffsetOf(BillboardPoint, position));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_TexCoord,  nzComponentType_Float2, NzOffsetOf(BillboardPoint, uv));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Userdata0, nzComponentType_Float4, NzOffsetOf(BillboardPoint, size)); // Englobe sincos
-
-		// Declaration utilisée lors du rendu des billboards par instancing
-		// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData0, nzComponentType_Float3, NzOffsetOf(NzForwardRenderQueue::BillboardData, center));
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData1, nzComponentType_Float4, NzOffsetOf(NzForwardRenderQueue::BillboardData, size)); // Englobe sincos
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData2, nzComponentType_Color,  NzOffsetOf(NzForwardRenderQueue::BillboardData, color));
-	}
-	catch (const std::exception& e)
-	{
-		NazaraError("Failed to initialise: " + NzString(e.what()));
-		return false;
-	}
-
-	return true;
-}
-
-void NzForwardRenderTechnique::Uninitialize()
-{
-	s_quadIndexBuffer.Reset();
-	s_quadVertexBuffer.Reset();
 }
 
 void NzForwardRenderTechnique::DrawBillboards(const NzScene* scene) const
@@ -437,7 +473,8 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
 				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
 				// (Le deferred shading n'a pas ce problème)
-				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || m_lights.IsEmpty()) && matEntry.instancingEnabled;
+				bool noPointSpotLight = m_renderQueue.pointLights.empty() && m_renderQueue.spotLights.empty();
+				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || noPointSpotLight) && matEntry.instancingEnabled;
 
 				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
 				const NzShader* shader = material->Apply((instancing) ? nzShaderFlags_Instancing : 0);
@@ -499,7 +536,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 
 							// Avec l'instancing, impossible de sélectionner les lumières pour chaque objet
 							// Du coup, il n'est activé que pour les lumières directionnelles
-							unsigned int lightCount = m_directionalLights.GetLightCount();
+							unsigned int lightCount = m_renderQueue.directionalLights.size();
 							unsigned int lightIndex = 0;
 							nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc();
 
@@ -522,11 +559,9 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 										NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
 									}
 
-									for (unsigned int i = 0; i < renderedLightCount; ++i)
-										m_directionalLights.GetLight(lightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
-
-									for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-										NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+									// Sends the uniforms
+									for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+										SendLightUniforms(shader, shaderUniforms->lightUniforms, i*shaderUniforms->lightOffset, lightIndex++);
 								}
 
 								const NzMatrix4f* instanceMatrices = &instances[0];
@@ -558,20 +593,19 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 							{
 								for (const NzMatrix4f& matrix : instances)
 								{
-									unsigned int directionalLightCount = m_directionalLights.GetLightCount();
-									unsigned int otherLightCount = m_lights.ComputeClosestLights(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius, m_maxLightPassPerObject*NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - directionalLightCount);
-									unsigned int lightCount = directionalLightCount + otherLightCount;
+									// Choose the lights depending on an object position and apparent radius
+									ChooseLights(NzSpheref(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius));
+
+									unsigned int lightCount = m_lights.size();
 
 									NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-									unsigned int directionalLightIndex = 0;
-									unsigned int otherLightIndex = 0;
+									unsigned int lightIndex = 0;
 									nzRendererComparison oldDepthFunc = NzRenderer::GetDepthFunc(); // Dans le cas où nous aurions à le changer
 
 									unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 									for (unsigned int pass = 0; pass < passCount; ++pass)
 									{
-										unsigned int renderedLightCount = std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
-										lightCount -= renderedLightCount;
+										lightCount -= std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
 
 										if (pass == 1)
 										{
@@ -584,18 +618,9 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzScene* scene) const
 											NzRenderer::SetDepthFunc(nzRendererComparison_Equal);
 										}
 
-										// On active les lumières de cette passe-ci
-										for (unsigned int i = 0; i < renderedLightCount; ++i)
-										{
-											if (directionalLightIndex >= directionalLightCount)
-												m_lights.GetResult(otherLightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
-											else
-												m_directionalLights.GetLight(directionalLightIndex++)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
-										}
-
-										// On désactive l'éventuel surplus
-										for (unsigned int i = renderedLightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-											NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+										// Sends the light uniforms to the shader
+										for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i);
 
 										// Et on passe à l'affichage
 										drawFunc(meshData.primitiveMode, 0, indexCount);
@@ -660,9 +685,10 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 			if (shaderUniforms->hasLightUniforms)
 			{
-				lightCount = std::min(m_directionalLights.GetLightCount(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+				lightCount = std::min(m_renderQueue.directionalLights.size(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+
 				for (unsigned int i = 0; i < lightCount; ++i)
-					m_directionalLights.GetLight(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+					SendLightUniforms(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset * i, i);
 			}
 
 			lastShader = shader;
@@ -693,22 +719,15 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzScene* scene) const
 		NzRenderer::SetIndexBuffer(indexBuffer);
 		NzRenderer::SetVertexBuffer(vertexBuffer);
 
-		if (shaderUniforms->hasLightUniforms)
+		if (shaderUniforms->hasLightUniforms && lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS)
 		{
-			// Calcul des lumières les plus proches
-			if (lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS && !m_lights.IsEmpty())
-			{
-				NzVector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
-				float radius = modelData.squaredBoundingSphere.radius;
-				unsigned int closestLightCount = m_lights.ComputeClosestLights(position, radius, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-
-				unsigned int count = std::min(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS - lightCount, closestLightCount);
-				for (unsigned int i = 0; i < count; ++i)
-					m_lights.GetResult(i)->Enable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*(lightCount++));
-			}
+			// Compute the closest lights
+			NzVector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
+			float radius = modelData.squaredBoundingSphere.radius;
+			ChooseLights(NzSpheref(position, radius), false);
 
 			for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-				NzLight::Disable(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i);
+				SendLightUniforms(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i, i);
 		}
 
 		NzRenderer::SetMatrix(nzMatrixType_World, matrix);
