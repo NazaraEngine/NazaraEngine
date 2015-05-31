@@ -136,11 +136,6 @@ bool NzSkeletalModel::IsAnimationEnabled() const
 	return m_animationEnabled;
 }
 
-bool NzSkeletalModel::IsDrawable() const
-{
-	return m_mesh != nullptr && m_mesh->GetSubMeshCount() >= 1;
-}
-
 bool NzSkeletalModel::LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params)
 {
 	return NzSkeletalModelLoader::LoadFromFile(this, filePath, params);

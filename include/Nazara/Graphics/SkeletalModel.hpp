@@ -54,7 +54,6 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 
 		bool IsAnimated() const;
 		bool IsAnimationEnabled() const;
-		bool IsDrawable() const;
 
 		bool LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
 		bool LoadFromMemory(const void* data, std::size_t size, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
