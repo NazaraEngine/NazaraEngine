@@ -141,13 +141,13 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_sphereMesh->GetVertexBuffer());
 
-			m_directionalLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Point);
+			m_pointSpotLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Point);
 			for (const auto& light : m_renderQueue->pointLights)
 			{
-				m_directionalLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.position, light.attenuation));
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(0.f, 0.f, 0.f, light.invRadius));
+				m_pointSpotLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.position, light.attenuation));
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(0.f, 0.f, 0.f, light.invRadius));
 
 				lightMatrix.SetScale(NzVector3f(light.radius * 1.1f)); // Pour corriger les imperfections liées à la sphère
 				lightMatrix.SetTranslation(light.position);
@@ -214,14 +214,14 @@ bool NzDeferredPhongLightingPass::Process(const NzScene* scene, unsigned int fir
 			NzRenderer::SetIndexBuffer(indexBuffer);
 			NzRenderer::SetVertexBuffer(m_coneMesh->GetVertexBuffer());
 
-			m_directionalLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Spot);
+			m_pointSpotLightShader->SendInteger(m_pointSpotLightUniforms.locations.type, nzLightType_Spot);
 			for (const auto& light : m_renderQueue->spotLights)
 			{
-				m_directionalLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.direction, light.attenuation));
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(light.position, light.invRadius));
-				m_directionalLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters3, NzVector2f(light.innerAngleCosine, light.outerAngleCosine));
+				m_pointSpotLightShader->SendColor(m_pointSpotLightUniforms.locations.color, light.color);
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, NzVector4f(light.position, light.attenuation));
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, NzVector4f(light.direction, light.invRadius));
+				m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters3, NzVector2f(light.innerAngleCosine, light.outerAngleCosine));
 
 				float baseRadius = light.radius * light.outerAngleTangent * 1.1f;
 				lightMatrix.MakeTransform(light.position, NzQuaternionf::RotationBetween(NzVector3f::Forward(), light.direction), NzVector3f(baseRadius, baseRadius, light.radius));
