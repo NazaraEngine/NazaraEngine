@@ -54,7 +54,6 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/LightManager.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
