@@ -33,6 +33,9 @@ m_animationEnabled(true)
 
 void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
+	if (!m_mesh)
+		return;
+
 	unsigned int submeshCount = m_mesh->GetSubMeshCount();
 	for (unsigned int i = 0; i < submeshCount; ++i)
 	{
