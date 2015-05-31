@@ -34,11 +34,11 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 
 	public:
 		NzSkeletalModel();
-		NzSkeletalModel(const NzSkeletalModel& model);
-		NzSkeletalModel(NzSkeletalModel&& model);
-		~NzSkeletalModel();
+		NzSkeletalModel(const NzSkeletalModel& model) = default;
+		NzSkeletalModel(NzSkeletalModel&& model) = default;
+		~NzSkeletalModel() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
 		void AdvanceAnimation(float elapsedTime);
 
 		NzSkeletalModel* Clone() const;
@@ -67,13 +67,13 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 		bool SetSequence(const NzString& sequenceName);
 		void SetSequence(unsigned int sequenceIndex);
 
-		NzSkeletalModel& operator=(const NzSkeletalModel& node);
-		NzSkeletalModel& operator=(NzSkeletalModel&& node);
+		NzSkeletalModel& operator=(const NzSkeletalModel& node) = default;
+		NzSkeletalModel& operator=(NzSkeletalModel&& node) = default;
 
 	private:
 		void MakeBoundingVolume() const override;
-		void Register() override;
-		void Unregister() override;
+		/*void Register() override;
+		void Unregister() override;*/
 		void Update() override;
 
 		NzAnimationRef m_animation;
