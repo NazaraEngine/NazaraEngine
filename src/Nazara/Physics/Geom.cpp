@@ -400,7 +400,7 @@ m_radius(radius)
 
 NzBoxf NzSphereGeom::ComputeAABB(const NzMatrix4f& offsetMatrix, const NzVector3f& scale) const
 {
-	NzVector3f size(m_radius * M_SQRT3 * scale);
+	NzVector3f size(m_radius * NazaraSuffixMacro(M_SQRT3, f) * scale);
 	NzVector3f position(offsetMatrix.GetTranslation());
 
 	return NzBoxf(position - size, position + size);
