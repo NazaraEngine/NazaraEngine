@@ -31,27 +31,8 @@ m_animationEnabled(true)
 {
 }
 
-NzSkeletalModel::NzSkeletalModel(const NzSkeletalModel& model) :
-NzModel(model),
-m_skeleton(model.m_skeleton),
-m_currentSequence(model.m_currentSequence),
-m_animationEnabled(model.m_animationEnabled),
-m_interpolation(model.m_interpolation),
-m_currentFrame(model.m_currentFrame),
-m_nextFrame(model.m_nextFrame)
+void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
-}
-
-NzSkeletalModel::~NzSkeletalModel()
-{
-	if (m_scene)
-		m_scene->UnregisterForUpdate(this);
-}
-
-void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
-{
-	const NzMatrix4f& transformMatrix = GetTransformMatrix();
-
 	unsigned int submeshCount = m_mesh->GetSubMeshCount();
 	for (unsigned int i = 0; i < submeshCount; ++i)
 	{
@@ -296,58 +277,15 @@ void NzSkeletalModel::SetSequence(unsigned int sequenceIndex)
 	m_nextFrame = m_currentSequence->firstFrame;
 }
 
-NzSkeletalModel& NzSkeletalModel::operator=(const NzSkeletalModel& node)
-{
-	NzSkeletalModel::operator=(node);
-
-	m_animation = node.m_animation;
-	m_animationEnabled = node.m_animationEnabled;
-	m_currentFrame = node.m_currentFrame;
-	m_currentSequence = node.m_currentSequence;
-	m_interpolation = node.m_interpolation;
-	m_nextFrame = node.m_nextFrame;
-	m_skeleton = node.m_skeleton;
-
-	return *this;
-}
-
-NzSkeletalModel& NzSkeletalModel::operator=(NzSkeletalModel&& node)
-{
-	NzModel::operator=(node);
-
-	// Ressources
-	m_animation = std::move(node.m_animation);
-	m_skeleton = std::move(node.m_skeleton);
-
-	// Paramètres
-	m_animationEnabled = node.m_animationEnabled;
-	m_currentFrame = node.m_currentFrame;
-	m_currentSequence = node.m_currentSequence;
-	m_interpolation = node.m_interpolation;
-	m_nextFrame = node.m_nextFrame;
-
-	return *this;
-}
-
 void NzSkeletalModel::MakeBoundingVolume() const
 {
 	m_boundingVolume.Set(m_skeleton.GetAABB());
 }
 
-void NzSkeletalModel::Register()
-{
-	m_scene->RegisterForUpdate(this);
-}
-
-void NzSkeletalModel::Unregister()
-{
-	m_scene->UnregisterForUpdate(this);
-}
-
 void NzSkeletalModel::Update()
 {
-	if (m_animationEnabled && m_animation)
-		AdvanceAnimation(m_scene->GetUpdateTime());
+	/*if (m_animationEnabled && m_animation)
+		AdvanceAnimation(m_scene->GetUpdateTime());*/
 }
 
 NzSkeletalModelLoader::LoaderList NzSkeletalModel::s_loaders;
