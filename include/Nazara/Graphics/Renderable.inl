@@ -19,14 +19,16 @@ inline void NzRenderable::InvalidateBoundingVolume()
 	m_boundingVolumeUpdated = false;
 }
 
-inline void NzRenderable::UpdateBoundingVolume() const
-{
-	MakeBoundingVolume();
-	m_boundingVolumeUpdated = true;
-}
-
 inline NzRenderable& NzRenderable::operator=(const NzRenderable& renderable)
 {
 	m_boundingVolume = renderable.m_boundingVolume;
 	m_boundingVolumeUpdated = renderable.m_boundingVolumeUpdated;
+
+	return *this;
+}
+
+inline void NzRenderable::UpdateBoundingVolume() const
+{
+	MakeBoundingVolume();
+	m_boundingVolumeUpdated = true;
 }
