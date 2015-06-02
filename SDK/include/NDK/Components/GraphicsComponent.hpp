@@ -8,16 +8,28 @@
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
 #include <NDK/Component.hpp>
+#include <Nazara/Graphics/Renderable.hpp>
 
 namespace Ndk
 {
 	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
 	{
 		public:
-			GraphicsComponent();
+			GraphicsComponent() = default;
 			~GraphicsComponent() = default;
 
+			void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
+
 			static ComponentIndex componentIndex;
+
+		private:
+			struct Renderable
+			{
+				NzBoundingVolumef volume;
+				NzRenderableRef renderable;
+			};
+
+			std::vector<Renderable> m_renderables;
 	};
 }
 
