@@ -10,6 +10,7 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
@@ -18,11 +19,13 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, NzNode::Listener, NzRenderTarget::Listener
+	class NDK_API CameraComponent : public Component<CameraComponent>, public NzAbstractViewer, NzNode::Listener, NzRenderTarget::Listener
 	{
 		public:
 			CameraComponent();
 			~CameraComponent();
+
+			void ApplyView() const override;
 
 			void EnsureFrustumUpdate() const;
 			void EnsureProjectionMatrixUpdate() const;

@@ -5,6 +5,7 @@
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Components/NodeComponent.hpp>
 
 namespace Ndk
 {
@@ -14,6 +15,13 @@ namespace Ndk
 
 	void RenderSystem::Update(float elapsedTime)
 	{
+		for (const Ndk::EntityHandle& camera : m_cameras)
+		{
+			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
+			NodeComponent& cameraNode = camera->GetComponent<NodeComponent>();
+
+			camComponent.ApplyView();
+		}
 	}
 
 	void RenderSystem::OnEntityRemoved(Entity* entity)
@@ -24,7 +32,7 @@ namespace Ndk
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		if (entity->HasComponent<CameraComponent>())
+		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
 		{
 			m_cameras.Insert(entity);
 			std::sort(m_cameras.begin(), m_cameras.end(), [](const EntityHandle& handle1, const EntityHandle& handle2)
@@ -35,7 +43,7 @@ namespace Ndk
 		else
 			m_cameras.Remove(entity);
 
-		if (entity->HasComponent<GraphicsComponent>())
+		if (entity->HasComponent<GraphicsComponent>() && entity->HasComponent<NodeComponent>())
 			m_drawables.Insert(entity);
 		else
 			m_drawables.Remove(entity);
