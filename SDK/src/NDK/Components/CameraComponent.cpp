@@ -3,11 +3,40 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Components/CameraComponent.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
 namespace Ndk
 {
+	void CameraComponent::ApplyView() const
+	{
+		NazaraAssert(m_target, "CameraComponent has no target");
+
+		EnsureProjectionMatrixUpdate();
+		EnsureViewMatrixUpdate();
+		EnsureViewportUpdate();
+
+		NzRenderer::SetMatrix(nzMatrixType_Projection, m_projectionMatrix);
+		NzRenderer::SetMatrix(nzMatrixType_View, m_viewMatrix);
+		NzRenderer::SetTarget(m_target);
+		NzRenderer::SetViewport(m_viewport);
+	}
+
+	NzVector3f CameraComponent::GetEyePosition() const
+	{
+		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
+
+		return m_entity->GetComponent<NodeComponent>().GetPosition();
+	}
+
+	NzVector3f CameraComponent::GetForward() const
+	{
+		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
+
+		return m_entity->GetComponent<NodeComponent>().GetForward();
+	}
+
 	void CameraComponent::SetLayer(unsigned int layer)
 	{
 		m_layer = layer;
