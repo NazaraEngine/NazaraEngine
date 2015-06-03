@@ -159,7 +159,7 @@ namespace Ndk
 
 	inline void CameraComponent::SetZNear(float zNear)
 	{
-		NazaraAssert(NzNumberEquals(zNear, 0.f), "zNear cannot be zero");
+		NazaraAssert(!NzNumberEquals(zNear, 0.f), "zNear cannot be zero");
 
 		m_zNear = zNear;
 		InvalidateProjectionMatrix();
