@@ -179,3 +179,5 @@ void NzLight::MakeBoundingVolume() const
 			break;
 	}
 }
+
+NzLightLibrary::LibraryMap NzLight::s_library;
