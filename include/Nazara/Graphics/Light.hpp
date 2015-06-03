@@ -9,11 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 
+class NzLight;
 class NzShader;
 struct NzLightUniforms;
+
+using NzLightConstRef = NzObjectRef<const NzLight>;
+using NzLightLibrary = NzObjectLibrary<NzLight>;
+using NzLightRef = NzObjectRef<NzLight>;
 
 class NAZARA_API NzLight : public NzRenderable
 {
@@ -55,6 +62,8 @@ class NAZARA_API NzLight : public NzRenderable
 
 		NzLight& operator=(const NzLight& light) = default;
 
+		template<typename... Args> static NzLightRef New(Args&&... args);
+
 	private:
 		void MakeBoundingVolume() const override;
 
@@ -70,6 +79,8 @@ class NAZARA_API NzLight : public NzRenderable
 		float m_outerAngleCosine;
 		float m_outerAngleTangent;
 		float m_radius;
+
+		static NzLightLibrary::LibraryMap s_library;
 };
 
 struct NzLightUniforms

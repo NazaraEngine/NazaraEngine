@@ -27,7 +27,9 @@ struct NAZARA_API NzModelParameters
 
 class NzModel;
 
+using NzModelConstRef = NzObjectRef<const NzModel>;
 using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
+using NzModelRef = NzObjectRef<NzModel>;
 
 class NAZARA_API NzModel : public NzRenderable, public NzResource
 {
@@ -41,9 +43,6 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 		virtual ~NzModel();
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
-
-		NzModel* Clone() const;
-		NzModel* Create() const;
 
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;
@@ -75,6 +74,8 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 		NzModel& operator=(const NzModel& node) = default;
 		NzModel& operator=(NzModel&& node) = default;
 
+		template<typename... Args> static NzModelRef New(Args&&... args);
+
 	protected:
 		void MakeBoundingVolume() const override;
 
@@ -86,5 +87,7 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 
 		static NzModelLoader::LoaderList s_loaders;
 };
+
+#include <Nazara/Graphics/Model.inl>
 
 #endif // NAZARA_MODEL_HPP
