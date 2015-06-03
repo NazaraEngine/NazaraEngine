@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Systems/RenderSystem.hpp>
+#include <Nazara/Graphics/Scene.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -21,6 +22,23 @@ namespace Ndk
 			NodeComponent& cameraNode = camera->GetComponent<NodeComponent>();
 
 			camComponent.ApplyView();
+
+			NzScene dummyScene;
+			dummyScene.SetViewer(camComponent);
+
+			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
+			renderQueue->Clear();
+
+			for (const Ndk::EntityHandle& drawable : m_drawables)
+			{
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+
+				graphicsComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
+			}
+
+			m_renderTechnique.Clear(&dummyScene);
+			m_renderTechnique.Draw(&dummyScene);
 		}
 	}
 
