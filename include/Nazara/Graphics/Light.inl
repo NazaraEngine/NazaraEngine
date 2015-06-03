@@ -2,6 +2,9 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <memory>
+#include <Nazara/Renderer/Debug.hpp>
+
 inline float NzLight::GetAmbientFactor() const
 {
 	return m_ambientFactor;
@@ -90,3 +93,14 @@ inline void NzLight::SetRadius(float radius)
 
 	InvalidateBoundingVolume();
 }
+
+template<typename... Args>
+NzLightRef NzLight::New(Args&&... args)
+{
+	std::unique_ptr<NzLight> object(new NzLight(std::forward<Args>(args)...));
+	object->SetPersistent(false);
+
+	return object.release();
+}
+
+#include <Nazara/Renderer/DebugOff.hpp>
