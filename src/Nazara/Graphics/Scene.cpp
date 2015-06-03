@@ -139,7 +139,8 @@ NzVector3f NzScene::GetBackward() const
 	}
 	#endif
 
-	return -m_viewer->GetGlobalForward();
+	//return -m_viewer->GetGlobalForward();
+	return NzVector3f::Backward();
 }
 
 NzVector3f NzScene::GetDown() const
@@ -152,7 +153,8 @@ NzVector3f NzScene::GetDown() const
 	}
 	#endif
 
-	return -m_viewer->GetGlobalUp();
+	//return -m_viewer->GetGlobalUp();
+	return NzVector3f::Down();
 }
 
 NzVector3f NzScene::GetForward() const
@@ -165,7 +167,8 @@ NzVector3f NzScene::GetForward() const
 	}
 	#endif
 
-	return m_viewer->GetGlobalForward();
+	//return m_viewer->GetGlobalForward();
+	return NzVector3f::Forward();
 }
 
 NzVector3f NzScene::GetLeft() const
@@ -178,7 +181,8 @@ NzVector3f NzScene::GetLeft() const
 	}
 	#endif
 
-	return -m_viewer->GetGlobalRight();
+	//return -m_viewer->GetGlobalRight();
+	return NzVector3f::Left();
 }
 
 NzAbstractRenderTechnique* NzScene::GetRenderTechnique() const
@@ -199,7 +203,8 @@ NzVector3f NzScene::GetRight() const
 	}
 	#endif
 
-	return m_viewer->GetGlobalRight();
+	//return m_viewer->GetGlobalRight();
+	return NzVector3f::Right();
 }
 
 NzSceneNode& NzScene::GetRoot()
@@ -227,7 +232,8 @@ NzVector3f NzScene::GetUp() const
 	}
 	#endif
 
-	return m_viewer->GetGlobalUp();
+	//return m_viewer->GetGlobalUp();
+	return NzVector3f::Up();
 }
 
 float NzScene::GetUpdateTime() const
