@@ -7,8 +7,8 @@
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
-#include <NDK/Component.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
+#include <NDK/Component.hpp>
 
 namespace Ndk
 {
@@ -18,7 +18,9 @@ namespace Ndk
 			GraphicsComponent() = default;
 			~GraphicsComponent() = default;
 
-			void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
+			inline void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
+
+			inline void Attach(NzRenderableRef renderable);
 
 			static ComponentIndex componentIndex;
 
