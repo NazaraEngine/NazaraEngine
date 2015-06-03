@@ -50,7 +50,7 @@ class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
 		virtual void AddSpotLight(const SpotLight& light);
 		virtual void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) = 0;
 
-		virtual void Clear(bool fully);
+		virtual void Clear(bool fully = false);
 
 
 		struct DirectionalLight

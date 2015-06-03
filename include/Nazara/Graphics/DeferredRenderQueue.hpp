@@ -41,7 +41,7 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectL
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
 		void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) override;
 
-		void Clear(bool fully);
+		void Clear(bool fully = false);
 
 		struct MeshDataComparator
 		{
