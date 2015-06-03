@@ -11,6 +11,8 @@ namespace Ndk
 	{
 		if (addDefaultSystems)
 			AddDefaultSystems();
+
+		m_entities.reserve(100); // Temporaire, je le jure
 	}
 
 	inline BaseSystem& World::AddSystem(std::unique_ptr<BaseSystem>&& system)
