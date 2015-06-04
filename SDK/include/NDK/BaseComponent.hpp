@@ -7,15 +7,13 @@
 #ifndef NDK_BASECOMPONENT_HPP
 #define NDK_BASECOMPONENT_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/EntityHandle.hpp>
 #include <functional>
 #include <unordered_map>
 #include <vector>
 
 namespace Ndk
 {
-	class Entity;
-
 	class NDK_API BaseComponent
 	{
 		friend Entity;
@@ -38,7 +36,7 @@ namespace Ndk
 
 		protected:
 			ComponentIndex m_componentIndex;
-			Entity* m_entity;
+			EntityHandle m_entity;
 
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
