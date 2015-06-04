@@ -8,12 +8,13 @@
 #define NDK_ENTITY_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <NDK/Component.hpp>
+#include <NDK/Algorithm.hpp>
 #include <memory>
 #include <vector>
 
 namespace Ndk
 {
+	class BaseComponent;
 	class EntityHandle;
 	class World;
 
