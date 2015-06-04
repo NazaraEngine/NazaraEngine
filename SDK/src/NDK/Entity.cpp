@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Entity.hpp>
+#include <NDK/BaseComponent.hpp>
 #include <NDK/EntityHandle.hpp>
 #include <NDK/World.hpp>
 
@@ -19,6 +20,12 @@ namespace Ndk
 	{
 		for (EntityHandle* handle : m_handles)
 			handle->OnEntityMoved(this);
+	}
+
+	Entity::Entity(World& world, EntityId id) :
+	m_id(id),
+	m_world(&world)
+	{
 	}
 
 	Entity::~Entity()

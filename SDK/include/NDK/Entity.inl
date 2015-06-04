@@ -9,12 +9,6 @@
 
 namespace Ndk
 {
-	inline Entity::Entity(World& world, EntityId id) :
-	m_id(id),
-	m_world(&world)
-	{
-	}
-
 	template<typename ComponentType, typename... Args>
 	ComponentType& Entity::AddComponent(Args&&... args)
 	{
