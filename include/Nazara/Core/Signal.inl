@@ -13,6 +13,12 @@ void NzSignal<Args...>::Connect(const Callback& func)
 }
 
 template<typename... Args>
+void NzSignal<Args...>::Connect(Callback&& func)
+{
+	m_callbacks.emplace_back(std::move(func));
+}
+
+template<typename... Args>
 template<typename O>
 void NzSignal<Args...>::Connect(O& object, void (O::*method) (Args...))
 {
