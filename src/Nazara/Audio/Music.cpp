@@ -23,7 +23,6 @@ struct NzMusicImpl
 	std::vector<nzInt16> chunkSamples;
 	NzThread thread;
 	bool loop = false;
-	bool paused = false;
 	bool streaming = false;
 	unsigned int sampleRate;
 };

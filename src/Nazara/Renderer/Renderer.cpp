@@ -1797,10 +1797,6 @@ bool NzRenderer::EnsureStateUpdate()
 
 			if (update)
 			{
-				const NzVertexDeclaration* vertexDeclaration;
-				unsigned int bufferOffset;
-				unsigned int stride;
-
 				// Pour éviter la duplication de code, on va utiliser une astuce via une boucle for
 				for (unsigned int i = 0; i < (s_instancing ? 2 : 1); ++i)
 				{
@@ -1810,9 +1806,9 @@ bool NzRenderer::EnsureStateUpdate()
 					NzHardwareBuffer* vertexBufferImpl = static_cast<NzHardwareBuffer*>(vertexBuffer->GetBuffer()->GetImpl());
 					glBindBuffer(NzOpenGL::BufferTarget[nzBufferType_Vertex], vertexBufferImpl->GetOpenGLID());
 
-					bufferOffset = vertexBuffer->GetStartOffset();
-					vertexDeclaration = vertexBuffer->GetVertexDeclaration();
-					stride = vertexDeclaration->GetStride();
+					unsigned int bufferOffset = vertexBuffer->GetStartOffset();
+					const NzVertexDeclaration* vertexDeclaration = vertexBuffer->GetVertexDeclaration();
+					unsigned int stride = vertexDeclaration->GetStride();
 
 					// On définit les bornes (une fois de plus selon l'itération)
 					unsigned int start = (i == 0) ? nzVertexComponent_FirstVertexData : nzVertexComponent_FirstInstanceData;

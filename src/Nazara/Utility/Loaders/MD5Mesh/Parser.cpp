@@ -234,9 +234,9 @@ bool NzMD5MeshParser::ParseJoints()
 		}
 
 		char name[64];
-		if (std::sscanf(&m_currentLine[0], "%s %d ( %f %f %f ) ( %f %f %f )", &name[0], &m_joints[i].parent,
-																			  &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
-																			  &m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 8)
+		if (std::sscanf(&m_currentLine[0], "%63s %d ( %f %f %f ) ( %f %f %f )", &name[0], &m_joints[i].parent,
+																			    &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
+																			    &m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 8)
 		{
 			UnrecognizedLine(true);
 			return false;

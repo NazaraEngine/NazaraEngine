@@ -144,7 +144,6 @@ namespace
 					// "If you want to embolden the bitmap owned by a FT_GlyphSlot_Rec, you should call FT_GlyphSlot_Own_Bitmap on the slot first"
 					FT_GlyphSlot_Own_Bitmap(glyph);
 					FT_Bitmap_Embolden(s_library, &glyph->bitmap, boldStrength, boldStrength);
-					embolden = false;
 				}
 
 				dst->advance += glyph->metrics.horiAdvance >> 6;
@@ -173,7 +172,7 @@ namespace
 						for (unsigned int y = 0; y < height; ++y)
 						{
 							for (unsigned int x = 0; x < width; ++x)
-								*pixels++ = (data[x/8] & (1 << (7 - x%8)) ? 255 : 0);
+								*pixels++ = (data[x/8] & ((1 << (7 - x%8)) ? 255 : 0));
 
 							data += glyph->bitmap.pitch;
 						}

@@ -89,7 +89,6 @@ namespace
 							pair.second.second.updated = false;
 
 						break;
-						break;
 					}
 				}
 

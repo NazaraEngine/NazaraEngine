@@ -963,12 +963,9 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int s
 		NazaraError("Invalid box");
 		return false;
 	}
-	#endif
-
-	unsigned int height = GetLevelSize(m_impl->height, level);
-
-	#if NAZARA_RENDERER_SAFE
+	
 	unsigned int width = GetLevelSize(m_impl->width, level);
+	unsigned int height = GetLevelSize(m_impl->height, level);
 	unsigned int depth = (m_impl->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_impl->depth, level);
 	if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > depth ||
 	    (m_impl->type == nzImageType_Cubemap && box.depth > 1)) // Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
