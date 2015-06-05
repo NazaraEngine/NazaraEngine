@@ -781,7 +781,7 @@ bool NzOpenGL::Initialize()
 	major = version[0] - '0';
 	minor = version[2] - '0';
 
-	if (major <= 0 || major > 9)
+	if (major == 0 || major > 9)
 	{
 		NazaraError("Unable to retrieve OpenGL major version");
 		return false;

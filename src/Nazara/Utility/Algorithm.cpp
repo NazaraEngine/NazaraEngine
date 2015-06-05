@@ -37,7 +37,7 @@ namespace
 	class IcoSphereBuilder
 	{
 		public:
-			IcoSphereBuilder(const NzMatrix4f& matrix) :
+			explicit IcoSphereBuilder(const NzMatrix4f& matrix) :
 			m_matrix(matrix)
 			{
 			}
