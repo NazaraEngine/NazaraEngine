@@ -19,8 +19,6 @@ namespace Ndk
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
-			NodeComponent& cameraNode = camera->GetComponent<NodeComponent>();
-
 			camComponent.ApplyView();
 
 			NzScene dummyScene;

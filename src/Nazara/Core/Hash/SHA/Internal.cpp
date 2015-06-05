@@ -436,16 +436,15 @@ namespace
 
 void SHA1_Update(SHA_CTX* context, const nzUInt8* data, std::size_t len)
 {
-	unsigned int freespace, usedspace;
 	if (len == 0)
 		/* Calling with no data is valid - we do nothing */
 		return;
 
-	usedspace = (context->s1.bitcount >> 3) % 64;
+	unsigned int usedspace = (context->s1.bitcount >> 3) % 64;
 	if (usedspace > 0)
 	{
 		/* Calculate how much free space is available in the buffer */
-		freespace = 64 - usedspace;
+		unsigned int freespace = 64 - usedspace;
 
 		if (len >= freespace)
 		{
@@ -647,17 +646,15 @@ void SHA256_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
 
 void SHA256_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)
 {
-	unsigned int freespace, usedspace;
-
 	if (len == 0)
 		/* Calling with no data is valid - we do nothing */
 		return;
 
-	usedspace = (context->s256.bitcount >> 3) % 64;
+	unsigned int usedspace = (context->s256.bitcount >> 3) % 64;
 	if (usedspace > 0)
 	{
 		/* Calculate how much free space is available in the buffer */
-		freespace = 64 - usedspace;
+		unsigned int freespace = 64 - usedspace;
 
 		if (len >= freespace)
 		{
@@ -905,17 +902,15 @@ void SHA512_Internal_Transform(SHA_CTX* context, const nzUInt64* data)
 
 void SHA512_Update(SHA_CTX* context, const nzUInt8 *data, std::size_t len)
 {
-	unsigned int freespace, usedspace;
-
 	if (len == 0)
 		/* Calling with no data is valid - we do nothing */
 		return;
 
-	usedspace = (context->s512.bitcount[0] >> 3) % 128;
+	unsigned int usedspace = (context->s512.bitcount[0] >> 3) % 128;
 	if (usedspace > 0)
 	{
 		/* Calculate how much free space is available in the buffer */
-		freespace = 128 - usedspace;
+		unsigned int freespace = 128 - usedspace;
 
 		if (len >= freespace)
 		{

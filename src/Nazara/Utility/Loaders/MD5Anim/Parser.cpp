@@ -469,7 +469,7 @@ bool NzMD5AnimParser::ParseHierarchy()
 		}
 
 		char name[64];
-		if (std::sscanf(&m_currentLine[0], "%s %d %u %u", &name[0], &m_joints[i].parent, &m_joints[i].flags, &m_joints[i].index) != 4)
+		if (std::sscanf(&m_currentLine[0], "%63s %d %u %u", &name[0], &m_joints[i].parent, &m_joints[i].flags, &m_joints[i].index) != 4)
 		{
 			UnrecognizedLine(true);
 			return false;
