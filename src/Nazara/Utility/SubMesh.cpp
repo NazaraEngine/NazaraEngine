@@ -130,10 +130,6 @@ void NzSubMesh::GenerateTangents()
 		dv[0] = positions[iterator[1]] - pos0;
 		dv[1] = positions[iterator[2]] - pos0;
 
-		NzVector2f duv[2];
-		duv[0] = uv1 - uv0;
-		duv[1] = uv2 - uv0;
-
 		float ds[2];
 		ds[0] = uv1.x - uv0.x;
 		ds[1] = uv2.x - uv0.x;

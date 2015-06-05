@@ -551,7 +551,6 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 		return path;
 
 	// Nous avons un chemin absolu, mais il nous faut un peu le nettoyer
-	unsigned int pathLen = base.GetSize();
 	for (unsigned int i = 0; i < sep.size(); ++i)
 	{
 		if (sep[i] == '.')
@@ -563,11 +562,7 @@ NzString NzFile::AbsolutePath(const NzString& filePath)
 
 			sep.erase(sep.begin() + i--);
 		}
-		else
-			pathLen += sep[i].GetSize();
 	}
-
-	pathLen += sep.size()-1;
 
 	NzStringStream stream(base);
 	for (unsigned int i = 0; i < sep.size(); ++i)
@@ -730,10 +725,9 @@ bool NzFile::FillHash(NzAbstractHash* hash) const
 	nzUInt64 remainingSize = file.GetSize();
 
 	char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
-	unsigned int size;
 	while (remainingSize > 0)
 	{
-		size = static_cast<unsigned int>(std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
+		unsigned int size = static_cast<unsigned int>(std::min(remainingSize, static_cast<nzUInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
 		if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
 		{
 			NazaraError("Unable to read file");

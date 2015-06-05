@@ -249,7 +249,7 @@ NzString NzShader::GetSourceCode(nzShaderStage stage) const
 		totalLength += length - 1;
 	}
 
-	totalLength += (m_attachedShaders[stage].size()-1)*(sizeof(sep)/sizeof(char));
+	totalLength += (m_attachedShaders[stage].size()-1) * (sizeof(sep)/sizeof(char));
 
 	NzString source(totalLength, '\0');
 
@@ -258,7 +258,7 @@ NzString NzShader::GetSourceCode(nzShaderStage stage) const
 	{
 		if (offset > 0)
 		{
-			std::memcpy(&source[offset], sep, sizeof(sep)/sizeof(char));
+			std::memcpy(&source[offset], sep, sizeof(sep));
 			offset += sizeof(sep)/sizeof(char);
 		}
 
