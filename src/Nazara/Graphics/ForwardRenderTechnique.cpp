@@ -50,8 +50,10 @@ m_maxLightPassPerObject(3)
 	m_spriteBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 }
 
-void NzForwardRenderTechnique::Clear(const NzScene* scene) const
+bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
 {
+	m_renderQueue.Sort(scene->GetViewer());
+
 	NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
 	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
 	NzRenderer::Clear(nzRendererBuffer_Depth);
@@ -59,11 +61,6 @@ void NzForwardRenderTechnique::Clear(const NzScene* scene) const
 	NzAbstractBackground* background = (scene->IsBackgroundEnabled()) ? scene->GetBackground() : nullptr;
 	if (background)
 		background->Draw(scene);
-}
-
-bool NzForwardRenderTechnique::Draw(const NzScene* scene) const
-{
-	m_renderQueue.Sort(scene->GetViewer());
 
 	if (!m_renderQueue.opaqueModels.empty())
 		DrawOpaqueModels(scene);
