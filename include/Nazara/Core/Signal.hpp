@@ -20,6 +20,7 @@ class NzSignal
 		~NzSignal() = default;
 
 		void Connect(const Callback& func);
+		void Connect(Callback&& func);
 		template<typename O> void Connect(O& object, void (O::*method)(Args...));
 		template<typename O> void Connect(O* object, void (O::*method)(Args...));
 
