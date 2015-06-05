@@ -203,11 +203,6 @@ m_GBufferSize(0U)
 
 NzDeferredRenderTechnique::~NzDeferredRenderTechnique() = default;
 
-void NzDeferredRenderTechnique::Clear(const NzScene* scene) const
-{
-	NazaraUnused(scene);
-}
-
 bool NzDeferredRenderTechnique::Draw(const NzScene* scene) const
 {
 	NzRecti viewerViewport = scene->GetViewer()->GetViewport();

@@ -20,7 +20,6 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		NzForwardRenderTechnique();
 		~NzForwardRenderTechnique() = default;
 
-		void Clear(const NzScene* scene) const override;
 		bool Draw(const NzScene* scene) const override;
 
 		unsigned int GetMaxLightPassPerObject() const;

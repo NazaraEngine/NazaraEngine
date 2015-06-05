@@ -71,7 +71,6 @@ void NzScene::Draw()
 	try
 	{
 		NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
-		m_renderTechnique->Clear(this);
 		m_renderTechnique->Draw(this);
 	}
 	catch (const std::exception& e)
