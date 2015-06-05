@@ -35,7 +35,6 @@ namespace Ndk
 				graphicsComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
 			}
 
-			m_renderTechnique.Clear(&dummyScene);
 			m_renderTechnique.Draw(&dummyScene);
 		}
 	}
