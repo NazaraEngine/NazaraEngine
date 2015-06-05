@@ -13,6 +13,26 @@ void NzSignal<Args...>::Connect(const Callback& func)
 }
 
 template<typename... Args>
+template<typename O>
+void NzSignal<Args...>::Connect(O& object, void (O::*method) (Args...))
+{
+    return Connect([&object, method] (Args&&... args)
+    {
+        return (object .* method) (std::forward<Args>(args)...);
+    });
+}
+
+template<typename... Args>
+template<typename O>
+void NzSignal<Args...>::Connect(O* object, void (O::*method)(Args...))
+{
+    return Connect([object, method] (Args&&... args)
+    {
+        return (object ->* method) (std::forward<Args>(args)...);
+    });
+}
+
+template<typename... Args>
 void NzSignal<Args...>::operator()(Args&&... args)
 {
 	for (const Callback& func : m_callbacks)
