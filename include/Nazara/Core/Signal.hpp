@@ -94,6 +94,8 @@ class NzSignal<Args...>::ConnectionGuard
 		ConnectionGuard(Connection&& connection);
 		~ConnectionGuard();
 
+		Connection& GetConnection();
+
 		Connection& operator=(const Connection& connection) = delete;
 		Connection& operator=(Connection&& connection) = delete;
 
