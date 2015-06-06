@@ -40,6 +40,8 @@ m_transformMatrixUpdated(false)
 
 NzNode::~NzNode()
 {
+	OnNodeRelease(this);
+
 	for (NzNode* child : m_childs)
 	{
 		// child->SetParent(nullptr); serait problématique car elle nous appellerait
@@ -49,8 +51,6 @@ NzNode::~NzNode()
 	}
 
 	SetParent(nullptr);
-
-	NotifyRelease(Listener::OnNodeReleased);
 }
 
 void NzNode::EnsureDerivedUpdate() const
@@ -655,12 +655,12 @@ void NzNode::InvalidateNode()
 	for (NzNode* node : m_childs)
 		node->InvalidateNode();
 
-	Notify(Listener::OnNodeInvalidated);
+	OnNodeInvalidation(this);
 }
 
 void NzNode::OnParenting(const NzNode* parent)
 {
-	Notify(Listener::OnNodeParented, parent);
+	OnNodeNewParent(this, parent);
 }
 
 void NzNode::RemoveChild(NzNode* node) const
@@ -713,29 +713,4 @@ void NzNode::UpdateTransformMatrix() const
 
 	m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 	m_transformMatrixUpdated = true;
-}
-
-NzNode::Listener::~Listener() = default;
-
-bool NzNode::Listener::OnNodeInvalidated(const NzNode* node, void* userdata)
-{
-	NazaraUnused(node);
-	NazaraUnused(userdata);
-
-	return true;
-}
-
-bool NzNode::Listener::OnNodeParented(const NzNode* node, const NzNode* parent, void* userdata)
-{
-	NazaraUnused(node);
-	NazaraUnused(parent);
-	NazaraUnused(userdata);
-
-	return true;
-}
-
-void NzNode::Listener::OnNodeReleased(const NzNode* node, void* userdata)
-{
-	NazaraUnused(node);
-	NazaraUnused(userdata);
 }
