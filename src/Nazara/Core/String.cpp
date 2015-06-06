@@ -1097,7 +1097,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1139,7 +1139,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1280,7 +1280,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1322,7 +1322,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1456,7 +1456,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1478,8 +1478,8 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (NzUnicode::GetLowercase(*tIt) != NzUnicode::GetLowercase(*p))
 							break;
 
-						p++;
-						tIt++;
+						++p;
+						++tIt;
 					}
 				}
 			}
@@ -1496,7 +1496,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1518,8 +1518,8 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (*tIt != *p)
 							break;
 
-						p++;
-						tIt++;
+						++p;
+						++tIt;
 					}
 				}
 			}
@@ -1628,7 +1628,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1650,8 +1650,8 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 						if (NzUnicode::GetLowercase(*tIt) != NzUnicode::GetLowercase(*p))
 							break;
 
-						p++;
-						tIt++;
+						++p;
+						++tIt;
 					}
 				}
 			}
@@ -1668,7 +1668,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 				{
 					if (it.base() != m_sharedString->string)
 					{
-						it--;
+						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
 							continue;
 					}
@@ -1690,8 +1690,8 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 						if (*tIt != *p)
 							break;
 
-						p++;
-						tIt++;
+						++p;
+						++tIt;
 					}
 				}
 			}

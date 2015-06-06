@@ -123,14 +123,14 @@ inline T* NzMemoryPool::New(Args&&... args)
 
 inline NzMemoryPool& NzMemoryPool::operator=(NzMemoryPool&& pool) noexcept
 {
-	m_blockSize = m_blockSize;
-	m_canGrow = m_canGrow;
-	m_freeCount = m_freeCount.load(std::memory_order_relaxed);
-	m_freeList = std::move(m_freeList);
-	m_pool = std::move(m_pool);
-	m_previous = m_previous;
-	m_next = std::move(m_next);
-	m_size = m_size;
+	m_blockSize = pool.m_blockSize;
+	m_canGrow = pool.m_canGrow;
+	m_freeCount = pool.m_freeCount.load(std::memory_order_relaxed);
+	m_freeList = std::move(pool.m_freeList);
+	m_pool = std::move(pool.m_pool);
+	m_previous = pool.m_previous;
+	m_next = std::move(pool.m_next);
+	m_size = pool.m_size;
 
 	// Si nous avons été créés par un autre pool, nous devons le faire pointer vers nous de nouveau
 	if (m_previous)
