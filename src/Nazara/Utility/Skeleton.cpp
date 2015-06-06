@@ -333,6 +333,9 @@ bool NzSkeleton::IsValid() const
 
 NzSkeleton& NzSkeleton::operator=(const NzSkeleton& skeleton)
 {
+	if (this == &skeleton)
+		return *this;
+
 	Destroy();
 
 	if (skeleton.m_impl)

@@ -160,31 +160,37 @@ inline NzColor NzColor::FromHSV(float hue, float saturation, float value)
 				r = value;
 				g = v3;
 				b = v1;
+				break;
 
 			case 1:
 				r = v2;
 				g = value;
 				b = v1;
+				break;
 
 			case 2:
 				r = v1;
 				g = value;
 				b = v3;
+				break;
 
 			case 3:
 				r = v1;
 				g = v2;
 				b = value;
+				break;
 
 			case 4:
 				r = v3;
 				g = v1;
 				b = value;
+				break;
 
 			default:
 				r = value;
 				g = v1;
 				b = v2;
+				break;
 		}
 
 		// RGB results from 0 to 255
@@ -289,12 +295,11 @@ inline void NzColor::ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturati
 		float deltaB = ((max - b)/6.f + deltaMax/2.f)/deltaMax;
 
 		float h;
-
 		if (NzNumberEquals(r, max))
 			h = deltaB - deltaG;
 		else if (NzNumberEquals(g, max))
 			h = (1.f/3.f) + deltaR - deltaB;
-		else if (NzNumberEquals(b, max))
+		else
 			h = (2.f/3.f) + deltaG - deltaR;
 
 		if (h < 0.f)
