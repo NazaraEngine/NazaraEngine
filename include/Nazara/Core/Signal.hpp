@@ -66,6 +66,7 @@ class NzSignal<Args...>::Connection
 	friend BaseClass;
 
 	public:
+		Connection() = default;
 		Connection(const Connection& connection) = default;
 		Connection(Connection&& connection) = default;
 		~Connection() = default;
@@ -90,14 +91,19 @@ class NzSignal<Args...>::ConnectionGuard
 	using Connection = BaseClass::Connection;
 
 	public:
+		ConnectionGuard() = default;
 		ConnectionGuard(const Connection& connection);
+		ConnectionGuard(const ConnectionGuard& connection) = delete;
 		ConnectionGuard(Connection&& connection);
+		ConnectionGuard(ConnectionGuard&& connection) = default;
 		~ConnectionGuard();
 
 		Connection& GetConnection();
 
-		Connection& operator=(const Connection& connection) = delete;
-		Connection& operator=(Connection&& connection) = delete;
+		ConnectionGuard& operator=(const Connection& connection);
+		ConnectionGuard& operator=(const ConnectionGuard& connection) = delete;
+		ConnectionGuard& operator=(Connection&& connection);
+		ConnectionGuard& operator=(ConnectionGuard&& connection);
 
 	private:
 		Connection m_connection;

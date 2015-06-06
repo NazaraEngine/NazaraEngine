@@ -138,4 +138,31 @@ typename NzSignal<Args...>::Connection& NzSignal<Args...>::ConnectionGuard::GetC
 	return m_connection;
 }
 
+template<typename... Args>
+typename NzSignal<Args...>::ConnectionGuard& NzSignal<Args...>::ConnectionGuard::operator=(const Connection& connection)
+{
+	m_connection.Disconnect();
+	m_connection = connection;
+
+	return *this;
+}
+
+template<typename... Args>
+typename NzSignal<Args...>::ConnectionGuard& NzSignal<Args...>::ConnectionGuard::operator=(Connection&& connection)
+{
+	m_connection.Disconnect();
+	m_connection = std::move(connection);
+
+	return *this;
+}
+
+template<typename... Args>
+typename NzSignal<Args...>::ConnectionGuard& NzSignal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection)
+{
+	m_connection.Disconnect();
+	m_connection = std::move(connection.m_connection);
+
+	return *this;
+}
+
 #include <Nazara/Core/DebugOff.hpp>
