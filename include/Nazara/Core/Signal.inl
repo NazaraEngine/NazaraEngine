@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <algorithm>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 template<typename... Args>
@@ -27,16 +27,15 @@ typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(const Callba
 template<typename... Args>
 typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(Callback&& func)
 {
+	NazaraAssert(func, "Invalid function");
+
 	auto tempPtr = std::make_shared<Slot>(this);
 	tempPtr->callback = std::move(func);
+	tempPtr->index = m_slots.size();
 
 	m_slots.emplace_back(std::move(tempPtr));
 
-	const auto& slotPtr = m_slots.back();
-	slotPtr->it = m_slots.end();
-	--slotPtr->it;
-
-	return Connection(slotPtr);
+	return Connection(m_slots.back());
 }
 
 template<typename... Args>
@@ -81,7 +80,17 @@ NzSignal<Args...>& NzSignal<Args...>::operator=(NzSignal&& signal)
 template<typename... Args>
 void NzSignal<Args...>::Disconnect(const SlotPtr& slot)
 {
-	m_slots.erase(slot->it);
+	NazaraAssert(slot, "Invalid slot pointer");
+	NazaraAssert(slot->index < m_slots.size(), "Invalid slot index");
+
+	// "Swap this slot with the last one and pop" idiom
+	// This will preserve slot indexes
+	SlotPtr& current = m_slots[slot->index];
+
+	std::swap(current, m_slots.back());
+	m_slots.pop_back();
+
+	current->index = slot->index; //< Update the moved slot index
 }
 
 
