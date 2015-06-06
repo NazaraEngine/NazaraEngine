@@ -132,4 +132,10 @@ NzSignal<Args...>::ConnectionGuard::~ConnectionGuard()
 	m_connection.Disconnect();
 }
 
+template<typename... Args>
+typename NzSignal<Args...>::Connection& NzSignal<Args...>::ConnectionGuard::GetConnection()
+{
+	return m_connection;
+}
+
 #include <Nazara/Core/DebugOff.hpp>
