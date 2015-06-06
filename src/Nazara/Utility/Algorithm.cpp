@@ -638,7 +638,7 @@ NzBoxf NzComputeAABB(NzSparsePtr<const NzVector3f> positionPtr, unsigned int ver
 	if (vertexCount > 0)
 	{
 		aabb.Set(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
-		positionPtr++;
+		--positionPtr;
 
 		for (unsigned int i = 1; i < vertexCount; ++i)
 			aabb.ExtendTo(*positionPtr++);

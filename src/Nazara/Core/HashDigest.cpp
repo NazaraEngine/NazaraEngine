@@ -104,6 +104,9 @@ nzUInt8 NzHashDigest::operator[](unsigned int pos) const
 
 NzHashDigest& NzHashDigest::operator=(const NzHashDigest& rhs)
 {
+	if (this == &rhs)
+		return *this;
+
 	m_hashName = rhs.m_hashName;
 
 	m_digestLength = rhs.m_digestLength;

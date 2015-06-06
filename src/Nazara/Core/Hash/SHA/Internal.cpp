@@ -588,7 +588,7 @@ void SHA256_Init(SHA_CTX* context)
 
 void SHA256_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
 {
-	nzUInt32 a, b, c, d, e, f, g, h, s0, s1;
+	nzUInt32 a, b, c, d, e, f, g, h;
 	nzUInt32 T1, *W256;
 	int	j;
 
@@ -622,6 +622,8 @@ void SHA256_Internal_Transform(SHA_CTX* context, const nzUInt32* data)
 	/* Now for the remaining rounds to 64: */
 	do
 	{
+		nzUInt32 s0, s1;
+
 		ROUND256(a,b,c,d,e,f,g,h);
 		ROUND256(h,a,b,c,d,e,f,g);
 		ROUND256(g,h,a,b,c,d,e,f);
