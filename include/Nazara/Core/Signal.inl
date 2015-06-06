@@ -59,10 +59,10 @@ typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(O* object, v
 }
 
 template<typename... Args>
-void NzSignal<Args...>::operator()(Args&&... args)
+void NzSignal<Args...>::operator()(Args... args)
 {
 	for (const SlotPtr& slot : m_slots)
-		slot->callback(std::forward<Args>(args)...);
+		slot->callback(args...);
 }
 
 template<typename... Args>
