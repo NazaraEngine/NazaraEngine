@@ -9,7 +9,7 @@
 
 #include <functional>
 #include <memory>
-#include <list>
+#include <vector>
 
 template<typename... Args>
 class NzSignal
@@ -40,7 +40,7 @@ class NzSignal
 		struct Slot;
 
 		using SlotPtr = std::shared_ptr<Slot>;
-		using SlotList = std::list<SlotPtr>;
+		using SlotList = std::vector<SlotPtr>;
 
 		struct Slot
 		{
@@ -51,7 +51,7 @@ class NzSignal
 
 			Callback callback;
 			NzSignal* signal;
-			typename SlotList::iterator it;
+			typename SlotList::size_type index;
 		};
 
 		void Disconnect(const SlotPtr& slot);
