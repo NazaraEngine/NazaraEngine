@@ -31,7 +31,7 @@ class NzSignal
 		template<typename O> Connection&& Connect(O& object, void (O::*method)(Args...));
 		template<typename O> Connection&& Connect(O* object, void (O::*method)(Args...));
 
-		void operator()(Args&&... args);
+		void operator()(Args... args);
 
 		NzSignal& operator=(const NzSignal&) = delete;
 		NzSignal& operator=(NzSignal&& signal);
