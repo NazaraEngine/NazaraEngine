@@ -19,13 +19,13 @@ void NzSignal<Args...>::Clear()
 }
 
 template<typename... Args>
-typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(const Callback& func)
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const Callback& func)
 {
-	return Connect(std::move(Callback(func)));
+	return Connect(Callback(func));
 }
 
 template<typename... Args>
-typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(Callback&& func)
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(Callback&& func)
 {
 	NazaraAssert(func, "Invalid function");
 
@@ -40,7 +40,7 @@ typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(Callback&& f
 
 template<typename... Args>
 template<typename O>
-typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(O& object, void (O::*method) (Args...))
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O& object, void (O::*method) (Args...))
 {
     return Connect([&object, method] (Args&&... args)
     {
@@ -50,7 +50,7 @@ typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(O& object, v
 
 template<typename... Args>
 template<typename O>
-typename NzSignal<Args...>::Connection&& NzSignal<Args...>::Connect(O* object, void (O::*method)(Args...))
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O* object, void (O::*method)(Args...))
 {
     return Connect([object, method] (Args&&... args)
     {
