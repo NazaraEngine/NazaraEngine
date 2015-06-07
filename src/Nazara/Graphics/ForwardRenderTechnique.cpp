@@ -21,8 +21,6 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-///TODO: Surveiller les shaders et supprimer les données uniformes en cas de changement (recompilation/destruction)
-
 namespace
 {
 	struct BillboardPoint
@@ -738,6 +736,9 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 	if (it == m_shaderUniforms.end())
 	{
 		ShaderUniforms uniforms;
+		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, OnShaderInvalidated);
+		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, OnShaderInvalidated);
+
 		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
 		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
@@ -760,10 +761,15 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 		else
 			uniforms.hasLightUniforms = false;
 
-		it = m_shaderUniforms.emplace(shader, uniforms).first;
+		it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
 	}
 
 	return &it->second;
+}
+
+void NzForwardRenderTechnique::OnShaderInvalidated(const NzShader* shader) const
+{
+	m_shaderUniforms.erase(shader);
 }
 
 NzIndexBuffer NzForwardRenderTechnique::s_quadIndexBuffer;

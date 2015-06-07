@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
@@ -40,6 +41,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		void DrawOpaqueModels(const NzScene* scene) const;
 		void DrawTransparentModels(const NzScene* scene) const;
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+		void OnShaderInvalidated(const NzShader* shader) const;
 		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int uniformOffset, unsigned int index) const;
 
 		static float ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
@@ -58,6 +60,9 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 
 		struct ShaderUniforms
 		{
+			NazaraSlot(NzShader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
+			NazaraSlot(NzShader, OnShaderRelease, shaderReleaseSlot);
+
 			NzLightUniforms lightUniforms;
 			bool hasLightUniforms;
 

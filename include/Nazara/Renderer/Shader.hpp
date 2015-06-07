@@ -15,6 +15,7 @@
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -101,6 +102,10 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 
 		static bool IsStageSupported(nzShaderStage stage);
 		template<typename... Args> static NzShaderRef New(Args&&... args);
+
+		// Signals
+		NazaraSignal(OnShaderRelease, const NzShader*); //< Args: me
+		NazaraSignal(OnShaderUniformInvalidated, const NzShader*); //< Args: me
 
 	private:
 		bool PostLinkage();
