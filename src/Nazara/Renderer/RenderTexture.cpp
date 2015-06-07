@@ -9,7 +9,9 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -19,17 +21,11 @@ namespace
 {
 	struct Attachment
 	{
-		Attachment(NzObjectListener* listener, int bufferIndex = 0, int textureIndex = 0) :
-		bufferListener(listener, bufferIndex),
-		textureListener(listener, textureIndex)
-		{
-		}
+		NazaraSlot(NzRenderBuffer, OnRenderBufferDestroy, renderBufferDestroySlot);
+		NazaraSlot(NzTexture, OnTextureDestroy, textureDestroySlot);
 
 		NzRenderBufferRef buffer;
 		NzTextureRef texture;
-		// Les listeners doivent se trouver après les références (pour être libérés avant elles)
-		NzRenderBufferListener bufferListener;
-		NzTextureListener textureListener;
 
 		nzAttachmentPoint attachmentPoint;
 		bool isBuffer;
@@ -60,16 +56,13 @@ namespace
 
 struct NzRenderTextureImpl
 {
-	NzRenderTextureImpl(NzObjectListener* listener, int contextIndex = 0) :
-	context(listener, contextIndex)
-	{
-	}
+	NazaraSlot(NzContext, OnContextDestroy, contextDestroySlot);
 
 	GLuint fbo;
 	std::vector<Attachment> attachments;
 	std::vector<nzUInt8> colorTargets;
 	mutable std::vector<GLenum> drawBuffers;
-	NzContextConstListener context;
+	const NzContext* context;
 	bool checked = false;
 	bool complete = false;
 	bool userDefinedTargets = false;
@@ -155,17 +148,10 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	Unlock();
 
 	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
-	// On créé les attachements si ça n'a pas déjà été fait
-	for (unsigned int i = m_impl->attachments.size(); i <= attachIndex; ++i)
-	{
-		Attachment attachment(this, attachIndex, attachIndex);
-		m_impl->attachments.emplace_back(std::move(attachment));
-	}
-
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.buffer = buffer;
-	attachment.bufferListener = buffer;
+	attachment.renderBufferDestroySlot.Connect(buffer->OnRenderBufferDestroy, std::bind(OnRenderBufferDestroy, this, std::placeholders::_1, attachIndex));
 	attachment.isBuffer = true;
 	attachment.isUsed = true;
 	attachment.height = buffer->GetHeight();
@@ -300,21 +286,13 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	Unlock();
 
 	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
-
-	// On créé les attachements si ça n'a pas déjà été fait
-	for (unsigned int i = m_impl->attachments.size(); i <= attachIndex; ++i)
-	{
-		Attachment attachment(this, attachIndex, attachIndex);
-		m_impl->attachments.emplace_back(std::move(attachment));
-	}
-
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.isBuffer = false;
 	attachment.isUsed = true;
 	attachment.height = texture->GetHeight();
 	attachment.texture = texture;
-	attachment.textureListener = texture;
+	attachment.textureDestroySlot.Connect(texture->OnTextureDestroy, std::bind(OnTextureDestroy, this, std::placeholders::_1, attachIndex));
 	attachment.width = texture->GetWidth();
 
 	m_impl->checked = false;
@@ -348,7 +326,7 @@ bool NzRenderTexture::Create(bool lock)
 	}
 	#endif
 
-	std::unique_ptr<NzRenderTextureImpl> impl(new NzRenderTextureImpl(this));
+	std::unique_ptr<NzRenderTextureImpl> impl(new NzRenderTextureImpl);
 
 	impl->fbo = 0;
 	glGenFramebuffers(1, &impl->fbo);
@@ -361,6 +339,7 @@ bool NzRenderTexture::Create(bool lock)
 
 	m_impl = impl.release();
 	m_impl->context = NzContext::GetCurrent();
+	m_impl->contextDestroySlot.Connect(m_impl->context->OnContextDestroy, this, OnContextDestroy);
 
 	if (lock)
 	{
@@ -437,8 +416,8 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 	{
 		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, GL_RENDERBUFFER, 0);
 
-		attachement.bufferListener = nullptr;
 		attachement.buffer = nullptr;
+		attachement.renderBufferDestroySlot.Disconnect();
 	}
 	else
 	{
@@ -447,8 +426,8 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 		else
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, NzOpenGL::Attachment[attachmentPoint]+index, 0, 0, 0);
 
-		attachement.textureListener = nullptr;
 		attachement.texture = nullptr;
+		attachement.textureDestroySlot.Disconnect();
 	}
 
 	m_impl->sizeUpdated = false;
@@ -887,27 +866,52 @@ void NzRenderTexture::EnsureTargetUpdated() const
 	}
 }
 
-bool NzRenderTexture::OnObjectDestroy(const NzRefCounted* object, int index)
+void NzRenderTexture::OnContextDestroy(const NzContext* context)
 {
-	if (object == m_impl->context)
-		// Notre contexte va être détruit, libérons la RenderTexture pour éviter un éventuel leak
-		Destroy();
-	else // Sinon, c'est une texture
+	NazaraAssert(m_impl, "Invalid internal state");
+	NazaraUnused(context);
+
+	#ifdef NAZARA_DEBUG
+	if (m_impl->context != context)
 	{
-		// La ressource n'est plus, du coup nous mettons à jour
-		Attachment& attachment = m_impl->attachments[index];
-		if (attachment.isBuffer)
-			attachment.buffer = nullptr;
-		else
-			attachment.texture = nullptr;
-
-		attachment.isUsed = false;
-
-		m_impl->checked = false;
-		m_impl->targetsUpdated = false;
+		NazaraInternalError("Not listening to " + NzString::Pointer(font));
+		return;
 	}
+	#endif
 
-	return false;
+	Destroy();
+}
+
+void NzRenderTexture::OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, int attachmentIndex)
+{
+	NazaraAssert(m_impl, "Invalid internal state");
+	NazaraAssert(attachmentIndex < m_impl->attachments.size(), "Invalid attachment index");
+	NazaraAssert(m_impl->attachments[attachmentIndex].isBuffer, "Invalid attachment state");
+	NazaraUnused(renderBuffer);
+
+	Attachment& attachment = m_impl->attachments[attachmentIndex];
+	attachment.buffer = nullptr;
+	attachment.isUsed = false;
+	attachment.renderBufferDestroySlot.Disconnect();
+
+	m_impl->checked = false;
+	m_impl->targetsUpdated = false;
+}
+
+void NzRenderTexture::OnTextureDestroy(const NzTexture* texture, int attachmentIndex)
+{
+	NazaraAssert(m_impl, "Invalid internal state");
+	NazaraAssert(attachmentIndex < m_impl->attachments.size(), "Invalid attachment index");
+	NazaraAssert(!m_impl->attachments[attachmentIndex].isBuffer, "Invalid attachment state");
+	NazaraUnused(texture);
+
+	Attachment& attachment = m_impl->attachments[attachmentIndex];
+	attachment.isUsed = false;
+	attachment.texture = nullptr;
+	attachment.textureDestroySlot.Disconnect();
+
+	m_impl->checked = false;
+	m_impl->targetsUpdated = false;
 }
 
 void NzRenderTexture::UpdateDrawBuffers() const

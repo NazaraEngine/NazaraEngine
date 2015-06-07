@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -17,10 +16,8 @@
 
 class NzVertexDeclaration;
 
-using NzVertexDeclarationConstListener = NzObjectListenerWrapper<const NzVertexDeclaration>;
 using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
 using NzVertexDeclarationLibrary = NzObjectLibrary<NzVertexDeclaration>;
-using NzVertexDeclarationListener = NzObjectListenerWrapper<NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
 
 class NAZARA_API NzVertexDeclaration : public NzRefCounted
@@ -48,7 +45,7 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 		template<typename... Args> static NzVertexDeclarationRef New(Args&&... args);
 
 		// Signals
-		NazaraSignal(OnVertexDeclarationRelease, const NzVertexDeclaration*); //< me
+		NazaraSignal(OnVertexDeclarationRelease, const NzVertexDeclaration*); //< Args: me
 
 	private:
 		static bool Initialize();

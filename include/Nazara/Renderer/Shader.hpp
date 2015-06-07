@@ -12,7 +12,6 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -26,10 +25,8 @@
 class NzShader;
 class NzShaderStage;
 
-using NzShaderConstListener = NzObjectListenerWrapper<const NzShader>;
 using NzShaderConstRef = NzObjectRef<const NzShader>;
 using NzShaderLibrary = NzObjectLibrary<NzShader>;
-using NzShaderListener = NzObjectListenerWrapper<NzShader>;
 using NzShaderRef = NzObjectRef<NzShader>;
 
 class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
@@ -104,6 +101,7 @@ class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
 		template<typename... Args> static NzShaderRef New(Args&&... args);
 
 		// Signals
+		NazaraSignal(OnShaderDestroy, const NzShader*); //< Args: me
 		NazaraSignal(OnShaderRelease, const NzShader*); //< Args: me
 		NazaraSignal(OnShaderUniformInvalidated, const NzShader*); //< Args: me
 

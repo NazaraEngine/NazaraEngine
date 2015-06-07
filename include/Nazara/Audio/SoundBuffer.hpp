@@ -13,11 +13,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Signal.hpp>
 
 struct NzSoundBufferParams
 {
@@ -29,10 +29,8 @@ struct NzSoundBufferParams
 class NzSound;
 class NzSoundBuffer;
 
-using NzSoundBufferConstListener = NzObjectListenerWrapper<const NzSoundBuffer>;
 using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
 using NzSoundBufferLibrary = NzObjectLibrary<NzSoundBuffer>;
-using NzSoundBufferListener = NzObjectListenerWrapper<NzSoundBuffer>;
 using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferManager = NzResourceManager<NzSoundBuffer, NzSoundBufferParams>;
 using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
@@ -69,6 +67,10 @@ class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCo
 
 		static bool IsFormatSupported(nzAudioFormat format);
 		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer*); //< Args: me
+		NazaraSignal(OnSoundBufferRelease, const NzSoundBuffer*); //< Args: me
 
 	private:
 		unsigned int GetOpenALBuffer() const;

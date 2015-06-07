@@ -9,18 +9,21 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 
 ///TODO: Faire fonctionner les RenderTexture indépendamment du contexte (un FBO par instance et par contexte l'utilisant)
 
+class NzContext;
 class NzRenderBuffer;
+class NzTexture;
 
 struct NzRenderTextureImpl;
 
-class NAZARA_API NzRenderTexture : public NzRenderTarget, NzObjectListener, NzNonCopyable
+class NAZARA_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
 {
 	public:
 		NzRenderTexture() = default;
@@ -66,7 +69,9 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzObjectListener, NzNo
 		void EnsureTargetUpdated() const override;
 
 	private:
-		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
+		void OnContextDestroy(const NzContext* context);
+		void OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, int attachmentIndex);
+		void OnTextureDestroy(const NzTexture* texture, int attachmentIndex);
 		void UpdateDrawBuffers() const;
 		void UpdateSize() const;
 		void UpdateTargets() const;

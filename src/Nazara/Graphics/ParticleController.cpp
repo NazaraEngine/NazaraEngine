@@ -11,7 +11,10 @@ NzRefCounted()
 	NazaraUnused(controller);
 }
 
-NzParticleController::~NzParticleController() = default;
+NzParticleController::~NzParticleController()
+{
+	OnParticleControllerRelease(this);
+}
 
 bool NzParticleController::Initialize()
 {

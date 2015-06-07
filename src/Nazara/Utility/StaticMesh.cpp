@@ -18,6 +18,8 @@ NzSubMesh(parent)
 
 NzStaticMesh::~NzStaticMesh()
 {
+	OnStaticMeshRelease(this);
+
 	Destroy();
 }
 
@@ -57,7 +59,7 @@ void NzStaticMesh::Destroy()
 {
 	if (m_vertexBuffer)
 	{
-		NotifyDestroy();
+		OnStaticMeshDestroy(this);
 
 		m_indexBuffer.Reset();
 		m_vertexBuffer.Reset();

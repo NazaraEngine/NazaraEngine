@@ -8,7 +8,6 @@
 #define NAZARA_SIMPLETEXTDRAWER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -21,7 +20,7 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 		NzSimpleTextDrawer();
 		NzSimpleTextDrawer(const NzSimpleTextDrawer& drawer);
 		NzSimpleTextDrawer(NzSimpleTextDrawer&&) = default;
-		virtual ~NzSimpleTextDrawer() = default;
+		virtual ~NzSimpleTextDrawer();
 
 		const NzRectui& GetBounds() const;
 		unsigned int GetCharacterSize() const;

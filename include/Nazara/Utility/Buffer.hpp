@@ -9,16 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzBuffer;
 
-using NzBufferConstListener = NzObjectListenerWrapper<const NzBuffer>;
 using NzBufferConstRef = NzObjectRef<const NzBuffer>;
-using NzBufferListener = NzObjectListenerWrapper<NzBuffer>;
 using NzBufferRef = NzObjectRef<NzBuffer>;
 
 class NzAbstractBuffer;
@@ -60,6 +58,10 @@ class NAZARA_API NzBuffer : public NzRefCounted, NzNonCopyable
 		static bool IsStorageSupported(nzUInt32 storage);
 		template<typename... Args> static NzBufferRef New(Args&&... args);
 		static void SetBufferFactory(nzUInt32 storage, BufferFactory func);
+
+		// Signals:
+		NazaraSignal(OnBufferDestroy, const NzBuffer*); //< Args: me
+		NazaraSignal(OnBufferRelease, const NzBuffer*); //< Args: me
 
 	private:
 		static bool Initialize();

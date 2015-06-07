@@ -5,7 +5,10 @@
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzUberShader::~NzUberShader() = default;
+NzUberShader::~NzUberShader()
+{
+	OnUberShaderRelease(this);
+}
 
 bool NzUberShader::Initialize()
 {

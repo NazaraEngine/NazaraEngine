@@ -11,9 +11,9 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -30,10 +30,8 @@ class NzPhysGeom;
 class NzPhysWorld;
 struct NewtonCollision;
 
-using NzPhysGeomConstListener = NzObjectListenerWrapper<const NzPhysGeom>;
 using NzPhysGeomConstRef = NzObjectRef<const NzPhysGeom>;
 using NzPhysGeomLibrary = NzObjectLibrary<NzPhysGeom>;
-using NzPhysGeomListener = NzObjectListenerWrapper<NzPhysGeom>;
 using NzPhysGeomRef = NzObjectRef<NzPhysGeom>;
 
 class NAZARA_API NzPhysGeom : public NzRefCounted, NzNonCopyable
@@ -52,6 +50,8 @@ class NAZARA_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 
 		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 
+		NazaraSignal(OnPhysGeomRelease, const NzPhysGeom*); //< Args: me
+
 	protected:
 		virtual NewtonCollision* CreateHandle(NzPhysWorld* world) const = 0;
 
@@ -62,9 +62,7 @@ class NAZARA_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 
 class NzBoxGeom;
 
-using NzBoxGeomConstListener = NzObjectListenerWrapper<const NzBoxGeom>;
 using NzBoxGeomConstRef = NzObjectRef<const NzBoxGeom>;
-using NzBoxGeomListener = NzObjectListenerWrapper<NzBoxGeom>;
 using NzBoxGeomRef = NzObjectRef<NzBoxGeom>;
 
 class NAZARA_API NzBoxGeom : public NzPhysGeom
@@ -90,9 +88,7 @@ class NAZARA_API NzBoxGeom : public NzPhysGeom
 
 class NzCapsuleGeom;
 
-using NzCapsuleGeomConstListener = NzObjectListenerWrapper<const NzCapsuleGeom>;
 using NzCapsuleGeomConstRef = NzObjectRef<const NzCapsuleGeom>;
-using NzCapsuleGeomListener = NzObjectListenerWrapper<NzCapsuleGeom>;
 using NzCapsuleGeomRef = NzObjectRef<NzCapsuleGeom>;
 
 class NAZARA_API NzCapsuleGeom : public NzPhysGeom
@@ -117,9 +113,7 @@ class NAZARA_API NzCapsuleGeom : public NzPhysGeom
 
 class NzCompoundGeom;
 
-using NzCompoundGeomConstListener = NzObjectListenerWrapper<const NzCompoundGeom>;
 using NzCompoundGeomConstRef = NzObjectRef<const NzCompoundGeom>;
-using NzCompoundGeomListener = NzObjectListenerWrapper<NzCompoundGeom>;
 using NzCompoundGeomRef = NzObjectRef<NzCompoundGeom>;
 
 class NAZARA_API NzCompoundGeom : public NzPhysGeom
@@ -140,9 +134,7 @@ class NAZARA_API NzCompoundGeom : public NzPhysGeom
 
 class NzConeGeom;
 
-using NzConeGeomConstListener = NzObjectListenerWrapper<const NzConeGeom>;
 using NzConeGeomConstRef = NzObjectRef<const NzConeGeom>;
-using NzConeGeomListener = NzObjectListenerWrapper<NzConeGeom>;
 using NzConeGeomRef = NzObjectRef<NzConeGeom>;
 
 class NAZARA_API NzConeGeom : public NzPhysGeom
@@ -167,9 +159,7 @@ class NAZARA_API NzConeGeom : public NzPhysGeom
 
 class NzConvexHullGeom;
 
-using NzConvexHullGeomConstListener = NzObjectListenerWrapper<const NzConvexHullGeom>;
 using NzConvexHullGeomConstRef = NzObjectRef<const NzConvexHullGeom>;
-using NzConvexHullGeomListener = NzObjectListenerWrapper<NzConvexHullGeom>;
 using NzConvexHullGeomRef = NzObjectRef<NzConvexHullGeom>;
 
 class NAZARA_API NzConvexHullGeom : public NzPhysGeom
@@ -193,9 +183,7 @@ class NAZARA_API NzConvexHullGeom : public NzPhysGeom
 
 class NzCylinderGeom;
 
-using NzCylinderGeomConstListener = NzObjectListenerWrapper<const NzCylinderGeom>;
 using NzCylinderGeomConstRef = NzObjectRef<const NzCylinderGeom>;
-using NzCylinderGeomListener = NzObjectListenerWrapper<NzCylinderGeom>;
 using NzCylinderGeomRef = NzObjectRef<NzCylinderGeom>;
 
 class NAZARA_API NzCylinderGeom : public NzPhysGeom
@@ -220,9 +208,7 @@ class NAZARA_API NzCylinderGeom : public NzPhysGeom
 
 class NzNullGeom;
 
-using NzNullGeomConstListener = NzObjectListenerWrapper<const NzNullGeom>;
 using NzNullGeomConstRef = NzObjectRef<const NzNullGeom>;
-using NzNullGeomListener = NzObjectListenerWrapper<NzNullGeom>;
 using NzNullGeomRef = NzObjectRef<NzNullGeom>;
 
 class NAZARA_API NzNullGeom : public NzPhysGeom
@@ -240,9 +226,7 @@ class NAZARA_API NzNullGeom : public NzPhysGeom
 
 class NzSphereGeom;
 
-using NzSphereGeomConstListener = NzObjectListenerWrapper<const NzSphereGeom>;
 using NzSphereGeomConstRef = NzObjectRef<const NzSphereGeom>;
-using NzSphereGeomListener = NzObjectListenerWrapper<NzSphereGeom>;
 using NzSphereGeomRef = NzObjectRef<NzSphereGeom>;
 
 class NAZARA_API NzSphereGeom : public NzPhysGeom

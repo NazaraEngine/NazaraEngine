@@ -375,7 +375,7 @@ bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& p
 
 void NzMaterial::Reset()
 {
-	NotifyDestroy();
+	OnMaterialReset(this);
 
 	m_alphaMap.Reset();
 	m_diffuseMap.Reset();

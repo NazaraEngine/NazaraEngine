@@ -9,18 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzParticleDeclaration;
 
-using NzParticleDeclarationConstListener = NzObjectListenerWrapper<const NzParticleDeclaration>;
 using NzParticleDeclarationConstRef = NzObjectRef<const NzParticleDeclaration>;
 using NzParticleDeclarationLibrary = NzObjectLibrary<NzParticleDeclaration>;
-using NzParticleDeclarationListener = NzObjectListenerWrapper<NzParticleDeclaration>;
 using NzParticleDeclarationRef = NzObjectRef<NzParticleDeclaration>;
 
 class NAZARA_API NzParticleDeclaration : public NzRefCounted
@@ -45,6 +43,9 @@ class NAZARA_API NzParticleDeclaration : public NzRefCounted
 
 		static NzParticleDeclaration* Get(nzParticleLayout layout);
 		static bool IsTypeSupported(nzComponentType type);
+
+		// Signals
+		NazaraSignal(OnParticleDeclarationRelease, const NzParticleDeclaration*); //< Args: me
 
 	private:
 		static bool Initialize();
