@@ -8,10 +8,20 @@
 
 NzSimpleTextDrawer::NzSimpleTextDrawer() :
 m_color(NzColor::White),
-m_fontListener(this),
-m_style(nzTextStyle_Regular)
+m_style(nzTextStyle_Regular),
+m_glyphUpdated(false)
 {
 	SetFont(NzFont::GetDefault());
+}
+
+NzSimpleTextDrawer::NzSimpleTextDrawer(const NzSimpleTextDrawer& drawer) :
+m_color(drawer.m_color),
+m_text(drawer.m_text),
+m_style(drawer.m_style),
+m_glyphUpdated(false),
+m_characterSize(drawer.m_characterSize)
+{
+	SetFont(drawer.m_font);
 }
 
 const NzRectui& NzSimpleTextDrawer::GetBounds() const
@@ -97,10 +107,26 @@ void NzSimpleTextDrawer::SetColor(const NzColor& color)
 
 void NzSimpleTextDrawer::SetFont(NzFont* font)
 {
-	m_font = font;
-	m_fontListener = font;
+	if (m_font != font)
+	{
+		m_font = font;
+		if (m_font)
+		{
+			m_atlasChangedSlot = NazaraConnect(*m_font, OnFontAtlasChanged, OnFontInvalidated);
+			m_atlasLayerChangedSlot = NazaraConnect(*m_font, OnFontAtlasLayerChanged, OnFontInvalidated);
+			m_fontReleaseSlot = NazaraConnect(*m_font, OnFontRelease, OnFontRelease);
+			m_glyphCacheClearedSlot = NazaraConnect(*m_font, OnFontGlyphCacheCleared, OnFontInvalidated);
+		}
+		else
+		{
+			NazaraDisconnect(m_atlasChangedSlot);
+			NazaraDisconnect(m_atlasLayerChangedSlot);
+			NazaraDisconnect(m_fontReleaseSlot);
+			NazaraDisconnect(m_glyphCacheClearedSlot);
+		}
 
-	m_glyphUpdated = false;
+		m_glyphUpdated = false;
+	}
 }
 
 void NzSimpleTextDrawer::SetStyle(nzUInt32 style)
@@ -140,38 +166,30 @@ NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, const NzString& str, u
 	return drawer;
 }
 
-bool NzSimpleTextDrawer::OnObjectModified(const NzRefCounted* object, int index, unsigned int code)
+void NzSimpleTextDrawer::OnFontInvalidated(const NzFont* font)
 {
-	NazaraUnused(object);
-	NazaraUnused(index);
+	NazaraUnused(font);
 
 	#ifdef NAZARA_DEBUG
-	if (m_font != object)
+	if (m_font != font)
 	{
-		NazaraInternalError("Not listening to " + NzString::Pointer(object));
-		return false;
+		NazaraInternalError("Not listening to " + NzString::Pointer(font));
+		return;
 	}
 	#endif
 
-	if (code == NzFont::ModificationCode_AtlasChanged ||
-	    code == NzFont::ModificationCode_AtlasLayerChanged ||
-	    code == NzFont::ModificationCode_GlyphCacheCleared)
-	{
-		m_glyphUpdated = false;
-	}
-
-	return true;
+	m_glyphUpdated = false;
 }
 
-void NzSimpleTextDrawer::OnObjectReleased(const NzRefCounted* object, int index)
+void NzSimpleTextDrawer::OnFontRelease(const NzFont* font)
 {
-	NazaraUnused(object);
-	NazaraUnused(index);
+	NazaraUnused(font);
+	NazaraUnused(font);
 
 	#ifdef NAZARA_DEBUG
-	if (m_font != object)
+	if (m_font != font)
 	{
-		NazaraInternalError("Not listening to " + NzString::Pointer(object));
+		NazaraInternalError("Not listening to " + NzString::Pointer(font));
 		return;
 	}
 	#endif
