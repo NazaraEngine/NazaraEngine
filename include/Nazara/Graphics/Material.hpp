@@ -16,6 +16,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -141,6 +142,9 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 
 		static NzMaterialRef GetDefault();
 		template<typename... Args> static NzMaterialRef New(Args&&... args);
+
+		// Signals
+		NazaraSignal(OnMaterialRelease, const NzMaterial*); //< Args: me
 
 	private:
 		struct ShaderInstance
