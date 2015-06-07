@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
@@ -19,16 +18,14 @@
 
 class NzUberShaderPreprocessor;
 
-using NzUberShaderPreprocessorConstListener = NzObjectListenerWrapper<const NzUberShaderPreprocessor>;
 using NzUberShaderPreprocessorConstRef = NzObjectRef<const NzUberShaderPreprocessor>;
-using NzUberShaderPreprocessorListener = NzObjectListenerWrapper<NzUberShaderPreprocessor>;
 using NzUberShaderPreprocessorRef = NzObjectRef<NzUberShaderPreprocessor>;
 
 class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 {
 	public:
 		NzUberShaderPreprocessor() = default;
-		~NzUberShaderPreprocessor() = default;
+		~NzUberShaderPreprocessor();
 
 		NzUberShaderInstance* Get(const NzParameterList& parameters) const;
 
@@ -37,6 +34,9 @@ class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
 
 		static bool IsSupported();
 		template<typename... Args> static NzUberShaderPreprocessorRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnUberShaderPreprocessorRelease, const NzUberShaderPreprocessor*); //< Args: me
 
 	private:
 		struct Shader

@@ -90,17 +90,21 @@ bool NzFont::Create(NzFontData* data)
 	#endif
 
 	m_data.reset(data);
-
 	return true;
 }
 
 void NzFont::Destroy()
 {
-	ClearGlyphCache();
+	if (m_data)
+	{
+		OnFontDestroy(this);
 
-	m_data.reset();
-	m_kerningCache.clear();
-	m_sizeInfoCache.clear();
+		ClearGlyphCache();
+
+		m_data.reset();
+		m_kerningCache.clear();
+		m_sizeInfoCache.clear();
+	}
 }
 
 bool NzFont::ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* glyph) const

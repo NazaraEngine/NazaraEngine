@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -54,10 +53,8 @@ class NzPrimitiveList;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent NzMeshVertex;
 typedef NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning NzSkeletalMeshVertex;
 
-using NzMeshConstListener = NzObjectListenerWrapper<const NzMesh>;
 using NzMeshConstRef = NzObjectRef<const NzMesh>;
 using NzMeshLibrary = NzObjectLibrary<NzMesh>;
-using NzMeshListener = NzObjectListenerWrapper<NzMesh>;
 using NzMeshLoader = NzResourceLoader<NzMesh, NzMeshParams>;
 using NzMeshManager = NzResourceManager<NzMesh, NzMeshParams>;
 using NzMeshRef = NzObjectRef<NzMesh>;
@@ -130,6 +127,10 @@ class NAZARA_API NzMesh : public NzRefCounted, public NzResource
 		void Transform(const NzMatrix4f& matrix);
 
 		template<typename... Args> static NzMeshRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnMeshDestroy, const NzMesh*); //< Args: me
+		NazaraSignal(OnMeshRelease, const NzMesh*); //< Args: me
 
 	private:
 		NzMeshImpl* m_impl = nullptr;

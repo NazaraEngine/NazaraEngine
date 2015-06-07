@@ -17,45 +17,30 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NzObjectListener;
-
 class NAZARA_API NzRefCounted
 {
 	public:
 		NzRefCounted(bool persistent = true);
 		NzRefCounted(const NzRefCounted&) = delete;
-		NzRefCounted(NzRefCounted&&) = delete;
+		NzRefCounted(NzRefCounted&&) = default;
 		virtual ~NzRefCounted();
 
-		void AddObjectListener(NzObjectListener* listener, int index = 0) const;
 		void AddReference() const;
 
 		unsigned int GetReferenceCount() const;
 
 		bool IsPersistent() const;
 
-		void RemoveObjectListener(NzObjectListener* listener) const;
 		bool RemoveReference() const;
 
 		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
 
 		NzRefCounted& operator=(const NzRefCounted&) = delete;
-		NzRefCounted& operator=(NzRefCounted&&) = delete;
-
-	protected:
-		void NotifyCreated();
-		void NotifyDestroy();
-		void NotifyModified(unsigned int code);
+		NzRefCounted& operator=(NzRefCounted&&) = default;
 
 	private:
-		using ObjectListenerMap = std::unordered_map<NzObjectListener*, std::pair<int, unsigned int>>;
-
-		NazaraMutexAttrib(m_mutex, mutable)
-
-		mutable ObjectListenerMap m_objectListeners;
-		        std::atomic_bool m_persistent;
+		std::atomic_bool m_persistent;
 		mutable std::atomic_uint m_referenceCount;
-		        bool m_objectListenersLocked;
 };
 
 #endif // NAZARA_RESOURCE_HPP

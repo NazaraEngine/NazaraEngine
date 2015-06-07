@@ -27,7 +27,7 @@ m_stride(declaration.m_stride)
 
 NzParticleDeclaration::~NzParticleDeclaration()
 {
-	NotifyDestroy();
+	OnParticleDeclarationRelease(this);
 }
 
 void NzParticleDeclaration::DisableComponent(nzParticleComponent component)

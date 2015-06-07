@@ -9,19 +9,17 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
 
 class NzSkeleton;
 
-using NzSkeletonConstListener = NzObjectListenerWrapper<const NzSkeleton>;
 using NzSkeletonConstRef = NzObjectRef<const NzSkeleton>;
 using NzSkeletonLibrary = NzObjectLibrary<NzSkeleton>;
-using NzSkeletonListener = NzObjectListenerWrapper<NzSkeleton>;
 using NzSkeletonRef = NzObjectRef<NzSkeleton>;
 
 struct NzSkeletonImpl;
@@ -58,6 +56,11 @@ class NAZARA_API NzSkeleton : public NzRefCounted
 		NzSkeleton& operator=(const NzSkeleton& skeleton);
 
 		template<typename... Args> static NzSkeletonRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnSkeletonDestroy, const NzSkeleton*); //< Args: me
+		NazaraSignal(OnSkeletonJointsInvalidated, const NzSkeleton*); //< Args: me
+		NazaraSignal(OnSkeletonRelease, const NzSkeleton*); //< Args: me
 
 	private:
 		void InvalidateJoints();

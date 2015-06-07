@@ -202,8 +202,6 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	}
 
 	onExit.Reset();
-
-	NotifyCreated();
 	return true;
 }
 
@@ -211,7 +209,7 @@ void NzTexture::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnTextureDestroy(this);
 
 		NzContext::EnsureContext();
 		NzOpenGL::DeleteTexture(m_impl->id);

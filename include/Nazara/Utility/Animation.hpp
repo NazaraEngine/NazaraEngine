@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -33,10 +33,8 @@ struct NAZARA_API NzAnimationParams
 class NzAnimation;
 class NzSkeleton;
 
-using NzAnimationConstListener = NzObjectListenerWrapper<const NzAnimation>;
 using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
 using NzAnimationLibrary = NzObjectLibrary<NzAnimation>;
-using NzAnimationListener = NzObjectListenerWrapper<NzAnimation>;
 using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
 using NzAnimationManager = NzResourceManager<NzAnimation, NzAnimationParams>;
 using NzAnimationRef = NzObjectRef<NzAnimation>;
@@ -88,6 +86,10 @@ class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
 		void RemoveSequence(unsigned int index);
 
 		template<typename... Args> static NzAnimationRef New(Args&&... args);
+
+		// Signals
+		NazaraSignal(OnAnimationDestroy, const NzAnimation*); //< Args: me
+		NazaraSignal(OnAnimationRelease, const NzAnimation*); //< Args: me
 
 	private:
 		static bool Initialize();

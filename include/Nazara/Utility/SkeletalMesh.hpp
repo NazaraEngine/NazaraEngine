@@ -8,15 +8,13 @@
 #define NAZARA_SKELETALMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzSkeletalMesh;
 
-using NzSkeletalMeshConstListener = NzObjectListenerWrapper<const NzSkeletalMesh>;
 using NzSkeletalMeshConstRef = NzObjectRef<const NzSkeletalMesh>;
-using NzSkeletalMeshListener = NzObjectListenerWrapper<NzSkeletalMesh>;
 using NzSkeletalMeshRef = NzObjectRef<NzSkeletalMesh>;
 
 class NAZARA_API NzSkeletalMesh final : public NzSubMesh
@@ -42,6 +40,10 @@ class NAZARA_API NzSkeletalMesh final : public NzSubMesh
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 		template<typename... Args> static NzSkeletalMeshRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnSkeletalMeshDestroy, const NzSkeletalMesh*); //< Args: me
+		NazaraSignal(OnSkeletalMeshRelease, const NzSkeletalMesh*); //< Args: me
 
 	private:
 		NzBoxf m_aabb;

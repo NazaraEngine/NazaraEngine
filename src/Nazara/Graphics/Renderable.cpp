@@ -5,7 +5,10 @@
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzRenderable::~NzRenderable() = default;
+NzRenderable::~NzRenderable()
+{
+	OnRenderableRelease(this);
+}
 
 bool NzRenderable::Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const
 {

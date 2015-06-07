@@ -11,12 +11,12 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <atomic>
@@ -36,10 +36,8 @@ struct NAZARA_API NzImageParams
 
 class NzImage;
 
-using NzImageConstListener = NzObjectListenerWrapper<const NzImage>;
 using NzImageConstRef = NzObjectRef<const NzImage>;
 using NzImageLibrary = NzObjectLibrary<NzImage>;
-using NzImageListener = NzObjectListenerWrapper<NzImage>;
 using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageManager = NzResourceManager<NzImage, NzImageParams>;
 using NzImageRef = NzObjectRef<NzImage>;
@@ -147,6 +145,10 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 		};
 
 		static SharedImage emptyImage;
+
+		// Signals:
+		NazaraSignal(OnImageDestroy, const NzImage*); //< Args: me
+		NazaraSignal(OnImageRelease, const NzImage*); //< Args: me
 
 	private:
 		void EnsureOwnership();

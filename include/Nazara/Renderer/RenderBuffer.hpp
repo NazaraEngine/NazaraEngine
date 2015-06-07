@@ -10,17 +10,15 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzRenderBuffer;
 
-using NzRenderBufferConstListener = NzObjectListenerWrapper<const NzRenderBuffer>;
 using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
 using NzRenderBufferLibrary = NzObjectLibrary<NzRenderBuffer>;
-using NzRenderBufferListener = NzObjectListenerWrapper<NzRenderBuffer>;
 using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
 class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
@@ -46,6 +44,10 @@ class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 
 		static bool IsSupported();
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
+
+		// Signals
+		NazaraSignal(OnRenderBufferDestroy, const NzRenderBuffer*); //< Args: me
+		NazaraSignal(OnRenderBufferRelease, const NzRenderBuffer*); //< Args: me
 
 	private:
 		static bool Initialize();
