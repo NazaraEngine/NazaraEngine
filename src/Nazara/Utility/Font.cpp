@@ -290,12 +290,19 @@ void NzFont::SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 	{
 		ClearGlyphCache();
 
-		if (m_atlas)
-			m_atlas->RemoveListener(this);
-
 		m_atlas = atlas;
 		if (m_atlas)
-			m_atlas->AddListener(this);
+		{
+			m_atlasClearedSlot = NazaraConnect(*m_atlas, OnAtlasCleared, OnAtlasCleared);
+			m_atlasLayerChangeSlot = NazaraConnect(*m_atlas, OnAtlasLayerChange, OnAtlasLayerChange);
+			m_atlasReleaseSlot = NazaraConnect(*m_atlas, OnAtlasRelease, OnAtlasRelease);
+		}
+		else
+		{
+			NazaraDisconnect(m_atlasClearedSlot);
+			NazaraDisconnect(m_atlasLayerChangeSlot);
+			NazaraDisconnect(m_atlasReleaseSlot);
+		}
 
 		NotifyModified(ModificationCode_AtlasChanged);
 	}
@@ -403,10 +410,9 @@ nzUInt64 NzFont::ComputeKey(unsigned int characterSize, nzUInt32 style) const
 	return (stylePart << 32) | sizePart;
 }
 
-bool NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
+void NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas)
 {
 	NazaraUnused(atlas);
-	NazaraUnused(userdata);
 
 	#ifdef NAZARA_DEBUG
 	// Est-ce qu'il s'agit bien de notre atlas ?
@@ -420,16 +426,13 @@ bool NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 	// Notre atlas vient d'être vidé, détruisons le cache de glyphe
 	m_glyphes.clear();
 	NotifyModified(ModificationCode_GlyphCacheCleared);
-
-	return true;
 }
 
-bool NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata)
+void NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer)
 {
 	NazaraUnused(atlas);
 	NazaraUnused(oldLayer);
 	NazaraUnused(newLayer);
-	NazaraUnused(userdata);
 
 	#ifdef NAZARA_DEBUG
 	// Est-ce qu'il s'agit bien de notre atlas ?
@@ -442,14 +445,11 @@ bool NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* o
 
 	// Pour faciliter le travail des ressources qui nous écoutent
 	NotifyModified(ModificationCode_AtlasLayerChanged);
-
-	return true;
 }
 
-void NzFont::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
+void NzFont::OnAtlasRelease(const NzAbstractAtlas* atlas)
 {
 	NazaraUnused(atlas);
-	NazaraUnused(userdata);
 
 	#ifdef NAZARA_DEBUG
 	// Est-ce qu'il s'agit bien de notre atlas ?

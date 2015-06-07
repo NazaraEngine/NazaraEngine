@@ -29,12 +29,6 @@ NzView() // On délègue
 	SetSize(size);
 }
 
-NzView::~NzView()
-{
-	if (m_target)
-		m_target->RemoveListener(this);
-}
-
 void NzView::EnsureFrustumUpdate() const
 {
 	if (!m_frustumUpdated)
@@ -221,12 +215,17 @@ void NzView::SetSize(float width, float height)
 
 void NzView::SetTarget(const NzRenderTarget* renderTarget)
 {
-	if (m_target)
-		m_target->RemoveListener(this);
-
 	m_target = renderTarget;
 	if (m_target)
-		m_target->AddListener(this);
+	{
+		m_targetReleaseSlot = NazaraConnect(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+		m_targetResizeSlot = NazaraConnect(*m_target, OnRenderTargetSizeChange, OnRenderTargetSizeChange);
+	}
+	else
+	{
+		NazaraDisconnect(m_targetReleaseSlot);
+		NazaraDisconnect(m_targetResizeSlot);
+	}
 }
 
 void NzView::SetTarget(const NzRenderTarget& renderTarget)
@@ -318,20 +317,16 @@ void NzView::InvalidateNode()
 	m_viewProjMatrixUpdated = false;
 }
 
-void NzView::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
+void NzView::OnRenderTargetRelease(const NzRenderTarget* renderTarget)
 {
-	NazaraUnused(userdata);
-
 	if (renderTarget == m_target)
 		m_target = nullptr;
 	else
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
 }
 
-bool NzView::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
+void NzView::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget)
 {
-	NazaraUnused(userdata);
-
 	if (renderTarget == m_target)
 	{
 		m_frustumUpdated = false;
@@ -340,8 +335,6 @@ bool NzView::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* 
 	}
 	else
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
-
-	return true;
 }
 
 void NzView::UpdateFrustum() const
