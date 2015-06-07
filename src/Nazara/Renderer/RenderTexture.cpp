@@ -379,8 +379,8 @@ bool NzRenderTexture::Create(bool lock)
 		onExit.Reset();
 	}
 
-	Notify(Listener::OnRenderTargetParametersChange);
-	Notify(Listener::OnRenderTargetSizeChange);
+	OnRenderTargetParametersChange(this);
+	OnRenderTargetSizeChange(this);
 
 	return true;
 }

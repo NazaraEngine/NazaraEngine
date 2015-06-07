@@ -19,11 +19,12 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public NzAbstractViewer, NzNode::Listener, NzRenderTarget::Listener
+	class NDK_API CameraComponent : public Component<CameraComponent>, public NzAbstractViewer
 	{
 		public:
-			CameraComponent();
-			~CameraComponent();
+			inline CameraComponent();
+			inline CameraComponent(const CameraComponent& camera);
+			~CameraComponent() = default;
 
 			void ApplyView() const override;
 
@@ -66,14 +67,18 @@ namespace Ndk
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
-			bool OnNodeInvalidated(const NzNode* node, void* userdata) override;
-			void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
-			bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
+			void OnNodeInvalidated(const NzNode* node);
+			void OnRenderTargetRelease(const NzRenderTarget* renderTarget);
+			void OnRenderTargetSizeChange(const NzRenderTarget* renderTarget);
 
 			void UpdateFrustum() const;
 			void UpdateProjectionMatrix() const;
 			void UpdateViewMatrix() const;
 			void UpdateViewport() const;
+
+			NazaraSlot(NzNode, OnNodeInvalidation, m_nodeInvalidationSlot);
+			NazaraSlot(NzRenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
+			NazaraSlot(NzRenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
 			mutable NzFrustumf m_frustum;
 			mutable NzMatrix4f m_projectionMatrix;

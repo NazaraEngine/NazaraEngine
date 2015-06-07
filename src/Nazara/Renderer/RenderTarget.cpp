@@ -8,7 +8,7 @@
 
 NzRenderTarget::~NzRenderTarget()
 {
-	NotifyRelease(Listener::OnRenderTargetReleased);
+	OnRenderTargetRelease(this);
 }
 
 bool NzRenderTarget::IsActive() const
@@ -29,28 +29,4 @@ bool NzRenderTarget::SetActive(bool active)
 void NzRenderTarget::Desactivate() const
 {
 	// Seuls les target sans contextes (ex: NzRenderTexture) nécessitent une désactivation
-}
-
-NzRenderTarget::Listener::~Listener() = default;
-
-bool NzRenderTarget::Listener::OnRenderTargetParametersChange(const NzRenderTarget* renderTarget, void* userdata)
-{
-	NazaraUnused(renderTarget);
-	NazaraUnused(userdata);
-
-	return true;
-}
-
-void NzRenderTarget::Listener::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
-{
-	NazaraUnused(renderTarget);
-	NazaraUnused(userdata);
-}
-
-bool NzRenderTarget::Listener::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
-{
-	NazaraUnused(renderTarget);
-	NazaraUnused(userdata);
-
-	return true;
 }

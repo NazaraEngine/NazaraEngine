@@ -16,12 +16,12 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/Node.hpp>
 
-class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
+class NAZARA_API NzView : public NzAbstractViewer, public NzNode
 {
 	public:
 		NzView();
 		NzView(const NzVector2f& size);
-		~NzView();
+		~NzView() = default;
 
 		void EnsureFrustumUpdate() const;
 		void EnsureProjectionMatrixUpdate() const;
@@ -62,8 +62,8 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		void ApplyView() const override;
 		void InvalidateNode() override;
 
-		void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
-		bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
+		void OnRenderTargetRelease(const NzRenderTarget* renderTarget);
+		void OnRenderTargetSizeChange(const NzRenderTarget* renderTarget);
 
 		void UpdateFrustum() const;
 		void UpdateInvViewProjMatrix() const;
@@ -71,6 +71,9 @@ class NAZARA_API NzView : public NzAbstractViewer, public NzNode, NzRenderTarget
 		void UpdateViewMatrix() const;
 		void UpdateViewProjMatrix() const;
 		void UpdateViewport() const;
+
+		NazaraSlot(NzRenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
+		NazaraSlot(NzRenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
 		mutable NzFrustumf m_frustum;
 		mutable NzMatrix4f m_invViewProjMatrix;

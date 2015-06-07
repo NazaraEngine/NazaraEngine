@@ -8,14 +8,14 @@
 #define NAZARA_RENDERTARGET_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Listenable.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <unordered_map>
 
 class NzRenderer;
 
-class NAZARA_API NzRenderTarget : public NzListenable<NzRenderTarget>
+class NAZARA_API NzRenderTarget
 {
 	friend class NzRenderer;
 
@@ -35,16 +35,10 @@ class NAZARA_API NzRenderTarget : public NzListenable<NzRenderTarget>
 		// Fonctions OpenGL
 		virtual bool HasContext() const = 0;
 
-		class NAZARA_API Listener
-		{
-			public:
-				Listener() = default;
-				virtual ~Listener();
-
-				virtual bool OnRenderTargetParametersChange(const NzRenderTarget* renderTarget, void* userdata);
-				virtual void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata);
-				virtual bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata);
-		};
+		// Signals
+		NazaraSignal(OnRenderTargetParametersChange, const NzRenderTarget*); //< Args: me
+		NazaraSignal(OnRenderTargetRelease, const NzRenderTarget*); //< Args: me
+		NazaraSignal(OnRenderTargetSizeChange, const NzRenderTarget*); //< Args: me
 
 	protected:
 		virtual bool Activate() const = 0;

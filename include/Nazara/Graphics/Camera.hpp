@@ -16,11 +16,11 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/Node.hpp>
 
-class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarget::Listener
+class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode
 {
 	public:
 		NzCamera();
-		~NzCamera();
+		~NzCamera() = default;
 
 		void EnsureFrustumUpdate() const;
 		void EnsureProjectionMatrixUpdate() const;
@@ -55,13 +55,16 @@ class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode, NzRenderTarg
 		void ApplyView() const override;
 		void InvalidateNode() override;
 
-		void OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata) override;
-		bool OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata) override;
+		void OnRenderTargetRelease(const NzRenderTarget* renderTarget);
+		void OnRenderTargetSizeChange(const NzRenderTarget* renderTarget);
 
 		void UpdateFrustum() const;
 		void UpdateProjectionMatrix() const;
 		void UpdateViewMatrix() const;
 		void UpdateViewport() const;
+
+		NazaraSlot(NzRenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
+		NazaraSlot(NzRenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
 		mutable NzFrustumf m_frustum;
 		mutable NzMatrix4f m_projectionMatrix;
