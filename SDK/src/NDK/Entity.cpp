@@ -56,7 +56,7 @@ namespace Ndk
 		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 		{
 			if (i != index)
-				m_components[index]->OnComponentAttached(component);
+				m_components[i]->OnComponentAttached(component);
 		}
 
 		return component;
@@ -100,7 +100,7 @@ namespace Ndk
 			for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 			{
 				if (i != index)
-					m_components[index]->OnComponentDetached(component);
+					m_components[i]->OnComponentDetached(component);
 			}
 
 			component.SetEntity(nullptr);
