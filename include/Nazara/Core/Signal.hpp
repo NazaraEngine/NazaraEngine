@@ -26,10 +26,10 @@ class NzSignal
 
 		void Clear();
 
-		Connection&& Connect(const Callback& func);
-		Connection&& Connect(Callback&& func);
-		template<typename O> Connection&& Connect(O& object, void (O::*method)(Args...));
-		template<typename O> Connection&& Connect(O* object, void (O::*method)(Args...));
+		Connection Connect(const Callback& func);
+		Connection Connect(Callback&& func);
+		template<typename O> Connection Connect(O& object, void (O::*method)(Args...));
+		template<typename O> Connection Connect(O* object, void (O::*method)(Args...));
 
 		void operator()(Args... args);
 
