@@ -110,8 +110,12 @@ class NAZARA_API NzRenderer
 	private:
 		static void EnableInstancing(bool instancing);
 		static bool EnsureStateUpdate();
+		static void OnContextRelease(const NzContext* context);
+		static void OnIndexBufferRelease(const NzIndexBuffer* indexBuffer);
 		static void OnShaderReleased(const NzShader* shader);
 		static void OnTextureReleased(const NzTexture* texture);
+		static void OnVertexBufferRelease(const NzVertexBuffer* vertexBuffer);
+		static void OnVertexDeclarationRelease(const NzVertexDeclaration* vertexDeclaration);
 		static void UpdateMatrix(nzMatrixType type);
 
 		static unsigned int s_moduleReferenceCounter;

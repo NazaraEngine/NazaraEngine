@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzVertexDeclaration;
@@ -45,6 +46,8 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 		static NzVertexDeclaration* Get(nzVertexLayout layout);
 		static bool IsTypeSupported(nzComponentType type);
 		template<typename... Args> static NzVertexDeclarationRef New(Args&&... args);
+
+		NazaraSignal(OnVertexDeclarationRelease, const NzVertexDeclaration*); //< me
 
 	private:
 		static bool Initialize();

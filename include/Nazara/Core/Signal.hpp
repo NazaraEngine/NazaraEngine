@@ -17,7 +17,8 @@
 #define NazaraSlotType(Class, SignalName) Class::SignalName ## Type::ConnectionGuard
 #define NazaraSlot(Class, SignalName, SlotName) NazaraSlotType(Class, SignalName) SlotName
 
-#define NazaraConnect(Instance, SignalName, Callback) (Instance).SignalName.Connect(this, Callback)
+#define NazaraConnect(Instance, SignalName, Callback) (Instance).SignalName.Connect(Callback)
+#define NazaraConnectThis(Instance, SignalName, Callback) (Instance).SignalName.Connect(this, Callback)
 #define NazaraDisconnect(SlotName) SlotName.GetConnection().Disconnect()
 
 

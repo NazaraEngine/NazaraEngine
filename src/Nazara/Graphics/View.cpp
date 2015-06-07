@@ -218,8 +218,8 @@ void NzView::SetTarget(const NzRenderTarget* renderTarget)
 	m_target = renderTarget;
 	if (m_target)
 	{
-		m_targetReleaseSlot = NazaraConnect(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
-		m_targetResizeSlot = NazaraConnect(*m_target, OnRenderTargetSizeChange, OnRenderTargetSizeChange);
+		m_targetReleaseSlot = NazaraConnectThis(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+		m_targetResizeSlot = NazaraConnectThis(*m_target, OnRenderTargetSizeChange, OnRenderTargetSizeChange);
 	}
 	else
 	{
