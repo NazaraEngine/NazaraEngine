@@ -8,7 +8,7 @@
 #define NAZARA_ABSTRACTATLAS_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Listenable.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -17,7 +17,7 @@
 class NzAbstractImage;
 class NzImage;
 
-class NAZARA_API NzAbstractAtlas : public NzListenable<NzAbstractAtlas>
+class NAZARA_API NzAbstractAtlas
 {
 	public:
 		NzAbstractAtlas() = default;
@@ -30,16 +30,9 @@ class NAZARA_API NzAbstractAtlas : public NzListenable<NzAbstractAtlas>
 		virtual nzUInt32 GetStorage() const = 0;
 		virtual bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
 
-		class NAZARA_API Listener
-		{
-			public:
-				Listener() = default;
-				virtual ~Listener();
-
-				virtual bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata);
-				virtual bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata);
-				virtual void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata);
-		};
+		NazaraSignal(OnAtlasCleared, const NzAbstractAtlas*); //< Args: me
+		NazaraSignal(OnAtlasLayerChange, const NzAbstractAtlas*, NzAbstractImage*, NzAbstractImage*); //< Args: me, oldLayer, newLayer
+		NazaraSignal(OnAtlasRelease, const NzAbstractAtlas*); //< Args: me
 };
 
 #endif // NAZARA_ABSTRACTATLAS_HPP

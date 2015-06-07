@@ -46,6 +46,9 @@ namespace Ndk
 
 	void CameraComponent::OnAttached()
 	{
+		if (m_entity->HasComponent<NodeComponent>())
+			m_nodeInvalidationSlot = NazaraConnect(m_entity->GetComponent<NodeComponent>(), OnNodeInvalidation, OnNodeInvalidated);
+
 		InvalidateViewMatrix();
 	}
 
@@ -54,7 +57,7 @@ namespace Ndk
 		if (IsComponent<NodeComponent>(component))
 		{
 			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			nodeComponent.AddListener(this);
+			m_nodeInvalidationSlot = NazaraConnect(nodeComponent, OnNodeInvalidation, OnNodeInvalidated);
 
 			InvalidateViewMatrix();
 		}
@@ -65,7 +68,7 @@ namespace Ndk
 		if (IsComponent<NodeComponent>(component))
 		{
 			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			nodeComponent.RemoveListener(this);
+			NazaraDisconnect(m_nodeInvalidationSlot);
 
 			InvalidateViewMatrix();
 		}
@@ -73,44 +76,33 @@ namespace Ndk
 
 	void CameraComponent::OnDetached()
 	{
+		NazaraDisconnect(m_nodeInvalidationSlot);
+
 		InvalidateViewMatrix();
 	}
 
-	bool CameraComponent::OnNodeInvalidated(const NzNode* node, void* userdata)
+	void CameraComponent::OnNodeInvalidated(const NzNode* node)
 	{
 		NazaraUnused(node);
-		NazaraUnused(userdata);
 
 		// Our view matrix depends on NodeComponent position/rotation
 		InvalidateViewMatrix();
-		return true;
 	}
 
-	void CameraComponent::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
+	void CameraComponent::OnRenderTargetRelease(const NzRenderTarget* renderTarget)
 	{
-		NazaraUnused(userdata);
-
 		if (renderTarget == m_target)
 			m_target = nullptr;
 		else
 			NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
 	}
 
-	bool CameraComponent::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
+	void CameraComponent::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget)
 	{
-		NazaraUnused(userdata);
-
 		if (renderTarget == m_target)
-		{
 			InvalidateViewport();
-
-			return true;
-		}
 		else
-		{
 			NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
-			return false;
-		}
 	}
 
 	void CameraComponent::UpdateFrustum() const

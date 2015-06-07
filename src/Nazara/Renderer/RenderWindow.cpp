@@ -278,8 +278,8 @@ bool NzRenderWindow::OnWindowCreated()
 	NzOpenGL::SetScissorBox(NzRecti(0, 0, size.x, size.y));
 	NzOpenGL::SetViewport(NzRecti(0, 0, size.x, size.y));
 
-	Notify(Listener::OnRenderTargetParametersChange);
-	Notify(Listener::OnRenderTargetSizeChange);
+	OnRenderTargetParametersChange(this);
+	OnRenderTargetSizeChange(this);
 
 	m_clock.Restart();
 
@@ -300,5 +300,5 @@ void NzRenderWindow::OnWindowDestroy()
 
 void NzRenderWindow::OnWindowResized()
 {
-	Notify(Listener::OnRenderTargetSizeChange);
+	OnRenderTargetSizeChange(this);
 }

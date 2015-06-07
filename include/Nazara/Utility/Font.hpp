@@ -37,7 +37,7 @@ using NzFontListener = NzObjectListenerWrapper<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzObjectRef<NzFont>;
 
-class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtlas::Listener, NzNonCopyable
+class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzFontLibrary;
 	friend NzFontLoader;
@@ -128,13 +128,17 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzAbstractAtla
 		using GlyphMap = std::unordered_map<char32_t, Glyph>;
 
 		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
-		bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata) override;
-		bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata) override;
-		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
+		void OnAtlasCleared(const NzAbstractAtlas* atlas);
+		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
+		void OnAtlasRelease(const NzAbstractAtlas* atlas);
 		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
 
 		static bool Initialize();
 		static void Uninitialize();
+
+		NazaraSlot(NzAbstractAtlas, OnAtlasCleared, m_atlasClearedSlot);
+		NazaraSlot(NzAbstractAtlas, OnAtlasLayerChange, m_atlasLayerChangeSlot);
+		NazaraSlot(NzAbstractAtlas, OnAtlasRelease, m_atlasReleaseSlot);
 
 		std::shared_ptr<NzAbstractAtlas> m_atlas;
 		std::unique_ptr<NzFontData> m_data;

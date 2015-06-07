@@ -16,12 +16,12 @@
 #include <memory>
 #include <set>
 
-class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
+class NAZARA_API NzTextSprite : public NzSceneNode
 {
 	public:
 		NzTextSprite();
 		NzTextSprite(const NzTextSprite& sprite);
-		~NzTextSprite();
+		~NzTextSprite() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
 
@@ -46,12 +46,10 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 		NzTextSprite& operator=(const NzTextSprite& text);
 
 	private:
-		void ClearAtlases();
 		void InvalidateNode() override;
 		void MakeBoundingVolume() const override;
-		bool OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata) override;
-		bool OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata) override;
-		void OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata) override;
+		void OnAtlasInvalidated(const NzAbstractAtlas* atlas);
+		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
 		void Register() override;
 		void Unregister() override;
 		void UpdateVertices() const;
@@ -62,7 +60,14 @@ class NAZARA_API NzTextSprite : public NzSceneNode, NzAbstractAtlas::Listener
 			unsigned int count;
 		};
 
-		std::set<const NzAbstractAtlas*> m_atlases;
+		struct AtlasSlots
+		{
+			NazaraSlot(NzAbstractAtlas, OnAtlasCleared, clearSlot);
+			NazaraSlot(NzAbstractAtlas, OnAtlasLayerChange, layerChangeSlot);
+			NazaraSlot(NzAbstractAtlas, OnAtlasRelease, releaseSlot);
+		};
+
+		std::unordered_map<const NzAbstractAtlas*, AtlasSlots> m_atlases;
 		mutable std::unordered_map<NzTexture*, RenderIndices> m_renderInfos;
 		mutable std::vector<NzVertexStruct_XY_Color> m_localVertices;
 		mutable std::vector<NzVertexStruct_XYZ_Color_UV> m_vertices;
