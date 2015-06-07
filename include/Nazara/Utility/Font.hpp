@@ -95,15 +95,6 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
 		static void SetDefaultGlyphBorder(unsigned int borderSize);
 		static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
 
-		enum ModicationCode
-		{
-			ModificationCode_AtlasChanged,
-			ModificationCode_AtlasLayerChanged,
-			ModificationCode_GlyphCacheCleared,
-			ModificationCode_KerningCacheCleared,
-			ModificationCode_SizeInfoCacheCleared
-		};
-
 		struct Glyph
 		{
 			NzRecti aabb;
@@ -123,6 +114,13 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
 			float underlinePosition;
 			float underlineThickness;
 		};
+
+		NazaraSignal(OnFontAtlasChanged, const NzFont*); //< Args: me
+		NazaraSignal(OnFontAtlasLayerChanged, const NzFont*); //< Args: me
+		NazaraSignal(OnFontGlyphCacheCleared, const NzFont*); //< Args: me
+		NazaraSignal(OnFontKerningCacheCleared, const NzFont*); //< Args: me
+		NazaraSignal(OnFontRelease, const NzFont*); //< Args: me
+		NazaraSignal(OnFontSizeInfoCacheCleared, const NzFont*); //< Args: me
 
 	private:
 		using GlyphMap = std::unordered_map<char32_t, Glyph>;

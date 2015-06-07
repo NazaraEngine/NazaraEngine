@@ -15,10 +15,12 @@
 #include <Nazara/Utility/Font.hpp>
 #include <vector>
 
-class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzObjectListener
+class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 {
 	public:
 		NzSimpleTextDrawer();
+		NzSimpleTextDrawer(const NzSimpleTextDrawer& drawer);
+		NzSimpleTextDrawer(NzSimpleTextDrawer&&) = default;
 		virtual ~NzSimpleTextDrawer() = default;
 
 		const NzRectui& GetBounds() const;
@@ -42,14 +44,18 @@ class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer, NzObjectListe
 		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 
 	private:
-		bool OnObjectModified(const NzRefCounted* object, int index, unsigned int code) override;
-		void OnObjectReleased(const NzRefCounted* object, int index) override;
+		void OnFontInvalidated(const NzFont* font);
+		void OnFontRelease(const NzFont* object);
 		void UpdateGlyphs() const;
+
+		NazaraSlot(NzFont, OnFontAtlasChanged, m_atlasChangedSlot);
+		NazaraSlot(NzFont, OnFontAtlasLayerChanged, m_atlasLayerChangedSlot);
+		NazaraSlot(NzFont, OnFontGlyphCacheCleared, m_glyphCacheClearedSlot);
+		NazaraSlot(NzFont, OnFontRelease, m_fontReleaseSlot);
 
 		mutable std::vector<Glyph> m_glyphs;
 		NzColor m_color;
 		NzFontRef m_font;
-		NzFontListener m_fontListener; // Doit se situer après le FontRef (pour être libéré avant)
 		mutable NzRectui m_bounds;
 		NzString m_text;
 		nzUInt32 m_style;

@@ -30,6 +30,8 @@ m_minimumStepSize(s_defaultMinimumStepSize)
 
 NzFont::~NzFont()
 {
+	OnFontRelease(this);
+
 	Destroy();
 	SetAtlas(nullptr); // On libère l'atlas proprement
 }
@@ -55,7 +57,8 @@ void NzFont::ClearGlyphCache()
 
 			// Destruction des glyphes mémorisés et notification
 			m_glyphes.clear();
-			NotifyModified(ModificationCode_GlyphCacheCleared);
+
+			OnFontGlyphCacheCleared(this);
 		}
 	}
 }
@@ -63,13 +66,15 @@ void NzFont::ClearGlyphCache()
 void NzFont::ClearKerningCache()
 {
 	m_kerningCache.clear();
-	NotifyModified(ModificationCode_KerningCacheCleared);
+
+	OnFontKerningCacheCleared(this);
 }
 
 void NzFont::ClearSizeInfoCache()
 {
 	m_sizeInfoCache.clear();
-	NotifyModified(ModificationCode_SizeInfoCacheCleared);
+
+	OnFontSizeInfoCacheCleared(this);
 }
 
 bool NzFont::Create(NzFontData* data)
@@ -304,7 +309,7 @@ void NzFont::SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 			NazaraDisconnect(m_atlasReleaseSlot);
 		}
 
-		NotifyModified(ModificationCode_AtlasChanged);
+		OnFontAtlasChanged(this);
 	}
 }
 
@@ -425,7 +430,8 @@ void NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas)
 
 	// Notre atlas vient d'être vidé, détruisons le cache de glyphe
 	m_glyphes.clear();
-	NotifyModified(ModificationCode_GlyphCacheCleared);
+
+	OnFontGlyphCacheCleared(this);
 }
 
 void NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer)
@@ -444,7 +450,7 @@ void NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* o
 	#endif
 
 	// Pour faciliter le travail des ressources qui nous écoutent
-	NotifyModified(ModificationCode_AtlasLayerChanged);
+	OnFontAtlasLayerChanged(this);
 }
 
 void NzFont::OnAtlasRelease(const NzAbstractAtlas* atlas)
