@@ -22,7 +22,7 @@
 
 class NzAbstractViewer;
 
-class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectListener
+class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 {
 	friend class NzForwardRenderTechnique;
 
@@ -48,8 +48,10 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 		void Sort(const NzAbstractViewer* viewer);
 
 	private:
-		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
-		void OnObjectReleased(const NzRefCounted* object, int index) override;
+		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
+		void OnMaterialInvalidation(const NzMaterial* material);
+		void OnTextureInvalidation(const NzTexture* texture);
+		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
 
 		/// Billboards
 		struct BillboardData
@@ -67,12 +69,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 
 		struct BatchedBillboardEntry
 		{
-			BatchedBillboardEntry(NzObjectListener* listener, int materialValue) :
-			materialListener(listener, materialValue)
-			{
-			}
+			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
 
-			NzMaterialConstListener materialListener;
 			std::vector<BillboardData> billboards;
 		};
 
@@ -87,13 +85,9 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 
 		struct BatchedSpriteEntry
 		{
-			BatchedSpriteEntry(NzObjectListener* listener, int textureValue) :
-			textureListener(listener, textureValue)
-			{
-			}
+			NazaraSlot(NzTexture, OnTextureRelease, textureReleaseSlot);
 
 			std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
-			NzTextureConstListener textureListener;
 		};
 
 		struct BatchedSpriteMaterialComparator
@@ -105,12 +99,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 
 		struct BatchedBasicSpriteEntry
 		{
-			BatchedBasicSpriteEntry(NzObjectListener* listener, int materialValue) :
-			materialListener(listener, materialValue)
-			{
-			}
+			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
 
-			NzMaterialConstListener materialListener;
 			BasicSpriteOverlayContainer overlayMap;
 			bool enabled = false;
 		};
@@ -125,16 +115,11 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 
 		struct MeshInstanceEntry
 		{
-			MeshInstanceEntry(NzObjectListener* listener, int indexBufferValue, int vertexBufferValue) :
-			indexBufferListener(listener, indexBufferValue),
-			vertexBufferListener(listener, vertexBufferValue)
-			{
-			}
+			NazaraSlot(NzIndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
+			NazaraSlot(NzVertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
 
 			std::vector<NzMatrix4f> instances;
-			NzIndexBufferConstListener indexBufferListener;
 			NzSpheref squaredBoundingSphere;
-			NzVertexBufferConstListener vertexBufferListener;
 		};
 
 		typedef std::map<NzMeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
@@ -146,12 +131,8 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue, NzObjectLi
 
 		struct BatchedModelEntry
 		{
-			BatchedModelEntry(NzObjectListener* listener, int materialValue) :
-			materialListener(listener, materialValue)
-			{
-			}
+			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
 
-			NzMaterialConstListener materialListener;
 			MeshInstanceContainer meshMap;
 			bool enabled = false;
 			bool instancingEnabled = false;
