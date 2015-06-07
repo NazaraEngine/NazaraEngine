@@ -140,9 +140,9 @@ namespace Ndk
 	{
 		m_target = renderTarget;
 		if (m_target)
-			m_targetReleaseSlot = NazaraConnectThis(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+			m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, OnRenderTargetRelease);
 		else
-			NazaraDisconnect(m_targetReleaseSlot);
+			m_targetReleaseSlot.Disconnect();
 	}
 
 	inline void CameraComponent::SetTargetRegion(const NzRectf& region)
