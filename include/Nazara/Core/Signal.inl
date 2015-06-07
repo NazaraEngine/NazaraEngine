@@ -7,6 +7,12 @@
 #include <Nazara/Core/Debug.hpp>
 
 template<typename... Args>
+NzSignal<Args...>::NzSignal() :
+m_slotIterator(0)
+{
+}
+
+template<typename... Args>
 NzSignal<Args...>::NzSignal(NzSignal&& signal)
 {
 	operator=(std::move(signal));
@@ -29,11 +35,15 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(Callback&& fun
 {
 	NazaraAssert(func, "Invalid function");
 
+	bool resetIt = (m_slotIterator >= m_slots.size());
+
 	auto tempPtr = std::make_shared<Slot>(this);
 	tempPtr->callback = std::move(func);
 	tempPtr->index = m_slots.size();
 
 	m_slots.emplace_back(std::move(tempPtr));
+	if (resetIt)
+		m_slotIterator = m_slots.size();
 
 	return Connection(m_slots.back());
 }
@@ -81,14 +91,15 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const O* objec
 template<typename... Args>
 void NzSignal<Args...>::operator()(Args... args) const
 {
-	for (const SlotPtr& slot : m_slots)
-		slot->callback(args...);
+	for (m_slotIterator = 0; m_slotIterator < m_slots.size(); ++m_slotIterator)
+		m_slots[m_slotIterator]->callback(args...);
 }
 
 template<typename... Args>
 NzSignal<Args...>& NzSignal<Args...>::operator=(NzSignal&& signal)
 {
 	m_slots = std::move(signal.m_slots);
+	m_slotIterator = signal.m_slotIterator;
 
 	// We need to update the signal pointer inside of each slot
 	for (SlotPtr& slot : m_slots)
@@ -105,12 +116,32 @@ void NzSignal<Args...>::Disconnect(const SlotPtr& slot)
 
 	// "Swap this slot with the last one and pop" idiom
 	// This will preserve slot indexes
-	SlotPtr& current = m_slots[slot->index];
 
-	std::swap(current, m_slots.back());
+	// Can we safely "remove" this slot?
+	if (m_slotIterator >= m_slots.size()-1 || slot->index > m_slotIterator)
+	{
+		// Yes we can
+		SlotPtr& newSlot = m_slots[slot->index];
+		newSlot = std::move(m_slots.back());
+		newSlot->index = slot->index; //< Update the moved slot index before resizing (imagine this is the last one)
+	}
+	else
+	{
+		// Nope, let's be tricky
+		SlotPtr& current = m_slots[m_slotIterator];
+		SlotPtr& newSlot = m_slots[slot->index];
+
+		newSlot = std::move(current);
+		newSlot->index = slot->index; //< Update the moved slot index
+
+		current = std::move(m_slots.back());
+		current->index = m_slotIterator; //< Update the moved slot index
+
+		--m_slotIterator;
+	}
+
+	// Pop the last entry (where we moved our slot)
 	m_slots.pop_back();
-
-	current->index = slot->index; //< Update the moved slot index
 }
 
 
