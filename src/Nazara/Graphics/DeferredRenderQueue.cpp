@@ -10,16 +10,6 @@
 
 ///TODO: Rendre les billboards via Deferred Shading si possible
 
-namespace
-{
-	enum ObjectType
-	{
-		ObjectType_IndexBuffer,
-		ObjectType_Material,
-		ObjectType_VertexBuffer
-	};
-}
-
 NzDeferredRenderQueue::NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue) :
 m_forwardQueue(forwardQueue)
 {
@@ -85,8 +75,8 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 		auto it = opaqueModels.find(material);
 		if (it == opaqueModels.end())
 		{
-			BatchedModelEntry entry(this, ObjectType_Material);
-			entry.materialListener = material;
+			BatchedModelEntry entry;
+			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
@@ -99,9 +89,11 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 		auto it2 = meshMap.find(meshData);
 		if (it2 == meshMap.end())
 		{
-			MeshInstanceEntry instanceEntry(this, ObjectType_IndexBuffer, ObjectType_VertexBuffer);
-			instanceEntry.indexBufferListener = meshData.indexBuffer;
-			instanceEntry.vertexBufferListener = meshData.vertexBuffer;
+			MeshInstanceEntry instanceEntry;
+			if (meshData.indexBuffer)
+				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, OnIndexBufferInvalidation);
+
+			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, OnVertexBufferInvalidation);
 
 			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
@@ -131,108 +123,39 @@ void NzDeferredRenderQueue::Clear(bool fully)
 	m_forwardQueue->Clear(fully);
 }
 
-bool NzDeferredRenderQueue::OnObjectDestroy(const NzRefCounted* object, int index)
+void NzDeferredRenderQueue::OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer)
 {
-	switch (index)
+	for (auto& modelPair : opaqueModels)
 	{
-		case ObjectType_IndexBuffer:
+		MeshInstanceContainer& meshes = modelPair.second.meshMap;
+		for (auto it = meshes.begin(); it != meshes.end();)
 		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
-		}
-
-		case ObjectType_Material:
-		{
-			const NzMaterial* material = static_cast<const NzMaterial*>(object);
-
-			opaqueModels.erase(material);
-			break;
-		}
-
-		case ObjectType_VertexBuffer:
-		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
+			const NzMeshData& renderData = it->first;
+			if (renderData.indexBuffer == indexBuffer)
+				it = meshes.erase(it);
+			else
+				++it;
 		}
 	}
-
-	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
-void NzDeferredRenderQueue::OnObjectReleased(const NzRefCounted* object, int index)
+void NzDeferredRenderQueue::OnMaterialInvalidation(const NzMaterial* material)
 {
-	// La ressource vient d'être libérée, nous ne pouvons donc plus utiliser la méthode traditionnelle de recherche
-	// des pointeurs stockés (À cause de la fonction de triage utilisant des spécificités des ressources)
+	opaqueModels.erase(material);
+}
 
-	switch (index)
+void NzDeferredRenderQueue::OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer)
+{
+	for (auto& modelPair : opaqueModels)
 	{
-		case ObjectType_IndexBuffer:
+		MeshInstanceContainer& meshes = modelPair.second.meshMap;
+		for (auto it = meshes.begin(); it != meshes.end();)
 		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
-		}
-
-		case ObjectType_Material:
-		{
-			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
-			{
-				if (it->first == object)
-				{
-					opaqueModels.erase(it);
-					break;
-				}
-			}
-			break;
-		}
-
-		case ObjectType_VertexBuffer:
-		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
+			const NzMeshData& renderData = it->first;
+			if (renderData.vertexBuffer == vertexBuffer)
+				it = meshes.erase(it);
+			else
+				++it;
 		}
 	}
 }

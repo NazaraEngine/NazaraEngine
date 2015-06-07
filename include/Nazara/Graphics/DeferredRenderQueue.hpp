@@ -22,7 +22,7 @@
 
 class NzForwardRenderQueue;
 
-class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectListener
+class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue
 {
 	public:
 		NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue);
@@ -50,15 +50,10 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectL
 
 		struct MeshInstanceEntry
 		{
-			MeshInstanceEntry(NzObjectListener* listener, int indexBufferValue, int vertexBufferValue) :
-			indexBufferListener(listener, indexBufferValue),
-			vertexBufferListener(listener, vertexBufferValue)
-			{
-			}
+			NazaraSlot(NzIndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
+			NazaraSlot(NzVertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
 
 			std::vector<NzMatrix4f> instances;
-			NzIndexBufferConstListener indexBufferListener;
-			NzVertexBufferConstListener vertexBufferListener;
 		};
 
 		typedef std::map<NzMeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
@@ -70,12 +65,8 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectL
 
 		struct BatchedModelEntry
 		{
-			BatchedModelEntry(NzObjectListener* listener, int materialValue) :
-			materialListener(listener, materialValue)
-			{
-			}
+			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
 
-			NzMaterialConstListener materialListener;
 			MeshInstanceContainer meshMap;
 			bool enabled = false;
 			bool instancingEnabled = false;
@@ -86,9 +77,9 @@ class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue, NzObjectL
 		ModelBatches opaqueModels;
 		NzForwardRenderQueue* m_forwardQueue;
 
-	private:
-		bool OnObjectDestroy(const NzRefCounted* object, int index) override;
-		void OnObjectReleased(const NzRefCounted* object, int index) override;
+		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
+		void OnMaterialInvalidation(const NzMaterial* material);
+		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
 };
 
 #endif // NAZARA_DEFERREDRENDERQUEUE_HPP
