@@ -47,12 +47,6 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 
 		void Sort(const NzAbstractViewer* viewer);
 
-	private:
-		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
-		void OnMaterialInvalidation(const NzMaterial* material);
-		void OnTextureInvalidation(const NzTexture* texture);
-		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
-
 		/// Billboards
 		struct BillboardData
 		{
@@ -156,6 +150,12 @@ class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
 		TransparentModelContainer transparentModels;
 		std::vector<TransparentModelData> transparentModelData;
 		std::vector<const NzDrawable*> otherDrawables;
+
+	private:
+		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
+		void OnMaterialInvalidation(const NzMaterial* material);
+		void OnTextureInvalidation(const NzTexture* texture);
+		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
 };
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP
