@@ -331,6 +331,12 @@ T NzNormalizeAngle(T angle)
 }
 
 template<typename T>
+bool NzNumberEquals(T a, T b)
+{
+	return NzNumberEquals(a, b, std::numeric_limits<T>::epsilon());
+}
+
+template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
 	T diff = a - b;
