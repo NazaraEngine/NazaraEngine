@@ -8,7 +8,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
@@ -85,19 +85,12 @@ namespace
 
 	struct VAO_Entry
 	{
-		VAO_Entry(NzObjectListener* listener, int indexBufferIndex, int vertexBufferIndex, int vertexDeclarationIndex, int instancingDeclarationIndex) :
-		indexBufferListener(listener, indexBufferIndex),
-		vertexBufferListener(listener, vertexBufferIndex),
-		instancingDeclarationListener(listener, instancingDeclarationIndex),
-		vertexDeclarationListener(listener, vertexDeclarationIndex)
-		{
-		}
-
 		GLuint vao;
-		NzIndexBufferConstListener indexBufferListener;
-		NzVertexBufferConstListener vertexBufferListener;
-		NzVertexDeclarationConstListener instancingDeclarationListener;
-		NzVertexDeclarationConstListener vertexDeclarationListener;
+
+		NazaraSlot(NzIndexBuffer, OnIndexBufferRelease, onIndexBufferReleaseSlot);
+		NazaraSlot(NzVertexBuffer, OnVertexBufferRelease, onVertexBufferReleaseSlot);
+		NazaraSlot(NzVertexDeclaration, OnVertexDeclarationRelease, onInstancingDeclarationReleaseSlot);
+		NazaraSlot(NzVertexDeclaration, OnVertexDeclarationRelease, onVertexDeclarationReleaseSlot);
 	};
 
 	using VAO_Key = std::tuple<const NzIndexBuffer*, const NzVertexBuffer*, const NzVertexDeclaration*, const NzVertexDeclaration*>;
@@ -105,13 +98,9 @@ namespace
 
 	struct Context_Entry
 	{
-		Context_Entry(NzObjectListener* listener, int index) :
-		contextListener(listener, index)
-		{
-		}
-
-		NzContextConstListener contextListener;
 		VAO_Map vaoMap;
+
+		NazaraSlot(NzContext, OnContextRelease, onReleaseSlot);
 	};
 
 	using Context_Map = std::unordered_map<const NzContext*, Context_Entry>;
@@ -140,123 +129,6 @@ namespace
 	unsigned int s_maxTextureSize;
 	unsigned int s_maxTextureUnit;
 	unsigned int s_maxVertexAttribs;
-
-	class ObjectListener : public NzObjectListener
-	{
-		public:
-			void OnObjectReleased(const NzRefCounted* object, int index) override
-			{
-				switch (index)
-				{
-					case ObjectType_Context:
-					{
-						const NzContext* context = static_cast<const NzContext*>(object);
-						s_vaos.erase(context);
-						break;
-					}
-
-					case ObjectType_IndexBuffer:
-					{
-						const NzIndexBuffer* indexBuffer = static_cast<const NzIndexBuffer*>(object);
-						for (auto& pair : s_vaos)
-						{
-							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second.vaoMap;
-
-							auto it = vaos.begin();
-							while (it != vaos.end())
-							{
-								const VAO_Key& key = it->first;
-								const NzIndexBuffer* vaoIndexBuffer = std::get<0>(key);
-
-								if (vaoIndexBuffer == indexBuffer)
-								{
-									// Suppression du VAO:
-									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
-									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
-									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
-
-									NzOpenGL::DeleteVertexArray(context, it->second.vao);
-									vaos.erase(it++);
-								}
-								else
-									++it;
-							}
-						}
-						break;
-					}
-
-					case ObjectType_VertexBuffer:
-					{
-						const NzVertexBuffer* vertexBuffer = static_cast<const NzVertexBuffer*>(object);
-						for (auto& pair : s_vaos)
-						{
-							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second.vaoMap;
-
-							auto it = vaos.begin();
-							while (it != vaos.end())
-							{
-								const VAO_Key& key = it->first;
-								const NzVertexBuffer* vaoVertexBuffer = std::get<1>(key);
-
-								if (vaoVertexBuffer == vertexBuffer)
-								{
-									// Suppression du VAO:
-									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
-									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
-									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
-
-									NzOpenGL::DeleteVertexArray(context, it->second.vao);
-									vaos.erase(it++);
-								}
-								else
-									++it;
-							}
-						}
-						break;
-					}
-
-					case ObjectType_VertexDeclaration:
-					{
-						const NzVertexDeclaration* vertexDeclaration = static_cast<const NzVertexDeclaration*>(object);
-						for (auto& pair : s_vaos)
-						{
-							const NzContext* context = pair.first;
-							VAO_Map& vaos = pair.second.vaoMap;
-
-							auto it = vaos.begin();
-							while (it != vaos.end())
-							{
-								const VAO_Key& key = it->first;
-								const NzVertexDeclaration* vaoVertexDeclaration = std::get<2>(key);
-								const NzVertexDeclaration* vaoInstancingDeclaration = std::get<3>(key);
-
-								if (vaoVertexDeclaration == vertexDeclaration || vaoInstancingDeclaration == vertexDeclaration)
-								{
-									// Suppression du VAO:
-									// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
-									// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
-									// Ceci est géré par la méthode OpenGL::DeleteVertexArray
-
-									NzOpenGL::DeleteVertexArray(context, it->second.vao);
-									vaos.erase(it++);
-								}
-								else
-									++it;
-							}
-						}
-						break;
-					}
-
-					default:
-						NazaraInternalError("Unknown resource type");
-						break;
-				}
-			}
-	};
-
-	ObjectListener s_listener;
 }
 
 void NzRenderer::BeginCondition(const NzGpuQuery& query, nzGpuQueryCondition condition)
@@ -1748,8 +1620,8 @@ bool NzRenderer::EnsureStateUpdate()
 				auto it = s_vaos.find(context);
 				if (it == s_vaos.end())
 				{
-					Context_Entry entry(&s_listener, ObjectType_Context);
-					entry.contextListener = context;
+					Context_Entry entry;
+					entry.onReleaseSlot = context->OnContextRelease.Connect(OnContextRelease);
 
 					it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
 				}
@@ -1770,12 +1642,18 @@ bool NzRenderer::EnsureStateUpdate()
 					glBindVertexArray(s_currentVAO);
 
 					// On l'ajoute à notre liste
-					VAO_Entry entry(&s_listener, ObjectType_IndexBuffer, ObjectType_VertexBuffer, ObjectType_VertexDeclaration, ObjectType_VertexDeclaration);
-					entry.indexBufferListener = std::get<0>(key);
-					entry.instancingDeclarationListener = std::get<3>(key);
-					entry.vertexBufferListener = std::get<1>(key);
-					entry.vertexDeclarationListener = std::get<2>(key);
+					VAO_Entry entry;
 					entry.vao = s_currentVAO;
+
+					// Connect the slots
+					if (s_indexBuffer)
+						entry.onIndexBufferReleaseSlot = s_indexBuffer->OnIndexBufferRelease.Connect(OnIndexBufferRelease);
+
+					if (instancingDeclaration)
+						entry.onInstancingDeclarationReleaseSlot = instancingDeclaration->OnVertexDeclarationRelease.Connect(OnVertexDeclarationRelease);
+
+					entry.onVertexBufferReleaseSlot = s_vertexBuffer->OnVertexBufferRelease.Connect(OnVertexBufferRelease);
+					entry.onVertexDeclarationReleaseSlot = vertexDeclaration->OnVertexDeclarationRelease.Connect(OnVertexDeclarationRelease);
 
 					vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
 
@@ -1982,6 +1860,40 @@ bool NzRenderer::EnsureStateUpdate()
 	return true;
 }
 
+void NzRenderer::OnContextRelease(const NzContext* context)
+{
+	s_vaos.erase(context);
+}
+
+void NzRenderer::OnIndexBufferRelease(const NzIndexBuffer* indexBuffer)
+{
+	for (auto& pair : s_vaos)
+	{
+		const NzContext* context = pair.first;
+		VAO_Map& vaos = pair.second.vaoMap;
+
+		auto it = vaos.begin();
+		while (it != vaos.end())
+		{
+			const VAO_Key& key = it->first;
+			const NzIndexBuffer* vaoIndexBuffer = std::get<0>(key);
+
+			if (vaoIndexBuffer == indexBuffer)
+			{
+				// Suppression du VAO:
+				// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+				// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+				// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+				NzOpenGL::DeleteVertexArray(context, it->second.vao);
+				vaos.erase(it++);
+			}
+			else
+				++it;
+		}
+	}
+}
+
 void NzRenderer::OnShaderReleased(const NzShader* shader)
 {
 	if (s_shader == shader)
@@ -1999,6 +1911,65 @@ void NzRenderer::OnTextureReleased(const NzTexture* texture)
 			unit.texture = nullptr;
 
 		// Inutile de changer le flag pour une texture désactivée
+	}
+}
+
+void NzRenderer::OnVertexBufferRelease(const NzVertexBuffer* vertexBuffer)
+{
+	for (auto& pair : s_vaos)
+	{
+		const NzContext* context = pair.first;
+		VAO_Map& vaos = pair.second.vaoMap;
+
+		auto it = vaos.begin();
+		while (it != vaos.end())
+		{
+			const VAO_Key& key = it->first;
+			const NzVertexBuffer* vaoVertexBuffer = std::get<1>(key);
+
+			if (vaoVertexBuffer == vertexBuffer)
+			{
+				// Suppression du VAO:
+				// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+				// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+				// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+				NzOpenGL::DeleteVertexArray(context, it->second.vao);
+				vaos.erase(it++);
+			}
+			else
+				++it;
+		}
+	}
+}
+
+void NzRenderer::OnVertexDeclarationRelease(const NzVertexDeclaration* vertexDeclaration)
+{
+	for (auto& pair : s_vaos)
+	{
+		const NzContext* context = pair.first;
+		VAO_Map& vaos = pair.second.vaoMap;
+
+		auto it = vaos.begin();
+		while (it != vaos.end())
+		{
+			const VAO_Key& key = it->first;
+			const NzVertexDeclaration* vaoVertexDeclaration = std::get<2>(key);
+			const NzVertexDeclaration* vaoInstancingDeclaration = std::get<3>(key);
+
+			if (vaoVertexDeclaration == vertexDeclaration || vaoInstancingDeclaration == vertexDeclaration)
+			{
+				// Suppression du VAO:
+				// Comme celui-ci est local à son contexte de création, sa suppression n'est possible que si
+				// son contexte d'origine est actif, sinon il faudra le mettre en file d'attente
+				// Ceci est géré par la méthode OpenGL::DeleteVertexArray
+
+				NzOpenGL::DeleteVertexArray(context, it->second.vao);
+				vaos.erase(it++);
+			}
+			else
+				++it;
+		}
 	}
 }
 

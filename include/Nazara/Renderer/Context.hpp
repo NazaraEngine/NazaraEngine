@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <memory>
 #include <vector>
@@ -48,6 +49,8 @@ class NAZARA_API NzContext : public NzRefCounted
 		static const NzContext* GetCurrent();
 		static const NzContext* GetReference();
 		static const NzContext* GetThreadContext();
+
+		NazaraSignal(OnContextRelease, const NzContext*); //< me
 
 	private:
 		static bool Initialize();

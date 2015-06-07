@@ -112,10 +112,10 @@ void NzSimpleTextDrawer::SetFont(NzFont* font)
 		m_font = font;
 		if (m_font)
 		{
-			m_atlasChangedSlot = NazaraConnect(*m_font, OnFontAtlasChanged, OnFontInvalidated);
-			m_atlasLayerChangedSlot = NazaraConnect(*m_font, OnFontAtlasLayerChanged, OnFontInvalidated);
-			m_fontReleaseSlot = NazaraConnect(*m_font, OnFontRelease, OnFontRelease);
-			m_glyphCacheClearedSlot = NazaraConnect(*m_font, OnFontGlyphCacheCleared, OnFontInvalidated);
+			m_atlasChangedSlot = NazaraConnectThis(*m_font, OnFontAtlasChanged, OnFontInvalidated);
+			m_atlasLayerChangedSlot = NazaraConnectThis(*m_font, OnFontAtlasLayerChanged, OnFontInvalidated);
+			m_fontReleaseSlot = NazaraConnectThis(*m_font, OnFontRelease, OnFontRelease);
+			m_glyphCacheClearedSlot = NazaraConnectThis(*m_font, OnFontGlyphCacheCleared, OnFontInvalidated);
 		}
 		else
 		{
