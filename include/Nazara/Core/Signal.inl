@@ -59,7 +59,7 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O* object, voi
 }
 
 template<typename... Args>
-void NzSignal<Args...>::operator()(Args... args)
+void NzSignal<Args...>::operator()(Args... args) const
 {
 	for (const SlotPtr& slot : m_slots)
 		slot->callback(args...);
