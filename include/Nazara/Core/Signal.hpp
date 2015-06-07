@@ -26,7 +26,7 @@ class NzSignal
 		class Connection;
 		class ConnectionGuard;
 
-		NzSignal() = default;
+		NzSignal();
 		NzSignal(const NzSignal&) = delete;
 		NzSignal(NzSignal&& signal);
 		~NzSignal() = default;
@@ -50,6 +50,7 @@ class NzSignal
 
 		using SlotPtr = std::shared_ptr<Slot>;
 		using SlotList = std::vector<SlotPtr>;
+		using SlotListIndex = typename SlotList::size_type;
 
 		struct Slot
 		{
@@ -60,12 +61,13 @@ class NzSignal
 
 			Callback callback;
 			NzSignal* signal;
-			typename SlotList::size_type index;
+			SlotListIndex index;
 		};
 
 		void Disconnect(const SlotPtr& slot);
 
 		SlotList m_slots;
+		mutable SlotListIndex m_slotIterator;
 };
 
 template<typename... Args>
