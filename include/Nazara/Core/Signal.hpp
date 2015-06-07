@@ -17,10 +17,6 @@
 #define NazaraSlotType(Class, SignalName) Class::SignalName ## Type::ConnectionGuard
 #define NazaraSlot(Class, SignalName, SlotName) NazaraSlotType(Class, SignalName) SlotName
 
-#define NazaraConnect(Instance, SignalName, Callback) (Instance).SignalName.Connect(Callback)
-#define NazaraConnectThis(Instance, SignalName, Callback) (Instance).SignalName.Connect(this, Callback)
-#define NazaraDisconnect(SlotName) SlotName.GetConnection().Disconnect()
-
 
 template<typename... Args>
 class NzSignal
@@ -82,6 +78,8 @@ class NzSignal<Args...>::Connection
 		Connection(Connection&& connection) = default;
 		~Connection() = default;
 
+		template<typename... ConnectArgs>
+		void Connect(BaseClass& signal, ConnectArgs&&... args);
 		void Disconnect();
 
 		bool IsConnected() const;
@@ -109,7 +107,13 @@ class NzSignal<Args...>::ConnectionGuard
 		ConnectionGuard(ConnectionGuard&& connection) = default;
 		~ConnectionGuard();
 
+		template<typename... ConnectArgs>
+		void Connect(BaseClass& signal, ConnectArgs&&... args);
+		void Disconnect();
+
 		Connection& GetConnection();
+
+		bool IsConnected() const;
 
 		ConnectionGuard& operator=(const Connection& connection);
 		ConnectionGuard& operator=(const ConnectionGuard& connection) = delete;

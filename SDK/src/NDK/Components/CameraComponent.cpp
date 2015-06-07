@@ -47,7 +47,7 @@ namespace Ndk
 	void CameraComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
-			m_nodeInvalidationSlot = NazaraConnectThis(m_entity->GetComponent<NodeComponent>(), OnNodeInvalidation, OnNodeInvalidated);
+			m_nodeInvalidationSlot.Connect(m_entity->GetComponent<NodeComponent>().OnNodeInvalidation, this, OnNodeInvalidated);
 
 		InvalidateViewMatrix();
 	}
@@ -57,7 +57,7 @@ namespace Ndk
 		if (IsComponent<NodeComponent>(component))
 		{
 			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			m_nodeInvalidationSlot = NazaraConnectThis(nodeComponent, OnNodeInvalidation, OnNodeInvalidated);
+			m_nodeInvalidationSlot.Connect(nodeComponent.OnNodeInvalidation, this, OnNodeInvalidated);
 
 			InvalidateViewMatrix();
 		}
@@ -67,8 +67,7 @@ namespace Ndk
 	{
 		if (IsComponent<NodeComponent>(component))
 		{
-			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			NazaraDisconnect(m_nodeInvalidationSlot);
+			m_nodeInvalidationSlot.Disconnect();
 
 			InvalidateViewMatrix();
 		}
@@ -76,7 +75,7 @@ namespace Ndk
 
 	void CameraComponent::OnDetached()
 	{
-		NazaraDisconnect(m_nodeInvalidationSlot);
+		m_nodeInvalidationSlot.Disconnect();
 
 		InvalidateViewMatrix();
 	}

@@ -101,6 +101,13 @@ m_ptr(slot)
 }
 
 template<typename... Args>
+template<typename... ConnectArgs>
+void NzSignal<Args...>::Connection::Connect(BaseClass& signal, ConnectArgs&&... args)
+{
+	operator=(signal.Connect(std::forward<ConnectArgs>(args)...));
+}
+
+template<typename... Args>
 void NzSignal<Args...>::Connection::Disconnect()
 {
 	if (SlotPtr ptr = m_ptr.lock())
@@ -133,9 +140,29 @@ NzSignal<Args...>::ConnectionGuard::~ConnectionGuard()
 }
 
 template<typename... Args>
+template<typename... ConnectArgs>
+void NzSignal<Args...>::ConnectionGuard::Connect(BaseClass& signal, ConnectArgs&&... args)
+{
+	m_connection.Disconnect();
+	m_connection.Connect(signal, std::forward<ConnectArgs>(args)...);
+}
+
+template<typename... Args>
+void NzSignal<Args...>::ConnectionGuard::Disconnect()
+{
+	m_connection.Disconnect();
+}
+
+template<typename... Args>
 typename NzSignal<Args...>::Connection& NzSignal<Args...>::ConnectionGuard::GetConnection()
 {
 	return m_connection;
+}
+
+template<typename... Args>
+bool NzSignal<Args...>::ConnectionGuard::IsConnected() const
+{
+	return m_connection.IsConnected();
 }
 
 template<typename... Args>
