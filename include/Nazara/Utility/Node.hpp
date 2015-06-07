@@ -90,9 +90,9 @@ class NAZARA_API NzNode
 
 		NzNode& operator=(const NzNode& node);
 
-		// Signals
+		// Signals:
 		NazaraSignal(OnNodeInvalidation, const NzNode*); //< Args: me
-		NazaraSignal(OnNodeNewParent, const NzNode*, const NzNode*); //< Args: me
+		NazaraSignal(OnNodeNewParent, const NzNode*, const NzNode*); //< Args: me, new parent
 		NazaraSignal(OnNodeRelease, const NzNode*); //< Args: me
 
 	protected:
