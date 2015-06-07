@@ -112,17 +112,17 @@ void NzSimpleTextDrawer::SetFont(NzFont* font)
 		m_font = font;
 		if (m_font)
 		{
-			m_atlasChangedSlot = NazaraConnectThis(*m_font, OnFontAtlasChanged, OnFontInvalidated);
-			m_atlasLayerChangedSlot = NazaraConnectThis(*m_font, OnFontAtlasLayerChanged, OnFontInvalidated);
-			m_fontReleaseSlot = NazaraConnectThis(*m_font, OnFontRelease, OnFontRelease);
-			m_glyphCacheClearedSlot = NazaraConnectThis(*m_font, OnFontGlyphCacheCleared, OnFontInvalidated);
+			m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, OnFontInvalidated);
+			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, OnFontInvalidated);
+			m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, OnFontRelease);
+			m_glyphCacheClearedSlot.Connect(m_font->OnFontAtlasChanged, this, OnFontInvalidated);
 		}
 		else
 		{
-			NazaraDisconnect(m_atlasChangedSlot);
-			NazaraDisconnect(m_atlasLayerChangedSlot);
-			NazaraDisconnect(m_fontReleaseSlot);
-			NazaraDisconnect(m_glyphCacheClearedSlot);
+			m_atlasChangedSlot.Disconnect();
+			m_atlasLayerChangedSlot.Disconnect();
+			m_fontReleaseSlot.Disconnect();
+			m_glyphCacheClearedSlot.Disconnect();
 		}
 
 		m_glyphUpdated = false;

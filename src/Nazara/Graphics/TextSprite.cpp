@@ -36,9 +36,9 @@ m_verticesUpdated(sprite.m_verticesUpdated)
 		const NzAbstractAtlas* atlas = it->first;
 		AtlasSlots& slots = m_atlases[atlas];
 
-		slots.clearSlot = NazaraConnectThis(*atlas, OnAtlasCleared, OnAtlasInvalidated);
-		slots.layerChangeSlot = NazaraConnectThis(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
-		slots.releaseSlot = NazaraConnectThis(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
+		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
+		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
 	}
 }
 
@@ -153,9 +153,9 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 		{
 			AtlasSlots& slots = m_atlases[atlas];
 
-			slots.clearSlot = NazaraConnectThis(*atlas, OnAtlasCleared, OnAtlasInvalidated);
-			slots.layerChangeSlot = NazaraConnectThis(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
-			slots.releaseSlot = NazaraConnectThis(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+			slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
+			slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
+			slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
 		}
 	}
 
@@ -277,9 +277,9 @@ NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 		const NzAbstractAtlas* atlas = it->first;
 		AtlasSlots& slots = m_atlases[atlas];
 
-		slots.clearSlot = NazaraConnectThis(*atlas, OnAtlasCleared, OnAtlasInvalidated);
-		slots.layerChangeSlot = NazaraConnectThis(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
-		slots.releaseSlot = NazaraConnectThis(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
+		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
+		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
 	}
 
 	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon

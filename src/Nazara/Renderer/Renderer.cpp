@@ -1621,7 +1621,7 @@ bool NzRenderer::EnsureStateUpdate()
 				if (it == s_vaos.end())
 				{
 					Context_Entry entry;
-					entry.onReleaseSlot = context->OnContextRelease.Connect(OnContextRelease);
+					entry.onReleaseSlot.Connect(context->OnContextRelease, OnContextRelease);
 
 					it = s_vaos.insert(std::make_pair(context, std::move(entry))).first;
 				}
@@ -1647,13 +1647,13 @@ bool NzRenderer::EnsureStateUpdate()
 
 					// Connect the slots
 					if (s_indexBuffer)
-						entry.onIndexBufferReleaseSlot = s_indexBuffer->OnIndexBufferRelease.Connect(OnIndexBufferRelease);
+						entry.onIndexBufferReleaseSlot.Connect(s_indexBuffer->OnIndexBufferRelease, OnIndexBufferRelease);
 
 					if (instancingDeclaration)
-						entry.onInstancingDeclarationReleaseSlot = instancingDeclaration->OnVertexDeclarationRelease.Connect(OnVertexDeclarationRelease);
+						entry.onInstancingDeclarationReleaseSlot.Connect(instancingDeclaration->OnVertexDeclarationRelease, OnVertexDeclarationRelease);
 
-					entry.onVertexBufferReleaseSlot = s_vertexBuffer->OnVertexBufferRelease.Connect(OnVertexBufferRelease);
-					entry.onVertexDeclarationReleaseSlot = vertexDeclaration->OnVertexDeclarationRelease.Connect(OnVertexDeclarationRelease);
+					entry.onVertexBufferReleaseSlot.Connect(s_vertexBuffer->OnVertexBufferRelease, OnVertexBufferRelease);
+					entry.onVertexDeclarationReleaseSlot.Connect(vertexDeclaration->OnVertexDeclarationRelease, OnVertexDeclarationRelease);
 
 					vaoIt = vaoMap.insert(std::make_pair(key, std::move(entry))).first;
 

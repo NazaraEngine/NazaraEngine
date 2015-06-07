@@ -163,13 +163,13 @@ void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 
 	if (m_target)
 	{
-		m_targetReleaseSlot = NazaraConnectThis(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
-		m_targetResizeSlot = NazaraConnectThis(*m_target, OnRenderTargetSizeChange, OnRenderTargetSizeChange);
+		m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, OnRenderTargetRelease);
+		m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, OnRenderTargetSizeChange);
 	}
 	else
 	{
-		NazaraDisconnect(m_targetReleaseSlot);
-		NazaraDisconnect(m_targetResizeSlot);
+		m_targetReleaseSlot.Disconnect();
+		m_targetResizeSlot.Disconnect();
 	}
 
 	m_frustumUpdated = false;
