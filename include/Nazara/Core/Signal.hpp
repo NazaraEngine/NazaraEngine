@@ -37,6 +37,8 @@ class NzSignal
 		Connection Connect(Callback&& func);
 		template<typename O> Connection Connect(O& object, void (O::*method)(Args...));
 		template<typename O> Connection Connect(O* object, void (O::*method)(Args...));
+		template<typename O> Connection Connect(const O& object, void (O::*method)(Args...) const);
+		template<typename O> Connection Connect(const O* object, void (O::*method)(Args...) const);
 
 		void operator()(Args... args) const;
 
