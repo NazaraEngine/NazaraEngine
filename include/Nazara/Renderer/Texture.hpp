@@ -15,6 +15,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
@@ -108,6 +109,9 @@ class NAZARA_API NzTexture : public NzAbstractImage, public NzRefCounted, public
 		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);
 		template<typename... Args> static NzTextureRef New(Args&&... args);
+
+		// Signals
+		NazaraSignal(OnTextureRelease, const NzTexture*); //< Args: me
 
 	private:
 		bool CreateTexture(bool proxy);
