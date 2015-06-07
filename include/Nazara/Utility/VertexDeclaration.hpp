@@ -47,6 +47,7 @@ class NAZARA_API NzVertexDeclaration : public NzRefCounted
 		static bool IsTypeSupported(nzComponentType type);
 		template<typename... Args> static NzVertexDeclarationRef New(Args&&... args);
 
+		// Signals
 		NazaraSignal(OnVertexDeclarationRelease, const NzVertexDeclaration*); //< me
 
 	private:

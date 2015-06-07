@@ -62,8 +62,10 @@ NzTexture::NzTexture(const NzImage& image)
 
 NzTexture::~NzTexture()
 {
+	OnTextureRelease(this);
+
 	Destroy();
-	NzRenderer::OnTextureReleased(this);
+	NzRenderer::OnTextureReleased(this); ///TODO: Gets rid of this
 }
 
 bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, nzUInt8 levelCount)
@@ -963,7 +965,7 @@ bool NzTexture::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int s
 		NazaraError("Invalid box");
 		return false;
 	}
-	
+
 	unsigned int width = GetLevelSize(m_impl->width, level);
 	unsigned int height = GetLevelSize(m_impl->height, level);
 	unsigned int depth = (m_impl->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_impl->depth, level);

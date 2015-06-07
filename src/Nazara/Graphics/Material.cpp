@@ -55,7 +55,7 @@ NzResource(material)
 
 NzMaterial::~NzMaterial()
 {
-	NotifyDestroy();
+	OnMaterialRelease(this);
 }
 
 const NzShader* NzMaterial::Apply(nzUInt32 shaderFlags, nzUInt8 textureUnit, nzUInt8* lastUsedUnit) const

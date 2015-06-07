@@ -9,24 +9,15 @@
 
 ///TODO: Remplacer les sinus/cosinus par une lookup table (va booster les perfs d'un bon x10)
 
-namespace
-{
-	enum ObjectType
-	{
-		ObjectType_IndexBuffer,
-		ObjectType_Material,
-		ObjectType_Texture,
-		ObjectType_VertexBuffer
-	};
-}
-
 void NzForwardRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
 {
+	NazaraAssert(material, "Invalid material");
+
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -39,6 +30,8 @@ void NzForwardRenderQueue::AddBillboard(const NzMaterial* material, const NzVect
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -51,8 +44,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -76,6 +69,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -90,8 +85,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -115,6 +110,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
@@ -127,8 +124,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -156,6 +153,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
@@ -170,8 +169,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -199,6 +198,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -211,8 +212,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -236,6 +237,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -250,8 +253,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -275,6 +278,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
@@ -287,8 +292,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -316,6 +321,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 
 void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
 {
+	NazaraAssert(material, "Invalid material");
+
 	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
@@ -330,8 +337,8 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	auto it = billboards.find(material);
 	if (it == billboards.end())
 	{
-		BatchedBillboardEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBillboardEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -391,8 +398,8 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 		auto it = opaqueModels.find(material);
 		if (it == opaqueModels.end())
 		{
-			BatchedModelEntry entry(this, ObjectType_Material);
-			entry.materialListener = material;
+			BatchedModelEntry entry;
+			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
@@ -405,10 +412,13 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 		auto it2 = meshMap.find(meshData);
 		if (it2 == meshMap.end())
 		{
-			MeshInstanceEntry instanceEntry(this, ObjectType_IndexBuffer, ObjectType_VertexBuffer);
-			instanceEntry.indexBufferListener = meshData.indexBuffer;
+			MeshInstanceEntry instanceEntry;
 			instanceEntry.squaredBoundingSphere = meshAABB.GetSquaredBoundingSphere();
-			instanceEntry.vertexBufferListener = meshData.vertexBuffer;
+
+			if (meshData.indexBuffer)
+				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, OnIndexBufferInvalidation);
+
+			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, OnVertexBufferInvalidation);
 
 			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
@@ -427,8 +437,8 @@ void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertex
 	auto matIt = basicSprites.find(material);
 	if (matIt == basicSprites.end())
 	{
-		BatchedBasicSpriteEntry entry(this, ObjectType_Material);
-		entry.materialListener = material;
+		BatchedBasicSpriteEntry entry;
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
 
 		matIt = basicSprites.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -441,8 +451,9 @@ void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertex
 	auto overlayIt = overlayMap.find(overlay);
 	if (overlayIt == overlayMap.end())
 	{
-		BatchedSpriteEntry overlayEntry(this, ObjectType_Texture);
-		overlayEntry.textureListener = overlay;
+		BatchedSpriteEntry overlayEntry;
+		if (overlay)
+			overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, OnTextureInvalidation);
 
 		overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
 	}
@@ -501,147 +512,50 @@ void NzForwardRenderQueue::Sort(const NzAbstractViewer* viewer)
 	}
 }
 
-bool NzForwardRenderQueue::OnObjectDestroy(const NzRefCounted* object, int index)
+void NzForwardRenderQueue::OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer)
 {
-	switch (index)
+	for (auto& modelPair : opaqueModels)
 	{
-		case ObjectType_IndexBuffer:
+		MeshInstanceContainer& meshes = modelPair.second.meshMap;
+		for (auto it = meshes.begin(); it != meshes.end();)
 		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
-		}
-
-		case ObjectType_Material:
-		{
-			const NzMaterial* material = static_cast<const NzMaterial*>(object);
-
-			basicSprites.erase(material);
-			billboards.erase(material);
-			opaqueModels.erase(material);
-			break;
-		}
-
-		case ObjectType_VertexBuffer:
-		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
+			const NzMeshData& renderData = it->first;
+			if (renderData.indexBuffer == indexBuffer)
+				it = meshes.erase(it);
+			else
+				++it;
 		}
 	}
-
-	return false; // Nous ne voulons plus recevoir d'évènement de cette ressource
 }
 
-void NzForwardRenderQueue::OnObjectReleased(const NzRefCounted* object, int index)
+void NzForwardRenderQueue::OnMaterialInvalidation(const NzMaterial* material)
 {
-	// La ressource vient d'être libérée, nous ne pouvons donc plus utiliser la méthode traditionnelle de recherche
-	// des pointeurs stockés (À cause de la fonction de triage utilisant des spécificités des ressources)
+	basicSprites.erase(material);
+	billboards.erase(material);
+	opaqueModels.erase(material);
+}
 
-	switch (index)
+void NzForwardRenderQueue::OnTextureInvalidation(const NzTexture* texture)
+{
+	for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
 	{
-		case ObjectType_IndexBuffer:
+		auto& overlayMap = matIt->second.overlayMap;
+		overlayMap.erase(texture);
+	}
+}
+
+void NzForwardRenderQueue::OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer)
+{
+	for (auto& modelPair : opaqueModels)
+	{
+		MeshInstanceContainer& meshes = modelPair.second.meshMap;
+		for (auto it = meshes.begin(); it != meshes.end();)
 		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.indexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
-		}
-
-		case ObjectType_Material:
-		{
-			for (auto it = basicSprites.begin(); it != basicSprites.end(); ++it)
-			{
-				if (it->first == object)
-				{
-					basicSprites.erase(it);
-					break;
-				}
-			}
-
-			for (auto it = billboards.begin(); it != billboards.end(); ++it)
-			{
-				if (it->first == object)
-				{
-					billboards.erase(it);
-					break;
-				}
-			}
-
-			for (auto it = opaqueModels.begin(); it != opaqueModels.end(); ++it)
-			{
-				if (it->first == object)
-				{
-					opaqueModels.erase(it);
-					break;
-				}
-			}
-
-			break;
-		}
-
-		case ObjectType_Texture:
-		{
-			for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
-			{
-				auto& overlayMap = matIt->second.overlayMap;
-				for (auto overlayIt = overlayMap.begin(); overlayIt != overlayMap.end(); ++overlayIt)
-				{
-					if (overlayIt->first == object)
-					{
-						overlayMap.erase(overlayIt);
-						break;
-					}
-				}
-			}
-
-			break;
-		}
-
-		case ObjectType_VertexBuffer:
-		{
-			for (auto& modelPair : opaqueModels)
-			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
-				{
-					const NzMeshData& renderData = it->first;
-					if (renderData.vertexBuffer == object)
-						it = meshes.erase(it);
-					else
-						++it;
-				}
-			}
-			break;
+			const NzMeshData& renderData = it->first;
+			if (renderData.vertexBuffer == vertexBuffer)
+				it = meshes.erase(it);
+			else
+				++it;
 		}
 	}
 }

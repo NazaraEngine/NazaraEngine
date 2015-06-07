@@ -50,6 +50,7 @@ class NAZARA_API NzContext : public NzRefCounted
 		static const NzContext* GetReference();
 		static const NzContext* GetThreadContext();
 
+		// Signals
 		NazaraSignal(OnContextRelease, const NzContext*); //< me
 
 	private:
