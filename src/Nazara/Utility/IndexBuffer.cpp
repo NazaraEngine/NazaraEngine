@@ -42,7 +42,7 @@ m_startOffset(indexBuffer.m_startOffset)
 
 NzIndexBuffer::~NzIndexBuffer()
 {
-	NotifyDestroy();
+	OnIndexBufferRelease(this);
 }
 
 unsigned int NzIndexBuffer::ComputeCacheMissCount() const

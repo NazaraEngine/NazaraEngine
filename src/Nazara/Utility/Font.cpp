@@ -298,9 +298,9 @@ void NzFont::SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 		m_atlas = atlas;
 		if (m_atlas)
 		{
-			m_atlasClearedSlot = NazaraConnect(*m_atlas, OnAtlasCleared, OnAtlasCleared);
-			m_atlasLayerChangeSlot = NazaraConnect(*m_atlas, OnAtlasLayerChange, OnAtlasLayerChange);
-			m_atlasReleaseSlot = NazaraConnect(*m_atlas, OnAtlasRelease, OnAtlasRelease);
+			m_atlasClearedSlot = NazaraConnectThis(*m_atlas, OnAtlasCleared, OnAtlasCleared);
+			m_atlasLayerChangeSlot = NazaraConnectThis(*m_atlas, OnAtlasLayerChange, OnAtlasLayerChange);
+			m_atlasReleaseSlot = NazaraConnectThis(*m_atlas, OnAtlasRelease, OnAtlasRelease);
 		}
 		else
 		{

@@ -47,7 +47,7 @@ namespace Ndk
 	void CameraComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
-			m_nodeInvalidationSlot = NazaraConnect(m_entity->GetComponent<NodeComponent>(), OnNodeInvalidation, OnNodeInvalidated);
+			m_nodeInvalidationSlot = NazaraConnectThis(m_entity->GetComponent<NodeComponent>(), OnNodeInvalidation, OnNodeInvalidated);
 
 		InvalidateViewMatrix();
 	}
@@ -57,7 +57,7 @@ namespace Ndk
 		if (IsComponent<NodeComponent>(component))
 		{
 			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			m_nodeInvalidationSlot = NazaraConnect(nodeComponent, OnNodeInvalidation, OnNodeInvalidated);
+			m_nodeInvalidationSlot = NazaraConnectThis(nodeComponent, OnNodeInvalidation, OnNodeInvalidated);
 
 			InvalidateViewMatrix();
 		}

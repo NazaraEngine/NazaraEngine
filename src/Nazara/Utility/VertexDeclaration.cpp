@@ -27,7 +27,7 @@ m_stride(declaration.m_stride)
 
 NzVertexDeclaration::~NzVertexDeclaration()
 {
-	NotifyDestroy();
+	OnVertexDeclarationRelease(this);
 }
 
 void NzVertexDeclaration::DisableComponent(nzVertexComponent component)

@@ -140,7 +140,7 @@ namespace Ndk
 	{
 		m_target = renderTarget;
 		if (m_target)
-			m_targetReleaseSlot = NazaraConnect(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+			m_targetReleaseSlot = NazaraConnectThis(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
 		else
 			NazaraDisconnect(m_targetReleaseSlot);
 	}

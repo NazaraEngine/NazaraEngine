@@ -132,6 +132,8 @@ namespace
 
 NzContext::~NzContext()
 {
+	OnContextRelease(this);
+
 	Destroy();
 }
 

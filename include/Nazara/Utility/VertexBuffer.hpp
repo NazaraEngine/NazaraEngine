@@ -11,6 +11,7 @@
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
@@ -63,6 +64,8 @@ class NAZARA_API NzVertexBuffer : public NzRefCounted
 		NzVertexBuffer& operator=(const NzVertexBuffer& vertexBuffer);
 
 		template<typename... Args> static NzVertexBufferRef New(Args&&... args);
+
+		NazaraSignal(OnVertexBufferRelease, const NzVertexBuffer*); //< me
 
 	private:
 		NzBufferRef m_buffer;
