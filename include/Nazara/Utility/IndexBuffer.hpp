@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 
 class NzIndexBuffer;
@@ -65,6 +66,8 @@ class NAZARA_API NzIndexBuffer : public NzRefCounted
 		NzIndexBuffer& operator=(const NzIndexBuffer& indexBuffer);
 
 		template<typename... Args> static NzIndexBufferRef New(Args&&... args);
+
+		NazaraSignal(OnIndexBufferRelease, const NzIndexBuffer*); //< me
 
 	private:
 		NzBufferRef m_buffer;

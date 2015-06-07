@@ -38,7 +38,7 @@ m_vertexCount(vertexBuffer.m_vertexCount)
 
 NzVertexBuffer::~NzVertexBuffer()
 {
-	NotifyDestroy();
+	OnVertexBufferRelease(this);
 }
 
 bool NzVertexBuffer::Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard)
