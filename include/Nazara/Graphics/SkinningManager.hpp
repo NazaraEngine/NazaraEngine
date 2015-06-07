@@ -28,6 +28,9 @@ class NAZARA_API NzSkinningManager
 
 	private:
 		static bool Initialize();
+		static void OnSkeletalMeshDestroy(const NzSkeletalMesh* mesh);
+		static void OnSkeletonInvalidated(const NzSkeleton* skeleton);
+		static void OnSkeletonRelease(const NzSkeleton* skeleton);
 		static void Uninitialize();
 
 		static SkinFunction s_skinFunc;

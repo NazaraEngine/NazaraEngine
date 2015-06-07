@@ -16,6 +16,8 @@ NzSubMesh(parent)
 
 NzSkeletalMesh::~NzSkeletalMesh()
 {
+	OnSkeletalMeshRelease(this);
+
 	Destroy();
 }
 
@@ -39,7 +41,7 @@ void NzSkeletalMesh::Destroy()
 {
 	if (m_vertexBuffer)
 	{
-		NotifyDestroy();
+		OnSkeletalMeshDestroy(this);
 
 		m_indexBuffer.Reset();
 		m_vertexBuffer.Reset();

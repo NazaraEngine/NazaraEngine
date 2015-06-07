@@ -40,6 +40,8 @@ m_impl(nullptr)
 
 NzBuffer::~NzBuffer()
 {
+	OnBufferRelease(this);
+
 	Destroy();
 }
 
@@ -86,7 +88,6 @@ bool NzBuffer::Create(unsigned int size, nzUInt32 storage, nzBufferUsage usage)
 	m_storage = storage;
 	m_usage = usage;
 
-	NotifyCreated();
 	return true; // Si on arrive ici c'est que tout s'est bien passé.
 }
 
@@ -94,7 +95,7 @@ void NzBuffer::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnBufferDestroy(this);
 
 		m_impl->Destroy();
 		delete m_impl;

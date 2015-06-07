@@ -20,7 +20,10 @@ m_matIndex(0)
 {
 }
 
-NzSubMesh::~NzSubMesh() = default;
+NzSubMesh::~NzSubMesh()
+{
+	OnSubMeshRelease(this);
+}
 
 void NzSubMesh::GenerateNormals()
 {

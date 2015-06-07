@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -19,10 +18,8 @@
 
 class NzContext;
 
-using NzContextConstListener = NzObjectListenerWrapper<const NzContext>;
 using NzContextConstRef = NzObjectRef<const NzContext>;
 using NzContextLibrary = NzObjectLibrary<NzContext>;
-using NzContextListener = NzObjectListenerWrapper<NzContext>;
 using NzContextRef = NzObjectRef<NzContext>;
 
 class NzContextImpl;
@@ -51,7 +48,8 @@ class NAZARA_API NzContext : public NzRefCounted
 		static const NzContext* GetThreadContext();
 
 		// Signals
-		NazaraSignal(OnContextRelease, const NzContext*); //< me
+		NazaraSignal(OnContextDestroy, const NzContext*); //< Args: me
+		NazaraSignal(OnContextRelease, const NzContext*); //< Args: me
 
 	private:
 		static bool Initialize();

@@ -24,6 +24,8 @@ m_impl(nullptr)
 
 NzSkeleton::~NzSkeleton()
 {
+	OnSkeletonRelease(this);
+
 	Destroy();
 }
 
@@ -47,6 +49,8 @@ void NzSkeleton::Destroy()
 {
 	if (m_impl)
 	{
+		OnSkeletonDestroy(this);
+
 		delete m_impl;
 		m_impl = nullptr;
 	}
@@ -372,7 +376,8 @@ NzSkeleton& NzSkeleton::operator=(const NzSkeleton& skeleton)
 void NzSkeleton::InvalidateJoints()
 {
 	m_impl->aabbUpdated = false;
-	NotifyModified(0);
+
+	OnSkeletonJointsInvalidated(this);
 }
 
 void NzSkeleton::InvalidateJointMap()

@@ -178,9 +178,14 @@ bool NzShader::Create()
 
 void NzShader::Destroy()
 {
-	NzContext::EnsureContext();
+	if (m_program)
+	{
+		OnShaderDestroy(this);
 
-	NzOpenGL::DeleteProgram(m_program);
+		NzContext::EnsureContext();
+		NzOpenGL::DeleteProgram(m_program);
+		m_program = 0;
+	}
 }
 
 NzByteArray NzShader::GetBinary() const

@@ -16,6 +16,8 @@ m_id(0)
 
 NzRenderBuffer::~NzRenderBuffer()
 {
+	OnRenderBufferRelease(this);
+
 	Destroy();
 }
 
@@ -67,7 +69,6 @@ bool NzRenderBuffer::Create(nzPixelFormat format, unsigned int width, unsigned i
 	m_id = renderBuffer;
 	m_width = width;
 
-	NotifyCreated();
 	return true;
 }
 
@@ -75,7 +76,7 @@ void NzRenderBuffer::Destroy()
 {
 	if (m_id)
 	{
-		NotifyDestroy();
+		OnRenderBufferDestroy(this);
 
 		NzContext::EnsureContext();
 

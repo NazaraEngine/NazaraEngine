@@ -8,15 +8,12 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 class NzStaticMesh;
 
-using NzStaticMeshConstListener = NzObjectListenerWrapper<const NzStaticMesh>;
 using NzStaticMeshConstRef = NzObjectRef<const NzStaticMesh>;
-using NzStaticMeshListener = NzObjectListenerWrapper<NzStaticMesh>;
 using NzStaticMeshRef = NzObjectRef<NzStaticMesh>;
 
 class NAZARA_API NzStaticMesh final : public NzSubMesh
@@ -46,6 +43,10 @@ class NAZARA_API NzStaticMesh final : public NzSubMesh
 		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
 
 		template<typename... Args> static NzStaticMeshRef New(Args&&... args);
+
+		// Signals:
+		NazaraSignal(OnStaticMeshDestroy, const NzStaticMesh*); //< Args: me
+		NazaraSignal(OnStaticMeshRelease, const NzStaticMesh*); //< Args: me
 
 	private:
 		NzBoxf m_aabb;

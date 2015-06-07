@@ -11,7 +11,10 @@ NzRefCounted()
 	NazaraUnused(renderer);
 }
 
-NzParticleRenderer::~NzParticleRenderer() = default;
+NzParticleRenderer::~NzParticleRenderer()
+{
+	OnParticleRendererRelease(this);
+}
 
 bool NzParticleRenderer::Initialize()
 {

@@ -9,18 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 
 class NzParticleGenerator;
 class NzParticleMapper;
 class NzParticleSystem;
 
-using NzParticleGeneratorConstListener = NzObjectListenerWrapper<const NzParticleGenerator>;
 using NzParticleGeneratorConstRef = NzObjectRef<const NzParticleGenerator>;
 using NzParticleGeneratorLibrary = NzObjectLibrary<NzParticleGenerator>;
-using NzParticleGeneratorListener = NzObjectListenerWrapper<NzParticleGenerator>;
 using NzParticleGeneratorRef = NzObjectRef<NzParticleGenerator>;
 
 class NAZARA_API NzParticleGenerator : public NzRefCounted
@@ -34,6 +32,9 @@ class NAZARA_API NzParticleGenerator : public NzRefCounted
 		virtual ~NzParticleGenerator();
 
 		virtual void Generate(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
+
+		// Signals:
+		NazaraSignal(OnParticleGeneratorRelease, const NzParticleGenerator*); //< Args: me
 
 	private:
 		static bool Initialize();

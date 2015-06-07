@@ -176,8 +176,6 @@ bool NzContext::Create(const NzContextParameters& parameters)
 
 	onExit.Reset();
 
-	NotifyCreated();
-
 	return true;
 }
 
@@ -185,7 +183,7 @@ void NzContext::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnContextDestroy(this);
 
 		NzOpenGL::OnContextDestruction(this);
 		SetActive(false);

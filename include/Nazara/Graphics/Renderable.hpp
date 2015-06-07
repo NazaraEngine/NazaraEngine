@@ -10,9 +10,9 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -20,10 +20,8 @@
 class NzAbstractRenderQueue;
 class NzRenderable;
 
-using NzRenderableConstListener = NzObjectListenerWrapper<const NzRenderable>;
 using NzRenderableConstRef = NzObjectRef<const NzRenderable>;
 using NzRenderableLibrary = NzObjectLibrary<NzRenderable>;
-using NzRenderableListener = NzObjectListenerWrapper<NzRenderable>;
 using NzRenderableRef = NzObjectRef<NzRenderable>;
 
 class NAZARA_API NzRenderable : public NzRefCounted
@@ -41,6 +39,9 @@ class NAZARA_API NzRenderable : public NzRefCounted
 		virtual void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
 
 		inline NzRenderable& operator=(const NzRenderable& renderable);
+
+		// Signals:
+		NazaraSignal(OnRenderableRelease, const NzRenderable*); //< Args: me
 
 	protected:
 		virtual void MakeBoundingVolume() const = 0;
