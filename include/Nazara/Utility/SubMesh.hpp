@@ -8,7 +8,6 @@
 #define NAZARA_SUBMESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -20,9 +19,7 @@
 class NzMesh;
 class NzSubMesh;
 
-using NzSubMeshConstListener = NzObjectListenerWrapper<const NzSubMesh>;
 using NzSubMeshConstRef = NzObjectRef<const NzSubMesh>;
-using NzSubMeshListener = NzObjectListenerWrapper<NzSubMesh>;
 using NzSubMeshRef = NzObjectRef<NzSubMesh>;
 
 class NAZARA_API NzSubMesh : public NzRefCounted
@@ -50,6 +47,9 @@ class NAZARA_API NzSubMesh : public NzRefCounted
 
 		void SetMaterialIndex(unsigned int matIndex);
 		void SetPrimitiveMode(nzPrimitiveMode mode);
+
+		// Signals:
+		NazaraSignal(OnSubMeshRelease, const NzSubMesh*); //< Args: me
 
 	protected:
 		nzPrimitiveMode m_primitiveMode;

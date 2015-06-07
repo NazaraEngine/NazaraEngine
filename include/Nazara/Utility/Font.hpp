@@ -12,7 +12,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -30,10 +29,8 @@ class NzFontData;
 
 struct NzFontGlyph;
 
-using NzFontConstListener = NzObjectListenerWrapper<const NzFont>;
 using NzFontConstRef = NzObjectRef<const NzFont>;
 using NzFontLibrary = NzObjectLibrary<NzFont>;
-using NzFontListener = NzObjectListenerWrapper<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzObjectRef<NzFont>;
 
@@ -117,6 +114,7 @@ class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
 
 		NazaraSignal(OnFontAtlasChanged, const NzFont*); //< Args: me
 		NazaraSignal(OnFontAtlasLayerChanged, const NzFont*); //< Args: me
+		NazaraSignal(OnFontDestroy, const NzFont*); //< Args: me
 		NazaraSignal(OnFontGlyphCacheCleared, const NzFont*); //< Args: me
 		NazaraSignal(OnFontKerningCacheCleared, const NzFont*); //< Args: me
 		NazaraSignal(OnFontRelease, const NzFont*); //< Args: me

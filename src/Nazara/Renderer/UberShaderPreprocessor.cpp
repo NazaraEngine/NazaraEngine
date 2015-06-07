@@ -10,6 +10,11 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
+NzUberShaderPreprocessor::~NzUberShaderPreprocessor()
+{
+	OnUberShaderPreprocessorRelease(this);
+}
+
 NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& parameters) const
 {
 	// Première étape, transformer les paramètres en un flag

@@ -44,6 +44,8 @@ NzSoundBuffer::NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, uns
 
 NzSoundBuffer::~NzSoundBuffer()
 {
+	OnSoundBufferRelease(this);
+
 	Destroy();
 }
 
@@ -108,7 +110,6 @@ bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsig
 	m_impl->samples.reset(new nzInt16[sampleCount]);
 	std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(nzInt16));
 
-	NotifyCreated();
 	return true;
 }
 
@@ -116,7 +117,7 @@ void NzSoundBuffer::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnSoundBufferDestroy(this);
 
 		delete m_impl;
 		m_impl = nullptr;

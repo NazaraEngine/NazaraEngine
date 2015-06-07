@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectListenerWrapper.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -39,10 +38,8 @@ struct NAZARA_API NzMaterialParams
 
 class NzMaterial;
 
-using NzMaterialConstListener = NzObjectListenerWrapper<const NzMaterial>;
 using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
 using NzMaterialLibrary = NzObjectLibrary<NzMaterial>;
-using NzMaterialListener = NzObjectListenerWrapper<NzMaterial>;
 using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 using NzMaterialManager = NzResourceManager<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzObjectRef<NzMaterial>;
@@ -145,6 +142,7 @@ class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
 
 		// Signals
 		NazaraSignal(OnMaterialRelease, const NzMaterial*); //< Args: me
+		NazaraSignal(OnMaterialReset, const NzMaterial*); //< Args: me
 
 	private:
 		struct ShaderInstance

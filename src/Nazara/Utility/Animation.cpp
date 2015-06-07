@@ -34,7 +34,7 @@ bool NzAnimationParams::IsValid() const
 
 NzAnimation::~NzAnimation()
 {
-	Destroy();
+	OnAnimationRelease(this);
 }
 
 bool NzAnimation::AddSequence(const NzSequence& sequence)
@@ -172,7 +172,6 @@ bool NzAnimation::CreateSkeletal(unsigned int frameCount, unsigned int jointCoun
 	m_impl->sequenceJoints.resize(frameCount*jointCount);
 	m_impl->type = nzAnimationType_Skeletal;
 
-	NotifyCreated();
 	return true;
 }
 
@@ -180,7 +179,7 @@ void NzAnimation::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnAnimationDestroy(this);
 
 		delete m_impl;
 		m_impl = nullptr;

@@ -24,6 +24,8 @@ m_characterSize(drawer.m_characterSize)
 	SetFont(drawer.m_font);
 }
 
+NzSimpleTextDrawer::~NzSimpleTextDrawer() = default;
+
 const NzRectui& NzSimpleTextDrawer::GetBounds() const
 {
 	if (!m_glyphUpdated)

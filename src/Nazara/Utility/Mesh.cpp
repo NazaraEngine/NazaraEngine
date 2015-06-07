@@ -66,6 +66,8 @@ struct NzMeshImpl
 
 NzMesh::~NzMesh()
 {
+	OnMeshRelease(this);
+
 	Destroy();
 }
 
@@ -359,7 +361,6 @@ bool NzMesh::CreateSkeletal(unsigned int jointCount)
 		return false;
 	}
 
-	NotifyCreated();
 	return true;
 }
 
@@ -370,7 +371,6 @@ bool NzMesh::CreateStatic()
 	m_impl = new NzMeshImpl;
 	m_impl->animationType = nzAnimationType_Static;
 
-	NotifyCreated();
 	return true;
 }
 
@@ -378,7 +378,7 @@ void NzMesh::Destroy()
 {
 	if (m_impl)
 	{
-		NotifyDestroy();
+		OnMeshDestroy(this);
 
 		delete m_impl;
 		m_impl = nullptr;

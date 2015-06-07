@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ObjectListener.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>

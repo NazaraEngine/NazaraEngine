@@ -65,6 +65,8 @@ m_sharedImage(sharedImage)
 
 NzImage::~NzImage()
 {
+	OnImageRelease(this);
+
 	Destroy();
 }
 
@@ -306,7 +308,6 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 
 	m_sharedImage = new SharedImage(1, type, format, levelCount, levels, width, height, depth);
 
-	NotifyCreated();
 	return true;
 }
 
@@ -314,7 +315,7 @@ void NzImage::Destroy()
 {
 	if (m_sharedImage != &emptyImage)
 	{
-		NotifyDestroy();
+		OnImageDestroy(this);
 		ReleaseImage();
 	}
 }
