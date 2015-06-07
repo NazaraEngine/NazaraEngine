@@ -22,6 +22,7 @@ template<typename... Args>
 void NzSignal<Args...>::Clear()
 {
 	m_slots.clear();
+	m_slotIterator = 0;
 }
 
 template<typename... Args>
@@ -35,6 +36,8 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(Callback&& fun
 {
 	NazaraAssert(func, "Invalid function");
 
+	// Since we're incrementing the slot vector size, we need to replace our iterator at the end
+	// (Except when we are iterating on the signal)
 	bool resetIt = (m_slotIterator >= m_slots.size());
 
 	auto tempPtr = std::make_shared<Slot>(this);
@@ -42,8 +45,9 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(Callback&& fun
 	tempPtr->index = m_slots.size();
 
 	m_slots.emplace_back(std::move(tempPtr));
+
 	if (resetIt)
-		m_slotIterator = m_slots.size();
+		m_slotIterator = m_slots.size(); //< Replace the iterator to the end
 
 	return Connection(m_slots.back());
 }
@@ -123,7 +127,7 @@ void NzSignal<Args...>::Disconnect(const SlotPtr& slot)
 		// Yes we can
 		SlotPtr& newSlot = m_slots[slot->index];
 		newSlot = std::move(m_slots.back());
-		newSlot->index = slot->index; //< Update the moved slot index before resizing (imagine this is the last one)
+		newSlot->index = slot->index; //< Update the moved slot index before resizing (in case it's the last one)
 	}
 	else
 	{
@@ -140,7 +144,7 @@ void NzSignal<Args...>::Disconnect(const SlotPtr& slot)
 		--m_slotIterator;
 	}
 
-	// Pop the last entry (where we moved our slot)
+	// Pop the last entry (from where we moved our slot)
 	m_slots.pop_back();
 }
 
