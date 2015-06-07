@@ -240,12 +240,20 @@ const NzDeferredGeometryPass::ShaderUniforms* NzDeferredGeometryPass::GetShaderU
 	if (it == m_shaderUniforms.end())
 	{
 		ShaderUniforms uniforms;
+		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, OnShaderInvalidated);
+		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, OnShaderInvalidated);
+
 		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
 		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
-		it = m_shaderUniforms.emplace(shader, uniforms).first;
+		it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
 	}
 
 	return &it->second;
+}
+
+void NzDeferredGeometryPass::OnShaderInvalidated(const NzShader* shader) const
+{
+	m_shaderUniforms.erase(shader);
 }

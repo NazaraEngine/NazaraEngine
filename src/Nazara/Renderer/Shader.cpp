@@ -18,6 +18,8 @@ m_program(0)
 
 NzShader::~NzShader()
 {
+	OnShaderRelease(this);
+
 	Destroy();
 }
 
@@ -778,6 +780,8 @@ bool NzShader::PostLinkage()
 		CacheUniform(WorldViewProjMatrix);
 
 		#undef CacheUniform
+
+		OnShaderUniformInvalidated(this);
 
 		return true;
 	}

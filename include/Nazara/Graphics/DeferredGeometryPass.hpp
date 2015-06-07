@@ -25,9 +25,13 @@ class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 		struct ShaderUniforms;
 
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+		void OnShaderInvalidated(const NzShader* shader) const;
 
 		struct ShaderUniforms
 		{
+			NazaraSlot(NzShader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
+			NazaraSlot(NzShader, OnShaderRelease, shaderReleaseSlot);
+
 			int eyePosition;
 			int sceneAmbient;
 			int textureOverlay;
