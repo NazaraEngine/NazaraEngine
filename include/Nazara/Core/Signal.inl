@@ -59,6 +59,26 @@ typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O* object, voi
 }
 
 template<typename... Args>
+template<typename O>
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const O& object, void (O::*method) (Args...) const)
+{
+    return Connect([&object, method] (Args&&... args)
+    {
+        return (object .* method) (std::forward<Args>(args)...);
+    });
+}
+
+template<typename... Args>
+template<typename O>
+typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const O* object, void (O::*method)(Args...) const)
+{
+    return Connect([object, method] (Args&&... args)
+    {
+        return (object ->* method) (std::forward<Args>(args)...);
+    });
+}
+
+template<typename... Args>
 void NzSignal<Args...>::operator()(Args... args) const
 {
 	for (const SlotPtr& slot : m_slots)
