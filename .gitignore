@@ -7,6 +7,9 @@ SDK/lib/libNazaraSDK*.a
 SDK/lib/NazaraSDK*.dll
 SDK/lib/NazaraSDK*.so
 
+# Feature page
+build/scripts/features/index.html
+
 # Codeblocks
 *.cbp
 *.cbTemp
