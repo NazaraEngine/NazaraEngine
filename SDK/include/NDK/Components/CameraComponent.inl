@@ -21,10 +21,22 @@ namespace Ndk
 	{
 	}
 
-	inline CameraComponent::~CameraComponent()
+	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
+	Component(camera),
+	NzAbstractViewer(camera),
+	m_targetRegion(camera.m_targetRegion),
+	m_target(camera.m_target),
+	m_frustumUpdated(false),
+	m_projectionMatrixUpdated(false),
+	m_viewMatrixUpdated(false),
+	m_viewportUpdated(false),
+	m_aspectRatio(camera.m_aspectRatio),
+	m_fov(camera.m_fov),
+	m_zFar(camera.m_zFar),
+	m_zNear(camera.m_zNear),
+	m_layer(camera.m_layer)
 	{
-		if (m_target)
-			m_target->RemoveListener(this);
+
 	}
 
 	inline void CameraComponent::EnsureFrustumUpdate() const
@@ -126,12 +138,11 @@ namespace Ndk
 
 	inline void CameraComponent::SetTarget(const NzRenderTarget* renderTarget)
 	{
-		if (m_target)
-			m_target->RemoveListener(this);
-
 		m_target = renderTarget;
 		if (m_target)
-			m_target->AddListener(this);
+			m_targetReleaseSlot = NazaraConnect(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+		else
+			NazaraDisconnect(m_targetReleaseSlot);
 	}
 
 	inline void CameraComponent::SetTargetRegion(const NzRectf& region)

@@ -45,6 +45,7 @@ namespace Ndk
 			virtual void OnComponentAttached(BaseComponent& component);
 			virtual void OnComponentDetached(BaseComponent& component);
 			virtual void OnDetached();
+
 			void SetEntity(Entity* entity);
 
 			static bool Initialize();

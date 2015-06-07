@@ -8,7 +8,7 @@
 #define NAZARA_NODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Listenable.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-class NAZARA_API NzNode : public NzListenable<NzNode>
+class NAZARA_API NzNode
 {
 	public:
 		NzNode();
@@ -90,16 +90,10 @@ class NAZARA_API NzNode : public NzListenable<NzNode>
 
 		NzNode& operator=(const NzNode& node);
 
-		class NAZARA_API Listener
-		{
-			public:
-				Listener() = default;
-				virtual ~Listener();
-
-				virtual bool OnNodeInvalidated(const NzNode* node, void* userdata);
-				virtual bool OnNodeParented(const NzNode* node, const NzNode* parent, void* userdata);
-				virtual void OnNodeReleased(const NzNode* node, void* userdata);
-		};
+		// Signals
+		NazaraSignal(OnNodeInvalidation, const NzNode*); //< Args: me
+		NazaraSignal(OnNodeNewParent, const NzNode*, const NzNode*); //< Args: me
+		NazaraSignal(OnNodeRelease, const NzNode*); //< Args: me
 
 	protected:
 		void AddChild(NzNode* node) const;
@@ -126,7 +120,6 @@ class NAZARA_API NzNode : public NzListenable<NzNode>
 		bool m_inheritRotation;
 		bool m_inheritScale;
 		mutable bool m_transformMatrixUpdated;
-
 };
 
 #endif // NAZARA_NODE_HPP

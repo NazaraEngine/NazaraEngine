@@ -21,7 +21,6 @@ m_verticesUpdated(false)
 
 NzTextSprite::NzTextSprite(const NzTextSprite& sprite) :
 NzSceneNode(sprite),
-m_atlases(sprite.m_atlases),
 m_renderInfos(sprite.m_renderInfos),
 m_localVertices(sprite.m_localVertices),
 m_vertices(sprite.m_vertices),
@@ -32,13 +31,15 @@ m_verticesUpdated(sprite.m_verticesUpdated)
 {
 	SetParent(sprite.GetParent());
 
-	for (const NzAbstractAtlas* atlas : m_atlases)
-		atlas->AddListener(this);
-}
+	for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
+	{
+		const NzAbstractAtlas* atlas = it->first;
+		AtlasSlots& slots = m_atlases[atlas];
 
-NzTextSprite::~NzTextSprite()
-{
-	ClearAtlases();
+		slots.clearSlot = NazaraConnect(*atlas, OnAtlasCleared, OnAtlasInvalidated);
+		slots.layerChangeSlot = NazaraConnect(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
+		slots.releaseSlot = NazaraConnect(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+	}
 }
 
 void NzTextSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
@@ -58,7 +59,7 @@ void NzTextSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 
 void NzTextSprite::Clear()
 {
-	ClearAtlases();
+	m_atlases.clear();
 	m_boundingVolume.MakeNull();
 	m_localVertices.clear();
 	m_renderInfos.clear();
@@ -126,7 +127,7 @@ void NzTextSprite::SetMaterial(NzMaterial* material)
 
 void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 {
-	ClearAtlases();
+	m_atlases.clear();
 
 	NzCallOnExit clearOnFail([this]()
 	{
@@ -148,8 +149,14 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 		}
 		#endif
 
-		if (m_atlases.insert(atlas).second)
-			atlas->AddListener(this);
+		if (m_atlases.find(atlas) == m_atlases.end())
+		{
+			AtlasSlots& slots = m_atlases[atlas];
+
+			slots.clearSlot = NazaraConnect(*atlas, OnAtlasCleared, OnAtlasInvalidated);
+			slots.layerChangeSlot = NazaraConnect(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
+			slots.releaseSlot = NazaraConnect(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+		}
 	}
 
 	unsigned int glyphCount = drawer.GetGlyphCount();
@@ -256,25 +263,29 @@ NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 {
 	NzSceneNode::operator=(text);
 
-	m_atlases = text.m_atlases;
+	m_atlases.clear();
+
 	m_color = text.m_color;
 	m_material = text.m_material;
 	m_renderInfos = text.m_renderInfos;
 	m_localBounds = text.m_localBounds;
 	m_localVertices = text.m_localVertices;
 
+	// Connect to the slots of the new atlases
+	for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
+	{
+		const NzAbstractAtlas* atlas = it->first;
+		AtlasSlots& slots = m_atlases[atlas];
+
+		slots.clearSlot = NazaraConnect(*atlas, OnAtlasCleared, OnAtlasInvalidated);
+		slots.layerChangeSlot = NazaraConnect(*atlas, OnAtlasLayerChange, OnAtlasLayerChange);
+		slots.releaseSlot = NazaraConnect(*atlas, OnAtlasRelease, OnAtlasInvalidated);
+	}
+
 	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
 	m_verticesUpdated = false;
 
 	return *this;
-}
-
-void NzTextSprite::ClearAtlases()
-{
-	for (const NzAbstractAtlas* atlas : m_atlases)
-		atlas->RemoveListener(this);
-
-	m_atlases.clear();
 }
 
 void NzTextSprite::InvalidateNode()
@@ -296,10 +307,8 @@ void NzTextSprite::MakeBoundingVolume() const
 	m_boundingVolume.Set(min.x*right + min.y*down, max.x*right + max.y*down);
 }
 
-bool NzTextSprite::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
+void NzTextSprite::OnAtlasInvalidated(const NzAbstractAtlas* atlas)
 {
-	NazaraUnused(userdata);
-
 	#ifdef NAZARA_DEBUG
 	if (m_atlases.find(atlas) == m_atlases.end())
 	{
@@ -308,16 +317,13 @@ bool NzTextSprite::OnAtlasCleared(const NzAbstractAtlas* atlas, void* userdata)
 	}
 	#endif
 
-	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " that was under use has been cleared");
+	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " has been invalidated (cleared or released)");
 	Clear();
-
-	return false;
 }
 
-bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer, void* userdata)
+void NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer)
 {
 	NazaraUnused(atlas);
-	NazaraUnused(userdata);
 
 	#ifdef NAZARA_DEBUG
 	if (m_atlases.find(atlas) == m_atlases.end())
@@ -356,25 +362,6 @@ bool NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 		m_renderInfos.erase(it);
 		m_renderInfos.insert(std::make_pair(newTexture, std::move(indices)));
 	}
-
-	return true;
-}
-
-void NzTextSprite::OnAtlasReleased(const NzAbstractAtlas* atlas, void* userdata)
-{
-	NazaraUnused(userdata);
-
-	#ifdef NAZARA_DEBUG
-	if (m_atlases.find(atlas) == m_atlases.end())
-	{
-		NazaraInternalError("Not listening to " + NzString::Pointer(atlas));
-		return;
-	}
-	#endif
-
-	// L'atlas a été libéré alors que le TextSprite l'utilisait encore, notre seule option (pour éviter un crash) est de nous réinitialiser
-	NazaraWarning("TextSprite " + NzString::Pointer(this) + " has been cleared because atlas " + NzString::Pointer(atlas) + " has been released");
-	Clear();
 }
 
 void NzTextSprite::Register()

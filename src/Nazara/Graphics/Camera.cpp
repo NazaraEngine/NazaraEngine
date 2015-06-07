@@ -22,12 +22,6 @@ m_zNear(1.f)
 {
 }
 
-NzCamera::~NzCamera()
-{
-	if (m_target)
-		m_target->RemoveListener(this);
-}
-
 void NzCamera::EnsureFrustumUpdate() const
 {
 	if (!m_frustumUpdated)
@@ -165,12 +159,18 @@ void NzCamera::SetFOV(float fov)
 
 void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 {
-	if (m_target)
-		m_target->RemoveListener(this);
-
 	m_target = renderTarget;
+
 	if (m_target)
-		m_target->AddListener(this);
+	{
+		m_targetReleaseSlot = NazaraConnect(*m_target, OnRenderTargetRelease, OnRenderTargetRelease);
+		m_targetResizeSlot = NazaraConnect(*m_target, OnRenderTargetSizeChange, OnRenderTargetSizeChange);
+	}
+	else
+	{
+		NazaraDisconnect(m_targetReleaseSlot);
+		NazaraDisconnect(m_targetResizeSlot);
+	}
 
 	m_frustumUpdated = false;
 	m_projectionMatrixUpdated = false;
@@ -266,33 +266,24 @@ void NzCamera::InvalidateNode()
 	m_viewMatrixUpdated = false;
 }
 
-void NzCamera::OnRenderTargetReleased(const NzRenderTarget* renderTarget, void* userdata)
+void NzCamera::OnRenderTargetRelease(const NzRenderTarget* renderTarget)
 {
-	NazaraUnused(userdata);
-
 	if (renderTarget == m_target)
 		m_target = nullptr;
 	else
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
 }
 
-bool NzCamera::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget, void* userdata)
+void NzCamera::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget)
 {
-	NazaraUnused(userdata);
-
 	if (renderTarget == m_target)
 	{
 		m_frustumUpdated = false;
 		m_projectionMatrixUpdated = false;
 		m_viewportUpdated = false;
-
-		return true;
 	}
 	else
-	{
 		NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
-		return false;
-	}
 }
 
 void NzCamera::UpdateFrustum() const

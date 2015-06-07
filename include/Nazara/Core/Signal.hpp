@@ -11,6 +11,16 @@
 #include <memory>
 #include <vector>
 
+#define NazaraSignal(SignalName, ...) using SignalName ## Type = NzSignal<__VA_ARGS__>; \
+                                       mutable SignalName ## Type SignalName
+
+#define NazaraSlotType(Class, SignalName) Class::SignalName ## Type::ConnectionGuard
+#define NazaraSlot(Class, SignalName, SlotName) NazaraSlotType(Class, SignalName) SlotName
+
+#define NazaraConnect(Instance, SignalName, Callback) (Instance).SignalName.Connect(this, Callback)
+#define NazaraDisconnect(SlotName) SlotName.GetConnection().Disconnect()
+
+
 template<typename... Args>
 class NzSignal
 {
