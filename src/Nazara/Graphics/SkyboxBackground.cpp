@@ -219,11 +219,9 @@ NzSkyboxBackground::~NzSkyboxBackground()
 		s_vertexBuffer = nullptr;
 }
 
-void NzSkyboxBackground::Draw(const NzScene* scene) const
+void NzSkyboxBackground::Draw(const NzAbstractViewer* viewer) const
 {
 	static NzRenderStates states(BuildRenderStates());
-
-	NzAbstractViewer* viewer = scene->GetViewer();
 
 	NzMatrix4f skyboxMatrix(viewer->GetViewMatrix());
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());

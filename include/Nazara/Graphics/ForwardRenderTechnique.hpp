@@ -21,7 +21,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		NzForwardRenderTechnique();
 		~NzForwardRenderTechnique() = default;
 
-		bool Draw(const NzScene* scene) const override;
+		bool Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const override;
 
 		unsigned int GetMaxLightPassPerObject() const;
 		NzAbstractRenderQueue* GetRenderQueue() override;
@@ -36,10 +36,10 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		struct ShaderUniforms;
 
 		bool ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
-		void DrawBasicSprites(const NzScene* scene) const;
-		void DrawBillboards(const NzScene* scene) const;
-		void DrawOpaqueModels(const NzScene* scene) const;
-		void DrawTransparentModels(const NzScene* scene) const;
+		void DrawBasicSprites(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const;
+		void DrawBillboards(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const;
+		void DrawOpaqueModels(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const;
+		void DrawTransparentModels(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const;
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
 		void OnShaderInvalidated(const NzShader* shader) const;
 		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int uniformOffset, unsigned int index) const;

@@ -203,9 +203,9 @@ m_GBufferSize(0U)
 
 NzDeferredRenderTechnique::~NzDeferredRenderTechnique() = default;
 
-bool NzDeferredRenderTechnique::Draw(const NzScene* scene) const
+bool NzDeferredRenderTechnique::Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
 {
-	NzRecti viewerViewport = scene->GetViewer()->GetViewport();
+	NzRecti viewerViewport = viewer->GetViewport();
 
 	NzVector2ui viewportDimensions(viewerViewport.width, viewerViewport.height);
 	if (viewportDimensions != m_GBufferSize)
@@ -226,7 +226,7 @@ bool NzDeferredRenderTechnique::Draw(const NzScene* scene) const
 			const NzDeferredRenderPass* pass = passIt2.second.get();
 			if (pass->IsEnabled())
 			{
-				if (pass->Process(scene, workTexture, sceneTexture))
+				if (pass->Process(viewer, sceneData, workTexture, sceneTexture))
 					std::swap(workTexture, sceneTexture);
 			}
 		}

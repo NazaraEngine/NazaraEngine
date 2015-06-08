@@ -33,11 +33,13 @@ NzDeferredFinalPass::NzDeferredFinalPass()
 
 NzDeferredFinalPass::~NzDeferredFinalPass() = default;
 
-bool NzDeferredFinalPass::Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredFinalPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
+	NazaraUnused(viewer);
+	NazaraUnused(sceneData);
 	NazaraUnused(firstWorkTexture);
 
-	scene->GetViewer()->ApplyView();
+	viewer->ApplyView();
 
 	NzRenderer::SetRenderStates(m_states);
 	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);

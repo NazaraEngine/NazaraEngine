@@ -8,13 +8,16 @@
 #define NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 
+class NzAbstractViewer;
 class NzBackground;
-class NzScene;
+struct SceneData;
 
 class NAZARA_API NzAbstractRenderTechnique : NzNonCopyable
 {
@@ -22,7 +25,7 @@ class NAZARA_API NzAbstractRenderTechnique : NzNonCopyable
 		NzAbstractRenderTechnique();
 		virtual ~NzAbstractRenderTechnique();
 
-		virtual bool Draw(const NzScene* scene) const = 0;
+		virtual bool Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const = 0;
 
 		virtual void EnableInstancing(bool instancing);
 

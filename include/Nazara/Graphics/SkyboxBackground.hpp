@@ -22,7 +22,7 @@ class NAZARA_API NzSkyboxBackground : public NzAbstractBackground
 		NzSkyboxBackground(NzTexture* cubemapTexture);
 		~NzSkyboxBackground();
 
-		void Draw(const NzScene* scene) const;
+		void Draw(const NzAbstractViewer* viewer) const;
 
 		nzBackgroundType GetBackgroundType() const;
 		NzTexture* GetTexture() const;

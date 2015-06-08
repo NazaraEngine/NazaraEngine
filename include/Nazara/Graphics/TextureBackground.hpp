@@ -18,7 +18,7 @@ class NAZARA_API NzTextureBackground : public NzAbstractBackground
 		NzTextureBackground();
 		NzTextureBackground(NzTexture* texture);
 
-		void Draw(const NzScene* scene) const;
+		void Draw(const NzAbstractViewer* viewer) const;
 
 		nzBackgroundType GetBackgroundType() const;
 		NzTexture* GetTexture() const;
