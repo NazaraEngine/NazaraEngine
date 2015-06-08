@@ -29,12 +29,11 @@ NzDeferredGeometryPass::NzDeferredGeometryPass()
 
 NzDeferredGeometryPass::~NzDeferredGeometryPass() = default;
 
-bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredGeometryPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
 	NazaraUnused(firstWorkTexture);
 	NazaraUnused(secondWorkTexture);
 
-	NzAbstractViewer* viewer = scene->GetViewer();
 	bool instancingEnabled = m_deferredTechnique->IsInstancingEnabled();
 
 	m_GBufferRTT->SetColorTargets({0, 1, 2}); // G-Buffer
@@ -80,7 +79,7 @@ bool NzDeferredGeometryPass::Process(const NzScene* scene, unsigned int firstWor
 					shaderUniforms = GetShaderUniforms(shader);
 
 					// Couleur ambiante de la scène
-					shader->SendColor(shaderUniforms->sceneAmbient, scene->GetAmbientColor());
+					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
 					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
 

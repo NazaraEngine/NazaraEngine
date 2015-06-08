@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
-class NzScene;
+class NzAbstractViewer;
 
 class NAZARA_API NzAbstractBackground
 {
@@ -18,7 +18,7 @@ class NAZARA_API NzAbstractBackground
 		NzAbstractBackground() = default;
 		virtual ~NzAbstractBackground();
 
-		virtual void Draw(const NzScene* scene) const = 0;
+		virtual void Draw(const NzAbstractViewer* viewer) const = 0;
 
 		virtual nzBackgroundType GetBackgroundType() const = 0;
 };

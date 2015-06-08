@@ -27,7 +27,7 @@ class NAZARA_API NzDeferredBloomPass : public NzDeferredRenderPass
 		float GetBrightThreshold() const;
 		NzTexture* GetTexture(unsigned int i) const;
 
-		bool Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+		bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 		bool Resize(const NzVector2ui& dimensions);
 
 		void SetBlurPassCount(unsigned int passCount);

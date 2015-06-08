@@ -9,8 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
+class NzAbstractViewer;
 class NzDeferredRenderTechnique;
 class NzDeferredRenderQueue;
 class NzRenderBuffer;
@@ -32,7 +34,7 @@ class NAZARA_API NzDeferredRenderPass
 
 		bool IsEnabled() const;
 
-		virtual bool Process(const NzScene* scene, unsigned int workTexture, unsigned sceneTexture) const = 0;
+		virtual bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
 		virtual bool Resize(const NzVector2ui& GBufferSize);
 
 	protected:
