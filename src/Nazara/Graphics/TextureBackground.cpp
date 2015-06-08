@@ -45,9 +45,9 @@ NzTextureBackground()
 	m_texture = texture;
 }
 
-void NzTextureBackground::Draw(const NzScene* scene) const
+void NzTextureBackground::Draw(const NzAbstractViewer* viewer) const
 {
-	NazaraUnused(scene);
+	NazaraUnused(viewer);
 
 	static NzRenderStates states(BuildRenderStates());
 

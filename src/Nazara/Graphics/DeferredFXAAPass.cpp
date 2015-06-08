@@ -21,9 +21,10 @@ NzDeferredFXAAPass::NzDeferredFXAAPass()
 
 NzDeferredFXAAPass::~NzDeferredFXAAPass() = default;
 
-bool NzDeferredFXAAPass::Process(const NzScene* scene, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredFXAAPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
-	NazaraUnused(scene);
+	NazaraUnused(viewer);
+	NazaraUnused(sceneData);
 
 	m_workRTT->SetColorTarget(firstWorkTexture);
 	NzRenderer::SetTarget(m_workRTT);
