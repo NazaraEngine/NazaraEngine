@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Systems/RenderSystem.hpp>
-#include <Nazara/Graphics/Scene.hpp>
+#include <Nazara/Graphics/ColorBackground.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -21,9 +21,6 @@ namespace Ndk
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
 			camComponent.ApplyView();
 
-			NzScene dummyScene;
-			dummyScene.SetViewer(camComponent);
-
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
@@ -35,7 +32,13 @@ namespace Ndk
 				graphicsComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
 			}
 
-			m_renderTechnique.Draw(&dummyScene);
+			NzColorBackground background;
+
+			NzSceneData sceneData;
+			sceneData.ambientColor = NzColor(25, 25, 25);
+			sceneData.background = &background;
+
+			m_renderTechnique.Draw(&camComponent, sceneData);
 		}
 	}
 

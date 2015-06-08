@@ -36,9 +36,9 @@ m_color(color)
 	m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
 }
 
-void NzColorBackground::Draw(const NzScene* scene) const
+void NzColorBackground::Draw(const NzAbstractViewer* viewer) const
 {
-	NazaraUnused(scene);
+	NazaraUnused(viewer);
 
 	static NzRenderStates states(BuildRenderStates());
 

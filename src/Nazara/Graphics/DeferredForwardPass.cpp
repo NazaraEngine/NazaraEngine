@@ -21,24 +21,22 @@ void NzDeferredForwardPass::Initialize(NzDeferredRenderTechnique* technique)
 	m_forwardTechnique = technique->GetForwardTechnique();
 }
 
-bool NzDeferredForwardPass::Process(const NzScene* scene, unsigned int workTexture, unsigned sceneTexture) const
+bool NzDeferredForwardPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
 {
+	NazaraUnused(sceneData);
 	NazaraUnused(workTexture);
 
 	m_workRTT->SetColorTarget(sceneTexture);
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzAbstractBackground* background = (scene->IsBackgroundEnabled()) ? scene->GetBackground() : nullptr;
-	if (background)
-		background->Draw(scene);
-
-	NzAbstractViewer* viewer = scene->GetViewer();
+	if (sceneData.background)
+		sceneData.background->Draw(viewer);
 
 	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
 	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
 
-	m_forwardTechnique->Draw(scene);
+	m_forwardTechnique->Draw(viewer, sceneData);
 
 	return false;
 }

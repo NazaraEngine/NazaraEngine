@@ -30,7 +30,7 @@ class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique
 		NzDeferredRenderTechnique();
 		~NzDeferredRenderTechnique();
 
-		bool Draw(const NzScene* scene) const override;
+		bool Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const override;
 
 		void EnablePass(nzRenderPassType renderPass, int position, bool enable);
 
