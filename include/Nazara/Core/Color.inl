@@ -345,7 +345,7 @@ inline void NzColor::ToHSV(const NzColor& color, float* hue, float* saturation, 
 			h = deltaB - deltaG;
 		else if (NzNumberEquals(g, max))
 			h = (1.f/3.f) + deltaR - deltaB;
-		else if (NzNumberEquals(b, max))
+		else
 			h = (2.f/3.f) + deltaG - deltaR;
 
 		if (h < 0.f)
