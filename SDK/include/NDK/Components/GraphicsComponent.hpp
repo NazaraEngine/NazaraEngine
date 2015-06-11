@@ -8,6 +8,7 @@
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
 #include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
@@ -16,22 +17,49 @@ namespace Ndk
 	{
 		public:
 			GraphicsComponent() = default;
+			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 
-			inline void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
+			inline void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
 
 			inline void Attach(NzRenderableRef renderable);
+
+			inline void EnsureTransformMatrixUpdate() const;
 
 			static ComponentIndex componentIndex;
 
 		private:
+			void InvalidateRenderableData(const NzRenderable* renderable, nzUInt32 flags, unsigned int index);
+			inline void InvalidateTransformMatrix();
+
+			void OnAttached() override;
+			void OnComponentAttached(BaseComponent& component) override;
+			void OnComponentDetached(BaseComponent& component) override;
+			void OnDetached() override;
+			void OnNodeInvalidated(const NzNode* node);
+
+			void UpdateTransformMatrix() const;
+
+			NazaraSlot(NzNode, OnNodeInvalidation, m_nodeInvalidationSlot);
+
 			struct Renderable
 			{
-				NzBoundingVolumef volume;
+				Renderable(NzMatrix4f& transformMatrix) :
+				data(transformMatrix),
+				dataUpdated(false)
+				{
+				}
+
+				NazaraSlot(NzRenderable, OnRenderableInvalidateInstanceData, renderableInvalidationSlot);
+
+				mutable NzRenderable::InstanceData data;
 				NzRenderableRef renderable;
+				mutable bool dataUpdated;
 			};
 
 			std::vector<Renderable> m_renderables;
+			mutable NzMatrix4f m_transformMatrix;
+			mutable bool m_transformMatrixUpdated;
 	};
 }
 

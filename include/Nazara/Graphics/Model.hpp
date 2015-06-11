@@ -42,7 +42,7 @@ class NAZARA_API NzModel : public NzRenderable, public NzResource
 		NzModel(NzModel&& model) = default;
 		virtual ~NzModel();
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
 		NzMaterial* GetMaterial(const NzString& subMeshName) const;
 		NzMaterial* GetMaterial(unsigned int matIndex) const;

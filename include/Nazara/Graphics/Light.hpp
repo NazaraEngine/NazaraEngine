@@ -29,12 +29,12 @@ class NAZARA_API NzLight : public NzRenderable
 		NzLight(const NzLight& light) = default;
 		~NzLight() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
 		NzLight* Clone() const;
 		NzLight* Create() const;
 
-		bool Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const override;
+		bool Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const override;
 
 		float GetAmbientFactor() const;
 		float GetAttenuation() const;
@@ -58,7 +58,7 @@ class NAZARA_API NzLight : public NzRenderable
 		void SetOuterAngle(float outerAngle);
 		void SetRadius(float radius);
 
-		void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
+		void UpdateBoundingVolume(InstanceData* instanceData) const;
 
 		NzLight& operator=(const NzLight& light) = default;
 
