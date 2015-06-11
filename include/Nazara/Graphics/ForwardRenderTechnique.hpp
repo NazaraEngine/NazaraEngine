@@ -42,7 +42,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 		void DrawTransparentModels(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const;
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
 		void OnShaderInvalidated(const NzShader* shader) const;
-		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int uniformOffset, unsigned int index) const;
+		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const;
 
 		static float ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
 		static float ComputePointLightScore(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
