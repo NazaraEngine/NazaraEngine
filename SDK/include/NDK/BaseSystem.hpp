@@ -22,8 +22,8 @@ namespace Ndk
 		friend World;
 
 		public:
-			BaseSystem(SystemIndex systemId);
-			BaseSystem(const BaseSystem&);
+			inline BaseSystem(SystemIndex systemId);
+			inline BaseSystem(const BaseSystem&);
 			BaseSystem(BaseSystem&&) noexcept = default;
 			~BaseSystem();
 
@@ -31,11 +31,11 @@ namespace Ndk
 
 			bool Filters(const Entity* entity) const;
 
-			const std::vector<EntityHandle>& GetEntities() const;
-			SystemIndex GetIndex() const;
-			World& GetWorld() const;
+			inline const std::vector<EntityHandle>& GetEntities() const;
+			inline SystemIndex GetIndex() const;
+			inline World& GetWorld() const;
 
-			bool HasEntity(const Entity* entity) const;
+			inline bool HasEntity(const Entity* entity) const;
 
 			BaseSystem& operator=(const BaseSystem&) = delete;
 			BaseSystem& operator=(BaseSystem&&) noexcept = default;
@@ -43,33 +43,33 @@ namespace Ndk
 		protected:
 			template<typename ComponentType> void Excludes();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Excludes();
-			void ExcludesComponent(ComponentIndex index);
+			inline void ExcludesComponent(ComponentIndex index);
 
 			static SystemIndex GetNextIndex();
 
 			template<typename ComponentType> void Requires();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void Requires();
-			void RequiresComponent(ComponentIndex index);
+			inline void RequiresComponent(ComponentIndex index);
 
 			template<typename ComponentType> void RequiresAny();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void RequiresAny();
-			void RequiresAnyComponent(ComponentIndex index);
+			inline void RequiresAnyComponent(ComponentIndex index);
 
 		private:
-			void AddEntity(Entity* entity);
+			inline void AddEntity(Entity* entity);
 
 			virtual void OnEntityAdded(Entity* entity);
 			virtual void OnEntityRemoved(Entity* entity);
 			virtual void OnEntityValidation(Entity* entity, bool justAdded);
 
-			void RemoveEntity(Entity* entity);
+			inline void RemoveEntity(Entity* entity);
 
-			void SetWorld(World& world);
+			inline void SetWorld(World& world);
 
-			void ValidateEntity(Entity* entity, bool justAdded);
+			inline void ValidateEntity(Entity* entity, bool justAdded);
 
-			static bool Initialize();
-			static void Uninitialize();
+			static inline bool Initialize();
+			static inline void Uninitialize();
 
 			std::vector<EntityHandle> m_entities;
 			NzBitset<nzUInt64> m_entityBits;
