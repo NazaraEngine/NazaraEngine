@@ -19,6 +19,11 @@ inline void NzRenderable::InvalidateBoundingVolume()
 	m_boundingVolumeUpdated = false;
 }
 
+inline void NzRenderable::InvalidateInstanceData(nzUInt32 flags)
+{
+	OnRenderableInvalidateInstanceData(this, flags);
+}
+
 inline NzRenderable& NzRenderable::operator=(const NzRenderable& renderable)
 {
 	m_boundingVolume = renderable.m_boundingVolume;

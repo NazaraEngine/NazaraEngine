@@ -27,25 +27,45 @@ using NzRenderableRef = NzObjectRef<NzRenderable>;
 class NAZARA_API NzRenderable : public NzRefCounted
 {
 	public:
+		struct InstanceData;
+
 		NzRenderable() = default;
 		inline NzRenderable(const NzRenderable& renderable);
 		virtual ~NzRenderable();
 
 		inline void EnsureBoundingVolumeUpdated() const;
 
-		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const = 0;
-		virtual bool Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const;
+		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
+		virtual bool Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const;
 		virtual const NzBoundingVolumef& GetBoundingVolume() const;
-		virtual void UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const;
+		virtual void InvalidateData(InstanceData* instanceData, nzUInt32 flags) const;
+		virtual void UpdateBoundingVolume(InstanceData* instanceData) const;
+		virtual void UpdateData(InstanceData* instanceData) const;
 
 		inline NzRenderable& operator=(const NzRenderable& renderable);
 
 		// Signals:
+		NazaraSignal(OnRenderableInvalidateInstanceData, const NzRenderable*, nzUInt32); //< Args: me, flags
 		NazaraSignal(OnRenderableRelease, const NzRenderable*); //< Args: me
+
+		struct InstanceData
+		{
+			InstanceData(NzMatrix4f& referenceMatrix) :
+			transformMatrix(referenceMatrix),
+			flags(0)
+			{
+			}
+
+			std::vector<nzUInt8> data;
+			NzBoundingVolumef volume;
+			NzMatrix4f& transformMatrix;
+			nzUInt32 flags;
+		};
 
 	protected:
 		virtual void MakeBoundingVolume() const = 0;
 		void InvalidateBoundingVolume();
+		inline void InvalidateInstanceData(nzUInt32 flags);
 		inline void UpdateBoundingVolume() const;
 
 		mutable NzBoundingVolumef m_boundingVolume;
