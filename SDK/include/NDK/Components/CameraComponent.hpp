@@ -28,40 +28,40 @@ namespace Ndk
 
 			void ApplyView() const override;
 
-			void EnsureFrustumUpdate() const;
-			void EnsureProjectionMatrixUpdate() const;
-			void EnsureViewMatrixUpdate() const;
-			void EnsureViewportUpdate() const;
+			inline void EnsureFrustumUpdate() const;
+			inline void EnsureProjectionMatrixUpdate() const;
+			inline void EnsureViewMatrixUpdate() const;
+			inline void EnsureViewportUpdate() const;
 
-			float GetAspectRatio() const;
-			NzVector3f GetEyePosition() const;
-			NzVector3f GetForward() const;
-			float GetFOV() const;
-			const NzFrustumf& GetFrustum() const;
-			unsigned int GetLayer() const;
-			const NzMatrix4f& GetProjectionMatrix() const;
-			const NzRenderTarget* GetTarget() const;
-			const NzRectf& GetTargetRegion() const;
-			const NzMatrix4f& GetViewMatrix() const;
-			const NzRecti& GetViewport() const;
-			float GetZFar() const;
-			float GetZNear() const;
+			inline float GetAspectRatio() const;
+			inline NzVector3f GetEyePosition() const;
+			inline NzVector3f GetForward() const;
+			inline float GetFOV() const;
+			inline const NzFrustumf& GetFrustum() const;
+			inline unsigned int GetLayer() const;
+			inline const NzMatrix4f& GetProjectionMatrix() const;
+			inline const NzRenderTarget* GetTarget() const;
+			inline const NzRectf& GetTargetRegion() const;
+			inline const NzMatrix4f& GetViewMatrix() const;
+			inline const NzRecti& GetViewport() const;
+			inline float GetZFar() const;
+			inline float GetZNear() const;
 
-			void SetFOV(float fov);
-			void SetLayer(unsigned int layer);
-			void SetTarget(const NzRenderTarget* renderTarget);
-			void SetTargetRegion(const NzRectf& region);
-			void SetViewport(const NzRecti& viewport);
-			void SetZFar(float zFar);
-			void SetZNear(float zNear);
+			inline void SetFOV(float fov);
+			inline void SetLayer(unsigned int layer);
+			inline void SetTarget(const NzRenderTarget* renderTarget);
+			inline void SetTargetRegion(const NzRectf& region);
+			inline void SetViewport(const NzRecti& viewport);
+			inline void SetZFar(float zFar);
+			inline void SetZNear(float zNear);
 
 			static ComponentIndex componentIndex;
 
 		private:
-			void InvalidateFrustum() const;
-			void InvalidateProjectionMatrix() const;
-			void InvalidateViewMatrix() const;
-			void InvalidateViewport() const;
+			inline void InvalidateFrustum() const;
+			inline void InvalidateProjectionMatrix() const;
+			inline void InvalidateViewMatrix() const;
+			inline void InvalidateViewport() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;

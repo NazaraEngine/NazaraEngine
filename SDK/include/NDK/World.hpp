@@ -26,42 +26,42 @@ namespace Ndk
 		public:
 			using EntityList = std::vector<EntityHandle>;
 
-			World(bool addDefaultSystems = true);
+			inline World(bool addDefaultSystems = true);
 			~World();
 
 			void AddDefaultSystems();
 
-			BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
+			inline BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);
 
 			const EntityHandle& CreateEntity();
-			EntityList CreateEntities(unsigned int count);
+			inline EntityList CreateEntities(unsigned int count);
 
 			void Clear();
 
 			const EntityHandle& GetEntity(EntityId id);
-			const EntityList& GetEntities();
-			BaseSystem& GetSystem(SystemIndex index);
+			inline const EntityList& GetEntities();
+			inline BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
 
-			bool HasSystem(SystemIndex index) const;
+			inline bool HasSystem(SystemIndex index) const;
 			template<typename SystemType> bool HasSystem() const;
 
 			void KillEntity(Entity* entity);
-			void KillEntities(const EntityList& list);
+			inline void KillEntities(const EntityList& list);
 
-			bool IsEntityValid(const Entity* entity) const;
-			bool IsEntityIdValid(EntityId id) const;
+			inline bool IsEntityValid(const Entity* entity) const;
+			inline bool IsEntityIdValid(EntityId id) const;
 
-			void RemoveAllSystems();
-			void RemoveSystem(SystemIndex index);
+			inline void RemoveAllSystems();
+			inline void RemoveSystem(SystemIndex index);
 			template<typename SystemType> void RemoveSystem();
 
 			void Update();
 
 		private:
-			void Invalidate();
-			void Invalidate(EntityId id);
+			inline void Invalidate();
+			inline void Invalidate(EntityId id);
 
 			struct EntityBlock
 			{

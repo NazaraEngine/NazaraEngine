@@ -21,36 +21,36 @@ namespace Ndk
 			EntityList() = default;
 			~EntityList() = default;
 
-			void Clear();
+			inline void Clear();
 
-			bool Has(const Entity* entity);
-			bool Has(EntityId entity);
+			inline bool Has(const Entity* entity);
+			inline bool Has(EntityId entity);
 
-			void Insert(Entity* entity);
+			inline void Insert(Entity* entity);
 
-			void Remove(Entity* entity);
+			inline void Remove(Entity* entity);
 
-			// Interface STD
-			Container::iterator begin();
-			Container::const_iterator begin() const;
+			// STL API
+			inline Container::iterator begin();
+			inline Container::const_iterator begin() const;
 
-			Container::const_iterator cbegin() const;
-			Container::const_iterator cend() const;
-			Container::const_reverse_iterator crbegin() const;
-			Container::const_reverse_iterator crend() const;
+			inline Container::const_iterator cbegin() const;
+			inline Container::const_iterator cend() const;
+			inline Container::const_reverse_iterator crbegin() const;
+			inline Container::const_reverse_iterator crend() const;
 
-			bool empty() const;
+			inline bool empty() const;
 
-			Container::iterator end();
-			Container::const_iterator end() const;
+			inline Container::iterator end();
+			inline Container::const_iterator end() const;
 
-			Container::reverse_iterator rbegin();
-			Container::const_reverse_iterator rbegin() const;
+			inline Container::reverse_iterator rbegin();
+			inline Container::const_reverse_iterator rbegin() const;
 
-			Container::reverse_iterator rend();
-			Container::const_reverse_iterator rend() const;
+			inline Container::reverse_iterator rend();
+			inline Container::const_reverse_iterator rend() const;
 
-			Container::size_type size() const;
+			inline Container::size_type size() const;
 
 		private:
 			std::vector<EntityHandle> m_entities;
