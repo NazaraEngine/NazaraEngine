@@ -28,6 +28,11 @@ struct NzVertexStruct_XY_UV : NzVertexStruct_XY
 	NzVector2f uv;
 };
 
+struct NzVertexStruct_XY_Color_UV : NzVertexStruct_XY_Color
+{
+	NzVector2f uv;
+};
+
 /******************************* Structures 3D *******************************/
 
 struct NzVertexStruct_XYZ

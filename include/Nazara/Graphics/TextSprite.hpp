@@ -9,21 +9,27 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
+#include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <memory>
 #include <set>
 
-class NAZARA_API NzTextSprite : public NzSceneNode
+class NzTextSprite;
+
+using NzTextSpriteConstRef = NzObjectRef<const NzTextSprite>;
+using NzTextSpriteLibrary = NzObjectLibrary<NzTextSprite>;
+using NzTextSpriteRef = NzObjectRef<NzTextSprite>;
+
+class NAZARA_API NzTextSprite : public NzRenderable
 {
 	public:
 		NzTextSprite();
 		NzTextSprite(const NzTextSprite& sprite);
 		~NzTextSprite() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
 		void Clear();
 
@@ -32,7 +38,6 @@ class NAZARA_API NzTextSprite : public NzSceneNode
 
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
-		nzSceneNodeType GetSceneNodeType() const override;
 
 		void InvalidateVertices();
 		bool IsDrawable() const;
@@ -45,14 +50,13 @@ class NAZARA_API NzTextSprite : public NzSceneNode
 
 		NzTextSprite& operator=(const NzTextSprite& text);
 
+		template<typename... Args> static NzTextSpriteRef New(Args&&... args);
+
 	private:
-		void InvalidateNode() override;
 		void MakeBoundingVolume() const override;
 		void OnAtlasInvalidated(const NzAbstractAtlas* atlas);
 		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
-		void Register() override;
-		void Unregister() override;
-		void UpdateVertices() const;
+		void UpdateData(InstanceData* instanceData) const override;
 
 		struct RenderIndices
 		{
@@ -69,12 +73,15 @@ class NAZARA_API NzTextSprite : public NzSceneNode
 
 		std::unordered_map<const NzAbstractAtlas*, AtlasSlots> m_atlases;
 		mutable std::unordered_map<NzTexture*, RenderIndices> m_renderInfos;
-		mutable std::vector<NzVertexStruct_XY_Color> m_localVertices;
-		mutable std::vector<NzVertexStruct_XYZ_Color_UV> m_vertices;
+		mutable std::vector<NzVertexStruct_XY_Color_UV> m_localVertices;
 		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectui m_localBounds;
 		mutable bool m_verticesUpdated;
+
+		static NzTextSpriteLibrary::LibraryMap s_library;
 };
+
+#include <Nazara/Graphics/TextSprite.inl>
 
 #endif // NAZARA_TEXTSPRITE_HPP
