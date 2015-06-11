@@ -559,7 +559,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzAbstractViewer* viewer, 
 
 									// Sends the uniforms
 									for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-										SendLightUniforms(shader, shaderUniforms->lightUniforms, i*shaderUniforms->lightOffset, lightIndex++);
+										SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, i*shaderUniforms->lightOffset);
 								}
 
 								const NzMatrix4f* instanceMatrices = &instances[0];
@@ -687,7 +687,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzAbstractViewer* vie
 				lightCount = std::min(m_renderQueue.directionalLights.size(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
 
 				for (unsigned int i = 0; i < lightCount; ++i)
-					SendLightUniforms(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset * i, i);
+					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i);
 			}
 
 			lastShader = shader;
@@ -726,7 +726,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzAbstractViewer* vie
 			ChooseLights(NzSpheref(position, radius), false);
 
 			for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-				SendLightUniforms(shader, shaderUniforms->lightUniforms, shaderUniforms->lightOffset*i, i);
+				SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset*i);
 		}
 
 		NzRenderer::SetMatrix(nzMatrixType_World, matrix);

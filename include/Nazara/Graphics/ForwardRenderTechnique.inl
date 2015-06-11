@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int uniformOffset, unsigned int index) const
+inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const
 {
 	if (index < m_lights.size())
 	{
