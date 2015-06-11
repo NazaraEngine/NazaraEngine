@@ -874,7 +874,7 @@ void NzRenderTexture::OnContextDestroy(const NzContext* context)
 	#ifdef NAZARA_DEBUG
 	if (m_impl->context != context)
 	{
-		NazaraInternalError("Not listening to " + NzString::Pointer(font));
+		NazaraInternalError("Not listening to " + NzString::Pointer(context));
 		return;
 	}
 	#endif
