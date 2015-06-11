@@ -324,7 +324,7 @@ void NzTextSprite::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractIm
 
 void NzTextSprite::UpdateData(InstanceData* instanceData) const
 {
-	instanceData->data.resize(m_localVertices.size());
+	instanceData->data.resize(m_localVertices.size() * sizeof(NzVertexStruct_XYZ_Color_UV));
 	NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(instanceData->data.data());
 
 	NzSparsePtr<NzColor> colorPtr(&vertices[0].color, sizeof(NzVertexStruct_XYZ_Color_UV));
