@@ -29,7 +29,7 @@ namespace Ndk
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
-				graphicsComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
+				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
 
 			NzColorBackground background;

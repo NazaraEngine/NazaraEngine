@@ -36,7 +36,7 @@ NzModel::~NzModel()
 	Reset();
 }
 
-void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
+void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 {
 	unsigned int submeshCount = m_mesh->GetSubMeshCount();
 	for (unsigned int i = 0; i < submeshCount; ++i)
@@ -49,7 +49,7 @@ void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatri
 		meshData.primitiveMode = mesh->GetPrimitiveMode();
 		meshData.vertexBuffer = mesh->GetVertexBuffer();
 
-		renderQueue->AddMesh(material, meshData, mesh->GetAABB(), transformMatrix);
+		renderQueue->AddMesh(material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
 	}
 }
 
