@@ -10,11 +10,9 @@ NzRenderable::~NzRenderable()
 	OnRenderableRelease(this);
 }
 
-bool NzRenderable::Cull(const NzFrustumf& frustum, const NzBoundingVolumef& volume, const NzMatrix4f& transformMatrix) const
+bool NzRenderable::Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const
 {
-	NazaraUnused(transformMatrix);
-
-	return frustum.Contains(volume);
+	return frustum.Contains(instanceData.volume);
 }
 
 const NzBoundingVolumef& NzRenderable::GetBoundingVolume() const
@@ -24,11 +22,22 @@ const NzBoundingVolumef& NzRenderable::GetBoundingVolume() const
 	return m_boundingVolume;
 }
 
-void NzRenderable::UpdateBoundingVolume(NzBoundingVolumef* boundingVolume, const NzMatrix4f& transformMatrix) const
+void NzRenderable::InvalidateData(InstanceData* instanceData, nzUInt32 flags) const
 {
-	NazaraAssert(boundingVolume, "Invalid bounding volume");
+	instanceData->flags |= flags;
+}
 
-	boundingVolume->Update(transformMatrix);
+void NzRenderable::UpdateBoundingVolume(InstanceData* instanceData) const
+{
+	NazaraAssert(instanceData, "Invalid instance data");
+	NazaraUnused(instanceData);
+
+	instanceData->volume.Update(instanceData->transformMatrix);
+}
+
+void NzRenderable::UpdateData(InstanceData* instanceData) const
+{
+	NazaraAssert(instanceData, "Invalid instance data");
 }
 
 NzRenderableLibrary::LibraryMap NzRenderable::s_library;

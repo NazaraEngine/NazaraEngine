@@ -31,7 +31,7 @@ m_animationEnabled(true)
 {
 }
 
-void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
+void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 {
 	if (!m_mesh)
 		return;
@@ -47,7 +47,7 @@ void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const
 		meshData.primitiveMode = mesh->GetPrimitiveMode();
 		meshData.vertexBuffer = NzSkinningManager::GetBuffer(mesh, &m_skeleton);
 
-		renderQueue->AddMesh(material, meshData, m_skeleton.GetAABB(), transformMatrix);
+		renderQueue->AddMesh(material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
 	}
 }
 

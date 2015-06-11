@@ -38,7 +38,7 @@ class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
 		NzSkeletalModel(NzSkeletalModel&& model) = default;
 		~NzSkeletalModel() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 		void AdvanceAnimation(float elapsedTime);
 
 		NzSkeletalModel* Clone() const;
