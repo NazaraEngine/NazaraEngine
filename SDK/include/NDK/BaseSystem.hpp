@@ -25,7 +25,7 @@ namespace Ndk
 			inline BaseSystem(SystemIndex systemId);
 			inline BaseSystem(const BaseSystem&);
 			BaseSystem(BaseSystem&&) noexcept = default;
-			~BaseSystem();
+			virtual ~BaseSystem();
 
 			virtual BaseSystem* Clone() const = 0;
 
