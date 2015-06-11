@@ -38,6 +38,7 @@ class NAZARA_API NzTextSprite : public NzRenderable
 
 		const NzColor& GetColor() const;
 		NzMaterial* GetMaterial() const;
+		float GetScale() const;
 
 		void InvalidateVertices();
 		bool IsDrawable() const;
@@ -45,6 +46,7 @@ class NAZARA_API NzTextSprite : public NzRenderable
 		void SetColor(const NzColor& color);
 		void SetDefaultMaterial();
 		void SetMaterial(NzMaterial* material);
+		void SetScale(float scale);
 
 		void Update(const NzAbstractTextDrawer& drawer);
 
@@ -78,6 +80,7 @@ class NAZARA_API NzTextSprite : public NzRenderable
 		NzMaterialRef m_material;
 		NzRectui m_localBounds;
 		mutable bool m_verticesUpdated;
+		float m_scale;
 
 		static NzTextSpriteLibrary::LibraryMap s_library;
 };
