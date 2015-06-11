@@ -12,7 +12,8 @@
 #include <Nazara/Graphics/Debug.hpp>
 
 NzTextSprite::NzTextSprite() :
-m_color(NzColor::White)
+m_color(NzColor::White),
+m_scale(1.f)
 {
 	SetDefaultMaterial();
 }
@@ -23,7 +24,8 @@ m_renderInfos(sprite.m_renderInfos),
 m_localVertices(sprite.m_localVertices),
 m_color(sprite.m_color),
 m_material(sprite.m_material),
-m_localBounds(sprite.m_localBounds)
+m_localBounds(sprite.m_localBounds),
+m_scale(sprite.m_scale)
 {
 	for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
 	{
@@ -79,6 +81,11 @@ NzMaterial* NzTextSprite::GetMaterial() const
 	return m_material;
 }
 
+float NzTextSprite::GetScale() const
+{
+	return m_scale;
+}
+
 void NzTextSprite::InvalidateVertices()
 {
 	OnRenderableInvalidateInstanceData(this, 0);
@@ -112,6 +119,13 @@ void NzTextSprite::SetDefaultMaterial()
 void NzTextSprite::SetMaterial(NzMaterial* material)
 {
 	m_material = material;
+}
+
+void NzTextSprite::SetScale(float scale)
+{
+	m_scale = scale;
+
+	InvalidateInstanceData(0);
 }
 
 void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
@@ -239,6 +253,7 @@ NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 	m_renderInfos = text.m_renderInfos;
 	m_localBounds = text.m_localBounds;
 	m_localVertices = text.m_localVertices;
+	m_scale = text.m_scale;
 
 	// Connect to the slots of the new atlases
 	for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
@@ -345,7 +360,10 @@ void NzTextSprite::UpdateData(InstanceData* instanceData) const
 		{
 			for (unsigned int j = 0; j < 4; ++j)
 			{
-				*pos++ = instanceData->transformMatrix.Transform(localVertex->position.x*NzVector3f::Right() + localVertex->position.y*NzVector3f::Down());
+				NzVector3f localPos = localVertex->position.x*NzVector3f::Right() + localVertex->position.y*NzVector3f::Down();
+				localPos *= m_scale;
+
+				*pos++ = instanceData->transformMatrix.Transform(localPos);
 				*color++ = m_color * localVertex->color;
 				*uv++ = localVertex->uv;
 
