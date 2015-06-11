@@ -428,7 +428,7 @@ void NzFont::OnAtlasCleared(const NzAbstractAtlas* atlas)
 	if (m_atlas.get() != atlas)
 	{
 		NazaraInternalError("Notified by a non-listening-to resource");
-		return false; // On ne veut plus être notifié par cette ressource, évidemment
+		return;
 	}
 	#endif
 
@@ -449,7 +449,7 @@ void NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* o
 	if (m_atlas.get() != atlas)
 	{
 		NazaraInternalError("Notified by a non-listening-to resource");
-		return false; // On ne veut plus être notifié par cette ressource, évidemment
+		return;
 	}
 	#endif
 
