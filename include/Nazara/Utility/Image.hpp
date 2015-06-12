@@ -121,11 +121,12 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 
 		struct SharedImage
 		{
-			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, nzUInt8 LevelCount = 1, nzUInt8** Pixels = nullptr, unsigned int Width = 1, unsigned int Height = 1, unsigned int Depth = 1) :
+			using PixelContainer = std::vector<std::unique_ptr<nzUInt8[]>>;
+
+			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, PixelContainer&& Levels, unsigned int Width, unsigned int Height, unsigned int Depth) :
 			type(Type),
 			format(Format),
-			levelCount(LevelCount),
-			pixels(Pixels),
+			levels(std::move(Levels)),
 			depth(Depth),
 			height(Height),
 			width(Width),
@@ -135,8 +136,7 @@ class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public N
 
 			nzImageType type;
 			nzPixelFormat format;
-			nzUInt8 levelCount;
-			nzUInt8** pixels;
+			PixelContainer levels;
 			unsigned int depth;
 			unsigned int height;
 			unsigned int width;
