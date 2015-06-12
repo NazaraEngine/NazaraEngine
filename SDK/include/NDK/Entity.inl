@@ -15,7 +15,7 @@ namespace Ndk
 		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
 
 		// Allocation et affectation du component
-		std::unique_ptr<ComponentType> ptr(new ComponentType(std::forward(args)...));
+		std::unique_ptr<ComponentType> ptr(new ComponentType(std::forward<Args>(args)...));
 		return static_cast<ComponentType&>(AddComponent(std::move(ptr)));
 	}
 
