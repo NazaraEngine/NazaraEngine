@@ -238,6 +238,7 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 	m_localBounds = drawer.GetBounds();
 
 	InvalidateBoundingVolume();
+	InvalidateInstanceData(0);
 
 	clearOnFail.Reset();
 }
