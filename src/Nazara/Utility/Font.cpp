@@ -22,10 +22,10 @@ bool NzFontParams::IsValid() const
 }
 
 NzFont::NzFont() :
-m_atlas(s_defaultAtlas),
 m_glyphBorder(s_defaultGlyphBorder),
 m_minimumStepSize(s_defaultMinimumStepSize)
 {
+	SetAtlas(s_defaultAtlas);
 }
 
 NzFont::~NzFont()
