@@ -13,7 +13,7 @@
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
-///TODO: Rendre les méthodes exception-safe (Virer toute cette merde de calcul de pointeurs, faire usage du RAII)
+///TODO: Rendre les méthodes exception-safe (faire usage du RAII)
 ///FIXME: Gérer correctement les formats utilisant moins d'un octet par pixel
 
 namespace
@@ -70,7 +70,7 @@ NzImage::~NzImage()
 	Destroy();
 }
 
-bool NzImage::Convert(nzPixelFormat format)
+bool NzImage::Convert(nzPixelFormat newFormat)
 {
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
@@ -79,23 +79,23 @@ bool NzImage::Convert(nzPixelFormat format)
 		return false;
 	}
 
-	if (!NzPixelFormat::IsValid(format))
+	if (!NzPixelFormat::IsValid(newFormat))
 	{
 		NazaraError("Invalid pixel format");
 		return false;
 	}
 
-	if (!NzPixelFormat::IsConversionSupported(m_sharedImage->format, format))
+	if (!NzPixelFormat::IsConversionSupported(m_sharedImage->format, newFormat))
 	{
-		NazaraError("Conversion from " + NzPixelFormat::ToString(m_sharedImage->format) + " to " + NzPixelFormat::ToString(format) + " is not supported");
+		NazaraError("Conversion from " + NzPixelFormat::ToString(m_sharedImage->format) + " to " + NzPixelFormat::ToString(newFormat) + " is not supported");
 		return false;
 	}
 	#endif
 
-	if (format == m_sharedImage->format)
+	if (m_sharedImage->format == newFormat)
 		return true;
 
-	nzUInt8** levels = new nzUInt8*[m_sharedImage->levelCount];
+	SharedImage::PixelContainer levels(m_sharedImage->levels.size());
 
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
@@ -103,36 +103,27 @@ bool NzImage::Convert(nzPixelFormat format)
 	// Les images 3D et cubemaps sont stockés de la même façon
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 
-	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
+	for (unsigned int i = 0; i < levels.size(); ++i)
 	{
-		unsigned int pixelsPerFace = width*height;
-		nzUInt8* face = new nzUInt8[pixelsPerFace*depth*NzPixelFormat::GetBytesPerPixel(format)];
-		nzUInt8* ptr = face;
-		nzUInt8* pixels = m_sharedImage->pixels[i];
+		unsigned int pixelsPerFace = width * height;
+		levels[i].reset(new nzUInt8[pixelsPerFace * depth * NzPixelFormat::GetBytesPerPixel(newFormat)]);
+
+		nzUInt8* dst = levels[i].get();
+		nzUInt8* src = m_sharedImage->levels[i].get();
 		unsigned int srcStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(format);
+		unsigned int dstStride = pixelsPerFace * NzPixelFormat::GetBytesPerPixel(newFormat);
 
 		for (unsigned int d = 0; d < depth; ++d)
 		{
-			if (!NzPixelFormat::Convert(m_sharedImage->format, format, pixels, &pixels[srcStride], ptr))
+			if (!NzPixelFormat::Convert(m_sharedImage->format, newFormat, src, &src[srcStride], dst))
 			{
 				NazaraError("Failed to convert image");
-
-				// Nettoyage de la mémoire
-				delete[] face; // Permet une optimisation de boucle (GCC)
-				for (unsigned int j = 0; j < i; ++j)
-					delete[] levels[j];
-
-				delete[] levels;
-
 				return false;
 			}
 
-			pixels += srcStride;
-			ptr += dstStride;
+			src += srcStride;
+			dst += dstStride;
 		}
-
-		levels[i] = face;
 
 		if (width > 1)
 			width >>= 1;
@@ -144,7 +135,7 @@ bool NzImage::Convert(nzPixelFormat format)
 			depth >>= 1;
 	}
 
-	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, format, m_sharedImage->levelCount, levels, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, newFormat, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 
 	ReleaseImage();
 	m_sharedImage = newImage;
@@ -184,7 +175,7 @@ void NzImage::Copy(const NzImage& source, const NzBoxui& srcBox, const NzVector3
 	#endif
 
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-	nzUInt8* dstPtr = GetPixelPtr(m_sharedImage->pixels[0], bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
+	nzUInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
 	Copy(dstPtr, srcPtr, bpp, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
 }
@@ -269,7 +260,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 
 	levelCount = std::min(levelCount, GetMaxLevel(type, width, height, depth));
 
-	nzUInt8** levels = new nzUInt8*[levelCount];
+	SharedImage::PixelContainer levels(levelCount);
 
 	unsigned int w = width;
 	unsigned int h = height;
@@ -280,7 +271,7 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 		try
 		{
-			levels[i] = new nzUInt8[w * h * d * NzPixelFormat::GetBytesPerPixel(format)];
+			levels[i].reset(new nzUInt8[w * h * d * NzPixelFormat::GetBytesPerPixel(format)]);
 
 			if (w > 1)
 				w >>= 1;
@@ -294,19 +285,11 @@ bool NzImage::Create(nzImageType type, nzPixelFormat format, unsigned int width,
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to allocate image's level " + NzString::Number(i) + " (" + NzString(e.what()) + ')');
-
-			// Nettoyage
-			delete[] levels[i]; // Permet une optimisation de boucle (GCC)
-			for (unsigned int j = 0; j < i; ++j)
-				delete[] levels[j];
-
-			delete[] levels;
-
 			return false;
 		}
 	}
 
-	m_sharedImage = new SharedImage(1, type, format, levelCount, levels, width, height, depth);
+	m_sharedImage = new SharedImage(1, type, format, std::move(levels), width, height, depth);
 
 	return true;
 }
@@ -322,6 +305,8 @@ void NzImage::Destroy()
 
 bool NzImage::Fill(const NzColor& color)
 {
+	///FIXME: Pourquoi cette méthode alloue une nouvelle image plutôt que de remplir l'existante ?
+
 	#if NAZARA_UTILITY_SAFE
 	if (m_sharedImage == &emptyImage)
 	{
@@ -344,7 +329,7 @@ bool NzImage::Fill(const NzColor& color)
 		return false;
 	}
 
-	nzUInt8** levels = new nzUInt8*[m_sharedImage->levelCount];
+	SharedImage::PixelContainer levels(m_sharedImage->levels.size());
 
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
@@ -352,11 +337,12 @@ bool NzImage::Fill(const NzColor& color)
 	// Les images 3D et cubemaps sont stockés de la même façon
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
 
-	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
+	for (unsigned int i = 0; i < levels.size(); ++i)
 	{
 		unsigned int size = width*height*depth*bpp;
-		nzUInt8* face = new nzUInt8[size];
-		nzUInt8* ptr = face;
+		levels[i].reset(new nzUInt8[size]);
+
+		nzUInt8* ptr = levels[i].get();
 		nzUInt8* end = &ptr[size];
 
 		while (ptr < end)
@@ -364,8 +350,6 @@ bool NzImage::Fill(const NzColor& color)
 			std::memcpy(ptr, colorBuffer.get(), bpp);
 			ptr += bpp;
 		}
-
-		levels[i] = face;
 
 		if (width > 1U)
 			width >>= 1;
@@ -377,7 +361,7 @@ bool NzImage::Fill(const NzColor& color)
 			depth >>= 1;
 	}
 
-	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, m_sharedImage->levelCount, levels, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+	SharedImage* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 
 	ReleaseImage();
 	m_sharedImage = newImage;
@@ -418,7 +402,7 @@ bool NzImage::Fill(const NzColor& color, const NzBoxui& box)
 	}
 
 	///FIXME: L'algorithme a du mal avec un bpp non multiple de 2
-	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[0], bpp, box.x, box.y, box.z, m_sharedImage->width, m_sharedImage->height);
+	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, box.x, box.y, box.z, m_sharedImage->width, m_sharedImage->height);
 	unsigned int srcStride = box.width * bpp;
 	unsigned int dstStride = m_sharedImage->width * bpp;
 	unsigned int faceSize = dstStride * m_sharedImage->height;
@@ -484,7 +468,7 @@ bool NzImage::Fill(const NzColor& color, const NzRectui& rect, unsigned int z)
 	}
 
 	///FIXME: L'algorithme a du mal avec un bpp non multiple de 2
-	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[0], bpp, rect.x, rect.y, z, m_sharedImage->width, m_sharedImage->height);
+	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, rect.x, rect.y, z, m_sharedImage->width, m_sharedImage->height);
 	unsigned int srcStride = rect.width * bpp;
 	unsigned int dstStride = m_sharedImage->width * bpp;
 	for (unsigned int y = 0; y < rect.height; ++y)
@@ -518,9 +502,10 @@ bool NzImage::FlipHorizontally()
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
-	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
+	for (unsigned int level = 0; level < m_sharedImage->levels.size(); ++level)
 	{
-		if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]))
+		nzUInt8* ptr = m_sharedImage->levels[level].get();
+		if (!NzPixelFormat::Flip(nzPixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
 		{
 			NazaraError("Failed to flip image");
 			return false;
@@ -560,9 +545,10 @@ bool NzImage::FlipVertically()
 	unsigned int width = m_sharedImage->width;
 	unsigned int height = m_sharedImage->height;
 	unsigned int depth = (m_sharedImage->type == nzImageType_Cubemap) ? 6 : m_sharedImage->depth;
-	for (unsigned int level = 0; level < m_sharedImage->levelCount; ++level)
+	for (unsigned int level = 0; level < m_sharedImage->levels.size(); ++level)
 	{
-		if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_sharedImage->format, width, height, depth, m_sharedImage->pixels[level], m_sharedImage->pixels[level]))
+		nzUInt8* ptr = m_sharedImage->levels[level].get();
+		if (!NzPixelFormat::Flip(nzPixelFlipping_Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
 		{
 			NazaraError("Failed to flip image");
 			return false;
@@ -590,9 +576,9 @@ const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned 
 		return nullptr;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return nullptr;
 	}
 	#endif
@@ -622,15 +608,15 @@ const nzUInt8* NzImage::GetConstPixels(unsigned int x, unsigned int y, unsigned 
 	}
 	#endif
 
-	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+	return GetPixelPtr(m_sharedImage->levels[level].get(), NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 }
 
 unsigned int NzImage::GetDepth(nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return 0;
 	}
 	#endif
@@ -646,9 +632,9 @@ nzPixelFormat NzImage::GetFormat() const
 unsigned int NzImage::GetHeight(nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return 0;
 	}
 	#endif
@@ -658,7 +644,7 @@ unsigned int NzImage::GetHeight(nzUInt8 level) const
 
 nzUInt8 NzImage::GetLevelCount() const
 {
-	return m_sharedImage->levelCount;
+	return m_sharedImage->levels.size();
 }
 
 nzUInt8 NzImage::GetMaxLevel() const
@@ -673,7 +659,7 @@ unsigned int NzImage::GetMemoryUsage() const
 	unsigned int depth = m_sharedImage->depth;
 
 	unsigned int size = 0;
-	for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
+	for (unsigned int i = 0; i < m_sharedImage->levels.size(); ++i)
 	{
 		size += width * height * depth;
 
@@ -695,14 +681,6 @@ unsigned int NzImage::GetMemoryUsage() const
 
 unsigned int NzImage::GetMemoryUsage(nzUInt8 level) const
 {
-	#if NAZARA_UTILITY_SAFE
-	if (level >= m_sharedImage->levelCount)
-	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
-		return 0;
-	}
-	#endif
-
 	return (GetLevelSize(m_sharedImage->width, level)) *
 	       (GetLevelSize(m_sharedImage->height, level)) *
 	       ((m_sharedImage->type == nzImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)) *
@@ -744,7 +722,7 @@ NzColor NzImage::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) c
 	}
 	#endif
 
-	const nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	const nzUInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 	NzColor color;
 	if (!NzPixelFormat::Convert(m_sharedImage->format, nzPixelFormat_RGBA8, pixel, &color.r))
@@ -762,9 +740,9 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 		return nullptr;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return nullptr;
 	}
 	#endif
@@ -793,24 +771,24 @@ nzUInt8* NzImage::GetPixels(unsigned int x, unsigned int y, unsigned int z, nzUI
 		return nullptr;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return nullptr;
 	}
 	#endif
 
 	EnsureOwnership();
 
-	return GetPixelPtr(m_sharedImage->pixels[level], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+	return GetPixelPtr(m_sharedImage->levels[level].get(), NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 }
 
 NzVector3ui NzImage::GetSize(nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return NzVector3ui::Zero();
 	}
 	#endif
@@ -826,9 +804,9 @@ nzImageType	NzImage::GetType() const
 unsigned int NzImage::GetWidth(nzUInt8 level) const
 {
 	#if NAZARA_UTILITY_SAFE
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return 0;
 	}
 	#endif
@@ -1104,29 +1082,17 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 
 	levelCount = std::min(levelCount, GetMaxLevel());
 
-	if (m_sharedImage->levelCount == levelCount)
+	if (m_sharedImage->levels.size() == levelCount)
 		return;
 
 	EnsureOwnership();
 
-	nzUInt8 oldLevelCount = m_sharedImage->levelCount;
+	nzUInt8 oldLevelCount = m_sharedImage->levels.size();
 	nzUInt8 maxLevelCount = std::max(levelCount, oldLevelCount);
-	m_sharedImage->levelCount = levelCount; // Pour faire fonctionner GetMemoryUsage
 
-	nzUInt8** pixels = new nzUInt8*[levelCount];
-	for (unsigned int i = 0; i < maxLevelCount; ++i)
-	{
-		if (i < oldLevelCount)
-			pixels[i] = m_sharedImage->pixels[i];
-		else if (i < levelCount)
-			pixels[i] = new nzUInt8[GetMemoryUsage(i)];
-		else
-			delete[] m_sharedImage->pixels[i];
-	}
-
-	delete[] m_sharedImage->pixels;
-
-	m_sharedImage->pixels = pixels;
+	m_sharedImage->levels.resize(levelCount);
+	for (nzUInt8 i = oldLevelCount; i < maxLevelCount; ++i)
+		m_sharedImage->levels[i].reset(new nzUInt8[GetMemoryUsage(i)]);
 }
 
 bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y, unsigned int z)
@@ -1164,7 +1130,7 @@ bool NzImage::SetPixelColor(const NzColor& color, unsigned int x, unsigned int y
 	}
 	#endif
 
-	nzUInt8* pixel = GetPixelPtr(m_sharedImage->pixels[0], NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+	nzUInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), NzPixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 	if (!NzPixelFormat::Convert(nzPixelFormat_RGBA8, m_sharedImage->format, &color.r, pixel))
 	{
@@ -1190,16 +1156,16 @@ bool NzImage::Update(const nzUInt8* pixels, unsigned int srcWidth, unsigned int 
 		return false;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return false;
 	}
 	#endif
 
 	EnsureOwnership();
 
-	Copy(m_sharedImage->pixels[level], pixels, NzPixelFormat::GetBytesPerPixel(m_sharedImage->format),
+	Copy(m_sharedImage->levels[level].get(), pixels, NzPixelFormat::GetBytesPerPixel(m_sharedImage->format),
 	     GetLevelSize(m_sharedImage->width, level),
 	     GetLevelSize(m_sharedImage->height, level),
 	     GetLevelSize(m_sharedImage->depth, level),
@@ -1224,9 +1190,9 @@ bool NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 		return false;
 	}
 
-	if (level >= m_sharedImage->levelCount)
+	if (level >= m_sharedImage->levels.size())
 	{
-		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levelCount) + ')');
+		NazaraError("Level out of bounds (" + NzString::Number(level) + " >= " + NzString::Number(m_sharedImage->levels.size()) + ')');
 		return false;
 	}
 	#endif
@@ -1253,7 +1219,7 @@ bool NzImage::Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int src
 	EnsureOwnership();
 
 	nzUInt8 bpp = NzPixelFormat::GetBytesPerPixel(m_sharedImage->format);
-	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->pixels[level], bpp, box.x, box.y, box.z, width, height);
+	nzUInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[level].get(), bpp, box.x, box.y, box.z, width, height);
 
 	Copy(dstPixels, pixels, bpp,
 	     box.width, box.height, box.depth,
@@ -1357,17 +1323,16 @@ void NzImage::EnsureOwnership()
 
 	if (m_sharedImage->refCount > 1)
 	{
-		m_sharedImage->refCount--;
-
-		nzUInt8** pixels = new nzUInt8*[m_sharedImage->levelCount];
-		for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
+		SharedImage::PixelContainer levels(m_sharedImage->levels.size());
+		for (unsigned int i = 0; i < levels.size(); ++i)
 		{
 			unsigned int size = GetMemoryUsage(i);
-			pixels[i] = new nzUInt8[size];
-			std::memcpy(pixels[i], m_sharedImage->pixels[i], size);
+			levels[i].reset(new nzUInt8[size]);
+			std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 		}
 
-		m_sharedImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, m_sharedImage->levelCount, pixels, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+		m_sharedImage->refCount--;
+		m_sharedImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 	}
 }
 
@@ -1377,13 +1342,7 @@ void NzImage::ReleaseImage()
 		return;
 
 	if (--m_sharedImage->refCount == 0)
-	{
-		for (unsigned int i = 0; i < m_sharedImage->levelCount; ++i)
-			delete[] m_sharedImage->pixels[i];
-
-		delete[] m_sharedImage->pixels;
 		delete m_sharedImage;
-	}
 
 	m_sharedImage = &emptyImage;
 }
@@ -1411,7 +1370,7 @@ void NzImage::Uninitialize()
 	NzImageLibrary::Uninitialize();
 }
 
-NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, 1, nullptr, 0, 0, 0);
+NzImage::SharedImage NzImage::emptyImage(0, nzImageType_2D, nzPixelFormat_Undefined, NzImage::SharedImage::PixelContainer(), 0, 0, 0);
 NzImageLibrary::LibraryMap NzImage::s_library;
 NzImageLoader::LoaderList NzImage::s_loaders;
 NzImageManager::ManagerMap NzImage::s_managerMap;
