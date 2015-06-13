@@ -1,12 +1,10 @@
-project "lualib"
-language "C++"
-kind "StaticLib"
-targetname "lua-s"
+LIBRARY.Name = "lua"
 
-files
-{
-	"../include/Lua/*.h",
-	"../include/Lua/*.hpp",
-	"../src/Lua/*.h",
-	"../src/Lua/*.cpp"
+LIBRARY.Language = "C++" -- Pour les exceptions
+
+LIBRARY.Files = {
+	"../extlibs/include/Lua/*.h",
+	"../extlibs/include/Lua/*.hpp",
+	"../extlibs/src/Lua/*.h",
+	"../extlibs/src/Lua/*.cpp"
 }
