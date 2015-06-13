@@ -7,7 +7,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
-#include <Nazara/Audio/Loaders/sndfileLoader.hpp>
+#include <Nazara/Audio/Formats/sndfileLoader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
