@@ -11,7 +11,7 @@
 
 struct NzHashWhirlpool_state;
 
-class NAZARA_API NzHashWhirlpool : public NzAbstractHash
+class NAZARA_CORE_API NzHashWhirlpool : public NzAbstractHash
 {
 	public:
 		NzHashWhirlpool();

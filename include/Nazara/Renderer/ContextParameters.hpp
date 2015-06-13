@@ -7,13 +7,14 @@
 #ifndef NAZARA_CONTEXTPARAMETERS_HPP
 #define NAZARA_CONTEXTPARAMETERS_HPP
 
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 
 class NzContext;
 
-struct NAZARA_API NzContextParameters
+struct NAZARA_RENDERER_API NzContextParameters
 {
 	NzContextParameters(const NzRenderTargetParameters& parameters = NzRenderTargetParameters()) :
 	antialiasingLevel(parameters.antialiasingLevel),

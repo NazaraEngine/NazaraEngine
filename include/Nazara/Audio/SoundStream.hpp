@@ -8,9 +8,10 @@
 #define NAZARA_SOUNDSTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 
-class NAZARA_API NzSoundStream
+class NAZARA_AUDIO_API NzSoundStream
 {
 	public:
 		NzSoundStream() = default;

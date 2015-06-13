@@ -12,11 +12,12 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <unordered_map>
 #include <vector>
 
-class NAZARA_API NzNode
+class NAZARA_UTILITY_API NzNode
 {
 	public:
 		NzNode();

@@ -9,9 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_API NzGpuQuery : NzNonCopyable
+class NAZARA_RENDERER_API NzGpuQuery : NzNonCopyable
 {
 	public:
 		NzGpuQuery();

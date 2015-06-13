@@ -38,4 +38,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Lua/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_LUA_API
+#else
+	#ifdef NAZARA_LUA_BUILD
+		#define NAZARA_LUA_API NAZARA_EXPORT
+	#else
+		#define NAZARA_LUA_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_LUA_HPP

@@ -19,7 +19,7 @@
 #include <memory>
 #include <unordered_map>
 
-struct NAZARA_API NzFontParams
+struct NAZARA_UTILITY_API NzFontParams
 {
 	bool IsValid() const;
 };
@@ -34,7 +34,7 @@ using NzFontLibrary = NzObjectLibrary<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzObjectRef<NzFont>;
 
-class NAZARA_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
+class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzFontLibrary;
 	friend NzFontLoader;

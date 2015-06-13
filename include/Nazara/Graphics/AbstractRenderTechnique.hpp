@@ -19,7 +19,7 @@ class NzAbstractViewer;
 class NzBackground;
 struct SceneData;
 
-class NAZARA_API NzAbstractRenderTechnique : NzNonCopyable
+class NAZARA_GRAPHICS_API NzAbstractRenderTechnique : NzNonCopyable
 {
 	public:
 		NzAbstractRenderTechnique();

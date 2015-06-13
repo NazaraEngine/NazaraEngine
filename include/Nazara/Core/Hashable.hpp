@@ -13,7 +13,7 @@
 class NzAbstractHash;
 class NzHashDigest;
 
-class NAZARA_API NzHashable
+class NAZARA_CORE_API NzHashable
 {
 	friend class NzHash;
 

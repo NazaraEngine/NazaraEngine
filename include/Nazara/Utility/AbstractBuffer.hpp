@@ -9,7 +9,7 @@
 
 #include <Nazara/Utility/Buffer.hpp>
 
-class NAZARA_API NzAbstractBuffer
+class NAZARA_UTILITY_API NzAbstractBuffer
 {
 	public:
 		NzAbstractBuffer() = default;

@@ -13,7 +13,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <unordered_map>
 
-class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredGeometryPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredGeometryPass();

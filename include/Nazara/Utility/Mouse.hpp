@@ -11,10 +11,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 class NzWindow;
 
-class NAZARA_API NzMouse
+class NAZARA_UTILITY_API NzMouse
 {
 	public:
 		enum Button

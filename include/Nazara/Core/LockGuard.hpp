@@ -11,7 +11,7 @@
 
 class NzMutex;
 
-class NAZARA_API NzLockGuard
+class NAZARA_CORE_API NzLockGuard
 {
 	public:
 		NzLockGuard(NzMutex& mutex);

@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
@@ -21,7 +22,7 @@ using NzParticleDeclarationConstRef = NzObjectRef<const NzParticleDeclaration>;
 using NzParticleDeclarationLibrary = NzObjectLibrary<NzParticleDeclaration>;
 using NzParticleDeclarationRef = NzObjectRef<NzParticleDeclaration>;
 
-class NAZARA_API NzParticleDeclaration : public NzRefCounted
+class NAZARA_GRAPHICS_API NzParticleDeclaration : public NzRefCounted
 {
 	friend NzParticleDeclarationLibrary;
 	friend class NzGraphics;

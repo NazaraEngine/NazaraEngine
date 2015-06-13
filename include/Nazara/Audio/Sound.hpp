@@ -12,7 +12,7 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 
-class NAZARA_API NzSound : public NzSoundEmitter
+class NAZARA_AUDIO_API NzSound : public NzSoundEmitter
 {
 	public:
 		NzSound() = default;

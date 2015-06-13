@@ -13,11 +13,12 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 
 class NzSkeleton;
 
-class NAZARA_API NzDebugDrawer
+class NAZARA_RENDERER_API NzDebugDrawer
 {
 	public:
 		static void Draw(const NzBoundingVolumef& volume);

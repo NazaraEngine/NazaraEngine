@@ -17,7 +17,7 @@
 
 class NzDynLib;
 
-class NAZARA_API NzPluginManager
+class NAZARA_CORE_API NzPluginManager
 {
 	public:
 		NzPluginManager() = delete;

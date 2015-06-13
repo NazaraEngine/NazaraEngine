@@ -46,4 +46,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Graphics/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_GRAPHICS_API
+#else
+	#ifdef NAZARA_GRAPHICS_BUILD
+		#define NAZARA_GRAPHICS_API NAZARA_EXPORT
+	#else
+		#define NAZARA_GRAPHICS_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_GRAPHICS_HPP

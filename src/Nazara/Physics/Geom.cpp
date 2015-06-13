@@ -408,7 +408,7 @@ NzBoxf NzSphereGeom::ComputeAABB(const NzMatrix4f& offsetMatrix, const NzVector3
 
 float NzSphereGeom::ComputeVolume() const
 {
-	return M_PI * m_radius * m_radius * m_radius / 3.f;
+	return float(M_PI) * m_radius * m_radius * m_radius / 3.f;
 }
 
 float NzSphereGeom::GetRadius() const

@@ -10,9 +10,10 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_API NzShaderStage : NzNonCopyable
+class NAZARA_RENDERER_API NzShaderStage : NzNonCopyable
 {
 	public:
 		NzShaderStage();

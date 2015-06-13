@@ -14,7 +14,7 @@
 
 struct NzHashFletcher16_state;
 
-class NAZARA_API NzHashFletcher16 : public NzAbstractHash
+class NAZARA_CORE_API NzHashFletcher16 : public NzAbstractHash
 {
 	public:
 		NzHashFletcher16();

@@ -17,6 +17,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics/Config.hpp>
 #include <Nazara/Physics/Enums.hpp>
 #include <unordered_map>
 
@@ -34,7 +35,7 @@ using NzPhysGeomConstRef = NzObjectRef<const NzPhysGeom>;
 using NzPhysGeomLibrary = NzObjectLibrary<NzPhysGeom>;
 using NzPhysGeomRef = NzObjectRef<NzPhysGeom>;
 
-class NAZARA_API NzPhysGeom : public NzRefCounted, NzNonCopyable
+class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 {
 	public:
 		NzPhysGeom() = default;
@@ -65,7 +66,7 @@ class NzBoxGeom;
 using NzBoxGeomConstRef = NzObjectRef<const NzBoxGeom>;
 using NzBoxGeomRef = NzObjectRef<NzBoxGeom>;
 
-class NAZARA_API NzBoxGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzBoxGeom : public NzPhysGeom
 {
 	public:
 		NzBoxGeom(const NzVector3f& lengths, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -91,7 +92,7 @@ class NzCapsuleGeom;
 using NzCapsuleGeomConstRef = NzObjectRef<const NzCapsuleGeom>;
 using NzCapsuleGeomRef = NzObjectRef<NzCapsuleGeom>;
 
-class NAZARA_API NzCapsuleGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzCapsuleGeom : public NzPhysGeom
 {
 	public:
 		NzCapsuleGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -116,7 +117,7 @@ class NzCompoundGeom;
 using NzCompoundGeomConstRef = NzObjectRef<const NzCompoundGeom>;
 using NzCompoundGeomRef = NzObjectRef<NzCompoundGeom>;
 
-class NAZARA_API NzCompoundGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzCompoundGeom : public NzPhysGeom
 {
 	public:
 		NzCompoundGeom(NzPhysGeom** geoms, unsigned int geomCount);
@@ -137,7 +138,7 @@ class NzConeGeom;
 using NzConeGeomConstRef = NzObjectRef<const NzConeGeom>;
 using NzConeGeomRef = NzObjectRef<NzConeGeom>;
 
-class NAZARA_API NzConeGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzConeGeom : public NzPhysGeom
 {
 	public:
 		NzConeGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -162,7 +163,7 @@ class NzConvexHullGeom;
 using NzConvexHullGeomConstRef = NzObjectRef<const NzConvexHullGeom>;
 using NzConvexHullGeomRef = NzObjectRef<NzConvexHullGeom>;
 
-class NAZARA_API NzConvexHullGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzConvexHullGeom : public NzPhysGeom
 {
 	public:
 		NzConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(NzVector3f), float tolerance = 0.002f, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -186,7 +187,7 @@ class NzCylinderGeom;
 using NzCylinderGeomConstRef = NzObjectRef<const NzCylinderGeom>;
 using NzCylinderGeomRef = NzObjectRef<NzCylinderGeom>;
 
-class NAZARA_API NzCylinderGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzCylinderGeom : public NzPhysGeom
 {
 	public:
 		NzCylinderGeom(float length, float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -211,7 +212,7 @@ class NzNullGeom;
 using NzNullGeomConstRef = NzObjectRef<const NzNullGeom>;
 using NzNullGeomRef = NzObjectRef<NzNullGeom>;
 
-class NAZARA_API NzNullGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzNullGeom : public NzPhysGeom
 {
 	public:
 		NzNullGeom();
@@ -229,7 +230,7 @@ class NzSphereGeom;
 using NzSphereGeomConstRef = NzObjectRef<const NzSphereGeom>;
 using NzSphereGeomRef = NzObjectRef<NzSphereGeom>;
 
-class NAZARA_API NzSphereGeom : public NzPhysGeom
+class NAZARA_PHYSICS_API NzSphereGeom : public NzPhysGeom
 {
 	public:
 		NzSphereGeom(float radius, const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());

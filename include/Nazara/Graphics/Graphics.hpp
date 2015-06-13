@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Graphics/Config.hpp>
 
-class NAZARA_API NzGraphics
+class NAZARA_GRAPHICS_API NzGraphics
 {
 	public:
 		NzGraphics() = delete;

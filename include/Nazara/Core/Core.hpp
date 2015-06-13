@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 
-class NAZARA_API NzCore
+class NAZARA_CORE_API NzCore
 {
 	public:
 		NzCore() = delete;

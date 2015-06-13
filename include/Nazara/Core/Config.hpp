@@ -78,4 +78,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Core/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_CORE_API
+#else
+	#ifdef NAZARA_CORE_BUILD
+		#define NAZARA_CORE_API NAZARA_EXPORT
+	#else
+		#define NAZARA_CORE_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_CORE_HPP

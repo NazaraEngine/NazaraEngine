@@ -12,7 +12,7 @@
 class NzConditionVariableImpl;
 class NzMutex;
 
-class NAZARA_API NzConditionVariable
+class NAZARA_CORE_API NzConditionVariable
 {
 	public:
 		NzConditionVariable();

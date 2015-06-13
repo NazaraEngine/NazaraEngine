@@ -8,6 +8,7 @@
 #define NAZARA_SCENENODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -16,7 +17,7 @@
 class NzAbstractRenderQueue;
 class NzScene;
 
-class NAZARA_API NzSceneNode : public NzNode
+class NAZARA_GRAPHICS_API NzSceneNode : public NzNode
 {
 	friend NzScene;
 

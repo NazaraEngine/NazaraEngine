@@ -18,7 +18,7 @@ class NzSubMesh;
 using NzIndexMapperGetter = nzUInt32 (*)(const void* buffer, unsigned int i);
 using NzIndexMapperSetter = void (*)(void* buffer, unsigned int i, nzUInt32 value);
 
-class NAZARA_API NzIndexMapper
+class NAZARA_UTILITY_API NzIndexMapper
 {
 	public:
 		NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access = nzBufferAccess_ReadWrite);

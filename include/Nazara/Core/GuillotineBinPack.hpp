@@ -15,7 +15,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 
-class NAZARA_API NzGuillotineBinPack
+class NAZARA_CORE_API NzGuillotineBinPack
 {
 	public:
 		enum FreeRectChoiceHeuristic : int;

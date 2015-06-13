@@ -15,7 +15,7 @@
 class NzAbstractHash;
 class NzHashDigest;
 
-class NAZARA_API NzByteArray : public NzHashable
+class NAZARA_CORE_API NzByteArray : public NzHashable
 {
 	public:
 		struct SharedArray;
@@ -86,7 +86,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 		static int Compare(const NzByteArray& first, const NzByteArray& second);
 
-		struct NAZARA_API SharedArray
+		struct NAZARA_CORE_API SharedArray
 		{
 			SharedArray() :
 			refCount(1)
@@ -121,7 +121,7 @@ class NAZARA_API NzByteArray : public NzHashable
 
 namespace std
 {
-	NAZARA_API void swap(NzByteArray& lhs, NzByteArray& rhs);
+	NAZARA_CORE_API void swap(NzByteArray& lhs, NzByteArray& rhs);
 }
 
 #endif // NAZARA_BYTEARRAY_HPP

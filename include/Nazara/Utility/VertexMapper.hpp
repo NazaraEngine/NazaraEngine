@@ -15,7 +15,7 @@
 
 class NzSubMesh;
 
-class NAZARA_API NzVertexMapper
+class NAZARA_UTILITY_API NzVertexMapper
 {
 	public:
 		NzVertexMapper(NzSubMesh* subMesh, nzBufferAccess access = nzBufferAccess_ReadWrite);

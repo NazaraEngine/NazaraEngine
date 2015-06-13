@@ -13,7 +13,7 @@
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
 
-class NAZARA_API NzSprite : public NzSceneNode
+class NAZARA_GRAPHICS_API NzSprite : public NzSceneNode
 {
 	public:
 		NzSprite();

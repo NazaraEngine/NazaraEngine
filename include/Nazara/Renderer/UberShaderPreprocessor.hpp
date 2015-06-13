@@ -21,7 +21,7 @@ class NzUberShaderPreprocessor;
 using NzUberShaderPreprocessorConstRef = NzObjectRef<const NzUberShaderPreprocessor>;
 using NzUberShaderPreprocessorRef = NzObjectRef<NzUberShaderPreprocessor>;
 
-class NAZARA_API NzUberShaderPreprocessor : public NzUberShader
+class NAZARA_RENDERER_API NzUberShaderPreprocessor : public NzUberShader
 {
 	public:
 		NzUberShaderPreprocessor() = default;

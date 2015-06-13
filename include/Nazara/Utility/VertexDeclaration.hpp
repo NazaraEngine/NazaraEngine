@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzVertexDeclaration;
@@ -20,7 +21,7 @@ using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
 using NzVertexDeclarationLibrary = NzObjectLibrary<NzVertexDeclaration>;
 using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
 
-class NAZARA_API NzVertexDeclaration : public NzRefCounted
+class NAZARA_UTILITY_API NzVertexDeclaration : public NzRefCounted
 {
 	friend NzVertexDeclarationLibrary;
 	friend class NzUtility;

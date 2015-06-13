@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class NAZARA_API NzStringStream
+class NAZARA_CORE_API NzStringStream
 {
 	public:
 		NzStringStream();

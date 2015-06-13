@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Graphics/Config.hpp>
 
 class NzParticleGenerator;
 class NzParticleMapper;
@@ -21,7 +22,7 @@ using NzParticleGeneratorConstRef = NzObjectRef<const NzParticleGenerator>;
 using NzParticleGeneratorLibrary = NzObjectLibrary<NzParticleGenerator>;
 using NzParticleGeneratorRef = NzObjectRef<NzParticleGenerator>;
 
-class NAZARA_API NzParticleGenerator : public NzRefCounted
+class NAZARA_GRAPHICS_API NzParticleGenerator : public NzRefCounted
 {
 	friend NzParticleGeneratorLibrary;
 	friend class NzGraphics;

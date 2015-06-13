@@ -16,11 +16,12 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
 #include <limits>
 
-struct NAZARA_API NzAnimationParams
+struct NAZARA_UTILITY_API NzAnimationParams
 {
 	// La frame de fin à charger
 	unsigned int endFrame = std::numeric_limits<unsigned int>::max();
@@ -41,7 +42,7 @@ using NzAnimationRef = NzObjectRef<NzAnimation>;
 
 struct NzAnimationImpl;
 
-class NAZARA_API NzAnimation : public NzRefCounted, public NzResource
+class NAZARA_UTILITY_API NzAnimation : public NzRefCounted, public NzResource
 {
 	friend NzAnimationLibrary;
 	friend NzAnimationLoader;

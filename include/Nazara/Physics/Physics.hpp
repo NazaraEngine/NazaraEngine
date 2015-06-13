@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Physics/Config.hpp>
 
-class NAZARA_API NzPhysics
+class NAZARA_PHYSICS_API NzPhysics
 {
 	public:
 		NzPhysics() = delete;

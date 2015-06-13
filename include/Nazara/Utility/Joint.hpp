@@ -14,7 +14,7 @@
 
 class NzSkeleton;
 
-class NAZARA_API NzJoint : public NzNode
+class NAZARA_UTILITY_API NzJoint : public NzNode
 {
 	public:
 		NzJoint(NzSkeleton* skeleton);

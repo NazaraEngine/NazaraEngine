@@ -12,7 +12,7 @@
 #include <Nazara/Noise/Abstract2DNoise.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-class NAZARA_API NzSimplex2D : public NzAbstract2DNoise
+class NAZARA_NOISE_API NzSimplex2D : public NzAbstract2DNoise
 {
     public:
         NzSimplex2D();

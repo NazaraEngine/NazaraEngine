@@ -13,6 +13,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -24,7 +25,7 @@ using NzRenderableConstRef = NzObjectRef<const NzRenderable>;
 using NzRenderableLibrary = NzObjectLibrary<NzRenderable>;
 using NzRenderableRef = NzObjectRef<NzRenderable>;
 
-class NAZARA_API NzRenderable : public NzRefCounted
+class NAZARA_GRAPHICS_API NzRenderable : public NzRefCounted
 {
 	public:
 		struct InstanceData;

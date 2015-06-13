@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_API NzResource
+class NAZARA_CORE_API NzResource
 {
 	public:
 		NzResource() = default;
