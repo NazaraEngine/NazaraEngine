@@ -11,42 +11,43 @@ SDK/lib/NazaraSDK*.so
 build/scripts/features/index.html
 
 # Codeblocks
-*.cbp
-*.cbTemp
-*.cscope_file_list
-*.depend
-*.layout
-*.workspace
+build/**/*.cbp
+build/**/*.cbp
+build/**/*.cbTemp
+build/**/*.cscope_file_list
+build/**/*.depend
+build/**/*.layout
+build/**/*.workspace
 
 # CodeLite
-*.project
+build/**/*.project
 
 # Visual Studio
-*.filters
-*.vcxproj
-*.tlog
-*.sln
-*.vcxprojResolveAssemblyReference.cache
-*.exp
-*.nativecodeanalysis.all.xml
-*.nativecodeanalysis.xml
+build/**/*.filters
+build/**/*.vcxproj
+build/**/*.tlog
+build/**/*.sln
+build/**/*.vcxprojResolveAssemblyReference.cache
+build/**/*.nativecodeanalysis.all.xml
+build/**/*.nativecodeanalysis.xml
+lib/*.exp
 
 # Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+build/**/*.slo
+build/**/*.lo
+build/**/*.o
+build/**/*.obj
 
 # Compiled Dynamic libraries
-*.so
-*.lib
+build/**/*.so
+lib/*.lib
 
 # Compiled Static libraries
-*.lai
-*.la
+build/**/*.lai
+build/**/*.la
 
 # Object files
-*.o
+build/**/*.o
 
 # Windows image file caches
 Thumbs.db
