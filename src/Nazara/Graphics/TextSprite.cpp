@@ -32,9 +32,9 @@ m_scale(sprite.m_scale)
 		const NzAbstractAtlas* atlas = it->first;
 		AtlasSlots& slots = m_atlases[atlas];
 
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
+		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
+		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
+		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
 	}
 }
 
@@ -156,9 +156,9 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 		{
 			AtlasSlots& slots = m_atlases[atlas];
 
-			slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
-			slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
-			slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
+			slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
+			slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
+			slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
 		}
 	}
 
@@ -262,9 +262,9 @@ NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 		const NzAbstractAtlas* atlas = it->first;
 		AtlasSlots& slots = m_atlases[atlas];
 
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, OnAtlasInvalidated);
+		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
+		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
+		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
 	}
 
 	InvalidateBoundingVolume();

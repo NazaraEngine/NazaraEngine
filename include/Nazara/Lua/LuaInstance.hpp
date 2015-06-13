@@ -96,7 +96,7 @@ class NAZARA_API NzLuaInstance : NzNonCopyable
 		bool IsOfType(int index, const NzString& tname) const;
 		bool IsValid(int index) const;
 
-		unsigned int Length(int index) const;
+		long long Length(int index) const;
 
 		void MoveTo(NzLuaInstance* instance, int n);
 

@@ -589,7 +589,7 @@ bool NzLuaInstance::IsValid(int index) const
 	return lua_isnoneornil(m_state, index) == 0;
 }
 
-unsigned int NzLuaInstance::Length(int index) const
+long long NzLuaInstance::Length(int index) const
 {
 	return luaL_len(m_state, index);
 }

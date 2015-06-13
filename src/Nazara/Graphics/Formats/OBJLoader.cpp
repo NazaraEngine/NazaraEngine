@@ -7,12 +7,12 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/Formats/MTLParser.hpp>
-#include <Nazara/Graphics/Formats/OBJParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/Formats/MTLParser.hpp>
+#include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -121,6 +121,8 @@ namespace
 
 			model->SetMaterial(meshes[i].material, it->second);
 		}
+
+		return true;
 	}
 
 	bool Load(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)

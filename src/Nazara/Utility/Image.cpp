@@ -644,7 +644,7 @@ unsigned int NzImage::GetHeight(nzUInt8 level) const
 
 nzUInt8 NzImage::GetLevelCount() const
 {
-	return m_sharedImage->levels.size();
+	return nzUInt8(m_sharedImage->levels.size());
 }
 
 nzUInt8 NzImage::GetMaxLevel() const
@@ -1087,7 +1087,7 @@ void NzImage::SetLevelCount(nzUInt8 levelCount)
 
 	EnsureOwnership();
 
-	nzUInt8 oldLevelCount = m_sharedImage->levels.size();
+	nzUInt8 oldLevelCount = nzUInt8(m_sharedImage->levels.size());
 	nzUInt8 maxLevelCount = std::max(levelCount, oldLevelCount);
 
 	m_sharedImage->levels.resize(levelCount);

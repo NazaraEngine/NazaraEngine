@@ -7,6 +7,7 @@
 #ifndef NAZARA_ICONIMPL_HPP
 #define NAZARA_ICONIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
 class NzImage;

@@ -218,8 +218,8 @@ void NzView::SetTarget(const NzRenderTarget* renderTarget)
 	m_target = renderTarget;
 	if (m_target)
 	{
-		m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, OnRenderTargetRelease);
-		m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, OnRenderTargetSizeChange);
+		m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, &NzView::OnRenderTargetRelease);
+		m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, &NzView::OnRenderTargetSizeChange);
 	}
 	else
 	{

@@ -76,7 +76,7 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 		if (it == opaqueModels.end())
 		{
 			BatchedModelEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzDeferredRenderQueue::OnMaterialInvalidation);
 
 			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
@@ -91,9 +91,9 @@ void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData
 		{
 			MeshInstanceEntry instanceEntry;
 			if (meshData.indexBuffer)
-				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, OnIndexBufferInvalidation);
+				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, &NzDeferredRenderQueue::OnIndexBufferInvalidation);
 
-			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, OnVertexBufferInvalidation);
+			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, &NzDeferredRenderQueue::OnVertexBufferInvalidation);
 
 			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
