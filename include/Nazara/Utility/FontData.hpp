@@ -9,10 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 struct NzFontGlyph;
 
-class NAZARA_API NzFontData
+class NAZARA_UTILITY_API NzFontData
 {
 	public:
 		NzFontData() = default;

@@ -30,7 +30,7 @@ class NzImage;
 class NzIcon;
 class NzWindowImpl;
 
-class NAZARA_API NzWindow : NzNonCopyable
+class NAZARA_UTILITY_API NzWindow : NzNonCopyable
 {
 	friend NzWindowImpl;
 	friend class NzMouse;

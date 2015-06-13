@@ -16,7 +16,7 @@
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <vector>
 
-struct NAZARA_API NzSkeletalModelParameters : public NzModelParameters
+struct NAZARA_GRAPHICS_API NzSkeletalModelParameters : public NzModelParameters
 {
 	bool loadAnimation = true;
 	NzAnimationParams animation;
@@ -28,7 +28,7 @@ class NzSkeletalModel;
 
 using NzSkeletalModelLoader = NzResourceLoader<NzSkeletalModel, NzSkeletalModelParameters>;
 
-class NAZARA_API NzSkeletalModel : public NzModel, NzUpdatable
+class NAZARA_GRAPHICS_API NzSkeletalModel : public NzModel, NzUpdatable
 {
 	friend NzSkeletalModelLoader;
 

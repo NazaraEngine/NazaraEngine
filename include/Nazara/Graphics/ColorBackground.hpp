@@ -12,7 +12,7 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-class NAZARA_API NzColorBackground : public NzAbstractBackground
+class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 {
 	public:
 		NzColorBackground(const NzColor& color = NzColor::Black);

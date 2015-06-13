@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Functor.hpp>
 
-class NAZARA_API NzTaskScheduler
+class NAZARA_CORE_API NzTaskScheduler
 {
 	public:
 		NzTaskScheduler() = delete;

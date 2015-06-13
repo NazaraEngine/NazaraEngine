@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 
-class NAZARA_API NzUberShaderInstance
+class NAZARA_RENDERER_API NzUberShaderInstance
 {
 	public:
 		NzUberShaderInstance(const NzShader* shader);

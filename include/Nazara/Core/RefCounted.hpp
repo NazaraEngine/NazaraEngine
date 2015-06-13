@@ -17,7 +17,7 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NAZARA_API NzRefCounted
+class NAZARA_CORE_API NzRefCounted
 {
 	public:
 		NzRefCounted(bool persistent = true);

@@ -15,7 +15,7 @@
 #include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NAZARA_API NzClock
+class NAZARA_CORE_API NzClock
 {
 	public:
 		NzClock(nzUInt64 startingValue = 0, bool paused = false);
@@ -43,7 +43,7 @@ class NAZARA_API NzClock
 
 typedef nzUInt64 (*NzClockFunction)();
 
-extern NAZARA_API NzClockFunction NzGetMicroseconds;
-extern NAZARA_API NzClockFunction NzGetMilliseconds;
+extern NAZARA_CORE_API NzClockFunction NzGetMicroseconds;
+extern NAZARA_CORE_API NzClockFunction NzGetMilliseconds;
 
 #endif // NAZARA_CLOCK_HPP

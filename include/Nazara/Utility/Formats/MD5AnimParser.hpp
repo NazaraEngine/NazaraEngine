@@ -15,7 +15,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <vector>
 
-class NAZARA_API NzMD5AnimParser
+class NAZARA_UTILITY_API NzMD5AnimParser
 {
 	public:
 		struct FrameJoint

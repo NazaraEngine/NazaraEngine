@@ -9,11 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 class NzImage;
 class NzIconImpl;
 
-class NAZARA_API NzIcon
+class NAZARA_UTILITY_API NzIcon
 {
 	friend class NzWindowImpl;
 

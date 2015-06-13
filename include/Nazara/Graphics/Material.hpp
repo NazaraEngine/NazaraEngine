@@ -17,13 +17,14 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-struct NAZARA_API NzMaterialParams
+struct NAZARA_GRAPHICS_API NzMaterialParams
 {
 	bool loadAlphaMap = true;
 	bool loadDiffuseMap = true;
@@ -44,7 +45,7 @@ using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
 using NzMaterialManager = NzResourceManager<NzMaterial, NzMaterialParams>;
 using NzMaterialRef = NzObjectRef<NzMaterial>;
 
-class NAZARA_API NzMaterial : public NzRefCounted, public NzResource
+class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 {
 	friend NzMaterialLibrary;
 	friend NzMaterialLoader;

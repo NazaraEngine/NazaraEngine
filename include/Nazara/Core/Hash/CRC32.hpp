@@ -13,7 +13,7 @@
 
 struct NzHashCRC32_state;
 
-class NAZARA_API NzHashCRC32 : public NzAbstractHash
+class NAZARA_CORE_API NzHashCRC32 : public NzAbstractHash
 {
 	public:
 		NzHashCRC32(nzUInt32 polynomial = 0x04c11db7);

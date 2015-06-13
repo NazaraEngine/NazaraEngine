@@ -11,7 +11,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_API NzStream
+class NAZARA_CORE_API NzStream
 {
 	public:
 		NzStream() = default;

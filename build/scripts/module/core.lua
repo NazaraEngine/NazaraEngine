@@ -2,6 +2,8 @@ if (not _OPTIONS["united"]) then
 	project "NazaraCore"
 end
 
+defines "NAZARA_CORE_BUILD"
+
 files
 {
 	"../include/Nazara/Prerequesites.hpp",

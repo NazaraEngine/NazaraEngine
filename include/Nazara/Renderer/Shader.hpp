@@ -20,6 +20,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
 class NzShader;
@@ -29,7 +30,7 @@ using NzShaderConstRef = NzObjectRef<const NzShader>;
 using NzShaderLibrary = NzObjectLibrary<NzShader>;
 using NzShaderRef = NzObjectRef<NzShader>;
 
-class NAZARA_API NzShader : public NzRefCounted, NzNonCopyable
+class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
 {
 	friend NzShaderLibrary;
 	friend class NzRenderer;

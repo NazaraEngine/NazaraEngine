@@ -22,7 +22,7 @@ class NzSubMesh;
 using NzSubMeshConstRef = NzObjectRef<const NzSubMesh>;
 using NzSubMeshRef = NzObjectRef<NzSubMesh>;
 
-class NAZARA_API NzSubMesh : public NzRefCounted
+class NAZARA_UTILITY_API NzSubMesh : public NzRefCounted
 {
 	friend NzMesh;
 

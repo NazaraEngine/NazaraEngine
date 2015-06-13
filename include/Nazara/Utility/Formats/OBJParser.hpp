@@ -12,9 +12,10 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <vector>
 
-class NzOBJParser
+class NAZARA_UTILITY_API NzOBJParser
 {
 	public:
 		struct FaceVertex

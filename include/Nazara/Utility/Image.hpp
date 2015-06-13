@@ -23,7 +23,7 @@
 
 ///TODO: Filtres
 
-struct NAZARA_API NzImageParams
+struct NAZARA_UTILITY_API NzImageParams
 {
 	// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
 	nzPixelFormat loadFormat = nzPixelFormat_Undefined;
@@ -42,7 +42,7 @@ using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
 using NzImageManager = NzResourceManager<NzImage, NzImageParams>;
 using NzImageRef = NzObjectRef<NzImage>;
 
-class NAZARA_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
+class NAZARA_UTILITY_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
 {
 	friend NzImageLibrary;
 	friend NzImageLoader;

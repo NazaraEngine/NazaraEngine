@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <array>
 
-class NAZARA_API NzComplexNoiseBase
+class NAZARA_NOISE_API NzComplexNoiseBase
 {
     public:
         NzComplexNoiseBase();

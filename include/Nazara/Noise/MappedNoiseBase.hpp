@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
 
-class NAZARA_API NzMappedNoiseBase : public NzNoiseBase
+class NAZARA_NOISE_API NzMappedNoiseBase : public NzNoiseBase
 {
     public:
         NzMappedNoiseBase();

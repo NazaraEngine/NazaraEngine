@@ -13,10 +13,10 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
 
-NAZARA_API void* operator new(std::size_t size, const char* file, unsigned int line);
-NAZARA_API void* operator new[](std::size_t size, const char* file, unsigned int line);
-NAZARA_API void operator delete(void* ptr, const char* file, unsigned int line) noexcept;
-NAZARA_API void operator delete[](void* ptr, const char* file, unsigned int line) noexcept;
+NAZARA_CORE_API void* operator new(std::size_t size, const char* file, unsigned int line);
+NAZARA_CORE_API void* operator new[](std::size_t size, const char* file, unsigned int line);
+NAZARA_CORE_API void operator delete(void* ptr, const char* file, unsigned int line) noexcept;
+NAZARA_CORE_API void operator delete[](void* ptr, const char* file, unsigned int line) noexcept;
 
 #endif // NAZARA_DEBUG_NEWREDEFINITION_HPP
 

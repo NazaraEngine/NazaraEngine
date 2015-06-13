@@ -13,7 +13,7 @@
 
 struct NzHashMD5_state;
 
-class NAZARA_API NzHashMD5 : public NzAbstractHash
+class NAZARA_CORE_API NzHashMD5 : public NzAbstractHash
 {
 	public:
 		NzHashMD5();

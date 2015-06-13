@@ -11,11 +11,12 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 class NzAbstractImage;
 class NzFont;
 
-class NAZARA_API NzAbstractTextDrawer
+class NAZARA_UTILITY_API NzAbstractTextDrawer
 {
 	public:
 		struct Glyph;

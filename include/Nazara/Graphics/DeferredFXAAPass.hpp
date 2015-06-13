@@ -13,7 +13,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_API NzDeferredFXAAPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredFXAAPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredFXAAPass();

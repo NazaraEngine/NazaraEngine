@@ -24,7 +24,7 @@ class NzContext;
 class NzTexture;
 struct NzContextParameters;
 
-class NAZARA_API NzRenderWindow : public NzRenderTarget, public NzWindow
+class NAZARA_RENDERER_API NzRenderWindow : public NzRenderTarget, public NzWindow
 {
 	public:
 		NzRenderWindow() = default;

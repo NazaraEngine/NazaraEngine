@@ -17,7 +17,7 @@ class NzSkeletalMesh;
 using NzSkeletalMeshConstRef = NzObjectRef<const NzSkeletalMesh>;
 using NzSkeletalMeshRef = NzObjectRef<NzSkeletalMesh>;
 
-class NAZARA_API NzSkeletalMesh final : public NzSubMesh
+class NAZARA_UTILITY_API NzSkeletalMesh final : public NzSubMesh
 {
 	public:
 		NzSkeletalMesh(const NzMesh* parent);

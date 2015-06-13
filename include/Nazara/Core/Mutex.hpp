@@ -12,7 +12,7 @@
 
 class NzMutexImpl;
 
-class NAZARA_API NzMutex : NzNonCopyable
+class NAZARA_CORE_API NzMutex : NzNonCopyable
 {
 	friend class NzConditionVariable;
 

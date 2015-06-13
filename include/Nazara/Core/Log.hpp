@@ -29,7 +29,7 @@
 
 class NzFile;
 
-class NAZARA_API NzLog : NzNonCopyable
+class NAZARA_CORE_API NzLog : NzNonCopyable
 {
 	public:
 		void Enable(bool enable);

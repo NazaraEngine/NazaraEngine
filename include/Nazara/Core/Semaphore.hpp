@@ -12,7 +12,7 @@
 
 class NzSemaphoreImpl;
 
-class NAZARA_API NzSemaphore : NzNonCopyable
+class NAZARA_CORE_API NzSemaphore : NzNonCopyable
 {
 	public:
 		NzSemaphore(unsigned int count);

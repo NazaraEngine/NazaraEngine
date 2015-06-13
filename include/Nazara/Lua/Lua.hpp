@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Lua/Config.hpp>
 
-class NAZARA_API NzLua
+class NAZARA_LUA_API NzLua
 {
 	public:
 		NzLua() = delete;

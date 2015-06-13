@@ -21,7 +21,7 @@
 
 class NzForwardRenderQueue;
 
-class NAZARA_API NzDeferredRenderQueue : public NzAbstractRenderQueue
+class NAZARA_GRAPHICS_API NzDeferredRenderQueue : public NzAbstractRenderQueue
 {
 	public:
 		NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue);

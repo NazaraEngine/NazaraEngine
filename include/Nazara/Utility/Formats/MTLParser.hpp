@@ -11,9 +11,10 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <unordered_map>
 
-class NAZARA_API NzMTLParser
+class NAZARA_UTILITY_API NzMTLParser
 {
 	public:
 		struct Material

@@ -22,7 +22,7 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 
-struct NAZARA_API NzMeshParams
+struct NAZARA_UTILITY_API NzMeshParams
 {
 	NzMeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 
@@ -61,7 +61,7 @@ using NzMeshRef = NzObjectRef<NzMesh>;
 
 struct NzMeshImpl;
 
-class NAZARA_API NzMesh : public NzRefCounted, public NzResource
+class NAZARA_UTILITY_API NzMesh : public NzRefCounted, public NzResource
 {
 	friend NzMeshLibrary;
 	friend NzMeshLoader;

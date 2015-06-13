@@ -19,7 +19,7 @@ class NzVertexBuffer;
 using NzVertexBufferConstRef = NzObjectRef<NzVertexBuffer>;
 using NzVertexBufferRef = NzObjectRef<NzVertexBuffer>;
 
-class NAZARA_API NzVertexBuffer : public NzRefCounted
+class NAZARA_UTILITY_API NzVertexBuffer : public NzRefCounted
 {
 	public:
 		NzVertexBuffer() = default;

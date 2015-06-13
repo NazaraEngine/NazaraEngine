@@ -12,7 +12,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 
-class NAZARA_API NzParticleMapper
+class NAZARA_GRAPHICS_API NzParticleMapper
 {
 	public:
 		NzParticleMapper(void* buffer, const NzParticleDeclaration* declaration);

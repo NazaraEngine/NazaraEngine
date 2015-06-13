@@ -13,7 +13,7 @@
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 
-class NAZARA_API NzHash : NzNonCopyable
+class NAZARA_CORE_API NzHash : NzNonCopyable
 {
 	public:
 		NzHash(nzHash hash);

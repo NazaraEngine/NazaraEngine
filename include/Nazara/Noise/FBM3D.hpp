@@ -11,7 +11,7 @@
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 
-class NAZARA_API NzFBM3D : public NzAbstract3DNoise, public NzComplexNoiseBase
+class NAZARA_NOISE_API NzFBM3D : public NzAbstract3DNoise, public NzComplexNoiseBase
 {
     public:
         NzFBM3D(nzNoises source, unsigned int seed);

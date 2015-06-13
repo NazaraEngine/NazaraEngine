@@ -11,7 +11,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_API NzHardwareInfo
+class NAZARA_CORE_API NzHardwareInfo
 {
 	public:
 		static void Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4]);

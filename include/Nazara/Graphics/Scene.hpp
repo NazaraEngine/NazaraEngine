@@ -25,7 +25,7 @@ class NzAbstractViewer;
 class NzNode;
 class NzSceneNode;
 
-class NAZARA_API NzScene
+class NAZARA_GRAPHICS_API NzScene
 {
 	friend NzSceneNode;
 

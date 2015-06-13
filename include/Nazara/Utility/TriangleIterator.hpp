@@ -13,7 +13,7 @@
 
 class NzSubMesh;
 
-class NAZARA_API NzTriangleIterator
+class NAZARA_UTILITY_API NzTriangleIterator
 {
 	public:
 		NzTriangleIterator(nzPrimitiveMode primitiveMode, const NzIndexBuffer* indexBuffer);

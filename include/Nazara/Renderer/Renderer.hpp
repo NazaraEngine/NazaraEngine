@@ -26,7 +26,7 @@ class NzShader;
 class NzTexture;
 class NzVertexBuffer;
 
-class NAZARA_API NzRenderer
+class NAZARA_RENDERER_API NzRenderer
 {
 	friend NzTexture;
 

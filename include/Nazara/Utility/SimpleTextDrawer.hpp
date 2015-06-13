@@ -14,7 +14,7 @@
 #include <Nazara/Utility/Font.hpp>
 #include <vector>
 
-class NAZARA_API NzSimpleTextDrawer : public NzAbstractTextDrawer
+class NAZARA_UTILITY_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 {
 	public:
 		NzSimpleTextDrawer();

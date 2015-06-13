@@ -15,7 +15,7 @@
 #include <memory>
 #include <vector>
 
-class NAZARA_API NzGuillotineImageAtlas : public NzAbstractAtlas
+class NAZARA_UTILITY_API NzGuillotineImageAtlas : public NzAbstractAtlas
 {
 	public:
 		NzGuillotineImageAtlas();

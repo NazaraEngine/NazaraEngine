@@ -9,9 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NAZARA_API NzUtility
+class NAZARA_UTILITY_API NzUtility
 {
 	public:
 		NzUtility() = delete;
