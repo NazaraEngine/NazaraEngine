@@ -21,7 +21,7 @@ class NAZARA_API NzDeferredDOFPass : public NzDeferredRenderPass
 		NzDeferredDOFPass();
 		virtual ~NzDeferredDOFPass();
 
-		bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 		bool Resize(const NzVector2ui& dimensions);
 
 	protected:
