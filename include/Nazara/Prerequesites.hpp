@@ -25,28 +25,21 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-#if !defined(__cplusplus) || __cplusplus < 201103L
-	#error Nazara requires a C++11 compliant compiler
-#endif
-
-// Version du moteur
-#define NAZARA_VERSION_MAJOR 0
-#define NAZARA_VERSION_MINOR 1
-
-#include <Nazara/Core/Config.hpp>
-
 // Identification du compilateur
 ///TODO: Rajouter des tests d'identification de compilateurs
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNC__
 #elif defined(__clang__)
 	#define NAZARA_COMPILER_CLANG
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 #elif defined(__GNUC__) || defined(__MINGW32__)
 	#define NAZARA_COMPILER_GCC
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 
@@ -58,20 +51,34 @@
 	#endif
 #elif defined(__INTEL_COMPILER) || defined(__ICL)
 	#define NAZARA_COMPILER_INTEL
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNCTION__
 #elif defined(_MSC_VER)
 	#define NAZARA_COMPILER_MSVC
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (_MSC_VER >= 1900)
 	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
 	#define NAZARA_FUNCTION __FUNCSIG__
+
+	#pragma warning(disable: 4251)
 #else
 	#define NAZARA_COMPILER_UNKNOWN
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __func__ // __func__ est standard depuis le C++11
 
 	/// Cette ligne n'est là que pour prévenir, n'hésitez pas à la commenter si elle vous empêche de compiler
-	#error This compiler is not fully supported
+	#pragma message This compiler is not fully supported
 #endif
+
+#if !NAZARA_COMPILER_SUPPORTS_CPP11
+	#error Nazara requires a C++11 compliant compiler
+#endif
+
+// Version du moteur
+#define NAZARA_VERSION_MAJOR 0
+#define NAZARA_VERSION_MINOR 1
+
+#include <Nazara/Core/Config.hpp>
 
 // Identification de la plateforme
 #if defined(_WIN32)
