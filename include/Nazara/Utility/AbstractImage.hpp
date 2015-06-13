@@ -11,9 +11,10 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NAZARA_API NzAbstractImage
+class NAZARA_UTILITY_API NzAbstractImage
 {
 	public:
 		NzAbstractImage() = default;

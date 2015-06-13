@@ -8,12 +8,13 @@
 #define NAZARA_AUDIO_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NAZARA_API NzAudio
+class NAZARA_AUDIO_API NzAudio
 {
 	public:
 		NzAudio() = delete;

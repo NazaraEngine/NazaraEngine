@@ -22,7 +22,7 @@
 #include <map>
 #include <memory>
 
-class NAZARA_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique
+class NAZARA_GRAPHICS_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique
 {
 	friend class NzGraphics;
 

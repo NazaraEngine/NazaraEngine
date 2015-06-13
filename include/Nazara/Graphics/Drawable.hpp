@@ -8,8 +8,9 @@
 #define NAZARA_DRAWABLE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 
-class NAZARA_API NzDrawable
+class NAZARA_GRAPHICS_API NzDrawable
 {
 	public:
 		NzDrawable() = default;

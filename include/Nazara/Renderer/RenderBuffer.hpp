@@ -13,6 +13,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzRenderBuffer;
@@ -21,7 +22,7 @@ using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
 using NzRenderBufferLibrary = NzObjectLibrary<NzRenderBuffer>;
 using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
-class NAZARA_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
+class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 {
 	friend NzRenderBufferLibrary;
 	friend class NzRenderer;

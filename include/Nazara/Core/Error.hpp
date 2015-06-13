@@ -23,7 +23,7 @@
 #define NazaraInternalError(err) NzError::Error(nzErrorType_Internal, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 #define NazaraWarning(err) NzError::Error(nzErrorType_Warning, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 
-class NAZARA_API NzError
+class NAZARA_CORE_API NzError
 {
 	public:
 		NzError() = delete;

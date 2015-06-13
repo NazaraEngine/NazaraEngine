@@ -8,11 +8,12 @@
 #define NAZARA_ABSTRACTBACKGROUND_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
 class NzAbstractViewer;
 
-class NAZARA_API NzAbstractBackground
+class NAZARA_GRAPHICS_API NzAbstractBackground
 {
 	public:
 		NzAbstractBackground() = default;

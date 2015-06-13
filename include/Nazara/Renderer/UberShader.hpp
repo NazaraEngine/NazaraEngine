@@ -21,7 +21,7 @@ using NzUberShaderConstRef = NzObjectRef<const NzUberShader>;
 using NzUberShaderLibrary = NzObjectLibrary<NzUberShader>;
 using NzUberShaderRef = NzObjectRef<NzUberShader>;
 
-class NAZARA_API NzUberShader : public NzRefCounted
+class NAZARA_RENDERER_API NzUberShader : public NzRefCounted
 {
 	friend NzUberShaderLibrary;
 	friend class NzRenderer;

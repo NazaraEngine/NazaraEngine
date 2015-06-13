@@ -44,4 +44,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Renderer/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_RENDERER_API
+#else
+	#ifdef NAZARA_RENDERER_BUILD
+		#define NAZARA_RENDERER_API NAZARA_EXPORT
+	#else
+		#define NAZARA_RENDERER_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_MODULENAME_HPP

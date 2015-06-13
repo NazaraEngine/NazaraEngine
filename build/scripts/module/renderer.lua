@@ -2,6 +2,7 @@ if (not _OPTIONS["united"]) then
 	project "NazaraRenderer"
 end
 
+defines "NAZARA_RENDERER_BUILD"
 defines "NAZARA_RENDERER_OPENGL"
 
 files

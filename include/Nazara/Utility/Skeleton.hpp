@@ -24,7 +24,7 @@ using NzSkeletonRef = NzObjectRef<NzSkeleton>;
 
 struct NzSkeletonImpl;
 
-class NAZARA_API NzSkeleton : public NzRefCounted
+class NAZARA_UTILITY_API NzSkeleton : public NzRefCounted
 {
 	friend NzJoint;
 	friend NzSkeletonLibrary;

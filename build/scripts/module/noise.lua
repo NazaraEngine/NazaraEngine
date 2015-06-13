@@ -2,6 +2,8 @@ if (not _OPTIONS["united"]) then
 	project "NazaraNoise"
 end
 
+defines "NAZARA_NOISE_BUILD"
+
 files
 {
 	"../include/Nazara/Noise/**.hpp",

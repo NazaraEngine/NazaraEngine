@@ -12,6 +12,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 class NzBuffer;
@@ -21,7 +22,7 @@ using NzBufferRef = NzObjectRef<NzBuffer>;
 
 class NzAbstractBuffer;
 
-class NAZARA_API NzBuffer : public NzRefCounted, NzNonCopyable
+class NAZARA_UTILITY_API NzBuffer : public NzRefCounted, NzNonCopyable
 {
 	friend class NzUtility;
 

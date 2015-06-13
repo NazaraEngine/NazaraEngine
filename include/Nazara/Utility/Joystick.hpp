@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_API NzJoystick
+class NAZARA_UTILITY_API NzJoystick
 {
 	public:
 		NzJoystick() = delete;

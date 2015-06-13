@@ -9,11 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 class NzCursorImpl;
 class NzImage;
 
-class NAZARA_API NzCursor
+class NAZARA_UTILITY_API NzCursor
 {
 	friend class NzWindowImpl;
 

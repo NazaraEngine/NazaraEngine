@@ -15,7 +15,7 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NAZARA_API NzSkyboxBackground : public NzAbstractBackground
+class NAZARA_GRAPHICS_API NzSkyboxBackground : public NzAbstractBackground
 {
 	public:
 		NzSkyboxBackground();

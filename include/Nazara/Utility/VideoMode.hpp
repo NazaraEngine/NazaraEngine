@@ -10,9 +10,10 @@
 #define NAZARA_VIDEOMODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <vector>
 
-class NAZARA_API NzVideoMode
+class NAZARA_UTILITY_API NzVideoMode
 {
 	public:
 		NzVideoMode();

@@ -13,7 +13,7 @@
 #include <Nazara/Core/String.hpp>
 #include <iosfwd>
 
-class NAZARA_API NzHashDigest
+class NAZARA_CORE_API NzHashDigest
 {
 	public:
 		NzHashDigest();
@@ -42,7 +42,7 @@ class NAZARA_API NzHashDigest
 		bool operator>(const NzHashDigest& rhs) const;
 		bool operator>=(const NzHashDigest& rhs) const;
 
-		NAZARA_API friend std::ostream& operator<<(std::ostream& out, const NzHashDigest& string);
+		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const NzHashDigest& string);
 
 	private:
 		NzString m_hashName;

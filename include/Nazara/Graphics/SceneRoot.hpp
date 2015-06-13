@@ -12,7 +12,7 @@
 
 class NzScene;
 
-class NAZARA_API NzSceneRoot : public NzSceneNode
+class NAZARA_GRAPHICS_API NzSceneRoot : public NzSceneNode
 {
 	friend NzScene;
 

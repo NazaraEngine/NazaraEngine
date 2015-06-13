@@ -38,4 +38,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Noise/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_NOISE_API
+#else
+	#ifdef NAZARA_NOISE_BUILD
+		#define NAZARA_NOISE_API NAZARA_EXPORT
+	#else
+		#define NAZARA_NOISE_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_MODULENAME_HPP

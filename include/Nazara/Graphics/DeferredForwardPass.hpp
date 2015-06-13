@@ -12,7 +12,7 @@
 
 class NzForwardRenderTechnique;
 
-class NAZARA_API NzDeferredForwardPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredForwardPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredForwardPass();

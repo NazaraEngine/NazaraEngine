@@ -303,7 +303,7 @@ namespace
 				m_stream.descriptor.pointer = &stream;
 				m_stream.read = FT_StreamRead;
 				m_stream.pos = 0;
-				m_stream.size = unsigned long(stream.GetSize());
+				m_stream.size = static_cast<unsigned long>(stream.GetSize());
 
 				m_args.driver = 0;
 				m_args.flags = FT_OPEN_STREAM;

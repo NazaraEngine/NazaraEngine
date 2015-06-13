@@ -25,7 +25,7 @@
 
 class NzFileImpl;
 
-class NAZARA_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
+class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 {
 	public:
 		enum CursorPosition

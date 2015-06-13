@@ -12,7 +12,7 @@
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NAZARA_API NzPerlin3D : public NzAbstract3DNoise
+class NAZARA_NOISE_API NzPerlin3D : public NzAbstract3DNoise
 {
     public:
         NzPerlin3D();

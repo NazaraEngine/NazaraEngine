@@ -11,6 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -22,7 +23,7 @@ class NzMaterial;
 class NzTexture;
 struct NzMeshData;
 
-class NAZARA_API NzAbstractRenderQueue : NzNonCopyable
+class NAZARA_GRAPHICS_API NzAbstractRenderQueue : NzNonCopyable
 {
 	public:
 		struct DirectionalLight;

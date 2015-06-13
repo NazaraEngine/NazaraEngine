@@ -2,6 +2,8 @@ if (not _OPTIONS["united"]) then
 	project "NazaraPhysics"
 end
 
+defines "NAZARA_PHYSICS_BUILD"
+
 files
 {
 	"../include/Nazara/Physics/**.hpp",

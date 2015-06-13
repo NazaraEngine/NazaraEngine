@@ -12,7 +12,7 @@
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
-class NAZARA_API NzTextureBackground : public NzAbstractBackground
+class NAZARA_GRAPHICS_API NzTextureBackground : public NzAbstractBackground
 {
 	public:
 		NzTextureBackground();

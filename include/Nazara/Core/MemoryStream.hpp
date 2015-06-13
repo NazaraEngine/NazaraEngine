@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
 
-class NAZARA_API NzMemoryStream : public NzInputStream
+class NAZARA_CORE_API NzMemoryStream : public NzInputStream
 {
 	public:
 		NzMemoryStream(const void* ptr, nzUInt64 size);

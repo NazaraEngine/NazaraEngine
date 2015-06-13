@@ -11,7 +11,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 
-class NAZARA_API NzErrorFlags : NzNonCopyable
+class NAZARA_CORE_API NzErrorFlags : NzNonCopyable
 {
 	public:
 		NzErrorFlags(nzUInt32 flags, bool replace = false);

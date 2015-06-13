@@ -8,9 +8,10 @@
 #define NAZARA_GUILLOTINETEXTUREATLAS_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
 
-class NAZARA_API NzGuillotineTextureAtlas : public NzGuillotineImageAtlas
+class NAZARA_GRAPHICS_API NzGuillotineTextureAtlas : public NzGuillotineImageAtlas
 {
 	public:
 		NzGuillotineTextureAtlas() = default;
