@@ -11,6 +11,7 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstring>
 #include <limits>
