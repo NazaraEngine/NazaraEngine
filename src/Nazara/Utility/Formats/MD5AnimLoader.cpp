@@ -2,8 +2,8 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/MD5Anim.hpp>
-#include <Nazara/Utility/Loaders/MD5Anim/Parser.hpp>
+#include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
+#include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace

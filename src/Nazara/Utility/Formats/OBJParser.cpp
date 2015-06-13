@@ -1,15 +1,15 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Loaders/OBJ/OBJParser.hpp>
+#include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cctype>
 #include <memory>
 #include <unordered_map>
-#include <Nazara/Graphics/Debug.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 NzOBJParser::NzOBJParser(NzInputStream& stream) :
 m_stream(stream),

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_MD5ANIM_PARSER_HPP
-#define NAZARA_LOADERS_MD5ANIM_PARSER_HPP
+#ifndef NAZARA_FORMATS_MD5ANIMPARSER_HPP
+#define NAZARA_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
@@ -15,7 +15,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <vector>
 
-class NzMD5AnimParser
+class NAZARA_API NzMD5AnimParser
 {
 	public:
 		struct FrameJoint
@@ -76,4 +76,4 @@ class NzMD5AnimParser
 		unsigned int m_streamFlags;
 };
 
-#endif // NAZARA_LOADERS_MD5ANIM_PARSER_HPP
+#endif // NAZARA_FORMATS_MD5ANIMPARSER_HPP
