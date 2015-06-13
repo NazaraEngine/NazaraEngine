@@ -203,9 +203,10 @@ m_GBufferSize(0U)
 
 NzDeferredRenderTechnique::~NzDeferredRenderTechnique() = default;
 
-bool NzDeferredRenderTechnique::Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+bool NzDeferredRenderTechnique::Draw(const NzSceneData& sceneData) const
 {
-	NzRecti viewerViewport = viewer->GetViewport();
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
+	NzRecti viewerViewport = sceneData.viewer->GetViewport();
 
 	NzVector2ui viewportDimensions(viewerViewport.width, viewerViewport.height);
 	if (viewportDimensions != m_GBufferSize)
@@ -226,7 +227,7 @@ bool NzDeferredRenderTechnique::Draw(const NzAbstractViewer* viewer, const NzSce
 			const NzDeferredRenderPass* pass = passIt2.second.get();
 			if (pass->IsEnabled())
 			{
-				if (pass->Process(viewer, sceneData, workTexture, sceneTexture))
+				if (pass->Process(sceneData, workTexture, sceneTexture))
 					std::swap(workTexture, sceneTexture);
 			}
 		}

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredGeometryPass.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
@@ -29,8 +30,9 @@ NzDeferredGeometryPass::NzDeferredGeometryPass()
 
 NzDeferredGeometryPass::~NzDeferredGeometryPass() = default;
 
-bool NzDeferredGeometryPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredGeometryPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 	NazaraUnused(firstWorkTexture);
 	NazaraUnused(secondWorkTexture);
 
@@ -45,8 +47,8 @@ bool NzDeferredGeometryPass::Process(const NzAbstractViewer* viewer, const NzSce
 	NzRenderer::DrawFullscreenQuad();
 
 
-	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
-	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_View, sceneData.viewer->GetViewMatrix());
 
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
@@ -81,7 +83,7 @@ bool NzDeferredGeometryPass::Process(const NzAbstractViewer* viewer, const NzSce
 					// Couleur ambiante de la scène
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
-					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}

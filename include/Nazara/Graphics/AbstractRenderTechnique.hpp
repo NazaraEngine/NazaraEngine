@@ -25,7 +25,7 @@ class NAZARA_API NzAbstractRenderTechnique : NzNonCopyable
 		NzAbstractRenderTechnique();
 		virtual ~NzAbstractRenderTechnique();
 
-		virtual bool Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const = 0;
+		virtual bool Draw(const NzSceneData& sceneData) const = 0;
 
 		virtual void EnableInstancing(bool instancing);
 

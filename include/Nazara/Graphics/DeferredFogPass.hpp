@@ -19,7 +19,7 @@ class NAZARA_API NzDeferredFogPass : public NzDeferredRenderPass
 		NzDeferredFogPass();
 		virtual ~NzDeferredFogPass();
 
-		bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 
 	protected:
 		NzRenderStates m_states;
