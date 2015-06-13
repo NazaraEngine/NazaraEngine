@@ -101,7 +101,7 @@ template<typename... Args>
 class NzSignal<Args...>::ConnectionGuard
 {
 	using BaseClass = NzSignal<Args...>;
-	using Connection = BaseClass::Connection;
+	using Connection = typename BaseClass::Connection;
 
 	public:
 		ConnectionGuard() = default;
