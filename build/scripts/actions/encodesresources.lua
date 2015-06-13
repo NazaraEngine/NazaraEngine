@@ -1,4 +1,7 @@
-function encodeResources()
+ACTION.Name = "EncodeResources"
+ACTION.Description = "Generate a includable header version of resources"
+
+ACTION.Function = function ()
 	print("Encoding resources ...")
 	local startClock = os.clock()
 	local modules = os.matchdirs("../src/Nazara/*")
@@ -38,10 +41,3 @@ function encodeResources()
 	end
 	print("Finished (took " .. os.clock() - startClock .. "s)")
 end
-
-newaction
-{
-	trigger     = "encoderesources",
-	description = "Generate a includable header version of resources",
-	execute     = encodeResources
-}
