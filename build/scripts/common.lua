@@ -1,94 +1,123 @@
 local PosixOSes = {"bsd", "linux", "macosx", "solaris"}
 
-NazaraBuild = {} -- L'équivalent d'un namespace en Lua est une table
+NazaraBuild = {} -- L'Ã©quivalent d'un namespace en Lua est une table
 
 function NazaraBuild:Execute()
-	if (_ACTION == nil) then -- Si aucune action n'est spécifiée
+	if (_ACTION == nil) then -- Si aucune action n'est spÃ©cifiÃ©e
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
 
 	if (self.Actions[_ACTION] ~= nil) then
 		self.Actions[_ACTION].Function()
 	else
-		solution "NazaraEngine"
+		if (_OPTIONS["with-extlibs"]) then
+			solution("NazaraExtlibs")
+			-- Configuration gÃ©nÃ©rale
+			configurations({
+				"DebugStatic",
+				"ReleaseStatic"
+			})
 
-		-- Configuration générale
-		configurations 
-		{
+			includedirs("../extlibs/include")
+			location(_ACTION)
+			kind("StaticLib")
+
+			if (_OPTIONS["x64"]) then
+				libdirs("../extlibs/lib/x64")
+				targetdir("../extlibs/lib/x64")
+			else
+				libdirs("../extlibs/lib/x86")
+				targetdir("../extlibs/lib/x86")
+			end
+
+			configuration("Debug*")
+				flags("Symbols")
+
+			configuration("Release*")
+				flags({"EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI"})
+
+			configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
+				buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
+				buildoptions("-ftree-vectorize") -- Activation de la vectorisation du code
+
+			configuration("DebugStatic")
+				targetsuffix("-s-d")
+
+			configuration("ReleaseStatic")
+				targetsuffix("-s")
+
+			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
+				buildoptions("-std=c++11")
+
+			for i=1, #self.ExtLibs do
+				local libTable = self.ExtLibs[i]
+				project(libTable.Name)
+				
+				language(libTable.Language)
+				location(_ACTION .. "/extlibs")
+
+				files(libTable.Files)
+				excludes(libTable.FilesExclusion)
+
+				defines(libTable.Defines)
+				flags(libTable.Flags)
+				links(libTable.Libraries)
+
+				for k,v in pairs(libTable.ConfigurationLibraries) do
+					configuration(k)
+					links(v)
+				end
+				
+				configuration({})
+			end
+		end
+
+		solution("NazaraEngine")
+
+		-- Configuration gÃ©nÃ©rale
+		configurations({
 		--	"DebugStatic",
 		--	"ReleaseStatic",
 			"DebugDynamic",
 			"ReleaseDynamic"
-		}
+		})
 
-		defines "NAZARA_BUILD"
-		language "C++"
+		language("C++")
 		location(_ACTION)
 
-		includedirs
-		{
-			"../include",
-			"../src/",
-			"../extlibs/include"
-		}
+		configuration("Debug*")
+			defines("NAZARA_DEBUG")
+			flags("Symbols")
 
-		libdirs "../lib"
+		configuration("Release*")
+			flags({"EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI"})
 
+		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
+			buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
+			buildoptions("-ftree-vectorize") -- Activation de la vectorisation du code
+
+		configuration("*Static")
+			defines("NAZARA_STATIC")
+
+		configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
+			buildoptions("-std=c++11")
 		if (_OPTIONS["x64"]) then
-			defines "NAZARA_PLATFORM_x64"
-			libdirs "../extlibs/lib/x64"
-		else
-			libdirs "../extlibs/lib/x86"
+			buildoptions("-m64")
 		end
 
-		targetdir "../lib"
+		configuration({"linux or bsd or macosx", "gmake"})
+			buildoptions("-fvisibility=hidden")
 
-		configuration "Debug*"
-			defines "NAZARA_DEBUG"
-			flags "Symbols"
+		configuration({"linux or bsd or macosx", "gmake"})
+			buildoptions("-fvisibility=hidden")
 
-		configuration "Release*"
-			flags { "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
+		configuration("vs*")
+			defines("_CRT_SECURE_NO_WARNINGS")
+			defines("_SCL_SECURE_NO_WARNINGS")
 
-		configuration { "Release*", "codeblocks or codelite or gmake or xcode3 or xcode4" }
-			buildoptions "-mfpmath=sse" -- Utilisation du SSE pour les calculs flottants
-			buildoptions "-ftree-vectorize" -- Activation de la vectorisation du code
-
-		configuration "*Static"
-			defines "NAZARA_STATIC"
-			kind "StaticLib"
-
-		configuration "*Dynamic"
-			kind "SharedLib"
-
-		configuration "DebugStatic"
-			targetsuffix "-s-d"
-
-		configuration "ReleaseStatic"
-			targetsuffix "-s"
-
-		configuration "DebugDynamic"
-			targetsuffix "-d"
-
-		configuration "codeblocks or codelite or gmake or xcode3 or xcode4"
-			buildoptions "-std=c++11"
-		if (_OPTIONS["x64"]) then
-			buildoptions "-m64"
-		end
-
-		configuration { "linux or bsd or macosx", "gmake" }
-			buildoptions "-fvisibility=hidden"
-
-		configuration { "linux or bsd or macosx", "gmake" }
-			buildoptions "-fvisibility=hidden"
-
-		configuration "vs*"
-			defines "_CRT_SECURE_NO_WARNINGS"
-			defines "_SCL_SECURE_NO_WARNINGS"
-
-		-- Spécification des modules
+		-- SpÃ©cification des modules
 		if (_OPTIONS["united"]) then
-			project "NazaraEngine"
+			project("NazaraEngine")
 		end
 
 		for i=1, #self.Modules do
@@ -97,7 +126,43 @@ function NazaraBuild:Execute()
 				project("Nazara" .. moduleTable.Name)
 			end
 
-			configuration {}
+			location(_ACTION .. "/modules")
+
+			defines("NAZARA_BUILD")
+
+			includedirs({
+				"../include",
+				"../src/",
+				"../extlibs/include"
+			})
+
+			libdirs("../lib")
+
+			if (_OPTIONS["x64"]) then
+				defines("NAZARA_PLATFORM_x64")
+				libdirs("../extlibs/lib/x64")
+			else
+				libdirs("../extlibs/lib/x86")
+			end
+
+			targetdir("../lib")
+
+			configuration("*Static")
+				kind("StaticLib")
+
+			configuration("*Dynamic")
+				kind("SharedLib")
+
+			configuration("DebugStatic")
+				targetsuffix("-s-d")
+
+			configuration("ReleaseStatic")
+				targetsuffix("-s")
+
+			configuration("DebugDynamic")
+				targetsuffix("-d")
+
+			configuration({})
 
 			files(moduleTable.Files)
 			excludes(moduleTable.FilesExclusion)
@@ -110,63 +175,37 @@ function NazaraBuild:Execute()
 				configuration(k)
 				links(v)
 			end
+			
+			configuration({})
 		end
 	end
 
 	if (_OPTIONS["with-examples"]) then
-		solution "NazaraExamples"
-		-- Configuration générale
-		configurations 
-		{
-		--	"DebugStatic",
-		--	"ReleaseStatic",
-			"DebugDynamic",
-			"ReleaseDynamic"
-		}
-
-		language "C++"
-		location("../examples/build/" .. _ACTION)
-
-		debugdir "../examples/bin"
-		includedirs "../include"
-		libdirs "../lib"
-
-		if (_OPTIONS["x64"]) then
-			defines "NAZARA_PLATFORM_x64"
-			libdirs "../extlibs/lib/x64"
-		else
-			libdirs "../extlibs/lib/x86"
-		end
-
-		targetdir "../examples/bin"
-
-		configuration "Debug*"
-			defines "NAZARA_DEBUG"
-			flags "Symbols"
-
-		configuration "Release*"
-			flags { "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
-
-		configuration { "Release*", "codeblocks or codelite or gmake or xcode3 or xcode4" }
-			buildoptions "-mfpmath=sse" -- Utilisation du SSE pour les calculs flottants
-			buildoptions "-ftree-vectorize" -- Activation de la vectorisation du code
-
-		configuration "*Static"
-			defines "NAZARA_STATIC"
-
-		configuration "codeblocks or codelite or gmake or xcode3 or xcode4"
-			buildoptions "-std=c++11"
-
 		for i=1, #self.Examples do
 			local exampleTable = self.Examples[i]
 			project("Demo" .. exampleTable.Name)
 
+			location(_ACTION .. "/examples")
+
 			if (exampleTable.Console) then
-				kind "ConsoleApp"
+				kind("ConsoleApp")
 			else
-				kind "Window"
+				kind("Window")
 			end
-			
+
+			debugdir("../examples/bin")
+			includedirs("../include")
+			libdirs("../lib")
+
+			if (_OPTIONS["x64"]) then
+				defines("NAZARA_PLATFORM_x64")
+				libdirs("../extlibs/lib/x64")
+			else
+				libdirs("../extlibs/lib/x86")
+			end
+
+			targetdir("../examples/bin")
+
 			files(exampleTable.Files)
 			excludes(exampleTable.FilesExclusion)
 
@@ -178,93 +217,35 @@ function NazaraBuild:Execute()
 				configuration(k)
 				links(v)
 			end
-		end
-	end
-
-	if (_OPTIONS["with-extlibs"]) then
-		solution "NazaraExtlibs"
-		-- Configuration générale
-		configurations 
-		{
-			"DebugStatic",
-			"ReleaseStatic"
-		}
-
-		location("../extlibs/build/" .. _ACTION)
-		includedirs "../extlibs/include"
-		kind "StaticLib"
-
-		if (_OPTIONS["x64"]) then
-			libdirs "../extlibs/lib/x64"
-			targetdir "../extlibs/lib/x64"
-		else
-			libdirs "../extlibs/lib/x86"
-			targetdir "../extlibs/lib/x86"
-		end
-
-		configuration "Debug*"
-			flags "Symbols"
-
-		configuration "Release*"
-			flags { "EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI" }
-
-		configuration { "Release*", "codeblocks or codelite or gmake or xcode3 or xcode4" }
-			buildoptions "-mfpmath=sse" -- Utilisation du SSE pour les calculs flottants
-			buildoptions "-ftree-vectorize" -- Activation de la vectorisation du code
-
-		configuration "DebugStatic"
-			targetsuffix "-s-d"
-
-		configuration "ReleaseStatic"
-			targetsuffix "-s"
-
-		configuration "codeblocks or codelite or gmake or xcode3 or xcode4"
-			buildoptions "-std=c++11"
-
-		for i=1, #self.ExtLibs do
-			local libTable = self.ExtLibs[i]
-			project(libTable.Name)
 			
-			language(libTable.Language)
-			
-			files(libTable.Files)
-			excludes(libTable.FilesExclusion)
-
-			defines(libTable.Defines)
-			flags(libTable.Flags)
-			links(libTable.Libraries)
-
-			for k,v in pairs(libTable.ConfigurationLibraries) do
-				configuration(k)
-				links(v)
-			end
+			configuration({})
 		end
 	end
 end
 
 function NazaraBuild:Initialize()
-	-- Commençons par les options
-	newoption {
+	-- CommenÃ§ons par les options
+	newoption({
 		trigger     = "x64",
 		description = "Setup build project for x64 arch"
-	}
+	})
 
-	newoption {
+	newoption({
 		trigger     = "united",
 		description = "Builds all the modules as one united library"
-	}
+	})
 
-	newoption {
+	newoption({
 		trigger     = "with-extlibs",
 		description = "Builds the extern libraries"
-	}
+	})
 
-	newoption {
+	newoption({
 		trigger     = "with-examples",
 		description = "Builds the examples"
-	}
+	})
 
-	-- Puis par les bibliothèques externes
+	-- Puis par les bibliothÃ¨ques externes
 	self.ExtLibs = {}
 	local extlibs = os.matchfiles("../extlibs/build/*.lua")
 	for k,v in pairs(extlibs) do
@@ -300,16 +281,17 @@ function NazaraBuild:Initialize()
 	self.Modules = {}
 	local modules = os.matchfiles("scripts/module/*.lua")
 	for k,v in pairs(modules) do
-		local moduleName = v:match(".*/(.*).lua"):lower()
+		local moduleName = v:match(".*/(.*).lua")
+		local moduleNameLower = moduleName:lower()
 
-		if (moduleName ~= "core") then -- exclure le noyau n'aurait aucun sens
-			newoption {
-				trigger     = "exclude-" .. moduleName,
+		if (moduleNameLower ~= "core") then -- exclure le noyau n'aurait aucun sens
+			newoption({
+				trigger     = "exclude-" .. moduleNameLower,
 				description = "Exclude the " .. moduleName .. " module from the build system"
-			}
+			})
 		end
 
-		if (not _OPTIONS["exclude-" .. moduleName]) then
+		if (not _OPTIONS["exclude-" .. moduleNameLower]) then
 			local f, err = loadfile(v)
 			if (f) then
 				MODULE = {}

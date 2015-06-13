@@ -231,9 +231,7 @@ function Feature.GenerateFeatureList(featureTable, space, content)
 	table.insert(content, string.format("%s</ul>", space))
 end
 
-newaction
-{
-	trigger     = "generatefeatures",
-	description = "Generate a web page describing each module's feature",
-	execute     = Feature.Generate
-}
+ACTION.Name = "GenerateFeatures"
+ACTION.Description = "Generate a web page describing each module's feature"
+
+ACTION.Function = Feature.Generate
