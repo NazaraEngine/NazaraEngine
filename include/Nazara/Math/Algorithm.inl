@@ -10,9 +10,6 @@
 #include <type_traits>
 #include <Nazara/Core/Debug.hpp>
 
-#define F(a) static_cast<T>(a)
-#define F2(a) static_cast<T2>(a)
-
 namespace
 {
 	// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
@@ -131,7 +128,7 @@ T NzCountBits(T value)
 template<typename T>
 constexpr T NzDegreeToRadian(T degrees)
 {
-	return degrees * F(M_PI/180.0);
+	return degrees * T(M_PI/180.0);
 }
 
 template<typename T>
@@ -204,7 +201,7 @@ inline unsigned int NzGetNumberLength(int number)
 	if (number == 0)
 		return 1;
 
-	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
+	return static_cast<unsigned int>(std::log10(std::abs(number))) + (number < 0 ? 2 : 1);
 }
 
 inline unsigned int NzGetNumberLength(unsigned int number)
@@ -220,7 +217,7 @@ inline unsigned int NzGetNumberLength(long long number)
 	if (number == 0)
 		return 1;
 
-	return static_cast<unsigned int>(std::log10(std::abs(number)))+(number < 0 ? 2 : 1);
+	return static_cast<unsigned int>(std::log10(std::abs(number))) + (number < 0 ? 2 : 1);
 }
 
 inline unsigned int NzGetNumberLength(unsigned long long number)
@@ -228,7 +225,7 @@ inline unsigned int NzGetNumberLength(unsigned long long number)
 	if (number == 0)
 		return 1;
 
-	return static_cast<unsigned int>(std::log10(number))+1;
+	return static_cast<unsigned int>(std::log10(number)) + 1;
 }
 
 inline unsigned int NzGetNumberLength(float number, nzUInt8 precision)
@@ -276,11 +273,11 @@ template<typename T, typename T2>
 T NzLerp(T from, T to, T2 interpolation)
 {
 	#ifdef NAZARA_DEBUG
-	if (interpolation < F2(0.0) || interpolation > F2(1.0))
+	if (interpolation < T2(0.0) || interpolation > T2(1.0))
 		NazaraWarning("Interpolation should be in range [0..1] (Got " + NzString::Number(interpolation) + ')');
 	#endif
 
-	return from + interpolation*(to - from);
+	return from + interpolation * (to - from);
 }
 
 template<typename T>
@@ -317,14 +314,14 @@ template<typename T>
 T NzNormalizeAngle(T angle)
 {
 	#if NAZARA_MATH_ANGLE_RADIAN
-	const T limit = F(M_PI);
+	const T limit = T(M_PI);
 	#else
-	const T limit = F(180.0);
+	const T limit = T(180.0);
 	#endif
-	const T twoLimit = limit*F(2.0);
+	const T twoLimit = limit * T(2);
 
 	angle = std::fmod(angle + limit, twoLimit);
-	if (angle < F(0.0))
+	if (angle < T(0))
 		angle += twoLimit;
 
 	return angle - limit;
@@ -339,9 +336,8 @@ bool NzNumberEquals(T a, T b)
 template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
-	T diff = a - b;
-	if (diff < F(0.0))
-		diff = -diff;
+	std::pair<const T&, const T&> minmax = std::minmax(a, b);
+	T diff = minmax.second - minmax.first;
 
 	return diff <= maxDifference;
 }
@@ -389,7 +385,7 @@ inline NzString NzNumberToString(long long number, nzUInt8 radix)
 template<typename T>
 T NzRadianToDegree(T radians)
 {
-	return radians * F(180.0/M_PI);
+	return radians * T(180.0/M_PI);
 }
 
 inline long long NzStringToNumber(NzString str, nzUInt8 radix, bool* ok)
@@ -460,8 +456,5 @@ constexpr T NzToRadians(T angle)
 	return NzDegreeToRadian(angle);
 	#endif
 }
-
-#undef F2
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>
