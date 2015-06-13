@@ -130,16 +130,16 @@ NzDeferredFogPass::NzDeferredFogPass()
 
 NzDeferredFogPass::~NzDeferredFogPass() = default;
 
-bool NzDeferredFogPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredFogPass::Process( const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
-	NazaraUnused(sceneData);
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 	m_workRTT->SetColorTarget(firstWorkTexture);
 	NzRenderer::SetTarget(m_workRTT);
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
 	NzRenderer::SetShader(m_shader);
-	m_shader->SendVector(m_shaderEyePositionLocation, viewer->GetEyePosition());
+	m_shader->SendVector(m_shaderEyePositionLocation, sceneData.viewer->GetEyePosition());
 
 	NzRenderer::SetRenderStates(m_states);
 	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);

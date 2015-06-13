@@ -37,8 +37,9 @@ namespace Ndk
 			NzSceneData sceneData;
 			sceneData.ambientColor = NzColor(25, 25, 25);
 			sceneData.background = &background;
+			sceneData.viewer = &camComponent;
 
-			m_renderTechnique.Draw(&camComponent, sceneData);
+			m_renderTechnique.Draw(sceneData);
 		}
 	}
 

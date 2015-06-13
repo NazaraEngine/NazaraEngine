@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredForwardPass.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
@@ -21,9 +22,9 @@ void NzDeferredForwardPass::Initialize(NzDeferredRenderTechnique* technique)
 	m_forwardTechnique = technique->GetForwardTechnique();
 }
 
-bool NzDeferredForwardPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
+bool NzDeferredForwardPass::Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
 {
-	NazaraUnused(sceneData);
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 	NazaraUnused(workTexture);
 
 	m_workRTT->SetColorTarget(sceneTexture);
@@ -31,13 +32,12 @@ bool NzDeferredForwardPass::Process(const NzAbstractViewer* viewer, const NzScen
 	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
 
 	if (sceneData.background)
-		sceneData.background->Draw(viewer);
+		sceneData.background->Draw(sceneData.viewer);
 
-	NzRenderer::SetMatrix(nzMatrixType_Projection, viewer->GetProjectionMatrix());
-	NzRenderer::SetMatrix(nzMatrixType_View, viewer->GetViewMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
+	NzRenderer::SetMatrix(nzMatrixType_View, sceneData.viewer->GetViewMatrix());
 
-	m_forwardTechnique->Draw(viewer, sceneData);
+	m_forwardTechnique->Draw(sceneData);
 
 	return false;
 }
-
