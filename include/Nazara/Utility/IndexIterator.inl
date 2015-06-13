@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <iterator>
 #include <Nazara/Utility/Debug.hpp>
 
 inline NzIndexIterator::NzIndexIterator() :
@@ -153,6 +154,19 @@ inline NzIndexIterator::Reference& NzIndexIterator::Reference::operator=(const N
 inline NzIndexIterator::Reference::operator nzUInt32() const
 {
 	return m_mapper->Get(m_index);
+}
+
+namespace std
+{
+	template<>
+	struct iterator_traits<NzIndexIterator>
+	{
+		using difference_type = ptrdiff_t;
+		using iterator_category = random_access_iterator_tag;
+		using reference = const NzIndexIterator::Reference&;
+		using pointer = const NzIndexIterator::Reference*;
+		using value_type = NzIndexIterator::Reference;
+	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>

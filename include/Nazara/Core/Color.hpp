@@ -11,7 +11,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NzColor
+class NAZARA_API NzColor
 {
 	public:
 		NzColor();
@@ -47,15 +47,15 @@ class NzColor
 
 		nzUInt8 r, g, b, a;
 
-		static NAZARA_API const NzColor Black;
-		static NAZARA_API const NzColor Blue;
-		static NAZARA_API const NzColor Cyan;
-		static NAZARA_API const NzColor Green;
-		static NAZARA_API const NzColor Magenta;
-		static NAZARA_API const NzColor Orange;
-		static NAZARA_API const NzColor Red;
-		static NAZARA_API const NzColor Yellow;
-		static NAZARA_API const NzColor White;
+		static const NzColor Black;
+		static const NzColor Blue;
+		static const NzColor Cyan;
+		static const NzColor Green;
+		static const NzColor Magenta;
+		static const NzColor Orange;
+		static const NzColor Red;
+		static const NzColor Yellow;
+		static const NzColor White;
 
 	private:
 		static float Hue2RGB(float v1, float v2, float vH);

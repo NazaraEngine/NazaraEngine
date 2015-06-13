@@ -17,7 +17,7 @@ void NzForwardRenderQueue::AddBillboard(const NzMaterial* material, const NzVect
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -45,7 +45,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -86,7 +86,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -125,7 +125,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -170,7 +170,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -213,7 +213,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -254,7 +254,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -293,7 +293,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -338,7 +338,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 	if (it == billboards.end())
 	{
 		BatchedBillboardEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		it = billboards.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -399,7 +399,7 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 		if (it == opaqueModels.end())
 		{
 			BatchedModelEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
 		}
@@ -416,9 +416,9 @@ void NzForwardRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData&
 			instanceEntry.squaredBoundingSphere = meshAABB.GetSquaredBoundingSphere();
 
 			if (meshData.indexBuffer)
-				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, OnIndexBufferInvalidation);
+				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, &NzForwardRenderQueue::OnIndexBufferInvalidation);
 
-			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, OnVertexBufferInvalidation);
+			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, &NzForwardRenderQueue::OnVertexBufferInvalidation);
 
 			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 		}
@@ -438,7 +438,7 @@ void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertex
 	if (matIt == basicSprites.end())
 	{
 		BatchedBasicSpriteEntry entry;
-		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, OnMaterialInvalidation);
+		entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzForwardRenderQueue::OnMaterialInvalidation);
 
 		matIt = basicSprites.insert(std::make_pair(material, std::move(entry))).first;
 	}
@@ -453,7 +453,7 @@ void NzForwardRenderQueue::AddSprites(const NzMaterial* material, const NzVertex
 	{
 		BatchedSpriteEntry overlayEntry;
 		if (overlay)
-			overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, OnTextureInvalidation);
+			overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &NzForwardRenderQueue::OnTextureInvalidation);
 
 		overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
 	}

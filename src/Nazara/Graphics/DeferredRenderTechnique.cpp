@@ -132,7 +132,7 @@ m_GBufferSize(0U)
 	{
 		NzErrorFlags errFlags(nzErrorFlag_ThrowExceptionDisabled);
 
-		NazaraError("Failed to add geometry and/or phong lighting pass");
+		NazaraError("Failed to add geometry and/or phong lighting pass: " + NzString(e.what()));
 		throw;
 	}
 
@@ -143,7 +143,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add FXAA pass");
+		NazaraWarning("Failed to add FXAA pass: " + NzString(e.what()));
 	}
 
 	try
@@ -153,7 +153,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add bloom pass");
+		NazaraWarning("Failed to add bloom pass: " + NzString(e.what()));
 	}
 
 	try
@@ -165,7 +165,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add DOF pass");
+		NazaraWarning("Failed to add DOF pass: " + NzString(e.what()));
 	}
 
 	try
@@ -177,7 +177,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add fog pass");
+		NazaraWarning("Failed to add fog pass: " + NzString(e.what()));
 	}
 
 	try
@@ -187,7 +187,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add forward pass");
+		NazaraWarning("Failed to add forward pass: " + NzString(e.what()));
 	}
 
 	try
@@ -197,7 +197,7 @@ m_GBufferSize(0U)
 	}
 	catch (const std::exception& e)
 	{
-		NazaraWarning("Failed to add SSAO pass");
+		NazaraWarning("Failed to add SSAO pass: " + NzString(e.what()));
 	}
 }
 
@@ -420,7 +420,7 @@ bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const
 	}
 	catch (const std::exception& e)
 	{
-		NazaraError("Failed to create work RTT/G-Buffer");
+		NazaraError("Failed to create work RTT/G-Buffer: " + NzString(e.what()));
 		return false;
 	}
 }

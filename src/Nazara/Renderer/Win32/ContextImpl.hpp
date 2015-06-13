@@ -7,6 +7,7 @@
 #ifndef NAZARA_CONTEXTIMPL_HPP
 #define NAZARA_CONTEXTIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <windows.h>
 

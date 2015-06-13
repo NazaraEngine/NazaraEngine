@@ -151,7 +151,7 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.buffer = buffer;
-	attachment.renderBufferDestroySlot.Connect(buffer->OnRenderBufferDestroy, std::bind(OnRenderBufferDestroy, this, std::placeholders::_1, attachIndex));
+	attachment.renderBufferDestroySlot.Connect(buffer->OnRenderBufferDestroy, std::bind(&NzRenderTexture::OnRenderBufferDestroy, this, std::placeholders::_1, attachIndex));
 	attachment.isBuffer = true;
 	attachment.isUsed = true;
 	attachment.height = buffer->GetHeight();
@@ -292,7 +292,7 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.isUsed = true;
 	attachment.height = texture->GetHeight();
 	attachment.texture = texture;
-	attachment.textureDestroySlot.Connect(texture->OnTextureDestroy, std::bind(OnTextureDestroy, this, std::placeholders::_1, attachIndex));
+	attachment.textureDestroySlot.Connect(texture->OnTextureDestroy, std::bind(&NzRenderTexture::OnTextureDestroy, this, std::placeholders::_1, attachIndex));
 	attachment.width = texture->GetWidth();
 
 	m_impl->checked = false;
@@ -339,7 +339,7 @@ bool NzRenderTexture::Create(bool lock)
 
 	m_impl = impl.release();
 	m_impl->context = NzContext::GetCurrent();
-	m_impl->contextDestroySlot.Connect(m_impl->context->OnContextDestroy, this, OnContextDestroy);
+	m_impl->contextDestroySlot.Connect(m_impl->context->OnContextDestroy, this, &NzRenderTexture::OnContextDestroy);
 
 	if (lock)
 	{
@@ -882,7 +882,7 @@ void NzRenderTexture::OnContextDestroy(const NzContext* context)
 	Destroy();
 }
 
-void NzRenderTexture::OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, int attachmentIndex)
+void NzRenderTexture::OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, unsigned int attachmentIndex)
 {
 	NazaraAssert(m_impl, "Invalid internal state");
 	NazaraAssert(attachmentIndex < m_impl->attachments.size(), "Invalid attachment index");
@@ -898,7 +898,7 @@ void NzRenderTexture::OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, 
 	m_impl->targetsUpdated = false;
 }
 
-void NzRenderTexture::OnTextureDestroy(const NzTexture* texture, int attachmentIndex)
+void NzRenderTexture::OnTextureDestroy(const NzTexture* texture, unsigned int attachmentIndex)
 {
 	NazaraAssert(m_impl, "Invalid internal state");
 	NazaraAssert(attachmentIndex < m_impl->attachments.size(), "Invalid attachment index");

@@ -35,7 +35,7 @@ class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 	private:
 		struct ShaderUniforms;
 
-		bool ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
+		void ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
 		void DrawBasicSprites(const NzSceneData& sceneData) const;
 		void DrawBillboards(const NzSceneData& sceneData) const;
 		void DrawOpaqueModels(const NzSceneData& sceneData) const;
