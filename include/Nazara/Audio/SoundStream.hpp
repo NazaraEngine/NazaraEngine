@@ -18,8 +18,8 @@ class NAZARA_API NzSoundStream
 
 		virtual nzUInt32 GetDuration() const = 0;
 		virtual nzAudioFormat GetFormat() const = 0;
-		virtual unsigned int GetSampleCount() const = 0;
-		virtual unsigned int GetSampleRate() const = 0;
+		virtual nzUInt64 GetSampleCount() const = 0;
+		virtual nzUInt32 GetSampleRate() const = 0;
 
 		virtual unsigned int Read(void* buffer, unsigned int sampleCount) = 0;
 		virtual void Seek(nzUInt32 offset) = 0;

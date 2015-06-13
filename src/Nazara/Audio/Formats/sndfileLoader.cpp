@@ -81,12 +81,12 @@ namespace
 					sf_close(m_handle);
 			}
 
-			nzUInt32 GetDuration() const
+			nzUInt32 GetDuration() const override
 			{
 				return m_duration;
 			}
 
-			nzAudioFormat GetFormat() const
+			nzAudioFormat GetFormat() const override
 			{
 				// Nous avons besoin du nombre de canaux d'origine pour convertir en mono, nous trichons donc un peu...
 				if (m_mixToMono)
@@ -95,12 +95,12 @@ namespace
 					return m_format;
 			}
 
-			unsigned int GetSampleCount() const
+			nzUInt64 GetSampleCount() const override
 			{
 				return m_sampleCount;
 			}
 
-			unsigned int GetSampleRate() const
+			nzUInt32 GetSampleRate() const override
 			{
 				return m_sampleRate;
 			}
@@ -138,7 +138,7 @@ namespace
 					return false;
 				}
 
-				// Un peu de RAII
+				// Un peu de RRID
 				NzCallOnExit onExit([this]
 				{
 					sf_close(m_handle);
@@ -156,7 +156,7 @@ namespace
 				m_sampleRate = infos.samplerate;
 
 				// Durée de la musique (s) = samples / channels*rate
-				m_duration = 1000*m_sampleCount / (m_format*m_sampleRate);
+				m_duration = static_cast<nzUInt32>(1000*m_sampleCount / (m_format*m_sampleRate));
 
 				// https://github.com/LaurentGomila/SFML/issues/271
 				// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
@@ -184,17 +184,17 @@ namespace
 				if (m_mixToMono)
 				{
 					// On garde un buffer sur le côté pour éviter la réallocation
-					m_mixBuffer.resize(m_format*sampleCount);
-					unsigned int readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format*sampleCount);
+					m_mixBuffer.resize(m_format * sampleCount);
+					sf_count_t readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format * sampleCount);
 					NzMixToMono(m_mixBuffer.data(), static_cast<nzInt16*>(buffer), m_format, sampleCount);
 
-					return readSampleCount / m_format;
+					return static_cast<unsigned int>(readSampleCount / m_format);
 				}
 				else
-					return sf_read_short(m_handle, static_cast<nzInt16*>(buffer), sampleCount);
+					return static_cast<unsigned int>(sf_read_short(m_handle, static_cast<nzInt16*>(buffer), sampleCount));
 			}
 
-			void Seek(nzUInt32 offset)
+			void Seek(nzUInt32 offset) override
 			{
 				sf_seek(m_handle, offset*m_sampleRate / 1000, SEEK_SET);
 			}
@@ -205,9 +205,9 @@ namespace
 			nzAudioFormat m_format;
 			SNDFILE* m_handle;
 			bool m_mixToMono;
-			unsigned int m_duration;
-			unsigned int m_sampleCount;
-			unsigned int m_sampleRate;
+			nzUInt32 m_duration;
+			nzUInt64 m_sampleCount;
+			nzUInt32 m_sampleRate;
 	};
 
 	bool IsSupported(const NzString& extension)
