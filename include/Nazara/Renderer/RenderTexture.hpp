@@ -23,7 +23,7 @@ class NzTexture;
 
 struct NzRenderTextureImpl;
 
-class NAZARA_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
+class NAZARA_RENDERER_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
 {
 	public:
 		NzRenderTexture() = default;

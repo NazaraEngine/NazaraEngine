@@ -17,7 +17,7 @@
 class NzAbstractHash;
 class NzHashDigest;
 
-class NAZARA_API NzString : public NzHashable
+class NAZARA_CORE_API NzString : public NzHashable
 {
 	public:
 		enum Flags
@@ -261,45 +261,45 @@ class NAZARA_API NzString : public NzHashable
 		static NzString Unicode(const char32_t* u32String);
 		static NzString Unicode(const wchar_t* wString);
 
-		NAZARA_API friend std::istream& operator>>(std::istream& in, NzString& string);
-		NAZARA_API friend std::ostream& operator<<(std::ostream& out, const NzString& string);
+		NAZARA_CORE_API friend std::istream& operator>>(std::istream& in, NzString& string);
+		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const NzString& string);
 
-		NAZARA_API friend NzString operator+(char character, const NzString& string);
-		NAZARA_API friend NzString operator+(const char* string, const NzString& nstring);
-		NAZARA_API friend NzString operator+(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend NzString operator+(char character, const NzString& string);
+		NAZARA_CORE_API friend NzString operator+(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend NzString operator+(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator==(const NzString& first, const NzString& second);
-		NAZARA_API friend bool operator!=(const NzString& first, const NzString& second);
-		NAZARA_API friend bool operator<(const NzString& first, const NzString& second);
-		NAZARA_API friend bool operator<=(const NzString& first, const NzString& second);
-		NAZARA_API friend bool operator>(const NzString& first, const NzString& second);
-		NAZARA_API friend bool operator>=(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator==(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator!=(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator<(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator<=(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator>(const NzString& first, const NzString& second);
+		NAZARA_CORE_API friend bool operator>=(const NzString& first, const NzString& second);
 
-		NAZARA_API friend bool operator==(char character, const NzString& nstring);
-		NAZARA_API friend bool operator==(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator==(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator==(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator==(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator==(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator!=(char character, const NzString& nstring);
-		NAZARA_API friend bool operator!=(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator!=(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator!=(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator!=(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator!=(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator<(char character, const NzString& nstring);
-		NAZARA_API friend bool operator<(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator<(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator<=(char character, const NzString& nstring);
-		NAZARA_API friend bool operator<=(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator<=(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<=(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<=(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator<=(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator>(char character, const NzString& nstring);
-		NAZARA_API friend bool operator>(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator>(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>(const std::string& string, const NzString& nstring);
 
-		NAZARA_API friend bool operator>=(char character, const NzString& nstring);
-		NAZARA_API friend bool operator>=(const char* string, const NzString& nstring);
-		NAZARA_API friend bool operator>=(const std::string& string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>=(char character, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>=(const char* string, const NzString& nstring);
+		NAZARA_CORE_API friend bool operator>=(const std::string& string, const NzString& nstring);
 
-		struct NAZARA_API SharedString
+		struct NAZARA_CORE_API SharedString
 		{
 			SharedString() :
 			refCount(1)
@@ -334,9 +334,9 @@ class NAZARA_API NzString : public NzHashable
 
 namespace std
 {
-	NAZARA_API istream& getline(istream& is, NzString& str);
-	NAZARA_API istream& getline(istream& is, NzString& str, char delim);
-	NAZARA_API void swap(NzString& lhs, NzString& rhs);
+	NAZARA_CORE_API istream& getline(istream& is, NzString& str);
+	NAZARA_CORE_API istream& getline(istream& is, NzString& str, char delim);
+	NAZARA_CORE_API void swap(NzString& lhs, NzString& rhs);
 }
 
 #include <Nazara/Core/String.inl>

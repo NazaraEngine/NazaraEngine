@@ -15,7 +15,7 @@
 #include <Nazara/Utility/Mesh.hpp>
 #include <vector>
 
-class NAZARA_API NzMD5MeshParser
+class NAZARA_UTILITY_API NzMD5MeshParser
 {
 	public:
 		struct Joint

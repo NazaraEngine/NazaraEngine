@@ -21,7 +21,7 @@
 
 class NzAbstractViewer;
 
-class NAZARA_API NzForwardRenderQueue : public NzAbstractRenderQueue
+class NAZARA_GRAPHICS_API NzForwardRenderQueue : public NzAbstractRenderQueue
 {
 	friend class NzForwardRenderTechnique;
 

@@ -12,6 +12,7 @@
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
 #include <functional>
@@ -24,7 +25,7 @@ class NzLuaInstance;
 using NzLuaCFunction = int (*)(lua_State* state);
 using NzLuaFunction = std::function<int(NzLuaInstance& instance)>;
 
-class NAZARA_API NzLuaInstance : NzNonCopyable
+class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
 {
 	public:
 		NzLuaInstance();

@@ -2,6 +2,8 @@ if (not _OPTIONS["united"]) then
 	project "NazaraUtility"
 end
 
+defines "NAZARA_UTILITY_BUILD"
+
 files
 {
 	"../include/Nazara/Utility/**.hpp",

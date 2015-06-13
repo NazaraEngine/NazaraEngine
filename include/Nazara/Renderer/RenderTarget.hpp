@@ -15,7 +15,7 @@
 
 class NzRenderer;
 
-class NAZARA_API NzRenderTarget
+class NAZARA_RENDERER_API NzRenderTarget
 {
 	friend class NzRenderer;
 

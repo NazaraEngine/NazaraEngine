@@ -9,11 +9,12 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
 class NzAbstractRenderTechnique;
 
-class NAZARA_API NzRenderTechniques
+class NAZARA_GRAPHICS_API NzRenderTechniques
 {
 	public:
 		using RenderTechniqueFactory = NzAbstractRenderTechnique* (*)();

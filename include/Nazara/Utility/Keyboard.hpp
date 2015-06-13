@@ -11,8 +11,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Config.hpp>
 
-class NAZARA_API NzKeyboard
+class NAZARA_UTILITY_API NzKeyboard
 {
 	public:
 		enum Key

@@ -22,7 +22,7 @@ using NzTextSpriteConstRef = NzObjectRef<const NzTextSprite>;
 using NzTextSpriteLibrary = NzObjectLibrary<NzTextSprite>;
 using NzTextSpriteRef = NzObjectRef<NzTextSprite>;
 
-class NAZARA_API NzTextSprite : public NzRenderable
+class NAZARA_GRAPHICS_API NzTextSprite : public NzRenderable
 {
 	public:
 		NzTextSprite();

@@ -15,7 +15,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_API NzDeferredDOFPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredDOFPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredDOFPass();

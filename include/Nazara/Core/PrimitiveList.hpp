@@ -11,7 +11,7 @@
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 
-class NAZARA_API NzPrimitiveList
+class NAZARA_CORE_API NzPrimitiveList
 {
 	public:
 		NzPrimitiveList() = default;

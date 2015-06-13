@@ -13,12 +13,13 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics/Config.hpp>
 #include <Nazara/Physics/Geom.hpp>
 
 class NzPhysWorld;
 struct NewtonBody;
 
-class NAZARA_API NzPhysObject
+class NAZARA_PHYSICS_API NzPhysObject
 {
 	public:
 		NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat = NzMatrix4f::Identity());

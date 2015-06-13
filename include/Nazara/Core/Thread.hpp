@@ -14,7 +14,7 @@
 
 class NzThreadImpl;
 
-class NAZARA_API NzThread : NzNonCopyable
+class NAZARA_CORE_API NzThread : NzNonCopyable
 {
 	public:
 		class Id;
@@ -42,19 +42,19 @@ class NAZARA_API NzThread : NzNonCopyable
 		NzThreadImpl* m_impl;
 };
 
-class NAZARA_API NzThread::Id
+class NAZARA_CORE_API NzThread::Id
 {
 	friend NzThread;
 
 	public:
-		NAZARA_API friend bool operator==(const Id& lhs, const Id& rhs);
-		NAZARA_API friend bool operator!=(const Id& lhs, const Id& rhs);
-		NAZARA_API friend bool operator<(const Id& lhs, const Id& rhs);
-		NAZARA_API friend bool operator<=(const Id& lhs, const Id& rhs);
-		NAZARA_API friend bool operator>(const Id& lhs, const Id& rhs);
-		NAZARA_API friend bool operator>=(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator==(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator!=(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator<(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator<=(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator>(const Id& lhs, const Id& rhs);
+		NAZARA_CORE_API friend bool operator>=(const Id& lhs, const Id& rhs);
 
-		NAZARA_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
+		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
 	private:
 		Id(NzThreadImpl* thread);

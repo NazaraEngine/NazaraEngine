@@ -14,7 +14,7 @@
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
-struct NAZARA_API NzModelParameters
+struct NAZARA_GRAPHICS_API NzModelParameters
 {
 	NzModelParameters();
 
@@ -31,7 +31,7 @@ using NzModelConstRef = NzObjectRef<const NzModel>;
 using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
 using NzModelRef = NzObjectRef<NzModel>;
 
-class NAZARA_API NzModel : public NzRenderable, public NzResource
+class NAZARA_GRAPHICS_API NzModel : public NzRenderable, public NzResource
 {
 	friend NzModelLoader;
 	friend class NzScene;

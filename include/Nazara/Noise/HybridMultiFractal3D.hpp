@@ -11,7 +11,7 @@
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 
-class NAZARA_API NzHybridMultiFractal3D : public NzAbstract3DNoise, public NzComplexNoiseBase
+class NAZARA_NOISE_API NzHybridMultiFractal3D : public NzAbstract3DNoise, public NzComplexNoiseBase
 {
     public:
         NzHybridMultiFractal3D(nzNoises source, unsigned int seed);

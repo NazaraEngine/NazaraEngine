@@ -41,4 +41,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Audio/ConfigCheck.hpp>
 
+#if !defined(NAZARA_STATIC)
+	#ifdef NAZARA_AUDIO_BUILD
+		#define NAZARA_AUDIO_API NAZARA_EXPORT
+	#else
+		#define NAZARA_AUDIO_API NAZARA_IMPORT
+	#endif
+#else
+	#define NAZARA_AUDIO_API
+#endif
+
 #endif // NAZARA_CONFIG_AUDIO_HPP

@@ -11,13 +11,14 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <unordered_map>
 
 class NzAbstractImage;
 class NzImage;
 
-class NAZARA_API NzAbstractAtlas
+class NAZARA_UTILITY_API NzAbstractAtlas
 {
 	public:
 		NzAbstractAtlas() = default;

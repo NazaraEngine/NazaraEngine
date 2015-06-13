@@ -87,16 +87,6 @@
 	#define NAZARA_EXPORT __declspec(dllexport)
 	#define NAZARA_IMPORT __declspec(dllimport)
 
-	#if !defined(NAZARA_STATIC)
-		#ifdef NAZARA_BUILD
-			#define NAZARA_API NAZARA_EXPORT
-		#else
-			#define NAZARA_API NAZARA_IMPORT
-		#endif
-	#else
-		#define NAZARA_API
-	#endif
-
 	// Des defines pour le header Windows
 	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothèque
 		#ifndef WIN32_LEAN_AND_MEAN
@@ -130,12 +120,6 @@
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
-
-	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
-		#define NAZARA_API NAZARA_EXPORT
-	#else
-		#define NAZARA_API
-	#endif
 /*#elif defined(__APPLE__) && defined(__MACH__)
 	#define NAZARA_API
 	#define NAZARA_PLATFORM_MACOSX

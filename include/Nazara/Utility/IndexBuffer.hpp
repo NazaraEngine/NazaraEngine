@@ -17,7 +17,7 @@ class NzIndexBuffer;
 using NzIndexBufferConstRef = NzObjectRef<const NzIndexBuffer>;
 using NzIndexBufferRef = NzObjectRef<NzIndexBuffer>;
 
-class NAZARA_API NzIndexBuffer : public NzRefCounted
+class NAZARA_UTILITY_API NzIndexBuffer : public NzRefCounted
 {
 	public:
 		NzIndexBuffer() = default;

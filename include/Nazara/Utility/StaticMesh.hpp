@@ -16,7 +16,7 @@ class NzStaticMesh;
 using NzStaticMeshConstRef = NzObjectRef<const NzStaticMesh>;
 using NzStaticMeshRef = NzObjectRef<NzStaticMesh>;
 
-class NAZARA_API NzStaticMesh final : public NzSubMesh
+class NAZARA_UTILITY_API NzStaticMesh final : public NzSubMesh
 {
 	public:
 		NzStaticMesh(const NzMesh* parent);

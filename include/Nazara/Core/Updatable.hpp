@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NAZARA_API NzUpdatable
+class NAZARA_CORE_API NzUpdatable
 {
 	public:
 		NzUpdatable() = default;

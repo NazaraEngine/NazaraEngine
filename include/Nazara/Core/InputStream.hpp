@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Stream.hpp>
 
-class NAZARA_API NzInputStream : public NzStream
+class NAZARA_CORE_API NzInputStream : public NzStream
 {
 	public:
 		virtual ~NzInputStream();

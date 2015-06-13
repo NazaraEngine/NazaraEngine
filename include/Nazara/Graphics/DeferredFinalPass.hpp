@@ -13,7 +13,7 @@
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-class NAZARA_API NzDeferredFinalPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredFinalPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredFinalPass();

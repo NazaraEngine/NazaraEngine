@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Noise/Config.hpp>
 
-class NAZARA_API NzNoise
+class NAZARA_NOISE_API NzNoise
 {
 	public:
 		NzNoise() = delete;

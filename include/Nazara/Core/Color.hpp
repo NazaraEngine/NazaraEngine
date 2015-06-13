@@ -11,7 +11,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NAZARA_API NzColor
+class NAZARA_CORE_API NzColor
 {
 	public:
 		NzColor();

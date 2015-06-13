@@ -22,7 +22,7 @@ using NzLightConstRef = NzObjectRef<const NzLight>;
 using NzLightLibrary = NzObjectLibrary<NzLight>;
 using NzLightRef = NzObjectRef<NzLight>;
 
-class NAZARA_API NzLight : public NzRenderable
+class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 {
 	public:
 		NzLight(nzLightType type = nzLightType_Point);

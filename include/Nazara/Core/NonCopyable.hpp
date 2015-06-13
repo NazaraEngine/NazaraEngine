@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NAZARA_API NzNonCopyable
+class NAZARA_CORE_API NzNonCopyable
 {
 	protected:
 		NzNonCopyable() = default;

@@ -8,11 +8,12 @@
 #define NAZARA_TEXTURESAMPLER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
 class NzTexture;
 
-class NAZARA_API NzTextureSampler
+class NAZARA_RENDERER_API NzTextureSampler
 {
 	friend class NzRenderer;
 

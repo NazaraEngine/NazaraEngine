@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <functional>
 #include <map>
@@ -49,8 +50,8 @@ class NzPixelFormat
 		static bool Initialize();
 		static void Uninitialize();
 
-		static NAZARA_API ConvertFunction s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
-		static NAZARA_API std::map<nzPixelFormat, FlipFunction> s_flipFunctions[nzPixelFlipping_Max+1];
+		static NAZARA_UTILITY_API ConvertFunction s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
+		static NAZARA_UTILITY_API std::map<nzPixelFormat, FlipFunction> s_flipFunctions[nzPixelFlipping_Max+1];
 };
 
 #include <Nazara/Utility/PixelFormat.inl>

@@ -8,6 +8,7 @@
 #define NAZARA_SOUNDEMITTER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
@@ -15,7 +16,7 @@
 
 ///TODO: Faire hériter SoundEmitter de Node
 
-class NAZARA_API NzSoundEmitter
+class NAZARA_AUDIO_API NzSoundEmitter
 {
 	public:
 		virtual ~NzSoundEmitter();

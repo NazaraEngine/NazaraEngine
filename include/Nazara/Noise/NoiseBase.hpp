@@ -8,6 +8,7 @@
 #define NOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Noise/Config.hpp>
 
 enum nzNoises
 {
@@ -16,7 +17,7 @@ enum nzNoises
     CELL
 };
 
-class NAZARA_API NzNoiseBase
+class NAZARA_NOISE_API NzNoiseBase
 {
     public:
         NzNoiseBase(unsigned int seed = 0);

@@ -12,7 +12,7 @@
 
 class NzHashDigest;
 
-class NAZARA_API NzAbstractHash : NzNonCopyable
+class NAZARA_CORE_API NzAbstractHash : NzNonCopyable
 {
 	public:
 		NzAbstractHash() = default;

@@ -21,7 +21,7 @@
 #include <set>
 #include <vector>
 
-class NAZARA_API NzParticleSystem : public NzSceneNode, NzUpdatable
+class NAZARA_GRAPHICS_API NzParticleSystem : public NzSceneNode, NzUpdatable
 {
 	public:
 		NzParticleSystem(unsigned int maxParticleCount, nzParticleLayout layout);

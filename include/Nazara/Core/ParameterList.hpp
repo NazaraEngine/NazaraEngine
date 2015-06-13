@@ -12,7 +12,7 @@
 #include <atomic>
 #include <unordered_map>
 
-class NAZARA_API NzParameterList
+class NAZARA_CORE_API NzParameterList
 {
 	public:
 		using Destructor = void (*)(void* value);

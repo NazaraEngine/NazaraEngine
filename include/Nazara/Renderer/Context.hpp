@@ -24,7 +24,7 @@ using NzContextRef = NzObjectRef<NzContext>;
 
 class NzContextImpl;
 
-class NAZARA_API NzContext : public NzRefCounted
+class NAZARA_RENDERER_API NzContext : public NzRefCounted
 {
 	friend NzContextImpl;
 	friend NzContextLibrary;

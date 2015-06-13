@@ -38,4 +38,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/Physics/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_PHYSICS_API
+#else
+	#ifdef NAZARA_PHYSICS_BUILD
+		#define NAZARA_PHYSICS_API NAZARA_EXPORT
+	#else
+		#define NAZARA_PHYSICS_API NAZARA_IMPORT
+	#endif
+#endif
+
 #endif // NAZARA_CONFIG_PHYSICS_HPP

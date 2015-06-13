@@ -8,6 +8,7 @@
 #define NAZARA_ABSTRACTVIEWER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -16,7 +17,7 @@
 class NzRenderTarget;
 class NzScene;
 
-class NAZARA_API NzAbstractViewer
+class NAZARA_GRAPHICS_API NzAbstractViewer
 {
 	public:
 		NzAbstractViewer() = default;

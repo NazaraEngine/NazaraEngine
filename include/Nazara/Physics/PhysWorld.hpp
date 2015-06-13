@@ -11,10 +11,11 @@
 #include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics/Config.hpp>
 
 struct NewtonWorld;
 
-class NAZARA_API NzPhysWorld : NzNonCopyable
+class NAZARA_PHYSICS_API NzPhysWorld : NzNonCopyable
 {
 	public:
 		NzPhysWorld();

@@ -16,7 +16,7 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/Node.hpp>
 
-class NAZARA_API NzCamera : public NzAbstractViewer, public NzNode
+class NAZARA_GRAPHICS_API NzCamera : public NzAbstractViewer, public NzNode
 {
 	public:
 		NzCamera();

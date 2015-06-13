@@ -2,6 +2,7 @@ if (not _OPTIONS["united"]) then
 	project "NazaraAudio"
 end
 
+defines "NAZARA_AUDIO_BUILD"
 defines "NAZARA_AUDIO_OPENAL"
 
 files

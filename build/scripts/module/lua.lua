@@ -2,6 +2,8 @@ if (not _OPTIONS["united"]) then
 	project "NazaraLua"
 end
 
+defines "NAZARA_LUA_BUILD"
+
 files
 {
 	"../include/Nazara/Lua/**.hpp",

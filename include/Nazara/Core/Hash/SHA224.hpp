@@ -13,7 +13,7 @@
 
 union SHA_CTX;
 
-class NAZARA_API NzHashSHA224 : public NzAbstractHash
+class NAZARA_CORE_API NzHashSHA224 : public NzAbstractHash
 {
 	public:
 		NzHashSHA224();

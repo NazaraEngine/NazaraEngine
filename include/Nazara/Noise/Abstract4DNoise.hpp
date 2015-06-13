@@ -10,7 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
 
-class NAZARA_API NzAbstract4DNoise : public NzMappedNoiseBase
+class NAZARA_NOISE_API NzAbstract4DNoise : public NzMappedNoiseBase
 {
     public:
         virtual ~NzAbstract4DNoise();

@@ -28,7 +28,7 @@
 
 class NzDirectoryImpl;
 
-class NAZARA_API NzDirectory : NzNonCopyable
+class NAZARA_CORE_API NzDirectory : NzNonCopyable
 {
 	public:
 		NzDirectory();

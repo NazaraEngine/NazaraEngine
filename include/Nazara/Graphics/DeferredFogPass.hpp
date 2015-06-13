@@ -13,7 +13,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_API NzDeferredFogPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredFogPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredFogPass();

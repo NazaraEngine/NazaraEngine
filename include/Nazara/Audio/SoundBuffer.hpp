@@ -8,6 +8,7 @@
 #define NAZARA_SOUNDBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
@@ -37,7 +38,7 @@ using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
 
 struct NzSoundBufferImpl;
 
-class NAZARA_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCopyable
+class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCopyable
 {
 	friend NzSound;
 	friend NzSoundBufferLibrary;

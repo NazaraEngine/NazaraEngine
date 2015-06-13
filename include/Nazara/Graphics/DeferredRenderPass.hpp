@@ -8,6 +8,7 @@
 #define NAZARA_DEFERREDRENDERPASS_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -20,7 +21,7 @@ class NzRenderTexture;
 class NzScene;
 class NzTexture;
 
-class NAZARA_API NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredRenderPass
 {
 	friend NzDeferredRenderTechnique;
 

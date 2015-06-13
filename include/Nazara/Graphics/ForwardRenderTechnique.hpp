@@ -9,13 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NAZARA_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
+class NAZARA_GRAPHICS_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
 {
 	public:
 		NzForwardRenderTechnique();

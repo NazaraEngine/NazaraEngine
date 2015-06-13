@@ -8,12 +8,13 @@
 #define NAZARA_SKINNINGMANAGER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 
 class NzSkeleton;
 class NzSkeletalMesh;
 class NzVertexBuffer;
 
-class NAZARA_API NzSkinningManager
+class NAZARA_GRAPHICS_API NzSkinningManager
 {
 	friend class NzGraphics;
 

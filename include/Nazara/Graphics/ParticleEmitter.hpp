@@ -8,12 +8,13 @@
 #define NAZARA_PARTICLEEMITTER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/Node.hpp>
 
 class NzParticleMapper;
 class NzParticleSystem;
 
-class NAZARA_API NzParticleEmitter : public NzNode
+class NAZARA_GRAPHICS_API NzParticleEmitter : public NzNode
 {
 	public:
 		NzParticleEmitter();

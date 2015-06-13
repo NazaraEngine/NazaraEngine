@@ -16,7 +16,7 @@
 
 class NzStaticMesh;
 
-class NAZARA_API NzDeferredPhongLightingPass : public NzDeferredRenderPass
+class NAZARA_GRAPHICS_API NzDeferredPhongLightingPass : public NzDeferredRenderPass
 {
 	public:
 		NzDeferredPhongLightingPass();

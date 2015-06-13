@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <cstring>
 
-class NAZARA_API NzMemoryManager
+class NAZARA_CORE_API NzMemoryManager
 {
 	public:
 		static void* Allocate(std::size_t size, bool multi = false, const char* file = nullptr, unsigned int line = 0);
