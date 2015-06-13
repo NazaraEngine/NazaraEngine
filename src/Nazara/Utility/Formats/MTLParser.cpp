@@ -1,14 +1,14 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Loaders/OBJ/MTLParser.hpp>
+#include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <memory>
-#include <Nazara/Graphics/Debug.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 NzMTLParser::NzMTLParser(NzInputStream& stream) :
 m_stream(stream),
@@ -31,6 +31,11 @@ const NzMTLParser::Material* NzMTLParser::GetMaterial(const NzString& materialNa
 		return &it->second;
 	else
 		return nullptr;
+}
+
+const std::unordered_map<NzString, NzMTLParser::Material>& NzMTLParser::GetMaterials() const
+{
+	return m_materials;
 }
 
 bool NzMTLParser::Parse()

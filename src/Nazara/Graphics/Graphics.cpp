@@ -17,9 +17,9 @@
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Graphics/Loaders/Mesh.hpp>
-#include <Nazara/Graphics/Loaders/OBJ.hpp>
-#include <Nazara/Graphics/Loaders/Texture.hpp>
+#include <Nazara/Graphics/Formats/MeshLoader.hpp>
+#include <Nazara/Graphics/Formats/OBJLoader.hpp>
+#include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>

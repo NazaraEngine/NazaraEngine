@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_MD5MESH_PARSER_HPP
-#define NAZARA_LOADERS_MD5MESH_PARSER_HPP
+#ifndef NAZARA_FORMATS_MD5MESHPARSER_HPP
+#define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
@@ -15,7 +15,7 @@
 #include <Nazara/Utility/Mesh.hpp>
 #include <vector>
 
-class NzMD5MeshParser
+class NAZARA_API NzMD5MeshParser
 {
 	public:
 		struct Joint
@@ -80,4 +80,4 @@ class NzMD5MeshParser
 		unsigned int m_streamFlags;
 };
 
-#endif // NAZARA_LOADERS_MD5MESH_PARSER_HPP
+#endif // NAZARA_FORMATS_MD5MESHPARSER_HPP

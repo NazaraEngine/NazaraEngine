@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/MD2.hpp>
+#include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/InputStream.hpp>
@@ -11,7 +11,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
-#include <Nazara/Utility/Loaders/MD2/Constants.hpp>
+#include <Nazara/Utility/Formats/MD2Constants.hpp>
 #include <cstddef>
 #include <cstring>
 #include <memory>

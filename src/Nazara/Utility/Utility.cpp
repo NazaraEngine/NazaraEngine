@@ -15,17 +15,17 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/Loaders/FreeType.hpp>
-#include <Nazara/Utility/Loaders/MD2.hpp>
-#include <Nazara/Utility/Loaders/MD5Anim.hpp>
-#include <Nazara/Utility/Loaders/MD5Mesh.hpp>
-#include <Nazara/Utility/Loaders/PCX.hpp>
-#include <Nazara/Utility/Loaders/STB.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Window.hpp>
+#include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
+#include <Nazara/Utility/Formats/MD2Loader.hpp>
+#include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
+#include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
+#include <Nazara/Utility/Formats/PCXLoader.hpp>
+#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 bool NzUtility::Initialize()
