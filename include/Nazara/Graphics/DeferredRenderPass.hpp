@@ -27,6 +27,7 @@ class NAZARA_GRAPHICS_API NzDeferredRenderPass
 
 	public:
 		NzDeferredRenderPass();
+		NzDeferredRenderPass(const NzDeferredRenderPass&) = delete;
 		virtual ~NzDeferredRenderPass();
 
 		void Enable(bool enable);
@@ -37,6 +38,8 @@ class NAZARA_GRAPHICS_API NzDeferredRenderPass
 
 		virtual bool Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
 		virtual bool Resize(const NzVector2ui& GBufferSize);
+
+		NzDeferredRenderPass& operator=(const NzDeferredRenderPass&) = delete;
 
 	protected:
 		NzVector2ui m_dimensions;
