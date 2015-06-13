@@ -1,11 +1,11 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_OBJ_OBJPARSER_HPP
-#define NAZARA_LOADERS_OBJ_OBJPARSER_HPP
+#ifndef NAZARA_FORMATS_OBJPARSER_HPP
+#define NAZARA_FORMATS_OBJPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
@@ -72,4 +72,4 @@ class NzOBJParser
 		unsigned int m_streamFlags;
 };
 
-#endif // NAZARA_LOADERS_OBJ_OBJPARSER_HPP
+#endif // NAZARA_FORMATS_OBJPARSER_HPP

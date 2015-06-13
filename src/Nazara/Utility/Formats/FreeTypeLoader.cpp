@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/FreeType.hpp>
+#include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
 #include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H

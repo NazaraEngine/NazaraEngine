@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/STB.hpp>
+#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <stb_image/stb_image.h>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
