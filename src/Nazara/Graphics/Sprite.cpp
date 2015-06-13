@@ -45,7 +45,7 @@ void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
 	if (!m_verticesUpdated)
 		UpdateVertices();
 
-	renderQueue->AddSprites(m_material, m_vertices, 1);
+	renderQueue->AddSprites(m_material, m_vertices.data(), 1);
 }
 
 NzSprite* NzSprite::Clone() const

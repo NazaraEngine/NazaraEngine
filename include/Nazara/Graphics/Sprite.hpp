@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <array>
 
 class NAZARA_API NzSprite : public NzSceneNode
 {
@@ -55,7 +56,7 @@ class NAZARA_API NzSprite : public NzSceneNode
 		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
-		mutable NzVertexStruct_XYZ_Color_UV m_vertices[4];
+		mutable std::array<NzVertexStruct_XYZ_Color_UV, 4> m_vertices;
 		mutable bool m_verticesUpdated;
 };
 

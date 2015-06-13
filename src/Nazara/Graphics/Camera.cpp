@@ -163,8 +163,8 @@ void NzCamera::SetTarget(const NzRenderTarget* renderTarget)
 
 	if (m_target)
 	{
-		m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, OnRenderTargetRelease);
-		m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, OnRenderTargetSizeChange);
+		m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, &NzCamera::OnRenderTargetRelease);
+		m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, &NzCamera::OnRenderTargetSizeChange);
 	}
 	else
 	{

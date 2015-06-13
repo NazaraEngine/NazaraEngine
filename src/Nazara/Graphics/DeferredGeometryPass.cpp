@@ -241,8 +241,8 @@ const NzDeferredGeometryPass::ShaderUniforms* NzDeferredGeometryPass::GetShaderU
 	if (it == m_shaderUniforms.end())
 	{
 		ShaderUniforms uniforms;
-		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, OnShaderInvalidated);
-		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, OnShaderInvalidated);
+		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &NzDeferredGeometryPass::OnShaderInvalidated);
+		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &NzDeferredGeometryPass::OnShaderInvalidated);
 
 		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
 		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");

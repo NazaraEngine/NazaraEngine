@@ -7,6 +7,7 @@
 #ifndef NAZARA_DYNLIBIMPL_HPP
 #define NAZARA_DYNLIBIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/NonCopyable.hpp>
 #include <windows.h>

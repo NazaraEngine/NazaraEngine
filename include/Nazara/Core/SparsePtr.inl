@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <iterator>
 #include <Nazara/Core/Debug.hpp>
 
 template<typename T>
@@ -242,6 +243,19 @@ template<typename T>
 bool NzSparsePtr<T>::operator>=(const NzSparsePtr& ptr) const
 {
 	return m_ptr >= ptr.m_ptr;
+}
+
+namespace std
+{
+	template<typename T>
+	struct iterator_traits<NzSparsePtr<T>>
+	{
+		using difference_type = ptrdiff_t;
+		using iterator_category = random_access_iterator_tag;
+		using reference = const T&;
+		using pointer = const T*;
+		using value_type = T;
+	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>

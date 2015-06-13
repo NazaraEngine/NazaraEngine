@@ -70,8 +70,8 @@ class NAZARA_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
 
 	private:
 		void OnContextDestroy(const NzContext* context);
-		void OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, int attachmentIndex);
-		void OnTextureDestroy(const NzTexture* texture, int attachmentIndex);
+		void OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, unsigned int attachmentIndex);
+		void OnTextureDestroy(const NzTexture* texture, unsigned int attachmentIndex);
 		void UpdateDrawBuffers() const;
 		void UpdateSize() const;
 		void UpdateTargets() const;
