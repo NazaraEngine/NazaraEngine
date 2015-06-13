@@ -1,3 +1,6 @@
+ACTION.Name = "ParseUnicode"
+ACTION.Description = "Parse the Unicode Character Data and put the useful informations into a header"
+
 local CategoryToString = {}
 	CategoryToString["C"]  = "Category_Other" 
 	CategoryToString["Cc"] = "Category_Other_Control" 
@@ -67,7 +70,7 @@ table.maxn = table.maxn or function (tab) -- Compatibilité Lua 5.2
 	end
 end
 	
-function getCharacter(tab, first, index)
+local function getCharacter(tab, first, index)
 	local character = {}
 	character.Category  = CategoryToString[tab[3]] or "Category_NoCategory"
 	character.Direction = DirectionToString[tab[5]] or error("Direction not recognized")
@@ -78,7 +81,7 @@ function getCharacter(tab, first, index)
 	return character
 end
 
-function parseUnicodeData()
+ACTION.Function = function ()
 	local unicodeSet = {}
 
 	file = io.open ("scripts/data/UnicodeData.txt", "r")
@@ -189,9 +192,3 @@ function parseUnicodeData()
 end
 --print(string.match("<Plane 15 Private Use, First>", "<.+, (%w+)>"))
 
-newaction
-{
-	trigger     = "parseunicode",
-	description = "Parse the Unicode Character Data and put the useful informations into a header",
-	execute     = parseUnicodeData
-}
