@@ -18,7 +18,7 @@ class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 		NzDeferredGeometryPass();
 		virtual ~NzDeferredGeometryPass();
 
-		bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 		bool Resize(const NzVector2ui& dimensions);
 
 	protected:

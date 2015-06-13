@@ -63,9 +63,8 @@ NzTexture* NzDeferredBloomPass::GetTexture(unsigned int i) const
 	return m_bloomTextures[i];
 }
 
-bool NzDeferredBloomPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredBloomPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
-	NazaraUnused(viewer);
 	NazaraUnused(sceneData);
 
 	NzRenderer::SetRenderStates(m_bloomStates);

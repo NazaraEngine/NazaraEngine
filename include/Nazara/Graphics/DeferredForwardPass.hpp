@@ -19,7 +19,7 @@ class NAZARA_API NzDeferredForwardPass : public NzDeferredRenderPass
 		virtual ~NzDeferredForwardPass();
 
 		void Initialize(NzDeferredRenderTechnique* technique);
-		bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const;
+		bool Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const;
 
 	protected:
 		const NzForwardRenderTechnique* m_forwardTechnique;

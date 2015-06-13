@@ -65,8 +65,9 @@ bool NzDeferredPhongLightingPass::IsLightMeshesDrawingEnabled() const
 	return m_lightMeshesDrawing;
 }
 
-bool NzDeferredPhongLightingPass::Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+bool NzDeferredPhongLightingPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 {
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 	NazaraUnused(secondWorkTexture);
 
 	m_workRTT->SetColorTarget(firstWorkTexture);
@@ -98,7 +99,7 @@ bool NzDeferredPhongLightingPass::Process(const NzAbstractViewer* viewer, const 
 		NzRenderer::SetRenderStates(lightStates);
 		NzRenderer::SetShader(m_directionalLightShader);
 		m_directionalLightShader->SendColor(m_directionalLightShaderSceneAmbientLocation, sceneData.ambientColor);
-		m_directionalLightShader->SendVector(m_directionalLightShaderEyePositionLocation, viewer->GetEyePosition());
+		m_directionalLightShader->SendVector(m_directionalLightShaderEyePositionLocation, sceneData.viewer->GetEyePosition());
 
 		for (auto& light : m_renderQueue->directionalLights)
 		{
@@ -131,7 +132,7 @@ bool NzDeferredPhongLightingPass::Process(const NzAbstractViewer* viewer, const 
 
 		NzRenderer::SetShader(m_pointSpotLightShader);
 		m_pointSpotLightShader->SendColor(m_pointSpotLightShaderSceneAmbientLocation, sceneData.ambientColor);
-		m_pointSpotLightShader->SendVector(m_pointSpotLightShaderEyePositionLocation, viewer->GetEyePosition());
+		m_pointSpotLightShader->SendVector(m_pointSpotLightShaderEyePositionLocation, sceneData.viewer->GetEyePosition());
 
 		NzMatrix4f lightMatrix;
 		lightMatrix.MakeIdentity();

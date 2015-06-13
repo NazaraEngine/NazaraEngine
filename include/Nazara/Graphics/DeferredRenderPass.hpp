@@ -34,7 +34,7 @@ class NAZARA_API NzDeferredRenderPass
 
 		bool IsEnabled() const;
 
-		virtual bool Process(const NzAbstractViewer* viewer, const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
+		virtual bool Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
 		virtual bool Resize(const NzVector2ui& GBufferSize);
 
 	protected:

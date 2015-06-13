@@ -73,9 +73,10 @@ void NzScene::Draw()
 		NzSceneData sceneData;
 		sceneData.ambientColor = m_ambientColor;
 		sceneData.background = (m_backgroundEnabled) ? m_background.get() : nullptr;
+		sceneData.viewer = m_viewer;
 
 		NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
-		m_renderTechnique->Draw(m_viewer, sceneData);
+		m_renderTechnique->Draw(sceneData);
 	}
 	catch (const std::exception& e)
 	{

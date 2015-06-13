@@ -47,30 +47,30 @@ m_maxLightPassPerObject(3)
 	m_spriteBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 }
 
-bool NzForwardRenderTechnique::Draw(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+bool NzForwardRenderTechnique::Draw(const NzSceneData& sceneData) const
 {
-	NazaraAssert(viewer, "Invalid viewer");
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
-	m_renderQueue.Sort(viewer);
+	m_renderQueue.Sort(sceneData.viewer);
 
 	NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
 	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
 	NzRenderer::Clear(nzRendererBuffer_Depth);
 
 	if (sceneData.background)
-		sceneData.background->Draw(viewer);
+		sceneData.background->Draw(sceneData.viewer);
 
 	if (!m_renderQueue.opaqueModels.empty())
-		DrawOpaqueModels(viewer, sceneData);
+		DrawOpaqueModels(sceneData);
 
 	if (!m_renderQueue.transparentModels.empty())
-		DrawTransparentModels(viewer, sceneData);
+		DrawTransparentModels(sceneData);
 
 	if (!m_renderQueue.basicSprites.empty())
-		DrawBasicSprites(viewer, sceneData);
+		DrawBasicSprites(sceneData);
 
 	if (!m_renderQueue.billboards.empty())
-		DrawBillboards(viewer, sceneData);
+		DrawBillboards(sceneData);
 
 	// Les autres drawables (Exemple: Terrain)
 	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
@@ -201,9 +201,9 @@ bool NzForwardRenderTechnique::ChooseLights(const NzSpheref& object, bool includ
 	});
 }
 
-void NzForwardRenderTechnique::DrawBasicSprites(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+void NzForwardRenderTechnique::DrawBasicSprites(const NzSceneData& sceneData) const
 {
-	NazaraAssert(viewer, "Invalid viewer");
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
@@ -254,7 +254,7 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzAbstractViewer* viewer, 
 						// Overlay
 						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
 						// Position de la caméra
-						shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -307,9 +307,9 @@ void NzForwardRenderTechnique::DrawBasicSprites(const NzAbstractViewer* viewer, 
 	}
 }
 
-void NzForwardRenderTechnique::DrawBillboards(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+void NzForwardRenderTechnique::DrawBillboards(const NzSceneData& sceneData) const
 {
-	NazaraAssert(viewer, "Invalid viewer");
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
@@ -342,7 +342,7 @@ void NzForwardRenderTechnique::DrawBillboards(const NzAbstractViewer* viewer, co
 					// Couleur ambiante de la scène
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
-					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -388,7 +388,7 @@ void NzForwardRenderTechnique::DrawBillboards(const NzAbstractViewer* viewer, co
 					// Couleur ambiante de la scène
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
-					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -449,9 +449,9 @@ void NzForwardRenderTechnique::DrawBillboards(const NzAbstractViewer* viewer, co
 	}
 }
 
-void NzForwardRenderTechnique::DrawOpaqueModels(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+void NzForwardRenderTechnique::DrawOpaqueModels(const NzSceneData& sceneData) const
 {
-	NazaraAssert(viewer, "Invalid viewer");
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
@@ -486,7 +486,7 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzAbstractViewer* viewer, 
 					// Couleur ambiante de la scène
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
-					shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -652,9 +652,9 @@ void NzForwardRenderTechnique::DrawOpaqueModels(const NzAbstractViewer* viewer, 
 	}
 }
 
-void NzForwardRenderTechnique::DrawTransparentModels(const NzAbstractViewer* viewer, const NzSceneData& sceneData) const
+void NzForwardRenderTechnique::DrawTransparentModels(const NzSceneData& sceneData) const
 {
-	NazaraAssert(viewer, "Invalid viewer");
+	NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 	const NzShader* lastShader = nullptr;
 	const ShaderUniforms* shaderUniforms = nullptr;
@@ -679,7 +679,7 @@ void NzForwardRenderTechnique::DrawTransparentModels(const NzAbstractViewer* vie
 			// Couleur ambiante de la scène
 			shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 			// Position de la caméra
-			shader->SendVector(shaderUniforms->eyePosition, viewer->GetEyePosition());
+			shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 			// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 			if (shaderUniforms->hasLightUniforms)
