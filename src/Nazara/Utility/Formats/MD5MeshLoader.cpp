@@ -2,12 +2,12 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/MD5Mesh.hpp>
-#include <Nazara/Utility/Loaders/MD5Mesh/Parser.hpp>
+#include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/Formats/MD5MeshParser.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 

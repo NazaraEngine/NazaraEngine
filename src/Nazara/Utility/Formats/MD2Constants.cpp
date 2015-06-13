@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Loaders/MD2/Constants.hpp>
+#include <Nazara/Utility/Formats/MD2Constants.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 const nzUInt32 md2Ident = 'I' + ('D'<<8) + ('P'<<16) + ('2'<<24);

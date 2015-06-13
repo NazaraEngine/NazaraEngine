@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Loaders/Mesh.hpp>
+#include <Nazara/Graphics/Formats/MeshLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>

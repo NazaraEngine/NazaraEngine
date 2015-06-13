@@ -1,11 +1,11 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_OBJ_MTLPARSER_HPP
-#define NAZARA_LOADERS_OBJ_MTLPARSER_HPP
+#ifndef NAZARA_FORMATS_MTLPARSER_HPP
+#define NAZARA_FORMATS_MTLPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -13,7 +13,7 @@
 #include <Nazara/Core/String.hpp>
 #include <unordered_map>
 
-class NzMTLParser
+class NAZARA_API NzMTLParser
 {
 	public:
 		struct Material
@@ -40,6 +40,7 @@ class NzMTLParser
 		~NzMTLParser();
 
 		const Material* GetMaterial(const NzString& materialName) const;
+		const std::unordered_map<NzString, Material>& GetMaterials() const;
 
 		bool Parse();
 
@@ -57,4 +58,4 @@ class NzMTLParser
 		unsigned int m_streamFlags;
 };
 
-#endif // NAZARA_LOADERS_OBJ_MTLPARSER_HPP
+#endif // NAZARA_FORMATS_MTLPARSER_HPP
