@@ -67,3 +67,4 @@ configuration { "linux or bsd or macosx", "gmake" }
 
 configuration "vs*"
 	defines "_CRT_SECURE_NO_WARNINGS"
+	defines "_SCL_SECURE_NO_WARNINGS"

@@ -302,9 +302,9 @@ void NzFont::SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas)
 		m_atlas = atlas;
 		if (m_atlas)
 		{
-			m_atlasClearedSlot.Connect(m_atlas->OnAtlasCleared, this, OnAtlasCleared);
-			m_atlasLayerChangeSlot.Connect(m_atlas->OnAtlasLayerChange, this, OnAtlasLayerChange);
-			m_atlasReleaseSlot.Connect(m_atlas->OnAtlasRelease, this, OnAtlasRelease);
+			m_atlasClearedSlot.Connect(m_atlas->OnAtlasCleared, this, &NzFont::OnAtlasCleared);
+			m_atlasLayerChangeSlot.Connect(m_atlas->OnAtlasLayerChange, this, &NzFont::OnAtlasLayerChange);
+			m_atlasReleaseSlot.Connect(m_atlas->OnAtlasRelease, this, &NzFont::OnAtlasRelease);
 		}
 		else
 		{

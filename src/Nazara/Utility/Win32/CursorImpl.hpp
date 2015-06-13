@@ -7,6 +7,7 @@
 #ifndef NAZARA_CURSORIMPL_HPP
 #define NAZARA_CURSORIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
 class NzImage;

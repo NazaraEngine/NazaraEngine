@@ -163,7 +163,7 @@ void NzForwardRenderTechnique::Uninitialize()
 	s_quadVertexBuffer.Reset();
 }
 
-bool NzForwardRenderTechnique::ChooseLights(const NzSpheref& object, bool includeDirectionalLights) const
+void NzForwardRenderTechnique::ChooseLights(const NzSpheref& object, bool includeDirectionalLights) const
 {
 	m_lights.clear();
 
@@ -740,8 +740,8 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 	if (it == m_shaderUniforms.end())
 	{
 		ShaderUniforms uniforms;
-		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, OnShaderInvalidated);
-		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, OnShaderInvalidated);
+		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &NzForwardRenderTechnique::OnShaderInvalidated);
+		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &NzForwardRenderTechnique::OnShaderInvalidated);
 
 		uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
 		uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");

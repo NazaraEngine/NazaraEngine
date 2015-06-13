@@ -7,6 +7,7 @@
 #ifndef NAZARA_MUTEXIMPL_HPP
 #define NAZARA_MUTEXIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
 class NzMutexImpl

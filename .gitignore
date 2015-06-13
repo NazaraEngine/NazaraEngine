@@ -28,6 +28,8 @@ build/scripts/features/index.html
 *.sln
 *.vcxprojResolveAssemblyReference.cache
 *.exp
+*.nativecodeanalysis.all.xml
+*.nativecodeanalysis.xml
 
 # Compiled Object files
 *.slo

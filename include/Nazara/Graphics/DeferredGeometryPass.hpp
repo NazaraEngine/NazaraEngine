@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <unordered_map>
 
 class NAZARA_API NzDeferredGeometryPass : public NzDeferredRenderPass
 {

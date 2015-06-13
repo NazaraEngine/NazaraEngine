@@ -114,10 +114,10 @@ void NzSimpleTextDrawer::SetFont(NzFont* font)
 		m_font = font;
 		if (m_font)
 		{
-			m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, OnFontInvalidated);
-			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, OnFontInvalidated);
-			m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, OnFontRelease);
-			m_glyphCacheClearedSlot.Connect(m_font->OnFontAtlasChanged, this, OnFontInvalidated);
+			m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
+			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
+			m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &NzSimpleTextDrawer::OnFontRelease);
+			m_glyphCacheClearedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
 		}
 		else
 		{
