@@ -44,7 +44,7 @@ class NAZARA_GRAPHICS_API NzDeferredRenderQueue : public NzAbstractRenderQueue
 
 		struct MeshDataComparator
 		{
-			bool operator()(const NzMeshData& data1, const NzMeshData& data2);
+			bool operator()(const NzMeshData& data1, const NzMeshData& data2) const;
 		};
 
 		struct MeshInstanceEntry
@@ -59,7 +59,7 @@ class NAZARA_GRAPHICS_API NzDeferredRenderQueue : public NzAbstractRenderQueue
 
 		struct BatchedModelMaterialComparator
 		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
+			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2) const;
 		};
 
 		struct BatchedModelEntry

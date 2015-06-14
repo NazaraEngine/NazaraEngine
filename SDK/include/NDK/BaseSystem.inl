@@ -45,7 +45,7 @@ namespace Ndk
 	template<typename ComponentType>
 	void BaseSystem::Excludes()
 	{
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value , "ComponentType is not a component");
 
 		ExcludesComponent(GetComponentIndex<ComponentType>());
 	}
@@ -70,7 +70,7 @@ namespace Ndk
 	template<typename ComponentType>
 	void BaseSystem::Requires()
 	{
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
 
 		RequiresComponent(GetComponentIndex<ComponentType>());
 	}
@@ -90,7 +90,7 @@ namespace Ndk
 	template<typename ComponentType>
 	void BaseSystem::RequiresAny()
 	{
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
 
 		RequiresAnyComponent(GetComponentIndex<ComponentType>());
 	}

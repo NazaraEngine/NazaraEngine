@@ -20,13 +20,13 @@ namespace Ndk
 	}
 
 	template<typename ComponentType>
-	constexpr ComponentIndex GetComponentIndex()
+	ComponentIndex GetComponentIndex()
 	{
 		return ComponentType::componentIndex;
 	}
 
 	template<typename SystemType>
-	constexpr SystemIndex GetSystemIndex()
+	SystemIndex GetSystemIndex()
 	{
 		return SystemType::systemIndex;
 	}

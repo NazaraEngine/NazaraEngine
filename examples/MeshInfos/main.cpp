@@ -4,6 +4,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <cctype>
 #include <iostream>
 #include <limits>
 

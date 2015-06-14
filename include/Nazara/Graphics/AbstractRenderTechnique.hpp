@@ -19,10 +19,11 @@ class NzAbstractViewer;
 class NzBackground;
 struct SceneData;
 
-class NAZARA_GRAPHICS_API NzAbstractRenderTechnique : NzNonCopyable
+class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
 {
 	public:
 		NzAbstractRenderTechnique();
+		NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
 		virtual ~NzAbstractRenderTechnique();
 
 		virtual bool Draw(const NzSceneData& sceneData) const = 0;
@@ -34,6 +35,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderTechnique : NzNonCopyable
 		virtual nzRenderTechniqueType GetType() const = 0;
 
 		virtual bool IsInstancingEnabled() const;
+
+		NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
 
 	protected:
 		bool m_instancingEnabled;
