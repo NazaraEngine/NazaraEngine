@@ -160,7 +160,7 @@ void NzDeferredRenderQueue::OnVertexBufferInvalidation(const NzVertexBuffer* ver
 	}
 }
 
-bool NzDeferredRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+bool NzDeferredRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2) const
 {
 	const NzUberShader* uberShader1 = mat1->GetShader();
 	const NzUberShader* uberShader2 = mat2->GetShader();
@@ -180,7 +180,7 @@ bool NzDeferredRenderQueue::BatchedModelMaterialComparator::operator()(const NzM
 	return mat1 < mat2;
 }
 
-bool NzDeferredRenderQueue::MeshDataComparator::operator()(const NzMeshData& data1, const NzMeshData& data2)
+bool NzDeferredRenderQueue::MeshDataComparator::operator()(const NzMeshData& data1, const NzMeshData& data2) const
 {
 	const NzBuffer* buffer1;
 	const NzBuffer* buffer2;

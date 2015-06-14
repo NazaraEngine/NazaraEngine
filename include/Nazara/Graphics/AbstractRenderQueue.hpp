@@ -23,7 +23,7 @@ class NzMaterial;
 class NzTexture;
 struct NzMeshData;
 
-class NAZARA_GRAPHICS_API NzAbstractRenderQueue : NzNonCopyable
+class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 {
 	public:
 		struct DirectionalLight;
@@ -31,6 +31,7 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue : NzNonCopyable
 		struct SpotLight;
 
 		NzAbstractRenderQueue() = default;
+		NzAbstractRenderQueue(const NzAbstractRenderQueue&) = delete;
 		virtual ~NzAbstractRenderQueue();
 
 		// Je ne suis vraiment pas fan du nombre de surcharges pour AddBillboards,
@@ -53,6 +54,7 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue : NzNonCopyable
 
 		virtual void Clear(bool fully = false);
 
+		NzAbstractRenderQueue& operator=(const NzAbstractRenderQueue&) = delete;
 
 		struct DirectionalLight
 		{

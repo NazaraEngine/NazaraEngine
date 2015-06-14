@@ -12,8 +12,8 @@
 namespace Ndk
 {
 	template<unsigned int N> ComponentId BuildComponentId(const char (&name)[N]);
-	template<typename ComponentType> constexpr ComponentIndex GetComponentIndex();
-	template<typename SystemType> constexpr SystemIndex GetSystemIndex();
+	template<typename ComponentType> ComponentIndex GetComponentIndex();
+	template<typename SystemType> SystemIndex GetSystemIndex();
 	template<typename ComponentType, unsigned int N> ComponentIndex InitializeComponent(const char (&name)[N]);
 	template<typename SystemType> SystemIndex InitializeSystem();
 	template<typename ComponentType, typename C> bool IsComponent(C& component);
