@@ -140,7 +140,7 @@ namespace Ndk
 	{
 		m_target = renderTarget;
 		if (m_target)
-			m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, OnRenderTargetRelease);
+			m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, &CameraComponent::OnRenderTargetRelease);
 		else
 			m_targetReleaseSlot.Disconnect();
 	}

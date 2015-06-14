@@ -21,7 +21,7 @@ namespace Ndk
 	void GraphicsComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
-			m_nodeInvalidationSlot.Connect(m_entity->GetComponent<NodeComponent>().OnNodeInvalidation, this, OnNodeInvalidated);
+			m_nodeInvalidationSlot.Connect(m_entity->GetComponent<NodeComponent>().OnNodeInvalidation, this, &GraphicsComponent::OnNodeInvalidated);
 
 		InvalidateTransformMatrix();
 	}
@@ -31,7 +31,7 @@ namespace Ndk
 		if (IsComponent<NodeComponent>(component))
 		{
 			NodeComponent& nodeComponent = static_cast<NodeComponent&>(component);
-			m_nodeInvalidationSlot.Connect(nodeComponent.OnNodeInvalidation, this, OnNodeInvalidated);
+			m_nodeInvalidationSlot.Connect(nodeComponent.OnNodeInvalidation, this, &GraphicsComponent::OnNodeInvalidated);
 
 			InvalidateTransformMatrix();
 		}

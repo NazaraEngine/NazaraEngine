@@ -60,7 +60,7 @@ class NAZARA_GRAPHICS_API NzDeferredRenderTechnique : public NzAbstractRenderTec
 
 		struct RenderPassComparator
 		{
-			bool operator()(nzRenderPassType pass1, nzRenderPassType pass2);
+			bool operator()(nzRenderPassType pass1, nzRenderPassType pass2) const;
 		};
 
 		std::map<nzRenderPassType, std::map<int, std::unique_ptr<NzDeferredRenderPass>>, RenderPassComparator> m_passes;

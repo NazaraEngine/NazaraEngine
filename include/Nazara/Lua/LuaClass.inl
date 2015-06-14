@@ -278,7 +278,7 @@ int NzLuaClass<T>::MethodProxy(lua_State* state)
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
 	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	int index = lua.ToInteger(lua.GetIndexOfUpValue(2));
+	unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 	ClassFunc method = info->methods[index];
 
 	T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
@@ -334,7 +334,7 @@ int NzLuaClass<T>::StaticMethodProxy(lua_State* state)
 	NzLuaInstance& lua = *NzLuaInstance::GetInstance(state);
 
 	ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-	int index = lua.ToInteger(lua.GetIndexOfUpValue(2));
+	unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 	StaticFunc method = info->staticMethods[index];
 
 	return method(lua);

@@ -560,7 +560,7 @@ void NzForwardRenderQueue::OnVertexBufferInvalidation(const NzVertexBuffer* vert
 	}
 }
 
-bool NzForwardRenderQueue::BatchedBillboardComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+bool NzForwardRenderQueue::BatchedBillboardComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2) const
 {
 	const NzUberShader* uberShader1 = mat1->GetShader();
 	const NzUberShader* uberShader2 = mat2->GetShader();
@@ -580,7 +580,7 @@ bool NzForwardRenderQueue::BatchedBillboardComparator::operator()(const NzMateri
 	return mat1 < mat2;
 }
 
-bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2)
+bool NzForwardRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2) const
 {
 	const NzUberShader* uberShader1 = mat1->GetShader();
 	const NzUberShader* uberShader2 = mat2->GetShader();
@@ -620,7 +620,7 @@ bool NzForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const NzM
 	return mat1 < mat2;
 }
 
-bool NzForwardRenderQueue::MeshDataComparator::operator()(const NzMeshData& data1, const NzMeshData& data2)
+bool NzForwardRenderQueue::MeshDataComparator::operator()(const NzMeshData& data1, const NzMeshData& data2) const
 {
 	const NzBuffer* buffer1;
 	const NzBuffer* buffer2;

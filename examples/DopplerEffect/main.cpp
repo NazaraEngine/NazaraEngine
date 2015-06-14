@@ -57,7 +57,7 @@ int main()
 	while (sound.GetStatus() == nzSoundStatus_Playing)
 	{
 		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
-		int sleepTime = 1000/60 - clock.GetMilliseconds(); // 60 FPS
+		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS
 
 		if (sleepTime > 0)
 			NzThread::Sleep(sleepTime);

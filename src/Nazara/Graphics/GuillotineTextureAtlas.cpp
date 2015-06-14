@@ -15,7 +15,7 @@ nzUInt32 NzGuillotineTextureAtlas::GetStorage() const
 NzAbstractImage* NzGuillotineTextureAtlas::ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const
 {
 	std::unique_ptr<NzTexture> newTexture(new NzTexture);
-	if (newTexture->Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1, 0xFF))
+	if (newTexture->Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1))
 	{
 		if (oldImage)
 		{

@@ -81,7 +81,7 @@ namespace
 		{
 			// Le masque 32 bits sur la partie du nombre qu'on traite actuellement
 			T mask = T(std::numeric_limits<nzUInt32>::max()) << i*8;
-			T val = (number & mask) >> i*8; // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
+			nzUInt32 val = nzUInt32((number & mask) >> i*8); // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
 
 			// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
 			unsigned int log2 = NzImplIntegralLog2Pot<nzUInt32>(val);

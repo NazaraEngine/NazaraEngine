@@ -8,6 +8,12 @@
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
+#ifdef NAZARA_COMPILER_MSVC
+	// Bits tricks require us to disable some warnings under VS
+	#pragma warning(disable: 4146)
+	#pragma warning(disable: 4804)
+#endif
+
 template<typename Block, class Allocator>
 NzBitset<Block, Allocator>::NzBitset() :
 m_bitCount(0)
@@ -305,7 +311,7 @@ bool NzBitset<Block, Allocator>::Test(unsigned int bit) const
 {
 	NazaraAssert(bit < m_bitCount, "Bit index out of range");
 
-	return m_blocks[GetBlockIndex(bit)] & (Block(1U) << GetBitIndex(bit));
+	return (m_blocks[GetBlockIndex(bit)] & (Block(1U) << GetBitIndex(bit))) != 0;
 }
 
 template<typename Block, class Allocator>
@@ -753,5 +759,11 @@ namespace std
 		lhs.Swap(rhs);
 	}
 }
+
+#ifdef NAZARA_COMPILER_MSVC
+	// Reenable those warnings
+	#pragma warning(default: 4146)
+	#pragma warning(default: 4804)
+#endif
 
 #include <Nazara/Core/DebugOff.hpp>
