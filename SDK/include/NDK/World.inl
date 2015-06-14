@@ -87,7 +87,7 @@ namespace Ndk
 	template<typename SystemType>
 	bool World::HasSystem() const
 	{
-		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a component");
+		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a component");
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		return HasSystem(index);
