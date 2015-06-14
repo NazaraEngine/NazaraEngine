@@ -35,7 +35,7 @@ namespace Ndk
 	template<typename SystemType, typename... Args>
 	SystemType& World::AddSystem(Args&&... args)
 	{
-		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a component");
+		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a component");
 
 		// Allocation et affectation du component
 		std::unique_ptr<SystemType> ptr(new SystemType(std::forward(args)...));
@@ -73,7 +73,7 @@ namespace Ndk
 	SystemType& World::GetSystem()
 	{
 		///DOC: Le système doit être présent
-		static_assert(std::is_base_of<BaseSystem, SystemType>(), "SystemType is not a system");
+		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a system");
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		return static_cast<SystemType&>(GetSystem(index));

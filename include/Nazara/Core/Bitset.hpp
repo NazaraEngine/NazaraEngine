@@ -17,7 +17,7 @@ class NzAbstractHash;
 template<typename Block = nzUInt32, class Allocator = std::allocator<Block>>
 class NzBitset
 {
-	static_assert(std::is_integral<Block>() && std::is_unsigned<Block>(), "Block must be a unsigned integral type");
+	static_assert(std::is_integral<Block>::value && std::is_unsigned<Block>::value, "Block must be a unsigned integral type");
 
 	public:
 		class Bit;

@@ -12,7 +12,7 @@ namespace Ndk
 	template<typename ComponentType, typename... Args>
 	ComponentType& Entity::AddComponent(Args&&... args)
 	{
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
 
 		// Allocation et affectation du component
 		std::unique_ptr<ComponentType> ptr(new ComponentType(std::forward<Args>(args)...));
@@ -34,7 +34,7 @@ namespace Ndk
 	ComponentType& Entity::GetComponent()
 	{
 		///DOC: Le component doit être présent
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
 
 		ComponentIndex index = GetComponentIndex<ComponentType>();
 		return static_cast<ComponentType&>(GetComponent(index));
@@ -68,7 +68,7 @@ namespace Ndk
 	template<typename ComponentType>
 	bool Entity::HasComponent() const
 	{
-		static_assert(std::is_base_of<BaseComponent, ComponentType>(), "ComponentType is not a component");
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
 
 		ComponentIndex index = GetComponentIndex<ComponentType>();
 		return HasComponent(index);

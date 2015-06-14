@@ -569,7 +569,7 @@ void NzDeferredRenderTechnique::Uninitialize()
 	NzShaderLibrary::Unregister("DeferredGaussianBlur");
 }
 
-bool NzDeferredRenderTechnique::RenderPassComparator::operator()(nzRenderPassType pass1, nzRenderPassType pass2)
+bool NzDeferredRenderTechnique::RenderPassComparator::operator()(nzRenderPassType pass1, nzRenderPassType pass2) const
 {
 	return RenderPassPriority[pass1] < RenderPassPriority[pass2];
 }
