@@ -10,6 +10,8 @@ function NazaraBuild:Execute()
 	else
 		if (#self.OrderedExtLibs > 0) then
 			solution("NazaraExtlibs")
+			platforms({"x32", "x64"})
+
 			-- Configuration générale
 			configurations({
 				"DebugStatic",
@@ -20,14 +22,14 @@ function NazaraBuild:Execute()
 			location(_ACTION)
 			kind("StaticLib")
 
-			if (_OPTIONS["x64"]) then
-				libdirs("../extlibs/lib/x64")
-				targetdir("../extlibs/lib/x64")
-			else
+			configuration("x32")
 				libdirs("../extlibs/lib/x86")
 				targetdir("../extlibs/lib/x86")
-			end
 
+			configuration("x64")
+				libdirs("../extlibs/lib/x64")
+				targetdir("../extlibs/lib/x64")
+				
 			configuration("Debug*")
 				flags("Symbols")
 
@@ -71,6 +73,7 @@ function NazaraBuild:Execute()
 		end
 
 		solution("NazaraEngine")
+		platforms({"x32", "x64"})
 
 		-- Configuration générale
 		configurations({
@@ -99,9 +102,6 @@ function NazaraBuild:Execute()
 
 		configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
 			buildoptions("-std=c++11")
-		if (_OPTIONS["x64"]) then
-			buildoptions("-m64")
-		end
 
 		configuration({"linux or bsd or macosx", "gmake"})
 			buildoptions("-fvisibility=hidden")
@@ -134,15 +134,14 @@ function NazaraBuild:Execute()
 			})
 
 			libdirs("../lib")
+			targetdir("../lib")
 
-			if (_OPTIONS["x64"]) then
+			configuration("x32")
+				libdirs("../extlibs/lib/x86")
+
+			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
 				libdirs("../extlibs/lib/x64")
-			else
-				libdirs("../extlibs/lib/x86")
-			end
-
-			targetdir("../lib")
 
 			configuration("*Static")
 				kind("StaticLib")
@@ -202,15 +201,14 @@ function NazaraBuild:Execute()
 			})
 
 			libdirs("../lib")
+			targetdir("../lib")
 
-			if (_OPTIONS["x64"]) then
+			configuration("x32")
+				libdirs("../extlibs/lib/x86")
+
+			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
 				libdirs("../extlibs/lib/x64")
-			else
-				libdirs("../extlibs/lib/x86")
-			end
-
-			targetdir("../lib")
 
 			configuration("*Static")
 				kind("StaticLib")
@@ -263,14 +261,6 @@ function NazaraBuild:Execute()
 			"../extlibs/include"
 		})
 		libdirs("../lib")
-
-		if (_OPTIONS["x64"]) then
-			defines("NAZARA_PLATFORM_x64")
-			libdirs("../extlibs/lib/x64")
-		else
-			libdirs("../extlibs/lib/x86")
-		end
-
 		targetdir("../examples/bin")
 
 		files(exampleTable.Files)
@@ -280,6 +270,13 @@ function NazaraBuild:Execute()
 		flags(exampleTable.Flags)
 		includedirs(exampleTable.Includes)
 		links(exampleTable.Libraries)
+		
+		configuration("x32")
+			libdirs("../extlibs/lib/x86")
+
+		configuration("x64")
+			defines("NAZARA_PLATFORM_x64")
+			libdirs("../extlibs/lib/x64")
 
 		for k,v in pairs(exampleTable.ConfigurationLibraries) do
 			configuration(k)
@@ -292,11 +289,6 @@ end
 
 function NazaraBuild:Initialize()
 	-- Commençons par les options
-	newoption({
-		trigger     = "x64",
-		description = "Setup build project for x64 arch"
-	})
-
 	newoption({
 		trigger     = "united",
 		description = "Builds all the modules as one united library"
