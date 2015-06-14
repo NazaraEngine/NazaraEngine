@@ -99,10 +99,23 @@ bool NzOBJParser::Parse()
 	m_texCoords.reserve(100);
 
 	// On va regrouper les meshs par nom et par matériau
-	std::unordered_map<NzString, std::unordered_map<NzString, std::vector<Face>>> meshes;
+	using FaceVec = std::vector<Face>;
+	using MatPair = std::pair<FaceVec, unsigned int>;
+	std::unordered_map<NzString, std::unordered_map<NzString, MatPair>> meshes;
+
+	unsigned int matIndex = 0;
+	auto GetMaterial = [&meshes, &matIndex] (const NzString& meshName, const NzString& matName) -> FaceVec*
+	{
+		auto& map = meshes[meshName];
+		auto it = map.find(matName);
+		if (it == map.end())
+			it = map.insert(std::make_pair(matName, MatPair(FaceVec(), matIndex++))).first;
+
+		return &(it->second.first);
+	};
 
 	// On prépare le mesh par défaut
-	std::vector<Face>* currentMesh = &meshes[meshName][matName];
+	FaceVec* currentMesh = nullptr;
 
 	while (Advance(false))
 	{
@@ -228,7 +241,12 @@ bool NzOBJParser::Parse()
 				}
 
 				if (!error)
+				{
+					if (!currentMesh)
+						currentMesh = GetMaterial(meshName, matName);
+
 					currentMesh->push_back(std::move(face));
+				}
 
 				break;
 			}
@@ -263,7 +281,7 @@ bool NzOBJParser::Parse()
 				}
 
 				meshName = objectName;
-				currentMesh = &meshes[meshName][matName];
+				currentMesh = GetMaterial(meshName, matName);
 				break;
 			}
 
@@ -295,7 +313,7 @@ bool NzOBJParser::Parse()
 					break;
 				}
 
-				currentMesh = &meshes[meshName][matName];
+				currentMesh = GetMaterial(meshName, matName);
 				break;
 
 			case 'v':
@@ -351,28 +369,31 @@ bool NzOBJParser::Parse()
 	}
 
 	std::unordered_map<NzString, unsigned int> materials;
-	unsigned int matCount = 0;
+	m_materials.resize(matIndex);
 
 	for (auto& meshIt : meshes)
 	{
 		for (auto& matIt : meshIt.second)
 		{
-			if (!matIt.second.empty())
+			auto& faceVec = matIt.second.first;
+			unsigned int index = matIt.second.second;
+			if (!faceVec.empty())
 			{
 				Mesh mesh;
-				mesh.faces = std::move(matIt.second);
+				mesh.faces = std::move(faceVec);
 				mesh.name = meshIt.first;
 
 				auto it = materials.find(matIt.first);
 				if (it == materials.end())
 				{
-					mesh.material = matCount;
-					materials[matIt.first] = matCount++;
+					mesh.material = index;
+					materials[matIt.first] = index;
+					m_materials[index] = matIt.first;
 				}
 				else
 					mesh.material = it->second;
 
-				m_meshes.push_back(std::move(mesh));
+				m_meshes.emplace_back(std::move(mesh));
 			}
 		}
 	}
@@ -382,10 +403,6 @@ bool NzOBJParser::Parse()
 		NazaraError("No meshes");
 		return false;
 	}
-
-	m_materials.resize(matCount);
-	for (const std::pair<NzString, unsigned int>& pair : materials)
-		m_materials[pair.second] = pair.first;
 
 	return true;
 }
