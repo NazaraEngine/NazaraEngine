@@ -9,18 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 
 class NzLight;
-class NzShader;
 struct NzLightUniforms;
-
-using NzLightConstRef = NzObjectRef<const NzLight>;
-using NzLightLibrary = NzObjectLibrary<NzLight>;
-using NzLightRef = NzObjectRef<NzLight>;
 
 class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 {
@@ -29,12 +22,12 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		NzLight(const NzLight& light) = default;
 		~NzLight() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
 
 		NzLight* Clone() const;
 		NzLight* Create() const;
 
-		bool Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const override;
+		bool Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const override;
 
 		float GetAmbientFactor() const;
 		float GetAttenuation() const;
@@ -58,11 +51,9 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		void SetOuterAngle(float outerAngle);
 		void SetRadius(float radius);
 
-		void UpdateBoundingVolume(InstanceData* instanceData) const;
+		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
 
 		NzLight& operator=(const NzLight& light) = default;
-
-		template<typename... Args> static NzLightRef New(Args&&... args);
 
 	private:
 		void MakeBoundingVolume() const override;
@@ -79,8 +70,6 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		float m_outerAngleCosine;
 		float m_outerAngleTangent;
 		float m_radius;
-
-		static NzLightLibrary::LibraryMap s_library;
 };
 
 struct NzLightUniforms

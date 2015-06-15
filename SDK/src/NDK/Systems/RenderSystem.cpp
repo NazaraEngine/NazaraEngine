@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
 namespace Ndk
@@ -24,12 +25,20 @@ namespace Ndk
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
-			for (const Ndk::EntityHandle& drawable : m_drawables)
+			for (const Ndk::EntityHandle& light : m_drawables)
 			{
-				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+				GraphicsComponent& graphicsComponent = light->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
+			}
+
+			for (const Ndk::EntityHandle& light : m_lights)
+			{
+				LightComponent& lightComponent = light->GetComponent<LightComponent>();
+				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
+
+				lightComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
 			}
 
 			NzColorBackground background;
@@ -47,6 +56,7 @@ namespace Ndk
 	{
 		m_cameras.Remove(entity);
 		m_drawables.Remove(entity);
+		m_lights.Remove(entity);
 	}
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
@@ -67,6 +77,10 @@ namespace Ndk
 		else
 			m_drawables.Remove(entity);
 
+		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
+			m_lights.Insert(entity);
+		else
+			m_lights.Remove(entity);
 	}
 
 	SystemIndex RenderSystem::systemIndex;

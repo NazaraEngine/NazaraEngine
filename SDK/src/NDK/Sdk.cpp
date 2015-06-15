@@ -15,6 +15,7 @@
 #include <NDK/BaseSystem.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
+#include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -57,6 +58,7 @@ namespace Ndk
 			// Composants
 			InitializeComponent<CameraComponent>("NdkCam");
 			InitializeComponent<CollisionComponent>("NdkColli");
+			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<GraphicsComponent>("NdkGfx");
 			InitializeComponent<NodeComponent>("NdkNode");

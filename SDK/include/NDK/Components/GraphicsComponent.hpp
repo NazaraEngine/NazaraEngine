@@ -7,7 +7,7 @@
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
-#include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
 
@@ -22,14 +22,14 @@ namespace Ndk
 
 			inline void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
 
-			inline void Attach(NzRenderableRef renderable);
+			inline void Attach(NzInstancedRenderableRef renderable);
 
 			inline void EnsureTransformMatrixUpdate() const;
 
 			static ComponentIndex componentIndex;
 
 		private:
-			void InvalidateRenderableData(const NzRenderable* renderable, nzUInt32 flags, unsigned int index);
+			void InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index);
 			inline void InvalidateTransformMatrix();
 
 			void OnAttached() override;
@@ -50,10 +50,10 @@ namespace Ndk
 				{
 				}
 
-				NazaraSlot(NzRenderable, OnRenderableInvalidateInstanceData, renderableInvalidationSlot);
+				NazaraSlot(NzInstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
 
-				mutable NzRenderable::InstanceData data;
-				NzRenderableRef renderable;
+				mutable NzInstancedRenderable::InstanceData data;
+				NzInstancedRenderableRef renderable;
 				mutable bool dataUpdated;
 			};
 
