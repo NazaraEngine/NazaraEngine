@@ -1,11 +1,9 @@
 # Nazara build
 examples/bin/*.exe
-lib/libNazara*.a
-lib/Nazara*.dll
-lib/Nazara*.so
-SDK/lib/libNazaraSDK*.a
-SDK/lib/NazaraSDK*.dll
-SDK/lib/NazaraSDK*.so
+lib/**/libNazara*.a
+lib/**/Nazara*.dll
+lib/**/Nazara*.so
+lib/**/libNazara*.lib
 
 # Feature page
 build/scripts/features/index.html
