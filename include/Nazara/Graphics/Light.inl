@@ -94,13 +94,4 @@ inline void NzLight::SetRadius(float radius)
 	InvalidateBoundingVolume();
 }
 
-template<typename... Args>
-NzLightRef NzLight::New(Args&&... args)
-{
-	std::unique_ptr<NzLight> object(new NzLight(std::forward<Args>(args)...));
-	object->SetPersistent(false);
-
-	return object.release();
-}
-
 #include <Nazara/Renderer/DebugOff.hpp>

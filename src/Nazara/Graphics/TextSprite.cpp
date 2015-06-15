@@ -19,7 +19,7 @@ m_scale(1.f)
 }
 
 NzTextSprite::NzTextSprite(const NzTextSprite& sprite) :
-NzRenderable(sprite),
+NzInstancedRenderable(sprite),
 m_renderInfos(sprite.m_renderInfos),
 m_localVertices(sprite.m_localVertices),
 m_color(sprite.m_color),
@@ -88,7 +88,7 @@ float NzTextSprite::GetScale() const
 
 void NzTextSprite::InvalidateVertices()
 {
-	OnRenderableInvalidateInstanceData(this, 0);
+	InvalidateInstanceData(0);
 }
 
 bool NzTextSprite::IsDrawable() const
@@ -245,7 +245,7 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 
 NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
 {
-	NzRenderable::operator=(text);
+	NzInstancedRenderable::operator=(text);
 
 	m_atlases.clear();
 

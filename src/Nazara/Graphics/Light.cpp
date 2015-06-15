@@ -28,7 +28,7 @@ m_type(type)
 	SetRadius(5.f);
 }
 
-void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
 	switch (m_type)
 	{
@@ -38,7 +38,7 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const Instanc
 			light.ambientFactor = m_ambientFactor;
 			light.color = m_color;
 			light.diffuseFactor = m_diffuseFactor;
-			light.direction = instanceData.transformMatrix.Transform(NzVector3f::Forward(), 0.f);
+			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
 
 			renderQueue->AddDirectionalLight(light);
 			break;
@@ -52,7 +52,7 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const Instanc
 			light.color = m_color;
 			light.diffuseFactor = m_diffuseFactor;
 			light.invRadius = m_invRadius;
-			light.position = instanceData.transformMatrix.GetTranslation();
+			light.position = transformMatrix.GetTranslation();
 			light.radius = m_radius;
 
 			renderQueue->AddPointLight(light);
@@ -66,12 +66,12 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const Instanc
 			light.attenuation = m_attenuation;
 			light.color = m_color;
 			light.diffuseFactor = m_diffuseFactor;
-			light.direction = instanceData.transformMatrix.Transform(NzVector3f::Forward(), 0.f);
+			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
 			light.innerAngleCosine = m_innerAngleCosine;
 			light.invRadius = m_invRadius;
 			light.outerAngleCosine = m_outerAngleCosine;
 			light.outerAngleTangent = m_outerAngleTangent;
-			light.position = instanceData.transformMatrix.GetTranslation();
+			light.position = transformMatrix.GetTranslation();
 			light.radius = m_radius;
 
 			renderQueue->AddSpotLight(light);
@@ -94,7 +94,7 @@ NzLight* NzLight::Create() const
 	return new NzLight;
 }
 
-bool NzLight::Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const
+bool NzLight::Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const
 {
 	switch (m_type)
 	{
@@ -102,31 +102,29 @@ bool NzLight::Cull(const NzFrustumf& frustum, const InstanceData& instanceData) 
 			return true; // Always visible
 
 		case nzLightType_Point:
-			return frustum.Contains(NzSpheref(instanceData.transformMatrix.GetTranslation(), m_radius)); // A sphere test is much faster (and precise)
+			return frustum.Contains(NzSpheref(transformMatrix.GetTranslation(), m_radius)); // A sphere test is much faster (and precise)
 
 		case nzLightType_Spot:
-			return frustum.Contains(instanceData.volume);
+			return frustum.Contains(m_boundingVolume);
 	}
 
 	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
 	return false;
 }
 
-void NzLight::UpdateBoundingVolume(InstanceData* instanceData) const
+void NzLight::UpdateBoundingVolume(const NzMatrix4f& transformMatrix)
 {
-	NazaraAssert(instanceData, "Invalid data");
-
 	switch (m_type)
 	{
 		case nzLightType_Directional:
 			break; // Nothing to do (bounding volume should be infinite)
 
 		case nzLightType_Point:
-			instanceData->volume.Update(instanceData->transformMatrix.GetTranslation()); // The bounding volume only needs to be shifted
+			m_boundingVolume.Update(transformMatrix.GetTranslation()); // The bounding volume only needs to be shifted
 			break;
 
 		case nzLightType_Spot:
-			instanceData->volume.Update(instanceData->transformMatrix);
+			m_boundingVolume.Update(transformMatrix);
 			break;
 
 		default:
@@ -179,5 +177,3 @@ void NzLight::MakeBoundingVolume() const
 			break;
 	}
 }
-
-NzLightLibrary::LibraryMap NzLight::s_library;
