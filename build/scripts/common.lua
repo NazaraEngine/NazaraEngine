@@ -19,17 +19,40 @@ function NazaraBuild:Execute()
 			})
 
 			includedirs("../extlibs/include")
+			libdirs("../extlibs/lib/common")
 			location(_ACTION)
 			kind("StaticLib")
 
 			configuration("x32")
-				libdirs("../extlibs/lib/x86")
-				targetdir("../extlibs/lib/x86")
+				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
-				libdirs("../extlibs/lib/x64")
-				targetdir("../extlibs/lib/x64")
-				
+				libdirs("../extlibs/lib/common/x64")
+
+			configuration({"codeblocks or codelite or gmake", "x32"})
+				libdirs("../extlibs/lib/mingw/x86")
+				targetdir("../extlibs/lib/mingw/x86")
+
+			configuration({"codeblocks or codelite or gmake", "x64"})
+				libdirs("../extlibs/lib/mingw/x64")
+				targetdir("../extlibs/lib/mingw/x64")
+
+			configuration({"vs*", "x32"})
+				libdirs("../extlibs/lib/msvc/x86")
+				targetdir("../extlibs/lib/msvc/x86")
+
+			configuration({"vs*", "x64"})
+				libdirs("../extlibs/lib/msvc/x64")
+				targetdir("../extlibs/lib/msvc/x64")
+
+			configuration({"xcode3 or xcode4", "x32"})
+				libdirs("../extlibs/lib/xcode/x86")
+				targetdir("../extlibs/lib/xcode/x86")
+
+			configuration({"xcode3 or xcode4", "x64"})
+				libdirs("../extlibs/lib/xcode/x64")
+				targetdir("../extlibs/lib/xcode/x64")
+
 			configuration("Debug*")
 				flags("Symbols")
 
@@ -134,14 +157,38 @@ function NazaraBuild:Execute()
 			})
 
 			libdirs("../lib")
-			targetdir("../lib")
+			libdirs("../extlibs/lib/common")
 
 			configuration("x32")
-				libdirs("../extlibs/lib/x86")
+				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
-				libdirs("../extlibs/lib/x64")
+				libdirs("../extlibs/lib/common/x64")
+
+			configuration({"codeblocks or codelite or gmake", "x32"})
+				libdirs("../extlibs/lib/mingw/x86")
+				targetdir("../lib/mingw/x86")
+
+			configuration({"codeblocks or codelite or gmake", "x64"})
+				libdirs("../extlibs/lib/mingw/x64")
+				targetdir("../lib/mingw/x64")
+
+			configuration({"vs*", "x32"})
+				libdirs("../extlibs/lib/msvc/x86")
+				targetdir("../lib/msvc/x86")
+
+			configuration({"vs*", "x64"})
+				libdirs("../extlibs/lib/msvc/x64")
+				targetdir("../lib/msvc/x64")
+
+			configuration({"xcode3 or xcode4", "x32"})
+				libdirs("../extlibs/lib/xcode/x86")
+				targetdir("../lib/xcode/x86")
+
+			configuration({"xcode3 or xcode4", "x64"})
+				libdirs("../extlibs/lib/xcode/x64")
+				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
 				kind("StaticLib")
@@ -201,14 +248,38 @@ function NazaraBuild:Execute()
 			})
 
 			libdirs("../lib")
-			targetdir("../lib")
+			libdirs("../extlibs/lib/common")
 
 			configuration("x32")
-				libdirs("../extlibs/lib/x86")
+				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
-				libdirs("../extlibs/lib/x64")
+				libdirs("../extlibs/lib/common/x64")
+
+			configuration({"codeblocks or codelite or gmake", "x32"})
+				libdirs("../extlibs/lib/mingw/x86")
+				targetdir("../lib/mingw/x86")
+
+			configuration({"codeblocks or codelite or gmake", "x64"})
+				libdirs("../extlibs/lib/mingw/x64")
+				targetdir("../lib/mingw/x64")
+
+			configuration({"vs*", "x32"})
+				libdirs("../extlibs/lib/msvc/x86")
+				targetdir("../lib/msvc/x86")
+
+			configuration({"vs*", "x64"})
+				libdirs("../extlibs/lib/msvc/x64")
+				targetdir("../lib/msvc/x64")
+
+			configuration({"xcode3 or xcode4", "x32"})
+				libdirs("../extlibs/lib/xcode/x86")
+				targetdir("../lib/xcode/x86")
+
+			configuration({"xcode3 or xcode4", "x64"})
+				libdirs("../extlibs/lib/xcode/x64")
+				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
 				kind("StaticLib")
@@ -270,13 +341,13 @@ function NazaraBuild:Execute()
 		flags(exampleTable.Flags)
 		includedirs(exampleTable.Includes)
 		links(exampleTable.Libraries)
-		
+
 		configuration("x32")
-			libdirs("../extlibs/lib/x86")
+			libdirs("../extlibs/lib/common/x86")
 
 		configuration("x64")
 			defines("NAZARA_PLATFORM_x64")
-			libdirs("../extlibs/lib/x64")
+			libdirs("../extlibs/lib/common/x64")
 
 		for k,v in pairs(exampleTable.ConfigurationLibraries) do
 			configuration(k)
