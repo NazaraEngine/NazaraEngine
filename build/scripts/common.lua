@@ -168,26 +168,32 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/mingw/x86")
+				libdirs("../lib/mingw/x86")
 				targetdir("../lib/mingw/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/mingw/x64")
+				libdirs("../lib/mingw/x64")
 				targetdir("../lib/mingw/x64")
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
+				libdirs("../lib/msvc/x86")
 				targetdir("../lib/msvc/x86")
 
 			configuration({"vs*", "x64"})
 				libdirs("../extlibs/lib/msvc/x64")
+				libdirs("../lib/msvc/x64")
 				targetdir("../lib/msvc/x64")
 
 			configuration({"xcode3 or xcode4", "x32"})
 				libdirs("../extlibs/lib/xcode/x86")
+				libdirs("../lib/xcode/x86")
 				targetdir("../lib/xcode/x86")
 
 			configuration({"xcode3 or xcode4", "x64"})
 				libdirs("../extlibs/lib/xcode/x64")
+				libdirs("../lib/xcode/x64")
 				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
@@ -259,26 +265,32 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/mingw/x86")
+				libdirs("../lib/mingw/x86")
 				targetdir("../lib/mingw/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/mingw/x64")
+				libdirs("../lib/mingw/x64")
 				targetdir("../lib/mingw/x64")
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
+				libdirs("../lib/msvc/x86")
 				targetdir("../lib/msvc/x86")
 
 			configuration({"vs*", "x64"})
 				libdirs("../extlibs/lib/msvc/x64")
+				libdirs("../lib/msvc/x64")
 				targetdir("../lib/msvc/x64")
 
 			configuration({"xcode3 or xcode4", "x32"})
 				libdirs("../extlibs/lib/xcode/x86")
+				libdirs("../lib/xcode/x86")
 				targetdir("../lib/xcode/x86")
 
 			configuration({"xcode3 or xcode4", "x64"})
 				libdirs("../extlibs/lib/xcode/x64")
+				libdirs("../lib/xcode/x64")
 				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
@@ -348,6 +360,24 @@ function NazaraBuild:Execute()
 		configuration("x64")
 			defines("NAZARA_PLATFORM_x64")
 			libdirs("../extlibs/lib/common/x64")
+
+		configuration({"codeblocks or codelite or gmake", "x32"})
+			libdirs("../lib/mingw/x86")
+
+		configuration({"codeblocks or codelite or gmake", "x64"})
+			libdirs("../lib/mingw/x64")
+
+		configuration({"vs*", "x32"})
+			libdirs("../lib/msvc/x86")
+
+		configuration({"vs*", "x64"})
+			libdirs("../lib/msvc/x64")
+
+		configuration({"xcode3 or xcode4", "x32"})
+			libdirs("../lib/xcode/x86")
+
+		configuration({"xcode3 or xcode4", "x64"})
+			libdirs("../lib/xcode/x64")
 
 		for k,v in pairs(exampleTable.ConfigurationLibraries) do
 			configuration(k)
