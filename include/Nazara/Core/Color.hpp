@@ -11,51 +11,51 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NAZARA_CORE_API NzColor
+class NzColor
 {
 	public:
-		NzColor();
-		NzColor(nzUInt8 red, nzUInt8 green, nzUInt8 blue, nzUInt8 alpha = 255);
-		explicit NzColor(nzUInt8 lightness);
-		NzColor(nzUInt8 color[3], nzUInt8 alpha = 255);
-		NzColor(const NzColor& color) = default;
-		~NzColor() = default;
+		inline NzColor();
+		inline NzColor(nzUInt8 red, nzUInt8 green, nzUInt8 blue, nzUInt8 alpha = 255);
+		inline explicit NzColor(nzUInt8 lightness);
+		inline NzColor(nzUInt8 color[3], nzUInt8 alpha = 255);
+		inline NzColor(const NzColor& color) = default;
+		inline ~NzColor() = default;
 
-		NzString ToString() const;
+		inline NzString ToString() const;
 
-		NzColor operator+(const NzColor& angles) const;
-		NzColor operator*(const NzColor& angles) const;
+		inline NzColor operator+(const NzColor& angles) const;
+		inline NzColor operator*(const NzColor& angles) const;
 
-		NzColor operator+=(const NzColor& angles);
-		NzColor operator*=(const NzColor& angles);
+		inline NzColor operator+=(const NzColor& angles);
+		inline NzColor operator*=(const NzColor& angles);
 
-		bool operator==(const NzColor& angles) const;
-		bool operator!=(const NzColor& angles) const;
+		inline bool operator==(const NzColor& angles) const;
+		inline bool operator!=(const NzColor& angles) const;
 
-		static NzColor FromCMY(float cyan, float magenta, float yellow);
-		static NzColor FromCMYK(float cyan, float magenta, float yellow, float black);
-		static NzColor FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightness);
-		static NzColor FromHSV(float hue, float saturation, float value);
-		static NzColor FromXYZ(const NzVector3f& vec);
-		static NzColor FromXYZ(float x, float y, float z);
-		static void ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow);
-		static void ToCMYK(const NzColor& color, float* cyan, float* magenta, float* yellow, float* black);
-		static void ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, nzUInt8* lightness);
-		static void ToHSV(const NzColor& color, float* hue, float* saturation, float* value);
-		static void ToXYZ(const NzColor& color, NzVector3f* vec);
-		static void ToXYZ(const NzColor& color, float* x, float* y, float* z);
+		static inline NzColor FromCMY(float cyan, float magenta, float yellow);
+		static inline NzColor FromCMYK(float cyan, float magenta, float yellow, float black);
+		static inline NzColor FromHSL(nzUInt8 hue, nzUInt8 saturation, nzUInt8 lightness);
+		static inline NzColor FromHSV(float hue, float saturation, float value);
+		static inline NzColor FromXYZ(const NzVector3f& vec);
+		static inline NzColor FromXYZ(float x, float y, float z);
+		static inline void ToCMY(const NzColor& color, float* cyan, float* magenta, float* yellow);
+		static inline void ToCMYK(const NzColor& color, float* cyan, float* magenta, float* yellow, float* black);
+		static inline void ToHSL(const NzColor& color, nzUInt8* hue, nzUInt8* saturation, nzUInt8* lightness);
+		static inline void ToHSV(const NzColor& color, float* hue, float* saturation, float* value);
+		static inline void ToXYZ(const NzColor& color, NzVector3f* vec);
+		static inline void ToXYZ(const NzColor& color, float* x, float* y, float* z);
 
 		nzUInt8 r, g, b, a;
 
-		static const NzColor Black;
-		static const NzColor Blue;
-		static const NzColor Cyan;
-		static const NzColor Green;
-		static const NzColor Magenta;
-		static const NzColor Orange;
-		static const NzColor Red;
-		static const NzColor Yellow;
-		static const NzColor White;
+		static NAZARA_CORE_API const NzColor Black;
+		static NAZARA_CORE_API const NzColor Blue;
+		static NAZARA_CORE_API const NzColor Cyan;
+		static NAZARA_CORE_API const NzColor Green;
+		static NAZARA_CORE_API const NzColor Magenta;
+		static NAZARA_CORE_API const NzColor Orange;
+		static NAZARA_CORE_API const NzColor Red;
+		static NAZARA_CORE_API const NzColor Yellow;
+		static NAZARA_CORE_API const NzColor White;
 
 	private:
 		static float Hue2RGB(float v1, float v2, float vH);
