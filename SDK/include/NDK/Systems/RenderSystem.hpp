@@ -34,6 +34,7 @@ namespace Ndk
 
 			EntityList m_cameras;
 			EntityList m_drawables;
+			EntityList m_lights;
 			NzForwardRenderTechnique m_renderTechnique;
 	};
 }
