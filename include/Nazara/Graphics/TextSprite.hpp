@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -22,7 +22,7 @@ using NzTextSpriteConstRef = NzObjectRef<const NzTextSprite>;
 using NzTextSpriteLibrary = NzObjectLibrary<NzTextSprite>;
 using NzTextSpriteRef = NzObjectRef<NzTextSprite>;
 
-class NAZARA_GRAPHICS_API NzTextSprite : public NzRenderable
+class NAZARA_GRAPHICS_API NzTextSprite : public NzInstancedRenderable
 {
 	public:
 		NzTextSprite();

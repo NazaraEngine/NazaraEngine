@@ -7,7 +7,7 @@
 
 namespace Ndk
 {
-	void GraphicsComponent::InvalidateRenderableData(const NzRenderable* renderable, nzUInt32 flags, unsigned int index)
+	void GraphicsComponent::InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index)
 	{
 		NazaraUnused(renderable);
 
