@@ -25,36 +25,31 @@ using NzTextSpriteRef = NzObjectRef<NzTextSprite>;
 class NAZARA_GRAPHICS_API NzTextSprite : public NzInstancedRenderable
 {
 	public:
-		NzTextSprite();
-		NzTextSprite(const NzTextSprite& sprite);
+		inline NzTextSprite();
+		inline NzTextSprite(const NzTextSprite& sprite);
 		~NzTextSprite() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		void Clear();
+		inline void Clear();
 
-		NzTextSprite* Clone() const;
-		NzTextSprite* Create() const;
+		inline const NzColor& GetColor() const;
+		inline const NzMaterialRef& GetMaterial() const;
+		inline float GetScale() const;
 
-		const NzColor& GetColor() const;
-		NzMaterial* GetMaterial() const;
-		float GetScale() const;
-
-		void InvalidateVertices();
-		bool IsDrawable() const;
-
-		void SetColor(const NzColor& color);
-		void SetDefaultMaterial();
-		void SetMaterial(NzMaterial* material);
-		void SetScale(float scale);
+		inline void SetColor(const NzColor& color);
+		inline void SetDefaultMaterial();
+		inline void SetMaterial(NzMaterialRef material);
+		inline void SetScale(float scale);
 
 		void Update(const NzAbstractTextDrawer& drawer);
 
-		NzTextSprite& operator=(const NzTextSprite& text);
+		inline NzTextSprite& operator=(const NzTextSprite& text);
 
 		template<typename... Args> static NzTextSpriteRef New(Args&&... args);
 
 	private:
+		inline void InvalidateVertices();
 		void MakeBoundingVolume() const override;
 		void OnAtlasInvalidated(const NzAbstractAtlas* atlas);
 		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
