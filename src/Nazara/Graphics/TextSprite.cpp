@@ -11,35 +11,11 @@
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzTextSprite::NzTextSprite() :
-m_color(NzColor::White),
-m_scale(1.f)
-{
-	SetDefaultMaterial();
-}
-
-NzTextSprite::NzTextSprite(const NzTextSprite& sprite) :
-NzInstancedRenderable(sprite),
-m_renderInfos(sprite.m_renderInfos),
-m_localVertices(sprite.m_localVertices),
-m_color(sprite.m_color),
-m_material(sprite.m_material),
-m_localBounds(sprite.m_localBounds),
-m_scale(sprite.m_scale)
-{
-	for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
-	{
-		const NzAbstractAtlas* atlas = it->first;
-		AtlasSlots& slots = m_atlases[atlas];
-
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
-	}
-}
-
 void NzTextSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 {
+	if (!m_material)
+		return;
+
 	for (auto& pair : m_renderInfos)
 	{
 		NzTexture* overlay = pair.first;
@@ -51,81 +27,6 @@ void NzTextSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const In
 			renderQueue->AddSprites(m_material, &vertices[indices.first*4], indices.count, overlay);
 		}
 	}
-}
-
-void NzTextSprite::Clear()
-{
-	m_atlases.clear();
-	m_boundingVolume.MakeNull();
-	m_localVertices.clear();
-	m_renderInfos.clear();
-}
-
-NzTextSprite* NzTextSprite::Clone() const
-{
-	return new NzTextSprite(*this);
-}
-
-NzTextSprite* NzTextSprite::Create() const
-{
-	return new NzTextSprite;
-}
-
-const NzColor& NzTextSprite::GetColor() const
-{
-	return m_color;
-}
-
-NzMaterial* NzTextSprite::GetMaterial() const
-{
-	return m_material;
-}
-
-float NzTextSprite::GetScale() const
-{
-	return m_scale;
-}
-
-void NzTextSprite::InvalidateVertices()
-{
-	InvalidateInstanceData(0);
-}
-
-bool NzTextSprite::IsDrawable() const
-{
-	return m_material != nullptr;
-}
-
-void NzTextSprite::SetColor(const NzColor& color)
-{
-	m_color = color;
-
-	InvalidateVertices();
-}
-
-void NzTextSprite::SetDefaultMaterial()
-{
-	NzMaterialRef material = NzMaterial::New();
-	material->Enable(nzRendererParameter_Blend, true);
-	material->Enable(nzRendererParameter_DepthWrite, false);
-	material->Enable(nzRendererParameter_FaceCulling, false);
-	material->EnableLighting(false);
-	material->SetDstBlend(nzBlendFunc_InvSrcAlpha);
-	material->SetSrcBlend(nzBlendFunc_SrcAlpha);
-
-	SetMaterial(material);
-}
-
-void NzTextSprite::SetMaterial(NzMaterial* material)
-{
-	m_material = material;
-}
-
-void NzTextSprite::SetScale(float scale)
-{
-	m_scale = scale;
-
-	InvalidateInstanceData(0);
 }
 
 void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
@@ -142,15 +43,7 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 	{
 		NzFont* font = drawer.GetFont(i);
 		const NzAbstractAtlas* atlas = font->GetAtlas().get();
-
-		#if NAZARA_GRAPHICS_SAFE
-		if ((atlas->GetStorage() & nzDataStorage_Hardware) == 0)
-		{
-			// Cet atlas ne nous donnera pas de texture, nous ne pouvons pas l'utiliser
-			NazaraError("Font " + NzString::Pointer(font) + " uses a non-hardware atlas which cannot be used by text sprites");
-			return;
-		}
-		#endif
+		NazaraAssert(atlas->GetStorage() & nzDataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
 		if (m_atlases.find(atlas) == m_atlases.end())
 		{
@@ -241,36 +134,6 @@ void NzTextSprite::Update(const NzAbstractTextDrawer& drawer)
 	InvalidateInstanceData(0);
 
 	clearOnFail.Reset();
-}
-
-NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
-{
-	NzInstancedRenderable::operator=(text);
-
-	m_atlases.clear();
-
-	m_color = text.m_color;
-	m_material = text.m_material;
-	m_renderInfos = text.m_renderInfos;
-	m_localBounds = text.m_localBounds;
-	m_localVertices = text.m_localVertices;
-	m_scale = text.m_scale;
-
-	// Connect to the slots of the new atlases
-	for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
-	{
-		const NzAbstractAtlas* atlas = it->first;
-		AtlasSlots& slots = m_atlases[atlas];
-
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
-	}
-
-	InvalidateBoundingVolume();
-	InvalidateVertices();
-
-	return *this;
 }
 
 void NzTextSprite::MakeBoundingVolume() const

@@ -8,56 +8,60 @@
 #define NAZARA_SPRITE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneNode.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
 
-class NAZARA_GRAPHICS_API NzSprite : public NzSceneNode
+class NzSprite;
+
+using NzSpriteConstRef = NzObjectRef<const NzSprite>;
+using NzSpriteLibrary = NzObjectLibrary<NzSprite>;
+using NzSpriteRef = NzObjectRef<NzSprite>;
+
+class NAZARA_GRAPHICS_API NzSprite : public NzInstancedRenderable
 {
 	public:
-		NzSprite();
-		NzSprite(NzTexture* texture);
-		NzSprite(const NzSprite& sprite);
+		inline NzSprite();
+		inline NzSprite(NzMaterialRef material);
+		inline NzSprite(NzTexture* texture);
+		inline NzSprite(const NzSprite& sprite);
 		~NzSprite() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const override;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		NzSprite* Clone() const;
-		NzSprite* Create() const;
+		inline const NzColor& GetColor() const;
+		inline const NzMaterialRef& GetMaterial() const;
+		inline const NzVector2f& GetSize() const;
+		inline const NzRectf& GetTextureCoords() const;
 
-		const NzColor& GetColor() const;
-		NzMaterial* GetMaterial() const;
-		nzSceneNodeType GetSceneNodeType() const override;
-		const NzVector2f& GetSize() const;
-		const NzRectf& GetTextureCoords() const;
+		inline void SetColor(const NzColor& color);
+		inline void SetDefaultMaterial();
+		inline void SetMaterial(NzMaterialRef material, bool resizeSprite = true);
+		inline void SetSize(const NzVector2f& size);
+		inline void SetSize(float sizeX, float sizeY);
+		inline void SetTexture(NzTextureRef texture, bool resizeSprite = true);
+		inline void SetTextureCoords(const NzRectf& coords);
+		inline void SetTextureRect(const NzRectui& rect);
 
-		bool IsDrawable() const;
+		inline NzSprite& operator=(const NzSprite& sprite);
 
-		void SetColor(const NzColor& color);
-		void SetDefaultMaterial();
-		void SetMaterial(NzMaterial* material, bool resizeSprite = true);
-		void SetSize(const NzVector2f& size);
-		void SetSize(float sizeX, float sizeY);
-		void SetTexture(NzTexture* texture, bool resizeSprite = true);
-		void SetTextureCoords(const NzRectf& coords);
-		void SetTextureRect(const NzRectui& rect);
-
-		NzSprite& operator=(const NzSprite& sprite);
+		template<typename... Args> static NzSpriteRef New(Args&&... args);
 
 	private:
-		void InvalidateNode() override;
+		inline void InvalidateVertices();
 		void MakeBoundingVolume() const override;
-		void Register() override;
-		void Unregister() override;
-		void UpdateVertices() const;
+		void UpdateData(InstanceData* instanceData) const override;
 
 		NzColor m_color;
 		NzMaterialRef m_material;
 		NzRectf m_textureCoords;
 		NzVector2f m_size;
-		mutable std::array<NzVertexStruct_XYZ_Color_UV, 4> m_vertices;
-		mutable bool m_verticesUpdated;
+
+		static NzSpriteLibrary::LibraryMap s_library;
 };
+
+#include <Nazara/Graphics/Sprite.inl>
 
 #endif // NAZARA_SPRITE_HPP
