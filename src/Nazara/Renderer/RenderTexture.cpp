@@ -148,6 +148,9 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	Unlock();
 
 	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+	if (attachIndex >= m_impl->attachments.size())
+		m_impl->attachments.resize(attachIndex+1);
+
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.buffer = buffer;
@@ -286,6 +289,9 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	Unlock();
 
 	unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+	if (attachIndex >= m_impl->attachments.size())
+		m_impl->attachments.resize(attachIndex+1);
+
 	Attachment& attachment = m_impl->attachments[attachIndex];
 	attachment.attachmentPoint = attachmentPoint;
 	attachment.isBuffer = false;

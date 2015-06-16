@@ -5,6 +5,40 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
+inline NzLight::NzLight(const NzLight& light) :
+NzRenderable(light),
+m_type(light.m_type),
+m_color(light.m_color),
+m_shadowCastingEnabled(light.m_shadowCastingEnabled),
+m_shadowMapUpdated(false),
+m_ambientFactor(light.m_ambientFactor),
+m_attenuation(light.m_attenuation),
+m_diffuseFactor(light.m_diffuseFactor),
+m_innerAngle(light.m_innerAngle),
+m_innerAngleCosine(light.m_innerAngleCosine),
+m_invRadius(light.m_invRadius),
+m_outerAngle(light.m_outerAngle),
+m_outerAngleCosine(light.m_outerAngleCosine),
+m_outerAngleTangent(light.m_outerAngleTangent),
+m_radius(light.m_radius)
+{
+}
+
+inline void NzLight::EnableShadowCasting(bool castShadows)
+{
+	if (m_shadowCastingEnabled != castShadows)
+	{
+		m_shadowCastingEnabled = castShadows;
+		m_shadowMapUpdated = false;
+	}
+}
+
+inline void NzLight::EnsureShadowMapUpdate() const
+{
+	if (!m_shadowMapUpdated)
+		UpdateShadowMap();
+}
+
 inline float NzLight::GetAmbientFactor() const
 {
 	return m_ambientFactor;
@@ -43,6 +77,18 @@ inline float NzLight::GetOuterAngle() const
 inline float NzLight::GetRadius() const
 {
 	return m_radius;
+}
+
+inline NzTextureRef NzLight::GetShadowMap() const
+{
+	EnsureShadowMapUpdate();
+
+	return m_shadowMap;
+}
+
+inline bool NzLight::IsShadowCastingEnabled() const
+{
+	return m_shadowCastingEnabled;
 }
 
 inline void NzLight::SetAmbientFactor(float factor)
@@ -92,6 +138,28 @@ inline void NzLight::SetRadius(float radius)
 	m_invRadius = 1.f / m_radius;
 
 	InvalidateBoundingVolume();
+}
+
+inline NzLight& NzLight::operator=(const NzLight& light)
+{
+	NzRenderable::operator=(light);
+
+	m_ambientFactor = light.m_ambientFactor;
+	m_attenuation = light.m_attenuation;
+	m_color = light.m_color;
+	m_diffuseFactor = light.m_diffuseFactor;
+	m_innerAngle = light.m_innerAngle;
+	m_innerAngleCosine = light.m_innerAngleCosine;
+	m_invRadius = light.m_invRadius;
+	m_outerAngle = light.m_outerAngle;
+	m_outerAngleCosine = light.m_outerAngleCosine;
+	m_outerAngleTangent = light.m_outerAngleTangent;
+	m_radius = light.m_radius;
+	m_shadowCastingEnabled = light.m_shadowCastingEnabled;
+	m_shadowMapUpdated = false;
+	m_type = light.m_type;
+
+	return *this;
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
