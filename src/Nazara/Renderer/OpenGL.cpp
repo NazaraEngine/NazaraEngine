@@ -1803,24 +1803,44 @@ bool NzOpenGL::TranslateFormat(nzPixelFormat pixelFormat, Format* format, Format
 			format->dataFormat = GL_DEPTH_COMPONENT;
 			format->dataType = GL_UNSIGNED_SHORT;
 			format->internalFormat = GL_DEPTH_COMPONENT16;
+
+			format->swizzle[0] = GL_RED;
+			format->swizzle[1] = GL_RED;
+			format->swizzle[2] = GL_RED;
+			format->swizzle[3] = GL_ONE;
 			return true;
 
 		case nzPixelFormat_Depth24:
 			format->dataFormat = GL_DEPTH_COMPONENT;
 			format->dataType = GL_UNSIGNED_INT;
 			format->internalFormat = GL_DEPTH_COMPONENT24;
+
+			format->swizzle[0] = GL_RED;
+			format->swizzle[1] = GL_RED;
+			format->swizzle[2] = GL_RED;
+			format->swizzle[3] = GL_ONE;
 			return true;
 
 		case nzPixelFormat_Depth24Stencil8:
 			format->dataFormat = GL_DEPTH_STENCIL;
 			format->dataType = GL_UNSIGNED_INT_24_8;
 			format->internalFormat = GL_DEPTH24_STENCIL8;
+
+			format->swizzle[0] = GL_RED;
+			format->swizzle[1] = GL_RED;
+			format->swizzle[2] = GL_RED;
+			format->swizzle[3] = GL_GREEN;
 			return true;
 
 		case nzPixelFormat_Depth32:
 			format->dataFormat = GL_DEPTH_COMPONENT;
 			format->dataType = GL_UNSIGNED_BYTE;
 			format->internalFormat = GL_DEPTH_COMPONENT32;
+
+			format->swizzle[0] = GL_RED;
+			format->swizzle[1] = GL_RED;
+			format->swizzle[2] = GL_RED;
+			format->swizzle[3] = GL_ONE;
 			return true;
 
 		case nzPixelFormat_Stencil1:
