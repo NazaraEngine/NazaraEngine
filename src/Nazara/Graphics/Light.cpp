@@ -17,7 +17,9 @@
 ///TODO: Scale ?
 
 NzLight::NzLight(nzLightType type) :
-m_type(type)
+m_type(type),
+m_shadowCastingEnabled(false),
+m_shadowMapUpdated(false)
 {
 	SetAmbientFactor((type == nzLightType_Directional) ? 0.2f : 0.f);
 	SetAttenuation(0.9f);
@@ -176,4 +178,19 @@ void NzLight::MakeBoundingVolume() const
 			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
 			break;
 	}
+}
+
+void NzLight::UpdateShadowMap() const
+{
+	if (m_shadowCastingEnabled)
+	{
+		if (!m_shadowMap)
+			m_shadowMap = NzTexture::New();
+
+		m_shadowMap->Create(nzImageType_2D, nzPixelFormat_Depth16, 256, 256);
+	}
+	else
+		m_shadowMap.Reset();
+
+    m_shadowMapUpdated = true;
 }
