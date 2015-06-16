@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Systems/RenderSystem.hpp>
+#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/LightComponent.hpp>
@@ -17,6 +19,8 @@ namespace Ndk
 
 	void RenderSystem::Update(float elapsedTime)
 	{
+		UpdateShadowMaps();
+
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
@@ -25,10 +29,10 @@ namespace Ndk
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
-			for (const Ndk::EntityHandle& light : m_drawables)
+			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
-				GraphicsComponent& graphicsComponent = light->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -36,9 +40,9 @@ namespace Ndk
 			for (const Ndk::EntityHandle& light : m_lights)
 			{
 				LightComponent& lightComponent = light->GetComponent<LightComponent>();
-				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
+				NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
-				lightComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
+				lightComponent.AddToRenderQueue(renderQueue, lightNode.GetTransformMatrix());
 			}
 
 			NzColorBackground background;
@@ -81,6 +85,56 @@ namespace Ndk
 			m_lights.Insert(entity);
 		else
 			m_lights.Remove(entity);
+	}
+
+	void RenderSystem::UpdateShadowMaps()
+	{
+		if (!m_shadowRT.IsValid())
+			m_shadowRT.Create();
+
+		for (const Ndk::EntityHandle& light : m_lights)
+		{
+			LightComponent& lightComponent = light->GetComponent<LightComponent>();
+			NodeComponent& lightNode = light->GetComponent<NodeComponent>();
+
+			if (!lightComponent.IsShadowCastingEnabled() || lightComponent.GetLightType() != nzLightType_Spot)
+				continue;
+
+			/// HACKY
+			NzCamera lightPOV;
+			lightPOV.SetPosition(lightNode.GetPosition());
+			lightPOV.SetFOV(lightComponent.GetOuterAngle());
+			lightPOV.SetRotation(lightNode.GetRotation());
+			lightPOV.SetZFar(1000.f);
+			lightPOV.SetTarget(&m_shadowRT);
+
+			NzVector2ui shadowMapSize(lightComponent.GetShadowMap()->GetSize());
+
+			m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap());
+
+			NzRenderer::SetMatrix(nzMatrixType_Projection, lightPOV.GetProjectionMatrix());
+			NzRenderer::SetMatrix(nzMatrixType_View, lightPOV.GetViewMatrix());
+			NzRenderer::SetTarget(&m_shadowRT);
+			NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
+
+			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
+			renderQueue->Clear();
+
+			for (const Ndk::EntityHandle& drawable : m_drawables)
+			{
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+
+				graphicsComponent.AddToRenderQueue(renderQueue);
+			}
+
+			NzSceneData sceneData;
+			sceneData.ambientColor = NzColor(0, 0, 0);
+			sceneData.background = nullptr;
+			sceneData.viewer = &lightPOV;
+
+			m_renderTechnique.Draw(sceneData);
+		}
 	}
 
 	SystemIndex RenderSystem::systemIndex;
