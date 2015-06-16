@@ -8,6 +8,7 @@
 #define NDK_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Renderer/RenderTexture.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <unordered_map>
@@ -31,11 +32,14 @@ namespace Ndk
 		private:
 			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
+			void UpdateShadowMaps();
 
 			EntityList m_cameras;
 			EntityList m_drawables;
 			EntityList m_lights;
 			NzForwardRenderTechnique m_renderTechnique;
+			NzForwardRenderTechnique m_shadowTechnique;
+			NzRenderTexture m_shadowRT;
 	};
 }
 

@@ -11,6 +11,8 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 
 class NzLight;
 struct NzLightUniforms;
@@ -19,7 +21,7 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 {
 	public:
 		NzLight(nzLightType type = nzLightType_Point);
-		NzLight(const NzLight& light) = default;
+		inline NzLight(const NzLight& light);
 		~NzLight() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
@@ -29,37 +31,48 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 
 		bool Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const override;
 
-		float GetAmbientFactor() const;
-		float GetAttenuation() const;
-		NzColor GetColor() const;
-		float GetDiffuseFactor() const;
-		float GetInnerAngle() const;
-		float GetInnerAngleCosine() const;
-		float GetInvRadius() const;
-		nzLightType GetLightType() const;
-		float GetOuterAngle() const;
-		float GetOuterAngleCosine() const;
-		float GetOuterAngleTangent() const;
-		float GetRadius() const;
+		inline void EnableShadowCasting(bool castShadows);
 
-		void SetAmbientFactor(float factor);
-		void SetAttenuation(float attenuation);
-		void SetColor(const NzColor& color);
-		void SetDiffuseFactor(float factor);
-		void SetInnerAngle(float innerAngle);
-		void SetLightType(nzLightType type);
-		void SetOuterAngle(float outerAngle);
-		void SetRadius(float radius);
+		inline void EnsureShadowMapUpdate() const;
+
+		inline float GetAmbientFactor() const;
+		inline float GetAttenuation() const;
+		inline NzColor GetColor() const;
+		inline float GetDiffuseFactor() const;
+		inline float GetInnerAngle() const;
+		inline float GetInnerAngleCosine() const;
+		inline float GetInvRadius() const;
+		inline nzLightType GetLightType() const;
+		inline float GetOuterAngle() const;
+		inline float GetOuterAngleCosine() const;
+		inline float GetOuterAngleTangent() const;
+		inline float GetRadius() const;
+		inline NzTextureRef GetShadowMap() const;
+
+		inline bool IsShadowCastingEnabled() const;
+
+		inline void SetAmbientFactor(float factor);
+		inline void SetAttenuation(float attenuation);
+		inline void SetColor(const NzColor& color);
+		inline void SetDiffuseFactor(float factor);
+		inline void SetInnerAngle(float innerAngle);
+		inline void SetLightType(nzLightType type);
+		inline void SetOuterAngle(float outerAngle);
+		inline void SetRadius(float radius);
 
 		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
 
-		NzLight& operator=(const NzLight& light) = default;
+		NzLight& operator=(const NzLight& light);
 
 	private:
 		void MakeBoundingVolume() const override;
+		void UpdateShadowMap() const;
 
 		nzLightType m_type;
 		NzColor m_color;
+		mutable NzTextureRef m_shadowMap;
+		bool m_shadowCastingEnabled;
+		mutable bool m_shadowMapUpdated;
 		float m_ambientFactor;
 		float m_attenuation;
 		float m_diffuseFactor;
