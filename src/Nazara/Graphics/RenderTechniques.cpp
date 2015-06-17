@@ -15,6 +15,7 @@ namespace
 	{
 		"Advanced Forward",
 		"Basic Forward",
+		"Depth Pass",
 		"Deferred Shading",
 		"Light Pre-Pass",
 		"User"
