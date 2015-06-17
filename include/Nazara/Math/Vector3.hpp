@@ -103,12 +103,15 @@ class NzVector3
 		static NzVector3 Backward();
 		static NzVector3 CrossProduct(const NzVector3& vec1, const NzVector3& vec2);
 		static T DotProduct(const NzVector3& vec1, const NzVector3& vec2);
+		static T Distance(const NzVector3& vec1, const NzVector3& vec2);
+		static float Distancef(const NzVector3& vec1, const NzVector3& vec2);
 		static NzVector3 Down();
 		static NzVector3 Forward();
 		static NzVector3 Left();
 		static NzVector3 Lerp(const NzVector3& from, const NzVector3& to, T interpolation);
 		static NzVector3 Normalize(const NzVector3& vec);
 		static NzVector3 Right();
+		static T SquaredDistance(const NzVector3& vec1, const NzVector3& vec2);
 		static NzVector3 Unit();
 		static NzVector3 UnitX();
 		static NzVector3 UnitY();

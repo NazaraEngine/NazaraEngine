@@ -68,14 +68,13 @@ bool NzSphere<T>::Contains(const NzVector3<T>& point) const
 template<typename T>
 T NzSphere<T>::Distance(T X, T Y, T Z) const
 {
-	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.GetLength();
+	return Distance({X, Y, Z});
 }
 
 template<typename T>
 T NzSphere<T>::Distance(const NzVector3<T>& point) const
 {
-	return Distance(point.x, point.y, point.z);
+	return NzVector3f::Distance(point, GetPosition()) - radius;
 }
 
 template<typename T>
@@ -249,14 +248,13 @@ NzSphere<T>& NzSphere<T>::Set(const NzSphere<U>& sphere)
 template<typename T>
 T NzSphere<T>::SquaredDistance(T X, T Y, T Z) const
 {
-	NzVector3<T> distance(X-x, Y-y, Z-z);
-	return distance.GetSquaredLength();
+	return SquaredDistance({X, Y, Z});
 }
 
 template<typename T>
 T NzSphere<T>::SquaredDistance(const NzVector3<T>& point) const
 {
-	return SquaredDistance(point.x, point.y, point.z);
+	return NzVector3f::Distance(point, GetPosition()) - radius * radius;
 }
 
 template<typename T>
