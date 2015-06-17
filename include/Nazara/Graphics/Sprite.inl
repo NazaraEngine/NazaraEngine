@@ -121,7 +121,7 @@ inline void NzSprite::SetTextureCoords(const NzRectf& coords)
 
 inline void NzSprite::SetTextureRect(const NzRectui& rect)
 {
-	NazaraAssert(material, "Sprite has no material");
+	NazaraAssert(m_material, "Sprite has no material");
 	NazaraAssert(m_material->HasDiffuseMap(), "Sprite material has no diffuse map");
 
 	NzTexture* diffuseMap = m_material->GetDiffuseMap();
