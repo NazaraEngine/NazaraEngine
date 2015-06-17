@@ -27,9 +27,11 @@ namespace
 		NzColor color;
 		NzVector3f position;
 		NzVector2f size;
-		NzVector2f sinCos; // doit suivre size
+		NzVector2f sinCos; // must follow `size` (both will be sent as a Vector4f)
 		NzVector2f uv;
 	};
+
+	static_assert(NzOffsetOf(BillboardPoint, sinCos) - NzOffsetOf(BillboardPoint, size) == sizeof(NzVector2f), "size and sinCos members should be packed");
 
 	unsigned int s_maxQuads = std::numeric_limits<nzUInt16>::max()/6;
 	unsigned int s_vertexBufferSize = 4*1024*1024; // 4 MiB
