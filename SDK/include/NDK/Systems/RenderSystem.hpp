@@ -7,6 +7,7 @@
 #ifndef NDK_SYSTEMS_RENDERSYSTEM_HPP
 #define NDK_SYSTEMS_RENDERSYSTEM_HPP
 
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <NDK/EntityList.hpp>
@@ -37,8 +38,8 @@ namespace Ndk
 			EntityList m_cameras;
 			EntityList m_drawables;
 			EntityList m_lights;
+			NzDepthRenderTechnique m_shadowTechnique;
 			NzForwardRenderTechnique m_renderTechnique;
-			NzForwardRenderTechnique m_shadowTechnique;
 			NzRenderTexture m_shadowRT;
 	};
 }

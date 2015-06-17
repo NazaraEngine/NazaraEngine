@@ -100,24 +100,17 @@ namespace Ndk
 			if (!lightComponent.IsShadowCastingEnabled() || lightComponent.GetLightType() != nzLightType_Spot)
 				continue;
 
-			/// HACKY
-			NzCamera lightPOV;
-			lightPOV.SetPosition(lightNode.GetPosition());
-			lightPOV.SetFOV(lightComponent.GetOuterAngle());
-			lightPOV.SetRotation(lightNode.GetRotation());
-			lightPOV.SetZFar(1000.f);
-			lightPOV.SetTarget(&m_shadowRT);
-
 			NzVector2ui shadowMapSize(lightComponent.GetShadowMap()->GetSize());
 
 			m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap());
 
-			NzRenderer::SetMatrix(nzMatrixType_Projection, lightPOV.GetProjectionMatrix());
-			NzRenderer::SetMatrix(nzMatrixType_View, lightPOV.GetViewMatrix());
+			///TODO: Cache the matrices in the light?
+			NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(lightComponent.GetOuterAngle(), 1.f, 1.f, 1000.f));
+			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::ViewMatrix(lightNode.GetPosition(), lightNode.GetRotation()));
 			NzRenderer::SetTarget(&m_shadowRT);
 			NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
 
-			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
+			NzAbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
 			for (const Ndk::EntityHandle& drawable : m_drawables)
@@ -131,9 +124,9 @@ namespace Ndk
 			NzSceneData sceneData;
 			sceneData.ambientColor = NzColor(0, 0, 0);
 			sceneData.background = nullptr;
-			sceneData.viewer = &lightPOV;
+			sceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
 
-			m_renderTechnique.Draw(sceneData);
+			m_shadowTechnique.Draw(sceneData);
 		}
 	}
 
