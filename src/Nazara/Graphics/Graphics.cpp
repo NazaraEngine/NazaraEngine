@@ -8,6 +8,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -88,6 +89,12 @@ bool NzGraphics::Initialize()
 	NzLoaders_Texture_Register();
 
 	// RenderTechniques
+	if (!NzDepthRenderTechnique::Initialize())
+	{
+		NazaraError("Failed to initialize Depth Rendering");
+		return false;
+	}
+
 	if (!NzForwardRenderTechnique::Initialize())
 	{
 		NazaraError("Failed to initialize Forward Rendering");
@@ -164,6 +171,7 @@ void NzGraphics::Uninitialize()
 	NzLoaders_Texture_Unregister();
 
 	NzDeferredRenderTechnique::Uninitialize();
+	NzDepthRenderTechnique::Uninitialize();
 	NzForwardRenderTechnique::Uninitialize();
 	NzSkinningManager::Uninitialize();
 	NzParticleRenderer::Uninitialize();

@@ -98,6 +98,7 @@ enum nzRenderTechniqueType
 	nzRenderTechniqueType_AdvancedForward, // NzAdvancedForwardRenderTechnique
 	nzRenderTechniqueType_BasicForward,    // NzBasicForwardRenderTechnique
 	nzRenderTechniqueType_DeferredShading, // NzDeferredRenderTechnique
+	nzRenderTechniqueType_Depth,           // NzDepthRenderTechnique
 	nzRenderTechniqueType_LightPrePass,    // NzLightPrePassRenderTechnique
 	nzRenderTechniqueType_User,
 
