@@ -195,6 +195,7 @@ void NzMaterial::GenerateShader(nzUInt32 flags) const
 	list.SetParameter("LIGHTING", m_lightingEnabled);
 	list.SetParameter("NORMAL_MAPPING", m_normalMap.IsValid());
 	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
+	list.SetParameter("SHADOW_MAPPING", m_shadowReceiveEnabled);
 	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
 	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
 	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid() ||
