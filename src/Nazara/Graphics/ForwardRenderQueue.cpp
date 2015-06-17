@@ -32,7 +32,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 	if (!sinCosPtr)
@@ -71,7 +71,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 	if (!sinCosPtr)
@@ -112,7 +112,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
 	if (!anglePtr)
@@ -155,7 +155,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
 	if (!anglePtr)
@@ -200,7 +200,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 	if (!sinCosPtr)
@@ -239,7 +239,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	NzVector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 	if (!sinCosPtr)
@@ -280,7 +280,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
 	if (!anglePtr)
@@ -323,7 +323,7 @@ void NzForwardRenderQueue::AddBillboards(const NzMaterial* material, unsigned in
 {
 	NazaraAssert(material, "Invalid material");
 
-	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
+	///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 	float defaultRotation = 0.f;
 
 	if (!anglePtr)
