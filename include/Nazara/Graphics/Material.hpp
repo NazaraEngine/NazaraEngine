@@ -63,6 +63,8 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		inline void EnableAlphaTest(bool alphaTest);
 		inline void EnableDepthSorting(bool depthSorting);
 		inline void EnableLighting(bool lighting);
+		inline void EnableShadowCasting(bool castShadows);
+		inline void EnableShadowReceive(bool receiveShadows);
 		inline void EnableTransform(bool transform);
 
 		inline NzTexture* GetAlphaMap() const;
@@ -100,6 +102,8 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		inline bool IsDepthSortingEnabled() const;
 		inline bool IsEnabled(nzRendererParameter renderParameter) const;
 		inline bool IsLightingEnabled() const;
+		inline bool IsShadowCastingEnabled() const;
+		inline bool IsShadowReceiveEnabled() const;
 		inline bool IsTransformEnabled() const;
 
 		inline bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
@@ -177,6 +181,8 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		bool m_alphaTestEnabled;
 		bool m_depthSortingEnabled;
 		bool m_lightingEnabled;
+		bool m_shadowCastingEnabled;
+		bool m_shadowReceiveEnabled;
 		bool m_transformEnabled;
 		float m_alphaThreshold;
 		float m_shininess;

@@ -38,12 +38,26 @@ inline void NzMaterial::EnableAlphaTest(bool alphaTest)
 
 inline void NzMaterial::EnableDepthSorting(bool depthSorting)
 {
+	// Has no influence on shaders
 	m_depthSortingEnabled = depthSorting;
 }
 
 inline void NzMaterial::EnableLighting(bool lighting)
 {
 	m_lightingEnabled = lighting;
+
+	InvalidateShaders();
+}
+
+inline void NzMaterial::EnableShadowCasting(bool castShadows)
+{
+	// Has no influence on shaders
+	m_shadowCastingEnabled = castShadows;
+}
+
+inline void NzMaterial::EnableShadowReceive(bool receiveShadows)
+{
+	m_shadowReceiveEnabled = receiveShadows;
 
 	InvalidateShaders();
 }
@@ -224,6 +238,16 @@ inline bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
 inline bool NzMaterial::IsLightingEnabled() const
 {
 	return m_lightingEnabled;
+}
+
+inline bool NzMaterial::IsShadowCastingEnabled() const
+{
+	return m_shadowCastingEnabled;
+}
+
+inline bool NzMaterial::IsShadowReceiveEnabled() const
+{
+	return m_shadowReceiveEnabled;
 }
 
 inline bool NzMaterial::IsTransformEnabled() const
