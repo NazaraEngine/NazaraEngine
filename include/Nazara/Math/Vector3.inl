@@ -568,6 +568,18 @@ NzVector3<T> NzVector3<T>::Backward()
 }
 
 template<typename T>
+T NzVector3<T>::Distance(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.Distance(vec2);
+}
+
+template<typename T>
+float NzVector3<T>::Distancef(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.Distancef(vec2);
+}
+
+template<typename T>
 NzVector3<T> NzVector3<T>::Down()
 {
 	NzVector3 vector;
@@ -613,6 +625,12 @@ NzVector3<T> NzVector3<T>::Right()
 	vector.MakeRight();
 
 	return vector;
+}
+
+template<typename T>
+T NzVector3<T>::SquaredDistance(const NzVector3& vec1, const NzVector3& vec2)
+{
+	return vec1.SquaredDistance(vec2);
 }
 
 template<typename T>
