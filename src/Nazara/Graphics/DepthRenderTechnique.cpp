@@ -31,8 +31,6 @@ namespace
 		NzVector2f uv;
 	};
 
-	static_assert(NzOffsetOf(BillboardPoint, sinCos) - NzOffsetOf(BillboardPoint, size) == sizeof(NzVector2f), "size and sinCos members should be packed");
-
 	unsigned int s_maxQuads = std::numeric_limits<nzUInt16>::max()/6;
 	unsigned int s_vertexBufferSize = 4*1024*1024; // 4 MiB
 }
