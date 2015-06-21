@@ -23,12 +23,11 @@ namespace Ndk
 			NzPhysWorld& GetWorld();
 			const NzPhysWorld& GetWorld() const;
 
-			void Update(float elapsedTime);
-
 			static SystemIndex systemIndex;
 
 		private:
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
+			void OnUpdate(float elapsedTime) override;
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
