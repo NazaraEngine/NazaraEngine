@@ -24,7 +24,7 @@ inline NzMaterial::~NzMaterial()
 
 inline void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
 {
-	NazaraAssert(parameter <= nzRendererParameter_Max, "Renderer parameter out of enum");
+	NazaraAssert(renderParameter <= nzRendererParameter_Max, "Renderer parameter out of enum");
 
 	m_states.parameters[renderParameter] = enable;
 }
