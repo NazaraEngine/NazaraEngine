@@ -17,9 +17,10 @@ namespace Ndk
 			ListenerSystem();
 			~ListenerSystem() = default;
 
-			void Update(float elapsedTime);
-
 			static SystemIndex systemIndex;
+
+		private:
+			void OnUpdate(float elapsedTime) override;
 	};
 }
 
