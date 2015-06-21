@@ -15,7 +15,7 @@ namespace Ndk
 		Excludes<PhysicsComponent>();
 	}
 
-	void VelocitySystem::Update(float elapsedTime)
+	void VelocitySystem::OnUpdate(float elapsedTime)
 	{
 		for (const Ndk::EntityHandle& entity : GetEntities())
 		{
