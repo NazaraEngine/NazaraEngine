@@ -34,7 +34,7 @@ namespace Ndk
 
 	inline float BaseSystem::GetUpdateRate() const
 	{
-		return 1.f / m_updateRate;
+		return (m_updateRate > 0.f) ? 1.f / m_updateRate : 0.f;
 	}
 
 	inline World& BaseSystem::GetWorld() const
@@ -58,12 +58,16 @@ namespace Ndk
 
 	inline void BaseSystem::Update(float elapsedTime)
 	{
-		m_updateCounter -= elapsedTime;
-		if (m_updateCounter < 0.f)
+		if (m_updateRate > 0.f)
 		{
+			m_updateCounter -= elapsedTime;
+			if (m_updateCounter >= 0.f)
+				return;
+
 			m_updateCounter += m_updateRate;
-			OnUpdate(elapsedTime);
 		}
+
+		OnUpdate(elapsedTime);
 	}
 
 	template<typename ComponentType>
