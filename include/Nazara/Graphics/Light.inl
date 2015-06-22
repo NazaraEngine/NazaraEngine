@@ -74,6 +74,16 @@ inline float NzLight::GetOuterAngle() const
 	return m_outerAngle;
 }
 
+inline float NzLight::GetOuterAngleCosine() const
+{
+	return m_outerAngleCosine;
+}
+
+inline float NzLight::GetOuterAngleTangent() const
+{
+	return m_outerAngleTangent;
+}
+
 inline float NzLight::GetRadius() const
 {
 	return m_radius;

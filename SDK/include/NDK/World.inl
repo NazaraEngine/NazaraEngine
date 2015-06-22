@@ -130,6 +130,15 @@ namespace Ndk
 		RemoveSystem(index);
 	}
 
+	inline void World::Update(float elapsedTime)
+	{
+		Update(); //< Update entities
+
+		// And then update systems
+		for (auto& systemPtr : m_systems)
+			systemPtr->Update(elapsedTime);
+	}
+
 	inline void World::Invalidate()
 	{
 		m_dirtyEntities.Resize(m_entities.size(), false);
