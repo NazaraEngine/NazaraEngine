@@ -22,7 +22,21 @@ namespace Ndk
 	{
 	}
 
-	void PhysicsSystem::Update(float elapsedTime)
+	void PhysicsSystem::OnEntityValidation(Entity* entity, bool justAdded)
+	{
+		// Si l'entité ne vient pas d'être ajoutée au système, il est possible qu'elle fasse partie du mauvais tableau
+		if (!justAdded)
+		{
+			// On prend le tableau inverse de celui dont l'entité devrait faire partie
+			auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_staticObjects : m_dynamicObjects;
+			entities.Remove(entity);
+		}
+
+		auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_dynamicObjects : m_staticObjects;
+		entities.Insert(entity);
+	}
+
+	void PhysicsSystem::OnUpdate(float elapsedTime)
 	{
 		m_world.Step(elapsedTime);
 
@@ -73,20 +87,6 @@ namespace Ndk
 			else
 				physObj->SetAngularVelocity(NzVector3f::Zero());
 		}
-	}
-
-	void PhysicsSystem::OnEntityValidation(Entity* entity, bool justAdded)
-	{
-		// Si l'entité ne vient pas d'être ajoutée au système, il est possible qu'elle fasse partie du mauvais tableau
-		if (!justAdded)
-		{
-			// On prend le tableau inverse de celui dont l'entité devrait faire partie
-			auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_staticObjects : m_dynamicObjects;
-			entities.Remove(entity);
-		}
-
-		auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_dynamicObjects : m_staticObjects;
-		entities.Insert(entity);
 	}
 
 	SystemIndex PhysicsSystem::systemIndex;

@@ -15,7 +15,38 @@ namespace Ndk
 	{
 	}
 
-	void RenderSystem::Update(float elapsedTime)
+	void RenderSystem::OnEntityRemoved(Entity* entity)
+	{
+		m_cameras.Remove(entity);
+		m_drawables.Remove(entity);
+		m_lights.Remove(entity);
+	}
+
+	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
+	{
+		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
+		{
+			m_cameras.Insert(entity);
+			std::sort(m_cameras.begin(), m_cameras.end(), [](const EntityHandle& handle1, const EntityHandle& handle2)
+			{
+				return handle1->GetComponent<CameraComponent>().GetLayer() < handle2->GetComponent<CameraComponent>().GetLayer();
+			});
+		}
+		else
+			m_cameras.Remove(entity);
+
+		if (entity->HasComponent<GraphicsComponent>() && entity->HasComponent<NodeComponent>())
+			m_drawables.Insert(entity);
+		else
+			m_drawables.Remove(entity);
+
+		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
+			m_lights.Insert(entity);
+		else
+			m_lights.Remove(entity);
+	}
+
+	void RenderSystem::OnUpdate(float elapsedTime)
 	{
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
@@ -50,37 +81,6 @@ namespace Ndk
 
 			m_renderTechnique.Draw(sceneData);
 		}
-	}
-
-	void RenderSystem::OnEntityRemoved(Entity* entity)
-	{
-		m_cameras.Remove(entity);
-		m_drawables.Remove(entity);
-		m_lights.Remove(entity);
-	}
-
-	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
-	{
-		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
-		{
-			m_cameras.Insert(entity);
-			std::sort(m_cameras.begin(), m_cameras.end(), [](const EntityHandle& handle1, const EntityHandle& handle2)
-			{
-				return handle1->GetComponent<CameraComponent>().GetLayer() < handle2->GetComponent<CameraComponent>().GetLayer();
-			});
-		}
-		else
-			m_cameras.Remove(entity);
-
-		if (entity->HasComponent<GraphicsComponent>() && entity->HasComponent<NodeComponent>())
-			m_drawables.Insert(entity);
-		else
-			m_drawables.Remove(entity);
-
-		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
-			m_lights.Insert(entity);
-		else
-			m_lights.Remove(entity);
 	}
 
 	SystemIndex RenderSystem::systemIndex;
