@@ -33,9 +33,14 @@ namespace Ndk
 
 			inline const std::vector<EntityHandle>& GetEntities() const;
 			inline SystemIndex GetIndex() const;
+			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
 
 			inline bool HasEntity(const Entity* entity) const;
+
+			inline void SetUpdateRate(float updatePerSecond);
+
+			inline void Update(float elapsedTime);
 
 			BaseSystem& operator=(const BaseSystem&) = delete;
 			BaseSystem& operator=(BaseSystem&&) noexcept = default;
@@ -54,6 +59,8 @@ namespace Ndk
 			template<typename ComponentType> void RequiresAny();
 			template<typename ComponentType1, typename ComponentType2, typename... Rest> void RequiresAny();
 			inline void RequiresAnyComponent(ComponentIndex index);
+
+			virtual void OnUpdate(float elapsedTime) = 0;
 
 		private:
 			inline void AddEntity(Entity* entity);
@@ -79,6 +86,8 @@ namespace Ndk
 			NzBitset<> m_requiredComponents;
 			SystemIndex m_systemIndex;
 			World* m_world;
+			float m_updateCounter;
+			float m_updateRate;
 
 			static SystemIndex s_nextIndex;
 	};
