@@ -15,7 +15,7 @@ namespace Ndk
 		Requires<ListenerComponent, NodeComponent>();
 	}
 
-	void ListenerSystem::Update(float elapsedTime)
+	void ListenerSystem::OnUpdate(float elapsedTime)
 	{
 		NazaraUnused(elapsedTime);
 
