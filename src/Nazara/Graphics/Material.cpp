@@ -142,6 +142,8 @@ void NzMaterial::Reset()
 	m_diffuseColor = NzColor::White;
 	m_diffuseSampler = NzTextureSampler();
 	m_lightingEnabled = true;
+	m_shadowCastingEnabled = true;
+	m_shadowReceiveEnabled = true;
 	m_shininess = 50.f;
 	m_specularColor = NzColor::White;
 	m_specularSampler = NzTextureSampler();
@@ -156,18 +158,20 @@ void NzMaterial::Reset()
 void NzMaterial::Copy(const NzMaterial& material)
 {
 	// Copie des états de base
-	m_alphaTestEnabled    = material.m_alphaTestEnabled;
-	m_alphaThreshold      = material.m_alphaThreshold;
-	m_ambientColor        = material.m_ambientColor;
-	m_depthSortingEnabled = material.m_depthSortingEnabled;
-	m_diffuseColor        = material.m_diffuseColor;
-	m_diffuseSampler      = material.m_diffuseSampler;
-	m_lightingEnabled     = material.m_lightingEnabled;
-	m_shininess           = material.m_shininess;
-	m_specularColor       = material.m_specularColor;
-	m_specularSampler     = material.m_specularSampler;
-	m_states              = material.m_states;
-	m_transformEnabled    = material.m_transformEnabled;
+	m_alphaTestEnabled     = material.m_alphaTestEnabled;
+	m_alphaThreshold       = material.m_alphaThreshold;
+	m_ambientColor         = material.m_ambientColor;
+	m_depthSortingEnabled  = material.m_depthSortingEnabled;
+	m_diffuseColor         = material.m_diffuseColor;
+	m_diffuseSampler       = material.m_diffuseSampler;
+	m_lightingEnabled      = material.m_lightingEnabled;
+	m_shininess            = material.m_shininess;
+	m_shadowCastingEnabled = material.m_shadowCastingEnabled;
+	m_shadowReceiveEnabled = material.m_shadowReceiveEnabled;
+	m_specularColor        = material.m_specularColor;
+	m_specularSampler      = material.m_specularSampler;
+	m_states               = material.m_states;
+	m_transformEnabled     = material.m_transformEnabled;
 
 	// Copie des références de texture
 	m_alphaMap    = material.m_alphaMap;
@@ -301,8 +305,8 @@ bool NzMaterial::Initialize()
 			vertexShader.Set(reinterpret_cast<const char*>(compatibilityVertexShader), sizeof(compatibilityVertexShader));
 		}
 
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SHADOW_MAPPING SPECULAR_MAPPING");
+		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 		NzUberShaderLibrary::Register("PhongLighting", uberShader);
 	}
