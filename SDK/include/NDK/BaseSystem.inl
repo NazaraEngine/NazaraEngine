@@ -10,12 +10,15 @@ namespace Ndk
 	inline BaseSystem::BaseSystem(SystemIndex systemId) :
 	m_systemIndex(systemId)
 	{
+		SetUpdateRate(30);
 	}
 
 	inline BaseSystem::BaseSystem(const BaseSystem& system) :
 	m_excludedComponents(system.m_excludedComponents),
 	m_requiredComponents(system.m_requiredComponents),
-	m_systemIndex(system.m_systemIndex)
+	m_systemIndex(system.m_systemIndex),
+	m_updateCounter(0.f),
+	m_updateRate(system.m_updateRate)
 	{
 	}
 
@@ -29,6 +32,11 @@ namespace Ndk
 		return m_systemIndex;
 	}
 
+	inline float BaseSystem::GetUpdateRate() const
+	{
+		return 1.f / m_updateRate;
+	}
+
 	inline World& BaseSystem::GetWorld() const
 	{
 		return *m_world;
@@ -40,6 +48,22 @@ namespace Ndk
 			return false;
 
 		return m_entityBits.UnboundedTest(entity->GetId());
+	}
+
+	inline void BaseSystem::SetUpdateRate(float updatePerSecond)
+	{
+		m_updateCounter = 0.f;
+		m_updateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
+	}
+
+	inline void BaseSystem::Update(float elapsedTime)
+	{
+		m_updateCounter -= elapsedTime;
+		if (m_updateCounter < 0.f)
+		{
+			m_updateCounter += m_updateRate;
+			OnUpdate(elapsedTime);
+		}
 	}
 
 	template<typename ComponentType>
