@@ -63,20 +63,11 @@ struct NzRenderTextureImpl
 	std::vector<nzUInt8> colorTargets;
 	mutable std::vector<GLenum> drawBuffers;
 	const NzContext* context;
-	bool checked = false;
 	bool complete = false;
 	bool userDefinedTargets = false;
-	mutable bool drawBuffersUpdated = true;
-	mutable bool sizeUpdated = false;
-	mutable bool targetsUpdated = true;
 	unsigned int height;
 	unsigned int width;
 };
-
-NzRenderTexture::~NzRenderTexture()
-{
-	Destroy();
-}
 
 bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzRenderBuffer* buffer)
 {
@@ -160,15 +151,11 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	attachment.height = buffer->GetHeight();
 	attachment.width = buffer->GetWidth();
 
-	m_impl->checked = false;
-	m_impl->sizeUpdated = false;
+	InvalidateSize();
+	InvalidateTargets();
 
 	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
-	{
 		m_impl->colorTargets.push_back(index);
-		m_impl->drawBuffersUpdated = false;
-		m_impl->targetsUpdated = false;
-	}
 
 	return true;
 }
@@ -301,15 +288,11 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 	attachment.textureDestroySlot.Connect(texture->OnTextureDestroy, std::bind(&NzRenderTexture::OnTextureDestroy, this, std::placeholders::_1, attachIndex));
 	attachment.width = texture->GetWidth();
 
-	m_impl->checked = false;
-	m_impl->sizeUpdated = false;
+	InvalidateSize();
+	InvalidateTargets();
 
 	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
-	{
 		m_impl->colorTargets.push_back(index);
-		m_impl->drawBuffersUpdated = false;
-		m_impl->targetsUpdated = false;
-	}
 
 	return true;
 }
@@ -346,6 +329,11 @@ bool NzRenderTexture::Create(bool lock)
 	m_impl = impl.release();
 	m_impl->context = NzContext::GetCurrent();
 	m_impl->contextDestroySlot.Connect(m_impl->context->OnContextDestroy, this, &NzRenderTexture::OnContextDestroy);
+
+	m_checked = false;
+	m_drawBuffersUpdated = true;
+	m_sizeUpdated = false;
+	m_targetsUpdated = true;
 
 	if (lock)
 	{
@@ -436,30 +424,21 @@ void NzRenderTexture::Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index)
 		attachement.textureDestroySlot.Disconnect();
 	}
 
-	m_impl->sizeUpdated = false;
+	InvalidateSize();
 
 	if (attachement.attachmentPoint == nzAttachmentPoint_Color)
-	{
-		m_impl->drawBuffersUpdated = false;
-		m_impl->targetsUpdated = false;
-	}
+		InvalidateTargets();
 
 	Unlock();
 
-	m_impl->checked = false;
+	m_checked = false;
 }
 
 unsigned int NzRenderTexture::GetHeight() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return 0;
-	}
-	#endif
+	NazaraAssert(m_impl, "Invalid render texture");
 
-	if (!m_impl->sizeUpdated)
+	if (!m_sizeUpdated)
 		UpdateSize();
 
 	return m_impl->height;
@@ -467,13 +446,7 @@ unsigned int NzRenderTexture::GetHeight() const
 
 NzRenderTargetParameters NzRenderTexture::GetParameters() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return NzRenderTargetParameters();
-	}
-	#endif
+	NazaraAssert(m_impl, "Invalid render texture");
 
 	///TODO
 	return NzRenderTargetParameters();
@@ -481,15 +454,9 @@ NzRenderTargetParameters NzRenderTexture::GetParameters() const
 
 NzVector2ui NzRenderTexture::GetSize() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return 0;
-	}
-	#endif
+	NazaraAssert(m_impl, "Invalid render texture");
 
-	if (!m_impl->sizeUpdated)
+	if (!m_sizeUpdated)
 		UpdateSize();
 
 	return NzVector2ui(m_impl->width, m_impl->height);
@@ -497,15 +464,9 @@ NzVector2ui NzRenderTexture::GetSize() const
 
 unsigned int NzRenderTexture::GetWidth() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return 0;
-	}
-	#endif
+	NazaraAssert(m_impl, "Invalid render texture");
 
-	if (!m_impl->sizeUpdated)
+	if (!m_sizeUpdated)
 		UpdateSize();
 
 	return m_impl->width;
@@ -513,15 +474,9 @@ unsigned int NzRenderTexture::GetWidth() const
 
 bool NzRenderTexture::IsComplete() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return false;
-	}
-	#endif
+	NazaraAssert(m_impl, "Invalid render texture");
 
-	if (!m_impl->checked)
+	if (!m_checked)
 	{
 		if (!Lock())
 		{
@@ -572,7 +527,7 @@ bool NzRenderTexture::IsComplete() const
 				NazaraInternalError("Unknown error");
 		}
 
-		m_impl->checked = true;
+		m_checked = true;
 	}
 
 	return m_impl->complete;
@@ -583,20 +538,11 @@ bool NzRenderTexture::IsRenderable() const
 	return IsComplete() && !m_impl->attachments.empty();
 }
 
-bool NzRenderTexture::IsValid() const
-{
-	return m_impl != nullptr;
-}
-
 bool NzRenderTexture::Lock() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return false;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -618,20 +564,11 @@ bool NzRenderTexture::Lock() const
 	return true;
 }
 
-void NzRenderTexture::SetColorTarget(nzUInt8 target) const
-{
-	SetColorTargets(&target, 1);
-}
-
 void NzRenderTexture::SetColorTargets(const nzUInt8* targets, unsigned int targetCount) const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	for (unsigned int i = 0; i < targetCount; ++i)
 	{
 		unsigned int index = attachmentIndex[nzAttachmentPoint_Color] + targets[i];
@@ -646,20 +583,15 @@ void NzRenderTexture::SetColorTargets(const nzUInt8* targets, unsigned int targe
 	m_impl->colorTargets.resize(targetCount);
 	std::memcpy(&m_impl->colorTargets[0], targets, targetCount*sizeof(nzUInt8));
 
-	m_impl->drawBuffersUpdated = false;
-	m_impl->targetsUpdated = false;
 	m_impl->userDefinedTargets = true;
+	InvalidateDrawBuffers();
 }
 
 void NzRenderTexture::SetColorTargets(const std::initializer_list<nzUInt8>& targets) const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	for (nzUInt8 target : targets)
 	{
 		unsigned int index = attachmentIndex[nzAttachmentPoint_Color] + target;
@@ -677,20 +609,15 @@ void NzRenderTexture::SetColorTargets(const std::initializer_list<nzUInt8>& targ
 	for (nzUInt8 index : targets)
 		*ptr++ = index;
 
-	m_impl->drawBuffersUpdated = false;
-	m_impl->targetsUpdated = false;
 	m_impl->userDefinedTargets = true;
+	InvalidateDrawBuffers();
 }
 
 void NzRenderTexture::Unlock() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -710,13 +637,9 @@ void NzRenderTexture::Unlock() const
 
 unsigned int NzRenderTexture::GetOpenGLID() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return 0;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -737,43 +660,15 @@ bool NzRenderTexture::IsSupported()
 	return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
 }
 
-void NzRenderTexture::Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers, bool bilinearFilter)
-{
-	#if NAZARA_RENDERER_SAFE
-	if (!src)
-	{
-		NazaraError("Invalid source render texture");
-		return;
-	}
-
-	if (!dst)
-	{
-		NazaraError("Invalid source render texture");
-		return;
-	}
-	#endif
-
-	Blit(src, src->GetSize(), dst, dst->GetSize(), buffers, bilinearFilter);
-}
-
 void NzRenderTexture::Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers, bool bilinearFilter)
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!src || !src->IsValid())
-	{
-		NazaraError("Invalid source render texture");
-		return;
-	}
+	NazaraAssert(src && src->IsValid(), "Invalid source render texture");
+	NazaraAssert(dst && dst->IsValid(), "Invalid destination render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (srcRect.x+srcRect.width > src->GetWidth() || srcRect.y+srcRect.height > src->GetHeight())
 	{
 		NazaraError("Source rectangle dimensions are out of bounds");
-		return;
-	}
-
-	if (!dst || !dst->IsValid())
-	{
-		NazaraError("Invalid source render texture");
 		return;
 	}
 
@@ -817,13 +712,9 @@ void NzRenderTexture::Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTextu
 
 bool NzRenderTexture::Activate() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return false;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -833,20 +724,16 @@ bool NzRenderTexture::Activate() const
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_impl->fbo);
 
-	m_impl->drawBuffersUpdated = false;
+	m_drawBuffersUpdated = false;
 
 	return true;
 }
 
 void NzRenderTexture::Desactivate() const
 {
-	#if NAZARA_RENDERER_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Render texture not created");
-		return;
-	}
+	NazaraAssert(m_impl, "Invalid render texture");
 
+	#if NAZARA_RENDERER_SAFE
 	if (NzContext::GetCurrent() != m_impl->context)
 	{
 		NazaraError("RenderTexture cannot be used with this context");
@@ -861,7 +748,7 @@ void NzRenderTexture::Desactivate() const
 
 void NzRenderTexture::EnsureTargetUpdated() const
 {
-	if (!m_impl->drawBuffersUpdated)
+	if (!m_drawBuffersUpdated)
 		UpdateDrawBuffers();
 
 	for (nzUInt8 index : m_impl->colorTargets)
@@ -900,8 +787,7 @@ void NzRenderTexture::OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, 
 	attachment.isUsed = false;
 	attachment.renderBufferDestroySlot.Disconnect();
 
-	m_impl->checked = false;
-	m_impl->targetsUpdated = false;
+	InvalidateTargets();
 }
 
 void NzRenderTexture::OnTextureDestroy(const NzTexture* texture, unsigned int attachmentIndex)
@@ -911,23 +797,17 @@ void NzRenderTexture::OnTextureDestroy(const NzTexture* texture, unsigned int at
 	NazaraAssert(!m_impl->attachments[attachmentIndex].isBuffer, "Invalid attachment state");
 	NazaraUnused(texture);
 
-	Attachment& attachment = m_impl->attachments[attachmentIndex];
-	attachment.isUsed = false;
-	attachment.texture = nullptr;
-	attachment.textureDestroySlot.Disconnect();
-
-	m_impl->checked = false;
-	m_impl->targetsUpdated = false;
+	InvalidateTargets();
 }
 
 void NzRenderTexture::UpdateDrawBuffers() const
 {
-	if (!m_impl->targetsUpdated)
+	if (!m_targetsUpdated)
 		UpdateTargets();
 
 	glDrawBuffers(m_impl->drawBuffers.size(), &m_impl->drawBuffers[0]);
 
-	m_impl->drawBuffersUpdated = true;
+	m_drawBuffersUpdated = true;
 }
 
 void NzRenderTexture::UpdateSize() const
@@ -943,7 +823,7 @@ void NzRenderTexture::UpdateSize() const
 		}
 	}
 
-	m_impl->sizeUpdated = true;
+	m_sizeUpdated = true;
 }
 
 void NzRenderTexture::UpdateTargets() const
@@ -961,5 +841,5 @@ void NzRenderTexture::UpdateTargets() const
 			*ptr++ = GL_COLOR_ATTACHMENT0 + index;
 	}
 
-	m_impl->targetsUpdated = true;
+	m_targetsUpdated = true;
 }

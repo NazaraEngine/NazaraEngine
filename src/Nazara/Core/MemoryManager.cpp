@@ -18,6 +18,9 @@
 
 namespace
 {
+	constexpr unsigned int s_allocatedId = 0xDEADB33FUL;
+	constexpr unsigned int s_freedId = 0x4B1DUL;
+
 	struct Block
 	{
 		std::size_t size;
@@ -31,7 +34,6 @@ namespace
 
 	bool s_allocationLogging = false;
 	bool s_initialized = false;
-	const unsigned int s_magic = 0xDEADB33FUL;
 	const char* s_logFileName = "NazaraMemory.log";
 	thread_local const char* s_nextFreeFile = "(Internal error)";
 	thread_local unsigned int s_nextFreeLine = 0;
@@ -44,7 +46,7 @@ namespace
 		&s_list,
 		false,
 		0,
-		s_magic
+		0
 	};
 
 	unsigned int s_allocationCount = 0;
@@ -101,7 +103,7 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	ptr->file = file;
 	ptr->line = line;
 	ptr->size = size;
-	ptr->magic = s_magic;
+	ptr->magic = s_allocatedId;
 
 	ptr->prev = s_list.prev;
 	ptr->next = &s_list;
@@ -147,8 +149,22 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 		return;
 
 	Block* ptr = reinterpret_cast<Block*>(reinterpret_cast<nzUInt8*>(pointer) - sizeof(Block));
-	if (ptr->magic != s_magic)
+	if (ptr->magic != s_allocatedId)
+	{
+		char timeStr[23];
+		TimeInfo(timeStr);
+
+		FILE* log = std::fopen(s_logFileName, "a");
+
+		const char* error = (ptr->magic == s_freedId) ? "double-delete" : "possible delete of dangling pointer";
+		if (s_nextFreeFile)
+			std::fprintf(log, "%s Warning: %s at %s:%u\n", timeStr, error, s_nextFreeFile, s_nextFreeLine);
+		else
+			std::fprintf(log, "%s Warning: %s at unknown position\n", timeStr, error);
+
+		std::fclose(log);
 		return;
+	}
 
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	EnterCriticalSection(&s_mutex);
@@ -167,12 +183,12 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 		if (s_nextFreeFile)
 			std::fprintf(log, "%s Warning: %s at %s:%u\n", timeStr, error, s_nextFreeFile, s_nextFreeLine);
 		else
-			std::fprintf(log, "%s Warning: %s at unknown position\n", error, timeStr);
+			std::fprintf(log, "%s Warning: %s at unknown position\n", timeStr, error);
 
 		std::fclose(log);
 	}
 
-	ptr->magic = 0; // Évitons des problèmes
+	ptr->magic = s_freedId;
 	ptr->prev->next = ptr->next;
 	ptr->next->prev = ptr->prev;
 
