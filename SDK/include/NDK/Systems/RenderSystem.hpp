@@ -26,13 +26,12 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
-			void Update(float elapsedTime);
-
 			static SystemIndex systemIndex;
 
 		private:
 			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
+			void OnUpdate(float elapsedTime) override;
 			void UpdateShadowMaps();
 
 			EntityList m_cameras;
