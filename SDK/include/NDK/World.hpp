@@ -58,6 +58,7 @@ namespace Ndk
 			template<typename SystemType> void RemoveSystem();
 
 			void Update();
+			inline void Update(float elapsedTime);
 
 		private:
 			inline void Invalidate();
