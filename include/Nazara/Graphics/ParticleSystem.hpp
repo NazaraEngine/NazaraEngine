@@ -8,20 +8,19 @@
 #define NAZARA_PARTICLESYSTEM_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
+#include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <functional>
 #include <memory>
 #include <set>
 #include <vector>
 
-class NAZARA_GRAPHICS_API NzParticleSystem : public NzSceneNode, NzUpdatable
+class NAZARA_GRAPHICS_API NzParticleSystem : public NzRenderable
 {
 	public:
 		NzParticleSystem(unsigned int maxParticleCount, nzParticleLayout layout);
@@ -32,9 +31,9 @@ class NAZARA_GRAPHICS_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		void AddController(NzParticleController* controller);
 		void AddEmitter(NzParticleEmitter* emitter);
 		void AddGenerator(NzParticleGenerator* generator);
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
+		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
 
-		void ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime, float& stepAccumulator);
+		void ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime);
 
 		void* CreateParticle();
 		void* CreateParticles(unsigned int count);
@@ -49,7 +48,6 @@ class NAZARA_GRAPHICS_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		unsigned int GetMaxParticleCount() const;
 		unsigned int GetParticleCount() const;
 		unsigned int GetParticleSize() const;
-		nzSceneNodeType GetSceneNodeType() const override;
 
 		bool IsDrawable() const;
 		bool IsFixedStepEnabled() const;
@@ -64,14 +62,14 @@ class NAZARA_GRAPHICS_API NzParticleSystem : public NzSceneNode, NzUpdatable
 		void SetFixedStepSize(float stepSize);
 		void SetRenderer(NzParticleRenderer* renderer);
 
+		void Update(float elapsedTime);
+		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
+
 		NzParticleSystem& operator=(const NzParticleSystem& emitter);
 
 	private:
 		void MakeBoundingVolume() const override;
-		void Register() override;
 		void ResizeBuffer();
-		void Unregister() override;
-		void Update() override;
 
 		std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
 		mutable std::vector<nzUInt8> m_buffer;
