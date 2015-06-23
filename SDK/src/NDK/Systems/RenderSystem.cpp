@@ -13,6 +13,7 @@ namespace Ndk
 {
 	RenderSystem::RenderSystem()
 	{
+		SetDefaultBackground(NzColorBackground::New());
 		SetUpdateRate(0.f);
 	}
 
@@ -73,11 +74,9 @@ namespace Ndk
 				lightComponent.AddToRenderQueue(renderQueue, drawableNode.GetTransformMatrix());
 			}
 
-			NzColorBackground background;
-
 			NzSceneData sceneData;
 			sceneData.ambientColor = NzColor(25, 25, 25);
-			sceneData.background = &background;
+			sceneData.background = m_background;
 			sceneData.viewer = &camComponent;
 
 			m_renderTechnique.Draw(sceneData);
