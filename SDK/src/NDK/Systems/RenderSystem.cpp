@@ -15,6 +15,7 @@ namespace Ndk
 {
 	RenderSystem::RenderSystem()
 	{
+		SetUpdateRate(0.f);
 	}
 
 	void RenderSystem::OnEntityRemoved(Entity* entity)
