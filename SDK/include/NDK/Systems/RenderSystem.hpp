@@ -7,6 +7,7 @@
 #ifndef NDK_SYSTEMS_RENDERSYSTEM_HPP
 #define NDK_SYSTEMS_RENDERSYSTEM_HPP
 
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
@@ -24,6 +25,10 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
+			inline const NzBackgroundRef& GetDefaultBackground() const;
+
+			inline void SetDefaultBackground(NzBackgroundRef background);
+
 			static SystemIndex systemIndex;
 
 		private:
@@ -34,6 +39,7 @@ namespace Ndk
 			EntityList m_cameras;
 			EntityList m_drawables;
 			EntityList m_lights;
+			NzBackgroundRef m_background;
 			NzForwardRenderTechnique m_renderTechnique;
 	};
 }
