@@ -60,14 +60,14 @@ void NzParticleSystem::AddController(NzParticleController* controller)
 
 void NzParticleSystem::AddEmitter(NzParticleEmitter* emitter)
 {
-	NazaraAssert(controller, "Invalid particle emitter");
+	NazaraAssert(emitter, "Invalid particle emitter");
 
 	m_emitters.emplace_back(emitter);
 }
 
 void NzParticleSystem::AddGenerator(NzParticleGenerator* generator)
 {
-	NazaraAssert(controller, "Invalid particle generator");
+	NazaraAssert(generator, "Invalid particle generator");
 
 	m_generators.emplace_back(generator);
 }
