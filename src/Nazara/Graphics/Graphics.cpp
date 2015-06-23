@@ -17,6 +17,7 @@
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
+#include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
 #include <Nazara/Graphics/Formats/OBJLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
@@ -77,6 +78,12 @@ bool NzGraphics::Initialize()
 	if (!NzSkinningManager::Initialize())
 	{
 		NazaraError("Failed to initialize skinning manager");
+		return false;
+	}
+
+	if (!NzSkyboxBackground::Initialize())
+	{
+		NazaraError("Failed to initialize skybox backgrounds");
 		return false;
 	}
 
@@ -171,6 +178,7 @@ void NzGraphics::Uninitialize()
 	NzParticleDeclaration::Uninitialize();
 	NzParticleController::Uninitialize();
 	NzMaterial::Uninitialize();
+	NzSkyboxBackground::Uninitialize();
 
 	NazaraNotice("Uninitialized: Graphics module");
 
