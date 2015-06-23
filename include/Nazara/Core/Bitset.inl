@@ -104,7 +104,8 @@ unsigned int NzBitset<Block, Allocator>::FindNext(unsigned int bit) const
 {
 	NazaraAssert(bit < m_bitCount, "Bit index out of range");
 
-	bit++;
+	if (++bit >= m_bitCount)
+		return npos;
 
 	// Le bloc du bit, l'indice du bit
 	unsigned int blockIndex = GetBlockIndex(bit);
