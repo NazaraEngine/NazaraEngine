@@ -15,28 +15,40 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
+class NzSkyboxBackground;
+
+using NzSkyboxBackgroundConstRef = NzObjectRef<const NzSkyboxBackground>;
+using NzSkyboxBackgroundRef = NzObjectRef<NzSkyboxBackground>;
+
 class NAZARA_GRAPHICS_API NzSkyboxBackground : public NzAbstractBackground
 {
 	public:
-		NzSkyboxBackground();
-		NzSkyboxBackground(NzTexture* cubemapTexture);
-		~NzSkyboxBackground();
+		NzSkyboxBackground(NzTextureRef cubemapTexture = NzTextureRef());
+		~NzSkyboxBackground() = default;
 
 		void Draw(const NzAbstractViewer* viewer) const;
 
 		nzBackgroundType GetBackgroundType() const;
-		NzTexture* GetTexture() const;
-		const NzTextureSampler& GetTextureSampler();
+		inline const NzTextureRef& GetTexture() const;
+		inline NzTextureSampler& GetTextureSampler();
+		inline const NzTextureSampler& GetTextureSampler() const;
 
-		void SetTexture(NzTexture* cubemapTexture);
-		void SetTextureSampler(const NzTextureSampler& sampler);
+		inline void SetTexture(NzTextureRef cubemapTexture);
+		inline void SetTextureSampler(const NzTextureSampler& sampler);
+
+		template<typename... Args> static NzSkyboxBackgroundRef New(Args&&... args);
 
 	private:
+		static bool Initialize();
+		static void Uninitialize();
+
 		NzTextureRef m_texture;
 		NzTextureSampler m_sampler;
 		NzIndexBufferRef m_indexBuffer;
 		NzShaderRef m_shader;
 		NzVertexBufferRef m_vertexBuffer;
 };
+
+#include <Nazara/Graphics/SkyboxBackground.inl>
 
 #endif // NAZARA_SKYBOXBACKGROUND_HPP
