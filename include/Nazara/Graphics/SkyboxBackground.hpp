@@ -22,6 +22,8 @@ using NzSkyboxBackgroundRef = NzObjectRef<NzSkyboxBackground>;
 
 class NAZARA_GRAPHICS_API NzSkyboxBackground : public NzAbstractBackground
 {
+	friend class NzGraphics;
+
 	public:
 		NzSkyboxBackground(NzTextureRef cubemapTexture = NzTextureRef());
 		~NzSkyboxBackground() = default;
@@ -44,9 +46,6 @@ class NAZARA_GRAPHICS_API NzSkyboxBackground : public NzAbstractBackground
 
 		NzTextureRef m_texture;
 		NzTextureSampler m_sampler;
-		NzIndexBufferRef m_indexBuffer;
-		NzShaderRef m_shader;
-		NzVertexBufferRef m_vertexBuffer;
 };
 
 #include <Nazara/Graphics/SkyboxBackground.inl>
