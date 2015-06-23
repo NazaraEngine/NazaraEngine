@@ -7,7 +7,6 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <cstdlib>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -19,10 +18,7 @@ NzParticleSystem(maxParticleCount, NzParticleDeclaration::Get(layout))
 
 NzParticleSystem::NzParticleSystem(unsigned int maxParticleCount, const NzParticleDeclaration* declaration) :
 m_declaration(declaration),
-m_fixedStepEnabled(false),
 m_processing(false),
-m_stepAccumulator(0.f),
-m_stepSize(1.f/60.f),
 m_maxParticleCount(maxParticleCount),
 m_particleCount(0)
 {
@@ -35,15 +31,12 @@ m_particleCount(0)
 }
 
 NzParticleSystem::NzParticleSystem(const NzParticleSystem& system) :
-NzSceneNode(system),
+NzRenderable(system),
 m_controllers(system.m_controllers),
 m_generators(system.m_generators),
 m_declaration(system.m_declaration),
 m_renderer(system.m_renderer),
-m_fixedStepEnabled(system.m_fixedStepEnabled),
 m_processing(false),
-m_stepAccumulator(0.f),
-m_stepSize(system.m_stepSize),
 m_maxParticleCount(system.m_maxParticleCount),
 m_particleCount(system.m_particleCount),
 m_particleSize(system.m_particleSize)
@@ -60,27 +53,66 @@ NzParticleSystem::~NzParticleSystem() = default;
 
 void NzParticleSystem::AddController(NzParticleController* controller)
 {
+	NazaraAssert(controller, "Invalid particle controller");
+
 	m_controllers.emplace_back(controller);
 }
 
 void NzParticleSystem::AddEmitter(NzParticleEmitter* emitter)
 {
+	NazaraAssert(controller, "Invalid particle emitter");
+
 	m_emitters.emplace_back(emitter);
 }
 
 void NzParticleSystem::AddGenerator(NzParticleGenerator* generator)
 {
+	NazaraAssert(controller, "Invalid particle generator");
+
 	m_generators.emplace_back(generator);
 }
 
-void NzParticleSystem::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
+void NzParticleSystem::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
-	///FIXME: Vérifier le renderer
+	NazaraAssert(m_renderer, "Invalid particle renderer");
+	NazaraAssert(renderQueue, "Invalid renderqueue");
+	NazaraUnused(transformMatrix);
+
 	if (m_particleCount > 0)
 	{
 		NzParticleMapper mapper(m_buffer.data(), m_declaration);
 		m_renderer->Render(*this, mapper, 0, m_particleCount-1, renderQueue);
 	}
+}
+
+void NzParticleSystem::ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime)
+{
+	m_processing = true;
+
+	// Pour éviter un verrouillage en cas d'exception
+	NzCallOnExit onExit([this]()
+	{
+		m_processing = false;
+	});
+
+	for (NzParticleController* controller : m_controllers)
+		controller->Apply(*this, mapper, 0, particleCount-1, elapsedTime);
+
+	onExit.CallAndReset();
+
+	// On tue maintenant les particules mortes durant la mise à jour
+	if (m_dyingParticles.size() < m_particleCount)
+	{
+		// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
+		// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
+		// sans cette solution certaines particules pourraient échapper à la mort
+		for (unsigned int index : m_dyingParticles)
+			KillParticle(index);
+	}
+	else
+		KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
+
+	m_dyingParticles.clear();
 }
 
 void* NzParticleSystem::CreateParticle()
@@ -93,23 +125,13 @@ void* NzParticleSystem::CreateParticles(unsigned int count)
 	if (count == 0)
 		return nullptr;
 
-	if (m_particleCount+count > m_maxParticleCount)
+	if (m_particleCount + count > m_maxParticleCount)
 		return nullptr;
 
 	unsigned int particlesIndex = m_particleCount;
 	m_particleCount += count;
 
 	return &m_buffer[particlesIndex*m_particleSize];
-}
-
-void NzParticleSystem::EnableFixedStep(bool fixedStep)
-{
-	// On teste pour empêcher que cette méthode ne remette systématiquement le step accumulator à zéro
-	if (m_fixedStepEnabled != fixedStep)
-	{
-		m_fixedStepEnabled = fixedStep;
-		m_stepAccumulator = 0.f;
-	}
 }
 
 void* NzParticleSystem::GenerateParticle()
@@ -155,19 +177,9 @@ unsigned int NzParticleSystem::GetParticleSize() const
 	return m_particleSize;
 }
 
-nzSceneNodeType NzParticleSystem::GetSceneNodeType() const
-{
-	return nzSceneNodeType_ParticleEmitter;
-}
-
 bool NzParticleSystem::IsDrawable() const
 {
 	return true;
-}
-
-bool NzParticleSystem::IsFixedStepEnabled() const
-{
-	return m_fixedStepEnabled;
 }
 
 void NzParticleSystem::KillParticle(unsigned int index)
@@ -222,15 +234,36 @@ void NzParticleSystem::SetRenderer(NzParticleRenderer* renderer)
 	m_renderer = renderer;
 }
 
+void NzParticleSystem::Update(float elapsedTime)
+{
+	// Émission
+	for (NzParticleEmitter* emitter : m_emitters)
+		emitter->Emit(*this, elapsedTime);
+
+	// Mise à jour
+	if (m_particleCount > 0)
+	{
+		///TODO: Mettre à jour en utilisant des threads
+		NzParticleMapper mapper(m_buffer.data(), m_declaration);
+		ApplyControllers(mapper, m_particleCount, elapsedTime);
+	}
+}
+
+void NzParticleSystem::UpdateBoundingVolume(const NzMatrix4f& transformMatrix)
+{
+	NazaraUnused(transformMatrix);
+
+	// Nothing to do here (our bounding volume is global)
+}
+
 NzParticleSystem& NzParticleSystem::operator=(const NzParticleSystem& system)
 {
 	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 
-	NzSceneNode::operator=(system);
+	NzRenderable::operator=(system);
 
 	m_controllers = system.m_controllers;
 	m_declaration = system.m_declaration;
-	m_fixedStepEnabled = system.m_fixedStepEnabled;
 	m_generators = system.m_generators;
 	m_maxParticleCount = system.m_maxParticleCount;
 	m_particleCount = system.m_particleCount;
@@ -252,59 +285,10 @@ NzParticleSystem& NzParticleSystem::operator=(const NzParticleSystem& system)
 	return *this;
 }
 
-void NzParticleSystem::ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime, float& stepAccumulator)
-{
-	m_processing = true;
-
-	// Pour éviter un verrouillage en cas d'exception
-	NzCallOnExit onExit([this]()
-	{
-		m_processing = false;
-	});
-
-	if (m_fixedStepEnabled)
-	{
-		stepAccumulator += elapsedTime;
-		while (stepAccumulator >= m_stepSize)
-		{
-			for (NzParticleController* controller : m_controllers)
-				controller->Apply(*this, mapper, 0, particleCount-1, m_stepSize);
-
-			stepAccumulator -= m_stepSize;
-		}
-	}
-	else
-	{
-		for (NzParticleController* controller : m_controllers)
-			controller->Apply(*this, mapper, 0, particleCount-1, elapsedTime);
-	}
-
-	onExit.CallAndReset();
-
-	// On tue maintenant les particules mortes durant la mise à jour
-	if (m_dyingParticles.size() < m_particleCount)
-	{
-		// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
-		// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
-		// sans cette solution certaines particules pourraient échapper à la mort
-		for (unsigned int index : m_dyingParticles)
-			KillParticle(index);
-	}
-	else
-		KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
-
-	m_dyingParticles.clear();
-}
-
 void NzParticleSystem::MakeBoundingVolume() const
 {
 	///TODO: Calculer l'AABB (prendre la taille des particules en compte s'il y a)
 	m_boundingVolume.MakeInfinite();
-}
-
-void NzParticleSystem::Register()
-{
-	m_scene->RegisterForUpdate(this);
 }
 
 void NzParticleSystem::ResizeBuffer()
@@ -323,24 +307,3 @@ void NzParticleSystem::ResizeBuffer()
 	}
 }
 
-void NzParticleSystem::Unregister()
-{
-	m_scene->UnregisterForUpdate(this);
-}
-
-void NzParticleSystem::Update()
-{
-	float elapsedTime = m_scene->GetUpdateTime();
-
-	// Émission
-	for (NzParticleEmitter* emitter : m_emitters)
-		emitter->Emit(*this, elapsedTime);
-
-	// Mise à jour
-	if (m_particleCount > 0)
-	{
-		///TODO: Mettre à jour en utilisant des threads
-		NzParticleMapper mapper(m_buffer.data(), m_declaration);
-		ApplyControllers(mapper, m_particleCount, elapsedTime, m_stepAccumulator);
-	}
-}
