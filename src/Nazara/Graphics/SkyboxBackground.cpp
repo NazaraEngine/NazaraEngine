@@ -22,10 +22,7 @@ namespace
 
 NzSkyboxBackground::NzSkyboxBackground(NzTextureRef cubemapTexture)
 {
-	m_indexBuffer = s_indexBuffer;
 	m_sampler.SetWrapMode(nzSamplerWrap_Clamp); // Nécessaire pour ne pas voir les côtés
-	m_shader = s_shader;
-	m_vertexBuffer = s_vertexBuffer;
 
 	SetTexture(std::move(cubemapTexture));
 }
@@ -35,14 +32,14 @@ void NzSkyboxBackground::Draw(const NzAbstractViewer* viewer) const
 	NzMatrix4f skyboxMatrix(viewer->GetViewMatrix());
 	skyboxMatrix.SetTranslation(NzVector3f::Zero());
 
-	NzRenderer::SetIndexBuffer(m_indexBuffer);
+	NzRenderer::SetIndexBuffer(s_indexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_View, skyboxMatrix);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Scale(NzVector3f(viewer->GetZNear())));
 	NzRenderer::SetRenderStates(s_renderStates);
-	NzRenderer::SetShader(m_shader);
+	NzRenderer::SetShader(s_shader);
 	NzRenderer::SetTexture(0, m_texture);
 	NzRenderer::SetTextureSampler(0, m_sampler);
-	NzRenderer::SetVertexBuffer(m_vertexBuffer);
+	NzRenderer::SetVertexBuffer(s_vertexBuffer);
 
 	NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, 36);
 
@@ -124,6 +121,7 @@ bool NzSkyboxBackground::Initialize()
 
 		// Shader
 		NzShaderRef shader = NzShader::New();
+		shader->Create();
 		shader->AttachStageFromSource(nzShaderStage_Fragment, fragmentShaderSource);
 		shader->AttachStageFromSource(nzShaderStage_Vertex, vertexShaderSource);
 		shader->Link();
