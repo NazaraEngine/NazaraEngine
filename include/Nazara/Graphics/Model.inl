@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <memory>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 template<typename... Args>
 NzModelRef NzModel::New(Args&&... args)
@@ -14,4 +14,4 @@ NzModelRef NzModel::New(Args&&... args)
 	return object.release();
 }
 
-#include <Nazara/Renderer/DebugOff.hpp>
+#include <Nazara/Graphics/DebugOff.hpp>
