@@ -33,7 +33,6 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
@@ -65,15 +64,11 @@
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Graphics/ParticleSystem.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
-#include <Nazara/Graphics/Scene.hpp>
-#include <Nazara/Graphics/SceneNode.hpp>
-#include <Nazara/Graphics/SceneRoot.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
-#include <Nazara/Graphics/View.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP
