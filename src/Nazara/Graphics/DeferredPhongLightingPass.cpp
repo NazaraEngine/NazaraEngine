@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>

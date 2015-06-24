@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/DeferredFogPass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <memory>
