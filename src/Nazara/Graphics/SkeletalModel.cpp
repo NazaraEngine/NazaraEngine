@@ -4,10 +4,8 @@
 
 #include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>

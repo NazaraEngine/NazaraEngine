@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
