@@ -16,8 +16,8 @@ NzParticleSystem(maxParticleCount, NzParticleDeclaration::Get(layout))
 {
 }
 
-NzParticleSystem::NzParticleSystem(unsigned int maxParticleCount, const NzParticleDeclaration* declaration) :
-m_declaration(declaration),
+NzParticleSystem::NzParticleSystem(unsigned int maxParticleCount, NzParticleDeclarationConstRef declaration) :
+m_declaration(std::move(declaration)),
 m_processing(false),
 m_maxParticleCount(maxParticleCount),
 m_particleCount(0)
@@ -51,11 +51,11 @@ m_particleSize(system.m_particleSize)
 
 NzParticleSystem::~NzParticleSystem() = default;
 
-void NzParticleSystem::AddController(NzParticleController* controller)
+void NzParticleSystem::AddController(NzParticleControllerRef controller)
 {
 	NazaraAssert(controller, "Invalid particle controller");
 
-	m_controllers.emplace_back(controller);
+	m_controllers.emplace_back(std::move(controller));
 }
 
 void NzParticleSystem::AddEmitter(NzParticleEmitter* emitter)
@@ -65,11 +65,11 @@ void NzParticleSystem::AddEmitter(NzParticleEmitter* emitter)
 	m_emitters.emplace_back(emitter);
 }
 
-void NzParticleSystem::AddGenerator(NzParticleGenerator* generator)
+void NzParticleSystem::AddGenerator(NzParticleGeneratorRef generator)
 {
 	NazaraAssert(generator, "Invalid particle generator");
 
-	m_generators.emplace_back(generator);
+	m_generators.emplace_back(std::move(generator));
 }
 
 void NzParticleSystem::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
@@ -152,7 +152,7 @@ void* NzParticleSystem::GenerateParticles(unsigned int count)
 	return ptr;
 }
 
-const NzParticleDeclaration* NzParticleSystem::GetDeclaration() const
+const NzParticleDeclarationConstRef& NzParticleSystem::GetDeclaration() const
 {
 	return m_declaration;
 }
@@ -175,11 +175,6 @@ unsigned int NzParticleSystem::GetParticleCount() const
 unsigned int NzParticleSystem::GetParticleSize() const
 {
 	return m_particleSize;
-}
-
-bool NzParticleSystem::IsDrawable() const
-{
-	return true;
 }
 
 void NzParticleSystem::KillParticle(unsigned int index)
