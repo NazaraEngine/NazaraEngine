@@ -7,8 +7,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-#include <iostream>
-
 bool NzTaskSchedulerImpl::Initialize(unsigned int workerCount)
 {
 	if (IsInitialized())
