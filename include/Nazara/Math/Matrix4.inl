@@ -623,7 +623,7 @@ NzMatrix4<T>& NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 	angle = NzDegreeToRadian(angle/F(2.0));
 	#endif
 
-	T yScale = F(1.0) / std::tan(angle);
+	T yScale = std::tan(M_PI_2 - angle);
 
 	Set(yScale / ratio, F(0.0), F(0.0), F(0.0),
 	    F(0.0), yScale, F(0.0), F(0.0),
