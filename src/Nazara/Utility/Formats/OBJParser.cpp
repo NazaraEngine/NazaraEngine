@@ -104,12 +104,12 @@ bool NzOBJParser::Parse()
 	std::unordered_map<NzString, std::unordered_map<NzString, MatPair>> meshes;
 
 	unsigned int matIndex = 0;
-	auto GetMaterial = [&meshes, &matIndex] (const NzString& meshName, const NzString& matName) -> FaceVec*
+	auto GetMaterial = [&meshes, &matIndex] (const NzString& mesh, const NzString& material) -> FaceVec*
 	{
-		auto& map = meshes[meshName];
-		auto it = map.find(matName);
+		auto& map = meshes[mesh];
+		auto it = map.find(material);
 		if (it == map.end())
-			it = map.insert(std::make_pair(matName, MatPair(FaceVec(), matIndex++))).first;
+			it = map.insert(std::make_pair(material, MatPair(FaceVec(), matIndex++))).first;
 
 		return &(it->second.first);
 	};
