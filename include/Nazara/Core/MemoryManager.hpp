@@ -16,6 +16,7 @@ class NAZARA_CORE_API NzMemoryManager
 	public:
 		static void* Allocate(std::size_t size, bool multi = false, const char* file = nullptr, unsigned int line = 0);
 
+		static void EnableAllocationFilling(bool allocationFilling);
 		static void EnableAllocationLogging(bool logAllocations);
 
 		static void Free(void* pointer, bool multi = false);
@@ -24,6 +25,7 @@ class NAZARA_CORE_API NzMemoryManager
 		static std::size_t GetAllocatedSize();
 		static unsigned int GetAllocationCount();
 
+		static bool IsAllocationFillingEnabled();
 		static bool IsAllocationLoggingEnabled();
 
 		static void NextFree(const char* file, unsigned int line);
