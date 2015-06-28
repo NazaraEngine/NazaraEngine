@@ -52,6 +52,9 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 
 inline float NzForwardRenderTechnique::ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light)
 {
+	NazaraUnused(object);
+	NazaraUnused(light);
+
 	///TODO: Compute a score depending on the light luminosity
 	return 0.f;
 }
@@ -70,6 +73,9 @@ inline float NzForwardRenderTechnique::ComputeSpotLightScore(const NzSpheref& ob
 
 inline bool NzForwardRenderTechnique::IsDirectionalLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light)
 {
+	NazaraUnused(object);
+	NazaraUnused(light);
+
 	// Directional light are always suitables
 	return true;
 }

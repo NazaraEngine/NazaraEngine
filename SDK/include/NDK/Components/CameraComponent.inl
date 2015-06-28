@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 
 namespace Ndk
 {
@@ -130,7 +131,7 @@ namespace Ndk
 
 	inline void CameraComponent::SetFOV(float fov)
 	{
-		NazaraAssert(fov != 0.f, "FOV must be different from zero");
+		NazaraAssert(!NzNumberEquals(fov, 0.f), "FOV must be different from zero");
 
 		m_fov = fov;
 		InvalidateProjectionMatrix();
