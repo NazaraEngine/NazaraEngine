@@ -26,6 +26,8 @@ namespace Ndk
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
+		NazaraUnused(justAdded);
+
 		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
 		{
 			m_cameras.Insert(entity);
@@ -50,6 +52,8 @@ namespace Ndk
 
 	void RenderSystem::OnUpdate(float elapsedTime)
 	{
+		NazaraUnused(elapsedTime);
+
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();

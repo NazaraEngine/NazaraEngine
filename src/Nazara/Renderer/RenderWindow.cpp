@@ -41,7 +41,7 @@ bool NzRenderWindow::CopyToImage(NzAbstractImage* image, const NzVector3ui& dstP
 	}
 	#endif
 
-	return CopyToImage(image, NzRectui(NzVector2ui(0U), GetSize()));
+	return CopyToImage(image, NzRectui(NzVector2ui(0U), GetSize()), dstPos);
 }
 
 bool NzRenderWindow::CopyToImage(NzAbstractImage* image, const NzRectui& rect, const NzVector3ui& dstPos) const
