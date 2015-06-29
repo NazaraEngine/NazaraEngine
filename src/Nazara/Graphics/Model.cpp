@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>

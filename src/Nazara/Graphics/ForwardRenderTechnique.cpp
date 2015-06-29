@@ -6,7 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>

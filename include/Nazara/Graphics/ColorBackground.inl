@@ -6,9 +6,9 @@
 #include <Nazara/Graphics/Debug.hpp>
 
 template<typename... Args>
-NzModelRef NzModel::New(Args&&... args)
+NzColorBackgroundRef NzColorBackground::New(Args&&... args)
 {
-	std::unique_ptr<NzModel> object(new NzModel(std::forward<Args>(args)...));
+	std::unique_ptr<NzColorBackground> object(new NzColorBackground(std::forward<Args>(args)...));
 	object->SetPersistent(false);
 
 	return object.release();

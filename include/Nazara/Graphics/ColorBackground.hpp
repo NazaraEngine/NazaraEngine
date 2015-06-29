@@ -12,6 +12,11 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
+class NzColorBackground;
+
+using NzColorBackgroundConstRef = NzObjectRef<const NzColorBackground>;
+using NzColorBackgroundRef = NzObjectRef<NzColorBackground>;
+
 class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 {
 	public:
@@ -24,6 +29,8 @@ class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 
 		void SetColor(const NzColor& color);
 
+		template<typename... Args> static NzColorBackgroundRef New(Args&&... args);
+
 	private:
 		NzColor m_color;
 		NzUberShaderConstRef m_uberShader;
@@ -31,5 +38,7 @@ class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 		int m_materialDiffuseUniform;
 		int m_vertexDepthUniform;
 };
+
+#include <Nazara/Graphics/ColorBackground.inl>
 
 #endif // NAZARA_COLORBACKGROUND_HPP
