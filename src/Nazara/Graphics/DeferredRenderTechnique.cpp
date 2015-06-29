@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Graphics/DeferredDOFPass.hpp>
 #include <Nazara/Graphics/DeferredFinalPass.hpp>
@@ -21,7 +21,6 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>

@@ -24,6 +24,8 @@ void NzAbstractRenderQueue::AddSpotLight(const SpotLight& light)
 
 void NzAbstractRenderQueue::Clear(bool fully)
 {
+	NazaraUnused(fully);
+
 	directionalLights.clear();
 	pointLights.clear();
 	spotLights.clear();

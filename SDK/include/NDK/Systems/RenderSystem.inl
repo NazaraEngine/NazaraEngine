@@ -8,4 +8,14 @@ namespace Ndk
 	System(renderSystem)
 	{
 	}
+
+	inline const NzBackgroundRef& RenderSystem::GetDefaultBackground() const
+	{
+		return m_background;
+	}
+
+	inline void RenderSystem::SetDefaultBackground(NzBackgroundRef background)
+	{
+		m_background = std::move(background);
+	}
 }

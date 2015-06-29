@@ -12,18 +12,24 @@
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
+class NzTextureBackground;
+
+using NzTextureBackgroundConstRef = NzObjectRef<const NzTextureBackground>;
+using NzTextureBackgroundRef = NzObjectRef<NzTextureBackground>;
+
 class NAZARA_GRAPHICS_API NzTextureBackground : public NzAbstractBackground
 {
 	public:
-		NzTextureBackground();
-		NzTextureBackground(NzTexture* texture);
+		NzTextureBackground(NzTextureRef texture = NzTextureRef());
 
 		void Draw(const NzAbstractViewer* viewer) const;
 
 		nzBackgroundType GetBackgroundType() const;
-		NzTexture* GetTexture() const;
+		inline const NzTextureRef& GetTexture() const;
 
-		void SetTexture(NzTexture* texture);
+		inline void SetTexture(NzTextureRef texture);
+
+		template<typename... Args> static NzTextureBackgroundRef New(Args&&... args);
 
 	private:
 		NzTextureRef m_texture;
@@ -33,5 +39,7 @@ class NAZARA_GRAPHICS_API NzTextureBackground : public NzAbstractBackground
 		int m_materialDiffuseMapUniform;
 		int m_vertexDepthUniform;
 };
+
+#include <Nazara/Graphics/TextureBackground.inl>
 
 #endif // NAZARA_TEXTUREBACKGROUND_HPP
