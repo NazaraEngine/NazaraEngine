@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/DeferredFinalPass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>

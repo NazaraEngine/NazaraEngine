@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 inline NzInstancedRenderable::NzInstancedRenderable(const NzInstancedRenderable& renderable) :
+NzRefCounted(),
 m_boundingVolume(renderable.m_boundingVolume),
 m_boundingVolumeUpdated(renderable.m_boundingVolumeUpdated)
 {

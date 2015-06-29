@@ -8,7 +8,6 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Scene.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
