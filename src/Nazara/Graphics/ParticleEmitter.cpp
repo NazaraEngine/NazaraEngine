@@ -52,10 +52,9 @@ void NzParticleEmitter::Emit(NzParticleSystem& system, float elapsedTime) const
 			if (m_lagCompensationEnabled)
 			{
 				// On va maintenant appliquer les contrôleurs
-				float accumulator = 0.f;
 				float invEmissionRate = 1.f/m_emissionRate;
 				for (unsigned int i = 1; i <= emissionCountInt; ++i)
-					system.ApplyControllers(mapper, std::min(m_emissionCount*i, particleCount), 20*invEmissionRate, accumulator);
+					system.ApplyControllers(mapper, std::min(m_emissionCount*i, particleCount), invEmissionRate);
 			}
 		}
 	}

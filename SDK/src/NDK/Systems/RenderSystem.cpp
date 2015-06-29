@@ -15,6 +15,7 @@ namespace Ndk
 {
 	RenderSystem::RenderSystem()
 	{
+		SetDefaultBackground(NzColorBackground::New());
 		SetUpdateRate(0.f);
 	}
 
@@ -27,6 +28,8 @@ namespace Ndk
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
+		NazaraUnused(justAdded);
+
 		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
 		{
 			m_cameras.Insert(entity);
@@ -51,6 +54,8 @@ namespace Ndk
 
 	void RenderSystem::OnUpdate(float elapsedTime)
 	{
+		NazaraUnused(elapsedTime);
+
 		UpdateShadowMaps();
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
@@ -77,11 +82,9 @@ namespace Ndk
 				lightComponent.AddToRenderQueue(renderQueue, lightNode.GetTransformMatrix());
 			}
 
-			NzColorBackground background;
-
 			NzSceneData sceneData;
 			sceneData.ambientColor = NzColor(25, 25, 25);
-			sceneData.background = &background;
+			sceneData.background = m_background;
 			sceneData.viewer = &camComponent;
 
 			m_renderTechnique.Draw(sceneData);

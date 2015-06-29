@@ -32,6 +32,7 @@ namespace
 		unsigned int magic;
 	};
 
+	bool s_allocationFilling = true;
 	bool s_allocationLogging = false;
 	bool s_initialized = false;
 	const char* s_logFileName = "NazaraMemory.log";
@@ -114,6 +115,12 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	s_allocatedSize += size;
 	s_allocationCount++;
 
+	if (s_allocationFilling)
+	{
+		nzUInt8* data = reinterpret_cast<nzUInt8*>(ptr) + sizeof(Block);
+		std::memset(data, 0xFF, size);
+	}
+
 	if (s_allocationLogging)
 	{
 		char timeStr[23];
@@ -136,6 +143,11 @@ void* NzMemoryManager::Allocate(std::size_t size, bool multi, const char* file, 
 	#endif
 
 	return reinterpret_cast<nzUInt8*>(ptr) + sizeof(Block);
+}
+
+void NzMemoryManager::EnableAllocationFilling(bool allocationFilling)
+{
+	s_allocationFilling = allocationFilling;
 }
 
 void NzMemoryManager::EnableAllocationLogging(bool logAllocations)
@@ -195,6 +207,12 @@ void NzMemoryManager::Free(void* pointer, bool multi)
 	s_allocatedBlock--;
 	s_allocatedSize -= ptr->size;
 
+	if (s_allocationFilling)
+	{
+		nzUInt8* data = reinterpret_cast<nzUInt8*>(ptr) + sizeof(Block);
+		std::memset(data, 0xFF, ptr->size);
+	}
+
 	std::free(ptr);
 
 	s_nextFreeFile = nullptr;
@@ -220,6 +238,11 @@ std::size_t NzMemoryManager::GetAllocatedSize()
 unsigned int NzMemoryManager::GetAllocationCount()
 {
 	return s_allocationCount;
+}
+
+bool NzMemoryManager::IsAllocationFillingEnabled()
+{
+	return s_allocationFilling;
 }
 
 bool NzMemoryManager::IsAllocationLoggingEnabled()

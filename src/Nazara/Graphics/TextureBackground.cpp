@@ -22,7 +22,7 @@ namespace
 	}
 }
 
-NzTextureBackground::NzTextureBackground()
+NzTextureBackground::NzTextureBackground(NzTextureRef texture)
 {
 	m_uberShader = NzUberShaderLibrary::Get("Basic");
 
@@ -37,12 +37,8 @@ NzTextureBackground::NzTextureBackground()
 	m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
 	m_materialDiffuseMapUniform = shader->GetUniformLocation("MaterialDiffuseMap");
 	m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
-}
 
-NzTextureBackground::NzTextureBackground(NzTexture* texture) :
-NzTextureBackground()
-{
-	m_texture = texture;
+	SetTexture(std::move(texture));
 }
 
 void NzTextureBackground::Draw(const NzAbstractViewer* viewer) const
@@ -67,14 +63,4 @@ void NzTextureBackground::Draw(const NzAbstractViewer* viewer) const
 nzBackgroundType NzTextureBackground::GetBackgroundType() const
 {
 	return nzBackgroundType_Texture;
-}
-
-NzTexture* NzTextureBackground::GetTexture() const
-{
-	return m_texture;
-}
-
-void NzTextureBackground::SetTexture(NzTexture* texture)
-{
-	m_texture = texture;
 }
