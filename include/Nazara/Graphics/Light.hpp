@@ -22,6 +22,7 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 	public:
 		NzLight(nzLightType type = nzLightType_Point);
 		inline NzLight(const NzLight& light);
+		NzLight(NzLight&& light) = default;
 		~NzLight() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
@@ -63,6 +64,7 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
 
 		NzLight& operator=(const NzLight& light);
+		NzLight& operator=(NzLight&& light) = default;
 
 	private:
 		void MakeBoundingVolume() const override;
