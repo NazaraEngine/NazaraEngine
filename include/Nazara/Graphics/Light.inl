@@ -8,7 +8,9 @@
 inline NzLight::NzLight(const NzLight& light) :
 NzRenderable(light),
 m_type(light.m_type),
+m_shadowMapFormat(light.m_shadowMapFormat),
 m_color(light.m_color),
+m_shadowMapSize(light.m_shadowMapSize),
 m_shadowCastingEnabled(light.m_shadowCastingEnabled),
 m_shadowMapUpdated(false),
 m_ambientFactor(light.m_ambientFactor),
@@ -96,6 +98,16 @@ inline NzTextureRef NzLight::GetShadowMap() const
 	return m_shadowMap;
 }
 
+inline nzPixelFormat NzLight::GetShadowMapFormat() const
+{
+	return m_shadowMapFormat;
+}
+
+inline const NzVector2ui& NzLight::GetShadowMapSize() const
+{
+	return m_shadowMapSize;
+}
+
 inline bool NzLight::IsShadowCastingEnabled() const
 {
 	return m_shadowCastingEnabled;
@@ -130,6 +142,8 @@ inline void NzLight::SetInnerAngle(float innerAngle)
 inline void NzLight::SetLightType(nzLightType type)
 {
 	m_type = type;
+
+	InvalidateShadowMap();
 }
 
 inline void NzLight::SetOuterAngle(float outerAngle)
@@ -150,6 +164,24 @@ inline void NzLight::SetRadius(float radius)
 	InvalidateBoundingVolume();
 }
 
+inline void NzLight::SetShadowMapFormat(nzPixelFormat shadowFormat)
+{
+	NazaraAssert(NzPixelFormat::GetType(shadowFormat) == nzPixelFormatType_Depth, "Shadow format type is not a depth format");
+
+	m_shadowMapFormat = shadowFormat;
+
+	InvalidateShadowMap();
+}
+
+inline void NzLight::SetShadowMapSize(const NzVector2ui& size)
+{
+	NazaraAssert(size.x > 0 && size.y > 0, "Shadow map size must have a positive size");
+
+	m_shadowMapSize = size;
+
+	InvalidateShadowMap();
+}
+
 inline NzLight& NzLight::operator=(const NzLight& light)
 {
 	NzRenderable::operator=(light);
@@ -166,10 +198,17 @@ inline NzLight& NzLight::operator=(const NzLight& light)
 	m_outerAngleTangent = light.m_outerAngleTangent;
 	m_radius = light.m_radius;
 	m_shadowCastingEnabled = light.m_shadowCastingEnabled;
-	m_shadowMapUpdated = false;
+	m_shadowMapFormat = light.m_shadowMapFormat;
+	m_shadowMapSize = light.m_shadowMapSize;
 	m_type = light.m_type;
 
+	InvalidateShadowMap();
 	return *this;
+}
+
+inline void NzLight::InvalidateShadowMap()
+{
+	m_shadowMapUpdated = false;
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
