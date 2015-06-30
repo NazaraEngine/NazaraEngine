@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Systems/RenderSystem.hpp>
-#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
