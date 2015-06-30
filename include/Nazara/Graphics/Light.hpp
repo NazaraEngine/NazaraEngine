@@ -49,6 +49,8 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		inline float GetOuterAngleTangent() const;
 		inline float GetRadius() const;
 		inline NzTextureRef GetShadowMap() const;
+		inline nzPixelFormat GetShadowMapFormat() const;
+		inline const NzVector2ui& GetShadowMapSize() const;
 
 		inline bool IsShadowCastingEnabled() const;
 
@@ -60,6 +62,8 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 		inline void SetLightType(nzLightType type);
 		inline void SetOuterAngle(float outerAngle);
 		inline void SetRadius(float radius);
+		inline void SetShadowMapFormat(nzPixelFormat shadowFormat);
+		inline void SetShadowMapSize(const NzVector2ui& size);
 
 		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
 
@@ -68,10 +72,13 @@ class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 
 	private:
 		void MakeBoundingVolume() const override;
+		inline void InvalidateShadowMap();
 		void UpdateShadowMap() const;
 
 		nzLightType m_type;
+		nzPixelFormat m_shadowMapFormat;
 		NzColor m_color;
+		NzVector2ui m_shadowMapSize;
 		mutable NzTextureRef m_shadowMap;
 		bool m_shadowCastingEnabled;
 		mutable bool m_shadowMapUpdated;

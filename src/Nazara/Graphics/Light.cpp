@@ -17,6 +17,8 @@
 
 NzLight::NzLight(nzLightType type) :
 m_type(type),
+m_shadowMapFormat(nzPixelFormat_Depth16),
+m_shadowMapSize(512, 512),
 m_shadowCastingEnabled(false),
 m_shadowMapUpdated(false)
 {
@@ -186,7 +188,7 @@ void NzLight::UpdateShadowMap() const
 		if (!m_shadowMap)
 			m_shadowMap = NzTexture::New();
 
-		m_shadowMap->Create(nzImageType_2D, nzPixelFormat_Depth16, 256, 256);
+		m_shadowMap->Create((m_type == nzLightType_Point) ? nzImageType_Cubemap : nzImageType_2D, m_shadowMapFormat, m_shadowMapSize.x, m_shadowMapSize.y);
 	}
 	else
 		m_shadowMap.Reset();
