@@ -350,7 +350,7 @@ bool NzDepthRenderQueue::IsMaterialSuitable(const NzMaterial* material) const
 {
 	NazaraAssert(material, "Invalid material");
 
-	return material->IsEnabled(nzRendererParameter_DepthBuffer) && material->IsEnabled(nzRendererParameter_DepthWrite);
+	return material->IsEnabled(nzRendererParameter_DepthBuffer) && material->IsEnabled(nzRendererParameter_DepthWrite) && material->IsShadowCastingEnabled();
 }
 
 void NzDepthRenderQueue::OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer)
