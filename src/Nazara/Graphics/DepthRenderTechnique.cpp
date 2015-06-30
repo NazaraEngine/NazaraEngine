@@ -153,6 +153,8 @@ void NzDepthRenderTechnique::Uninitialize()
 
 void NzDepthRenderTechnique::DrawBasicSprites(const NzSceneData& sceneData) const
 {
+	NazaraUnused(sceneData);
+
 	NzRenderer::SetIndexBuffer(&s_quadIndexBuffer);
 	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
 	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
@@ -207,6 +209,8 @@ void NzDepthRenderTechnique::DrawBasicSprites(const NzSceneData& sceneData) cons
 
 void NzDepthRenderTechnique::DrawBillboards(const NzSceneData& sceneData) const
 {
+	NazaraUnused(sceneData);
+
 	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
 	{
 		NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
@@ -306,6 +310,8 @@ void NzDepthRenderTechnique::DrawBillboards(const NzSceneData& sceneData) const
 
 void NzDepthRenderTechnique::DrawOpaqueModels(const NzSceneData& sceneData) const
 {
+	NazaraUnused(sceneData);
+
 	s_material->Apply();
 
 	for (auto& meshIt : m_renderQueue.meshes)

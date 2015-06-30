@@ -297,6 +297,7 @@ void NzDepthRenderQueue::AddDrawable(const NzDrawable* drawable)
 void NzDepthRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
 {
 	NazaraAssert(material, "Invalid material");
+	NazaraUnused(meshAABB);
 
 	if (!IsMaterialSuitable(material))
 		return;
@@ -325,6 +326,7 @@ void NzDepthRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& m
 void NzDepthRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
 {
 	NazaraAssert(material, "Invalid material");
+	NazaraUnused(overlay);
 
 	if (!IsMaterialSuitable(material))
 		return;
