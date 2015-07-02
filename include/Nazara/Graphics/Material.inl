@@ -69,7 +69,7 @@ inline void NzMaterial::EnableTransform(bool transform)
 	InvalidateShaders();
 }
 
-inline NzTexture* NzMaterial::GetAlphaMap() const
+inline const NzTextureRef& NzMaterial::GetAlphaMap() const
 {
 	return m_alphaMap;
 }
@@ -104,7 +104,7 @@ inline const NzTextureSampler& NzMaterial::GetDiffuseSampler() const
 	return m_diffuseSampler;
 }
 
-NzTexture* NzMaterial::GetDiffuseMap() const
+const NzTextureRef& NzMaterial::GetDiffuseMap() const
 {
 	return m_diffuseMap;
 }
@@ -114,7 +114,7 @@ inline nzBlendFunc NzMaterial::GetDstBlend() const
 	return m_states.dstBlend;
 }
 
-inline NzTexture* NzMaterial::GetEmissiveMap() const
+inline const NzTextureRef& NzMaterial::GetEmissiveMap() const
 {
 	return m_emissiveMap;
 }
@@ -129,12 +129,12 @@ inline nzFaceFilling NzMaterial::GetFaceFilling() const
 	return m_states.faceFilling;
 }
 
-inline NzTexture* NzMaterial::GetHeightMap() const
+inline const NzTextureRef& NzMaterial::GetHeightMap() const
 {
 	return m_heightMap;
 }
 
-inline NzTexture* NzMaterial::GetNormalMap() const
+inline const NzTextureRef& NzMaterial::GetNormalMap() const
 {
 	return m_normalMap;
 }
@@ -168,7 +168,7 @@ inline NzColor NzMaterial::GetSpecularColor() const
 	return m_specularColor;
 }
 
-inline NzTexture* NzMaterial::GetSpecularMap() const
+inline const NzTextureRef& NzMaterial::GetSpecularMap() const
 {
 	return m_specularMap;
 }
