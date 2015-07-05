@@ -95,41 +95,86 @@ namespace Ndk
 		if (!m_shadowRT.IsValid())
 			m_shadowRT.Create();
 
+		NzSceneData dummySceneData;
+		dummySceneData.ambientColor = NzColor(0, 0, 0);
+		dummySceneData.background = nullptr;
+		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
+
 		for (const Ndk::EntityHandle& light : m_lights)
 		{
 			LightComponent& lightComponent = light->GetComponent<LightComponent>();
 			NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
-			if (!lightComponent.IsShadowCastingEnabled() || lightComponent.GetLightType() != nzLightType_Spot)
+			if (!lightComponent.IsShadowCastingEnabled() || lightComponent.GetLightType() == nzLightType_Directional)
 				continue;
 
 			NzVector2ui shadowMapSize(lightComponent.GetShadowMap()->GetSize());
 
-			m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap());
-
-			///TODO: Cache the matrices in the light?
-			NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(lightComponent.GetOuterAngle(), 1.f, 1.f, 1000.f));
-			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::ViewMatrix(lightNode.GetPosition(), lightNode.GetRotation()));
-			NzRenderer::SetTarget(&m_shadowRT);
-			NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
-
-			NzAbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
-			renderQueue->Clear();
-
-			for (const Ndk::EntityHandle& drawable : m_drawables)
+			switch (lightComponent.GetLightType())
 			{
-				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+				case nzLightType_Point:
+				{
+					static NzQuaternionf rotations[6] =
+					{
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(),  NzVector3f::UnitX()), // nzCubemapFace_PositiveX
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(), -NzVector3f::UnitX()), // nzCubemapFace_NegativeX
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(), -NzVector3f::UnitY()), // nzCubemapFace_PositiveY
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(),  NzVector3f::UnitY()), // nzCubemapFace_NegativeY
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(), -NzVector3f::UnitZ()), // nzCubemapFace_PositiveZ
+						NzQuaternionf::RotationBetween(NzVector3f::Forward(),  NzVector3f::UnitZ())  // nzCubemapFace_NegativeZ
+					};
 
-				graphicsComponent.AddToRenderQueue(renderQueue);
+					for (unsigned int face = 0; face < 6; ++face)
+					{
+						m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap(), face);
+						NzRenderer::SetTarget(&m_shadowRT);
+						NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
+
+						///TODO: Cache the matrices in the light?
+						NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(NzFromDegrees(90.f), 1.f, 0.1f, lightComponent.GetRadius()));
+						NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::ViewMatrix(lightNode.GetPosition(), rotations[face]));
+
+						NzAbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
+						renderQueue->Clear();
+
+						///TODO: Culling
+						for (const Ndk::EntityHandle& drawable : m_drawables)
+						{
+							GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+							NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+
+							graphicsComponent.AddToRenderQueue(renderQueue);
+						}
+
+						m_shadowTechnique.Draw(dummySceneData);
+					}
+					break;
+				}
+
+				case nzLightType_Spot:
+					m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap());
+					NzRenderer::SetTarget(&m_shadowRT);
+					NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
+
+					///TODO: Cache the matrices in the light?
+					NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Perspective(lightComponent.GetOuterAngle()*2.f, 1.f, 0.1f, lightComponent.GetRadius()));
+					NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::ViewMatrix(lightNode.GetPosition(), lightNode.GetRotation()));
+
+					NzAbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
+					renderQueue->Clear();
+
+					///TODO: Culling
+					for (const Ndk::EntityHandle& drawable : m_drawables)
+					{
+						GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+						NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+
+						graphicsComponent.AddToRenderQueue(renderQueue);
+					}
+
+					m_shadowTechnique.Draw(dummySceneData);
+					break;
 			}
-
-			NzSceneData sceneData;
-			sceneData.ambientColor = NzColor(0, 0, 0);
-			sceneData.background = nullptr;
-			sceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
-
-			m_shadowTechnique.Draw(sceneData);
 		}
 	}
 
