@@ -2,8 +2,14 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const
+#include <Nazara/Renderer/Renderer.hpp>
+
+inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, nzUInt8 availableTextureUnit) const
 {
+	// If anyone got a better idea..
+	int dummyCubemap = NzRenderer::GetMaxTextureUnits() - 1;
+	int dummyTexture = NzRenderer::GetMaxTextureUnits() - 2;
+
 	if (index < m_lights.size())
 	{
 		const LightIndex& lightIndex = m_lights[index];
@@ -30,6 +36,19 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 				shader->SendVector(uniforms.locations.factors + uniformOffset, NzVector2f(light.ambientFactor, light.diffuseFactor));
 				shader->SendVector(uniforms.locations.parameters1 + uniformOffset, NzVector4f(light.position, light.attenuation));
 				shader->SendVector(uniforms.locations.parameters2 + uniformOffset, NzVector4f(0.f, 0.f, 0.f, light.invRadius));
+
+				shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+				if (light.shadowMap)
+				{
+					NzRenderer::SetTexture(availableTextureUnit, light.shadowMap);
+					NzRenderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
+
+					shader->SendInteger(uniforms.locations.pointLightShadowMap + index, availableTextureUnit);
+				}
+				else
+					shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
+
+				shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
 				break;
 			}
 
@@ -42,12 +61,30 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 				shader->SendVector(uniforms.locations.parameters1 + uniformOffset, NzVector4f(light.position, light.attenuation));
 				shader->SendVector(uniforms.locations.parameters2 + uniformOffset, NzVector4f(light.direction, light.invRadius));
 				shader->SendVector(uniforms.locations.parameters3 + uniformOffset, NzVector2f(light.innerAngleCosine, light.outerAngleCosine));
+
+				shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+				if (light.shadowMap)
+				{
+					NzRenderer::SetTexture(availableTextureUnit, light.shadowMap);
+					NzRenderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
+
+					shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+					shader->SendInteger(uniforms.locations.spotLightShadowMap + index, availableTextureUnit);
+				}
+				else
+					shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
+
+				shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 				break;
 			}
 		}
 	}
 	else
+	{
 		shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
+		shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
+		shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
+	}
 }
 
 inline float NzForwardRenderTechnique::ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light)

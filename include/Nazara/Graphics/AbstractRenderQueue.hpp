@@ -68,6 +68,7 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 		{
 			NzColor color;
 			NzVector3f position;
+			NzTexture* shadowMap;
 			float ambientFactor;
 			float attenuation;
 			float diffuseFactor;
@@ -78,8 +79,10 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 		struct SpotLight
 		{
 			NzColor color;
+			NzMatrix4f transformMatrix;
 			NzVector3f direction;
 			NzVector3f position;
+			NzTexture* shadowMap;
 			float ambientFactor;
 			float attenuation;
 			float diffuseFactor;
