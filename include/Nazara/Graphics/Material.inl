@@ -89,6 +89,11 @@ inline nzRendererComparison NzMaterial::GetDepthFunc() const
 	return m_states.depthFunc;
 }
 
+inline const NzMaterialRef& NzMaterial::GetDepthMaterial() const
+{
+	return m_depthMaterial;
+}
+
 inline NzColor NzMaterial::GetDiffuseColor() const
 {
 	return m_diffuseColor;
@@ -191,6 +196,11 @@ inline nzBlendFunc NzMaterial::GetSrcBlend() const
 inline bool NzMaterial::HasAlphaMap() const
 {
 	return m_alphaMap.IsValid();
+}
+
+inline bool NzMaterial::HasDepthMaterial() const
+{
+	return m_depthMaterial.IsValid();
 }
 
 inline bool NzMaterial::HasDiffuseMap() const
@@ -304,6 +314,11 @@ inline void NzMaterial::SetAmbientColor(const NzColor& ambient)
 inline void NzMaterial::SetDepthFunc(nzRendererComparison depthFunc)
 {
 	m_states.depthFunc = depthFunc;
+}
+
+inline void NzMaterial::SetDepthMaterial(NzMaterialRef depthMaterial)
+{
+	m_depthMaterial = std::move(depthMaterial);
 }
 
 inline void NzMaterial::SetDiffuseColor(const NzColor& diffuse)

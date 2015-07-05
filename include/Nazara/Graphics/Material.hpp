@@ -71,6 +71,7 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		inline float GetAlphaThreshold() const;
 		inline NzColor GetAmbientColor() const;
 		inline nzRendererComparison GetDepthFunc() const;
+		inline const NzMaterialRef& GetDepthMaterial() const;
 		inline NzColor GetDiffuseColor() const;
 		inline const NzTextureRef& GetDiffuseMap() const;
 		inline NzTextureSampler& GetDiffuseSampler();
@@ -92,6 +93,7 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		inline nzBlendFunc GetSrcBlend() const;
 
 		inline bool HasAlphaMap() const;
+		inline bool HasDepthMaterial() const;
 		inline bool HasDiffuseMap() const;
 		inline bool HasEmissiveMap() const;
 		inline bool HasHeightMap() const;
@@ -117,6 +119,7 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		inline void SetAlphaThreshold(float alphaThreshold);
 		inline void SetAmbientColor(const NzColor& ambient);
 		inline void SetDepthFunc(nzRendererComparison depthFunc);
+		inline void SetDepthMaterial(NzMaterialRef depthMaterial);
 		inline void SetDiffuseColor(const NzColor& diffuse);
 		inline bool SetDiffuseMap(const NzString& textureName);
 		inline void SetDiffuseMap(NzTextureRef diffuseMap);
@@ -167,6 +170,7 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		NzColor m_ambientColor;
 		NzColor m_diffuseColor;
 		NzColor m_specularColor;
+		NzMaterialRef m_depthMaterial; //< Materialception
 		NzRenderStates m_states;
 		NzTextureSampler m_diffuseSampler;
 		NzTextureSampler m_specularSampler;
