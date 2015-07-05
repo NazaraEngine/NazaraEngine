@@ -154,9 +154,6 @@ bool NzRenderTexture::AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 in
 	InvalidateSize();
 	InvalidateTargets();
 
-	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
-		m_impl->colorTargets.push_back(index);
-
 	return true;
 }
 
@@ -290,9 +287,6 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 
 	InvalidateSize();
 	InvalidateTargets();
-
-	if (attachmentPoint == nzAttachmentPoint_Color && !m_impl->userDefinedTargets)
-		m_impl->colorTargets.push_back(index);
 
 	return true;
 }
@@ -828,6 +822,15 @@ void NzRenderTexture::UpdateSize() const
 
 void NzRenderTexture::UpdateTargets() const
 {
+	if (!m_impl->userDefinedTargets)
+	{
+		m_impl->colorTargets.clear();
+
+		unsigned int colorIndex = 0;
+		for (unsigned int index = attachmentIndex[nzAttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
+			m_impl->colorTargets.push_back(colorIndex++);
+	}
+
 	if (m_impl->colorTargets.empty())
 	{
 		m_impl->drawBuffers.resize(1);
