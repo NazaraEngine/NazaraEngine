@@ -1857,6 +1857,14 @@ bool NzRenderer::EnsureStateUpdate()
 	// Et on termine par envoyer nos états au driver
 	NzOpenGL::ApplyStates(s_states);
 
+	#ifdef NAZARA_DEBUG
+	if (!s_shader->Validate())
+	{
+		NazaraError(NzError::GetLastError());
+		return false;
+	}
+	#endif
+
 	return true;
 }
 
