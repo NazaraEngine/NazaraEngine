@@ -12,7 +12,6 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -32,22 +31,51 @@ class NAZARA_GRAPHICS_API NzDepthRenderTechnique : public NzAbstractRenderTechni
 		static void Uninitialize();
 
 	private:
+		struct ShaderUniforms;
+
 		void DrawBasicSprites(const NzSceneData& sceneData) const;
 		void DrawBillboards(const NzSceneData& sceneData) const;
 		void DrawOpaqueModels(const NzSceneData& sceneData) const;
+		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
+		void OnShaderInvalidated(const NzShader* shader) const;
 
+		struct LightIndex
+		{
+			nzLightType type;
+			float score;
+			unsigned int index;
+		};
+
+		struct ShaderUniforms
+		{
+			NazaraSlot(NzShader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
+			NazaraSlot(NzShader, OnShaderRelease, shaderReleaseSlot);
+
+			NzLightUniforms lightUniforms;
+			bool hasLightUniforms;
+
+			/// Moins coûteux en mémoire que de stocker un NzLightUniforms par index de lumière,
+			/// à voir si ça fonctionne chez tout le monde
+			int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
+
+			// Autre uniformes
+			int eyePosition;
+			int sceneAmbient;
+			int textureOverlay;
+		};
+
+		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
 		NzBuffer m_vertexBuffer;
 		mutable NzDepthRenderQueue m_renderQueue;
 		NzVertexBuffer m_billboardPointBuffer;
 		NzVertexBuffer m_spriteBuffer;
 
 		static NzIndexBuffer s_quadIndexBuffer;
-		static NzMaterialRef s_material;
 		static NzVertexBuffer s_quadVertexBuffer;
 		static NzVertexDeclaration s_billboardInstanceDeclaration;
 		static NzVertexDeclaration s_billboardVertexDeclaration;
 };
 
-#include <Nazara/Graphics/DepthRenderTechnique.inl>
+#include <Nazara/Graphics/dEPTHRenderTechnique.inl>
 
 #endif // NAZARA_DEPTHRENDERTECHNIQUE_HPP

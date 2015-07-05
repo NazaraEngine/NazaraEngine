@@ -18,10 +18,10 @@
 #include <map>
 #include <tuple>
 
-class NAZARA_GRAPHICS_API NzDepthRenderQueue : public NzAbstractRenderQueue
+class NAZARA_GRAPHICS_API NzDepthRenderQueue : public NzForwardRenderQueue
 {
 	public:
-		NzDepthRenderQueue() = default;
+		NzDepthRenderQueue();
 		~NzDepthRenderQueue() = default;
 
 		void AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos = NzVector2f(0.f, 1.f), const NzColor& color = NzColor::White) override;
@@ -33,44 +33,16 @@ class NAZARA_GRAPHICS_API NzDepthRenderQueue : public NzAbstractRenderQueue
 		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr) override;
 		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
 		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) override;
-		void AddDrawable(const NzDrawable* drawable) override;
+		void AddDirectionalLight(const DirectionalLight& light) override;
 		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
+		void AddPointLight(const PointLight& light) override;
+		void AddSpotLight(const SpotLight& light) override;
 		void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) override;
-
-		void Clear(bool fully = false);
-
-		struct BillboardData
-		{
-			NzColor color;
-			NzVector3f center;
-			NzVector2f size;
-			NzVector2f sinCos;
-		};
-
-		struct MeshInstanceEntry
-		{
-			NazaraSlot(NzIndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
-			NazaraSlot(NzVertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
-
-			std::vector<NzMatrix4f> instances;
-		};
-
-		struct SpriteChain_XYZ_Color_UV
-		{
-			const NzVertexStruct_XYZ_Color_UV* vertices;
-			unsigned int spriteCount;
-		};
-
-		std::map<NzMeshData, MeshInstanceEntry, NzForwardRenderQueue::MeshDataComparator> meshes;
-		std::vector<BillboardData> billboards;
-		std::vector<const NzDrawable*> otherDrawables;
-		std::vector<SpriteChain_XYZ_Color_UV> basicSprites;
 
 	private:
 		bool IsMaterialSuitable(const NzMaterial* material) const;
 
-		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
-		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
+		NzMaterialRef m_baseMaterial;
 };
 
 #endif // NAZARA_DEPTHRENDERQUEUE_HPP
