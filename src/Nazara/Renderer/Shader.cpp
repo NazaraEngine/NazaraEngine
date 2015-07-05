@@ -748,6 +748,30 @@ void NzShader::SendVectorArray(int location, const NzVector4i* vectors, unsigned
 	}
 }
 
+bool NzShader::Validate() const
+{
+	#if NAZARA_RENDERER_SAFE
+	if (!m_program)
+	{
+		NazaraError("Shader is not initialized");
+		return false;
+	}
+	#endif
+
+	glValidateProgram(m_program);
+
+	GLint success;
+	glGetProgramiv(m_program, GL_VALIDATE_STATUS, &success);
+
+	if (success == GL_TRUE)
+		return true;
+	else
+	{
+		NazaraError("Failed to validate shader: " + GetLog());
+		return false;
+	}
+}
+
 unsigned int NzShader::GetOpenGLID() const
 {
 	return m_program;
