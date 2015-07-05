@@ -33,7 +33,7 @@ class NAZARA_GRAPHICS_API NzForwardRenderTechnique : public NzAbstractRenderTech
 		static bool Initialize();
 		static void Uninitialize();
 
-	private:
+	protected:
 		struct ShaderUniforms;
 
 		void ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
@@ -43,7 +43,7 @@ class NAZARA_GRAPHICS_API NzForwardRenderTechnique : public NzAbstractRenderTech
 		void DrawTransparentModels(const NzSceneData& sceneData) const;
 		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
 		void OnShaderInvalidated(const NzShader* shader) const;
-		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const;
+		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, nzUInt8 availableTextureUnit) const;
 
 		static float ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
 		static float ComputePointLightScore(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
@@ -86,6 +86,7 @@ class NAZARA_GRAPHICS_API NzForwardRenderTechnique : public NzAbstractRenderTech
 		unsigned int m_maxLightPassPerObject;
 
 		static NzIndexBuffer s_quadIndexBuffer;
+		static NzTextureSampler s_shadowSampler;
 		static NzVertexBuffer s_quadVertexBuffer;
 		static NzVertexDeclaration s_billboardInstanceDeclaration;
 		static NzVertexDeclaration s_billboardVertexDeclaration;
