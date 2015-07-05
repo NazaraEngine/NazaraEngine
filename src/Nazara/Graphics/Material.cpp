@@ -125,6 +125,7 @@ void NzMaterial::Reset()
 	OnMaterialReset(this);
 
 	m_alphaMap.Reset();
+	m_depthMaterial.Reset();
 	m_diffuseMap.Reset();
 	m_emissiveMap.Reset();
 	m_heightMap.Reset();
@@ -173,16 +174,15 @@ void NzMaterial::Copy(const NzMaterial& material)
 	m_states               = material.m_states;
 	m_transformEnabled     = material.m_transformEnabled;
 
-	// Copie des références de texture
-	m_alphaMap    = material.m_alphaMap;
-	m_diffuseMap  = material.m_diffuseMap;
-	m_emissiveMap = material.m_emissiveMap;
-	m_heightMap   = material.m_heightMap;
-	m_normalMap   = material.m_normalMap;
-	m_specularMap = material.m_specularMap;
-
-	// Copie de la référence vers l'Über-Shader
-	m_uberShader = material.m_uberShader;
+	// Copying resources refs
+	m_alphaMap      = material.m_alphaMap;
+	m_depthMaterial = material.m_depthMaterial;
+	m_diffuseMap    = material.m_diffuseMap;
+	m_emissiveMap   = material.m_emissiveMap;
+	m_heightMap     = material.m_heightMap;
+	m_normalMap     = material.m_normalMap;
+	m_specularMap   = material.m_specularMap;
+	m_uberShader    = material.m_uberShader;
 
 	// On copie les instances de shader par la même occasion
 	std::memcpy(&m_shaders[0], &material.m_shaders[0], (nzShaderFlags_Max+1)*sizeof(ShaderInstance));
