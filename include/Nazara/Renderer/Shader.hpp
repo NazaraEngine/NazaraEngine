@@ -95,6 +95,8 @@ class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
 		void SendVectorArray(int location, const NzVector4f* vectors, unsigned int count) const;
 		void SendVectorArray(int location, const NzVector4i* vectors, unsigned int count) const;
 
+		bool Validate() const;
+
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
 

@@ -945,6 +945,7 @@ bool NzOpenGL::Initialize()
 		glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(LoadEntry("glUniformMatrix4fv"));
 		glUnmapBuffer = reinterpret_cast<PFNGLUNMAPBUFFERPROC>(LoadEntry("glUnmapBuffer"));
 		glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(LoadEntry("glUseProgram"));
+		glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(LoadEntry("glValidateProgram"));
 		glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(LoadEntry("glVertexAttrib4f"));
 		glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(LoadEntry("glVertexAttribPointer"));
 		glViewport = reinterpret_cast<PFNGLVIEWPORTPROC>(LoadEntry("glViewport"));
@@ -2384,6 +2385,7 @@ PFNGLUNIFORMMATRIX4DVPROC         glUniformMatrix4dv         = nullptr;
 PFNGLUNIFORMMATRIX4FVPROC         glUniformMatrix4fv         = nullptr;
 PFNGLUNMAPBUFFERPROC              glUnmapBuffer              = nullptr;
 PFNGLUSEPROGRAMPROC               glUseProgram               = nullptr;
+PFNGLVALIDATEPROGRAMPROC          glValidateProgram          = nullptr;
 PFNGLVERTEXATTRIB4FPROC           glVertexAttrib4f           = nullptr;
 PFNGLVERTEXATTRIBDIVISORPROC      glVertexAttribDivisor      = nullptr;
 PFNGLVERTEXATTRIBPOINTERPROC      glVertexAttribPointer      = nullptr;
