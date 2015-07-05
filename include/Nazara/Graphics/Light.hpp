@@ -14,9 +14,6 @@
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
-class NzLight;
-struct NzLightUniforms;
-
 class NAZARA_GRAPHICS_API NzLight : public NzRenderable
 {
 	public:
@@ -101,9 +98,13 @@ struct NzLightUniforms
 		int type;
 		int color;
 		int factors;
+		int lightViewProjMatrix;
 		int parameters1;
 		int parameters2;
 		int parameters3;
+		int pointLightShadowMap;
+		int shadowMapping;
+		int spotLightShadowMap;
 	};
 
 	bool ubo;
