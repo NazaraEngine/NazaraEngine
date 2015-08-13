@@ -97,6 +97,7 @@ struct NzLightUniforms
 	{
 		int type;
 		int color;
+		int directionalSpotLightShadowMap;
 		int factors;
 		int lightViewProjMatrix;
 		int parameters1;
@@ -104,7 +105,6 @@ struct NzLightUniforms
 		int parameters3;
 		int pointLightShadowMap;
 		int shadowMapping;
-		int spotLightShadowMap;
 	};
 
 	bool ubo;

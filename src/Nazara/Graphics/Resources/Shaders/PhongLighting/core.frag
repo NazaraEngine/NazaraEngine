@@ -36,7 +36,7 @@ struct Light
 // Lumières
 uniform Light Lights[3];
 uniform samplerCube PointLightShadowMap[3];
-uniform sampler2D SpotLightShadowMap[3];
+uniform sampler2D DirectionalSpotLightShadowMap[3];
 
 // Matériau
 uniform sampler2D MaterialAlphaMap;
@@ -94,10 +94,10 @@ float VectorToDepthValue(vec3 vec, float zNear, float zFar)
 	return (normZ + 1.0) * 0.5;
 }
 
-bool TestShadowDirectional()
+bool TestShadowDirectional(int lightIndex)
 {
-	///TODO
-	return true;
+	vec4 lightSpacePos = vLightSpacePos[lightIndex];
+	return texture(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xy).x >= (lightSpacePos.z - 0.0005);
 }
 
 bool TestShadowPoint(int lightIndex, vec3 lightToWorld, float zNear, float zFar)
@@ -108,7 +108,7 @@ bool TestShadowPoint(int lightIndex, vec3 lightToWorld, float zNear, float zFar)
 bool TestShadowSpot(int lightIndex)
 {
 	vec4 lightSpacePos = vLightSpacePos[lightIndex];
-	return textureProj(SpotLightShadowMap[lightIndex], lightSpacePos.xyw).x >= (lightSpacePos.z - 0.0005)/lightSpacePos.w;
+	return textureProj(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xyw).x >= (lightSpacePos.z - 0.0005)/lightSpacePos.w;
 }
 
 void main()
@@ -210,6 +210,11 @@ void main()
 
 					// Ambient
 					lightAmbient += lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
+
+					#if SHADOW_MAPPING
+					if (Lights[i].shadowMapping && !TestShadowDirectional(i))
+						break;
+					#endif
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
