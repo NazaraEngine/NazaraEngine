@@ -37,11 +37,14 @@ namespace Ndk
 			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
-			void UpdateShadowMaps();
+			void UpdateDirectionalShadowMaps(const NzAbstractViewer& viewer);
+			void UpdatePointSpotShadowMaps();
 
 			EntityList m_cameras;
 			EntityList m_drawables;
+			EntityList m_directionalLights;
 			EntityList m_lights;
+			EntityList m_pointSpotLights;
 			NzBackgroundRef m_background;
 			NzDepthRenderTechnique m_shadowTechnique;
 			NzForwardRenderTechnique m_renderTechnique;

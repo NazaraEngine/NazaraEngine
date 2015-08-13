@@ -59,7 +59,9 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 		struct DirectionalLight
 		{
 			NzColor color;
+			NzMatrix4f transformMatrix;
 			NzVector3f direction;
+			NzTexture* shadowMap;
 			float ambientFactor;
 			float diffuseFactor;
 		};

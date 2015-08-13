@@ -25,6 +25,20 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 				shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
 				shader->SendVector(uniforms.locations.factors + uniformOffset, NzVector2f(light.ambientFactor, light.diffuseFactor));
 				shader->SendVector(uniforms.locations.parameters1 + uniformOffset, NzVector4f(light.direction));
+
+				shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+				if (light.shadowMap)
+				{
+					NzRenderer::SetTexture(availableTextureUnit, light.shadowMap);
+					NzRenderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
+
+					shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+					shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
+				}
+				else
+					shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
+
+				shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 				break;
 			}
 
@@ -48,7 +62,7 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 				else
 					shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 
-				shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
+				shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 				break;
 			}
 
@@ -69,10 +83,10 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 					NzRenderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
 
 					shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-					shader->SendInteger(uniforms.locations.spotLightShadowMap + index, availableTextureUnit);
+					shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
 				}
 				else
-					shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
+					shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 
 				shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 				break;
@@ -82,8 +96,8 @@ inline void NzForwardRenderTechnique::SendLightUniforms(const NzShader* shader, 
 	else
 	{
 		shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
+		shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 		shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
-		shader->SendInteger(uniforms.locations.spotLightShadowMap + index, dummyTexture);
 	}
 }
 
