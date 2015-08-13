@@ -33,6 +33,11 @@ m_shadowMapUpdated(false)
 
 void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
 {
+	static NzMatrix4f biasMatrix(0.5f, 0.f,  0.f,  0.f,
+								 0.f,  0.5f, 0.f,  0.f,
+								 0.f,  0.f,  0.5f, 0.f,
+								 0.5f, 0.5f, 0.5f, 1.f);
+
 	switch (m_type)
 	{
 		case nzLightType_Directional:
@@ -42,6 +47,8 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatri
 			light.color = m_color;
 			light.diffuseFactor = m_diffuseFactor;
 			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
+			light.shadowMap = m_shadowMap.Get();
+			light.transformMatrix = NzMatrix4f::ViewMatrix(transformMatrix.GetRotation() * NzVector3f::Forward() * 100.f, transformMatrix.GetRotation()) * NzMatrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f) * biasMatrix;
 
 			renderQueue->AddDirectionalLight(light);
 			break;
@@ -78,12 +85,6 @@ void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatri
 			light.position = transformMatrix.GetTranslation();
 			light.radius = m_radius;
 			light.shadowMap = m_shadowMap.Get();
-
-			static NzMatrix4f biasMatrix(0.5f, 0.f,  0.f,  0.f,
-			                             0.f,  0.5f, 0.f,  0.f,
-			                             0.f,  0.f,  0.5f, 0.f,
-			                             0.5f, 0.5f, 0.5f, 1.f);
-
 			light.transformMatrix = NzMatrix4f::ViewMatrix(transformMatrix.GetTranslation(), transformMatrix.GetRotation()) * NzMatrix4f::Perspective(m_outerAngle*2.f, 1.f, 0.1f, m_radius) * biasMatrix;
 
 			renderQueue->AddSpotLight(light);

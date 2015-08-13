@@ -769,7 +769,7 @@ const NzForwardRenderTechnique::ShaderUniforms* NzForwardRenderTechnique::GetSha
 			uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
 			uniforms.lightUniforms.locations.pointLightShadowMap = shader->GetUniformLocation("PointLightShadowMap[0]");
 			uniforms.lightUniforms.locations.shadowMapping = shader->GetUniformLocation("Lights[0].shadowMapping");
-			uniforms.lightUniforms.locations.spotLightShadowMap = shader->GetUniformLocation("SpotLightShadowMap[0]");
+			uniforms.lightUniforms.locations.directionalSpotLightShadowMap = shader->GetUniformLocation("DirectionalSpotLightShadowMap[0]");
 		}
 		else
 			uniforms.hasLightUniforms = false;

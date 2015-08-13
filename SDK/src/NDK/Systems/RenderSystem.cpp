@@ -46,21 +46,40 @@ namespace Ndk
 			m_drawables.Remove(entity);
 
 		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
+		{
+			LightComponent& lightComponent = entity->GetComponent<LightComponent>();
+			if (lightComponent.GetLightType() == nzLightType_Directional)
+			{
+				m_directionalLights.Insert(entity);
+				m_pointSpotLights.Remove(entity);
+			}
+			else
+			{
+				m_directionalLights.Remove(entity);
+				m_pointSpotLights.Insert(entity);
+			}
+
 			m_lights.Insert(entity);
+		}
 		else
+		{
+			m_directionalLights.Remove(entity);
 			m_lights.Remove(entity);
+			m_pointSpotLights.Remove(entity);
+		}
 	}
 
 	void RenderSystem::OnUpdate(float elapsedTime)
 	{
 		NazaraUnused(elapsedTime);
 
-		UpdateShadowMaps();
+		UpdatePointSpotShadowMaps();
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
-			camComponent.ApplyView();
+
+			//UpdateDirectionalShadowMaps(camComponent);
 
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
@@ -81,6 +100,8 @@ namespace Ndk
 				lightComponent.AddToRenderQueue(renderQueue, lightNode.GetTransformMatrix());
 			}
 
+			camComponent.ApplyView();
+
 			NzSceneData sceneData;
 			sceneData.ambientColor = NzColor(25, 25, 25);
 			sceneData.background = m_background;
@@ -90,7 +111,7 @@ namespace Ndk
 		}
 	}
 
-	void RenderSystem::UpdateShadowMaps()
+	void RenderSystem::UpdateDirectionalShadowMaps(const NzAbstractViewer& viewer)
 	{
 		if (!m_shadowRT.IsValid())
 			m_shadowRT.Create();
@@ -100,18 +121,66 @@ namespace Ndk
 		dummySceneData.background = nullptr;
 		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
 
-		for (const Ndk::EntityHandle& light : m_lights)
+		for (const Ndk::EntityHandle& light : m_directionalLights)
 		{
 			LightComponent& lightComponent = light->GetComponent<LightComponent>();
 			NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
-			if (!lightComponent.IsShadowCastingEnabled() || lightComponent.GetLightType() == nzLightType_Directional)
+			if (!lightComponent.IsShadowCastingEnabled())
+				continue;
+
+			NzVector2ui shadowMapSize(lightComponent.GetShadowMap()->GetSize());
+
+			m_shadowRT.AttachTexture(nzAttachmentPoint_Depth, 0, lightComponent.GetShadowMap());
+			NzRenderer::SetTarget(&m_shadowRT);
+			NzRenderer::SetViewport(NzRecti(0, 0, shadowMapSize.x, shadowMapSize.y));
+
+			NzAbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
+			renderQueue->Clear();
+
+			///TODO: Culling
+			for (const Ndk::EntityHandle& drawable : m_drawables)
+			{
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
+
+				graphicsComponent.AddToRenderQueue(renderQueue);
+			}
+
+			///TODO: Cache the matrices in the light?
+			NzRenderer::SetMatrix(nzMatrixType_Projection, NzMatrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f));
+			NzRenderer::SetMatrix(nzMatrixType_View, NzMatrix4f::ViewMatrix(lightNode.GetRotation() * NzVector3f::Forward() * 100.f, lightNode.GetRotation()));
+
+			m_shadowTechnique.Draw(dummySceneData);
+		}
+	}
+
+	void RenderSystem::UpdatePointSpotShadowMaps()
+	{
+		if (!m_shadowRT.IsValid())
+			m_shadowRT.Create();
+
+		NzSceneData dummySceneData;
+		dummySceneData.ambientColor = NzColor(0, 0, 0);
+		dummySceneData.background = nullptr;
+		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
+
+		for (const Ndk::EntityHandle& light : m_pointSpotLights)
+		{
+			LightComponent& lightComponent = light->GetComponent<LightComponent>();
+			NodeComponent& lightNode = light->GetComponent<NodeComponent>();
+
+			if (!lightComponent.IsShadowCastingEnabled())
 				continue;
 
 			NzVector2ui shadowMapSize(lightComponent.GetShadowMap()->GetSize());
 
 			switch (lightComponent.GetLightType())
 			{
+				case nzLightType_Directional:
+					NazaraInternalError("Directional lights included in point/spot light list");
+					break;
+
 				case nzLightType_Point:
 				{
 					static NzQuaternionf rotations[6] =
