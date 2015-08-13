@@ -119,8 +119,6 @@ namespace Ndk
 
 	void Entity::Destroy()
 	{
-		m_valid = false;
-
 		// On informe chaque système
 		for (SystemIndex index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
@@ -137,5 +135,7 @@ namespace Ndk
 			handle->OnEntityDestroyed();
 
 		m_handles.clear();
+
+		m_valid = false;
 	}
 }
