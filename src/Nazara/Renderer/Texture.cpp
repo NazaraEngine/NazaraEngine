@@ -1269,6 +1269,12 @@ bool NzTexture::CreateTexture(bool proxy)
 		glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
 	}
 
+	if (!proxy && NzPixelFormat::GetType(m_impl->format) == nzPixelFormatType_Depth)
+	{
+		glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+
 	return true;
 }
 
