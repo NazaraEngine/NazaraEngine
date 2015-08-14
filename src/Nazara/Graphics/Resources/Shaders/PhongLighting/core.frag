@@ -87,28 +87,37 @@ vec4 EncodeNormal(in vec3 normal)
 
 float VectorToDepthValue(vec3 vec, float zNear, float zFar)
 {
-    vec3 absVec = abs(vec);
-    float localZ = max(absVec.x, max(absVec.y, absVec.z));
+	vec3 absVec = abs(vec);
+	float localZ = max(absVec.x, max(absVec.y, absVec.z));
 
 	float normZ = ((zFar + zNear) * localZ - (2.0*zFar*zNear)) / ((zFar - zNear)*localZ);
 	return (normZ + 1.0) * 0.5;
 }
 
-bool TestShadowDirectional(int lightIndex)
+float CalculateDirectionalShadowFactor(int lightIndex)
 {
 	vec4 lightSpacePos = vLightSpacePos[lightIndex];
-	return texture(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xy).x >= (lightSpacePos.z - 0.0005);
+	return (texture(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xy).x >= (lightSpacePos.z - 0.0005)) ? 1.0 : 0.0;
 }
 
-bool TestShadowPoint(int lightIndex, vec3 lightToWorld, float zNear, float zFar)
+float CalculatePointShadowFactor(int lightIndex, vec3 lightToWorld, float zNear, float zFar)
 {
-	return texture(PointLightShadowMap[lightIndex], vec3(lightToWorld.x, -lightToWorld.y, -lightToWorld.z)).x >= VectorToDepthValue(lightToWorld, zNear, zFar);
+	return (texture(PointLightShadowMap[lightIndex], vec3(lightToWorld.x, -lightToWorld.y, -lightToWorld.z)).x >= VectorToDepthValue(lightToWorld, zNear, zFar)) ? 1.0 : 0.0;
 }
 
-bool TestShadowSpot(int lightIndex)
+float CalculateSpotShadowFactor(int lightIndex)
 {
 	vec4 lightSpacePos = vLightSpacePos[lightIndex];
-	return textureProj(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xyw).x >= (lightSpacePos.z - 0.0005)/lightSpacePos.w;
+
+	float visibility = 1.0;
+	float x,y;
+	for (y = -3.5; y <= 3.5; y+= 1.0)
+		for (x = -3.5; x <= 3.5; x+= 1.0)
+			visibility += textureProj(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos + vec4(x/1024.0 * lightSpacePos.w, y/1024.0 * lightSpacePos.w, 0.05, 0.0));
+
+	visibility /= 64.0;
+	
+	return visibility;
 }
 
 void main()
@@ -211,22 +220,30 @@ void main()
 					// Ambient
 					lightAmbient += lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
+					float att = 1.0;
+
 					#if SHADOW_MAPPING
-					if (Lights[i].shadowMapping && !TestShadowDirectional(i))
-						break;
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculateDirectionalShadowFactor(i);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
 					#endif
 
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
 
-					lightDiffuse += lambert * lightColor.rgb * lightDiffuseFactor;
+					lightDiffuse += att * lambert * lightColor.rgb * lightDiffuseFactor;
 
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
 					float specularFactor = max(dot(reflection, eyeVec), 0.0);
 					specularFactor = pow(specularFactor, MaterialShininess);
 
-					lightSpecular += specularFactor * lightColor.rgb;
+					lightSpecular += att * specularFactor * lightColor.rgb;
 					break;
 				}
 
@@ -246,8 +263,14 @@ void main()
 					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
-					if (Lights[i].shadowMapping && !TestShadowPoint(i, vWorldPos - lightPos, 0.1, 50.0))
-						break;
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculatePointShadowFactor(i, vWorldPos - lightPos, 0.1, 50.0);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
 					#endif
 
 					// Diffuse
@@ -283,8 +306,14 @@ void main()
 					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
-					if (Lights[i].shadowMapping && !TestShadowSpot(i))
-						break;
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculateSpotShadowFactor(i);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
 					#endif
 
 					// Modification de l'atténuation pour gérer le spot
@@ -328,10 +357,23 @@ void main()
 					// Ambient
 					lightAmbient += lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
+					float att = 1.0;
+
+					#if SHADOW_MAPPING
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculateDirectionalShadowFactor(i);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
+					#endif
+
 					// Diffuse
 					float lambert = max(dot(normal, lightDir), 0.0);
 
-					lightDiffuse += lambert * lightColor.rgb * lightDiffuseFactor;
+					lightDiffuse += att * lambert * lightColor.rgb * lightDiffuseFactor;
 					break;
 				}
 
@@ -351,8 +393,14 @@ void main()
 					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
-					if (Lights[i].shadowMapping && !TestShadowPoint(i, vWorldPos - lightPos, 0.1, 1.0 / lightInvRadius))
-						break;
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculatePointShadowFactor(i, vWorldPos - lightPos, 0.1, 50.0);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
 					#endif
 
 					// Diffuse
@@ -381,8 +429,14 @@ void main()
 					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialAmbient.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
-					if (Lights[i].shadowMapping && !TestShadowSpot(i))
-						break;
+					if (Lights[i].shadowMapping)
+					{
+						float shadowFactor = CalculateSpotShadowFactor(i);
+						if (shadowFactor == 0.0)
+							break;
+							
+						att *= shadowFactor;
+					}
 					#endif
 
 					// Modification de l'atténuation pour gérer le spot
