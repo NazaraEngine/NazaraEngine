@@ -34,20 +34,20 @@ namespace Ndk
 
 			EntityHandle CreateHandle();
 
-			BaseComponent& GetComponent(ComponentIndex index);
+			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
-			const NzBitset<>& GetComponentBits() const;
-			EntityId GetId() const;
-			const NzBitset<>& GetSystemBits() const;
-			World* GetWorld() const;
+			inline const NzBitset<>& GetComponentBits() const;
+			inline EntityId GetId() const;
+			inline const NzBitset<>& GetSystemBits() const;
+			inline World* GetWorld() const;
 
-			bool HasComponent(ComponentIndex index) const;
+			inline bool HasComponent(ComponentIndex index) const;
 			template<typename ComponentType> bool HasComponent() const;
 
 			void Kill();
 
 			void Invalidate();
-			bool IsValid() const;
+			inline bool IsValid() const;
 
 			void RemoveAllComponents();
 			void RemoveComponent(ComponentIndex index);
@@ -62,10 +62,10 @@ namespace Ndk
 			void Create();
 			void Destroy();
 
-			void RegisterHandle(EntityHandle* handle);
-			void RegisterSystem(SystemIndex index);
-			void UnregisterHandle(EntityHandle* handle);
-			void UnregisterSystem(SystemIndex index);
+			inline void RegisterHandle(EntityHandle* handle);
+			inline void RegisterSystem(SystemIndex index);
+			inline void UnregisterHandle(EntityHandle* handle);
+			inline void UnregisterSystem(SystemIndex index);
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			std::vector<EntityHandle*> m_handles;
