@@ -115,9 +115,9 @@ void NzSimpleTextDrawer::SetFont(NzFont* font)
 		if (m_font)
 		{
 			m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
-			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
+			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &NzSimpleTextDrawer::OnFontAtlasLayerChanged);
 			m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &NzSimpleTextDrawer::OnFontRelease);
-			m_glyphCacheClearedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
+			m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &NzSimpleTextDrawer::OnFontInvalidated);
 		}
 		else
 		{
@@ -166,6 +166,27 @@ NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, const NzString& str, u
 	drawer.SetText(str);
 
 	return drawer;
+}
+
+void NzSimpleTextDrawer::OnFontAtlasLayerChanged(const NzFont* font, NzAbstractImage* oldLayer, NzAbstractImage* newLayer)
+{
+	NazaraUnused(font);
+
+	#ifdef NAZARA_DEBUG
+	if (m_font != font)
+	{
+		NazaraInternalError("Not listening to " + NzString::Pointer(font));
+		return;
+	}
+	#endif
+
+	// Update atlas layer pointer
+	// Note: This can happend while updating
+	for (Glyph& glyph : m_glyphs)
+	{
+		if (glyph.atlas == oldLayer)
+			glyph.atlas = newLayer;
+	}
 }
 
 void NzSimpleTextDrawer::OnFontInvalidated(const NzFont* font)

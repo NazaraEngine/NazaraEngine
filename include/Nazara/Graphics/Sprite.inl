@@ -72,7 +72,7 @@ inline void NzSprite::SetDefaultMaterial()
 	material->Enable(nzRendererParameter_FaceCulling, false);
 	material->EnableLighting(false);
 
-	SetMaterial(material);
+	SetMaterial(std::move(material));
 }
 
 inline void NzSprite::SetMaterial(NzMaterialRef material, bool resizeSprite)

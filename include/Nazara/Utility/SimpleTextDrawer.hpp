@@ -43,6 +43,7 @@ class NAZARA_UTILITY_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 
 	private:
+		void OnFontAtlasLayerChanged(const NzFont* font, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
 		void OnFontInvalidated(const NzFont* font);
 		void OnFontRelease(const NzFont* object);
 		void UpdateGlyphs() const;
