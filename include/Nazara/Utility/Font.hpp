@@ -113,7 +113,7 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonC
 		};
 
 		NazaraSignal(OnFontAtlasChanged, const NzFont*); //< Args: me
-		NazaraSignal(OnFontAtlasLayerChanged, const NzFont*); //< Args: me
+		NazaraSignal(OnFontAtlasLayerChanged, const NzFont*, NzAbstractImage*, NzAbstractImage*); //< Args: me, old layer, new layer
 		NazaraSignal(OnFontDestroy, const NzFont*); //< Args: me
 		NazaraSignal(OnFontGlyphCacheCleared, const NzFont*); //< Args: me
 		NazaraSignal(OnFontKerningCacheCleared, const NzFont*); //< Args: me
