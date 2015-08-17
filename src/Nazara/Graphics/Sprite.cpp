@@ -48,3 +48,5 @@ void NzSprite::UpdateData(InstanceData* instanceData) const
 	*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*NzVector3f::Right() + m_size.y*NzVector3f::Down());
 	*texCoordPtr++ = m_textureCoords.GetCorner(nzRectCorner_RightBottom);
 }
+
+NzSpriteLibrary::LibraryMap NzSprite::s_library;
