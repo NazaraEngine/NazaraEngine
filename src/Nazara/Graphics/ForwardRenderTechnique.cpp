@@ -388,6 +388,9 @@ void NzForwardRenderTechnique::DrawBillboards(const NzSceneData& sceneData) cons
 				// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 				if (shader != lastShader)
 				{
+					// Index des uniformes dans le shader
+					shaderUniforms = GetShaderUniforms(shader);
+
 					// Couleur ambiante de la scène
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position de la caméra
