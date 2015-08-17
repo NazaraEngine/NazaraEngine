@@ -10,8 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 struct NAZARA_GRAPHICS_API NzModelParameters
@@ -34,7 +34,6 @@ using NzModelRef = NzObjectRef<NzModel>;
 class NAZARA_GRAPHICS_API NzModel : public NzInstancedRenderable, public NzResource
 {
 	friend NzModelLoader;
-	friend class NzScene;
 
 	public:
 		NzModel();
