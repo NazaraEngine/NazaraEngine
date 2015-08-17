@@ -454,7 +454,7 @@ void NzFont::OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* o
 	#endif
 
 	// Pour faciliter le travail des ressources qui nous écoutent
-	OnFontAtlasLayerChanged(this);
+	OnFontAtlasLayerChanged(this, oldLayer, newLayer);
 }
 
 void NzFont::OnAtlasRelease(const NzAbstractAtlas* atlas)
