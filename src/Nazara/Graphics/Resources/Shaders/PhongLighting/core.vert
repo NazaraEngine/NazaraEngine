@@ -75,6 +75,7 @@ void main()
 	gl_Position = ViewProjMatrix * vec4(vertexPos, 1.0);
 	texCoords = VertexTexCoord;
 	#endif
+	texCoords.y = 1.0 - texCoords.y;
 #else
 	#if FLAG_INSTANCING
 		#if TRANSFORM
