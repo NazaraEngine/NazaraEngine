@@ -24,6 +24,12 @@ m_characterSize(drawer.m_characterSize)
 	SetFont(drawer.m_font);
 }
 
+NzSimpleTextDrawer::NzSimpleTextDrawer(NzSimpleTextDrawer&& drawer)
+{
+	operator=(std::move(drawer));
+}
+
+
 NzSimpleTextDrawer::~NzSimpleTextDrawer() = default;
 
 const NzRectui& NzSimpleTextDrawer::GetBounds() const
@@ -112,20 +118,11 @@ void NzSimpleTextDrawer::SetFont(NzFont* font)
 	if (m_font != font)
 	{
 		m_font = font;
+
 		if (m_font)
-		{
-			m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
-			m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &NzSimpleTextDrawer::OnFontAtlasLayerChanged);
-			m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &NzSimpleTextDrawer::OnFontRelease);
-			m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &NzSimpleTextDrawer::OnFontInvalidated);
-		}
+			ConnectFontSlots();
 		else
-		{
-			m_atlasChangedSlot.Disconnect();
-			m_atlasLayerChangedSlot.Disconnect();
-			m_fontReleaseSlot.Disconnect();
-			m_glyphCacheClearedSlot.Disconnect();
-		}
+			DisconnectFontSlots();
 
 		m_glyphUpdated = false;
 	}
@@ -143,6 +140,25 @@ void NzSimpleTextDrawer::SetText(const NzString& str)
 	m_text = str;
 
 	m_glyphUpdated = false;
+}
+
+NzSimpleTextDrawer& NzSimpleTextDrawer::operator=(NzSimpleTextDrawer&& drawer)
+{
+	DisconnectFontSlots();
+
+	m_bounds = std::move(drawer.m_bounds);
+	m_characterSize = std::move(drawer.m_characterSize);
+	m_color = std::move(drawer.m_color);
+	m_glyphs = std::move(drawer.m_glyphs);
+	m_glyphUpdated = std::move(drawer.m_glyphUpdated);
+	m_font = std::move(drawer.m_font);
+	m_style = std::move(drawer.m_style);
+	m_text = std::move(drawer.m_text);
+
+	// Update slot pointers (TODO: Improve the way of doing this)
+	ConnectFontSlots();
+
+	return *this;
 }
 
 NzSimpleTextDrawer NzSimpleTextDrawer::Draw(const NzString& str, unsigned int characterSize, nzUInt32 style, const NzColor& color)
@@ -166,6 +182,22 @@ NzSimpleTextDrawer NzSimpleTextDrawer::Draw(NzFont* font, const NzString& str, u
 	drawer.SetText(str);
 
 	return drawer;
+}
+
+void NzSimpleTextDrawer::ConnectFontSlots()
+{
+	m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &NzSimpleTextDrawer::OnFontInvalidated);
+	m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &NzSimpleTextDrawer::OnFontAtlasLayerChanged);
+	m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &NzSimpleTextDrawer::OnFontRelease);
+	m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &NzSimpleTextDrawer::OnFontInvalidated);
+}
+
+void NzSimpleTextDrawer::DisconnectFontSlots()
+{
+	m_atlasChangedSlot.Disconnect();
+	m_atlasLayerChangedSlot.Disconnect();
+	m_fontReleaseSlot.Disconnect();
+	m_glyphCacheClearedSlot.Disconnect();
 }
 
 void NzSimpleTextDrawer::OnFontAtlasLayerChanged(const NzFont* font, NzAbstractImage* oldLayer, NzAbstractImage* newLayer)
