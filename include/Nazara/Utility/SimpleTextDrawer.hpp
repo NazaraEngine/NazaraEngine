@@ -19,7 +19,7 @@ class NAZARA_UTILITY_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 	public:
 		NzSimpleTextDrawer();
 		NzSimpleTextDrawer(const NzSimpleTextDrawer& drawer);
-		NzSimpleTextDrawer(NzSimpleTextDrawer&&) = default;
+		NzSimpleTextDrawer(NzSimpleTextDrawer&& drawer);
 		virtual ~NzSimpleTextDrawer();
 
 		const NzRectui& GetBounds() const;
@@ -39,10 +39,15 @@ class NAZARA_UTILITY_API NzSimpleTextDrawer : public NzAbstractTextDrawer
 		void SetStyle(nzUInt32 style);
 		void SetText(const NzString& str);
 
+		NzSimpleTextDrawer& operator=(const NzSimpleTextDrawer& drawer) = default;
+		NzSimpleTextDrawer& operator=(NzSimpleTextDrawer&& drawer);
+
 		static NzSimpleTextDrawer Draw(const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
 
 	private:
+		void ConnectFontSlots();
+		void DisconnectFontSlots();
 		void OnFontAtlasLayerChanged(const NzFont* font, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
 		void OnFontInvalidated(const NzFont* font);
 		void OnFontRelease(const NzFont* object);
