@@ -113,7 +113,7 @@ float CalculateSpotShadowFactor(int lightIndex)
 	float x,y;
 	for (y = -3.5; y <= 3.5; y+= 1.0)
 		for (x = -3.5; x <= 3.5; x+= 1.0)
-			visibility += textureProj(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos + vec4(x/1024.0 * lightSpacePos.w, y/1024.0 * lightSpacePos.w, 0.05, 0.0));
+			visibility += (textureProj(DirectionalSpotLightShadowMap[lightIndex], lightSpacePos.xyw + vec3(x/1024.0 * lightSpacePos.w, y/1024.0 * lightSpacePos.w, 0.0)).x >= (lightSpacePos.z - 0.0005)/lightSpacePos.w) ? 1.0 : 0.0;
 
 	visibility /= 64.0;
 	
