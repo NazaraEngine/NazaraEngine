@@ -71,7 +71,7 @@ function NazaraBuild:Execute()
 				targetsuffix("-s")
 
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions("-std=c++11")
+				buildoptions("-std=c++14")
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -125,7 +125,7 @@ function NazaraBuild:Execute()
 			defines("NAZARA_STATIC")
 
 		configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-			buildoptions("-std=c++11")
+			buildoptions("-std=c++14")
 
 		configuration({"linux or bsd or macosx", "gmake"})
 			buildoptions("-fvisibility=hidden")
