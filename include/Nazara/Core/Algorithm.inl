@@ -8,27 +8,20 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-///TODO: Améliorer l'implémentation de UnpackTuple
-
-template<unsigned int N>
-struct NzImplTupleUnpack
+// http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
+template<typename F, typename Tuple, size_t ...S >
+auto NzApplyImpl(F&& fn, Tuple&& t, std::index_sequence<S...>)
 {
-	template <typename F, typename... ArgsT, typename... Args>
-	void operator()(F func, const std::tuple<ArgsT...>& t,  Args&... args)
-	{
-		NzImplTupleUnpack<N-1>()(func, t, std::get<N-1>(t), args...);
-	}
-};
+    return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
+}
 
-template<>
-struct NzImplTupleUnpack<0>
+template<typename F, typename Tuple>
+auto NzApply(F&& fn, Tuple&& t)
 {
-	template <typename F, typename... ArgsT, typename... Args>
-	void operator()(F func, const std::tuple<ArgsT...>&, Args&... args)
-	{
-		func(args...);
-	}
-};
+	std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
+
+	return NzApplyImpl(std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+}
 
 // Algorithme venant de CityHash par Google
 // http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
@@ -45,12 +38,6 @@ void NzHashCombine(std::size_t& seed, const T& v)
     b ^= (b >> 47);
 
     seed = static_cast<std::size_t>(b * kMul);
-}
-
-template<typename F, typename... ArgsT>
-void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t)
-{
-	NzImplTupleUnpack<sizeof...(ArgsT)>()(func, t);
 }
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -11,8 +11,8 @@
 #include <functional>
 #include <tuple>
 
+template<typename F, typename Tuple> auto NzApply(F&& fn, Tuple&& t);
 template<typename T> void NzHashCombine(std::size_t& seed, const T& v);
-template<typename F, typename... ArgsT> void NzUnpackTuple(F func, const std::tuple<ArgsT...>& t);
 
 #include <Nazara/Core/Algorithm.inl>
 
