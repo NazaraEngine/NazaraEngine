@@ -223,10 +223,10 @@ T NzNormalizeAngle(T angle)
 template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
-	T diff = a - b;
-	if (diff < F(0.0))
-		diff = -diff;
+	if (b > a)
+		std::swap(a, b);
 
+	T diff = a - b;
 	return diff <= maxDifference;
 }
 
