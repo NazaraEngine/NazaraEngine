@@ -27,12 +27,10 @@ class NzVector2
 		~NzVector2() = default;
 
 		T AbsDotProduct(const NzVector2& vec) const;
-
 		T AngleBetween(const NzVector2& vec) const;
 
 		T Distance(const NzVector2& vec) const;
 		float Distancef(const NzVector2& vec) const;
-
 		T DotProduct(const NzVector2& vec) const;
 
 		T GetLength() const;
@@ -40,6 +38,7 @@ class NzVector2
 		NzVector2 GetNormal(T* length = nullptr) const;
 		T GetSquaredLength() const;
 
+		NzVector2& MakeUnit();
 		NzVector2& MakeUnitX();
 		NzVector2& MakeUnitY();
 		NzVector2& MakeZero();
@@ -89,6 +88,7 @@ class NzVector2
 		bool operator>=(const NzVector2& vec) const;
 
 		static NzVector2 Lerp(const NzVector2& from, const NzVector2& to, T interpolation);
+		static NzVector2 Unit();
 		static NzVector2 UnitX();
 		static NzVector2 UnitY();
 		static NzVector2 Zero();
