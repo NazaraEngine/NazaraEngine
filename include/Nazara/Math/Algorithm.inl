@@ -337,9 +337,10 @@ bool NzNumberEquals(T a, T b)
 template<typename T>
 bool NzNumberEquals(T a, T b, T maxDifference)
 {
-	std::pair<const T&, const T&> minmax = std::minmax(a, b);
-	T diff = minmax.second - minmax.first;
+	if (b > a)
+		std::swap(a, b);
 
+	T diff = a - b;
 	return diff <= maxDifference;
 }
 

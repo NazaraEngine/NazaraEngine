@@ -100,7 +100,7 @@ int main()
 	std::cout << oss.str() << std::endl;
 
 	NzFile reportFile("RapportHardwareInfo.txt");
-	if (reportFile.Open(NzFile::Text | NzFile::Truncate | NzFile::WriteOnly))
+	if (reportFile.Open(nzOpenMode_Text | nzOpenMode_Truncate | nzOpenMode_WriteOnly))
 	{
 		reportFile.Write(oss.str()); // Conversion implicite en NzString
 		reportFile.Close();

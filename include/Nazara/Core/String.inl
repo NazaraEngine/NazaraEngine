@@ -6,9 +6,9 @@
 
 namespace std
 {
-    template<>
-    struct hash<NzString>
-    {
+	template<>
+	struct hash<NzString>
+	{
 		size_t operator()(const NzString& str) const
 		{
 			// Algorithme DJB2
@@ -26,7 +26,7 @@ namespace std
 
 			return h;
 		}
-    };
+	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>
