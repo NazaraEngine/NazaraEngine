@@ -280,7 +280,7 @@ namespace
 			bool SetFile(const NzString& filePath)
 			{
 				std::unique_ptr<NzFile> file(new NzFile);
-				if (!file->Open(filePath, NzFile::ReadOnly))
+				if (!file->Open(filePath, nzOpenMode_ReadOnly))
 				{
 					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
