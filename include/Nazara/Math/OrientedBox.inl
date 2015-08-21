@@ -103,9 +103,9 @@ template<typename U>
 NzOrientedBox<T>& NzOrientedBox<T>::Set(const NzOrientedBox<U>& orientedBox)
 {
 	for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
-		m_corners[i].Set(orientedBox.m_corners[i]);
+		m_corners[i].Set(orientedBox(i));
 
-	localBox = orientedBox.localBox;
+	localBox.Set(orientedBox.localBox);
 
 	return *this;
 }
@@ -158,7 +158,7 @@ NzVector3<T>& NzOrientedBox<T>::operator()(unsigned int i)
 	if (i > nzBoxCorner_Max)
 	{
 		NzStringStream ss;
-		ss << "Index out of range: (" << i << " >= 3)";
+		ss << "Index out of range: (" << i << " >= " << nzBoxCorner_Max << ")";
 
 		NazaraError(ss);
 		throw std::out_of_range(ss.ToString());
@@ -175,7 +175,7 @@ NzVector3<T> NzOrientedBox<T>::operator()(unsigned int i) const
 	if (i > nzBoxCorner_Max)
 	{
 		NzStringStream ss;
-		ss << "Index out of range: (" << i << " >= 3)";
+		ss << "Index out of range: (" << i << " >= " << nzBoxCorner_Max << ")";
 
 		NazaraError(ss);
 		throw std::out_of_range(ss.ToString());

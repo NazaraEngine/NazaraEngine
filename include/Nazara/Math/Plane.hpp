@@ -37,6 +37,9 @@ class NzPlane
 
 		NzString ToString() const;
 
+		bool operator==(const NzPlane& plane) const;
+		bool operator!=(const NzPlane& plane) const;
+
 		static NzPlane Lerp(const NzPlane& from, const NzPlane& to, T interpolation);
 		static NzPlane XY();
 		static NzPlane XZ();

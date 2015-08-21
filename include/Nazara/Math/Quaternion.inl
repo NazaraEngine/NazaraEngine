@@ -237,10 +237,10 @@ template<typename T>
 template<typename U>
 NzQuaternion<T>& NzQuaternion<T>::Set(const NzQuaternion<U>& quat)
 {
-	w = static_cast<T>(quat.w);
-	x = static_cast<T>(quat.x);
-	y = static_cast<T>(quat.y);
-	z = static_cast<T>(quat.z);
+	w = F(quat.w);
+	x = F(quat.x);
+	y = F(quat.y);
+	z = F(quat.z);
 
 	return *this;
 }
@@ -270,9 +270,9 @@ NzEulerAngles<T> NzQuaternion<T>::ToEulerAngles() const
 	if (test < F(-0.499))
 		return NzEulerAngles<T>(NzFromDegrees(F(-90.0)), NzFromRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
 
-	return NzEulerAngles<T>(NzFromRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x* - F(2.0)*z*z)),
-							NzFromRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
-							NzFromRadians(std::asin(F(2.0)*test)));
+	return NzEulerAngles<T>(NzFromRadians(std::atan2(F(2.0)*x*w - F(2.0)*y*z, F(1.0) - F(2.0)*x*x - F(2.0)*z*z)),
+	                        NzFromRadians(std::atan2(F(2.0)*y*w - F(2.0)*x*z, F(1.0) - F(2.0)*y*y - F(2.0)*z*z)),
+	                        NzFromRadians(std::asin(F(2.0)*test)));
 }
 
 template<typename T>
@@ -329,9 +329,9 @@ template<typename T>
 NzQuaternion<T> NzQuaternion<T>::operator*(T scale) const
 {
 	return NzQuaternion(w * scale,
-						x * scale,
-						y * scale,
-						z * scale);
+	                    x * scale,
+	                    y * scale,
+	                    z * scale);
 }
 
 template<typename T>
@@ -368,9 +368,9 @@ template<typename T>
 bool NzQuaternion<T>::operator==(const NzQuaternion& quat) const
 {
 	return NzNumberEquals(w, quat.w) &&
-		   NzNumberEquals(x, quat.x) &&
-		   NzNumberEquals(y, quat.y) &&
-		   NzNumberEquals(z, quat.z);
+	       NzNumberEquals(x, quat.x) &&
+	       NzNumberEquals(y, quat.y) &&
+	       NzNumberEquals(z, quat.z);
 }
 
 template<typename T>
@@ -450,23 +450,23 @@ NzQuaternion<T> NzQuaternion<T>::Slerp(const NzQuaternion& from, const NzQuatern
 	if (cosOmega > F(0.9999))
 	{
 		// Interpolation linéaire pour éviter une division par zéro
-        k0 = F(1.0) - interpolation;
-        k1 = interpolation;
-    }
-    else
-    {
-        T sinOmega = std::sqrt(F(1.0) - cosOmega*cosOmega);
-        T omega = std::atan2(sinOmega, cosOmega);
+		k0 = F(1.0) - interpolation;
+		k1 = interpolation;
+	}
+	else
+	{
+		T sinOmega = std::sqrt(F(1.0) - cosOmega*cosOmega);
+		T omega = std::atan2(sinOmega, cosOmega);
 
 		// Pour éviter deux divisions
 		sinOmega = F(1.0)/sinOmega;
 
-        k0 = std::sin((F(1.0) - interpolation) * omega) * sinOmega;
-        k1 = std::sin(interpolation*omega) * sinOmega;
-    }
+		k0 = std::sin((F(1.0) - interpolation) * omega) * sinOmega;
+		k1 = std::sin(interpolation*omega) * sinOmega;
+	}
 
-    NzQuaternion result(k0 * from.w, k0 * from.x, k0 * from.y, k0 * from.z);
-    return result += q*k1;
+	NzQuaternion result(k0 * from.w, k0 * from.x, k0 * from.y, k0 * from.z);
+	return result += q*k1;
 }
 
 template<typename T>
