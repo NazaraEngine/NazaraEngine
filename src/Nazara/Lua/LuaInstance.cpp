@@ -393,7 +393,7 @@ bool NzLuaInstance::Execute(const NzString& code)
 bool NzLuaInstance::ExecuteFromFile(const NzString& filePath)
 {
 	NzFile file(filePath);
-	if (!file.Open(NzFile::ReadOnly | NzFile::Text))
+	if (!file.Open(nzOpenMode_ReadOnly | nzOpenMode_Text))
 	{
 		NazaraError("Failed to open file");
 		return false;

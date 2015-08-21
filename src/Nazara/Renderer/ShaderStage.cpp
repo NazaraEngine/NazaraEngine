@@ -174,7 +174,7 @@ bool NzShaderStage::SetSourceFromFile(const NzString& filePath)
 	#endif
 
 	NzFile file(filePath);
-	if (!file.Open(NzFile::ReadOnly | NzFile::Text))
+	if (!file.Open(nzOpenMode_ReadOnly | nzOpenMode_Text))
 	{
 		NazaraError("Failed to open \"" + filePath + '"');
 		return false;
