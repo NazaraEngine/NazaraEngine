@@ -35,6 +35,9 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/mingw/x64")
 				targetdir("../extlibs/lib/mingw/x64")
 
+			configuration("vs*")
+				buildoptions("/MP")
+
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
 				targetdir("../extlibs/lib/msvc/x86")
@@ -131,8 +134,10 @@ function NazaraBuild:Execute()
 			buildoptions("-fvisibility=hidden")
 
 		configuration("vs*")
+			buildoptions("/MP")
 			defines("_CRT_SECURE_NO_WARNINGS")
 			defines("_SCL_SECURE_NO_WARNINGS")
+
 
 		-- Spécification des modules
 		if (_OPTIONS["united"]) then
