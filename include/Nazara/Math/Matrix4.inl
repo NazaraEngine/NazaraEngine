@@ -579,6 +579,21 @@ NzMatrix4<T>& NzMatrix4<T>::MakeIdentity()
 }
 
 template<typename T>
+NzMatrix4<T>& NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
+{
+	NzVector3<T> f = NzVector3<T>::Normalize(target - eye);
+	NzVector3<T> s = NzVector3<T>::Normalize(f.CrossProduct(up));
+	NzVector3<T> u = s.CrossProduct(f);
+
+	Set(s.x, u.x, -f.x, T(0.0),
+	    s.y, u.y, -f.y, T(0.0),
+	    s.z, u.z, -f.z, T(0.0),
+	    -s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0));
+
+	return *this;
+}
+
+template<typename T>
 NzMatrix4<T>& NzMatrix4<T>::MakeOrtho(T left, T right, T top, T bottom, T zNear, T zFar)
 {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204942(v=vs.85).aspx
@@ -586,22 +601,6 @@ NzMatrix4<T>& NzMatrix4<T>::MakeOrtho(T left, T right, T top, T bottom, T zNear,
 	    F(0.0), F(2.0) / (top - bottom), F(0.0), F(0.0),
 	    F(0.0), F(0.0), F(1.0) / (zNear - zFar), F(0.0),
 	    (left + right) / (left - right), (top + bottom) / (bottom - top), zNear/(zNear - zFar), F(1.0));
-
-	return *this;
-}
-
-template<typename T>
-NzMatrix4<T>& NzMatrix4<T>::MakeLookAt(const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up)
-{
-	NzVector3<T> f = NzVector3<T>::Normalize(target - eye);
-	NzVector3<T> u(up.GetNormal());
-	NzVector3<T> s = NzVector3<T>::Normalize(f.CrossProduct(u));
-	u = s.CrossProduct(f);
-
-	Set(s.x, u.x, -f.x, T(0.0),
-	    s.y, u.y, -f.y, T(0.0),
-	    s.z, u.z, -f.z, T(0.0),
-		-s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0));
 
 	return *this;
 }
@@ -616,12 +615,12 @@ NzMatrix4<T>& NzMatrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
 	angle = NzDegreeToRadian(angle/F(2.0));
 	#endif
 
-	T yScale = F(1.0) / std::tan(angle);
+	T yScale = std::tan(M_PI_2 - angle);
 
 	Set(yScale / ratio, F(0.0), F(0.0), F(0.0),
 	    F(0.0), yScale, F(0.0), F(0.0),
-	    F(0.0), F(0.0), zFar / (zNear-zFar), F(-1.0),
-	    F(0.0), F(0.0), (zNear*zFar) / (zNear-zFar), F(0.0));
+	    F(0.0), F(0.0), - (zFar + zNear) / (zFar - zNear), F(-1.0),
+	    F(0.0), F(0.0), F(-2.0) * (zNear * zFar) / (zFar - zNear), F(0.0));
 
 	return *this;
 }
@@ -696,7 +695,7 @@ NzMatrix4<T>& NzMatrix4<T>::MakeViewMatrix(const NzVector3<T>& translation, cons
 	// Une matrice de vue doit appliquer une transformation opposée à la matrice "monde"
 	NzQuaternion<T> invRot = rotation.GetConjugate(); // Inverse de la rotation
 
-	return MakeTransform(-(invRot*translation), invRot);
+	return MakeTransform(-(invRot * translation), invRot);
 }
 
 template<typename T>
@@ -821,9 +820,9 @@ NzString NzMatrix4<T>::ToString() const
 {
 	NzStringStream ss;
 	return ss << "Matrix4(" << m11 << ", " << m12 << ", " << m13 << ", " << m14 << ",\n"
-	    	  << "        " << m21 << ", " << m22 << ", " << m23 << ", " << m24 << ",\n"
-	    	  << "        " << m31 << ", " << m32 << ", " << m33 << ", " << m34 << ",\n"
-	    	  << "        " << m41 << ", " << m42 << ", " << m43 << ", " << m44 << ')';
+	          << "        " << m21 << ", " << m22 << ", " << m23 << ", " << m24 << ",\n"
+	          << "        " << m31 << ", " << m32 << ", " << m33 << ", " << m34 << ",\n"
+	          << "        " << m41 << ", " << m42 << ", " << m43 << ", " << m44 << ')';
 }
 
 template<typename T>
