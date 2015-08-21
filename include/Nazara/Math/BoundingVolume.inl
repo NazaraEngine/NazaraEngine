@@ -202,7 +202,10 @@ template<typename T>
 bool NzBoundingVolume<T>::operator==(const NzBoundingVolume& volume) const
 {
 	if (extend == volume.extend)
-		return obb == volume.obb;
+		if (extend == nzExtend_Finite)
+			return obb == volume.obb;
+		else
+			return true;
 	else
 		return false;
 }

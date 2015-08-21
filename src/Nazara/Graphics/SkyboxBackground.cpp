@@ -86,7 +86,8 @@ namespace
 
 		"void main()\n"
 		"{\n"
-		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
+		"    vec4 WVPVertex = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
+		"    gl_Position = WVPVertex.xyww;\n"
 		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 
@@ -101,7 +102,8 @@ namespace
 
 		"void main()\n"
 		"{\n"
-		"    gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
+		"    vec4 WVPVertex = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
+		"    gl_Position = WVPVertex.xyww;\n"
 		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
 		"}\n";
 

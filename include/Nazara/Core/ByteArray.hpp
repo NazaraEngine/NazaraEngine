@@ -8,120 +8,156 @@
 #define NAZARA_BYTEARRAY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Hashable.hpp>
-#include <atomic>
+#include <Nazara/Core/String.hpp>
+#include <memory>
+#include <vector>
 
 class NzAbstractHash;
-class NzHashDigest;
 
 class NAZARA_API NzByteArray : public NzHashable
 {
+	using Container = std::vector<nzUInt8>;
+
 	public:
-		struct SharedArray;
+		// types:
+		using value_type = typename Container::value_type;
+		using allocator_type = typename Container::allocator_type;
+		using size_type = typename Container::size_type;
+		using difference_type = typename Container::difference_type;
+		using reference = typename Container::reference;
+		using const_reference = typename Container::const_reference;
+		using pointer = typename Container::pointer;
+		using const_pointer = typename Container::const_pointer;
+		using iterator = typename Container::iterator;
+		using const_iterator = typename Container::const_iterator;
+		using reverse_iterator = typename Container::reverse_iterator;
+		using const_reverse_iterator = typename Container::const_reverse_iterator;
 
+		// iterators:
+		iterator begin() noexcept;
+		const_iterator begin() const noexcept;
+		iterator end() noexcept;
+		const_iterator end() const noexcept;
+		reverse_iterator rbegin() noexcept;
+		const_reverse_iterator rbegin() const noexcept;
+		reverse_iterator rend() noexcept;
+		const_reverse_iterator rend() const noexcept;
+		const_iterator cbegin() const noexcept;
+		const_iterator cend() const noexcept;
+		const_reverse_iterator crbegin() const noexcept;
+		const_reverse_iterator crend() const noexcept;
+
+		// construct/destroy:
 		NzByteArray();
-		explicit NzByteArray(unsigned int size);
-		NzByteArray(const void* buffer, unsigned int size);
-		NzByteArray(const NzByteArray& buffer);
-		NzByteArray(NzByteArray&& buffer) noexcept;
-		NzByteArray(SharedArray* sharedArray);
-		~NzByteArray();
+		explicit NzByteArray(size_type n);
+		NzByteArray(const void* buffer, size_type n);
+		NzByteArray(size_type n, const value_type value);
+		template <class InputIterator>
+		NzByteArray(InputIterator first, InputIterator last);
+		NzByteArray(const NzByteArray& other);
+		NzByteArray(NzByteArray&& other);
+		virtual ~NzByteArray();
 
-		NzByteArray& Append(const void* buffer, unsigned int size);
-		NzByteArray& Append(const NzByteArray& array);
+		iterator Append(const void* buffer, size_type size);
+		iterator Append(const NzByteArray& other);
+		template <class InputIterator>
+		void Assign(InputIterator first, InputIterator last);
+		void Assign(size_type n, const value_type value);
+
+		reference Back();
+		const_reference Back() const;
 
 		void Clear(bool keepBuffer = false);
 
-		nzUInt8* GetBuffer();
-		unsigned int GetCapacity() const;
-		const nzUInt8* GetConstBuffer() const;
-		unsigned int GetSize() const;
+		pointer data();
+		const_pointer data() const;
 
-		NzByteArray& Insert(int pos, const void* buffer, unsigned int size);
-		NzByteArray& Insert(int pos, const NzByteArray& array);
+		bool empty() const noexcept;
+		iterator Erase(const_iterator pos);
+		iterator Erase(const_iterator first, const_iterator last);
 
-		bool IsEmpty() const;
+		reference Front();
+		const_reference Front() const;
 
-		NzByteArray& Prepend(const void* buffer, unsigned int size);
-		NzByteArray& Prepend(const NzByteArray& array);
+		iterator Insert(const_iterator pos, const void* buffer, size_type n);
+		iterator Insert(const_iterator pos, const NzByteArray& other);
+		iterator Insert(const_iterator pos, size_type n, const value_type byte);
+		template <class InputIterator>
+		iterator Insert(const_iterator pos, InputIterator first, InputIterator last);
+		bool IsEmpty() const noexcept;
 
-		void Reserve(unsigned int bufferSize);
+		allocator_type GetAllocator() const;
+		pointer GetBuffer();
+		size_type GetCapacity() const noexcept;
+		const_pointer GetConstBuffer() const;
+		size_type GetSize() const noexcept;
 
-		NzByteArray& Resize(int size);
-		NzByteArray& Resize(int size, nzUInt8 byte);
-		NzByteArray Resized(int size) const;
-		NzByteArray Resized(int size, nzUInt8 byte) const;
+		size_type MaxSize() const noexcept;
 
-		NzByteArray SubArray(int startPos, int endPos = -1) const;
-
-		void Swap(NzByteArray& array);
-
-		// Méthodes compatibles STD
-		nzUInt8* begin();
-		const nzUInt8* begin() const;
-		nzUInt8* end();
-		const nzUInt8* end() const;
-		void push_front(nzUInt8 byte);
-		void push_back(nzUInt8 byte);
-		/*nzUInt8* rbegin();
-		const nzUInt8* rbegin() const;
-		nzUInt8* rend();
-		const nzUInt8* rend() const;*/
-
-		typedef const nzUInt8& const_reference;
-		typedef nzUInt8* iterator;
-		//typedef nzUInt8* reverse_iterator;
-		typedef nzUInt8 value_type;
-		// Méthodes compatibles STD
-
-		nzUInt8& operator[](unsigned int pos);
-		nzUInt8 operator[](unsigned int pos) const;
-
+		// operators:
+		reference operator[](size_type pos);
+		const_reference operator[](size_type pos) const;
 		NzByteArray& operator=(const NzByteArray& array);
-		NzByteArray& operator=(NzByteArray&& array) noexcept;
-
+		NzByteArray& operator=(NzByteArray&& array);
 		NzByteArray operator+(const NzByteArray& array) const;
 		NzByteArray& operator+=(const NzByteArray& array);
 
-		static int Compare(const NzByteArray& first, const NzByteArray& second);
+		bool operator==(const NzByteArray& rhs) const;
+		bool operator!=(const NzByteArray& rhs) const;
+		bool operator<(const NzByteArray& rhs) const;
+		bool operator<=(const NzByteArray& rhs) const;
+		bool operator>(const NzByteArray& rhs) const;
+		bool operator>=(const NzByteArray& rhs) const;
 
-		struct NAZARA_API SharedArray
-		{
-			SharedArray() :
-			refCount(1)
-			{
-			}
+		void PopBack();
+		void PopFront();
+		iterator Prepend(const void* buffer, size_type size);
+		iterator Prepend(const NzByteArray& other);
+		void PushBack(const value_type byte);
+		void PushFront(const value_type byte);
 
-			SharedArray(unsigned short referenceCount, unsigned int bufferSize, unsigned int arraySize, nzUInt8* ptr) :
-			capacity(bufferSize),
-			size(arraySize),
-			buffer(ptr),
-			refCount(referenceCount)
-			{
-			}
+		void Reserve(size_type bufferSize);
+		void Resize(size_type newSize);
+		void Resize(size_type newSize, const value_type byte);
 
-			unsigned int capacity;
-			unsigned int size;
-			nzUInt8* buffer;
+		size_type size() const noexcept;
+		void ShrinkToFit();
+		NzByteArray SubArray(const_iterator startPos, const_iterator endPos) const;
+		void Swap(NzByteArray& other);
 
-			std::atomic_ushort refCount;
-		};
-
-		static SharedArray emptyArray;
-		static unsigned int npos;
+		NzString ToString() const;
 
 	private:
-		void EnsureOwnership();
-		bool FillHash(NzAbstractHash* hash) const;
-		void ReleaseArray();
 
-		SharedArray* m_sharedArray;
+		bool FillHash(NzAbstractHash* hash) const;
+
+		Container m_array;
 };
+
+NAZARA_API std::ostream& operator<<(std::ostream& out, const NzByteArray& byteArray);
 
 namespace std
 {
 	NAZARA_API void swap(NzByteArray& lhs, NzByteArray& rhs);
+}
+
+template <class InputIterator>
+NzByteArray::NzByteArray(InputIterator first, InputIterator last) :
+m_array(first, last)
+{
+}
+
+template <class InputIterator>
+void NzByteArray::Assign(InputIterator first, InputIterator last)
+{
+	m_array.assign(first, last);
+}
+
+template <class InputIterator>
+NzByteArray::iterator NzByteArray::Insert(const_iterator pos, InputIterator first, InputIterator last)
+{
+	return m_array.insert(pos, first, last);
 }
 
 #endif // NAZARA_BYTEARRAY_HPP

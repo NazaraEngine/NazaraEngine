@@ -151,7 +151,7 @@ void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& so
 bool NzUberShaderPreprocessor::SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& shaderFlags, const NzString& requiredFlags)
 {
 	NzFile file(filePath);
-	if (!file.Open(NzFile::ReadOnly | NzFile::Text))
+	if (!file.Open(nzOpenMode_ReadOnly | nzOpenMode_Text))
 	{
 		NazaraError("Failed to open \"" + filePath + '"');
 		return false;
