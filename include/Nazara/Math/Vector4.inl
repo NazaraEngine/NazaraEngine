@@ -121,11 +121,11 @@ NzVector4<T>& NzVector4<T>::Maximize(const NzVector4& vec)
 	if (vec.y > y)
 		y = vec.y;
 
-    if (vec.z > z)
-        z = vec.z;
+	if (vec.z > z)
+		z = vec.z;
 
-    if (vec.w > w)
-        w = vec.w;
+	if (vec.w > w)
+		w = vec.w;
 
 	return *this;
 }
@@ -139,11 +139,11 @@ NzVector4<T>& NzVector4<T>::Minimize(const NzVector4& vec)
 	if (vec.y < y)
 		y = vec.y;
 
-    if (vec.z < z)
-        z = vec.z;
+	if (vec.z < z)
+		z = vec.z;
 
-    if (vec.w < w)
-        w = vec.w;
+	if (vec.w < w)
+		w = vec.w;
 
 	return *this;
 }
@@ -447,9 +447,9 @@ template<typename T>
 bool NzVector4<T>::operator==(const NzVector4& vec) const
 {
 	return NzNumberEquals(x, vec.x) &&
-		   NzNumberEquals(y, vec.y) &&
-		   NzNumberEquals(z, vec.z) &&
-		   NzNumberEquals(w, vec.w);
+	       NzNumberEquals(y, vec.y) &&
+	       NzNumberEquals(z, vec.z) &&
+	       NzNumberEquals(w, vec.w);
 }
 
 template<typename T>
