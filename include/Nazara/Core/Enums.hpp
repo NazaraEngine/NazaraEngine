@@ -15,6 +15,15 @@ enum nzCoordSys
 	nzCoordSys_Max = nzCoordSys_Local
 };
 
+enum nzCursorPosition
+{
+	nzCursorPosition_AtBegin,   // Début du fichier
+	nzCursorPosition_AtCurrent, // Position du pointeur
+	nzCursorPosition_AtEnd,     // Fin du fichier
+
+	nzCursorPosition_Max = nzCursorPosition_AtEnd
+};
+
 enum nzEndianness
 {
 	nzEndianness_Unknown = -1,
@@ -57,7 +66,24 @@ enum nzHash
 	nzHash_SHA256,
 	nzHash_SHA384,
 	nzHash_SHA512,
-	nzHash_Whirlpool
+	nzHash_Whirlpool,
+
+	nzHash_Max = nzHash_Whirlpool
+};
+
+enum nzOpenModeFlags
+{
+	nzOpenMode_Current   = 0x00, // Utilise le mode d'ouverture actuel
+
+	nzOpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
+	nzOpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
+	nzOpenMode_ReadOnly  = 0x04, // Ouvre uniquement en lecture
+	nzOpenMode_ReadWrite = 0x08, // Ouvre en lecture/écriture
+	nzOpenMode_Text      = 0x10, // Ouvre en mode texte
+	nzOpenMode_Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
+	nzOpenMode_WriteOnly = 0x40, // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+
+	nzOpenMode_Max = nzOpenMode_WriteOnly
 };
 
 enum nzParameterType

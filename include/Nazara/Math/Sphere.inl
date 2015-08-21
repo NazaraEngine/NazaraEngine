@@ -51,13 +51,13 @@ bool NzSphere<T>::Contains(T X, T Y, T Z) const
 template<typename T>
 bool NzSphere<T>::Contains(const NzBox<T>& box) const
 {
-    if (box.GetMinimum().SquaredDistance(GetPosition()) <= radius * radius)
-    {
-        if (box.GetMaximum().SquaredDistance(GetPosition()) <= radius * radius)
-            return true;
-    }
+	if (box.GetMinimum().SquaredDistance(GetPosition()) <= radius * radius)
+	{
+		if (box.GetMaximum().SquaredDistance(GetPosition()) <= radius * radius)
+			return true;
+	}
 
-    return false;
+	return false;
 }
 template<typename T>
 bool NzSphere<T>::Contains(const NzVector3<T>& point) const
@@ -156,7 +156,7 @@ bool NzSphere<T>::Intersect(const NzBox<T>& box) const
 		squaredDistance += diff*diff;
 	}
 
-    return squaredDistance <= radius * radius;
+	return squaredDistance <= radius * radius;
 }
 
 template<typename T>

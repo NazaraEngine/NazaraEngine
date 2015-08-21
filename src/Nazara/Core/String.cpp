@@ -51,24 +51,24 @@ inline char nzToUpper(char character)
 
 inline int nzStrcasecmp(const char* s1, const char* s2)
 {
-    int ret = 0;
+	int ret = 0;
 
-    while (!(ret = static_cast<unsigned char>(nzToLower(*s1)) - static_cast<unsigned char>(nzToLower(*s2))) && *s2)
-        ++s1, ++s2;
+	while (!(ret = static_cast<unsigned char>(nzToLower(*s1)) - static_cast<unsigned char>(nzToLower(*s2))) && *s2)
+		++s1, ++s2;
 
-    return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
+	return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
 }
 
 inline int nzUnicodecasecmp(const char* s1, const char* s2)
 {
-    int ret = 0;
+	int ret = 0;
 	utf8::unchecked::iterator<const char*> it1(s1);
 	utf8::unchecked::iterator<const char*> it2(s2);
 
-    while (!(ret = NzUnicode::GetLowercase(*it1) - NzUnicode::GetLowercase(*it2)) && *it2)
-        ++it1, ++it2;
+	while (!(ret = NzUnicode::GetLowercase(*it1) - NzUnicode::GetLowercase(*it2)) && *it2)
+		++it1, ++it2;
 
-    return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
+	return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
 }
 
 NzString::NzString() :
@@ -2088,8 +2088,8 @@ bool NzString::Match(const char* pattern) const
 			if (!*++pattern)
 				return true;
 
-		  mp = pattern;
-		  cp = str+1;
+			mp = pattern;
+			cp = str+1;
 		}
 		else if (*pattern == *str || *pattern == '?')
 		{
@@ -3978,7 +3978,7 @@ NzString NzString::Unicode(char32_t character)
 		count = 2;
 	else if (character < 0x10000)
 		count = 3;
-    else
+	else
 		count = 4;
 
 	char* str = new char[count+1];
@@ -4029,7 +4029,7 @@ NzString NzString::Unicode(const char32_t* u32String)
 			count += 2;
 		else if (cp < 0x10000)
 			count += 3;
-        else
+		else
 			count += 4;
 	}
 	while (*++ptr);
@@ -4057,7 +4057,7 @@ NzString NzString::Unicode(const wchar_t* wString)
 			count += 2;
 		else if (cp < 0x10000)
 			count += 3;
-        else
+		else
 			count += 4;
 	}
 	while (*++ptr);

@@ -28,14 +28,12 @@ class NzVector3
 		~NzVector3() = default;
 
 		T AbsDotProduct(const NzVector3& vec) const;
-
 		T AngleBetween(const NzVector3& vec) const;
 
 		NzVector3 CrossProduct(const NzVector3& vec) const;
 
 		T Distance(const NzVector3& vec) const;
 		float Distancef(const NzVector3& vec) const;
-
 		T DotProduct(const NzVector3& vec) const;
 
 		T GetLength() const;

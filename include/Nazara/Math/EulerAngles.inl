@@ -91,11 +91,18 @@ void NzEulerAngles<T>::Set(const NzEulerAngles<U>& angles)
 template<typename T>
 NzQuaternion<T> NzEulerAngles<T>::ToQuaternion() const
 {
-	NzQuaternion<T> rotX(pitch, NzVector3<T>::UnitX());
-	NzQuaternion<T> rotY(yaw, NzVector3<T>::UnitY());
-	NzQuaternion<T> rotZ(roll, NzVector3<T>::UnitZ());
+	T c1 = std::cos(NzToRadians(yaw) / F(2.0));
+	T c2 = std::cos(NzToRadians(roll) / F(2.0));
+	T c3 = std::cos(NzToRadians(pitch) / F(2.0));
 
-	return rotY * rotX * rotZ;
+	T s1 = std::sin(NzToRadians(yaw) / F(2.0));
+	T s2 = std::sin(NzToRadians(roll) / F(2.0));
+	T s3 = std::sin(NzToRadians(pitch) / F(2.0));
+
+	return NzQuaternion<T>(c1 * c2 * c3 - s1 * s2 * s3,
+	                       s1 * s2 * c3 + c1 * c2 * s3,
+	                       s1 * c2 * c3 + c1 * s2 * s3,
+	                       c1 * s2 * c3 - s1 * c2 * s3);
 }
 
 template<typename T>
