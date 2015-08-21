@@ -23,6 +23,8 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
+#include <ctime>
+
 class NzFileImpl;
 
 class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
