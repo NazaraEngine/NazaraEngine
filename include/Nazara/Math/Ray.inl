@@ -59,18 +59,18 @@ T NzRay<T>::ClosestPoint(const NzVector3<T>& point) const
 template<typename T>
 NzVector3<T> NzRay<T>::GetPoint(T lambda) const
 {
-	return origin + lambda*direction;
+	return origin + lambda * direction;
 }
-/*
+
 template<typename T>
-bool NzRay<T>::Intersect(const NzBoundingVolume<T>& volume, T* closestHit, T* farthestHit) const
+bool NzRay<T>::Intersect(const NzBoundingVolume<T>& volume, T* closestHit, T* furthestHit) const
 {
 	switch (volume.extend)
 	{
 		case nzExtend_Finite:
 		{
 			if (Intersect(volume.aabb))
-				return Intersect(volume.obb, closestHit, farthestHit);
+				return Intersect(volume.obb, closestHit, furthestHit);
 
 			return false;
 		}
@@ -80,8 +80,8 @@ bool NzRay<T>::Intersect(const NzBoundingVolume<T>& volume, T* closestHit, T* fa
 			if (closestHit)
 				*closestHit = F(0.0);
 
-			if (farthestHit)
-				*farthestHit = std::numeric_limits<T>::infinity();
+			if (furthestHit)
+				*furthestHit = std::numeric_limits<T>::infinity();
 
 			return true;
 		}
@@ -93,9 +93,9 @@ bool NzRay<T>::Intersect(const NzBoundingVolume<T>& volume, T* closestHit, T* fa
 	NazaraError("Invalid extend type (0x" + NzString::Number(volume.extend, 16) + ')');
 	return false;
 }
-*/
+
 template<typename T>
-bool NzRay<T>::Intersect(const NzBox<T>& box, T* closestHit, T* farthestHit) const
+bool NzRay<T>::Intersect(const NzBox<T>& box, T* closestHit, T* furthestHit) const
 {
 	// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
 	T tfirst = F(0.0);
@@ -134,14 +134,14 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, T* closestHit, T* farthestHit) con
 	if (closestHit)
 		*closestHit = tfirst;
 
-	if (farthestHit)
-		*farthestHit = tlast;
+	if (furthestHit)
+		*furthestHit = tlast;
 
 	return true;
 }
 
 template<typename T>
-bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit, T* farthestHit) const
+bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit, T* furthestHit) const
 {
 	// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
 	// Intersection method from Real-Time Rendering and Essential Mathematics for Games
@@ -192,32 +192,39 @@ bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* 
 	if (closestHit)
 		*closestHit = tMin;
 
-	if (farthestHit)
-		*farthestHit = tMax;
+	if (furthestHit)
+		*furthestHit = tMax;
 
 	return true;
 }
 
-///FIXME: Le test ci-dessous est beaucoup trop approximatif pour être vraiment utile
-/// Mais le vrai problème vient certainement des OrientedBox en elles-mêmes, peut-être faut-il envisager de les refaire ?
-/*
 template<typename T>
-bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* farthestHit) const
+bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* furthestHit) const
 {
-    NzVector3<T> width = (orientedBox.GetCorner(nzBoxCorner_NearLeftBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> height = (orientedBox.GetCorner(nzBoxCorner_FarLeftTop) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
-    NzVector3<T> depth = (orientedBox.GetCorner(nzBoxCorner_FarRightBottom) - orientedBox.GetCorner(nzBoxCorner_FarLeftBottom)).Normalize();
+	NzVector3<T> corner = orientedBox.GetCorner(nzBoxCorner_FarLeftBottom);
+	NzVector3<T> oppositeCorner = orientedBox.GetCorner(nzBoxCorner_NearRightTop);
+
+	NzVector3<T> width = (orientedBox.GetCorner(nzBoxCorner_NearLeftBottom) - corner);
+	NzVector3<T> height = (orientedBox.GetCorner(nzBoxCorner_FarLeftTop) - corner);
+	NzVector3<T> depth = (orientedBox.GetCorner(nzBoxCorner_FarRightBottom) - corner);
 
 	// Construction de la matrice de transformation de l'OBB
-	NzMatrix4<T> matrix(width.x, height.x, depth.x, F(0.0),
-	                    width.y, height.y, depth.y, F(0.0),
-	                    width.z, height.z, depth.z, F(0.0),
+	NzMatrix4<T> matrix(width.x, height.x, depth.x, corner.x,
+	                    width.y, height.y, depth.y, corner.y,
+	                    width.z, height.z, depth.z, corner.z,
 	                    F(0.0),  F(0.0),   F(0.0),  F(1.0));
 
-	// Test en tant qu'AABB avec une matrice de rotation
-	return Intersect(orientedBox.localBox, matrix, closestHit, farthestHit);
+	matrix.InverseAffine();
+
+	corner = matrix.Transform(corner);
+	oppositeCorner = matrix.Transform(oppositeCorner);
+
+	NzBox<T> tmpBox(corner, oppositeCorner);
+	NzRay<T> tmpRay(matrix.Transform(origin), matrix.Transform(direction));
+
+	return tmpRay.Intersect(tmpBox, closestHit, furthestHit);
 }
-*/
+
 template<typename T>
 bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
 {
@@ -225,9 +232,9 @@ bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
 	if (NzNumberEquals(divisor, F(0.0)))
 		return false; // perpendicular
 
-	T lambda = -(plane.normal.DotProduct(origin) + plane.distance) / divisor; // The plane is ax+by+cz=d
+	T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax + by + cz = d
 	if (lambda < F(0.0))
-		return false; // Le plan est derrière le rayon
+		return false; // The plane is 'behind' the ray.
 
 	if (hit)
 		*hit = lambda;
@@ -236,7 +243,7 @@ bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
 }
 
 template<typename T>
-bool NzRay<T>::Intersect(const NzSphere<T>& sphere, T* closestHit, T* farthestHit) const
+bool NzRay<T>::Intersect(const NzSphere<T>& sphere, T* closestHit, T* furthestHit) const
 {
 	NzVector3<T> sphereRay = sphere.GetPosition() - origin;
 	T length = sphereRay.DotProduct(direction);
@@ -251,15 +258,15 @@ bool NzRay<T>::Intersect(const NzSphere<T>& sphere, T* closestHit, T* farthestHi
 		return false; // if the ray is further than the radius
 
 	// Calcul des points d'intersection si besoin
-	if (closestHit || farthestHit)
+	if (closestHit || furthestHit)
 	{
 		T deltaLambda = std::sqrt(squaredRadius - squaredDistance);
 
 		if (closestHit)
 			*closestHit = length - deltaLambda;
 
-		if (farthestHit)
-			*farthestHit = length + deltaLambda;
+		if (furthestHit)
+			*furthestHit = length + deltaLambda;
 	}
 
 	return true;
@@ -378,6 +385,18 @@ template<typename T>
 NzVector3<T> NzRay<T>::operator*(T lambda) const
 {
 	return GetPoint(lambda);
+}
+
+template<typename T>
+bool NzRay<T>::operator==(const NzRay& ray) const
+{
+	return direction == ray.direction && origin == ray.origin;
+}
+
+template<typename T>
+bool NzRay<T>::operator!=(const NzRay& ray) const
+{
+	return !operator==(ray);
 }
 
 template<typename T>

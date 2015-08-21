@@ -53,7 +53,7 @@ bool NzVertexBuffer::FillRaw(const void* data, unsigned int offset, unsigned int
 	if (!m_buffer)
 	{
 		NazaraError("No buffer");
-		return nullptr;
+		return false;
 	}
 
 	if (m_startOffset + offset + size > m_endOffset)

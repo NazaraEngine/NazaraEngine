@@ -110,7 +110,7 @@ namespace
 				// Nous devons gérer nous-même le flux car il doit rester ouvert après le passage du loader
 				// (les flux automatiquement ouverts par le ResourceLoader étant fermés après celui-ci)
 				std::unique_ptr<NzFile> file(new NzFile);
-				if (!file->Open(filePath, NzFile::ReadOnly))
+				if (!file->Open(filePath, nzOpenMode_ReadOnly))
 				{
 					NazaraError("Failed to open stream from file: " + NzError::GetLastError());
 					return false;
