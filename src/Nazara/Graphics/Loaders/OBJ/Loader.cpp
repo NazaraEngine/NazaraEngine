@@ -38,7 +38,7 @@ namespace
 	bool LoadMaterials(NzModel* model, const NzString& filePath, const NzMaterialParams& parameters, const NzString* materials, const NzOBJParser::Mesh* meshes, unsigned int meshCount)
 	{
 		NzFile file(filePath);
-		if (!file.Open(NzFile::ReadOnly | NzFile::Text))
+		if (!file.Open(nzOpenMode_ReadOnly | nzOpenMode_Text))
 		{
 			NazaraError("Failed to open MTL file (" + file.GetPath() + ')');
 			return false;
@@ -121,6 +121,8 @@ namespace
 
 			model->SetMaterial(meshes[i].material, it->second);
 		}
+
+		return true;
 	}
 
 	bool Load(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)
