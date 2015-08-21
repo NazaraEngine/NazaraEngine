@@ -312,8 +312,8 @@ inline void NzColor::ToHSV(const NzColor& color, float* hue, float* saturation, 
 	float g = color.g / 255.f;
 	float b = color.b / 255.f;
 
-	float min = std::min(std::min(r, g), b);    //Min. value of RGB
-	float max = std::max(std::max(r, g), b);    //Max. value of RGB
+	float min = std::min({r, g, b});    //Min. value of RGB
+	float max = std::max({r, g, b});    //Max. value of RGB
 
 	float deltaMax = max - min; //Delta RGB value
 
