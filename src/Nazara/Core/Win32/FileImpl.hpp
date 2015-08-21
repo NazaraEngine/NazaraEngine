@@ -28,7 +28,7 @@ class NzFileImpl : NzNonCopyable
 		nzUInt64 GetCursorPos() const;
 		bool Open(const NzString& filePath, unsigned int mode);
 		std::size_t Read(void* buffer, std::size_t size);
-		bool SetCursorPos(NzFile::CursorPosition pos, nzInt64 offset);
+		bool SetCursorPos(nzCursorPosition pos, nzInt64 offset);
 		std::size_t Write(const void* buffer, std::size_t size);
 
 		static bool Copy(const NzString& sourcePath, const NzString& targetPath);

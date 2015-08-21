@@ -64,7 +64,7 @@ template<typename T>
 bool NzRect<T>::Contains(const NzRect<T>& rect) const
 {
 	return Contains(rect.x, rect.y) &&
-		   Contains(rect.x + rect.width, rect.y + rect.height);
+	       Contains(rect.x + rect.width, rect.y + rect.height);
 }
 
 template<typename T>
@@ -410,7 +410,7 @@ template<typename T>
 bool NzRect<T>::operator==(const NzRect& rect) const
 {
 	return NzNumberEquals(x, rect.x) && NzNumberEquals(y, rect.y) &&
-	       NzNumberEquals(width, rect.width) &&  NzNumberEquals(height, rect.height);
+	       NzNumberEquals(width, rect.width) && NzNumberEquals(height, rect.height);
 }
 
 template<typename T>

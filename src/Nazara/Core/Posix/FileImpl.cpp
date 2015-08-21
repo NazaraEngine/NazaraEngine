@@ -51,33 +51,33 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 	int flags;
 	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
-	if (mode & NzFile::ReadOnly)
+	if (mode & nzOpenMode_ReadOnly)
 		flags = O_RDONLY;
-	else if (mode & NzFile::ReadWrite)
+	else if (mode & nzOpenMode_ReadWrite)
 	{
 		flags = O_CREAT | O_RDWR;
 
-		if (mode & NzFile::Append)
+		if (mode & nzOpenMode_Append)
 			flags |= O_APPEND;
 
-		if (mode & NzFile::Truncate)
+		if (mode & nzOpenMode_Truncate)
 			flags |= O_TRUNC;
 	}
-	else if (mode & NzFile::WriteOnly)
+	else if (mode & nzOpenMode_WriteOnly)
 	{
 		flags = O_CREAT | O_WRONLY;
 
-		if (mode & NzFile::Append)
+		if (mode & nzOpenMode_Append)
 			flags |= O_APPEND;
 
-		if (mode & NzFile::Truncate)
+		if (mode & nzOpenMode_Truncate)
 			flags |= O_TRUNC;
 	}
 	else
 		return false;
 
 ///TODO: lock
-//	if ((mode & NzFile::Lock) == 0)
+//	if ((mode & nzOpenMode_Lock) == 0)
 //		shareMode |= FILE_SHARE_WRITE;
 
 	m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
@@ -98,20 +98,20 @@ std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
 		return 0;
 }
 
-bool NzFileImpl::SetCursorPos(NzFile::CursorPosition pos, nzInt64 offset)
+bool NzFileImpl::SetCursorPos(nzCursorPosition pos, nzInt64 offset)
 {
 	int moveMethod;
 	switch (pos)
 	{
-		case NzFile::AtBegin:
+		case nzCursorPosition_AtBegin:
 			moveMethod = SEEK_SET;
 			break;
 
-		case NzFile::AtCurrent:
+		case nzCursorPosition_AtCurrent:
 			moveMethod = SEEK_CUR;
 			break;
 
-		case NzFile::AtEnd:
+		case nzCursorPosition_AtEnd:
 			moveMethod = SEEK_END;
 			break;
 

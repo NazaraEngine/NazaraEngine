@@ -49,7 +49,7 @@ NzPlane<T>::NzPlane(const NzPlane<U>& plane)
 template<typename T>
 T NzPlane<T>::Distance(const NzVector3<T>& point) const
 {
-	return normal.DotProduct(point) + distance;
+	return normal.DotProduct(point) - distance; // ax + by + cd - d = 0.
 }
 
 template<typename T>
@@ -110,7 +110,7 @@ NzPlane<T>& NzPlane<T>::Set(const NzVector3<T>& point1, const NzVector3<T>& poin
 	normal = edge1.CrossProduct(edge2);
 	normal.Normalize();
 
-	distance = -normal.DotProduct(point3);
+	distance = normal.DotProduct(point3);
 
 	return *this;
 }
@@ -131,6 +131,18 @@ NzString NzPlane<T>::ToString() const
 	NzStringStream ss;
 
 	return ss << "Plane(Normal: " << normal.ToString() << "; Distance: " << distance << ')';
+}
+
+template<typename T>
+bool NzPlane<T>::operator==(const NzPlane& plane) const
+{
+	return (normal == plane.normal && NzNumberEquals(distance, plane.distance)) || (normal == -plane.normal && NzNumberEquals(distance, -plane.distance));
+}
+
+template<typename T>
+bool NzPlane<T>::operator!=(const NzPlane& plane) const
+{
+	return !operator==(plane);
 }
 
 template<typename T>
@@ -155,19 +167,19 @@ NzPlane<T> NzPlane<T>::Lerp(const NzPlane& from, const NzPlane& to, T interpolat
 template<typename T>
 NzPlane<T> NzPlane<T>::XY()
 {
-    return NzPlane<T>(F(0.0), F(0.0), F(1.0), F(0.0));
+	return NzPlane<T>(F(0.0), F(0.0), F(1.0), F(0.0));
 }
 
 template<typename T>
 NzPlane<T> NzPlane<T>::XZ()
 {
-    return NzPlane<T>(F(0.0), F(1.0), F(0.0), F(0.0));
+	return NzPlane<T>(F(0.0), F(1.0), F(0.0), F(0.0));
 }
 
 template<typename T>
 NzPlane<T> NzPlane<T>::YZ()
 {
-    return NzPlane<T>(F(1.0), F(0.0), F(0.0), F(0.0));
+	return NzPlane<T>(F(1.0), F(0.0), F(0.0), F(0.0));
 }
 
 template<typename T>

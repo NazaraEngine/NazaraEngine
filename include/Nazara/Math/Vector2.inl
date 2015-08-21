@@ -106,6 +106,12 @@ T NzVector2<T>::GetSquaredLength() const
 }
 
 template<typename T>
+NzVector2<T>& NzVector2<T>::MakeUnit()
+{
+	return Set(F(1.0), F(1.0));
+}
+
+template<typename T>
 NzVector2<T>& NzVector2<T>::MakeUnitX()
 {
 	return Set(F(1.0), F(0.0));
@@ -129,7 +135,7 @@ NzVector2<T>& NzVector2<T>::Maximize(const NzVector2& vec)
 	if (vec.x > x)
 		x = vec.x;
 
-	if  (vec.y > y)
+	if (vec.y > y)
 		y = vec.y;
 
 	return *this;
@@ -141,7 +147,7 @@ NzVector2<T>& NzVector2<T>::Minimize(const NzVector2& vec)
 	if (vec.x < x)
 		x = vec.x;
 
-	if  (vec.y < y)
+	if (vec.y < y)
 		y = vec.y;
 
 	return *this;
@@ -229,7 +235,7 @@ NzVector2<T>& NzVector2<T>::Set(const NzVector4<T>& vec)
 template<typename T>
 T NzVector2<T>::SquaredDistance(const NzVector2& vec) const
 {
-	return operator-(vec).GetSquaredLength();
+	return (*this - vec).GetSquaredLength();
 }
 
 template<typename T>
@@ -398,7 +404,7 @@ template<typename T>
 bool NzVector2<T>::operator==(const NzVector2& vec) const
 {
 	return NzNumberEquals(x, vec.x) &&
-		   NzNumberEquals(y, vec.y);
+	       NzNumberEquals(y, vec.y);
 }
 
 template<typename T>
@@ -441,6 +447,15 @@ template<typename T>
 NzVector2<T> NzVector2<T>::Lerp(const NzVector2& from, const NzVector2& to, T interpolation)
 {
 	return NzLerp(from, to, interpolation);
+}
+
+template<typename T>
+NzVector2<T> NzVector2<T>::Unit()
+{
+	NzVector2 vector;
+	vector.MakeUnit();
+
+	return vector;
 }
 
 template<typename T>
