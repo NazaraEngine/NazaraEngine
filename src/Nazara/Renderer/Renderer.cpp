@@ -2027,7 +2027,8 @@ void NzRenderer::UpdateMatrix(nzMatrixType type)
 
 		// Matrices combinées
 		case nzMatrixType_ViewProj:
-			s_matrices[nzMatrixType_ViewProj].matrix = s_matrices[nzMatrixType_View].matrix * s_matrices[nzMatrixType_Projection].matrix;
+			s_matrices[nzMatrixType_ViewProj].matrix = s_matrices[nzMatrixType_View].matrix;
+			s_matrices[nzMatrixType_ViewProj].matrix.Concatenate(s_matrices[nzMatrixType_Projection].matrix);
 			s_matrices[nzMatrixType_ViewProj].updated = true;
 			break;
 
