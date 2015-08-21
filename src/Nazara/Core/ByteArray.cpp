@@ -3,491 +3,386 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ByteArray.hpp>
+
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <algorithm>
-#include <cstring>
-#include <limits>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-// Cet algorithme est inspiré de la documentation de Qt
-inline unsigned int nzGetNewSize(unsigned int newSize)
+ NzByteArray::iterator NzByteArray::begin() noexcept
 {
-	if (newSize < 20)
-		return newSize+4;
-	else
-	{
-		if (newSize < (1 << 12)-12)
-			return NzGetNearestPowerOfTwo(newSize << 1)-12;
-		else
-			return newSize + (1 << 11);
-	}
+	return m_array.begin();
+}
+
+NzByteArray::const_iterator NzByteArray::begin() const noexcept
+{
+	return m_array.begin();
+}
+
+ NzByteArray::iterator NzByteArray::end() noexcept
+{
+	return m_array.end();
+}
+
+NzByteArray::const_iterator NzByteArray::end() const noexcept
+{
+	return m_array.end();
+}
+
+NzByteArray::reverse_iterator NzByteArray::rbegin() noexcept
+{
+	return m_array.rbegin();
+}
+
+NzByteArray::const_reverse_iterator NzByteArray::rbegin() const noexcept
+{
+	return m_array.rbegin();
+}
+
+NzByteArray::reverse_iterator NzByteArray::rend() noexcept
+{
+	return m_array.rend();
+}
+
+NzByteArray::const_iterator NzByteArray::cbegin() const noexcept
+{
+	return m_array.cbegin();
+}
+
+NzByteArray::const_iterator NzByteArray::cend() const noexcept
+{
+	return m_array.cend();
+}
+
+NzByteArray::const_reverse_iterator NzByteArray::crbegin() const noexcept
+{
+	return m_array.crbegin();
+}
+
+NzByteArray::const_reverse_iterator NzByteArray::crend() const noexcept
+{
+	return m_array.crend();
 }
 
 NzByteArray::NzByteArray() :
-m_sharedArray(&emptyArray)
+m_array()
 {
 }
 
-NzByteArray::NzByteArray(unsigned int size)
+NzByteArray::NzByteArray(size_type n) :
+m_array()
 {
-	if (size > 0)
-	{
-		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = new nzUInt8[size];
-		m_sharedArray->capacity = size;
-		m_sharedArray->size = size;
-	}
-	else
-		m_sharedArray = &emptyArray;
+	m_array.reserve(n);
 }
 
-NzByteArray::NzByteArray(const void* buffer, unsigned int size)
+NzByteArray::NzByteArray(const void* buffer, size_type n) :
+m_array(static_cast<const_pointer>(buffer), static_cast<const_pointer>(buffer) + n)
 {
-	if (size > 0)
-	{
-		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = new nzUInt8[size];
-		m_sharedArray->capacity = size;
-		m_sharedArray->size = size;
-		std::memcpy(m_sharedArray->buffer, buffer, size);
-	}
-	else
-		m_sharedArray = &emptyArray;
 }
 
-NzByteArray::NzByteArray(const NzByteArray& buffer) :
-m_sharedArray(buffer.m_sharedArray)
+NzByteArray::NzByteArray(size_type n, const value_type value) :
+m_array(n, value)
 {
-	if (m_sharedArray != &emptyArray)
-		m_sharedArray->refCount++;
 }
 
-NzByteArray::NzByteArray(NzByteArray&& buffer) noexcept :
-m_sharedArray(buffer.m_sharedArray)
+NzByteArray::NzByteArray(const NzByteArray& other) :
+m_array(other.m_array)
 {
-	buffer.m_sharedArray = &emptyArray;
 }
 
-NzByteArray::NzByteArray(SharedArray* sharedArray) :
-m_sharedArray(sharedArray)
+NzByteArray::NzByteArray(NzByteArray&& other) :
+m_array(std::move(other.m_array))
 {
 }
 
 NzByteArray::~NzByteArray()
 {
-	ReleaseArray();
 }
 
-NzByteArray& NzByteArray::Append(const void* buffer, unsigned int size)
+NzByteArray::iterator NzByteArray::Append(const void* buffer, size_type n)
 {
-	return Insert(m_sharedArray->size, buffer, size);
+	return Insert(end(), static_cast<const_pointer>(buffer), static_cast<const_pointer>(buffer) + n);
 }
 
-NzByteArray& NzByteArray::Append(const NzByteArray& array)
+NzByteArray::iterator NzByteArray::Append(const NzByteArray& other)
 {
-	return Insert(m_sharedArray->size, array);
+	return Insert(end(), other.begin(), other.end());
+}
+
+void NzByteArray::Assign(size_type n, const value_type value)
+{
+	m_array.assign(n, value);
+}
+
+NzByteArray::reference NzByteArray::Back()
+{
+	return m_array.back();
+}
+
+NzByteArray::const_reference NzByteArray::Back() const
+{
+	return m_array.back();
 }
 
 void NzByteArray::Clear(bool keepBuffer)
 {
-	if (keepBuffer)
-	{
-		EnsureOwnership();
-		m_sharedArray->size = 0;
-	}
-	else
-		ReleaseArray();
+	m_array.clear();
+
+	if (!keepBuffer)
+		ShrinkToFit();
 }
 
-nzUInt8* NzByteArray::GetBuffer()
+NzByteArray::pointer NzByteArray::data()
 {
-	EnsureOwnership();
-
-	return m_sharedArray->buffer;
+	return GetBuffer();
 }
 
-unsigned int NzByteArray::GetCapacity() const
+NzByteArray::const_pointer NzByteArray::data() const
 {
-	return m_sharedArray->capacity;
+	return GetConstBuffer();
 }
 
-const nzUInt8* NzByteArray::GetConstBuffer() const
+bool NzByteArray::empty() const noexcept
 {
-	return m_sharedArray->buffer;
+	return IsEmpty();
 }
 
-unsigned int NzByteArray::GetSize() const
+NzByteArray::iterator NzByteArray::Erase(const_iterator pos)
 {
-	return m_sharedArray->size;
+	return m_array.erase(pos);
 }
 
-NzByteArray& NzByteArray::Insert(int pos, const void* buffer, unsigned int size)
+NzByteArray::iterator NzByteArray::Erase(const_iterator first, const_iterator last)
 {
-	if (size == 0)
-		return *this;
-
-	if (pos < 0)
-		pos = std::max(static_cast<int>(m_sharedArray->size + pos), 0);
-
-	unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedArray->size);
-
-	// Si le buffer est déjà suffisamment grand
-	if (m_sharedArray->capacity >= m_sharedArray->size + size)
-	{
-		EnsureOwnership();
-
-		std::memmove(&m_sharedArray->buffer[start+size], &m_sharedArray->buffer[start], m_sharedArray->size - start);
-		std::memcpy(&m_sharedArray->buffer[start], buffer, size);
-
-		m_sharedArray->size += size;
-	}
-	else
-	{
-		unsigned int newSize = m_sharedArray->size + size;
-		nzUInt8* newBuffer = new nzUInt8[newSize];
-
-		nzUInt8* ptr = newBuffer;
-
-		if (start > 0)
-		{
-			std::memcpy(ptr, m_sharedArray->buffer, start*sizeof(nzUInt8));
-			ptr += start;
-		}
-
-		std::memcpy(ptr, buffer, size*sizeof(nzUInt8));
-		ptr += size;
-
-		if (m_sharedArray->size > 0)
-			std::memcpy(ptr, &m_sharedArray->buffer[start], m_sharedArray->size - start);
-
-		ReleaseArray();
-		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = newBuffer;
-		m_sharedArray->capacity = newSize;
-		m_sharedArray->size = newSize;
-	}
-
-	return *this;
+	return m_array.erase(first, last);
 }
 
-NzByteArray& NzByteArray::Insert(int pos, const NzByteArray& array)
+NzByteArray::reference NzByteArray::Front()
 {
-	return Insert(pos, array.m_sharedArray->buffer, array.m_sharedArray->size);
+	return m_array.front();
 }
 
-bool NzByteArray::IsEmpty() const
+NzByteArray::const_reference NzByteArray::Front() const
 {
-	return m_sharedArray->size == 0;
+	return m_array.front();
 }
 
-NzByteArray& NzByteArray::Prepend(const void* buffer, unsigned int size)
+NzByteArray::iterator NzByteArray::Insert(const_iterator pos, const void* buffer, size_type n)
 {
-	return Insert(0, buffer, size);
+	return Insert(pos, static_cast<const_pointer>(buffer), static_cast<const_pointer>(buffer) + n);
 }
 
-NzByteArray& NzByteArray::Prepend(const NzByteArray& array)
+NzByteArray::iterator NzByteArray::Insert(const_iterator pos, const NzByteArray& other)
 {
-	return Insert(0, array);
+	return Insert(pos, other.begin(), other.end());
 }
 
-void NzByteArray::Reserve(unsigned int bufferSize)
+NzByteArray::iterator NzByteArray::Insert(const_iterator pos, size_type n, const value_type byte)
 {
-	if (m_sharedArray->capacity >= bufferSize)
-		return;
-
-	nzUInt8* newBuffer = new nzUInt8[bufferSize];
-	if (m_sharedArray->size > 0)
-		std::memcpy(newBuffer, m_sharedArray->buffer, m_sharedArray->size);
-
-	unsigned int size = m_sharedArray->size;
-
-	ReleaseArray();
-	m_sharedArray = new SharedArray;
-	m_sharedArray->buffer = newBuffer;
-	m_sharedArray->capacity = bufferSize;
-	m_sharedArray->size = size;
+	return Insert(pos, n, byte);
 }
 
-NzByteArray& NzByteArray::Resize(int size)
+bool NzByteArray::IsEmpty() const noexcept
 {
-	if (size == 0)
-	{
-		Clear(true);
-		return *this;
-	}
-
-	if (size < 0)
-		size = std::max(static_cast<int>(m_sharedArray->size + size), 0);
-
-	unsigned int newSize = static_cast<unsigned int>(size);
-
-	if (m_sharedArray->capacity >= newSize)
-	{
-		EnsureOwnership();
-
-		// Nous avons déjà la place requise
-		m_sharedArray->size = newSize;
-	}
-	else // On veut forcément agrandir la chaine
-	{
-		nzUInt8* newBuffer = new nzUInt8[newSize];
-		if (m_sharedArray->size != 0)
-			std::memcpy(newBuffer, m_sharedArray->buffer, newSize);
-
-		ReleaseArray();
-		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = newBuffer;
-		m_sharedArray->capacity = newSize;
-		m_sharedArray->size = newSize;
-	}
-
-	return *this;
+	return m_array.empty();
 }
 
-NzByteArray& NzByteArray::Resize(int size, nzUInt8 byte)
+NzByteArray::allocator_type NzByteArray::GetAllocator() const
 {
-	if (size == 0)
-	{
-		Clear(true);
-		return *this;
-	}
-
-	if (size < 0)
-		size = std::max(static_cast<int>(m_sharedArray->size + size), 0);
-
-	unsigned int newSize = static_cast<unsigned int>(size);
-
-	if (m_sharedArray->capacity >= newSize)
-	{
-		EnsureOwnership();
-
-		// Nous avons déjà la place requise, contentons-nous de remplir le buffer
-		if (newSize > m_sharedArray->size)
-			std::memset(&m_sharedArray->buffer[m_sharedArray->size], byte, newSize-m_sharedArray->size);
-
-		m_sharedArray->size = newSize;
-	}
-	else // On veut forcément agrandir la chaine
-	{
-		nzUInt8* newBuffer = new nzUInt8[newSize];
-		if (m_sharedArray->size != 0)
-			std::memcpy(newBuffer, m_sharedArray->buffer, newSize);
-
-		std::memset(&newBuffer[m_sharedArray->size], byte, newSize-m_sharedArray->size);
-
-		ReleaseArray();
-		m_sharedArray = new SharedArray;
-		m_sharedArray->buffer = newBuffer;
-		m_sharedArray->capacity = newSize;
-		m_sharedArray->size = newSize;
-	}
-
-	return *this;
+	return m_array.get_allocator();
 }
 
-NzByteArray NzByteArray::Resized(int size) const
+NzByteArray::pointer NzByteArray::GetBuffer()
 {
-	if (size < 0)
-		size = m_sharedArray->size + size;
-
-	if (size <= 0)
-		return NzByteArray();
-
-	unsigned int newSize = static_cast<unsigned int>(size);
-	if (newSize == m_sharedArray->size)
-		return *this;
-
-	nzUInt8* buffer = new nzUInt8[newSize];
-	std::memcpy(buffer, m_sharedArray->buffer, (newSize > m_sharedArray->size) ? m_sharedArray->size : newSize);
-
-	return NzByteArray(new SharedArray(1, newSize, newSize, buffer));
+	return m_array.data();
 }
 
-NzByteArray NzByteArray::Resized(int size, nzUInt8 byte) const
+NzByteArray::size_type NzByteArray::GetCapacity() const noexcept
 {
-	if (size < 0)
-		size = m_sharedArray->size + size;
-
-	if (size <= 0)
-		return NzByteArray();
-
-	unsigned int newSize = static_cast<unsigned int>(size);
-	if (newSize == m_sharedArray->size)
-		return *this;
-
-	nzUInt8* buffer = new nzUInt8[newSize];
-	if (newSize > m_sharedArray->size)
-	{
-		std::memcpy(buffer, m_sharedArray->buffer, m_sharedArray->size);
-		std::memset(&buffer[m_sharedArray->size], byte, newSize - m_sharedArray->size);
-	}
-	else
-		std::memcpy(buffer, m_sharedArray->buffer, newSize);
-
-	return NzByteArray(new SharedArray(1, newSize, newSize, buffer));
+	return m_array.capacity();
 }
 
-NzByteArray NzByteArray::SubArray(int startPos, int endPos) const
+NzByteArray::const_pointer NzByteArray::GetConstBuffer() const
 {
-	if (startPos < 0)
-		startPos = std::max(m_sharedArray->size+startPos, 0U);
-
-	unsigned int start = static_cast<unsigned int>(startPos);
-
-	if (endPos < 0)
-	{
-		endPos = m_sharedArray->size + endPos;
-		if (endPos < 0)
-			return NzByteArray();
-	}
-
-	unsigned int minEnd = std::min(static_cast<unsigned int>(endPos), m_sharedArray->size-1);
-
-	if (start > minEnd || start >= m_sharedArray->size)
-		return NzByteArray();
-
-	unsigned int size = minEnd - start + 1;
-	nzUInt8* buffer = new nzUInt8[size];
-	std::memcpy(buffer, &m_sharedArray->buffer[start], size);
-
-	return NzByteArray(new SharedArray(1, size, size, buffer));
+	return m_array.data();
 }
 
-void NzByteArray::Swap(NzByteArray& array)
+NzByteArray::size_type NzByteArray::GetSize() const noexcept
 {
-	std::swap(m_sharedArray, array.m_sharedArray);
+	return m_array.size();
 }
 
-nzUInt8* NzByteArray::begin()
+NzByteArray::size_type NzByteArray::MaxSize() const noexcept
 {
-	return m_sharedArray->buffer;
+	return m_array.max_size();
 }
 
-const nzUInt8* NzByteArray::begin() const
-{
-	return m_sharedArray->buffer;
-}
-
-nzUInt8* NzByteArray::end()
-{
-	return &m_sharedArray->buffer[m_sharedArray->size];
-}
-
-const nzUInt8* NzByteArray::end() const
-{
-	return &m_sharedArray->buffer[m_sharedArray->size];
-}
-
-nzUInt8& NzByteArray::operator[](unsigned int pos)
-{
-	EnsureOwnership();
-
-	if (pos >= m_sharedArray->size)
-		Resize(pos+1);
-
-	return m_sharedArray->buffer[pos];
-}
-
-nzUInt8 NzByteArray::operator[](unsigned int pos) const
+NzByteArray::reference NzByteArray::operator[](size_type pos)
 {
 	#if NAZARA_CORE_SAFE
-	if (pos >= m_sharedArray->size)
-	{
-		NazaraError("Index out of range (" + NzString::Number(pos) + " >= " + NzString::Number(m_sharedArray->size) + ')');
-		return 0;
-	}
+	if (pos >= GetSize())
+		NazaraError("Index out of range (" + NzString::Number(pos) + " >= " + NzString::Number(GetSize()) + ')');
 	#endif
 
-	return m_sharedArray->buffer[pos];
+	return m_array[pos];
 }
 
-NzByteArray& NzByteArray::operator=(const NzByteArray& array)
+NzByteArray::const_reference NzByteArray::operator[](size_type pos) const
 {
-	if (this != &array)
-	{
-		ReleaseArray();
+	#if NAZARA_CORE_SAFE
+	if (pos >= GetSize())
+		NazaraError("Index out of range (" + NzString::Number(pos) + " >= " + NzString::Number(GetSize()) + ')');
+	#endif
 
-		m_sharedArray = array.m_sharedArray;
-		if (m_sharedArray != &emptyArray)
-			m_sharedArray->refCount++;
-	}
+	return m_array[pos];
+}
+
+NzByteArray& NzByteArray::operator=(const NzByteArray& other)
+{
+	m_array = other.m_array;
 
 	return *this;
 }
 
-NzByteArray& NzByteArray::operator=(NzByteArray&& array) noexcept
+NzByteArray& NzByteArray::operator=(NzByteArray&& other)
 {
-	std::swap(m_sharedArray, array.m_sharedArray);
+	m_array = std::move(other.m_array);
 
 	return *this;
 }
 
-NzByteArray NzByteArray::operator+(const NzByteArray& array) const
+NzByteArray NzByteArray::operator+(const NzByteArray& other) const
 {
-	if (array.m_sharedArray->size == 0)
-		return *this;
+	NzByteArray tmp(*this);
+	tmp += other;
 
-	if (m_sharedArray->size == 0)
-		return array;
-
-	unsigned int totalSize = m_sharedArray->size + array.m_sharedArray->size;
-	nzUInt8* buffer = new nzUInt8[totalSize];
-	std::memcpy(buffer, m_sharedArray->buffer, m_sharedArray->size);
-	std::memcpy(&buffer[m_sharedArray->size], array.m_sharedArray->buffer, array.m_sharedArray->size);
-
-	return NzByteArray(new SharedArray(1, totalSize, totalSize, buffer));
+	return tmp;
 }
 
-NzByteArray& NzByteArray::operator+=(const NzByteArray& array)
+NzByteArray& NzByteArray::operator+=(const NzByteArray& other)
 {
-	return Append(array);
+	Append(other);
+
+	return *this;
 }
 
-int NzByteArray::Compare(const NzByteArray& first, const NzByteArray& second)
+bool NzByteArray::operator==(const NzByteArray& rhs) const
 {
-	return std::memcmp(first.m_sharedArray->buffer, second.m_sharedArray->buffer, std::min(first.m_sharedArray->size, second.m_sharedArray->size));
+	return m_array == rhs.m_array;
 }
 
-void NzByteArray::EnsureOwnership()
+bool NzByteArray::operator!=(const NzByteArray& rhs) const
 {
-	if (m_sharedArray == &emptyArray)
-		return;
+	return !operator==(rhs);
+}
 
-	if (m_sharedArray->refCount > 1)
-	{
-		m_sharedArray->refCount--;
+bool NzByteArray::operator<(const NzByteArray& rhs) const
+{
+	return m_array < rhs.m_array;
+}
 
-		nzUInt8* buffer = new nzUInt8[m_sharedArray->capacity];
-		std::memcpy(buffer, m_sharedArray->buffer, m_sharedArray->size);
+bool NzByteArray::operator<=(const NzByteArray& rhs) const
+{
+	return m_array <= rhs.m_array;
+}
 
-		m_sharedArray = new SharedArray(1, m_sharedArray->capacity, m_sharedArray->size, buffer);
-	}
+bool NzByteArray::operator>(const NzByteArray& rhs) const
+{
+	return m_array > rhs.m_array;
+}
+
+bool NzByteArray::operator>=(const NzByteArray& rhs) const
+{
+	return m_array >= rhs.m_array;
+}
+
+void NzByteArray::PopBack()
+{
+	Erase(end() - 1);
+}
+
+void NzByteArray::PopFront()
+{
+	Erase(begin());
+}
+
+NzByteArray::iterator NzByteArray::Prepend(const void* buffer, size_type n)
+{
+	return Insert(begin(), buffer, n);
+}
+
+NzByteArray::iterator NzByteArray::Prepend(const NzByteArray& other)
+{
+	return Insert(begin(), other);
+}
+
+void NzByteArray::PushBack(const value_type byte)
+{
+	m_array.push_back(byte);
+}
+
+void NzByteArray::PushFront(const value_type byte)
+{
+	m_array.insert(begin(), 1, byte);
+}
+
+void NzByteArray::Reserve(size_type bufferSize)
+{
+	m_array.reserve(bufferSize);
+}
+
+void NzByteArray::Resize(size_type newSize)
+{
+	m_array.resize(newSize);
+}
+
+void NzByteArray::Resize(size_type newSize, const value_type byte)
+{
+	m_array.resize(newSize, byte);
+}
+
+NzByteArray::size_type NzByteArray::size() const noexcept
+{
+	return GetSize();
+}
+
+void NzByteArray::ShrinkToFit()
+{
+	m_array.shrink_to_fit();
+}
+
+NzByteArray NzByteArray::SubArray(const_iterator startPos, const_iterator endPos) const
+{
+	return NzByteArray(startPos, endPos);
+}
+
+void NzByteArray::Swap(NzByteArray& other)
+{
+	m_array.swap(other.m_array);
+}
+
+NzString NzByteArray::ToString() const
+{
+	NzStringStream ss;
+
+	for (const auto& it : m_array)
+		ss << it;
+
+	return ss;
 }
 
 bool NzByteArray::FillHash(NzAbstractHash* hash) const
 {
-	hash->Append(m_sharedArray->buffer, m_sharedArray->size);
+	hash->Append(GetConstBuffer(), GetSize());
 
 	return true;
 }
 
-void NzByteArray::ReleaseArray()
+std::ostream& operator<<(std::ostream& out, const NzByteArray& byteArray)
 {
-	if (m_sharedArray == &emptyArray)
-		return;
-
-	if (--m_sharedArray->refCount == 0)
-	{
-		delete[] m_sharedArray->buffer;
-		delete m_sharedArray;
-	}
-
-	m_sharedArray = &emptyArray;
+	out << byteArray.ToString();
+	return out;
 }
-
-NzByteArray::SharedArray NzByteArray::emptyArray(0, 0, 0, nullptr);
-unsigned int NzByteArray::npos(std::numeric_limits<unsigned int>::max());
 
 namespace std
 {
