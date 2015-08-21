@@ -57,7 +57,7 @@ bool NzResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const NzSt
 
 		if (checkFunc && !file.IsOpen())
 		{
-			if (!file.Open(NzFile::ReadOnly))
+			if (!file.Open(nzOpenMode_ReadOnly))
 			{
 				NazaraError("Failed to load file: unable to open \"" + filePath + '"');
 				return false;

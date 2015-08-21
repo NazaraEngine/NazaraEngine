@@ -57,31 +57,31 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 	DWORD access;
 	DWORD shareMode = FILE_SHARE_READ;
 	DWORD openMode;
-	if (mode & NzFile::ReadOnly)
+	if (mode & nzOpenMode_ReadOnly)
 	{
 		access = GENERIC_READ;
 		openMode = OPEN_EXISTING;
 	}
-	else if (mode & NzFile::ReadWrite)
+	else if (mode & nzOpenMode_ReadWrite)
 	{
-		if (mode & NzFile::Append)
+		if (mode & nzOpenMode_Append)
 			access = FILE_APPEND_DATA;
 		else
 			access = GENERIC_READ | GENERIC_WRITE;
 
-		if (mode & NzFile::Truncate)
+		if (mode & nzOpenMode_Truncate)
 			openMode = CREATE_ALWAYS;
 		else
 			openMode = OPEN_ALWAYS;
 	}
-	else if (mode & NzFile::WriteOnly)
+	else if (mode & nzOpenMode_WriteOnly)
 	{
-		if (mode & NzFile::Append)
+		if (mode & nzOpenMode_Append)
 			access = FILE_APPEND_DATA;
 		else
 			access = GENERIC_WRITE;
 
-		if (mode & NzFile::Truncate)
+		if (mode & nzOpenMode_Truncate)
 			openMode = CREATE_ALWAYS;
 		else
 			openMode = OPEN_ALWAYS;
@@ -89,7 +89,7 @@ bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
 	else
 		return false;
 
-	if ((mode & NzFile::Lock) == 0)
+	if ((mode & nzOpenMode_Lock) == 0)
 		shareMode |= FILE_SHARE_WRITE;
 
 	m_handle = CreateFileW(filePath.GetWideString().data(), access, shareMode, nullptr, openMode, 0, nullptr);
@@ -134,20 +134,20 @@ std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
 		return 0;
 }
 
-bool NzFileImpl::SetCursorPos(NzFile::CursorPosition pos, nzInt64 offset)
+bool NzFileImpl::SetCursorPos(nzCursorPosition pos, nzInt64 offset)
 {
 	DWORD moveMethod;
 	switch (pos)
 	{
-		case NzFile::AtBegin:
+		case nzCursorPosition_AtBegin:
 			moveMethod = FILE_BEGIN;
 			break;
 
-		case NzFile::AtCurrent:
+		case nzCursorPosition_AtCurrent:
 			moveMethod = FILE_CURRENT;
 			break;
 
-		case NzFile::AtEnd:
+		case nzCursorPosition_AtEnd:
 			moveMethod = FILE_END;
 			break;
 

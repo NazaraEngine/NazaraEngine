@@ -114,7 +114,7 @@ void NzLog::Write(const NzString& string)
 	if (m_enabled)
 	{
 		if (!m_file)
-			m_file = new NzFile(m_filePath, NzFile::Text | NzFile::WriteOnly | ((m_append) ? NzFile::Append : NzFile::Truncate));
+			m_file = new NzFile(m_filePath, nzOpenMode_Text | nzOpenMode_WriteOnly | ((m_append) ? nzOpenMode_Append : nzOpenMode_Truncate));
 
 		NzString line;
 
