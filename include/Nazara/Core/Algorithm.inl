@@ -14,7 +14,7 @@ template<unsigned int N>
 struct NzImplTupleUnpack
 {
 	template <typename F, typename... ArgsT, typename... Args>
-	void operator()(F func, const std::tuple<ArgsT...>& t,  Args&... args)
+	void operator()(F func, const std::tuple<ArgsT...>& t, Args&... args)
 	{
 		NzImplTupleUnpack<N-1>()(func, t, std::get<N-1>(t), args...);
 	}
