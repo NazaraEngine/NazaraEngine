@@ -64,9 +64,9 @@ template<typename T>
 T NzVector3<T>::AngleBetween(const NzVector3& vec) const
 {
 	// sqrt(a) * sqrt(b) = sqrt(a*b)
-    T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
+	T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
 
-    #if NAZARA_MATH_SAFE
+	#if NAZARA_MATH_SAFE
 	if (NzNumberEquals(divisor, F(0.0)))
 	{
 		NzString error("Division by zero");
@@ -325,7 +325,7 @@ NzVector3<T>& NzVector3<T>::Set(const NzVector4<T>& vec)
 template<typename T>
 T NzVector3<T>::SquaredDistance(const NzVector3& vec) const
 {
-	return operator-(vec).GetSquaredLength();
+	return (*this - vec).GetSquaredLength();
 }
 
 template<typename T>

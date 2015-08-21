@@ -367,6 +367,25 @@ void NzDebugDrawer::Draw(const NzVector3f& position, float size)
 	Draw(NzBoxf(position.x - size*0.5f, position.y - size*0.5f, position.z - size*0.5f, size, size, size));
 }
 
+void NzDebugDrawer::DrawAxes(const NzVector3f& position, float size)
+{
+	NzColor oldPrimaryColor = s_primaryColor;
+	s_primaryColor = NzColor::Red;
+	DrawLine(position, position + NzVector3f::UnitX() * 3.f * size / 4.f);
+	s_primaryColor = NzColor::Green;
+	DrawLine(position, position + NzVector3f::UnitY() * 3.f * size / 4.f);
+	s_primaryColor = NzColor::Blue;
+	DrawLine(position, position + NzVector3f::UnitZ() * 3.f * size / 4.f);
+
+	s_primaryColor = NzColor::Red;
+	DrawCone(position + NzVector3f::UnitX() * size, NzEulerAnglesf(0.f, 90.f, 0.f), 15, size / 4.f);
+	s_primaryColor = NzColor::Green;
+	DrawCone(position + NzVector3f::UnitY() * size, NzEulerAnglesf(-90.f, 0.f, 0.f), 15, size / 4.f);
+	s_primaryColor = NzColor::Blue;
+	DrawCone(position + NzVector3f::UnitZ() * size, NzEulerAnglesf(0.f, 0.f, 0.f), 15, size / 4.f);
+	s_primaryColor = oldPrimaryColor;
+}
+
 void NzDebugDrawer::DrawBinormals(const NzStaticMesh* subMesh)
 {
 	if (!Initialize())

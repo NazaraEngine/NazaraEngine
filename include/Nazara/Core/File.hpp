@@ -30,29 +30,9 @@ class NzFileImpl;
 class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
 {
 	public:
-		enum CursorPosition
-		{
-			AtBegin,   // Début du fichier
-			AtCurrent, // Position du pointeur
-			AtEnd	   // Fin du fichier
-		};
-
-		enum OpenMode
-		{
-			Current   = 0x00, // Utilise le mode d'ouverture actuel
-
-			Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-			Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
-			ReadOnly  = 0x04, // Ouvre uniquement en lecture
-			ReadWrite = 0x08, // Ouvre en lecture/écriture
-			Text      = 0x10, // Ouvre en mode texte
-			Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
-			WriteOnly = 0x40  // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
-		};
-
 		NzFile();
 		NzFile(const NzString& filePath);
-		NzFile(const NzString& filePath, unsigned long openMode);
+		NzFile(const NzString& filePath, unsigned int openMode);
 		NzFile(NzFile&& file) noexcept;
 		~NzFile();
 
@@ -79,14 +59,14 @@ class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCop
 
 		bool IsOpen() const;
 
-		bool Open(unsigned long openMode = Current);
-		bool Open(const NzString& filePath, unsigned long openMode = Current);
+		bool Open(unsigned int openMode = nzOpenMode_Current);
+		bool Open(const NzString& filePath, unsigned int openMode = nzOpenMode_Current);
 
 		std::size_t Read(void* buffer, std::size_t size);
 		std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
 		bool Rename(const NzString& newFilePath);
 
-		bool SetCursorPos(CursorPosition pos, nzInt64 offset = 0);
+		bool SetCursorPos(nzCursorPosition pos, nzInt64 offset = 0);
 		bool SetCursorPos(nzUInt64 offset);
 		void SetEndianness(nzEndianness endianness);
 		bool SetFile(const NzString& filePath);
