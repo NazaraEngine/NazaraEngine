@@ -27,7 +27,7 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-using NzDynLibFunc =  int (*)(); // Type "générique" de pointeur sur fonction
+using NzDynLibFunc = int (*)(); // Type "générique" de pointeur sur fonction
 
 class NzDynLibImpl;
 
