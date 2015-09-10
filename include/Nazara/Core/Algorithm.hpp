@@ -14,6 +14,9 @@
 template<typename F, typename Tuple> auto NzApply(F&& fn, Tuple&& t);
 template<typename T> void NzHashCombine(std::size_t& seed, const T& v);
 
+template<typename T>
+struct NzTypeTag {};
+
 #include <Nazara/Core/Algorithm.inl>
 
 #endif // NAZARA_ALGORITHM_CORE_HPP
