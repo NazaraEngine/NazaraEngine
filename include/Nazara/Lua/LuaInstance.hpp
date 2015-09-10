@@ -108,8 +108,9 @@ class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
 		void Pop(unsigned int n = 1U);
 
 		void PushBoolean(bool value);
-		void PushCFunction(NzLuaCFunction func, int upvalueCount = 0);
+		void PushCFunction(NzLuaCFunction func, unsigned int upvalueCount = 0);
 		void PushFunction(NzLuaFunction func);
+		template<typename R, typename... Args> void PushFunction(R(*func)(Args...));
 		void PushInteger(long long value);
 		void PushLightUserdata(void* value);
 		void PushMetatable(const char* str);
@@ -118,6 +119,7 @@ class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
 		void PushNumber(double value);
 		void PushReference(int ref);
 		void PushString(const char* str);
+		void PushString(const char* str, unsigned int size);
 		void PushString(const NzString& str);
 		void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
 		void* PushUserdata(unsigned int size);
@@ -164,5 +166,7 @@ class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
 		lua_State* m_state;
 		unsigned int m_level;
 };
+
+#include <Nazara/Lua/LuaInstance.inl>
 
 #endif // NAZARA_LUASTATE_HPP
