@@ -9,8 +9,8 @@
 #include <Nazara/Core/Debug.hpp>
 
 // http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
-template<typename F, typename Tuple, size_t ...S >
-auto NzApplyImpl(F&& fn, Tuple&& t, std::index_sequence<S...>)
+template<typename F, typename Tuple, size_t... S>
+auto NzApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
 {
     return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
 }
@@ -18,11 +18,24 @@ auto NzApplyImpl(F&& fn, Tuple&& t, std::index_sequence<S...>)
 template<typename F, typename Tuple>
 auto NzApply(F&& fn, Tuple&& t)
 {
-	std::size_t constexpr tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
+	constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
-	return NzApplyImpl(std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+	return NzApplyImplFunc(std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
 }
 
+template<typename O, typename F, typename Tuple, size_t... S>
+auto NzApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
+{
+    return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
+}
+
+template<typename O, typename F, typename Tuple>
+auto NzApply(O& object, F&& fn, Tuple&& t)
+{
+	constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
+
+	return NzApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+}
 // Algorithme venant de CityHash par Google
 // http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
 template<typename T>

@@ -624,7 +624,7 @@ void NzLuaInstance::PushBoolean(bool value)
 	lua_pushboolean(m_state, (value) ? 1 : 0);
 }
 
-void NzLuaInstance::PushCFunction(NzLuaCFunction func, int upvalueCount)
+void NzLuaInstance::PushCFunction(NzLuaCFunction func, unsigned int upvalueCount)
 {
 	lua_pushcclosure(m_state, func, upvalueCount);
 }
@@ -675,6 +675,11 @@ void NzLuaInstance::PushReference(int ref)
 void NzLuaInstance::PushString(const char* str)
 {
 	lua_pushstring(m_state, str);
+}
+
+void NzLuaInstance::PushString(const char* str, unsigned int size)
+{
+	lua_pushlstring(m_state, str, size);
 }
 
 void NzLuaInstance::PushString(const NzString& str)
