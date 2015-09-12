@@ -18,22 +18,28 @@ double NzLuaImplQueryArg(NzLuaInstance& instance, unsigned int index, NzTypeTag<
 
 float NzLuaImplQueryArg(NzLuaInstance& instance, unsigned int index, NzTypeTag<float>)
 {
-	return instance.CheckNumber(index);
+	return static_cast<float>(instance.CheckNumber(index));
 }
 
 int NzLuaImplQueryArg(NzLuaInstance& instance, unsigned int index, NzTypeTag<int>)
 {
-	return instance.CheckInteger(index);
+	return static_cast<int>(instance.CheckInteger(index));
 }
 
 std::string NzLuaImplQueryArg(NzLuaInstance& instance, unsigned int index, NzTypeTag<std::string>)
 {
-	return instance.CheckString(index);
+	std::size_t strLength = 0;
+	const char* str = instance.CheckString(index, &strLength);
+
+	return std::string(str, strLength);
 }
 
 NzString NzLuaImplQueryArg(NzLuaInstance& instance, unsigned int index, NzTypeTag<NzString>)
 {
-	return instance.CheckString(index);
+	std::size_t strLength = 0;
+	const char* str = instance.CheckString(index, &strLength);
+
+	return NzString(str, strLength);
 }
 
 template<typename T>
