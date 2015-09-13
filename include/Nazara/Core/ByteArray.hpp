@@ -21,18 +21,18 @@ class NAZARA_CORE_API NzByteArray : public NzHashable
 
 	public:
 		// types:
-		using allocator_type = typename Container::allocator_type;
-		using const_iterator = typename Container::const_iterator;
-		using const_reference = typename Container::const_reference;
-		using const_pointer = typename Container::const_pointer;
-		using const_reverse_iterator = typename Container::const_reverse_iterator;
-		using difference_type = typename Container::difference_type;
-		using pointer = typename Container::pointer;
-		using iterator = typename Container::iterator;
-		using reference = typename Container::reference;
-		using reverse_iterator = typename Container::reverse_iterator;
-		using size_type = typename Container::size_type;
-		using value_type = typename Container::value_type;
+		using allocator_type = Container::allocator_type;
+		using const_iterator = Container::const_iterator;
+		using const_reference = Container::const_reference;
+		using const_pointer = Container::const_pointer;
+		using const_reverse_iterator = Container::const_reverse_iterator;
+		using difference_type = Container::difference_type;
+		using pointer = Container::pointer;
+		using iterator = Container::iterator;
+		using reference = Container::reference;
+		using reverse_iterator = Container::reverse_iterator;
+		using size_type = Container::size_type;
+		using value_type = Container::value_type;
 
 		// construct/destroy:
 		inline NzByteArray() = default;
@@ -70,7 +70,7 @@ class NAZARA_CORE_API NzByteArray : public NzHashable
 
 		inline iterator Insert(const_iterator pos, const void* buffer, size_type n);
 		inline iterator Insert(const_iterator pos, const NzByteArray& other);
-		inline iterator Insert(const_iterator pos, size_type n, const value_type byte);
+		inline iterator Insert(const_iterator pos, size_type n, value_type byte);
 		template <class InputIterator> iterator Insert(const_iterator pos, InputIterator first, InputIterator last);
 		inline bool IsEmpty() const noexcept;
 
