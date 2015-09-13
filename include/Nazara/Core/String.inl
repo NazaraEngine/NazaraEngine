@@ -4,11 +4,36 @@
 
 #include <Nazara/Core/Debug.hpp>
 
+inline NzString::NzString(std::shared_ptr<SharedString>&& sharedString) :
+m_sharedString(std::move(sharedString))
+{
+}
+
+inline void NzString::ReleaseString()
+{
+	m_sharedString = std::move(GetEmptyString());
+}
+
+inline NzString::SharedString::SharedString() : // Special case: empty string
+capacity(0),
+size(0)
+{
+}
+
+inline NzString::SharedString::SharedString(unsigned int strSize) :
+capacity(strSize),
+size(strSize),
+string(new char[strSize + 1])
+{
+	string[strSize] = '\0';
+}
+
+
 namespace std
 {
-    template<>
-    struct hash<NzString>
-    {
+	template<>
+	struct hash<NzString>
+	{
 		size_t operator()(const NzString& str) const
 		{
 			// Algorithme DJB2
@@ -26,7 +51,7 @@ namespace std
 
 			return h;
 		}
-    };
+	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>

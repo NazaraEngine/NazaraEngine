@@ -33,9 +33,18 @@ unsigned int NzHardwareInfoImpl::GetProcessorCount()
 {
 	// Plus simple (et plus portable) que de passer par le CPUID
 	SYSTEM_INFO infos;
-	GetSystemInfo(&infos);
+	GetNativeSystemInfo(&infos);
 
 	return infos.dwNumberOfProcessors;
+}
+
+nzUInt64 NzHardwareInfoImpl::GetTotalMemory()
+{
+	MEMORYSTATUSEX memStatus;
+	memStatus.dwLength = sizeof(memStatus);
+	GlobalMemoryStatusEx(&memStatus);
+
+	return memStatus.ullTotalPhys;
 }
 
 bool NzHardwareInfoImpl::IsCpuidSupported()

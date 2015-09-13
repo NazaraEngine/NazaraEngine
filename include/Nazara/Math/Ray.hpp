@@ -34,12 +34,12 @@ class NzRay
 
 		NzVector3<T> GetPoint(T lambda) const;
 
-		//bool Intersect(const NzBoundingVolume<T>& volume, T* closestHit = nullptr, T* farthestHit = nullptr) const;
-		bool Intersect(const NzBox<T>& box, T* closestHit = nullptr, T* farthestHit = nullptr) const;
-		bool Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit = nullptr, T* farthestHit = nullptr) const;
-		//bool Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit = nullptr, T* farthestHit = nullptr) const;
+		bool Intersect(const NzBoundingVolume<T>& volume, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+		bool Intersect(const NzBox<T>& box, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+		bool Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+		bool Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit = nullptr, T* furthestHit = nullptr) const;
 		bool Intersect(const NzPlane<T>& plane, T* hit = nullptr) const;
-		bool Intersect(const NzSphere<T>& sphere, T* closestHit = nullptr, T* farthestHit = nullptr) const;
+		bool Intersect(const NzSphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
 
 		NzRay& MakeAxisX();
 		NzRay& MakeAxisY();
@@ -56,6 +56,9 @@ class NzRay
 		NzString ToString() const;
 
 		NzVector3<T> operator*(T lambda) const;
+
+		bool operator==(const NzRay& ray) const;
+		bool operator!=(const NzRay& ray) const;
 
 		static NzRay AxisX();
 		static NzRay AxisY();

@@ -81,7 +81,6 @@ class NzMatrix4
 		NzMatrix4& Set(const T matrix[16]);
 		//NzMatrix4(const NzMatrix3<T>& matrix);
 		NzMatrix4& Set(const NzMatrix4& matrix);
-		NzMatrix4& Set(NzMatrix4&& matrix);
 		template<typename U> NzMatrix4& Set(const NzMatrix4<U>& matrix);
 		NzMatrix4& SetRotation(const NzQuaternion<T>& rotation);
 		NzMatrix4& SetScale(const NzVector3<T>& scale);
