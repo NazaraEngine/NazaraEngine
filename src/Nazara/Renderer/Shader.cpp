@@ -199,7 +199,7 @@ NzByteArray NzShader::GetBinary() const
 
 	if (binaryLength > 0)
 	{
-		byteArray.Resize(sizeof(nzUInt64) + binaryLength);
+		byteArray.Reserve(sizeof(nzUInt64) + binaryLength);
 
 		nzUInt8* buffer = byteArray.GetBuffer();
 

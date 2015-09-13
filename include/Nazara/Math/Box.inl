@@ -65,7 +65,7 @@ template<typename T>
 bool NzBox<T>::Contains(const NzBox<T>& box) const
 {
 	return Contains(box.x, box.y, box.z) &&
-		   Contains(box.x + box.width, box.y + box.height, box.z + box.depth);
+	       Contains(box.x + box.width, box.y + box.height, box.z + box.depth);
 }
 
 template<typename T>
@@ -399,9 +399,9 @@ NzBox<T>& NzBox<T>::Transform(const NzMatrix4<T>& matrix, bool applyTranslation)
 	NzVector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Valeur multipliant la translation
 	NzVector3<T> halfSize = GetLengths()/F(2.0);
 
-	halfSize.Set(std::fabs(matrix(0,0))*halfSize.x + std::fabs(matrix(1,0))*halfSize.y + std::fabs(matrix(2,0))*halfSize.z,
-	             std::fabs(matrix(0,1))*halfSize.x + std::fabs(matrix(1,1))*halfSize.y + std::fabs(matrix(2,1))*halfSize.z,
-	             std::fabs(matrix(0,2))*halfSize.x + std::fabs(matrix(1,2))*halfSize.y + std::fabs(matrix(2,2))*halfSize.z);
+	halfSize.Set(std::abs(matrix(0,0))*halfSize.x + std::abs(matrix(1,0))*halfSize.y + std::abs(matrix(2,0))*halfSize.z,
+	             std::abs(matrix(0,1))*halfSize.x + std::abs(matrix(1,1))*halfSize.y + std::abs(matrix(2,1))*halfSize.z,
+	             std::abs(matrix(0,2))*halfSize.x + std::abs(matrix(1,2))*halfSize.y + std::abs(matrix(2,2))*halfSize.z);
 
 	return Set(center - halfSize, center + halfSize);
 }
@@ -486,7 +486,7 @@ template<typename T>
 bool NzBox<T>::operator==(const NzBox& box) const
 {
 	return NzNumberEquals(x, box.x) && NzNumberEquals(y, box.y) && NzNumberEquals(z, box.z) &&
-	       NzNumberEquals(width, box.width) &&  NzNumberEquals(height, box.height) && NzNumberEquals(depth, box.depth);
+	       NzNumberEquals(width, box.width) && NzNumberEquals(height, box.height) && NzNumberEquals(depth, box.depth);
 }
 
 template<typename T>

@@ -26,7 +26,7 @@ m_args(std::forward<Args>(args)...)
 template<typename F, typename... Args>
 void NzFunctorWithArgs<F, Args...>::Run()
 {
-	NzUnpackTuple(m_func, m_args);
+	NzApply(m_func, m_args);
 }
 
 

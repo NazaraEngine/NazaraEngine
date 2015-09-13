@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <new>
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

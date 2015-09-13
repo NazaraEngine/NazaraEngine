@@ -51,28 +51,28 @@ inline char nzToUpper(char character)
 
 inline int nzStrcasecmp(const char* s1, const char* s2)
 {
-    int ret = 0;
+	int ret = 0;
 
-    while (!(ret = static_cast<unsigned char>(nzToLower(*s1)) - static_cast<unsigned char>(nzToLower(*s2))) && *s2)
-        ++s1, ++s2;
+	while (!(ret = static_cast<unsigned char>(nzToLower(*s1)) - static_cast<unsigned char>(nzToLower(*s2))) && *s2)
+		++s1, ++s2;
 
-    return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
+	return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
 }
 
 inline int nzUnicodecasecmp(const char* s1, const char* s2)
 {
-    int ret = 0;
+	int ret = 0;
 	utf8::unchecked::iterator<const char*> it1(s1);
 	utf8::unchecked::iterator<const char*> it2(s2);
 
-    while (!(ret = NzUnicode::GetLowercase(*it1) - NzUnicode::GetLowercase(*it2)) && *it2)
-        ++it1, ++it2;
+	while (!(ret = NzUnicode::GetLowercase(*it1) - NzUnicode::GetLowercase(*it2)) && *it2)
+		++it1, ++it2;
 
-    return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
+	return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
 }
 
 NzString::NzString() :
-m_sharedString(&emptyString)
+m_sharedString(GetEmptyString())
 {
 }
 
@@ -80,33 +80,20 @@ NzString::NzString(char character)
 {
 	if (character != '\0')
 	{
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = 1;
-		m_sharedString->size = 1;
-		m_sharedString->string = new char[2];
+		m_sharedString = std::make_shared<SharedString>(1);
 		m_sharedString->string[0] = character;
-		m_sharedString->string[1] = '\0';
 	}
-	else
-		m_sharedString = &emptyString;
 }
 
 NzString::NzString(unsigned int rep, char character)
 {
 	if (rep > 0)
 	{
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = rep;
-		m_sharedString->size = rep;
-		m_sharedString->string = new char[rep+1];
+		m_sharedString = std::make_shared<SharedString>(rep);
 
 		if (character != '\0')
-			std::memset(m_sharedString->string, character, rep);
-
-		m_sharedString->string[rep] = '\0';
+			std::memset(m_sharedString->string.get(), character, rep);
 	}
-	else
-		m_sharedString = &emptyString;
 }
 
 NzString::NzString(unsigned int rep, const char* string) :
@@ -120,22 +107,15 @@ NzString::NzString(unsigned int rep, const char* string, unsigned int length)
 
 	if (totalSize > 0)
 	{
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = totalSize;
-		m_sharedString->size = totalSize;
-		m_sharedString->string = new char[totalSize+1];
+		m_sharedString = std::make_shared<SharedString>(totalSize);
 
 		for (unsigned int i = 0; i < rep; ++i)
 			std::memcpy(&m_sharedString->string[i*length], string, length);
-
-		m_sharedString->string[totalSize] = '\0';
 	}
-	else
-		m_sharedString = &emptyString;
 }
 
 NzString::NzString(unsigned int rep, const NzString& string) :
-NzString(rep, string.m_sharedString->string, string.m_sharedString->size)
+NzString(rep, string.GetConstBuffer(), string.GetSize())
 {
 }
 
@@ -148,52 +128,14 @@ NzString::NzString(const char* string, unsigned int length)
 {
 	if (length > 0)
 	{
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = length;
-		m_sharedString->size = length;
-		m_sharedString->string = new char[length+1];
-		std::memcpy(m_sharedString->string, string, length);
-		m_sharedString->string[length] = '\0';
+		m_sharedString = std::make_shared<SharedString>(length);
+		std::memcpy(m_sharedString->string.get(), string, length);
 	}
-	else
-		m_sharedString = &emptyString;
 }
 
-NzString::NzString(const std::string& string)
+NzString::NzString(const std::string& string) :
+NzString(string.c_str(), string.size())
 {
-	if (string.size() > 0)
-	{
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = string.capacity();
-		m_sharedString->size = string.size();
-		m_sharedString->string = new char[string.capacity()+1];
-		std::memcpy(m_sharedString->string, string.c_str(), string.size()+1);
-	}
-	else
-		m_sharedString = &emptyString;
-}
-
-NzString::NzString(const NzString& string) :
-m_sharedString(string.m_sharedString)
-{
-	if (m_sharedString != &emptyString)
-		m_sharedString->refCount++;
-}
-
-NzString::NzString(NzString&& string) noexcept :
-m_sharedString(string.m_sharedString)
-{
-	string.m_sharedString = &emptyString;
-}
-
-NzString::NzString(SharedString* sharedString) :
-m_sharedString(sharedString)
-{
-}
-
-NzString::~NzString()
-{
-	ReleaseString();
 }
 
 NzString& NzString::Append(char character)
@@ -222,6 +164,7 @@ void NzString::Clear(bool keepBuffer)
 	{
 		EnsureOwnership(true);
 		m_sharedString->size = 0;
+		m_sharedString->string.reset();
 	}
 	else
 		ReleaseString();
@@ -378,7 +321,7 @@ unsigned int NzString::Count(const char* string, int start, nzUInt32 flags) cons
 
 unsigned int NzString::Count(const NzString& string, int start, nzUInt32 flags) const
 {
-	return Count(string.m_sharedString->string, start, flags);
+	return Count(string.GetConstBuffer(), start, flags);
 }
 
 unsigned int NzString::CountAny(const char* string, int start, nzUInt32 flags) const
@@ -471,7 +414,7 @@ unsigned int NzString::CountAny(const char* string, int start, nzUInt32 flags) c
 
 unsigned int NzString::CountAny(const NzString& string, int start, nzUInt32 flags) const
 {
-	return CountAny(string.m_sharedString->string, start, flags);
+	return CountAny(string.GetConstBuffer(), start, flags);
 }
 
 bool NzString::EndsWith(char character, nzUInt32 flags) const
@@ -508,7 +451,7 @@ bool NzString::EndsWith(const char* string, unsigned int length, nzUInt32 flags)
 
 bool NzString::EndsWith(const NzString& string, nzUInt32 flags) const
 {
-	return EndsWith(string.m_sharedString->string, string.m_sharedString->size, flags);
+	return EndsWith(string.GetConstBuffer(), string.m_sharedString->size, flags);
 }
 
 unsigned int NzString::Find(char character, int start, nzUInt32 flags) const
@@ -526,11 +469,11 @@ unsigned int NzString::Find(char character, int start, nzUInt32 flags) const
 	if (flags & CaseInsensitive)
 	{
 		char ch = nzToLower(character);
-		const char* str = m_sharedString->string;
+		const char* str = m_sharedString->string.get();
 		do
 		{
 			if (nzToLower(*str) == ch)
-				return static_cast<unsigned int>(str - m_sharedString->string);
+				return static_cast<unsigned int>(str - m_sharedString->string.get());
 		}
 		while (*++str);
 
@@ -540,7 +483,7 @@ unsigned int NzString::Find(char character, int start, nzUInt32 flags) const
 	{
 		char* ch = std::strchr(&m_sharedString->string[pos], character);
 		if (ch)
-			return static_cast<unsigned int>(ch - m_sharedString->string);
+			return static_cast<unsigned int>(ch - m_sharedString->string.get());
 		else
 			return npos;
 	}
@@ -581,7 +524,7 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 					while (true)
 					{
 						if (*it2 == '\0')
-							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string.get());
 
 						if (*it == '\0')
 							return npos;
@@ -610,7 +553,7 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 					while (true)
 					{
 						if (*ptr == '\0')
-							return static_cast<unsigned int>(ptrPos - m_sharedString->string);
+							return static_cast<unsigned int>(ptrPos - m_sharedString->string.get());
 
 						if (*str == '\0')
 							return npos;
@@ -630,7 +573,7 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 	{
 		char* ch = std::strstr(&m_sharedString->string[pos], string);
 		if (ch)
-			return static_cast<unsigned int>(ch - m_sharedString->string);
+			return static_cast<unsigned int>(ch - m_sharedString->string.get());
 	}
 
 	return npos;
@@ -638,7 +581,7 @@ unsigned int NzString::Find(const char* string, int start, nzUInt32 flags) const
 
 unsigned int NzString::Find(const NzString& string, int start, nzUInt32 flags) const
 {
-	return Find(string.m_sharedString->string, start, flags);
+	return Find(string.GetConstBuffer(), start, flags);
 }
 
 unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) const
@@ -670,7 +613,7 @@ unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) co
 				do
 				{
 					if (character == NzUnicode::GetLowercase(*it2))
-						return it.base() - m_sharedString->string;
+						return it.base() - m_sharedString->string.get();
 				}
 				while (*++it2);
 			}
@@ -684,7 +627,7 @@ unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) co
 				do
 				{
 					if (*it == *it2)
-						return it.base() - m_sharedString->string;
+						return it.base() - m_sharedString->string.get();
 				}
 				while (*++it2);
 			}
@@ -702,7 +645,7 @@ unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) co
 				do
 				{
 					if (character == nzToLower(*c))
-						return str - m_sharedString->string;
+						return str - m_sharedString->string.get();
 				}
 				while (*++c);
 			}
@@ -712,7 +655,7 @@ unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) co
 		{
 			str = std::strpbrk(str, string);
 			if (str)
-				return str - m_sharedString->string;
+				return str - m_sharedString->string.get();
 		}
 	}
 
@@ -721,7 +664,7 @@ unsigned int NzString::FindAny(const char* string, int start, nzUInt32 flags) co
 
 unsigned int NzString::FindAny(const NzString& string, int start, nzUInt32 flags) const
 {
-	return FindAny(string.m_sharedString->string, start, flags);
+	return FindAny(string.GetConstBuffer(), start, flags);
 }
 
 unsigned int NzString::FindLast(char character, int start, nzUInt32 flags) const
@@ -744,18 +687,18 @@ unsigned int NzString::FindLast(char character, int start, nzUInt32 flags) const
 		do
 		{
 			if (nzToLower(*ptr) == character)
-				return static_cast<unsigned int>(ptr - m_sharedString->string);
+				return static_cast<unsigned int>(ptr - m_sharedString->string.get());
 		}
-		while (ptr-- != m_sharedString->string);
+		while (ptr-- != m_sharedString->string.get());
 	}
 	else
 	{
 		do
 		{
 			if (*ptr == character)
-				return static_cast<unsigned int>(ptr - m_sharedString->string);
+				return static_cast<unsigned int>(ptr - m_sharedString->string.get());
 		}
-		while (ptr-- != m_sharedString->string);
+		while (ptr-- != m_sharedString->string.get());
 	}
 
 	return npos;
@@ -796,7 +739,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 					while (true)
 					{
 						if (*it2 == '\0')
-							return it.base() - m_sharedString->string;
+							return it.base() - m_sharedString->string.get();
 
 						if (tIt.base() > &m_sharedString->string[pos])
 							break;
@@ -809,7 +752,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 					}
 				}
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 		else
 		{
@@ -823,7 +766,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 					while (true)
 					{
 						if (*p == '\0')
-							return ptr - m_sharedString->string;
+							return ptr - m_sharedString->string.get();
 
 						if (tPtr > &m_sharedString->string[pos])
 							break;
@@ -836,7 +779,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 					}
 				}
 			}
-			while (ptr-- != m_sharedString->string);
+			while (ptr-- != m_sharedString->string.get());
 		}
 	}
 	else
@@ -850,7 +793,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 				while (true)
 				{
 					if (*p == '\0')
-						return ptr - m_sharedString->string;
+						return ptr - m_sharedString->string.get();
 
 					if (tPtr > &m_sharedString->string[pos])
 						break;
@@ -863,7 +806,7 @@ unsigned int NzString::FindLast(const char* string, int start, nzUInt32 flags) c
 				}
 			}
 		}
-		while (ptr-- != m_sharedString->string);
+		while (ptr-- != m_sharedString->string.get());
 	}
 
 	return npos;
@@ -893,7 +836,7 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 				utf8::unchecked::prior(ptr); // On s'assure d'avoir un pointeur vers le début d'un caractère
 
 			utf8::unchecked::iterator<const char*> it(ptr);
-			const char* t = string.m_sharedString->string;
+			const char* t = string.GetConstBuffer();
 			char32_t c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 			do
 			{
@@ -906,7 +849,7 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 					while (true)
 					{
 						if (*it2 == '\0')
-							return it.base() - m_sharedString->string;
+							return it.base() - m_sharedString->string.get();
 
 						if (tIt.base() > &m_sharedString->string[pos])
 							break;
@@ -936,9 +879,9 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 							break;
 
 						if (p == &string.m_sharedString->string[0])
-							return ptr-m_sharedString->string;
+							return ptr-m_sharedString->string.get();
 
-						if (ptr == m_sharedString->string)
+						if (ptr == m_sharedString->string.get())
 							return npos;
 					}
 				}
@@ -961,9 +904,9 @@ unsigned int NzString::FindLast(const NzString& string, int start, nzUInt32 flag
 						break;
 
 					if (p == &string.m_sharedString->string[0])
-						return ptr-m_sharedString->string;
+						return ptr-m_sharedString->string.get();
 
-					if (ptr == m_sharedString->string)
+					if (ptr == m_sharedString->string.get())
 						return npos;
 				}
 			}
@@ -1004,11 +947,11 @@ unsigned int NzString::FindLastAny(const char* string, int start, nzUInt32 flags
 				do
 				{
 					if (character == NzUnicode::GetLowercase(*it2))
-						return it.base() - m_sharedString->string;
+						return it.base() - m_sharedString->string.get();
 				}
 				while (*++it2);
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 		else
 		{
@@ -1018,11 +961,11 @@ unsigned int NzString::FindLastAny(const char* string, int start, nzUInt32 flags
 				do
 				{
 					if (*it == *it2)
-						return it.base() - m_sharedString->string;
+						return it.base() - m_sharedString->string.get();
 				}
 				while (*++it2);
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 	}
 	else
@@ -1036,11 +979,11 @@ unsigned int NzString::FindLastAny(const char* string, int start, nzUInt32 flags
 				do
 				{
 					if (character == nzToLower(*c))
-						return str - m_sharedString->string;
+						return str - m_sharedString->string.get();
 				}
 				while (*++c);
 			}
-			while (str-- != m_sharedString->string);
+			while (str-- != m_sharedString->string.get());
 		}
 		else
 		{
@@ -1050,11 +993,11 @@ unsigned int NzString::FindLastAny(const char* string, int start, nzUInt32 flags
 				do
 				{
 					if (*str == *c)
-						return str - m_sharedString->string;
+						return str - m_sharedString->string.get();
 				}
 				while (*++c);
 			}
-			while (str-- != m_sharedString->string);
+			while (str-- != m_sharedString->string.get());
 		}
 	}
 
@@ -1063,7 +1006,7 @@ unsigned int NzString::FindLastAny(const char* string, int start, nzUInt32 flags
 
 unsigned int NzString::FindLastAny(const NzString& string, int start, nzUInt32 flags) const
 {
-	return FindLastAny(string.m_sharedString->string, start, flags);
+	return FindLastAny(string.GetConstBuffer(), start, flags);
 }
 
 unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flags) const
@@ -1096,7 +1039,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (NzUnicode::GetLowercase(*it) == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1112,7 +1055,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*tIt) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1128,7 +1071,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					}
 				}
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 		else
 		{
@@ -1138,7 +1081,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1154,7 +1097,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*tIt) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1170,7 +1113,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					}
 				}
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 	}
 	else
@@ -1182,7 +1125,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+					if (ptr != m_sharedString->string.get() && !std::isspace(*(ptr-1)))
 						continue;
 
 					const char* p = &string[1];
@@ -1192,7 +1135,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tPtr == '\0' || std::isspace(*tPtr))
-								return ptr-m_sharedString->string;
+								return ptr-m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1208,7 +1151,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					}
 				}
 			}
-			while (ptr-- != m_sharedString->string);
+			while (ptr-- != m_sharedString->string.get());
 		}
 		else
 		{
@@ -1216,7 +1159,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 			{
 				if (*ptr == string[0])
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+					if (ptr != m_sharedString->string.get() && !std::isspace(*(ptr-1)))
 						continue;
 
 					const char* p = &string[1];
@@ -1226,7 +1169,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tPtr == '\0' || std::isspace(*tPtr))
-								return ptr-m_sharedString->string;
+								return ptr-m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1242,7 +1185,7 @@ unsigned int NzString::FindLastWord(const char* string, int start, nzUInt32 flag
 					}
 				}
 			}
-			while (ptr-- != m_sharedString->string);
+			while (ptr-- != m_sharedString->string.get());
 		}
 	}
 
@@ -1273,13 +1216,13 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.GetConstBuffer(); // utf8(::unchecked)::next affecte l'itérateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 			do
 			{
 				if (NzUnicode::GetLowercase(*it) == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1295,7 +1238,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*tIt) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1311,17 +1254,17 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 					}
 				}
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 		else
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.GetConstBuffer(); // utf8(::unchecked)::next affecte l'itérateur en argument
 			nzUInt32 c = utf8::unchecked::next(t);
 			do
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1337,7 +1280,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*tIt) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1353,7 +1296,7 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 					}
 				}
 			}
-			while (it--.base() != m_sharedString->string);
+			while (it--.base() != m_sharedString->string.get());
 		}
 	}
 	else
@@ -1377,13 +1320,13 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 
 						if (p == &string.m_sharedString->string[0])
 						{
-							if (ptr == m_sharedString->string || std::isspace(*(ptr-1)))
-								return ptr-m_sharedString->string;
+							if (ptr == m_sharedString->string.get() || std::isspace(*(ptr-1)))
+								return ptr-m_sharedString->string.get();
 							else
 								break;
 						}
 
-						if (ptr == m_sharedString->string)
+						if (ptr == m_sharedString->string.get())
 							return npos;
 					}
 				}
@@ -1407,13 +1350,13 @@ unsigned int NzString::FindLastWord(const NzString& string, int start, nzUInt32 
 
 						if (p == &string.m_sharedString->string[0])
 						{
-							if (ptr == m_sharedString->string || std::isspace(*(ptr-1)))
-								return ptr-m_sharedString->string;
+							if (ptr == m_sharedString->string.get() || std::isspace(*(ptr-1)))
+								return ptr-m_sharedString->string.get();
 							else
 								break;
 						}
 
-						if (ptr == m_sharedString->string)
+						if (ptr == m_sharedString->string.get())
 							return npos;
 					}
 				}
@@ -1438,7 +1381,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 		return npos;
 
 	///Algo 3.FindWord#3 (Taille du pattern inconnue)
-	const char* ptr = m_sharedString->string;
+	const char* ptr = m_sharedString->string.get();
 	if (flags & HandleUtf8)
 	{
 		if (utf8::internal::is_trail(*ptr))
@@ -1455,7 +1398,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1471,7 +1414,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1495,7 +1438,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1511,7 +1454,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1536,7 +1479,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+					if (ptr != m_sharedString->string.get() && !std::isspace(*(ptr-1)))
 						continue;
 
 					const char* p = &string[1];
@@ -1546,7 +1489,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (*p == '\0')
 						{
 							if (*tPtr == '\0' || std::isspace(*tPtr))
-								return ptr - m_sharedString->string;
+								return ptr - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1567,7 +1510,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 			{
 				if (*ptr == string[0])
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+					if (ptr != m_sharedString->string.get() && !std::isspace(*(ptr-1)))
 						continue;
 
 					const char* p = &string[1];
@@ -1577,7 +1520,7 @@ unsigned int NzString::FindWord(const char* string, int start, nzUInt32 flags) c
 						if (*p == '\0')
 						{
 							if (*tPtr == '\0' || std::isspace(*tPtr))
-								return ptr - m_sharedString->string;
+								return ptr - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1609,7 +1552,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 	if (pos >= m_sharedString->size)
 		return npos;
 
-	char* ptr = m_sharedString->string;
+	char* ptr = m_sharedString->string.get();
 	if (flags & HandleUtf8)
 	{
 		///Algo 3.FindWord#3 (Itérateur trop lent pour #2)
@@ -1620,14 +1563,14 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 
 		if (flags & CaseInsensitive)
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.GetConstBuffer(); // utf8(::unchecked)::next affecte l'itérateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1643,7 +1586,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1660,14 +1603,14 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 		}
 		else
 		{
-			const char* t = string.m_sharedString->string; // utf8(::unchecked)::next affecte l'itérateur en argument
+			const char* t = string.GetConstBuffer(); // utf8(::unchecked)::next affecte l'itérateur en argument
 			nzUInt32 c = NzUnicode::GetLowercase(utf8::unchecked::next(t));
 
 			do
 			{
 				if (*it == c)
 				{
-					if (it.base() != m_sharedString->string)
+					if (it.base() != m_sharedString->string.get())
 					{
 						--it;
 						if (!(NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator))
@@ -1683,7 +1626,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tIt == '\0' || NzUnicode::GetCategory(*it++) & NzUnicode::Category_Separator)
-								return it.base() - m_sharedString->string;
+								return it.base() - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1709,7 +1652,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 			{
 				if (nzToLower(*ptr) == c)
 				{
-					if (ptr != m_sharedString->string && !std::isspace(*(ptr-1)))
+					if (ptr != m_sharedString->string.get() && !std::isspace(*(ptr-1)))
 						continue;
 
 					const char* p = &string.m_sharedString->string[1];
@@ -1719,7 +1662,7 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 						if (*p == '\0')
 						{
 							if (*tPtr == '\0' || std::isspace(*tPtr))
-								return ptr - m_sharedString->string;
+								return ptr - m_sharedString->string.get();
 							else
 								break;
 						}
@@ -1736,11 +1679,11 @@ unsigned int NzString::FindWord(const NzString& string, int start, nzUInt32 flag
 		}
 		else
 		{
-			while ((ptr = std::strstr(ptr, string.m_sharedString->string)))
+			while ((ptr = std::strstr(ptr, string.GetConstBuffer())))
 			{
 				// Si le mot est bien isolé
-				if ((ptr == m_sharedString->string || std::isspace(*(ptr-1))) && (*(ptr+m_sharedString->size) == '\0' || std::isspace(*(ptr+m_sharedString->size))))
-					return ptr - m_sharedString->string;
+				if ((ptr == m_sharedString->string.get() || std::isspace(*(ptr-1))) && (*(ptr+m_sharedString->size) == '\0' || std::isspace(*(ptr+m_sharedString->size))))
+					return ptr - m_sharedString->string.get();
 
 				ptr++;
 			}
@@ -1754,7 +1697,7 @@ char* NzString::GetBuffer()
 {
 	EnsureOwnership();
 
-	return m_sharedString->string;
+	return m_sharedString->string.get();
 }
 
 unsigned int NzString::GetCapacity() const
@@ -1764,12 +1707,12 @@ unsigned int NzString::GetCapacity() const
 
 const char* NzString::GetConstBuffer() const
 {
-	return m_sharedString->string;
+	return m_sharedString->string.get();
 }
 
 unsigned int NzString::GetLength() const
 {
-	return utf8::distance(m_sharedString->string, &m_sharedString->string[m_sharedString->size]);
+	return utf8::distance(m_sharedString->string.get(), &m_sharedString->string[m_sharedString->size]);
 }
 
 unsigned int NzString::GetSize() const
@@ -1779,7 +1722,7 @@ unsigned int NzString::GetSize() const
 
 std::string NzString::GetUtf8String() const
 {
-	return std::string(m_sharedString->string, m_sharedString->size);
+	return std::string(m_sharedString->string.get(), m_sharedString->size);
 }
 
 std::u16string NzString::GetUtf16String() const
@@ -1821,7 +1764,7 @@ std::wstring NzString::GetWideString() const
 		utf8::utf8to32(begin(), end(), std::back_inserter(str));
 	else
 	{
-		utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+		utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 		do
 		{
 			char32_t cp = *it;
@@ -1851,7 +1794,7 @@ NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
 		{
 			if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
 			{
-				endPos = static_cast<int>(it.base() - m_sharedString->string - 1);
+				endPos = static_cast<int>(it.base() - m_sharedString->string.get() - 1);
 				break;
 			}
 		}
@@ -1863,7 +1806,7 @@ NzString NzString::GetWord(unsigned int index, nzUInt32 flags) const
 		{
 			if (std::isspace(*ptr))
 			{
-				endPos = static_cast<int>(ptr - m_sharedString->string - 1);
+				endPos = static_cast<int>(ptr - m_sharedString->string.get() - 1);
 				break;
 			}
 		}
@@ -1881,7 +1824,7 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 	unsigned int currentWord = 0;
 	bool inWord = false;
 
-	const char* ptr = m_sharedString->string;
+	const char* ptr = m_sharedString->string.get();
 	if (flags & HandleUtf8)
 	{
 		utf8::unchecked::iterator<const char*> it(ptr);
@@ -1895,7 +1838,7 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 				{
 					inWord = true;
 					if (++currentWord > index)
-						return static_cast<unsigned int>(it.base() - m_sharedString->string);
+						return static_cast<unsigned int>(it.base() - m_sharedString->string.get());
 				}
 			}
 		}
@@ -1913,7 +1856,7 @@ unsigned int NzString::GetWordPosition(unsigned int index, nzUInt32 flags) const
 				{
 					inWord = true;
 					if (++currentWord > index)
-						return ptr - m_sharedString->string;
+						return ptr - m_sharedString->string.get();
 				}
 			}
 		}
@@ -1957,13 +1900,13 @@ NzString& NzString::Insert(int pos, const char* string, unsigned int length)
 	else
 	{
 		unsigned int newSize = m_sharedString->size + length;
-		char* newString = new char[newSize+1];
+		auto newString = std::make_shared<SharedString>(m_sharedString->size + length);
 
-		char* ptr = newString;
+		char* ptr = newString->string.get();
 
 		if (start > 0)
 		{
-			std::memcpy(ptr, m_sharedString->string, start*sizeof(char));
+			std::memcpy(ptr, m_sharedString->string.get(), start*sizeof(char));
 			ptr += start;
 		}
 
@@ -1971,15 +1914,9 @@ NzString& NzString::Insert(int pos, const char* string, unsigned int length)
 		ptr += length;
 
 		if (m_sharedString->size > start)
-			std::memcpy(ptr, &m_sharedString->string[start], m_sharedString->size - start + 1);
-		else
-			*ptr = '\0';
+			std::memcpy(ptr, &m_sharedString->string[start], m_sharedString->size - start);
 
-		ReleaseString();
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = newSize;
-		m_sharedString->size = newSize;
-		m_sharedString->string = newString;
+		m_sharedString = std::move(newString);
 	}
 
 	return *this;
@@ -1987,7 +1924,7 @@ NzString& NzString::Insert(int pos, const char* string, unsigned int length)
 
 NzString& NzString::Insert(int pos, const NzString& string)
 {
-	return Insert(pos, string.m_sharedString->string, string.m_sharedString->size);
+	return Insert(pos, string.GetConstBuffer(), string.m_sharedString->size);
 }
 
 bool NzString::IsEmpty() const
@@ -1997,7 +1934,7 @@ bool NzString::IsEmpty() const
 
 bool NzString::IsNull() const
 {
-	return m_sharedString == &emptyString;
+	return !m_sharedString.get();
 }
 
 bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
@@ -2017,7 +1954,7 @@ bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
 	if (check.m_sharedString->size == 0)
 		return false;
 
-	char* ptr = (check.m_sharedString->string[0] == '-') ? &check.m_sharedString->string[1] : check.m_sharedString->string;
+	char* ptr = (check.m_sharedString->string[0] == '-') ? &check.m_sharedString->string[1] : check.m_sharedString->string.get();
 
 	if (base > 10)
 	{
@@ -2069,7 +2006,7 @@ bool NzString::Match(const char* pattern) const
 
 	// Par Jack Handy - akkhandy@hotmail.com
 	// From : http://www.codeproject.com/Articles/1088/Wildcard-string-compare-globbing
-	const char* str = m_sharedString->string;
+	const char* str = m_sharedString->string.get();
 	while (*str && *pattern != '*')
 	{
 		if (*pattern != *str && *pattern != '?')
@@ -2088,8 +2025,8 @@ bool NzString::Match(const char* pattern) const
 			if (!*++pattern)
 				return true;
 
-		  mp = pattern;
-		  cp = str+1;
+			mp = pattern;
+			cp = str+1;
 		}
 		else if (*pattern == *str || *pattern == '?')
 		{
@@ -2111,7 +2048,7 @@ bool NzString::Match(const char* pattern) const
 
 bool NzString::Match(const NzString& pattern) const
 {
-	return Match(pattern.m_sharedString->string);
+	return Match(pattern.m_sharedString->string.get());
 }
 
 NzString& NzString::Prepend(char character)
@@ -2162,7 +2099,7 @@ unsigned int NzString::Replace(char oldCharacter, char newCharacter, int start, 
 			{
 				if (!found)
 				{
-					unsigned int offset = ptr-m_sharedString->string;
+					unsigned int offset = ptr-m_sharedString->string.get();
 
 					EnsureOwnership();
 
@@ -2182,7 +2119,7 @@ unsigned int NzString::Replace(char oldCharacter, char newCharacter, int start, 
 		{
 			if (!found)
 			{
-				unsigned int offset = ptr-m_sharedString->string;
+				unsigned int offset = ptr-m_sharedString->string.get();
 
 				EnsureOwnership();
 
@@ -2241,11 +2178,11 @@ unsigned int NzString::Replace(const char* oldString, unsigned int oldLength, co
 		if (newSize == m_sharedString->size) // Alors c'est que Count(oldString) == 0
 			return 0;
 
-		char* newString = new char[newSize+1];
+		auto newString = std::make_shared<SharedString>(newSize);
 
 		///Algo 4.Replace#2
-		char* ptr = newString;
-		const char* p = m_sharedString->string;
+		char* ptr = newString->string.get();
+		const char* p = m_sharedString->string.get();
 
 		while ((pos = Find(oldString, pos, flags)) != npos)
 		{
@@ -2261,13 +2198,9 @@ unsigned int NzString::Replace(const char* oldString, unsigned int oldLength, co
 			count++;
 		}
 
-		std::strcpy(ptr, p); // Ajoute le caractère de fin par la même occasion
+		std::strcpy(ptr, p);
 
-		ReleaseString();
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = newSize;
-		m_sharedString->size = newSize;
-		m_sharedString->string = newString;
+		m_sharedString = std::move(newString);
 	}
 
 	return count;
@@ -2275,7 +2208,7 @@ unsigned int NzString::Replace(const char* oldString, unsigned int oldLength, co
 
 unsigned int NzString::Replace(const NzString& oldString, const NzString& replaceString, int start, nzUInt32 flags)
 {
-	return Replace(oldString.m_sharedString->string, oldString.m_sharedString->size, replaceString.m_sharedString->string, replaceString.m_sharedString->size, start, flags);
+	return Replace(oldString.GetConstBuffer(), oldString.m_sharedString->size, replaceString.GetConstBuffer(), replaceString.m_sharedString->size, start, flags);
 }
 
 unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharacter, int start, nzUInt32 flags)
@@ -2309,7 +2242,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 				{
 					if (!found)
 					{
-						unsigned int offset = ptr-m_sharedString->string;
+						unsigned int offset = ptr-m_sharedString->string.get();
 
 						EnsureOwnership();
 
@@ -2333,7 +2266,7 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 		{
 			if (!found)
 			{
-				unsigned int offset = ptr-m_sharedString->string;
+				unsigned int offset = ptr-m_sharedString->string.get();
 
 				EnsureOwnership();
 
@@ -2511,20 +2444,16 @@ unsigned int NzString::ReplaceAny(const char* oldCharacters, char replaceCharact
 */
 void NzString::Reserve(unsigned int bufferSize)
 {
-	if (m_sharedString->capacity >= bufferSize)
+	if (m_sharedString->capacity > bufferSize)
 		return;
 
-	char* ptr = new char[bufferSize+1];
+	auto newString = std::make_shared<SharedString>(bufferSize);
+	newString->size = m_sharedString->size;
+
 	if (m_sharedString->size > 0)
-		std::memcpy(ptr, m_sharedString->string, m_sharedString->size+1);
+		std::memcpy(newString->string.get(), m_sharedString->string.get(), m_sharedString->size);
 
-	unsigned int size = m_sharedString->size;
-
-	ReleaseString();
-	m_sharedString = new SharedString;
-	m_sharedString->capacity = bufferSize;
-	m_sharedString->size = size;
-	m_sharedString->string = ptr;
+	m_sharedString = std::move(newString);
 }
 
 NzString& NzString::Resize(int size, char character)
@@ -2544,29 +2473,23 @@ NzString& NzString::Resize(int size, char character)
 	{
 		EnsureOwnership();
 
-		// Nous avons déjà la place requise, contentons-nous de remplir le buffer
+		// We've got the space required, just fill it up
 		if (character != '\0' && newSize > m_sharedString->size)
-			std::memset(&m_sharedString->string[m_sharedString->size], character, newSize-m_sharedString->size);
+			std::memset(&m_sharedString->string[m_sharedString->size], character, newSize - m_sharedString->size);
 
 		m_sharedString->size = newSize;
+		m_sharedString->string[newSize] = '\0'; // Adds the EoS character
 	}
-	else // On veut forcément agrandir la chaine
+	else // Then we want to make the string bigger
 	{
-		char* newString = new char[newSize+1];
-		std::memcpy(newString, m_sharedString->string, m_sharedString->size);
+		auto newString = std::make_shared<SharedString>(newSize);
+		std::memcpy(newString->string.get(), m_sharedString->string.get(), m_sharedString->size);
 
 		if (character != '\0')
-			std::memset(&newString[m_sharedString->size], character, newSize-m_sharedString->size);
+			std::memset(&newString->string[m_sharedString->size], character, newSize - m_sharedString->size);
 
-		ReleaseString();
-		m_sharedString = new SharedString;
-		m_sharedString->capacity = newSize;
-		m_sharedString->size = newSize;
-		m_sharedString->string = newString;
+		m_sharedString = std::move(newString);
 	}
-
-	// On rajoute le caractère de fin
-	m_sharedString->string[newSize] = '\0';
 
 	return *this;
 }
@@ -2583,19 +2506,17 @@ NzString NzString::Resized(int size, char character) const
 	if (newSize == m_sharedString->size)
 		return *this;
 
-	char* str = new char[newSize+1];
+	auto sharedStr = std::make_shared<SharedString>(newSize);
 	if (newSize > m_sharedString->size)
 	{
-		std::memcpy(str, m_sharedString->string, m_sharedString->size);
+		std::memcpy(sharedStr->string.get(), m_sharedString->string.get(), m_sharedString->size);
 		if (character != '\0')
-			std::memset(&str[m_sharedString->size], character, newSize-m_sharedString->size);
+			std::memset(&sharedStr->string[m_sharedString->size], character, newSize - m_sharedString->size);
 	}
 	else
-		std::memcpy(str, m_sharedString->string, newSize);
+		std::memcpy(sharedStr->string.get(), m_sharedString->string.get(), newSize);
 
-	str[newSize] = '\0';
-
-	return NzString(new SharedString(1, newSize, newSize, str));
+	return NzString(std::move(sharedStr));
 }
 
 NzString& NzString::Reverse()
@@ -2617,18 +2538,16 @@ NzString NzString::Reversed() const
 	if (m_sharedString->size == 0)
 		return NzString();
 
-	char* str = new char[m_sharedString->size+1];
+	auto sharedStr = std::make_shared<SharedString>(m_sharedString->size);
 
-	char* ptr = &str[m_sharedString->size-1];
-	char* p = m_sharedString->string;
+	char* ptr = &sharedStr->string[m_sharedString->size - 1];
+	char* p = m_sharedString->string.get();
 
 	do
 		*ptr-- = *p;
 	while (*(++p));
 
-	str[m_sharedString->size] = '\0';
-
-	return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
+	return NzString(std::move(sharedStr));
 }
 
 NzString& NzString::Set(char character)
@@ -2636,18 +2555,18 @@ NzString& NzString::Set(char character)
 	if (character != '\0')
 	{
 		if (m_sharedString->capacity >= 1)
+		{
 			EnsureOwnership(true);
+
+			m_sharedString->size = 1;
+			m_sharedString->string[0] = character;
+			m_sharedString->string[1] = '\0';
+		}
 		else
 		{
-			ReleaseString();
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = 1;
-			m_sharedString->string = new char[2];
+			auto newString = std::make_shared<SharedString>(1);
+			newString->string[0] = character;
 		}
-
-		m_sharedString->size = 1;
-		m_sharedString->string[0] = character;
-		m_sharedString->string[1] = '\0';
 	}
 	else
 		ReleaseString();
@@ -2660,21 +2579,17 @@ NzString& NzString::Set(unsigned int rep, char character)
 	if (rep > 0)
 	{
 		if (m_sharedString->capacity >= rep)
-			EnsureOwnership(true);
-		else
 		{
-			ReleaseString();
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = rep;
-			m_sharedString->string = new char[rep+1];
-		}
+			EnsureOwnership(true);
 
-		m_sharedString->size = rep;
+			m_sharedString->size = rep;
+			m_sharedString->string[rep] = '\0';
+		}
+		else
+			m_sharedString = std::make_shared<SharedString>(rep);
 
 		if (character != '\0')
-			std::memset(m_sharedString->string, character, rep);
-
-		m_sharedString->string[rep] = '\0';
+			std::memset(m_sharedString->string.get(), character, rep);
 	}
 	else
 		ReleaseString();
@@ -2694,21 +2609,17 @@ NzString& NzString::Set(unsigned int rep, const char* string, unsigned int lengt
 	if (totalSize > 0)
 	{
 		if (m_sharedString->capacity >= totalSize)
+		{	
 			EnsureOwnership(true);
-		else
-		{
-			ReleaseString();
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = totalSize;
-			m_sharedString->string = new char[totalSize+1];
-		}
 
-		m_sharedString->size = totalSize;
+			m_sharedString->size = totalSize;
+			m_sharedString->string[totalSize] = '\0';
+		}
+		else
+			m_sharedString = std::make_shared<SharedString>(totalSize);
 
 		for (unsigned int i = 0; i < rep; ++i)
 			std::memcpy(&m_sharedString->string[i*length], string, length);
-
-		m_sharedString->string[totalSize] = '\0';
 	}
 	else
 		ReleaseString();
@@ -2718,7 +2629,7 @@ NzString& NzString::Set(unsigned int rep, const char* string, unsigned int lengt
 
 NzString& NzString::Set(unsigned int rep, const NzString& string)
 {
-	return Set(rep, string.m_sharedString->string, string.m_sharedString->size);
+	return Set(rep, string.GetConstBuffer(), string.m_sharedString->size);
 }
 
 NzString& NzString::Set(const char* string)
@@ -2731,19 +2642,16 @@ NzString& NzString::Set(const char* string, unsigned int length)
 	if (length > 0)
 	{
 		if (m_sharedString->capacity >= length)
+		{	
 			EnsureOwnership(true);
-		else
-		{
-			ReleaseString();
 
-			m_sharedString = new SharedString;
-			m_sharedString->capacity = length;
-			m_sharedString->string = new char[length+1];
+			m_sharedString->size = length;
+			m_sharedString->string[length] = '\0';
 		}
+		else
+			m_sharedString = std::make_shared<SharedString>(length);
 
-		m_sharedString->size = length;
-		std::memcpy(m_sharedString->string, string, length);
-		m_sharedString->string[length] = '\0';
+		std::memcpy(m_sharedString->string.get(), string, length);
 	}
 	else
 		ReleaseString();
@@ -2758,14 +2666,7 @@ NzString& NzString::Set(const std::string& string)
 
 NzString& NzString::Set(const NzString& string)
 {
-	if (this != &string)
-	{
-		ReleaseString();
-
-		m_sharedString = string.m_sharedString;
-		if (m_sharedString != &emptyString)
-			m_sharedString->refCount++;
-	}
+	m_sharedString = string.m_sharedString;
 
 	return *this;
 }
@@ -2777,23 +2678,16 @@ NzString& NzString::Set(NzString&& string) noexcept
 	return *this;
 }
 
-NzString& NzString::Set(SharedString* sharedString)
-{
-	ReleaseString();
-	m_sharedString = sharedString;
-
-	return *this;
-}
-
 NzString NzString::Simplified(nzUInt32 flags) const
 {
 	if (m_sharedString->size == 0)
 		return NzString();
 
-	char* str = new char[m_sharedString->size+1];
+	auto newString = std::make_shared<SharedString>(m_sharedString->size);
+	char* str = newString->string.get();
 	char* p = str;
 
-	const char* ptr = m_sharedString->string;
+	const char* ptr = m_sharedString->string.get();
 	bool inword = false;
 	if (flags & HandleUtf8)
 	{
@@ -2843,7 +2737,7 @@ NzString NzString::Simplified(nzUInt32 flags) const
 
 	*p = '\0';
 
-	return NzString(new SharedString(1, m_sharedString->size, p-str, str));
+	return NzString(std::move(newString));
 }
 
 NzString& NzString::Simplify(nzUInt32 flags)
@@ -2933,7 +2827,7 @@ unsigned int NzString::Split(std::vector<NzString>& result, const char* separati
 
 unsigned int NzString::Split(std::vector<NzString>& result, const NzString& separation, int start, nzUInt32 flags) const
 {
-	return Split(result, separation.m_sharedString->string, separation.m_sharedString->size, start, flags);
+	return Split(result, separation.m_sharedString->string.get(), separation.m_sharedString->size, start, flags);
 }
 
 unsigned int NzString::SplitAny(std::vector<NzString>& result, const char* separations, int start, nzUInt32 flags) const
@@ -2969,7 +2863,7 @@ unsigned int NzString::SplitAny(std::vector<NzString>& result, const char* separ
 
 unsigned int NzString::SplitAny(std::vector<NzString>& result, const NzString& separations, int start, nzUInt32 flags) const
 {
-	return SplitAny(result, separations.m_sharedString->string, start, flags);
+	return SplitAny(result, separations.m_sharedString->string.get(), start, flags);
 }
 
 bool NzString::StartsWith(char character, nzUInt32 flags) const
@@ -2992,7 +2886,7 @@ bool NzString::StartsWith(const char* string, nzUInt32 flags) const
 	{
 		if (flags & HandleUtf8)
 		{
-			utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+			utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 			utf8::unchecked::iterator<const char*> it2(string);
 			do
 			{
@@ -3008,7 +2902,7 @@ bool NzString::StartsWith(const char* string, nzUInt32 flags) const
 		}
 		else
 		{
-			char* ptr = m_sharedString->string;
+			char* ptr = m_sharedString->string.get();
 			const char* s = string;
 			do
 			{
@@ -3025,7 +2919,7 @@ bool NzString::StartsWith(const char* string, nzUInt32 flags) const
 	}
 	else
 	{
-		char* ptr = m_sharedString->string;
+		char* ptr = m_sharedString->string.get();
 		const char* s = string;
 		do
 		{
@@ -3055,8 +2949,8 @@ bool NzString::StartsWith(const NzString& string, nzUInt32 flags) const
 	{
 		if (flags & HandleUtf8)
 		{
-			utf8::unchecked::iterator<const char*> it(m_sharedString->string);
-			utf8::unchecked::iterator<const char*> it2(string.m_sharedString->string);
+			utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
+			utf8::unchecked::iterator<const char*> it2(string.GetConstBuffer());
 			do
 			{
 				if (*it2 == '\0')
@@ -3071,8 +2965,8 @@ bool NzString::StartsWith(const NzString& string, nzUInt32 flags) const
 		}
 		else
 		{
-			char* ptr = m_sharedString->string;
-			const char* s = string.m_sharedString->string;
+			char* ptr = m_sharedString->string.get();
+			const char* s = string.GetConstBuffer();
 			do
 			{
 				if (*s == '\0')
@@ -3087,7 +2981,7 @@ bool NzString::StartsWith(const NzString& string, nzUInt32 flags) const
 		}
 	}
 	else
-		return std::memcmp(m_sharedString->string, string.m_sharedString->string, string.m_sharedString->size) == 0;
+		return std::memcmp(m_sharedString->string.get(), string.GetConstBuffer(), string.m_sharedString->size) == 0;
 
 	return false;
 }
@@ -3112,11 +3006,11 @@ NzString NzString::SubString(int startPos, int endPos) const
 		return NzString();
 
 	unsigned int size = minEnd-start+1;
-	char* str = new char[size+1];
-	std::memcpy(str, &m_sharedString->string[start], size);
-	str[size] = '\0';
 
-	return NzString(new SharedString(1, size, size, str));
+	auto str = std::make_shared<SharedString>(size);
+	std::memcpy(str->string.get(), &m_sharedString->string[start], size);
+
+	return NzString(std::move(str));
 }
 
 NzString NzString::SubStringFrom(char character, int startPos, bool fromLast, bool include, nzUInt32 flags) const
@@ -3161,7 +3055,7 @@ NzString NzString::SubStringFrom(const char* string, unsigned int length, int st
 
 NzString NzString::SubStringFrom(const NzString& string, int startPos, bool fromLast, bool include, nzUInt32 flags) const
 {
-	return SubStringFrom(string.m_sharedString->string, string.m_sharedString->size, startPos, fromLast, include, flags);
+	return SubStringFrom(string.GetConstBuffer(), string.m_sharedString->size, startPos, fromLast, include, flags);
 }
 
 NzString NzString::SubStringTo(char character, int startPos, bool toLast, bool include, nzUInt32 flags) const
@@ -3206,7 +3100,7 @@ NzString NzString::SubStringTo(const char* string, unsigned int length, int star
 
 NzString NzString::SubStringTo(const NzString& string, int startPos, bool toLast, bool include, nzUInt32 flags) const
 {
-	return SubStringTo(string.m_sharedString->string, string.m_sharedString->size, startPos, toLast, include, flags);
+	return SubStringTo(string.GetConstBuffer(), string.m_sharedString->size, startPos, toLast, include, flags);
 }
 
 void NzString::Swap(NzString& str)
@@ -3259,7 +3153,7 @@ bool NzString::ToDouble(double* value) const
 		return false;
 
 	if (value)
-		*value = std::atof(m_sharedString->string);
+		*value = std::atof(m_sharedString->string.get());
 
 	return true;
 }
@@ -3286,7 +3180,7 @@ NzString NzString::ToLower(nzUInt32 flags) const
 	{
 		NzString lower;
 		lower.Reserve(m_sharedString->size);
-		utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+		utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 		do
 			utf8::append(NzUnicode::GetLowercase(*it), std::back_inserter(lower));
 		while (*++it);
@@ -3295,17 +3189,17 @@ NzString NzString::ToLower(nzUInt32 flags) const
 	}
 	else
 	{
-		char* str = new char[m_sharedString->size+1];
+		auto str = std::make_shared<SharedString>(m_sharedString->size);
 
-		char* ptr = m_sharedString->string;
-		char* s = str;
+		char* ptr = m_sharedString->string.get();
+		char* s = str->string.get();
 		do
 			*s++ = nzToLower(*ptr);
 		while (*++ptr);
 
 		*s = '\0';
 
-		return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
+		return NzString(std::move(str));
 	}
 }
 
@@ -3318,7 +3212,7 @@ NzString NzString::ToUpper(nzUInt32 flags) const
 	{
 		NzString upper;
 		upper.Reserve(m_sharedString->size);
-		utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+		utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 		do
 			utf8::append(NzUnicode::GetUppercase(*it), std::back_inserter(upper));
 		while (*++it);
@@ -3327,17 +3221,17 @@ NzString NzString::ToUpper(nzUInt32 flags) const
 	}
 	else
 	{
-		char* str = new char[m_sharedString->size+1];
+		auto str = std::make_shared<SharedString>(m_sharedString->size);
 
-		char* ptr = m_sharedString->string;
-		char* s = str;
+		char* ptr = m_sharedString->string.get();
+		char* s = str->string.get();
 		do
 			*s++ = nzToUpper(*ptr);
 		while (*++ptr);
 
 		*s = '\0';
 
-		return NzString(new SharedString(1, m_sharedString->size, m_sharedString->size, str));
+		return NzString(std::move(str));
 	}
 }
 
@@ -3362,7 +3256,7 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 	{
 		if ((flags & TrimOnlyRight) == 0)
 		{
-			utf8::unchecked::iterator<const char*> it(m_sharedString->string);
+			utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 			do
 			{
 				if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
@@ -3370,7 +3264,7 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 			}
 			while (*++it);
 
-			startPos = it.base() - m_sharedString->string;
+			startPos = it.base() - m_sharedString->string.get();
 		}
 		else
 			startPos = 0;
@@ -3378,13 +3272,13 @@ NzString NzString::Trimmed(nzUInt32 flags) const
 		if ((flags & TrimOnlyLeft) == 0)
 		{
 			utf8::unchecked::iterator<const char*> it(&m_sharedString->string[m_sharedString->size]);
-			while ((it--).base() != m_sharedString->string)
+			while ((it--).base() != m_sharedString->string.get())
 			{
 				if (NzUnicode::GetCategory(*it) & NzUnicode::Category_Separator)
 					break;
 			}
 
-			endPos = it.base() - m_sharedString->string;
+			endPos = it.base() - m_sharedString->string.get();
 		}
 		else
 			endPos = m_sharedString->size-1;
@@ -3469,12 +3363,12 @@ NzString NzString::Trimmed(char character, nzUInt32 flags) const
 
 char* NzString::begin()
 {
-	return m_sharedString->string;
+	return m_sharedString->string.get();
 }
 
 const char* NzString::begin() const
 {
-	return m_sharedString->string;
+	return m_sharedString->string.get();
 }
 
 char* NzString::end()
@@ -3520,7 +3414,7 @@ const char* NzString::rend() const
 
 NzString::operator std::string() const
 {
-	return std::string(m_sharedString->string, m_sharedString->size);
+	return std::string(m_sharedString->string.get(), m_sharedString->size);
 }
 
 char& NzString::operator[](unsigned int pos)
@@ -3576,14 +3470,11 @@ NzString NzString::operator+(char character) const
 	if (character == '\0')
 		return *this;
 
-	unsigned int totalSize = m_sharedString->size+1;
-	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size);
+	auto str = std::make_shared<SharedString>(m_sharedString->size + 1);
+	std::memcpy(str->string.get(), GetConstBuffer(), m_sharedString->size);
+	str->string[m_sharedString->size] = character;
 
-	str[m_sharedString->size] = character;
-	str[totalSize] = '\0';
-
-	return NzString(new SharedString(1, totalSize, totalSize, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::operator+(const char* string) const
@@ -3598,12 +3489,11 @@ NzString NzString::operator+(const char* string) const
 	if (length == 0)
 		return *this;
 
-	unsigned int totalSize = m_sharedString->size + length;
-	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size);
-	std::memcpy(&str[m_sharedString->size], string, length+1);
+	auto str = std::make_shared<SharedString>(m_sharedString->size + length);
+	std::memcpy(str->string.get(), GetConstBuffer(), m_sharedString->size);
+	std::memcpy(&str->string[m_sharedString->size], string, length+1);
 
-	return NzString(new SharedString(1, totalSize, totalSize, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::operator+(const std::string& string) const
@@ -3614,12 +3504,11 @@ NzString NzString::operator+(const std::string& string) const
 	if (m_sharedString->size == 0)
 		return string;
 
-	unsigned int totalSize = m_sharedString->size + string.size();
-	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size);
-	std::memcpy(&str[m_sharedString->size], string.c_str(), string.size()+1);
+	auto str = std::make_shared<SharedString>(m_sharedString->size + string.size());
+	std::memcpy(str->string.get(), GetConstBuffer(), m_sharedString->size);
+	std::memcpy(&str->string[m_sharedString->size], string.c_str(), string.size()+1);
 
-	return NzString(new SharedString(1, totalSize, totalSize, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::operator+(const NzString& string) const
@@ -3630,12 +3519,11 @@ NzString NzString::operator+(const NzString& string) const
 	if (m_sharedString->size == 0)
 		return string;
 
-	unsigned int totalSize = m_sharedString->size + string.m_sharedString->size;
-	char* str = new char[totalSize+1];
-	std::memcpy(str, m_sharedString->string, m_sharedString->size);
-	std::memcpy(&str[m_sharedString->size], string.m_sharedString->string, string.m_sharedString->size+1);
+	auto str = std::make_shared<SharedString>(m_sharedString->size + string.m_sharedString->size);
+	std::memcpy(str->string.get(), GetConstBuffer(), m_sharedString->size);
+	std::memcpy(&str->string[m_sharedString->size], string.GetConstBuffer(), string.m_sharedString->size);
 
-	return NzString(new SharedString(1, totalSize, totalSize, str));
+	return NzString(std::move(str));
 }
 
 NzString& NzString::operator+=(char character)
@@ -3677,7 +3565,7 @@ bool NzString::operator==(const char* string) const
 	if (!string || !string[0])
 		return false;
 
-	return std::strcmp(m_sharedString->string, string) == 0;
+	return std::strcmp(GetConstBuffer(), string) == 0;
 }
 
 bool NzString::operator==(const std::string& string) const
@@ -3688,7 +3576,7 @@ bool NzString::operator==(const std::string& string) const
 	if (m_sharedString->size != string.size())
 		return false;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) == 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) == 0;
 }
 
 bool NzString::operator!=(char character) const
@@ -3713,7 +3601,7 @@ bool NzString::operator!=(const char* string) const
 	if (!string || !string[0])
 		return true;
 
-	return std::strcmp(m_sharedString->string, string) != 0;
+	return std::strcmp(GetConstBuffer(), string) != 0;
 }
 
 bool NzString::operator!=(const std::string& string) const
@@ -3724,7 +3612,7 @@ bool NzString::operator!=(const std::string& string) const
 	if (m_sharedString->size != string.size())
 		return false;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) != 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) != 0;
 }
 
 bool NzString::operator<(char character) const
@@ -3746,7 +3634,7 @@ bool NzString::operator<(const char* string) const
 	if (m_sharedString->size == 0)
 		return true;
 
-	return std::strcmp(m_sharedString->string, string) < 0;
+	return std::strcmp(GetConstBuffer(), string) < 0;
 }
 
 bool NzString::operator<(const std::string& string) const
@@ -3757,7 +3645,7 @@ bool NzString::operator<(const std::string& string) const
 	if (m_sharedString->size == 0)
 		return true;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) < 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) < 0;
 }
 
 bool NzString::operator<=(char character) const
@@ -3779,7 +3667,7 @@ bool NzString::operator<=(const char* string) const
 	if (!string || !string[0])
 		return false;
 
-	return std::strcmp(m_sharedString->string, string) <= 0;
+	return std::strcmp(GetConstBuffer(), string) <= 0;
 }
 
 bool NzString::operator<=(const std::string& string) const
@@ -3790,7 +3678,7 @@ bool NzString::operator<=(const std::string& string) const
 	if (string.empty())
 		return false;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) <= 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) <= 0;
 }
 
 bool NzString::operator>(char character) const
@@ -3812,7 +3700,7 @@ bool NzString::operator>(const char* string) const
 	if (!string || !string[0])
 		return true;
 
-	return std::strcmp(m_sharedString->string, string) > 0;
+	return std::strcmp(GetConstBuffer(), string) > 0;
 }
 
 bool NzString::operator>(const std::string& string) const
@@ -3823,7 +3711,7 @@ bool NzString::operator>(const std::string& string) const
 	if (string.empty())
 		return true;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) > 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) > 0;
 }
 
 bool NzString::operator>=(char character) const
@@ -3845,7 +3733,7 @@ bool NzString::operator>=(const char* string) const
 	if (m_sharedString->size == 0)
 		return false;
 
-	return std::strcmp(m_sharedString->string, string) >= 0;
+	return std::strcmp(GetConstBuffer(), string) >= 0;
 }
 
 bool NzString::operator>=(const std::string& string) const
@@ -3856,16 +3744,17 @@ bool NzString::operator>=(const std::string& string) const
 	if (m_sharedString->size == 0)
 		return false;
 
-	return std::strcmp(m_sharedString->string, string.c_str()) >= 0;
+	return std::strcmp(GetConstBuffer(), string.c_str()) >= 0;
 }
 
 NzString NzString::Boolean(bool boolean)
 {
 	unsigned int size = (boolean) ? 4 : 5;
-	char* str = new char[size+1];
-	std::memcpy(str, (boolean) ? "true" : "false", size+1);
 
-	return NzString(new SharedString(1, size, size, str));
+	auto str = std::make_shared<SharedString>(size);
+	std::memcpy(str->string.get(), (boolean) ? "true" : "false", size);
+
+	return NzString(std::move(str));
 }
 
 int NzString::Compare(const NzString& first, const NzString& second)
@@ -3876,7 +3765,7 @@ int NzString::Compare(const NzString& first, const NzString& second)
 	if (second.m_sharedString->size == 0)
 		return 1;
 
-	return std::strcmp(first.m_sharedString->string, second.m_sharedString->string);
+	return std::strcmp(first.GetConstBuffer(), second.GetConstBuffer());
 }
 
 NzString NzString::Number(float number)
@@ -3960,10 +3849,10 @@ NzString NzString::Pointer(const void* ptr)
 {
 	const unsigned int size = sizeof(void*)*2 + 2;
 
-	char* str = new char[size+1];
-	std::sprintf(str, "0x%p", ptr);
+	auto str = std::make_shared<SharedString>(size);
+	std::sprintf(str->string.get(), "0x%p", ptr);
 
-	return NzString(new SharedString(1, size, size, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::Unicode(char32_t character)
@@ -3978,14 +3867,13 @@ NzString NzString::Unicode(char32_t character)
 		count = 2;
 	else if (character < 0x10000)
 		count = 3;
-    else
+	else
 		count = 4;
 
-	char* str = new char[count+1];
-	utf8::append(character, str);
-	str[count] = '\0';
+	auto str = std::make_shared<SharedString>(count);
+	utf8::append(character, str->string.get());
 
-	return NzString(new SharedString(1, count, count, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::Unicode(const char* u8String)
@@ -4006,11 +3894,14 @@ NzString NzString::Unicode(const char16_t* u16String)
 
 	count *= 2; // On s'assure d'avoir la place suffisante
 
-	char* str = new char[count+1];
-	char* r = utf8::utf16to8(u16String, ptr, str);
+	auto str = std::make_shared<SharedString>(count);
+
+	char* r = utf8::utf16to8(u16String, ptr, str->string.get());
 	*r = '\0';
 
-	return NzString(new SharedString(1, count, r-str, str));
+	str->size = r - str->string.get();
+
+	return NzString(std::move(str));
 }
 
 NzString NzString::Unicode(const char32_t* u32String)
@@ -4029,16 +3920,15 @@ NzString NzString::Unicode(const char32_t* u32String)
 			count += 2;
 		else if (cp < 0x10000)
 			count += 3;
-        else
+		else
 			count += 4;
 	}
 	while (*++ptr);
 
-	char* str = new char[count+1];
-	char* r = utf8::utf32to8(u32String, ptr, str);
-	*r = '\0';
+	auto str = std::make_shared<SharedString>(count);
+	utf8::utf32to8(u32String, ptr, str->string.get());
 
-	return NzString(new SharedString(1, count, count, str));
+	return NzString(std::move(str));
 }
 
 NzString NzString::Unicode(const wchar_t* wString)
@@ -4057,16 +3947,15 @@ NzString NzString::Unicode(const wchar_t* wString)
 			count += 2;
 		else if (cp < 0x10000)
 			count += 3;
-        else
+		else
 			count += 4;
 	}
 	while (*++ptr);
 
-	char* str = new char[count+1];
-	char* r = utf8::utf32to8(wString, ptr, str);
-	*r = '\0';
+	auto str = std::make_shared<SharedString>(count);
+	utf8::utf32to8(wString, ptr, str->string.get());
 
-	return NzString(new SharedString(1, count, count, str));
+	return NzString(std::move(str));
 }
 
 std::istream& operator>>(std::istream& is, NzString& str)
@@ -4099,7 +3988,7 @@ std::ostream& operator<<(std::ostream& os, const NzString& str)
 	if (str.IsEmpty())
 		return os;
 
-	return operator<<(os, str.m_sharedString->string);
+	return operator<<(os, str.m_sharedString->string.get());
 }
 
 NzString operator+(char character, const NzString& string)
@@ -4110,12 +3999,11 @@ NzString operator+(char character, const NzString& string)
 	if (string.IsEmpty())
 		return NzString(character);
 
-	unsigned int totalSize = string.m_sharedString->size+1;
-	char* str = new char[totalSize+1];
-	str[0] = character;
-	std::memcpy(&str[1], string.m_sharedString->string, string.m_sharedString->size+1);
+	auto str = std::make_shared<NzString::SharedString>(string.m_sharedString->size + 1);
+	str->string[0] = character;
+	std::memcpy(&str->string[1], string.GetConstBuffer(), string.m_sharedString->size);
 
-	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
+	return NzString(std::move(str));
 }
 
 NzString operator+(const char* string, const NzString& nstring)
@@ -4128,11 +4016,12 @@ NzString operator+(const char* string, const NzString& nstring)
 
 	unsigned int size = std::strlen(string);
 	unsigned int totalSize = size + nstring.m_sharedString->size;
-	char* str = new char[totalSize+1];
-	std::memcpy(str, string, size);
-	std::memcpy(&str[size], nstring.m_sharedString->string, nstring.m_sharedString->size+1);
 
-	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
+	auto str = std::make_shared<NzString::SharedString>(totalSize);
+	std::memcpy(str->string.get(), string, size);
+	std::memcpy(&str->string[size], nstring.GetConstBuffer(), nstring.m_sharedString->size+1);
+
+	return NzString(std::move(str));
 }
 
 NzString operator+(const std::string& string, const NzString& nstring)
@@ -4144,11 +4033,12 @@ NzString operator+(const std::string& string, const NzString& nstring)
 		return string;
 
 	unsigned int totalSize = string.size() + nstring.m_sharedString->size;
-	char* str = new char[totalSize+1];
-	std::memcpy(str, string.c_str(), string.size());
-	std::memcpy(&str[string.size()], nstring.m_sharedString->string, nstring.m_sharedString->size+1);
 
-	return NzString(new NzString::SharedString(1, totalSize, totalSize, str));
+	auto str = std::make_shared<NzString::SharedString>(totalSize);
+	std::memcpy(str->string.get(), string.c_str(), string.size());
+	std::memcpy(&str->string[string.size()], nstring.GetConstBuffer(), nstring.m_sharedString->size+1);
+
+	return NzString(std::move(str));
 }
 
 bool operator==(const NzString& first, const NzString& second)
@@ -4162,7 +4052,7 @@ bool operator==(const NzString& first, const NzString& second)
 	if (first.m_sharedString == second.m_sharedString)
 		return true;
 
-	return std::strcmp(first.m_sharedString->string, second.m_sharedString->string) == 0;
+	return std::strcmp(first.GetConstBuffer(), second.GetConstBuffer()) == 0;
 }
 
 bool operator!=(const NzString& first, const NzString& second)
@@ -4178,7 +4068,7 @@ bool operator<(const NzString& first, const NzString& second)
 	if (first.m_sharedString->size == 0)
 		return true;
 
-	return std::strcmp(first.m_sharedString->string, second.m_sharedString->string) < 0;
+	return std::strcmp(first.GetConstBuffer(), second.GetConstBuffer()) < 0;
 }
 
 bool operator<=(const NzString& first, const NzString& second)
@@ -4288,43 +4178,33 @@ bool operator>=(const std::string& string, const NzString& nstring)
 
 void NzString::EnsureOwnership(bool discardContent)
 {
-	if (m_sharedString == &emptyString)
+	if (!m_sharedString)
 		return;
 
-	if (m_sharedString->refCount > 1)
+	if (!m_sharedString.unique())
 	{
-		m_sharedString->refCount--;
-
-		char* string = new char[m_sharedString->capacity+1];
+		auto newSharedString = std::make_shared<SharedString>(GetSize());
 		if (!discardContent)
-			std::memcpy(string, m_sharedString->string, m_sharedString->size+1);
+			std::memcpy(newSharedString->string.get(), GetConstBuffer(), GetSize());
 
-		m_sharedString = new SharedString(1, m_sharedString->capacity, m_sharedString->size, string);
+		m_sharedString = std::move(newSharedString);
 	}
 }
 
 bool NzString::FillHash(NzAbstractHash* hash) const
 {
-	hash->Append(reinterpret_cast<const nzUInt8*>(m_sharedString->string), m_sharedString->size);
+	hash->Append(reinterpret_cast<const nzUInt8*>(GetConstBuffer()), GetSize());
 
 	return true;
 }
 
-void NzString::ReleaseString()
+std::shared_ptr<NzString::SharedString> NzString::GetEmptyString()
 {
-	if (m_sharedString == &emptyString)
-		return;
+	static auto emptyString = std::make_shared<SharedString>();
 
-	if (--m_sharedString->refCount == 0)
-	{
-		delete[] m_sharedString->string;
-		delete m_sharedString;
-	}
-
-	m_sharedString = &emptyString;
+	return emptyString;
 }
 
-NzString::SharedString NzString::emptyString(0, 0, 0, nullptr);
 const unsigned int NzString::npos(std::numeric_limits<unsigned int>::max());
 
 namespace std

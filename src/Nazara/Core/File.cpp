@@ -32,22 +32,22 @@
 NzFile::NzFile() :
 m_endianness(nzEndianness_Unknown),
 m_impl(nullptr),
-m_openMode(0)
+m_openMode(nzOpenMode_Current)
 {
 }
 
 NzFile::NzFile(const NzString& filePath) :
 m_endianness(nzEndianness_Unknown),
 m_impl(nullptr),
-m_openMode(0)
+m_openMode(nzOpenMode_Current)
 {
 	SetFile(filePath);
 }
 
-NzFile::NzFile(const NzString& filePath, unsigned long openMode) :
+NzFile::NzFile(const NzString& filePath, unsigned int openMode) :
 m_endianness(nzEndianness_Unknown),
 m_impl(nullptr),
-m_openMode(0)
+m_openMode(openMode)
 {
 	Open(filePath, openMode);
 }
@@ -133,7 +133,7 @@ void NzFile::Flush()
 		return;
 	}
 
-	if ((m_openMode & ReadWrite) == 0 && (m_openMode & WriteOnly) == 0)
+	if ((m_openMode & nzOpenMode_ReadWrite) == 0 && (m_openMode & nzOpenMode_WriteOnly) == 0)
 	{
 		NazaraError("Cannot flush file without write access");
 		return;
@@ -225,7 +225,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 		return 0;
 	}
 
-	if ((m_openMode & ReadOnly) == 0 && (m_openMode & ReadWrite) == 0)
+	if ((m_openMode & nzOpenMode_ReadOnly) == 0 && (m_openMode & nzOpenMode_ReadWrite) == 0)
 	{
 		NazaraError("File not opened with read access");
 		return 0;
@@ -242,7 +242,7 @@ std::size_t NzFile::Read(void* buffer, std::size_t size)
 		// Si nous ne devons rien lire, nous avançons simplement
 		nzUInt64 currentPos = m_impl->GetCursorPos();
 
-		m_impl->SetCursorPos(NzFile::AtCurrent, size);
+		m_impl->SetCursorPos(nzCursorPosition_AtCurrent, size);
 
 		return static_cast<std::size_t>(m_impl->GetCursorPos()-currentPos);
 	}
@@ -281,7 +281,7 @@ bool NzFile::Rename(const NzString& newFilePath)
 	return success;
 }
 
-bool NzFile::Open(unsigned long openMode)
+bool NzFile::Open(unsigned int openMode)
 {
 	NazaraLock(m_mutex)
 
@@ -306,13 +306,13 @@ bool NzFile::Open(unsigned long openMode)
 
 	m_impl = impl.release();
 
-	if (m_openMode & Text)
+	if (m_openMode & nzOpenMode_Text)
 		m_streamOptions |= nzStreamOption_Text;
 
 	return true;
 }
 
-bool NzFile::Open(const NzString& filePath, unsigned long openMode)
+bool NzFile::Open(const NzString& filePath, unsigned int openMode)
 {
 	NazaraLock(m_mutex)
 
@@ -322,7 +322,7 @@ bool NzFile::Open(const NzString& filePath, unsigned long openMode)
 	return Open(openMode);
 }
 
-bool NzFile::SetCursorPos(CursorPosition pos, nzInt64 offset)
+bool NzFile::SetCursorPos(nzCursorPosition pos, nzInt64 offset)
 {
 	NazaraLock(m_mutex)
 
@@ -349,7 +349,7 @@ bool NzFile::SetCursorPos(nzUInt64 offset)
 	}
 	#endif
 
-	return m_impl->SetCursorPos(AtBegin, offset);
+	return m_impl->SetCursorPos(nzCursorPosition_AtBegin, offset);
 }
 
 void NzFile::SetEndianness(nzEndianness endianness)
@@ -389,7 +389,7 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 {
 	NazaraLock(m_mutex)
 
-	if (openMode == 0 || openMode == m_openMode)
+	if (openMode == nzOpenMode_Current || openMode == m_openMode)
 		return true;
 
 	if (IsOpen())
@@ -406,7 +406,7 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 
 		m_impl = impl.release();
 
-		if (m_openMode & Text)
+		if (m_openMode & nzOpenMode_Text)
 			m_streamOptions |= nzStreamOption_Text;
 	}
 
@@ -417,7 +417,7 @@ bool NzFile::SetOpenMode(unsigned int openMode)
 
 bool NzFile::Write(const NzByteArray& byteArray)
 {
-	unsigned int size = byteArray.GetSize();
+	NzByteArray::size_type size = byteArray.GetSize();
 	return Write(byteArray.GetConstBuffer(), 1, size) == size;
 }
 
@@ -455,7 +455,7 @@ std::size_t NzFile::Write(const void* buffer, std::size_t typeSize, unsigned int
 		return 0;
 	}
 
-	if ((m_openMode & ReadWrite) == 0 && (m_openMode & WriteOnly) == 0)
+	if ((m_openMode & nzOpenMode_ReadWrite) == 0 && (m_openMode & nzOpenMode_WriteOnly) == 0)
 	{
 		NazaraError("File not opened with write access");
 		return 0;
@@ -716,7 +716,7 @@ bool NzFile::Rename(const NzString& sourcePath, const NzString& targetPath)
 bool NzFile::FillHash(NzAbstractHash* hash) const
 {
 	NzFile file(m_filePath);
-	if (!file.Open(NzFile::ReadOnly))
+	if (!file.Open(nzOpenMode_ReadOnly))
 	{
 		NazaraError("Unable to open file");
 		return false;
