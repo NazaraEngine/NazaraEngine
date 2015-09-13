@@ -102,17 +102,17 @@ inline NzByteArray NzByteArray::GetSubArray(const_iterator startPos, const_itera
 
 inline NzByteArray::iterator NzByteArray::Insert(const_iterator pos, const void* buffer, size_type n)
 {
-	return Insert(pos, static_cast<const_pointer>(buffer), static_cast<const_pointer>(buffer) + n);
+	return m_array.insert(pos, static_cast<const_pointer>(buffer), static_cast<const_pointer>(buffer) + n);
 }
 
 inline NzByteArray::iterator NzByteArray::Insert(const_iterator pos, const NzByteArray& other)
 {
-	return Insert(pos, other.begin(), other.end());
+	return m_array.insert(pos, other.begin(), other.end());
 }
 
-inline NzByteArray::iterator NzByteArray::Insert(const_iterator pos, size_type n, const value_type byte)
+inline NzByteArray::iterator NzByteArray::Insert(const_iterator pos, size_type n, value_type byte)
 {
-	return Insert(pos, n, byte);
+	return m_array.insert(pos, n, byte);
 }
 
 template <class InputIterator>
