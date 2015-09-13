@@ -128,7 +128,7 @@ return {
 				{
 					Title = "TaskScheduler",
 					Description = "Classe permettant de répartir X tâches sur Y workers de façon efficace.",
-					Portability = Feature.Windows
+					Portability = Feature.Windows + Feature.POSIX
 				}
 			}
 		},
@@ -196,8 +196,7 @@ return {
 		{
 			Title = "Récupération d'informations sur le hardware",
 			Description = "Classe permettant, si la plateforme le supporte, de récupérer des informations utiles sur le matériel: nom et fabricant du processeur, nombre de coeurs, support d'un set d'extension (exemple: SSE), quantité de mémoire vive, exécution de l'instruction CPUID.",
-			Note = "Il manque de quoi récupérer la quantité de mémoire vive",
-			Progress = 90,
+			Progress = 100,
 			Portability = Feature.Windows + Feature.POSIX
 		}
     }
