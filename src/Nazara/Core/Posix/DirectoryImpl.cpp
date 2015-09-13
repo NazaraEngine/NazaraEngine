@@ -6,6 +6,9 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
+#include <errno.h>
+#include <sys/param.h>
+
 NzDirectoryImpl::NzDirectoryImpl(const NzDirectory* parent)
 {
 	NazaraUnused(parent);
@@ -82,13 +85,10 @@ bool NzDirectoryImpl::Exists(const NzString& dirPath)
 NzString NzDirectoryImpl::GetCurrent()
 {
 	NzString currentPath;
-	char* path = getcwd(nullptr, 0);
 
-	if (path)
-	{
+	char path[MAXPATHLEN];
+	if (getcwd(path, MAXPATHLEN))
 		currentPath = path;
-		free(path);
-	}
 	else
 		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError()); // Bug: initialisation -> if no path for log !
 

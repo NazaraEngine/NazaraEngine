@@ -11,6 +11,7 @@
 #include <Nazara/Core/Hashable.hpp>
 #include <atomic>
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,14 +23,12 @@ class NAZARA_CORE_API NzString : public NzHashable
 	public:
 		enum Flags
 		{
-			None            = 0x00,	// Mode par défaut
-			CaseInsensitive = 0x01,	// Insensible à la casse
-			HandleUtf8      = 0x02,	// Traite les octets comme une suite de caractères UTF-8
+			None            = 0x00, // Mode par défaut
+			CaseInsensitive = 0x01, // Insensible à la casse
+			HandleUtf8      = 0x02, // Traite les octets comme une suite de caractères UTF-8
 			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
 			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
 		};
-
-		struct SharedString;
 
 		NzString();
 		explicit NzString(char character);
@@ -40,10 +39,9 @@ class NAZARA_CORE_API NzString : public NzHashable
 		NzString(const char* string);
 		NzString(const char* string, unsigned int length);
 		NzString(const std::string& string);
-		NzString(const NzString& string);
-		NzString(NzString&& string) noexcept;
-		NzString(SharedString* sharedString);
-		~NzString();
+		NzString(const NzString& string) = default;
+		NzString(NzString&& string) noexcept = default;
+		~NzString() = default;
 
 		NzString& Append(char character);
 		NzString& Append(const char* string);
@@ -137,7 +135,6 @@ class NAZARA_CORE_API NzString : public NzHashable
 		NzString& Set(const std::string& string);
 		NzString& Set(const NzString& string);
 		NzString& Set(NzString&& string) noexcept;
-		NzString& Set(SharedString* sharedString);
 
 		NzString Simplified(nzUInt32 flags = None) const;
 		NzString& Simplify(nzUInt32 flags = None);
@@ -299,37 +296,30 @@ class NAZARA_CORE_API NzString : public NzHashable
 		NAZARA_CORE_API friend bool operator>=(const char* string, const NzString& nstring);
 		NAZARA_CORE_API friend bool operator>=(const std::string& string, const NzString& nstring);
 
-		struct NAZARA_CORE_API SharedString
-		{
-			SharedString() :
-			refCount(1)
-			{
-			}
-
-			SharedString(unsigned short referenceCount, unsigned int bufferSize, unsigned int stringSize, char* str) :
-			capacity(bufferSize),
-			size(stringSize),
-			string(str),
-			refCount(referenceCount)
-			{
-			}
-
-			unsigned int capacity;
-			unsigned int size;
-			char* string;
-
-			std::atomic_ushort refCount;
-		};
-
-		static SharedString emptyString;
 		static const unsigned int npos;
 
 	private:
+		struct SharedString;
+
+		NzString(std::shared_ptr<SharedString>&& sharedString);
+
 		void EnsureOwnership(bool discardContent = false);
 		bool FillHash(NzAbstractHash* hash) const;
-		void ReleaseString();
+		inline void ReleaseString();
 
-		SharedString* m_sharedString;
+		static std::shared_ptr<SharedString> GetEmptyString();
+
+		std::shared_ptr<SharedString> m_sharedString;
+
+		struct SharedString
+		{
+			inline SharedString();
+			inline SharedString(unsigned int strSize);
+
+			unsigned int capacity;
+			unsigned int size;
+			std::unique_ptr<char[]> string;
+		};
 };
 
 namespace std

@@ -35,6 +35,9 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/mingw/x64")
 				targetdir("../extlibs/lib/mingw/x64")
 
+			configuration("vs*")
+				buildoptions("/MP")
+
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
 				targetdir("../extlibs/lib/msvc/x86")
@@ -68,7 +71,7 @@ function NazaraBuild:Execute()
 				targetsuffix("-s")
 
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions("-std=c++11")
+				buildoptions("-std=c++14")
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -122,7 +125,7 @@ function NazaraBuild:Execute()
 			defines("NAZARA_STATIC")
 
 		configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-			buildoptions("-std=c++11")
+			buildoptions("-std=c++14")
 
 		configuration({"linux or bsd or macosx", "gmake"})
 			buildoptions("-fvisibility=hidden")
@@ -131,8 +134,10 @@ function NazaraBuild:Execute()
 			buildoptions("-fvisibility=hidden")
 
 		configuration("vs*")
+			buildoptions("/MP")
 			defines("_CRT_SECURE_NO_WARNINGS")
 			defines("_SCL_SECURE_NO_WARNINGS")
+
 
 		-- Spécification des modules
 		if (_OPTIONS["united"]) then

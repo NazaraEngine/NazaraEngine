@@ -180,7 +180,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Right].Set(plane);
 
@@ -195,7 +195,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Left].Set(plane);
 
@@ -210,7 +210,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Bottom].Set(plane);
 
@@ -225,7 +225,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Top].Set(plane);
 
@@ -240,7 +240,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Far].Set(plane);
 
@@ -255,7 +255,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 	plane[0] *= invLength;
 	plane[1] *= invLength;
 	plane[2] *= invLength;
-	plane[3] *= invLength;
+	plane[3] *= -invLength;
 
 	m_planes[nzFrustumPlane_Near].Set(plane);
 
@@ -332,10 +332,7 @@ NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& clipMatrix)
 template<typename T>
 NzFrustum<T>& NzFrustum<T>::Extract(const NzMatrix4<T>& view, const NzMatrix4<T>& projection)
 {
-	NzMatrix4<T> clipMatrix(view);
-	clipMatrix *= projection;
-
-	return Extract(clipMatrix);
+	return Extract(NzMatrix4<T>::Concatenate(view, projection));
 }
 
 template<typename T>
