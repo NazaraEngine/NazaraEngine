@@ -26,7 +26,7 @@ namespace Ndk
 	Component(camera),
 	NzAbstractViewer(camera),
 	m_targetRegion(camera.m_targetRegion),
-	m_target(camera.m_target),
+	m_target(nullptr),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
@@ -37,7 +37,7 @@ namespace Ndk
 	m_zNear(camera.m_zNear),
 	m_layer(camera.m_layer)
 	{
-
+		SetTarget(camera.m_target);
 	}
 
 	inline void CameraComponent::EnsureFrustumUpdate() const
