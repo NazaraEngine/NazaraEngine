@@ -46,8 +46,8 @@ class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
 		inline NzInstancedRenderable& operator=(const NzInstancedRenderable& renderable);
 
 		// Signals:
-		NazaraSignal(OnInstancedRenderableInvalidateData, const NzInstancedRenderable*, nzUInt32); //< Args: me, flags
-		NazaraSignal(OnInstancedRenderableRelease, const NzInstancedRenderable*); //< Args: me
+		NazaraSignal(OnInstancedRenderableInvalidateData, const NzInstancedRenderable* /*instancedRenderable*/, nzUInt32 /*flags*/);
+		NazaraSignal(OnInstancedRenderableRelease, const NzInstancedRenderable* /*instancedRenderable*/);
 
 		struct InstanceData
 		{

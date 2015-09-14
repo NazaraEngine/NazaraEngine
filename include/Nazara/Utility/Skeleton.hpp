@@ -58,9 +58,9 @@ class NAZARA_UTILITY_API NzSkeleton : public NzRefCounted
 		template<typename... Args> static NzSkeletonRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnSkeletonDestroy, const NzSkeleton*); //< Args: me
-		NazaraSignal(OnSkeletonJointsInvalidated, const NzSkeleton*); //< Args: me
-		NazaraSignal(OnSkeletonRelease, const NzSkeleton*); //< Args: me
+		NazaraSignal(OnSkeletonDestroy, const NzSkeleton* /*skeleton*/);
+		NazaraSignal(OnSkeletonJointsInvalidated, const NzSkeleton* /*skeleton*/);
+		NazaraSignal(OnSkeletonRelease, const NzSkeleton* /*skeleton*/);
 
 	private:
 		void InvalidateJoints();

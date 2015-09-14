@@ -88,9 +88,9 @@ class NAZARA_UTILITY_API NzAnimation : public NzRefCounted, public NzResource
 
 		template<typename... Args> static NzAnimationRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnAnimationDestroy, const NzAnimation*); //< Args: me
-		NazaraSignal(OnAnimationRelease, const NzAnimation*); //< Args: me
+		// Signals:
+		NazaraSignal(OnAnimationDestroy, const NzAnimation* /*animation*/);
+		NazaraSignal(OnAnimationRelease, const NzAnimation* /*animation*/);
 
 	private:
 		static bool Initialize();

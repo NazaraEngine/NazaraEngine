@@ -141,9 +141,9 @@ class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
 		static NzMaterialRef GetDefault();
 		template<typename... Args> static NzMaterialRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnMaterialRelease, const NzMaterial*); //< Args: me
-		NazaraSignal(OnMaterialReset, const NzMaterial*); //< Args: me
+		// Signals:
+		NazaraSignal(OnMaterialRelease, const NzMaterial* /*material*/);
+		NazaraSignal(OnMaterialReset, const NzMaterial* /*material*/);
 
 	private:
 		struct ShaderInstance
