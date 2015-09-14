@@ -129,8 +129,8 @@ class NAZARA_UTILITY_API NzMesh : public NzRefCounted, public NzResource
 		template<typename... Args> static NzMeshRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnMeshDestroy, const NzMesh*); //< Args: me
-		NazaraSignal(OnMeshRelease, const NzMesh*); //< Args: me
+		NazaraSignal(OnMeshDestroy, const NzMesh* /*mesh*/);
+		NazaraSignal(OnMeshRelease, const NzMesh* /*mesh*/);
 
 	private:
 		NzMeshImpl* m_impl = nullptr;

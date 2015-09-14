@@ -61,8 +61,8 @@ class NAZARA_UTILITY_API NzBuffer : public NzRefCounted, NzNonCopyable
 		static void SetBufferFactory(nzUInt32 storage, BufferFactory func);
 
 		// Signals:
-		NazaraSignal(OnBufferDestroy, const NzBuffer*); //< Args: me
-		NazaraSignal(OnBufferRelease, const NzBuffer*); //< Args: me
+		NazaraSignal(OnBufferDestroy, const NzBuffer* /*buffer*/);
+		NazaraSignal(OnBufferRelease, const NzBuffer* /*buffer*/);
 
 	private:
 		static bool Initialize();

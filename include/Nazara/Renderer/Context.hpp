@@ -47,9 +47,9 @@ class NAZARA_RENDERER_API NzContext : public NzRefCounted
 		static const NzContext* GetReference();
 		static const NzContext* GetThreadContext();
 
-		// Signals
-		NazaraSignal(OnContextDestroy, const NzContext*); //< Args: me
-		NazaraSignal(OnContextRelease, const NzContext*); //< Args: me
+		// Signals:
+		NazaraSignal(OnContextDestroy, const NzContext* /*context*/);
+		NazaraSignal(OnContextRelease, const NzContext* /*context*/);
 
 	private:
 		static bool Initialize();

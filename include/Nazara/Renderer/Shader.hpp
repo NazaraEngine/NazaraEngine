@@ -101,10 +101,10 @@ class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
 		static bool IsStageSupported(nzShaderStage stage);
 		template<typename... Args> static NzShaderRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnShaderDestroy, const NzShader*); //< Args: me
-		NazaraSignal(OnShaderRelease, const NzShader*); //< Args: me
-		NazaraSignal(OnShaderUniformInvalidated, const NzShader*); //< Args: me
+		// Signals:
+		NazaraSignal(OnShaderDestroy, const NzShader* /*shader*/);
+		NazaraSignal(OnShaderRelease, const NzShader* /*shader*/);
+		NazaraSignal(OnShaderUniformInvalidated, const NzShader* /*shader*/);
 
 	private:
 		bool PostLinkage();

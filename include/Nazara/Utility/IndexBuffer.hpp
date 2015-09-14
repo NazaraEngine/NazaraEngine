@@ -64,8 +64,8 @@ class NAZARA_UTILITY_API NzIndexBuffer : public NzRefCounted
 
 		template<typename... Args> static NzIndexBufferRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnIndexBufferRelease, const NzIndexBuffer*); //< Args: me
+		// Signals:
+		NazaraSignal(OnIndexBufferRelease, const NzIndexBuffer* /*indexBuffer*/);
 
 	private:
 		NzBufferRef m_buffer;
