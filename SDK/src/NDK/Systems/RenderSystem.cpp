@@ -62,10 +62,11 @@ namespace Ndk
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
-			for (const Ndk::EntityHandle& light : m_drawables)
+			//TODO: Culling
+			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
-				GraphicsComponent& graphicsComponent = light->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
