@@ -42,8 +42,8 @@ class NAZARA_UTILITY_API NzSkeletalMesh final : public NzSubMesh
 		template<typename... Args> static NzSkeletalMeshRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnSkeletalMeshDestroy, const NzSkeletalMesh*); //< Args: me
-		NazaraSignal(OnSkeletalMeshRelease, const NzSkeletalMesh*); //< Args: me
+		NazaraSignal(OnSkeletalMeshDestroy, const NzSkeletalMesh* /*skeletalMesh*/);
+		NazaraSignal(OnSkeletalMeshRelease, const NzSkeletalMesh* /*skeletalMesh*/);
 
 	private:
 		NzBoxf m_aabb;
