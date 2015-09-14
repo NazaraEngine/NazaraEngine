@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <Nazara/Core/StringStream.hpp>
 #include <functional>
 #include <limits>
 
@@ -89,6 +90,20 @@ namespace Ndk
 		return *this;
 	}
 
+	inline NzString EntityHandle::ToString() const
+	{
+		NzStringStream ss;
+		ss << "EntityHandle(";
+		if (IsValid())
+			ss << "Entity(" << m_entity->GetId() << ')';
+		else
+			ss << "Null entity";
+
+		ss << ')';
+
+		return ss;
+	}
+
 	inline EntityHandle::operator bool() const
 	{
 		return IsValid();
@@ -143,7 +158,7 @@ namespace Ndk
 	{
 		out << "EntityHandle(";
 		if (handle.IsValid())
-			out << "Entity(" << handle->GetId() << ")";
+			out << "Entity(" << handle->GetId() << ')';
 		else
 			out << "Null entity";
 
