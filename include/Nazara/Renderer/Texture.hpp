@@ -108,9 +108,9 @@ class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounte
 		static bool IsTypeSupported(nzImageType type);
 		template<typename... Args> static NzTextureRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnTextureDestroy, const NzTexture*); //< Args: me
-		NazaraSignal(OnTextureRelease, const NzTexture*); //< Args: me
+		// Signals:
+		NazaraSignal(OnTextureDestroy, const NzTexture* /*texture*/);
+		NazaraSignal(OnTextureRelease, const NzTexture* /*texture*/);
 
 	private:
 		bool CreateTexture(bool proxy);

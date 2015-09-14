@@ -35,10 +35,10 @@ class NAZARA_RENDERER_API NzRenderTarget
 		// Fonctions OpenGL
 		virtual bool HasContext() const = 0;
 
-		// Signals
-		NazaraSignal(OnRenderTargetParametersChange, const NzRenderTarget*); //< Args: me
-		NazaraSignal(OnRenderTargetRelease, const NzRenderTarget*); //< Args: me
-		NazaraSignal(OnRenderTargetSizeChange, const NzRenderTarget*); //< Args: me
+		// Signals:
+		NazaraSignal(OnRenderTargetParametersChange, const NzRenderTarget* /*renderTarget*/);
+		NazaraSignal(OnRenderTargetRelease,	const NzRenderTarget* /*renderTarget*/);
+		NazaraSignal(OnRenderTargetSizeChange, const NzRenderTarget* /*renderTarget*/);
 
 	protected:
 		virtual bool Activate() const = 0;

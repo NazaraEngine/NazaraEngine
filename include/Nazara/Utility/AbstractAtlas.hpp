@@ -31,9 +31,10 @@ class NAZARA_UTILITY_API NzAbstractAtlas
 		virtual nzUInt32 GetStorage() const = 0;
 		virtual bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
 
-		NazaraSignal(OnAtlasCleared, const NzAbstractAtlas*); //< Args: me
-		NazaraSignal(OnAtlasLayerChange, const NzAbstractAtlas*, NzAbstractImage*, NzAbstractImage*); //< Args: me, oldLayer, newLayer
-		NazaraSignal(OnAtlasRelease, const NzAbstractAtlas*); //< Args: me
+		// Signals:
+		NazaraSignal(OnAtlasCleared, const NzAbstractAtlas* /*atlas*/);
+		NazaraSignal(OnAtlasLayerChange, const NzAbstractAtlas* /*atlas*/, NzAbstractImage* /*oldLayer*/, NzAbstractImage* /*newLayer*/);
+		NazaraSignal(OnAtlasRelease, const NzAbstractAtlas* /*atlas*/); 
 };
 
 #endif // NAZARA_ABSTRACTATLAS_HPP

@@ -36,7 +36,7 @@ class NAZARA_RENDERER_API NzUberShaderPreprocessor : public NzUberShader
 		template<typename... Args> static NzUberShaderPreprocessorRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnUberShaderPreprocessorRelease, const NzUberShaderPreprocessor*); //< Args: me
+		NazaraSignal(OnUberShaderPreprocessorRelease, const NzUberShaderPreprocessor* /*uberShaderPreprocessor*/);
 
 	private:
 		struct Shader

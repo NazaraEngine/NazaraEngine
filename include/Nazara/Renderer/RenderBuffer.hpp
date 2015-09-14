@@ -46,9 +46,9 @@ class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 		static bool IsSupported();
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnRenderBufferDestroy, const NzRenderBuffer*); //< Args: me
-		NazaraSignal(OnRenderBufferRelease, const NzRenderBuffer*); //< Args: me
+		// Signals:
+		NazaraSignal(OnRenderBufferDestroy, const NzRenderBuffer* /*renderBuffer*/);
+		NazaraSignal(OnRenderBufferRelease, const NzRenderBuffer* /*renderBuffer*/);
 
 	private:
 		static bool Initialize();

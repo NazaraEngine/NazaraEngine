@@ -51,7 +51,8 @@ class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 
 		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 
-		NazaraSignal(OnPhysGeomRelease, const NzPhysGeom*); //< Args: me
+		// Signals:
+		NazaraSignal(OnPhysGeomRelease, const NzPhysGeom* /*physGeom*/);
 
 	protected:
 		virtual NewtonCollision* CreateHandle(NzPhysWorld* world) const = 0;
