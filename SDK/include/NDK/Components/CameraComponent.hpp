@@ -40,6 +40,7 @@ namespace Ndk
 			inline const NzFrustumf& GetFrustum() const;
 			inline unsigned int GetLayer() const;
 			inline const NzMatrix4f& GetProjectionMatrix() const;
+			inline nzProjectionType GetProjectionType() const;
 			inline const NzRenderTarget* GetTarget() const;
 			inline const NzRectf& GetTargetRegion() const;
 			inline const NzMatrix4f& GetViewMatrix() const;
@@ -49,6 +50,7 @@ namespace Ndk
 
 			inline void SetFOV(float fov);
 			inline void SetLayer(unsigned int layer);
+			inline void SetProjectionType(nzProjectionType projection);
 			inline void SetTarget(const NzRenderTarget* renderTarget);
 			inline void SetTargetRegion(const NzRectf& region);
 			inline void SetViewport(const NzRecti& viewport);
@@ -80,6 +82,7 @@ namespace Ndk
 			NazaraSlot(NzRenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
 			NazaraSlot(NzRenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
+			nzProjectionType m_projectionType;
 			mutable NzFrustumf m_frustum;
 			mutable NzMatrix4f m_projectionMatrix;
 			mutable NzMatrix4f m_viewMatrix;
