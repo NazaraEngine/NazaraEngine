@@ -1934,7 +1934,7 @@ bool NzString::IsEmpty() const
 
 bool NzString::IsNull() const
 {
-	return !m_sharedString.get();
+	return m_sharedString.get() == GetEmptyString().get();
 }
 
 bool NzString::IsNumber(nzUInt8 base, nzUInt32 flags) const
@@ -2609,7 +2609,7 @@ NzString& NzString::Set(unsigned int rep, const char* string, unsigned int lengt
 	if (totalSize > 0)
 	{
 		if (m_sharedString->capacity >= totalSize)
-		{	
+		{
 			EnsureOwnership(true);
 
 			m_sharedString->size = totalSize;
@@ -2642,7 +2642,7 @@ NzString& NzString::Set(const char* string, unsigned int length)
 	if (length > 0)
 	{
 		if (m_sharedString->capacity >= length)
-		{	
+		{
 			EnsureOwnership(true);
 
 			m_sharedString->size = length;
@@ -4198,7 +4198,7 @@ bool NzString::FillHash(NzAbstractHash* hash) const
 	return true;
 }
 
-std::shared_ptr<NzString::SharedString> NzString::GetEmptyString()
+const std::shared_ptr<NzString::SharedString>& NzString::GetEmptyString()
 {
 	static auto emptyString = std::make_shared<SharedString>();
 
