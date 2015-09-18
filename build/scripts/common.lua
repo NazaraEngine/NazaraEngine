@@ -269,47 +269,61 @@ function NazaraBuild:Execute()
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/mingw/x86")
 				libdirs("../lib/mingw/x86")
-				targetdir("../lib/mingw/x86")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/mingw/x86")
+				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/mingw/x64")
 				libdirs("../lib/mingw/x64")
-				targetdir("../lib/mingw/x64")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/mingw/x64")
+				end
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
-				targetdir("../lib/msvc/x86")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/msvc/x86")
+				end
 
 			configuration({"vs*", "x64"})
 				libdirs("../extlibs/lib/msvc/x64")
 				libdirs("../lib/msvc/x64")
-				targetdir("../lib/msvc/x64")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/msvc/x64")
+				end
 
 			configuration({"xcode3 or xcode4", "x32"})
 				libdirs("../extlibs/lib/xcode/x86")
 				libdirs("../lib/xcode/x86")
-				targetdir("../lib/xcode/x86")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/xcode/x86")
+				end
 
 			configuration({"xcode3 or xcode4", "x64"})
 				libdirs("../extlibs/lib/xcode/x64")
 				libdirs("../lib/xcode/x64")
-				targetdir("../lib/xcode/x64")
+				if (toolTable.Kind == "library") then
+					targetdir("../lib/xcode/x64")
+				end
 
-			configuration("*Static")
-				kind("StaticLib")
+			if (toolTable.Kind == "library") then
+				configuration("*Static")
+					kind("StaticLib")
 
-			configuration("*Dynamic")
-				kind("SharedLib")
+				configuration("*Dynamic")
+					kind("SharedLib")
+				
+				configuration("DebugStatic")
+					targetsuffix("-s-d")
 
-			configuration("DebugStatic")
-				targetsuffix("-s-d")
+				configuration("ReleaseStatic")
+					targetsuffix("-s")
 
-			configuration("ReleaseStatic")
-				targetsuffix("-s")
-
-			configuration("DebugDynamic")
-				targetsuffix("-d")
+				configuration("DebugDynamic")
+					targetsuffix("-d")
+			end
 
 			configuration({})
 
