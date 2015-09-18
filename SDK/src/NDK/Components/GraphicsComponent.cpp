@@ -3,15 +3,16 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/World.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
 namespace Ndk
 {
 	void GraphicsComponent::InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index)
 	{
-		NazaraUnused(renderable);
-
 		NazaraAssert(index < m_renderables.size(), "Invalid renderable index");
+		NazaraUnused(renderable);
 
 		Renderable& r = m_renderables[index];
 		r.dataUpdated = false;
@@ -66,7 +67,9 @@ namespace Ndk
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "GraphicsComponent requires NodeComponent");
 
-		m_transformMatrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
+		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
+
+		m_transformMatrix = renderSystem.GetCoordinateSystemMatrix() * m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
 		m_transformMatrixUpdated = true;
 	}
 

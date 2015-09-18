@@ -26,12 +26,21 @@ namespace Ndk
 			~RenderSystem() = default;
 
 			inline const NzBackgroundRef& GetDefaultBackground() const;
+			inline const NzMatrix4f& GetCoordinateSystemMatrix() const;
+			inline NzVector3f GetGlobalForward() const;
+			inline NzVector3f GetGlobalRight() const;
+			inline NzVector3f GetGlobalUp() const;
 
 			inline void SetDefaultBackground(NzBackgroundRef background);
+			inline void SetGlobalForward(const NzVector3f& direction);
+			inline void SetGlobalRight(const NzVector3f& direction);
+			inline void SetGlobalUp(const NzVector3f& direction);
 
 			static SystemIndex systemIndex;
 
 		private:
+			inline void InvalidateCoordinateSystem();
+
 			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
@@ -41,6 +50,8 @@ namespace Ndk
 			EntityList m_lights;
 			NzBackgroundRef m_background;
 			NzForwardRenderTechnique m_renderTechnique;
+			NzMatrix4f m_coordinateSystemMatrix;
+			bool m_coordinateSystemInvalidated;
 	};
 }
 
