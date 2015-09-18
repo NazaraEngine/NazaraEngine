@@ -1,5 +1,5 @@
 #include <Nazara/Core/Directory.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Directory", "[CORE][DIRECTORY]")
 {
