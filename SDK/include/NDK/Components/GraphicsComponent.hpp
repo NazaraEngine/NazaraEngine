@@ -15,6 +15,8 @@ namespace Ndk
 {
 	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
 	{
+		friend class RenderSystem;
+
 		public:
 			GraphicsComponent() = default;
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
@@ -30,6 +32,7 @@ namespace Ndk
 
 		private:
 			void InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index);
+			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
 
 			void OnAttached() override;
