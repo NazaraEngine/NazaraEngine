@@ -1,7 +1,6 @@
 #include <Nazara/Core/Clock.hpp>
-#include <catch.hpp>
-
-#include <thread>
+#include <Nazara/Core/Thread.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Clock", "[CORE][CLOCK]")
 {
@@ -22,7 +21,7 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 				clock.Unpause();
 				THEN("Time must not be the initialTime")
 				{
-					std::this_thread::sleep_for(std::chrono::microseconds(10));
+					NzThread::Sleep(1);
 					REQUIRE(clock.GetMicroseconds() != initialTime);
 				}
 			}

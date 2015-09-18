@@ -1,5 +1,5 @@
 #include <Nazara/Math/Rect.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Rect", "[MATH][RECT]")
 {
