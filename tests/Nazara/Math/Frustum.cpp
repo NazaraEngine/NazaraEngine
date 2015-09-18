@@ -1,5 +1,5 @@
 #include <Nazara/Math/Frustum.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Frustum", "[MATH][FRUSTUM]")
 {

@@ -1,5 +1,5 @@
 #include <Nazara/Math/Vector4.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 #include <Nazara/Math/Vector3.hpp>
 

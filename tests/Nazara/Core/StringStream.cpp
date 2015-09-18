@@ -1,5 +1,5 @@
 #include <Nazara/Core/StringStream.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("StringStream", "[CORE][STRINGSTREAM]")
 {

@@ -1,5 +1,5 @@
 #include <Nazara/Math/OrientedBox.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 {

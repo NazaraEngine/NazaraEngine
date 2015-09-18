@@ -1,5 +1,5 @@
 #include <Nazara/Math/Plane.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Plane", "[MATH][PLANE]")
 {

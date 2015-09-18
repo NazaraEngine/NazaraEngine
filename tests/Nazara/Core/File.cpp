@@ -1,5 +1,5 @@
 #include <Nazara/Core/File.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("File", "[CORE][FILE]")
 {
