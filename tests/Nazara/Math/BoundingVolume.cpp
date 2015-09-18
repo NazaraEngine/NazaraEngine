@@ -1,5 +1,5 @@
 #include <Nazara/Math/BoundingVolume.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 {
