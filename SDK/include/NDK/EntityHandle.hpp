@@ -33,6 +33,8 @@ namespace Ndk
 
 			EntityHandle& Swap(EntityHandle& handle);
 
+			NzString ToString() const;
+
 			operator bool() const;
 			operator Entity*() const;
 			Entity* operator->() const;

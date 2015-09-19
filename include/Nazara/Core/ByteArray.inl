@@ -65,6 +65,16 @@ inline NzByteArray::iterator NzByteArray::Erase(const_iterator first, const_iter
 	return m_array.erase(first, last);
 }
 
+inline NzByteArray::reference NzByteArray::Front()
+{
+	return m_array.front();
+}
+
+inline NzByteArray::const_reference NzByteArray::Front() const
+{
+	return m_array.front();
+}
+
 inline NzByteArray::allocator_type NzByteArray::GetAllocator() const
 {
 	return m_array.get_allocator();

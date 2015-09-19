@@ -46,11 +46,16 @@ namespace Ndk
 			UpdateTransformMatrix();
 	}
 
-	inline void GraphicsComponent::InvalidateTransformMatrix()
+	inline void GraphicsComponent::InvalidateRenderables()
 	{
 		for (Renderable& r : m_renderables)
 			r.dataUpdated = false;
+	}
 
+	inline void GraphicsComponent::InvalidateTransformMatrix()
+	{
 		m_transformMatrixUpdated = false;
+
+		InvalidateRenderables();
 	}
 }

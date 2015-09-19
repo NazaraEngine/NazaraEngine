@@ -92,9 +92,9 @@ class NAZARA_UTILITY_API NzNode
 		NzNode& operator=(const NzNode& node);
 
 		// Signals:
-		NazaraSignal(OnNodeInvalidation, const NzNode*); //< Args: me
-		NazaraSignal(OnNodeNewParent, const NzNode*, const NzNode*); //< Args: me, new parent
-		NazaraSignal(OnNodeRelease, const NzNode*); //< Args: me
+		NazaraSignal(OnNodeInvalidation, const NzNode* /*node*/);
+		NazaraSignal(OnNodeNewParent, const NzNode* /*node*/, const NzNode* /*parent*/);
+		NazaraSignal(OnNodeRelease, const NzNode* /*node*/);
 
 	protected:
 		void AddChild(NzNode* node) const;

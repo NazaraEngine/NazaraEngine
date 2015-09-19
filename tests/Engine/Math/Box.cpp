@@ -1,5 +1,5 @@
 #include <Nazara/Math/Box.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Box", "[MATH][BOX]")
 {

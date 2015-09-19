@@ -12,7 +12,9 @@
 
 namespace Ndk
 {
-	RenderSystem::RenderSystem()
+	RenderSystem::RenderSystem() :
+	m_coordinateSystemMatrix(NzMatrix4f::Identity()),
+	m_coordinateSystemInvalidated(true)
 	{
 		SetDefaultBackground(NzColorBackground::New());
 		SetUpdateRate(0.f);
@@ -73,6 +75,18 @@ namespace Ndk
 	{
 		NazaraUnused(elapsedTime);
 
+		// Invalidate every renderable if the coordinate system changed
+		if (m_coordinateSystemInvalidated)
+		{
+			for (const Ndk::EntityHandle& drawable : m_drawables)
+			{
+				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+				graphicsComponent.InvalidateTransformMatrix();
+			}
+
+			m_coordinateSystemInvalidated = false;
+		}
+
 		UpdatePointSpotShadowMaps();
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
@@ -84,6 +98,7 @@ namespace Ndk
 			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
+			//TODO: Culling
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
@@ -97,7 +112,8 @@ namespace Ndk
 				LightComponent& lightComponent = light->GetComponent<LightComponent>();
 				NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
-				lightComponent.AddToRenderQueue(renderQueue, lightNode.GetTransformMatrix());
+				///TODO: Cache somehow?
+				lightComponent.AddToRenderQueue(renderQueue, m_coordinateSystemMatrix * drawableNode.GetTransformMatrix());
 			}
 
 			camComponent.ApplyView();

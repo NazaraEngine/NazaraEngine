@@ -1,5 +1,5 @@
 #include <Nazara/Math/Ray.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Ray", "[RAY]")
 {

@@ -1,5 +1,5 @@
 #include <Nazara/Math/Algorithm.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 TEST_CASE("Approach", "[MATH][ALGORITHM]" )
 {

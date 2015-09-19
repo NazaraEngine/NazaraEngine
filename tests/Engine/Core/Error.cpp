@@ -1,5 +1,5 @@
 #include <Nazara/Core/Error.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Error", "[CORE][ERROR]")
 {
