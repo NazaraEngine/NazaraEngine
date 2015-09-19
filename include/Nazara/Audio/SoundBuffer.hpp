@@ -70,8 +70,8 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource, N
 		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer*); //< Args: me
-		NazaraSignal(OnSoundBufferRelease, const NzSoundBuffer*); //< Args: me
+		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer* /*soundBuffer*/);
+		NazaraSignal(OnSoundBufferRelease, const NzSoundBuffer* /*soundBuffer*/);
 
 	private:
 		unsigned int GetOpenALBuffer() const;

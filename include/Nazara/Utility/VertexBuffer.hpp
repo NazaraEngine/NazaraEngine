@@ -62,8 +62,8 @@ class NAZARA_UTILITY_API NzVertexBuffer : public NzRefCounted
 
 		template<typename... Args> static NzVertexBufferRef New(Args&&... args);
 
-		// Signals
-		NazaraSignal(OnVertexBufferRelease, const NzVertexBuffer*); //< Args: me
+		// Signals:
+		NazaraSignal(OnVertexBufferRelease, const NzVertexBuffer* /*vertexBuffer*/);
 
 	private:
 		NzBufferRef m_buffer;

@@ -51,7 +51,8 @@ class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 
 		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 
-		NazaraSignal(OnPhysGeomRelease, const NzPhysGeom*); //< Args: me
+		// Signals:
+		NazaraSignal(OnPhysGeomRelease, const NzPhysGeom* /*physGeom*/);
 
 	protected:
 		virtual NewtonCollision* CreateHandle(NzPhysWorld* world) const = 0;
@@ -216,6 +217,8 @@ class NAZARA_PHYSICS_API NzNullGeom : public NzPhysGeom
 {
 	public:
 		NzNullGeom();
+
+		void ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const;
 
 		nzGeomType GetType() const override;
 

@@ -1,5 +1,5 @@
 #include <Nazara/Math/Matrix4.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Matrix4", "[MATH][MATRIX4]")
 {

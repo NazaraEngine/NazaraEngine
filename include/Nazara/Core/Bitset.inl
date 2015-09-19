@@ -245,7 +245,7 @@ template<typename Block, class Allocator>
 void NzBitset<Block, Allocator>::Resize(unsigned int bitCount, bool defaultVal)
 {
 	// On commence par changer la taille du conteneur, avec la valeur correcte d'initialisation
-	unsigned int lastBlockIndex = m_blocks.size()-1;
+	unsigned int lastBlockIndex = m_blocks.size() - 1;
 	m_blocks.resize(ComputeBlockCount(bitCount), (defaultVal) ? fullBitMask : 0U);
 
 	unsigned int remainingBits = GetBitIndex(m_bitCount);
@@ -304,7 +304,7 @@ template<typename Block, class Allocator>
 void NzBitset<Block, Allocator>::Swap(NzBitset& bitset)
 {
 	std::swap(m_bitCount, bitset.m_bitCount);
-	std::swap(m_blocks, bitset.m_blocks);
+	std::swap(m_blocks,   bitset.m_blocks);
 }
 
 template<typename Block, class Allocator>
@@ -358,7 +358,7 @@ T NzBitset<Block, Allocator>::To() const
 {
 	static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "T must be a unsigned integral type");
 
-	NazaraAssert(m_bitCount <= std::numeric_limits<T>::digits, "Bit count cannot be greater than UInt32 bit count");
+	NazaraAssert(m_bitCount <= std::numeric_limits<T>::digits, "Bit count cannot be greater than T bit count");
 
 	T value = 0;
 	for (unsigned int i = 0; i < m_blocks.size(); ++i)

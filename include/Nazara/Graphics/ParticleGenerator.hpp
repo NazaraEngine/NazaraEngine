@@ -35,7 +35,7 @@ class NAZARA_GRAPHICS_API NzParticleGenerator : public NzRefCounted
 		virtual void Generate(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
 
 		// Signals:
-		NazaraSignal(OnParticleGeneratorRelease, const NzParticleGenerator*); //< Args: me
+		NazaraSignal(OnParticleGeneratorRelease, const NzParticleGenerator* /*particleGenerator*/);
 
 	private:
 		static bool Initialize();
