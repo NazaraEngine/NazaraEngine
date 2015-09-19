@@ -22,6 +22,10 @@
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <GL3/wglext.h>
 #elif defined(NAZARA_PLATFORM_LINUX)
+	namespace GLX
+	{
+		#include <GL/glx.h>
+	}
 	#include <GL3/glxext.h>
 #endif
 
@@ -331,8 +335,10 @@ NAZARA_API extern PFNWGLGETEXTENSIONSSTRINGARBPROC  wglGetExtensionsStringARB;
 NAZARA_API extern PFNWGLGETEXTENSIONSSTRINGEXTPROC  wglGetExtensionsStringEXT;
 NAZARA_API extern PFNWGLSWAPINTERVALEXTPROC         wglSwapInterval;
 #elif defined(NAZARA_PLATFORM_LINUX)
-NAZARA_API extern PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribs;
-NAZARA_API extern PFNGLXSWAPINTERVALSGIPROC         glXSwapInterval;
+NAZARA_API extern GLX::PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribs;
+NAZARA_API extern GLX::PFNGLXSWAPINTERVALEXTPROC         glXSwapIntervalEXT;
+NAZARA_API extern GLX::PFNGLXSWAPINTERVALMESAPROC        NzglXSwapIntervalMESA;
+NAZARA_API extern GLX::PFNGLXSWAPINTERVALSGIPROC         glXSwapIntervalSGI;
 #endif
 
 #endif // NAZARA_RENDERER_OPENGL
