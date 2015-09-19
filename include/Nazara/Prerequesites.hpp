@@ -117,9 +117,10 @@
 			#define _WIN32_WINNT NAZARA_WINNT
 		#endif
 	#endif
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__unix__)
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
+	#define NAZARA_PLATFORM_X11
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
