@@ -7,13 +7,15 @@
 #ifndef NAZARA_CONTEXTIMPL_HPP
 #define NAZARA_CONTEXTIMPL_HPP
 
-#include <Nazara/Renderer/ContextParameters.hpp>
-#include <windows.h>
+#include <Nazara/Renderer/OpenGL.hpp>
+
+class NzContextParameters;
 
 class NzContextImpl
 {
 	public:
 		NzContextImpl();
+		~NzContextImpl();
 
 		bool Activate();
 
@@ -28,9 +30,9 @@ class NzContextImpl
 		static bool Desactivate();
 
 	private:
-		HDC m_deviceContext;
-		HGLRC m_context;
-		HWND m_window;
+		GLX::Colormap m_colormap;
+		GLX::GLXContext m_context;
+		GLX::Window m_window;
 		bool m_ownsWindow;
 };
 
