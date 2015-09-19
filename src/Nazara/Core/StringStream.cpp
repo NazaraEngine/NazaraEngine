@@ -166,7 +166,7 @@ NzStringStream& NzStringStream::operator<<(const NzString& string)
 NzStringStream& NzStringStream::operator<<(const void* ptr)
 {
 	m_strings.push_back(NzString::Pointer(ptr));
-	m_bufferSize += sizeof(void*)*2;
+	m_bufferSize += m_strings.back().GetSize();
 
 	return *this;
 }

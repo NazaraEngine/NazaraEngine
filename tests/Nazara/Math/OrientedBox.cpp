@@ -9,6 +9,7 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 		NzOrientedBoxf secondCenterAndUnit(NzOrientedBox<int>(NzVector3i::Zero(), NzVector3i::Unit()));
 
 		firstCenterAndUnit.Update(NzMatrix4f::Identity());
+		secondCenterAndUnit.Update(NzMatrix4f::Identity());
 
 		WHEN("We compare them")
 		{
