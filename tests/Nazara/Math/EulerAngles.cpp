@@ -48,9 +48,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(NzEulerAnglesf(NzFromDegrees(45.f), 0.f, 0.f) == NzQuaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles());
-				REQUIRE(NzEulerAnglesf(0.f, NzFromDegrees(45.f), 0.f) == NzQuaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles());
-				//REQUIRE(NzEulerAnglesf(0.f, 0.f, NzFromDegrees(45.f)) == NzQuaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles());
+				REQUIRE(NzEulerAngles<int>(NzFromDegrees(45.f), 0.f, 0.f) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
+				REQUIRE(NzEulerAngles<int>(0.f, NzFromDegrees(45.f), 0.f) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
+				REQUIRE(NzEulerAngles<int>(0.f, 0.f, NzFromDegrees(45.f)) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
 			}
 		}
 	}
