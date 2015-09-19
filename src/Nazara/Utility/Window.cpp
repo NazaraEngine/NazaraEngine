@@ -13,8 +13,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Utility/Win32/WindowImpl.hpp>
-#elif defined(NAZARA_PLATFORM_LINUX)
-	#include <Nazara/Utility/Linux/WindowImpl.hpp>
+#elif defined(NAZARA_PLATFORM_X11)
+	#include <Nazara/Utility/X11/WindowImpl.hpp>
 #else
 	#error Lack of implementation: Window
 #endif
