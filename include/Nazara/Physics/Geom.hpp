@@ -218,6 +218,8 @@ class NAZARA_PHYSICS_API NzNullGeom : public NzPhysGeom
 	public:
 		NzNullGeom();
 
+		void ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const;
+
 		nzGeomType GetType() const override;
 
 		template<typename... Args> static NzNullGeomRef New(Args&&... args);
