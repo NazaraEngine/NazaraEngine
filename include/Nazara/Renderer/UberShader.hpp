@@ -32,7 +32,8 @@ class NAZARA_RENDERER_API NzUberShader : public NzRefCounted
 
 		virtual NzUberShaderInstance* Get(const NzParameterList& parameters) const = 0;
 
-		NazaraSignal(OnUberShaderRelease, const NzUberShader*); //< Args: me
+		// Signals:
+		NazaraSignal(OnUberShaderRelease, const NzUberShader* /*uberShader*/);
 
 	private:
 		static bool Initialize();

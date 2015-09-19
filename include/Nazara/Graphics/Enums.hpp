@@ -17,6 +17,14 @@ enum nzBackgroundType
 	nzBackgroundType_Max = nzBackgroundType_User
 };
 
+enum nzProjectionType
+{
+	nzProjectionType_Orthogonal,
+	nzProjectionType_Perspective,
+
+	nzProjectionType_Max = nzProjectionType_Perspective
+};
+
 enum nzLightType
 {
 	nzLightType_Directional,

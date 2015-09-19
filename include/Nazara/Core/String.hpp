@@ -307,7 +307,7 @@ class NAZARA_CORE_API NzString : public NzHashable
 		bool FillHash(NzAbstractHash* hash) const;
 		inline void ReleaseString();
 
-		static std::shared_ptr<SharedString> GetEmptyString();
+		static const std::shared_ptr<SharedString>& GetEmptyString();
 
 		std::shared_ptr<SharedString> m_sharedString;
 

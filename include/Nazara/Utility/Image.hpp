@@ -147,8 +147,8 @@ class NAZARA_UTILITY_API NzImage : public NzAbstractImage, public NzRefCounted, 
 		static SharedImage emptyImage;
 
 		// Signals:
-		NazaraSignal(OnImageDestroy, const NzImage*); //< Args: me
-		NazaraSignal(OnImageRelease, const NzImage*); //< Args: me
+		NazaraSignal(OnImageDestroy, const NzImage* /*image*/);
+		NazaraSignal(OnImageRelease, const NzImage* /*image*/);
 
 	private:
 		void EnsureOwnership();

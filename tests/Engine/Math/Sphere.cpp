@@ -1,5 +1,5 @@
 #include <Nazara/Math/Sphere.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Sphere", "[MATH][SPHERE]")
 {

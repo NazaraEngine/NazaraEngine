@@ -49,7 +49,7 @@ class NAZARA_UTILITY_API NzSubMesh : public NzRefCounted
 		void SetPrimitiveMode(nzPrimitiveMode mode);
 
 		// Signals:
-		NazaraSignal(OnSubMeshRelease, const NzSubMesh*); //< Args: me
+		NazaraSignal(OnSubMeshRelease, const NzSubMesh* /*subMesh*/);
 
 	protected:
 		nzPrimitiveMode m_primitiveMode;

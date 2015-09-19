@@ -1,5 +1,5 @@
 #include <Nazara/Core/Color.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("Color", "[CORE][COLOR]")
 {

@@ -8,6 +8,7 @@
 namespace Ndk
 {
 	inline CameraComponent::CameraComponent() :
+	m_projectionType(nzProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_target(nullptr),
 	m_frustumUpdated(false),
@@ -25,8 +26,9 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	NzAbstractViewer(camera),
+	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
-	m_target(camera.m_target),
+	m_target(nullptr),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
@@ -37,7 +39,7 @@ namespace Ndk
 	m_zNear(camera.m_zNear),
 	m_layer(camera.m_layer)
 	{
-
+		SetTarget(camera.m_target);
 	}
 
 	inline void CameraComponent::EnsureFrustumUpdate() const
@@ -95,6 +97,11 @@ namespace Ndk
 		return m_projectionMatrix;
 	}
 
+	inline nzProjectionType CameraComponent::GetProjectionType() const
+	{
+		return m_projectionType;
+	}
+
 	inline const NzRenderTarget* CameraComponent::GetTarget() const
 	{
 		return m_target;
@@ -132,8 +139,15 @@ namespace Ndk
 	inline void CameraComponent::SetFOV(float fov)
 	{
 		NazaraAssert(!NzNumberEquals(fov, 0.f), "FOV must be different from zero");
-
 		m_fov = fov;
+
+		InvalidateProjectionMatrix();
+	}
+
+	inline void CameraComponent::SetProjectionType(nzProjectionType projectionType)
+	{
+		m_projectionType = projectionType;
+
 		InvalidateProjectionMatrix();
 	}
 
@@ -149,6 +163,7 @@ namespace Ndk
 	inline void CameraComponent::SetTargetRegion(const NzRectf& region)
 	{
 		m_targetRegion = region;
+
 		InvalidateViewport();
 	}
 
@@ -166,14 +181,15 @@ namespace Ndk
 	inline void CameraComponent::SetZFar(float zFar)
 	{
 		m_zFar = zFar;
+
 		InvalidateProjectionMatrix();
 	}
 
 	inline void CameraComponent::SetZNear(float zNear)
 	{
 		NazaraAssert(!NzNumberEquals(zNear, 0.f), "zNear cannot be zero");
-
 		m_zNear = zNear;
+
 		InvalidateProjectionMatrix();
 	}
 
