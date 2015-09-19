@@ -113,7 +113,7 @@ namespace Ndk
 				NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
 				///TODO: Cache somehow?
-				lightComponent.AddToRenderQueue(renderQueue, m_coordinateSystemMatrix * drawableNode.GetTransformMatrix());
+				lightComponent.AddToRenderQueue(renderQueue, NzMatrix4f::ConcatenateAffine(m_coordinateSystemMatrix, drawableNode.GetTransformMatrix()));
 			}
 
 			camComponent.ApplyView();
