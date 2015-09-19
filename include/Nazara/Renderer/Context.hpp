@@ -37,14 +37,20 @@ class NAZARA_API NzContext : public NzRefCounted
 		~NzContext();
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());
+
 		void Destroy();
 
+		void EnableVerticalSync(bool enabled);
+
 		const NzContextParameters& GetParameters() const;
+
 		bool IsActive() const;
+
 		bool SetActive(bool active) const;
 		void SwapBuffers();
 
 		static bool EnsureContext();
+
 		static const NzContext* GetCurrent();
 		static const NzContext* GetReference();
 		static const NzContext* GetThreadContext();

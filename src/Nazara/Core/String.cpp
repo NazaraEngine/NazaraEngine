@@ -3958,12 +3958,12 @@ NzString NzString::Number(unsigned long long number, nzUInt8 radix)
 
 NzString NzString::Pointer(const void* ptr)
 {
-	const unsigned int size = sizeof(void*)*2 + 2;
+	const unsigned int capacity = sizeof(void*)*2 + 2;
 
-	char* str = new char[size+1];
-	std::sprintf(str, "0x%p", ptr);
+	char* str = new char[capacity+1];
+	int size = std::sprintf(str, "0x%p", ptr);
 
-	return NzString(new SharedString(1, size, size, str));
+	return NzString(new SharedString(1, capacity, size, str));
 }
 
 NzString NzString::Unicode(char32_t character)

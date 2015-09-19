@@ -13,7 +13,7 @@ files
 }
 
 if (os.is("windows")) then
-	excludes { "../src/Nazara/Renderer/Posix/*.hpp", "../src/Nazara/Renderer/Posix/*.cpp" }
+	excludes { "../src/Nazara/Renderer/GLX/*.hpp", "../src/Nazara/Renderer/GLX/*.cpp" }
 	links "gdi32"
 	links "opengl32"
 	links "winmm"
