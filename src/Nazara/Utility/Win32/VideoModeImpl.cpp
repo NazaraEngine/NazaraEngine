@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/VideoModeImpl.hpp>
+#include <Nazara/Utility/Win32/VideoModeImpl.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <algorithm>
 #include <windows.h>
