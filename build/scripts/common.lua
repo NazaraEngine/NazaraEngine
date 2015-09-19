@@ -246,7 +246,7 @@ function NazaraBuild:Execute()
 				kind("ConsoleApp")
 			elseif (toolTable.Kind == "windowapp") then
 				debugdir(toolTable.Directory)
-				kind("Window")
+				kind("WindowedApp")
 			else
 				assert(false, "wut")
 			end
