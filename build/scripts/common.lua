@@ -134,7 +134,8 @@ function NazaraBuild:Execute()
 			buildoptions("-fvisibility=hidden")
 
 		configuration("vs*")
-			buildoptions("/MP")
+			buildoptions("/MP") -- Multiprocessus build
+			flags("NoMinimalRebuild")
 			defines("_CRT_SECURE_NO_WARNINGS")
 			defines("_SCL_SECURE_NO_WARNINGS")
 
