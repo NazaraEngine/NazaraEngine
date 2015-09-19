@@ -13,7 +13,7 @@ files
 links "freetype-s"
 
 if (os.is("windows")) then
-	excludes { "../src/Nazara/Utility/Posix/*.hpp", "../src/Nazara/Utility/Posix/*.cpp" }
+	excludes { "../src/Nazara/Utility/X11/*.hpp", "../src/Nazara/Utility/X11/*.cpp" }
 	links "gdi32"
 else
 	excludes { "../src/Nazara/Utility/Win32/*.hpp", "../src/Nazara/Utility/Win32/*.cpp" }
