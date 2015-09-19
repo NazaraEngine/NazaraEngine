@@ -112,13 +112,14 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonC
 			float underlineThickness;
 		};
 
-		NazaraSignal(OnFontAtlasChanged, const NzFont*); //< Args: me
-		NazaraSignal(OnFontAtlasLayerChanged, const NzFont*, NzAbstractImage*, NzAbstractImage*); //< Args: me, old layer, new layer
-		NazaraSignal(OnFontDestroy, const NzFont*); //< Args: me
-		NazaraSignal(OnFontGlyphCacheCleared, const NzFont*); //< Args: me
-		NazaraSignal(OnFontKerningCacheCleared, const NzFont*); //< Args: me
-		NazaraSignal(OnFontRelease, const NzFont*); //< Args: me
-		NazaraSignal(OnFontSizeInfoCacheCleared, const NzFont*); //< Args: me
+		// Signals:
+		NazaraSignal(OnFontAtlasChanged, const NzFont* /*font*/);
+		NazaraSignal(OnFontAtlasLayerChanged, const NzFont* /*font*/, NzAbstractImage* /*oldLayer*/, NzAbstractImage* /*newLayer*/);
+		NazaraSignal(OnFontDestroy, const NzFont* /*font*/);
+		NazaraSignal(OnFontGlyphCacheCleared, const NzFont* /*font*/);
+		NazaraSignal(OnFontKerningCacheCleared, const NzFont* /*font*/);
+		NazaraSignal(OnFontRelease, const NzFont* /*font*/);
+		NazaraSignal(OnFontSizeInfoCacheCleared, const NzFont* /*font*/);
 
 	private:
 		using GlyphMap = std::unordered_map<char32_t, Glyph>;

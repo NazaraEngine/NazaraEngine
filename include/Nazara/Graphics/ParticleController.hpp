@@ -35,7 +35,7 @@ class NAZARA_GRAPHICS_API NzParticleController : public NzRefCounted
 		virtual void Apply(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
 
 		// Signals:
-		NazaraSignal(OnParticleControllerRelease, const NzParticleController*); //< Args: me
+		NazaraSignal(OnParticleControllerRelease, const NzParticleController* /*particleController*/);
 
 	private:
 		static bool Initialize();

@@ -45,8 +45,8 @@ class NAZARA_UTILITY_API NzStaticMesh final : public NzSubMesh
 		template<typename... Args> static NzStaticMeshRef New(Args&&... args);
 
 		// Signals:
-		NazaraSignal(OnStaticMeshDestroy, const NzStaticMesh*); //< Args: me
-		NazaraSignal(OnStaticMeshRelease, const NzStaticMesh*); //< Args: me
+		NazaraSignal(OnStaticMeshDestroy, const NzStaticMesh* /*staticMesh*/);
+		NazaraSignal(OnStaticMeshRelease, const NzStaticMesh* /*staticMesh*/);
 
 	private:
 		NzBoxf m_aabb;

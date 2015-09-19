@@ -116,9 +116,21 @@ namespace Ndk
 
 	void CameraComponent::UpdateProjectionMatrix() const
 	{
-		EnsureViewportUpdate(); // Can affect aspect ratio
+		switch (m_projectionType)
+		{
+			case nzProjectionType_Orthogonal:
+				EnsureViewportUpdate();
 
-		m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
+				m_projectionMatrix.MakeOrtho(0.f, static_cast<float>(m_viewport.width), 0.f, static_cast<float>(m_viewport.height), m_zNear, m_zFar);
+				break;
+
+			case nzProjectionType_Perspective:
+				EnsureViewportUpdate(); // Can affect aspect ratio
+
+				m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
+				break;
+		}
+
 		m_projectionMatrixUpdated = true;
 	}
 
@@ -153,7 +165,8 @@ namespace Ndk
 		{
 			m_aspectRatio = aspectRatio;
 
-			InvalidateProjectionMatrix();
+			if (m_projectionType == nzProjectionType_Perspective)
+				InvalidateProjectionMatrix();
 		}
 
 		// Convert it back to int

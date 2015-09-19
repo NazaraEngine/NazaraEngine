@@ -45,8 +45,8 @@ class NAZARA_GRAPHICS_API NzParticleDeclaration : public NzRefCounted
 		static NzParticleDeclaration* Get(nzParticleLayout layout);
 		static bool IsTypeSupported(nzComponentType type);
 
-		// Signals
-		NazaraSignal(OnParticleDeclarationRelease, const NzParticleDeclaration*); //< Args: me
+		// Signals:
+		NazaraSignal(OnParticleDeclarationRelease, const NzParticleDeclaration* /*particleDeclaration*/);
 
 	private:
 		static bool Initialize();

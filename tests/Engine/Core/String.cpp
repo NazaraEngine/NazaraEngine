@@ -1,5 +1,5 @@
 #include <Nazara/Core/String.hpp>
-#include <catch.hpp>
+#include <Catch/catch.hpp>
 
 SCENARIO("String", "[CORE][STRING]")
 {

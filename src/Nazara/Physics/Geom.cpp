@@ -379,6 +379,15 @@ nzGeomType NzNullGeom::GetType() const
 	return nzGeomType_Null;
 }
 
+void NzNullGeom::ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const
+{
+	if (inertia)
+		inertia->MakeUnit();
+
+	if (center)
+		center->MakeZero();
+}
+
 NewtonCollision* NzNullGeom::CreateHandle(NzPhysWorld* world) const
 {
 	return NewtonCreateNull(world->GetHandle());
