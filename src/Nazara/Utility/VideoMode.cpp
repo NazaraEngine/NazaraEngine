@@ -3,9 +3,17 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/VideoMode.hpp>
-#include <Nazara/Utility/VideoModeImpl.hpp>
 #include <algorithm>
 #include <functional>
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+	#include <Nazara/Utility/Win32/VideoModeImpl.hpp>
+#elif defined(NAZARA_PLATFORM_X11)
+	#include <Nazara/Utility/X11/VideoModeImpl.hpp>
+#else
+	#error Lack of implementation: Window
+#endif
+
 #include <Nazara/Utility/Debug.hpp>
 
 NzVideoMode::NzVideoMode() :
