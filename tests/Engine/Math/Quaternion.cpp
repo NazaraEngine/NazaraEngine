@@ -147,7 +147,11 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				NzQuaternionf quaterionB(NzFromDegrees(45.f), NzVector3f::UnitZ());
 				NzQuaternionf quaternionC = NzQuaternionf::Slerp(quaterionA, quaterionB, 0.5f);
 
-				REQUIRE(quaternionC == NzQuaternionf(NzFromDegrees(22.5f), NzVector3f::UnitZ()));
+				NzQuaternionf unitZ225(NzFromDegrees(22.5f), NzVector3f::UnitZ());
+				REQUIRE(quaternionC.w == Approx(unitZ225.w));
+				REQUIRE(quaternionC.x == Approx(unitZ225.x));
+				REQUIRE(quaternionC.y == Approx(unitZ225.y));
+				REQUIRE(quaternionC.z == Approx(unitZ225.z));
 			}
 		}
 	}

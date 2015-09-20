@@ -3847,10 +3847,10 @@ NzString NzString::Number(unsigned long long number, nzUInt8 radix)
 
 NzString NzString::Pointer(const void* ptr)
 {
-	const unsigned int size = sizeof(void*)*2 + 2;
+	const unsigned int capacity = sizeof(void*)*2 + 2;
 
-	auto str = std::make_shared<SharedString>(size);
-	std::sprintf(str->string.get(), "0x%p", ptr);
+	auto str = std::make_shared<SharedString>(capacity);
+	str->size = std::sprintf(str->string.get(), "0x%p", ptr);
 
 	return NzString(std::move(str));
 }
