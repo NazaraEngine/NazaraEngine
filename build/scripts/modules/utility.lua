@@ -12,8 +12,8 @@ MODULE.OsFiles.Windows = {
 }
 
 MODULE.OsFiles.Posix = {
-	"../src/Nazara/Utility/Posix/**.hpp",
-	"../src/Nazara/Utility/Posix/**.cpp"
+	"../src/Nazara/Utility/X11/**.hpp",
+	"../src/Nazara/Utility/X11/**.cpp"
 }
 
 MODULE.OsLibraries.Windows = {

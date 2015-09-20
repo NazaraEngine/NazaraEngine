@@ -65,7 +65,7 @@ SCENARIO("StringStream", "[CORE][STRINGSTREAM]")
 			stringstream << NzString("3");
 			stringstream << static_cast<void*>(nullptr);
 
-			REQUIRE(stringstream.ToString() == (NzString("default3330x") + NzString(sizeof(void*) * 2, "0")));
+			REQUIRE(stringstream.ToString() == (NzString("default333") + NzString::Pointer(nullptr)));
 		}
 	}
 }

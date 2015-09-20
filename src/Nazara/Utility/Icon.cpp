@@ -6,8 +6,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Utility/Win32/IconImpl.hpp>
-#elif defined(NAZARA_PLATFORM_LINUX)
-	#include <Nazara/Utility/Linux/IconImpl.hpp>
+#elif defined(NAZARA_PLATFORM_X11)
+	#include <Nazara/Utility/X11/IconImpl.hpp>
 #else
 	#error Lack of implementation: Icon
 #endif
