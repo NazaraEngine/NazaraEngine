@@ -226,6 +226,14 @@ void NzContextImpl::Destroy()
 	}
 }
 
+void NzContextImpl::EnableVerticalSync(bool enabled)
+{
+	if (wglSwapInterval)
+		wglSwapInterval(enabled ? 1 : 0);
+	else
+		NazaraError("Vertical sync not supported");
+}
+
 void NzContextImpl::SwapBuffers()
 {
 	::SwapBuffers(m_deviceContext);
