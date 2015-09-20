@@ -247,18 +247,18 @@ namespace
 				m_misses = 0;
 			}
 
-			int GetMissCount()
+			int GetMissCount() const
 			{
 				return m_misses;
 			}
 
-			int GetVertex(int which)
+			int GetVertex(int which) const
 			{
 				return m_cache[which];
 			}
 
 		private:
-			int FindVertex(int v)
+			int FindVertex(int v) const
 			{
 				for (int i = 0; i < 32; ++i)
 				{
@@ -328,9 +328,9 @@ namespace
 			}
 
 		private:
-			float CalculateVertexScore(unsigned int vertex)
+			float CalculateVertexScore(unsigned int vertex) const
 			{
-				VertexCacheData *v = &m_vertices[vertex];
+				const VertexCacheData* v = &m_vertices[vertex];
 				if (v->remaining_valence <= 0)
 					// No tri needs this vertex!
 					return -1.0f;
@@ -545,7 +545,7 @@ namespace
 				float sum = 0.f;
 				for (unsigned int i = 0; i < 3; ++i)
 				{
-					VertexCacheData *v = &m_vertices[t->verts[i]];
+					VertexCacheData* v = &m_vertices[t->verts[i]];
 					float sc = v->current_score;
 					if (!v->calculated)
 						sc = CalculateVertexScore(t->verts[i]);
@@ -572,13 +572,13 @@ namespace
 					if (vert < 0)
 						continue;
 
-					VertexCacheData *v = &m_vertices[vert];
+					const VertexCacheData* v = &m_vertices[vert];
 
 					// iterate through all *active* triangles of this vertex
-					for (int j=0; j<v->remaining_valence; j++)
+					for (int j = 0; j < v->remaining_valence; j++)
 					{
 						int tri = v->tri_indices[j];
-						TriangleCacheData *t = &m_triangles[tri];
+						TriangleCacheData* t = &m_triangles[tri];
 						if (!t->calculated)
 							// calculate triangle score
 							TriangleScoreRecalculation(tri);
