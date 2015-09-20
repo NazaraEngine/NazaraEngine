@@ -15,7 +15,8 @@
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #elif defined(NAZARA_PLATFORM_LINUX)
-	#include <Nazara/Renderer/Linux/ContextImpl.hpp>
+	#include <Nazara/Renderer/GLX/ContextImpl.hpp>
+	#define CALLBACK
 #else
 	#error Lack of implementation: Context
 #endif
@@ -192,6 +193,19 @@ void NzContext::Destroy()
 		delete m_impl;
 		m_impl = nullptr;
 	}
+}
+
+void NzContext::EnableVerticalSync(bool enabled)
+{
+	#ifdef NAZARA_RENDERER_SAFE
+	if (!m_impl)
+	{
+		NazaraError("No context has been created");
+		return;
+	}
+	#endif
+
+	m_impl->EnableVerticalSync(enabled);
 }
 
 const NzContextParameters& NzContext::GetParameters() const

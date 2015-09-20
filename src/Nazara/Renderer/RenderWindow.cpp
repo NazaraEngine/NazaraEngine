@@ -13,13 +13,15 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters)
+NzRenderWindow::NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style, const NzContextParameters& parameters) :
+NzRenderTarget(), NzWindow()
 {
 	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(mode, title, style, parameters);
 }
 
-NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters)
+NzRenderWindow::NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters) :
+NzRenderTarget(), NzWindow()
 {
 	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
 	Create(handle, parameters);
@@ -149,30 +151,13 @@ void NzRenderWindow::EnableVerticalSync(bool enabled)
 {
 	if (m_context)
 	{
-		#if defined(NAZARA_PLATFORM_WINDOWS)
 		if (!m_context->SetActive(true))
 		{
 			NazaraError("Failed to activate context");
 			return;
 		}
 
-		if (wglSwapInterval)
-			wglSwapInterval(enabled ? 1 : 0);
-		else
-		#elif defined(NAZARA_PLATFORM_LINUX)
-		if (!m_context->SetActive(true))
-		{
-			NazaraError("Failed to activate context");
-			return;
-		}
-
-		if (glXSwapInterval)
-			glXSwapInterval(enabled ? 1 : 0);
-		else
-		#else
-			#error Vertical Sync is not supported on this platform
-		#endif
-			NazaraError("Vertical Sync is not supported on this platform");
+		m_context->EnableVerticalSync(enabled);
 	}
 	else
 		NazaraError("No context");
