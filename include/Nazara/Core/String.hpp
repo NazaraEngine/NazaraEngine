@@ -180,10 +180,10 @@ class NAZARA_CORE_API NzString : public NzHashable
 		const char* end() const;
 		void push_front(char c);
 		void push_back(char c);
-		/*char* rbegin();
-		const char* rbegin() const;
-		char* rend();
-		const char* rend() const;*/
+		//char* rbegin();
+		//const char* rbegin() const;
+		//char* rend();
+		//const char* rend() const;
 
 		typedef const char& const_reference;
 		typedef char* iterator;
