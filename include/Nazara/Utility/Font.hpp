@@ -10,7 +10,6 @@
 #define NAZARA_FONT_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -34,7 +33,7 @@ using NzFontLibrary = NzObjectLibrary<NzFont>;
 using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
 using NzFontRef = NzObjectRef<NzFont>;
 
-class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
+class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource
 {
 	friend NzFontLibrary;
 	friend NzFontLoader;
@@ -45,6 +44,8 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonC
 		struct SizeInfo;
 
 		NzFont();
+        NzFont(const NzFont&) = delete;
+        NzFont(NzFont&&) = delete;
 		~NzFont();
 
 		void ClearGlyphCache();
@@ -80,6 +81,9 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonC
 		void SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumStepSize);
+
+        NzFont& operator=(const NzFont&) = delete;
+        NzFont& operator=(NzFont&&) = delete;
 
 		static std::shared_ptr<NzAbstractAtlas> GetDefaultAtlas();
 		static NzFont* GetDefault();

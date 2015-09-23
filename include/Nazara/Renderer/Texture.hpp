@@ -8,7 +8,6 @@
 #define NAZARA_TEXTURE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -30,7 +29,7 @@ using NzTextureRef = NzObjectRef<NzTexture>;
 
 struct NzTextureImpl;
 
-class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounted, public NzResource, NzNonCopyable
+class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounted, public NzResource
 {
 	friend NzTextureLibrary;
 	friend NzTextureManager;
@@ -40,6 +39,8 @@ class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounte
 		NzTexture() = default;
 		NzTexture(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
 		explicit NzTexture(const NzImage& image);
+        NzTexture(const NzTexture&) = delete;
+        NzTexture(NzTexture&&) = delete;
 		~NzTexture();
 
 		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
@@ -101,6 +102,9 @@ class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounte
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
+
+        NzTexture& operator=(const NzTexture&) = delete;
+        NzTexture& operator=(NzTexture&&) = delete;
 
 		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
