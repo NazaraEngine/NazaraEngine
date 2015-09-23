@@ -7,7 +7,6 @@
 #ifndef NAZARA_INSTANCEDRENDERABLE_HPP
 #define NAZARA_INSTANCEDRENDERABLE_HPP
 
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
@@ -31,7 +30,8 @@ class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
 		struct InstanceData;
 
 		NzInstancedRenderable() = default;
-		inline NzInstancedRenderable(const NzInstancedRenderable& renderable);
+        inline NzInstancedRenderable(const NzInstancedRenderable& renderable);
+        NzInstancedRenderable(NzInstancedRenderable&& renderable) = delete;
 		virtual ~NzInstancedRenderable();
 
 		inline void EnsureBoundingVolumeUpdated() const;
@@ -44,6 +44,7 @@ class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
 		virtual void UpdateData(InstanceData* instanceData) const;
 
 		inline NzInstancedRenderable& operator=(const NzInstancedRenderable& renderable);
+        NzInstancedRenderable& operator=(NzInstancedRenderable&& renderable) = delete;
 
 		// Signals:
 		NazaraSignal(OnInstancedRenderableInvalidateData, const NzInstancedRenderable* /*instancedRenderable*/, nzUInt32 /*flags*/);

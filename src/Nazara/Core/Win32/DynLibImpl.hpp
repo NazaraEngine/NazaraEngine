@@ -9,20 +9,24 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <windows.h>
 
 class NzString;
 
-class NzDynLibImpl : NzNonCopyable
+class NzDynLibImpl
 {
 	public:
 		NzDynLibImpl(NzDynLib* m_parent);
+		NzDynLibImpl(const NzDynLibImpl&) = delete;
+		NzDynLibImpl(NzDynLibImpl&&) = delete; ///TODO?
 		~NzDynLibImpl() = default;
 
 		NzDynLibFunc GetSymbol(const NzString& symbol, NzString* errorMessage) const;
 		bool Load(const NzString& libraryPath, NzString* errorMessage);
 		void Unload();
+
+		NzDynLibImpl& operator=(const NzDynLibImpl&) = delete;
+		NzDynLibImpl& operator=(NzDynLibImpl&&) = delete; ///TODO?
 
 	private:
 		HMODULE m_handle;

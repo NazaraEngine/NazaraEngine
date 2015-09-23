@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Enums.hpp>
@@ -23,7 +22,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
 {
 	public:
 		NzAbstractRenderTechnique();
-		NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
+        NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
+        NzAbstractRenderTechnique(NzAbstractRenderTechnique&&) = default;
 		virtual ~NzAbstractRenderTechnique();
 
 		virtual bool Draw(const NzSceneData& sceneData) const = 0;
@@ -36,7 +36,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
 
 		virtual bool IsInstancingEnabled() const;
 
-		NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
+        NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
+        NzAbstractRenderTechnique& operator=(NzAbstractRenderTechnique&&) = default;
 
 	protected:
 		bool m_instancingEnabled;

@@ -9,17 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <ctime>
 #include <windows.h>
 
 class NzFile;
 class NzString;
 
-class NzFileImpl : NzNonCopyable
+class NzFileImpl
 {
 	public:
 		NzFileImpl(const NzFile* parent);
+		NzFileImpl(const NzFileImpl&) = delete;
+		NzFileImpl(NzFileImpl&&) = delete; ///TODO
 		~NzFileImpl() = default;
 
 		void Close();
@@ -30,6 +31,9 @@ class NzFileImpl : NzNonCopyable
 		std::size_t Read(void* buffer, std::size_t size);
 		bool SetCursorPos(nzCursorPosition pos, nzInt64 offset);
 		std::size_t Write(const void* buffer, std::size_t size);
+
+		NzFileImpl& operator=(const NzFileImpl&) = delete;
+		NzFileImpl& operator=(NzFileImpl&&) = delete; ///TODO
 
 		static bool Copy(const NzString& sourcePath, const NzString& targetPath);
 		static bool Delete(const NzString& filePath);

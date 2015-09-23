@@ -10,7 +10,6 @@
 #define NAZARA_WINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -30,7 +29,7 @@ class NzImage;
 class NzIcon;
 class NzWindowImpl;
 
-class NAZARA_UTILITY_API NzWindow : NzNonCopyable
+class NAZARA_UTILITY_API NzWindow
 {
 	friend NzWindowImpl;
 	friend class NzMouse;
@@ -40,6 +39,8 @@ class NAZARA_UTILITY_API NzWindow : NzNonCopyable
 		NzWindow();
 		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		NzWindow(NzWindowHandle handle);
+        NzWindow(const NzWindow&) = delete;
+        NzWindow(NzWindow&&) = delete; ///TODO
 		virtual ~NzWindow();
 
 		void Close();
@@ -88,6 +89,9 @@ class NAZARA_UTILITY_API NzWindow : NzNonCopyable
 		void SetVisible(bool visible);
 
 		bool WaitEvent(NzEvent* event);
+
+        NzWindow& operator=(const NzWindow&) = delete;
+        NzWindow& operator=(NzWindow&&) = delete; ///TODO
 
 	protected:
 		virtual bool OnWindowCreated();

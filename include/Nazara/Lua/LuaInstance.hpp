@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -25,10 +24,12 @@ class NzLuaInstance;
 using NzLuaCFunction = int (*)(lua_State* state);
 using NzLuaFunction = std::function<int(NzLuaInstance& instance)>;
 
-class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
+class NAZARA_LUA_API NzLuaInstance
 {
 	public:
 		NzLuaInstance();
+        NzLuaInstance(const NzLuaInstance&) = delete;
+        NzLuaInstance(NzLuaInstance&&) = delete; ///TODO
 		~NzLuaInstance();
 
 		void ArgCheck(bool condition, unsigned int argNum, const char* error);
@@ -147,6 +148,9 @@ class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
 		void* ToUserdata(int index) const;
 		void* ToUserdata(int index, const char* tname) const;
 		void* ToUserdata(int index, const NzString& tname) const;
+
+        NzLuaInstance& operator=(const NzLuaInstance&) = delete;
+        NzLuaInstance& operator=(NzLuaInstance&&) = delete; ///TODO
 
 		static int GetIndexOfUpValue(int upValue);
 		static NzLuaInstance* GetInstance(lua_State* state);

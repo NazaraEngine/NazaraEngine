@@ -10,7 +10,6 @@
 #define NAZARA_WINDOWIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -29,10 +28,12 @@ class NzWindow;
 
 #undef IsMinimized // Conflit avec la méthode du même nom
 
-class NzWindowImpl : NzNonCopyable
+class NzWindowImpl
 {
 	public:
 		NzWindowImpl(NzWindow* parent);
+		NzWindowImpl(const NzWindowImpl&) = delete;
+		NzWindowImpl(NzWindowImpl&&) = delete; ///TODO?
 		~NzWindowImpl() = default;
 
 		bool Create(const NzVideoMode& mode, const NzString& title, nzUInt32 style);
@@ -72,6 +73,9 @@ class NzWindowImpl : NzNonCopyable
 		void SetStayOnTop(bool stayOnTop);
 		void SetTitle(const NzString& title);
 		void SetVisible(bool visible);
+
+		NzWindowImpl& operator=(const NzWindowImpl&) = delete;
+		NzWindowImpl& operator=(NzWindowImpl&&) = delete; ///TODO?
 
 		static bool Initialize();
 		static void Uninitialize();

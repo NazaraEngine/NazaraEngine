@@ -8,7 +8,6 @@
 #define NAZARA_DIRECTORY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -28,11 +27,13 @@
 
 class NzDirectoryImpl;
 
-class NAZARA_CORE_API NzDirectory : NzNonCopyable
+class NAZARA_CORE_API NzDirectory
 {
 	public:
 		NzDirectory();
-		NzDirectory(const NzString& dirPath);
+        NzDirectory(const NzString& dirPath);
+        NzDirectory(const NzDirectory&) = delete;
+        NzDirectory(NzDirectory&&) = delete; ///TODO
 		~NzDirectory();
 
 		void Close();
@@ -62,6 +63,9 @@ class NAZARA_CORE_API NzDirectory : NzNonCopyable
 		static const char* GetCurrentFileRelativeToEngine(const char* currentFile);
 		static bool Remove(const NzString& dirPath, bool emptyDirectory = false);
 		static bool SetCurrent(const NzString& dirPath);
+
+        NzDirectory& operator=(const NzDirectory&) = delete;
+        NzDirectory& operator=(NzDirectory&&) = delete; ///TODO
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)

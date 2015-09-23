@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
@@ -29,7 +28,7 @@
 
 class NzFile;
 
-class NAZARA_CORE_API NzLog : NzNonCopyable
+class NAZARA_CORE_API NzLog
 {
 	public:
 		void Enable(bool enable);
@@ -50,7 +49,12 @@ class NAZARA_CORE_API NzLog : NzNonCopyable
 
 	private:
 		NzLog();
+        NzLog(const NzLog&) = delete;
+        NzLog(NzLog&&) = delete;
 		~NzLog();
+
+        NzLog& operator=(const NzLog&) = delete;
+        NzLog& operator=(NzLog&&) = delete;
 
 		NazaraMutexAttrib(m_mutex, mutable)
 

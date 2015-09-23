@@ -8,23 +8,25 @@
 #define NAZARA_MUTEX_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
 class NzMutexImpl;
 
-class NAZARA_CORE_API NzMutex : NzNonCopyable
+class NAZARA_CORE_API NzMutex
 {
 	friend class NzConditionVariable;
 
 	public:
 		NzMutex();
+        NzMutex(const NzMutex&) = delete;
+        NzMutex(NzMutex&&) = delete; ///TODO
 		~NzMutex();
 
 		void Lock();
-
 		bool TryLock();
-
 		void Unlock();
+
+        NzMutex& operator=(const NzMutex&) = delete;
+        NzMutex& operator=(NzMutex&&) = delete; ///TODO
 
 	private:
 		NzMutexImpl* m_impl;

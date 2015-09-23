@@ -8,7 +8,6 @@
 #define NAZARA_DYNLIB_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -31,11 +30,12 @@ using NzDynLibFunc = int (*)(); // Type "générique" de pointeur sur fonction
 
 class NzDynLibImpl;
 
-class NAZARA_CORE_API NzDynLib : NzNonCopyable
+class NAZARA_CORE_API NzDynLib
 {
 	public:
 		NzDynLib();
-		NzDynLib(NzDynLib&& lib);
+        NzDynLib(const NzDynLib&) = delete;
+        NzDynLib(NzDynLib&& lib);
 		~NzDynLib();
 
 		NzString GetLastError() const;
@@ -46,7 +46,8 @@ class NAZARA_CORE_API NzDynLib : NzNonCopyable
 		bool Load(const NzString& libraryPath);
 		void Unload();
 
-		NzDynLib& operator=(NzDynLib&& lib);
+        NzDynLib& operator=(const NzDynLib&) = delete;
+        NzDynLib& operator=(NzDynLib&& lib);
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)

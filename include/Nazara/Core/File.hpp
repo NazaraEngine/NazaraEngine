@@ -14,7 +14,6 @@
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
@@ -27,13 +26,14 @@
 
 class NzFileImpl;
 
-class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
+class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream
 {
 	public:
 		NzFile();
 		NzFile(const NzString& filePath);
 		NzFile(const NzString& filePath, unsigned int openMode);
-		NzFile(NzFile&& file) noexcept;
+        NzFile(const NzFile&) = delete;
+        NzFile(NzFile&& file) noexcept;
 		~NzFile();
 
 		bool Copy(const NzString& newFilePath);
@@ -76,7 +76,8 @@ class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCop
 		bool Write(const NzString& string);
 		std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 
-		NzFile& operator=(const NzString& filePath);
+        NzFile& operator=(const NzString& filePath);
+        NzFile& operator=(const NzFile&) = delete;
 		NzFile& operator=(NzFile&& file) noexcept;
 
 		static NzString AbsolutePath(const NzString& filePath);

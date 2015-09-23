@@ -8,15 +8,16 @@
 #define NAZARA_CONDITIONVARIABLE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
 class NzConditionVariableImpl;
 class NzMutex;
 
-class NAZARA_CORE_API NzConditionVariable : NzNonCopyable
+class NAZARA_CORE_API NzConditionVariable
 {
 	public:
 		NzConditionVariable();
+        NzConditionVariable(const NzConditionVariable&) = delete;
+        NzConditionVariable(NzConditionVariable&&) = delete; ///TODO
 		~NzConditionVariable();
 
 		void Signal();
@@ -24,6 +25,9 @@ class NAZARA_CORE_API NzConditionVariable : NzNonCopyable
 
 		void Wait(NzMutex* mutex);
 		bool Wait(NzMutex* mutex, nzUInt32 timeout);
+
+        NzConditionVariable& operator=(const NzConditionVariable&) = delete;
+        NzConditionVariable& operator=(NzConditionVariable&&) = delete; ///TODO
 
 	private:
 		NzConditionVariableImpl* m_impl;

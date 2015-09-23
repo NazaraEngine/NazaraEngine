@@ -8,16 +8,17 @@
 #define NAZARA_DIRECTORYIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <windows.h>
 
 class NzDirectory;
 class NzString;
 
-class NzDirectoryImpl : NzNonCopyable
+class NzDirectoryImpl
 {
 	public:
 		NzDirectoryImpl(const NzDirectory* parent);
+		NzDirectoryImpl(const NzDirectoryImpl&) = delete;
+		NzDirectoryImpl(NzDirectoryImpl&&) = delete; ///TODO
 		~NzDirectoryImpl() = default;
 
 		void Close();
@@ -30,6 +31,9 @@ class NzDirectoryImpl : NzNonCopyable
 		bool NextResult();
 
 		bool Open(const NzString& dirPath);
+
+		NzDirectoryImpl& operator=(const NzDirectoryImpl&) = delete;
+		NzDirectoryImpl& operator=(NzDirectoryImpl&&) = delete; ///TODO
 
 		static bool Create(const NzString& dirPath);
 		static bool Exists(const NzString& dirPath);
