@@ -22,8 +22,8 @@ class NAZARA_CORE_API NzThread
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args&&... args);
 		template<typename C> NzThread(void (C::*function)(), C* object);
-        NzThread(const NzThread&) = delete;
-        NzThread(NzThread&& other);
+		NzThread(const NzThread&) = delete;
+		NzThread(NzThread&& other);
 		~NzThread();
 
 		void Detach();
@@ -31,8 +31,8 @@ class NAZARA_CORE_API NzThread
 		bool IsJoinable() const;
 		void Join();
 
-        NzThread& operator=(const NzThread&) = delete;
-        NzThread& operator=(NzThread&& thread);
+		NzThread& operator=(const NzThread&) = delete;
+		NzThread& operator=(NzThread&& thread);
 
 		static unsigned int HardwareConcurrency();
 		static void Sleep(nzUInt32 milliseconds);

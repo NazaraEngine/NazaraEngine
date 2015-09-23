@@ -18,8 +18,8 @@ class NAZARA_PHYSICS_API NzPhysWorld
 {
 	public:
 		NzPhysWorld();
-        NzPhysWorld(const NzPhysWorld&) = delete;
-        NzPhysWorld(NzPhysWorld&&) = delete; ///TODO
+		NzPhysWorld(const NzPhysWorld&) = delete;
+		NzPhysWorld(NzPhysWorld&&) = delete; ///TODO
 		~NzPhysWorld();
 
 		NzVector3f GetGravity() const;
@@ -32,8 +32,8 @@ class NAZARA_PHYSICS_API NzPhysWorld
 
 		void Step(float timestep);
 
-        NzPhysWorld& operator=(const NzPhysWorld&) = delete;
-        NzPhysWorld& operator=(NzPhysWorld&&) = delete; ///TODO
+		NzPhysWorld& operator=(const NzPhysWorld&) = delete;
+		NzPhysWorld& operator=(NzPhysWorld&&) = delete; ///TODO
 
 	private:
 		NzVector3f m_gravity;

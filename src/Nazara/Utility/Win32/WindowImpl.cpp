@@ -29,7 +29,7 @@
 
 // N'est pas défini avec MinGW
 #ifndef MAPVK_VK_TO_VSC
-    #define MAPVK_VK_TO_VSC 0
+	#define MAPVK_VK_TO_VSC 0
 #endif
 
 #undef IsMinimized // Conflit avec la méthode du même nom

@@ -30,8 +30,8 @@ class NAZARA_UTILITY_API NzBuffer : public NzRefCounted
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
-        NzBuffer(const NzBuffer&) = delete;
-        NzBuffer(NzBuffer&&) = delete;
+		NzBuffer(const NzBuffer&) = delete;
+		NzBuffer(NzBuffer&&) = delete;
 		~NzBuffer();
 
 		bool CopyContent(const NzBuffer& buffer);
@@ -57,8 +57,8 @@ class NAZARA_UTILITY_API NzBuffer : public NzRefCounted
 
 		void Unmap() const;
 
-        NzBuffer& operator=(const NzBuffer&) = delete;
-        NzBuffer& operator=(NzBuffer&&) = delete;
+		NzBuffer& operator=(const NzBuffer&) = delete;
+		NzBuffer& operator=(NzBuffer&&) = delete;
 
 		static bool IsStorageSupported(nzUInt32 storage);
 		template<typename... Args> static NzBufferRef New(Args&&... args);

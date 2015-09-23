@@ -33,8 +33,8 @@ class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter
 
 	public:
 		NzMusic() = default;
-        NzMusic(const NzMusic&) = delete;
-        NzMusic(NzMusic&&) = delete; ///TODO
+		NzMusic(const NzMusic&) = delete;
+		NzMusic(NzMusic&&) = delete; ///TODO
 		~NzMusic();
 
 		bool Create(NzSoundStream* soundStream);
@@ -62,8 +62,8 @@ class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter
 
 		void Stop();
 
-        NzMusic& operator=(const NzMusic&) = delete;
-        NzMusic& operator=(NzMusic&&) = delete; ///TODO
+		NzMusic& operator=(const NzMusic&) = delete;
+		NzMusic& operator=(NzMusic&&) = delete; ///TODO
 
 	private:
 		NzMusicImpl* m_impl = nullptr;

@@ -11,41 +11,41 @@
 
 NzFBM4D::NzFBM4D(nzNoises source, unsigned int seed)
 {
-    switch(source)
-    {
-        case PERLIN:
-            m_source = new NzPerlin4D();
-        break;
+	switch(source)
+	{
+		case PERLIN:
+			m_source = new NzPerlin4D();
+		break;
 
-        default:
-            m_source = new NzSimplex4D();
-        break;
-    }
-    m_source->SetNewSeed(seed);
-    m_source->ShufflePermutationTable();
-    m_noiseType = source;
+		default:
+			m_source = new NzSimplex4D();
+		break;
+	}
+	m_source->SetNewSeed(seed);
+	m_source->ShufflePermutationTable();
+	m_noiseType = source;
 }
 
 float NzFBM4D::GetValue(float x, float y, float z, float w, float resolution)
 {
-    this->RecomputeExponentArray();
+	this->RecomputeExponentArray();
 
-    m_value = 0.0;
+	m_value = 0.0;
 
-    for (int i(0); i < m_octaves; ++i)
-    {
-        m_value += m_source->GetValue(x,y,z,w,resolution) * m_exponent_array[i];
-        resolution *= m_lacunarity;
-    }
-    m_remainder = m_octaves - static_cast<int>(m_octaves);
+	for (int i(0); i < m_octaves; ++i)
+	{
+		m_value += m_source->GetValue(x,y,z,w,resolution) * m_exponent_array[i];
+		resolution *= m_lacunarity;
+	}
+	m_remainder = m_octaves - static_cast<int>(m_octaves);
 
-    if(!NzNumberEquals(m_remainder, static_cast<float>(0.0)))
-       m_value += m_remainder * m_source->GetValue(x,y,z,w,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
+	if(!NzNumberEquals(m_remainder, static_cast<float>(0.0)))
+	   m_value += m_remainder * m_source->GetValue(x,y,z,w,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
-    return m_value/this->m_sum;
+	return m_value/this->m_sum;
 }
 
 NzFBM4D::~NzFBM4D()
 {
-    delete m_source;
+	delete m_source;
 }

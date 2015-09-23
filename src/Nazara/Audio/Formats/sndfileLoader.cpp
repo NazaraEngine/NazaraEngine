@@ -25,21 +25,21 @@ namespace
 {
 	sf_count_t GetSize(void* user_data)
 	{
-        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
+		NzInputStream* stream = static_cast<NzInputStream*>(user_data);
 		return stream->GetSize();
 	}
 
-    sf_count_t Read(void* ptr, sf_count_t count, void* user_data)
-    {
-        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
-        return static_cast<sf_count_t>(stream->Read(ptr, static_cast<std::size_t>(count)));
-    }
+	sf_count_t Read(void* ptr, sf_count_t count, void* user_data)
+	{
+		NzInputStream* stream = static_cast<NzInputStream*>(user_data);
+		return static_cast<sf_count_t>(stream->Read(ptr, static_cast<std::size_t>(count)));
+	}
 
-    sf_count_t Seek(sf_count_t offset, int whence, void* user_data)
-    {
-        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
-        switch (whence)
-        {
+	sf_count_t Seek(sf_count_t offset, int whence, void* user_data)
+	{
+		NzInputStream* stream = static_cast<NzInputStream*>(user_data);
+		switch (whence)
+		{
 			case SEEK_CUR:
 				stream->Read(nullptr, static_cast<std::size_t>(offset));
 				break;
@@ -54,16 +54,16 @@ namespace
 
 			default:
 				NazaraInternalError("Seek mode not handled");
-        }
+		}
 
-        return stream->GetCursorPos();
-    }
+		return stream->GetCursorPos();
+	}
 
-    sf_count_t Tell(void* user_data)
-    {
-        NzInputStream* stream = static_cast<NzInputStream*>(user_data);
-        return stream->GetCursorPos();
-    }
+	sf_count_t Tell(void* user_data)
+	{
+		NzInputStream* stream = static_cast<NzInputStream*>(user_data);
+		return stream->GetCursorPos();
+	}
 
 	static SF_VIRTUAL_IO callbacks = {GetSize, Seek, Read, nullptr, Tell};
 

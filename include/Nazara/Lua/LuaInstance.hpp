@@ -28,8 +28,8 @@ class NAZARA_LUA_API NzLuaInstance
 {
 	public:
 		NzLuaInstance();
-        NzLuaInstance(const NzLuaInstance&) = delete;
-        NzLuaInstance(NzLuaInstance&&) = delete; ///TODO
+		NzLuaInstance(const NzLuaInstance&) = delete;
+		NzLuaInstance(NzLuaInstance&&) = delete; ///TODO
 		~NzLuaInstance();
 
 		void ArgCheck(bool condition, unsigned int argNum, const char* error);
@@ -149,8 +149,8 @@ class NAZARA_LUA_API NzLuaInstance
 		void* ToUserdata(int index, const char* tname) const;
 		void* ToUserdata(int index, const NzString& tname) const;
 
-        NzLuaInstance& operator=(const NzLuaInstance&) = delete;
-        NzLuaInstance& operator=(NzLuaInstance&&) = delete; ///TODO
+		NzLuaInstance& operator=(const NzLuaInstance&) = delete;
+		NzLuaInstance& operator=(NzLuaInstance&&) = delete; ///TODO
 
 		static int GetIndexOfUpValue(int upValue);
 		static NzLuaInstance* GetInstance(lua_State* state);

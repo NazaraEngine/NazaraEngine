@@ -106,7 +106,7 @@ namespace
 
 				SetCharacterSize(characterSize);
 
-			    if (FT_Load_Char(m_face, character, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_NORMAL) != 0)
+				if (FT_Load_Char(m_face, character, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_NORMAL) != 0)
 				{
 					NazaraError("Failed to load character");
 					return false;

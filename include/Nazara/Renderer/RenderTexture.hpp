@@ -26,8 +26,8 @@ class NAZARA_RENDERER_API NzRenderTexture : public NzRenderTarget
 {
 	public:
 		inline NzRenderTexture();
-        NzRenderTexture(const NzRenderTexture&) = delete;
-        NzRenderTexture(NzRenderTexture&&) = delete; ///TODO
+		NzRenderTexture(const NzRenderTexture&) = delete;
+		NzRenderTexture(NzRenderTexture&&) = delete; ///TODO
 		inline ~NzRenderTexture();
 
 		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzRenderBuffer* buffer);
@@ -60,8 +60,8 @@ class NAZARA_RENDERER_API NzRenderTexture : public NzRenderTarget
 		unsigned int GetOpenGLID() const;
 		bool HasContext() const override;
 
-        NzRenderTexture& operator=(const NzRenderTexture&) = delete;
-        NzRenderTexture& operator=(NzRenderTexture&&) = delete; ///TODO
+		NzRenderTexture& operator=(const NzRenderTexture&) = delete;
+		NzRenderTexture& operator=(NzRenderTexture&&) = delete; ///TODO
 
 		static inline void Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
 		static void Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);

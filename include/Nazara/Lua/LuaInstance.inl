@@ -160,7 +160,7 @@ void NzLuaInstance::PushFunction(R(*func)(Args...))
 	PushFunction([func](NzLuaInstance& instance) -> int
 	{
 		NzLuaImplFunctionProxy<Args...> handler(instance);
-        handler.ProcessArgs();
+		handler.ProcessArgs();
 
 		return handler.Invoke(func);
 	});

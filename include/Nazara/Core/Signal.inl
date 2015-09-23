@@ -56,40 +56,40 @@ template<typename... Args>
 template<typename O>
 typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O& object, void (O::*method) (Args...))
 {
-    return Connect([&object, method] (Args&&... args)
-    {
-        return (object .* method) (std::forward<Args>(args)...);
-    });
+	return Connect([&object, method] (Args&&... args)
+	{
+		return (object .* method) (std::forward<Args>(args)...);
+	});
 }
 
 template<typename... Args>
 template<typename O>
 typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(O* object, void (O::*method)(Args...))
 {
-    return Connect([object, method] (Args&&... args)
-    {
-        return (object ->* method) (std::forward<Args>(args)...);
-    });
+	return Connect([object, method] (Args&&... args)
+	{
+		return (object ->* method) (std::forward<Args>(args)...);
+	});
 }
 
 template<typename... Args>
 template<typename O>
 typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const O& object, void (O::*method) (Args...) const)
 {
-    return Connect([&object, method] (Args&&... args)
-    {
-        return (object .* method) (std::forward<Args>(args)...);
-    });
+	return Connect([&object, method] (Args&&... args)
+	{
+		return (object .* method) (std::forward<Args>(args)...);
+	});
 }
 
 template<typename... Args>
 template<typename O>
 typename NzSignal<Args...>::Connection NzSignal<Args...>::Connect(const O* object, void (O::*method)(Args...) const)
 {
-    return Connect([object, method] (Args&&... args)
-    {
-        return (object ->* method) (std::forward<Args>(args)...);
-    });
+	return Connect([object, method] (Args&&... args)
+	{
+		return (object ->* method) (std::forward<Args>(args)...);
+	});
 }
 
 template<typename... Args>

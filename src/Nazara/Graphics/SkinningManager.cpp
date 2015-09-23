@@ -15,13 +15,13 @@
 
 namespace
 {
-    struct BufferData
-    {
-    	NazaraSlot(NzSkeletalMesh, OnSkeletalMeshDestroy, skeletalMeshDestroySlot);
+	struct BufferData
+	{
+		NazaraSlot(NzSkeletalMesh, OnSkeletalMeshDestroy, skeletalMeshDestroySlot);
 
 		NzVertexBufferRef buffer;
 		bool updated;
-    };
+	};
 
 	using MeshMap = std::unordered_map<const NzSkeletalMesh*, BufferData>;
 
@@ -115,9 +115,9 @@ NzVertexBuffer* NzSkinningManager::GetBuffer(const NzSkeletalMesh* mesh, const N
 
 	NzVertexBuffer* buffer;
 
-    MeshMap& meshMap = it->second.meshMap;
-    MeshMap::iterator it2 = meshMap.find(mesh);
-    if (it2 == meshMap.end())
+	MeshMap& meshMap = it->second.meshMap;
+	MeshMap::iterator it2 = meshMap.find(mesh);
+	if (it2 == meshMap.end())
 	{
 		NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), mesh->GetVertexCount(), nzDataStorage_Hardware, nzBufferUsage_Dynamic);
 

@@ -22,8 +22,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
 {
 	public:
 		NzAbstractRenderTechnique();
-        NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
-        NzAbstractRenderTechnique(NzAbstractRenderTechnique&&) = default;
+		NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
+		NzAbstractRenderTechnique(NzAbstractRenderTechnique&&) = default;
 		virtual ~NzAbstractRenderTechnique();
 
 		virtual bool Draw(const NzSceneData& sceneData) const = 0;
@@ -36,8 +36,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
 
 		virtual bool IsInstancingEnabled() const;
 
-        NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
-        NzAbstractRenderTechnique& operator=(NzAbstractRenderTechnique&&) = default;
+		NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
+		NzAbstractRenderTechnique& operator=(NzAbstractRenderTechnique&&) = default;
 
 	protected:
 		bool m_instancingEnabled;

@@ -121,28 +121,28 @@ nzUInt32 NzMusic::GetPlayingOffset() const
 
 nzUInt32 NzMusic::GetSampleCount() const
 {
-    #if NAZARA_AUDIO_SAFE
-    if (!m_impl)
-    {
-        NazaraError("Music not created");
-        return 0;
-    }
-    #endif
+	#if NAZARA_AUDIO_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Music not created");
+		return 0;
+	}
+	#endif
 
-    return m_impl->stream->GetSampleCount();
+	return m_impl->stream->GetSampleCount();
 }
 
 nzUInt32 NzMusic::GetSampleRate() const
 {
-    #if NAZARA_AUDIO_SAFE
-    if (!m_impl)
-    {
-        NazaraError("Music not created");
-        return 0;
-    }
-    #endif
+	#if NAZARA_AUDIO_SAFE
+	if (!m_impl)
+	{
+		NazaraError("Music not created");
+		return 0;
+	}
+	#endif
 
-    return m_impl->stream->GetSampleRate();
+	return m_impl->stream->GetSampleRate();
 }
 
 nzSoundStatus NzMusic::GetStatus() const
