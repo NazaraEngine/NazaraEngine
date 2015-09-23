@@ -39,8 +39,8 @@ class NAZARA_UTILITY_API NzWindow
 		NzWindow();
 		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
 		NzWindow(NzWindowHandle handle);
-        NzWindow(const NzWindow&) = delete;
-        NzWindow(NzWindow&&) = delete; ///TODO
+		NzWindow(const NzWindow&) = delete;
+		NzWindow(NzWindow&&) = delete; ///TODO
 		virtual ~NzWindow();
 
 		void Close();
@@ -90,8 +90,8 @@ class NAZARA_UTILITY_API NzWindow
 
 		bool WaitEvent(NzEvent* event);
 
-        NzWindow& operator=(const NzWindow&) = delete;
-        NzWindow& operator=(NzWindow&&) = delete; ///TODO
+		NzWindow& operator=(const NzWindow&) = delete;
+		NzWindow& operator=(NzWindow&&) = delete; ///TODO
 
 	protected:
 		virtual bool OnWindowCreated();

@@ -38,8 +38,8 @@ class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted
 {
 	public:
 		NzPhysGeom() = default;
-        NzPhysGeom(const NzPhysGeom&) = delete;
-        NzPhysGeom(NzPhysGeom&&) = delete;
+		NzPhysGeom(const NzPhysGeom&) = delete;
+		NzPhysGeom(NzPhysGeom&&) = delete;
 		virtual ~NzPhysGeom();
 
 		NzBoxf ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
@@ -50,8 +50,8 @@ class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted
 		NewtonCollision* GetHandle(NzPhysWorld* world) const;
 		virtual nzGeomType GetType() const = 0;
 
-        NzPhysGeom& operator=(const NzPhysGeom&) = delete;
-        NzPhysGeom& operator=(NzPhysGeom&&) = delete;
+		NzPhysGeom& operator=(const NzPhysGeom&) = delete;
+		NzPhysGeom& operator=(NzPhysGeom&&) = delete;
 
 		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 

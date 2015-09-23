@@ -12,31 +12,31 @@
 
 enum nzNoises
 {
-    PERLIN,
-    SIMPLEX,
-    CELL
+	PERLIN,
+	SIMPLEX,
+	CELL
 };
 
 class NAZARA_NOISE_API NzNoiseBase
 {
-    public:
-        NzNoiseBase(unsigned int seed = 0);
-        ~NzNoiseBase() = default;
+	public:
+		NzNoiseBase(unsigned int seed = 0);
+		~NzNoiseBase() = default;
 
-        void SetNewSeed(unsigned int seed);
+		void SetNewSeed(unsigned int seed);
 
-        void ShufflePermutationTable();
+		void ShufflePermutationTable();
 
-        unsigned int GetUniformRandomValue();
+		unsigned int GetUniformRandomValue();
 
-        int fastfloor(float n);
-        int JenkinsHash(int a, int b, int c);
-    protected:
-        unsigned int perm[512];
-    private:
-        unsigned int Ua, Uc, Um;
-        unsigned int UcurrentSeed;
-        unsigned int Uprevious, Ulast;
+		int fastfloor(float n);
+		int JenkinsHash(int a, int b, int c);
+	protected:
+		unsigned int perm[512];
+	private:
+		unsigned int Ua, Uc, Um;
+		unsigned int UcurrentSeed;
+		unsigned int Uprevious, Ulast;
 
 };
 

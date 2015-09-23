@@ -1041,11 +1041,11 @@ unsigned int NzTexture::GetValidSize(unsigned int size)
 		return size;
 	else
 	{
-        unsigned int pot = 1;
-        while (pot < size)
-            pot <<= 1;
+		unsigned int pot = 1;
+		while (pot < size)
+			pot <<= 1;
 
-        return pot;
+		return pot;
 	}
 }
 

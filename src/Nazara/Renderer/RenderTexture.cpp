@@ -647,7 +647,7 @@ unsigned int NzRenderTexture::GetOpenGLID() const
 	}
 	#endif
 
-    return m_impl->fbo;
+	return m_impl->fbo;
 }
 
 bool NzRenderTexture::HasContext() const

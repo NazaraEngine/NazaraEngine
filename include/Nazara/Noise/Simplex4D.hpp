@@ -14,26 +14,26 @@
 
 class NAZARA_NOISE_API NzSimplex4D : public NzAbstract4DNoise
 {
-    public:
-        NzSimplex4D();
-        NzSimplex4D(unsigned int seed);
-        float GetValue(float x, float y, float z, float w, float resolution);
-        ~NzSimplex4D() = default;
-    protected:
-    private:
-        int ii,jj,kk,ll;
-        int gi0,gi1,gi2,gi3,gi4;
-        NzVector4i skewedCubeOrigin,off1,off2,off3;
-        int lookupTable4D[64][4];
-        int c;
-        float n1,n2,n3,n4,n5;
-        float c1,c2,c3,c4,c5,c6;
-        float gradient4[32][4];
-        float UnskewCoeff4D;
-        float SkewCoeff4D;
-        float sum;
-        NzVector4<float> unskewedCubeOrigin, unskewedDistToOrigin;
-        NzVector4<float> d1,d2,d3,d4,d5;
+	public:
+		NzSimplex4D();
+		NzSimplex4D(unsigned int seed);
+		float GetValue(float x, float y, float z, float w, float resolution);
+		~NzSimplex4D() = default;
+	protected:
+	private:
+		int ii,jj,kk,ll;
+		int gi0,gi1,gi2,gi3,gi4;
+		NzVector4i skewedCubeOrigin,off1,off2,off3;
+		int lookupTable4D[64][4];
+		int c;
+		float n1,n2,n3,n4,n5;
+		float c1,c2,c3,c4,c5,c6;
+		float gradient4[32][4];
+		float UnskewCoeff4D;
+		float SkewCoeff4D;
+		float sum;
+		NzVector4<float> unskewedCubeOrigin, unskewedDistToOrigin;
+		NzVector4<float> d1,d2,d3,d4,d5;
 };
 
 #endif // SIMPLEX4D_H

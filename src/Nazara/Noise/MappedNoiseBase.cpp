@@ -17,37 +17,37 @@ NzMappedNoiseBase::NzMappedNoiseBase() : m_gain(1.f), m_offset(0.f), m_resolutio
 
 float NzMappedNoiseBase::GetGain() const
 {
-    return m_gain;
+	return m_gain;
 }
 
 float NzMappedNoiseBase::GetOffset() const
 {
-    return m_offset;
+	return m_offset;
 }
 
 float NzMappedNoiseBase::GetResolution() const
 {
-    return m_resolution;
+	return m_resolution;
 }
 
 void NzMappedNoiseBase::SetGain(float gain)
 {
-    m_gain = gain;
+	m_gain = gain;
 }
 
 void NzMappedNoiseBase::SetOffset(float offset)
 {
-    m_offset = offset;
+	m_offset = offset;
 }
 
 void NzMappedNoiseBase::SetResolution(float resolution)
 {
-    if (NzNumberEquals(resolution, 0.f))
+	if (NzNumberEquals(resolution, 0.f))
 	{
 		NzStringStream ss;
 		ss << __FILE__ << ':' << __LINE__ << " : resolution cannot be 0.0f";
 
 		throw std::domain_error(ss.ToString());
 	}
-    m_resolution = resolution;
+	m_resolution = resolution;
 }

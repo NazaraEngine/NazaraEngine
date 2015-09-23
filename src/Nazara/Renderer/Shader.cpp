@@ -351,7 +351,7 @@ bool NzShader::LoadFromBinary(const void* buffer, unsigned int size)
 
 bool NzShader::LoadFromBinary(const NzByteArray& byteArray)
 {
-    return LoadFromBinary(byteArray.GetConstBuffer(), byteArray.GetSize());
+	return LoadFromBinary(byteArray.GetConstBuffer(), byteArray.GetSize());
 }
 
 void NzShader::SendBoolean(int location, bool value) const

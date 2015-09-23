@@ -50,13 +50,13 @@ class NAZARA_AUDIO_API NzSoundEmitter
 
 		virtual void Stop() = 0;
 
-        NzSoundEmitter& operator=(const NzSoundEmitter&) = delete; ///TODO
-        NzSoundEmitter& operator=(NzSoundEmitter&&) = delete; ///TODO
+		NzSoundEmitter& operator=(const NzSoundEmitter&) = delete; ///TODO
+		NzSoundEmitter& operator=(NzSoundEmitter&&) = delete; ///TODO
 
 	protected:
 		NzSoundEmitter();
-        NzSoundEmitter(const NzSoundEmitter& emitter);
-        NzSoundEmitter(NzSoundEmitter&&) = delete; ///TODO
+		NzSoundEmitter(const NzSoundEmitter& emitter);
+		NzSoundEmitter(NzSoundEmitter&&) = delete; ///TODO
 
 		nzSoundStatus GetInternalStatus() const;
 

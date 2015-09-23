@@ -30,8 +30,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 		struct SpotLight;
 
 		NzAbstractRenderQueue() = default;
-        NzAbstractRenderQueue(const NzAbstractRenderQueue&) = delete;
-        NzAbstractRenderQueue(NzAbstractRenderQueue&&) = default;
+		NzAbstractRenderQueue(const NzAbstractRenderQueue&) = delete;
+		NzAbstractRenderQueue(NzAbstractRenderQueue&&) = default;
 		virtual ~NzAbstractRenderQueue();
 
 		// Je ne suis vraiment pas fan du nombre de surcharges pour AddBillboards,
@@ -54,8 +54,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 
 		virtual void Clear(bool fully = false);
 
-        NzAbstractRenderQueue& operator=(const NzAbstractRenderQueue&) = delete;
-        NzAbstractRenderQueue& operator=(NzAbstractRenderQueue&&) = default;
+		NzAbstractRenderQueue& operator=(const NzAbstractRenderQueue&) = delete;
+		NzAbstractRenderQueue& operator=(NzAbstractRenderQueue&&) = default;
 
 		struct DirectionalLight
 		{

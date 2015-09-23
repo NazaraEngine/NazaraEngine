@@ -44,8 +44,8 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource
 		struct SizeInfo;
 
 		NzFont();
-        NzFont(const NzFont&) = delete;
-        NzFont(NzFont&&) = delete;
+		NzFont(const NzFont&) = delete;
+		NzFont(NzFont&&) = delete;
 		~NzFont();
 
 		void ClearGlyphCache();
@@ -82,8 +82,8 @@ class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource
 		void SetGlyphBorder(unsigned int borderSize);
 		void SetMinimumStepSize(unsigned int minimumStepSize);
 
-        NzFont& operator=(const NzFont&) = delete;
-        NzFont& operator=(NzFont&&) = delete;
+		NzFont& operator=(const NzFont&) = delete;
+		NzFont& operator=(NzFont&&) = delete;
 
 		static std::shared_ptr<NzAbstractAtlas> GetDefaultAtlas();
 		static NzFont* GetDefault();

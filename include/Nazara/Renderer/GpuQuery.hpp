@@ -15,8 +15,8 @@ class NAZARA_RENDERER_API NzGpuQuery
 {
 	public:
 		NzGpuQuery();
-        NzGpuQuery(const NzGpuQuery&) = delete;
-        NzGpuQuery(NzGpuQuery&&) = delete; ///TODO
+		NzGpuQuery(const NzGpuQuery&) = delete;
+		NzGpuQuery(NzGpuQuery&&) = delete; ///TODO
 		~NzGpuQuery();
 
 		void Begin(nzGpuQueryMode mode);
@@ -29,8 +29,8 @@ class NAZARA_RENDERER_API NzGpuQuery
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
 
-        NzGpuQuery& operator=(const NzGpuQuery&) = delete;
-        NzGpuQuery& operator=(NzGpuQuery&&) = delete; ///TODO
+		NzGpuQuery& operator=(const NzGpuQuery&) = delete;
+		NzGpuQuery& operator=(NzGpuQuery&&) = delete; ///TODO
 
 		static bool IsModeSupported(nzGpuQueryMode mode);
 		static bool IsSupported();

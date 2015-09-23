@@ -30,8 +30,8 @@ class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
 		struct InstanceData;
 
 		NzInstancedRenderable() = default;
-        inline NzInstancedRenderable(const NzInstancedRenderable& renderable);
-        NzInstancedRenderable(NzInstancedRenderable&& renderable) = delete;
+		inline NzInstancedRenderable(const NzInstancedRenderable& renderable);
+		NzInstancedRenderable(NzInstancedRenderable&& renderable) = delete;
 		virtual ~NzInstancedRenderable();
 
 		inline void EnsureBoundingVolumeUpdated() const;
@@ -44,7 +44,7 @@ class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
 		virtual void UpdateData(InstanceData* instanceData) const;
 
 		inline NzInstancedRenderable& operator=(const NzInstancedRenderable& renderable);
-        NzInstancedRenderable& operator=(NzInstancedRenderable&& renderable) = delete;
+		NzInstancedRenderable& operator=(NzInstancedRenderable&& renderable) = delete;
 
 		// Signals:
 		NazaraSignal(OnInstancedRenderableInvalidateData, const NzInstancedRenderable* /*instancedRenderable*/, nzUInt32 /*flags*/);

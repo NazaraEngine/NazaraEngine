@@ -15,8 +15,8 @@ class NAZARA_CORE_API NzSemaphore
 {
 	public:
 		NzSemaphore(unsigned int count);
-        NzSemaphore(const NzSemaphore&) = delete;
-        NzSemaphore(NzSemaphore&&) = delete; ///TODO
+		NzSemaphore(const NzSemaphore&) = delete;
+		NzSemaphore(NzSemaphore&&) = delete; ///TODO
 		~NzSemaphore();
 
 		unsigned int GetCount() const;
@@ -26,8 +26,8 @@ class NAZARA_CORE_API NzSemaphore
 		void Wait();
 		bool Wait(nzUInt32 timeout);
 
-        NzSemaphore& operator=(const NzSemaphore&) = delete;
-        NzSemaphore& operator=(NzSemaphore&&) = delete; ///TODO
+		NzSemaphore& operator=(const NzSemaphore&) = delete;
+		NzSemaphore& operator=(NzSemaphore&&) = delete; ///TODO
 
 	private:
 		NzSemaphoreImpl* m_impl;

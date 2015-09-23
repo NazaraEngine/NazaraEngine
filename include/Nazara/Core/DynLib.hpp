@@ -34,8 +34,8 @@ class NAZARA_CORE_API NzDynLib
 {
 	public:
 		NzDynLib();
-        NzDynLib(const NzDynLib&) = delete;
-        NzDynLib(NzDynLib&& lib);
+		NzDynLib(const NzDynLib&) = delete;
+		NzDynLib(NzDynLib&& lib);
 		~NzDynLib();
 
 		NzString GetLastError() const;
@@ -46,8 +46,8 @@ class NAZARA_CORE_API NzDynLib
 		bool Load(const NzString& libraryPath);
 		void Unload();
 
-        NzDynLib& operator=(const NzDynLib&) = delete;
-        NzDynLib& operator=(NzDynLib&& lib);
+		NzDynLib& operator=(const NzDynLib&) = delete;
+		NzDynLib& operator=(NzDynLib&& lib);
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)
