@@ -25,8 +25,8 @@ struct NzSoundBufferImpl
 	nzAudioFormat format;
 	nzUInt32 duration;
 	std::unique_ptr<nzInt16[]> samples;
-	unsigned int sampleCount;
-	unsigned int sampleRate;
+	nzUInt32 sampleCount;
+	nzUInt32 sampleRate;
 };
 
 NzSoundBuffer::NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples)

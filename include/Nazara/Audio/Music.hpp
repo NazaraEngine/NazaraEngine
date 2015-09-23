@@ -45,8 +45,8 @@ class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter
 		nzUInt32 GetDuration() const;
 		nzAudioFormat GetFormat() const;
 		nzUInt32 GetPlayingOffset() const;
-        unsigned int GetSampleCount() const;
-        unsigned int GetSampleRate() const;
+		nzUInt32 GetSampleCount() const;
+		nzUInt32 GetSampleRate() const;
 		nzSoundStatus GetStatus() const;
 
 		bool IsLooping() const;
