@@ -58,8 +58,8 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource
 		nzUInt32 GetDuration() const;
 		nzAudioFormat GetFormat() const;
 		const nzInt16* GetSamples() const;
-		unsigned int GetSampleCount() const;
-		unsigned int GetSampleRate() const;
+		nzUInt32 GetSampleCount() const;
+		nzUInt32 GetSampleRate() const;
 
 		bool IsValid() const;
 
