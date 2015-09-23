@@ -8,7 +8,6 @@
 #define NAZARA_BUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -22,7 +21,7 @@ using NzBufferRef = NzObjectRef<NzBuffer>;
 
 class NzAbstractBuffer;
 
-class NAZARA_UTILITY_API NzBuffer : public NzRefCounted, NzNonCopyable
+class NAZARA_UTILITY_API NzBuffer : public NzRefCounted
 {
 	friend class NzUtility;
 
@@ -31,6 +30,8 @@ class NAZARA_UTILITY_API NzBuffer : public NzRefCounted, NzNonCopyable
 
 		NzBuffer(nzBufferType type);
 		NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
+        NzBuffer(const NzBuffer&) = delete;
+        NzBuffer(NzBuffer&&) = delete;
 		~NzBuffer();
 
 		bool CopyContent(const NzBuffer& buffer);
@@ -55,6 +56,9 @@ class NAZARA_UTILITY_API NzBuffer : public NzRefCounted, NzNonCopyable
 		bool SetStorage(nzUInt32 storage);
 
 		void Unmap() const;
+
+        NzBuffer& operator=(const NzBuffer&) = delete;
+        NzBuffer& operator=(NzBuffer&&) = delete;
 
 		static bool IsStorageSupported(nzUInt32 storage);
 		template<typename... Args> static NzBufferRef New(Args&&... args);

@@ -11,7 +11,6 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -38,7 +37,7 @@ using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
 
 struct NzSoundBufferImpl;
 
-class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource, NzNonCopyable
+class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource
 {
 	friend NzSound;
 	friend NzSoundBufferLibrary;
@@ -49,6 +48,8 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource, N
 	public:
 		NzSoundBuffer() = default;
 		NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
+        NzSoundBuffer(const NzSoundBuffer&) = delete;
+        NzSoundBuffer(NzSoundBuffer&&) = delete;
 		~NzSoundBuffer();
 
 		bool Create(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
@@ -68,6 +69,9 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource, N
 
 		static bool IsFormatSupported(nzAudioFormat format);
 		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
+
+        NzSoundBuffer& operator=(const NzSoundBuffer&) = delete;
+        NzSoundBuffer& operator=(NzSoundBuffer&&) = delete; ///TODO
 
 		// Signals:
 		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer* /*soundBuffer*/);

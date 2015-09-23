@@ -8,17 +8,18 @@
 #define NAZARA_PHYSWORLD_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Config.hpp>
 
 struct NewtonWorld;
 
-class NAZARA_PHYSICS_API NzPhysWorld : NzNonCopyable
+class NAZARA_PHYSICS_API NzPhysWorld
 {
 	public:
 		NzPhysWorld();
+        NzPhysWorld(const NzPhysWorld&) = delete;
+        NzPhysWorld(NzPhysWorld&&) = delete; ///TODO
 		~NzPhysWorld();
 
 		NzVector3f GetGravity() const;
@@ -30,6 +31,9 @@ class NAZARA_PHYSICS_API NzPhysWorld : NzNonCopyable
 		void SetStepSize(float stepSize);
 
 		void Step(float timestep);
+
+        NzPhysWorld& operator=(const NzPhysWorld&) = delete;
+        NzPhysWorld& operator=(NzPhysWorld&&) = delete; ///TODO
 
 	private:
 		NzVector3f m_gravity;

@@ -9,12 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Functor.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <iosfwd>
 
 class NzThreadImpl;
 
-class NAZARA_CORE_API NzThread : NzNonCopyable
+class NAZARA_CORE_API NzThread
 {
 	public:
 		class Id;
@@ -23,7 +22,8 @@ class NAZARA_CORE_API NzThread : NzNonCopyable
 		template<typename F> NzThread(F function);
 		template<typename F, typename... Args> NzThread(F function, Args&&... args);
 		template<typename C> NzThread(void (C::*function)(), C* object);
-		NzThread(NzThread&& other);
+        NzThread(const NzThread&) = delete;
+        NzThread(NzThread&& other);
 		~NzThread();
 
 		void Detach();
@@ -31,7 +31,8 @@ class NAZARA_CORE_API NzThread : NzNonCopyable
 		bool IsJoinable() const;
 		void Join();
 
-		NzThread& operator=(NzThread&& thread);
+        NzThread& operator=(const NzThread&) = delete;
+        NzThread& operator=(NzThread&& thread);
 
 		static unsigned int HardwareConcurrency();
 		static void Sleep(nzUInt32 milliseconds);

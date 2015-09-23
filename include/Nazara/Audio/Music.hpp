@@ -27,12 +27,14 @@ using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
 
 struct NzMusicImpl;
 
-class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter, NzNonCopyable
+class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter
 {
 	friend NzMusicLoader;
 
 	public:
 		NzMusic() = default;
+        NzMusic(const NzMusic&) = delete;
+        NzMusic(NzMusic&&) = delete; ///TODO
 		~NzMusic();
 
 		bool Create(NzSoundStream* soundStream);
@@ -43,8 +45,8 @@ class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter, NzNon
 		nzUInt32 GetDuration() const;
 		nzAudioFormat GetFormat() const;
 		nzUInt32 GetPlayingOffset() const;
-		unsigned int GetSampleCount() const;
-		unsigned int GetSampleRate() const;
+        unsigned int GetSampleCount() const;
+        unsigned int GetSampleRate() const;
 		nzSoundStatus GetStatus() const;
 
 		bool IsLooping() const;
@@ -59,6 +61,9 @@ class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter, NzNon
 		void SetPlayingOffset(nzUInt32 offset);
 
 		void Stop();
+
+        NzMusic& operator=(const NzMusic&) = delete;
+        NzMusic& operator=(NzMusic&&) = delete; ///TODO
 
 	private:
 		NzMusicImpl* m_impl = nullptr;
