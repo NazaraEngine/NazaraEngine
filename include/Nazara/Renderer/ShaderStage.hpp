@@ -8,17 +8,17 @@
 #define NAZARA_SHADERSTAGE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_RENDERER_API NzShaderStage : NzNonCopyable
+class NAZARA_RENDERER_API NzShaderStage
 {
 	public:
 		NzShaderStage();
 		NzShaderStage(nzShaderStage stage);
-		NzShaderStage(NzShaderStage&& stage);
+        NzShaderStage(const NzShaderStage&) = delete;
+        NzShaderStage(NzShaderStage&& stage);
 		~NzShaderStage();
 
 		bool Compile();
@@ -36,7 +36,8 @@ class NAZARA_RENDERER_API NzShaderStage : NzNonCopyable
 		void SetSource(const NzString& source);
 		bool SetSourceFromFile(const NzString& filePath);
 
-		NzShaderStage& operator=(NzShaderStage&& shader);
+        NzShaderStage& operator=(const NzShaderStage&) = delete;
+        NzShaderStage& operator=(NzShaderStage&& shader);
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;

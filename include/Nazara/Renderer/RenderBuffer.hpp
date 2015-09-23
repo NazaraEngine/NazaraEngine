@@ -8,7 +8,6 @@
 #define NAZARA_RENDERBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -22,13 +21,15 @@ using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
 using NzRenderBufferLibrary = NzObjectLibrary<NzRenderBuffer>;
 using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
 
-class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
+class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted
 {
 	friend NzRenderBufferLibrary;
 	friend class NzRenderer;
 
 	public:
 		NzRenderBuffer();
+        NzRenderBuffer(const NzRenderBuffer&) = delete;
+        NzRenderBuffer(NzRenderBuffer&&) = delete;
 		~NzRenderBuffer();
 
 		bool Create(nzPixelFormat format, unsigned int width, unsigned int height);
@@ -42,6 +43,9 @@ class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
 		unsigned int GetOpenGLID() const;
 
 		bool IsValid() const;
+
+        NzRenderBuffer& operator=(const NzRenderBuffer&) = delete;
+        NzRenderBuffer& operator=(NzRenderBuffer&&) = delete;
 
 		static bool IsSupported();
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);

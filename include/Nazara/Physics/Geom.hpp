@@ -8,7 +8,6 @@
 #define NAZARA_GEOM_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
@@ -35,10 +34,12 @@ using NzPhysGeomConstRef = NzObjectRef<const NzPhysGeom>;
 using NzPhysGeomLibrary = NzObjectLibrary<NzPhysGeom>;
 using NzPhysGeomRef = NzObjectRef<NzPhysGeom>;
 
-class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted, NzNonCopyable
+class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted
 {
 	public:
 		NzPhysGeom() = default;
+        NzPhysGeom(const NzPhysGeom&) = delete;
+        NzPhysGeom(NzPhysGeom&&) = delete;
 		virtual ~NzPhysGeom();
 
 		NzBoxf ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const;
@@ -48,6 +49,9 @@ class NAZARA_PHYSICS_API NzPhysGeom : public NzRefCounted, NzNonCopyable
 
 		NewtonCollision* GetHandle(NzPhysWorld* world) const;
 		virtual nzGeomType GetType() const = 0;
+
+        NzPhysGeom& operator=(const NzPhysGeom&) = delete;
+        NzPhysGeom& operator=(NzPhysGeom&&) = delete;
 
 		static NzPhysGeomRef Build(const NzPrimitiveList& list);
 

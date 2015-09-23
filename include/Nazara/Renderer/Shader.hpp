@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -30,13 +29,15 @@ using NzShaderConstRef = NzObjectRef<const NzShader>;
 using NzShaderLibrary = NzObjectLibrary<NzShader>;
 using NzShaderRef = NzObjectRef<NzShader>;
 
-class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
+class NAZARA_RENDERER_API NzShader : public NzRefCounted
 {
 	friend NzShaderLibrary;
 	friend class NzRenderer;
 
 	public:
 		NzShader();
+        NzShader(const NzShader&) = delete;
+        NzShader(NzShader&&) = delete;
 		~NzShader();
 
 		void AttachStage(nzShaderStage stage, const NzShaderStage& shaderStage);
@@ -97,6 +98,9 @@ class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
+
+        NzShader& operator=(const NzShader&) = delete;
+        NzShader& operator=(NzShader&&) = delete;
 
 		static bool IsStageSupported(nzShaderStage stage);
 		template<typename... Args> static NzShaderRef New(Args&&... args);

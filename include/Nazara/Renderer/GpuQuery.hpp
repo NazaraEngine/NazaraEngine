@@ -8,14 +8,15 @@
 #define NAZARA_GPUQUERY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_RENDERER_API NzGpuQuery : NzNonCopyable
+class NAZARA_RENDERER_API NzGpuQuery
 {
 	public:
 		NzGpuQuery();
+        NzGpuQuery(const NzGpuQuery&) = delete;
+        NzGpuQuery(NzGpuQuery&&) = delete; ///TODO
 		~NzGpuQuery();
 
 		void Begin(nzGpuQueryMode mode);
@@ -27,6 +28,9 @@ class NAZARA_RENDERER_API NzGpuQuery : NzNonCopyable
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
+
+        NzGpuQuery& operator=(const NzGpuQuery&) = delete;
+        NzGpuQuery& operator=(NzGpuQuery&&) = delete; ///TODO
 
 		static bool IsModeSupported(nzGpuQueryMode mode);
 		static bool IsSupported();

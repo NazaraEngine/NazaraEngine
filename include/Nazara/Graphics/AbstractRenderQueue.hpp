@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -31,7 +30,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 		struct SpotLight;
 
 		NzAbstractRenderQueue() = default;
-		NzAbstractRenderQueue(const NzAbstractRenderQueue&) = delete;
+        NzAbstractRenderQueue(const NzAbstractRenderQueue&) = delete;
+        NzAbstractRenderQueue(NzAbstractRenderQueue&&) = default;
 		virtual ~NzAbstractRenderQueue();
 
 		// Je ne suis vraiment pas fan du nombre de surcharges pour AddBillboards,
@@ -54,7 +54,8 @@ class NAZARA_GRAPHICS_API NzAbstractRenderQueue
 
 		virtual void Clear(bool fully = false);
 
-		NzAbstractRenderQueue& operator=(const NzAbstractRenderQueue&) = delete;
+        NzAbstractRenderQueue& operator=(const NzAbstractRenderQueue&) = delete;
+        NzAbstractRenderQueue& operator=(NzAbstractRenderQueue&&) = default;
 
 		struct DirectionalLight
 		{

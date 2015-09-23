@@ -11,7 +11,6 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 ///TODO: Faire hériter SoundEmitter de Node
@@ -51,9 +50,13 @@ class NAZARA_AUDIO_API NzSoundEmitter
 
 		virtual void Stop() = 0;
 
+        NzSoundEmitter& operator=(const NzSoundEmitter&) = delete; ///TODO
+        NzSoundEmitter& operator=(NzSoundEmitter&&) = delete; ///TODO
+
 	protected:
 		NzSoundEmitter();
-		NzSoundEmitter(const NzSoundEmitter& emitter);
+        NzSoundEmitter(const NzSoundEmitter& emitter);
+        NzSoundEmitter(NzSoundEmitter&&) = delete; ///TODO
 
 		nzSoundStatus GetInternalStatus() const;
 
