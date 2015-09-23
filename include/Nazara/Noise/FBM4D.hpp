@@ -13,16 +13,16 @@
 
 class NAZARA_NOISE_API NzFBM4D : public NzAbstract4DNoise, public NzComplexNoiseBase
 {
-    public:
-        NzFBM4D(nzNoises source, unsigned int seed);
-        float GetValue(float x, float y, float z, float w, float resolution);
-        ~NzFBM4D();
-    protected:
-    private:
-        NzAbstract4DNoise* m_source;
-        float m_value;
-        float m_remainder;
-        nzNoises m_noiseType;
+	public:
+		NzFBM4D(nzNoises source, unsigned int seed);
+		float GetValue(float x, float y, float z, float w, float resolution);
+		~NzFBM4D();
+
+	private:
+		NzAbstract4DNoise* m_source;
+		float m_value;
+		float m_remainder;
+		nzNoises m_noiseType;
 };
 
 #endif // FBM4D_HPP

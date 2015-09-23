@@ -48,8 +48,8 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource
 	public:
 		NzSoundBuffer() = default;
 		NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
-        NzSoundBuffer(const NzSoundBuffer&) = delete;
-        NzSoundBuffer(NzSoundBuffer&&) = delete;
+		NzSoundBuffer(const NzSoundBuffer&) = delete;
+		NzSoundBuffer(NzSoundBuffer&&) = delete;
 		~NzSoundBuffer();
 
 		bool Create(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
@@ -70,8 +70,8 @@ class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource
 		static bool IsFormatSupported(nzAudioFormat format);
 		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
 
-        NzSoundBuffer& operator=(const NzSoundBuffer&) = delete;
-        NzSoundBuffer& operator=(NzSoundBuffer&&) = delete; ///TODO
+		NzSoundBuffer& operator=(const NzSoundBuffer&) = delete;
+		NzSoundBuffer& operator=(NzSoundBuffer&&) = delete; ///TODO
 
 		// Signals:
 		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer* /*soundBuffer*/);

@@ -104,7 +104,7 @@ bool NzDeferredPhongLightingPass::Process(const NzSceneData& sceneData, unsigned
 		{
 			m_directionalLightShader->SendColor(m_directionalLightUniforms.locations.color, light.color);
 			m_directionalLightShader->SendVector(m_directionalLightUniforms.locations.factors, NzVector2f(light.ambientFactor, light.diffuseFactor));
-            m_directionalLightShader->SendVector(m_directionalLightUniforms.locations.parameters1, NzVector4f(light.direction));
+			m_directionalLightShader->SendVector(m_directionalLightUniforms.locations.parameters1, NzVector4f(light.direction));
 
 			NzRenderer::DrawFullscreenQuad();
 		}

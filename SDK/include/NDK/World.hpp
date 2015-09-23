@@ -26,8 +26,8 @@ namespace Ndk
 			using EntityList = std::vector<EntityHandle>;
 
 			inline World(bool addDefaultSystems = true);
-            World(const World&) = delete;
-            World(World&&) = delete; ///TODO
+			World(const World&) = delete;
+			World(World&&) = delete; ///TODO
 			~World();
 
 			void AddDefaultSystems();
@@ -61,8 +61,8 @@ namespace Ndk
 			void Update();
 			inline void Update(float elapsedTime);
 
-            World& operator=(const World&) = delete;
-            World& operator=(World&&) = delete; ///TODO
+			World& operator=(const World&) = delete;
+			World& operator=(World&&) = delete; ///TODO
 
 		private:
 			inline void Invalidate();

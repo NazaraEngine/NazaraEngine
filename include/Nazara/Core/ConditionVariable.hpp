@@ -16,8 +16,8 @@ class NAZARA_CORE_API NzConditionVariable
 {
 	public:
 		NzConditionVariable();
-        NzConditionVariable(const NzConditionVariable&) = delete;
-        NzConditionVariable(NzConditionVariable&&) = delete; ///TODO
+		NzConditionVariable(const NzConditionVariable&) = delete;
+		NzConditionVariable(NzConditionVariable&&) = delete; ///TODO
 		~NzConditionVariable();
 
 		void Signal();
@@ -26,8 +26,8 @@ class NAZARA_CORE_API NzConditionVariable
 		void Wait(NzMutex* mutex);
 		bool Wait(NzMutex* mutex, nzUInt32 timeout);
 
-        NzConditionVariable& operator=(const NzConditionVariable&) = delete;
-        NzConditionVariable& operator=(NzConditionVariable&&) = delete; ///TODO
+		NzConditionVariable& operator=(const NzConditionVariable&) = delete;
+		NzConditionVariable& operator=(NzConditionVariable&&) = delete; ///TODO
 
 	private:
 		NzConditionVariableImpl* m_impl;

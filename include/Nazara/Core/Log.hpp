@@ -49,12 +49,12 @@ class NAZARA_CORE_API NzLog
 
 	private:
 		NzLog();
-        NzLog(const NzLog&) = delete;
-        NzLog(NzLog&&) = delete;
+		NzLog(const NzLog&) = delete;
+		NzLog(NzLog&&) = delete;
 		~NzLog();
 
-        NzLog& operator=(const NzLog&) = delete;
-        NzLog& operator=(NzLog&&) = delete;
+		NzLog& operator=(const NzLog&) = delete;
+		NzLog& operator=(NzLog&&) = delete;
 
 		NazaraMutexAttrib(m_mutex, mutable)
 

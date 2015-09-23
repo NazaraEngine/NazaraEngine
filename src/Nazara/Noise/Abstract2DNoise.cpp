@@ -12,10 +12,10 @@ NzAbstract2DNoise::~NzAbstract2DNoise() = default;
 
 float NzAbstract2DNoise::GetBasicValue(float x, float y)
 {
-    return this->GetValue(x,y,m_resolution);
+	return this->GetValue(x,y,m_resolution);
 }
 
 float NzAbstract2DNoise::GetMappedValue(float x, float y)
 {
-    return (this->GetValue(x,y,m_resolution) + m_offset) * m_gain;
+	return (this->GetValue(x,y,m_resolution) + m_offset) * m_gain;
 }

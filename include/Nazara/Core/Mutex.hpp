@@ -17,16 +17,16 @@ class NAZARA_CORE_API NzMutex
 
 	public:
 		NzMutex();
-        NzMutex(const NzMutex&) = delete;
-        NzMutex(NzMutex&&) = delete; ///TODO
+		NzMutex(const NzMutex&) = delete;
+		NzMutex(NzMutex&&) = delete; ///TODO
 		~NzMutex();
 
 		void Lock();
 		bool TryLock();
 		void Unlock();
 
-        NzMutex& operator=(const NzMutex&) = delete;
-        NzMutex& operator=(NzMutex&&) = delete; ///TODO
+		NzMutex& operator=(const NzMutex&) = delete;
+		NzMutex& operator=(NzMutex&&) = delete; ///TODO
 
 	private:
 		NzMutexImpl* m_impl;

@@ -28,8 +28,8 @@ class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted
 
 	public:
 		NzRenderBuffer();
-        NzRenderBuffer(const NzRenderBuffer&) = delete;
-        NzRenderBuffer(NzRenderBuffer&&) = delete;
+		NzRenderBuffer(const NzRenderBuffer&) = delete;
+		NzRenderBuffer(NzRenderBuffer&&) = delete;
 		~NzRenderBuffer();
 
 		bool Create(nzPixelFormat format, unsigned int width, unsigned int height);
@@ -44,8 +44,8 @@ class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted
 
 		bool IsValid() const;
 
-        NzRenderBuffer& operator=(const NzRenderBuffer&) = delete;
-        NzRenderBuffer& operator=(NzRenderBuffer&&) = delete;
+		NzRenderBuffer& operator=(const NzRenderBuffer&) = delete;
+		NzRenderBuffer& operator=(NzRenderBuffer&&) = delete;
 
 		static bool IsSupported();
 		template<typename... Args> static NzRenderBufferRef New(Args&&... args);

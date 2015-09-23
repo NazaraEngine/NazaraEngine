@@ -17,14 +17,14 @@ class NAZARA_CORE_API NzHash
 	public:
 		NzHash(nzHash hash);
 		NzHash(NzAbstractHash* hashImpl);
-        NzHash(const NzHash&) = delete;
-        NzHash(NzHash&&) = delete; ///TODO
+		NzHash(const NzHash&) = delete;
+		NzHash(NzHash&&) = delete; ///TODO
 		~NzHash();
 
 		NzHashDigest Hash(const NzHashable& hashable);
 
-        NzHash& operator=(const NzHash&) = delete;
-        NzHash& operator=(NzHash&&) = delete; ///TODO
+		NzHash& operator=(const NzHash&) = delete;
+		NzHash& operator=(NzHash&&) = delete; ///TODO
 
 	private:
 		NzAbstractHash* m_impl;

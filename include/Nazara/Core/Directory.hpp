@@ -31,9 +31,9 @@ class NAZARA_CORE_API NzDirectory
 {
 	public:
 		NzDirectory();
-        NzDirectory(const NzString& dirPath);
-        NzDirectory(const NzDirectory&) = delete;
-        NzDirectory(NzDirectory&&) = delete; ///TODO
+		NzDirectory(const NzString& dirPath);
+		NzDirectory(const NzDirectory&) = delete;
+		NzDirectory(NzDirectory&&) = delete; ///TODO
 		~NzDirectory();
 
 		void Close();
@@ -64,8 +64,8 @@ class NAZARA_CORE_API NzDirectory
 		static bool Remove(const NzString& dirPath, bool emptyDirectory = false);
 		static bool SetCurrent(const NzString& dirPath);
 
-        NzDirectory& operator=(const NzDirectory&) = delete;
-        NzDirectory& operator=(NzDirectory&&) = delete; ///TODO
+		NzDirectory& operator=(const NzDirectory&) = delete;
+		NzDirectory& operator=(NzDirectory&&) = delete; ///TODO
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)
