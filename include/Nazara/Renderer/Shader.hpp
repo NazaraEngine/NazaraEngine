@@ -36,8 +36,8 @@ class NAZARA_RENDERER_API NzShader : public NzRefCounted
 
 	public:
 		NzShader();
-        NzShader(const NzShader&) = delete;
-        NzShader(NzShader&&) = delete;
+		NzShader(const NzShader&) = delete;
+		NzShader(NzShader&&) = delete;
 		~NzShader();
 
 		void AttachStage(nzShaderStage stage, const NzShaderStage& shaderStage);
@@ -99,8 +99,8 @@ class NAZARA_RENDERER_API NzShader : public NzRefCounted
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
 
-        NzShader& operator=(const NzShader&) = delete;
-        NzShader& operator=(NzShader&&) = delete;
+		NzShader& operator=(const NzShader&) = delete;
+		NzShader& operator=(NzShader&&) = delete;
 
 		static bool IsStageSupported(nzShaderStage stage);
 		template<typename... Args> static NzShaderRef New(Args&&... args);

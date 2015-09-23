@@ -375,8 +375,8 @@ NzDeferredRenderPass* NzDeferredRenderTechnique::ResetPass(nzRenderPassType rend
 	if (oldPass && !oldPass->IsEnabled())
 		smartPtr->Enable(false);
 
-    SetPass(renderPass, position, smartPtr.get());
-    return smartPtr.release();
+	SetPass(renderPass, position, smartPtr.get());
+	return smartPtr.release();
 }
 
 void NzDeferredRenderTechnique::SetPass(nzRenderPassType relativeTo, int position, NzDeferredRenderPass* pass)

@@ -111,15 +111,15 @@ NzUberShaderInstance* NzUberShaderPreprocessor::Get(const NzParameterList& param
 
 void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& source, const NzString& shaderFlags, const NzString& requiredFlags)
 {
-    Shader& shader = m_shaders[stage];
-    shader.present = true;
-    shader.source = source;
+	Shader& shader = m_shaders[stage];
+	shader.present = true;
+	shader.source = source;
 
-    // On extrait les flags de la chaîne
-    std::vector<NzString> flags;
-    shaderFlags.Split(flags, ' ');
+	// On extrait les flags de la chaîne
+	std::vector<NzString> flags;
+	shaderFlags.Split(flags, ' ');
 
-    for (NzString& flag : flags)
+	for (NzString& flag : flags)
 	{
 		auto it = m_flags.find(flag);
 		if (it == m_flags.end())
@@ -136,7 +136,7 @@ void NzUberShaderPreprocessor::SetShader(nzShaderStage stage, const NzString& so
 	flags.clear();
 	requiredFlags.Split(flags, ' ');
 
-    for (NzString& flag : flags)
+	for (NzString& flag : flags)
 	{
 		nzUInt32 flagVal;
 

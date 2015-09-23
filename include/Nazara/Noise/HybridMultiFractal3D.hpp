@@ -13,19 +13,19 @@
 
 class NAZARA_NOISE_API NzHybridMultiFractal3D : public NzAbstract3DNoise, public NzComplexNoiseBase
 {
-    public:
-        NzHybridMultiFractal3D(nzNoises source, unsigned int seed);
-        float GetValue(float x, float y, float z, float resolution);
-        ~NzHybridMultiFractal3D();
-    protected:
-    private:
-        NzAbstract3DNoise* m_source;
-        float m_value;
-        float m_remainder;
-        float m_offset;
-        float m_weight;
-        float m_signal;
-        nzNoises m_noiseType;
+	public:
+		NzHybridMultiFractal3D(nzNoises source, unsigned int seed);
+		float GetValue(float x, float y, float z, float resolution);
+		~NzHybridMultiFractal3D();
+	protected:
+	private:
+		NzAbstract3DNoise* m_source;
+		float m_value;
+		float m_remainder;
+		float m_offset;
+		float m_weight;
+		float m_signal;
+		nzNoises m_noiseType;
 };
 
 #endif // HYBRIDMULTIFRACTAL3D_HPP

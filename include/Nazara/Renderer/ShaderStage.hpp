@@ -17,8 +17,8 @@ class NAZARA_RENDERER_API NzShaderStage
 	public:
 		NzShaderStage();
 		NzShaderStage(nzShaderStage stage);
-        NzShaderStage(const NzShaderStage&) = delete;
-        NzShaderStage(NzShaderStage&& stage);
+		NzShaderStage(const NzShaderStage&) = delete;
+		NzShaderStage(NzShaderStage&& stage);
 		~NzShaderStage();
 
 		bool Compile();
@@ -36,8 +36,8 @@ class NAZARA_RENDERER_API NzShaderStage
 		void SetSource(const NzString& source);
 		bool SetSourceFromFile(const NzString& filePath);
 
-        NzShaderStage& operator=(const NzShaderStage&) = delete;
-        NzShaderStage& operator=(NzShaderStage&& shader);
+		NzShaderStage& operator=(const NzShaderStage&) = delete;
+		NzShaderStage& operator=(NzShaderStage&& shader);
 
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;

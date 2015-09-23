@@ -21,11 +21,11 @@ namespace
 		return static_cast<int>(stream->Read(data, size));
 	}
 
-    void Skip(void* userdata, int size)
-    {
+	void Skip(void* userdata, int size)
+	{
 		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
 		stream->SetCursorPos(static_cast<nzInt64>(stream->GetCursorPos()) + static_cast<nzInt64>(size));
-    }
+	}
 
 	int Eof(void* userdata)
 	{

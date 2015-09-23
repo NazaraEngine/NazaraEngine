@@ -12,20 +12,20 @@
 
 class NAZARA_NOISE_API NzMappedNoiseBase : public NzNoiseBase
 {
-    public:
-        NzMappedNoiseBase();
-        ~NzMappedNoiseBase() = default;
+	public:
+		NzMappedNoiseBase();
+		~NzMappedNoiseBase() = default;
 
-        float GetGain() const;
-        float GetOffset() const;
-        float GetResolution() const;
-        void SetGain(float gain);
-        void SetOffset(float offset);
-        void SetResolution(float resolution);
-    protected:
-        float m_gain;
-        float m_offset;
-        float m_resolution;
+		float GetGain() const;
+		float GetOffset() const;
+		float GetResolution() const;
+		void SetGain(float gain);
+		void SetOffset(float offset);
+		void SetResolution(float resolution);
+	protected:
+		float m_gain;
+		float m_offset;
+		float m_resolution;
 };
 
 #endif // NAZARA_MAPPEDNOISEBASE_HPP

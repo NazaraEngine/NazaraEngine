@@ -43,7 +43,7 @@ class NAZARA_UTILITY_API NzGuillotineImageAtlas : public NzAbstractAtlas
 
 		struct QueuedGlyph
 		{
-            NzImage image;
+			NzImage image;
 			NzRectui rect;
 			bool flipped;
 		};

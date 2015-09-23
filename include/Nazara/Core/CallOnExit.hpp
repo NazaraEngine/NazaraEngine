@@ -16,15 +16,15 @@ class NzCallOnExit
 
 	public:
 		NzCallOnExit(Func func = nullptr);
-        NzCallOnExit(const NzCallOnExit&) = delete;
-        NzCallOnExit(NzCallOnExit&&) = delete;
+		NzCallOnExit(const NzCallOnExit&) = delete;
+		NzCallOnExit(NzCallOnExit&&) = delete;
 		~NzCallOnExit();
 
 		void CallAndReset(Func func = nullptr);
 		void Reset(Func func = nullptr);
 
-        NzCallOnExit& operator=(const NzCallOnExit&) = delete;
-        NzCallOnExit& operator=(NzCallOnExit&&) = default;
+		NzCallOnExit& operator=(const NzCallOnExit&) = delete;
+		NzCallOnExit& operator=(NzCallOnExit&&) = default;
 
 	private:
 		Func m_func;

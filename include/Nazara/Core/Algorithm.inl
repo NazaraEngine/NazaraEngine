@@ -12,7 +12,7 @@
 template<typename F, typename Tuple, size_t... S>
 auto NzApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
 {
-    return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
+	return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
 }
 
 template<typename F, typename Tuple>
@@ -26,7 +26,7 @@ auto NzApply(F&& fn, Tuple&& t)
 template<typename O, typename F, typename Tuple, size_t... S>
 auto NzApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
 {
-    return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
+	return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
 }
 
 template<typename O, typename F, typename Tuple>
@@ -41,16 +41,16 @@ auto NzApply(O& object, F&& fn, Tuple&& t)
 template<typename T>
 void NzHashCombine(std::size_t& seed, const T& v)
 {
-    const nzUInt64 kMul = 0x9ddfea08eb382d69ULL;
+	const nzUInt64 kMul = 0x9ddfea08eb382d69ULL;
 
-    std::hash<T> hasher;
-    nzUInt64 a = (hasher(v) ^ seed) * kMul;
-    a ^= (a >> 47);
+	std::hash<T> hasher;
+	nzUInt64 a = (hasher(v) ^ seed) * kMul;
+	a ^= (a >> 47);
 
-    nzUInt64 b = (seed ^ a) * kMul;
-    b ^= (b >> 47);
+	nzUInt64 b = (seed ^ a) * kMul;
+	b ^= (b >> 47);
 
-    seed = static_cast<std::size_t>(b * kMul);
+	seed = static_cast<std::size_t>(b * kMul);
 }
 
 #include <Nazara/Core/DebugOff.hpp>
