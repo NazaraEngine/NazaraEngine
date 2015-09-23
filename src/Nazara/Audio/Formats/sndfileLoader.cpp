@@ -95,7 +95,7 @@ namespace
 					return m_format;
 			}
 
-			nzUInt64 GetSampleCount() const override
+			nzUInt32 GetSampleCount() const override
 			{
 				return m_sampleCount;
 			}
@@ -152,11 +152,11 @@ namespace
 					return false;
 				}
 
-				m_sampleCount = infos.channels*infos.frames;
+				m_sampleCount = static_cast<nzUInt32>(infos.channels*infos.frames);
 				m_sampleRate = infos.samplerate;
 
 				// Durée de la musique (s) = samples / channels*rate
-				m_duration = static_cast<nzUInt32>(1000*m_sampleCount / (m_format*m_sampleRate));
+				m_duration = static_cast<nzUInt32>(1000ULL*m_sampleCount / (m_format*m_sampleRate));
 
 				// https://github.com/LaurentGomila/SFML/issues/271
 				// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
@@ -168,7 +168,7 @@ namespace
 				if (forceMono && m_format != nzAudioFormat_Mono)
 				{
 					m_mixToMono = true;
-					m_sampleCount = infos.frames;
+					m_sampleCount = static_cast<nzUInt32>(infos.frames);
 				}
 				else
 					m_mixToMono = false;
@@ -206,8 +206,8 @@ namespace
 			SNDFILE* m_handle;
 			bool m_mixToMono;
 			nzUInt32 m_duration;
-			nzUInt64 m_sampleCount;
-			nzUInt32 m_sampleRate;
+			unsigned int m_sampleCount;
+			unsigned int m_sampleRate;
 	};
 
 	bool IsSupported(const NzString& extension)
