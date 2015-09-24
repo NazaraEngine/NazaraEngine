@@ -15,11 +15,6 @@ NzParameterList::NzParameterList(const NzParameterList& list)
 	operator=(list);
 }
 
-NzParameterList::NzParameterList(NzParameterList&& list) :
-m_parameters(std::move(list.m_parameters))
-{
-}
-
 NzParameterList::~NzParameterList()
 {
 	Clear();
@@ -418,12 +413,6 @@ NzParameterList& NzParameterList::operator=(const NzParameterList& list)
 		}
 	}
 
-	return *this;
-}
-
-NzParameterList& NzParameterList::operator=(NzParameterList&& list)
-{
-	m_parameters = std::move(list.m_parameters);
 	return *this;
 }
 

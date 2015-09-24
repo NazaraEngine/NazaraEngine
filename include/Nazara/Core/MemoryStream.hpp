@@ -14,6 +14,8 @@ class NAZARA_CORE_API NzMemoryStream : public NzInputStream
 {
 	public:
 		NzMemoryStream(const void* ptr, nzUInt64 size);
+		NzMemoryStream(const NzMemoryStream&) = delete;
+		NzMemoryStream(NzMemoryStream&&) = delete; ///TODO
 		~NzMemoryStream();
 
 		bool EndOfStream() const;
@@ -24,6 +26,9 @@ class NAZARA_CORE_API NzMemoryStream : public NzInputStream
 		std::size_t Read(void* buffer, std::size_t size);
 
 		bool SetCursorPos(nzUInt64 offset);
+
+		NzMemoryStream& operator=(const NzMemoryStream&) = delete;
+		NzMemoryStream& operator=(NzMemoryStream&&) = delete; ///TODO
 
 	private:
 		const nzUInt8* m_ptr;

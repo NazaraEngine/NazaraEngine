@@ -28,9 +28,14 @@ class NAZARA_RENDERER_API NzUberShader : public NzRefCounted
 
 	public:
 		NzUberShader() = default;
+		NzUberShader(const NzUberShader&) = delete;
+		NzUberShader(NzUberShader&&) = delete;
 		virtual ~NzUberShader();
 
 		virtual NzUberShaderInstance* Get(const NzParameterList& parameters) const = 0;
+
+		NzUberShader& operator=(const NzUberShader&) = delete;
+		NzUberShader& operator=(NzUberShader&&) = delete;
 
 		// Signals:
 		NazaraSignal(OnUberShaderRelease, const NzUberShader* /*uberShader*/);

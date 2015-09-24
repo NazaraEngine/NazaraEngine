@@ -18,6 +18,7 @@ class NAZARA_AUDIO_API NzSound : public NzSoundEmitter
 		NzSound() = default;
 		NzSound(const NzSoundBuffer* soundBuffer);
 		NzSound(const NzSound& sound);
+		NzSound(NzSound&&) = default;
 		~NzSound();
 
 		void EnableLooping(bool loop);
@@ -42,6 +43,9 @@ class NAZARA_AUDIO_API NzSound : public NzSoundEmitter
 		void SetPlayingOffset(nzUInt32 offset);
 
 		void Stop();
+
+		NzSound& operator=(const NzSound&) = delete; ///TODO?
+		NzSound& operator=(NzSound&&) = default;
 
 	private:
 		NzSoundBufferConstRef m_buffer;

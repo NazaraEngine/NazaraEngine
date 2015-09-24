@@ -21,6 +21,8 @@ class NAZARA_RENDERER_API NzRenderTarget
 
 	public:
 		NzRenderTarget() = default;
+		NzRenderTarget(const NzRenderTarget&) = delete;
+		NzRenderTarget(NzRenderTarget&&) = delete; ///TOOD?
 		virtual ~NzRenderTarget();
 
 		virtual unsigned int GetHeight() const = 0;
@@ -34,6 +36,9 @@ class NAZARA_RENDERER_API NzRenderTarget
 
 		// Fonctions OpenGL
 		virtual bool HasContext() const = 0;
+
+		NzRenderTarget& operator=(const NzRenderTarget&) = delete;
+		NzRenderTarget& operator=(NzRenderTarget&&) = delete; ///TOOD?
 
 		// Signals:
 		NazaraSignal(OnRenderTargetParametersChange, const NzRenderTarget* /*renderTarget*/);

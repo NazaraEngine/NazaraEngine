@@ -21,6 +21,8 @@ class NAZARA_GRAPHICS_API NzAbstractViewer
 {
 	public:
 		NzAbstractViewer() = default;
+		NzAbstractViewer(const NzAbstractViewer&) = default;
+		NzAbstractViewer(NzAbstractViewer&&) noexcept = default;
 		virtual ~NzAbstractViewer();
 
 		virtual void ApplyView() const = 0;
@@ -35,6 +37,9 @@ class NAZARA_GRAPHICS_API NzAbstractViewer
 		virtual const NzRecti& GetViewport() const = 0;
 		virtual float GetZFar() const = 0;
 		virtual float GetZNear() const = 0;
+
+		NzAbstractViewer& operator=(const NzAbstractViewer&) = default;
+		NzAbstractViewer& operator=(NzAbstractViewer&&) noexcept = default;
 };
 
 #endif // NAZARA_ABSTRACTVIEWER_HPP

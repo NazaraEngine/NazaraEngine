@@ -15,6 +15,8 @@ class NAZARA_CORE_API NzPrimitiveList
 {
 	public:
 		NzPrimitiveList() = default;
+		NzPrimitiveList(const NzPrimitiveList&) = default;
+		NzPrimitiveList(NzPrimitiveList&&) = default;
 		~NzPrimitiveList() = default;
 
 		void AddBox(const NzVector3f& lengths, const NzVector3ui& subdivision = NzVector3ui(0U), const NzMatrix4f& transformMatrix = NzMatrix4f::Identity());
@@ -34,6 +36,9 @@ class NAZARA_CORE_API NzPrimitiveList
 		NzPrimitive& GetPrimitive(unsigned int i);
 		const NzPrimitive& GetPrimitive(unsigned int i) const;
 		unsigned int GetSize() const;
+
+		NzPrimitiveList& operator=(const NzPrimitiveList&) = default;
+		NzPrimitiveList& operator=(NzPrimitiveList&&) = default;
 
 		NzPrimitive& operator()(unsigned int i);
 		const NzPrimitive& operator()(unsigned int i) const;

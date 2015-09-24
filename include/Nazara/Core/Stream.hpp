@@ -15,6 +15,8 @@ class NAZARA_CORE_API NzStream
 {
 	public:
 		NzStream() = default;
+		NzStream(const NzStream&) = default;
+		NzStream(NzStream&&) = default;
 		virtual ~NzStream();
 
 		virtual nzUInt64 GetCursorPos() const = 0;
@@ -24,6 +26,9 @@ class NAZARA_CORE_API NzStream
 
 		virtual bool SetCursorPos(nzUInt64 offset) = 0;
 		void SetStreamOptions(unsigned int options);
+
+		NzStream& operator=(const NzStream&) = default;
+		NzStream& operator=(NzStream&&) = default;
 
 	protected:
 		unsigned int m_streamOptions = 0;

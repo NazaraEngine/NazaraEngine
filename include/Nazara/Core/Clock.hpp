@@ -20,6 +20,8 @@ class NAZARA_CORE_API NzClock
 	public:
 		NzClock(nzUInt64 startingValue = 0, bool paused = false);
 		NzClock(const NzClock& clock) = default;
+		NzClock(NzClock&& clock) = default;
+		~NzClock() = default;
 
 		float GetSeconds() const;
 		nzUInt64 GetMicroseconds() const;
@@ -32,6 +34,7 @@ class NAZARA_CORE_API NzClock
 		void Unpause();
 
 		NzClock& operator=(const NzClock& clock) = default;
+		NzClock& operator=(NzClock&& clock) = default;
 
 	private:
 		NazaraMutexAttrib(m_mutex, mutable)
