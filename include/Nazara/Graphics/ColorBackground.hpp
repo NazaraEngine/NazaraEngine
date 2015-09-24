@@ -21,6 +21,8 @@ class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 {
 	public:
 		NzColorBackground(const NzColor& color = NzColor::Black);
+		NzColorBackground(const NzColorBackground&) = default;
+		NzColorBackground(NzColorBackground&&) = delete;
 
 		void Draw(const NzAbstractViewer* viewer) const;
 
@@ -28,6 +30,8 @@ class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
 		NzColor GetColor() const;
 
 		void SetColor(const NzColor& color);
+
+		NzColorBackground& operator=(NzColorBackground&&) = delete;
 
 		template<typename... Args> static NzColorBackgroundRef New(Args&&... args);
 

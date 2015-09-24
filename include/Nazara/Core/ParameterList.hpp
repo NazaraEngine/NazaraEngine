@@ -19,7 +19,7 @@ class NAZARA_CORE_API NzParameterList
 
 		NzParameterList() = default;
 		NzParameterList(const NzParameterList& list);
-		NzParameterList(NzParameterList&& list);
+		NzParameterList(NzParameterList&&) = default;
 		~NzParameterList();
 
 		void Clear();
@@ -46,7 +46,7 @@ class NAZARA_CORE_API NzParameterList
 		void SetParameter(const NzString& name, int value);
 
 		NzParameterList& operator=(const NzParameterList& list);
-		NzParameterList& operator=(NzParameterList&& list);
+		NzParameterList& operator=(NzParameterList&&) = default;
 
 	private:
 		struct Parameter

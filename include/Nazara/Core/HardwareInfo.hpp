@@ -14,6 +14,9 @@
 class NAZARA_CORE_API NzHardwareInfo
 {
 	public:
+		NzHardwareInfo() = delete;
+		~NzHardwareInfo() = delete;
+
 		static void Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4]);
 
 		static NzString GetProcessorBrandString();

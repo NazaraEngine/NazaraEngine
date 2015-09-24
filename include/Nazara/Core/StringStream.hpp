@@ -17,8 +17,13 @@ class NAZARA_CORE_API NzStringStream
 	public:
 		NzStringStream();
 		NzStringStream(const NzString& str);
+		NzStringStream(const NzStringStream&) = default;
+		NzStringStream(NzStringStream&&) noexcept = default;
 
 		NzString ToString() const;
+
+		NzStringStream& operator=(const NzStringStream&) = default;
+		NzStringStream& operator=(NzStringStream&&) noexcept = default;
 
 		NzStringStream& operator<<(bool boolean);
 		NzStringStream& operator<<(short number);

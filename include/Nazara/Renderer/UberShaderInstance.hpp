@@ -14,11 +14,16 @@ class NAZARA_RENDERER_API NzUberShaderInstance
 {
 	public:
 		NzUberShaderInstance(const NzShader* shader);
+		NzUberShaderInstance(const NzUberShaderInstance&) = delete;
+		NzUberShaderInstance(NzUberShaderInstance&&) = delete;
 		virtual ~NzUberShaderInstance();
 
 		virtual bool Activate() const = 0;
 
 		const NzShader* GetShader() const;
+
+		NzUberShaderInstance& operator=(const NzUberShaderInstance&) = delete;
+		NzUberShaderInstance& operator=(NzUberShaderInstance&&) = delete;
 
 	protected:
 		NzShaderConstRef m_shader;
