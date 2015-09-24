@@ -32,23 +32,15 @@ namespace GLX
 enum nzOpenGLExtension
 {
 	nzOpenGLExtension_AnisotropicFilter,
-	nzOpenGLExtension_ConditionalRender,
 	nzOpenGLExtension_DebugOutput,
-	nzOpenGLExtension_DrawInstanced,
 	nzOpenGLExtension_FP64,
-	nzOpenGLExtension_FrameBufferObject,
 	nzOpenGLExtension_GetProgramBinary,
-	nzOpenGLExtension_InstancedArray,
-	nzOpenGLExtension_PixelBufferObject,
-	nzOpenGLExtension_SamplerObjects,
 	nzOpenGLExtension_SeparateShaderObjects,
 	nzOpenGLExtension_Shader_ImageLoadStore,
-	nzOpenGLExtension_TextureArray,
 	nzOpenGLExtension_TextureCompression_s3tc,
 	nzOpenGLExtension_TextureStorage,
-	nzOpenGLExtension_VertexArrayObjects,
 
-	nzOpenGLExtension_Max = nzOpenGLExtension_VertexArrayObjects
+	nzOpenGLExtension_Max = nzOpenGLExtension_TextureStorage
 };
 
 class NzContext;

@@ -11,20 +11,12 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzGpuQuery::NzGpuQuery() :
-m_id(0)
+NzGpuQuery::NzGpuQuery()
 {
-	if (IsSupported())
-	{
-		NzContext::EnsureContext();
+	NzContext::EnsureContext();
 
-		glGenQueries(1, reinterpret_cast<GLuint*>(&m_id));
-	}
-	else
-	{
-		NazaraError("Occlusion queries not supported");
-		return;
-	}
+	m_id = 0;
+	glGenQueries(1, reinterpret_cast<GLuint*>(&m_id));
 
 	#ifdef NAZARA_DEBUG
 	if (!m_id)
@@ -110,24 +102,17 @@ bool NzGpuQuery::IsModeSupported(nzGpuQueryMode mode)
 {
 	switch (mode)
 	{
-		case nzGpuQueryMode_AnySamplesPassed:
-		case nzGpuQueryMode_TimeElapsed:
-			return NzOpenGL::GetVersion() >= 330;
-
 		case nzGpuQueryMode_AnySamplesPassedConservative:
 			return NzOpenGL::GetVersion() >= 430;
 
+		case nzGpuQueryMode_AnySamplesPassed:
 		case nzGpuQueryMode_PrimitiveGenerated:
 		case nzGpuQueryMode_SamplesPassed:
+		case nzGpuQueryMode_TimeElapsed:
 		case nzGpuQueryMode_TransformFeedbackPrimitivesWritten:
 			return true;
 	}
 
 	NazaraError("Gpu Query mode not handled (0x" + NzString::Number(mode, 16) + ')');
 	return false;
-}
-
-bool NzGpuQuery::IsSupported()
-{
-	return NzRenderer::HasCapability(nzRendererCap_OcclusionQuery);
 }

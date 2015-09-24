@@ -157,17 +157,14 @@ bool NzShader::Create()
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata3],     "VertexUserdata3");
 	glBindAttribLocation(m_program, NzOpenGL::VertexComponentIndex[nzVertexComponent_Userdata4],     "VertexUserdata4");
 
-	if (NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets))
-	{
-		NzString uniform;
-		uniform = "RenderTarget";
+	NzString uniform;
+	uniform = "RenderTarget";
 
-		unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();
-		for (unsigned int i = 0; i < maxRenderTargets; ++i)
-		{
-			NzString uniformName = uniform + NzString::Number(i);
-			glBindFragDataLocation(m_program, i, uniformName.GetConstBuffer());
-		}
+	unsigned int maxRenderTargets = NzRenderer::GetMaxRenderTargets();
+	for (unsigned int i = 0; i < maxRenderTargets; ++i)
+	{
+		NzString uniformName = uniform + NzString::Number(i);
+		glBindFragDataLocation(m_program, i, uniformName.GetConstBuffer());
 	}
 
 	if (NzOpenGL::IsSupported(nzOpenGLExtension_GetProgramBinary))
