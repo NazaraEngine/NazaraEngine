@@ -395,12 +395,8 @@ void NzDeferredRenderTechnique::SetPass(nzRenderPassType relativeTo, int positio
 
 bool NzDeferredRenderTechnique::IsSupported()
 {
-	// On ne va pas s'embêter à écrire un Deferred Renderer qui ne passe pas par le MRT, ce serait trop lent pour servir...
-	return NzOpenGL::GetGLSLVersion() >= 140 && // On ne va pas s'embêter non plus avec le mode de compatibilité
-	       NzRenderer::HasCapability(nzRendererCap_RenderTexture) &&
-	       NzRenderer::HasCapability(nzRendererCap_MultipleRenderTargets) &&
-	       NzRenderer::GetMaxColorAttachments() >= 4 &&
-	       NzRenderer::GetMaxRenderTargets() >= 4;
+	// Depuis qu'OpenGL 3.3 est la version minimale, le Renderer supporte ce qu'il faut, mais par acquis de conscience...
+	return NzRenderer::GetMaxColorAttachments() >= 4 && NzRenderer::GetMaxRenderTargets() >= 4;
 }
 
 bool NzDeferredRenderTechnique::Resize(const NzVector2ui& dimensions) const

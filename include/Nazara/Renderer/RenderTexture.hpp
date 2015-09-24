@@ -61,7 +61,6 @@ class NAZARA_RENDERER_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
 
 		static inline void Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
 		static void Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
-		static bool IsSupported();
 
 	protected:
 		bool Activate() const override;

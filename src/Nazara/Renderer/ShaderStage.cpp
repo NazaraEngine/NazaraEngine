@@ -220,11 +220,9 @@ bool NzShaderStage::IsSupported(nzShaderStage stage)
 	switch (stage)
 	{
 		case nzShaderStage_Fragment:
+		case nzShaderStage_Geometry:
 		case nzShaderStage_Vertex:
 			return true;
-
-		case nzShaderStage_Geometry:
-			return NzOpenGL::GetVersion() >= 320;
 
 		default:
 			NazaraError("Shader stage not handled (0x" + NzString::Number(stage, 16) + ')');

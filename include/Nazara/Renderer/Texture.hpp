@@ -102,7 +102,6 @@ class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounte
 		// Fonctions OpenGL
 		unsigned int GetOpenGLID() const;
 
-		static unsigned int GetValidSize(unsigned int size);
 		static bool IsFormatSupported(nzPixelFormat format);
 		static bool IsMipmappingSupported();
 		static bool IsTypeSupported(nzImageType type);

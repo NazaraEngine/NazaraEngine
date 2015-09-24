@@ -299,12 +299,6 @@ bool NzRenderTexture::AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 i
 
 bool NzRenderTexture::Create(bool lock)
 {
-	if (!IsSupported())
-	{
-		NazaraError("Render textures not supported");
-		return false;
-	}
-
 	Destroy();
 
 	#if NAZARA_RENDERER_SAFE
@@ -653,11 +647,6 @@ unsigned int NzRenderTexture::GetOpenGLID() const
 bool NzRenderTexture::HasContext() const
 {
 	return false;
-}
-
-bool NzRenderTexture::IsSupported()
-{
-	return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
 }
 
 void NzRenderTexture::Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers, bool bilinearFilter)
