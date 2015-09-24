@@ -107,20 +107,10 @@ enum nzPixelBufferType
 enum nzRendererCap
 {
 	nzRendererCap_AnisotropicFilter,
-	nzRendererCap_ConditionalRendering,
 	nzRendererCap_FP64,
-	nzRendererCap_HardwareBuffer,
 	nzRendererCap_Instancing,
-	nzRendererCap_MultipleRenderTargets,
-	nzRendererCap_OcclusionQuery,
-	nzRendererCap_PixelBufferObject,
-	nzRendererCap_RenderTexture,
-	nzRendererCap_Texture3D,
-	nzRendererCap_TextureCubemap,
-	nzRendererCap_TextureMulti,
-	nzRendererCap_TextureNPOT,
 
-	nzRendererCap_Max = nzRendererCap_TextureNPOT
+	nzRendererCap_Max = nzRendererCap_Instancing
 };
 
 enum nzRendererBufferFlags
