@@ -82,14 +82,9 @@ int main()
 		printCap(oss, "-Calculs 64bits", NzOpenGL::IsSupported(nzOpenGLExtension_FP64));
 		printCap(oss, "-Compression de textures (s3tc)", NzOpenGL::IsSupported(nzOpenGLExtension_TextureCompression_s3tc));
 		printCap(oss, "-Filtrage anisotrope", NzOpenGL::IsSupported(nzOpenGLExtension_AnisotropicFilter));
-		printCap(oss, "-Framebuffer Object", NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject));
 		printCap(oss, "-Mode debug", NzOpenGL::IsSupported(nzOpenGLExtension_DebugOutput));
-		printCap(oss, "-Pixelbuffer Object", NzOpenGL::IsSupported(nzOpenGLExtension_PixelBufferObject));
-		printCap(oss, "-Samplers Object", NzOpenGL::IsSupported(nzOpenGLExtension_SamplerObjects));
 		printCap(oss, "-Separate shader objects", NzOpenGL::IsSupported(nzOpenGLExtension_SeparateShaderObjects));
-		printCap(oss, "-Texture array", NzOpenGL::IsSupported(nzOpenGLExtension_TextureArray));
 		printCap(oss, "-Texture storage", NzOpenGL::IsSupported(nzOpenGLExtension_TextureStorage));
-		printCap(oss, "-Vertex array objects", NzOpenGL::IsSupported(nzOpenGLExtension_VertexArrayObjects));
 	}
 	else
 		oss << "Impossible de retrouver les informations de la carte graphique" << std::endl;
