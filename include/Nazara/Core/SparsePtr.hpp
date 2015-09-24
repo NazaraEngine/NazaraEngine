@@ -45,6 +45,8 @@ class NzSparsePtr
 		T* operator->() const;
 		T& operator[](int index) const;
 
+		NzSparsePtr& operator=(const NzSparsePtr& ptr) = default;
+
 		NzSparsePtr operator+(int count) const;
 		NzSparsePtr operator+(unsigned int count) const;
 		NzSparsePtr operator-(int count) const;
@@ -66,8 +68,6 @@ class NzSparsePtr
 		bool operator>(const NzSparsePtr& ptr) const;
 		bool operator<=(const NzSparsePtr& ptr) const;
 		bool operator>=(const NzSparsePtr& ptr) const;
-
-		NzSparsePtr& operator=(const NzSparsePtr& ptr) = default;
 
 	private:
 		BytePtr m_ptr;

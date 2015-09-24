@@ -32,6 +32,8 @@ class NAZARA_RENDERER_API NzContext : public NzRefCounted
 
 	public:
 		NzContext() = default;
+		NzContext(const NzContext&) = delete;
+		NzContext(NzContext&&) = delete;
 		~NzContext();
 
 		bool Create(const NzContextParameters& parameters = NzContextParameters());
@@ -46,6 +48,9 @@ class NAZARA_RENDERER_API NzContext : public NzRefCounted
 
 		bool SetActive(bool active) const;
 		void SwapBuffers();
+
+		NzContext& operator=(const NzContext&) = delete;
+		NzContext& operator=(NzContext&&) = delete;
 
 		static bool EnsureContext();
 

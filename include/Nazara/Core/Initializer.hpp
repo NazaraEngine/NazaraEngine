@@ -14,6 +14,8 @@ class NzInitializer
 {
 	public:
 		NzInitializer(bool initialize = true);
+		NzInitializer(const NzInitializer&) = delete;
+		NzInitializer(NzInitializer&&) = delete; ///TODO
 		~NzInitializer();
 
 		bool Initialize();
@@ -21,6 +23,9 @@ class NzInitializer
 		void Uninitialize();
 
 		operator bool() const;
+
+		NzInitializer& operator=(const NzInitializer&) = delete;
+		NzInitializer& operator=(NzInitializer&&) = delete; ///TODO
 
 	private:
 		bool m_initialized;

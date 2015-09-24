@@ -24,11 +24,16 @@ class NAZARA_GRAPHICS_API NzAbstractBackground : public NzRefCounted
 {
 	public:
 		NzAbstractBackground() = default;
+		NzAbstractBackground(const NzAbstractBackground&) = default;
+		NzAbstractBackground(NzAbstractBackground&&) = delete;
 		virtual ~NzAbstractBackground();
 
 		virtual void Draw(const NzAbstractViewer* viewer) const = 0;
 
 		virtual nzBackgroundType GetBackgroundType() const = 0;
+
+		NzAbstractBackground& operator=(const NzAbstractBackground&) = default;
+		NzAbstractBackground& operator=(NzAbstractBackground&&) = delete;
 
 	private:
 		static NzBackgroundLibrary::LibraryMap s_library;
