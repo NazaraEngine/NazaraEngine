@@ -19,10 +19,15 @@ class NAZARA_CORE_API NzHashable
 
 	public:
 		NzHashable() = default;
+		NzHashable(const NzHashable&) = default;
+		NzHashable(NzHashable&&) = default;
 		virtual ~NzHashable();
 
 		NzHashDigest GetHash(nzHash hash) const;
 		NzHashDigest GetHash(NzAbstractHash* impl) const;
+
+		NzHashable& operator=(const NzHashable&) = default;
+		NzHashable& operator=(NzHashable&&) = default;
 
 	private:
 		virtual bool FillHash(NzAbstractHash* impl) const = 0;

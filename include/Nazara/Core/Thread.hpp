@@ -23,7 +23,7 @@ class NAZARA_CORE_API NzThread
 		template<typename F, typename... Args> NzThread(F function, Args&&... args);
 		template<typename C> NzThread(void (C::*function)(), C* object);
 		NzThread(const NzThread&) = delete;
-		NzThread(NzThread&& other);
+		NzThread(NzThread&& other) noexcept;
 		~NzThread();
 
 		void Detach();

@@ -24,6 +24,7 @@ class NAZARA_GRAPHICS_API NzBillboard : public NzInstancedRenderable
 		inline NzBillboard(NzMaterialRef material);
 		inline NzBillboard(NzTexture* texture);
 		inline NzBillboard(const NzBillboard& billboard);
+		NzBillboard(NzBillboard&&) = delete;
 		~NzBillboard() = default;
 
 		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
@@ -42,6 +43,7 @@ class NAZARA_GRAPHICS_API NzBillboard : public NzInstancedRenderable
 		inline void SetTexture(NzTextureRef texture, bool resizeBillboard = true);
 
 		inline NzBillboard& operator=(const NzBillboard& billboard);
+		NzBillboard& operator=(NzBillboard&&) = delete;
 
 		template<typename... Args> static NzBillboardRef New(Args&&... args);
 

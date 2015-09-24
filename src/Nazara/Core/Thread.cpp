@@ -24,7 +24,7 @@ m_impl(nullptr)
 {
 }
 
-NzThread::NzThread(NzThread&& other) :
+NzThread::NzThread(NzThread&& other) noexcept :
 m_impl(other.m_impl)
 {
 	other.m_impl = nullptr;

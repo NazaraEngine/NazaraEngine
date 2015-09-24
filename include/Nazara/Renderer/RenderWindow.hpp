@@ -30,6 +30,8 @@ class NAZARA_RENDERER_API NzRenderWindow : public NzRenderTarget, public NzWindo
 		NzRenderWindow() = default;
 		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
 		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
+		NzRenderWindow(const NzRenderWindow&) = delete;
+		NzRenderWindow(NzRenderWindow&&) = delete; ///TODO
 		virtual ~NzRenderWindow();
 
 		bool CopyToImage(NzAbstractImage* image, const NzVector3ui& dstPos = NzVector3ui(0U)) const;
@@ -54,6 +56,9 @@ class NAZARA_RENDERER_API NzRenderWindow : public NzRenderTarget, public NzWindo
 		// Fonctions OpenGL
 		NzContextParameters GetContextParameters() const;
 		bool HasContext() const override;
+
+		NzRenderWindow& operator=(const NzRenderWindow&) = delete;
+		NzRenderWindow& operator=(NzRenderWindow&&) = delete; ///TODO
 
 	protected:
 		bool Activate() const override;
