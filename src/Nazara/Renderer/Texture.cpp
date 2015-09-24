@@ -165,12 +165,12 @@ bool NzTexture::Create(nzImageType type, nzPixelFormat format, unsigned int widt
 	}
 
 	m_impl = new NzTextureImpl;
-	m_impl->depth = GetValidSize(depth);
+	m_impl->depth = depth;
 	m_impl->format = format;
-	m_impl->height = GetValidSize(height);
+	m_impl->height = height;
 	m_impl->levelCount = levelCount;
 	m_impl->type = type;
-	m_impl->width = GetValidSize(width);
+	m_impl->width = width;
 
 	glGenTextures(1, &m_impl->id);
 	NzOpenGL::BindTexture(m_impl->type, m_impl->id);
@@ -1035,20 +1035,6 @@ unsigned int NzTexture::GetOpenGLID() const
 	return m_impl->id;
 }
 
-unsigned int NzTexture::GetValidSize(unsigned int size)
-{
-	if (NzRenderer::HasCapability(nzRendererCap_TextureNPOT))
-		return size;
-	else
-	{
-        unsigned int pot = 1;
-        while (pot < size)
-            pot <<= 1;
-
-        return pot;
-	}
-}
-
 bool NzTexture::IsFormatSupported(nzPixelFormat format)
 {
 	switch (format)
@@ -1101,14 +1087,14 @@ bool NzTexture::IsFormatSupported(nzPixelFormat format)
 		case nzPixelFormat_RGBA32F:
 		case nzPixelFormat_RGBA32I:
 		case nzPixelFormat_RGBA32UI:
-			return NzOpenGL::GetVersion() >= 300;
+			return true;
 
 		// Formats de profondeur (Supportés avec les FBOs)
 		case nzPixelFormat_Depth16:
 		case nzPixelFormat_Depth24:
 		case nzPixelFormat_Depth32:
 		case nzPixelFormat_Depth24Stencil8:
-			return NzOpenGL::IsSupported(nzOpenGLExtension_FrameBufferObject);
+			return true;
 
 		// Formats de stencil (Non supportés pour les textures)
 		case nzPixelFormat_Stencil1:
@@ -1141,14 +1127,12 @@ bool NzTexture::IsTypeSupported(nzImageType type)
 	switch (type)
 	{
 		case nzImageType_1D:
+		case nzImageType_1D_Array:
 		case nzImageType_2D:
+		case nzImageType_2D_Array:
 		case nzImageType_3D:
 		case nzImageType_Cubemap:
-			return true; // Tous supportés nativement dans OpenGL 2
-
-		case nzImageType_1D_Array:
-		case nzImageType_2D_Array:
-			return NzOpenGL::IsSupported(nzOpenGLExtension_TextureArray);
+			return true; // Tous supportés nativement dans OpenGL 3
 	}
 
 	NazaraError("Image type not handled (0x" + NzString::Number(type, 16) + ')');
