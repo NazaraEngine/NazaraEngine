@@ -16,74 +16,77 @@
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <vector>
 
-struct NAZARA_GRAPHICS_API NzSkeletalModelParameters : public NzModelParameters
+namespace Nz
 {
-	bool loadAnimation = true;
-	NzAnimationParams animation;
+	struct NAZARA_GRAPHICS_API SkeletalModelParameters : public ModelParameters
+	{
+		bool loadAnimation = true;
+		AnimationParams animation;
 
-	bool IsValid() const;
-};
+		bool IsValid() const;
+	};
 
-class NzSkeletalModel;
+	class SkeletalModel;
 
-using NzSkeletalModelLoader = NzResourceLoader<NzSkeletalModel, NzSkeletalModelParameters>;
+	using SkeletalModelLoader = ResourceLoader<SkeletalModel, SkeletalModelParameters>;
 
-class NAZARA_GRAPHICS_API NzSkeletalModel : public NzModel, NzUpdatable
-{
-	friend NzSkeletalModelLoader;
+	class NAZARA_GRAPHICS_API SkeletalModel : public Model, Updatable
+	{
+		friend SkeletalModelLoader;
 
-	public:
-		NzSkeletalModel();
-		NzSkeletalModel(const NzSkeletalModel& model) = default;
-		NzSkeletalModel(NzSkeletalModel&& model) = default;
-		~NzSkeletalModel() = default;
+		public:
+			SkeletalModel();
+			SkeletalModel(const SkeletalModel& model) = default;
+			SkeletalModel(SkeletalModel&& model) = default;
+			~SkeletalModel() = default;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
-		void AdvanceAnimation(float elapsedTime);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AdvanceAnimation(float elapsedTime);
 
-		NzSkeletalModel* Clone() const;
-		NzSkeletalModel* Create() const;
+			SkeletalModel* Clone() const;
+			SkeletalModel* Create() const;
 
-		void EnableAnimation(bool animation);
+			void EnableAnimation(bool animation);
 
-		NzAnimation* GetAnimation() const;
-		NzSkeleton* GetSkeleton();
-		const NzSkeleton* GetSkeleton() const;
+			Animation* GetAnimation() const;
+			Skeleton* GetSkeleton();
+			const Skeleton* GetSkeleton() const;
 
-		bool HasAnimation() const;
+			bool HasAnimation() const;
 
-		bool IsAnimated() const;
-		bool IsAnimationEnabled() const;
+			bool IsAnimated() const;
+			bool IsAnimationEnabled() const;
 
-		bool LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
-		bool LoadFromStream(NzInputStream& stream, const NzSkeletalModelParameters& params = NzSkeletalModelParameters());
+			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
+			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
+			bool LoadFromStream(InputStream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
 
-		void Reset();
+			void Reset();
 
-		bool SetAnimation(NzAnimation* animation);
-		void SetMesh(NzMesh* mesh) override;
-		bool SetSequence(const NzString& sequenceName);
-		void SetSequence(unsigned int sequenceIndex);
+			bool SetAnimation(Animation* animation);
+			void SetMesh(Mesh* mesh) override;
+			bool SetSequence(const String& sequenceName);
+			void SetSequence(unsigned int sequenceIndex);
 
-		NzSkeletalModel& operator=(const NzSkeletalModel& node) = default;
-		NzSkeletalModel& operator=(NzSkeletalModel&& node) = default;
+			SkeletalModel& operator=(const SkeletalModel& node) = default;
+			SkeletalModel& operator=(SkeletalModel&& node) = default;
 
-	private:
-		void MakeBoundingVolume() const override;
-		/*void Register() override;
-		void Unregister() override;*/
-		void Update() override;
+		private:
+			void MakeBoundingVolume() const override;
+			/*void Register() override;
+			void Unregister() override;*/
+			void Update() override;
 
-		NzAnimationRef m_animation;
-		NzSkeleton m_skeleton;
-		const NzSequence* m_currentSequence;
-		bool m_animationEnabled;
-		float m_interpolation;
-		unsigned int m_currentFrame;
-		unsigned int m_nextFrame;
+			AnimationRef m_animation;
+			Skeleton m_skeleton;
+			const Sequence* m_currentSequence;
+			bool m_animationEnabled;
+			float m_interpolation;
+			unsigned int m_currentFrame;
+			unsigned int m_nextFrame;
 
-		static NzSkeletalModelLoader::LoaderList s_loaders;
-};
+			static SkeletalModelLoader::LoaderList s_loaders;
+	};
+}
 
 #endif // NAZARA_SKELETALMODEL_HPP

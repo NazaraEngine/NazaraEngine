@@ -13,18 +13,21 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_GRAPHICS_API NzDeferredFXAAPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredFXAAPass();
-		virtual ~NzDeferredFXAAPass();
+	class NAZARA_GRAPHICS_API DeferredFXAAPass : public DeferredRenderPass
+	{
+		public:
+			DeferredFXAAPass();
+			virtual ~DeferredFXAAPass();
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 
-	protected:
-		NzRenderStates m_states;
-		NzShaderRef m_fxaaShader;
-		NzTextureSampler m_pointSampler;
-};
+		protected:
+			RenderStates m_states;
+			ShaderRef m_fxaaShader;
+			TextureSampler m_pointSampler;
+	};
+}
 
 #endif // NAZARA_DEFERREDFXAAPASS_HPP

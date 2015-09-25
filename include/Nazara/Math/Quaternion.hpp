@@ -9,85 +9,88 @@
 
 #include <Nazara/Core/String.hpp>
 
-template<typename T> class NzEulerAngles;
-template<typename T> class NzVector3;
-
-template<typename T> class NzQuaternion
+namespace Nz
 {
-	public:
-		NzQuaternion() = default;
-		NzQuaternion(T W, T X, T Y, T Z);
-		NzQuaternion(const T quat[4]);
-		NzQuaternion(T angle, const NzVector3<T>& axis);
-		NzQuaternion(const NzEulerAngles<T>& angles);
-		//NzQuaternion(const NzMatrix3<T>& mat);
-		template<typename U> explicit NzQuaternion(const NzQuaternion<U>& quat);
-		NzQuaternion(const NzQuaternion& quat) = default;
-		~NzQuaternion() = default;
+	template<typename T> class EulerAngles;
+	template<typename T> class Vector3;
 
-		NzQuaternion& ComputeW();
-		NzQuaternion& Conjugate();
+	template<typename T> class Quaternion
+	{
+		public:
+			Quaternion() = default;
+			Quaternion(T W, T X, T Y, T Z);
+			Quaternion(const T quat[4]);
+			Quaternion(T angle, const Vector3<T>& axis);
+			Quaternion(const EulerAngles<T>& angles);
+			//Quaternion(const Matrix3<T>& mat);
+			template<typename U> explicit Quaternion(const Quaternion<U>& quat);
+			Quaternion(const Quaternion& quat) = default;
+			~Quaternion() = default;
 
-		T DotProduct(const NzQuaternion& vec) const;
+			Quaternion& ComputeW();
+			Quaternion& Conjugate();
 
-		NzQuaternion GetConjugate() const;
-		NzQuaternion GetInverse() const;
-		NzQuaternion GetNormal(T* length = nullptr) const;
+			T DotProduct(const Quaternion& vec) const;
 
-		NzQuaternion& Inverse();
+			Quaternion GetConjugate() const;
+			Quaternion GetInverse() const;
+			Quaternion GetNormal(T* length = nullptr) const;
 
-		NzQuaternion& MakeIdentity();
-		NzQuaternion& MakeRotationBetween(const NzVector3<T>& from, const NzVector3<T>& to);
-		NzQuaternion& MakeZero();
+			Quaternion& Inverse();
 
-		T Magnitude() const;
+			Quaternion& MakeIdentity();
+			Quaternion& MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to);
+			Quaternion& MakeZero();
 
-		NzQuaternion& Normalize(T* length = nullptr);
+			T Magnitude() const;
 
-		NzQuaternion& Set(T W, T X, T Y, T Z);
-		NzQuaternion& Set(const T quat[4]);
-		NzQuaternion& Set(T angle, const NzVector3<T>& normalizedAxis);
-		NzQuaternion& Set(const NzEulerAngles<T>& angles);
-		//NzQuaternion& Set(const NzMatrix3<T>& mat);
-		NzQuaternion& Set(const NzQuaternion& quat);
-		template<typename U> NzQuaternion& Set(const NzQuaternion<U>& quat);
+			Quaternion& Normalize(T* length = nullptr);
 
-		T SquaredMagnitude() const;
+			Quaternion& Set(T W, T X, T Y, T Z);
+			Quaternion& Set(const T quat[4]);
+			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
+			Quaternion& Set(const EulerAngles<T>& angles);
+			//Quaternion& Set(const Matrix3<T>& mat);
+			Quaternion& Set(const Quaternion& quat);
+			template<typename U> Quaternion& Set(const Quaternion<U>& quat);
 
-		NzEulerAngles<T> ToEulerAngles() const;
-		//NzMatrix3<T> ToRotationMatrix() const;
-		NzString ToString() const;
+			T SquaredMagnitude() const;
 
-		NzQuaternion& operator=(const NzQuaternion& quat);
+			EulerAngles<T> ToEulerAngles() const;
+			//Matrix3<T> ToRotationMatrix() const;
+			String ToString() const;
 
-		NzQuaternion operator+(const NzQuaternion& quat) const;
-		NzQuaternion operator*(const NzQuaternion& quat) const;
-		NzVector3<T> operator*(const NzVector3<T>& vec) const;
-		NzQuaternion operator*(T scale) const;
-		NzQuaternion operator/(const NzQuaternion& quat) const;
+			Quaternion& operator=(const Quaternion& quat);
 
-		NzQuaternion& operator+=(const NzQuaternion& quat);
-		NzQuaternion& operator*=(const NzQuaternion& quat);
-		NzQuaternion& operator*=(T scale);
-		NzQuaternion& operator/=(const NzQuaternion& quat);
+			Quaternion operator+(const Quaternion& quat) const;
+			Quaternion operator*(const Quaternion& quat) const;
+			Vector3<T> operator*(const Vector3<T>& vec) const;
+			Quaternion operator*(T scale) const;
+			Quaternion operator/(const Quaternion& quat) const;
 
-		bool operator==(const NzQuaternion& quat) const;
-		bool operator!=(const NzQuaternion& quat) const;
+			Quaternion& operator+=(const Quaternion& quat);
+			Quaternion& operator*=(const Quaternion& quat);
+			Quaternion& operator*=(T scale);
+			Quaternion& operator/=(const Quaternion& quat);
 
-		static NzQuaternion Identity();
-		static NzQuaternion Lerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation);
-		static NzQuaternion Normalize(const NzQuaternion& quat, T* length = nullptr);
-		static NzQuaternion RotationBetween(const NzVector3<T>& from, const NzVector3<T>& to);
-		static NzQuaternion Slerp(const NzQuaternion& from, const NzQuaternion& to, T interpolation);
-		static NzQuaternion Zero();
+			bool operator==(const Quaternion& quat) const;
+			bool operator!=(const Quaternion& quat) const;
 
-		T w, x, y, z;
-};
+			static Quaternion Identity();
+			static Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
+			static Quaternion Normalize(const Quaternion& quat, T* length = nullptr);
+			static Quaternion RotationBetween(const Vector3<T>& from, const Vector3<T>& to);
+			static Quaternion Slerp(const Quaternion& from, const Quaternion& to, T interpolation);
+			static Quaternion Zero();
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const NzQuaternion<T>& quat);
+			T w, x, y, z;
+	};
 
-typedef NzQuaternion<double> NzQuaterniond;
-typedef NzQuaternion<float> NzQuaternionf;
+	typedef Quaternion<double> Quaterniond;
+	typedef Quaternion<float> Quaternionf;
+}
+
+template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat);
 
 #include <Nazara/Math/Quaternion.inl>
 

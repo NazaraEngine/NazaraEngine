@@ -8,45 +8,49 @@
 #define NAZARA_SHADERSTAGE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NAZARA_RENDERER_API NzShaderStage : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzShaderStage();
-		NzShaderStage(nzShaderStage stage);
-		NzShaderStage(NzShaderStage&& stage);
-		~NzShaderStage();
+	class NAZARA_RENDERER_API ShaderStage
+	{
+		public:
+			ShaderStage();
+			ShaderStage(ShaderStageType stage);
+			ShaderStage(const ShaderStage&) = delete;
+			ShaderStage(ShaderStage&& stage);
+			~ShaderStage();
 
-		bool Compile();
+			bool Compile();
 
-		bool Create(nzShaderStage stage);
-		void Destroy();
+			bool Create(ShaderStageType stage);
+			void Destroy();
 
-		NzString GetLog() const;
-		NzString GetSource() const;
+			String GetLog() const;
+			String GetSource() const;
 
-		bool IsCompiled() const;
-		bool IsValid() const;
+			bool IsCompiled() const;
+			bool IsValid() const;
 
-		void SetSource(const char* source, unsigned int length);
-		void SetSource(const NzString& source);
-		bool SetSourceFromFile(const NzString& filePath);
+			void SetSource(const char* source, unsigned int length);
+			void SetSource(const String& source);
+			bool SetSourceFromFile(const String& filePath);
 
-		NzShaderStage& operator=(NzShaderStage&& shader);
+			ShaderStage& operator=(const ShaderStage&) = delete;
+			ShaderStage& operator=(ShaderStage&& shader);
 
-		// Fonctions OpenGL
-		unsigned int GetOpenGLID() const;
+			// Fonctions OpenGL
+			unsigned int GetOpenGLID() const;
 
-		static bool IsSupported(nzShaderStage stage);
+			static bool IsSupported(ShaderStageType stage);
 
-	private:
-		nzShaderStage m_stage;
-		bool m_compiled;
-		unsigned int m_id;
-};
+		private:
+			ShaderStageType m_stage;
+			bool m_compiled;
+			unsigned int m_id;
+	};
+}
 
 #endif // NAZARA_SHADERSTAGE_HPP

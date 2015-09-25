@@ -14,761 +14,765 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	const nzUInt8 r_basicFragmentShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/Basic/core.frag.h>
-	};
-
-	const nzUInt8 r_basicVertexShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/Basic/core.vert.h>
-	};
-
-	const nzUInt8 r_phongLightingFragmentShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.frag.h>
-	};
-
-	const nzUInt8 r_phongLightingVertexShader[] = {
-		#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
-	};
-
-}
-
-bool NzMaterialParams::IsValid() const
-{
-	if (!NzUberShaderLibrary::Has(shaderName))
-		return false;
-
-	return true;
-}
-
-NzMaterial::NzMaterial()
-{
-	Reset();
-}
-
-NzMaterial::NzMaterial(const NzMaterial& material) :
-NzRefCounted(),
-NzResource(material)
-{
-	Copy(material);
-}
-
-NzMaterial::~NzMaterial()
-{
-	OnMaterialRelease(this);
-}
-
-const NzShader* NzMaterial::Apply(nzUInt32 shaderFlags, nzUInt8 textureUnit, nzUInt8* lastUsedUnit) const
-{
-	const ShaderInstance& instance = m_shaders[shaderFlags];
-	if (!instance.uberInstance)
-		GenerateShader(shaderFlags);
-
-	instance.uberInstance->Activate();
-
-	if (instance.uniforms[nzMaterialUniform_AlphaThreshold] != -1)
-		instance.shader->SendFloat(instance.uniforms[nzMaterialUniform_AlphaThreshold], m_alphaThreshold);
-
-	if (instance.uniforms[nzMaterialUniform_Ambient] != -1)
-		instance.shader->SendColor(instance.uniforms[nzMaterialUniform_Ambient], m_ambientColor);
-
-	if (instance.uniforms[nzMaterialUniform_Diffuse] != -1)
-		instance.shader->SendColor(instance.uniforms[nzMaterialUniform_Diffuse], m_diffuseColor);
-
-	if (instance.uniforms[nzMaterialUniform_Shininess] != -1)
-		instance.shader->SendFloat(instance.uniforms[nzMaterialUniform_Shininess], m_shininess);
-
-	if (instance.uniforms[nzMaterialUniform_Specular] != -1)
-		instance.shader->SendColor(instance.uniforms[nzMaterialUniform_Specular], m_specularColor);
-
-	if (m_alphaMap && instance.uniforms[nzMaterialUniform_AlphaMap] != -1)
+	namespace
 	{
-		NzRenderer::SetTexture(textureUnit, m_alphaMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_AlphaMap], textureUnit);
-		textureUnit++;
+		const UInt8 r_basicFragmentShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Basic/core.frag.h>
+		};
+
+		const UInt8 r_basicVertexShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Basic/core.vert.h>
+		};
+
+		const UInt8 r_phongLightingFragmentShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.frag.h>
+		};
+
+		const UInt8 r_phongLightingVertexShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
+		};
 	}
 
-	if (m_diffuseMap && instance.uniforms[nzMaterialUniform_DiffuseMap] != -1)
+	bool MaterialParams::IsValid() const
 	{
-		NzRenderer::SetTexture(textureUnit, m_diffuseMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_DiffuseMap], textureUnit);
-		textureUnit++;
-	}
-
-	if (m_emissiveMap && instance.uniforms[nzMaterialUniform_EmissiveMap] != -1)
-	{
-		NzRenderer::SetTexture(textureUnit, m_emissiveMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_EmissiveMap], textureUnit);
-		textureUnit++;
-	}
-
-	if (m_heightMap && instance.uniforms[nzMaterialUniform_HeightMap] != -1)
-	{
-		NzRenderer::SetTexture(textureUnit, m_heightMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_HeightMap], textureUnit);
-		textureUnit++;
-	}
-
-	if (m_normalMap && instance.uniforms[nzMaterialUniform_NormalMap] != -1)
-	{
-		NzRenderer::SetTexture(textureUnit, m_normalMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_NormalMap], textureUnit);
-		textureUnit++;
-	}
-
-	if (m_specularMap && instance.uniforms[nzMaterialUniform_SpecularMap] != -1)
-	{
-		NzRenderer::SetTexture(textureUnit, m_specularMap);
-		NzRenderer::SetTextureSampler(textureUnit, m_specularSampler);
-		instance.shader->SendInteger(instance.uniforms[nzMaterialUniform_SpecularMap], textureUnit);
-		textureUnit++;
-	}
-
-	NzRenderer::SetRenderStates(m_states);
-
-	if (lastUsedUnit)
-		*lastUsedUnit = textureUnit;
-
-	return instance.shader;
-}
-
-void NzMaterial::Enable(nzRendererParameter renderParameter, bool enable)
-{
-	#ifdef NAZARA_DEBUG
-	if (renderParameter > nzRendererParameter_Max)
-	{
-		NazaraError("Renderer parameter out of enum");
-		return;
-	}
-	#endif
-
-	m_states.parameters[renderParameter] = enable;
-}
-
-void NzMaterial::EnableAlphaTest(bool alphaTest)
-{
-	m_alphaTestEnabled = alphaTest;
-
-	InvalidateShaders();
-}
-
-void NzMaterial::EnableDepthSorting(bool depthSorting)
-{
-	m_depthSortingEnabled = depthSorting;
-}
-
-void NzMaterial::EnableLighting(bool lighting)
-{
-	m_lightingEnabled = lighting;
-
-	InvalidateShaders();
-}
-
-void NzMaterial::EnableTransform(bool transform)
-{
-	m_transformEnabled = transform;
-
-	InvalidateShaders();
-}
-
-NzTexture* NzMaterial::GetAlphaMap() const
-{
-	return m_alphaMap;
-}
-
-float NzMaterial::GetAlphaThreshold() const
-{
-	return m_alphaThreshold;
-}
-
-NzColor NzMaterial::GetAmbientColor() const
-{
-	return m_ambientColor;
-}
-
-nzRendererComparison NzMaterial::GetDepthFunc() const
-{
-	return m_states.depthFunc;
-}
-
-NzColor NzMaterial::GetDiffuseColor() const
-{
-	return m_diffuseColor;
-}
-
-NzTextureSampler& NzMaterial::GetDiffuseSampler()
-{
-	return m_diffuseSampler;
-}
-
-const NzTextureSampler& NzMaterial::GetDiffuseSampler() const
-{
-	return m_diffuseSampler;
-}
-
-NzTexture* NzMaterial::GetDiffuseMap() const
-{
-	return m_diffuseMap;
-}
-
-nzBlendFunc NzMaterial::GetDstBlend() const
-{
-	return m_states.dstBlend;
-}
-
-NzTexture* NzMaterial::GetEmissiveMap() const
-{
-	return m_emissiveMap;
-}
-
-nzFaceSide NzMaterial::GetFaceCulling() const
-{
-	return m_states.faceCulling;
-}
-
-nzFaceFilling NzMaterial::GetFaceFilling() const
-{
-	return m_states.faceFilling;
-}
-
-NzTexture* NzMaterial::GetHeightMap() const
-{
-	return m_heightMap;
-}
-
-NzTexture* NzMaterial::GetNormalMap() const
-{
-	return m_normalMap;
-}
-
-const NzRenderStates& NzMaterial::GetRenderStates() const
-{
-	return m_states;
-}
-
-const NzUberShader* NzMaterial::GetShader() const
-{
-	return m_uberShader;
-}
-
-const NzUberShaderInstance* NzMaterial::GetShaderInstance(nzUInt32 flags) const
-{
-	const ShaderInstance& instance = m_shaders[flags];
-	if (!instance.uberInstance)
-		GenerateShader(flags);
-
-    return instance.uberInstance;
-}
-
-float NzMaterial::GetShininess() const
-{
-	return m_shininess;
-}
-
-NzColor NzMaterial::GetSpecularColor() const
-{
-	return m_specularColor;
-}
-
-NzTexture* NzMaterial::GetSpecularMap() const
-{
-	return m_specularMap;
-}
-
-NzTextureSampler& NzMaterial::GetSpecularSampler()
-{
-	return m_specularSampler;
-}
-
-const NzTextureSampler& NzMaterial::GetSpecularSampler() const
-{
-	return m_specularSampler;
-}
-
-nzBlendFunc NzMaterial::GetSrcBlend() const
-{
-	return m_states.srcBlend;
-}
-
-bool NzMaterial::HasAlphaMap() const
-{
-	return m_alphaMap.IsValid();
-}
-
-bool NzMaterial::HasDiffuseMap() const
-{
-	return m_diffuseMap.IsValid();
-}
-
-bool NzMaterial::HasEmissiveMap() const
-{
-	return m_emissiveMap.IsValid();
-}
-
-bool NzMaterial::HasHeightMap() const
-{
-	return m_heightMap.IsValid();
-}
-
-bool NzMaterial::HasNormalMap() const
-{
-	return m_normalMap.IsValid();
-}
-
-bool NzMaterial::HasSpecularMap() const
-{
-	return m_specularMap.IsValid();
-}
-
-bool NzMaterial::IsAlphaTestEnabled() const
-{
-	return m_alphaTestEnabled;
-}
-
-bool NzMaterial::IsDepthSortingEnabled() const
-{
-	return m_depthSortingEnabled;
-}
-
-bool NzMaterial::IsEnabled(nzRendererParameter parameter) const
-{
-	#ifdef NAZARA_DEBUG
-	if (parameter > nzRendererParameter_Max)
-	{
-		NazaraError("Renderer parameter out of enum");
-		return false;
-	}
-	#endif
-
-	return m_states.parameters[parameter];
-}
-
-bool NzMaterial::IsLightingEnabled() const
-{
-	return m_lightingEnabled;
-}
-
-bool NzMaterial::IsTransformEnabled() const
-{
-	return m_transformEnabled;
-}
-
-bool NzMaterial::LoadFromFile(const NzString& filePath, const NzMaterialParams& params)
-{
-	return NzMaterialLoader::LoadFromFile(this, filePath, params);
-}
-
-bool NzMaterial::LoadFromMemory(const void* data, std::size_t size, const NzMaterialParams& params)
-{
-	return NzMaterialLoader::LoadFromMemory(this, data, size, params);
-}
-
-bool NzMaterial::LoadFromStream(NzInputStream& stream, const NzMaterialParams& params)
-{
-	return NzMaterialLoader::LoadFromStream(this, stream, params);
-}
-
-void NzMaterial::Reset()
-{
-	OnMaterialReset(this);
-
-	m_alphaMap.Reset();
-	m_diffuseMap.Reset();
-	m_emissiveMap.Reset();
-	m_heightMap.Reset();
-	m_normalMap.Reset();
-	m_specularMap.Reset();
-	m_uberShader.Reset();
-
-	for (ShaderInstance& instance : m_shaders)
-		instance.uberInstance = nullptr;
-
-	m_alphaThreshold = 0.2f;
-	m_alphaTestEnabled = false;
-	m_ambientColor = NzColor(128, 128, 128);
-	m_depthSortingEnabled = false;
-	m_diffuseColor = NzColor::White;
-	m_diffuseSampler = NzTextureSampler();
-	m_lightingEnabled = true;
-	m_shininess = 50.f;
-	m_specularColor = NzColor::White;
-	m_specularSampler = NzTextureSampler();
-	m_states = NzRenderStates();
-	m_states.parameters[nzRendererParameter_DepthBuffer] = true;
-	m_states.parameters[nzRendererParameter_FaceCulling] = true;
-	m_transformEnabled = true;
-
-	SetShader("Basic");
-}
-
-bool NzMaterial::SetAlphaMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
-	{
-		texture = NzTextureManager::Get(textureName);
-		if (!texture)
+		if (!UberShaderLibrary::Has(shaderName))
 			return false;
+
+		return true;
 	}
 
-	SetAlphaMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetAlphaMap(NzTextureRef alphaMap)
-{
-	m_alphaMap = std::move(alphaMap);
-
-	InvalidateShaders();
-}
-
-void NzMaterial::SetAlphaThreshold(float alphaThreshold)
-{
-	m_alphaThreshold = alphaThreshold;
-}
-
-void NzMaterial::SetAmbientColor(const NzColor& ambient)
-{
-	m_ambientColor = ambient;
-}
-
-void NzMaterial::SetDepthFunc(nzRendererComparison depthFunc)
-{
-	m_states.depthFunc = depthFunc;
-}
-
-void NzMaterial::SetDiffuseColor(const NzColor& diffuse)
-{
-	m_diffuseColor = diffuse;
-}
-
-bool NzMaterial::SetDiffuseMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
+	Material::Material()
 	{
-		texture = NzTextureManager::Get(textureName);
-		if (!texture)
+		Reset();
+	}
+
+	Material::Material(const Material& material) :
+	RefCounted(),
+	Resource(material)
+	{
+		Copy(material);
+	}
+
+	Material::~Material()
+	{
+		OnMaterialRelease(this);
+	}
+
+	const Shader* Material::Apply(UInt32 shaderFlags, UInt8 textureUnit, UInt8* lastUsedUnit) const
+	{
+		const ShaderInstance& instance = m_shaders[shaderFlags];
+		if (!instance.uberInstance)
+			GenerateShader(shaderFlags);
+
+		instance.uberInstance->Activate();
+
+		if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)
+			instance.shader->SendFloat(instance.uniforms[MaterialUniform_AlphaThreshold], m_alphaThreshold);
+
+		if (instance.uniforms[MaterialUniform_Ambient] != -1)
+			instance.shader->SendColor(instance.uniforms[MaterialUniform_Ambient], m_ambientColor);
+
+		if (instance.uniforms[MaterialUniform_Diffuse] != -1)
+			instance.shader->SendColor(instance.uniforms[MaterialUniform_Diffuse], m_diffuseColor);
+
+		if (instance.uniforms[MaterialUniform_Shininess] != -1)
+			instance.shader->SendFloat(instance.uniforms[MaterialUniform_Shininess], m_shininess);
+
+		if (instance.uniforms[MaterialUniform_Specular] != -1)
+			instance.shader->SendColor(instance.uniforms[MaterialUniform_Specular], m_specularColor);
+
+		if (m_alphaMap && instance.uniforms[MaterialUniform_AlphaMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_alphaMap);
+			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap], textureUnit);
+			textureUnit++;
+		}
+
+		if (m_diffuseMap && instance.uniforms[MaterialUniform_DiffuseMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_diffuseMap);
+			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap], textureUnit);
+			textureUnit++;
+		}
+
+		if (m_emissiveMap && instance.uniforms[MaterialUniform_EmissiveMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_emissiveMap);
+			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_EmissiveMap], textureUnit);
+			textureUnit++;
+		}
+
+		if (m_heightMap && instance.uniforms[MaterialUniform_HeightMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_heightMap);
+			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap], textureUnit);
+			textureUnit++;
+		}
+
+		if (m_normalMap && instance.uniforms[MaterialUniform_NormalMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_normalMap);
+			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap], textureUnit);
+			textureUnit++;
+		}
+
+		if (m_specularMap && instance.uniforms[MaterialUniform_SpecularMap] != -1)
+		{
+			Renderer::SetTexture(textureUnit, m_specularMap);
+			Renderer::SetTextureSampler(textureUnit, m_specularSampler);
+			instance.shader->SendInteger(instance.uniforms[MaterialUniform_SpecularMap], textureUnit);
+			textureUnit++;
+		}
+
+		Renderer::SetRenderStates(m_states);
+
+		if (lastUsedUnit)
+			*lastUsedUnit = textureUnit;
+
+		return instance.shader;
+	}
+
+	void Material::Enable(RendererParameter renderParameter, bool enable)
+	{
+		#ifdef NAZARA_DEBUG
+		if (renderParameter > RendererParameter_Max)
+		{
+			NazaraError("Renderer parameter out of enum");
+			return;
+		}
+		#endif
+
+		m_states.parameters[renderParameter] = enable;
+	}
+
+	void Material::EnableAlphaTest(bool alphaTest)
+	{
+		m_alphaTestEnabled = alphaTest;
+
+		InvalidateShaders();
+	}
+
+	void Material::EnableDepthSorting(bool depthSorting)
+	{
+		m_depthSortingEnabled = depthSorting;
+	}
+
+	void Material::EnableLighting(bool lighting)
+	{
+		m_lightingEnabled = lighting;
+
+		InvalidateShaders();
+	}
+
+	void Material::EnableTransform(bool transform)
+	{
+		m_transformEnabled = transform;
+
+		InvalidateShaders();
+	}
+
+	Texture* Material::GetAlphaMap() const
+	{
+		return m_alphaMap;
+	}
+
+	float Material::GetAlphaThreshold() const
+	{
+		return m_alphaThreshold;
+	}
+
+	Color Material::GetAmbientColor() const
+	{
+		return m_ambientColor;
+	}
+
+	RendererComparison Material::GetDepthFunc() const
+	{
+		return m_states.depthFunc;
+	}
+
+	Color Material::GetDiffuseColor() const
+	{
+		return m_diffuseColor;
+	}
+
+	TextureSampler& Material::GetDiffuseSampler()
+	{
+		return m_diffuseSampler;
+	}
+
+	const TextureSampler& Material::GetDiffuseSampler() const
+	{
+		return m_diffuseSampler;
+	}
+
+	Texture* Material::GetDiffuseMap() const
+	{
+		return m_diffuseMap;
+	}
+
+	BlendFunc Material::GetDstBlend() const
+	{
+		return m_states.dstBlend;
+	}
+
+	Texture* Material::GetEmissiveMap() const
+	{
+		return m_emissiveMap;
+	}
+
+	FaceSide Material::GetFaceCulling() const
+	{
+		return m_states.faceCulling;
+	}
+
+	FaceFilling Material::GetFaceFilling() const
+	{
+		return m_states.faceFilling;
+	}
+
+	Texture* Material::GetHeightMap() const
+	{
+		return m_heightMap;
+	}
+
+	Texture* Material::GetNormalMap() const
+	{
+		return m_normalMap;
+	}
+
+	const RenderStates& Material::GetRenderStates() const
+	{
+		return m_states;
+	}
+
+	const UberShader* Material::GetShader() const
+	{
+		return m_uberShader;
+	}
+
+	const UberShaderInstance* Material::GetShaderInstance(UInt32 flags) const
+	{
+		const ShaderInstance& instance = m_shaders[flags];
+		if (!instance.uberInstance)
+			GenerateShader(flags);
+
+		return instance.uberInstance;
+	}
+
+	float Material::GetShininess() const
+	{
+		return m_shininess;
+	}
+
+	Color Material::GetSpecularColor() const
+	{
+		return m_specularColor;
+	}
+
+	Texture* Material::GetSpecularMap() const
+	{
+		return m_specularMap;
+	}
+
+	TextureSampler& Material::GetSpecularSampler()
+	{
+		return m_specularSampler;
+	}
+
+	const TextureSampler& Material::GetSpecularSampler() const
+	{
+		return m_specularSampler;
+	}
+
+	BlendFunc Material::GetSrcBlend() const
+	{
+		return m_states.srcBlend;
+	}
+
+	bool Material::HasAlphaMap() const
+	{
+		return m_alphaMap.IsValid();
+	}
+
+	bool Material::HasDiffuseMap() const
+	{
+		return m_diffuseMap.IsValid();
+	}
+
+	bool Material::HasEmissiveMap() const
+	{
+		return m_emissiveMap.IsValid();
+	}
+
+	bool Material::HasHeightMap() const
+	{
+		return m_heightMap.IsValid();
+	}
+
+	bool Material::HasNormalMap() const
+	{
+		return m_normalMap.IsValid();
+	}
+
+	bool Material::HasSpecularMap() const
+	{
+		return m_specularMap.IsValid();
+	}
+
+	bool Material::IsAlphaTestEnabled() const
+	{
+		return m_alphaTestEnabled;
+	}
+
+	bool Material::IsDepthSortingEnabled() const
+	{
+		return m_depthSortingEnabled;
+	}
+
+	bool Material::IsEnabled(RendererParameter parameter) const
+	{
+		#ifdef NAZARA_DEBUG
+		if (parameter > RendererParameter_Max)
+		{
+			NazaraError("Renderer parameter out of enum");
 			return false;
+		}
+		#endif
+
+		return m_states.parameters[parameter];
 	}
 
-	SetDiffuseMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetDiffuseMap(NzTextureRef diffuseMap)
-{
-	m_diffuseMap = std::move(diffuseMap);
-
-	InvalidateShaders();
-}
-
-void NzMaterial::SetDiffuseSampler(const NzTextureSampler& sampler)
-{
-	m_diffuseSampler = sampler;
-}
-
-void NzMaterial::SetDstBlend(nzBlendFunc func)
-{
-	m_states.dstBlend = func;
-}
-
-bool NzMaterial::SetEmissiveMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
+	bool Material::IsLightingEnabled() const
 	{
-		texture = NzTextureManager::Get(textureName);
+		return m_lightingEnabled;
+	}
+
+	bool Material::IsTransformEnabled() const
+	{
+		return m_transformEnabled;
+	}
+
+	bool Material::LoadFromFile(const String& filePath, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromFile(this, filePath, params);
+	}
+
+	bool Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromMemory(this, data, size, params);
+	}
+
+	bool Material::LoadFromStream(InputStream& stream, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromStream(this, stream, params);
+	}
+
+	void Material::Reset()
+	{
+		OnMaterialReset(this);
+
+		m_alphaMap.Reset();
+		m_diffuseMap.Reset();
+		m_emissiveMap.Reset();
+		m_heightMap.Reset();
+		m_normalMap.Reset();
+		m_specularMap.Reset();
+		m_uberShader.Reset();
+
+		for (ShaderInstance& instance : m_shaders)
+			instance.uberInstance = nullptr;
+
+		m_alphaThreshold = 0.2f;
+		m_alphaTestEnabled = false;
+		m_ambientColor = Color(128, 128, 128);
+		m_depthSortingEnabled = false;
+		m_diffuseColor = Color::White;
+		m_diffuseSampler = TextureSampler();
+		m_lightingEnabled = true;
+		m_shininess = 50.f;
+		m_specularColor = Color::White;
+		m_specularSampler = TextureSampler();
+		m_states = RenderStates();
+		m_states.parameters[RendererParameter_DepthBuffer] = true;
+		m_states.parameters[RendererParameter_FaceCulling] = true;
+		m_transformEnabled = true;
+
+		SetShader("Basic");
+	}
+
+	bool Material::SetAlphaMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
-			return false;
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
+
+		SetAlphaMap(std::move(texture));
+		return true;
 	}
 
-	SetEmissiveMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetEmissiveMap(NzTextureRef emissiveMap)
-{
-	m_emissiveMap = std::move(emissiveMap);
-
-	InvalidateShaders();
-}
-
-void NzMaterial::SetFaceCulling(nzFaceSide faceSide)
-{
-	m_states.faceCulling = faceSide;
-}
-
-void NzMaterial::SetFaceFilling(nzFaceFilling filling)
-{
-	m_states.faceFilling = filling;
-}
-
-bool NzMaterial::SetHeightMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
+	void Material::SetAlphaMap(TextureRef alphaMap)
 	{
-		texture = NzTextureManager::Get(textureName);
+		m_alphaMap = std::move(alphaMap);
+
+		InvalidateShaders();
+	}
+
+	void Material::SetAlphaThreshold(float alphaThreshold)
+	{
+		m_alphaThreshold = alphaThreshold;
+	}
+
+	void Material::SetAmbientColor(const Color& ambient)
+	{
+		m_ambientColor = ambient;
+	}
+
+	void Material::SetDepthFunc(RendererComparison depthFunc)
+	{
+		m_states.depthFunc = depthFunc;
+	}
+
+	void Material::SetDiffuseColor(const Color& diffuse)
+	{
+		m_diffuseColor = diffuse;
+	}
+
+	bool Material::SetDiffuseMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
-			return false;
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
+
+		SetDiffuseMap(std::move(texture));
+		return true;
 	}
 
-	SetHeightMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetHeightMap(NzTextureRef heightMap)
-{
-	m_heightMap = std::move(heightMap);
-
-	InvalidateShaders();
-}
-
-bool NzMaterial::SetNormalMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
+	void Material::SetDiffuseMap(TextureRef diffuseMap)
 	{
-		texture = NzTextureManager::Get(textureName);
+		m_diffuseMap = std::move(diffuseMap);
+
+		InvalidateShaders();
+	}
+
+	void Material::SetDiffuseSampler(const TextureSampler& sampler)
+	{
+		m_diffuseSampler = sampler;
+	}
+
+	void Material::SetDstBlend(BlendFunc func)
+	{
+		m_states.dstBlend = func;
+	}
+
+	bool Material::SetEmissiveMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
-			return false;
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
+
+		SetEmissiveMap(std::move(texture));
+		return true;
 	}
 
-	SetNormalMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetNormalMap(NzTextureRef normalMap)
-{
-	m_normalMap = std::move(normalMap);
-
-	InvalidateShaders();
-}
-
-void NzMaterial::SetRenderStates(const NzRenderStates& states)
-{
-	m_states = states;
-}
-
-void NzMaterial::SetShader(NzUberShaderConstRef uberShader)
-{
-	m_uberShader = std::move(uberShader);
-
-	InvalidateShaders();
-}
-
-bool NzMaterial::SetShader(const NzString& uberShaderName)
-{
-	NzUberShaderConstRef uberShader = NzUberShaderLibrary::Get(uberShaderName);
-	if (!uberShader)
-		return false;
-
-	SetShader(std::move(uberShader));
-	return true;
-}
-
-void NzMaterial::SetShininess(float shininess)
-{
-	m_shininess = shininess;
-}
-
-void NzMaterial::SetSpecularColor(const NzColor& specular)
-{
-	m_specularColor = specular;
-}
-
-bool NzMaterial::SetSpecularMap(const NzString& textureName)
-{
-	NzTextureRef texture = NzTextureLibrary::Query(textureName);
-	if (!texture)
+	void Material::SetEmissiveMap(TextureRef emissiveMap)
 	{
-		texture = NzTextureManager::Get(textureName);
+		m_emissiveMap = std::move(emissiveMap);
+
+		InvalidateShaders();
+	}
+
+	void Material::SetFaceCulling(FaceSide faceSide)
+	{
+		m_states.faceCulling = faceSide;
+	}
+
+	void Material::SetFaceFilling(FaceFilling filling)
+	{
+		m_states.faceFilling = filling;
+	}
+
+	bool Material::SetHeightMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
+
+		SetHeightMap(std::move(texture));
+		return true;
+	}
+
+	void Material::SetHeightMap(TextureRef heightMap)
+	{
+		m_heightMap = std::move(heightMap);
+
+		InvalidateShaders();
+	}
+
+	bool Material::SetNormalMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
+		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
+
+		SetNormalMap(std::move(texture));
+		return true;
+	}
+
+	void Material::SetNormalMap(TextureRef normalMap)
+	{
+		m_normalMap = std::move(normalMap);
+
+		InvalidateShaders();
+	}
+
+	void Material::SetRenderStates(const RenderStates& states)
+	{
+		m_states = states;
+	}
+
+	void Material::SetShader(UberShaderConstRef uberShader)
+	{
+		m_uberShader = std::move(uberShader);
+
+		InvalidateShaders();
+	}
+
+	bool Material::SetShader(const String& uberShaderName)
+	{
+		UberShaderConstRef uberShader = UberShaderLibrary::Get(uberShaderName);
+		if (!uberShader)
 			return false;
+
+		SetShader(std::move(uberShader));
+		return true;
 	}
 
-	SetSpecularMap(std::move(texture));
-	return true;
-}
-
-void NzMaterial::SetSpecularMap(NzTextureRef specularMap)
-{
-	m_specularMap = std::move(specularMap);
-
-	InvalidateShaders();
-}
-
-void NzMaterial::SetSpecularSampler(const NzTextureSampler& sampler)
-{
-	m_specularSampler = sampler;
-}
-
-void NzMaterial::SetSrcBlend(nzBlendFunc func)
-{
-	m_states.srcBlend = func;
-}
-
-NzMaterial& NzMaterial::operator=(const NzMaterial& material)
-{
-	NzResource::operator=(material);
-
-	Copy(material);
-	return *this;
-}
-
-NzMaterialRef NzMaterial::GetDefault()
-{
-	return s_defaultMaterial;
-}
-
-void NzMaterial::Copy(const NzMaterial& material)
-{
-	// Copie des états de base
-	m_alphaTestEnabled    = material.m_alphaTestEnabled;
-	m_alphaThreshold      = material.m_alphaThreshold;
-	m_ambientColor        = material.m_ambientColor;
-	m_depthSortingEnabled = material.m_depthSortingEnabled;
-	m_diffuseColor        = material.m_diffuseColor;
-	m_diffuseSampler      = material.m_diffuseSampler;
-	m_lightingEnabled     = material.m_lightingEnabled;
-	m_shininess           = material.m_shininess;
-	m_specularColor       = material.m_specularColor;
-	m_specularSampler     = material.m_specularSampler;
-	m_states              = material.m_states;
-	m_transformEnabled    = material.m_transformEnabled;
-
-	// Copie des références de texture
-	m_alphaMap    = material.m_alphaMap;
-	m_diffuseMap  = material.m_diffuseMap;
-	m_emissiveMap = material.m_emissiveMap;
-	m_heightMap   = material.m_heightMap;
-	m_normalMap   = material.m_normalMap;
-	m_specularMap = material.m_specularMap;
-
-	// Copie de la référence vers l'Über-Shader
-	m_uberShader = material.m_uberShader;
-
-	// On copie les instances de shader par la même occasion
-	std::memcpy(&m_shaders[0], &material.m_shaders[0], (nzShaderFlags_Max+1)*sizeof(ShaderInstance));
-}
-
-void NzMaterial::GenerateShader(nzUInt32 flags) const
-{
-	NzParameterList list;
-	list.SetParameter("ALPHA_MAPPING", m_alphaMap.IsValid());
-	list.SetParameter("ALPHA_TEST", m_alphaTestEnabled);
-	list.SetParameter("COMPUTE_TBNMATRIX", m_normalMap.IsValid() || m_heightMap.IsValid());
-	list.SetParameter("DIFFUSE_MAPPING", m_diffuseMap.IsValid());
-	list.SetParameter("EMISSIVE_MAPPING", m_emissiveMap.IsValid());
-	list.SetParameter("LIGHTING", m_lightingEnabled);
-	list.SetParameter("NORMAL_MAPPING", m_normalMap.IsValid());
-	list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
-	list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
-	list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
-	                                     m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid() ||
-	                                     flags & nzShaderFlags_TextureOverlay);
-	list.SetParameter("TRANSFORM", m_transformEnabled);
-
-	list.SetParameter("FLAG_BILLBOARD", static_cast<bool>(flags & nzShaderFlags_Billboard));
-	list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & nzShaderFlags_Deferred) != 0));
-	list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & nzShaderFlags_Instancing) != 0));
-	list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & nzShaderFlags_TextureOverlay) != 0));
-	list.SetParameter("FLAG_VERTEXCOLOR", static_cast<bool>((flags & nzShaderFlags_VertexColor) != 0));
-
-	ShaderInstance& instance = m_shaders[flags];
-	instance.uberInstance = m_uberShader->Get(list);
-	instance.shader = instance.uberInstance->GetShader();
-
-	#define CacheUniform(name) instance.uniforms[nzMaterialUniform_##name] = instance.shader->GetUniformLocation("Material" #name)
-
-	CacheUniform(AlphaMap);
-	CacheUniform(AlphaThreshold);
-	CacheUniform(Ambient);
-	CacheUniform(Diffuse);
-	CacheUniform(DiffuseMap);
-	CacheUniform(EmissiveMap);
-	CacheUniform(HeightMap);
-	CacheUniform(NormalMap);
-	CacheUniform(Shininess);
-	CacheUniform(Specular);
-	CacheUniform(SpecularMap);
-
-	#undef CacheUniform
-}
-
-void NzMaterial::InvalidateShaders()
-{
-	for (ShaderInstance& instance : m_shaders)
-		instance.uberInstance = nullptr;
-}
-
-bool NzMaterial::Initialize()
-{
-	if (!NzMaterialLibrary::Initialize())
+	void Material::SetShininess(float shininess)
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		m_shininess = shininess;
 	}
 
-	if (!NzMaterialManager::Initialize())
+	void Material::SetSpecularColor(const Color& specular)
 	{
-		NazaraError("Failed to initialise manager");
-		return false;
+		m_specularColor = specular;
 	}
 
-	// Basic shader
+	bool Material::SetSpecularMap(const String& textureName)
 	{
-		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
+		TextureRef texture = TextureLibrary::Query(textureName);
+		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+				return false;
+		}
 
-		NzString fragmentShader(reinterpret_cast<const char*>(r_basicFragmentShader), sizeof(r_basicFragmentShader));
-		NzString vertexShader(reinterpret_cast<const char*>(r_basicVertexShader), sizeof(r_basicVertexShader));
-
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
-
-		NzUberShaderLibrary::Register("Basic", uberShader);
+		SetSpecularMap(std::move(texture));
+		return true;
 	}
 
-	// PhongLighting shader
+	void Material::SetSpecularMap(TextureRef specularMap)
 	{
-		NzUberShaderPreprocessorRef uberShader = NzUberShaderPreprocessor::New();
+		m_specularMap = std::move(specularMap);
 
-		NzString fragmentShader(reinterpret_cast<const char*>(r_phongLightingFragmentShader), sizeof(r_phongLightingFragmentShader));
-		NzString vertexShader(reinterpret_cast<const char*>(r_phongLightingVertexShader), sizeof(r_phongLightingVertexShader));
-
-		uberShader->SetShader(nzShaderStage_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
-		uberShader->SetShader(nzShaderStage_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
-
-		NzUberShaderLibrary::Register("PhongLighting", uberShader);
+		InvalidateShaders();
 	}
 
-	// Une fois les shaders de base enregistrés, on peut créer le matériau par défaut
-	s_defaultMaterial = NzMaterial::New();
-	s_defaultMaterial->Enable(nzRendererParameter_FaceCulling, false);
-	s_defaultMaterial->SetFaceFilling(nzFaceFilling_Line);
-	NzMaterialLibrary::Register("Default", s_defaultMaterial);
+	void Material::SetSpecularSampler(const TextureSampler& sampler)
+	{
+		m_specularSampler = sampler;
+	}
 
-	return true;
+	void Material::SetSrcBlend(BlendFunc func)
+	{
+		m_states.srcBlend = func;
+	}
+
+	Material& Material::operator=(const Material& material)
+	{
+		Resource::operator=(material);
+
+		Copy(material);
+		return *this;
+	}
+
+	MaterialRef Material::GetDefault()
+	{
+		return s_defaultMaterial;
+	}
+
+	void Material::Copy(const Material& material)
+	{
+		// Copie des états de base
+		m_alphaTestEnabled    = material.m_alphaTestEnabled;
+		m_alphaThreshold      = material.m_alphaThreshold;
+		m_ambientColor        = material.m_ambientColor;
+		m_depthSortingEnabled = material.m_depthSortingEnabled;
+		m_diffuseColor        = material.m_diffuseColor;
+		m_diffuseSampler      = material.m_diffuseSampler;
+		m_lightingEnabled     = material.m_lightingEnabled;
+		m_shininess           = material.m_shininess;
+		m_specularColor       = material.m_specularColor;
+		m_specularSampler     = material.m_specularSampler;
+		m_states              = material.m_states;
+		m_transformEnabled    = material.m_transformEnabled;
+
+		// Copie des références de texture
+		m_alphaMap    = material.m_alphaMap;
+		m_diffuseMap  = material.m_diffuseMap;
+		m_emissiveMap = material.m_emissiveMap;
+		m_heightMap   = material.m_heightMap;
+		m_normalMap   = material.m_normalMap;
+		m_specularMap = material.m_specularMap;
+
+		// Copie de la référence vers l'Über-Shader
+		m_uberShader = material.m_uberShader;
+
+		// On copie les instances de shader par la même occasion
+		std::memcpy(&m_shaders[0], &material.m_shaders[0], (ShaderFlags_Max+1)*sizeof(ShaderInstance));
+	}
+
+	void Material::GenerateShader(UInt32 flags) const
+	{
+		ParameterList list;
+		list.SetParameter("ALPHA_MAPPING", m_alphaMap.IsValid());
+		list.SetParameter("ALPHA_TEST", m_alphaTestEnabled);
+		list.SetParameter("COMPUTE_TBNMATRIX", m_normalMap.IsValid() || m_heightMap.IsValid());
+		list.SetParameter("DIFFUSE_MAPPING", m_diffuseMap.IsValid());
+		list.SetParameter("EMISSIVE_MAPPING", m_emissiveMap.IsValid());
+		list.SetParameter("LIGHTING", m_lightingEnabled);
+		list.SetParameter("NORMAL_MAPPING", m_normalMap.IsValid());
+		list.SetParameter("PARALLAX_MAPPING", m_heightMap.IsValid());
+		list.SetParameter("SPECULAR_MAPPING", m_specularMap.IsValid());
+		list.SetParameter("TEXTURE_MAPPING", m_alphaMap.IsValid() || m_diffuseMap.IsValid() || m_emissiveMap.IsValid() ||
+											 m_normalMap.IsValid() || m_heightMap.IsValid() || m_specularMap.IsValid() ||
+											 flags & ShaderFlags_TextureOverlay);
+		list.SetParameter("TRANSFORM", m_transformEnabled);
+
+		list.SetParameter("FLAG_BILLBOARD", static_cast<bool>(flags & ShaderFlags_Billboard));
+		list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & ShaderFlags_Deferred) != 0));
+		list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & ShaderFlags_Instancing) != 0));
+		list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & ShaderFlags_TextureOverlay) != 0));
+		list.SetParameter("FLAG_VERTEXCOLOR", static_cast<bool>((flags & ShaderFlags_VertexColor) != 0));
+
+		ShaderInstance& instance = m_shaders[flags];
+		instance.uberInstance = m_uberShader->Get(list);
+		instance.shader = instance.uberInstance->GetShader();
+
+		#define CacheUniform(name) instance.uniforms[MaterialUniform_##name] = instance.shader->GetUniformLocation("Material" #name)
+
+		CacheUniform(AlphaMap);
+		CacheUniform(AlphaThreshold);
+		CacheUniform(Ambient);
+		CacheUniform(Diffuse);
+		CacheUniform(DiffuseMap);
+		CacheUniform(EmissiveMap);
+		CacheUniform(HeightMap);
+		CacheUniform(NormalMap);
+		CacheUniform(Shininess);
+		CacheUniform(Specular);
+		CacheUniform(SpecularMap);
+
+		#undef CacheUniform
+	}
+
+	void Material::InvalidateShaders()
+	{
+		for (ShaderInstance& instance : m_shaders)
+			instance.uberInstance = nullptr;
+	}
+
+	bool Material::Initialize()
+	{
+		if (!MaterialLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
+
+		if (!MaterialManager::Initialize())
+		{
+			NazaraError("Failed to initialise manager");
+			return false;
+		}
+
+		bool glsl140 = (OpenGL::GetGLSLVersion() >= 140);
+
+		// Basic shader
+		{
+			UberShaderPreprocessorRef uberShader = UberShaderPreprocessor::New();
+
+			String fragmentShader(reinterpret_cast<const char*>(r_basicFragmentShader), sizeof(r_basicFragmentShader));
+			String vertexShader(reinterpret_cast<const char*>(r_basicVertexShader), sizeof(r_basicVertexShader));
+
+			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
+			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+
+			UberShaderLibrary::Register("Basic", uberShader);
+		}
+
+		// PhongLighting shader
+		{
+			UberShaderPreprocessorRef uberShader = UberShaderPreprocessor::New();
+
+			String fragmentShader(reinterpret_cast<const char*>(r_phongLightingFragmentShader), sizeof(r_phongLightingFragmentShader));
+			String vertexShader(reinterpret_cast<const char*>(r_phongLightingVertexShader), sizeof(r_phongLightingVertexShader));
+
+			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING LIGHTING NORMAL_MAPPING PARALLAX_MAPPING SPECULAR_MAPPING");
+			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX LIGHTING PARALLAX_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+
+			UberShaderLibrary::Register("PhongLighting", uberShader);
+		}
+
+		// Une fois les shaders de base enregistrés, on peut créer le matériau par défaut
+		s_defaultMaterial = Material::New();
+		s_defaultMaterial->Enable(RendererParameter_FaceCulling, false);
+		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
+		MaterialLibrary::Register("Default", s_defaultMaterial);
+
+		return true;
+	}
+
+	void Material::Uninitialize()
+	{
+		s_defaultMaterial.Reset();
+		UberShaderLibrary::Unregister("PhongLighting");
+		UberShaderLibrary::Unregister("Basic");
+		MaterialManager::Uninitialize();
+		MaterialLibrary::Uninitialize();
+	}
+
+	MaterialLibrary::LibraryMap Material::s_library;
+	MaterialLoader::LoaderList Material::s_loaders;
+	MaterialManager::ManagerMap Material::s_managerMap;
+	MaterialManager::ManagerParams Material::s_managerParameters;
+	MaterialRef Material::s_defaultMaterial = nullptr;
 }
-
-void NzMaterial::Uninitialize()
-{
-	s_defaultMaterial.Reset();
-	NzUberShaderLibrary::Unregister("PhongLighting");
-	NzUberShaderLibrary::Unregister("Basic");
-	NzMaterialManager::Uninitialize();
-	NzMaterialLibrary::Uninitialize();
-}
-
-NzMaterialLibrary::LibraryMap NzMaterial::s_library;
-NzMaterialLoader::LoaderList NzMaterial::s_loaders;
-NzMaterialManager::ManagerMap NzMaterial::s_managerMap;
-NzMaterialManager::ManagerParams NzMaterial::s_managerParameters;
-NzMaterialRef NzMaterial::s_defaultMaterial = nullptr;

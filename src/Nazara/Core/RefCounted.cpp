@@ -14,66 +14,68 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzRefCounted::NzRefCounted(bool persistent) :
-m_persistent(persistent),
-m_referenceCount(0)
+namespace Nz
 {
-}
-
-NzRefCounted::~NzRefCounted()
-{
-	#if NAZARA_CORE_SAFE
-	if (m_referenceCount > 0)
-		NazaraWarning("Resource destroyed while still referenced " + NzString::Number(m_referenceCount) + " time(s)");
-	#endif
-}
-
-void NzRefCounted::AddReference() const
-{
-	m_referenceCount++;
-}
-
-unsigned int NzRefCounted::GetReferenceCount() const
-{
-	return m_referenceCount;
-}
-
-bool NzRefCounted::IsPersistent() const
-{
-	return m_persistent;
-}
-
-bool NzRefCounted::RemoveReference() const
-{
-	#if NAZARA_CORE_SAFE
-	if (m_referenceCount == 0)
+	RefCounted::RefCounted(bool persistent) :
+	m_persistent(persistent),
+	m_referenceCount(0)
 	{
-		NazaraError("Impossible to remove reference (Ref. counter is already 0)");
-		return false;
 	}
-	#endif
 
-	if (--m_referenceCount == 0 && !m_persistent)
+	RefCounted::~RefCounted()
 	{
-		delete this; // Suicide
-
-		return true;
+		#if NAZARA_CORE_SAFE
+		if (m_referenceCount > 0)
+			NazaraWarning("Resource destroyed while still referenced " + String::Number(m_referenceCount) + " time(s)");
+		#endif
 	}
-	else
-		return false;
-}
 
-bool NzRefCounted::SetPersistent(bool persistent, bool checkReferenceCount)
-{
-	m_persistent = persistent;
-
-	if (checkReferenceCount && !persistent && m_referenceCount == 0)
+	void RefCounted::AddReference() const
 	{
-		delete this;
-
-		return true;
+		m_referenceCount++;
 	}
-	else
-		return false;
-}
 
+	unsigned int RefCounted::GetReferenceCount() const
+	{
+		return m_referenceCount;
+	}
+
+	bool RefCounted::IsPersistent() const
+	{
+		return m_persistent;
+	}
+
+	bool RefCounted::RemoveReference() const
+	{
+		#if NAZARA_CORE_SAFE
+		if (m_referenceCount == 0)
+		{
+			NazaraError("Impossible to remove reference (Ref. counter is already 0)");
+			return false;
+		}
+		#endif
+
+		if (--m_referenceCount == 0 && !m_persistent)
+		{
+			delete this; // Suicide
+
+			return true;
+		}
+		else
+			return false;
+	}
+
+	bool RefCounted::SetPersistent(bool persistent, bool checkReferenceCount)
+	{
+		m_persistent = persistent;
+
+		if (checkReferenceCount && !persistent && m_referenceCount == 0)
+		{
+			delete this;
+
+			return true;
+		}
+		else
+			return false;
+	}
+}

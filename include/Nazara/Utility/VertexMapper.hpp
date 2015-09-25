@@ -13,22 +13,25 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NzSubMesh;
-
-class NAZARA_UTILITY_API NzVertexMapper
+namespace Nz
 {
-	public:
-		NzVertexMapper(NzSubMesh* subMesh, nzBufferAccess access = nzBufferAccess_ReadWrite);
-		NzVertexMapper(NzVertexBuffer* vertexBuffer, nzBufferAccess access = nzBufferAccess_ReadWrite);
-		~NzVertexMapper();
+	class SubMesh;
 
-		template<typename T> NzSparsePtr<T> GetComponentPtr(nzVertexComponent component);
+	class NAZARA_UTILITY_API VertexMapper
+	{
+		public:
+			VertexMapper(SubMesh* subMesh, BufferAccess access = BufferAccess_ReadWrite);
+			VertexMapper(VertexBuffer* vertexBuffer, BufferAccess access = BufferAccess_ReadWrite);
+			~VertexMapper();
 
-		void Unmap();
+			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component);
 
-	private:
-		NzBufferMapper<NzVertexBuffer> m_mapper;
-};
+			void Unmap();
+
+		private:
+			BufferMapper<VertexBuffer> m_mapper;
+	};
+}
 
 #include <Nazara/Utility/VertexMapper.inl>
 

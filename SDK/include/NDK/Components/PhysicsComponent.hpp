@@ -25,45 +25,45 @@ namespace Ndk
 			PhysicsComponent(const PhysicsComponent& physics);
 			~PhysicsComponent() = default;
 
-			void AddForce(const NzVector3f& force, nzCoordSys coordSys = nzCoordSys_Global);
-			void AddForce(const NzVector3f& force, const NzVector3f& point, nzCoordSys coordSys = nzCoordSys_Global);
-			void AddTorque(const NzVector3f& torque, nzCoordSys coordSys = nzCoordSys_Global);
+			void AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 
 			void EnableAutoSleep(bool autoSleep);
 
-			NzBoxf GetAABB() const;
-			NzVector3f GetAngularVelocity() const;
+			Nz::Boxf GetAABB() const;
+			Nz::Vector3f GetAngularVelocity() const;
 			float GetGravityFactor() const;
 			float GetMass() const;
-			NzVector3f GetMassCenter(nzCoordSys coordSys = nzCoordSys_Local) const;
-			const NzMatrix4f& GetMatrix() const;
-			NzVector3f GetPosition() const;
-			NzQuaternionf GetRotation() const;
-			NzVector3f GetVelocity() const;
+			Nz::Vector3f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			const Nz::Matrix4f& GetMatrix() const;
+			Nz::Vector3f GetPosition() const;
+			Nz::Quaternionf GetRotation() const;
+			Nz::Vector3f GetVelocity() const;
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;
 			bool IsSleeping() const;
 
-			void SetAngularVelocity(const NzVector3f& angularVelocity);
+			void SetAngularVelocity(const Nz::Vector3f& angularVelocity);
 			void SetGravityFactor(float gravityFactor);
 			void SetMass(float mass);
-			void SetMassCenter(const NzVector3f& center);
-			void SetPosition(const NzVector3f& position);
-			void SetRotation(const NzQuaternionf& rotation);
-			void SetVelocity(const NzVector3f& velocity);
+			void SetMassCenter(const Nz::Vector3f& center);
+			void SetPosition(const Nz::Vector3f& position);
+			void SetRotation(const Nz::Quaternionf& rotation);
+			void SetVelocity(const Nz::Vector3f& velocity);
 
 			static ComponentIndex componentIndex;
 
 		private:
-			NzPhysObject& GetPhysObject();
+			Nz::PhysObject& GetPhysObject();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 
-			std::unique_ptr<NzPhysObject> m_object;
+			std::unique_ptr<Nz::PhysObject> m_object;
 	};
 }
 

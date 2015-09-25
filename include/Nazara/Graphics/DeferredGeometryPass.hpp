@@ -13,34 +13,37 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <unordered_map>
 
-class NAZARA_GRAPHICS_API NzDeferredGeometryPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredGeometryPass();
-		virtual ~NzDeferredGeometryPass();
+	class NAZARA_GRAPHICS_API DeferredGeometryPass : public DeferredRenderPass
+	{
+		public:
+			DeferredGeometryPass();
+			virtual ~DeferredGeometryPass();
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
-		bool Resize(const NzVector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Resize(const Vector2ui& dimensions);
 
-	protected:
-		struct ShaderUniforms;
+		protected:
+			struct ShaderUniforms;
 
-		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
-		void OnShaderInvalidated(const NzShader* shader) const;
+			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
+			void OnShaderInvalidated(const Shader* shader) const;
 
-		struct ShaderUniforms
-		{
-			NazaraSlot(NzShader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
-			NazaraSlot(NzShader, OnShaderRelease, shaderReleaseSlot);
+			struct ShaderUniforms
+			{
+				NazaraSlot(Shader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
+				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
 
-			int eyePosition;
-			int sceneAmbient;
-			int textureOverlay;
-		};
+				int eyePosition;
+				int sceneAmbient;
+				int textureOverlay;
+			};
 
-		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
-		NzRenderStates m_clearStates;
-		NzShaderRef m_clearShader;
-};
+			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
+			RenderStates m_clearStates;
+			ShaderRef m_clearShader;
+	};
+}
 
 #endif // NAZARA_DEFERREDGEOMETRYPASS_HPP

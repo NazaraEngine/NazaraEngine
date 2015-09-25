@@ -9,122 +9,125 @@
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzRenderBuffer::NzRenderBuffer() :
-m_id(0)
+namespace Nz
 {
-}
-
-NzRenderBuffer::~NzRenderBuffer()
-{
-	OnRenderBufferRelease(this);
-
-	Destroy();
-}
-
-bool NzRenderBuffer::Create(nzPixelFormat format, unsigned int width, unsigned int height)
-{
-	Destroy();
-
-	#if NAZARA_RENDERER_SAFE
-	if (width == 0 || height == 0)
+	RenderBuffer::RenderBuffer() :
+	m_id(0)
 	{
-		NazaraError("Invalid size");
-		return false;
 	}
 
-	if (!NzPixelFormat::IsValid(format))
+	RenderBuffer::~RenderBuffer()
 	{
-		NazaraError("Invalid pixel format");
-		return false;
-	}
-	#endif
+		OnRenderBufferRelease(this);
 
-	NzOpenGL::Format openglFormat;
-	if (!NzOpenGL::TranslateFormat(format, &openglFormat, NzOpenGL::FormatType_RenderBuffer))
-	{
-		NazaraError("Failed to translate pixel format \"" + NzPixelFormat::ToString(format) + "\" into OpenGL format");
-		return false;
+		Destroy();
 	}
 
-	GLuint renderBuffer = 0;
-
-	glGenRenderbuffers(1, &renderBuffer);
-	if (!renderBuffer)
+	bool RenderBuffer::Create(PixelFormatType format, unsigned int width, unsigned int height)
 	{
-		NazaraError("Failed to create renderbuffer");
-		return false;
+		Destroy();
+
+		#if NAZARA_RENDERER_SAFE
+		if (width == 0 || height == 0)
+		{
+			NazaraError("Invalid size");
+			return false;
+		}
+
+		if (!PixelFormat::IsValid(format))
+		{
+			NazaraError("Invalid pixel format");
+			return false;
+		}
+		#endif
+
+		OpenGL::Format openglFormat;
+		if (!OpenGL::TranslateFormat(format, &openglFormat, OpenGL::FormatType_RenderBuffer))
+		{
+			NazaraError("Failed to translate pixel format \"" + PixelFormat::ToString(format) + "\" into OpenGL format");
+			return false;
+		}
+
+		GLuint renderBuffer = 0;
+
+		glGenRenderbuffers(1, &renderBuffer);
+		if (!renderBuffer)
+		{
+			NazaraError("Failed to create renderbuffer");
+			return false;
+		}
+
+		GLint previous;
+		glGetIntegerv(GL_RENDERBUFFER_BINDING, &previous);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, openglFormat.internalFormat, width, height);
+
+		if (previous != 0)
+			glBindRenderbuffer(GL_RENDERBUFFER, previous);
+
+		m_pixelFormat = format;
+		m_height = height;
+		m_id = renderBuffer;
+		m_width = width;
+
+		return true;
 	}
 
-	GLint previous;
-	glGetIntegerv(GL_RENDERBUFFER_BINDING, &previous);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, openglFormat.internalFormat, width, height);
-
-	if (previous != 0)
-		glBindRenderbuffer(GL_RENDERBUFFER, previous);
-
-	m_pixelFormat = format;
-	m_height = height;
-	m_id = renderBuffer;
-	m_width = width;
-
-	return true;
-}
-
-void NzRenderBuffer::Destroy()
-{
-	if (m_id)
+	void RenderBuffer::Destroy()
 	{
-		OnRenderBufferDestroy(this);
+		if (m_id)
+		{
+			OnRenderBufferDestroy(this);
 
-		NzContext::EnsureContext();
+			Context::EnsureContext();
 
-		GLuint renderBuffer = m_id;
-		glDeleteRenderbuffers(1, &renderBuffer); // Les Renderbuffers sont partagés entre les contextes: Ne posera pas de problème
-		m_id = 0;
-	}
-}
-
-unsigned int NzRenderBuffer::GetHeight() const
-{
-	return m_height;
-}
-
-nzPixelFormat NzRenderBuffer::GetFormat() const
-{
-	return m_pixelFormat;
-}
-
-unsigned int NzRenderBuffer::GetWidth() const
-{
-	return m_width;
-}
-
-unsigned int NzRenderBuffer::GetOpenGLID() const
-{
-	return m_id;
-}
-
-bool NzRenderBuffer::IsValid() const
-{
-	return m_id != 0;
-}
-
-bool NzRenderBuffer::Initialize()
-{
-	if (!NzRenderBufferLibrary::Initialize())
-	{
-		NazaraError("Failed to initialise library");
-		return false;
+			GLuint renderBuffer = m_id;
+			glDeleteRenderbuffers(1, &renderBuffer); // Les Renderbuffers sont partagés entre les contextes: Ne posera pas de problème
+			m_id = 0;
+		}
 	}
 
-	return true;
-}
+	unsigned int RenderBuffer::GetHeight() const
+	{
+		return m_height;
+	}
 
-void NzRenderBuffer::Uninitialize()
-{
-	NzRenderBufferLibrary::Uninitialize();
-}
+	PixelFormatType RenderBuffer::GetFormat() const
+	{
+		return m_pixelFormat;
+	}
 
-NzRenderBufferLibrary::LibraryMap NzRenderBuffer::s_library;
+	unsigned int RenderBuffer::GetWidth() const
+	{
+		return m_width;
+	}
+
+	unsigned int RenderBuffer::GetOpenGLID() const
+	{
+		return m_id;
+	}
+
+	bool RenderBuffer::IsValid() const
+	{
+		return m_id != 0;
+	}
+
+	bool RenderBuffer::Initialize()
+	{
+		if (!RenderBufferLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
+
+		return true;
+	}
+
+	void RenderBuffer::Uninitialize()
+	{
+		RenderBufferLibrary::Uninitialize();
+	}
+
+	RenderBufferLibrary::LibraryMap RenderBuffer::s_library;
+}

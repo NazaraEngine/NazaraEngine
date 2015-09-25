@@ -12,10 +12,10 @@
 
 namespace Ndk
 {
-	class NDK_API LightComponent : public Component<LightComponent>, public NzLight
+	class NDK_API LightComponent : public Component<LightComponent>, public Nz::Light
 	{
 		public:
-			inline LightComponent(nzLightType lightType = nzLightType_Point);
+			inline LightComponent(Nz::LightType lightType = Nz::LightType_Point);
 			LightComponent(const LightComponent& light) = default;
 			~LightComponent() = default;
 

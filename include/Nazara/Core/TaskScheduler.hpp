@@ -10,25 +10,28 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Functor.hpp>
 
-class NAZARA_CORE_API NzTaskScheduler
+namespace Nz
 {
-	public:
-		NzTaskScheduler() = delete;
-		~NzTaskScheduler() = delete;
+	class NAZARA_CORE_API TaskScheduler
+	{
+		public:
+			TaskScheduler() = delete;
+			~TaskScheduler() = delete;
 
-		template<typename F> static void AddTask(F function);
-		template<typename F, typename... Args> static void AddTask(F function, Args&&... args);
-		template<typename C> static void AddTask(void (C::*function)(), C* object);
-		static unsigned int GetWorkerCount();
-		static bool Initialize();
-		static void Run();
-		static void SetWorkerCount(unsigned int workerCount);
-		static void Uninitialize();
-		static void WaitForTasks();
+			template<typename F> static void AddTask(F function);
+			template<typename F, typename... Args> static void AddTask(F function, Args&&... args);
+			template<typename C> static void AddTask(void (C::*function)(), C* object);
+			static unsigned int GetWorkerCount();
+			static bool Initialize();
+			static void Run();
+			static void SetWorkerCount(unsigned int workerCount);
+			static void Uninitialize();
+			static void WaitForTasks();
 
-	private:
-		static void AddTaskFunctor(NzFunctor* taskFunctor);
-};
+		private:
+			static void AddTaskFunctor(Functor* taskFunctor);
+	};
+}
 
 #include <Nazara/Core/TaskScheduler.inl>
 

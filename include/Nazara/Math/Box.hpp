@@ -14,89 +14,93 @@
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzBox
+namespace Nz
 {
-	public:
-		NzBox() = default;
-		NzBox(T Width, T Height, T Depth);
-		NzBox(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzBox(const T box[6]);
-		NzBox(const NzRect<T>& rect);
-		NzBox(const NzVector3<T>& lengths);
-		NzBox(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> explicit NzBox(const NzBox<U>& box);
-		NzBox(const NzBox& box) = default;
-		~NzBox() = default;
+	template<typename T>
+	class Box
+	{
+		public:
+			Box() = default;
+			Box(T Width, T Height, T Depth);
+			Box(T X, T Y, T Z, T Width, T Height, T Depth);
+			Box(const T box[6]);
+			Box(const Rect<T>& rect);
+			Box(const Vector3<T>& lengths);
+			Box(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> explicit Box(const Box<U>& box);
+			Box(const Box& box) = default;
+			~Box() = default;
 
-		bool Contains(T X, T Y, T Z) const;
-		bool Contains(const NzBox& box) const;
-		bool Contains(const NzVector3<T>& point) const;
+			bool Contains(T X, T Y, T Z) const;
+			bool Contains(const Box& box) const;
+			bool Contains(const Vector3<T>& point) const;
 
-		NzBox& ExtendTo(T X, T Y, T Z);
-		NzBox& ExtendTo(const NzBox& box);
-		NzBox& ExtendTo(const NzVector3<T>& point);
+			Box& ExtendTo(T X, T Y, T Z);
+			Box& ExtendTo(const Box& box);
+			Box& ExtendTo(const Vector3<T>& point);
 
-		NzSphere<T> GetBoundingSphere() const;
-		NzVector3<T> GetCorner(nzBoxCorner corner) const;
-		NzVector3<T> GetCenter() const;
-		NzVector3<T> GetLengths() const;
-		NzVector3<T> GetMaximum() const;
-		NzVector3<T> GetMinimum() const;
-		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
-		NzVector3<T> GetPosition() const;
-		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
-		T GetRadius() const;
-		NzSphere<T> GetSquaredBoundingSphere() const;
-		T GetSquaredRadius() const;
+			Sphere<T> GetBoundingSphere() const;
+			Vector3<T> GetCorner(BoxCorner corner) const;
+			Vector3<T> GetCenter() const;
+			Vector3<T> GetLengths() const;
+			Vector3<T> GetMaximum() const;
+			Vector3<T> GetMinimum() const;
+			Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
+			Vector3<T> GetPosition() const;
+			Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
+			T GetRadius() const;
+			Sphere<T> GetSquaredBoundingSphere() const;
+			T GetSquaredRadius() const;
 
-		bool Intersect(const NzBox& box, NzBox* intersection = nullptr) const;
+			bool Intersect(const Box& box, Box* intersection = nullptr) const;
 
-		bool IsValid() const;
+			bool IsValid() const;
 
-		NzBox& MakeZero();
+			Box& MakeZero();
 
-		NzBox& Set(T Width, T Height, T Depth);
-		NzBox& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzBox& Set(const T box[6]);
-		NzBox& Set(const NzBox& box);
-		NzBox& Set(const NzRect<T>& rect);
-		NzBox& Set(const NzVector3<T>& lengths);
-		NzBox& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> NzBox& Set(const NzBox<U>& box);
+			Box& Set(T Width, T Height, T Depth);
+			Box& Set(T X, T Y, T Z, T Width, T Height, T Depth);
+			Box& Set(const T box[6]);
+			Box& Set(const Box& box);
+			Box& Set(const Rect<T>& rect);
+			Box& Set(const Vector3<T>& lengths);
+			Box& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> Box& Set(const Box<U>& box);
 
-		NzString ToString() const;
+			String ToString() const;
 
-		NzBox& Transform(const NzMatrix4<T>& matrix, bool applyTranslation = true);
-		NzBox& Translate(const NzVector3<T>& translation);
+			Box& Transform(const Matrix4<T>& matrix, bool applyTranslation = true);
+			Box& Translate(const Vector3<T>& translation);
 
-		T& operator[](unsigned int i);
-		T operator[](unsigned int i) const;
+			T& operator[](unsigned int i);
+			T operator[](unsigned int i) const;
 
-		NzBox operator*(T scalar) const;
-		NzBox operator*(const NzVector3<T>& vec) const;
+			Box operator*(T scalar) const;
+			Box operator*(const Vector3<T>& vec) const;
 
-		NzBox& operator*=(T scalar);
-		NzBox& operator*=(const NzVector3<T>& vec);
+			Box& operator*=(T scalar);
+			Box& operator*=(const Vector3<T>& vec);
 
-		bool operator==(const NzBox& box) const;
-		bool operator!=(const NzBox& box) const;
+			bool operator==(const Box& box) const;
+			bool operator!=(const Box& box) const;
 
-		static NzBox Lerp(const NzBox& from, const NzBox& to, T interpolation);
-		static NzBox Zero();
+			static Box Lerp(const Box& from, const Box& to, T interpolation);
+			static Box Zero();
 
-		T x, y, z, width, height, depth;
-};
+			T x, y, z, width, height, depth;
+	};
+
+	typedef Box<double> Boxd;
+	typedef Box<float> Boxf;
+	typedef Box<int> Boxi;
+	typedef Box<unsigned int> Boxui;
+	typedef Box<Int32> Boxi32;
+	typedef Box<UInt32> Boxui32;
+}
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzBox<T>& box);
+std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
 
-typedef NzBox<double> NzBoxd;
-typedef NzBox<float> NzBoxf;
-typedef NzBox<int> NzBoxi;
-typedef NzBox<unsigned int> NzBoxui;
-typedef NzBox<nzInt32> NzBoxi32;
-typedef NzBox<nzUInt32> NzBoxui32;
 
 #include <Nazara/Math/Box.inl>
 

@@ -6,16 +6,19 @@
 #include <Nazara/Core/Hash.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzHashable::~NzHashable() = default;
-
-NzHashDigest NzHashable::GetHash(nzHash hash) const
+namespace Nz
 {
-	NzHash h(hash);
-	return h.Hash(*this);
-}
+	Hashable::~Hashable() = default;
 
-NzHashDigest NzHashable::GetHash(NzAbstractHash* impl) const
-{
-	NzHash h(impl);
-	return h.Hash(*this);
+	HashDigest Hashable::GetHash(HashType hash) const
+	{
+		Hash h(hash);
+		return h.Process(*this);
+	}
+
+	HashDigest Hashable::GetHash(AbstractHash* impl) const
+	{
+		Hash h(impl);
+		return h.Process(*this);
+	}
 }

@@ -22,16 +22,16 @@ namespace Ndk
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 
-			inline void AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const;
+			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
-			inline void Attach(NzInstancedRenderableRef renderable);
+			inline void Attach(Nz::InstancedRenderableRef renderable);
 
 			inline void EnsureTransformMatrixUpdate() const;
 
 			static ComponentIndex componentIndex;
 
 		private:
-			void InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index);
+			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
 
@@ -39,29 +39,29 @@ namespace Ndk
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
-			void OnNodeInvalidated(const NzNode* node);
+			void OnNodeInvalidated(const Nz::Node* node);
 
 			void UpdateTransformMatrix() const;
 
-			NazaraSlot(NzNode, OnNodeInvalidation, m_nodeInvalidationSlot);
+			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
 
 			struct Renderable
 			{
-				Renderable(NzMatrix4f& transformMatrix) :
+				Renderable(Nz::Matrix4f& transformMatrix) :
 				data(transformMatrix),
 				dataUpdated(false)
 				{
 				}
 
-				NazaraSlot(NzInstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
 
-				mutable NzInstancedRenderable::InstanceData data;
-				NzInstancedRenderableRef renderable;
+				mutable Nz::InstancedRenderable::InstanceData data;
+				Nz::InstancedRenderableRef renderable;
 				mutable bool dataUpdated;
 			};
 
 			std::vector<Renderable> m_renderables;
-			mutable NzMatrix4f m_transformMatrix;
+			mutable Nz::Matrix4f m_transformMatrix;
 			mutable bool m_transformMatrixUpdated;
 	};
 }

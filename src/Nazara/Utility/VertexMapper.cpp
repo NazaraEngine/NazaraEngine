@@ -10,45 +10,48 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzVertexMapper::NzVertexMapper(NzSubMesh* subMesh, nzBufferAccess access)
+namespace Nz
 {
-	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-
-	NzVertexBuffer* buffer = nullptr;
-	switch (subMesh->GetAnimationType())
+	VertexMapper::VertexMapper(SubMesh* subMesh, BufferAccess access)
 	{
-		case nzAnimationType_Skeletal:
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+
+		VertexBuffer* buffer = nullptr;
+		switch (subMesh->GetAnimationType())
 		{
-			NzSkeletalMesh* skeletalMesh = static_cast<NzSkeletalMesh*>(subMesh);
-			buffer = skeletalMesh->GetVertexBuffer();
-			break;
+			case AnimationType_Skeletal:
+			{
+				SkeletalMesh* skeletalMesh = static_cast<SkeletalMesh*>(subMesh);
+				buffer = skeletalMesh->GetVertexBuffer();
+				break;
+			}
+
+			case AnimationType_Static:
+			{
+				StaticMesh* staticMesh = static_cast<StaticMesh*>(subMesh);
+				buffer = staticMesh->GetVertexBuffer();
+				break;
+			}
 		}
 
-		case nzAnimationType_Static:
+		if (!buffer)
 		{
-			NzStaticMesh* staticMesh = static_cast<NzStaticMesh*>(subMesh);
-			buffer = staticMesh->GetVertexBuffer();
-			break;
+			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
 		}
+
+		m_mapper.Map(buffer, access);
 	}
 
-	if (!buffer)
+	VertexMapper::VertexMapper(VertexBuffer* vertexBuffer, BufferAccess access)
 	{
-		NazaraInternalError("Animation type not handled (0x" + NzString::Number(subMesh->GetAnimationType(), 16) + ')');
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		m_mapper.Map(vertexBuffer, access);
 	}
 
-	m_mapper.Map(buffer, access);
-}
+	VertexMapper::~VertexMapper() = default;
 
-NzVertexMapper::NzVertexMapper(NzVertexBuffer* vertexBuffer, nzBufferAccess access)
-{
-	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-	m_mapper.Map(vertexBuffer, access);
-}
-
-NzVertexMapper::~NzVertexMapper() = default;
-
-void NzVertexMapper::Unmap()
-{
-	m_mapper.Unmap();
+	void VertexMapper::Unmap()
+	{
+		m_mapper.Unmap();
+	}
 }

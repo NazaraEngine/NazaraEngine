@@ -16,69 +16,72 @@
 #include <memory>
 #include <set>
 
-class NzTextSprite;
-
-using NzTextSpriteConstRef = NzObjectRef<const NzTextSprite>;
-using NzTextSpriteLibrary = NzObjectLibrary<NzTextSprite>;
-using NzTextSpriteRef = NzObjectRef<NzTextSprite>;
-
-class NAZARA_GRAPHICS_API NzTextSprite : public NzInstancedRenderable
+namespace Nz
 {
-	public:
-		inline NzTextSprite();
-		inline NzTextSprite(const NzTextSprite& sprite);
-		~NzTextSprite() = default;
+	class TextSprite;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+	using TextSpriteConstRef = ObjectRef<const TextSprite>;
+	using TextSpriteLibrary = ObjectLibrary<TextSprite>;
+	using TextSpriteRef = ObjectRef<TextSprite>;
 
-		inline void Clear();
+	class NAZARA_GRAPHICS_API TextSprite : public InstancedRenderable
+	{
+		public:
+			inline TextSprite();
+			inline TextSprite(const TextSprite& sprite);
+			~TextSprite() = default;
 
-		inline const NzColor& GetColor() const;
-		inline const NzMaterialRef& GetMaterial() const;
-		inline float GetScale() const;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		inline void SetColor(const NzColor& color);
-		inline void SetDefaultMaterial();
-		inline void SetMaterial(NzMaterialRef material);
-		inline void SetScale(float scale);
+			inline void Clear();
 
-		void Update(const NzAbstractTextDrawer& drawer);
+			inline const Color& GetColor() const;
+			inline const MaterialRef& GetMaterial() const;
+			inline float GetScale() const;
 
-		inline NzTextSprite& operator=(const NzTextSprite& text);
+			inline void SetColor(const Color& color);
+			inline void SetDefaultMaterial();
+			inline void SetMaterial(MaterialRef material);
+			inline void SetScale(float scale);
 
-		template<typename... Args> static NzTextSpriteRef New(Args&&... args);
+			void Update(const AbstractTextDrawer& drawer);
 
-	private:
-		inline void InvalidateVertices();
-		void MakeBoundingVolume() const override;
-		void OnAtlasInvalidated(const NzAbstractAtlas* atlas);
-		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
-		void UpdateData(InstanceData* instanceData) const override;
+			inline TextSprite& operator=(const TextSprite& text);
 
-		struct RenderIndices
-		{
-			unsigned int first;
-			unsigned int count;
-		};
+			template<typename... Args> static TextSpriteRef New(Args&&... args);
 
-		struct AtlasSlots
-		{
-			NazaraSlot(NzAbstractAtlas, OnAtlasCleared, clearSlot);
-			NazaraSlot(NzAbstractAtlas, OnAtlasLayerChange, layerChangeSlot);
-			NazaraSlot(NzAbstractAtlas, OnAtlasRelease, releaseSlot);
-		};
+		private:
+			inline void InvalidateVertices();
+			void MakeBoundingVolume() const override;
+			void OnAtlasInvalidated(const AbstractAtlas* atlas);
+			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
+			void UpdateData(InstanceData* instanceData) const override;
 
-		std::unordered_map<const NzAbstractAtlas*, AtlasSlots> m_atlases;
-		mutable std::unordered_map<NzTexture*, RenderIndices> m_renderInfos;
-		mutable std::vector<NzVertexStruct_XY_Color_UV> m_localVertices;
-		NzColor m_color;
-		NzMaterialRef m_material;
-		NzRectui m_localBounds;
-		mutable bool m_verticesUpdated;
-		float m_scale;
+			struct RenderIndices
+			{
+				unsigned int first;
+				unsigned int count;
+			};
 
-		static NzTextSpriteLibrary::LibraryMap s_library;
-};
+			struct AtlasSlots
+			{
+				NazaraSlot(AbstractAtlas, OnAtlasCleared, clearSlot);
+				NazaraSlot(AbstractAtlas, OnAtlasLayerChange, layerChangeSlot);
+				NazaraSlot(AbstractAtlas, OnAtlasRelease, releaseSlot);
+			};
+
+			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
+			mutable std::unordered_map<Texture*, RenderIndices> m_renderInfos;
+			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
+			Color m_color;
+			MaterialRef m_material;
+			Rectui m_localBounds;
+			mutable bool m_verticesUpdated;
+			float m_scale;
+
+			static TextSpriteLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Graphics/TextSprite.inl>
 

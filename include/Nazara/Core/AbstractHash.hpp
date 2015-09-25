@@ -8,19 +8,26 @@
 #define NAZARA_ABSTRACTHASH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
-class NzHashDigest;
-
-class NAZARA_CORE_API NzAbstractHash : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzAbstractHash() = default;
-		virtual ~NzAbstractHash();
+	class HashDigest;
 
-		virtual void Append(const nzUInt8* data, unsigned int len) = 0;
-		virtual void Begin() = 0;
-		virtual NzHashDigest End() = 0;
-};
+	class NAZARA_CORE_API AbstractHash
+	{
+		public:
+			AbstractHash() = default;
+			AbstractHash(const AbstractHash&) = delete;
+			AbstractHash(AbstractHash&&) = default;
+			virtual ~AbstractHash();
+
+			virtual void Append(const UInt8* data, unsigned int len) = 0;
+			virtual void Begin() = 0;
+			virtual HashDigest End() = 0;
+
+			AbstractHash& operator=(const AbstractHash&) = delete;
+			AbstractHash& operator=(AbstractHash&&) = default;
+	};
+}
 
 #endif // NAZARA_ABSTRACTHASH_HPP

@@ -11,28 +11,31 @@
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <windows.h>
 
-class NzContextImpl
+namespace Nz
 {
-	public:
-		NzContextImpl();
+	class ContextImpl
+	{
+		public:
+			ContextImpl();
 
-		bool Activate();
+			bool Activate();
 
-		bool Create(NzContextParameters& parameters);
+			bool Create(ContextParameters& parameters);
 
-		void Destroy();
+			void Destroy();
 
-		void EnableVerticalSync(bool enabled);
+			void EnableVerticalSync(bool enabled);
 
-		void SwapBuffers();
+			void SwapBuffers();
 
-		static bool Desactivate();
+			static bool Desactivate();
 
-	private:
-		HDC m_deviceContext;
-		HGLRC m_context;
-		HWND m_window;
-		bool m_ownsWindow;
-};
+		private:
+			HDC m_deviceContext;
+			HGLRC m_context;
+			HWND m_window;
+			bool m_ownsWindow;
+	};
+}
 
 #endif // NAZARA_CONTEXTIMPL_HPP

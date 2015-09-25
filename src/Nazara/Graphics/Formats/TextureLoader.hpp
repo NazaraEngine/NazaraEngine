@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_Texture_Register();
-void NzLoaders_Texture_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterTexture();
+		void UnregisterTexture();
+	}
+}
 
 #endif // NAZARA_LOADERS_TEXTURE_HPP

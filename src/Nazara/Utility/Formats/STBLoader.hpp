@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_STB_Register();
-void NzLoaders_STB_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterSTB();
+		void UnregisterSTB();
+	}
+}
 
 #endif // NAZARA_LOADERS_STB_HPP

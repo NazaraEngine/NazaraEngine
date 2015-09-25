@@ -14,30 +14,33 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NAZARA_UTILITY_API NzAbstractImage
+namespace Nz
 {
-	public:
-		NzAbstractImage() = default;
-		virtual ~NzAbstractImage();
+	class NAZARA_UTILITY_API AbstractImage
+	{
+		public:
+			AbstractImage() = default;
+			virtual ~AbstractImage();
 
-		nzUInt8 GetBytesPerPixel() const;
-		virtual unsigned int GetDepth(nzUInt8 level = 0) const = 0;
-		virtual nzPixelFormat GetFormat() const = 0;
-		virtual unsigned int GetHeight(nzUInt8 level = 0) const = 0;
-		virtual nzUInt8 GetLevelCount() const = 0;
-		virtual nzUInt8 GetMaxLevel() const = 0;
-		virtual unsigned int GetMemoryUsage() const = 0;
-		virtual unsigned int GetMemoryUsage(nzUInt8 level) const = 0;
-		virtual NzVector3ui GetSize(nzUInt8 level = 0) const = 0;
-		virtual nzImageType GetType() const = 0;
-		virtual unsigned int GetWidth(nzUInt8 level = 0) const = 0;
+			UInt8 GetBytesPerPixel() const;
+			virtual unsigned int GetDepth(UInt8 level = 0) const = 0;
+			virtual PixelFormatType GetFormat() const = 0;
+			virtual unsigned int GetHeight(UInt8 level = 0) const = 0;
+			virtual UInt8 GetLevelCount() const = 0;
+			virtual UInt8 GetMaxLevel() const = 0;
+			virtual unsigned int GetMemoryUsage() const = 0;
+			virtual unsigned int GetMemoryUsage(UInt8 level) const = 0;
+			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
+			virtual ImageType GetType() const = 0;
+			virtual unsigned int GetWidth(UInt8 level = 0) const = 0;
 
-		bool IsCompressed() const;
-		bool IsCubemap() const;
+			bool IsCompressed() const;
+			bool IsCubemap() const;
 
-		virtual bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0) = 0;
-		virtual bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0) = 0;
-		virtual bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0) = 0;
-};
+			virtual bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
+			virtual bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
+			virtual bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
+	};
+}
 
 #endif // NAZARA_IMAGE_HPP

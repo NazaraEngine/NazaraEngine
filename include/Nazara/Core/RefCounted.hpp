@@ -17,30 +17,33 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NAZARA_CORE_API NzRefCounted
+namespace Nz
 {
-	public:
-		NzRefCounted(bool persistent = true);
-		NzRefCounted(const NzRefCounted&) = delete;
-		NzRefCounted(NzRefCounted&&) = default;
-		virtual ~NzRefCounted();
+	class NAZARA_CORE_API RefCounted
+	{
+		public:
+			RefCounted(bool persistent = true);
+			RefCounted(const RefCounted&) = delete;
+			RefCounted(RefCounted&&) = default;
+			virtual ~RefCounted();
 
-		void AddReference() const;
+			void AddReference() const;
 
-		unsigned int GetReferenceCount() const;
+			unsigned int GetReferenceCount() const;
 
-		bool IsPersistent() const;
+			bool IsPersistent() const;
 
-		bool RemoveReference() const;
+			bool RemoveReference() const;
 
-		bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
+			bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
 
-		NzRefCounted& operator=(const NzRefCounted&) = delete;
-		NzRefCounted& operator=(NzRefCounted&&) = default;
+			RefCounted& operator=(const RefCounted&) = delete;
+			RefCounted& operator=(RefCounted&&) = default;
 
-	private:
-		std::atomic_bool m_persistent;
-		mutable std::atomic_uint m_referenceCount;
-};
+		private:
+			std::atomic_bool m_persistent;
+			mutable std::atomic_uint m_referenceCount;
+	};
+}
 
 #endif // NAZARA_RESOURCE_HPP

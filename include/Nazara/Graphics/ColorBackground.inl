@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-template<typename... Args>
-NzColorBackgroundRef NzColorBackground::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzColorBackground> object(new NzColorBackground(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	ColorBackgroundRef ColorBackground::New(Args&&... args)
+	{
+		std::unique_ptr<ColorBackground> object(new ColorBackground(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
