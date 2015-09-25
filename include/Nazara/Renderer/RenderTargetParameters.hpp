@@ -9,18 +9,21 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-struct NzRenderTargetParameters
+namespace Nz
 {
-	NzRenderTargetParameters(nzUInt8 antialiasing = 0, nzUInt8 depth = 24, nzUInt8 stencil = 0) :
-	antialiasingLevel(antialiasing),
-	depthBits(depth),
-	stencilBits(stencil)
+	struct RenderTargetParameters
 	{
-	}
+		RenderTargetParameters(UInt8 antialiasing = 0, UInt8 depth = 24, UInt8 stencil = 0) :
+		antialiasingLevel(antialiasing),
+		depthBits(depth),
+		stencilBits(stencil)
+		{
+		}
 
-	nzUInt8 antialiasingLevel;
-	nzUInt8 depthBits;
-	nzUInt8 stencilBits;
-};
+		UInt8 antialiasingLevel;
+		UInt8 depthBits;
+		UInt8 stencilBits;
+	};
+}
 
 #endif // NAZARA_RENDERTARGETPARAMETERS_HPP

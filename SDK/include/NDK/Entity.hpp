@@ -36,9 +36,9 @@ namespace Ndk
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
-			inline const NzBitset<>& GetComponentBits() const;
+			inline const Nz::Bitset<>& GetComponentBits() const;
 			inline EntityId GetId() const;
-			inline const NzBitset<>& GetSystemBits() const;
+			inline const Nz::Bitset<>& GetSystemBits() const;
 			inline World* GetWorld() const;
 
 			inline bool HasComponent(ComponentIndex index) const;
@@ -69,9 +69,9 @@ namespace Ndk
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			std::vector<EntityHandle*> m_handles;
+			Nz::Bitset<> m_componentBits;
+			Nz::Bitset<> m_systemBits;
 			EntityId m_id;
-			NzBitset<> m_componentBits;
-			NzBitset<> m_systemBits;
 			World* m_world;
 			bool m_valid;
 	};

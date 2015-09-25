@@ -12,23 +12,26 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NAZARA_UTILITY_API NzUtility
+namespace Nz
 {
-	public:
-		NzUtility() = delete;
-		~NzUtility() = delete;
+	class NAZARA_UTILITY_API Utility
+	{
+		public:
+			Utility() = delete;
+			~Utility() = delete;
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
+			static bool IsInitialized();
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-		static unsigned int ComponentCount[nzComponentType_Max+1];
-		static std::size_t ComponentStride[nzComponentType_Max+1];
+			static unsigned int ComponentCount[ComponentType_Max+1];
+			static std::size_t ComponentStride[ComponentType_Max+1];
 
-	private:
-		static unsigned int s_moduleReferenceCounter;
-};
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};
+}
 
 #endif // NAZARA_UTILITY_HPP

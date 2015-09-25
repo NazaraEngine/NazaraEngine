@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzVertexDeclarationRef NzVertexDeclaration::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzVertexDeclaration> object(new NzVertexDeclaration(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	VertexDeclarationRef VertexDeclaration::New(Args&&... args)
+	{
+		std::unique_ptr<VertexDeclaration> object(new VertexDeclaration(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

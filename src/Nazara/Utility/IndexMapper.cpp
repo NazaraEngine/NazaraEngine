@@ -8,143 +8,146 @@
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	nzUInt32 Getter16(const void* buffer, unsigned int i)
+	namespace
 	{
-		const nzUInt16* ptr = reinterpret_cast<const nzUInt16*>(buffer);
-		return ptr[i];
+		UInt32 Getter16(const void* buffer, unsigned int i)
+		{
+			const UInt16* ptr = reinterpret_cast<const UInt16*>(buffer);
+			return ptr[i];
+		}
+
+		UInt32 Getter32(const void* buffer, unsigned int i)
+		{
+			const UInt32* ptr = reinterpret_cast<const UInt32*>(buffer);
+			return ptr[i];
+		}
+
+		void Setter16(void* buffer, unsigned int i, UInt32 value)
+		{
+			UInt16* ptr = reinterpret_cast<UInt16*>(buffer);
+			ptr[i] = static_cast<UInt16>(value);
+		}
+
+		void Setter32(void* buffer, unsigned int i, UInt32 value)
+		{
+			UInt32* ptr = reinterpret_cast<UInt32*>(buffer);
+			ptr[i] = value;
+		}
+
+		void SetterError(void*, unsigned int, UInt32)
+		{
+			NazaraError("Index buffer opened with read-only access");
+		}
 	}
 
-	nzUInt32 Getter32(const void* buffer, unsigned int i)
+	IndexMapper::IndexMapper(IndexBuffer* indexBuffer, BufferAccess access) :
+	m_indexCount(indexBuffer->GetIndexCount())
 	{
-		const nzUInt32* ptr = reinterpret_cast<const nzUInt32*>(buffer);
-		return ptr[i];
-	}
+		#if NAZARA_UTILITY_SAFE
+		if (!indexBuffer)
+		{
+			NazaraError("Index buffer must be valid");
+			return;
+		}
+		#endif
 
-	void Setter16(void* buffer, unsigned int i, nzUInt32 value)
-	{
-		nzUInt16* ptr = reinterpret_cast<nzUInt16*>(buffer);
-		ptr[i] = static_cast<nzUInt16>(value);
-	}
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 
-	void Setter32(void* buffer, unsigned int i, nzUInt32 value)
-	{
-		nzUInt32* ptr = reinterpret_cast<nzUInt32*>(buffer);
-		ptr[i] = value;
-	}
-
-	void SetterError(void*, unsigned int, nzUInt32)
-	{
-		NazaraError("Index buffer opened with read-only access");
-	}
-}
-
-NzIndexMapper::NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access) :
-m_indexCount(indexBuffer->GetIndexCount())
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!indexBuffer)
-	{
-		NazaraError("Index buffer must be valid");
-		return;
-	}
-	#endif
-
-	if (!m_mapper.Map(indexBuffer, access))
-		NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-	if (indexBuffer->HasLargeIndices())
-	{
-		m_getter = Getter32;
-		if (access != nzBufferAccess_ReadOnly)
-			m_setter = Setter32;
+		if (indexBuffer->HasLargeIndices())
+		{
+			m_getter = Getter32;
+			if (access != BufferAccess_ReadOnly)
+				m_setter = Setter32;
+			else
+				m_setter = SetterError;
+		}
 		else
-			m_setter = SetterError;
+		{
+			m_getter = Getter16;
+			if (access != BufferAccess_ReadOnly)
+				m_setter = Setter16;
+			else
+				m_setter = SetterError;
+		}
 	}
-	else
+
+	IndexMapper::IndexMapper(const IndexBuffer* indexBuffer, BufferAccess access) :
+	m_setter(SetterError),
+	m_indexCount(indexBuffer->GetIndexCount())
 	{
-		m_getter = Getter16;
-		if (access != nzBufferAccess_ReadOnly)
-			m_setter = Setter16;
+		#if NAZARA_UTILITY_SAFE
+		if (!indexBuffer)
+		{
+			NazaraError("Index buffer must be valid");
+			return;
+		}
+		#endif
+
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+
+		if (indexBuffer->HasLargeIndices())
+			m_getter = Getter32;
 		else
-			m_setter = SetterError;
+			m_getter = Getter16;
 	}
-}
 
-NzIndexMapper::NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access) :
-m_setter(SetterError),
-m_indexCount(indexBuffer->GetIndexCount())
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!indexBuffer)
+	IndexMapper::IndexMapper(const SubMesh* subMesh) :
+	IndexMapper(subMesh->GetIndexBuffer())
 	{
-		NazaraError("Index buffer must be valid");
-		return;
 	}
-	#endif
 
-	if (!m_mapper.Map(indexBuffer, access))
-		NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-	if (indexBuffer->HasLargeIndices())
-		m_getter = Getter32;
-	else
-		m_getter = Getter16;
-}
-
-NzIndexMapper::NzIndexMapper(const NzSubMesh* subMesh) :
-NzIndexMapper(subMesh->GetIndexBuffer())
-{
-}
-
-nzUInt32 NzIndexMapper::Get(unsigned int i) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i >= m_indexCount)
+	UInt32 IndexMapper::Get(unsigned int i) const
 	{
-		NazaraError("Index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_indexCount) + ')');
-		return 0;
+		#if NAZARA_UTILITY_SAFE
+		if (i >= m_indexCount)
+		{
+			NazaraError("Index out of range (" + String::Number(i) + " >= " + String::Number(m_indexCount) + ')');
+			return 0;
+		}
+		#endif
+
+		return m_getter(m_mapper.GetPointer(), i);
 	}
-	#endif
 
-	return m_getter(m_mapper.GetPointer(), i);
-}
-
-const NzIndexBuffer* NzIndexMapper::GetBuffer() const
-{
-	return m_mapper.GetBuffer();
-}
-
-unsigned int NzIndexMapper::GetIndexCount() const
-{
-	return m_indexCount;
-}
-
-void NzIndexMapper::Set(unsigned int i, nzUInt32 value)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (i >= m_indexCount)
+	const IndexBuffer* IndexMapper::GetBuffer() const
 	{
-		NazaraError("Index out of range (" + NzString::Number(i) + " >= " + NzString::Number(m_indexCount) + ')');
-		return;
+		return m_mapper.GetBuffer();
 	}
-	#endif
 
-	m_setter(m_mapper.GetPointer(), i, value);
-}
+	unsigned int IndexMapper::GetIndexCount() const
+	{
+		return m_indexCount;
+	}
 
-void NzIndexMapper::Unmap()
-{
-	m_mapper.Unmap();
-}
+	void IndexMapper::Set(unsigned int i, UInt32 value)
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (i >= m_indexCount)
+		{
+			NazaraError("Index out of range (" + String::Number(i) + " >= " + String::Number(m_indexCount) + ')');
+			return;
+		}
+		#endif
 
-NzIndexIterator NzIndexMapper::begin()
-{
-	return NzIndexIterator(this, 0);
-}
+		m_setter(m_mapper.GetPointer(), i, value);
+	}
 
-NzIndexIterator NzIndexMapper::end()
-{
-	return NzIndexIterator(this, m_indexCount); // Post-end
+	void IndexMapper::Unmap()
+	{
+		m_mapper.Unmap();
+	}
+
+	IndexIterator IndexMapper::begin()
+	{
+		return IndexIterator(this, 0);
+	}
+
+	IndexIterator IndexMapper::end()
+	{
+		return IndexIterator(this, m_indexCount); // Post-end
+	}
 }

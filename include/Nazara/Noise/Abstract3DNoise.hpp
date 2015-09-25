@@ -10,14 +10,17 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
 
-class NAZARA_NOISE_API NzAbstract3DNoise : public NzMappedNoiseBase
+namespace Nz
 {
-	public:
-		virtual ~NzAbstract3DNoise();
+	class NAZARA_NOISE_API Abstract3DNoise : public MappedNoiseBase
+	{
+		public:
+			virtual ~Abstract3DNoise();
 
-		float GetBasicValue(float x, float y, float z);
-		float GetMappedValue(float x, float y, float z);
-		virtual float GetValue(float x, float y, float z, float resolution) = 0;
-};
+			float GetBasicValue(float x, float y, float z);
+			float GetMappedValue(float x, float y, float z);
+			virtual float GetValue(float x, float y, float z, float resolution) = 0;
+	};
+}
 
 #endif // NAZARA_ABSTRACT3DNOISE_HPP

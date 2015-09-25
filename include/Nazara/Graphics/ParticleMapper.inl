@@ -5,45 +5,48 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-template <typename T>
-NzSparsePtr<T> NzParticleMapper::GetComponentPtr(nzParticleComponent component)
+namespace Nz
 {
-	// Ensuite le composant qui nous intéresse
-	bool enabled;
-	nzComponentType type;
-	unsigned int offset;
-	m_declaration->GetComponent(component, &enabled, &type, &offset);
+	template <typename T>
+	SparsePtr<T> ParticleMapper::GetComponentPtr(ParticleComponent component)
+	{
+		// Ensuite le composant qui nous intéresse
+		bool enabled;
+		ComponentType type;
+		unsigned int offset;
+		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-	if (enabled)
-	{
-		///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
-		return NzSparsePtr<T>(m_ptr + offset, m_declaration->GetStride());
+		if (enabled)
+		{
+			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
+			return SparsePtr<T>(m_ptr + offset, m_declaration->GetStride());
+		}
+		else
+		{
+			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
+			return SparsePtr<T>();
+		}
 	}
-	else
-	{
-		NazaraError("Attribute 0x" + NzString::Number(component, 16) + " is not enabled");
-		return NzSparsePtr<T>();
-	}
-}
 
-template <typename T>
-NzSparsePtr<const T> NzParticleMapper::GetComponentPtr(nzParticleComponent component) const
-{
-	// Ensuite le composant qui nous intéresse
-	bool enabled;
-	nzComponentType type;
-	unsigned int offset;
-	m_declaration->GetComponent(component, &enabled, &type, &offset);
+	template <typename T>
+	SparsePtr<const T> ParticleMapper::GetComponentPtr(ParticleComponent component) const
+	{
+		// Ensuite le composant qui nous intéresse
+		bool enabled;
+		ComponentType type;
+		unsigned int offset;
+		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-	if (enabled)
-	{
-		///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
-		return NzSparsePtr<const T>(m_ptr + offset, m_declaration->GetStride());
-	}
-	else
-	{
-		NazaraError("Attribute 0x" + NzString::Number(component, 16) + " is not enabled");
-		return NzSparsePtr<const T>();
+		if (enabled)
+		{
+			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
+			return SparsePtr<const T>(m_ptr + offset, m_declaration->GetStride());
+		}
+		else
+		{
+			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
+			return SparsePtr<const T>();
+		}
 	}
 }
 

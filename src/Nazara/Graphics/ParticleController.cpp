@@ -5,31 +5,34 @@
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzParticleController::NzParticleController(const NzParticleController& controller) :
-NzRefCounted()
+namespace Nz
 {
-	NazaraUnused(controller);
-}
-
-NzParticleController::~NzParticleController()
-{
-	OnParticleControllerRelease(this);
-}
-
-bool NzParticleController::Initialize()
-{
-	if (!NzParticleControllerLibrary::Initialize())
+	ParticleController::ParticleController(const ParticleController& controller) :
+	RefCounted()
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		NazaraUnused(controller);
 	}
 
-	return true;
-}
+	ParticleController::~ParticleController()
+	{
+		OnParticleControllerRelease(this);
+	}
 
-void NzParticleController::Uninitialize()
-{
-	NzParticleControllerLibrary::Uninitialize();
-}
+	bool ParticleController::Initialize()
+	{
+		if (!ParticleControllerLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
 
-NzParticleControllerLibrary::LibraryMap NzParticleController::s_library;
+		return true;
+	}
+
+	void ParticleController::Uninitialize()
+	{
+		ParticleControllerLibrary::Uninitialize();
+	}
+
+	ParticleControllerLibrary::LibraryMap ParticleController::s_library;
+}

@@ -5,67 +5,67 @@ SCENARIO("StringStream", "[CORE][STRINGSTREAM]")
 {
 	GIVEN("A string stream")
 	{
-		NzStringStream stringstream("default");
+		Nz::StringStream stringStream("default");
 
 		WHEN("We add bool and char")
 		{
-			stringstream << true;
+			stringStream << true;
 
 			char valueCharSigned = 64;
-			stringstream << valueCharSigned;
+			stringStream << valueCharSigned;
 			unsigned char valueCharUnsigned = 64;
-			stringstream << valueCharUnsigned;
+			stringStream << valueCharUnsigned;
 
-			REQUIRE(stringstream.ToString() == "defaulttrue@@");
+			REQUIRE(stringStream.ToString() == "defaulttrue@@");
 		}
 
 		AND_WHEN("We add short and int")
 		{
 			short valueShortSigned = -3;
-			stringstream << valueShortSigned;
+			stringStream << valueShortSigned;
 			unsigned short valueShortUnsigned = 3;
-			stringstream << valueShortUnsigned;
+			stringStream << valueShortUnsigned;
 
 			int valueIntSigned = -3;
-			stringstream << valueIntSigned;
+			stringStream << valueIntSigned;
 			unsigned int valueIntUnsigned = 3;
-			stringstream << valueIntUnsigned;
+			stringStream << valueIntUnsigned;
 
-			REQUIRE(stringstream.ToString() == "default-33-33");
+			REQUIRE(stringStream.ToString() == "default-33-33");
 		}
 
 		AND_WHEN("We add long and long long")
 		{
 			long valueLongSigned = -3;
-			stringstream << valueLongSigned;
+			stringStream << valueLongSigned;
 			unsigned long valueLongUnsigned = 3;
-			stringstream << valueLongUnsigned;
+			stringStream << valueLongUnsigned;
 
 			long long valueLongLongSigned = -3;
-			stringstream << valueLongLongSigned;
+			stringStream << valueLongLongSigned;
 			unsigned long long valueLongLongUnsigned = 3;
-			stringstream << valueLongLongUnsigned;
+			stringStream << valueLongLongUnsigned;
 
-			REQUIRE(stringstream.ToString() == "default-33-33");
+			REQUIRE(stringStream.ToString() == "default-33-33");
 		}
 
 		AND_WHEN("We add floating points")
 		{
-			stringstream << 3.f;
-			stringstream << 3.0;
-			stringstream << 3.0L;
+			stringStream << 3.f;
+			stringStream << 3.0;
+			stringStream << 3.0L;
 
-			REQUIRE(stringstream.ToString() == "default333");
+			REQUIRE(stringStream.ToString() == "default333");
 		}
 
 		AND_WHEN("We add string and pointer")
 		{
-			stringstream << "3";
-			stringstream << std::string("3");
-			stringstream << NzString("3");
-			stringstream << static_cast<void*>(nullptr);
+			stringStream << "3";
+			stringStream << std::string("3");
+			stringStream << Nz::String("3");
+			stringStream << static_cast<void*>(nullptr);
 
-			REQUIRE(stringstream.ToString() == (NzString("default333") + NzString::Pointer(nullptr)));
+			REQUIRE(stringStream.ToString() == (Nz::String("default333") + Nz::String::Pointer(nullptr)));
 		}
 	}
 }

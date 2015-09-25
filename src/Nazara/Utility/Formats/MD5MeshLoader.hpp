@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_MD5Mesh_Register();
-void NzLoaders_MD5Mesh_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterMD5Mesh();
+		void UnregisterMD5Mesh();
+	}
+}
 
 #endif // NAZARA_LOADERS_MD5MESH_HPP

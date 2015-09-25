@@ -56,52 +56,55 @@
 #define SHA512_DIGEST_LENGTH          64
 #define SHA512_DIGEST_STRING_LENGTH  (SHA512_DIGEST_LENGTH * 2 + 1)
 
-union SHA_CTX
+namespace Nz
 {
-    /* SHA-1 uses this part of the union: */
-    struct
-    {
-        nzUInt32 state[5];
-        nzUInt64 bitcount;
-        nzUInt8  buffer[64];
-    } s1;
+	union SHA_CTX
+	{
+		/* SHA-1 uses this part of the union: */
+		struct
+		{
+			UInt32 state[5];
+			UInt64 bitcount;
+			UInt8  buffer[64];
+		} s1;
 
-    /* SHA-224 and SHA-256 use this part of the union: */
-    struct
-    {
-        nzUInt32 state[8];
-        nzUInt64 bitcount;
-        nzUInt8  buffer[64];
-    } s256;
+		/* SHA-224 and SHA-256 use this part of the union: */
+		struct
+		{
+			UInt32 state[8];
+			UInt64 bitcount;
+			UInt8  buffer[64];
+		} s256;
 
-    /* SHA-384 and SHA-512 use this part of the union: */
-    struct
-    {
-        nzUInt64 state[8];
-        nzUInt64 bitcount[2];
-        nzUInt8  buffer[128];
-    } s512;
-};
+		/* SHA-384 and SHA-512 use this part of the union: */
+		struct
+		{
+			UInt64 state[8];
+			UInt64 bitcount[2];
+			UInt8  buffer[128];
+		} s512;
+	};
 
-void SHA1_Init(SHA_CTX*);
-void SHA1_Update(SHA_CTX*, const nzUInt8*, std::size_t);
-void SHA1_End(SHA_CTX*, nzUInt8*);
+	void SHA1_Init(SHA_CTX*);
+	void SHA1_Update(SHA_CTX*, const UInt8*, std::size_t);
+	void SHA1_End(SHA_CTX*, UInt8*);
 
-void SHA224_Init(SHA_CTX*);
-void SHA224_Update(SHA_CTX*, const nzUInt8*, std::size_t);
-void SHA224_End(SHA_CTX*, nzUInt8*);
+	void SHA224_Init(SHA_CTX*);
+	void SHA224_Update(SHA_CTX*, const UInt8*, std::size_t);
+	void SHA224_End(SHA_CTX*, UInt8*);
 
-void SHA256_Init(SHA_CTX*);
-void SHA256_Update(SHA_CTX*, const nzUInt8*, std::size_t);
-void SHA256_End(SHA_CTX*, nzUInt8*);
+	void SHA256_Init(SHA_CTX*);
+	void SHA256_Update(SHA_CTX*, const UInt8*, std::size_t);
+	void SHA256_End(SHA_CTX*, UInt8*);
 
-void SHA384_Init(SHA_CTX*);
-void SHA384_Update(SHA_CTX*, const nzUInt8*, std::size_t);
-void SHA384_End(SHA_CTX*, nzUInt8*);
+	void SHA384_Init(SHA_CTX*);
+	void SHA384_Update(SHA_CTX*, const UInt8*, std::size_t);
+	void SHA384_End(SHA_CTX*, UInt8*);
 
-void SHA512_Init(SHA_CTX*);
-void SHA512_Update(SHA_CTX*, const nzUInt8*, std::size_t);
-void SHA512_End(SHA_CTX*, nzUInt8*);
+	void SHA512_Init(SHA_CTX*);
+	void SHA512_Update(SHA_CTX*, const UInt8*, std::size_t);
+	void SHA512_End(SHA_CTX*, UInt8*);
+}
 
 #endif /* NAZARA_HASH_SHA2_INTERNAL_HPP */
 

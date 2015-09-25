@@ -9,27 +9,30 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzMutexImpl;
-
-class NAZARA_CORE_API NzMutex
+namespace Nz
 {
-	friend class NzConditionVariable;
+	class MutexImpl;
 
-	public:
-		NzMutex();
-		NzMutex(const NzMutex&) = delete;
-		NzMutex(NzMutex&&) = delete; ///TODO
-		~NzMutex();
+	class NAZARA_CORE_API Mutex
+	{
+		friend class ConditionVariable;
 
-		void Lock();
-		bool TryLock();
-		void Unlock();
+		public:
+			Mutex();
+			Mutex(const Mutex&) = delete;
+			Mutex(Mutex&&) = delete; ///TODO
+			~Mutex();
 
-		NzMutex& operator=(const NzMutex&) = delete;
-		NzMutex& operator=(NzMutex&&) = delete; ///TODO
+			void Lock();
+			bool TryLock();
+			void Unlock();
 
-	private:
-		NzMutexImpl* m_impl;
-};
+			Mutex& operator=(const Mutex&) = delete;
+			Mutex& operator=(Mutex&&) = delete; ///TODO
+
+		private:
+			MutexImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_MUTEX_HPP

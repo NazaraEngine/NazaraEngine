@@ -5,76 +5,79 @@
 #include <memory>
 #include <Nazara/Physics/Debug.hpp>
 
-template<typename... Args>
-NzBoxGeomRef NzBoxGeom::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzBoxGeom> object(new NzBoxGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	BoxGeomRef BoxGeom::New(Args&&... args)
+	{
+		std::unique_ptr<BoxGeom> object(new BoxGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzCapsuleGeomRef NzCapsuleGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzCapsuleGeom> object(new NzCapsuleGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	CapsuleGeomRef CapsuleGeom::New(Args&&... args)
+	{
+		std::unique_ptr<CapsuleGeom> object(new CapsuleGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzCompoundGeomRef NzCompoundGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzCompoundGeom> object(new NzCompoundGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	CompoundGeomRef CompoundGeom::New(Args&&... args)
+	{
+		std::unique_ptr<CompoundGeom> object(new CompoundGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzConeGeomRef NzConeGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzConeGeom> object(new NzConeGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	ConeGeomRef ConeGeom::New(Args&&... args)
+	{
+		std::unique_ptr<ConeGeom> object(new ConeGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzConvexHullGeomRef NzConvexHullGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzConvexHullGeom> object(new NzConvexHullGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	ConvexHullGeomRef ConvexHullGeom::New(Args&&... args)
+	{
+		std::unique_ptr<ConvexHullGeom> object(new ConvexHullGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzCylinderGeomRef NzCylinderGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzCylinderGeom> object(new NzCylinderGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	NzCylinderGeomRef NzCylinderGeom::New(Args&&... args)
+	{
+		std::unique_ptr<NzCylinderGeom> object(new NzCylinderGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzNullGeomRef NzNullGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzNullGeom> object(new NzNullGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	NullGeomRef NullGeom::New(Args&&... args)
+	{
+		std::unique_ptr<NullGeom> object(new NullGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
-}
+		return object.release();
+	}
 
-template<typename... Args>
-NzSphereGeomRef NzSphereGeom::New(Args&&... args)
-{
-	std::unique_ptr<NzSphereGeom> object(new NzSphereGeom(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	SphereGeomRef SphereGeom::New(Args&&... args)
+	{
+		std::unique_ptr<SphereGeom> object(new SphereGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Physics/DebugOff.hpp>

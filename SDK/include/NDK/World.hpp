@@ -85,8 +85,8 @@ namespace Ndk
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
-			NzBitset<nzUInt64> m_dirtyEntities;
-			NzBitset<nzUInt64> m_killedEntities;
+			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
+			Nz::Bitset<Nz::UInt64> m_killedEntities;
 	};
 }
 

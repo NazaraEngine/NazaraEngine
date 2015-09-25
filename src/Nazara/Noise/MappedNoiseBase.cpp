@@ -10,44 +10,47 @@
 #include <Nazara/Noise/MappedNoiseBase.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzMappedNoiseBase::NzMappedNoiseBase() : m_gain(1.f), m_offset(0.f), m_resolution(30.f)
+namespace Nz
 {
-
-}
-
-float NzMappedNoiseBase::GetGain() const
-{
-	return m_gain;
-}
-
-float NzMappedNoiseBase::GetOffset() const
-{
-	return m_offset;
-}
-
-float NzMappedNoiseBase::GetResolution() const
-{
-	return m_resolution;
-}
-
-void NzMappedNoiseBase::SetGain(float gain)
-{
-	m_gain = gain;
-}
-
-void NzMappedNoiseBase::SetOffset(float offset)
-{
-	m_offset = offset;
-}
-
-void NzMappedNoiseBase::SetResolution(float resolution)
-{
-	if (NzNumberEquals(resolution, 0.f))
+	MappedNoiseBase::MappedNoiseBase() : m_gain(1.f), m_offset(0.f), m_resolution(30.f)
 	{
-		NzStringStream ss;
-		ss << __FILE__ << ':' << __LINE__ << " : resolution cannot be 0.0f";
 
-		throw std::domain_error(ss.ToString());
 	}
-	m_resolution = resolution;
+
+	float MappedNoiseBase::GetGain() const
+	{
+		return m_gain;
+	}
+
+	float MappedNoiseBase::GetOffset() const
+	{
+		return m_offset;
+	}
+
+	float MappedNoiseBase::GetResolution() const
+	{
+		return m_resolution;
+	}
+
+	void MappedNoiseBase::SetGain(float gain)
+	{
+		m_gain = gain;
+	}
+
+	void MappedNoiseBase::SetOffset(float offset)
+	{
+		m_offset = offset;
+	}
+
+	void MappedNoiseBase::SetResolution(float resolution)
+	{
+		if (NumberEquals(resolution, 0.f))
+		{
+			StringStream ss;
+			ss << __FILE__ << ':' << __LINE__ << " : resolution cannot be 0.0f";
+
+			throw std::domain_error(ss.ToString());
+		}
+		m_resolution = resolution;
+	}
 }

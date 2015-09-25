@@ -14,49 +14,52 @@
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>
 
-class NAZARA_UTILITY_API NzMTLParser
+namespace Nz
 {
-	public:
-		struct Material
-		{
-			NzColor ambient = NzColor::White;
-			NzColor diffuse = NzColor::White;
-			NzColor specular = NzColor::White;
-			NzString alphaMap;
-			NzString ambientMap;
-			NzString bumpMap;
-			NzString decalMap;
-			NzString diffuseMap;
-			NzString displacementMap;
-			NzString reflectionMap;
-			NzString shininessMap;
-			NzString specularMap;
-			float alpha = 1.f;
-			float refractionIndex = 1.f;
-			float shininess = 1.f;
-			unsigned int illumModel = 0;
-		};
+	class NAZARA_UTILITY_API MTLParser
+	{
+		public:
+			struct Material
+			{
+				Color ambient = Color::White;
+				Color diffuse = Color::White;
+				Color specular = Color::White;
+				String alphaMap;
+				String ambientMap;
+				String bumpMap;
+				String decalMap;
+				String diffuseMap;
+				String displacementMap;
+				String reflectionMap;
+				String shininessMap;
+				String specularMap;
+				float alpha = 1.f;
+				float refractionIndex = 1.f;
+				float shininess = 1.f;
+				unsigned int illumModel = 0;
+			};
 
-		NzMTLParser(NzInputStream& stream$);
-		~NzMTLParser();
+			MTLParser(InputStream& stream$);
+			~MTLParser();
 
-		const Material* GetMaterial(const NzString& materialName) const;
-		const std::unordered_map<NzString, Material>& GetMaterials() const;
+			const Material* GetMaterial(const String& materialName) const;
+			const std::unordered_map<String, Material>& GetMaterials() const;
 
-		bool Parse();
+			bool Parse();
 
-	private:
-		bool Advance(bool required = true);
-		void Error(const NzString& message);
-		void Warning(const NzString& message);
-		void UnrecognizedLine(bool error = false);
+		private:
+			bool Advance(bool required = true);
+			void Error(const String& message);
+			void Warning(const String& message);
+			void UnrecognizedLine(bool error = false);
 
-		std::unordered_map<NzString, Material> m_materials;
-		NzInputStream& m_stream;
-		NzString m_currentLine;
-		bool m_keepLastLine;
-		unsigned int m_lineCount;
-		unsigned int m_streamFlags;
-};
+			std::unordered_map<String, Material> m_materials;
+			InputStream& m_stream;
+			String m_currentLine;
+			bool m_keepLastLine;
+			unsigned int m_lineCount;
+			unsigned int m_streamFlags;
+	};
+}
 
 #endif // NAZARA_FORMATS_MTLPARSER_HPP

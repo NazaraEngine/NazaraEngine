@@ -12,35 +12,38 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Node.hpp>
 
-class NzSkeleton;
-
-class NAZARA_UTILITY_API NzJoint : public NzNode
+namespace Nz
 {
-	public:
-		NzJoint(NzSkeleton* skeleton);
-		NzJoint(const NzJoint& joint);
-		~NzJoint() = default;
+	class Skeleton;
 
-		void EnsureSkinningMatrixUpdate() const;
+	class NAZARA_UTILITY_API Joint : public Node
+	{
+		public:
+			Joint(Skeleton* skeleton);
+			Joint(const Joint& joint);
+			~Joint() = default;
 
-		const NzMatrix4f& GetInverseBindMatrix() const;
-		NzString GetName() const;
-		NzSkeleton* GetSkeleton();
-		const NzSkeleton* GetSkeleton() const;
-		const NzMatrix4f& GetSkinningMatrix() const;
+			void EnsureSkinningMatrixUpdate() const;
 
-		void SetInverseBindMatrix(const NzMatrix4f& matrix);
-		void SetName(const NzString& name);
+			const Matrix4f& GetInverseBindMatrix() const;
+			String GetName() const;
+			Skeleton* GetSkeleton();
+			const Skeleton* GetSkeleton() const;
+			const Matrix4f& GetSkinningMatrix() const;
 
-	private:
-		void InvalidateNode();
-		void UpdateSkinningMatrix() const;
+			void SetInverseBindMatrix(const Matrix4f& matrix);
+			void SetName(const String& name);
 
-		NzMatrix4f m_inverseBindMatrix;
-		mutable NzMatrix4f m_skinningMatrix;
-		NzString m_name;
-		NzSkeleton* m_skeleton;
-		mutable bool m_skinningMatrixUpdated;
-};
+		private:
+			void InvalidateNode();
+			void UpdateSkinningMatrix() const;
+
+			Matrix4f m_inverseBindMatrix;
+			mutable Matrix4f m_skinningMatrix;
+			String m_name;
+			Skeleton* m_skeleton;
+			mutable bool m_skinningMatrixUpdated;
+	};
+}
 
 #endif // NAZARA_JOINT_HPP

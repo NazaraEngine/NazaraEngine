@@ -13,42 +13,45 @@
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 #include <unordered_map>
 
-class NzRenderer;
-
-class NAZARA_RENDERER_API NzRenderTarget
+namespace Nz
 {
-	friend class NzRenderer;
+	class Renderer;
 
-	public:
-		NzRenderTarget() = default;
-		NzRenderTarget(const NzRenderTarget&) = delete;
-		NzRenderTarget(NzRenderTarget&&) = delete; ///TOOD?
-		virtual ~NzRenderTarget();
+	class NAZARA_RENDERER_API RenderTarget
+	{
+		friend class Renderer;
 
-		virtual unsigned int GetHeight() const = 0;
-		virtual NzRenderTargetParameters GetParameters() const = 0;
-		virtual unsigned int GetWidth() const = 0;
+		public:
+			RenderTarget() = default;
+			RenderTarget(const RenderTarget&) = delete;
+			RenderTarget(RenderTarget&&) = delete; ///TOOD?
+			virtual ~RenderTarget();
 
-		bool IsActive() const;
-		virtual bool IsRenderable() const = 0;
+			virtual unsigned int GetHeight() const = 0;
+			virtual RenderTargetParameters GetParameters() const = 0;
+			virtual unsigned int GetWidth() const = 0;
 
-		bool SetActive(bool active);
+			bool IsActive() const;
+			virtual bool IsRenderable() const = 0;
 
-		// Fonctions OpenGL
-		virtual bool HasContext() const = 0;
+			bool SetActive(bool active);
 
-		NzRenderTarget& operator=(const NzRenderTarget&) = delete;
-		NzRenderTarget& operator=(NzRenderTarget&&) = delete; ///TOOD?
+			// Fonctions OpenGL
+			virtual bool HasContext() const = 0;
 
-		// Signals:
-		NazaraSignal(OnRenderTargetParametersChange, const NzRenderTarget* /*renderTarget*/);
-		NazaraSignal(OnRenderTargetRelease,	const NzRenderTarget* /*renderTarget*/);
-		NazaraSignal(OnRenderTargetSizeChange, const NzRenderTarget* /*renderTarget*/);
+			RenderTarget& operator=(const RenderTarget&) = delete;
+			RenderTarget& operator=(RenderTarget&&) = delete; ///TOOD?
 
-	protected:
-		virtual bool Activate() const = 0;
-		virtual void Desactivate() const;
-		virtual void EnsureTargetUpdated() const = 0;
-};
+			// Signals:
+			NazaraSignal(OnRenderTargetParametersChange, const RenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetRelease,	const RenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/);
+
+		protected:
+			virtual bool Activate() const = 0;
+			virtual void Desactivate() const;
+			virtual void EnsureTargetUpdated() const = 0;
+	};
+}
 
 #endif // NAZARA_RENDERTARGET_HPP

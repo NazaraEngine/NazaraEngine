@@ -11,116 +11,119 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
-NzStaticMesh::NzStaticMesh(const NzMesh* parent) :
-NzSubMesh(parent)
+namespace Nz
 {
-}
-
-NzStaticMesh::~NzStaticMesh()
-{
-	OnStaticMeshRelease(this);
-
-	Destroy();
-}
-
-void NzStaticMesh::Center()
-{
-	NzVector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
-
-	NzVertexMapper mapper(m_vertexBuffer);
-	NzSparsePtr<NzVector3f> position = mapper.GetComponentPtr<NzVector3f>(nzVertexComponent_Position);
-
-	unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
-	for (unsigned int i = 0; i < vertexCount; ++i)
-		*position++ -= offset;
-
-	m_aabb.x -= offset.x;
-	m_aabb.y -= offset.y;
-	m_aabb.z -= offset.z;
-}
-
-bool NzStaticMesh::Create(NzVertexBuffer* vertexBuffer)
-{
-	Destroy();
-
-	#if NAZARA_UTILITY_SAFE
-	if (!vertexBuffer)
+	StaticMesh::StaticMesh(const Mesh* parent) :
+	SubMesh(parent)
 	{
-		NazaraError("Invalid vertex buffer");
+	}
+
+	StaticMesh::~StaticMesh()
+	{
+		OnStaticMeshRelease(this);
+
+		Destroy();
+	}
+
+	void StaticMesh::Center()
+	{
+		Vector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
+
+		VertexMapper mapper(m_vertexBuffer);
+		SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+
+		unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
+		for (unsigned int i = 0; i < vertexCount; ++i)
+			*position++ -= offset;
+
+		m_aabb.x -= offset.x;
+		m_aabb.y -= offset.y;
+		m_aabb.z -= offset.z;
+	}
+
+	bool StaticMesh::Create(VertexBuffer* vertexBuffer)
+	{
+		Destroy();
+
+		#if NAZARA_UTILITY_SAFE
+		if (!vertexBuffer)
+		{
+			NazaraError("Invalid vertex buffer");
+			return false;
+		}
+		#endif
+
+		m_vertexBuffer = vertexBuffer;
+		return true;
+	}
+
+	void StaticMesh::Destroy()
+	{
+		if (m_vertexBuffer)
+		{
+			OnStaticMeshDestroy(this);
+
+			m_indexBuffer.Reset();
+			m_vertexBuffer.Reset();
+		}
+	}
+
+	bool StaticMesh::GenerateAABB()
+	{
+		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
+		VertexMapper mapper(m_vertexBuffer, BufferAccess_ReadOnly);
+		m_aabb = ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent_Position), m_vertexBuffer->GetVertexCount());
+
+		return true;
+	}
+
+	const Boxf& StaticMesh::GetAABB() const
+	{
+		return m_aabb;
+	}
+
+	AnimationType StaticMesh::GetAnimationType() const
+	{
+		return AnimationType_Static;
+	}
+
+	const IndexBuffer* StaticMesh::GetIndexBuffer() const
+	{
+		return m_indexBuffer;
+	}
+
+	VertexBuffer* StaticMesh::GetVertexBuffer()
+	{
+		return m_vertexBuffer;
+	}
+
+	const VertexBuffer* StaticMesh::GetVertexBuffer() const
+	{
+		return m_vertexBuffer;
+	}
+
+	unsigned int StaticMesh::GetVertexCount() const
+	{
+		return m_vertexBuffer->GetVertexCount();
+	}
+
+	bool StaticMesh::IsAnimated() const
+	{
 		return false;
 	}
-	#endif
 
-	m_vertexBuffer = vertexBuffer;
-	return true;
-}
-
-void NzStaticMesh::Destroy()
-{
-	if (m_vertexBuffer)
+	bool StaticMesh::IsValid() const
 	{
-		OnStaticMeshDestroy(this);
-
-		m_indexBuffer.Reset();
-		m_vertexBuffer.Reset();
+		return m_vertexBuffer != nullptr;
 	}
+
+	void StaticMesh::SetAABB(const Boxf& aabb)
+	{
+		m_aabb = aabb;
+	}
+
+	void StaticMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)
+	{
+		m_indexBuffer = indexBuffer;
 }
-
-bool NzStaticMesh::GenerateAABB()
-{
-	// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
-	NzVertexMapper mapper(m_vertexBuffer, nzBufferAccess_ReadOnly);
-	m_aabb = NzComputeAABB(mapper.GetComponentPtr<const NzVector3f>(nzVertexComponent_Position), m_vertexBuffer->GetVertexCount());
-
-	return true;
-}
-
-const NzBoxf& NzStaticMesh::GetAABB() const
-{
-	return m_aabb;
-}
-
-nzAnimationType NzStaticMesh::GetAnimationType() const
-{
-	return nzAnimationType_Static;
-}
-
-const NzIndexBuffer* NzStaticMesh::GetIndexBuffer() const
-{
-	return m_indexBuffer;
-}
-
-NzVertexBuffer* NzStaticMesh::GetVertexBuffer()
-{
-	return m_vertexBuffer;
-}
-
-const NzVertexBuffer* NzStaticMesh::GetVertexBuffer() const
-{
-	return m_vertexBuffer;
-}
-
-unsigned int NzStaticMesh::GetVertexCount() const
-{
-	return m_vertexBuffer->GetVertexCount();
-}
-
-bool NzStaticMesh::IsAnimated() const
-{
-	return false;
-}
-
-bool NzStaticMesh::IsValid() const
-{
-	return m_vertexBuffer != nullptr;
-}
-
-void NzStaticMesh::SetAABB(const NzBoxf& aabb)
-{
-	m_aabb = aabb;
-}
-
-void NzStaticMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
-{
-	m_indexBuffer = indexBuffer;
 }

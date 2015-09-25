@@ -14,72 +14,75 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NzBuffer;
-
-using NzBufferConstRef = NzObjectRef<const NzBuffer>;
-using NzBufferRef = NzObjectRef<NzBuffer>;
-
-class NzAbstractBuffer;
-
-class NAZARA_UTILITY_API NzBuffer : public NzRefCounted
+namespace Nz
 {
-	friend class NzUtility;
+	class Buffer;
 
-	public:
-		using BufferFactory = NzAbstractBuffer* (*)(NzBuffer* parent, nzBufferType type);
+	using BufferConstRef = ObjectRef<const Buffer>;
+	using BufferRef = ObjectRef<Buffer>;
 
-		NzBuffer(nzBufferType type);
-		NzBuffer(nzBufferType type, unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
-		NzBuffer(const NzBuffer&) = delete;
-		NzBuffer(NzBuffer&&) = delete;
-		~NzBuffer();
+	class AbstractBuffer;
 
-		bool CopyContent(const NzBuffer& buffer);
+	class NAZARA_UTILITY_API Buffer : public RefCounted
+	{
+		friend class Utility;
 
-		bool Create(unsigned int size, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
-		void Destroy();
+		public:
+			using BufferFactory = AbstractBuffer* (*)(Buffer* parent, BufferType type);
 
-		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
+			Buffer(BufferType type);
+			Buffer(BufferType type, unsigned int size, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			Buffer(const Buffer&) = delete;
+			Buffer(Buffer&&) = delete;
+			~Buffer();
 
-		NzAbstractBuffer* GetImpl() const;
-		unsigned int GetSize() const;
-		nzUInt32 GetStorage() const;
-		nzBufferType GetType() const;
-		nzBufferUsage GetUsage() const;
+			bool CopyContent(const Buffer& buffer);
 
-		bool IsHardware() const;
-		bool IsValid() const;
+			bool Create(unsigned int size, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			void Destroy();
 
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
+			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
 
-		bool SetStorage(nzUInt32 storage);
+			AbstractBuffer* GetImpl() const;
+			unsigned int GetSize() const;
+			UInt32 GetStorage() const;
+			BufferType GetType() const;
+			BufferUsage GetUsage() const;
 
-		void Unmap() const;
+			bool IsHardware() const;
+			bool IsValid() const;
 
-		NzBuffer& operator=(const NzBuffer&) = delete;
-		NzBuffer& operator=(NzBuffer&&) = delete;
+			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
+			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
-		static bool IsStorageSupported(nzUInt32 storage);
-		template<typename... Args> static NzBufferRef New(Args&&... args);
-		static void SetBufferFactory(nzUInt32 storage, BufferFactory func);
+			bool SetStorage(UInt32 storage);
 
-		// Signals:
-		NazaraSignal(OnBufferDestroy, const NzBuffer* /*buffer*/);
-		NazaraSignal(OnBufferRelease, const NzBuffer* /*buffer*/);
+			void Unmap() const;
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			Buffer& operator=(const Buffer&) = delete;
+			Buffer& operator=(Buffer&&) = delete;
 
-		nzBufferType m_type;
-		nzBufferUsage m_usage;
-		nzUInt32 m_storage;
-		NzAbstractBuffer* m_impl;
-		unsigned int m_size;
+			static bool IsStorageSupported(UInt32 storage);
+			template<typename... Args> static BufferRef New(Args&&... args);
+			static void SetBufferFactory(UInt32 storage, BufferFactory func);
 
-		static BufferFactory s_bufferFactories[nzDataStorage_Max+1];
-};
+			// Signals:
+			NazaraSignal(OnBufferDestroy, const Buffer* /*buffer*/);
+			NazaraSignal(OnBufferRelease, const Buffer* /*buffer*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			BufferType m_type;
+			BufferUsage m_usage;
+			UInt32 m_storage;
+			AbstractBuffer* m_impl;
+			unsigned int m_size;
+
+			static BufferFactory s_bufferFactories[DataStorage_Max+1];
+	};
+}
 
 #include <Nazara/Utility/Buffer.inl>
 

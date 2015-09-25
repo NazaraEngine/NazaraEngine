@@ -5,24 +5,27 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzStream::~NzStream() = default;
-
-NzString NzStream::GetDirectory() const
+namespace Nz
 {
-	return NzString();
-}
+	Stream::~Stream() = default;
 
-NzString NzStream::GetPath() const
-{
-	return NzString();
-}
+	String Stream::GetDirectory() const
+	{
+		return String();
+	}
 
-unsigned int NzStream::GetStreamOptions() const
-{
-	return m_streamOptions;
-}
+	String Stream::GetPath() const
+	{
+		return String();
+	}
 
-void NzStream::SetStreamOptions(unsigned int options)
-{
-	m_streamOptions = options;
+	unsigned int Stream::GetStreamOptions() const
+	{
+		return m_streamOptions;
+	}
+
+	void Stream::SetStreamOptions(unsigned int options)
+	{
+		m_streamOptions = options;
+	}
 }

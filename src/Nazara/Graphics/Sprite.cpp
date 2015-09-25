@@ -9,44 +9,47 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-void NzSprite::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+namespace Nz
 {
-	if (!m_material)
-		return;
+	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	{
+		if (!m_material)
+			return;
 
-	const NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const NzVertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-	renderQueue->AddSprites(m_material, vertices, 1);
+		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
+		renderQueue->AddSprites(m_material, vertices, 1);
+	}
+
+	void Sprite::MakeBoundingVolume() const
+	{
+		m_boundingVolume.Set(Vector3f(0.f), m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+	}
+
+	void Sprite::UpdateData(InstanceData* instanceData) const
+	{
+		instanceData->data.resize(4 * sizeof(VertexStruct_XYZ_Color_UV));
+		VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(instanceData->data.data());
+
+		SparsePtr<Color> colorPtr(&vertices[0].color, sizeof(VertexStruct_XYZ_Color_UV));
+		SparsePtr<Vector3f> posPtr(&vertices[0].position, sizeof(VertexStruct_XYZ_Color_UV));
+		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
+
+		*colorPtr++ = m_color;
+		*posPtr++ = instanceData->transformMatrix.Transform(Vector3f(0.f));
+		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftTop);
+
+		*colorPtr++ = m_color;
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right());
+		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightTop);
+
+		*colorPtr++ = m_color;
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.y*Vector3f::Down());
+		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftBottom);
+
+		*colorPtr++ = m_color;
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
+	}
+
+	SpriteLibrary::LibraryMap Sprite::s_library;
 }
-
-void NzSprite::MakeBoundingVolume() const
-{
-	m_boundingVolume.Set(NzVector3f(0.f), m_size.x*NzVector3f::Right() + m_size.y*NzVector3f::Down());
-}
-
-void NzSprite::UpdateData(InstanceData* instanceData) const
-{
-	instanceData->data.resize(4 * sizeof(NzVertexStruct_XYZ_Color_UV));
-	NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(instanceData->data.data());
-
-	NzSparsePtr<NzColor> colorPtr(&vertices[0].color, sizeof(NzVertexStruct_XYZ_Color_UV));
-	NzSparsePtr<NzVector3f> posPtr(&vertices[0].position, sizeof(NzVertexStruct_XYZ_Color_UV));
-	NzSparsePtr<NzVector2f> texCoordPtr(&vertices[0].uv, sizeof(NzVertexStruct_XYZ_Color_UV));
-
-	*colorPtr++ = m_color;
-	*posPtr++ = instanceData->transformMatrix.Transform(NzVector3f(0.f));
-	*texCoordPtr++ = m_textureCoords.GetCorner(nzRectCorner_LeftTop);
-
-	*colorPtr++ = m_color;
-	*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*NzVector3f::Right());
-	*texCoordPtr++ = m_textureCoords.GetCorner(nzRectCorner_RightTop);
-
-	*colorPtr++ = m_color;
-	*posPtr++ = instanceData->transformMatrix.Transform(m_size.y*NzVector3f::Down());
-	*texCoordPtr++ = m_textureCoords.GetCorner(nzRectCorner_LeftBottom);
-
-	*colorPtr++ = m_color;
-	*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*NzVector3f::Right() + m_size.y*NzVector3f::Down());
-	*texCoordPtr++ = m_textureCoords.GetCorner(nzRectCorner_RightBottom);
-}
-
-NzSpriteLibrary::LibraryMap NzSprite::s_library;

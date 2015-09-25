@@ -10,19 +10,22 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 
-class NzForwardRenderTechnique;
-
-class NAZARA_GRAPHICS_API NzDeferredForwardPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredForwardPass();
-		virtual ~NzDeferredForwardPass();
+	class ForwardRenderTechnique;
 
-		void Initialize(NzDeferredRenderTechnique* technique);
-		bool Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const;
+	class NAZARA_GRAPHICS_API DeferredForwardPass : public DeferredRenderPass
+	{
+		public:
+			DeferredForwardPass();
+			virtual ~DeferredForwardPass();
 
-	protected:
-		const NzForwardRenderTechnique* m_forwardTechnique;
-};
+			void Initialize(DeferredRenderTechnique* technique);
+			bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const;
+
+		protected:
+			const ForwardRenderTechnique* m_forwardTechnique;
+	};
+}
 
 #endif // NAZARA_DEFERREDFORWARDPASS_HPP

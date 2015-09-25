@@ -17,19 +17,19 @@ namespace Ndk
 		World* entityWorld = m_entity->GetWorld();
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem>(), "World must have a physics system");
 
-		NzPhysWorld& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
+		Nz::PhysWorld& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
 
-		NzPhysGeomRef geom;
+		Nz::PhysGeomRef geom;
 		if (m_entity->HasComponent<CollisionComponent>())
 			geom = m_entity->GetComponent<CollisionComponent>().GetGeom();
 
-		NzMatrix4f matrix;
+		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())
 			matrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new NzPhysObject(&world, geom, matrix));
+		m_object.reset(new Nz::PhysObject(&world, geom, matrix));
 		m_object->SetMass(1.f);
 	}
 
@@ -47,7 +47,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(NzNullGeom::New());
+			m_object->SetGeom(Nz::NullGeom::New());
 		}
 	}
 

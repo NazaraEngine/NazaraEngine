@@ -11,39 +11,42 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/Node.hpp>
 
-class NzParticleMapper;
-class NzParticleSystem;
-
-class NAZARA_GRAPHICS_API NzParticleEmitter : public NzNode
+namespace Nz
 {
-	public:
-		NzParticleEmitter();
-		NzParticleEmitter(const NzParticleEmitter& emitter) = default;
-		NzParticleEmitter(NzParticleEmitter&& emitter) = default;
-		virtual ~NzParticleEmitter();
+	class ParticleMapper;
+	class ParticleSystem;
 
-		virtual void Emit(NzParticleSystem& system, float elapsedTime) const;
+	class NAZARA_GRAPHICS_API ParticleEmitter : public Node
+	{
+		public:
+			ParticleEmitter();
+			ParticleEmitter(const ParticleEmitter& emitter) = default;
+			ParticleEmitter(ParticleEmitter&& emitter) = default;
+			virtual ~ParticleEmitter();
 
-		void EnableLagCompensation(bool enable);
+			virtual void Emit(ParticleSystem& system, float elapsedTime) const;
 
-		unsigned int GetEmissionCount() const;
-		float GetEmissionRate() const;
+			void EnableLagCompensation(bool enable);
 
-		bool IsLagCompensationEnabled() const;
+			unsigned int GetEmissionCount() const;
+			float GetEmissionRate() const;
 
-		void SetEmissionCount(unsigned int count);
-		void SetEmissionRate(float rate);
+			bool IsLagCompensationEnabled() const;
 
-		NzParticleEmitter& operator=(const NzParticleEmitter& emitter) = default;
-		NzParticleEmitter& operator=(NzParticleEmitter&& emitter) = default;
+			void SetEmissionCount(unsigned int count);
+			void SetEmissionRate(float rate);
 
-	private:
-		virtual void SetupParticles(NzParticleMapper& mapper, unsigned int count) const = 0;
+			ParticleEmitter& operator=(const ParticleEmitter& emitter) = default;
+			ParticleEmitter& operator=(ParticleEmitter&& emitter) = default;
 
-		bool m_lagCompensationEnabled;
-		mutable float m_emissionAccumulator;
-		float m_emissionRate;
-		unsigned int m_emissionCount;
-};
+		private:
+			virtual void SetupParticles(ParticleMapper& mapper, unsigned int count) const = 0;
+
+			bool m_lagCompensationEnabled;
+			mutable float m_emissionAccumulator;
+			float m_emissionRate;
+			unsigned int m_emissionCount;
+	};
+}
 
 #endif // NAZARA_PARTICLEEMITTER_HPP

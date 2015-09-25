@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
-template<typename... Args>
-NzRenderBufferRef NzRenderBuffer::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzRenderBuffer> object(new NzRenderBuffer(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	RenderBufferRef RenderBuffer::New(Args&&... args)
+	{
+		std::unique_ptr<RenderBuffer> object(new RenderBuffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

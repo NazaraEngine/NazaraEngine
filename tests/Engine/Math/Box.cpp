@@ -5,13 +5,13 @@ SCENARIO("Box", "[MATH][BOX]")
 {
 	GIVEN("Two zero boxes")
 	{
-		NzBoxf firstZero(NzBoxf::Zero());
-		NzBoxf secondZero(NzVector3f::Zero(), NzVector3f::Zero());
+		Nz::Boxf firstZero(Nz::Boxf::Zero());
+		Nz::Boxf secondZero(Nz::Vector3f::Zero(), Nz::Vector3f::Zero());
 
 		WHEN("We multiply them")
 		{
 			firstZero = firstZero * 1.f;
-			secondZero = secondZero * NzVector3f::Unit() * 3.f;
+			secondZero = secondZero * Nz::Vector3f::Unit() * 3.f;
 
 			THEN("They should stay the same")
 			{
@@ -24,24 +24,24 @@ SCENARIO("Box", "[MATH][BOX]")
 
 	GIVEN("Two unit and center boxes")
 	{
-		NzBoxf firstCenterAndUnit(NzRectf(NzVector2f::Zero(), NzVector2f::Unit()));
-		NzBoxf secondCenterAndUnit(1.f, 1.f, 1.f);
+		Nz::Boxf firstCenterAndUnit(Nz::Rectf(Nz::Vector2f::Zero(), Nz::Vector2f::Unit()));
+		Nz::Boxf secondCenterAndUnit(1.f, 1.f, 1.f);
 
 		WHEN("We ask for some informations")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(firstCenterAndUnit.GetBoundingSphere() == NzSpheref(NzVector3f::Unit() * 0.5f, std::sqrt(3.f * 0.5f * 0.5f)));
-				REQUIRE(firstCenterAndUnit.GetCenter() == (NzVector3f::Unit() * 0.5f));
-				REQUIRE(firstCenterAndUnit.GetCorner(nzBoxCorner_FarLeftTop) == NzVector3f::UnitY());
-				REQUIRE(firstCenterAndUnit.GetLengths() == NzVector3f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMaximum() == NzVector3f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMinimum() == NzVector3f::Zero());
-				REQUIRE(firstCenterAndUnit.GetNegativeVertex(NzVector3f::Unit()) == NzVector3f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPosition() == NzVector3f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPositiveVertex(NzVector3f::Unit()) == NzVector3f::Unit());
+				REQUIRE(firstCenterAndUnit.GetBoundingSphere() == Nz::Spheref(Nz::Vector3f::Unit() * 0.5f, std::sqrt(3.f * 0.5f * 0.5f)));
+				REQUIRE(firstCenterAndUnit.GetCenter() == (Nz::Vector3f::Unit() * 0.5f));
+				REQUIRE(firstCenterAndUnit.GetCorner(Nz::BoxCorner_FarLeftTop) == Nz::Vector3f::UnitY());
+				REQUIRE(firstCenterAndUnit.GetLengths() == Nz::Vector3f::Unit());
+				REQUIRE(firstCenterAndUnit.GetMaximum() == Nz::Vector3f::Unit());
+				REQUIRE(firstCenterAndUnit.GetMinimum() == Nz::Vector3f::Zero());
+				REQUIRE(firstCenterAndUnit.GetNegativeVertex(Nz::Vector3f::Unit()) == Nz::Vector3f::Zero());
+				REQUIRE(firstCenterAndUnit.GetPosition() == Nz::Vector3f::Zero());
+				REQUIRE(firstCenterAndUnit.GetPositiveVertex(Nz::Vector3f::Unit()) == Nz::Vector3f::Unit());
 				REQUIRE(firstCenterAndUnit.GetRadius() == Approx(std::sqrt(3.f * 0.5f * 0.5f)));
-				REQUIRE(firstCenterAndUnit.GetSquaredBoundingSphere() == NzSpheref(NzVector3f::Unit() * 0.5f, 3.f * 0.5f * 0.5f));
+				REQUIRE(firstCenterAndUnit.GetSquaredBoundingSphere() == Nz::Spheref(Nz::Vector3f::Unit() * 0.5f, 3.f * 0.5f * 0.5f));
 				REQUIRE(firstCenterAndUnit.GetSquaredRadius() == Approx(3.f * 0.5f * 0.5f));
 			}
 		}
@@ -50,7 +50,7 @@ SCENARIO("Box", "[MATH][BOX]")
 		{
 			THEN("We should have a center and unit")
 			{
-				NzBoxf thirdCenterAndUnit;
+				Nz::Boxf thirdCenterAndUnit;
 				CHECK(firstCenterAndUnit.Intersect(secondCenterAndUnit, &thirdCenterAndUnit));
 				REQUIRE(firstCenterAndUnit == secondCenterAndUnit);
 			}
@@ -60,7 +60,7 @@ SCENARIO("Box", "[MATH][BOX]")
 		{
 			THEN("Shouldn't be a problem")
 			{
-				NzBoxf tmp(NzBoxi(0, 0, 0, 1, 1, 1));
+				Nz::Boxf tmp(Nz::Boxi(0, 0, 0, 1, 1, 1));
 				REQUIRE(tmp == firstCenterAndUnit);
 			}
 		}
@@ -68,8 +68,8 @@ SCENARIO("Box", "[MATH][BOX]")
 
 	GIVEN("Two wrong box (negative width, height and depth")
 	{
-		NzBoxf firstWrongBox(-NzVector3f::Unit());
-		NzBoxf secondWrongBox(-NzVector3f::Unit());
+		Nz::Boxf firstWrongBox(-Nz::Vector3f::Unit());
+		Nz::Boxf secondWrongBox(-Nz::Vector3f::Unit());
 
 		WHEN("We check if valid")
 		{
@@ -82,8 +82,8 @@ SCENARIO("Box", "[MATH][BOX]")
 
 		WHEN("We correct them")
 		{
-			firstWrongBox.ExtendTo(NzVector3f::Unit());
-			secondWrongBox.Transform(NzMatrix4f::Scale(-NzVector3f::Unit()));
+			firstWrongBox.ExtendTo(Nz::Vector3f::Unit());
+			secondWrongBox.Transform(Nz::Matrix4f::Scale(-Nz::Vector3f::Unit()));
 
 			THEN("They should be valid")
 			{
@@ -98,13 +98,13 @@ SCENARIO("Box", "[MATH][BOX]")
 					CHECK(firstWrongBox.Contains(0.f, 0.f, 0.f));
 					CHECK(secondWrongBox.Contains(0.f, 0.f, 0.f));
 
-					secondWrongBox = secondWrongBox.Lerp(NzBoxf::Zero(), secondWrongBox, 0.f); // Zeroed
-					secondWrongBox.ExtendTo(NzBoxf(NzVector3f(0.1f, 0.1f, 0.1f), NzVector3f(0.9f, 0.9f, 0.9f)));
-					secondWrongBox.Translate(NzVector3f(0.05f, 0.05f, 0.05f)); // Box 0.15 to 0.95
+					secondWrongBox = secondWrongBox.Lerp(Nz::Boxf::Zero(), secondWrongBox, 0.f); // Zeroed
+					secondWrongBox.ExtendTo(Nz::Boxf(Nz::Vector3f(0.1f, 0.1f, 0.1f), Nz::Vector3f(0.9f, 0.9f, 0.9f)));
+					secondWrongBox.Translate(Nz::Vector3f(0.05f, 0.05f, 0.05f)); // Box 0.15 to 0.95
 					CHECK(firstWrongBox.Contains(secondWrongBox));
 
-					NzBoxf test(1.f, -500.f, -500.f, 1000.f, 1000.f, 1000.f);
-					CHECK(test.Contains(NzBoxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f)));
+					Nz::Boxf test(1.f, -500.f, -500.f, 1000.f, 1000.f, 1000.f);
+					CHECK(test.Contains(Nz::Boxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f)));
 					CHECK(test.Contains(500.f, 0.f, 0.f));
 				}
 			}

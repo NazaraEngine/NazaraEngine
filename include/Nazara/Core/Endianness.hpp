@@ -25,8 +25,11 @@
 	#error You cannot define both NAZARA_BIG_ENDIAN and NAZARA_LITTLE_ENDIAN
 #endif
 
-inline void NzByteSwap(void* buffer, unsigned int size);
-inline nzEndianness NzGetPlatformEndianness();
+namespace Nz
+{
+	inline Endianness GetPlatformEndianness();
+	inline void SwapBytes(void* buffer, unsigned int size);
+}
 
 #include <Nazara/Core/Endianness.inl>
 

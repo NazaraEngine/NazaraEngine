@@ -7,42 +7,45 @@
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDeferredRenderPass::NzDeferredRenderPass() :
-m_enabled(true)
+namespace Nz
 {
-}
+	DeferredRenderPass::DeferredRenderPass() :
+	m_enabled(true)
+	{
+	}
 
-NzDeferredRenderPass::~NzDeferredRenderPass() = default;
+	DeferredRenderPass::~DeferredRenderPass() = default;
 
-void NzDeferredRenderPass::Enable(bool enable)
-{
-	m_enabled = enable;
-}
+	void DeferredRenderPass::Enable(bool enable)
+	{
+		m_enabled = enable;
+	}
 
-void NzDeferredRenderPass::Initialize(NzDeferredRenderTechnique* technique)
-{
-	m_deferredTechnique = technique;
-	m_renderQueue = static_cast<NzDeferredRenderQueue*>(technique->GetRenderQueue());
+	void DeferredRenderPass::Initialize(DeferredRenderTechnique* technique)
+	{
+		m_deferredTechnique = technique;
+		m_renderQueue = static_cast<DeferredRenderQueue*>(technique->GetRenderQueue());
 
-	m_depthStencilBuffer = technique->GetDepthStencilBuffer();
+		m_depthStencilBuffer = technique->GetDepthStencilBuffer();
 
-	m_GBufferRTT = technique->GetGBufferRTT();
-	for (unsigned int i = 0; i < 3; ++i)
-		m_GBuffer[i] = technique->GetGBuffer(i);
+		m_GBufferRTT = technique->GetGBufferRTT();
+		for (unsigned int i = 0; i < 3; ++i)
+			m_GBuffer[i] = technique->GetGBuffer(i);
 
-	m_workRTT = technique->GetWorkRTT();
-	for (unsigned int i = 0; i < 2; ++i)
-		m_workTextures[i] = technique->GetWorkTexture(i);
-}
+		m_workRTT = technique->GetWorkRTT();
+		for (unsigned int i = 0; i < 2; ++i)
+			m_workTextures[i] = technique->GetWorkTexture(i);
+	}
 
-bool NzDeferredRenderPass::IsEnabled() const
-{
-	return m_enabled;
-}
+	bool DeferredRenderPass::IsEnabled() const
+	{
+		return m_enabled;
+	}
 
-bool NzDeferredRenderPass::Resize(const NzVector2ui& dimensions)
-{
-	m_dimensions = dimensions;
+	bool DeferredRenderPass::Resize(const Vector2ui& dimensions)
+	{
+		m_dimensions = dimensions;
 
-	return true;
+		return true;
+	}
 }

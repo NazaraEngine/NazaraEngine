@@ -5,8 +5,8 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 {
 	GIVEN("Two quaternions (0, 1, 0, 0)")
 	{
-		NzQuaternionf firstQuaternion(NzFromDegrees(180.f), NzVector3f::UnitX());
-		NzQuaternionf secondQuaternion(0.f, 1.f, 0.f, 0.f);
+		Nz::Quaternionf firstQuaternion(Nz::FromDegrees(180.f), Nz::Vector3f::UnitX());
+		Nz::Quaternionf secondQuaternion(0.f, 1.f, 0.f, 0.f);
 
 		WHEN("We compare them")
 		{
@@ -23,25 +23,25 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("Multiply with a vectorX is identity")
 			{
-				REQUIRE((firstQuaternion * NzVector3f::UnitX()) == NzVector3f::UnitX());
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitX()) == Nz::Vector3f::UnitX());
 			}
 
 			AND_THEN("Multiply with a vectorY or Z is opposite")
 			{
-				REQUIRE((firstQuaternion * NzVector3f::UnitY()) == -NzVector3f::UnitY());
-				REQUIRE((firstQuaternion * NzVector3f::UnitZ()) == -NzVector3f::UnitZ());
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitY()) == -Nz::Vector3f::UnitY());
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()) == -Nz::Vector3f::UnitZ());
 			}
 		}
 	}
 
 	GIVEN("The four unit quaternions")
 	{
-		NzQuaternionf w(1.f, 0.f, 0.f, 0.f);
-		NzQuaternionf x(0.f, 1.f, 0.f, 0.f);
-		NzQuaternionf y(0.f, 0.f, 1.f, 0.f);
-		NzQuaternionf z(0.f, 0.f, 0.f, 1.f);
+		Nz::Quaternionf w(1.f, 0.f, 0.f, 0.f);
+		Nz::Quaternionf x(0.f, 1.f, 0.f, 0.f);
+		Nz::Quaternionf y(0.f, 0.f, 1.f, 0.f);
+		Nz::Quaternionf z(0.f, 0.f, 0.f, 1.f);
 
-		NzQuaternionf xyzw = x * y * z * w;
+		Nz::Quaternionf xyzw = x * y * z * w;
 
 		WHEN("We ask for the norm")
 		{
@@ -59,10 +59,10 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("Results shoud follow")
 			{
-				NzQuaternionf oppositeOfW(-1.f, 0.f, 0.f, 0.f);
-				NzQuaternionf oppositeOfX = x.GetConjugate();
-				NzQuaternionf oppositeOfY = y.GetConjugate();
-				NzQuaternionf oppositeOfZ = z.GetConjugate();
+				Nz::Quaternionf oppositeOfW(-1.f, 0.f, 0.f, 0.f);
+				Nz::Quaternionf oppositeOfX = x.GetConjugate();
+				Nz::Quaternionf oppositeOfY = y.GetConjugate();
+				Nz::Quaternionf oppositeOfZ = z.GetConjugate();
 
 				REQUIRE((x * x) == oppositeOfW);
 				REQUIRE((y * y) == oppositeOfW);
@@ -81,32 +81,32 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 	GIVEN("Two different quaternions (10, (1, 0, 0) and (20, (1, 0, 0))")
 	{
-		NzQuaternionf x10 = NzQuaternionf(NzFromDegrees(10.f), NzVector3f::UnitX());
-		NzQuaternionf x20 = x10 * x10;
+		Nz::Quaternionf x10 = Nz::Quaternionf(Nz::FromDegrees(10.f), Nz::Vector3f::UnitX());
+		Nz::Quaternionf x20 = x10 * x10;
 
-		NzQuaternionf x30a = x10 * x20;
-		NzQuaternionf x30b = x20 * x10;
+		Nz::Quaternionf x30a = x10 * x20;
+		Nz::Quaternionf x30b = x20 * x10;
 
 		WHEN("We multiply them")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(x20 == NzQuaternionf(NzFromDegrees(20.f), NzVector3f::UnitX()));
+				REQUIRE(x20 == Nz::Quaternionf(Nz::FromDegrees(20.f), Nz::Vector3f::UnitX()));
 				REQUIRE(x30a == x30b);
 			}
 		}
 
 		WHEN("Convert euler to quaternion")
 		{
-			NzQuaternionf X45(NzEulerAnglesf(NzFromDegrees(45.f), 0.f, 0.f));
-			NzQuaternionf Y45(NzEulerAnglesf(0.f, NzFromDegrees(45.f), 0.f));
-			NzQuaternionf Z45(NzEulerAnglesf(0.f, 0.f, NzFromDegrees(45.f)));
+			Nz::Quaternionf X45(Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f));
+			Nz::Quaternionf Y45(Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f));
+			Nz::Quaternionf Z45(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)));
 
 			THEN("They must be equal")
 			{
-				REQUIRE(X45 == NzQuaternionf(0.9238795f, 0.38268346f, 0.f, 0.f));
-				REQUIRE(Y45 == NzQuaternionf(0.9238795f, 0.f, 0.38268346f, 0.f));
-				REQUIRE(Z45 == NzQuaternionf(0.9238795f, 0.f, 0.f, 0.38268346f));
+				REQUIRE(X45 == Nz::Quaternionf(0.9238795f, 0.38268346f, 0.f, 0.f));
+				REQUIRE(Y45 == Nz::Quaternionf(0.9238795f, 0.f, 0.38268346f, 0.f));
+				REQUIRE(Z45 == Nz::Quaternionf(0.9238795f, 0.f, 0.f, 0.38268346f));
 			}
 		}
 
@@ -117,7 +117,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE(x30a.ToEulerAngles() == x30b.ToEulerAngles());
 				REQUIRE(x30a.ToEulerAngles().ToQuaternion() == x30b.ToEulerAngles().ToQuaternion());
 
-				NzQuaternionf tmp(1.f, 1.f, 0.f, 0.f);
+				Nz::Quaternionf tmp(1.f, 1.f, 0.f, 0.f);
 				tmp.Normalize();
 				REQUIRE(tmp == tmp.ToEulerAngles().ToQuaternion());
 			}
@@ -127,27 +127,27 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("The half of 10 and 30 is 20")
 			{
-				NzQuaternionf slerpx10x30a = NzQuaternionf::Slerp(x10, x30a, 0.5f);
+				Nz::Quaternionf slerpx10x30a = Nz::Quaternionf::Slerp(x10, x30a, 0.5f);
 				REQUIRE(slerpx10x30a.w == Approx(x20.w));
 				REQUIRE(slerpx10x30a.x == Approx(x20.x));
 				REQUIRE(slerpx10x30a.y == Approx(x20.y));
 				REQUIRE(slerpx10x30a.z == Approx(x20.z));
-				NzQuaternionf slerpx10x30b = NzQuaternionf::Slerp(x10, x30b, 0.5f);
+				Nz::Quaternionf slerpx10x30b = Nz::Quaternionf::Slerp(x10, x30b, 0.5f);
 				REQUIRE(slerpx10x30b.w == Approx(x20.w));
 				REQUIRE(slerpx10x30b.x == Approx(x20.x));
 				REQUIRE(slerpx10x30b.y == Approx(x20.y));
 				REQUIRE(slerpx10x30b.z == Approx(x20.z));
-				REQUIRE(NzQuaternionf::Slerp(x10, x30a, 0.f) == x10);
-				REQUIRE(NzQuaternionf::Slerp(x10, x30a, 1.f) == x30a);
+				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 0.f) == x10);
+				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 1.f) == x30a);
 			}
 
 			AND_THEN("The half of 45 is 22.5")
 			{
-				NzQuaternionf quaterionA(NzFromDegrees(0.f), NzVector3f::UnitZ());
-				NzQuaternionf quaterionB(NzFromDegrees(45.f), NzVector3f::UnitZ());
-				NzQuaternionf quaternionC = NzQuaternionf::Slerp(quaterionA, quaterionB, 0.5f);
+				Nz::Quaternionf quaterionA(Nz::FromDegrees(0.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf quaterionB(Nz::FromDegrees(45.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf quaternionC = Nz::Quaternionf::Slerp(quaterionA, quaterionB, 0.5f);
 
-				NzQuaternionf unitZ225(NzFromDegrees(22.5f), NzVector3f::UnitZ());
+				Nz::Quaternionf unitZ225(Nz::FromDegrees(22.5f), Nz::Vector3f::UnitZ());
 				REQUIRE(quaternionC.w == Approx(unitZ225.w));
 				REQUIRE(quaternionC.x == Approx(unitZ225.x));
 				REQUIRE(quaternionC.y == Approx(unitZ225.y));

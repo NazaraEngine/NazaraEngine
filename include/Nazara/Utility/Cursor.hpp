@@ -11,25 +11,28 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 
-class NzCursorImpl;
-class NzImage;
-
-class NAZARA_UTILITY_API NzCursor
+namespace Nz
 {
-	friend class NzWindowImpl;
+	class CursorImpl;
+	class Image;
 
-	public:
-		NzCursor();
-		~NzCursor();
+	class NAZARA_UTILITY_API Cursor
+	{
+		friend class WindowImpl;
 
-		bool Create(const NzImage& cursor, int hotSpotX = 0, int hotSpotY = 0);
-		bool Create(const NzImage& cursor, const NzVector2i& hotSpot);
-		void Destroy();
+		public:
+			Cursor();
+			~Cursor();
 
-		bool IsValid() const;
+			bool Create(const Image& cursor, int hotSpotX = 0, int hotSpotY = 0);
+			bool Create(const Image& cursor, const Vector2i& hotSpot);
+			void Destroy();
 
-	private:
-		NzCursorImpl* m_impl;
-};
+			bool IsValid() const;
+
+		private:
+			CursorImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_CURSOR_HPP

@@ -22,57 +22,60 @@
 #include <map>
 #include <memory>
 
-class NAZARA_GRAPHICS_API NzDeferredRenderTechnique : public NzAbstractRenderTechnique
+namespace Nz
 {
-	friend class NzGraphics;
+	class NAZARA_GRAPHICS_API DeferredRenderTechnique : public AbstractRenderTechnique
+	{
+		friend class Graphics;
 
-	public:
-		NzDeferredRenderTechnique();
-		~NzDeferredRenderTechnique();
+		public:
+			DeferredRenderTechnique();
+			~DeferredRenderTechnique();
 
-		bool Draw(const NzSceneData& sceneData) const override;
+			bool Draw(const SceneData& sceneData) const override;
 
-		void EnablePass(nzRenderPassType renderPass, int position, bool enable);
+			void EnablePass(RenderPassType renderPass, int position, bool enable);
 
-		NzRenderBuffer* GetDepthStencilBuffer() const;
-		NzTexture* GetGBuffer(unsigned int i) const;
-		NzRenderTexture* GetGBufferRTT() const;
-		const NzForwardRenderTechnique* GetForwardTechnique() const;
-		NzDeferredRenderPass* GetPass(nzRenderPassType renderPass, int position = 0);
-		NzAbstractRenderQueue* GetRenderQueue() override;
-		nzRenderTechniqueType GetType() const override;
-		NzRenderTexture* GetWorkRTT() const;
-		NzTexture* GetWorkTexture(unsigned int i) const;
+			RenderBuffer* GetDepthStencilBuffer() const;
+			Texture* GetGBuffer(unsigned int i) const;
+			RenderTexture* GetGBufferRTT() const;
+			const ForwardRenderTechnique* GetForwardTechnique() const;
+			DeferredRenderPass* GetPass(RenderPassType renderPass, int position = 0);
+			AbstractRenderQueue* GetRenderQueue() override;
+			RenderTechniqueType GetType() const override;
+			RenderTexture* GetWorkRTT() const;
+			Texture* GetWorkTexture(unsigned int i) const;
 
-		bool IsPassEnabled(nzRenderPassType renderPass, int position);
+			bool IsPassEnabled(RenderPassType renderPass, int position);
 
-		NzDeferredRenderPass* ResetPass(nzRenderPassType renderPass, int position);
+			DeferredRenderPass* ResetPass(RenderPassType renderPass, int position);
 
-		void SetPass(nzRenderPassType relativeTo, int position, NzDeferredRenderPass* pass);
+			void SetPass(RenderPassType relativeTo, int position, DeferredRenderPass* pass);
 
-		static bool IsSupported();
+			static bool IsSupported();
 
-	private:
-		bool Resize(const NzVector2ui& dimensions) const;
+		private:
+			bool Resize(const Vector2ui& dimensions) const;
 
-		static bool Initialize();
-		static void Uninitialize();
+			static bool Initialize();
+			static void Uninitialize();
 
-		struct RenderPassComparator
-		{
-			bool operator()(nzRenderPassType pass1, nzRenderPassType pass2) const;
-		};
+			struct RenderPassComparator
+			{
+				bool operator()(RenderPassType pass1, RenderPassType pass2) const;
+			};
 
-		std::map<nzRenderPassType, std::map<int, std::unique_ptr<NzDeferredRenderPass>>, RenderPassComparator> m_passes;
-		NzForwardRenderTechnique m_forwardTechnique; // Doit être initialisé avant la RenderQueue
-		NzDeferredRenderQueue m_renderQueue;
-		mutable NzRenderBufferRef m_depthStencilBuffer;
-		mutable NzRenderTexture m_GBufferRTT;
-		mutable NzRenderTexture m_workRTT;
-		mutable NzTextureRef m_GBuffer[4];
-		mutable NzTextureRef m_workTextures[2];
-		mutable NzVector2ui m_GBufferSize;
-		const NzRenderTarget* m_viewerTarget;
+			std::map<RenderPassType, std::map<int, std::unique_ptr<DeferredRenderPass>>, RenderPassComparator> m_passes;
+			ForwardRenderTechnique m_forwardTechnique; // Doit être initialisé avant la RenderQueue
+			DeferredRenderQueue m_renderQueue;
+			mutable RenderBufferRef m_depthStencilBuffer;
+			mutable RenderTexture m_GBufferRTT;
+			mutable RenderTexture m_workRTT;
+			mutable TextureRef m_GBuffer[4];
+			mutable TextureRef m_workTextures[2];
+			mutable Vector2ui m_GBufferSize;
+			const RenderTarget* m_viewerTarget;
 };
+}
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP

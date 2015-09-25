@@ -11,32 +11,35 @@
 #include <Nazara/Core/String.hpp>
 #include <unordered_map>
 
-template<typename Type, typename Parameters>
-class NzResourceManager
+namespace Nz
 {
-	friend Type;
+	template<typename Type, typename Parameters>
+	class ResourceManager
+	{
+		friend Type;
 
-	public:
-		NzResourceManager() = delete;
-		~NzResourceManager() = delete;
+		public:
+			ResourceManager() = delete;
+			~ResourceManager() = delete;
 
-		static void Clear();
+			static void Clear();
 
-		static NzObjectRef<Type> Get(const NzString& filePath);
-		static const Parameters& GetDefaultParameters();
+			static ObjectRef<Type> Get(const String& filePath);
+			static const Parameters& GetDefaultParameters();
 
-		static void Purge();
-		static void Register(const NzString& filePath, NzObjectRef<Type> resource);
-		static void SetDefaultParameters(const Parameters& params);
-		static void Unregister(const NzString& filePath);
+			static void Purge();
+			static void Register(const String& filePath, ObjectRef<Type> resource);
+			static void SetDefaultParameters(const Parameters& params);
+			static void Unregister(const String& filePath);
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+		private:
+			static bool Initialize();
+			static void Uninitialize();
 
-		using ManagerMap = std::unordered_map<NzString, NzObjectRef<Type>>;
-		using ManagerParams = Parameters;
-};
+			using ManagerMap = std::unordered_map<String, ObjectRef<Type>>;
+			using ManagerParams = Parameters;
+	};
+}
 
 #include <Nazara/Core/ResourceManager.inl>
 

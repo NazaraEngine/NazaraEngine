@@ -1,12 +1,12 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Catch/catch.hpp>
 
-SCENARIO("Matrix4", "[MATH][MATRIX4]")
+SCENARIO("Matrix4", "[MATH][Matrix4]")
 {
 	GIVEN("Two identity matrix")
 	{
-		NzMatrix4f firstIdentity(NzMatrix4<int>::Identity());
-		NzMatrix4f secondIdentity(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		Nz::Matrix4f firstIdentity(Nz::Matrix4<int>::Identity());
+		Nz::Matrix4f secondIdentity(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
 
 		WHEN("We compare them")
 		{
@@ -16,13 +16,13 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			}
 		}
 
-		WHEN("We multiply the first with a vector")
+		WHEN("We multiply the first with a Nz::Vector")
 		{
-			THEN("Vector stay the same")
+			THEN("Nz::Vector stay the same")
 			{
-				REQUIRE(firstIdentity.Transform(NzVector2f::Unit()) == NzVector2f::Unit());
-				REQUIRE(firstIdentity.Transform(NzVector3f::Unit()) == NzVector3f::Unit());
-				REQUIRE(firstIdentity.Transform(NzVector4f(1.f, 1.f, 1.f, 1.f)) == NzVector4f(1.f, 1.f, 1.f, 1.f));
+				REQUIRE(firstIdentity.Transform(Nz::Vector2f::Unit()) == Nz::Vector2f::Unit());
+				REQUIRE(firstIdentity.Transform(Nz::Vector3f::Unit()) == Nz::Vector3f::Unit());
+				REQUIRE(firstIdentity.Transform(Nz::Vector4f(1.f, 1.f, 1.f, 1.f)) == Nz::Vector4f(1.f, 1.f, 1.f, 1.f));
 			}
 		}
 
@@ -41,12 +41,12 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 	GIVEN("Two different matrix")
 	{
-		NzMatrix4f matrix1(1.0f, 0.0f, 0.0f, 0.0f,
+		Nz::Matrix4f matrix1(1.0f, 0.0f, 0.0f, 0.0f,
 		                   7.0f, 2.0f, 0.0f, 0.0f,
 		                   1.0f, 5.0f, 3.0f, 0.0f,
 		                   8.0f, 9.0f, 2.0f, 4.0f);
 
-		NzMatrix4f matrix2(1.0f,  1.0f,  2.0f, -1.0f,
+		Nz::Matrix4f matrix2(1.0f,  1.0f,  2.0f, -1.0f,
 		                  -2.0f, -1.0f, -2.0f,  2.0f,
 		                   4.0f,  2.0f,  5.0f, -4.0f,
 		                   5.0f, -3.0f, -7.0f, -6.0f);
@@ -62,71 +62,71 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 		WHEN("We multiply the matrix and its inverse")
 		{
-			NzMatrix4f invMatrix1;
+			Nz::Matrix4f invMatrix1;
 			matrix1.GetInverse(&invMatrix1);
 
-			NzMatrix4f invMatrix2;
+			Nz::Matrix4f invMatrix2;
 			matrix2.GetInverse(&invMatrix2);
 
 			THEN("We get the identity")
 			{
-				NzMatrix4f tmp = matrix1 * invMatrix1;
+				Nz::Matrix4f tmp = matrix1 * invMatrix1;
 				REQUIRE(tmp.m32 == Approx(0.f));
 				REQUIRE(tmp.m42 == Approx(0.f));
 				tmp.m32 = 0.f;
 				tmp.m42 = 0.f;
-				REQUIRE(tmp == NzMatrix4f::Identity());
-				REQUIRE((matrix2 * invMatrix2) == NzMatrix4f::Identity());
+				REQUIRE(tmp == Nz::Matrix4f::Identity());
+				REQUIRE((matrix2 * invMatrix2) == Nz::Matrix4f::Identity());
 			}
 		}
 	}
 
 	GIVEN("One transformed matrix from rotation 45 and translation 0")
 	{
-		NzMatrix4f transformedMatrix = NzMatrix4f::Transform(NzVector3f::Zero(), NzQuaternionf::Identity());
-		REQUIRE(transformedMatrix == NzMatrix4f::Identity());
+		Nz::Matrix4f transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Zero(), Nz::Quaternionf::Identity());
+		REQUIRE(transformedMatrix == Nz::Matrix4f::Identity());
 
 		WHEN("We compare with the right matrix")
 		{
 			THEN("Rotation around X")
 			{
-				transformedMatrix.MakeTransform(NzVector3f::Zero(), NzEulerAnglesf(NzFromDegrees(45.f), 0.f, 0.f).ToQuaternion());
-				NzMatrix4f rotation45X(1.f,  0.f,                  0.f,                  0.f,
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
+				Nz::Matrix4f rotation45X(1.f,  0.f,                  0.f,                  0.f,
 				                       0.f,  std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                       0.f, -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                       0.f,  0.f,                  0.f,                  1.f);
 
 				REQUIRE(transformedMatrix == rotation45X);
-				transformedMatrix.MakeTransform(NzVector3f::Unit(), NzEulerAnglesf(NzFromDegrees(45.f), 0.f, 0.f).ToQuaternion());
-				rotation45X.ApplyTranslation(NzVector3f::Unit());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
+				rotation45X.ApplyTranslation(Nz::Vector3f::Unit());
 				REQUIRE(transformedMatrix == rotation45X);
 			}
 
 			THEN("Rotation around Y")
 			{
-				transformedMatrix.MakeTransform(NzVector3f::Zero(), NzEulerAnglesf(0.f, NzFromDegrees(45.f), 0.f).ToQuaternion());
-				NzMatrix4f rotation45Y(std::sqrt(2.f) / 2.f, 0.f, -std::sqrt(2.f) / 2.f, 0.f,
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
+				Nz::Matrix4f rotation45Y(std::sqrt(2.f) / 2.f, 0.f, -std::sqrt(2.f) / 2.f, 0.f,
 				                       0.f,                  1.f,  0.f,                  0.f,
 				                       std::sqrt(2.f) / 2.f, 0.f,  std::sqrt(2.f) / 2.f, 0.f,
 				                       0.f,                  0.f,  0.f,                  1.f);
 
 				REQUIRE(transformedMatrix == rotation45Y);
-				transformedMatrix.MakeTransform(NzVector3f::Unit(), NzEulerAnglesf(0.f, NzFromDegrees(45.f), 0.f).ToQuaternion());
-				rotation45Y.ApplyTranslation(NzVector3f::Unit());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
+				rotation45Y.ApplyTranslation(Nz::Vector3f::Unit());
 				REQUIRE(transformedMatrix == rotation45Y);
 			}
 
 			THEN("Rotation around Z")
 			{
-				transformedMatrix.MakeTransform(NzVector3f::Zero(), NzEulerAnglesf(0.f, 0.f, NzFromDegrees(45.f)).ToQuaternion());
-				NzMatrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion());
+				Nz::Matrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                       -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                        0.f,                  0.f,                  1.f, 0.f,
 				                        0.f,                  0.f,                  0.f, 1.f);
 
 				REQUIRE(transformedMatrix == rotation45Z);
-				transformedMatrix.MakeTransform(NzVector3f::Unit(), NzEulerAnglesf(NzEulerAnglesf(0.f, 0.f, NzFromDegrees(45.f)).ToQuaternion()));
-				rotation45Z.ApplyTranslation(NzVector3f::Unit());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion()));
+				rotation45Z.ApplyTranslation(Nz::Vector3f::Unit());
 				REQUIRE(transformedMatrix == rotation45Z);
 			}
 		}

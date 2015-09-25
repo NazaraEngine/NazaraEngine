@@ -17,20 +17,20 @@ namespace Ndk
 		EnsureViewMatrixUpdate();
 		EnsureViewportUpdate();
 
-		NzRenderer::SetMatrix(nzMatrixType_Projection, m_projectionMatrix);
-		NzRenderer::SetMatrix(nzMatrixType_View, m_viewMatrix);
-		NzRenderer::SetTarget(m_target);
-		NzRenderer::SetViewport(m_viewport);
+		Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, m_projectionMatrix);
+		Nz::Renderer::SetMatrix(Nz::MatrixType_View, m_viewMatrix);
+		Nz::Renderer::SetTarget(m_target);
+		Nz::Renderer::SetViewport(m_viewport);
 	}
 
-	NzVector3f CameraComponent::GetEyePosition() const
+	Nz::Vector3f CameraComponent::GetEyePosition() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
 
 		return m_entity->GetComponent<NodeComponent>().GetPosition();
 	}
 
-	NzVector3f CameraComponent::GetForward() const
+	Nz::Vector3f CameraComponent::GetForward() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
 
@@ -80,7 +80,7 @@ namespace Ndk
 		InvalidateViewMatrix();
 	}
 
-	void CameraComponent::OnNodeInvalidated(const NzNode* node)
+	void CameraComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
 		NazaraUnused(node);
 
@@ -88,20 +88,20 @@ namespace Ndk
 		InvalidateViewMatrix();
 	}
 
-	void CameraComponent::OnRenderTargetRelease(const NzRenderTarget* renderTarget)
+	void CameraComponent::OnRenderTargetRelease(const Nz::RenderTarget* renderTarget)
 	{
 		if (renderTarget == m_target)
 			m_target = nullptr;
 		else
-			NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
+			NazaraInternalError("Not listening to " + Nz::String::Pointer(renderTarget));
 	}
 
-	void CameraComponent::OnRenderTargetSizeChange(const NzRenderTarget* renderTarget)
+	void CameraComponent::OnRenderTargetSizeChange(const Nz::RenderTarget* renderTarget)
 	{
 		if (renderTarget == m_target)
 			InvalidateViewport();
 		else
-			NazaraInternalError("Not listening to " + NzString::Pointer(renderTarget));
+			NazaraInternalError("Not listening to " + Nz::String::Pointer(renderTarget));
 	}
 
 	void CameraComponent::UpdateFrustum() const
@@ -118,13 +118,13 @@ namespace Ndk
 	{
 		switch (m_projectionType)
 		{
-			case nzProjectionType_Orthogonal:
+			case Nz::ProjectionType_Orthogonal:
 				EnsureViewportUpdate();
 
 				m_projectionMatrix.MakeOrtho(0.f, static_cast<float>(m_viewport.width), 0.f, static_cast<float>(m_viewport.height), m_zNear, m_zFar);
 				break;
 
-			case nzProjectionType_Perspective:
+			case Nz::ProjectionType_Perspective:
 				EnsureViewportUpdate(); // Can affect aspect ratio
 
 				m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
@@ -141,7 +141,7 @@ namespace Ndk
 		NodeComponent& nodeComponent = m_entity->GetComponent<NodeComponent>();
 
 		// Build the view matrix using the NodeComponent position/rotation
-		m_viewMatrix.MakeViewMatrix(nodeComponent.GetPosition(nzCoordSys_Global), nodeComponent.GetRotation(nzCoordSys_Global));
+		m_viewMatrix.MakeViewMatrix(nodeComponent.GetPosition(Nz::CoordSys_Global), nodeComponent.GetRotation(Nz::CoordSys_Global));
 		m_viewMatrixUpdated = true;
 	}
 
@@ -153,7 +153,7 @@ namespace Ndk
 		unsigned int targetHeight = std::max(m_target->GetHeight(), 1U); // Let's make sure we won't divide by zero
 
 		// Our target region is expressed as % of the viewport dimensions, let's compute it in pixels
-		NzRectf fViewport(m_targetRegion);
+		Nz::Rectf fViewport(m_targetRegion);
 		fViewport.x *= targetWidth;
 		fViewport.y *= targetHeight;
 		fViewport.width *= targetWidth;
@@ -161,11 +161,11 @@ namespace Ndk
 
 		// Compute the new aspect ratio, if it's different we need to invalidate the projection matrix
 		float aspectRatio = fViewport.width/fViewport.height;
-		if (!NzNumberEquals(m_aspectRatio, aspectRatio, 0.001f))
+		if (!Nz::NumberEquals(m_aspectRatio, aspectRatio, 0.001f))
 		{
 			m_aspectRatio = aspectRatio;
 
-			if (m_projectionType == nzProjectionType_Perspective)
+			if (m_projectionType == Nz::ProjectionType_Perspective)
 				InvalidateProjectionMatrix();
 		}
 

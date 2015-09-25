@@ -9,13 +9,13 @@
 
 #include <vector>
 
-class NzVideoMode;
+class VideoMode;
 
-class NzVideoModeImpl
+class VideoModeImpl
 {
 	public:
-		static NzVideoMode GetDesktopMode();
-		static void GetFullscreenModes(std::vector<NzVideoMode>& modes);
+		static VideoMode GetDesktopMode();
+		static void GetFullscreenModes(std::vector<VideoMode>& modes);
 };
 
 #endif // NAZARA_VIDEOMODEIMPL_HPP

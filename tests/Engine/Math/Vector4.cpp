@@ -7,8 +7,8 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 {
 	GIVEN("Two same unit vector")
 	{
-		NzVector4f firstUnit(1.f, 1.f, 1.f);
-		NzVector4f secondUnit(NzVector4i(1, 1, 1, 1));
+		Nz::Vector4f firstUnit(1.f, 1.f, 1.f);
+		Nz::Vector4f secondUnit(Nz::Vector4i(1, 1, 1, 1));
 
 		WHEN("We compare them")
 		{
@@ -20,7 +20,7 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 
 		WHEN("We test the dot product")
 		{
-			NzVector4f tmp(-1.f, 0.f, 1.f, 0.f);
+			Nz::Vector4f tmp(-1.f, 0.f, 1.f, 0.f);
 
 			THEN("These results are expected")
 			{
@@ -31,12 +31,12 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 
 		WHEN("We normalize")
 		{
-			NzVector4f tmp(1.f, 1.f, 1.f, 3.f);
+			Nz::Vector4f tmp(1.f, 1.f, 1.f, 3.f);
 
 			THEN("These results are expected")
 			{
-				REQUIRE(firstUnit.Normalize() == NzVector4f(1.f, NzVector3f::Unit()));
-				REQUIRE(tmp.Normalize() == NzVector4f(NzVector3f::Unit() * (1.f / 3.f), 1.f));
+				REQUIRE(firstUnit.Normalize() == Nz::Vector4f(1.f, Nz::Vector3f::Unit()));
+				REQUIRE(tmp.Normalize() == Nz::Vector4f(Nz::Vector3f::Unit() * (1.f / 3.f), 1.f));
 			}
 		}
 	}

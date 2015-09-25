@@ -16,62 +16,65 @@
 #include <memory>
 #include <vector>
 
-class NzContext;
-
-using NzContextConstRef = NzObjectRef<const NzContext>;
-using NzContextLibrary = NzObjectLibrary<NzContext>;
-using NzContextRef = NzObjectRef<NzContext>;
-
-class NzContextImpl;
-
-class NAZARA_RENDERER_API NzContext : public NzRefCounted
+namespace Nz
 {
-	friend NzContextImpl;
-	friend NzContextLibrary;
-	friend class NzOpenGL;
+	class Context;
 
-	public:
-		NzContext() = default;
-		NzContext(const NzContext&) = delete;
-		NzContext(NzContext&&) = delete;
-		~NzContext();
+	using ContextConstRef = ObjectRef<const Context>;
+	using ContextLibrary = ObjectLibrary<Context>;
+	using ContextRef = ObjectRef<Context>;
 
-		bool Create(const NzContextParameters& parameters = NzContextParameters());
+	class ContextImpl;
 
-		void Destroy();
+	class NAZARA_RENDERER_API Context : public RefCounted
+	{
+		friend ContextImpl;
+		friend ContextLibrary;
+		friend class OpenGL;
 
-		void EnableVerticalSync(bool enabled);
+		public:
+			Context() = default;
+			Context(const Context&) = delete;
+			Context(Context&&) = delete;
+			~Context();
 
-		const NzContextParameters& GetParameters() const;
+			bool Create(const ContextParameters& parameters = ContextParameters());
 
-		bool IsActive() const;
+			void Destroy();
 
-		bool SetActive(bool active) const;
-		void SwapBuffers();
+			void EnableVerticalSync(bool enabled);
 
-		NzContext& operator=(const NzContext&) = delete;
-		NzContext& operator=(NzContext&&) = delete;
+			const ContextParameters& GetParameters() const;
 
-		static bool EnsureContext();
+			bool IsActive() const;
 
-		static const NzContext* GetCurrent();
-		static const NzContext* GetReference();
-		static const NzContext* GetThreadContext();
+			bool SetActive(bool active) const;
+			void SwapBuffers();
 
-		// Signals:
-		NazaraSignal(OnContextDestroy, const NzContext* /*context*/);
-		NazaraSignal(OnContextRelease, const NzContext* /*context*/);
+			Context& operator=(const Context&) = delete;
+			Context& operator=(Context&&) = delete;
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			static bool EnsureContext();
 
-		NzContextParameters m_parameters;
-		NzContextImpl* m_impl = nullptr;
+			static const Context* GetCurrent();
+			static const Context* GetReference();
+			static const Context* GetThreadContext();
 
-		static std::unique_ptr<NzContext> s_reference;
-		static std::vector<std::unique_ptr<NzContext>> s_contexts;
-		static NzContextLibrary::LibraryMap s_library;
-};
+			// Signals:
+			NazaraSignal(OnContextDestroy, const Context* /*context*/);
+			NazaraSignal(OnContextRelease, const Context* /*context*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			ContextParameters m_parameters;
+			ContextImpl* m_impl = nullptr;
+
+			static std::unique_ptr<Context> s_reference;
+			static std::vector<std::unique_ptr<Context>> s_contexts;
+			static ContextLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_CONTEXT_HPP

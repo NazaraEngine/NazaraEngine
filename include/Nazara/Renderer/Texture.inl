@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
-template<typename... Args>
-NzTextureRef NzTexture::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzTexture> object(new NzTexture(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	TextureRef Texture::New(Args&&... args)
+	{
+		std::unique_ptr<Texture> object(new Texture(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
+
 }
-
 #include <Nazara/Renderer/DebugOff.hpp>

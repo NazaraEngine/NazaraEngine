@@ -10,18 +10,21 @@
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
-class NzImage;
-
-class NzIconImpl
+namespace Nz
 {
-	public:
-		bool Create(const NzImage& image);
-		void Destroy();
+	class Image;
 
-		HICON GetIcon();
+	class IconImpl
+	{
+		public:
+			bool Create(const Image& image);
+			void Destroy();
 
-	private:
-		HICON m_icon = nullptr;
-};
+			HICON GetIcon();
+
+		private:
+			HICON m_icon = nullptr;
+	};
+}
 
 #endif // NAZARA_ICONIMPL_HPP

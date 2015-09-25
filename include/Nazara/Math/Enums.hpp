@@ -7,58 +7,61 @@
 #ifndef NAZARA_ENUMS_MATH_HPP
 #define NAZARA_ENUMS_MATH_HPP
 
-enum nzBoxCorner
+namespace Nz
 {
-	nzBoxCorner_FarLeftBottom,
-	nzBoxCorner_FarLeftTop,
-	nzBoxCorner_FarRightBottom,
-	nzBoxCorner_FarRightTop,
-	nzBoxCorner_NearLeftBottom,
-	nzBoxCorner_NearLeftTop,
-	nzBoxCorner_NearRightBottom,
-	nzBoxCorner_NearRightTop,
+	enum BoxCorner
+	{
+		BoxCorner_FarLeftBottom,
+		BoxCorner_FarLeftTop,
+		BoxCorner_FarRightBottom,
+		BoxCorner_FarRightTop,
+		BoxCorner_NearLeftBottom,
+		BoxCorner_NearLeftTop,
+		BoxCorner_NearRightBottom,
+		BoxCorner_NearRightTop,
 
-	nzBoxCorner_Max = nzBoxCorner_NearRightTop
-};
+		BoxCorner_Max = BoxCorner_NearRightTop
+	};
 
-enum nzExtend
-{
-	nzExtend_Finite,
-	nzExtend_Infinite,
-	nzExtend_Null,
+	enum Extend
+	{
+		Extend_Finite,
+		Extend_Infinite,
+		Extend_Null,
 
-	nzExtend_Max = nzExtend_Null
-};
+		Extend_Max = Extend_Null
+	};
 
-enum nzFrustumPlane
-{
-	nzFrustumPlane_Bottom,
-	nzFrustumPlane_Far,
-	nzFrustumPlane_Left,
-	nzFrustumPlane_Near,
-	nzFrustumPlane_Right,
-	nzFrustumPlane_Top,
+	enum FrustumPlane
+	{
+		FrustumPlane_Bottom,
+		FrustumPlane_Far,
+		FrustumPlane_Left,
+		FrustumPlane_Near,
+		FrustumPlane_Right,
+		FrustumPlane_Top,
 
-	nzFrustumPlane_Max = nzFrustumPlane_Top
-};
+		FrustumPlane_Max = FrustumPlane_Top
+	};
 
-enum nzIntersectionSide
-{
-	nzIntersectionSide_Inside,
-	nzIntersectionSide_Intersecting,
-	nzIntersectionSide_Outside,
+	enum IntersectionSide
+	{
+		IntersectionSide_Inside,
+		IntersectionSide_Intersecting,
+		IntersectionSide_Outside,
 
-	nzIntersectionSide_Max = nzIntersectionSide_Outside
-};
+		IntersectionSide_Max = IntersectionSide_Outside
+	};
 
-enum nzRectCorner
-{
-	nzRectCorner_LeftBottom,
-	nzRectCorner_LeftTop,
-	nzRectCorner_RightBottom,
-	nzRectCorner_RightTop,
+	enum RectCorner
+	{
+		RectCorner_LeftBottom,
+		RectCorner_LeftTop,
+		RectCorner_RightBottom,
+		RectCorner_RightTop,
 
-	nzRectCorner_Max = nzRectCorner_RightTop
-};
+		RectCorner_Max = RectCorner_RightTop
+	};
+}
 
 #endif // NAZARA_ENUMS_MATH_HPP

@@ -12,10 +12,10 @@
 namespace Ndk
 {
 	RenderSystem::RenderSystem() :
-	m_coordinateSystemMatrix(NzMatrix4f::Identity()),
+	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true)
 	{
-		SetDefaultBackground(NzColorBackground::New());
+		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateRate(0.f);
 	}
 
@@ -73,7 +73,7 @@ namespace Ndk
 			CameraComponent& camComponent = camera->GetComponent<CameraComponent>();
 			camComponent.ApplyView();
 
-			NzAbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
+			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
 			renderQueue->Clear();
 
 			//TODO: Culling
@@ -91,11 +91,11 @@ namespace Ndk
 				NodeComponent& drawableNode = light->GetComponent<NodeComponent>();
 
 				///TODO: Cache somehow?
-				lightComponent.AddToRenderQueue(renderQueue, NzMatrix4f::ConcatenateAffine(m_coordinateSystemMatrix, drawableNode.GetTransformMatrix()));
+				lightComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::ConcatenateAffine(m_coordinateSystemMatrix, drawableNode.GetTransformMatrix()));
 			}
 
-			NzSceneData sceneData;
-			sceneData.ambientColor = NzColor(25, 25, 25);
+			Nz::SceneData sceneData;
+			sceneData.ambientColor = Nz::Color(25, 25, 25);
 			sceneData.background = m_background;
 			sceneData.viewer = &camComponent;
 

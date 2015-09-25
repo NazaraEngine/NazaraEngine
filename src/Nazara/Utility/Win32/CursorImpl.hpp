@@ -10,18 +10,21 @@
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
-class NzImage;
-
-class NzCursorImpl
+namespace Nz
 {
-	public:
-		bool Create(const NzImage& image, int hotSpotX, int hotSpotY);
-		void Destroy();
+	class Image;
 
-		HCURSOR GetCursor();
+	class CursorImpl
+	{
+		public:
+			bool Create(const Image& image, int hotSpotX, int hotSpotY);
+			void Destroy();
 
-	private:
-		HICON m_cursor = nullptr;
-};
+			HCURSOR GetCursor();
+
+		private:
+			HICON m_cursor = nullptr;
+	};
+}
 
 #endif // NAZARA_CURSORIMPL_HPP

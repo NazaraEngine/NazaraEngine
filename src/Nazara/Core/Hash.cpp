@@ -14,67 +14,70 @@
 #include <Nazara/Core/Hash/Whirlpool.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzHash::NzHash(nzHash hash)
+namespace Nz
 {
-	switch (hash)
+	Hash::Hash(HashType hash)
 	{
-		case nzHash_Fletcher16:
-			m_impl = new NzHashFletcher16;
-			break;
+		switch (hash)
+		{
+			case HashType_Fletcher16:
+				m_impl = new HashFletcher16;
+				break;
 
-		case nzHash_CRC32:
-			m_impl = new NzHashCRC32;
-			break;
+			case HashType_CRC32:
+				m_impl = new HashCRC32;
+				break;
 
-		case nzHash_MD5:
-			m_impl = new NzHashMD5;
-			break;
+			case HashType_MD5:
+				m_impl = new HashMD5;
+				break;
 
-		case nzHash_SHA1:
-			m_impl = new NzHashSHA1;
-			break;
+			case HashType_SHA1:
+				m_impl = new HashSHA1;
+				break;
 
-		case nzHash_SHA224:
-			m_impl = new NzHashSHA224;
-			break;
+			case HashType_SHA224:
+				m_impl = new HashSHA224;
+				break;
 
-		case nzHash_SHA256:
-			m_impl = new NzHashSHA256;
-			break;
+			case HashType_SHA256:
+				m_impl = new HashSHA256;
+				break;
 
-		case nzHash_SHA384:
-			m_impl = new NzHashSHA384;
-			break;
+			case HashType_SHA384:
+				m_impl = new HashSHA384;
+				break;
 
-		case nzHash_SHA512:
-			m_impl = new NzHashSHA512;
-			break;
+			case HashType_SHA512:
+				m_impl = new HashSHA512;
+				break;
 
-		case nzHash_Whirlpool:
-			m_impl = new NzHashWhirlpool;
-			break;
+			case HashType_Whirlpool:
+				m_impl = new HashWhirlpool;
+				break;
+		}
 	}
-}
 
-NzHash::NzHash(NzAbstractHash* hashImpl) :
-m_impl(hashImpl)
-{
-}
-
-NzHash::~NzHash()
-{
-	delete m_impl;
-}
-
-NzHashDigest NzHash::Hash(const NzHashable& hashable)
-{
-	m_impl->Begin();
-	if (hashable.FillHash(m_impl))
-		return m_impl->End();
-	else // Erreur
+	Hash::Hash(AbstractHash* hashImpl) :
+	m_impl(hashImpl)
 	{
-		m_impl->End();
+	}
 
-		return NzHashDigest();
+	Hash::~Hash()
+	{
+		delete m_impl;
+	}
+
+	HashDigest Hash::Process(const Hashable& hashable)
+	{
+		m_impl->Begin();
+		if (hashable.FillHash(m_impl))
+			return m_impl->End();
+		else // Erreur
+		{
+			m_impl->End();
+
+			return HashDigest();
+		}
 	}
 }

@@ -11,20 +11,23 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NAZARA_GRAPHICS_API NzGraphics
+namespace Nz
 {
-	public:
-		NzGraphics() = delete;
-		~NzGraphics() = delete;
+	class NAZARA_GRAPHICS_API Graphics
+	{
+		public:
+			Graphics() = delete;
+			~Graphics() = delete;
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
+			static bool IsInitialized();
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-	private:
-		static unsigned int s_moduleReferenceCounter;
-};
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};
+}
 
 #endif // NAZARA_GRAPHICS_HPP
