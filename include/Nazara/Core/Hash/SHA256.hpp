@@ -11,23 +11,26 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 
-union SHA_CTX;
-
-class NAZARA_CORE_API NzHashSHA256 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashSHA256();
-		virtual ~NzHashSHA256();
+	union SHA_CTX;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashSHA256 : public AbstractHash
+	{
+		public:
+			HashSHA256();
+			virtual ~HashSHA256();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, unsigned int len);
+			void Begin();
+			HashDigest End();
 
-	private:
-		SHA_CTX* m_state;
-};
+			static unsigned int GetDigestLength();
+			static String GetHashName();
+
+		private:
+			SHA_CTX* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_SHA256_HPP

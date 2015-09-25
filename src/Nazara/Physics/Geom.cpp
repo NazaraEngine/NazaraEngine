@@ -8,429 +8,432 @@
 #include <memory>
 #include <Nazara/Physics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	NzPhysGeomRef CreateGeomFromPrimitive(const NzPrimitive& primitive)
+	namespace
 	{
-		switch (primitive.type)
+		PhysGeomRef CreateGeomFromPrimitive(const Primitive& primitive)
 		{
-			case nzPrimitiveType_Box:
-				return NzBoxGeom::New(primitive.box.lengths, primitive.matrix);
+			switch (primitive.type)
+			{
+				case PrimitiveType_Box:
+					return BoxGeom::New(primitive.box.lengths, primitive.matrix);
 
-			case nzPrimitiveType_Cone:
-				return NzConeGeom::New(primitive.cone.length, primitive.cone.radius, primitive.matrix);
+				case PrimitiveType_Cone:
+					return ConeGeom::New(primitive.cone.length, primitive.cone.radius, primitive.matrix);
 
-			case nzPrimitiveType_Plane:
-				return NzBoxGeom::New(NzVector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
-				///TODO: PlaneGeom?
+				case PrimitiveType_Plane:
+					return BoxGeom::New(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
+					///TODO: PlaneGeom?
 
-			case nzPrimitiveType_Sphere:
-				return NzSphereGeom::New(primitive.sphere.size, primitive.matrix.GetTranslation());
+				case PrimitiveType_Sphere:
+					return SphereGeom::New(primitive.sphere.size, primitive.matrix.GetTranslation());
+			}
+
+			NazaraError("Primitive type not handled (0x" + String::Number(primitive.type, 16) + ')');
+			return PhysGeomRef();
 		}
-
-		NazaraError("Primitive type not handled (0x" + NzString::Number(primitive.type, 16) + ')');
-		return NzPhysGeomRef();
 	}
-}
 
-NzPhysGeom::~NzPhysGeom()
-{
-	for (auto& pair : m_handles)
-		NewtonDestroyCollision(pair.second);
-}
-
-NzBoxf NzPhysGeom::ComputeAABB(const NzVector3f& translation, const NzQuaternionf& rotation, const NzVector3f& scale) const
-{
-	return ComputeAABB(NzMatrix4f::Transform(translation, rotation), scale);
-}
-
-NzBoxf NzPhysGeom::ComputeAABB(const NzMatrix4f& offsetMatrix, const NzVector3f& scale) const
-{
-	NzVector3f min, max;
-
-	// Si nous n'avons aucune instance, nous en créons une temporaire
-	if (m_handles.empty())
+	PhysGeom::~PhysGeom()
 	{
-		NzPhysWorld world;
+		for (auto& pair : m_handles)
+			NewtonDestroyCollision(pair.second);
+	}
 
-		NewtonCollision* collision = CreateHandle(&world);
+	Boxf PhysGeom::ComputeAABB(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) const
+	{
+		return ComputeAABB(Matrix4f::Transform(translation, rotation), scale);
+	}
+
+	Boxf PhysGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	{
+		Vector3f min, max;
+
+		// Si nous n'avons aucune instance, nous en créons une temporaire
+		if (m_handles.empty())
 		{
-			NewtonCollisionCalculateAABB(collision, offsetMatrix, min, max);
+			PhysWorld world;
+
+			NewtonCollision* collision = CreateHandle(&world);
+			{
+				NewtonCollisionCalculateAABB(collision, offsetMatrix, min, max);
+			}
+			NewtonDestroyCollision(collision);
 		}
-		NewtonDestroyCollision(collision);
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, min, max);
+
+		return Boxf(scale * min, scale * max);
 	}
-	else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
-		NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, min, max);
 
-	return NzBoxf(scale * min, scale * max);
-}
-
-void NzPhysGeom::ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const
-{
-	float inertiaMatrix[3];
-	float origin[3];
-
-	// Si nous n'avons aucune instance, nous en créons une temporaire
-	if (m_handles.empty())
+	void PhysGeom::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
 	{
-		NzPhysWorld world;
+		float inertiaMatrix[3];
+		float origin[3];
 
-		NewtonCollision* collision = CreateHandle(&world);
+		// Si nous n'avons aucune instance, nous en créons une temporaire
+		if (m_handles.empty())
 		{
-			NewtonConvexCollisionCalculateInertialMatrix(collision, inertiaMatrix, origin);
+			PhysWorld world;
+
+			NewtonCollision* collision = CreateHandle(&world);
+			{
+				NewtonConvexCollisionCalculateInertialMatrix(collision, inertiaMatrix, origin);
+			}
+			NewtonDestroyCollision(collision);
 		}
-		NewtonDestroyCollision(collision);
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+			NewtonConvexCollisionCalculateInertialMatrix(m_handles.begin()->second, inertiaMatrix, origin);
+
+		if (inertia)
+			inertia->Set(inertiaMatrix);
+
+		if (center)
+			center->Set(origin);
 	}
-	else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
-		NewtonConvexCollisionCalculateInertialMatrix(m_handles.begin()->second, inertiaMatrix, origin);
 
-	if (inertia)
-		inertia->Set(inertiaMatrix);
-
-	if (center)
-		center->Set(origin);
-}
-
-float NzPhysGeom::ComputeVolume() const
-{
-	float volume;
-
-	// Si nous n'avons aucune instance, nous en créons une temporaire
-	if (m_handles.empty())
+	float PhysGeom::ComputeVolume() const
 	{
-		NzPhysWorld world;
+		float volume;
 
-		NewtonCollision* collision = CreateHandle(&world);
+		// Si nous n'avons aucune instance, nous en créons une temporaire
+		if (m_handles.empty())
 		{
-			volume = NewtonConvexCollisionCalculateVolume(collision);
+			PhysWorld world;
+
+			NewtonCollision* collision = CreateHandle(&world);
+			{
+				volume = NewtonConvexCollisionCalculateVolume(collision);
+			}
+			NewtonDestroyCollision(collision);
 		}
-		NewtonDestroyCollision(collision);
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+			volume = NewtonConvexCollisionCalculateVolume(m_handles.begin()->second);
+
+		return volume;
 	}
-	else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
-		volume = NewtonConvexCollisionCalculateVolume(m_handles.begin()->second);
 
-	return volume;
-}
-
-NewtonCollision* NzPhysGeom::GetHandle(NzPhysWorld* world) const
-{
-	auto it = m_handles.find(world);
-	if (it == m_handles.end())
-		it = m_handles.insert(std::make_pair(world, CreateHandle(world))).first;
-
-	return it->second;
-}
-
-NzPhysGeomRef NzPhysGeom::Build(const NzPrimitiveList& list)
-{
-	unsigned int primitiveCount = list.GetSize();
-
-	#if NAZARA_PHYSICS_SAFE
-	if (primitiveCount == 0)
+	NewtonCollision* PhysGeom::GetHandle(PhysWorld* world) const
 	{
-		NazaraError("PrimitiveList must have at least one primitive");
-		return nullptr;
+		auto it = m_handles.find(world);
+		if (it == m_handles.end())
+			it = m_handles.insert(std::make_pair(world, CreateHandle(world))).first;
+
+		return it->second;
 	}
-	#endif
 
-	if (primitiveCount > 1)
+	PhysGeomRef PhysGeom::Build(const PrimitiveList& list)
 	{
-		std::vector<NzPhysGeom*> geoms(primitiveCount);
+		unsigned int primitiveCount = list.GetSize();
 
-		for (unsigned int i = 0; i < primitiveCount; ++i)
-			geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
-
-		return NzCompoundGeom::New(&geoms[0], primitiveCount);
-	}
-	else
-		return CreateGeomFromPrimitive(list.GetPrimitive(0));
-}
-
-NzPhysGeomLibrary::LibraryMap NzPhysGeom::s_library;
-
-/********************************** BoxGeom **********************************/
-
-NzBoxGeom::NzBoxGeom(const NzVector3f& lengths, const NzMatrix4f& transformMatrix) :
-m_matrix(transformMatrix),
-m_lengths(lengths)
-{
-}
-
-NzBoxGeom::NzBoxGeom(const NzVector3f& lengths, const NzVector3f& translation, const NzQuaternionf& rotation) :
-NzBoxGeom(lengths, NzMatrix4f::Transform(translation, rotation))
-{
-}
-
-NzBoxf NzBoxGeom::ComputeAABB(const NzMatrix4f& offsetMatrix, const NzVector3f& scale) const
-{
-	NzVector3f halfLengths(m_lengths * 0.5f);
-
-	NzBoxf aabb(-halfLengths.x, -halfLengths.y, -halfLengths.z, m_lengths.x, m_lengths.y, m_lengths.z);
-	aabb.Transform(offsetMatrix, true);
-	aabb *= scale;
-
-	return aabb;
-}
-
-float NzBoxGeom::ComputeVolume() const
-{
-	return m_lengths.x * m_lengths.y * m_lengths.z;
-}
-
-NzVector3f NzBoxGeom::GetLengths() const
-{
-	return m_lengths;
-}
-
-nzGeomType NzBoxGeom::GetType() const
-{
-	return nzGeomType_Box;
-}
-
-NewtonCollision* NzBoxGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, m_matrix);
-}
-
-/******************************** CapsuleGeom ********************************/
-
-NzCapsuleGeom::NzCapsuleGeom(float length, float radius, const NzMatrix4f& transformMatrix) :
-m_matrix(transformMatrix),
-m_length(length),
-m_radius(radius)
-{
-}
-
-NzCapsuleGeom::NzCapsuleGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation) :
-NzCapsuleGeom(length, radius, NzMatrix4f::Transform(translation, rotation))
-{
-}
-
-float NzCapsuleGeom::GetLength() const
-{
-	return m_length;
-}
-
-float NzCapsuleGeom::GetRadius() const
-{
-	return m_radius;
-}
-
-nzGeomType NzCapsuleGeom::GetType() const
-{
-	return nzGeomType_Capsule;
-}
-
-NewtonCollision* NzCapsuleGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateCapsule(world->GetHandle(), m_radius, m_length, 0, m_matrix);
-}
-
-/******************************* CompoundGeom ********************************/
-
-NzCompoundGeom::NzCompoundGeom(NzPhysGeom** geoms, unsigned int geomCount)
-{
-	m_geoms.reserve(geomCount);
-	for (unsigned int i = 0; i < geomCount; ++i)
-		m_geoms.emplace_back(geoms[i]);
-}
-
-const std::vector<NzPhysGeomRef>& NzCompoundGeom::GetGeoms() const
-{
-	return m_geoms;
-}
-
-nzGeomType NzCompoundGeom::GetType() const
-{
-	return nzGeomType_Compound;
-}
-
-NewtonCollision* NzCompoundGeom::CreateHandle(NzPhysWorld* world) const
-{
-	NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
-
-	NewtonCompoundCollisionBeginAddRemove(compoundCollision);
-	for (const NzPhysGeomRef& geom : m_geoms)
-	{
-		if (geom->GetType() == nzGeomType_Compound)
+		#if NAZARA_PHYSICS_SAFE
+		if (primitiveCount == 0)
 		{
-			NzCompoundGeom* compoundGeom = static_cast<NzCompoundGeom*>(geom.Get());
-			for (const NzPhysGeomRef& piece : compoundGeom->GetGeoms())
-				NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
+			NazaraError("PrimitiveList must have at least one primitive");
+			return nullptr;
+		}
+		#endif
+
+		if (primitiveCount > 1)
+		{
+			std::vector<PhysGeom*> geoms(primitiveCount);
+
+			for (unsigned int i = 0; i < primitiveCount; ++i)
+				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
+
+			return CompoundGeom::New(&geoms[0], primitiveCount);
 		}
 		else
-			NewtonCompoundCollisionAddSubCollision(compoundCollision, geom->GetHandle(world));
+			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 	}
-	NewtonCompoundCollisionEndAddRemove(compoundCollision);
 
-	return compoundCollision;
-}
+	PhysGeomLibrary::LibraryMap PhysGeom::s_library;
 
-/********************************* ConeGeom **********************************/
+	/********************************** BoxGeom **********************************/
 
-NzConeGeom::NzConeGeom(float length, float radius, const NzMatrix4f& transformMatrix) :
-m_matrix(transformMatrix),
-m_length(length),
-m_radius(radius)
-{
-}
-
-NzConeGeom::NzConeGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation) :
-NzConeGeom(length, radius, NzMatrix4f::Transform(translation, rotation))
-{
-}
-
-float NzConeGeom::GetLength() const
-{
-	return m_length;
-}
-
-float NzConeGeom::GetRadius() const
-{
-	return m_radius;
-}
-
-nzGeomType NzConeGeom::GetType() const
-{
-	return nzGeomType_Cone;
-}
-
-NewtonCollision* NzConeGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, m_matrix);
-}
-
-/****************************** ConvexHullGeom *******************************/
-
-NzConvexHullGeom::NzConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const NzMatrix4f& transformMatrix) :
-m_matrix(transformMatrix),
-m_tolerance(tolerance),
-m_vertexStride(stride)
-{
-	const nzUInt8* ptr = static_cast<const nzUInt8*>(vertices);
-
-	m_vertices.resize(vertexCount);
-	if (stride != sizeof(NzVector3f))
+	BoxGeom::BoxGeom(const Vector3f& lengths, const Matrix4f& transformMatrix) :
+	m_matrix(transformMatrix),
+	m_lengths(lengths)
 	{
-		for (unsigned int i = 0; i < vertexCount; ++i)
-			m_vertices[i] = *reinterpret_cast<const NzVector3f*>(ptr + stride*i);
 	}
-	else // Fast path
-		std::memcpy(m_vertices.data(), vertices, vertexCount*sizeof(NzVector3f));
-}
 
-NzConvexHullGeom::NzConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const NzVector3f& translation, const NzQuaternionf& rotation) :
-NzConvexHullGeom(vertices, vertexCount, stride, tolerance, NzMatrix4f::Transform(translation, rotation))
-{
-}
+	BoxGeom::BoxGeom(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation) :
+	BoxGeom(lengths, Matrix4f::Transform(translation, rotation))
+	{
+	}
 
-nzGeomType NzConvexHullGeom::GetType() const
-{
-	return nzGeomType_Compound;
-}
+	Boxf BoxGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	{
+		Vector3f halfLengths(m_lengths * 0.5f);
 
-NewtonCollision* NzConvexHullGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateConvexHull(world->GetHandle(), m_vertices.size(), reinterpret_cast<const float*>(m_vertices.data()), sizeof(NzVector3f), m_tolerance, 0, m_matrix);
-}
+		Boxf aabb(-halfLengths.x, -halfLengths.y, -halfLengths.z, m_lengths.x, m_lengths.y, m_lengths.z);
+		aabb.Transform(offsetMatrix, true);
+		aabb *= scale;
 
-/******************************* CylinderGeom ********************************/
+		return aabb;
+	}
 
-NzCylinderGeom::NzCylinderGeom(float length, float radius, const NzMatrix4f& transformMatrix) :
-m_matrix(transformMatrix),
-m_length(length),
-m_radius(radius)
-{
-}
+	float BoxGeom::ComputeVolume() const
+	{
+		return m_lengths.x * m_lengths.y * m_lengths.z;
+	}
 
-NzCylinderGeom::NzCylinderGeom(float length, float radius, const NzVector3f& translation, const NzQuaternionf& rotation) :
-NzCylinderGeom(length, radius, NzMatrix4f::Transform(translation, rotation))
-{
-}
+	Vector3f BoxGeom::GetLengths() const
+	{
+		return m_lengths;
+	}
 
-float NzCylinderGeom::GetLength() const
-{
-	return m_length;
-}
+	GeomType BoxGeom::GetType() const
+	{
+		return GeomType_Box;
+	}
 
-float NzCylinderGeom::GetRadius() const
-{
-	return m_radius;
-}
+	NewtonCollision* BoxGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, m_matrix);
+	}
 
-nzGeomType NzCylinderGeom::GetType() const
-{
-	return nzGeomType_Cylinder;
-}
+	/******************************** CapsuleGeom ********************************/
 
-NewtonCollision* NzCylinderGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateCylinder(world->GetHandle(), m_radius, m_length, 0, m_matrix);
-}
+	CapsuleGeom::CapsuleGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	m_matrix(transformMatrix),
+	m_length(length),
+	m_radius(radius)
+	{
+	}
 
-/********************************* NullGeom **********************************/
+	CapsuleGeom::CapsuleGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	CapsuleGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	{
+	}
 
-NzNullGeom::NzNullGeom()
-{
-}
+	float CapsuleGeom::GetLength() const
+	{
+		return m_length;
+	}
 
-nzGeomType NzNullGeom::GetType() const
-{
-	return nzGeomType_Null;
-}
+	float CapsuleGeom::GetRadius() const
+	{
+		return m_radius;
+	}
 
-void NzNullGeom::ComputeInertialMatrix(NzVector3f* inertia, NzVector3f* center) const
-{
-	if (inertia)
-		inertia->MakeUnit();
+	GeomType CapsuleGeom::GetType() const
+	{
+		return GeomType_Capsule;
+	}
 
-	if (center)
-		center->MakeZero();
-}
+	NewtonCollision* CapsuleGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+	}
 
-NewtonCollision* NzNullGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateNull(world->GetHandle());
-}
+	/******************************* CompoundGeom ********************************/
 
-/******************************** SphereGeom *********************************/
+	CompoundGeom::CompoundGeom(PhysGeom** geoms, unsigned int geomCount)
+	{
+		m_geoms.reserve(geomCount);
+		for (unsigned int i = 0; i < geomCount; ++i)
+			m_geoms.emplace_back(geoms[i]);
+	}
 
-NzSphereGeom::NzSphereGeom(float radius, const NzMatrix4f& transformMatrix) :
-NzSphereGeom(radius, transformMatrix.GetTranslation())
-{
-}
+	const std::vector<PhysGeomRef>& CompoundGeom::GetGeoms() const
+	{
+		return m_geoms;
+	}
 
-NzSphereGeom::NzSphereGeom(float radius, const NzVector3f& translation, const NzQuaternionf& rotation) :
-m_position(translation),
-m_radius(radius)
-{
-	NazaraUnused(rotation);
-}
+	GeomType CompoundGeom::GetType() const
+	{
+		return GeomType_Compound;
+	}
 
-NzBoxf NzSphereGeom::ComputeAABB(const NzMatrix4f& offsetMatrix, const NzVector3f& scale) const
-{
-	NzVector3f size(m_radius * NazaraSuffixMacro(M_SQRT3, f) * scale);
-	NzVector3f position(offsetMatrix.GetTranslation());
+	NewtonCollision* CompoundGeom::CreateHandle(PhysWorld* world) const
+	{
+		NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
 
-	return NzBoxf(position - size, position + size);
-}
+		NewtonCompoundCollisionBeginAddRemove(compoundCollision);
+		for (const PhysGeomRef& geom : m_geoms)
+		{
+			if (geom->GetType() == GeomType_Compound)
+			{
+				CompoundGeom* compoundGeom = static_cast<CompoundGeom*>(geom.Get());
+				for (const PhysGeomRef& piece : compoundGeom->GetGeoms())
+					NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
+			}
+			else
+				NewtonCompoundCollisionAddSubCollision(compoundCollision, geom->GetHandle(world));
+		}
+		NewtonCompoundCollisionEndAddRemove(compoundCollision);
 
-float NzSphereGeom::ComputeVolume() const
-{
-	return float(M_PI) * m_radius * m_radius * m_radius / 3.f;
-}
+		return compoundCollision;
+	}
 
-float NzSphereGeom::GetRadius() const
-{
-	return m_radius;
-}
+	/********************************* ConeGeom **********************************/
 
-nzGeomType NzSphereGeom::GetType() const
-{
-	return nzGeomType_Sphere;
-}
+	ConeGeom::ConeGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	m_matrix(transformMatrix),
+	m_length(length),
+	m_radius(radius)
+	{
+	}
 
-NewtonCollision* NzSphereGeom::CreateHandle(NzPhysWorld* world) const
-{
-	return NewtonCreateSphere(world->GetHandle(), m_radius, 0, NzMatrix4f::Translate(m_position));
+	ConeGeom::ConeGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	ConeGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	{
+	}
+
+	float ConeGeom::GetLength() const
+	{
+		return m_length;
+	}
+
+	float ConeGeom::GetRadius() const
+	{
+		return m_radius;
+	}
+
+	GeomType ConeGeom::GetType() const
+	{
+		return GeomType_Cone;
+	}
+
+	NewtonCollision* ConeGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+	}
+
+	/****************************** ConvexHullGeom *******************************/
+
+	ConvexHullGeom::ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Matrix4f& transformMatrix) :
+	m_matrix(transformMatrix),
+	m_tolerance(tolerance),
+	m_vertexStride(stride)
+	{
+		const UInt8* ptr = static_cast<const UInt8*>(vertices);
+
+		m_vertices.resize(vertexCount);
+		if (stride != sizeof(Vector3f))
+		{
+			for (unsigned int i = 0; i < vertexCount; ++i)
+				m_vertices[i] = *reinterpret_cast<const Vector3f*>(ptr + stride*i);
+		}
+		else // Fast path
+			std::memcpy(m_vertices.data(), vertices, vertexCount*sizeof(Vector3f));
+	}
+
+	ConvexHullGeom::ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
+	ConvexHullGeom(vertices, vertexCount, stride, tolerance, Matrix4f::Transform(translation, rotation))
+	{
+	}
+
+	GeomType ConvexHullGeom::GetType() const
+	{
+		return GeomType_Compound;
+	}
+
+	NewtonCollision* ConvexHullGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateConvexHull(world->GetHandle(), m_vertices.size(), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
+	}
+
+	/******************************* CylinderGeom ********************************/
+
+	NzCylinderGeom::NzCylinderGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	m_matrix(transformMatrix),
+	m_length(length),
+	m_radius(radius)
+	{
+	}
+
+	NzCylinderGeom::NzCylinderGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	NzCylinderGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	{
+	}
+
+	float NzCylinderGeom::GetLength() const
+	{
+		return m_length;
+	}
+
+	float NzCylinderGeom::GetRadius() const
+	{
+		return m_radius;
+	}
+
+	GeomType NzCylinderGeom::GetType() const
+	{
+		return GeomType_Cylinder;
+	}
+
+	NewtonCollision* NzCylinderGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+	}
+
+	/********************************* NullGeom **********************************/
+
+	NullGeom::NullGeom()
+	{
+	}
+
+	GeomType NullGeom::GetType() const
+	{
+		return GeomType_Null;
+	}
+
+	void NullGeom::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
+	{
+		if (inertia)
+			inertia->MakeUnit();
+
+		if (center)
+			center->MakeZero();
+	}
+
+	NewtonCollision* NullGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateNull(world->GetHandle());
+	}
+
+	/******************************** SphereGeom *********************************/
+
+	SphereGeom::SphereGeom(float radius, const Matrix4f& transformMatrix) :
+	SphereGeom(radius, transformMatrix.GetTranslation())
+	{
+	}
+
+	SphereGeom::SphereGeom(float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	m_position(translation),
+	m_radius(radius)
+	{
+		NazaraUnused(rotation);
+	}
+
+	Boxf SphereGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	{
+		Vector3f size(m_radius * NazaraSuffixMacro(M_SQRT3, f) * scale);
+		Vector3f position(offsetMatrix.GetTranslation());
+
+		return Boxf(position - size, position + size);
+	}
+
+	float SphereGeom::ComputeVolume() const
+	{
+		return float(M_PI) * m_radius * m_radius * m_radius / 3.f;
+	}
+
+	float SphereGeom::GetRadius() const
+	{
+		return m_radius;
+	}
+
+	GeomType SphereGeom::GetType() const
+	{
+		return GeomType_Sphere;
+	}
+
+	NewtonCollision* SphereGeom::CreateHandle(PhysWorld* world) const
+	{
+		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, Matrix4f::Translate(m_position));
+	}
 }

@@ -45,9 +45,9 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			PhysicsComponent& phys = entity->GetComponent<PhysicsComponent>();
 
-			NzPhysObject& physObj = phys.GetPhysObject();
-			node.SetRotation(physObj.GetRotation(), nzCoordSys_Global);
-			node.SetPosition(physObj.GetPosition(), nzCoordSys_Global);
+			Nz::PhysObject& physObj = phys.GetPhysObject();
+			node.SetRotation(physObj.GetRotation(), Nz::CoordSys_Global);
+			node.SetPosition(physObj.GetPosition(), Nz::CoordSys_Global);
 		}
 
 		float invElapsedTime = 1.f / elapsedTime;
@@ -56,12 +56,12 @@ namespace Ndk
 			CollisionComponent& collision = entity->GetComponent<CollisionComponent>();
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 
-			NzPhysObject* physObj = collision.GetStaticBody();
+			Nz::PhysObject* physObj = collision.GetStaticBody();
 
-			NzQuaternionf oldRotation = physObj->GetRotation();
-			NzVector3f oldPosition = physObj->GetPosition();
-			NzQuaternionf newRotation = node.GetRotation(nzCoordSys_Global);
-			NzVector3f newPosition = node.GetPosition(nzCoordSys_Global);
+			Nz::Quaternionf oldRotation = physObj->GetRotation();
+			Nz::Vector3f oldPosition = physObj->GetPosition();
+			Nz::Quaternionf newRotation = node.GetRotation(Nz::CoordSys_Global);
+			Nz::Vector3f newPosition = node.GetPosition(Nz::CoordSys_Global);
 
 			// Pour déplacer des objets statiques et assurer les collisions, il faut leur définir une vitesse
 			// (note importante: le moteur physique n'applique pas la vitesse sur les objets statiques)
@@ -71,21 +71,21 @@ namespace Ndk
 				physObj->SetVelocity((newPosition - oldPosition) * invElapsedTime);
 			}
 			else
-				physObj->SetVelocity(NzVector3f::Zero());
+				physObj->SetVelocity(Nz::Vector3f::Zero());
 
 			if (newRotation != oldRotation)
 			{
-				NzQuaternionf transition = newRotation * oldRotation.GetConjugate();
-				NzEulerAnglesf angles = transition.ToEulerAngles();
-				NzVector3f angularVelocity(NzToRadians(angles.pitch * invElapsedTime),
-				                           NzToRadians(angles.yaw * invElapsedTime),
-				                           NzToRadians(angles.roll * invElapsedTime));
+				Nz::Quaternionf transition = newRotation * oldRotation.GetConjugate();
+				Nz::EulerAnglesf angles = transition.ToEulerAngles();
+				Nz::Vector3f angularVelocity(Nz::ToRadians(angles.pitch * invElapsedTime),
+				                             Nz::ToRadians(angles.yaw * invElapsedTime),
+				                             Nz::ToRadians(angles.roll * invElapsedTime));
 
 				physObj->SetRotation(oldRotation);
 				physObj->SetAngularVelocity(angularVelocity);
 			}
 			else
-				physObj->SetAngularVelocity(NzVector3f::Zero());
+				physObj->SetAngularVelocity(Nz::Vector3f::Zero());
 		}
 	}
 

@@ -6,57 +6,60 @@
 #include <Newton/Newton.h>
 #include <Nazara/Physics/Debug.hpp>
 
-NzPhysWorld::NzPhysWorld() :
-m_gravity(NzVector3f::Zero()),
-m_stepSize(0.005f),
-m_timestepAccumulator(0.f)
+namespace Nz
 {
-	m_world = NewtonCreate();
-	NewtonWorldSetUserData(m_world, this);
-}
-
-NzPhysWorld::~NzPhysWorld()
-{
-	NewtonDestroy(m_world);
-}
-
-NzVector3f NzPhysWorld::GetGravity() const
-{
-	return m_gravity;
-}
-
-NewtonWorld* NzPhysWorld::GetHandle() const
-{
-	return m_world;
-}
-
-float NzPhysWorld::GetStepSize() const
-{
-	return m_stepSize;
-}
-
-void NzPhysWorld::SetGravity(const NzVector3f& gravity)
-{
-	m_gravity = gravity;
-}
-
-void NzPhysWorld::SetSolverModel(unsigned int model)
-{
-	NewtonSetSolverModel(m_world, model);
-}
-
-void NzPhysWorld::SetStepSize(float stepSize)
-{
-	m_stepSize = stepSize;
-}
-
-void NzPhysWorld::Step(float timestep)
-{
-	m_timestepAccumulator += timestep;
-
-	while (m_timestepAccumulator >= m_stepSize)
+	PhysWorld::PhysWorld() :
+	m_gravity(Vector3f::Zero()),
+	m_stepSize(0.005f),
+	m_timestepAccumulator(0.f)
 	{
-		NewtonUpdate(m_world, m_stepSize);
-		m_timestepAccumulator -= m_stepSize;
+		m_world = NewtonCreate();
+		NewtonWorldSetUserData(m_world, this);
+	}
+
+	PhysWorld::~PhysWorld()
+	{
+		NewtonDestroy(m_world);
+	}
+
+	Vector3f PhysWorld::GetGravity() const
+	{
+		return m_gravity;
+	}
+
+	NewtonWorld* PhysWorld::GetHandle() const
+	{
+		return m_world;
+	}
+
+	float PhysWorld::GetStepSize() const
+	{
+		return m_stepSize;
+	}
+
+	void PhysWorld::SetGravity(const Vector3f& gravity)
+	{
+		m_gravity = gravity;
+	}
+
+	void PhysWorld::SetSolverModel(unsigned int model)
+	{
+		NewtonSetSolverModel(m_world, model);
+	}
+
+	void PhysWorld::SetStepSize(float stepSize)
+	{
+		m_stepSize = stepSize;
+	}
+
+	void PhysWorld::Step(float timestep)
+	{
+		m_timestepAccumulator += timestep;
+
+		while (m_timestepAccumulator >= m_stepSize)
+		{
+			NewtonUpdate(m_world, m_stepSize);
+			m_timestepAccumulator -= m_stepSize;
+		}
 	}
 }

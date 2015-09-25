@@ -10,37 +10,41 @@
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
-NzDynLibImpl::NzDynLibImpl(NzDynLib* parent)
+namespace Nz
 {
-	NazaraUnused(parent);
-}
-
-NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMessage) const
-{
-	NzDynLibFunc sym = reinterpret_cast<NzDynLibFunc>(GetProcAddress(m_handle, symbol.GetConstBuffer()));
-	if (!sym)
-		*errorMessage = NzError::GetLastSystemError();
-
-	return sym;
-}
-
-bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
-{
-	NzString path = libraryPath;
-	if (!path.EndsWith(".dll"))
-		path += ".dll";
-
-	m_handle = LoadLibraryExW(path.GetWideString().data(), nullptr, (NzFile::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
-	if (m_handle)
-		return true;
-	else
+	DynLibImpl::DynLibImpl(DynLib* parent)
 	{
-		*errorMessage = NzError::GetLastSystemError();
-		return false;
+		NazaraUnused(parent);
 	}
-}
 
-void NzDynLibImpl::Unload()
-{
-	FreeLibrary(m_handle);
+	DynLibFunc DynLibImpl::GetSymbol(const String& symbol, String* errorMessage) const
+	{
+		DynLibFunc sym = reinterpret_cast<DynLibFunc>(GetProcAddress(m_handle, symbol.GetConstBuffer()));
+		if (!sym)
+			*errorMessage = Error::GetLastSystemError();
+
+		return sym;
+	}
+
+	bool DynLibImpl::Load(const String& libraryPath, String* errorMessage)
+	{
+		String path = libraryPath;
+		if (!path.EndsWith(".dll"))
+			path += ".dll";
+
+		m_handle = LoadLibraryExW(path.GetWideString().data(), nullptr, (File::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
+		if (m_handle)
+			return true;
+		else
+		{
+			*errorMessage = Error::GetLastSystemError();
+			return false;
+		}
+	}
+
+	void DynLibImpl::Unload()
+	{
+		FreeLibrary(m_handle);
+	}
+
 }

@@ -6,19 +6,22 @@
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzAbstractImage::~NzAbstractImage() = default;
-
-nzUInt8 NzAbstractImage::GetBytesPerPixel() const
+namespace Nz
 {
-	return NzPixelFormat::GetBytesPerPixel(GetFormat());
-}
+	AbstractImage::~AbstractImage() = default;
 
-bool NzAbstractImage::IsCompressed() const
-{
-	return NzPixelFormat::IsCompressed(GetFormat());
-}
+	UInt8 AbstractImage::GetBytesPerPixel() const
+	{
+		return NzPixelFormat::GetBytesPerPixel(GetFormat());
+	}
 
-bool NzAbstractImage::IsCubemap() const
-{
-	return GetType() == nzImageType_Cubemap;
+	bool AbstractImage::IsCompressed() const
+	{
+		return NzPixelFormat::IsCompressed(GetFormat());
+	}
+
+	bool AbstractImage::IsCubemap() const
+	{
+		return GetType() == ImageType_Cubemap;
+	}
 }

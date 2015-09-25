@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_OBJ_Register();
-void NzLoaders_OBJ_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterOBJ();
+		void UnregisterOBJ();
+	}
+}
 
 #endif // NAZARA_LOADERS_OBJ_HPP

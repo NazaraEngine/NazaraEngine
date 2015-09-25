@@ -13,19 +13,22 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_GRAPHICS_API NzDeferredFogPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredFogPass();
-		virtual ~NzDeferredFogPass();
+	class NAZARA_GRAPHICS_API DeferredFogPass : public DeferredRenderPass
+	{
+		public:
+			DeferredFogPass();
+			virtual ~DeferredFogPass();
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 
-	protected:
-		NzRenderStates m_states;
-		NzShaderRef m_shader;
-		NzTextureSampler m_pointSampler;
-		int m_shaderEyePositionLocation;
-};
+		protected:
+			RenderStates m_states;
+			ShaderRef m_shader;
+			TextureSampler m_pointSampler;
+			int m_shaderEyePositionLocation;
+	};
+}
 
 #endif // NAZARA_DEFERREDFOGPASS_HPP

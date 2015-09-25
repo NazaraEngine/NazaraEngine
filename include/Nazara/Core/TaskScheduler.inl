@@ -4,22 +4,25 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-template<typename F>
-void NzTaskScheduler::AddTask(F function)
+namespace Nz
 {
-	AddTaskFunctor(new NzFunctorWithoutArgs<F>(function));
-}
+	template<typename F>
+	void TaskScheduler::AddTask(F function)
+	{
+		AddTaskFunctor(new FunctorWithoutArgs<F>(function));
+	}
 
-template<typename F, typename... Args>
-void NzTaskScheduler::AddTask(F function, Args&&... args)
-{
-	AddTaskFunctor(new NzFunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
-}
+	template<typename F, typename... Args>
+	void TaskScheduler::AddTask(F function, Args&&... args)
+	{
+		AddTaskFunctor(new FunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
+	}
 
-template<typename C>
-void NzTaskScheduler::AddTask(void (C::*function)(), C* object)
-{
-	AddTaskFunctor(new NzMemberWithoutArgs<C>(function, object));
+	template<typename C>
+	void TaskScheduler::AddTask(void (C::*function)(), C* object)
+	{
+		AddTaskFunctor(new MemberWithoutArgs<C>(function, object));
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

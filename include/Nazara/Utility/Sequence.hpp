@@ -11,19 +11,22 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-struct NzSequence
+namespace Nz
 {
-	NzString name;
-	unsigned int firstFrame;
-	unsigned int frameCount;
-	unsigned int frameRate;
-};
+	struct Sequence
+	{
+		String name;
+		unsigned int firstFrame;
+		unsigned int frameCount;
+		unsigned int frameRate;
+	};
 
-struct NzSequenceJoint
-{
-	NzQuaternionf rotation;
-	NzVector3f position;
-	NzVector3f scale;
-};
+	struct SequenceJoint
+	{
+		Quaternionf rotation;
+		Vector3f position;
+		Vector3f scale;
+	};
+}
 
 #endif // NAZARA_SEQUENCE_HPP

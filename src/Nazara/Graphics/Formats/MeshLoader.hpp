@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_Mesh_Register();
-void NzLoaders_Mesh_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterMesh();
+		void UnregisterMesh();
+	}
+}
 
 #endif // NAZARA_LOADERS_MESH_HPP

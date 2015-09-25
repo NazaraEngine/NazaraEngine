@@ -9,35 +9,38 @@
 
 #include <Nazara/Renderer/Enums.hpp>
 
-struct NzRenderStates
+namespace Nz
 {
-	NzRenderStates();
-	NzRenderStates(const NzRenderStates& states);
-	~NzRenderStates() = default;
-
-	NzRenderStates& operator=(const NzRenderStates& states);
-
-	struct Face
+	struct RenderStates
 	{
-		nzRendererComparison stencilCompare;
-		nzStencilOperation stencilFail;
-		nzStencilOperation stencilPass;
-		nzStencilOperation stencilZFail;
-		nzUInt32 stencilMask;
-		unsigned int stencilReference;
-	};
+		RenderStates();
+		RenderStates(const RenderStates& states);
+		~RenderStates() = default;
 
-	Face backFace;
-	Face frontFace;
-	nzBlendFunc dstBlend;
-	nzBlendFunc srcBlend;
-	nzFaceFilling faceFilling;
-	nzFaceSide faceCulling;
-	nzRendererComparison depthFunc;
-	bool parameters[nzRendererParameter_Max+1];
-	float lineWidth;
-	float pointSize;
-};
+		RenderStates& operator=(const RenderStates& states);
+
+		struct Face
+		{
+			RendererComparison stencilCompare;
+			nzStencilOperation stencilFail;
+			nzStencilOperation stencilPass;
+			nzStencilOperation stencilZFail;
+			UInt32 stencilMask;
+			unsigned int stencilReference;
+		};
+
+		Face backFace;
+		Face frontFace;
+		BlendFunc dstBlend;
+		BlendFunc srcBlend;
+		FaceFilling faceFilling;
+		FaceSide faceCulling;
+		RendererComparison depthFunc;
+		bool parameters[RendererParameter_Max+1];
+		float lineWidth;
+		float pointSize;
+	};
+}
 
 #include <Nazara/Renderer/RenderStates.inl>
 

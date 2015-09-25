@@ -8,35 +8,38 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractRenderTechnique::NzAbstractRenderTechnique()
+namespace Nz
 {
-	#ifdef NAZARA_DEBUG
-	if (!NzRenderer::IsInitialized())
+	AbstractRenderTechnique::AbstractRenderTechnique()
 	{
-		NazaraError("NazaraRenderer is not initialized");
-		return;
+		#ifdef NAZARA_DEBUG
+		if (!Renderer::IsInitialized())
+		{
+			NazaraError("NazaraRenderer is not initialized");
+			return;
+		}
+		#endif
+
+		m_instancingEnabled = Renderer::HasCapability(RendererCap_Instancing);
 	}
-	#endif
 
-	m_instancingEnabled = NzRenderer::HasCapability(nzRendererCap_Instancing);
-}
+	AbstractRenderTechnique::~AbstractRenderTechnique() = default;
 
-NzAbstractRenderTechnique::~NzAbstractRenderTechnique() = default;
+	void AbstractRenderTechnique::EnableInstancing(bool instancing)
+	{
+		if (Renderer::HasCapability(RendererCap_Instancing))
+			m_instancingEnabled = instancing;
+		else if (instancing)
+			NazaraError("NazaraRenderer does not support instancing");
+	}
 
-void NzAbstractRenderTechnique::EnableInstancing(bool instancing)
-{
-	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
-		m_instancingEnabled = instancing;
-	else if (instancing)
-		NazaraError("NazaraRenderer does not support instancing");
-}
+	String AbstractRenderTechnique::GetName() const
+	{
+		return RenderTechniques::ToString(GetType());
+	}
 
-NzString NzAbstractRenderTechnique::GetName() const
-{
-	return NzRenderTechniques::ToString(GetType());
-}
-
-bool NzAbstractRenderTechnique::IsInstancingEnabled() const
-{
-	return m_instancingEnabled;
+	bool AbstractRenderTechnique::IsInstancingEnabled() const
+	{
+		return m_instancingEnabled;
+	}
 }

@@ -12,42 +12,45 @@
 #include <ctime>
 #include <windows.h>
 
-class NzFile;
-class NzString;
-
-class NzFileImpl
+namespace Nz
 {
-	public:
-		NzFileImpl(const NzFile* parent);
-		NzFileImpl(const NzFileImpl&) = delete;
-		NzFileImpl(NzFileImpl&&) = delete; ///TODO
-		~NzFileImpl() = default;
+	class File;
+	class String;
 
-		void Close();
-		bool EndOfFile() const;
-		void Flush();
-		nzUInt64 GetCursorPos() const;
-		bool Open(const NzString& filePath, unsigned int mode);
-		std::size_t Read(void* buffer, std::size_t size);
-		bool SetCursorPos(nzCursorPosition pos, nzInt64 offset);
-		std::size_t Write(const void* buffer, std::size_t size);
+	class FileImpl
+	{
+		public:
+			FileImpl(const File* parent);
+			FileImpl(const FileImpl&) = delete;
+			FileImpl(FileImpl&&) = delete; ///TODO
+			~FileImpl() = default;
 
-		NzFileImpl& operator=(const NzFileImpl&) = delete;
-		NzFileImpl& operator=(NzFileImpl&&) = delete; ///TODO
+			void Close();
+			bool EndOfFile() const;
+			void Flush();
+			UInt64 GetCursorPos() const;
+			bool Open(const String& filePath, unsigned int mode);
+			std::size_t Read(void* buffer, std::size_t size);
+			bool SetCursorPos(CursorPosition pos, Int64 offset);
+			std::size_t Write(const void* buffer, std::size_t size);
 
-		static bool Copy(const NzString& sourcePath, const NzString& targetPath);
-		static bool Delete(const NzString& filePath);
-		static bool Exists(const NzString& filePath);
-		static time_t GetCreationTime(const NzString& filePath);
-		static time_t GetLastAccessTime(const NzString& filePath);
-		static time_t GetLastWriteTime(const NzString& filePath);
-		static nzUInt64 GetSize(const NzString& filePath);
-		static bool Rename(const NzString& sourcePath, const NzString& targetPath);
+			FileImpl& operator=(const FileImpl&) = delete;
+			FileImpl& operator=(FileImpl&&) = delete; ///TODO
 
-	private:
-		HANDLE m_handle;
-		mutable bool m_endOfFile;
-		mutable bool m_endOfFileUpdated;
-};
+			static bool Copy(const String& sourcePath, const String& targetPath);
+			static bool Delete(const String& filePath);
+			static bool Exists(const String& filePath);
+			static time_t GetCreationTime(const String& filePath);
+			static time_t GetLastAccessTime(const String& filePath);
+			static time_t GetLastWriteTime(const String& filePath);
+			static UInt64 GetSize(const String& filePath);
+			static bool Rename(const String& sourcePath, const String& targetPath);
+
+		private:
+			HANDLE m_handle;
+			mutable bool m_endOfFile;
+			mutable bool m_endOfFileUpdated;
+	};
+}
 
 #endif // NAZARA_FILEIMPL_HPP

@@ -14,14 +14,14 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API NodeComponent : public Component<NodeComponent>, public NzNode
+	class NDK_API NodeComponent : public Component<NodeComponent>, public Nz::Node
 	{
 		public:
 			NodeComponent() = default;
 			~NodeComponent() = default;
 
 			void SetParent(Entity* entity, bool keepDerived = false);
-			using NzNode::SetParent;
+			using Nz::Node::SetParent;
 
 			static ComponentIndex componentIndex;
 	};

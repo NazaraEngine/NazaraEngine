@@ -16,62 +16,65 @@
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzRay
+namespace Nz
 {
-	public:
-		NzRay() = default;
-		NzRay(T X, T Y, T Z, T directionX, T directionY, T directionZ);
-		NzRay(const T origin[3], const T direction[3]);
-		NzRay(const NzPlane<T>& planeOne, const NzPlane<T>& planeTwo);
-		NzRay(const NzVector3<T>& origin, const NzVector3<T>& direction);
-		template<typename U> explicit NzRay(const NzRay<U>& ray);
-		template<typename U> explicit NzRay(const NzVector3<U>& origin, const NzVector3<U>& direction);
-		NzRay(const NzRay<T>& ray) = default;
-		~NzRay() = default;
+	template<typename T>
+	class Ray
+	{
+		public:
+			Ray() = default;
+			Ray(T X, T Y, T Z, T directionX, T directionY, T directionZ);
+			Ray(const T origin[3], const T direction[3]);
+			Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo);
+			Ray(const Vector3<T>& origin, const Vector3<T>& direction);
+			template<typename U> explicit Ray(const Ray<U>& ray);
+			template<typename U> explicit Ray(const Vector3<U>& origin, const Vector3<U>& direction);
+			Ray(const Ray<T>& ray) = default;
+			~Ray() = default;
 
-		T ClosestPoint(const NzVector3<T>& point) const;
+			T ClosestPoint(const Vector3<T>& point) const;
 
-		NzVector3<T> GetPoint(T lambda) const;
+			Vector3<T> GetPoint(T lambda) const;
 
-		bool Intersect(const NzBoundingVolume<T>& volume, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-		bool Intersect(const NzBox<T>& box, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-		bool Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-		bool Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-		bool Intersect(const NzPlane<T>& plane, T* hit = nullptr) const;
-		bool Intersect(const NzSphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const BoundingVolume<T>& volume, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const Box<T>& box, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const OrientedBox<T>& orientedBox, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const Plane<T>& plane, T* hit = nullptr) const;
+			bool Intersect(const Sphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
 
-		NzRay& MakeAxisX();
-		NzRay& MakeAxisY();
-		NzRay& MakeAxisZ();
+			Ray& MakeAxisX();
+			Ray& MakeAxisY();
+			Ray& MakeAxisZ();
 
-		NzRay& Set(T X, T Y, T Z, T directionX, T directionY, T directionZ);
-		NzRay& Set(const T origin[3], const T direction[3]);
-		NzRay& Set(const NzPlane<T>& planeOne, const NzPlane<T>& planeTwo);
-		NzRay& Set(const NzRay& ray);
-		NzRay& Set(const NzVector3<T>& origin, const NzVector3<T>& direction);
-		template<typename U> NzRay& Set(const NzRay<U>& ray);
-		template<typename U> NzRay& Set(const NzVector3<U>& origin, const NzVector3<U>& direction);
+			Ray& Set(T X, T Y, T Z, T directionX, T directionY, T directionZ);
+			Ray& Set(const T origin[3], const T direction[3]);
+			Ray& Set(const Plane<T>& planeOne, const Plane<T>& planeTwo);
+			Ray& Set(const Ray& ray);
+			Ray& Set(const Vector3<T>& origin, const Vector3<T>& direction);
+			template<typename U> Ray& Set(const Ray<U>& ray);
+			template<typename U> Ray& Set(const Vector3<U>& origin, const Vector3<U>& direction);
 
-		NzString ToString() const;
+			String ToString() const;
 
-		NzVector3<T> operator*(T lambda) const;
+			Vector3<T> operator*(T lambda) const;
 
-		bool operator==(const NzRay& ray) const;
-		bool operator!=(const NzRay& ray) const;
+			bool operator==(const Ray& ray) const;
+			bool operator!=(const Ray& ray) const;
 
-		static NzRay AxisX();
-		static NzRay AxisY();
-		static NzRay AxisZ();
-		static NzRay Lerp(const NzRay& from, const NzRay& to, T interpolation);
+			static Ray AxisX();
+			static Ray AxisY();
+			static Ray AxisZ();
+			static Ray Lerp(const Ray& from, const Ray& to, T interpolation);
 
-		NzVector3<T> direction, origin;
-};
+			Vector3<T> direction, origin;
+	};
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const NzRay<T>& vec);
+	typedef Ray<double> Rayd;
+	typedef Ray<float> Rayf;
+}
 
-typedef NzRay<double> NzRayd;
-typedef NzRay<float> NzRayf;
+template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);
 
 #include <Nazara/Math/Ray.inl>
 

@@ -12,25 +12,29 @@
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-class NAZARA_NOISE_API NzPerlin3D : public NzAbstract3DNoise
+namespace Nz
 {
-	public:
-		NzPerlin3D();
-		NzPerlin3D(unsigned int seed);
-		float GetValue(float x, float y, float z, float resolution);
-		~NzPerlin3D() = default;
-	protected:
-	private:
-		int x0,y0,z0;
-		int gi0,gi1,gi2,gi3,gi4,gi5,gi6,gi7;
-		int ii,jj,kk;
-		float gradient3[16][3];
-		float Li1,Li2,Li3,Li4,Li5,Li6;
-		float s[2],t[2],u[2],v[2];
-		float Cx,Cy,Cz;
-		float nx,ny,nz;
-		float tmp;
-		NzVector3<float> temp;
-};
+	class NAZARA_NOISE_API Perlin3D : public Abstract3DNoise
+	{
+		public:
+			Perlin3D();
+			Perlin3D(unsigned int seed);
+			~Perlin3D() = default;
+
+			float GetValue(float x, float y, float z, float resolution);
+
+		private:
+			int x0,y0,z0;
+			int gi0,gi1,gi2,gi3,gi4,gi5,gi6,gi7;
+			int ii,jj,kk;
+			float gradient3[16][3];
+			float Li1,Li2,Li3,Li4,Li5,Li6;
+			float s[2],t[2],u[2],v[2];
+			float Cx,Cy,Cz;
+			float nx,ny,nz;
+			float tmp;
+			Vector3<float> temp;
+	};
+}
 
 #endif // PERLIN3D_HPP

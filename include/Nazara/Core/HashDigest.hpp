@@ -13,41 +13,44 @@
 #include <Nazara/Core/String.hpp>
 #include <iosfwd>
 
-class NAZARA_CORE_API NzHashDigest
+namespace Nz
 {
-	public:
-		NzHashDigest();
-		NzHashDigest(const NzString& hashName, const nzUInt8* digest, unsigned int length);
-		NzHashDigest(const NzHashDigest& rhs);
-		NzHashDigest(NzHashDigest&& rhs) noexcept;
-		~NzHashDigest();
+	class NAZARA_CORE_API HashDigest
+	{
+		public:
+			HashDigest();
+			HashDigest(const String& hashName, const UInt8* digest, unsigned int length);
+			HashDigest(const HashDigest& rhs);
+			HashDigest(HashDigest&& rhs) noexcept;
+			~HashDigest();
 
-		bool IsValid() const;
+			bool IsValid() const;
 
-		const nzUInt8* GetDigest() const;
-		unsigned int GetDigestLength() const;
-		NzString GetHashName() const;
+			const UInt8* GetDigest() const;
+			unsigned int GetDigestLength() const;
+			String GetHashName() const;
 
-		NzString ToHex() const;
+			String ToHex() const;
 
-		nzUInt8 operator[](unsigned int pos) const;
+			UInt8 operator[](unsigned int pos) const;
 
-		NzHashDigest& operator=(const NzHashDigest& rhs);
-		NzHashDigest& operator=(NzHashDigest&& rhs) noexcept;
+			HashDigest& operator=(const HashDigest& rhs);
+			HashDigest& operator=(HashDigest&& rhs) noexcept;
 
-		bool operator==(const NzHashDigest& rhs) const;
-		bool operator!=(const NzHashDigest& rhs) const;
-		bool operator<(const NzHashDigest& rhs) const;
-		bool operator<=(const NzHashDigest& rhs) const;
-		bool operator>(const NzHashDigest& rhs) const;
-		bool operator>=(const NzHashDigest& rhs) const;
+			bool operator==(const HashDigest& rhs) const;
+			bool operator!=(const HashDigest& rhs) const;
+			bool operator<(const HashDigest& rhs) const;
+			bool operator<=(const HashDigest& rhs) const;
+			bool operator>(const HashDigest& rhs) const;
+			bool operator>=(const HashDigest& rhs) const;
 
-		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const NzHashDigest& string);
+			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const HashDigest& string);
 
-	private:
-		NzString m_hashName;
-		nzUInt8* m_digest;
-		unsigned int m_digestLength;
-};
+		private:
+			String m_hashName;
+			UInt8* m_digest;
+			unsigned int m_digestLength;
+	};
+}
 
 #endif // NAZARA_HASHDIGEST_HPP

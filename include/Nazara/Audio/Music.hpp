@@ -13,65 +13,68 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 
-struct NzMusicParams
+namespace Nz
 {
-	bool forceMono = false;
+	struct MusicParams
+	{
+		bool forceMono = false;
 
-	bool IsValid() const;
-};
+		bool IsValid() const;
+	};
 
-class NzMusic;
-class NzSoundStream;
+	class Music;
+	class SoundStream;
 
-using NzMusicLoader = NzResourceLoader<NzMusic, NzMusicParams>;
+	using MusicLoader = ResourceLoader<Music, MusicParams>;
 
-struct NzMusicImpl;
+	struct MusicImpl;
 
-class NAZARA_AUDIO_API NzMusic : public NzResource, public NzSoundEmitter
-{
-	friend NzMusicLoader;
+	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
+	{
+		friend MusicLoader;
 
-	public:
-		NzMusic() = default;
-		NzMusic(const NzMusic&) = delete;
-		NzMusic(NzMusic&&) = delete; ///TODO
-		~NzMusic();
+		public:
+			Music() = default;
+			Music(const Music&) = delete;
+			Music(Music&&) = delete; ///TODO
+			~Music();
 
-		bool Create(NzSoundStream* soundStream);
-		void Destroy();
+			bool Create(SoundStream* soundStream);
+			void Destroy();
 
-		void EnableLooping(bool loop);
+			void EnableLooping(bool loop);
 
-		nzUInt32 GetDuration() const;
-		nzAudioFormat GetFormat() const;
-		nzUInt32 GetPlayingOffset() const;
-		nzUInt32 GetSampleCount() const;
-		nzUInt32 GetSampleRate() const;
-		nzSoundStatus GetStatus() const;
+			UInt32 GetDuration() const;
+			AudioFormat GetFormat() const;
+			UInt32 GetPlayingOffset() const;
+			UInt32 GetSampleCount() const;
+			UInt32 GetSampleRate() const;
+			SoundStatus GetStatus() const;
 
-		bool IsLooping() const;
+			bool IsLooping() const;
 
-		bool OpenFromFile(const NzString& filePath, const NzMusicParams& params = NzMusicParams());
-		bool OpenFromMemory(const void* data, std::size_t size, const NzMusicParams& params = NzMusicParams());
-		bool OpenFromStream(NzInputStream& stream, const NzMusicParams& params = NzMusicParams());
+			bool OpenFromFile(const String& filePath, const MusicParams& params = MusicParams());
+			bool OpenFromMemory(const void* data, std::size_t size, const MusicParams& params = MusicParams());
+			bool OpenFromStream(InputStream& stream, const MusicParams& params = MusicParams());
 
-		void Pause();
-		void Play();
+			void Pause();
+			void Play();
 
-		void SetPlayingOffset(nzUInt32 offset);
+			void SetPlayingOffset(UInt32 offset);
 
-		void Stop();
+			void Stop();
 
-		NzMusic& operator=(const NzMusic&) = delete;
-		NzMusic& operator=(NzMusic&&) = delete; ///TODO
+			Music& operator=(const Music&) = delete;
+			Music& operator=(Music&&) = delete; ///TODO
 
-	private:
-		NzMusicImpl* m_impl = nullptr;
+		private:
+			MusicImpl* m_impl = nullptr;
 
-		bool FillAndQueueBuffer(unsigned int buffer);
-		void MusicThread();
+			bool FillAndQueueBuffer(unsigned int buffer);
+			void MusicThread();
 
-		static NzMusicLoader::LoaderList s_loaders;
-};
+			static MusicLoader::LoaderList s_loaders;
+	};
+}
 
 #endif // NAZARA_MUSIC_HPP

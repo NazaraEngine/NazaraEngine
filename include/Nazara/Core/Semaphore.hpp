@@ -9,28 +9,31 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzSemaphoreImpl;
-
-class NAZARA_CORE_API NzSemaphore
+namespace Nz
 {
-	public:
-		NzSemaphore(unsigned int count);
-		NzSemaphore(const NzSemaphore&) = delete;
-		NzSemaphore(NzSemaphore&&) = delete; ///TODO
-		~NzSemaphore();
+	class SemaphoreImpl;
 
-		unsigned int GetCount() const;
+	class NAZARA_CORE_API Semaphore
+	{
+		public:
+			Semaphore(unsigned int count);
+			Semaphore(const Semaphore&) = delete;
+			Semaphore(Semaphore&&) = delete; ///TODO
+			~Semaphore();
 
-		void Post();
+			unsigned int GetCount() const;
 
-		void Wait();
-		bool Wait(nzUInt32 timeout);
+			void Post();
 
-		NzSemaphore& operator=(const NzSemaphore&) = delete;
-		NzSemaphore& operator=(NzSemaphore&&) = delete; ///TODO
+			void Wait();
+			bool Wait(UInt32 timeout);
 
-	private:
-		NzSemaphoreImpl* m_impl;
-};
+			Semaphore& operator=(const Semaphore&) = delete;
+			Semaphore& operator=(Semaphore&&) = delete; ///TODO
+
+		private:
+			SemaphoreImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_SEMAPHORE_HPP

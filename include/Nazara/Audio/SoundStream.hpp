@@ -11,19 +11,22 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 
-class NAZARA_AUDIO_API NzSoundStream
+namespace Nz
 {
-	public:
-		NzSoundStream() = default;
-		virtual ~NzSoundStream();
+	class NAZARA_AUDIO_API SoundStream
+	{
+		public:
+			SoundStream() = default;
+			virtual ~SoundStream();
 
-		virtual nzUInt32 GetDuration() const = 0;
-		virtual nzAudioFormat GetFormat() const = 0;
-		virtual nzUInt32 GetSampleCount() const = 0;
-		virtual nzUInt32 GetSampleRate() const = 0;
+			virtual UInt32 GetDuration() const = 0;
+			virtual AudioFormat GetFormat() const = 0;
+			virtual UInt32 GetSampleCount() const = 0;
+			virtual UInt32 GetSampleRate() const = 0;
 
-		virtual unsigned int Read(void* buffer, unsigned int sampleCount) = 0;
-		virtual void Seek(nzUInt32 offset) = 0;
-};
+			virtual unsigned int Read(void* buffer, unsigned int sampleCount) = 0;
+			virtual void Seek(UInt32 offset) = 0;
+	};
+}
 
 #endif // NAZARA_SOUNDSTREAM_HPP

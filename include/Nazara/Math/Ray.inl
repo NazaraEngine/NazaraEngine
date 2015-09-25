@@ -8,432 +8,435 @@
 
 #define F(a) static_cast<T>(a)
 
-template<typename T>
-NzRay<T>::NzRay(T X, T Y, T Z, T DirectionX, T DirectionY, T DirectionZ)
+namespace Nz
 {
-	Set(X, Y, Z, DirectionX, DirectionY, DirectionZ);
-}
-
-template<typename T>
-NzRay<T>::NzRay(const T Origin[3], const T Direction[3])
-{
-	Set(Origin, Direction);
-}
-
-template<typename T>
-NzRay<T>::NzRay(const NzPlane<T>& planeOne, const NzPlane<T>& planeTwo)
-{
-	Set(planeOne, planeTwo);
-}
-
-template<typename T>
-NzRay<T>::NzRay(const NzVector3<T>& Origin, const NzVector3<T>& Direction)
-{
-	Set(Origin, Direction);
-}
-
-template<typename T>
-template<typename U>
-NzRay<T>::NzRay(const NzRay<U>& ray)
-{
-	Set(ray);
-}
-
-template<typename T>
-template<typename U>
-NzRay<T>::NzRay(const NzVector3<U>& Origin, const NzVector3<U>& Direction)
-{
-	Set(Origin, Direction);
-}
-
-template<typename T>
-T NzRay<T>::ClosestPoint(const NzVector3<T>& point) const
-{
-	NzVector3<T> delta = point - origin;
-	T vsq = direction.GetSquaredLength();
-	T proj = delta.DotProduct(direction);
-
-	return proj/vsq;
-}
-
-template<typename T>
-NzVector3<T> NzRay<T>::GetPoint(T lambda) const
-{
-	return origin + lambda * direction;
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzBoundingVolume<T>& volume, T* closestHit, T* furthestHit) const
-{
-	switch (volume.extend)
+	template<typename T>
+	Ray<T>::Ray(T X, T Y, T Z, T DirectionX, T DirectionY, T DirectionZ)
 	{
-		case nzExtend_Finite:
-		{
-			if (Intersect(volume.aabb))
-				return Intersect(volume.obb, closestHit, furthestHit);
-
-			return false;
-		}
-
-		case nzExtend_Infinite:
-		{
-			if (closestHit)
-				*closestHit = F(0.0);
-
-			if (furthestHit)
-				*furthestHit = std::numeric_limits<T>::infinity();
-
-			return true;
-		}
-
-		case nzExtend_Null:
-			return false;
+		Set(X, Y, Z, DirectionX, DirectionY, DirectionZ);
 	}
 
-	NazaraError("Invalid extend type (0x" + NzString::Number(volume.extend, 16) + ')');
-	return false;
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzBox<T>& box, T* closestHit, T* furthestHit) const
-{
-	// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
-	T tfirst = F(0.0);
-	T tlast = std::numeric_limits<T>::infinity();
-
-	NzVector3<T> boxMin = box.GetMinimum();
-	NzVector3<T> boxMax = box.GetMaximum();
-
-	for (unsigned int i = 0; i < 3; ++i)
+	template<typename T>
+	Ray<T>::Ray(const T Origin[3], const T Direction[3])
 	{
-		T dir = direction[i];
-		T ori = origin[i];
-		T max = boxMax[i];
-		T min = boxMin[i];
-
-		if (NzNumberEquals(dir, F(0.0)))
-		{
-			if (ori < max && ori > min)
-				continue;
-
-			return false;
-		}
-
-		T tmin = (min - ori) / dir;
-		T tmax = (max - ori) / dir;
-		if (tmin > tmax)
-			std::swap(tmin, tmax);
-
-		if (tmax < tfirst || tmin > tlast)
-			return false;
-
-		tfirst = std::max(tfirst, tmin);
-		tlast = std::min(tlast, tmax);
+		Set(Origin, Direction);
 	}
 
-	if (closestHit)
-		*closestHit = tfirst;
-
-	if (furthestHit)
-		*furthestHit = tlast;
-
-	return true;
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzBox<T>& box, const NzMatrix4<T>& transform, T* closestHit, T* furthestHit) const
-{
-	// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
-	// Intersection method from Real-Time Rendering and Essential Mathematics for Games
-	T tMin = F(0.0);
-	T tMax = std::numeric_limits<T>::infinity();
-
-	NzVector3<T> boxMin = box.GetMinimum();
-	NzVector3<T> boxMax = box.GetMaximum();
-	NzVector3<T> delta = transform.GetTranslation() - origin;
-
-	// Test intersection with the 2 planes perpendicular to the OBB's X axis
-	for (unsigned int i = 0; i < 3; ++i)
+	template<typename T>
+	Ray<T>::Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo)
 	{
-		NzVector3<T> axis(transform(0, i), transform(1, i), transform(2, i));
-		T e = axis.DotProduct(delta);
-		T f = direction.DotProduct(axis);
+		Set(planeOne, planeTwo);
+	}
 
-		if (!NzNumberEquals(f, F(0.0)))
+	template<typename T>
+	Ray<T>::Ray(const Vector3<T>& Origin, const Vector3<T>& Direction)
+	{
+		Set(Origin, Direction);
+	}
+
+	template<typename T>
+	template<typename U>
+	Ray<T>::Ray(const Ray<U>& ray)
+	{
+		Set(ray);
+	}
+
+	template<typename T>
+	template<typename U>
+	Ray<T>::Ray(const Vector3<U>& Origin, const Vector3<U>& Direction)
+	{
+		Set(Origin, Direction);
+	}
+
+	template<typename T>
+	T Ray<T>::ClosestPoint(const Vector3<T>& point) const
+	{
+		Vector3<T> delta = point - origin;
+		T vsq = direction.GetSquaredLength();
+		T proj = delta.DotProduct(direction);
+
+		return proj/vsq;
+	}
+
+	template<typename T>
+	Vector3<T> Ray<T>::GetPoint(T lambda) const
+	{
+		return origin + lambda * direction;
+	}
+
+	template<typename T>
+	bool Ray<T>::Intersect(const BoundingVolume<T>& volume, T* closestHit, T* furthestHit) const
+	{
+		switch (volume.extend)
 		{
-			T t1 = (e + boxMin[i]) / f; // Intersection with the "left" plane
-			T t2 = (e + boxMax[i]) / f; // Intersection with the "right" plane
-			// t1 and t2 now contain distances betwen ray origin and ray-plane intersections
+			case Extend_Finite:
+			{
+				if (Intersect(volume.aabb))
+					return Intersect(volume.obb, closestHit, furthestHit);
 
-			// We want t1 to represent the nearest intersection,
-			// so if it's not the case, invert t1 and t2
-			if (t1 > t2)
-				std::swap(t1, t2);
+				return false;
+			}
 
-			// tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
-			if (t2 < tMax)
-				tMax = t2;
+			case Extend_Infinite:
+			{
+				if (closestHit)
+					*closestHit = F(0.0);
 
-			// tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
-			if (t1 > tMin)
-				tMin = t1;
+				if (furthestHit)
+					*furthestHit = std::numeric_limits<T>::infinity();
 
-			// And here's the trick :
-			// If "far" is closer than "near", then there is NO intersection.
-			if (tMax < tMin)
+				return true;
+			}
+
+			case Extend_Null:
 				return false;
 		}
-		else
-			// Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
-			if (-e + boxMin[i] > F(0.0) || -e + boxMax[i] < F(0.0))
-				return false;
+
+		NazaraError("Invalid extend type (0x" + String::Number(volume.extend, 16) + ')');
+		return false;
 	}
 
-	if (closestHit)
-		*closestHit = tMin;
-
-	if (furthestHit)
-		*furthestHit = tMax;
-
-	return true;
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzOrientedBox<T>& orientedBox, T* closestHit, T* furthestHit) const
-{
-	NzVector3<T> corner = orientedBox.GetCorner(nzBoxCorner_FarLeftBottom);
-	NzVector3<T> oppositeCorner = orientedBox.GetCorner(nzBoxCorner_NearRightTop);
-
-	NzVector3<T> width = (orientedBox.GetCorner(nzBoxCorner_NearLeftBottom) - corner);
-	NzVector3<T> height = (orientedBox.GetCorner(nzBoxCorner_FarLeftTop) - corner);
-	NzVector3<T> depth = (orientedBox.GetCorner(nzBoxCorner_FarRightBottom) - corner);
-
-	// Construction de la matrice de transformation de l'OBB
-	NzMatrix4<T> matrix(width.x, height.x, depth.x, corner.x,
-	                    width.y, height.y, depth.y, corner.y,
-	                    width.z, height.z, depth.z, corner.z,
-	                    F(0.0),  F(0.0),   F(0.0),  F(1.0));
-
-	matrix.InverseAffine();
-
-	corner = matrix.Transform(corner);
-	oppositeCorner = matrix.Transform(oppositeCorner);
-
-	NzBox<T> tmpBox(corner, oppositeCorner);
-	NzRay<T> tmpRay(matrix.Transform(origin), matrix.Transform(direction));
-
-	return tmpRay.Intersect(tmpBox, closestHit, furthestHit);
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzPlane<T>& plane, T* hit) const
-{
-	T divisor = plane.normal.DotProduct(direction);
-	if (NzNumberEquals(divisor, F(0.0)))
-		return false; // perpendicular
-
-	T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax + by + cz = d
-	if (lambda < F(0.0))
-		return false; // The plane is 'behind' the ray.
-
-	if (hit)
-		*hit = lambda;
-
-	return true;
-}
-
-template<typename T>
-bool NzRay<T>::Intersect(const NzSphere<T>& sphere, T* closestHit, T* furthestHit) const
-{
-	NzVector3<T> sphereRay = sphere.GetPosition() - origin;
-	T length = sphereRay.DotProduct(direction);
-
-	if (length < F(0.0))
-		return false; // ray is perpendicular to the vector origin - center
-
-	T squaredDistance = sphereRay.GetSquaredLength() - length*length;
-	T squaredRadius = sphere.radius*sphere.radius;
-
-	if (squaredDistance > squaredRadius)
-		return false; // if the ray is further than the radius
-
-	// Calcul des points d'intersection si besoin
-	if (closestHit || furthestHit)
+	template<typename T>
+	bool Ray<T>::Intersect(const Box<T>& box, T* closestHit, T* furthestHit) const
 	{
-		T deltaLambda = std::sqrt(squaredRadius - squaredDistance);
+		// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
+		T tfirst = F(0.0);
+		T tlast = std::numeric_limits<T>::infinity();
+
+		Vector3<T> boxMin = box.GetMinimum();
+		Vector3<T> boxMax = box.GetMaximum();
+
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			T dir = direction[i];
+			T ori = origin[i];
+			T max = boxMax[i];
+			T min = boxMin[i];
+
+			if (NumberEquals(dir, F(0.0)))
+			{
+				if (ori < max && ori > min)
+					continue;
+
+				return false;
+			}
+
+			T tmin = (min - ori) / dir;
+			T tmax = (max - ori) / dir;
+			if (tmin > tmax)
+				std::swap(tmin, tmax);
+
+			if (tmax < tfirst || tmin > tlast)
+				return false;
+
+			tfirst = std::max(tfirst, tmin);
+			tlast = std::min(tlast, tmax);
+		}
 
 		if (closestHit)
-			*closestHit = length - deltaLambda;
+			*closestHit = tfirst;
 
 		if (furthestHit)
-			*furthestHit = length + deltaLambda;
+			*furthestHit = tlast;
+
+		return true;
 	}
 
-	return true;
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::MakeAxisX()
-{
-	return Set(NzVector3<T>::Zero(), NzVector3<T>::UnitX());
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::MakeAxisY()
-{
-	return Set(NzVector3<T>::Zero(), NzVector3<T>::UnitY());
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::MakeAxisZ()
-{
-	return Set(NzVector3<T>::Zero(), NzVector3<T>::UnitZ());
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::Set(T X, T Y, T Z, T directionX, T directionY, T directionZ)
-{
-	direction.Set(directionX, directionY, directionZ);
-	origin.Set(X, Y, Z);
-
-	return *this;
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::Set(const T Origin[3], const T Direction[3])
-{
-	direction.Set(Direction);
-	origin.Set(Origin);
-
-	return *this;
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::Set(const NzPlane<T>& planeOne, const NzPlane<T>& planeTwo)
-{
-	T termOne = planeOne.normal.GetLength();
-	T termTwo = planeOne.normal.DotProduct(planeTwo.normal);
-	T termFour = planeTwo.normal.GetLength();
-	T det = termOne * termFour - termTwo * termTwo;
-
-	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(det, F(0.0)))
+	template<typename T>
+	bool Ray<T>::Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit, T* furthestHit) const
 	{
-		NzString error("Planes are parallel.");
+		// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
+		// Intersection method from Real-Time Rendering and Essential Mathematics for Games
+		T tMin = F(0.0);
+		T tMax = std::numeric_limits<T>::infinity();
 
-		NazaraError(error);
-		throw std::domain_error(error);
+		Vector3<T> boxMin = box.GetMinimum();
+		Vector3<T> boxMax = box.GetMaximum();
+		Vector3<T> delta = transform.GetTranslation() - origin;
+
+		// Test intersection with the 2 planes perpendicular to the OBB's X axis
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			Vector3<T> axis(transform(0, i), transform(1, i), transform(2, i));
+			T e = axis.DotProduct(delta);
+			T f = direction.DotProduct(axis);
+
+			if (!NumberEquals(f, F(0.0)))
+			{
+				T t1 = (e + boxMin[i]) / f; // Intersection with the "left" plane
+				T t2 = (e + boxMax[i]) / f; // Intersection with the "right" plane
+				// t1 and t2 now contain distances betwen ray origin and ray-plane intersections
+
+				// We want t1 to represent the nearest intersection,
+				// so if it's not the case, invert t1 and t2
+				if (t1 > t2)
+					std::swap(t1, t2);
+
+				// tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
+				if (t2 < tMax)
+					tMax = t2;
+
+				// tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
+				if (t1 > tMin)
+					tMin = t1;
+
+				// And here's the trick :
+				// If "far" is closer than "near", then there is NO intersection.
+				if (tMax < tMin)
+					return false;
+			}
+			else
+				// Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
+				if (-e + boxMin[i] > F(0.0) || -e + boxMax[i] < F(0.0))
+					return false;
+		}
+
+		if (closestHit)
+			*closestHit = tMin;
+
+		if (furthestHit)
+			*furthestHit = tMax;
+
+		return true;
 	}
-	#endif
 
-	T invdet = F(1.0) / det;
-	T fc0 = (termFour * -planeOne.distance + termTwo * planeTwo.distance) * invdet;
-	T fc1 = (termOne * -planeTwo.distance + termTwo * planeOne.distance) * invdet;
+	template<typename T>
+	bool Ray<T>::Intersect(const OrientedBox<T>& orientedBox, T* closestHit, T* furthestHit) const
+	{
+		Vector3<T> corner = orientedBox.GetCorner(BoxCorner_FarLeftBottom);
+		Vector3<T> oppositeCorner = orientedBox.GetCorner(BoxCorner_NearRightTop);
 
-	direction = planeOne.normal.CrossProduct(planeTwo.normal);
-	origin = planeOne.normal * fc0 + planeTwo.normal * fc1;
+		Vector3<T> width = (orientedBox.GetCorner(BoxCorner_NearLeftBottom) - corner);
+		Vector3<T> height = (orientedBox.GetCorner(BoxCorner_FarLeftTop) - corner);
+		Vector3<T> depth = (orientedBox.GetCorner(BoxCorner_FarRightBottom) - corner);
 
-	return *this;
+		// Construction de la matrice de transformation de l'OBB
+		Matrix4<T> matrix(width.x, height.x, depth.x, corner.x,
+							width.y, height.y, depth.y, corner.y,
+							width.z, height.z, depth.z, corner.z,
+							F(0.0),  F(0.0),   F(0.0),  F(1.0));
+
+		matrix.InverseAffine();
+
+		corner = matrix.Transform(corner);
+		oppositeCorner = matrix.Transform(oppositeCorner);
+
+		Box<T> tmpBox(corner, oppositeCorner);
+		Ray<T> tmpRay(matrix.Transform(origin), matrix.Transform(direction));
+
+		return tmpRay.Intersect(tmpBox, closestHit, furthestHit);
+	}
+
+	template<typename T>
+	bool Ray<T>::Intersect(const Plane<T>& plane, T* hit) const
+	{
+		T divisor = plane.normal.DotProduct(direction);
+		if (NumberEquals(divisor, F(0.0)))
+			return false; // perpendicular
+
+		T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax + by + cz = d
+		if (lambda < F(0.0))
+			return false; // The plane is 'behind' the ray.
+
+		if (hit)
+			*hit = lambda;
+
+		return true;
+	}
+
+	template<typename T>
+	bool Ray<T>::Intersect(const Sphere<T>& sphere, T* closestHit, T* furthestHit) const
+	{
+		Vector3<T> sphereRay = sphere.GetPosition() - origin;
+		T length = sphereRay.DotProduct(direction);
+
+		if (length < F(0.0))
+			return false; // ray is perpendicular to the vector origin - center
+
+		T squaredDistance = sphereRay.GetSquaredLength() - length*length;
+		T squaredRadius = sphere.radius*sphere.radius;
+
+		if (squaredDistance > squaredRadius)
+			return false; // if the ray is further than the radius
+
+		// Calcul des points d'intersection si besoin
+		if (closestHit || furthestHit)
+		{
+			T deltaLambda = std::sqrt(squaredRadius - squaredDistance);
+
+			if (closestHit)
+				*closestHit = length - deltaLambda;
+
+			if (furthestHit)
+				*furthestHit = length + deltaLambda;
+		}
+
+		return true;
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::MakeAxisX()
+	{
+		return Set(Vector3<T>::Zero(), Vector3<T>::UnitX());
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::MakeAxisY()
+	{
+		return Set(Vector3<T>::Zero(), Vector3<T>::UnitY());
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::MakeAxisZ()
+	{
+		return Set(Vector3<T>::Zero(), Vector3<T>::UnitZ());
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::Set(T X, T Y, T Z, T directionX, T directionY, T directionZ)
+	{
+		direction.Set(directionX, directionY, directionZ);
+		origin.Set(X, Y, Z);
+
+		return *this;
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::Set(const T Origin[3], const T Direction[3])
+	{
+		direction.Set(Direction);
+		origin.Set(Origin);
+
+		return *this;
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::Set(const Plane<T>& planeOne, const Plane<T>& planeTwo)
+	{
+		T termOne = planeOne.normal.GetLength();
+		T termTwo = planeOne.normal.DotProduct(planeTwo.normal);
+		T termFour = planeTwo.normal.GetLength();
+		T det = termOne * termFour - termTwo * termTwo;
+
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(det, F(0.0)))
+		{
+			String error("Planes are parallel.");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		T invdet = F(1.0) / det;
+		T fc0 = (termFour * -planeOne.distance + termTwo * planeTwo.distance) * invdet;
+		T fc1 = (termOne * -planeTwo.distance + termTwo * planeOne.distance) * invdet;
+
+		direction = planeOne.normal.CrossProduct(planeTwo.normal);
+		origin = planeOne.normal * fc0 + planeTwo.normal * fc1;
+
+		return *this;
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::Set(const Ray& ray)
+	{
+		std::memcpy(this, &ray, sizeof(Ray));
+
+		return *this;
+	}
+
+	template<typename T>
+	Ray<T>& Ray<T>::Set(const Vector3<T>& Origin, const Vector3<T>& Direction)
+	{
+		direction = Direction;
+		origin = Origin;
+
+		return *this;
+	}
+
+	template<typename T>
+	template<typename U>
+	Ray<T>& Ray<T>::Set(const Ray<U>& ray)
+	{
+		direction.Set(ray.direction);
+		origin.Set(ray.origin);
+
+		return *this;
+	}
+
+	template<typename T>
+	template<typename U>
+	Ray<T>& Ray<T>::Set(const Vector3<U>& Origin, const Vector3<U>& Direction)
+	{
+		direction.Set(Direction);
+		origin.Set(Origin);
+
+		return *this;
+	}
+
+	template<typename T>
+	String Ray<T>::ToString() const
+	{
+		StringStream ss;
+
+		return ss << "Ray(origin: " << origin.ToString() << ", direction: " << direction.ToString() << ")";
+	}
+
+	template<typename T>
+	Vector3<T> Ray<T>::operator*(T lambda) const
+	{
+		return GetPoint(lambda);
+	}
+
+	template<typename T>
+	bool Ray<T>::operator==(const Ray& ray) const
+	{
+		return direction == ray.direction && origin == ray.origin;
+	}
+
+	template<typename T>
+	bool Ray<T>::operator!=(const Ray& ray) const
+	{
+		return !operator==(ray);
+	}
+
+	template<typename T>
+	Ray<T> Ray<T>::AxisX()
+	{
+		Ray axis;
+		axis.MakeAxisX();
+
+		return axis;
+	}
+
+	template<typename T>
+	Ray<T> Ray<T>::AxisY()
+	{
+		Ray axis;
+		axis.MakeAxisY();
+
+		return axis;
+	}
+
+	template<typename T>
+	Ray<T> Ray<T>::AxisZ()
+	{
+		Ray axis;
+		axis.MakeAxisZ();
+
+		return axis;
+	}
+
+	template<typename T>
+	Ray<T> Ray<T>::Lerp(const Ray& from, const Ray& to, T interpolation)
+	{
+		return Ray<T>(from.origin.Lerp(to.origin, interpolation), from.direction.Lerp(to.direction, interpolation));
+	}
 }
 
 template<typename T>
-NzRay<T>& NzRay<T>::Set(const NzRay& ray)
-{
-	std::memcpy(this, &ray, sizeof(NzRay));
-
-	return *this;
-}
-
-template<typename T>
-NzRay<T>& NzRay<T>::Set(const NzVector3<T>& Origin, const NzVector3<T>& Direction)
-{
-	direction = Direction;
-	origin = Origin;
-
-	return *this;
-}
-
-template<typename T>
-template<typename U>
-NzRay<T>& NzRay<T>::Set(const NzRay<U>& ray)
-{
-	direction.Set(ray.direction);
-	origin.Set(ray.origin);
-
-	return *this;
-}
-
-template<typename T>
-template<typename U>
-NzRay<T>& NzRay<T>::Set(const NzVector3<U>& Origin, const NzVector3<U>& Direction)
-{
-	direction.Set(Direction);
-	origin.Set(Origin);
-
-	return *this;
-}
-
-template<typename T>
-NzString NzRay<T>::ToString() const
-{
-	NzStringStream ss;
-
-	return ss << "Ray(origin: " << origin.ToString() << ", direction: " << direction.ToString() << ")";
-}
-
-template<typename T>
-NzVector3<T> NzRay<T>::operator*(T lambda) const
-{
-	return GetPoint(lambda);
-}
-
-template<typename T>
-bool NzRay<T>::operator==(const NzRay& ray) const
-{
-	return direction == ray.direction && origin == ray.origin;
-}
-
-template<typename T>
-bool NzRay<T>::operator!=(const NzRay& ray) const
-{
-	return !operator==(ray);
-}
-
-template<typename T>
-NzRay<T> NzRay<T>::AxisX()
-{
-	NzRay axis;
-	axis.MakeAxisX();
-
-	return axis;
-}
-
-template<typename T>
-NzRay<T> NzRay<T>::AxisY()
-{
-	NzRay axis;
-	axis.MakeAxisY();
-
-	return axis;
-}
-
-template<typename T>
-NzRay<T> NzRay<T>::AxisZ()
-{
-	NzRay axis;
-	axis.MakeAxisZ();
-
-	return axis;
-}
-
-template<typename T>
-NzRay<T> NzRay<T>::Lerp(const NzRay& from, const NzRay& to, T interpolation)
-{
-	return NzRay<T>(from.origin.Lerp(to.origin, interpolation), from.direction.Lerp(to.direction, interpolation));
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzRay<T>& ray)
+std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& ray)
 {
 	return out << ray.ToString();
 }

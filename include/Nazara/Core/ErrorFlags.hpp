@@ -10,23 +10,26 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
 
-class NAZARA_CORE_API NzErrorFlags
+namespace Nz
 {
-	public:
-		NzErrorFlags(nzUInt32 flags, bool replace = false);
-		NzErrorFlags(const NzErrorFlags&) = delete;
-		NzErrorFlags(NzErrorFlags&&) = delete;
-		~NzErrorFlags();
+	class NAZARA_CORE_API ErrorFlags
+	{
+		public:
+			ErrorFlags(UInt32 flags, bool replace = false);
+			ErrorFlags(const ErrorFlags&) = delete;
+			ErrorFlags(ErrorFlags&&) = delete;
+			~ErrorFlags();
 
-		nzUInt32 GetPreviousFlags() const;
+			UInt32 GetPreviousFlags() const;
 
-		void SetFlags(nzUInt32 flags, bool replace = false);
+			void SetFlags(UInt32 flags, bool replace = false);
 
-		NzErrorFlags& operator=(const NzErrorFlags&) = delete;
-		NzErrorFlags& operator=(NzErrorFlags&&) = delete;
+			ErrorFlags& operator=(const ErrorFlags&) = delete;
+			ErrorFlags& operator=(ErrorFlags&&) = delete;
 
-	private:
-		nzUInt32 m_previousFlags;
-};
+		private:
+			UInt32 m_previousFlags;
+	};
+}
 
 #endif // NAZARA_ERRORFLAGS_HPP

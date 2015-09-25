@@ -11,23 +11,26 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 
-struct NzHashMD5_state;
-
-class NAZARA_CORE_API NzHashMD5 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashMD5();
-		virtual ~NzHashMD5();
+	struct HashMD5_state;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashMD5 : public AbstractHash
+	{
+		public:
+			HashMD5();
+			virtual ~HashMD5();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, unsigned int len);
+			void Begin();
+			HashDigest End();
 
-	private:
-		NzHashMD5_state* m_state;
-};
+			static unsigned int GetDigestLength();
+			static String GetHashName();
+
+		private:
+			HashMD5_state* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_MD5_HPP

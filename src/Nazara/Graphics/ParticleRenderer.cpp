@@ -5,31 +5,34 @@
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzParticleRenderer::NzParticleRenderer(const NzParticleRenderer& renderer) :
-NzRefCounted()
+namespace Nz
 {
-	NazaraUnused(renderer);
-}
-
-NzParticleRenderer::~NzParticleRenderer()
-{
-	OnParticleRendererRelease(this);
-}
-
-bool NzParticleRenderer::Initialize()
-{
-	if (!NzParticleRendererLibrary::Initialize())
+	ParticleRenderer::ParticleRenderer(const ParticleRenderer& renderer) :
+	RefCounted()
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		NazaraUnused(renderer);
 	}
 
-	return true;
-}
+	ParticleRenderer::~ParticleRenderer()
+	{
+		OnParticleRendererRelease(this);
+	}
 
-void NzParticleRenderer::Uninitialize()
-{
-	NzParticleRendererLibrary::Uninitialize();
-}
+	bool ParticleRenderer::Initialize()
+	{
+		if (!ParticleRendererLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
 
-NzParticleRendererLibrary::LibraryMap NzParticleRenderer::s_library;
+		return true;
+	}
+
+	void ParticleRenderer::Uninitialize()
+	{
+		ParticleRendererLibrary::Uninitialize();
+	}
+
+	ParticleRendererLibrary::LibraryMap ParticleRenderer::s_library;
+}

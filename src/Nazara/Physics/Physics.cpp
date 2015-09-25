@@ -10,57 +10,60 @@
 #include <Newton/Newton.h>
 #include <Nazara/Physics/Debug.hpp>
 
-unsigned int NzPhysics::GetMemoryUsed()
+namespace Nz
 {
-	return NewtonGetMemoryUsed();
-}
-
-bool NzPhysics::Initialize()
-{
-	if (s_moduleReferenceCounter > 0)
+	unsigned int Physics::GetMemoryUsed()
 	{
+		return NewtonGetMemoryUsed();
+	}
+
+	bool Physics::Initialize()
+	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
+		// Initialisation des dépendances
+		if (!Core::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		// Initialisation du module
+
+		NazaraNotice("Initialized: Physics module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool Physics::IsInitialized()
 	{
-		NazaraError("Failed to initialize core module");
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-
-	NazaraNotice("Initialized: Physics module");
-	return true;
-}
-
-bool NzPhysics::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzPhysics::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
+	void Physics::Uninitialize()
 	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-		return;
+			return;
+		}
+
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		NazaraNotice("Uninitialized: Physics module");
+
+		// Libération des dépendances
+		Core::Uninitialize();
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	NazaraNotice("Uninitialized: Physics module");
-
-	// Libération des dépendances
-	NzCore::Uninitialize();
+	unsigned int Physics::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzPhysics::s_moduleReferenceCounter = 0;

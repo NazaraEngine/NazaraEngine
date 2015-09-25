@@ -11,23 +11,26 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 
-struct NzHashCRC32_state;
-
-class NAZARA_CORE_API NzHashCRC32 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashCRC32(nzUInt32 polynomial = 0x04c11db7);
-		virtual ~NzHashCRC32();
+	struct HashCRC32_state;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashCRC32 : public AbstractHash
+	{
+		public:
+			HashCRC32(UInt32 polynomial = 0x04c11db7);
+			virtual ~HashCRC32();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, unsigned int len);
+			void Begin();
+			HashDigest End();
 
-	private:
-		NzHashCRC32_state* m_state;
-};
+			static unsigned int GetDigestLength();
+			static String GetHashName();
+
+		private:
+			HashCRC32_state* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_CRC32_HPP

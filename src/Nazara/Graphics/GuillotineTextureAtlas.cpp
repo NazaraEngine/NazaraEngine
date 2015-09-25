@@ -7,42 +7,45 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-nzUInt32 NzGuillotineTextureAtlas::GetStorage() const
+namespace Nz
 {
-	return nzDataStorage_Hardware;
-}
-
-NzAbstractImage* NzGuillotineTextureAtlas::ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const
-{
-	std::unique_ptr<NzTexture> newTexture(new NzTexture);
-	if (newTexture->Create(nzImageType_2D, nzPixelFormat_A8, size.x, size.y, 1))
+	UInt32 GuillotineTextureAtlas::GetStorage() const
 	{
-		if (oldImage)
-		{
-			NzTexture* oldTexture = static_cast<NzTexture*>(oldImage);
-
-			// Copie des anciennes données
-			///TODO: Copie de texture à texture
-			NzImage image;
-			if (!oldTexture->Download(&image))
-			{
-				NazaraError("Failed to download old texture");
-				return nullptr;
-			}
-
-			if (!newTexture->Update(image, NzRectui(0, 0, image.GetWidth(), image.GetHeight())))
-			{
-				NazaraError("Failed to update texture");
-				return nullptr;
-			}
-		}
-
-		return newTexture.release();
+		return DataStorage_Hardware;
 	}
-	else
+
+	AbstractImage* GuillotineTextureAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
-		// Si on arrive ici c'est que la taille demandée est trop grande pour la carte graphique
-		// ou que nous manquons de mémoire
-		return nullptr;
+		std::unique_ptr<Texture> newTexture(new Texture);
+		if (newTexture->Create(ImageType_2D, PixelFormatType_A8, size.x, size.y, 1))
+		{
+			if (oldImage)
+			{
+				Texture* oldTexture = static_cast<Texture*>(oldImage);
+
+				// Copie des anciennes données
+				///TODO: Copie de texture à texture
+				Image image;
+				if (!oldTexture->Download(&image))
+				{
+					NazaraError("Failed to download old texture");
+					return nullptr;
+				}
+
+				if (!newTexture->Update(image, Rectui(0, 0, image.GetWidth(), image.GetHeight())))
+				{
+					NazaraError("Failed to update texture");
+					return nullptr;
+				}
+			}
+
+			return newTexture.release();
+		}
+		else
+		{
+			// Si on arrive ici c'est que la taille demandée est trop grande pour la carte graphique
+			// ou que nous manquons de mémoire
+			return nullptr;
+		}
 	}
 }

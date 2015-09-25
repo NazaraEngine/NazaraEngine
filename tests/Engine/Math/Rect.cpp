@@ -3,10 +3,10 @@
 
 SCENARIO("Rect", "[MATH][RECT]")
 {
-	GIVEN("Two same rectangles center and unit lengths")
+	GIVEN("Two same Nz::Rectangles center and unit lengths")
 	{
-		NzRectf firstCenterAndUnit(0.f, 0.f, 1.f, 1.f);
-		NzRectf secondCenterAndUnit(NzRecti(NzVector2i::Unit(), NzVector2i::Zero()));
+		Nz::Rectf firstCenterAndUnit(0.f, 0.f, 1.f, 1.f);
+		Nz::Rectf secondCenterAndUnit(Nz::Recti(Nz::Vector2i::Unit(), Nz::Vector2i::Zero()));
 
 		WHEN("We ask if they are the same")
 		{
@@ -14,20 +14,20 @@ SCENARIO("Rect", "[MATH][RECT]")
 			{
 				REQUIRE(firstCenterAndUnit == secondCenterAndUnit);
 				REQUIRE(firstCenterAndUnit.GetCenter() == secondCenterAndUnit.GetCenter());
-				REQUIRE(firstCenterAndUnit.GetCorner(nzRectCorner_LeftBottom) == secondCenterAndUnit.GetCorner(nzRectCorner_LeftBottom));
+				REQUIRE(firstCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom) == secondCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom));
 				CHECK(firstCenterAndUnit.IsValid());
 			}
 		}
 
 		WHEN("We move one from (0.5, 0.5)")
 		{
-			firstCenterAndUnit.Translate(NzVector2f(0.5f, 0.5f));
+			firstCenterAndUnit.Translate(Nz::Vector2f(0.5f, 0.5f));
 
 			THEN("The collision should be (0.5, 0.5) -> (0.5, 0.5)")
 			{
-				NzRectf tmp;
+				Nz::Rectf tmp;
 				CHECK(firstCenterAndUnit.Intersect(secondCenterAndUnit, &tmp));
-				REQUIRE(tmp == NzRectf(0.5f, 0.5f, 0.5f, 0.5f));
+				REQUIRE(tmp == Nz::Rectf(0.5f, 0.5f, 0.5f, 0.5f));
 			}
 		}
 
@@ -43,12 +43,12 @@ SCENARIO("Rect", "[MATH][RECT]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(firstCenterAndUnit.GetLengths() == NzVector2f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMaximum() == NzVector2f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMinimum() == NzVector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetNegativeVertex(NzVector2f::Unit()) == NzVector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPosition() == NzVector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPositiveVertex(NzVector2f::Unit()) == NzVector2f::Unit());
+				REQUIRE(firstCenterAndUnit.GetLengths() == Nz::Vector2f::Unit());
+				REQUIRE(firstCenterAndUnit.GetMaximum() == Nz::Vector2f::Unit());
+				REQUIRE(firstCenterAndUnit.GetMinimum() == Nz::Vector2f::Zero());
+				REQUIRE(firstCenterAndUnit.GetNegativeVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Zero());
+				REQUIRE(firstCenterAndUnit.GetPosition() == Nz::Vector2f::Zero());
+				REQUIRE(firstCenterAndUnit.GetPositiveVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Unit());
 
 			}
 		}

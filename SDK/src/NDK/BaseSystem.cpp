@@ -17,10 +17,10 @@ namespace Ndk
 		if (!entity)
 			return false;
 
-		const NzBitset<>& components = entity->GetComponentBits();
+		const Nz::Bitset<>& components = entity->GetComponentBits();
 
 		m_filterResult.PerformsAND(m_requiredComponents, components);
-		if (m_filterResult != m_requiredComponents)
+		if (m_filterResult !=  m_requiredComponents)
 			return false; // Au moins un component requis n'est pas présent
 
 		m_filterResult.PerformsAND(m_excludedComponents, components);

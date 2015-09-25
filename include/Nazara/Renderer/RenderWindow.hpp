@@ -19,61 +19,64 @@
 #include <Nazara/Utility/Window.hpp>
 #include <vector>
 
-class NzAbstractImage;
-class NzContext;
-class NzTexture;
-struct NzContextParameters;
-
-class NAZARA_RENDERER_API NzRenderWindow : public NzRenderTarget, public NzWindow
+namespace Nz
 {
-	public:
-		NzRenderWindow() = default;
-		NzRenderWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
-		NzRenderWindow(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
-		NzRenderWindow(const NzRenderWindow&) = delete;
-		NzRenderWindow(NzRenderWindow&&) = delete; ///TODO
-		virtual ~NzRenderWindow();
+	class AbstractImage;
+	class Context;
+	class Texture;
+	struct ContextParameters;
 
-		bool CopyToImage(NzAbstractImage* image, const NzVector3ui& dstPos = NzVector3ui(0U)) const;
-		bool CopyToImage(NzAbstractImage* image, const NzRectui& rect, const NzVector3ui& dstPos = NzVector3ui(0U)) const;
+	class NAZARA_RENDERER_API RenderWindow : public RenderTarget, public Window
+	{
+		public:
+			RenderWindow() = default;
+			RenderWindow(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
+			RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			RenderWindow(const RenderWindow&) = delete;
+			RenderWindow(RenderWindow&&) = delete; ///TODO
+			virtual ~RenderWindow();
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default, const NzContextParameters& parameters = NzContextParameters());
-		bool Create(NzWindowHandle handle, const NzContextParameters& parameters = NzContextParameters());
+			bool CopyToImage(AbstractImage* image, const Vector3ui& dstPos = Vector3ui(0U)) const;
+			bool CopyToImage(AbstractImage* image, const Rectui& rect, const Vector3ui& dstPos = Vector3ui(0U)) const;
 
-		void Display();
+			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
+			bool Create(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
 
-		void EnableVerticalSync(bool enabled);
+			void Display();
 
-		unsigned int GetHeight() const;
-		NzRenderTargetParameters GetParameters() const;
-		unsigned int GetWidth() const;
+			void EnableVerticalSync(bool enabled);
 
-		bool IsRenderable() const;
-		bool IsValid() const;
+			unsigned int GetHeight() const;
+			RenderTargetParameters GetParameters() const;
+			unsigned int GetWidth() const;
 
-		void SetFramerateLimit(unsigned int limit);
+			bool IsRenderable() const;
+			bool IsValid() const;
 
-		// Fonctions OpenGL
-		NzContextParameters GetContextParameters() const;
-		bool HasContext() const override;
+			void SetFramerateLimit(unsigned int limit);
 
-		NzRenderWindow& operator=(const NzRenderWindow&) = delete;
-		NzRenderWindow& operator=(NzRenderWindow&&) = delete; ///TODO
+			// Fonctions OpenGL
+			ContextParameters GetContextParameters() const;
+			bool HasContext() const override;
 
-	protected:
-		bool Activate() const override;
-		void EnsureTargetUpdated() const override;
+			RenderWindow& operator=(const RenderWindow&) = delete;
+			RenderWindow& operator=(RenderWindow&&) = delete; ///TODO
 
-	private:
-		bool OnWindowCreated() override;
-		void OnWindowDestroy() override;
-		void OnWindowResized() override;
+		protected:
+			bool Activate() const override;
+			void EnsureTargetUpdated() const override;
 
-		mutable std::vector<nzUInt8> m_buffer;
-		NzClock m_clock;
-		NzContextParameters m_parameters;
-		mutable NzContext* m_context = nullptr;
-		unsigned int m_framerateLimit = 0;
-};
+		private:
+			bool OnWindowCreated() override;
+			void OnWindowDestroy() override;
+			void OnWindowResized() override;
+
+			mutable std::vector<UInt8> m_buffer;
+			Clock m_clock;
+			ContextParameters m_parameters;
+			mutable Context* m_context = nullptr;
+			unsigned int m_framerateLimit = 0;
+	};
+}
 
 #endif // NAZARA_RENDERWINDOW_HPP

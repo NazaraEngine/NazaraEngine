@@ -11,293 +11,299 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	bool IsSupported(const NzString& extension)
+	namespace
 	{
-		return (extension == "md5mesh");
-	}
-
-	nzTernary Check(NzInputStream& stream, const NzMeshParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		NzMD5MeshParser parser(stream);
-		return parser.Check();
-	}
-
-	bool Load(NzMesh* mesh, NzInputStream& stream, const NzMeshParams& parameters)
-	{
-		NzMD5MeshParser parser(stream);
-		if (!parser.Parse())
+		bool IsSupported(const String& extension)
 		{
-			NazaraError("MD5Mesh parser failed");
-			return false;
+			return (extension == "md5mesh");
 		}
 
-		// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
-		NzQuaternionf rotationQuat = NzQuaternionf::RotationBetween(NzVector3f::UnitX(), NzVector3f::Forward()) *
-		                             NzQuaternionf::RotationBetween(NzVector3f::UnitZ(), NzVector3f::Up());
-
-		NzString baseDir = stream.GetDirectory();
-
-		// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
-		// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
-		NzVector3f scale(parameters.scale/40.f);
-
-		const NzMD5MeshParser::Joint* joints = parser.GetJoints();
-		const NzMD5MeshParser::Mesh* meshes = parser.GetMeshes();
-		unsigned int jointCount = parser.GetJointCount();
-		unsigned int meshCount = parser.GetMeshCount();
-
-		if (parameters.animated)
+		Ternary Check(InputStream& stream, const MeshParams& parameters)
 		{
-			mesh->CreateSkeletal(jointCount);
+			NazaraUnused(parameters);
 
-			NzSkeleton* skeleton = mesh->GetSkeleton();
-			for (unsigned int i = 0; i < jointCount; ++i)
-			{
-				NzJoint* joint = skeleton->GetJoint(i);
-
-				int parent = joints[i].parent;
-				if (parent >= 0)
-					joint->SetParent(skeleton->GetJoint(parent));
-
-				joint->SetName(joints[i].name);
-
-				NzMatrix4f bindMatrix;
-
-				if (parent >= 0)
-					bindMatrix.MakeTransform(joints[i].bindPos, joints[i].bindOrient);
-				else
-					bindMatrix.MakeTransform(rotationQuat * joints[i].bindPos, rotationQuat * joints[i].bindOrient);
-
-				joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
-			}
-
-			mesh->SetMaterialCount(meshCount);
-			for (unsigned int i = 0; i < meshCount; ++i)
-			{
-				const NzMD5MeshParser::Mesh& md5Mesh = meshes[i];
-
-				unsigned int indexCount = md5Mesh.triangles.size()*3;
-				unsigned int vertexCount = md5Mesh.vertices.size();
-
-				bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
-
-				NzIndexBufferRef indexBuffer = NzIndexBuffer::New(largeIndices, indexCount, parameters.storage);
-				NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, nzBufferUsage_Static);
-
-				// Index buffer
-				NzIndexMapper indexMapper(indexBuffer, nzBufferAccess_DiscardAndWrite);
-
-				// Le format définit un set de triangles nous permettant de retrouver facilement les indices
-				// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
-				// (On parle ici de winding)
-				unsigned int index = 0;
-				for (const NzMD5MeshParser::Triangle& triangle : md5Mesh.triangles)
-				{
-					// On les respécifie dans le bon ordre (inversion du winding)
-					indexMapper.Set(index++, triangle.x);
-					indexMapper.Set(index++, triangle.z);
-					indexMapper.Set(index++, triangle.y);
-				}
-
-				indexMapper.Unmap();
-
-				if (parameters.optimizeIndexBuffers)
-					indexBuffer->Optimize();
-
-				// Vertex buffer
-				struct Weight
-				{
-					float bias;
-					unsigned int jointIndex;
-				};
-
-				std::vector<Weight> tempWeights;
-
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_WriteOnly);
-				NzSkeletalMeshVertex* vertices = static_cast<NzSkeletalMeshVertex*>(vertexMapper.GetPointer());
-				for (const NzMD5MeshParser::Vertex& vertex : md5Mesh.vertices)
-				{
-					// Skinning MD5 (Formule d'Id Tech)
-					NzVector3f finalPos(NzVector3f::Zero());
-
-					// On stocke tous les poids dans le tableau temporaire en même temps qu'on calcule la position finale du sommet.
-					tempWeights.resize(vertex.weightCount);
-					for (unsigned int j = 0; j < vertex.weightCount; ++j)
-					{
-						const NzMD5MeshParser::Weight& weight = md5Mesh.weights[vertex.startWeight + j];
-						const NzMD5MeshParser::Joint& joint = joints[weight.joint];
-
-						finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
-
-						// Avant d'ajouter les poids, il faut s'assurer qu'il n'y en ait pas plus que le maximum supporté
-						// et dans le cas contraire, garder les poids les plus importants et les renormaliser
-						tempWeights[j] = {weight.bias, weight.joint};
-					}
-
-					// Avons nous plus de poids que le moteur ne peut en supporter ?
-					unsigned int weightCount = vertex.weightCount;
-					if (weightCount > NAZARA_UTILITY_SKINNING_MAX_WEIGHTS)
-					{
-						// Pour augmenter la qualité du skinning tout en ne gardant que X poids, on ne garde que les poids
-						// les plus importants, ayant le plus d'impact sur le sommet final
-						std::sort(tempWeights.begin(), tempWeights.end(), [] (const Weight& a, const Weight& b) -> bool {
-							return a.bias > b.bias;
-						});
-
-						// Sans oublier bien sûr de renormaliser les poids (que leur somme soit 1)
-						float weightSum = 0.f;
-						for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
-							weightSum += tempWeights[j].bias;
-
-						for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
-							tempWeights[j].bias /= weightSum;
-
-						weightCount = NAZARA_UTILITY_SKINNING_MAX_WEIGHTS;
-					}
-
-					vertices->weightCount = weightCount;
-					for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
-					{
-						if (j < weightCount)
-						{
-							// On donne une valeur aux poids présents
-							vertices->weights[j] = tempWeights[j].bias;
-							vertices->jointIndexes[j] = tempWeights[j].jointIndex;
-						}
-						else
-						{
-							// Et un poids de 0 sur le joint 0 pour les autres (nécessaire pour le GPU Skinning)
-							// La raison est que le GPU ne tiendra pas compte du nombre de poids pour des raisons de performances.
-							vertices->weights[j] = 0.f;
-							vertices->jointIndexes[j] = 0;
-						}
-					}
-
-					vertices->position = finalPos;
-					vertices->uv.Set(vertex.uv.x, (parameters.flipUVs) ? 1.f - vertex.uv.y : vertex.uv.y); // Inversion des UV si demandé
-					vertices++;
-				}
-
-				vertexMapper.Unmap();
-
-				// Material
-				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
-
-				// Submesh
-				NzSkeletalMeshRef subMesh = NzSkeletalMesh::New(mesh);
-				subMesh->Create(vertexBuffer);
-
-				subMesh->SetIndexBuffer(indexBuffer);
-				subMesh->GenerateNormalsAndTangents();
-				subMesh->SetMaterialIndex(i);
-				subMesh->SetPrimitiveMode(nzPrimitiveMode_TriangleList);
-
-				mesh->AddSubMesh(subMesh);
-
-				// Animation
-				// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
-				NzString path = stream.GetPath();
-				if (!path.IsEmpty())
-				{
-					path.Replace(".md5mesh", ".md5anim", -8, NzString::CaseInsensitive);
-					if (NzFile::Exists(path))
-						mesh->SetAnimation(path);
-				}
-			}
+			MD5MeshParser parser(stream);
+			return parser.Check();
 		}
-		else
+
+		bool Load(Mesh* mesh, InputStream& stream, const MeshParams& parameters)
 		{
-			if (!mesh->CreateStatic()) // Ne devrait jamais échouer
+			MD5MeshParser parser(stream);
+			if (!parser.Parse())
 			{
-				NazaraInternalError("Failed to create mesh");
+				NazaraError("MD5Mesh parser failed");
 				return false;
 			}
 
-			mesh->SetMaterialCount(meshCount);
-			for (unsigned int i = 0; i < meshCount; ++i)
+			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
+			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
+										 Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
+
+			String baseDir = stream.GetDirectory();
+
+			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
+			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
+			Vector3f scale(parameters.scale/40.f);
+
+			const MD5MeshParser::Joint* joints = parser.GetJoints();
+			const MD5MeshParser::Mesh* meshes = parser.GetMeshes();
+			unsigned int jointCount = parser.GetJointCount();
+			unsigned int meshCount = parser.GetMeshCount();
+
+			if (parameters.animated)
 			{
-				const NzMD5MeshParser::Mesh& md5Mesh = meshes[i];
-				unsigned int indexCount = md5Mesh.triangles.size()*3;
-				unsigned int vertexCount = md5Mesh.vertices.size();
+				mesh->CreateSkeletal(jointCount);
 
-				// Index buffer
-				bool largeIndices = (vertexCount > std::numeric_limits<nzUInt16>::max());
-
-				NzIndexBufferRef indexBuffer = NzIndexBuffer::New(largeIndices, indexCount, parameters.storage);
-
-				NzIndexMapper indexMapper(indexBuffer, nzBufferAccess_DiscardAndWrite);
-				NzIndexIterator index = indexMapper.begin();
-
-				for (const NzMD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+				Skeleton* skeleton = mesh->GetSkeleton();
+				for (unsigned int i = 0; i < jointCount; ++i)
 				{
-					// On les respécifie dans le bon ordre
-					*index++ = triangle.x;
-					*index++ = triangle.z;
-					*index++ = triangle.y;
+					Joint* joint = skeleton->GetJoint(i);
+
+					int parent = joints[i].parent;
+					if (parent >= 0)
+						joint->SetParent(skeleton->GetJoint(parent));
+
+					joint->SetName(joints[i].name);
+
+					Matrix4f bindMatrix;
+
+					if (parent >= 0)
+						bindMatrix.MakeTransform(joints[i].bindPos, joints[i].bindOrient);
+					else
+						bindMatrix.MakeTransform(rotationQuat * joints[i].bindPos, rotationQuat * joints[i].bindOrient);
+
+					joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 				}
-				indexMapper.Unmap();
 
-				// Vertex buffer
-				NzVertexBufferRef vertexBuffer = NzVertexBuffer::New(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
-				NzBufferMapper<NzVertexBuffer> vertexMapper(vertexBuffer, nzBufferAccess_WriteOnly);
-
-				NzMeshVertex* vertex = reinterpret_cast<NzMeshVertex*>(vertexMapper.GetPointer());
-				for (const NzMD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
+				mesh->SetMaterialCount(meshCount);
+				for (unsigned int i = 0; i < meshCount; ++i)
 				{
-					// Skinning MD5 (Formule d'Id Tech)
-					NzVector3f finalPos(NzVector3f::Zero());
-					for (unsigned int j = 0; j < md5Vertex.weightCount; ++j)
-					{
-						const NzMD5MeshParser::Weight& weight = md5Mesh.weights[md5Vertex.startWeight + j];
-						const NzMD5MeshParser::Joint& joint = joints[weight.joint];
+					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
-						finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
+					unsigned int indexCount = md5Mesh.triangles.size()*3;
+					unsigned int vertexCount = md5Mesh.vertices.size();
+
+					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, BufferUsage_Static);
+
+					// Index buffer
+					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+
+					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
+					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
+					// (On parle ici de winding)
+					unsigned int index = 0;
+					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+					{
+						// On les respécifie dans le bon ordre (inversion du winding)
+						indexMapper.Set(index++, triangle.x);
+						indexMapper.Set(index++, triangle.z);
+						indexMapper.Set(index++, triangle.y);
 					}
 
-					// On retourne le modèle dans le bon sens
-					vertex->position = scale * (rotationQuat * finalPos);
-					vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
-					vertex++;
+					indexMapper.Unmap();
+
+					if (parameters.optimizeIndexBuffers)
+						indexBuffer->Optimize();
+
+					// Vertex buffer
+					struct Weight
+					{
+						float bias;
+						unsigned int jointIndex;
+					};
+
+					std::vector<Weight> tempWeights;
+
+					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
+					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
+					{
+						// Skinning MD5 (Formule d'Id Tech)
+						Vector3f finalPos(Vector3f::Zero());
+
+						// On stocke tous les poids dans le tableau temporaire en même temps qu'on calcule la position finale du sommet.
+						tempWeights.resize(vertex.weightCount);
+						for (unsigned int j = 0; j < vertex.weightCount; ++j)
+						{
+							const MD5MeshParser::Weight& weight = md5Mesh.weights[vertex.startWeight + j];
+							const MD5MeshParser::Joint& joint = joints[weight.joint];
+
+							finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
+
+							// Avant d'ajouter les poids, il faut s'assurer qu'il n'y en ait pas plus que le maximum supporté
+							// et dans le cas contraire, garder les poids les plus importants et les renormaliser
+							tempWeights[j] = {weight.bias, weight.joint};
+						}
+
+						// Avons nous plus de poids que le moteur ne peut en supporter ?
+						unsigned int weightCount = vertex.weightCount;
+						if (weightCount > NAZARA_UTILITY_SKINNING_MAX_WEIGHTS)
+						{
+							// Pour augmenter la qualité du skinning tout en ne gardant que X poids, on ne garde que les poids
+							// les plus importants, ayant le plus d'impact sur le sommet final
+							std::sort(tempWeights.begin(), tempWeights.end(), [] (const Weight& a, const Weight& b) -> bool {
+								return a.bias > b.bias;
+							});
+
+							// Sans oublier bien sûr de renormaliser les poids (que leur somme soit 1)
+							float weightSum = 0.f;
+							for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+								weightSum += tempWeights[j].bias;
+
+							for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+								tempWeights[j].bias /= weightSum;
+
+							weightCount = NAZARA_UTILITY_SKINNING_MAX_WEIGHTS;
+						}
+
+						vertices->weightCount = weightCount;
+						for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+						{
+							if (j < weightCount)
+							{
+								// On donne une valeur aux poids présents
+								vertices->weights[j] = tempWeights[j].bias;
+								vertices->jointIndexes[j] = tempWeights[j].jointIndex;
+							}
+							else
+							{
+								// Et un poids de 0 sur le joint 0 pour les autres (nécessaire pour le GPU Skinning)
+								// La raison est que le GPU ne tiendra pas compte du nombre de poids pour des raisons de performances.
+								vertices->weights[j] = 0.f;
+								vertices->jointIndexes[j] = 0;
+							}
+						}
+
+						vertices->position = finalPos;
+						vertices->uv.Set(vertex.uv.x, (parameters.flipUVs) ? 1.f - vertex.uv.y : vertex.uv.y); // Inversion des UV si demandé
+						vertices++;
+					}
+
+					vertexMapper.Unmap();
+
+					// Material
+					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+
+					// Submesh
+					SkeletalMeshRef subMesh = SkeletalMesh::New(mesh);
+					subMesh->Create(vertexBuffer);
+
+					subMesh->SetIndexBuffer(indexBuffer);
+					subMesh->GenerateNormalsAndTangents();
+					subMesh->SetMaterialIndex(i);
+					subMesh->SetPrimitiveMode(PrimitiveMode_TriangleList);
+
+					mesh->AddSubMesh(subMesh);
+
+					// Animation
+					// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
+					String path = stream.GetPath();
+					if (!path.IsEmpty())
+					{
+						path.Replace(".md5mesh", ".md5anim", -8, String::CaseInsensitive);
+						if (File::Exists(path))
+							mesh->SetAnimation(path);
+					}
+				}
+			}
+			else
+			{
+				if (!mesh->CreateStatic()) // Ne devrait jamais échouer
+				{
+					NazaraInternalError("Failed to create mesh");
+					return false;
 				}
 
-				vertexMapper.Unmap();
+				mesh->SetMaterialCount(meshCount);
+				for (unsigned int i = 0; i < meshCount; ++i)
+				{
+					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
+					unsigned int indexCount = md5Mesh.triangles.size()*3;
+					unsigned int vertexCount = md5Mesh.vertices.size();
 
-				// Submesh
-				NzStaticMeshRef subMesh = NzStaticMesh::New(mesh);
-				subMesh->Create(vertexBuffer);
+					// Index buffer
+					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				if (parameters.optimizeIndexBuffers)
-					indexBuffer->Optimize();
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage);
 
-				subMesh->SetIndexBuffer(indexBuffer);
-				subMesh->GenerateAABB();
-				subMesh->GenerateNormalsAndTangents();
-				subMesh->SetMaterialIndex(i);
+					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+					IndexIterator index = indexMapper.begin();
 
-				mesh->AddSubMesh(subMesh);
+					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+					{
+						// On les respécifie dans le bon ordre
+						*index++ = triangle.x;
+						*index++ = triangle.z;
+						*index++ = triangle.y;
+					}
+					indexMapper.Unmap();
 
-				// Material
-				mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+					// Vertex buffer
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
+					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+
+					MeshVertex* vertex = reinterpret_cast<MeshVertex*>(vertexMapper.GetPointer());
+					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
+					{
+						// Skinning MD5 (Formule d'Id Tech)
+						Vector3f finalPos(Vector3f::Zero());
+						for (unsigned int j = 0; j < md5Vertex.weightCount; ++j)
+						{
+							const MD5MeshParser::Weight& weight = md5Mesh.weights[md5Vertex.startWeight + j];
+							const MD5MeshParser::Joint& joint = joints[weight.joint];
+
+							finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
+						}
+
+						// On retourne le modèle dans le bon sens
+						vertex->position = scale * (rotationQuat * finalPos);
+						vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
+						vertex++;
+					}
+
+					vertexMapper.Unmap();
+
+					// Submesh
+					StaticMeshRef subMesh = StaticMesh::New(mesh);
+					subMesh->Create(vertexBuffer);
+
+					if (parameters.optimizeIndexBuffers)
+						indexBuffer->Optimize();
+
+					subMesh->SetIndexBuffer(indexBuffer);
+					subMesh->GenerateAABB();
+					subMesh->GenerateNormalsAndTangents();
+					subMesh->SetMaterialIndex(i);
+
+					mesh->AddSubMesh(subMesh);
+
+					// Material
+					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+				}
+
+				if (parameters.center)
+					mesh->Recenter();
 			}
 
-			if (parameters.center)
-				mesh->Recenter();
+			return true;
+		}
+	}
+
+	namespace Loaders
+	{
+		void RegisterMD5Mesh()
+		{
+			MeshLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		return true;
+		void UnregisterMD5Mesh()
+		{
+			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
+		}
 	}
-}
-
-void NzLoaders_MD5Mesh_Register()
-{
-	NzMeshLoader::RegisterLoader(IsSupported, Check, Load);
-}
-
-void NzLoaders_MD5Mesh_Unregister()
-{
-	NzMeshLoader::UnregisterLoader(IsSupported, Check, Load);
 }
