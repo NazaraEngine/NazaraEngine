@@ -5,7 +5,10 @@
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzAbstractAtlas::~NzAbstractAtlas()
+namespace Nz
 {
-	OnAtlasRelease(this);
+	AbstractAtlas::~AbstractAtlas()
+	{
+		OnAtlasRelease(this);
+	}
 }

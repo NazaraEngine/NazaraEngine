@@ -5,31 +5,34 @@
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzParticleGenerator::NzParticleGenerator(const NzParticleGenerator& generator) :
-NzRefCounted()
+namespace Nz
 {
-	NazaraUnused(generator);
-}
-
-NzParticleGenerator::~NzParticleGenerator()
-{
-	OnParticleGeneratorRelease(this);
-}
-
-bool NzParticleGenerator::Initialize()
-{
-	if (!NzParticleGeneratorLibrary::Initialize())
+	ParticleGenerator::ParticleGenerator(const ParticleGenerator& generator) :
+	RefCounted()
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		NazaraUnused(generator);
 	}
 
-	return true;
-}
+	ParticleGenerator::~ParticleGenerator()
+	{
+		OnParticleGeneratorRelease(this);
+	}
 
-void NzParticleGenerator::Uninitialize()
-{
-	NzParticleGeneratorLibrary::Uninitialize();
-}
+	bool ParticleGenerator::Initialize()
+	{
+		if (!ParticleGeneratorLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
 
-NzParticleGeneratorLibrary::LibraryMap NzParticleGenerator::s_library;
+		return true;
+	}
+
+	void ParticleGenerator::Uninitialize()
+	{
+		ParticleGeneratorLibrary::Uninitialize();
+	}
+
+	ParticleGeneratorLibrary::LibraryMap ParticleGenerator::s_library;
+}

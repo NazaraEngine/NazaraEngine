@@ -9,7 +9,7 @@
 
 namespace Ndk
 {
-	void GraphicsComponent::InvalidateRenderableData(const NzInstancedRenderable* renderable, nzUInt32 flags, unsigned int index)
+	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index)
 	{
 		NazaraAssert(index < m_renderables.size(), "Invalid renderable index");
 		NazaraUnused(renderable);
@@ -55,7 +55,7 @@ namespace Ndk
 		InvalidateTransformMatrix();
 	}
 
-	void GraphicsComponent::OnNodeInvalidated(const NzNode* node)
+	void GraphicsComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
 		NazaraUnused(node);
 
@@ -69,7 +69,7 @@ namespace Ndk
 
 		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
 
-		m_transformMatrix = NzMatrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_entity->GetComponent<NodeComponent>().GetTransformMatrix());
+		m_transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_entity->GetComponent<NodeComponent>().GetTransformMatrix());
 		m_transformMatrixUpdated = true;
 	}
 

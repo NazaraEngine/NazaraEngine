@@ -10,190 +10,193 @@
 
 ///TODO: Rendre les billboards via Deferred Shading si possible
 
-NzDeferredRenderQueue::NzDeferredRenderQueue(NzForwardRenderQueue* forwardQueue) :
-m_forwardQueue(forwardQueue)
+namespace Nz
 {
-}
-
-void NzDeferredRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
-{
-	m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
-}
-
-void NzDeferredRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
-{
-	m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
-}
-
-void NzDeferredRenderQueue::AddDrawable(const NzDrawable* drawable)
-{
-	m_forwardQueue->AddDrawable(drawable);
-}
-
-void NzDeferredRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
-{
-	if (material->IsEnabled(nzRendererParameter_Blend))
-		// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
-		m_forwardQueue->AddMesh(material, meshData, meshAABB, transformMatrix);
-	else
+	DeferredRenderQueue::DeferredRenderQueue(ForwardRenderQueue* forwardQueue) :
+	m_forwardQueue(forwardQueue)
 	{
-		auto it = opaqueModels.find(material);
-		if (it == opaqueModels.end())
-		{
-			BatchedModelEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &NzDeferredRenderQueue::OnMaterialInvalidation);
-
-			it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedModelEntry& entry = it->second;
-		entry.enabled = true;
-
-		auto& meshMap = entry.meshMap;
-
-		auto it2 = meshMap.find(meshData);
-		if (it2 == meshMap.end())
-		{
-			MeshInstanceEntry instanceEntry;
-			if (meshData.indexBuffer)
-				instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, &NzDeferredRenderQueue::OnIndexBufferInvalidation);
-
-			instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, &NzDeferredRenderQueue::OnVertexBufferInvalidation);
-
-			it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
-		}
-
-		// On ajoute la matrice à la liste des instances de cet objet
-		std::vector<NzMatrix4f>& instances = it2->second.instances;
-		instances.push_back(transformMatrix);
-
-		// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
-		if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-			entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
 	}
-}
 
-void NzDeferredRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
-{
-	m_forwardQueue->AddSprites(material, vertices, spriteCount, overlay);
-}
-
-void NzDeferredRenderQueue::Clear(bool fully)
-{
-	NzAbstractRenderQueue::Clear(fully);
-
-	if (fully)
-		opaqueModels.clear();
-
-	m_forwardQueue->Clear(fully);
-}
-
-void NzDeferredRenderQueue::OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer)
-{
-	for (auto& modelPair : opaqueModels)
+	void DeferredRenderQueue::AddBillboard(const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
 	{
-		MeshInstanceContainer& meshes = modelPair.second.meshMap;
-		for (auto it = meshes.begin(); it != meshes.end();)
+		m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+	}
+
+	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	{
+		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+	}
+
+	void DeferredRenderQueue::AddDrawable(const Drawable* drawable)
+	{
+		m_forwardQueue->AddDrawable(drawable);
+	}
+
+	void DeferredRenderQueue::AddMesh(const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	{
+		if (material->IsEnabled(RendererParameter_Blend))
+			// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
+			m_forwardQueue->AddMesh(material, meshData, meshAABB, transformMatrix);
+		else
 		{
-			const NzMeshData& renderData = it->first;
-			if (renderData.indexBuffer == indexBuffer)
-				it = meshes.erase(it);
-			else
-				++it;
+			auto it = opaqueModels.find(material);
+			if (it == opaqueModels.end())
+			{
+				BatchedModelEntry entry;
+				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &DeferredRenderQueue::OnMaterialInvalidation);
+
+				it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
+			}
+
+			BatchedModelEntry& entry = it->second;
+			entry.enabled = true;
+
+			auto& meshMap = entry.meshMap;
+
+			auto it2 = meshMap.find(meshData);
+			if (it2 == meshMap.end())
+			{
+				MeshInstanceEntry instanceEntry;
+				if (meshData.indexBuffer)
+					instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, &DeferredRenderQueue::OnIndexBufferInvalidation);
+
+				instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, &DeferredRenderQueue::OnVertexBufferInvalidation);
+
+				it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
+			}
+
+			// On ajoute la matrice à la liste des instances de cet objet
+			std::vector<Matrix4f>& instances = it2->second.instances;
+			instances.push_back(transformMatrix);
+
+			// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
+			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
+				entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
 		}
 	}
-}
 
-void NzDeferredRenderQueue::OnMaterialInvalidation(const NzMaterial* material)
-{
-	opaqueModels.erase(material);
-}
-
-void NzDeferredRenderQueue::OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer)
-{
-	for (auto& modelPair : opaqueModels)
+	void DeferredRenderQueue::AddSprites(const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
-		MeshInstanceContainer& meshes = modelPair.second.meshMap;
-		for (auto it = meshes.begin(); it != meshes.end();)
+		m_forwardQueue->AddSprites(material, vertices, spriteCount, overlay);
+	}
+
+	void DeferredRenderQueue::Clear(bool fully)
+	{
+		AbstractRenderQueue::Clear(fully);
+
+		if (fully)
+			opaqueModels.clear();
+
+		m_forwardQueue->Clear(fully);
+	}
+
+	void DeferredRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
+	{
+		for (auto& modelPair : opaqueModels)
 		{
-			const NzMeshData& renderData = it->first;
-			if (renderData.vertexBuffer == vertexBuffer)
-				it = meshes.erase(it);
-			else
-				++it;
+			MeshInstanceContainer& meshes = modelPair.second.meshMap;
+			for (auto it = meshes.begin(); it != meshes.end();)
+			{
+				const MeshData& renderData = it->first;
+				if (renderData.indexBuffer == indexBuffer)
+					it = meshes.erase(it);
+				else
+					++it;
+			}
 		}
 	}
-}
 
-bool NzDeferredRenderQueue::BatchedModelMaterialComparator::operator()(const NzMaterial* mat1, const NzMaterial* mat2) const
-{
-	const NzUberShader* uberShader1 = mat1->GetShader();
-	const NzUberShader* uberShader2 = mat2->GetShader();
-	if (uberShader1 != uberShader2)
-		return uberShader1 < uberShader2;
+	void DeferredRenderQueue::OnMaterialInvalidation(const Material* material)
+	{
+		opaqueModels.erase(material);
+	}
 
-	const NzShader* shader1 = mat1->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
-	const NzShader* shader2 = mat2->GetShaderInstance(nzShaderFlags_Deferred)->GetShader();
-	if (shader1 != shader2)
-		return shader1 < shader2;
+	void DeferredRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
+	{
+		for (auto& modelPair : opaqueModels)
+		{
+			MeshInstanceContainer& meshes = modelPair.second.meshMap;
+			for (auto it = meshes.begin(); it != meshes.end();)
+			{
+				const MeshData& renderData = it->first;
+				if (renderData.vertexBuffer == vertexBuffer)
+					it = meshes.erase(it);
+				else
+					++it;
+			}
+		}
+	}
 
-	const NzTexture* diffuseMap1 = mat1->GetDiffuseMap();
-	const NzTexture* diffuseMap2 = mat2->GetDiffuseMap();
-	if (diffuseMap1 != diffuseMap2)
-		return diffuseMap1 < diffuseMap2;
+	bool DeferredRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
+	{
+		const UberShader* uberShader1 = mat1->GetShader();
+		const UberShader* uberShader2 = mat2->GetShader();
+		if (uberShader1 != uberShader2)
+			return uberShader1 < uberShader2;
 
-	return mat1 < mat2;
-}
+		const Shader* shader1 = mat1->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
+		const Shader* shader2 = mat2->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
+		if (shader1 != shader2)
+			return shader1 < shader2;
 
-bool NzDeferredRenderQueue::MeshDataComparator::operator()(const NzMeshData& data1, const NzMeshData& data2) const
-{
-	const NzBuffer* buffer1;
-	const NzBuffer* buffer2;
+		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
+		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
+		if (diffuseMap1 != diffuseMap2)
+			return diffuseMap1 < diffuseMap2;
 
-	buffer1 = (data1.indexBuffer) ? data1.indexBuffer->GetBuffer() : nullptr;
-	buffer2 = (data2.indexBuffer) ? data2.indexBuffer->GetBuffer() : nullptr;
-	if (buffer1 != buffer2)
-		return buffer1 < buffer2;
+		return mat1 < mat2;
+	}
 
-	buffer1 = data1.vertexBuffer->GetBuffer();
-	buffer2 = data2.vertexBuffer->GetBuffer();
-	if (buffer1 != buffer2)
-		return buffer1 < buffer2;
+	bool DeferredRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
+	{
+		const Buffer* buffer1;
+		const Buffer* buffer2;
 
-	return data1.primitiveMode < data2.primitiveMode;
+		buffer1 = (data1.indexBuffer) ? data1.indexBuffer->GetBuffer() : nullptr;
+		buffer2 = (data2.indexBuffer) ? data2.indexBuffer->GetBuffer() : nullptr;
+		if (buffer1 != buffer2)
+			return buffer1 < buffer2;
+
+		buffer1 = data1.vertexBuffer->GetBuffer();
+		buffer2 = data2.vertexBuffer->GetBuffer();
+		if (buffer1 != buffer2)
+			return buffer1 < buffer2;
+
+		return data1.primitiveMode < data2.primitiveMode;
+	}
 }

@@ -14,32 +14,35 @@
 
 struct NewtonWorld;
 
-class NAZARA_PHYSICS_API NzPhysWorld
+namespace Nz
 {
-	public:
-		NzPhysWorld();
-		NzPhysWorld(const NzPhysWorld&) = delete;
-		NzPhysWorld(NzPhysWorld&&) = delete; ///TODO
-		~NzPhysWorld();
+	class NAZARA_PHYSICS_API PhysWorld
+	{
+		public:
+			PhysWorld();
+			PhysWorld(const PhysWorld&) = delete;
+			PhysWorld(PhysWorld&&) = delete; ///TODO
+			~PhysWorld();
 
-		NzVector3f GetGravity() const;
-		NewtonWorld* GetHandle() const;
-		float GetStepSize() const;
+			Vector3f GetGravity() const;
+			NewtonWorld* GetHandle() const;
+			float GetStepSize() const;
 
-		void SetGravity(const NzVector3f& gravity);
-		void SetSolverModel(unsigned int model);
-		void SetStepSize(float stepSize);
+			void SetGravity(const Vector3f& gravity);
+			void SetSolverModel(unsigned int model);
+			void SetStepSize(float stepSize);
 
-		void Step(float timestep);
+			void Step(float timestep);
 
-		NzPhysWorld& operator=(const NzPhysWorld&) = delete;
-		NzPhysWorld& operator=(NzPhysWorld&&) = delete; ///TODO
+			PhysWorld& operator=(const PhysWorld&) = delete;
+			PhysWorld& operator=(PhysWorld&&) = delete; ///TODO
 
-	private:
-		NzVector3f m_gravity;
-		NewtonWorld* m_world;
-		float m_stepSize;
-		float m_timestepAccumulator;
-};
+		private:
+			Vector3f m_gravity;
+			NewtonWorld* m_world;
+			float m_stepSize;
+			float m_timestepAccumulator;
+	};
+}
 
 #endif // NAZARA_PHYSWORLD_HPP

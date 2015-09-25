@@ -15,9 +15,9 @@
 #undef NazaraMutexUnlock
 #undef NazaraNamedLock
 
-#define NazaraLock(mutex) NzLockGuard lock_mutex(mutex);
-#define NazaraMutex(name) NzMutex name;
-#define NazaraMutexAttrib(name, attribute) attribute NzMutex name;
+#define NazaraLock(mutex) Nz::LockGuard lock_mutex(mutex);
+#define NazaraMutex(name) Nz::Mutex name;
+#define NazaraMutexAttrib(name, attribute) attribute Mutex name;
 #define NazaraMutexLock(mutex) mutex.Lock();
 #define NazaraMutexUnlock(mutex) mutex.Unlock();
-#define NazaraNamedLock(mutex, name) NzLockGuard lock_##name(mutex);
+#define NazaraNamedLock(mutex, name) Nz::LockGuard lock_##name(mutex);

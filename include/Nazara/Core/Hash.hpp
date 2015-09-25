@@ -12,22 +12,25 @@
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 
-class NAZARA_CORE_API NzHash
+namespace Nz
 {
-	public:
-		NzHash(nzHash hash);
-		NzHash(NzAbstractHash* hashImpl);
-		NzHash(const NzHash&) = delete;
-		NzHash(NzHash&&) = delete; ///TODO
-		~NzHash();
+	class NAZARA_CORE_API Hash
+	{
+		public:
+			Hash(HashType hash);
+			Hash(AbstractHash* hashImpl);
+			Hash(const Hash&) = delete;
+			Hash(Hash&&) = delete; ///TODO
+			~Hash();
 
-		NzHashDigest Hash(const NzHashable& hashable);
+			HashDigest Process(const Hashable& hashable);
 
-		NzHash& operator=(const NzHash&) = delete;
-		NzHash& operator=(NzHash&&) = delete; ///TODO
+			Hash& operator=(const Hash&) = delete;
+			Hash& operator=(Hash&&) = delete; ///TODO
 
-	private:
-		NzAbstractHash* m_impl;
-};
+		private:
+			AbstractHash* m_impl;
+	};
+}
 
 #endif // NAZARA_HASH_HPP

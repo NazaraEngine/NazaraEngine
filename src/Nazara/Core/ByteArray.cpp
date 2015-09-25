@@ -7,15 +7,18 @@
 #include <ostream>
 #include <Nazara/Core/Debug.hpp>
 
-std::ostream& operator<<(std::ostream& out, const NzByteArray& byteArray)
+namespace Nz
 {
-	out << byteArray.ToString();
-	return out;
-}
+	std::ostream& operator<<(std::ostream& out, const ByteArray& byteArray)
+	{
+		out << byteArray.ToString();
+		return out;
+	}
 
-bool NzByteArray::FillHash(NzAbstractHash* hash) const
-{
-	hash->Append(GetConstBuffer(), GetSize());
+	bool ByteArray::FillHash(AbstractHash* hash) const
+	{
+		hash->Append(GetConstBuffer(), GetSize());
 
-	return true;
+		return true;
+	}
 }

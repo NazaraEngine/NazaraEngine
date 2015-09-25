@@ -11,24 +11,27 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 
-class NzImage;
-class NzIconImpl;
-
-class NAZARA_UTILITY_API NzIcon
+namespace Nz
 {
-	friend class NzWindowImpl;
+	class Image;
+	class IconImpl;
 
-	public:
-		NzIcon();
-		~NzIcon();
+	class NAZARA_UTILITY_API Icon
+	{
+		friend class WindowImpl;
 
-		bool Create(const NzImage& icon);
-		void Destroy();
+		public:
+			Icon();
+			~Icon();
 
-		bool IsValid() const;
+			bool Create(const Image& icon);
+			void Destroy();
 
-	private:
-		NzIconImpl* m_impl;
-};
+			bool IsValid() const;
+
+		private:
+			IconImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_ICON_HPP

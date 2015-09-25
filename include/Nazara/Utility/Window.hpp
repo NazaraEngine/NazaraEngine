@@ -24,99 +24,102 @@
 #include <Nazara/Core/Mutex.hpp>
 #endif
 
-class NzCursor;
-class NzImage;
-class NzIcon;
-class NzWindowImpl;
-
-class NAZARA_UTILITY_API NzWindow
+namespace Nz
 {
-	friend NzWindowImpl;
-	friend class NzMouse;
-	friend class NzUtility;
+	class Cursor;
+	class Image;
+	class Icon;
+	class WindowImpl;
 
-	public:
-		NzWindow();
-		NzWindow(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
-		NzWindow(NzWindowHandle handle);
-		NzWindow(const NzWindow&) = delete;
-		NzWindow(NzWindow&&) = delete; ///TODO
-		virtual ~NzWindow();
+	class NAZARA_UTILITY_API Window
+	{
+		friend WindowImpl;
+		friend class Mouse;
+		friend class Utility;
 
-		void Close();
+		public:
+			Window();
+			Window(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			Window(WindowHandle handle);
+			Window(const Window&) = delete;
+			Window(Window&&) = delete; ///TODO
+			virtual ~Window();
 
-		bool Create(NzVideoMode mode, const NzString& title, nzUInt32 style = nzWindowStyle_Default);
-		bool Create(NzWindowHandle handle);
+			void Close();
 
-		void Destroy();
+			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			bool Create(WindowHandle handle);
 
-		void EnableKeyRepeat(bool enable);
-		void EnableSmoothScrolling(bool enable);
+			void Destroy();
 
-		NzWindowHandle GetHandle() const;
-		unsigned int GetHeight() const;
-		NzVector2i GetPosition() const;
-		NzVector2ui GetSize() const;
-		nzUInt32 GetStyle() const;
-		NzString GetTitle() const;
-		unsigned int GetWidth() const;
+			void EnableKeyRepeat(bool enable);
+			void EnableSmoothScrolling(bool enable);
 
-		bool HasFocus() const;
+			WindowHandle GetHandle() const;
+			unsigned int GetHeight() const;
+			Vector2i GetPosition() const;
+			Vector2ui GetSize() const;
+			UInt32 GetStyle() const;
+			String GetTitle() const;
+			unsigned int GetWidth() const;
 
-		bool IsMinimized() const;
-		bool IsOpen(bool checkClosed = true);
-		bool IsOpen() const;
-		bool IsValid() const;
-		bool IsVisible() const;
+			bool HasFocus() const;
 
-		bool PollEvent(NzEvent* event);
+			bool IsMinimized() const;
+			bool IsOpen(bool checkClosed = true);
+			bool IsOpen() const;
+			bool IsValid() const;
+			bool IsVisible() const;
 
-		void SetCursor(nzWindowCursor cursor);
-		void SetCursor(const NzCursor& cursor);
-		void SetEventListener(bool listener);
-		void SetFocus();
-		void SetIcon(const NzIcon& icon);
-		void SetMaximumSize(const NzVector2i& maxSize);
-		void SetMaximumSize(int width, int height);
-		void SetMinimumSize(const NzVector2i& minSize);
-		void SetMinimumSize(int width, int height);
-		void SetPosition(const NzVector2i& position);
-		void SetPosition(int x, int y);
-		void SetSize(const NzVector2i& size);
-		void SetSize(unsigned int width, unsigned int height);
-		void SetStayOnTop(bool stayOnTop);
-		void SetTitle(const NzString& title);
-		void SetVisible(bool visible);
+			bool PollEvent(WindowEvent* event);
 
-		bool WaitEvent(NzEvent* event);
+			void SetCursor(WindowCursor cursor);
+			void SetCursor(const Cursor& cursor);
+			void SetEventListener(bool listener);
+			void SetFocus();
+			void SetIcon(const Icon& icon);
+			void SetMaximumSize(const Vector2i& maxSize);
+			void SetMaximumSize(int width, int height);
+			void SetMinimumSize(const Vector2i& minSize);
+			void SetMinimumSize(int width, int height);
+			void SetPosition(const Vector2i& position);
+			void SetPosition(int x, int y);
+			void SetSize(const Vector2i& size);
+			void SetSize(unsigned int width, unsigned int height);
+			void SetStayOnTop(bool stayOnTop);
+			void SetTitle(const String& title);
+			void SetVisible(bool visible);
 
-		NzWindow& operator=(const NzWindow&) = delete;
-		NzWindow& operator=(NzWindow&&) = delete; ///TODO
+			bool WaitEvent(WindowEvent* event);
 
-	protected:
-		virtual bool OnWindowCreated();
-		virtual void OnWindowDestroy();
-		virtual void OnWindowResized();
+			Window& operator=(const Window&) = delete;
+			Window& operator=(Window&&) = delete; ///TODO
 
-		NzWindowImpl* m_impl;
+		protected:
+			virtual bool OnWindowCreated();
+			virtual void OnWindowDestroy();
+			virtual void OnWindowResized();
 
-	private:
-		void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
-		void PushEvent(const NzEvent& event);
+			WindowImpl* m_impl;
 
-		static bool Initialize();
-		static void Uninitialize();
+		private:
+			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
+			void PushEvent(const WindowEvent& event);
 
-		std::queue<NzEvent> m_events;
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		NzConditionVariable m_eventCondition;
-		NzMutex m_eventMutex;
-		NzMutex m_eventConditionMutex;
-		bool m_eventListener;
-		bool m_waitForEvent;
-		#endif
-		bool m_closed;
-		bool m_ownsWindow;
-};
+			static bool Initialize();
+			static void Uninitialize();
+
+			std::queue<WindowEvent> m_events;
+			#if NAZARA_UTILITY_THREADED_WINDOW
+			ConditionVariable m_eventCondition;
+			Mutex m_eventMutex;
+			Mutex m_eventConditionMutex;
+			bool m_eventListener;
+			bool m_waitForEvent;
+			#endif
+			bool m_closed;
+			bool m_ownsWindow;
+	};
+}
 
 #endif // NAZARA_WINDOW_HPP

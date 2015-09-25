@@ -11,6 +11,9 @@
 #include <ctime>
 #include <windows.h>
 
-time_t NzFileTimeToTime(FILETIME* time);
+namespace Nz
+{
+	time_t FileTimeToTime(FILETIME* time);
+}
 
 #endif // NAZARA_WINDOWS_TIME_HPP

@@ -15,40 +15,43 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_GRAPHICS_API NzDeferredBloomPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredBloomPass();
-		virtual ~NzDeferredBloomPass();
+	class NAZARA_GRAPHICS_API DeferredBloomPass : public DeferredRenderPass
+	{
+		public:
+			DeferredBloomPass();
+			virtual ~DeferredBloomPass();
 
-		unsigned int GetBlurPassCount() const;
-		float GetBrightLuminance() const;
-		float GetBrightMiddleGrey() const;
-		float GetBrightThreshold() const;
-		NzTexture* GetTexture(unsigned int i) const;
+			unsigned int GetBlurPassCount() const;
+			float GetBrightLuminance() const;
+			float GetBrightMiddleGrey() const;
+			float GetBrightThreshold() const;
+			Texture* GetTexture(unsigned int i) const;
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
-		bool Resize(const NzVector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Resize(const Vector2ui& dimensions);
 
-		void SetBlurPassCount(unsigned int passCount);
-		void SetBrightLuminance(float luminance);
-		void SetBrightMiddleGrey(float middleGrey);
-		void SetBrightThreshold(float threshold);
+			void SetBlurPassCount(unsigned int passCount);
+			void SetBrightLuminance(float luminance);
+			void SetBrightMiddleGrey(float middleGrey);
+			void SetBrightThreshold(float threshold);
 
-	protected:
-		NzRenderStates m_bloomStates;
-		NzRenderTexture m_bloomRTT;
-		NzShaderRef m_bloomBrightShader;
-		NzShaderRef m_bloomFinalShader;
-		NzShaderRef m_gaussianBlurShader;
-		NzTextureRef m_bloomTextures[2];
-		NzTextureSampler m_bilinearSampler;
-		mutable bool m_uniformUpdated;
-		float m_brightLuminance;
-		float m_brightMiddleGrey;
-		float m_brightThreshold;
-		int m_gaussianBlurShaderFilterLocation;
-		unsigned int m_blurPassCount;
-};
+		protected:
+			RenderStates m_bloomStates;
+			RenderTexture m_bloomRTT;
+			ShaderRef m_bloomBrightShader;
+			ShaderRef m_bloomFinalShader;
+			ShaderRef m_gaussianBlurShader;
+			TextureRef m_bloomTextures[2];
+			TextureSampler m_bilinearSampler;
+			mutable bool m_uniformUpdated;
+			float m_brightLuminance;
+			float m_brightMiddleGrey;
+			float m_brightThreshold;
+			int m_gaussianBlurShaderFilterLocation;
+			unsigned int m_blurPassCount;
+	};
+}
 
 #endif // NAZARA_DEFERREDBLOOMPASS_HPP

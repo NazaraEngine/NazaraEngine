@@ -17,43 +17,46 @@
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 
-struct NzSkinningData
+namespace Nz
 {
-	const NzJoint* joints;
-	const NzSkeletalMeshVertex* inputVertex;
-	NzMeshVertex* outputVertex;
-};
+	struct SkinningData
+	{
+		const Joint* joints;
+		const SkeletalMeshVertex* inputVertex;
+		MeshVertex* outputVertex;
+	};
 
-struct NzVertexPointers
-{
-	NzSparsePtr<NzVector3f> normalPtr;
-	NzSparsePtr<NzVector3f> positionPtr;
-	NzSparsePtr<NzVector3f> tangentPtr;
-	NzSparsePtr<NzVector2f> uvPtr;
-};
+	struct VertexPointers
+	{
+		SparsePtr<Vector3f> normalPtr;
+		SparsePtr<Vector3f> positionPtr;
+		SparsePtr<Vector3f> tangentPtr;
+		SparsePtr<Vector2f> uvPtr;
+	};
 
-NAZARA_UTILITY_API NzBoxf NzComputeAABB(NzSparsePtr<const NzVector3f> positionPtr, unsigned int vertexCount);
-NAZARA_UTILITY_API void NzComputeBoxIndexVertexCount(const NzVector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
-NAZARA_UTILITY_API unsigned int NzComputeCacheMissCount(NzIndexIterator indices, unsigned int indexCount);
-NAZARA_UTILITY_API void NzComputeConeIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
-NAZARA_UTILITY_API void NzComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
-NAZARA_UTILITY_API void NzComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, unsigned int* indexCount, unsigned int* vertexCount);
-NAZARA_UTILITY_API void NzComputePlaneIndexVertexCount(const NzVector2ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
-NAZARA_UTILITY_API void NzComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, unsigned int vertexCount);
+	NAZARA_UTILITY_API void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API unsigned int ComputeCacheMissCount(IndexIterator indices, unsigned int indexCount);
+	NAZARA_UTILITY_API void ComputeConeIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount);
+	NAZARA_UTILITY_API void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, unsigned int* indexCount, unsigned int* vertexCount);
 
-NAZARA_UTILITY_API void NzGenerateBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_UTILITY_API void NzGenerateCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_UTILITY_API void NzGenerateCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_UTILITY_API void NzGenerateIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_UTILITY_API void NzGeneratePlane(const NzVector2ui& subdivision, const NzVector2f& size, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
-NAZARA_UTILITY_API void NzGenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& matrix, const NzRectf& textureCoords, NzVertexPointers vertexPointers, NzIndexIterator indices, NzBoxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
 
-NAZARA_UTILITY_API void NzOptimizeIndices(NzIndexIterator indices, unsigned int indexCount);
+	NAZARA_UTILITY_API void OptimizeIndices(IndexIterator indices, unsigned int indexCount);
 
-NAZARA_UTILITY_API void NzSkinPosition(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
-NAZARA_UTILITY_API void NzSkinPositionNormal(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
-NAZARA_UTILITY_API void NzSkinPositionNormalTangent(const NzSkinningData& data, unsigned int startVertex, unsigned int vertexCount);
+	NAZARA_UTILITY_API void SkinPosition(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
+	NAZARA_UTILITY_API void SkinPositionNormal(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
+	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
-NAZARA_UTILITY_API void NzTransformVertices(NzVertexPointers vertexPointers, unsigned int vertexCount, const NzMatrix4f& matrix);
+	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
+}
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP

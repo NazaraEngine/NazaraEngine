@@ -12,86 +12,89 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 
-class NzLight;
-struct NzLightUniforms;
-
-class NAZARA_GRAPHICS_API NzLight : public NzRenderable
+namespace Nz
 {
-	public:
-		NzLight(nzLightType type = nzLightType_Point);
-		NzLight(const NzLight& light) = default;
-		~NzLight() = default;
+	class Light;
+	struct LightUniforms;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
-
-		NzLight* Clone() const;
-		NzLight* Create() const;
-
-		bool Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const override;
-
-		float GetAmbientFactor() const;
-		float GetAttenuation() const;
-		NzColor GetColor() const;
-		float GetDiffuseFactor() const;
-		float GetInnerAngle() const;
-		float GetInnerAngleCosine() const;
-		float GetInvRadius() const;
-		nzLightType GetLightType() const;
-		float GetOuterAngle() const;
-		float GetOuterAngleCosine() const;
-		float GetOuterAngleTangent() const;
-		float GetRadius() const;
-
-		void SetAmbientFactor(float factor);
-		void SetAttenuation(float attenuation);
-		void SetColor(const NzColor& color);
-		void SetDiffuseFactor(float factor);
-		void SetInnerAngle(float innerAngle);
-		void SetLightType(nzLightType type);
-		void SetOuterAngle(float outerAngle);
-		void SetRadius(float radius);
-
-		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
-
-		NzLight& operator=(const NzLight& light) = default;
-
-	private:
-		void MakeBoundingVolume() const override;
-
-		nzLightType m_type;
-		NzColor m_color;
-		float m_ambientFactor;
-		float m_attenuation;
-		float m_diffuseFactor;
-		float m_innerAngle;
-		float m_innerAngleCosine;
-		float m_invRadius;
-		float m_outerAngle;
-		float m_outerAngleCosine;
-		float m_outerAngleTangent;
-		float m_radius;
-};
-
-struct NzLightUniforms
-{
-	struct UniformLocations
+	class NAZARA_GRAPHICS_API Light : public Renderable
 	{
-		int type;
-		int color;
-		int factors;
-		int parameters1;
-		int parameters2;
-		int parameters3;
+		public:
+			Light(LightType type = LightType_Point);
+			Light(const Light& light) = default;
+			~Light() = default;
+
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const override;
+
+			Light* Clone() const;
+			Light* Create() const;
+
+			bool Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const override;
+
+			float GetAmbientFactor() const;
+			float GetAttenuation() const;
+			Color GetColor() const;
+			float GetDiffuseFactor() const;
+			float GetInnerAngle() const;
+			float GetInnerAngleCosine() const;
+			float GetInvRadius() const;
+			LightType GetLightType() const;
+			float GetOuterAngle() const;
+			float GetOuterAngleCosine() const;
+			float GetOuterAngleTangent() const;
+			float GetRadius() const;
+
+			void SetAmbientFactor(float factor);
+			void SetAttenuation(float attenuation);
+			void SetColor(const Color& color);
+			void SetDiffuseFactor(float factor);
+			void SetInnerAngle(float innerAngle);
+			void SetLightType(LightType type);
+			void SetOuterAngle(float outerAngle);
+			void SetRadius(float radius);
+
+			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
+
+			Light& operator=(const Light& light) = default;
+
+		private:
+			void MakeBoundingVolume() const override;
+
+			LightType m_type;
+			Color m_color;
+			float m_ambientFactor;
+			float m_attenuation;
+			float m_diffuseFactor;
+			float m_innerAngle;
+			float m_innerAngleCosine;
+			float m_invRadius;
+			float m_outerAngle;
+			float m_outerAngleCosine;
+			float m_outerAngleTangent;
+			float m_radius;
 	};
 
-	bool ubo;
-
-	union
+	struct LightUniforms
 	{
-		UniformLocations locations;
-		int blockLocation;
+		struct UniformLocations
+		{
+			int type;
+			int color;
+			int factors;
+			int parameters1;
+			int parameters2;
+			int parameters3;
+		};
+
+		bool ubo;
+
+		union
+		{
+			UniformLocations locations;
+			int blockLocation;
+		};
 	};
-};
+}
 
 #include <Nazara/Graphics/Light.inl>
 

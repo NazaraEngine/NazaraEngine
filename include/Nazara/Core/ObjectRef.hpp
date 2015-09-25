@@ -11,37 +11,40 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>
 
-template<typename T>
-class NzObjectRef
+namespace Nz
 {
-	static_assert(std::is_base_of<NzRefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
+	template<typename T>
+	class ObjectRef
+	{
+		static_assert(std::is_base_of<RefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
 
-	public:
-		NzObjectRef();
-		NzObjectRef(T* object);
-		NzObjectRef(const NzObjectRef& ref);
-		template<typename U> NzObjectRef(const NzObjectRef<U>& ref);
-		NzObjectRef(NzObjectRef&& ref) noexcept;
-		~NzObjectRef();
+		public:
+			ObjectRef();
+			ObjectRef(T* object);
+			ObjectRef(const ObjectRef& ref);
+			template<typename U> ObjectRef(const ObjectRef<U>& ref);
+			ObjectRef(ObjectRef&& ref) noexcept;
+			~ObjectRef();
 
-		T* Get() const;
-		bool IsValid() const;
-		T* Release();
-		bool Reset(T* object = nullptr);
-		NzObjectRef& Swap(NzObjectRef& ref);
+			T* Get() const;
+			bool IsValid() const;
+			T* Release();
+			bool Reset(T* object = nullptr);
+			ObjectRef& Swap(ObjectRef& ref);
 
-		operator bool() const;
-		operator T*() const;
-		T* operator->() const;
+			operator bool() const;
+			operator T*() const;
+			T* operator->() const;
 
-		NzObjectRef& operator=(T* object);
-		NzObjectRef& operator=(const NzObjectRef& ref);
-		template<typename U> NzObjectRef& operator=(const NzObjectRef<U>& ref);
-		NzObjectRef& operator=(NzObjectRef&& ref) noexcept;
+			ObjectRef& operator=(T* object);
+			ObjectRef& operator=(const ObjectRef& ref);
+			template<typename U> ObjectRef& operator=(const ObjectRef<U>& ref);
+			ObjectRef& operator=(ObjectRef&& ref) noexcept;
 
-	private:
-		T* m_object;
-};
+		private:
+			T* m_object;
+	};
+}
 
 #include <Nazara/Core/ObjectRef.inl>
 

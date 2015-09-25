@@ -9,14 +9,17 @@
 
 #include <Nazara/Core/Color.hpp>
 
-class NzAbstractBackground;
-class NzAbstractViewer;
-
-struct NzSceneData
+namespace Nz
 {
-	NzColor ambientColor;
-	const NzAbstractBackground* background;
-	const NzAbstractViewer* viewer;
-};
+	class AbstractBackground;
+	class AbstractViewer;
+
+	struct SceneData
+	{
+		Color ambientColor;
+		const AbstractBackground* background;
+		const AbstractViewer* viewer;
+	};
+}
 
 #endif // NAZARA_SCENEDATA_HPP

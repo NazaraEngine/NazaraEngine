@@ -7,64 +7,66 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	NzRenderStates BuildRenderStates()
+	namespace
 	{
-		NzRenderStates states;
-		states.depthFunc = nzRendererComparison_Equal;
-		states.faceCulling = nzFaceSide_Back;
-		states.parameters[nzRendererParameter_DepthBuffer] = true;
-		states.parameters[nzRendererParameter_DepthWrite] = false;
-		states.parameters[nzRendererParameter_FaceCulling] = true;
+		RenderStates BuildRenderStates()
+		{
+			RenderStates states;
+			states.depthFunc = RendererComparison_Equal;
+			states.faceCulling = FaceSide_Back;
+			states.parameters[RendererParameter_DepthBuffer] = true;
+			states.parameters[RendererParameter_DepthWrite] = false;
+			states.parameters[RendererParameter_FaceCulling] = true;
 
-		return states;
+			return states;
+		}
+	}
+
+	ColorBackground::ColorBackground(const Color& color) :
+	m_color(color)
+	{
+		m_uberShader = UberShaderLibrary::Get("Basic");
+
+		ParameterList list;
+		list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
+		m_uberShaderInstance = m_uberShader->Get(list);
+
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
+		m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
+	}
+
+	void ColorBackground::Draw(const AbstractViewer* viewer) const
+	{
+		NazaraUnused(viewer);
+
+		static RenderStates states(BuildRenderStates());
+
+		Renderer::SetRenderStates(states);
+
+		m_uberShaderInstance->Activate();
+
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		shader->SendColor(m_materialDiffuseUniform, m_color);
+		shader->SendFloat(m_vertexDepthUniform, 1.f);
+
+		Renderer::DrawFullscreenQuad();
+	}
+
+	BackgroundType ColorBackground::GetBackgroundType() const
+	{
+		return BackgroundType_Color;
+	}
+
+	Color ColorBackground::GetColor() const
+	{
+		return m_color;
+	}
+
+	void ColorBackground::SetColor(const Color& color)
+	{
+		m_color = color;
 	}
 }
-
-NzColorBackground::NzColorBackground(const NzColor& color) :
-m_color(color)
-{
-	m_uberShader = NzUberShaderLibrary::Get("Basic");
-
-	NzParameterList list;
-	list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
-	m_uberShaderInstance = m_uberShader->Get(list);
-
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
-	m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
-}
-
-void NzColorBackground::Draw(const NzAbstractViewer* viewer) const
-{
-	NazaraUnused(viewer);
-
-	static NzRenderStates states(BuildRenderStates());
-
-	NzRenderer::SetRenderStates(states);
-
-	m_uberShaderInstance->Activate();
-
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	shader->SendColor(m_materialDiffuseUniform, m_color);
-	shader->SendFloat(m_vertexDepthUniform, 1.f);
-
-	NzRenderer::DrawFullscreenQuad();
-}
-
-nzBackgroundType NzColorBackground::GetBackgroundType() const
-{
-	return nzBackgroundType_Color;
-}
-
-NzColor NzColorBackground::GetColor() const
-{
-	return m_color;
-}
-
-void NzColorBackground::SetColor(const NzColor& color)
-{
-	m_color = color;
-}
-

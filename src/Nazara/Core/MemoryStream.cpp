@@ -7,47 +7,50 @@
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
-NzMemoryStream::NzMemoryStream(const void* ptr, nzUInt64 size) :
-m_ptr(reinterpret_cast<const nzUInt8*>(ptr)),
-m_pos(0),
-m_size(size)
+namespace Nz
 {
-}
+	MemoryStream::MemoryStream(const void* ptr, UInt64 size) :
+	m_ptr(reinterpret_cast<const UInt8*>(ptr)),
+	m_pos(0),
+	m_size(size)
+	{
+	}
 
-NzMemoryStream::~NzMemoryStream()
-{
-}
+	MemoryStream::~MemoryStream()
+	{
+	}
 
-bool NzMemoryStream::EndOfStream() const
-{
-	return m_pos == m_size;
-}
+	bool MemoryStream::EndOfStream() const
+	{
+		return m_pos == m_size;
+	}
 
-nzUInt64 NzMemoryStream::GetCursorPos() const
-{
-	return m_pos;
-}
+	UInt64 MemoryStream::GetCursorPos() const
+	{
+		return m_pos;
+	}
 
-nzUInt64 NzMemoryStream::GetSize() const
-{
-	return m_size;
-}
+	UInt64 MemoryStream::GetSize() const
+	{
+		return m_size;
+	}
 
-std::size_t NzMemoryStream::Read(void* buffer, std::size_t size)
-{
-	unsigned int readSize = std::min(static_cast<unsigned int>(size), static_cast<unsigned int>(m_size-m_pos));
+	std::size_t MemoryStream::Read(void* buffer, std::size_t size)
+	{
+		unsigned int readSize = std::min(static_cast<unsigned int>(size), static_cast<unsigned int>(m_size-m_pos));
 
-	if (buffer)
-		std::memcpy(buffer, &m_ptr[m_pos], readSize);
+		if (buffer)
+			std::memcpy(buffer, &m_ptr[m_pos], readSize);
 
-	m_pos += readSize;
+		m_pos += readSize;
 
-	return readSize;
-}
+		return readSize;
+	}
 
-bool NzMemoryStream::SetCursorPos(nzUInt64 offset)
-{
-	m_pos = std::min(offset, m_size);
+	bool MemoryStream::SetCursorPos(UInt64 offset)
+	{
+		m_pos = std::min(offset, m_size);
 
-	return true;
+		return true;
+	}
 }

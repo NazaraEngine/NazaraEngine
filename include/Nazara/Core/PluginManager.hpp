@@ -14,34 +14,35 @@
 #include <unordered_map>
 
 ///TODO: Révision
-
-class NzDynLib;
-
-class NAZARA_CORE_API NzPluginManager
+namespace Nz
 {
-	public:
-		NzPluginManager() = delete;
-		~NzPluginManager() = delete;
+	class DynLib;
 
-		static void AddDirectory(const NzString& directoryPath);
+	class NAZARA_CORE_API PluginManager
+	{
+		public:
+			PluginManager() = delete;
+			~PluginManager() = delete;
 
-		static bool Initialize();
+			static void AddDirectory(const String& directoryPath);
 
-		static bool Mount(nzPlugin plugin);
-		static bool Mount(const NzString& pluginPath, bool appendExtension = true);
+			static bool Initialize();
 
-		static void RemoveDirectory(const NzString& directoryPath);
+			static bool Mount(Plugin plugin);
+			static bool Mount(const String& pluginPath, bool appendExtension = true);
 
-		static void Unmount(nzPlugin plugin);
-		static void Unmount(const NzString& pluginPath);
+			static void RemoveDirectory(const String& directoryPath);
 
-		static void Uninitialize();
+			static void Unmount(Plugin plugin);
+			static void Unmount(const String& pluginPath);
 
-	private:
-		static std::set<NzString> s_directories;
-		static std::unordered_map<NzString, NzDynLib*> s_plugins;
-		static bool s_initialized;
+			static void Uninitialize();
 
-};
+		private:
+			static std::set<String> s_directories;
+			static std::unordered_map<String, DynLib*> s_plugins;
+			static bool s_initialized;
+	};
+}
 
 #endif // NAZARA_PLUGINMANAGER_HPP

@@ -10,27 +10,30 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
 
-class NzAbstractHash;
-class NzHashDigest;
-
-class NAZARA_CORE_API NzHashable
+namespace Nz
 {
-	friend class NzHash;
+	class AbstractHash;
+	class HashDigest;
 
-	public:
-		NzHashable() = default;
-		NzHashable(const NzHashable&) = default;
-		NzHashable(NzHashable&&) = default;
-		virtual ~NzHashable();
+	class NAZARA_CORE_API Hashable
+	{
+		friend class Hash;
 
-		NzHashDigest GetHash(nzHash hash) const;
-		NzHashDigest GetHash(NzAbstractHash* impl) const;
+		public:
+			Hashable() = default;
+			Hashable(const Hashable&) = default;
+			Hashable(Hashable&&) = default;
+			virtual ~Hashable();
 
-		NzHashable& operator=(const NzHashable&) = default;
-		NzHashable& operator=(NzHashable&&) = default;
+			HashDigest GetHash(HashType hash) const;
+			HashDigest GetHash(AbstractHash* impl) const;
 
-	private:
-		virtual bool FillHash(NzAbstractHash* impl) const = 0;
-};
+			Hashable& operator=(const Hashable&) = default;
+			Hashable& operator=(Hashable&&) = default;
+
+		private:
+			virtual bool FillHash(AbstractHash* impl) const = 0;
+	};
+}
 
 #endif // HASHABLE_HPP_INCLUDED

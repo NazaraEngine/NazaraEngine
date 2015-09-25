@@ -10,15 +10,18 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_UTILITY_API NzJoystick
+namespace Nz
 {
-	public:
-		NzJoystick() = delete;
-		~NzJoystick() = delete;
+	class NAZARA_UTILITY_API Joystick
+	{
+		public:
+			Joystick() = delete;
+			~Joystick() = delete;
 
-		static unsigned int GetMaxJoystickCount();
+			static unsigned int GetMaxJoystickCount();
 
-		static void Update();
-};
+			static void Update();
+	};
+}
 
 #endif // NAZARA_JOYSTICK_HPP

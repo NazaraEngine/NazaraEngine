@@ -6,14 +6,17 @@
 #include <algorithm>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzUberShaderInstance::NzUberShaderInstance(const NzShader* shader) :
-m_shader(shader)
+namespace Nz
 {
-}
+	UberShaderInstance::UberShaderInstance(const Shader* shader) :
+	m_shader(shader)
+	{
+	}
 
-NzUberShaderInstance::~NzUberShaderInstance() = default;
+	UberShaderInstance::~UberShaderInstance() = default;
 
-const NzShader* NzUberShaderInstance::GetShader() const
-{
-	return m_shader;
+	const Shader* UberShaderInstance::GetShader() const
+	{
+		return m_shader;
+	}
 }

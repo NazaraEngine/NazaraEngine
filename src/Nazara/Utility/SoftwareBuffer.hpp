@@ -10,26 +10,29 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 
-class NzSoftwareBuffer : public NzAbstractBuffer
+namespace Nz
 {
-	public:
-		NzSoftwareBuffer(NzBuffer* parent, nzBufferType type);
-		~NzSoftwareBuffer();
+	class SoftwareBuffer : public AbstractBuffer
+	{
+		public:
+			SoftwareBuffer(Buffer* parent, BufferType type);
+			~SoftwareBuffer();
 
-		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
-		void Destroy();
+			bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static);
+			void Destroy();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
+			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
 
-		bool IsHardware() const;
+			bool IsHardware() const;
 
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-		bool Unmap();
+			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
+			bool Unmap();
 
-	private:
-		nzBufferType m_type;
-		nzUInt8* m_buffer;
-		bool m_mapped;
-};
+		private:
+			BufferType m_type;
+			UInt8* m_buffer;
+			bool m_mapped;
+	};
+}
 
 #endif // NAZARA_SOFTWAREBUFFER_HPP

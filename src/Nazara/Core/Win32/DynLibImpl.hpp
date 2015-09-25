@@ -11,25 +11,28 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <windows.h>
 
-class NzString;
-
-class NzDynLibImpl
+namespace Nz
 {
-	public:
-		NzDynLibImpl(NzDynLib* m_parent);
-		NzDynLibImpl(const NzDynLibImpl&) = delete;
-		NzDynLibImpl(NzDynLibImpl&&) = delete; ///TODO?
-		~NzDynLibImpl() = default;
+	class String;
 
-		NzDynLibFunc GetSymbol(const NzString& symbol, NzString* errorMessage) const;
-		bool Load(const NzString& libraryPath, NzString* errorMessage);
-		void Unload();
+	class DynLibImpl
+	{
+		public:
+			DynLibImpl(DynLib* m_parent);
+			DynLibImpl(const DynLibImpl&) = delete;
+			DynLibImpl(DynLibImpl&&) = delete; ///TODO?
+			~DynLibImpl() = default;
 
-		NzDynLibImpl& operator=(const NzDynLibImpl&) = delete;
-		NzDynLibImpl& operator=(NzDynLibImpl&&) = delete; ///TODO?
+			DynLibFunc GetSymbol(const String& symbol, String* errorMessage) const;
+			bool Load(const String& libraryPath, String* errorMessage);
+			void Unload();
 
-	private:
-		HMODULE m_handle;
-};
+			DynLibImpl& operator=(const DynLibImpl&) = delete;
+			DynLibImpl& operator=(DynLibImpl&&) = delete; ///TODO?
+
+		private:
+			HMODULE m_handle;
+	};
+}
 
 #endif // NAZARA_DYNLIBIMPL_HPP

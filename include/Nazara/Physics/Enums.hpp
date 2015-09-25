@@ -7,21 +7,21 @@
 #ifndef NAZARA_ENUMS_PHYSICS_HPP
 #define NAZARA_ENUMS_PHYSICS_HPP
 
-enum nzGeomType
+enum GeomType
 {
-	nzGeomType_Box,
-	nzGeomType_Capsule,
-	nzGeomType_Cone,
-	nzGeomType_Compound,
-	nzGeomType_ConvexHull,
-	nzGeomType_Cylinder,
-	nzGeomType_Heightfield,
-	nzGeomType_Null,
-	nzGeomType_Scene,
-	nzGeomType_Sphere,
-	nzGeomType_Tree,
+	GeomType_Box,
+	GeomType_Capsule,
+	GeomType_Cone,
+	GeomType_Compound,
+	GeomType_ConvexHull,
+	GeomType_Cylinder,
+	GeomType_Heightfield,
+	GeomType_Null,
+	GeomType_Scene,
+	GeomType_Sphere,
+	GeomType_Tree,
 
-	nzGeomType_Max = nzGeomType_Tree
+	GeomType_Max = GeomType_Tree
 };
 
 #endif // NAZARA_ENUMS_PHYSICS_HPP

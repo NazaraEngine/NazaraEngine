@@ -10,14 +10,17 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>
 
-class NAZARA_NOISE_API NzAbstract4DNoise : public NzMappedNoiseBase
+namespace Nz
 {
-	public:
-		virtual ~NzAbstract4DNoise();
+	class NAZARA_NOISE_API Abstract4DNoise : public MappedNoiseBase
+	{
+		public:
+			virtual ~Abstract4DNoise();
 
-		float GetBasicValue(float x, float y, float z, float w);
-		float GetMappedValue(float x, float y, float z, float w);
-		virtual float GetValue(float x, float y, float z, float w, float resolution) = 0;
-};
+			float GetBasicValue(float x, float y, float z, float w);
+			float GetMappedValue(float x, float y, float z, float w);
+			virtual float GetValue(float x, float y, float z, float w, float resolution) = 0;
+	};
+}
 
 #endif // NAZARA_ABSTRACT4DNOISE_HPP

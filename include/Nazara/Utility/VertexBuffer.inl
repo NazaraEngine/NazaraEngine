@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzVertexBufferRef NzVertexBuffer::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzVertexBuffer> object(new NzVertexBuffer(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	VertexBufferRef VertexBuffer::New(Args&&... args)
+	{
+		std::unique_ptr<VertexBuffer> object(new VertexBuffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

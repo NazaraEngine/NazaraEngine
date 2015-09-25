@@ -15,52 +15,54 @@
 
 ///TODO: Faire hériter SoundEmitter de Node
 
-class NAZARA_AUDIO_API NzSoundEmitter
+namespace Nz
 {
-	public:
-		virtual ~NzSoundEmitter();
+	class NAZARA_AUDIO_API SoundEmitter
+	{
+		public:
+			virtual ~SoundEmitter();
 
-		virtual void EnableLooping(bool loop) = 0;
-		void EnableSpatialization(bool spatialization);
+			virtual void EnableLooping(bool loop) = 0;
+			void EnableSpatialization(bool spatialization);
 
-		float GetAttenuation() const;
-		virtual nzUInt32 GetDuration() const = 0;
-		float GetMinDistance() const;
-		float GetPitch() const;
-		virtual nzUInt32 GetPlayingOffset() const = 0;
-		NzVector3f GetPosition() const;
-		NzVector3f GetVelocity() const;
-		virtual nzSoundStatus GetStatus() const = 0;
-		float GetVolume() const;
+			float GetAttenuation() const;
+			virtual UInt32 GetDuration() const = 0;
+			float GetMinDistance() const;
+			float GetPitch() const;
+			virtual UInt32 GetPlayingOffset() const = 0;
+			Vector3f GetPosition() const;
+			Vector3f GetVelocity() const;
+			virtual SoundStatus GetStatus() const = 0;
+			float GetVolume() const;
 
-		virtual bool IsLooping() const = 0;
-		bool IsSpatialized() const;
+			virtual bool IsLooping() const = 0;
+			bool IsSpatialized() const;
 
-		virtual void Pause() = 0;
-		virtual void Play() = 0;
+			virtual void Pause() = 0;
+			virtual void Play() = 0;
 
-		void SetAttenuation(float attenuation);
-		void SetMinDistance(float minDistance);
-		void SetPitch(float pitch);
-		void SetPosition(const NzVector3f& position);
-		void SetPosition(float x, float y, float z);
-		void SetVelocity(const NzVector3f& velocity);
-		void SetVelocity(float velX, float velY, float velZ);
-		void SetVolume(float volume);
+			void SetAttenuation(float attenuation);
+			void SetMinDistance(float minDistance);
+			void SetPitch(float pitch);
+			void SetPosition(const Vector3f& position);
+			void SetPosition(float x, float y, float z);
+			void SetVelocity(const Vector3f& velocity);
+			void SetVelocity(float velX, float velY, float velZ);
+			void SetVolume(float volume);
 
-		virtual void Stop() = 0;
+			virtual void Stop() = 0;
 
-		NzSoundEmitter& operator=(const NzSoundEmitter&) = delete; ///TODO
-		NzSoundEmitter& operator=(NzSoundEmitter&&) = delete; ///TODO
+			SoundEmitter& operator=(const SoundEmitter&) = delete; ///TODO
+			SoundEmitter& operator=(SoundEmitter&&) = delete; ///TODO
 
-	protected:
-		NzSoundEmitter();
-		NzSoundEmitter(const NzSoundEmitter& emitter);
-		NzSoundEmitter(NzSoundEmitter&&) = delete; ///TODO
+		protected:
+			SoundEmitter();
+			SoundEmitter(const SoundEmitter& emitter);
+			SoundEmitter(SoundEmitter&&) = delete; ///TODO
 
-		nzSoundStatus GetInternalStatus() const;
+			SoundStatus GetInternalStatus() const;
 
-		unsigned int m_source;
-};
-
+			unsigned int m_source;
+	};
+}
 #endif // NAZARA_SOUNDEMITTER_HPP

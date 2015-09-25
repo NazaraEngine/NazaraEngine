@@ -13,24 +13,24 @@
 
 void* operator new(std::size_t size, const char* file, unsigned int line)
 {
-	return NzMemoryManager::Allocate(size, false, file, line);
+	return Nz::MemoryManager::Allocate(size, false, file, line);
 }
 
 void* operator new[](std::size_t size, const char* file, unsigned int line)
 {
-	return NzMemoryManager::Allocate(size, true, file, line);
+	return Nz::MemoryManager::Allocate(size, true, file, line);
 }
 
 void operator delete(void* ptr, const char* file, unsigned int line) noexcept
 {
-	NzMemoryManager::NextFree(file, line);
-	NzMemoryManager::Free(ptr, false);
+	Nz::MemoryManager::NextFree(file, line);
+	Nz::MemoryManager::Free(ptr, false);
 }
 
 void operator delete[](void* ptr, const char* file, unsigned int line) noexcept
 {
-	NzMemoryManager::NextFree(file, line);
-	NzMemoryManager::Free(ptr, true);
+	Nz::MemoryManager::NextFree(file, line);
+	Nz::MemoryManager::Free(ptr, true);
 }
 
 #endif // NAZARA_CORE_MANAGE_MEMORY

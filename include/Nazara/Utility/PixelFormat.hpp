@@ -18,41 +18,44 @@
 ///      Ce serait plus lent que la conversion spécialisée (qui ne disparaîtra donc pas) mais ça permettrait au moteur de faire la conversion
 ///      entre n'importe quels formats non-compressés.
 
-class NzPixelFormat
+namespace Nz
 {
-	friend class NzUtility;
+	class NzPixelFormat
+	{
+		friend class Utility;
 
-	public:
-		using ConvertFunction = std::function<nzUInt8*(const nzUInt8* start, const nzUInt8* end, nzUInt8* dst)>;
-		using FlipFunction = std::function<void(unsigned int width, unsigned int height, unsigned int depth, const nzUInt8* src, nzUInt8* dst)>;
+		public:
+			using ConvertFunction = std::function<UInt8*(const UInt8* start, const UInt8* end, UInt8* dst)>;
+			using FlipFunction = std::function<void(unsigned int width, unsigned int height, unsigned int depth, const UInt8* src, UInt8* dst)>;
 
-		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* src, void* dst);
-		static bool Convert(nzPixelFormat srcFormat, nzPixelFormat dstFormat, const void* start, const void* end, void* dst);
+			static bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* src, void* dst);
+			static bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* start, const void* end, void* dst);
 
-		static bool Flip(nzPixelFlipping flipping, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
+			static bool Flip(PixelFlipping flipping, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
-		static nzUInt8 GetBitsPerPixel(nzPixelFormat format);
-		static nzUInt8 GetBytesPerPixel(nzPixelFormat format);
-		static nzPixelFormatType GetType(nzPixelFormat format);
+			static UInt8 GetBitsPerPixel(PixelFormatType format);
+			static UInt8 GetBytesPerPixel(PixelFormatType format);
+			static PixelFormatTypeType GetType(PixelFormatType format);
 
-		static bool HasAlpha(nzPixelFormat format);
+			static bool HasAlpha(PixelFormatType format);
 
-		static bool IsCompressed(nzPixelFormat format);
-		static bool IsConversionSupported(nzPixelFormat srcFormat, nzPixelFormat dstFormat);
-		static bool IsValid(nzPixelFormat format);
+			static bool IsCompressed(PixelFormatType format);
+			static bool IsConversionSupported(PixelFormatType srcFormat, PixelFormatType dstFormat);
+			static bool IsValid(PixelFormatType format);
 
-		static void SetConvertFunction(nzPixelFormat srcFormat, nzPixelFormat dstFormat, ConvertFunction func);
-		static void SetFlipFunction(nzPixelFlipping flipping, nzPixelFormat format, FlipFunction func);
+			static void SetConvertFunction(PixelFormatType srcFormat, PixelFormatType dstFormat, ConvertFunction func);
+			static void SetFlipFunction(PixelFlipping flipping, PixelFormatType format, FlipFunction func);
 
-		static NzString ToString(nzPixelFormat format);
+			static String ToString(PixelFormatType format);
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+		private:
+			static bool Initialize();
+			static void Uninitialize();
 
-		static NAZARA_UTILITY_API ConvertFunction s_convertFunctions[nzPixelFormat_Max+1][nzPixelFormat_Max+1];
-		static NAZARA_UTILITY_API std::map<nzPixelFormat, FlipFunction> s_flipFunctions[nzPixelFlipping_Max+1];
-};
+			static NAZARA_UTILITY_API ConvertFunction s_convertFunctions[PixelFormatType_Max+1][PixelFormatType_Max+1];
+			static NAZARA_UTILITY_API std::map<PixelFormatType, FlipFunction> s_flipFunctions[PixelFlipping_Max+1];
+	};
+}
 
 #include <Nazara/Utility/PixelFormat.inl>
 

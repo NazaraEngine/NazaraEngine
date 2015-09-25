@@ -13,82 +13,88 @@
 #include <set>
 #include <Nazara/Utility/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	int Read(void* userdata, char* data, int size)
+	namespace
 	{
-		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
-		return static_cast<int>(stream->Read(data, size));
-	}
-
-	void Skip(void* userdata, int size)
-	{
-		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
-		stream->SetCursorPos(static_cast<nzInt64>(stream->GetCursorPos()) + static_cast<nzInt64>(size));
-	}
-
-	int Eof(void* userdata)
-	{
-		NzInputStream* stream = static_cast<NzInputStream*>(userdata);
-		return stream->GetCursorPos() >= stream->GetSize();
-	}
-
-	static stbi_io_callbacks callbacks = {Read, Skip, Eof};
-
-	bool IsSupported(const NzString& extension)
-	{
-		static std::set<NzString> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
-		return supportedExtensions.find(extension) != supportedExtensions.end();
-	}
-
-	nzTernary Check(NzInputStream& stream, const NzImageParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		int width, height, bpp;
-		if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
-			return nzTernary_True;
-		else
-			return nzTernary_False;
-	}
-
-	bool Load(NzImage* image, NzInputStream& stream, const NzImageParams& parameters)
-	{
-		// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
-		// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
-
-		int width, height, bpp;
-		nzUInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
-		if (!ptr)
+		int Read(void* userdata, char* data, int size)
 		{
-			NazaraError("Failed to load image: " + NzString(stbi_failure_reason()));
-			return false;
+			InputStream* stream = static_cast<InputStream*>(userdata);
+			return static_cast<int>(stream->Read(data, size));
 		}
 
-		if (!image->Create(nzImageType_2D, nzPixelFormat_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+		void Skip(void* userdata, int size)
 		{
-			NazaraError("Failed to create image");
+			InputStream* stream = static_cast<InputStream*>(userdata);
+			stream->SetCursorPos(static_cast<Int64>(stream->GetCursorPos()) + static_cast<Int64>(size));
+		}
+
+		int Eof(void* userdata)
+		{
+			InputStream* stream = static_cast<InputStream*>(userdata);
+			return stream->GetCursorPos() >= stream->GetSize();
+		}
+
+		static stbi_io_callbacks callbacks = {Read, Skip, Eof};
+
+		bool IsSupported(const String& extension)
+		{
+			static std::set<String> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
+			return supportedExtensions.find(extension) != supportedExtensions.end();
+		}
+
+		Ternary Check(InputStream& stream, const ImageParams& parameters)
+		{
+			NazaraUnused(parameters);
+
+			int width, height, bpp;
+			if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
+				return Ternary_True;
+			else
+				return Ternary_False;
+		}
+
+		bool Load(Image* image, InputStream& stream, const ImageParams& parameters)
+		{
+			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
+			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
+
+			int width, height, bpp;
+			UInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
+			if (!ptr)
+			{
+				NazaraError("Failed to load image: " + String(stbi_failure_reason()));
+				return false;
+			}
+
+			if (!image->Create(ImageType_2D, PixelFormatType_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			{
+				NazaraError("Failed to create image");
+				stbi_image_free(ptr);
+
+				return false;
+			}
+
+			image->Update(ptr);
 			stbi_image_free(ptr);
 
-			return false;
+			if (parameters.loadFormat != PixelFormatType_Undefined)
+				image->Convert(parameters.loadFormat);
+
+			return true;
+		}
+	}
+
+	namespace Loaders
+	{
+		void RegisterSTB()
+		{
+			ImageLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		image->Update(ptr);
-		stbi_image_free(ptr);
-
-		if (parameters.loadFormat != nzPixelFormat_Undefined)
-			image->Convert(parameters.loadFormat);
-
-		return true;
+		void UnregisterSTB()
+		{
+			ImageLoader::UnregisterLoader(IsSupported, Check, Load);
+		}
 	}
-}
-
-void NzLoaders_STB_Register()
-{
-	NzImageLoader::RegisterLoader(IsSupported, Check, Load);
-}
-
-void NzLoaders_STB_Unregister()
-{
-	NzImageLoader::UnregisterLoader(IsSupported, Check, Load);
 }
