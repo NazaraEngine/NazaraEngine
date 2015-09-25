@@ -12,31 +12,34 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-struct NzParticleStruct_Billboard
+namespace Nz
 {
-	NzColor color;
-	NzVector3f normal;
-	NzVector3f position;
-	NzVector3f velocity;
-	nzUInt32 life;
-	float rotation;
-};
+	struct ParticleStruct_Billboard
+	{
+		Color color;
+		Vector3f normal;
+		Vector3f position;
+		Vector3f velocity;
+		UInt32 life;
+		float rotation;
+	};
 
-struct NzParticleStruct_Model
-{
-	NzVector3f position;
-	NzVector3f velocity;
-	nzUInt32 life;
-	NzQuaternionf rotation;
-};
+	struct ParticleStruct_Model
+	{
+		Vector3f position;
+		Vector3f velocity;
+		UInt32 life;
+		Quaternionf rotation;
+	};
 
-struct NzParticleStruct_Sprite
-{
-	NzColor color;
-	NzVector2f position;
-	NzVector2f velocity;
-	nzUInt32 life;
-	float rotation;
-};
+	struct ParticleStruct_Sprite
+	{
+		Color color;
+		Vector2f position;
+		Vector2f velocity;
+		UInt32 life;
+		float rotation;
+	};
+}
 
 #endif // NAZARA_PARTICLESTRUCT_HPP

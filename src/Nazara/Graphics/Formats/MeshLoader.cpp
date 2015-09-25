@@ -10,115 +10,122 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	nzTernary CheckStatic(NzInputStream& stream, const NzModelParameters& parameters)
+	namespace
 	{
-		NazaraUnused(stream);
-		NazaraUnused(parameters);
-
-		return nzTernary_Unknown;
-	}
-
-	bool LoadStatic(NzModel* model, NzInputStream& stream, const NzModelParameters& parameters)
-	{
-		NazaraUnused(parameters);
-
-		NzMeshRef mesh = NzMesh::New();
-		if (!mesh->LoadFromStream(stream, parameters.mesh))
+		Ternary CheckStatic(InputStream& stream, const ModelParameters& parameters)
 		{
-			NazaraError("Failed to load model mesh");
-			return false;
+			NazaraUnused(stream);
+			NazaraUnused(parameters);
+
+			return Ternary_Unknown;
 		}
 
-		if (mesh->IsAnimable())
+		bool LoadStatic(Model* model, InputStream& stream, const ModelParameters& parameters)
 		{
-			NazaraError("Can't load animated mesh into static model");
-			return false;
-		}
+			NazaraUnused(parameters);
 
-		model->Reset();
-		model->SetMesh(mesh);
-
-		if (parameters.loadMaterials)
-		{
-			unsigned int matCount = model->GetMaterialCount();
-
-			for (unsigned int i = 0; i < matCount; ++i)
+			MeshRef mesh = Mesh::New();
+			if (!mesh->LoadFromStream(stream, parameters.mesh))
 			{
-				NzString mat = mesh->GetMaterial(i);
-				if (!mat.IsEmpty())
+				NazaraError("Failed to load model mesh");
+				return false;
+			}
+
+			if (mesh->IsAnimable())
+			{
+				NazaraError("Can't load animated mesh into static model");
+				return false;
+			}
+
+			model->Reset();
+			model->SetMesh(mesh);
+
+			if (parameters.loadMaterials)
+			{
+				unsigned int matCount = model->GetMaterialCount();
+
+				for (unsigned int i = 0; i < matCount; ++i)
 				{
-					NzMaterialRef material = NzMaterial::New();
-					if (material->LoadFromFile(mat, parameters.material))
-						model->SetMaterial(i, material);
-					else
-						NazaraWarning("Failed to load material #" + NzString::Number(i));
+					String mat = mesh->GetMaterial(i);
+					if (!mat.IsEmpty())
+					{
+						MaterialRef material = Material::New();
+						if (material->LoadFromFile(mat, parameters.material))
+							model->SetMaterial(i, material);
+						else
+							NazaraWarning("Failed to load material #" + String::Number(i));
+					}
 				}
 			}
+
+			return true;
 		}
 
-		return true;
-	}
-
-	nzTernary CheckAnimated(NzInputStream& stream, const NzSkeletalModelParameters& parameters)
-	{
-		NazaraUnused(stream);
-		NazaraUnused(parameters);
-
-		return nzTernary_Unknown;
-	}
-
-	bool LoadAnimated(NzSkeletalModel* model, NzInputStream& stream, const NzSkeletalModelParameters& parameters)
-	{
-		NazaraUnused(parameters);
-
-		NzMeshRef mesh = NzMesh::New();
-		if (!mesh->LoadFromStream(stream, parameters.mesh))
+		Ternary CheckAnimated(InputStream& stream, const SkeletalModelParameters& parameters)
 		{
-			NazaraError("Failed to load model mesh");
-			return false;
+			NazaraUnused(stream);
+			NazaraUnused(parameters);
+
+			return Ternary_Unknown;
 		}
 
-		if (!mesh->IsAnimable())
+		bool LoadAnimated(SkeletalModel* model, InputStream& stream, const SkeletalModelParameters& parameters)
 		{
-			NazaraError("Can't load static mesh into animated model");
-			return false;
-		}
+			NazaraUnused(parameters);
 
-		model->Reset();
-		model->SetMesh(mesh);
-
-		if (parameters.loadMaterials)
-		{
-			unsigned int matCount = model->GetMaterialCount();
-
-			for (unsigned int i = 0; i < matCount; ++i)
+			MeshRef mesh = Mesh::New();
+			if (!mesh->LoadFromStream(stream, parameters.mesh))
 			{
-				NzString mat = mesh->GetMaterial(i);
-				if (!mat.IsEmpty())
+				NazaraError("Failed to load model mesh");
+				return false;
+			}
+
+			if (!mesh->IsAnimable())
+			{
+				NazaraError("Can't load static mesh into animated model");
+				return false;
+			}
+
+			model->Reset();
+			model->SetMesh(mesh);
+
+			if (parameters.loadMaterials)
+			{
+				unsigned int matCount = model->GetMaterialCount();
+
+				for (unsigned int i = 0; i < matCount; ++i)
 				{
-					NzMaterialRef material = NzMaterial::New();
-					if (material->LoadFromFile(mat, parameters.material))
-						model->SetMaterial(i, material);
-					else
-						NazaraWarning("Failed to load material #" + NzString::Number(i));
+					String mat = mesh->GetMaterial(i);
+					if (!mat.IsEmpty())
+					{
+						MaterialRef material = Material::New();
+						if (material->LoadFromFile(mat, parameters.material))
+							model->SetMaterial(i, material);
+						else
+							NazaraWarning("Failed to load material #" + String::Number(i));
+					}
 				}
 			}
+
+			return true;
+		}
+	}
+
+	namespace Loaders
+	{
+		void RegisterMesh()
+		{
+			ModelLoader::RegisterLoader(MeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
+			SkeletalModelLoader::RegisterLoader(MeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
 		}
 
-		return true;
+		void UnregisterMesh()
+		{
+			ModelLoader::UnregisterLoader(MeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
+			SkeletalModelLoader::UnregisterLoader(MeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
+		}
 	}
 }
 
-void NzLoaders_Mesh_Register()
-{
-	NzModelLoader::RegisterLoader(NzMeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
-	NzSkeletalModelLoader::RegisterLoader(NzMeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
-}
-
-void NzLoaders_Mesh_Unregister()
-{
-	NzModelLoader::UnregisterLoader(NzMeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
-	NzSkeletalModelLoader::UnregisterLoader(NzMeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
-}

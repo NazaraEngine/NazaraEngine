@@ -9,70 +9,73 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzIndexMapper;
-
-class NzIndexIterator
+namespace Nz
 {
-	friend NzIndexMapper;
+	class IndexMapper;
 
-	public:
-		class Reference;
+	class IndexIterator
+	{
+		friend IndexMapper;
 
-		NzIndexIterator();
-		NzIndexIterator(const NzIndexIterator& iterator);
-		~NzIndexIterator() = default;
+		public:
+			class Reference;
 
-		Reference operator*() const;
+			IndexIterator();
+			IndexIterator(const IndexIterator& iterator);
+			~IndexIterator() = default;
 
-		Reference operator[](unsigned int index) const;
+			Reference operator*() const;
 
-		NzIndexIterator& operator=(const NzIndexIterator& iterator);
+			Reference operator[](unsigned int index) const;
 
-		NzIndexIterator operator+(unsigned int indexCount) const;
-		NzIndexIterator operator-(unsigned int indexCount) const;
+			IndexIterator& operator=(const IndexIterator& iterator);
 
-		NzIndexIterator& operator+=(unsigned int indexCount);
-		NzIndexIterator& operator-=(unsigned int indexCount);
+			IndexIterator operator+(unsigned int indexCount) const;
+			IndexIterator operator-(unsigned int indexCount) const;
 
-		NzIndexIterator& operator++();
-		NzIndexIterator operator++(int);
+			IndexIterator& operator+=(unsigned int indexCount);
+			IndexIterator& operator-=(unsigned int indexCount);
 
-		NzIndexIterator& operator--();
-		NzIndexIterator operator--(int);
+			IndexIterator& operator++();
+			IndexIterator operator++(int);
 
-		friend bool operator==(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
-		friend bool operator!=(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
-		friend bool operator<(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
-		friend bool operator<=(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
-		friend bool operator>(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
-		friend bool operator>=(const NzIndexIterator& lhs, const NzIndexIterator& rhs);
+			IndexIterator& operator--();
+			IndexIterator operator--(int);
 
-	private:
-		NzIndexIterator(NzIndexMapper* mapper, unsigned int index);
+			friend bool operator==(const IndexIterator& lhs, const IndexIterator& rhs);
+			friend bool operator!=(const IndexIterator& lhs, const IndexIterator& rhs);
+			friend bool operator<(const IndexIterator& lhs, const IndexIterator& rhs);
+			friend bool operator<=(const IndexIterator& lhs, const IndexIterator& rhs);
+			friend bool operator>(const IndexIterator& lhs, const IndexIterator& rhs);
+			friend bool operator>=(const IndexIterator& lhs, const IndexIterator& rhs);
 
-		NzIndexMapper* m_mapper;
-		unsigned int m_index;
-};
+		private:
+			IndexIterator(IndexMapper* mapper, unsigned int index);
 
-class NzIndexIterator::Reference
-{
-	friend NzIndexIterator;
+			IndexMapper* m_mapper;
+			unsigned int m_index;
+	};
 
-	public:
-		Reference(const Reference& reference) = default;
-		~Reference() = default;
+	class IndexIterator::Reference
+	{
+		friend IndexIterator;
 
-		Reference& operator=(nzUInt32 value);
-		Reference& operator=(const Reference& reference);
+		public:
+			Reference(const Reference& reference) = default;
+			~Reference() = default;
 
-		operator nzUInt32() const;
+			Reference& operator=(UInt32 value);
+			Reference& operator=(const Reference& reference);
 
-	private:
-		Reference(NzIndexMapper* mapper, unsigned int index);
+			operator UInt32() const;
 
-		NzIndexMapper* m_mapper;
-		unsigned int m_index;
-};
+		private:
+			Reference(IndexMapper* mapper, unsigned int index);
+
+			IndexMapper* m_mapper;
+			unsigned int m_index;
+	};
+}
 
 #include <Nazara/Utility/IndexIterator.inl>
 

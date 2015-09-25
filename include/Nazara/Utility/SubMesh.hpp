@@ -16,45 +16,48 @@
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
-class NzMesh;
-class NzSubMesh;
-
-using NzSubMeshConstRef = NzObjectRef<const NzSubMesh>;
-using NzSubMeshRef = NzObjectRef<NzSubMesh>;
-
-class NAZARA_UTILITY_API NzSubMesh : public NzRefCounted
+namespace Nz
 {
-	friend NzMesh;
+	class Mesh;
+	class SubMesh;
 
-	public:
-		NzSubMesh(const NzMesh* parent);
-		virtual ~NzSubMesh();
+	using SubMeshConstRef = ObjectRef<const SubMesh>;
+	using SubMeshRef = ObjectRef<SubMesh>;
 
-		void GenerateNormals();
-		void GenerateNormalsAndTangents();
-		void GenerateTangents();
+	class NAZARA_UTILITY_API SubMesh : public RefCounted
+	{
+		friend Mesh;
 
-		virtual const NzBoxf& GetAABB() const = 0;
-		virtual nzAnimationType GetAnimationType() const = 0;
-		virtual const NzIndexBuffer* GetIndexBuffer() const = 0;
-		unsigned int GetMaterialIndex() const;
-		const NzMesh* GetParent() const;
-		nzPrimitiveMode GetPrimitiveMode() const;
-		unsigned int GetTriangleCount() const;
-		virtual unsigned int GetVertexCount() const = 0;
+		public:
+			SubMesh(const Mesh* parent);
+			virtual ~SubMesh();
 
-		virtual bool IsAnimated() const = 0;
+			void GenerateNormals();
+			void GenerateNormalsAndTangents();
+			void GenerateTangents();
 
-		void SetMaterialIndex(unsigned int matIndex);
-		void SetPrimitiveMode(nzPrimitiveMode mode);
+			virtual const Boxf& GetAABB() const = 0;
+			virtual AnimationType GetAnimationType() const = 0;
+			virtual const IndexBuffer* GetIndexBuffer() const = 0;
+			unsigned int GetMaterialIndex() const;
+			const Mesh* GetParent() const;
+			PrimitiveMode GetPrimitiveMode() const;
+			unsigned int GetTriangleCount() const;
+			virtual unsigned int GetVertexCount() const = 0;
 
-		// Signals:
-		NazaraSignal(OnSubMeshRelease, const NzSubMesh* /*subMesh*/);
+			virtual bool IsAnimated() const = 0;
 
-	protected:
-		nzPrimitiveMode m_primitiveMode;
-		const NzMesh* m_parent;
-		unsigned int m_matIndex;
-};
+			void SetMaterialIndex(unsigned int matIndex);
+			void SetPrimitiveMode(PrimitiveMode mode);
+
+			// Signals:
+			NazaraSignal(OnSubMeshRelease, const SubMesh* /*subMesh*/);
+
+		protected:
+			PrimitiveMode m_primitiveMode;
+			const Mesh* m_parent;
+			unsigned int m_matIndex;
+	};
+}
 
 #endif // NAZARA_SUBMESH_HPP

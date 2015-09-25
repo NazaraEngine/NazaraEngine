@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -20,152 +19,160 @@
 struct lua_Debug;
 struct lua_State;
 
-class NzLuaInstance;
-
-using NzLuaCFunction = int (*)(lua_State* state);
-using NzLuaFunction = std::function<int(NzLuaInstance& instance)>;
-
-class NAZARA_LUA_API NzLuaInstance : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzLuaInstance();
-		~NzLuaInstance();
+	class LuaInstance;
 
-		void ArgCheck(bool condition, unsigned int argNum, const char* error);
-		void ArgCheck(bool condition, unsigned int argNum, const NzString& error);
-		int ArgError(unsigned int argNum, const char* error);
-		int ArgError(unsigned int argNum, const NzString& error);
+	using LuaCFunction = int (*)(lua_State* state);
+	using LuaFunction = std::function<int(LuaInstance& instance)>;
 
-		bool Call(unsigned int argCount);
-		bool Call(unsigned int argCount, unsigned int resultCount);
+	class NAZARA_LUA_API LuaInstance
+	{
+		public:
+			LuaInstance();
+			LuaInstance(const LuaInstance&) = delete;
+			LuaInstance(LuaInstance&&) = delete; ///TODO
+			~LuaInstance();
 
-		void CheckAny(int index) const;
-		bool CheckBoolean(int index) const;
-		bool CheckBoolean(int index, bool defValue) const;
-		long long CheckInteger(int index) const;
-		long long CheckInteger(int index, long long defValue) const;
-		double CheckNumber(int index) const;
-		double CheckNumber(int index, double defValue) const;
-		void CheckStack(int space, const char* error = nullptr) const;
-		void CheckStack(int space, const NzString& error) const;
-		const char* CheckString(int index, std::size_t* length = nullptr) const;
-		const char* CheckString(int index, const char* defValue, std::size_t* length = nullptr) const;
-		void CheckType(int index, nzLuaType type) const;
-		void* CheckUserdata(int index, const char* tname) const;
-		void* CheckUserdata(int index, const NzString& tname) const;
+			void ArgCheck(bool condition, unsigned int argNum, const char* error);
+			void ArgCheck(bool condition, unsigned int argNum, const String& error);
+			int ArgError(unsigned int argNum, const char* error);
+			int ArgError(unsigned int argNum, const String& error);
 
-		bool Compare(int index1, int index2, nzLuaComparison comparison) const;
-		void Compute(nzLuaOperation operation);
+			bool Call(unsigned int argCount);
+			bool Call(unsigned int argCount, unsigned int resultCount);
 
-		void Concatenate(int count);
+			void CheckAny(int index) const;
+			bool CheckBoolean(int index) const;
+			bool CheckBoolean(int index, bool defValue) const;
+			long long CheckInteger(int index) const;
+			long long CheckInteger(int index, long long defValue) const;
+			double CheckNumber(int index) const;
+			double CheckNumber(int index, double defValue) const;
+			void CheckStack(int space, const char* error = nullptr) const;
+			void CheckStack(int space, const String& error) const;
+			const char* CheckString(int index, std::size_t* length = nullptr) const;
+			const char* CheckString(int index, const char* defValue, std::size_t* length = nullptr) const;
+			void CheckType(int index, LuaType type) const;
+			void* CheckUserdata(int index, const char* tname) const;
+			void* CheckUserdata(int index, const String& tname) const;
 
-		int CreateReference();
-		void DestroyReference(int ref);
+			bool Compare(int index1, int index2, LuaComparison comparison) const;
+			void Compute(LuaOperation operation);
 
-		NzString DumpStack() const;
+			void Concatenate(int count);
 
-		void Error(const char* message);
-		void Error(const NzString& message);
+			int CreateReference();
+			void DestroyReference(int ref);
 
-		bool Execute(const NzString& code);
-		bool ExecuteFromFile(const NzString& filePath);
-		bool ExecuteFromMemory(const void* data, unsigned int size);
-		bool ExecuteFromStream(NzInputStream& stream);
+			String DumpStack() const;
 
-		int GetAbsIndex(int index) const;
-		nzLuaType GetField(const char* fieldName, int index = -1) const;
-		nzLuaType GetField(const NzString& fieldName, int index = -1) const;
-		nzLuaType GetGlobal(const char* name) const;
-		nzLuaType GetGlobal(const NzString& name) const;
-		lua_State* GetInternalState() const;
-		NzString GetLastError() const;
-		nzUInt32 GetMemoryLimit() const;
-		nzUInt32 GetMemoryUsage() const;
-		nzLuaType GetMetatable(const char* tname) const;
-		nzLuaType GetMetatable(const NzString& tname) const;
-		bool GetMetatable(int index) const;
-		unsigned int GetStackTop() const;
-		nzLuaType GetTable(int index = -2) const;
-		nzUInt32 GetTimeLimit() const;
-		nzLuaType GetType(int index) const;
-		const char* GetTypeName(nzLuaType type) const;
+			void Error(const char* message);
+			void Error(const String& message);
 
-		void Insert(int index);
+			bool Execute(const String& code);
+			bool ExecuteFromFile(const String& filePath);
+			bool ExecuteFromMemory(const void* data, unsigned int size);
+			bool ExecuteFromStream(InputStream& stream);
 
-		bool IsOfType(int index, nzLuaType type) const;
-		bool IsOfType(int index, const char* tname) const;
-		bool IsOfType(int index, const NzString& tname) const;
-		bool IsValid(int index) const;
+			int GetAbsIndex(int index) const;
+			LuaType GetField(const char* fieldName, int index = -1) const;
+			LuaType GetField(const String& fieldName, int index = -1) const;
+			LuaType GetGlobal(const char* name) const;
+			LuaType GetGlobal(const String& name) const;
+			lua_State* GetInternalState() const;
+			String GetLastError() const;
+			UInt32 GetMemoryLimit() const;
+			UInt32 GetMemoryUsage() const;
+			LuaType GetMetatable(const char* tname) const;
+			LuaType GetMetatable(const String& tname) const;
+			bool GetMetatable(int index) const;
+			unsigned int GetStackTop() const;
+			LuaType GetTable(int index = -2) const;
+			UInt32 GetTimeLimit() const;
+			LuaType GetType(int index) const;
+			const char* GetTypeName(LuaType type) const;
 
-		long long Length(int index) const;
+			void Insert(int index);
 
-		void MoveTo(NzLuaInstance* instance, int n);
+			bool IsOfType(int index, LuaType type) const;
+			bool IsOfType(int index, const char* tname) const;
+			bool IsOfType(int index, const String& tname) const;
+			bool IsValid(int index) const;
 
-		bool NewMetatable(const char* str);
-		bool NewMetatable(const NzString& str);
-		bool Next(int index = -2);
+			long long Length(int index) const;
 
-		void Pop(unsigned int n = 1U);
+			void MoveTo(LuaInstance* instance, int n);
 
-		void PushBoolean(bool value);
-		void PushCFunction(NzLuaCFunction func, unsigned int upvalueCount = 0);
-		void PushFunction(NzLuaFunction func);
-		template<typename R, typename... Args> void PushFunction(R(*func)(Args...));
-		void PushInteger(long long value);
-		void PushLightUserdata(void* value);
-		void PushMetatable(const char* str);
-		void PushMetatable(const NzString& str);
-		void PushNil();
-		void PushNumber(double value);
-		void PushReference(int ref);
-		void PushString(const char* str);
-		void PushString(const char* str, unsigned int size);
-		void PushString(const NzString& str);
-		void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
-		void* PushUserdata(unsigned int size);
-		void PushValue(int index);
+			bool NewMetatable(const char* str);
+			bool NewMetatable(const String& str);
+			bool Next(int index = -2);
 
-		void Remove(int index);
-		void Replace(int index);
+			void Pop(unsigned int n = 1U);
 
-		void SetField(const char* name, int index = -2);
-		void SetField(const NzString& name, int index = -2);
-		void SetGlobal(const char* name);
-		void SetGlobal(const NzString& name);
-		void SetMetatable(const char* tname);
-		void SetMetatable(const NzString& tname);
-		void SetMetatable(int index);
-		void SetMemoryLimit(nzUInt32 memoryLimit);
-		void SetTable(int index = -3);
-		void SetTimeLimit(nzUInt32 timeLimit);
+			void PushBoolean(bool value);
+			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0);
+			void PushFunction(LuaFunction func);
+			template<typename R, typename... Args> void PushFunction(R(*func)(Args...));
+			void PushInteger(long long value);
+			void PushLightUserdata(void* value);
+			void PushMetatable(const char* str);
+			void PushMetatable(const String& str);
+			void PushNil();
+			void PushNumber(double value);
+			void PushReference(int ref);
+			void PushString(const char* str);
+			void PushString(const char* str, unsigned int size);
+			void PushString(const String& str);
+			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
+			void* PushUserdata(unsigned int size);
+			void PushValue(int index);
 
-		bool ToBoolean(int index) const;
-		long long ToInteger(int index, bool* succeeded = nullptr) const;
-		double ToNumber(int index, bool* succeeded = nullptr) const;
-		const void* ToPointer(int index) const;
-		const char* ToString(int index, std::size_t* length = nullptr) const;
-		void* ToUserdata(int index) const;
-		void* ToUserdata(int index, const char* tname) const;
-		void* ToUserdata(int index, const NzString& tname) const;
+			void Remove(int index);
+			void Replace(int index);
 
-		static int GetIndexOfUpValue(int upValue);
-		static NzLuaInstance* GetInstance(lua_State* state);
+			void SetField(const char* name, int index = -2);
+			void SetField(const String& name, int index = -2);
+			void SetGlobal(const char* name);
+			void SetGlobal(const String& name);
+			void SetMetatable(const char* tname);
+			void SetMetatable(const String& tname);
+			void SetMetatable(int index);
+			void SetMemoryLimit(UInt32 memoryLimit);
+			void SetTable(int index = -3);
+			void SetTimeLimit(UInt32 timeLimit);
 
-	private:
-		bool Run(int argCount, int resultCount);
+			bool ToBoolean(int index) const;
+			long long ToInteger(int index, bool* succeeded = nullptr) const;
+			double ToNumber(int index, bool* succeeded = nullptr) const;
+			const void* ToPointer(int index) const;
+			const char* ToString(int index, std::size_t* length = nullptr) const;
+			void* ToUserdata(int index) const;
+			void* ToUserdata(int index, const char* tname) const;
+			void* ToUserdata(int index, const String& tname) const;
 
-		static void* MemoryAllocator(void *ud, void *ptr, std::size_t osize, std::size_t nsize);
-		static int ProxyFunc(lua_State* state);
-		static void TimeLimiter(lua_State* state, lua_Debug* debug);
+			LuaInstance& operator=(const LuaInstance&) = delete;
+			LuaInstance& operator=(LuaInstance&&) = delete; ///TODO
 
-		nzUInt32 m_memoryLimit;
-		nzUInt32 m_memoryUsage;
-		nzUInt32 m_timeLimit;
-		NzClock m_clock;
-		NzString m_lastError;
-		lua_State* m_state;
-		unsigned int m_level;
-};
+			static int GetIndexOfUpValue(int upValue);
+			static LuaInstance* GetInstance(lua_State* state);
+
+		private:
+			bool Run(int argCount, int resultCount);
+
+			static void* MemoryAllocator(void *ud, void *ptr, std::size_t osize, std::size_t nsize);
+			static int ProxyFunc(lua_State* state);
+			static void TimeLimiter(lua_State* state, lua_Debug* debug);
+
+			UInt32 m_memoryLimit;
+			UInt32 m_memoryUsage;
+			UInt32 m_timeLimit;
+			Clock m_clock;
+			String m_lastError;
+			lua_State* m_state;
+			unsigned int m_level;
+	};
+}
 
 #include <Nazara/Lua/LuaInstance.inl>
 

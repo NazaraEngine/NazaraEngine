@@ -25,16 +25,16 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
-			inline const NzBackgroundRef& GetDefaultBackground() const;
-			inline const NzMatrix4f& GetCoordinateSystemMatrix() const;
-			inline NzVector3f GetGlobalForward() const;
-			inline NzVector3f GetGlobalRight() const;
-			inline NzVector3f GetGlobalUp() const;
+			inline const Nz::BackgroundRef& GetDefaultBackground() const;
+			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;
+			inline Nz::Vector3f GetGlobalForward() const;
+			inline Nz::Vector3f GetGlobalRight() const;
+			inline Nz::Vector3f GetGlobalUp() const;
 
-			inline void SetDefaultBackground(NzBackgroundRef background);
-			inline void SetGlobalForward(const NzVector3f& direction);
-			inline void SetGlobalRight(const NzVector3f& direction);
-			inline void SetGlobalUp(const NzVector3f& direction);
+			inline void SetDefaultBackground(Nz::BackgroundRef background);
+			inline void SetGlobalForward(const Nz::Vector3f& direction);
+			inline void SetGlobalRight(const Nz::Vector3f& direction);
+			inline void SetGlobalUp(const Nz::Vector3f& direction);
 
 			static SystemIndex systemIndex;
 
@@ -48,9 +48,9 @@ namespace Ndk
 			EntityList m_cameras;
 			EntityList m_drawables;
 			EntityList m_lights;
-			NzBackgroundRef m_background;
-			NzForwardRenderTechnique m_renderTechnique;
-			NzMatrix4f m_coordinateSystemMatrix;
+			Nz::BackgroundRef m_background;
+			Nz::ForwardRenderTechnique m_renderTechnique;
+			Nz::Matrix4f m_coordinateSystemMatrix;
 			bool m_coordinateSystemInvalidated;
 	};
 }

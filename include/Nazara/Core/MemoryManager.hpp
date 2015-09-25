@@ -11,32 +11,35 @@
 #include <cstdio>
 #include <cstring>
 
-class NAZARA_CORE_API NzMemoryManager
+namespace Nz
 {
-	public:
-		static void* Allocate(std::size_t size, bool multi = false, const char* file = nullptr, unsigned int line = 0);
+	class NAZARA_CORE_API MemoryManager
+	{
+		public:
+			static void* Allocate(std::size_t size, bool multi = false, const char* file = nullptr, unsigned int line = 0);
 
-		static void EnableAllocationFilling(bool allocationFilling);
-		static void EnableAllocationLogging(bool logAllocations);
+			static void EnableAllocationFilling(bool allocationFilling);
+			static void EnableAllocationLogging(bool logAllocations);
 
-		static void Free(void* pointer, bool multi = false);
+			static void Free(void* pointer, bool multi = false);
 
-		static unsigned int GetAllocatedBlockCount();
-		static std::size_t GetAllocatedSize();
-		static unsigned int GetAllocationCount();
+			static unsigned int GetAllocatedBlockCount();
+			static std::size_t GetAllocatedSize();
+			static unsigned int GetAllocationCount();
 
-		static bool IsAllocationFillingEnabled();
-		static bool IsAllocationLoggingEnabled();
+			static bool IsAllocationFillingEnabled();
+			static bool IsAllocationLoggingEnabled();
 
-		static void NextFree(const char* file, unsigned int line);
+			static void NextFree(const char* file, unsigned int line);
 
-	private:
-		NzMemoryManager();
-		~NzMemoryManager();
+		private:
+			MemoryManager();
+			~MemoryManager();
 
-		static void Initialize();
-		static void TimeInfo(char buffer[23]);
-		static void Uninitialize();
-};
+			static void Initialize();
+			static void TimeInfo(char buffer[23]);
+			static void Uninitialize();
+	};
+}
 
 #endif // NAZARA_MEMORYMANAGER_HPP

@@ -9,91 +9,94 @@
 #include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
-NzSkeletalMesh::NzSkeletalMesh(const NzMesh* parent) :
-NzSubMesh(parent)
+namespace Nz
 {
-}
-
-NzSkeletalMesh::~NzSkeletalMesh()
-{
-	OnSkeletalMeshRelease(this);
-
-	Destroy();
-}
-
-bool NzSkeletalMesh::Create(NzVertexBuffer* vertexBuffer)
-{
-	Destroy();
-
-	#if NAZARA_UTILITY_SAFE
-	if (!vertexBuffer)
+	SkeletalMesh::SkeletalMesh(const Mesh* parent) :
+	SubMesh(parent)
 	{
-		NazaraError("Invalid vertex buffer");
-		return false;
 	}
-	#endif
 
-	m_vertexBuffer = vertexBuffer;
-	return true;
-}
-
-void NzSkeletalMesh::Destroy()
-{
-	if (m_vertexBuffer)
+	SkeletalMesh::~SkeletalMesh()
 	{
-		OnSkeletalMeshDestroy(this);
+		OnSkeletalMeshRelease(this);
 
-		m_indexBuffer.Reset();
-		m_vertexBuffer.Reset();
+		Destroy();
 	}
-}
 
-const NzBoxf& NzSkeletalMesh::GetAABB() const
-{
-	return m_aabb;
-}
+	bool SkeletalMesh::Create(VertexBuffer* vertexBuffer)
+	{
+		Destroy();
 
-nzAnimationType NzSkeletalMesh::GetAnimationType() const
-{
-	return nzAnimationType_Skeletal;
-}
+		#if NAZARA_UTILITY_SAFE
+		if (!vertexBuffer)
+		{
+			NazaraError("Invalid vertex buffer");
+			return false;
+		}
+		#endif
 
-const NzIndexBuffer* NzSkeletalMesh::GetIndexBuffer() const
-{
-	return m_indexBuffer;
-}
+		m_vertexBuffer = vertexBuffer;
+		return true;
+	}
 
-NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer()
-{
-	return m_vertexBuffer;
-}
+	void SkeletalMesh::Destroy()
+	{
+		if (m_vertexBuffer)
+		{
+			OnSkeletalMeshDestroy(this);
 
-const NzVertexBuffer* NzSkeletalMesh::GetVertexBuffer() const
-{
-	return m_vertexBuffer;
-}
+			m_indexBuffer.Reset();
+			m_vertexBuffer.Reset();
+		}
+	}
 
-unsigned int NzSkeletalMesh::GetVertexCount() const
-{
-	return m_vertexBuffer->GetVertexCount();
-}
+	const Boxf& SkeletalMesh::GetAABB() const
+	{
+		return m_aabb;
+	}
 
-bool NzSkeletalMesh::IsAnimated() const
-{
-	return true;
-}
+	AnimationType SkeletalMesh::GetAnimationType() const
+	{
+		return AnimationType_Skeletal;
+	}
 
-bool NzSkeletalMesh::IsValid() const
-{
-	return m_vertexBuffer != nullptr;
-}
+	const IndexBuffer* SkeletalMesh::GetIndexBuffer() const
+	{
+		return m_indexBuffer;
+	}
 
-void NzSkeletalMesh::SetAABB(const NzBoxf& aabb)
-{
-	m_aabb = aabb;
-}
+	VertexBuffer* SkeletalMesh::GetVertexBuffer()
+	{
+		return m_vertexBuffer;
+	}
 
-void NzSkeletalMesh::SetIndexBuffer(const NzIndexBuffer* indexBuffer)
-{
-	m_indexBuffer = indexBuffer;
+	const VertexBuffer* SkeletalMesh::GetVertexBuffer() const
+	{
+		return m_vertexBuffer;
+	}
+
+	unsigned int SkeletalMesh::GetVertexCount() const
+	{
+		return m_vertexBuffer->GetVertexCount();
+	}
+
+	bool SkeletalMesh::IsAnimated() const
+	{
+		return true;
+	}
+
+	bool SkeletalMesh::IsValid() const
+	{
+		return m_vertexBuffer != nullptr;
+	}
+
+	void SkeletalMesh::SetAABB(const Boxf& aabb)
+	{
+		m_aabb = aabb;
+	}
+
+	void SkeletalMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)
+	{
+		m_indexBuffer = indexBuffer;
+	}
 }

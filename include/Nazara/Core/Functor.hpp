@@ -11,47 +11,50 @@
 
 // Inspiré du code de la SFML par Laurent Gomila
 
-struct NzFunctor
+namespace Nz
 {
-	virtual ~NzFunctor() {}
+	struct Functor
+	{
+		virtual ~Functor() {}
 
-	virtual void Run() = 0;
-};
+		virtual void Run() = 0;
+	};
 
-template<typename F>
-struct NzFunctorWithoutArgs : NzFunctor
-{
-	NzFunctorWithoutArgs(F func);
+	template<typename F>
+	struct FunctorWithoutArgs : Functor
+	{
+		FunctorWithoutArgs(F func);
 
-	void Run();
+		void Run();
 
-	private:
-		F m_func;
-};
+		private:
+			F m_func;
+	};
 
-template<typename F, typename... Args>
-struct NzFunctorWithArgs : NzFunctor
-{
-	NzFunctorWithArgs(F func, Args&&... args);
+	template<typename F, typename... Args>
+	struct FunctorWithArgs : Functor
+	{
+		FunctorWithArgs(F func, Args&&... args);
 
-	void Run();
+		void Run();
 
-	private:
-		F m_func;
-		std::tuple<Args...> m_args;
-};
+		private:
+			F m_func;
+			std::tuple<Args...> m_args;
+	};
 
-template<typename C>
-struct NzMemberWithoutArgs : NzFunctor
-{
-	NzMemberWithoutArgs(void (C::*func)(), C* object);
+	template<typename C>
+	struct MemberWithoutArgs : Functor
+	{
+		MemberWithoutArgs(void (C::*func)(), C* object);
 
-	void Run();
+		void Run();
 
-	private:
-		void (C::*m_func)();
-		C* m_object;
-};
+		private:
+			void (C::*m_func)();
+			C* m_object;
+	};
+}
 
 #include <Nazara/Core/Functor.inl>
 

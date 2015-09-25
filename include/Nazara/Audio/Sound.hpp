@@ -12,39 +12,46 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 
-class NAZARA_AUDIO_API NzSound : public NzSoundEmitter
+namespace Nz
 {
-	public:
-		NzSound() = default;
-		NzSound(const NzSoundBuffer* soundBuffer);
-		NzSound(const NzSound& sound);
-		~NzSound();
+	class NAZARA_AUDIO_API Sound : public SoundEmitter
+	{
+		public:
+			Sound() = default;
+			Sound(const SoundBuffer* soundBuffer);
+			Sound(const Sound& sound);
+			Sound(Sound&&) = default;
+			~Sound();
 
-		void EnableLooping(bool loop);
+			void EnableLooping(bool loop);
 
-		const NzSoundBuffer* GetBuffer() const;
-		nzUInt32 GetDuration() const;
-		nzUInt32 GetPlayingOffset() const;
-		nzSoundStatus GetStatus() const;
+			const SoundBuffer* GetBuffer() const;
+			UInt32 GetDuration() const;
+			UInt32 GetPlayingOffset() const;
+			SoundStatus GetStatus() const;
 
-		bool IsLooping() const;
-		bool IsPlayable() const;
-		bool IsPlaying() const;
+			bool IsLooping() const;
+			bool IsPlayable() const;
+			bool IsPlaying() const;
 
-		bool LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params = NzSoundBufferParams());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params = NzSoundBufferParams());
-		bool LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params = NzSoundBufferParams());
+			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromStream(InputStream& stream, const SoundBufferParams& params = SoundBufferParams());
 
-		void Pause();
-		void Play();
+			void Pause();
+			void Play();
 
-		void SetBuffer(const NzSoundBuffer* buffer);
-		void SetPlayingOffset(nzUInt32 offset);
+			void SetBuffer(const SoundBuffer* buffer);
+			void SetPlayingOffset(UInt32 offset);
 
-		void Stop();
+			void Stop();
 
-	private:
-		NzSoundBufferConstRef m_buffer;
-};
+			Sound& operator=(const Sound&) = delete; ///TODO?
+			Sound& operator=(Sound&&) = default;
+
+		private:
+			SoundBufferConstRef m_buffer;
+	};
+}
 
 #endif // NAZARA_SOUND_HPP

@@ -12,61 +12,64 @@
 #include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzBoundingVolume
+namespace Nz
 {
-	public:
-		NzBoundingVolume();
-		NzBoundingVolume(nzExtend Extend);
-		NzBoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzBoundingVolume(const NzBox<T>& box);
-		NzBoundingVolume(const NzOrientedBox<T>& orientedBox);
-		NzBoundingVolume(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> explicit NzBoundingVolume(const NzBoundingVolume<U>& volume);
-		NzBoundingVolume(const NzBoundingVolume& volume) = default;
-		~NzBoundingVolume() = default;
+	template<typename T>
+	class BoundingVolume
+	{
+		public:
+			BoundingVolume();
+			BoundingVolume(Extend Extend);
+			BoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth);
+			BoundingVolume(const Box<T>& box);
+			BoundingVolume(const OrientedBox<T>& orientedBox);
+			BoundingVolume(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> explicit BoundingVolume(const BoundingVolume<U>& volume);
+			BoundingVolume(const BoundingVolume& volume) = default;
+			~BoundingVolume() = default;
 
-		bool IsFinite() const;
-		bool IsInfinite() const;
-		bool IsNull() const;
+			bool IsFinite() const;
+			bool IsInfinite() const;
+			bool IsNull() const;
 
-		NzBoundingVolume& MakeInfinite();
-		NzBoundingVolume& MakeNull();
+			BoundingVolume& MakeInfinite();
+			BoundingVolume& MakeNull();
 
-		NzBoundingVolume& Set(nzExtend Extend);
-		NzBoundingVolume& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzBoundingVolume& Set(const NzBoundingVolume<T>& volume);
-		NzBoundingVolume& Set(const NzBox<T>& box);
-		NzBoundingVolume& Set(const NzOrientedBox<T>& orientedBox);
-		NzBoundingVolume& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> NzBoundingVolume& Set(const NzBoundingVolume<U>& volume);
+			BoundingVolume& Set(Extend Extend);
+			BoundingVolume& Set(T X, T Y, T Z, T Width, T Height, T Depth);
+			BoundingVolume& Set(const BoundingVolume<T>& volume);
+			BoundingVolume& Set(const Box<T>& box);
+			BoundingVolume& Set(const OrientedBox<T>& orientedBox);
+			BoundingVolume& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> BoundingVolume& Set(const BoundingVolume<U>& volume);
 
-		NzString ToString() const;
+			String ToString() const;
 
-		void Update(const NzMatrix4<T>& transformMatrix);
-		void Update(const NzVector3<T>& translation);
+			void Update(const Matrix4<T>& transformMatrix);
+			void Update(const Vector3<T>& translation);
 
-		NzBoundingVolume operator*(T scalar) const;
+			BoundingVolume operator*(T scalar) const;
 
-		NzBoundingVolume& operator*=(T scalar);
+			BoundingVolume& operator*=(T scalar);
 
-		bool operator==(const NzBoundingVolume& volume) const;
-		bool operator!=(const NzBoundingVolume& volume) const;
+			bool operator==(const BoundingVolume& volume) const;
+			bool operator!=(const BoundingVolume& volume) const;
 
-		static NzBoundingVolume Infinite();
-		static NzBoundingVolume Lerp(const NzBoundingVolume& from, const NzBoundingVolume& to, T interpolation);
-		static NzBoundingVolume Null();
+			static BoundingVolume Infinite();
+			static BoundingVolume Lerp(const BoundingVolume& from, const BoundingVolume& to, T interpolation);
+			static BoundingVolume Null();
 
-		nzExtend extend;
-		NzBox<T> aabb;
-		NzOrientedBox<T> obb;
-};
+			Extend extend;
+			Box<T> aabb;
+			OrientedBox<T> obb;
+	};
+
+	typedef BoundingVolume<double> BoundingVolumed;
+	typedef BoundingVolume<float> BoundingVolumef;
+}
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzBoundingVolume<T>& volume);
-
-typedef NzBoundingVolume<double> NzBoundingVolumed;
-typedef NzBoundingVolume<float> NzBoundingVolumef;
+std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume);
 
 #include <Nazara/Math/BoundingVolume.inl>
 

@@ -6,27 +6,30 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-// Version majeure d'OpenGL, initialisé par NzOpenGL::Initialize()
-nzUInt8 NzContextParameters::defaultMajorVersion;
+namespace Nz
+{
+	// Version majeure d'OpenGL, initialisé par OpenGL::Initialize()
+	UInt8 ContextParameters::defaultMajorVersion;
 
- // Version majeure d'OpenGL, initialisé par NzOpenGL::Initialize()
-nzUInt8 NzContextParameters::defaultMinorVersion;
+	 // Version majeure d'OpenGL, initialisé par OpenGL::Initialize()
+	UInt8 ContextParameters::defaultMinorVersion;
 
-// Contexte de partage par défaut, initialisé par NzOpenGL::Initialize()
-const NzContext* NzContextParameters::defaultShareContext = nullptr;
+	// Contexte de partage par défaut, initialisé par OpenGL::Initialize()
+	const Context* ContextParameters::defaultShareContext = nullptr;
 
-// Si possible, garder la compatibilité avec les fonctionnalités dépréciées
-bool NzContextParameters::defaultCompatibilityProfile = false;
+	// Si possible, garder la compatibilité avec les fonctionnalités dépréciées
+	bool ContextParameters::defaultCompatibilityProfile = false;
 
-// Mode debug d'OpenGL par défaut
-#if NAZARA_RENDERER_OPENGL_DEBUG || defined(NAZARA_DEBUG)
-bool NzContextParameters::defaultDebugMode = true;
-#else
-bool NzContextParameters::defaultDebugMode = false;
-#endif
+	// Mode debug d'OpenGL par défaut
+	#if NAZARA_RENDERER_OPENGL_DEBUG || defined(NAZARA_DEBUG)
+	bool ContextParameters::defaultDebugMode = true;
+	#else
+	bool ContextParameters::defaultDebugMode = false;
+	#endif
 
-// Active le double-buffering sur les contextes
-bool NzContextParameters::defaultDoubleBuffered = false;
+	// Active le double-buffering sur les contextes
+	bool ContextParameters::defaultDoubleBuffered = false;
 
-// Active le partage des ressources entre contextes (Via le defaultShareContext)
-bool NzContextParameters::defaultShared = true;
+	// Active le partage des ressources entre contextes (Via le defaultShareContext)
+	bool ContextParameters::defaultShared = true;
+}

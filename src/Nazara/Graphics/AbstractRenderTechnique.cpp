@@ -8,24 +8,27 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractRenderTechnique::NzAbstractRenderTechnique() :
-m_instancingEnabled(true)
+namespace Nz
 {
-}
+	AbstractRenderTechnique::AbstractRenderTechnique() :
+	m_instancingEnabled(true)
+	{
+	}
 
-NzAbstractRenderTechnique::~NzAbstractRenderTechnique() = default;
+	AbstractRenderTechnique::~AbstractRenderTechnique() = default;
 
-void NzAbstractRenderTechnique::EnableInstancing(bool instancing)
-{
-	m_instancingEnabled = instancing;
-}
+	void AbstractRenderTechnique::EnableInstancing(bool instancing)
+	{
+		m_instancingEnabled = instancing;
+	}
 
-NzString NzAbstractRenderTechnique::GetName() const
-{
-	return NzRenderTechniques::ToString(GetType());
-}
+	String AbstractRenderTechnique::GetName() const
+	{
+		return RenderTechniques::ToString(GetType());
+	}
 
-bool NzAbstractRenderTechnique::IsInstancingEnabled() const
-{
-	return m_instancingEnabled;
+	bool AbstractRenderTechnique::IsInstancingEnabled() const
+	{
+		return m_instancingEnabled;
+	}
 }

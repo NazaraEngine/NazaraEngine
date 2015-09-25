@@ -7,14 +7,14 @@ SCENARIO("File", "[CORE][FILE]")
 	{
 		WHEN("We create a new file")
 		{
-			NzFile file("Test File.txt", nzOpenMode_ReadWrite);
-			REQUIRE(file.GetDirectory() == NzDirectory::GetCurrent() + NAZARA_DIRECTORY_SEPARATOR);
+			Nz::File file("Test File.txt", Nz::OpenMode_ReadWrite);
+			REQUIRE(file.GetDirectory() == Nz::Directory::GetCurrent() + NAZARA_DIRECTORY_SEPARATOR);
 			CHECK(file.IsOpen());
 
 			THEN("We are allowed to write 3 times 'Test String'")
 			{
 				const char message[12] = "Test String"; // 11 + '\0'
-				NzByteArray byteArray(message, 11);
+				Nz::ByteArray byteArray(message, 11);
 				file.Write("Test String");
 				file.Write(byteArray);
 				file.Write(message, sizeof(char), 11);
@@ -25,11 +25,11 @@ SCENARIO("File", "[CORE][FILE]")
 				char message[12];
 				REQUIRE(file.Read(message, 11) == 11);
 				message[11] = '\0';
-				REQUIRE(NzString(message) == "Test String");
+				REQUIRE(Nz::String(message) == "Test String");
 
 				REQUIRE(file.Read(message, sizeof(char), 11) == 11);
 				message[11] = '\0';
-				REQUIRE(NzString(message) == "Test String");
+				REQUIRE(Nz::String(message) == "Test String");
 			}
 
 			AND_THEN("We close it")
@@ -42,11 +42,11 @@ SCENARIO("File", "[CORE][FILE]")
 
 		WHEN("We delete this file")
 		{
-			NzFile::Delete("Test File.txt");
+			Nz::File::Delete("Test File.txt");
 
 			THEN("It doesn't exist anymore")
 			{
-				CHECK(!NzFile::Exists("Test File.txt"));
+				CHECK(!Nz::File::Exists("Test File.txt"));
 			}
 		}
 	}

@@ -12,33 +12,36 @@
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
-class NzTextureBackground;
-
-using NzTextureBackgroundConstRef = NzObjectRef<const NzTextureBackground>;
-using NzTextureBackgroundRef = NzObjectRef<NzTextureBackground>;
-
-class NAZARA_GRAPHICS_API NzTextureBackground : public NzAbstractBackground
+namespace Nz
 {
-	public:
-		NzTextureBackground(NzTextureRef texture = NzTextureRef());
+	class TextureBackground;
 
-		void Draw(const NzAbstractViewer* viewer) const;
+	using TextureBackgroundConstRef = ObjectRef<const TextureBackground>;
+	using TextureBackgroundRef = ObjectRef<TextureBackground>;
 
-		nzBackgroundType GetBackgroundType() const;
-		inline const NzTextureRef& GetTexture() const;
+	class NAZARA_GRAPHICS_API TextureBackground : public AbstractBackground
+	{
+		public:
+			TextureBackground(TextureRef texture = TextureRef());
 
-		inline void SetTexture(NzTextureRef texture);
+			void Draw(const AbstractViewer* viewer) const;
 
-		template<typename... Args> static NzTextureBackgroundRef New(Args&&... args);
+			BackgroundType GetBackgroundType() const;
+			inline const TextureRef& GetTexture() const;
 
-	private:
-		NzTextureRef m_texture;
-		NzUberShaderConstRef m_uberShader;
-		const NzUberShaderInstance* m_uberShaderInstance;
-		int m_materialDiffuseUniform;
-		int m_materialDiffuseMapUniform;
-		int m_vertexDepthUniform;
-};
+			inline void SetTexture(TextureRef texture);
+
+			template<typename... Args> static TextureBackgroundRef New(Args&&... args);
+
+		private:
+			TextureRef m_texture;
+			UberShaderConstRef m_uberShader;
+			const UberShaderInstance* m_uberShaderInstance;
+			int m_materialDiffuseUniform;
+			int m_materialDiffuseMapUniform;
+			int m_vertexDepthUniform;
+	};
+}
 
 #include <Nazara/Graphics/TextureBackground.inl>
 

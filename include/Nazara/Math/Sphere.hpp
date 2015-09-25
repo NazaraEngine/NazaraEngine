@@ -10,76 +10,78 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzBox;
-
-template<typename T>
-class NzSphere
+namespace Nz
 {
-	public:
-		NzSphere() = default;
-		NzSphere(T X, T Y, T Z, T Radius);
-		//NzSphere(const NzCircle<T>& circle);
-		NzSphere(const NzVector3<T>& center, T Radius);
-		NzSphere(const T sphere[4]);
-		template<typename U> explicit NzSphere(const NzSphere<U>& sphere);
-		NzSphere(const NzSphere& sphere) = default;
-		~NzSphere() = default;
+	template<typename T> class Box;
 
-		bool Contains(T X, T Y, T Z) const;
-		bool Contains(const NzBox<T>& box) const;
-		bool Contains(const NzVector3<T>& point) const;
+	template<typename T>
+	class Sphere
+	{
+		public:
+			Sphere() = default;
+			Sphere(T X, T Y, T Z, T Radius);
+			//Sphere(const Circle<T>& circle);
+			Sphere(const Vector3<T>& center, T Radius);
+			Sphere(const T sphere[4]);
+			template<typename U> explicit Sphere(const Sphere<U>& sphere);
+			Sphere(const Sphere& sphere) = default;
+			~Sphere() = default;
 
-		T Distance(T X, T Y, T Z) const;
-		T Distance(const NzVector3<T>& point) const;
+			bool Contains(T X, T Y, T Z) const;
+			bool Contains(const Box<T>& box) const;
+			bool Contains(const Vector3<T>& point) const;
 
-		NzSphere& ExtendTo(T X, T Y, T Z);
-		NzSphere& ExtendTo(const NzVector3<T>& point);
+			T Distance(T X, T Y, T Z) const;
+			T Distance(const Vector3<T>& point) const;
 
-		NzVector3<T> GetNegativeVertex(const NzVector3<T>& normal) const;
-		NzVector3<T> GetPosition() const;
-		NzVector3<T> GetPositiveVertex(const NzVector3<T>& normal) const;
+			Sphere& ExtendTo(T X, T Y, T Z);
+			Sphere& ExtendTo(const Vector3<T>& point);
 
-		bool Intersect(const NzBox<T>& box) const;
-		bool Intersect(const NzSphere& sphere) const;
+			Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
+			Vector3<T> GetPosition() const;
+			Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
 
-		bool IsValid() const;
+			bool Intersect(const Box<T>& box) const;
+			bool Intersect(const Sphere& sphere) const;
 
-		NzSphere& MakeZero();
+			bool IsValid() const;
 
-		NzSphere& Set(T X, T Y, T Z, T Radius);
-		//NzSphere& Set(const NzCircle<T>& rect);
-		NzSphere& Set(const NzSphere& sphere);
-		NzSphere& Set(const NzVector3<T>& center, T Radius);
-		NzSphere& Set(const T sphere[4]);
-		template<typename U> NzSphere& Set(const NzSphere<U>& sphere);
+			Sphere& MakeZero();
 
-		T SquaredDistance(T X, T Y, T Z) const;
-		T SquaredDistance(const NzVector3<T>& point) const;
+			Sphere& Set(T X, T Y, T Z, T Radius);
+			//Sphere& Set(const Circle<T>& rect);
+			Sphere& Set(const Sphere& sphere);
+			Sphere& Set(const Vector3<T>& center, T Radius);
+			Sphere& Set(const T sphere[4]);
+			template<typename U> Sphere& Set(const Sphere<U>& sphere);
 
-		NzString ToString() const;
+			T SquaredDistance(T X, T Y, T Z) const;
+			T SquaredDistance(const Vector3<T>& point) const;
 
-		T& operator[](unsigned int i);
-		T operator[](unsigned int i) const;
+			String ToString() const;
 
-		NzSphere operator*(T scalar) const;
+			T& operator[](unsigned int i);
+			T operator[](unsigned int i) const;
 
-		NzSphere& operator*=(T scalar);
+			Sphere operator*(T scalar) const;
 
-		bool operator==(const NzSphere& sphere) const;
-		bool operator!=(const NzSphere& sphere) const;
+			Sphere& operator*=(T scalar);
 
-		static NzSphere Lerp(const NzSphere& from, const NzSphere& to, T interpolation);
-		static NzSphere Zero();
+			bool operator==(const Sphere& sphere) const;
+			bool operator!=(const Sphere& sphere) const;
 
-		T x, y, z, radius;
-};
+			static Sphere Lerp(const Sphere& from, const Sphere& to, T interpolation);
+			static Sphere Zero();
+
+			T x, y, z, radius;
+	};
+
+	typedef Sphere<double> Sphered;
+	typedef Sphere<float> Spheref;
+}
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzSphere<T>& sphere);
-
-typedef NzSphere<double> NzSphered;
-typedef NzSphere<float> NzSpheref;
+std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere);
 
 #include <Nazara/Math/Sphere.inl>
 

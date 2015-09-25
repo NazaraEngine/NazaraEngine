@@ -11,16 +11,19 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
 
-class NAZARA_GRAPHICS_API NzGuillotineTextureAtlas : public NzGuillotineImageAtlas
+namespace Nz
 {
-	public:
-		NzGuillotineTextureAtlas() = default;
-		~NzGuillotineTextureAtlas() = default;
+	class NAZARA_GRAPHICS_API GuillotineTextureAtlas : public GuillotineImageAtlas
+	{
+		public:
+			GuillotineTextureAtlas() = default;
+			~GuillotineTextureAtlas() = default;
 
-		nzUInt32 GetStorage() const;
+			UInt32 GetStorage() const;
 
-	private:
-		NzAbstractImage* ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const override;
-};
+		private:
+			AbstractImage* ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const override;
+	};
+}
 
 #endif // NAZARA_GUILLOTINETEXTUREATLAS_HPP

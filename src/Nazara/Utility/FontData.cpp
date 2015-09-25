@@ -5,4 +5,7 @@
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzFontData::~NzFontData() = default;
+namespace Nz
+{
+	FontData::~FontData() = default;
+}

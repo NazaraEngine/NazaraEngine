@@ -5,23 +5,26 @@
 #include <algorithm>
 #include <Nazara/Core/Debug.hpp>
 
-inline void NzByteSwap(void* buffer, unsigned int size)
+namespace Nz
 {
-	nzUInt8* bytes = reinterpret_cast<nzUInt8*>(buffer);
-	unsigned int i = 0;
-	unsigned int j = size-1;
+	inline Endianness GetPlatformEndianness()
+	{
+		#if defined(NAZARA_BIG_ENDIAN)
+		return Endianness_BigEndian;
+		#elif defined(NAZARA_LITTLE_ENDIAN)
+		return Endianness_LittleEndian;
+		#endif
+	}
 
-	while (i < j)
-		std::swap(bytes[i++], bytes[j--]);
-}
+	inline void SwapBytes(void* buffer, unsigned int size)
+	{
+		UInt8* bytes = reinterpret_cast<UInt8*>(buffer);
+		unsigned int i = 0;
+		unsigned int j = size-1;
 
-inline nzEndianness NzGetPlatformEndianness()
-{
-	#if defined(NAZARA_BIG_ENDIAN)
-	return nzEndianness_BigEndian;
-	#elif defined(NAZARA_LITTLE_ENDIAN)
-	return nzEndianness_LittleEndian;
-	#endif
+		while (i < j)
+			std::swap(bytes[i++], bytes[j--]);
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

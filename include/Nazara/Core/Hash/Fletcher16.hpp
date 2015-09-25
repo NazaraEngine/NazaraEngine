@@ -12,23 +12,26 @@
 #include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/String.hpp>
 
-struct NzHashFletcher16_state;
-
-class NAZARA_CORE_API NzHashFletcher16 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashFletcher16();
-		virtual ~NzHashFletcher16();
+	struct HashFletcher16_state;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashFletcher16 : public AbstractHash
+	{
+		public:
+			HashFletcher16();
+			virtual ~HashFletcher16();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, unsigned int len);
+			void Begin();
+			HashDigest End();
 
-	private:
-		NzHashFletcher16_state* m_state;
-};
+			static unsigned int GetDigestLength();
+			static String GetHashName();
+
+		private:
+			HashFletcher16_state* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_FLETCHER16_HPP

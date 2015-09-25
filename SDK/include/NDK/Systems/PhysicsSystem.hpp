@@ -20,8 +20,8 @@ namespace Ndk
 			PhysicsSystem(const PhysicsSystem& system);
 			~PhysicsSystem() = default;
 
-			NzPhysWorld& GetWorld();
-			const NzPhysWorld& GetWorld() const;
+			Nz::PhysWorld& GetWorld();
+			const Nz::PhysWorld& GetWorld() const;
 
 			static SystemIndex systemIndex;
 
@@ -31,7 +31,7 @@ namespace Ndk
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
-			NzPhysWorld m_world;
+			Nz::PhysWorld m_world;
 	};
 }
 

@@ -6,439 +6,442 @@
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
-struct NzSkeletonImpl
+namespace Nz
 {
-	std::unordered_map<NzString, unsigned int> jointMap;
-	std::vector<NzJoint> joints;
-	NzBoxf aabb;
-	bool aabbUpdated = false;
-	bool jointMapUpdated = false;
-};
-
-NzSkeleton::NzSkeleton(const NzSkeleton& skeleton) :
-NzRefCounted(),
-m_impl(nullptr)
-{
-	operator=(skeleton);
-}
-
-NzSkeleton::~NzSkeleton()
-{
-	OnSkeletonRelease(this);
-
-	Destroy();
-}
-
-bool NzSkeleton::Create(unsigned int jointCount)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (jointCount == 0)
+	struct SkeletonImpl
 	{
-		NazaraError("Joint count must be over zero");
-		return false;
+		std::unordered_map<String, unsigned int> jointMap;
+		std::vector<Joint> joints;
+		Boxf aabb;
+		bool aabbUpdated = false;
+		bool jointMapUpdated = false;
+	};
+
+	Skeleton::Skeleton(const Skeleton& skeleton) :
+	RefCounted(),
+	m_impl(nullptr)
+	{
+		operator=(skeleton);
 	}
-	#endif
 
-	m_impl = new NzSkeletonImpl;
-	m_impl->joints.resize(jointCount, NzJoint(this));
-
-	return true;
-}
-
-void NzSkeleton::Destroy()
-{
-	if (m_impl)
+	Skeleton::~Skeleton()
 	{
-		OnSkeletonDestroy(this);
+		OnSkeletonRelease(this);
 
-		delete m_impl;
-		m_impl = nullptr;
+		Destroy();
 	}
-}
 
-const NzBoxf& NzSkeleton::GetAABB() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
+	bool Skeleton::Create(unsigned int jointCount)
 	{
-		NazaraError("Skeleton not created");
-
-		static NzBoxf dummy;
-		return dummy;
-	}
-	#endif
-
-	if (!m_impl->aabbUpdated)
-	{
-		unsigned int jointCount = m_impl->joints.size();
-		if (jointCount > 0)
+		#if NAZARA_UTILITY_SAFE
+		if (jointCount == 0)
 		{
-			NzVector3f pos = m_impl->joints[0].GetPosition();
-			m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
-			for (unsigned int i = 1; i < jointCount; ++i)
-				m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
+			NazaraError("Joint count must be over zero");
+			return false;
 		}
-		else
-			m_impl->aabb.MakeZero();
+		#endif
 
-		m_impl->aabbUpdated = true;
+		m_impl = new SkeletonImpl;
+		m_impl->joints.resize(jointCount, Joint(this));
+
+		return true;
 	}
 
-	return m_impl->aabb;
-}
-
-NzJoint* NzSkeleton::GetJoint(const NzString& jointName)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
+	void Skeleton::Destroy()
 	{
-		NazaraError("Skeleton not created");
-		return nullptr;
-	}
-	#endif
+		if (m_impl)
+		{
+			OnSkeletonDestroy(this);
 
-	if (!m_impl->jointMapUpdated)
-		UpdateJointMap();
-
-	auto it = m_impl->jointMap.find(jointName);
-
-	#if NAZARA_UTILITY_SAFE
-	if (it == m_impl->jointMap.end())
-	{
-		NazaraError("Joint not found");
-		return nullptr;
-	}
-	#endif
-
-	InvalidateJoints();
-
-	return &m_impl->joints[it->second];
-}
-
-NzJoint* NzSkeleton::GetJoint(unsigned int index)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return nullptr;
+			delete m_impl;
+			m_impl = nullptr;
+		}
 	}
 
-	if (index >= m_impl->joints.size())
+	const Boxf& Skeleton::GetAABB() const
 	{
-		NazaraError("Joint index out of range (" + NzString::Number(index) + " >= " + NzString::Number(m_impl->joints.size()) + ')');
-		return nullptr;
-	}
-	#endif
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
 
-	InvalidateJoints();
+			static Boxf dummy;
+			return dummy;
+		}
+		#endif
 
-	return &m_impl->joints[index];
-}
+		if (!m_impl->aabbUpdated)
+		{
+			unsigned int jointCount = m_impl->joints.size();
+			if (jointCount > 0)
+			{
+				Vector3f pos = m_impl->joints[0].GetPosition();
+				m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
+				for (unsigned int i = 1; i < jointCount; ++i)
+					m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
+			}
+			else
+				m_impl->aabb.MakeZero();
 
-const NzJoint* NzSkeleton::GetJoint(const NzString& jointName) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return nullptr;
-	}
-	#endif
+			m_impl->aabbUpdated = true;
+		}
 
-	if (!m_impl->jointMapUpdated)
-		UpdateJointMap();
-
-	auto it = m_impl->jointMap.find(jointName);
-
-	#if NAZARA_UTILITY_SAFE
-	if (it == m_impl->jointMap.end())
-	{
-		NazaraError("Joint not found");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->joints[it->second];
-}
-
-const NzJoint* NzSkeleton::GetJoint(unsigned int index) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return nullptr;
+		return m_impl->aabb;
 	}
 
-	if (index >= m_impl->joints.size())
+	Joint* Skeleton::GetJoint(const String& jointName)
 	{
-		NazaraError("Joint index out of range (" + NzString::Number(index) + " >= " + NzString::Number(m_impl->joints.size()) + ')');
-		return nullptr;
-	}
-	#endif
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+		#endif
 
-	return &m_impl->joints[index];
-}
+		if (!m_impl->jointMapUpdated)
+			UpdateJointMap();
 
-NzJoint* NzSkeleton::GetJoints()
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->joints[0];
-}
-
-const NzJoint* NzSkeleton::GetJoints() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return nullptr;
-	}
-	#endif
-
-	return &m_impl->joints[0];
-}
-
-unsigned int NzSkeleton::GetJointCount() const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return 0;
-	}
-	#endif
-
-	return m_impl->joints.size();
-}
-
-int NzSkeleton::GetJointIndex(const NzString& jointName) const
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return -1;
-	}
-	#endif
-
-	if (!m_impl->jointMapUpdated)
-		UpdateJointMap();
-
-	auto it = m_impl->jointMap.find(jointName);
-
-	#if NAZARA_UTILITY_SAFE
-	if (it == m_impl->jointMap.end())
-	{
-		NazaraError("Joint not found");
-		return -1;
-	}
-	#endif
-
-	return it->second;
-}
-
-void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return;
-	}
-
-	if (!skeletonA.IsValid())
-	{
-		NazaraError("Skeleton A is invalid");
-		return;
-	}
-
-	if (!skeletonB.IsValid())
-	{
-		NazaraError("Skeleton B is invalid");
-		return;
-	}
-
-	if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
-	{
-		NazaraError("Skeletons must have the same joint count");
-		return;
-	}
-	#endif
-
-	NzJoint* jointsA = &skeletonA.m_impl->joints[0];
-	NzJoint* jointsB = &skeletonB.m_impl->joints[0];
-	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
-		m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, nzCoordSys_Local);
-
-	InvalidateJoints();
-}
-
-void NzSkeleton::Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Skeleton not created");
-		return;
-	}
-
-	if (!skeletonA.IsValid())
-	{
-		NazaraError("Skeleton A is invalid");
-		return;
-	}
-
-	if (!skeletonB.IsValid())
-	{
-		NazaraError("Skeleton B is invalid");
-		return;
-	}
-
-	if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
-	{
-		NazaraError("Skeletons must have the same joint count");
-		return;
-	}
-	#endif
-
-	const NzJoint* jointsA = &skeletonA.m_impl->joints[0];
-	const NzJoint* jointsB = &skeletonB.m_impl->joints[0];
-	for (unsigned int i = 0; i < indiceCount; ++i)
-	{
-		unsigned int index = indices[i];
+		auto it = m_impl->jointMap.find(jointName);
 
 		#if NAZARA_UTILITY_SAFE
+		if (it == m_impl->jointMap.end())
+		{
+			NazaraError("Joint not found");
+			return nullptr;
+		}
+		#endif
+
+		InvalidateJoints();
+
+		return &m_impl->joints[it->second];
+	}
+
+	Joint* Skeleton::GetJoint(unsigned int index)
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+
 		if (index >= m_impl->joints.size())
 		{
-			NazaraError("Index #" + NzString::Number(i) + " out of range (" + NzString::Number(index) + " >= " + NzString::Number(m_impl->joints.size()) + ')');
+			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+			return nullptr;
+		}
+		#endif
+
+		InvalidateJoints();
+
+		return &m_impl->joints[index];
+	}
+
+	const Joint* Skeleton::GetJoint(const String& jointName) const
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+		#endif
+
+		if (!m_impl->jointMapUpdated)
+			UpdateJointMap();
+
+		auto it = m_impl->jointMap.find(jointName);
+
+		#if NAZARA_UTILITY_SAFE
+		if (it == m_impl->jointMap.end())
+		{
+			NazaraError("Joint not found");
+			return nullptr;
+		}
+		#endif
+
+		return &m_impl->joints[it->second];
+	}
+
+	const Joint* Skeleton::GetJoint(unsigned int index) const
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+
+		if (index >= m_impl->joints.size())
+		{
+			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+			return nullptr;
+		}
+		#endif
+
+		return &m_impl->joints[index];
+	}
+
+	Joint* Skeleton::GetJoints()
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+		#endif
+
+		return &m_impl->joints[0];
+	}
+
+	const Joint* Skeleton::GetJoints() const
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return nullptr;
+		}
+		#endif
+
+		return &m_impl->joints[0];
+	}
+
+	unsigned int Skeleton::GetJointCount() const
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return 0;
+		}
+		#endif
+
+		return m_impl->joints.size();
+	}
+
+	int Skeleton::GetJointIndex(const String& jointName) const
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return -1;
+		}
+		#endif
+
+		if (!m_impl->jointMapUpdated)
+			UpdateJointMap();
+
+		auto it = m_impl->jointMap.find(jointName);
+
+		#if NAZARA_UTILITY_SAFE
+		if (it == m_impl->jointMap.end())
+		{
+			NazaraError("Joint not found");
+			return -1;
+		}
+		#endif
+
+		return it->second;
+	}
+
+	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation)
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Skeleton not created");
+			return;
+		}
+
+		if (!skeletonA.IsValid())
+		{
+			NazaraError("Skeleton A is invalid");
+			return;
+		}
+
+		if (!skeletonB.IsValid())
+		{
+			NazaraError("Skeleton B is invalid");
+			return;
+		}
+
+		if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
+		{
+			NazaraError("Skeletons must have the same joint count");
 			return;
 		}
 		#endif
 
-		m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, nzCoordSys_Local);
+		Joint* jointsA = &skeletonA.m_impl->joints[0];
+		Joint* jointsB = &skeletonB.m_impl->joints[0];
+		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
+			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys_Local);
+
+		InvalidateJoints();
 	}
 
-	InvalidateJoints();
-}
-
-bool NzSkeleton::IsValid() const
-{
-	return m_impl != nullptr;
-}
-
-NzSkeleton& NzSkeleton::operator=(const NzSkeleton& skeleton)
-{
-	if (this == &skeleton)
-		return *this;
-
-	Destroy();
-
-	if (skeleton.m_impl)
+	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
 	{
-		m_impl = new NzSkeletonImpl;
-		m_impl->jointMap = skeleton.m_impl->jointMap;
-		m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
-		m_impl->joints = skeleton.m_impl->joints;
-
-		// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(unsigned int) en plus
-		// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
-		// L'éternel trade-off mémoire/calculs ..
-		unsigned int jointCount = skeleton.m_impl->joints.size();
-		for (unsigned int i = 0; i < jointCount; ++i)
+		#if NAZARA_UTILITY_SAFE
+		if (!m_impl)
 		{
-			const NzNode* parent = skeleton.m_impl->joints[i].GetParent();
-			if (parent)
+			NazaraError("Skeleton not created");
+			return;
+		}
+
+		if (!skeletonA.IsValid())
+		{
+			NazaraError("Skeleton A is invalid");
+			return;
+		}
+
+		if (!skeletonB.IsValid())
+		{
+			NazaraError("Skeleton B is invalid");
+			return;
+		}
+
+		if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
+		{
+			NazaraError("Skeletons must have the same joint count");
+			return;
+		}
+		#endif
+
+		const Joint* jointsA = &skeletonA.m_impl->joints[0];
+		const Joint* jointsB = &skeletonB.m_impl->joints[0];
+		for (unsigned int i = 0; i < indiceCount; ++i)
+		{
+			unsigned int index = indices[i];
+
+			#if NAZARA_UTILITY_SAFE
+			if (index >= m_impl->joints.size())
 			{
-				for (unsigned int j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
+				NazaraError("Index #" + String::Number(i) + " out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+				return;
+			}
+			#endif
+
+			m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, CoordSys_Local);
+		}
+
+		InvalidateJoints();
+	}
+
+	bool Skeleton::IsValid() const
+	{
+		return m_impl != nullptr;
+	}
+
+	Skeleton& Skeleton::operator=(const Skeleton& skeleton)
+	{
+		if (this == &skeleton)
+			return *this;
+
+		Destroy();
+
+		if (skeleton.m_impl)
+		{
+			m_impl = new SkeletonImpl;
+			m_impl->jointMap = skeleton.m_impl->jointMap;
+			m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
+			m_impl->joints = skeleton.m_impl->joints;
+
+			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(unsigned int) en plus
+			// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
+			// L'éternel trade-off mémoire/calculs ..
+			unsigned int jointCount = skeleton.m_impl->joints.size();
+			for (unsigned int i = 0; i < jointCount; ++i)
+			{
+				const Node* parent = skeleton.m_impl->joints[i].GetParent();
+				if (parent)
 				{
-					if (parent == &skeleton.m_impl->joints[j]) // A-t-on trouvé le parent ?
+					for (unsigned int j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
 					{
-						m_impl->joints[i].SetParent(m_impl->joints[j]); // Oui, tout ça pour ça
-						break;
+						if (parent == &skeleton.m_impl->joints[j]) // A-t-on trouvé le parent ?
+						{
+							m_impl->joints[i].SetParent(m_impl->joints[j]); // Oui, tout ça pour ça
+							break;
+						}
 					}
 				}
 			}
 		}
+
+		return *this;
 	}
 
-	return *this;
-}
-
-void NzSkeleton::InvalidateJoints()
-{
-	m_impl->aabbUpdated = false;
-
-	OnSkeletonJointsInvalidated(this);
-}
-
-void NzSkeleton::InvalidateJointMap()
-{
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
+	void Skeleton::InvalidateJoints()
 	{
-		NazaraError("Invalid skeleton");
-		return;
+		m_impl->aabbUpdated = false;
+
+		OnSkeletonJointsInvalidated(this);
 	}
-	#endif
 
-	m_impl->jointMapUpdated = false;
-}
-
-void NzSkeleton::UpdateJointMap() const
-{
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
+	void Skeleton::InvalidateJointMap()
 	{
-		NazaraError("Invalid skeleton");
-		return;
-	}
-	#endif
-
-	m_impl->jointMap.clear();
-	for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
-	{
-		NzString name = m_impl->joints[i].GetName();
-		if (!name.IsEmpty())
+		#ifdef NAZARA_DEBUG
+		if (!m_impl)
 		{
-			#if NAZARA_UTILITY_SAFE
-			auto it = m_impl->jointMap.find(name);
-			if (it != m_impl->jointMap.end())
-			{
-				NazaraWarning("Joint name \"" + name + "\" is already present in joint map for joint #" + NzString::Number(it->second));
-				continue;
-			}
-			#endif
-
-			m_impl->jointMap[name] = i;
+			NazaraError("Invalid skeleton");
+			return;
 		}
+		#endif
+
+		m_impl->jointMapUpdated = false;
 	}
 
-	m_impl->jointMapUpdated = true;
-}
-
-bool NzSkeleton::Initialize()
-{
-	if (!NzSkeletonLibrary::Initialize())
+	void Skeleton::UpdateJointMap() const
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		#ifdef NAZARA_DEBUG
+		if (!m_impl)
+		{
+			NazaraError("Invalid skeleton");
+			return;
+		}
+		#endif
+
+		m_impl->jointMap.clear();
+		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
+		{
+			String name = m_impl->joints[i].GetName();
+			if (!name.IsEmpty())
+			{
+				#if NAZARA_UTILITY_SAFE
+				auto it = m_impl->jointMap.find(name);
+				if (it != m_impl->jointMap.end())
+				{
+					NazaraWarning("Joint name \"" + name + "\" is already present in joint map for joint #" + String::Number(it->second));
+					continue;
+				}
+				#endif
+
+				m_impl->jointMap[name] = i;
+			}
+		}
+
+		m_impl->jointMapUpdated = true;
 	}
 
-	return true;
-}
+	bool Skeleton::Initialize()
+	{
+		if (!SkeletonLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
 
-void NzSkeleton::Uninitialize()
-{
-	NzSkeletonLibrary::Uninitialize();
-}
+		return true;
+	}
 
-NzSkeletonLibrary::LibraryMap NzSkeleton::s_library;
+	void Skeleton::Uninitialize()
+	{
+		SkeletonLibrary::Uninitialize();
+	}
+
+	SkeletonLibrary::LibraryMap Skeleton::s_library;
+}

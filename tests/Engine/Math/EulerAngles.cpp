@@ -5,8 +5,8 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 {
 	GIVEN("Two zero euler angles")
 	{
-		NzEulerAnglesf firstZero(0.f, 0.f, 0.f);
-		NzEulerAnglesf secondZero(NzEulerAngles<int>::Zero());
+		Nz::EulerAnglesf firstZero(0.f, 0.f, 0.f);
+		Nz::EulerAnglesf secondZero(Nz::EulerAngles<int>::Zero());
 
 		THEN("They should be equal")
 		{
@@ -15,12 +15,12 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 
 		WHEN("We do some operations")
 		{
-			NzEulerAnglesf euler90(90.f, 90.f, 90.f);
-			NzEulerAnglesf euler270(270.f, 270.f, 270.f);
+			Nz::EulerAnglesf euler90(90.f, 90.f, 90.f);
+			Nz::EulerAnglesf euler270(270.f, 270.f, 270.f);
 
-			NzEulerAnglesf euler360 = euler90 + euler270;
+			Nz::EulerAnglesf euler360 = euler90 + euler270;
 			euler360.Normalize();
-			NzEulerAnglesf euler0 = euler270 - euler90;
+			Nz::EulerAnglesf euler0 = euler270 - euler90;
 			euler0 -= euler90;
 			euler0 -= euler90;
 
@@ -36,8 +36,8 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 			THEN("They are the same")
 			{
 				REQUIRE(firstZero.ToQuaternion() == secondZero.ToQuaternion());
-				REQUIRE(firstZero.ToQuaternion() == NzEulerAnglesf(NzQuaternionf(1.f, 0.f, 0.f, 0.f)));
-				REQUIRE(secondZero.ToQuaternion() == NzEulerAnglesf(NzQuaternionf(1.f, 0.f, 0.f, 0.f)));
+				REQUIRE(firstZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
+				REQUIRE(secondZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
 			}
 		}
 	}
@@ -48,32 +48,32 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(NzEulerAngles<int>(NzFromDegrees(45.f), 0.f, 0.f) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
-				REQUIRE(NzEulerAngles<int>(0.f, NzFromDegrees(45.f), 0.f) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
-				REQUIRE(NzEulerAngles<int>(0.f, 0.f, NzFromDegrees(45.f)) == NzEulerAngles<int>(NzQuaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
+				REQUIRE(Nz::EulerAngles<int>(Nz::FromDegrees(45.f), 0.f, 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
+				REQUIRE(Nz::EulerAngles<int>(0.f, Nz::FromDegrees(45.f), 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
+				REQUIRE(Nz::EulerAngles<int>(0.f, 0.f, Nz::FromDegrees(45.f)) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
 			}
 		}
 	}
 
 	GIVEN("Three euler angles: (0, 22.5, 22.5), (90, 90, 0) and (30, 0, 30)")
 	{
-		NzEulerAnglesf euler45(NzFromDegrees(0.f), NzFromDegrees(22.5f), NzFromDegrees(22.5f));
-		NzEulerAnglesf euler90(NzFromDegrees(90.f), NzFromDegrees(90.f), NzFromDegrees(0.f));
-		NzEulerAnglesf euler30(NzFromDegrees(30.f), NzFromDegrees(0.f), NzFromDegrees(30.f));
+		Nz::EulerAnglesf euler45(Nz::FromDegrees(0.f), Nz::FromDegrees(22.5f), Nz::FromDegrees(22.5f));
+		Nz::EulerAnglesf euler90(Nz::FromDegrees(90.f), Nz::FromDegrees(90.f), Nz::FromDegrees(0.f));
+		Nz::EulerAnglesf euler30(Nz::FromDegrees(30.f), Nz::FromDegrees(0.f), Nz::FromDegrees(30.f));
 
 		WHEN("We convert them to quaternion")
 		{
 			THEN("And then convert to euler angles, we have identity")
 			{
-				NzEulerAnglesf tmp = NzQuaternionf(euler45.ToQuaternion()).ToEulerAngles();
+				Nz::EulerAnglesf tmp = Nz::Quaternionf(euler45.ToQuaternion()).ToEulerAngles();
 				REQUIRE(tmp.pitch == Approx(0.f));
 				REQUIRE(tmp.yaw == Approx(22.5f));
 				REQUIRE(tmp.roll == Approx(22.5f));
-				tmp = NzQuaternionf(euler90.ToQuaternion()).ToEulerAngles();
+				tmp = Nz::Quaternionf(euler90.ToQuaternion()).ToEulerAngles();
 				REQUIRE(tmp.pitch == Approx(90.f));
 				REQUIRE(tmp.yaw == Approx(90.f));
 				REQUIRE(tmp.roll == Approx(0.f));
-				tmp = NzQuaternionf(euler30.ToQuaternion()).ToEulerAngles();
+				tmp = Nz::Quaternionf(euler30.ToQuaternion()).ToEulerAngles();
 				REQUIRE(tmp.pitch == Approx(30.f));
 				REQUIRE(tmp.yaw == Approx(0.f));
 				REQUIRE(tmp.roll == Approx(30.f));

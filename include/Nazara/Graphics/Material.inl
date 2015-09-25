@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-template<typename... Args>
-NzMaterialRef NzMaterial::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzMaterial> object(new NzMaterial(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	MaterialRef Material::New(Args&&... args)
+	{
+		std::unique_ptr<Material> object(new Material(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

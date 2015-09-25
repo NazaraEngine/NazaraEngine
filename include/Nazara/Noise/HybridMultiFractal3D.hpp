@@ -11,22 +11,26 @@
 #include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Abstract3DNoise.hpp>
 
-class NAZARA_NOISE_API NzHybridMultiFractal3D : public NzAbstract3DNoise, public NzComplexNoiseBase
+namespace Nz
 {
-    public:
-        NzHybridMultiFractal3D(nzNoises source, unsigned int seed);
-        float GetValue(float x, float y, float z, float resolution);
-        ~NzHybridMultiFractal3D();
-    protected:
-    private:
-        NzAbstract3DNoise* m_source;
-        float m_value;
-        float m_remainder;
-        float m_offset;
-        float m_weight;
-        float m_signal;
-        nzNoises m_noiseType;
-};
+	class NAZARA_NOISE_API HybridMultiFractal3D : public Abstract3DNoise, public ComplexNoiseBase
+	{
+		public:
+			HybridMultiFractal3D(NoiseType source, unsigned int seed);
+			~HybridMultiFractal3D();
+
+			float GetValue(float x, float y, float z, float resolution);
+
+		private:
+			Abstract3DNoise* m_source;
+			float m_value;
+			float m_remainder;
+			float m_offset;
+			float m_weight;
+			float m_signal;
+			NoiseType m_noiseType;
+	};
+}
 
 #endif // HYBRIDMULTIFRACTAL3D_HPP
 

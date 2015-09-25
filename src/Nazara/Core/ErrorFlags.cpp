@@ -6,26 +6,29 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzErrorFlags::NzErrorFlags(nzUInt32 flags, bool replace) :
-m_previousFlags(NzError::GetFlags())
+namespace Nz
 {
-	SetFlags(flags, replace);
-}
+	ErrorFlags::ErrorFlags(UInt32 flags, bool replace) :
+	m_previousFlags(Error::GetFlags())
+	{
+		SetFlags(flags, replace);
+	}
 
-NzErrorFlags::~NzErrorFlags()
-{
-	NzError::SetFlags(m_previousFlags);
-}
+	ErrorFlags::~ErrorFlags()
+	{
+		Error::SetFlags(m_previousFlags);
+	}
 
-nzUInt32 NzErrorFlags::GetPreviousFlags() const
-{
-	return m_previousFlags;
-}
+	UInt32 ErrorFlags::GetPreviousFlags() const
+	{
+		return m_previousFlags;
+	}
 
-void NzErrorFlags::SetFlags(nzUInt32 flags, bool replace)
-{
-	if (!replace)
-		flags |= m_previousFlags;
+	void ErrorFlags::SetFlags(UInt32 flags, bool replace)
+	{
+		if (!replace)
+			flags |= m_previousFlags;
 
-	NzError::SetFlags(flags);
+		Error::SetFlags(flags);
+	}
 }

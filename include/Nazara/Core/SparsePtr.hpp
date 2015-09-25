@@ -13,66 +13,69 @@
 #include <cstddef>
 #include <type_traits>
 
-template<typename T>
-class NzSparsePtr
+namespace Nz
 {
-	public:
-		using BytePtr = typename std::conditional<std::is_const<T>::value, const nzUInt8*, nzUInt8*>::type;
-		using VoidPtr = typename std::conditional<std::is_const<T>::value, const void*, void*>::type;
+	template<typename T>
+	class SparsePtr
+	{
+		public:
+			using BytePtr = typename std::conditional<std::is_const<T>::value, const UInt8*, UInt8*>::type;
+			using VoidPtr = typename std::conditional<std::is_const<T>::value, const void*, void*>::type;
 
-		NzSparsePtr();
-		NzSparsePtr(T* ptr);
-		NzSparsePtr(VoidPtr ptr, int stride);
-		template<typename U> NzSparsePtr(const NzSparsePtr<U>& ptr);
-		NzSparsePtr(const NzSparsePtr& ptr) = default;
-		~NzSparsePtr() = default;
+			SparsePtr();
+			SparsePtr(T* ptr);
+			SparsePtr(VoidPtr ptr, int stride);
+			template<typename U> SparsePtr(const SparsePtr<U>& ptr);
+			SparsePtr(const SparsePtr& ptr) = default;
+			~SparsePtr() = default;
 
-		VoidPtr GetPtr() const;
-		int GetStride() const;
+			VoidPtr GetPtr() const;
+			int GetStride() const;
 
-		void Reset();
-		void Reset(T* ptr);
-		void Reset(VoidPtr ptr, int stride);
-		void Reset(const NzSparsePtr& ptr);
-		template<typename U> void Reset(const NzSparsePtr<U>& ptr);
+			void Reset();
+			void Reset(T* ptr);
+			void Reset(VoidPtr ptr, int stride);
+			void Reset(const SparsePtr& ptr);
+			template<typename U> void Reset(const SparsePtr<U>& ptr);
 
-		void SetPtr(VoidPtr ptr);
-		void SetStride(int stride);
+			void SetPtr(VoidPtr ptr);
+			void SetStride(int stride);
 
-		operator bool() const;
-		operator T*() const;
-		T& operator*() const;
-		T* operator->() const;
-		T& operator[](int index) const;
+			operator bool() const;
+			operator T*() const;
+			T& operator*() const;
+			T* operator->() const;
+			T& operator[](int index) const;
 
-		NzSparsePtr operator+(int count) const;
-		NzSparsePtr operator+(unsigned int count) const;
-		NzSparsePtr operator-(int count) const;
-		NzSparsePtr operator-(unsigned int count) const;
-		std::ptrdiff_t operator-(const NzSparsePtr& ptr) const;
+			SparsePtr& operator=(const SparsePtr& ptr) = default;
 
-		NzSparsePtr& operator+=(int count);
-		NzSparsePtr& operator-=(int count);
+			SparsePtr operator+(int count) const;
+			SparsePtr operator+(unsigned int count) const;
+			SparsePtr operator-(int count) const;
+			SparsePtr operator-(unsigned int count) const;
+			std::ptrdiff_t operator-(const SparsePtr& ptr) const;
 
-		NzSparsePtr& operator++();
-		NzSparsePtr operator++(int);
+			SparsePtr& operator+=(int count);
+			SparsePtr& operator-=(int count);
 
-		NzSparsePtr& operator--();
-		NzSparsePtr operator--(int);
+			SparsePtr& operator++();
+			SparsePtr operator++(int);
 
-		bool operator==(const NzSparsePtr& ptr) const;
-		bool operator!=(const NzSparsePtr& ptr) const;
-		bool operator<(const NzSparsePtr& ptr) const;
-		bool operator>(const NzSparsePtr& ptr) const;
-		bool operator<=(const NzSparsePtr& ptr) const;
-		bool operator>=(const NzSparsePtr& ptr) const;
+			SparsePtr& operator--();
+			SparsePtr operator--(int);
 
-		NzSparsePtr& operator=(const NzSparsePtr& ptr) = default;
+			bool operator==(const SparsePtr& ptr) const;
+			bool operator!=(const SparsePtr& ptr) const;
+			bool operator<(const SparsePtr& ptr) const;
+			bool operator>(const SparsePtr& ptr) const;
+			bool operator<=(const SparsePtr& ptr) const;
+			bool operator>=(const SparsePtr& ptr) const;
 
-	private:
-		BytePtr m_ptr;
-		int m_stride;
-};
+		private:
+			BytePtr m_ptr;
+			int m_stride;
+	};
+}
 
 #include <Nazara/Core/SparsePtr.inl>
 

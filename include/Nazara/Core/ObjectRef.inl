@@ -5,148 +5,151 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-template<typename T>
-NzObjectRef<T>::NzObjectRef() :
-m_object(nullptr)
+namespace Nz
 {
-}
-
-template<typename T>
-NzObjectRef<T>::NzObjectRef(T* object) :
-m_object(object)
-{
-	if (m_object)
-		m_object->AddReference();
-}
-
-template<typename T>
-NzObjectRef<T>::NzObjectRef(const NzObjectRef& ref) :
-m_object(ref.m_object)
-{
-	if (m_object)
-		m_object->AddReference();
-}
-
-template<typename T>
-template<typename U>
-NzObjectRef<T>::NzObjectRef(const NzObjectRef<U>& ref) :
-NzObjectRef(ref.Get())
-{
-}
-
-template<typename T>
-NzObjectRef<T>::NzObjectRef(NzObjectRef&& ref) noexcept :
-m_object(ref.m_object)
-{
-	ref.m_object = nullptr; // On vole la référence
-}
-
-template<typename T>
-NzObjectRef<T>::~NzObjectRef()
-{
-	if (m_object)
-		m_object->RemoveReference();
-}
-
-template<typename T>
-T* NzObjectRef<T>::Get() const
-{
-	return m_object;
-}
-
-template<typename T>
-bool NzObjectRef<T>::IsValid() const
-{
-	return m_object != nullptr;
-}
-
-template<typename T>
-T* NzObjectRef<T>::Release()
-{
-	T* object = m_object;
-	m_object = nullptr;
-
-	return object;
-}
-
-template<typename T>
-bool NzObjectRef<T>::Reset(T* object)
-{
-	bool destroyed = false;
-	if (m_object != object)
+	template<typename T>
+	ObjectRef<T>::ObjectRef() :
+	m_object(nullptr)
 	{
-		if (m_object)
-			destroyed = m_object->RemoveReference();
+	}
 
-		m_object = object;
+	template<typename T>
+	ObjectRef<T>::ObjectRef(T* object) :
+	m_object(object)
+	{
 		if (m_object)
 			m_object->AddReference();
 	}
 
-	return destroyed;
-}
+	template<typename T>
+	ObjectRef<T>::ObjectRef(const ObjectRef& ref) :
+	m_object(ref.m_object)
+	{
+		if (m_object)
+			m_object->AddReference();
+	}
 
-template<typename T>
-NzObjectRef<T>& NzObjectRef<T>::Swap(NzObjectRef& ref)
-{
-	std::swap(m_object, ref.m_object);
+	template<typename T>
+	template<typename U>
+	ObjectRef<T>::ObjectRef(const ObjectRef<U>& ref) :
+	ObjectRef(ref.Get())
+	{
+	}
 
-	return *this;
-}
+	template<typename T>
+	ObjectRef<T>::ObjectRef(ObjectRef&& ref) noexcept :
+	m_object(ref.m_object)
+	{
+		ref.m_object = nullptr; // On vole la référence
+	}
 
-template<typename T>
-NzObjectRef<T>::operator bool() const
-{
-	return IsValid();
-}
+	template<typename T>
+	ObjectRef<T>::~ObjectRef()
+	{
+		if (m_object)
+			m_object->RemoveReference();
+	}
 
-template<typename T>
-NzObjectRef<T>::operator T*() const
-{
-	return m_object;
-}
+	template<typename T>
+	T* ObjectRef<T>::Get() const
+	{
+		return m_object;
+	}
 
-template<typename T>
-T* NzObjectRef<T>::operator->() const
-{
-	return m_object;
-}
+	template<typename T>
+	bool ObjectRef<T>::IsValid() const
+	{
+		return m_object != nullptr;
+	}
 
-template<typename T>
-NzObjectRef<T>& NzObjectRef<T>::operator=(T* object)
-{
-	Reset(object);
+	template<typename T>
+	T* ObjectRef<T>::Release()
+	{
+		T* object = m_object;
+		m_object = nullptr;
 
-	return *this;
-}
+		return object;
+	}
 
-template<typename T>
-NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef& ref)
-{
-	Reset(ref.m_object);
+	template<typename T>
+	bool ObjectRef<T>::Reset(T* object)
+	{
+		bool destroyed = false;
+		if (m_object != object)
+		{
+			if (m_object)
+				destroyed = m_object->RemoveReference();
 
-	return *this;
-}
+			m_object = object;
+			if (m_object)
+				m_object->AddReference();
+		}
 
-template<typename T>
-template<typename U>
-NzObjectRef<T>& NzObjectRef<T>::operator=(const NzObjectRef<U>& ref)
-{
-	static_assert(std::is_convertible<U*, T*>::value, "U is not implicitly convertible to T");
+		return destroyed;
+	}
 
-	Reset(ref.Get());
+	template<typename T>
+	ObjectRef<T>& ObjectRef<T>::Swap(ObjectRef& ref)
+	{
+		std::swap(m_object, ref.m_object);
 
-	return *this;
-}
+		return *this;
+	}
 
-template<typename T>
-NzObjectRef<T>& NzObjectRef<T>::operator=(NzObjectRef&& ref) noexcept
-{
-	Reset();
+	template<typename T>
+	ObjectRef<T>::operator bool() const
+	{
+		return IsValid();
+	}
 
-	std::swap(m_object, ref.m_object);
+	template<typename T>
+	ObjectRef<T>::operator T*() const
+	{
+		return m_object;
+	}
 
-	return *this;
+	template<typename T>
+	T* ObjectRef<T>::operator->() const
+	{
+		return m_object;
+	}
+
+	template<typename T>
+	ObjectRef<T>& ObjectRef<T>::operator=(T* object)
+	{
+		Reset(object);
+
+		return *this;
+	}
+
+	template<typename T>
+	ObjectRef<T>& ObjectRef<T>::operator=(const ObjectRef& ref)
+	{
+		Reset(ref.m_object);
+
+		return *this;
+	}
+
+	template<typename T>
+	template<typename U>
+	ObjectRef<T>& ObjectRef<T>::operator=(const ObjectRef<U>& ref)
+	{
+		static_assert(std::is_convertible<U*, T*>::value, "U is not implicitly convertible to T");
+
+		Reset(ref.Get());
+
+		return *this;
+	}
+
+	template<typename T>
+	ObjectRef<T>& ObjectRef<T>::operator=(ObjectRef&& ref) noexcept
+	{
+		Reset();
+
+		std::swap(m_object, ref.m_object);
+
+		return *this;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

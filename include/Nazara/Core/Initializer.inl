@@ -4,84 +4,91 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-template<typename...> struct NzImplInitializer;
-
-template<typename T, typename... Rest>
-struct NzImplInitializer<T, Rest...>
+namespace Nz
 {
-	static bool Init()
+	namespace Detail
 	{
-		if (T::Initialize())
+		template<typename...> struct Initializer;
+
+		template<typename T, typename... Rest>
+		struct Initializer<T, Rest...>
 		{
-			if (NzImplInitializer<Rest...>::Init())
-				return true;
-			else
+			static bool Init()
+			{
+				if (T::Initialize())
+				{
+					if (Initializer<Rest...>::Init())
+						return true;
+					else
+						T::Uninitialize();
+				}
+
+				return false;
+			}
+
+			static void Uninit()
+			{
+				Initializer<Rest...>::Uninit();
 				T::Uninitialize();
-		}
+			}
+		};
 
-		return false;
+		template<>
+		struct Initializer<>
+		{
+			static bool Init()
+			{
+				return true;
+			}
+
+			static void Uninit()
+			{
+			}
+		};
 	}
 
-	static void Uninit()
+
+	template<typename... Args>
+	Initializer<Args...>::Initializer(bool initialize) :
+	m_initialized(false)
 	{
-		NzImplInitializer<Rest...>::Uninit();
-		T::Uninitialize();
+		if (initialize)
+			Initialize();
 	}
-};
 
-template<>
-struct NzImplInitializer<>
-{
-	static bool Init()
+	template<typename... Args>
+	Initializer<Args...>::~Initializer()
 	{
-		return true;
+		Uninitialize();
 	}
 
-	static void Uninit()
+	template<typename... Args>
+	bool Initializer<Args...>::Initialize()
 	{
+		if (!m_initialized)
+			m_initialized = Detail::Initializer<Args...>::Init();
+
+		return m_initialized;
 	}
-};
 
-template<typename... Args>
-NzInitializer<Args...>::NzInitializer(bool initialize) :
-m_initialized(false)
-{
-	if (initialize)
-		Initialize();
-}
+	template<typename... Args>
+	bool Initializer<Args...>::IsInitialized() const
+	{
+		return m_initialized;
+	}
 
-template<typename... Args>
-NzInitializer<Args...>::~NzInitializer()
-{
-	Uninitialize();
-}
+	template<typename... Args>
+	void Initializer<Args...>::Uninitialize()
+	{
+		if (m_initialized)
+			Detail::Initializer<Args...>::Uninit();
+	}
 
-template<typename... Args>
-bool NzInitializer<Args...>::Initialize()
-{
-	if (!m_initialized)
-		m_initialized = NzImplInitializer<Args...>::Init();
-
-	return m_initialized;
-}
-
-template<typename... Args>
-bool NzInitializer<Args...>::IsInitialized() const
-{
-	return m_initialized;
-}
-
-template<typename... Args>
-void NzInitializer<Args...>::Uninitialize()
-{
-	if (m_initialized)
-		NzImplInitializer<Args...>::Uninit();
-}
-
-template<typename... Args>
-NzInitializer<Args...>::operator bool() const
-{
-	return IsInitialized();
+	template<typename... Args>
+	Initializer<Args...>::operator bool() const
+	{
+		return IsInitialized();
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

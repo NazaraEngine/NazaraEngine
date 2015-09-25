@@ -14,28 +14,31 @@
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
-inline void NzOperatorDelete(void* ptr)
+namespace Nz
 {
-	#if NAZARA_CORE_MANAGE_MEMORY
-	NzMemoryManager::Free(ptr);
-	#else
-	operator delete(ptr);
-	#endif
-}
+	inline void OperatorDelete(void* ptr)
+	{
+		#if NAZARA_CORE_MANAGE_MEMORY
+		MemoryManager::Free(ptr);
+		#else
+		operator delete(ptr);
+		#endif
+	}
 
-inline void* NzOperatorNew(std::size_t size)
-{
-	#if NAZARA_CORE_MANAGE_MEMORY
-	return NzMemoryManager::Allocate(size);
-	#else
-	return operator new(size);
-	#endif
-}
+	inline void* OperatorNew(std::size_t size)
+	{
+		#if NAZARA_CORE_MANAGE_MEMORY
+		return MemoryManager::Allocate(size);
+		#else
+		return operator new(size);
+		#endif
+	}
 
-template<typename T, typename... Args>
-T* NzPlacementNew(void* ptr, Args&&... args)
-{
-	return new (ptr) T(std::forward<Args>(args)...);
+	template<typename T, typename... Args>
+	T* PlacementNew(void* ptr, Args&&... args)
+	{
+		return new (ptr) T(std::forward<Args>(args)...);
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
