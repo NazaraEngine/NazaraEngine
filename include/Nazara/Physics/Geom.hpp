@@ -190,22 +190,22 @@ namespace Nz
 			unsigned int m_vertexStride;
 	};
 
-	class NzCylinderGeom;
+	class CylinderGeom;
 
-	using NzCylinderGeomConstRef = ObjectRef<const NzCylinderGeom>;
-	using NzCylinderGeomRef = ObjectRef<NzCylinderGeom>;
+	using CylinderGeomConstRef = ObjectRef<const CylinderGeom>;
+	using CylinderGeomRef = ObjectRef<CylinderGeom>;
 
-	class NAZARA_PHYSICS_API NzCylinderGeom : public PhysGeom
+	class NAZARA_PHYSICS_API CylinderGeom : public PhysGeom
 	{
 		public:
-			NzCylinderGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			NzCylinderGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			CylinderGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			CylinderGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			float GetLength() const;
 			float GetRadius() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static NzCylinderGeomRef New(Args&&... args);
+			template<typename... Args> static CylinderGeomRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;

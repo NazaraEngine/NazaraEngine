@@ -29,11 +29,11 @@ namespace Nz
 			Face& face = (i == 0) ? backFace : frontFace;
 
 			face.stencilCompare = RendererComparison_Always;
-			face.stencilFail = nzStencilOperation_Keep;
+			face.stencilFail = StencilOperation_Keep;
 			face.stencilMask = 0xFFFFFFFF;
-			face.stencilPass = nzStencilOperation_Keep;
+			face.stencilPass = StencilOperation_Keep;
 			face.stencilReference = 0;
-			face.stencilZFail = nzStencilOperation_Keep;
+			face.stencilZFail = StencilOperation_Keep;
 		}
 	}
 
