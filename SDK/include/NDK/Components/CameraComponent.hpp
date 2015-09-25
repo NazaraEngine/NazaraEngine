@@ -19,7 +19,7 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public NzAbstractViewer
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
 	{
 		public:
 			inline CameraComponent();
@@ -34,26 +34,26 @@ namespace Ndk
 			inline void EnsureViewportUpdate() const;
 
 			inline float GetAspectRatio() const;
-			inline NzVector3f GetEyePosition() const;
-			inline NzVector3f GetForward() const;
+			inline Nz::Vector3f GetEyePosition() const;
+			inline Nz::Vector3f GetForward() const;
 			inline float GetFOV() const;
-			inline const NzFrustumf& GetFrustum() const;
+			inline const Nz::Frustumf& GetFrustum() const;
 			inline unsigned int GetLayer() const;
-			inline const NzMatrix4f& GetProjectionMatrix() const;
-			inline nzProjectionType GetProjectionType() const;
-			inline const NzRenderTarget* GetTarget() const;
-			inline const NzRectf& GetTargetRegion() const;
-			inline const NzMatrix4f& GetViewMatrix() const;
-			inline const NzRecti& GetViewport() const;
+			inline const Nz::Matrix4f& GetProjectionMatrix() const;
+			inline Nz::ProjectionType GetProjectionType() const;
+			inline const Nz::RenderTarget* GetTarget() const;
+			inline const Nz::Rectf& GetTargetRegion() const;
+			inline const Nz::Matrix4f& GetViewMatrix() const;
+			inline const Nz::Recti& GetViewport() const;
 			inline float GetZFar() const;
 			inline float GetZNear() const;
 
 			inline void SetFOV(float fov);
 			inline void SetLayer(unsigned int layer);
-			inline void SetProjectionType(nzProjectionType projection);
-			inline void SetTarget(const NzRenderTarget* renderTarget);
-			inline void SetTargetRegion(const NzRectf& region);
-			inline void SetViewport(const NzRecti& viewport);
+			inline void SetProjectionType(Nz::ProjectionType projection);
+			inline void SetTarget(const Nz::RenderTarget* renderTarget);
+			inline void SetTargetRegion(const Nz::Rectf& region);
+			inline void SetViewport(const Nz::Recti& viewport);
 			inline void SetZFar(float zFar);
 			inline void SetZNear(float zNear);
 
@@ -69,26 +69,26 @@ namespace Ndk
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
-			void OnNodeInvalidated(const NzNode* node);
-			void OnRenderTargetRelease(const NzRenderTarget* renderTarget);
-			void OnRenderTargetSizeChange(const NzRenderTarget* renderTarget);
+			void OnNodeInvalidated(const Nz::Node* node);
+			void OnRenderTargetRelease(const Nz::RenderTarget* renderTarget);
+			void OnRenderTargetSizeChange(const Nz::RenderTarget* renderTarget);
 
 			void UpdateFrustum() const;
 			void UpdateProjectionMatrix() const;
 			void UpdateViewMatrix() const;
 			void UpdateViewport() const;
 
-			NazaraSlot(NzNode, OnNodeInvalidation, m_nodeInvalidationSlot);
-			NazaraSlot(NzRenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
-			NazaraSlot(NzRenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
+			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
+			NazaraSlot(Nz::RenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
+			NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
-			nzProjectionType m_projectionType;
-			mutable NzFrustumf m_frustum;
-			mutable NzMatrix4f m_projectionMatrix;
-			mutable NzMatrix4f m_viewMatrix;
-			NzRectf m_targetRegion;
-			mutable NzRecti m_viewport;
-			const NzRenderTarget* m_target;
+			Nz::ProjectionType m_projectionType;
+			mutable Nz::Frustumf m_frustum;
+			mutable Nz::Matrix4f m_projectionMatrix;
+			mutable Nz::Matrix4f m_viewMatrix;
+			Nz::Rectf m_targetRegion;
+			mutable Nz::Recti m_viewport;
+			const Nz::RenderTarget* m_target;
 			mutable bool m_frustumUpdated;
 			mutable bool m_projectionMatrixUpdated;
 			mutable bool m_viewMatrixUpdated;

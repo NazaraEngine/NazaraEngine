@@ -28,187 +28,190 @@
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-bool NzUtility::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool Utility::Initialize()
 	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
+		// Initialisation des dépendances
+		if (!Core::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		// Initialisation du module
+		CallOnExit onExit(Utility::Uninitialize);
+
+		if (!Animation::Initialize())
+		{
+			NazaraError("Failed to initialize animations");
+			return false;
+		}
+
+		if (!Buffer::Initialize())
+		{
+			NazaraError("Failed to initialize buffers");
+			return false;
+		}
+
+		if (!Font::Initialize())
+		{
+			NazaraError("Failed to initialize fonts");
+			return false;
+		}
+
+		if (!Image::Initialize())
+		{
+			NazaraError("Failed to initialize images");
+			return false;
+		}
+
+		if (!Mesh::Initialize())
+		{
+			NazaraError("Failed to initialize meshes");
+			return false;
+		}
+
+		if (!NzPixelFormat::Initialize())
+		{
+			NazaraError("Failed to initialize pixel formats");
+			return false;
+		}
+
+		if (!Skeleton::Initialize())
+		{
+			NazaraError("Failed to initialize skeletons");
+			return false;
+		}
+
+		if (!VertexDeclaration::Initialize())
+		{
+			NazaraError("Failed to initialize vertex declarations");
+			return false;
+		}
+
+		if (!Window::Initialize())
+		{
+			NazaraError("Failed to initialize window's system");
+			return false;
+		}
+
+		// On enregistre les loaders pour les extensions
+		// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
+
+		/// Loaders génériques
+		// Font
+		Loaders::RegisterFreeType();
+
+		// Image
+		Loaders::RegisterSTB(); // Loader générique (STB)
+
+		/// Loaders spécialisés
+		// Animation
+		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
+
+		// Mesh
+		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
+		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
+
+		// Image
+		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
+
+		onExit.Reset();
+
+		NazaraNotice("Initialized: Utility module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool Utility::IsInitialized()
 	{
-		NazaraError("Failed to initialize core module");
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-	NzCallOnExit onExit(NzUtility::Uninitialize);
-
-	if (!NzAnimation::Initialize())
+	void Utility::Uninitialize()
 	{
-		NazaraError("Failed to initialize animations");
-		return false;
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
+
+			return;
+		}
+
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		Loaders::UnregisterFreeType();
+		Loaders::UnregisterMD2();
+		Loaders::UnregisterMD5Anim();
+		Loaders::UnregisterMD5Mesh();
+		Loaders::UnregisterPCX();
+		Loaders::UnregisterSTB();
+
+		Window::Uninitialize();
+		VertexDeclaration::Uninitialize();
+		Skeleton::Uninitialize();
+		NzPixelFormat::Uninitialize();
+		Mesh::Uninitialize();
+		Image::Uninitialize();
+		Font::Uninitialize();
+		Buffer::Uninitialize();
+		Animation::Uninitialize();
+
+		NazaraNotice("Uninitialized: Utility module");
+
+		// Libération des dépendances
+		Core::Uninitialize();
 	}
 
-	if (!NzBuffer::Initialize())
+	unsigned int Utility::ComponentCount[ComponentType_Max+1] =
 	{
-		NazaraError("Failed to initialize buffers");
-		return false;
-	}
+		4, // ComponentType_Color
+		1, // ComponentType_Double1
+		2, // ComponentType_Double2
+		3, // ComponentType_Double3
+		4, // ComponentType_Double4
+		1, // ComponentType_Float1
+		2, // ComponentType_Float2
+		3, // ComponentType_Float3
+		4, // ComponentType_Float4
+		1, // ComponentType_Int1
+		2, // ComponentType_Int2
+		3, // ComponentType_Int3
+		4, // ComponentType_Int4
+		4  // ComponentType_Quaternion
+	};
 
-	if (!NzFont::Initialize())
+	static_assert(ComponentType_Max+1 == 14, "Component count array is incomplete");
+
+	std::size_t Utility::ComponentStride[ComponentType_Max+1] =
 	{
-		NazaraError("Failed to initialize fonts");
-		return false;
-	}
+		4*sizeof(UInt8),  // ComponentType_Color
+		1*sizeof(double),   // ComponentType_Double1
+		2*sizeof(double),   // ComponentType_Double2
+		3*sizeof(double),   // ComponentType_Double3
+		4*sizeof(double),   // ComponentType_Double4
+		1*sizeof(float),    // ComponentType_Float1
+		2*sizeof(float),    // ComponentType_Float2
+		3*sizeof(float),    // ComponentType_Float3
+		4*sizeof(float),    // ComponentType_Float4
+		1*sizeof(UInt32), // ComponentType_Int1
+		2*sizeof(UInt32), // ComponentType_Int2
+		3*sizeof(UInt32), // ComponentType_Int3
+		4*sizeof(UInt32), // ComponentType_Int4
+		4*sizeof(float)     // ComponentType_Quaternion
+	};
 
-	if (!NzImage::Initialize())
-	{
-		NazaraError("Failed to initialize images");
-		return false;
-	}
+	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
 
-	if (!NzMesh::Initialize())
-	{
-		NazaraError("Failed to initialize meshes");
-		return false;
-	}
-
-	if (!NzPixelFormat::Initialize())
-	{
-		NazaraError("Failed to initialize pixel formats");
-		return false;
-	}
-
-	if (!NzSkeleton::Initialize())
-	{
-		NazaraError("Failed to initialize skeletons");
-		return false;
-	}
-
-	if (!NzVertexDeclaration::Initialize())
-	{
-		NazaraError("Failed to initialize vertex declarations");
-		return false;
-	}
-
-	if (!NzWindow::Initialize())
-	{
-		NazaraError("Failed to initialize window's system");
-		return false;
-	}
-
-	// On enregistre les loaders pour les extensions
-	// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
-
-	/// Loaders génériques
-	// Font
-	NzLoaders_FreeType_Register();
-
-	// Image
-	NzLoaders_STB_Register(); // Loader générique (STB)
-
-	/// Loaders spécialisés
-	// Animation
-	NzLoaders_MD5Anim_Register(); // Loader de fichiers .md5anim (v10)
-
-	// Mesh
-	NzLoaders_MD2_Register(); // Loader de fichiers .md2 (v8)
-	NzLoaders_MD5Mesh_Register(); // Loader de fichiers .md5mesh (v10)
-
-	// Image
-	NzLoaders_PCX_Register(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
-
-	onExit.Reset();
-
-	NazaraNotice("Initialized: Utility module");
-	return true;
+	unsigned int Utility::s_moduleReferenceCounter = 0;
 }
-
-bool NzUtility::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzUtility::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
-	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
-
-		return;
-	}
-
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	NzLoaders_FreeType_Unregister();
-	NzLoaders_MD2_Unregister();
-	NzLoaders_MD5Anim_Unregister();
-	NzLoaders_MD5Mesh_Unregister();
-	NzLoaders_PCX_Unregister();
-	NzLoaders_STB_Unregister();
-
-	NzWindow::Uninitialize();
-	NzVertexDeclaration::Uninitialize();
-	NzSkeleton::Uninitialize();
-	NzPixelFormat::Uninitialize();
-	NzMesh::Uninitialize();
-	NzImage::Uninitialize();
-	NzFont::Uninitialize();
-	NzBuffer::Uninitialize();
-	NzAnimation::Uninitialize();
-
-	NazaraNotice("Uninitialized: Utility module");
-
-	// Libération des dépendances
-	NzCore::Uninitialize();
-}
-
-unsigned int NzUtility::ComponentCount[nzComponentType_Max+1] =
-{
-	4, // nzComponentType_Color
-	1, // nzComponentType_Double1
-	2, // nzComponentType_Double2
-	3, // nzComponentType_Double3
-	4, // nzComponentType_Double4
-	1, // nzComponentType_Float1
-	2, // nzComponentType_Float2
-	3, // nzComponentType_Float3
-	4, // nzComponentType_Float4
-	1, // nzComponentType_Int1
-	2, // nzComponentType_Int2
-	3, // nzComponentType_Int3
-	4, // nzComponentType_Int4
-	4  // nzComponentType_Quaternion
-};
-
-static_assert(nzComponentType_Max+1 == 14, "Component count array is incomplete");
-
-std::size_t NzUtility::ComponentStride[nzComponentType_Max+1] =
-{
-	4*sizeof(nzUInt8),  // nzComponentType_Color
-	1*sizeof(double),   // nzComponentType_Double1
-	2*sizeof(double),   // nzComponentType_Double2
-	3*sizeof(double),   // nzComponentType_Double3
-	4*sizeof(double),   // nzComponentType_Double4
-	1*sizeof(float),    // nzComponentType_Float1
-	2*sizeof(float),    // nzComponentType_Float2
-	3*sizeof(float),    // nzComponentType_Float3
-	4*sizeof(float),    // nzComponentType_Float4
-	1*sizeof(nzUInt32), // nzComponentType_Int1
-	2*sizeof(nzUInt32), // nzComponentType_Int2
-	3*sizeof(nzUInt32), // nzComponentType_Int3
-	4*sizeof(nzUInt32), // nzComponentType_Int4
-	4*sizeof(float)     // nzComponentType_Quaternion
-};
-
-static_assert(nzComponentType_Max+1 == 14, "Component stride array is incomplete");
-
-unsigned int NzUtility::s_moduleReferenceCounter = 0;

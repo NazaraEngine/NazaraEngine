@@ -6,16 +6,19 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzUberShaderInstancePreprocessor::NzUberShaderInstancePreprocessor(const NzShader* shader) :
-NzUberShaderInstance(shader)
+namespace Nz
 {
-}
+	UberShaderInstancePreprocessor::UberShaderInstancePreprocessor(const Shader* shader) :
+	UberShaderInstance(shader)
+	{
+	}
 
-NzUberShaderInstancePreprocessor::~NzUberShaderInstancePreprocessor() = default;
+	UberShaderInstancePreprocessor::~UberShaderInstancePreprocessor() = default;
 
-bool NzUberShaderInstancePreprocessor::Activate() const
-{
-	NzRenderer::SetShader(m_shader);
+	bool UberShaderInstancePreprocessor::Activate() const
+	{
+		Renderer::SetShader(m_shader);
 
-	return true;
+		return true;
+	}
 }

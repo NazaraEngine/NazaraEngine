@@ -11,57 +11,60 @@
 #include <Nazara/Core/Functor.hpp>
 #include <iosfwd>
 
-class NzThreadImpl;
-
-class NAZARA_CORE_API NzThread
+namespace Nz
 {
-	public:
-		class Id;
+	class ThreadImpl;
 
-		NzThread();
-		template<typename F> NzThread(F function);
-		template<typename F, typename... Args> NzThread(F function, Args&&... args);
-		template<typename C> NzThread(void (C::*function)(), C* object);
-		NzThread(const NzThread&) = delete;
-		NzThread(NzThread&& other) noexcept;
-		~NzThread();
+	class NAZARA_CORE_API Thread
+	{
+		public:
+			class Id;
 
-		void Detach();
-		Id GetId() const;
-		bool IsJoinable() const;
-		void Join();
+			Thread();
+			template<typename F> Thread(F function);
+			template<typename F, typename... Args> Thread(F function, Args&&... args);
+			template<typename C> Thread(void (C::*function)(), C* object);
+			Thread(const Thread&) = delete;
+			Thread(Thread&& other) noexcept;
+			~Thread();
 
-		NzThread& operator=(const NzThread&) = delete;
-		NzThread& operator=(NzThread&& thread);
+			void Detach();
+			Id GetId() const;
+			bool IsJoinable() const;
+			void Join();
 
-		static unsigned int HardwareConcurrency();
-		static void Sleep(nzUInt32 milliseconds);
+			Thread& operator=(const Thread&) = delete;
+			Thread& operator=(Thread&& thread);
 
-	private:
-		void CreateImpl(NzFunctor* functor);
+			static unsigned int HardwareConcurrency();
+			static void Sleep(UInt32 milliseconds);
 
-		NzThreadImpl* m_impl;
-};
+		private:
+			void CreateImpl(Functor* functor);
 
-class NAZARA_CORE_API NzThread::Id
-{
-	friend NzThread;
+			ThreadImpl* m_impl;
+	};
 
-	public:
-		NAZARA_CORE_API friend bool operator==(const Id& lhs, const Id& rhs);
-		NAZARA_CORE_API friend bool operator!=(const Id& lhs, const Id& rhs);
-		NAZARA_CORE_API friend bool operator<(const Id& lhs, const Id& rhs);
-		NAZARA_CORE_API friend bool operator<=(const Id& lhs, const Id& rhs);
-		NAZARA_CORE_API friend bool operator>(const Id& lhs, const Id& rhs);
-		NAZARA_CORE_API friend bool operator>=(const Id& lhs, const Id& rhs);
+	class NAZARA_CORE_API Thread::Id
+	{
+		friend Thread;
 
-		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
+		public:
+			NAZARA_CORE_API friend bool operator==(const Id& lhs, const Id& rhs);
+			NAZARA_CORE_API friend bool operator!=(const Id& lhs, const Id& rhs);
+			NAZARA_CORE_API friend bool operator<(const Id& lhs, const Id& rhs);
+			NAZARA_CORE_API friend bool operator<=(const Id& lhs, const Id& rhs);
+			NAZARA_CORE_API friend bool operator>(const Id& lhs, const Id& rhs);
+			NAZARA_CORE_API friend bool operator>=(const Id& lhs, const Id& rhs);
 
-	private:
-		Id(NzThreadImpl* thread);
+			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
-		NzThreadImpl* m_id = nullptr;
-};
+		private:
+			Id(ThreadImpl* thread);
+
+			ThreadImpl* m_id = nullptr;
+	};
+}
 
 #include <Nazara/Core/Thread.inl>
 

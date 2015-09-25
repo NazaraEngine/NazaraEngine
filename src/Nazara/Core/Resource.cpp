@@ -5,14 +5,17 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzResource::~NzResource() = default;
-
-const NzString& NzResource::GetFilePath() const
+namespace Nz
 {
-	return m_filePath;
-}
+	Resource::~Resource() = default;
 
-void NzResource::SetFilePath(const NzString& filePath)
-{
-	m_filePath = filePath;
+	const String& Resource::GetFilePath() const
+	{
+		return m_filePath;
+	}
+
+	void Resource::SetFilePath(const String& filePath)
+	{
+		m_filePath = filePath;
+	}
 }

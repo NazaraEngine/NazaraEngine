@@ -4,12 +4,12 @@
 
 namespace Ndk
 {
-	inline NzPhysWorld& PhysicsSystem::GetWorld()
+	inline Nz::PhysWorld& PhysicsSystem::GetWorld()
 	{
 		return m_world;
 	}
 
-	inline const NzPhysWorld& PhysicsSystem::GetWorld() const
+	inline const Nz::PhysWorld& PhysicsSystem::GetWorld() const
 	{
 		return m_world;
 	}

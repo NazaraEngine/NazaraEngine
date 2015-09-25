@@ -14,36 +14,39 @@
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
-class NzStaticMesh;
-
-class NAZARA_GRAPHICS_API NzDeferredPhongLightingPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredPhongLightingPass();
-		virtual ~NzDeferredPhongLightingPass();
+	class StaticMesh;
 
-		void EnableLightMeshesDrawing(bool enable);
+	class NAZARA_GRAPHICS_API DeferredPhongLightingPass : public DeferredRenderPass
+	{
+		public:
+			DeferredPhongLightingPass();
+			virtual ~DeferredPhongLightingPass();
 
-		bool IsLightMeshesDrawingEnabled() const;
+			void EnableLightMeshesDrawing(bool enable);
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool IsLightMeshesDrawingEnabled() const;
 
-	protected:
-		NzLightUniforms m_directionalLightUniforms;
-		NzLightUniforms m_pointSpotLightUniforms;
-		NzMeshRef m_cone;
-		NzMeshRef m_sphere;
-		NzShaderRef m_directionalLightShader;
-		NzShaderRef m_pointSpotLightShader;
-		NzTextureSampler m_pointSampler;
-		NzStaticMesh* m_coneMesh;
-		NzStaticMesh* m_sphereMesh;
-		bool m_lightMeshesDrawing;
-		int m_directionalLightShaderEyePositionLocation;
-		int m_directionalLightShaderSceneAmbientLocation;
-		int m_pointSpotLightShaderDiscardLocation;
-		int m_pointSpotLightShaderEyePositionLocation;
-		int m_pointSpotLightShaderSceneAmbientLocation;
-};
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+
+		protected:
+			LightUniforms m_directionalLightUniforms;
+			LightUniforms m_pointSpotLightUniforms;
+			MeshRef m_cone;
+			MeshRef m_sphere;
+			ShaderRef m_directionalLightShader;
+			ShaderRef m_pointSpotLightShader;
+			TextureSampler m_pointSampler;
+			StaticMesh* m_coneMesh;
+			StaticMesh* m_sphereMesh;
+			bool m_lightMeshesDrawing;
+			int m_directionalLightShaderEyePositionLocation;
+			int m_directionalLightShaderSceneAmbientLocation;
+			int m_pointSpotLightShaderDiscardLocation;
+			int m_pointSpotLightShaderEyePositionLocation;
+			int m_pointSpotLightShaderSceneAmbientLocation;
+	};
+}
 
 #endif // NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP

@@ -13,31 +13,34 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 
-class NzAbstractImage;
-class NzFont;
-
-class NAZARA_UTILITY_API NzAbstractTextDrawer
+namespace Nz
 {
-	public:
-		struct Glyph;
+	class AbstractImage;
+	class Font;
 
-		NzAbstractTextDrawer() = default;
-		virtual ~NzAbstractTextDrawer();
+	class NAZARA_UTILITY_API AbstractTextDrawer
+	{
+		public:
+			struct Glyph;
 
-		virtual const NzRectui& GetBounds() const = 0;
-		virtual NzFont* GetFont(unsigned int index) const = 0;
-		virtual unsigned int GetFontCount() const = 0;
-		virtual const Glyph& GetGlyph(unsigned int index) const = 0;
-		virtual unsigned int GetGlyphCount() const = 0;
+			AbstractTextDrawer() = default;
+			virtual ~AbstractTextDrawer();
 
-		struct Glyph
-		{
-			NzColor color;
-			NzRectui atlasRect;
-			NzVector2f corners[4];
-			NzAbstractImage* atlas;
-			bool flipped;
-		};
-};
+			virtual const Rectui& GetBounds() const = 0;
+			virtual Font* GetFont(unsigned int index) const = 0;
+			virtual unsigned int GetFontCount() const = 0;
+			virtual const Glyph& GetGlyph(unsigned int index) const = 0;
+			virtual unsigned int GetGlyphCount() const = 0;
+
+			struct Glyph
+			{
+				Color color;
+				Rectui atlasRect;
+				Vector2f corners[4];
+				AbstractImage* atlas;
+				bool flipped;
+			};
+	};
+}
 
 #endif // NAZARA_ABSTRACTTEXTDRAWER_HPP

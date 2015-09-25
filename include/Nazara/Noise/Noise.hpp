@@ -11,20 +11,23 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Noise/Config.hpp>
 
-class NAZARA_NOISE_API NzNoise
+namespace Nz
 {
-	public:
-		NzNoise() = delete;
-		~NzNoise() = delete;
+	class NAZARA_NOISE_API Noise
+	{
+		public:
+			Noise() = delete;
+			~Noise() = delete;
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
+			static bool IsInitialized();
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-	private:
-		static unsigned int s_moduleReferenceCounter;
-};
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};
+}
 
 #endif // NAZARA_NOISE_HPP

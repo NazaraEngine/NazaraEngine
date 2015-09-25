@@ -5,173 +5,176 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzStringStream::NzStringStream() :
-m_bufferSize(0)
+namespace Nz
 {
-}
+	StringStream::StringStream() :
+	m_bufferSize(0)
+	{
+	}
 
-NzStringStream::NzStringStream(const NzString& str) :
-m_bufferSize(str.GetSize())
-{
-	m_strings.push_back(str);
-}
+	StringStream::StringStream(const String& str) :
+	m_bufferSize(str.GetSize())
+	{
+		m_strings.push_back(str);
+	}
 
-NzString NzStringStream::ToString() const
-{
-	NzString string;
-	string.Reserve(m_bufferSize);
+	String StringStream::ToString() const
+	{
+		String string;
+		string.Reserve(m_bufferSize);
 
-	for (const NzString& str : m_strings)
-		string += str;
+		for (const String& str : m_strings)
+			string += str;
 
-	return string;
-}
+		return string;
+	}
 
-NzStringStream& NzStringStream::operator<<(bool boolean)
-{
-	m_strings.push_back(NzString::Boolean(boolean));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(bool boolean)
+	{
+		m_strings.push_back(String::Boolean(boolean));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(short number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(short number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(unsigned short number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(unsigned short number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(int number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(int number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(unsigned int number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(unsigned int number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(long number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(long number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(unsigned long number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(unsigned long number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(long long number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(long long number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(unsigned long long number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(unsigned long long number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(float number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(float number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(double number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(double number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(long double number)
-{
-	m_strings.push_back(NzString::Number(number));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(long double number)
+	{
+		m_strings.push_back(String::Number(number));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(char character)
-{
-	m_strings.push_back(NzString(character));
-	m_bufferSize++;
+	StringStream& StringStream::operator<<(char character)
+	{
+		m_strings.push_back(String(character));
+		m_bufferSize++;
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(unsigned char character)
-{
-	m_strings.push_back(NzString(static_cast<char>(character)));
-	m_bufferSize++;
+	StringStream& StringStream::operator<<(unsigned char character)
+	{
+		m_strings.push_back(String(static_cast<char>(character)));
+		m_bufferSize++;
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(const char* string)
-{
-	m_strings.push_back(string);
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(const char* string)
+	{
+		m_strings.push_back(string);
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(const std::string& string)
-{
-	m_strings.push_back(string);
-	m_bufferSize += string.size();
+	StringStream& StringStream::operator<<(const std::string& string)
+	{
+		m_strings.push_back(string);
+		m_bufferSize += string.size();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(const NzString& string)
-{
-	m_strings.push_back(string);
-	m_bufferSize += string.GetSize();
+	StringStream& StringStream::operator<<(const String& string)
+	{
+		m_strings.push_back(string);
+		m_bufferSize += string.GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream& NzStringStream::operator<<(const void* ptr)
-{
-	m_strings.push_back(NzString::Pointer(ptr));
-	m_bufferSize += m_strings.back().GetSize();
+	StringStream& StringStream::operator<<(const void* ptr)
+	{
+		m_strings.push_back(String::Pointer(ptr));
+		m_bufferSize += m_strings.back().GetSize();
 
-	return *this;
-}
+		return *this;
+	}
 
-NzStringStream::operator NzString() const
-{
-	return ToString();
+	StringStream::operator String() const
+	{
+		return ToString();
+	}
 }

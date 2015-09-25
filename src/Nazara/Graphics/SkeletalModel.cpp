@@ -12,276 +12,279 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-bool NzSkeletalModelParameters::IsValid() const
+namespace Nz
 {
-	if (!NzModelParameters::IsValid())
-		return false;
-
-	if (loadAnimation && !animation.IsValid())
-		return false;
-
-	return true;
-}
-
-NzSkeletalModel::NzSkeletalModel() :
-m_currentSequence(nullptr),
-m_animationEnabled(true)
-{
-}
-
-void NzSkeletalModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
-{
-	if (!m_mesh)
-		return;
-
-	unsigned int submeshCount = m_mesh->GetSubMeshCount();
-	for (unsigned int i = 0; i < submeshCount; ++i)
+	bool SkeletalModelParameters::IsValid() const
 	{
-		const NzSkeletalMesh* mesh = static_cast<const NzSkeletalMesh*>(m_mesh->GetSubMesh(i));
-		const NzMaterial* material = m_materials[mesh->GetMaterialIndex()];
+		if (!ModelParameters::IsValid())
+			return false;
 
-		NzMeshData meshData;
-		meshData.indexBuffer = mesh->GetIndexBuffer();
-		meshData.primitiveMode = mesh->GetPrimitiveMode();
-		meshData.vertexBuffer = NzSkinningManager::GetBuffer(mesh, &m_skeleton);
+		if (loadAnimation && !animation.IsValid())
+			return false;
 
-		renderQueue->AddMesh(material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+		return true;
 	}
-}
 
-void NzSkeletalModel::AdvanceAnimation(float elapsedTime)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_animation)
+	SkeletalModel::SkeletalModel() :
+	m_currentSequence(nullptr),
+	m_animationEnabled(true)
 	{
-		NazaraError("Model has no animation");
-		return;
 	}
-	#endif
 
-	m_interpolation += m_currentSequence->frameRate * elapsedTime;
-	while (m_interpolation > 1.f)
+	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
-		m_interpolation -= 1.f;
+		if (!m_mesh)
+			return;
 
-		unsigned lastFrame = m_currentSequence->firstFrame + m_currentSequence->frameCount - 1;
-		if (m_nextFrame+1 > lastFrame)
+		unsigned int submeshCount = m_mesh->GetSubMeshCount();
+		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
-			if (m_animation->IsLoopPointInterpolationEnabled())
+			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
+			const Material* material = m_materials[mesh->GetMaterialIndex()];
+
+			MeshData meshData;
+			meshData.indexBuffer = mesh->GetIndexBuffer();
+			meshData.primitiveMode = mesh->GetPrimitiveMode();
+			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
+
+			renderQueue->AddMesh(material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+		}
+	}
+
+	void SkeletalModel::AdvanceAnimation(float elapsedTime)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (!m_animation)
+		{
+			NazaraError("Model has no animation");
+			return;
+		}
+		#endif
+
+		m_interpolation += m_currentSequence->frameRate * elapsedTime;
+		while (m_interpolation > 1.f)
+		{
+			m_interpolation -= 1.f;
+
+			unsigned lastFrame = m_currentSequence->firstFrame + m_currentSequence->frameCount - 1;
+			if (m_nextFrame+1 > lastFrame)
 			{
-				m_currentFrame = m_nextFrame;
-				m_nextFrame = m_currentSequence->firstFrame;
+				if (m_animation->IsLoopPointInterpolationEnabled())
+				{
+					m_currentFrame = m_nextFrame;
+					m_nextFrame = m_currentSequence->firstFrame;
+				}
+				else
+				{
+					m_currentFrame = m_currentSequence->firstFrame;
+					m_nextFrame = m_currentFrame+1;
+				}
 			}
 			else
 			{
-				m_currentFrame = m_currentSequence->firstFrame;
-				m_nextFrame = m_currentFrame+1;
+				m_currentFrame = m_nextFrame;
+				m_nextFrame++;
 			}
 		}
-		else
-		{
-			m_currentFrame = m_nextFrame;
-			m_nextFrame++;
-		}
+
+		m_animation->AnimateSkeleton(&m_skeleton, m_currentFrame, m_nextFrame, m_interpolation);
+
+		InvalidateBoundingVolume();
 	}
 
-	m_animation->AnimateSkeleton(&m_skeleton, m_currentFrame, m_nextFrame, m_interpolation);
-
-	InvalidateBoundingVolume();
-}
-
-NzSkeletalModel* NzSkeletalModel::Clone() const
-{
-	return new NzSkeletalModel(*this);
-}
-
-NzSkeletalModel* NzSkeletalModel::Create() const
-{
-	return new NzSkeletalModel;
-}
-
-void NzSkeletalModel::EnableAnimation(bool animation)
-{
-	m_animationEnabled = animation;
-}
-
-NzAnimation* NzSkeletalModel::GetAnimation() const
-{
-	return m_animation;
-}
-
-NzSkeleton* NzSkeletalModel::GetSkeleton()
-{
-	InvalidateBoundingVolume();
-
-	return &m_skeleton;
-}
-
-const NzSkeleton* NzSkeletalModel::GetSkeleton() const
-{
-	return &m_skeleton;
-}
-
-bool NzSkeletalModel::HasAnimation() const
-{
-	return m_animation != nullptr;
-}
-
-bool NzSkeletalModel::IsAnimated() const
-{
-	return true;
-}
-
-bool NzSkeletalModel::IsAnimationEnabled() const
-{
-	return m_animationEnabled;
-}
-
-bool NzSkeletalModel::LoadFromFile(const NzString& filePath, const NzSkeletalModelParameters& params)
-{
-	return NzSkeletalModelLoader::LoadFromFile(this, filePath, params);
-}
-
-bool NzSkeletalModel::LoadFromMemory(const void* data, std::size_t size, const NzSkeletalModelParameters& params)
-{
-	return NzSkeletalModelLoader::LoadFromMemory(this, data, size, params);
-}
-
-bool NzSkeletalModel::LoadFromStream(NzInputStream& stream, const NzSkeletalModelParameters& params)
-{
-	return NzSkeletalModelLoader::LoadFromStream(this, stream, params);
-}
-
-void NzSkeletalModel::Reset()
-{
-	NzModel::Reset();
-
-	m_skeleton.Destroy();
-}
-
-bool NzSkeletalModel::SetAnimation(NzAnimation* animation)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_mesh)
+	SkeletalModel* SkeletalModel::Clone() const
 	{
-		NazaraError("Model has no mesh");
-		return false;
+		return new SkeletalModel(*this);
 	}
 
-	if (animation)
+	SkeletalModel* SkeletalModel::Create() const
 	{
-		if (!animation->IsValid())
+		return new SkeletalModel;
+	}
+
+	void SkeletalModel::EnableAnimation(bool animation)
+	{
+		m_animationEnabled = animation;
+	}
+
+	Animation* SkeletalModel::GetAnimation() const
+	{
+		return m_animation;
+	}
+
+	Skeleton* SkeletalModel::GetSkeleton()
+	{
+		InvalidateBoundingVolume();
+
+		return &m_skeleton;
+	}
+
+	const Skeleton* SkeletalModel::GetSkeleton() const
+	{
+		return &m_skeleton;
+	}
+
+	bool SkeletalModel::HasAnimation() const
+	{
+		return m_animation != nullptr;
+	}
+
+	bool SkeletalModel::IsAnimated() const
+	{
+		return true;
+	}
+
+	bool SkeletalModel::IsAnimationEnabled() const
+	{
+		return m_animationEnabled;
+	}
+
+	bool SkeletalModel::LoadFromFile(const String& filePath, const SkeletalModelParameters& params)
+	{
+		return SkeletalModelLoader::LoadFromFile(this, filePath, params);
+	}
+
+	bool SkeletalModel::LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params)
+	{
+		return SkeletalModelLoader::LoadFromMemory(this, data, size, params);
+	}
+
+	bool SkeletalModel::LoadFromStream(InputStream& stream, const SkeletalModelParameters& params)
+	{
+		return SkeletalModelLoader::LoadFromStream(this, stream, params);
+	}
+
+	void SkeletalModel::Reset()
+	{
+		Model::Reset();
+
+		m_skeleton.Destroy();
+	}
+
+	bool SkeletalModel::SetAnimation(Animation* animation)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (!m_mesh)
 		{
-			NazaraError("Invalid animation");
+			NazaraError("Model has no mesh");
 			return false;
 		}
 
-		if (animation->GetType() != m_mesh->GetAnimationType())
+		if (animation)
 		{
-			NazaraError("Animation type must match mesh animation type");
+			if (!animation->IsValid())
+			{
+				NazaraError("Invalid animation");
+				return false;
+			}
+
+			if (animation->GetType() != m_mesh->GetAnimationType())
+			{
+				NazaraError("Animation type must match mesh animation type");
+				return false;
+			}
+
+			if (animation->GetJointCount() != m_mesh->GetJointCount())
+			{
+				NazaraError("Animation joint count must match mesh joint count");
+				return false;
+			}
+		}
+		#endif
+
+		m_animation = animation;
+		if (m_animation)
+		{
+			m_currentFrame = 0;
+			m_interpolation = 0.f;
+
+			SetSequence(0);
+		}
+
+		return true;
+	}
+
+	void SkeletalModel::SetMesh(Mesh* mesh)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (mesh && mesh->GetAnimationType() != AnimationType_Skeletal)
+		{
+			NazaraError("Mesh animation type must be skeletal");
+			return;
+		}
+		#endif
+
+		Model::SetMesh(mesh);
+
+		if (m_mesh)
+		{
+			if (m_animation && m_animation->GetJointCount() != m_mesh->GetJointCount())
+			{
+				NazaraWarning("Animation joint count is not matching new mesh joint count, disabling animation...");
+				SetAnimation(nullptr);
+			}
+
+			m_skeleton = *m_mesh->GetSkeleton(); // Copie du squelette template
+		}
+	}
+
+	bool SkeletalModel::SetSequence(const String& sequenceName)
+	{
+		///TODO: Rendre cette erreur "safe" avec le nouveau système de gestions d'erreur (No-log)
+		#if NAZARA_GRAPHICS_SAFE
+		if (!m_animation)
+		{
+			NazaraError("Model has no animation");
+			return false;
+		}
+		#endif
+
+		const Sequence* currentSequence = m_animation->GetSequence(sequenceName);
+		if (!currentSequence)
+		{
+			NazaraError("Sequence not found");
 			return false;
 		}
 
-		if (animation->GetJointCount() != m_mesh->GetJointCount())
+		m_currentSequence = currentSequence;
+		m_nextFrame = m_currentSequence->firstFrame;
+
+		return true;
+	}
+
+	void SkeletalModel::SetSequence(unsigned int sequenceIndex)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (!m_animation)
 		{
-			NazaraError("Animation joint count must match mesh joint count");
-			return false;
+			NazaraError("Model has no animation");
+			return;
 		}
-	}
-	#endif
+		#endif
 
-	m_animation = animation;
-	if (m_animation)
-	{
-		m_currentFrame = 0;
-		m_interpolation = 0.f;
-
-		SetSequence(0);
-	}
-
-	return true;
-}
-
-void NzSkeletalModel::SetMesh(NzMesh* mesh)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (mesh && mesh->GetAnimationType() != nzAnimationType_Skeletal)
-	{
-		NazaraError("Mesh animation type must be skeletal");
-		return;
-	}
-	#endif
-
-	NzModel::SetMesh(mesh);
-
-	if (m_mesh)
-	{
-		if (m_animation && m_animation->GetJointCount() != m_mesh->GetJointCount())
+		const Sequence* currentSequence = m_animation->GetSequence(sequenceIndex);
+		#if NAZARA_GRAPHICS_SAFE
+		if (!currentSequence)
 		{
-			NazaraWarning("Animation joint count is not matching new mesh joint count, disabling animation...");
-			SetAnimation(nullptr);
+			NazaraError("Sequence not found");
+			return;
 		}
+		#endif
 
-		m_skeleton = *m_mesh->GetSkeleton(); // Copie du squelette template
+		m_currentSequence = currentSequence;
+		m_nextFrame = m_currentSequence->firstFrame;
 	}
-}
 
-bool NzSkeletalModel::SetSequence(const NzString& sequenceName)
-{
-	///TODO: Rendre cette erreur "safe" avec le nouveau système de gestions d'erreur (No-log)
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_animation)
+	void SkeletalModel::MakeBoundingVolume() const
 	{
-		NazaraError("Model has no animation");
-		return false;
+		m_boundingVolume.Set(m_skeleton.GetAABB());
 	}
-	#endif
 
-	const NzSequence* currentSequence = m_animation->GetSequence(sequenceName);
-	if (!currentSequence)
+	void SkeletalModel::Update()
 	{
-		NazaraError("Sequence not found");
-		return false;
+		/*if (m_animationEnabled && m_animation)
+			AdvanceAnimation(m_scene->GetUpdateTime());*/
 	}
 
-	m_currentSequence = currentSequence;
-	m_nextFrame = m_currentSequence->firstFrame;
-
-	return true;
+	SkeletalModelLoader::LoaderList SkeletalModel::s_loaders;
 }
-
-void NzSkeletalModel::SetSequence(unsigned int sequenceIndex)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_animation)
-	{
-		NazaraError("Model has no animation");
-		return;
-	}
-	#endif
-
-	const NzSequence* currentSequence = m_animation->GetSequence(sequenceIndex);
-	#if NAZARA_GRAPHICS_SAFE
-	if (!currentSequence)
-	{
-		NazaraError("Sequence not found");
-		return;
-	}
-	#endif
-
-	m_currentSequence = currentSequence;
-	m_nextFrame = m_currentSequence->firstFrame;
-}
-
-void NzSkeletalModel::MakeBoundingVolume() const
-{
-	m_boundingVolume.Set(m_skeleton.GetAABB());
-}
-
-void NzSkeletalModel::Update()
-{
-	/*if (m_animationEnabled && m_animation)
-		AdvanceAnimation(m_scene->GetUpdateTime());*/
-}
-
-NzSkeletalModelLoader::LoaderList NzSkeletalModel::s_loaders;

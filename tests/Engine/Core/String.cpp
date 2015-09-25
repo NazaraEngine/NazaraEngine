@@ -5,7 +5,7 @@ SCENARIO("String", "[CORE][STRING]")
 {
 	GIVEN("One string 'a'")
 	{
-		NzString aDefaultString(1, 'a');
+		Nz::String aDefaultString(1, 'a');
 
 		WHEN("We add information")
 		{
@@ -25,12 +25,12 @@ SCENARIO("String", "[CORE][STRING]")
 				{
 					CHECK(aDefaultString.Contains('D'));
 					CHECK(aDefaultString.Contains("String", 3));
-					CHECK(aDefaultString.Contains(NzString("sTRING"), 3, NzString::CaseInsensitive));
+					CHECK(aDefaultString.Contains(Nz::String("sTRING"), 3, Nz::String::CaseInsensitive));
 					REQUIRE(aDefaultString.FindLast('g') == aDefaultString.GetSize() - 1);
-					CHECK(aDefaultString.EndsWith('G', NzString::CaseInsensitive));
+					CHECK(aDefaultString.EndsWith('G', Nz::String::CaseInsensitive));
 					aDefaultString.Append(" ng bla");
 					REQUIRE(aDefaultString.FindWord("ng") == aDefaultString.GetSize() - 6);
-					//TODO REQUIRE(aDefaultString.FindWord(NzString("ng")) == aDefaultString.GetSize() - 6);
+					//TODO REQUIRE(aDefaultString.FindWord(String("ng")) == aDefaultString.GetSize() - 6);
 					CHECK(aDefaultString.StartsWith("aD"));
 				}
 			}
@@ -62,14 +62,14 @@ SCENARIO("String", "[CORE][STRING]")
 
 	GIVEN("The string of number 16 in base 16")
 	{
-		NzString number16;
+		Nz::String number16;
 
 		CHECK(number16.IsEmpty());
 		CHECK(number16.IsNull());
 
 		WHEN("We assign to number 16")
 		{
-			number16 = NzString::Number(16, 16);
+			number16 = Nz::String::Number(16, 16);
 
 			THEN("These results are expected")
 			{
@@ -85,7 +85,7 @@ SCENARIO("String", "[CORE][STRING]")
 	/* TODO
 	GIVEN("One unicode string")
 	{
-		NzString unicodeString = NzString::Unicode(U"àéçœÂ官話");
+		String unicodeString = String::Unicode(U"àéçœÂ官話");
 
 		WHEN("We convert to other UTF")
 		{
@@ -96,11 +96,11 @@ SCENARIO("String", "[CORE][STRING]")
 			THEN("The result should be the identity")
 			{
 				char* utf8 = unicodeString.GetUtf8Buffer();
-				NzString utf8String = NzString::Unicode(utf8);
+				String utf8String = String::Unicode(utf8);
 				char16_t* utf16 = unicodeString.GetUtf16Buffer();
-				NzString utf16String = NzString::Unicode(utf16);
+				String utf16String = String::Unicode(utf16);
 				char32_t* utf32 = unicodeString.GetUtf32Buffer();
-				NzString utf32String = NzString::Unicode(utf32);
+				String utf32String = String::Unicode(utf32);
 
 				REQUIRE(utf8String == utf16String);
 				REQUIRE(utf16String == utf32String);

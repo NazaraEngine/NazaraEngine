@@ -6,48 +6,51 @@
 #include <cstring>
 #include <Nazara/Renderer/Debug.hpp>
 
-inline NzRenderTexture::NzRenderTexture() :
-m_impl(nullptr)
+namespace Nz
 {
-}
+	inline RenderTexture::RenderTexture() :
+	m_impl(nullptr)
+	{
+	}
 
-inline NzRenderTexture::~NzRenderTexture()
-{
-	Destroy();
-}
+	inline RenderTexture::~RenderTexture()
+	{
+		Destroy();
+	}
 
-inline bool NzRenderTexture::IsValid() const
-{
-	return m_impl != nullptr;
-}
+	inline bool RenderTexture::IsValid() const
+	{
+		return m_impl != nullptr;
+	}
 
-inline void NzRenderTexture::SetColorTarget(nzUInt8 target) const
-{
-	SetColorTargets(&target, 1);
-}
+	inline void RenderTexture::SetColorTarget(UInt8 target) const
+	{
+		SetColorTargets(&target, 1);
+	}
 
-inline void NzRenderTexture::Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers, bool bilinearFilter)
-{
-	Blit(src, src->GetSize(), dst, dst->GetSize(), buffers, bilinearFilter);
-}
+	inline void RenderTexture::Blit(RenderTexture* src, RenderTexture* dst, UInt32 buffers, bool bilinearFilter)
+	{
+		Blit(src, src->GetSize(), dst, dst->GetSize(), buffers, bilinearFilter);
+	}
 
-inline void NzRenderTexture::InvalidateDrawBuffers() const
-{
-	m_drawBuffersUpdated = false;
-}
+	inline void RenderTexture::InvalidateDrawBuffers() const
+	{
+		m_drawBuffersUpdated = false;
+	}
 
-inline void NzRenderTexture::InvalidateSize() const
-{
-	m_sizeUpdated = false;
+	inline void RenderTexture::InvalidateSize() const
+	{
+		m_sizeUpdated = false;
 
-	OnRenderTargetSizeChange(this);
-}
+		OnRenderTargetSizeChange(this);
+	}
 
-inline void NzRenderTexture::InvalidateTargets() const
-{
-	m_checked = false;
-	m_drawBuffersUpdated = false;
-	m_targetsUpdated = false;
+	inline void RenderTexture::InvalidateTargets() const
+	{
+		m_checked = false;
+		m_drawBuffersUpdated = false;
+		m_targetsUpdated = false;
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

@@ -12,44 +12,47 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
-class NzSkeletalMesh;
-
-using NzSkeletalMeshConstRef = NzObjectRef<const NzSkeletalMesh>;
-using NzSkeletalMeshRef = NzObjectRef<NzSkeletalMesh>;
-
-class NAZARA_UTILITY_API NzSkeletalMesh final : public NzSubMesh
+namespace Nz
 {
-	public:
-		NzSkeletalMesh(const NzMesh* parent);
-		~NzSkeletalMesh();
+	class SkeletalMesh;
 
-		bool Create(NzVertexBuffer* vertexBuffer);
-		void Destroy();
+	using SkeletalMeshConstRef = ObjectRef<const SkeletalMesh>;
+	using SkeletalMeshRef = ObjectRef<SkeletalMesh>;
 
-		const NzBoxf& GetAABB() const override;
-		nzAnimationType GetAnimationType() const final;
-		const NzIndexBuffer* GetIndexBuffer() const override;
-		NzVertexBuffer* GetVertexBuffer();
-		const NzVertexBuffer* GetVertexBuffer() const;
-		unsigned int GetVertexCount() const override;
+	class NAZARA_UTILITY_API SkeletalMesh final : public SubMesh
+	{
+		public:
+			SkeletalMesh(const Mesh* parent);
+			~SkeletalMesh();
 
-		bool IsAnimated() const final;
-		bool IsValid() const;
+			bool Create(VertexBuffer* vertexBuffer);
+			void Destroy();
 
-		void SetAABB(const NzBoxf& aabb);
-		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
+			const Boxf& GetAABB() const override;
+			AnimationType GetAnimationType() const final;
+			const IndexBuffer* GetIndexBuffer() const override;
+			VertexBuffer* GetVertexBuffer();
+			const VertexBuffer* GetVertexBuffer() const;
+			unsigned int GetVertexCount() const override;
 
-		template<typename... Args> static NzSkeletalMeshRef New(Args&&... args);
+			bool IsAnimated() const final;
+			bool IsValid() const;
 
-		// Signals:
-		NazaraSignal(OnSkeletalMeshDestroy, const NzSkeletalMesh* /*skeletalMesh*/);
-		NazaraSignal(OnSkeletalMeshRelease, const NzSkeletalMesh* /*skeletalMesh*/);
+			void SetAABB(const Boxf& aabb);
+			void SetIndexBuffer(const IndexBuffer* indexBuffer);
 
-	private:
-		NzBoxf m_aabb;
-		NzIndexBufferConstRef m_indexBuffer = nullptr;
-		NzVertexBufferRef m_vertexBuffer = nullptr;
-};
+			template<typename... Args> static SkeletalMeshRef New(Args&&... args);
+
+			// Signals:
+			NazaraSignal(OnSkeletalMeshDestroy, const SkeletalMesh* /*skeletalMesh*/);
+			NazaraSignal(OnSkeletalMeshRelease, const SkeletalMesh* /*skeletalMesh*/);
+
+		private:
+			Boxf m_aabb;
+			IndexBufferConstRef m_indexBuffer = nullptr;
+			VertexBufferRef m_vertexBuffer = nullptr;
+	};
+}
 
 #include <Nazara/Utility/SkeletalMesh.inl>
 

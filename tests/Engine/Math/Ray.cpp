@@ -1,27 +1,27 @@
 #include <Nazara/Math/Ray.hpp>
 #include <Catch/catch.hpp>
 
-SCENARIO("Ray", "[RAY]")
+SCENARIO("Ray", "[MATH][RAY]")
 {
-	GIVEN("Two same rays (0, 0, 0) -> (0, 1, 0)")
+	GIVEN("Two same Rays (0, 0, 0) -> (0, 1, 0)")
 	{
-		NzRayf firstRay(NzRay<int>(NzPlane<int>::XY(), NzPlane<int>::YZ()));
-		NzRayf secondRay(0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
+		Nz::Rayf ray(Nz::Ray<int>(Nz::Plane<int>::XY(), Nz::Plane<int>::YZ()));
+		Nz::Rayf secondRay(0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
 
 		WHEN("We compare them")
 		{
 			THEN("They are the same and Y axis")
 			{
-				REQUIRE(firstRay == secondRay);
-				REQUIRE(firstRay == NzRayf::AxisY());
+				REQUIRE(ray == secondRay);
+				REQUIRE(ray == Nz::Rayf::AxisY());
 			}
 		}
 
 		WHEN("We ask for the closest point")
 		{
-			THEN("The point that is multiple on the ray, is at multiple")
+			THEN("The point that is multiple on the Nz::Ray, is at multiple")
 			{
-				REQUIRE(firstRay.ClosestPoint(secondRay.GetPoint(1.f)) == Approx(1.f));
+				REQUIRE(ray.ClosestPoint(secondRay.GetPoint(1.f)) == Approx(1.f));
 			}
 		}
 
@@ -32,24 +32,24 @@ SCENARIO("Ray", "[RAY]")
 				float tmpClosest;
 				float tmpFurthest;
 
-				CHECK(firstRay.Intersect(NzBoxf(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
-				REQUIRE(firstRay.GetPoint(tmpClosest) == NzVector3f::UnitY());
-				REQUIRE(firstRay.GetPoint(tmpFurthest) == (NzVector3f::UnitY() * 2.f));
-				CHECK(!firstRay.Intersect(NzBoxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
+				CHECK(ray.Intersect(Nz::Boxf(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
+				REQUIRE(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY());
+				REQUIRE(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 2.f));
+				CHECK(!ray.Intersect(Nz::Boxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
 			}
 
-			THEN("For the Plane collision's")
+			THEN("For the Nz::Plane collision's")
 			{
 				float tmpHit;
 
-				CHECK(firstRay.Intersect(NzPlanef(NzVector3f::UnitY(), 1.f), &tmpHit));
-				REQUIRE(firstRay.GetPoint(tmpHit) == NzVector3f::UnitY());
-				CHECK(firstRay.Intersect(NzPlanef::XZ(), &tmpHit));
-				REQUIRE(firstRay.GetPoint(tmpHit) == NzVector3f::Zero());
-				CHECK(firstRay.Intersect(NzPlanef(NzVector3f::UnitY(), 2.f), &tmpHit));
-				REQUIRE(firstRay.GetPoint(tmpHit) == 2.f * NzVector3f::UnitY());
+				CHECK(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 1.f), &tmpHit));
+				REQUIRE(ray.GetPoint(tmpHit) == Nz::Vector3f::UnitY());
+				CHECK(ray.Intersect(Nz::Planef::XZ(), &tmpHit));
+				REQUIRE(ray.GetPoint(tmpHit) == Nz::Vector3f::Zero());
+				CHECK(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 2.f), &tmpHit));
+				REQUIRE(ray.GetPoint(tmpHit) == 2.f * Nz::Vector3f::UnitY());
 
-				CHECK(!firstRay.Intersect(NzPlanef(NzVector3f::UnitX(), 1.f)));
+				CHECK(!ray.Intersect(Nz::Planef(Nz::Vector3f::UnitX(), 1.f)));
 			}
 
 			THEN("For the Sphere collision's")
@@ -57,11 +57,11 @@ SCENARIO("Ray", "[RAY]")
 				float tmpClosest;
 				float tmpFurthest;
 
-				CHECK(firstRay.Intersect(NzSpheref(NzVector3f::UnitY(), 0.1f), &tmpClosest, &tmpFurthest));
-				REQUIRE(firstRay.GetPoint(tmpClosest) == NzVector3f::UnitY() * 0.9f);
-				REQUIRE(firstRay.GetPoint(tmpFurthest) == (NzVector3f::UnitY() * 1.1f));
+				CHECK(ray.Intersect(Nz::Spheref(Nz::Vector3f::UnitY(), 0.1f), &tmpClosest, &tmpFurthest));
+				REQUIRE(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY() * 0.9f);
+				REQUIRE(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 1.1f));
 
-				CHECK(!firstRay.Intersect(NzSpheref(NzVector3f::UnitX(), 0.9f)));
+				CHECK(!ray.Intersect(Nz::Spheref(Nz::Vector3f::UnitX(), 0.9f)));
 			}
 
 			THEN("For the OBB collision's")
@@ -69,25 +69,25 @@ SCENARIO("Ray", "[RAY]")
 				float tmpClosest;
 				float tmpFurthest;
 
-				NzOrientedBoxf obb(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f);
-				obb.Update(NzMatrix4f::Rotate(NzEulerAnglesf(0.f, 90.f, 0.f).ToQuaternion()));
+				Nz::OrientedBoxf obb(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f);
+				obb.Update(Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f).ToQuaternion()));
 
-				CHECK(firstRay.Intersect(obb, &tmpClosest, &tmpFurthest));
-				REQUIRE(firstRay.GetPoint(tmpClosest) == NzVector3f::UnitY());
-				REQUIRE(firstRay.GetPoint(tmpFurthest) == (NzVector3f::UnitY() * 2.f));
+				CHECK(ray.Intersect(obb, &tmpClosest, &tmpFurthest));
+				REQUIRE(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY());
+				REQUIRE(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 2.f));
 
-				obb = NzOrientedBoxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f);
-				obb.Update(NzMatrix4f::Rotate(NzEulerAnglesf(0.f, 0.f, 90.f).ToQuaternion()));
-				CHECK(!firstRay.Intersect(obb, &tmpClosest, &tmpFurthest));
+				obb = Nz::OrientedBoxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f);
+				obb.Update(Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 0.f, 90.f).ToQuaternion()));
+				CHECK(!ray.Intersect(obb, &tmpClosest, &tmpFurthest));
 			}
 
 			THEN("For the bounding volume collision's")
 			{
-				NzBoundingVolumef nullVolume(nzExtend_Null);
-				CHECK(!firstRay.Intersect(nullVolume));
+				Nz::BoundingVolumef nullVolume(Nz::Extend_Null);
+				CHECK(!ray.Intersect(nullVolume));
 
-				NzBoundingVolumef infiniteVolume(nzExtend_Infinite);
-				CHECK(firstRay.Intersect(infiniteVolume));
+				Nz::BoundingVolumef infiniteVolume(Nz::Extend_Infinite);
+				CHECK(ray.Intersect(infiniteVolume));
 			}
 
 		}

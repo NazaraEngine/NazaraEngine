@@ -8,49 +8,52 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDeferredFinalPass::NzDeferredFinalPass()
+namespace Nz
 {
-	m_pointSampler.SetAnisotropyLevel(1);
-	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
-	m_pointSampler.SetWrapMode(nzSamplerWrap_Clamp);
+	DeferredFinalPass::DeferredFinalPass()
+	{
+		m_pointSampler.SetAnisotropyLevel(1);
+		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
+		m_pointSampler.SetWrapMode(SamplerWrap_Clamp);
 
-	m_states.parameters[nzRendererParameter_DepthBuffer] = false;
+		m_states.parameters[RendererParameter_DepthBuffer] = false;
 
-	m_uberShader = NzUberShaderLibrary::Get("Basic");
+		m_uberShader = UberShaderLibrary::Get("Basic");
 
-	NzParameterList list;
-	list.SetParameter("AUTO_TEXCOORDS", true);
-	list.SetParameter("DIFFUSE_MAPPING", true);
-	list.SetParameter("TEXTURE_MAPPING", false);
+		ParameterList list;
+		list.SetParameter("AUTO_TEXCOORDS", true);
+		list.SetParameter("DIFFUSE_MAPPING", true);
+		list.SetParameter("TEXTURE_MAPPING", false);
 
-	m_uberShaderInstance = m_uberShader->Get(list);
+		m_uberShaderInstance = m_uberShader->Get(list);
 
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
-	m_materialDiffuseMapUniform = shader->GetUniformLocation("MaterialDiffuseMap");
-}
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
+		m_materialDiffuseMapUniform = shader->GetUniformLocation("MaterialDiffuseMap");
+	}
 
-NzDeferredFinalPass::~NzDeferredFinalPass() = default;
+	DeferredFinalPass::~DeferredFinalPass() = default;
 
-bool NzDeferredFinalPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
-{
-	NazaraAssert(sceneData.viewer, "Invalid viewer");
+	bool DeferredFinalPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
-	NazaraUnused(firstWorkTexture);
+		NazaraUnused(firstWorkTexture);
 
-	sceneData.viewer->ApplyView();
+		sceneData.viewer->ApplyView();
 
-	NzRenderer::SetRenderStates(m_states);
-	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);
-	NzRenderer::SetTextureSampler(0, m_pointSampler);
+		Renderer::SetRenderStates(m_states);
+		Renderer::SetTexture(0, m_workTextures[secondWorkTexture]);
+		Renderer::SetTextureSampler(0, m_pointSampler);
 
-	m_uberShaderInstance->Activate();
+		m_uberShaderInstance->Activate();
 
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	shader->SendColor(m_materialDiffuseUniform, NzColor::White);
-	shader->SendInteger(m_materialDiffuseMapUniform, 0);
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		shader->SendColor(m_materialDiffuseUniform, Color::White);
+		shader->SendInteger(m_materialDiffuseMapUniform, 0);
 
-	NzRenderer::DrawFullscreenQuad();
+		Renderer::DrawFullscreenQuad();
 
-	return false;
+		return false;
+	}
 }

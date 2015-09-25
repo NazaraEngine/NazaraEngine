@@ -12,83 +12,86 @@
 #include <atomic>
 #include <unordered_map>
 
-class NAZARA_CORE_API NzParameterList
+namespace Nz
 {
-	public:
-		using Destructor = void (*)(void* value);
+	class NAZARA_CORE_API ParameterList
+	{
+		public:
+			using Destructor = void (*)(void* value);
 
-		NzParameterList() = default;
-		NzParameterList(const NzParameterList& list);
-		NzParameterList(NzParameterList&&) = default;
-		~NzParameterList();
+			ParameterList() = default;
+			ParameterList(const ParameterList& list);
+			ParameterList(ParameterList&&) = default;
+			~ParameterList();
 
-		void Clear();
+			void Clear();
 
-		bool GetBooleanParameter(const NzString& name, bool* value) const;
-		bool GetFloatParameter(const NzString& name, float* value) const;
-		bool GetIntegerParameter(const NzString& name, int* value) const;
-		bool GetParameterType(const NzString& name, nzParameterType* type) const;
-		bool GetPointerParameter(const NzString& name, void** value) const;
-		bool GetStringParameter(const NzString& name, NzString* value) const;
-		bool GetUserdataParameter(const NzString& name, void** value) const;
+			bool GetBooleanParameter(const String& name, bool* value) const;
+			bool GetFloatParameter(const String& name, float* value) const;
+			bool GetIntegerParameter(const String& name, int* value) const;
+			bool GetParameterType(const String& name, ParameterType* type) const;
+			bool GetPointerParameter(const String& name, void** value) const;
+			bool GetStringParameter(const String& name, String* value) const;
+			bool GetUserdataParameter(const String& name, void** value) const;
 
-		bool HasParameter(const NzString& name) const;
+			bool HasParameter(const String& name) const;
 
-		void RemoveParameter(const NzString& name);
+			void RemoveParameter(const String& name);
 
-		void SetParameter(const NzString& name);
-		void SetParameter(const NzString& name, const NzString& value);
-		void SetParameter(const NzString& name, const char* value);
-		void SetParameter(const NzString& name, void* value);
-		void SetParameter(const NzString& name, void* value, Destructor destructor);
-		void SetParameter(const NzString& name, bool value);
-		void SetParameter(const NzString& name, float value);
-		void SetParameter(const NzString& name, int value);
+			void SetParameter(const String& name);
+			void SetParameter(const String& name, const String& value);
+			void SetParameter(const String& name, const char* value);
+			void SetParameter(const String& name, void* value);
+			void SetParameter(const String& name, void* value, Destructor destructor);
+			void SetParameter(const String& name, bool value);
+			void SetParameter(const String& name, float value);
+			void SetParameter(const String& name, int value);
 
-		NzParameterList& operator=(const NzParameterList& list);
-		NzParameterList& operator=(NzParameterList&&) = default;
+			ParameterList& operator=(const ParameterList& list);
+			ParameterList& operator=(ParameterList&&) = default;
 
-	private:
-		struct Parameter
-		{
-			struct UserdataValue
+		private:
+			struct Parameter
 			{
-				UserdataValue(Destructor Destructor, void* value) :
-				counter(1),
-				destructor(Destructor),
-				ptr(value)
+				struct UserdataValue
 				{
-				}
+					UserdataValue(Destructor Destructor, void* value) :
+					counter(1),
+					destructor(Destructor),
+					ptr(value)
+					{
+					}
 
-				std::atomic_uint counter;
-				Destructor destructor;
-				void* ptr;
+					std::atomic_uint counter;
+					Destructor destructor;
+					void* ptr;
+				};
+
+				ParameterType type;
+				union Value
+				{
+					// On définit un constructeur/destructeur vide, permettant de mettre des classes dans l'union
+					Value() {}
+					Value(const Value&) {} // Placeholder
+					~Value() {}
+
+					bool boolVal;
+					float floatVal;
+					int intVal;
+					void* ptrVal;
+					String stringVal;
+					UserdataValue* userdataVal;
+				};
+
+				Value value;
 			};
 
-			nzParameterType type;
-			union Value
-			{
-				// On définit un constructeur/destructeur vide, permettant de mettre des classes dans l'union
-				Value() {}
-				Value(const Value&) {} // Placeholder
-				~Value() {}
+			using ParameterMap = std::unordered_map<String, Parameter>;
 
-				bool boolVal;
-				float floatVal;
-				int intVal;
-				void* ptrVal;
-				NzString stringVal;
-				UserdataValue* userdataVal;
-			};
+			void DestroyValue(Parameter& parameter);
 
-			Value value;
-		};
-
-		using ParameterMap = std::unordered_map<NzString, Parameter>;
-
-		void DestroyValue(Parameter& parameter);
-
-		ParameterMap m_parameters;
-};
+			ParameterMap m_parameters;
+	};
+}
 
 #endif // NAZARA_PARAMETERLIST_HPP

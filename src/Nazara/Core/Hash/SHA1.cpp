@@ -6,42 +6,45 @@
 #include <Nazara/Core/Hash/SHA/Internal.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzHashSHA1::NzHashSHA1()
+namespace Nz
 {
-	m_state = new SHA_CTX;
-}
+	HashSHA1::HashSHA1()
+	{
+		m_state = new SHA_CTX;
+	}
 
-NzHashSHA1::~NzHashSHA1()
-{
-	delete m_state;
-}
+	HashSHA1::~HashSHA1()
+	{
+		delete m_state;
+	}
 
-void NzHashSHA1::Append(const nzUInt8* data, unsigned int len)
-{
-	SHA1_Update(m_state, data, len);
-}
+	void HashSHA1::Append(const UInt8* data, unsigned int len)
+	{
+		SHA1_Update(m_state, data, len);
+	}
 
-void NzHashSHA1::Begin()
-{
-	SHA1_Init(m_state);
-}
+	void HashSHA1::Begin()
+	{
+		SHA1_Init(m_state);
+	}
 
-NzHashDigest NzHashSHA1::End()
-{
-	nzUInt8 digest[SHA1_DIGEST_LENGTH];
+	HashDigest HashSHA1::End()
+	{
+		UInt8 digest[SHA1_DIGEST_LENGTH];
 
-	SHA1_End(m_state, digest);
+		SHA1_End(m_state, digest);
 
-	return NzHashDigest(GetHashName(), digest, SHA1_DIGEST_LENGTH);
-}
+		return HashDigest(GetHashName(), digest, SHA1_DIGEST_LENGTH);
+	}
 
-unsigned int NzHashSHA1::GetDigestLength()
-{
-	return SHA1_DIGEST_LENGTH;
-}
+	unsigned int HashSHA1::GetDigestLength()
+	{
+		return SHA1_DIGEST_LENGTH;
+	}
 
-NzString NzHashSHA1::GetHashName()
-{
-	static NzString hashName = "SHA1";
-	return hashName;
+	String HashSHA1::GetHashName()
+	{
+		static String hashName = "SHA1";
+		return hashName;
+	}
 }

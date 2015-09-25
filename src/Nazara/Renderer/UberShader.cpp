@@ -5,25 +5,28 @@
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzUberShader::~NzUberShader()
+namespace Nz
 {
-	OnUberShaderRelease(this);
-}
-
-bool NzUberShader::Initialize()
-{
-	if (!NzUberShaderLibrary::Initialize())
+	UberShader::~UberShader()
 	{
-		NazaraError("Failed to initialise library");
-		return false;
+		OnUberShaderRelease(this);
 	}
 
-	return true;
-}
+	bool UberShader::Initialize()
+	{
+		if (!UberShaderLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
 
-void NzUberShader::Uninitialize()
-{
-	NzUberShaderLibrary::Uninitialize();
-}
+		return true;
+	}
 
-NzUberShaderLibrary::LibraryMap NzUberShader::s_library;
+	void UberShader::Uninitialize()
+	{
+		UberShaderLibrary::Uninitialize();
+	}
+
+	UberShaderLibrary::LibraryMap UberShader::s_library;
+}

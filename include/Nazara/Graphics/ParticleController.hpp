@@ -14,34 +14,37 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NzParticleController;
-class NzParticleMapper;
-class NzParticleSystem;
-
-using NzParticleControllerConstRef = NzObjectRef<const NzParticleController>;
-using NzParticleControllerLibrary = NzObjectLibrary<NzParticleController>;
-using NzParticleControllerRef = NzObjectRef<NzParticleController>;
-
-class NAZARA_GRAPHICS_API NzParticleController : public NzRefCounted
+namespace Nz
 {
-	friend NzParticleControllerLibrary;
-	friend class NzGraphics;
+	class ParticleController;
+	class ParticleMapper;
+	class ParticleSystem;
 
-	public:
-		NzParticleController() = default;
-		NzParticleController(const NzParticleController& controller);
-		virtual ~NzParticleController();
+	using ParticleControllerConstRef = ObjectRef<const ParticleController>;
+	using ParticleControllerLibrary = ObjectLibrary<ParticleController>;
+	using ParticleControllerRef = ObjectRef<ParticleController>;
 
-		virtual void Apply(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
+	class NAZARA_GRAPHICS_API ParticleController : public RefCounted
+	{
+		friend ParticleControllerLibrary;
+		friend class Graphics;
 
-		// Signals:
-		NazaraSignal(OnParticleControllerRelease, const NzParticleController* /*particleController*/);
+		public:
+			ParticleController() = default;
+			ParticleController(const ParticleController& controller);
+			virtual ~ParticleController();
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			virtual void Apply(ParticleSystem& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
 
-		static NzParticleControllerLibrary::LibraryMap s_library;
-};
+			// Signals:
+			NazaraSignal(OnParticleControllerRelease, const ParticleController* /*particleController*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			static ParticleControllerLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_PARTICLECONTROLLER_HPP

@@ -9,21 +9,24 @@
 
 #include <Nazara/Utility/Buffer.hpp>
 
-class NAZARA_UTILITY_API NzAbstractBuffer
+namespace Nz
 {
-	public:
-		NzAbstractBuffer() = default;
-		virtual ~NzAbstractBuffer();
+	class NAZARA_UTILITY_API AbstractBuffer
+	{
+		public:
+			AbstractBuffer() = default;
+			virtual ~AbstractBuffer();
 
-		virtual bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static) = 0;
-		virtual void Destroy() = 0;
+			virtual bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static) = 0;
+			virtual void Destroy() = 0;
 
-		virtual bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false) = 0;
+			virtual bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false) = 0;
 
-		virtual bool IsHardware() const = 0;
+			virtual bool IsHardware() const = 0;
 
-		virtual void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) = 0;
-		virtual bool Unmap() = 0;
-};
+			virtual void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) = 0;
+			virtual bool Unmap() = 0;
+	};
+}
 
 #endif // NAZARA_ABSTRACTBUFFER_HPP

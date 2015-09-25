@@ -14,32 +14,34 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 
-class NzRenderTarget;
-class NzScene;
-
-class NAZARA_GRAPHICS_API NzAbstractViewer
+namespace Nz
 {
-	public:
-		NzAbstractViewer() = default;
-		NzAbstractViewer(const NzAbstractViewer&) = default;
-		NzAbstractViewer(NzAbstractViewer&&) noexcept = default;
-		virtual ~NzAbstractViewer();
+	class RenderTarget;
 
-		virtual void ApplyView() const = 0;
+	class NAZARA_GRAPHICS_API AbstractViewer
+	{
+		public:
+			AbstractViewer() = default;
+			AbstractViewer(const AbstractViewer&) = default;
+			AbstractViewer(AbstractViewer&&) noexcept = default;
+			virtual ~AbstractViewer();
 
-		virtual float GetAspectRatio() const = 0;
-		virtual NzVector3f GetEyePosition() const = 0;
-		virtual NzVector3f GetForward() const = 0;
-		virtual const NzFrustumf& GetFrustum() const = 0;
-		virtual const NzMatrix4f& GetProjectionMatrix() const = 0;
-		virtual const NzRenderTarget* GetTarget() const = 0;
-		virtual const NzMatrix4f& GetViewMatrix() const = 0;
-		virtual const NzRecti& GetViewport() const = 0;
-		virtual float GetZFar() const = 0;
-		virtual float GetZNear() const = 0;
+			virtual void ApplyView() const = 0;
 
-		NzAbstractViewer& operator=(const NzAbstractViewer&) = default;
-		NzAbstractViewer& operator=(NzAbstractViewer&&) noexcept = default;
-};
+			virtual float GetAspectRatio() const = 0;
+			virtual Vector3f GetEyePosition() const = 0;
+			virtual Vector3f GetForward() const = 0;
+			virtual const Frustumf& GetFrustum() const = 0;
+			virtual const Matrix4f& GetProjectionMatrix() const = 0;
+			virtual const RenderTarget* GetTarget() const = 0;
+			virtual const Matrix4f& GetViewMatrix() const = 0;
+			virtual const Recti& GetViewport() const = 0;
+			virtual float GetZFar() const = 0;
+			virtual float GetZNear() const = 0;
+
+			AbstractViewer& operator=(const AbstractViewer&) = default;
+			AbstractViewer& operator=(AbstractViewer&&) noexcept = default;
+	};
+}
 
 #endif // NAZARA_ABSTRACTVIEWER_HPP

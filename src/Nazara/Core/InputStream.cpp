@@ -8,61 +8,64 @@
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
-NzInputStream::~NzInputStream() = default;
-
-NzString NzInputStream::ReadLine(unsigned int lineSize)
+namespace Nz
 {
-	NzString line;
-	if (lineSize == 0) // Taille maximale indéterminée
+	InputStream::~InputStream() = default;
+
+	String InputStream::ReadLine(unsigned int lineSize)
 	{
-		const unsigned int bufferSize = 64;
-
-		char buffer[bufferSize+1];
-		buffer[bufferSize] = '\0';
-
-		unsigned int readSize;
-		do
+		String line;
+		if (lineSize == 0) // Taille maximale indéterminée
 		{
-			readSize = Read(buffer, bufferSize);
+			const unsigned int bufferSize = 64;
 
-			const char* ptr = std::strchr(buffer, '\n');
-			if (ptr)
+			char buffer[bufferSize+1];
+			buffer[bufferSize] = '\0';
+
+			unsigned int readSize;
+			do
 			{
-				unsigned int pos = ptr-buffer;
+				readSize = Read(buffer, bufferSize);
 
-				if (m_streamOptions & nzStreamOption_Text && pos > 0 && buffer[pos-1] == '\r')
-					line.Append(buffer, pos-1);
+				const char* ptr = std::strchr(buffer, '\n');
+				if (ptr)
+				{
+					unsigned int pos = ptr-buffer;
+
+					if (m_streamOptions & StreamOption_Text && pos > 0 && buffer[pos-1] == '\r')
+						line.Append(buffer, pos-1);
+					else
+						line.Append(buffer, pos);
+
+					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
+						NazaraWarning("Failed to reset cursos pos");
+
+					break;
+				}
 				else
-					line.Append(buffer, pos);
+					line.Append(buffer, readSize);
+			}
+			while (readSize == bufferSize);
+		}
+		else
+		{
+			line.Set(lineSize, '\0');
+			unsigned int readSize = Read(&line[0], lineSize);
+			unsigned int pos = line.Find('\n');
+			if (pos <= readSize) // Faux uniquement si le caractère n'est pas présent (npos étant le plus grand entier)
+			{
+				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos-1] == '\r')
+					line.Resize(pos);
+				else
+					line.Resize(pos+1);
 
 				if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
 					NazaraWarning("Failed to reset cursos pos");
-
-				break;
 			}
 			else
-				line.Append(buffer, readSize);
+				line.Resize(readSize);
 		}
-		while (readSize == bufferSize);
-	}
-	else
-	{
-		line.Set(lineSize, '\0');
-		unsigned int readSize = Read(&line[0], lineSize);
-		unsigned int pos = line.Find('\n');
-		if (pos <= readSize) // Faux uniquement si le caractère n'est pas présent (npos étant le plus grand entier)
-		{
-			if (m_streamOptions & nzStreamOption_Text && pos > 0 && line[pos-1] == '\r')
-				line.Resize(pos);
-			else
-				line.Resize(pos+1);
 
-			if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
-				NazaraWarning("Failed to reset cursos pos");
-		}
-		else
-			line.Resize(readSize);
+		return line;
 	}
-
-	return line;
 }

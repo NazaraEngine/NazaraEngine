@@ -14,45 +14,48 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-NzIcon::NzIcon() :
-m_impl(nullptr)
+namespace Nz
 {
-}
-
-NzIcon::~NzIcon()
-{
-	Destroy();
-}
-
-bool NzIcon::Create(const NzImage& icon)
-{
-	Destroy();
-
-	m_impl = new NzIconImpl;
-	if (!m_impl->Create(icon))
+	Icon::Icon() :
+	m_impl(nullptr)
 	{
-		NazaraError("Failed to create icon implementation");
-		delete m_impl;
-		m_impl = nullptr;
-
-		return false;
 	}
 
-	return true;
-}
-
-void NzIcon::Destroy()
-{
-	if (m_impl)
+	Icon::~Icon()
 	{
-		m_impl->Destroy();
-
-		delete m_impl;
-		m_impl = nullptr;
+		Destroy();
 	}
-}
 
-bool NzIcon::IsValid() const
-{
-	return m_impl != nullptr;
+	bool Icon::Create(const Image& icon)
+	{
+		Destroy();
+
+		m_impl = new IconImpl;
+		if (!m_impl->Create(icon))
+		{
+			NazaraError("Failed to create icon implementation");
+			delete m_impl;
+			m_impl = nullptr;
+
+			return false;
+		}
+
+		return true;
+	}
+
+	void Icon::Destroy()
+	{
+		if (m_impl)
+		{
+			m_impl->Destroy();
+
+			delete m_impl;
+			m_impl = nullptr;
+		}
+	}
+
+	bool Icon::IsValid() const
+	{
+		return m_impl != nullptr;
+	}
 }

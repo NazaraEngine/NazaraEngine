@@ -90,9 +90,9 @@ namespace Ndk
 		return *this;
 	}
 
-	inline NzString EntityHandle::ToString() const
+	inline Nz::String EntityHandle::ToString() const
 	{
-		NzStringStream ss;
+		Nz::StringStream ss;
 		ss << "EntityHandle(";
 		if (IsValid())
 			ss << "Entity(" << m_entity->GetId() << ')';

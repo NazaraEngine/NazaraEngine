@@ -9,11 +9,14 @@
 
 #include <Nazara/Utility/Image.hpp>
 
-struct NzFontGlyph
+namespace Nz
 {
-	NzImage image;
-	NzRecti aabb;
-	int advance;
-};
+	struct FontGlyph
+	{
+		Image image;
+		Recti aabb;
+		int advance;
+	};
+}
 
 #endif // NAZARA_FONTGLYPH_HPP

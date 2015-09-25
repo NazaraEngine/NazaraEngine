@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzStaticMeshRef NzStaticMesh::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzStaticMesh> object(new NzStaticMesh(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	StaticMeshRef StaticMesh::New(Args&&... args)
+	{
+		std::unique_ptr<StaticMesh> object(new StaticMesh(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

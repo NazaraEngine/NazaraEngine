@@ -8,14 +8,17 @@
 #include <Nazara/Noise/Abstract4DNoise.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzAbstract4DNoise::~NzAbstract4DNoise() = default;
-
-float NzAbstract4DNoise::GetBasicValue(float x, float y, float z, float w)
+namespace Nz
 {
-	return this->GetValue(x,y,z,w,m_resolution);
-}
+	Abstract4DNoise::~Abstract4DNoise() = default;
 
-float NzAbstract4DNoise::GetMappedValue(float x, float y, float z, float w)
-{
-	return (this->GetValue(x,y,z,w,m_resolution) + m_offset) * m_gain ;
+	float Abstract4DNoise::GetBasicValue(float x, float y, float z, float w)
+	{
+		return this->GetValue(x,y,z,w,m_resolution);
+	}
+
+	float Abstract4DNoise::GetMappedValue(float x, float y, float z, float w)
+	{
+		return (this->GetValue(x,y,z,w,m_resolution) + m_offset) * m_gain ;
+	}
 }

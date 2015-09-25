@@ -16,34 +16,37 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzConditionVariable::NzConditionVariable()
+namespace Nz
 {
-	m_impl = new NzConditionVariableImpl;
-}
+	ConditionVariable::ConditionVariable()
+	{
+		m_impl = new ConditionVariableImpl;
+	}
 
-NzConditionVariable::~NzConditionVariable()
-{
-	delete m_impl;
-}
+	ConditionVariable::~ConditionVariable()
+	{
+		delete m_impl;
+	}
 
-void NzConditionVariable::Signal()
-{
-	m_impl->Signal();
-}
+	void ConditionVariable::Signal()
+	{
+		m_impl->Signal();
+	}
 
-void NzConditionVariable::SignalAll()
-{
-	m_impl->SignalAll();
-}
+	void ConditionVariable::SignalAll()
+	{
+		m_impl->SignalAll();
+	}
 
-void NzConditionVariable::Wait(NzMutex* mutex)
-{
-	NazaraAssert(mutex != nullptr, "Mutex must be valid");
-	m_impl->Wait(mutex->m_impl);
-}
+	void ConditionVariable::Wait(Mutex* mutex)
+	{
+		NazaraAssert(mutex != nullptr, "Mutex must be valid");
+		m_impl->Wait(mutex->m_impl);
+	}
 
-bool NzConditionVariable::Wait(NzMutex* mutex, nzUInt32 timeout)
-{
-	NazaraAssert(mutex != nullptr, "Mutex must be valid");
-	return m_impl->Wait(mutex->m_impl, timeout);
+	bool ConditionVariable::Wait(Mutex* mutex, UInt32 timeout)
+	{
+		NazaraAssert(mutex != nullptr, "Mutex must be valid");
+		return m_impl->Wait(mutex->m_impl, timeout);
+	}
 }

@@ -9,7 +9,7 @@ namespace Ndk
 {
 	inline Application::Application()
 	{
-		NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
+		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
 
 		// Initialisation du SDK
 		Sdk::Initialize();

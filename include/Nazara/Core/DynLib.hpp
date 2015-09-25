@@ -26,34 +26,37 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-using NzDynLibFunc = int (*)(); // Type "générique" de pointeur sur fonction
-
-class NzDynLibImpl;
-
-class NAZARA_CORE_API NzDynLib
+namespace Nz
 {
-	public:
-		NzDynLib();
-		NzDynLib(const NzDynLib&) = delete;
-		NzDynLib(NzDynLib&& lib);
-		~NzDynLib();
+	using DynLibFunc = int (*)(); // Type "générique" de pointeur sur fonction
 
-		NzString GetLastError() const;
-		NzDynLibFunc GetSymbol(const NzString& symbol) const;
+	class DynLibImpl;
 
-		bool IsLoaded() const;
+	class NAZARA_CORE_API DynLib
+	{
+		public:
+			DynLib();
+			DynLib(const DynLib&) = delete;
+			DynLib(DynLib&& lib);
+			~DynLib();
 
-		bool Load(const NzString& libraryPath);
-		void Unload();
+			String GetLastError() const;
+			DynLibFunc GetSymbol(const String& symbol) const;
 
-		NzDynLib& operator=(const NzDynLib&) = delete;
-		NzDynLib& operator=(NzDynLib&& lib);
+			bool IsLoaded() const;
 
-	private:
-		NazaraMutexAttrib(m_mutex, mutable)
+			bool Load(const String& libraryPath);
+			void Unload();
 
-		mutable NzString m_lastError;
-		NzDynLibImpl* m_impl;
+			DynLib& operator=(const DynLib&) = delete;
+			DynLib& operator=(DynLib&& lib);
+
+		private:
+			NazaraMutexAttrib(m_mutex, mutable)
+
+			mutable String m_lastError;
+			DynLibImpl* m_impl;
 };
+}
 
 #endif // NAZARA_DYNLIB_HPP

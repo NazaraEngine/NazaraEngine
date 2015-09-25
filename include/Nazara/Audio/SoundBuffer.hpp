@@ -19,77 +19,80 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
 
-struct NzSoundBufferParams
+namespace Nz
 {
-	bool forceMono = false;
-
-	bool IsValid() const;
-};
-
-class NzSound;
-class NzSoundBuffer;
-
-using NzSoundBufferConstRef = NzObjectRef<const NzSoundBuffer>;
-using NzSoundBufferLibrary = NzObjectLibrary<NzSoundBuffer>;
-using NzSoundBufferLoader = NzResourceLoader<NzSoundBuffer, NzSoundBufferParams>;
-using NzSoundBufferManager = NzResourceManager<NzSoundBuffer, NzSoundBufferParams>;
-using NzSoundBufferRef = NzObjectRef<NzSoundBuffer>;
-
-struct NzSoundBufferImpl;
-
-class NAZARA_AUDIO_API NzSoundBuffer : public NzRefCounted, public NzResource
-{
-	friend NzSound;
-	friend NzSoundBufferLibrary;
-	friend NzSoundBufferLoader;
-	friend NzSoundBufferManager;
-	friend class NzAudio;
-
-	public:
-		NzSoundBuffer() = default;
-		NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
-		NzSoundBuffer(const NzSoundBuffer&) = delete;
-		NzSoundBuffer(NzSoundBuffer&&) = delete;
-		~NzSoundBuffer();
-
-		bool Create(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples);
-		void Destroy();
-
-		nzUInt32 GetDuration() const;
-		nzAudioFormat GetFormat() const;
-		const nzInt16* GetSamples() const;
-		nzUInt32 GetSampleCount() const;
-		nzUInt32 GetSampleRate() const;
+	struct SoundBufferParams
+	{
+		bool forceMono = false;
 
 		bool IsValid() const;
+	};
 
-		bool LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params = NzSoundBufferParams());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params = NzSoundBufferParams());
-		bool LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params = NzSoundBufferParams());
+	class Sound;
+	class SoundBuffer;
 
-		static bool IsFormatSupported(nzAudioFormat format);
-		template<typename... Args> static NzSoundBufferRef New(Args&&... args);
+	using SoundBufferConstRef = ObjectRef<const SoundBuffer>;
+	using SoundBufferLibrary = ObjectLibrary<SoundBuffer>;
+	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
+	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
+	using SoundBufferRef = ObjectRef<SoundBuffer>;
 
-		NzSoundBuffer& operator=(const NzSoundBuffer&) = delete;
-		NzSoundBuffer& operator=(NzSoundBuffer&&) = delete; ///TODO
+	struct SoundBufferImpl;
 
-		// Signals:
-		NazaraSignal(OnSoundBufferDestroy, const NzSoundBuffer* /*soundBuffer*/);
-		NazaraSignal(OnSoundBufferRelease, const NzSoundBuffer* /*soundBuffer*/);
+	class NAZARA_AUDIO_API SoundBuffer : public RefCounted, public Resource
+	{
+		friend Sound;
+		friend SoundBufferLibrary;
+		friend SoundBufferLoader;
+		friend SoundBufferManager;
+		friend class Audio;
 
-	private:
-		unsigned int GetOpenALBuffer() const;
+		public:
+			SoundBuffer() = default;
+			SoundBuffer(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples);
+			SoundBuffer(const SoundBuffer&) = delete;
+			SoundBuffer(SoundBuffer&&) = delete;
+			~SoundBuffer();
 
-		static bool Initialize();
-		static void Uninitialize();
+			bool Create(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples);
+			void Destroy();
 
-		NzSoundBufferImpl* m_impl = nullptr;
+			UInt32 GetDuration() const;
+			AudioFormat GetFormat() const;
+			const Int16* GetSamples() const;
+			UInt32 GetSampleCount() const;
+			UInt32 GetSampleRate() const;
 
-		static NzSoundBufferLibrary::LibraryMap s_library;
-		static NzSoundBufferLoader::LoaderList s_loaders;
-		static NzSoundBufferManager::ManagerMap s_managerMap;
-		static NzSoundBufferManager::ManagerParams s_managerParameters;
-};
+			bool IsValid() const;
+
+			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromStream(InputStream& stream, const SoundBufferParams& params = SoundBufferParams());
+
+			static bool IsFormatSupported(AudioFormat format);
+			template<typename... Args> static SoundBufferRef New(Args&&... args);
+
+			SoundBuffer& operator=(const SoundBuffer&) = delete;
+			SoundBuffer& operator=(SoundBuffer&&) = delete; ///TODO
+
+			// Signals:
+			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);
+			NazaraSignal(OnSoundBufferRelease, const SoundBuffer* /*soundBuffer*/);
+
+		private:
+			unsigned int GetOpenALBuffer() const;
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			SoundBufferImpl* m_impl = nullptr;
+
+			static SoundBufferLibrary::LibraryMap s_library;
+			static SoundBufferLoader::LoaderList s_loaders;
+			static SoundBufferManager::ManagerMap s_managerMap;
+			static SoundBufferManager::ManagerParams s_managerParameters;
+	};
+}
 
 #include <Nazara/Audio/SoundBuffer.inl>
 

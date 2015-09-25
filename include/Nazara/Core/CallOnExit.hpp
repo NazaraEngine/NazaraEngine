@@ -10,25 +10,28 @@
 #include <Nazara/Prerequesites.hpp>
 #include <functional>
 
-class NzCallOnExit
+namespace Nz
 {
-	using Func = std::function<void()>;
+	class CallOnExit
+	{
+		using Func = std::function<void()>;
 
-	public:
-		NzCallOnExit(Func func = nullptr);
-		NzCallOnExit(const NzCallOnExit&) = delete;
-		NzCallOnExit(NzCallOnExit&&) = delete;
-		~NzCallOnExit();
+		public:
+			CallOnExit(Func func = nullptr);
+			CallOnExit(const CallOnExit&) = delete;
+			CallOnExit(CallOnExit&&) = delete;
+			~CallOnExit();
 
-		void CallAndReset(Func func = nullptr);
-		void Reset(Func func = nullptr);
+			void CallAndReset(Func func = nullptr);
+			void Reset(Func func = nullptr);
 
-		NzCallOnExit& operator=(const NzCallOnExit&) = delete;
-		NzCallOnExit& operator=(NzCallOnExit&&) = default;
+			CallOnExit& operator=(const CallOnExit&) = delete;
+			CallOnExit& operator=(CallOnExit&&) = default;
 
-	private:
-		Func m_func;
-};
+		private:
+			Func m_func;
+	};
+}
 
 #include <Nazara/Core/CallOnExit.inl>
 

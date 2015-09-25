@@ -5,4 +5,7 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDrawable::~NzDrawable() = default;
+namespace Nz
+{
+	Drawable::~Drawable() = default;
+}

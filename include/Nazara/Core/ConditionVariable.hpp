@@ -9,28 +9,31 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzConditionVariableImpl;
-class NzMutex;
-
-class NAZARA_CORE_API NzConditionVariable
+namespace Nz
 {
-	public:
-		NzConditionVariable();
-		NzConditionVariable(const NzConditionVariable&) = delete;
-		NzConditionVariable(NzConditionVariable&&) = delete; ///TODO
-		~NzConditionVariable();
+	class ConditionVariableImpl;
+	class Mutex;
 
-		void Signal();
-		void SignalAll();
+	class NAZARA_CORE_API ConditionVariable
+	{
+		public:
+			ConditionVariable();
+			ConditionVariable(const ConditionVariable&) = delete;
+			ConditionVariable(ConditionVariable&&) = delete; ///TODO
+			~ConditionVariable();
 
-		void Wait(NzMutex* mutex);
-		bool Wait(NzMutex* mutex, nzUInt32 timeout);
+			void Signal();
+			void SignalAll();
 
-		NzConditionVariable& operator=(const NzConditionVariable&) = delete;
-		NzConditionVariable& operator=(NzConditionVariable&&) = delete; ///TODO
+			void Wait(Mutex* mutex);
+			bool Wait(Mutex* mutex, UInt32 timeout);
 
-	private:
-		NzConditionVariableImpl* m_impl;
-};
+			ConditionVariable& operator=(const ConditionVariable&) = delete;
+			ConditionVariable& operator=(ConditionVariable&&) = delete; ///TODO
+
+		private:
+			ConditionVariableImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_CONDITIONVARIABLE_HPP

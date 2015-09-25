@@ -6,160 +6,163 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
-inline NzSprite::NzSprite() :
-m_color(NzColor::White),
-m_textureCoords(0.f, 0.f, 1.f, 1.f),
-m_size(64.f, 64.f)
+namespace Nz
 {
-	SetDefaultMaterial();
-}
-
-inline NzSprite::NzSprite(NzMaterialRef material) :
-m_color(NzColor::White),
-m_textureCoords(0.f, 0.f, 1.f, 1.f),
-m_size(64.f, 64.f)
-{
-	SetMaterial(std::move(material), true);
-}
-
-inline NzSprite::NzSprite(NzTexture* texture) :
-m_color(NzColor::White),
-m_textureCoords(0.f, 0.f, 1.f, 1.f),
-m_size(64.f, 64.f)
-{
-	SetTexture(texture, true);
-}
-
-inline NzSprite::NzSprite(const NzSprite& sprite) :
-NzInstancedRenderable(sprite),
-m_color(sprite.m_color),
-m_material(sprite.m_material),
-m_textureCoords(sprite.m_textureCoords),
-m_size(sprite.m_size)
-{
-}
-
-inline const NzColor& NzSprite::GetColor() const
-{
-	return m_color;
-}
-
-inline const NzMaterialRef& NzSprite::GetMaterial() const
-{
-	return m_material;
-}
-
-inline const NzVector2f& NzSprite::GetSize() const
-{
-	return m_size;
-}
-
-inline const NzRectf& NzSprite::GetTextureCoords() const
-{
-	return m_textureCoords;
-}
-
-inline void NzSprite::SetColor(const NzColor& color)
-{
-	m_color = color;
-
-	InvalidateVertices();
-}
-
-inline void NzSprite::SetDefaultMaterial()
-{
-	NzMaterialRef material = NzMaterial::New();
-	material->Enable(nzRendererParameter_FaceCulling, false);
-	material->EnableLighting(false);
-
-	SetMaterial(std::move(material));
-}
-
-inline void NzSprite::SetMaterial(NzMaterialRef material, bool resizeSprite)
-{
-	m_material = std::move(material);
-	if (m_material && resizeSprite)
+	inline Sprite::Sprite() :
+	m_color(Color::White),
+	m_textureCoords(0.f, 0.f, 1.f, 1.f),
+	m_size(64.f, 64.f)
 	{
-		NzTexture* diffuseMap = m_material->GetDiffuseMap();
-		if (diffuseMap && diffuseMap->IsValid())
-			SetSize(NzVector2f(NzVector2ui(diffuseMap->GetSize())));
-	}
-}
-
-inline void NzSprite::SetSize(const NzVector2f& size)
-{
-	m_size = size;
-
-	// On invalide la bounding box
-	InvalidateBoundingVolume();
-	InvalidateVertices();
-}
-
-inline void NzSprite::SetSize(float sizeX, float sizeY)
-{
-	SetSize(NzVector2f(sizeX, sizeY));
-}
-
-inline void NzSprite::SetTexture(NzTextureRef texture, bool resizeSprite)
-{
-	if (!m_material)
 		SetDefaultMaterial();
-	else if (m_material->GetReferenceCount() > 1)
-		m_material = NzMaterial::New(*m_material); // Copie
+	}
 
-	if (resizeSprite && texture && texture->IsValid())
-		SetSize(NzVector2f(NzVector2ui(texture->GetSize())));
+	inline Sprite::Sprite(MaterialRef material) :
+	m_color(Color::White),
+	m_textureCoords(0.f, 0.f, 1.f, 1.f),
+	m_size(64.f, 64.f)
+	{
+		SetMaterial(std::move(material), true);
+	}
 
-	m_material->SetDiffuseMap(std::move(texture));
-}
+	inline Sprite::Sprite(Texture* texture) :
+	m_color(Color::White),
+	m_textureCoords(0.f, 0.f, 1.f, 1.f),
+	m_size(64.f, 64.f)
+	{
+		SetTexture(texture, true);
+	}
 
-inline void NzSprite::SetTextureCoords(const NzRectf& coords)
-{
-	m_textureCoords = coords;
-	InvalidateVertices();
-}
+	inline Sprite::Sprite(const Sprite& sprite) :
+	InstancedRenderable(sprite),
+	m_color(sprite.m_color),
+	m_material(sprite.m_material),
+	m_textureCoords(sprite.m_textureCoords),
+	m_size(sprite.m_size)
+	{
+	}
 
-inline void NzSprite::SetTextureRect(const NzRectui& rect)
-{
-	NazaraAssert(m_material, "Sprite has no material");
-	NazaraAssert(m_material->HasDiffuseMap(), "Sprite material has no diffuse map");
+	inline const Color& Sprite::GetColor() const
+	{
+		return m_color;
+	}
 
-	NzTexture* diffuseMap = m_material->GetDiffuseMap();
+	inline const MaterialRef& Sprite::GetMaterial() const
+	{
+		return m_material;
+	}
 
-	float invWidth = 1.f/diffuseMap->GetWidth();
-	float invHeight = 1.f/diffuseMap->GetHeight();
+	inline const Vector2f& Sprite::GetSize() const
+	{
+		return m_size;
+	}
 
-	SetTextureCoords(NzRectf(invWidth*rect.x, invHeight*rect.y, invWidth*rect.width, invHeight*rect.height));
-}
+	inline const Rectf& Sprite::GetTextureCoords() const
+	{
+		return m_textureCoords;
+	}
 
-inline NzSprite& NzSprite::operator=(const NzSprite& sprite)
-{
-	NzInstancedRenderable::operator=(sprite);
+	inline void Sprite::SetColor(const Color& color)
+	{
+		m_color = color;
 
-	m_color = sprite.m_color;
-	m_material = sprite.m_material;
-	m_textureCoords = sprite.m_textureCoords;
-	m_size = sprite.m_size;
+		InvalidateVertices();
+	}
 
-	// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
-	InvalidateBoundingVolume();
-	InvalidateVertices();
+	inline void Sprite::SetDefaultMaterial()
+	{
+		MaterialRef material = Material::New();
+		material->Enable(RendererParameter_FaceCulling, false);
+		material->EnableLighting(false);
 
-	return *this;
-}
+		SetMaterial(std::move(material));
+	}
 
-inline void NzSprite::InvalidateVertices()
-{
-	InvalidateInstanceData(0);
-}
+	inline void Sprite::SetMaterial(MaterialRef material, bool resizeSprite)
+	{
+		m_material = std::move(material);
+		if (m_material && resizeSprite)
+		{
+			Texture* diffuseMap = m_material->GetDiffuseMap();
+			if (diffuseMap && diffuseMap->IsValid())
+				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+		}
+	}
 
-template<typename... Args>
-NzSpriteRef NzSprite::New(Args&&... args)
-{
-	std::unique_ptr<NzSprite> object(new NzSprite(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	inline void Sprite::SetSize(const Vector2f& size)
+	{
+		m_size = size;
 
-	return object.release();
+		// On invalide la bounding box
+		InvalidateBoundingVolume();
+		InvalidateVertices();
+	}
+
+	inline void Sprite::SetSize(float sizeX, float sizeY)
+	{
+		SetSize(Vector2f(sizeX, sizeY));
+	}
+
+	inline void Sprite::SetTexture(TextureRef texture, bool resizeSprite)
+	{
+		if (!m_material)
+			SetDefaultMaterial();
+		else if (m_material->GetReferenceCount() > 1)
+			m_material = Material::New(*m_material); // Copie
+
+		if (resizeSprite && texture && texture->IsValid())
+			SetSize(Vector2f(Vector2ui(texture->GetSize())));
+
+		m_material->SetDiffuseMap(std::move(texture));
+	}
+
+	inline void Sprite::SetTextureCoords(const Rectf& coords)
+	{
+		m_textureCoords = coords;
+		InvalidateVertices();
+	}
+
+	inline void Sprite::SetTextureRect(const Rectui& rect)
+	{
+		NazaraAssert(m_material, "Sprite has no material");
+		NazaraAssert(m_material->HasDiffuseMap(), "Sprite material has no diffuse map");
+
+		Texture* diffuseMap = m_material->GetDiffuseMap();
+
+		float invWidth = 1.f/diffuseMap->GetWidth();
+		float invHeight = 1.f/diffuseMap->GetHeight();
+
+		SetTextureCoords(Rectf(invWidth*rect.x, invHeight*rect.y, invWidth*rect.width, invHeight*rect.height));
+	}
+
+	inline Sprite& Sprite::operator=(const Sprite& sprite)
+	{
+		InstancedRenderable::operator=(sprite);
+
+		m_color = sprite.m_color;
+		m_material = sprite.m_material;
+		m_textureCoords = sprite.m_textureCoords;
+		m_size = sprite.m_size;
+
+		// On ne copie pas les sommets finaux car il est très probable que nos paramètres soient modifiés et qu'ils doivent être régénérés de toute façon
+		InvalidateBoundingVolume();
+		InvalidateVertices();
+
+		return *this;
+	}
+
+	inline void Sprite::InvalidateVertices()
+	{
+		InvalidateInstanceData(0);
+	}
+
+	template<typename... Args>
+	SpriteRef Sprite::New(Args&&... args)
+	{
+		std::unique_ptr<Sprite> object(new Sprite(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
