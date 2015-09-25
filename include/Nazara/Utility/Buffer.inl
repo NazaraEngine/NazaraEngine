@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzBufferRef NzBuffer::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzBuffer> object(new NzBuffer(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	BufferRef Buffer::New(Args&&... args)
+	{
+		std::unique_ptr<Buffer> object(new Buffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

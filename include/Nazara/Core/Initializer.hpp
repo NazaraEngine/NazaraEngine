@@ -9,22 +9,30 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-template<typename... Args>
-class NzInitializer
+namespace Nz
 {
-	public:
-		NzInitializer(bool initialize = true);
-		~NzInitializer();
+	template<typename... Args>
+	class Initializer
+	{
+		public:
+			Initializer(bool initialize = true);
+			Initializer(const Initializer&) = delete;
+			Initializer(Initializer&&) = delete; ///TODO
+			~Initializer();
 
-		bool Initialize();
-		bool IsInitialized() const;
-		void Uninitialize();
+			bool Initialize();
+			bool IsInitialized() const;
+			void Uninitialize();
 
-		operator bool() const;
+			operator bool() const;
 
-	private:
-		bool m_initialized;
-};
+			Initializer& operator=(const Initializer&) = delete;
+			Initializer& operator=(Initializer&&) = delete; ///TODO
+
+		private:
+			bool m_initialized;
+	};
+}
 
 #include <Nazara/Core/Initializer.inl>
 

@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-template<typename... Args>
-NzModelRef NzModel::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzModel> object(new NzModel(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	ModelRef Model::New(Args&&... args)
+	{
+		std::unique_ptr<Model> object(new Model(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

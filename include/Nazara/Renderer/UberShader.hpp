@@ -15,31 +15,39 @@
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <unordered_map>
 
-class NzUberShader;
-
-using NzUberShaderConstRef = NzObjectRef<const NzUberShader>;
-using NzUberShaderLibrary = NzObjectLibrary<NzUberShader>;
-using NzUberShaderRef = NzObjectRef<NzUberShader>;
-
-class NAZARA_RENDERER_API NzUberShader : public NzRefCounted
+namespace Nz
 {
-	friend NzUberShaderLibrary;
-	friend class NzRenderer;
+	class UberShader;
 
-	public:
-		NzUberShader() = default;
-		virtual ~NzUberShader();
+	using UberShaderConstRef = ObjectRef<const UberShader>;
+	using UberShaderLibrary = ObjectLibrary<UberShader>;
+	using UberShaderRef = ObjectRef<UberShader>;
 
-		virtual NzUberShaderInstance* Get(const NzParameterList& parameters) const = 0;
+	class NAZARA_RENDERER_API UberShader : public RefCounted
+	{
+		friend UberShaderLibrary;
+		friend class Renderer;
 
-		// Signals:
-		NazaraSignal(OnUberShaderRelease, const NzUberShader* /*uberShader*/);
+		public:
+			UberShader() = default;
+			UberShader(const UberShader&) = delete;
+			UberShader(UberShader&&) = delete;
+			virtual ~UberShader();
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			virtual UberShaderInstance* Get(const ParameterList& parameters) const = 0;
 
-		static NzUberShaderLibrary::LibraryMap s_library;
-};
+			UberShader& operator=(const UberShader&) = delete;
+			UberShader& operator=(UberShader&&) = delete;
+
+			// Signals:
+			NazaraSignal(OnUberShaderRelease, const UberShader* /*uberShader*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			static UberShaderLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_UBERSHADER_HPP

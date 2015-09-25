@@ -8,34 +8,41 @@
 #define NAZARA_PHYSWORLD_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Config.hpp>
 
 struct NewtonWorld;
 
-class NAZARA_PHYSICS_API NzPhysWorld : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzPhysWorld();
-		~NzPhysWorld();
+	class NAZARA_PHYSICS_API PhysWorld
+	{
+		public:
+			PhysWorld();
+			PhysWorld(const PhysWorld&) = delete;
+			PhysWorld(PhysWorld&&) = delete; ///TODO
+			~PhysWorld();
 
-		NzVector3f GetGravity() const;
-		NewtonWorld* GetHandle() const;
-		float GetStepSize() const;
+			Vector3f GetGravity() const;
+			NewtonWorld* GetHandle() const;
+			float GetStepSize() const;
 
-		void SetGravity(const NzVector3f& gravity);
-		void SetSolverModel(unsigned int model);
-		void SetStepSize(float stepSize);
+			void SetGravity(const Vector3f& gravity);
+			void SetSolverModel(unsigned int model);
+			void SetStepSize(float stepSize);
 
-		void Step(float timestep);
+			void Step(float timestep);
 
-	private:
-		NzVector3f m_gravity;
-		NewtonWorld* m_world;
-		float m_stepSize;
-		float m_timestepAccumulator;
-};
+			PhysWorld& operator=(const PhysWorld&) = delete;
+			PhysWorld& operator=(PhysWorld&&) = delete; ///TODO
+
+		private:
+			Vector3f m_gravity;
+			NewtonWorld* m_world;
+			float m_stepSize;
+			float m_timestepAccumulator;
+	};
+}
 
 #endif // NAZARA_PHYSWORLD_HPP

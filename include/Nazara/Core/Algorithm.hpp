@@ -11,12 +11,15 @@
 #include <functional>
 #include <tuple>
 
-template<typename F, typename Tuple> auto NzApply(F&& fn, Tuple&& t);
-template<typename O, typename F, typename Tuple> auto NzApply(O& object, F&& fn, Tuple&& t);
-template<typename T> void NzHashCombine(std::size_t& seed, const T& v);
+namespace Nz
+{
+	template<typename F, typename Tuple> auto Apply(F&& fn, Tuple&& t);
+	template<typename O, typename F, typename Tuple> auto Apply(O& object, F&& fn, Tuple&& t);
+	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 
-template<typename T>
-struct NzTypeTag {};
+	template<typename T>
+	struct TypeTag {};
+}
 
 #include <Nazara/Core/Algorithm.inl>
 

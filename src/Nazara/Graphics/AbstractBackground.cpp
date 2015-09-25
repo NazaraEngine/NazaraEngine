@@ -5,6 +5,9 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractBackground::~NzAbstractBackground() = default;
+namespace Nz
+{
+	AbstractBackground::~AbstractBackground() = default;
 
-NzBackgroundLibrary::LibraryMap NzAbstractBackground::s_library;
+	BackgroundLibrary::LibraryMap AbstractBackground::s_library;
+}

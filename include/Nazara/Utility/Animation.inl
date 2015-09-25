@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzAnimationRef NzAnimation::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzAnimation> object(new NzAnimation(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	AnimationRef Animation::New(Args&&... args)
+	{
+		std::unique_ptr<Animation> object(new Animation(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

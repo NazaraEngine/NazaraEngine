@@ -2,19 +2,22 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-inline void NzRenderable::EnsureBoundingVolumeUpdated() const
+namespace Nz
 {
-	if (!m_boundingVolumeUpdated)
-		UpdateBoundingVolume();
-}
+	inline void Renderable::EnsureBoundingVolumeUpdated() const
+	{
+		if (!m_boundingVolumeUpdated)
+			UpdateBoundingVolume();
+	}
 
-inline void NzRenderable::InvalidateBoundingVolume()
-{
-	m_boundingVolumeUpdated = false;
-}
+	inline void Renderable::InvalidateBoundingVolume()
+	{
+		m_boundingVolumeUpdated = false;
+	}
 
-inline void NzRenderable::UpdateBoundingVolume() const
-{
-	MakeBoundingVolume();
-	m_boundingVolumeUpdated = true;
+	inline void Renderable::UpdateBoundingVolume() const
+	{
+		MakeBoundingVolume();
+		m_boundingVolumeUpdated = true;
+	}
 }

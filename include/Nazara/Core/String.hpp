@@ -15,318 +15,321 @@
 #include <string>
 #include <vector>
 
-class NzAbstractHash;
-class NzHashDigest;
-
-class NAZARA_CORE_API NzString : public NzHashable
+namespace Nz
 {
-	public:
-		enum Flags
-		{
-			None            = 0x00, // Mode par défaut
-			CaseInsensitive = 0x01, // Insensible à la casse
-			HandleUtf8      = 0x02, // Traite les octets comme une suite de caractères UTF-8
-			TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
-			TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
-		};
+	class AbstractHash;
+	class HashDigest;
 
-		NzString();
-		explicit NzString(char character);
-		NzString(unsigned int rep, char character);
-		NzString(unsigned int rep, const char* string);
-		NzString(unsigned int rep, const char* string, unsigned int length);
-		NzString(unsigned int rep, const NzString& string);
-		NzString(const char* string);
-		NzString(const char* string, unsigned int length);
-		NzString(const std::string& string);
-		NzString(const NzString& string) = default;
-		NzString(NzString&& string) noexcept = default;
-		~NzString() = default;
+	class NAZARA_CORE_API String : public Hashable
+	{
+		public:
+			enum Flags
+			{
+				None            = 0x00, // Mode par défaut
+				CaseInsensitive = 0x01, // Insensible à la casse
+				HandleUtf8      = 0x02, // Traite les octets comme une suite de caractères UTF-8
+				TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
+				TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
+			};
 
-		NzString& Append(char character);
-		NzString& Append(const char* string);
-		NzString& Append(const char* string, unsigned int length);
-		NzString& Append(const NzString& string);
+			String();
+			explicit String(char character);
+			String(unsigned int rep, char character);
+			String(unsigned int rep, const char* string);
+			String(unsigned int rep, const char* string, unsigned int length);
+			String(unsigned int rep, const String& string);
+			String(const char* string);
+			String(const char* string, unsigned int length);
+			String(const std::string& string);
+			String(const String& string) = default;
+			String(String&& string) noexcept = default;
+			~String() = default;
 
-		void Clear(bool keepBuffer = false);
+			String& Append(char character);
+			String& Append(const char* string);
+			String& Append(const char* string, unsigned int length);
+			String& Append(const String& string);
 
-		bool Contains(char character, int start = 0, nzUInt32 flags = None) const;
-		bool Contains(const char* string, int start = 0, nzUInt32 flags = None) const;
-		bool Contains(const NzString& string, int start = 0, nzUInt32 flags = None) const;
+			void Clear(bool keepBuffer = false);
 
-		unsigned int Count(char character, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Count(const char* string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Count(const NzString& string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int CountAny(const char* string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int CountAny(const NzString& string, int start = 0, nzUInt32 flags = None) const;
+			bool Contains(char character, int start = 0, UInt32 flags = None) const;
+			bool Contains(const char* string, int start = 0, UInt32 flags = None) const;
+			bool Contains(const String& string, int start = 0, UInt32 flags = None) const;
 
-		bool EndsWith(char character, nzUInt32 flags = None) const;
-		bool EndsWith(const char* string, nzUInt32 flags = None) const;
-		bool EndsWith(const char* string, unsigned int length, nzUInt32 flags = None) const;
-		bool EndsWith(const NzString& string, nzUInt32 flags = None) const;
+			unsigned int Count(char character, int start = 0, UInt32 flags = None) const;
+			unsigned int Count(const char* string, int start = 0, UInt32 flags = None) const;
+			unsigned int Count(const String& string, int start = 0, UInt32 flags = None) const;
+			unsigned int CountAny(const char* string, int start = 0, UInt32 flags = None) const;
+			unsigned int CountAny(const String& string, int start = 0, UInt32 flags = None) const;
 
-		unsigned int Find(char character, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Find(const char* string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Find(const NzString& string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int FindAny(const char* string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int FindAny(const NzString& string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int FindLast(char character, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLast(const char *string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLast(const NzString& string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLastAny(const char* string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLastAny(const NzString& string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLastWord(const char* string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindLastWord(const NzString& string, int start = -1, nzUInt32 flags = None) const;
-		unsigned int FindWord(const char* string, int start = 0, nzUInt32 flags = None) const;
-		unsigned int FindWord(const NzString& string, int start = 0, nzUInt32 flags = None) const;
+			bool EndsWith(char character, UInt32 flags = None) const;
+			bool EndsWith(const char* string, UInt32 flags = None) const;
+			bool EndsWith(const char* string, unsigned int length, UInt32 flags = None) const;
+			bool EndsWith(const String& string, UInt32 flags = None) const;
 
-		char* GetBuffer();
-		unsigned int GetCapacity() const;
-		const char* GetConstBuffer() const;
-		unsigned int GetLength() const;
-		unsigned int GetSize() const;
-		std::string GetUtf8String() const;
-		std::u16string GetUtf16String() const;
-		std::u32string GetUtf32String() const;
-		std::wstring GetWideString() const;
-		NzString GetWord(unsigned int index, nzUInt32 flags = None) const;
-		unsigned int GetWordPosition(unsigned int index, nzUInt32 flags = None) const;
+			unsigned int Find(char character, int start = 0, UInt32 flags = None) const;
+			unsigned int Find(const char* string, int start = 0, UInt32 flags = None) const;
+			unsigned int Find(const String& string, int start = 0, UInt32 flags = None) const;
+			unsigned int FindAny(const char* string, int start = 0, UInt32 flags = None) const;
+			unsigned int FindAny(const String& string, int start = 0, UInt32 flags = None) const;
+			unsigned int FindLast(char character, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLast(const char *string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLast(const String& string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLastAny(const char* string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLastAny(const String& string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLastWord(const char* string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindLastWord(const String& string, int start = -1, UInt32 flags = None) const;
+			unsigned int FindWord(const char* string, int start = 0, UInt32 flags = None) const;
+			unsigned int FindWord(const String& string, int start = 0, UInt32 flags = None) const;
 
-		NzString& Insert(int pos, char character);
-		NzString& Insert(int pos, const char* string);
-		NzString& Insert(int pos, const char* string, unsigned int length);
-		NzString& Insert(int pos, const NzString& string);
+			char* GetBuffer();
+			unsigned int GetCapacity() const;
+			const char* GetConstBuffer() const;
+			unsigned int GetLength() const;
+			unsigned int GetSize() const;
+			std::string GetUtf8String() const;
+			std::u16string GetUtf16String() const;
+			std::u32string GetUtf32String() const;
+			std::wstring GetWideString() const;
+			String GetWord(unsigned int index, UInt32 flags = None) const;
+			unsigned int GetWordPosition(unsigned int index, UInt32 flags = None) const;
 
-		bool IsEmpty() const;
-		bool IsNull() const;
-		bool IsNumber(nzUInt8 radix = 10, nzUInt32 flags = CaseInsensitive) const;
+			String& Insert(int pos, char character);
+			String& Insert(int pos, const char* string);
+			String& Insert(int pos, const char* string, unsigned int length);
+			String& Insert(int pos, const String& string);
 
-		bool Match(const char* pattern) const;
-		bool Match(const NzString& pattern) const;
+			bool IsEmpty() const;
+			bool IsNull() const;
+			bool IsNumber(UInt8 radix = 10, UInt32 flags = CaseInsensitive) const;
 
-		NzString& Prepend(char character);
-		NzString& Prepend(const char* string);
-		NzString& Prepend(const char* string, unsigned int length);
-		NzString& Prepend(const NzString& string);
+			bool Match(const char* pattern) const;
+			bool Match(const String& pattern) const;
 
-		unsigned int Replace(char oldCharacter, char newCharacter, int start = 0, nzUInt32 flags = None);
-		unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, nzUInt32 flags = None);
-		unsigned int Replace(const char* oldString, unsigned int oldLength, const char* replaceString, unsigned int replaceLength, int start = 0, nzUInt32 flags = None);
-		unsigned int Replace(const NzString& oldString, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
-		unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, nzUInt32 flags = None);
-		//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, nzUInt32 flags = None);
-		//unsigned int ReplaceAny(const NzString& oldCharacters, const NzString& replaceString, int start = 0, nzUInt32 flags = None);
+			String& Prepend(char character);
+			String& Prepend(const char* string);
+			String& Prepend(const char* string, unsigned int length);
+			String& Prepend(const String& string);
 
-		void Reserve(unsigned int bufferSize);
+			unsigned int Replace(char oldCharacter, char newCharacter, int start = 0, UInt32 flags = None);
+			unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, UInt32 flags = None);
+			unsigned int Replace(const char* oldString, unsigned int oldLength, const char* replaceString, unsigned int replaceLength, int start = 0, UInt32 flags = None);
+			unsigned int Replace(const String& oldString, const String& replaceString, int start = 0, UInt32 flags = None);
+			unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, UInt32 flags = None);
+			//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, UInt32 flags = None);
+			//unsigned int ReplaceAny(const String& oldCharacters, const String& replaceString, int start = 0, UInt32 flags = None);
 
-		NzString& Resize(int size, char character = ' ');
-		NzString Resized(int size, char character = ' ') const;
+			void Reserve(unsigned int bufferSize);
 
-		NzString& Reverse();
-		NzString Reversed() const;
+			String& Resize(int size, char character = ' ');
+			String Resized(int size, char character = ' ') const;
 
-		NzString& Set(char character);
-		NzString& Set(unsigned int rep, char character);
-		NzString& Set(unsigned int rep, const char* string);
-		NzString& Set(unsigned int rep, const char* string, unsigned int length);
-		NzString& Set(unsigned int rep, const NzString& string);
-		NzString& Set(const char* string);
-		NzString& Set(const char* string, unsigned int length);
-		NzString& Set(const std::string& string);
-		NzString& Set(const NzString& string);
-		NzString& Set(NzString&& string) noexcept;
+			String& Reverse();
+			String Reversed() const;
 
-		NzString Simplified(nzUInt32 flags = None) const;
-		NzString& Simplify(nzUInt32 flags = None);
+			String& Set(char character);
+			String& Set(unsigned int rep, char character);
+			String& Set(unsigned int rep, const char* string);
+			String& Set(unsigned int rep, const char* string, unsigned int length);
+			String& Set(unsigned int rep, const String& string);
+			String& Set(const char* string);
+			String& Set(const char* string, unsigned int length);
+			String& Set(const std::string& string);
+			String& Set(const String& string);
+			String& Set(String&& string) noexcept;
 
-		unsigned int Split(std::vector<NzString>& result, char separation = ' ', int start = 0, nzUInt32 flags = None) const;
-		unsigned int Split(std::vector<NzString>& result, const char* separation, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Split(std::vector<NzString>& result, const char* separation, unsigned int length, int start = 0, nzUInt32 flags = None) const;
-		unsigned int Split(std::vector<NzString>& result, const NzString& separation, int start = 0, nzUInt32 flags = None) const;
-		unsigned int SplitAny(std::vector<NzString>& result, const char* separations, int start = 0, nzUInt32 flags = None) const;
-		unsigned int SplitAny(std::vector<NzString>& result, const NzString& separations, int start = 0, nzUInt32 flags = None) const;
+			String Simplified(UInt32 flags = None) const;
+			String& Simplify(UInt32 flags = None);
 
-		bool StartsWith(char character, nzUInt32 flags = None) const;
-		bool StartsWith(const char* string, nzUInt32 flags = None) const;
-		bool StartsWith(const NzString& string, nzUInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, char separation = ' ', int start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const char* separation, int start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const char* separation, unsigned int length, int start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const String& separation, int start = 0, UInt32 flags = None) const;
+			unsigned int SplitAny(std::vector<String>& result, const char* separations, int start = 0, UInt32 flags = None) const;
+			unsigned int SplitAny(std::vector<String>& result, const String& separations, int start = 0, UInt32 flags = None) const;
 
-		NzString SubString(int startPos, int endPos = -1) const;
-		NzString SubStringFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringFrom(const char *string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringFrom(const char *string, unsigned int length, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringFrom(const NzString& string, int startPos = 0, bool fromLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringTo(char character, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringTo(const char *string, unsigned int length, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
-		NzString SubStringTo(const NzString& string, int startPos = 0, bool toLast = false, bool include = false, nzUInt32 flags = None) const;
+			bool StartsWith(char character, UInt32 flags = None) const;
+			bool StartsWith(const char* string, UInt32 flags = None) const;
+			bool StartsWith(const String& string, UInt32 flags = None) const;
 
-		void Swap(NzString& str);
+			String SubString(int startPos, int endPos = -1) const;
+			String SubStringFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const char *string, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const char *string, unsigned int length, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const String& string, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(char character, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const char *string, unsigned int length, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const String& string, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
 
-		bool ToBool(bool* value, nzUInt32 flags = None) const;
-		bool ToDouble(double* value) const;
-		bool ToInteger(long long* value, nzUInt8 radix = 10) const;
-		NzString ToLower(nzUInt32 flags = None) const;
-		NzString ToUpper(nzUInt32 flags = None) const;
+			void Swap(String& str);
 
-		NzString& Trim(nzUInt32 flags = None);
-		NzString& Trim(char character, nzUInt32 flags = None);
-		NzString Trimmed(nzUInt32 flags = None) const;
-		NzString Trimmed(char character, nzUInt32 flags = None) const;
+			bool ToBool(bool* value, UInt32 flags = None) const;
+			bool ToDouble(double* value) const;
+			bool ToInteger(long long* value, UInt8 radix = 10) const;
+			String ToLower(UInt32 flags = None) const;
+			String ToUpper(UInt32 flags = None) const;
 
-		// Méthodes STD
-		char* begin();
-		const char* begin() const;
-		char* end();
-		const char* end() const;
-		void push_front(char c);
-		void push_back(char c);
-		//char* rbegin();
-		//const char* rbegin() const;
-		//char* rend();
-		//const char* rend() const;
+			String& Trim(UInt32 flags = None);
+			String& Trim(char character, UInt32 flags = None);
+			String Trimmed(UInt32 flags = None) const;
+			String Trimmed(char character, UInt32 flags = None) const;
 
-		typedef const char& const_reference;
-		typedef char* iterator;
-		//typedef char* reverse_iterator;
-		typedef char value_type;
-		// Méthodes STD
+			// Méthodes STD
+			char* begin();
+			const char* begin() const;
+			char* end();
+			const char* end() const;
+			void push_front(char c);
+			void push_back(char c);
+			//char* rbegin();
+			//const char* rbegin() const;
+			//char* rend();
+			//const char* rend() const;
 
-		operator std::string() const;
+			typedef const char& const_reference;
+			typedef char* iterator;
+			//typedef char* reverse_iterator;
+			typedef char value_type;
+			// Méthodes STD
 
-		char& operator[](unsigned int pos);
-		char operator[](unsigned int pos) const;
+			operator std::string() const;
 
-		NzString& operator=(char character);
-		NzString& operator=(const char* string);
-		NzString& operator=(const std::string& string);
-		NzString& operator=(const NzString& string);
-		NzString& operator=(NzString&& string) noexcept;
+			char& operator[](unsigned int pos);
+			char operator[](unsigned int pos) const;
 
-		NzString operator+(char character) const;
-		NzString operator+(const char* string) const;
-		NzString operator+(const std::string& string) const;
-		NzString operator+(const NzString& string) const;
+			String& operator=(char character);
+			String& operator=(const char* string);
+			String& operator=(const std::string& string);
+			String& operator=(const String& string);
+			String& operator=(String&& string) noexcept;
 
-		NzString& operator+=(char character);
-		NzString& operator+=(const char* string);
-		NzString& operator+=(const std::string& string);
-		NzString& operator+=(const NzString& string);
+			String operator+(char character) const;
+			String operator+(const char* string) const;
+			String operator+(const std::string& string) const;
+			String operator+(const String& string) const;
 
-		bool operator==(char character) const;
-		bool operator==(const char* string) const;
-		bool operator==(const std::string& string) const;
+			String& operator+=(char character);
+			String& operator+=(const char* string);
+			String& operator+=(const std::string& string);
+			String& operator+=(const String& string);
 
-		bool operator!=(char character) const;
-		bool operator!=(const char* string) const;
-		bool operator!=(const std::string& string) const;
+			bool operator==(char character) const;
+			bool operator==(const char* string) const;
+			bool operator==(const std::string& string) const;
 
-		bool operator<(char character) const;
-		bool operator<(const char* string) const;
-		bool operator<(const std::string& string) const;
+			bool operator!=(char character) const;
+			bool operator!=(const char* string) const;
+			bool operator!=(const std::string& string) const;
 
-		bool operator<=(char character) const;
-		bool operator<=(const char* string) const;
-		bool operator<=(const std::string& string) const;
+			bool operator<(char character) const;
+			bool operator<(const char* string) const;
+			bool operator<(const std::string& string) const;
 
-		bool operator>(char character) const;
-		bool operator>(const char* string) const;
-		bool operator>(const std::string& string) const;
+			bool operator<=(char character) const;
+			bool operator<=(const char* string) const;
+			bool operator<=(const std::string& string) const;
 
-		bool operator>=(char character) const;
-		bool operator>=(const char* string) const;
-		bool operator>=(const std::string& string) const;
+			bool operator>(char character) const;
+			bool operator>(const char* string) const;
+			bool operator>(const std::string& string) const;
 
-		static NzString Boolean(bool boolean);
-		static int Compare(const NzString& first, const NzString& second);
-		static NzString Number(float number);
-		static NzString Number(double number);
-		static NzString Number(long double number);
-		static NzString Number(signed char number, nzUInt8 radix = 10);
-		static NzString Number(unsigned char number, nzUInt8 radix = 10);
-		static NzString Number(short number, nzUInt8 radix = 10);
-		static NzString Number(unsigned short number, nzUInt8 radix = 10);
-		static NzString Number(int number, nzUInt8 radix = 10);
-		static NzString Number(unsigned int number, nzUInt8 radix = 10);
-		static NzString Number(long number, nzUInt8 radix = 10);
-		static NzString Number(unsigned long number, nzUInt8 radix = 10);
-		static NzString Number(long long number, nzUInt8 radix = 10);
-		static NzString Number(unsigned long long number, nzUInt8 radix = 10);
-		static NzString Pointer(const void* ptr);
-		static NzString Unicode(char32_t character);
-		static NzString Unicode(const char* u8String);
-		static NzString Unicode(const char16_t* u16String);
-		static NzString Unicode(const char32_t* u32String);
-		static NzString Unicode(const wchar_t* wString);
+			bool operator>=(char character) const;
+			bool operator>=(const char* string) const;
+			bool operator>=(const std::string& string) const;
 
-		NAZARA_CORE_API friend std::istream& operator>>(std::istream& in, NzString& string);
-		NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const NzString& string);
+			static String Boolean(bool boolean);
+			static int Compare(const String& first, const String& second);
+			static String Number(float number);
+			static String Number(double number);
+			static String Number(long double number);
+			static String Number(signed char number, UInt8 radix = 10);
+			static String Number(unsigned char number, UInt8 radix = 10);
+			static String Number(short number, UInt8 radix = 10);
+			static String Number(unsigned short number, UInt8 radix = 10);
+			static String Number(int number, UInt8 radix = 10);
+			static String Number(unsigned int number, UInt8 radix = 10);
+			static String Number(long number, UInt8 radix = 10);
+			static String Number(unsigned long number, UInt8 radix = 10);
+			static String Number(long long number, UInt8 radix = 10);
+			static String Number(unsigned long long number, UInt8 radix = 10);
+			static String Pointer(const void* ptr);
+			static String Unicode(char32_t character);
+			static String Unicode(const char* u8String);
+			static String Unicode(const char16_t* u16String);
+			static String Unicode(const char32_t* u32String);
+			static String Unicode(const wchar_t* wString);
 
-		NAZARA_CORE_API friend NzString operator+(char character, const NzString& string);
-		NAZARA_CORE_API friend NzString operator+(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend NzString operator+(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend std::istream& operator>>(std::istream& in, String& string);
+			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const String& string);
 
-		NAZARA_CORE_API friend bool operator==(const NzString& first, const NzString& second);
-		NAZARA_CORE_API friend bool operator!=(const NzString& first, const NzString& second);
-		NAZARA_CORE_API friend bool operator<(const NzString& first, const NzString& second);
-		NAZARA_CORE_API friend bool operator<=(const NzString& first, const NzString& second);
-		NAZARA_CORE_API friend bool operator>(const NzString& first, const NzString& second);
-		NAZARA_CORE_API friend bool operator>=(const NzString& first, const NzString& second);
+			NAZARA_CORE_API friend String operator+(char character, const String& string);
+			NAZARA_CORE_API friend String operator+(const char* string, const String& nstring);
+			NAZARA_CORE_API friend String operator+(const std::string& string, const String& nstring);
 
-		NAZARA_CORE_API friend bool operator==(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator==(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator==(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator==(const String& first, const String& second);
+			NAZARA_CORE_API friend bool operator!=(const String& first, const String& second);
+			NAZARA_CORE_API friend bool operator<(const String& first, const String& second);
+			NAZARA_CORE_API friend bool operator<=(const String& first, const String& second);
+			NAZARA_CORE_API friend bool operator>(const String& first, const String& second);
+			NAZARA_CORE_API friend bool operator>=(const String& first, const String& second);
 
-		NAZARA_CORE_API friend bool operator!=(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator!=(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator!=(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator==(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator==(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator==(const std::string& string, const String& nstring);
 
-		NAZARA_CORE_API friend bool operator<(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator<(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator<(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator!=(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator!=(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator!=(const std::string& string, const String& nstring);
 
-		NAZARA_CORE_API friend bool operator<=(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator<=(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator<=(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator<(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator<(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator<(const std::string& string, const String& nstring);
 
-		NAZARA_CORE_API friend bool operator>(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator>(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator>(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator<=(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator<=(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator<=(const std::string& string, const String& nstring);
 
-		NAZARA_CORE_API friend bool operator>=(char character, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator>=(const char* string, const NzString& nstring);
-		NAZARA_CORE_API friend bool operator>=(const std::string& string, const NzString& nstring);
+			NAZARA_CORE_API friend bool operator>(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator>(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator>(const std::string& string, const String& nstring);
 
-		static const unsigned int npos;
+			NAZARA_CORE_API friend bool operator>=(char character, const String& nstring);
+			NAZARA_CORE_API friend bool operator>=(const char* string, const String& nstring);
+			NAZARA_CORE_API friend bool operator>=(const std::string& string, const String& nstring);
 
-	private:
-		struct SharedString;
+			static const unsigned int npos;
 
-		NzString(std::shared_ptr<SharedString>&& sharedString);
+		private:
+			struct SharedString;
 
-		void EnsureOwnership(bool discardContent = false);
-		bool FillHash(NzAbstractHash* hash) const;
-		inline void ReleaseString();
+			String(std::shared_ptr<SharedString>&& sharedString);
 
-		static const std::shared_ptr<SharedString>& GetEmptyString();
+			void EnsureOwnership(bool discardContent = false);
+			bool FillHash(AbstractHash* hash) const;
+			inline void ReleaseString();
 
-		std::shared_ptr<SharedString> m_sharedString;
+			static const std::shared_ptr<SharedString>& GetEmptyString();
 
-		struct SharedString
-		{
-			inline SharedString();
-			inline SharedString(unsigned int strSize);
+			std::shared_ptr<SharedString> m_sharedString;
 
-			unsigned int capacity;
-			unsigned int size;
-			std::unique_ptr<char[]> string;
-		};
-};
+			struct SharedString
+			{
+				inline SharedString();
+				inline SharedString(unsigned int strSize);
+
+				unsigned int capacity;
+				unsigned int size;
+				std::unique_ptr<char[]> string;
+			};
+	};
+}
 
 namespace std
 {
-	NAZARA_CORE_API istream& getline(istream& is, NzString& str);
-	NAZARA_CORE_API istream& getline(istream& is, NzString& str, char delim);
-	NAZARA_CORE_API void swap(NzString& lhs, NzString& rhs);
+	NAZARA_CORE_API istream& getline(istream& is, Nz::String& str);
+	NAZARA_CORE_API istream& getline(istream& is, Nz::String& str, char delim);
+	NAZARA_CORE_API void swap(Nz::String& lhs, Nz::String& rhs);
 }
 
 #include <Nazara/Core/String.inl>

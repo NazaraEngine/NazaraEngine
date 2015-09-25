@@ -5,4 +5,7 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzAbstractHash::~NzAbstractHash() = default;
+namespace Nz
+{
+	AbstractHash::~AbstractHash() = default;
+}

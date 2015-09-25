@@ -10,18 +10,21 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 
-class NAZARA_RENDERER_API NzUberShaderInstance
+namespace Nz
 {
-	public:
-		NzUberShaderInstance(const NzShader* shader);
-		virtual ~NzUberShaderInstance();
+	class NAZARA_RENDERER_API UberShaderInstance
+	{
+		public:
+			UberShaderInstance(const Shader* shader);
+			virtual ~UberShaderInstance();
 
-		virtual bool Activate() const = 0;
+			virtual bool Activate() const = 0;
 
-		const NzShader* GetShader() const;
+			const Shader* GetShader() const;
 
-	protected:
-		NzShaderConstRef m_shader;
-};
+		protected:
+			ShaderConstRef m_shader;
+	};
+}
 
 #endif // NAZARA_UBERSHADERINSTANCE_HPP

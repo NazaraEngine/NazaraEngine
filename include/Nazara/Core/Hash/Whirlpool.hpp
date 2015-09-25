@@ -9,23 +9,26 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/HashDigest.hpp>
 
-struct NzHashWhirlpool_state;
-
-class NAZARA_CORE_API NzHashWhirlpool : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashWhirlpool();
-		virtual ~NzHashWhirlpool();
+	struct HashWhirlpool_state;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashWhirlpool : public AbstractHash
+	{
+		public:
+			HashWhirlpool();
+			virtual ~HashWhirlpool();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, unsigned int len);
+			void Begin();
+			HashDigest End();
 
-	private:
-		NzHashWhirlpool_state* m_state;
-};
+			static unsigned int GetDigestLength();
+			static String GetHashName();
+
+		private:
+			HashWhirlpool_state* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_WHIRLPOOL_HPP

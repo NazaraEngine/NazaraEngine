@@ -29,128 +29,131 @@ namespace GLX
 	#include <GL3/glxext.h>
 #endif
 
-enum nzOpenGLExtension
+namespace Nz
 {
-	nzOpenGLExtension_AnisotropicFilter,
-	nzOpenGLExtension_DebugOutput,
-	nzOpenGLExtension_FP64,
-	nzOpenGLExtension_GetProgramBinary,
-	nzOpenGLExtension_SeparateShaderObjects,
-	nzOpenGLExtension_Shader_ImageLoadStore,
-	nzOpenGLExtension_TextureCompression_s3tc,
-	nzOpenGLExtension_TextureStorage,
+	enum OpenGLExtension
+	{
+		OpenGLExtension_AnisotropicFilter,
+		OpenGLExtension_DebugOutput,
+		OpenGLExtension_FP64,
+		OpenGLExtension_GetProgramBinary,
+		OpenGLExtension_SeparateShaderObjects,
+		OpenGLExtension_Shader_ImageLoadStore,
+		OpenGLExtension_TextureCompression_s3tc,
+		OpenGLExtension_TextureStorage,
 
-	nzOpenGLExtension_Max = nzOpenGLExtension_TextureStorage
-};
+		OpenGLExtension_Max = OpenGLExtension_TextureStorage
+	};
 
-class NzContext;
-class NzRenderTarget;
+	class Context;
+	class RenderTarget;
 
-using NzOpenGLFunc = void (*)();
+	using OpenGLFunc = void (*)();
 
-class NAZARA_RENDERER_API NzOpenGL
-{
-	friend NzContext;
+	class NAZARA_RENDERER_API OpenGL
+	{
+		friend Context;
 
-	public:
-		enum FormatType
-		{
-			FormatType_RenderBuffer,
-//			FormatType_MultisampleTexture,
-			FormatType_Texture
-		};
+		public:
+			enum FormatType
+			{
+				FormatType_RenderBuffer,
+//				FormatType_MultisampleTexture,
+				FormatType_Texture
+			};
 
-		struct Format
-		{
-			GLenum dataFormat;
-			GLenum dataType;
-			GLint internalFormat;
-			GLint swizzle[4];
-		};
+			struct Format
+			{
+				GLenum dataFormat;
+				GLenum dataType;
+				GLint internalFormat;
+				GLint swizzle[4];
+			};
 
-		NzOpenGL() = delete;
-		~NzOpenGL() = delete;
+			OpenGL() = delete;
+			~OpenGL() = delete;
 
-		static void ApplyStates(const NzRenderStates& states);
+			static void ApplyStates(const RenderStates& states);
 
-		static void BindBuffer(nzBufferType type, GLuint id);
-		static void BindProgram(GLuint id);
-		static void BindSampler(GLuint unit, GLuint id);
-		static void BindScissorBox(const NzRecti& scissorBox);
-		static void BindTexture(nzImageType type, GLuint id);
-		static void BindTexture(unsigned int textureUnit, nzImageType type, GLuint id);
-		static void BindTextureUnit(unsigned int textureUnit);
-		static void BindViewport(const NzRecti& viewport);
+			static void BindBuffer(BufferType type, GLuint id);
+			static void BindProgram(GLuint id);
+			static void BindSampler(GLuint unit, GLuint id);
+			static void BindScissorBox(const Recti& scissorBox);
+			static void BindTexture(ImageType type, GLuint id);
+			static void BindTexture(unsigned int textureUnit, ImageType type, GLuint id);
+			static void BindTextureUnit(unsigned int textureUnit);
+			static void BindViewport(const Recti& viewport);
 
-		static void DeleteBuffer(nzBufferType type, GLuint id);
-		static void DeleteFrameBuffer(const NzContext* context, GLuint id);
-		static void DeleteProgram(GLuint id);
-		static void DeleteSampler(GLuint id);
-		static void DeleteTexture(GLuint id);
-		static void DeleteVertexArray(const NzContext* context, GLuint id);
+			static void DeleteBuffer(BufferType type, GLuint id);
+			static void DeleteFrameBuffer(const Context* context, GLuint id);
+			static void DeleteProgram(GLuint id);
+			static void DeleteSampler(GLuint id);
+			static void DeleteTexture(GLuint id);
+			static void DeleteVertexArray(const Context* context, GLuint id);
 
-		static GLuint GetCurrentBuffer(nzBufferType type);
-		static GLuint GetCurrentProgram();
-		static NzRecti GetCurrentScissorBox();
-		static const NzRenderTarget* GetCurrentTarget();
-		static GLuint GetCurrentTexture();
-		static GLuint GetCurrentTexture(unsigned int textureUnit);
-		static unsigned int GetCurrentTextureUnit();
-		static NzRecti GetCurrentViewport();
+			static GLuint GetCurrentBuffer(BufferType type);
+			static GLuint GetCurrentProgram();
+			static Recti GetCurrentScissorBox();
+			static const RenderTarget* GetCurrentTarget();
+			static GLuint GetCurrentTexture();
+			static GLuint GetCurrentTexture(unsigned int textureUnit);
+			static unsigned int GetCurrentTextureUnit();
+			static Recti GetCurrentViewport();
 
-		static NzOpenGLFunc GetEntry(const NzString& entryPoint);
-		static unsigned int GetGLSLVersion();
-		static NzString GetRendererName();
-		static NzString GetVendorName();
-		static unsigned int GetVersion();
+			static OpenGLFunc GetEntry(const String& entryPoint);
+			static unsigned int GetGLSLVersion();
+			static String GetRendererName();
+			static String GetVendorName();
+			static unsigned int GetVersion();
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
-		static bool IsSupported(nzOpenGLExtension extension);
-		static bool IsSupported(const NzString& string);
+			static bool IsInitialized();
+			static bool IsSupported(OpenGLExtension extension);
+			static bool IsSupported(const String& string);
 
-		static void SetBuffer(nzBufferType type, GLuint id);
-		static void SetProgram(GLuint id);
-		static void SetScissorBox(const NzRecti& scissorBox);
-		static void SetTarget(const NzRenderTarget* renderTarget);
-		static void SetTexture(GLuint id);
-		static void SetTexture(unsigned int textureUnit, GLuint id);
-		static void SetTextureUnit(unsigned int textureUnit);
-		static void SetViewport(const NzRecti& viewport);
+			static void SetBuffer(BufferType type, GLuint id);
+			static void SetProgram(GLuint id);
+			static void SetScissorBox(const Recti& scissorBox);
+			static void SetTarget(const RenderTarget* renderTarget);
+			static void SetTexture(GLuint id);
+			static void SetTexture(unsigned int textureUnit, GLuint id);
+			static void SetTextureUnit(unsigned int textureUnit);
+			static void SetViewport(const Recti& viewport);
 
-		static bool TranslateFormat(nzPixelFormat pixelFormat, Format* format, FormatType target);
+			static bool TranslateFormat(PixelFormatType pixelFormat, Format* format, FormatType target);
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-		static GLenum Attachment[nzAttachmentPoint_Max+1];
-		static GLenum BlendFunc[nzBlendFunc_Max+1];
-		static GLenum BufferLock[nzBufferAccess_Max+1];
-		static GLenum BufferLockRange[nzBufferAccess_Max+1];
-		static GLenum BufferTarget[nzBufferType_Max+1];
-		static GLenum BufferTargetBinding[nzBufferType_Max+1];
-		static GLenum BufferUsage[nzBufferUsage_Max+1];
-		static GLenum ComponentType[nzComponentType_Max+1];
-		static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
-		static GLenum FaceFilling[nzFaceFilling_Max+1];
-		static GLenum FaceSide[nzFaceSide_Max+1];
-		static GLenum PrimitiveMode[nzPrimitiveMode_Max+1];
-		static GLenum QueryCondition[nzGpuQueryCondition_Max+1];
-		static GLenum QueryMode[nzGpuQueryMode_Max+1];
-		static GLenum RendererComparison[nzRendererComparison_Max+1];
-		static GLenum RendererParameter[nzRendererParameter_Max+1];
-		static GLenum SamplerWrapMode[nzSamplerWrap_Max+1];
-		static GLenum ShaderStage[nzShaderStage_Max+1];
-		static GLenum StencilOperation[nzStencilOperation_Max+1];
-		static GLenum TextureTarget[nzImageType_Max+1];
-		static GLenum TextureTargetBinding[nzImageType_Max+1];
-		static GLenum TextureTargetProxy[nzImageType_Max+1];
-		static nzUInt8 VertexComponentIndex[nzVertexComponent_Max+1];
+			static GLenum Attachment[AttachmentPoint_Max+1];
+			static GLenum BlendFunc[BlendFunc_Max+1];
+			static GLenum BufferLock[BufferAccess_Max+1];
+			static GLenum BufferLockRange[BufferAccess_Max+1];
+			static GLenum BufferTarget[BufferType_Max+1];
+			static GLenum BufferTargetBinding[BufferType_Max+1];
+			static GLenum BufferUsage[BufferUsage_Max+1];
+			static GLenum ComponentType[ComponentType_Max+1];
+			static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
+			static GLenum FaceFilling[FaceFilling_Max+1];
+			static GLenum FaceSide[FaceSide_Max+1];
+			static GLenum PrimitiveMode[PrimitiveMode_Max+1];
+			static GLenum QueryCondition[GpuQueryCondition_Max+1];
+			static GLenum QueryMode[GpuQueryMode_Max+1];
+			static GLenum RendererComparison[RendererComparison_Max+1];
+			static GLenum RendererParameter[RendererParameter_Max+1];
+			static GLenum SamplerWrapMode[SamplerWrap_Max+1];
+			static GLenum ShaderStage[ShaderStageType_Max+1];
+			static GLenum StencilOperation[StencilOperation_Max+1];
+			static GLenum TextureTarget[ImageType_Max+1];
+			static GLenum TextureTargetBinding[ImageType_Max+1];
+			static GLenum TextureTargetProxy[ImageType_Max+1];
+			static UInt8 VertexComponentIndex[VertexComponent_Max+1];
 
-	private:
-		static void OnContextChanged(const NzContext* newContext);
-		static void OnContextDestruction(const NzContext* context);
-};
+		private:
+			static void OnContextChanged(const Context* newContext);
+			static void OnContextDestruction(const Context* context);
+	};
+}
 
 NAZARA_RENDERER_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_RENDERER_API extern PFNGLATTACHSHADERPROC             glAttachShader;

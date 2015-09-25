@@ -16,7 +16,7 @@ namespace Ndk
 			Attach(r.renderable);
 	}
 
-	inline void GraphicsComponent::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
+	inline void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
 	{
 		EnsureTransformMatrixUpdate();
 
@@ -32,7 +32,7 @@ namespace Ndk
 		}
 	}
 
-	inline void GraphicsComponent::Attach(NzInstancedRenderableRef renderable)
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable)
 	{
 		m_renderables.emplace_back(m_transformMatrix);
 		Renderable& r = m_renderables.back();

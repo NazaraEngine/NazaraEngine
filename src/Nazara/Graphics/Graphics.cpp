@@ -25,165 +25,168 @@
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-bool NzGraphics::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool Graphics::Initialize()
 	{
-		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
-	}
-
-	// Initialisation des dépendances
-	if (!NzRenderer::Initialize())
-	{
-		NazaraError("Failed to initialize Renderer module");
-		return false;
-	}
-
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-	NzCallOnExit onExit(NzGraphics::Uninitialize);
-
-	if (!NzMaterial::Initialize())
-	{
-		NazaraError("Failed to initialize materials");
-		return false;
-	}
-
-	if (!NzParticleController::Initialize())
-	{
-		NazaraError("Failed to initialize particle controllers");
-		return false;
-	}
-
-	if (!NzParticleDeclaration::Initialize())
-	{
-		NazaraError("Failed to initialize particle declarations");
-		return false;
-	}
-
-	if (!NzParticleGenerator::Initialize())
-	{
-		NazaraError("Failed to initialize particle generators");
-		return false;
-	}
-
-	if (!NzParticleRenderer::Initialize())
-	{
-		NazaraError("Failed to initialize particle renderers");
-		return false;
-	}
-
-	if (!NzSkinningManager::Initialize())
-	{
-		NazaraError("Failed to initialize skinning manager");
-		return false;
-	}
-
-	if (!NzSkyboxBackground::Initialize())
-	{
-		NazaraError("Failed to initialize skybox backgrounds");
-		return false;
-	}
-
-	// Loaders
-	NzLoaders_OBJ_Register();
-
-	// Loaders génériques
-	NzLoaders_Mesh_Register();
-	NzLoaders_Texture_Register();
-
-	// RenderTechniques
-	if (!NzForwardRenderTechnique::Initialize())
-	{
-		NazaraError("Failed to initialize Forward Rendering");
-		return false;
-	}
-
-	NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_BasicForward), 0, []() -> NzAbstractRenderTechnique* { return new NzForwardRenderTechnique; });
-
-	if (NzDeferredRenderTechnique::IsSupported())
-	{
-		if (NzDeferredRenderTechnique::Initialize())
-			NzRenderTechniques::Register(NzRenderTechniques::ToString(nzRenderTechniqueType_DeferredShading), 20, []() -> NzAbstractRenderTechnique* { return new NzDeferredRenderTechnique; });
-		else
+		if (s_moduleReferenceCounter > 0)
 		{
-			NazaraWarning("Failed to initialize Deferred Rendering");
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
 		}
-	}
 
-	NzFont::SetDefaultAtlas(std::make_shared<NzGuillotineTextureAtlas>());
-
-	onExit.Reset();
-
-	NazaraNotice("Initialized: Graphics module");
-	return true;
-}
-
-bool NzGraphics::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzGraphics::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
-	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
-
-		return;
-	}
-
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	// Libération de l'atlas s'il vient de nous
-	std::shared_ptr<NzAbstractAtlas> defaultAtlas = NzFont::GetDefaultAtlas();
-	if (defaultAtlas && defaultAtlas->GetStorage() & nzDataStorage_Hardware)
-	{
-		NzFont::SetDefaultAtlas(nullptr);
-
-		// La police par défaut peut faire vivre un atlas hardware après la libération du module (ce qui va être problématique)
-		// du coup, si la police par défaut utilise un atlas hardware, on lui enlève.
-		// Je n'aime pas cette solution mais je n'en ai pas de meilleure sous la main pour l'instant
-		if (!defaultAtlas.unique())
+		// Initialisation des dépendances
+		if (!Renderer::Initialize())
 		{
-			// Encore au moins une police utilise l'atlas
-			NzFont* defaultFont = NzFont::GetDefault();
-			defaultFont->SetAtlas(nullptr);
+			NazaraError("Failed to initialize Renderer module");
+			return false;
+		}
 
-			if (!defaultAtlas.unique())
+		s_moduleReferenceCounter++;
+
+		// Initialisation du module
+		CallOnExit onExit(Graphics::Uninitialize);
+
+		if (!Material::Initialize())
+		{
+			NazaraError("Failed to initialize materials");
+			return false;
+		}
+
+		if (!ParticleController::Initialize())
+		{
+			NazaraError("Failed to initialize particle controllers");
+			return false;
+		}
+
+		if (!ParticleDeclaration::Initialize())
+		{
+			NazaraError("Failed to initialize particle declarations");
+			return false;
+		}
+
+		if (!ParticleGenerator::Initialize())
+		{
+			NazaraError("Failed to initialize particle generators");
+			return false;
+		}
+
+		if (!ParticleRenderer::Initialize())
+		{
+			NazaraError("Failed to initialize particle renderers");
+			return false;
+		}
+
+		if (!SkinningManager::Initialize())
+		{
+			NazaraError("Failed to initialize skinning manager");
+			return false;
+		}
+
+		if (!SkyboxBackground::Initialize())
+		{
+			NazaraError("Failed to initialize skybox backgrounds");
+			return false;
+		}
+
+		// Loaders
+		Loaders::RegisterOBJ();
+
+		// Loaders génériques
+		Loaders::RegisterMesh();
+		Loaders::RegisterTexture();
+
+		// RenderTechniques
+		if (!ForwardRenderTechnique::Initialize())
+		{
+			NazaraError("Failed to initialize Forward Rendering");
+			return false;
+		}
+
+		RenderTechniques::Register(RenderTechniques::ToString(RenderTechniqueType_BasicForward), 0, []() -> AbstractRenderTechnique* { return new ForwardRenderTechnique; });
+
+		if (DeferredRenderTechnique::IsSupported())
+		{
+			if (DeferredRenderTechnique::Initialize())
+				RenderTechniques::Register(RenderTechniques::ToString(RenderTechniqueType_DeferredShading), 20, []() -> AbstractRenderTechnique* { return new DeferredRenderTechnique; });
+			else
 			{
-				// Toujours pas seuls propriétaires ? Ah ben zut.
-				NazaraWarning("Default font atlas uses hardware storage and is still used");
+				NazaraWarning("Failed to initialize Deferred Rendering");
 			}
 		}
+
+		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>());
+
+		onExit.Reset();
+
+		NazaraNotice("Initialized: Graphics module");
+		return true;
 	}
 
-	defaultAtlas.reset();
+	bool Graphics::IsInitialized()
+	{
+		return s_moduleReferenceCounter != 0;
+	}
 
-	// Loaders
-	NzLoaders_Mesh_Unregister();
-	NzLoaders_OBJ_Unregister();
-	NzLoaders_Texture_Unregister();
+	void Graphics::Uninitialize()
+	{
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-	NzDeferredRenderTechnique::Uninitialize();
-	NzForwardRenderTechnique::Uninitialize();
-	NzSkinningManager::Uninitialize();
-	NzParticleRenderer::Uninitialize();
-	NzParticleGenerator::Uninitialize();
-	NzParticleDeclaration::Uninitialize();
-	NzParticleController::Uninitialize();
-	NzMaterial::Uninitialize();
-	NzSkyboxBackground::Uninitialize();
+			return;
+		}
 
-	NazaraNotice("Uninitialized: Graphics module");
+		// Libération du module
+		s_moduleReferenceCounter = 0;
 
-	// Libération des dépendances
-	NzRenderer::Uninitialize();
+		// Libération de l'atlas s'il vient de nous
+		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
+		if (defaultAtlas && defaultAtlas->GetStorage() & DataStorage_Hardware)
+		{
+			Font::SetDefaultAtlas(nullptr);
+
+			// La police par défaut peut faire vivre un atlas hardware après la libération du module (ce qui va être problématique)
+			// du coup, si la police par défaut utilise un atlas hardware, on lui enlève.
+			// Je n'aime pas cette solution mais je n'en ai pas de meilleure sous la main pour l'instant
+			if (!defaultAtlas.unique())
+			{
+				// Encore au moins une police utilise l'atlas
+				Font* defaultFont = Font::GetDefault();
+				defaultFont->SetAtlas(nullptr);
+
+				if (!defaultAtlas.unique())
+				{
+					// Toujours pas seuls propriétaires ? Ah ben zut.
+					NazaraWarning("Default font atlas uses hardware storage and is still used");
+				}
+			}
+		}
+
+		defaultAtlas.reset();
+
+		// Loaders
+		Loaders::UnregisterMesh();
+		Loaders::UnregisterOBJ();
+		Loaders::UnregisterTexture();
+
+		DeferredRenderTechnique::Uninitialize();
+		ForwardRenderTechnique::Uninitialize();
+		SkinningManager::Uninitialize();
+		ParticleRenderer::Uninitialize();
+		ParticleGenerator::Uninitialize();
+		ParticleDeclaration::Uninitialize();
+		ParticleController::Uninitialize();
+		Material::Uninitialize();
+		SkyboxBackground::Uninitialize();
+
+		NazaraNotice("Uninitialized: Graphics module");
+
+		// Libération des dépendances
+		Renderer::Uninitialize();
+	}
+
+	unsigned int Graphics::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzGraphics::s_moduleReferenceCounter = 0;

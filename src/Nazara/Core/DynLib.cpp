@@ -23,88 +23,91 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzDynLib::NzDynLib() :
-m_impl(nullptr)
+namespace Nz
 {
-}
-
-NzDynLib::NzDynLib(NzDynLib&& lib) :
-m_lastError(std::move(lib.m_lastError)),
-m_impl(lib.m_impl)
-{
-	lib.m_impl = nullptr;
-}
-
-NzDynLib::~NzDynLib()
-{
-	Unload();
-}
-
-NzString NzDynLib::GetLastError() const
-{
-	NazaraLock(m_mutex)
-
-	return m_lastError;
-}
-
-NzDynLibFunc NzDynLib::GetSymbol(const NzString& symbol) const
-{
-	NazaraLock(m_mutex)
-
-	#if NAZARA_CORE_SAFE
-	if (!m_impl)
+	DynLib::DynLib() :
+	m_impl(nullptr)
 	{
-		NazaraError("Library not opened");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->GetSymbol(symbol, &m_lastError);
-}
-
-bool NzDynLib::IsLoaded() const
-{
-	return m_impl != nullptr;
-}
-
-bool NzDynLib::Load(const NzString& libraryPath)
-{
-	NazaraLock(m_mutex)
-
-	Unload();
-
-	std::unique_ptr<NzDynLibImpl> impl(new NzDynLibImpl(this));
-	if (!impl->Load(libraryPath, &m_lastError))
-	{
-		NazaraError("Failed to load library: " + m_lastError);
-		return false;
 	}
 
-	m_impl = impl.release();
-
-	return true;
-}
-
-void NzDynLib::Unload()
-{
-	NazaraLock(m_mutex)
-
-	if (m_impl)
+	DynLib::DynLib(DynLib&& lib) :
+	m_lastError(std::move(lib.m_lastError)),
+	m_impl(lib.m_impl)
 	{
-		m_impl->Unload();
-		delete m_impl;
-		m_impl = nullptr;
+		lib.m_impl = nullptr;
 	}
-}
 
-NzDynLib& NzDynLib::operator=(NzDynLib&& lib)
-{
-	Unload();
+	DynLib::~DynLib()
+	{
+		Unload();
+	}
 
-	m_impl = lib.m_impl;
-	m_lastError = std::move(lib.m_lastError);
+	String DynLib::GetLastError() const
+	{
+		NazaraLock(m_mutex)
 
-	lib.m_impl = nullptr;
+		return m_lastError;
+	}
 
-	return *this;
+	DynLibFunc DynLib::GetSymbol(const String& symbol) const
+	{
+		NazaraLock(m_mutex)
+
+		#if NAZARA_CORE_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Library not opened");
+			return nullptr;
+		}
+		#endif
+
+		return m_impl->GetSymbol(symbol, &m_lastError);
+	}
+
+	bool DynLib::IsLoaded() const
+	{
+		return m_impl != nullptr;
+	}
+
+	bool DynLib::Load(const String& libraryPath)
+	{
+		NazaraLock(m_mutex)
+
+		Unload();
+
+		std::unique_ptr<DynLibImpl> impl(new DynLibImpl(this));
+		if (!impl->Load(libraryPath, &m_lastError))
+		{
+			NazaraError("Failed to load library: " + m_lastError);
+			return false;
+		}
+
+		m_impl = impl.release();
+
+		return true;
+	}
+
+	void DynLib::Unload()
+	{
+		NazaraLock(m_mutex)
+
+		if (m_impl)
+		{
+			m_impl->Unload();
+			delete m_impl;
+			m_impl = nullptr;
+		}
+	}
+
+	DynLib& DynLib::operator=(DynLib&& lib)
+	{
+		Unload();
+
+		m_impl = lib.m_impl;
+		m_lastError = std::move(lib.m_lastError);
+
+		lib.m_impl = nullptr;
+
+		return *this;
+	}
 }

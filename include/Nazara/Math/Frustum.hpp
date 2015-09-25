@@ -16,51 +16,54 @@
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzFrustum
+namespace Nz
 {
-	public:
-		NzFrustum() = default;
-		template<typename U> explicit NzFrustum(const NzFrustum<U>& frustum);
-		NzFrustum(const NzFrustum& frustum) = default;
-		~NzFrustum() = default;
+	template<typename T>
+	class Frustum
+	{
+		public:
+			Frustum() = default;
+			template<typename U> explicit Frustum(const Frustum<U>& frustum);
+			Frustum(const Frustum& frustum) = default;
+			~Frustum() = default;
 
-		NzFrustum& Build(T angle, T ratio, T zNear, T zFar, const NzVector3<T>& eye, const NzVector3<T>& target, const NzVector3<T>& up = NzVector3<T>::Up());
+			Frustum& Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 
-		bool Contains(const NzBoundingVolume<T>& volume) const;
-		bool Contains(const NzBox<T>& box) const;
-		bool Contains(const NzOrientedBox<T>& orientedBox) const;
-		bool Contains(const NzSphere<T>& sphere) const;
-		bool Contains(const NzVector3<T>& point) const;
-		bool Contains(const NzVector3<T>* points, unsigned int pointCount) const;
+			bool Contains(const BoundingVolume<T>& volume) const;
+			bool Contains(const Box<T>& box) const;
+			bool Contains(const OrientedBox<T>& orientedBox) const;
+			bool Contains(const Sphere<T>& sphere) const;
+			bool Contains(const Vector3<T>& point) const;
+			bool Contains(const Vector3<T>* points, unsigned int pointCount) const;
 
-		NzFrustum& Extract(const NzMatrix4<T>& clipMatrix);
-		NzFrustum& Extract(const NzMatrix4<T>& view, const NzMatrix4<T>& projection);
+			Frustum& Extract(const Matrix4<T>& clipMatrix);
+			Frustum& Extract(const Matrix4<T>& view, const Matrix4<T>& projection);
 
-		const NzVector3<T>& GetCorner(nzBoxCorner corner) const;
-		const NzPlane<T>& GetPlane(nzFrustumPlane plane) const;
+			const Vector3<T>& GetCorner(BoxCorner corner) const;
+			const Plane<T>& GetPlane(FrustumPlane plane) const;
 
-		nzIntersectionSide Intersect(const NzBoundingVolume<T>& volume) const;
-		nzIntersectionSide Intersect(const NzBox<T>& box) const;
-		nzIntersectionSide Intersect(const NzOrientedBox<T>& orientedBox) const;
-		nzIntersectionSide Intersect(const NzSphere<T>& sphere) const;
-		nzIntersectionSide Intersect(const NzVector3<T>* points, unsigned int pointCount) const;
+			IntersectionSide Intersect(const BoundingVolume<T>& volume) const;
+			IntersectionSide Intersect(const Box<T>& box) const;
+			IntersectionSide Intersect(const OrientedBox<T>& orientedBox) const;
+			IntersectionSide Intersect(const Sphere<T>& sphere) const;
+			IntersectionSide Intersect(const Vector3<T>* points, unsigned int pointCount) const;
 
-		NzFrustum& Set(const NzFrustum& frustum);
-		template<typename U> NzFrustum& Set(const NzFrustum<U>& frustum);
+			Frustum& Set(const Frustum& frustum);
+			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
-		NzString ToString() const;
+			String ToString() const;
 
-	private:
-		NzVector3<T> m_corners[nzBoxCorner_Max+1];
-		NzPlane<T> m_planes[nzFrustumPlane_Max+1];
-};
+		private:
+			Vector3<T> m_corners[BoxCorner_Max+1];
+			Plane<T> m_planes[FrustumPlane_Max+1];
+	};
+
+	typedef Frustum<double> Frustumd;
+	typedef Frustum<float> Frustumf;
+}
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzFrustum<T>& frustum);
-
-typedef NzFrustum<double> NzFrustumd;
-typedef NzFrustum<float> NzFrustumf;
+std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum);
 
 #include <Nazara/Math/Frustum.inl>
 

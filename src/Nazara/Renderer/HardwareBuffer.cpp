@@ -11,124 +11,127 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzHardwareBuffer::NzHardwareBuffer(NzBuffer* parent, nzBufferType type) :
-m_type(type),
-m_parent(parent)
+namespace Nz
 {
-}
-
-NzHardwareBuffer::~NzHardwareBuffer() = default;
-
-bool NzHardwareBuffer::Create(unsigned int size, nzBufferUsage usage)
-{
-	NzContext::EnsureContext();
-
-	m_buffer = 0;
-	glGenBuffers(1, &m_buffer);
-
-	NzOpenGL::BindBuffer(m_type, m_buffer);
-
-	glBufferData(NzOpenGL::BufferTarget[m_type], size, nullptr, NzOpenGL::BufferUsage[usage]);
-
-	return true;
-}
-
-void NzHardwareBuffer::Destroy()
-{
-	NzContext::EnsureContext();
-
-	NzOpenGL::DeleteBuffer(m_type, m_buffer);
-}
-
-bool NzHardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
-{
-	NzContext::EnsureContext();
-
-	unsigned int totalSize = m_parent->GetSize();
-
-	if (!forceDiscard)
-		forceDiscard = (size == totalSize);
-
-	NzOpenGL::BindBuffer(m_type, m_buffer);
-
-	// Il semblerait que glBuffer(Sub)Data soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
-	// http://www.stevestreeting.com/2007/03/17/glmapbuffer-vs-glbuffersubdata-the-return/
-	if (size < 32*1024)
+	HardwareBuffer::HardwareBuffer(Buffer* parent, BufferType type) :
+	m_type(type),
+	m_parent(parent)
 	{
-		// http://www.opengl.org/wiki/Buffer_Object_Streaming
-		if (forceDiscard)
-			glBufferData(NzOpenGL::BufferTarget[m_type], totalSize, nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
-
-		glBufferSubData(NzOpenGL::BufferTarget[m_type], offset, size, data);
 	}
-	else
+
+	HardwareBuffer::~HardwareBuffer() = default;
+
+	bool HardwareBuffer::Create(unsigned int size, BufferUsage usage)
 	{
-		void* ptr = Map((forceDiscard) ? nzBufferAccess_DiscardAndWrite : nzBufferAccess_WriteOnly, offset, size);
-		if (!ptr)
+		Context::EnsureContext();
+
+		m_buffer = 0;
+		glGenBuffers(1, &m_buffer);
+
+		OpenGL::BindBuffer(m_type, m_buffer);
+
+		glBufferData(OpenGL::BufferTarget[m_type], size, nullptr, OpenGL::BufferUsage[usage]);
+
+		return true;
+	}
+
+	void HardwareBuffer::Destroy()
+	{
+		Context::EnsureContext();
+
+		OpenGL::DeleteBuffer(m_type, m_buffer);
+	}
+
+	bool HardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
+	{
+		Context::EnsureContext();
+
+		unsigned int totalSize = m_parent->GetSize();
+
+		if (!forceDiscard)
+			forceDiscard = (size == totalSize);
+
+		OpenGL::BindBuffer(m_type, m_buffer);
+
+		// Il semblerait que glBuffer(Sub)Data soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
+		// http://www.stevestreeting.com/2007/03/17/glmapbuffer-vs-glbuffersubdata-the-return/
+		if (size < 32*1024)
 		{
-			NazaraError("Failed to map buffer");
+			// http://www.opengl.org/wiki/Buffer_Object_Streaming
+			if (forceDiscard)
+				glBufferData(OpenGL::BufferTarget[m_type], totalSize, nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
+
+			glBufferSubData(OpenGL::BufferTarget[m_type], offset, size, data);
+		}
+		else
+		{
+			void* ptr = Map((forceDiscard) ? BufferAccess_DiscardAndWrite : BufferAccess_WriteOnly, offset, size);
+			if (!ptr)
+			{
+				NazaraError("Failed to map buffer");
+				return false;
+			}
+
+			std::memcpy(ptr, data, size);
+
+			Unmap();
+		}
+
+		return true;
+	}
+
+	bool HardwareBuffer::IsHardware() const
+	{
+		return true;
+	}
+
+	void* HardwareBuffer::Map(BufferAccess access, unsigned int offset, unsigned int size)
+	{
+		Context::EnsureContext();
+
+		OpenGL::BindBuffer(m_type, m_buffer);
+
+		if (glMapBufferRange)
+			return glMapBufferRange(OpenGL::BufferTarget[m_type], offset, size, OpenGL::BufferLockRange[access]);
+		else
+		{
+			// http://www.opengl.org/wiki/Buffer_Object_Streaming
+			if (access == BufferAccess_DiscardAndWrite)
+				glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
+
+			UInt8* ptr = static_cast<UInt8*>(glMapBuffer(OpenGL::BufferTarget[m_type], OpenGL::BufferLock[access]));
+			if (ptr)
+				ptr += offset;
+
+			return ptr;
+		}
+	}
+
+	bool HardwareBuffer::Unmap()
+	{
+		Context::EnsureContext();
+
+		OpenGL::BindBuffer(m_type, m_buffer);
+
+		if (glUnmapBuffer(OpenGL::BufferTarget[m_type]) != GL_TRUE)
+		{
+			glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]);
+
+			// Une erreur rare est survenue, nous devons réinitialiser le buffer
+			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + String::Number(glGetError(), 16) + ')');
 			return false;
 		}
 
-		std::memcpy(ptr, data, size);
-
-		Unmap();
+		return true;
 	}
 
-	return true;
-}
-
-bool NzHardwareBuffer::IsHardware() const
-{
-	return true;
-}
-
-void* NzHardwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
-{
-	NzContext::EnsureContext();
-
-	NzOpenGL::BindBuffer(m_type, m_buffer);
-
-	if (glMapBufferRange)
-		return glMapBufferRange(NzOpenGL::BufferTarget[m_type], offset, size, NzOpenGL::BufferLockRange[access]);
-	else
+	void HardwareBuffer::Bind() const
 	{
-		// http://www.opengl.org/wiki/Buffer_Object_Streaming
-		if (access == nzBufferAccess_DiscardAndWrite)
-			glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
-
-		nzUInt8* ptr = static_cast<nzUInt8*>(glMapBuffer(NzOpenGL::BufferTarget[m_type], NzOpenGL::BufferLock[access]));
-		if (ptr)
-			ptr += offset;
-
-		return ptr;
+		OpenGL::BindBuffer(m_type, m_buffer);
 	}
-}
 
-bool NzHardwareBuffer::Unmap()
-{
-	NzContext::EnsureContext();
-
-	NzOpenGL::BindBuffer(m_type, m_buffer);
-
-	if (glUnmapBuffer(NzOpenGL::BufferTarget[m_type]) != GL_TRUE)
+	unsigned int HardwareBuffer::GetOpenGLID() const
 	{
-		glBufferData(NzOpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, NzOpenGL::BufferUsage[m_parent->GetUsage()]);
-
-		// Une erreur rare est survenue, nous devons réinitialiser le buffer
-		NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + NzString::Number(glGetError(), 16) + ')');
-		return false;
-	}
-
-	return true;
+		return m_buffer;
 }
-
-void NzHardwareBuffer::Bind() const
-{
-	NzOpenGL::BindBuffer(m_type, m_buffer);
-}
-
-unsigned int NzHardwareBuffer::GetOpenGLID() const
-{
-	return m_buffer;
 }

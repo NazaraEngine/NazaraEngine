@@ -10,22 +10,26 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
 
-class NAZARA_NOISE_API NzMappedNoiseBase : public NzNoiseBase
+namespace Nz
 {
-    public:
-        NzMappedNoiseBase();
-        ~NzMappedNoiseBase() = default;
+	class NAZARA_NOISE_API MappedNoiseBase : public NoiseBase
+	{
+		public:
+			MappedNoiseBase();
+			~MappedNoiseBase() = default;
 
-        float GetGain() const;
-        float GetOffset() const;
-        float GetResolution() const;
-        void SetGain(float gain);
-        void SetOffset(float offset);
-        void SetResolution(float resolution);
-    protected:
-        float m_gain;
-        float m_offset;
-        float m_resolution;
-};
+			float GetGain() const;
+			float GetOffset() const;
+			float GetResolution() const;
+			void SetGain(float gain);
+			void SetOffset(float offset);
+			void SetResolution(float resolution);
+
+		protected:
+			float m_gain;
+			float m_offset;
+			float m_resolution;
+	};
+}
 
 #endif // NAZARA_MAPPEDNOISEBASE_HPP

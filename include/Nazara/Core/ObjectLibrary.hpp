@@ -12,28 +12,31 @@
 #include <Nazara/Core/String.hpp>
 #include <unordered_map>
 
-template<typename Type>
-class NzObjectLibrary
+namespace Nz
 {
-	friend Type;
+	template<typename Type>
+	class ObjectLibrary
+	{
+		friend Type;
 
-	public:
-		NzObjectLibrary() = delete;
-		~NzObjectLibrary() = delete;
+		public:
+			ObjectLibrary() = delete;
+			~ObjectLibrary() = delete;
 
-		static NzObjectRef<Type> Get(const NzString& name);
-		static bool Has(const NzString& name);
+			static ObjectRef<Type> Get(const String& name);
+			static bool Has(const String& name);
 
-		static void Register(const NzString& name, NzObjectRef<Type> object);
-		static NzObjectRef<Type> Query(const NzString& name);
-		static void Unregister(const NzString& name);
+			static void Register(const String& name, ObjectRef<Type> object);
+			static ObjectRef<Type> Query(const String& name);
+			static void Unregister(const String& name);
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+		private:
+			static bool Initialize();
+			static void Uninitialize();
 
-		using LibraryMap = std::unordered_map<NzString, NzObjectRef<Type>>;
-};
+			using LibraryMap = std::unordered_map<String, ObjectRef<Type>>;
+	};
+}
 
 #include <Nazara/Core/ObjectLibrary.inl>
 

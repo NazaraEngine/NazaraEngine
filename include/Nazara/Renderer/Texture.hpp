@@ -8,7 +8,6 @@
 #define NAZARA_TEXTURE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -21,108 +20,117 @@
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Image.hpp>
 
-class NzTexture;
-
-using NzTextureConstRef = NzObjectRef<const NzTexture>;
-using NzTextureLibrary = NzObjectLibrary<NzTexture>;
-using NzTextureManager = NzResourceManager<NzTexture, NzImageParams>;
-using NzTextureRef = NzObjectRef<NzTexture>;
-
-struct NzTextureImpl;
-
-class NAZARA_RENDERER_API NzTexture : public NzAbstractImage, public NzRefCounted, public NzResource, NzNonCopyable
+namespace Nz
 {
-	friend NzTextureLibrary;
-	friend NzTextureManager;
-	friend class NzRenderer;
 
-	public:
-		NzTexture() = default;
-		NzTexture(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
-		explicit NzTexture(const NzImage& image);
-		~NzTexture();
+	class Texture;
 
-		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
-		void Destroy();
+	using TextureConstRef = ObjectRef<const Texture>;
+	using TextureLibrary = ObjectLibrary<Texture>;
+	using TextureManager = ResourceManager<Texture, ImageParams>;
+	using TextureRef = ObjectRef<Texture>;
 
-		bool Download(NzImage* image) const;
+	struct TextureImpl;
 
-		bool EnableMipmapping(bool enable);
+	class NAZARA_RENDERER_API Texture : public AbstractImage, public RefCounted, public Resource
+	{
+		friend TextureLibrary;
+		friend TextureManager;
+		friend class Renderer;
 
-		void EnsureMipmapsUpdate() const;
+		public:
+			Texture() = default;
+			Texture(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			explicit Texture(const Image& image);
+			Texture(const Texture&) = delete;
+			Texture(Texture&&) = delete;
+			~Texture();
 
-		unsigned int GetDepth(nzUInt8 level = 0) const;
-		nzPixelFormat GetFormat() const;
-		unsigned int GetHeight(nzUInt8 level = 0) const;
-		nzUInt8 GetLevelCount() const;
-		nzUInt8 GetMaxLevel() const;
-		unsigned int GetMemoryUsage() const;
-		unsigned int GetMemoryUsage(nzUInt8 level) const;
-		NzVector3ui GetSize(nzUInt8 level = 0) const;
-		nzImageType GetType() const;
-		unsigned int GetWidth(nzUInt8 level = 0) const;
+			bool Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			void Destroy();
 
-		bool HasMipmaps() const;
+			bool Download(Image* image) const;
 
-		void InvalidateMipmaps();
-		bool IsValid() const;
+			bool EnableMipmapping(bool enable);
 
-		// Load
-		bool LoadFromFile(const NzString& filePath, const NzImageParams& params = NzImageParams(), bool generateMipmaps = true);
-		bool LoadFromImage(const NzImage& image, bool generateMipmaps = true);
-		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams(), bool generateMipmaps = true);
-		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams(), bool generateMipmaps = true);
+			void EnsureMipmapsUpdate() const;
 
-		// LoadArray
-		bool LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromImage(const NzImage& image, bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+			unsigned int GetDepth(UInt8 level = 0) const;
+			PixelFormatType GetFormat() const;
+			unsigned int GetHeight(UInt8 level = 0) const;
+			UInt8 GetLevelCount() const;
+			UInt8 GetMaxLevel() const;
+			unsigned int GetMemoryUsage() const;
+			unsigned int GetMemoryUsage(UInt8 level) const;
+			Vector3ui GetSize(UInt8 level = 0) const;
+			ImageType GetType() const;
+			unsigned int GetWidth(UInt8 level = 0) const;
 
-		// LoadCubemap
-		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzCubemapParams& cubemapParams = NzCubemapParams());
-		bool LoadCubemapFromImage(const NzImage& image, bool generateMipmaps = true, const NzCubemapParams& params = NzCubemapParams());
-		bool LoadCubemapFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzCubemapParams& cubemapParams = NzCubemapParams());
-		bool LoadCubemapFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), bool generateMipmaps = true, const NzCubemapParams& cubemapParams = NzCubemapParams());
+			bool HasMipmaps() const;
 
-		// LoadFace
-		bool LoadFaceFromFile(nzCubemapFace face, const NzString& filePath, const NzImageParams& params = NzImageParams());
-		bool LoadFaceFromMemory(nzCubemapFace face, const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
-		bool LoadFaceFromStream(nzCubemapFace face, NzInputStream& stream, const NzImageParams& params = NzImageParams());
+			void InvalidateMipmaps();
+			bool IsValid() const;
 
-		bool SetMipmapRange(nzUInt8 minLevel, nzUInt8 maxLevel);
+			// Load
+			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			bool LoadFromImage(const Image& image, bool generateMipmaps = true);
+			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			bool LoadFromStream(InputStream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
 
-		bool Update(const NzImage& image, nzUInt8 level = 0);
-		bool Update(const NzImage& image, const NzBoxui& box, nzUInt8 level = 0);
-		bool Update(const NzImage& image, const NzRectui& rect, unsigned int z = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+			// LoadArray
+			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromImage(const Image& image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
 
-		// Fonctions OpenGL
-		unsigned int GetOpenGLID() const;
+			// LoadCubemap
+			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromImage(const Image& image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
+			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
 
-		static bool IsFormatSupported(nzPixelFormat format);
-		static bool IsMipmappingSupported();
-		static bool IsTypeSupported(nzImageType type);
-		template<typename... Args> static NzTextureRef New(Args&&... args);
+			// LoadFace
+			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
+			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
+			bool LoadFaceFromStream(CubemapFace face, InputStream& stream, const ImageParams& params = ImageParams());
 
-		// Signals:
-		NazaraSignal(OnTextureDestroy, const NzTexture* /*texture*/);
-		NazaraSignal(OnTextureRelease, const NzTexture* /*texture*/);
+			bool SetMipmapRange(UInt8 minLevel, UInt8 maxLevel);
 
-	private:
-		bool CreateTexture(bool proxy);
+			bool Update(const Image& image, UInt8 level = 0);
+			bool Update(const Image& image, const Boxui& box, UInt8 level = 0);
+			bool Update(const Image& image, const Rectui& rect, unsigned int z = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
 
-		static bool Initialize();
-		static void Uninitialize();
+			// Fonctions OpenGL
+			unsigned int GetOpenGLID() const;
 
-		NzTextureImpl* m_impl = nullptr;
+			Texture& operator=(const Texture&) = delete;
+			Texture& operator=(Texture&&) = delete;
 
-		static NzTextureLibrary::LibraryMap s_library;
-		static NzTextureManager::ManagerMap s_managerMap;
-		static NzTextureManager::ManagerParams s_managerParameters;
-};
+			static bool IsFormatSupported(PixelFormatType format);
+			static bool IsMipmappingSupported();
+			static bool IsTypeSupported(ImageType type);
+			template<typename... Args> static TextureRef New(Args&&... args);
+
+			// Signals:
+			NazaraSignal(OnTextureDestroy, const Texture* /*texture*/);
+			NazaraSignal(OnTextureRelease, const Texture* /*texture*/);
+
+		private:
+			bool CreateTexture(bool proxy);
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			TextureImpl* m_impl = nullptr;
+
+			static TextureLibrary::LibraryMap s_library;
+			static TextureManager::ManagerMap s_managerMap;
+			static TextureManager::ManagerParams s_managerParameters;
+	};
+}
 
 #include <Nazara/Renderer/Texture.inl>
 

@@ -12,564 +12,567 @@
 
 #define F(a) static_cast<T>(a)
 
-template<typename T>
-NzVector4<T>::NzVector4(T X, T Y, T Z, T W)
+namespace Nz
 {
-	Set(X, Y, Z, W);
-}
+	template<typename T>
+	Vector4<T>::Vector4(T X, T Y, T Z, T W)
+	{
+		Set(X, Y, Z, W);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(T X, T Y, const NzVector2<T>& vec)
-{
-	Set(X, Y, vec);
-}
+	template<typename T>
+	Vector4<T>::Vector4(T X, T Y, const Vector2<T>& vec)
+	{
+		Set(X, Y, vec);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(T X, const NzVector2<T>& vec, T W)
-{
-	Set(X, vec, W);
-}
+	template<typename T>
+	Vector4<T>::Vector4(T X, const Vector2<T>& vec, T W)
+	{
+		Set(X, vec, W);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(T X, const NzVector3<T>& vec)
-{
-	Set(X, vec);
-}
+	template<typename T>
+	Vector4<T>::Vector4(T X, const Vector3<T>& vec)
+	{
+		Set(X, vec);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(T scale)
-{
-	Set(scale);
-}
+	template<typename T>
+	Vector4<T>::Vector4(T scale)
+	{
+		Set(scale);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(const T vec[4])
-{
-	Set(vec);
-}
+	template<typename T>
+	Vector4<T>::Vector4(const T vec[4])
+	{
+		Set(vec);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(const NzVector2<T>& vec, T Z, T W)
-{
-	Set(vec, Z, W);
-}
+	template<typename T>
+	Vector4<T>::Vector4(const Vector2<T>& vec, T Z, T W)
+	{
+		Set(vec, Z, W);
+	}
 
-template<typename T>
-NzVector4<T>::NzVector4(const NzVector3<T>& vec, T W)
-{
-	Set(vec, W);
-}
+	template<typename T>
+	Vector4<T>::Vector4(const Vector3<T>& vec, T W)
+	{
+		Set(vec, W);
+	}
 
-template<typename T>
-template<typename U>
-NzVector4<T>::NzVector4(const NzVector4<U>& vec)
-{
-	Set(vec);
-}
+	template<typename T>
+	template<typename U>
+	Vector4<T>::Vector4(const Vector4<U>& vec)
+	{
+		Set(vec);
+	}
 
-template<typename T>
-T NzVector4<T>::AbsDotProduct(const NzVector4& vec) const
-{
-	return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z) + std::abs(w * vec.w);
-}
+	template<typename T>
+	T Vector4<T>::AbsDotProduct(const Vector4& vec) const
+	{
+		return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z) + std::abs(w * vec.w);
+	}
 
-template<typename T>
-T NzVector4<T>::DotProduct(const NzVector4& vec) const
-{
-	return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
-}
+	template<typename T>
+	T Vector4<T>::DotProduct(const Vector4& vec) const
+	{
+		return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
+	}
 
-template<typename T>
-NzVector4<T> NzVector4<T>::GetNormal(T* length) const
-{
-	NzVector4<T> vec(*this);
-	vec.Normalize(length);
+	template<typename T>
+	Vector4<T> Vector4<T>::GetNormal(T* length) const
+	{
+		Vector4<T> vec(*this);
+		vec.Normalize(length);
 
-	return vec;
-}
+		return vec;
+	}
 
-template<typename T>
-NzVector4<T>& NzVector4<T>::MakeUnitX()
-{
-	return Set(F(1.0), F(0.0), F(0.0), F(1.0));
-}
+	template<typename T>
+	Vector4<T>& Vector4<T>::MakeUnitX()
+	{
+		return Set(F(1.0), F(0.0), F(0.0), F(1.0));
+	}
 
-template<typename T>
-NzVector4<T>& NzVector4<T>::MakeUnitY()
-{
-	return Set(F(0.0), F(1.0), F(0.0), F(1.0));
-}
+	template<typename T>
+	Vector4<T>& Vector4<T>::MakeUnitY()
+	{
+		return Set(F(0.0), F(1.0), F(0.0), F(1.0));
+	}
 
-template<typename T>
-NzVector4<T>& NzVector4<T>::MakeUnitZ()
-{
-	return Set(F(0.0), F(0.0), F(1.0), F(1.0));
-}
+	template<typename T>
+	Vector4<T>& Vector4<T>::MakeUnitZ()
+	{
+		return Set(F(0.0), F(0.0), F(1.0), F(1.0));
+	}
 
-template<typename T>
-NzVector4<T>& NzVector4<T>::MakeZero()
-{
-	return Set(F(0.0), F(0.0), F(0.0), F(0.0));
-}
+	template<typename T>
+	Vector4<T>& Vector4<T>::MakeZero()
+	{
+		return Set(F(0.0), F(0.0), F(0.0), F(0.0));
+	}
 
-template<typename T>
-NzVector4<T>& NzVector4<T>::Maximize(const NzVector4& vec)
-{
-	if (vec.x > x)
+	template<typename T>
+	Vector4<T>& Vector4<T>::Maximize(const Vector4& vec)
+	{
+		if (vec.x > x)
+			x = vec.x;
+
+		if (vec.y > y)
+			y = vec.y;
+
+		if (vec.z > z)
+			z = vec.z;
+
+		if (vec.w > w)
+			w = vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Minimize(const Vector4& vec)
+	{
+		if (vec.x < x)
+			x = vec.x;
+
+		if (vec.y < y)
+			y = vec.y;
+
+		if (vec.z < z)
+			z = vec.z;
+
+		if (vec.w < w)
+			w = vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Normalize(T* length)
+	{
+		T invLength = F(1.0)/w;
+		x *= invLength; // Attention, briser cette logique casserait Frustum::Extract
+		y *= invLength;
+		z *= invLength;
+
+		if (length)
+			*length = w;
+
+		w = F(1.0);
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(T X, T Y, T Z, T W)
+	{
+		x = X;
+		y = Y;
+		z = Z;
+		w = W;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(T X, T Y, const Vector2<T>& vec)
+	{
+		x = X;
+		y = Y;
+		z = vec.x;
+		w = vec.y;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(T X, const Vector2<T>& vec, T W)
+	{
+		x = X;
+		y = vec.x;
+		z = vec.y;
+		w = W;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(T X, const Vector3<T>& vec)
+	{
+		x = X;
+		y = vec.x;
+		z = vec.y;
+		w = vec.z;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(T scale)
+	{
+		x = scale;
+		y = scale;
+		z = scale;
+		w = scale;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(const T vec[4])
+	{
+		std::memcpy(&x, vec, 4*sizeof(T));
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(const Vector2<T>& vec, T Z, T W)
+	{
 		x = vec.x;
-
-	if (vec.y > y)
 		y = vec.y;
+		z = Z;
+		w = W;
 
-	if (vec.z > z)
-		z = vec.z;
+		return *this;
+	}
 
-	if (vec.w > w)
-		w = vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Minimize(const NzVector4& vec)
-{
-	if (vec.x < x)
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(const Vector3<T>& vec, T W)
+	{
 		x = vec.x;
-
-	if (vec.y < y)
 		y = vec.y;
-
-	if (vec.z < z)
 		z = vec.z;
+		w = W;
 
-	if (vec.w < w)
-		w = vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Normalize(T* length)
-{
-	T invLength = F(1.0)/w;
-	x *= invLength; // Attention, briser cette logique casserait Frustum::Extract
-	y *= invLength;
-	z *= invLength;
-
-	if (length)
-		*length = w;
-
-	w = F(1.0);
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(T X, T Y, T Z, T W)
-{
-	x = X;
-	y = Y;
-	z = Z;
-	w = W;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(T X, T Y, const NzVector2<T>& vec)
-{
-	x = X;
-	y = Y;
-	z = vec.x;
-	w = vec.y;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(T X, const NzVector2<T>& vec, T W)
-{
-	x = X;
-	y = vec.x;
-	z = vec.y;
-	w = W;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(T X, const NzVector3<T>& vec)
-{
-	x = X;
-	y = vec.x;
-	z = vec.y;
-	w = vec.z;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(T scale)
-{
-	x = scale;
-	y = scale;
-	z = scale;
-	w = scale;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(const T vec[4])
-{
-	std::memcpy(&x, vec, 4*sizeof(T));
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(const NzVector2<T>& vec, T Z, T W)
-{
-	x = vec.x;
-	y = vec.y;
-	z = Z;
-	w = W;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(const NzVector3<T>& vec, T W)
-{
-	x = vec.x;
-	y = vec.y;
-	z = vec.z;
-	w = W;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::Set(const NzVector4& vec)
-{
-	std::memcpy(this, &vec, sizeof(NzVector4));
-
-	return *this;
-}
-
-template<typename T>
-template<typename U>
-NzVector4<T>& NzVector4<T>::Set(const NzVector4<U>& vec)
-{
-	x = F(vec.x);
-	y = F(vec.y);
-	z = F(vec.z);
-	w = F(vec.w);
-
-	return *this;
-}
-
-template<typename T>
-NzString NzVector4<T>::ToString() const
-{
-	NzStringStream ss;
-
-	return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
-}
-
-template<typename T>
-NzVector4<T>::operator T*()
-{
-	return &x;
-}
-
-template<typename T>
-NzVector4<T>::operator const T*() const
-{
-	return &x;
-}
-
-template<typename T>
-const NzVector4<T>& NzVector4<T>::operator+() const
-{
-	return *this;
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator-() const
-{
-	return NzVector4(-x, -y, -z, -w);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator+(const NzVector4& vec) const
-{
-	return NzVector4(x + vec.x, y + vec.y, z + vec.z, w + vec.w);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator-(const NzVector4& vec) const
-{
-	return NzVector4(x - vec.x, y - vec.y, z - vec.z, w - vec.w);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator*(const NzVector4& vec) const
-{
-	return NzVector4(x * vec.x, y * vec.y, z * vec.z, w * vec.w);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator*(T scale) const
-{
-	return NzVector4(x * scale, y * scale, z * scale, w * scale);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator/(const NzVector4& vec) const
-{
-	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
-	{
-		NzString error("Division by zero");
-
-		NazaraError(error);
-		throw std::domain_error(error);
+		return *this;
 	}
-	#endif
 
-	return NzVector4(x / vec.x, y / vec.y, z / vec.z, w / vec.w);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::operator/(T scale) const
-{
-	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(scale, F(0.0)))
+	template<typename T>
+	Vector4<T>& Vector4<T>::Set(const Vector4& vec)
 	{
-		NzString error("Division by zero");
+		std::memcpy(this, &vec, sizeof(Vector4));
 
-		NazaraError(error);
-		throw std::domain_error(error);
+		return *this;
 	}
-	#endif
 
-	return NzVector4(x / scale, y / scale, z / scale, w / scale);
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator+=(const NzVector4& vec)
-{
-	x += vec.x;
-	y += vec.y;
-	z += vec.z;
-	w += vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator-=(const NzVector4& vec)
-{
-	x -= vec.x;
-	y -= vec.y;
-	z -= vec.z;
-	w -= vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator*=(const NzVector4& vec)
-{
-	x *= vec.x;
-	y *= vec.y;
-	z *= vec.z;
-	w *= vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator*=(T scale)
-{
-	x *= scale;
-	y *= scale;
-	z *= scale;
-	w *= scale;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator/=(const NzVector4& vec)
-{
-	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
+	template<typename T>
+	template<typename U>
+	Vector4<T>& Vector4<T>::Set(const Vector4<U>& vec)
 	{
-		NzString error("Division by zero");
+		x = F(vec.x);
+		y = F(vec.y);
+		z = F(vec.z);
+		w = F(vec.w);
 
-		NazaraError(error);
-		throw std::domain_error(error);
+		return *this;
 	}
-	#endif
 
-	x /= vec.x;
-	y /= vec.y;
-	z /= vec.z;
-	w /= vec.w;
-
-	return *this;
-}
-
-template<typename T>
-NzVector4<T>& NzVector4<T>::operator/=(T scale)
-{
-	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(scale, F(0.0)))
+	template<typename T>
+	String Vector4<T>::ToString() const
 	{
-		NzString error("Division by zero");
+		StringStream ss;
 
-		NazaraError(error);
-		throw std::domain_error(error);
+		return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
 	}
-	#endif
 
-	x /= scale;
-	y /= scale;
-	z /= scale;
-	w /= scale;
-
-	return *this;
-}
-
-template<typename T>
-bool NzVector4<T>::operator==(const NzVector4& vec) const
-{
-	return NzNumberEquals(x, vec.x) &&
-	       NzNumberEquals(y, vec.y) &&
-	       NzNumberEquals(z, vec.z) &&
-	       NzNumberEquals(w, vec.w);
-}
-
-template<typename T>
-bool NzVector4<T>::operator!=(const NzVector4& vec) const
-{
-	return !operator==(vec);
-}
-
-template<typename T>
-bool NzVector4<T>::operator<(const NzVector4& vec) const
-{
-	if (x == vec.x)
+	template<typename T>
+	Vector4<T>::operator T*()
 	{
-		if (y == vec.y)
+		return &x;
+	}
+
+	template<typename T>
+	Vector4<T>::operator const T*() const
+	{
+		return &x;
+	}
+
+	template<typename T>
+	const Vector4<T>& Vector4<T>::operator+() const
+	{
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator-() const
+	{
+		return Vector4(-x, -y, -z, -w);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator+(const Vector4& vec) const
+	{
+		return Vector4(x + vec.x, y + vec.y, z + vec.z, w + vec.w);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator-(const Vector4& vec) const
+	{
+		return Vector4(x - vec.x, y - vec.y, z - vec.z, w - vec.w);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator*(const Vector4& vec) const
+	{
+		return Vector4(x * vec.x, y * vec.y, z * vec.z, w * vec.w);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator*(T scale) const
+	{
+		return Vector4(x * scale, y * scale, z * scale, w * scale);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator/(const Vector4& vec) const
+	{
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
 		{
-			if (z == vec.z)
-				return w < vec.w;
+			String error("Division by zero");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		return Vector4(x / vec.x, y / vec.y, z / vec.z, w / vec.w);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::operator/(T scale) const
+	{
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(scale, F(0.0)))
+		{
+			String error("Division by zero");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		return Vector4(x / scale, y / scale, z / scale, w / scale);
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator+=(const Vector4& vec)
+	{
+		x += vec.x;
+		y += vec.y;
+		z += vec.z;
+		w += vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator-=(const Vector4& vec)
+	{
+		x -= vec.x;
+		y -= vec.y;
+		z -= vec.z;
+		w -= vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator*=(const Vector4& vec)
+	{
+		x *= vec.x;
+		y *= vec.y;
+		z *= vec.z;
+		w *= vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator*=(T scale)
+	{
+		x *= scale;
+		y *= scale;
+		z *= scale;
+		w *= scale;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator/=(const Vector4& vec)
+	{
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
+		{
+			String error("Division by zero");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		x /= vec.x;
+		y /= vec.y;
+		z /= vec.z;
+		w /= vec.w;
+
+		return *this;
+	}
+
+	template<typename T>
+	Vector4<T>& Vector4<T>::operator/=(T scale)
+	{
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(scale, F(0.0)))
+		{
+			String error("Division by zero");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		x /= scale;
+		y /= scale;
+		z /= scale;
+		w /= scale;
+
+		return *this;
+	}
+
+	template<typename T>
+	bool Vector4<T>::operator==(const Vector4& vec) const
+	{
+		return NumberEquals(x, vec.x) &&
+			   NumberEquals(y, vec.y) &&
+			   NumberEquals(z, vec.z) &&
+			   NumberEquals(w, vec.w);
+	}
+
+	template<typename T>
+	bool Vector4<T>::operator!=(const Vector4& vec) const
+	{
+		return !operator==(vec);
+	}
+
+	template<typename T>
+	bool Vector4<T>::operator<(const Vector4& vec) const
+	{
+		if (x == vec.x)
+		{
+			if (y == vec.y)
+			{
+				if (z == vec.z)
+					return w < vec.w;
+				else
+					return z < vec.z;
+			}
 			else
-				return z < vec.z;
+				return y < vec.y;
 		}
 		else
-			return y < vec.y;
+			return x < vec.x;
 	}
-	else
-		return x < vec.x;
-}
 
-template<typename T>
-bool NzVector4<T>::operator<=(const NzVector4& vec) const
-{
-	if (x == vec.x)
+	template<typename T>
+	bool Vector4<T>::operator<=(const Vector4& vec) const
 	{
-		if (y == vec.y)
+		if (x == vec.x)
 		{
-			if (z == vec.z)
-				return w <= vec.w;
+			if (y == vec.y)
+			{
+				if (z == vec.z)
+					return w <= vec.w;
+				else
+					return z < vec.z;
+			}
 			else
-				return z < vec.z;
+				return y < vec.y;
 		}
 		else
-			return y < vec.y;
+			return x < vec.x;
 	}
-	else
-		return x < vec.x;
+
+	template<typename T>
+	bool Vector4<T>::operator>(const Vector4& vec) const
+	{
+		return !operator<=(vec);
+	}
+
+	template<typename T>
+	bool Vector4<T>::operator>=(const Vector4& vec) const
+	{
+		return !operator<(vec);
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::UnitX()
+	{
+		Vector4 vector;
+		vector.MakeUnitX();
+
+		return vector;
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::UnitY()
+	{
+		Vector4 vector;
+		vector.MakeUnitY();
+
+		return vector;
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::UnitZ()
+	{
+		Vector4 vector;
+		vector.MakeUnitZ();
+
+		return vector;
+	}
+
+	template<typename T>
+	Vector4<T> Vector4<T>::Zero()
+	{
+		Vector4 vector;
+		vector.MakeZero();
+
+		return vector;
+	}
 }
 
 template<typename T>
-bool NzVector4<T>::operator>(const NzVector4& vec) const
-{
-	return !operator<=(vec);
-}
-
-template<typename T>
-bool NzVector4<T>::operator>=(const NzVector4& vec) const
-{
-	return !operator<(vec);
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::UnitX()
-{
-	NzVector4 vector;
-	vector.MakeUnitX();
-
-	return vector;
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::UnitY()
-{
-	NzVector4 vector;
-	vector.MakeUnitY();
-
-	return vector;
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::UnitZ()
-{
-	NzVector4 vector;
-	vector.MakeUnitZ();
-
-	return vector;
-}
-
-template<typename T>
-NzVector4<T> NzVector4<T>::Zero()
-{
-	NzVector4 vector;
-	vector.MakeZero();
-
-	return vector;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzVector4<T>& vec)
+std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec)
 {
 	return out << vec.ToString();
 }
 
 template<typename T>
-NzVector4<T> operator*(T scale, const NzVector4<T>& vec)
+Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
 {
-	return NzVector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
+	return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
 }
 
 template<typename T>
-NzVector4<T> operator/(T scale, const NzVector4<T>& vec)
+Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 {
 	#if NAZARA_MATH_SAFE
-	if (NzNumberEquals(vec.x, F(0.0)) || NzNumberEquals(vec.y, F(0.0)) || NzNumberEquals(vec.z, F(0.0)) || NzNumberEquals(vec.w, F(0.0)))
+	if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
 	{
-		NzString error("Division by zero");
+		Nz::String error("Division by zero");
 
 		NazaraError(error);
 		throw std::domain_error(error);
 	}
 	#endif
 
-	return NzVector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
 
 #undef F

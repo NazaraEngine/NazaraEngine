@@ -12,62 +12,65 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T>
-class NzOrientedBox
+namespace Nz
 {
-	public:
-		NzOrientedBox() = default;
-		NzOrientedBox(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzOrientedBox(const NzBox<T>& box);
-		NzOrientedBox(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> explicit NzOrientedBox(const NzOrientedBox<U>& orientedBox);
-		NzOrientedBox(const NzOrientedBox& orientedBox) = default;
-		~NzOrientedBox() = default;
+	template<typename T>
+	class OrientedBox
+	{
+		public:
+			OrientedBox() = default;
+			OrientedBox(T X, T Y, T Z, T Width, T Height, T Depth);
+			OrientedBox(const Box<T>& box);
+			OrientedBox(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> explicit OrientedBox(const OrientedBox<U>& orientedBox);
+			OrientedBox(const OrientedBox& orientedBox) = default;
+			~OrientedBox() = default;
 
-		const NzVector3<T>& GetCorner(nzBoxCorner corner) const;
+			const Vector3<T>& GetCorner(BoxCorner corner) const;
 
-		bool IsValid() const;
+			bool IsValid() const;
 
-		NzOrientedBox& MakeZero();
+			OrientedBox& MakeZero();
 
-		NzOrientedBox& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-		NzOrientedBox& Set(const NzBox<T>& box);
-		NzOrientedBox& Set(const NzOrientedBox& orientedBox);
-		NzOrientedBox& Set(const NzVector3<T>& vec1, const NzVector3<T>& vec2);
-		template<typename U> NzOrientedBox& Set(const NzOrientedBox<U>& orientedBox);
+			OrientedBox& Set(T X, T Y, T Z, T Width, T Height, T Depth);
+			OrientedBox& Set(const Box<T>& box);
+			OrientedBox& Set(const OrientedBox& orientedBox);
+			OrientedBox& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			template<typename U> OrientedBox& Set(const OrientedBox<U>& orientedBox);
 
-		NzString ToString() const;
+			String ToString() const;
 
-		void Update(const NzMatrix4<T>& transformMatrix);
-		void Update(const NzVector3<T>& transformMatrix);
+			void Update(const Matrix4<T>& transformMatrix);
+			void Update(const Vector3<T>& transformMatrix);
 
-		operator NzVector3<T>*();
-		operator const NzVector3<T>*() const;
+			operator Vector3<T>*();
+			operator const Vector3<T>*() const;
 
-		NzVector3<T>& operator()(unsigned int i);
-		NzVector3<T> operator()(unsigned int i) const;
+			Vector3<T>& operator()(unsigned int i);
+			Vector3<T> operator()(unsigned int i) const;
 
-		NzOrientedBox operator*(T scalar) const;
+			OrientedBox operator*(T scalar) const;
 
-		NzOrientedBox& operator*=(T scalar);
+			OrientedBox& operator*=(T scalar);
 
-		bool operator==(const NzOrientedBox& box) const;
-		bool operator!=(const NzOrientedBox& box) const;
+			bool operator==(const OrientedBox& box) const;
+			bool operator!=(const OrientedBox& box) const;
 
-		static NzOrientedBox Lerp(const NzOrientedBox& from, const NzOrientedBox& to, T interpolation);
-		static NzOrientedBox Zero();
+			static OrientedBox Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation);
+			static OrientedBox Zero();
 
-		NzBox<T> localBox;
+			Box<T> localBox;
 
-	private:
-		NzVector3<T> m_corners[nzBoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
-};
+		private:
+			Vector3<T> m_corners[BoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
+	};
+
+	typedef OrientedBox<double> OrientedBoxd;
+	typedef OrientedBox<float> OrientedBoxf;
+}
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const NzOrientedBox<T>& orientedBox);
-
-typedef NzOrientedBox<double> NzOrientedBoxd;
-typedef NzOrientedBox<float> NzOrientedBoxf;
+std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox);
 
 #include <Nazara/Math/OrientedBox.inl>
 

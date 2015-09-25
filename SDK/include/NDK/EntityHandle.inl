@@ -90,9 +90,9 @@ namespace Ndk
 		return *this;
 	}
 
-	inline NzString EntityHandle::ToString() const
+	inline Nz::String EntityHandle::ToString() const
 	{
-		NzStringStream ss;
+		Nz::StringStream ss;
 		ss << "EntityHandle(";
 		if (IsValid())
 			ss << "Entity(" << m_entity->GetId() << ')';
@@ -260,9 +260,9 @@ namespace Ndk
 
 namespace std
 {
-    template<>
-    struct hash<Ndk::EntityHandle>
-    {
+	template<>
+	struct hash<Ndk::EntityHandle>
+	{
 		size_t operator()(const Ndk::EntityHandle& handle) const
 		{
 			// Hasher le pointeur fonctionnerait jusqu'à ce que l'entité soit mise à jour et déplacée
@@ -271,9 +271,9 @@ namespace std
 
 			return hash<Ndk::EntityId>()(id);
 		}
-    };
+	};
 
-    inline void swap(Ndk::EntityHandle& lhs, Ndk::EntityHandle& rhs)
+	inline void swap(Ndk::EntityHandle& lhs, Ndk::EntityHandle& rhs)
 	{
 		lhs.Swap(rhs);
 	}

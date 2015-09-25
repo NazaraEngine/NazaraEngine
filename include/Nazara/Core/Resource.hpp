@@ -10,23 +10,26 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_CORE_API NzResource
+namespace Nz
 {
-	public:
-		NzResource() = default;
-		NzResource(const NzResource&) = default;
-		NzResource(NzResource&&) = default;
-		virtual ~NzResource();
+	class NAZARA_CORE_API Resource
+	{
+		public:
+			Resource() = default;
+			Resource(const Resource&) = default;
+			Resource(Resource&&) = default;
+			virtual ~Resource();
 
-		const NzString& GetFilePath() const;
+			const String& GetFilePath() const;
 
-		void SetFilePath(const NzString& filePath);
+			void SetFilePath(const String& filePath);
 
-		NzResource& operator=(const NzResource&) = default;
-		NzResource& operator=(NzResource&&) = default;
+			Resource& operator=(const Resource&) = default;
+			Resource& operator=(Resource&&) = default;
 
-	private:
-		NzString m_filePath;
-};
+		private:
+			String m_filePath;
+	};
+}
 
 #endif // NAZARA_RESOURCE_HPP

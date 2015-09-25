@@ -10,13 +10,16 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NAZARA_GRAPHICS_API NzDrawable
+namespace Nz
 {
-	public:
-		NzDrawable() = default;
-		virtual ~NzDrawable();
+	class NAZARA_GRAPHICS_API Drawable
+	{
+		public:
+			Drawable() = default;
+			virtual ~Drawable();
 
-		virtual void Draw() const = 0;
-};
+			virtual void Draw() const = 0;
+	};
+}
 
 #endif // NAZARA_DRAWABLE_HPP

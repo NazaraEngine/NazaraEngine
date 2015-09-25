@@ -9,31 +9,34 @@
 
 #include <Nazara/Utility/Enums.hpp>
 
-template<class T>
-class NzBufferMapper
+namespace Nz
 {
-	public:
-		NzBufferMapper();
-		NzBufferMapper(T* buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		NzBufferMapper(T& buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		NzBufferMapper(const T* buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		NzBufferMapper(const T& buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		~NzBufferMapper();
+	template<class T>
+	class BufferMapper
+	{
+		public:
+			BufferMapper();
+			BufferMapper(T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			BufferMapper(T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			BufferMapper(const T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			BufferMapper(const T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			~BufferMapper();
 
-		bool Map(T* buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		bool Map(T& buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		bool Map(const T* buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-		bool Map(const T& buffer, nzBufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			bool Map(T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			bool Map(T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			bool Map(const T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			bool Map(const T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
 
-		const T* GetBuffer() const;
-		void* GetPointer() const;
+			const T* GetBuffer() const;
+			void* GetPointer() const;
 
-		void Unmap();
+			void Unmap();
 
-	private:
-		const T* m_buffer;
-		void* m_ptr;
-};
+		private:
+			const T* m_buffer;
+			void* m_ptr;
+	};
+}
 
 #include <Nazara/Utility/BufferMapper.inl>
 

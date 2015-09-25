@@ -57,10 +57,10 @@
 
 namespace Ndk
 {
-	using ComponentId = nzUInt64;
-	using ComponentIndex = nzUInt32;
-	using EntityId = nzUInt32;
-	using SystemIndex = nzUInt32;
+	using ComponentId = Nz::UInt64;
+	using ComponentIndex = Nz::UInt32;
+	using EntityId = Nz::UInt32;
+	using SystemIndex = Nz::UInt32;
 }
 
 #endif // NDK_PREREQUESITES_HPP

@@ -13,21 +13,24 @@
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-class NAZARA_GRAPHICS_API NzDeferredFinalPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredFinalPass();
-		virtual ~NzDeferredFinalPass();
+	class NAZARA_GRAPHICS_API DeferredFinalPass : public DeferredRenderPass
+	{
+		public:
+			DeferredFinalPass();
+			virtual ~DeferredFinalPass();
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
 
-	protected:
-		NzRenderStates m_states;
-		NzTextureSampler m_pointSampler;
-		NzUberShaderConstRef m_uberShader;
-		const NzUberShaderInstance* m_uberShaderInstance;
-		int m_materialDiffuseUniform;
-		int m_materialDiffuseMapUniform;
-};
+		protected:
+			RenderStates m_states;
+			TextureSampler m_pointSampler;
+			UberShaderConstRef m_uberShader;
+			const UberShaderInstance* m_uberShaderInstance;
+			int m_materialDiffuseUniform;
+			int m_materialDiffuseMapUniform;
+	};
+}
 
 #endif // NAZARA_DEFERREDFINALPASS_HPP

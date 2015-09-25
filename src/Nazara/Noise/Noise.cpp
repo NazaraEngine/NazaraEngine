@@ -9,54 +9,57 @@
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-bool NzNoise::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool Noise::Initialize()
 	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
+		// Initialisation des dépendances
+		if (!Core::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			Uninitialize();
+
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		// Initialisation du module
+
+		NazaraNotice("Initialized: Noise module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool Noise::IsInitialized()
 	{
-		NazaraError("Failed to initialize core module");
-		Uninitialize();
-
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-
-	NazaraNotice("Initialized: Noise module");
-	return true;
-}
-
-bool NzNoise::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzNoise::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
+	void Noise::Uninitialize()
 	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-		return;
+			return;
+		}
+
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		NazaraNotice("Uninitialized: Noise module");
+
+		// Libération des dépendances
+		Core::Uninitialize();
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	NazaraNotice("Uninitialized: Noise module");
-
-	// Libération des dépendances
-	NzCore::Uninitialize();
+	unsigned int Noise::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzNoise::s_moduleReferenceCounter = 0;

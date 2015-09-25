@@ -30,22 +30,22 @@ namespace Ndk
 
 			// On récupère la position et la rotation pour les affecter au listener
 			const NodeComponent& node = entity->GetComponent<NodeComponent>();
-			NzAudio::SetListenerPosition(node.GetPosition(nzCoordSys_Global));
-			NzAudio::SetListenerRotation(node.GetRotation(nzCoordSys_Global));
+			Nz::Audio::SetListenerPosition(node.GetPosition(Nz::CoordSys_Global));
+			Nz::Audio::SetListenerRotation(node.GetRotation(Nz::CoordSys_Global));
 
 			// On vérifie la présence d'une donnée de vitesse, et on l'affecte
 			// (La vitesse du listener Audio ne le fait pas se déplacer, mais affecte par exemple l'effet Doppler)
 			if (entity->HasComponent<VelocityComponent>())
 			{
 				const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
-				NzAudio::SetListenerVelocity(velocity.linearVelocity);
+				Nz::Audio::SetListenerVelocity(velocity.linearVelocity);
 			}
 
 			activeListenerCount++;
 		}
 
 		if (activeListenerCount > 1)
-			NazaraWarning(NzString::Number(activeListenerCount) + " listeners were active in the same update loop");
+			NazaraWarning(Nz::String::Number(activeListenerCount) + " listeners were active in the same update loop");
 	}
 
 	SystemIndex ListenerSystem::systemIndex;

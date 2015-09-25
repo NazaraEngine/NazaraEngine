@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzFontRef NzFont::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzFont> object(new NzFont(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	FontRef Font::New(Args&&... args)
+	{
+		std::unique_ptr<Font> object(new Font(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

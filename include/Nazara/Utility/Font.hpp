@@ -10,7 +10,6 @@
 #define NAZARA_FONT_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -19,139 +18,147 @@
 #include <memory>
 #include <unordered_map>
 
-struct NAZARA_UTILITY_API NzFontParams
+namespace Nz
 {
-	bool IsValid() const;
-};
-
-class NzFont;
-class NzFontData;
-
-struct NzFontGlyph;
-
-using NzFontConstRef = NzObjectRef<const NzFont>;
-using NzFontLibrary = NzObjectLibrary<NzFont>;
-using NzFontLoader = NzResourceLoader<NzFont, NzFontParams>;
-using NzFontRef = NzObjectRef<NzFont>;
-
-class NAZARA_UTILITY_API NzFont : public NzRefCounted, public NzResource, NzNonCopyable
-{
-	friend NzFontLibrary;
-	friend NzFontLoader;
-	friend class NzUtility;
-
-	public:
-		struct Glyph;
-		struct SizeInfo;
-
-		NzFont();
-		~NzFont();
-
-		void ClearGlyphCache();
-		void ClearKerningCache();
-		void ClearSizeInfoCache();
-
-		bool Create(NzFontData* data);
-		void Destroy();
-
-		bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* glyph) const;
-
-		const std::shared_ptr<NzAbstractAtlas>& GetAtlas() const;
-		unsigned int GetCachedGlyphCount(unsigned int characterSize, nzUInt32 style) const;
-		unsigned int GetCachedGlyphCount() const;
-		NzString GetFamilyName() const;
-		int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
-		const Glyph& GetGlyph(unsigned int characterSize, nzUInt32 style, char32_t character) const;
-		unsigned int GetGlyphBorder() const;
-		unsigned int GetMinimumStepSize() const;
-		const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
-		NzString GetStyleName() const;
-
+	struct NAZARA_UTILITY_API FontParams
+	{
 		bool IsValid() const;
+	};
 
-		bool Precache(unsigned int characterSize, nzUInt32 style, char32_t character) const;
-		bool Precache(unsigned int characterSize, nzUInt32 style, const NzString& characterSet) const;
+	class Font;
+	class FontData;
 
-		// Open
-		bool OpenFromFile(const NzString& filePath, const NzFontParams& params = NzFontParams());
-		bool OpenFromMemory(const void* data, std::size_t size, const NzFontParams& params = NzFontParams());
-		bool OpenFromStream(NzInputStream& stream, const NzFontParams& params = NzFontParams());
+	struct FontGlyph;
 
-		void SetAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
-		void SetGlyphBorder(unsigned int borderSize);
-		void SetMinimumStepSize(unsigned int minimumStepSize);
+	using FontConstRef = ObjectRef<const Font>;
+	using FontLibrary = ObjectLibrary<Font>;
+	using FontLoader = ResourceLoader<Font, FontParams>;
+	using FontRef = ObjectRef<Font>;
 
-		static std::shared_ptr<NzAbstractAtlas> GetDefaultAtlas();
-		static NzFont* GetDefault();
-		static unsigned int GetDefaultGlyphBorder();
-		static unsigned int GetDefaultMinimumStepSize();
+	class NAZARA_UTILITY_API Font : public RefCounted, public Resource
+	{
+		friend FontLibrary;
+		friend FontLoader;
+		friend class Utility;
 
-		template<typename... Args> static NzFontRef New(Args&&... args);
+		public:
+			struct Glyph;
+			struct SizeInfo;
 
-		static void SetDefaultAtlas(const std::shared_ptr<NzAbstractAtlas>& atlas);
-		static void SetDefaultGlyphBorder(unsigned int borderSize);
-		static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
+			Font();
+			Font(const Font&) = delete;
+			Font(Font&&) = delete;
+			~Font();
 
-		struct Glyph
-		{
-			NzRecti aabb;
-			NzRectui atlasRect;
-			bool requireFauxBold;
-			bool requireFauxItalic;
-			bool flipped;
-			bool valid;
-			int advance;
-			unsigned int layerIndex;
-		};
+			void ClearGlyphCache();
+			void ClearKerningCache();
+			void ClearSizeInfoCache();
 
-		struct SizeInfo
-		{
-			int spaceAdvance;
-			unsigned int lineHeight;
-			float underlinePosition;
-			float underlineThickness;
-		};
+			bool Create(FontData* data);
+			void Destroy();
 
-		// Signals:
-		NazaraSignal(OnFontAtlasChanged, const NzFont* /*font*/);
-		NazaraSignal(OnFontAtlasLayerChanged, const NzFont* /*font*/, NzAbstractImage* /*oldLayer*/, NzAbstractImage* /*newLayer*/);
-		NazaraSignal(OnFontDestroy, const NzFont* /*font*/);
-		NazaraSignal(OnFontGlyphCacheCleared, const NzFont* /*font*/);
-		NazaraSignal(OnFontKerningCacheCleared, const NzFont* /*font*/);
-		NazaraSignal(OnFontRelease, const NzFont* /*font*/);
-		NazaraSignal(OnFontSizeInfoCacheCleared, const NzFont* /*font*/);
+			bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* glyph) const;
 
-	private:
-		using GlyphMap = std::unordered_map<char32_t, Glyph>;
+			const std::shared_ptr<AbstractAtlas>& GetAtlas() const;
+			unsigned int GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const;
+			unsigned int GetCachedGlyphCount() const;
+			String GetFamilyName() const;
+			int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
+			const Glyph& GetGlyph(unsigned int characterSize, UInt32 style, char32_t character) const;
+			unsigned int GetGlyphBorder() const;
+			unsigned int GetMinimumStepSize() const;
+			const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
+			String GetStyleName() const;
 
-		nzUInt64 ComputeKey(unsigned int characterSize, nzUInt32 style) const;
-		void OnAtlasCleared(const NzAbstractAtlas* atlas);
-		void OnAtlasLayerChange(const NzAbstractAtlas* atlas, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
-		void OnAtlasRelease(const NzAbstractAtlas* atlas);
-		const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, nzUInt32 style, char32_t character) const;
+			bool IsValid() const;
 
-		static bool Initialize();
-		static void Uninitialize();
+			bool Precache(unsigned int characterSize, UInt32 style, char32_t character) const;
+			bool Precache(unsigned int characterSize, UInt32 style, const String& characterSet) const;
 
-		NazaraSlot(NzAbstractAtlas, OnAtlasCleared, m_atlasClearedSlot);
-		NazaraSlot(NzAbstractAtlas, OnAtlasLayerChange, m_atlasLayerChangeSlot);
-		NazaraSlot(NzAbstractAtlas, OnAtlasRelease, m_atlasReleaseSlot);
+			// Open
+			bool OpenFromFile(const String& filePath, const FontParams& params = FontParams());
+			bool OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
+			bool OpenFromStream(InputStream& stream, const FontParams& params = FontParams());
 
-		std::shared_ptr<NzAbstractAtlas> m_atlas;
-		std::unique_ptr<NzFontData> m_data;
-		mutable std::unordered_map<nzUInt64, std::unordered_map<nzUInt64, int>> m_kerningCache;
-		mutable std::unordered_map<nzUInt64, GlyphMap> m_glyphes;
-		mutable std::unordered_map<nzUInt64, SizeInfo> m_sizeInfoCache;
-		unsigned int m_glyphBorder;
-		unsigned int m_minimumStepSize;
+			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
+			void SetGlyphBorder(unsigned int borderSize);
+			void SetMinimumStepSize(unsigned int minimumStepSize);
 
-		static std::shared_ptr<NzAbstractAtlas> s_defaultAtlas;
-		static NzFontRef s_defaultFont;
-		static NzFontLibrary::LibraryMap s_library;
-		static NzFontLoader::LoaderList s_loaders;
-		static unsigned int s_defaultGlyphBorder;
-		static unsigned int s_defaultMinimumStepSize;
-};
+			Font& operator=(const Font&) = delete;
+			Font& operator=(Font&&) = delete;
+
+			static std::shared_ptr<AbstractAtlas> GetDefaultAtlas();
+			static Font* GetDefault();
+			static unsigned int GetDefaultGlyphBorder();
+			static unsigned int GetDefaultMinimumStepSize();
+
+			template<typename... Args> static FontRef New(Args&&... args);
+
+			static void SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
+			static void SetDefaultGlyphBorder(unsigned int borderSize);
+			static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
+
+			struct Glyph
+			{
+				Recti aabb;
+				Rectui atlasRect;
+				bool requireFauxBold;
+				bool requireFauxItalic;
+				bool flipped;
+				bool valid;
+				int advance;
+				unsigned int layerIndex;
+			};
+
+			struct SizeInfo
+			{
+				int spaceAdvance;
+				unsigned int lineHeight;
+				float underlinePosition;
+				float underlineThickness;
+			};
+
+			// Signals:
+			NazaraSignal(OnFontAtlasChanged, const Font* /*font*/);
+			NazaraSignal(OnFontAtlasLayerChanged, const Font* /*font*/, AbstractImage* /*oldLayer*/, AbstractImage* /*newLayer*/);
+			NazaraSignal(OnFontDestroy, const Font* /*font*/);
+			NazaraSignal(OnFontGlyphCacheCleared, const Font* /*font*/);
+			NazaraSignal(OnFontKerningCacheCleared, const Font* /*font*/);
+			NazaraSignal(OnFontRelease, const Font* /*font*/);
+			NazaraSignal(OnFontSizeInfoCacheCleared, const Font* /*font*/);
+
+		private:
+			using GlyphMap = std::unordered_map<char32_t, Glyph>;
+
+			UInt64 ComputeKey(unsigned int characterSize, UInt32 style) const;
+			void OnAtlasCleared(const AbstractAtlas* atlas);
+			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
+			void OnAtlasRelease(const AbstractAtlas* atlas);
+			const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, UInt32 style, char32_t character) const;
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			NazaraSlot(AbstractAtlas, OnAtlasCleared, m_atlasClearedSlot);
+			NazaraSlot(AbstractAtlas, OnAtlasLayerChange, m_atlasLayerChangeSlot);
+			NazaraSlot(AbstractAtlas, OnAtlasRelease, m_atlasReleaseSlot);
+
+			std::shared_ptr<AbstractAtlas> m_atlas;
+			std::unique_ptr<FontData> m_data;
+			mutable std::unordered_map<UInt64, std::unordered_map<UInt64, int>> m_kerningCache;
+			mutable std::unordered_map<UInt64, GlyphMap> m_glyphes;
+			mutable std::unordered_map<UInt64, SizeInfo> m_sizeInfoCache;
+			unsigned int m_glyphBorder;
+			unsigned int m_minimumStepSize;
+
+			static std::shared_ptr<AbstractAtlas> s_defaultAtlas;
+			static FontRef s_defaultFont;
+			static FontLibrary::LibraryMap s_library;
+			static FontLoader::LoaderList s_loaders;
+			static unsigned int s_defaultGlyphBorder;
+			static unsigned int s_defaultMinimumStepSize;
+	};
+}
 
 #include <Nazara/Utility/Font.inl>
 

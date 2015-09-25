@@ -10,31 +10,34 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NzSkeleton;
-class NzSkeletalMesh;
-class NzVertexBuffer;
-
-class NAZARA_GRAPHICS_API NzSkinningManager
+namespace Nz
 {
-	friend class NzGraphics;
+	class Skeleton;
+	class SkeletalMesh;
+	class VertexBuffer;
 
-	public:
-		using SkinFunction = void (*)(const NzSkeletalMesh* mesh, const NzSkeleton* skeleton, NzVertexBuffer* buffer);
+	class NAZARA_GRAPHICS_API SkinningManager
+	{
+		friend class Graphics;
 
-		NzSkinningManager() = delete;
-		~NzSkinningManager() = delete;
+		public:
+			using SkinFunction = void (*)(const SkeletalMesh* mesh, const Skeleton* skeleton, VertexBuffer* buffer);
 
-		static NzVertexBuffer* GetBuffer(const NzSkeletalMesh* mesh, const NzSkeleton* skeleton);
-		static void Skin();
+			SkinningManager() = delete;
+			~SkinningManager() = delete;
 
-	private:
-		static bool Initialize();
-		static void OnSkeletalMeshDestroy(const NzSkeletalMesh* mesh);
-		static void OnSkeletonInvalidated(const NzSkeleton* skeleton);
-		static void OnSkeletonRelease(const NzSkeleton* skeleton);
-		static void Uninitialize();
+			static VertexBuffer* GetBuffer(const SkeletalMesh* mesh, const Skeleton* skeleton);
+			static void Skin();
 
-		static SkinFunction s_skinFunc;
-};
+		private:
+			static bool Initialize();
+			static void OnSkeletalMeshDestroy(const SkeletalMesh* mesh);
+			static void OnSkeletonInvalidated(const Skeleton* skeleton);
+			static void OnSkeletonRelease(const Skeleton* skeleton);
+			static void Uninitialize();
+
+			static SkinFunction s_skinFunc;
+	};
+}
 
 #endif // NAZARA_SKINNINGMANAGER_HPP

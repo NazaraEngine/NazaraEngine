@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzSkeletalMeshRef NzSkeletalMesh::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzSkeletalMesh> object(new NzSkeletalMesh(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	SkeletalMeshRef SkeletalMesh::New(Args&&... args)
+	{
+		std::unique_ptr<SkeletalMesh> object(new SkeletalMesh(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

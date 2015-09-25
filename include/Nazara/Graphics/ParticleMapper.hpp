@@ -12,19 +12,22 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 
-class NAZARA_GRAPHICS_API NzParticleMapper
+namespace Nz
 {
-	public:
-		NzParticleMapper(void* buffer, const NzParticleDeclaration* declaration);
-		~NzParticleMapper();
+	class NAZARA_GRAPHICS_API ParticleMapper
+	{
+		public:
+			ParticleMapper(void* buffer, const ParticleDeclaration* declaration);
+			~ParticleMapper();
 
-		template<typename T> NzSparsePtr<T> GetComponentPtr(nzParticleComponent component);
-		template<typename T> NzSparsePtr<const T> GetComponentPtr(nzParticleComponent component) const;
+			template<typename T> SparsePtr<T> GetComponentPtr(ParticleComponent component);
+			template<typename T> SparsePtr<const T> GetComponentPtr(ParticleComponent component) const;
 
-	private:
-		const NzParticleDeclaration* m_declaration;
-		nzUInt8* m_ptr;
-};
+		private:
+			const ParticleDeclaration* m_declaration;
+			UInt8* m_ptr;
+	};
+}
 
 #include <Nazara/Graphics/ParticleMapper.inl>
 

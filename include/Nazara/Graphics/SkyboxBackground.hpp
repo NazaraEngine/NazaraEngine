@@ -15,38 +15,41 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NzSkyboxBackground;
-
-using NzSkyboxBackgroundConstRef = NzObjectRef<const NzSkyboxBackground>;
-using NzSkyboxBackgroundRef = NzObjectRef<NzSkyboxBackground>;
-
-class NAZARA_GRAPHICS_API NzSkyboxBackground : public NzAbstractBackground
+namespace Nz
 {
-	friend class NzGraphics;
+	class SkyboxBackground;
 
-	public:
-		NzSkyboxBackground(NzTextureRef cubemapTexture = NzTextureRef());
-		~NzSkyboxBackground() = default;
+	using SkyboxBackgroundConstRef = ObjectRef<const SkyboxBackground>;
+	using SkyboxBackgroundRef = ObjectRef<SkyboxBackground>;
 
-		void Draw(const NzAbstractViewer* viewer) const;
+	class NAZARA_GRAPHICS_API SkyboxBackground : public AbstractBackground
+	{
+		friend class Graphics;
 
-		nzBackgroundType GetBackgroundType() const;
-		inline const NzTextureRef& GetTexture() const;
-		inline NzTextureSampler& GetTextureSampler();
-		inline const NzTextureSampler& GetTextureSampler() const;
+		public:
+			SkyboxBackground(TextureRef cubemapTexture = TextureRef());
+			~SkyboxBackground() = default;
 
-		inline void SetTexture(NzTextureRef cubemapTexture);
-		inline void SetTextureSampler(const NzTextureSampler& sampler);
+			void Draw(const AbstractViewer* viewer) const;
 
-		template<typename... Args> static NzSkyboxBackgroundRef New(Args&&... args);
+			BackgroundType GetBackgroundType() const;
+			inline const TextureRef& GetTexture() const;
+			inline TextureSampler& GetTextureSampler();
+			inline const TextureSampler& GetTextureSampler() const;
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			inline void SetTexture(TextureRef cubemapTexture);
+			inline void SetTextureSampler(const TextureSampler& sampler);
 
-		NzTextureRef m_texture;
-		NzTextureSampler m_sampler;
-};
+			template<typename... Args> static SkyboxBackgroundRef New(Args&&... args);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			TextureRef m_texture;
+			TextureSampler m_sampler;
+	};
+}
 
 #include <Nazara/Graphics/SkyboxBackground.inl>
 

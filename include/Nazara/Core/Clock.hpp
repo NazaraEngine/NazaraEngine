@@ -15,35 +15,41 @@
 #include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NAZARA_CORE_API NzClock
+namespace Nz
 {
-	public:
-		NzClock(nzUInt64 startingValue = 0, bool paused = false);
-		NzClock(const NzClock& clock) = default;
+	class NAZARA_CORE_API Clock
+	{
+		public:
+			Clock(UInt64 startingValue = 0, bool paused = false);
+			Clock(const Clock& clock) = default;
+			Clock(Clock&& clock) = default;
+			~Clock() = default;
 
-		float GetSeconds() const;
-		nzUInt64 GetMicroseconds() const;
-		nzUInt64 GetMilliseconds() const;
+			float GetSeconds() const;
+			UInt64 GetMicroseconds() const;
+			UInt64 GetMilliseconds() const;
 
-		bool IsPaused() const;
+			bool IsPaused() const;
 
-		void Pause();
-		void Restart();
-		void Unpause();
+			void Pause();
+			void Restart();
+			void Unpause();
 
-		NzClock& operator=(const NzClock& clock) = default;
+			Clock& operator=(const Clock& clock) = default;
+			Clock& operator=(Clock&& clock) = default;
 
-	private:
-		NazaraMutexAttrib(m_mutex, mutable)
+		private:
+			NazaraMutexAttrib(m_mutex, mutable)
 
-		nzUInt64 m_elapsedTime;
-		nzUInt64 m_refTime;
-		bool m_paused;
-};
+			UInt64 m_elapsedTime;
+			UInt64 m_refTime;
+			bool m_paused;
+	};
 
-typedef nzUInt64 (*NzClockFunction)();
+	typedef UInt64 (*ClockFunction)();
 
-extern NAZARA_CORE_API NzClockFunction NzGetMicroseconds;
-extern NAZARA_CORE_API NzClockFunction NzGetMilliseconds;
+	extern NAZARA_CORE_API ClockFunction GetElapsedMicroseconds;
+	extern NAZARA_CORE_API ClockFunction GetElapsedMilliseconds;
+}
 
 #endif // NAZARA_CLOCK_HPP

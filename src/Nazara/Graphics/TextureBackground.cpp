@@ -7,60 +7,63 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	NzRenderStates BuildRenderStates()
+	namespace
 	{
-		NzRenderStates states;
-		states.depthFunc = nzRendererComparison_Equal;
-		states.faceCulling = nzFaceSide_Back;
-		states.parameters[nzRendererParameter_DepthBuffer] = true;
-		states.parameters[nzRendererParameter_DepthWrite] = false;
-		states.parameters[nzRendererParameter_FaceCulling] = true;
+		RenderStates BuildRenderStates()
+		{
+			RenderStates states;
+			states.depthFunc = RendererComparison_Equal;
+			states.faceCulling = FaceSide_Back;
+			states.parameters[RendererParameter_DepthBuffer] = true;
+			states.parameters[RendererParameter_DepthWrite] = false;
+			states.parameters[RendererParameter_FaceCulling] = true;
 
-		return states;
+			return states;
+		}
 	}
-}
 
-NzTextureBackground::NzTextureBackground(NzTextureRef texture)
-{
-	m_uberShader = NzUberShaderLibrary::Get("Basic");
+	TextureBackground::TextureBackground(TextureRef texture)
+	{
+		m_uberShader = UberShaderLibrary::Get("Basic");
 
-	NzParameterList list;
-	list.SetParameter("DIFFUSE_MAPPING", true);
-	list.SetParameter("TEXTURE_MAPPING", true);
-	list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
+		ParameterList list;
+		list.SetParameter("DIFFUSE_MAPPING", true);
+		list.SetParameter("TEXTURE_MAPPING", true);
+		list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
 
-	m_uberShaderInstance = m_uberShader->Get(list);
+		m_uberShaderInstance = m_uberShader->Get(list);
 
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
-	m_materialDiffuseMapUniform = shader->GetUniformLocation("MaterialDiffuseMap");
-	m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
+		m_materialDiffuseMapUniform = shader->GetUniformLocation("MaterialDiffuseMap");
+		m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
 
-	SetTexture(std::move(texture));
-}
+		SetTexture(std::move(texture));
+	}
 
-void NzTextureBackground::Draw(const NzAbstractViewer* viewer) const
-{
-	NazaraUnused(viewer);
+	void TextureBackground::Draw(const AbstractViewer* viewer) const
+	{
+		NazaraUnused(viewer);
 
-	static NzRenderStates states(BuildRenderStates());
+		static RenderStates states(BuildRenderStates());
 
-	NzRenderer::SetRenderStates(states);
-	NzRenderer::SetTexture(0, m_texture);
+		Renderer::SetRenderStates(states);
+		Renderer::SetTexture(0, m_texture);
 
-	m_uberShaderInstance->Activate();
+		m_uberShaderInstance->Activate();
 
-	const NzShader* shader = m_uberShaderInstance->GetShader();
-	shader->SendColor(m_materialDiffuseUniform, NzColor::White);
-	shader->SendFloat(m_vertexDepthUniform, 1.f);
-	shader->SendInteger(m_materialDiffuseMapUniform, 0);
+		const Shader* shader = m_uberShaderInstance->GetShader();
+		shader->SendColor(m_materialDiffuseUniform, Color::White);
+		shader->SendFloat(m_vertexDepthUniform, 1.f);
+		shader->SendInteger(m_materialDiffuseMapUniform, 0);
 
-	NzRenderer::DrawFullscreenQuad();
-}
+		Renderer::DrawFullscreenQuad();
+	}
 
-nzBackgroundType NzTextureBackground::GetBackgroundType() const
-{
-	return nzBackgroundType_Texture;
+	BackgroundType TextureBackground::GetBackgroundType() const
+	{
+		return BackgroundType_Texture;
+	}
 }

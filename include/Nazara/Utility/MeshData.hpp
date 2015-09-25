@@ -9,14 +9,17 @@
 
 #include <Nazara/Utility/Enums.hpp>
 
-class NzIndexBuffer;
-class NzVertexBuffer;
-
-struct NzMeshData
+namespace Nz
 {
-	nzPrimitiveMode primitiveMode;
-	const NzIndexBuffer* indexBuffer;
-	const NzVertexBuffer* vertexBuffer;
-};
+	class IndexBuffer;
+	class VertexBuffer;
+
+	struct MeshData
+	{
+		PrimitiveMode primitiveMode;
+		const IndexBuffer* indexBuffer;
+		const VertexBuffer* vertexBuffer;
+	};
+}
 
 #endif // NAZARA_MESHDATA_HPP
