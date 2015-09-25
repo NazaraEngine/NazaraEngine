@@ -53,9 +53,9 @@ namespace Nz
 	}
 
 	template<typename... Args>
-	NzCylinderGeomRef NzCylinderGeom::New(Args&&... args)
+	CylinderGeomRef CylinderGeom::New(Args&&... args)
 	{
-		std::unique_ptr<NzCylinderGeom> object(new NzCylinderGeom(std::forward<Args>(args)...));
+		std::unique_ptr<CylinderGeom> object(new CylinderGeom(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
