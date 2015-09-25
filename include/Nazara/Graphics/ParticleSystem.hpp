@@ -20,70 +20,73 @@
 #include <set>
 #include <vector>
 
-class NAZARA_GRAPHICS_API NzParticleSystem : public NzRenderable
+namespace Nz
 {
-	public:
-		NzParticleSystem(unsigned int maxParticleCount, nzParticleLayout layout);
-		NzParticleSystem(unsigned int maxParticleCount, NzParticleDeclarationConstRef declaration);
-		NzParticleSystem(const NzParticleSystem& emitter);
-		~NzParticleSystem();
+	class NAZARA_GRAPHICS_API ParticleSystem : public Renderable
+	{
+		public:
+			ParticleSystem(unsigned int maxParticleCount, ParticleLayout layout);
+			ParticleSystem(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration);
+			ParticleSystem(const ParticleSystem& emitter);
+			~ParticleSystem();
 
-		void AddController(NzParticleControllerRef controller);
-		void AddEmitter(NzParticleEmitter* emitter);
-		void AddGenerator(NzParticleGeneratorRef generator);
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const;
+			void AddController(ParticleControllerRef controller);
+			void AddEmitter(ParticleEmitter* emitter);
+			void AddGenerator(ParticleGeneratorRef generator);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const;
 
-		void ApplyControllers(NzParticleMapper& mapper, unsigned int particleCount, float elapsedTime);
+			void ApplyControllers(ParticleMapper& mapper, unsigned int particleCount, float elapsedTime);
 
-		void* CreateParticle();
-		void* CreateParticles(unsigned int count);
+			void* CreateParticle();
+			void* CreateParticles(unsigned int count);
 
-		void EnableFixedStep(bool fixedStep);
+			void EnableFixedStep(bool fixedStep);
 
-		void* GenerateParticle();
-		void* GenerateParticles(unsigned int count);
+			void* GenerateParticle();
+			void* GenerateParticles(unsigned int count);
 
-		const NzParticleDeclarationConstRef& GetDeclaration() const;
-		float GetFixedStepSize() const;
-		unsigned int GetMaxParticleCount() const;
-		unsigned int GetParticleCount() const;
-		unsigned int GetParticleSize() const;
+			const ParticleDeclarationConstRef& GetDeclaration() const;
+			float GetFixedStepSize() const;
+			unsigned int GetMaxParticleCount() const;
+			unsigned int GetParticleCount() const;
+			unsigned int GetParticleSize() const;
 
-		bool IsFixedStepEnabled() const;
+			bool IsFixedStepEnabled() const;
 
-		void KillParticle(unsigned int index);
-		void KillParticles();
+			void KillParticle(unsigned int index);
+			void KillParticles();
 
-		void RemoveController(NzParticleController* controller);
-		void RemoveEmitter(NzParticleEmitter* emitter);
-		void RemoveGenerator(NzParticleGenerator* generator);
+			void RemoveController(ParticleController* controller);
+			void RemoveEmitter(ParticleEmitter* emitter);
+			void RemoveGenerator(ParticleGenerator* generator);
 
-		void SetFixedStepSize(float stepSize);
-		void SetRenderer(NzParticleRenderer* renderer);
+			void SetFixedStepSize(float stepSize);
+			void SetRenderer(ParticleRenderer* renderer);
 
-		void Update(float elapsedTime);
-		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
+			void Update(float elapsedTime);
+			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
 
-		NzParticleSystem& operator=(const NzParticleSystem& emitter);
+			ParticleSystem& operator=(const ParticleSystem& emitter);
 
-	private:
-		void MakeBoundingVolume() const override;
-		void ResizeBuffer();
+		private:
+			void MakeBoundingVolume() const override;
+			void ResizeBuffer();
 
-		std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
-		mutable std::vector<nzUInt8> m_buffer;
-		std::vector<NzParticleControllerRef> m_controllers;
-		std::vector<NzParticleEmitter*> m_emitters;
-		std::vector<NzParticleGeneratorRef> m_generators;
-		NzParticleDeclarationConstRef m_declaration;
-		NzParticleRendererRef m_renderer;
-		bool m_fixedStepEnabled;
-		bool m_processing;
-		float m_stepAccumulator;
-		float m_stepSize;
-		unsigned int m_maxParticleCount;
-		unsigned int m_particleCount;
-		unsigned int m_particleSize;
-};
+			std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
+			mutable std::vector<UInt8> m_buffer;
+			std::vector<ParticleControllerRef> m_controllers;
+			std::vector<ParticleEmitter*> m_emitters;
+			std::vector<ParticleGeneratorRef> m_generators;
+			ParticleDeclarationConstRef m_declaration;
+			ParticleRendererRef m_renderer;
+			bool m_fixedStepEnabled;
+			bool m_processing;
+			float m_stepAccumulator;
+			float m_stepSize;
+			unsigned int m_maxParticleCount;
+			unsigned int m_particleCount;
+			unsigned int m_particleSize;
+	};
+}
 
 #endif // NAZARA_PARTICLESYSTEM_HPP

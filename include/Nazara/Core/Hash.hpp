@@ -11,19 +11,26 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
-class NAZARA_CORE_API NzHash : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzHash(nzHash hash);
-		NzHash(NzAbstractHash* hashImpl);
-		~NzHash();
+	class NAZARA_CORE_API Hash
+	{
+		public:
+			Hash(HashType hash);
+			Hash(AbstractHash* hashImpl);
+			Hash(const Hash&) = delete;
+			Hash(Hash&&) = delete; ///TODO
+			~Hash();
 
-		NzHashDigest Hash(const NzHashable& hashable);
+			HashDigest Process(const Hashable& hashable);
 
-	private:
-		NzAbstractHash* m_impl;
-};
+			Hash& operator=(const Hash&) = delete;
+			Hash& operator=(Hash&&) = delete; ///TODO
+
+		private:
+			AbstractHash* m_impl;
+	};
+}
 
 #endif // NAZARA_HASH_HPP

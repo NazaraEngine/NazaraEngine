@@ -9,72 +9,75 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Config.hpp>
 #include <Nazara/Physics/Geom.hpp>
 
-class NzPhysWorld;
 struct NewtonBody;
 
-class NAZARA_PHYSICS_API NzPhysObject
+namespace Nz
 {
-	public:
-		NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat = NzMatrix4f::Identity());
-		NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat = NzMatrix4f::Identity());
-		NzPhysObject(const NzPhysObject& object);
-		NzPhysObject(NzPhysObject&& object);
-		~NzPhysObject();
+	class PhysWorld;
 
-		void AddForce(const NzVector3f& force, nzCoordSys coordSys = nzCoordSys_Global);
-		void AddForce(const NzVector3f& force, const NzVector3f& point, nzCoordSys coordSys = nzCoordSys_Global);
-		void AddTorque(const NzVector3f& torque, nzCoordSys coordSys = nzCoordSys_Global);
+	class NAZARA_PHYSICS_API PhysObject
+	{
+		public:
+			PhysObject(PhysWorld* world, const Matrix4f& mat = Matrix4f::Identity());
+			PhysObject(PhysWorld* world, PhysGeomRef geom, const Matrix4f& mat = Matrix4f::Identity());
+			PhysObject(const PhysObject& object);
+			PhysObject(PhysObject&& object);
+			~PhysObject();
 
-		void EnableAutoSleep(bool autoSleep);
+			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys_Global);
+			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys_Global);
+			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys_Global);
 
-		NzBoxf GetAABB() const;
-		NzVector3f GetAngularVelocity() const;
-		const NzPhysGeomRef& GetGeom() const;
-		float GetGravityFactor() const;
-		NewtonBody* GetHandle() const;
-		float GetMass() const;
-		NzVector3f GetMassCenter(nzCoordSys coordSys = nzCoordSys_Local) const;
-		const NzMatrix4f& GetMatrix() const;
-		NzVector3f GetPosition() const;
-		NzQuaternionf GetRotation() const;
-		NzVector3f GetVelocity() const;
+			void EnableAutoSleep(bool autoSleep);
 
-		bool IsAutoSleepEnabled() const;
-		bool IsMoveable() const;
-		bool IsSleeping() const;
+			Boxf GetAABB() const;
+			Vector3f GetAngularVelocity() const;
+			const PhysGeomRef& GetGeom() const;
+			float GetGravityFactor() const;
+			NewtonBody* GetHandle() const;
+			float GetMass() const;
+			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
+			const Matrix4f& GetMatrix() const;
+			Vector3f GetPosition() const;
+			Quaternionf GetRotation() const;
+			Vector3f GetVelocity() const;
 
-		void SetAngularVelocity(const NzVector3f& angularVelocity);
-		void SetGeom(NzPhysGeomRef geom);
-		void SetGravityFactor(float gravityFactor);
-		void SetMass(float mass);
-		void SetMassCenter(const NzVector3f& center);
-		void SetPosition(const NzVector3f& position);
-		void SetRotation(const NzQuaternionf& rotation);
-		void SetVelocity(const NzVector3f& velocity);
+			bool IsAutoSleepEnabled() const;
+			bool IsMoveable() const;
+			bool IsSleeping() const;
 
-		NzPhysObject& operator=(const NzPhysObject& object);
-		NzPhysObject& operator=(NzPhysObject&& object);
+			void SetAngularVelocity(const Vector3f& angularVelocity);
+			void SetGeom(PhysGeomRef geom);
+			void SetGravityFactor(float gravityFactor);
+			void SetMass(float mass);
+			void SetMassCenter(const Vector3f& center);
+			void SetPosition(const Vector3f& position);
+			void SetRotation(const Quaternionf& rotation);
+			void SetVelocity(const Vector3f& velocity);
 
-	private:
-		void UpdateBody();
-		static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
-		static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
+			PhysObject& operator=(const PhysObject& object);
+			PhysObject& operator=(PhysObject&& object);
 
-		NzMatrix4f m_matrix;
-		NzPhysGeomRef m_geom;
-		NzVector3f m_forceAccumulator;
-		NzVector3f m_torqueAccumulator;
-		NewtonBody* m_body;
-		NzPhysWorld* m_world;
-		float m_gravityFactor;
-		float m_mass;
-};
+		private:
+			void UpdateBody();
+			static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
+			static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
+
+			Matrix4f m_matrix;
+			PhysGeomRef m_geom;
+			Vector3f m_forceAccumulator;
+			Vector3f m_torqueAccumulator;
+			NewtonBody* m_body;
+			PhysWorld* m_world;
+			float m_gravityFactor;
+			float m_mass;
+	};
+}
 
 #endif // NAZARA_PHYSOBJECT_HPP

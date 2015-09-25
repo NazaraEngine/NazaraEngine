@@ -61,7 +61,6 @@
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/OffsetOf.hpp>

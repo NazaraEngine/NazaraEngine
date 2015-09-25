@@ -8,25 +8,28 @@
 #include <windows.h>
 #include <Nazara/Utility/Debug.hpp>
 
-NzVideoMode NzVideoModeImpl::GetDesktopMode()
+namespace Nz
 {
-	DEVMODE mode;
-	mode.dmSize = sizeof(DEVMODE);
-	EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode);
-
-	return NzVideoMode(mode.dmPelsWidth, mode.dmPelsHeight, static_cast<nzUInt8>(mode.dmBitsPerPel));
-}
-
-void NzVideoModeImpl::GetFullscreenModes(std::vector<NzVideoMode>& modes)
-{
-	DEVMODE win32Mode;
-	win32Mode.dmSize = sizeof(DEVMODE);
-	for (unsigned int i = 0; EnumDisplaySettings(nullptr, i, &win32Mode); ++i)
+	VideoMode VideoModeImpl::GetDesktopMode()
 	{
-		NzVideoMode mode(win32Mode.dmPelsWidth, win32Mode.dmPelsHeight, static_cast<nzUInt8>(win32Mode.dmBitsPerPel));
+		DEVMODE mode;
+		mode.dmSize = sizeof(DEVMODE);
+		EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode);
 
-		// Il existe plusieurs modes avec ces trois caractéristques identiques
-		if (std::find(modes.begin(), modes.end(), mode) == modes.end())
-			modes.push_back(mode);
+		return VideoMode(mode.dmPelsWidth, mode.dmPelsHeight, static_cast<UInt8>(mode.dmBitsPerPel));
 	}
+
+	void VideoModeImpl::GetFullscreenModes(std::vector<VideoMode>& modes)
+	{
+		DEVMODE win32Mode;
+		win32Mode.dmSize = sizeof(DEVMODE);
+		for (unsigned int i = 0; EnumDisplaySettings(nullptr, i, &win32Mode); ++i)
+		{
+			VideoMode mode(win32Mode.dmPelsWidth, win32Mode.dmPelsHeight, static_cast<UInt8>(win32Mode.dmBitsPerPel));
+
+			// Il existe plusieurs modes avec ces trois caractéristques identiques
+			if (std::find(modes.begin(), modes.end(), mode) == modes.end())
+				modes.push_back(mode);
+		}
+}
 }

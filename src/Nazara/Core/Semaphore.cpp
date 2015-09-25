@@ -14,32 +14,35 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzSemaphore::NzSemaphore(unsigned int count)
+namespace Nz
 {
-	m_impl = new NzSemaphoreImpl(count);
-}
+	Semaphore::Semaphore(unsigned int count)
+	{
+		m_impl = new SemaphoreImpl(count);
+	}
 
-NzSemaphore::~NzSemaphore()
-{
-	delete m_impl;
-}
+	Semaphore::~Semaphore()
+	{
+		delete m_impl;
+	}
 
-unsigned int NzSemaphore::GetCount() const
-{
-	return m_impl->GetCount();
-}
+	unsigned int Semaphore::GetCount() const
+	{
+		return m_impl->GetCount();
+	}
 
-void NzSemaphore::Post()
-{
-	m_impl->Post();
-}
+	void Semaphore::Post()
+	{
+		m_impl->Post();
+	}
 
-void NzSemaphore::Wait()
-{
-	m_impl->Wait();
-}
+	void Semaphore::Wait()
+	{
+		m_impl->Wait();
+	}
 
-bool NzSemaphore::Wait(nzUInt32 timeout)
-{
-	return m_impl->Wait(timeout);
+	bool Semaphore::Wait(UInt32 timeout)
+	{
+		return m_impl->Wait(timeout);
+	}
 }

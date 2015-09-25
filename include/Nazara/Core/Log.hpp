@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
@@ -24,41 +23,49 @@
 	#define NazaraDebug(txt)
 #endif
 
-#define NazaraLog NzLog::Instance()
+#define NazaraLog Nz::Log::Instance()
 #define NazaraNotice(txt) NazaraLog->Write(txt)
 
-class NzFile;
-
-class NAZARA_CORE_API NzLog : NzNonCopyable
+namespace Nz
 {
-	public:
-		void Enable(bool enable);
-		void EnableAppend(bool enable);
-		void EnableDateTime(bool enable);
+	class File;
 
-		NzString GetFile() const;
+	class NAZARA_CORE_API Log
+	{
+		public:
+			void Enable(bool enable);
+			void EnableAppend(bool enable);
+			void EnableDateTime(bool enable);
 
-		bool IsEnabled() const;
+			String GetFile() const;
 
-		void SetFile(const NzString& filePath);
+			bool IsEnabled() const;
 
-		void Write(const NzString& string);
-		void WriteError(nzErrorType type, const NzString& error);
-		void WriteError(nzErrorType type, const NzString& error, unsigned int line, const NzString& file, const NzString& func);
+			void SetFile(const String& filePath);
 
-		static NzLog* Instance();
+			void Write(const String& string);
+			void WriteError(ErrorType type, const String& error);
+			void WriteError(ErrorType type, const String& error, unsigned int line, const String& file, const String& func);
 
-	private:
-		NzLog();
-		~NzLog();
+			static Log* Instance();
 
-		NazaraMutexAttrib(m_mutex, mutable)
+		private:
+			Log();
+			Log(const Log&) = delete;
+			Log(Log&&) = delete;
+			~Log();
 
-		NzString m_filePath;
-		NzFile* m_file;
-		bool m_append;
-		bool m_enabled;
-		bool m_writeTime;
-};
+			Log& operator=(const Log&) = delete;
+			Log& operator=(Log&&) = delete;
+
+			NazaraMutexAttrib(m_mutex, mutable)
+
+			String m_filePath;
+			File* m_file;
+			bool m_append;
+			bool m_enabled;
+			bool m_writeTime;
+	};
+}
 
 #endif // NAZARA_LOGGER_HPP

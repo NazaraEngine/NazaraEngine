@@ -14,58 +14,61 @@
 #include <Nazara/Utility/Font.hpp>
 #include <vector>
 
-class NAZARA_UTILITY_API NzSimpleTextDrawer : public NzAbstractTextDrawer
+namespace Nz
 {
-	public:
-		NzSimpleTextDrawer();
-		NzSimpleTextDrawer(const NzSimpleTextDrawer& drawer);
-		NzSimpleTextDrawer(NzSimpleTextDrawer&& drawer);
-		virtual ~NzSimpleTextDrawer();
+	class NAZARA_UTILITY_API SimpleTextDrawer : public AbstractTextDrawer
+	{
+		public:
+			SimpleTextDrawer();
+			SimpleTextDrawer(const SimpleTextDrawer& drawer);
+			SimpleTextDrawer(SimpleTextDrawer&& drawer);
+			virtual ~SimpleTextDrawer();
 
-		const NzRectui& GetBounds() const;
-		unsigned int GetCharacterSize() const;
-		const NzColor& GetColor() const;
-		NzFont* GetFont() const;
-		NzFont* GetFont(unsigned int index) const override;
-		unsigned int GetFontCount() const override;
-		const Glyph& GetGlyph(unsigned int index) const override;
-		unsigned int GetGlyphCount() const override;
-		nzUInt32 GetStyle() const;
-		const NzString& GetText() const;
+			const Rectui& GetBounds() const;
+			unsigned int GetCharacterSize() const;
+			const Color& GetColor() const;
+			Font* GetFont() const;
+			Font* GetFont(unsigned int index) const override;
+			unsigned int GetFontCount() const override;
+			const Glyph& GetGlyph(unsigned int index) const override;
+			unsigned int GetGlyphCount() const override;
+			UInt32 GetStyle() const;
+			const String& GetText() const;
 
-		void SetCharacterSize(unsigned int characterSize);
-		void SetColor(const NzColor& color);
-		void SetFont(NzFont* font);
-		void SetStyle(nzUInt32 style);
-		void SetText(const NzString& str);
+			void SetCharacterSize(unsigned int characterSize);
+			void SetColor(const Color& color);
+			void SetFont(Font* font);
+			void SetStyle(UInt32 style);
+			void SetText(const String& str);
 
-		NzSimpleTextDrawer& operator=(const NzSimpleTextDrawer& drawer) = default;
-		NzSimpleTextDrawer& operator=(NzSimpleTextDrawer&& drawer);
+			SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer) = default;
+			SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
 
-		static NzSimpleTextDrawer Draw(const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
-		static NzSimpleTextDrawer Draw(NzFont* font, const NzString& str, unsigned int characterSize, nzUInt32 style = nzTextStyle_Regular, const NzColor& color = NzColor::White);
+			static SimpleTextDrawer Draw(const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
+			static SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
 
-	private:
-		void ConnectFontSlots();
-		void DisconnectFontSlots();
-		void OnFontAtlasLayerChanged(const NzFont* font, NzAbstractImage* oldLayer, NzAbstractImage* newLayer);
-		void OnFontInvalidated(const NzFont* font);
-		void OnFontRelease(const NzFont* object);
-		void UpdateGlyphs() const;
+		private:
+			void ConnectFontSlots();
+			void DisconnectFontSlots();
+			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
+			void OnFontInvalidated(const Font* font);
+			void OnFontRelease(const Font* object);
+			void UpdateGlyphs() const;
 
-		NazaraSlot(NzFont, OnFontAtlasChanged, m_atlasChangedSlot);
-		NazaraSlot(NzFont, OnFontAtlasLayerChanged, m_atlasLayerChangedSlot);
-		NazaraSlot(NzFont, OnFontGlyphCacheCleared, m_glyphCacheClearedSlot);
-		NazaraSlot(NzFont, OnFontRelease, m_fontReleaseSlot);
+			NazaraSlot(Font, OnFontAtlasChanged, m_atlasChangedSlot);
+			NazaraSlot(Font, OnFontAtlasLayerChanged, m_atlasLayerChangedSlot);
+			NazaraSlot(Font, OnFontGlyphCacheCleared, m_glyphCacheClearedSlot);
+			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
 
-		mutable std::vector<Glyph> m_glyphs;
-		NzColor m_color;
-		NzFontRef m_font;
-		mutable NzRectui m_bounds;
-		NzString m_text;
-		nzUInt32 m_style;
-		mutable bool m_glyphUpdated;
-		unsigned int m_characterSize;
-};
+			mutable std::vector<Glyph> m_glyphs;
+			Color m_color;
+			FontRef m_font;
+			mutable Rectui m_bounds;
+			String m_text;
+			UInt32 m_style;
+			mutable bool m_glyphUpdated;
+			unsigned int m_characterSize;
+	};
+}
 
 #endif // NAZARA_SIMPLETEXTDRAWER_HPP

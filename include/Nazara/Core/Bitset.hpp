@@ -12,165 +12,168 @@
 #include <memory>
 #include <type_traits>
 
-class NzAbstractHash;
-
-template<typename Block = nzUInt32, class Allocator = std::allocator<Block>>
-class NzBitset
+namespace Nz
 {
-	static_assert(std::is_integral<Block>::value && std::is_unsigned<Block>::value, "Block must be a unsigned integral type");
+	class AbstractHash;
 
-	public:
-		class Bit;
+	template<typename Block = UInt32, class Allocator = std::allocator<Block>>
+	class Bitset
+	{
+		static_assert(std::is_integral<Block>::value && std::is_unsigned<Block>::value, "Block must be a unsigned integral type");
 
-		NzBitset();
-		explicit NzBitset(unsigned int bitCount, bool val = false);
-		explicit NzBitset(const char* bits);
-		NzBitset(const char* bits, unsigned int bitCount);
-		NzBitset(const NzBitset& bitset) = default;
-		explicit NzBitset(const NzString& bits);
-		NzBitset(NzBitset&& bitset) noexcept = default;
-		~NzBitset() = default;
+		public:
+			class Bit;
 
-		void Clear();
-		unsigned int Count() const;
-		void Flip();
+			Bitset();
+			explicit Bitset(unsigned int bitCount, bool val = false);
+			explicit Bitset(const char* bits);
+			Bitset(const char* bits, unsigned int bitCount);
+			Bitset(const Bitset& bitset) = default;
+			explicit Bitset(const String& bits);
+			Bitset(Bitset&& bitset) noexcept = default;
+			~Bitset() = default;
 
-		unsigned int FindFirst() const;
-		unsigned int FindNext(unsigned int bit) const;
+			void Clear();
+			unsigned int Count() const;
+			void Flip();
 
-		Block GetBlock(unsigned int i) const;
-		unsigned int GetBlockCount() const;
-		unsigned int GetCapacity() const;
-		unsigned int GetSize() const;
+			unsigned int FindFirst() const;
+			unsigned int FindNext(unsigned int bit) const;
 
-		void PerformsAND(const NzBitset& a, const NzBitset& b);
-		void PerformsNOT(const NzBitset& a);
-		void PerformsOR(const NzBitset& a, const NzBitset& b);
-		void PerformsXOR(const NzBitset& a, const NzBitset& b);
+			Block GetBlock(unsigned int i) const;
+			unsigned int GetBlockCount() const;
+			unsigned int GetCapacity() const;
+			unsigned int GetSize() const;
 
-		bool Intersects(const NzBitset& bitset) const;
+			void PerformsAND(const Bitset& a, const Bitset& b);
+			void PerformsNOT(const Bitset& a);
+			void PerformsOR(const Bitset& a, const Bitset& b);
+			void PerformsXOR(const Bitset& a, const Bitset& b);
 
-		void Reserve(unsigned int bitCount);
-		void Resize(unsigned int bitCount, bool defaultVal = false);
+			bool Intersects(const Bitset& bitset) const;
 
-		void Reset();
-		void Reset(unsigned int bit);
+			void Reserve(unsigned int bitCount);
+			void Resize(unsigned int bitCount, bool defaultVal = false);
 
-		void Set(bool val = true);
-		void Set(unsigned int bit, bool val = true);
-		void SetBlock(unsigned int i, Block block);
+			void Reset();
+			void Reset(unsigned int bit);
 
-		void Swap(NzBitset& bitset);
+			void Set(bool val = true);
+			void Set(unsigned int bit, bool val = true);
+			void SetBlock(unsigned int i, Block block);
 
-		bool Test(unsigned int bit) const;
-		bool TestAll() const;
-		bool TestAny() const;
-		bool TestNone() const;
+			void Swap(Bitset& bitset);
 
-		template<typename T> T To() const;
-		NzString ToString() const;
+			bool Test(unsigned int bit) const;
+			bool TestAll() const;
+			bool TestAny() const;
+			bool TestNone() const;
 
-		void UnboundedReset(unsigned int bit);
-		void UnboundedSet(unsigned int bit, bool val = true);
-		bool UnboundedTest(unsigned int bit) const;
+			template<typename T> T To() const;
+			String ToString() const;
 
-		Bit operator[](int index);
-		bool operator[](int index) const;
+			void UnboundedReset(unsigned int bit);
+			void UnboundedSet(unsigned int bit, bool val = true);
+			bool UnboundedTest(unsigned int bit) const;
 
-		NzBitset operator~() const;
+			Bit operator[](int index);
+			bool operator[](int index) const;
 
-		NzBitset& operator=(const NzBitset& bitset) = default;
-		NzBitset& operator=(const NzString& bits);
-		NzBitset& operator=(NzBitset&& bitset) noexcept = default;
+			Bitset operator~() const;
 
-		NzBitset& operator&=(const NzBitset& bitset);
-		NzBitset& operator|=(const NzBitset& bitset);
-		NzBitset& operator^=(const NzBitset& bitset);
+			Bitset& operator=(const Bitset& bitset) = default;
+			Bitset& operator=(const String& bits);
+			Bitset& operator=(Bitset&& bitset) noexcept = default;
 
-		static Block fullBitMask;
-		static unsigned int bitsPerBlock;
-		static unsigned int npos;
+			Bitset& operator&=(const Bitset& bitset);
+			Bitset& operator|=(const Bitset& bitset);
+			Bitset& operator^=(const Bitset& bitset);
 
-	private:
-		unsigned int FindFirstFrom(unsigned int blockIndex) const;
-		Block GetLastBlockMask() const;
-		void ResetExtraBits();
+			static Block fullBitMask;
+			static unsigned int bitsPerBlock;
+			static unsigned int npos;
 
-		static unsigned int ComputeBlockCount(unsigned int bitCount);
-		static unsigned int GetBitIndex(unsigned int bit);
-		static unsigned int GetBlockIndex(unsigned int bit);
+		private:
+			unsigned int FindFirstFrom(unsigned int blockIndex) const;
+			Block GetLastBlockMask() const;
+			void ResetExtraBits();
 
-		std::vector<Block, Allocator> m_blocks;
-		unsigned int m_bitCount;
-};
+			static unsigned int ComputeBlockCount(unsigned int bitCount);
+			static unsigned int GetBitIndex(unsigned int bit);
+			static unsigned int GetBlockIndex(unsigned int bit);
 
-template<typename Block, class Allocator>
-bool operator==(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			std::vector<Block, Allocator> m_blocks;
+			unsigned int m_bitCount;
+	};
 
-template<typename Block, class Allocator>
-bool operator!=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+	template<typename Block, class Allocator>
+	class Bitset<Block, Allocator>::Bit
+	{
+		friend Bitset<Block, Allocator>;
 
-template<typename Block, class Allocator>
-bool operator<(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+		public:
+			Bit(const Bit& bit) = default;
 
-template<typename Block, class Allocator>
-bool operator<=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			Bit& Flip();
+			Bit& Reset();
+			Bit& Set(bool val = true);
+			bool Test() const;
 
-template<typename Block, class Allocator>
-bool operator>(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			template<bool BadCall = true>
+			void* operator&() const;
 
-template<typename Block, class Allocator>
-bool operator>=(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			operator bool() const;
+			Bit& operator=(bool val);
+			Bit& operator=(const Bit& bit);
 
-template<typename Block, class Allocator>
-NzBitset<Block, Allocator> operator&(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			Bit& operator|=(bool val);
+			Bit& operator&=(bool val);
+			Bit& operator^=(bool val);
+			Bit& operator-=(bool val);
 
-template<typename Block, class Allocator>
-NzBitset<Block, Allocator> operator|(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+		private:
+			Bit(Block& block, Block mask) :
+			m_block(block),
+			m_mask(mask)
+			{
+			}
 
-template<typename Block, class Allocator>
-NzBitset<Block, Allocator> operator^(const NzBitset<Block, Allocator>& lhs, const NzBitset<Block, Allocator>& rhs);
+			Block& m_block;
+			Block m_mask;
+	};
 
-template<typename Block, class Allocator>
-class NzBitset<Block, Allocator>::Bit
-{
-	friend NzBitset<Block, Allocator>;
+	template<typename Block, class Allocator>
+	bool operator==(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-	public:
-		Bit(const Bit& bit) = default;
+	template<typename Block, class Allocator>
+	bool operator!=(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-		Bit& Flip();
-		Bit& Reset();
-		Bit& Set(bool val = true);
-		bool Test() const;
+	template<typename Block, class Allocator>
+	bool operator<(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-		template<bool BadCall = true>
-		void* operator&() const;
+	template<typename Block, class Allocator>
+	bool operator<=(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-		operator bool() const;
-		Bit& operator=(bool val);
-		Bit& operator=(const Bit& bit);
+	template<typename Block, class Allocator>
+	bool operator>(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-		Bit& operator|=(bool val);
-		Bit& operator&=(bool val);
-		Bit& operator^=(bool val);
-		Bit& operator-=(bool val);
+	template<typename Block, class Allocator>
+	bool operator>=(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
-	private:
-		Bit(Block& block, Block mask) :
-		m_block(block),
-		m_mask(mask)
-		{
-		}
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> operator&(const Bitset<Block, Allocator>& lhs, const Bitset<Block, Allocator>& rhs);
 
-		Block& m_block;
-		Block m_mask;
-};
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> operator|(const Bitset<Block, Allocator>& lhs, const Bitset<Block, Allocator>& rhs);
+
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> operator^(const Bitset<Block, Allocator>& lhs, const Bitset<Block, Allocator>& rhs);
+}
 
 namespace std
 {
 	template<typename Block, class Allocator>
-	void swap(NzBitset<Block, Allocator>& lhs, NzBitset<Block, Allocator>& rhs);
+	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs);
 }
 
 #include <Nazara/Core/Bitset.inl>

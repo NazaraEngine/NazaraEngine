@@ -12,38 +12,46 @@
 #include <string>
 #include <vector>
 
-class NAZARA_CORE_API NzStringStream
+namespace Nz
 {
-	public:
-		NzStringStream();
-		NzStringStream(const NzString& str);
+	class NAZARA_CORE_API StringStream
+	{
+		public:
+			StringStream();
+			StringStream(const String& str);
+			StringStream(const StringStream&) = default;
+			StringStream(StringStream&&) noexcept = default;
 
-		NzString ToString() const;
+			String ToString() const;
 
-		NzStringStream& operator<<(bool boolean);
-		NzStringStream& operator<<(short number);
-		NzStringStream& operator<<(unsigned short number);
-		NzStringStream& operator<<(int number);
-		NzStringStream& operator<<(unsigned int number);
-		NzStringStream& operator<<(long number);
-		NzStringStream& operator<<(unsigned long number);
-		NzStringStream& operator<<(long long number);
-		NzStringStream& operator<<(unsigned long long number);
-		NzStringStream& operator<<(float number);
-		NzStringStream& operator<<(double number);
-		NzStringStream& operator<<(long double number);
-		NzStringStream& operator<<(char character);
-		NzStringStream& operator<<(unsigned char character);
-		NzStringStream& operator<<(const char* string);
-		NzStringStream& operator<<(const std::string& string);
-		NzStringStream& operator<<(const NzString& string);
-		NzStringStream& operator<<(const void* ptr);
+			StringStream& operator=(const StringStream&) = default;
+			StringStream& operator=(StringStream&&) noexcept = default;
 
-		operator NzString() const;
+			StringStream& operator<<(bool boolean);
+			StringStream& operator<<(short number);
+			StringStream& operator<<(unsigned short number);
+			StringStream& operator<<(int number);
+			StringStream& operator<<(unsigned int number);
+			StringStream& operator<<(long number);
+			StringStream& operator<<(unsigned long number);
+			StringStream& operator<<(long long number);
+			StringStream& operator<<(unsigned long long number);
+			StringStream& operator<<(float number);
+			StringStream& operator<<(double number);
+			StringStream& operator<<(long double number);
+			StringStream& operator<<(char character);
+			StringStream& operator<<(unsigned char character);
+			StringStream& operator<<(const char* string);
+			StringStream& operator<<(const std::string& string);
+			StringStream& operator<<(const String& string);
+			StringStream& operator<<(const void* ptr);
 
-	private:
-		std::vector<NzString> m_strings;
-		unsigned int m_bufferSize;
-};
+			operator String() const;
+
+		private:
+			std::vector<String> m_strings;
+			unsigned int m_bufferSize;
+	};
+}
 
 #endif // NAZARA_STRINGSTREAM_HPP

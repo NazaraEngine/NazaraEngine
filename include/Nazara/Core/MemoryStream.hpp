@@ -10,25 +10,33 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
 
-class NAZARA_CORE_API NzMemoryStream : public NzInputStream
+namespace Nz
 {
-	public:
-		NzMemoryStream(const void* ptr, nzUInt64 size);
-		~NzMemoryStream();
+	class NAZARA_CORE_API MemoryStream : public InputStream
+	{
+		public:
+			MemoryStream(const void* ptr, UInt64 size);
+			MemoryStream(const MemoryStream&) = delete;
+			MemoryStream(MemoryStream&&) = delete; ///TODO
+			~MemoryStream();
 
-		bool EndOfStream() const;
+			bool EndOfStream() const;
 
-		nzUInt64 GetCursorPos() const;
-		nzUInt64 GetSize() const;
+			UInt64 GetCursorPos() const;
+			UInt64 GetSize() const;
 
-		std::size_t Read(void* buffer, std::size_t size);
+			std::size_t Read(void* buffer, std::size_t size);
 
-		bool SetCursorPos(nzUInt64 offset);
+			bool SetCursorPos(UInt64 offset);
 
-	private:
-		const nzUInt8* m_ptr;
-		nzUInt64 m_pos;
-		nzUInt64 m_size;
-};
+			MemoryStream& operator=(const MemoryStream&) = delete;
+			MemoryStream& operator=(MemoryStream&&) = delete; ///TODO
+
+		private:
+			const UInt8* m_ptr;
+			UInt64 m_pos;
+			UInt64 m_size;
+	};
+}
 
 #endif // NAZARA_MEMORYSTREAM_HPP

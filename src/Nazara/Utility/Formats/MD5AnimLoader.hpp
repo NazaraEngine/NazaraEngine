@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_MD5Anim_Register();
-void NzLoaders_MD5Anim_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterMD5Anim();
+		void UnregisterMD5Anim();
+	}
+}
 
 #endif // NAZARA_LOADERS_MD5ANIM_HPP

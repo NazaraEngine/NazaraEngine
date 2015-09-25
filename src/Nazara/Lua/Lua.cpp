@@ -9,52 +9,55 @@
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Debug.hpp>
 
-bool NzLua::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool Lua::Initialize()
 	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
+		// Initialisation des dépendances
+		if (!Core::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		// Initialisation du module
+
+		NazaraNotice("Initialized: Lua module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool Lua::IsInitialized()
 	{
-		NazaraError("Failed to initialize core module");
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-
-	NazaraNotice("Initialized: Lua module");
-	return true;
-}
-
-bool NzLua::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzLua::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
+	void Lua::Uninitialize()
 	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-		return;
+			return;
+		}
+
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		NazaraNotice("Uninitialized: Lua module");
+
+		// Libération des dépendances
+		Core::Uninitialize();
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	NazaraNotice("Uninitialized: Lua module");
-
-	// Libération des dépendances
-	NzCore::Uninitialize();
+	unsigned int Lua::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzLua::s_moduleReferenceCounter = 0;

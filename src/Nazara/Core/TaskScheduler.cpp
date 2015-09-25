@@ -16,74 +16,77 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	std::vector<NzFunctor*> s_pendingWorks;
-	unsigned int s_workerCount = 0;
-}
-
-unsigned int NzTaskScheduler::GetWorkerCount()
-{
-	return (s_workerCount > 0) ? s_workerCount : NzHardwareInfo::GetProcessorCount();
-}
-
-bool NzTaskScheduler::Initialize()
-{
-	return NzTaskSchedulerImpl::Initialize(GetWorkerCount());
-}
-
-void NzTaskScheduler::Run()
-{
-	if (!Initialize())
+	namespace
 	{
-		NazaraError("Failed to initialize Task Scheduler");
-		return;
+		std::vector<Functor*> s_pendingWorks;
+		unsigned int s_workerCount = 0;
 	}
 
-	if (!s_pendingWorks.empty())
+	unsigned int TaskScheduler::GetWorkerCount()
 	{
-		NzTaskSchedulerImpl::Run(&s_pendingWorks[0], s_pendingWorks.size());
-		s_pendingWorks.clear();
-	}
-}
-
-void NzTaskScheduler::SetWorkerCount(unsigned int workerCount)
-{
-	#ifdef NAZARA_CORE_SAFE
-	if (NzTaskSchedulerImpl::IsInitialized())
-	{
-		NazaraError("Worker count cannot be set while initialized");
-		return;
-	}
-	#endif
-
-	s_workerCount = workerCount;
-}
-
-void NzTaskScheduler::Uninitialize()
-{
-	if (NzTaskSchedulerImpl::IsInitialized())
-		NzTaskSchedulerImpl::Uninitialize();
-}
-
-void NzTaskScheduler::WaitForTasks()
-{
-	if (!Initialize())
-	{
-		NazaraError("Failed to initialize Task Scheduler");
-		return;
+		return (s_workerCount > 0) ? s_workerCount : HardwareInfo::GetProcessorCount();
 	}
 
-	NzTaskSchedulerImpl::WaitForTasks();
-}
-
-void NzTaskScheduler::AddTaskFunctor(NzFunctor* taskFunctor)
-{
-	if (!Initialize())
+	bool TaskScheduler::Initialize()
 	{
-		NazaraError("Failed to initialize Task Scheduler");
-		return;
+		return TaskSchedulerImpl::Initialize(GetWorkerCount());
 	}
 
-	s_pendingWorks.push_back(taskFunctor);
+	void TaskScheduler::Run()
+	{
+		if (!Initialize())
+		{
+			NazaraError("Failed to initialize Task Scheduler");
+			return;
+		}
+
+		if (!s_pendingWorks.empty())
+		{
+			TaskSchedulerImpl::Run(&s_pendingWorks[0], s_pendingWorks.size());
+			s_pendingWorks.clear();
+		}
+	}
+
+	void TaskScheduler::SetWorkerCount(unsigned int workerCount)
+	{
+		#ifdef NAZARA_CORE_SAFE
+		if (TaskSchedulerImpl::IsInitialized())
+		{
+			NazaraError("Worker count cannot be set while initialized");
+			return;
+		}
+		#endif
+
+		s_workerCount = workerCount;
+	}
+
+	void TaskScheduler::Uninitialize()
+	{
+		if (TaskSchedulerImpl::IsInitialized())
+			TaskSchedulerImpl::Uninitialize();
+	}
+
+	void TaskScheduler::WaitForTasks()
+	{
+		if (!Initialize())
+		{
+			NazaraError("Failed to initialize Task Scheduler");
+			return;
+		}
+
+		TaskSchedulerImpl::WaitForTasks();
+	}
+
+	void TaskScheduler::AddTaskFunctor(Functor* taskFunctor)
+	{
+		if (!Initialize())
+		{
+			NazaraError("Failed to initialize Task Scheduler");
+			return;
+		}
+
+		s_pendingWorks.push_back(taskFunctor);
+	}
 }

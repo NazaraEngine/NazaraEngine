@@ -5,4 +5,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractViewer::~NzAbstractViewer() = default;
+namespace Nz
+{
+	AbstractViewer::~AbstractViewer() = default;
+}

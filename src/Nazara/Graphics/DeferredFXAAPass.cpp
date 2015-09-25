@@ -8,32 +8,35 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDeferredFXAAPass::NzDeferredFXAAPass()
+namespace Nz
 {
-	m_fxaaShader = NzShaderLibrary::Get("DeferredFXAA");
+	DeferredFXAAPass::DeferredFXAAPass()
+	{
+		m_fxaaShader = ShaderLibrary::Get("DeferredFXAA");
 
-	m_pointSampler.SetAnisotropyLevel(1);
-	m_pointSampler.SetFilterMode(nzSamplerFilter_Nearest);
-	m_pointSampler.SetWrapMode(nzSamplerWrap_Clamp);
+		m_pointSampler.SetAnisotropyLevel(1);
+		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
+		m_pointSampler.SetWrapMode(SamplerWrap_Clamp);
 
-	m_states.parameters[nzRendererParameter_DepthBuffer] = false;
-}
+		m_states.parameters[RendererParameter_DepthBuffer] = false;
+	}
 
-NzDeferredFXAAPass::~NzDeferredFXAAPass() = default;
+	DeferredFXAAPass::~DeferredFXAAPass() = default;
 
-bool NzDeferredFXAAPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
-{
-	NazaraUnused(sceneData);
+	bool DeferredFXAAPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	{
+		NazaraUnused(sceneData);
 
-	m_workRTT->SetColorTarget(firstWorkTexture);
-	NzRenderer::SetTarget(m_workRTT);
-	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
+		m_workRTT->SetColorTarget(firstWorkTexture);
+		Renderer::SetTarget(m_workRTT);
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetRenderStates(m_states);
-	NzRenderer::SetShader(m_fxaaShader);
-	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);
-	NzRenderer::SetTextureSampler(0, m_pointSampler);
-	NzRenderer::DrawFullscreenQuad();
+		Renderer::SetRenderStates(m_states);
+		Renderer::SetShader(m_fxaaShader);
+		Renderer::SetTexture(0, m_workTextures[secondWorkTexture]);
+		Renderer::SetTextureSampler(0, m_pointSampler);
+		Renderer::DrawFullscreenQuad();
 
-	return true;
+		return true;
+	}
 }

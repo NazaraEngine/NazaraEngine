@@ -19,130 +19,133 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzThread::NzThread() :
-m_impl(nullptr)
+namespace Nz
 {
-}
-
-NzThread::NzThread(NzThread&& other) :
-m_impl(other.m_impl)
-{
-	other.m_impl = nullptr;
-}
-
-NzThread::~NzThread()
-{
-	if (m_impl)
+	Thread::Thread() :
+	m_impl(nullptr)
 	{
+	}
+
+	Thread::Thread(Thread&& other) noexcept :
+	m_impl(other.m_impl)
+	{
+		other.m_impl = nullptr;
+	}
+
+	Thread::~Thread()
+	{
+		if (m_impl)
+		{
+			m_impl->Join();
+			delete m_impl;
+			m_impl = nullptr;
+		}
+	}
+
+	void Thread::Detach()
+	{
+		if (m_impl)
+		{
+			m_impl->Detach();
+			delete m_impl;
+			m_impl = nullptr;
+		}
+	}
+
+	Thread::Id Thread::GetId() const
+	{
+		return Thread::Id(m_impl);
+	}
+
+	bool Thread::IsJoinable() const
+	{
+		return m_impl != nullptr;
+	}
+
+	void Thread::Join()
+	{
+		#if NAZARA_CORE_SAFE
+		if (!m_impl)
+		{
+			NazaraError("This thread is not joinable");
+			return;
+		}
+		#endif
+
 		m_impl->Join();
 		delete m_impl;
 		m_impl = nullptr;
 	}
-}
 
-void NzThread::Detach()
-{
-	if (m_impl)
+	Thread& Thread::operator=(Thread&& thread)
 	{
-		m_impl->Detach();
-		delete m_impl;
-		m_impl = nullptr;
+		#if NAZARA_CORE_SAFE
+		if (m_impl)
+		{
+			NazaraError("This thread cannot be joined");
+			std::terminate();
+		}
+		#endif
+
+		std::swap(m_impl, thread.m_impl);
+		return *this;
 	}
-}
 
-NzThread::Id NzThread::GetId() const
-{
-	return NzThread::Id(m_impl);
-}
-
-bool NzThread::IsJoinable() const
-{
-	return m_impl != nullptr;
-}
-
-void NzThread::Join()
-{
-	#if NAZARA_CORE_SAFE
-	if (!m_impl)
+	unsigned int Thread::HardwareConcurrency()
 	{
-		NazaraError("This thread is not joinable");
-		return;
+		return HardwareInfo::GetProcessorCount();
 	}
-	#endif
 
-	m_impl->Join();
-	delete m_impl;
-	m_impl = nullptr;
-}
-
-NzThread& NzThread::operator=(NzThread&& thread)
-{
-	#if NAZARA_CORE_SAFE
-	if (m_impl)
+	void Thread::Sleep(UInt32 milliseconds)
 	{
-		NazaraError("This thread cannot be joined");
-		std::terminate();
+		ThreadImpl::Sleep(milliseconds);
 	}
-	#endif
 
-	std::swap(m_impl, thread.m_impl);
-	return *this;
-}
+	void Thread::CreateImpl(Functor* functor)
+	{
+		m_impl = new ThreadImpl(functor);
+	}
 
-unsigned int NzThread::HardwareConcurrency()
-{
-	return NzHardwareInfo::GetProcessorCount();
-}
+	/*********************************Thread::Id********************************/
 
-void NzThread::Sleep(nzUInt32 milliseconds)
-{
-	NzThreadImpl::Sleep(milliseconds);
-}
+	Thread::Id::Id(ThreadImpl* thread) :
+	m_id(thread)
+	{
+	}
 
-void NzThread::CreateImpl(NzFunctor* functor)
-{
-	m_impl = new NzThreadImpl(functor);
-}
+	bool operator==(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id == rhs.m_id;
+	}
 
-/*********************************NzThread::Id********************************/
+	bool operator!=(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id != rhs.m_id;
+	}
 
-bool operator==(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id == rhs.m_id;
-}
+	bool operator<(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id < rhs.m_id;
+	}
 
-bool operator!=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id != rhs.m_id;
-}
+	bool operator<=(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id <= rhs.m_id;
+	}
 
-bool operator<(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id < rhs.m_id;
-}
+	bool operator>(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id > rhs.m_id;
+	}
 
-bool operator<=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id <= rhs.m_id;
-}
+	bool operator>=(const Thread::Id& lhs, const Thread::Id& rhs)
+	{
+		return lhs.m_id >= rhs.m_id;
+	}
 
-bool operator>(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id > rhs.m_id;
-}
-
-bool operator>=(const NzThread::Id& lhs, const NzThread::Id& rhs)
-{
-	return lhs.m_id >= rhs.m_id;
-}
-
-std::ostream& operator<<(std::ostream& o, const NzThread::Id& id)
-{
-	o << id.m_id;
-	return o;
-}
-
-NzThread::Id::Id(NzThreadImpl* thread) :
-m_id(thread)
-{
+	std::ostream& operator<<(std::ostream& o, const Nz::Thread::Id& id)
+	{
+		o << id.m_id;
+		return o;
+	}
 }

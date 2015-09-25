@@ -9,43 +9,46 @@
 #include <Nazara/Noise/Simplex2D.hpp>
 #include <Nazara/Noise/Debug.hpp>
 
-NzFBM2D::NzFBM2D(nzNoises source, unsigned int seed)
+namespace Nz
 {
-    switch(source)
-    {
-        case PERLIN:
-            m_source = new NzPerlin2D();
-        break;
+	FBM2D::FBM2D(NoiseType source, unsigned int seed)
+	{
+		switch(source)
+		{
+			case PERLIN:
+				m_source = new Perlin2D();
+			break;
 
-        default:
-            m_source = new NzSimplex2D();
-        break;
-    }
-    m_source->SetNewSeed(seed);
-    m_source->ShufflePermutationTable();
-    m_noiseType = source;
-}
+			default:
+				m_source = new Simplex2D();
+			break;
+		}
+		m_source->SetNewSeed(seed);
+		m_source->ShufflePermutationTable();
+		m_noiseType = source;
+	}
 
-float NzFBM2D::GetValue(float x, float y, float resolution)
-{
-    this->RecomputeExponentArray();
+	float FBM2D::GetValue(float x, float y, float resolution)
+	{
+		this->RecomputeExponentArray();
 
-    m_value = 0.0;
+		m_value = 0.0;
 
-    for (int i(0); i < m_octaves; ++i)
-    {
-        m_value += m_source->GetValue(x,y,resolution) * m_exponent_array[i];
-        resolution *= m_lacunarity;
-    }
-    m_remainder = m_octaves - static_cast<int>(m_octaves);
+		for (int i(0); i < m_octaves; ++i)
+		{
+			m_value += m_source->GetValue(x,y,resolution) * m_exponent_array[i];
+			resolution *= m_lacunarity;
+		}
+		m_remainder = m_octaves - static_cast<int>(m_octaves);
 
-    if(!NzNumberEquals(m_remainder, static_cast<float>(0.0)))
-      m_value += m_remainder * m_source->GetValue(x,y,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
+		if(!NumberEquals(m_remainder, static_cast<float>(0.0)))
+		  m_value += m_remainder * m_source->GetValue(x,y,resolution) * m_exponent_array[static_cast<int>(m_octaves-1)];
 
-    return m_value/this->m_sum;
-}
+		return m_value/this->m_sum;
+	}
 
-NzFBM2D::~NzFBM2D()
-{
-    delete m_source;
+	FBM2D::~FBM2D()
+	{
+		delete m_source;
+	}
 }

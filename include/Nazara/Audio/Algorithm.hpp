@@ -9,7 +9,10 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-template<typename T> void NzMixToMono(T* input, T* output, unsigned int channelCount, unsigned int frameCount);
+namespace Nz
+{
+	template<typename T> void MixToMono(T* input, T* output, unsigned int channelCount, unsigned int frameCount);
+}
 
 #include <Nazara/Audio/Algorithm.inl>
 

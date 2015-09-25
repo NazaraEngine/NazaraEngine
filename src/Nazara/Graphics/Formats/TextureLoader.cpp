@@ -8,41 +8,47 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	nzTernary Check(NzInputStream& stream, const NzMaterialParams& parameters)
+	namespace
 	{
-		NazaraUnused(stream);
-		NazaraUnused(parameters);
-
-		return nzTernary_Unknown;
-	}
-
-	bool Load(NzMaterial* material, NzInputStream& stream, const NzMaterialParams& parameters)
-	{
-		NazaraUnused(parameters);
-
-		NzTextureRef texture = NzTexture::New();
-		if (!texture->LoadFromStream(stream))
+		Ternary Check(InputStream& stream, const MaterialParams& parameters)
 		{
-			NazaraError("Failed to load diffuse map");
-			return false;
+			NazaraUnused(stream);
+			NazaraUnused(parameters);
+
+			return Ternary_Unknown;
 		}
 
-		material->Reset();
-		material->SetDiffuseMap(texture);
-		material->SetShader(parameters.shaderName);
+		bool Load(Material* material, InputStream& stream, const MaterialParams& parameters)
+		{
+			NazaraUnused(parameters);
 
-		return true;
+			TextureRef texture = Texture::New();
+			if (!texture->LoadFromStream(stream))
+			{
+				NazaraError("Failed to load diffuse map");
+				return false;
+			}
+
+			material->Reset();
+			material->SetDiffuseMap(texture);
+			material->SetShader(parameters.shaderName);
+
+			return true;
+		}
 	}
-}
 
-void NzLoaders_Texture_Register()
-{
-	NzMaterialLoader::RegisterLoader(NzImageLoader::IsExtensionSupported, Check, Load);
-}
+	namespace Loaders
+	{
+		void RegisterTexture()
+		{
+			MaterialLoader::RegisterLoader(ImageLoader::IsExtensionSupported, Check, Load);
+		}
 
-void NzLoaders_Texture_Unregister()
-{
-	NzMaterialLoader::UnregisterLoader(NzImageLoader::IsExtensionSupported, Check, Load);
+		void UnregisterTexture()
+		{
+			MaterialLoader::UnregisterLoader(ImageLoader::IsExtensionSupported, Check, Load);
+		}
+	}
 }

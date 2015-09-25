@@ -11,22 +11,30 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_CORE_API NzStream
+namespace Nz
 {
-	public:
-		NzStream() = default;
-		virtual ~NzStream();
+	class NAZARA_CORE_API Stream
+	{
+		public:
+			Stream() = default;
+			Stream(const Stream&) = default;
+			Stream(Stream&&) = default;
+			virtual ~Stream();
 
-		virtual nzUInt64 GetCursorPos() const = 0;
-		virtual NzString GetDirectory() const;
-		virtual NzString GetPath() const;
-		unsigned int GetStreamOptions() const;
+			virtual UInt64 GetCursorPos() const = 0;
+			virtual String GetDirectory() const;
+			virtual String GetPath() const;
+			unsigned int GetStreamOptions() const;
 
-		virtual bool SetCursorPos(nzUInt64 offset) = 0;
-		void SetStreamOptions(unsigned int options);
+			virtual bool SetCursorPos(UInt64 offset) = 0;
+			void SetStreamOptions(unsigned int options);
 
-	protected:
-		unsigned int m_streamOptions = 0;
-};
+			Stream& operator=(const Stream&) = default;
+			Stream& operator=(Stream&&) = default;
+
+		protected:
+			unsigned int m_streamOptions = 0;
+	};
+}
 
 #endif // NAZARA_STREAM_HPP

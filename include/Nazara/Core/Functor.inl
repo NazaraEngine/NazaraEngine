@@ -4,41 +4,44 @@
 
 #include <utility>
 
-template<typename F>
-NzFunctorWithoutArgs<F>::NzFunctorWithoutArgs(F func) :
-m_func(func)
+namespace Nz
 {
-}
+	template<typename F>
+	FunctorWithoutArgs<F>::FunctorWithoutArgs(F func) :
+	m_func(func)
+	{
+	}
 
-template<typename F>
-void NzFunctorWithoutArgs<F>::Run()
-{
-	m_func();
-}
+	template<typename F>
+	void FunctorWithoutArgs<F>::Run()
+	{
+		m_func();
+	}
 
-template<typename F, typename... Args>
-NzFunctorWithArgs<F, Args...>::NzFunctorWithArgs(F func, Args&&... args) :
-m_func(func),
-m_args(std::forward<Args>(args)...)
-{
-}
+	template<typename F, typename... Args>
+	FunctorWithArgs<F, Args...>::FunctorWithArgs(F func, Args&&... args) :
+	m_func(func),
+	m_args(std::forward<Args>(args)...)
+	{
+	}
 
-template<typename F, typename... Args>
-void NzFunctorWithArgs<F, Args...>::Run()
-{
-	NzApply(m_func, m_args);
-}
+	template<typename F, typename... Args>
+	void FunctorWithArgs<F, Args...>::Run()
+	{
+		Apply(m_func, m_args);
+	}
 
 
-template<typename C>
-NzMemberWithoutArgs<C>::NzMemberWithoutArgs(void (C::*func)(), C* object) :
-m_func(func),
-m_object(object)
-{
-}
+	template<typename C>
+	MemberWithoutArgs<C>::MemberWithoutArgs(void (C::*func)(), C* object) :
+	m_func(func),
+	m_object(object)
+	{
+	}
 
-template<typename C>
-void NzMemberWithoutArgs<C>::Run()
-{
-	(m_object->*m_func)();
+	template<typename C>
+	void MemberWithoutArgs<C>::Run()
+	{
+		(m_object->*m_func)();
+	}
 }

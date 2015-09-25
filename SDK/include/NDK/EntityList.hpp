@@ -54,7 +54,7 @@ namespace Ndk
 
 		private:
 			std::vector<EntityHandle> m_entities;
-			NzBitset<nzUInt64> m_entityBits;
+			Nz::Bitset<Nz::UInt64> m_entityBits;
 	};
 }
 

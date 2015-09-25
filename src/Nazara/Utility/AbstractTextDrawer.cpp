@@ -5,5 +5,8 @@
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzAbstractTextDrawer::~NzAbstractTextDrawer() = default;
+namespace Nz
+{
+	AbstractTextDrawer::~AbstractTextDrawer() = default;
+}
 

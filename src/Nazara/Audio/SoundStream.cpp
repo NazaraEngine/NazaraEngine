@@ -4,4 +4,7 @@
 
 #include <Nazara/Audio/SoundStream.hpp>
 
-NzSoundStream::~NzSoundStream() = default;
+namespace Nz
+{
+	SoundStream::~SoundStream() = default;
+}

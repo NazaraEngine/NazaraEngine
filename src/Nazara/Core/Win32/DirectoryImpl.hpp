@@ -8,38 +8,45 @@
 #define NAZARA_DIRECTORYIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <windows.h>
 
-class NzDirectory;
-class NzString;
-
-class NzDirectoryImpl : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzDirectoryImpl(const NzDirectory* parent);
-		~NzDirectoryImpl() = default;
+	class Directory;
+	class String;
 
-		void Close();
+	class DirectoryImpl
+	{
+		public:
+			DirectoryImpl(const Directory* parent);
+			DirectoryImpl(const DirectoryImpl&) = delete;
+			DirectoryImpl(DirectoryImpl&&) = delete; ///TODO
+			~DirectoryImpl() = default;
 
-		NzString GetResultName() const;
-		nzUInt64 GetResultSize() const;
+			void Close();
 
-		bool IsResultDirectory() const;
+			String GetResultName() const;
+			UInt64 GetResultSize() const;
 
-		bool NextResult();
+			bool IsResultDirectory() const;
 
-		bool Open(const NzString& dirPath);
+			bool NextResult();
 
-		static bool Create(const NzString& dirPath);
-		static bool Exists(const NzString& dirPath);
-		static NzString GetCurrent();
-		static bool Remove(const NzString& dirPath);
+			bool Open(const String& dirPath);
 
-	private:
-		HANDLE m_handle;
-		WIN32_FIND_DATAW m_result;
-		bool m_firstCall;
-};
+			DirectoryImpl& operator=(const DirectoryImpl&) = delete;
+			DirectoryImpl& operator=(DirectoryImpl&&) = delete; ///TODO
+
+			static bool Create(const String& dirPath);
+			static bool Exists(const String& dirPath);
+			static String GetCurrent();
+			static bool Remove(const String& dirPath);
+
+		private:
+			HANDLE m_handle;
+			WIN32_FIND_DATAW m_result;
+			bool m_firstCall;
+	};
+}
 
 #endif // NAZARA_DIRECTORYIMPL_HPP

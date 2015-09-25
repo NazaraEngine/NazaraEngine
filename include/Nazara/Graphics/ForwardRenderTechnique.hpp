@@ -16,80 +16,83 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 
-class NAZARA_GRAPHICS_API NzForwardRenderTechnique : public NzAbstractRenderTechnique
+namespace Nz
 {
-	public:
-		NzForwardRenderTechnique();
-		~NzForwardRenderTechnique() = default;
+	class NAZARA_GRAPHICS_API ForwardRenderTechnique : public AbstractRenderTechnique
+	{
+		public:
+			ForwardRenderTechnique();
+			~ForwardRenderTechnique() = default;
 
-		bool Draw(const NzSceneData& sceneData) const override;
+			bool Draw(const SceneData& sceneData) const override;
 
-		unsigned int GetMaxLightPassPerObject() const;
-		NzAbstractRenderQueue* GetRenderQueue() override;
-		nzRenderTechniqueType GetType() const override;
+			unsigned int GetMaxLightPassPerObject() const;
+			AbstractRenderQueue* GetRenderQueue() override;
+			RenderTechniqueType GetType() const override;
 
-		void SetMaxLightPassPerObject(unsigned int passCount);
+			void SetMaxLightPassPerObject(unsigned int passCount);
 
-		static bool Initialize();
-		static void Uninitialize();
+			static bool Initialize();
+			static void Uninitialize();
 
-	private:
-		struct ShaderUniforms;
+		private:
+			struct ShaderUniforms;
 
-		void ChooseLights(const NzSpheref& object, bool includeDirectionalLights = true) const;
-		void DrawBasicSprites(const NzSceneData& sceneData) const;
-		void DrawBillboards(const NzSceneData& sceneData) const;
-		void DrawOpaqueModels(const NzSceneData& sceneData) const;
-		void DrawTransparentModels(const NzSceneData& sceneData) const;
-		const ShaderUniforms* GetShaderUniforms(const NzShader* shader) const;
-		void OnShaderInvalidated(const NzShader* shader) const;
-		void SendLightUniforms(const NzShader* shader, const NzLightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const;
+			void ChooseLights(const Spheref& object, bool includeDirectionalLights = true) const;
+			void DrawBasicSprites(const SceneData& sceneData) const;
+			void DrawBillboards(const SceneData& sceneData) const;
+			void DrawOpaqueModels(const SceneData& sceneData) const;
+			void DrawTransparentModels(const SceneData& sceneData) const;
+			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
+			void OnShaderInvalidated(const Shader* shader) const;
+			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset) const;
 
-		static float ComputeDirectionalLightScore(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
-		static float ComputePointLightScore(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
-		static float ComputeSpotLightScore(const NzSpheref& object, const NzAbstractRenderQueue::SpotLight& light);
-		static bool IsDirectionalLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::DirectionalLight& light);
-		static bool IsPointLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::PointLight& light);
-		static bool IsSpotLightSuitable(const NzSpheref& object, const NzAbstractRenderQueue::SpotLight& light);
+			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
+			static float ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light);
+			static float ComputeSpotLightScore(const Spheref& object, const AbstractRenderQueue::SpotLight& light);
+			static bool IsDirectionalLightSuitable(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
+			static bool IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light);
+			static bool IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light);
 
-		struct LightIndex
-		{
-			nzLightType type;
-			float score;
-			unsigned int index;
-		};
+			struct LightIndex
+			{
+				LightType type;
+				float score;
+				unsigned int index;
+			};
 
-		struct ShaderUniforms
-		{
-			NazaraSlot(NzShader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
-			NazaraSlot(NzShader, OnShaderRelease, shaderReleaseSlot);
+			struct ShaderUniforms
+			{
+				NazaraSlot(Shader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
+				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
 
-			NzLightUniforms lightUniforms;
-			bool hasLightUniforms;
+				LightUniforms lightUniforms;
+				bool hasLightUniforms;
 
-			/// Moins coûteux en mémoire que de stocker un NzLightUniforms par index de lumière,
-			/// à voir si ça fonctionne chez tout le monde
-			int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
+				/// Moins coûteux en mémoire que de stocker un LightUniforms par index de lumière,
+				/// à voir si ça fonctionne chez tout le monde
+				int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
 
-			// Autre uniformes
-			int eyePosition;
-			int sceneAmbient;
-			int textureOverlay;
-		};
+				// Autre uniformes
+				int eyePosition;
+				int sceneAmbient;
+				int textureOverlay;
+			};
 
-		mutable std::unordered_map<const NzShader*, ShaderUniforms> m_shaderUniforms;
-		mutable std::vector<LightIndex> m_lights;
-		NzBuffer m_vertexBuffer;
-		mutable NzForwardRenderQueue m_renderQueue;
-		NzVertexBuffer m_billboardPointBuffer;
-		NzVertexBuffer m_spriteBuffer;
-		unsigned int m_maxLightPassPerObject;
+			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
+			mutable std::vector<LightIndex> m_lights;
+			Buffer m_vertexBuffer;
+			mutable ForwardRenderQueue m_renderQueue;
+			VertexBuffer m_billboardPointBuffer;
+			VertexBuffer m_spriteBuffer;
+			unsigned int m_maxLightPassPerObject;
 
-		static NzIndexBuffer s_quadIndexBuffer;
-		static NzVertexBuffer s_quadVertexBuffer;
-		static NzVertexDeclaration s_billboardInstanceDeclaration;
-		static NzVertexDeclaration s_billboardVertexDeclaration;
-};
+			static IndexBuffer s_quadIndexBuffer;
+			static VertexBuffer s_quadVertexBuffer;
+			static VertexDeclaration s_billboardInstanceDeclaration;
+			static VertexDeclaration s_billboardVertexDeclaration;
+	};
+}
 
 #include <Nazara/Graphics/ForwardRenderTechnique.inl>
 

@@ -9,16 +9,19 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NzMutex;
-
-class NAZARA_CORE_API NzLockGuard
+namespace Nz
 {
-	public:
-		NzLockGuard(NzMutex& mutex);
-		~NzLockGuard();
+	class Mutex;
 
-	private:
-		NzMutex& m_mutex;
-};
+	class NAZARA_CORE_API LockGuard
+	{
+		public:
+			LockGuard(Mutex& mutex);
+			~LockGuard();
+
+		private:
+			Mutex& m_mutex;
+	};
+}
 
 #endif // NAZARA_LOCKGUARD_HPP

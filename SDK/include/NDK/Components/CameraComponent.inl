@@ -8,7 +8,7 @@
 namespace Ndk
 {
 	inline CameraComponent::CameraComponent() :
-	m_projectionType(nzProjectionType_Perspective),
+	m_projectionType(Nz::ProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_target(nullptr),
 	m_frustumUpdated(false),
@@ -25,7 +25,7 @@ namespace Ndk
 
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
-	NzAbstractViewer(camera),
+	AbstractViewer(camera),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
 	m_target(nullptr),
@@ -78,7 +78,7 @@ namespace Ndk
 		return m_fov;
 	}
 
-	inline const NzFrustumf& CameraComponent::GetFrustum() const
+	inline const Nz::Frustumf& CameraComponent::GetFrustum() const
 	{
 		EnsureFrustumUpdate();
 
@@ -90,36 +90,36 @@ namespace Ndk
 		return m_layer;
 	}
 
-	inline const NzMatrix4f& CameraComponent::GetProjectionMatrix() const
+	inline const Nz::Matrix4f& CameraComponent::GetProjectionMatrix() const
 	{
 		EnsureProjectionMatrixUpdate();
 
 		return m_projectionMatrix;
 	}
 
-	inline nzProjectionType CameraComponent::GetProjectionType() const
+	inline Nz::ProjectionType CameraComponent::GetProjectionType() const
 	{
 		return m_projectionType;
 	}
 
-	inline const NzRenderTarget* CameraComponent::GetTarget() const
+	inline const Nz::RenderTarget* CameraComponent::GetTarget() const
 	{
 		return m_target;
 	}
 
-	inline const NzRectf& CameraComponent::GetTargetRegion() const
+	inline const Nz::Rectf& CameraComponent::GetTargetRegion() const
 	{
 		return m_targetRegion;
 	}
 
-	inline const NzMatrix4f& CameraComponent::GetViewMatrix() const
+	inline const Nz::Matrix4f& CameraComponent::GetViewMatrix() const
 	{
 		EnsureViewMatrixUpdate();
 
 		return m_viewMatrix;
 	}
 
-	inline const NzRecti& CameraComponent::GetViewport() const
+	inline const Nz::Recti& CameraComponent::GetViewport() const
 	{
 		EnsureViewportUpdate();
 
@@ -138,20 +138,20 @@ namespace Ndk
 
 	inline void CameraComponent::SetFOV(float fov)
 	{
-		NazaraAssert(!NzNumberEquals(fov, 0.f), "FOV must be different from zero");
+		NazaraAssert(!Nz::NumberEquals(fov, 0.f), "FOV must be different from zero");
 		m_fov = fov;
 
 		InvalidateProjectionMatrix();
 	}
 
-	inline void CameraComponent::SetProjectionType(nzProjectionType projectionType)
+	inline void CameraComponent::SetProjectionType(Nz::ProjectionType projectionType)
 	{
 		m_projectionType = projectionType;
 
 		InvalidateProjectionMatrix();
 	}
 
-	inline void CameraComponent::SetTarget(const NzRenderTarget* renderTarget)
+	inline void CameraComponent::SetTarget(const Nz::RenderTarget* renderTarget)
 	{
 		m_target = renderTarget;
 		if (m_target)
@@ -160,14 +160,14 @@ namespace Ndk
 			m_targetReleaseSlot.Disconnect();
 	}
 
-	inline void CameraComponent::SetTargetRegion(const NzRectf& region)
+	inline void CameraComponent::SetTargetRegion(const Nz::Rectf& region)
 	{
 		m_targetRegion = region;
 
 		InvalidateViewport();
 	}
 
-	inline void CameraComponent::SetViewport(const NzRecti& viewport)
+	inline void CameraComponent::SetViewport(const Nz::Recti& viewport)
 	{
 		NazaraAssert(m_target, "Component has no render target");
 
@@ -175,7 +175,7 @@ namespace Ndk
 		float invWidth = 1.f/m_target->GetWidth();
 		float invHeight = 1.f/m_target->GetHeight();
 
-		SetTargetRegion(NzRectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
+		SetTargetRegion(Nz::Rectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
 	}
 
 	inline void CameraComponent::SetZFar(float zFar)
@@ -187,7 +187,7 @@ namespace Ndk
 
 	inline void CameraComponent::SetZNear(float zNear)
 	{
-		NazaraAssert(!NzNumberEquals(zNear, 0.f), "zNear cannot be zero");
+		NazaraAssert(!Nz::NumberEquals(zNear, 0.f), "zNear cannot be zero");
 		m_zNear = zNear;
 
 		InvalidateProjectionMatrix();

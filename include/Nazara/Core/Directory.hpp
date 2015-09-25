@@ -8,7 +8,6 @@
 #define NAZARA_DIRECTORY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -26,49 +25,57 @@
 	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
-class NzDirectoryImpl;
-
-class NAZARA_CORE_API NzDirectory : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzDirectory();
-		NzDirectory(const NzString& dirPath);
-		~NzDirectory();
+	class DirectoryImpl;
 
-		void Close();
+	class NAZARA_CORE_API Directory
+	{
+		public:
+			Directory();
+			Directory(const String& dirPath);
+			Directory(const Directory&) = delete;
+			Directory(Directory&&) = delete; ///TODO
+			~Directory();
 
-		bool Exists() const;
+			void Close();
 
-		NzString GetPath() const;
-		NzString GetPattern() const;
-		NzString GetResultName() const;
-		NzString GetResultPath() const;
-		nzUInt64 GetResultSize() const;
+			bool Exists() const;
 
-		bool IsOpen() const;
-		bool IsResultDirectory() const;
+			String GetPath() const;
+			String GetPattern() const;
+			String GetResultName() const;
+			String GetResultPath() const;
+			UInt64 GetResultSize() const;
 
-		bool NextResult(bool skipDots = true);
+			bool IsOpen() const;
+			bool IsResultDirectory() const;
 
-		bool Open();
+			bool NextResult(bool skipDots = true);
 
-		void SetPath(const NzString& dirPath);
-		void SetPattern(const NzString& pattern);
+			bool Open();
 
-		static bool Copy(const NzString& sourcePath, const NzString& destPath);
-		static bool Create(const NzString& dirPath, bool recursive = false);
-		static bool Exists(const NzString& dirPath);
-		static NzString GetCurrent();
-		static const char* GetCurrentFileRelativeToEngine(const char* currentFile);
-		static bool Remove(const NzString& dirPath, bool emptyDirectory = false);
-		static bool SetCurrent(const NzString& dirPath);
+			void SetPath(const String& dirPath);
+			void SetPattern(const String& pattern);
 
-	private:
-		NazaraMutexAttrib(m_mutex, mutable)
+			static bool Copy(const String& sourcePath, const String& destPath);
+			static bool Create(const String& dirPath, bool recursive = false);
+			static bool Exists(const String& dirPath);
+			static String GetCurrent();
+			static const char* GetCurrentFileRelativeToEngine(const char* currentFile);
+			static bool Remove(const String& dirPath, bool emptyDirectory = false);
+			static bool SetCurrent(const String& dirPath);
 
-		NzString m_dirPath;
-		NzString m_pattern;
-		NzDirectoryImpl* m_impl;
-};
+			Directory& operator=(const Directory&) = delete;
+			Directory& operator=(Directory&&) = delete; ///TODO
+
+		private:
+			NazaraMutexAttrib(m_mutex, mutable)
+
+			String m_dirPath;
+			String m_pattern;
+			DirectoryImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_DIRECTORY_HPP

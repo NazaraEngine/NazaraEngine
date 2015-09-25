@@ -44,7 +44,7 @@
 // Taille du buffer lors d'une lecture complète d'un fichier (ex: Hash)
 #define NAZARA_CORE_FILE_BUFFERSIZE 4096
 
-// Incorpore la table Unicode Character Data (Nécessaires pour faire fonctionner le flag NzString::HandleUTF8)
+// Incorpore la table Unicode Character Data (Nécessaires pour faire fonctionner le flag String::HandleUTF8)
 #define NAZARA_CORE_INCLUDE_UNICODEDATA 0
 
 // Utilise le MemoryManager pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
@@ -57,12 +57,12 @@
 #define NAZARA_CORE_THREADSAFE 1
 
 // Les classes à protéger des accès concurrentiels
-#define NAZARA_THREADSAFETY_CLOCK 0        // NzClock
-#define NAZARA_THREADSAFETY_DIRECTORY 1    // NzDirectory
-#define NAZARA_THREADSAFETY_DYNLIB 1       // NzDynLib
-#define NAZARA_THREADSAFETY_FILE 1         // NzFile
-#define NAZARA_THREADSAFETY_LOG 1          // NzLog
-#define NAZARA_THREADSAFETY_REFCOUNTED 1   // NzRefCounted
+#define NAZARA_THREADSAFETY_CLOCK 0        // Clock
+#define NAZARA_THREADSAFETY_DIRECTORY 1    // Directory
+#define NAZARA_THREADSAFETY_DYNLIB 1       // DynLib
+#define NAZARA_THREADSAFETY_FILE 1         // File
+#define NAZARA_THREADSAFETY_LOG 1          // Log
+#define NAZARA_THREADSAFETY_REFCOUNTED 1   // RefCounted
 
 // Le nombre de spinlocks à utiliser avec les sections critiques de Windows (0 pour désactiver)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096

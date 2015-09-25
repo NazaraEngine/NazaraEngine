@@ -7,8 +7,8 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 {
 	GIVEN("Two same vectors (1, 1)")
 	{
-		NzVector2f firstUnit(1.f);
-		NzVector2f secondUnit(NzVector2i(NzVector4i(1, 1, 3, 5)));
+		Nz::Vector2f firstUnit(1.f);
+		Nz::Vector2f secondUnit(Nz::Vector2i(Nz::Vector4i(1, 1, 3, 5)));
 
 		WHEN("We compare them")
 		{
@@ -20,7 +20,7 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 
 		WHEN("We test the dot product")
 		{
-			NzVector2f tmp(-1.f, 1.f);
+			Nz::Vector2f tmp(-1.f, 1.f);
 
 			THEN("These results are expected")
 			{
@@ -32,8 +32,8 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 
 		WHEN("We ask for distance from (-2, -3)")
 		{
-			NzVector2f tmp(-2.f, -3.f);
-			NzVector2f tmp2(-1.f, -1.f);
+			Nz::Vector2f tmp(-2.f, -3.f);
+			Nz::Vector2f tmp2(-1.f, -1.f);
 
 			THEN("These are expected")
 			{
