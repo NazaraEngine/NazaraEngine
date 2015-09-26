@@ -136,7 +136,10 @@ namespace Ndk
 
 		// And then update systems
 		for (auto& systemPtr : m_systems)
-			systemPtr->Update(elapsedTime);
+		{
+			if (systemPtr)
+				systemPtr->Update(elapsedTime);
+		}
 	}
 
 	inline void World::Invalidate()
