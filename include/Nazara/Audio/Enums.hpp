@@ -4,12 +4,11 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_HPP
-#define NAZARA_ENUMS_HPP
+#ifndef NAZARA_ENUMS_AUDIO_HPP
+#define NAZARA_ENUMS_AUDIO_HPP
 
 namespace Nz
 {
-
 	enum AudioFormat
 	{
 		AudioFormat_Unknown = -1,
@@ -33,4 +32,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ENUMS_HPP
+#endif // NAZARA_ENUMS_AUDIO_HPP
