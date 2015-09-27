@@ -10,19 +10,22 @@
 #include <Nazara/Prerequesites.hpp>
 #include <semaphore.h>
 
-class NzSemaphoreImpl
+namespace Nz
 {
-	public:
-		NzSemaphoreImpl(unsigned int count);
-		~NzSemaphoreImpl();
+	class SemaphoreImpl
+	{
+		public:
+			SemaphoreImpl(unsigned int count);
+			~SemaphoreImpl();
 
-		unsigned int GetCount() const;
-		void Post();
-		void Wait();
-		bool Wait(nzUInt32 timeout);
+			unsigned int GetCount() const;
+			void Post();
+			void Wait();
+			bool Wait(UInt32 timeout);
 
-	private:
-		sem_t m_semaphore;
-};
+		private:
+			sem_t m_semaphore;
+	};
+}
 
 #endif // NAZARA_SEMAPHOREIMPL_HPP

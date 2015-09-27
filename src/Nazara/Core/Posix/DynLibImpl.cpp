@@ -8,55 +8,58 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzDynLibImpl::NzDynLibImpl(NzDynLib* parent)
+namespace Nz
 {
-	NazaraUnused(parent);
-}
-
-NzDynLibFunc NzDynLibImpl::GetSymbol(const NzString& symbol, NzString* errorMessage) const
-{
-	/*
-		Il n'est pas standard de cast un pointeur d'objet vers un pointeur de fonction.
-		Nous devons donc utiliser des techniques diaboliques venant du malin lui-même.. :D
-		Au moins ce n'est pas aussi terrible qu'un const_cast
-		-Lynix
-	*/
-	union
+	DynLibImpl::DynLibImpl(DynLib* parent)
 	{
-		NzDynLibFunc func;
-		void* pointer;
-	} converter;
-
-	dlerror(); // Clear error flag
-
-	converter.pointer = dlsym(m_handle, symbol.GetConstBuffer());
-	if (!converter.pointer)
-		*errorMessage = dlerror();
-
-	return converter.func;
-}
-
-bool NzDynLibImpl::Load(const NzString& libraryPath, NzString* errorMessage)
-{
-	NzString path = libraryPath;
-
-	unsigned int pos = path.FindLast(".so");
-	if (pos == NzString::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
-		path += ".so";
-
-	dlerror(); // Clear error flag
-	m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
-
-	if (m_handle)
-		return true;
-	else
-	{
-		*errorMessage = dlerror();
-		return false;
+		NazaraUnused(parent);
 	}
-}
 
-void NzDynLibImpl::Unload()
-{
-	dlclose(m_handle);
+	DynLibFunc DynLibImpl::GetSymbol(const String& symbol, String* errorMessage) const
+	{
+		/*
+			Il n'est pas standard de cast un pointeur d'objet vers un pointeur de fonction.
+			Nous devons donc utiliser des techniques diaboliques venant du malin lui-même.. :D
+			Au moins ce n'est pas aussi terrible qu'un const_cast
+			-Lynix
+		*/
+		union
+		{
+			DynLibFunc func;
+			void* pointer;
+		} converter;
+
+		dlerror(); // Clear error flag
+
+		converter.pointer = dlsym(m_handle, symbol.GetConstBuffer());
+		if (!converter.pointer)
+			*errorMessage = dlerror();
+
+		return converter.func;
+	}
+
+	bool DynLibImpl::Load(const String& libraryPath, String* errorMessage)
+	{
+		String path = libraryPath;
+
+		unsigned int pos = path.FindLast(".so");
+		if (pos == String::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
+			path += ".so";
+
+		dlerror(); // Clear error flag
+		m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
+
+		if (m_handle)
+			return true;
+		else
+		{
+			*errorMessage = dlerror();
+			return false;
+		}
+	}
+
+	void DynLibImpl::Unload()
+	{
+		dlclose(m_handle);
+	}
 }

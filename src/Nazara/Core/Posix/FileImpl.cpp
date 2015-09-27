@@ -7,236 +7,239 @@
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
-NzFileImpl::NzFileImpl(const NzFile* parent) :
-m_endOfFile(false),
-m_endOfFileUpdated(true)
+namespace Nz
 {
-	NazaraUnused(parent);
-}
-
-void NzFileImpl::Close()
-{
-	close(m_fileDescriptor);
-}
-
-bool NzFileImpl::EndOfFile() const
-{
-	if (!m_endOfFileUpdated)
+	FileImpl::FileImpl(const File* parent) :
+	m_endOfFile(false),
+	m_endOfFileUpdated(true)
 	{
-		struct stat64 fileSize;
-		if (fstat64(m_fileDescriptor, &fileSize) == -1)
-			fileSize.st_size = 0;
-
-		m_endOfFile = (GetCursorPos() >= static_cast<nzUInt64>(fileSize.st_size));
-		m_endOfFileUpdated = true;
+		NazaraUnused(parent);
 	}
 
-	return m_endOfFile;
-}
-
-void NzFileImpl::Flush()
-{
-	if (fsync(m_fileDescriptor) == -1)
-		NazaraError("Unable to flush file: " + NzError::GetLastSystemError());
-}
-
-nzUInt64 NzFileImpl::GetCursorPos() const
-{
-	off64_t position = lseek64(m_fileDescriptor, 0, SEEK_CUR);
-	return static_cast<nzUInt64>(position);
-}
-
-bool NzFileImpl::Open(const NzString& filePath, unsigned int mode)
-{
-	int flags;
-	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-
-	if (mode & nzOpenMode_ReadOnly)
-		flags = O_RDONLY;
-	else if (mode & nzOpenMode_ReadWrite)
+	void FileImpl::Close()
 	{
-		flags = O_CREAT | O_RDWR;
-
-		if (mode & nzOpenMode_Append)
-			flags |= O_APPEND;
-
-		if (mode & nzOpenMode_Truncate)
-			flags |= O_TRUNC;
-	}
-	else if (mode & nzOpenMode_WriteOnly)
-	{
-		flags = O_CREAT | O_WRONLY;
-
-		if (mode & nzOpenMode_Append)
-			flags |= O_APPEND;
-
-		if (mode & nzOpenMode_Truncate)
-			flags |= O_TRUNC;
-	}
-	else
-		return false;
-
-///TODO: lock
-//	if ((mode & nzOpenMode_Lock) == 0)
-//		shareMode |= FILE_SHARE_WRITE;
-
-	m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
-	return m_fileDescriptor != -1;
-}
-
-std::size_t NzFileImpl::Read(void* buffer, std::size_t size)
-{
-	ssize_t bytes;
-	if ((bytes = read(m_fileDescriptor, buffer, size)) != -1)
-	{
-		m_endOfFile = (static_cast<std::size_t>(bytes) != size);
-		m_endOfFileUpdated = true;
-
-		return static_cast<std::size_t>(bytes);
-	}
-	else
-		return 0;
-}
-
-bool NzFileImpl::SetCursorPos(nzCursorPosition pos, nzInt64 offset)
-{
-	int moveMethod;
-	switch (pos)
-	{
-		case nzCursorPosition_AtBegin:
-			moveMethod = SEEK_SET;
-			break;
-
-		case nzCursorPosition_AtCurrent:
-			moveMethod = SEEK_CUR;
-			break;
-
-		case nzCursorPosition_AtEnd:
-			moveMethod = SEEK_END;
-			break;
-
-		default:
-			NazaraInternalError("Cursor position not handled (0x" + NzString::Number(pos, 16) + ')');
-			return false;
+		close(m_fileDescriptor);
 	}
 
-	m_endOfFileUpdated = false;
-
-	return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
-}
-
-std::size_t NzFileImpl::Write(const void* buffer, std::size_t size)
-{
-	lockf64(m_fileDescriptor, F_LOCK, size);
-	ssize_t written = write(m_fileDescriptor, buffer, size);
-	lockf64(m_fileDescriptor, F_ULOCK, size);
-
-	m_endOfFileUpdated = false;
-
-	return written;
-}
-
-bool NzFileImpl::Copy(const NzString& sourcePath, const NzString& targetPath)
-{
-	int fd1 = open64(sourcePath.GetConstBuffer(), O_RDONLY);
-	if (fd1 == -1)
+	bool FileImpl::EndOfFile() const
 	{
-		NazaraError("Fail to open input file (" + sourcePath + "): " + NzError::GetLastSystemError());
-		return false;
-	}
-
-	mode_t permissions; // TODO : get permission from first file
-	int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
-	if (fd2 == -1)
-	{
-		NazaraError("Fail to open output file (" + targetPath + "): " + NzError::GetLastSystemError()); // TODO: more info ?
-		close(fd1);
-		return false;
-	}
-
-	char buffer[512];
-	ssize_t bytes;
-	do
-	{
-		bytes = read(fd1,buffer,512);
-		if (bytes == -1)
+		if (!m_endOfFileUpdated)
 		{
-			close(fd1);
-			close(fd2);
-			NazaraError("An error occured from copy : " + NzError::GetLastSystemError());
+			struct stat64 fileSize;
+			if (fstat64(m_fileDescriptor, &fileSize) == -1)
+				fileSize.st_size = 0;
+
+			m_endOfFile = (GetCursorPos() >= static_cast<UInt64>(fileSize.st_size));
+			m_endOfFileUpdated = true;
+		}
+
+		return m_endOfFile;
+	}
+
+	void FileImpl::Flush()
+	{
+		if (fsync(m_fileDescriptor) == -1)
+			NazaraError("Unable to flush file: " + Error::GetLastSystemError());
+	}
+
+	UInt64 FileImpl::GetCursorPos() const
+	{
+		off64_t position = lseek64(m_fileDescriptor, 0, SEEK_CUR);
+		return static_cast<UInt64>(position);
+	}
+
+	bool FileImpl::Open(const String& filePath, unsigned int mode)
+	{
+		int flags;
+		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+
+		if (mode & OpenMode_ReadOnly)
+			flags = O_RDONLY;
+		else if (mode & OpenMode_ReadWrite)
+		{
+			flags = O_CREAT | O_RDWR;
+
+			if (mode & OpenMode_Append)
+				flags |= O_APPEND;
+
+			if (mode & OpenMode_Truncate)
+				flags |= O_TRUNC;
+		}
+		else if (mode & OpenMode_WriteOnly)
+		{
+			flags = O_CREAT | O_WRONLY;
+
+			if (mode & OpenMode_Append)
+				flags |= O_APPEND;
+
+			if (mode & OpenMode_Truncate)
+				flags |= O_TRUNC;
+		}
+		else
+			return false;
+
+	///TODO: lock
+	//	if ((mode & OpenMode_Lock) == 0)
+	//		shareMode |= FILE_SHARE_WRITE;
+
+		m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
+		return m_fileDescriptor != -1;
+	}
+
+	std::size_t FileImpl::Read(void* buffer, std::size_t size)
+	{
+		ssize_t bytes;
+		if ((bytes = read(m_fileDescriptor, buffer, size)) != -1)
+		{
+			m_endOfFile = (static_cast<std::size_t>(bytes) != size);
+			m_endOfFileUpdated = true;
+
+			return static_cast<std::size_t>(bytes);
+		}
+		else
+			return 0;
+	}
+
+	bool FileImpl::SetCursorPos(CursorPosition pos, Int64 offset)
+	{
+		int moveMethod;
+		switch (pos)
+		{
+			case CursorPosition_AtBegin:
+				moveMethod = SEEK_SET;
+				break;
+
+			case CursorPosition_AtCurrent:
+				moveMethod = SEEK_CUR;
+				break;
+
+			case CursorPosition_AtEnd:
+				moveMethod = SEEK_END;
+				break;
+
+			default:
+				NazaraInternalError("Cursor position not handled (0x" + String::Number(pos, 16) + ')');
+				return false;
+		}
+
+		m_endOfFileUpdated = false;
+
+		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
+	}
+
+	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
+	{
+		lockf64(m_fileDescriptor, F_LOCK, size);
+		ssize_t written = write(m_fileDescriptor, buffer, size);
+		lockf64(m_fileDescriptor, F_ULOCK, size);
+
+		m_endOfFileUpdated = false;
+
+		return written;
+	}
+
+	bool FileImpl::Copy(const String& sourcePath, const String& targetPath)
+	{
+		int fd1 = open64(sourcePath.GetConstBuffer(), O_RDONLY);
+		if (fd1 == -1)
+		{
+			NazaraError("Fail to open input file (" + sourcePath + "): " + Error::GetLastSystemError());
 			return false;
 		}
-		write(fd2,buffer,bytes);
-	}
-	while (bytes == 512);
 
-	close(fd1);
-	close(fd2);
-    return true;
-}
+		mode_t permissions; // TODO : get permission from first file
+		int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
+		if (fd2 == -1)
+		{
+			NazaraError("Fail to open output file (" + targetPath + "): " + Error::GetLastSystemError()); // TODO: more info ?
+			close(fd1);
+			return false;
+		}
 
-bool NzFileImpl::Delete(const NzString& filePath)
-{
-	bool success = unlink(filePath.GetConstBuffer()) != -1;
+		char buffer[512];
+		ssize_t bytes;
+		do
+		{
+			bytes = read(fd1,buffer,512);
+			if (bytes == -1)
+			{
+				close(fd1);
+				close(fd2);
+				NazaraError("An error occured from copy : " + Error::GetLastSystemError());
+				return false;
+			}
+			write(fd2,buffer,bytes);
+		}
+		while (bytes == 512);
 
-	if (success)
+		close(fd1);
+		close(fd2);
 		return true;
-	else
+	}
+
+	bool FileImpl::Delete(const String& filePath)
 	{
-		NazaraError("Failed to delete file (" + filePath + "): " + NzError::GetLastSystemError());
+		bool success = unlink(filePath.GetConstBuffer()) != -1;
+
+		if (success)
+			return true;
+		else
+		{
+			NazaraError("Failed to delete file (" + filePath + "): " + Error::GetLastSystemError());
+			return false;
+		}
+	}
+
+	bool FileImpl::Exists(const String& filePath)
+	{
+		const char* path = filePath.GetConstBuffer();
+		if (access(path, F_OK) != -1)
+			return true;
+
 		return false;
 	}
-}
 
-bool NzFileImpl::Exists(const NzString& filePath)
-{
-	const char* path = filePath.GetConstBuffer();
-	if (access(path, F_OK) != -1)
-		return true;
-
-	return false;
-}
-
-time_t NzFileImpl::GetCreationTime(const NzString& filePath)
-{
-	NazaraWarning("Posix has no creation time information");
-
-	return 0;
-}
-
-time_t NzFileImpl::GetLastAccessTime(const NzString& filePath)
-{
-	struct stat64 stats;
-	stat64(filePath.GetConstBuffer(), &stats);
-
-	return stats.st_atime;
-}
-
-time_t NzFileImpl::GetLastWriteTime(const NzString& filePath)
-{
-	struct stat64 stats;
-	stat64(filePath.GetConstBuffer(), &stats);
-
-	return stats.st_mtime;
-}
-
-nzUInt64 NzFileImpl::GetSize(const NzString& filePath)
-{
-	struct stat64 stats;
-	stat64(filePath.GetConstBuffer(), &stats);
-
-	return static_cast<nzUInt64>(stats.st_size);
-}
-
-bool NzFileImpl::Rename(const NzString& sourcePath, const NzString& targetPath)
-{
-	bool success = std::rename(sourcePath.GetConstBuffer(), targetPath.GetConstBuffer()) != -1;
-
-	if (success)
-		return true;
-	else
+	time_t FileImpl::GetCreationTime(const String& filePath)
 	{
-		NazaraError("Unable to rename file: " + NzError::GetLastSystemError());
-		return false;
+		NazaraWarning("Posix has no creation time information");
+
+		return 0;
+	}
+
+	time_t FileImpl::GetLastAccessTime(const String& filePath)
+	{
+		struct stat64 stats;
+		stat64(filePath.GetConstBuffer(), &stats);
+
+		return stats.st_atime;
+	}
+
+	time_t FileImpl::GetLastWriteTime(const String& filePath)
+	{
+		struct stat64 stats;
+		stat64(filePath.GetConstBuffer(), &stats);
+
+		return stats.st_mtime;
+	}
+
+	UInt64 FileImpl::GetSize(const String& filePath)
+	{
+		struct stat64 stats;
+		stat64(filePath.GetConstBuffer(), &stats);
+
+		return static_cast<UInt64>(stats.st_size);
+	}
+
+	bool FileImpl::Rename(const String& sourcePath, const String& targetPath)
+	{
+		bool success = std::rename(sourcePath.GetConstBuffer(), targetPath.GetConstBuffer()) != -1;
+
+		if (success)
+			return true;
+		else
+		{
+			NazaraError("Unable to rename file: " + Error::GetLastSystemError());
+			return false;
+		}
 	}
 }
