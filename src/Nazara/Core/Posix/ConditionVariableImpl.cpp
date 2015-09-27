@@ -6,42 +6,45 @@
 #include <Nazara/Core/Posix/MutexImpl.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzConditionVariableImpl::NzConditionVariableImpl()
+namespace Nz
 {
-	pthread_cond_init(&m_cv, nullptr);
-}
+	ConditionVariableImpl::ConditionVariableImpl()
+	{
+		pthread_cond_init(&m_cv, nullptr);
+	}
 
-NzConditionVariableImpl::~NzConditionVariableImpl()
-{
-    pthread_cond_destroy(&m_cv);
-}
+	ConditionVariableImpl::~ConditionVariableImpl()
+	{
+		pthread_cond_destroy(&m_cv);
+	}
 
-void NzConditionVariableImpl::Signal()
-{
-    pthread_cond_signal(&m_cv);
-}
+	void ConditionVariableImpl::Signal()
+	{
+		pthread_cond_signal(&m_cv);
+	}
 
-void NzConditionVariableImpl::SignalAll()
-{
-    pthread_cond_broadcast(&m_cv);
-}
+	void ConditionVariableImpl::SignalAll()
+	{
+		pthread_cond_broadcast(&m_cv);
+	}
 
-void NzConditionVariableImpl::Wait(NzMutexImpl* mutex)
-{
-	pthread_cond_wait(&m_cv, &mutex->m_handle);
-}
+	void ConditionVariableImpl::Wait(MutexImpl* mutex)
+	{
+		pthread_cond_wait(&m_cv, &mutex->m_handle);
+	}
 
-bool NzConditionVariableImpl::Wait(NzMutexImpl* mutex, nzUInt32 timeout)
-{
-	// get the current time
-	timeval tv;
-	gettimeofday(&tv, nullptr);
+	bool ConditionVariableImpl::Wait(MutexImpl* mutex, UInt32 timeout)
+	{
+		// get the current time
+		timeval tv;
+		gettimeofday(&tv, nullptr);
 
-	// construct the time limit (current time + time to wait)
-	timespec ti;
-	ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
-	ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
-	ti.tv_nsec %= 1000000000;
+		// construct the time limit (current time + time to wait)
+		timespec ti;
+		ti.tv_nsec = (tv.tv_usec + (timeout % 1000)) * 1000000;
+		ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
+		ti.tv_nsec %= 1000000000;
 
-	return pthread_cond_timedwait(&m_cv,&mutex->m_handle, &ti) != 0;
+		return pthread_cond_timedwait(&m_cv,&mutex->m_handle, &ti) != 0;
+	}
 }

@@ -9,6 +9,9 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#if defined(NAZARA_PLATFORM_GLX)
+#include <Nazara/Utility/X11/Display.hpp>
+#endif // NAZARA_PLATFORM_GLX
 #include <cstring>
 #include <set>
 #include <sstream>
@@ -30,7 +33,7 @@ namespace Nz
 			OpenGLFunc entry = reinterpret_cast<OpenGLFunc>(wglGetProcAddress(name));
 			if (!entry) // wglGetProcAddress ne fonctionne pas sur les fonctions OpenGL <= 1.1
 				entry = reinterpret_cast<OpenGLFunc>(GetProcAddress(openGLlibrary, name));
-			#elif defined(NAZARA_PLATFORM_LINUX)
+			#elif defined(NAZARA_PLATFORM_GLX)
 			OpenGLFunc entry = reinterpret_cast<OpenGLFunc>(GLX::glXGetProcAddress(reinterpret_cast<const unsigned char*>(name)));
 			#else
 			#error OS not handled
@@ -716,6 +719,15 @@ namespace Nz
 		if (s_initialized)
 			return true;
 
+		#if defined(NAZARA_PLATFORM_GLX)
+		Initializer<X11> display;
+		if (!display)
+		{
+			NazaraError("Failed to load display library");
+			return false;
+		}
+		#endif
+
 		if (!LoadLibrary())
 		{
 			NazaraError("Failed to load OpenGL library");
@@ -1004,7 +1016,7 @@ namespace Nz
 		wglGetExtensionsStringARB = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGARBPROC>(LoadEntry("wglGetExtensionsStringARB", false));
 		wglGetExtensionsStringEXT = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGEXTPROC>(LoadEntry("wglGetExtensionsStringEXT", false));
 		wglSwapInterval = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(LoadEntry("wglSwapIntervalEXT", false));
-		#elif defined(NAZARA_PLATFORM_LINUX)
+		#elif defined(NAZARA_PLATFORM_GLX)
 		glXSwapIntervalEXT = reinterpret_cast<GLX::PFNGLXSWAPINTERVALEXTPROC>(LoadEntry("glXSwapIntervalEXT", false));
 		NzglXSwapIntervalMESA = reinterpret_cast<GLX::PFNGLXSWAPINTERVALMESAPROC>(LoadEntry("glXSwapIntervalMESA", false));
 		glXSwapIntervalSGI = reinterpret_cast<GLX::PFNGLXSWAPINTERVALSGIPROC>(LoadEntry("glXSwapIntervalSGI", false));
@@ -2242,7 +2254,7 @@ PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribs    = nullptr;
 PFNWGLGETEXTENSIONSSTRINGARBPROC  wglGetExtensionsStringARB  = nullptr;
 PFNWGLGETEXTENSIONSSTRINGEXTPROC  wglGetExtensionsStringEXT  = nullptr;
 PFNWGLSWAPINTERVALEXTPROC         wglSwapInterval            = nullptr;
-#elif defined(NAZARA_PLATFORM_LINUX)
+#elif defined(NAZARA_PLATFORM_GLX)
 GLX::PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribs = nullptr;
 GLX::PFNGLXSWAPINTERVALEXTPROC         glXSwapIntervalEXT      = nullptr;
 GLX::PFNGLXSWAPINTERVALMESAPROC        NzglXSwapIntervalMESA   = nullptr;
