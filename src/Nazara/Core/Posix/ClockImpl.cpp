@@ -8,21 +8,24 @@
 #include <sys/time.h>
 #include <Nazara/Core/Debug.hpp>
 
-bool NzClockImplInitializeHighPrecision()
+namespace Nz
 {
-	return true; // No initialization needed
-}
+	bool ClockImplInitializeHighPrecision()
+	{
+		return true; // No initialization needed
+	}
 
-nzUInt64 NzClockImplGetMicroseconds()
-{
-	timeval clock;
-	gettimeofday(&clock, nullptr);
-	return static_cast<nzUInt64>(clock.tv_sec*1000000 + clock.tv_usec);
-}
+	UInt64 ClockImplGetElapsedMicroseconds()
+	{
+		timeval clock;
+		gettimeofday(&clock, nullptr);
+		return static_cast<UInt64>(clock.tv_sec*1000000 + clock.tv_usec);
+	}
 
-nzUInt64 NzClockImplGetMilliseconds()
-{
-	timeval clock;
-	gettimeofday(&clock, nullptr);
-	return static_cast<nzUInt64>(clock.tv_sec*1000 + (clock.tv_usec/1000));
+	UInt64 ClockImplGetElapsedMilliseconds()
+	{
+		timeval clock;
+		gettimeofday(&clock, nullptr);
+		return static_cast<UInt64>(clock.tv_sec*1000 + (clock.tv_usec/1000));
+	}
 }
