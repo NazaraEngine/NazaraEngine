@@ -40,4 +40,14 @@
 /// Vérification des valeurs et types de certaines constantes
 #include <Nazara/ModuleName/ConfigCheck.hpp>
 
+#if !defined(NAZARA_STATIC)
+	#ifdef NAZARA_MODULENAME_BUILD
+		#define NAZARA_MODULENAME_API NAZARA_EXPORT
+	#else
+		#define NAZARA_MODULENAME_API NAZARA_IMPORT
+	#endif
+#else
+	#define NAZARA_MODULENAME_API
+#endif
+
 #endif // NAZARA_CONFIG_MODULENAME_HPP

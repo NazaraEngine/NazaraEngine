@@ -7,11 +7,11 @@
 #ifndef NAZARA_CLASSNAME_HPP
 #define NAZARA_CLASSNAME_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/ModuleName/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_MODULENAME_API API ClassName
+	class NAZARA_MODULENAME_API ClassName
 	{
 		public:
 			ClassName();
