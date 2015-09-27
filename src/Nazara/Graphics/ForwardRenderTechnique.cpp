@@ -689,7 +689,7 @@ namespace Nz
 				// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
 				if (shaderUniforms->hasLightUniforms)
 				{
-					lightCount = std::min(m_renderQueue.directionalLights.size(), NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
 
 					for (unsigned int i = 0; i < lightCount; ++i)
 						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i);

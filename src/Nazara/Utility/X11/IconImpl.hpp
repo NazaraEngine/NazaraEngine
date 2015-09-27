@@ -7,24 +7,28 @@
 #ifndef NAZARA_ICONIMPL_HPP
 #define NAZARA_ICONIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/X11/ScopedXCB.hpp>
 
-class NzImage;
-
-class NzIconImpl
+namespace Nz
 {
-	public:
-		NzIconImpl();
+	class Image;
 
-		bool Create(const NzImage& image);
-		void Destroy();
+	class IconImpl
+	{
+		public:
+			IconImpl();
 
-		xcb_pixmap_t GetIcon();
-		xcb_pixmap_t GetMask();
+			bool Create(const Image& image);
+			void Destroy();
 
-	private:
-		NzXCBPixmap m_iconPixmap;
-		NzXCBPixmap m_maskPixmap;
-};
+			xcb_pixmap_t GetIcon();
+			xcb_pixmap_t GetMask();
+
+		private:
+			XCBPixmap m_iconPixmap;
+			XCBPixmap m_maskPixmap;
+	};
+}
 
 #endif // NAZARA_ICONIMPL_HPP
