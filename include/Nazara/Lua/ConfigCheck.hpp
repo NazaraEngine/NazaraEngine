@@ -12,7 +12,7 @@
 // On force la valeur de MANAGE_MEMORY en mode debug
 #if defined(NAZARA_DEBUG) && !NAZARA_LUA_MANAGE_MEMORY
 	#undef NAZARA_LUA_MANAGE_MEMORY
-	#define NAZARA_LUA_MANAGE_MEMORY 1
+	#define NAZARA_LUA_MANAGE_MEMORY 0
 #endif
 
 #endif // NAZARA_CONFIG_CHECK_LUA_HPP
