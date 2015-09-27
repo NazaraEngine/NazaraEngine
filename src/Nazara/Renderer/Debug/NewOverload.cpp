@@ -10,22 +10,22 @@
 
 void* operator new(std::size_t size)
 {
-	return NzMemoryManager::Allocate(size, false);
+	return Nz::MemoryManager::Allocate(size, false);
 }
 
 void* operator new[](std::size_t size)
 {
-	return NzMemoryManager::Allocate(size, true);
+	return Nz::MemoryManager::Allocate(size, true);
 }
 
 void operator delete(void* pointer) noexcept
 {
-	NzMemoryManager::Free(pointer, false);
+	Nz::MemoryManager::Free(pointer, false);
 }
 
 void operator delete[](void* pointer) noexcept
 {
-	NzMemoryManager::Free(pointer, true);
+	Nz::MemoryManager::Free(pointer, true);
 }
 
 #endif // NAZARA_RENDERER_MANAGE_MEMORY
