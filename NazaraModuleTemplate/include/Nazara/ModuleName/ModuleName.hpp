@@ -10,20 +10,23 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 
-class NAZARA_API NzModuleName
+namespace Nz
 {
-	public:
-		NzModuleName() = delete;
-		~NzModuleName() = delete;
+	class NAZARA_MODULENAME_API ModuleName
+	{
+		public:
+			ModuleName() = delete;
+			~ModuleName() = delete;
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
+			static bool IsInitialized();
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-	private:
-		static unsigned int s_moduleReferenceCounter;
-};
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};	
+}
 
 #endif // NAZARA_MODULENAME_HPP
