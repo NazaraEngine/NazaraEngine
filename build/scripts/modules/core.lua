@@ -15,3 +15,8 @@ MODULE.OsFiles.Posix = {
 	"../src/Nazara/Core/Posix/**.hpp",
 	"../src/Nazara/Core/Posix/**.cpp"
 }
+
+MODULE.OsLibraries.Posix = {
+	"dl",
+	"pthread"
+}
