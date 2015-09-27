@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
+#include <Nazara/ModuleName/Config.hpp>
 
 namespace Nz
 {
