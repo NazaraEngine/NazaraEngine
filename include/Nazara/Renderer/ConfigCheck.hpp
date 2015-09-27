@@ -15,7 +15,7 @@
 // On force la valeur de MANAGE_MEMORY en mode debug
 #if defined(NAZARA_DEBUG) && !NAZARA_RENDERER_MANAGE_MEMORY
 	#undef NAZARA_RENDERER_MANAGE_MEMORY
-	#define NAZARA_RENDERER_MANAGE_MEMORY 1
+	#define NAZARA_RENDERER_MANAGE_MEMORY 0
 #endif
 
 NazaraCheckTypeAndVal(NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, integral, >, 0, " shall be a strictly positive integer");
