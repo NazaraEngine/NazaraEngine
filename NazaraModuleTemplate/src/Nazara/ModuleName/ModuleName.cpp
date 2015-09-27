@@ -10,55 +10,61 @@
 #include <Nazara/ModuleName/Config.hpp>
 #include <Nazara/ModuleName/Debug.hpp>
 
-bool NzModuleName::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool ModuleName::Initialize()
 	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Already initialized
+		}
+
+		// Initialize module dependencies
+		if (!NzCore::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		CallOnExit onExit(ModuleName::Uninitialize);
+
+		// Initialize module here
+
+		onExit.Reset();
+
+		NazaraNotice("Initialized: ModuleName module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool ModuleName::IsInitialized()
 	{
-		NazaraError("Failed to initialize core module");
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-	NzCallOnExit onExit(NzModuleName::Uninitialize);
-
-	onExit.Reset();
-
-	NazaraNotice("Initialized: ModuleName module");
-	return true;
-}
-
-bool NzModuleName::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzModuleName::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
+	void ModuleName::Uninitialize()
 	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-		return;
+			return;
+		}
+
+		s_moduleReferenceCounter = 0;
+
+		// Uninitialize module here
+
+		NazaraNotice("Uninitialized: ModuleName module");
+
+		// Free module dependencies
+		Core::Uninitialize();
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
-
-	NazaraNotice("Uninitialized: ModuleName module");
-
-	// Libération des dépendances
-	NzCore::Uninitialize();
+	unsigned int ModuleName::s_moduleReferenceCounter = 0;	
 }
 
-unsigned int NzModuleName::s_moduleReferenceCounter = 0;
