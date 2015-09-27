@@ -8,23 +8,25 @@
 #define NAZARA_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <dlfcn.h>
 
-class NzString;
-
-class NzDynLibImpl : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzDynLibImpl(NzDynLib* m_parent);
-		~NzDynLibImpl() = default;
+	class String;
 
-		NzDynLibFunc GetSymbol(const NzString& symbol, NzString* errorMessage) const;
-		bool Load(const NzString& libraryPath, NzString* errorMessage);
-		void Unload();
+	class DynLibImpl
+	{
+		public:
+			DynLibImpl(DynLib* m_parent);
+			~DynLibImpl() = default;
 
-	private:
-		void* m_handle;
-};
+			DynLibFunc GetSymbol(const String& symbol, String* errorMessage) const;
+			bool Load(const String& libraryPath, String* errorMessage);
+			void Unload();
+
+		private:
+			void* m_handle;
+	};
+}
 
 #endif // NAZARA_DYNLIBIMPL_HPP

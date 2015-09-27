@@ -116,6 +116,7 @@
 	#endif
 #elif defined(__linux__) || defined(__unix__)
 	#define NAZARA_PLATFORM_LINUX
+	#define NAZARA_PLATFORM_GLX
 	#define NAZARA_PLATFORM_POSIX
 	#define NAZARA_PLATFORM_X11
 
