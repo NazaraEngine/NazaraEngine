@@ -10,22 +10,25 @@
 #include <Nazara/Prerequesites.hpp>
 #include <pthread.h>
 
-struct NzFunctor;
-
-class NzThreadImpl
+namespace Nz
 {
-	public:
-		NzThreadImpl(NzFunctor* threadFunc);
+	struct Functor;
 
-		void Detach();
-		void Join();
+	class ThreadImpl
+	{
+		public:
+			ThreadImpl(Functor* threadFunc);
 
-		static void Sleep(nzUInt32 time);
+			void Detach();
+			void Join();
 
-	private:
-		static void* ThreadProc(void* userdata);
+			static void Sleep(UInt32 time);
 
-		pthread_t m_handle;
-};
+		private:
+			static void* ThreadProc(void* userdata);
+
+			pthread_t m_handle;
+	};
+}
 
 #endif // NAZARA_THREADIMPL_HPP

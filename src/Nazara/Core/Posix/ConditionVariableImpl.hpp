@@ -14,22 +14,25 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-class NzMutexImpl;
-
-class NzConditionVariableImpl
+namespace Nz
 {
-	public:
-		NzConditionVariableImpl();
-		~NzConditionVariableImpl();
+	class MutexImpl;
 
-		void Signal();
-		void SignalAll();
+	class ConditionVariableImpl
+	{
+		public:
+			ConditionVariableImpl();
+			~ConditionVariableImpl();
 
-		void Wait(NzMutexImpl* mutex);
-		bool Wait(NzMutexImpl* mutex, nzUInt32 timeout);
+			void Signal();
+			void SignalAll();
 
-	private:
-		pthread_cond_t m_cv;
-};
+			void Wait(MutexImpl* mutex);
+			bool Wait(MutexImpl* mutex, UInt32 timeout);
+
+		private:
+			pthread_cond_t m_cv;
+	};
+}
 
 #endif // NAZARA_CONDITIONVARIABLEIMPL_HPP
