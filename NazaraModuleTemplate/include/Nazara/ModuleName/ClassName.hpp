@@ -9,17 +9,20 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NAZARA_API NzClassName
+namespace Nz
 {
-	public:
-		NzClassName();
+	class NAZARA_MODULENAME_API API ClassName
+	{
+		public:
+			ClassName();
 
-		int GetAttribute() const;
+			int GetAttribute() const;
 
-		void SetAttribute(int attribute);
+			void SetAttribute(int attribute);
 
-	private:
-		int m_attribute;
-};
+		private:
+			int m_attribute;
+	};
+}
 
 #endif // NAZARA_CLASSNAME_HPP
