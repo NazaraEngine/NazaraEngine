@@ -24,3 +24,8 @@ MODULE.OsLibraries.Windows = {
 	"opengl32",
 	"winmm"
 }
+
+MODULE.OsLibraries.Posix = {
+	"GL",
+	"X11"
+}
