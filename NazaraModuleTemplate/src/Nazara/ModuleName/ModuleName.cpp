@@ -21,7 +21,7 @@ namespace Nz
 		}
 
 		// Initialize module dependencies
-		if (!NzCore::Initialize())
+		if (!Core::Initialize())
 		{
 			NazaraError("Failed to initialize core module");
 			return false;
@@ -48,7 +48,7 @@ namespace Nz
 	{
 		if (s_moduleReferenceCounter != 1)
 		{
-			// Le module est soit encore utilisé, soit pas initialisé
+			// Either the module is not initialized, either it was initialized multiple times
 			if (s_moduleReferenceCounter > 1)
 				s_moduleReferenceCounter--;
 
