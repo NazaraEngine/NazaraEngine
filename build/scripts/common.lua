@@ -10,7 +10,7 @@ function NazaraBuild:Execute()
 	
 		if (#self.OrderedExtLibs > 0) then
 			solution("NazaraExtlibs")
-			platforms({"x32", "x64"})
+			platforms({"native", "x32", "x64"})
 
 			-- Configuration générale
 			configurations({
@@ -99,7 +99,7 @@ function NazaraBuild:Execute()
 		end
 
 		solution("NazaraEngine")
-		platforms({"x32", "x64"})
+		platforms({"native", "x32", "x64"})
 
 		-- Configuration générale
 		configurations({
