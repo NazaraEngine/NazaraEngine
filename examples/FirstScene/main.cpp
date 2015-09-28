@@ -15,18 +15,25 @@
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Utility.hpp> // Module utilitaire
+#include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Components/LightComponent.hpp>
+#include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Sdk.hpp>
+#include <NDK/World.hpp>
 #include <iostream>
 
 // Petite fonction permettant de rendre le déplacement de la caméra moins ridige
-NzVector3f DampedString(const NzVector3f& currentPos, const NzVector3f& targetPos, float frametime, float springStrength = 3.f);
+Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& targetPos, float frametime, float springStrength = 3.f);
 
 int main()
 {
-	// Pour commencer, nous initialisons le module Graphique, celui-ci va provoquer l'initialisation (dans l'ordre),
-	// du noyau (Core), Utility, Renderer.
+	// Pour commencer, nous initialisons le SDK de Nazara, celui-ci va préparer le terrain en initialisant le moteur, 
+	// les composants, systèmes, etc.
 	// NzInitializer est une classe RAII appelant Initialize dans son constructeur et Uninitialize dans son destructeur.
 	// Autrement dit, une fois ceci fait nous n'avons plus à nous soucier de la libération du moteur.
-	NzInitializer<NzGraphics> nazara;
+	Nz::Initializer<Ndk::Sdk> nazara;
 	if (!nazara)
 	{
 		// Une erreur s'est produite dans l'initialisation d'un des modules
@@ -36,17 +43,16 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Nazara étant initialisé, nous pouvons créer la scène
-	// Une scène représente tout ce qui est visible par une ou plusieurs caméras.
-	// La plupart du temps vous n'aurez pas besoin de plus d'une scène, mais cela peut se révéler utile pour mieux
-	// organiser et optimiser le rendu.
-	// Par exemple, une pièce contenant une télévision, laquelle affichant des images provenant d'une Camera
-	// Le rendu sera alors plus efficace en créant deux scènes, une pour la pièce et l'autre pour les images de la télé.
-	// Cela diminuera le nombre de SceneNode à gérer pour chaque scène, et vous permettra même de ne pas afficher la scène
-	// affichée dans la télé si cette dernière n'est pas visible dans la première scène.
-	NzScene scene;
+	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
+	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.
+	// Il contient les systèmes et les entités, ces dernières contiennent les composants.
+	// Il est possible d'utiliser plusieurs mondes au sein d'une même application, par exemple pour gérer un mélange de 2D et de 3D,
+	// mais nous verrons cela dans un prochain exemple.
+	Ndk::World world;
 
-	// La première chose que nous faisons est d'ajouter un background (fond) à la scène.
+	// Nous pouvons maintenant ajouter des systèmes, mais dans cet exemple nous nous contenterons de ceux de base.
+
+	// La première chose que nous faisons est d'ajouter un background (fond) à notre scène.
 	// Il en existe plusieurs types, le moteur inclut pour l'instant trois d'entre eux:
 	// -ColorBackground: Une couleur unie en fond
 	// -SkyboxBackground: Une skybox en fond, un cube à six faces rendu autour de la caméra (En perdant la notion de distance)
@@ -56,53 +62,59 @@ int main()
 	// Pour commencer il faut charger une texture de type cubemap, certaines images sont assemblées de cette façon,
 	// comme celle que nous allons utiliser.
 	// En réalité les textures "cubemap" regroupent six faces en une, pour faciliter leur utilisation.
-	NzTexture* texture = new NzTexture;
+
+	// Nous créons une nouvelle texture et prenons une référence sur celle-ci (à la manière des pointeurs intelligents)
+	Nz::TextureRef texture = Nz::Texture::New();
 	if (texture->LoadCubemapFromFile("resources/skybox-space.png"))
 	{
 		// Si la création du cubemap a fonctionné
 
-		// Nous indiquons que la texture est "non-persistente", autrement dit elle sera libérée automatiquement par le moteur
-		// à l'instant précis où elle ne sera plus utilisée, dans ce cas-ci, ce sera à la libération de l'objet skybox,
-		// ceci arrivant lorsqu'un autre background est affecté à la scène, ou lorsque la scène sera libérée
-		texture->SetPersistent(false);
+		// Nous créons alors le background à partir de notre texture (celui-ci va référencer notre texture, notre pointeur ne sert alors plus à rien).
+		Nz::SkyboxBackgroundRef skybox = Nz::SkyboxBackground::New(std::move(texture));
 
-		// Nous créons le background en lui affectant la texture
-		NzSkyboxBackground* background = new NzSkyboxBackground(texture);
+		// Accédons maintenant au système de rendu faisant partie du monde
+		Ndk::RenderSystem& renderSystem = world.GetSystem<Ndk::RenderSystem>(); // Une assertion valide la précondition "le système doit faire partie du monde"
 
-		// Nous pouvons en profiter pour paramétrer le background.
-		// Cependant, nous n'avons rien de spécial à faire ici, nous pouvons donc l'envoyer à la scène.
-		scene.SetBackground(background);
+		// Nous assignons ensuite notre skybox comme "fond par défaut" du système
+		// La notion "par défaut" existe parce qu'une caméra pourrait utiliser son propre fond lors du rendu,
+		// le fond par défaut est utilisé lorsque la caméra n'a pas de fond propre assigné
+		renderSystem.SetDefaultBackground(std::move(skybox));
 
-		// Comme indiqué plus haut, la scène s'occupera automatiquement de la libération de notre background
+		// Notre skybox est maintenant référencée par le système, lui-même appartenant au monde, aucune libération explicite n'est nécessaire
 	}
 	else
-	{
-		delete texture; // Le chargement a échoué, nous libérons la texture
+		// Le chargement a échoué
 		std::cout << "Failed to load skybox" << std::endl;
-	}
 
 	// Ensuite, nous allons rajouter un modèle à notre scène.
+
 	// Les modèles représentent, globalement, tout ce qui est visible en trois dimensions.
 	// Nous choisirons ici un vaisseau spatial (Quoi de mieux pour une scène spatiale ?)
-	NzModel* spaceship = scene.CreateNode<NzModel>(); // Création depuis la scène
 
-	// Une structure permettant de paramétrer le chargement des modèles
-	NzModelParameters params;
+	// Encore une fois, nous récupérons une référence plutôt que l'objet lui-même (cela va être très utile par la suite)
+	Nz::ModelRef spaceshipModel = Nz::Model::New();
 
-	// Le format OBJ ne précise aucune échelle pour ses données, contrairement à Nazara (une unité = un mètre).
-	// Comme le vaisseau est très grand (Des centaines de mètres de long), nous allons le rendre plus petit
-	// pour les besoins de la démo.
+	// Nous allons charger notre modèle depuis un fichier, mais nous pouvons ajuster le modèle lors du chargement via
+	// une structure permettant de paramétrer le chargement des modèles
+	Nz::ModelParameters params;
+
+	// Le format OBJ ne précise aucune échelle pour ses données, contrairement à Nazara (une unité = un mètre en 3D).
+	// Comme le vaisseau est très grand (Des centaines de mètres de long), nous allons le rendre plus petit pour les besoins de la démo.
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
 	params.mesh.scale.Set(0.01f); // Un centième de la taille originelle
 
-	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend
-	// Nous devons dire au moteur de les retourner lors du chargement
+	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
+	// Nous devons donc indiquer au moteur de les retourner lors du chargement
 	params.mesh.flipUVs = true;
+
+	// Nazara va par défaut optimiser les modèles pour un rendu plus rapide, cela peut prendre du temps et n'est pas nécessaire ici
+	params.mesh.optimizeIndexBuffers = false;
 
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
-	if (!spaceship->LoadFromFile("resources/Spaceship/spaceship.obj", params))
+	if (!spaceshipModel->LoadFromFile("resources/Spaceship/spaceship.obj", params))
 	{
+		// Si le chargement a échoué (fichier inexistant/invalide), il ne sert à rien de continuer
 		std::cout << "Failed to load spaceship" << std::endl;
 		std::getchar();
 
@@ -111,15 +123,18 @@ int main()
 
 	// Nous voulons afficher quelques statistiques relatives au modèle, comme le nombre de sommets et de triangles
 	// Pour cela, nous devons accéder au mesh (maillage 3D)
-	NzMesh* mesh = spaceship->GetMesh();
 
+	// Note: Si nous voulions stocker le mesh pour nous en servir après, nous devrions alors récupérer une référence pour nous assurer
+	// qu'il ne sera pas supprimé tant que nous l'utilisons, mais ici nous faisons un accès direct et ne nous servons plus du pointeur par la suite
+	// Il est donc acceptable d'utiliser un pointeur nu ici.
+	Nz::Mesh* mesh = spaceshipModel->GetMesh();
 	std::cout << mesh->GetVertexCount() << " sommets" << std::endl;
 	std::cout << mesh->GetTriangleCount() << " triangles" << std::endl;
 
 	// En revanche, le format OBJ ne précise pas l'utilisation d'une normal map, nous devons donc la charger manuellement
 	// Pour commencer on récupère le matériau du mesh, celui-ci en possède plusieurs mais celui qui nous intéresse,
 	// celui de la coque, est le second (Cela est bien entendu lié au modèle en lui-même)
-	NzMaterial* material = spaceship->GetMaterial(1);
+	Nz::Material* material = spaceshipModel->GetMaterial(1); // Encore une fois nous ne faisons qu'un accès direct.
 
 	// On lui indique ensuite le chemin vers la normal map
 	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
@@ -129,27 +144,58 @@ int main()
 		std::cout << "Failed to load normal map" << std::endl;
 	}
 
-	// Nous avons besoin également d'une caméra, pour des raisons évidentes, celle-ci sera à l'écart du modèle
+	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
+	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.
+	Ndk::EntityHandle spaceship = world.CreateEntity();
+
+	// Note: Nous ne récupérons pas l'entité directement mais un "handle" vers elle, ce dernier est un pointeur intelligent non-propriétaire.
+	// Pour des raisons techniques, le pointeur de l'entité peut venir à changer, ou l'entité être simplement détruite pour n'importe quelle raison.
+	// Le Handle nous permet de maintenir un pointeur valide vers notre entité, et invalidé automatiquement à sa mort.
+
+	// Nous avons désormais une entité, mais celle-ci ne contient rien et n'a d'autre propriété qu'un identifiant
+	// Nous devons donc lui rajouter les composants que nous voulons.
+
+	// Un NodeComponent donne à notre entité une position, rotation, échelle, et nous permet de l'attacher à d'autres entités (ce que nous ne ferons pas ici).
+	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient, 
+	// nous n'avons pas besoin d'agir sur le composant créé.
+	spaceship->AddComponent<Ndk::NodeComponent>();
+
+	// Bien, notre entité nouvellement créé dispose maintenant d'une position dans la scène, mais est toujours invisible
+	// Nous lui ajoutons donc un GraphicsComponent
+	Ndk::GraphicsComponent& spaceshipGraphics = spaceship->AddComponent<Ndk::GraphicsComponent>();
+
+	// Ce composant sert de point d'attache pour tous les renderables instanciés (tels que les modèles, les sprites, le texte, etc.)
+	// Cela signifie également qu'un modèle peut être attaché à autant d'entités que nécessaire.
+	// Note: Afin de maximiser les performances, essayez d'avoir le moins de renderables instanciés/matériaux et autres ressources possible
+	// le moteur fonctionne selon le batching et regroupera par exemple tous les modèles identiques ensembles lors du rendu.
+	spaceshipGraphics.Attach(spaceshipModel);
+
+	// Nous avons besoin également d'une caméra pour servir de point de vue à notre scène, celle-ci sera à l'écart du modèle
 	// regardant dans sa direction.
 
 	// On conserve la rotation à part via des angles d'eulers pour la caméra free-fly
-	NzEulerAnglesf camAngles(0.f, -20.f, 0.f);
+	Nz::EulerAnglesf camAngles(0.f, -20.f, 0.f);
 
-	NzCamera camera;
-	camera.SetPosition(0.f, 0.25f, 2.f); // On place la caméra à l'écart
-	camera.SetRotation(camAngles);
+	// Nous créons donc une seconde entité
+	// Note: La création d'entité est une opération légère au sein du moteur, mais plus vous aurez d'entités et plus le processeur devra travailler.
+	Ndk::EntityHandle camera = world.CreateEntity();
+
+	// Notre caméra a elle aussi besoin d'être positionnée dans la scène
+	Ndk::NodeComponent& cameraNode = camera->AddComponent<Ndk::NodeComponent>();
+	cameraNode.SetPosition(0.f, 0.25f, 2.f); // On place la caméra à l'écart
+	cameraNode.SetRotation(camAngles);
+
+	// Et dispose d'un composant pour chaque point de vue de la scène, le CameraComponent
+	Ndk::CameraComponent& cameraComp = camera->AddComponent<Ndk::CameraComponent>();
 
 	// Et on n'oublie pas de définir les plans délimitant le champs de vision
 	// (Seul ce qui se trouvera entre les deux plans sera rendu)
 
 	// La distance entre l'oeil et le plan éloigné
-	camera.SetZFar(5000.f);
+	cameraComp.SetZFar(5000.f);
 
 	// La distance entre l'oeil et le plan rapproché (0 est une valeur interdite car la division par zéro l'est également)
-	camera.SetZNear(0.1f);
-
-	// On indique à la scène que le viewer (Le point de vue) sera la caméra
-	scene.SetViewer(camera);
+	cameraComp.SetZNear(0.1f);
 
 	// Attention que le ratio entre les deux (zFar/zNear) doit rester raisonnable, dans le cas contraire vous risquez un phénomène
 	// de "Z-Fighting" (Impossibilité de déduire quelle surface devrait apparaître en premier) sur les surfaces éloignées.
@@ -160,40 +206,47 @@ int main()
 	// -PointLight: Lumière située à un endroit précis, envoyant de la lumière finie dans toutes les directions
 	// -SpotLight: Lumière située à un endroit précis, envoyant de la lumière vers un endroit donné, avec un angle de diffusion
 
-	// Nous créons une lumière directionnelle pour représenter la nébuleuse de notre skybox
-	NzLight* nebulaLight = scene.CreateNode<NzLight>(nzLightType_Directional);
+	// Nous allons créer une lumière directionnelle pour représenter la nébuleuse de notre skybox
+	// Encore une fois, nous créons notre entité
+	Ndk::EntityHandle nebulaLight = world.CreateEntity();
+
+	// Lui ajoutons une position dans la scène
+	Ndk::NodeComponent& nebulaLightNode = nebulaLight->AddComponent<Ndk::NodeComponent>();
+
+	// Et ensuite le composant principal, le LightComponent
+	Ndk::LightComponent& nebulaLightComp = nebulaLight->AddComponent<Ndk::LightComponent>(Nz::LightType_Directional);
 
 	// Il nous faut ensuite configurer la lumière
 	// Pour commencer, sa couleur, la nébuleuse étant d'une couleur jaune, j'ai choisi ces valeurs
-	nebulaLight->SetColor(NzColor(255, 182, 90));
+	nebulaLightComp.SetColor(Nz::Color(255, 182, 90));
 
 	// Nous appliquons ensuite une rotation de sorte que la lumière dans la même direction que la nébuleuse
-	nebulaLight->SetRotation(NzEulerAnglesf(0.f, 102.f, 0.f));
+	nebulaLightNode.SetRotation(Nz::EulerAnglesf(0.f, 102.f, 0.f));
 
 	// Nous allons maintenant créer la fenêtre, dans laquelle nous ferons nos rendus
 	// Celle-ci demande des paramètres plus complexes
 
 	// Pour commencer le mode vidéo, celui-ci va définir la taille de la zone de rendu et le nombre de bits par pixels
-	NzVideoMode mode = NzVideoMode::GetDesktopMode(); // Nous récupérons le mode vidéo du bureau
+	Nz::VideoMode mode = Nz::VideoMode::GetDesktopMode(); // Nous récupérons le mode vidéo du bureau
 
 	// Nous allons prendre les trois quarts de la résolution du bureau pour notre fenêtre
-	mode.width *= 3.f/4.f;
-	mode.height *= 3.f/4.f;
+	mode.width = 3 * mode.width / 4;
+	mode.height = 3 * mode.height / 4;
 
 	// Maintenant le titre, rien de plus simple...
-	NzString windowTitle = "Nazara Demo - First scene";
+	Nz::String windowTitle = "Nazara Demo - First scene";
 
 	// Ensuite, le "style" de la fenêtre, possède-t-elle des bordures, peut-on cliquer sur la croix de fermeture,
 	// peut-on la redimensionner, ...
-	nzWindowStyleFlags style = nzWindowStyle_Default; // Nous prenons le style par défaut, autorisant tout ce que je viens de citer
+	Nz::WindowStyleFlags style = Nz::WindowStyle_Default; // Nous prenons le style par défaut, autorisant tout ce que je viens de citer
 
 	// Ensuite, les paramètres du contexte de rendu
 	// On peut configurer le niveau d'antialiasing, le nombre de bits du depth buffer et le nombre de bits du stencil buffer
 	// Nous désirons avoir un peu d'antialiasing (4x), les valeurs par défaut pour le reste nous conviendrons très bien
-	NzRenderTargetParameters parameters;
+	Nz::RenderTargetParameters parameters;
 	parameters.antialiasingLevel = 4;
 
-	NzRenderWindow window(mode, windowTitle, style, parameters);
+	Nz::RenderWindow window(mode, windowTitle, style, parameters);
 	if (!window.IsValid())
 	{
 		std::cout << "Failed to create render window" << std::endl;
@@ -203,62 +256,63 @@ int main()
 	}
 
 	// On fait disparaître le curseur de la souris
-	window.SetCursor(nzWindowCursor_None);
+	window.SetCursor(Nz::WindowCursor_None);
 
 	// On lie la caméra à la fenêtre
-	camera.SetTarget(window);
+	cameraComp.SetTarget(&window);
 
 	// Et on créé deux horloges pour gérer le temps
-	NzClock secondClock, updateClock;
+	Nz::Clock secondClock, updateClock;
+	Nz::UInt64 updateAccumulator = 0;
 
 	// Ainsi qu'un compteur de FPS improvisé
 	unsigned int fps = 0;
 
 	// Quelques variables de plus pour notre caméra
 	bool smoothMovement = true;
-	NzVector3f targetPos = camera.GetPosition();
+	Nz::Vector3f targetPos = cameraNode.GetPosition();
 
 	// Début de la boucle de rendu du programme
 	while (window.IsOpen())
 	{
 		// Ensuite nous allons traiter les évènements (Étape indispensable pour la fenêtre)
-		NzEvent event;
+		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
 			switch (event.type)
 			{
-				case nzEventType_MouseMoved: // La souris a bougé
+				case Nz::WindowEventType_MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
 
 					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = NzNormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
+					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = NzClamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
+					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					// On applique les angles d'Euler à notre caméra
-					camera.SetRotation(camAngles);
+					cameraNode.SetRotation(camAngles);
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					NzMouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
+					Nz::Mouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
 					break;
 				}
 
-				case nzEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
+				case  Nz::WindowEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
 					window.Close(); // On demande la fermeture de la fenêtre (Qui aura lieu au prochain tour de boucle)
 					break;
 
-				case nzEventType_KeyPressed: // Une touche a été pressée !
-					if (event.key.code == NzKeyboard::Key::Escape)
+				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
+					if (event.key.code == Nz::Keyboard::Key::Escape)
 						window.Close();
-					else if (event.key.code == NzKeyboard::F1)
+					else if (event.key.code == Nz::Keyboard::F1)
 					{
 						if (smoothMovement)
 						{
-							targetPos = camera.GetPosition();
+							targetPos = cameraNode.GetPosition();
 							smoothMovement = false;
 						}
 						else
@@ -271,68 +325,63 @@ int main()
 			}
 		}
 
+		Nz::UInt64 elapsedUS = updateClock.GetMicroseconds();
+		// On relance l'horloge
+		updateClock.Restart();
+
 		// Mise à jour (Caméra)
-		if (updateClock.GetMilliseconds() >= 1000/60) // 60 fois par seconde
+		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
+		updateAccumulator += elapsedUS;
+
+		if (updateAccumulator >= updateRate)
 		{
-			// Le temps écoulé depuis la dernière fois que ce bloc a été exécuté
-			float elapsedTime = updateClock.GetSeconds();
+			// Le temps écoulé en seconde depuis la dernière fois que ce bloc a été exécuté
+			float elapsedTime = updateAccumulator / 1000000.f;
+			std::cout << elapsedTime << std::endl;
 
 			// Vitesse de déplacement de la caméra
 			float cameraSpeed = 3.f * elapsedTime; // Trois mètres par seconde
 
 			// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Space))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
 				cameraSpeed *= 2.f;
 
 			// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 			// les directions locales de la caméra
 
 			// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Up) || NzKeyboard::IsKeyPressed(NzKeyboard::Z))
-				targetPos += camera.GetForward() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+				targetPos += cameraNode.GetForward() * cameraSpeed;
 
 			// Si la flèche du bas ou la touche S est pressée, on recule
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Down) || NzKeyboard::IsKeyPressed(NzKeyboard::S))
-				targetPos += camera.GetBackward() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+				targetPos += cameraNode.GetBackward() * cameraSpeed;
 
 			// Etc...
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Left) || NzKeyboard::IsKeyPressed(NzKeyboard::Q))
-				targetPos += camera.GetLeft() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+				targetPos += cameraNode.GetLeft() * cameraSpeed;
 
 			// Etc...
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::Right) || NzKeyboard::IsKeyPressed(NzKeyboard::D))
-				targetPos += camera.GetRight() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+				targetPos += cameraNode.GetRight() * cameraSpeed;
 
 			// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::LShift) || NzKeyboard::IsKeyPressed(NzKeyboard::RShift))
-				targetPos += NzVector3f::Up() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+				targetPos += Nz::Vector3f::Up() * cameraSpeed;
 
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
-			if (NzKeyboard::IsKeyPressed(NzKeyboard::LControl) || NzKeyboard::IsKeyPressed(NzKeyboard::RControl))
-				targetPos += NzVector3f::Down() * cameraSpeed;
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+				targetPos += Nz::Vector3f::Down() * cameraSpeed;
 
-			camera.SetPosition((smoothMovement) ? DampedString(camera.GetPosition(), targetPos, elapsedTime) : targetPos, nzCoordSys_Global);
+			cameraNode.SetPosition((smoothMovement) ? DampedString(cameraNode.GetPosition(), targetPos, elapsedTime) : targetPos, Nz::CoordSys_Global);
 
-			// On relance l'horloge
-			updateClock.Restart();
+			updateAccumulator = 0;
 		}
 
-		// Rendu de la scène:
-		// On procède maintenant au rendu de la scène en elle-même, celui-ci se décompose en quatre étapes distinctes
-
-		// Pour commencer, on met à jour la scène, ceci appelle la méthode Update de tous les SceneNode enregistrés
-		// pour la mise à jour globale (Scene::RegisterForUpdate)
-		scene.Update();
-
-		// Ensuite il y a le calcul de visibilité, la scène se sert de la caméra active pour effectuer un test de visibilité
-		// afin de faire une liste des SceneNode visibles (Ex: Frustum culling)
-		scene.Cull();
-
-		// Ensuite il y a la mise à jour des SceneNode enregistrés pour la mise à jour visible (Exemple: Terrain)
-		scene.UpdateVisible();
-
-		// Pour terminer, il y a l'affichage en lui-même, de façon organisée et optimisée (Batching)
-		scene.Draw();
+		// Et maintenant pour rendre la scène, il nous suffit de mettre à jour le monde en lui envoyant le temps depuis la dernière mise à jour
+		// Note: La plupart des systèmes, à l'exception de celui de rendu, ont une fréquence de mise à jour fixe (modifiable)
+		// Il n'est donc pas nécessaire de limiter vous-même les mises à jour du monde
+		world.Update(elapsedUS / 1000000.f);
 
 		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
@@ -344,7 +393,7 @@ int main()
 		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
 		{
 			// Et on insère ces données dans le titre de la fenêtre
-			window.SetTitle(windowTitle + " - " + NzString::Number(fps) + " FPS");
+			window.SetTitle(windowTitle + " - " + Nz::String::Number(fps) + " FPS");
 
 			/*
 			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
@@ -364,7 +413,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-NzVector3f DampedString(const NzVector3f& currentPos, const NzVector3f& targetPos, float frametime, float springStrength)
+Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& targetPos, float frametime, float springStrength)
 {
 	// Je ne suis pas l'auteur de cette fonction
 	// Je l'ai reprise du programme "Floaty Camera Example" et adaptée au C++
@@ -372,13 +421,13 @@ NzVector3f DampedString(const NzVector3f& currentPos, const NzVector3f& targetPo
 	// Tout le mérite revient à l'auteur (Qui me permettra ainsi d'améliorer les démos, voire même le moteur)
 
 	// calculate the displacement between the target and the current position
-	NzVector3f displacement = targetPos - currentPos;
+	Nz::Vector3f displacement = targetPos - currentPos;
 
 	// whats the distance between them?
 	float displacementLength = displacement.GetLength();
 
 	// Stops small position fluctuations (integration errors probably - since only using euler)
-	if (NzNumberEquals(displacementLength, 0.f))
+	if (Nz::NumberEquals(displacementLength, 0.f))
 		return currentPos;
 
 	float invDisplacementLength = 1.f/displacementLength;
