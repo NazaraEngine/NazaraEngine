@@ -88,6 +88,8 @@ namespace Nz
 			m_sharedString = std::make_shared<SharedString>(1);
 			m_sharedString->string[0] = character;
 		}
+		else
+			m_sharedString = GetEmptyString();
 	}
 
 	String::String(unsigned int rep, char character)
@@ -99,6 +101,8 @@ namespace Nz
 			if (character != '\0')
 				std::memset(m_sharedString->string.get(), character, rep);
 		}
+		else
+			m_sharedString = GetEmptyString();
 	}
 
 	String::String(unsigned int rep, const char* string) :
@@ -117,6 +121,8 @@ namespace Nz
 			for (unsigned int i = 0; i < rep; ++i)
 				std::memcpy(&m_sharedString->string[i*length], string, length);
 		}
+		else
+			m_sharedString = GetEmptyString();
 	}
 
 	String::String(unsigned int rep, const String& string) :
@@ -136,6 +142,8 @@ namespace Nz
 			m_sharedString = std::make_shared<SharedString>(length);
 			std::memcpy(m_sharedString->string.get(), string, length);
 		}
+		else
+			m_sharedString = GetEmptyString();
 	}
 
 	String::String(const std::string& string) :
