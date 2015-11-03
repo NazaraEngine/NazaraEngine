@@ -14,9 +14,9 @@
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) do { if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION); } while (false)
 #else
-	#define NazaraAssert(a, err)
+	#define NazaraAssert(a, err) do {} while (false)
 #endif
 
 #define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType_Normal, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
