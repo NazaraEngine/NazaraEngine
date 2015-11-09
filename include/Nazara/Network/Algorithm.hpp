@@ -1,0 +1,21 @@
+// Copyright (C) 2015 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Network module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_ALGORITHM_NETWORK_HPP
+#define NAZARA_ALGORITHM_NETWORK_HPP
+
+#include <Nazara/Prerequesites.hpp>
+#include <functional>
+#include <tuple>
+
+namespace Nz
+{
+	bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port = nullptr, bool* isIPv6 = nullptr, const char** endOfRead = nullptr);
+}
+
+#include <Nazara/Network/Algorithm.inl>
+
+#endif // NAZARA_ALGORITHM_NETWORK_HPP
