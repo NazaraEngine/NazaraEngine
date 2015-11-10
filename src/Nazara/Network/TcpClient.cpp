@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	SocketState TcpClient::Connect(const IpAddress& remoteAddress, UInt64 msTimeout)
+	SocketState TcpClient::Connect(const IpAddress& remoteAddress)
 	{
 		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
 		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
@@ -33,12 +33,7 @@ namespace Nz
 			});
 		}
 
-		SocketState state;
-		if (msTimeout > 0)
-			state = SocketImpl::Connect(m_handle, remoteAddress, msTimeout, &m_lastError);
-		else
-			state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
-
+		SocketState state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
 		if (state != SocketState_NotConnected)
 			m_peerAddress = remoteAddress;
 
@@ -48,6 +43,8 @@ namespace Nz
 
 	void TcpClient::EnableLowDelay(bool lowDelay)
 	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
 		if (m_isLowDelayEnabled != lowDelay)
 		{
 			SocketImpl::SetBlocking(m_handle, lowDelay, &m_lastError);
@@ -57,6 +54,8 @@ namespace Nz
 
 	void TcpClient::EnableKeepAlive(bool keepAlive, UInt64 msTime, UInt64 msInterval)
 	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
 		if (m_isKeepAliveEnabled != keepAlive || m_keepAliveTime != msTime || m_keepAliveInterval != msInterval)
 		{
 			SocketImpl::SetKeepAlive(m_handle, keepAlive, msTime, msInterval, &m_lastError);
@@ -83,7 +82,7 @@ namespace Nz
 				if (error == SocketError_NoError)
 				{
 					// No error yet, we're still connecting or connected, check that by connecting again
-					return Connect(m_peerAddress, 0);
+					return Connect(m_peerAddress);
 				}
 				else
 				{
@@ -118,6 +117,7 @@ namespace Nz
 
 	bool TcpClient::Receive(void* buffer, std::size_t size, std::size_t* received)
 	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 		NazaraAssert(buffer && size > 0, "Invalid buffer");
 
 		int read;
@@ -146,6 +146,7 @@ namespace Nz
 
 	bool TcpClient::Send(const void* buffer, std::size_t size, std::size_t* sent)
 	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 		NazaraAssert(buffer && size > 0, "Invalid buffer");
 
 		CallOnExit updateSent;
@@ -183,6 +184,46 @@ namespace Nz
 
 		UpdateState(SocketState_Connected);
 		return true;
+	}
+
+	bool TcpClient::WaitForConnected(UInt64 msTimeout)
+	{
+		switch (m_state)
+		{
+			case SocketState_Connected:
+				return true;
+
+			case SocketState_Connecting:
+			{
+				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+				CallOnExit restoreBlocking;
+				if (m_isBlockingEnabled)
+				{
+					SocketImpl::SetBlocking(m_handle, false);
+					restoreBlocking.Reset([this] ()
+					{
+						SocketImpl::SetBlocking(m_handle, true);
+					});
+				}
+
+				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
+				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return");
+
+				// Prevent valid peer adddress in non-connected state
+				if (newState == SocketState_NotConnected)
+					m_peerAddress = IpAddress::Invalid;
+
+				UpdateState(newState);
+				return m_state == SocketState_Connected;
+			}
+
+			case SocketState_NotConnected:
+				return false;
+		}
+
+		NazaraInternalError("Unhandled socket state (0x" + String::Number(m_state, 16) + ')');
+		return false;
 	}
 
 	void TcpClient::OnClose()
