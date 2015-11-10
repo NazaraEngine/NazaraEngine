@@ -46,6 +46,7 @@ namespace Nz
 		SocketError_NetworkError,             //< The network system has failed (maybe network is down)
 		SocketError_NotInitialized,           //< Nazara network has not been initialized
 		SocketError_NotSupported,             //< The operation is not supported (e.g. creating a bluetooth socket on a system without any bluetooth adaptater)
+		SocketError_ResolveError,             //< The hostname couldn't be resolved (more information in ResolveError code)
 		SocketError_ResourceError,            //< The operating system lacks the resources to proceed (e.g. memory/socket descriptor)
 		SocketError_UnreachableHost,          //< The host is not reachable
 		SocketError_TimedOut,                 //< The operation timed out
@@ -60,6 +61,7 @@ namespace Nz
 		SocketState_Connecting,   //< The socket is currently connecting
 		SocketState_Connected,    //< The socket is currently connected
 		SocketState_NotConnected, //< The socket is not connected (or has been disconnected)
+		SocketState_Resolving,    //< The socket is currently resolving a hostname
 
 		SocketState_Max = SocketState_NotConnected
 	};

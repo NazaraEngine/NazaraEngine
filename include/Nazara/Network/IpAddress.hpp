@@ -29,8 +29,8 @@ namespace Nz
 			inline IpAddress(const IPv6& ip, UInt16 port = 0);
 			inline IpAddress(const UInt8& a, const UInt8& b, const UInt8& c, const UInt8& d, UInt16 port = 0);
 			inline IpAddress(const UInt16& a, const UInt16& b, const UInt16& c, const UInt16& d, const UInt16& e, const UInt16& f, const UInt16& g, const UInt16& h, UInt16 port = 0);
-			inline IpAddress(const char* address);
-			inline IpAddress(const String& address);
+			inline explicit IpAddress(const char* address);
+			inline explicit IpAddress(const String& address);
 			IpAddress(const IpAddress&) = default;
 			IpAddress(IpAddress&&) = default;
 			~IpAddress() = default;
