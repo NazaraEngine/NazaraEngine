@@ -207,5 +207,6 @@ namespace Nz
 	{
 		Open(handle);
 		m_peerAddress = peerAddress;
+		UpdateState(SocketState_Connected);
 	}
 }
