@@ -36,7 +36,6 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/Network.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
-#include <Nazara/Network/TcpBase.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
