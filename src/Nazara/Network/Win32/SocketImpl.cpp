@@ -145,7 +145,7 @@ namespace Nz
 			if (ret > 0)
 			{
 				int code = GetLastErrorCode(handle, error);
-				if (code < 0) //< GetLastSocketError() failed
+				if (code < 0) //< GetLastErrorCode() failed
 					return SocketState_NotConnected;
 
 				if (code)
