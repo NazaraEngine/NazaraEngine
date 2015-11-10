@@ -9,17 +9,17 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Network/TcpBase.hpp>
+#include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {
-	class NAZARA_NETWORK_API TcpClient : public TcpBase
+	class NAZARA_NETWORK_API TcpClient : public AbstractSocket
 	{
 		friend class TcpServer;
 
 		public:
-			TcpClient() = default;
+			inline TcpClient();
 			inline TcpClient(TcpClient&& tcpClient);
 			~TcpClient() = default;
 
@@ -32,6 +32,9 @@ namespace Nz
 			inline UInt64 GetKeepAliveInterval() const;
 			inline UInt64 GetKeepAliveTime() const;
 			inline IpAddress GetRemoteAddress() const;
+
+			inline bool IsLowDelayEnabled() const;
+			inline bool IsKeepAliveEnabled() const;
 
 			SocketState QueryState();
 
@@ -46,6 +49,10 @@ namespace Nz
 			void Reset(SocketHandle handle, const IpAddress& peerAddress);
 
 			IpAddress m_peerAddress;
+			UInt64 m_keepAliveInterval;
+			UInt64 m_keepAliveTime;
+			bool m_isLowDelayEnabled;
+			bool m_isKeepAliveEnabled;
 	};
 }
 

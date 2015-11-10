@@ -8,17 +8,17 @@
 #define NAZARA_TCPSERVER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Network/TcpBase.hpp>
+#include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {
 	class TcpClient;
 
-	class NAZARA_NETWORK_API TcpServer : public TcpBase
+	class NAZARA_NETWORK_API TcpServer : public AbstractSocket
 	{
 		public:
-			TcpServer() = default;
+			inline TcpServer();
 			inline TcpServer(TcpServer&& tcpServer);
 			~TcpServer() = default;
 
