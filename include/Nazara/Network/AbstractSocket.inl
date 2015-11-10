@@ -31,7 +31,7 @@ namespace Nz
 		return m_isBlockingEnabled;
 	}
 
-	inline void AbstractSocket::ChangeState(SocketState newState)
+	inline void AbstractSocket::UpdateState(SocketState newState)
 	{
 		if (m_state != newState)
 		{

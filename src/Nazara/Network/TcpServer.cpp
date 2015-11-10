@@ -43,7 +43,7 @@ namespace Nz
 		if (state == SocketState_Bound)
 			m_boundAddress = SocketImpl::QuerySocketAddress(m_handle);
 
-		ChangeState(state);
+		UpdateState(state);
 		return state;
 	}
 
