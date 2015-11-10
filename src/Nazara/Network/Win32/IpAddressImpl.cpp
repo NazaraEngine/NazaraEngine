@@ -96,7 +96,7 @@ namespace Nz
 			}
 		}
 		
-		return IpAddress();
+		return IpAddress::Invalid;
 	}
 
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfoW* info)
@@ -118,7 +118,7 @@ namespace Nz
 			}
 		}
 
-		return IpAddress();
+		return IpAddress::Invalid;
 	}
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr* address)
@@ -132,7 +132,7 @@ namespace Nz
 				return FromSockAddr(reinterpret_cast<const sockaddr_in6*>(address));
 		}
 
-		return IpAddress();
+		return IpAddress::Invalid;
 	}
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr_in* addressv4)
@@ -237,8 +237,6 @@ namespace Nz
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
 						socketAddress->sin6_addr.u.Word[i] = htons(address[i]);
-
-					IN6_ADDR any = in6addr_any;
 
 					return sizeof(sockaddr_in6);
 				}
