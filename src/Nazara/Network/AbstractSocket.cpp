@@ -71,7 +71,7 @@ namespace Nz
 
 	void AbstractSocket::OnClose()
 	{
-		ChangeState(SocketState_NotConnected);
+		UpdateState(SocketState_NotConnected);
 	}
 
 	void AbstractSocket::OnOpened()

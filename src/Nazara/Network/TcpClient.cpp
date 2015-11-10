@@ -42,7 +42,7 @@ namespace Nz
 		if (state != SocketState_NotConnected)
 			m_peerAddress = remoteAddress;
 
-		ChangeState(state);
+		UpdateState(state);
 		return state;
 	}
 
@@ -89,7 +89,7 @@ namespace Nz
 				{
 					// Our connection attempt failed
 					m_lastError = error;
-					ChangeState(SocketState_NotConnected);
+					UpdateState(SocketState_NotConnected);
 				}
 
 				break;
@@ -104,10 +104,10 @@ namespace Nz
 				{
 					// Other errors mean a problem while getting the peer address
 					if (error == SocketError_ConnectionClosed)
-						ChangeState(SocketState_NotConnected);
+						UpdateState(SocketState_NotConnected);
 				}
 				else
-					ChangeState(SocketState_Connected); // If we are not connecting and have a peer address, we are connected
+					UpdateState(SocketState_Connected); // If we are not connecting and have a peer address, we are connected
 
 				break;
 			}
@@ -127,7 +127,7 @@ namespace Nz
 			{
 				case SocketError_ConnectionClosed:
 				case SocketError_ConnectionRefused:
-					ChangeState(SocketState_NotConnected);
+					UpdateState(SocketState_NotConnected);
 					break;
 
 				default:
@@ -140,7 +140,7 @@ namespace Nz
 		if (received)
 			*received = read;
 
-		ChangeState(SocketState_Connected);
+		UpdateState(SocketState_Connected);
 		return true;
 	}
 
@@ -168,7 +168,7 @@ namespace Nz
 				{
 					case SocketError_ConnectionClosed:
 					case SocketError_ConnectionRefused:
-						ChangeState(SocketState_NotConnected);
+						UpdateState(SocketState_NotConnected);
 						break;
 
 					default:
@@ -181,7 +181,7 @@ namespace Nz
 			totalByteSent += sentSize;
 		}
 
-		ChangeState(SocketState_Connected);
+		UpdateState(SocketState_Connected);
 		return true;
 	}
 

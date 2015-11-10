@@ -22,7 +22,7 @@ namespace Nz
 		if (state == SocketState_Bound)
 			m_boundAddress = SocketImpl::QuerySocketAddress(m_handle);
 
-		ChangeState(state);
+		UpdateState(state);
 		return state;
 	}
 
@@ -67,13 +67,13 @@ namespace Nz
 	{
 		m_boundAddress = IpAddress::Invalid;
 
-		ChangeState(SocketState_NotConnected);
+		UpdateState(SocketState_NotConnected);
 	}
 
 	void UdpSocket::OnOpened()
 	{
 		m_boundAddress = IpAddress::Invalid;
 
-		ChangeState(SocketState_NotConnected);
+		UpdateState(SocketState_NotConnected);
 	}
 }
