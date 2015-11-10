@@ -187,15 +187,19 @@ namespace Nz
 
 	void TcpClient::OnClose()
 	{
-		TcpBase::OnClose();
+		AbstractSocket::OnClose();
 
 		m_peerAddress = IpAddress::Invalid;
 	}
 
 	void TcpClient::OnOpened()
 	{
-		TcpBase::OnOpened();
+		AbstractSocket::OnOpened();
 
+		m_isLowDelayEnabled = false;  //< Nagle's algorithm, is this enabled everywhere?
+		m_isKeepAliveEnabled = false; //< default documentation value, OS can change this (TODO: Query OS default value)
+		m_keepAliveInterval = 1000;   //< default documentation value, OS can change this (TODO: Query OS default value)
+		m_keepAliveTime = 7200000;    //< default documentation value, OS can change this (TODO: Query OS default value)
 		m_peerAddress = IpAddress::Invalid;
 	}
 
