@@ -41,6 +41,34 @@ namespace Nz
 		return state;
 	}
 
+	SocketState TcpClient::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
+	{
+		Disconnect();
+
+		UpdateState(SocketState_Resolving);
+		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
+		if (results.empty())
+		{
+			m_lastError = SocketError_ResolveError;
+
+			UpdateState(SocketState_NotConnected);
+			return m_state;
+		}
+
+		IpAddress hostnameAddress;
+		for (const HostnameInfo& result : results)
+		{
+			//TODO: Check PF_ type (TCP)
+			if (!result.address)
+				continue;
+
+			hostnameAddress = result.address;
+			break; //< Take first valid address
+		}
+
+		return Connect(hostnameAddress);
+	}
+
 	void TcpClient::EnableLowDelay(bool lowDelay)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
