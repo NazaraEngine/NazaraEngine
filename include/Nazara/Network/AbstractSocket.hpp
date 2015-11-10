@@ -41,7 +41,7 @@ namespace Nz
 		protected:
 			AbstractSocket(SocketType type);
 
-			inline void ChangeState(SocketState newState);
+			inline void UpdateState(SocketState newState);
 
 			virtual void OnClose();
 			virtual void OnOpened();
