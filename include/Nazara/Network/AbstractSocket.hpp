@@ -36,7 +36,7 @@ namespace Nz
 			unsigned int QueryAvailableBytes() const;
 
 			// Slots
-			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*oldState*/, SocketState /*newState*/);
+			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*newState*/);
 
 		protected:
 			AbstractSocket(SocketType type);
