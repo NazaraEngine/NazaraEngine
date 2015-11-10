@@ -91,8 +91,8 @@ namespace Nz
 		IpAddress address;
 		String canonicalName;
 		int flags;
-		int family;
-		int socketType;
+		int family; //< TODO: NetProtocol
+		int socketType; //< TODO: SocketType
 	};
 
 }
