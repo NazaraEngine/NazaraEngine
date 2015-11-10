@@ -23,7 +23,7 @@ namespace Nz
 			inline TcpClient(TcpClient&& tcpClient);
 			~TcpClient() = default;
 
-			SocketState Connect(const IpAddress& remoteAddress, UInt64 msTimeout = 3000);
+			SocketState Connect(const IpAddress& remoteAddress);
 			inline void Disconnect();
 
 			void EnableLowDelay(bool lowDelay);
@@ -41,6 +41,8 @@ namespace Nz
 			bool Receive(void* buffer, std::size_t size, std::size_t* received);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
+
+			bool WaitForConnected(UInt64 msTimeout = 3000);
 
 		private:
 			void OnClose() override;
