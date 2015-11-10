@@ -22,9 +22,10 @@ namespace Nz
 			static IpAddress FromSockAddr(const sockaddr_in* addressv4);
 			static IpAddress FromSockAddr(const sockaddr_in6* addressv6);
 
-			static bool ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service);
-			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& service);
+			static bool ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service, ResolveError* error);
+			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& service, ResolveError* error);
 
 			static socklen_t ToSockAddr(const IpAddress& ipAddress, void* buffer);
+			static ResolveError TranslateWSAErrorToResolveError(int error);
 	};
 }

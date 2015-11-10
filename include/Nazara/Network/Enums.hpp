@@ -9,6 +9,22 @@
 
 namespace Nz
 {
+	enum ResolveError
+	{
+		ResolveError_NoError,
+
+		ResolveError_Internal,             //< An internal error occured
+		ResolveError_ResourceError,        //< The operating system lacks the resources to proceed (insufficient memory)
+		ResolveError_NonRecoverable,       //< An nonrecoverable error occured
+		ResolveError_NotFound,             //< No such host is known
+		ResolveError_NotInitialized,       //< Nazara network has not been initialized
+		ResolveError_ProtocolNotSupported, //< A specified protocol is not supported by the server
+		ResolveError_TemporaryFailure,     //< A temporary failure occured, try again
+		ResolveError_Unknown,              //< The last operation failed with an unlisted error code
+
+		ResolveError_Max = ResolveError_TemporaryFailure
+	};
+
 	enum NetProtocol
 	{
 		NetProtocol_Any,
