@@ -7,8 +7,13 @@
 
 namespace Nz
 {
+	inline TcpServer::TcpServer() :
+	AbstractSocket(SocketType_TCP)
+	{
+	}
+
 	inline TcpServer::TcpServer(TcpServer&& tcpServer) :
-	TcpBase(std::move(tcpServer)),
+	AbstractSocket(std::move(tcpServer)),
 	m_boundAddress(std::move(tcpServer.m_boundAddress))
 	{
 	}

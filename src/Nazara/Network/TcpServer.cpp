@@ -49,14 +49,14 @@ namespace Nz
 
 	void TcpServer::OnClose()
 	{
-		TcpBase::OnClose();
+		AbstractSocket::OnClose();
 
 		m_boundAddress = IpAddress::Invalid;
 	}
 
 	void TcpServer::OnOpened()
 	{
-		TcpBase::OnOpened();
+		AbstractSocket::OnOpened();
 
 		m_boundAddress = IpAddress::Invalid;
 	}
