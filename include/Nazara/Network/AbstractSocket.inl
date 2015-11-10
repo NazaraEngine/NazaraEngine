@@ -35,7 +35,7 @@ namespace Nz
 	{
 		if (m_state != newState)
 		{
-			OnStateChange(this, m_state);
+			OnStateChange(this, newState);
 			m_state = newState;
 		}
 	}
