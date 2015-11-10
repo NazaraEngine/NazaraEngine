@@ -7,9 +7,18 @@
 
 namespace Nz
 {
+	inline TcpClient::TcpClient() :
+	AbstractSocket(SocketType_TCP)
+	{
+	}
+
 	inline TcpClient::TcpClient(TcpClient&& tcpClient) :
-	TcpBase(std::move(tcpClient)),
-	m_peerAddress(std::move(tcpClient.m_peerAddress))
+	AbstractSocket(std::move(tcpClient)),
+	m_peerAddress(std::move(tcpClient.m_peerAddress)),
+	m_keepAliveInterval(tcpClient.m_keepAliveInterval),
+	m_keepAliveTime(tcpClient.m_keepAliveTime),
+	m_isLowDelayEnabled(tcpClient.m_isLowDelayEnabled),
+	m_isKeepAliveEnabled(tcpClient.m_isKeepAliveEnabled)
 	{
 	}
 
@@ -31,6 +40,16 @@ namespace Nz
 	inline IpAddress TcpClient::GetRemoteAddress() const
 	{
 		return m_peerAddress;
+	}
+
+	inline bool TcpClient::IsLowDelayEnabled() const
+	{
+		return m_isLowDelayEnabled;
+	}
+
+	inline bool TcpClient::IsKeepAliveEnabled() const
+	{
+		return m_isKeepAliveEnabled;
 	}
 }
 
