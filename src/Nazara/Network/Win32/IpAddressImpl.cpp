@@ -147,15 +147,26 @@ namespace Nz
 		return IpAddress(rawIpV6[0], rawIpV6[1], rawIpV6[2], rawIpV6[3], rawIpV6[4], rawIpV6[5], rawIpV6[6], rawIpV6[7], ntohs(addressv6->sin6_port));
 	}
 
-	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service)
+	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service, ResolveError* error)
 	{
 		SockAddrBuffer socketAddress;
 		socklen_t socketAddressLen = ToSockAddr(ipAddress, socketAddress.data());
 
-		return Detail::GetHostnameInfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostname, service) == 0;
+		if (Detail::GetHostnameInfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostname, service) != 0)
+		{
+			if (error)
+				*error = TranslateWSAErrorToResolveError(WSAGetLastError());
+
+			return false;
+		}
+
+		if (error)
+			*error = ResolveError_NoError;
+
+		return true;
 	}
 
-	std::vector<HostnameInfo> IpAddressImpl::ResolveHostname(NetProtocol procol, const String& hostname, const String& service)
+	std::vector<HostnameInfo> IpAddressImpl::ResolveHostname(NetProtocol procol, const String& hostname, const String& service, ResolveError* error)
 	{
 		std::vector<HostnameInfo> results;
 
@@ -165,10 +176,11 @@ namespace Nz
 		hints.ai_socktype = SOCK_STREAM;
 
 		Detail::addrinfoImpl* servinfo;
-		int rv;
-		if ((rv = Detail::GetAddressInfo(hostname, service, &hints, &servinfo)) != 0)
+		if (Detail::GetAddressInfo(hostname, service, &hints, &servinfo) != 0)
 		{
-			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+			if (error)
+				*error = TranslateWSAErrorToResolveError(WSAGetLastError());
+
 			return results;
 		}
 
@@ -189,6 +201,9 @@ namespace Nz
 
 			results.push_back(result);
 		}
+
+		if (error)
+			*error = ResolveError_NoError;
 
 		return results;
 	}
@@ -236,5 +251,42 @@ namespace Nz
 
 		NazaraError("Invalid ip address");
 		return 0;
+	}
+
+	ResolveError IpAddressImpl::TranslateWSAErrorToResolveError(int error)
+	{
+		switch (error)
+		{
+			case 0:
+				return ResolveError_NoError;
+
+			// Engine error
+			case WSAEFAULT:
+			case WSAEINVAL:
+				return ResolveError_Internal;
+
+			case WSAEAFNOSUPPORT:
+			case WSAESOCKTNOSUPPORT:
+			case WSASERVICE_NOT_FOUND:
+				return ResolveError_ProtocolNotSupported;
+
+			case WSAHOST_NOT_FOUND:
+				return ResolveError_NotFound;
+
+			case WSANO_RECOVERY:
+				return ResolveError_NonRecoverable;
+
+			case WSANOTINITIALISED:
+				return ResolveError_NotInitialized;
+
+			case WSA_NOT_ENOUGH_MEMORY:
+				return ResolveError_ResourceError;
+
+			case WSATRY_AGAIN:
+				return ResolveError_TemporaryFailure;
+		}
+
+		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
+		return ResolveError_Unknown;
 	}
 }

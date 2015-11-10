@@ -55,8 +55,8 @@ namespace Nz
 			IpAddress& operator=(const IpAddress&) = default;
 			IpAddress& operator=(IpAddress&&) = default;
 
-			static String ResolveAddress(const IpAddress& address, String* service = nullptr);
-			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& protocol = "http");
+			static String ResolveAddress(const IpAddress& address, String* service = nullptr, ResolveError* error = nullptr);
+			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& protocol = "http", ResolveError* error = nullptr);
 
 			inline friend std::ostream& operator<<(std::ostream& out, const IpAddress& address);
 

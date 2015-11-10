@@ -142,17 +142,17 @@ namespace Nz
 		return stream;
 	}
 
-	String IpAddress::ResolveAddress(const IpAddress& address, String* service)
+	String IpAddress::ResolveAddress(const IpAddress& address, String* service, ResolveError* error)
 	{
 		String hostname;
-		IpAddressImpl::ResolveAddress(address, &hostname, service);
+		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
 	
 		return hostname;
 	}
 
-	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service)
+	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service, ResolveError* error)
 	{
-		return IpAddressImpl::ResolveHostname(protocol, hostname, service);
+		return IpAddressImpl::ResolveHostname(protocol, hostname, service, error);
 	}
 
 	IpAddress IpAddress::AnyIpV4(0, 0, 0, 0);
