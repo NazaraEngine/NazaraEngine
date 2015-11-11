@@ -4,6 +4,7 @@
 
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -173,14 +174,14 @@ namespace Nz
 						addressPtr = savedPtr;
 
 						// who knows how to parse ipv4?  we do!
-						UInt8 result[16];
-						bool isIPv6;
-						if (!ParseIPAddress(addressPtr, result, nullptr, &isIPv6, &addressPtr) || isIPv6) // must parse and must be ipv4
+						UInt8 ipv4[16];
+						bool ipv6;
+						if (!ParseIPAddress(addressPtr, ipv4, nullptr, &ipv6, &addressPtr) || ipv6) // must parse and must be ipv4
 							return false;
 
 						// transfer addrlocal into the present location
 						for (unsigned int j = 0; j < 4; ++j)
-							*(resultPtr++) = result[j];
+							*(resultPtr++) = ipv4[j];
 
 						++i; // pretend like we took another short, since the ipv4 effectively is two shorts
 						mappedIPv4 = true; // remember how we got here for further validation later
