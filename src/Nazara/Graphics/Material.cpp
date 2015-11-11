@@ -724,8 +724,6 @@ namespace Nz
 			return false;
 		}
 
-		bool glsl140 = (OpenGL::GetGLSLVersion() >= 140);
-
 		// Basic shader
 		{
 			UberShaderPreprocessorRef uberShader = UberShaderPreprocessor::New();

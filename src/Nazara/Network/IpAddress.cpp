@@ -7,6 +7,7 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <algorithm>
+#include <limits>
 #include <Nazara/Network/SystemSocket.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -55,6 +56,9 @@ namespace Nz
 		NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
 		switch (m_protocol)
 		{
+			case NetProtocol_Any:
+				break;
+
 			case NetProtocol_IPv4:
 				return m_ipv4[0] == 127;
 
@@ -69,12 +73,15 @@ namespace Nz
 	String IpAddress::ToString() const
 	{
 		StringStream stream;
-		
+
 		if (m_isValid)
 		{
 			NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
 			switch (m_protocol)
 			{
+				case NetProtocol_Any:
+					break;
+
 				case NetProtocol_IPv4:
 					for (unsigned int i = 0; i < 4; ++i)
 					{
@@ -89,8 +96,8 @@ namespace Nz
 					// https://tools.ietf.org/html/rfc5952
 
 					// Find the longest zero sequence
-					int f0 = -1;
-					int	l0 = -1;
+					unsigned int f0 = std::numeric_limits<unsigned int>::max();
+					unsigned int l0 = std::numeric_limits<unsigned int>::max();
 
 					for (unsigned int i = 0; i < 8; ++i)
 					{
@@ -138,7 +145,7 @@ namespace Nz
 			if (m_port != 0)
 				stream << ':' << m_port;
 		}
-		
+
 		return stream;
 	}
 
@@ -146,7 +153,7 @@ namespace Nz
 	{
 		String hostname;
 		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
-	
+
 		return hostname;
 	}
 

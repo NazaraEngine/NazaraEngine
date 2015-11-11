@@ -218,6 +218,10 @@ namespace Nz
 	{
 		switch (m_state)
 		{
+			case SocketState_Bound:
+			case SocketState_Resolving:
+				break;
+
 			case SocketState_Connected:
 				return true;
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <ostream>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -13,31 +14,31 @@ namespace Nz
 	}
 
 	inline IpAddress::IpAddress(const IPv4& ip, UInt16 port) :
-	m_isValid(true),
 	m_ipv4(ip),
 	m_protocol(NetProtocol_IPv4),
-	m_port(port)
+	m_port(port),
+	m_isValid(true)
 	{
 	}
-	
+
 	inline IpAddress::IpAddress(const IPv6& ip, UInt16 port) :
-	m_isValid(true),
 	m_ipv6(ip),
 	m_protocol(NetProtocol_IPv6),
-	m_port(port)
+	m_port(port),
+	m_isValid(true)
 	{
 	}
-	
+
 	inline IpAddress::IpAddress(const UInt8& a, const UInt8& b, const UInt8& c, const UInt8& d, UInt16 port) :
 	IpAddress(IPv4{a, b, c, d}, port)
 	{
 	}
-	
+
 	inline IpAddress::IpAddress(const UInt16& a, const UInt16& b, const UInt16& c, const UInt16& d, const UInt16& e, const UInt16& f, const UInt16& g, const UInt16& h, UInt16 port) :
 	IpAddress(IPv6{a, b, c, d, e, f, g, h}, port)
 	{
 	}
-	
+
 	inline IpAddress::IpAddress(const char* address)
 	{
 		BuildFromAddress(address);
@@ -116,6 +117,9 @@ namespace Nz
 		// Each protocol has its variables to compare
 		switch (first.m_protocol)
 		{
+			case NetProtocol_Any:
+				break;
+
 			case NetProtocol_IPv4:
 			{
 				if (first.m_ipv4 != second.m_ipv4)
@@ -162,6 +166,9 @@ namespace Nz
 		// Compare IP (thanks to std::array comparison operator)
 		switch (first.m_protocol)
 		{
+			case NetProtocol_Any:
+				break;
+
 			case NetProtocol_IPv4:
 			{
 				if (first.m_ipv4 != second.m_ipv4)
