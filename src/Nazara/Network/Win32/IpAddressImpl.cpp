@@ -6,6 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -64,7 +65,7 @@ namespace Nz
 				if (service)
 					service->Set(serviceBuffer.data());
 			}
-			
+
 			return result;
 		}
 
@@ -95,7 +96,7 @@ namespace Nz
 				return IpAddress(rawIpV6[0], rawIpV6[1], rawIpV6[2], rawIpV6[3], rawIpV6[4], rawIpV6[5], rawIpV6[6], rawIpV6[7], ntohs(ipv6->sin6_port));
 			}
 		}
-		
+
 		return IpAddress::Invalid;
 	}
 

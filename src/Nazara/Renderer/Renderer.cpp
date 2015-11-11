@@ -1546,7 +1546,7 @@ namespace Nz
 						glBindBuffer(OpenGL::BufferTarget[BufferType_Vertex], vertexBufferImpl->GetOpenGLID());
 
 						unsigned int bufferOffset = vertexBuffer->GetStartOffset();
-						const VertexDeclaration* vertexDeclaration = vertexBuffer->GetVertexDeclaration();
+						vertexDeclaration = vertexBuffer->GetVertexDeclaration();
 						unsigned int stride = vertexDeclaration->GetStride();
 
 						// On définit les bornes (une fois de plus selon l'itération)
