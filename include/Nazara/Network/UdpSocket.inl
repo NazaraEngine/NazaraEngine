@@ -29,6 +29,10 @@ namespace Nz
 		IpAddress any;
 		switch (m_protocol)
 		{
+			case NetProtocol_Any:
+				NazaraInternalError("Invalid protocol Any at this point");
+				return SocketState_NotConnected;
+
 			case NetProtocol_IPv4:
 				any = IpAddress::AnyIpV4;
 				break;

@@ -35,9 +35,9 @@ namespace Nz
 	InstancedRenderable(billboard),
 	m_color(billboard.m_color),
 	m_material(billboard.m_material),
-	m_rotation(billboard.m_rotation),
 	m_sinCos(billboard.m_sinCos),
-	m_size(billboard.m_size)
+	m_size(billboard.m_size),
+	m_rotation(billboard.m_rotation)
 	{
 	}
 

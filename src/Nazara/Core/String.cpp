@@ -1912,7 +1912,6 @@ namespace Nz
 		}
 		else
 		{
-			unsigned int newSize = m_sharedString->size + length;
 			auto newString = std::make_shared<SharedString>(m_sharedString->size + length);
 
 			char* ptr = newString->string.get();
