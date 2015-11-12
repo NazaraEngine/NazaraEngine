@@ -26,6 +26,17 @@ namespace Nz
 		return state;
 	}
 
+	void UdpSocket::EnableBroadcasting(bool broadcasting)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+		if (m_isBroadCastingEnabled != broadcasting)
+		{
+			SocketImpl::SetBroadcasting(m_handle, broadcasting, &m_lastError);
+			m_isBroadCastingEnabled = broadcasting;
+		}
+	}
+
 	unsigned int UdpSocket::QueryMaxDatagramSize()
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
@@ -73,6 +84,7 @@ namespace Nz
 	void UdpSocket::OnOpened()
 	{
 		m_boundAddress = IpAddress::Invalid;
+		m_isBroadCastingEnabled = false;
 
 		UpdateState(SocketState_NotConnected);
 	}

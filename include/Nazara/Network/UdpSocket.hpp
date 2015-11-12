@@ -26,9 +26,13 @@ namespace Nz
 
 			inline bool Create(NetProtocol protocol);
 
+			void EnableBroadcasting(bool broadcasting);
+				
 			inline IpAddress GetBoundAddress() const;
 			inline UInt16 GetBoundPort() const;
 			inline SocketState GetState() const;
+
+			inline bool IsBroadcastingEnabled() const;
 
 			unsigned int QueryMaxDatagramSize();
 
@@ -42,6 +46,7 @@ namespace Nz
 
 			IpAddress m_boundAddress;
 			SocketState m_state;
+			bool m_isBroadCastingEnabled;
 	};
 }
 
