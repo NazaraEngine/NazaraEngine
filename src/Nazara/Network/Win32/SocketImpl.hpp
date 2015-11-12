@@ -48,6 +48,7 @@ namespace Nz
 
 			static bool SetBlocking(SocketHandle handle, bool blocking, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
+			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
 
 			static SocketError TranslateWSAErrorToSocketError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
