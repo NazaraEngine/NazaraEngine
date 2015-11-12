@@ -34,8 +34,7 @@ namespace Nz
 		}
 
 		SocketState state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
-		if (state != SocketState_NotConnected)
-			m_peerAddress = remoteAddress;
+		m_peerAddress = (state != SocketState_NotConnected) ? remoteAddress : IpAddress::Invalid;
 
 		UpdateState(state);
 		return state;
@@ -75,7 +74,7 @@ namespace Nz
 
 		if (m_isLowDelayEnabled != lowDelay)
 		{
-			SocketImpl::SetBlocking(m_handle, lowDelay, &m_lastError);
+			SocketImpl::SetNoDelay(m_handle, lowDelay, &m_lastError);
 			m_isLowDelayEnabled = lowDelay;
 		}
 	}
@@ -109,7 +108,7 @@ namespace Nz
 
 				if (error == SocketError_NoError)
 				{
-					// No error yet, we're still connecting or connected, check that by connecting again
+					// No error yet, we're still connecting or connected, check that by calling Connect again
 					return Connect(m_peerAddress);
 				}
 				else
@@ -242,12 +241,12 @@ namespace Nz
 				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
 				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return");
 
-				// Prevent valid peer adddress in non-connected state
+				// Prevent valid peer address in non-connected state
 				if (newState == SocketState_NotConnected)
 					m_peerAddress = IpAddress::Invalid;
 
 				UpdateState(newState);
-				return m_state == SocketState_Connected;
+				return newState == SocketState_Connected;
 			}
 
 			case SocketState_NotConnected:
