@@ -534,6 +534,25 @@ namespace Nz
 		return true;
 	}
 
+	bool SocketImpl::SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		BOOL option = nodelay;
+		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
 	SocketError SocketImpl::TranslateWSAErrorToSocketError(int error)
 	{
 		switch (error)

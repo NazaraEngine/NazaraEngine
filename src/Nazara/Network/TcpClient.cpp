@@ -75,7 +75,7 @@ namespace Nz
 
 		if (m_isLowDelayEnabled != lowDelay)
 		{
-			SocketImpl::SetBlocking(m_handle, lowDelay, &m_lastError);
+			SocketImpl::SetNoDelay(m_handle, lowDelay, &m_lastError);
 			m_isLowDelayEnabled = lowDelay;
 		}
 	}
@@ -238,7 +238,7 @@ namespace Nz
 				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
 				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return");
 
-				// Prevent valid peer adddress in non-connected state
+				// Prevent valid peer address in non-connected state
 				if (newState == SocketState_NotConnected)
 					m_peerAddress = IpAddress::Invalid;
 
