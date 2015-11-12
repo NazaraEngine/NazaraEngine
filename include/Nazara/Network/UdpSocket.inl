@@ -61,6 +61,11 @@ namespace Nz
 	{
 		return m_state;
 	}
+
+	inline bool UdpSocket::IsBroadcastingEnabled() const
+	{
+		return m_isBroadCastingEnabled;
+	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>
