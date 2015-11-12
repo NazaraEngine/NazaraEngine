@@ -34,8 +34,7 @@ namespace Nz
 		}
 
 		SocketState state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
-		if (state != SocketState_NotConnected)
-			m_peerAddress = remoteAddress;
+		m_peerAddress = (state != SocketState_NotConnected) ? remoteAddress : IpAddress::Invalid;
 
 		UpdateState(state);
 		return state;
@@ -109,7 +108,7 @@ namespace Nz
 
 				if (error == SocketError_NoError)
 				{
-					// No error yet, we're still connecting or connected, check that by connecting again
+					// No error yet, we're still connecting or connected, check that by calling Connect again
 					return Connect(m_peerAddress);
 				}
 				else
@@ -243,7 +242,7 @@ namespace Nz
 					m_peerAddress = IpAddress::Invalid;
 
 				UpdateState(newState);
-				return m_state == SocketState_Connected;
+				return newState == SocketState_Connected;
 			}
 
 			case SocketState_NotConnected:
