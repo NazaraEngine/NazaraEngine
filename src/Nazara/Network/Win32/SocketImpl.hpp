@@ -47,6 +47,7 @@ namespace Nz
 			static bool SendTo(SocketHandle handle, const void* buffer, int length, const IpAddress& to, int* sent, SocketError* error);
 
 			static bool SetBlocking(SocketHandle handle, bool blocking, SocketError* error = nullptr);
+			static bool SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
 			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
 
