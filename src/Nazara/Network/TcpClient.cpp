@@ -92,62 +92,6 @@ namespace Nz
 		}
 	}
 
-	SocketState TcpClient::QueryState()
-	{
-		// Only check state if we have a valid handle, else we're not connected.
-		if (m_handle != SocketImpl::InvalidHandle)
-		{
-			// Check our state depending on our last state
-			switch (m_state)
-			{
-				case SocketState_Connecting:
-				{
-					// If we were connecting, check how it's going
-					SocketError getError;
-					SocketError error = SocketImpl::GetLastError(m_handle, &getError);
-
-					if (getError != SocketError_NoError)
-						break; //< Do not update state if we cannot get socket state
-
-					if (error == SocketError_NoError)
-					{
-						// No error yet, we're still connecting or connected, check that by calling Connect again
-						return Connect(m_peerAddress);
-					}
-					else
-					{
-						// Our connection attempt failed
-						m_lastError = error;
-						UpdateState(SocketState_NotConnected);
-					}
-
-					break;
-				}
-
-				default:
-				{
-					// Check our peer address, if it works we're connected
-					SocketError error;
-					m_peerAddress = SocketImpl::QueryPeerAddress(m_handle, &error);
-					if (m_peerAddress == IpAddress::Invalid)
-					{
-						// Other errors mean a problem while getting the peer address
-						if (error == SocketError_ConnectionClosed)
-							UpdateState(SocketState_NotConnected);
-					}
-					else
-						UpdateState(SocketState_Connected); // If we are not connecting and have a peer address, we are connected
-
-					break;
-				}
-			}
-		}
-		else
-			UpdateState(SocketState_NotConnected);
-
-		return m_state;
-	}
-
 	bool TcpClient::Receive(void* buffer, std::size_t size, std::size_t* received)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
