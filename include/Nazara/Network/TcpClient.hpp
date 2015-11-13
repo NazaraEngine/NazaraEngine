@@ -37,8 +37,6 @@ namespace Nz
 			inline bool IsLowDelayEnabled() const;
 			inline bool IsKeepAliveEnabled() const;
 
-			SocketState QueryState();
-
 			bool Receive(void* buffer, std::size_t size, std::size_t* received);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
