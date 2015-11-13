@@ -76,9 +76,9 @@ namespace Nz
 
 	void AbstractSocket::OnOpened()
 	{
-		SocketError error;
-		if (!SocketImpl::SetBlocking(m_handle, m_isBlockingEnabled, &error))
-			NazaraWarning("Failed to set socket blocking mode (0x" + String::Number(ERROR, 16) + ')');
+		SocketError errorCode;
+		if (!SocketImpl::SetBlocking(m_handle, m_isBlockingEnabled, &errorCode))
+			NazaraWarning("Failed to set socket blocking mode (0x" + String::Number(errorCode, 16) + ')');
 	}
 
 	bool AbstractSocket::Open(NetProtocol protocol)
