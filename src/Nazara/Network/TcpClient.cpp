@@ -70,22 +70,22 @@ namespace Nz
 
 	void TcpClient::EnableLowDelay(bool lowDelay)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
-
 		if (m_isLowDelayEnabled != lowDelay)
 		{
-			SocketImpl::SetNoDelay(m_handle, lowDelay, &m_lastError);
+			if (m_handle != SocketImpl::InvalidHandle)
+				SocketImpl::SetNoDelay(m_handle, lowDelay, &m_lastError);
+
 			m_isLowDelayEnabled = lowDelay;
 		}
 	}
 
 	void TcpClient::EnableKeepAlive(bool keepAlive, UInt64 msTime, UInt64 msInterval)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
-
 		if (m_isKeepAliveEnabled != keepAlive || m_keepAliveTime != msTime || m_keepAliveInterval != msInterval)
 		{
-			SocketImpl::SetKeepAlive(m_handle, keepAlive, msTime, msInterval, &m_lastError);
+			if (m_handle != SocketImpl::InvalidHandle)
+				SocketImpl::SetKeepAlive(m_handle, keepAlive, msTime, msInterval, &m_lastError);
+
 			m_isKeepAliveEnabled = keepAlive;
 			m_keepAliveInterval = msInterval;
 			m_keepAliveTime = msTime;
@@ -268,10 +268,14 @@ namespace Nz
 	{
 		AbstractSocket::OnOpened();
 
-		m_isLowDelayEnabled = false;  //< Nagle's algorithm, is this enabled everywhere?
-		m_isKeepAliveEnabled = false; //< default documentation value, OS can change this (TODO: Query OS default value)
-		m_keepAliveInterval = 1000;   //< default documentation value, OS can change this (TODO: Query OS default value)
-		m_keepAliveTime = 7200000;    //< default documentation value, OS can change this (TODO: Query OS default value)
+		SocketError errorCode;
+
+		if (!SocketImpl::SetNoDelay(m_handle, m_isLowDelayEnabled, &errorCode))
+			NazaraWarning("Failed to set socket no delay mode (0x" + String::Number(errorCode, 16) + ')');
+
+		if (!SocketImpl::SetKeepAlive(m_handle, m_isKeepAliveEnabled, m_keepAliveTime, m_keepAliveInterval, &errorCode))
+			NazaraWarning("Failed to set socket keep alive mode (0x" + String::Number(errorCode, 16) + ')');
+
 		m_peerAddress = IpAddress::Invalid;
 	}
 
