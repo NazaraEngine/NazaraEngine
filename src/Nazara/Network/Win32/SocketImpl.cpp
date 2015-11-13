@@ -266,7 +266,7 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			availableBytes = 0;
+			return 0;
 		}
 
 		if (error)
