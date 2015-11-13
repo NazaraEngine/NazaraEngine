@@ -539,7 +539,7 @@ namespace Nz
 		keepAlive.keepalivetime = static_cast<ULONG>(msTime);
 
 		DWORD dummy; //< byteReturned
-		if (!WSAIoctl(handle, SIO_KEEPALIVE_VALS, &keepAlive, sizeof(keepAlive), nullptr, 0, &dummy, nullptr, nullptr))
+		if (WSAIoctl(handle, SIO_KEEPALIVE_VALS, &keepAlive, sizeof(keepAlive), nullptr, 0, &dummy, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
