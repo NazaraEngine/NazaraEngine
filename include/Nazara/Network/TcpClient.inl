@@ -8,7 +8,11 @@
 namespace Nz
 {
 	inline TcpClient::TcpClient() :
-	AbstractSocket(SocketType_TCP)
+	AbstractSocket(SocketType_TCP),
+	m_keepAliveInterval(1000),   //TODO: Query OS default value
+	m_keepAliveTime(7'200'000),  //TODO: Query OS default value
+	m_isKeepAliveEnabled(false), //TODO: Query OS default value
+	m_isLowDelayEnabled(false)   //TODO: Query OS default value
 	{
 	}
 
