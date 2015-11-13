@@ -76,16 +76,16 @@ namespace Nz
 
 	void UdpSocket::OnClose()
 	{
-		m_boundAddress = IpAddress::Invalid;
+		AbstractSocket::OnClose();
 
-		UpdateState(SocketState_NotConnected);
+		m_boundAddress = IpAddress::Invalid;
 	}
 
 	void UdpSocket::OnOpened()
 	{
+		AbstractSocket::OnOpened();
+
 		m_boundAddress = IpAddress::Invalid;
 		m_isBroadCastingEnabled = false;
-
-		UpdateState(SocketState_NotConnected);
 	}
 }
