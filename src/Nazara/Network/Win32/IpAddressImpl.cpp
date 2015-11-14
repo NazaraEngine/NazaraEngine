@@ -174,6 +174,7 @@ namespace Nz
 		Detail::addrinfoImpl hints;
 		std::memset(&hints, 0, sizeof(Detail::addrinfoImpl));
 		hints.ai_family = SocketImpl::TranslateNetProtocolToAF(procol);
+		hints.ai_flags = AI_CANONNAME;
 		hints.ai_socktype = SOCK_STREAM;
 
 		Detail::addrinfoImpl* servinfo;
