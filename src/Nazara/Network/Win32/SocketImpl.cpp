@@ -646,7 +646,8 @@ namespace Nz
 		static int addressFamily[] = {
 			AF_UNSPEC, //< NetProtocol_Any
 			AF_INET,   //< NetProtocol_IPv4
-			AF_INET6   //< NetProtocol_IPv6
+			AF_INET6,  //< NetProtocol_IPv6
+			-1         //< NetProtocol_Unknown
 		};
 		static_assert(sizeof(addressFamily) / sizeof(int) == NetProtocol_Max + 1, "Address family array is incomplete");
 
@@ -658,9 +659,10 @@ namespace Nz
 		NazaraAssert(type <= SocketType_Max, "Socket type has value out of enum");
 
 		static int socketType[] = {
-			SOCK_RAW,    //< SocketType_Raw
-			SOCK_STREAM, //< SocketType_TCP
-			SOCK_DGRAM   //< SocketType_UDP
+			SOCK_RAW,     //< SocketType_Raw
+			SOCK_STREAM,  //< SocketType_TCP
+			SOCK_DGRAM,   //< SocketType_UDP
+			-1            //< SocketType_Unknown
 		};
 		static_assert(sizeof(socketType) / sizeof(int) == SocketType_Max + 1, "Socket type array is incomplete");
 
