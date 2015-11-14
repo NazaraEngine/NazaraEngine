@@ -21,12 +21,12 @@ namespace Nz
 			return GetAddrInfoW(hostname.GetWideString().c_str(), service.GetWideString().c_str(), &hints, &servinfo);
 		}
 
-		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service)
+		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service, INT flags)
 		{
 			std::array<wchar_t, NI_MAXHOST> hostnameBuffer;
 			std::array<wchar_t, NI_MAXSERV> serviceBuffer;
 
-			int result = GetNameInfoW(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), NI_NUMERICSERV);
+			int result = GetNameInfoW(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), flags);
 			if (result == 0)
 			{
 				if (hostname)
@@ -51,12 +51,12 @@ namespace Nz
 			return getaddrinfo(hostname.GetConstBuffer(), service.GetConstBuffer(), hints, results);
 		}
 
-		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service)
+		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service, INT flags)
 		{
 			std::array<char, NI_MAXHOST> hostnameBuffer;
 			std::array<char, NI_MAXSERV> serviceBuffer;
 
-			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), NI_NUMERICSERV);
+			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), flags);
 			if (result == 0)
 			{
 				if (hostname)
@@ -153,7 +153,7 @@ namespace Nz
 		SockAddrBuffer socketAddress;
 		socklen_t socketAddressLen = ToSockAddr(ipAddress, socketAddress.data());
 
-		if (Detail::GetHostnameInfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostname, service) != 0)
+		if (Detail::GetHostnameInfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostname, service, NI_NUMERICSERV) != 0)
 		{
 			if (error)
 				*error = TranslateWSAErrorToResolveError(WSAGetLastError());
@@ -196,9 +196,8 @@ namespace Nz
 			HostnameInfo result;
 			result.address = FromAddrinfo(p);
 			result.canonicalName = String::Unicode(p->ai_canonname);
-			result.family = p->ai_family;
-			result.flags = p->ai_flags;
-			result.socketType = p->ai_socktype;
+			result.protocol = TranslatePFToNetProtocol(p->ai_family);
+			result.socketType = TranslateSockToNetProtocol(p->ai_socktype);
 
 			results.push_back(result);
 		}
@@ -250,6 +249,39 @@ namespace Nz
 
 		NazaraError("Invalid ip address");
 		return 0;
+	}
+
+	NetProtocol IpAddressImpl::TranslatePFToNetProtocol(int family)
+	{
+		switch (family)
+		{
+			case PF_INET:
+				return NetProtocol_IPv4;
+
+			case PF_INET6:
+				return NetProtocol_IPv6;
+
+			default:
+				return NetProtocol_Unknown;
+		}
+	}
+
+	SocketType IpAddressImpl::TranslateSockToNetProtocol(int socketType)
+	{
+		switch (socketType)
+		{
+			case SOCK_STREAM:
+				return SocketType_TCP;
+
+			case SOCK_DGRAM:
+				return SocketType_UDP;
+
+			case SOCK_RAW:
+				return SocketType_Raw;
+
+			default:
+				return SocketType_Unknown;
+		}
 	}
 
 	ResolveError IpAddressImpl::TranslateWSAErrorToResolveError(int error)
