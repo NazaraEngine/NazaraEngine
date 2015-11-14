@@ -89,10 +89,9 @@ namespace Nz
 	struct HostnameInfo
 	{
 		IpAddress address;
+		NetProtocol protocol;
+		SocketType socketType;
 		String canonicalName;
-		int flags;
-		int family; //< TODO: NetProtocol
-		int socketType; //< TODO: SocketType
 	};
 
 }

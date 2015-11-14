@@ -57,8 +57,10 @@ namespace Nz
 		IpAddress hostnameAddress;
 		for (const HostnameInfo& result : results)
 		{
-			//TODO: Check PF_ type (TCP)
 			if (!result.address)
+				continue;
+
+			if (result.socketType != SocketType_TCP)
 				continue;
 
 			hostnameAddress = result.address;

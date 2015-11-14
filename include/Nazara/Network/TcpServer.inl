@@ -31,11 +31,13 @@ namespace Nz
 	inline SocketState TcpServer::Listen(NetProtocol protocol, UInt16 port, unsigned int queueSize)
 	{
 		NazaraAssert(protocol != NetProtocol_Any, "Any protocol not supported for Listen"); //< TODO
+		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol"); 
 
 		IpAddress any;
 		switch (protocol)
 		{
 			case NetProtocol_Any:
+			case NetProtocol_Unknown:
 				NazaraInternalError("Invalid protocol Any at this point");
 				return SocketState_NotConnected;
 
