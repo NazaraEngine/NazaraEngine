@@ -30,8 +30,9 @@ namespace Nz
 		NetProtocol_Any,
 		NetProtocol_IPv4,
 		NetProtocol_IPv6,
+		NetProtocol_Unknown,
 
-		NetProtocol_Max = NetProtocol_IPv6
+		NetProtocol_Max = NetProtocol_Unknown
 	};
 
 	enum SocketError
@@ -71,8 +72,9 @@ namespace Nz
 		SocketType_Raw,
 		SocketType_TCP,
 		SocketType_UDP,
+		SocketType_Unknown,
 
-		SocketType_Max = SocketType_UDP
+		SocketType_Max = SocketType_Unknown
 	};
 }
 

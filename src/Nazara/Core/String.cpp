@@ -4195,9 +4195,9 @@ namespace Nz
 
 		if (!m_sharedString.unique())
 		{
-			auto newSharedString = std::make_shared<SharedString>(GetSize());
+			auto newSharedString = std::make_shared<SharedString>(GetSize(), GetCapacity());
 			if (!discardContent)
-				std::memcpy(newSharedString->string.get(), GetConstBuffer(), GetSize());
+				std::memcpy(newSharedString->string.get(), GetConstBuffer(), GetSize()+1);
 
 			m_sharedString = std::move(newSharedString);
 		}

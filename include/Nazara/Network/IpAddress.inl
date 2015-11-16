@@ -118,6 +118,7 @@ namespace Nz
 		switch (first.m_protocol)
 		{
 			case NetProtocol_Any:
+			case NetProtocol_Unknown:
 				break;
 
 			case NetProtocol_IPv4:
@@ -167,6 +168,7 @@ namespace Nz
 		switch (first.m_protocol)
 		{
 			case NetProtocol_Any:
+			case NetProtocol_Unknown:
 				break;
 
 			case NetProtocol_IPv4:
