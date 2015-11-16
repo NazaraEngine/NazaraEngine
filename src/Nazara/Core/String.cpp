@@ -5,7 +5,6 @@
 ///TODO: Réécrire une bonne partie des algorithmes employés (Relu jusqu'à 3538)
 
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Unicode.hpp>
@@ -4201,13 +4200,6 @@ namespace Nz
 
 			m_sharedString = std::move(newSharedString);
 		}
-	}
-
-	bool String::FillHash(AbstractHash* hash) const
-	{
-		hash->Append(reinterpret_cast<const UInt8*>(GetConstBuffer()), GetSize());
-
-		return true;
 	}
 
 	const std::shared_ptr<String::SharedString>& String::GetEmptyString()

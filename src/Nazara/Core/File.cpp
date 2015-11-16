@@ -7,7 +7,6 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/Hash.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <cstring>
 #include <memory>
@@ -631,22 +630,6 @@ namespace Nz
 		return FileImpl::GetLastWriteTime(NormalizePath(filePath));
 	}
 
-	HashDigest File::GetHash(const String& filePath, HashType hash)
-	{
-		File file(filePath);
-
-		Hash h(hash);
-		return h.Process(file);
-	}
-
-	HashDigest File::GetHash(const String& filePath, AbstractHash* hash)
-	{
-		File file(filePath);
-
-		Hash h(hash);
-		return h.Process(file);
-	}
-
 	UInt64 File::GetSize(const String& filePath)
 	{
 		if (filePath.IsEmpty())
@@ -714,32 +697,4 @@ namespace Nz
 
 		return FileImpl::Rename(NormalizePath(sourcePath), NormalizePath(targetPath));
 	}
-
-	bool File::FillHash(AbstractHash* hash) const
-	{
-		File file(m_filePath);
-		if (!file.Open(OpenMode_ReadOnly))
-		{
-			NazaraError("Unable to open file");
-			return false;
-		}
-
-		UInt64 remainingSize = file.GetSize();
-
-		char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
-		while (remainingSize > 0)
-		{
-			unsigned int size = static_cast<unsigned int>(std::min(remainingSize, static_cast<UInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
-			if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
-			{
-				NazaraError("Unable to read file");
-				return false;
-			}
-
-			remainingSize -= size;
-			hash->Append(reinterpret_cast<UInt8*>(&buffer[0]), size);
-		}
-
-		return true;
-	} // Fermeture automatique du fichier
 }

@@ -28,23 +28,22 @@ namespace Nz
 		SHA384_Init(m_state);
 	}
 
-	HashDigest HashSHA384::End()
+	ByteArray HashSHA384::End()
 	{
 		UInt8 digest[SHA384_DIGEST_LENGTH];
 
 		SHA384_End(m_state, digest);
 
-		return HashDigest(GetHashName(), digest, SHA384_DIGEST_LENGTH);
+		return ByteArray(digest, SHA384_DIGEST_LENGTH);
 	}
 
-	unsigned int HashSHA384::GetDigestLength()
+	unsigned int HashSHA384::GetDigestLength() const
 	{
 		return SHA384_DIGEST_LENGTH;
 	}
 
-	String HashSHA384::GetHashName()
+	const char* HashSHA384::GetHashName() const
 	{
-		static String hashName = "SHA384";
-		return hashName;
+		return "SHA384";
 	}
 }

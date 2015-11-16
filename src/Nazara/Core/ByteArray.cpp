@@ -9,16 +9,9 @@
 
 namespace Nz
 {
-	std::ostream& operator<<(std::ostream& out, const ByteArray& byteArray)
+	std::ostream& operator<<(std::ostream& out, const Nz::ByteArray& byteArray)
 	{
-		out << byteArray.ToString();
+		out << byteArray.ToHex();
 		return out;
-	}
-
-	bool ByteArray::FillHash(AbstractHash* hash) const
-	{
-		hash->Append(GetConstBuffer(), GetSize());
-
-		return true;
 	}
 }

@@ -8,14 +8,23 @@
 #define NAZARA_ALGORITHM_CORE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <functional>
 #include <tuple>
 
 namespace Nz
 {
+	class AbstractHash;
+	class ByteArray;
+
 	template<typename F, typename Tuple> auto Apply(F&& fn, Tuple&& t);
 	template<typename O, typename F, typename Tuple> auto Apply(O& object, F&& fn, Tuple&& t);
+	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
+	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
+
+	template<typename T>
+	struct Hashable;
 
 	template<typename T>
 	struct TypeTag {};
