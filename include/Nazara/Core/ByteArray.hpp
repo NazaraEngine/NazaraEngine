@@ -8,8 +8,6 @@
 #define NAZARA_BYTEARRAY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <vector>
 
@@ -17,7 +15,7 @@ namespace Nz
 {
 	class AbstractHash;
 
-	class NAZARA_CORE_API ByteArray : public Hashable
+	class NAZARA_CORE_API ByteArray
 	{
 		using Container = std::vector<UInt8>;
 
@@ -90,6 +88,7 @@ namespace Nz
 			inline void ShrinkToFit();
 			inline void Swap(ByteArray& other);
 
+			inline String ToHex() const;
 			inline String ToString() const;
 
 			// STL interface
@@ -109,6 +108,8 @@ namespace Nz
 			inline size_type size() const noexcept;
 
 			// Operators
+			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const Nz::ByteArray& byteArray);
+
 			inline reference operator[](size_type pos);
 			inline const_reference operator[](size_type pos) const;
 			inline ByteArray& operator=(const ByteArray& array) = default;
@@ -124,13 +125,12 @@ namespace Nz
 			inline bool operator>=(const ByteArray& rhs) const;
 
 		private:
-			bool FillHash(AbstractHash* hash) const;
-
 			Container m_array;
 	};
-}
 
-NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const Nz::ByteArray& byteArray);
+	template<>
+	struct Hashable<ByteArray>;
+}
 
 namespace std
 {

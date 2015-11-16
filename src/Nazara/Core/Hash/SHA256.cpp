@@ -28,23 +28,22 @@ namespace Nz
 		SHA256_Init(m_state);
 	}
 
-	HashDigest HashSHA256::End()
+	ByteArray HashSHA256::End()
 	{
 		UInt8 digest[SHA256_DIGEST_LENGTH];
 
 		SHA256_End(m_state, digest);
 
-		return HashDigest(GetHashName(), digest, SHA256_DIGEST_LENGTH);
+		return ByteArray(digest, SHA256_DIGEST_LENGTH);
 	}
 
-	unsigned int HashSHA256::GetDigestLength()
+	unsigned int HashSHA256::GetDigestLength() const
 	{
 		return SHA256_DIGEST_LENGTH;
 	}
 
-	String HashSHA256::GetHashName()
+	const char* HashSHA256::GetHashName() const
 	{
-		static String hashName = "SHA256";
-		return hashName;
+		return "SHA256";
 	}
 }

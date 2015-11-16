@@ -109,7 +109,7 @@ namespace Nz
 		m_state->crc = 0xFFFFFFFF;
 	}
 
-	HashDigest HashCRC32::End()
+	ByteArray HashCRC32::End()
 	{
 		m_state->crc ^= 0xFFFFFFFF;
 
@@ -117,17 +117,16 @@ namespace Nz
 		SwapBytes(&m_state->crc, sizeof(UInt32));
 		#endif
 
-		return HashDigest(GetHashName(), reinterpret_cast<UInt8*>(&m_state->crc), 4);
+		return ByteArray(reinterpret_cast<UInt8*>(&m_state->crc), 4);
 	}
 
-	unsigned int HashCRC32::GetDigestLength()
+	unsigned int HashCRC32::GetDigestLength() const
 	{
 		return 4;
 	}
 
-	String HashCRC32::GetHashName()
+	const char* HashCRC32::GetHashName() const
 	{
-		static String hashName = "CRC32";
-		return hashName;
+		return "CRC32";
 	}
 }

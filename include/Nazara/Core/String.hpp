@@ -8,7 +8,7 @@
 #define NAZARA_STRING_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Hashable.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <atomic>
 #include <iosfwd>
 #include <memory>
@@ -20,7 +20,7 @@ namespace Nz
 	class AbstractHash;
 	class HashDigest;
 
-	class NAZARA_CORE_API String : public Hashable
+	class NAZARA_CORE_API String
 	{
 		public:
 			enum Flags
@@ -306,7 +306,6 @@ namespace Nz
 			String(std::shared_ptr<SharedString>&& sharedString);
 
 			void EnsureOwnership(bool discardContent = false);
-			bool FillHash(AbstractHash* hash) const;
 			inline void ReleaseString();
 
 			static const std::shared_ptr<SharedString>& GetEmptyString();
@@ -324,6 +323,9 @@ namespace Nz
 				std::unique_ptr<char[]> string;
 			};
 	};
+
+	template<>
+	struct Hashable<String>;
 }
 
 namespace std
@@ -331,6 +333,9 @@ namespace std
 	NAZARA_CORE_API istream& getline(istream& is, Nz::String& str);
 	NAZARA_CORE_API istream& getline(istream& is, Nz::String& str, char delim);
 	NAZARA_CORE_API void swap(Nz::String& lhs, Nz::String& rhs);
+
+	template<>
+	struct hash<Nz::String>;
 }
 
 #include <Nazara/Core/String.inl>

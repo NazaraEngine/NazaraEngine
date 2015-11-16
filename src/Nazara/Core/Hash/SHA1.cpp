@@ -28,23 +28,22 @@ namespace Nz
 		SHA1_Init(m_state);
 	}
 
-	HashDigest HashSHA1::End()
+	ByteArray HashSHA1::End()
 	{
 		UInt8 digest[SHA1_DIGEST_LENGTH];
 
 		SHA1_End(m_state, digest);
 
-		return HashDigest(GetHashName(), digest, SHA1_DIGEST_LENGTH);
+		return ByteArray(digest, SHA1_DIGEST_LENGTH);
 	}
 
-	unsigned int HashSHA1::GetDigestLength()
+	unsigned int HashSHA1::GetDigestLength() const
 	{
 		return SHA1_DIGEST_LENGTH;
 	}
 
-	String HashSHA1::GetHashName()
+	const char* HashSHA1::GetHashName() const
 	{
-		static String hashName = "SHA1";
-		return hashName;
+		return "SHA1";
 	}
 }
