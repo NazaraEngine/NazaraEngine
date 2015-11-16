@@ -57,6 +57,7 @@ namespace Nz
 		switch (m_protocol)
 		{
 			case NetProtocol_Any:
+			case NetProtocol_Unknown:
 				break;
 
 			case NetProtocol_IPv4:
@@ -80,6 +81,7 @@ namespace Nz
 			switch (m_protocol)
 			{
 				case NetProtocol_Any:
+				case NetProtocol_Unknown:
 					break;
 
 				case NetProtocol_IPv4:
@@ -151,6 +153,8 @@ namespace Nz
 
 	String IpAddress::ResolveAddress(const IpAddress& address, String* service, ResolveError* error)
 	{
+		NazaraAssert(address.IsValid(), "Invalid address");
+
 		String hostname;
 		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
 
@@ -159,6 +163,8 @@ namespace Nz
 
 	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service, ResolveError* error)
 	{
+		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+
 		return IpAddressImpl::ResolveHostname(protocol, hostname, service, error);
 	}
 
