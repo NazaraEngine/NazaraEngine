@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -37,6 +38,16 @@ namespace Nz
 	{
 		string[strSize] = '\0';
 	}
+
+	template<>
+	struct Hashable<String>
+	{
+		bool operator()(const String& str, AbstractHash* hash) const
+		{
+			hash->Append(reinterpret_cast<const UInt8*>(str.GetConstBuffer()), str.GetSize());
+			return true;
+		}
+	};
 }
 
 namespace std

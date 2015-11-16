@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Core/HashDigest.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 
 namespace Nz
 {
@@ -21,12 +21,12 @@ namespace Nz
 			HashMD5();
 			virtual ~HashMD5();
 
-			void Append(const UInt8* data, unsigned int len);
-			void Begin();
-			HashDigest End();
+			void Append(const UInt8* data, unsigned int len) override;
+			void Begin() override;
+			ByteArray End() override;
 
-			static unsigned int GetDigestLength();
-			static String GetHashName();
+			unsigned int GetDigestLength() const override;
+			const char* GetHashName() const override;
 
 		private:
 			HashMD5_state* m_state;

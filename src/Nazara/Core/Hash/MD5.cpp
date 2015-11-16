@@ -325,7 +325,7 @@ namespace Nz
 		m_state->abcd[3] = 0x10325476;
 	}
 
-	HashDigest HashMD5::End()
+	ByteArray HashMD5::End()
 	{
 		static const unsigned char pad[64] = {
 			0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -349,17 +349,16 @@ namespace Nz
 		for (i = 0; i < 16; ++i)
 			digest[i] = static_cast<UInt8>(m_state->abcd[i >> 2] >> ((i & 3) << 3));
 
-		return HashDigest(GetHashName(), &digest[0], 16);
+		return ByteArray(&digest[0], 16);
 	}
 
-	unsigned int HashMD5::GetDigestLength()
+	unsigned int HashMD5::GetDigestLength() const
 	{
 		return 16;
 	}
 
-	String HashMD5::GetHashName()
+	const char* HashMD5::GetHashName() const
 	{
-		static String hashName = "MD5";
-		return hashName;
+		return "MD5";
 	}
 }

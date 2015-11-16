@@ -8,10 +8,12 @@
 #define NAZARA_ABSTRACTHASH_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Enums.hpp>
+#include <memory>
 
 namespace Nz
 {
-	class HashDigest;
+	class ByteArray;
 
 	class NAZARA_CORE_API AbstractHash
 	{
@@ -23,10 +25,15 @@ namespace Nz
 
 			virtual void Append(const UInt8* data, unsigned int len) = 0;
 			virtual void Begin() = 0;
-			virtual HashDigest End() = 0;
+			virtual ByteArray End() = 0;
+
+			virtual unsigned int GetDigestLength() const = 0;
+			virtual const char* GetHashName() const = 0;
 
 			AbstractHash& operator=(const AbstractHash&) = delete;
 			AbstractHash& operator=(AbstractHash&&) = default;
+
+			static std::unique_ptr<AbstractHash> Get(HashType hash);
 	};
 }
 

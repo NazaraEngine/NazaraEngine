@@ -11,8 +11,6 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/Hashable.hpp>
-#include <Nazara/Core/HashDigest.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/String.hpp>
 
@@ -28,7 +26,7 @@ namespace Nz
 {
 	class FileImpl;
 
-	class NAZARA_CORE_API File : public Hashable, public InputStream
+	class NAZARA_CORE_API File : public InputStream
 	{
 		public:
 			File();
@@ -83,6 +81,8 @@ namespace Nz
 			File& operator=(File&& file) noexcept;
 
 			static String AbsolutePath(const String& filePath);
+			static inline ByteArray ComputeHash(HashType hash, const String& filePath);
+			static inline ByteArray ComputeHash(AbstractHash* hash, const String& filePath);
 			static bool Copy(const String& sourcePath, const String& targetPath);
 			static bool Delete(const String& filePath);
 			static bool Exists(const String& filePath);
@@ -90,8 +90,6 @@ namespace Nz
 			static String GetDirectory(const String& filePath);
 			static time_t GetLastAccessTime(const String& filePath);
 			static time_t GetLastWriteTime(const String& filePath);
-			static HashDigest GetHash(const String& filePath, HashType hash);
-			static HashDigest GetHash(const String& filePath, AbstractHash* hash);
 			static UInt64 GetSize(const String& filePath);
 			static bool IsAbsolute(const String& filePath);
 			static String NormalizePath(const String& filePath);
@@ -99,8 +97,6 @@ namespace Nz
 			static bool Rename(const String& sourcePath, const String& targetPath);
 
 		private:
-			bool FillHash(AbstractHash* hash) const;
-
 			NazaraMutexAttrib(m_mutex, mutable)
 
 			Endianness m_endianness;
@@ -108,6 +104,11 @@ namespace Nz
 			FileImpl* m_impl;
 			unsigned int m_openMode;
 	};
+
+	template<>
+	struct Hashable<File>;
 }
+
+#include <Nazara/Core/File.inl>
 
 #endif // NAZARA_FILE_HPP
