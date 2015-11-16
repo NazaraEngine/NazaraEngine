@@ -23,9 +23,17 @@ namespace Nz
 	}
 
 	inline String::SharedString::SharedString(unsigned int strSize) :
-	capacity(strSize),
+	capacity(strSize), 
 	size(strSize),
 	string(new char[strSize + 1])
+	{
+		string[strSize] = '\0';
+	}
+
+	inline String::SharedString::SharedString(unsigned int strSize, unsigned int strCapacity) :
+	capacity(strCapacity),
+	size(strSize),
+	string(new char[strCapacity + 1])
 	{
 		string[strSize] = '\0';
 	}

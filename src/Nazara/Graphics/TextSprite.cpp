@@ -217,6 +217,8 @@ namespace Nz
 		for (auto& pair : m_renderInfos)
 		{
 			RenderIndices& indices = pair.second;
+			if (indices.count == 0)
+				continue; //< Ignore empty render indices
 
 			SparsePtr<Color> color = colorPtr + indices.first*4;
 			SparsePtr<Vector3f> pos = posPtr + indices.first*4;
