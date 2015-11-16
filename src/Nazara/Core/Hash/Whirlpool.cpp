@@ -962,7 +962,7 @@ namespace Nz
 			m_state->hash[i] = 0L; // initial value
 	}
 
-	HashDigest HashWhirlpool::End()
+	ByteArray HashWhirlpool::End()
 	{
 		UInt8 result[64];
 
@@ -1012,17 +1012,16 @@ namespace Nz
 		m_state->bufferBits = bufferBits;
 		m_state->bufferPos = bufferPos;
 
-		return HashDigest(GetHashName(), &result[0], 64);
+		return ByteArray(&result[0], 64);
 	}
 
-	unsigned int HashWhirlpool::GetDigestLength()
+	unsigned int HashWhirlpool::GetDigestLength() const
 	{
 		return 64;
 	}
 
-	String HashWhirlpool::GetHashName()
+	const char* HashWhirlpool::GetHashName() const
 	{
-		static String hashName = "Whirlpool";
-		return hashName;
+		return "Whirlpool";
 	}
 }

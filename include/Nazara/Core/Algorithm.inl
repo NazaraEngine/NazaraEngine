@@ -6,6 +6,7 @@
 // Merci à Ryan "FullMetal Alchemist" Lahfa
 // Merci aussi à Freedom de siteduzero.com
 
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -41,6 +42,21 @@ namespace Nz
 
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
 	}
+
+	template<typename T> 
+	ByteArray ComputeHash(HashType hash, const T& v)
+	{
+		return ComputeHash(AbstractHash::Get(hash).get(), v);
+	}
+
+	template<typename T> 
+	ByteArray ComputeHash(AbstractHash* hash, const T& v)
+	{
+		hash->Begin();
+		Hashable<T>()(v, hash);
+		return hash->End();
+	}
+
 	// Algorithme venant de CityHash par Google
 	// http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
 	template<typename T>

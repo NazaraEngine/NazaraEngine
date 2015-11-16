@@ -48,7 +48,7 @@ namespace Nz
 		m_state->sum2 = 0xff;
 	}
 
-	HashDigest HashFletcher16::End()
+	ByteArray HashFletcher16::End()
 	{
 		m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
 		m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
@@ -59,17 +59,16 @@ namespace Nz
 		SwapBytes(&fletcher, sizeof(UInt32));
 		#endif
 
-		return HashDigest(GetHashName(), reinterpret_cast<UInt8*>(&fletcher), 2);
+		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
 
-	unsigned int HashFletcher16::GetDigestLength()
+	unsigned int HashFletcher16::GetDigestLength() const
 	{
 		return 2;
 	}
 
-	String HashFletcher16::GetHashName()
+	const char* HashFletcher16::GetHashName() const
 	{
-		static String hashName = "Fletcher16";
-		return hashName;
+		return "Fletcher16";
 	}
 }

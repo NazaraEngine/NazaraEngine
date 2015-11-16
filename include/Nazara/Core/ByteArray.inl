@@ -193,6 +193,17 @@ namespace Nz
 		m_array.swap(other.m_array);
 	}
 
+	inline String ByteArray::ToHex() const
+	{
+		unsigned int length = m_array.size() * 2;
+
+		String hexOutput(length, '\0');
+		for (unsigned int i = 0; i < m_array.size(); ++i)
+			std::sprintf(&hexOutput[i * 2], "%02x", m_array[i]);
+
+		return hexOutput;
+	}
+
 	inline String ByteArray::ToString() const
 	{
 		return String(reinterpret_cast<const char*>(GetConstBuffer()), GetSize());
@@ -321,6 +332,16 @@ namespace Nz
 	{
 		return m_array >= rhs.m_array;
 	}
+
+	template<>
+	struct Hashable<ByteArray>
+	{
+		bool operator()(const ByteArray& byteArray, AbstractHash* hash) const
+		{
+			hash->Append(byteArray.GetConstBuffer(), byteArray.GetSize());
+			return true;
+		}
+	};
 }
 
 namespace std
