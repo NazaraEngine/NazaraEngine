@@ -26,6 +26,8 @@ namespace Nz
 			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& service, ResolveError* error);
 
 			static socklen_t ToSockAddr(const IpAddress& ipAddress, void* buffer);
+			static NetProtocol TranslatePFToNetProtocol(int family);
+			static SocketType TranslateSockToNetProtocol(int socketType);
 			static ResolveError TranslateWSAErrorToResolveError(int error);
 	};
 }

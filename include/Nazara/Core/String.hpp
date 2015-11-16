@@ -317,6 +317,7 @@ namespace Nz
 			{
 				inline SharedString();
 				inline SharedString(unsigned int strSize);
+				inline SharedString(unsigned int strSize, unsigned int strCapacity);
 
 				unsigned int capacity;
 				unsigned int size;

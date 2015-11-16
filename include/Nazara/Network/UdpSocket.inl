@@ -30,6 +30,7 @@ namespace Nz
 		switch (m_protocol)
 		{
 			case NetProtocol_Any:
+			case NetProtocol_Unknown:
 				NazaraInternalError("Invalid protocol Any at this point");
 				return SocketState_NotConnected;
 
@@ -48,6 +49,8 @@ namespace Nz
 
 	bool UdpSocket::Create(NetProtocol protocol)
 	{
+		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+
 		return Open(protocol);
 	}
 
