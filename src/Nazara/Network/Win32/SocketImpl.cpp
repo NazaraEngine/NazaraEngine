@@ -275,6 +275,44 @@ namespace Nz
 		return availableBytes;
 	}
 
+	bool SocketImpl::QueryBroadcasting(SocketHandle handle, SocketError* error)
+	{
+		BOOL code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code == TRUE;
+	}
+
+	bool SocketImpl::QueryKeepAlive(SocketHandle handle, SocketError* error)
+	{
+		BOOL code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code == TRUE;
+	}
+
 	unsigned int SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
 		unsigned int code;
@@ -292,6 +330,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return code;
+	}
+
+	bool SocketImpl::QueryNoDelay(SocketHandle handle, SocketError* error)
+	{
+		BOOL code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code == TRUE;
 	}
 
 	IpAddress SocketImpl::QueryPeerAddress(SocketHandle handle, SocketError* error)
