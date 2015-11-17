@@ -416,33 +416,16 @@ namespace Nz
 		return true;
 	}
 
-	bool File::Write(const ByteArray& byteArray)
+	std::size_t File::Write(const void* buffer, std::size_t size)
 	{
-		ByteArray::size_type size = byteArray.GetSize();
-		return Write(byteArray.GetConstBuffer(), 1, size) == size;
-	}
+		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssert(m_openMode & OpenMode_ReadWrite || m_openMode & OpenMode_WriteOnly, "File not opened with write access");
+		NazaraLock(m_mutex)
 
-	bool File::Write(const String& string)
-	{
-		String temp(string);
+		if (!buffer || size == 0)
+			return 0;
 
-		if (m_streamOptions & StreamOption_Text)
-		{
-			#if defined(NAZARA_PLATFORM_WINDOWS)
-			temp.Replace("\n", "\r\n");
-			#elif defined(NAZARA_PLATFORM_LINUX)
-			// Rien à faire
-			#elif defined(NAZARA_PLATFORM_MACOS)
-			temp.Replace('\n', '\r');
-			#else
-				#error OS not handled
-			#endif
-		}
-
-		unsigned int size = temp.GetSize();
-		std::size_t bytesWritten = Write(temp.GetBuffer(), sizeof(char), size);
-
-		return bytesWritten == size*sizeof(char);
+		return m_impl->Write(buffer, size);
 	}
 
 	std::size_t File::Write(const void* buffer, std::size_t typeSize, unsigned int count)
