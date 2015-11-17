@@ -4205,7 +4205,6 @@ namespace Nz
 	const std::shared_ptr<String::SharedString>& String::GetEmptyString()
 	{
 		static auto emptyString = std::make_shared<SharedString>();
-
 		return emptyString;
 	}
 
