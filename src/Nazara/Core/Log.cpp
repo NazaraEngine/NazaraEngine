@@ -161,5 +161,5 @@ namespace Nz
 	{
 		static Log log;
 		return &log;
-}
+	}
 }

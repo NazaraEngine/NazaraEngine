@@ -8,7 +8,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <set>
 #include <Nazara/Utility/Debug.hpp>

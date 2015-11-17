@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -139,7 +139,7 @@ namespace Nz
 		}
 		#endif
 
-		MemoryStream stream(data, size);
+		MemoryView stream(data, size);
 
 		bool found = false;
 		for (Loader& loader : Type::s_loaders)
