@@ -55,8 +55,7 @@ namespace Nz
 	OutputStream(std::move(file)),
 	m_endianness(file.m_endianness),
 	m_filePath(std::move(file.m_filePath)),
-	m_impl(file.m_impl),
-	m_openMode(file.m_openMode)
+	m_impl(file.m_impl)
 	{
 		file.m_impl = nullptr;
 	}
@@ -382,16 +381,20 @@ namespace Nz
 		NazaraAssert(IsOpen(), "File is not opened");
 		NazaraAssert(IsWritable(), "File not opened with write access");
 
-		if (!buffer || size == 0)
+		if (size == 0)
 			return 0;
+
+		NazaraAssert(buffer, "Invalid buffer");
 
 		return m_impl->Write(buffer, size);
 	}
 
 	std::size_t File::Write(const void* buffer, std::size_t typeSize, unsigned int count)
 	{
-		if (!buffer || count == 0 || typeSize == 0)
+		if (count == 0 || typeSize == 0)
 			return 0;
+
+		NazaraAssert(buffer, "Invalid buffer");
 
 		NazaraLock(m_mutex)
 
