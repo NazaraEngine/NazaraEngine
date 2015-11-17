@@ -16,7 +16,6 @@ namespace Nz
 	class NAZARA_CORE_API Stream
 	{
 		public:
-			Stream() = default;
 			Stream(const Stream&) = default;
 			Stream(Stream&&) = default;
 			virtual ~Stream();
@@ -24,17 +23,26 @@ namespace Nz
 			virtual UInt64 GetCursorPos() const = 0;
 			virtual String GetDirectory() const;
 			virtual String GetPath() const;
-			unsigned int GetStreamOptions() const;
+			inline UInt32 GetOpenMode() const;
+			inline UInt32 GetStreamOptions() const;
+
+			inline bool IsReadable() const;
+			inline bool IsWritable() const;
 
 			virtual bool SetCursorPos(UInt64 offset) = 0;
-			void SetStreamOptions(unsigned int options);
+			void SetStreamOptions(UInt32 options);
 
 			Stream& operator=(const Stream&) = default;
 			Stream& operator=(Stream&&) = default;
 
 		protected:
-			unsigned int m_streamOptions = 0;
+			inline Stream(UInt32 openMode);
+			
+			UInt32 m_openMode;
+			UInt32 m_streamOptions;
 	};
 }
+
+#include <Nazara/Core/Stream.inl>
 
 #endif // NAZARA_STREAM_HPP

@@ -22,7 +22,12 @@ namespace Nz
 			bool Write(const ByteArray& byteArray);
 			bool Write(const String& string);
 			virtual std::size_t Write(const void* buffer, std::size_t size) = 0;
+
+		protected:
+			inline OutputStream();
 	};
 }
+
+#include <Nazara/Core/OutputStream.inl>
 
 #endif // NAZARA_OUTPUTSTREAM_HPP
