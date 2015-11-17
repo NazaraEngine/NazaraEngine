@@ -29,7 +29,7 @@ namespace Nz
 			bool EndOfFile() const;
 			void Flush();
 			UInt64 GetCursorPos() const;
-			bool Open(const String& filePath, unsigned int mode);
+			bool Open(const String& filePath, UInt32 mode);
 			std::size_t Read(void* buffer, std::size_t size);
 			bool SetCursorPos(CursorPosition pos, Int64 offset);
 			std::size_t Write(const void* buffer, std::size_t size);

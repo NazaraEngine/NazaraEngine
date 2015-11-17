@@ -10,6 +10,7 @@
 namespace Nz
 {
 	MemoryStream::MemoryStream(const void* ptr, UInt64 size) :
+	Stream(OpenMode_ReadOnly),
 	m_ptr(reinterpret_cast<const UInt8*>(ptr)),
 	m_pos(0),
 	m_size(size)

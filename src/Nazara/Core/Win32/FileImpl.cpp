@@ -54,7 +54,7 @@ namespace Nz
 		return position.QuadPart;
 	}
 
-	bool FileImpl::Open(const String& filePath, unsigned int mode)
+	bool FileImpl::Open(const String& filePath, UInt32 mode)
 	{
 		DWORD access;
 		DWORD shareMode = FILE_SHARE_READ;
