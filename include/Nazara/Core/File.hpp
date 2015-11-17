@@ -12,6 +12,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/OutputStream.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
@@ -26,7 +27,7 @@ namespace Nz
 {
 	class FileImpl;
 
-	class NAZARA_CORE_API File : public InputStream
+	class NAZARA_CORE_API File : public InputStream, public OutputStream
 	{
 		public:
 			File();
@@ -42,38 +43,38 @@ namespace Nz
 			bool Delete();
 
 			bool EndOfFile() const;
-			bool EndOfStream() const;
+			bool EndOfStream() const override;
 
 			bool Exists() const;
 
-			void Flush();
+			void Flush() override;
 
 			time_t GetCreationTime() const;
-			UInt64 GetCursorPos() const;
-			String GetDirectory() const;
+			UInt64 GetCursorPos() const override;
+			String GetDirectory() const override;
 			String GetFileName() const;
 			time_t GetLastAccessTime() const;
 			time_t GetLastWriteTime() const;
-			String GetPath() const;
-			UInt64 GetSize() const;
+			String GetPath() const override;
+			UInt64 GetSize() const override;
 
 			bool IsOpen() const;
 
 			bool Open(unsigned int openMode = OpenMode_Current);
 			bool Open(const String& filePath, unsigned int openMode = OpenMode_Current);
 
-			std::size_t Read(void* buffer, std::size_t size);
+			std::size_t Read(void* buffer, std::size_t size) override;
 			std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
 			bool Rename(const String& newFilePath);
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
-			bool SetCursorPos(UInt64 offset);
+			bool SetCursorPos(UInt64 offset) override;
 			void SetEndianness(Endianness endianness);
 			bool SetFile(const String& filePath);
 			bool SetOpenMode(unsigned int openMode);
 
-			bool Write(const Nz::ByteArray& byteArray);
-			bool Write(const String& string);
+			using OutputStream::Write;
+			std::size_t Write(const void* buffer, std::size_t size) override;
 			std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 
 			File& operator=(const String& filePath);
