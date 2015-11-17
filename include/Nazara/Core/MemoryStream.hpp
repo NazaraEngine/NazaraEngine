@@ -9,33 +9,38 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/OutputStream.hpp>
+#include <vector>
 
 namespace Nz
 {
-	class NAZARA_CORE_API MemoryStream : public InputStream
+	class NAZARA_CORE_API MemoryStream : public InputStream, public OutputStream
 	{
 		public:
-			MemoryStream(const void* ptr, UInt64 size);
-			MemoryStream(const MemoryStream&) = delete;
-			MemoryStream(MemoryStream&&) = delete; ///TODO
-			~MemoryStream();
+			MemoryStream(const void* ptr, unsigned int size);
+			MemoryStream(const MemoryStream&) = default;
+			MemoryStream(MemoryStream&&) = default;
+			~MemoryStream() = default;
 
-			bool EndOfStream() const;
+			bool EndOfStream() const override;
 
-			UInt64 GetCursorPos() const;
-			UInt64 GetSize() const;
+			void Flush() override;
 
-			std::size_t Read(void* buffer, std::size_t size);
+			UInt64 GetCursorPos() const override;
+			UInt64 GetSize() const override;
 
-			bool SetCursorPos(UInt64 offset);
+			std::size_t Read(void* buffer, std::size_t size) override;
 
-			MemoryStream& operator=(const MemoryStream&) = delete;
-			MemoryStream& operator=(MemoryStream&&) = delete; ///TODO
+			bool SetCursorPos(UInt64 offset) override;
+
+			std::size_t Write(const void* buffer, std::size_t size) override;
+
+			MemoryStream& operator=(const MemoryStream&) = default;
+			MemoryStream& operator=(MemoryStream&&) = default;
 
 		private:
-			const UInt8* m_ptr;
+			std::vector<UInt8> m_buffer;
 			UInt64 m_pos;
-			UInt64 m_size;
 	};
 }
 
