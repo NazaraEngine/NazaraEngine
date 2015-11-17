@@ -57,6 +57,7 @@
 #include <Nazara/Core/MemoryManager.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>

@@ -14,7 +14,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <memory>
 #include <set>
 #include <vector>
@@ -124,7 +124,7 @@ namespace Nz
 
 				bool Open(const void* data, std::size_t size, bool forceMono)
 				{
-					m_ownedStream.reset(new MemoryStream(data, size));
+					m_ownedStream.reset(new MemoryView(data, size));
 					return Open(*m_ownedStream, forceMono);
 				}
 

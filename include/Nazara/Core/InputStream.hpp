@@ -12,7 +12,7 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API InputStream : public virtual Stream
+	class NAZARA_CORE_API InputStream : virtual public Stream
 	{
 		public:
 			virtual ~InputStream();
