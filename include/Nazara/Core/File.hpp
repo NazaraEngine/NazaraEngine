@@ -102,7 +102,6 @@ namespace Nz
 
 			Endianness m_endianness;
 			String m_filePath;
-			UInt32 m_openMode;
 			FileImpl* m_impl;
 	};
 
