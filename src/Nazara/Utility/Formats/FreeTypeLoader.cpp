@@ -9,7 +9,7 @@
 #include FT_OUTLINE_H
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
@@ -294,7 +294,7 @@ namespace Nz
 
 				void SetMemory(const void* data, std::size_t size)
 				{
-					m_ownedStream.reset(new MemoryStream(data, size));
+					m_ownedStream.reset(new MemoryView(data, size));
 					SetStream(*m_ownedStream);
 				}
 
