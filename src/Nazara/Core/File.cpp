@@ -31,29 +31,28 @@
 namespace Nz
 {
 	File::File() :
+	Stream(OpenMode_Current),
 	m_endianness(Endianness_Unknown),
-	m_impl(nullptr),
-	m_openMode(OpenMode_Current)
+	m_impl(nullptr)
 	{
 	}
 
 	File::File(const String& filePath) :
-	m_endianness(Endianness_Unknown),
-	m_impl(nullptr),
-	m_openMode(OpenMode_Current)
+	File()
 	{
 		SetFile(filePath);
 	}
 
-	File::File(const String& filePath, unsigned int openMode) :
-	m_endianness(Endianness_Unknown),
-	m_impl(nullptr),
-	m_openMode(openMode)
+	File::File(const String& filePath, UInt32 openMode) :
+	File()
 	{
 		Open(filePath, openMode);
 	}
 
 	File::File(File&& file) noexcept :
+	Stream(std::move(file)),
+	InputStream(std::move(file)),
+	OutputStream(std::move(file)),
 	m_endianness(file.m_endianness),
 	m_filePath(std::move(file.m_filePath)),
 	m_impl(file.m_impl),
@@ -127,19 +126,8 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return;
-		}
-
-		if ((m_openMode & OpenMode_ReadWrite) == 0 && (m_openMode & OpenMode_WriteOnly) == 0)
-		{
-			NazaraError("Cannot flush file without write access");
-			return;
-		}
-		#endif
+		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssert(IsWritable(), "File not opened with write access");
 
 		m_impl->Flush();
 	}
@@ -155,13 +143,7 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsOpen(), "File is not opened");
 
 		return m_impl->GetCursorPos();
 	}
@@ -219,19 +201,8 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return 0;
-		}
-
-		if ((m_openMode & OpenMode_ReadOnly) == 0 && (m_openMode & OpenMode_ReadWrite) == 0)
-		{
-			NazaraError("File not opened with read access");
-			return 0;
-		}
-		#endif
+		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsReadable(), "File not opened with read access");
 
 		if (size == 0)
 			return 0;
@@ -245,7 +216,7 @@ namespace Nz
 
 			m_impl->SetCursorPos(CursorPosition_AtCurrent, size);
 
-			return static_cast<std::size_t>(m_impl->GetCursorPos()-currentPos);
+			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
 		}
 	}
 
@@ -327,13 +298,7 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsOpen(), "File is not opened");
 
 		return m_impl->SetCursorPos(pos, offset);
 	}
@@ -342,13 +307,7 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsOpen(), "File is not opened");
 
 		return m_impl->SetCursorPos(CursorPosition_AtBegin, offset);
 	}
@@ -418,9 +377,10 @@ namespace Nz
 
 	std::size_t File::Write(const void* buffer, std::size_t size)
 	{
-		NazaraAssert(IsOpen(), "File is not open");
-		NazaraAssert(m_openMode & OpenMode_ReadWrite || m_openMode & OpenMode_WriteOnly, "File not opened with write access");
 		NazaraLock(m_mutex)
+
+		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsWritable(), "File not opened with write access");
 
 		if (!buffer || size == 0)
 			return 0;
@@ -430,26 +390,11 @@ namespace Nz
 
 	std::size_t File::Write(const void* buffer, std::size_t typeSize, unsigned int count)
 	{
-		NazaraLock(m_mutex)
-
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not opened");
-			return 0;
-		}
-
-		if ((m_openMode & OpenMode_ReadWrite) == 0 && (m_openMode & OpenMode_WriteOnly) == 0)
-		{
-			NazaraError("File not opened with write access");
-			return 0;
-		}
-		#endif
-
 		if (!buffer || count == 0 || typeSize == 0)
 			return 0;
 
-		std::size_t bytesWritten;
+		NazaraLock(m_mutex)
+
 		if (m_endianness != Endianness_Unknown && m_endianness != GetPlatformEndianness() && typeSize != 1)
 		{
 			std::unique_ptr<char[]> buf(new char[count*typeSize]);
@@ -458,12 +403,10 @@ namespace Nz
 			for (unsigned int i = 0; i < count; ++i)
 				SwapBytes(&buf[i*typeSize], typeSize);
 
-			bytesWritten = m_impl->Write(buf.get(), count*typeSize);
+			return Write(buf.get(), count*typeSize);
 		}
 		else
-			bytesWritten = m_impl->Write(buffer, count*typeSize);
-
-		return bytesWritten;
+			return Write(buffer, count*typeSize);
 	}
 
 	File& File::operator=(const String& filePath)

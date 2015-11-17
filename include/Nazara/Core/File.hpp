@@ -32,7 +32,7 @@ namespace Nz
 		public:
 			File();
 			File(const String& filePath);
-			File(const String& filePath, unsigned int openMode);
+			File(const String& filePath, UInt32 openMode);
 			File(const File&) = delete;
 			File(File&& file) noexcept;
 			~File();
@@ -71,7 +71,7 @@ namespace Nz
 			bool SetCursorPos(UInt64 offset) override;
 			void SetEndianness(Endianness endianness);
 			bool SetFile(const String& filePath);
-			bool SetOpenMode(unsigned int openMode);
+			bool SetOpenMode(UInt32 openMode);
 
 			using OutputStream::Write;
 			std::size_t Write(const void* buffer, std::size_t size) override;
@@ -102,8 +102,8 @@ namespace Nz
 
 			Endianness m_endianness;
 			String m_filePath;
+			UInt32 m_openMode;
 			FileImpl* m_impl;
-			unsigned int m_openMode;
 	};
 
 	template<>
