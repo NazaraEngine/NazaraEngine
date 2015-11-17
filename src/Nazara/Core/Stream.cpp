@@ -18,14 +18,4 @@ namespace Nz
 	{
 		return String();
 	}
-
-	unsigned int Stream::GetStreamOptions() const
-	{
-		return m_streamOptions;
-	}
-
-	void Stream::SetStreamOptions(unsigned int options)
-	{
-		m_streamOptions = options;
-	}
 }

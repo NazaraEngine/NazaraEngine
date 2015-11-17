@@ -18,7 +18,8 @@ namespace Nz
 
 	void FileImpl::Close()
 	{
-		close(m_fileDescriptor);
+        if (m_fileDescriptor != -1)
+            close(m_fileDescriptor);
 	}
 
 	bool FileImpl::EndOfFile() const
@@ -48,7 +49,7 @@ namespace Nz
 		return static_cast<UInt64>(position);
 	}
 
-	bool FileImpl::Open(const String& filePath, unsigned int mode)
+	bool FileImpl::Open(const String& filePath, UInt32 mode)
 	{
 		int flags;
 		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
