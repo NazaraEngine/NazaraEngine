@@ -71,7 +71,6 @@ namespace Nz
 			bool SetCursorPos(UInt64 offset) override;
 			void SetEndianness(Endianness endianness);
 			bool SetFile(const String& filePath);
-			bool SetOpenMode(UInt32 openMode);
 
 			using OutputStream::Write;
 			std::size_t Write(const void* buffer, std::size_t size) override;
