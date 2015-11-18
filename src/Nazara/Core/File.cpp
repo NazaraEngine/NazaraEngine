@@ -344,36 +344,6 @@ namespace Nz
 		return true;
 	}
 
-	bool File::SetOpenMode(unsigned int openMode)
-	{
-		NazaraLock(m_mutex)
-
-		if (openMode == OpenMode_Current || openMode == m_openMode)
-			return true;
-
-		if (IsOpen())
-		{
-			std::unique_ptr<FileImpl> impl(new FileImpl(this));
-			if (!impl->Open(m_filePath, openMode))
-			{
-				NazaraError("Failed to open file with new mode: " + Error::GetLastSystemError());
-				return false;
-			}
-
-			m_impl->Close();
-			delete m_impl;
-
-			m_impl = impl.release();
-
-			if (m_openMode & OpenMode_Text)
-				m_streamOptions |= StreamOption_Text;
-		}
-
-		m_openMode = openMode;
-
-		return true;
-	}
-
 	std::size_t File::Write(const void* buffer, std::size_t size)
 	{
 		NazaraLock(m_mutex)
