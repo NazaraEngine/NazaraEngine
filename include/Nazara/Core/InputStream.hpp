@@ -24,6 +24,9 @@ namespace Nz
 			virtual std::size_t Read(void* buffer, std::size_t size) = 0;
 			virtual String ReadLine(unsigned int lineSize = 0);
 
+			template<typename T>
+			InputStream& operator>>(T& value);
+
 		protected:
 			inline InputStream();
 	};

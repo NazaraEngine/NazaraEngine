@@ -8,7 +8,6 @@
 #define NAZARA_STRING_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <atomic>
 #include <iosfwd>
 #include <memory>
@@ -19,6 +18,8 @@ namespace Nz
 {
 	class AbstractHash;
 	class HashDigest;
+	class InputStream;
+	class OutputStream;
 
 	class NAZARA_CORE_API String
 	{
@@ -325,6 +326,8 @@ namespace Nz
 	};
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
+	NAZARA_CORE_API bool Serialize(OutputStream* output, const String& string);
+	NAZARA_CORE_API bool Unserialize(InputStream* input, String* string);
 }
 
 namespace std

@@ -9,10 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/String.hpp>
 
 namespace Nz
 {
+	class String; //< Do not include String.hpp in this file
+
 	class NAZARA_CORE_API Stream
 	{
 		public:
