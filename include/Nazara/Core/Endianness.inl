@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline Endianness GetPlatformEndianness()
+	inline constexpr Endianness GetPlatformEndianness()
 	{
 		#if defined(NAZARA_BIG_ENDIAN)
 		return Endianness_BigEndian;

@@ -8,6 +8,7 @@
 #define NAZARA_STRING_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Endianness.hpp>
 #include <atomic>
 #include <iosfwd>
 #include <memory>
@@ -326,8 +327,8 @@ namespace Nz
 	};
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(OutputStream* output, const String& string);
-	NAZARA_CORE_API bool Unserialize(InputStream* input, String* string);
+	NAZARA_CORE_API bool Serialize(OutputStream* output, const String& string, Endianness dataEndianness);
+	NAZARA_CORE_API bool Unserialize(InputStream* input, String* string, Endianness dataEndianness);
 }
 
 namespace std
