@@ -596,4 +596,32 @@ namespace Nz
 
 		return FileImpl::Rename(NormalizePath(sourcePath), NormalizePath(targetPath));
 	}
+
+	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile)
+	{
+		File file(originalFile.GetPath());
+		if (!file.Open(OpenMode_ReadOnly))
+		{
+			NazaraError("Unable to open file");
+			return false;
+		}
+
+		UInt64 remainingSize = file.GetSize();
+
+		char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
+		while (remainingSize > 0)
+		{
+			unsigned int size = static_cast<unsigned int>(std::min(remainingSize, static_cast<UInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
+			if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
+			{
+				NazaraError("Unable to read file");
+				return false;
+			}
+
+			remainingSize -= size;
+			hash->Append(reinterpret_cast<UInt8*>(&buffer[0]), size);
+		}
+
+		return true;
+	};
 }

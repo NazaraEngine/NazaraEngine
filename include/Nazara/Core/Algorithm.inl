@@ -53,7 +53,9 @@ namespace Nz
 	ByteArray ComputeHash(AbstractHash* hash, const T& v)
 	{
 		hash->Begin();
-		Hashable<T>()(v, hash);
+		
+		HashAppend(hash, v);
+
 		return hash->End();
 	}
 

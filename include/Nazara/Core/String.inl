@@ -39,15 +39,11 @@ namespace Nz
 		string[strSize] = '\0';
 	}
 
-	template<>
-	struct Hashable<String>
+	inline bool HashAppend(AbstractHash* hash, const String& string)
 	{
-		bool operator()(const String& str, AbstractHash* hash) const
-		{
-			hash->Append(reinterpret_cast<const UInt8*>(str.GetConstBuffer()), str.GetSize());
-			return true;
-		}
-	};
+		hash->Append(reinterpret_cast<const UInt8*>(string.GetConstBuffer()), string.GetSize());
+		return true;
+	}
 }
 
 namespace std
