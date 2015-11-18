@@ -5,6 +5,7 @@
 ///TODO: Réécrire une bonne partie des algorithmes employés (Relu jusqu'à 3538)
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Unicode.hpp>
@@ -4206,6 +4207,26 @@ namespace Nz
 	{
 		static auto emptyString = std::make_shared<SharedString>();
 		return emptyString;
+	}
+
+	bool Serialize(OutputStream* output, const String& string)
+	{
+		if (!Serialize<UInt32>(output, string.GetSize()))
+			return false;
+
+		output->Write(string.GetConstBuffer(), string.GetSize());
+		return true;
+	}
+
+	bool Unserialize(InputStream* input, String* string)
+	{
+		UInt32 size;
+		if (!Unserialize(input, &size))
+			return false;
+
+		string->Resize(size);
+		input->Read(string->GetBuffer(), size);
+		return true;
 	}
 
 	const unsigned int String::npos(std::numeric_limits<unsigned int>::max());
