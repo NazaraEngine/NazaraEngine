@@ -12,6 +12,9 @@
 
 namespace Nz
 {
+	class ByteArray;
+	class String;
+
 	class NAZARA_CORE_API OutputStream : virtual public Stream
 	{
 		public:
@@ -22,6 +25,9 @@ namespace Nz
 			bool Write(const ByteArray& byteArray);
 			bool Write(const String& string);
 			virtual std::size_t Write(const void* buffer, std::size_t size) = 0;
+
+			template<typename T>
+			OutputStream& operator<<(const T& value);
 
 		protected:
 			inline OutputStream();

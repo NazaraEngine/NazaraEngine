@@ -7,6 +7,7 @@
 // Merci aussi à Freedom de siteduzero.com
 
 #include <Nazara/Core/AbstractHash.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -74,6 +75,60 @@ namespace Nz
 		b ^= (b >> 47);
 
 		seed = static_cast<std::size_t>(b * kMul);
+	}
+
+	inline bool Serialize(OutputStream* output, bool value)
+	{
+		UInt8 buffer = (value) ? 1 : 0;
+		return output->Write(&buffer, 1) == 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value)
+	{
+		if (output->Write(&value, sizeof(T)) == sizeof(T))
+		{
+			// Write down everything as little endian
+			#if NAZARA_BIG_ENDIAN
+			SwapBytes(&value, sizeof(T));
+			#endif
+
+			return true;
+		}
+		else
+			return false;
+	}
+
+	inline bool Unserialize(InputStream* input, bool* value)
+	{
+		NazaraAssert(value, "Invalid pointer");
+
+		UInt8 buffer;
+		if (input->Read(&buffer, 1) == 1)
+		{
+			*value = (buffer == 1);
+			return true;
+		}
+		else
+			return false;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value)
+	{
+		NazaraAssert(value, "Invalid pointer");
+
+		if (input->Read(value, sizeof(T)) == sizeof(T))
+		{
+			// Write down everything as little endian
+			#if NAZARA_BIG_ENDIAN
+			SwapBytes(&value, sizeof(T));
+			#endif
+
+			return true;
+		}
+		else
+			return false;
 	}
 }
 
