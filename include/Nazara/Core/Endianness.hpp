@@ -27,7 +27,7 @@
 
 namespace Nz
 {
-	inline Endianness GetPlatformEndianness();
+	inline constexpr Endianness GetPlatformEndianness();
 	inline void SwapBytes(void* buffer, unsigned int size);
 }
 

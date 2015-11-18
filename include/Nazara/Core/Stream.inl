@@ -5,9 +5,15 @@
 namespace Nz
 {
 	inline Stream::Stream(UInt32 openMode) :
+	m_dataEndianness(Endianness_Unknown),
 	m_openMode(openMode),
 	m_streamOptions(0)
 	{
+	}
+
+	inline Endianness Stream::GetDataEndianness() const
+	{
+		return m_dataEndianness;
 	}
 
 	inline UInt32 Stream::GetOpenMode() const
@@ -28,6 +34,11 @@ namespace Nz
 	inline bool Stream::IsWritable() const
 	{
 		return m_openMode & OpenMode_ReadWrite || m_openMode & OpenMode_WriteOnly;
+	}
+
+	inline void Stream::SetDataEndianness(Endianness endiannes)
+	{
+		m_dataEndianness = endiannes;
 	}
 
 	inline void Stream::SetStreamOptions(UInt32 options)

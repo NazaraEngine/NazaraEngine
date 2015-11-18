@@ -64,7 +64,6 @@ namespace Nz
 			bool Open(const String& filePath, unsigned int openMode = OpenMode_Current);
 
 			std::size_t Read(void* buffer, std::size_t size) override;
-			std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
 			bool Rename(const String& newFilePath);
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
@@ -74,7 +73,6 @@ namespace Nz
 
 			using OutputStream::Write;
 			std::size_t Write(const void* buffer, std::size_t size) override;
-			std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
 
 			File& operator=(const String& filePath);
 			File& operator=(const File&) = delete;
@@ -99,7 +97,6 @@ namespace Nz
 		private:
 			NazaraMutexAttrib(m_mutex, mutable)
 
-			Endianness m_endianness;
 			String m_filePath;
 			FileImpl* m_impl;
 	};
