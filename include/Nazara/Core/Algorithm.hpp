@@ -29,15 +29,15 @@ namespace Nz
 	template<typename T>
 	struct TypeTag {};
 
-	inline bool Serialize(OutputStream* output, bool value);
+	inline bool Serialize(OutputStream* output, bool value, Endianness dataEndianness);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value, Endianness dataEndianness);
 
-	inline bool Unserialize(InputStream* input, bool* value);
+	inline bool Unserialize(InputStream* input, bool* value, Endianness dataEndianness);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value, Endianness dataEndianness);
 }
 
 #include <Nazara/Core/Algorithm.inl>

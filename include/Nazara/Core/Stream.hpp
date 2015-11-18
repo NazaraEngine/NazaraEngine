@@ -8,6 +8,7 @@
 #define NAZARA_STREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
 
 namespace Nz
@@ -24,6 +25,7 @@ namespace Nz
 			virtual UInt64 GetCursorPos() const = 0;
 			virtual String GetDirectory() const;
 			virtual String GetPath() const;
+			inline Endianness GetDataEndianness() const;
 			inline UInt32 GetOpenMode() const;
 			inline UInt32 GetStreamOptions() const;
 
@@ -31,14 +33,16 @@ namespace Nz
 			inline bool IsWritable() const;
 
 			virtual bool SetCursorPos(UInt64 offset) = 0;
-			void SetStreamOptions(UInt32 options);
+			inline void SetDataEndianness(Endianness endiannes);
+			inline void SetStreamOptions(UInt32 options);
 
 			Stream& operator=(const Stream&) = default;
 			Stream& operator=(Stream&&) = default;
 
 		protected:
 			inline Stream(UInt32 openMode);
-			
+
+			Endianness m_dataEndianness;
 			UInt32 m_openMode;
 			UInt32 m_streamOptions;
 	};
