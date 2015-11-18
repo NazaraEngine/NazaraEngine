@@ -24,10 +24,10 @@ namespace Nz
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 
 	template<typename T>
-	struct Hashable;
+	struct TypeTag {};
+
 
 	template<typename T>
-	struct TypeTag {};
 }
 
 #include <Nazara/Core/Algorithm.inl>
