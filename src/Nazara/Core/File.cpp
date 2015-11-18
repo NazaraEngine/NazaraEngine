@@ -32,7 +32,6 @@ namespace Nz
 {
 	File::File() :
 	Stream(OpenMode_Current),
-	m_endianness(Endianness_Unknown),
 	m_impl(nullptr)
 	{
 	}
@@ -53,7 +52,6 @@ namespace Nz
 	Stream(std::move(file)),
 	InputStream(std::move(file)),
 	OutputStream(std::move(file)),
-	m_endianness(file.m_endianness),
 	m_filePath(std::move(file.m_filePath)),
 	m_impl(file.m_impl)
 	{
@@ -219,22 +217,6 @@ namespace Nz
 		}
 	}
 
-	std::size_t File::Read(void* buffer, std::size_t typeSize, unsigned int count)
-	{
-		std::size_t byteRead = Read(buffer, typeSize*count);
-		if (byteRead == 0)
-			return 0;
-
-		if (buffer && typeSize != 1 && m_endianness != Endianness_Unknown && m_endianness != GetPlatformEndianness())
-		{
-			unsigned int typeCount = byteRead/typeSize;
-			for (unsigned int i = 0; i < typeCount; ++i)
-				SwapBytes(reinterpret_cast<UInt8*>(buffer) + i*typeSize, typeSize);
-		}
-
-		return byteRead;
-	}
-
 	bool File::Rename(const String& newFilePath)
 	{
 		NazaraLock(m_mutex)
@@ -311,13 +293,6 @@ namespace Nz
 		return m_impl->SetCursorPos(CursorPosition_AtBegin, offset);
 	}
 
-	void File::SetEndianness(Endianness endianness)
-	{
-		NazaraLock(m_mutex)
-
-		m_endianness = endianness;
-	}
-
 	bool File::SetFile(const String& filePath)
 	{
 		NazaraLock(m_mutex)
@@ -359,29 +334,6 @@ namespace Nz
 		return m_impl->Write(buffer, size);
 	}
 
-	std::size_t File::Write(const void* buffer, std::size_t typeSize, unsigned int count)
-	{
-		if (count == 0 || typeSize == 0)
-			return 0;
-
-		NazaraAssert(buffer, "Invalid buffer");
-
-		NazaraLock(m_mutex)
-
-		if (m_endianness != Endianness_Unknown && m_endianness != GetPlatformEndianness() && typeSize != 1)
-		{
-			std::unique_ptr<char[]> buf(new char[count*typeSize]);
-			std::memcpy(buf.get(), buffer, count*typeSize);
-
-			for (unsigned int i = 0; i < count; ++i)
-				SwapBytes(&buf[i*typeSize], typeSize);
-
-			return Write(buf.get(), count*typeSize);
-		}
-		else
-			return Write(buffer, count*typeSize);
-	}
-
 	File& File::operator=(const String& filePath)
 	{
 		SetFile(filePath);
@@ -393,10 +345,8 @@ namespace Nz
 	{
 		NazaraLock(m_mutex)
 
-		std::swap(m_endianness, file.m_endianness);
 		std::swap(m_filePath, file.m_filePath);
 		std::swap(m_impl, file.m_impl);
-		std::swap(m_openMode, file.m_openMode);
 
 		return *this;
 	}

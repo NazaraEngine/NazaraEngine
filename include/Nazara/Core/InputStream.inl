@@ -14,7 +14,7 @@ namespace Nz
 	template<typename T>
 	InputStream& InputStream::operator>>(T& value)
 	{
-		if (!Unserialize(this, &value))
+		if (!Unserialize(this, &value, m_dataEndianness))
 			NazaraError("Failed to unserialize value");
 
 		return *this;

@@ -14,7 +14,7 @@ namespace Nz
 	template<typename T>
 	OutputStream& OutputStream::operator<<(const T& value)
 	{
-		if (!Serialize(this, value))
+		if (!Serialize(this, value, m_dataEndianness))
 			NazaraError("Failed to serialize value");
 
 		return *this;

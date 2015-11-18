@@ -4209,19 +4209,19 @@ namespace Nz
 		return emptyString;
 	}
 
-	bool Serialize(OutputStream* output, const String& string)
+	bool Serialize(OutputStream* output, const String& string, Endianness dataEndianness)
 	{
-		if (!Serialize<UInt32>(output, string.GetSize()))
+		if (!Serialize<UInt32>(output, string.GetSize(), dataEndianness))
 			return false;
 
 		output->Write(string.GetConstBuffer(), string.GetSize());
 		return true;
 	}
 
-	bool Unserialize(InputStream* input, String* string)
+	bool Unserialize(InputStream* input, String* string, Endianness dataEndianness)
 	{
 		UInt32 size;
-		if (!Unserialize(input, &size))
+		if (!Unserialize(input, &size, dataEndianness))
 			return false;
 
 		string->Resize(size);

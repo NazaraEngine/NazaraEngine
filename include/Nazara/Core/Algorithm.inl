@@ -77,21 +77,25 @@ namespace Nz
 		seed = static_cast<std::size_t>(b * kMul);
 	}
 
-	inline bool Serialize(OutputStream* output, bool value)
+	inline bool Serialize(OutputStream* output, bool value, Endianness dataEndianness)
 	{
+		NazaraAssert(output, "Invalid stream");
+		NazaraUnused(dataEndianness);
+
+		///TODO: Handle bits writing (Serializing 8 bits should only use one byte)
 		UInt8 buffer = (value) ? 1 : 0;
 		return output->Write(&buffer, 1) == 1;
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value, Endianness dataEndianness)
 	{
+		NazaraAssert(output, "Invalid stream");
+
 		if (output->Write(&value, sizeof(T)) == sizeof(T))
 		{
-			// Write down everything as little endian
-			#if NAZARA_BIG_ENDIAN
-			SwapBytes(&value, sizeof(T));
-			#endif
+			if (dataEndianness != Endianness_Unknown && dataEndianness != GetPlatformEndianness())
+				SwapBytes(&value, sizeof(T));
 
 			return true;
 		}
@@ -99,9 +103,11 @@ namespace Nz
 			return false;
 	}
 
-	inline bool Unserialize(InputStream* input, bool* value)
+	inline bool Unserialize(InputStream* input, bool* value, Endianness dataEndianness)
 	{
-		NazaraAssert(value, "Invalid pointer");
+		NazaraAssert(input, "Invalid stream");
+		NazaraAssert(value, "Invalid data pointer");
+		NazaraUnused(dataEndianness);
 
 		UInt8 buffer;
 		if (input->Read(&buffer, 1) == 1)
@@ -114,16 +120,15 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value, Endianness dataEndianness)
 	{
-		NazaraAssert(value, "Invalid pointer");
+		NazaraAssert(input, "Invalid stream");
+		NazaraAssert(value, "Invalid data pointer");
 
 		if (input->Read(value, sizeof(T)) == sizeof(T))
 		{
-			// Write down everything as little endian
-			#if NAZARA_BIG_ENDIAN
-			SwapBytes(&value, sizeof(T));
-			#endif
+			if (dataEndianness != Endianness_Unknown && dataEndianness != GetPlatformEndianness())
+				SwapBytes(&value, sizeof(T));
 
 			return true;
 		}
