@@ -324,8 +324,7 @@ namespace Nz
 			};
 	};
 
-	template<>
-	struct Hashable<String>;
+	inline bool HashAppend(AbstractHash* hash, const String& string);
 }
 
 namespace std

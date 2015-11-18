@@ -128,8 +128,7 @@ namespace Nz
 			Container m_array;
 	};
 
-	template<>
-	struct Hashable<ByteArray>;
+	inline bool HashAppend(AbstractHash* hash, const ByteArray& byteArray);
 }
 
 namespace std

@@ -335,15 +335,11 @@ namespace Nz
 		return m_array >= rhs.m_array;
 	}
 
-	template<>
-	struct Hashable<ByteArray>
+	inline bool HashAppend(AbstractHash* hash, const ByteArray& byteArray)
 	{
-		bool operator()(const ByteArray& byteArray, AbstractHash* hash) const
-		{
-			hash->Append(byteArray.GetConstBuffer(), byteArray.GetSize());
-			return true;
-		}
-	};
+		hash->Append(byteArray.GetConstBuffer(), byteArray.GetSize());
+		return true;
+	}
 }
 
 namespace std

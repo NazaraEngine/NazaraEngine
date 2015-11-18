@@ -104,8 +104,7 @@ namespace Nz
 			FileImpl* m_impl;
 	};
 
-	template<>
-	struct Hashable<File>;
+	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile);
 }
 
 #include <Nazara/Core/File.inl>
