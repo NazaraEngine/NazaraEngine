@@ -47,6 +47,14 @@ namespace Nz
 			ByteArray m_buffer;
 			UInt64 m_pos;
 	};
+
+	class AbstractHash;
+
+	inline bool HashAppend(AbstractHash* hash, const String& string);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
+	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
 }
+
+#include <Nazara/Core/MemoryStream.hpp>
 
 #endif // NAZARA_MEMORYSTREAM_HPP
