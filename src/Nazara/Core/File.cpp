@@ -261,6 +261,8 @@ namespace Nz
 
 		if (m_openMode & OpenMode_Text)
 			m_streamOptions |= StreamOption_Text;
+		else
+			m_streamOptions &= ~StreamOption_Text;
 
 		return true;
 	}
