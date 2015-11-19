@@ -9,12 +9,23 @@
 
 namespace Nz
 {
-	MemoryStream::MemoryStream(const void* ptr, unsigned int size) :
+	MemoryStream::MemoryStream() :
 	Stream(OpenMode_ReadWrite),
 	m_pos(0)
 	{
-		m_buffer.resize(size);
-		std::memcpy(m_buffer.data(), ptr, size);
+	}
+
+	MemoryStream::MemoryStream(const void* ptr, unsigned int size) :
+	MemoryStream()
+	{
+		m_buffer.Resize(size);
+		std::memcpy(m_buffer.GetBuffer(), ptr, size);
+	}
+
+	void MemoryStream::Clear()
+	{
+		m_buffer.Clear();
+		m_pos = 0;
 	}
 
 	bool MemoryStream::EndOfStream() const
@@ -27,9 +38,19 @@ namespace Nz
 		// Nothing to flush
 	}
 
+	const ByteArray& MemoryStream::GetBuffer() const
+	{
+		return m_buffer;
+	}
+
 	UInt64 MemoryStream::GetCursorPos() const
 	{
 		return m_pos;
+	}
+
+	const UInt8* MemoryStream::GetData() const
+	{
+		return m_buffer.GetConstBuffer();
 	}
 
 	UInt64 MemoryStream::GetSize() const
@@ -42,7 +63,7 @@ namespace Nz
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_buffer.size() - m_pos));
 
 		if (buffer)
-			std::memcpy(buffer, m_buffer.data() + m_pos, readSize);
+			std::memcpy(buffer, m_buffer.GetBuffer() + m_pos, readSize);
 
 		m_pos += readSize;
 		return readSize;
@@ -59,9 +80,9 @@ namespace Nz
 	{
 		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
 		if (endPos > m_buffer.size())
-			m_buffer.resize(endPos);
+			m_buffer.Resize(endPos);
 
-		std::memcpy(m_buffer.data(), buffer, size);
+		std::memcpy(m_buffer.GetBuffer(), buffer, size);
 		
 		m_pos = endPos;
 		return size;

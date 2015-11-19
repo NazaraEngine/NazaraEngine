@@ -8,24 +8,29 @@
 #define NAZARA_MEMORYSTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/OutputStream.hpp>
-#include <vector>
 
 namespace Nz
 {
 	class NAZARA_CORE_API MemoryStream : public InputStream, public OutputStream
 	{
 		public:
+			MemoryStream();
 			MemoryStream(const void* ptr, unsigned int size);
 			MemoryStream(const MemoryStream&) = default;
 			MemoryStream(MemoryStream&&) = default;
 			~MemoryStream() = default;
 
+			void Clear();
+
 			bool EndOfStream() const override;
 
 			void Flush() override;
 
+			const ByteArray& GetBuffer() const;
+			const UInt8* GetData() const;
 			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
@@ -39,7 +44,7 @@ namespace Nz
 			MemoryStream& operator=(MemoryStream&&) = default;
 
 		private:
-			std::vector<UInt8> m_buffer;
+			ByteArray m_buffer;
 			UInt64 m_pos;
 	};
 }
