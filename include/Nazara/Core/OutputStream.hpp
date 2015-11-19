@@ -8,6 +8,7 @@
 #define NAZARA_OUTPUTSTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz
@@ -18,6 +19,8 @@ namespace Nz
 	class NAZARA_CORE_API OutputStream : virtual public Stream
 	{
 		public:
+			inline OutputStream(const OutputStream& stream);
+			inline OutputStream(OutputStream&& stream) noexcept;
 			virtual ~OutputStream();
 
 			virtual void Flush() = 0;
@@ -29,8 +32,13 @@ namespace Nz
 			template<typename T>
 			OutputStream& operator<<(const T& value);
 
+			inline OutputStream& operator=(const OutputStream& stream);
+			inline OutputStream& operator=(OutputStream&& stream) noexcept;
+
 		protected:
 			inline OutputStream();
+
+			SerializationContext m_serializationContext;
 	};
 }
 
