@@ -4209,23 +4209,23 @@ namespace Nz
 		return emptyString;
 	}
 
-	bool Serialize(OutputStream* output, const String& string, Endianness dataEndianness)
+	bool Serialize(SerializationContext& context, const String& string)
 	{
-		if (!Serialize<UInt32>(output, string.GetSize(), dataEndianness))
+		if (!Serialize<UInt32>(context, string.GetSize()))
 			return false;
 
-		output->Write(string.GetConstBuffer(), string.GetSize());
+		context.stream->Write(string.GetConstBuffer(), string.GetSize());
 		return true;
 	}
 
-	bool Unserialize(InputStream* input, String* string, Endianness dataEndianness)
+	bool Unserialize(UnserializationContext& context, String* string)
 	{
 		UInt32 size;
-		if (!Unserialize(input, &size, dataEndianness))
+		if (!Unserialize(context, &size))
 			return false;
 
 		string->Resize(size);
-		input->Read(string->GetBuffer(), size);
+		context.stream->Read(string->GetBuffer(), size);
 		return true;
 	}
 

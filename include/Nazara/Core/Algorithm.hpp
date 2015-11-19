@@ -9,8 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/OutputStream.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <functional>
 #include <tuple>
 #include <type_traits>
@@ -29,15 +28,15 @@ namespace Nz
 	template<typename T>
 	struct TypeTag {};
 
-	inline bool Serialize(OutputStream* output, bool value, Endianness dataEndianness);
+	inline bool Serialize(SerializationContext& context, bool value);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value, Endianness dataEndianness);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value);
 
-	inline bool Unserialize(InputStream* input, bool* value, Endianness dataEndianness);
+	inline bool Unserialize(UnserializationContext& context, bool* value);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value, Endianness dataEndianness);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value);
 }
 
 #include <Nazara/Core/Algorithm.inl>

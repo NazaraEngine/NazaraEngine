@@ -8,6 +8,8 @@
 
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/OutputStream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -77,40 +79,28 @@ namespace Nz
 		seed = static_cast<std::size_t>(b * kMul);
 	}
 
-	inline bool Serialize(OutputStream* output, bool value, Endianness dataEndianness)
+	inline bool Serialize(SerializationContext& context, bool value)
 	{
-		NazaraAssert(output, "Invalid stream");
-		NazaraUnused(dataEndianness);
-
 		///TODO: Handle bits writing (Serializing 8 bits should only use one byte)
 		UInt8 buffer = (value) ? 1 : 0;
-		return output->Write(&buffer, 1) == 1;
+		return context.stream->Write(&buffer, 1) == 1;
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(OutputStream* output, T value, Endianness dataEndianness)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
-		NazaraAssert(output, "Invalid stream");
+		if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
+			SwapBytes(&value, sizeof(T));
 
-		if (output->Write(&value, sizeof(T)) == sizeof(T))
-		{
-			if (dataEndianness != Endianness_Unknown && dataEndianness != GetPlatformEndianness())
-				SwapBytes(&value, sizeof(T));
-
-			return true;
-		}
-		else
-			return false;
+		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
 	}
 
-	inline bool Unserialize(InputStream* input, bool* value, Endianness dataEndianness)
+	inline bool Unserialize(UnserializationContext& context, bool* value)
 	{
-		NazaraAssert(input, "Invalid stream");
 		NazaraAssert(value, "Invalid data pointer");
-		NazaraUnused(dataEndianness);
 
 		UInt8 buffer;
-		if (input->Read(&buffer, 1) == 1)
+		if (context.stream->Read(&buffer, 1) == 1)
 		{
 			*value = (buffer == 1);
 			return true;
@@ -120,15 +110,14 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(InputStream* input, T* value, Endianness dataEndianness)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value)
 	{
-		NazaraAssert(input, "Invalid stream");
 		NazaraAssert(value, "Invalid data pointer");
 
-		if (input->Read(value, sizeof(T)) == sizeof(T))
+		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{
-			if (dataEndianness != Endianness_Unknown && dataEndianness != GetPlatformEndianness())
-				SwapBytes(&value, sizeof(T));
+			if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
+				SwapBytes(value, sizeof(T));
 
 			return true;
 		}
