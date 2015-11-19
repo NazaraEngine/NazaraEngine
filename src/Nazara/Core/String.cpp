@@ -4214,8 +4214,7 @@ namespace Nz
 		if (!Serialize<UInt32>(context, string.GetSize()))
 			return false;
 
-		context.stream->Write(string.GetConstBuffer(), string.GetSize());
-		return true;
+		return context.stream->Write(string.GetConstBuffer(), string.GetSize()) == string.GetSize();
 	}
 
 	bool Unserialize(UnserializationContext& context, String* string)
@@ -4225,8 +4224,7 @@ namespace Nz
 			return false;
 
 		string->Resize(size);
-		context.stream->Read(string->GetBuffer(), size);
-		return true;
+		return context.stream->Read(string->GetBuffer(), size) == size;
 	}
 
 	const unsigned int String::npos(std::numeric_limits<unsigned int>::max());
