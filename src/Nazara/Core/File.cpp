@@ -561,8 +561,8 @@ namespace Nz
 		char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
 		while (remainingSize > 0)
 		{
-			unsigned int size = static_cast<unsigned int>(std::min(remainingSize, static_cast<UInt64>(NAZARA_CORE_FILE_BUFFERSIZE)));
-			if (file.Read(&buffer[0], sizeof(char), size) != sizeof(char)*size)
+			std::size_t size = std::min<std::size_t>(static_cast<std::size_t>(remainingSize), NAZARA_CORE_FILE_BUFFERSIZE);
+			if (file.Read(&buffer[0], size) != size)
 			{
 				NazaraError("Unable to read file");
 				return false;

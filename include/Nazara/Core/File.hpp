@@ -68,7 +68,6 @@ namespace Nz
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
 			bool SetCursorPos(UInt64 offset) override;
-			void SetEndianness(Endianness endianness);
 			bool SetFile(const String& filePath);
 
 			using OutputStream::Write;

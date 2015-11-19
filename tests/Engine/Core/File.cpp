@@ -17,7 +17,7 @@ SCENARIO("File", "[CORE][FILE]")
 				Nz::ByteArray byteArray(message, 11);
 				file.Write("Test String");
 				file.Write(byteArray);
-				file.Write(message, sizeof(char), 11);
+				file.Write(message, 11);
 			}
 
 			AND_THEN("We can retrieve 3 times 'Test String'")
@@ -27,7 +27,7 @@ SCENARIO("File", "[CORE][FILE]")
 				message[11] = '\0';
 				REQUIRE(Nz::String(message) == "Test String");
 
-				REQUIRE(file.Read(message, sizeof(char), 11) == 11);
+				REQUIRE(file.Read(message, 11) == 11);
 				message[11] = '\0';
 				REQUIRE(Nz::String(message) == "Test String");
 			}
