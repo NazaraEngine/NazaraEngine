@@ -8,6 +8,7 @@
 #define NAZARA_INPUTSTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz
@@ -15,6 +16,8 @@ namespace Nz
 	class NAZARA_CORE_API InputStream : virtual public Stream
 	{
 		public:
+			inline InputStream(const InputStream& stream);
+			inline InputStream(InputStream&& stream) noexcept;
 			virtual ~InputStream();
 
 			virtual bool EndOfStream() const = 0;
@@ -27,8 +30,13 @@ namespace Nz
 			template<typename T>
 			InputStream& operator>>(T& value);
 
+			inline InputStream& operator=(const InputStream& stream);
+			inline InputStream& operator=(InputStream&& stream) noexcept;
+
 		protected:
 			inline InputStream();
+
+			UnserializationContext m_unserializationContext;
 	};
 }
 

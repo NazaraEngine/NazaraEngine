@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <atomic>
 #include <iosfwd>
 #include <memory>
@@ -17,11 +18,6 @@
 
 namespace Nz
 {
-	class AbstractHash;
-	class HashDigest;
-	class InputStream;
-	class OutputStream;
-
 	class NAZARA_CORE_API String
 	{
 		public:
@@ -326,9 +322,11 @@ namespace Nz
 			};
 	};
 
+	class AbstractHash;
+
 	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(OutputStream* output, const String& string, Endianness dataEndianness);
-	NAZARA_CORE_API bool Unserialize(InputStream* input, String* string, Endianness dataEndianness);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
+	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
 }
 
 namespace std
