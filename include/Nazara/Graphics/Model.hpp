@@ -58,7 +58,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
 			bool LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
-			bool LoadFromStream(InputStream& stream, const ModelParameters& params = ModelParameters());
+			bool LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 
 			void Reset();
 

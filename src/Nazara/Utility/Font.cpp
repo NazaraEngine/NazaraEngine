@@ -290,7 +290,7 @@ namespace Nz
 		return FontLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Font::OpenFromStream(InputStream& stream, const FontParams& params)
+	bool Font::OpenFromStream(Stream& stream, const FontParams& params)
 	{
 		return FontLoader::LoadFromStream(this, stream, params);
 	}

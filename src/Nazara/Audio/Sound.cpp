@@ -110,7 +110,7 @@ namespace Nz
 		return true;
 	}
 
-	bool Sound::LoadFromStream(InputStream& stream, const SoundBufferParams& params)
+	bool Sound::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
 		SoundBufferRef buffer = SoundBuffer::New();
 		if (!buffer->LoadFromStream(stream, params))

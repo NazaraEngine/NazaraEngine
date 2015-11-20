@@ -13,18 +13,18 @@
 
 namespace Nz
 {
-	OBJParser::OBJParser(InputStream& stream) :
+	OBJParser::OBJParser(Stream& stream) :
 	m_stream(stream),
-	m_streamFlags(stream.GetStreamOptions())
+	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
 	{
-		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags | StreamOption_Text);
+		m_stream.EnableTextMode(true);
 	}
 
 	OBJParser::~OBJParser()
 	{
+		// Reset stream flags
 		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags);
+			m_stream.EnableTextMode(false);
 	}
 
 	const String* OBJParser::GetMaterials() const

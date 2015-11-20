@@ -83,7 +83,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
-			bool LoadFromStream(InputStream& stream, const AnimationParams& params = AnimationParams());
+			bool LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 
 			void RemoveSequence(const String& sequenceName);
 			void RemoveSequence(unsigned int index);

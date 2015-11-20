@@ -831,7 +831,7 @@ namespace Nz
 		return ImageLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Image::LoadFromStream(InputStream& stream, const ImageParams& params)
+	bool Image::LoadFromStream(Stream& stream, const ImageParams& params)
 	{
 		return ImageLoader::LoadFromStream(this, stream, params);
 	}
@@ -923,7 +923,7 @@ namespace Nz
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadArrayFromStream(InputStream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	bool Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		Image image;
 		if (!image.LoadFromStream(stream, imageParams))
@@ -1054,7 +1054,7 @@ namespace Nz
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadCubemapFromStream(InputStream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	bool Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		Image image;
 		if (!image.LoadFromStream(stream, imageParams))

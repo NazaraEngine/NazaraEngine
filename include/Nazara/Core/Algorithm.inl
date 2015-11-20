@@ -8,8 +8,7 @@
 
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/OutputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

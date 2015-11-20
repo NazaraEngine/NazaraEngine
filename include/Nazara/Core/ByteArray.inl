@@ -59,6 +59,13 @@ namespace Nz
 		return m_array.back();
 	}
 
+	inline void ByteArray::Clear(bool keepBuffer)
+	{
+		m_array.clear();
+		if (!keepBuffer)
+			m_array.shrink_to_fit();
+	}
+
 	inline ByteArray::iterator ByteArray::Erase(const_iterator pos)
 	{
 		return m_array.erase(pos);

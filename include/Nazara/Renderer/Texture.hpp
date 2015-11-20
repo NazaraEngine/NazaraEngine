@@ -75,24 +75,24 @@ namespace Nz
 			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
 			bool LoadFromImage(const Image& image, bool generateMipmaps = true);
 			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-			bool LoadFromStream(InputStream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
 
 			// LoadArray
 			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromImage(const Image& image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
 
 			// LoadCubemap
 			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
 			bool LoadCubemapFromImage(const Image& image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
 			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-			bool LoadCubemapFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
 
 			// LoadFace
 			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
 			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
-			bool LoadFaceFromStream(CubemapFace face, InputStream& stream, const ImageParams& params = ImageParams());
+			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
 
 			bool SetMipmapRange(UInt8 minLevel, UInt8 maxLevel);
 

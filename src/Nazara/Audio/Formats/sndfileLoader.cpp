@@ -13,8 +13,8 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <memory>
 #include <set>
 #include <vector>
@@ -27,19 +27,19 @@ namespace Nz
 	{
 		sf_count_t GetSize(void* user_data)
 		{
-			InputStream* stream = static_cast<InputStream*>(user_data);
+			Stream* stream = static_cast<Stream*>(user_data);
 			return stream->GetSize();
 		}
 
 		sf_count_t Read(void* ptr, sf_count_t count, void* user_data)
 		{
-			InputStream* stream = static_cast<InputStream*>(user_data);
+			Stream* stream = static_cast<Stream*>(user_data);
 			return static_cast<sf_count_t>(stream->Read(ptr, static_cast<std::size_t>(count)));
 		}
 
 		sf_count_t Seek(sf_count_t offset, int whence, void* user_data)
 		{
-			InputStream* stream = static_cast<InputStream*>(user_data);
+			Stream* stream = static_cast<Stream*>(user_data);
 			switch (whence)
 			{
 				case SEEK_CUR:
@@ -63,7 +63,7 @@ namespace Nz
 
 		sf_count_t Tell(void* user_data)
 		{
-			InputStream* stream = static_cast<InputStream*>(user_data);
+			Stream* stream = static_cast<Stream*>(user_data);
 			return stream->GetCursorPos();
 		}
 
@@ -128,7 +128,7 @@ namespace Nz
 					return Open(*m_ownedStream, forceMono);
 				}
 
-				bool Open(InputStream& stream, bool forceMono)
+				bool Open(Stream& stream, bool forceMono)
 				{
 					SF_INFO infos;
 					infos.format = 0; // Format inconnu
@@ -203,7 +203,7 @@ namespace Nz
 
 			private:
 				std::vector<Int16> m_mixBuffer;
-				std::unique_ptr<InputStream> m_ownedStream;
+				std::unique_ptr<Stream> m_ownedStream;
 				AudioFormat m_format;
 				SNDFILE* m_handle;
 				bool m_mixToMono;
@@ -222,7 +222,7 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary CheckMusic(InputStream& stream, const MusicParams& parameters)
+		Ternary CheckMusic(Stream& stream, const MusicParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -282,7 +282,7 @@ namespace Nz
 			return true;
 		}
 
-		bool LoadMusicStream(Music* music, InputStream& stream, const MusicParams& parameters)
+		bool LoadMusicStream(Music* music, Stream& stream, const MusicParams& parameters)
 		{
 			std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
 			if (!musicStream->Open(stream, parameters.forceMono))
@@ -303,7 +303,7 @@ namespace Nz
 			return true;
 		}
 
-		Ternary CheckSoundBuffer(InputStream& stream, const SoundBufferParams& parameters)
+		Ternary CheckSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -320,7 +320,7 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool LoadSoundBuffer(SoundBuffer* soundBuffer, InputStream& stream, const SoundBufferParams& parameters)
+		bool LoadSoundBuffer(SoundBuffer* soundBuffer, Stream& stream, const SoundBufferParams& parameters)
 		{
 			SF_INFO info;
 			info.format = 0;

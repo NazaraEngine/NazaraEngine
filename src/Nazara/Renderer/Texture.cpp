@@ -599,7 +599,7 @@ namespace Nz
 		return LoadFromImage(image, generateMipmaps);
 	}
 
-	bool Texture::LoadFromStream(InputStream& stream, const ImageParams& params, bool generateMipmaps)
+	bool Texture::LoadFromStream(Stream& stream, const ImageParams& params, bool generateMipmaps)
 	{
 		Image image;
 		if (!image.LoadFromStream(stream, params))
@@ -647,7 +647,7 @@ namespace Nz
 		return LoadFromImage(cubemap, generateMipmaps);
 	}
 
-	bool Texture::LoadArrayFromStream(InputStream& stream, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
+	bool Texture::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
 	{
 		Image cubemap;
 		if (!cubemap.LoadArrayFromStream(stream, imageParams, atlasSize))
@@ -695,7 +695,7 @@ namespace Nz
 		return LoadFromImage(cubemap, generateMipmaps);
 	}
 
-	bool Texture::LoadCubemapFromStream(InputStream& stream, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
+	bool Texture::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
 	{
 		Image cubemap;
 		if (!cubemap.LoadCubemapFromStream(stream, imageParams, cubemapParams))
@@ -785,7 +785,7 @@ namespace Nz
 		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
-	bool Texture::LoadFaceFromStream(CubemapFace face, InputStream& stream, const ImageParams& params)
+	bool Texture::LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (!m_impl)

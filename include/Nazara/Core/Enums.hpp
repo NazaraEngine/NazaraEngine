@@ -80,10 +80,11 @@ namespace Nz
 		OpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
 		OpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
 		OpenMode_ReadOnly  = 0x04, // Ouvre uniquement en lecture
-		OpenMode_ReadWrite = 0x08, // Ouvre en lecture/écriture
 		OpenMode_Text      = 0x10, // Ouvre en mode texte
 		OpenMode_Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
 		OpenMode_WriteOnly = 0x40, // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+
+		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Ouvre en lecture/écriture
 
 		OpenMode_Max = OpenMode_WriteOnly
 	};
@@ -173,7 +174,8 @@ namespace Nz
 	{
 		StreamOption_None = 0,
 
-		StreamOption_Text = 0x1,
+		StreamOption_Sequential = 0x1,
+		StreamOption_Text       = 0x2,
 
 		StreamOption_Max = StreamOption_Text*2-1
 	};

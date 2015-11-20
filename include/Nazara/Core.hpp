@@ -50,7 +50,6 @@
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Initializer.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
@@ -62,7 +61,6 @@
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
-#include <Nazara/Core/OutputStream.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/PluginManager.hpp>
 #include <Nazara/Core/Primitive.hpp>

@@ -5,7 +5,7 @@
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
@@ -45,7 +45,7 @@ namespace Nz
 			return (extension == "pcx");
 		}
 
-		Ternary Check(InputStream& stream, const ImageParams& parameters)
+		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -59,7 +59,7 @@ namespace Nz
 			return Ternary_False;
 		}
 
-		bool Load(Image* image, InputStream& stream, const ImageParams& parameters)
+		bool Load(Image* image, Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 

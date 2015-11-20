@@ -55,7 +55,7 @@ namespace Nz
 
 			bool OpenFromFile(const String& filePath, const MusicParams& params = MusicParams());
 			bool OpenFromMemory(const void* data, std::size_t size, const MusicParams& params = MusicParams());
-			bool OpenFromStream(InputStream& stream, const MusicParams& params = MusicParams());
+			bool OpenFromStream(Stream& stream, const MusicParams& params = MusicParams());
 
 			void Pause();
 			void Play();

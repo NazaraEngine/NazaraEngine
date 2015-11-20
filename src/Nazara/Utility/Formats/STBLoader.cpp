@@ -7,8 +7,8 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <set>
 #include <Nazara/Utility/Debug.hpp>
@@ -19,19 +19,19 @@ namespace Nz
 	{
 		int Read(void* userdata, char* data, int size)
 		{
-			InputStream* stream = static_cast<InputStream*>(userdata);
+			Stream* stream = static_cast<Stream*>(userdata);
 			return static_cast<int>(stream->Read(data, size));
 		}
 
 		void Skip(void* userdata, int size)
 		{
-			InputStream* stream = static_cast<InputStream*>(userdata);
+			Stream* stream = static_cast<Stream*>(userdata);
 			stream->SetCursorPos(static_cast<Int64>(stream->GetCursorPos()) + static_cast<Int64>(size));
 		}
 
 		int Eof(void* userdata)
 		{
-			InputStream* stream = static_cast<InputStream*>(userdata);
+			Stream* stream = static_cast<Stream*>(userdata);
 			return stream->GetCursorPos() >= stream->GetSize();
 		}
 
@@ -43,7 +43,7 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary Check(InputStream& stream, const ImageParams& parameters)
+		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -54,7 +54,7 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool Load(Image* image, InputStream& stream, const ImageParams& parameters)
+		bool Load(Image* image, Stream& stream, const ImageParams& parameters)
 		{
 			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
 			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"

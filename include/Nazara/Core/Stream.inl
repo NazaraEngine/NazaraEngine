@@ -2,18 +2,29 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Error.hpp>
+
 namespace Nz
 {
 	inline Stream::Stream(UInt32 openMode) :
-	m_dataEndianness(Endianness_Unknown),
 	m_openMode(openMode),
 	m_streamOptions(0)
 	{
 	}
 
-	inline Endianness Stream::GetDataEndianness() const
+	inline void Stream::EnableTextMode(bool textMode)
 	{
-		return m_dataEndianness;
+		if (textMode)
+			m_streamOptions |= StreamOption_Text;
+		else
+			m_streamOptions &= ~StreamOption_Text;
+	}
+
+	inline void Stream::Flush()
+	{
+		NazaraAssert(IsWritable(), "Stream is not writable");
+
+		FlushStream();
 	}
 
 	inline UInt32 Stream::GetOpenMode() const
@@ -28,21 +39,36 @@ namespace Nz
 
 	inline bool Stream::IsReadable() const
 	{
-		return m_openMode & OpenMode_ReadOnly || m_openMode & OpenMode_ReadWrite;
+		return (m_openMode & OpenMode_ReadOnly) != 0;
+	}
+
+	inline bool Stream::IsSequential() const
+	{
+		return (m_streamOptions & StreamOption_Sequential) != 0;
+	}
+
+	inline bool Stream::IsTextModeEnabled() const
+	{
+		return (m_streamOptions & StreamOption_Text) != 0;
 	}
 
 	inline bool Stream::IsWritable() const
 	{
-		return m_openMode & OpenMode_ReadWrite || m_openMode & OpenMode_WriteOnly;
+		return (m_openMode & OpenMode_WriteOnly) != 0;
 	}
 
-	inline void Stream::SetDataEndianness(Endianness endiannes)
+	inline std::size_t Stream::Read(void* buffer, std::size_t size)
 	{
-		m_dataEndianness = endiannes;
+		NazaraAssert(IsReadable(), "Stream is not readable");
+
+		return ReadBlock(buffer, size);
 	}
 
-	inline void Stream::SetStreamOptions(UInt32 options)
+	inline std::size_t Stream::Write(const void* buffer, std::size_t size)
 	{
-		m_streamOptions = options;
+		NazaraAssert(IsWritable(), "Stream is not writable");
+
+		return WriteBlock(buffer, size);
 	}
+
 }

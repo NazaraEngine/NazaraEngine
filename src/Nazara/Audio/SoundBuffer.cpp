@@ -206,7 +206,7 @@ namespace Nz
 		return SoundBufferLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool SoundBuffer::LoadFromStream(InputStream& stream, const SoundBufferParams& params)
+	bool SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
 		return SoundBufferLoader::LoadFromStream(this, stream, params);
 	}

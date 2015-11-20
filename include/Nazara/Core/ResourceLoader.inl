@@ -5,8 +5,8 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -199,7 +199,7 @@ namespace Nz
 	}
 
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, InputStream& stream, const Parameters& parameters)
+	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
 		#if NAZARA_CORE_SAFE
 		if (!parameters.IsValid())

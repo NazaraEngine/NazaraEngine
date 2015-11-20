@@ -13,6 +13,7 @@
 
 namespace Nz
 {
+	class ByteArray;
 	class String; //< Do not include String.hpp in this file
 
 	class NAZARA_CORE_API Stream
@@ -22,19 +23,33 @@ namespace Nz
 			Stream(Stream&&) = default;
 			virtual ~Stream();
 
+			virtual bool EndOfStream() const = 0;
+
+			inline void EnableTextMode(bool textMode);
+
+			inline void Flush();
+
 			virtual UInt64 GetCursorPos() const = 0;
 			virtual String GetDirectory() const;
 			virtual String GetPath() const;
-			inline Endianness GetDataEndianness() const;
 			inline UInt32 GetOpenMode() const;
 			inline UInt32 GetStreamOptions() const;
 
+			virtual UInt64 GetSize() const = 0;
+
+			inline std::size_t Read(void* buffer, std::size_t size);
+			virtual String ReadLine(unsigned int lineSize = 0);
+
 			inline bool IsReadable() const;
+			inline bool IsSequential() const;
+			inline bool IsTextModeEnabled() const;
 			inline bool IsWritable() const;
 
 			virtual bool SetCursorPos(UInt64 offset) = 0;
-			inline void SetDataEndianness(Endianness endiannes);
-			inline void SetStreamOptions(UInt32 options);
+
+			bool Write(const ByteArray& byteArray);
+			bool Write(const String& string);
+			inline std::size_t Write(const void* buffer, std::size_t size);
 
 			Stream& operator=(const Stream&) = default;
 			Stream& operator=(Stream&&) = default;
@@ -42,7 +57,10 @@ namespace Nz
 		protected:
 			inline Stream(UInt32 openMode);
 
-			Endianness m_dataEndianness;
+			virtual void FlushStream() = 0;
+			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;
+			virtual std::size_t WriteBlock(const void* buffer, std::size_t size) = 0;
+
 			UInt32 m_openMode;
 			UInt32 m_streamOptions;
 	};

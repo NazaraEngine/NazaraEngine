@@ -8,8 +8,8 @@
 #include FT_BITMAP_H
 #include FT_OUTLINE_H
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
@@ -31,7 +31,7 @@ namespace Nz
 		unsigned long FT_StreamRead(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count)
 		{
 			// http://www.freetype.org/freetype2/docs/reference/ft2-system_interface.html#FT_Stream_IoFunc
-			InputStream& inputStream = *static_cast<InputStream*>(stream->descriptor.pointer);
+			Stream& inputStream = *static_cast<Stream*>(stream->descriptor.pointer);
 
 			// La valeur de count indique une opération de lecture ou de positionnement
 			if (count > 0)
@@ -298,7 +298,7 @@ namespace Nz
 					SetStream(*m_ownedStream);
 				}
 
-				void SetStream(InputStream& stream)
+				void SetStream(Stream& stream)
 				{
 					m_stream.base = nullptr;
 					m_stream.close = FT_StreamClose;
@@ -332,7 +332,7 @@ namespace Nz
 				FT_Face m_face;
 				FT_StreamRec m_stream;
 				std::shared_ptr<FreeTypeLibrary> m_library;
-				std::unique_ptr<InputStream> m_ownedStream;
+				std::unique_ptr<Stream> m_ownedStream;
 				mutable unsigned int m_characterSize;
 		};
 
@@ -346,7 +346,7 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary Check(InputStream& stream, const FontParams& parameters)
+		Ternary Check(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -408,7 +408,7 @@ namespace Nz
 				return false;
 		}
 
-		bool LoadStream(Font* font, InputStream& stream, const FontParams& parameters)
+		bool LoadStream(Font* font, Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 

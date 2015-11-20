@@ -9,12 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/OutputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API MemoryStream : public InputStream, public OutputStream
+	class NAZARA_CORE_API MemoryStream : public Stream
 	{
 		public:
 			MemoryStream();
@@ -27,23 +26,22 @@ namespace Nz
 
 			bool EndOfStream() const override;
 
-			void Flush() override;
 
 			const ByteArray& GetBuffer() const;
 			const UInt8* GetData() const;
 			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
-			std::size_t Read(void* buffer, std::size_t size) override;
-
 			bool SetCursorPos(UInt64 offset) override;
-
-			std::size_t Write(const void* buffer, std::size_t size) override;
 
 			MemoryStream& operator=(const MemoryStream&) = default;
 			MemoryStream& operator=(MemoryStream&&) = default;
 
 		private:
+			void FlushStream() override;
+			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
+
 			ByteArray m_buffer;
 			UInt64 m_pos;
 	};
@@ -55,6 +53,6 @@ namespace Nz
 	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
 }
 
-#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/MemoryStream.inl>
 
 #endif // NAZARA_MEMORYSTREAM_HPP

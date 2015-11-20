@@ -33,11 +33,6 @@ namespace Nz
 		return m_pos >= m_buffer.size();
 	}
 
-	void MemoryStream::Flush()
-	{
-		// Nothing to flush
-	}
-
 	const ByteArray& MemoryStream::GetBuffer() const
 	{
 		return m_buffer;
@@ -58,7 +53,19 @@ namespace Nz
 		return m_buffer.size();
 	}
 
-	std::size_t MemoryStream::Read(void* buffer, std::size_t size)
+	bool MemoryStream::SetCursorPos(UInt64 offset)
+	{
+		m_pos = std::min<UInt64>(offset, m_buffer.size());
+
+		return true;
+	}
+
+	void MemoryStream::FlushStream()
+	{
+		// Nothing to flush
+	}
+
+	std::size_t MemoryStream::ReadBlock(void* buffer, std::size_t size)
 	{
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_buffer.size() - m_pos));
 
@@ -69,14 +76,7 @@ namespace Nz
 		return readSize;
 	}
 
-	bool MemoryStream::SetCursorPos(UInt64 offset)
-	{
-		m_pos = std::min<UInt64>(offset, m_buffer.size());
-
-		return true;
-	}
-
-	std::size_t MemoryStream::Write(const void* buffer, std::size_t size)
+	std::size_t MemoryStream::WriteBlock(const void* buffer, std::size_t size)
 	{
 		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
 		if (endPos > m_buffer.size())
