@@ -8,7 +8,7 @@
 #define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -52,7 +52,7 @@ namespace Nz
 				String shader;
 			};
 
-			MD5MeshParser(InputStream& stream);
+			MD5MeshParser(Stream& stream);
 			~MD5MeshParser();
 
 			Ternary Check();
@@ -74,7 +74,7 @@ namespace Nz
 
 			std::vector<Joint> m_joints;
 			std::vector<Mesh> m_meshes;
-			InputStream& m_stream;
+			Stream& m_stream;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;

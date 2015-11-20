@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace
 	{
-		Ternary Check(InputStream& stream, const MaterialParams& parameters)
+		Ternary Check(Stream& stream, const MaterialParams& parameters)
 		{
 			NazaraUnused(stream);
 			NazaraUnused(parameters);
@@ -20,7 +20,7 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool Load(Material* material, InputStream& stream, const MaterialParams& parameters)
+		bool Load(Material* material, Stream& stream, const MaterialParams& parameters)
 		{
 			NazaraUnused(parameters);
 

@@ -149,7 +149,7 @@ namespace Nz
 		return SkeletalModelLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool SkeletalModel::LoadFromStream(InputStream& stream, const SkeletalModelParameters& params)
+	bool SkeletalModel::LoadFromStream(Stream& stream, const SkeletalModelParameters& params)
 	{
 		return SkeletalModelLoader::LoadFromStream(this, stream, params);
 	}

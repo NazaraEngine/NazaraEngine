@@ -106,7 +106,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
-			bool LoadFromStream(InputStream& stream, const MaterialParams& params = MaterialParams());
+			bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
 
 			void Reset();
 

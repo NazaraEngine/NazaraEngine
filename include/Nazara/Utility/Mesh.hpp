@@ -8,7 +8,6 @@
 #define NAZARA_MESH_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Primitive.hpp>
@@ -16,6 +15,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -115,7 +115,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const MeshParams& params = MeshParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
-			bool LoadFromStream(InputStream& stream, const MeshParams& params = MeshParams());
+			bool LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
 
 			void Recenter();
 

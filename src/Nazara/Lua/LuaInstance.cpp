@@ -62,7 +62,7 @@ namespace Nz
 
 		struct StreamData
 		{
-			InputStream* stream;
+			Stream* stream;
 			char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
 		};
 
@@ -422,7 +422,7 @@ namespace Nz
 		return ExecuteFromStream(stream);
 	}
 
-	bool LuaInstance::ExecuteFromStream(InputStream& stream)
+	bool LuaInstance::ExecuteFromStream(Stream& stream)
 	{
 		StreamData data;
 		data.stream = &stream;

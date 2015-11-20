@@ -189,7 +189,7 @@ namespace Nz
 		return MusicLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Music::OpenFromStream(InputStream& stream, const MusicParams& params)
+	bool Music::OpenFromStream(Stream& stream, const MusicParams& params)
 	{
 		return MusicLoader::LoadFromStream(this, stream, params);
 	}

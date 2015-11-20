@@ -50,8 +50,6 @@ namespace Nz
 
 	File::File(File&& file) noexcept :
 	Stream(std::move(file)),
-	InputStream(std::move(file)),
-	OutputStream(std::move(file)),
 	m_filePath(std::move(file.m_filePath)),
 	m_impl(file.m_impl)
 	{
@@ -119,16 +117,6 @@ namespace Nz
 			return Exists(m_filePath);
 	}
 
-	void File::Flush()
-	{
-		NazaraLock(m_mutex)
-
-		NazaraAssert(IsOpen(), "File is not open");
-		NazaraAssert(IsWritable(), "File not opened with write access");
-
-		m_impl->Flush();
-	}
-
 	time_t File::GetCreationTime() const
 	{
 		NazaraLock(m_mutex)
@@ -192,29 +180,6 @@ namespace Nz
 		NazaraLock(m_mutex)
 
 		return m_impl != nullptr;
-	}
-
-	std::size_t File::Read(void* buffer, std::size_t size)
-	{
-		NazaraLock(m_mutex)
-
-		NazaraAssert(IsOpen(), "File is not opened");
-		NazaraAssert(IsReadable(), "File not opened with read access");
-
-		if (size == 0)
-			return 0;
-
-		if (buffer)
-			return m_impl->Read(buffer, size);
-		else
-		{
-			// Si nous ne devons rien lire, nous avançons simplement
-			UInt64 currentPos = m_impl->GetCursorPos();
-
-			m_impl->SetCursorPos(CursorPosition_AtCurrent, size);
-
-			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
-		}
 	}
 
 	bool File::Rename(const String& newFilePath)
@@ -319,21 +284,6 @@ namespace Nz
 
 		m_filePath = AbsolutePath(filePath);
 		return true;
-	}
-
-	std::size_t File::Write(const void* buffer, std::size_t size)
-	{
-		NazaraLock(m_mutex)
-
-		NazaraAssert(IsOpen(), "File is not opened");
-		NazaraAssert(IsWritable(), "File not opened with write access");
-
-		if (size == 0)
-			return 0;
-
-		NazaraAssert(buffer, "Invalid buffer");
-
-		return m_impl->Write(buffer, size);
 	}
 
 	File& File::operator=(const String& filePath)
@@ -548,6 +498,52 @@ namespace Nz
 
 		return FileImpl::Rename(NormalizePath(sourcePath), NormalizePath(targetPath));
 	}
+
+	void File::FlushStream()
+	{
+		NazaraLock(m_mutex)
+
+		NazaraAssert(IsOpen(), "File is not open");
+
+		m_impl->Flush();
+	}
+
+	std::size_t File::ReadBlock(void* buffer, std::size_t size)
+	{
+		NazaraLock(m_mutex)
+
+		NazaraAssert(IsOpen(), "File is not opened");
+
+		if (size == 0)
+			return 0;
+
+		if (buffer)
+			return m_impl->Read(buffer, size);
+		else
+		{
+			// Si nous ne devons rien lire, nous avançons simplement
+			UInt64 currentPos = m_impl->GetCursorPos();
+
+			m_impl->SetCursorPos(CursorPosition_AtCurrent, size);
+
+			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
+		}
+	}
+
+	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
+	{
+		NazaraLock(m_mutex)
+
+		NazaraAssert(IsOpen(), "File is not opened");
+
+		if (size == 0)
+			return 0;
+
+		NazaraAssert(buffer, "Invalid buffer");
+
+		return m_impl->Write(buffer, size);
+	}
+
 
 	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile)
 	{

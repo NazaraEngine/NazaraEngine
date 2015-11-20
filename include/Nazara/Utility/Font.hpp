@@ -78,7 +78,7 @@ namespace Nz
 			// Open
 			bool OpenFromFile(const String& filePath, const FontParams& params = FontParams());
 			bool OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
-			bool OpenFromStream(InputStream& stream, const FontParams& params = FontParams());
+			bool OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 
 			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			void SetGlyphBorder(unsigned int borderSize);
