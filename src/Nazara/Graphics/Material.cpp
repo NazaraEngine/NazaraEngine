@@ -370,7 +370,7 @@ namespace Nz
 		return MaterialLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Material::LoadFromStream(InputStream& stream, const MaterialParams& params)
+	bool Material::LoadFromStream(Stream& stream, const MaterialParams& params)
 	{
 		return MaterialLoader::LoadFromStream(this, stream, params);
 	}

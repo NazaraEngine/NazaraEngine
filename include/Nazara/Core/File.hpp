@@ -11,8 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/OutputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
@@ -27,7 +26,7 @@ namespace Nz
 {
 	class FileImpl;
 
-	class NAZARA_CORE_API File : public InputStream, public OutputStream
+	class NAZARA_CORE_API File : public Stream
 	{
 		public:
 			File();
@@ -47,8 +46,6 @@ namespace Nz
 
 			bool Exists() const;
 
-			void Flush() override;
-
 			time_t GetCreationTime() const;
 			UInt64 GetCursorPos() const override;
 			String GetDirectory() const override;
@@ -63,15 +60,11 @@ namespace Nz
 			bool Open(unsigned int openMode = OpenMode_Current);
 			bool Open(const String& filePath, unsigned int openMode = OpenMode_Current);
 
-			std::size_t Read(void* buffer, std::size_t size) override;
 			bool Rename(const String& newFilePath);
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
 			bool SetCursorPos(UInt64 offset) override;
 			bool SetFile(const String& filePath);
-
-			using OutputStream::Write;
-			std::size_t Write(const void* buffer, std::size_t size) override;
 
 			File& operator=(const String& filePath);
 			File& operator=(const File&) = delete;
@@ -95,6 +88,10 @@ namespace Nz
 
 		private:
 			NazaraMutexAttrib(m_mutex, mutable)
+
+			void FlushStream() override;
+			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			String m_filePath;
 			FileImpl* m_impl;

@@ -15,7 +15,7 @@ namespace Nz
 			return (extension == "md5anim");
 		}
 
-		Ternary Check(InputStream& stream, const AnimationParams& parameters)
+		Ternary Check(Stream& stream, const AnimationParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -23,7 +23,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Animation* animation, InputStream& stream, const AnimationParams& parameters)
+		bool Load(Animation* animation, Stream& stream, const AnimationParams& parameters)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);

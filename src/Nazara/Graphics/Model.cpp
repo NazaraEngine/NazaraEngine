@@ -175,7 +175,7 @@ namespace Nz
 		return ModelLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Model::LoadFromStream(InputStream& stream, const ModelParameters& params)
+	bool Model::LoadFromStream(Stream& stream, const ModelParameters& params)
 	{
 		return ModelLoader::LoadFromStream(this, stream, params);
 	}

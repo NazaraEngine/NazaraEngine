@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -73,7 +73,7 @@ namespace Nz
 			bool Execute(const String& code);
 			bool ExecuteFromFile(const String& filePath);
 			bool ExecuteFromMemory(const void* data, unsigned int size);
-			bool ExecuteFromStream(InputStream& stream);
+			bool ExecuteFromStream(Stream& stream);
 
 			int GetAbsIndex(int index) const;
 			LuaType GetField(const char* fieldName, int index = -1) const;

@@ -12,18 +12,18 @@
 
 namespace Nz
 {
-	MTLParser::MTLParser(InputStream& stream) :
+	MTLParser::MTLParser(Stream& stream) :
 	m_stream(stream),
-	m_streamFlags(stream.GetStreamOptions())
+	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
 	{
-		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags | StreamOption_Text);
+		m_stream.EnableTextMode(true);
 	}
 
 	MTLParser::~MTLParser()
 	{
+		// Reset stream flags
 		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags);
+			m_stream.EnableTextMode(false);
 	}
 
 	const MTLParser::Material* MTLParser::GetMaterial(const String& materialName) const

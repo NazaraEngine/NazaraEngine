@@ -5,7 +5,7 @@
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -26,7 +26,7 @@ namespace Nz
 			return (extension == "md2");
 		}
 
-		Ternary Check(InputStream& stream, const MeshParams& parameters)
+		Ternary Check(Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -45,7 +45,7 @@ namespace Nz
 			return Ternary_False;
 		}
 
-		bool Load(Mesh* mesh, InputStream& stream, const MeshParams& parameters)
+		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))

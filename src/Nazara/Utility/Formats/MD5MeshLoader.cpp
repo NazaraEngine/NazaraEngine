@@ -20,7 +20,7 @@ namespace Nz
 			return (extension == "md5mesh");
 		}
 
-		Ternary Check(InputStream& stream, const MeshParams& parameters)
+		Ternary Check(Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -28,7 +28,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Mesh* mesh, InputStream& stream, const MeshParams& parameters)
+		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
 			if (!parser.Parse())

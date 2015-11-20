@@ -458,7 +458,7 @@ namespace Nz
 		return AnimationLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Animation::LoadFromStream(InputStream& stream, const AnimationParams& params)
+	bool Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
 	{
 		return AnimationLoader::LoadFromStream(this, stream, params);
 	}

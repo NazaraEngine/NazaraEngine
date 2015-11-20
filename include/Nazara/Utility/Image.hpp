@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -17,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <atomic>
@@ -93,19 +93,19 @@ namespace Nz
 			// Load
 			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
-			bool LoadFromStream(InputStream& stream, const ImageParams& params = ImageParams());
+			bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
 
 			// LoadArray
 			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 
 			// LoadCubemap
 			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 			bool LoadCubemapFromImage(const Image& image, const CubemapParams& params = CubemapParams());
 			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			bool LoadCubemapFromStream(InputStream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 
 			void SetLevelCount(UInt8 levelCount);
 			bool SetPixelColor(const Color& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);

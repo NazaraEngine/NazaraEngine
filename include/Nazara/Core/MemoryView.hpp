@@ -8,11 +8,11 @@
 #define NAZARA_MEMORYVIEW_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API MemoryView : public InputStream
+	class NAZARA_CORE_API MemoryView : public Stream
 	{
 		public:
 			MemoryView(const void* ptr, UInt64 size);
@@ -25,14 +25,16 @@ namespace Nz
 			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
-			std::size_t Read(void* buffer, std::size_t size) override;
-
 			bool SetCursorPos(UInt64 offset) override;
 
 			MemoryView& operator=(const MemoryView&) = delete;
 			MemoryView& operator=(MemoryView&&) = delete; ///TODO
 
 		private:
+		void FlushStream() override;
+			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
+
 			const UInt8* m_ptr;
 			UInt64 m_pos;
 			UInt64 m_size;

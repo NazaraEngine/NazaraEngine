@@ -59,7 +59,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
-			bool LoadFromStream(InputStream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
+			bool LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
 
 			void Reset();
 

@@ -15,18 +15,17 @@
 
 namespace Nz
 {
-	class InputStream;
-	class OutputStream;
+	class Stream;
 
 	struct SerializationContext
 	{
-		OutputStream* stream;
+		Stream* stream;
 		Endianness endianness;
 	};
 
 	struct UnserializationContext
 	{
-		InputStream* stream;
+		Stream* stream;
 		Endianness endianness;
 	};
 }

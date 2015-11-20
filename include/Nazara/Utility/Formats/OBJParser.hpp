@@ -8,7 +8,7 @@
 #define NAZARA_FORMATS_OBJPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -39,7 +39,7 @@ namespace Nz
 				unsigned int material;
 			};
 
-			OBJParser(InputStream& stream$);
+			OBJParser(Stream& stream$);
 			~OBJParser();
 
 			const String* GetMaterials() const;
@@ -67,7 +67,7 @@ namespace Nz
 			std::vector<Vector3f> m_normals;
 			std::vector<Vector4f> m_positions;
 			std::vector<Vector3f> m_texCoords;
-			InputStream& m_stream;
+			Stream& m_stream;
 			String m_currentLine;
 			String m_mtlLib;
 			bool m_keepLastLine;

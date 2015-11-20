@@ -29,7 +29,7 @@ namespace Nz
 			return (extension == "obj");
 		}
 
-		Ternary Check(InputStream& stream, const ModelParameters& parameters)
+		Ternary Check(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
 			NazaraUnused(parameters);
@@ -127,7 +127,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Load(Model* model, InputStream& stream, const ModelParameters& parameters)
+		bool Load(Model* model, Stream& stream, const ModelParameters& parameters)
 		{
 			OBJParser parser(stream);
 			if (!parser.Parse())

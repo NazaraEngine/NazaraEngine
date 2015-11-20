@@ -15,22 +15,22 @@
 
 namespace Nz
 {
-	MD5AnimParser::MD5AnimParser(InputStream& stream) :
+	MD5AnimParser::MD5AnimParser(Stream& stream) :
 	m_stream(stream),
 	m_keepLastLine(false),
 	m_frameIndex(0),
 	m_frameRate(0),
 	m_lineCount(0),
-	m_streamFlags(stream.GetStreamOptions())
+	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
 	{
-		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags | StreamOption_Text);
+		m_stream.EnableTextMode(true);
 	}
 
 	MD5AnimParser::~MD5AnimParser()
 	{
+		// Reset stream flags
 		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags);
+			m_stream.EnableTextMode(false);
 	}
 
 	Ternary MD5AnimParser::Check()
