@@ -795,7 +795,7 @@ namespace Nz
 		return MeshLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	bool Mesh::LoadFromStream(InputStream& stream, const MeshParams& params)
+	bool Mesh::LoadFromStream(Stream& stream, const MeshParams& params)
 	{
 		return MeshLoader::LoadFromStream(this, stream, params);
 	}

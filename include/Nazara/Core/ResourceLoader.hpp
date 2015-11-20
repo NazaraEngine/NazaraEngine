@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	class InputStream;
+	class Stream;
 
 	template<typename Type, typename Parameters>
 	class ResourceLoader
@@ -27,8 +27,8 @@ namespace Nz
 			using ExtensionGetter = bool (*)(const String& extension);
 			using FileLoader = bool (*)(Type* resource, const String& filePath, const Parameters& parameters);
 			using MemoryLoader = bool (*)(Type* resource, const void* data, std::size_t size, const Parameters& parameters);
-			using StreamChecker = Ternary (*)(InputStream& stream, const Parameters& parameters);
-			using StreamLoader = bool (*)(Type* resource, InputStream& stream, const Parameters& parameters);
+			using StreamChecker = Ternary (*)(Stream& stream, const Parameters& parameters);
+			using StreamLoader = bool (*)(Type* resource, Stream& stream, const Parameters& parameters);
 
 			ResourceLoader() = delete;
 			~ResourceLoader() = delete;
@@ -37,7 +37,7 @@ namespace Nz
 
 			static bool LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters = Parameters());
 			static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
-			static bool LoadFromStream(Type* resource, InputStream& stream, const Parameters& parameters = Parameters());
+			static bool LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters = Parameters());
 
 			static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
 			static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);

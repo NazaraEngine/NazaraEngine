@@ -8,7 +8,7 @@
 #define NAZARA_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -42,7 +42,7 @@ namespace Nz
 				unsigned int index;
 			};
 
-			MD5AnimParser(InputStream& stream);
+			MD5AnimParser(Stream& stream);
 			~MD5AnimParser();
 
 			Ternary Check();
@@ -69,7 +69,7 @@ namespace Nz
 			std::vector<float> m_animatedComponents;
 			std::vector<Frame> m_frames;
 			std::vector<Joint> m_joints;
-			InputStream& m_stream;
+			Stream& m_stream;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_frameIndex;

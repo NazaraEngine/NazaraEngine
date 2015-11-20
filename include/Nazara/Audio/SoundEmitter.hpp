@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 ///TODO: Faire hériter SoundEmitter de Node

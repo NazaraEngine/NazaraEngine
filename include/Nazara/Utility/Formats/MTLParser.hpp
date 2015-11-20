@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>
@@ -39,7 +39,7 @@ namespace Nz
 				unsigned int illumModel = 0;
 			};
 
-			MTLParser(InputStream& stream$);
+			MTLParser(Stream& stream$);
 			~MTLParser();
 
 			const Material* GetMaterial(const String& materialName) const;
@@ -54,7 +54,7 @@ namespace Nz
 			void UnrecognizedLine(bool error = false);
 
 			std::unordered_map<String, Material> m_materials;
-			InputStream& m_stream;
+			Stream& m_stream;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;

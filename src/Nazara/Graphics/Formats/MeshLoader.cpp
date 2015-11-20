@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace
 	{
-		Ternary CheckStatic(InputStream& stream, const ModelParameters& parameters)
+		Ternary CheckStatic(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
 			NazaraUnused(parameters);
@@ -22,7 +22,7 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool LoadStatic(Model* model, InputStream& stream, const ModelParameters& parameters)
+		bool LoadStatic(Model* model, Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -63,7 +63,7 @@ namespace Nz
 			return true;
 		}
 
-		Ternary CheckAnimated(InputStream& stream, const SkeletalModelParameters& parameters)
+		Ternary CheckAnimated(Stream& stream, const SkeletalModelParameters& parameters)
 		{
 			NazaraUnused(stream);
 			NazaraUnused(parameters);
@@ -71,7 +71,7 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool LoadAnimated(SkeletalModel* model, InputStream& stream, const SkeletalModelParameters& parameters)
+		bool LoadAnimated(SkeletalModel* model, Stream& stream, const SkeletalModelParameters& parameters)
 		{
 			NazaraUnused(parameters);
 

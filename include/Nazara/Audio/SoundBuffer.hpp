@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,6 +17,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
@@ -67,7 +67,7 @@ namespace Nz
 
 			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
-			bool LoadFromStream(InputStream& stream, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 
 			static bool IsFormatSupported(AudioFormat format);
 			template<typename... Args> static SoundBufferRef New(Args&&... args);

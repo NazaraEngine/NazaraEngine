@@ -21,21 +21,21 @@
 
 namespace Nz
 {
-	MD5MeshParser::MD5MeshParser(InputStream& stream) :
+	MD5MeshParser::MD5MeshParser(Stream& stream) :
 	m_stream(stream),
 	m_keepLastLine(false),
 	m_lineCount(0),
 	m_meshIndex(0),
-	m_streamFlags(stream.GetStreamOptions())
+	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
 	{
-		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags | StreamOption_Text);
+		m_stream.EnableTextMode(true);
 	}
 
 	MD5MeshParser::~MD5MeshParser()
 	{
+		// Reset stream flags
 		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.SetStreamOptions(m_streamFlags);
+			m_stream.EnableTextMode(false);
 	}
 
 	Ternary MD5MeshParser::Check()

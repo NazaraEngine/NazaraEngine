@@ -32,7 +32,19 @@ namespace Nz
 		return m_size;
 	}
 
-	std::size_t MemoryView::Read(void* buffer, std::size_t size)
+	bool MemoryView::SetCursorPos(UInt64 offset)
+	{
+		m_pos = std::min(offset, m_size);
+
+		return true;
+	}
+
+	void MemoryView::FlushStream()
+	{
+		NazaraInternalError("FlushStream has been called on a MemoryView");
+	}
+
+	std::size_t MemoryView::ReadBlock(void* buffer, std::size_t size)
 	{
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_size - m_pos));
 
@@ -43,10 +55,9 @@ namespace Nz
 		return readSize;
 	}
 
-	bool MemoryView::SetCursorPos(UInt64 offset)
+	std::size_t MemoryView::WriteBlock(const void* buffer, std::size_t size)
 	{
-		m_pos = std::min(offset, m_size);
-
-		return true;
+		NazaraInternalError("WriteBlock has been called on a MemoryView");
+		return 0;
 	}
 }
