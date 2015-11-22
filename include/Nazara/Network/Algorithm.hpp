@@ -8,12 +8,13 @@
 #define NAZARA_ALGORITHM_NETWORK_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Network/Config.hpp>
 #include <functional>
 #include <tuple>
 
 namespace Nz
 {
-	bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port = nullptr, bool* isIPv6 = nullptr, const char** endOfRead = nullptr);
+	NAZARA_NETWORK_API bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port = nullptr, bool* isIPv6 = nullptr, const char** endOfRead = nullptr);
 }
 
 #include <Nazara/Network/Algorithm.inl>
