@@ -80,14 +80,33 @@ namespace Nz
 
 	inline bool Serialize(SerializationContext& context, bool value)
 	{
-		///TODO: Handle bits writing (Serializing 8 bits should only use one byte)
-		UInt8 buffer = (value) ? 1 : 0;
-		return context.stream->Write(&buffer, 1) == 1;
+		if (context.currentBitPos == 8)
+		{
+			context.currentBitPos = 0;
+			context.currentByte = 0;
+		}
+
+		if (value)
+			context.currentByte |= 1 << context.currentBitPos;
+
+		if (++context.currentBitPos >= 8)
+			return Serialize<UInt8>(context, context.currentByte);
+		else
+			return true;
 	}
 
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
+		// Flush bits if a writing is in progress
+		if (context.currentBitPos != 8)
+		{
+			context.currentBitPos = 8;
+
+			if (!Serialize<UInt8>(context, context.currentByte))
+				NazaraWarning("Failed to flush bits");
+		}
+
 		if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
 			SwapBytes(&value, sizeof(T));
 
@@ -98,20 +117,29 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
-		UInt8 buffer;
-		if (context.stream->Read(&buffer, 1) == 1)
+		if (context.currentBitPos == 8)
 		{
-			*value = (buffer == 1);
-			return true;
+			if (!Unserialize(context, &context.currentByte))
+				return false;
+
+			context.currentBitPos = 0;
 		}
-		else
-			return false;
+
+		if (value)
+			*value = (context.currentByte & (1 << context.currentBitPos)) != 0;
+
+		context.currentBitPos++;
+
+		return true;
 	}
 
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value)
 	{
 		NazaraAssert(value, "Invalid data pointer");
+
+		// Reset bit position
+		context.currentBitPos = 8;
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{

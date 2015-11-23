@@ -21,12 +21,16 @@ namespace Nz
 	{
 		Stream* stream;
 		Endianness endianness;
+		UInt8 currentBitPos;
+		UInt8 currentByte;
 	};
 
 	struct UnserializationContext
 	{
 		Stream* stream;
 		Endianness endianness;
+		UInt8 currentBitPos;
+		UInt8 currentByte;
 	};
 }
 
