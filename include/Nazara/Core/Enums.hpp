@@ -75,7 +75,7 @@ namespace Nz
 
 	enum OpenModeFlags
 	{
-		OpenMode_Current   = 0x00, // Utilise le mode d'ouverture actuel
+		OpenMode_NotOpen   = 0x00, // Utilise le mode d'ouverture actuel
 
 		OpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
 		OpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert

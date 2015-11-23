@@ -31,7 +31,7 @@
 namespace Nz
 {
 	File::File() :
-	Stream(OpenMode_Current),
+	Stream(OpenMode_NotOpen),
 	m_impl(nullptr)
 	{
 	}

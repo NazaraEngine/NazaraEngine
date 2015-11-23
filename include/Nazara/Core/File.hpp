@@ -57,8 +57,8 @@ namespace Nz
 
 			bool IsOpen() const;
 
-			bool Open(unsigned int openMode = OpenMode_Current);
-			bool Open(const String& filePath, unsigned int openMode = OpenMode_Current);
+			bool Open(unsigned int openMode = OpenMode_NotOpen);
+			bool Open(const String& filePath, unsigned int openMode = OpenMode_NotOpen);
 
 			bool Rename(const String& newFilePath);
 
