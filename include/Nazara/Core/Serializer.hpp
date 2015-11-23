@@ -20,7 +20,7 @@ namespace Nz
 			inline Serializer(Stream& stream);
 			Serializer(const Serializer&) = default;
 			Serializer(Serializer&&) = default;
-			~Serializer() = default;
+			~Serializer();
 
 			inline Endianness GetDataEndianness() const;
 			inline Stream& GetStream() const;
