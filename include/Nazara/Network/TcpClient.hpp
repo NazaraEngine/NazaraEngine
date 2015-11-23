@@ -9,12 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {
-	class NAZARA_NETWORK_API TcpClient : public AbstractSocket
+	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream
 	{
 		friend class TcpServer;
 
@@ -30,9 +31,13 @@ namespace Nz
 			void EnableLowDelay(bool lowDelay);
 			void EnableKeepAlive(bool keepAlive, UInt64 msTime = 10000, UInt64 msInterval = 1000);
 
+			bool EndOfStream() const override;
+
+			UInt64 GetCursorPos() const override;
 			inline UInt64 GetKeepAliveInterval() const;
 			inline UInt64 GetKeepAliveTime() const;
 			inline IpAddress GetRemoteAddress() const;
+			UInt64 GetSize() const override;
 
 			inline bool IsLowDelayEnabled() const;
 			inline bool IsKeepAliveEnabled() const;
@@ -41,13 +46,19 @@ namespace Nz
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
 
+			bool SetCursorPos(UInt64 offset) override;
+
 			bool WaitForConnected(UInt64 msTimeout = 3000);
 
 		private:
+			void FlushStream() override;
+
 			void OnClose() override;
 			void OnOpened() override;
 
+			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			void Reset(SocketHandle handle, const IpAddress& peerAddress);
+			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			IpAddress m_peerAddress;
 			UInt64 m_keepAliveInterval;

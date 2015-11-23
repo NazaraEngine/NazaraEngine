@@ -31,7 +31,6 @@
 namespace Nz
 {
 	File::File() :
-	Stream(OpenMode_NotOpen),
 	m_impl(nullptr)
 	{
 	}
@@ -75,6 +74,8 @@ namespace Nz
 			m_impl->Close();
 			delete m_impl;
 			m_impl = nullptr;
+
+			m_openMode = OpenMode_NotOpen;
 		}
 	}
 
@@ -208,20 +209,18 @@ namespace Nz
 		if (m_filePath.IsEmpty())
 			return false;
 
-		if (openMode != 0)
-			m_openMode = openMode;
-
-		if (m_openMode == 0)
+		if (openMode == OpenMode_NotOpen)
 			return false;
 
 		std::unique_ptr<FileImpl> impl(new FileImpl(this));
-		if (!impl->Open(m_filePath, m_openMode))
+		if (!impl->Open(m_filePath, openMode))
 		{
 			ErrorFlags flags(ErrorFlag_Silent); // Silencieux par défaut
 			NazaraError("Failed to open \"" + m_filePath + "\": " + Error::GetLastSystemError());
 			return false;
 		}
 
+		m_openMode = openMode;
 		m_impl = impl.release();
 
 		if (m_openMode & OpenMode_Text)

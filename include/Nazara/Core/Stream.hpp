@@ -55,7 +55,7 @@ namespace Nz
 			Stream& operator=(Stream&&) = default;
 
 		protected:
-			inline Stream(UInt32 openMode);
+			inline Stream(UInt32 streamOptions = StreamOption_None, UInt32 openMode = OpenMode_NotOpen);
 
 			virtual void FlushStream() = 0;
 			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;
