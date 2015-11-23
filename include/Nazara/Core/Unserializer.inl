@@ -8,6 +8,7 @@ namespace Nz
 {
 	inline Unserializer::Unserializer(Stream& stream)
 	{
+		m_unserializationContext.currentBitPos = 8;
 		m_unserializationContext.endianness = Endianness_BigEndian;
 		m_unserializationContext.stream = &stream;
 	}
