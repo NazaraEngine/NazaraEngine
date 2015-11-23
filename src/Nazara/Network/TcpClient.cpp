@@ -94,6 +94,22 @@ namespace Nz
 		}
 	}
 
+	bool TcpClient::EndOfStream() const
+	{
+		return QueryAvailableBytes() == 0;
+	}
+
+	UInt64 TcpClient::GetCursorPos() const
+	{
+		NazaraError("GetCursorPos() cannot be used on sequential streams");
+		return 0;
+	}
+
+	UInt64 TcpClient::GetSize() const
+	{
+		return QueryAvailableBytes();
+	}
+
 	bool TcpClient::Receive(void* buffer, std::size_t size, std::size_t* received)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
@@ -165,6 +181,12 @@ namespace Nz
 		return true;
 	}
 
+	bool TcpClient::SetCursorPos(UInt64 offset)
+	{
+		NazaraError("SetCursorPos() cannot be used on sequential streams");
+		return false;
+	}
+
 	bool TcpClient::WaitForConnected(UInt64 msTimeout)
 	{
 		switch (m_state)
@@ -209,10 +231,15 @@ namespace Nz
 		return false;
 	}
 
+	void TcpClient::FlushStream()
+	{
+	}
+
 	void TcpClient::OnClose()
 	{
 		AbstractSocket::OnClose();
 
+		m_openMode = OpenMode_NotOpen;
 		m_peerAddress = IpAddress::Invalid;
 	}
 
@@ -229,12 +256,56 @@ namespace Nz
 			NazaraWarning("Failed to set socket keep alive mode (0x" + String::Number(errorCode, 16) + ')');
 
 		m_peerAddress = IpAddress::Invalid;
+		m_openMode = OpenMode_ReadWrite;
+	}
+
+	std::size_t TcpClient::ReadBlock(void* buffer, std::size_t size)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+		CallOnExit restoreBlocking;
+		if (!m_isBlockingEnabled)
+		{
+			SocketImpl::SetBlocking(m_handle, true);
+			restoreBlocking.Reset([this] ()
+			{
+				SocketImpl::SetBlocking(m_handle, false);
+			});
+		}
+
+		std::size_t received;
+		if (!Receive(buffer, size, &received))
+			received = 0;
+
+		return received;
 	}
 
 	void TcpClient::Reset(SocketHandle handle, const IpAddress& peerAddress)
 	{
 		Open(handle);
 		m_peerAddress = peerAddress;
+		m_openMode = OpenMode_ReadWrite;
 		UpdateState(SocketState_Connected);
+	}
+
+	std::size_t TcpClient::WriteBlock(const void* buffer, std::size_t size)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+		CallOnExit restoreBlocking;
+		if (!m_isBlockingEnabled)
+		{
+			SocketImpl::SetBlocking(m_handle, true);
+			restoreBlocking.Reset([this] ()
+			{
+				SocketImpl::SetBlocking(m_handle, false);
+			});
+		}
+
+		std::size_t sent;
+		if (!Send(buffer, size, &sent))
+			sent = 0;
+
+		return sent;
 	}
 }

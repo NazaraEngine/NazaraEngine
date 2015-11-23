@@ -9,6 +9,7 @@ namespace Nz
 {
 	inline TcpClient::TcpClient() :
 	AbstractSocket(SocketType_TCP),
+	Stream(StreamOption_Sequential),
 	m_keepAliveInterval(1000),   //TODO: Query OS default value
 	m_keepAliveTime(7'200'000),  //TODO: Query OS default value
 	m_isKeepAliveEnabled(false), //TODO: Query OS default value
@@ -18,6 +19,7 @@ namespace Nz
 
 	inline TcpClient::TcpClient(TcpClient&& tcpClient) :
 	AbstractSocket(std::move(tcpClient)),
+	Stream(std::move(tcpClient)),
 	m_peerAddress(std::move(tcpClient.m_peerAddress)),
 	m_keepAliveInterval(tcpClient.m_keepAliveInterval),
 	m_keepAliveTime(tcpClient.m_keepAliveTime),
