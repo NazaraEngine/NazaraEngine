@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline Stream::Stream(UInt32 openMode) :
+	inline Stream::Stream(UInt32 streamOptions, UInt32 openMode) :
 	m_openMode(openMode),
-	m_streamOptions(0)
+	m_streamOptions(streamOptions)
 	{
 	}
 
