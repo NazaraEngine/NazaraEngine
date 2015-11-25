@@ -144,6 +144,19 @@ namespace Nz
 		m_glyphUpdated = false;
 	}
 
+	SimpleTextDrawer& SimpleTextDrawer::operator=(const SimpleTextDrawer& drawer)
+	{
+		m_characterSize = drawer.m_characterSize;
+		m_color = drawer.m_color;
+		m_style = drawer.m_style;
+		m_text = drawer.m_text;
+
+		m_glyphUpdated = false;
+		SetFont(drawer.m_font);
+
+		return *this;
+	}
+
 	SimpleTextDrawer& SimpleTextDrawer::operator=(SimpleTextDrawer&& drawer)
 	{
 		DisconnectFontSlots();
