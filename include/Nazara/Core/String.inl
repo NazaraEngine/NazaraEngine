@@ -23,7 +23,7 @@ namespace Nz
 	{
 	}
 
-	inline String::SharedString::SharedString(unsigned int strSize) :
+	inline String::SharedString::SharedString(std::size_t strSize) :
 	capacity(strSize), 
 	size(strSize),
 	string(new char[strSize + 1])
@@ -31,7 +31,7 @@ namespace Nz
 		string[strSize] = '\0';
 	}
 
-	inline String::SharedString::SharedString(unsigned int strSize, unsigned int strCapacity) :
+	inline String::SharedString::SharedString(std::size_t strSize, std::size_t strCapacity) :
 	capacity(strCapacity),
 	size(strSize),
 	string(new char[strCapacity + 1])

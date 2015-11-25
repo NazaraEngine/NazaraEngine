@@ -866,12 +866,12 @@ namespace Nz
 		delete m_state;
 	}
 
-	void HashWhirlpool::Append(const UInt8* data, unsigned int len)
+	void HashWhirlpool::Append(const UInt8* data, std::size_t len)
 	{
-		len *= 8; // Whirlpool fonctionne avec une taille en bits
+		len *= 8; // Whirlpool works with bits
 
 		int sourcePos = 0; /* index of leftmost source UInt8 containing data (1 to 8 bits). */
-		int sourceGap = (8 - (static_cast<int>(len) & 7)) & 7; /* space on source[sourcePos]. */
+		int sourceGap = (8 - (static_cast<std::intmax_t>(len) & 7)) & 7; /* space on source[sourcePos]. */
 		int bufferRem = m_state->bufferBits & 7; /* occupied bits on buffer[bufferPos]. */
 
 		UInt32 b;
@@ -1015,7 +1015,7 @@ namespace Nz
 		return ByteArray(&result[0], 64);
 	}
 
-	unsigned int HashWhirlpool::GetDigestLength() const
+	std::size_t HashWhirlpool::GetDigestLength() const
 	{
 		return 64;
 	}

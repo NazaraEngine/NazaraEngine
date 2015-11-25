@@ -32,12 +32,12 @@ namespace Nz
 
 			String();
 			explicit String(char character);
-			String(unsigned int rep, char character);
-			String(unsigned int rep, const char* string);
-			String(unsigned int rep, const char* string, unsigned int length);
-			String(unsigned int rep, const String& string);
+			String(std::size_t rep, char character);
+			String(std::size_t rep, const char* string);
+			String(std::size_t rep, const char* string, std::size_t length);
+			String(std::size_t rep, const String& string);
 			String(const char* string);
-			String(const char* string, unsigned int length);
+			String(const char* string, std::size_t length);
 			String(const std::string& string);
 			String(const String& string) = default;
 			String(String&& string) noexcept = default;
@@ -45,57 +45,57 @@ namespace Nz
 
 			String& Append(char character);
 			String& Append(const char* string);
-			String& Append(const char* string, unsigned int length);
+			String& Append(const char* string, std::size_t length);
 			String& Append(const String& string);
 
 			void Clear(bool keepBuffer = false);
 
-			bool Contains(char character, int start = 0, UInt32 flags = None) const;
-			bool Contains(const char* string, int start = 0, UInt32 flags = None) const;
-			bool Contains(const String& string, int start = 0, UInt32 flags = None) const;
+			bool Contains(char character, std::intmax_t start = 0, UInt32 flags = None) const;
+			bool Contains(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			bool Contains(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
 
-			unsigned int Count(char character, int start = 0, UInt32 flags = None) const;
-			unsigned int Count(const char* string, int start = 0, UInt32 flags = None) const;
-			unsigned int Count(const String& string, int start = 0, UInt32 flags = None) const;
-			unsigned int CountAny(const char* string, int start = 0, UInt32 flags = None) const;
-			unsigned int CountAny(const String& string, int start = 0, UInt32 flags = None) const;
+			unsigned int Count(char character, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int Count(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int Count(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int CountAny(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int CountAny(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
 
 			bool EndsWith(char character, UInt32 flags = None) const;
 			bool EndsWith(const char* string, UInt32 flags = None) const;
-			bool EndsWith(const char* string, unsigned int length, UInt32 flags = None) const;
+			bool EndsWith(const char* string, std::size_t length, UInt32 flags = None) const;
 			bool EndsWith(const String& string, UInt32 flags = None) const;
 
-			unsigned int Find(char character, int start = 0, UInt32 flags = None) const;
-			unsigned int Find(const char* string, int start = 0, UInt32 flags = None) const;
-			unsigned int Find(const String& string, int start = 0, UInt32 flags = None) const;
-			unsigned int FindAny(const char* string, int start = 0, UInt32 flags = None) const;
-			unsigned int FindAny(const String& string, int start = 0, UInt32 flags = None) const;
-			unsigned int FindLast(char character, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLast(const char *string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLast(const String& string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLastAny(const char* string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLastAny(const String& string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLastWord(const char* string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindLastWord(const String& string, int start = -1, UInt32 flags = None) const;
-			unsigned int FindWord(const char* string, int start = 0, UInt32 flags = None) const;
-			unsigned int FindWord(const String& string, int start = 0, UInt32 flags = None) const;
+			std::size_t Find(char character, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t Find(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t Find(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t FindAny(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t FindAny(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t FindLast(char character, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLast(const char *string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLast(const String& string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLastAny(const char* string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLastAny(const String& string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLastWord(const char* string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLastWord(const String& string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindWord(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
+			std::size_t FindWord(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
 
 			char* GetBuffer();
-			unsigned int GetCapacity() const;
+			std::size_t GetCapacity() const;
 			const char* GetConstBuffer() const;
-			unsigned int GetLength() const;
-			unsigned int GetSize() const;
+			std::size_t GetLength() const;
+			std::size_t GetSize() const;
 			std::string GetUtf8String() const;
 			std::u16string GetUtf16String() const;
 			std::u32string GetUtf32String() const;
 			std::wstring GetWideString() const;
 			String GetWord(unsigned int index, UInt32 flags = None) const;
-			unsigned int GetWordPosition(unsigned int index, UInt32 flags = None) const;
+			std::size_t GetWordPosition(unsigned int index, UInt32 flags = None) const;
 
-			String& Insert(int pos, char character);
-			String& Insert(int pos, const char* string);
-			String& Insert(int pos, const char* string, unsigned int length);
-			String& Insert(int pos, const String& string);
+			String& Insert(std::intmax_t pos, char character);
+			String& Insert(std::intmax_t pos, const char* string);
+			String& Insert(std::intmax_t pos, const char* string, std::size_t length);
+			String& Insert(std::intmax_t pos, const String& string);
 
 			bool IsEmpty() const;
 			bool IsNull() const;
@@ -106,32 +106,32 @@ namespace Nz
 
 			String& Prepend(char character);
 			String& Prepend(const char* string);
-			String& Prepend(const char* string, unsigned int length);
+			String& Prepend(const char* string, std::size_t length);
 			String& Prepend(const String& string);
 
-			unsigned int Replace(char oldCharacter, char newCharacter, int start = 0, UInt32 flags = None);
-			unsigned int Replace(const char* oldString, const char* replaceString, int start = 0, UInt32 flags = None);
-			unsigned int Replace(const char* oldString, unsigned int oldLength, const char* replaceString, unsigned int replaceLength, int start = 0, UInt32 flags = None);
-			unsigned int Replace(const String& oldString, const String& replaceString, int start = 0, UInt32 flags = None);
-			unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, int start = 0, UInt32 flags = None);
-			//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, int start = 0, UInt32 flags = None);
-			//unsigned int ReplaceAny(const String& oldCharacters, const String& replaceString, int start = 0, UInt32 flags = None);
+			unsigned int Replace(char oldCharacter, char newCharacter, std::intmax_t start = 0, UInt32 flags = None);
+			unsigned int Replace(const char* oldString, const char* replaceString, std::intmax_t start = 0, UInt32 flags = None);
+			unsigned int Replace(const char* oldString, std::size_t oldLength, const char* replaceString, std::size_t replaceLength, std::intmax_t start = 0, UInt32 flags = None);
+			unsigned int Replace(const String& oldString, const String& replaceString, std::intmax_t start = 0, UInt32 flags = None);
+			unsigned int ReplaceAny(const char* oldCharacters, char replaceCharacter, std::intmax_t start = 0, UInt32 flags = None);
+			//unsigned int ReplaceAny(const char* oldCharacters, const char* replaceString, std::intmax_t start = 0, UInt32 flags = None);
+			//unsigned int ReplaceAny(const String& oldCharacters, const String& replaceString, std::intmax_t start = 0, UInt32 flags = None);
 
-			void Reserve(unsigned int bufferSize);
+			void Reserve(std::size_t bufferSize);
 
-			String& Resize(int size, char character = ' ');
-			String Resized(int size, char character = ' ') const;
+			String& Resize(std::intmax_t size, char character = ' ');
+			String Resized(std::intmax_t size, char character = ' ') const;
 
 			String& Reverse();
 			String Reversed() const;
 
 			String& Set(char character);
-			String& Set(unsigned int rep, char character);
-			String& Set(unsigned int rep, const char* string);
-			String& Set(unsigned int rep, const char* string, unsigned int length);
-			String& Set(unsigned int rep, const String& string);
+			String& Set(std::size_t rep, char character);
+			String& Set(std::size_t rep, const char* string);
+			String& Set(std::size_t rep, const char* string, std::size_t length);
+			String& Set(std::size_t rep, const String& string);
 			String& Set(const char* string);
-			String& Set(const char* string, unsigned int length);
+			String& Set(const char* string, std::size_t length);
 			String& Set(const std::string& string);
 			String& Set(const String& string);
 			String& Set(String&& string) noexcept;
@@ -139,26 +139,26 @@ namespace Nz
 			String Simplified(UInt32 flags = None) const;
 			String& Simplify(UInt32 flags = None);
 
-			unsigned int Split(std::vector<String>& result, char separation = ' ', int start = 0, UInt32 flags = None) const;
-			unsigned int Split(std::vector<String>& result, const char* separation, int start = 0, UInt32 flags = None) const;
-			unsigned int Split(std::vector<String>& result, const char* separation, unsigned int length, int start = 0, UInt32 flags = None) const;
-			unsigned int Split(std::vector<String>& result, const String& separation, int start = 0, UInt32 flags = None) const;
-			unsigned int SplitAny(std::vector<String>& result, const char* separations, int start = 0, UInt32 flags = None) const;
-			unsigned int SplitAny(std::vector<String>& result, const String& separations, int start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, char separation = ' ', std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const char* separation, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const char* separation, std::size_t length, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int Split(std::vector<String>& result, const String& separation, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int SplitAny(std::vector<String>& result, const char* separations, std::intmax_t start = 0, UInt32 flags = None) const;
+			unsigned int SplitAny(std::vector<String>& result, const String& separations, std::intmax_t start = 0, UInt32 flags = None) const;
 
 			bool StartsWith(char character, UInt32 flags = None) const;
 			bool StartsWith(const char* string, UInt32 flags = None) const;
 			bool StartsWith(const String& string, UInt32 flags = None) const;
 
-			String SubString(int startPos, int endPos = -1) const;
-			String SubStringFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringFrom(const char *string, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringFrom(const char *string, unsigned int length, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringFrom(const String& string, int startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringTo(char character, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringTo(const char *string, unsigned int length, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
-			String SubStringTo(const String& string, int startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubString(std::intmax_t startPos, std::intmax_t endPos = -1) const;
+			String SubStringFrom(char character, std::intmax_t startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const char* string, std::intmax_t startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const char* string, std::size_t length, std::intmax_t startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringFrom(const String& string, std::intmax_t startPos = 0, bool fromLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(char character, std::intmax_t startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const char* string, std::intmax_t startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const char* string, std::size_t length, std::intmax_t startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
+			String SubStringTo(const String& string, std::intmax_t startPos = 0, bool toLast = false, bool include = false, UInt32 flags = None) const;
 
 			void Swap(String& str);
 
@@ -193,8 +193,8 @@ namespace Nz
 
 			operator std::string() const;
 
-			char& operator[](unsigned int pos);
-			char operator[](unsigned int pos) const;
+			char& operator[](std::size_t pos);
+			char operator[](std::size_t pos) const;
 
 			String& operator=(char character);
 			String& operator=(const char* string);
@@ -296,7 +296,7 @@ namespace Nz
 			NAZARA_CORE_API friend bool operator>=(const char* string, const String& nstring);
 			NAZARA_CORE_API friend bool operator>=(const std::string& string, const String& nstring);
 
-			static const unsigned int npos;
+			static const std::size_t npos;
 
 		private:
 			struct SharedString;
@@ -313,11 +313,11 @@ namespace Nz
 			struct SharedString
 			{
 				inline SharedString();
-				inline SharedString(unsigned int strSize);
-				inline SharedString(unsigned int strSize, unsigned int strCapacity);
+				inline SharedString(std::size_t strSize);
+				inline SharedString(std::size_t strSize, std::size_t strCapacity);
 
-				unsigned int capacity;
-				unsigned int size;
+				std::size_t capacity;
+				std::size_t size;
 				std::unique_ptr<char[]> string;
 			};
 	};

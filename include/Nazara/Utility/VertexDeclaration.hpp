@@ -34,12 +34,12 @@ namespace Nz
 			~VertexDeclaration();
 
 			void DisableComponent(VertexComponent component);
-			void EnableComponent(VertexComponent component, ComponentType type, unsigned int offset);
+			void EnableComponent(VertexComponent component, ComponentType type, std::size_t offset);
 
-			void GetComponent(VertexComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const;
-			unsigned int GetStride() const;
+			void GetComponent(VertexComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			std::size_t GetStride() const;
 
-			void SetStride(unsigned int stride);
+			void SetStride(std::size_t stride);
 
 			VertexDeclaration& operator=(const VertexDeclaration& declaration);
 
@@ -58,7 +58,7 @@ namespace Nz
 			{
 				ComponentType type; // Le type de donnée
 				bool enabled = false; // Ce composant est-il activé ?/
-				unsigned int offset;  // La position, en octets, de la première donnée
+				std::size_t offset;  // La position, en octets, de la première donnée
 
 				/*
 				** -Lynix:
@@ -70,7 +70,7 @@ namespace Nz
 			};
 
 			Component m_components[VertexComponent_Max+1];
-			unsigned int m_stride;
+			std::size_t m_stride;
 
 			static VertexDeclaration s_declarations[VertexLayout_Max+1];
 			static VertexDeclarationLibrary::LibraryMap s_library;

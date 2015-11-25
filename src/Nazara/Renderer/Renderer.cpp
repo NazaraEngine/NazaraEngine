@@ -1556,7 +1556,7 @@ namespace Nz
 						{
 							ComponentType type;
 							bool enabled;
-							unsigned int offset;
+							std::size_t offset;
 							vertexDeclaration->GetComponent(static_cast<VertexComponent>(j), &enabled, &type, &offset);
 
 							if (enabled)

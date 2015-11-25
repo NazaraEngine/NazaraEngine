@@ -16,7 +16,7 @@ namespace Nz
 		// Ensuite le composant qui nous intéresse
 		bool enabled;
 		ComponentType type;
-		unsigned int offset;
+		std::size_t offset;
 		declaration->GetComponent(component, &enabled, &type, &offset);
 
 		if (enabled)

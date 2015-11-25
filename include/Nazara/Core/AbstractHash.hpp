@@ -23,11 +23,11 @@ namespace Nz
 			AbstractHash(AbstractHash&&) = default;
 			virtual ~AbstractHash();
 
-			virtual void Append(const UInt8* data, unsigned int len) = 0;
+			virtual void Append(const UInt8* data, std::size_t len) = 0;
 			virtual void Begin() = 0;
 			virtual ByteArray End() = 0;
 
-			virtual unsigned int GetDigestLength() const = 0;
+			virtual std::size_t GetDigestLength() const = 0;
 			virtual const char* GetHashName() const = 0;
 
 			AbstractHash& operator=(const AbstractHash&) = delete;

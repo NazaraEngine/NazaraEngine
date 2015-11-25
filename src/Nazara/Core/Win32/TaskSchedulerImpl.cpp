@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	bool TaskSchedulerImpl::Initialize(unsigned int workerCount)
+	bool TaskSchedulerImpl::Initialize(std::size_t workerCount)
 	{
 		if (IsInitialized())
 			return true; // Déjà initialisé
@@ -30,9 +30,9 @@ namespace Nz
 		s_workerThreads.reset(new HANDLE[workerCount]);
 
 		// L'identifiant de chaque worker doit rester en vie jusqu'à ce que chaque thread soit correctement lancé
-		std::unique_ptr<unsigned int[]> workerIDs(new unsigned int[workerCount]);
+		std::unique_ptr<std::size_t[]> workerIDs(new std::size_t[workerCount]);
 
-		for (unsigned int i = 0; i < workerCount; ++i)
+		for (std::size_t i = 0; i < workerCount; ++i)
 		{
 			// On initialise les évènements, mutex et threads de chaque worker
 			Worker& worker = s_workers[i];
@@ -59,18 +59,18 @@ namespace Nz
 		return s_workerCount > 0;
 	}
 
-	void TaskSchedulerImpl::Run(Functor** tasks, unsigned int count)
+	void TaskSchedulerImpl::Run(Functor** tasks, std::size_t count)
 	{
 		// On s'assure que des tâches ne sont pas déjà en cours
 		WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
 
 		std::ldiv_t div = std::ldiv(count, s_workerCount); // Division et modulo en une opération, y'a pas de petit profit
-		for (unsigned int i = 0; i < s_workerCount; ++i)
+		for (std::size_t i = 0; i < s_workerCount; ++i)
 		{
 			// On va maintenant répartir les tâches entre chaque worker et les envoyer dans la queue de chacun
 			Worker& worker = s_workers[i];
-			unsigned int taskCount = (i == 0) ? div.quot + div.rem : div.quot;
-			for (unsigned int j = 0; j < taskCount; ++j)
+			std::size_t taskCount = (i == 0) ? div.quot + div.rem : div.quot;
+			for (std::size_t j = 0; j < taskCount; ++j)
 				worker.queue.push(*tasks++);
 
 			// On stocke le nombre de tâches à côté dans un entier atomique pour éviter d'entrer inutilement dans une section critique
@@ -145,13 +145,13 @@ namespace Nz
 		WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
 	}
 
-	Functor* TaskSchedulerImpl::StealTask(unsigned int workerID)
+	Functor* TaskSchedulerImpl::StealTask(std::size_t workerID)
 	{
 		bool shouldRetry;
 		do
 		{
 			shouldRetry = false;
-			for (unsigned int i = 0; i < s_workerCount; ++i)
+			for (std::size_t i = 0; i < s_workerCount; ++i)
 			{
 				// On ne vole pas la famille, ni soi-même.
 				if (i == workerID)
@@ -244,5 +244,5 @@ namespace Nz
 	std::unique_ptr<HANDLE[]> TaskSchedulerImpl::s_doneEvents; // Doivent être contigus
 	std::unique_ptr<TaskSchedulerImpl::Worker[]> TaskSchedulerImpl::s_workers;
 	std::unique_ptr<HANDLE[]> TaskSchedulerImpl::s_workerThreads; // Doivent être contigus
-	unsigned int TaskSchedulerImpl::s_workerCount;
+	std::size_t TaskSchedulerImpl::s_workerCount;
 }

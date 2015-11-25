@@ -152,9 +152,9 @@ namespace Nz
 		{
 			// Stores the penalty score of the best rectangle placement - bigger=worse, smaller=better.
 			bool bestFlipped;
-			int bestFreeRect;
-			int bestRect;
-			int bestScore = std::numeric_limits<int>::max();
+			std::size_t bestFreeRect;
+			std::size_t bestRect;
+			std::size_t bestScore = std::numeric_limits<std::size_t>::max();
 
 			for (std::size_t i = 0; i < m_freeRectangles.size(); ++i)
 			{
@@ -170,7 +170,7 @@ namespace Nz
 						bestFreeRect = i;
 						bestRect = j;
 						bestFlipped = false;
-						bestScore = std::numeric_limits<int>::min();
+						bestScore = std::numeric_limits<std::size_t>::min();
 						i = m_freeRectangles.size(); // Force a jump out of the outer loop as well - we got an instant fit.
 						break;
 					}
@@ -180,7 +180,7 @@ namespace Nz
 						bestFreeRect = i;
 						bestRect = j;
 						bestFlipped = true;
-						bestScore = std::numeric_limits<int>::min();
+						bestScore = std::numeric_limits<std::size_t>::min();
 						i = m_freeRectangles.size(); // Force a jump out of the outer loop as well - we got an instant fit.
 						break;
 					}
@@ -212,14 +212,14 @@ namespace Nz
 			}
 
 			// If we didn't manage to find any rectangle to pack, abort.
-			if (bestScore == std::numeric_limits<int>::max())
+			if (bestScore == std::numeric_limits<std::size_t>::max())
 			{
 				// Si nous le pouvons, on marque les rectangles n'ayant pas pu être insérés
 				if (inserted)
 				{
 					for (Rectui* rect : remainingRects)
 					{
-						unsigned int position = rect - rects;
+						std::ptrdiff_t position = rect - rects;
 						inserted[position] = false;
 					}
 				}
@@ -228,7 +228,7 @@ namespace Nz
 			}
 
 			// Otherwise, we're good to go and do the actual packing.
-			unsigned int position = remainingRects[bestRect] - rects;
+			std::ptrdiff_t position = remainingRects[bestRect] - rects;
 			Rectui& rect = *remainingRects[bestRect];
 			rect.x = m_freeRectangles[bestFreeRect].x;
 			rect.y = m_freeRectangles[bestFreeRect].y;

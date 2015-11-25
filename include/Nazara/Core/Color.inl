@@ -54,22 +54,24 @@ namespace Nz
 
 	inline Color Color::operator+(const Color& color) const
 	{
+		///TODO: Improve this shit
 		Color c;
-		c.r = std::min(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U);
-		c.g = std::min(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U);
-		c.b = std::min(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U);
-		c.a = std::min(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U);
+		c.r = static_cast<UInt8>(std::min(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U));
+		c.g = static_cast<UInt8>(std::min(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U));
+		c.b = static_cast<UInt8>(std::min(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U));
+		c.a = static_cast<UInt8>(std::min(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U));
 
 		return c;
 	}
 
 	inline Color Color::operator*(const Color& color) const
 	{
+		///TODO: Improve this shit
 		Color c;
-		c.r = (static_cast<unsigned int>(r) * static_cast<unsigned int>(color.r)) / 255U;
-		c.g = (static_cast<unsigned int>(g) * static_cast<unsigned int>(color.g)) / 255U;
-		c.b = (static_cast<unsigned int>(b) * static_cast<unsigned int>(color.b)) / 255U;
-		c.a = (static_cast<unsigned int>(a) * static_cast<unsigned int>(color.a)) / 255U;
+		c.r = static_cast<UInt8>((static_cast<unsigned int>(r) * static_cast<unsigned int>(color.r)) / 255U);
+		c.g = static_cast<UInt8>((static_cast<unsigned int>(g) * static_cast<unsigned int>(color.g)) / 255U);
+		c.b = static_cast<UInt8>((static_cast<unsigned int>(b) * static_cast<unsigned int>(color.b)) / 255U);
+		c.a = static_cast<UInt8>((static_cast<unsigned int>(a) * static_cast<unsigned int>(color.a)) / 255U);
 
 		return c;
 	}

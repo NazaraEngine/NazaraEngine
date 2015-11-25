@@ -6,6 +6,7 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
+#include <cstddef>
 #include <cstring>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -165,7 +166,7 @@ namespace Nz
 		#endif
 
 		String name;
-		do
+		for (;;)
 		{
 			if (!m_impl->NextResult())
 				return false;
@@ -178,7 +179,6 @@ namespace Nz
 			if (name.Match(m_pattern))
 				break;
 		}
-		while (true);
 
 		return true;
 	}
@@ -268,7 +268,7 @@ namespace Nz
 		if (recursive)
 		{
 			String path = File::NormalizePath(dirPath);
-			unsigned int foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR);
+			std::size_t foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR);
 			if (foundPos == String::npos)
 				return false;
 
@@ -280,13 +280,13 @@ namespace Nz
 				if (foundPos == String::npos)
 					return false;
 
-				foundPos = path.Find('\\', foundPos+1);
+				foundPos = path.Find('\\', foundPos + 1);
 				if (foundPos == String::npos)
 					return false;
 			}
 			#endif
 
-			do
+			for (;;)
 			{
 				String p = path.SubString(0, foundPos);
 				if (p.EndsWith(NAZARA_DIRECTORY_SEPARATOR))
@@ -298,9 +298,8 @@ namespace Nz
 				if (foundPos == String::npos)
 					break;
 
-				foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR, foundPos+1);
+				foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR, foundPos + 1);
 			}
-			while (true);
 
 			return true;
 		}
@@ -324,25 +323,14 @@ namespace Nz
 	const char* Directory::GetCurrentFileRelativeToEngine(const char* currentFile)
 	{
 		///FIXME: Est-ce que cette méthode est au bon endroit ?
-		static int offset = -1;
+		const char* ptr = std::strstr(currentFile, "NazaraEngine/");
+		if (!ptr)
+			ptr = std::strstr(currentFile, "NazaraEngine\\");
 
-		if (offset < 0)
-		{
-			const char* directoryFile = __FILE__;
-			const char* ptr = std::strstr(directoryFile, "NazaraEngine/src/Nazara/Core/Directory.cpp");
-			if (ptr)
-				offset = ptr - directoryFile;
-			else
-			{
-				ptr = std::strstr(directoryFile, "NazaraEngine\\src\\Nazara\\Core\\Directory.cpp");
-				if (ptr)
-					offset = ptr - directoryFile;
-				else
-					offset = 0;
-			}
-		}
+		if (!ptr)
+			ptr = currentFile;
 
-		return &currentFile[offset];
+		return ptr;
 	}
 
 	bool Directory::Remove(const String& dirPath, bool emptyDirectory)
