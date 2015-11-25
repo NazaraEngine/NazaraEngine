@@ -21,11 +21,11 @@ namespace Nz
 			HashCRC32(UInt32 polynomial = 0x04c11db7);
 			virtual ~HashCRC32();
 
-			void Append(const UInt8* data, unsigned int len) override;
+			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
 			ByteArray End() override;
 
-			unsigned int GetDigestLength() const override;
+			std::size_t GetDigestLength() const override;
 			const char* GetHashName() const override;
 
 		private:

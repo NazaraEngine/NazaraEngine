@@ -24,11 +24,11 @@ namespace Nz
 		delete m_state;
 	}
 
-	void HashFletcher16::Append(const UInt8* data, unsigned int len)
+	void HashFletcher16::Append(const UInt8* data, std::size_t len)
 	{
 		while (len)
 		{
-			unsigned int tlen = std::min(len, 21U);
+			std::size_t tlen = std::min<std::size_t>(len, 21U);
 			len -= tlen;
 			do
 			{
@@ -62,7 +62,7 @@ namespace Nz
 		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
 
-	unsigned int HashFletcher16::GetDigestLength() const
+	std::size_t HashFletcher16::GetDigestLength() const
 	{
 		return 2;
 	}

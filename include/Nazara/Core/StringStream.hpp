@@ -50,7 +50,7 @@ namespace Nz
 
 		private:
 			std::vector<String> m_strings;
-			unsigned int m_bufferSize;
+			std::size_t m_bufferSize;
 	};
 }
 
