@@ -41,7 +41,7 @@ namespace Nz
 			void SetStyle(UInt32 style);
 			void SetText(const String& str);
 
-			SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer) = default;
+			SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
 			SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
 
 			static SimpleTextDrawer Draw(const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
