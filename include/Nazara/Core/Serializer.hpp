@@ -25,6 +25,8 @@ namespace Nz
 			inline Endianness GetDataEndianness() const;
 			inline Stream& GetStream() const;
 
+			inline bool FlushBits();
+
 			inline void SetDataEndianness(Endianness endiannes);
 			inline void SetStream(Stream& stream);
 

@@ -16,13 +16,8 @@ namespace Nz
 
 	inline Serializer::~Serializer()
 	{
-		if (m_serializationContext.currentBitPos != 8)
-		{
-			m_serializationContext.currentBitPos = 8; //< To prevent Serialize to flush bits itself
-
-			if (!Serialize<UInt8>(m_serializationContext, m_serializationContext.currentByte))
-				NazaraWarning("Failed to flush bits at serializer destruction");
-		}
+		if (!FlushBits())
+			NazaraWarning("Failed to flush bits at serializer destruction");
 	}
 
 	inline Endianness Serializer::GetDataEndianness() const
@@ -33,6 +28,19 @@ namespace Nz
 	inline Stream& Serializer::GetStream() const
 	{
 		return *m_serializationContext.stream;
+	}
+
+	inline bool Serializer::FlushBits()
+	{
+		if (m_serializationContext.currentBitPos != 8)
+		{
+			m_serializationContext.currentBitPos = 8; //< To prevent Serialize to flush bits itself
+
+			if (!Serialize<UInt8>(m_serializationContext, m_serializationContext.currentByte))
+				return false;
+		}
+
+		return true;
 	}
 
 	inline void Serializer::SetDataEndianness(Endianness endiannes)
