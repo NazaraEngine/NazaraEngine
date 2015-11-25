@@ -13,6 +13,7 @@
 
 namespace Nz
 {
+	///TODO: Inline this
 	class NAZARA_CORE_API PrimitiveList
 	{
 		public:
@@ -35,9 +36,9 @@ namespace Nz
 			void AddUVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
 			void AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
 
-			Primitive& GetPrimitive(unsigned int i);
-			const Primitive& GetPrimitive(unsigned int i) const;
-			unsigned int GetSize() const;
+			Primitive& GetPrimitive(std::size_t i);
+			const Primitive& GetPrimitive(std::size_t i) const;
+			std::size_t GetSize() const;
 
 			PrimitiveList& operator=(const PrimitiveList&) = default;
 			PrimitiveList& operator=(PrimitiveList&&) = default;

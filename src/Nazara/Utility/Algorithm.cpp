@@ -379,9 +379,8 @@ namespace Nz
 						m_vertices[i].current_score = CalculateVertexScore(i);
 
 					// calculate scores for all active triangles
-					float max_score;
+					float max_score = std::numeric_limits<float>::lowest();
 					int max_score_tri = -1;
-					bool first_time = true;
 
 					for (unsigned int i = 0; i < m_triangles.size(); ++i)
 					{
@@ -395,9 +394,8 @@ namespace Nz
 
 						m_triangles[i].current_score = sc;
 
-						if (first_time || sc > max_score)
+						if (sc > max_score)
 						{
-							first_time = false;
 							max_score = sc;
 							max_score_tri = i;
 						}
@@ -564,8 +562,7 @@ namespace Nz
 				int PartialScoreRecalculation()
 				{
 					// iterate through all the vertices of the cache
-					bool first_time = true;
-					float max_score;
+					float max_score = std::numeric_limits<float>::lowest();
 					int max_score_tri = -1;
 
 					for (unsigned int i = 0; i < 32; ++i)
@@ -588,9 +585,8 @@ namespace Nz
 							float sc = t->current_score;
 
 							// we actually found a triangle to process
-							if (first_time || sc > max_score)
+							if (sc > max_score)
 							{
-								first_time = false;
 								max_score = sc;
 								max_score_tri = tri;
 							}

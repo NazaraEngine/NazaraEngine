@@ -58,7 +58,7 @@ namespace Nz
 		}
 	}
 
-	void VertexDeclaration::EnableComponent(VertexComponent component, ComponentType type, unsigned int offset)
+	void VertexDeclaration::EnableComponent(VertexComponent component, ComponentType type, std::size_t offset)
 	{
 		#ifdef NAZARA_DEBUG
 		if (component > VertexComponent_Max)
@@ -91,7 +91,7 @@ namespace Nz
 		m_stride += Utility::ComponentStride[type];
 	}
 
-	void VertexDeclaration::GetComponent(VertexComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const
+	void VertexDeclaration::GetComponent(VertexComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const
 	{
 		#ifdef NAZARA_DEBUG
 		if (component > VertexComponent_Max)
@@ -121,12 +121,12 @@ namespace Nz
 			*offset = vertexComponent.offset;
 	}
 
-	unsigned int VertexDeclaration::GetStride() const
+	std::size_t VertexDeclaration::GetStride() const
 	{
 		return m_stride;
 	}
 
-	void VertexDeclaration::SetStride(unsigned int stride)
+	void VertexDeclaration::SetStride(std::size_t stride)
 	{
 		m_stride = stride;
 	}

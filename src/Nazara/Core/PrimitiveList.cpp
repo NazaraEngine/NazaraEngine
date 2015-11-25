@@ -73,37 +73,21 @@ namespace Nz
 		m_primitives.push_back(Primitive::UVSphere(size, sliceCount, stackCount, position, rotation));
 	}
 
-	Primitive& PrimitiveList::GetPrimitive(unsigned int i)
+	Primitive& PrimitiveList::GetPrimitive(std::size_t i)
 	{
-		#if NAZARA_CORE_SAFE
-		if (i >= m_primitives.size())
-		{
-			NazaraError("Primitive index out of range (" + String::Number(i) + " >= " + String::Number(m_primitives.size()) + ')');
-
-			static Primitive dummy;
-			return dummy;
-		}
-		#endif
+		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
 
 		return m_primitives[i];
 	}
 
-	const Primitive& PrimitiveList::GetPrimitive(unsigned int i) const
+	const Primitive& PrimitiveList::GetPrimitive(std::size_t i) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (i >= m_primitives.size())
-		{
-			NazaraError("Primitive index out of range (" + String::Number(i) + " >= " + String::Number(m_primitives.size()) + ')');
-
-			static Primitive dummy;
-			return dummy;
-		}
-		#endif
+		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
 
 		return m_primitives[i];
 	}
 
-	unsigned int PrimitiveList::GetSize() const
+	std::size_t PrimitiveList::GetSize() const
 	{
 		return m_primitives.size();
 	}

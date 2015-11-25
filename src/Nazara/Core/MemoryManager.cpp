@@ -100,7 +100,6 @@ namespace Nz
 			std::fclose(log);
 
 			throw std::bad_alloc();
-			return nullptr; // Ça me rassure d'avoir un return, aussi inutile soit-il
 		}
 
 		ptr->array = multi;

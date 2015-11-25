@@ -22,11 +22,11 @@ namespace Nz
 			HashFletcher16();
 			virtual ~HashFletcher16();
 
-			void Append(const UInt8* data, unsigned int len) override;
+			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
 			ByteArray End() override;
 
-			unsigned int GetDigestLength() const override;
+			std::size_t GetDigestLength() const override;
 			const char* GetHashName() const override;
 
 		private:
