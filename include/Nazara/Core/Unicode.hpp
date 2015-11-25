@@ -8,10 +8,11 @@
 #define NAZARA_UNICODE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Config.hpp>
 
 namespace Nz
 {
-	class Unicode
+	class NAZARA_CORE_API Unicode
 	{
 		public:
 			Unicode() = delete;
