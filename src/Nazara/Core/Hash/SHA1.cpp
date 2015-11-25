@@ -18,7 +18,7 @@ namespace Nz
 		delete m_state;
 	}
 
-	void HashSHA1::Append(const UInt8* data, unsigned int len)
+	void HashSHA1::Append(const UInt8* data, std::size_t len)
 	{
 		SHA1_Update(m_state, data, len);
 	}
@@ -37,7 +37,7 @@ namespace Nz
 		return ByteArray(digest, SHA1_DIGEST_LENGTH);
 	}
 
-	unsigned int HashSHA1::GetDigestLength() const
+	std::size_t HashSHA1::GetDigestLength() const
 	{
 		return SHA1_DIGEST_LENGTH;
 	}

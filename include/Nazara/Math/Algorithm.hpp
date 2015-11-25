@@ -36,7 +36,7 @@ namespace Nz
 	template<typename T> constexpr T FromDegrees(T degrees);
 	template<typename T> constexpr T FromRadians(T radians);
 	template<typename T> constexpr T DegreeToRadian(T degrees);
-	unsigned int GetNearestPowerOfTwo(unsigned int number);
+	template<typename T> T GetNearestPowerOfTwo(T number);
 	unsigned int GetNumberLength(signed char number);
 	unsigned int GetNumberLength(unsigned char number);
 	unsigned int GetNumberLength(int number);

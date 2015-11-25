@@ -277,7 +277,7 @@ namespace Nz
 		delete m_state;
 	}
 
-	void HashMD5::Append(const UInt8* data, unsigned int len)
+	void HashMD5::Append(const UInt8* data, std::size_t len)
 	{
 		const UInt8 *p = data;
 		int left = len;
@@ -352,7 +352,7 @@ namespace Nz
 		return ByteArray(&digest[0], 16);
 	}
 
-	unsigned int HashMD5::GetDigestLength() const
+	std::size_t HashMD5::GetDigestLength() const
 	{
 		return 16;
 	}

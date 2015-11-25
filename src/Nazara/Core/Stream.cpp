@@ -32,7 +32,7 @@ namespace Nz
 			char buffer[bufferSize + 1];
 			buffer[bufferSize] = '\0';
 
-			unsigned int readSize;
+			std::size_t readSize;
 			do
 			{
 				readSize = Read(buffer, bufferSize);
@@ -40,7 +40,7 @@ namespace Nz
 				const char* ptr = std::strchr(buffer, '\n');
 				if (ptr)
 				{
-					unsigned int pos = ptr - buffer;
+					std::ptrdiff_t pos = ptr - buffer;
 
 					if (m_streamOptions & StreamOption_Text && pos > 0 && buffer[pos - 1] == '\r')
 						line.Append(buffer, pos - 1);
@@ -60,8 +60,8 @@ namespace Nz
 		else
 		{
 			line.Set(lineSize, '\0');
-			unsigned int readSize = Read(&line[0], lineSize);
-			unsigned int pos = line.Find('\n');
+			std::size_t readSize = Read(&line[0], lineSize);
+			std::size_t pos = line.Find('\n');
 			if (pos <= readSize) // Faux uniquement si le caractère n'est pas présent (npos étant le plus grand entier)
 			{
 				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos - 1] == '\r')

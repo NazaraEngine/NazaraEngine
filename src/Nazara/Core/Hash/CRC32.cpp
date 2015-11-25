@@ -98,7 +98,7 @@ namespace Nz
 		delete m_state;
 	}
 
-	void HashCRC32::Append(const UInt8* data, unsigned int len)
+	void HashCRC32::Append(const UInt8* data, std::size_t len)
 	{
 		while (len--)
 			m_state->crc = m_state->table[(m_state->crc ^ *data++) & 0xFF] ^ (m_state->crc >> 8);
@@ -120,7 +120,7 @@ namespace Nz
 		return ByteArray(reinterpret_cast<UInt8*>(&m_state->crc), 4);
 	}
 
-	unsigned int HashCRC32::GetDigestLength() const
+	std::size_t HashCRC32::GetDigestLength() const
 	{
 		return 4;
 	}

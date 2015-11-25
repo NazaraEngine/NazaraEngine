@@ -22,19 +22,19 @@ namespace Nz
 			TaskSchedulerImpl() = delete;
 			~TaskSchedulerImpl() = delete;
 
-			static bool Initialize(unsigned int workerCount);
+			static bool Initialize(std::size_t workerCount);
 			static bool IsInitialized();
-			static void Run(Functor** tasks, unsigned int count);
+			static void Run(Functor** tasks, std::size_t count);
 			static void Uninitialize();
 			static void WaitForTasks();
 
 		private:
-			static Functor* StealTask(unsigned int workerID);
+			static Functor* StealTask(std::size_t workerID);
 			static unsigned int __stdcall WorkerProc(void* userdata);
 
 			struct Worker
 			{
-				std::atomic_uint workCount;
+				std::atomic_size_t workCount;
 				std::queue<Functor*> queue;
 				CRITICAL_SECTION queueMutex;
 				HANDLE wakeEvent;
@@ -44,7 +44,7 @@ namespace Nz
 			static std::unique_ptr<HANDLE[]> s_doneEvents; // Doivent être contigus
 			static std::unique_ptr<Worker[]> s_workers;
 			static std::unique_ptr<HANDLE[]> s_workerThreads; // Doivent être contigus
-			static unsigned int s_workerCount;
+			static std::size_t s_workerCount;
 };
 }
 

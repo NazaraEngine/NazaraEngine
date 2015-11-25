@@ -204,10 +204,10 @@ namespace Nz
 
 	inline String ByteArray::ToHex() const
 	{
-		unsigned int length = m_array.size() * 2;
+		std::size_t length = m_array.size() * 2;
 
 		String hexOutput(length, '\0');
-		for (unsigned int i = 0; i < m_array.size(); ++i)
+		for (std::size_t i = 0; i < m_array.size(); ++i)
 			std::sprintf(&hexOutput[i * 2], "%02x", m_array[i]);
 
 		return hexOutput;

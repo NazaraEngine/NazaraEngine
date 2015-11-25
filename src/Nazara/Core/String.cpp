@@ -24,7 +24,7 @@ namespace Nz
 	namespace Detail
 	{
 		// Cet algorithme est inspiré de la documentation de Qt
-		inline unsigned int GetNewSize(unsigned int newSize)
+		inline std::size_t GetNewSize(std::size_t newSize)
 		{
 			if (newSize < 20)
 				return newSize+4;
@@ -57,7 +57,7 @@ namespace Nz
 		{
 			int ret = 0;
 
-			while (!(ret = static_cast<unsigned char>(Detail::ToLower(*s1)) - static_cast<unsigned char>(Detail::ToLower(*s2))) && *s2)
+			while (((ret = static_cast<unsigned char>(Detail::ToLower(*s1)) - static_cast<unsigned char>(Detail::ToLower(*s2))) != 0) && *s2)
 				++s1, ++s2;
 
 			return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
@@ -69,7 +69,7 @@ namespace Nz
 			utf8::unchecked::iterator<const char*> it1(s1);
 			utf8::unchecked::iterator<const char*> it2(s2);
 
-			while (!(ret = Unicode::GetLowercase(*it1) - Unicode::GetLowercase(*it2)) && *it2)
+			while (((ret = Unicode::GetLowercase(*it1) - Unicode::GetLowercase(*it2)) != 0) && *it2)
 				++it1, ++it2;
 
 			return ret != 0 ? (ret > 0 ? 1 : -1) : 0;
@@ -92,7 +92,7 @@ namespace Nz
 			m_sharedString = GetEmptyString();
 	}
 
-	String::String(unsigned int rep, char character)
+	String::String(std::size_t rep, char character)
 	{
 		if (rep > 0)
 		{
@@ -105,27 +105,27 @@ namespace Nz
 			m_sharedString = GetEmptyString();
 	}
 
-	String::String(unsigned int rep, const char* string) :
+	String::String(std::size_t rep, const char* string) :
 	String(rep, string, (string) ? std::strlen(string) : 0)
 	{
 	}
 
-	String::String(unsigned int rep, const char* string, unsigned int length)
+	String::String(std::size_t rep, const char* string, std::size_t length)
 	{
-		unsigned int totalSize = rep*length;
+		std::size_t totalSize = rep*length;
 
 		if (totalSize > 0)
 		{
 			m_sharedString = std::make_shared<SharedString>(totalSize);
 
-			for (unsigned int i = 0; i < rep; ++i)
+			for (std::size_t i = 0; i < rep; ++i)
 				std::memcpy(&m_sharedString->string[i*length], string, length);
 		}
 		else
 			m_sharedString = GetEmptyString();
 	}
 
-	String::String(unsigned int rep, const String& string) :
+	String::String(std::size_t rep, const String& string) :
 	String(rep, string.GetConstBuffer(), string.GetSize())
 	{
 	}
@@ -135,7 +135,7 @@ namespace Nz
 	{
 	}
 
-	String::String(const char* string, unsigned int length)
+	String::String(const char* string, std::size_t length)
 	{
 		if (length > 0)
 		{
@@ -161,7 +161,7 @@ namespace Nz
 		return Insert(m_sharedString->size, string);
 	}
 
-	String& String::Append(const char* string, unsigned int length)
+	String& String::Append(const char* string, std::size_t length)
 	{
 		return Insert(m_sharedString->size, string, length);
 	}
@@ -183,30 +183,30 @@ namespace Nz
 			ReleaseString();
 	}
 
-	bool String::Contains(char character, int start, UInt32 flags) const
+	bool String::Contains(char character, std::intmax_t start, UInt32 flags) const
 	{
 		return Find(character, start, flags) != npos;
 	}
 
-	bool String::Contains(const char* string, int start, UInt32 flags) const
+	bool String::Contains(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		return Find(string, start, flags) != npos;
 	}
 
-	bool String::Contains(const String& string, int start, UInt32 flags) const
+	bool String::Contains(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return Find(string, start, flags) != npos;
 	}
 
-	unsigned int String::Count(char character, int start, UInt32 flags) const
+	unsigned int String::Count(char character, std::intmax_t start, UInt32 flags) const
 	{
 		if (character == '\0' || m_sharedString->size == 0)
 			return 0;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return 0;
 
@@ -225,7 +225,7 @@ namespace Nz
 		}
 		else
 		{
-			while ((str = std::strchr(str, character)))
+			while ((str = std::strchr(str, character)) != nullptr)
 			{
 				count++;
 				str++;
@@ -235,15 +235,15 @@ namespace Nz
 		return count;
 	}
 
-	unsigned int String::Count(const char* string, int start, UInt32 flags) const
+	unsigned int String::Count(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return 0;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return 0;
 
@@ -267,7 +267,7 @@ namespace Nz
 						++it;
 
 						utf8::unchecked::iterator<const char*> it2(t);
-						while (true)
+						for (;;)
 						{
 							if (*it2 == '\0')
 							{
@@ -298,7 +298,7 @@ namespace Nz
 						str++;
 
 						const char* ptr = &string[1];
-						while (true)
+						for (;;)
 						{
 							if (*ptr == '\0')
 							{
@@ -322,7 +322,7 @@ namespace Nz
 		}
 		else
 		{
-			while ((str = std::strstr(str, string)))
+			while ((str = std::strstr(str, string)) != nullptr)
 			{
 				count++;
 				str++;
@@ -332,20 +332,20 @@ namespace Nz
 		return count;
 	}
 
-	unsigned int String::Count(const String& string, int start, UInt32 flags) const
+	unsigned int String::Count(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return Count(string.GetConstBuffer(), start, flags);
 	}
 
-	unsigned int String::CountAny(const char* string, int start, UInt32 flags) const
+	unsigned int String::CountAny(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return 0;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return 0;
 
@@ -414,7 +414,7 @@ namespace Nz
 			}
 			else
 			{
-				while ((str = std::strpbrk(str, string)))
+				while ((str = std::strpbrk(str, string)) != nullptr)
 				{
 					count++;
 					str++;
@@ -425,7 +425,7 @@ namespace Nz
 		return count;
 	}
 
-	unsigned int String::CountAny(const String& string, int start, UInt32 flags) const
+	unsigned int String::CountAny(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return CountAny(string.GetConstBuffer(), start, flags);
 	}
@@ -446,7 +446,7 @@ namespace Nz
 		return EndsWith(string, std::strlen(string), flags);
 	}
 
-	bool String::EndsWith(const char* string, unsigned int length, UInt32 flags) const
+	bool String::EndsWith(const char* string, std::size_t length, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0 || length > m_sharedString->size)
 			return false;
@@ -467,15 +467,15 @@ namespace Nz
 		return EndsWith(string.GetConstBuffer(), string.m_sharedString->size, flags);
 	}
 
-	unsigned int String::Find(char character, int start, UInt32 flags) const
+	std::size_t String::Find(char character, std::intmax_t start, UInt32 flags) const
 	{
 		if (character == '\0' || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -486,7 +486,7 @@ namespace Nz
 			do
 			{
 				if (Detail::ToLower(*str) == ch)
-					return static_cast<unsigned int>(str - m_sharedString->string.get());
+					return str - m_sharedString->string.get();
 			}
 			while (*++str);
 
@@ -496,21 +496,21 @@ namespace Nz
 		{
 			char* ch = std::strchr(&m_sharedString->string[pos], character);
 			if (ch)
-				return static_cast<unsigned int>(ch - m_sharedString->string.get());
+				return ch - m_sharedString->string.get();
 			else
 				return npos;
 		}
 	}
 
-	unsigned int String::Find(const char* string, int start, UInt32 flags) const
+	std::size_t String::Find(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -534,10 +534,10 @@ namespace Nz
 						++it;
 
 						utf8::unchecked::iterator<const char*> it2(t);
-						while (true)
+						for (;;)
 						{
 							if (*it2 == '\0')
-								return static_cast<unsigned int>(ptrPos - m_sharedString->string.get());
+								return ptrPos - m_sharedString->string.get();
 
 							if (*it == '\0')
 								return npos;
@@ -563,10 +563,10 @@ namespace Nz
 						str++;
 
 						const char* ptr = &string[1];
-						while (true)
+						for (;;)
 						{
 							if (*ptr == '\0')
-								return static_cast<unsigned int>(ptrPos - m_sharedString->string.get());
+								return ptrPos - m_sharedString->string.get();
 
 							if (*str == '\0')
 								return npos;
@@ -586,26 +586,26 @@ namespace Nz
 		{
 			char* ch = std::strstr(&m_sharedString->string[pos], string);
 			if (ch)
-				return static_cast<unsigned int>(ch - m_sharedString->string.get());
+				return ch - m_sharedString->string.get();
 		}
 
 		return npos;
 	}
 
-	unsigned int String::Find(const String& string, int start, UInt32 flags) const
+	std::size_t String::Find(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return Find(string.GetConstBuffer(), start, flags);
 	}
 
-	unsigned int String::FindAny(const char* string, int start, UInt32 flags) const
+	std::size_t String::FindAny(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (m_sharedString->size == 0 || !string || !string[0])
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size+start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -675,20 +675,20 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindAny(const String& string, int start, UInt32 flags) const
+	std::size_t String::FindAny(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return FindAny(string.GetConstBuffer(), start, flags);
 	}
 
-	unsigned int String::FindLast(char character, int start, UInt32 flags) const
+	std::size_t String::FindLast(char character, std::intmax_t start, UInt32 flags) const
 	{
 		if (character == '\0' || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -700,7 +700,7 @@ namespace Nz
 			do
 			{
 				if (Detail::ToLower(*ptr) == character)
-					return static_cast<unsigned int>(ptr - m_sharedString->string.get());
+					return ptr - m_sharedString->string.get();
 			}
 			while (ptr-- != m_sharedString->string.get());
 		}
@@ -709,7 +709,7 @@ namespace Nz
 			do
 			{
 				if (*ptr == character)
-					return static_cast<unsigned int>(ptr - m_sharedString->string.get());
+					return ptr - m_sharedString->string.get();
 			}
 			while (ptr-- != m_sharedString->string.get());
 		}
@@ -717,15 +717,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindLast(const char* string, int start, UInt32 flags) const
+	std::size_t String::FindLast(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -749,7 +749,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt(it);
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*it2 == '\0')
 								return it.base() - m_sharedString->string.get();
@@ -776,7 +776,7 @@ namespace Nz
 					{
 						const char* p = &string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 								return ptr - m_sharedString->string.get();
@@ -803,7 +803,7 @@ namespace Nz
 				{
 					const char* p = &string[1];
 					const char* tPtr = ptr+1;
-					while (true)
+					for (;;)
 					{
 						if (*p == '\0')
 							return ptr - m_sharedString->string.get();
@@ -825,15 +825,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindLast(const String& string, int start, UInt32 flags) const
+	std::size_t String::FindLast(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		if (string.m_sharedString->size == 0 || string.m_sharedString->size > m_sharedString->size)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size || string.m_sharedString->size > m_sharedString->size)
 			return npos;
 
@@ -859,7 +859,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt(it);
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*it2 == '\0')
 								return it.base() - m_sharedString->string.get();
@@ -881,7 +881,7 @@ namespace Nz
 			{
 				///Algo 1.FindLast#4 (Taille du pattern connue)
 				char c = Detail::ToLower(string.m_sharedString->string[string.m_sharedString->size-1]);
-				while (true)
+				for (;;)
 				{
 					if (Detail::ToLower(*ptr) == c)
 					{
@@ -906,7 +906,7 @@ namespace Nz
 		else
 		{
 			///Algo 1.FindLast#4 (Taille du pattern connue)
-			while (true)
+			for (;;)
 			{
 				if (*ptr == string.m_sharedString->string[string.m_sharedString->size-1])
 				{
@@ -931,15 +931,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindLastAny(const char* string, int start, UInt32 flags) const
+	std::size_t String::FindLastAny(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size+start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -1017,20 +1017,20 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindLastAny(const String& string, int start, UInt32 flags) const
+	std::size_t String::FindLastAny(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		return FindLastAny(string.GetConstBuffer(), start, flags);
 	}
 
-	unsigned int String::FindLastWord(const char* string, int start, UInt32 flags) const
+	std::size_t String::FindLastWord(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -1063,7 +1063,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1105,7 +1105,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1143,7 +1143,7 @@ namespace Nz
 
 						const char* p = &string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1177,7 +1177,7 @@ namespace Nz
 
 						const char* p = &string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1205,15 +1205,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindLastWord(const String& string, int start, UInt32 flags) const
+	std::size_t String::FindLastWord(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		if (string.m_sharedString->size == 0 || string.m_sharedString->size > m_sharedString->size)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -1246,7 +1246,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1288,7 +1288,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1381,15 +1381,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindWord(const char* string, int start, UInt32 flags) const
+	std::size_t String::FindWord(const char* string, std::intmax_t start, UInt32 flags) const
 	{
 		if (!string || !string[0] || m_sharedString->size == 0)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -1422,7 +1422,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1462,7 +1462,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1497,7 +1497,7 @@ namespace Nz
 
 						const char* p = &string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1528,7 +1528,7 @@ namespace Nz
 
 						const char* p = &string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1553,15 +1553,15 @@ namespace Nz
 		return npos;
 	}
 
-	unsigned int String::FindWord(const String& string, int start, UInt32 flags) const
+	std::size_t String::FindWord(const String& string, std::intmax_t start, UInt32 flags) const
 	{
 		if (string.m_sharedString->size == 0 || string.m_sharedString->size > m_sharedString->size)
 			return npos;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -1594,7 +1594,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1634,7 +1634,7 @@ namespace Nz
 						utf8::unchecked::iterator<const char*> tIt = it;
 						++tIt;
 
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1670,7 +1670,7 @@ namespace Nz
 
 						const char* p = &string.m_sharedString->string[1];
 						const char* tPtr = ptr+1;
-						while (true)
+						for (;;)
 						{
 							if (*p == '\0')
 							{
@@ -1692,7 +1692,7 @@ namespace Nz
 			}
 			else
 			{
-				while ((ptr = std::strstr(ptr, string.GetConstBuffer())))
+				while ((ptr = std::strstr(ptr, string.GetConstBuffer())) != nullptr)
 				{
 					// Si le mot est bien isolé
 					if ((ptr == m_sharedString->string.get() || std::isspace(*(ptr-1))) && (*(ptr+m_sharedString->size) == '\0' || std::isspace(*(ptr+m_sharedString->size))))
@@ -1713,7 +1713,7 @@ namespace Nz
 		return m_sharedString->string.get();
 	}
 
-	unsigned int String::GetCapacity() const
+	std::size_t String::GetCapacity() const
 	{
 		return m_sharedString->capacity;
 	}
@@ -1723,12 +1723,12 @@ namespace Nz
 		return m_sharedString->string.get();
 	}
 
-	unsigned int String::GetLength() const
+	std::size_t String::GetLength() const
 	{
 		return utf8::distance(m_sharedString->string.get(), &m_sharedString->string[m_sharedString->size]);
 	}
 
-	unsigned int String::GetSize() const
+	std::size_t String::GetSize() const
 	{
 		return m_sharedString->size;
 	}
@@ -1794,11 +1794,11 @@ namespace Nz
 
 	String String::GetWord(unsigned int index, UInt32 flags) const
 	{
-		unsigned int startPos = GetWordPosition(index, flags);
+		std::size_t startPos = GetWordPosition(index, flags);
 		if (startPos == npos)
 			return String();
 
-		int endPos = -1;
+		std::intmax_t endPos = -1;
 		const char* ptr = &m_sharedString->string[startPos];
 		if (flags & HandleUtf8)
 		{
@@ -1807,7 +1807,7 @@ namespace Nz
 			{
 				if (Unicode::GetCategory(*it) & Unicode::Category_Separator)
 				{
-					endPos = static_cast<int>(it.base() - m_sharedString->string.get() - 1);
+					endPos = static_cast<std::intmax_t>(it.base() - m_sharedString->string.get() - 1);
 					break;
 				}
 			}
@@ -1819,7 +1819,7 @@ namespace Nz
 			{
 				if (std::isspace(*ptr))
 				{
-					endPos = static_cast<int>(ptr - m_sharedString->string.get() - 1);
+					endPos = static_cast<std::intmax_t>(ptr - m_sharedString->string.get() - 1);
 					break;
 				}
 			}
@@ -1829,7 +1829,7 @@ namespace Nz
 		return SubString(startPos, endPos);
 	}
 
-	unsigned int String::GetWordPosition(unsigned int index, UInt32 flags) const
+	std::size_t String::GetWordPosition(unsigned int index, UInt32 flags) const
 	{
 		if (m_sharedString->size == 0)
 			return npos;
@@ -1851,7 +1851,7 @@ namespace Nz
 					{
 						inWord = true;
 						if (++currentWord > index)
-							return static_cast<unsigned int>(it.base() - m_sharedString->string.get());
+							return it.base() - m_sharedString->string.get();
 					}
 				}
 			}
@@ -1879,25 +1879,25 @@ namespace Nz
 		return npos;
 	}
 
-	String& String::Insert(int pos, char character)
+	String& String::Insert(std::intmax_t pos, char character)
 	{
 		return Insert(pos, &character, 1);
 	}
 
-	String& String::Insert(int pos, const char* string)
+	String& String::Insert(std::intmax_t pos, const char* string)
 	{
 		return Insert(pos, string, std::strlen(string));
 	}
 
-	String& String::Insert(int pos, const char* string, unsigned int length)
+	String& String::Insert(std::intmax_t pos, const char* string, std::size_t length)
 	{
 		if (length == 0)
 			return *this;
 
 		if (pos < 0)
-			pos = std::max(m_sharedString->size + pos, 0U);
+			pos = std::max<std::size_t>(m_sharedString->size + pos, 0);
 
-		unsigned int start = std::min(static_cast<unsigned int>(pos), m_sharedString->size);
+		std::size_t start = std::min<std::size_t>(pos, m_sharedString->size);
 
 		// Si le buffer est déjà suffisamment grand
 		if (m_sharedString->capacity >= m_sharedString->size + length)
@@ -1934,7 +1934,7 @@ namespace Nz
 		return *this;
 	}
 
-	String& String::Insert(int pos, const String& string)
+	String& String::Insert(std::intmax_t pos, const String& string)
 	{
 		return Insert(pos, string.GetConstBuffer(), string.m_sharedString->size);
 	}
@@ -2073,7 +2073,7 @@ namespace Nz
 		return Insert(0, string);
 	}
 
-	String& String::Prepend(const char* string, unsigned int length)
+	String& String::Prepend(const char* string, std::size_t length)
 	{
 		return Insert(0, string, length);
 	}
@@ -2083,7 +2083,7 @@ namespace Nz
 		return Insert(0, string);
 	}
 
-	unsigned int String::Replace(char oldCharacter, char newCharacter, int start, UInt32 flags)
+	unsigned int String::Replace(char oldCharacter, char newCharacter, std::intmax_t start, UInt32 flags)
 	{
 		if (oldCharacter == '\0' || oldCharacter == newCharacter)
 			return 0;
@@ -2092,9 +2092,9 @@ namespace Nz
 			return Replace(String(oldCharacter), String(), start);
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -2111,7 +2111,7 @@ namespace Nz
 				{
 					if (!found)
 					{
-						unsigned int offset = ptr-m_sharedString->string.get();
+						std::ptrdiff_t offset = ptr - m_sharedString->string.get();
 
 						EnsureOwnership();
 
@@ -2127,11 +2127,11 @@ namespace Nz
 		}
 		else
 		{
-			while ((ptr = std::strchr(ptr, oldCharacter)))
+			while ((ptr = std::strchr(ptr, oldCharacter)) != nullptr)
 			{
 				if (!found)
 				{
-					unsigned int offset = ptr-m_sharedString->string.get();
+					std::ptrdiff_t offset = ptr-m_sharedString->string.get();
 
 					EnsureOwnership();
 
@@ -2147,20 +2147,20 @@ namespace Nz
 		return count;
 	}
 
-	unsigned int String::Replace(const char* oldString, const char* replaceString, int start, UInt32 flags)
+	unsigned int String::Replace(const char* oldString, const char* replaceString, std::intmax_t start, UInt32 flags)
 	{
 		return Replace(oldString, std::strlen(oldString), replaceString, std::strlen(replaceString), start, flags);
 	}
 
-	unsigned int String::Replace(const char* oldString, unsigned int oldLength, const char* replaceString, unsigned int replaceLength, int start, UInt32 flags)
+	unsigned int String::Replace(const char* oldString, std::size_t oldLength, const char* replaceString, std::size_t replaceLength, std::intmax_t start, UInt32 flags)
 	{
 		if (oldLength == 0)
 			return 0;
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return 0;
 
@@ -2186,7 +2186,7 @@ namespace Nz
 		}
 		else ///TODO: Algorithme de remplacement sans changement de buffer (si replaceLength < oldLength)
 		{
-			unsigned int newSize = m_sharedString->size + Count(oldString)*(replaceLength - oldLength);
+			std::size_t newSize = m_sharedString->size + Count(oldString)*(replaceLength - oldLength);
 			if (newSize == m_sharedString->size) // Alors c'est que Count(oldString) == 0
 				return 0;
 
@@ -2218,12 +2218,12 @@ namespace Nz
 		return count;
 	}
 
-	unsigned int String::Replace(const String& oldString, const String& replaceString, int start, UInt32 flags)
+	unsigned int String::Replace(const String& oldString, const String& replaceString, std::intmax_t start, UInt32 flags)
 	{
 		return Replace(oldString.GetConstBuffer(), oldString.m_sharedString->size, replaceString.GetConstBuffer(), replaceString.m_sharedString->size, start, flags);
 	}
 
-	unsigned int String::ReplaceAny(const char* oldCharacters, char replaceCharacter, int start, UInt32 flags)
+	unsigned int String::ReplaceAny(const char* oldCharacters, char replaceCharacter, std::intmax_t start, UInt32 flags)
 	{
 		///FIXME: Ne gère pas l'UTF-8
 		if (!oldCharacters || !oldCharacters[0])
@@ -2233,9 +2233,9 @@ namespace Nz
 			return ReplaceAny(String(oldCharacters), String(), start);*/
 
 		if (start < 0)
-			start = std::max(m_sharedString->size + start, 0U);
+			start = std::max<std::size_t>(m_sharedString->size + start, 0);
 
-		unsigned int pos = static_cast<unsigned int>(start);
+		std::size_t pos = static_cast<std::size_t>(start);
 		if (pos >= m_sharedString->size)
 			return npos;
 
@@ -2254,7 +2254,7 @@ namespace Nz
 					{
 						if (!found)
 						{
-							unsigned int offset = ptr-m_sharedString->string.get();
+							std::ptrdiff_t offset = ptr - m_sharedString->string.get();
 
 							EnsureOwnership();
 
@@ -2274,11 +2274,11 @@ namespace Nz
 		else
 		{
 			bool found = false;
-			while ((ptr = std::strpbrk(ptr, oldCharacters)))
+			while ((ptr = std::strpbrk(ptr, oldCharacters)) != nullptr)
 			{
 				if (!found)
 				{
-					unsigned int offset = ptr-m_sharedString->string.get();
+					std::ptrdiff_t offset = ptr - m_sharedString->string.get();
 
 					EnsureOwnership();
 
@@ -2294,7 +2294,7 @@ namespace Nz
 		return count;
 	}
 	/*
-		unsigned int String::ReplaceAny(const char* oldCharacters, const char* replaceString, int start, UInt32 flags)
+		unsigned int String::ReplaceAny(const char* oldCharacters, const char* replaceString, std::intmax_t start, UInt32 flags)
 		{
 			if (start < 0)
 			{
@@ -2375,7 +2375,7 @@ namespace Nz
 			return count;
 		}
 
-		unsigned int String::ReplaceAny(const String& oldCharacters, const String& replaceString, int start, UInt32 flags)
+		unsigned int String::ReplaceAny(const String& oldCharacters, const String& replaceString, std::intmax_t start, UInt32 flags)
 		{
 			if (start < 0)
 			{
@@ -2454,7 +2454,8 @@ namespace Nz
 			return count;
 		}
 	*/
-	void String::Reserve(unsigned int bufferSize)
+
+	void String::Reserve(std::size_t bufferSize)
 	{
 		if (m_sharedString->capacity > bufferSize)
 			return;
@@ -2468,7 +2469,7 @@ namespace Nz
 		m_sharedString = std::move(newString);
 	}
 
-	String& String::Resize(int size, char character)
+	String& String::Resize(std::intmax_t size, char character)
 	{
 		if (size == 0)
 		{
@@ -2477,10 +2478,9 @@ namespace Nz
 		}
 
 		if (size < 0)
-			size = std::max(m_sharedString->size + size, 0U);
+			size = std::max<std::intmax_t>(m_sharedString->size + size, 0);
 
-		unsigned int newSize = static_cast<unsigned int>(size);
-
+		std::size_t newSize = static_cast<std::size_t>(size);
 		if (m_sharedString->capacity >= newSize)
 		{
 			EnsureOwnership();
@@ -2506,7 +2506,7 @@ namespace Nz
 		return *this;
 	}
 
-	String String::Resized(int size, char character) const
+	String String::Resized(std::intmax_t size, char character) const
 	{
 		if (size < 0)
 			size = m_sharedString->size + size;
@@ -2514,7 +2514,7 @@ namespace Nz
 		if (size <= 0)
 			return String();
 
-		unsigned int newSize = static_cast<unsigned int>(size);
+		std::size_t newSize = static_cast<std::size_t>(size);
 		if (newSize == m_sharedString->size)
 			return *this;
 
@@ -2535,8 +2535,8 @@ namespace Nz
 	{
 		if (m_sharedString->size != 0)
 		{
-			unsigned int i = 0;
-			unsigned int j = m_sharedString->size-1;
+			std::size_t i = 0;
+			std::size_t j = m_sharedString->size-1;
 
 			while (i < j)
 				std::swap(m_sharedString->string[i++], m_sharedString->string[j--]);
@@ -2586,7 +2586,7 @@ namespace Nz
 		return *this;
 	}
 
-	String& String::Set(unsigned int rep, char character)
+	String& String::Set(std::size_t rep, char character)
 	{
 		if (rep > 0)
 		{
@@ -2609,14 +2609,14 @@ namespace Nz
 		return *this;
 	}
 
-	String& String::Set(unsigned int rep, const char* string)
+	String& String::Set(std::size_t rep, const char* string)
 	{
 		return Set(rep, string, (string) ? std::strlen(string) : 0);
 	}
 
-	String& String::Set(unsigned int rep, const char* string, unsigned int length)
+	String& String::Set(std::size_t rep, const char* string, std::size_t length)
 	{
-		unsigned int totalSize = rep*length;
+		std::size_t totalSize = rep*length;
 
 		if (totalSize > 0)
 		{
@@ -2630,7 +2630,7 @@ namespace Nz
 			else
 				m_sharedString = std::make_shared<SharedString>(totalSize);
 
-			for (unsigned int i = 0; i < rep; ++i)
+			for (std::size_t i = 0; i < rep; ++i)
 				std::memcpy(&m_sharedString->string[i*length], string, length);
 		}
 		else
@@ -2639,7 +2639,7 @@ namespace Nz
 		return *this;
 	}
 
-	String& String::Set(unsigned int rep, const String& string)
+	String& String::Set(std::size_t rep, const String& string)
 	{
 		return Set(rep, string.GetConstBuffer(), string.m_sharedString->size);
 	}
@@ -2649,7 +2649,7 @@ namespace Nz
 		return Set(string, (string) ? std::strlen(string) : 0);
 	}
 
-	String& String::Set(const char* string, unsigned int length)
+	String& String::Set(const char* string, std::size_t length)
 	{
 		if (length > 0)
 		{
@@ -2757,12 +2757,12 @@ namespace Nz
 		return Set(Simplified(flags));
 	}
 
-	unsigned int String::Split(std::vector<String>& result, char separation, int start, UInt32 flags) const
+	unsigned int String::Split(std::vector<String>& result, char separation, std::intmax_t start, UInt32 flags) const
 	{
 		if (separation == '\0' || m_sharedString->size == 0)
 			return 0;
 
-		unsigned int lastSep = Find(separation, start, flags);
+		std::size_t lastSep = Find(separation, start, flags);
 		if (lastSep == npos)
 		{
 			result.push_back(*this);
@@ -2771,9 +2771,9 @@ namespace Nz
 		else if (lastSep != 0)
 			result.push_back(SubString(0, lastSep-1));
 
-		while (true)
+		for (;;)
 		{
-			unsigned int sep = Find(separation, lastSep+1, flags);
+			std::size_t sep = Find(separation, lastSep+1, flags);
 			if (sep == npos)
 				break;
 
@@ -2789,19 +2789,19 @@ namespace Nz
 		return result.size();
 	}
 
-	unsigned int String::Split(std::vector<String>& result, const char* separation, int start, UInt32 flags) const
+	unsigned int String::Split(std::vector<String>& result, const char* separation, std::intmax_t start, UInt32 flags) const
 	{
 		return Split(result, separation, std::strlen(separation), start, flags);
 	}
 
-	unsigned int String::Split(std::vector<String>& result, const char* separation, unsigned int length, int start, UInt32 flags) const
+	unsigned int String::Split(std::vector<String>& result, const char* separation, std::size_t length, std::intmax_t start, UInt32 flags) const
 	{
 		if (m_sharedString->size == 0)
 			return 0;
 		else if (length == 0)
 		{
 			result.reserve(m_sharedString->size);
-			for (unsigned int i = 0; i < m_sharedString->size; ++i)
+			for (std::size_t i = 0; i < m_sharedString->size; ++i)
 				result.push_back(String(m_sharedString->string[i]));
 
 			return m_sharedString->size;
@@ -2812,8 +2812,8 @@ namespace Nz
 			return 1;
 		}
 
-		unsigned int lastSep = Find(separation, start, flags);
-		unsigned int oldSize = result.size();
+		std::size_t lastSep = Find(separation, start, flags);
+		std::size_t oldSize = result.size();
 		if (lastSep == npos)
 		{
 			result.push_back(*this);
@@ -2822,7 +2822,7 @@ namespace Nz
 		else if (lastSep != 0)
 			result.push_back(SubString(0, lastSep-1));
 
-		unsigned int sep;
+		std::size_t sep;
 		while ((sep = Find(separation, lastSep + length, flags)) != npos)
 		{
 			if (sep-lastSep > length)
@@ -2837,19 +2837,19 @@ namespace Nz
 		return result.size()-oldSize;
 	}
 
-	unsigned int String::Split(std::vector<String>& result, const String& separation, int start, UInt32 flags) const
+	unsigned int String::Split(std::vector<String>& result, const String& separation, std::intmax_t start, UInt32 flags) const
 	{
 		return Split(result, separation.m_sharedString->string.get(), separation.m_sharedString->size, start, flags);
 	}
 
-	unsigned int String::SplitAny(std::vector<String>& result, const char* separations, int start, UInt32 flags) const
+	unsigned int String::SplitAny(std::vector<String>& result, const char* separations, std::intmax_t start, UInt32 flags) const
 	{
 		if (m_sharedString->size == 0)
 			return 0;
 
-		unsigned int oldSize = result.size();
+		std::size_t oldSize = result.size();
 
-		unsigned int lastSep = FindAny(separations, start, flags);
+		std::size_t lastSep = FindAny(separations, start, flags);
 		if (lastSep == npos)
 		{
 			result.push_back(*this);
@@ -2858,7 +2858,7 @@ namespace Nz
 		else if (lastSep != 0)
 			result.push_back(SubString(0, lastSep-1));
 
-		unsigned int sep;
+		std::size_t sep;
 		while ((sep = FindAny(separations, lastSep+1, flags)) != npos)
 		{
 			if (sep-lastSep > 1)
@@ -2873,7 +2873,7 @@ namespace Nz
 		return result.size()-oldSize;
 	}
 
-	unsigned int String::SplitAny(std::vector<String>& result, const String& separations, int start, UInt32 flags) const
+	unsigned int String::SplitAny(std::vector<String>& result, const String& separations, std::intmax_t start, UInt32 flags) const
 	{
 		return SplitAny(result, separations.m_sharedString->string.get(), start, flags);
 	}
@@ -2998,12 +2998,12 @@ namespace Nz
 		return false;
 	}
 
-	String String::SubString(int startPos, int endPos) const
+	String String::SubString(std::intmax_t startPos, std::intmax_t endPos) const
 	{
 		if (startPos < 0)
-			startPos = std::max(m_sharedString->size+startPos, 0U);
+			startPos = std::max<std::size_t>(m_sharedString->size + startPos, 0);
 
-		unsigned int start = static_cast<unsigned int>(startPos);
+		std::size_t start = static_cast<std::size_t>(startPos);
 
 		if (endPos < 0)
 		{
@@ -3012,12 +3012,11 @@ namespace Nz
 				return String();
 		}
 
-		unsigned int minEnd = std::min(static_cast<unsigned int>(endPos), m_sharedString->size-1);
-
+		std::size_t minEnd = std::min(static_cast<std::size_t>(endPos), m_sharedString->size - 1);
 		if (start > minEnd || start >= m_sharedString->size)
 			return String();
 
-		unsigned int size = minEnd-start+1;
+		std::size_t size = minEnd - start + 1;
 
 		auto str = std::make_shared<SharedString>(size);
 		std::memcpy(str->string.get(), &m_sharedString->string[start], size);
@@ -3025,12 +3024,12 @@ namespace Nz
 		return String(std::move(str));
 	}
 
-	String String::SubStringFrom(char character, int startPos, bool fromLast, bool include, UInt32 flags) const
+	String String::SubStringFrom(char character, std::intmax_t startPos, bool fromLast, bool include, UInt32 flags) const
 	{
 		if (character == '\0')
 			return *this;
 
-		unsigned int pos;
+		std::size_t pos;
 		if (fromLast)
 			pos = FindLast(character, startPos, flags);
 		else
@@ -3044,14 +3043,14 @@ namespace Nz
 		return SubString(pos + ((include) ? 0 : 1));
 	}
 
-	String String::SubStringFrom(const char* string, int startPos, bool fromLast, bool include, UInt32 flags) const
+	String String::SubStringFrom(const char* string, std::intmax_t startPos, bool fromLast, bool include, UInt32 flags) const
 	{
 		return SubStringFrom(string, std::strlen(string), startPos, fromLast, include, flags);
 	}
 
-	String String::SubStringFrom(const char* string, unsigned int length, int startPos, bool fromLast, bool include, UInt32 flags) const
+	String String::SubStringFrom(const char* string, std::size_t length, std::intmax_t startPos, bool fromLast, bool include, UInt32 flags) const
 	{
-		unsigned int pos;
+		std::size_t pos;
 		if (fromLast)
 			pos = FindLast(string, startPos, flags);
 		else
@@ -3065,17 +3064,17 @@ namespace Nz
 		return SubString(pos + ((include) ? 0 : length));
 	}
 
-	String String::SubStringFrom(const String& string, int startPos, bool fromLast, bool include, UInt32 flags) const
+	String String::SubStringFrom(const String& string, std::intmax_t startPos, bool fromLast, bool include, UInt32 flags) const
 	{
 		return SubStringFrom(string.GetConstBuffer(), string.m_sharedString->size, startPos, fromLast, include, flags);
 	}
 
-	String String::SubStringTo(char character, int startPos, bool toLast, bool include, UInt32 flags) const
+	String String::SubStringTo(char character, std::intmax_t startPos, bool toLast, bool include, UInt32 flags) const
 	{
 		if (character == '\0')
 			return *this;
 
-		unsigned int pos;
+		std::size_t pos;
 		if (toLast)
 			pos = FindLast(character, startPos);
 		else
@@ -3089,14 +3088,14 @@ namespace Nz
 		return SubString(0, pos+((include) ? 1 : 0)-1);
 	}
 
-	String String::SubStringTo(const char* string, int startPos, bool toLast, bool include, UInt32 flags) const
+	String String::SubStringTo(const char* string, std::intmax_t startPos, bool toLast, bool include, UInt32 flags) const
 	{
 		return SubStringTo(string, std::strlen(string), startPos, toLast, include, flags);
 	}
 
-	String String::SubStringTo(const char* string, unsigned int length, int startPos, bool toLast, bool include, UInt32 flags) const
+	String String::SubStringTo(const char* string, std::size_t length, std::intmax_t startPos, bool toLast, bool include, UInt32 flags) const
 	{
-		unsigned int pos;
+		std::size_t pos;
 		if (toLast)
 			pos = FindLast(string, startPos, flags);
 		else
@@ -3110,7 +3109,7 @@ namespace Nz
 		return SubString(0, pos+((include) ? length : 0)-1);
 	}
 
-	String String::SubStringTo(const String& string, int startPos, bool toLast, bool include, UInt32 flags) const
+	String String::SubStringTo(const String& string, std::intmax_t startPos, bool toLast, bool include, UInt32 flags) const
 	{
 		return SubStringTo(string.GetConstBuffer(), string.m_sharedString->size, startPos, toLast, include, flags);
 	}
@@ -3262,8 +3261,8 @@ namespace Nz
 		if (m_sharedString->size == 0)
 			return *this;
 
-		unsigned int startPos;
-		unsigned int endPos;
+		std::size_t startPos;
+		std::size_t endPos;
 		if (flags & HandleUtf8)
 		{
 			if ((flags & TrimOnlyRight) == 0)
@@ -3326,8 +3325,8 @@ namespace Nz
 		if (m_sharedString->size == 0)
 			return *this;
 
-		unsigned int startPos = 0;
-		unsigned int endPos = m_sharedString->size-1;
+		std::size_t startPos = 0;
+		std::size_t endPos = m_sharedString->size-1;
 		if (flags & CaseInsensitive)
 		{
 			char ch = Detail::ToLower(character);
@@ -3429,7 +3428,7 @@ namespace Nz
 		return std::string(m_sharedString->string.get(), m_sharedString->size);
 	}
 
-	char& String::operator[](unsigned int pos)
+	char& String::operator[](std::size_t pos)
 	{
 		EnsureOwnership();
 
@@ -3439,7 +3438,7 @@ namespace Nz
 		return m_sharedString->string[pos];
 	}
 
-	char String::operator[](unsigned int pos) const
+	char String::operator[](std::size_t pos) const
 	{
 		#if NAZARA_CORE_SAFE
 		if (pos >= m_sharedString->size)
@@ -3497,7 +3496,7 @@ namespace Nz
 		if (m_sharedString->size == 0)
 			return string;
 
-		unsigned int length = std::strlen(string);
+		std::size_t length = std::strlen(string);
 		if (length == 0)
 			return *this;
 
@@ -3761,7 +3760,7 @@ namespace Nz
 
 	String String::Boolean(bool boolean)
 	{
-		unsigned int size = (boolean) ? 4 : 5;
+		std::size_t size = (boolean) ? 4 : 5;
 
 		auto str = std::make_shared<SharedString>(size);
 		std::memcpy(str->string.get(), (boolean) ? "true" : "false", size);
@@ -3859,7 +3858,7 @@ namespace Nz
 
 	String String::Pointer(const void* ptr)
 	{
-		const unsigned int capacity = sizeof(void*)*2 + 2;
+		const std::size_t capacity = sizeof(void*)*2 + 2;
 
 		auto str = std::make_shared<SharedString>(capacity);
 		str->size = std::sprintf(str->string.get(), "0x%p", ptr);
@@ -3872,7 +3871,7 @@ namespace Nz
 		if (character == '\0')
 			return String();
 
-		unsigned int count = 0;
+		std::size_t count = 0;
 		if (character < 0x80)
 			count = 1;
 		else if (character < 0x800)
@@ -3899,7 +3898,7 @@ namespace Nz
 			return String();
 
 		const char16_t* ptr = u16String;
-		unsigned int count = 0;
+		std::size_t count = 0;
 		do
 			count++;
 		while (*++ptr);
@@ -3922,7 +3921,7 @@ namespace Nz
 			return String();
 
 		const char32_t* ptr = u32String;
-		unsigned int count = 0;
+		std::size_t count = 0;
 		do
 		{
 			char32_t cp = *ptr;
@@ -3949,7 +3948,7 @@ namespace Nz
 			return String();
 
 		const wchar_t* ptr = wString;
-		unsigned int count = 0;
+		std::size_t count = 0;
 		do
 		{
 			char32_t cp = *ptr;
@@ -3975,7 +3974,7 @@ namespace Nz
 		str.Clear();
 
 		char c;
-		do
+		for (;;)
 		{
 			is.get(c);
 			if (c == '\0')
@@ -3990,7 +3989,6 @@ namespace Nz
 			else
 				str += c;
 		}
-		while (true);
 
 		return is;
 	}
@@ -4026,8 +4024,8 @@ namespace Nz
 		if (nstring.IsEmpty())
 			return string;
 
-		unsigned int size = std::strlen(string);
-		unsigned int totalSize = size + nstring.m_sharedString->size;
+		std::size_t size = std::strlen(string);
+		std::size_t totalSize = size + nstring.m_sharedString->size;
 
 		auto str = std::make_shared<String::SharedString>(totalSize);
 		std::memcpy(str->string.get(), string, size);
@@ -4044,7 +4042,7 @@ namespace Nz
 		if (nstring.m_sharedString->size == 0)
 			return string;
 
-		unsigned int totalSize = string.size() + nstring.m_sharedString->size;
+		std::size_t totalSize = string.size() + nstring.m_sharedString->size;
 
 		auto str = std::make_shared<String::SharedString>(totalSize);
 		std::memcpy(str->string.get(), string.c_str(), string.size());
@@ -4227,7 +4225,7 @@ namespace Nz
 		return context.stream->Read(string->GetBuffer(), size) == size;
 	}
 
-	const unsigned int String::npos(std::numeric_limits<unsigned int>::max());
+	const std::size_t String::npos(std::numeric_limits<std::size_t>::max());
 }
 
 namespace std
@@ -4237,7 +4235,8 @@ namespace std
 		str.Clear();
 
 		char c;
-		do
+
+		for (;;)
 		{
 			is.get(c);
 			if (c != '\n' && c != '\0')
@@ -4245,7 +4244,6 @@ namespace std
 			else
 				break;
 		}
-		while (true);
 
 		return is;
 	}
@@ -4255,7 +4253,8 @@ namespace std
 		str.Clear();
 
 		char c;
-		do
+
+		for (;;) 
 		{
 			is.get(c);
 			if (c != delim && c != '\0')
@@ -4263,7 +4262,6 @@ namespace std
 			else
 				break;
 		}
-		while (true);
 
 		return is;
 	}

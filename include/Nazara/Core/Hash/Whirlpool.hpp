@@ -19,11 +19,11 @@ namespace Nz
 			HashWhirlpool();
 			virtual ~HashWhirlpool();
 
-			void Append(const UInt8* data, unsigned int len) override;
+			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
 			ByteArray End() override;
 
-			unsigned int GetDigestLength() const;
+			std::size_t GetDigestLength() const;
 			const char* GetHashName() const;
 
 		private:
