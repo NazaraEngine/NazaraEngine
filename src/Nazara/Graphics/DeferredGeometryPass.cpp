@@ -54,118 +54,123 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		for (auto& matIt : m_renderQueue->opaqueModels)
+		for (auto& pair : m_renderQueue->layers)
 		{
-			auto& matEntry = matIt.second;
+			DeferredRenderQueue::Layer& layer = pair.second;
 
-			if (matEntry.enabled)
+			for (auto& matIt : layer.opaqueModels)
 			{
-				DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
+				auto& matEntry = matIt.second;
 
-				if (!meshInstances.empty())
+				if (matEntry.enabled)
 				{
-					const Material* material = matIt.first;
+					DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
-					bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
-
-					// On commence par récupérer le programme du matériau
-					UInt32 flags = ShaderFlags_Deferred;
-					if (useInstancing)
-						flags |= ShaderFlags_Instancing;
-
-					const Shader* shader = material->Apply(flags);
-
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-					if (shader != lastShader)
+					if (!meshInstances.empty())
 					{
-						// Index des uniformes dans le shader
-						shaderUniforms = GetShaderUniforms(shader);
+						const Material* material = matIt.first;
 
-						// Couleur ambiante de la scène
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position de la caméra
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+						bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
 
-						lastShader = shader;
-					}
+						// On commence par récupérer le programme du matériau
+						UInt32 flags = ShaderFlags_Deferred;
+						if (useInstancing)
+							flags |= ShaderFlags_Instancing;
 
-					// Meshes
-					for (auto& meshIt : meshInstances)
-					{
-						const MeshData& meshData = meshIt.first;
-						auto& meshEntry = meshIt.second;
+						const Shader* shader = material->Apply(flags);
 
-						std::vector<Matrix4f>& instances = meshEntry.instances;
-						if (!instances.empty())
+						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+						if (shader != lastShader)
 						{
-							const IndexBuffer* indexBuffer = meshData.indexBuffer;
-							const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
+							// Index des uniformes dans le shader
+							shaderUniforms = GetShaderUniforms(shader);
 
-							// Gestion du draw call avant la boucle de rendu
-							Renderer::DrawCall drawFunc;
-							Renderer::DrawCallInstanced instancedDrawFunc;
-							unsigned int indexCount;
+							// Couleur ambiante de la scène
+							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+							// Position de la caméra
+							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-							if (indexBuffer)
+							lastShader = shader;
+						}
+
+						// Meshes
+						for (auto& meshIt : meshInstances)
+						{
+							const MeshData& meshData = meshIt.first;
+							auto& meshEntry = meshIt.second;
+
+							std::vector<Matrix4f>& instances = meshEntry.instances;
+							if (!instances.empty())
 							{
-								drawFunc = Renderer::DrawIndexedPrimitives;
-								instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
-								indexCount = indexBuffer->GetIndexCount();
-							}
-							else
-							{
-								drawFunc = Renderer::DrawPrimitives;
-								instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
-								indexCount = vertexBuffer->GetVertexCount();
-							}
+								const IndexBuffer* indexBuffer = meshData.indexBuffer;
+								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-							Renderer::SetIndexBuffer(indexBuffer);
-							Renderer::SetVertexBuffer(vertexBuffer);
+								// Gestion du draw call avant la boucle de rendu
+								Renderer::DrawCall drawFunc;
+								Renderer::DrawCallInstanced instancedDrawFunc;
+								unsigned int indexCount;
 
-							if (useInstancing)
-							{
-								// On récupère le buffer d'instancing du Renderer et on le configure pour fonctionner avec des matrices
-								VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-								instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
-
-								const Matrix4f* instanceMatrices = &instances[0];
-								unsigned int instanceCount = instances.size();
-								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de matrices que peut contenir le buffer
-
-								while (instanceCount > 0)
+								if (indexBuffer)
 								{
-									// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
-									unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-									instanceCount -= renderedInstanceCount;
-
-									// On remplit l'instancing buffer avec nos matrices world
-									instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
-									instanceMatrices += renderedInstanceCount;
-
-									// Et on affiche
-									instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+									drawFunc = Renderer::DrawIndexedPrimitives;
+									instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+									indexCount = indexBuffer->GetIndexCount();
 								}
-							}
-							else
-							{
-								// Sans instancing, on doit effectuer un draw call pour chaque instance
-								// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-								// À cause du temps de modification du buffer d'instancing
-								for (const Matrix4f& matrix : instances)
+								else
 								{
-									Renderer::SetMatrix(MatrixType_World, matrix);
-									drawFunc(meshData.primitiveMode, 0, indexCount);
+									drawFunc = Renderer::DrawPrimitives;
+									instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+									indexCount = vertexBuffer->GetVertexCount();
 								}
-							}
 
-							instances.clear();
+								Renderer::SetIndexBuffer(indexBuffer);
+								Renderer::SetVertexBuffer(vertexBuffer);
+
+								if (useInstancing)
+								{
+									// On récupère le buffer d'instancing du Renderer et on le configure pour fonctionner avec des matrices
+									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
+
+									const Matrix4f* instanceMatrices = &instances[0];
+									unsigned int instanceCount = instances.size();
+									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de matrices que peut contenir le buffer
+
+									while (instanceCount > 0)
+									{
+										// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+										instanceCount -= renderedInstanceCount;
+
+										// On remplit l'instancing buffer avec nos matrices world
+										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+										instanceMatrices += renderedInstanceCount;
+
+										// Et on affiche
+										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+									}
+								}
+								else
+								{
+									// Sans instancing, on doit effectuer un draw call pour chaque instance
+									// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
+									// À cause du temps de modification du buffer d'instancing
+									for (const Matrix4f& matrix : instances)
+									{
+										Renderer::SetMatrix(MatrixType_World, matrix);
+										drawFunc(meshData.primitiveMode, 0, indexCount);
+									}
+								}
+
+								instances.clear();
+							}
 						}
 					}
-				}
 
-				// Et on remet à zéro les données
-				matEntry.enabled = false;
-				matEntry.instancingEnabled = false;
+					// Et on remet à zéro les données
+					matEntry.enabled = false;
+					matEntry.instancingEnabled = false;
+				}
 			}
 		}
 

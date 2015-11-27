@@ -11,9 +11,11 @@
 
 namespace Nz
 {
-	void ForwardRenderQueue::AddBillboard(const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
+	void ForwardRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -30,7 +32,7 @@ namespace Nz
 		billboardVector.push_back(BillboardData{color, position, size, sinCos});
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -42,6 +44,8 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -69,7 +73,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -83,6 +87,8 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -110,7 +116,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -122,6 +128,8 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -153,7 +161,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -167,6 +175,8 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -198,7 +208,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -210,6 +220,8 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -237,7 +249,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -251,6 +263,8 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -278,7 +292,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -290,6 +304,8 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -321,7 +337,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -335,6 +351,8 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+
+		auto& billboards = GetLayer(renderOrder).billboards;
 
 		auto it = billboards.find(material);
 		if (it == billboards.end())
@@ -366,7 +384,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddDrawable(const Drawable* drawable)
+	void ForwardRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
 		#if NAZARA_GRAPHICS_SAFE
 		if (!drawable)
@@ -376,13 +394,19 @@ namespace Nz
 		}
 		#endif
 
+		auto& otherDrawables = GetLayer(renderOrder).otherDrawables;
+
 		otherDrawables.push_back(drawable);
 	}
 
-	void ForwardRenderQueue::AddMesh(const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
 		if (material->IsEnabled(RendererParameter_Blend))
 		{
+			Layer& currentLayer = GetLayer(renderOrder);
+			auto& transparentModels = currentLayer.transparentModels;
+			auto& transparentModelData = currentLayer.transparentModelData;
+
 			// Le matériau est transparent, nous devons rendre ce mesh d'une autre façon (après le rendu des objets opaques et en les triant)
 			unsigned int index = transparentModelData.size();
 			transparentModelData.resize(index+1);
@@ -397,6 +421,9 @@ namespace Nz
 		}
 		else
 		{
+			Layer& currentLayer = GetLayer(renderOrder);
+			auto& opaqueModels = currentLayer.opaqueModels;
+
 			auto it = opaqueModels.find(material);
 			if (it == opaqueModels.end())
 			{
@@ -434,8 +461,11 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderQueue::AddSprites(const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
+	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
+		Layer& currentLayer = GetLayer(renderOrder);
+		auto& basicSprites = currentLayer.basicSprites;
+
 		auto matIt = basicSprites.find(material);
 		if (matIt == basicSprites.end())
 		{
@@ -468,15 +498,22 @@ namespace Nz
 	{
 		AbstractRenderQueue::Clear(fully);
 
-		otherDrawables.clear();
-		transparentModels.clear();
-		transparentModelData.clear();
-
 		if (fully)
+			layers.clear();
+		else
 		{
-			basicSprites.clear();
-			billboards.clear();
-			opaqueModels.clear();
+			for (auto it = layers.begin(); it != layers.end(); ++it)
+			{
+				Layer& layer = it->second;
+				if (layer.clearCount++ >= 100)
+					it = layers.erase(it);
+				else
+				{
+					layer.otherDrawables.clear();
+					layer.transparentModels.clear();
+					layer.transparentModelData.clear();
+				}
+			}
 		}
 	}
 
@@ -486,78 +523,113 @@ namespace Nz
 		Vector3f viewerPos = viewer->GetEyePosition();
 		Vector3f viewerNormal = viewer->GetForward();
 
-		std::sort(transparentModels.begin(), transparentModels.end(), [this, &nearPlane, &viewerNormal](unsigned int index1, unsigned int index2)
+		for (auto& pair : layers)
 		{
-			const Spheref& sphere1 = transparentModelData[index1].squaredBoundingSphere;
-			const Spheref& sphere2 = transparentModelData[index2].squaredBoundingSphere;
+			Layer& layer = pair.second;
 
-			Vector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
-			Vector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
-
-			return nearPlane.Distance(position1) > nearPlane.Distance(position2);
-		});
-
-		for (auto& pair : billboards)
-		{
-			const Material* mat = pair.first;
-
-			if (mat->IsDepthSortingEnabled())
+			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (unsigned int index1, unsigned int index2)
 			{
-				BatchedBillboardEntry& entry = pair.second;
-				auto& billboardVector = entry.billboards;
+				const Spheref& sphere1 = layer.transparentModelData[index1].squaredBoundingSphere;
+				const Spheref& sphere2 = layer.transparentModelData[index2].squaredBoundingSphere;
 
-				std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos](const BillboardData& data1, const BillboardData& data2)
+				Vector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
+				Vector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
+
+				return nearPlane.Distance(position1) > nearPlane.Distance(position2);
+			});
+
+			for (auto& pair : layer.billboards)
+			{
+				const Material* mat = pair.first;
+
+				if (mat->IsDepthSortingEnabled())
 				{
-					return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
-				});
+					BatchedBillboardEntry& entry = pair.second;
+					auto& billboardVector = entry.billboards;
+
+					std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos] (const BillboardData& data1, const BillboardData& data2)
+					{
+						return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
+					});
+				}
 			}
 		}
 	}
 
+	ForwardRenderQueue::Layer& ForwardRenderQueue::GetLayer(int i)
+	{
+		auto it = layers.find(i);
+		if (it == layers.end())
+			it = layers.insert(std::make_pair(i, Layer())).first;
+		
+		Layer& layer = it->second;
+		layer.clearCount = 0;
+
+		return layer;
+	}
+
 	void ForwardRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
-		for (auto& modelPair : opaqueModels)
+		for (auto& pair : layers)
 		{
-			MeshInstanceContainer& meshes = modelPair.second.meshMap;
-			for (auto it = meshes.begin(); it != meshes.end();)
+			Layer& layer = pair.second;
+
+			for (auto& modelPair : layer.opaqueModels)
 			{
-				const MeshData& renderData = it->first;
-				if (renderData.indexBuffer == indexBuffer)
-					it = meshes.erase(it);
-				else
-					++it;
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
+				for (auto it = meshes.begin(); it != meshes.end();)
+				{
+					const MeshData& renderData = it->first;
+					if (renderData.indexBuffer == indexBuffer)
+						it = meshes.erase(it);
+					else
+						++it;
+				}
 			}
 		}
 	}
 
 	void ForwardRenderQueue::OnMaterialInvalidation(const Material* material)
 	{
-		basicSprites.erase(material);
-		billboards.erase(material);
-		opaqueModels.erase(material);
+		for (auto& pair : layers)
+		{
+			Layer& layer = pair.second;
+
+			layer.basicSprites.erase(material);
+			layer.billboards.erase(material);
+			layer.opaqueModels.erase(material);
+		}
 	}
 
 	void ForwardRenderQueue::OnTextureInvalidation(const Texture* texture)
 	{
-		for (auto matIt = basicSprites.begin(); matIt != basicSprites.end(); ++matIt)
+		for (auto& pair : layers)
 		{
-			auto& overlayMap = matIt->second.overlayMap;
-			overlayMap.erase(texture);
+			Layer& layer = pair.second;
+			for (auto matIt = layer.basicSprites.begin(); matIt != layer.basicSprites.end(); ++matIt)
+			{
+				auto& overlayMap = matIt->second.overlayMap;
+				overlayMap.erase(texture);
+			}
 		}
 	}
 
 	void ForwardRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
 	{
-		for (auto& modelPair : opaqueModels)
+		for (auto& pair : layers)
 		{
-			MeshInstanceContainer& meshes = modelPair.second.meshMap;
-			for (auto it = meshes.begin(); it != meshes.end();)
+			Layer& layer = pair.second;
+			for (auto& modelPair : layer.opaqueModels)
 			{
-				const MeshData& renderData = it->first;
-				if (renderData.vertexBuffer == vertexBuffer)
-					it = meshes.erase(it);
-				else
-					++it;
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
+				for (auto it = meshes.begin(); it != meshes.end();)
+				{
+					const MeshData& renderData = it->first;
+					if (renderData.vertexBuffer == vertexBuffer)
+						it = meshes.erase(it);
+					else
+						++it;
+				}
 			}
 		}
 	}
