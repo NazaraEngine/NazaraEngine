@@ -17,7 +17,7 @@ namespace Nz
 		if (!m_material)
 			return;
 
-		renderQueue->AddBillboard(m_material, instanceData.transformMatrix.GetTranslation(), m_size, m_sinCos, m_color);
+		renderQueue->AddBillboard(instanceData.renderOrder, m_material, instanceData.transformMatrix.GetTranslation(), m_size, m_sinCos, m_color);
 	}
 
 	void Billboard::MakeBoundingVolume() const

@@ -50,7 +50,7 @@ namespace Nz
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = mesh->GetVertexBuffer();
 
-			renderQueue->AddMesh(material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
 		}
 	}
 
