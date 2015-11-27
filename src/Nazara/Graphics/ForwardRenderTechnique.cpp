@@ -62,21 +62,25 @@ namespace Nz
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
 
-		if (!m_renderQueue.opaqueModels.empty())
-			DrawOpaqueModels(sceneData);
+		for (auto& pair : m_renderQueue.layers)
+		{
+			ForwardRenderQueue::Layer& layer = pair.second;
 
-		if (!m_renderQueue.transparentModels.empty())
-			DrawTransparentModels(sceneData);
+			if (!layer.opaqueModels.empty())
+				DrawOpaqueModels(sceneData, layer);
 
-		if (!m_renderQueue.basicSprites.empty())
-			DrawBasicSprites(sceneData);
+			if (!layer.transparentModels.empty())
+				DrawTransparentModels(sceneData, layer);
 
-		if (!m_renderQueue.billboards.empty())
-			DrawBillboards(sceneData);
+			if (!layer.basicSprites.empty())
+				DrawBasicSprites(sceneData, layer);
 
-		// Les autres drawables (Exemple: Terrain)
-		for (const Drawable* drawable : m_renderQueue.otherDrawables)
-			drawable->Draw();
+			if (!layer.billboards.empty())
+				DrawBillboards(sceneData, layer);
+
+			for (const Drawable* drawable : layer.otherDrawables)
+				drawable->Draw();
+		}
 
 		return true;
 	}
@@ -203,7 +207,7 @@ namespace Nz
 		});
 	}
 
-	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
@@ -214,7 +218,7 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		for (auto& matIt : m_renderQueue.basicSprites)
+		for (auto& matIt : layer.basicSprites)
 		{
 			const Material* material = matIt.first;
 			auto& matEntry = matIt.second;
@@ -309,7 +313,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
@@ -323,7 +327,7 @@ namespace Nz
 
 			Renderer::SetVertexBuffer(&s_quadVertexBuffer);
 
-			for (auto& matIt : m_renderQueue.billboards)
+			for (auto& matIt : layer.billboards)
 			{
 				const Material* material = matIt.first;
 				auto& entry = matIt.second;
@@ -372,7 +376,7 @@ namespace Nz
 			Renderer::SetIndexBuffer(&s_quadIndexBuffer);
 			Renderer::SetVertexBuffer(&m_billboardPointBuffer);
 
-			for (auto& matIt : m_renderQueue.billboards)
+			for (auto& matIt : layer.billboards)
 			{
 				const Material* material = matIt.first;
 				auto& entry = matIt.second;
@@ -454,14 +458,14 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		for (auto& matIt : m_renderQueue.opaqueModels)
+		for (auto& matIt : layer.opaqueModels)
 		{
 			auto& matEntry = matIt.second;
 
@@ -657,7 +661,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderTechnique::DrawTransparentModels(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
@@ -665,9 +669,9 @@ namespace Nz
 		const ShaderUniforms* shaderUniforms = nullptr;
 		unsigned int lightCount = 0;
 
-		for (unsigned int index : m_renderQueue.transparentModels)
+		for (unsigned int index : layer.transparentModels)
 		{
-			const ForwardRenderQueue::TransparentModelData& modelData = m_renderQueue.transparentModelData[index];
+			const ForwardRenderQueue::TransparentModelData& modelData = layer.transparentModelData[index];
 
 			// Matériau
 			const Material* material = modelData.material;

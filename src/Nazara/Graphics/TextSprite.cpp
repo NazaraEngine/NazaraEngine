@@ -26,7 +26,7 @@ namespace Nz
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(m_material, &vertices[indices.first*4], indices.count, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder, m_material, &vertices[indices.first*4], indices.count, overlay);
 			}
 		}
 	}

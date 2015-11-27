@@ -17,63 +17,66 @@ namespace Nz
 	{
 	}
 
-	void DeferredRenderQueue::AddBillboard(const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
+	void DeferredRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
 	{
-		m_forwardQueue->AddBillboard(material, position, size, sinCos, color);
+		m_forwardQueue->AddBillboard(renderOrder, material, position, size, sinCos, color);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
-	void DeferredRenderQueue::AddBillboards(const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
-	void DeferredRenderQueue::AddDrawable(const Drawable* drawable)
+	void DeferredRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
-		m_forwardQueue->AddDrawable(drawable);
+		m_forwardQueue->AddDrawable(renderOrder, drawable);
 	}
 
-	void DeferredRenderQueue::AddMesh(const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
 		if (material->IsEnabled(RendererParameter_Blend))
 			// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
-			m_forwardQueue->AddMesh(material, meshData, meshAABB, transformMatrix);
+			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
 		else
 		{
+			Layer& currentLayer = GetLayer(renderOrder);
+			auto& opaqueModels = currentLayer.opaqueModels;
+
 			auto it = opaqueModels.find(material);
 			if (it == opaqueModels.end())
 			{
@@ -110,9 +113,9 @@ namespace Nz
 		}
 	}
 
-	void DeferredRenderQueue::AddSprites(const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
+	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
-		m_forwardQueue->AddSprites(material, vertices, spriteCount, overlay);
+		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, overlay);
 	}
 
 	void DeferredRenderQueue::Clear(bool fully)
@@ -120,44 +123,80 @@ namespace Nz
 		AbstractRenderQueue::Clear(fully);
 
 		if (fully)
-			opaqueModels.clear();
+			layers.clear();
+		else
+		{
+			for (auto it = layers.begin(); it != layers.end(); ++it)
+			{
+				Layer& layer = it->second;
+				if (layer.clearCount++ >= 100)
+					it = layers.erase(it);
+			}
+		}
 
 		m_forwardQueue->Clear(fully);
 	}
 
+	DeferredRenderQueue::Layer& DeferredRenderQueue::GetLayer(unsigned int i)
+	{
+		auto it = layers.find(i);
+		if (it == layers.end())
+			it = layers.insert(std::make_pair(i, Layer())).first;
+
+		Layer& layer = it->second;
+		layer.clearCount = 0;
+
+		return layer;
+	}
+
 	void DeferredRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
-		for (auto& modelPair : opaqueModels)
+		for (auto& pair : layers)
 		{
-			MeshInstanceContainer& meshes = modelPair.second.meshMap;
-			for (auto it = meshes.begin(); it != meshes.end();)
+			Layer& layer = pair.second;
+
+			for (auto& modelPair : layer.opaqueModels)
 			{
-				const MeshData& renderData = it->first;
-				if (renderData.indexBuffer == indexBuffer)
-					it = meshes.erase(it);
-				else
-					++it;
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
+				for (auto it = meshes.begin(); it != meshes.end();)
+				{
+					const MeshData& renderData = it->first;
+					if (renderData.indexBuffer == indexBuffer)
+						it = meshes.erase(it);
+					else
+						++it;
+				}
 			}
 		}
 	}
 
 	void DeferredRenderQueue::OnMaterialInvalidation(const Material* material)
 	{
-		opaqueModels.erase(material);
+		for (auto& pair : layers)
+		{
+			Layer& layer = pair.second;
+
+			layer.opaqueModels.erase(material);
+		}
 	}
 
 	void DeferredRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
 	{
-		for (auto& modelPair : opaqueModels)
+		for (auto& pair : layers)
 		{
-			MeshInstanceContainer& meshes = modelPair.second.meshMap;
-			for (auto it = meshes.begin(); it != meshes.end();)
+			Layer& layer = pair.second;
+
+			for (auto& modelPair : layer.opaqueModels)
 			{
-				const MeshData& renderData = it->first;
-				if (renderData.vertexBuffer == vertexBuffer)
-					it = meshes.erase(it);
-				else
-					++it;
+				MeshInstanceContainer& meshes = modelPair.second.meshMap;
+				for (auto it = meshes.begin(); it != meshes.end();)
+				{
+					const MeshData& renderData = it->first;
+					if (renderData.vertexBuffer == vertexBuffer)
+						it = meshes.erase(it);
+					else
+						++it;
+				}
 			}
 		}
 	}
