@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
+#include <functional>
 #include <map>
 #include <memory>
 //#include <type_traits>
@@ -22,12 +23,12 @@ namespace Nz
 		//static_assert(std::is_same<P, void>::value || std::is_base_of<P, T>::value, "P must be a base of T");
 
 		public:
-			using ClassFunc = int (*)(LuaInstance& lua, T& instance);
-			using ClassIndexFunc = bool (*)(LuaInstance& lua, T& instance);
-			using ConstructorFunc = T* (*)(LuaInstance& lua);
-			using FinalizerFunc = bool (*)(LuaInstance& lua, T& instance);
-			using StaticIndexFunc = bool (*)(LuaInstance& lua);
-			using StaticFunc = int (*)(LuaInstance& lua);
+			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
+			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
+			using ConstructorFunc = std::function<T*(LuaInstance& lua)>;
+			using FinalizerFunc = std::function<bool(LuaInstance& lua, T& instance)>;
+			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
+			using StaticFunc = std::function<int(LuaInstance& lua)>;
 
 			LuaClass(const String& name);
 
@@ -41,9 +42,12 @@ namespace Nz
 			void SetFinalizer(FinalizerFunc finalizer);
 			void SetGetter(ClassIndexFunc getter);
 			void SetMethod(const String& name, ClassFunc method);
+			template<typename R, typename P, typename... Args> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...));
+			template<typename R, typename P, typename... Args> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const);
 			void SetSetter(ClassIndexFunc setter);
 			void SetStaticGetter(StaticIndexFunc getter);
 			void SetStaticMethod(const String& name, StaticFunc func);
+			template<typename R, typename... Args> void SetStaticMethod(const String& name, R(*func)(Args...));
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:

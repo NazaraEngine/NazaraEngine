@@ -174,6 +174,32 @@ namespace Nz
 	{
 		m_methods[name] = method;
 	}
+	
+	template<class T>
+	template<typename R, typename P, typename... Args>
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...))
+	{
+		SetMethod(name, [func] (LuaInstance& instance, T& object) -> int
+		{
+			LuaImplMethodProxy<T, Args...> handler(instance, object);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
+
+	template<class T>
+	template<typename R, typename P, typename... Args>
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const)
+	{
+		SetMethod(name, [func] (LuaInstance& instance, T& object) -> int
+		{
+			LuaImplMethodProxy<T, Args...> handler(instance, object);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
 
 	template<class T>
 	void LuaClass<T>::SetSetter(ClassIndexFunc setter)
@@ -191,6 +217,19 @@ namespace Nz
 	void LuaClass<T>::SetStaticMethod(const String& name, StaticFunc method)
 	{
 		m_staticMethods[name] = method;
+	}
+
+	template<class T>
+	template<typename R, typename... Args>
+	void LuaClass<T>::SetStaticMethod(const String& name, R(*func)(Args...))
+	{
+		SetStaticMethod(name, [func] (LuaInstance& instance) -> int
+		{
+			LuaImplFunctionProxy<Args...> handler(instance);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
 	}
 
 	template<class T>
