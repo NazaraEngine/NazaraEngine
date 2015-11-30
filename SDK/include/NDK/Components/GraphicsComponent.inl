@@ -32,10 +32,11 @@ namespace Ndk
 		}
 	}
 
-	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable)
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
 	{
 		m_renderables.emplace_back(m_transformMatrix);
 		Renderable& r = m_renderables.back();
+		r.data.renderOrder = renderOrder;
 		r.renderable = std::move(renderable);
 		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size()-1));
 	}

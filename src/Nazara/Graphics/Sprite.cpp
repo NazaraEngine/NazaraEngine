@@ -17,7 +17,7 @@ namespace Nz
 			return;
 
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-		renderQueue->AddSprites(m_material, vertices, 1);
+		renderQueue->AddSprites(instanceData.renderOrder, m_material, vertices, 1);
 	}
 
 	void Sprite::MakeBoundingVolume() const

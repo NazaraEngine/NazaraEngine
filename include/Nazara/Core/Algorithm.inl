@@ -7,6 +7,7 @@
 // Merci aussi à Freedom de siteduzero.com
 
 #include <Nazara/Core/AbstractHash.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Debug.hpp>
@@ -45,17 +46,17 @@ namespace Nz
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
 	}
 
-	template<typename T> 
+	template<typename T>
 	ByteArray ComputeHash(HashType hash, const T& v)
 	{
 		return ComputeHash(AbstractHash::Get(hash).get(), v);
 	}
 
-	template<typename T> 
+	template<typename T>
 	ByteArray ComputeHash(AbstractHash* hash, const T& v)
 	{
 		hash->Begin();
-		
+
 		HashAppend(hash, v);
 
 		return hash->End();
