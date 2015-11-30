@@ -6,6 +6,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

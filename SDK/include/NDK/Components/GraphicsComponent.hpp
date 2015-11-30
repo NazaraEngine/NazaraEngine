@@ -24,7 +24,7 @@ namespace Ndk
 
 			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
-			inline void Attach(Nz::InstancedRenderableRef renderable);
+			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 
 			inline void EnsureTransformMatrixUpdate() const;
 
