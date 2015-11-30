@@ -115,7 +115,7 @@ namespace Nz
 	template<typename T>
 	float Vector3<T>::GetLengthf() const
 	{
-		return std::sqrt<float>(static_cast<float>(GetSquaredLength()));
+		return std::sqrt(static_cast<float>(GetSquaredLength()));
 	}
 
 	template<typename T>

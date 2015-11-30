@@ -47,7 +47,7 @@ namespace Nz
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
 
-			renderQueue->AddMesh(material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
 		}
 	}
 
