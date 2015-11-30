@@ -56,40 +56,30 @@ namespace Nz
 
 	bool FileImpl::Open(const String& filePath, UInt32 mode)
 	{
-		DWORD access;
+		DWORD access = 0;
 		DWORD shareMode = FILE_SHARE_READ;
-		DWORD openMode;
+		DWORD openMode = 0;
+		
 		if (mode & OpenMode_ReadOnly)
 		{
-			access = GENERIC_READ;
-			openMode = OPEN_EXISTING;
+			access |= GENERIC_READ;
+
+			if ((mode & OpenMode_WriteOnly) == 0)
+				openMode |= OPEN_EXISTING;
 		}
-		else if (mode & OpenMode_ReadWrite)
+		
+		if (mode & OpenMode_WriteOnly)
 		{
 			if (mode & OpenMode_Append)
-				access = FILE_APPEND_DATA;
+				access |= FILE_APPEND_DATA;
 			else
-				access = GENERIC_READ | GENERIC_WRITE;
+				access |= GENERIC_WRITE;
 
 			if (mode & OpenMode_Truncate)
-				openMode = CREATE_ALWAYS;
+				openMode |= CREATE_ALWAYS;
 			else
-				openMode = OPEN_ALWAYS;
+				openMode |= OPEN_ALWAYS;
 		}
-		else if (mode & OpenMode_WriteOnly)
-		{
-			if (mode & OpenMode_Append)
-				access = FILE_APPEND_DATA;
-			else
-				access = GENERIC_WRITE;
-
-			if (mode & OpenMode_Truncate)
-				openMode = CREATE_ALWAYS;
-			else
-				openMode = OPEN_ALWAYS;
-		}
-		else
-			return false;
 
 		if ((mode & OpenMode_Lock) == 0)
 			shareMode |= FILE_SHARE_WRITE;
