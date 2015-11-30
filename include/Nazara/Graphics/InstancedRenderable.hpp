@@ -64,6 +64,7 @@ namespace Nz
 				BoundingVolumef volume;
 				Matrix4f& transformMatrix;
 				UInt32 flags;
+				int renderOrder;
 			};
 
 		protected:
