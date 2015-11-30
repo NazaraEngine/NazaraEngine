@@ -13,7 +13,7 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable);
+			Attach(r.renderable, r.data.renderOrder);
 	}
 
 	inline void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
