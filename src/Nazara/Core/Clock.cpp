@@ -41,6 +41,18 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \class Nz::Clock
+	* \brief Utility class that measure the elapsed time
+	*/
+
+	/*! 
+	* \brief Constructs a Clock object
+	*
+	* \param startingValue The starting time value, in microseconds
+	* \param paused The clock pause state
+	*/
+
 	Clock::Clock(UInt64 startingValue, bool paused) :
 	m_elapsedTime(startingValue),
 	m_refTime(GetElapsedMicroseconds()),
@@ -48,10 +60,24 @@ namespace Nz
 	{
 	}
 
+	/*!
+	* Returns the elapsed time in seconds
+	* \return Seconds elapsed
+	*
+	* \see GetMicroseconds, GetMilliseconds
+	*/
+
 	float Clock::GetSeconds() const
 	{
 		return GetMicroseconds()/1000000.f;
 	}
+
+	/*!
+	* Returns the elapsed time in microseconds
+	* \return Microseconds elapsed
+	*
+	* \see GetMilliseconds, GetSeconds
+	*/
 
 	UInt64 Clock::GetMicroseconds() const
 	{
@@ -64,10 +90,24 @@ namespace Nz
 		return elapsedMicroseconds;
 	}
 
+	/*!
+	* Returns the elapsed time in milliseconds
+	* \return Milliseconds elapsed
+	*
+	* \see GetMicroseconds, GetSeconds
+	*/
+
 	UInt64 Clock::GetMilliseconds() const
 	{
 		return GetMicroseconds()/1000;
 	}
+
+	/*!
+	* Returns the current pause state of the clock
+	* \return Boolean indicating if the clock is currently paused
+	*
+	* \see Pause, Unpause
+	*/
 
 	bool Clock::IsPaused() const
 	{
@@ -75,6 +115,15 @@ namespace Nz
 
 		return m_paused;
 	}
+
+	/*!
+	* \brief Pause the clock
+	*
+	* Pauses the clock, making the time retrieving functions to always return the value at the time the clock was paused
+	* This has no effect if the clock is already paused
+	*
+	* \see IsPaused, Unpause
+	*/
 
 	void Clock::Pause()
 	{
@@ -85,9 +134,12 @@ namespace Nz
 			m_elapsedTime += GetElapsedMicroseconds() - m_refTime;
 			m_paused = true;
 		}
-		else
-			NazaraWarning("Clock is already paused, ignoring...");
 	}
+
+	/*!
+	* \brief Restart the clock
+	* Restarts the clock, putting it's time counter back to zero (as if the clock got constructed).
+	*/
 
 	void Clock::Restart()
 	{
@@ -98,6 +150,15 @@ namespace Nz
 		m_paused = false;
 	}
 
+	/*!
+	* \brief Unpause the clock
+	*
+	* Unpauses the clock, making the clock continue to measure the time
+	* This has no effect if the clock is already unpaused
+	*
+	* \see IsPaused, Unpause
+	*/
+
 	void Clock::Unpause()
 	{
 		NazaraLock(m_mutex);
@@ -107,8 +168,6 @@ namespace Nz
 			m_refTime = GetElapsedMicroseconds();
 			m_paused = false;
 		}
-		else
-			NazaraWarning("Clock is not paused, ignoring...");
 	}
 
 	ClockFunction GetElapsedMicroseconds = Detail::GetElapsedMicrosecondsFirstRun;
