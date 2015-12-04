@@ -155,9 +155,15 @@ namespace Ndk
 	{
 		m_target = renderTarget;
 		if (m_target)
+		{
+			m_targetResizeSlot.Connect(m_target->OnRenderTargetSizeChange, this, &CameraComponent::OnRenderTargetSizeChange);
 			m_targetReleaseSlot.Connect(m_target->OnRenderTargetRelease, this, &CameraComponent::OnRenderTargetRelease);
+		}
 		else
+		{
+			m_targetResizeSlot.Disconnect();
 			m_targetReleaseSlot.Disconnect();
+		}
 	}
 
 	inline void CameraComponent::SetTargetRegion(const Nz::Rectf& region)
