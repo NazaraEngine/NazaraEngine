@@ -85,7 +85,7 @@ namespace Nz
 	void Error::Trigger(ErrorType type, const String& error)
 	{
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
-			NazaraLog->WriteError(type, error);
+			Log::WriteError(type, error);
 
 		s_lastError = error;
 		s_lastErrorFile = "";
@@ -105,7 +105,7 @@ namespace Nz
 	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
-			NazaraLog->WriteError(type, error, line, file, function);
+			Log::WriteError(type, error, line, file, function);
 
 		s_lastError = error;
 		s_lastErrorFile = file;
