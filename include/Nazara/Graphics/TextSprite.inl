@@ -26,11 +26,11 @@ namespace Nz
 		for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
 		{
 			const AbstractAtlas* atlas = it->first;
-			AtlasSlots& slots = m_atlases[atlas];
+			AtlasSlots& atlasSlots = m_atlases[atlas];
 
-			slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
-			slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
-			slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
+			atlasSlots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
 		}
 	}
 
@@ -111,11 +111,11 @@ namespace Nz
 		for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
 		{
 			const AbstractAtlas* atlas = it->first;
-			AtlasSlots& slots = m_atlases[atlas];
+			AtlasSlots& atlasSlots = m_atlases[atlas];
 
-			slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
-			slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
-			slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
+			atlasSlots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
 		}
 
 		InvalidateBoundingVolume();
