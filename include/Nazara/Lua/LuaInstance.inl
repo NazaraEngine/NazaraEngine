@@ -137,6 +137,12 @@ namespace Nz
 			{
 			}
 
+			template<unsigned int N>
+			void ProcessArgs()
+			{
+				// No argument to process
+			}
+
 			template<unsigned int N, typename ArgType>
 			void ProcessArgs()
 			{
@@ -168,7 +174,7 @@ namespace Nz
 			}
 
 		private:
-			std::tuple<Args...> m_args;
+			std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...> m_args;
 			LuaInstance& m_instance;
 	};
 
@@ -185,6 +191,7 @@ namespace Nz
 			template<unsigned int N>
 			void ProcessArgs()
 			{
+				// No argument to process
 			}
 
 			template<unsigned int N, typename ArgType>
@@ -232,7 +239,7 @@ namespace Nz
 			}
 
 		private:
-			std::tuple<Args...> m_args;
+			std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...> m_args;
 			LuaInstance& m_instance;
 			T& m_object;
 	};

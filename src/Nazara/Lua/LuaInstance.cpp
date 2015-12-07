@@ -714,14 +714,14 @@ namespace Nz
 		lua_replace(m_state, index);
 	}
 
-	void LuaInstance::SetField(const char* name, int index)
+	void LuaInstance::SetField(const char* name, int tableIndex)
 	{
-		lua_setfield(m_state, index, name);
+		lua_setfield(m_state, tableIndex, name);
 	}
 
-	void LuaInstance::SetField(const String& name, int index)
+	void LuaInstance::SetField(const String& name, int tableIndex)
 	{
-		lua_setfield(m_state, index, name.GetConstBuffer());
+		lua_setfield(m_state, tableIndex, name.GetConstBuffer());
 	}
 
 	void LuaInstance::SetGlobal(const char* name)
