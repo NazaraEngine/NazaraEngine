@@ -133,8 +133,8 @@ namespace Nz
 			void Remove(int index);
 			void Replace(int index);
 
-			void SetField(const char* name, int index = -2);
-			void SetField(const String& name, int index = -2);
+			void SetField(const char* name, int tableIndex = -2);
+			void SetField(const String& name, int tableIndex = -2);
 			void SetGlobal(const char* name);
 			void SetGlobal(const String& name);
 			void SetMetatable(const char* tname);
