@@ -11,8 +11,12 @@
 #include <memory>
 #include <vector>
 
-#define NazaraSignal(SignalName, ...) using SignalName ## Type = Nz::Signal<__VA_ARGS__>; \
-                                       mutable SignalName ## Type SignalName
+#define NazaraDetailSignal(Keyword, SignalName, ...) using SignalName ## Type = Nz::Signal<__VA_ARGS__>; \
+                                                     Keyword SignalName ## Type SignalName
+
+#define NazaraSignal(SignalName, ...) NazaraDetailSignal(mutable, SignalName, __VA_ARGS__)
+#define NazaraStaticSignal(SignalName, ...) NazaraDetailSignal(static, SignalName, __VA_ARGS__)
+#define NazaraStaticSignalImpl(Class, SignalName) Class :: SignalName ## Type Class :: SignalName
 
 #define NazaraSlotType(Class, SignalName) Class::SignalName ## Type::ConnectionGuard
 #define NazaraSlot(Class, SignalName, SlotName) NazaraSlotType(Class, SignalName) SlotName
