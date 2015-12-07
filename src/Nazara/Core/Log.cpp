@@ -3,163 +3,73 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/File.hpp>
-#include <Nazara/Core/StringStream.hpp>
-#include <ctime>
-#include <cstring>
-
-#if NAZARA_CORE_DUPLICATE_LOG_TO_COUT
-	#include <cstdio>
-#endif
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
+#include <Nazara/Core/AbstractLogger.hpp>
+#include <Nazara/Core/FileLogger.hpp>
+#include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
 	namespace
 	{
-		const char* errorType[] = {
-			"Assert failed: ",	// ErrorType_AssertFailed
-			"Internal error: ",	// ErrorType_Internal
-			"Error: ",			// ErrorType_Normal
-			"Warning: "			// ErrorType_Warning
-		};
-
-		static_assert(sizeof(errorType)/sizeof(const char*) == ErrorType_Max+1, "Error type array is incomplete");
-	}
-
-	Log::Log() :
-	m_filePath("NazaraLog.log"),
-	m_file(nullptr),
-	m_append(false),
-	m_enabled(true),
-	m_writeTime(true)
-	{
-	}
-
-	Log::~Log()
-	{
-		delete m_file;
+		StdLogger s_stdLogger;
 	}
 
 	void Log::Enable(bool enable)
 	{
-		NazaraLock(m_mutex)
-
-		if (m_enabled == enable)
-			return;
-
-		m_enabled = enable;
-		if (!m_enabled && m_file)
-		{
-			delete m_file;
-			m_file = nullptr;
-		}
+		s_enabled = enable;
 	}
 
-	void Log::EnableAppend(bool enable)
+	AbstractLogger* Log::GetLogger()
 	{
-		NazaraLock(m_mutex)
-
-		m_append = enable;
-		if (!m_append && m_file)
-		{
-			m_file->Delete();
-			m_file = nullptr;
-		}
+		return s_logger;
 	}
 
-	void Log::EnableDateTime(bool enable)
+	bool Log::IsEnabled()
 	{
-		NazaraLock(m_mutex)
-
-		m_writeTime = enable;
+		return s_enabled;
 	}
 
-	String Log::GetFile() const
+	void Log::SetLogger(AbstractLogger* logger)
 	{
-		NazaraLock(m_mutex)
+		if (s_logger != &s_stdLogger)
+			delete s_logger;
 
-		if (m_file)
-			return m_file->GetPath();
-		else
-			return String();
-	}
-
-	bool Log::IsEnabled() const
-	{
-		NazaraLock(m_mutex)
-
-		return m_enabled;
-	}
-
-	void Log::SetFile(const String& filePath)
-	{
-		NazaraLock(m_mutex)
-
-		m_filePath = filePath;
-		if (m_file)
-			m_file->SetFile(filePath);
+		s_logger = logger;
+		if (!s_logger)
+			s_logger = &s_stdLogger;
 	}
 
 	void Log::Write(const String& string)
 	{
-		NazaraLock(m_mutex)
-
-		if (m_enabled)
-		{
-			if (!m_file)
-				m_file = new File(m_filePath, OpenMode_Text | OpenMode_WriteOnly | ((m_append) ? OpenMode_Append : OpenMode_Truncate));
-
-			String line;
-
-			if (m_writeTime)
-			{
-				line.Reserve(23 + string.GetSize() + 1);
-				line.Set(23, '\0'); // Buffer non-initialisé
-
-				time_t currentTime = std::time(nullptr);
-				std::strftime(&line[0], 24, "%d/%m/%Y - %H:%M:%S: ", std::localtime(&currentTime));
-			}
-			else
-				line.Reserve(string.GetSize() + 1);
-
-			line += string;
-			line += '\n';
-
-			if (m_file->IsOpen())
-				m_file->Write(line);
-
-			#if NAZARA_CORE_DUPLICATE_LOG_TO_COUT
-			std::fputs(line.GetConstBuffer(), stdout);
-			#endif
-		}
+		if (s_enabled)
+			s_logger->Write(string);
+		
+		OnLogWrite(string);
 	}
 
-	void Log::WriteError(ErrorType type, const String& error)
+	void Log::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
-		StringStream stream;
-		stream << errorType[type] << error;
-		Write(stream);
+		if (s_enabled)
+			s_logger->WriteError(type, error, line, file, function);
+		
+		OnLogWriteError(type, error, line, file, function);
 	}
 
-	void Log::WriteError(ErrorType type, const String& error, unsigned int line, const String& file, const String& func)
+	bool Log::Initialize()
 	{
-		StringStream stream;
-		stream << errorType[type] << error << " (" << file << ':' << line << ": " << func << ')';
-		Write(stream);
+		SetLogger(new FileLogger());
+		return true;
 	}
 
-	Log* Log::Instance()
+	void Log::Uninitialize()
 	{
-		static Log log;
-		return &log;
+		SetLogger(nullptr);
 	}
+
+	NazaraStaticSignalImpl(Log, OnLogWrite);
+	NazaraStaticSignalImpl(Log, OnLogWriteError);
+
+	AbstractLogger* Log::s_logger = &s_stdLogger;
+	bool Log::s_enabled = true;
 }
