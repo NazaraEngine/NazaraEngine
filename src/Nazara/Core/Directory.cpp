@@ -8,6 +8,7 @@
 #include <Nazara/Core/File.hpp>
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/DirectoryImpl.hpp>
@@ -29,7 +30,8 @@ namespace Nz
 {
 	namespace
 	{
-		thread_local String currentPath(DirectoryImpl::GetCurrent());
+	    //FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
+		thread_local std::string currentPath(DirectoryImpl::GetCurrent());
 	}
 
 	Directory::Directory() :
