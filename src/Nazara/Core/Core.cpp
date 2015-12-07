@@ -23,6 +23,8 @@ namespace Nz
 
 		s_moduleReferenceCounter++;
 
+		Log::Initialize();
+
 		NazaraNotice("Initialized: Core");
 		return true;
 	}
@@ -47,6 +49,7 @@ namespace Nz
 		s_moduleReferenceCounter = 0;
 
 		HardwareInfo::Uninitialize();
+		Log::Uninitialize();
 		PluginManager::Uninitialize();
 		TaskScheduler::Uninitialize();
 
