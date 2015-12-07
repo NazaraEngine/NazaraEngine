@@ -9,7 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
+#include <memory>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
 	#include <Nazara/Core/ThreadSafety.hpp>
@@ -23,48 +25,37 @@
 	#define NazaraDebug(txt)
 #endif
 
-#define NazaraLog Nz::Log::Instance()
-#define NazaraNotice(txt) NazaraLog->Write(txt)
+#define NazaraNotice(txt) Nz::Log::Write(txt)
 
 namespace Nz
 {
-	class File;
+	class AbstractLogger;
 
 	class NAZARA_CORE_API Log
 	{
+		friend class Core;
+
 		public:
-			void Enable(bool enable);
-			void EnableAppend(bool enable);
-			void EnableDateTime(bool enable);
+			static void Enable(bool enable);
 
-			String GetFile() const;
+			static AbstractLogger* GetLogger();
 
-			bool IsEnabled() const;
+			static bool IsEnabled();
 
-			void SetFile(const String& filePath);
+			static void SetLogger(AbstractLogger* logger);
 
-			void Write(const String& string);
-			void WriteError(ErrorType type, const String& error);
-			void WriteError(ErrorType type, const String& error, unsigned int line, const String& file, const String& func);
+			static void Write(const String& string);
+			static void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
-			static Log* Instance();
+			NazaraStaticSignal(OnLogWrite, const String& /*string*/);
+			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const String& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
 
 		private:
-			Log();
-			Log(const Log&) = delete;
-			Log(Log&&) = delete;
-			~Log();
+			static bool Initialize();
+			static void Uninitialize();
 
-			Log& operator=(const Log&) = delete;
-			Log& operator=(Log&&) = delete;
-
-			NazaraMutexAttrib(m_mutex, mutable)
-
-			String m_filePath;
-			File* m_file;
-			bool m_append;
-			bool m_enabled;
-			bool m_writeTime;
+			static AbstractLogger* s_logger;
+			static bool s_enabled;
 	};
 }
 
