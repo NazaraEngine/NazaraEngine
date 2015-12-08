@@ -5,130 +5,133 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
-inline NzTextSprite::NzTextSprite() :
-m_color(NzColor::White),
-m_scale(1.f)
+namespace Nz
 {
-	SetDefaultMaterial();
-}
-
-inline NzTextSprite::NzTextSprite(const NzTextSprite& sprite) :
-NzInstancedRenderable(sprite),
-m_renderInfos(sprite.m_renderInfos),
-m_localVertices(sprite.m_localVertices),
-m_color(sprite.m_color),
-m_material(sprite.m_material),
-m_localBounds(sprite.m_localBounds),
-m_scale(sprite.m_scale)
-{
-	for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
+	inline TextSprite::TextSprite() :
+	m_color(Color::White),
+	m_scale(1.f)
 	{
-		const NzAbstractAtlas* atlas = it->first;
-		AtlasSlots& slots = m_atlases[atlas];
-
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
-	}
-}
-
-inline void NzTextSprite::Clear()
-{
-	m_atlases.clear();
-	m_boundingVolume.MakeNull();
-	m_localVertices.clear();
-	m_renderInfos.clear();
-}
-
-inline const NzColor& NzTextSprite::GetColor() const
-{
-	return m_color;
-}
-
-inline const NzMaterialRef& NzTextSprite::GetMaterial() const
-{
-	return m_material;
-}
-
-inline float NzTextSprite::GetScale() const
-{
-	return m_scale;
-}
-
-inline void NzTextSprite::SetColor(const NzColor& color)
-{
-	m_color = color;
-
-	InvalidateVertices();
-}
-
-inline void NzTextSprite::SetDefaultMaterial()
-{
-	NzMaterialRef material = NzMaterial::New();
-	material->Enable(nzRendererParameter_Blend, true);
-	material->Enable(nzRendererParameter_DepthWrite, false);
-	material->Enable(nzRendererParameter_FaceCulling, false);
-	material->EnableLighting(false);
-	material->SetDstBlend(nzBlendFunc_InvSrcAlpha);
-	material->SetSrcBlend(nzBlendFunc_SrcAlpha);
-
-	SetMaterial(material);
-}
-
-inline void NzTextSprite::SetMaterial(NzMaterialRef material)
-{
-	m_material = std::move(material);
-}
-
-inline void NzTextSprite::SetScale(float scale)
-{
-	m_scale = scale;
-
-	InvalidateVertices();
-}
-
-inline void NzTextSprite::InvalidateVertices()
-{
-	InvalidateInstanceData(0);
-}
-
-inline NzTextSprite& NzTextSprite::operator=(const NzTextSprite& text)
-{
-	NzInstancedRenderable::operator=(text);
-
-	m_atlases.clear();
-
-	m_color = text.m_color;
-	m_material = text.m_material;
-	m_renderInfos = text.m_renderInfos;
-	m_localBounds = text.m_localBounds;
-	m_localVertices = text.m_localVertices;
-	m_scale = text.m_scale;
-
-	// Connect to the slots of the new atlases
-	for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
-	{
-		const NzAbstractAtlas* atlas = it->first;
-		AtlasSlots& slots = m_atlases[atlas];
-
-		slots.clearSlot.Connect(atlas->OnAtlasCleared, this, &NzTextSprite::OnAtlasInvalidated);
-		slots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &NzTextSprite::OnAtlasLayerChange);
-		slots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &NzTextSprite::OnAtlasInvalidated);
+		SetDefaultMaterial();
 	}
 
-	InvalidateBoundingVolume();
-	InvalidateVertices();
+	inline TextSprite::TextSprite(const TextSprite& sprite) :
+	InstancedRenderable(sprite),
+	m_renderInfos(sprite.m_renderInfos),
+	m_localVertices(sprite.m_localVertices),
+	m_color(sprite.m_color),
+	m_material(sprite.m_material),
+	m_localBounds(sprite.m_localBounds),
+	m_scale(sprite.m_scale)
+	{
+		for (auto it = sprite.m_atlases.begin(); it != sprite.m_atlases.end(); ++it)
+		{
+			const AbstractAtlas* atlas = it->first;
+			AtlasSlots& atlasSlots = m_atlases[atlas];
 
-	return *this;
-}
+			atlasSlots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
+			atlasSlots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
+		}
+	}
 
-template<typename... Args>
-NzTextSpriteRef NzTextSprite::New(Args&&... args)
-{
-	std::unique_ptr<NzTextSprite> object(new NzTextSprite(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	inline void TextSprite::Clear()
+	{
+		m_atlases.clear();
+		m_boundingVolume.MakeNull();
+		m_localVertices.clear();
+		m_renderInfos.clear();
+	}
 
-	return object.release();
+	inline const Color& TextSprite::GetColor() const
+	{
+		return m_color;
+	}
+
+	inline const MaterialRef& TextSprite::GetMaterial() const
+	{
+		return m_material;
+	}
+
+	inline float TextSprite::GetScale() const
+	{
+		return m_scale;
+	}
+
+	inline void TextSprite::SetColor(const Color& color)
+	{
+		m_color = color;
+
+		InvalidateVertices();
+	}
+
+	inline void TextSprite::SetDefaultMaterial()
+	{
+		MaterialRef material = Material::New();
+		material->Enable(RendererParameter_Blend, true);
+		material->Enable(RendererParameter_DepthWrite, false);
+		material->Enable(RendererParameter_FaceCulling, false);
+		material->EnableLighting(false);
+		material->SetDstBlend(BlendFunc_InvSrcAlpha);
+		material->SetSrcBlend(BlendFunc_SrcAlpha);
+
+		SetMaterial(material);
+	}
+
+	inline void TextSprite::SetMaterial(MaterialRef material)
+	{
+		m_material = std::move(material);
+	}
+
+	inline void TextSprite::SetScale(float scale)
+	{
+		m_scale = scale;
+
+		InvalidateVertices();
+	}
+
+	inline void TextSprite::InvalidateVertices()
+	{
+		InvalidateInstanceData(0);
+	}
+
+	inline TextSprite& TextSprite::operator=(const TextSprite& text)
+	{
+		InstancedRenderable::operator=(text);
+
+		m_atlases.clear();
+
+		m_color = text.m_color;
+		m_material = text.m_material;
+		m_renderInfos = text.m_renderInfos;
+		m_localBounds = text.m_localBounds;
+		m_localVertices = text.m_localVertices;
+		m_scale = text.m_scale;
+
+		// Connect to the slots of the new atlases
+		for (auto it = text.m_atlases.begin(); it != text.m_atlases.end(); ++it)
+		{
+			const AbstractAtlas* atlas = it->first;
+			AtlasSlots& atlasSlots = m_atlases[atlas];
+
+			atlasSlots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
+			atlasSlots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
+			atlasSlots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
+		}
+
+		InvalidateBoundingVolume();
+		InvalidateVertices();
+
+		return *this;
+	}
+
+	template<typename... Args>
+	TextSpriteRef TextSprite::New(Args&&... args)
+	{
+		std::unique_ptr<TextSprite> object(new TextSprite(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

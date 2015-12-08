@@ -6,42 +6,44 @@
 #include <Nazara/Core/Hash/SHA/Internal.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzHashSHA256::NzHashSHA256()
+namespace Nz
 {
-	m_state = new SHA_CTX;
-}
+	HashSHA256::HashSHA256()
+	{
+		m_state = new SHA_CTX;
+	}
 
-NzHashSHA256::~NzHashSHA256()
-{
-	delete m_state;
-}
+	HashSHA256::~HashSHA256()
+	{
+		delete m_state;
+	}
 
-void NzHashSHA256::Append(const nzUInt8* data, unsigned int len)
-{
-	SHA256_Update(m_state, data, len);
-}
+	void HashSHA256::Append(const UInt8* data, std::size_t len)
+	{
+		SHA256_Update(m_state, data, len);
+	}
 
-void NzHashSHA256::Begin()
-{
-	SHA256_Init(m_state);
-}
+	void HashSHA256::Begin()
+	{
+		SHA256_Init(m_state);
+	}
 
-NzHashDigest NzHashSHA256::End()
-{
-	nzUInt8 digest[SHA256_DIGEST_LENGTH];
+	ByteArray HashSHA256::End()
+	{
+		UInt8 digest[SHA256_DIGEST_LENGTH];
 
-	SHA256_End(m_state, digest);
+		SHA256_End(m_state, digest);
 
-	return NzHashDigest(GetHashName(), digest, SHA256_DIGEST_LENGTH);
-}
+		return ByteArray(digest, SHA256_DIGEST_LENGTH);
+	}
 
-unsigned int NzHashSHA256::GetDigestLength()
-{
-	return SHA256_DIGEST_LENGTH;
-}
+	std::size_t HashSHA256::GetDigestLength() const
+	{
+		return SHA256_DIGEST_LENGTH;
+	}
 
-NzString NzHashSHA256::GetHashName()
-{
-	static NzString hashName = "SHA256";
-	return hashName;
+	const char* HashSHA256::GetHashName() const
+	{
+		return "SHA256";
+	}
 }

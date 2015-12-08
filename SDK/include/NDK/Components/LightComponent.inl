@@ -4,8 +4,8 @@
 
 namespace Ndk
 {
-	inline LightComponent::LightComponent(nzLightType lightType) :
-	NzLight(lightType)
+	inline LightComponent::LightComponent(Nz::LightType lightType) :
+	Nz::Light(lightType)
 	{
 	}
 }

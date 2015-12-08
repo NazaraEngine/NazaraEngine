@@ -5,22 +5,25 @@
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
-template<typename F>
-NzThread::NzThread(F function)
+namespace Nz
 {
-	CreateImpl(new NzFunctorWithoutArgs<F>(function));
-}
+	template<typename F>
+	Thread::Thread(F function)
+	{
+		CreateImpl(new FunctorWithoutArgs<F>(function));
+	}
 
-template<typename F, typename... Args>
-NzThread::NzThread(F function, Args&&... args)
-{
-	CreateImpl(new NzFunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
-}
+	template<typename F, typename... Args>
+	Thread::Thread(F function, Args&&... args)
+	{
+		CreateImpl(new FunctorWithArgs<F, Args...>(function, std::forward<Args>(args)...));
+	}
 
-template<typename C>
-NzThread::NzThread(void (C::*function)(), C* object)
-{
-	CreateImpl(new NzMemberWithoutArgs<C>(function, object));
+	template<typename C>
+	Thread::Thread(void (C::*function)(), C* object)
+	{
+		CreateImpl(new MemberWithoutArgs<C>(function, object));
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

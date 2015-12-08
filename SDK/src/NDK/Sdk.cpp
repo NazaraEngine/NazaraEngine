@@ -35,19 +35,19 @@ namespace Ndk
 
 		try
 		{
-			NzErrorFlags errFlags(nzErrorFlag_ThrowException, true);
+			Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
 
 			// Initialisation du moteur
 
 			// Modules clients
-			NzAudio::Initialize();
-			NzGraphics::Initialize();
+			Nz::Audio::Initialize();
+			Nz::Graphics::Initialize();
 
 			// Modules serveurs
-			NzLua::Initialize();
-			NzNoise::Initialize();
-			NzPhysics::Initialize();
-			NzUtility::Initialize();
+			Nz::Lua::Initialize();
+			Nz::Noise::Initialize();
+			Nz::Physics::Initialize();
+			Nz::Utility::Initialize();
 
 			// Initialisation du SDK
 
@@ -76,7 +76,7 @@ namespace Ndk
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to initialize NDK: " + NzString(e.what()));
+			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
 
 			return false;
 		}
@@ -99,14 +99,14 @@ namespace Ndk
 		// Libération du moteur
 
 		// Modules clients
-		NzAudio::Uninitialize();
-		NzGraphics::Uninitialize();
+		Nz::Audio::Uninitialize();
+		Nz::Graphics::Uninitialize();
 
 		// Modules serveurs
-		NzLua::Uninitialize();
-		NzNoise::Uninitialize();
-		NzPhysics::Uninitialize();
-		NzUtility::Uninitialize();
+		Nz::Lua::Uninitialize();
+		Nz::Noise::Uninitialize();
+		Nz::Physics::Uninitialize();
+		Nz::Utility::Uninitialize();
 
 		NazaraNotice("Uninitialized: SDK");
 	}

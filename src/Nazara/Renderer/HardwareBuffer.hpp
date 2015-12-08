@@ -11,30 +11,33 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 
-class NzHardwareBuffer : public NzAbstractBuffer
+namespace Nz
 {
-	public:
-		NzHardwareBuffer(NzBuffer* parent, nzBufferType type);
-		~NzHardwareBuffer();
+	class HardwareBuffer : public AbstractBuffer
+	{
+		public:
+			HardwareBuffer(Buffer* parent, BufferType type);
+			~HardwareBuffer();
 
-		bool Create(unsigned int size, nzBufferUsage usage = nzBufferUsage_Static);
-		void Destroy();
+			bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static);
+			void Destroy();
 
-		bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
+			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
 
-		bool IsHardware() const;
+			bool IsHardware() const;
 
-		void* Map(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-		bool Unmap();
+			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
+			bool Unmap();
 
-		// Fonctions OpenGL
-		void Bind() const;
-		unsigned int GetOpenGLID() const;
+			// Fonctions OpenGL
+			void Bind() const;
+			unsigned int GetOpenGLID() const;
 
-	private:
-		GLuint m_buffer;
-		nzBufferType m_type;
-		NzBuffer* m_parent;
-};
+		private:
+			GLuint m_buffer;
+			BufferType m_type;
+			Buffer* m_parent;
+	};
+}
 
 #endif // NAZARA_HARDWAREBUFFER_HPP

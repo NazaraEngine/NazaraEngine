@@ -5,25 +5,28 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-inline const NzTextureRef& NzTextureBackground::GetTexture() const
+namespace Nz
 {
-	return m_texture;
-}
+	inline const TextureRef& TextureBackground::GetTexture() const
+	{
+		return m_texture;
+	}
 
-inline void NzTextureBackground::SetTexture(NzTextureRef texture)
-{
-	NazaraAssert(!texture || texture->IsValid(), "Invalid texture");
+	inline void TextureBackground::SetTexture(TextureRef texture)
+	{
+		NazaraAssert(!texture || texture->IsValid(), "Invalid texture");
 
-	m_texture = std::move(texture);
-}
+		m_texture = std::move(texture);
+	}
 
-template<typename... Args>
-NzTextureBackgroundRef NzTextureBackground::New(Args&&... args)
-{
-	std::unique_ptr<NzTextureBackground> object(new NzTextureBackground(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	TextureBackgroundRef TextureBackground::New(Args&&... args)
+	{
+		std::unique_ptr<TextureBackground> object(new TextureBackground(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

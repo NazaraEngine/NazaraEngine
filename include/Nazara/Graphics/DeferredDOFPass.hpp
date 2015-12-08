@@ -15,24 +15,27 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 
-class NAZARA_GRAPHICS_API NzDeferredDOFPass : public NzDeferredRenderPass
+namespace Nz
 {
-	public:
-		NzDeferredDOFPass();
-		virtual ~NzDeferredDOFPass();
+	class NAZARA_GRAPHICS_API DeferredDOFPass : public DeferredRenderPass
+	{
+		public:
+			DeferredDOFPass();
+			virtual ~DeferredDOFPass();
 
-		bool Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
-		bool Resize(const NzVector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Resize(const Vector2ui& dimensions);
 
-	protected:
-		NzRenderTexture m_dofRTT;
-		NzRenderStates m_states;
-		NzShaderConstRef m_dofShader;
-		NzShaderConstRef m_gaussianBlurShader;
-		NzTextureRef m_dofTextures[2];
-		NzTextureSampler m_bilinearSampler;
-		NzTextureSampler m_pointSampler;
-		int m_gaussianBlurShaderFilterLocation;
-};
+		protected:
+			RenderTexture m_dofRTT;
+			RenderStates m_states;
+			ShaderConstRef m_dofShader;
+			ShaderConstRef m_gaussianBlurShader;
+			TextureRef m_dofTextures[2];
+			TextureSampler m_bilinearSampler;
+			TextureSampler m_pointSampler;
+			int m_gaussianBlurShaderFilterLocation;
+	};
+}
 
 #endif // NAZARA_DEFERREDDOFPASS_HPP

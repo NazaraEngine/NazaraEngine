@@ -27,16 +27,16 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
-			inline const NzBackgroundRef& GetDefaultBackground() const;
-			inline const NzMatrix4f& GetCoordinateSystemMatrix() const;
-			inline NzVector3f GetGlobalForward() const;
-			inline NzVector3f GetGlobalRight() const;
-			inline NzVector3f GetGlobalUp() const;
+			inline const Nz::BackgroundRef& GetDefaultBackground() const;
+			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;
+			inline Nz::Vector3f GetGlobalForward() const;
+			inline Nz::Vector3f GetGlobalRight() const;
+			inline Nz::Vector3f GetGlobalUp() const;
 
-			inline void SetDefaultBackground(NzBackgroundRef background);
-			inline void SetGlobalForward(const NzVector3f& direction);
-			inline void SetGlobalRight(const NzVector3f& direction);
-			inline void SetGlobalUp(const NzVector3f& direction);
+			inline void SetDefaultBackground(Nz::BackgroundRef background);
+			inline void SetGlobalForward(const Nz::Vector3f& direction);
+			inline void SetGlobalRight(const Nz::Vector3f& direction);
+			inline void SetGlobalUp(const Nz::Vector3f& direction);
 
 			static SystemIndex systemIndex;
 
@@ -46,7 +46,7 @@ namespace Ndk
 			void OnEntityRemoved(Entity* entity) override;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
-			void UpdateDirectionalShadowMaps(const NzAbstractViewer& viewer);
+			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
 			EntityList m_cameras;
@@ -54,11 +54,11 @@ namespace Ndk
 			EntityList m_directionalLights;
 			EntityList m_lights;
 			EntityList m_pointSpotLights;
-			NzBackgroundRef m_background;
-			NzDepthRenderTechnique m_shadowTechnique;
-			NzForwardRenderTechnique m_renderTechnique;
-			NzMatrix4f m_coordinateSystemMatrix;
-			NzRenderTexture m_shadowRT;
+			Nz::BackgroundRef m_background;
+			Nz::DepthRenderTechnique m_shadowTechnique;
+			Nz::ForwardRenderTechnique m_renderTechnique;
+			Nz::Matrix4f m_coordinateSystemMatrix;
+			Nz::RenderTexture m_shadowRT;
 			bool m_coordinateSystemInvalidated;
 	};
 }

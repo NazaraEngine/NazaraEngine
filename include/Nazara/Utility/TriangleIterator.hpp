@@ -11,27 +11,30 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 
-class NzSubMesh;
-
-class NAZARA_UTILITY_API NzTriangleIterator
+namespace Nz
 {
-	public:
-		NzTriangleIterator(nzPrimitiveMode primitiveMode, const NzIndexBuffer* indexBuffer);
-		NzTriangleIterator(NzSubMesh* subMesh);
-		~NzTriangleIterator() = default;
+	class SubMesh;
 
-		bool Advance();
+	class NAZARA_UTILITY_API TriangleIterator
+	{
+		public:
+			TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer* indexBuffer);
+			TriangleIterator(SubMesh* subMesh);
+			~TriangleIterator() = default;
 
-		nzUInt32 operator[](unsigned int i) const;
+			bool Advance();
 
-		void Unmap();
+			UInt32 operator[](unsigned int i) const;
 
-	private:
-		nzPrimitiveMode m_primitiveMode;
-		nzUInt32 m_triangleIndices[3];
-		NzIndexMapper m_indexMapper;
-		unsigned int m_currentIndex;
-		unsigned int m_indexCount;
-};
+			void Unmap();
+
+		private:
+			PrimitiveMode m_primitiveMode;
+			UInt32 m_triangleIndices[3];
+			IndexMapper m_indexMapper;
+			unsigned int m_currentIndex;
+			unsigned int m_indexCount;
+	};
+}
 
 #endif // NAZARA_TRIANGLEITERATOR_HPP

@@ -11,10 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/Hashable.hpp>
-#include <Nazara/Core/HashDigest.hpp>
-#include <Nazara/Core/InputStream.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_FILE
@@ -25,85 +22,84 @@
 
 #include <ctime>
 
-class NzFileImpl;
-
-class NAZARA_CORE_API NzFile : public NzHashable, public NzInputStream, NzNonCopyable
+namespace Nz
 {
-	public:
-		NzFile();
-		NzFile(const NzString& filePath);
-		NzFile(const NzString& filePath, unsigned int openMode);
-		NzFile(NzFile&& file) noexcept;
-		~NzFile();
+	class FileImpl;
 
-		bool Copy(const NzString& newFilePath);
-		void Close();
+	class NAZARA_CORE_API File : public Stream
+	{
+		public:
+			File();
+			File(const String& filePath);
+			File(const String& filePath, UInt32 openMode);
+			File(const File&) = delete;
+			File(File&& file) noexcept;
+			~File();
 
-		bool Delete();
+			bool Copy(const String& newFilePath);
+			void Close();
 
-		bool EndOfFile() const;
-		bool EndOfStream() const;
+			bool Delete();
 
-		bool Exists() const;
+			bool EndOfFile() const;
+			bool EndOfStream() const override;
 
-		void Flush();
+			bool Exists() const;
 
-		time_t GetCreationTime() const;
-		nzUInt64 GetCursorPos() const;
-		NzString GetDirectory() const;
-		NzString GetFileName() const;
-		time_t GetLastAccessTime() const;
-		time_t GetLastWriteTime() const;
-		NzString GetPath() const;
-		nzUInt64 GetSize() const;
+			time_t GetCreationTime() const;
+			UInt64 GetCursorPos() const override;
+			String GetDirectory() const override;
+			String GetFileName() const;
+			time_t GetLastAccessTime() const;
+			time_t GetLastWriteTime() const;
+			String GetPath() const override;
+			UInt64 GetSize() const override;
 
-		bool IsOpen() const;
+			bool IsOpen() const;
 
-		bool Open(unsigned int openMode = nzOpenMode_Current);
-		bool Open(const NzString& filePath, unsigned int openMode = nzOpenMode_Current);
+			bool Open(unsigned int openMode = OpenMode_NotOpen);
+			bool Open(const String& filePath, unsigned int openMode = OpenMode_NotOpen);
 
-		std::size_t Read(void* buffer, std::size_t size);
-		std::size_t Read(void* buffer, std::size_t typeSize, unsigned int count);
-		bool Rename(const NzString& newFilePath);
+			bool Rename(const String& newFilePath);
 
-		bool SetCursorPos(nzCursorPosition pos, nzInt64 offset = 0);
-		bool SetCursorPos(nzUInt64 offset);
-		void SetEndianness(nzEndianness endianness);
-		bool SetFile(const NzString& filePath);
-		bool SetOpenMode(unsigned int openMode);
+			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
+			bool SetCursorPos(UInt64 offset) override;
+			bool SetFile(const String& filePath);
 
-		bool Write(const NzByteArray& byteArray);
-		bool Write(const NzString& string);
-		std::size_t Write(const void* buffer, std::size_t typeSize, unsigned int count);
+			File& operator=(const String& filePath);
+			File& operator=(const File&) = delete;
+			File& operator=(File&& file) noexcept;
 
-		NzFile& operator=(const NzString& filePath);
-		NzFile& operator=(NzFile&& file) noexcept;
+			static String AbsolutePath(const String& filePath);
+			static inline ByteArray ComputeHash(HashType hash, const String& filePath);
+			static inline ByteArray ComputeHash(AbstractHash* hash, const String& filePath);
+			static bool Copy(const String& sourcePath, const String& targetPath);
+			static bool Delete(const String& filePath);
+			static bool Exists(const String& filePath);
+			static time_t GetCreationTime(const String& filePath);
+			static String GetDirectory(const String& filePath);
+			static time_t GetLastAccessTime(const String& filePath);
+			static time_t GetLastWriteTime(const String& filePath);
+			static UInt64 GetSize(const String& filePath);
+			static bool IsAbsolute(const String& filePath);
+			static String NormalizePath(const String& filePath);
+			static String NormalizeSeparators(const String& filePath);
+			static bool Rename(const String& sourcePath, const String& targetPath);
 
-		static NzString AbsolutePath(const NzString& filePath);
-		static bool Copy(const NzString& sourcePath, const NzString& targetPath);
-		static bool Delete(const NzString& filePath);
-		static bool Exists(const NzString& filePath);
-		static time_t GetCreationTime(const NzString& filePath);
-		static NzString GetDirectory(const NzString& filePath);
-		static time_t GetLastAccessTime(const NzString& filePath);
-		static time_t GetLastWriteTime(const NzString& filePath);
-		static NzHashDigest GetHash(const NzString& filePath, nzHash hash);
-		static NzHashDigest GetHash(const NzString& filePath, NzAbstractHash* hash);
-		static nzUInt64 GetSize(const NzString& filePath);
-		static bool IsAbsolute(const NzString& filePath);
-		static NzString NormalizePath(const NzString& filePath);
-		static NzString NormalizeSeparators(const NzString& filePath);
-		static bool Rename(const NzString& sourcePath, const NzString& targetPath);
+		private:
+			NazaraMutexAttrib(m_mutex, mutable)
 
-	private:
-		bool FillHash(NzAbstractHash* hash) const;
+			void FlushStream() override;
+			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
-		NazaraMutexAttrib(m_mutex, mutable)
+			String m_filePath;
+			FileImpl* m_impl;
+	};
 
-		nzEndianness m_endianness;
-		NzString m_filePath;
-		NzFileImpl* m_impl;
-		unsigned int m_openMode;
-};
+	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile);
+}
+
+#include <Nazara/Core/File.inl>
 
 #endif // NAZARA_FILE_HPP

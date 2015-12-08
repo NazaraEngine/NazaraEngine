@@ -7,7 +7,6 @@
 #ifndef NAZARA_INSTANCEDRENDERABLE_HPP
 #define NAZARA_INSTANCEDRENDERABLE_HPP
 
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
@@ -18,64 +17,70 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 
-class NzAbstractRenderQueue;
-class NzInstancedRenderable;
-
-using NzInstancedRenderableConstRef = NzObjectRef<const NzInstancedRenderable>;
-using NzInstancedRenderableLibrary = NzObjectLibrary<NzInstancedRenderable>;
-using NzInstancedRenderableRef = NzObjectRef<NzInstancedRenderable>;
-
-class NAZARA_GRAPHICS_API NzInstancedRenderable : public NzRefCounted
+namespace Nz
 {
-	public:
-		struct InstanceData;
+	class AbstractRenderQueue;
+	class InstancedRenderable;
 
-		NzInstancedRenderable() = default;
-		inline NzInstancedRenderable(const NzInstancedRenderable& renderable);
-		virtual ~NzInstancedRenderable();
+	using InstancedRenderableConstRef = ObjectRef<const InstancedRenderable>;
+	using InstancedRenderableLibrary = ObjectLibrary<InstancedRenderable>;
+	using InstancedRenderableRef = ObjectRef<InstancedRenderable>;
 
-		inline void EnsureBoundingVolumeUpdated() const;
+	class NAZARA_GRAPHICS_API InstancedRenderable : public RefCounted
+	{
+		public:
+			struct InstanceData;
 
-		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
-		virtual bool Cull(const NzFrustumf& frustum, const InstanceData& instanceData) const;
-		virtual const NzBoundingVolumef& GetBoundingVolume() const;
-		virtual void InvalidateData(InstanceData* instanceData, nzUInt32 flags) const;
-		virtual void UpdateBoundingVolume(InstanceData* instanceData) const;
-		virtual void UpdateData(InstanceData* instanceData) const;
+			InstancedRenderable() = default;
+			inline InstancedRenderable(const InstancedRenderable& renderable);
+			InstancedRenderable(InstancedRenderable&& renderable) = delete;
+			virtual ~InstancedRenderable();
 
-		inline NzInstancedRenderable& operator=(const NzInstancedRenderable& renderable);
+			inline void EnsureBoundingVolumeUpdated() const;
 
-		// Signals:
-		NazaraSignal(OnInstancedRenderableInvalidateData, const NzInstancedRenderable* /*instancedRenderable*/, nzUInt32 /*flags*/);
-		NazaraSignal(OnInstancedRenderableRelease, const NzInstancedRenderable* /*instancedRenderable*/);
+			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
+			virtual bool Cull(const Frustumf& frustum, const InstanceData& instanceData) const;
+			virtual const BoundingVolumef& GetBoundingVolume() const;
+			virtual void InvalidateData(InstanceData* instanceData, UInt32 flags) const;
+			virtual void UpdateBoundingVolume(InstanceData* instanceData) const;
+			virtual void UpdateData(InstanceData* instanceData) const;
 
-		struct InstanceData
-		{
-			InstanceData(NzMatrix4f& referenceMatrix) :
-			transformMatrix(referenceMatrix),
-			flags(0)
+			inline InstancedRenderable& operator=(const InstancedRenderable& renderable);
+			InstancedRenderable& operator=(InstancedRenderable&& renderable) = delete;
+
+			// Signals:
+			NazaraSignal(OnInstancedRenderableInvalidateData, const InstancedRenderable* /*instancedRenderable*/, UInt32 /*flags*/);
+			NazaraSignal(OnInstancedRenderableRelease, const InstancedRenderable* /*instancedRenderable*/);
+
+			struct InstanceData
 			{
-			}
+				InstanceData(Matrix4f& referenceMatrix) :
+				transformMatrix(referenceMatrix),
+				flags(0)
+				{
+				}
 
-			std::vector<nzUInt8> data;
-			NzBoundingVolumef volume;
-			NzMatrix4f& transformMatrix;
-			nzUInt32 flags;
-		};
+				std::vector<UInt8> data;
+				BoundingVolumef volume;
+				Matrix4f& transformMatrix;
+				UInt32 flags;
+				int renderOrder;
+			};
 
-	protected:
-		virtual void MakeBoundingVolume() const = 0;
-		void InvalidateBoundingVolume();
-		inline void InvalidateInstanceData(nzUInt32 flags);
-		inline void UpdateBoundingVolume() const;
+		protected:
+			virtual void MakeBoundingVolume() const = 0;
+			void InvalidateBoundingVolume();
+			inline void InvalidateInstanceData(UInt32 flags);
+			inline void UpdateBoundingVolume() const;
 
-		mutable NzBoundingVolumef m_boundingVolume;
+			mutable BoundingVolumef m_boundingVolume;
 
-	private:
-		mutable bool m_boundingVolumeUpdated;
+		private:
+			mutable bool m_boundingVolumeUpdated;
 
-		static NzInstancedRenderableLibrary::LibraryMap s_library;
-};
+			static InstancedRenderableLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Graphics/InstancedRenderable.inl>
 

@@ -24,179 +24,182 @@
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-struct NAZARA_GRAPHICS_API NzMaterialParams
+namespace Nz
 {
-	bool loadAlphaMap = true;
-	bool loadDiffuseMap = true;
-	bool loadEmissiveMap = true;
-	bool loadHeightMap = true;
-	bool loadNormalMap = true;
-	bool loadSpecularMap = true;
-	NzString shaderName = "Basic";
+	struct NAZARA_GRAPHICS_API MaterialParams
+	{
+		bool loadAlphaMap = true;
+		bool loadDiffuseMap = true;
+		bool loadEmissiveMap = true;
+		bool loadHeightMap = true;
+		bool loadNormalMap = true;
+		bool loadSpecularMap = true;
+		String shaderName = "Basic";
 
-	bool IsValid() const;
-};
+		bool IsValid() const;
+	};
 
-class NzMaterial;
+	class Material;
 
-using NzMaterialConstRef = NzObjectRef<const NzMaterial>;
-using NzMaterialLibrary = NzObjectLibrary<NzMaterial>;
-using NzMaterialLoader = NzResourceLoader<NzMaterial, NzMaterialParams>;
-using NzMaterialManager = NzResourceManager<NzMaterial, NzMaterialParams>;
-using NzMaterialRef = NzObjectRef<NzMaterial>;
+	using MaterialConstRef = ObjectRef<const Material>;
+	using MaterialLibrary = ObjectLibrary<Material>;
+	using MaterialLoader = ResourceLoader<Material, MaterialParams>;
+	using MaterialManager = ResourceManager<Material, MaterialParams>;
+	using MaterialRef = ObjectRef<Material>;
 
-class NAZARA_GRAPHICS_API NzMaterial : public NzRefCounted, public NzResource
-{
-	friend NzMaterialLibrary;
-	friend NzMaterialLoader;
-	friend NzMaterialManager;
-	friend class NzGraphics;
+	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
+	{
+		friend MaterialLibrary;
+		friend MaterialLoader;
+		friend MaterialManager;
+		friend class Graphics;
 
-	public:
-		inline NzMaterial();
-		inline NzMaterial(const NzMaterial& material);
-		inline ~NzMaterial();
+		public:
+			inline Material();
+			inline Material(const Material& material);
+			inline ~Material();
 
-		const NzShader* Apply(nzUInt32 shaderFlags = 0, nzUInt8 textureUnit = 0, nzUInt8* lastUsedUnit = nullptr) const;
+			const Shader* Apply(UInt32 shaderFlags = 0, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
 
-		inline void Enable(nzRendererParameter renderParameter, bool enable);
-		inline void EnableAlphaTest(bool alphaTest);
-		inline void EnableDepthSorting(bool depthSorting);
-		inline void EnableLighting(bool lighting);
-		inline void EnableShadowCasting(bool castShadows);
-		inline void EnableShadowReceive(bool receiveShadows);
-		inline void EnableTransform(bool transform);
+			inline void Enable(RendererParameter renderParameter, bool enable);
+			inline void EnableAlphaTest(bool alphaTest);
+			inline void EnableDepthSorting(bool depthSorting);
+			inline void EnableLighting(bool lighting);
+			inline void EnableShadowCasting(bool castShadows);
+			inline void EnableShadowReceive(bool receiveShadows);
+			inline void EnableTransform(bool transform);
 
-		inline const NzTextureRef& GetAlphaMap() const;
-		inline float GetAlphaThreshold() const;
-		inline NzColor GetAmbientColor() const;
-		inline nzRendererComparison GetDepthFunc() const;
-		inline const NzMaterialRef& GetDepthMaterial() const;
-		inline NzColor GetDiffuseColor() const;
-		inline const NzTextureRef& GetDiffuseMap() const;
-		inline NzTextureSampler& GetDiffuseSampler();
-		inline const NzTextureSampler& GetDiffuseSampler() const;
-		inline nzBlendFunc GetDstBlend() const;
-		inline const NzTextureRef& GetEmissiveMap() const;
-		inline nzFaceSide GetFaceCulling() const;
-		inline nzFaceFilling GetFaceFilling() const;
-		inline const NzTextureRef& GetHeightMap() const;
-		inline const NzTextureRef& GetNormalMap() const;
-		inline const NzRenderStates& GetRenderStates() const;
-		inline const NzUberShader* GetShader() const;
-		inline const NzUberShaderInstance* GetShaderInstance(nzUInt32 flags = nzShaderFlags_None) const;
-		inline float GetShininess() const;
-		inline NzColor GetSpecularColor() const;
-		inline const NzTextureRef& GetSpecularMap() const;
-		inline NzTextureSampler& GetSpecularSampler();
-		inline const NzTextureSampler& GetSpecularSampler() const;
-		inline nzBlendFunc GetSrcBlend() const;
+			inline const TextureRef& GetAlphaMap() const;
+			inline float GetAlphaThreshold() const;
+			inline Color GetAmbientColor() const;
+			inline RendererComparison GetDepthFunc() const;
+			inline const MaterialRef& GetDepthMaterial() const;
+			inline Color GetDiffuseColor() const;
+			inline const TextureRef& GetDiffuseMap() const;
+			inline TextureSampler& GetDiffuseSampler();
+			inline const TextureSampler& GetDiffuseSampler() const;
+			inline BlendFunc GetDstBlend() const;
+			inline const TextureRef& GetEmissiveMap() const;
+			inline FaceSide GetFaceCulling() const;
+			inline FaceFilling GetFaceFilling() const;
+			inline const TextureRef& GetHeightMap() const;
+			inline const TextureRef& GetNormalMap() const;
+			inline const RenderStates& GetRenderStates() const;
+			inline const UberShader* GetShader() const;
+			inline const UberShaderInstance* GetShaderInstance(UInt32 flags = ShaderFlags_None) const;
+			inline float GetShininess() const;
+			inline Color GetSpecularColor() const;
+			inline const TextureRef& GetSpecularMap() const;
+			inline TextureSampler& GetSpecularSampler();
+			inline const TextureSampler& GetSpecularSampler() const;
+			inline BlendFunc GetSrcBlend() const;
 
-		inline bool HasAlphaMap() const;
-		inline bool HasDepthMaterial() const;
-		inline bool HasDiffuseMap() const;
-		inline bool HasEmissiveMap() const;
-		inline bool HasHeightMap() const;
-		inline bool HasNormalMap() const;
-		inline bool HasSpecularMap() const;
+			inline bool HasAlphaMap() const;
+			inline bool HasDepthMaterial() const;
+			inline bool HasDiffuseMap() const;
+			inline bool HasEmissiveMap() const;
+			inline bool HasHeightMap() const;
+			inline bool HasNormalMap() const;
+			inline bool HasSpecularMap() const;
 
-		inline bool IsAlphaTestEnabled() const;
-		inline bool IsDepthSortingEnabled() const;
-		inline bool IsEnabled(nzRendererParameter renderParameter) const;
-		inline bool IsLightingEnabled() const;
-		inline bool IsShadowCastingEnabled() const;
-		inline bool IsShadowReceiveEnabled() const;
-		inline bool IsTransformEnabled() const;
+			inline bool IsAlphaTestEnabled() const;
+			inline bool IsDepthSortingEnabled() const;
+			inline bool IsEnabled(RendererParameter renderParameter) const;
+			inline bool IsLightingEnabled() const;
+			inline bool IsShadowCastingEnabled() const;
+			inline bool IsShadowReceiveEnabled() const;
+			inline bool IsTransformEnabled() const;
 
-		inline bool LoadFromFile(const NzString& filePath, const NzMaterialParams& params = NzMaterialParams());
-		inline bool LoadFromMemory(const void* data, std::size_t size, const NzMaterialParams& params = NzMaterialParams());
-		inline bool LoadFromStream(NzInputStream& stream, const NzMaterialParams& params = NzMaterialParams());
+			inline bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
+			inline bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
+			inline bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
 
-		void Reset();
+			void Reset();
 
-		inline bool SetAlphaMap(const NzString& textureName);
-		inline void SetAlphaMap(NzTextureRef alphaMap);
-		inline void SetAlphaThreshold(float alphaThreshold);
-		inline void SetAmbientColor(const NzColor& ambient);
-		inline void SetDepthFunc(nzRendererComparison depthFunc);
-		inline void SetDepthMaterial(NzMaterialRef depthMaterial);
-		inline void SetDiffuseColor(const NzColor& diffuse);
-		inline bool SetDiffuseMap(const NzString& textureName);
-		inline void SetDiffuseMap(NzTextureRef diffuseMap);
-		inline void SetDiffuseSampler(const NzTextureSampler& sampler);
-		inline void SetDstBlend(nzBlendFunc func);
-		inline bool SetEmissiveMap(const NzString& textureName);
-		inline void SetEmissiveMap(NzTextureRef textureName);
-		inline void SetFaceCulling(nzFaceSide faceSide);
-		inline void SetFaceFilling(nzFaceFilling filling);
-		inline bool SetHeightMap(const NzString& textureName);
-		inline void SetHeightMap(NzTextureRef textureName);
-		inline bool SetNormalMap(const NzString& textureName);
-		inline void SetNormalMap(NzTextureRef textureName);
-		inline void SetRenderStates(const NzRenderStates& states);
-		inline void SetShader(NzUberShaderConstRef uberShader);
-		inline bool SetShader(const NzString& uberShaderName);
-		inline void SetShininess(float shininess);
-		inline void SetSpecularColor(const NzColor& specular);
-		inline bool SetSpecularMap(const NzString& textureName);
-		inline void SetSpecularMap(NzTextureRef specularMap);
-		inline void SetSpecularSampler(const NzTextureSampler& sampler);
-		inline void SetSrcBlend(nzBlendFunc func);
+			inline bool SetAlphaMap(const String& textureName);
+			inline void SetAlphaMap(TextureRef alphaMap);
+			inline void SetAlphaThreshold(float alphaThreshold);
+			inline void SetAmbientColor(const Color& ambient);
+			inline void SetDepthFunc(RendererComparison depthFunc);
+			inline void SetDepthMaterial(MaterialRef depthMaterial);
+			inline void SetDiffuseColor(const Color& diffuse);
+			inline bool SetDiffuseMap(const String& textureName);
+			inline void SetDiffuseMap(TextureRef diffuseMap);
+			inline void SetDiffuseSampler(const TextureSampler& sampler);
+			inline void SetDstBlend(BlendFunc func);
+			inline bool SetEmissiveMap(const String& textureName);
+			inline void SetEmissiveMap(TextureRef textureName);
+			inline void SetFaceCulling(FaceSide faceSide);
+			inline void SetFaceFilling(FaceFilling filling);
+			inline bool SetHeightMap(const String& textureName);
+			inline void SetHeightMap(TextureRef textureName);
+			inline bool SetNormalMap(const String& textureName);
+			inline void SetNormalMap(TextureRef textureName);
+			inline void SetRenderStates(const RenderStates& states);
+			inline void SetShader(UberShaderConstRef uberShader);
+			inline bool SetShader(const String& uberShaderName);
+			inline void SetShininess(float shininess);
+			inline void SetSpecularColor(const Color& specular);
+			inline bool SetSpecularMap(const String& textureName);
+			inline void SetSpecularMap(TextureRef specularMap);
+			inline void SetSpecularSampler(const TextureSampler& sampler);
+			inline void SetSrcBlend(BlendFunc func);
 
-		inline NzMaterial& operator=(const NzMaterial& material);
+			inline Material& operator=(const Material& material);
 
-		static NzMaterialRef GetDefault();
-		template<typename... Args> static NzMaterialRef New(Args&&... args);
+			static MaterialRef GetDefault();
+			template<typename... Args> static MaterialRef New(Args&&... args);
 
-		// Signals:
-		NazaraSignal(OnMaterialRelease, const NzMaterial* /*material*/);
-		NazaraSignal(OnMaterialReset, const NzMaterial* /*material*/);
+			// Signals:
+			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
+			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
-	private:
-		struct ShaderInstance
-		{
-			const NzShader* shader;
-			NzUberShaderInstance* uberInstance = nullptr;
-			int uniforms[nzMaterialUniform_Max+1];
-		};
+		private:
+			struct ShaderInstance
+			{
+				const Shader* shader;
+				UberShaderInstance* uberInstance = nullptr;
+				int uniforms[MaterialUniform_Max+1];
+			};
 
-		void Copy(const NzMaterial& material);
-		void GenerateShader(nzUInt32 flags) const;
-		inline void InvalidateShaders();
+			void Copy(const Material& material);
+			void GenerateShader(UInt32 flags) const;
+			inline void InvalidateShaders();
 
-		static bool Initialize();
-		static void Uninitialize();
+			static bool Initialize();
+			static void Uninitialize();
 
-		NzColor m_ambientColor;
-		NzColor m_diffuseColor;
-		NzColor m_specularColor;
-		NzMaterialRef m_depthMaterial; //< Materialception
-		NzRenderStates m_states;
-		NzTextureSampler m_diffuseSampler;
-		NzTextureSampler m_specularSampler;
-		NzTextureRef m_alphaMap;
-		NzTextureRef m_diffuseMap;
-		NzTextureRef m_emissiveMap;
-		NzTextureRef m_heightMap;
-		NzTextureRef m_normalMap;
-		NzTextureRef m_specularMap;
-		NzUberShaderConstRef m_uberShader;
-		mutable ShaderInstance m_shaders[nzShaderFlags_Max+1];
-		bool m_alphaTestEnabled;
-		bool m_depthSortingEnabled;
-		bool m_lightingEnabled;
-		bool m_shadowCastingEnabled;
-		bool m_shadowReceiveEnabled;
-		bool m_transformEnabled;
-		float m_alphaThreshold;
-		float m_shininess;
+			Color m_ambientColor;
+			Color m_diffuseColor;
+			Color m_specularColor;
+			MaterialRef m_depthMaterial; //< Materialception
+			RenderStates m_states;
+			TextureSampler m_diffuseSampler;
+			TextureSampler m_specularSampler;
+			TextureRef m_alphaMap;
+			TextureRef m_diffuseMap;
+			TextureRef m_emissiveMap;
+			TextureRef m_heightMap;
+			TextureRef m_normalMap;
+			TextureRef m_specularMap;
+			UberShaderConstRef m_uberShader;
+			mutable ShaderInstance m_shaders[ShaderFlags_Max+1];
+			bool m_alphaTestEnabled;
+			bool m_depthSortingEnabled;
+			bool m_lightingEnabled;
+			bool m_shadowCastingEnabled;
+			bool m_shadowReceiveEnabled;
+			bool m_transformEnabled;
+			float m_alphaThreshold;
+			float m_shininess;
 
-		static NzMaterialLibrary::LibraryMap s_library;
-		static NzMaterialLoader::LoaderList s_loaders;
-		static NzMaterialManager::ManagerMap s_managerMap;
-		static NzMaterialManager::ManagerParams s_managerParameters;
-		static NzMaterialRef s_defaultMaterial;
-};
+			static MaterialLibrary::LibraryMap s_library;
+			static MaterialLoader::LoaderList s_loaders;
+			static MaterialManager::ManagerMap s_managerMap;
+			static MaterialManager::ManagerParams s_managerParameters;
+			static MaterialRef s_defaultMaterial;
+	};
+}
 
 #include <Nazara/Graphics/Material.inl>
 

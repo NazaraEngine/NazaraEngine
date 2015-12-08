@@ -11,32 +11,35 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDeferredForwardPass::NzDeferredForwardPass() = default;
-NzDeferredForwardPass::~NzDeferredForwardPass() = default;
-
-void NzDeferredForwardPass::Initialize(NzDeferredRenderTechnique* technique)
+namespace Nz
 {
-	NzDeferredRenderPass::Initialize(technique);
+	DeferredForwardPass::DeferredForwardPass() = default;
+	DeferredForwardPass::~DeferredForwardPass() = default;
 
-	m_forwardTechnique = technique->GetForwardTechnique();
-}
+	void DeferredForwardPass::Initialize(DeferredRenderTechnique* technique)
+	{
+		DeferredRenderPass::Initialize(technique);
 
-bool NzDeferredForwardPass::Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
-{
-	NazaraAssert(sceneData.viewer, "Invalid viewer");
-	NazaraUnused(workTexture);
+		m_forwardTechnique = technique->GetForwardTechnique();
+	}
 
-	m_workRTT->SetColorTarget(sceneTexture);
-	NzRenderer::SetTarget(m_workRTT);
-	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
+	bool DeferredForwardPass::Process(const SceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+		NazaraUnused(workTexture);
 
-	if (sceneData.background)
-		sceneData.background->Draw(sceneData.viewer);
+		m_workRTT->SetColorTarget(sceneTexture);
+		Renderer::SetTarget(m_workRTT);
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 
-	NzRenderer::SetMatrix(nzMatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
-	NzRenderer::SetMatrix(nzMatrixType_View, sceneData.viewer->GetViewMatrix());
+		if (sceneData.background)
+			sceneData.background->Draw(sceneData.viewer);
 
-	m_forwardTechnique->Draw(sceneData);
+		Renderer::SetMatrix(MatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
+		Renderer::SetMatrix(MatrixType_View, sceneData.viewer->GetViewMatrix());
 
-	return false;
+		m_forwardTechnique->Draw(sceneData);
+
+		return false;
+	}
 }

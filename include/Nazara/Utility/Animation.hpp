@@ -21,88 +21,91 @@
 #include <Nazara/Utility/Sequence.hpp>
 #include <limits>
 
-struct NAZARA_UTILITY_API NzAnimationParams
+namespace Nz
 {
-	// La frame de fin à charger
-	unsigned int endFrame = std::numeric_limits<unsigned int>::max();
-	// La frame de début à charger
-	unsigned int startFrame = 0;
+	struct NAZARA_UTILITY_API AnimationParams
+	{
+		// La frame de fin à charger
+		unsigned int endFrame = std::numeric_limits<unsigned int>::max();
+		// La frame de début à charger
+		unsigned int startFrame = 0;
 
-	bool IsValid() const;
-};
-
-class NzAnimation;
-class NzSkeleton;
-
-using NzAnimationConstRef = NzObjectRef<const NzAnimation>;
-using NzAnimationLibrary = NzObjectLibrary<NzAnimation>;
-using NzAnimationLoader = NzResourceLoader<NzAnimation, NzAnimationParams>;
-using NzAnimationManager = NzResourceManager<NzAnimation, NzAnimationParams>;
-using NzAnimationRef = NzObjectRef<NzAnimation>;
-
-struct NzAnimationImpl;
-
-class NAZARA_UTILITY_API NzAnimation : public NzRefCounted, public NzResource
-{
-	friend NzAnimationLibrary;
-	friend NzAnimationLoader;
-	friend NzAnimationManager;
-	friend class NzUtility;
-
-	public:
-		NzAnimation() = default;
-		~NzAnimation();
-
-		bool AddSequence(const NzSequence& sequence);
-		void AnimateSkeleton(NzSkeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const;
-
-		bool CreateSkeletal(unsigned int frameCount, unsigned int jointCount);
-		void Destroy();
-
-		void EnableLoopPointInterpolation(bool loopPointInterpolation);
-
-		unsigned int GetFrameCount() const;
-		unsigned int GetJointCount() const;
-		NzSequence* GetSequence(const NzString& sequenceName);
-		NzSequence* GetSequence(unsigned int index);
-		const NzSequence* GetSequence(const NzString& sequenceName) const;
-		const NzSequence* GetSequence(unsigned int index) const;
-		unsigned int GetSequenceCount() const;
-		int GetSequenceIndex(const NzString& sequenceName) const;
-		NzSequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0);
-		const NzSequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0) const;
-		nzAnimationType GetType() const;
-
-		bool HasSequence(const NzString& sequenceName) const;
-		bool HasSequence(unsigned int index = 0) const;
-
-		bool IsLoopPointInterpolationEnabled() const;
 		bool IsValid() const;
+	};
 
-		bool LoadFromFile(const NzString& filePath, const NzAnimationParams& params = NzAnimationParams());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzAnimationParams& params = NzAnimationParams());
-		bool LoadFromStream(NzInputStream& stream, const NzAnimationParams& params = NzAnimationParams());
+	class Animation;
+	class Skeleton;
 
-		void RemoveSequence(const NzString& sequenceName);
-		void RemoveSequence(unsigned int index);
+	using AnimationConstRef = ObjectRef<const Animation>;
+	using AnimationLibrary = ObjectLibrary<Animation>;
+	using AnimationLoader = ResourceLoader<Animation, AnimationParams>;
+	using AnimationManager = ResourceManager<Animation, AnimationParams>;
+	using AnimationRef = ObjectRef<Animation>;
 
-		template<typename... Args> static NzAnimationRef New(Args&&... args);
+	struct AnimationImpl;
 
-		// Signals:
-		NazaraSignal(OnAnimationDestroy, const NzAnimation* /*animation*/);
-		NazaraSignal(OnAnimationRelease, const NzAnimation* /*animation*/);
+	class NAZARA_UTILITY_API Animation : public RefCounted, public Resource
+	{
+		friend AnimationLibrary;
+		friend AnimationLoader;
+		friend AnimationManager;
+		friend class Utility;
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+		public:
+			Animation() = default;
+			~Animation();
 
-		NzAnimationImpl* m_impl = nullptr;
+			bool AddSequence(const Sequence& sequence);
+			void AnimateSkeleton(Skeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const;
 
-		static NzAnimationLibrary::LibraryMap s_library;
-		static NzAnimationLoader::LoaderList s_loaders;
-		static NzAnimationManager::ManagerMap s_managerMap;
-		static NzAnimationManager::ManagerParams s_managerParameters;
-};
+			bool CreateSkeletal(unsigned int frameCount, unsigned int jointCount);
+			void Destroy();
+
+			void EnableLoopPointInterpolation(bool loopPointInterpolation);
+
+			unsigned int GetFrameCount() const;
+			unsigned int GetJointCount() const;
+			Sequence* GetSequence(const String& sequenceName);
+			Sequence* GetSequence(unsigned int index);
+			const Sequence* GetSequence(const String& sequenceName) const;
+			const Sequence* GetSequence(unsigned int index) const;
+			unsigned int GetSequenceCount() const;
+			int GetSequenceIndex(const String& sequenceName) const;
+			SequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0);
+			const SequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0) const;
+			AnimationType GetType() const;
+
+			bool HasSequence(const String& sequenceName) const;
+			bool HasSequence(unsigned int index = 0) const;
+
+			bool IsLoopPointInterpolationEnabled() const;
+			bool IsValid() const;
+
+			bool LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
+			bool LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
+			bool LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
+
+			void RemoveSequence(const String& sequenceName);
+			void RemoveSequence(unsigned int index);
+
+			template<typename... Args> static AnimationRef New(Args&&... args);
+
+			// Signals:
+			NazaraSignal(OnAnimationDestroy, const Animation* /*animation*/);
+			NazaraSignal(OnAnimationRelease, const Animation* /*animation*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			AnimationImpl* m_impl = nullptr;
+
+			static AnimationLibrary::LibraryMap s_library;
+			static AnimationLoader::LoaderList s_loaders;
+			static AnimationManager::ManagerMap s_managerMap;
+			static AnimationManager::ManagerParams s_managerParameters;
+	};
+}
 
 #include <Nazara/Utility/Animation.inl>
 

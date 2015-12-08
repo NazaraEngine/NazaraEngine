@@ -18,224 +18,227 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	struct VendorString
+	namespace
 	{
-		char vendor[13]; // +1 pour le \0 automatiquement ajouté par le compilateur
-		nzProcessorVendor vendorEnum;
-	};
-
-	// Exceptionellement, la valeur "unknown" est intégrée
-	const char* vendorNames[] =
-	{
-		"Unknown",                             // nzProcessorVendor_Unknown
-		"Advanced Micro Devices",              // nzProcessorVendor_AMD
-		"Centaur Technology",                  // nzProcessorVendor_Centaur
-		"Cyrix Corporation",                   // nzProcessorVendor_Cyrix
-		"Intel Corporation",                   // nzProcessorVendor_Intel
-		"Kernel-based Virtual Machine",        // nzProcessorVendor_KVM
-		"Microsoft Hyper-V",                   // nzProcessorVendor_HyperV
-		"National Semiconductor",              // nzProcessorVendor_NSC
-		"NexGen",                              // nzProcessorVendor_NexGen
-		"Rise Technology",                     // nzProcessorVendor_Rise
-		"Silicon Integrated Systems",          // nzProcessorVendor_SIS
-		"Transmeta Corporation",               // nzProcessorVendor_Transmeta
-		"United Microelectronics Corporation", // nzProcessorVendor_UMC
-		"VIA Technologies",                    // nzProcessorVendor_VIA
-		"VMware",                              // nzProcessorVendor_VMware
-		"Vortex86",                            // nzProcessorVendor_Vortex
-		"Xen"                                  // nzProcessorVendor_XenHVM
-	};
-
-	static_assert(sizeof(vendorNames)/sizeof(const char*) == nzProcessorVendor_Max+2, "Processor vendor name array is incomplete");
-
-	VendorString vendorStrings[] =
-	{
-		// Triés par ordre alphabétique (Majuscules primant sur minuscules)
-		{"AMDisbetter!", nzProcessorVendor_AMD},
-		{"AuthenticAMD", nzProcessorVendor_AMD},
-		{"CentaurHauls", nzProcessorVendor_Centaur},
-		{"CyrixInstead", nzProcessorVendor_Cyrix},
-		{"GenuineIntel", nzProcessorVendor_Intel},
-		{"GenuineTMx86", nzProcessorVendor_Transmeta},
-		{"Geode by NSC", nzProcessorVendor_NSC},
-		{"KVMKVMKVMKVM", nzProcessorVendor_KVM},
-		{"Microsoft Hv", nzProcessorVendor_HyperV},
-		{"NexGenDriven", nzProcessorVendor_NexGen},
-		{"RiseRiseRise", nzProcessorVendor_Rise},
-		{"SiS SiS SiS ", nzProcessorVendor_SIS},
-		{"TransmetaCPU", nzProcessorVendor_Transmeta},
-		{"UMC UMC UMC ", nzProcessorVendor_UMC},
-		{"VIA VIA VIA ", nzProcessorVendor_VIA},
-		{"VMwareVMware", nzProcessorVendor_VMware},
-		{"Vortex86 SoC", nzProcessorVendor_Vortex},
-		{"XenVMMXenVMM", nzProcessorVendor_XenHVM}
-	};
-
-	nzProcessorVendor s_vendorEnum = nzProcessorVendor_Unknown;
-	bool s_capabilities[nzProcessorCap_Max+1] = {false};
-	bool s_initialized = false;
-
-	char s_brandString[48] = "Not initialized";
-}
-
-void NzHardwareInfo::Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4])
-{
-	return NzHardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
-}
-
-NzString NzHardwareInfo::GetProcessorBrandString()
-{
-	if (!Initialize())
-		NazaraError("Failed to initialize HardwareInfo");
-
-	return s_brandString;
-}
-
-unsigned int NzHardwareInfo::GetProcessorCount()
-{
-	///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
-	static unsigned int processorCount = std::max(NzHardwareInfoImpl::GetProcessorCount(), 1U);
-	return processorCount;
-}
-
-nzProcessorVendor NzHardwareInfo::GetProcessorVendor()
-{
-	if (!Initialize())
-		NazaraError("Failed to initialize HardwareInfo");
-
-	return s_vendorEnum;
-}
-
-NzString NzHardwareInfo::GetProcessorVendorName()
-{
-	if (!Initialize())
-		NazaraError("Failed to initialize HardwareInfo");
-
-	return vendorNames[s_vendorEnum+1];
-}
-
-nzUInt64 NzHardwareInfo::GetTotalMemory()
-{
-	///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
-	static nzUInt64 totalMemory = NzHardwareInfoImpl::GetTotalMemory();
-	return totalMemory;
-}
-
-bool NzHardwareInfo::HasCapability(nzProcessorCap capability)
-{
-	#ifdef NAZARA_DEBUG
-	if (capability > nzProcessorCap_Max)
-	{
-		NazaraError("Capability type out of enum");
-		return false;
-	}
-	#endif
-
-	return s_capabilities[capability];
-}
-
-bool NzHardwareInfo::Initialize()
-{
-	if (s_initialized)
-		return true;
-
-	if (!NzHardwareInfoImpl::IsCpuidSupported())
-	{
-		NazaraError("Cpuid is not supported");
-		return false;
-	}
-
-	s_initialized = true;
-
-	nzUInt32 registers[4]; // Récupère les quatre registres (EAX, EBX, ECX et EDX)
-
-	// Pour plus de clarté
-	nzUInt32& eax = registers[0];
-	nzUInt32& ebx = registers[1];
-	nzUInt32& ecx = registers[2];
-	nzUInt32& edx = registers[3];
-
-	// Pour commencer, on va récupérer l'identifiant du constructeur ainsi que l'id de fonction maximal supporté par le CPUID
-	NzHardwareInfoImpl::Cpuid(0, 0, registers);
-
-	// Attention à l'ordre : EBX, EDX, ECX
-	nzUInt32 manufacturerId[3] = {ebx, edx, ecx};
-
-	// Identification du concepteur
-	s_vendorEnum = nzProcessorVendor_Unknown;
-	for (const VendorString& vendorString : vendorStrings)
-	{
-		if (std::memcmp(manufacturerId, vendorString.vendor, 12) == 0)
+		struct VendorString
 		{
-			s_vendorEnum = vendorString.vendorEnum;
-			break;
+			char vendor[13]; // +1 pour le \0 automatiquement ajouté par le compilateur
+			ProcessorVendor vendorEnum;
+		};
+
+		// Exceptionellement, la valeur "unknown" est intégrée
+		const char* vendorNames[] =
+		{
+			"Unknown",                             // ProcessorVendor_Unknown
+			"Advanced Micro Devices",              // ProcessorVendor_AMD
+			"Centaur Technology",                  // ProcessorVendor_Centaur
+			"Cyrix Corporation",                   // ProcessorVendor_Cyrix
+			"Intel Corporation",                   // ProcessorVendor_Intel
+			"Kernel-based Virtual Machine",        // ProcessorVendor_KVM
+			"Microsoft Hyper-V",                   // ProcessorVendor_HyperV
+			"National Semiconductor",              // ProcessorVendor_NSC
+			"NexGen",                              // ProcessorVendor_NexGen
+			"Rise Technology",                     // ProcessorVendor_Rise
+			"Silicon Integrated Systems",          // ProcessorVendor_SIS
+			"Transmeta Corporation",               // ProcessorVendor_Transmeta
+			"United Microelectronics Corporation", // ProcessorVendor_UMC
+			"VIA Technologies",                    // ProcessorVendor_VIA
+			"VMware",                              // ProcessorVendor_VMware
+			"Vortex86",                            // ProcessorVendor_Vortex
+			"Xen"                                  // ProcessorVendor_XenHVM
+		};
+
+		static_assert(sizeof(vendorNames)/sizeof(const char*) == ProcessorVendor_Max+2, "Processor vendor name array is incomplete");
+
+		VendorString vendorStrings[] =
+		{
+			// Triés par ordre alphabétique (Majuscules primant sur minuscules)
+			{"AMDisbetter!", ProcessorVendor_AMD},
+			{"AuthenticAMD", ProcessorVendor_AMD},
+			{"CentaurHauls", ProcessorVendor_Centaur},
+			{"CyrixInstead", ProcessorVendor_Cyrix},
+			{"GenuineIntel", ProcessorVendor_Intel},
+			{"GenuineTMx86", ProcessorVendor_Transmeta},
+			{"Geode by NSC", ProcessorVendor_NSC},
+			{"KVMKVMKVMKVM", ProcessorVendor_KVM},
+			{"Microsoft Hv", ProcessorVendor_HyperV},
+			{"NexGenDriven", ProcessorVendor_NexGen},
+			{"RiseRiseRise", ProcessorVendor_Rise},
+			{"SiS SiS SiS ", ProcessorVendor_SIS},
+			{"TransmetaCPU", ProcessorVendor_Transmeta},
+			{"UMC UMC UMC ", ProcessorVendor_UMC},
+			{"VIA VIA VIA ", ProcessorVendor_VIA},
+			{"VMwareVMware", ProcessorVendor_VMware},
+			{"Vortex86 SoC", ProcessorVendor_Vortex},
+			{"XenVMMXenVMM", ProcessorVendor_XenHVM}
+		};
+
+		ProcessorVendor s_vendorEnum = ProcessorVendor_Unknown;
+		bool s_capabilities[ProcessorCap_Max+1] = {false};
+		bool s_initialized = false;
+
+		char s_brandString[48] = "Not initialized";
+	}
+
+	void HardwareInfo::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4])
+	{
+		return HardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
+	}
+
+	String HardwareInfo::GetProcessorBrandString()
+	{
+		if (!Initialize())
+			NazaraError("Failed to initialize HardwareInfo");
+
+		return s_brandString;
+	}
+
+	unsigned int HardwareInfo::GetProcessorCount()
+	{
+		///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
+		static unsigned int processorCount = std::max(HardwareInfoImpl::GetProcessorCount(), 1U);
+		return processorCount;
+	}
+
+	ProcessorVendor HardwareInfo::GetProcessorVendor()
+	{
+		if (!Initialize())
+			NazaraError("Failed to initialize HardwareInfo");
+
+		return s_vendorEnum;
+	}
+
+	String HardwareInfo::GetProcessorVendorName()
+	{
+		if (!Initialize())
+			NazaraError("Failed to initialize HardwareInfo");
+
+		return vendorNames[s_vendorEnum+1];
+	}
+
+	UInt64 HardwareInfo::GetTotalMemory()
+	{
+		///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
+		static UInt64 totalMemory = HardwareInfoImpl::GetTotalMemory();
+		return totalMemory;
+	}
+
+	bool HardwareInfo::HasCapability(ProcessorCap capability)
+	{
+		#ifdef NAZARA_DEBUG
+		if (capability > ProcessorCap_Max)
+		{
+			NazaraError("Capability type out of enum");
+			return false;
 		}
+		#endif
+
+		return s_capabilities[capability];
 	}
 
-	if (eax >= 1)
+	bool HardwareInfo::Initialize()
 	{
-		// Récupération de certaines capacités du processeur (ECX et EDX, fonction 1)
-		NzHardwareInfoImpl::Cpuid(1, 0, registers);
+		if (s_initialized)
+			return true;
 
-		s_capabilities[nzProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
-		s_capabilities[nzProcessorCap_FMA3]  = (ecx & (1U << 12)) != 0;
-		s_capabilities[nzProcessorCap_MMX]   = (edx & (1U << 23)) != 0;
-		s_capabilities[nzProcessorCap_SSE]   = (edx & (1U << 25)) != 0;
-		s_capabilities[nzProcessorCap_SSE2]  = (edx & (1U << 26)) != 0;
-		s_capabilities[nzProcessorCap_SSE3]  = (ecx & (1U <<  0)) != 0;
-		s_capabilities[nzProcessorCap_SSSE3] = (ecx & (1U <<  9)) != 0;
-		s_capabilities[nzProcessorCap_SSE41] = (ecx & (1U << 19)) != 0;
-		s_capabilities[nzProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
-	}
-
-	// Récupération de la plus grande fonction étendue supportée (EAX, fonction 0x80000000)
-	NzHardwareInfoImpl::Cpuid(0x80000000, 0, registers);
-
-	nzUInt32 maxSupportedExtendedFunction = eax;
-	if (maxSupportedExtendedFunction >= 0x80000001)
-	{
-		// Récupération des capacités étendues du processeur (ECX et EDX, fonction 0x80000001)
-		NzHardwareInfoImpl::Cpuid(0x80000001, 0, registers);
-
-		s_capabilities[nzProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support du 64bits, indépendant de l'OS
-		s_capabilities[nzProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
-		s_capabilities[nzProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
-		s_capabilities[nzProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
-
-		if (maxSupportedExtendedFunction >= 0x80000004)
+		if (!HardwareInfoImpl::IsCpuidSupported())
 		{
-			// Récupération d'une chaîne de caractère décrivant le processeur (EAX, EBX, ECX et EDX,
-			// fonctions de 0x80000002 à 0x80000004 compris)
-			char* ptr = &s_brandString[0];
-			for (nzUInt32 code = 0x80000002; code <= 0x80000004; ++code)
+			NazaraError("Cpuid is not supported");
+			return false;
+		}
+
+		s_initialized = true;
+
+		UInt32 registers[4]; // Récupère les quatre registres (EAX, EBX, ECX et EDX)
+
+		// Pour plus de clarté
+		UInt32& eax = registers[0];
+		UInt32& ebx = registers[1];
+		UInt32& ecx = registers[2];
+		UInt32& edx = registers[3];
+
+		// Pour commencer, on va récupérer l'identifiant du constructeur ainsi que l'id de fonction maximal supporté par le CPUID
+		HardwareInfoImpl::Cpuid(0, 0, registers);
+
+		// Attention à l'ordre : EBX, EDX, ECX
+		UInt32 manufacturerId[3] = {ebx, edx, ecx};
+
+		// Identification du concepteur
+		s_vendorEnum = ProcessorVendor_Unknown;
+		for (const VendorString& vendorString : vendorStrings)
+		{
+			if (std::memcmp(manufacturerId, vendorString.vendor, 12) == 0)
 			{
-				NzHardwareInfoImpl::Cpuid(code, 0, registers);
-				std::memcpy(ptr, &registers[0], 4*sizeof(nzUInt32)); // On rajoute les 16 octets à la chaîne
-
-				ptr += 4*sizeof(nzUInt32);
+				s_vendorEnum = vendorString.vendorEnum;
+				break;
 			}
-
-			// Le caractère nul faisant partie de la chaîne retournée par le CPUID, pas besoin de le rajouter
 		}
+
+		if (eax >= 1)
+		{
+			// Récupération de certaines capacités du processeur (ECX et EDX, fonction 1)
+			HardwareInfoImpl::Cpuid(1, 0, registers);
+
+			s_capabilities[ProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
+			s_capabilities[ProcessorCap_FMA3]  = (ecx & (1U << 12)) != 0;
+			s_capabilities[ProcessorCap_MMX]   = (edx & (1U << 23)) != 0;
+			s_capabilities[ProcessorCap_SSE]   = (edx & (1U << 25)) != 0;
+			s_capabilities[ProcessorCap_SSE2]  = (edx & (1U << 26)) != 0;
+			s_capabilities[ProcessorCap_SSE3]  = (ecx & (1U <<  0)) != 0;
+			s_capabilities[ProcessorCap_SSSE3] = (ecx & (1U <<  9)) != 0;
+			s_capabilities[ProcessorCap_SSE41] = (ecx & (1U << 19)) != 0;
+			s_capabilities[ProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
+		}
+
+		// Récupération de la plus grande fonction étendue supportée (EAX, fonction 0x80000000)
+		HardwareInfoImpl::Cpuid(0x80000000, 0, registers);
+
+		UInt32 maxSupportedExtendedFunction = eax;
+		if (maxSupportedExtendedFunction >= 0x80000001)
+		{
+			// Récupération des capacités étendues du processeur (ECX et EDX, fonction 0x80000001)
+			HardwareInfoImpl::Cpuid(0x80000001, 0, registers);
+
+			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support du 64bits, indépendant de l'OS
+			s_capabilities[ProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
+			s_capabilities[ProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
+			s_capabilities[ProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
+
+			if (maxSupportedExtendedFunction >= 0x80000004)
+			{
+				// Récupération d'une chaîne de caractère décrivant le processeur (EAX, EBX, ECX et EDX,
+				// fonctions de 0x80000002 à 0x80000004 compris)
+				char* ptr = &s_brandString[0];
+				for (UInt32 code = 0x80000002; code <= 0x80000004; ++code)
+				{
+					HardwareInfoImpl::Cpuid(code, 0, registers);
+					std::memcpy(ptr, &registers[0], 4*sizeof(UInt32)); // On rajoute les 16 octets à la chaîne
+
+					ptr += 4*sizeof(UInt32);
+				}
+
+				// Le caractère nul faisant partie de la chaîne retournée par le CPUID, pas besoin de le rajouter
+			}
+		}
+
+		return true;
 	}
 
-	return true;
-}
+	bool HardwareInfo::IsCpuidSupported()
+	{
+		return HardwareInfoImpl::IsCpuidSupported();
+	}
 
-bool NzHardwareInfo::IsCpuidSupported()
-{
-	return NzHardwareInfoImpl::IsCpuidSupported();
-}
+	bool HardwareInfo::IsInitialized()
+	{
+		return s_initialized;
+	}
 
-bool NzHardwareInfo::IsInitialized()
-{
-	return s_initialized;
-}
-
-void NzHardwareInfo::Uninitialize()
-{
-	// Rien à faire
-	s_initialized = false;
+	void HardwareInfo::Uninitialize()
+	{
+		// Rien à faire
+		s_initialized = false;
+	}
 }

@@ -8,7 +8,6 @@
 #define NAZARA_RENDERBUFFER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -16,51 +15,58 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NzRenderBuffer;
-
-using NzRenderBufferConstRef = NzObjectRef<const NzRenderBuffer>;
-using NzRenderBufferLibrary = NzObjectLibrary<NzRenderBuffer>;
-using NzRenderBufferRef = NzObjectRef<NzRenderBuffer>;
-
-class NAZARA_RENDERER_API NzRenderBuffer : public NzRefCounted, NzNonCopyable
+namespace Nz
 {
-	friend NzRenderBufferLibrary;
-	friend class NzRenderer;
+	class RenderBuffer;
 
-	public:
-		NzRenderBuffer();
-		~NzRenderBuffer();
+	using RenderBufferConstRef = ObjectRef<const RenderBuffer>;
+	using RenderBufferLibrary = ObjectLibrary<RenderBuffer>;
+	using RenderBufferRef = ObjectRef<RenderBuffer>;
 
-		bool Create(nzPixelFormat format, unsigned int width, unsigned int height);
-		void Destroy();
+	class NAZARA_RENDERER_API RenderBuffer : public RefCounted
+	{
+		friend RenderBufferLibrary;
+		friend class Renderer;
 
-		unsigned int GetHeight() const;
-		nzPixelFormat GetFormat() const;
-		unsigned int GetWidth() const;
+		public:
+			RenderBuffer();
+			RenderBuffer(const RenderBuffer&) = delete;
+			RenderBuffer(RenderBuffer&&) = delete;
+			~RenderBuffer();
 
-		// Fonctions OpenGL
-		unsigned int GetOpenGLID() const;
+			bool Create(PixelFormatType format, unsigned int width, unsigned int height);
+			void Destroy();
 
-		bool IsValid() const;
+			unsigned int GetHeight() const;
+			PixelFormatType GetFormat() const;
+			unsigned int GetWidth() const;
 
-		static bool IsSupported();
-		template<typename... Args> static NzRenderBufferRef New(Args&&... args);
+			// Fonctions OpenGL
+			unsigned int GetOpenGLID() const;
 
-		// Signals:
-		NazaraSignal(OnRenderBufferDestroy, const NzRenderBuffer* /*renderBuffer*/);
-		NazaraSignal(OnRenderBufferRelease, const NzRenderBuffer* /*renderBuffer*/);
+			bool IsValid() const;
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			RenderBuffer& operator=(const RenderBuffer&) = delete;
+			RenderBuffer& operator=(RenderBuffer&&) = delete;
 
-		nzPixelFormat m_pixelFormat;
-		unsigned int m_height;
-		unsigned int m_id;
-		unsigned int m_width;
+			template<typename... Args> static RenderBufferRef New(Args&&... args);
 
-		static NzRenderBufferLibrary::LibraryMap s_library;
-};
+			// Signals:
+			NazaraSignal(OnRenderBufferDestroy, const RenderBuffer* /*renderBuffer*/);
+			NazaraSignal(OnRenderBufferRelease, const RenderBuffer* /*renderBuffer*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			PixelFormatType m_pixelFormat;
+			unsigned int m_height;
+			unsigned int m_id;
+			unsigned int m_width;
+
+			static RenderBufferLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Renderer/RenderBuffer.inl>
 

@@ -12,162 +12,165 @@
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
-NzSound::NzSound(const NzSoundBuffer* soundBuffer)
+namespace Nz
 {
-	SetBuffer(soundBuffer);
-}
-
-NzSound::NzSound(const NzSound& sound) :
-NzSoundEmitter(sound)
-{
-	SetBuffer(sound.m_buffer);
-}
-
-NzSound::~NzSound()
-{
-	Stop();
-}
-
-void NzSound::EnableLooping(bool loop)
-{
-	alSourcei(m_source, AL_LOOPING, loop);
-}
-
-const NzSoundBuffer* NzSound::GetBuffer() const
-{
-	return m_buffer;
-}
-
-nzUInt32 NzSound::GetDuration() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_buffer)
+	Sound::Sound(const SoundBuffer* soundBuffer)
 	{
-		NazaraError("Invalid sound buffer");
-		return 0;
-	}
-	#endif
-
-	return m_buffer->GetDuration();
-}
-
-nzUInt32 NzSound::GetPlayingOffset() const
-{
-	ALfloat seconds = -1.f;
-	alGetSourcef(m_source, AL_SEC_OFFSET, &seconds);
-
-	return static_cast<nzUInt32>(seconds*1000);
-}
-
-nzSoundStatus NzSound::GetStatus() const
-{
-	return GetInternalStatus();
-}
-
-bool NzSound::IsLooping() const
-{
-	ALint loop;
-	alGetSourcei(m_source, AL_LOOPING, &loop);
-
-	return loop != AL_FALSE;
-}
-
-bool NzSound::IsPlayable() const
-{
-	return m_buffer != nullptr;
-}
-
-bool NzSound::IsPlaying() const
-{
-	return GetStatus() == nzSoundStatus_Playing;
-}
-
-bool NzSound::LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params)
-{
-	NzSoundBufferRef buffer = NzSoundBuffer::New();
-	if (!buffer->LoadFromFile(filePath, params))
-	{
-		NazaraError("Failed to load buffer from file (" + filePath + ')');
-		return false;
+		SetBuffer(soundBuffer);
 	}
 
-	SetBuffer(buffer);
-	return true;
-}
-
-bool NzSound::LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params)
-{
-	NzSoundBufferRef buffer = NzSoundBuffer::New();
-	if (!buffer->LoadFromMemory(data, size, params))
+	Sound::Sound(const Sound& sound) :
+	SoundEmitter(sound)
 	{
-		NazaraError("Failed to load buffer from memory (" + NzString::Pointer(data) + ')');
-		return false;
+		SetBuffer(sound.m_buffer);
 	}
 
-	SetBuffer(buffer);
-	return true;
-}
-
-bool NzSound::LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params)
-{
-	NzSoundBufferRef buffer = NzSoundBuffer::New();
-	if (!buffer->LoadFromStream(stream, params))
+	Sound::~Sound()
 	{
-		NazaraError("Failed to load buffer from stream");
-		return false;
+		Stop();
 	}
 
-	SetBuffer(buffer);
-	return true;
-}
-
-void NzSound::Pause()
-{
-	alSourcePause(m_source);
-}
-
-void NzSound::Play()
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_buffer)
+	void Sound::EnableLooping(bool loop)
 	{
-		NazaraError("Invalid sound buffer");
-		return;
+		alSourcei(m_source, AL_LOOPING, loop);
 	}
-	#endif
 
-	alSourcePlay(m_source);
-}
-
-void NzSound::SetBuffer(const NzSoundBuffer* buffer)
-{
-	#if NAZARA_AUDIO_SAFE
-	if (buffer && !buffer->IsValid())
+	const SoundBuffer* Sound::GetBuffer() const
 	{
-		NazaraError("Invalid sound buffer");
-		return;
+		return m_buffer;
 	}
-	#endif
 
-	if (m_buffer == buffer)
-		return;
+	UInt32 Sound::GetDuration() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_buffer)
+		{
+			NazaraError("Invalid sound buffer");
+			return 0;
+		}
+		#endif
 
-	Stop();
+		return m_buffer->GetDuration();
+	}
 
-	m_buffer = buffer;
+	UInt32 Sound::GetPlayingOffset() const
+	{
+		ALfloat seconds = -1.f;
+		alGetSourcef(m_source, AL_SEC_OFFSET, &seconds);
 
-	if (m_buffer)
-		alSourcei(m_source, AL_BUFFER, m_buffer->GetOpenALBuffer());
-	else
-		alSourcei(m_source, AL_BUFFER, AL_NONE);
-}
+		return static_cast<UInt32>(seconds*1000);
+	}
 
-void NzSound::SetPlayingOffset(nzUInt32 offset)
-{
-	alSourcef(m_source, AL_SEC_OFFSET, offset/1000.f);
-}
+	SoundStatus Sound::GetStatus() const
+	{
+		return GetInternalStatus();
+	}
 
-void NzSound::Stop()
-{
-	alSourceStop(m_source);
+	bool Sound::IsLooping() const
+	{
+		ALint loop;
+		alGetSourcei(m_source, AL_LOOPING, &loop);
+
+		return loop != AL_FALSE;
+	}
+
+	bool Sound::IsPlayable() const
+	{
+		return m_buffer != nullptr;
+	}
+
+	bool Sound::IsPlaying() const
+	{
+		return GetStatus() == SoundStatus_Playing;
+	}
+
+	bool Sound::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	{
+		SoundBufferRef buffer = SoundBuffer::New();
+		if (!buffer->LoadFromFile(filePath, params))
+		{
+			NazaraError("Failed to load buffer from file (" + filePath + ')');
+			return false;
+		}
+
+		SetBuffer(buffer);
+		return true;
+	}
+
+	bool Sound::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
+	{
+		SoundBufferRef buffer = SoundBuffer::New();
+		if (!buffer->LoadFromMemory(data, size, params))
+		{
+			NazaraError("Failed to load buffer from memory (" + String::Pointer(data) + ')');
+			return false;
+		}
+
+		SetBuffer(buffer);
+		return true;
+	}
+
+	bool Sound::LoadFromStream(Stream& stream, const SoundBufferParams& params)
+	{
+		SoundBufferRef buffer = SoundBuffer::New();
+		if (!buffer->LoadFromStream(stream, params))
+		{
+			NazaraError("Failed to load buffer from stream");
+			return false;
+		}
+
+		SetBuffer(buffer);
+		return true;
+	}
+
+	void Sound::Pause()
+	{
+		alSourcePause(m_source);
+	}
+
+	void Sound::Play()
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_buffer)
+		{
+			NazaraError("Invalid sound buffer");
+			return;
+		}
+		#endif
+
+		alSourcePlay(m_source);
+	}
+
+	void Sound::SetBuffer(const SoundBuffer* buffer)
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (buffer && !buffer->IsValid())
+		{
+			NazaraError("Invalid sound buffer");
+			return;
+		}
+		#endif
+
+		if (m_buffer == buffer)
+			return;
+
+		Stop();
+
+		m_buffer = buffer;
+
+		if (m_buffer)
+			alSourcei(m_source, AL_BUFFER, m_buffer->GetOpenALBuffer());
+		else
+			alSourcei(m_source, AL_BUFFER, AL_NONE);
+	}
+
+	void Sound::SetPlayingOffset(UInt32 offset)
+	{
+		alSourcef(m_source, AL_SEC_OFFSET, offset/1000.f);
+	}
+
+	void Sound::Stop()
+	{
+		alSourceStop(m_source);
+	}
 }

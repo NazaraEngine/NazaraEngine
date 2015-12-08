@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
+#include <memory>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
 	#include <Nazara/Core/ThreadSafety.hpp>
@@ -24,41 +25,38 @@
 	#define NazaraDebug(txt)
 #endif
 
-#define NazaraLog NzLog::Instance()
-#define NazaraNotice(txt) NazaraLog->Write(txt)
+#define NazaraNotice(txt) Nz::Log::Write(txt)
 
-class NzFile;
-
-class NAZARA_CORE_API NzLog : NzNonCopyable
+namespace Nz
 {
-	public:
-		void Enable(bool enable);
-		void EnableAppend(bool enable);
-		void EnableDateTime(bool enable);
+	class AbstractLogger;
 
-		NzString GetFile() const;
+	class NAZARA_CORE_API Log
+	{
+		friend class Core;
 
-		bool IsEnabled() const;
+		public:
+			static void Enable(bool enable);
 
-		void SetFile(const NzString& filePath);
+			static AbstractLogger* GetLogger();
 
-		void Write(const NzString& string);
-		void WriteError(nzErrorType type, const NzString& error);
-		void WriteError(nzErrorType type, const NzString& error, unsigned int line, const NzString& file, const NzString& func);
+			static bool IsEnabled();
 
-		static NzLog* Instance();
+			static void SetLogger(AbstractLogger* logger);
 
-	private:
-		NzLog();
-		~NzLog();
+			static void Write(const String& string);
+			static void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
-		NazaraMutexAttrib(m_mutex, mutable)
+			NazaraStaticSignal(OnLogWrite, const String& /*string*/);
+			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const String& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
 
-		NzString m_filePath;
-		NzFile* m_file;
-		bool m_append;
-		bool m_enabled;
-		bool m_writeTime;
-};
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			static AbstractLogger* s_logger;
+			static bool s_enabled;
+	};
+}
 
 #endif // NAZARA_LOGGER_HPP

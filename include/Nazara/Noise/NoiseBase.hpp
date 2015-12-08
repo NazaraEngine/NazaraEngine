@@ -10,34 +10,39 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/Config.hpp>
 
-enum nzNoises
+namespace Nz
 {
-    PERLIN,
-    SIMPLEX,
-    CELL
-};
+	enum NoiseType
+	{
+		PERLIN,
+		SIMPLEX,
+		CELL
+	};
 
-class NAZARA_NOISE_API NzNoiseBase
-{
-    public:
-        NzNoiseBase(unsigned int seed = 0);
-        ~NzNoiseBase() = default;
+	class NAZARA_NOISE_API NoiseBase
+	{
+		public:
+			NoiseBase(unsigned int seed = 0);
+			~NoiseBase() = default;
 
-        void SetNewSeed(unsigned int seed);
+			void SetNewSeed(unsigned int seed);
 
-        void ShufflePermutationTable();
+			void ShufflePermutationTable();
 
-        unsigned int GetUniformRandomValue();
+			unsigned int GetUniformRandomValue();
 
-        int fastfloor(float n);
-        int JenkinsHash(int a, int b, int c);
-    protected:
-        unsigned int perm[512];
-    private:
-        unsigned int Ua, Uc, Um;
-        unsigned int UcurrentSeed;
-        unsigned int Uprevious, Ulast;
+			int fastfloor(float n);
+			int JenkinsHash(int a, int b, int c);
 
-};
+		protected:
+			unsigned int perm[512];
+
+		private:
+			unsigned int Ua, Uc, Um;
+			unsigned int UcurrentSeed;
+			unsigned int Uprevious, Ulast;
+
+	};
+}
 
 #endif // NOISEBASE_HPP

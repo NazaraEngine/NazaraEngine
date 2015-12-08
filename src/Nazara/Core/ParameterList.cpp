@@ -10,447 +10,439 @@
 #include <new>
 #include <Nazara/Core/Debug.hpp>
 
-NzParameterList::NzParameterList(const NzParameterList& list)
+namespace Nz
 {
-	operator=(list);
-}
-
-NzParameterList::NzParameterList(NzParameterList&& list) :
-m_parameters(std::move(list.m_parameters))
-{
-}
-
-NzParameterList::~NzParameterList()
-{
-	Clear();
-}
-
-void NzParameterList::Clear()
-{
-	for (auto it = m_parameters.begin(); it != m_parameters.end(); ++it)
-		DestroyValue(it->second);
-
-	m_parameters.clear();
-}
-
-bool NzParameterList::GetBooleanParameter(const NzString& name, bool* value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
+	ParameterList::ParameterList(const ParameterList& list)
 	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
+		operator=(list);
 	}
 
-	switch (it->second.type)
+	ParameterList::~ParameterList()
 	{
-		case nzParameterType_Boolean:
-			*value = it->second.value.boolVal;
-			return true;
+		Clear();
+	}
 
-		case nzParameterType_Integer:
-			*value = (it->second.value.intVal != 0);
-			return true;
+	void ParameterList::Clear()
+	{
+		for (auto it = m_parameters.begin(); it != m_parameters.end(); ++it)
+			DestroyValue(it->second);
 
-		case nzParameterType_String:
+		m_parameters.clear();
+	}
+
+	bool ParameterList::GetBooleanParameter(const String& name, bool* value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
 		{
-			bool converted;
-			if (it->second.value.stringVal.ToBool(&converted, NzString::CaseInsensitive))
-			{
-				*value = converted;
-				return true;
-			}
-
-			break;
-		}
-
-		case nzParameterType_Float:
-		case nzParameterType_None:
-		case nzParameterType_Pointer:
-		case nzParameterType_Userdata:
-			break;
-	}
-
-	NazaraError("Parameter value is not representable as a boolean");
-	return false;
-}
-
-bool NzParameterList::GetFloatParameter(const NzString& name, float* value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
-	}
-
-	switch (it->second.type)
-	{
-		case nzParameterType_Float:
-			*value = it->second.value.floatVal;
-			return true;
-
-		case nzParameterType_Integer:
-			*value = static_cast<float>(it->second.value.intVal);
-			return true;
-
-		case nzParameterType_String:
-		{
-			double converted;
-			if (it->second.value.stringVal.ToDouble(&converted))
-			{
-				*value = static_cast<float>(converted);
-				return true;
-			}
-
-			break;
-		}
-
-		case nzParameterType_Boolean:
-		case nzParameterType_None:
-		case nzParameterType_Pointer:
-		case nzParameterType_Userdata:
-			break;
-	}
-
-	NazaraError("Parameter value is not representable as a float");
-	return false;
-}
-
-bool NzParameterList::GetIntegerParameter(const NzString& name, int* value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
-	}
-
-	switch (it->second.type)
-	{
-		case nzParameterType_Boolean:
-			*value = (it->second.value.boolVal) ? 1 : 0;
-			return true;
-
-		case nzParameterType_Float:
-			*value = static_cast<int>(it->second.value.floatVal);
-			return true;
-
-		case nzParameterType_Integer:
-			*value = it->second.value.intVal;
+			NazaraError("Parameter \"" + name + "\" is not present");
 			return false;
-
-		case nzParameterType_String:
-		{
-			long long converted;
-			if (it->second.value.stringVal.ToInteger(&converted))
-			{
-				if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
-				{
-					*value = static_cast<int>(converted);
-					return true;
-				}
-			}
-			break;
 		}
-
-		case nzParameterType_None:
-		case nzParameterType_Pointer:
-		case nzParameterType_Userdata:
-			break;
-	}
-
-	NazaraError("Parameter value is not representable as a integer");
-	return false;
-}
-
-bool NzParameterList::GetParameterType(const NzString& name, nzParameterType* type) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-		return false;
-
-	*type = it->second.type;
-
-	return true;
-}
-
-bool NzParameterList::GetPointerParameter(const NzString& name, void** value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
-	}
-
-	switch (it->second.type)
-	{
-		case nzParameterType_Pointer:
-			*value = it->second.value.ptrVal;
-			return true;
-
-		case nzParameterType_Userdata:
-			*value = it->second.value.userdataVal->ptr;
-			return true;
-
-		case nzParameterType_Boolean:
-		case nzParameterType_Float:
-		case nzParameterType_Integer:
-		case nzParameterType_None:
-		case nzParameterType_String:
-			break;
-	}
-
-	NazaraError("Parameter value is not a pointer");
-	return false;
-}
-
-bool NzParameterList::GetStringParameter(const NzString& name, NzString* value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
-	}
-
-	switch (it->second.type)
-	{
-		case nzParameterType_Boolean:
-			*value = NzString::Boolean(it->second.value.boolVal);
-			return true;
-
-		case nzParameterType_Float:
-			*value = NzString::Number(it->second.value.floatVal);
-			return true;
-
-		case nzParameterType_Integer:
-			*value = NzString::Number(it->second.value.intVal);
-			return true;
-
-		case nzParameterType_String:
-			*value = it->second.value.stringVal;
-			return true;
-
-		case nzParameterType_Pointer:
-			*value = NzString::Pointer(it->second.value.ptrVal);
-			return true;
-
-		case nzParameterType_Userdata:
-			*value = NzString::Pointer(it->second.value.userdataVal->ptr);
-			return true;
-
-		case nzParameterType_None:
-			*value = NzString();
-			return true;
-	}
-
-	NazaraInternalError("Parameter value is not valid");
-	return false;
-}
-
-bool NzParameterList::GetUserdataParameter(const NzString& name, void** value) const
-{
-	auto it = m_parameters.find(name);
-	if (it == m_parameters.end())
-	{
-		NazaraError("Parameter \"" + name + "\" is not present");
-		return false;
-	}
-
-	if (it->second.type == nzParameterType_Userdata)
-	{
-		*value = it->second.value.userdataVal->ptr;
-		return true;
-	}
-	else
-	{
-		NazaraError("Parameter value is not a userdata");
-		return false;
-	}
-}
-
-bool NzParameterList::HasParameter(const NzString& name) const
-{
-	return m_parameters.find(name) != m_parameters.end();
-}
-
-void NzParameterList::RemoveParameter(const NzString& name)
-{
-	auto it = m_parameters.find(name);
-	if (it != m_parameters.end())
-	{
-		DestroyValue(it->second);
-		m_parameters.erase(it);
-	}
-}
-
-void NzParameterList::SetParameter(const NzString& name)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_None;
-}
-
-void NzParameterList::SetParameter(const NzString& name, const NzString& value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_String;
-
-	NzPlacementNew<NzString>(&parameter.value.stringVal, value);
-}
-
-void NzParameterList::SetParameter(const NzString& name, const char* value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_String;
-
-	NzPlacementNew<NzString>(&parameter.value.stringVal, value);
-}
-
-void NzParameterList::SetParameter(const NzString& name, void* value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_Pointer;
-	parameter.value.ptrVal = value;
-}
-
-void NzParameterList::SetParameter(const NzString& name, void* value, Destructor destructor)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_Userdata;
-	parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
-}
-
-void NzParameterList::SetParameter(const NzString& name, bool value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_Boolean;
-	parameter.value.boolVal = value;
-}
-
-void NzParameterList::SetParameter(const NzString& name, float value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_Float;
-	parameter.value.floatVal = value;
-}
-
-void NzParameterList::SetParameter(const NzString& name, int value)
-{
-	std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-	Parameter& parameter = pair.first->second;
-
-	if (!pair.second)
-		DestroyValue(parameter);
-
-	parameter.type = nzParameterType_Integer;
-	parameter.value.intVal = value;
-}
-
-NzParameterList& NzParameterList::operator=(const NzParameterList& list)
-{
-	Clear();
-
-	for (auto it = list.m_parameters.begin(); it != list.m_parameters.end(); ++it)
-	{
-		Parameter& parameter = m_parameters[it->first];
 
 		switch (it->second.type)
 		{
-			case nzParameterType_Boolean:
-			case nzParameterType_Float:
-			case nzParameterType_Integer:
-			case nzParameterType_Pointer:
-				std::memcpy(&parameter, &it->second, sizeof(Parameter));
-				break;
+			case ParameterType_Boolean:
+				*value = it->second.value.boolVal;
+				return true;
 
-			case nzParameterType_String:
-				parameter.type = nzParameterType_String;
+			case ParameterType_Integer:
+				*value = (it->second.value.intVal != 0);
+				return true;
 
-				NzPlacementNew<NzString>(&parameter.value.stringVal, it->second.value.stringVal);
-				break;
+			case ParameterType_String:
+			{
+				bool converted;
+				if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
+				{
+					*value = converted;
+					return true;
+				}
 
-			case nzParameterType_Userdata:
-				parameter.type = nzParameterType_Userdata;
-				parameter.value.userdataVal = it->second.value.userdataVal;
-				++(parameter.value.userdataVal->counter);
 				break;
+			}
 
-			case nzParameterType_None:
-				parameter.type = nzParameterType_None;
+			case ParameterType_Float:
+			case ParameterType_None:
+			case ParameterType_Pointer:
+			case ParameterType_Userdata:
 				break;
+		}
+
+		NazaraError("Parameter value is not representable as a boolean");
+		return false;
+	}
+
+	bool ParameterList::GetFloatParameter(const String& name, float* value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		switch (it->second.type)
+		{
+			case ParameterType_Float:
+				*value = it->second.value.floatVal;
+				return true;
+
+			case ParameterType_Integer:
+				*value = static_cast<float>(it->second.value.intVal);
+				return true;
+
+			case ParameterType_String:
+			{
+				double converted;
+				if (it->second.value.stringVal.ToDouble(&converted))
+				{
+					*value = static_cast<float>(converted);
+					return true;
+				}
+
+				break;
+			}
+
+			case ParameterType_Boolean:
+			case ParameterType_None:
+			case ParameterType_Pointer:
+			case ParameterType_Userdata:
+				break;
+		}
+
+		NazaraError("Parameter value is not representable as a float");
+		return false;
+	}
+
+	bool ParameterList::GetIntegerParameter(const String& name, int* value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		switch (it->second.type)
+		{
+			case ParameterType_Boolean:
+				*value = (it->second.value.boolVal) ? 1 : 0;
+				return true;
+
+			case ParameterType_Float:
+				*value = static_cast<int>(it->second.value.floatVal);
+				return true;
+
+			case ParameterType_Integer:
+				*value = it->second.value.intVal;
+				return false;
+
+			case ParameterType_String:
+			{
+				long long converted;
+				if (it->second.value.stringVal.ToInteger(&converted))
+				{
+					if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
+					{
+						*value = static_cast<int>(converted);
+						return true;
+					}
+				}
+				break;
+			}
+
+			case ParameterType_None:
+			case ParameterType_Pointer:
+			case ParameterType_Userdata:
+				break;
+		}
+
+		NazaraError("Parameter value is not representable as a integer");
+		return false;
+	}
+
+	bool ParameterList::GetParameterType(const String& name, ParameterType* type) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+			return false;
+
+		*type = it->second.type;
+
+		return true;
+	}
+
+	bool ParameterList::GetPointerParameter(const String& name, void** value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		switch (it->second.type)
+		{
+			case ParameterType_Pointer:
+				*value = it->second.value.ptrVal;
+				return true;
+
+			case ParameterType_Userdata:
+				*value = it->second.value.userdataVal->ptr;
+				return true;
+
+			case ParameterType_Boolean:
+			case ParameterType_Float:
+			case ParameterType_Integer:
+			case ParameterType_None:
+			case ParameterType_String:
+				break;
+		}
+
+		NazaraError("Parameter value is not a pointer");
+		return false;
+	}
+
+	bool ParameterList::GetStringParameter(const String& name, String* value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		switch (it->second.type)
+		{
+			case ParameterType_Boolean:
+				*value = String::Boolean(it->second.value.boolVal);
+				return true;
+
+			case ParameterType_Float:
+				*value = String::Number(it->second.value.floatVal);
+				return true;
+
+			case ParameterType_Integer:
+				*value = String::Number(it->second.value.intVal);
+				return true;
+
+			case ParameterType_String:
+				*value = it->second.value.stringVal;
+				return true;
+
+			case ParameterType_Pointer:
+				*value = String::Pointer(it->second.value.ptrVal);
+				return true;
+
+			case ParameterType_Userdata:
+				*value = String::Pointer(it->second.value.userdataVal->ptr);
+				return true;
+
+			case ParameterType_None:
+				*value = String();
+				return true;
+		}
+
+		NazaraInternalError("Parameter value is not valid");
+		return false;
+	}
+
+	bool ParameterList::GetUserdataParameter(const String& name, void** value) const
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		if (it->second.type == ParameterType_Userdata)
+		{
+			*value = it->second.value.userdataVal->ptr;
+			return true;
+		}
+		else
+		{
+			NazaraError("Parameter value is not a userdata");
+			return false;
 		}
 	}
 
-	return *this;
-}
-
-NzParameterList& NzParameterList::operator=(NzParameterList&& list)
-{
-	m_parameters = std::move(list.m_parameters);
-	return *this;
-}
-
-void NzParameterList::DestroyValue(Parameter& parameter)
-{
-	switch (parameter.type)
+	bool ParameterList::HasParameter(const String& name) const
 	{
-		case nzParameterType_String:
-			parameter.value.stringVal.~NzString();
-			break;
+		return m_parameters.find(name) != m_parameters.end();
+	}
 
-		case nzParameterType_Userdata:
+	void ParameterList::RemoveParameter(const String& name)
+	{
+		auto it = m_parameters.find(name);
+		if (it != m_parameters.end())
 		{
-			Parameter::UserdataValue* userdata = parameter.value.userdataVal;
-			if (--userdata->counter == 0)
+			DestroyValue(it->second);
+			m_parameters.erase(it);
+		}
+	}
+
+	void ParameterList::SetParameter(const String& name)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_None;
+	}
+
+	void ParameterList::SetParameter(const String& name, const String& value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_String;
+
+		PlacementNew<String>(&parameter.value.stringVal, value);
+	}
+
+	void ParameterList::SetParameter(const String& name, const char* value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_String;
+
+		PlacementNew<String>(&parameter.value.stringVal, value);
+	}
+
+	void ParameterList::SetParameter(const String& name, void* value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_Pointer;
+		parameter.value.ptrVal = value;
+	}
+
+	void ParameterList::SetParameter(const String& name, void* value, Destructor destructor)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_Userdata;
+		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
+	}
+
+	void ParameterList::SetParameter(const String& name, bool value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_Boolean;
+		parameter.value.boolVal = value;
+	}
+
+	void ParameterList::SetParameter(const String& name, float value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_Float;
+		parameter.value.floatVal = value;
+	}
+
+	void ParameterList::SetParameter(const String& name, int value)
+	{
+		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
+		Parameter& parameter = pair.first->second;
+
+		if (!pair.second)
+			DestroyValue(parameter);
+
+		parameter.type = ParameterType_Integer;
+		parameter.value.intVal = value;
+	}
+
+	ParameterList& ParameterList::operator=(const ParameterList& list)
+	{
+		Clear();
+
+		for (auto it = list.m_parameters.begin(); it != list.m_parameters.end(); ++it)
+		{
+			Parameter& parameter = m_parameters[it->first];
+
+			switch (it->second.type)
 			{
-				userdata->destructor(userdata->ptr);
-				delete userdata;
+				case ParameterType_Boolean:
+				case ParameterType_Float:
+				case ParameterType_Integer:
+				case ParameterType_Pointer:
+					std::memcpy(&parameter, &it->second, sizeof(Parameter));
+					break;
+
+				case ParameterType_String:
+					parameter.type = ParameterType_String;
+
+					PlacementNew<String>(&parameter.value.stringVal, it->second.value.stringVal);
+					break;
+
+				case ParameterType_Userdata:
+					parameter.type = ParameterType_Userdata;
+					parameter.value.userdataVal = it->second.value.userdataVal;
+					++(parameter.value.userdataVal->counter);
+					break;
+
+				case ParameterType_None:
+					parameter.type = ParameterType_None;
+					break;
 			}
-			break;
 		}
 
-		case nzParameterType_Boolean:
-		case nzParameterType_Float:
-		case nzParameterType_Integer:
-		case nzParameterType_None:
-		case nzParameterType_Pointer:
-			break;
+		return *this;
+	}
+
+	void ParameterList::DestroyValue(Parameter& parameter)
+	{
+		switch (parameter.type)
+		{
+			case ParameterType_String:
+				parameter.value.stringVal.~String();
+				break;
+
+			case ParameterType_Userdata:
+			{
+				Parameter::UserdataValue* userdata = parameter.value.userdataVal;
+				if (--userdata->counter == 0)
+				{
+					userdata->destructor(userdata->ptr);
+					delete userdata;
+				}
+				break;
+			}
+
+			case ParameterType_Boolean:
+			case ParameterType_Float:
+			case ParameterType_Integer:
+			case ParameterType_None:
+			case ParameterType_Pointer:
+				break;
+		}
 	}
 }

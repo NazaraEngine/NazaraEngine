@@ -9,37 +9,41 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 
-class NzAbstractViewer;
-class NzBackground;
-struct SceneData;
-
-class NAZARA_GRAPHICS_API NzAbstractRenderTechnique
+namespace Nz
 {
-	public:
-		NzAbstractRenderTechnique();
-		NzAbstractRenderTechnique(const NzAbstractRenderTechnique&) = delete;
-		virtual ~NzAbstractRenderTechnique();
+	class AbstractViewer;
+	class Background;
+	struct SceneData;
 
-		virtual bool Draw(const NzSceneData& sceneData) const = 0;
+	class NAZARA_GRAPHICS_API AbstractRenderTechnique
+	{
+		public:
+			AbstractRenderTechnique();
+			AbstractRenderTechnique(const AbstractRenderTechnique&) = delete;
+			AbstractRenderTechnique(AbstractRenderTechnique&&) = default;
+			virtual ~AbstractRenderTechnique();
 
-		virtual void EnableInstancing(bool instancing);
+			virtual bool Draw(const SceneData& sceneData) const = 0;
 
-		virtual NzString GetName() const;
-		virtual NzAbstractRenderQueue* GetRenderQueue() = 0;
-		virtual nzRenderTechniqueType GetType() const = 0;
+			virtual void EnableInstancing(bool instancing);
 
-		virtual bool IsInstancingEnabled() const;
+			virtual String GetName() const;
+			virtual AbstractRenderQueue* GetRenderQueue() = 0;
+			virtual RenderTechniqueType GetType() const = 0;
 
-		NzAbstractRenderTechnique& operator=(const NzAbstractRenderTechnique&) = delete;
+			virtual bool IsInstancingEnabled() const;
 
-	protected:
-		bool m_instancingEnabled;
-};
+			AbstractRenderTechnique& operator=(const AbstractRenderTechnique&) = delete;
+			AbstractRenderTechnique& operator=(AbstractRenderTechnique&&) = default;
+
+		protected:
+			bool m_instancingEnabled;
+	};
+}
 
 #endif // NAZARA_ABSTRACTRENDERTECHNIQUE_HPP

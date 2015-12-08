@@ -5,28 +5,31 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractRenderQueue::~NzAbstractRenderQueue() = default;
-
-void NzAbstractRenderQueue::AddDirectionalLight(const DirectionalLight& light)
+namespace Nz
 {
-	directionalLights.push_back(light);
-}
+	AbstractRenderQueue::~AbstractRenderQueue() = default;
 
-void NzAbstractRenderQueue::AddPointLight(const PointLight& light)
-{
-	pointLights.push_back(light);
-}
+	void AbstractRenderQueue::AddDirectionalLight(const DirectionalLight& light)
+	{
+		directionalLights.push_back(light);
+	}
 
-void NzAbstractRenderQueue::AddSpotLight(const SpotLight& light)
-{
-	spotLights.push_back(light);
-}
+	void AbstractRenderQueue::AddPointLight(const PointLight& light)
+	{
+		pointLights.push_back(light);
+	}
 
-void NzAbstractRenderQueue::Clear(bool fully)
-{
-	NazaraUnused(fully);
+	void AbstractRenderQueue::AddSpotLight(const SpotLight& light)
+	{
+		spotLights.push_back(light);
+	}
 
-	directionalLights.clear();
-	pointLights.clear();
-	spotLights.clear();
+	void AbstractRenderQueue::Clear(bool fully)
+	{
+		NazaraUnused(fully);
+
+		directionalLights.clear();
+		pointLights.clear();
+		spotLights.clear();
+	}
 }

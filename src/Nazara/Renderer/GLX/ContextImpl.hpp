@@ -9,31 +9,34 @@
 
 #include <Nazara/Renderer/OpenGL.hpp>
 
-class NzContextParameters;
-
-class NzContextImpl
+namespace Nz
 {
-	public:
-		NzContextImpl();
-		~NzContextImpl();
+	class ContextParameters;
 
-		bool Activate();
+	class ContextImpl
+	{
+		public:
+			ContextImpl();
+			~ContextImpl();
 
-		bool Create(NzContextParameters& parameters);
+			bool Activate();
 
-		void Destroy();
+			bool Create(ContextParameters& parameters);
 
-		void EnableVerticalSync(bool enabled);
+			void Destroy();
 
-		void SwapBuffers();
+			void EnableVerticalSync(bool enabled);
 
-		static bool Desactivate();
+			void SwapBuffers();
 
-	private:
-		GLX::Colormap m_colormap;
-		GLX::GLXContext m_context;
-		GLX::Window m_window;
-		bool m_ownsWindow;
-};
+			static bool Desactivate();
+
+		private:
+			GLX::Colormap m_colormap;
+			GLX::GLXContext m_context;
+			GLX::Window m_window;
+			bool m_ownsWindow;
+	};
+}
 
 #endif // NAZARA_CONTEXTIMPL_HPP

@@ -7,49 +7,49 @@
 #ifndef NAZARA_ENUMS_LUA_HPP
 #define NAZARA_ENUMS_LUA_HPP
 
-enum nzLuaComparison
+enum LuaComparison
 {
-	nzLuaComparison_Equality,
-	nzLuaComparison_Less,
-	nzLuaComparison_LessOrEqual,
+	LuaComparison_Equality,
+	LuaComparison_Less,
+	LuaComparison_LessOrEqual,
 
-	nzLuaComparison_Max = nzLuaComparison_LessOrEqual
+	LuaComparison_Max = LuaComparison_LessOrEqual
 };
 
-enum nzLuaOperation
+enum LuaOperation
 {
-	nzLuaOperation_Addition,
-	nzLuaOperation_BitwiseAnd,
-	nzLuaOperation_BitwiseLeftShift,
-	nzLuaOperation_BitwiseNot,
-	nzLuaOperation_BitwiseOr,
-	nzLuaOperation_BitwideRightShift,
-	nzLuaOperation_BitwiseXOr,
-	nzLuaOperation_Division,
-	nzLuaOperation_Exponentiation,
-	nzLuaOperation_FloorDivision,
-	nzLuaOperation_Modulo,
-	nzLuaOperation_Multiplication,
-	nzLuaOperation_Negation,
-	nzLuaOperation_Substraction,
+	LuaOperation_Addition,
+	LuaOperation_BitwiseAnd,
+	LuaOperation_BitwiseLeftShift,
+	LuaOperation_BitwiseNot,
+	LuaOperation_BitwiseOr,
+	LuaOperation_BitwideRightShift,
+	LuaOperation_BitwiseXOr,
+	LuaOperation_Division,
+	LuaOperation_Exponentiation,
+	LuaOperation_FloorDivision,
+	LuaOperation_Modulo,
+	LuaOperation_Multiplication,
+	LuaOperation_Negation,
+	LuaOperation_Substraction,
 
-	nzLuaOperation_Max = nzLuaOperation_Substraction
+	LuaOperation_Max = LuaOperation_Substraction
 };
 
-enum nzLuaType
+enum LuaType
 {
-	nzLuaType_Boolean,
-	nzLuaType_Function,
-	nzLuaType_LightUserdata,
-	nzLuaType_Nil,
-	nzLuaType_Number,
-	nzLuaType_None,
-	nzLuaType_String,
-	nzLuaType_Table,
-	nzLuaType_Thread,
-	nzLuaType_Userdata,
+	LuaType_Boolean,
+	LuaType_Function,
+	LuaType_LightUserdata,
+	LuaType_Nil,
+	LuaType_Number,
+	LuaType_None,
+	LuaType_String,
+	LuaType_Table,
+	LuaType_Thread,
+	LuaType_Userdata,
 
-	nzLuaType_Max = nzLuaType_Userdata
+	LuaType_Max = LuaType_Userdata
 };
 
 #endif // NAZARA_ENUMS_LUA_HPP

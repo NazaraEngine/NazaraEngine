@@ -16,64 +16,67 @@
 #include <Nazara/Utility/Joint.hpp>
 #include <vector>
 
-class NzSkeleton;
-
-using NzSkeletonConstRef = NzObjectRef<const NzSkeleton>;
-using NzSkeletonLibrary = NzObjectLibrary<NzSkeleton>;
-using NzSkeletonRef = NzObjectRef<NzSkeleton>;
-
-struct NzSkeletonImpl;
-
-class NAZARA_UTILITY_API NzSkeleton : public NzRefCounted
+namespace Nz
 {
-	friend NzJoint;
-	friend NzSkeletonLibrary;
-	friend class NzUtility;
+	class Skeleton;
 
-	public:
-		NzSkeleton() = default;
-		NzSkeleton(const NzSkeleton& skeleton);
-		~NzSkeleton();
+	using SkeletonConstRef = ObjectRef<const Skeleton>;
+	using SkeletonLibrary = ObjectLibrary<Skeleton>;
+	using SkeletonRef = ObjectRef<Skeleton>;
 
-		bool Create(unsigned int jointCount);
-		void Destroy();
+	struct SkeletonImpl;
 
-		const NzBoxf& GetAABB() const;
-		NzJoint* GetJoint(const NzString& jointName);
-		NzJoint* GetJoint(unsigned int index);
-		const NzJoint* GetJoint(const NzString& jointName) const;
-		const NzJoint* GetJoint(unsigned int index) const;
-		NzJoint* GetJoints();
-		const NzJoint* GetJoints() const;
-		unsigned int GetJointCount() const;
-		int GetJointIndex(const NzString& jointName) const;
+	class NAZARA_UTILITY_API Skeleton : public RefCounted
+	{
+		friend Joint;
+		friend SkeletonLibrary;
+		friend class Utility;
 
-		void Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation);
-		void Interpolate(const NzSkeleton& skeletonA, const NzSkeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount);
+		public:
+			Skeleton() = default;
+			Skeleton(const Skeleton& skeleton);
+			~Skeleton();
 
-		bool IsValid() const;
+			bool Create(unsigned int jointCount);
+			void Destroy();
 
-		NzSkeleton& operator=(const NzSkeleton& skeleton);
+			const Boxf& GetAABB() const;
+			Joint* GetJoint(const String& jointName);
+			Joint* GetJoint(unsigned int index);
+			const Joint* GetJoint(const String& jointName) const;
+			const Joint* GetJoint(unsigned int index) const;
+			Joint* GetJoints();
+			const Joint* GetJoints() const;
+			unsigned int GetJointCount() const;
+			int GetJointIndex(const String& jointName) const;
 
-		template<typename... Args> static NzSkeletonRef New(Args&&... args);
+			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation);
+			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount);
 
-		// Signals:
-		NazaraSignal(OnSkeletonDestroy, const NzSkeleton* /*skeleton*/);
-		NazaraSignal(OnSkeletonJointsInvalidated, const NzSkeleton* /*skeleton*/);
-		NazaraSignal(OnSkeletonRelease, const NzSkeleton* /*skeleton*/);
+			bool IsValid() const;
 
-	private:
-		void InvalidateJoints();
-		void InvalidateJointMap();
-		void UpdateJointMap() const;
+			Skeleton& operator=(const Skeleton& skeleton);
 
-		static bool Initialize();
-		static void Uninitialize();
+			template<typename... Args> static SkeletonRef New(Args&&... args);
 
-		NzSkeletonImpl* m_impl = nullptr;
+			// Signals:
+			NazaraSignal(OnSkeletonDestroy, const Skeleton* /*skeleton*/);
+			NazaraSignal(OnSkeletonJointsInvalidated, const Skeleton* /*skeleton*/);
+			NazaraSignal(OnSkeletonRelease, const Skeleton* /*skeleton*/);
 
-		static NzSkeletonLibrary::LibraryMap s_library;
-};
+		private:
+			void InvalidateJoints();
+			void InvalidateJointMap();
+			void UpdateJointMap() const;
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			SkeletonImpl* m_impl = nullptr;
+
+			static SkeletonLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Utility/Skeleton.inl>
 

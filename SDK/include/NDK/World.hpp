@@ -8,7 +8,6 @@
 #define NDK_WORLD_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityHandle.hpp>
 #include <NDK/System.hpp>
@@ -19,7 +18,7 @@
 
 namespace Ndk
 {
-	class NDK_API World : NzNonCopyable
+	class NDK_API World
 	{
 		friend Entity;
 
@@ -27,6 +26,8 @@ namespace Ndk
 			using EntityList = std::vector<EntityHandle>;
 
 			inline World(bool addDefaultSystems = true);
+			World(const World&) = delete;
+			World(World&&) = delete; ///TODO
 			~World();
 
 			void AddDefaultSystems();
@@ -60,6 +61,9 @@ namespace Ndk
 			void Update();
 			inline void Update(float elapsedTime);
 
+			World& operator=(const World&) = delete;
+			World& operator=(World&&) = delete; ///TODO
+
 		private:
 			inline void Invalidate();
 			inline void Invalidate(EntityId id);
@@ -81,8 +85,8 @@ namespace Ndk
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
-			NzBitset<nzUInt64> m_dirtyEntities;
-			NzBitset<nzUInt64> m_killedEntities;
+			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
+			Nz::Bitset<Nz::UInt64> m_killedEntities;
 	};
 }
 

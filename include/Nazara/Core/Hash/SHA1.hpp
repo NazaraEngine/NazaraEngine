@@ -9,25 +9,28 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Core/HashDigest.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 
-union SHA_CTX;
-
-class NAZARA_CORE_API NzHashSHA1 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashSHA1();
-		virtual ~NzHashSHA1();
+	union SHA_CTX;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashSHA1 : public AbstractHash
+	{
+		public:
+			HashSHA1();
+			virtual ~HashSHA1();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, std::size_t len) override;
+			void Begin() override;
+			ByteArray End() override;
 
-	private:
-		SHA_CTX* m_state;
-};
+			std::size_t GetDigestLength() const override;
+			const char* GetHashName() const override;
+
+		private:
+			SHA_CTX* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_SHA1_HPP

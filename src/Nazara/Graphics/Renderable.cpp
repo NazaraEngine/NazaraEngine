@@ -5,23 +5,26 @@
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzRenderable::~NzRenderable() = default;
-
-bool NzRenderable::Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const
+namespace Nz
 {
-	NazaraUnused(transformMatrix);
+	Renderable::~Renderable() = default;
 
-	return frustum.Contains(m_boundingVolume);
-}
+	bool Renderable::Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const
+	{
+		NazaraUnused(transformMatrix);
 
-const NzBoundingVolumef& NzRenderable::GetBoundingVolume() const
-{
-	EnsureBoundingVolumeUpdated();
+		return frustum.Contains(m_boundingVolume);
+	}
 
-	return m_boundingVolume;
-}
+	const BoundingVolumef& Renderable::GetBoundingVolume() const
+	{
+		EnsureBoundingVolumeUpdated();
 
-void NzRenderable::UpdateBoundingVolume(const NzMatrix4f& transformMatrix)
-{
-	m_boundingVolume.Update(transformMatrix);
+		return m_boundingVolume;
+	}
+
+	void Renderable::UpdateBoundingVolume(const Matrix4f& transformMatrix)
+	{
+		m_boundingVolume.Update(transformMatrix);
+	}
 }

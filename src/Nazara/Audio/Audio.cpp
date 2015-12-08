@@ -14,233 +14,236 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
-nzAudioFormat NzAudio::GetAudioFormat(unsigned int channelCount)
+namespace Nz
 {
-	switch (channelCount)
+	AudioFormat Audio::GetAudioFormat(unsigned int channelCount)
 	{
-		case 1:
-		case 2:
-		case 4:
-		case 6:
-		case 7:
-		case 8:
-			return static_cast<nzAudioFormat>(channelCount);
+		switch (channelCount)
+		{
+			case 1:
+			case 2:
+			case 4:
+			case 6:
+			case 7:
+			case 8:
+				return static_cast<AudioFormat>(channelCount);
 
-		default:
-			NazaraError("Invalid channel count: " + NzString::Number(channelCount));
-			return nzAudioFormat_Unknown;
+			default:
+				NazaraError("Invalid channel count: " + String::Number(channelCount));
+				return AudioFormat_Unknown;
+		}
 	}
-}
 
-float NzAudio::GetDopplerFactor()
-{
-	return alGetFloat(AL_DOPPLER_FACTOR);
-}
-
-float NzAudio::GetGlobalVolume()
-{
-	ALfloat gain = 0.f;
-	alGetListenerf(AL_GAIN, &gain);
-
-	return gain*100.f;
-}
-
-NzVector3f NzAudio::GetListenerDirection()
-{
-	ALfloat orientation[6];
-	alGetListenerfv(AL_ORIENTATION, orientation);
-
-	return NzVector3f(orientation[0], orientation[1], orientation[2]);
-}
-
-NzVector3f NzAudio::GetListenerPosition()
-{
-	NzVector3f position;
-	alGetListenerfv(AL_POSITION, position);
-
-	return position;
-}
-
-NzQuaternionf NzAudio::GetListenerRotation()
-{
-	ALfloat orientation[6];
-	alGetListenerfv(AL_ORIENTATION, orientation);
-
-	NzVector3f forward(orientation[0], orientation[1], orientation[2]);
-
-	return NzQuaternionf::RotationBetween(NzVector3f::Forward(), forward);
-}
-
-NzVector3f NzAudio::GetListenerVelocity()
-{
-	NzVector3f velocity;
-	alGetListenerfv(AL_VELOCITY, velocity);
-
-	return velocity;
-}
-
-float NzAudio::GetSpeedOfSound()
-{
-	return alGetFloat(AL_SPEED_OF_SOUND);
-}
-
-bool NzAudio::Initialize()
-{
-	if (s_moduleReferenceCounter > 0)
+	float Audio::GetDopplerFactor()
 	{
+		return alGetFloat(AL_DOPPLER_FACTOR);
+	}
+
+	float Audio::GetGlobalVolume()
+	{
+		ALfloat gain = 0.f;
+		alGetListenerf(AL_GAIN, &gain);
+
+		return gain*100.f;
+	}
+
+	Vector3f Audio::GetListenerDirection()
+	{
+		ALfloat orientation[6];
+		alGetListenerfv(AL_ORIENTATION, orientation);
+
+		return Vector3f(orientation[0], orientation[1], orientation[2]);
+	}
+
+	Vector3f Audio::GetListenerPosition()
+	{
+		Vector3f position;
+		alGetListenerfv(AL_POSITION, position);
+
+		return position;
+	}
+
+	Quaternionf Audio::GetListenerRotation()
+	{
+		ALfloat orientation[6];
+		alGetListenerfv(AL_ORIENTATION, orientation);
+
+		Vector3f forward(orientation[0], orientation[1], orientation[2]);
+
+		return Quaternionf::RotationBetween(Vector3f::Forward(), forward);
+	}
+
+	Vector3f Audio::GetListenerVelocity()
+	{
+		Vector3f velocity;
+		alGetListenerfv(AL_VELOCITY, velocity);
+
+		return velocity;
+	}
+
+	float Audio::GetSpeedOfSound()
+	{
+		return alGetFloat(AL_SPEED_OF_SOUND);
+	}
+
+	bool Audio::Initialize()
+	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
+		// Initialisation des dépendances
+		if (!Core::Initialize())
+		{
+			NazaraError("Failed to initialize core module");
+			return false;
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		// Initialisation du module
+		CallOnExit onExit(Audio::Uninitialize);
+
+		// Initialisation d'OpenAL
+		if (!OpenAL::Initialize())
+		{
+			NazaraError("Failed to initialize OpenAL");
+			return false;
+		}
+
+		if (!SoundBuffer::Initialize())
+		{
+			NazaraError("Failed to initialize sound buffers");
+			return false;
+		}
+
+		// Définition de l'orientation par défaut
+		SetListenerDirection(Vector3f::Forward());
+
+		// Loaders
+		Loaders::Register_sndfile();
+
+		onExit.Reset();
+
+		NazaraNotice("Initialized: Audio module");
+		return true;
 	}
 
-	// Initialisation des dépendances
-	if (!NzCore::Initialize())
+	bool Audio::IsFormatSupported(AudioFormat format)
 	{
-		NazaraError("Failed to initialize core module");
-		return false;
+		if (format == AudioFormat_Unknown)
+			return false;
+
+		return OpenAL::AudioFormat[format] != 0;
 	}
 
-	s_moduleReferenceCounter++;
-
-	// Initialisation du module
-	NzCallOnExit onExit(NzAudio::Uninitialize);
-
-	// Initialisation d'OpenAL
-	if (!NzOpenAL::Initialize())
+	bool Audio::IsInitialized()
 	{
-		NazaraError("Failed to initialize OpenAL");
-		return false;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	if (!NzSoundBuffer::Initialize())
+	void Audio::SetDopplerFactor(float dopplerFactor)
 	{
-		NazaraError("Failed to initialize sound buffers");
-		return false;
+		alDopplerFactor(dopplerFactor);
 	}
 
-	// Définition de l'orientation par défaut
-	SetListenerDirection(NzVector3f::Forward());
-
-	// Loaders
-	NzLoaders_sndfile_Register();
-
-	onExit.Reset();
-
-	NazaraNotice("Initialized: Audio module");
-	return true;
-}
-
-bool NzAudio::IsFormatSupported(nzAudioFormat format)
-{
-	if (format == nzAudioFormat_Unknown)
-		return false;
-
-	return NzOpenAL::AudioFormat[format] != 0;
-}
-
-bool NzAudio::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzAudio::SetDopplerFactor(float dopplerFactor)
-{
-	alDopplerFactor(dopplerFactor);
-}
-
-void NzAudio::SetGlobalVolume(float volume)
-{
-	alListenerf(AL_GAIN, volume*0.01f);
-}
-
-void NzAudio::SetListenerDirection(const NzVector3f& direction)
-{
-	NzVector3f up = NzVector3f::Up();
-
-	ALfloat orientation[6] =
+	void Audio::SetGlobalVolume(float volume)
 	{
-		direction.x, direction.y, direction.z,
-		up.x, up.y, up.z
-	};
-
-	alListenerfv(AL_ORIENTATION, orientation);
-}
-
-void NzAudio::SetListenerDirection(float dirX, float dirY, float dirZ)
-{
-	NzVector3f up = NzVector3f::Up();
-
-	ALfloat orientation[6] =
-	{
-		dirX, dirY, dirZ,
-		up.x, up.y, up.z
-	};
-
-	alListenerfv(AL_ORIENTATION, orientation);
-}
-
-void NzAudio::SetListenerPosition(const NzVector3f& position)
-{
-	alListenerfv(AL_POSITION, position);
-}
-
-void NzAudio::SetListenerPosition(float x, float y, float z)
-{
-	alListener3f(AL_POSITION, x, y, z);
-}
-
-void NzAudio::SetListenerRotation(const NzQuaternionf& rotation)
-{
-	NzVector3f forward = rotation * NzVector3f::Forward();
-	NzVector3f up = NzVector3f::Up();
-
-	ALfloat orientation[6] =
-	{
-		forward.x, forward.y, forward.z,
-		up.x, up.y, up.z
-	};
-
-	alListenerfv(AL_ORIENTATION, orientation);
-}
-
-void NzAudio::SetListenerVelocity(const NzVector3f& velocity)
-{
-	alListenerfv(AL_VELOCITY, velocity);
-}
-
-void NzAudio::SetListenerVelocity(float velX, float velY, float velZ)
-{
-	alListener3f(AL_VELOCITY, velX, velY, velZ);
-}
-
-void NzAudio::SetSpeedOfSound(float speed)
-{
-	alSpeedOfSound(speed);
-}
-
-void NzAudio::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
-	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
-
-		return;
+		alListenerf(AL_GAIN, volume*0.01f);
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
+	void Audio::SetListenerDirection(const Vector3f& direction)
+	{
+		Vector3f up = Vector3f::Up();
 
-	// Loaders
-	NzLoaders_sndfile_Unregister();
+		ALfloat orientation[6] =
+		{
+			direction.x, direction.y, direction.z,
+			up.x, up.y, up.z
+		};
 
-	NzSoundBuffer::Uninitialize();
-	NzOpenAL::Uninitialize();
+		alListenerfv(AL_ORIENTATION, orientation);
+	}
 
-	NazaraNotice("Uninitialized: Audio module");
+	void Audio::SetListenerDirection(float dirX, float dirY, float dirZ)
+	{
+		Vector3f up = Vector3f::Up();
 
-	// Libération des dépendances
-	NzCore::Uninitialize();
+		ALfloat orientation[6] =
+		{
+			dirX, dirY, dirZ,
+			up.x, up.y, up.z
+		};
+
+		alListenerfv(AL_ORIENTATION, orientation);
+	}
+
+	void Audio::SetListenerPosition(const Vector3f& position)
+	{
+		alListenerfv(AL_POSITION, position);
+	}
+
+	void Audio::SetListenerPosition(float x, float y, float z)
+	{
+		alListener3f(AL_POSITION, x, y, z);
+	}
+
+	void Audio::SetListenerRotation(const Quaternionf& rotation)
+	{
+		Vector3f forward = rotation * Vector3f::Forward();
+		Vector3f up = Vector3f::Up();
+
+		ALfloat orientation[6] =
+		{
+			forward.x, forward.y, forward.z,
+			up.x, up.y, up.z
+		};
+
+		alListenerfv(AL_ORIENTATION, orientation);
+	}
+
+	void Audio::SetListenerVelocity(const Vector3f& velocity)
+	{
+		alListenerfv(AL_VELOCITY, velocity);
+	}
+
+	void Audio::SetListenerVelocity(float velX, float velY, float velZ)
+	{
+		alListener3f(AL_VELOCITY, velX, velY, velZ);
+	}
+
+	void Audio::SetSpeedOfSound(float speed)
+	{
+		alSpeedOfSound(speed);
+	}
+
+	void Audio::Uninitialize()
+	{
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
+
+			return;
+		}
+
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		// Loaders
+		Loaders::Unregister_sndfile();
+
+		SoundBuffer::Uninitialize();
+		OpenAL::Uninitialize();
+
+		NazaraNotice("Uninitialized: Audio module");
+
+		// Libération des dépendances
+		Core::Uninitialize();
+	}
+
+	unsigned int Audio::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzAudio::s_moduleReferenceCounter = 0;

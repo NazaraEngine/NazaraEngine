@@ -14,107 +14,113 @@
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
-class NAZARA_GRAPHICS_API NzLight : public NzRenderable
+namespace Nz
 {
-	public:
-		NzLight(nzLightType type = nzLightType_Point);
-		inline NzLight(const NzLight& light);
-		NzLight(NzLight&& light) = default;
-		~NzLight() = default;
+	class Light;
+	struct LightUniforms;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const override;
-
-		NzLight* Clone() const;
-		NzLight* Create() const;
-
-		bool Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const override;
-
-		inline void EnableShadowCasting(bool castShadows);
-
-		inline void EnsureShadowMapUpdate() const;
-
-		inline float GetAmbientFactor() const;
-		inline float GetAttenuation() const;
-		inline NzColor GetColor() const;
-		inline float GetDiffuseFactor() const;
-		inline float GetInnerAngle() const;
-		inline float GetInnerAngleCosine() const;
-		inline float GetInvRadius() const;
-		inline nzLightType GetLightType() const;
-		inline float GetOuterAngle() const;
-		inline float GetOuterAngleCosine() const;
-		inline float GetOuterAngleTangent() const;
-		inline float GetRadius() const;
-		inline NzTextureRef GetShadowMap() const;
-		inline nzPixelFormat GetShadowMapFormat() const;
-		inline const NzVector2ui& GetShadowMapSize() const;
-
-		inline bool IsShadowCastingEnabled() const;
-
-		inline void SetAmbientFactor(float factor);
-		inline void SetAttenuation(float attenuation);
-		inline void SetColor(const NzColor& color);
-		inline void SetDiffuseFactor(float factor);
-		inline void SetInnerAngle(float innerAngle);
-		inline void SetLightType(nzLightType type);
-		inline void SetOuterAngle(float outerAngle);
-		inline void SetRadius(float radius);
-		inline void SetShadowMapFormat(nzPixelFormat shadowFormat);
-		inline void SetShadowMapSize(const NzVector2ui& size);
-
-		void UpdateBoundingVolume(const NzMatrix4f& transformMatrix) override;
-
-		NzLight& operator=(const NzLight& light);
-		NzLight& operator=(NzLight&& light) = default;
-
-	private:
-		void MakeBoundingVolume() const override;
-		inline void InvalidateShadowMap();
-		void UpdateShadowMap() const;
-
-		nzLightType m_type;
-		nzPixelFormat m_shadowMapFormat;
-		NzColor m_color;
-		NzVector2ui m_shadowMapSize;
-		mutable NzTextureRef m_shadowMap;
-		bool m_shadowCastingEnabled;
-		mutable bool m_shadowMapUpdated;
-		float m_ambientFactor;
-		float m_attenuation;
-		float m_diffuseFactor;
-		float m_innerAngle;
-		float m_innerAngleCosine;
-		float m_invRadius;
-		float m_outerAngle;
-		float m_outerAngleCosine;
-		float m_outerAngleTangent;
-		float m_radius;
-};
-
-struct NzLightUniforms
-{
-	struct UniformLocations
+	class NAZARA_GRAPHICS_API Light : public Renderable
 	{
-		int type;
-		int color;
-		int directionalSpotLightShadowMap;
-		int factors;
-		int lightViewProjMatrix;
-		int parameters1;
-		int parameters2;
-		int parameters3;
-		int pointLightShadowMap;
-		int shadowMapping;
+		public:
+			Light(LightType type = LightType_Point);
+			inline Light(const Light& light);
+			Light(Light&& light) = default;
+			~Light() = default;
+
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const override;
+
+			Light* Clone() const;
+			Light* Create() const;
+
+			bool Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const override;
+
+			inline void EnableShadowCasting(bool castShadows);
+
+			inline void EnsureShadowMapUpdate() const;
+
+			inline float GetAmbientFactor() const;
+			inline float GetAttenuation() const;
+			inline Color GetColor() const;
+			inline float GetDiffuseFactor() const;
+			inline float GetInnerAngle() const;
+			inline float GetInnerAngleCosine() const;
+			inline float GetInvRadius() const;
+			inline LightType GetLightType() const;
+			inline float GetOuterAngle() const;
+			inline float GetOuterAngleCosine() const;
+			inline float GetOuterAngleTangent() const;
+			inline float GetRadius() const;
+			inline TextureRef GetShadowMap() const;
+			inline PixelFormatType GetShadowMapFormat() const;
+			inline const Vector2ui& GetShadowMapSize() const;
+
+			inline bool IsShadowCastingEnabled() const;
+
+			inline void SetAmbientFactor(float factor);
+			inline void SetAttenuation(float attenuation);
+			inline void SetColor(const Color& color);
+			inline void SetDiffuseFactor(float factor);
+			inline void SetInnerAngle(float innerAngle);
+			inline void SetLightType(LightType type);
+			inline void SetOuterAngle(float outerAngle);
+			inline void SetRadius(float radius);
+			inline void SetShadowMapFormat(PixelFormatType shadowFormat);
+			inline void SetShadowMapSize(const Vector2ui& size);
+
+			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
+
+			Light& operator=(const Light& light);
+			Light& operator=(Light&& light) = default;
+
+		private:
+			void MakeBoundingVolume() const override;
+			inline void InvalidateShadowMap();
+			void UpdateShadowMap() const;
+
+			Color m_color;
+			LightType m_type;
+			PixelFormatType m_shadowMapFormat;
+			Vector2ui m_shadowMapSize;
+			mutable TextureRef m_shadowMap;
+			bool m_shadowCastingEnabled;
+			mutable bool m_shadowMapUpdated;
+			float m_ambientFactor;
+			float m_attenuation;
+			float m_diffuseFactor;
+			float m_innerAngle;
+			float m_innerAngleCosine;
+			float m_invRadius;
+			float m_outerAngle;
+			float m_outerAngleCosine;
+			float m_outerAngleTangent;
+			float m_radius;
 	};
 
-	bool ubo;
-
-	union
+	struct LightUniforms
 	{
-		UniformLocations locations;
-		int blockLocation;
+		struct UniformLocations
+		{
+			int type;
+			int color;
+			int directionalSpotLightShadowMap;
+			int factors;
+			int lightViewProjMatrix;
+			int parameters1;
+			int parameters2;
+			int parameters3;
+			int pointLightShadowMap;
+			int shadowMapping;
+		};
+
+		bool ubo;
+
+		union
+		{
+			UniformLocations locations;
+			int blockLocation;
+		};
 	};
-};
+}
 
 #include <Nazara/Graphics/Light.inl>
 

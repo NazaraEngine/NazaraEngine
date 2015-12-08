@@ -9,13 +9,16 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-class NAZARA_CORE_API NzUpdatable
+namespace Nz
 {
-	public:
-		NzUpdatable() = default;
-		virtual ~NzUpdatable();
+	class NAZARA_CORE_API Updatable
+	{
+		public:
+			Updatable() = default;
+			virtual ~Updatable();
 
-		virtual void Update() = 0;
-};
+			virtual void Update() = 0;
+	};
+}
 
 #endif // NAZARA_UPDATABLE_HPP

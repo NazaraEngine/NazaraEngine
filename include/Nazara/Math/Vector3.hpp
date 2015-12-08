@@ -9,128 +9,131 @@
 
 #include <Nazara/Core/String.hpp>
 
-template<typename T> class NzVector2;
-template<typename T> class NzVector4;
-
-template<typename T>
-class NzVector3
+namespace Nz
 {
-	public:
-		NzVector3() = default;
-		NzVector3(T X, T Y, T Z);
-		NzVector3(T X, const NzVector2<T>& vec);
-		explicit NzVector3(T scale);
-		NzVector3(const T vec[3]);
-		NzVector3(const NzVector2<T>& vec, T Z = 0.0);
-		template<typename U> explicit NzVector3(const NzVector3<U>& vec);
-		NzVector3(const NzVector3& vec) = default;
-		explicit NzVector3(const NzVector4<T>& vec);
-		~NzVector3() = default;
+	template<typename T> class Vector2;
+	template<typename T> class Vector4;
 
-		T AbsDotProduct(const NzVector3& vec) const;
-		T AngleBetween(const NzVector3& vec) const;
+	template<typename T>
+	class Vector3
+	{
+		public:
+			Vector3() = default;
+			Vector3(T X, T Y, T Z);
+			Vector3(T X, const Vector2<T>& vec);
+			explicit Vector3(T scale);
+			Vector3(const T vec[3]);
+			Vector3(const Vector2<T>& vec, T Z = 0.0);
+			template<typename U> explicit Vector3(const Vector3<U>& vec);
+			Vector3(const Vector3& vec) = default;
+			explicit Vector3(const Vector4<T>& vec);
+			~Vector3() = default;
 
-		NzVector3 CrossProduct(const NzVector3& vec) const;
+			T AbsDotProduct(const Vector3& vec) const;
+			T AngleBetween(const Vector3& vec) const;
 
-		T Distance(const NzVector3& vec) const;
-		float Distancef(const NzVector3& vec) const;
-		T DotProduct(const NzVector3& vec) const;
+			Vector3 CrossProduct(const Vector3& vec) const;
 
-		T GetLength() const;
-		float GetLengthf() const;
-		NzVector3 GetNormal(T* length = nullptr) const;
-		T GetSquaredLength() const;
+			T Distance(const Vector3& vec) const;
+			float Distancef(const Vector3& vec) const;
+			T DotProduct(const Vector3& vec) const;
 
-		NzVector3& MakeBackward();
-		NzVector3& MakeDown();
-		NzVector3& MakeForward();
-		NzVector3& MakeLeft();
-		NzVector3& MakeRight();
-		NzVector3& MakeUnit();
-		NzVector3& MakeUnitX();
-		NzVector3& MakeUnitY();
-		NzVector3& MakeUnitZ();
-		NzVector3& MakeUp();
-		NzVector3& MakeZero();
+			T GetLength() const;
+			float GetLengthf() const;
+			Vector3 GetNormal(T* length = nullptr) const;
+			T GetSquaredLength() const;
 
-		NzVector3& Maximize(const NzVector3& vec);
-		NzVector3& Minimize(const NzVector3& vec);
+			Vector3& MakeBackward();
+			Vector3& MakeDown();
+			Vector3& MakeForward();
+			Vector3& MakeLeft();
+			Vector3& MakeRight();
+			Vector3& MakeUnit();
+			Vector3& MakeUnitX();
+			Vector3& MakeUnitY();
+			Vector3& MakeUnitZ();
+			Vector3& MakeUp();
+			Vector3& MakeZero();
 
-		NzVector3& Normalize(T* length = nullptr);
+			Vector3& Maximize(const Vector3& vec);
+			Vector3& Minimize(const Vector3& vec);
 
-		NzVector3& Set(T X, T Y, T Z);
-		NzVector3& Set(T X, const NzVector2<T>& vec);
-		NzVector3& Set(T scale);
-		NzVector3& Set(const T vec[3]);
-		NzVector3& Set(const NzVector2<T>& vec, T Z = 0.0);
-		NzVector3& Set(const NzVector3<T>& vec);
-		template<typename U> NzVector3& Set(const NzVector3<U>& vec);
-		NzVector3& Set(const NzVector4<T>& vec);
+			Vector3& Normalize(T* length = nullptr);
 
-		T SquaredDistance(const NzVector3& vec) const;
+			Vector3& Set(T X, T Y, T Z);
+			Vector3& Set(T X, const Vector2<T>& vec);
+			Vector3& Set(T scale);
+			Vector3& Set(const T vec[3]);
+			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
+			Vector3& Set(const Vector3<T>& vec);
+			template<typename U> Vector3& Set(const Vector3<U>& vec);
+			Vector3& Set(const Vector4<T>& vec);
 
-		NzString ToString() const;
+			T SquaredDistance(const Vector3& vec) const;
 
-		operator T*();
-		operator const T*() const;
+			String ToString() const;
 
-		const NzVector3& operator+() const;
-		NzVector3 operator-() const;
+			operator T*();
+			operator const T*() const;
 
-		NzVector3 operator+(const NzVector3& vec) const;
-		NzVector3 operator-(const NzVector3& vec) const;
-		NzVector3 operator*(const NzVector3& vec) const;
-		NzVector3 operator*(T scale) const;
-		NzVector3 operator/(const NzVector3& vec) const;
-		NzVector3 operator/(T scale) const;
+			const Vector3& operator+() const;
+			Vector3 operator-() const;
 
-		NzVector3& operator+=(const NzVector3& vec);
-		NzVector3& operator-=(const NzVector3& vec);
-		NzVector3& operator*=(const NzVector3& vec);
-		NzVector3& operator*=(T scale);
-		NzVector3& operator/=(const NzVector3& vec);
-		NzVector3& operator/=(T scale);
+			Vector3 operator+(const Vector3& vec) const;
+			Vector3 operator-(const Vector3& vec) const;
+			Vector3 operator*(const Vector3& vec) const;
+			Vector3 operator*(T scale) const;
+			Vector3 operator/(const Vector3& vec) const;
+			Vector3 operator/(T scale) const;
 
-		bool operator==(const NzVector3& vec) const;
-		bool operator!=(const NzVector3& vec) const;
-		bool operator<(const NzVector3& vec) const;
-		bool operator<=(const NzVector3& vec) const;
-		bool operator>(const NzVector3& vec) const;
-		bool operator>=(const NzVector3& vec) const;
+			Vector3& operator+=(const Vector3& vec);
+			Vector3& operator-=(const Vector3& vec);
+			Vector3& operator*=(const Vector3& vec);
+			Vector3& operator*=(T scale);
+			Vector3& operator/=(const Vector3& vec);
+			Vector3& operator/=(T scale);
 
-		static NzVector3 Backward();
-		static NzVector3 CrossProduct(const NzVector3& vec1, const NzVector3& vec2);
-		static T DotProduct(const NzVector3& vec1, const NzVector3& vec2);
-		static T Distance(const NzVector3& vec1, const NzVector3& vec2);
-		static float Distancef(const NzVector3& vec1, const NzVector3& vec2);
-		static NzVector3 Down();
-		static NzVector3 Forward();
-		static NzVector3 Left();
-		static NzVector3 Lerp(const NzVector3& from, const NzVector3& to, T interpolation);
-		static NzVector3 Normalize(const NzVector3& vec);
-		static NzVector3 Right();
-		static T SquaredDistance(const NzVector3& vec1, const NzVector3& vec2);
-		static NzVector3 Unit();
-		static NzVector3 UnitX();
-		static NzVector3 UnitY();
-		static NzVector3 UnitZ();
-		static NzVector3 Up();
-		static NzVector3 Zero();
+			bool operator==(const Vector3& vec) const;
+			bool operator!=(const Vector3& vec) const;
+			bool operator<(const Vector3& vec) const;
+			bool operator<=(const Vector3& vec) const;
+			bool operator>(const Vector3& vec) const;
+			bool operator>=(const Vector3& vec) const;
 
-		T x, y, z;
-};
+			static Vector3 Backward();
+			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
+			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
+			static T Distance(const Vector3& vec1, const Vector3& vec2);
+			static float Distancef(const Vector3& vec1, const Vector3& vec2);
+			static Vector3 Down();
+			static Vector3 Forward();
+			static Vector3 Left();
+			static Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
+			static Vector3 Normalize(const Vector3& vec);
+			static Vector3 Right();
+			static T SquaredDistance(const Vector3& vec1, const Vector3& vec2);
+			static Vector3 Unit();
+			static Vector3 UnitX();
+			static Vector3 UnitY();
+			static Vector3 UnitZ();
+			static Vector3 Up();
+			static Vector3 Zero();
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const NzVector3<T>& vec);
+			T x, y, z;
+	};
 
-template<typename T> NzVector3<T> operator*(T scale, const NzVector3<T>& vec);
-template<typename T> NzVector3<T> operator/(T scale, const NzVector3<T>& vec);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector3<T>& vec);
 
-typedef NzVector3<double> NzVector3d;
-typedef NzVector3<float> NzVector3f;
-typedef NzVector3<int> NzVector3i;
-typedef NzVector3<unsigned int> NzVector3ui;
-typedef NzVector3<nzInt32> NzVector3i32;
-typedef NzVector3<nzUInt32> NzVector3ui32;
+	template<typename T> Vector3<T> operator*(T scale, const Vector3<T>& vec);
+	template<typename T> Vector3<T> operator/(T scale, const Vector3<T>& vec);
+
+	typedef Vector3<double> Vector3d;
+	typedef Vector3<float> Vector3f;
+	typedef Vector3<int> Vector3i;
+	typedef Vector3<unsigned int> Vector3ui;
+	typedef Vector3<Int32> Vector3i32;
+	typedef Vector3<UInt32> Vector3ui32;
+}
 
 #include <Nazara/Math/Vector3.inl>
 

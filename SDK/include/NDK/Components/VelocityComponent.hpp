@@ -17,12 +17,12 @@ namespace Ndk
 	class NDK_API VelocityComponent : public Component<VelocityComponent>
 	{
 		public:
-			VelocityComponent(const NzVector3f& velocity = NzVector3f::Zero());
+			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());
 			~VelocityComponent() = default;
 
-			NzVector3f linearVelocity;
+			Nz::Vector3f linearVelocity;
 
-			VelocityComponent& operator=(const NzVector3f& vel);
+			VelocityComponent& operator=(const Nz::Vector3f& vel);
 
 			static ComponentIndex componentIndex;
 	};

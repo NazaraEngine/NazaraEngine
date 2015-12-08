@@ -11,7 +11,7 @@
 int main()
 {
 	// Pour charger des ressources, il est impératif d'initialiser le module utilitaire
-	NzInitializer<NzUtility> utility;
+	Nz::Initializer<Nz::Utility> utility;
 	if (!utility)
 	{
 		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
@@ -22,7 +22,7 @@ int main()
 
 	for (;;)
 	{
-		NzDirectory resourceDirectory("resources/");
+		Nz::Directory resourceDirectory("resources/");
 		if (!resourceDirectory.Open())
 		{
 			std::cerr << "Failed to open resource directory" << std::endl;
@@ -30,12 +30,12 @@ int main()
 			return EXIT_FAILURE;
 		}
 
-		std::vector<NzString> models;
+		std::vector<Nz::String> models;
 		while (resourceDirectory.NextResult())
 		{
-			NzString path = resourceDirectory.GetResultName();
-			NzString ext = path.SubStringFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
-			if (NzMeshLoader::IsExtensionSupported(ext)) // L'extension est-elle supportée par le MeshLoader ?
+			Nz::String path = resourceDirectory.GetResultName();
+			Nz::String ext = path.SubStringFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
+			if (Nz::MeshLoader::IsExtensionSupported(ext)) // L'extension est-elle supportée par le MeshLoader ?
 				models.push_back(path);
 		}
 
@@ -67,7 +67,7 @@ int main()
 		if (iChoice == 0)
 			break;
 
-		NzMesh mesh;
+		Nz::Mesh mesh;
 		if (!mesh.LoadFromFile("resources/" + models[iChoice-1]))
 		{
 			std::cout << "Failed to load mesh" << std::endl;
@@ -77,11 +77,11 @@ int main()
 
 		switch (mesh.GetAnimationType())
 		{
-			case nzAnimationType_Skeletal:
+			case Nz::AnimationType_Skeletal:
 				std::cout << "This is a skeletal-animated mesh" << std::endl;
 				break;
 
-			case nzAnimationType_Static:
+			case Nz::AnimationType_Static:
 				std::cout << "This is a static mesh" << std::endl;
 				break;
 
@@ -92,9 +92,9 @@ int main()
 
 		if (mesh.IsAnimable())
 		{
-			if (mesh.GetAnimationType() == nzAnimationType_Skeletal)
+			if (mesh.GetAnimationType() == Nz::AnimationType_Skeletal)
 			{
-				const NzSkeleton* skeleton = mesh.GetSkeleton();
+				const Nz::Skeleton* skeleton = mesh.GetSkeleton();
 				unsigned int jointCount = skeleton->GetJointCount();
 				std::cout << "It has a skeleton made of " << skeleton->GetJointCount() << " joint(s)." << std::endl;
 				std::cout << "Print joints ? (Y/N) ";
@@ -107,10 +107,10 @@ int main()
 				{
 					for (unsigned int i = 0; i < jointCount; ++i)
 					{
-						const NzJoint* joint = skeleton->GetJoint(i);
+						const Nz::Joint* joint = skeleton->GetJoint(i);
 						std::cout << "\t" << (i+1) << ": " << joint->GetName();
 
-						const NzJoint* parent = static_cast<const NzJoint*>(joint->GetParent());
+						const Nz::Joint* parent = static_cast<const Nz::Joint*>(joint->GetParent());
 						if (parent)
 							std::cout << " (Parent: " << parent->GetName() << ')';
 
@@ -119,10 +119,10 @@ int main()
 				}
 			}
 
-			NzString animationPath = mesh.GetAnimation();
+			Nz::String animationPath = mesh.GetAnimation();
 			if (!animationPath.IsEmpty())
 			{
-				NzAnimation animation;
+				Nz::Animation animation;
 				if (animation.LoadFromFile(animationPath))
 				{
 					unsigned int sequenceCount = animation.GetSequenceCount();
@@ -137,7 +137,7 @@ int main()
 					{
 						for (unsigned int i = 0; i < sequenceCount; ++i)
 						{
-							const NzSequence* sequence = animation.GetSequence(i);
+							const Nz::Sequence* sequence = animation.GetSequence(i);
 							std::cout << "\t" << (i+1) << ": " << sequence->name << std::endl;
 							std::cout << "\t\tStart frame: " << sequence->firstFrame << std::endl;
 							std::cout << "\t\tFrame count: " << sequence->frameCount << std::endl;
@@ -153,7 +153,7 @@ int main()
 				std::cout << "It's animable but has no animation information" << std::endl;
 		}
 
-		NzBoxf cube = mesh.GetAABB();
+		Nz::Boxf cube = mesh.GetAABB();
 		std::cout << "Mesh is " << cube.width << " units wide, " << cube.height << " units height and " << cube.depth << " units depth" << std::endl;
 
 		unsigned int materialCount = mesh.GetMaterialCount();

@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_MD2_Register();
-void NzLoaders_MD2_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterMD2();
+		void UnregisterMD2();
+	}
+}
 
 #endif // NAZARA_LOADERS_MD2_HPP
