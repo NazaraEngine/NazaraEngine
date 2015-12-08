@@ -14,64 +14,67 @@
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
-class NzVertexBuffer;
-
-using NzVertexBufferConstRef = NzObjectRef<NzVertexBuffer>;
-using NzVertexBufferRef = NzObjectRef<NzVertexBuffer>;
-
-class NAZARA_UTILITY_API NzVertexBuffer : public NzRefCounted
+namespace Nz
 {
-	public:
-		NzVertexBuffer() = default;
-		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
-		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		NzVertexBuffer(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
-		NzVertexBuffer(const NzVertexBuffer& vertexBuffer);
-		~NzVertexBuffer();
+	class VertexBuffer;
 
-		bool Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard = false);
-		bool FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
+	using VertexBufferConstRef = ObjectRef<VertexBuffer>;
+	using VertexBufferRef = ObjectRef<VertexBuffer>;
 
-		NzBuffer* GetBuffer() const;
-		unsigned int GetEndOffset() const;
-		unsigned int GetStartOffset() const;
-		unsigned int GetStride() const;
-		unsigned int GetVertexCount() const;
-		const NzVertexDeclaration* GetVertexDeclaration() const;
+	class NAZARA_UTILITY_API VertexBuffer : public RefCounted
+	{
+		public:
+			VertexBuffer() = default;
+			VertexBuffer(const VertexDeclaration* vertexDeclaration, Buffer* buffer);
+			VertexBuffer(const VertexDeclaration* vertexDeclaration, Buffer* buffer, unsigned int startOffset, unsigned int endOffset);
+			VertexBuffer(const VertexDeclaration* vertexDeclaration, unsigned int length, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			VertexBuffer(const VertexBuffer& vertexBuffer);
+			~VertexBuffer();
 
-		bool IsHardware() const;
-		bool IsValid() const;
+			bool Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard = false);
+			bool FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
 
-		void* Map(nzBufferAccess access, unsigned int startVertex = 0, unsigned int length = 0);
-		void* Map(nzBufferAccess access, unsigned int startVertex = 0, unsigned int length = 0) const;
-		void* MapRaw(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-		void* MapRaw(nzBufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
+			Buffer* GetBuffer() const;
+			unsigned int GetEndOffset() const;
+			unsigned int GetStartOffset() const;
+			unsigned int GetStride() const;
+			unsigned int GetVertexCount() const;
+			const VertexDeclaration* GetVertexDeclaration() const;
 
-		void Reset();
-		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer);
-		void Reset(const NzVertexDeclaration* vertexDeclaration, NzBuffer* buffer, unsigned int startOffset, unsigned int endOffset);
-		void Reset(const NzVertexDeclaration* vertexDeclaration, unsigned int length, nzUInt32 storage = nzDataStorage_Software, nzBufferUsage usage = nzBufferUsage_Static);
-		void Reset(const NzVertexBuffer& vertexBuffer);
+			bool IsHardware() const;
+			bool IsValid() const;
 
-		bool SetStorage(nzUInt32 storage);
-		void SetVertexDeclaration(const NzVertexDeclaration* vertexDeclaration);
+			void* Map(BufferAccess access, unsigned int startVertex = 0, unsigned int length = 0);
+			void* Map(BufferAccess access, unsigned int startVertex = 0, unsigned int length = 0) const;
+			void* MapRaw(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
+			void* MapRaw(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
 
-		void Unmap() const;
+			void Reset();
+			void Reset(const VertexDeclaration* vertexDeclaration, Buffer* buffer);
+			void Reset(const VertexDeclaration* vertexDeclaration, Buffer* buffer, unsigned int startOffset, unsigned int endOffset);
+			void Reset(const VertexDeclaration* vertexDeclaration, unsigned int length, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			void Reset(const VertexBuffer& vertexBuffer);
 
-		NzVertexBuffer& operator=(const NzVertexBuffer& vertexBuffer);
+			bool SetStorage(UInt32 storage);
+			void SetVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
-		template<typename... Args> static NzVertexBufferRef New(Args&&... args);
+			void Unmap() const;
 
-		// Signals:
-		NazaraSignal(OnVertexBufferRelease, const NzVertexBuffer* /*vertexBuffer*/);
+			VertexBuffer& operator=(const VertexBuffer& vertexBuffer);
 
-	private:
-		NzBufferRef m_buffer;
-		NzVertexDeclarationConstRef m_vertexDeclaration;
-		unsigned int m_endOffset;
-		unsigned int m_startOffset;
-		unsigned int m_vertexCount;
-};
+			template<typename... Args> static VertexBufferRef New(Args&&... args);
+
+			// Signals:
+			NazaraSignal(OnVertexBufferRelease, const VertexBuffer* /*vertexBuffer*/);
+
+		private:
+			BufferRef m_buffer;
+			VertexDeclarationConstRef m_vertexDeclaration;
+			unsigned int m_endOffset;
+			unsigned int m_startOffset;
+			unsigned int m_vertexCount;
+	};
+}
 
 #include <Nazara/Utility/VertexBuffer.inl>
 

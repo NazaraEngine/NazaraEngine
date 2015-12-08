@@ -14,243 +14,246 @@
 
 ///FIXME: Adapter la création
 
-bool NzSoundBufferParams::IsValid() const
+namespace Nz
 {
-	return true;
-}
-
-struct NzSoundBufferImpl
-{
-	ALuint buffer;
-	nzAudioFormat format;
-	nzUInt32 duration;
-	std::unique_ptr<nzInt16[]> samples;
-	unsigned int sampleCount;
-	unsigned int sampleRate;
-};
-
-NzSoundBuffer::NzSoundBuffer(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples)
-{
-	Create(format, sampleCount, sampleRate, samples);
-
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
+	bool SoundBufferParams::IsValid() const
 	{
-		NazaraError("Failed to create sound buffer");
-		throw std::runtime_error("Constructor failed");
-	}
-	#endif
-}
-
-NzSoundBuffer::~NzSoundBuffer()
-{
-	OnSoundBufferRelease(this);
-
-	Destroy();
-}
-
-bool NzSoundBuffer::Create(nzAudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const nzInt16* samples)
-{
-	Destroy();
-
-	#if NAZARA_AUDIO_SAFE
-	if (!IsFormatSupported(format))
-	{
-		NazaraError("Audio format is not supported");
-		return false;
+		return true;
 	}
 
-	if (sampleCount == 0)
+	struct SoundBufferImpl
 	{
-		NazaraError("Sample rate must be different from zero");
-		return false;
+		ALuint buffer;
+		AudioFormat format;
+		UInt32 duration;
+		std::unique_ptr<Int16[]> samples;
+		UInt32 sampleCount;
+		UInt32 sampleRate;
+	};
+
+	SoundBuffer::SoundBuffer(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples)
+	{
+		Create(format, sampleCount, sampleRate, samples);
+
+		#ifdef NAZARA_DEBUG
+		if (!m_impl)
+		{
+			NazaraError("Failed to create sound buffer");
+			throw std::runtime_error("Constructor failed");
+		}
+		#endif
 	}
 
-	if (sampleRate == 0)
+	SoundBuffer::~SoundBuffer()
 	{
-		NazaraError("Sample rate must be different from zero");
-		return false;
+		OnSoundBufferRelease(this);
+
+		Destroy();
 	}
 
-	if (!samples)
+	bool SoundBuffer::Create(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples)
 	{
-		NazaraError("Invalid sample source");
-		return false;
-	}
-	#endif
+		Destroy();
 
-	// On vide le stack d'erreurs
-	while (alGetError() != AL_NO_ERROR);
+		#if NAZARA_AUDIO_SAFE
+		if (!IsFormatSupported(format))
+		{
+			NazaraError("Audio format is not supported");
+			return false;
+		}
 
-	ALuint buffer;
-	alGenBuffers(1, &buffer);
+		if (sampleCount == 0)
+		{
+			NazaraError("Sample rate must be different from zero");
+			return false;
+		}
 
-	if (alGetError() != AL_NO_ERROR)
-	{
-		NazaraError("Failed to create OpenAL buffer");
-		return false;
-	}
+		if (sampleRate == 0)
+		{
+			NazaraError("Sample rate must be different from zero");
+			return false;
+		}
 
-	alBufferData(buffer, NzOpenAL::AudioFormat[format], samples, sampleCount*sizeof(nzInt16), sampleRate);
+		if (!samples)
+		{
+			NazaraError("Invalid sample source");
+			return false;
+		}
+		#endif
 
-	if (alGetError() != AL_NO_ERROR)
-	{
-		alDeleteBuffers(1, &buffer);
+		// On vide le stack d'erreurs
+		while (alGetError() != AL_NO_ERROR);
 
-		NazaraError("Failed to set OpenAL buffer");
-		return false;
-	}
+		ALuint buffer;
+		alGenBuffers(1, &buffer);
 
-	m_impl = new NzSoundBufferImpl;
-	m_impl->buffer = buffer;
-	m_impl->duration = (1000*sampleCount / (format * sampleRate));
-	m_impl->format = format;
-	m_impl->sampleCount = sampleCount;
-	m_impl->sampleRate = sampleRate;
-	m_impl->samples.reset(new nzInt16[sampleCount]);
-	std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(nzInt16));
+		if (alGetError() != AL_NO_ERROR)
+		{
+			NazaraError("Failed to create OpenAL buffer");
+			return false;
+		}
 
-	return true;
-}
+		alBufferData(buffer, OpenAL::AudioFormat[format], samples, sampleCount*sizeof(Int16), sampleRate);
 
-void NzSoundBuffer::Destroy()
-{
-	if (m_impl)
-	{
-		OnSoundBufferDestroy(this);
+		if (alGetError() != AL_NO_ERROR)
+		{
+			alDeleteBuffers(1, &buffer);
 
-		delete m_impl;
-		m_impl = nullptr;
-	}
-}
+			NazaraError("Failed to set OpenAL buffer");
+			return false;
+		}
 
-nzUInt32 NzSoundBuffer::GetDuration() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Sound buffer not created");
-		return 0;
-	}
-	#endif
+		m_impl = new SoundBufferImpl;
+		m_impl->buffer = buffer;
+		m_impl->duration = (1000*sampleCount / (format * sampleRate));
+		m_impl->format = format;
+		m_impl->sampleCount = sampleCount;
+		m_impl->sampleRate = sampleRate;
+		m_impl->samples.reset(new Int16[sampleCount]);
+		std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(Int16));
 
-	return m_impl->duration;
-}
-
-nzAudioFormat NzSoundBuffer::GetFormat() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Sound buffer not created");
-		return nzAudioFormat_Unknown;
-	}
-	#endif
-
-	return m_impl->format;
-}
-
-const nzInt16* NzSoundBuffer::GetSamples() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Sound buffer not created");
-		return nullptr;
-	}
-	#endif
-
-	return m_impl->samples.get();
-}
-
-unsigned int NzSoundBuffer::GetSampleCount() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Sound buffer not created");
-		return 0;
-	}
-	#endif
-
-	return m_impl->sampleCount;
-}
-
-unsigned int NzSoundBuffer::GetSampleRate() const
-{
-	#if NAZARA_AUDIO_SAFE
-	if (!m_impl)
-	{
-		NazaraError("Sound buffer not created");
-		return 0;
-	}
-	#endif
-
-	return m_impl->sampleRate;
-}
-
-bool NzSoundBuffer::IsValid() const
-{
-	return m_impl != nullptr;
-}
-
-bool NzSoundBuffer::LoadFromFile(const NzString& filePath, const NzSoundBufferParams& params)
-{
-	return NzSoundBufferLoader::LoadFromFile(this, filePath, params);
-}
-
-bool NzSoundBuffer::LoadFromMemory(const void* data, std::size_t size, const NzSoundBufferParams& params)
-{
-	return NzSoundBufferLoader::LoadFromMemory(this, data, size, params);
-}
-
-bool NzSoundBuffer::LoadFromStream(NzInputStream& stream, const NzSoundBufferParams& params)
-{
-	return NzSoundBufferLoader::LoadFromStream(this, stream, params);
-}
-
-bool NzSoundBuffer::IsFormatSupported(nzAudioFormat format)
-{
-	return NzAudio::IsFormatSupported(format);
-}
-
-unsigned int NzSoundBuffer::GetOpenALBuffer() const
-{
-	#ifdef NAZARA_DEBUG
-	if (!m_impl)
-	{
-		NazaraInternalError("Sound buffer not created");
-		return AL_NONE;
-	}
-	#endif
-
-	return m_impl->buffer;
-}
-
-bool NzSoundBuffer::Initialize()
-{
-	if (!NzSoundBufferLibrary::Initialize())
-	{
-		NazaraError("Failed to initialise library");
-		return false;
+		return true;
 	}
 
-	if (!NzSoundBufferManager::Initialize())
+	void SoundBuffer::Destroy()
 	{
-		NazaraError("Failed to initialise manager");
-		return false;
+		if (m_impl)
+		{
+			OnSoundBufferDestroy(this);
+
+			delete m_impl;
+			m_impl = nullptr;
+		}
 	}
 
-	return true;
-}
+	UInt32 SoundBuffer::GetDuration() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Sound buffer not created");
+			return 0;
+		}
+		#endif
 
-void NzSoundBuffer::Uninitialize()
-{
-	NzSoundBufferManager::Uninitialize();
-	NzSoundBufferLibrary::Uninitialize();
-}
+		return m_impl->duration;
+	}
 
-NzSoundBufferLibrary::LibraryMap NzSoundBuffer::s_library;
-NzSoundBufferLoader::LoaderList NzSoundBuffer::s_loaders;
-NzSoundBufferManager::ManagerMap NzSoundBuffer::s_managerMap;
-NzSoundBufferManager::ManagerParams NzSoundBuffer::s_managerParameters;
+	AudioFormat SoundBuffer::GetFormat() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Sound buffer not created");
+			return AudioFormat_Unknown;
+		}
+		#endif
+
+		return m_impl->format;
+	}
+
+	const Int16* SoundBuffer::GetSamples() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Sound buffer not created");
+			return nullptr;
+		}
+		#endif
+
+		return m_impl->samples.get();
+	}
+
+	unsigned int SoundBuffer::GetSampleCount() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Sound buffer not created");
+			return 0;
+		}
+		#endif
+
+		return m_impl->sampleCount;
+	}
+
+	unsigned int SoundBuffer::GetSampleRate() const
+	{
+		#if NAZARA_AUDIO_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Sound buffer not created");
+			return 0;
+		}
+		#endif
+
+		return m_impl->sampleRate;
+	}
+
+	bool SoundBuffer::IsValid() const
+	{
+		return m_impl != nullptr;
+	}
+
+	bool SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	{
+		return SoundBufferLoader::LoadFromFile(this, filePath, params);
+	}
+
+	bool SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
+	{
+		return SoundBufferLoader::LoadFromMemory(this, data, size, params);
+	}
+
+	bool SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
+	{
+		return SoundBufferLoader::LoadFromStream(this, stream, params);
+	}
+
+	bool SoundBuffer::IsFormatSupported(AudioFormat format)
+	{
+		return Audio::IsFormatSupported(format);
+	}
+
+	unsigned int SoundBuffer::GetOpenALBuffer() const
+	{
+		#ifdef NAZARA_DEBUG
+		if (!m_impl)
+		{
+			NazaraInternalError("Sound buffer not created");
+			return AL_NONE;
+		}
+		#endif
+
+		return m_impl->buffer;
+	}
+
+	bool SoundBuffer::Initialize()
+	{
+		if (!SoundBufferLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
+
+		if (!SoundBufferManager::Initialize())
+		{
+			NazaraError("Failed to initialise manager");
+			return false;
+		}
+
+		return true;
+	}
+
+	void SoundBuffer::Uninitialize()
+	{
+		SoundBufferManager::Uninitialize();
+		SoundBufferLibrary::Uninitialize();
+	}
+
+	SoundBufferLibrary::LibraryMap SoundBuffer::s_library;
+	SoundBufferLoader::LoaderList SoundBuffer::s_loaders;
+	SoundBufferManager::ManagerMap SoundBuffer::s_managerMap;
+	SoundBufferManager::ManagerParams SoundBuffer::s_managerParameters;
+}

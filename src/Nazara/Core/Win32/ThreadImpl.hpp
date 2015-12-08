@@ -12,22 +12,25 @@
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
-struct NzFunctor;
-
-class NzThreadImpl
+namespace Nz
 {
-	public:
-		NzThreadImpl(NzFunctor* threadFunc);
+	struct Functor;
 
-		void Detach();
-		void Join();
+	class ThreadImpl
+	{
+		public:
+			ThreadImpl(Functor* threadFunc);
 
-		static void Sleep(nzUInt32 time);
+			void Detach();
+			void Join();
 
-	private:
-		static unsigned int __stdcall ThreadProc(void* userdata);
+			static void Sleep(UInt32 time);
 
-		HANDLE m_handle;
-};
+		private:
+			static unsigned int __stdcall ThreadProc(void* userdata);
+
+			HANDLE m_handle;
+	};
+}
 
 #endif // NAZARA_THREADIMPL_HPP

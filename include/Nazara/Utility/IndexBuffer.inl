@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
-template<typename... Args>
-NzIndexBufferRef NzIndexBuffer::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzIndexBuffer> object(new NzIndexBuffer(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	IndexBufferRef IndexBuffer::New(Args&&... args)
+	{
+		std::unique_ptr<IndexBuffer> object(new IndexBuffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

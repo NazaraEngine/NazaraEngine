@@ -15,74 +15,77 @@
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 
-class NAZARA_CORE_API NzGuillotineBinPack
+namespace Nz
 {
-	public:
-		enum FreeRectChoiceHeuristic : int;
-		enum GuillotineSplitHeuristic : int;
+	class NAZARA_CORE_API GuillotineBinPack
+	{
+		public:
+			enum FreeRectChoiceHeuristic : int;
+			enum GuillotineSplitHeuristic : int;
 
-		NzGuillotineBinPack();
-		NzGuillotineBinPack(unsigned int width, unsigned int height);
-		NzGuillotineBinPack(const NzVector2ui& size);
-		NzGuillotineBinPack(const NzGuillotineBinPack&) = default;
-		NzGuillotineBinPack(NzGuillotineBinPack&&) = default;
-		~NzGuillotineBinPack() = default;
+			GuillotineBinPack();
+			GuillotineBinPack(unsigned int width, unsigned int height);
+			GuillotineBinPack(const Vector2ui& size);
+			GuillotineBinPack(const GuillotineBinPack&) = default;
+			GuillotineBinPack(GuillotineBinPack&&) = default;
+			~GuillotineBinPack() = default;
 
-		void Clear();
+			void Clear();
 
-		void Expand(unsigned int newWidth, unsigned newHeight);
-		void Expand(const NzVector2ui& newSize);
+			void Expand(unsigned int newWidth, unsigned newHeight);
+			void Expand(const Vector2ui& newSize);
 
-		void FreeRectangle(const NzRectui& rect);
+			void FreeRectangle(const Rectui& rect);
 
-		unsigned int GetHeight() const;
-		float GetOccupancy() const;
-		NzVector2ui GetSize() const;
-		unsigned int GetWidth() const;
+			unsigned int GetHeight() const;
+			float GetOccupancy() const;
+			Vector2ui GetSize() const;
+			unsigned int GetWidth() const;
 
-		bool Insert(NzRectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
-		bool Insert(NzRectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
-		bool Insert(NzRectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			bool Insert(Rectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			bool Insert(Rectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			bool Insert(Rectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
 
-		bool MergeFreeRectangles();
+			bool MergeFreeRectangles();
 
-		void Reset();
-		void Reset(unsigned int width, unsigned int height);
-		void Reset(const NzVector2ui& size);
+			void Reset();
+			void Reset(unsigned int width, unsigned int height);
+			void Reset(const Vector2ui& size);
 
-		NzGuillotineBinPack& operator=(const NzGuillotineBinPack&) = default;
-		NzGuillotineBinPack& operator=(NzGuillotineBinPack&&) = default;
+			GuillotineBinPack& operator=(const GuillotineBinPack&) = default;
+			GuillotineBinPack& operator=(GuillotineBinPack&&) = default;
 
-		enum FreeRectChoiceHeuristic : int
-		{
-			RectBestAreaFit,
-			RectBestLongSideFit,
-			RectBestShortSideFit,
-			RectWorstAreaFit,
-			RectWorstLongSideFit,
-			RectWorstShortSideFit
-		};
+			enum FreeRectChoiceHeuristic : int
+			{
+				RectBestAreaFit,
+				RectBestLongSideFit,
+				RectBestShortSideFit,
+				RectWorstAreaFit,
+				RectWorstLongSideFit,
+				RectWorstShortSideFit
+			};
 
-		enum GuillotineSplitHeuristic : int
-		{
-			SplitLongerAxis,
-			SplitLongerLeftoverAxis,
-			SplitMaximizeArea,
-			SplitMinimizeArea,
-			SplitShorterAxis,
-			SplitShorterLeftoverAxis
-		};
+			enum GuillotineSplitHeuristic : int
+			{
+				SplitLongerAxis,
+				SplitLongerLeftoverAxis,
+				SplitMaximizeArea,
+				SplitMinimizeArea,
+				SplitShorterAxis,
+				SplitShorterLeftoverAxis
+			};
 
-	private:
-		void SplitFreeRectAlongAxis(const NzRectui& freeRect, const NzRectui& placedRect, bool splitHorizontal);
-		void SplitFreeRectByHeuristic(const NzRectui& freeRect, const NzRectui& placedRect, GuillotineSplitHeuristic method);
+		private:
+			void SplitFreeRectAlongAxis(const Rectui& freeRect, const Rectui& placedRect, bool splitHorizontal);
+			void SplitFreeRectByHeuristic(const Rectui& freeRect, const Rectui& placedRect, GuillotineSplitHeuristic method);
 
-		static int ScoreByHeuristic(int width, int height, const NzRectui& freeRect, FreeRectChoiceHeuristic rectChoice);
+			static int ScoreByHeuristic(int width, int height, const Rectui& freeRect, FreeRectChoiceHeuristic rectChoice);
 
-		std::vector<NzRectui> m_freeRectangles;
-		unsigned int m_height;
-		unsigned int m_usedArea;
-		unsigned int m_width;
-};
+			std::vector<Rectui> m_freeRectangles;
+			unsigned int m_height;
+			unsigned int m_usedArea;
+			unsigned int m_width;
+	};
+}
 
 #endif // NAZARA_GUILLOTINEBINPACK_HPP

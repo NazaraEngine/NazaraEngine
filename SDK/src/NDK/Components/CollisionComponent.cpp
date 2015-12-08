@@ -11,7 +11,7 @@
 
 namespace Ndk
 {
-	void CollisionComponent::SetGeom(NzPhysGeomRef geom)
+	void CollisionComponent::SetGeom(Nz::PhysGeomRef geom)
 	{
 		m_geom = std::move(geom);
 
@@ -35,9 +35,9 @@ namespace Ndk
 
 		NazaraAssert(entityWorld, "Entity must have world");
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem>(), "World must have a physics system");
-		NzPhysWorld& physWorld = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
+		Nz::PhysWorld& physWorld = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
 
-		m_staticBody.reset(new NzPhysObject(&physWorld, m_geom));
+		m_staticBody.reset(new Nz::PhysObject(&physWorld, m_geom));
 		m_staticBody->EnableAutoSleep(false);
 	}
 

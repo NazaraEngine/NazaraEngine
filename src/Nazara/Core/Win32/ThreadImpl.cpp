@@ -8,40 +8,43 @@
 #include <process.h>
 #include <Nazara/Core/Debug.hpp>
 
-NzThreadImpl::NzThreadImpl(NzFunctor* functor)
+namespace Nz
 {
-	m_handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &NzThreadImpl::ThreadProc, functor, 0, nullptr));
-	if (!m_handle)
-		NazaraInternalError("Failed to create thread: " + NzError::GetLastSystemError());
-}
+	ThreadImpl::ThreadImpl(Functor* functor)
+	{
+		m_handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &ThreadImpl::ThreadProc, functor, 0, nullptr));
+		if (!m_handle)
+			NazaraInternalError("Failed to create thread: " + Error::GetLastSystemError());
+	}
 
-void NzThreadImpl::Detach()
-{
-	// http://stackoverflow.com/questions/418742/is-it-reasonable-to-call-closehandle-on-a-thread-before-it-terminates
-	CloseHandle(m_handle);
-}
+	void ThreadImpl::Detach()
+	{
+		// http://stackoverflow.com/questions/418742/is-it-reasonable-to-call-closehandle-on-a-thread-before-it-terminates
+		CloseHandle(m_handle);
+	}
 
-void NzThreadImpl::Join()
-{
-	WaitForSingleObject(m_handle, INFINITE);
-	CloseHandle(m_handle);
-}
+	void ThreadImpl::Join()
+	{
+		WaitForSingleObject(m_handle, INFINITE);
+		CloseHandle(m_handle);
+	}
 
-unsigned int __stdcall NzThreadImpl::ThreadProc(void* userdata)
-{
-	NzFunctor* func = static_cast<NzFunctor*>(userdata);
-	func->Run();
-	delete func;
+	unsigned int __stdcall ThreadImpl::ThreadProc(void* userdata)
+	{
+		Functor* func = static_cast<Functor*>(userdata);
+		func->Run();
+		delete func;
 
-	/*
-	En C++, il vaut mieux retourner depuis la fonction que de quitter le thread explicitement
-	Source : http://msdn.microsoft.com/en-us/library/windows/desktop/ms682659(v=vs.85).aspx
-	*/
+		/*
+		En C++, il vaut mieux retourner depuis la fonction que de quitter le thread explicitement
+		Source : http://msdn.microsoft.com/en-us/library/windows/desktop/ms682659(v=vs.85).aspx
+		*/
 
-	return 0;
-}
+		return 0;
+	}
 
-void NzThreadImpl::Sleep(nzUInt32 time)
-{
-	::Sleep(time);
+	void ThreadImpl::Sleep(UInt32 time)
+	{
+		::Sleep(time);
+	}
 }

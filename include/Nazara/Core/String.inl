@@ -2,39 +2,56 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-inline NzString::NzString(std::shared_ptr<SharedString>&& sharedString) :
-m_sharedString(std::move(sharedString))
+namespace Nz
 {
-}
+	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
+	m_sharedString(std::move(sharedString))
+	{
+	}
 
-inline void NzString::ReleaseString()
-{
-	m_sharedString = std::move(GetEmptyString());
-}
+	inline void String::ReleaseString()
+	{
+		m_sharedString = std::move(GetEmptyString());
+	}
 
-inline NzString::SharedString::SharedString() : // Special case: empty string
-capacity(0),
-size(0)
-{
-}
+	inline String::SharedString::SharedString() : // Special case: empty string
+	capacity(0),
+	size(0)
+	{
+	}
 
-inline NzString::SharedString::SharedString(unsigned int strSize) :
-capacity(strSize),
-size(strSize),
-string(new char[strSize + 1])
-{
-	string[strSize] = '\0';
-}
+	inline String::SharedString::SharedString(std::size_t strSize) :
+	capacity(strSize), 
+	size(strSize),
+	string(new char[strSize + 1])
+	{
+		string[strSize] = '\0';
+	}
 
+	inline String::SharedString::SharedString(std::size_t strSize, std::size_t strCapacity) :
+	capacity(strCapacity),
+	size(strSize),
+	string(new char[strCapacity + 1])
+	{
+		string[strSize] = '\0';
+	}
+
+	inline bool HashAppend(AbstractHash* hash, const String& string)
+	{
+		hash->Append(reinterpret_cast<const UInt8*>(string.GetConstBuffer()), string.GetSize());
+		return true;
+	}
+}
 
 namespace std
 {
 	template<>
-	struct hash<NzString>
+	struct hash<Nz::String>
 	{
-		size_t operator()(const NzString& str) const
+		size_t operator()(const Nz::String& str) const
 		{
 			// Algorithme DJB2
 			// http://www.cse.yorku.ca/~oz/hash.html

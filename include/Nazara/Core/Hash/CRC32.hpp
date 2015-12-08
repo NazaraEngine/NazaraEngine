@@ -9,25 +9,28 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Core/HashDigest.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 
-struct NzHashCRC32_state;
-
-class NAZARA_CORE_API NzHashCRC32 : public NzAbstractHash
+namespace Nz
 {
-	public:
-		NzHashCRC32(nzUInt32 polynomial = 0x04c11db7);
-		virtual ~NzHashCRC32();
+	struct HashCRC32_state;
 
-		void Append(const nzUInt8* data, unsigned int len);
-		void Begin();
-		NzHashDigest End();
+	class NAZARA_CORE_API HashCRC32 : public AbstractHash
+	{
+		public:
+			HashCRC32(UInt32 polynomial = 0x04c11db7);
+			virtual ~HashCRC32();
 
-		static unsigned int GetDigestLength();
-		static NzString GetHashName();
+			void Append(const UInt8* data, std::size_t len) override;
+			void Begin() override;
+			ByteArray End() override;
 
-	private:
-		NzHashCRC32_state* m_state;
-};
+			std::size_t GetDigestLength() const override;
+			const char* GetHashName() const override;
+
+		private:
+			HashCRC32_state* m_state;
+	};
+}
 
 #endif // NAZARA_HASH_CRC32_HPP

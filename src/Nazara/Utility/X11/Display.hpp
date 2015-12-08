@@ -7,35 +7,47 @@
 #ifndef NAZARA_X11DISPLAY_HPP
 #define NAZARA_X11DISPLAY_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <Nazara/Utility/X11/ScopedXCB.hpp>
-#include <xcb/xcb_ewmh.h>
-#include <string>
 
 typedef struct _XCBKeySymbols xcb_key_symbols_t;
 
-namespace X11
+namespace Nz
 {
-	bool CheckCookie(xcb_connection_t* connection, xcb_void_cookie_t cookie);
-	void CloseConnection(xcb_connection_t* connection);
-	void CloseEWMHConnection(xcb_ewmh_connection_t* ewmh_connection);
+	class String;
 
-	xcb_atom_t GetAtom(const std::string& name, bool onlyIfExists = false);
+	class X11
+	{
+		public:
+			X11() = delete;
+			~X11() = delete;
 
-	void Initialize();
+			static bool CheckCookie(xcb_connection_t* connection, xcb_void_cookie_t cookie);
+			static void CloseConnection(xcb_connection_t* connection);
+			static void CloseEWMHConnection(xcb_ewmh_connection_t* ewmh_connection);
 
-	xcb_key_symbols_t* XCBKeySymbolsAlloc(xcb_connection_t* connection);
-	void XCBKeySymbolsFree(xcb_key_symbols_t* keySymbols);
+			static xcb_atom_t GetAtom(const String& name, bool onlyIfExists = false);
 
-	xcb_connection_t* OpenConnection();
-	xcb_ewmh_connection_t* OpenEWMHConnection(xcb_connection_t* connection);
+			static bool Initialize();
+			static bool IsInitialized();
 
-	void Uninitialize();
+			static xcb_key_symbols_t* XCBKeySymbolsAlloc(xcb_connection_t* connection);
+			static void XCBKeySymbolsFree(xcb_key_symbols_t* keySymbols);
 
-	xcb_screen_t* XCBDefaultScreen(xcb_connection_t* connection);
-	xcb_window_t XCBDefaultRootWindow(xcb_connection_t* connection);
-	int XCBScreen(xcb_connection_t* connection);
-	xcb_screen_t* XCBScreenOfDisplay(xcb_connection_t* connection, int screen_nbr);
+			static xcb_connection_t* OpenConnection();
+			static xcb_ewmh_connection_t* OpenEWMHConnection(xcb_connection_t* connection);
+
+			static void Uninitialize();
+
+			static xcb_screen_t* XCBDefaultScreen(xcb_connection_t* connection);
+			static xcb_window_t XCBDefaultRootWindow(xcb_connection_t* connection);
+			static int XCBScreen(xcb_connection_t* connection);
+			static xcb_screen_t* XCBScreenOfDisplay(xcb_connection_t* connection, int screen_nbr);
+
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};
 }
 
 #endif // NAZARA_X11DISPLAY_HPP

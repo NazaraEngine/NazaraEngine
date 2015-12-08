@@ -8,35 +8,27 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzAbstractRenderTechnique::NzAbstractRenderTechnique()
+namespace Nz
 {
-	#ifdef NAZARA_DEBUG
-	if (!NzRenderer::IsInitialized())
+	AbstractRenderTechnique::AbstractRenderTechnique() :
+	m_instancingEnabled(true)
 	{
-		NazaraError("NazaraRenderer is not initialized");
-		return;
 	}
-	#endif
 
-	m_instancingEnabled = NzRenderer::HasCapability(nzRendererCap_Instancing);
-}
+	AbstractRenderTechnique::~AbstractRenderTechnique() = default;
 
-NzAbstractRenderTechnique::~NzAbstractRenderTechnique() = default;
-
-void NzAbstractRenderTechnique::EnableInstancing(bool instancing)
-{
-	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
+	void AbstractRenderTechnique::EnableInstancing(bool instancing)
+	{
 		m_instancingEnabled = instancing;
-	else if (instancing)
-		NazaraError("NazaraRenderer does not support instancing");
-}
+	}
 
-NzString NzAbstractRenderTechnique::GetName() const
-{
-	return NzRenderTechniques::ToString(GetType());
-}
+	String AbstractRenderTechnique::GetName() const
+	{
+		return RenderTechniques::ToString(GetType());
+	}
 
-bool NzAbstractRenderTechnique::IsInstancingEnabled() const
-{
-	return m_instancingEnabled;
+	bool AbstractRenderTechnique::IsInstancingEnabled() const
+	{
+		return m_instancingEnabled;
+	}
 }

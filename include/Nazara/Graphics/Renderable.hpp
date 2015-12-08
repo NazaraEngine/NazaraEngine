@@ -7,42 +7,43 @@
 #ifndef NAZARA_RENDERABLE_HPP
 #define NAZARA_RENDERABLE_HPP
 
-#include <Nazara/Core/NonCopyable.hpp>
-#include <Nazara/Core/PrimitiveList.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 
-class NzAbstractRenderQueue;
-
-class NAZARA_GRAPHICS_API NzRenderable
+namespace Nz
 {
-	public:
-		NzRenderable() = default;
-		NzRenderable(const NzRenderable& renderable) = default;
-		virtual ~NzRenderable();
+	class AbstractRenderQueue;
 
-		inline void EnsureBoundingVolumeUpdated() const;
+	class NAZARA_GRAPHICS_API Renderable
+	{
+		public:
+			Renderable() = default;
+			Renderable(const Renderable& renderable) = default;
+			Renderable(Renderable&&) = default;
+			virtual ~Renderable();
 
-		virtual void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const = 0;
-		virtual bool Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const;
-		virtual const NzBoundingVolumef& GetBoundingVolume() const;
-		virtual void UpdateBoundingVolume(const NzMatrix4f& transformMatrix);
+			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const = 0;
+			virtual bool Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const;
+			inline void EnsureBoundingVolumeUpdated() const;
+			virtual const BoundingVolumef& GetBoundingVolume() const;
+			virtual void UpdateBoundingVolume(const Matrix4f& transformMatrix);
 
-		NzRenderable& operator=(const NzRenderable& renderable) = default;
+			Renderable& operator=(const Renderable& renderable) = default;
+			Renderable& operator=(Renderable&& renderable) = default;
 
-	protected:
-		virtual void MakeBoundingVolume() const = 0;
-		inline void InvalidateBoundingVolume();
-		inline void UpdateBoundingVolume() const;
+		protected:
+			virtual void MakeBoundingVolume() const = 0;
+			inline void InvalidateBoundingVolume();
+			inline void UpdateBoundingVolume() const;
 
-		mutable NzBoundingVolumef m_boundingVolume;
+			mutable BoundingVolumef m_boundingVolume;
 
-	private:
-		mutable bool m_boundingVolumeUpdated;
-};
+		private:
+			mutable bool m_boundingVolumeUpdated;
+	};
+}
 
 #include <Nazara/Graphics/Renderable.inl>
 

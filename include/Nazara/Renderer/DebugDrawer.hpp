@@ -16,43 +16,46 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 
-class NzSkeleton;
-
-class NAZARA_RENDERER_API NzDebugDrawer
+namespace Nz
 {
-	public:
-		static void Draw(const NzBoundingVolumef& volume);
-		static void Draw(const NzBoxf& box);
-		static void Draw(const NzBoxi& box);
-		static void Draw(const NzBoxui& box);
-		static void Draw(const NzFrustumf& frustum);
-		static void Draw(const NzOrientedBoxf& orientedBox);
-		static void Draw(const NzSkeleton* skeleton);
-		static void Draw(const NzVector3f& position, float size = 0.1f);
-		static void DrawAxes(const NzVector3f& position = NzVector3f::Zero(), float size = 1.f);
-		static void DrawBinormals(const NzStaticMesh* subMesh);
-		static void DrawCone(const NzVector3f& origin, const NzQuaternionf& rotation, float angle, float length);
-		static void DrawLine(const NzVector3f& p1, const NzVector3f& p2);
-		static void DrawPoints(const NzVector3f* ptr, unsigned int pointCount);
-		static void DrawNormals(const NzStaticMesh* subMesh);
-		static void DrawTangents(const NzStaticMesh* subMesh);
+	class Skeleton;
 
-		static void EnableDepthBuffer(bool depthBuffer);
+	class NAZARA_RENDERER_API DebugDrawer
+	{
+		public:
+			static void Draw(const BoundingVolumef& volume);
+			static void Draw(const Boxf& box);
+			static void Draw(const Boxi& box);
+			static void Draw(const Boxui& box);
+			static void Draw(const Frustumf& frustum);
+			static void Draw(const OrientedBoxf& orientedBox);
+			static void Draw(const Skeleton* skeleton);
+			static void Draw(const Vector3f& position, float size = 0.1f);
+			static void DrawAxes(const Vector3f& position = Vector3f::Zero(), float size = 1.f);
+			static void DrawBinormals(const StaticMesh* subMesh);
+			static void DrawCone(const Vector3f& origin, const Quaternionf& rotation, float angle, float length);
+			static void DrawLine(const Vector3f& p1, const Vector3f& p2);
+			static void DrawPoints(const Vector3f* ptr, unsigned int pointCount);
+			static void DrawNormals(const StaticMesh* subMesh);
+			static void DrawTangents(const StaticMesh* subMesh);
 
-		static float GetLineWidth();
-		static float GetPointSize();
-		static NzColor GetPrimaryColor();
-		static NzColor GetSecondaryColor();
+			static void EnableDepthBuffer(bool depthBuffer);
 
-		static bool Initialize();
-		static bool IsDepthBufferEnabled();
+			static float GetLineWidth();
+			static float GetPointSize();
+			static Color GetPrimaryColor();
+			static Color GetSecondaryColor();
 
-		static void SetLineWidth(float width);
-		static void SetPointSize(float size);
-		static void SetPrimaryColor(const NzColor& color);
-		static void SetSecondaryColor(const NzColor& color);
+			static bool Initialize();
+			static bool IsDepthBufferEnabled();
 
-		static void Uninitialize();
-};
+			static void SetLineWidth(float width);
+			static void SetPointSize(float size);
+			static void SetPrimaryColor(const Color& color);
+			static void SetSecondaryColor(const Color& color);
+
+			static void Uninitialize();
+	};
+}
 
 #endif // NAZARA_DEBUG_DRAWER_HPP

@@ -10,356 +10,359 @@
 #include <algorithm>
 #include <Nazara/Physics/Debug.hpp>
 
-NzPhysObject::NzPhysObject(NzPhysWorld* world, const NzMatrix4f& mat) :
-NzPhysObject(world, NzNullGeom::New(), mat)
+namespace Nz
 {
-}
-
-NzPhysObject::NzPhysObject(NzPhysWorld* world, NzPhysGeomRef geom, const NzMatrix4f& mat) :
-m_matrix(mat),
-m_geom(std::move(geom)),
-m_forceAccumulator(NzVector3f::Zero()),
-m_torqueAccumulator(NzVector3f::Zero()),
-m_world(world),
-m_gravityFactor(1.f),
-m_mass(0.f)
-{
-	NazaraAssert(m_world, "Invalid world");
-
-	if (!m_geom)
-		m_geom = NzNullGeom::New();
-
-	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
-	NewtonBodySetUserData(m_body, this);
-}
-
-NzPhysObject::NzPhysObject(const NzPhysObject& object) :
-m_matrix(object.m_matrix),
-m_geom(object.m_geom),
-m_forceAccumulator(NzVector3f::Zero()),
-m_torqueAccumulator(NzVector3f::Zero()),
-m_world(object.m_world),
-m_gravityFactor(object.m_gravityFactor),
-m_mass(0.f)
-{
-	NazaraAssert(m_world, "Invalid world");
-	NazaraAssert(m_geom, "Invalid geometry");
-
-	m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
-	NewtonBodySetUserData(m_body, this);
-	SetMass(object.m_mass);
-}
-
-NzPhysObject::NzPhysObject(NzPhysObject&& object) :
-m_matrix(std::move(object.m_matrix)),
-m_geom(std::move(object.m_geom)),
-m_forceAccumulator(std::move(object.m_forceAccumulator)),
-m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
-m_body(object.m_body),
-m_world(object.m_world),
-m_gravityFactor(object.m_gravityFactor),
-m_mass(object.m_mass)
-{
-	object.m_body = nullptr;
-}
-
-NzPhysObject::~NzPhysObject()
-{
-	if (m_body)
-		NewtonDestroyBody(m_world->GetHandle(), m_body);
-}
-
-void NzPhysObject::AddForce(const NzVector3f& force, nzCoordSys coordSys)
-{
-	switch (coordSys)
+	PhysObject::PhysObject(PhysWorld* world, const Matrix4f& mat) :
+	PhysObject(world, NullGeom::New(), mat)
 	{
-		case nzCoordSys_Global:
-			m_forceAccumulator += force;
-			break;
-
-		case nzCoordSys_Local:
-			m_forceAccumulator += GetRotation() * force;
-			break;
 	}
 
-	// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
-	NewtonBodySetSleepState(m_body, 0);
-}
-
-void NzPhysObject::AddForce(const NzVector3f& force, const NzVector3f& point, nzCoordSys coordSys)
-{
-	switch (coordSys)
+	PhysObject::PhysObject(PhysWorld* world, PhysGeomRef geom, const Matrix4f& mat) :
+	m_matrix(mat),
+	m_geom(std::move(geom)),
+	m_forceAccumulator(Vector3f::Zero()),
+	m_torqueAccumulator(Vector3f::Zero()),
+	m_world(world),
+	m_gravityFactor(1.f),
+	m_mass(0.f)
 	{
-		case nzCoordSys_Global:
-			m_forceAccumulator += force;
-			m_torqueAccumulator += NzVector3f::CrossProduct(point - GetMassCenter(nzCoordSys_Global), force);
-			break;
+		NazaraAssert(m_world, "Invalid world");
 
-		case nzCoordSys_Local:
-			return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), nzCoordSys_Global);
+		if (!m_geom)
+			m_geom = NullGeom::New();
+
+		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
+		NewtonBodySetUserData(m_body, this);
 	}
 
-	// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
-	NewtonBodySetSleepState(m_body, 0);
-}
-
-void NzPhysObject::AddTorque(const NzVector3f& torque, nzCoordSys coordSys)
-{
-	switch (coordSys)
+	PhysObject::PhysObject(const PhysObject& object) :
+	m_matrix(object.m_matrix),
+	m_geom(object.m_geom),
+	m_forceAccumulator(Vector3f::Zero()),
+	m_torqueAccumulator(Vector3f::Zero()),
+	m_world(object.m_world),
+	m_gravityFactor(object.m_gravityFactor),
+	m_mass(0.f)
 	{
-		case nzCoordSys_Global:
-			m_torqueAccumulator += torque;
-			break;
+		NazaraAssert(m_world, "Invalid world");
+		NazaraAssert(m_geom, "Invalid geometry");
 
-		case nzCoordSys_Local:
-			m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
-			break;
+		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
+		NewtonBodySetUserData(m_body, this);
+		SetMass(object.m_mass);
 	}
 
-	// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
-	NewtonBodySetSleepState(m_body, 0);
-}
-
-void NzPhysObject::EnableAutoSleep(bool autoSleep)
-{
-	NewtonBodySetAutoSleep(m_body, autoSleep);
-}
-
-NzBoxf NzPhysObject::GetAABB() const
-{
-	NzVector3f min, max;
-	NewtonBodyGetAABB(m_body, min, max);
-
-	return NzBoxf(min, max);
-}
-
-NzVector3f NzPhysObject::GetAngularVelocity() const
-{
-	NzVector3f angularVelocity;
-	NewtonBodyGetOmega(m_body, angularVelocity);
-
-	return angularVelocity;
-}
-
-const NzPhysGeomRef& NzPhysObject::GetGeom() const
-{
-	return m_geom;
-}
-
-float NzPhysObject::GetGravityFactor() const
-{
-	return m_gravityFactor;
-}
-
-NewtonBody* NzPhysObject::GetHandle() const
-{
-	return m_body;
-}
-
-float NzPhysObject::GetMass() const
-{
-	return m_mass;
-}
-
-NzVector3f NzPhysObject::GetMassCenter(nzCoordSys coordSys) const
-{
-	NzVector3f center;
-	NewtonBodyGetCentreOfMass(m_body, center);
-
-	switch (coordSys)
+	PhysObject::PhysObject(PhysObject&& object) :
+	m_matrix(std::move(object.m_matrix)),
+	m_geom(std::move(object.m_geom)),
+	m_forceAccumulator(std::move(object.m_forceAccumulator)),
+	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
+	m_body(object.m_body),
+	m_world(object.m_world),
+	m_gravityFactor(object.m_gravityFactor),
+	m_mass(object.m_mass)
 	{
-		case nzCoordSys_Global:
-			center = m_matrix.Transform(center);
-			break;
-
-		case nzCoordSys_Local:
-			break; // Aucune opération à effectuer sur le centre de rotation
+		object.m_body = nullptr;
 	}
 
-	return center;
-}
-
-const NzMatrix4f& NzPhysObject::GetMatrix() const
-{
-	return m_matrix;
-}
-
-NzVector3f NzPhysObject::GetPosition() const
-{
-	return m_matrix.GetTranslation();
-}
-
-NzQuaternionf NzPhysObject::GetRotation() const
-{
-	return m_matrix.GetRotation();
-}
-
-NzVector3f NzPhysObject::GetVelocity() const
-{
-	NzVector3f velocity;
-	NewtonBodyGetVelocity(m_body, velocity);
-
-	return velocity;
-}
-
-bool NzPhysObject::IsAutoSleepEnabled() const
-{
-	return NewtonBodyGetAutoSleep(m_body) != 0;
-}
-
-bool NzPhysObject::IsMoveable() const
-{
-	return m_mass > 0.f;
-}
-
-bool NzPhysObject::IsSleeping() const
-{
-	return NewtonBodyGetSleepState(m_body) != 0;
-}
-
-void NzPhysObject::SetAngularVelocity(const NzVector3f& angularVelocity)
-{
-	NewtonBodySetOmega(m_body, angularVelocity);
-}
-
-void NzPhysObject::SetGeom(NzPhysGeomRef geom)
-{
-	if (m_geom.Get() != geom)
+	PhysObject::~PhysObject()
 	{
-		if (geom)
-			m_geom = geom;
-		else
-			m_geom = NzNullGeom::New();
-
-		NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
-	}
-}
-
-void NzPhysObject::SetGravityFactor(float gravityFactor)
-{
-	m_gravityFactor = gravityFactor;
-}
-
-void NzPhysObject::SetMass(float mass)
-{
-	if (m_mass > 0.f)
-	{
-		float Ix, Iy, Iz;
-		NewtonBodyGetMassMatrix(m_body, &m_mass, &Ix, &Iy, &Iz);
-		float scale = mass/m_mass;
-		NewtonBodySetMassMatrix(m_body, mass, Ix*scale, Iy*scale, Iz*scale);
-	}
-	else if (mass > 0.f)
-	{
-		NzVector3f inertia, origin;
-		m_geom->ComputeInertialMatrix(&inertia, &origin);
-
-		NewtonBodySetCentreOfMass(m_body, &origin.x);
-		NewtonBodySetMassMatrix(m_body, mass, inertia.x*mass, inertia.y*mass, inertia.z*mass);
-		NewtonBodySetForceAndTorqueCallback(m_body, &ForceAndTorqueCallback);
-		NewtonBodySetTransformCallback(m_body, &TransformCallback);
+		if (m_body)
+			NewtonDestroyBody(m_world->GetHandle(), m_body);
 	}
 
-	m_mass = mass;
-}
-
-void NzPhysObject::SetMassCenter(const NzVector3f& center)
-{
-	if (m_mass > 0.f)
-		NewtonBodySetCentreOfMass(m_body, center);
-}
-
-void NzPhysObject::SetPosition(const NzVector3f& position)
-{
-	m_matrix.SetTranslation(position);
-	UpdateBody();
-}
-
-void NzPhysObject::SetRotation(const NzQuaternionf& rotation)
-{
-	m_matrix.SetRotation(rotation);
-	UpdateBody();
-}
-
-void NzPhysObject::SetVelocity(const NzVector3f& velocity)
-{
-	NewtonBodySetVelocity(m_body, velocity);
-}
-
-NzPhysObject& NzPhysObject::operator=(const NzPhysObject& object)
-{
-	NzPhysObject physObj(object);
-	return operator=(std::move(physObj));
-}
-
-void NzPhysObject::UpdateBody()
-{
-	NewtonBodySetMatrix(m_body, m_matrix);
-
-	if (NzNumberEquals(m_mass, 0.f))
+	void PhysObject::AddForce(const Vector3f& force, CoordSys coordSys)
 	{
-		// http://newtondynamics.com/wiki/index.php5?title=Can_i_dynamicly_move_a_TriMesh%3F
-		NzVector3f min, max;
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				m_forceAccumulator += force;
+				break;
+
+			case CoordSys_Local:
+				m_forceAccumulator += GetRotation() * force;
+				break;
+		}
+
+		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		NewtonBodySetSleepState(m_body, 0);
+	}
+
+	void PhysObject::AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				m_forceAccumulator += force;
+				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys_Global), force);
+				break;
+
+			case CoordSys_Local:
+				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys_Global);
+		}
+
+		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		NewtonBodySetSleepState(m_body, 0);
+	}
+
+	void PhysObject::AddTorque(const Vector3f& torque, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				m_torqueAccumulator += torque;
+				break;
+
+			case CoordSys_Local:
+				m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
+				break;
+		}
+
+		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		NewtonBodySetSleepState(m_body, 0);
+	}
+
+	void PhysObject::EnableAutoSleep(bool autoSleep)
+	{
+		NewtonBodySetAutoSleep(m_body, autoSleep);
+	}
+
+	Boxf PhysObject::GetAABB() const
+	{
+		Vector3f min, max;
 		NewtonBodyGetAABB(m_body, min, max);
 
-		NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData)
-		{
-			NazaraUnused(userData);
-			NewtonBodySetSleepState(body, 0);
-		}, nullptr);
+		return Boxf(min, max);
 	}
-	/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
-		(*it)->PhysObjectOnUpdate(this);*/
-}
 
-NzPhysObject& NzPhysObject::operator=(NzPhysObject&& object)
-{
-	if (m_body)
-		NewtonDestroyBody(m_world->GetHandle(), m_body);
+	Vector3f PhysObject::GetAngularVelocity() const
+	{
+		Vector3f angularVelocity;
+		NewtonBodyGetOmega(m_body, angularVelocity);
 
-	m_body               = object.m_body;
-	m_forceAccumulator   = std::move(object.m_forceAccumulator);
-	m_geom               = std::move(object.m_geom);
-	m_gravityFactor      = object.m_gravityFactor;
-	m_mass               = object.m_mass;
-	m_matrix             = std::move(object.m_matrix);
-	m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
-	m_world              = object.m_world;
+		return angularVelocity;
+	}
 
-	object.m_body = nullptr;
+	const PhysGeomRef& PhysObject::GetGeom() const
+	{
+		return m_geom;
+	}
 
-	return *this;
-}
+	float PhysObject::GetGravityFactor() const
+	{
+		return m_gravityFactor;
+	}
 
-void NzPhysObject::ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex)
-{
-	NazaraUnused(timeStep);
-	NazaraUnused(threadIndex);
+	NewtonBody* PhysObject::GetHandle() const
+	{
+		return m_body;
+	}
 
-	NzPhysObject* me = static_cast<NzPhysObject*>(NewtonBodyGetUserData(body));
+	float PhysObject::GetMass() const
+	{
+		return m_mass;
+	}
 
-	if (!NzNumberEquals(me->m_gravityFactor, 0.f))
-		me->m_forceAccumulator += me->m_world->GetGravity() * me->m_gravityFactor * me->m_mass;
+	Vector3f PhysObject::GetMassCenter(CoordSys coordSys) const
+	{
+		Vector3f center;
+		NewtonBodyGetCentreOfMass(m_body, center);
 
-	/*for (std::set<PhysObjectListener*>::iterator it = me->m_listeners.begin(); it != me->m_listeners.end(); ++it)
-		(*it)->PhysObjectApplyForce(me);*/
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				center = m_matrix.Transform(center);
+				break;
 
-	NewtonBodySetForce(body, me->m_forceAccumulator);
-	NewtonBodySetTorque(body, me->m_torqueAccumulator);
+			case CoordSys_Local:
+				break; // Aucune opération à effectuer sur le centre de rotation
+		}
 
-	me->m_torqueAccumulator.Set(0.f);
-	me->m_forceAccumulator.Set(0.f);
+		return center;
+	}
 
-	///TODO: Implanter la force gyroscopique?
-}
+	const Matrix4f& PhysObject::GetMatrix() const
+	{
+		return m_matrix;
+	}
 
-void NzPhysObject::TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex)
-{
-	NazaraUnused(threadIndex);
+	Vector3f PhysObject::GetPosition() const
+	{
+		return m_matrix.GetTranslation();
+	}
 
-	NzPhysObject* me = static_cast<NzPhysObject*>(NewtonBodyGetUserData(body));
-	me->m_matrix.Set(matrix);
+	Quaternionf PhysObject::GetRotation() const
+	{
+		return m_matrix.GetRotation();
+	}
 
-	/*for (std::set<PhysObjectListener*>::iterator it = me->m_listeners.begin(); it != me->m_listeners.end(); ++it)
-		(*it)->PhysObjectOnUpdate(me);*/
+	Vector3f PhysObject::GetVelocity() const
+	{
+		Vector3f velocity;
+		NewtonBodyGetVelocity(m_body, velocity);
+
+		return velocity;
+	}
+
+	bool PhysObject::IsAutoSleepEnabled() const
+	{
+		return NewtonBodyGetAutoSleep(m_body) != 0;
+	}
+
+	bool PhysObject::IsMoveable() const
+	{
+		return m_mass > 0.f;
+	}
+
+	bool PhysObject::IsSleeping() const
+	{
+		return NewtonBodyGetSleepState(m_body) != 0;
+	}
+
+	void PhysObject::SetAngularVelocity(const Vector3f& angularVelocity)
+	{
+		NewtonBodySetOmega(m_body, angularVelocity);
+	}
+
+	void PhysObject::SetGeom(PhysGeomRef geom)
+	{
+		if (m_geom.Get() != geom)
+		{
+			if (geom)
+				m_geom = geom;
+			else
+				m_geom = NullGeom::New();
+
+			NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
+		}
+	}
+
+	void PhysObject::SetGravityFactor(float gravityFactor)
+	{
+		m_gravityFactor = gravityFactor;
+	}
+
+	void PhysObject::SetMass(float mass)
+	{
+		if (m_mass > 0.f)
+		{
+			float Ix, Iy, Iz;
+			NewtonBodyGetMassMatrix(m_body, &m_mass, &Ix, &Iy, &Iz);
+			float scale = mass/m_mass;
+			NewtonBodySetMassMatrix(m_body, mass, Ix*scale, Iy*scale, Iz*scale);
+		}
+		else if (mass > 0.f)
+		{
+			Vector3f inertia, origin;
+			m_geom->ComputeInertialMatrix(&inertia, &origin);
+
+			NewtonBodySetCentreOfMass(m_body, &origin.x);
+			NewtonBodySetMassMatrix(m_body, mass, inertia.x*mass, inertia.y*mass, inertia.z*mass);
+			NewtonBodySetForceAndTorqueCallback(m_body, &ForceAndTorqueCallback);
+			NewtonBodySetTransformCallback(m_body, &TransformCallback);
+		}
+
+		m_mass = mass;
+	}
+
+	void PhysObject::SetMassCenter(const Vector3f& center)
+	{
+		if (m_mass > 0.f)
+			NewtonBodySetCentreOfMass(m_body, center);
+	}
+
+	void PhysObject::SetPosition(const Vector3f& position)
+	{
+		m_matrix.SetTranslation(position);
+		UpdateBody();
+	}
+
+	void PhysObject::SetRotation(const Quaternionf& rotation)
+	{
+		m_matrix.SetRotation(rotation);
+		UpdateBody();
+	}
+
+	void PhysObject::SetVelocity(const Vector3f& velocity)
+	{
+		NewtonBodySetVelocity(m_body, velocity);
+	}
+
+	PhysObject& PhysObject::operator=(const PhysObject& object)
+	{
+		PhysObject physObj(object);
+		return operator=(std::move(physObj));
+	}
+
+	void PhysObject::UpdateBody()
+	{
+		NewtonBodySetMatrix(m_body, m_matrix);
+
+		if (NumberEquals(m_mass, 0.f))
+		{
+			// http://newtondynamics.com/wiki/index.php5?title=Can_i_dynamicly_move_a_TriMesh%3F
+			Vector3f min, max;
+			NewtonBodyGetAABB(m_body, min, max);
+
+			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData)
+			{
+				NazaraUnused(userData);
+				NewtonBodySetSleepState(body, 0);
+			}, nullptr);
+		}
+		/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
+			(*it)->PhysObjectOnUpdate(this);*/
+	}
+
+	PhysObject& PhysObject::operator=(PhysObject&& object)
+	{
+		if (m_body)
+			NewtonDestroyBody(m_world->GetHandle(), m_body);
+
+		m_body               = object.m_body;
+		m_forceAccumulator   = std::move(object.m_forceAccumulator);
+		m_geom               = std::move(object.m_geom);
+		m_gravityFactor      = object.m_gravityFactor;
+		m_mass               = object.m_mass;
+		m_matrix             = std::move(object.m_matrix);
+		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
+		m_world              = object.m_world;
+
+		object.m_body = nullptr;
+
+		return *this;
+	}
+
+	void PhysObject::ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex)
+	{
+		NazaraUnused(timeStep);
+		NazaraUnused(threadIndex);
+
+		PhysObject* me = static_cast<PhysObject*>(NewtonBodyGetUserData(body));
+
+		if (!NumberEquals(me->m_gravityFactor, 0.f))
+			me->m_forceAccumulator += me->m_world->GetGravity() * me->m_gravityFactor * me->m_mass;
+
+		/*for (std::set<PhysObjectListener*>::iterator it = me->m_listeners.begin(); it != me->m_listeners.end(); ++it)
+			(*it)->PhysObjectApplyForce(me);*/
+
+		NewtonBodySetForce(body, me->m_forceAccumulator);
+		NewtonBodySetTorque(body, me->m_torqueAccumulator);
+
+		me->m_torqueAccumulator.Set(0.f);
+		me->m_forceAccumulator.Set(0.f);
+
+		///TODO: Implanter la force gyroscopique?
+	}
+
+	void PhysObject::TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex)
+	{
+		NazaraUnused(threadIndex);
+
+		PhysObject* me = static_cast<PhysObject*>(NewtonBodyGetUserData(body));
+		me->m_matrix.Set(matrix);
+
+		/*for (std::set<PhysObjectListener*>::iterator it = me->m_listeners.begin(); it != me->m_listeners.end(); ++it)
+			(*it)->PhysObjectOnUpdate(me);*/
+		}
 }

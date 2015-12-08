@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_sndfile_Register();
-void NzLoaders_sndfile_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void Register_sndfile();
+		void Unregister_sndfile();
+	}
+}
 
 #endif // NAZARA_LOADERS_SNDFILE_HPP

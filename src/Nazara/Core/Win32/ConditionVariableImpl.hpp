@@ -13,39 +13,41 @@
 #include <atomic>
 #include <windows.h>
 
-class NzMutexImpl;
-
-class NzConditionVariableImpl
+namespace Nz
 {
-	public:
-		NzConditionVariableImpl();
-		#if NAZARA_CORE_WINDOWS_VISTA
-		~NzConditionVariableImpl() = default;
-		#else
-		~NzConditionVariableImpl();
-		#endif
+	class MutexImpl;
 
-		void Signal();
-		void SignalAll();
+	class ConditionVariableImpl
+	{
+		public:
+			ConditionVariableImpl();
+			#if NAZARA_CORE_WINDOWS_VISTA
+			~ConditionVariableImpl() = default;
+			#else
+			~ConditionVariableImpl();
+			#endif
 
-		void Wait(NzMutexImpl* mutex);
-		bool Wait(NzMutexImpl* mutex, nzUInt32 timeout);
+			void Signal();
+			void SignalAll();
 
-	private:
-		#if NAZARA_CORE_WINDOWS_VISTA
-		CONDITION_VARIABLE m_cv;
-		#else
-		enum
-		{
-			SIGNAL,
-			BROADCAST,
-			MAX_EVENTS
-		};
+			void Wait(MutexImpl* mutex);
+			bool Wait(MutexImpl* mutex, UInt32 timeout);
 
-		std::atomic_uint m_count;
-		HANDLE m_events[MAX_EVENTS];
-		#endif
+		private:
+			#if NAZARA_CORE_WINDOWS_VISTA
+			CONDITION_VARIABLE m_cv;
+			#else
+			enum
+			{
+				SIGNAL,
+				BROADCAST,
+				MAX_EVENTS
+			};
 
-};
+			std::atomic_uint m_count;
+			HANDLE m_events[MAX_EVENTS];
+			#endif
+	};
+}
 
 #endif // NAZARA_CONDITIONVARIABLEIMPL_HPP

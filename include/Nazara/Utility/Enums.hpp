@@ -7,326 +7,329 @@
 #ifndef NAZARA_ENUMS_UTILITY_HPP
 #define NAZARA_ENUMS_UTILITY_HPP
 
-enum nzAnimationType
+namespace Nz
 {
-	nzAnimationType_Skeletal,
-	nzAnimationType_Static,
+	enum AnimationType
+	{
+		AnimationType_Skeletal,
+		AnimationType_Static,
 
-	nzAnimationType_Max = nzAnimationType_Static
-};
+		AnimationType_Max = AnimationType_Static
+	};
 
-enum nzBufferAccess
-{
-	nzBufferAccess_DiscardAndWrite,
-	nzBufferAccess_ReadOnly,
-	nzBufferAccess_ReadWrite,
-	nzBufferAccess_WriteOnly,
+	enum BufferAccess
+	{
+		BufferAccess_DiscardAndWrite,
+		BufferAccess_ReadOnly,
+		BufferAccess_ReadWrite,
+		BufferAccess_WriteOnly,
 
-	nzBufferAccess_Max = nzBufferAccess_WriteOnly
-};
+		BufferAccess_Max = BufferAccess_WriteOnly
+	};
 
-enum nzBufferType
-{
-	nzBufferType_Index,
-	nzBufferType_Vertex,
+	enum BufferType
+	{
+		BufferType_Index,
+		BufferType_Vertex,
 
-	nzBufferType_Max = nzBufferType_Vertex
-};
+		BufferType_Max = BufferType_Vertex
+	};
 
-enum nzBufferUsage
-{
-	nzBufferUsage_Dynamic,
-	nzBufferUsage_Static,
+	enum BufferUsage
+	{
+		BufferUsage_Dynamic,
+		BufferUsage_Static,
 
-	nzBufferUsage_Max = nzBufferUsage_Static
-};
+		BufferUsage_Max = BufferUsage_Static
+	};
 
-enum nzComponentType
-{
-	nzComponentType_Color,
-	nzComponentType_Double1,
-	nzComponentType_Double2,
-	nzComponentType_Double3,
-	nzComponentType_Double4,
-	nzComponentType_Float1,
-	nzComponentType_Float2,
-	nzComponentType_Float3,
-	nzComponentType_Float4,
-	nzComponentType_Int1,
-	nzComponentType_Int2,
-	nzComponentType_Int3,
-	nzComponentType_Int4,
-	nzComponentType_Quaternion,
+	enum ComponentType
+	{
+		ComponentType_Color,
+		ComponentType_Double1,
+		ComponentType_Double2,
+		ComponentType_Double3,
+		ComponentType_Double4,
+		ComponentType_Float1,
+		ComponentType_Float2,
+		ComponentType_Float3,
+		ComponentType_Float4,
+		ComponentType_Int1,
+		ComponentType_Int2,
+		ComponentType_Int3,
+		ComponentType_Int4,
+		ComponentType_Quaternion,
 
-	nzComponentType_Max = nzComponentType_Quaternion
-};
+		ComponentType_Max = ComponentType_Quaternion
+	};
 
-enum nzCubemapFace
-{
-	// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de NzImage contenant un cubemap
-	// L'ordre est X, -X, Y, -Y, Z, -Z
-	nzCubemapFace_PositiveX = 0,
-	nzCubemapFace_PositiveY = 2,
-	nzCubemapFace_PositiveZ = 4,
-	nzCubemapFace_NegativeX = 1,
-	nzCubemapFace_NegativeY = 3,
-	nzCubemapFace_NegativeZ = 5,
+	enum CubemapFace
+	{
+		// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de Image contenant un cubemap
+		// L'ordre est X, -X, Y, -Y, Z, -Z
+		CubemapFace_PositiveX = 0,
+		CubemapFace_PositiveY = 2,
+		CubemapFace_PositiveZ = 4,
+		CubemapFace_NegativeX = 1,
+		CubemapFace_NegativeY = 3,
+		CubemapFace_NegativeZ = 5,
 
-	nzCubemapFace_Max = nzCubemapFace_NegativeZ
-};
+		CubemapFace_Max = CubemapFace_NegativeZ
+	};
 
-enum nzDataStorageFlags
-{
-	nzDataStorage_Hardware = 0x1,
-	nzDataStorage_Software = 0x2,
+	enum DataStorageFlags
+	{
+		DataStorage_Hardware = 0x1,
+		DataStorage_Software = 0x2,
 
-	nzDataStorage_Both = nzDataStorage_Hardware | nzDataStorage_Software,
+		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
 
-	nzDataStorage_Max = nzDataStorage_Software*2-1
-};
+		DataStorage_Max = DataStorage_Software*2-1
+	};
 
-enum nzEventType
-{
-	nzEventType_GainedFocus,
-	nzEventType_LostFocus,
-	nzEventType_KeyPressed,
-	nzEventType_KeyReleased,
-	nzEventType_MouseButtonDoubleClicked,
-	nzEventType_MouseButtonPressed,
-	nzEventType_MouseButtonReleased,
-	nzEventType_MouseEntered,
-	nzEventType_MouseLeft,
-	nzEventType_MouseMoved,
-	nzEventType_MouseWheelMoved,
-	nzEventType_Moved,
-	nzEventType_Quit,
-	nzEventType_Resized,
-	nzEventType_TextEntered,
+	enum ImageType
+	{
+		ImageType_1D,
+		ImageType_1D_Array,
+		ImageType_2D,
+		ImageType_2D_Array,
+		ImageType_3D,
+		ImageType_Cubemap,
 
-	nzEventType_Max = nzEventType_TextEntered
-};
+		ImageType_Max = ImageType_Cubemap
+	};
 
-enum nzImageType
-{
-	nzImageType_1D,
-	nzImageType_1D_Array,
-	nzImageType_2D,
-	nzImageType_2D_Array,
-	nzImageType_3D,
-	nzImageType_Cubemap,
+	enum NodeType
+	{
+		NodeType_Default,  // Node
+		NodeType_Scene,    // SceneNode (Graphics)
+		NodeType_Skeletal, ///TODO
 
-	nzImageType_Max = nzImageType_Cubemap
-};
+		NodeType_Max = NodeType_Skeletal
+	};
 
-enum nzNodeType
-{
-	nzNodeType_Default,  // NzNode
-	nzNodeType_Scene,    // NzSceneNode (Graphics)
-	nzNodeType_Skeletal, ///TODO
+	enum PixelFormatType
+	{
+		PixelFormatType_Undefined = -1,
 
-	nzNodeType_Max = nzNodeType_Skeletal
-};
+		PixelFormatType_A8,              // 1*uint8
+		PixelFormatType_BGR8,            // 3*uint8
+		PixelFormatType_BGRA8,           // 4*uint8
+		PixelFormatType_DXT1,
+		PixelFormatType_DXT3,
+		PixelFormatType_DXT5,
+		PixelFormatType_L8,              // 1*uint8
+		PixelFormatType_LA8,             // 2*uint8
+		PixelFormatType_R8,              // 1*uint8
+		PixelFormatType_R8I,             // 1*int8
+		PixelFormatType_R8UI,            // 1*uint8
+		PixelFormatType_R16,             // 1*uint16
+		PixelFormatType_R16F,            // 1*half
+		PixelFormatType_R16I,            // 1*int16
+		PixelFormatType_R16UI,           // 1*uint16
+		PixelFormatType_R32F,            // 1*float
+		PixelFormatType_R32I,            // 1*uint16
+		PixelFormatType_R32UI,           // 1*uint32
+		PixelFormatType_RG8,             // 2*int8
+		PixelFormatType_RG8I,            // 2*int8
+		PixelFormatType_RG8UI,           // 2*uint8
+		PixelFormatType_RG16,            // 2*uint16
+		PixelFormatType_RG16F,           // 2*half
+		PixelFormatType_RG16I,           // 2*int16
+		PixelFormatType_RG16UI,          // 2*uint16
+		PixelFormatType_RG32F,           // 2*float
+		PixelFormatType_RG32I,           // 2*uint16
+		PixelFormatType_RG32UI,          // 2*uint32
+		PixelFormatType_RGB5A1,          // 3*uint5 + alpha bit
+		PixelFormatType_RGB8,            // 3*uint8
+		PixelFormatType_RGB16F,          // 3*half
+		PixelFormatType_RGB16I,          // 4*int16
+		PixelFormatType_RGB16UI,         // 4*uint16
+		PixelFormatType_RGB32F,          // 3*float
+		PixelFormatType_RGB32I,          // 4*int32
+		PixelFormatType_RGB32UI,         // 4*uint32
+		PixelFormatType_RGBA4,           // 4*uint4
+		PixelFormatType_RGBA8,           // 4*uint8
+		PixelFormatType_RGBA16F,         // 4*half
+		PixelFormatType_RGBA16I,         // 4*int16
+		PixelFormatType_RGBA16UI,        // 4*uint16
+		PixelFormatType_RGBA32F,         // 4*float
+		PixelFormatType_RGBA32I,         // 4*int32
+		PixelFormatType_RGBA32UI,        // 4*uint32
+		PixelFormatType_Depth16,
+		PixelFormatType_Depth24,
+		PixelFormatType_Depth24Stencil8,
+		PixelFormatType_Depth32,
+		PixelFormatType_Stencil1,
+		PixelFormatType_Stencil4,
+		PixelFormatType_Stencil8,
+		PixelFormatType_Stencil16,
 
-enum nzPixelFormat
-{
-	nzPixelFormat_Undefined = -1,
+		PixelFormatType_Max = PixelFormatType_Stencil16
+	};
 
-	nzPixelFormat_A8,              // 1*uint8
-	nzPixelFormat_BGR8,            // 3*uint8
-	nzPixelFormat_BGRA8,           // 4*uint8
-	nzPixelFormat_DXT1,
-	nzPixelFormat_DXT3,
-	nzPixelFormat_DXT5,
-	nzPixelFormat_L8,              // 1*uint8
-	nzPixelFormat_LA8,             // 2*uint8
-	nzPixelFormat_R8,              // 1*uint8
-	nzPixelFormat_R8I,             // 1*int8
-	nzPixelFormat_R8UI,            // 1*uint8
-	nzPixelFormat_R16,             // 1*uint16
-	nzPixelFormat_R16F,            // 1*half
-	nzPixelFormat_R16I,            // 1*int16
-	nzPixelFormat_R16UI,           // 1*uint16
-	nzPixelFormat_R32F,            // 1*float
-	nzPixelFormat_R32I,            // 1*uint16
-	nzPixelFormat_R32UI,           // 1*uint32
-	nzPixelFormat_RG8,             // 2*int8
-	nzPixelFormat_RG8I,            // 2*int8
-	nzPixelFormat_RG8UI,           // 2*uint8
-	nzPixelFormat_RG16,            // 2*uint16
-	nzPixelFormat_RG16F,           // 2*half
-	nzPixelFormat_RG16I,           // 2*int16
-	nzPixelFormat_RG16UI,          // 2*uint16
-	nzPixelFormat_RG32F,           // 2*float
-	nzPixelFormat_RG32I,           // 2*uint16
-	nzPixelFormat_RG32UI,          // 2*uint32
-	nzPixelFormat_RGB5A1,          // 3*uint5 + alpha bit
-	nzPixelFormat_RGB8,            // 3*uint8
-	nzPixelFormat_RGB16F,          // 3*half
-	nzPixelFormat_RGB16I,          // 4*int16
-	nzPixelFormat_RGB16UI,         // 4*uint16
-	nzPixelFormat_RGB32F,          // 3*float
-	nzPixelFormat_RGB32I,          // 4*int32
-	nzPixelFormat_RGB32UI,         // 4*uint32
-	nzPixelFormat_RGBA4,           // 4*uint4
-	nzPixelFormat_RGBA8,           // 4*uint8
-	nzPixelFormat_RGBA16F,         // 4*half
-	nzPixelFormat_RGBA16I,         // 4*int16
-	nzPixelFormat_RGBA16UI,        // 4*uint16
-	nzPixelFormat_RGBA32F,         // 4*float
-	nzPixelFormat_RGBA32I,         // 4*int32
-	nzPixelFormat_RGBA32UI,        // 4*uint32
-	nzPixelFormat_Depth16,
-	nzPixelFormat_Depth24,
-	nzPixelFormat_Depth24Stencil8,
-	nzPixelFormat_Depth32,
-	nzPixelFormat_Stencil1,
-	nzPixelFormat_Stencil4,
-	nzPixelFormat_Stencil8,
-	nzPixelFormat_Stencil16,
+	enum PixelFormatTypeType
+	{
+		PixelFormatTypeType_Undefined = -1,
 
-	nzPixelFormat_Max = nzPixelFormat_Stencil16
-};
+		PixelFormatTypeType_Color,
+		PixelFormatTypeType_Depth,
+		PixelFormatTypeType_DepthStencil,
+		PixelFormatTypeType_Stencil,
 
-enum nzPixelFormatType
-{
-	nzPixelFormatType_Undefined = -1,
+		PixelFormatTypeType_Max = PixelFormatTypeType_Stencil
+	};
 
-	nzPixelFormatType_Color,
-	nzPixelFormatType_Depth,
-	nzPixelFormatType_DepthStencil,
-	nzPixelFormatType_Stencil,
+	enum PixelFlipping
+	{
+		PixelFlipping_Horizontally,
+		PixelFlipping_Vertically,
 
-	nzPixelFormatType_Max = nzPixelFormatType_Stencil
-};
+		PixelFlipping_Max = PixelFlipping_Vertically
+	};
 
-enum nzPixelFlipping
-{
-	nzPixelFlipping_Horizontally,
-	nzPixelFlipping_Vertically,
+	enum PrimitiveMode
+	{
+		PrimitiveMode_LineList,
+		PrimitiveMode_LineStrip,
+		PrimitiveMode_PointList,
+		PrimitiveMode_TriangleList,
+		PrimitiveMode_TriangleStrip,
+		PrimitiveMode_TriangleFan,
 
-	nzPixelFlipping_Max = nzPixelFlipping_Vertically
-};
+		PrimitiveMode_Max = PrimitiveMode_TriangleFan
+	};
 
-enum nzPrimitiveMode
-{
-	nzPrimitiveMode_LineList,
-	nzPrimitiveMode_LineStrip,
-	nzPrimitiveMode_PointList,
-	nzPrimitiveMode_TriangleList,
-	nzPrimitiveMode_TriangleStrip,
-	nzPrimitiveMode_TriangleFan,
+	enum TextAlign
+	{
+		TextAlign_Left,
+		TextAlign_Middle,
+		TextAlign_Right,
 
-	nzPrimitiveMode_Max = nzPrimitiveMode_TriangleFan
-};
+		TextAlign_Max = TextAlign_Right
+	};
 
-enum nzTextAlign
-{
-	nzTextAlign_Left,
-	nzTextAlign_Middle,
-	nzTextAlign_Right,
+	enum TextStyleFlags
+	{
+		TextStyle_Regular = 0x0,
 
-	nzTextAlign_Max = nzTextAlign_Right
-};
+		TextStyle_Bold          = 0x1,
+		TextStyle_Italic        = 0x2,
+		TextStyle_StrikeThrough = 0x4,
+		TextStyle_Underlined    = 0x8,
 
-enum nzTextStyleFlags
-{
-	nzTextStyle_Regular = 0x0,
+		TextStyle_Max = TextStyle_Underlined*2-1
+	};
 
-	nzTextStyle_Bold          = 0x1,
-	nzTextStyle_Italic        = 0x2,
-	nzTextStyle_StrikeThrough = 0x4,
-	nzTextStyle_Underlined    = 0x8,
+	enum VertexComponent
+	{
+		VertexComponent_Unused = -1,
 
-	nzTextStyle_Max = nzTextStyle_Underlined*2-1
-};
+		// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
+		VertexComponent_InstanceData0,
+		VertexComponent_InstanceData1,
+		VertexComponent_InstanceData2,
+		VertexComponent_InstanceData3,
+		VertexComponent_InstanceData4,
+		VertexComponent_InstanceData5,
+		VertexComponent_Color,
+		VertexComponent_Normal,
+		VertexComponent_Position,
+		VertexComponent_Tangent,
+		VertexComponent_TexCoord,
+		VertexComponent_Userdata0,
+		VertexComponent_Userdata1,
+		VertexComponent_Userdata2,
+		VertexComponent_Userdata3,
+		VertexComponent_Userdata4,
 
-enum nzVertexComponent
-{
-	nzVertexComponent_Unused = -1,
+		VertexComponent_FirstInstanceData = VertexComponent_InstanceData0,
+		VertexComponent_FirstVertexData = VertexComponent_Color,
+		VertexComponent_LastInstanceData = VertexComponent_InstanceData5,
+		VertexComponent_LastVertexData = VertexComponent_Userdata4,
 
-	// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
-	nzVertexComponent_InstanceData0,
-	nzVertexComponent_InstanceData1,
-	nzVertexComponent_InstanceData2,
-	nzVertexComponent_InstanceData3,
-	nzVertexComponent_InstanceData4,
-	nzVertexComponent_InstanceData5,
-	nzVertexComponent_Color,
-	nzVertexComponent_Normal,
-	nzVertexComponent_Position,
-	nzVertexComponent_Tangent,
-	nzVertexComponent_TexCoord,
-	nzVertexComponent_Userdata0,
-	nzVertexComponent_Userdata1,
-	nzVertexComponent_Userdata2,
-	nzVertexComponent_Userdata3,
-	nzVertexComponent_Userdata4,
+		VertexComponent_Max = VertexComponent_Userdata4
+	};
 
-	nzVertexComponent_FirstInstanceData = nzVertexComponent_InstanceData0,
-	nzVertexComponent_FirstVertexData = nzVertexComponent_Color,
-	nzVertexComponent_LastInstanceData = nzVertexComponent_InstanceData5,
-	nzVertexComponent_LastVertexData = nzVertexComponent_Userdata4,
+	enum VertexLayout
+	{
+		// Déclarations destinées au rendu
+		VertexLayout_XY,
+		VertexLayout_XY_Color,
+		VertexLayout_XY_UV,
+		VertexLayout_XYZ,
+		VertexLayout_XYZ_Color,
+		VertexLayout_XYZ_Color_UV,
+		VertexLayout_XYZ_Normal,
+		VertexLayout_XYZ_Normal_UV,
+		VertexLayout_XYZ_Normal_UV_Tangent,
+		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
+		VertexLayout_XYZ_UV,
 
-	nzVertexComponent_Max = nzVertexComponent_Userdata4
-};
+		// Déclarations destinées à l'instancing
+		VertexLayout_Matrix4,
 
-enum nzVertexLayout
-{
-	// Déclarations destinées au rendu
-	nzVertexLayout_XY,
-	nzVertexLayout_XY_Color,
-	nzVertexLayout_XY_UV,
-	nzVertexLayout_XYZ,
-	nzVertexLayout_XYZ_Color,
-	nzVertexLayout_XYZ_Color_UV,
-	nzVertexLayout_XYZ_Normal,
-	nzVertexLayout_XYZ_Normal_UV,
-	nzVertexLayout_XYZ_Normal_UV_Tangent,
-	nzVertexLayout_XYZ_Normal_UV_Tangent_Skinning,
-	nzVertexLayout_XYZ_UV,
+		VertexLayout_Max = VertexLayout_Matrix4
+	};
 
-	// Déclarations destinées à l'instancing
-	nzVertexLayout_Matrix4,
+	enum WindowCursor
+	{
+		WindowCursor_None,
+		WindowCursor_Default,
 
-	nzVertexLayout_Max = nzVertexLayout_Matrix4
-};
+		WindowCursor_Crosshair,
+		WindowCursor_Hand,
+		WindowCursor_Help,
+		WindowCursor_Move,
+		WindowCursor_Pointer,
+		WindowCursor_Progress,
+		WindowCursor_ResizeE,
+		WindowCursor_ResizeN,
+		WindowCursor_ResizeNE,
+		WindowCursor_ResizeNW,
+		WindowCursor_ResizeS,
+		WindowCursor_ResizeSE,
+		WindowCursor_ResizeSW,
+		WindowCursor_ResizeW,
+		WindowCursor_Text,
+		WindowCursor_Wait,
 
-enum nzWindowCursor
-{
-	nzWindowCursor_None,
-	nzWindowCursor_Default,
+		WindowCursor_Max = WindowCursor_Wait
+	};
 
-	nzWindowCursor_Crosshair,
-	nzWindowCursor_Hand,
-	nzWindowCursor_Help,
-	nzWindowCursor_Move,
-	nzWindowCursor_Pointer,
-	nzWindowCursor_Progress,
-	nzWindowCursor_ResizeE,
-	nzWindowCursor_ResizeN,
-	nzWindowCursor_ResizeNE,
-	nzWindowCursor_ResizeNW,
-	nzWindowCursor_ResizeS,
-	nzWindowCursor_ResizeSE,
-	nzWindowCursor_ResizeSW,
-	nzWindowCursor_ResizeW,
-	nzWindowCursor_Text,
-	nzWindowCursor_Wait,
+	enum WindowEventType
+	{
+		WindowEventType_GainedFocus,
+		WindowEventType_LostFocus,
+		WindowEventType_KeyPressed,
+		WindowEventType_KeyReleased,
+		WindowEventType_MouseButtonDoubleClicked,
+		WindowEventType_MouseButtonPressed,
+		WindowEventType_MouseButtonReleased,
+		WindowEventType_MouseEntered,
+		WindowEventType_MouseLeft,
+		WindowEventType_MouseMoved,
+		WindowEventType_MouseWheelMoved,
+		WindowEventType_Moved,
+		WindowEventType_Quit,
+		WindowEventType_Resized,
+		WindowEventType_TextEntered,
 
-	nzWindowCursor_Max = nzWindowCursor_Wait
-};
+		WindowEventType_Max = WindowEventType_TextEntered
+	};
 
-enum nzWindowStyleFlags
-{
-	nzWindowStyle_None       = 0x0,
-	nzWindowStyle_Fullscreen = 0x1,
+	enum WindowStyleFlags
+	{
+		WindowStyle_None       = 0x0,
+		WindowStyle_Fullscreen = 0x1,
 
-	nzWindowStyle_Closable   = 0x2,
-	nzWindowStyle_Resizable  = 0x4,
-	nzWindowStyle_Titlebar   = 0x8,
+		WindowStyle_Closable   = 0x2,
+		WindowStyle_Resizable  = 0x4,
+		WindowStyle_Titlebar   = 0x8,
 
-	nzWindowStyle_Default = nzWindowStyle_Closable | nzWindowStyle_Resizable | nzWindowStyle_Titlebar,
-	nzWindowStyle_Max = nzWindowStyle_Titlebar*2-1
-};
+		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
+		WindowStyle_Max = WindowStyle_Titlebar*2-1
+	};
+}
 
 #endif // NAZARA_ENUMS_UTILITY_HPP

@@ -10,20 +10,23 @@
 #include <Nazara/Prerequesites.hpp>
 #include <windows.h>
 
-class NzMutexImpl
+namespace Nz
 {
-	friend class NzConditionVariableImpl;
+	class MutexImpl
+	{
+		friend class ConditionVariableImpl;
 
-	public:
-		NzMutexImpl();
-		~NzMutexImpl();
+		public:
+			MutexImpl();
+			~MutexImpl();
 
-		void Lock();
-		bool TryLock();
-		void Unlock();
+			void Lock();
+			bool TryLock();
+			void Unlock();
 
-	private:
-		CRITICAL_SECTION m_criticalSection;
-};
+		private:
+			CRITICAL_SECTION m_criticalSection;
+	};
+}
 
 #endif // NAZARA_MUTEXIMPL_HPP

@@ -8,130 +8,132 @@
 #define NAZARA_BYTEARRAY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Hashable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <vector>
 
-class NzAbstractHash;
-
-class NAZARA_CORE_API NzByteArray : public NzHashable
+namespace Nz
 {
-	using Container = std::vector<nzUInt8>;
+	class AbstractHash;
 
-	public:
-		// types:
-		using allocator_type = Container::allocator_type;
-		using const_iterator = Container::const_iterator;
-		using const_reference = Container::const_reference;
-		using const_pointer = Container::const_pointer;
-		using const_reverse_iterator = Container::const_reverse_iterator;
-		using difference_type = Container::difference_type;
-		using pointer = Container::pointer;
-		using iterator = Container::iterator;
-		using reference = Container::reference;
-		using reverse_iterator = Container::reverse_iterator;
-		using size_type = Container::size_type;
-		using value_type = Container::value_type;
+	class NAZARA_CORE_API ByteArray
+	{
+		using Container = std::vector<UInt8>;
 
-		// construct/destroy:
-		inline NzByteArray() = default;
-		inline explicit NzByteArray(size_type n);
-		inline NzByteArray(const void* buffer, size_type n);
-		inline NzByteArray(size_type n, value_type value);
-		template <class InputIterator> NzByteArray(InputIterator first, InputIterator last);
-		NzByteArray(const NzByteArray& other) = default;
-		NzByteArray(NzByteArray&& other) = default;
-		~NzByteArray() = default;
+		public:
+			// types:
+			using allocator_type = Container::allocator_type;
+			using const_iterator = Container::const_iterator;
+			using const_reference = Container::const_reference;
+			using const_pointer = Container::const_pointer;
+			using const_reverse_iterator = Container::const_reverse_iterator;
+			using difference_type = Container::difference_type;
+			using pointer = Container::pointer;
+			using iterator = Container::iterator;
+			using reference = Container::reference;
+			using reverse_iterator = Container::reverse_iterator;
+			using size_type = Container::size_type;
+			using value_type = Container::value_type;
 
-		inline iterator Append(const void* buffer, size_type size);
-		inline iterator Append(const NzByteArray& other);
-		template <class InputIterator> void Assign(InputIterator first, InputIterator last);
-		inline void Assign(size_type n, value_type value);
+			// construct/destroy:
+			inline ByteArray() = default;
+			inline explicit ByteArray(size_type n);
+			inline ByteArray(const void* buffer, size_type n);
+			inline ByteArray(size_type n, value_type value);
+			template <class InputIterator> ByteArray(InputIterator first, InputIterator last);
+			ByteArray(const ByteArray& other) = default;
+			ByteArray(ByteArray&& other) = default;
+			~ByteArray() = default;
 
-		inline reference Back();
-		inline const_reference Back() const;
+			inline iterator Append(const void* buffer, size_type size);
+			inline iterator Append(const ByteArray& other);
+			template <class InputIterator> void Assign(InputIterator first, InputIterator last);
+			inline void Assign(size_type n, value_type value);
 
-		inline void Clear(bool keepBuffer = false);
+			inline reference Back();
+			inline const_reference Back() const;
 
-		inline iterator Erase(const_iterator pos);
-		inline iterator Erase(const_iterator first, const_iterator last);
+			inline void Clear(bool keepBuffer = false);
 
-		inline reference Front();
-		inline const_reference Front() const;
+			inline iterator Erase(const_iterator pos);
+			inline iterator Erase(const_iterator first, const_iterator last);
 
-		inline allocator_type GetAllocator() const;
-		inline pointer GetBuffer();
-		inline size_type GetCapacity() const noexcept;
-		inline const_pointer GetConstBuffer() const;
-		inline size_type GetMaxSize() const noexcept;
-		inline size_type GetSize() const noexcept;
-		inline NzByteArray GetSubArray(const_iterator startPos, const_iterator endPos) const;
+			inline reference Front();
+			inline const_reference Front() const;
 
-		inline iterator Insert(const_iterator pos, const void* buffer, size_type n);
-		inline iterator Insert(const_iterator pos, const NzByteArray& other);
-		inline iterator Insert(const_iterator pos, size_type n, value_type byte);
-		template <class InputIterator> iterator Insert(const_iterator pos, InputIterator first, InputIterator last);
-		inline bool IsEmpty() const noexcept;
+			inline allocator_type GetAllocator() const;
+			inline pointer GetBuffer();
+			inline size_type GetCapacity() const noexcept;
+			inline const_pointer GetConstBuffer() const;
+			inline size_type GetMaxSize() const noexcept;
+			inline size_type GetSize() const noexcept;
+			inline ByteArray GetSubArray(const_iterator startPos, const_iterator endPos) const;
 
-		inline void PopBack();
-		inline void PopFront();
-		inline iterator Prepend(const void* buffer, size_type size);
-		inline iterator Prepend(const NzByteArray& other);
-		inline void PushBack(value_type byte);
-		inline void PushFront(value_type byte);
+			inline iterator Insert(const_iterator pos, const void* buffer, size_type n);
+			inline iterator Insert(const_iterator pos, const ByteArray& other);
+			inline iterator Insert(const_iterator pos, size_type n, value_type byte);
+			template <class InputIterator> iterator Insert(const_iterator pos, InputIterator first, InputIterator last);
+			inline bool IsEmpty() const noexcept;
 
-		inline void Reserve(size_type bufferSize);
-		inline void Resize(size_type newSize);
-		inline void Resize(size_type newSize, value_type byte);
+			inline void PopBack();
+			inline void PopFront();
+			inline iterator Prepend(const void* buffer, size_type size);
+			inline iterator Prepend(const ByteArray& other);
+			inline void PushBack(value_type byte);
+			inline void PushFront(value_type byte);
 
-		inline void ShrinkToFit();
-		inline void Swap(NzByteArray& other);
+			inline void Reserve(size_type bufferSize);
+			inline void Resize(size_type newSize);
+			inline void Resize(size_type newSize, value_type byte);
 
-		inline NzString ToString() const;
+			inline void ShrinkToFit();
+			inline void Swap(ByteArray& other);
 
-		// STL interface
-		inline iterator begin() noexcept;
-		inline const_iterator begin() const noexcept;
-		inline bool empty() const noexcept;
-		inline iterator end() noexcept;
-		inline const_iterator end() const noexcept;
-		inline reverse_iterator rbegin() noexcept;
-		inline const_reverse_iterator rbegin() const noexcept;
-		inline reverse_iterator rend() noexcept;
-		inline const_reverse_iterator rend() const noexcept;
-		inline const_iterator cbegin() const noexcept;
-		inline const_iterator cend() const noexcept;
-		inline const_reverse_iterator crbegin() const noexcept;
-		inline const_reverse_iterator crend() const noexcept;
-		inline size_type size() const noexcept;
+			inline String ToHex() const;
+			inline String ToString() const;
 
-		// Operators
-		inline reference operator[](size_type pos);
-		inline const_reference operator[](size_type pos) const;
-		inline NzByteArray& operator=(const NzByteArray& array) = default;
-		inline NzByteArray& operator=(NzByteArray&& array) = default;
-		inline NzByteArray operator+(const NzByteArray& array) const;
-		inline NzByteArray& operator+=(const NzByteArray& array);
+			// STL interface
+			inline iterator begin() noexcept;
+			inline const_iterator begin() const noexcept;
+			inline bool empty() const noexcept;
+			inline iterator end() noexcept;
+			inline const_iterator end() const noexcept;
+			inline reverse_iterator rbegin() noexcept;
+			inline const_reverse_iterator rbegin() const noexcept;
+			inline reverse_iterator rend() noexcept;
+			inline const_reverse_iterator rend() const noexcept;
+			inline const_iterator cbegin() const noexcept;
+			inline const_iterator cend() const noexcept;
+			inline const_reverse_iterator crbegin() const noexcept;
+			inline const_reverse_iterator crend() const noexcept;
+			inline size_type size() const noexcept;
 
-		inline bool operator==(const NzByteArray& rhs) const;
-		inline bool operator!=(const NzByteArray& rhs) const;
-		inline bool operator<(const NzByteArray& rhs) const;
-		inline bool operator<=(const NzByteArray& rhs) const;
-		inline bool operator>(const NzByteArray& rhs) const;
-		inline bool operator>=(const NzByteArray& rhs) const;
+			// Operators
+			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& out, const Nz::ByteArray& byteArray);
 
-	private:
-		bool FillHash(NzAbstractHash* hash) const;
+			inline reference operator[](size_type pos);
+			inline const_reference operator[](size_type pos) const;
+			inline ByteArray& operator=(const ByteArray& array) = default;
+			inline ByteArray& operator=(ByteArray&& array) = default;
+			inline ByteArray operator+(const ByteArray& array) const;
+			inline ByteArray& operator+=(const ByteArray& array);
 
-		Container m_array;
-};
+			inline bool operator==(const ByteArray& rhs) const;
+			inline bool operator!=(const ByteArray& rhs) const;
+			inline bool operator<(const ByteArray& rhs) const;
+			inline bool operator<=(const ByteArray& rhs) const;
+			inline bool operator>(const ByteArray& rhs) const;
+			inline bool operator>=(const ByteArray& rhs) const;
 
-NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const NzByteArray& byteArray);
+		private:
+			Container m_array;
+	};
+
+	inline bool HashAppend(AbstractHash* hash, const ByteArray& byteArray);
+}
 
 namespace std
 {
-	void swap(NzByteArray& lhs, NzByteArray& rhs);
+	void swap(Nz::ByteArray& lhs, Nz::ByteArray& rhs);
 }
 
 #include <Nazara/Core/ByteArray.inl>

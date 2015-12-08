@@ -14,36 +14,39 @@
 #include <tuple>
 #include <type_traits>
 
-class NzInputStream;
-
-template<typename Type, typename Parameters>
-class NzResourceLoader
+namespace Nz
 {
-	friend Type;
+	class Stream;
 
-	public:
-		using ExtensionGetter = bool (*)(const NzString& extension);
-		using FileLoader = bool (*)(Type* resource, const NzString& filePath, const Parameters& parameters);
-		using MemoryLoader = bool (*)(Type* resource, const void* data, std::size_t size, const Parameters& parameters);
-		using StreamChecker = nzTernary (*)(NzInputStream& stream, const Parameters& parameters);
-		using StreamLoader = bool (*)(Type* resource, NzInputStream& stream, const Parameters& parameters);
+	template<typename Type, typename Parameters>
+	class ResourceLoader
+	{
+		friend Type;
 
-		NzResourceLoader() = delete;
-		~NzResourceLoader() = delete;
+		public:
+			using ExtensionGetter = bool (*)(const String& extension);
+			using FileLoader = bool (*)(Type* resource, const String& filePath, const Parameters& parameters);
+			using MemoryLoader = bool (*)(Type* resource, const void* data, std::size_t size, const Parameters& parameters);
+			using StreamChecker = Ternary (*)(Stream& stream, const Parameters& parameters);
+			using StreamLoader = bool (*)(Type* resource, Stream& stream, const Parameters& parameters);
 
-		static bool IsExtensionSupported(const NzString& extension);
+			ResourceLoader() = delete;
+			~ResourceLoader() = delete;
 
-		static bool LoadFromFile(Type* resource, const NzString& filePath, const Parameters& parameters = Parameters());
-		static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
-		static bool LoadFromStream(Type* resource, NzInputStream& stream, const Parameters& parameters = Parameters());
+			static bool IsExtensionSupported(const String& extension);
 
-		static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
-		static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
+			static bool LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters = Parameters());
+			static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
+			static bool LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters = Parameters());
 
-	private:
-		using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader, MemoryLoader>;
-		using LoaderList = std::list<Loader>;
-};
+			static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
+			static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
+
+		private:
+			using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader, MemoryLoader>;
+			using LoaderList = std::list<Loader>;
+	};
+}
 
 #include <Nazara/Core/ResourceLoader.inl>
 

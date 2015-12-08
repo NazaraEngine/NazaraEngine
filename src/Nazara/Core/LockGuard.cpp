@@ -6,13 +6,16 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzLockGuard::NzLockGuard(NzMutex& mutex) :
-m_mutex(mutex)
+namespace Nz
 {
-	m_mutex.Lock();
-}
+	LockGuard::LockGuard(Mutex& mutex) :
+	m_mutex(mutex)
+	{
+		m_mutex.Lock();
+	}
 
-NzLockGuard::~NzLockGuard()
-{
-	m_mutex.Unlock();
+	LockGuard::~LockGuard()
+	{
+		m_mutex.Unlock();
+	}
 }

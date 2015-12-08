@@ -5,11 +5,11 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 {
 	GIVEN("Two center and unit oriented boxes")
 	{
-		NzOrientedBoxf firstCenterAndUnit(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
-		NzOrientedBoxf secondCenterAndUnit(NzOrientedBox<int>(NzVector3i::Zero(), NzVector3i::Unit()));
+		Nz::OrientedBoxf firstCenterAndUnit(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
+		Nz::OrientedBoxf secondCenterAndUnit(Nz::OrientedBox<int>(Nz::Vector3i::Zero(), Nz::Vector3i::Unit()));
 
-		firstCenterAndUnit.Update(NzMatrix4f::Identity());
-		secondCenterAndUnit.Update(NzMatrix4f::Identity());
+		firstCenterAndUnit.Update(Nz::Matrix4f::Identity());
+		secondCenterAndUnit.Update(Nz::Matrix4f::Identity());
 
 		WHEN("We compare them")
 		{
@@ -33,11 +33,11 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 			THEN("Results are different between operator * and update(ScaleMatrix) but corners are the same")
 			{
 				firstCenterAndUnit *= 2.f;
-				firstCenterAndUnit.Update(NzMatrix4f::Identity());
-				secondCenterAndUnit.Update(NzMatrix4f::Scale(NzVector3f::Unit() * 2.f));
+				firstCenterAndUnit.Update(Nz::Matrix4f::Identity());
+				secondCenterAndUnit.Update(Nz::Matrix4f::Scale(Nz::Vector3f::Unit() * 2.f));
 
 				REQUIRE(firstCenterAndUnit != secondCenterAndUnit);
-				for (unsigned int i = 0; i <= nzBoxCorner_Max; ++i)
+				for (unsigned int i = 0; i <= Nz::BoxCorner_Max; ++i)
 				{
 					REQUIRE(firstCenterAndUnit(i) == secondCenterAndUnit(i));
 				}

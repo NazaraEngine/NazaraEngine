@@ -13,46 +13,49 @@
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
-class NzAbstractViewer;
-class NzDeferredRenderTechnique;
-class NzDeferredRenderQueue;
-class NzRenderBuffer;
-class NzRenderTexture;
-class NzScene;
-class NzTexture;
-
-class NAZARA_GRAPHICS_API NzDeferredRenderPass
+namespace Nz
 {
-	friend NzDeferredRenderTechnique;
+	class AbstractViewer;
+	class DeferredRenderTechnique;
+	class DeferredRenderQueue;
+	class RenderBuffer;
+	class RenderTexture;
+	class Scene;
+	class Texture;
 
-	public:
-		NzDeferredRenderPass();
-		NzDeferredRenderPass(const NzDeferredRenderPass&) = delete;
-		virtual ~NzDeferredRenderPass();
+	class NAZARA_GRAPHICS_API DeferredRenderPass
+	{
+		friend DeferredRenderTechnique;
 
-		void Enable(bool enable);
+		public:
+			DeferredRenderPass();
+			DeferredRenderPass(const DeferredRenderPass&) = delete;
+			virtual ~DeferredRenderPass();
 
-		virtual void Initialize(NzDeferredRenderTechnique* technique);
+			void Enable(bool enable);
 
-		bool IsEnabled() const;
+			virtual void Initialize(DeferredRenderTechnique* technique);
 
-		virtual bool Process(const NzSceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
-		virtual bool Resize(const NzVector2ui& GBufferSize);
+			bool IsEnabled() const;
 
-		NzDeferredRenderPass& operator=(const NzDeferredRenderPass&) = delete;
+			virtual bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const = 0;
+			virtual bool Resize(const Vector2ui& GBufferSize);
 
-	protected:
-		NzVector2ui m_dimensions;
-		NzDeferredRenderTechnique* m_deferredTechnique;
-		NzDeferredRenderQueue* m_renderQueue;
-		NzRenderBuffer* m_depthStencilBuffer;
-		NzRenderTexture* m_GBufferRTT;
-		NzRenderTexture* m_workRTT;
-		NzTexture* m_GBuffer[4];
-		NzTexture* m_workTextures[2];
+			DeferredRenderPass& operator=(const DeferredRenderPass&) = delete;
 
-	private:
-		bool m_enabled;
-};
+		protected:
+			Vector2ui m_dimensions;
+			DeferredRenderTechnique* m_deferredTechnique;
+			DeferredRenderQueue* m_renderQueue;
+			RenderBuffer* m_depthStencilBuffer;
+			RenderTexture* m_GBufferRTT;
+			RenderTexture* m_workRTT;
+			Texture* m_GBuffer[4];
+			Texture* m_workTextures[2];
+
+		private:
+			bool m_enabled;
+	};
+}
 
 #endif // NAZARA_DEFERREDRENDERPASS_HPP

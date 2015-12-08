@@ -14,37 +14,40 @@
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) NzError::Error(nzErrorType_AssertFailed, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 #else
-	#define NazaraAssert(a, err)
+	#define NazaraAssert(a, err) for (;;) break
 #endif
 
-#define NazaraError(err) NzError::Error(nzErrorType_Normal, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
-#define NazaraInternalError(err) NzError::Error(nzErrorType_Internal, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
-#define NazaraWarning(err) NzError::Error(nzErrorType_Warning, err, __LINE__, NzDirectory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType_Normal, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType_Internal, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType_Warning, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
 
-class NAZARA_CORE_API NzError
+namespace Nz
 {
-	public:
-		NzError() = delete;
-		~NzError() = delete;
+	class NAZARA_CORE_API Error
+	{
+		public:
+			Error() = delete;
+			~Error() = delete;
 
-		static void Error(nzErrorType type, const NzString& error);
-		static void Error(nzErrorType type, const NzString& error, unsigned int line, const char* file, const char* function);
+			static UInt32 GetFlags();
+			static String GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
+			static unsigned int GetLastSystemErrorCode();
+			static String GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
-		static nzUInt32 GetFlags();
-		static NzString GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
-		static unsigned int GetLastSystemErrorCode();
-		static NzString GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
+			static void SetFlags(UInt32 flags);
 
-		static void SetFlags(nzUInt32 flags);
+			static void Trigger(ErrorType type, const String& error);
+			static void Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function);
 
-	private:
-		static nzUInt32 s_flags;
-		static NzString s_lastError;
-		static const char* s_lastErrorFunction;
-		static const char* s_lastErrorFile;
-		static unsigned int s_lastErrorLine;
-};
+		private:
+			static UInt32 s_flags;
+			static String s_lastError;
+			static const char* s_lastErrorFunction;
+			static const char* s_lastErrorFile;
+			static unsigned int s_lastErrorLine;
+	};
+}
 
 #endif // NAZARA_ERROR_HPP

@@ -9,20 +9,27 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
-class NAZARA_CORE_API NzErrorFlags : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzErrorFlags(nzUInt32 flags, bool replace = false);
-		~NzErrorFlags();
+	class NAZARA_CORE_API ErrorFlags
+	{
+		public:
+			ErrorFlags(UInt32 flags, bool replace = false);
+			ErrorFlags(const ErrorFlags&) = delete;
+			ErrorFlags(ErrorFlags&&) = delete;
+			~ErrorFlags();
 
-		nzUInt32 GetPreviousFlags() const;
+			UInt32 GetPreviousFlags() const;
 
-		void SetFlags(nzUInt32 flags, bool replace = false);
+			void SetFlags(UInt32 flags, bool replace = false);
 
-	private:
-		nzUInt32 m_previousFlags;
-};
+			ErrorFlags& operator=(const ErrorFlags&) = delete;
+			ErrorFlags& operator=(ErrorFlags&&) = delete;
+
+		private:
+			UInt32 m_previousFlags;
+	};
+}
 
 #endif // NAZARA_ERRORFLAGS_HPP

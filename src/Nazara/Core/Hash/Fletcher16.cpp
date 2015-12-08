@@ -6,67 +6,69 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-struct NzHashFletcher16_state
+namespace Nz
 {
-	nzUInt16 sum1;
-	nzUInt16 sum2;
-};
-
-NzHashFletcher16::NzHashFletcher16()
-{
-	m_state = new NzHashFletcher16_state;
-}
-
-NzHashFletcher16::~NzHashFletcher16()
-{
-	delete m_state;
-}
-
-void NzHashFletcher16::Append(const nzUInt8* data, unsigned int len)
-{
-	while (len)
+	struct HashFletcher16_state
 	{
-		unsigned int tlen = std::min(len, 21U);
-		len -= tlen;
-		do
-		{
-			m_state->sum1 += *data++;
-			m_state->sum2 += m_state->sum1;
-		}
-		while (--tlen);
+		UInt16 sum1;
+		UInt16 sum2;
+	};
 
+	HashFletcher16::HashFletcher16()
+	{
+		m_state = new HashFletcher16_state;
+	}
+
+	HashFletcher16::~HashFletcher16()
+	{
+		delete m_state;
+	}
+
+	void HashFletcher16::Append(const UInt8* data, std::size_t len)
+	{
+		while (len)
+		{
+			std::size_t tlen = std::min<std::size_t>(len, 21U);
+			len -= tlen;
+			do
+			{
+				m_state->sum1 += *data++;
+				m_state->sum2 += m_state->sum1;
+			}
+			while (--tlen);
+
+			m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
+			m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
+		}
+	}
+
+	void HashFletcher16::Begin()
+	{
+		m_state->sum1 = 0xff;
+		m_state->sum2 = 0xff;
+	}
+
+	ByteArray HashFletcher16::End()
+	{
 		m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
 		m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
+
+		UInt32 fletcher = (m_state->sum2 << 8) | m_state->sum1;
+
+		#ifdef NAZARA_BIG_ENDIAN
+		SwapBytes(&fletcher, sizeof(UInt32));
+		#endif
+
+		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
-}
 
-void NzHashFletcher16::Begin()
-{
-	m_state->sum1 = 0xff;
-	m_state->sum2 = 0xff;
-}
+	std::size_t HashFletcher16::GetDigestLength() const
+	{
+		return 2;
+	}
 
-NzHashDigest NzHashFletcher16::End()
-{
-	m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
-	m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
-
-	nzUInt32 fletcher = (m_state->sum2 << 8) | m_state->sum1;
-
-	#ifdef NAZARA_BIG_ENDIAN
-	NzByteSwap(&fletcher, sizeof(nzUInt32));
-	#endif
-
-	return NzHashDigest(GetHashName(), reinterpret_cast<nzUInt8*>(&fletcher), 2);
-}
-
-unsigned int NzHashFletcher16::GetDigestLength()
-{
-	return 2;
-}
-
-NzString NzHashFletcher16::GetHashName()
-{
-	static NzString hashName = "Fletcher16";
-	return hashName;
+	const char* HashFletcher16::GetHashName() const
+	{
+		return "Fletcher16";
+	}
 }

@@ -5,6 +5,9 @@ lib/*
 # Feature page
 build/scripts/features/index.html
 
+# Documentation
+doc
+
 # Codeblocks
 build/**/*.cbp
 build/**/*.cbp

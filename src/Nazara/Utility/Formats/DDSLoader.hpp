@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_DDS_Register();
-void NzLoaders_DDS_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterDDS();
+		void UnregisterDDS();
+	}
+}
 
 #endif // NAZARA_LOADERS_DDS_HPP

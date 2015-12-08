@@ -12,16 +12,19 @@
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 
-class NzEventImpl
+namespace Nz
 {
-	public:
-		static NzString GetKeyName(NzKeyboard::Key key);
-		static NzVector2i GetMousePosition();
-		static NzVector2i GetMousePosition(const NzWindow& relativeTo);
-		static bool IsKeyPressed(NzKeyboard::Key key);
-		static bool IsMouseButtonPressed(NzMouse::Button button);
-		static void SetMousePosition(int x, int y);
-		static void SetMousePosition(int x, int y, const NzWindow& relativeTo);
-};
+	class EventImpl
+	{
+		public:
+			static String GetKeyName(Keyboard::Key key);
+			static Vector2i GetMousePosition();
+			static Vector2i GetMousePosition(const Window& relativeTo);
+			static bool IsKeyPressed(Keyboard::Key key);
+			static bool IsMouseButtonPressed(Mouse::Button button);
+			static void SetMousePosition(int x, int y);
+			static void SetMousePosition(int x, int y, const Window& relativeTo);
+	};
+}
 
 #endif // NAZARA_INPUTIMPL_HPP

@@ -5,31 +5,34 @@
 #include <Nazara/Core/Win32/MutexImpl.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzMutexImpl::NzMutexImpl()
+namespace Nz
 {
-	#if NAZARA_CORE_WINDOWS_CS_SPINLOCKS > 0
-	InitializeCriticalSectionAndSpinCount(&m_criticalSection, NAZARA_CORE_WINDOWS_CS_SPINLOCKS);
-	#else
-	InitializeCriticalSection(&m_criticalSection);
-	#endif
-}
+	MutexImpl::MutexImpl()
+	{
+		#if NAZARA_CORE_WINDOWS_CS_SPINLOCKS > 0
+		InitializeCriticalSectionAndSpinCount(&m_criticalSection, NAZARA_CORE_WINDOWS_CS_SPINLOCKS);
+		#else
+		InitializeCriticalSection(&m_criticalSection);
+		#endif
+	}
 
-NzMutexImpl::~NzMutexImpl()
-{
-	DeleteCriticalSection(&m_criticalSection);
-}
+	MutexImpl::~MutexImpl()
+	{
+		DeleteCriticalSection(&m_criticalSection);
+	}
 
-void NzMutexImpl::Lock()
-{
-	EnterCriticalSection(&m_criticalSection);
-}
+	void MutexImpl::Lock()
+	{
+		EnterCriticalSection(&m_criticalSection);
+	}
 
-bool NzMutexImpl::TryLock()
-{
-	return TryEnterCriticalSection(&m_criticalSection) != 0;
-}
+	bool MutexImpl::TryLock()
+	{
+		return TryEnterCriticalSection(&m_criticalSection) != 0;
+	}
 
-void NzMutexImpl::Unlock()
-{
-	LeaveCriticalSection(&m_criticalSection);
+	void MutexImpl::Unlock()
+	{
+		LeaveCriticalSection(&m_criticalSection);
+	}
 }

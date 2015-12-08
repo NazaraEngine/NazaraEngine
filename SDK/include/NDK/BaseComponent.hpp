@@ -24,7 +24,7 @@ namespace Ndk
 
 			BaseComponent(ComponentIndex componentIndex);
 			BaseComponent(const BaseComponent&) = default;
-			BaseComponent(BaseComponent&&) noexcept = default;
+			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
 			virtual BaseComponent* Clone() const = 0;
@@ -32,7 +32,7 @@ namespace Ndk
 			ComponentIndex GetIndex() const;
 
 			BaseComponent& operator=(const BaseComponent&) = default;
-			BaseComponent& operator=(BaseComponent&&) noexcept = default;
+			BaseComponent& operator=(BaseComponent&&) = default;
 
 		protected:
 			ComponentIndex m_componentIndex;

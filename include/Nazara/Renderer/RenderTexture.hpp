@@ -8,7 +8,6 @@
 #define NAZARA_RENDERTEXTURE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -17,74 +16,82 @@
 
 ///TODO: Faire fonctionner les RenderTexture indépendamment du contexte (un FBO par instance et par contexte l'utilisant)
 
-class NzContext;
-class NzRenderBuffer;
-class NzTexture;
-
-struct NzRenderTextureImpl;
-
-class NAZARA_RENDERER_API NzRenderTexture : public NzRenderTarget, NzNonCopyable
+namespace Nz
 {
-	public:
-		inline NzRenderTexture();
-		inline ~NzRenderTexture();
 
-		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzRenderBuffer* buffer);
-		bool AttachBuffer(nzAttachmentPoint attachmentPoint, nzUInt8 index, nzPixelFormat format, unsigned int width, unsigned int height);
-		bool AttachTexture(nzAttachmentPoint attachmentPoint, nzUInt8 index, NzTexture* texture, unsigned int z = 0);
+	class Context;
+	class RenderBuffer;
+	class Texture;
 
-		bool Create(bool lock = false);
-		void Destroy();
+	struct RenderTextureImpl;
 
-		void Detach(nzAttachmentPoint attachmentPoint, nzUInt8 index);
+	class NAZARA_RENDERER_API RenderTexture : public RenderTarget
+	{
+		public:
+			inline RenderTexture();
+			RenderTexture(const RenderTexture&) = delete;
+			RenderTexture(RenderTexture&&) = delete; ///TODO?
+			inline ~RenderTexture();
 
-		unsigned int GetHeight() const override;
-		NzRenderTargetParameters GetParameters() const;
-		NzVector2ui GetSize() const;
-		unsigned int GetWidth() const override;
+			bool AttachBuffer(AttachmentPoint attachmentPoint, UInt8 index, RenderBuffer* buffer);
+			bool AttachBuffer(AttachmentPoint attachmentPoint, UInt8 index, PixelFormatType format, unsigned int width, unsigned int height);
+			bool AttachTexture(AttachmentPoint attachmentPoint, UInt8 index, Texture* texture, unsigned int z = 0);
 
-		bool IsComplete() const;
-		bool IsRenderable() const;
-		inline bool IsValid() const;
+			bool Create(bool lock = false);
+			void Destroy();
 
-		bool Lock() const;
+			void Detach(AttachmentPoint attachmentPoint, UInt8 index);
 
-		inline void SetColorTarget(nzUInt8 target) const;
-		void SetColorTargets(const nzUInt8* targets, unsigned int targetCount) const;
-		void SetColorTargets(const std::initializer_list<nzUInt8>& targets) const;
+			unsigned int GetHeight() const override;
+			RenderTargetParameters GetParameters() const;
+			Vector2ui GetSize() const;
+			unsigned int GetWidth() const override;
 
-		void Unlock() const;
+			bool IsComplete() const;
+			bool IsRenderable() const;
+			inline bool IsValid() const;
 
-		// Fonctions OpenGL
-		unsigned int GetOpenGLID() const;
-		bool HasContext() const override;
+			bool Lock() const;
 
-		static inline void Blit(NzRenderTexture* src, NzRenderTexture* dst, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
-		static void Blit(NzRenderTexture* src, NzRectui srcRect, NzRenderTexture* dst, NzRectui dstRect, nzUInt32 buffers = nzRendererBuffer_Color | nzRendererBuffer_Depth | nzRendererBuffer_Stencil, bool bilinearFilter = false);
-		static bool IsSupported();
+			inline void SetColorTarget(UInt8 target) const;
+			void SetColorTargets(const UInt8* targets, unsigned int targetCount) const;
+			void SetColorTargets(const std::initializer_list<UInt8>& targets) const;
 
-	protected:
-		bool Activate() const override;
-		void Desactivate() const override;
-		void EnsureTargetUpdated() const override;
+			void Unlock() const;
 
-	private:
-		inline void InvalidateDrawBuffers() const;
-		inline void InvalidateSize() const;
-		inline void InvalidateTargets() const;
-		void OnContextDestroy(const NzContext* context);
-		void OnRenderBufferDestroy(const NzRenderBuffer* renderBuffer, unsigned int attachmentIndex);
-		void OnTextureDestroy(const NzTexture* texture, unsigned int attachmentIndex);
-		void UpdateDrawBuffers() const;
-		void UpdateSize() const;
-		void UpdateTargets() const;
+			// Fonctions OpenGL
+			unsigned int GetOpenGLID() const;
+			bool HasContext() const override;
 
-		NzRenderTextureImpl* m_impl;
-		mutable bool m_checked ;
-		mutable bool m_drawBuffersUpdated;
-		mutable bool m_sizeUpdated;
-		mutable bool m_targetsUpdated;
-};
+			RenderTexture& operator=(const RenderTexture&) = delete;
+			RenderTexture& operator=(RenderTexture&&) = delete; ///TODO?
+
+			static inline void Blit(RenderTexture* src, RenderTexture* dst, UInt32 buffers = RendererBuffer_Color | RendererBuffer_Depth | RendererBuffer_Stencil, bool bilinearFilter = false);
+			static void Blit(RenderTexture* src, Rectui srcRect, RenderTexture* dst, Rectui dstRect, UInt32 buffers = RendererBuffer_Color | RendererBuffer_Depth | RendererBuffer_Stencil, bool bilinearFilter = false);
+
+		protected:
+			bool Activate() const override;
+			void Desactivate() const override;
+			void EnsureTargetUpdated() const override;
+
+		private:
+			inline void InvalidateDrawBuffers() const;
+			inline void InvalidateSize() const;
+			inline void InvalidateTargets() const;
+			void OnContextDestroy(const Context* context);
+			void OnRenderBufferDestroy(const RenderBuffer* renderBuffer, unsigned int attachmentIndex);
+			void OnTextureDestroy(const Texture* texture, unsigned int attachmentIndex);
+			void UpdateDrawBuffers() const;
+			void UpdateSize() const;
+			void UpdateTargets() const;
+
+			RenderTextureImpl* m_impl;
+			mutable bool m_checked ;
+			mutable bool m_drawBuffersUpdated;
+			mutable bool m_sizeUpdated;
+			mutable bool m_targetsUpdated;
+	};
+}
 
 #include <Nazara/Renderer/RenderTexture.inl>
 

@@ -11,22 +11,25 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Physics/Config.hpp>
 
-class NAZARA_PHYSICS_API NzPhysics
+namespace Nz
 {
-	public:
-		NzPhysics() = delete;
-		~NzPhysics() = delete;
+	class NAZARA_PHYSICS_API Physics
+	{
+		public:
+			Physics() = delete;
+			~Physics() = delete;
 
-		static unsigned int GetMemoryUsed();
+			static unsigned int GetMemoryUsed();
 
-		static bool Initialize();
+			static bool Initialize();
 
-		static bool IsInitialized();
+			static bool IsInitialized();
 
-		static void Uninitialize();
+			static void Uninitialize();
 
-	private:
-		static unsigned int s_moduleReferenceCounter;
-};
+		private:
+			static unsigned int s_moduleReferenceCounter;
+	};
+}
 
 #endif // NAZARA_PHYSICS_HPP

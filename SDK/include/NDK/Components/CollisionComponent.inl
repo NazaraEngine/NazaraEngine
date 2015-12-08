@@ -9,7 +9,7 @@
 
 namespace Ndk
 {
-	inline CollisionComponent::CollisionComponent(NzPhysGeomRef geom) :
+	inline CollisionComponent::CollisionComponent(Nz::PhysGeomRef geom) :
 	m_geom(std::move(geom)),
 	m_bodyUpdated(false)
 	{
@@ -21,19 +21,19 @@ namespace Ndk
 	{
 	}
 
-	inline const NzPhysGeomRef& CollisionComponent::GetGeom() const
+	inline const Nz::PhysGeomRef& CollisionComponent::GetGeom() const
 	{
 		return m_geom;
 	}
 
-	inline CollisionComponent& CollisionComponent::operator=(NzPhysGeomRef geom)
+	inline CollisionComponent& CollisionComponent::operator=(Nz::PhysGeomRef geom)
 	{
 		SetGeom(geom);
 
 		return *this;
 	}
 
-	inline NzPhysObject* CollisionComponent::GetStaticBody()
+	inline Nz::PhysObject* CollisionComponent::GetStaticBody()
 	{
 		return m_staticBody.get();
 	}

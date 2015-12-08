@@ -11,73 +11,76 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-/******************************* Structures 2D *******************************/
-
-struct NzVertexStruct_XY
+namespace Nz
 {
-	NzVector2f position;
-};
+	/******************************* Structures 2D *******************************/
 
-struct NzVertexStruct_XY_Color : NzVertexStruct_XY
-{
-	NzColor color;
-};
+	struct VertexStruct_XY
+	{
+		Vector2f position;
+	};
 
-struct NzVertexStruct_XY_UV : NzVertexStruct_XY
-{
-	NzVector2f uv;
-};
+	struct VertexStruct_XY_Color : VertexStruct_XY
+	{
+		Color color;
+	};
 
-struct NzVertexStruct_XY_Color_UV : NzVertexStruct_XY_Color
-{
-	NzVector2f uv;
-};
+	struct VertexStruct_XY_UV : VertexStruct_XY
+	{
+		Vector2f uv;
+	};
 
-/******************************* Structures 3D *******************************/
+	struct VertexStruct_XY_Color_UV : VertexStruct_XY_Color
+	{
+		Vector2f uv;
+	};
 
-struct NzVertexStruct_XYZ
-{
-	NzVector3f position;
-};
+	/******************************* Structures 3D *******************************/
 
-struct NzVertexStruct_XYZ_Color : NzVertexStruct_XYZ
-{
-	NzColor color;
-};
+	struct VertexStruct_XYZ
+	{
+		Vector3f position;
+	};
 
-struct NzVertexStruct_XYZ_Color_UV : NzVertexStruct_XYZ_Color
-{
-	NzVector2f uv;
-};
+	struct VertexStruct_XYZ_Color : VertexStruct_XYZ
+	{
+		Color color;
+	};
 
-struct NzVertexStruct_XYZ_Normal : NzVertexStruct_XYZ
-{
-	NzVector3f normal;
-};
+	struct VertexStruct_XYZ_Color_UV : VertexStruct_XYZ_Color
+	{
+		Vector2f uv;
+	};
 
-struct NzVertexStruct_XYZ_Normal_UV : NzVertexStruct_XYZ_Normal
-{
-	NzVector2f uv;
-};
+	struct VertexStruct_XYZ_Normal : VertexStruct_XYZ
+	{
+		Vector3f normal;
+	};
 
-struct NzVertexStruct_XYZ_Normal_UV_Tangent : NzVertexStruct_XYZ_Normal_UV
-{
-	NzVector3f tangent;
-};
+	struct VertexStruct_XYZ_Normal_UV : VertexStruct_XYZ_Normal
+	{
+		Vector2f uv;
+	};
 
-struct NzVertexStruct_XYZ_UV : NzVertexStruct_XYZ
-{
-	NzVector2f uv;
-};
+	struct VertexStruct_XYZ_Normal_UV_Tangent : VertexStruct_XYZ_Normal_UV
+	{
+		Vector3f tangent;
+	};
 
-/************************* Structures 3D (+ Skinning) ************************/
+	struct VertexStruct_XYZ_UV : VertexStruct_XYZ
+	{
+		Vector2f uv;
+	};
 
-struct NzVertexStruct_XYZ_Normal_UV_Tangent_Skinning : NzVertexStruct_XYZ_Normal_UV_Tangent
-{
-	nzInt32 weightCount;
+	/************************* Structures 3D (+ Skinning) ************************/
 
-	NzVector4f weights;
-	NzVector4i32 jointIndexes;
-};
+	struct VertexStruct_XYZ_Normal_UV_Tangent_Skinning : VertexStruct_XYZ_Normal_UV_Tangent
+	{
+		Int32 weightCount;
+
+		Vector4f weights;
+		Vector4i32 jointIndexes;
+	};
+}
 
 #endif // NAZARA_VERTEXSTRUCT_HPP

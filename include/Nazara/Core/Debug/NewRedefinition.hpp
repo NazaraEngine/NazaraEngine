@@ -21,7 +21,7 @@ NAZARA_CORE_API void operator delete[](void* ptr, const char* file, unsigned int
 #endif // NAZARA_DEBUG_NEWREDEFINITION_HPP
 
 #ifndef NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
-	#define delete NzMemoryManager::NextFree(__FILE__, __LINE__), delete
+	#define delete MemoryManager::NextFree(__FILE__, __LINE__), delete
 	#define new new(__FILE__, __LINE__)
 #endif
 

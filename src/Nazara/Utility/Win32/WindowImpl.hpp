@@ -10,7 +10,6 @@
 #define NAZARA_WINDOWIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -21,95 +20,104 @@
 #include <Nazara/Utility/Window.hpp>
 #include <windows.h>
 
-#if NAZARA_UTILITY_THREADED_WINDOW
-class NzConditionVariable;
-class NzMutex;
-#endif
-class NzWindow;
-
-#undef IsMinimized // Conflit avec la méthode du même nom
-
-class NzWindowImpl : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzWindowImpl(NzWindow* parent);
-		~NzWindowImpl() = default;
+	#if NAZARA_UTILITY_THREADED_WINDOW
+	class ConditionVariable;
+	class Mutex;
+	#endif
+	class Window;
 
-		bool Create(const NzVideoMode& mode, const NzString& title, nzUInt32 style);
-		bool Create(NzWindowHandle handle);
+	#undef IsMinimized // Conflit avec la méthode du même nom
 
-		void Destroy();
+	class WindowImpl
+	{
+		public:
+			WindowImpl(Window* parent);
+			WindowImpl(const WindowImpl&) = delete;
+			WindowImpl(WindowImpl&&) = delete; ///TODO?
+			~WindowImpl() = default;
 
-		void EnableKeyRepeat(bool enable);
-		void EnableSmoothScrolling(bool enable);
+			bool Create(const VideoMode& mode, const String& title, UInt32 style);
+			bool Create(WindowHandle handle);
 
-		NzWindowHandle GetHandle() const;
-		unsigned int GetHeight() const;
-		NzVector2i GetPosition() const;
-		NzVector2ui GetSize() const;
-		nzUInt32 GetStyle() const;
-		NzString GetTitle() const;
-		unsigned int GetWidth() const;
+			void Destroy();
 
-		bool HasFocus() const;
+			void EnableKeyRepeat(bool enable);
+			void EnableSmoothScrolling(bool enable);
 
-		void IgnoreNextMouseEvent(int mouseX, int mouseY);
+			WindowHandle GetHandle() const;
+			unsigned int GetHeight() const;
+			Vector2i GetPosition() const;
+			Vector2ui GetSize() const;
+			UInt32 GetStyle() const;
+			String GetTitle() const;
+			unsigned int GetWidth() const;
 
-		bool IsMinimized() const;
-		bool IsVisible() const;
+			bool HasFocus() const;
 
-		void ProcessEvents(bool block);
+			void IgnoreNextMouseEvent(int mouseX, int mouseY);
 
-		void SetCursor(nzWindowCursor cursor);
-		void SetCursor(const NzCursor& cursor);
-		void SetEventListener(bool listener);
-		void SetFocus();
-		void SetIcon(const NzIcon& icon);
-		void SetMaximumSize(int width, int height);
-		void SetMinimumSize(int width, int height);
-		void SetPosition(int x, int y);
-		void SetSize(unsigned int width, unsigned int height);
-		void SetStayOnTop(bool stayOnTop);
-		void SetTitle(const NzString& title);
-		void SetVisible(bool visible);
+			bool IsMinimized() const;
+			bool IsVisible() const;
 
-		static bool Initialize();
-		static void Uninitialize();
+			void ProcessEvents(bool block);
 
-	private:
-		bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+			void SetCursor(WindowCursor cursor);
+			void SetCursor(const Cursor& cursor);
+			void SetEventListener(bool listener);
+			void SetFocus();
+			void SetIcon(const Icon& icon);
+			void SetMaximumSize(int width, int height);
+			void SetMinimumSize(int width, int height);
+			void SetPosition(int x, int y);
+			void SetSize(unsigned int width, unsigned int height);
+			void SetStayOnTop(bool stayOnTop);
+			void SetTitle(const String& title);
+			void SetVisible(bool visible);
 
-		static NzKeyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
-		static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
-		static nzUInt32 RetrieveStyle(HWND window);
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, NzWindowImpl* window, NzMutex* mutex, NzConditionVariable* condition);
-		#endif
+			WindowImpl& operator=(const WindowImpl&) = delete;
+			WindowImpl& operator=(WindowImpl&&) = delete; ///TODO?
 
-		HCURSOR m_cursor;
-		HWND m_handle;
-		LONG_PTR m_callback;
-		nzUInt32 m_style;
-		NzVector2i m_maxSize;
-		NzVector2i m_minSize;
-		NzVector2i m_mousePos;
-		NzVector2i m_position;
-		NzVector2ui m_size;
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		NzThread m_thread;
-		#endif
-		NzWindow* m_parent;
-		bool m_eventListener;
-		bool m_keyRepeat;
-		bool m_mouseInside;
-		bool m_ownsWindow;
-		#if !NAZARA_UTILITY_THREADED_WINDOW
-		bool m_sizemove;
-		#endif
-		bool m_smoothScrolling;
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		bool m_threadActive;
-		#endif
-		short m_scrolling;
-};
+			static bool Initialize();
+			static void Uninitialize();
+
+		private:
+			bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+
+			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
+			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+			static UInt32 RetrieveStyle(HWND window);
+			#if NAZARA_UTILITY_THREADED_WINDOW
+			static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
+			#endif
+
+			HCURSOR m_cursor;
+			HWND m_handle;
+			LONG_PTR m_callback;
+			UInt32 m_style;
+			Vector2i m_maxSize;
+			Vector2i m_minSize;
+			Vector2i m_mousePos;
+			Vector2i m_position;
+			Vector2ui m_size;
+			#if NAZARA_UTILITY_THREADED_WINDOW
+			Thread m_thread;
+			#endif
+			Window* m_parent;
+			bool m_eventListener;
+			bool m_keyRepeat;
+			bool m_mouseInside;
+			bool m_ownsWindow;
+			#if !NAZARA_UTILITY_THREADED_WINDOW
+			bool m_sizemove;
+			#endif
+			bool m_smoothScrolling;
+			#if NAZARA_UTILITY_THREADED_WINDOW
+			bool m_threadActive;
+			#endif
+			short m_scrolling;
+	};
+}
+
 #endif // NAZARA_WINDOWIMPL_HPP

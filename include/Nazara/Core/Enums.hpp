@@ -7,182 +7,187 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
-enum nzCoordSys
+namespace Nz
 {
-	nzCoordSys_Global,
-	nzCoordSys_Local,
+	enum CoordSys
+	{
+		CoordSys_Global,
+		CoordSys_Local,
 
-	nzCoordSys_Max = nzCoordSys_Local
-};
+		CoordSys_Max = CoordSys_Local
+	};
 
-enum nzCursorPosition
-{
-	nzCursorPosition_AtBegin,   // Début du fichier
-	nzCursorPosition_AtCurrent, // Position du pointeur
-	nzCursorPosition_AtEnd,     // Fin du fichier
+	enum CursorPosition
+	{
+		CursorPosition_AtBegin,   // Début du fichier
+		CursorPosition_AtCurrent, // Position du pointeur
+		CursorPosition_AtEnd,     // Fin du fichier
 
-	nzCursorPosition_Max = nzCursorPosition_AtEnd
-};
+		CursorPosition_Max = CursorPosition_AtEnd
+	};
 
-enum nzEndianness
-{
-	nzEndianness_Unknown = -1,
+	enum Endianness
+	{
+		Endianness_Unknown = -1,
 
-	nzEndianness_BigEndian,
-	nzEndianness_LittleEndian,
+		Endianness_BigEndian,
+		Endianness_LittleEndian,
 
-	nzEndianness_Max = nzEndianness_LittleEndian
-};
+		Endianness_Max = Endianness_LittleEndian
+	};
 
-enum nzErrorFlag
-{
-	nzErrorFlag_None = 0,
+	enum ErrorFlag
+	{
+		ErrorFlag_None = 0,
 
-	nzErrorFlag_Silent                 = 0x1,
-	nzErrorFlag_SilentDisabled         = 0x2,
-	nzErrorFlag_ThrowException         = 0x4,
-	nzErrorFlag_ThrowExceptionDisabled = 0x8,
+		ErrorFlag_Silent                 = 0x1,
+		ErrorFlag_SilentDisabled         = 0x2,
+		ErrorFlag_ThrowException         = 0x4,
+		ErrorFlag_ThrowExceptionDisabled = 0x8,
 
-	nzErrorFlag_Max = nzErrorFlag_ThrowExceptionDisabled*2-1
-};
+		ErrorFlag_Max = ErrorFlag_ThrowExceptionDisabled*2-1
+	};
 
-enum nzErrorType
-{
-	nzErrorType_AssertFailed,
-	nzErrorType_Internal,
-	nzErrorType_Normal,
-	nzErrorType_Warning,
+	enum ErrorType
+	{
+		ErrorType_AssertFailed,
+		ErrorType_Internal,
+		ErrorType_Normal,
+		ErrorType_Warning,
 
-	nzErrorType_Max = nzErrorType_Warning
-};
+		ErrorType_Max = ErrorType_Warning
+	};
 
-enum nzHash
-{
-	nzHash_CRC32,
-	nzHash_Fletcher16,
-	nzHash_MD5,
-	nzHash_SHA1,
-	nzHash_SHA224,
-	nzHash_SHA256,
-	nzHash_SHA384,
-	nzHash_SHA512,
-	nzHash_Whirlpool,
+	enum HashType
+	{
+		HashType_CRC32,
+		HashType_Fletcher16,
+		HashType_MD5,
+		HashType_SHA1,
+		HashType_SHA224,
+		HashType_SHA256,
+		HashType_SHA384,
+		HashType_SHA512,
+		HashType_Whirlpool,
 
-	nzHash_Max = nzHash_Whirlpool
-};
+		HashType_Max = HashType_Whirlpool
+	};
 
-enum nzOpenModeFlags
-{
-	nzOpenMode_Current   = 0x00, // Utilise le mode d'ouverture actuel
+	enum OpenModeFlags
+	{
+		OpenMode_NotOpen   = 0x00, // Utilise le mode d'ouverture actuel
 
-	nzOpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-	nzOpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
-	nzOpenMode_ReadOnly  = 0x04, // Ouvre uniquement en lecture
-	nzOpenMode_ReadWrite = 0x08, // Ouvre en lecture/écriture
-	nzOpenMode_Text      = 0x10, // Ouvre en mode texte
-	nzOpenMode_Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
-	nzOpenMode_WriteOnly = 0x40, // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+		OpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
+		OpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
+		OpenMode_ReadOnly  = 0x04, // Ouvre uniquement en lecture
+		OpenMode_Text      = 0x10, // Ouvre en mode texte
+		OpenMode_Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
+		OpenMode_WriteOnly = 0x40, // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
 
-	nzOpenMode_Max = nzOpenMode_WriteOnly
-};
+		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Ouvre en lecture/écriture
 
-enum nzParameterType
-{
-	nzParameterType_Boolean,
-	nzParameterType_Float,
-	nzParameterType_Integer,
-	nzParameterType_None,
-	nzParameterType_Pointer,
-	nzParameterType_String,
-	nzParameterType_Userdata,
+		OpenMode_Max = OpenMode_WriteOnly
+	};
 
-	nzParameterType_Max = nzParameterType_Userdata
-};
+	enum ParameterType
+	{
+		ParameterType_Boolean,
+		ParameterType_Float,
+		ParameterType_Integer,
+		ParameterType_None,
+		ParameterType_Pointer,
+		ParameterType_String,
+		ParameterType_Userdata,
 
-enum nzPlugin
-{
-	nzPlugin_Assimp,
-	nzPlugin_FreeType
-};
+		ParameterType_Max = ParameterType_Userdata
+	};
 
-enum nzPrimitiveType
-{
-	nzPrimitiveType_Box,
-	nzPrimitiveType_Cone,
-	nzPrimitiveType_Plane,
-	nzPrimitiveType_Sphere,
+	enum Plugin
+	{
+		Plugin_Assimp,
+		Plugin_FreeType
+	};
 
-	nzPrimitiveType_Max = nzPrimitiveType_Sphere
-};
+	enum PrimitiveType
+	{
+		PrimitiveType_Box,
+		PrimitiveType_Cone,
+		PrimitiveType_Plane,
+		PrimitiveType_Sphere,
 
-enum nzProcessorCap
-{
-	nzProcessorCap_x64,
-	nzProcessorCap_AVX,
-	nzProcessorCap_FMA3,
-	nzProcessorCap_FMA4,
-	nzProcessorCap_MMX,
-	nzProcessorCap_XOP,
-	nzProcessorCap_SSE,
-	nzProcessorCap_SSE2,
-	nzProcessorCap_SSE3,
-	nzProcessorCap_SSSE3,
-	nzProcessorCap_SSE41,
-	nzProcessorCap_SSE42,
-	nzProcessorCap_SSE4a,
+		PrimitiveType_Max = PrimitiveType_Sphere
+	};
 
-	nzProcessorCap_Max = nzProcessorCap_SSE4a
-};
+	enum ProcessorCap
+	{
+		ProcessorCap_x64,
+		ProcessorCap_AVX,
+		ProcessorCap_FMA3,
+		ProcessorCap_FMA4,
+		ProcessorCap_MMX,
+		ProcessorCap_XOP,
+		ProcessorCap_SSE,
+		ProcessorCap_SSE2,
+		ProcessorCap_SSE3,
+		ProcessorCap_SSSE3,
+		ProcessorCap_SSE41,
+		ProcessorCap_SSE42,
+		ProcessorCap_SSE4a,
 
-enum nzProcessorVendor
-{
-	nzProcessorVendor_Unknown = -1,
+		ProcessorCap_Max = ProcessorCap_SSE4a
+	};
 
-	nzProcessorVendor_AMD,
-	nzProcessorVendor_Centaur,
-	nzProcessorVendor_Cyrix,
-	nzProcessorVendor_Intel,
-	nzProcessorVendor_KVM,
-	nzProcessorVendor_HyperV,
-	nzProcessorVendor_NSC,
-	nzProcessorVendor_NexGen,
-	nzProcessorVendor_Rise,
-	nzProcessorVendor_SIS,
-	nzProcessorVendor_Transmeta,
-	nzProcessorVendor_UMC,
-	nzProcessorVendor_VIA,
-	nzProcessorVendor_VMware,
-	nzProcessorVendor_Vortex,
-	nzProcessorVendor_XenHVM,
+	enum ProcessorVendor
+	{
+		ProcessorVendor_Unknown = -1,
 
-	nzProcessorVendor_Max = nzProcessorVendor_XenHVM
-};
+		ProcessorVendor_AMD,
+		ProcessorVendor_Centaur,
+		ProcessorVendor_Cyrix,
+		ProcessorVendor_Intel,
+		ProcessorVendor_KVM,
+		ProcessorVendor_HyperV,
+		ProcessorVendor_NSC,
+		ProcessorVendor_NexGen,
+		ProcessorVendor_Rise,
+		ProcessorVendor_SIS,
+		ProcessorVendor_Transmeta,
+		ProcessorVendor_UMC,
+		ProcessorVendor_VIA,
+		ProcessorVendor_VMware,
+		ProcessorVendor_Vortex,
+		ProcessorVendor_XenHVM,
 
-enum nzSphereType
-{
-	nzSphereType_Cubic,
-	nzSphereType_Ico,
-	nzSphereType_UV,
+		ProcessorVendor_Max = ProcessorVendor_XenHVM
+	};
 
-	nzSphereType_Max = nzSphereType_UV
-};
+	enum SphereType
+	{
+		SphereType_Cubic,
+		SphereType_Ico,
+		SphereType_UV,
 
-enum nzStreamOptionFlags
-{
-	nzStreamOption_None = 0,
+		SphereType_Max = SphereType_UV
+	};
 
-	nzStreamOption_Text = 0x1,
+	enum StreamOptionFlags
+	{
+		StreamOption_None = 0,
 
-	nzStreamOption_Max = nzStreamOption_Text*2-1
-};
+		StreamOption_Sequential = 0x1,
+		StreamOption_Text       = 0x2,
 
-enum nzTernary
-{
-	nzTernary_False,
-	nzTernary_True,
-	nzTernary_Unknown,
+		StreamOption_Max = StreamOption_Text*2-1
+	};
 
-	nzTernary_Max = nzTernary_Unknown
-};
+	enum Ternary
+	{
+		Ternary_False,
+		Ternary_True,
+		Ternary_Unknown,
+
+		Ternary_Max = Ternary_Unknown
+	};
+}
 
 #endif // NAZARA_ENUMS_CORE_HPP

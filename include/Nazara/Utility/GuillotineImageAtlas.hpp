@@ -15,53 +15,56 @@
 #include <memory>
 #include <vector>
 
-class NAZARA_UTILITY_API NzGuillotineImageAtlas : public NzAbstractAtlas
+namespace Nz
 {
-	public:
-		NzGuillotineImageAtlas();
-		virtual ~NzGuillotineImageAtlas();
+	class NAZARA_UTILITY_API GuillotineImageAtlas : public AbstractAtlas
+	{
+		public:
+			GuillotineImageAtlas();
+			virtual ~GuillotineImageAtlas();
 
-		void Clear();
-		void Free(NzSparsePtr<const NzRectui> rects, NzSparsePtr<unsigned int> layers, unsigned int count);
+			void Clear();
+			void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count);
 
-		NzGuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
-		NzGuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
-		NzAbstractImage* GetLayer(unsigned int layerIndex) const;
-		unsigned int GetLayerCount() const;
-		nzUInt32 GetStorage() const;
+			GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
+			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
+			AbstractImage* GetLayer(unsigned int layerIndex) const;
+			unsigned int GetLayerCount() const;
+			UInt32 GetStorage() const;
 
-		bool Insert(const NzImage& image, NzRectui* rect, bool* flipped, unsigned int* layerIndex);
+			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex);
 
-		void SetRectChoiceHeuristic(NzGuillotineBinPack::FreeRectChoiceHeuristic heuristic);
-		void SetRectSplitHeuristic(NzGuillotineBinPack::GuillotineSplitHeuristic heuristic);
+			void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);
+			void SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic);
 
-	protected:
-		struct Layer;
+		protected:
+			struct Layer;
 
-		virtual NzAbstractImage* ResizeImage(NzAbstractImage* oldImage, const NzVector2ui& size) const;
-		bool ResizeLayer(Layer& layer, const NzVector2ui& size);
+			virtual AbstractImage* ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const;
+			bool ResizeLayer(Layer& layer, const Vector2ui& size);
 
-		struct QueuedGlyph
-		{
-            NzImage image;
-			NzRectui rect;
-			bool flipped;
-		};
+			struct QueuedGlyph
+			{
+				Image image;
+				Rectui rect;
+				bool flipped;
+			};
 
-		struct Layer
-		{
-			std::vector<QueuedGlyph> queuedGlyphs;
-			std::unique_ptr<NzAbstractImage> image;
-			NzGuillotineBinPack binPack;
-			unsigned int freedRectangles = 0;
-		};
+			struct Layer
+			{
+				std::vector<QueuedGlyph> queuedGlyphs;
+				std::unique_ptr<AbstractImage> image;
+				GuillotineBinPack binPack;
+				unsigned int freedRectangles = 0;
+			};
 
-	private:
-		void ProcessGlyphQueue(Layer& layer) const;
+		private:
+			void ProcessGlyphQueue(Layer& layer) const;
 
-		mutable std::vector<Layer> m_layers;
-		NzGuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
-		NzGuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
-};
+			mutable std::vector<Layer> m_layers;
+			GuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
+			GuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
+	};
+}
 
 #endif // NAZARA_GUILLOTINEIMAGEATLAS_HPP

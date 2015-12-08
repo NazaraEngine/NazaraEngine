@@ -9,104 +9,107 @@
 
 #include <Nazara/Core/String.hpp>
 
-template<typename T> class NzVector3;
-template<typename T> class NzVector4;
-
-template<typename T>
-class NzVector2
+namespace Nz
 {
-	public:
-		NzVector2() = default;
-		NzVector2(T X, T Y);
-		explicit NzVector2(T scale);
-		NzVector2(const T vec[2]);
-		template<typename U> explicit NzVector2(const NzVector2<U>& vec);
-		NzVector2(const NzVector2& vec) = default;
-		explicit NzVector2(const NzVector3<T>& vec);
-		explicit NzVector2(const NzVector4<T>& vec);
-		~NzVector2() = default;
+	template<typename T> class Vector3;
+	template<typename T> class Vector4;
 
-		T AbsDotProduct(const NzVector2& vec) const;
-		T AngleBetween(const NzVector2& vec) const;
+	template<typename T>
+	class Vector2
+	{
+		public:
+			Vector2() = default;
+			Vector2(T X, T Y);
+			explicit Vector2(T scale);
+			Vector2(const T vec[2]);
+			template<typename U> explicit Vector2(const Vector2<U>& vec);
+			Vector2(const Vector2& vec) = default;
+			explicit Vector2(const Vector3<T>& vec);
+			explicit Vector2(const Vector4<T>& vec);
+			~Vector2() = default;
 
-		T Distance(const NzVector2& vec) const;
-		float Distancef(const NzVector2& vec) const;
-		T DotProduct(const NzVector2& vec) const;
+			T AbsDotProduct(const Vector2& vec) const;
+			T AngleBetween(const Vector2& vec) const;
 
-		T GetLength() const;
-		float GetLengthf() const;
-		NzVector2 GetNormal(T* length = nullptr) const;
-		T GetSquaredLength() const;
+			T Distance(const Vector2& vec) const;
+			float Distancef(const Vector2& vec) const;
+			T DotProduct(const Vector2& vec) const;
 
-		NzVector2& MakeUnit();
-		NzVector2& MakeUnitX();
-		NzVector2& MakeUnitY();
-		NzVector2& MakeZero();
+			T GetLength() const;
+			float GetLengthf() const;
+			Vector2 GetNormal(T* length = nullptr) const;
+			T GetSquaredLength() const;
 
-		NzVector2& Maximize(const NzVector2& vec);
-		NzVector2& Minimize(const NzVector2& vec);
+			Vector2& MakeUnit();
+			Vector2& MakeUnitX();
+			Vector2& MakeUnitY();
+			Vector2& MakeZero();
 
-		NzVector2& Normalize(T* length = nullptr);
+			Vector2& Maximize(const Vector2& vec);
+			Vector2& Minimize(const Vector2& vec);
 
-		NzVector2& Set(T X, T Y);
-		NzVector2& Set(T scale);
-		NzVector2& Set(const T vec[2]);
-		NzVector2& Set(const NzVector2& vec);
-		NzVector2& Set(const NzVector3<T>& vec);
-		NzVector2& Set(const NzVector4<T>& vec);
-		template<typename U> NzVector2& Set(const NzVector2<U>& vec);
+			Vector2& Normalize(T* length = nullptr);
 
-		T SquaredDistance(const NzVector2& vec) const;
+			Vector2& Set(T X, T Y);
+			Vector2& Set(T scale);
+			Vector2& Set(const T vec[2]);
+			Vector2& Set(const Vector2& vec);
+			Vector2& Set(const Vector3<T>& vec);
+			Vector2& Set(const Vector4<T>& vec);
+			template<typename U> Vector2& Set(const Vector2<U>& vec);
 
-		NzString ToString() const;
+			T SquaredDistance(const Vector2& vec) const;
 
-		operator T*();
-		operator const T*() const;
+			String ToString() const;
 
-		const NzVector2& operator+() const;
-		NzVector2 operator-() const;
+			operator T*();
+			operator const T*() const;
 
-		NzVector2 operator+(const NzVector2& vec) const;
-		NzVector2 operator-(const NzVector2& vec) const;
-		NzVector2 operator*(const NzVector2& vec) const;
-		NzVector2 operator*(T scale) const;
-		NzVector2 operator/(const NzVector2& vec) const;
-		NzVector2 operator/(T scale) const;
+			const Vector2& operator+() const;
+			Vector2 operator-() const;
 
-		NzVector2& operator+=(const NzVector2& vec);
-		NzVector2& operator-=(const NzVector2& vec);
-		NzVector2& operator*=(const NzVector2& vec);
-		NzVector2& operator*=(T scale);
-		NzVector2& operator/=(const NzVector2& vec);
-		NzVector2& operator/=(T scale);
+			Vector2 operator+(const Vector2& vec) const;
+			Vector2 operator-(const Vector2& vec) const;
+			Vector2 operator*(const Vector2& vec) const;
+			Vector2 operator*(T scale) const;
+			Vector2 operator/(const Vector2& vec) const;
+			Vector2 operator/(T scale) const;
 
-		bool operator==(const NzVector2& vec) const;
-		bool operator!=(const NzVector2& vec) const;
-		bool operator<(const NzVector2& vec) const;
-		bool operator<=(const NzVector2& vec) const;
-		bool operator>(const NzVector2& vec) const;
-		bool operator>=(const NzVector2& vec) const;
+			Vector2& operator+=(const Vector2& vec);
+			Vector2& operator-=(const Vector2& vec);
+			Vector2& operator*=(const Vector2& vec);
+			Vector2& operator*=(T scale);
+			Vector2& operator/=(const Vector2& vec);
+			Vector2& operator/=(T scale);
 
-		static NzVector2 Lerp(const NzVector2& from, const NzVector2& to, T interpolation);
-		static NzVector2 Unit();
-		static NzVector2 UnitX();
-		static NzVector2 UnitY();
-		static NzVector2 Zero();
+			bool operator==(const Vector2& vec) const;
+			bool operator!=(const Vector2& vec) const;
+			bool operator<(const Vector2& vec) const;
+			bool operator<=(const Vector2& vec) const;
+			bool operator>(const Vector2& vec) const;
+			bool operator>=(const Vector2& vec) const;
 
-		T x, y;
-};
+			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
+			static Vector2 Unit();
+			static Vector2 UnitX();
+			static Vector2 UnitY();
+			static Vector2 Zero();
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const NzVector2<T>& vec);
+			T x, y;
+	};
 
-template<typename T> NzVector2<T> operator*(T scale, const NzVector2<T>& vec);
-template<typename T> NzVector2<T> operator/(T scale, const NzVector2<T>& vec);
+    template<typename T> std::ostream& operator<<(std::ostream& out, const Vector2<T>& vec);
 
-typedef NzVector2<double> NzVector2d;
-typedef NzVector2<float> NzVector2f;
-typedef NzVector2<int> NzVector2i;
-typedef NzVector2<unsigned int> NzVector2ui;
-typedef NzVector2<nzInt32> NzVector2i32;
-typedef NzVector2<nzUInt32> NzVector2ui32;
+    template<typename T> Vector2<T> operator*(T scale, const Vector2<T>& vec);
+    template<typename T> Vector2<T> operator/(T scale, const Vector2<T>& vec);
+
+	typedef Vector2<double> Vector2d;
+	typedef Vector2<float> Vector2f;
+	typedef Vector2<int> Vector2i;
+	typedef Vector2<unsigned int> Vector2ui;
+	typedef Vector2<Int32> Vector2i32;
+	typedef Vector2<UInt32> Vector2ui32;
+}
 
 #include <Nazara/Math/Vector2.inl>
 
