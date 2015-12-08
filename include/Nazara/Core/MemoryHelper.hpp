@@ -9,11 +9,14 @@
 
 #include <cstddef>
 
-void NzOperatorDelete(void* ptr);
-void* NzOperatorNew(std::size_t size);
+namespace Nz
+{
+	void OperatorDelete(void* ptr);
+	void* OperatorNew(std::size_t size);
 
-template<typename T, typename... Args>
-T* NzPlacementNew(void* ptr, Args&&... args);
+	template<typename T, typename... Args>
+	T* PlacementNew(void* ptr, Args&&... args);
+}
 
 #include <Nazara/Core/MemoryHelper.inl>
 

@@ -79,11 +79,11 @@ namespace Ndk
 			static inline void Uninitialize();
 
 			std::vector<EntityHandle> m_entities;
-			NzBitset<nzUInt64> m_entityBits;
-			NzBitset<> m_excludedComponents;
-			mutable NzBitset<> m_filterResult;
-			NzBitset<> m_requiredAnyComponents;
-			NzBitset<> m_requiredComponents;
+			Nz::Bitset<Nz::UInt64> m_entityBits;
+			Nz::Bitset<> m_excludedComponents;
+			mutable Nz::Bitset<> m_filterResult;
+			Nz::Bitset<> m_requiredAnyComponents;
+			Nz::Bitset<> m_requiredComponents;
 			SystemIndex m_systemIndex;
 			World* m_world;
 			float m_updateCounter;

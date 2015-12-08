@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -15,193 +16,196 @@
 ///TODO: Utilisation des UBOs
 ///TODO: Scale ?
 
-NzLight::NzLight(nzLightType type) :
-m_type(type),
-m_shadowMapFormat(nzPixelFormat_Depth16),
-m_shadowMapSize(512, 512),
-m_shadowCastingEnabled(false),
-m_shadowMapUpdated(false)
+namespace Nz
 {
-	SetAmbientFactor((type == nzLightType_Directional) ? 0.2f : 0.f);
-	SetAttenuation(0.9f);
-	SetColor(NzColor::White);
-	SetDiffuseFactor(1.f);
-	SetInnerAngle(15.f);
-	SetOuterAngle(45.f);
-	SetRadius(5.f);
-}
-
-void NzLight::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const NzMatrix4f& transformMatrix) const
-{
-	static NzMatrix4f biasMatrix(0.5f, 0.f,  0.f,  0.f,
-								 0.f,  0.5f, 0.f,  0.f,
-								 0.f,  0.f,  0.5f, 0.f,
-								 0.5f, 0.5f, 0.5f, 1.f);
-
-	switch (m_type)
+	Light::Light(LightType type) :
+	m_type(type),
+	m_shadowMapFormat(PixelFormatType_Depth16),
+	m_shadowMapSize(512, 512),
+	m_shadowCastingEnabled(false),
+	m_shadowMapUpdated(false)
 	{
-		case nzLightType_Directional:
-		{
-			NzAbstractRenderQueue::DirectionalLight light;
-			light.ambientFactor = m_ambientFactor;
-			light.color = m_color;
-			light.diffuseFactor = m_diffuseFactor;
-			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
-			light.shadowMap = m_shadowMap.Get();
-			light.transformMatrix = NzMatrix4f::ViewMatrix(transformMatrix.GetRotation() * NzVector3f::Forward() * 100.f, transformMatrix.GetRotation()) * NzMatrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f) * biasMatrix;
-
-			renderQueue->AddDirectionalLight(light);
-			break;
-		}
-
-		case nzLightType_Point:
-		{
-			NzAbstractRenderQueue::PointLight light;
-			light.ambientFactor = m_ambientFactor;
-			light.attenuation = m_attenuation;
-			light.color = m_color;
-			light.diffuseFactor = m_diffuseFactor;
-			light.invRadius = m_invRadius;
-			light.position = transformMatrix.GetTranslation();
-			light.radius = m_radius;
-			light.shadowMap = m_shadowMap.Get();
-
-			renderQueue->AddPointLight(light);
-			break;
-		}
-
-		case nzLightType_Spot:
-		{
-			NzAbstractRenderQueue::SpotLight light;
-			light.ambientFactor = m_ambientFactor;
-			light.attenuation = m_attenuation;
-			light.color = m_color;
-			light.diffuseFactor = m_diffuseFactor;
-			light.direction = transformMatrix.Transform(NzVector3f::Forward(), 0.f);
-			light.innerAngleCosine = m_innerAngleCosine;
-			light.invRadius = m_invRadius;
-			light.outerAngleCosine = m_outerAngleCosine;
-			light.outerAngleTangent = m_outerAngleTangent;
-			light.position = transformMatrix.GetTranslation();
-			light.radius = m_radius;
-			light.shadowMap = m_shadowMap.Get();
-			light.transformMatrix = NzMatrix4f::ViewMatrix(transformMatrix.GetTranslation(), transformMatrix.GetRotation()) * NzMatrix4f::Perspective(m_outerAngle*2.f, 1.f, 0.1f, m_radius) * biasMatrix;
-
-			renderQueue->AddSpotLight(light);
-			break;
-		}
-
-		default:
-			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-			break;
-	}
-}
-
-NzLight* NzLight::Clone() const
-{
-	return new NzLight(*this);
-}
-
-NzLight* NzLight::Create() const
-{
-	return new NzLight;
-}
-
-bool NzLight::Cull(const NzFrustumf& frustum, const NzMatrix4f& transformMatrix) const
-{
-	switch (m_type)
-	{
-		case nzLightType_Directional:
-			return true; // Always visible
-
-		case nzLightType_Point:
-			return frustum.Contains(NzSpheref(transformMatrix.GetTranslation(), m_radius)); // A sphere test is much faster (and precise)
-
-		case nzLightType_Spot:
-			return frustum.Contains(m_boundingVolume);
+		SetAmbientFactor((type == LightType_Directional) ? 0.2f : 0.f);
+		SetAttenuation(0.9f);
+		SetColor(Color::White);
+		SetDiffuseFactor(1.f);
+		SetInnerAngle(15.f);
+		SetOuterAngle(45.f);
+		SetRadius(5.f);
 	}
 
-	NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-	return false;
-}
-
-void NzLight::UpdateBoundingVolume(const NzMatrix4f& transformMatrix)
-{
-	switch (m_type)
+	void Light::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const
 	{
-		case nzLightType_Directional:
-			break; // Nothing to do (bounding volume should be infinite)
+		static Matrix4f biasMatrix(0.5f, 0.f, 0.f, 0.f,
+		                           0.f, 0.5f, 0.f, 0.f,
+								   0.f, 0.f, 0.5f, 0.f,
+								   0.5f, 0.5f, 0.5f, 1.f);
 
-		case nzLightType_Point:
-			m_boundingVolume.Update(transformMatrix.GetTranslation()); // The bounding volume only needs to be shifted
-			break;
-
-		case nzLightType_Spot:
-			m_boundingVolume.Update(transformMatrix);
-			break;
-
-		default:
-			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-			break;
-	}
-}
-
-void NzLight::MakeBoundingVolume() const
-{
-	switch (m_type)
-	{
-		case nzLightType_Directional:
-			m_boundingVolume.MakeInfinite();
-			break;
-
-		case nzLightType_Point:
+		switch (m_type)
 		{
-			NzVector3f radius(m_radius * float(M_SQRT3));
-			m_boundingVolume.Set(-radius, radius);
-			break;
+			case LightType_Directional:
+			{
+				AbstractRenderQueue::DirectionalLight light;
+				light.ambientFactor = m_ambientFactor;
+				light.color = m_color;
+				light.diffuseFactor = m_diffuseFactor;
+				light.direction = transformMatrix.Transform(Vector3f::Forward(), 0.f);
+				light.shadowMap = m_shadowMap.Get();
+				light.transformMatrix = Matrix4f::ViewMatrix(transformMatrix.GetRotation() * Vector3f::Forward() * 100.f, transformMatrix.GetRotation()) * Matrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f) * biasMatrix;
+
+				renderQueue->AddDirectionalLight(light);
+				break;
+			}
+
+			case LightType_Point:
+			{
+				AbstractRenderQueue::PointLight light;
+				light.ambientFactor = m_ambientFactor;
+				light.attenuation = m_attenuation;
+				light.color = m_color;
+				light.diffuseFactor = m_diffuseFactor;
+				light.invRadius = m_invRadius;
+				light.position = transformMatrix.GetTranslation();
+				light.radius = m_radius;
+				light.shadowMap = m_shadowMap.Get();
+
+				renderQueue->AddPointLight(light);
+				break;
+			}
+
+			case LightType_Spot:
+			{
+				AbstractRenderQueue::SpotLight light;
+				light.ambientFactor = m_ambientFactor;
+				light.attenuation = m_attenuation;
+				light.color = m_color;
+				light.diffuseFactor = m_diffuseFactor;
+				light.direction = transformMatrix.Transform(Vector3f::Forward(), 0.f);
+				light.innerAngleCosine = m_innerAngleCosine;
+				light.invRadius = m_invRadius;
+				light.outerAngleCosine = m_outerAngleCosine;
+				light.outerAngleTangent = m_outerAngleTangent;
+				light.position = transformMatrix.GetTranslation();
+				light.radius = m_radius;
+				light.shadowMap = m_shadowMap.Get();
+				light.transformMatrix = Matrix4f::ViewMatrix(transformMatrix.GetTranslation(), transformMatrix.GetRotation()) * Matrix4f::Perspective(m_outerAngle*2.f, 1.f, 0.1f, m_radius) * biasMatrix;
+
+				renderQueue->AddSpotLight(light);
+				break;
+			}
+
+			default:
+				NazaraError("Invalid light type (0x" + String::Number(m_type, 16) + ')');
+				break;
+		}
+	}
+
+	Light* Light::Clone() const
+	{
+		return new Light(*this);
+	}
+
+	Light* Light::Create() const
+	{
+		return new Light;
+	}
+
+	bool Light::Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const
+	{
+		switch (m_type)
+		{
+			case LightType_Directional:
+				return true; // Always visible
+
+			case LightType_Point:
+				return frustum.Contains(Spheref(transformMatrix.GetTranslation(), m_radius)); // A sphere test is much faster (and precise)
+
+			case LightType_Spot:
+				return frustum.Contains(m_boundingVolume);
 		}
 
-		case nzLightType_Spot:
-		{
-			// On forme une boite sur l'origine
-			NzBoxf box(NzVector3f::Zero());
-
-			// On calcule le reste des points
-			NzVector3f base(NzVector3f::Forward()*m_radius);
-
-			// Il nous faut maintenant le rayon du cercle projeté à cette distance
-			// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
-			float radius = m_radius * m_outerAngleTangent;
-			NzVector3f lExtend = NzVector3f::Left()*radius;
-			NzVector3f uExtend = NzVector3f::Up()*radius;
-
-			// Et on ajoute ensuite les quatres extrémités de la pyramide
-			box.ExtendTo(base + lExtend + uExtend);
-			box.ExtendTo(base + lExtend - uExtend);
-			box.ExtendTo(base - lExtend + uExtend);
-			box.ExtendTo(base - lExtend - uExtend);
-
-			m_boundingVolume.Set(box);
-			break;
-		}
-
-		default:
-			NazaraError("Invalid light type (0x" + NzString::Number(m_type, 16) + ')');
-			break;
+		NazaraError("Invalid light type (0x" + String::Number(m_type, 16) + ')');
+		return false;
 	}
-}
 
-void NzLight::UpdateShadowMap() const
-{
-	if (m_shadowCastingEnabled)
+	void Light::UpdateBoundingVolume(const Matrix4f& transformMatrix)
 	{
-		if (!m_shadowMap)
-			m_shadowMap = NzTexture::New();
+		switch (m_type)
+		{
+			case LightType_Directional:
+				break; // Nothing to do (bounding volume should be infinite)
 
-		m_shadowMap->Create((m_type == nzLightType_Point) ? nzImageType_Cubemap : nzImageType_2D, m_shadowMapFormat, m_shadowMapSize.x, m_shadowMapSize.y);
+			case LightType_Point:
+				m_boundingVolume.Update(transformMatrix.GetTranslation()); // The bounding volume only needs to be shifted
+				break;
+
+			case LightType_Spot:
+				m_boundingVolume.Update(transformMatrix);
+				break;
+
+			default:
+				NazaraError("Invalid light type (0x" + String::Number(m_type, 16) + ')');
+				break;
+		}
 	}
-	else
-		m_shadowMap.Reset();
 
-    m_shadowMapUpdated = true;
+	void Light::MakeBoundingVolume() const
+	{
+		switch (m_type)
+		{
+			case LightType_Directional:
+				m_boundingVolume.MakeInfinite();
+				break;
+
+			case LightType_Point:
+			{
+				Vector3f radius(m_radius * float(M_SQRT3));
+				m_boundingVolume.Set(-radius, radius);
+				break;
+			}
+
+			case LightType_Spot:
+			{
+				// On forme une boite sur l'origine
+				Boxf box(Vector3f::Zero());
+
+				// On calcule le reste des points
+				Vector3f base(Vector3f::Forward()*m_radius);
+
+				// Il nous faut maintenant le rayon du cercle projeté à cette distance
+				// Tangente = Opposé/Adjaçent <=> Opposé = Adjaçent*Tangente
+				float radius = m_radius * m_outerAngleTangent;
+				Vector3f lExtend = Vector3f::Left()*radius;
+				Vector3f uExtend = Vector3f::Up()*radius;
+
+				// Et on ajoute ensuite les quatres extrémités de la pyramide
+				box.ExtendTo(base + lExtend + uExtend);
+				box.ExtendTo(base + lExtend - uExtend);
+				box.ExtendTo(base - lExtend + uExtend);
+				box.ExtendTo(base - lExtend - uExtend);
+
+				m_boundingVolume.Set(box);
+				break;
+			}
+
+			default:
+				NazaraError("Invalid light type (0x" + String::Number(m_type, 16) + ')');
+				break;
+			}
+	}
+
+	void Light::UpdateShadowMap() const
+	{
+		if (m_shadowCastingEnabled)
+		{
+			if (!m_shadowMap)
+				m_shadowMap = Texture::New();
+
+			m_shadowMap->Create((m_type == LightType_Point) ? ImageType_Cubemap : ImageType_2D, m_shadowMapFormat, m_shadowMapSize.x, m_shadowMapSize.y);
+		}
+		else
+			m_shadowMap.Reset();
+
+		m_shadowMapUpdated = true;
+	}
 }

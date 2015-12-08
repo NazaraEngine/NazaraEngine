@@ -4,202 +4,205 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-inline void NzPrimitive::MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
+namespace Nz
 {
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Box;
-	box.lengths = lengths;
-	box.subdivision = subdivision;
-}
+	inline void Primitive::MakeBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Box;
+		box.lengths = lengths;
+		box.subdivision = subdivision;
+	}
 
-inline void NzPrimitive::MakeBox(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakeBox(lengths, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakeBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakeBox(lengths, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline void NzPrimitive::MakeCone(float length, float radius, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Cone;
-	cone.length = length;
-	cone.radius = radius;
-	cone.subdivision = subdivision;
-}
+	inline void Primitive::MakeCone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Cone;
+		cone.length = length;
+		cone.radius = radius;
+		cone.subdivision = subdivision;
+	}
 
-inline void NzPrimitive::MakeCone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakeCone(length, radius, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakeCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakeCone(length, radius, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline void NzPrimitive::MakeCubicSphere(float size, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Sphere;
-	sphere.size = size;
-	sphere.type = nzSphereType_Cubic;
-	sphere.cubic.subdivision = subdivision;
-}
+	inline void Primitive::MakeCubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Sphere;
+		sphere.size = size;
+		sphere.type = SphereType_Cubic;
+		sphere.cubic.subdivision = subdivision;
+	}
 
-inline void NzPrimitive::MakeCubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakeCubicSphere(size, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakeCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakeCubicSphere(size, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline void NzPrimitive::MakeIcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Sphere;
-	sphere.size = size;
-	sphere.type = nzSphereType_Ico;
-	sphere.ico.recursionLevel = recursionLevel;
-}
+	inline void Primitive::MakeIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Sphere;
+		sphere.size = size;
+		sphere.type = SphereType_Ico;
+		sphere.ico.recursionLevel = recursionLevel;
+	}
 
-inline void NzPrimitive::MakeIcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakeIcoSphere(size, recursionLevel, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakeIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakeIcoSphere(size, recursionLevel, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline void NzPrimitive::MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Plane;
-	plane.size = size;
-	plane.subdivision = subdivision;
-}
+	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Plane;
+		plane.size = size;
+		plane.subdivision = subdivision;
+	}
 
-inline void NzPrimitive::MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& planeInfo, const NzRectf& uvCoords)
-{
-	MakePlane(size, subdivision, NzMatrix4f::Transform(planeInfo.distance * planeInfo.normal, NzQuaternionf::RotationBetween(NzVector3f::Up(), planeInfo.normal)), uvCoords);
-}
+	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo, const Rectf& uvCoords)
+	{
+		MakePlane(size, subdivision, Matrix4f::Transform(planeInfo.distance * planeInfo.normal, Quaternionf::RotationBetween(Vector3f::Up(), planeInfo.normal)), uvCoords);
+	}
 
-inline void NzPrimitive::MakePlane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakePlane(size, subdivision, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakePlane(size, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline void NzPrimitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	matrix = transformMatrix;
-	textureCoords = uvCoords;
-	type = nzPrimitiveType_Sphere;
-	sphere.size = size;
-	sphere.type = nzSphereType_UV;
-	sphere.uv.sliceCount = sliceCount;
-	sphere.uv.stackCount = stackCount;
-}
+	inline void Primitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		matrix = transformMatrix;
+		textureCoords = uvCoords;
+		type = PrimitiveType_Sphere;
+		sphere.size = size;
+		sphere.type = SphereType_UV;
+		sphere.uv.sliceCount = sliceCount;
+		sphere.uv.stackCount = stackCount;
+	}
 
-inline void NzPrimitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	MakeUVSphere(size, sliceCount, stackCount, NzMatrix4f::Transform(position, rotation), uvCoords);
-}
+	inline void Primitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		MakeUVSphere(size, sliceCount, stackCount, Matrix4f::Transform(position, rotation), uvCoords);
+	}
 
-inline NzPrimitive NzPrimitive::Box(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeBox(lengths, subdivision, transformMatrix, uvCoords);
+	inline Primitive Primitive::Box(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeBox(lengths, subdivision, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Box(const NzVector3f& lengths, const NzVector3ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeBox(lengths, subdivision, position, rotation, uvCoords);
+	inline Primitive Primitive::Box(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeBox(lengths, subdivision, position, rotation, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Cone(float length, float radius, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeCone(length, radius, subdivision, transformMatrix, uvCoords);
+	inline Primitive Primitive::Cone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeCone(length, radius, subdivision, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Cone(float length, float radius, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeCone(length, radius, subdivision, position, rotation, uvCoords);
+	inline Primitive Primitive::Cone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeCone(length, radius, subdivision, position, rotation, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::CubicSphere(float size, unsigned int subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeCubicSphere(size, subdivision, transformMatrix, uvCoords);
+	inline Primitive Primitive::CubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeCubicSphere(size, subdivision, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::CubicSphere(float size, unsigned int subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeCubicSphere(size, subdivision, position, rotation, uvCoords);
+	inline Primitive Primitive::CubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeCubicSphere(size, subdivision, position, rotation, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::IcoSphere(float size, unsigned int recursionLevel, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeIcoSphere(size, recursionLevel, transformMatrix, uvCoords);
+	inline Primitive Primitive::IcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeIcoSphere(size, recursionLevel, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::IcoSphere(float size, unsigned int recursionLevel, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeIcoSphere(size, recursionLevel, position, rotation, uvCoords);
+	inline Primitive Primitive::IcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeIcoSphere(size, recursionLevel, position, rotation, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakePlane(size, subdivision, transformMatrix, uvCoords);
+	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakePlane(size, subdivision, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzPlanef& plane, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakePlane(size, subdivision, plane, uvCoords);
+	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Planef& plane, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakePlane(size, subdivision, plane, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::Plane(const NzVector2f& size, const NzVector2ui& subdivision, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakePlane(size, subdivision, position, rotation, uvCoords);
+	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakePlane(size, subdivision, position, rotation, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzMatrix4f& transformMatrix, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeUVSphere(size, sliceCount, stackCount, transformMatrix, uvCoords);
+	inline Primitive Primitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeUVSphere(size, sliceCount, stackCount, transformMatrix, uvCoords);
 
-	return primitive;
-}
+		return primitive;
+	}
 
-inline NzPrimitive NzPrimitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const NzVector3f& position, const NzQuaternionf& rotation, const NzRectf& uvCoords)
-{
-	NzPrimitive primitive;
-	primitive.MakeUVSphere(size, sliceCount, stackCount, position, rotation, uvCoords);
+	inline Primitive Primitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
+	{
+		Primitive primitive;
+		primitive.MakeUVSphere(size, sliceCount, stackCount, position, rotation, uvCoords);
 
-	return primitive;
+		return primitive;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

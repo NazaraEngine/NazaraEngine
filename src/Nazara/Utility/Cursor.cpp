@@ -14,50 +14,53 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-NzCursor::NzCursor() :
-m_impl(nullptr)
+namespace Nz
 {
-}
-
-NzCursor::~NzCursor()
-{
-	Destroy();
-}
-
-bool NzCursor::Create(const NzImage& cursor, int hotSpotX, int hotSpotY)
-{
-	Destroy();
-
-	m_impl = new NzCursorImpl;
-	if (!m_impl->Create(cursor, hotSpotX, hotSpotY))
+	Cursor::Cursor() :
+	m_impl(nullptr)
 	{
-		NazaraError("Failed to create cursor implementation");
-		delete m_impl;
-		m_impl = nullptr;
-
-		return false;
 	}
 
-	return true;
-}
-
-bool NzCursor::Create(const NzImage& cursor, const NzVector2i& hotSpot)
-{
-	return Create(cursor, hotSpot.x, hotSpot.y);
-}
-
-void NzCursor::Destroy()
-{
-	if (m_impl)
+	Cursor::~Cursor()
 	{
-		m_impl->Destroy();
-
-		delete m_impl;
-		m_impl = nullptr;
+		Destroy();
 	}
-}
 
-bool NzCursor::IsValid() const
-{
-	return m_impl != nullptr;
+	bool Cursor::Create(const Image& cursor, int hotSpotX, int hotSpotY)
+	{
+		Destroy();
+
+		m_impl = new CursorImpl;
+		if (!m_impl->Create(cursor, hotSpotX, hotSpotY))
+		{
+			NazaraError("Failed to create cursor implementation");
+			delete m_impl;
+			m_impl = nullptr;
+
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot)
+	{
+		return Create(cursor, hotSpot.x, hotSpot.y);
+	}
+
+	void Cursor::Destroy()
+	{
+		if (m_impl)
+		{
+			m_impl->Destroy();
+
+			delete m_impl;
+			m_impl = nullptr;
+		}
+	}
+
+	bool Cursor::IsValid() const
+	{
+		return m_impl != nullptr;
+	}
 }

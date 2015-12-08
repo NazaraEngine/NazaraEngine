@@ -5,4 +5,7 @@
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzUpdatable::~NzUpdatable() = default;
+namespace Nz
+{
+	Updatable::~Updatable() = default;
+}

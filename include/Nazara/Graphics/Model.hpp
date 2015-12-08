@@ -14,78 +14,81 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
-struct NAZARA_GRAPHICS_API NzModelParameters
+namespace Nz
 {
-	NzModelParameters();
+	struct NAZARA_GRAPHICS_API ModelParameters
+	{
+		ModelParameters();
 
-	bool loadMaterials = true;
-	NzMaterialParams material;
-	NzMeshParams mesh;
+		bool loadMaterials = true;
+		MaterialParams material;
+		MeshParams mesh;
 
-	bool IsValid() const;
-};
+		bool IsValid() const;
+	};
 
-class NzModel;
+	class Model;
 
-using NzModelConstRef = NzObjectRef<const NzModel>;
-using NzModelLoader = NzResourceLoader<NzModel, NzModelParameters>;
-using NzModelRef = NzObjectRef<NzModel>;
+	using ModelConstRef = ObjectRef<const Model>;
+	using ModelLoader = ResourceLoader<Model, ModelParameters>;
+	using ModelRef = ObjectRef<Model>;
 
-class NAZARA_GRAPHICS_API NzModel : public NzInstancedRenderable, public NzResource
-{
-	friend NzModelLoader;
+	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
+	{
+		friend ModelLoader;
 
-	public:
-		NzModel();
-		NzModel(const NzModel& model) = default;
-		NzModel(NzModel&& model) = default;
-		virtual ~NzModel();
+		public:
+			Model();
+			Model(const Model& model) = default;
+			Model(Model&& model) = default;
+			virtual ~Model();
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		NzMaterial* GetMaterial(const NzString& subMeshName) const;
-		NzMaterial* GetMaterial(unsigned int matIndex) const;
-		NzMaterial* GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const;
-		NzMaterial* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
-		unsigned int GetMaterialCount() const;
-		unsigned int GetSkin() const;
-		unsigned int GetSkinCount() const;
-		NzMesh* GetMesh() const;
+			Material* GetMaterial(const String& subMeshName) const;
+			Material* GetMaterial(unsigned int matIndex) const;
+			Material* GetMaterial(unsigned int skinIndex, const String& subMeshName) const;
+			Material* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
+			unsigned int GetMaterialCount() const;
+			unsigned int GetSkin() const;
+			unsigned int GetSkinCount() const;
+			Mesh* GetMesh() const;
 
-		virtual bool IsAnimated() const;
+			virtual bool IsAnimated() const;
 
-		bool LoadFromFile(const NzString& filePath, const NzModelParameters& params = NzModelParameters());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params = NzModelParameters());
-		bool LoadFromStream(NzInputStream& stream, const NzModelParameters& params = NzModelParameters());
+			bool LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
+			bool LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
+			bool LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 
-		void Reset();
+			void Reset();
 
-		bool SetMaterial(const NzString& subMeshName, NzMaterial* material);
-		void SetMaterial(unsigned int matIndex, NzMaterial* material);
-		bool SetMaterial(unsigned int skinIndex, const NzString& subMeshName, NzMaterial* material);
-		void SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material);
-		virtual void SetMesh(NzMesh* mesh);
-		bool SetSequence(const NzString& sequenceName);
-		void SetSequence(unsigned int sequenceIndex);
-		void SetSkin(unsigned int skin);
-		void SetSkinCount(unsigned int skinCount);
+			bool SetMaterial(const String& subMeshName, Material* material);
+			void SetMaterial(unsigned int matIndex, Material* material);
+			bool SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material);
+			void SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material);
+			virtual void SetMesh(Mesh* mesh);
+			bool SetSequence(const String& sequenceName);
+			void SetSequence(unsigned int sequenceIndex);
+			void SetSkin(unsigned int skin);
+			void SetSkinCount(unsigned int skinCount);
 
-		NzModel& operator=(const NzModel& node) = default;
-		NzModel& operator=(NzModel&& node) = default;
+			Model& operator=(const Model& node) = default;
+			Model& operator=(Model&& node) = default;
 
-		template<typename... Args> static NzModelRef New(Args&&... args);
+			template<typename... Args> static ModelRef New(Args&&... args);
 
-	protected:
-		void MakeBoundingVolume() const override;
+		protected:
+			void MakeBoundingVolume() const override;
 
-		std::vector<NzMaterialRef> m_materials;
-		NzMeshRef m_mesh;
-		unsigned int m_matCount;
-		unsigned int m_skin;
-		unsigned int m_skinCount;
+			std::vector<MaterialRef> m_materials;
+			MeshRef m_mesh;
+			unsigned int m_matCount;
+			unsigned int m_skin;
+			unsigned int m_skinCount;
 
-		static NzModelLoader::LoaderList s_loaders;
-};
+			static ModelLoader::LoaderList s_loaders;
+	};
+}
 
 #include <Nazara/Graphics/Model.inl>
 

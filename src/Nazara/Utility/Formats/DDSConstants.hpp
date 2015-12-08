@@ -7,12 +7,14 @@
 #ifndef NAZARA_LOADERS_DDS_CONSTANTS_HPP
 #define NAZARA_LOADERS_DDS_CONSTANTS_HPP
 
+#include <Nazara/Prerequesites.hpp>
+
 #define DDS_MAGIC                  0x20534444
 #define DDS_DXT1                   0x31545844
 #define DDS_DXT3                   0x33545844
 #define DDS_DXT5                   0x35545844
 
-inline constexpr nzUInt32 FourCC(nzUInt32 a, nzUInt32 b, nzUInt32 c, nzUInt32 d)
+inline constexpr Nz::UInt32 FourCC(Nz::UInt32 a, Nz::UInt32 b, Nz::UInt32 c, Nz::UInt32 d)
 {
 	return a <<  0 |
 	       b <<  8 |
@@ -20,7 +22,7 @@ inline constexpr nzUInt32 FourCC(nzUInt32 a, nzUInt32 b, nzUInt32 c, nzUInt32 d)
 	       d << 24;
 }
 
-enum D3D10_RESOURCE_DIMENSION : nzUInt32
+enum D3D10_RESOURCE_DIMENSION : Nz::UInt32
 {
 	D3D10_RESOURCE_DIMENSION_UNKNOWN   = 0,
 	D3D10_RESOURCE_DIMENSION_BUFFER    = 1,
@@ -38,7 +40,7 @@ enum D3D10_RESOURCE_MISC
 	D3D10_RESOURCE_MISC_GDI_COMPATIBLE    = 0x20L
 };
 
-enum D3DFMT : nzUInt32
+enum D3DFMT : Nz::UInt32
 {
 	D3DFMT_UNKNOWN              =  0,
 
@@ -222,7 +224,7 @@ enum DDS_SAVE
    DDS_SAVE_MAX
 };
 
-enum DXGI_FORMAT : nzUInt32
+enum DXGI_FORMAT : Nz::UInt32
 {
 	DXGI_FORMAT_UNKNOWN                      = 0,
 	DXGI_FORMAT_R32G32B32A32_TYPELESS        = 1,
@@ -328,47 +330,47 @@ enum DXGI_FORMAT : nzUInt32
 
 struct DDSPixelFormat // DDPIXELFORMAT
 {
-	nzUInt32 size;
-	nzUInt32 flags;
-	nzUInt32 fourCC;
-	nzUInt32 bpp;
-	nzUInt32 redMask;
-	nzUInt32 greenMask;
-	nzUInt32 blueMask;
-	nzUInt32 alphaMask;
+	Nz::UInt32 size;
+	Nz::UInt32 flags;
+	Nz::UInt32 fourCC;
+	Nz::UInt32 bpp;
+	Nz::UInt32 redMask;
+	Nz::UInt32 greenMask;
+	Nz::UInt32 blueMask;
+	Nz::UInt32 alphaMask;
 };
 
-static_assert(sizeof(DDSPixelFormat) == 8*sizeof(nzUInt32), "DDSPixelFormat must be packed");
+static_assert(sizeof(DDSPixelFormat) == 8*sizeof(Nz::UInt32), "DDSPixelFormat must be packed");
 
 struct DDSHeader
 {
-	nzUInt32 size;
-	nzUInt32 flags;
-	nzUInt32 height;
-	nzUInt32 width;
-	nzUInt32 pitch;
-	nzUInt32 depth;
-	nzUInt32 levelCount;
-	nzUInt32 reserved1[11];
+	Nz::UInt32 size;
+	Nz::UInt32 flags;
+	Nz::UInt32 height;
+	Nz::UInt32 width;
+	Nz::UInt32 pitch;
+	Nz::UInt32 depth;
+	Nz::UInt32 levelCount;
+	Nz::UInt32 reserved1[11];
 	DDSPixelFormat format;
-	nzUInt32 ddsCaps1;
-	nzUInt32 ddsCaps2;
-	nzUInt32 ddsCaps3;
-	nzUInt32 ddsCaps4;
-	nzUInt32 reserved2;
+	Nz::UInt32 ddsCaps1;
+	Nz::UInt32 ddsCaps2;
+	Nz::UInt32 ddsCaps3;
+	Nz::UInt32 ddsCaps4;
+	Nz::UInt32 reserved2;
 };
 
-static_assert(sizeof(DDSHeader) == 23*sizeof(nzUInt32) + sizeof(DDSPixelFormat), "DDSHeader must be packed");
+static_assert(sizeof(DDSHeader) == 23*sizeof(Nz::UInt32) + sizeof(DDSPixelFormat), "DDSHeader must be packed");
 
 struct DDSHeaderDX10Ext
 {
 	DXGI_FORMAT dxgiFormat;
 	D3D10_RESOURCE_DIMENSION resourceDimension;
-	nzUInt32 miscFlag;
-	nzUInt32 arraySize;
-	nzUInt32 reserved;
+	Nz::UInt32 miscFlag;
+	Nz::UInt32 arraySize;
+	Nz::UInt32 reserved;
 };
 
-static_assert(sizeof(DDSHeaderDX10Ext) == 5*sizeof(nzUInt32), "DDSHeaderDX10Ext must be packed");
+static_assert(sizeof(DDSHeaderDX10Ext) == 5*sizeof(Nz::UInt32), "DDSHeaderDX10Ext must be packed");
 
 #endif // NAZARA_LOADERS_DDS_CONSTANTS_HPP

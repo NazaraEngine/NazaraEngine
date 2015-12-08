@@ -12,28 +12,31 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
-class NzAbstractRenderTechnique;
-
-class NAZARA_GRAPHICS_API NzRenderTechniques
+namespace Nz
 {
-	public:
-		using RenderTechniqueFactory = NzAbstractRenderTechnique* (*)();
+	class AbstractRenderTechnique;
 
-		NzRenderTechniques() = delete;
-		~NzRenderTechniques() = delete;
+	class NAZARA_GRAPHICS_API RenderTechniques
+	{
+		public:
+			using RenderTechniqueFactory = AbstractRenderTechnique* (*)();
 
-		static NzAbstractRenderTechnique* GetByEnum(nzRenderTechniqueType renderTechnique, int* techniqueRanking = nullptr);
-		static NzAbstractRenderTechnique* GetByIndex(unsigned int index, int* techniqueRanking = nullptr);
-		static NzAbstractRenderTechnique* GetByName(const NzString& name, int* techniqueRanking = nullptr);
-		static NzAbstractRenderTechnique* GetByRanking(int maxRanking, int* techniqueRanking = nullptr);
+			RenderTechniques() = delete;
+			~RenderTechniques() = delete;
 
-		static unsigned int GetCount();
+			static AbstractRenderTechnique* GetByEnum(RenderTechniqueType renderTechnique, int* techniqueRanking = nullptr);
+			static AbstractRenderTechnique* GetByIndex(unsigned int index, int* techniqueRanking = nullptr);
+			static AbstractRenderTechnique* GetByName(const String& name, int* techniqueRanking = nullptr);
+			static AbstractRenderTechnique* GetByRanking(int maxRanking, int* techniqueRanking = nullptr);
 
-		static void Register(const NzString& name, int ranking, RenderTechniqueFactory factory);
+			static unsigned int GetCount();
 
-		static NzString ToString(nzRenderTechniqueType renderTechnique);
+			static void Register(const String& name, int ranking, RenderTechniqueFactory factory);
 
-		static void Unregister(const NzString& name);
-};
+			static String ToString(RenderTechniqueType renderTechnique);
+
+			static void Unregister(const String& name);
+	};
+}
 
 #endif // NAZARA_RENDERTECHNIQUES_HPP

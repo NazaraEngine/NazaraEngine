@@ -10,350 +10,353 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzModelParameters::NzModelParameters()
+namespace Nz
 {
-	material.shaderName = "PhongLighting";
-}
-
-bool NzModelParameters::IsValid() const
-{
-	if (loadMaterials && !material.IsValid())
-		return false;
-
-	return mesh.IsValid();
-}
-
-NzModel::NzModel() :
-m_matCount(0),
-m_skin(0),
-m_skinCount(1)
-{
-}
-
-NzModel::~NzModel()
-{
-	Reset();
-}
-
-void NzModel::AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
-{
-	unsigned int submeshCount = m_mesh->GetSubMeshCount();
-	for (unsigned int i = 0; i < submeshCount; ++i)
+	ModelParameters::ModelParameters()
 	{
-		const NzStaticMesh* mesh = static_cast<const NzStaticMesh*>(m_mesh->GetSubMesh(i));
-		NzMaterial* material = m_materials[mesh->GetMaterialIndex()];
-
-		NzMeshData meshData;
-		meshData.indexBuffer = mesh->GetIndexBuffer();
-		meshData.primitiveMode = mesh->GetPrimitiveMode();
-		meshData.vertexBuffer = mesh->GetVertexBuffer();
-
-		renderQueue->AddMesh(material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
-	}
-}
-
-NzMaterial* NzModel::GetMaterial(const NzString& subMeshName) const
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (!m_mesh)
-	{
-		NazaraError("Model has no mesh");
-		return nullptr;
-	}
-	#endif
-
-	NzSubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-	if (!subMesh)
-	{
-		NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-		return nullptr;
+		material.shaderName = "PhongLighting";
 	}
 
-	unsigned int matIndex = subMesh->GetMaterialIndex();
-	if (matIndex >= m_matCount)
+	bool ModelParameters::IsValid() const
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
-		return nullptr;
+		if (loadMaterials && !material.IsValid())
+			return false;
+
+		return mesh.IsValid();
 	}
 
-	return m_materials[m_skin*m_matCount + matIndex];
-}
-
-NzMaterial* NzModel::GetMaterial(unsigned int matIndex) const
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (matIndex >= m_matCount)
+	Model::Model() :
+	m_matCount(0),
+	m_skin(0),
+	m_skinCount(1)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
-		return nullptr;
-	}
-	#endif
-
-	return m_materials[m_skin*m_matCount + matIndex];
-}
-
-NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, const NzString& subMeshName) const
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skinIndex >= m_skinCount)
-	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount) + ')');
-		return nullptr;
-	}
-	#endif
-
-	NzSubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-	if (!subMesh)
-	{
-		NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-		return nullptr;
 	}
 
-	unsigned int matIndex = subMesh->GetMaterialIndex();
-	if (matIndex >= m_matCount)
+	Model::~Model()
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
-		return nullptr;
+		Reset();
 	}
 
-	return m_materials[skinIndex*m_matCount + matIndex];
-}
-
-NzMaterial* NzModel::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skinIndex >= m_skinCount)
+	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount) + ')');
-		return nullptr;
+		unsigned int submeshCount = m_mesh->GetSubMeshCount();
+		for (unsigned int i = 0; i < submeshCount; ++i)
+		{
+			const StaticMesh* mesh = static_cast<const StaticMesh*>(m_mesh->GetSubMesh(i));
+			Material* material = m_materials[mesh->GetMaterialIndex()];
+
+			MeshData meshData;
+			meshData.indexBuffer = mesh->GetIndexBuffer();
+			meshData.primitiveMode = mesh->GetPrimitiveMode();
+			meshData.vertexBuffer = mesh->GetVertexBuffer();
+
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
+		}
 	}
 
-	if (matIndex >= m_matCount)
+	Material* Model::GetMaterial(const String& subMeshName) const
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
-		return nullptr;
+		#if NAZARA_GRAPHICS_SAFE
+		if (!m_mesh)
+		{
+			NazaraError("Model has no mesh");
+			return nullptr;
+		}
+		#endif
+
+		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
+		if (!subMesh)
+		{
+			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+			return nullptr;
+		}
+
+		unsigned int matIndex = subMesh->GetMaterialIndex();
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
+			return nullptr;
+		}
+
+		return m_materials[m_skin*m_matCount + matIndex];
 	}
-	#endif
 
-	return m_materials[skinIndex*m_matCount + matIndex];
-}
-
-unsigned int NzModel::GetMaterialCount() const
-{
-	return m_matCount;
-}
-
-NzMesh* NzModel::GetMesh() const
-{
-	return m_mesh;
-}
-
-unsigned int NzModel::GetSkin() const
-{
-	return m_skin;
-}
-
-unsigned int NzModel::GetSkinCount() const
-{
-	return m_skinCount;
-}
-
-bool NzModel::IsAnimated() const
-{
-	return false;
-}
-
-bool NzModel::LoadFromFile(const NzString& filePath, const NzModelParameters& params)
-{
-	return NzModelLoader::LoadFromFile(this, filePath, params);
-}
-
-bool NzModel::LoadFromMemory(const void* data, std::size_t size, const NzModelParameters& params)
-{
-	return NzModelLoader::LoadFromMemory(this, data, size, params);
-}
-
-bool NzModel::LoadFromStream(NzInputStream& stream, const NzModelParameters& params)
-{
-	return NzModelLoader::LoadFromStream(this, stream, params);
-}
-
-void NzModel::Reset()
-{
-	m_matCount = 0;
-	m_skinCount = 0;
-
-	if (m_mesh)
+	Material* Model::GetMaterial(unsigned int matIndex) const
 	{
-		m_mesh.Reset();
-		m_materials.clear();
+		#if NAZARA_GRAPHICS_SAFE
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
+			return nullptr;
+		}
+		#endif
+
+		return m_materials[m_skin*m_matCount + matIndex];
 	}
-}
 
-bool NzModel::SetMaterial(const NzString& subMeshName, NzMaterial* material)
-{
-	NzSubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-	if (!subMesh)
+	Material* Model::GetMaterial(unsigned int skinIndex, const String& subMeshName) const
 	{
-		NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+		#if NAZARA_GRAPHICS_SAFE
+		if (skinIndex >= m_skinCount)
+		{
+			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount) + ')');
+			return nullptr;
+		}
+		#endif
+
+		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
+		if (!subMesh)
+		{
+			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+			return nullptr;
+		}
+
+		unsigned int matIndex = subMesh->GetMaterialIndex();
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
+			return nullptr;
+		}
+
+		return m_materials[skinIndex*m_matCount + matIndex];
+	}
+
+	Material* Model::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (skinIndex >= m_skinCount)
+		{
+			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount) + ')');
+			return nullptr;
+		}
+
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
+			return nullptr;
+		}
+		#endif
+
+		return m_materials[skinIndex*m_matCount + matIndex];
+	}
+
+	unsigned int Model::GetMaterialCount() const
+	{
+		return m_matCount;
+	}
+
+	Mesh* Model::GetMesh() const
+	{
+		return m_mesh;
+	}
+
+	unsigned int Model::GetSkin() const
+	{
+		return m_skin;
+	}
+
+	unsigned int Model::GetSkinCount() const
+	{
+		return m_skinCount;
+	}
+
+	bool Model::IsAnimated() const
+	{
 		return false;
 	}
 
-	unsigned int matIndex = subMesh->GetMaterialIndex();
-	if (matIndex >= m_matCount)
+	bool Model::LoadFromFile(const String& filePath, const ModelParameters& params)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount) + ')');
-		return false;
+		return ModelLoader::LoadFromFile(this, filePath, params);
 	}
 
-	unsigned int index = m_skin*m_matCount + matIndex;
-
-	if (material)
-		m_materials[index] = material;
-	else
-		m_materials[index] = NzMaterial::GetDefault();
-
-	return true;
-}
-
-void NzModel::SetMaterial(unsigned int matIndex, NzMaterial* material)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (matIndex >= m_matCount)
+	bool Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
-		return;
-	}
-	#endif
-
-	unsigned int index = m_skin*m_matCount + matIndex;
-
-	if (material)
-		m_materials[index] = material;
-	else
-		m_materials[index] = NzMaterial::GetDefault();
-}
-
-bool NzModel::SetMaterial(unsigned int skinIndex, const NzString& subMeshName, NzMaterial* material)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skinIndex >= m_skinCount)
-	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
-		return false;
-	}
-	#endif
-
-	NzSubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-	if (!subMesh)
-	{
-		NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-		return false;
+		return ModelLoader::LoadFromMemory(this, data, size, params);
 	}
 
-	unsigned int matIndex = subMesh->GetMaterialIndex();
-	if (matIndex >= m_matCount)
+	bool Model::LoadFromStream(Stream& stream, const ModelParameters& params)
 	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
-		return false;
+		return ModelLoader::LoadFromStream(this, stream, params);
 	}
 
-	unsigned int index = skinIndex*m_matCount + matIndex;
-
-	if (material)
-		m_materials[index] = material;
-	else
-		m_materials[index] = NzMaterial::GetDefault();
-
-	return true;
-}
-
-void NzModel::SetMaterial(unsigned int skinIndex, unsigned int matIndex, NzMaterial* material)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skinIndex >= m_skinCount)
-	{
-		NazaraError("Skin index out of range (" + NzString::Number(skinIndex) + " >= " + NzString::Number(m_skinCount));
-		return;
-	}
-
-	if (matIndex >= m_matCount)
-	{
-		NazaraError("Material index out of range (" + NzString::Number(matIndex) + " >= " + NzString::Number(m_matCount));
-		return;
-	}
-	#endif
-
-	unsigned int index = skinIndex*m_matCount + matIndex;
-
-	if (material)
-		m_materials[index] = material;
-	else
-		m_materials[index] = NzMaterial::GetDefault();
-}
-
-void NzModel::SetMesh(NzMesh* mesh)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (mesh && !mesh->IsValid())
-	{
-		NazaraError("Invalid mesh");
-		return;
-	}
-	#endif
-
-	m_mesh = mesh;
-
-	if (m_mesh)
-	{
-		m_matCount = mesh->GetMaterialCount();
-		m_materials.clear();
-		m_materials.resize(m_matCount, NzMaterial::GetDefault());
-		m_skinCount = 1;
-	}
-	else
+	void Model::Reset()
 	{
 		m_matCount = 0;
-		m_materials.clear();
 		m_skinCount = 0;
+
+		if (m_mesh)
+		{
+			m_mesh.Reset();
+			m_materials.clear();
+		}
 	}
 
-	InvalidateBoundingVolume();
-}
-
-void NzModel::SetSkin(unsigned int skin)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skin >= m_skinCount)
+	bool Model::SetMaterial(const String& subMeshName, Material* material)
 	{
-		NazaraError("Skin index out of range (" + NzString::Number(skin) + " >= " + NzString::Number(m_skinCount) + ')');
-		return;
+		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
+		if (!subMesh)
+		{
+			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+			return false;
+		}
+
+		unsigned int matIndex = subMesh->GetMaterialIndex();
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
+			return false;
+		}
+
+		unsigned int index = m_skin*m_matCount + matIndex;
+
+		if (material)
+			m_materials[index] = material;
+		else
+			m_materials[index] = Material::GetDefault();
+
+		return true;
 	}
-	#endif
 
-	m_skin = skin;
-}
-
-void NzModel::SetSkinCount(unsigned int skinCount)
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (skinCount == 0)
+	void Model::SetMaterial(unsigned int matIndex, Material* material)
 	{
-		NazaraError("Skin count must be over zero");
-		return;
+		#if NAZARA_GRAPHICS_SAFE
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
+			return;
+		}
+		#endif
+
+		unsigned int index = m_skin*m_matCount + matIndex;
+
+		if (material)
+			m_materials[index] = material;
+		else
+			m_materials[index] = Material::GetDefault();
 	}
-	#endif
 
-	m_materials.resize(m_matCount*skinCount, NzMaterial::GetDefault());
-	m_skinCount = skinCount;
+	bool Model::SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (skinIndex >= m_skinCount)
+		{
+			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount));
+			return false;
+		}
+		#endif
+
+		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
+		if (!subMesh)
+		{
+			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+			return false;
+		}
+
+		unsigned int matIndex = subMesh->GetMaterialIndex();
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
+			return false;
+		}
+
+		unsigned int index = skinIndex*m_matCount + matIndex;
+
+		if (material)
+			m_materials[index] = material;
+		else
+			m_materials[index] = Material::GetDefault();
+
+		return true;
+	}
+
+	void Model::SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (skinIndex >= m_skinCount)
+		{
+			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount));
+			return;
+		}
+
+		if (matIndex >= m_matCount)
+		{
+			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
+			return;
+		}
+		#endif
+
+		unsigned int index = skinIndex*m_matCount + matIndex;
+
+		if (material)
+			m_materials[index] = material;
+		else
+			m_materials[index] = Material::GetDefault();
+	}
+
+	void Model::SetMesh(Mesh* mesh)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (mesh && !mesh->IsValid())
+		{
+			NazaraError("Invalid mesh");
+			return;
+		}
+		#endif
+
+		m_mesh = mesh;
+
+		if (m_mesh)
+		{
+			m_matCount = mesh->GetMaterialCount();
+			m_materials.clear();
+			m_materials.resize(m_matCount, Material::GetDefault());
+			m_skinCount = 1;
+		}
+		else
+		{
+			m_matCount = 0;
+			m_materials.clear();
+			m_skinCount = 0;
+		}
+
+		InvalidateBoundingVolume();
+	}
+
+	void Model::SetSkin(unsigned int skin)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (skin >= m_skinCount)
+		{
+			NazaraError("Skin index out of range (" + String::Number(skin) + " >= " + String::Number(m_skinCount) + ')');
+			return;
+		}
+		#endif
+
+		m_skin = skin;
+	}
+
+	void Model::SetSkinCount(unsigned int skinCount)
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (skinCount == 0)
+		{
+			NazaraError("Skin count must be over zero");
+			return;
+		}
+		#endif
+
+		m_materials.resize(m_matCount*skinCount, Material::GetDefault());
+		m_skinCount = skinCount;
+	}
+
+	void Model::MakeBoundingVolume() const
+	{
+		if (m_mesh)
+			m_boundingVolume.Set(m_mesh->GetAABB());
+		else
+			m_boundingVolume.MakeNull();
+	}
+
+	ModelLoader::LoaderList Model::s_loaders;
 }
-
-void NzModel::MakeBoundingVolume() const
-{
-	if (m_mesh)
-		m_boundingVolume.Set(m_mesh->GetAABB());
-	else
-		m_boundingVolume.MakeNull();
-}
-
-NzModelLoader::LoaderList NzModel::s_loaders;

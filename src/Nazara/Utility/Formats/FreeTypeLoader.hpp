@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_FreeType_Register();
-void NzLoaders_FreeType_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterFreeType();
+		void UnregisterFreeType();
+	}
+}
 
 #endif // NAZARA_LOADERS_FREETYPE_HPP

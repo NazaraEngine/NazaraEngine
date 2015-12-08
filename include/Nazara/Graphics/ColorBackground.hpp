@@ -12,32 +12,39 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 
-class NzColorBackground;
-
-using NzColorBackgroundConstRef = NzObjectRef<const NzColorBackground>;
-using NzColorBackgroundRef = NzObjectRef<NzColorBackground>;
-
-class NAZARA_GRAPHICS_API NzColorBackground : public NzAbstractBackground
+namespace Nz
 {
-	public:
-		NzColorBackground(const NzColor& color = NzColor::Black);
+	class ColorBackground;
 
-		void Draw(const NzAbstractViewer* viewer) const;
+	using ColorBackgroundConstRef = ObjectRef<const ColorBackground>;
+	using ColorBackgroundRef = ObjectRef<ColorBackground>;
 
-		nzBackgroundType GetBackgroundType() const;
-		NzColor GetColor() const;
+	class NAZARA_GRAPHICS_API ColorBackground : public AbstractBackground
+	{
+		public:
+			ColorBackground(const Color& color = Color::Black);
+			ColorBackground(const ColorBackground&) = default;
+			ColorBackground(ColorBackground&&) = delete;
 
-		void SetColor(const NzColor& color);
+			void Draw(const AbstractViewer* viewer) const;
 
-		template<typename... Args> static NzColorBackgroundRef New(Args&&... args);
+			BackgroundType GetBackgroundType() const;
+			Color GetColor() const;
 
-	private:
-		NzColor m_color;
-		NzUberShaderConstRef m_uberShader;
-		const NzUberShaderInstance* m_uberShaderInstance;
-		int m_materialDiffuseUniform;
-		int m_vertexDepthUniform;
-};
+			void SetColor(const Color& color);
+
+			ColorBackground& operator=(ColorBackground&&) = delete;
+
+			template<typename... Args> static ColorBackgroundRef New(Args&&... args);
+
+		private:
+			Color m_color;
+			UberShaderConstRef m_uberShader;
+			const UberShaderInstance* m_uberShaderInstance;
+			int m_materialDiffuseUniform;
+			int m_vertexDepthUniform;
+	};
+}
 
 #include <Nazara/Graphics/ColorBackground.inl>
 

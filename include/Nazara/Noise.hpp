@@ -1,4 +1,4 @@
-// This file was automatically generated on 24 Jun 2015 at 13:55:50
+// This file was automatically generated on 17 Nov 2015 at 13:20:45
 
 /*
 	Nazara Engine - Noise module
@@ -37,7 +37,7 @@
 #include <Nazara/Noise/FBM2D.hpp>
 #include <Nazara/Noise/FBM3D.hpp>
 #include <Nazara/Noise/FBM4D.hpp>
-#include <Nazara/Noise/HybridMultifractal2D.hpp>
+#include <Nazara/Noise/HybridMultiFractal2D.hpp>
 #include <Nazara/Noise/HybridMultiFractal3D.hpp>
 #include <Nazara/Noise/HybridMultiFractal4D.hpp>
 #include <Nazara/Noise/MappedNoiseBase.hpp>

@@ -10,13 +10,16 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/UberShaderInstance.hpp>
 
-class NAZARA_RENDERER_API NzUberShaderInstancePreprocessor : public NzUberShaderInstance
+namespace Nz
 {
-	public:
-		NzUberShaderInstancePreprocessor(const NzShader* shader);
-		virtual ~NzUberShaderInstancePreprocessor();
+	class NAZARA_RENDERER_API UberShaderInstancePreprocessor : public UberShaderInstance
+	{
+		public:
+			UberShaderInstancePreprocessor(const Shader* shader);
+			virtual ~UberShaderInstancePreprocessor();
 
-		bool Activate() const;
-};
+			bool Activate() const;
+	};
+}
 
 #endif // NAZARA_UBERSHADERINSTANCEPREPROCESSOR_HPP

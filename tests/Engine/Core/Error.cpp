@@ -3,7 +3,7 @@
 
 SCENARIO("Error", "[CORE][ERROR]")
 {
-	nzUInt32 oldFlags = NzError::GetFlags();
+	Nz::UInt32 oldFlags = Nz::Error::GetFlags();
 
 	GIVEN("Multiple errors")
 	{
@@ -11,18 +11,18 @@ SCENARIO("Error", "[CORE][ERROR]")
 		{
 			THEN("These errors should be written in the log file")
 			{
-				NzError::Error(nzErrorType_Internal, "nzErrorType_Internal");
-				NzError::Error(nzErrorType_Internal, "nzErrorType_Internal", 2, "Error.cpp", "2nd place Internal");
-				REQUIRE("nzErrorType_Internal" == NzError::GetLastError());
-				NzError::Error(nzErrorType_Normal, "nzErrorType_Normal");
-				NzError::Error(nzErrorType_Normal, "nzErrorType_Normal", 2, "Error.cpp", "2nd place Normal");
-				REQUIRE("nzErrorType_Normal" == NzError::GetLastError());
-				NzError::Error(nzErrorType_Warning, "nzErrorType_Warning");
-				NzError::Error(nzErrorType_Warning, "nzErrorType_Warning", 2, "Error.cpp", "2nd place Warning");
-				REQUIRE("nzErrorType_Warning" == NzError::GetLastError());
+				Nz::Error::Trigger(Nz::ErrorType_Internal, "ErrorType_Internal");
+				Nz::Error::Trigger(Nz::ErrorType_Internal, "ErrorType_Internal", 2, "Error.cpp", "2nd place Internal");
+				REQUIRE("ErrorType_Internal" == Nz::Error::GetLastError());
+				Nz::Error::Trigger(Nz::ErrorType_Normal, "ErrorType_Normal");
+				Nz::Error::Trigger(Nz::ErrorType_Normal, "ErrorType_Normal", 2, "Error.cpp", "2nd place Normal");
+				REQUIRE("ErrorType_Normal" == Nz::Error::GetLastError());
+				Nz::Error::Trigger(Nz::ErrorType_Warning, "ErrorType_Warning");
+				Nz::Error::Trigger(Nz::ErrorType_Warning, "ErrorType_Warning", 2, "Error.cpp", "2nd place Warning");
+				REQUIRE("ErrorType_Warning" == Nz::Error::GetLastError());
 			}
 		}
 	}
 
-	NzError::SetFlags(oldFlags);
+	Nz::Error::SetFlags(oldFlags);
 }

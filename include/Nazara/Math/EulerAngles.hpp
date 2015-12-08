@@ -11,55 +11,60 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-template<typename T> class NzEulerAngles
+namespace Nz
 {
-	public:
-		NzEulerAngles() = default;
-		NzEulerAngles(T P, T Y, T R);
-		NzEulerAngles(const T angles[3]);
-		//NzEulerAngles(const NzMatrix3<T>& mat);
-		NzEulerAngles(const NzQuaternion<T>& quat);
-		template<typename U> explicit NzEulerAngles(const NzEulerAngles<U>& angles);
-		NzEulerAngles(const NzEulerAngles& angles) = default;
-		~NzEulerAngles() = default;
+	template<typename T>
+	class EulerAngles
+	{
+		public:
+			EulerAngles() = default;
+			EulerAngles(T P, T Y, T R);
+			EulerAngles(const T angles[3]);
+			//EulerAngles(const Matrix3<T>& mat);
+			EulerAngles(const Quaternion<T>& quat);
+			template<typename U> explicit EulerAngles(const EulerAngles<U>& angles);
+			EulerAngles(const EulerAngles& angles) = default;
+			~EulerAngles() = default;
 
-		void MakeZero();
+			void MakeZero();
 
-		void Normalize();
+			void Normalize();
 
-		void Set(T P, T Y, T R);
-		void Set(const T angles[3]);
-		void Set(const NzEulerAngles<T>& angles);
-		//void Set(const NzMatrix3<T>& mat);
-		void Set(const NzQuaternion<T>& quat);
-		template<typename U> void Set(const NzEulerAngles<U>& angles);
+			void Set(T P, T Y, T R);
+			void Set(const T angles[3]);
+			void Set(const EulerAngles<T>& angles);
+			//void Set(const Matrix3<T>& mat);
+			void Set(const Quaternion<T>& quat);
+			template<typename U> void Set(const EulerAngles<U>& angles);
 
-		//NzMatrix3<T> ToRotationMatrix() const;
-		NzQuaternion<T> ToQuaternion() const;
-		NzString ToString() const;
+			//Matrix3<T> ToRotationMatrix() const;
+			Quaternion<T> ToQuaternion() const;
+			String ToString() const;
 
-		NzEulerAngles operator+(const NzEulerAngles& angles) const;
-		NzEulerAngles operator-(const NzEulerAngles& angles) const;
-		/*NzEulerAngles operator*(const NzEulerAngles& angles) const;
-		NzEulerAngles operator/(const NzEulerAngles& angles) const;*/
+			EulerAngles operator+(const EulerAngles& angles) const;
+			EulerAngles operator-(const EulerAngles& angles) const;
+			/*EulerAngles operator*(const EulerAngles& angles) const;
+			EulerAngles operator/(const EulerAngles& angles) const;*/
 
-		NzEulerAngles& operator+=(const NzEulerAngles& angles);
-		NzEulerAngles& operator-=(const NzEulerAngles& angles);
-		/*NzEulerAngles operator*=(const NzEulerAngles& angles);
-		NzEulerAngles operator/=(const NzEulerAngles& angles);*/
+			EulerAngles& operator+=(const EulerAngles& angles);
+			EulerAngles& operator-=(const EulerAngles& angles);
+			/*EulerAngles operator*=(const EulerAngles& angles);
+			EulerAngles operator/=(const EulerAngles& angles);*/
 
-		bool operator==(const NzEulerAngles& angles) const;
-		bool operator!=(const NzEulerAngles& angles) const;
+			bool operator==(const EulerAngles& angles) const;
+			bool operator!=(const EulerAngles& angles) const;
 
-		static NzEulerAngles Zero();
+			static EulerAngles Zero();
 
-		T pitch, yaw, roll;
-};
+			T pitch, yaw, roll;
+	};
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const NzEulerAngles<T>& angles);
+	typedef EulerAngles<double> EulerAnglesd;
+	typedef EulerAngles<float> EulerAnglesf;
+}
 
-typedef NzEulerAngles<double> NzEulerAnglesd;
-typedef NzEulerAngles<float> NzEulerAnglesf;
+template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);
+
 
 #include <Nazara/Math/EulerAngles.inl>
 

@@ -15,64 +15,67 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NzVertexDeclaration;
-
-using NzVertexDeclarationConstRef = NzObjectRef<const NzVertexDeclaration>;
-using NzVertexDeclarationLibrary = NzObjectLibrary<NzVertexDeclaration>;
-using NzVertexDeclarationRef = NzObjectRef<NzVertexDeclaration>;
-
-class NAZARA_UTILITY_API NzVertexDeclaration : public NzRefCounted
+namespace Nz
 {
-	friend NzVertexDeclarationLibrary;
-	friend class NzUtility;
+	class VertexDeclaration;
 
-	public:
-		NzVertexDeclaration();
-		NzVertexDeclaration(const NzVertexDeclaration& declaration);
-		~NzVertexDeclaration();
+	using VertexDeclarationConstRef = ObjectRef<const VertexDeclaration>;
+	using VertexDeclarationLibrary = ObjectLibrary<VertexDeclaration>;
+	using VertexDeclarationRef = ObjectRef<VertexDeclaration>;
 
-		void DisableComponent(nzVertexComponent component);
-		void EnableComponent(nzVertexComponent component, nzComponentType type, unsigned int offset);
+	class NAZARA_UTILITY_API VertexDeclaration : public RefCounted
+	{
+		friend VertexDeclarationLibrary;
+		friend class Utility;
 
-		void GetComponent(nzVertexComponent component, bool* enabled, nzComponentType* type, unsigned int* offset) const;
-		unsigned int GetStride() const;
+		public:
+			VertexDeclaration();
+			VertexDeclaration(const VertexDeclaration& declaration);
+			~VertexDeclaration();
 
-		void SetStride(unsigned int stride);
+			void DisableComponent(VertexComponent component);
+			void EnableComponent(VertexComponent component, ComponentType type, std::size_t offset);
 
-		NzVertexDeclaration& operator=(const NzVertexDeclaration& declaration);
+			void GetComponent(VertexComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			std::size_t GetStride() const;
 
-		static NzVertexDeclaration* Get(nzVertexLayout layout);
-		static bool IsTypeSupported(nzComponentType type);
-		template<typename... Args> static NzVertexDeclarationRef New(Args&&... args);
+			void SetStride(std::size_t stride);
 
-		// Signals:
-		NazaraSignal(OnVertexDeclarationRelease, const NzVertexDeclaration* /*vertexDeclaration*/);
+			VertexDeclaration& operator=(const VertexDeclaration& declaration);
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			static VertexDeclaration* Get(VertexLayout layout);
+			static bool IsTypeSupported(ComponentType type);
+			template<typename... Args> static VertexDeclarationRef New(Args&&... args);
 
-		struct Component
-		{
-			nzComponentType type; // Le type de donnée
-			bool enabled = false; // Ce composant est-il activé ?/
-			unsigned int offset;  // La position, en octets, de la première donnée
+			// Signals:
+			NazaraSignal(OnVertexDeclarationRelease, const VertexDeclaration* /*vertexDeclaration*/);
 
-			/*
-			** -Lynix:
-			** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
-			** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
-			** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
-			** PS: Même cas pour le diviseur (instancing)
-			*/
-		};
+		private:
+			static bool Initialize();
+			static void Uninitialize();
 
-		Component m_components[nzVertexComponent_Max+1];
-		unsigned int m_stride;
+			struct Component
+			{
+				ComponentType type; // Le type de donnée
+				bool enabled = false; // Ce composant est-il activé ?/
+				std::size_t offset;  // La position, en octets, de la première donnée
 
-		static NzVertexDeclaration s_declarations[nzVertexLayout_Max+1];
-		static NzVertexDeclarationLibrary::LibraryMap s_library;
-};
+				/*
+				** -Lynix:
+				** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
+				** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
+				** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
+				** PS: Même cas pour le diviseur (instancing)
+				*/
+			};
+
+			Component m_components[VertexComponent_Max+1];
+			std::size_t m_stride;
+
+			static VertexDeclaration s_declarations[VertexLayout_Max+1];
+			static VertexDeclarationLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Utility/VertexDeclaration.hpp>
 

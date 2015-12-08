@@ -5,4 +5,7 @@
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
-NzAbstractBuffer::~NzAbstractBuffer() = default;
+namespace Nz
+{
+	AbstractBuffer::~AbstractBuffer() = default;
+}

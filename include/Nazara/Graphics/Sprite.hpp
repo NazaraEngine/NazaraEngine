@@ -13,53 +13,58 @@
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
 
-class NzSprite;
-
-using NzSpriteConstRef = NzObjectRef<const NzSprite>;
-using NzSpriteLibrary = NzObjectLibrary<NzSprite>;
-using NzSpriteRef = NzObjectRef<NzSprite>;
-
-class NAZARA_GRAPHICS_API NzSprite : public NzInstancedRenderable
+namespace Nz
 {
-	public:
-		inline NzSprite();
-		inline NzSprite(NzMaterialRef material);
-		inline NzSprite(NzTexture* texture);
-		inline NzSprite(const NzSprite& sprite);
-		~NzSprite() = default;
+	class Sprite;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+	using SpriteConstRef = ObjectRef<const Sprite>;
+	using SpriteLibrary = ObjectLibrary<Sprite>;
+	using SpriteRef = ObjectRef<Sprite>;
 
-		inline const NzColor& GetColor() const;
-		inline const NzMaterialRef& GetMaterial() const;
-		inline const NzVector2f& GetSize() const;
-		inline const NzRectf& GetTextureCoords() const;
+	class NAZARA_GRAPHICS_API Sprite : public InstancedRenderable
+	{
+		public:
+			inline Sprite();
+			inline Sprite(MaterialRef material);
+			inline Sprite(Texture* texture);
+			inline Sprite(const Sprite& sprite);
+			Sprite(Sprite&&) = delete;
+			~Sprite() = default;
 
-		inline void SetColor(const NzColor& color);
-		inline void SetDefaultMaterial();
-		inline void SetMaterial(NzMaterialRef material, bool resizeSprite = true);
-		inline void SetSize(const NzVector2f& size);
-		inline void SetSize(float sizeX, float sizeY);
-		inline void SetTexture(NzTextureRef texture, bool resizeSprite = true);
-		inline void SetTextureCoords(const NzRectf& coords);
-		inline void SetTextureRect(const NzRectui& rect);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		inline NzSprite& operator=(const NzSprite& sprite);
+			inline const Color& GetColor() const;
+			inline const MaterialRef& GetMaterial() const;
+			inline const Vector2f& GetSize() const;
+			inline const Rectf& GetTextureCoords() const;
 
-		template<typename... Args> static NzSpriteRef New(Args&&... args);
+			inline void SetColor(const Color& color);
+			inline void SetDefaultMaterial();
+			inline void SetMaterial(MaterialRef material, bool resizeSprite = true);
+			inline void SetSize(const Vector2f& size);
+			inline void SetSize(float sizeX, float sizeY);
+			inline void SetTexture(TextureRef texture, bool resizeSprite = true);
+			inline void SetTextureCoords(const Rectf& coords);
+			inline void SetTextureRect(const Rectui& rect);
 
-	private:
-		inline void InvalidateVertices();
-		void MakeBoundingVolume() const override;
-		void UpdateData(InstanceData* instanceData) const override;
+			inline Sprite& operator=(const Sprite& sprite);
+			Sprite& operator=(Sprite&& sprite) = delete;
 
-		NzColor m_color;
-		NzMaterialRef m_material;
-		NzRectf m_textureCoords;
-		NzVector2f m_size;
+			template<typename... Args> static SpriteRef New(Args&&... args);
 
-		static NzSpriteLibrary::LibraryMap s_library;
-};
+		private:
+			inline void InvalidateVertices();
+			void MakeBoundingVolume() const override;
+			void UpdateData(InstanceData* instanceData) const override;
+
+			Color m_color;
+			MaterialRef m_material;
+			Rectf m_textureCoords;
+			Vector2f m_size;
+
+			static SpriteLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Graphics/Sprite.inl>
 

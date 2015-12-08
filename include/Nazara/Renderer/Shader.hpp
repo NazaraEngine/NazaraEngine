@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -23,104 +22,112 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NzShader;
-class NzShaderStage;
-
-using NzShaderConstRef = NzObjectRef<const NzShader>;
-using NzShaderLibrary = NzObjectLibrary<NzShader>;
-using NzShaderRef = NzObjectRef<NzShader>;
-
-class NAZARA_RENDERER_API NzShader : public NzRefCounted, NzNonCopyable
+namespace Nz
 {
-	friend NzShaderLibrary;
-	friend class NzRenderer;
+	class Shader;
+	class ShaderStage;
 
-	public:
-		NzShader();
-		~NzShader();
+	using ShaderConstRef = ObjectRef<const Shader>;
+	using ShaderLibrary = ObjectLibrary<Shader>;
+	using ShaderRef = ObjectRef<Shader>;
 
-		void AttachStage(nzShaderStage stage, const NzShaderStage& shaderStage);
-		bool AttachStageFromFile(nzShaderStage stage, const NzString& filePath);
-		bool AttachStageFromSource(nzShaderStage stage, const char* source, unsigned int length);
-		bool AttachStageFromSource(nzShaderStage stage, const NzString& source);
+	class NAZARA_RENDERER_API Shader : public RefCounted
+	{
+		friend ShaderLibrary;
+		friend class Renderer;
 
-		void Bind() const;
+		public:
+			Shader();
+			Shader(const Shader&) = delete;
+			Shader(Shader&&) = delete;
+			~Shader();
 
-		bool Create();
-		void Destroy();
+			void AttachStage(ShaderStageType stage, const ShaderStage& shaderStage);
+			bool AttachStageFromFile(ShaderStageType stage, const String& filePath);
+			bool AttachStageFromSource(ShaderStageType stage, const char* source, unsigned int length);
+			bool AttachStageFromSource(ShaderStageType stage, const String& source);
 
-		NzByteArray GetBinary() const;
-		NzString GetLog() const;
-		NzString GetSourceCode(nzShaderStage stage) const;
-		int GetUniformLocation(const NzString& name) const;
-		int GetUniformLocation(nzShaderUniform shaderUniform) const;
+			void Bind() const;
 
-		bool HasStage(nzShaderStage stage) const;
+			bool Create();
+			void Destroy();
 
-		bool IsBinaryRetrievable() const;
-		bool IsLinked() const;
-		bool IsValid() const;
+			ByteArray GetBinary() const;
+			String GetLog() const;
+			String GetSourceCode(ShaderStageType stage) const;
+			int GetUniformLocation(const String& name) const;
+			int GetUniformLocation(ShaderUniform shaderUniform) const;
 
-		bool Link();
+			bool HasStage(ShaderStageType stage) const;
 
-		bool LoadFromBinary(const void* buffer, unsigned int size);
-		bool LoadFromBinary(const NzByteArray& byteArray);
+			bool IsBinaryRetrievable() const;
+			bool IsLinked() const;
+			bool IsValid() const;
 
-		void SendBoolean(int location, bool value) const;
-		void SendColor(int location, const NzColor& color) const;
-		void SendDouble(int location, double value) const;
-		void SendDoubleArray(int location, const double* values, unsigned int count) const;
-		void SendFloat(int location, float value) const;
-		void SendFloatArray(int location, const float* values, unsigned int count) const;
-		void SendInteger(int location, int value) const;
-		void SendIntegerArray(int location, const int* values, unsigned int count) const;
-		void SendMatrix(int location, const NzMatrix4d& matrix) const;
-		void SendMatrix(int location, const NzMatrix4f& matrix) const;
-		void SendVector(int location, const NzVector2d& vector) const;
-		void SendVector(int location, const NzVector2f& vector) const;
-		void SendVector(int location, const NzVector2i& vector) const;
-		void SendVector(int location, const NzVector3d& vector) const;
-		void SendVector(int location, const NzVector3f& vector) const;
-		void SendVector(int location, const NzVector3i& vector) const;
-		void SendVector(int location, const NzVector4d& vector) const;
-		void SendVector(int location, const NzVector4f& vector) const;
-		void SendVector(int location, const NzVector4i& vector) const;
-		void SendVectorArray(int location, const NzVector2d* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector2f* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector2i* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector3d* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector3f* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector3i* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector4d* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector4f* vectors, unsigned int count) const;
-		void SendVectorArray(int location, const NzVector4i* vectors, unsigned int count) const;
+			bool Link();
 
-		bool Validate() const;
+			bool LoadFromBinary(const void* buffer, unsigned int size);
+			bool LoadFromBinary(const ByteArray& byteArray);
 
-		// Fonctions OpenGL
-		unsigned int GetOpenGLID() const;
+			void SendBoolean(int location, bool value) const;
+			void SendColor(int location, const Color& color) const;
+			void SendDouble(int location, double value) const;
+			void SendDoubleArray(int location, const double* values, unsigned int count) const;
+			void SendFloat(int location, float value) const;
+			void SendFloatArray(int location, const float* values, unsigned int count) const;
+			void SendInteger(int location, int value) const;
+			void SendIntegerArray(int location, const int* values, unsigned int count) const;
+			void SendMatrix(int location, const Matrix4d& matrix) const;
+			void SendMatrix(int location, const Matrix4f& matrix) const;
+			void SendVector(int location, const Vector2d& vector) const;
+			void SendVector(int location, const Vector2f& vector) const;
+			void SendVector(int location, const Vector2i& vector) const;
+			void SendVector(int location, const Vector3d& vector) const;
+			void SendVector(int location, const Vector3f& vector) const;
+			void SendVector(int location, const Vector3i& vector) const;
+			void SendVector(int location, const Vector4d& vector) const;
+			void SendVector(int location, const Vector4f& vector) const;
+			void SendVector(int location, const Vector4i& vector) const;
+			void SendVectorArray(int location, const Vector2d* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector2f* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector2i* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector3d* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector3f* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector3i* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector4d* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector4f* vectors, unsigned int count) const;
+			void SendVectorArray(int location, const Vector4i* vectors, unsigned int count) const;
 
-		static bool IsStageSupported(nzShaderStage stage);
-		template<typename... Args> static NzShaderRef New(Args&&... args);
+			bool Validate() const;
 
-		// Signals:
-		NazaraSignal(OnShaderDestroy, const NzShader* /*shader*/);
-		NazaraSignal(OnShaderRelease, const NzShader* /*shader*/);
-		NazaraSignal(OnShaderUniformInvalidated, const NzShader* /*shader*/);
+			// Fonctions OpenGL
+			unsigned int GetOpenGLID() const;
 
-	private:
-		bool PostLinkage();
+			Shader& operator=(const Shader&) = delete;
+			Shader& operator=(Shader&&) = delete;
 
-		static bool Initialize();
-		static void Uninitialize();
+			static bool IsStageSupported(ShaderStageType stage);
+			template<typename... Args> static ShaderRef New(Args&&... args);
 
-		std::vector<unsigned int> m_attachedShaders[nzShaderStage_Max+1];
-		bool m_linked;
-		int m_uniformLocations[nzShaderUniform_Max+1];
-		unsigned int m_program;
+			// Signals:
+			NazaraSignal(OnShaderDestroy, const Shader* /*shader*/);
+			NazaraSignal(OnShaderRelease, const Shader* /*shader*/);
+			NazaraSignal(OnShaderUniformInvalidated, const Shader* /*shader*/);
 
-		static NzShaderLibrary::LibraryMap s_library;
-};
+		private:
+			bool PostLinkage();
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			std::vector<unsigned int> m_attachedShaders[ShaderStageType_Max+1];
+			bool m_linked;
+			int m_uniformLocations[ShaderUniform_Max+1];
+			unsigned int m_program;
+
+			static ShaderLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Renderer/Shader.inl>
 

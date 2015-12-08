@@ -13,10 +13,10 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable);
+			Attach(r.renderable, r.data.renderOrder);
 	}
 
-	inline void GraphicsComponent::AddToRenderQueue(NzAbstractRenderQueue* renderQueue) const
+	inline void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
 	{
 		EnsureTransformMatrixUpdate();
 
@@ -32,10 +32,11 @@ namespace Ndk
 		}
 	}
 
-	inline void GraphicsComponent::Attach(NzInstancedRenderableRef renderable)
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
 	{
 		m_renderables.emplace_back(m_transformMatrix);
 		Renderable& r = m_renderables.back();
+		r.data.renderOrder = renderOrder;
 		r.renderable = std::move(renderable);
 		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size()-1));
 	}

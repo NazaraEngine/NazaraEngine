@@ -5,31 +5,34 @@
 #include <Nazara/Core/Posix/MutexImpl.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-NzMutexImpl::NzMutexImpl()
+namespace Nz
 {
-	pthread_mutexattr_t attr;
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	MutexImpl::MutexImpl()
+	{
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 
-	pthread_mutex_init(&m_handle, &attr);
-}
+		pthread_mutex_init(&m_handle, &attr);
+	}
 
-NzMutexImpl::~NzMutexImpl()
-{
-	pthread_mutex_destroy(&m_handle);
-}
+	MutexImpl::~MutexImpl()
+	{
+		pthread_mutex_destroy(&m_handle);
+	}
 
-void NzMutexImpl::Lock()
-{
-	pthread_mutex_lock(&m_handle);
-}
+	void MutexImpl::Lock()
+	{
+		pthread_mutex_lock(&m_handle);
+	}
 
-bool NzMutexImpl::TryLock()
-{
-	return pthread_mutex_trylock(&m_handle) == 0;
-}
+	bool MutexImpl::TryLock()
+	{
+		return pthread_mutex_trylock(&m_handle) == 0;
+	}
 
-void NzMutexImpl::Unlock()
-{
-	pthread_mutex_unlock(&m_handle);
+	void MutexImpl::Unlock()
+	{
+		pthread_mutex_unlock(&m_handle);
+	}
 }

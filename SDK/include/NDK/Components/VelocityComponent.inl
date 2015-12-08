@@ -7,12 +7,12 @@
 
 namespace Ndk
 {
-	inline VelocityComponent::VelocityComponent(const NzVector3f& velocity) :
+	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity) :
 	linearVelocity(velocity)
 	{
 	}
 
-	inline VelocityComponent& VelocityComponent::operator=(const NzVector3f& vel)
+	inline VelocityComponent& VelocityComponent::operator=(const Nz::Vector3f& vel)
 	{
 		linearVelocity = vel;
 		return *this;

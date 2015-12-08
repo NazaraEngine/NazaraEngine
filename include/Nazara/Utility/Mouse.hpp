@@ -13,32 +13,35 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 
-class NzWindow;
-
-class NAZARA_UTILITY_API NzMouse
+namespace Nz
 {
-	public:
-		enum Button
-		{
-			Left,
-			Middle,
-			Right,
-			XButton1,
-			XButton2,
+	class Window;
 
-			Max = XButton2
-		};
+	class NAZARA_UTILITY_API Mouse
+	{
+		public:
+			enum Button
+			{
+				Left,
+				Middle,
+				Right,
+				XButton1,
+				XButton2,
 
-		NzMouse() = delete;
-		~NzMouse() = delete;
+				Max = XButton2
+			};
 
-		static NzVector2i GetPosition();
-		static NzVector2i GetPosition(const NzWindow& relativeTo);
-		static bool IsButtonPressed(Button button);
-		static void SetPosition(const NzVector2i& position);
-		static void SetPosition(const NzVector2i& position, const NzWindow& relativeTo, bool ignoreEvent = true);
-		static void SetPosition(int x, int y);
-		static void SetPosition(int x, int y, const NzWindow& relativeTo, bool ignoreEvent = true);
-};
+			Mouse() = delete;
+			~Mouse() = delete;
+
+			static Vector2i GetPosition();
+			static Vector2i GetPosition(const Window& relativeTo);
+			static bool IsButtonPressed(Button button);
+			static void SetPosition(const Vector2i& position);
+			static void SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent = true);
+			static void SetPosition(int x, int y);
+			static void SetPosition(int x, int y, const Window& relativeTo, bool ignoreEvent = true);
+	};
+}
 
 #endif // NAZARA_MOUSE_HPP

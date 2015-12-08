@@ -6,6 +6,8 @@ function NazaraBuild:Execute()
 	end
 
 	if (self.Actions[_ACTION] == nil) then
+		local makeLibDir = os.is("windows") and "mingw" or "gmake"
+	
 		if (#self.OrderedExtLibs > 0) then
 			solution("NazaraExtlibs")
 			platforms({"x32", "x64"})
@@ -28,12 +30,12 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/common/x64")
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/mingw/x86")
-				targetdir("../extlibs/lib/mingw/x86")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
+				targetdir("../extlibs/lib/" .. makeLibDir .. "/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/mingw/x64")
-				targetdir("../extlibs/lib/mingw/x64")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
+				targetdir("../extlibs/lib/" .. makeLibDir .. "/x64")
 
 			configuration("vs*")
 				buildoptions("/MP")
@@ -71,7 +73,7 @@ function NazaraBuild:Execute()
 				targetsuffix("-s")
 
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions("-std=c++14")
+				buildoptions({"-fPIC", "-std=c++14"})
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -171,14 +173,14 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/common/x64")
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/mingw/x86")
-				libdirs("../lib/mingw/x86")
-				targetdir("../lib/mingw/x86")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
+				targetdir("../lib/" .. makeLibDir .. "/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/mingw/x64")
-				libdirs("../lib/mingw/x64")
-				targetdir("../lib/mingw/x64")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
+				libdirs("../lib/" .. makeLibDir .. "/x64")
+				targetdir("../lib/" .. makeLibDir .. "/x64")
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
@@ -268,17 +270,17 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/common/x64")
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/mingw/x86")
-				libdirs("../lib/mingw/x86")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/mingw/x86")
+					targetdir("../lib/" .. makeLibDir .. "/x86")
 				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/mingw/x64")
-				libdirs("../lib/mingw/x64")
+				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
+				libdirs("../lib/" .. makeLibDir .. "/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/mingw/x64")
+					targetdir("../lib/" .. makeLibDir .. "/x64")
 				end
 
 			configuration({"vs*", "x32"})
@@ -379,10 +381,10 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/common/x64")
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../lib/mingw/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../lib/mingw/x64")
+				libdirs("../lib/" .. makeLibDir .. "/x64")
 
 			configuration({"vs*", "x32"})
 				libdirs("../lib/msvc/x86")

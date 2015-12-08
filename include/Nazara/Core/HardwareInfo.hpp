@@ -11,25 +11,31 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
-class NAZARA_CORE_API NzHardwareInfo
+namespace Nz
 {
-	public:
-		static void Cpuid(nzUInt32 functionId, nzUInt32 subFunctionId, nzUInt32 result[4]);
+	class NAZARA_CORE_API HardwareInfo
+	{
+		public:
+			HardwareInfo() = delete;
+			~HardwareInfo() = delete;
 
-		static NzString GetProcessorBrandString();
-		static unsigned int GetProcessorCount();
-		static nzProcessorVendor GetProcessorVendor();
-		static NzString GetProcessorVendorName();
-		static nzUInt64 GetTotalMemory();
+			static void Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4]);
 
-		static bool HasCapability(nzProcessorCap capability);
+			static String GetProcessorBrandString();
+			static unsigned int GetProcessorCount();
+			static ProcessorVendor GetProcessorVendor();
+			static String GetProcessorVendorName();
+			static UInt64 GetTotalMemory();
 
-		static bool Initialize();
+			static bool HasCapability(ProcessorCap capability);
 
-		static bool IsCpuidSupported();
-		static bool IsInitialized();
+			static bool Initialize();
 
-		static void Uninitialize();
-};
+			static bool IsCpuidSupported();
+			static bool IsInitialized();
+
+			static void Uninitialize();
+	};
+}
 
 #endif // NAZARA_HARDWAREINFO_HPP

@@ -4,29 +4,32 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_HPP
-#define NAZARA_ENUMS_HPP
+#ifndef NAZARA_ENUMS_AUDIO_HPP
+#define NAZARA_ENUMS_AUDIO_HPP
 
-enum nzAudioFormat
+namespace Nz
 {
-	nzAudioFormat_Unknown = -1,
+	enum AudioFormat
+	{
+		AudioFormat_Unknown = -1,
 
-	// La valeur entière est le nombre de canaux possédés par ce format
-	nzAudioFormat_Mono   = 1,
-	nzAudioFormat_Stereo = 2,
-	nzAudioFormat_Quad   = 4,
-	nzAudioFormat_5_1    = 6,
-	nzAudioFormat_6_1    = 7,
-	nzAudioFormat_7_1    = 8,
+		// La valeur entière est le nombre de canaux possédés par ce format
+		AudioFormat_Mono   = 1,
+		AudioFormat_Stereo = 2,
+		AudioFormat_Quad   = 4,
+		AudioFormat_5_1    = 6,
+		AudioFormat_6_1    = 7,
+		AudioFormat_7_1    = 8,
 
-	nzAudioFormat_Max = nzAudioFormat_7_1
-};
+		AudioFormat_Max = AudioFormat_7_1
+	};
 
-enum nzSoundStatus
-{
-	nzSoundStatus_Playing,
-	nzSoundStatus_Paused,
-	nzSoundStatus_Stopped
-};
+	enum SoundStatus
+	{
+		SoundStatus_Playing,
+		SoundStatus_Paused,
+		SoundStatus_Stopped
+	};
+}
 
-#endif // NAZARA_ENUMS_HPP
+#endif // NAZARA_ENUMS_AUDIO_HPP

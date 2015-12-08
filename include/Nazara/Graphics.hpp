@@ -1,4 +1,4 @@
-// This file was automatically generated on 24 Jun 2015 at 13:55:50
+// This file was automatically generated on 17 Nov 2015 at 13:20:45
 
 /*
 	Nazara Engine - Graphics module
@@ -33,6 +33,7 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>

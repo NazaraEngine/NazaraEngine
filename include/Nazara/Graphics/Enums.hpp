@@ -7,137 +7,140 @@
 #ifndef NAZARA_ENUMS_GRAPHICS_HPP
 #define NAZARA_ENUMS_GRAPHICS_HPP
 
-enum nzBackgroundType
+namespace Nz
 {
-	nzBackgroundType_Color,   // NzColorBackground
-	nzBackgroundType_Skybox,  // NzSkyboxBackground
-	nzBackgroundType_Texture, // NzTextureBackground
-	nzBackgroundType_User,
+	enum BackgroundType
+	{
+		BackgroundType_Color,   // ColorBackground
+		BackgroundType_Skybox,  // SkyboxBackground
+		BackgroundType_Texture, // TextureBackground
+		BackgroundType_User,
 
-	nzBackgroundType_Max = nzBackgroundType_User
-};
+		BackgroundType_Max = BackgroundType_User
+	};
 
-enum nzProjectionType
-{
-	nzProjectionType_Orthogonal,
-	nzProjectionType_Perspective,
+	enum ProjectionType
+	{
+		ProjectionType_Orthogonal,
+		ProjectionType_Perspective,
 
-	nzProjectionType_Max = nzProjectionType_Perspective
-};
+		ProjectionType_Max = ProjectionType_Perspective
+	};
 
-enum nzLightType
-{
-	nzLightType_Directional,
-	nzLightType_Point,
-	nzLightType_Spot,
+	enum LightType
+	{
+		LightType_Directional,
+		LightType_Point,
+		LightType_Spot,
 
-	nzLightType_Max = nzLightType_Spot
-};
+		LightType_Max = LightType_Spot
+	};
 
-enum nzMaterialUniform
-{
-	nzMaterialUniform_AlphaMap,
-	nzMaterialUniform_AlphaThreshold,
-	nzMaterialUniform_Ambient,
-	nzMaterialUniform_Diffuse,
-	nzMaterialUniform_DiffuseMap,
-	nzMaterialUniform_EmissiveMap,
-	nzMaterialUniform_HeightMap,
-	nzMaterialUniform_NormalMap,
-	nzMaterialUniform_Shininess,
-	nzMaterialUniform_Specular,
-	nzMaterialUniform_SpecularMap,
+	enum MaterialUniform
+	{
+		MaterialUniform_AlphaMap,
+		MaterialUniform_AlphaThreshold,
+		MaterialUniform_Ambient,
+		MaterialUniform_Diffuse,
+		MaterialUniform_DiffuseMap,
+		MaterialUniform_EmissiveMap,
+		MaterialUniform_HeightMap,
+		MaterialUniform_NormalMap,
+		MaterialUniform_Shininess,
+		MaterialUniform_Specular,
+		MaterialUniform_SpecularMap,
 
-	nzMaterialUniform_Max = nzMaterialUniform_SpecularMap
-};
+		MaterialUniform_Max = MaterialUniform_SpecularMap
+	};
 
-enum nzParticleComponent
-{
-	nzParticleComponent_Unused = -1,
+	enum ParticleComponent
+	{
+		ParticleComponent_Unused = -1,
 
-	nzParticleComponent_Color,
-	nzParticleComponent_Life,
-	nzParticleComponent_Mass,
-	nzParticleComponent_Normal,
-	nzParticleComponent_Position,
-	nzParticleComponent_Radius,
-	nzParticleComponent_Rotation,
-	nzParticleComponent_Size,
-	nzParticleComponent_Velocity,
-	nzParticleComponent_Userdata0,
-	nzParticleComponent_Userdata1,
-	nzParticleComponent_Userdata2,
-	nzParticleComponent_Userdata3,
-	nzParticleComponent_Userdata4,
-	nzParticleComponent_Userdata5,
-	nzParticleComponent_Userdata6,
-	nzParticleComponent_Userdata7,
-	nzParticleComponent_Userdata8,
+		ParticleComponent_Color,
+		ParticleComponent_Life,
+		ParticleComponent_Mass,
+		ParticleComponent_Normal,
+		ParticleComponent_Position,
+		ParticleComponent_Radius,
+		ParticleComponent_Rotation,
+		ParticleComponent_Size,
+		ParticleComponent_Velocity,
+		ParticleComponent_Userdata0,
+		ParticleComponent_Userdata1,
+		ParticleComponent_Userdata2,
+		ParticleComponent_Userdata3,
+		ParticleComponent_Userdata4,
+		ParticleComponent_Userdata5,
+		ParticleComponent_Userdata6,
+		ParticleComponent_Userdata7,
+		ParticleComponent_Userdata8,
 
-	nzParticleComponent_Max = nzParticleComponent_Userdata8
-};
+		ParticleComponent_Max = ParticleComponent_Userdata8
+	};
 
-enum nzParticleLayout
-{
-	nzParticleLayout_Billboard,
-	nzParticleLayout_Model,
-	nzParticleLayout_Sprite,
+	enum ParticleLayout
+	{
+		ParticleLayout_Billboard,
+		ParticleLayout_Model,
+		ParticleLayout_Sprite,
 
-	nzParticleLayout_Max = nzParticleLayout_Sprite
-};
+		ParticleLayout_Max = ParticleLayout_Sprite
+	};
 
-enum nzRenderPassType
-{
-	nzRenderPassType_AA,
-	nzRenderPassType_Bloom,
-	nzRenderPassType_DOF,
-	nzRenderPassType_Final,
-	nzRenderPassType_Fog,
-	nzRenderPassType_Forward,
-	nzRenderPassType_Lighting,
-	nzRenderPassType_Geometry,
-	nzRenderPassType_SSAO,
+	enum RenderPassType
+	{
+		RenderPassType_AA,
+		RenderPassType_Bloom,
+		RenderPassType_DOF,
+		RenderPassType_Final,
+		RenderPassType_Fog,
+		RenderPassType_Forward,
+		RenderPassType_Lighting,
+		RenderPassType_Geometry,
+		RenderPassType_SSAO,
 
-	nzRenderPassType_Max = nzRenderPassType_SSAO
-};
+		RenderPassType_Max = RenderPassType_SSAO
+	};
 
-enum nzRenderTechniqueType
-{
-	nzRenderTechniqueType_AdvancedForward, // NzAdvancedForwardRenderTechnique
-	nzRenderTechniqueType_BasicForward,    // NzBasicForwardRenderTechnique
-	nzRenderTechniqueType_DeferredShading, // NzDeferredRenderTechnique
-	nzRenderTechniqueType_Depth,           // NzDepthRenderTechnique
-	nzRenderTechniqueType_LightPrePass,    // NzLightPrePassRenderTechnique
-	nzRenderTechniqueType_User,
+	enum RenderTechniqueType
+	{
+		RenderTechniqueType_AdvancedForward, // AdvancedForwardRenderTechnique
+		RenderTechniqueType_BasicForward,    // BasicForwardRenderTechnique
+		RenderTechniqueType_DeferredShading, // DeferredRenderTechnique
+		RenderTechniqueType_Depth,           // DepthRenderTechnique
+		RenderTechniqueType_LightPrePass,    // LightPrePassRenderTechnique
+		RenderTechniqueType_User,
 
-	nzRenderTechniqueType_Max = nzRenderTechniqueType_User
-};
+		RenderTechniqueType_Max = RenderTechniqueType_User
+	};
 
-enum nzSceneNodeType
-{
-	nzSceneNodeType_Light,           // NzLight
-	nzSceneNodeType_Model,           // NzModel
-	nzSceneNodeType_ParticleEmitter, // NzParticleEmitter
-	nzSceneNodeType_Root,            // NzSceneRoot
-	nzSceneNodeType_Sprite,          // NzSprite
-	nzSceneNodeType_TextSprite,      // NzTextSprite
-	nzSceneNodeType_User,
+	enum SceneNodeType
+	{
+		SceneNodeType_Light,           // Light
+		SceneNodeType_Model,           // Model
+		SceneNodeType_ParticleEmitter, // ParticleEmitter
+		SceneNodeType_Root,            // SceneRoot
+		SceneNodeType_Sprite,          // Sprite
+		SceneNodeType_TextSprite,      // TextSprite
+		SceneNodeType_User,
 
-	nzSceneNodeType_Max = nzSceneNodeType_User
-};
+		SceneNodeType_Max = SceneNodeType_User
+	};
 
-// Ces paramètres sont indépendants du matériau: ils peuvent être demandés à tout moment
-enum nzShaderFlags
-{
-	nzShaderFlags_None = 0,
+	// Ces paramètres sont indépendants du matériau: ils peuvent être demandés à tout moment
+	enum ShaderFlags
+	{
+		ShaderFlags_None = 0,
 
-	nzShaderFlags_Billboard      = 0x01,
-	nzShaderFlags_Deferred       = 0x02,
-	nzShaderFlags_Instancing     = 0x04,
-	nzShaderFlags_TextureOverlay = 0x08,
-	nzShaderFlags_VertexColor    = 0x10,
+		ShaderFlags_Billboard      = 0x01,
+		ShaderFlags_Deferred       = 0x02,
+		ShaderFlags_Instancing     = 0x04,
+		ShaderFlags_TextureOverlay = 0x08,
+		ShaderFlags_VertexColor    = 0x10,
 
-	nzShaderFlags_Max = nzShaderFlags_VertexColor*2-1
-};
+		ShaderFlags_Max = ShaderFlags_VertexColor*2-1
+	};
+}
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

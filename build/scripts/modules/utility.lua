@@ -20,3 +20,13 @@ MODULE.OsLibraries.Windows = {
 	"gdi32"
 }
 
+MODULE.OsLibraries.Posix = {
+	"X11",
+	"xcb",
+	"xcb-cursor",
+	"xcb-ewmh",
+	"xcb-icccm",
+	"xcb-keysyms",
+	"xcb-randr"
+}
+

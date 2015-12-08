@@ -6,8 +6,8 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 {
 	GIVEN("A clock paused")
 	{
-		nzUInt64 initialTime = 1;
-		NzClock clock(initialTime, true);
+		Nz::UInt64 initialTime = 1;
+		Nz::Clock clock(initialTime, true);
 
 		WHEN("We get time")
 		{
@@ -21,7 +21,7 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 				clock.Unpause();
 				THEN("Time must not be the initialTime")
 				{
-					NzThread::Sleep(1);
+					Nz::Thread::Sleep(1);
 					REQUIRE(clock.GetMicroseconds() != initialTime);
 				}
 			}

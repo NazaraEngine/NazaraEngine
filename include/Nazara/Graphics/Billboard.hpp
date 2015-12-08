@@ -11,51 +11,56 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 
-class NzBillboard;
-
-using NzBillboardConstRef = NzObjectRef<const NzBillboard>;
-using NzBillboardLibrary = NzObjectLibrary<NzBillboard>;
-using NzBillboardRef = NzObjectRef<NzBillboard>;
-
-class NAZARA_GRAPHICS_API NzBillboard : public NzInstancedRenderable
+namespace Nz
 {
-	public:
-		inline NzBillboard();
-		inline NzBillboard(NzMaterialRef material);
-		inline NzBillboard(NzTexture* texture);
-		inline NzBillboard(const NzBillboard& billboard);
-		~NzBillboard() = default;
+	class Billboard;
 
-		void AddToRenderQueue(NzAbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+	using BillboardConstRef = ObjectRef<const Billboard>;
+	using BillboardLibrary = ObjectLibrary<Billboard>;
+	using BillboardRef = ObjectRef<Billboard>;
 
-		inline const NzColor& GetColor() const;
-		inline const NzMaterialRef& GetMaterial() const;
-		inline float GetRotation() const;
-		inline const NzVector2f& GetSize() const;
+	class NAZARA_GRAPHICS_API Billboard : public InstancedRenderable
+	{
+		public:
+			inline Billboard();
+			inline Billboard(MaterialRef material);
+			inline Billboard(Texture* texture);
+			inline Billboard(const Billboard& billboard);
+			Billboard(Billboard&&) = delete;
+			~Billboard() = default;
 
-		inline void SetColor(const NzColor& color);
-		inline void SetDefaultMaterial();
-		inline void SetMaterial(NzMaterialRef material, bool resizeBillboard = true);
-		inline void SetRotation(float rotation);
-		inline void SetSize(const NzVector2f& size);
-		inline void SetSize(float sizeX, float sizeY);
-		inline void SetTexture(NzTextureRef texture, bool resizeBillboard = true);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 
-		inline NzBillboard& operator=(const NzBillboard& billboard);
+			inline const Color& GetColor() const;
+			inline const MaterialRef& GetMaterial() const;
+			inline float GetRotation() const;
+			inline const Vector2f& GetSize() const;
 
-		template<typename... Args> static NzBillboardRef New(Args&&... args);
+			inline void SetColor(const Color& color);
+			inline void SetDefaultMaterial();
+			inline void SetMaterial(MaterialRef material, bool resizeBillboard = true);
+			inline void SetRotation(float rotation);
+			inline void SetSize(const Vector2f& size);
+			inline void SetSize(float sizeX, float sizeY);
+			inline void SetTexture(TextureRef texture, bool resizeBillboard = true);
 
-	private:
-		void MakeBoundingVolume() const override;
+			inline Billboard& operator=(const Billboard& billboard);
+			Billboard& operator=(Billboard&&) = delete;
 
-		NzColor m_color;
-		NzMaterialRef m_material;
-		NzVector2f m_sinCos;
-		NzVector2f m_size;
-		float m_rotation;
+			template<typename... Args> static BillboardRef New(Args&&... args);
 
-		static NzBillboardLibrary::LibraryMap s_library;
-};
+		private:
+			void MakeBoundingVolume() const override;
+
+			Color m_color;
+			MaterialRef m_material;
+			Vector2f m_sinCos;
+			Vector2f m_size;
+			float m_rotation;
+
+			static BillboardLibrary::LibraryMap s_library;
+	};
+}
 
 #include <Nazara/Graphics/Billboard.inl>
 

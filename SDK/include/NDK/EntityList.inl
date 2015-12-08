@@ -44,7 +44,7 @@ namespace Ndk
 		}
 	}
 
-	// Interface STD
+	// Nz::Interface STD
 	inline EntityList::Container::iterator EntityList::begin()
 	{
 		return m_entities.begin();

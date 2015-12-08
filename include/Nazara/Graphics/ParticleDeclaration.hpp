@@ -16,61 +16,64 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
-class NzParticleDeclaration;
-
-using NzParticleDeclarationConstRef = NzObjectRef<const NzParticleDeclaration>;
-using NzParticleDeclarationLibrary = NzObjectLibrary<NzParticleDeclaration>;
-using NzParticleDeclarationRef = NzObjectRef<NzParticleDeclaration>;
-
-class NAZARA_GRAPHICS_API NzParticleDeclaration : public NzRefCounted
+namespace Nz
 {
-	friend NzParticleDeclarationLibrary;
-	friend class NzGraphics;
+	class ParticleDeclaration;
 
-	public:
-		NzParticleDeclaration();
-		NzParticleDeclaration(const NzParticleDeclaration& declaration);
-		~NzParticleDeclaration();
+	using ParticleDeclarationConstRef = ObjectRef<const ParticleDeclaration>;
+	using ParticleDeclarationLibrary = ObjectLibrary<ParticleDeclaration>;
+	using ParticleDeclarationRef = ObjectRef<ParticleDeclaration>;
 
-		void DisableComponent(nzParticleComponent component);
-		void EnableComponent(nzParticleComponent component, nzComponentType type, unsigned int offset);
+	class NAZARA_GRAPHICS_API ParticleDeclaration : public RefCounted
+	{
+		friend ParticleDeclarationLibrary;
+		friend class Graphics;
 
-		void GetComponent(nzParticleComponent component, bool* enabled, nzComponentType* type, unsigned int* offset) const;
-		unsigned int GetStride() const;
+		public:
+			ParticleDeclaration();
+			ParticleDeclaration(const ParticleDeclaration& declaration);
+			~ParticleDeclaration();
 
-		void SetStride(unsigned int stride);
+			void DisableComponent(ParticleComponent component);
+			void EnableComponent(ParticleComponent component, ComponentType type, unsigned int offset);
 
-		NzParticleDeclaration& operator=(const NzParticleDeclaration& declaration);
+			void GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const;
+			unsigned int GetStride() const;
 
-		static NzParticleDeclaration* Get(nzParticleLayout layout);
-		static bool IsTypeSupported(nzComponentType type);
+			void SetStride(unsigned int stride);
 
-		// Signals:
-		NazaraSignal(OnParticleDeclarationRelease, const NzParticleDeclaration* /*particleDeclaration*/);
+			ParticleDeclaration& operator=(const ParticleDeclaration& declaration);
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			static ParticleDeclaration* Get(ParticleLayout layout);
+			static bool IsTypeSupported(ComponentType type);
 
-		struct Component
-		{
-			nzComponentType type;
-			bool enabled = false;
-			unsigned int offset;
+			// Signals:
+			NazaraSignal(OnParticleDeclarationRelease, const ParticleDeclaration* /*particleDeclaration*/);
 
-			/*
-			** -Lynix:
-			** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
-			** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
-			** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
-			*/
-		};
+		private:
+			static bool Initialize();
+			static void Uninitialize();
 
-		Component m_components[nzParticleComponent_Max+1];
-		unsigned int m_stride;
+			struct Component
+			{
+				ComponentType type;
+				bool enabled = false;
+				unsigned int offset;
 
-		static NzParticleDeclaration s_declarations[nzParticleLayout_Max+1];
-		static NzParticleDeclarationLibrary::LibraryMap s_library;
-};
+				/*
+				** -Lynix:
+				** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
+				** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
+				** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
+				*/
+			};
+
+			Component m_components[ParticleComponent_Max+1];
+			unsigned int m_stride;
+
+			static ParticleDeclaration s_declarations[ParticleLayout_Max+1];
+			static ParticleDeclarationLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_PARTICLEDECLARATION_HPP

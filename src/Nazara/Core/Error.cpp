@@ -16,112 +16,115 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-void NzError::Error(nzErrorType type, const NzString& error)
+namespace Nz
 {
-	if (type == nzErrorType_AssertFailed || (s_flags & nzErrorFlag_Silent) == 0 || (s_flags & nzErrorFlag_SilentDisabled) != 0)
-		NazaraLog->WriteError(type, error);
+	UInt32 Error::GetFlags()
+	{
+		return s_flags;
+	}
 
-	s_lastError = error;
-	s_lastErrorFile = "";
-	s_lastErrorFunction = "";
-	s_lastErrorLine = 0;
+	String Error::GetLastError(const char** file, unsigned int* line, const char** function)
+	{
+		if (file)
+			*file = s_lastErrorFile;
 
-	#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-	if (type == nzErrorType_AssertFailed)
-		std::abort();
-	#endif
+		if (line)
+			*line = s_lastErrorLine;
 
-	if (type == nzErrorType_AssertFailed || (type != nzErrorType_Warning &&
-	    (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0))
-		throw std::runtime_error(error);
+		if (function)
+			*function = s_lastErrorFunction;
+
+		return s_lastError;
+	}
+
+	unsigned int Error::GetLastSystemErrorCode()
+	{
+		#if defined(NAZARA_PLATFORM_WINDOWS)
+		return ::GetLastError();
+		#elif defined(NAZARA_PLATFORM_POSIX)
+		return errno;
+		#else
+			#error GetLastSystemErrorCode is not implemented on this platform
+		return 0;
+		#endif
+	}
+
+	String Error::GetLastSystemError(unsigned int code)
+	{
+		#if defined(NAZARA_PLATFORM_WINDOWS)
+		wchar_t* buffer = nullptr;
+
+		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+					  nullptr,
+					  code,
+					  0,
+					  reinterpret_cast<LPWSTR>(&buffer),
+					  0,
+					  nullptr);
+
+		String error(String::Unicode(buffer));
+		LocalFree(buffer);
+
+		error.Trim(); // Pour une raison inconnue, Windows met deux-trois retours à la ligne après le message
+
+		return error;
+		#elif defined(NAZARA_PLATFORM_POSIX)
+		return std::strerror(code);
+		#else
+			#error GetLastSystemError is not implemented on this platform
+
+		return String("GetLastSystemError is not implemented on this platform");
+		#endif
+	}
+
+	void Error::SetFlags(UInt32 flags)
+	{
+		s_flags = flags;
+	}
+
+	void Error::Trigger(ErrorType type, const String& error)
+	{
+		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+			Log::WriteError(type, error);
+
+		s_lastError = error;
+		s_lastErrorFile = "";
+		s_lastErrorFunction = "";
+		s_lastErrorLine = 0;
+
+		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
+		if (type == ErrorType_AssertFailed)
+			std::abort();
+		#endif
+
+		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
+			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
+			throw std::runtime_error(error);
+	}
+
+	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	{
+		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+			Log::WriteError(type, error, line, file, function);
+
+		s_lastError = error;
+		s_lastErrorFile = file;
+		s_lastErrorFunction = function;
+		s_lastErrorLine = line;
+
+		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
+		if (type == ErrorType_AssertFailed)
+			std::abort();
+		#endif
+
+		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
+			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
+			throw std::runtime_error(error);
+	}
+
+	UInt32 Error::s_flags = ErrorFlag_None;
+	String Error::s_lastError;
+	const char* Error::s_lastErrorFunction = "";
+	const char* Error::s_lastErrorFile = "";
+	unsigned int Error::s_lastErrorLine = 0;
 }
-
-void NzError::Error(nzErrorType type, const NzString& error, unsigned int line, const char* file, const char* function)
-{
-	if (type == nzErrorType_AssertFailed || (s_flags & nzErrorFlag_Silent) == 0 || (s_flags & nzErrorFlag_SilentDisabled) != 0)
-		NazaraLog->WriteError(type, error, line, file, function);
-
-	s_lastError = error;
-	s_lastErrorFile = file;
-	s_lastErrorFunction = function;
-	s_lastErrorLine = line;
-
-	#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-	if (type == nzErrorType_AssertFailed)
-		std::abort();
-	#endif
-
-	if (type == nzErrorType_AssertFailed || (type != nzErrorType_Warning &&
-	    (s_flags & nzErrorFlag_ThrowException) != 0 && (s_flags & nzErrorFlag_ThrowExceptionDisabled) == 0))
-		throw std::runtime_error(error);
-}
-
-nzUInt32 NzError::GetFlags()
-{
-	return s_flags;
-}
-
-NzString NzError::GetLastError(const char** file, unsigned int* line, const char** function)
-{
-	if (file)
-		*file = s_lastErrorFile;
-
-	if (line)
-		*line = s_lastErrorLine;
-
-	if (function)
-		*function = s_lastErrorFunction;
-
-	return s_lastError;
-}
-
-unsigned int NzError::GetLastSystemErrorCode()
-{
-	#if defined(NAZARA_PLATFORM_WINDOWS)
-	return ::GetLastError();
-	#elif defined(NAZARA_PLATFORM_POSIX)
-	return errno;
-	#else
-		#error GetLastSystemErrorCode is not implemented on this platform
-	return 0;
-	#endif
-}
-
-NzString NzError::GetLastSystemError(unsigned int code)
-{
-	#if defined(NAZARA_PLATFORM_WINDOWS)
-	wchar_t* buffer = nullptr;
-
-	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-				  nullptr,
-				  code,
-				  0,
-				  reinterpret_cast<LPWSTR>(&buffer),
-				  0,
-				  nullptr);
-
-	NzString error(NzString::Unicode(buffer));
-	LocalFree(buffer);
-
-	error.Trim(); // Pour une raison inconnue, Windows met deux-trois retours à la ligne après le message
-
-	return error;
-	#elif defined(NAZARA_PLATFORM_POSIX)
-	return std::strerror(code);
-	#else
-		#error GetLastSystemError is not implemented on this platform
-
-	return NzString("GetLastSystemError is not implemented on this platform");
-	#endif
-}
-
-void NzError::SetFlags(nzUInt32 flags)
-{
-	s_flags = flags;
-}
-
-nzUInt32 NzError::s_flags = nzErrorFlag_None;
-NzString NzError::s_lastError;
-const char* NzError::s_lastErrorFunction = "";
-const char* NzError::s_lastErrorFile = "";
-unsigned int NzError::s_lastErrorLine = 0;

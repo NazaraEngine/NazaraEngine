@@ -14,35 +14,38 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NzAbstractRenderQueue;
-class NzParticleMapper;
-class NzParticleRenderer;
-class NzParticleSystem;
-
-using NzParticleRendererConstRef = NzObjectRef<const NzParticleRenderer>;
-using NzParticleRendererLibrary = NzObjectLibrary<NzParticleRenderer>;
-using NzParticleRendererRef = NzObjectRef<NzParticleRenderer>;
-
-class NAZARA_GRAPHICS_API NzParticleRenderer : public NzRefCounted
+namespace Nz
 {
-	friend NzParticleRendererLibrary;
-	friend class NzGraphics;
+	class AbstractRenderQueue;
+	class ParticleMapper;
+	class ParticleRenderer;
+	class ParticleSystem;
 
-	public:
-		NzParticleRenderer() = default;
-		NzParticleRenderer(const NzParticleRenderer& renderer);
-		virtual ~NzParticleRenderer();
+	using ParticleRendererConstRef = ObjectRef<const ParticleRenderer>;
+	using ParticleRendererLibrary = ObjectLibrary<ParticleRenderer>;
+	using ParticleRendererRef = ObjectRef<ParticleRenderer>;
 
-		virtual void Render(const NzParticleSystem& system, const NzParticleMapper& mapper, unsigned int startId, unsigned int endId, NzAbstractRenderQueue* renderQueue) = 0;
+	class NAZARA_GRAPHICS_API ParticleRenderer : public RefCounted
+	{
+		friend ParticleRendererLibrary;
+		friend class Graphics;
 
-		// Signals:
-		NazaraSignal(OnParticleRendererRelease, const NzParticleRenderer* /*particleRenderer*/);
+		public:
+			ParticleRenderer() = default;
+			ParticleRenderer(const ParticleRenderer& renderer);
+			virtual ~ParticleRenderer();
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			virtual void Render(const ParticleSystem& system, const ParticleMapper& mapper, unsigned int startId, unsigned int endId, AbstractRenderQueue* renderQueue) = 0;
 
-		static NzParticleRendererLibrary::LibraryMap s_library;
-};
+			// Signals:
+			NazaraSignal(OnParticleRendererRelease, const ParticleRenderer* /*particleRenderer*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			static ParticleRendererLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_PARTICLERENDERER_HPP

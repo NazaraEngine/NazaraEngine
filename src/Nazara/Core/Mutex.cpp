@@ -14,27 +14,30 @@
 
 #include <Nazara/Core/Debug.hpp>
 
-NzMutex::NzMutex()
+namespace Nz
 {
-	m_impl = new NzMutexImpl;
-}
+	Mutex::Mutex()
+	{
+		m_impl = new MutexImpl;
+	}
 
-NzMutex::~NzMutex()
-{
-	delete m_impl;
-}
+	Mutex::~Mutex()
+	{
+		delete m_impl;
+	}
 
-void NzMutex::Lock()
-{
-	m_impl->Lock();
-}
+	void Mutex::Lock()
+	{
+		m_impl->Lock();
+	}
 
-bool NzMutex::TryLock()
-{
-	return m_impl->TryLock();
-}
+	bool Mutex::TryLock()
+	{
+		return m_impl->TryLock();
+	}
 
-void NzMutex::Unlock()
-{
-	m_impl->Unlock();
+	void Mutex::Unlock()
+	{
+		m_impl->Unlock();
+	}
 }

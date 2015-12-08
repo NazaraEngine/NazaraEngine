@@ -11,53 +11,56 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
-class NzTexture;
-
-class NAZARA_RENDERER_API NzTextureSampler
+namespace Nz
 {
-	friend class NzRenderer;
+	class Texture;
 
-	public:
-		NzTextureSampler();
-		NzTextureSampler(const NzTextureSampler& sampler) = default;
+	class NAZARA_RENDERER_API TextureSampler
+	{
+		friend class Renderer;
 
-		nzUInt8 GetAnisotropicLevel() const;
-		nzSamplerFilter GetFilterMode() const;
-		nzSamplerWrap GetWrapMode() const;
+		public:
+			TextureSampler();
+			TextureSampler(const TextureSampler& sampler) = default;
 
-		void SetAnisotropyLevel(nzUInt8 anisotropyLevel);
-		void SetFilterMode(nzSamplerFilter filterMode);
-		void SetWrapMode(nzSamplerWrap wrapMode);
+			UInt8 GetAnisotropicLevel() const;
+			SamplerFilter GetFilterMode() const;
+			SamplerWrap GetWrapMode() const;
 
-		NzTextureSampler& operator=(const NzTextureSampler& sampler) = default;
+			void SetAnisotropyLevel(UInt8 anisotropyLevel);
+			void SetFilterMode(SamplerFilter filterMode);
+			void SetWrapMode(SamplerWrap wrapMode);
 
-		static nzUInt8 GetDefaultAnisotropicLevel();
-		static nzSamplerFilter GetDefaultFilterMode();
-		static nzSamplerWrap GetDefaultWrapMode();
+			TextureSampler& operator=(const TextureSampler& sampler) = default;
 
-		static void SetDefaultAnisotropyLevel(nzUInt8 anisotropyLevel);
-		static void SetDefaultFilterMode(nzSamplerFilter filterMode);
-		static void SetDefaultWrapMode(nzSamplerWrap wrapMode);
+			static UInt8 GetDefaultAnisotropicLevel();
+			static SamplerFilter GetDefaultFilterMode();
+			static SamplerWrap GetDefaultWrapMode();
 
-	private:
-		void Apply(const NzTexture* texture) const;
-		void Bind(unsigned int unit) const;
-		unsigned int GetOpenGLID() const;
-		void UpdateSamplerId() const;
-		bool UseMipmaps(bool mipmaps);
+			static void SetDefaultAnisotropyLevel(UInt8 anisotropyLevel);
+			static void SetDefaultFilterMode(SamplerFilter filterMode);
+			static void SetDefaultWrapMode(SamplerWrap wrapMode);
 
-		static bool Initialize();
-		static void Uninitialize();
+		private:
+			void Apply(const Texture* texture) const;
+			void Bind(unsigned int unit) const;
+			unsigned int GetOpenGLID() const;
+			void UpdateSamplerId() const;
+			bool UseMipmaps(bool mipmaps);
 
-		nzSamplerFilter m_filterMode;
-		nzSamplerWrap m_wrapMode;
-		nzUInt8 m_anisotropicLevel;
-		bool m_mipmaps;
-		mutable unsigned int m_samplerId;
+			static bool Initialize();
+			static void Uninitialize();
 
-		static nzSamplerFilter s_defaultFilterMode;
-		static nzSamplerWrap s_defaultWrapMode;
-		static nzUInt8 s_defaultAnisotropyLevel;
-};
+			SamplerFilter m_filterMode;
+			SamplerWrap m_wrapMode;
+			UInt8 m_anisotropicLevel;
+			bool m_mipmaps;
+			mutable unsigned int m_samplerId;
+
+			static SamplerFilter s_defaultFilterMode;
+			static SamplerWrap s_defaultWrapMode;
+			static UInt8 s_defaultAnisotropyLevel;
+	};
+}
 
 #endif // NAZARA_TEXTURESAMPLER_HPP

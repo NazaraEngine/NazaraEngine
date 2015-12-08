@@ -17,110 +17,113 @@
 #include <unordered_map>
 #include <vector>
 
-class NAZARA_UTILITY_API NzNode
+namespace Nz
 {
-	public:
-		NzNode();
-		NzNode(const NzNode& node);
-		virtual ~NzNode();
+	class NAZARA_UTILITY_API Node
+	{
+		public:
+			Node();
+			Node(const Node& node);
+			virtual ~Node();
 
-		void EnsureDerivedUpdate() const;
-		void EnsureTransformMatrixUpdate() const;
+			void EnsureDerivedUpdate() const;
+			void EnsureTransformMatrixUpdate() const;
 
-		virtual NzVector3f GetBackward() const;
-		const std::vector<NzNode*>& GetChilds() const;
-		virtual NzVector3f GetDown() const;
-		virtual NzVector3f GetForward() const;
-		bool GetInheritPosition() const;
-		bool GetInheritRotation() const;
-		bool GetInheritScale() const;
-		NzVector3f GetInitialPosition() const;
-		NzQuaternionf GetInitialRotation() const;
-		NzVector3f GetInitialScale() const;
-		virtual NzVector3f GetLeft() const;
-		virtual nzNodeType GetNodeType() const;
-		const NzNode* GetParent() const;
-		NzVector3f GetPosition(nzCoordSys coordSys = nzCoordSys_Global) const;
-		virtual NzVector3f GetRight() const;
-		NzQuaternionf GetRotation(nzCoordSys coordSys = nzCoordSys_Global) const;
-		NzVector3f GetScale(nzCoordSys coordSys = nzCoordSys_Global) const;
-		const NzMatrix4f& GetTransformMatrix() const;
-		virtual NzVector3f GetUp() const;
+			virtual Vector3f GetBackward() const;
+			const std::vector<Node*>& GetChilds() const;
+			virtual Vector3f GetDown() const;
+			virtual Vector3f GetForward() const;
+			bool GetInheritPosition() const;
+			bool GetInheritRotation() const;
+			bool GetInheritScale() const;
+			Vector3f GetInitialPosition() const;
+			Quaternionf GetInitialRotation() const;
+			Vector3f GetInitialScale() const;
+			virtual Vector3f GetLeft() const;
+			virtual NodeType GetNodeType() const;
+			const Node* GetParent() const;
+			Vector3f GetPosition(CoordSys coordSys = CoordSys_Global) const;
+			virtual Vector3f GetRight() const;
+			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Global) const;
+			Vector3f GetScale(CoordSys coordSys = CoordSys_Global) const;
+			const Matrix4f& GetTransformMatrix() const;
+			virtual Vector3f GetUp() const;
 
-		bool HasChilds() const;
+			bool HasChilds() const;
 
-		NzNode& Interpolate(const NzNode& nodeA, const NzNode& nodeB, float interpolation, nzCoordSys coordSys = nzCoordSys_Global);
+			Node& Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, CoordSys coordSys = CoordSys_Global);
 
-		NzNode& Move(const NzVector3f& movement, nzCoordSys coordSys = nzCoordSys_Local);
-		NzNode& Move(float movementX, float movementY, float movementZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
+			Node& Move(const Vector3f& movement, CoordSys coordSys = CoordSys_Local);
+			Node& Move(float movementX, float movementY, float movementZ = 0.f, CoordSys coordSys = CoordSys_Local);
 
-		NzNode& Rotate(const NzQuaternionf& rotation, nzCoordSys coordSys = nzCoordSys_Local);
+			Node& Rotate(const Quaternionf& rotation, CoordSys coordSys = CoordSys_Local);
 
-		NzNode& Scale(const NzVector3f& scale);
-		NzNode& Scale(float scale);
-		NzNode& Scale(float scaleX, float scaleY, float scaleZ = 1.f);
+			Node& Scale(const Vector3f& scale);
+			Node& Scale(float scale);
+			Node& Scale(float scaleX, float scaleY, float scaleZ = 1.f);
 
-		void SetInheritRotation(bool inheritRotation);
-		void SetInheritScale(bool inheritScale);
-		void SetInheritPosition(bool inheritPosition);
-		void SetInitialRotation(const NzQuaternionf& quat);
-		void SetInitialScale(const NzVector3f& scale);
-		void SetInitialScale(float scale);
-		void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
-		void SetInitialPosition(const NzVector3f& translation);
-		void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
-		void SetParent(const NzNode* node = nullptr, bool keepDerived = false);
-		void SetParent(const NzNode& node, bool keepDerived = false);
-		void SetPosition(const NzVector3f& translation, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetPosition(float translationX, float translationY, float translationZ = 0.f, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetRotation(const NzQuaternionf& quat, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetScale(const NzVector3f& scale, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetScale(float scale, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, nzCoordSys coordSys = nzCoordSys_Local);
-		void SetTransformMatrix(const NzMatrix4f& matrix);
+			void SetInheritRotation(bool inheritRotation);
+			void SetInheritScale(bool inheritScale);
+			void SetInheritPosition(bool inheritPosition);
+			void SetInitialRotation(const Quaternionf& quat);
+			void SetInitialScale(const Vector3f& scale);
+			void SetInitialScale(float scale);
+			void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
+			void SetInitialPosition(const Vector3f& translation);
+			void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
+			void SetParent(const Node* node = nullptr, bool keepDerived = false);
+			void SetParent(const Node& node, bool keepDerived = false);
+			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys_Local);
+			void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys_Local);
+			void SetRotation(const Quaternionf& quat, CoordSys coordSys = CoordSys_Local);
+			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys_Local);
+			void SetScale(float scale, CoordSys coordSys = CoordSys_Local);
+			void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys_Local);
+			void SetTransformMatrix(const Matrix4f& matrix);
 
-		// Local -> global
-		NzVector3f ToGlobalPosition(const NzVector3f& localPosition) const;
-		NzQuaternionf ToGlobalRotation(const NzQuaternionf& localRotation) const;
-		NzVector3f ToGlobalScale(const NzVector3f& localScale) const;
+			// Local -> global
+			Vector3f ToGlobalPosition(const Vector3f& localPosition) const;
+			Quaternionf ToGlobalRotation(const Quaternionf& localRotation) const;
+			Vector3f ToGlobalScale(const Vector3f& localScale) const;
 
-		// Global -> local
-		NzVector3f ToLocalPosition(const NzVector3f& globalPosition) const;
-		NzQuaternionf ToLocalRotation(const NzQuaternionf& globalRotation) const;
-		NzVector3f ToLocalScale(const NzVector3f& globalScale) const;
+			// Global -> local
+			Vector3f ToLocalPosition(const Vector3f& globalPosition) const;
+			Quaternionf ToLocalRotation(const Quaternionf& globalRotation) const;
+			Vector3f ToLocalScale(const Vector3f& globalScale) const;
 
-		NzNode& operator=(const NzNode& node);
+			Node& operator=(const Node& node);
 
-		// Signals:
-		NazaraSignal(OnNodeInvalidation, const NzNode* /*node*/);
-		NazaraSignal(OnNodeNewParent, const NzNode* /*node*/, const NzNode* /*parent*/);
-		NazaraSignal(OnNodeRelease, const NzNode* /*node*/);
+			// Signals:
+			NazaraSignal(OnNodeInvalidation, const Node* /*node*/);
+			NazaraSignal(OnNodeNewParent, const Node* /*node*/, const Node* /*parent*/);
+			NazaraSignal(OnNodeRelease, const Node* /*node*/);
 
-	protected:
-		void AddChild(NzNode* node) const;
-		virtual void InvalidateNode();
-		virtual void OnParenting(const NzNode* parent);
-		void RemoveChild(NzNode* node) const;
-		virtual void UpdateDerived() const;
-		virtual void UpdateTransformMatrix() const;
+		protected:
+			void AddChild(Node* node) const;
+			virtual void InvalidateNode();
+			virtual void OnParenting(const Node* parent);
+			void RemoveChild(Node* node) const;
+			virtual void UpdateDerived() const;
+			virtual void UpdateTransformMatrix() const;
 
-		mutable std::vector<NzNode*> m_childs;
-		mutable NzMatrix4f m_transformMatrix;
-		mutable NzQuaternionf m_derivedRotation;
-		NzQuaternionf m_initialRotation;
-		NzQuaternionf m_rotation;
-		mutable NzVector3f m_derivedPosition;
-		mutable NzVector3f m_derivedScale;
-		NzVector3f m_initialPosition;
-		NzVector3f m_initialScale;
-		NzVector3f m_position;
-		NzVector3f m_scale;
-		const NzNode* m_parent;
-		mutable bool m_derivedUpdated;
-		bool m_inheritPosition;
-		bool m_inheritRotation;
-		bool m_inheritScale;
-		mutable bool m_transformMatrixUpdated;
-};
+			mutable std::vector<Node*> m_childs;
+			mutable Matrix4f m_transformMatrix;
+			mutable Quaternionf m_derivedRotation;
+			Quaternionf m_initialRotation;
+			Quaternionf m_rotation;
+			mutable Vector3f m_derivedPosition;
+			mutable Vector3f m_derivedScale;
+			Vector3f m_initialPosition;
+			Vector3f m_initialScale;
+			Vector3f m_position;
+			Vector3f m_scale;
+			const Node* m_parent;
+			mutable bool m_derivedUpdated;
+			bool m_inheritPosition;
+			bool m_inheritRotation;
+			bool m_inheritScale;
+			mutable bool m_transformMatrixUpdated;
+	};
+}
 
 #endif // NAZARA_NODE_HPP

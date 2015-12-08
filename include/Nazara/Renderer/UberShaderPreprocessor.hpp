@@ -16,42 +16,45 @@
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
 #include <unordered_map>
 
-class NzUberShaderPreprocessor;
-
-using NzUberShaderPreprocessorConstRef = NzObjectRef<const NzUberShaderPreprocessor>;
-using NzUberShaderPreprocessorRef = NzObjectRef<NzUberShaderPreprocessor>;
-
-class NAZARA_RENDERER_API NzUberShaderPreprocessor : public NzUberShader
+namespace Nz
 {
-	public:
-		NzUberShaderPreprocessor() = default;
-		~NzUberShaderPreprocessor();
+	class UberShaderPreprocessor;
 
-		NzUberShaderInstance* Get(const NzParameterList& parameters) const;
+	using UberShaderPreprocessorConstRef = ObjectRef<const UberShaderPreprocessor>;
+	using UberShaderPreprocessorRef = ObjectRef<UberShaderPreprocessor>;
 
-		void SetShader(nzShaderStage stage, const NzString& source, const NzString& shaderFlags, const NzString& requiredFlags = NzString());
-		bool SetShaderFromFile(nzShaderStage stage, const NzString& filePath, const NzString& shaderFlags, const NzString& requiredFlags = NzString());
+	class NAZARA_RENDERER_API UberShaderPreprocessor : public UberShader
+	{
+		public:
+			UberShaderPreprocessor() = default;
+			~UberShaderPreprocessor();
 
-		static bool IsSupported();
-		template<typename... Args> static NzUberShaderPreprocessorRef New(Args&&... args);
+			UberShaderInstance* Get(const ParameterList& parameters) const;
 
-		// Signals:
-		NazaraSignal(OnUberShaderPreprocessorRelease, const NzUberShaderPreprocessor* /*uberShaderPreprocessor*/);
+			void SetShader(ShaderStageType stage, const String& source, const String& shaderFlags, const String& requiredFlags = String());
+			bool SetShaderFromFile(ShaderStageType stage, const String& filePath, const String& shaderFlags, const String& requiredFlags = String());
 
-	private:
-		struct Shader
-		{
-			mutable std::unordered_map<nzUInt32, NzShaderStage> cache;
-			std::unordered_map<NzString, nzUInt32> flags;
-			nzUInt32 requiredFlags;
-			NzString source;
-			bool present = false;
-		};
+			static bool IsSupported();
+			template<typename... Args> static UberShaderPreprocessorRef New(Args&&... args);
 
-		mutable std::unordered_map<nzUInt32, NzUberShaderInstancePreprocessor> m_cache;
-		std::unordered_map<NzString, nzUInt32> m_flags;
-		Shader m_shaders[nzShaderStage_Max+1];
-};
+			// Signals:
+			NazaraSignal(OnUberShaderPreprocessorRelease, const UberShaderPreprocessor* /*uberShaderPreprocessor*/);
+
+		private:
+			struct CachedShader
+			{
+				mutable std::unordered_map<UInt32, ShaderStage> cache;
+				std::unordered_map<String, UInt32> flags;
+				UInt32 requiredFlags;
+				String source;
+				bool present = false;
+			};
+
+			mutable std::unordered_map<UInt32, UberShaderInstancePreprocessor> m_cache;
+			std::unordered_map<String, UInt32> m_flags;
+			CachedShader m_shaders[ShaderStageType_Max+1];
+	};
+}
 
 #include <Nazara/Renderer/UberShaderPreprocessor.inl>
 
