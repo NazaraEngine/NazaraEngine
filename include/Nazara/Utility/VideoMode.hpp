@@ -13,27 +13,30 @@
 #include <Nazara/Utility/Config.hpp>
 #include <vector>
 
-class NAZARA_UTILITY_API NzVideoMode
+namespace Nz
 {
-	public:
-		NzVideoMode();
-		NzVideoMode(unsigned int w, unsigned int h, nzUInt8 bpp);
+	class NAZARA_UTILITY_API VideoMode
+	{
+		public:
+			VideoMode();
+			VideoMode(unsigned int w, unsigned int h, UInt8 bpp);
 
-		bool IsFullscreenValid() const;
+			bool IsFullscreenValid() const;
 
-		nzUInt8 bitsPerPixel;
-		unsigned int height;
-		unsigned int width;
+			UInt8 bitsPerPixel;
+			unsigned int height;
+			unsigned int width;
 
-		static NzVideoMode GetDesktopMode();
-		static const std::vector<NzVideoMode>& GetFullscreenModes();
-};
+			static VideoMode GetDesktopMode();
+			static const std::vector<VideoMode>& GetFullscreenModes();
+	};
 
-bool operator==(const NzVideoMode& left, const NzVideoMode& right);
-bool operator!=(const NzVideoMode& left, const NzVideoMode& right);
-bool operator<(const NzVideoMode& left, const NzVideoMode& right);
-bool operator<=(const NzVideoMode& left, const NzVideoMode& right);
-bool operator>(const NzVideoMode& left, const NzVideoMode& right);
-bool operator>=(const NzVideoMode& left, const NzVideoMode& right);
+	bool operator==(const VideoMode& left, const VideoMode& right);
+	bool operator!=(const VideoMode& left, const VideoMode& right);
+	bool operator<(const VideoMode& left, const VideoMode& right);
+	bool operator<=(const VideoMode& left, const VideoMode& right);
+	bool operator>(const VideoMode& left, const VideoMode& right);
+	bool operator>=(const VideoMode& left, const VideoMode& right);
+}
 
 #endif // NAZARA_VIDEOMODE_HPP

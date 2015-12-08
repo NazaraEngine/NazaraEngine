@@ -11,44 +11,50 @@
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-bool NzCore::Initialize()
+namespace Nz
 {
-	if (s_moduleReferenceCounter > 0)
+	bool Core::Initialize()
 	{
+		if (s_moduleReferenceCounter > 0)
+		{
+			s_moduleReferenceCounter++;
+			return true; // Déjà initialisé
+		}
+
 		s_moduleReferenceCounter++;
-		return true; // Déjà initialisé
+
+		Log::Initialize();
+
+		NazaraNotice("Initialized: Core");
+		return true;
 	}
 
-	s_moduleReferenceCounter++;
-
-	NazaraNotice("Initialized: Core");
-	return true;
-}
-
-bool NzCore::IsInitialized()
-{
-	return s_moduleReferenceCounter != 0;
-}
-
-void NzCore::Uninitialize()
-{
-	if (s_moduleReferenceCounter != 1)
+	bool Core::IsInitialized()
 	{
-		// Le module est soit encore utilisé, soit pas initialisé
-		if (s_moduleReferenceCounter > 1)
-			s_moduleReferenceCounter--;
-
-		return;
+		return s_moduleReferenceCounter != 0;
 	}
 
-	// Libération du module
-	s_moduleReferenceCounter = 0;
+	void Core::Uninitialize()
+	{
+		if (s_moduleReferenceCounter != 1)
+		{
+			// Le module est soit encore utilisé, soit pas initialisé
+			if (s_moduleReferenceCounter > 1)
+				s_moduleReferenceCounter--;
 
-	NzHardwareInfo::Uninitialize();
-	NzPluginManager::Uninitialize();
-	NzTaskScheduler::Uninitialize();
+			return;
+		}
 
-	NazaraNotice("Uninitialized: Core");
+		// Libération du module
+		s_moduleReferenceCounter = 0;
+
+		HardwareInfo::Uninitialize();
+		Log::Uninitialize();
+		PluginManager::Uninitialize();
+		TaskScheduler::Uninitialize();
+
+		NazaraNotice("Uninitialized: Core");
+	}
+
+	unsigned int Core::s_moduleReferenceCounter = 0;
 }
-
-unsigned int NzCore::s_moduleReferenceCounter = 0;

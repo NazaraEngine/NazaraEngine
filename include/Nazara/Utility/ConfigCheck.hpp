@@ -15,7 +15,7 @@
 // On force la valeur de MANAGE_MEMORY en mode debug
 #if defined(NAZARA_DEBUG) && !NAZARA_UTILITY_MANAGE_MEMORY
 	#undef NAZARA_UTILITY_MANAGE_MEMORY
-	#define NAZARA_UTILITY_MANAGE_MEMORY 1
+	#define NAZARA_UTILITY_MANAGE_MEMORY 0
 #endif
 
 NazaraCheckTypeAndVal(NAZARA_UTILITY_SKINNING_MAX_WEIGHTS, integral, >, 0, " shall be a strictly positive integer");

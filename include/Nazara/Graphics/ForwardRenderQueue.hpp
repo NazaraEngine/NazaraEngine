@@ -19,142 +19,153 @@
 #include <map>
 #include <tuple>
 
-class NzAbstractViewer;
-
-class NAZARA_GRAPHICS_API NzForwardRenderQueue : public NzAbstractRenderQueue
+namespace Nz
 {
-	friend class NzForwardRenderTechnique;
+	class AbstractViewer;
 
-	public:
-		NzForwardRenderQueue() = default;
-		~NzForwardRenderQueue() = default;
+	class NAZARA_GRAPHICS_API ForwardRenderQueue : public AbstractRenderQueue
+	{
+		friend class ForwardRenderTechnique;
 
-		void AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos = NzVector2f(0.f, 1.f), const NzColor& color = NzColor::White) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr = nullptr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr = nullptr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr = nullptr) override;
-		void AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr) override;
-		void AddDrawable(const NzDrawable* drawable) override;
-		void AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix) override;
-		void AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay = nullptr) override;
+		public:
+			ForwardRenderQueue() = default;
+			~ForwardRenderQueue() = default;
 
-		void Clear(bool fully = false);
+			void AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos = Vector2f(0.f, 1.f), const Color& color = Color::White) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
+			void AddDrawable(int renderOrder, const Drawable* drawable) override;
+			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
+			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) override;
 
-		void Sort(const NzAbstractViewer* viewer);
+			void Clear(bool fully = false);
 
-		/// Billboards
-		struct BillboardData
-		{
-			NzColor color;
-			NzVector3f center;
-			NzVector2f size;
-			NzVector2f sinCos;
-		};
+			void Sort(const AbstractViewer* viewer);
 
-		struct BatchedBillboardComparator
-		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2) const;
-		};
+			/// Billboards
+			struct BillboardData
+			{
+				Color color;
+				Vector3f center;
+				Vector2f size;
+				Vector2f sinCos;
+			};
 
-		struct BatchedBillboardEntry
-		{
-			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
+			struct BatchedBillboardComparator
+			{
+				bool operator()(const Material* mat1, const Material* mat2) const;
+			};
 
-			std::vector<BillboardData> billboards;
-		};
+			struct BatchedBillboardEntry
+			{
+				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
 
-		typedef std::map<const NzMaterial*, BatchedBillboardEntry, BatchedBillboardComparator> BatchedBillboardContainer;
+				std::vector<BillboardData> billboards;
+			};
 
-		/// Sprites
-		struct SpriteChain_XYZ_Color_UV
-		{
-			const NzVertexStruct_XYZ_Color_UV* vertices;
-			unsigned int spriteCount;
-		};
+			typedef std::map<const Material*, BatchedBillboardEntry, BatchedBillboardComparator> BatchedBillboardContainer;
 
-		struct BatchedSpriteEntry
-		{
-			NazaraSlot(NzTexture, OnTextureRelease, textureReleaseSlot);
+			/// Sprites
+			struct SpriteChain_XYZ_Color_UV
+			{
+				const VertexStruct_XYZ_Color_UV* vertices;
+				unsigned int spriteCount;
+			};
 
-			std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
-		};
+			struct BatchedSpriteEntry
+			{
+				NazaraSlot(Texture, OnTextureRelease, textureReleaseSlot);
 
-		struct BatchedSpriteMaterialComparator
-		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2);
-		};
+				std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
+			};
 
-		typedef std::map<const NzTexture*, BatchedSpriteEntry> BasicSpriteOverlayContainer;
+			struct BatchedSpriteMaterialComparator
+			{
+				bool operator()(const Material* mat1, const Material* mat2);
+			};
 
-		struct BatchedBasicSpriteEntry
-		{
-			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
+			typedef std::map<const Texture*, BatchedSpriteEntry> BasicSpriteOverlayContainer;
 
-			BasicSpriteOverlayContainer overlayMap;
-			bool enabled = false;
-		};
+			struct BatchedBasicSpriteEntry
+			{
+				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
 
-		typedef std::map<const NzMaterial*, BatchedBasicSpriteEntry> BasicSpriteBatches;
+				BasicSpriteOverlayContainer overlayMap;
+				bool enabled = false;
+			};
 
-		/// Meshes
-		struct MeshDataComparator
-		{
-			bool operator()(const NzMeshData& data1, const NzMeshData& data2) const;
-		};
+			typedef std::map<const Material*, BatchedBasicSpriteEntry> BasicSpriteBatches;
 
-		struct MeshInstanceEntry
-		{
-			NazaraSlot(NzIndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
-			NazaraSlot(NzVertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
+			/// Meshes
+			struct MeshDataComparator
+			{
+				bool operator()(const MeshData& data1, const MeshData& data2) const;
+			};
 
-			std::vector<NzMatrix4f> instances;
-			NzSpheref squaredBoundingSphere;
-		};
+			struct MeshInstanceEntry
+			{
+				NazaraSlot(IndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
+				NazaraSlot(VertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
 
-		typedef std::map<NzMeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
+				std::vector<Matrix4f> instances;
+				Spheref squaredBoundingSphere;
+			};
 
-		struct BatchedModelMaterialComparator
-		{
-			bool operator()(const NzMaterial* mat1, const NzMaterial* mat2) const;
-		};
+			typedef std::map<MeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
 
-		struct BatchedModelEntry
-		{
-			NazaraSlot(NzMaterial, OnMaterialRelease, materialReleaseSlot);
+			struct BatchedModelMaterialComparator
+			{
+				bool operator()(const Material* mat1, const Material* mat2) const;
+			};
 
-			MeshInstanceContainer meshMap;
-			bool enabled = false;
-			bool instancingEnabled = false;
-		};
+			struct BatchedModelEntry
+			{
+				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
 
-		typedef std::map<const NzMaterial*, BatchedModelEntry, BatchedModelMaterialComparator> ModelBatches;
+				MeshInstanceContainer meshMap;
+				bool enabled = false;
+				bool instancingEnabled = false;
+			};
 
-		struct TransparentModelData
-		{
-			NzMatrix4f transformMatrix;
-			NzMeshData meshData;
-			NzSpheref squaredBoundingSphere;
-			const NzMaterial* material;
-		};
+			typedef std::map<const Material*, BatchedModelEntry, BatchedModelMaterialComparator> ModelBatches;
 
-		typedef std::vector<unsigned int> TransparentModelContainer;
+			struct TransparentModelData
+			{
+				Matrix4f transformMatrix;
+				MeshData meshData;
+				Spheref squaredBoundingSphere;
+				const Material* material;
+			};
 
-		BatchedBillboardContainer billboards;
-		BasicSpriteBatches basicSprites;
-		ModelBatches opaqueModels;
-		TransparentModelContainer transparentModels;
-		std::vector<TransparentModelData> transparentModelData;
-		std::vector<const NzDrawable*> otherDrawables;
+			typedef std::vector<unsigned int> TransparentModelContainer;
 
-	private:
-		void OnIndexBufferInvalidation(const NzIndexBuffer* indexBuffer);
-		void OnMaterialInvalidation(const NzMaterial* material);
-		void OnTextureInvalidation(const NzTexture* texture);
-		void OnVertexBufferInvalidation(const NzVertexBuffer* vertexBuffer);
-};
+			struct Layer
+			{
+				BatchedBillboardContainer billboards;
+				BasicSpriteBatches basicSprites;
+				ModelBatches opaqueModels;
+				TransparentModelContainer transparentModels;
+				std::vector<TransparentModelData> transparentModelData;
+				std::vector<const Drawable*> otherDrawables;
+				unsigned int clearCount = 0;
+			};
+
+			std::map<int, Layer> layers;
+
+		private:
+			Layer& GetLayer(int i); ///TODO: Inline
+
+			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
+			void OnMaterialInvalidation(const Material* material);
+			void OnTextureInvalidation(const Texture* texture);
+			void OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer);
+	};
+}
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP

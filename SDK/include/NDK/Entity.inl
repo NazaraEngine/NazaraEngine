@@ -40,7 +40,7 @@ namespace Ndk
 		return static_cast<ComponentType&>(GetComponent(index));
 	}
 
-	inline const NzBitset<>& Entity::GetComponentBits() const
+	inline const Nz::Bitset<>& Entity::GetComponentBits() const
 	{
 		return m_componentBits;
 	}
@@ -50,7 +50,7 @@ namespace Ndk
 		return m_id;
 	}
 
-	inline const NzBitset<>& Entity::GetSystemBits() const
+	inline const Nz::Bitset<>& Entity::GetSystemBits() const
 	{
 		return m_systemBits;
 	}

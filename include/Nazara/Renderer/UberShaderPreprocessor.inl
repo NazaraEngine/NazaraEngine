@@ -5,13 +5,16 @@
 #include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
-template<typename... Args>
-NzUberShaderPreprocessorRef NzUberShaderPreprocessor::New(Args&&... args)
+namespace Nz
 {
-	std::unique_ptr<NzUberShaderPreprocessor> object(new NzUberShaderPreprocessor(std::forward<Args>(args)...));
-	object->SetPersistent(false);
+	template<typename... Args>
+	UberShaderPreprocessorRef UberShaderPreprocessor::New(Args&&... args)
+	{
+		std::unique_ptr<UberShaderPreprocessor> object(new UberShaderPreprocessor(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-	return object.release();
+		return object.release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

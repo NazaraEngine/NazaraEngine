@@ -7,20 +7,24 @@
 #ifndef NAZARA_CURSORIMPL_HPP
 #define NAZARA_CURSORIMPL_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <xcb/xcb_cursor.h>
 
-class NzImage;
-
-class NzCursorImpl
+namespace Nz
 {
-	public:
-		bool Create(const NzImage& image, int hotSpotX, int hotSpotY);
-		void Destroy();
+	class Image;
 
-		xcb_cursor_t GetCursor();
+	class CursorImpl
+	{
+		public:
+			bool Create(const Image& image, int hotSpotX, int hotSpotY);
+			void Destroy();
 
-	private:
-		xcb_cursor_t m_cursor;
-};
+			xcb_cursor_t GetCursor();
+
+		private:
+			xcb_cursor_t m_cursor;
+	};
+}
 
 #endif // NAZARA_CURSORIMPL_HPP

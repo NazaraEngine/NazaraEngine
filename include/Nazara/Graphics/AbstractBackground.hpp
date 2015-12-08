@@ -13,25 +13,33 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 
-class NzAbstractBackground;
-class NzAbstractViewer;
-
-using NzBackgroundConstRef = NzObjectRef<const NzAbstractBackground>;
-using NzBackgroundLibrary = NzObjectLibrary<NzAbstractBackground>;
-using NzBackgroundRef = NzObjectRef<NzAbstractBackground>;
-
-class NAZARA_GRAPHICS_API NzAbstractBackground : public NzRefCounted
+namespace Nz
 {
-	public:
-		NzAbstractBackground() = default;
-		virtual ~NzAbstractBackground();
+	class AbstractBackground;
+	class AbstractViewer;
 
-		virtual void Draw(const NzAbstractViewer* viewer) const = 0;
+	using BackgroundConstRef = ObjectRef<const AbstractBackground>;
+	using BackgroundLibrary = ObjectLibrary<AbstractBackground>;
+	using BackgroundRef = ObjectRef<AbstractBackground>;
 
-		virtual nzBackgroundType GetBackgroundType() const = 0;
+	class NAZARA_GRAPHICS_API AbstractBackground : public RefCounted
+	{
+		public:
+			AbstractBackground() = default;
+			AbstractBackground(const AbstractBackground&) = default;
+			AbstractBackground(AbstractBackground&&) = delete;
+			virtual ~AbstractBackground();
 
-	private:
-		static NzBackgroundLibrary::LibraryMap s_library;
-};
+			virtual void Draw(const AbstractViewer* viewer) const = 0;
+
+			virtual BackgroundType GetBackgroundType() const = 0;
+
+			AbstractBackground& operator=(const AbstractBackground&) = default;
+			AbstractBackground& operator=(AbstractBackground&&) = delete;
+
+		private:
+			static BackgroundLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_ABSTRACTBACKGROUND_HPP

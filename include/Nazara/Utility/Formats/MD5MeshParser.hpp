@@ -8,76 +8,79 @@
 #define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <vector>
 
-class NAZARA_UTILITY_API NzMD5MeshParser
+namespace Nz
 {
-	public:
-		struct Joint
-		{
-			NzQuaternionf bindOrient;
-			NzString name;
-			NzVector3f bindPos;
-			int parent;
-		};
+	class NAZARA_UTILITY_API MD5MeshParser
+	{
+		public:
+			struct Joint
+			{
+				Quaternionf bindOrient;
+				String name;
+				Vector3f bindPos;
+				int parent;
+			};
 
-		typedef NzVector3ui Triangle;
+			typedef Vector3ui Triangle;
 
-		struct Vertex
-		{
-			NzVector2f uv;
-			unsigned int startWeight;
-			unsigned int weightCount;
-		};
+			struct Vertex
+			{
+				Vector2f uv;
+				unsigned int startWeight;
+				unsigned int weightCount;
+			};
 
-		struct Weight
-		{
-			NzVector3f pos;
-			float bias;
-			unsigned int joint;
-		};
+			struct Weight
+			{
+				Vector3f pos;
+				float bias;
+				unsigned int joint;
+			};
 
-		struct Mesh
-		{
-			std::vector<Triangle> triangles;
-			std::vector<Vertex> vertices;
-			std::vector<Weight> weights;
-			NzString shader;
-		};
+			struct Mesh
+			{
+				std::vector<Triangle> triangles;
+				std::vector<Vertex> vertices;
+				std::vector<Weight> weights;
+				String shader;
+			};
 
-		NzMD5MeshParser(NzInputStream& stream);
-		~NzMD5MeshParser();
+			MD5MeshParser(Stream& stream);
+			~MD5MeshParser();
 
-		nzTernary Check();
+			Ternary Check();
 
-		const Joint* GetJoints() const;
-		unsigned int GetJointCount() const;
-		const Mesh* GetMeshes() const;
-		unsigned int GetMeshCount() const;
+			const Joint* GetJoints() const;
+			unsigned int GetJointCount() const;
+			const Mesh* GetMeshes() const;
+			unsigned int GetMeshCount() const;
 
-		bool Parse();
+			bool Parse();
 
-	private:
-		bool Advance(bool required = true);
-		void Error(const NzString& message);
-		bool ParseJoints();
-		bool ParseMesh();
-		void Warning(const NzString& message);
-		void UnrecognizedLine(bool error = false);
+		private:
+			bool Advance(bool required = true);
+			void Error(const String& message);
+			bool ParseJoints();
+			bool ParseMesh();
+			void Warning(const String& message);
+			void UnrecognizedLine(bool error = false);
 
-		std::vector<Joint> m_joints;
-		std::vector<Mesh> m_meshes;
-		NzInputStream& m_stream;
-		NzString m_currentLine;
-		bool m_keepLastLine;
-		unsigned int m_lineCount;
-		unsigned int m_meshIndex;
-		unsigned int m_streamFlags;
-};
+			std::vector<Joint> m_joints;
+			std::vector<Mesh> m_meshes;
+			Stream& m_stream;
+			String m_currentLine;
+			bool m_keepLastLine;
+			unsigned int m_lineCount;
+			unsigned int m_meshIndex;
+			unsigned int m_streamFlags;
+	};
+}
 
 #endif // NAZARA_FORMATS_MD5MESHPARSER_HPP

@@ -11,29 +11,32 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 
-struct NzFontGlyph;
-
-class NAZARA_UTILITY_API NzFontData
+namespace Nz
 {
-	public:
-		NzFontData() = default;
-		virtual ~NzFontData();
+	struct FontGlyph;
 
-		virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, nzUInt32 style, NzFontGlyph* dst) = 0;
+	class NAZARA_UTILITY_API FontData
+	{
+		public:
+			FontData() = default;
+			virtual ~FontData();
 
-		virtual NzString GetFamilyName() const = 0;
-		virtual NzString GetStyleName() const = 0;
+			virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* dst) = 0;
 
-		virtual bool HasKerning() const = 0;
+			virtual String GetFamilyName() const = 0;
+			virtual String GetStyleName() const = 0;
 
-		virtual bool IsScalable() const = 0;
+			virtual bool HasKerning() const = 0;
 
-		virtual int QueryKerning(unsigned int characterSize, char32_t first, char32_t second) const = 0;
-		virtual unsigned int QueryLineHeight(unsigned int characterSize) const = 0;
-		virtual float QueryUnderlinePosition(unsigned int characterSize) const = 0;
-		virtual float QueryUnderlineThickness(unsigned int characterSize) const = 0;
+			virtual bool IsScalable() const = 0;
 
-		virtual bool SupportsStyle(nzUInt32 style) const = 0;
-};
+			virtual int QueryKerning(unsigned int characterSize, char32_t first, char32_t second) const = 0;
+			virtual unsigned int QueryLineHeight(unsigned int characterSize) const = 0;
+			virtual float QueryUnderlinePosition(unsigned int characterSize) const = 0;
+			virtual float QueryUnderlineThickness(unsigned int characterSize) const = 0;
+
+			virtual bool SupportsStyle(UInt32 style) const = 0;
+	};
+}
 
 #endif // NAZARA_FONTDATA_HPP

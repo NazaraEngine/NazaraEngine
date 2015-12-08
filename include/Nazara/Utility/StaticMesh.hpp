@@ -11,48 +11,51 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
-class NzStaticMesh;
-
-using NzStaticMeshConstRef = NzObjectRef<const NzStaticMesh>;
-using NzStaticMeshRef = NzObjectRef<NzStaticMesh>;
-
-class NAZARA_UTILITY_API NzStaticMesh final : public NzSubMesh
+namespace Nz
 {
-	public:
-		NzStaticMesh(const NzMesh* parent);
-		~NzStaticMesh();
+	class StaticMesh;
 
-		void Center();
+	using StaticMeshConstRef = ObjectRef<const StaticMesh>;
+	using StaticMeshRef = ObjectRef<StaticMesh>;
 
-		bool Create(NzVertexBuffer* vertexBuffer);
-		void Destroy();
+	class NAZARA_UTILITY_API StaticMesh final : public SubMesh
+	{
+		public:
+			StaticMesh(const Mesh* parent);
+			~StaticMesh();
 
-		bool GenerateAABB();
+			void Center();
 
-		const NzBoxf& GetAABB() const override;
-		nzAnimationType GetAnimationType() const final;
-		const NzIndexBuffer* GetIndexBuffer() const override;
-		NzVertexBuffer* GetVertexBuffer();
-		const NzVertexBuffer* GetVertexBuffer() const;
-		unsigned int GetVertexCount() const override;
+			bool Create(VertexBuffer* vertexBuffer);
+			void Destroy();
 
-		bool IsAnimated() const final;
-		bool IsValid() const;
+			bool GenerateAABB();
 
-		void SetAABB(const NzBoxf& aabb);
-		void SetIndexBuffer(const NzIndexBuffer* indexBuffer);
+			const Boxf& GetAABB() const override;
+			AnimationType GetAnimationType() const final;
+			const IndexBuffer* GetIndexBuffer() const override;
+			VertexBuffer* GetVertexBuffer();
+			const VertexBuffer* GetVertexBuffer() const;
+			unsigned int GetVertexCount() const override;
 
-		template<typename... Args> static NzStaticMeshRef New(Args&&... args);
+			bool IsAnimated() const final;
+			bool IsValid() const;
 
-		// Signals:
-		NazaraSignal(OnStaticMeshDestroy, const NzStaticMesh* /*staticMesh*/);
-		NazaraSignal(OnStaticMeshRelease, const NzStaticMesh* /*staticMesh*/);
+			void SetAABB(const Boxf& aabb);
+			void SetIndexBuffer(const IndexBuffer* indexBuffer);
 
-	private:
-		NzBoxf m_aabb;
-		NzIndexBufferConstRef m_indexBuffer = nullptr;
-		NzVertexBufferRef m_vertexBuffer = nullptr;
-};
+			template<typename... Args> static StaticMeshRef New(Args&&... args);
+
+			// Signals:
+			NazaraSignal(OnStaticMeshDestroy, const StaticMesh* /*staticMesh*/);
+			NazaraSignal(OnStaticMeshRelease, const StaticMesh* /*staticMesh*/);
+
+		private:
+			Boxf m_aabb;
+			IndexBufferConstRef m_indexBuffer = nullptr;
+			VertexBufferRef m_vertexBuffer = nullptr;
+	};
+}
 
 #include <Nazara/Utility/StaticMesh.inl>
 

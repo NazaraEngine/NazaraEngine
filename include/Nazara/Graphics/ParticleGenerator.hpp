@@ -14,34 +14,37 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
-class NzParticleGenerator;
-class NzParticleMapper;
-class NzParticleSystem;
-
-using NzParticleGeneratorConstRef = NzObjectRef<const NzParticleGenerator>;
-using NzParticleGeneratorLibrary = NzObjectLibrary<NzParticleGenerator>;
-using NzParticleGeneratorRef = NzObjectRef<NzParticleGenerator>;
-
-class NAZARA_GRAPHICS_API NzParticleGenerator : public NzRefCounted
+namespace Nz
 {
-	friend NzParticleGeneratorLibrary;
-	friend class NzGraphics;
+	class ParticleGenerator;
+	class ParticleMapper;
+	class ParticleSystem;
 
-	public:
-		NzParticleGenerator() = default;
-		NzParticleGenerator(const NzParticleGenerator& generator);
-		virtual ~NzParticleGenerator();
+	using ParticleGeneratorConstRef = ObjectRef<const ParticleGenerator>;
+	using ParticleGeneratorLibrary = ObjectLibrary<ParticleGenerator>;
+	using ParticleGeneratorRef = ObjectRef<ParticleGenerator>;
 
-		virtual void Generate(NzParticleSystem& system, NzParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
+	class NAZARA_GRAPHICS_API ParticleGenerator : public RefCounted
+	{
+		friend ParticleGeneratorLibrary;
+		friend class Graphics;
 
-		// Signals:
-		NazaraSignal(OnParticleGeneratorRelease, const NzParticleGenerator* /*particleGenerator*/);
+		public:
+			ParticleGenerator() = default;
+			ParticleGenerator(const ParticleGenerator& generator);
+			virtual ~ParticleGenerator();
 
-	private:
-		static bool Initialize();
-		static void Uninitialize();
+			virtual void Generate(ParticleSystem& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
 
-		static NzParticleGeneratorLibrary::LibraryMap s_library;
-};
+			// Signals:
+			NazaraSignal(OnParticleGeneratorRelease, const ParticleGenerator* /*particleGenerator*/);
+
+		private:
+			static bool Initialize();
+			static void Uninitialize();
+
+			static ParticleGeneratorLibrary::LibraryMap s_library;
+	};
+}
 
 #endif // NAZARA_PARTICLEGENERATOR_HPP

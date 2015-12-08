@@ -116,6 +116,7 @@
 	#endif
 #elif defined(__linux__) || defined(__unix__)
 	#define NAZARA_PLATFORM_LINUX
+	#define NAZARA_PLATFORM_GLX
 	#define NAZARA_PLATFORM_POSIX
 	#define NAZARA_PLATFORM_X11
 
@@ -165,16 +166,19 @@ static_assert(sizeof(uint16_t) == 2, "uint16_t is not of the correct size");
 static_assert(sizeof(uint32_t) == 4, "uint32_t is not of the correct size");
 static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
-typedef int8_t nzInt8;
-typedef uint8_t nzUInt8;
+namespace Nz
+{
+    typedef int8_t Int8;
+    typedef uint8_t UInt8;
 
-typedef int16_t nzInt16;
-typedef uint16_t nzUInt16;
+    typedef int16_t Int16;
+    typedef uint16_t UInt16;
 
-typedef int32_t nzInt32;
-typedef uint32_t nzUInt32;
+    typedef int32_t Int32;
+    typedef uint32_t UInt32;
 
-typedef int64_t nzInt64;
-typedef uint64_t nzUInt64;
+    typedef int64_t Int64;
+    typedef uint64_t UInt64;
+}
 
 #endif // NAZARA_PREREQUESITES_HPP

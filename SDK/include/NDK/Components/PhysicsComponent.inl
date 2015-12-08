@@ -12,21 +12,21 @@ namespace Ndk
 		NazaraUnused(physics);
 	}
 
-	inline void PhysicsComponent::AddForce(const NzVector3f& force, nzCoordSys coordSys)
+	inline void PhysicsComponent::AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->AddForce(force, coordSys);
 	}
 
-	inline void PhysicsComponent::AddForce(const NzVector3f& force, const NzVector3f& point, nzCoordSys coordSys)
+	inline void PhysicsComponent::AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->AddForce(force, point, coordSys);
 	}
 
-	inline void PhysicsComponent::AddTorque(const NzVector3f& torque, nzCoordSys coordSys)
+	inline void PhysicsComponent::AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -40,14 +40,14 @@ namespace Ndk
 		m_object->EnableAutoSleep(autoSleep);
 	}
 
-	inline NzBoxf PhysicsComponent::GetAABB() const
+	inline Nz::Boxf PhysicsComponent::GetAABB() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetAABB();
 	}
 
-	inline NzVector3f PhysicsComponent::GetAngularVelocity() const
+	inline Nz::Vector3f PhysicsComponent::GetAngularVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -68,35 +68,35 @@ namespace Ndk
 		return m_object->GetMass();
 	}
 
-	inline NzVector3f PhysicsComponent::GetMassCenter(nzCoordSys coordSys) const
+	inline Nz::Vector3f PhysicsComponent::GetMassCenter(Nz::CoordSys coordSys) const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetMassCenter(coordSys);
 	}
 
-	inline const NzMatrix4f& PhysicsComponent::GetMatrix() const
+	inline const Nz::Matrix4f& PhysicsComponent::GetMatrix() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetMatrix();
 	}
 
-	inline NzVector3f PhysicsComponent::GetPosition() const
+	inline Nz::Vector3f PhysicsComponent::GetPosition() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetPosition();
 	}
 
-	inline NzQuaternionf PhysicsComponent::GetRotation() const
+	inline Nz::Quaternionf PhysicsComponent::GetRotation() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetRotation();
 	}
 
-	inline NzVector3f PhysicsComponent::GetVelocity() const
+	inline Nz::Vector3f PhysicsComponent::GetVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -117,7 +117,7 @@ namespace Ndk
 		return m_object->IsSleeping();
 	}
 
-	inline void PhysicsComponent::SetAngularVelocity(const NzVector3f& angularVelocity)
+	inline void PhysicsComponent::SetAngularVelocity(const Nz::Vector3f& angularVelocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -139,35 +139,35 @@ namespace Ndk
 		m_object->SetMass(mass);
 	}
 
-	inline void PhysicsComponent::SetMassCenter(const NzVector3f& center)
+	inline void PhysicsComponent::SetMassCenter(const Nz::Vector3f& center)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetMassCenter(center);
 	}
 
-	inline void PhysicsComponent::SetPosition(const NzVector3f& position)
+	inline void PhysicsComponent::SetPosition(const Nz::Vector3f& position)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetPosition(position);
 	}
 
-	inline void PhysicsComponent::SetRotation(const NzQuaternionf& rotation)
+	inline void PhysicsComponent::SetRotation(const Nz::Quaternionf& rotation)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetRotation(rotation);
 	}
 
-	inline void PhysicsComponent::SetVelocity(const NzVector3f& velocity)
+	inline void PhysicsComponent::SetVelocity(const Nz::Vector3f& velocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetVelocity(velocity);
 	}
 
-	inline NzPhysObject& PhysicsComponent::GetPhysObject()
+	inline Nz::PhysObject& PhysicsComponent::GetPhysObject()
 	{
 		return *m_object.get();
 	}

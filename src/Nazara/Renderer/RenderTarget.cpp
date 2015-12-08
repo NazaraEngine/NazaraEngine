@@ -6,27 +6,30 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-NzRenderTarget::~NzRenderTarget()
+namespace Nz
 {
-	OnRenderTargetRelease(this);
-}
+	RenderTarget::~RenderTarget()
+	{
+		OnRenderTargetRelease(this);
+	}
 
-bool NzRenderTarget::IsActive() const
-{
-	return NzRenderer::GetTarget() == this;
-}
+	bool RenderTarget::IsActive() const
+	{
+		return Renderer::GetTarget() == this;
+	}
 
-bool NzRenderTarget::SetActive(bool active)
-{
-	if (active)
-		return NzRenderer::SetTarget(this);
-	else if (NzRenderer::GetTarget() == this)
-		return NzRenderer::SetTarget(nullptr);
+	bool RenderTarget::SetActive(bool active)
+	{
+		if (active)
+			return Renderer::SetTarget(this);
+		else if (Renderer::GetTarget() == this)
+			return Renderer::SetTarget(nullptr);
 
-	return true;
-}
+		return true;
+	}
 
-void NzRenderTarget::Desactivate() const
-{
-	// Seuls les target sans contextes (ex: NzRenderTexture) nécessitent une désactivation
+	void RenderTarget::Desactivate() const
+	{
+		// Seuls les target sans contextes (ex: RenderTexture) nécessitent une désactivation
+	}
 }

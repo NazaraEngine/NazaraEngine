@@ -132,6 +132,10 @@ namespace Ndk
 			{
 				for (auto& system : m_systems)
 				{
+					// Ignore non-existent systems
+					if (!system)
+						continue;
+
 					// L'entité est-elle enregistrée comme faisant partie du système ?
 					bool partOfSystem = system->HasEntity(entity);
 

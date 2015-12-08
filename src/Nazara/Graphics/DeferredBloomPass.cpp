@@ -7,161 +7,164 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDeferredBloomPass::NzDeferredBloomPass() :
-m_uniformUpdated(false),
-m_brightLuminance(0.8f),
-m_brightMiddleGrey(0.5f),
-m_brightThreshold(0.8f),
-m_blurPassCount(5)
+namespace Nz
 {
-	m_bilinearSampler.SetAnisotropyLevel(1);
-	m_bilinearSampler.SetFilterMode(nzSamplerFilter_Bilinear);
-	m_bilinearSampler.SetWrapMode(nzSamplerWrap_Clamp);
-
-	m_bloomBrightShader = NzShaderLibrary::Get("DeferredBloomBright");
-	m_bloomFinalShader = NzShaderLibrary::Get("DeferredBloomFinal");
-	m_bloomStates.parameters[nzRendererParameter_DepthBuffer] = false;
-	m_gaussianBlurShader = NzShaderLibrary::Get("DeferredGaussianBlur");
-	m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
-
-	for (unsigned int i = 0; i < 2; ++i)
-		m_bloomTextures[i] = NzTexture::New();
-}
-
-NzDeferredBloomPass::~NzDeferredBloomPass() = default;
-
-unsigned int NzDeferredBloomPass::GetBlurPassCount() const
-{
-	return m_blurPassCount;
-}
-
-float NzDeferredBloomPass::GetBrightLuminance() const
-{
-	return m_brightLuminance;
-}
-
-float NzDeferredBloomPass::GetBrightMiddleGrey() const
-{
-	return m_brightMiddleGrey;
-}
-
-float NzDeferredBloomPass::GetBrightThreshold() const
-{
-	return m_brightThreshold;
-}
-
-NzTexture* NzDeferredBloomPass::GetTexture(unsigned int i) const
-{
-	#if NAZARA_GRAPHICS_SAFE
-	if (i >= 2)
+	DeferredBloomPass::DeferredBloomPass() :
+	m_uniformUpdated(false),
+	m_brightLuminance(0.8f),
+	m_brightMiddleGrey(0.5f),
+	m_brightThreshold(0.8f),
+	m_blurPassCount(5)
 	{
-		NazaraError("Texture index out of range (" + NzString::Number(i) + " >= 2)");
-		return nullptr;
-	}
-	#endif
+		m_bilinearSampler.SetAnisotropyLevel(1);
+		m_bilinearSampler.SetFilterMode(SamplerFilter_Bilinear);
+		m_bilinearSampler.SetWrapMode(SamplerWrap_Clamp);
 
-	return m_bloomTextures[i];
-}
+		m_bloomBrightShader = ShaderLibrary::Get("DeferredBloomBright");
+		m_bloomFinalShader = ShaderLibrary::Get("DeferredBloomFinal");
+		m_bloomStates.parameters[RendererParameter_DepthBuffer] = false;
+		m_gaussianBlurShader = ShaderLibrary::Get("DeferredGaussianBlur");
+		m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
-bool NzDeferredBloomPass::Process(const NzSceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
-{
-	NazaraUnused(sceneData);
-
-	NzRenderer::SetRenderStates(m_bloomStates);
-	NzRenderer::SetTextureSampler(0, m_bilinearSampler);
-	NzRenderer::SetTextureSampler(1, m_bilinearSampler);
-
-	m_workRTT->SetColorTarget(firstWorkTexture);
-	NzRenderer::SetTarget(m_workRTT);
-	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
-
-	NzRenderer::SetShader(m_bloomBrightShader);
-	if (!m_uniformUpdated)
-	{
-		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightLuminance"), m_brightLuminance);
-		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightMiddleGrey"), m_brightMiddleGrey);
-		m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightThreshold"), m_brightThreshold);
-
-		m_uniformUpdated = true;
+		for (unsigned int i = 0; i < 2; ++i)
+			m_bloomTextures[i] = Texture::New();
 	}
 
-	NzRenderer::SetTexture(0, m_workTextures[secondWorkTexture]);
-	NzRenderer::DrawFullscreenQuad();
+	DeferredBloomPass::~DeferredBloomPass() = default;
 
-	NzRenderer::SetTarget(&m_bloomRTT);
-	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x/8, m_dimensions.y/8));
-
-	NzRenderer::SetShader(m_gaussianBlurShader);
-
-	for (unsigned int i = 0; i < m_blurPassCount; ++i)
+	unsigned int DeferredBloomPass::GetBlurPassCount() const
 	{
-		m_bloomRTT.SetColorTarget(0); // bloomTextureA
-
-		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(1.f, 0.f));
-
-		NzRenderer::SetTexture(0, (i == 0) ? m_workTextures[firstWorkTexture] : static_cast<const NzTexture*>(m_bloomTextures[1]));
-		NzRenderer::DrawFullscreenQuad();
-
-		m_bloomRTT.SetColorTarget(1); // bloomTextureB
-
-		m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, NzVector2f(0.f, 1.f));
-
-		NzRenderer::SetTexture(0, m_bloomTextures[0]);
-		NzRenderer::DrawFullscreenQuad();
+		return m_blurPassCount;
 	}
 
-	m_workRTT->SetColorTarget(firstWorkTexture);
-	NzRenderer::SetTarget(m_workRTT);
-	NzRenderer::SetViewport(NzRecti(0, 0, m_dimensions.x, m_dimensions.y));
-
-	NzRenderer::SetShader(m_bloomFinalShader);
-	NzRenderer::SetTexture(0, m_bloomTextures[1]);
-	NzRenderer::SetTexture(1, m_workTextures[secondWorkTexture]);
-	NzRenderer::DrawFullscreenQuad();
-
-	return true;
-}
-
-bool NzDeferredBloomPass::Resize(const NzVector2ui& dimensions)
-{
-	NzDeferredRenderPass::Resize(dimensions);
-
-	m_bloomRTT.Create(true);
-	for (unsigned int i = 0; i < 2; ++i)
+	float DeferredBloomPass::GetBrightLuminance() const
 	{
-		m_bloomTextures[i]->Create(nzImageType_2D, nzPixelFormat_RGBA8, dimensions.x/8, dimensions.y/8);
-		m_bloomRTT.AttachTexture(nzAttachmentPoint_Color, i, m_bloomTextures[i]);
-	}
-	m_bloomRTT.Unlock();
-
-	if (!m_bloomRTT.IsComplete())
-	{
-		NazaraError("Incomplete RTT");
-		return false;
+		return m_brightLuminance;
 	}
 
-	return true;
-}
+	float DeferredBloomPass::GetBrightMiddleGrey() const
+	{
+		return m_brightMiddleGrey;
+	}
 
-void NzDeferredBloomPass::SetBlurPassCount(unsigned int passCount)
-{
-	m_blurPassCount = passCount; // N'est pas une uniforme
-}
+	float DeferredBloomPass::GetBrightThreshold() const
+	{
+		return m_brightThreshold;
+	}
 
-void NzDeferredBloomPass::SetBrightLuminance(float luminance)
-{
-	m_brightLuminance = luminance;
-	m_uniformUpdated = false;
-}
+	Texture* DeferredBloomPass::GetTexture(unsigned int i) const
+	{
+		#if NAZARA_GRAPHICS_SAFE
+		if (i >= 2)
+		{
+			NazaraError("Texture index out of range (" + String::Number(i) + " >= 2)");
+			return nullptr;
+		}
+		#endif
 
-void NzDeferredBloomPass::SetBrightMiddleGrey(float middleGrey)
-{
-	m_brightMiddleGrey = middleGrey;
-	m_uniformUpdated = false;
-}
+		return m_bloomTextures[i];
+	}
 
-void NzDeferredBloomPass::SetBrightThreshold(float threshold)
-{
-	m_brightThreshold = threshold;
-	m_uniformUpdated = false;
+	bool DeferredBloomPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	{
+		NazaraUnused(sceneData);
+
+		Renderer::SetRenderStates(m_bloomStates);
+		Renderer::SetTextureSampler(0, m_bilinearSampler);
+		Renderer::SetTextureSampler(1, m_bilinearSampler);
+
+		m_workRTT->SetColorTarget(firstWorkTexture);
+		Renderer::SetTarget(m_workRTT);
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
+
+		Renderer::SetShader(m_bloomBrightShader);
+		if (!m_uniformUpdated)
+		{
+			m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightLuminance"), m_brightLuminance);
+			m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightMiddleGrey"), m_brightMiddleGrey);
+			m_bloomBrightShader->SendFloat(m_bloomBrightShader->GetUniformLocation("BrightThreshold"), m_brightThreshold);
+
+			m_uniformUpdated = true;
+		}
+
+		Renderer::SetTexture(0, m_workTextures[secondWorkTexture]);
+		Renderer::DrawFullscreenQuad();
+
+		Renderer::SetTarget(&m_bloomRTT);
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x/8, m_dimensions.y/8));
+
+		Renderer::SetShader(m_gaussianBlurShader);
+
+		for (unsigned int i = 0; i < m_blurPassCount; ++i)
+		{
+			m_bloomRTT.SetColorTarget(0); // bloomTextureA
+
+			m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, Vector2f(1.f, 0.f));
+
+			Renderer::SetTexture(0, (i == 0) ? m_workTextures[firstWorkTexture] : static_cast<const Texture*>(m_bloomTextures[1]));
+			Renderer::DrawFullscreenQuad();
+
+			m_bloomRTT.SetColorTarget(1); // bloomTextureB
+
+			m_gaussianBlurShader->SendVector(m_gaussianBlurShaderFilterLocation, Vector2f(0.f, 1.f));
+
+			Renderer::SetTexture(0, m_bloomTextures[0]);
+			Renderer::DrawFullscreenQuad();
+		}
+
+		m_workRTT->SetColorTarget(firstWorkTexture);
+		Renderer::SetTarget(m_workRTT);
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
+
+		Renderer::SetShader(m_bloomFinalShader);
+		Renderer::SetTexture(0, m_bloomTextures[1]);
+		Renderer::SetTexture(1, m_workTextures[secondWorkTexture]);
+		Renderer::DrawFullscreenQuad();
+
+		return true;
+	}
+
+	bool DeferredBloomPass::Resize(const Vector2ui& dimensions)
+	{
+		DeferredRenderPass::Resize(dimensions);
+
+		m_bloomRTT.Create(true);
+		for (unsigned int i = 0; i < 2; ++i)
+		{
+			m_bloomTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, dimensions.x/8, dimensions.y/8);
+			m_bloomRTT.AttachTexture(AttachmentPoint_Color, i, m_bloomTextures[i]);
+		}
+		m_bloomRTT.Unlock();
+
+		if (!m_bloomRTT.IsComplete())
+		{
+			NazaraError("Incomplete RTT");
+			return false;
+		}
+
+		return true;
+	}
+
+	void DeferredBloomPass::SetBlurPassCount(unsigned int passCount)
+	{
+		m_blurPassCount = passCount; // N'est pas une uniforme
+	}
+
+	void DeferredBloomPass::SetBrightLuminance(float luminance)
+	{
+		m_brightLuminance = luminance;
+		m_uniformUpdated = false;
+	}
+
+	void DeferredBloomPass::SetBrightMiddleGrey(float middleGrey)
+	{
+		m_brightMiddleGrey = middleGrey;
+		m_uniformUpdated = false;
+	}
+
+	void DeferredBloomPass::SetBrightThreshold(float threshold)
+	{
+		m_brightThreshold = threshold;
+		m_uniformUpdated = false;
+	}
 }

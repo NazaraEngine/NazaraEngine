@@ -9,7 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-void NzLoaders_PCX_Register();
-void NzLoaders_PCX_Unregister();
+namespace Nz
+{
+	namespace Loaders
+	{
+		void RegisterPCX();
+		void UnregisterPCX();
+	}
+}
 
 #endif // NAZARA_LOADERS_PCX_HPP

@@ -16,86 +16,89 @@
 
 #include <Nazara/Utility/Debug.hpp>
 
-NzVideoMode::NzVideoMode() :
-bitsPerPixel(0),
-height(0),
-width(0)
+namespace Nz
 {
-}
-
-NzVideoMode::NzVideoMode(unsigned int w, unsigned int h, nzUInt8 bpp) :
-bitsPerPixel(bpp),
-height(h),
-width(w)
-{
-}
-
-bool NzVideoMode::IsFullscreenValid() const
-{
-	const std::vector<NzVideoMode>& modes = GetFullscreenModes();
-
-	return std::binary_search(modes.begin(), modes.end(), *this, std::greater<NzVideoMode>());
-}
-
-NzVideoMode NzVideoMode::GetDesktopMode()
-{
-	return NzVideoModeImpl::GetDesktopMode();
-}
-
-const std::vector<NzVideoMode>& NzVideoMode::GetFullscreenModes()
-{
-	static std::vector<NzVideoMode> modes;
-	if (modes.empty())
+	VideoMode::VideoMode() :
+	bitsPerPixel(0),
+	height(0),
+	width(0)
 	{
-		NzVideoModeImpl::GetFullscreenModes(modes);
-		std::sort(modes.begin(), modes.end(), std::greater<NzVideoMode>());
 	}
 
-	return modes;
-}
-
-bool operator==(const NzVideoMode& left, const NzVideoMode& right)
-{
-	return left.width == right.width && left.height == right.height && left.bitsPerPixel == right.bitsPerPixel;
-}
-
-bool operator!=(const NzVideoMode& left, const NzVideoMode& right)
-{
-	return left.width != right.width || left.height != right.height || left.bitsPerPixel != right.bitsPerPixel;
-}
-
-bool operator<(const NzVideoMode& left, const NzVideoMode& right)
-{
-	if (left.bitsPerPixel == right.bitsPerPixel)
+	VideoMode::VideoMode(unsigned int w, unsigned int h, UInt8 bpp) :
+	bitsPerPixel(bpp),
+	height(h),
+	width(w)
 	{
-		if (left.width == right.width)
-			return left.height < right.height;
+	}
+
+	bool VideoMode::IsFullscreenValid() const
+	{
+		const std::vector<VideoMode>& modes = GetFullscreenModes();
+
+		return std::binary_search(modes.begin(), modes.end(), *this, std::greater<VideoMode>());
+	}
+
+	VideoMode VideoMode::GetDesktopMode()
+	{
+		return VideoModeImpl::GetDesktopMode();
+	}
+
+	const std::vector<VideoMode>& VideoMode::GetFullscreenModes()
+	{
+		static std::vector<VideoMode> modes;
+		if (modes.empty())
+		{
+			VideoModeImpl::GetFullscreenModes(modes);
+			std::sort(modes.begin(), modes.end(), std::greater<VideoMode>());
+		}
+
+		return modes;
+	}
+
+	bool operator==(const VideoMode& left, const VideoMode& right)
+	{
+		return left.width == right.width && left.height == right.height && left.bitsPerPixel == right.bitsPerPixel;
+	}
+
+	bool operator!=(const VideoMode& left, const VideoMode& right)
+	{
+		return left.width != right.width || left.height != right.height || left.bitsPerPixel != right.bitsPerPixel;
+	}
+
+	bool operator<(const VideoMode& left, const VideoMode& right)
+	{
+		if (left.bitsPerPixel == right.bitsPerPixel)
+		{
+			if (left.width == right.width)
+				return left.height < right.height;
+			else
+				return left.width < right.width;
+		}
 		else
-			return left.width < right.width;
+			return left.bitsPerPixel < right.bitsPerPixel;
 	}
-	else
-		return left.bitsPerPixel < right.bitsPerPixel;
-}
 
-bool operator<=(const NzVideoMode& left, const NzVideoMode& right)
-{
-	if (left.bitsPerPixel == right.bitsPerPixel)
+	bool operator<=(const VideoMode& left, const VideoMode& right)
 	{
-		if (left.width == right.width)
-			return left.height <= right.height;
+		if (left.bitsPerPixel == right.bitsPerPixel)
+		{
+			if (left.width == right.width)
+				return left.height <= right.height;
+			else
+				return left.width < right.width;
+		}
 		else
-			return left.width < right.width;
+			return left.bitsPerPixel < right.bitsPerPixel;
 	}
-	else
-		return left.bitsPerPixel < right.bitsPerPixel;
-}
 
-bool operator>(const NzVideoMode& left, const NzVideoMode& right)
-{
-	return right < left;
-}
+	bool operator>(const VideoMode& left, const VideoMode& right)
+	{
+		return right < left;
+	}
 
-bool operator>=(const NzVideoMode& left, const NzVideoMode& right)
-{
-	return right <= left;
+	bool operator>=(const VideoMode& left, const VideoMode& right)
+	{
+		return right <= left;
+	}
 }

@@ -9,8 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-bool NzClockImplInitializeHighPrecision();
-nzUInt64 NzClockImplGetMicroseconds();
-nzUInt64 NzClockImplGetMilliseconds();
+namespace Nz
+{
+	bool ClockImplInitializeHighPrecision();
+	UInt64 ClockImplGetElapsedMicroseconds();
+	UInt64 ClockImplGetElapsedMilliseconds();
+}
 
 #endif // NAZARA_CLOCKIMPL_WINDOWS_HPP

@@ -6,10 +6,14 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzParticleMapper::NzParticleMapper(void* buffer, const NzParticleDeclaration* declaration) :
-m_declaration(declaration),
-m_ptr(static_cast<nzUInt8*>(buffer))
+namespace Nz
 {
-}
+	ParticleMapper::ParticleMapper(void* buffer, const ParticleDeclaration* declaration) :
+	m_declaration(declaration),
+	m_ptr(static_cast<UInt8*>(buffer))
+	{
+	}
 
-NzParticleMapper::~NzParticleMapper() = default;
+	ParticleMapper::~ParticleMapper() = default;
+
+}

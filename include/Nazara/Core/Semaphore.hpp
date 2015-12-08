@@ -8,25 +8,32 @@
 #define NAZARA_SEMAPHORE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/NonCopyable.hpp>
 
-class NzSemaphoreImpl;
-
-class NAZARA_CORE_API NzSemaphore : NzNonCopyable
+namespace Nz
 {
-	public:
-		NzSemaphore(unsigned int count);
-		~NzSemaphore();
+	class SemaphoreImpl;
 
-		unsigned int GetCount() const;
+	class NAZARA_CORE_API Semaphore
+	{
+		public:
+			Semaphore(unsigned int count);
+			Semaphore(const Semaphore&) = delete;
+			Semaphore(Semaphore&&) = delete; ///TODO
+			~Semaphore();
 
-		void Post();
+			unsigned int GetCount() const;
 
-		void Wait();
-		bool Wait(nzUInt32 timeout);
+			void Post();
 
-	private:
-		NzSemaphoreImpl* m_impl;
-};
+			void Wait();
+			bool Wait(UInt32 timeout);
+
+			Semaphore& operator=(const Semaphore&) = delete;
+			Semaphore& operator=(Semaphore&&) = delete; ///TODO
+
+		private:
+			SemaphoreImpl* m_impl;
+	};
+}
 
 #endif // NAZARA_SEMAPHORE_HPP

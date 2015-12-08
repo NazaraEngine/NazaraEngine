@@ -9,11 +9,14 @@
 
 #include <Nazara/Utility/VideoMode.hpp>
 
-class NzVideoModeImpl
+namespace Nz
 {
-	public:
-		static NzVideoMode GetDesktopMode();
-		static void GetFullscreenModes(std::vector<NzVideoMode>& modes);
-};
+	class VideoModeImpl
+	{
+		public:
+			static VideoMode GetDesktopMode();
+			static void GetFullscreenModes(std::vector<VideoMode>& modes);
+	};
+}
 
 #endif // NNAZARA_VIDEOMODEIMPL_HPP

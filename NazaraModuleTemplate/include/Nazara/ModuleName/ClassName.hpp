@@ -7,19 +7,22 @@
 #ifndef NAZARA_CLASSNAME_HPP
 #define NAZARA_CLASSNAME_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/ModuleName/Config.hpp>
 
-class NAZARA_API NzClassName
+namespace Nz
 {
-	public:
-		NzClassName();
+	class NAZARA_MODULENAME_API ClassName
+	{
+		public:
+			ClassName();
 
-		int GetAttribute() const;
+			int GetAttribute() const;
 
-		void SetAttribute(int attribute);
+			void SetAttribute(int attribute);
 
-	private:
-		int m_attribute;
-};
+		private:
+			int m_attribute;
+	};
+}
 
 #endif // NAZARA_CLASSNAME_HPP

@@ -15,7 +15,7 @@
 // On force la valeur de MANAGE_MEMORY en mode debug
 #if defined(NAZARA_DEBUG) && !NAZARA_AUDIO_MANAGE_MEMORY
 	#undef NAZARA_AUDIO_MANAGE_MEMORY
-	#define NAZARA_AUDIO_MANAGE_MEMORY 1
+	#define NAZARA_AUDIO_MANAGE_MEMORY 0
 #endif
 
 NazaraCheckTypeAndVal(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, integral, >, 0, " shall be a strictly positive integer");

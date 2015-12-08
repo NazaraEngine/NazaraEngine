@@ -5,17 +5,21 @@
 #include <Nazara/ModuleName/ClassName.hpp>
 #include <Nazara/ModuleName/Debug.hpp>
 
-NzClassName::NzClassName() :
-m_attribute(42)
+namespace Nz
 {
+	ClassName::ClassName() :
+	m_attribute(42)
+	{
+	}
+
+	int ClassName::GetAttribute() const
+	{
+		return m_attribute;
+	}
+
+	void ClassName::SetAttribute(int attribute)
+	{
+		m_attribute = attribute;
+	}
 }
 
-int NzClassName::GetAttribute() const
-{
-	return m_attribute;
-}
-
-void NzClassName::SetAttribute(int attribute)
-{
-	m_attribute = attribute;
-}

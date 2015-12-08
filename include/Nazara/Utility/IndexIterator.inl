@@ -6,166 +6,169 @@
 #include <iterator>
 #include <Nazara/Utility/Debug.hpp>
 
-inline NzIndexIterator::NzIndexIterator() :
-m_mapper(nullptr),
-m_index(0)
+namespace Nz
 {
-}
+	inline IndexIterator::IndexIterator() :
+	m_mapper(nullptr),
+	m_index(0)
+	{
+	}
 
-inline NzIndexIterator::NzIndexIterator(const NzIndexIterator& iterator) :
-m_mapper(iterator.m_mapper),
-m_index(iterator.m_index)
-{
-}
+	inline IndexIterator::IndexIterator(const IndexIterator& iterator) :
+	m_mapper(iterator.m_mapper),
+	m_index(iterator.m_index)
+	{
+	}
 
-inline NzIndexIterator::NzIndexIterator(NzIndexMapper* mapper, unsigned int index) :
-m_mapper(mapper),
-m_index(index)
-{
-}
+	inline IndexIterator::IndexIterator(IndexMapper* mapper, unsigned int index) :
+	m_mapper(mapper),
+	m_index(index)
+	{
+	}
 
-inline NzIndexIterator::Reference NzIndexIterator::operator*() const
-{
-	return Reference(m_mapper, m_index);
-}
+	inline IndexIterator::Reference IndexIterator::operator*() const
+	{
+		return Reference(m_mapper, m_index);
+	}
 
-inline NzIndexIterator::Reference NzIndexIterator::operator[](unsigned int index) const
-{
-	return Reference(m_mapper, m_index+index);
-}
+	inline IndexIterator::Reference IndexIterator::operator[](unsigned int index) const
+	{
+		return Reference(m_mapper, m_index+index);
+	}
 
-inline NzIndexIterator& NzIndexIterator::operator=(const NzIndexIterator& iterator)
-{
-	m_mapper = iterator.m_mapper;
-	m_index = iterator.m_index;
+	inline IndexIterator& IndexIterator::operator=(const IndexIterator& iterator)
+	{
+		m_mapper = iterator.m_mapper;
+		m_index = iterator.m_index;
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator NzIndexIterator::operator+(unsigned int indexCount) const
-{
-	return NzIndexIterator(m_mapper, m_index + indexCount);
-}
+	inline IndexIterator IndexIterator::operator+(unsigned int indexCount) const
+	{
+		return IndexIterator(m_mapper, m_index + indexCount);
+	}
 
-inline NzIndexIterator NzIndexIterator::operator-(unsigned int indexCount) const
-{
-	return NzIndexIterator(m_mapper, m_index - indexCount);
-}
+	inline IndexIterator IndexIterator::operator-(unsigned int indexCount) const
+	{
+		return IndexIterator(m_mapper, m_index - indexCount);
+	}
 
-inline NzIndexIterator& NzIndexIterator::operator+=(unsigned int indexCount)
-{
-	m_index += indexCount;
+	inline IndexIterator& IndexIterator::operator+=(unsigned int indexCount)
+	{
+		m_index += indexCount;
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator& NzIndexIterator::operator-=(unsigned int indexCount)
-{
-	m_index += indexCount;
+	inline IndexIterator& IndexIterator::operator-=(unsigned int indexCount)
+	{
+		m_index += indexCount;
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator& NzIndexIterator::operator++()
-{
-	m_index++;
+	inline IndexIterator& IndexIterator::operator++()
+	{
+		m_index++;
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator NzIndexIterator::operator++(int)
-{
-	NzIndexIterator iterator(*this);
-	operator++();
+	inline IndexIterator IndexIterator::operator++(int)
+	{
+		IndexIterator iterator(*this);
+		operator++();
 
-	return iterator;
-}
+		return iterator;
+	}
 
-inline NzIndexIterator& NzIndexIterator::operator--()
-{
-	m_index--;
+	inline IndexIterator& IndexIterator::operator--()
+	{
+		m_index--;
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator NzIndexIterator::operator--(int)
-{
-	NzIndexIterator iterator(*this);
-	operator--();
+	inline IndexIterator IndexIterator::operator--(int)
+	{
+		IndexIterator iterator(*this);
+		operator--();
 
-	return iterator;
-}
+		return iterator;
+	}
 
-inline bool operator==(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	return lhs.m_mapper == rhs.m_mapper && lhs.m_index == rhs.m_index;
-}
+	inline bool operator==(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		return lhs.m_mapper == rhs.m_mapper && lhs.m_index == rhs.m_index;
+	}
 
-inline bool operator!=(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	return !operator==(lhs, rhs);
-}
+	inline bool operator!=(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
 
-inline bool operator<(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	if (lhs.m_mapper == rhs.m_mapper)
-		return lhs.m_index < rhs.m_index;
-	else
-		return lhs.m_mapper < rhs.m_mapper;
-}
+	inline bool operator<(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		if (lhs.m_mapper == rhs.m_mapper)
+			return lhs.m_index < rhs.m_index;
+		else
+			return lhs.m_mapper < rhs.m_mapper;
+	}
 
-inline bool operator<=(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	return !operator<(rhs, lhs);
-}
+	inline bool operator<=(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		return !operator<(rhs, lhs);
+	}
 
-inline bool operator>(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	return operator<(rhs, lhs);
-}
+	inline bool operator>(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		return operator<(rhs, lhs);
+	}
 
-inline bool operator>=(const NzIndexIterator& lhs, const NzIndexIterator& rhs)
-{
-	return !operator<(lhs, rhs);
-}
+	inline bool operator>=(const IndexIterator& lhs, const IndexIterator& rhs)
+	{
+		return !operator<(lhs, rhs);
+	}
 
-/**************************NzIndexIterator::Reference*************************/
+	/**************************IndexIterator::Reference*************************/
 
-inline NzIndexIterator::Reference::Reference(NzIndexMapper* mapper, unsigned int index) :
-m_mapper(mapper),
-m_index(index)
-{
-}
+	inline IndexIterator::Reference::Reference(IndexMapper* mapper, unsigned int index) :
+	m_mapper(mapper),
+	m_index(index)
+	{
+	}
 
-inline NzIndexIterator::Reference& NzIndexIterator::Reference::operator=(nzUInt32 value)
-{
-	m_mapper->Set(m_index, value);
+	inline IndexIterator::Reference& IndexIterator::Reference::operator=(UInt32 value)
+	{
+		m_mapper->Set(m_index, value);
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator::Reference& NzIndexIterator::Reference::operator=(const NzIndexIterator::Reference& reference)
-{
-	m_mapper->Set(m_index, reference); // Conversion implicite en UInt32
+	inline IndexIterator::Reference& IndexIterator::Reference::operator=(const IndexIterator::Reference& reference)
+	{
+		m_mapper->Set(m_index, reference); // Conversion implicite en UInt32
 
-	return *this;
-}
+		return *this;
+	}
 
-inline NzIndexIterator::Reference::operator nzUInt32() const
-{
-	return m_mapper->Get(m_index);
+	inline IndexIterator::Reference::operator UInt32() const
+	{
+		return m_mapper->Get(m_index);
+	}
 }
 
 namespace std
 {
 	template<>
-	struct iterator_traits<NzIndexIterator>
+	struct iterator_traits<Nz::IndexIterator>
 	{
 		using difference_type = ptrdiff_t;
 		using iterator_category = random_access_iterator_tag;
-		using reference = const NzIndexIterator::Reference&;
-		using pointer = const NzIndexIterator::Reference*;
-		using value_type = NzIndexIterator::Reference;
+		using reference = const Nz::IndexIterator::Reference&;
+		using pointer = const Nz::IndexIterator::Reference*;
+		using value_type = Nz::IndexIterator::Reference;
 	};
 }
 

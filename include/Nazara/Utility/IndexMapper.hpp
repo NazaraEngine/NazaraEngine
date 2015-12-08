@@ -11,41 +11,44 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 
-class NzIndexBuffer;
-class NzIndexIterator;
-class NzSubMesh;
-
-using NzIndexMapperGetter = nzUInt32 (*)(const void* buffer, unsigned int i);
-using NzIndexMapperSetter = void (*)(void* buffer, unsigned int i, nzUInt32 value);
-
-class NAZARA_UTILITY_API NzIndexMapper
+namespace Nz
 {
-	public:
-		NzIndexMapper(NzIndexBuffer* indexBuffer, nzBufferAccess access = nzBufferAccess_ReadWrite);
-		NzIndexMapper(const NzIndexBuffer* indexBuffer, nzBufferAccess access = nzBufferAccess_ReadOnly);
-		NzIndexMapper(const NzSubMesh* subMesh);
-		~NzIndexMapper() = default;
+	class IndexBuffer;
+	class IndexIterator;
+	class SubMesh;
 
-		nzUInt32 Get(unsigned int i) const;
-		const NzIndexBuffer* GetBuffer() const;
-		unsigned int GetIndexCount() const;
+	using IndexMapperGetter = UInt32 (*)(const void* buffer, unsigned int i);
+	using IndexMapperSetter = void (*)(void* buffer, unsigned int i, UInt32 value);
 
-		void Set(unsigned int i, nzUInt32 value);
+	class NAZARA_UTILITY_API IndexMapper
+	{
+		public:
+			IndexMapper(IndexBuffer* indexBuffer, BufferAccess access = BufferAccess_ReadWrite);
+			IndexMapper(const IndexBuffer* indexBuffer, BufferAccess access = BufferAccess_ReadOnly);
+			IndexMapper(const SubMesh* subMesh);
+			~IndexMapper() = default;
 
-		void Unmap();
+			UInt32 Get(unsigned int i) const;
+			const IndexBuffer* GetBuffer() const;
+			unsigned int GetIndexCount() const;
 
-		// Méthodes STD
-		NzIndexIterator begin();
-		//NzIndexConstIterator begin() const;
-		NzIndexIterator end();
-		//NzIndexIterator end() const;
-		// Méthodes STD
+			void Set(unsigned int i, UInt32 value);
 
-	private:
-		NzBufferMapper<NzIndexBuffer> m_mapper;
-		NzIndexMapperGetter m_getter;
-		NzIndexMapperSetter m_setter;
-		unsigned int m_indexCount;
+			void Unmap();
+
+			// Méthodes STD
+			IndexIterator begin();
+			//IndexConstIterator begin() const;
+			IndexIterator end();
+			//IndexIterator end() const;
+			// Méthodes STD
+
+		private:
+			BufferMapper<IndexBuffer> m_mapper;
+			IndexMapperGetter m_getter;
+			IndexMapperSetter m_setter;
+			unsigned int m_indexCount;
 };
+}
 
 #endif // NAZARA_INDEXMAPPER_HPP

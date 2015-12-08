@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/InputStream.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -17,153 +16,157 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <atomic>
 
 ///TODO: Filtres
 
-struct NAZARA_UTILITY_API NzImageParams
+namespace Nz
 {
-	// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
-	nzPixelFormat loadFormat = nzPixelFormat_Undefined;
+	struct NAZARA_UTILITY_API ImageParams
+	{
+		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
+		PixelFormatType loadFormat = PixelFormatType_Undefined;
 
-	// Le nombre de niveaux de mipmaps maximum devant être créé
-	nzUInt8 levelCount = 0;
-
-	bool IsValid() const;
-};
-
-class NzImage;
-
-using NzImageConstRef = NzObjectRef<const NzImage>;
-using NzImageLibrary = NzObjectLibrary<NzImage>;
-using NzImageLoader = NzResourceLoader<NzImage, NzImageParams>;
-using NzImageManager = NzResourceManager<NzImage, NzImageParams>;
-using NzImageRef = NzObjectRef<NzImage>;
-
-class NAZARA_UTILITY_API NzImage : public NzAbstractImage, public NzRefCounted, public NzResource
-{
-	friend NzImageLibrary;
-	friend NzImageLoader;
-	friend NzImageManager;
-	friend class NzUtility;
-
-	public:
-		struct SharedImage;
-
-		NzImage();
-		NzImage(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
-		NzImage(const NzImage& image);
-		NzImage(SharedImage* sharedImage);
-		~NzImage();
-
-		bool Convert(nzPixelFormat format);
-
-		void Copy(const NzImage& source, const NzBoxui& srcBox, const NzVector3ui& dstPos);
-
-		bool Create(nzImageType type, nzPixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, nzUInt8 levelCount = 1);
-		void Destroy();
-
-		bool Fill(const NzColor& color);
-		bool Fill(const NzColor& color, const NzBoxui& box);
-		bool Fill(const NzColor& color, const NzRectui& rect, unsigned int z = 0);
-
-		bool FlipHorizontally();
-		bool FlipVertically();
-
-		const nzUInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0) const;
-		unsigned int GetDepth(nzUInt8 level = 0) const;
-		nzPixelFormat GetFormat() const;
-		unsigned int GetHeight(nzUInt8 level = 0) const;
-		nzUInt8 GetLevelCount() const;
-		nzUInt8 GetMaxLevel() const;
-		unsigned int GetMemoryUsage() const;
-		unsigned int GetMemoryUsage(nzUInt8 level) const;
-		NzColor GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
-		nzUInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, nzUInt8 level = 0);
-		NzVector3ui GetSize(nzUInt8 level = 0) const;
-		nzImageType GetType() const;
-		unsigned int GetWidth(nzUInt8 level = 0) const;
+		// Le nombre de niveaux de mipmaps maximum devant être créé
+		UInt8 levelCount = 0;
 
 		bool IsValid() const;
+	};
 
-		// Load
-		bool LoadFromFile(const NzString& filePath, const NzImageParams& params = NzImageParams());
-		bool LoadFromMemory(const void* data, std::size_t size, const NzImageParams& params = NzImageParams());
-		bool LoadFromStream(NzInputStream& stream, const NzImageParams& params = NzImageParams());
+	class Image;
 
-		// LoadArray
-		bool LoadArrayFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromImage(const NzImage& image, const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
-		bool LoadArrayFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), const NzVector2ui& atlasSize = NzVector2ui(2, 2));
+	using ImageConstRef = ObjectRef<const Image>;
+	using ImageLibrary = ObjectLibrary<Image>;
+	using ImageLoader = ResourceLoader<Image, ImageParams>;
+	using ImageManager = ResourceManager<Image, ImageParams>;
+	using ImageRef = ObjectRef<Image>;
 
-		// LoadCubemap
-		bool LoadCubemapFromFile(const NzString& filePath, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
-		bool LoadCubemapFromImage(const NzImage& image, const NzCubemapParams& params = NzCubemapParams());
-		bool LoadCubemapFromMemory(const void* data, std::size_t size, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
-		bool LoadCubemapFromStream(NzInputStream& stream, const NzImageParams& imageParams = NzImageParams(), const NzCubemapParams& cubemapParams = NzCubemapParams());
+	class NAZARA_UTILITY_API Image : public AbstractImage, public RefCounted, public Resource
+	{
+		friend ImageLibrary;
+		friend ImageLoader;
+		friend ImageManager;
+		friend class Utility;
 
-		void SetLevelCount(nzUInt8 levelCount);
-		bool SetPixelColor(const NzColor& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
+		public:
+			struct SharedImage;
 
-		bool Update(const nzUInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzBoxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
-		bool Update(const nzUInt8* pixels, const NzRectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, nzUInt8 level = 0);
+			Image();
+			Image(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			Image(const Image& image);
+			Image(SharedImage* sharedImage);
+			~Image();
 
-		NzImage& operator=(const NzImage& image);
+			bool Convert(PixelFormatType format);
 
-		static void Copy(nzUInt8* destination, const nzUInt8* source, nzUInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
-		static nzUInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
-		static nzUInt8 GetMaxLevel(nzImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
-		template<typename... Args> static NzImageRef New(Args&&... args);
+			void Copy(const Image& source, const Boxui& srcBox, const Vector3ui& dstPos);
 
-		struct SharedImage
-		{
-			using PixelContainer = std::vector<std::unique_ptr<nzUInt8[]>>;
+			bool Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			void Destroy();
 
-			SharedImage(unsigned short RefCount, nzImageType Type, nzPixelFormat Format, PixelContainer&& Levels, unsigned int Width, unsigned int Height, unsigned int Depth) :
-			type(Type),
-			format(Format),
-			levels(std::move(Levels)),
-			depth(Depth),
-			height(Height),
-			width(Width),
-			refCount(RefCount)
+			bool Fill(const Color& color);
+			bool Fill(const Color& color, const Boxui& box);
+			bool Fill(const Color& color, const Rectui& rect, unsigned int z = 0);
+
+			bool FlipHorizontally();
+			bool FlipVertically();
+
+			const UInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0) const;
+			unsigned int GetDepth(UInt8 level = 0) const;
+			PixelFormatType GetFormat() const;
+			unsigned int GetHeight(UInt8 level = 0) const;
+			UInt8 GetLevelCount() const;
+			UInt8 GetMaxLevel() const;
+			unsigned int GetMemoryUsage() const;
+			unsigned int GetMemoryUsage(UInt8 level) const;
+			Color GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
+			UInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0);
+			Vector3ui GetSize(UInt8 level = 0) const;
+			ImageType GetType() const;
+			unsigned int GetWidth(UInt8 level = 0) const;
+
+			bool IsValid() const;
+
+			// Load
+			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams());
+			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
+			bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
+
+			// LoadArray
+			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+
+			// LoadCubemap
+			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromImage(const Image& image, const CubemapParams& params = CubemapParams());
+			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+
+			void SetLevelCount(UInt8 levelCount);
+			bool SetPixelColor(const Color& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
+
+			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+
+			Image& operator=(const Image& image);
+
+			static void Copy(UInt8* destination, const UInt8* source, UInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
+			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
+			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
+			template<typename... Args> static ImageRef New(Args&&... args);
+
+			struct SharedImage
 			{
-			}
+				using PixelContainer = std::vector<std::unique_ptr<UInt8[]>>;
 
-			nzImageType type;
-			nzPixelFormat format;
-			PixelContainer levels;
-			unsigned int depth;
-			unsigned int height;
-			unsigned int width;
+				SharedImage(unsigned short RefCount, ImageType Type, PixelFormatType Format, PixelContainer&& Levels, unsigned int Width, unsigned int Height, unsigned int Depth) :
+				type(Type),
+				format(Format),
+				levels(std::move(Levels)),
+				depth(Depth),
+				height(Height),
+				width(Width),
+				refCount(RefCount)
+				{
+				}
 
-			std::atomic_ushort refCount;
+				ImageType type;
+				PixelFormatType format;
+				PixelContainer levels;
+				unsigned int depth;
+				unsigned int height;
+				unsigned int width;
+
+				std::atomic_ushort refCount;
+			};
+
+			static SharedImage emptyImage;
+
+			// Signals:
+			NazaraSignal(OnImageDestroy, const Image* /*image*/);
+			NazaraSignal(OnImageRelease, const Image* /*image*/);
+
+		private:
+			void EnsureOwnership();
+			void ReleaseImage();
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			SharedImage* m_sharedImage;
+
+			static ImageLibrary::LibraryMap s_library;
+			static ImageLoader::LoaderList s_loaders;
+			static ImageManager::ManagerMap s_managerMap;
+			static ImageManager::ManagerParams s_managerParameters;
 		};
-
-		static SharedImage emptyImage;
-
-		// Signals:
-		NazaraSignal(OnImageDestroy, const NzImage* /*image*/);
-		NazaraSignal(OnImageRelease, const NzImage* /*image*/);
-
-	private:
-		void EnsureOwnership();
-		void ReleaseImage();
-
-		static bool Initialize();
-		static void Uninitialize();
-
-		SharedImage* m_sharedImage;
-
-		static NzImageLibrary::LibraryMap s_library;
-		static NzImageLoader::LoaderList s_loaders;
-		static NzImageManager::ManagerMap s_managerMap;
-		static NzImageManager::ManagerParams s_managerParameters;
-};
+}
 
 #include <Nazara/Utility/Image.inl>
 

@@ -8,72 +8,75 @@
 #define NAZARA_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/InputStream.hpp>
+#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <vector>
 
-class NAZARA_UTILITY_API NzMD5AnimParser
+namespace Nz
 {
-	public:
-		struct FrameJoint
-		{
-			NzQuaternionf orient;
-			NzVector3f pos;
-		};
+	class NAZARA_UTILITY_API MD5AnimParser
+	{
+		public:
+			struct FrameJoint
+			{
+				Quaternionf orient;
+				Vector3f pos;
+			};
 
-		struct Frame
-		{
-			std::vector<FrameJoint> joints;
-			NzBoxf bounds;
-		};
+			struct Frame
+			{
+				std::vector<FrameJoint> joints;
+				Boxf bounds;
+			};
 
-		struct Joint
-		{
-			NzQuaternionf bindOrient;
-			NzString name;
-			NzVector3f bindPos;
-			int parent;
-			unsigned int flags;
-			unsigned int index;
-		};
+			struct Joint
+			{
+				Quaternionf bindOrient;
+				String name;
+				Vector3f bindPos;
+				int parent;
+				unsigned int flags;
+				unsigned int index;
+			};
 
-		NzMD5AnimParser(NzInputStream& stream);
-		~NzMD5AnimParser();
+			MD5AnimParser(Stream& stream);
+			~MD5AnimParser();
 
-		nzTernary Check();
+			Ternary Check();
 
-		unsigned int GetAnimatedComponentCount() const;
-		const Frame* GetFrames() const;
-		unsigned int GetFrameCount() const;
-		unsigned int GetFrameRate() const;
-		const Joint* GetJoints() const;
-		unsigned int GetJointCount() const;
+			unsigned int GetAnimatedComponentCount() const;
+			const Frame* GetFrames() const;
+			unsigned int GetFrameCount() const;
+			unsigned int GetFrameRate() const;
+			const Joint* GetJoints() const;
+			unsigned int GetJointCount() const;
 
-		bool Parse();
+			bool Parse();
 
-	private:
-		bool Advance(bool required = true);
-		void Error(const NzString& message);
-		bool ParseBaseframe();
-		bool ParseBounds();
-		bool ParseFrame();
-		bool ParseHierarchy();
-		void Warning(const NzString& message);
-		void UnrecognizedLine(bool error = false);
+		private:
+			bool Advance(bool required = true);
+			void Error(const String& message);
+			bool ParseBaseframe();
+			bool ParseBounds();
+			bool ParseFrame();
+			bool ParseHierarchy();
+			void Warning(const String& message);
+			void UnrecognizedLine(bool error = false);
 
-		std::vector<float> m_animatedComponents;
-		std::vector<Frame> m_frames;
-		std::vector<Joint> m_joints;
-		NzInputStream& m_stream;
-		NzString m_currentLine;
-		bool m_keepLastLine;
-		unsigned int m_frameIndex;
-		unsigned int m_frameRate;
-		unsigned int m_lineCount;
-		unsigned int m_streamFlags;
-};
+			std::vector<float> m_animatedComponents;
+			std::vector<Frame> m_frames;
+			std::vector<Joint> m_joints;
+			Stream& m_stream;
+			String m_currentLine;
+			bool m_keepLastLine;
+			unsigned int m_frameIndex;
+			unsigned int m_frameRate;
+			unsigned int m_lineCount;
+			unsigned int m_streamFlags;
+	};
+}
 
 #endif // NAZARA_FORMATS_MD5ANIMPARSER_HPP

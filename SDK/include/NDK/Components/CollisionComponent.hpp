@@ -11,7 +11,10 @@
 #include <NDK/Component.hpp>
 #include <memory>
 
-class NzPhysObject;
+namespace Nz
+{
+	class PhysObject;
+}
 
 namespace Ndk
 {
@@ -23,30 +26,30 @@ namespace Ndk
 		friend class StaticCollisionSystem;
 
 		public:
-			CollisionComponent(NzPhysGeomRef geom = NzPhysGeomRef());
+			CollisionComponent(Nz::PhysGeomRef geom = Nz::PhysGeomRef());
 			CollisionComponent(const CollisionComponent& collision);
 			~CollisionComponent() = default;
 
-			const NzPhysGeomRef& GetGeom() const;
+			const Nz::PhysGeomRef& GetGeom() const;
 
-			void SetGeom(NzPhysGeomRef geom);
+			void SetGeom(Nz::PhysGeomRef geom);
 
-			CollisionComponent& operator=(NzPhysGeomRef geom);
+			CollisionComponent& operator=(Nz::PhysGeomRef geom);
 			CollisionComponent& operator=(CollisionComponent&& collision) = default;
 
 			static ComponentIndex componentIndex;
 
 		private:
 			void InitializeStaticBody();
-			NzPhysObject* GetStaticBody();
+			Nz::PhysObject* GetStaticBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 
-			std::unique_ptr<NzPhysObject> m_staticBody;
-			NzPhysGeomRef m_geom;
+			std::unique_ptr<Nz::PhysObject> m_staticBody;
+			Nz::PhysGeomRef m_geom;
 			bool m_bodyUpdated;
 	};
 }

@@ -13,9 +13,9 @@ namespace Ndk
 		{
 			NazaraAssert(entity->HasComponent<NodeComponent>(), "Entity must have a NodeComponent");
 
-			NzNode::SetParent(entity->GetComponent<NodeComponent>(), keepDerived);
+			Nz::Node::SetParent(entity->GetComponent<NodeComponent>(), keepDerived);
 		}
 		else
-			NzNode::SetParent(nullptr, keepDerived);
+			Nz::Node::SetParent(nullptr, keepDerived);
 	}
 }

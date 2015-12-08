@@ -9,92 +9,95 @@
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
-NzSoftwareBuffer::NzSoftwareBuffer(NzBuffer* parent, nzBufferType type) :
-m_type(type)
+namespace Nz
 {
-	NazaraUnused(parent);
-}
-
-NzSoftwareBuffer::~NzSoftwareBuffer()
-{
-}
-
-bool NzSoftwareBuffer::Create(unsigned int size, nzBufferUsage usage)
-{
-	NazaraUnused(usage);
-
-	// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
-	try
+	SoftwareBuffer::SoftwareBuffer(Buffer* parent, BufferType type) :
+	m_type(type)
 	{
-		m_buffer = new nzUInt8[size];
-	}
-	catch (const std::exception& e)
-	{
-		NazaraError("Failed to allocate software buffer (" + NzString(e.what()) + ')');
-		return false;
+		NazaraUnused(parent);
 	}
 
-	m_mapped = false;
-
-	return true;
-}
-
-void NzSoftwareBuffer::Destroy()
-{
-	delete[] m_buffer;
-}
-
-bool NzSoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
-{
-	NazaraUnused(forceDiscard);
-
-	#if NAZARA_UTILITY_SAFE
-	if (m_mapped)
+	SoftwareBuffer::~SoftwareBuffer()
 	{
-		NazaraError("Buffer already mapped");
-		return false;
 	}
-	#endif
 
-	std::memcpy(&m_buffer[offset], data, size);
-
-	return true;
-}
-
-bool NzSoftwareBuffer::IsHardware() const
-{
-	return false;
-}
-
-void* NzSoftwareBuffer::Map(nzBufferAccess access, unsigned int offset, unsigned int size)
-{
-	NazaraUnused(access);
-	NazaraUnused(size);
-
-	#if NAZARA_UTILITY_SAFE
-	if (m_mapped)
+	bool SoftwareBuffer::Create(unsigned int size, BufferUsage usage)
 	{
-		NazaraError("Buffer already mapped");
-		return nullptr;
-	}
-	#endif
+		NazaraUnused(usage);
 
-	m_mapped = true;
+		// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
+		try
+		{
+			m_buffer = new UInt8[size];
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to allocate software buffer (" + String(e.what()) + ')');
+			return false;
+		}
 
-	return &m_buffer[offset];
-}
+		m_mapped = false;
 
-bool NzSoftwareBuffer::Unmap()
-{
-	#if NAZARA_UTILITY_SAFE
-	if (!m_mapped)
-	{
-		NazaraError("Buffer not mapped");
 		return true;
 	}
-	#endif
 
-	m_mapped = false;
+	void SoftwareBuffer::Destroy()
+	{
+		delete[] m_buffer;
+	}
 
-	return true;
+	bool SoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
+	{
+		NazaraUnused(forceDiscard);
+
+		#if NAZARA_UTILITY_SAFE
+		if (m_mapped)
+		{
+			NazaraError("Buffer already mapped");
+			return false;
+		}
+		#endif
+
+		std::memcpy(&m_buffer[offset], data, size);
+
+		return true;
+	}
+
+	bool SoftwareBuffer::IsHardware() const
+	{
+		return false;
+	}
+
+	void* SoftwareBuffer::Map(BufferAccess access, unsigned int offset, unsigned int size)
+	{
+		NazaraUnused(access);
+		NazaraUnused(size);
+
+		#if NAZARA_UTILITY_SAFE
+		if (m_mapped)
+		{
+			NazaraError("Buffer already mapped");
+			return nullptr;
+		}
+		#endif
+
+		m_mapped = true;
+
+		return &m_buffer[offset];
+	}
+
+	bool SoftwareBuffer::Unmap()
+	{
+		#if NAZARA_UTILITY_SAFE
+		if (!m_mapped)
+		{
+			NazaraError("Buffer not mapped");
+			return true;
+		}
+		#endif
+
+		m_mapped = false;
+
+		return true;
+	}
 }

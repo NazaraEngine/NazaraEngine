@@ -8,35 +8,38 @@
 #include <windows.h>
 #include <Nazara/Core/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	LARGE_INTEGER frequency; // La fréquence ne varie pas pas au cours de l'exécution
-}
+	namespace
+	{
+		LARGE_INTEGER s_frequency; // La fréquence ne varie pas pas au cours de l'exécution
+	}
 
-bool NzClockImplInitializeHighPrecision()
-{
-	return QueryPerformanceFrequency(&frequency) != 0;
-}
+	bool ClockImplInitializeHighPrecision()
+	{
+		return QueryPerformanceFrequency(&s_frequency) != 0;
+	}
 
-nzUInt64 NzClockImplGetMicroseconds()
-{
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx
-	//HANDLE thread = GetCurrentThread();
-	//DWORD oldMask = SetThreadAffinityMask(thread, 1);
+	UInt64 ClockImplGetElapsedMicroseconds()
+	{
+		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx
+		//HANDLE thread = GetCurrentThread();
+		//DWORD oldMask = SetThreadAffinityMask(thread, 1);
 
-	LARGE_INTEGER time;
-	QueryPerformanceCounter(&time);
+		LARGE_INTEGER time;
+		QueryPerformanceCounter(&time);
 
-	//SetThreadAffinityMask(thread, oldMask);
+		//SetThreadAffinityMask(thread, oldMask);
 
-	return time.QuadPart*1000000ULL / frequency.QuadPart;
-}
+		return time.QuadPart*1000000ULL / s_frequency.QuadPart;
+	}
 
-nzUInt64 NzClockImplGetMilliseconds()
-{
-	#ifdef NAZARA_PLATFORM_WINDOWS_VISTA
-	return GetTickCount64();
-	#else
-	return GetTickCount();
-	#endif
+	UInt64 ClockImplGetElapsedMilliseconds()
+	{
+		#ifdef NAZARA_PLATFORM_WINDOWS_VISTA
+		return GetTickCount64();
+		#else
+		return GetTickCount();
+		#endif
+	}
 }

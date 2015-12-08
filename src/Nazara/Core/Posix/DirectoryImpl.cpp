@@ -9,95 +9,98 @@
 #include <errno.h>
 #include <sys/param.h>
 
-NzDirectoryImpl::NzDirectoryImpl(const NzDirectory* parent)
+namespace Nz
 {
-	NazaraUnused(parent);
-}
+	DirectoryImpl::DirectoryImpl(const Directory* parent)
+	{
+		NazaraUnused(parent);
+	}
 
-void NzDirectoryImpl::Close()
-{
-	closedir(m_handle);
-}
+	void DirectoryImpl::Close()
+	{
+		closedir(m_handle);
+	}
 
-NzString NzDirectoryImpl::GetResultName() const
-{
-	return m_result->d_name;
-}
+	String DirectoryImpl::GetResultName() const
+	{
+		return m_result->d_name;
+	}
 
-nzUInt64 NzDirectoryImpl::GetResultSize() const
-{
-	struct stat64 resulststat;
-	stat64(m_result->d_name, &resulststat);
+	UInt64 DirectoryImpl::GetResultSize() const
+	{
+		struct stat64 resulststat;
+		stat64(m_result->d_name, &resulststat);
 
-	return static_cast<nzUInt64>(resulststat.st_size);
-}
+		return static_cast<UInt64>(resulststat.st_size);
+	}
 
-bool NzDirectoryImpl::IsResultDirectory() const
-{
-    struct stat64 filestats;
-    if (stat64(m_result->d_name, &filestats) == -1) // error
-        return false;
+	bool DirectoryImpl::IsResultDirectory() const
+	{
+		struct stat64 filestats;
+		if (stat64(m_result->d_name, &filestats) == -1) // error
+			return false;
 
-	return S_ISDIR(filestats.st_mode);
-}
+		return S_ISDIR(filestats.st_mode);
+	}
 
-bool NzDirectoryImpl::NextResult()
-{
-	if ((m_result = readdir64(m_handle)))
+	bool DirectoryImpl::NextResult()
+	{
+		if ((m_result = readdir64(m_handle)))
+			return true;
+		else
+		{
+			if (errno != ENOENT)
+				NazaraError("Unable to get next result: " + Error::GetLastSystemError());
+
+			return false;
+		}
+	}
+
+	bool DirectoryImpl::Open(const String& dirPath)
+	{
+		m_handle = opendir(dirPath.GetConstBuffer());
+		if (!m_handle)
+		{
+			NazaraError("Unable to open directory: " + Error::GetLastSystemError());
+			return false;
+		}
+
 		return true;
-	else
-	{
-		if (errno != ENOENT)
-			NazaraError("Unable to get next result: " + NzError::GetLastSystemError());
-
-		return false;
-	}
-}
-
-bool NzDirectoryImpl::Open(const NzString& dirPath)
-{
-	m_handle = opendir(dirPath.GetConstBuffer());
-	if (!m_handle)
-	{
-		NazaraError("Unable to open directory: " + NzError::GetLastSystemError());
-		return false;
 	}
 
-	return true;
-}
+	bool DirectoryImpl::Create(const String& dirPath)
+	{
+		mode_t permissions; // TODO: check permissions
 
-bool NzDirectoryImpl::Create(const NzString& dirPath)
-{
-	mode_t permissions; // TODO: check permissions
+		return mkdir(dirPath.GetConstBuffer(), permissions) != -1;;
+	}
 
-	return mkdir(dirPath.GetConstBuffer(), permissions) != -1;;
-}
+	bool DirectoryImpl::Exists(const String& dirPath)
+	{
+		struct stat64 filestats;
+		if (stat64(dirPath.GetConstBuffer(), &filestats) == -1) // error
+			return false;
 
-bool NzDirectoryImpl::Exists(const NzString& dirPath)
-{
-    struct stat64 filestats;
-    if (stat64(dirPath.GetConstBuffer(), &filestats) == -1) // error
-        return false;
+		return S_ISDIR(filestats.st_mode) || S_ISREG(filestats.st_mode);
+	}
 
-	return S_ISDIR(filestats.st_mode) || S_ISREG(filestats.st_mode);
-}
+	String DirectoryImpl::GetCurrent()
+	{
+		String currentPath;
 
-NzString NzDirectoryImpl::GetCurrent()
-{
-	NzString currentPath;
+		char path[MAXPATHLEN];
+		if (getcwd(path, MAXPATHLEN))
+			currentPath = path;
+		else
+			NazaraError("Unable to get current directory: " + Error::GetLastSystemError()); // Bug: initialisation -> if no path for log !
 
-	char path[MAXPATHLEN];
-	if (getcwd(path, MAXPATHLEN))
-		currentPath = path;
-	else
-		NazaraError("Unable to get current directory: " + NzError::GetLastSystemError()); // Bug: initialisation -> if no path for log !
+		return currentPath;
+	}
 
-	return currentPath;
-}
+	bool DirectoryImpl::Remove(const String& dirPath)
+	{
+		bool success = rmdir(dirPath.GetConstBuffer()) != -1;
 
-bool NzDirectoryImpl::Remove(const NzString& dirPath)
-{
-	bool success = rmdir(dirPath.GetConstBuffer()) != -1;
-
-	return success;
+		return success;
+	}
 }

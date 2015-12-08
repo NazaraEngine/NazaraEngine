@@ -14,35 +14,38 @@
 #include <queue>
 #include <windows.h>
 
-class NzTaskSchedulerImpl
+namespace Nz
 {
-	public:
-		NzTaskSchedulerImpl() = delete;
-		~NzTaskSchedulerImpl() = delete;
+	class TaskSchedulerImpl
+	{
+		public:
+			TaskSchedulerImpl() = delete;
+			~TaskSchedulerImpl() = delete;
 
-		static bool Initialize(unsigned int workerCount);
-		static bool IsInitialized();
-		static void Run(NzFunctor** tasks, unsigned int count);
-		static void Uninitialize();
-		static void WaitForTasks();
+			static bool Initialize(std::size_t workerCount);
+			static bool IsInitialized();
+			static void Run(Functor** tasks, std::size_t count);
+			static void Uninitialize();
+			static void WaitForTasks();
 
-	private:
-		static NzFunctor* StealTask(unsigned int workerID);
-		static unsigned int __stdcall WorkerProc(void* userdata);
+		private:
+			static Functor* StealTask(std::size_t workerID);
+			static unsigned int __stdcall WorkerProc(void* userdata);
 
-		struct Worker
-		{
-			std::atomic_uint workCount;
-			std::queue<NzFunctor*> queue;
-			CRITICAL_SECTION queueMutex;
-			HANDLE wakeEvent;
-			volatile bool running;
-		};
+			struct Worker
+			{
+				std::atomic_size_t workCount;
+				std::queue<Functor*> queue;
+				CRITICAL_SECTION queueMutex;
+				HANDLE wakeEvent;
+				volatile bool running;
+			};
 
-		static std::unique_ptr<HANDLE[]> s_doneEvents; // Doivent être contigus
-		static std::unique_ptr<Worker[]> s_workers;
-		static std::unique_ptr<HANDLE[]> s_workerThreads; // Doivent être contigus
-		static unsigned int s_workerCount;
+			static std::unique_ptr<HANDLE[]> s_doneEvents; // Doivent être contigus
+			static std::unique_ptr<Worker[]> s_workers;
+			static std::unique_ptr<HANDLE[]> s_workerThreads; // Doivent être contigus
+			static std::size_t s_workerCount;
 };
+}
 
 #endif // NAZARA_TASKSCHEDULERIMPL_HPP
