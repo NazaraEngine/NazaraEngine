@@ -43,6 +43,7 @@ namespace Nz
 			bool Call(unsigned int argCount, unsigned int resultCount);
 
 			template<typename T> T Check(int index);
+			template<typename T> T Check(int index, T defValue);
 			void CheckAny(int index) const;
 			bool CheckBoolean(int index) const;
 			bool CheckBoolean(int index, bool defValue) const;
@@ -115,7 +116,7 @@ namespace Nz
 			void PushBoolean(bool value);
 			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0);
 			void PushFunction(LuaFunction func);
-			template<typename R, typename... Args> void PushFunction(R(*func)(Args...));
+			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs... defArgs);
 			void PushInteger(long long value);
 			void PushLightUserdata(void* value);
 			void PushMetatable(const char* str);
