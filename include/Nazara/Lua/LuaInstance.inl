@@ -8,17 +8,17 @@
 namespace Nz
 {
 	// Functions args
-	bool LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<bool>)
+	inline bool LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<bool>)
 	{
 		return instance.CheckBoolean(index);
 	}
 
-	double LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<double>)
+	inline double LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<double>)
 	{
 		return instance.CheckNumber(index);
 	}
 
-	float LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<float>)
+	inline float LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<float>)
 	{
 		return static_cast<float>(instance.CheckNumber(index));
 	}
@@ -41,7 +41,7 @@ namespace Nz
 		return static_cast<T>(LuaImplQueryArg(instance, index, TypeTag<typename std::make_signed<T>::type>()));
 	}
 
-	std::string LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<std::string>)
+	inline std::string LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<std::string>)
 	{
 		std::size_t strLength = 0;
 		const char* str = instance.CheckString(index, &strLength);
@@ -49,7 +49,7 @@ namespace Nz
 		return std::string(str, strLength);
 	}
 
-	String LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<String>)
+	inline String LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<String>)
 	{
 		std::size_t strLength = 0;
 		const char* str = instance.CheckString(index, &strLength);
@@ -64,19 +64,19 @@ namespace Nz
 	}
 
 	// Function returns
-	int LuaImplReplyVal(LuaInstance& instance, bool val, TypeTag<bool>)
+	inline int LuaImplReplyVal(LuaInstance& instance, bool val, TypeTag<bool>)
 	{
 		instance.PushBoolean(val);
 		return 1;
 	}
 
-	int LuaImplReplyVal(LuaInstance& instance, double val, TypeTag<double>)
+	inline int LuaImplReplyVal(LuaInstance& instance, double val, TypeTag<double>)
 	{
 		instance.PushNumber(val);
 		return 1;
 	}
 
-	int LuaImplReplyVal(LuaInstance& instance, float val, TypeTag<float>)
+	inline int LuaImplReplyVal(LuaInstance& instance, float val, TypeTag<float>)
 	{
 		instance.PushNumber(val);
 		return 1;
@@ -105,13 +105,13 @@ namespace Nz
 		return LuaImplReplyVal(instance, static_cast<SignedT>(val), TypeTag<SignedT>());
 	}
 
-	int LuaImplReplyVal(LuaInstance& instance, std::string val, TypeTag<std::string>)
+	inline int LuaImplReplyVal(LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
 		return 1;
 	}
 
-	int LuaImplReplyVal(LuaInstance& instance, String val, TypeTag<String>)
+	inline int LuaImplReplyVal(LuaInstance& instance, String val, TypeTag<String>)
 	{
 		instance.PushString(std::move(val));
 		return 1;
