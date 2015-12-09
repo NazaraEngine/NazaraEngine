@@ -238,7 +238,7 @@ namespace Nz
 				public:
 					Impl(LuaInstance& instance, DefArgs... defArgs) :
 					m_defaultArgs(std::forward<DefArgs>(defArgs)...),
-					m_instance(instance),
+					m_instance(instance)
 					{
 					}
 
