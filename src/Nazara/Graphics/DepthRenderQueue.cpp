@@ -7,203 +7,211 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-NzDepthRenderQueue::NzDepthRenderQueue()
+namespace Nz
 {
-	// Material
-	m_baseMaterial = NzMaterial::New();
-	m_baseMaterial->Enable(nzRendererParameter_ColorWrite, false);
-	m_baseMaterial->Enable(nzRendererParameter_FaceCulling, false);
-	//m_baseMaterial->SetFaceCulling(nzFaceSide_Front);
+	DepthRenderQueue::DepthRenderQueue()
+	{
+		// Material
+		m_baseMaterial = Material::New();
+		m_baseMaterial->Enable(RendererParameter_ColorWrite, false);
+		m_baseMaterial->Enable(RendererParameter_FaceCulling, false);
+		//m_baseMaterial->SetFaceCulling(FaceSide_Front);
+	}
+
+	void DepthRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboard(0, material, position, size, sinCos, color);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+	}
+
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+	}
+
+	void DepthRenderQueue::AddDirectionalLight(const DirectionalLight& light)
+	{
+		NazaraAssert(false, "Depth render queue doesn't handle lights");
+		NazaraUnused(light);
+	}
+
+	void DepthRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+		NazaraUnused(meshAABB);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix);
+	}
+
+	void DepthRenderQueue::AddPointLight(const PointLight& light)
+	{
+		NazaraAssert(false, "Depth render queue doesn't handle lights");
+		NazaraUnused(light);
+	}
+
+	void DepthRenderQueue::AddSpotLight(const SpotLight& light)
+	{
+		NazaraAssert(false, "Depth render queue doesn't handle lights");
+		NazaraUnused(light);
+	}
+
+	void DepthRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
+	{
+		NazaraAssert(material, "Invalid material");
+		NazaraUnused(renderOrder);
+		NazaraUnused(overlay);
+
+		if (!IsMaterialSuitable(material))
+			return;
+
+		if (material->HasDepthMaterial())
+			material = material->GetDepthMaterial();
+		else
+			material = m_baseMaterial;
+
+		ForwardRenderQueue::AddSprites(0, material, vertices, spriteCount, overlay);
+	}
 }
 
-void NzDepthRenderQueue::AddBillboard(const NzMaterial* material, const NzVector3f& position, const NzVector2f& size, const NzVector2f& sinCos, const NzColor& color)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboard(material, position, size, sinCos, color);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const NzVector2f> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const NzVector2f> sinCosPtr, NzSparsePtr<const float> alphaPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const NzColor> colorPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, anglePtr, colorPtr);
-}
-
-void NzDepthRenderQueue::AddBillboards(const NzMaterial* material, unsigned int count, NzSparsePtr<const NzVector3f> positionPtr, NzSparsePtr<const float> sizePtr, NzSparsePtr<const float> anglePtr, NzSparsePtr<const float> alphaPtr)
-{
-	NazaraAssert(material, "Invalid material");
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddBillboards(material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
-}
-
-void NzDepthRenderQueue::AddDirectionalLight(const DirectionalLight& light)
-{
-	NazaraAssert(false, "Depth render queue doesn't handle lights");
-	NazaraUnused(light);
-}
-
-void NzDepthRenderQueue::AddMesh(const NzMaterial* material, const NzMeshData& meshData, const NzBoxf& meshAABB, const NzMatrix4f& transformMatrix)
-{
-	NazaraAssert(material, "Invalid material");
-	NazaraUnused(meshAABB);
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddMesh(material, meshData, meshAABB, transformMatrix);
-}
-
-void NzDepthRenderQueue::AddPointLight(const PointLight& light)
-{
-	NazaraAssert(false, "Depth render queue doesn't handle lights");
-	NazaraUnused(light);
-}
-
-void NzDepthRenderQueue::AddSpotLight(const SpotLight& light)
-{
-	NazaraAssert(false, "Depth render queue doesn't handle lights");
-	NazaraUnused(light);
-}
-
-void NzDepthRenderQueue::AddSprites(const NzMaterial* material, const NzVertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const NzTexture* overlay)
-{
-	NazaraAssert(material, "Invalid material");
-	NazaraUnused(overlay);
-
-	if (!IsMaterialSuitable(material))
-		return;
-
-	if (material->HasDepthMaterial())
-		material = material->GetDepthMaterial();
-	else
-		material = m_baseMaterial;
-
-	NzForwardRenderQueue::AddSprites(material, vertices, spriteCount, overlay);
-}
-
-bool NzDepthRenderQueue::IsMaterialSuitable(const NzMaterial* material) const
-{
-	NazaraAssert(material, "Invalid material");
-
-	return material->HasDepthMaterial() || (material->IsEnabled(nzRendererParameter_DepthBuffer) && material->IsEnabled(nzRendererParameter_DepthWrite) && material->IsShadowCastingEnabled());
-}

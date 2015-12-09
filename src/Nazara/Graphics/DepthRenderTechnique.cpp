@@ -20,173 +20,269 @@
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
-namespace
+namespace Nz
 {
-	struct BillboardPoint
+	namespace
 	{
-		NzColor color;
-		NzVector3f position;
-		NzVector2f size;
-		NzVector2f sinCos; // must follow `size` (both will be sent as a Vector4f)
-		NzVector2f uv;
-	};
-
-	unsigned int s_maxQuads = std::numeric_limits<nzUInt16>::max()/6;
-	unsigned int s_vertexBufferSize = 4*1024*1024; // 4 MiB
-}
-
-NzDepthRenderTechnique::NzDepthRenderTechnique() :
-m_vertexBuffer(nzBufferType_Vertex)
-{
-	NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-
-	m_vertexBuffer.Create(s_vertexBufferSize, nzDataStorage_Hardware, nzBufferUsage_Dynamic);
-
-	m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
-	m_spriteBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XYZ_Color_UV), &m_vertexBuffer);
-}
-
-bool NzDepthRenderTechnique::Draw(const NzSceneData& sceneData) const
-{
-	NzRenderer::Enable(nzRendererParameter_DepthBuffer, true);
-	NzRenderer::Enable(nzRendererParameter_DepthWrite, true);
-	NzRenderer::Clear(nzRendererBuffer_Depth);
-
-	// Just in case the background does render depth
-	if (sceneData.background)
-		sceneData.background->Draw(sceneData.viewer);
-
-	if (!m_renderQueue.opaqueModels.empty())
-		DrawOpaqueModels(sceneData);
-
-	if (!m_renderQueue.basicSprites.empty())
-		DrawBasicSprites(sceneData);
-
-	if (!m_renderQueue.billboards.empty())
-		DrawBillboards(sceneData);
-
-	// Other custom drawables
-	for (const NzDrawable* drawable : m_renderQueue.otherDrawables)
-		drawable->Draw();
-
-	return true;
-}
-
-NzAbstractRenderQueue* NzDepthRenderTechnique::GetRenderQueue()
-{
-	return &m_renderQueue;
-}
-
-nzRenderTechniqueType NzDepthRenderTechnique::GetType() const
-{
-	return nzRenderTechniqueType_Depth;
-}
-
-bool NzDepthRenderTechnique::Initialize()
-{
-	try
-	{
-		NzErrorFlags flags(nzErrorFlag_ThrowException, true);
-
-		s_quadIndexBuffer.Reset(false, s_maxQuads*6, nzDataStorage_Hardware, nzBufferUsage_Static);
-
-		NzBufferMapper<NzIndexBuffer> mapper(s_quadIndexBuffer, nzBufferAccess_WriteOnly);
-		nzUInt16* indices = static_cast<nzUInt16*>(mapper.GetPointer());
-
-		for (unsigned int i = 0; i < s_maxQuads; ++i)
+		struct BillboardPoint
 		{
-			*indices++ = i*4 + 0;
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 1;
-
-			*indices++ = i*4 + 2;
-			*indices++ = i*4 + 3;
-			*indices++ = i*4 + 1;
-		}
-
-		mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
-
-		// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
-		//Note: Les UV sont calculés dans le shader
-		s_quadVertexBuffer.Reset(NzVertexDeclaration::Get(nzVertexLayout_XY), 4, nzDataStorage_Hardware, nzBufferUsage_Static);
-
-		float vertices[2*4] = {
-		   -0.5f, -0.5f,
-			0.5f, -0.5f,
-		   -0.5f, 0.5f,
-			0.5f, 0.5f,
+			Color color;
+			Vector3f position;
+			Vector2f size;
+			Vector2f sinCos; // must follow `size` (both will be sent as a Vector4f)
+			Vector2f uv;
 		};
 
-		s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
-
-		// Déclaration lors du rendu des billboards par sommet
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Color,     nzComponentType_Color,  NzOffsetOf(BillboardPoint, color));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Position,  nzComponentType_Float3, NzOffsetOf(BillboardPoint, position));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_TexCoord,  nzComponentType_Float2, NzOffsetOf(BillboardPoint, uv));
-		s_billboardVertexDeclaration.EnableComponent(nzVertexComponent_Userdata0, nzComponentType_Float4, NzOffsetOf(BillboardPoint, size)); // Englobe sincos
-
-		// Declaration utilisée lors du rendu des billboards par instancing
-		// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData0, nzComponentType_Float3, NzOffsetOf(NzForwardRenderQueue::BillboardData, center));
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData1, nzComponentType_Float4, NzOffsetOf(NzForwardRenderQueue::BillboardData, size)); // Englobe sincos
-		s_billboardInstanceDeclaration.EnableComponent(nzVertexComponent_InstanceData2, nzComponentType_Color,  NzOffsetOf(NzForwardRenderQueue::BillboardData, color));
-	}
-	catch (const std::exception& e)
-	{
-		NazaraError("Failed to initialise: " + NzString(e.what()));
-		return false;
+		unsigned int s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
+		unsigned int s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 	}
 
-	return true;
-}
-
-void NzDepthRenderTechnique::Uninitialize()
-{
-	s_quadIndexBuffer.Reset();
-	s_quadVertexBuffer.Reset();
-}
-
-void NzDepthRenderTechnique::DrawBasicSprites(const NzSceneData& sceneData) const
-{
-	NazaraUnused(sceneData);
-
-	const NzShader* lastShader = nullptr;
-	const ShaderUniforms* shaderUniforms = nullptr;
-
-	NzRenderer::SetIndexBuffer(&s_quadIndexBuffer);
-	NzRenderer::SetMatrix(nzMatrixType_World, NzMatrix4f::Identity());
-	NzRenderer::SetVertexBuffer(&m_spriteBuffer);
-
-	for (auto& matIt : m_renderQueue.basicSprites)
+	DepthRenderTechnique::DepthRenderTechnique() :
+		m_vertexBuffer(BufferType_Vertex)
 	{
-		const NzMaterial* material = matIt.first;
-		auto& matEntry = matIt.second;
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		if (matEntry.enabled)
+		m_vertexBuffer.Create(s_vertexBufferSize, DataStorage_Hardware, BufferUsage_Dynamic);
+
+		m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
+		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
+	}
+
+	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
+	{
+		Renderer::Enable(RendererParameter_DepthBuffer, true);
+		Renderer::Enable(RendererParameter_DepthWrite, true);
+		Renderer::Clear(RendererBuffer_Depth);
+
+		// Just in case the background does render depth
+		if (sceneData.background)
+			sceneData.background->Draw(sceneData.viewer);
+
+		for (auto& pair : m_renderQueue.layers)
 		{
-			auto& overlayMap = matEntry.overlayMap;
-			for (auto& overlayIt : overlayMap)
-			{
-				const NzTexture* overlay = overlayIt.first;
-				auto& spriteChainVector = overlayIt.second.spriteChains;
+			ForwardRenderQueue::Layer& layer = pair.second;
 
-				unsigned int spriteChainCount = spriteChainVector.size();
-				if (spriteChainCount > 0)
+			if (!layer.opaqueModels.empty())
+				DrawOpaqueModels(sceneData, layer);
+
+			if (!layer.basicSprites.empty())
+				DrawBasicSprites(sceneData, layer);
+
+			if (!layer.billboards.empty())
+				DrawBillboards(sceneData, layer);
+
+			for (const Drawable* drawable : layer.otherDrawables)
+				drawable->Draw();
+		}
+
+		return true;
+	}
+
+	AbstractRenderQueue* DepthRenderTechnique::GetRenderQueue()
+	{
+		return &m_renderQueue;
+	}
+
+	RenderTechniqueType DepthRenderTechnique::GetType() const
+	{
+		return RenderTechniqueType_Depth;
+	}
+
+	bool DepthRenderTechnique::Initialize()
+	{
+		try
+		{
+			ErrorFlags flags(ErrorFlag_ThrowException, true);
+
+			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, BufferUsage_Static);
+
+			BufferMapper<IndexBuffer> mapper(s_quadIndexBuffer, BufferAccess_WriteOnly);
+			UInt16* indices = static_cast<UInt16*>(mapper.GetPointer());
+
+			for (unsigned int i = 0; i < s_maxQuads; ++i)
+			{
+				*indices++ = i * 4 + 0;
+				*indices++ = i * 4 + 2;
+				*indices++ = i * 4 + 1;
+
+				*indices++ = i * 4 + 2;
+				*indices++ = i * 4 + 3;
+				*indices++ = i * 4 + 1;
+			}
+
+			mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
+
+			// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
+			//Note: Les UV sont calculés dans le shader
+			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, BufferUsage_Static);
+
+			float vertices[2 * 4] = {
+			   -0.5f, -0.5f,
+				0.5f, -0.5f,
+			   -0.5f, 0.5f,
+				0.5f, 0.5f,
+			};
+
+			s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
+
+			// Déclaration lors du rendu des billboards par sommet
+			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Color, ComponentType_Color, NazaraOffsetOf(BillboardPoint, color));
+			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Position, ComponentType_Float3, NazaraOffsetOf(BillboardPoint, position));
+			s_billboardVertexDeclaration.EnableComponent(VertexComponent_TexCoord, ComponentType_Float2, NazaraOffsetOf(BillboardPoint, uv));
+			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Userdata0, ComponentType_Float4, NazaraOffsetOf(BillboardPoint, size)); // Englobe sincos
+
+			// Declaration utilisée lors du rendu des billboards par instancing
+			// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color, NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to initialise: " + String(e.what()));
+			return false;
+		}
+
+		return true;
+	}
+
+	void DepthRenderTechnique::Uninitialize()
+	{
+		s_quadIndexBuffer.Reset();
+		s_quadVertexBuffer.Reset();
+	}
+	
+	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+
+		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
+		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		Renderer::SetVertexBuffer(&m_spriteBuffer);
+
+		for (auto& matIt : layer.basicSprites)
+		{
+			const Material* material = matIt.first;
+			auto& matEntry = matIt.second;
+
+			if (matEntry.enabled)
+			{
+				auto& overlayMap = matEntry.overlayMap;
+				for (auto& overlayIt : overlayMap)
+				{
+					const Texture* overlay = overlayIt.first;
+					auto& spriteChainVector = overlayIt.second.spriteChains;
+
+					unsigned int spriteChainCount = spriteChainVector.size();
+					if (spriteChainCount > 0)
+					{
+						// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+						UInt32 flags = ShaderFlags_VertexColor;
+						if (overlay)
+							flags |= ShaderFlags_TextureOverlay;
+
+						UInt8 overlayUnit;
+						const Shader* shader = material->Apply(flags, 0, &overlayUnit);
+
+						if (overlay)
+						{
+							overlayUnit++;
+							Renderer::SetTexture(overlayUnit, overlay);
+							Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+						}
+
+						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+						if (shader != lastShader)
+						{
+							// Index des uniformes dans le shader
+							shaderUniforms = GetShaderUniforms(shader);
+
+							// Couleur ambiante de la scène
+							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+							// Overlay
+							shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+							// Position de la caméra
+							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+							lastShader = shader;
+						}
+
+						unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
+						unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+
+						do
+						{
+							// On ouvre le buffer en écriture
+							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+							VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+							unsigned int spriteCount = 0;
+							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
+
+							do
+							{
+								ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+								unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
+
+								std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(VertexStruct_XYZ_Color_UV));
+								vertices += count*4;
+
+								spriteCount += count;
+								spriteChainOffset += count;
+
+								// Avons-nous traité la chaîne entière ?
+								if (spriteChainOffset == currentChain.spriteCount)
+								{
+									spriteChain++;
+									spriteChainOffset = 0;
+								}
+							}
+							while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
+
+							vertexMapper.Unmap();
+
+							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount*6);
+						}
+						while (spriteChain < spriteChainCount);
+
+						spriteChainVector.clear();
+					}
+				}
+
+				// On remet à zéro
+				matEntry.enabled = false;
+			}
+		}
+	}
+
+	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+
+		if (Renderer::HasCapability(RendererCap_Instancing))
+		{
+			VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+			instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
+
+			Renderer::SetVertexBuffer(&s_quadVertexBuffer);
+
+			for (auto& matIt : layer.billboards)
+			{
+				const Material* material = matIt.first;
+				auto& entry = matIt.second;
+				auto& billboardVector = entry.billboards;
+
+				unsigned int billboardCount = billboardVector.size();
+				if (billboardCount > 0)
 				{
 					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-					nzUInt32 flags = nzShaderFlags_VertexColor;
-					if (overlay)
-						flags |= nzShaderFlags_TextureOverlay;
-
-					nzUInt8 overlayUnit;
-					const NzShader* shader = material->Apply(flags, 0, &overlayUnit);
-
-					if (overlay)
-					{
-						overlayUnit++;
-						NzRenderer::SetTexture(overlayUnit, overlay);
-						NzRenderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
-					}
+					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
 					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 					if (shader != lastShader)
@@ -194,302 +290,260 @@ void NzDepthRenderTechnique::DrawBasicSprites(const NzSceneData& sceneData) cons
 						// Index des uniformes dans le shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Overlay
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+						// Couleur ambiante de la scène
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position de la caméra
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
 
-					unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
-					unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+					const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+					unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+					do
+					{
+						unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+						billboardCount -= renderedBillboardCount;
+
+						instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
+						data += renderedBillboardCount;
+
+						Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+					}
+					while (billboardCount > 0);
+
+					billboardVector.clear();
+				}
+			}
+		}
+		else
+		{
+			Renderer::SetIndexBuffer(&s_quadIndexBuffer);
+			Renderer::SetVertexBuffer(&m_billboardPointBuffer);
+
+			for (auto& matIt : layer.billboards)
+			{
+				const Material* material = matIt.first;
+				auto& entry = matIt.second;
+				auto& billboardVector = entry.billboards;
+
+				unsigned int billboardCount = billboardVector.size();
+				if (billboardCount > 0)
+				{
+					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
+
+					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					if (shader != lastShader)
+					{
+						// Index des uniformes dans le shader
+						shaderUniforms = GetShaderUniforms(shader);
+
+						// Couleur ambiante de la scène
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position de la caméra
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+						lastShader = shader;
+					}
+
+					const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+					unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount()/4);
 
 					do
 					{
-						// On ouvre le buffer en écriture
-						NzBufferMapper<NzVertexBuffer> vertexMapper(m_spriteBuffer, nzBufferAccess_DiscardAndWrite);
-						NzVertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<NzVertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+						unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+						billboardCount -= renderedBillboardCount;
 
-						unsigned int spriteCount = 0;
-						unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
+						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
+						BillboardPoint* vertices = reinterpret_cast<BillboardPoint*>(vertexMapper.GetPointer());
 
-						do
+						for (unsigned int i = 0; i < renderedBillboardCount; ++i)
 						{
-							NzForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-							unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
+							const ForwardRenderQueue::BillboardData& billboard = *data++;
 
-							std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(NzVertexStruct_XYZ_Color_UV));
-							vertices += count*4;
+							vertices->color = billboard.color;
+							vertices->position = billboard.center;
+							vertices->sinCos = billboard.sinCos;
+							vertices->size = billboard.size;
+							vertices->uv.Set(0.f, 1.f);
+							vertices++;
 
-							spriteCount += count;
-							spriteChainOffset += count;
+							vertices->color = billboard.color;
+							vertices->position = billboard.center;
+							vertices->sinCos = billboard.sinCos;
+							vertices->size = billboard.size;
+							vertices->uv.Set(1.f, 1.f);
+							vertices++;
 
-							// Avons-nous traité la chaîne entière ?
-							if (spriteChainOffset == currentChain.spriteCount)
-							{
-								spriteChain++;
-								spriteChainOffset = 0;
-							}
+							vertices->color = billboard.color;
+							vertices->position = billboard.center;
+							vertices->sinCos = billboard.sinCos;
+							vertices->size = billboard.size;
+							vertices->uv.Set(0.f, 0.f);
+							vertices++;
+
+							vertices->color = billboard.color;
+							vertices->position = billboard.center;
+							vertices->sinCos = billboard.sinCos;
+							vertices->size = billboard.size;
+							vertices->uv.Set(1.f, 0.f);
+							vertices++;
 						}
-						while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
 
 						vertexMapper.Unmap();
 
-						NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, spriteCount*6);
+						Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount*6);
 					}
-					while (spriteChain < spriteChainCount);
+					while (billboardCount > 0);
 
-					spriteChainVector.clear();
+					billboardVector.clear();
 				}
-			}
-
-			// On remet à zéro
-			matEntry.enabled = false;
-		}
-	}
-}
-
-void NzDepthRenderTechnique::DrawBillboards(const NzSceneData& sceneData) const
-{
-	NazaraUnused(sceneData);
-
-	if (NzRenderer::HasCapability(nzRendererCap_Instancing))
-	{
-		NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
-		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
-
-		NzRenderer::SetVertexBuffer(&s_quadVertexBuffer);
-
-		for (auto& matIt : m_renderQueue.billboards)
-		{
-			const NzMaterial* material = matIt.first;
-			auto& entry = matIt.second;
-			auto& billboardVector = entry.billboards;
-
-			unsigned int billboardCount = billboardVector.size();
-			if (billboardCount > 0)
-			{
-				// On commence par appliquer du matériau
-				material->Apply(nzShaderFlags_Billboard | nzShaderFlags_Instancing | nzShaderFlags_VertexColor);
-
-				const NzForwardRenderQueue::BillboardData* data = &billboardVector[0];
-				unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
-				do
-				{
-					unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-					billboardCount -= renderedBillboardCount;
-
-					instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
-					data += renderedBillboardCount;
-
-					NzRenderer::DrawPrimitivesInstanced(renderedBillboardCount, nzPrimitiveMode_TriangleStrip, 0, 4);
-				}
-				while (billboardCount > 0);
-
-				billboardVector.clear();
 			}
 		}
 	}
-	else
+
+	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NzRenderer::SetIndexBuffer(&s_quadIndexBuffer);
-		NzRenderer::SetVertexBuffer(&m_billboardPointBuffer);
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
-		for (auto& matIt : m_renderQueue.billboards)
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+
+		for (auto& matIt : layer.opaqueModels)
 		{
-			const NzMaterial* material = matIt.first;
-			auto& entry = matIt.second;
-			auto& billboardVector = entry.billboards;
+			auto& matEntry = matIt.second;
 
-			unsigned int billboardCount = billboardVector.size();
-			if (billboardCount > 0)
+			if (matEntry.enabled)
 			{
-				// On commence par appliquer du matériau
-				material->Apply(nzShaderFlags_Billboard | nzShaderFlags_VertexColor);
+				ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
-				const NzForwardRenderQueue::BillboardData* data = &billboardVector[0];
-				unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount()/4);
-
-				do
+				if (!meshInstances.empty())
 				{
-					unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-					billboardCount -= renderedBillboardCount;
+					const Material* material = matIt.first;
 
-					NzBufferMapper<NzVertexBuffer> vertexMapper(m_billboardPointBuffer, nzBufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
-					BillboardPoint* vertices = reinterpret_cast<BillboardPoint*>(vertexMapper.GetPointer());
+					bool instancing = m_instancingEnabled && matEntry.instancingEnabled;
 
-					for (unsigned int i = 0; i < renderedBillboardCount; ++i)
+					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					UInt8 freeTextureUnit;
+					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0, 0, &freeTextureUnit);
+
+					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					if (shader != lastShader)
 					{
-						const NzForwardRenderQueue::BillboardData& billboard = *data++;
-
-						vertices->color = billboard.color;
-						vertices->position = billboard.center;
-						vertices->sinCos = billboard.sinCos;
-						vertices->size = billboard.size;
-						vertices->uv.Set(0.f, 1.f);
-						vertices++;
-
-						vertices->color = billboard.color;
-						vertices->position = billboard.center;
-						vertices->sinCos = billboard.sinCos;
-						vertices->size = billboard.size;
-						vertices->uv.Set(1.f, 1.f);
-						vertices++;
-
-						vertices->color = billboard.color;
-						vertices->position = billboard.center;
-						vertices->sinCos = billboard.sinCos;
-						vertices->size = billboard.size;
-						vertices->uv.Set(0.f, 0.f);
-						vertices++;
-
-						vertices->color = billboard.color;
-						vertices->position = billboard.center;
-						vertices->sinCos = billboard.sinCos;
-						vertices->size = billboard.size;
-						vertices->uv.Set(1.f, 0.f);
-						vertices++;
+						// Index des uniformes dans le shader
+						shaderUniforms = GetShaderUniforms(shader);
+						lastShader = shader;
 					}
 
-					vertexMapper.Unmap();
-
-					NzRenderer::DrawIndexedPrimitives(nzPrimitiveMode_TriangleList, 0, renderedBillboardCount*6);
-				}
-				while (billboardCount > 0);
-
-				billboardVector.clear();
-			}
-		}
-	}
-}
-
-void NzDepthRenderTechnique::DrawOpaqueModels(const NzSceneData& sceneData) const
-{
-	NazaraUnused(sceneData);
-
-	for (auto& matIt : m_renderQueue.opaqueModels)
-	{
-		auto& matEntry = matIt.second;
-
-		if (matEntry.enabled)
-		{
-			NzForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
-
-			if (!meshInstances.empty())
-			{
-				const NzMaterial* material = matIt.first;
-
-				// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
-				// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
-				// (Le deferred shading n'a pas ce problème)
-				bool noPointSpotLight = m_renderQueue.pointLights.empty() && m_renderQueue.spotLights.empty();
-				bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || noPointSpotLight) && matEntry.instancingEnabled;
-
-				// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-				material->Apply((instancing) ? nzShaderFlags_Instancing : 0);
-
-				// Meshes
-				for (auto& meshIt : meshInstances)
-				{
-					const NzMeshData& meshData = meshIt.first;
-					auto& meshEntry = meshIt.second;
-
-					std::vector<NzMatrix4f>& instances = meshEntry.instances;
-					if (!instances.empty())
+					// Meshes
+					for (auto& meshIt : meshInstances)
 					{
-						const NzIndexBuffer* indexBuffer = meshData.indexBuffer;
-						const NzVertexBuffer* vertexBuffer = meshData.vertexBuffer;
+						const MeshData& meshData = meshIt.first;
+						auto& meshEntry = meshIt.second;
 
-						// Gestion du draw call avant la boucle de rendu
-						NzRenderer::DrawCall drawFunc;
-						NzRenderer::DrawCallInstanced instancedDrawFunc;
-						unsigned int indexCount;
+						const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
+						std::vector<Matrix4f>& instances = meshEntry.instances;
 
-						if (indexBuffer)
+						if (!instances.empty())
 						{
-							drawFunc = NzRenderer::DrawIndexedPrimitives;
-							instancedDrawFunc = NzRenderer::DrawIndexedPrimitivesInstanced;
-							indexCount = indexBuffer->GetIndexCount();
-						}
-						else
-						{
-							drawFunc = NzRenderer::DrawPrimitives;
-							instancedDrawFunc = NzRenderer::DrawPrimitivesInstanced;
-							indexCount = vertexBuffer->GetVertexCount();
-						}
+							const IndexBuffer* indexBuffer = meshData.indexBuffer;
+							const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-						NzRenderer::SetIndexBuffer(indexBuffer);
-						NzRenderer::SetVertexBuffer(vertexBuffer);
+							// Gestion du draw call avant la boucle de rendu
+							Renderer::DrawCall drawFunc;
+							Renderer::DrawCallInstanced instancedDrawFunc;
+							unsigned int indexCount;
 
-						if (instancing)
-						{
-							// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
-							NzVertexBuffer* instanceBuffer = NzRenderer::GetInstanceBuffer();
-							instanceBuffer->SetVertexDeclaration(NzVertexDeclaration::Get(nzVertexLayout_Matrix4));
+							if (indexBuffer)
+							{
+								drawFunc = Renderer::DrawIndexedPrimitives;
+								instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+								indexCount = indexBuffer->GetIndexCount();
+							}
+							else
+							{
+								drawFunc = Renderer::DrawPrimitives;
+								instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+								indexCount = vertexBuffer->GetVertexCount();
+							}
 
-							const NzMatrix4f* instanceMatrices = &instances[0];
-							unsigned int instanceCount = instances.size();
-							unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
+							Renderer::SetIndexBuffer(indexBuffer);
+							Renderer::SetVertexBuffer(vertexBuffer);
 
-							while (instanceCount > 0)
+							if (instancing)
 							{
 								// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
-								unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-								instanceCount -= renderedInstanceCount;
+								VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+								instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
-								// On remplit l'instancing buffer avec nos matrices world
-								instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
-								instanceMatrices += renderedInstanceCount;
+								const Matrix4f* instanceMatrices = &instances[0];
+								unsigned int instanceCount = instances.size();
+								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
 
-								// Et on affiche
-								instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+								while (instanceCount > 0)
+								{
+									// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+									unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+									instanceCount -= renderedInstanceCount;
+
+									// On remplit l'instancing buffer avec nos matrices world
+									instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+									instanceMatrices += renderedInstanceCount;
+
+									// Et on affiche
+									instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+								}
 							}
-						}
-						else
-						{
-							// Sans instancing, on doit effectuer un draw call pour chaque instance
-							// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-							// À cause du temps de modification du buffer d'instancing
-							for (const NzMatrix4f& matrix : instances)
+							else
 							{
-								NzRenderer::SetMatrix(nzMatrixType_World, matrix);
-								drawFunc(meshData.primitiveMode, 0, indexCount);
+								// Sans instancing, on doit effectuer un draw call pour chaque instance
+								// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
+								// À cause du temps de modification du buffer d'instancing
+								for (const Matrix4f& matrix : instances)
+								{
+									Renderer::SetMatrix(MatrixType_World, matrix);
+									drawFunc(meshData.primitiveMode, 0, indexCount);
+								}
 							}
+							instances.clear();
 						}
-						instances.clear();
 					}
 				}
-			}
 
-			// Et on remet à zéro les données
-			matEntry.enabled = false;
-			matEntry.instancingEnabled = false;
+				// Et on remet à zéro les données
+				matEntry.enabled = false;
+				matEntry.instancingEnabled = false;
+			}
 		}
 	}
-}
 
-const NzDepthRenderTechnique::ShaderUniforms* NzDepthRenderTechnique::GetShaderUniforms(const NzShader* shader) const
-{
-	auto it = m_shaderUniforms.find(shader);
-	if (it == m_shaderUniforms.end())
+	const DepthRenderTechnique::ShaderUniforms* DepthRenderTechnique::GetShaderUniforms(const Shader* shader) const
 	{
-		ShaderUniforms uniforms;
-		uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &NzDepthRenderTechnique::OnShaderInvalidated);
-		uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &NzDepthRenderTechnique::OnShaderInvalidated);
+		auto it = m_shaderUniforms.find(shader);
+		if (it == m_shaderUniforms.end())
+		{
+			ShaderUniforms uniforms;
+			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &DepthRenderTechnique::OnShaderInvalidated);
+			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
 
-		uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
+			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
+			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
-		it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
+			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
+		}
+
+		return &it->second;
 	}
 
-	return &it->second;
-}
+	void DepthRenderTechnique::OnShaderInvalidated(const Shader* shader) const
+	{
+		m_shaderUniforms.erase(shader);
+	}
 
-void NzDepthRenderTechnique::OnShaderInvalidated(const NzShader* shader) const
-{
-	m_shaderUniforms.erase(shader);
+	IndexBuffer DepthRenderTechnique::s_quadIndexBuffer;
+	VertexBuffer DepthRenderTechnique::s_quadVertexBuffer;
+	VertexDeclaration DepthRenderTechnique::s_billboardInstanceDeclaration;
+	VertexDeclaration DepthRenderTechnique::s_billboardVertexDeclaration;
 }
-
-NzIndexBuffer NzDepthRenderTechnique::s_quadIndexBuffer;
-NzVertexBuffer NzDepthRenderTechnique::s_quadVertexBuffer;
-NzVertexDeclaration NzDepthRenderTechnique::s_billboardInstanceDeclaration;
-NzVertexDeclaration NzDepthRenderTechnique::s_billboardVertexDeclaration;
