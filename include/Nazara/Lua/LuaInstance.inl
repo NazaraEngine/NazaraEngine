@@ -196,21 +196,21 @@ namespace Nz
 		return retVal;
 	}
 
-	template<typename hasDefault>
+	template<bool HasDefault>
 	struct LuaImplArgProcesser;
 
 	template<>
-	struct LuaImplArgProcesser<std::true_type>
+	struct LuaImplArgProcesser<true>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
 		static void Process(LuaInstance& instance, ArgContainer& args, DefArgContainer& defArgs)
 		{
-			std::get<N>(args) = std::move(LuaImplQueryArg(instance, N + 1, std::get<N - FirstDefArg>(defArgs), TypeTag<ArgType>()));
+			std::get<N>(args) = std::move(LuaImplQueryArg(instance, N + 1, std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>()));
 		}
 	};
 
 	template<>
-	struct LuaImplArgProcesser<std::false_type>
+	struct LuaImplArgProcesser<false>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
 		static void Process(LuaInstance& instance, ArgContainer& args, DefArgContainer& defArgs)
@@ -272,8 +272,7 @@ namespace Nz
 					template<std::size_t N, typename ArgType>
 					void ProcessArgs()
 					{
-						using CheckDefValue = typename std::integral_constant<bool, N >= FirstDefArg>;
-						LuaImplArgProcesser<CheckDefValue>::Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
+						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
@@ -355,8 +354,7 @@ namespace Nz
 					template<std::size_t N, typename ArgType>
 					void ProcessArgs()
 					{
-						using CheckDefValue = typename std::integral_constant<bool, N >= FirstDefArg>;
-						LuaImplArgProcesser<CheckDefValue>::Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
+						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
@@ -396,7 +394,7 @@ namespace Nz
 	{
 		PushFunction([func, defArgs...](LuaInstance& instance) -> int
 		{
-			LuaImplFunctionProxy<Args...>::Impl<DefArgs...> handler(instance);
+			typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(instance, defArgs...);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
