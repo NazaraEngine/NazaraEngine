@@ -174,7 +174,7 @@ namespace Nz
 	{
 		m_methods[name] = method;
 	}
-	
+
 	template<class T>
 	template<typename R, typename P, typename... Args, typename... DefArgs>
 	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
@@ -194,7 +194,7 @@ namespace Nz
 	{
 		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
 		{
-			LuaImplMethodProxy<T, Args...>::Impl<DefArgs...> handler(instance, object, defArgs...);
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
@@ -225,7 +225,7 @@ namespace Nz
 	{
 		SetStaticMethod(name, [func, defArgs...] (LuaInstance& instance) -> int
 		{
-			LuaImplFunctionProxy<Args...>::Impl<DefArgs...> handler(instance);
+			typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(instance);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
