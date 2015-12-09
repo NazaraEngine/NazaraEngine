@@ -176,12 +176,12 @@ namespace Nz
 	}
 	
 	template<class T>
-	template<typename R, typename P, typename... Args>
-	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...))
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
 	{
-		SetMethod(name, [func] (LuaInstance& instance, T& object) -> int
+		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
 		{
-			LuaImplMethodProxy<T, Args...> handler(instance, object);
+			LuaImplMethodProxy<T, Args...>::Impl<DefArgs...> handler(instance, object, defArgs...);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
@@ -189,12 +189,12 @@ namespace Nz
 	}
 
 	template<class T>
-	template<typename R, typename P, typename... Args>
-	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const)
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
 	{
-		SetMethod(name, [func] (LuaInstance& instance, T& object) -> int
+		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
 		{
-			LuaImplMethodProxy<T, Args...> handler(instance, object);
+			LuaImplMethodProxy<T, Args...>::Impl<DefArgs...> handler(instance, object, defArgs...);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
@@ -220,12 +220,12 @@ namespace Nz
 	}
 
 	template<class T>
-	template<typename R, typename... Args>
-	void LuaClass<T>::SetStaticMethod(const String& name, R(*func)(Args...))
+	template<typename R, typename... Args, typename... DefArgs>
+	void LuaClass<T>::SetStaticMethod(const String& name, R(*func)(Args...), DefArgs... defArgs)
 	{
-		SetStaticMethod(name, [func] (LuaInstance& instance) -> int
+		SetStaticMethod(name, [func, defArgs...] (LuaInstance& instance) -> int
 		{
-			LuaImplFunctionProxy<Args...> handler(instance);
+			LuaImplFunctionProxy<Args...>::Impl<DefArgs...> handler(instance);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
