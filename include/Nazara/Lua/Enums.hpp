@@ -7,49 +7,60 @@
 #ifndef NAZARA_ENUMS_LUA_HPP
 #define NAZARA_ENUMS_LUA_HPP
 
-enum LuaComparison
+namespace Nz
 {
-	LuaComparison_Equality,
-	LuaComparison_Less,
-	LuaComparison_LessOrEqual,
+	enum LuaBindMode
+	{
+		LuaBindMode_Table,
+		LuaBindMode_Userdata,
 
-	LuaComparison_Max = LuaComparison_LessOrEqual
-};
+		LuaBindMode_Max = LuaBindMode_Userdata
+	};
 
-enum LuaOperation
-{
-	LuaOperation_Addition,
-	LuaOperation_BitwiseAnd,
-	LuaOperation_BitwiseLeftShift,
-	LuaOperation_BitwiseNot,
-	LuaOperation_BitwiseOr,
-	LuaOperation_BitwideRightShift,
-	LuaOperation_BitwiseXOr,
-	LuaOperation_Division,
-	LuaOperation_Exponentiation,
-	LuaOperation_FloorDivision,
-	LuaOperation_Modulo,
-	LuaOperation_Multiplication,
-	LuaOperation_Negation,
-	LuaOperation_Substraction,
+	enum LuaComparison
+	{
+		LuaComparison_Equality,
+		LuaComparison_Less,
+		LuaComparison_LessOrEqual,
 
-	LuaOperation_Max = LuaOperation_Substraction
-};
+		LuaComparison_Max = LuaComparison_LessOrEqual
+	};
 
-enum LuaType
-{
-	LuaType_Boolean,
-	LuaType_Function,
-	LuaType_LightUserdata,
-	LuaType_Nil,
-	LuaType_Number,
-	LuaType_None,
-	LuaType_String,
-	LuaType_Table,
-	LuaType_Thread,
-	LuaType_Userdata,
+	enum LuaOperation
+	{
+		LuaOperation_Addition,
+		LuaOperation_BitwiseAnd,
+		LuaOperation_BitwiseLeftShift,
+		LuaOperation_BitwiseNot,
+		LuaOperation_BitwiseOr,
+		LuaOperation_BitwideRightShift,
+		LuaOperation_BitwiseXOr,
+		LuaOperation_Division,
+		LuaOperation_Exponentiation,
+		LuaOperation_FloorDivision,
+		LuaOperation_Modulo,
+		LuaOperation_Multiplication,
+		LuaOperation_Negation,
+		LuaOperation_Substraction,
 
-	LuaType_Max = LuaType_Userdata
-};
+		LuaOperation_Max = LuaOperation_Substraction
+	};
+
+	enum LuaType
+	{
+		LuaType_Boolean,
+		LuaType_Function,
+		LuaType_LightUserdata,
+		LuaType_Nil,
+		LuaType_Number,
+		LuaType_None,
+		LuaType_String,
+		LuaType_Table,
+		LuaType_Thread,
+		LuaType_Userdata,
+
+		LuaType_Max = LuaType_Userdata
+	};
+}
 
 #endif // NAZARA_ENUMS_LUA_HPP
