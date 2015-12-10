@@ -42,8 +42,8 @@ namespace Nz
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
 
-			template<typename T> T Check(int index);
-			template<typename T> T Check(int index, T defValue);
+			template<typename T> T Check(unsigned int* index);
+			template<typename T> T Check(unsigned int* index, T defValue);
 			void CheckAny(int index) const;
 			bool CheckBoolean(int index) const;
 			bool CheckBoolean(int index, bool defValue) const;
