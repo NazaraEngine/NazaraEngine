@@ -9,124 +9,124 @@
 namespace Nz
 {
 	// Functions args
-	inline bool LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<bool>)
+	inline bool LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<bool>)
 	{
-		return instance.CheckBoolean(index);
+		return instance.CheckBoolean((*index)++);
 	}
 
-	inline bool LuaImplQueryArg(LuaInstance& instance, unsigned int index, bool defValue, TypeTag<bool>)
+	inline bool LuaImplQueryArg(LuaInstance& instance, unsigned int* index, bool defValue, TypeTag<bool>)
 	{
-		return instance.CheckBoolean(index, defValue);
+		return instance.CheckBoolean((*index)++, defValue);
 	}
 
-	inline double LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<double>)
+	inline double LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<double>)
 	{
-		return instance.CheckNumber(index);
+		return instance.CheckNumber((*index)++);
 	}
 
-	inline double LuaImplQueryArg(LuaInstance& instance, unsigned int index, double defValue, TypeTag<double>)
+	inline double LuaImplQueryArg(LuaInstance& instance, unsigned int* index, double defValue, TypeTag<double>)
 	{
-		return instance.CheckNumber(index, defValue);
+		return instance.CheckNumber((*index)++, defValue);
 	}
 
-	inline float LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<float>)
+	inline float LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<float>)
 	{
-		return static_cast<float>(instance.CheckNumber(index));
+		return static_cast<float>(instance.CheckNumber((*index)++));
 	}
 
-	inline float LuaImplQueryArg(LuaInstance& instance, unsigned int index, float defValue, TypeTag<float>)
+	inline float LuaImplQueryArg(LuaInstance& instance, unsigned int* index, float defValue, TypeTag<float>)
 	{
-		return static_cast<float>(instance.CheckNumber(index, defValue));
+		return static_cast<float>(instance.CheckNumber((*index)++, defValue));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<T>)
 	{
 		return static_cast<T>(LuaImplQueryArg(instance, index, TypeTag<typename std::underlying_type<T>::type>()));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return static_cast<T>(LuaImplQueryArg(instance, index, static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>()));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<T>)
 	{
-		return static_cast<T>(instance.CheckInteger(index));
+		return static_cast<T>(instance.CheckInteger((*index)++));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, T defValue, TypeTag<T>)
 	{
-		return static_cast<T>(instance.CheckInteger(index, defValue));
+		return static_cast<T>(instance.CheckInteger((*index)++, defValue));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<T>)
+	std::enable_if_t<std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<T>)
 	{
 		using SignedT = std::make_signed_t<T>;
 		return static_cast<T>(LuaImplQueryArg(instance, index, TypeTag<SignedT>()));
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int index, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_unsigned<T>::value, T> LuaImplQueryArg(LuaInstance& instance, unsigned int* index, T defValue, TypeTag<T>)
 	{
 		using SignedT = std::make_signed_t<T>;
 		return static_cast<T>(LuaImplQueryArg(instance, index, static_cast<SignedT>(defValue), TypeTag<SignedT>()));
 	}
 
-	inline std::string LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<std::string>)
+	inline std::string LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<std::string>)
 	{
 		std::size_t strLength = 0;
-		const char* str = instance.CheckString(index, &strLength);
+		const char* str = instance.CheckString((*index)++, &strLength);
 
 		return std::string(str, strLength);
 	}
 
-	inline std::string LuaImplQueryArg(LuaInstance& instance, unsigned int index, const std::string& defValue, TypeTag<std::string>)
+	inline std::string LuaImplQueryArg(LuaInstance& instance, unsigned int* index, const std::string& defValue, TypeTag<std::string>)
 	{
 		std::size_t strLength = 0;
-		const char* str = instance.CheckString(index, defValue.c_str(), &strLength);
+		const char* str = instance.CheckString((*index)++, defValue.c_str(), &strLength);
 
 		return std::string(str, strLength);
 	}
 
-	inline String LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<String>)
+	inline String LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<String>)
 	{
 		std::size_t strLength = 0;
-		const char* str = instance.CheckString(index, &strLength);
+		const char* str = instance.CheckString((*index)++, &strLength);
 
 		return String(str, strLength);
 	}
 
-	inline String LuaImplQueryArg(LuaInstance& instance, unsigned int index, const String& defValue, TypeTag<String>)
+	inline String LuaImplQueryArg(LuaInstance& instance, unsigned int* index, const String& defValue, TypeTag<String>)
 	{
 		std::size_t strLength = 0;
-		const char* str = instance.CheckString(index, defValue.GetConstBuffer(), &strLength);
+		const char* str = instance.CheckString((*index)++, defValue.GetConstBuffer(), &strLength);
 
 		return String(str, strLength);
 	}
 
 	template<typename T>
-	T LuaImplQueryArg(LuaInstance& instance, unsigned int index, TypeTag<const T&>)
+	T LuaImplQueryArg(LuaInstance& instance, unsigned int* index, TypeTag<const T&>)
 	{
 		return LuaImplQueryArg(instance, index, TypeTag<T>());
 	}
 
 	template<typename T>
-	T LuaImplQueryArg(LuaInstance& instance, unsigned int index, const T& defValue, TypeTag<T> tag)
+	T LuaImplQueryArg(LuaInstance& instance, unsigned int* index, const T& defValue, TypeTag<T> tag)
 	{
-		if (instance.IsValid(index))
+		if (instance.IsValid(*index))
 			return LuaImplQueryArg(instance, index, tag);
 		else
 			return defValue;
 	}
 
 	template<typename T>
-	T LuaImplQueryArg(LuaInstance& instance, unsigned int index, const T& defValue, TypeTag<const T&>)
+	T LuaImplQueryArg(LuaInstance& instance, unsigned int* index, const T& defValue, TypeTag<const T&>)
 	{
 		return LuaImplQueryArg(instance, index, defValue, TypeTag<T>());
 	}
@@ -203,9 +203,9 @@ namespace Nz
 	struct LuaImplArgProcesser<true>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
-		static void Process(LuaInstance& instance, ArgContainer& args, DefArgContainer& defArgs)
+		static void Process(LuaInstance& instance, unsigned int* argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
-			std::get<N>(args) = std::move(LuaImplQueryArg(instance, N + 1, std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>()));
+			std::get<N>(args) = std::move(LuaImplQueryArg(instance, argIndex, std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>()));
 		}
 	};
 
@@ -213,11 +213,11 @@ namespace Nz
 	struct LuaImplArgProcesser<false>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
-		static void Process(LuaInstance& instance, ArgContainer& args, DefArgContainer& defArgs)
+		static void Process(LuaInstance& instance, unsigned int* argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
 			NazaraUnused(defArgs);
 
-			std::get<N>(args) = std::move(LuaImplQueryArg(instance, N + 1, TypeTag<ArgType>()));
+			std::get<N>(args) = std::move(LuaImplQueryArg(instance, argIndex, TypeTag<ArgType>()));
 		}
 	};
 
@@ -244,6 +244,7 @@ namespace Nz
 
 					void ProcessArgs()
 					{
+						m_index = 1;
 						ProcessArgs<0, Args...>();
 					}
 
@@ -272,7 +273,7 @@ namespace Nz
 					template<std::size_t N, typename ArgType>
 					void ProcessArgs()
 					{
-						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
+						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, &m_index, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
@@ -285,6 +286,7 @@ namespace Nz
 					ArgContainer m_args;
 					DefArgContainer m_defaultArgs;
 					LuaInstance& m_instance;
+					unsigned int m_index;
 			};
 	};
 
@@ -312,6 +314,7 @@ namespace Nz
 
 					void ProcessArgs()
 					{
+						m_index = 1;
 						ProcessArgs<0, Args...>();
 					}
 
@@ -354,7 +357,7 @@ namespace Nz
 					template<std::size_t N, typename ArgType>
 					void ProcessArgs()
 					{
-						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, m_args, m_defaultArgs);
+						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(m_instance, &m_index, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
@@ -368,17 +371,18 @@ namespace Nz
 					DefArgContainer m_defaultArgs;
 					LuaInstance& m_instance;
 					T& m_object;
+					unsigned int m_index;
 			};
 	};
 
 	template<typename T>
-	T LuaInstance::Check(int index)
+	T LuaInstance::Check(unsigned int* index)
 	{
 		return LuaImplQueryArg(*this, index, TypeTag<T>());
 	}
 
 	template<typename T>
-	T LuaInstance::Check(int index, T defValue)
+	T LuaInstance::Check(unsigned int* index, T defValue)
 	{
 		return LuaImplQueryArg(*this, index, defValue, TypeTag<T>());
 	}
