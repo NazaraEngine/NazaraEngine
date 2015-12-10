@@ -141,6 +141,7 @@ namespace Ndk
 
 					// Doit-elle en faire partie ?
 					if (system->Filters(entity))
+					if (entity->IsEnabled() && system->Filters(entity))
 					{
 						// L'entité doit faire partie du système, revalidons-là (événement système) ou ajoutons-la au système
 						if (!partOfSystem)

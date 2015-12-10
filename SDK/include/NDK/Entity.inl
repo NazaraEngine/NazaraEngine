@@ -19,6 +19,15 @@ namespace Ndk
 		return static_cast<ComponentType&>(AddComponent(std::move(ptr)));
 	}
 
+	inline void Entity::Enable(bool enable)
+	{
+		if (m_enabled != enable)
+		{
+			m_enabled = enable;
+			Invalidate();
+		}
+	}
+
 	inline BaseComponent& Entity::GetComponent(ComponentIndex index)
 	{
 		///DOC: Le component doit être présent
@@ -72,6 +81,11 @@ namespace Ndk
 
 		ComponentIndex index = GetComponentIndex<ComponentType>();
 		return HasComponent(index);
+	}
+
+	inline bool Entity::IsEnabled() const
+	{
+		return m_enabled;
 	}
 
 	inline bool Entity::IsValid() const
