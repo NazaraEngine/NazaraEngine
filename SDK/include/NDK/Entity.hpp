@@ -34,6 +34,8 @@ namespace Ndk
 
 			EntityHandle CreateHandle();
 
+			inline void Enable(bool enable);
+
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
 			inline const Nz::Bitset<>& GetComponentBits() const;
@@ -47,6 +49,7 @@ namespace Ndk
 			void Kill();
 
 			void Invalidate();
+			inline bool IsEnabled() const;
 			inline bool IsValid() const;
 
 			void RemoveAllComponents();
@@ -73,6 +76,7 @@ namespace Ndk
 			Nz::Bitset<> m_systemBits;
 			EntityId m_id;
 			World* m_world;
+			bool m_enabled;
 			bool m_valid;
 	};
 }
