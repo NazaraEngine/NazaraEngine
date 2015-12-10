@@ -271,6 +271,7 @@ namespace Nz
 		FinalizerFunc finalizer = info->finalizer;
 
 		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
+		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!finalizer || finalizer(lua, *instance))
 			delete instance;
@@ -301,6 +302,7 @@ namespace Nz
 		ClassIndexFunc getter = info->getter;
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!getter(lua, instance))
 		{
@@ -323,8 +325,7 @@ namespace Nz
 		ClassFunc method = info->methods[index];
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
-
-		lua.Remove(1); // On enlève l'argument "userdata" du stack
+		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		return method(lua, instance);
 	}
@@ -338,13 +339,14 @@ namespace Nz
 		ClassIndexFunc setter = info->setter;
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!setter(lua, instance))
 		{
 			std::size_t length;
 			const char* str = lua.ToString(2, &length);
 
-			lua.Error("Class \"" + info->name + "\" has no field \"" + String(str, length) + ')');
+			lua.Error("Class \"" + info->name + "\" has no field \"" + String(str, length) + "\")");
 		}
 
 		return 1;
