@@ -127,34 +127,33 @@ namespace Ndk
 
 			Entity* entity = &m_entities[i].entity;
 
-			// Aucun intérêt de traiter une entité n'existant plus
-			if (entity->IsValid())
+			// Check entity validity (as it could have been reported as dirty and killed during the same iteration)
+			if (!entity->IsValid())
+				continue;
+
+			for (auto& system : m_systems)
 			{
-				for (auto& system : m_systems)
+				// Ignore non-existent systems
+				if (!system)
+					continue;
+
+				// Is our entity already part of this system?
+				bool partOfSystem = system->HasEntity(entity);
+
+				// Should it be part of it?
+				if (entity->IsEnabled() && system->Filters(entity))
 				{
-					// Ignore non-existent systems
-					if (!system)
-						continue;
+					// Yes it should, add it to the system if not already done and validate it (again)
+					if (!partOfSystem)
+						system->AddEntity(entity);
 
-					// L'entité est-elle enregistrée comme faisant partie du système ?
-					bool partOfSystem = system->HasEntity(entity);
-
-					// Doit-elle en faire partie ?
-					if (system->Filters(entity))
-					if (entity->IsEnabled() && system->Filters(entity))
-					{
-						// L'entité doit faire partie du système, revalidons-là (événement système) ou ajoutons-la au système
-						if (!partOfSystem)
-							system->AddEntity(entity);
-
-						system->ValidateEntity(entity, !partOfSystem);
-					}
-					else
-					{
-						// Elle ne doit pas en faire partie, si elle en faisait partie nous devons la retirer
-						if (partOfSystem)
-							system->RemoveEntity(entity);
-					}
+					system->ValidateEntity(entity, !partOfSystem);
+				}
+				else
+				{
+					// No, it shouldn't, remove it if it's part of the system
+					if (partOfSystem)
+						system->RemoveEntity(entity);
 				}
 			}
 		}
