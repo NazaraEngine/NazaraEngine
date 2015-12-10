@@ -114,6 +114,7 @@ namespace Ndk
 
 	void Entity::Create()
 	{
+		m_enabled = true;
 		m_valid = true;
 	}
 
