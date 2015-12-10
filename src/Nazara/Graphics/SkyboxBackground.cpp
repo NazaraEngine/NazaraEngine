@@ -22,9 +22,11 @@ namespace Nz
 		static VertexBufferRef s_vertexBuffer;
 	}
 
-	SkyboxBackground::SkyboxBackground(TextureRef cubemapTexture)
+	SkyboxBackground::SkyboxBackground(TextureRef cubemapTexture) :
+	m_movementOffset(Vector3f::Zero()),
+	m_movementScale(0.f)
 	{
-		m_sampler.SetWrapMode(SamplerWrap_Clamp); // Nécessaire pour ne pas voir les côtés
+		m_sampler.SetWrapMode(SamplerWrap_Clamp); // We don't want to see any beam
 
 		SetTexture(std::move(cubemapTexture));
 	}
@@ -34,9 +36,24 @@ namespace Nz
 		Matrix4f skyboxMatrix(viewer->GetViewMatrix());
 		skyboxMatrix.SetTranslation(Vector3f::Zero());
 
+		float zNear = viewer->GetZNear();
+
+		constexpr float movementLimit = 0.05f;
+
+		Vector3f offset = (viewer->GetEyePosition() - m_movementOffset) * -m_movementScale;
+		offset.x = Clamp(offset.x, -movementLimit, movementLimit);
+		offset.y = Clamp(offset.y, -movementLimit, movementLimit);
+		offset.z = Clamp(offset.z, -movementLimit, movementLimit);
+		offset *= zNear;
+
+		Matrix4f world;
+		world.MakeIdentity();
+		world.SetScale(Vector3f(zNear));
+		world.SetTranslation(offset);
+
 		Renderer::SetIndexBuffer(s_indexBuffer);
 		Renderer::SetMatrix(MatrixType_View, skyboxMatrix);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Scale(Vector3f(viewer->GetZNear())));
+		Renderer::SetMatrix(MatrixType_World, world);
 		Renderer::SetRenderStates(s_renderStates);
 		Renderer::SetShader(s_shader);
 		Renderer::SetTexture(0, m_texture);
