@@ -54,21 +54,21 @@ namespace Nz
 
 			if (m_info->getter)
 			{
-				lua.PushValue(1);
-				lua.PushValue(-2);
+				lua.PushValue(1);  // shared_ptr on UserData
+				lua.PushValue(-2); // Metatable
 				lua.PushCFunction(GetterProxy, 2);
 			}
 			else
 				// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
 				// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
 				// Ceci n'est possible que si nous n'avons ni getter, ni parent
-				lua.PushValue(-1);
+				lua.PushValue(-1); // Metatable
 
 			lua.SetField("__index"); // Getter
 
 			if (m_info->setter)
 			{
-				lua.PushValue(1);
+				lua.PushValue(1); // shared_ptr on UserData
 				lua.PushCFunction(SetterProxy, 1);
 				lua.SetField("__newindex"); // Setter
 			}
@@ -78,11 +78,11 @@ namespace Nz
 			{
 				m_info->methods.push_back(pair.second);
 
-				lua.PushValue(1);
+				lua.PushValue(1); // shared_ptr on UserData
 				lua.PushInteger(m_info->methods.size() - 1);
 
 				lua.PushCFunction(MethodProxy, 2);
-				lua.SetField(pair.first); // Méthode
+				lua.SetField(pair.first); // Method name
 			}
 		}
 		lua.Pop(); // On pop la metatable
@@ -104,21 +104,21 @@ namespace Nz
 
 			if (m_info->staticGetter)
 			{
-				lua.PushValue(1);
-				lua.PushValue(-2);
+				lua.PushValue(1);  // shared_ptr on UserData
+				lua.PushValue(-2); // ClassMeta
 				lua.PushCFunction(StaticGetterProxy, 2);
 			}
 			else
 				// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
 				// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
 				// Ceci n'est possible que si nous n'avons ni getter, ni parent
-				lua.PushValue(-1);
+				lua.PushValue(-1); // ClassMeta
 
 			lua.SetField("__index"); // ClassMeta.__index = StaticGetterProxy/ClassMeta
 
 			if (m_info->staticSetter)
 			{
-				lua.PushValue(1);
+				lua.PushValue(1); // shared_ptr on UserData
 				lua.PushCFunction(StaticSetterProxy, 1);
 				lua.SetField("__newindex"); // ClassMeta.__newindex = StaticSetterProxy
 			}
@@ -128,7 +128,7 @@ namespace Nz
 			{
 				m_info->staticMethods.push_back(pair.second);
 
-				lua.PushValue(1);
+				lua.PushValue(1); // shared_ptr on UserData
 				lua.PushInteger(m_info->staticMethods.size() - 1);
 
 				lua.PushCFunction(StaticMethodProxy, 2);
@@ -244,7 +244,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		ConstructorFunc constructor = info->constructor;
+		const ConstructorFunc& constructor = info->constructor;
 
 		lua.Remove(1); // On enlève l'argument "table" du stack
 
@@ -268,7 +268,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		FinalizerFunc finalizer = info->finalizer;
+		const FinalizerFunc& finalizer = info->finalizer;
 
 		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
 		lua.Remove(1); //< Remove the instance from the Lua stack
@@ -299,7 +299,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		ClassIndexFunc getter = info->getter;
+		const ClassIndexFunc& getter = info->getter;
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 		lua.Remove(1); //< Remove the instance from the Lua stack
@@ -322,7 +322,7 @@ namespace Nz
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
-		ClassFunc method = info->methods[index];
+		const ClassFunc& method = info->methods[index];
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 		lua.Remove(1); //< Remove the instance from the Lua stack
@@ -336,7 +336,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		ClassIndexFunc setter = info->setter;
+		const ClassIndexFunc& setter = info->setter;
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 		lua.Remove(1); //< Remove the instance from the Lua stack
@@ -358,7 +358,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		StaticIndexFunc getter = info->staticGetter;
+		const StaticIndexFunc& getter = info->staticGetter;
 
 		if (!getter(lua))
 		{
@@ -378,7 +378,7 @@ namespace Nz
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
-		StaticFunc method = info->staticMethods[index];
+		const StaticFunc& method = info->staticMethods[index];
 
 		return method(lua);
 	}
@@ -389,7 +389,7 @@ namespace Nz
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
 		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		StaticIndexFunc setter = info->staticSetter;
+		const StaticIndexFunc& setter = info->staticSetter;
 
 		if (!setter(lua))
 		{
