@@ -2469,7 +2469,7 @@ namespace Nz
 		m_sharedString = std::move(newString);
 	}
 
-	String& String::Resize(std::intmax_t size, char character)
+	String& String::Resize(std::intmax_t size, UInt32 flags)
 	{
 		if (size == 0)
 		{
@@ -2481,13 +2481,21 @@ namespace Nz
 			size = std::max<std::intmax_t>(m_sharedString->size + size, 0);
 
 		std::size_t newSize = static_cast<std::size_t>(size);
+
+		if (flags & HandleUtf8 && newSize < m_sharedString->size)
+		{
+			std::size_t characterToRemove = m_sharedString->size - newSize;
+
+			char* ptr = &m_sharedString->string[m_sharedString->size];
+			for (std::size_t i = 0; i < characterToRemove; ++i)
+				utf8::prior(ptr, m_sharedString->string.get());
+
+			newSize = ptr - m_sharedString->string.get();
+		}
+
 		if (m_sharedString->capacity >= newSize)
 		{
 			EnsureOwnership();
-
-			// We've got the space required, just fill it up
-			if (character != '\0' && newSize > m_sharedString->size)
-				std::memset(&m_sharedString->string[m_sharedString->size], character, newSize - m_sharedString->size);
 
 			m_sharedString->size = newSize;
 			m_sharedString->string[newSize] = '\0'; // Adds the EoS character
@@ -2497,16 +2505,13 @@ namespace Nz
 			auto newString = std::make_shared<SharedString>(newSize);
 			std::memcpy(newString->string.get(), m_sharedString->string.get(), m_sharedString->size);
 
-			if (character != '\0')
-				std::memset(&newString->string[m_sharedString->size], character, newSize - m_sharedString->size);
-
 			m_sharedString = std::move(newString);
 		}
 
 		return *this;
 	}
 
-	String String::Resized(std::intmax_t size, char character) const
+	String String::Resized(std::intmax_t size, UInt32 flags) const
 	{
 		if (size < 0)
 			size = m_sharedString->size + size;
@@ -2518,13 +2523,20 @@ namespace Nz
 		if (newSize == m_sharedString->size)
 			return *this;
 
+		if (flags & HandleUtf8 && newSize < m_sharedString->size)
+		{
+			std::size_t characterToRemove = m_sharedString->size - newSize;
+
+			char* ptr = &m_sharedString->string[m_sharedString->size - 1];
+			for (std::size_t i = 0; i < characterToRemove; ++i)
+				utf8::prior(ptr, m_sharedString->string.get());
+
+			newSize = ptr - m_sharedString->string.get();
+		}
+
 		auto sharedStr = std::make_shared<SharedString>(newSize);
 		if (newSize > m_sharedString->size)
-		{
 			std::memcpy(sharedStr->string.get(), m_sharedString->string.get(), m_sharedString->size);
-			if (character != '\0')
-				std::memset(&sharedStr->string[m_sharedString->size], character, newSize - m_sharedString->size);
-		}
 		else
 			std::memcpy(sharedStr->string.get(), m_sharedString->string.get(), newSize);
 

@@ -119,8 +119,8 @@ namespace Nz
 
 			void Reserve(std::size_t bufferSize);
 
-			String& Resize(std::intmax_t size, char character = ' ');
-			String Resized(std::intmax_t size, char character = ' ') const;
+			String& Resize(std::intmax_t size, UInt32 flags = None);
+			String Resized(std::intmax_t size, UInt32 flags = None) const;
 
 			String& Reverse();
 			String Reversed() const;
