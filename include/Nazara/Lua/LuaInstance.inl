@@ -404,4 +404,18 @@ namespace Nz
 			return handler.Invoke(func);
 		});
 	}
+
+	template<typename T>
+	void LuaInstance::PushInstance(const char* tname, T* instance)
+	{
+		T** userdata = static_cast<T**>(PushUserdata(sizeof(T*)));
+		*userdata = instance;
+		SetMetatable(tname);
+	}
+
+	template<typename T, typename... Args>
+	void LuaInstance::PushInstance(const char* tname, Args&&... args)
+	{
+		PushInstance(tname, new T(std::forward<Args>(args)...));
+	}
 }
