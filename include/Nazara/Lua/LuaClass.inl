@@ -15,15 +15,6 @@ namespace Nz
 	{
 		m_info->name = name;
 	}
-	/*
-	template<class T>
-	void LuaClass<T>::Inherit(LuaClass<P>& parent)
-	{
-		static_assert(std::is_base_of<P, T>::value, "P must be a base of T");
-
-		m_info->parentInfo = parent.m_info;
-	}
-	*/
 
 	template<class T>
 	template<class P>
@@ -288,10 +279,7 @@ namespace Nz
 			return 0; // Normalement jamais exécuté (l'erreur provoquant une exception)
 		}
 
-		T** ud = static_cast<T**>(lua.PushUserdata(sizeof(T*)));
-		*ud = instance;
-		lua.SetMetatable(info->name);
-
+		lua.PushInstance(info->name.GetConstBuffer(), instance);
 		return 1;
 	}
 
