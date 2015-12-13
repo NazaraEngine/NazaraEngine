@@ -226,6 +226,32 @@ namespace Nz
 	}
 
 	template<class T>
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
+	{
+		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
+		{
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
+
+	template<class T>
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
+	{
+		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
+		{
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
+
+	template<class T>
 	void LuaClass<T>::SetSetter(ClassIndexFunc setter)
 	{
 		m_info->setter = setter;

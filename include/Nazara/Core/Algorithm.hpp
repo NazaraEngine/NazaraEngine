@@ -25,6 +25,12 @@ namespace Nz
 	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 
+    template<typename T>
+    struct PointedType
+    {
+        using type = void; //< FIXME: I can't make SFINAE work
+    };
+
 	template<typename T>
 	struct TypeTag {};
 
