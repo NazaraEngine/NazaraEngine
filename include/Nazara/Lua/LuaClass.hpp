@@ -13,14 +13,16 @@
 #include <functional>
 #include <map>
 #include <memory>
-//#include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
-	template<class T/*, class P = void*/>
+	template<class T>
 	class LuaClass
 	{
-		//static_assert(std::is_same<P, void>::value || std::is_base_of<P, T>::value, "P must be a base of T");
+		template<class U>
+		friend class LuaClass;
 
 		public:
 			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
@@ -32,7 +34,8 @@ namespace Nz
 
 			LuaClass(const String& name);
 
-			//void Inherit(LuaClass<P>& parent);
+			template<class P>
+			void Inherit(LuaClass<P>& parent);
 
 			void Register(LuaInstance& lua);
 
@@ -44,7 +47,6 @@ namespace Nz
 			void SetMethod(const String& name, ClassFunc method);
 			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs);
 			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs);
-			void SetBindMode(LuaBindMode mode);
 			void SetSetter(ClassIndexFunc setter);
 			void SetStaticGetter(StaticIndexFunc getter);
 			void SetStaticMethod(const String& name, StaticFunc func);
@@ -52,20 +54,15 @@ namespace Nz
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:
-			static int ConstructorProxy(lua_State* state);
-			static int FinalizerProxy(lua_State* state);
-			static int InfoDestructor(lua_State* state);
-			static int GetterProxy(lua_State* state);
-			static int MethodProxy(lua_State* state);
-			static int SetterProxy(lua_State* state);
-			static int StaticGetterProxy(lua_State* state);
-			static int StaticMethodProxy(lua_State* state);
-			static int StaticSetterProxy(lua_State* state);
+			using ParentFunc = std::function<void(LuaInstance& lua, T& instance)>;
+			using InstanceGetter = std::function<T*(LuaInstance& lua)>;
 
 			struct ClassInfo
 			{
 				std::vector<ClassFunc> methods;
+				std::vector<ParentFunc> parentGetters;
 				std::vector<StaticFunc> staticMethods;
+				std::unordered_map<String, InstanceGetter> instanceGetters;
 				ClassIndexFunc getter = nullptr;
 				ClassIndexFunc setter = nullptr;
 				ConstructorFunc constructor = nullptr;
@@ -75,6 +72,17 @@ namespace Nz
 				String name;
 				int globalTableRef = -1;
 			};
+
+			static int ConstructorProxy(lua_State* state);
+			static int FinalizerProxy(lua_State* state);
+			static int InfoDestructor(lua_State* state);
+			static void Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T& instance);
+			static int GetterProxy(lua_State* state);
+			static int MethodProxy(lua_State* state);
+			static int SetterProxy(lua_State* state);
+			static int StaticGetterProxy(lua_State* state);
+			static int StaticMethodProxy(lua_State* state);
+			static int StaticSetterProxy(lua_State* state);
 
 			std::map<String, ClassFunc> m_methods;
 			std::map<String, StaticFunc> m_staticMethods;
