@@ -79,6 +79,11 @@ namespace Nz
 		seed = static_cast<std::size_t>(b * kMul);
 	}
 
+    template<typename T> struct PointedType<T*>                {typedef T type;};
+    template<typename T> struct PointedType<T* const>          {typedef T type;};
+    template<typename T> struct PointedType<T* volatile>       {typedef T type;};
+    template<typename T> struct PointedType<T* const volatile> {typedef T type;};
+
 	inline bool Serialize(SerializationContext& context, bool value)
 	{
 		if (context.currentBitPos == 8)

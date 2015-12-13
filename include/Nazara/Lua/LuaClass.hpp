@@ -8,6 +8,7 @@
 #define NAZARA_LUACLASS_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <functional>
@@ -47,6 +48,8 @@ namespace Nz
 			void SetMethod(const String& name, ClassFunc method);
 			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs);
 			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs);
 			void SetSetter(ClassIndexFunc setter);
 			void SetStaticGetter(StaticIndexFunc getter);
 			void SetStaticMethod(const String& name, StaticFunc func);
@@ -63,12 +66,12 @@ namespace Nz
 				std::vector<ParentFunc> parentGetters;
 				std::vector<StaticFunc> staticMethods;
 				std::unordered_map<String, InstanceGetter> instanceGetters;
-				ClassIndexFunc getter = nullptr;
-				ClassIndexFunc setter = nullptr;
-				ConstructorFunc constructor = nullptr;
-				FinalizerFunc finalizer = nullptr;
-				StaticIndexFunc staticGetter = nullptr;
-				StaticIndexFunc staticSetter = nullptr;
+				ClassIndexFunc getter;
+				ClassIndexFunc setter;
+				ConstructorFunc constructor;
+				FinalizerFunc finalizer;
+				StaticIndexFunc staticGetter;
+				StaticIndexFunc staticSetter;
 				String name;
 				int globalTableRef = -1;
 			};
