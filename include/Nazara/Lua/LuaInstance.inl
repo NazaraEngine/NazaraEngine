@@ -344,6 +344,32 @@ namespace Nz
 						return LuaImplReplyVal(m_instance, std::move(Apply(m_object, func, m_args)), TypeTag<decltype(Apply(m_object, func, m_args))>());
 					}
 
+					template<typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(void(P::*func)(Args...))
+					{
+						Apply(*m_object, func, m_args);
+						return 0;
+					}
+
+					template<typename P, typename Ret>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(Ret(P::*func)(Args...))
+					{
+						return LuaImplReplyVal(m_instance, std::move(Apply(*m_object, func, m_args)), TypeTag<decltype(Apply(*m_object, func, m_args))>());
+					}
+
+					template<typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(void(P::*func)(Args...) const)
+					{
+						Apply(*m_object, func, m_args);
+						return 0;
+					}
+
+					template<typename P, typename Ret>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(Ret(P::*func)(Args...) const)
+					{
+						return LuaImplReplyVal(m_instance, std::move(Apply(*m_object, func, m_args)), TypeTag<decltype(Apply(*m_object, func, m_args))>());
+					}
+
 				private:
 					using ArgContainer = std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...>;
 					using DefArgContainer = std::tuple<std::remove_cv_t<std::remove_reference_t<DefArgs>>...>;
