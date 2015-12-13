@@ -117,6 +117,8 @@ namespace Nz
 			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0);
 			void PushFunction(LuaFunction func);
 			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs... defArgs);
+			template<typename T> void PushInstance(const char* tname, T* instance);
+			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args);
 			void PushInteger(long long value);
 			void PushLightUserdata(void* value);
 			void PushMetatable(const char* str);
