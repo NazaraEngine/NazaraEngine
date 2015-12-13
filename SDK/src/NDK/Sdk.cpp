@@ -13,63 +13,79 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
-#include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
-#include <NDK/Components/LightComponent.hpp>
-#include <NDK/Components/ListenerComponent.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
-#include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/PhysicsSystem.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
+
+#ifndef NDK_SERVER
+#include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/LightComponent.hpp>
+#include <NDK/Components/ListenerComponent.hpp>
+#include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
+#endif
 
 namespace Ndk
 {
 	bool Sdk::Initialize()
 	{
 		if (s_referenceCounter++ > 0)
-			return true; // Déjà initialisé
+			return true; // Already initialized
 
 		try
 		{
 			Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
 
-			// Initialisation du moteur
+			// Initialize the engine first
 
-			// Modules clients
-			Nz::Audio::Initialize();
-			Nz::Graphics::Initialize();
-
-			// Modules serveurs
+			// Shared modules
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics::Initialize();
 			Nz::Utility::Initialize();
 
-			// Initialisation du SDK
+			#ifndef NDK_SERVER
+			// Client modules
+			Nz::Audio::Initialize();
+			Nz::Graphics::Initialize();
+			#endif
 
-			// Initialisation des composants et systèmes
+			// SDK Initialization
+
+			// Components
 			BaseComponent::Initialize();
-			BaseSystem::Initialize();
 
-			// Composants
-			InitializeComponent<CameraComponent>("NdkCam");
+			// Shared components
 			InitializeComponent<CollisionComponent>("NdkColli");
-			InitializeComponent<LightComponent>("NdkLight");
-			InitializeComponent<ListenerComponent>("NdkList");
-			InitializeComponent<GraphicsComponent>("NdkGfx");
 			InitializeComponent<NodeComponent>("NdkNode");
 			InitializeComponent<PhysicsComponent>("NdkPhys");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
 
-			// Systèmes
-			InitializeSystem<ListenerSystem>();
+			#ifndef NDK_SERVER
+			// Client components
+			InitializeComponent<CameraComponent>("NdkCam");
+			InitializeComponent<LightComponent>("NdkLight");
+			InitializeComponent<ListenerComponent>("NdkList");
+			InitializeComponent<GraphicsComponent>("NdkGfx");
+			#endif
+
+			// Systems
+
+			BaseSystem::Initialize();
+
+			// Shared systems
 			InitializeSystem<PhysicsSystem>();
-			InitializeSystem<RenderSystem>();
 			InitializeSystem<VelocitySystem>();
+
+			#ifndef NDK_SERVER
+			// Client systems
+			InitializeSystem<ListenerSystem>();
+			InitializeSystem<RenderSystem>();
+			#endif
 
 			NazaraNotice("Initialized: SDK");
 			return true;
@@ -86,23 +102,25 @@ namespace Ndk
 	{
 		if (s_referenceCounter != 1)
 		{
-			// Le module est soit encore utilisé, soit pas initialisé
+			// Either the module is not initialized, either it was initialized multiple times
 			if (s_referenceCounter > 1)
 				s_referenceCounter--;
 
 			return;
 		}
 
-		// Libération du SDK
+		// Uninitialize the SDK
 		s_referenceCounter = 0;
 
-		// Libération du moteur
+		// Uninitialize the engine
 
-		// Modules clients
+		#ifndef NDK_SERVER
+		// Client modules
 		Nz::Audio::Uninitialize();
 		Nz::Graphics::Uninitialize();
+		#endif
 
-		// Modules serveurs
+		// Shared modules
 		Nz::Lua::Uninitialize();
 		Nz::Noise::Uninitialize();
 		Nz::Physics::Uninitialize();
