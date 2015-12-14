@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <type_traits>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
@@ -14,15 +15,26 @@ namespace Nz
 	{
 		m_info->name = name;
 	}
-	/*
-	template<class T>
-	void LuaClass<T>::Inherit(LuaClass<P>& parent)
-	{
-		static_assert(std::is_base_of<P, T>::value, "P must be a base of T");
 
-		m_info->parentInfo = parent.m_info;
+	template<class T>
+	template<class P>
+	inline void LuaClass<T>::Inherit(LuaClass<P>& parent)
+	{
+		static_assert(!std::is_same<P, T>::value || std::is_base_of<P, T>::value, "P must be a base of T");
+
+		std::shared_ptr<typename LuaClass<P>::ClassInfo>& parentInfo = parent.m_info;
+		
+		parentInfo->instanceGetters[m_info->name] = [info = m_info](LuaInstance& lua) -> P*
+		{
+			return *static_cast<T**>(lua.CheckUserdata(1, info->name));
+		};
+
+		m_info->parentGetters.emplace_back([parentInfo] (LuaInstance& lua, T& instance)
+		{
+			LuaClass<P>::Get(parentInfo, lua, instance);
+		});
 	}
-	*/
+
 	template<class T>
 	void LuaClass<T>::Register(LuaInstance& lua)
 	{
@@ -48,11 +60,16 @@ namespace Nz
 		if (!lua.NewMetatable(m_info->name))
 			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
 		{
-			lua.PushValue(1); // On associe l'UserData avec la fonction
-			lua.PushCFunction(FinalizerProxy, 1);
-			lua.SetField("__gc"); // Finalizer
+			// Set the type in a __type field
+			lua.PushString(m_info->name);
+			lua.SetField("__type");
 
-			if (m_info->getter)
+			// Define the Finalizer
+			lua.PushValue(1);
+			lua.PushCFunction(FinalizerProxy, 1);
+			lua.SetField("__gc");
+
+			if (m_info->getter || !m_info->parentGetters.empty())
 			{
 				lua.PushValue(1);  // shared_ptr on UserData
 				lua.PushValue(-2); // Metatable
@@ -76,14 +93,20 @@ namespace Nz
 			m_info->methods.reserve(m_methods.size());
 			for (auto& pair : m_methods)
 			{
+				std::size_t methodIndex = m_info->methods.size();
 				m_info->methods.push_back(pair.second);
 
 				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushInteger(m_info->methods.size() - 1);
+				lua.PushInteger(methodIndex);
 
 				lua.PushCFunction(MethodProxy, 2);
 				lua.SetField(pair.first); // Method name
 			}
+
+			m_info->instanceGetters[m_info->name] = [info = m_info](LuaInstance& lua)
+			{
+				return *static_cast<T**>(lua.CheckUserdata(1, info->name));
+			};
 		}
 		lua.Pop(); // On pop la metatable
 
@@ -126,10 +149,11 @@ namespace Nz
 			m_info->staticMethods.reserve(m_staticMethods.size());
 			for (auto& pair : m_staticMethods)
 			{
+				std::size_t methodIndex = m_info->staticMethods.size();
 				m_info->staticMethods.push_back(pair.second);
 
 				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushInteger(m_info->staticMethods.size() - 1);
+				lua.PushInteger(methodIndex);
 
 				lua.PushCFunction(StaticMethodProxy, 2);
 				lua.SetField(pair.first); // ClassMeta.method = StaticMethodProxy
@@ -181,7 +205,7 @@ namespace Nz
 	{
 		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
 		{
-			LuaImplMethodProxy<T, Args...>::Impl<DefArgs...> handler(instance, object, defArgs...);
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
 			handler.ProcessArgs();
 
 			return handler.Invoke(func);
@@ -193,6 +217,32 @@ namespace Nz
 	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
 	{
 		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
+		{
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
+
+	template<class T>
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
+	{
+		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
+		{
+			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
+			handler.ProcessArgs();
+
+			return handler.Invoke(func);
+		});
+	}
+
+	template<class T>
+	template<typename R, typename P, typename... Args, typename... DefArgs>
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
+	{
+		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
 		{
 			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
 			handler.ProcessArgs();
@@ -243,7 +293,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const ConstructorFunc& constructor = info->constructor;
 
 		lua.Remove(1); // On enlève l'argument "table" du stack
@@ -255,10 +305,7 @@ namespace Nz
 			return 0; // Normalement jamais exécuté (l'erreur provoquant une exception)
 		}
 
-		T** ud = static_cast<T**>(lua.PushUserdata(sizeof(T*)));
-		*ud = instance;
-		lua.SetMetatable(info->name);
-
+		lua.PushInstance(info->name.GetConstBuffer(), instance);
 		return 1;
 	}
 
@@ -267,7 +314,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const FinalizerFunc& finalizer = info->finalizer;
 
 		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
@@ -284,13 +331,41 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		std::shared_ptr<ClassInfo>& infoPtr = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		lua.DestroyReference(infoPtr->globalTableRef);
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		lua.DestroyReference(info->globalTableRef);
 
 		using namespace std; // Obligatoire pour le destructeur
-		infoPtr.~shared_ptr(); // Si vous voyez une autre façon de faire, je suis preneur
+		info.~shared_ptr(); // Si vous voyez une autre façon de faire, je suis preneur
 
 		return 0;
+	}
+
+	template<class T>
+	void LuaClass<T>::Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T& instance)
+	{
+		const ClassIndexFunc& getter = info->getter;
+
+		if (!getter || !getter(lua, instance))
+		{
+			// Query from the metatable
+			lua.GetMetatable(info->name); //< Metatable
+			lua.PushValue(1); //< Field
+			lua.GetTable(); // Metatable[Field]
+
+			lua.Remove(-2); // Remove Metatable
+
+			if (!lua.IsValid(-1))
+			{
+				for (const ParentFunc& getter : info->parentGetters)
+				{
+					lua.Pop(); //< Pop the last nil value
+
+					getter(lua, instance);
+					if (lua.IsValid(-1))
+						return;
+				}
+			}
+		}
 	}
 
 	template<class T>
@@ -298,20 +373,12 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		const ClassIndexFunc& getter = info->getter;
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
-		if (!getter(lua, instance))
-		{
-			// On accède alors à la table
-			lua.PushValue(lua.GetIndexOfUpValue(2));
-			lua.PushValue(-2);
-			lua.GetTable();
-		}
-
+		Get(info, lua, instance);
 		return 1;
 	}
 
@@ -320,14 +387,26 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
-		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
-		const ClassFunc& method = info->methods[index];
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
-		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+		T* instance = nullptr;
+		if (lua.GetMetatable(1))
+		{
+			LuaType type = lua.GetField("__type");
+			if (type == LuaType_String)
+			{
+				String name = lua.ToString(-1);
+				auto it = info->instanceGetters.find(name);
+				if (it != info->instanceGetters.end())
+					instance = it->second(lua);
+			}
+		}
+
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
-		return method(lua, instance);
+		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
+		const ClassFunc& method = info->methods[index];
+		return method(lua, *instance);
 	}
 
 	template<class T>
@@ -335,7 +414,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const ClassIndexFunc& setter = info->setter;
 
 		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
@@ -357,7 +436,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const StaticIndexFunc& getter = info->staticGetter;
 
 		if (!getter(lua))
@@ -376,7 +455,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 		const StaticFunc& method = info->staticMethods[index];
 
@@ -388,7 +467,7 @@ namespace Nz
 	{
 		LuaInstance& lua = *LuaInstance::GetInstance(state);
 
-		ClassInfo* info = *static_cast<ClassInfo**>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const StaticIndexFunc& setter = info->staticSetter;
 
 		if (!setter(lua))
