@@ -47,8 +47,16 @@ namespace Nz
 			void CheckAny(int index) const;
 			bool CheckBoolean(int index) const;
 			bool CheckBoolean(int index, bool defValue) const;
+			template<typename T> T CheckField(const char* fieldName, int tableIndex = -1);
+			template<typename T> T CheckField(const String& fieldName, int tableIndex = -1);
+			template<typename T> T CheckField(const char* fieldName, T defValue, int tableIndex = -1);
+			template<typename T> T CheckField(const String& fieldName, T defValue, int tableIndex = -1);
 			long long CheckInteger(int index) const;
 			long long CheckInteger(int index, long long defValue) const;
+			template<typename T> T CheckGlobal(const char* fieldName) const;
+			template<typename T> T CheckGlobal(const String& fieldName) const;
+			template<typename T> T CheckGlobal(const char* fieldName, T defValue) const;
+			template<typename T> T CheckGlobal(const String& fieldName, T defValue) const;
 			double CheckNumber(int index) const;
 			double CheckNumber(int index, double defValue) const;
 			void CheckStack(int space, const char* error = nullptr) const;
@@ -78,8 +86,8 @@ namespace Nz
 			bool ExecuteFromStream(Stream& stream);
 
 			int GetAbsIndex(int index) const;
-			LuaType GetField(const char* fieldName, int index = -1) const;
-			LuaType GetField(const String& fieldName, int index = -1) const;
+			LuaType GetField(const char* fieldName, int tableIndex = -1) const;
+			LuaType GetField(const String& fieldName, int tableIndex = -1) const;
 			LuaType GetGlobal(const char* name) const;
 			LuaType GetGlobal(const String& name) const;
 			lua_State* GetInternalState() const;
@@ -136,8 +144,12 @@ namespace Nz
 			void Remove(int index);
 			void Replace(int index);
 
+			template<typename T> void SetField(const char* name, T&& arg, int tableIndex = -2);
+			template<typename T> void SetField(const String& name, T&& arg, int tableIndex = -2);
 			void SetField(const char* name, int tableIndex = -2);
 			void SetField(const String& name, int tableIndex = -2);
+			template<typename T> void SetGlobal(const char* name, T&& arg);
+			template<typename T> void SetGlobal(const String& name, T&& arg);
 			void SetGlobal(const char* name);
 			void SetGlobal(const String& name);
 			void SetMetatable(const char* tname);

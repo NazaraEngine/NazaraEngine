@@ -443,14 +443,14 @@ namespace Nz
 		return lua_absindex(m_state, index);
 	}
 
-	LuaType LuaInstance::GetField(const char* fieldName, int index) const
+	LuaType LuaInstance::GetField(const char* fieldName, int tableIndex) const
 	{
-		return FromLuaType(lua_getfield(m_state, index, fieldName));
+		return FromLuaType(lua_getfield(m_state, tableIndex, fieldName));
 	}
 
-	LuaType LuaInstance::GetField(const String& fieldName, int index) const
+	LuaType LuaInstance::GetField(const String& fieldName, int tableIndex) const
 	{
-		return FromLuaType(lua_getfield(m_state, index, fieldName.GetConstBuffer()));
+		return FromLuaType(lua_getfield(m_state, tableIndex, fieldName.GetConstBuffer()));
 	}
 
 	LuaType LuaInstance::GetGlobal(const char* name) const
