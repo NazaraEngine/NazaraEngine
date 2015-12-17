@@ -78,7 +78,7 @@ namespace Nz
 	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using SignedT = std::make_signed_t<T>;
-		
+
 		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), static_cast<SignedT>(defValue), TypeTag<SignedT>());
 	}
 
@@ -242,7 +242,7 @@ namespace Nz
 						ProcessArgs<0, Args...>(instance);
 					}
 
-					int Invoke(LuaInstance& instance, void (*func)(Args...)) const
+					int Invoke(LuaInstance& instance, void(*func)(Args...)) const
 					{
 						NazaraUnused(instance);
 
@@ -251,7 +251,7 @@ namespace Nz
 					}
 
 					template<typename Ret>
-					int Invoke(LuaInstance& instance, Ret (*func)(Args...)) const
+					int Invoke(LuaInstance& instance, Ret(*func)(Args...)) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(func, m_args)), TypeTag<decltype(Apply(func, m_args))>());
 					}
@@ -425,7 +425,79 @@ namespace Nz
 
 		return object;
 	}
-	
+
+	template<typename T>
+	T LuaInstance::CheckField(const char* fieldName, int tableIndex)
+	{
+		T object;
+
+		GetField(fieldName, tableIndex);
+			tableIndex += LuaImplQueryArg(*this, -1, &object, TypeTag<T>());
+		Pop();
+
+		return object;
+	}
+
+	template<typename T>
+	T LuaInstance::CheckField(const String& fieldName, int tableIndex)
+	{
+		return CheckField(fieldName.GetConstBuffer(), tableIndex);
+	}
+
+	template<typename T>
+	T LuaInstance::CheckField(const char* fieldName, T defValue, int tableIndex)
+	{
+		T object;
+
+		GetField(fieldName, tableIndex);
+			tableIndex += LuaImplQueryArg(*this, -1, &object, defValue, TypeTag<T>());
+		Pop();
+
+		return object;
+	}
+
+	template<typename T>
+	T LuaInstance::CheckField(const String& fieldName, T defValue, int tableIndex)
+	{
+		return CheckField(fieldName.GetConstBuffer(), defValue, tableIndex);
+	}
+
+	template<typename T>
+	T LuaInstance::CheckGlobal(const char* fieldName)
+	{
+		T object;
+
+		GetGlobal(fieldName);
+			tableIndex += LuaImplQueryArg(*this, -1, &object, TypeTag<T>());
+		Pop();
+
+		return object;
+	}
+
+	template<typename T>
+	T LuaInstance::CheckGlobal(const String& fieldName)
+	{
+		return CheckGlobal(fieldName.GetConstBuffer());
+	}
+
+	template<typename T>
+	T LuaInstance::CheckGlobal(const char* fieldName, T defValue)
+	{
+		T object;
+
+		GetGlobal(fieldName);
+			tableIndex += LuaImplQueryArg(*this, -1, &object, defValue, TypeTag<T>());
+		Pop();
+
+		return object;
+	}
+
+	template<typename T>
+	T LuaInstance::CheckGlobal(const String& fieldName, T defValue)
+	{
+		return CheckGlobal(fieldName.GetConstBuffer(), defValue);
+	}
+
 	template<typename T>
 	int LuaInstance::Push(T arg)
 	{
@@ -433,11 +505,11 @@ namespace Nz
 	}
 
 	template<typename R, typename... Args, typename... DefArgs>
-	void LuaInstance::PushFunction(R (*func)(Args...), DefArgs&&... defArgs)
+	void LuaInstance::PushFunction(R(*func)(Args...), DefArgs&&... defArgs)
 	{
 		typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		PushFunction([func, handler](LuaInstance& lua) -> int
+		PushFunction([func, handler] (LuaInstance& lua) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -457,5 +529,31 @@ namespace Nz
 	void LuaInstance::PushInstance(const char* tname, Args&&... args)
 	{
 		PushInstance(tname, new T(std::forward<Args>(args)...));
+	}
+
+	template<typename T>
+	void LuaInstance::SetField(const char* name, T&& arg, int tableIndex)
+	{
+		Push<T>(std::forward<T>(arg));
+		SetField(name, tableIndex);
+	}
+
+	template<typename T>
+	void LuaInstance::SetField(const String& name, T&& arg, int tableIndex)
+	{
+		SetField(name.GetConstBuffer(), std::forward<T>(arg), tableIndex);
+	}
+
+	template<typename T>
+	void LuaInstance::SetGlobal(const char* name, T&& arg)
+	{
+		Push<T>(std::forward<T>(arg));
+		SetGlobal(name);
+	}
+
+	template<typename T>
+	void LuaInstance::SetGlobal(const String& name, T&& arg)
+	{
+		SetGlobal(name.GetConstBuffer(), std::forward<T>(arg));
 	}
 }
