@@ -46,14 +46,14 @@ namespace Nz
 			void SetFinalizer(FinalizerFunc finalizer);
 			void SetGetter(ClassIndexFunc getter);
 			void SetMethod(const String& name, ClassFunc method);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
 			void SetSetter(ClassIndexFunc setter);
 			void SetStaticGetter(StaticIndexFunc getter);
 			void SetStaticMethod(const String& name, StaticFunc func);
-			template<typename R, typename... Args, typename... DefArgs> void SetStaticMethod(const String& name, R(*func)(Args...), DefArgs... defArgs);
+			template<typename R, typename... Args, typename... DefArgs> void SetStaticMethod(const String& name, R(*func)(Args...), DefArgs&&... defArgs);
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:

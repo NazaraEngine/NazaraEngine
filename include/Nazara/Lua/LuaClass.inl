@@ -201,53 +201,57 @@ namespace Nz
 
 	template<class T>
 	template<typename R, typename P, typename... Args, typename... DefArgs>
-	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs)
 	{
-		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
-		{
-			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
-			handler.ProcessArgs();
+		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-			return handler.Invoke(func);
+		SetMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		{
+			handler.ProcessArgs(lua);
+
+			return handler.Invoke(lua, object, func);
 		});
 	}
 
 	template<class T>
 	template<typename R, typename P, typename... Args, typename... DefArgs>
-	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
+	std::enable_if_t<std::is_base_of<P, T>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs)
 	{
-		SetMethod(name, [func, defArgs...] (LuaInstance& instance, T& object) -> int
-		{
-			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
-			handler.ProcessArgs();
+		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-			return handler.Invoke(func);
+		SetMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		{
+			handler.ProcessArgs(lua);
+
+			return handler.Invoke(lua, object, func);
 		});
 	}
 
 	template<class T>
 	template<typename R, typename P, typename... Args, typename... DefArgs>
-	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs... defArgs)
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs)
 	{
-		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
-		{
-			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
-			handler.ProcessArgs();
+		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-			return handler.Invoke(func);
+		SetMethod(name, [func, handler](LuaInstance& lua, T& object) -> int
+		{
+			handler.ProcessArgs(lua);
+
+			return handler.Invoke(lua, object, func);
 		});
 	}
 
 	template<class T>
 	template<typename R, typename P, typename... Args, typename... DefArgs>
-	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs... defArgs)
+	std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> LuaClass<T>::SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs)
 	{
-		SetMethod(name, [func, defArgs...](LuaInstance& instance, T& object) -> int
-		{
-			typename LuaImplMethodProxy<T, Args...>::template Impl<DefArgs...> handler(instance, object, defArgs...);
-			handler.ProcessArgs();
+		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-			return handler.Invoke(func);
+		SetMethod(name, [func, handler](LuaInstance& lua, T& object) -> int
+		{
+			handler.ProcessArgs(lua);
+
+			return handler.Invoke(lua, object, func);
 		});
 	}
 
@@ -271,14 +275,15 @@ namespace Nz
 
 	template<class T>
 	template<typename R, typename... Args, typename... DefArgs>
-	void LuaClass<T>::SetStaticMethod(const String& name, R(*func)(Args...), DefArgs... defArgs)
+	void LuaClass<T>::SetStaticMethod(const String& name, R(*func)(Args...), DefArgs&&... defArgs)
 	{
-		SetStaticMethod(name, [func, defArgs...] (LuaInstance& instance) -> int
-		{
-			typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(instance);
-			handler.ProcessArgs();
+		typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-			return handler.Invoke(func);
+		SetStaticMethod(name, [func, handler] (LuaInstance& lua) -> int
+		{
+			handler.ProcessArgs(lua);
+
+			return handler.Invoke(lua, func);
 		});
 	}
 
