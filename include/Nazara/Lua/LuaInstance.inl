@@ -9,80 +9,19 @@
 namespace Nz
 {
 	// Functions args
-	inline unsigned int LuaImplQueryArg(LuaInstance& instance, int index, bool* arg, TypeTag<bool>)
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, bool* arg, TypeTag<bool>)
 	{
 		*arg = instance.CheckBoolean(index);
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(LuaInstance& instance, int index, bool* arg, bool defValue, TypeTag<bool>)
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, bool* arg, bool defValue, TypeTag<bool>)
 	{
 		*arg = instance.CheckBoolean(index, defValue);
 		return 1;
 	}
 
-	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, TypeTag<T>)
-	{
-		using UnderlyingT = std::underlying_type_t<T>;
-		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>()));
-
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
-	{
-		using UnderlyingT = std::underlying_type_t<T>;
-		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>()));
-
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, TypeTag<T>)
-	{
-		*arg = static_cast<T>(instance.CheckNumber(index));
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
-	{
-		*arg = static_cast<T>(instance.CheckNumber(index, static_cast<double>(defValue)));
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, TypeTag<T>)
-	{
-		*arg = static_cast<T>(instance.CheckInteger(index));
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
-	{
-		*arg = static_cast<T>(instance.CheckInteger(index, defValue));
-		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, TypeTag<T>)
-	{
-		using SignedT = std::make_signed_t<T>;
-		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), TypeTag<SignedT>());
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
-	{
-		using SignedT = std::make_signed_t<T>;
-
-		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), static_cast<SignedT>(defValue), TypeTag<SignedT>());
-	}
-
-	inline unsigned int LuaImplQueryArg(LuaInstance& instance, int index, std::string* arg, TypeTag<std::string>)
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, std::string* arg, TypeTag<std::string>)
 	{
 		std::size_t strLength = 0;
 		const char* str = instance.CheckString(index, &strLength);
@@ -92,7 +31,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(LuaInstance& instance, int index, String* arg, TypeTag<String>)
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, String* arg, TypeTag<String>)
 	{
 		std::size_t strLength = 0;
 		const char* str = instance.CheckString(index, &strLength);
@@ -103,7 +42,68 @@ namespace Nz
 	}
 
 	template<typename T>
-	unsigned int LuaImplQueryArg(LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
+	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		using UnderlyingT = std::underlying_type_t<T>;
+		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>()));
+
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		using UnderlyingT = std::underlying_type_t<T>;
+		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>()));
+
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_floating_point<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		*arg = static_cast<T>(instance.CheckNumber(index));
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_floating_point<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		*arg = static_cast<T>(instance.CheckNumber(index, static_cast<double>(defValue)));
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		*arg = static_cast<T>(instance.CheckInteger(index));
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		*arg = static_cast<T>(instance.CheckInteger(index, defValue));
+		return 1;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		using SignedT = std::make_signed_t<T>;
+		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), TypeTag<SignedT>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		using SignedT = std::make_signed_t<T>;
+
+		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), static_cast<SignedT>(defValue), TypeTag<SignedT>());
+	}
+
+	template<typename T>
+	unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
 	{
 		if (instance.IsValid(index))
 			return LuaImplQueryArg(instance, index, arg, tag);
@@ -115,38 +115,38 @@ namespace Nz
 	}
 
 	template<typename T>
-	unsigned int LuaImplQueryArg(LuaInstance& instance, int index, T* arg, TypeTag<const T&>)
+	unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<const T&>)
 	{
 		return LuaImplQueryArg(instance, index, arg, TypeTag<T>());
 	}
 
 	template<typename T>
-	unsigned int LuaImplQueryArg(LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<const T&>)
+	unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<const T&>)
 	{
 		return LuaImplQueryArg(instance, index, arg, defValue, TypeTag<T>());
 	}
 
 	// Function returns
-	inline int LuaImplReplyVal(LuaInstance& instance, bool val, TypeTag<bool>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, bool val, TypeTag<bool>)
 	{
 		instance.PushBoolean(val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(LuaInstance& instance, double val, TypeTag<double>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, double val, TypeTag<double>)
 	{
 		instance.PushNumber(val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(LuaInstance& instance, float val, TypeTag<float>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, float val, TypeTag<float>)
 	{
 		instance.PushNumber(val);
 		return 1;
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, int> LuaImplReplyVal(LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		using EnumT = typename std::underlying_type<T>::type;
 
@@ -154,34 +154,34 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, int> LuaImplReplyVal(LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		instance.PushInteger(val);
 		return 1;
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, int> LuaImplReplyVal(LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_unsigned<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		using SignedT = typename std::make_signed<T>::type;
 
 		return LuaImplReplyVal(instance, static_cast<SignedT>(val), TypeTag<SignedT>());
 	}
 
-	inline int LuaImplReplyVal(LuaInstance& instance, std::string val, TypeTag<std::string>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(LuaInstance& instance, String val, TypeTag<String>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, String val, TypeTag<String>)
 	{
 		instance.PushString(std::move(val));
 		return 1;
 	}
 
 	template<typename T1, typename T2>
-	int LuaImplReplyVal(LuaInstance& instance, std::pair<T1, T2> val, TypeTag<std::pair<T1, T2>>)
+	int LuaImplReplyVal(const LuaInstance& instance, std::pair<T1, T2> val, TypeTag<std::pair<T1, T2>>)
 	{
 		int retVal = 0;
 
@@ -198,7 +198,7 @@ namespace Nz
 	struct LuaImplArgProcesser<true>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
-		static unsigned int Process(LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
+		static unsigned int Process(const LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
 			return LuaImplQueryArg(instance, argIndex, &std::get<N>(args), std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>());
 		}
@@ -208,7 +208,7 @@ namespace Nz
 	struct LuaImplArgProcesser<false>
 	{
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
-		static unsigned int Process(LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
+		static unsigned int Process(const LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
 			NazaraUnused(defArgs);
 
@@ -231,18 +231,18 @@ namespace Nz
 				static constexpr std::size_t FirstDefArg = ArgCount - DefArgCount;
 
 				public:
-					Impl(LuaInstance& instance, DefArgs... defArgs) :
+					Impl(DefArgs... defArgs) :
 					m_defaultArgs(std::forward<DefArgs>(defArgs)...)
 					{
 					}
 
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						m_index = 1;
 						ProcessArgs<0, Args...>(instance);
 					}
 
-					int Invoke(LuaInstance& instance, void(*func)(Args...)) const
+					int Invoke(const LuaInstance& instance, void(*func)(Args...)) const
 					{
 						NazaraUnused(instance);
 
@@ -251,7 +251,7 @@ namespace Nz
 					}
 
 					template<typename Ret>
-					int Invoke(LuaInstance& instance, Ret(*func)(Args...)) const
+					int Invoke(const LuaInstance& instance, Ret(*func)(Args...)) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(func, m_args)), TypeTag<decltype(Apply(func, m_args))>());
 					}
@@ -261,7 +261,7 @@ namespace Nz
 					using DefArgContainer = std::tuple<std::remove_cv_t<std::remove_reference_t<DefArgs>>...>;
 
 					template<std::size_t N>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						NazaraUnused(instance);
 
@@ -269,13 +269,13 @@ namespace Nz
 					}
 
 					template<std::size_t N, typename ArgType>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
-						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(instance, &m_index, m_args, m_defaultArgs);
+						LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(instance, m_index, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						ProcessArgs<N, ArgType1>(instance);
 						ProcessArgs<N + 1, ArgType2, Rest...>(instance);
@@ -307,14 +307,14 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						m_index = 1;
 						ProcessArgs<0, Args...>(instance);
 					}
 
 					template<typename T, typename P>
-					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(LuaInstance& instance, T& object, void(P::*func)(Args...)) const
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, T& object, void(P::*func)(Args...)) const
 					{
 						NazaraUnused(instance);
 
@@ -323,13 +323,13 @@ namespace Nz
 					}
 
 					template<typename T, typename P, typename Ret>
-					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(object, func, m_args)), TypeTag<decltype(Apply(object, func, m_args))>());
 					}
 
 					template<typename T, typename P>
-					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
 						NazaraUnused(instance);
 
@@ -338,13 +338,13 @@ namespace Nz
 					}
 
 					template<typename T, typename P, typename Ret>
-					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(object, func, m_args)), TypeTag<decltype(Apply(object, func, m_args))>());
 					}
 
 					template<typename T, typename P>
-					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(LuaInstance& instance, T& object, void(P::*func)(Args...)) const
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, void(P::*func)(Args...)) const
 					{
 						NazaraUnused(instance);
 
@@ -353,13 +353,13 @@ namespace Nz
 					}
 
 					template<typename T, typename P, typename Ret>
-					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
 
 					template<typename T, typename P>
-					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
 						NazaraUnused(instance);
 
@@ -368,7 +368,7 @@ namespace Nz
 					}
 
 					template<typename T, typename P, typename Ret>
-					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
 					{
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
@@ -378,7 +378,7 @@ namespace Nz
 					using DefArgContainer = std::tuple<std::remove_cv_t<std::remove_reference_t<DefArgs>>...>;
 
 					template<std::size_t N>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						NazaraUnused(instance);
 
@@ -386,13 +386,13 @@ namespace Nz
 					}
 
 					template<std::size_t N, typename ArgType>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						m_index += LuaImplArgProcesser<(N >= FirstDefArg)>::template Process<N, FirstDefArg, ArgType>(instance, m_index, m_args, m_defaultArgs);
 					}
 
 					template<std::size_t N, typename ArgType1, typename ArgType2, typename... Rest>
-					void ProcessArgs(LuaInstance& instance) const
+					void ProcessArgs(const LuaInstance& instance) const
 					{
 						ProcessArgs<N, ArgType1>(instance);
 						ProcessArgs<N + 1, ArgType2, Rest...>(instance);
@@ -405,29 +405,29 @@ namespace Nz
 	};
 
 	template<typename T>
-	T LuaInstance::Check(unsigned int* index)
+	T LuaInstance::Check(int* index) const
 	{
 		NazaraAssert(index, "Invalid index pointer");
 
 		T object;
-		*index += LuaImplQueryArg(*this, index, &object, TypeTag<T>());
+		*index += LuaImplQueryArg(*this, *index, &object, TypeTag<T>());
 
 		return object;
 	}
 
 	template<typename T>
-	T LuaInstance::Check(unsigned int* index, T defValue)
+	T LuaInstance::Check(int* index, T defValue) const
 	{
 		NazaraAssert(index, "Invalid index pointer");
 
 		T object;
-		*index += LuaImplQueryArg(*this, index, &object, defValue, TypeTag<T>());
+		*index += LuaImplQueryArg(*this, *index, &object, defValue, TypeTag<T>());
 
 		return object;
 	}
 
 	template<typename T>
-	T LuaInstance::CheckField(const char* fieldName, int tableIndex)
+	T LuaInstance::CheckField(const char* fieldName, int tableIndex) const
 	{
 		T object;
 
@@ -439,13 +439,13 @@ namespace Nz
 	}
 
 	template<typename T>
-	T LuaInstance::CheckField(const String& fieldName, int tableIndex)
+	T LuaInstance::CheckField(const String& fieldName, int tableIndex) const
 	{
-		return CheckField(fieldName.GetConstBuffer(), tableIndex);
+		return CheckField<T>(fieldName.GetConstBuffer(), tableIndex);
 	}
 
 	template<typename T>
-	T LuaInstance::CheckField(const char* fieldName, T defValue, int tableIndex)
+	T LuaInstance::CheckField(const char* fieldName, T defValue, int tableIndex) const
 	{
 		T object;
 
@@ -457,55 +457,55 @@ namespace Nz
 	}
 
 	template<typename T>
-	T LuaInstance::CheckField(const String& fieldName, T defValue, int tableIndex)
+	T LuaInstance::CheckField(const String& fieldName, T defValue, int tableIndex) const
 	{
-		return CheckField(fieldName.GetConstBuffer(), defValue, tableIndex);
+		return CheckField<T>(fieldName.GetConstBuffer(), defValue, tableIndex);
 	}
 
 	template<typename T>
-	T LuaInstance::CheckGlobal(const char* fieldName)
+	T LuaInstance::CheckGlobal(const char* fieldName) const
 	{
 		T object;
 
 		GetGlobal(fieldName);
-			tableIndex += LuaImplQueryArg(*this, -1, &object, TypeTag<T>());
+			LuaImplQueryArg(*this, -1, &object, TypeTag<T>());
 		Pop();
 
 		return object;
 	}
 
 	template<typename T>
-	T LuaInstance::CheckGlobal(const String& fieldName)
+	T LuaInstance::CheckGlobal(const String& fieldName) const
 	{
-		return CheckGlobal(fieldName.GetConstBuffer());
+		return CheckGlobal<T>(fieldName.GetConstBuffer());
 	}
 
 	template<typename T>
-	T LuaInstance::CheckGlobal(const char* fieldName, T defValue)
+	T LuaInstance::CheckGlobal(const char* fieldName, T defValue) const
 	{
 		T object;
 
 		GetGlobal(fieldName);
-			tableIndex += LuaImplQueryArg(*this, -1, &object, defValue, TypeTag<T>());
+			LuaImplQueryArg(*this, -1, &object, defValue, TypeTag<T>());
 		Pop();
 
 		return object;
 	}
 
 	template<typename T>
-	T LuaInstance::CheckGlobal(const String& fieldName, T defValue)
+	T LuaInstance::CheckGlobal(const String& fieldName, T defValue) const
 	{
-		return CheckGlobal(fieldName.GetConstBuffer(), defValue);
+		return CheckGlobal<T>(fieldName.GetConstBuffer(), defValue);
 	}
 
 	template<typename T>
-	int LuaInstance::Push(T arg)
+	int LuaInstance::Push(T arg) const
 	{
 		return LuaImplReplyVal(*this, std::move(arg), TypeTag<T>());
 	}
 
 	template<typename R, typename... Args, typename... DefArgs>
-	void LuaInstance::PushFunction(R(*func)(Args...), DefArgs&&... defArgs)
+	void LuaInstance::PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const
 	{
 		typename LuaImplFunctionProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
@@ -518,7 +518,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void LuaInstance::PushInstance(const char* tname, T* instance)
+	void LuaInstance::PushInstance(const char* tname, T* instance) const
 	{
 		T** userdata = static_cast<T**>(PushUserdata(sizeof(T*)));
 		*userdata = instance;
@@ -526,7 +526,7 @@ namespace Nz
 	}
 
 	template<typename T, typename... Args>
-	void LuaInstance::PushInstance(const char* tname, Args&&... args)
+	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
 	{
 		PushInstance(tname, new T(std::forward<Args>(args)...));
 	}
