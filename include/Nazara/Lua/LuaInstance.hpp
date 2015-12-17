@@ -42,15 +42,15 @@ namespace Nz
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
 
-			template<typename T> T Check(unsigned int* index);
-			template<typename T> T Check(unsigned int* index, T defValue);
+			template<typename T> T Check(int* index) const;
+			template<typename T> T Check(int* index, T defValue) const;
 			void CheckAny(int index) const;
 			bool CheckBoolean(int index) const;
 			bool CheckBoolean(int index, bool defValue) const;
-			template<typename T> T CheckField(const char* fieldName, int tableIndex = -1);
-			template<typename T> T CheckField(const String& fieldName, int tableIndex = -1);
-			template<typename T> T CheckField(const char* fieldName, T defValue, int tableIndex = -1);
-			template<typename T> T CheckField(const String& fieldName, T defValue, int tableIndex = -1);
+			template<typename T> T CheckField(const char* fieldName, int tableIndex = -1) const;
+			template<typename T> T CheckField(const String& fieldName, int tableIndex = -1) const;
+			template<typename T> T CheckField(const char* fieldName, T defValue, int tableIndex = -1) const;
+			template<typename T> T CheckField(const String& fieldName, T defValue, int tableIndex = -1) const;
 			long long CheckInteger(int index) const;
 			long long CheckInteger(int index, long long defValue) const;
 			template<typename T> T CheckGlobal(const char* fieldName) const;
@@ -68,17 +68,17 @@ namespace Nz
 			void* CheckUserdata(int index, const String& tname) const;
 
 			bool Compare(int index1, int index2, LuaComparison comparison) const;
-			void Compute(LuaOperation operation);
+			void Compute(LuaOperation operation) const;
 
-			void Concatenate(int count);
+			void Concatenate(int count) const;
 
 			int CreateReference();
 			void DestroyReference(int ref);
 
 			String DumpStack() const;
 
-			void Error(const char* message);
-			void Error(const String& message);
+			void Error(const char* message) const;
+			void Error(const String& message) const;
 
 			bool Execute(const String& code);
 			bool ExecuteFromFile(const String& filePath);
@@ -103,7 +103,7 @@ namespace Nz
 			LuaType GetType(int index) const;
 			const char* GetTypeName(LuaType type) const;
 
-			void Insert(int index);
+			void Insert(int index) const;
 
 			bool IsOfType(int index, LuaType type) const;
 			bool IsOfType(int index, const char* tname) const;
@@ -112,37 +112,37 @@ namespace Nz
 
 			long long Length(int index) const;
 
-			void MoveTo(LuaInstance* instance, int n);
+			void MoveTo(LuaInstance* instance, int n) const;
 
 			bool NewMetatable(const char* str);
 			bool NewMetatable(const String& str);
-			bool Next(int index = -2);
+			bool Next(int index = -2) const;
 
-			void Pop(unsigned int n = 1U);
+			void Pop(unsigned int n = 1U) const;
 
-			template<typename T> int Push(T arg);
-			void PushBoolean(bool value);
-			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0);
-			void PushFunction(LuaFunction func);
-			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs);
-			template<typename T> void PushInstance(const char* tname, T* instance);
-			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args);
-			void PushInteger(long long value);
-			void PushLightUserdata(void* value);
-			void PushMetatable(const char* str);
-			void PushMetatable(const String& str);
-			void PushNil();
-			void PushNumber(double value);
-			void PushReference(int ref);
-			void PushString(const char* str);
-			void PushString(const char* str, unsigned int size);
-			void PushString(const String& str);
-			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0);
-			void* PushUserdata(unsigned int size);
-			void PushValue(int index);
+			template<typename T> int Push(T arg) const;
+			void PushBoolean(bool value) const;
+			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0) const;
+			void PushFunction(LuaFunction func) const;
+			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const;
+			template<typename T> void PushInstance(const char* tname, T* instance) const;
+			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args) const;
+			void PushInteger(long long value) const;
+			void PushLightUserdata(void* value) const;
+			void PushMetatable(const char* str) const;
+			void PushMetatable(const String& str) const;
+			void PushNil() const;
+			void PushNumber(double value) const;
+			void PushReference(int ref) const;
+			void PushString(const char* str) const;
+			void PushString(const char* str, unsigned int size) const;
+			void PushString(const String& str) const;
+			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0) const;
+			void* PushUserdata(unsigned int size) const;
+			void PushValue(int index) const;
 
-			void Remove(int index);
-			void Replace(int index);
+			void Remove(int index) const;
+			void Replace(int index) const;
 
 			template<typename T> void SetField(const char* name, T&& arg, int tableIndex = -2);
 			template<typename T> void SetField(const String& name, T&& arg, int tableIndex = -2);
@@ -152,9 +152,9 @@ namespace Nz
 			template<typename T> void SetGlobal(const String& name, T&& arg);
 			void SetGlobal(const char* name);
 			void SetGlobal(const String& name);
-			void SetMetatable(const char* tname);
-			void SetMetatable(const String& tname);
-			void SetMetatable(int index);
+			void SetMetatable(const char* tname) const;
+			void SetMetatable(const String& tname) const;
+			void SetMetatable(int index) const;
 			void SetMemoryLimit(UInt32 memoryLimit);
 			void SetTable(int index = -3);
 			void SetTimeLimit(UInt32 timeLimit);
