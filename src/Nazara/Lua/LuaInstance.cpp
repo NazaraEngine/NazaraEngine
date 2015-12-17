@@ -279,7 +279,7 @@ namespace Nz
 		return (lua_compare(m_state, index1, index2, s_comparisons[comparison]) != 0);
 	}
 
-	void LuaInstance::Compute(LuaOperation operation)
+	void LuaInstance::Compute(LuaOperation operation) const
 	{
 		#ifdef NAZARA_DEBUG
 		if (operation > LuaOperation_Max)
@@ -292,7 +292,7 @@ namespace Nz
 		lua_arith(m_state, s_operations[operation]);
 	}
 
-	void LuaInstance::Concatenate(int count)
+	void LuaInstance::Concatenate(int count) const
 	{
 		lua_concat(m_state, count);
 	}
@@ -366,12 +366,12 @@ namespace Nz
 		return stream.ToString();
 	}
 
-	void LuaInstance::Error(const char* message)
+	void LuaInstance::Error(const char* message) const
 	{
 		luaL_error(m_state, message);
 	}
 
-	void LuaInstance::Error(const String& message)
+	void LuaInstance::Error(const String& message) const
 	{
 		luaL_error(m_state, message.GetConstBuffer());
 	}
@@ -531,7 +531,7 @@ namespace Nz
 		return lua_typename(m_state, s_types[type]);
 	}
 
-	void LuaInstance::Insert(int index)
+	void LuaInstance::Insert(int index) const
 	{
 		lua_insert(m_state, index);
 	}
@@ -596,7 +596,7 @@ namespace Nz
 		return luaL_len(m_state, index);
 	}
 
-	void LuaInstance::MoveTo(LuaInstance* instance, int n)
+	void LuaInstance::MoveTo(LuaInstance* instance, int n) const
 	{
 		lua_xmove(m_state, instance->m_state, n);
 	}
@@ -611,27 +611,27 @@ namespace Nz
 		return luaL_newmetatable(m_state, str.GetConstBuffer()) != 0;
 	}
 
-	bool LuaInstance::Next(int index)
+	bool LuaInstance::Next(int index) const
 	{
 		return lua_next(m_state, index) != 0;
 	}
 
-	void LuaInstance::Pop(unsigned int n)
+	void LuaInstance::Pop(unsigned int n) const
 	{
 		lua_pop(m_state, static_cast<int>(n));
 	}
 
-	void LuaInstance::PushBoolean(bool value)
+	void LuaInstance::PushBoolean(bool value) const
 	{
 		lua_pushboolean(m_state, (value) ? 1 : 0);
 	}
 
-	void LuaInstance::PushCFunction(LuaCFunction func, unsigned int upvalueCount)
+	void LuaInstance::PushCFunction(LuaCFunction func, unsigned int upvalueCount) const
 	{
 		lua_pushcclosure(m_state, func, upvalueCount);
 	}
 
-	void LuaInstance::PushFunction(LuaFunction func)
+	void LuaInstance::PushFunction(LuaFunction func) const
 	{
 		LuaFunction* luaFunc = reinterpret_cast<LuaFunction*>(lua_newuserdata(m_state, sizeof(LuaFunction)));
 		PlacementNew<LuaFunction>(luaFunc, std::move(func));
@@ -639,77 +639,77 @@ namespace Nz
 		lua_pushcclosure(m_state, ProxyFunc, 1);
 	}
 
-	void LuaInstance::PushInteger(long long value)
+	void LuaInstance::PushInteger(long long value) const
 	{
 		lua_pushinteger(m_state, value);
 	}
 
-	void LuaInstance::PushLightUserdata(void* value)
+	void LuaInstance::PushLightUserdata(void* value) const
 	{
 		lua_pushlightuserdata(m_state, value);
 	}
 
-	void LuaInstance::PushMetatable(const char* str)
+	void LuaInstance::PushMetatable(const char* str) const
 	{
 		luaL_getmetatable(m_state, str);
 	}
 
-	void LuaInstance::PushMetatable(const String& str)
+	void LuaInstance::PushMetatable(const String& str) const
 	{
 		luaL_getmetatable(m_state, str.GetConstBuffer());
 	}
 
-	void LuaInstance::PushNil()
+	void LuaInstance::PushNil() const
 	{
 		lua_pushnil(m_state);
 	}
 
-	void LuaInstance::PushNumber(double value)
+	void LuaInstance::PushNumber(double value) const
 	{
 		lua_pushnumber(m_state, value);
 	}
 
-	void LuaInstance::PushReference(int ref)
+	void LuaInstance::PushReference(int ref) const
 	{
 		lua_rawgeti(m_state, LUA_REGISTRYINDEX, ref);
 	}
 
-	void LuaInstance::PushString(const char* str)
+	void LuaInstance::PushString(const char* str) const
 	{
 		lua_pushstring(m_state, str);
 	}
 
-	void LuaInstance::PushString(const char* str, unsigned int size)
+	void LuaInstance::PushString(const char* str, unsigned int size) const
 	{
 		lua_pushlstring(m_state, str, size);
 	}
 
-	void LuaInstance::PushString(const String& str)
+	void LuaInstance::PushString(const String& str) const
 	{
 		lua_pushlstring(m_state, str.GetConstBuffer(), str.GetSize());
 	}
 
-	void LuaInstance::PushTable(unsigned int sequenceElementCount, unsigned int arrayElementCount)
+	void LuaInstance::PushTable(unsigned int sequenceElementCount, unsigned int arrayElementCount) const
 	{
 		lua_createtable(m_state, sequenceElementCount, arrayElementCount);
 	}
 
-	void* LuaInstance::PushUserdata(unsigned int size)
+	void* LuaInstance::PushUserdata(unsigned int size) const
 	{
 		return lua_newuserdata(m_state, size);
 	}
 
-	void LuaInstance::PushValue(int index)
+	void LuaInstance::PushValue(int index) const
 	{
 		lua_pushvalue(m_state, index);
 	}
 
-	void LuaInstance::Remove(int index)
+	void LuaInstance::Remove(int index) const
 	{
 		lua_remove(m_state, index);
 	}
 
-	void LuaInstance::Replace(int index)
+	void LuaInstance::Replace(int index) const
 	{
 		lua_replace(m_state, index);
 	}
@@ -734,17 +734,17 @@ namespace Nz
 		lua_setglobal(m_state, name.GetConstBuffer());
 	}
 
-	void LuaInstance::SetMetatable(const char* tname)
+	void LuaInstance::SetMetatable(const char* tname) const
 	{
 		luaL_setmetatable(m_state, tname);
 	}
 
-	void LuaInstance::SetMetatable(const String& tname)
+	void LuaInstance::SetMetatable(const String& tname) const
 	{
 		luaL_setmetatable(m_state, tname.GetConstBuffer());
 	}
 
-	void LuaInstance::SetMetatable(int index)
+	void LuaInstance::SetMetatable(int index) const
 	{
 		lua_setmetatable(m_state, index);
 	}
