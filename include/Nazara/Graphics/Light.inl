@@ -32,6 +32,16 @@ namespace Nz
 		return m_innerAngle;
 	}
 
+	inline float Light::GetInnerAngleCosine() const
+	{
+		return m_innerAngleCosine;
+	}
+
+	inline float Light::GetInvRadius() const
+	{
+		return m_invRadius;
+	}
+
 	inline LightType Light::GetLightType() const
 	{
 		return m_type;
