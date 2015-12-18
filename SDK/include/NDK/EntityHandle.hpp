@@ -71,7 +71,7 @@ namespace Ndk
 
 			static const EntityHandle InvalidHandle;
 
-		private:
+		protected:
 			void OnEntityDestroyed();
 			void OnEntityMoved(Entity* newEntity);
 

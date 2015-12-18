@@ -135,7 +135,7 @@ namespace Ndk
 
 	inline EntityHandle& EntityHandle::operator=(EntityHandle&& handle)
 	{
-		Reset(handle);
+		Reset(std::move(handle));
 
 		return *this;
 	}
