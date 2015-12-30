@@ -46,6 +46,7 @@ namespace Nz
 
 			bool IsValid() const;
 
+			Sphere& MakeUnit();
 			Sphere& MakeZero();
 
 			Sphere& Set(T X, T Y, T Z, T Radius);
@@ -71,6 +72,7 @@ namespace Nz
 			bool operator!=(const Sphere& sphere) const;
 
 			static Sphere Lerp(const Sphere& from, const Sphere& to, T interpolation);
+			static Sphere Unit();
 			static Sphere Zero();
 
 			T x, y, z, radius;
