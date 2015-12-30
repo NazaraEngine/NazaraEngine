@@ -20,6 +20,6 @@ namespace Ndk
 	template<typename SystemType, typename S> bool IsSystem(S& system);
 }
 
-#include <Ndk/Algorithm.inl>
+#include <NDK/Algorithm.inl>
 
 #endif // NDK_ALGORITHM_HPP
