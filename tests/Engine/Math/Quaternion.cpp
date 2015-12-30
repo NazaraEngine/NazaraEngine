@@ -32,6 +32,22 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()) == -Nz::Vector3f::UnitZ());
 			}
 		}
+
+		WHEN("We invert or normalize Zero quaternion")
+		{
+			Nz::Quaternionf zero = Nz::Quaternionf::Zero();
+
+			THEN("It's meant not to be changed")
+			{
+				Nz::Quaternionf inverted = zero.GetInverse();
+				float tmp = -1.f;
+				Nz::Quaternionf normalized = zero.GetNormal(&tmp);
+
+				REQUIRE(inverted == zero);
+				REQUIRE(normalized == zero);
+				REQUIRE(tmp == Approx(0.f));
+			}
+		}
 	}
 
 	GIVEN("The four unit quaternions")
@@ -153,6 +169,19 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE(quaternionC.y == Approx(unitZ225.y));
 				REQUIRE(quaternionC.z == Approx(unitZ225.z));
 			}
+		}
+
+		WHEN("We get the rotation between two vectors")
+		{
+			/*TODO
+			 * Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
+
+			THEN("The rotation in left-handed is 270 degree on z")
+			{
+				Nz::Quaternionf rotation270Z(Nz::FromDegrees(270.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf rotation90Z(Nz::FromDegrees(90.f), Nz::Vector3f::UnitZ());
+				REQUIRE(rotation90Z == rotationBetweenXY);
+			}*/
 		}
 	}
 }

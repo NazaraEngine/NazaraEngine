@@ -43,5 +43,20 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 				}
 			}
 		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::OrientedBoxf nullOrientedBox = Nz::OrientedBoxf::Zero();
+				Nz::OrientedBoxf centerAndUnit = firstCenterAndUnit;
+				nullOrientedBox.Update(Nz::Matrix4f::Identity());
+				centerAndUnit.Update(Nz::Matrix4f::Identity());
+				Nz::OrientedBoxf result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				result.Update(Nz::Matrix4f::Identity());
+
+				REQUIRE(Nz::OrientedBoxf::Lerp(nullOrientedBox, centerAndUnit, 0.5f) == result);
+			}
+		}
 	}
 }
