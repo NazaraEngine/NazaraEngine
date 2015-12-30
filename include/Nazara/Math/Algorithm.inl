@@ -98,10 +98,18 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Approaches the objective, beginning with value and with increment
+	* \return The nearest value of the objective you can get with the value and the increment for one step
+	*
+	* \param value Initial value
+	* \param objective Target value
+	* \parma increment One step value
+	*/
+
 	template<typename T>
-	T Approach(T value, T objective, T increment)
+	constexpr T Approach(T value, T objective, T increment)
 	{
-		///TODO: Marquer comme constexpr en C++14
 		if (value < objective)
 			return std::min(value + increment, objective);
 		else if (value > objective)
@@ -110,14 +118,30 @@ namespace Nz
 			return value;
 	}
 
+	/*!
+	* \brief Clamps value between min and max and returns the expected value
+	* \return If value is not in the interval of min..max, value obtained is the nearest limit of this interval
+	*
+	* \param value Value to clamp
+	* \param min Minimum of the interval
+	* \param max Maximum of the interval
+	*/
+
 	template<typename T>
 	constexpr T Clamp(T value, T min, T max)
 	{
 		return std::max(std::min(value, max), min);
 	}
 
+	/*!
+	* \brief Gets number of bits set in the number
+	* \return The number of bits set to 1
+	*
+	* \param value The value to count bits
+	*/
+
 	template<typename T>
-	T CountBits(T value)
+	constexpr T CountBits(T value)
 	{
 		// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
 		unsigned int count = 0;
@@ -130,11 +154,25 @@ namespace Nz
 		return count;
 	}
 
+	/*!
+	* \brief Converts degree to radian
+	* \return The representation in radian of the angle in degree (0..2*pi)
+	*
+	* \param degrees Angle in degree (this is expected between 0..360)
+	*/
+
 	template<typename T>
 	constexpr T DegreeToRadian(T degrees)
 	{
 		return degrees * T(M_PI/180.0);
 	}
+
+	/*!
+	* \brief Gets the unit from degree and convert it according to NAZARA_MATH_ANGLE_RADIAN
+	* \return Express the degrees
+	*
+	* \param degrees Convert degree to NAZARA_MATH_ANGLE_RADIAN unit
+	*/
 
 	template<typename T>
 	constexpr T FromDegrees(T degrees)
@@ -146,6 +184,13 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Gets the unit from radian and convert it according to NAZARA_MATH_ANGLE_RADIAN
+	* \return Express the radians
+	*
+	* \param radians Convert radian to NAZARA_MATH_ANGLE_RADIAN unit
+	*/
+
 	template<typename T>
 	constexpr T FromRadians(T radians)
 	{
@@ -156,22 +201,33 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Gets the nearest power of two for the number
+	* \return First power of two containing the number
+	*
+	* \param number Number to get nearest power
+	*/
+
 	template<typename T>
-	T GetNearestPowerOfTwo(T number)
+	constexpr T GetNearestPowerOfTwo(T number)
 	{
-		///TODO: Marquer comme constexpr en C++14
 		T x = 1;
-		// Tant que x est plus petit que n, on décale ses bits vers la gauche, ce qui revient à multiplier par deux
 		while (x < number)
-			x <<= 1;
+			x <<= 1; // We multiply by 2
 
 		return x;
 	}
 
-	inline unsigned int GetNumberLength(signed char number)
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
+
+	constexpr unsigned int GetNumberLength(signed char number)
 	{
-		///TODO: Marquer comme constexpr en C++14
-		// Le standard définit le char comme étant codé sur un octet
+		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
 
 		if (number >= 100)
@@ -188,10 +244,16 @@ namespace Nz
 			return 4;
 	}
 
-	inline unsigned int GetNumberLength(unsigned char number)
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
+
+	constexpr unsigned int GetNumberLength(unsigned char number)
 	{
-		///TODO: Marquer comme constexpr en C++14
-		// Le standard définit le char comme étant codé sur un octet
+		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
 
 		if (number >= 100)
@@ -202,6 +264,13 @@ namespace Nz
 			return 1;
 	}
 
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
+
 	inline unsigned int GetNumberLength(int number)
 	{
 		if (number == 0)
@@ -210,13 +279,27 @@ namespace Nz
 		return static_cast<unsigned int>(std::log10(std::abs(number))) + (number < 0 ? 2 : 1);
 	}
 
-	inline unsigned int GetNumberLength(unsigned int number)
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
+
+	constexpr unsigned int GetNumberLength(unsigned int number)
 	{
 		if (number == 0)
 			return 1;
 
 		return static_cast<unsigned int>(std::log10(number))+1;
 	}
+
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
 
 	inline unsigned int GetNumberLength(long long number)
 	{
@@ -226,7 +309,14 @@ namespace Nz
 		return static_cast<unsigned int>(std::log10(std::abs(number))) + (number < 0 ? 2 : 1);
 	}
 
-	inline unsigned int GetNumberLength(unsigned long long number)
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits
+	*
+	* \param number Number to get number of digits
+	*/
+
+	constexpr unsigned int GetNumberLength(unsigned long long number)
 	{
 		if (number == 0)
 			return 1;
@@ -234,40 +324,90 @@ namespace Nz
 		return static_cast<unsigned int>(std::log10(number)) + 1;
 	}
 
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits + 1 for the dot
+	*
+	* \param number Number to get number of digits
+	* \param precision Number of digit after the dot
+	*/
+
 	inline unsigned int GetNumberLength(float number, UInt8 precision)
 	{
-		// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
-		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
+		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
+		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus one for the dot
 	}
+
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits + 1 for the dot
+	*
+	* \param number Number to get number of digits
+	* \param precision Number of digit after the dot
+	*/
 
 	inline unsigned int GetNumberLength(double number, UInt8 precision)
 	{
-		// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
-		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
+		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
+		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus one for the dot
 	}
+
+	/*!
+	* \brief Gets the number of digits to represent the number in base 10
+	* \return Number of digits + 1 for the dot
+	*
+	* \param number Number to get number of digits
+	* \param precision Number of digit after the dot
+	*/
 
 	inline unsigned int GetNumberLength(long double number, UInt8 precision)
 	{
-		// L'imprécision des flottants nécessite un cast (log10(9.99999) = 0.99999)
-		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus un pour le point
+		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
+		return GetNumberLength(static_cast<long long>(number)) + precision + 1; // Plus one for the dot
 	}
 
+	/*!
+	* \brief Gets the log in base 2 of integral number
+	* \return Log of the number (floor)
+	*
+	* \param number To get log in base 2
+	*
+	* \remark If number is 0, 0 is returned
+	*/
+
 	template<typename T>
-	unsigned int IntegralLog2(T number)
+	constexpr unsigned int IntegralLog2(T number)
 	{
-		// Proxy nécessaire pour éviter un problème de surcharge
+		// Proxy needed to avoid an overload problem
 		return Detail::IntegralLog2<T>(number);
 	}
 
+	/*!
+	* \brief Gets the log in base 2 of integral number, only works for power of two !
+	* \return Log of the number
+	*
+	* \param number To get log in base 2
+	*
+	* \remark Only works for power of two
+	* \remark If number is 0, 0 is returned
+	*/
+
 	template<typename T>
-	unsigned int IntegralLog2Pot(T pot)
+	constexpr unsigned int IntegralLog2Pot(T pot)
 	{
 		return Detail::IntegralLog2Pot<T>(pot);
 	}
 
-	inline unsigned int IntegralPow(unsigned int base, unsigned int exponent)
+	/*!
+	* \brief Gets the power of integrals
+	* \return base^exponent for integral
+	*
+	* \param base Base of the exponentation
+	* \parma exponent Power for the base
+	*/
+
+	constexpr unsigned int IntegralPow(unsigned int base, unsigned int exponent)
 	{
-		///TODO: Marquer comme constexpr en C++14
 		unsigned int r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
 			r *= base;
@@ -275,8 +415,22 @@ namespace Nz
 		return r;
 	}
 
+	/*!
+	* \brief Interpolates the value to other one with a factor of interpolation
+	* \return A new value which is the interpolation of two values
+	*
+	* \param from Initial value
+	* \param to Target value
+	* \param interpolation Factor of interpolation
+	*
+	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
+	* \remark With NAZARA_DEBUG, a NazaraWarning is produced
+	*
+	* \see Lerp
+	*/
+
 	template<typename T, typename T2>
-	T Lerp(T from, T to, T2 interpolation)
+	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
 		#ifdef NAZARA_DEBUG
 		if (interpolation < T2(0.0) || interpolation > T2(1.0))
@@ -286,15 +440,26 @@ namespace Nz
 		return from + interpolation * (to - from);
 	}
 
+	/*!
+	* \brief Multiplies X and Y, then add Z
+	* \return The result of X * Y + Z
+	*
+	* \param x is X
+	* \param y is Y
+	* \param z is Z
+	*
+	* \remark This function is meant to use a special instruction in CPU
+	*/
+
 	template<typename T>
-	T MultiplyAdd(T x, T y, T z)
+	constexpr T MultiplyAdd(T x, T y, T z)
 	{
-		return x*y + z;
+		return x * y + z;
 	}
 
 	#ifdef FP_FAST_FMAF
 	template<>
-	inline float MultiplyAdd(float x, float y, float z)
+	constexpr float MultiplyAdd(float x, float y, float z)
 	{
 		return std::fmaf(x, y, z);
 	}
@@ -302,7 +467,7 @@ namespace Nz
 
 	#ifdef FP_FAST_FMA
 	template<>
-	inline double MultiplyAdd(double x, double y, double z)
+	constexpr double MultiplyAdd(double x, double y, double z)
 	{
 		return std::fma(x, y, z);
 	}
@@ -310,14 +475,21 @@ namespace Nz
 
 	#ifdef FP_FAST_FMAL
 	template<>
-	inline long double MultiplyAdd(long double x, long double y, long double z)
+	constexpr long double MultiplyAdd(long double x, long double y, long double z)
 	{
 		return std::fmal(x, y, z);
 	}
 	#endif
 
+	/*!
+	* \brief Normalizes the angle
+	* \return Normalized value between 0..2*(pi if radian or 180 if degrees)
+	*
+	* \param angle Angle to normalize
+	*/
+
 	template<typename T>
-	T NormalizeAngle(T angle)
+	constexpr T NormalizeAngle(T angle)
 	{
 		#if NAZARA_MATH_ANGLE_RADIAN
 		const T limit = T(M_PI);
@@ -333,14 +505,31 @@ namespace Nz
 		return angle - limit;
 	}
 
+	/*!
+	* \brief Checks whether two numbers are equal
+	* \return true if they are equal within a certain epsilon
+	*
+	* \param a First value
+	* \param b Second value
+	*/
+
 	template<typename T>
-	bool NumberEquals(T a, T b)
+	constexpr bool NumberEquals(T a, T b)
 	{
 		return NumberEquals(a, b, std::numeric_limits<T>::epsilon());
 	}
 
+	/*!
+	* \brief Checks whether two numbers are equal
+	* \return true if they are equal within the max difference
+	*
+	* \param a First value
+	* \param b Second value
+	* \param maxDifference Epsilon of comparison (expected to be positive)
+	*/
+
 	template<typename T>
-	bool NumberEquals(T a, T b, T maxDifference)
+	constexpr bool NumberEquals(T a, T b, T maxDifference)
 	{
 		if (b > a)
 			std::swap(a, b);
@@ -348,6 +537,17 @@ namespace Nz
 		T diff = a - b;
 		return diff <= maxDifference;
 	}
+
+	/*!
+	* \brief Converts the number to String
+	* \return String representation of the number
+	*
+	* \param number Number to represent
+	* \param radix Base of the number
+	*
+	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
+	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
+	*/
 
 	inline String NumberToString(long long number, UInt8 radix)
 	{
@@ -389,11 +589,30 @@ namespace Nz
 		return str.Reverse();
 	}
 
+	/*!
+	* \brief Converts radian to degree
+	* \return The representation in degree of the angle in radian (0..360)
+	*
+	* \param radians Angle in radian (this is expected between 0..2*pi)
+	*/
+
 	template<typename T>
-	T RadianToDegree(T radians)
+	constexpr T RadianToDegree(T radians)
 	{
 		return radians * T(180.0/M_PI);
 	}
+
+	/*!
+	* \brief Converts the string to number
+	* \return Number which is represented by the string
+	*
+	* \param str String representation
+	* \param radix Base of the number
+	* \param ok Optional argument to know if convertion is correct
+	*
+	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
+	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
+	*/
 
 	inline long long StringToNumber(String str, UInt8 radix, bool* ok)
 	{
@@ -444,6 +663,13 @@ namespace Nz
 		return (negative) ? -static_cast<long long>(total) : total;
 	}
 
+	/*!
+	* \brief Gets the degree from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
+	* \return Express in degrees
+	*
+	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to degrees
+	*/
+
 	template<typename T>
 	constexpr T ToDegrees(T angle)
 	{
@@ -454,6 +680,13 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Gets the radian from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
+	* \return Express in radians
+	*
+	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to radians
+	*/
+
 	template<typename T>
 	constexpr T ToRadians(T angle)
 	{
@@ -461,8 +694,8 @@ namespace Nz
 		return angle;
 		#else
 		return DegreeToRadian(angle);
+		#endif
 	}
-	#endif
 }
 
 #include <Nazara/Core/DebugOff.hpp>
