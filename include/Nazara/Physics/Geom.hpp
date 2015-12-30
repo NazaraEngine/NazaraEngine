@@ -225,7 +225,7 @@ namespace Nz
 		public:
 			NullGeom();
 
-			void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const;
+			void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const override;
 
 			GeomType GetType() const override;
 
