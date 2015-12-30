@@ -26,9 +26,9 @@ namespace Nz
 		public:
 			Matrix4() = default;
 			Matrix4(T r11, T r12, T r13, T r14,
-					  T r21, T r22, T r23, T r24,
-					  T r31, T r32, T r33, T r34,
-					  T r41, T r42, T r43, T r44);
+			        T r21, T r22, T r23, T r24,
+			        T r31, T r32, T r33, T r34,
+			        T r41, T r42, T r43, T r44);
 			//Matrix4(const Matrix3<T>& matrix);
 			Matrix4(const T matrix[16]);
 			template<typename U> explicit Matrix4(const Matrix4<U>& matrix);
@@ -77,9 +77,9 @@ namespace Nz
 			Matrix4& MakeZero();
 
 			Matrix4& Set(T r11, T r12, T r13, T r14,
-						   T r21, T r22, T r23, T r24,
-						   T r31, T r32, T r33, T r34,
-						   T r41, T r42, T r43, T r44);
+			             T r21, T r22, T r23, T r24,
+			             T r31, T r32, T r33, T r34,
+			             T r41, T r42, T r43, T r44);
 			Matrix4& Set(const T matrix[16]);
 			//Matrix4(const Matrix3<T>& matrix);
 			Matrix4& Set(const Matrix4& matrix);
@@ -96,8 +96,8 @@ namespace Nz
 
 			Matrix4& Transpose();
 
-			operator T*();
-			operator const T*() const;
+			operator T* ();
+			operator const T* () const;
 
 			T& operator()(unsigned int x, unsigned int y);
 			T operator()(unsigned int x, unsigned int y) const;
@@ -131,9 +131,9 @@ namespace Nz
 			static Matrix4 Zero();
 
 			T m11, m12, m13, m14,
-			  m21, m22, m23, m24,
-			  m31, m32, m33, m34,
-			  m41, m42, m43, m44;
+			 m21, m22, m23, m24,
+			 m31, m32, m33, m34,
+			 m41, m42, m43, m44;
 	};
 
 	typedef Matrix4<double> Matrix4d;
