@@ -38,7 +38,7 @@ Contribution
 Liens
 -----
 [Website](http://www.digitalpulsesoftware.net)  
-[Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)
+[Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
 [Forum](http://forum.digitalpulsesoftware.net)
 
 ###Remerciements:###
