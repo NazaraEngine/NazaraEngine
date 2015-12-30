@@ -40,8 +40,8 @@ namespace Nz
 			Box& ExtendTo(const Vector3<T>& point);
 
 			Sphere<T> GetBoundingSphere() const;
-			Vector3<T> GetCorner(BoxCorner corner) const;
 			Vector3<T> GetCenter() const;
+			Vector3<T> GetCorner(BoxCorner corner) const;
 			Vector3<T> GetLengths() const;
 			Vector3<T> GetMaximum() const;
 			Vector3<T> GetMinimum() const;
