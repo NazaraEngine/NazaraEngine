@@ -86,10 +86,37 @@ SCENARIO("Ray", "[MATH][RAY]")
 				Nz::BoundingVolumef nullVolume(Nz::Extend_Null);
 				CHECK(!ray.Intersect(nullVolume));
 
+				float tmpClosest = -1.f;
+				float tmpFurthest = -1.f;
 				Nz::BoundingVolumef infiniteVolume(Nz::Extend_Infinite);
-				CHECK(ray.Intersect(infiniteVolume));
+				CHECK(ray.Intersect(infiniteVolume, &tmpClosest, &tmpFurthest));
+				CHECK(tmpClosest == Approx(0.f));
+				CHECK(tmpFurthest == std::numeric_limits<float>::infinity());
 			}
 
+			THEN("For the triangle collision's")
+			{
+				Nz::Vector3f firstPoint(0.f, 1.f, 1.f);
+				Nz::Vector3f secondPoint(-1.f, 1.f, -1.f);
+				Nz::Vector3f thidPoint(1.f, 1.f, -1.f);
+				float tmpHit = -1.f;
+
+				CHECK(ray.Intersect(firstPoint, secondPoint, thidPoint, &tmpHit));
+				REQUIRE(ray.GetPoint(tmpHit) == Nz::Vector3f::UnitY());
+
+				Nz::Vector3f offset = Nz::Vector3f(10.f, 0.f, 10.f);
+				CHECK(!ray.Intersect(firstPoint + offset, secondPoint + offset, thidPoint + offset, &tmpHit));
+			}
+		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Rayf AxisX = Nz::Rayf::AxisX();
+				Nz::Rayf AxisY = Nz::Rayf::AxisY();
+				REQUIRE(Nz::Rayf::Lerp(AxisX, AxisY, 0.5f) == (Nz::Rayf(Nz::Vector3f::Zero(), Nz::Vector3f(0.5f, 0.5f, 0.f))));
+			}
 		}
 	}
 }
