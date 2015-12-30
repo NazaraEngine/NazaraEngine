@@ -52,5 +52,17 @@ SCENARIO("Rect", "[MATH][RECT]")
 
 			}
 		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Rectf nullRect = Nz::Rectf::Zero();
+				Nz::Rectf centerAndUnit = firstCenterAndUnit;
+				Nz::Rectf result(Nz::Vector2f::Zero(), Nz::Vector2f::Unit() * 0.5f);
+
+				REQUIRE(Nz::Rectf::Lerp(nullRect, centerAndUnit, 0.5f) == result);
+			}
+		}
 	}
 }
