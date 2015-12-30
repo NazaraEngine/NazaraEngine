@@ -28,15 +28,15 @@
 #ifndef NAZARA_CONFIG_MATH_HPP
 #define NAZARA_CONFIG_MATH_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/// Each modification of a paramater of the module needs a recompilation of the unit
 
-// Définit le radian comme l'unité utilisée pour les angles
+// Define the radian as unit for angles
 #define NAZARA_MATH_ANGLE_RADIAN 0
 
-// Optimise automatiquement les opérations entre matrices affines (Demande plusieurs comparaisons pour déterminer si une matrice est affine)
+// Optimize automatically the operation on affine matrices (Ask several comparisons to determine if the matrix is affine)
 #define NAZARA_MATH_MATRIX4_CHECK_AFFINE 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Enable tests of security based on the code (Advised for the developpement)
 #define NAZARA_MATH_SAFE 1
 
 #endif // NAZARA_CONFIG_MATH_HPP
