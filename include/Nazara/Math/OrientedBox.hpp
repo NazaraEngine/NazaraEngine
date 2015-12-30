@@ -43,8 +43,8 @@ namespace Nz
 			void Update(const Matrix4<T>& transformMatrix);
 			void Update(const Vector3<T>& transformMatrix);
 
-			operator Vector3<T>*();
-			operator const Vector3<T>*() const;
+			operator Vector3<T>* ();
+			operator const Vector3<T>* () const;
 
 			Vector3<T>& operator()(unsigned int i);
 			Vector3<T> operator()(unsigned int i) const;
