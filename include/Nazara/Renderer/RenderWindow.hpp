@@ -46,11 +46,11 @@ namespace Nz
 
 			void EnableVerticalSync(bool enabled);
 
-			unsigned int GetHeight() const;
-			RenderTargetParameters GetParameters() const;
-			unsigned int GetWidth() const;
+			unsigned int GetHeight() const override;
+			RenderTargetParameters GetParameters() const override;
+			unsigned int GetWidth() const override;
 
-			bool IsRenderable() const;
+			bool IsRenderable() const override;
 			bool IsValid() const;
 
 			void SetFramerateLimit(unsigned int limit);
