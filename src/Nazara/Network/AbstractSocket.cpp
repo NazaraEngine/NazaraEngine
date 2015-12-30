@@ -9,6 +9,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <Nazara/Network/Posix/SocketImpl.hpp>
 #else
 #error Missing implementation: Socket
 #endif
