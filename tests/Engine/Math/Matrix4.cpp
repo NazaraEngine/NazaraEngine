@@ -37,19 +37,29 @@ SCENARIO("Matrix4", "[MATH][Matrix4]")
 				REQUIRE(firstIdentity.Inverse() == secondIdentity.InverseAffine());
 			}
 		}
+
+		WHEN("We transpose one of this matrix")
+		{
+			THEN("Identity transposed is the same than identity")
+			{
+				Nz::Matrix4f transposedIdentity;
+				firstIdentity.GetTransposed(&transposedIdentity);
+				REQUIRE(firstIdentity == transposedIdentity);
+			}
+		}
 	}
 
 	GIVEN("Two different matrix")
 	{
 		Nz::Matrix4f matrix1(1.0f, 0.0f, 0.0f, 0.0f,
-		                   7.0f, 2.0f, 0.0f, 0.0f,
-		                   1.0f, 5.0f, 3.0f, 0.0f,
-		                   8.0f, 9.0f, 2.0f, 4.0f);
+		                     7.0f, 2.0f, 0.0f, 0.0f,
+		                     1.0f, 5.0f, 3.0f, 0.0f,
+		                     8.0f, 9.0f, 2.0f, 4.0f);
 
 		Nz::Matrix4f matrix2(1.0f,  1.0f,  2.0f, -1.0f,
-		                  -2.0f, -1.0f, -2.0f,  2.0f,
-		                   4.0f,  2.0f,  5.0f, -4.0f,
-		                   5.0f, -3.0f, -7.0f, -6.0f);
+		                     -2.0f, -1.0f, -2.0f,  2.0f,
+		                     4.0f,  2.0f,  5.0f, -4.0f,
+		                     5.0f, -3.0f, -7.0f, -6.0f);
 
 		WHEN("We ask for determinant")
 		{
@@ -92,9 +102,9 @@ SCENARIO("Matrix4", "[MATH][Matrix4]")
 			{
 				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45X(1.f,  0.f,                  0.f,                  0.f,
-				                       0.f,  std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
-				                       0.f, -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
-				                       0.f,  0.f,                  0.f,                  1.f);
+				                         0.f,  std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
+				                         0.f, -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
+				                         0.f,  0.f,                  0.f,                  1.f);
 
 				REQUIRE(transformedMatrix == rotation45X);
 				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
@@ -106,9 +116,9 @@ SCENARIO("Matrix4", "[MATH][Matrix4]")
 			{
 				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45Y(std::sqrt(2.f) / 2.f, 0.f, -std::sqrt(2.f) / 2.f, 0.f,
-				                       0.f,                  1.f,  0.f,                  0.f,
-				                       std::sqrt(2.f) / 2.f, 0.f,  std::sqrt(2.f) / 2.f, 0.f,
-				                       0.f,                  0.f,  0.f,                  1.f);
+				                         0.f,                  1.f,  0.f,                  0.f,
+				                         std::sqrt(2.f) / 2.f, 0.f,  std::sqrt(2.f) / 2.f, 0.f,
+				                         0.f,                  0.f,  0.f,                  1.f);
 
 				REQUIRE(transformedMatrix == rotation45Y);
 				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
@@ -120,9 +130,9 @@ SCENARIO("Matrix4", "[MATH][Matrix4]")
 			{
 				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion());
 				Nz::Matrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
-				                       -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
-				                        0.f,                  0.f,                  1.f, 0.f,
-				                        0.f,                  0.f,                  0.f, 1.f);
+				                          -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
+				                          0.f,                  0.f,                  1.f, 0.f,
+				                          0.f,                  0.f,                  0.f, 1.f);
 
 				REQUIRE(transformedMatrix == rotation45Z);
 				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion()));
