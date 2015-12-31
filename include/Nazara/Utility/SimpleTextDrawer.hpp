@@ -24,7 +24,7 @@ namespace Nz
 			SimpleTextDrawer(SimpleTextDrawer&& drawer);
 			virtual ~SimpleTextDrawer();
 
-			const Rectui& GetBounds() const;
+			const Rectui& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;

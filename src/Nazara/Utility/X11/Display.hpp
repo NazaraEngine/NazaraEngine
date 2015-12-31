@@ -17,7 +17,7 @@ namespace Nz
 {
 	class String;
 
-	class X11
+	class NAZARA_UTILITY_API X11
 	{
 		public:
 			X11() = delete;
