@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,8 +26,12 @@ namespace Nz
 			Plane(const Plane& plane) = default;
 			~Plane() = default;
 
-			T Distance(const Vector3<T>& point) const;
 			T Distance(T x, T y, T z) const;
+			T Distance(const Vector3<T>& point) const;
+
+			Plane& MakeXY();
+			Plane& MakeXZ();
+			Plane& MakeYZ();
 
 			Plane& Set(T normalX, T normalY, T normalZ, T Distance);
 			Plane& Set(const T plane[4]);

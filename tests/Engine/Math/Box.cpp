@@ -64,6 +64,18 @@ SCENARIO("Box", "[MATH][BOX]")
 				REQUIRE(tmp == firstCenterAndUnit);
 			}
 		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Boxf nullBox = Nz::Boxf::Zero();
+				Nz::Boxf centerAndUnit = firstCenterAndUnit;
+				Nz::Boxf result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+
+				REQUIRE(Nz::Boxf::Lerp(nullBox, centerAndUnit, 0.5f) == result);
+			}
+		}
 	}
 
 	GIVEN("Two wrong box (negative width, height and depth")

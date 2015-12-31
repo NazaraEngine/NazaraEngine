@@ -180,7 +180,7 @@ namespace Nz
 					return true;
 				}
 
-				unsigned int Read(void* buffer, unsigned int sampleCount)
+				unsigned int Read(void* buffer, unsigned int sampleCount) override
 				{
 					// Si la musique a été demandée en mono, nous devons la convertir à la volée lors de la lecture
 					if (m_mixToMono)
