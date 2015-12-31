@@ -28,12 +28,12 @@ namespace Nz
 			~Rect() = default;
 
 			bool Contains(T X, T Y) const;
-			bool Contains(const Vector2<T>& point) const;
 			bool Contains(const Rect& rect) const;
+			bool Contains(const Vector2<T>& point) const;
 
 			Rect& ExtendTo(T X, T Y);
-			Rect& ExtendTo(const Vector2<T>& point);
 			Rect& ExtendTo(const Rect& rect);
+			Rect& ExtendTo(const Vector2<T>& point);
 
 			Vector2<T> GetCenter() const;
 			Vector2<T> GetCorner(RectCorner corner) const;

@@ -136,7 +136,7 @@ namespace Nz
 			OpenEWMHConnection(sharedConnection);
 		}
 
-		NazaraNotice("Initialized: Utility module");
+		NazaraNotice("Initialized: Display module");
 		return true;
 	}
 
