@@ -108,7 +108,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr T Approach(T value, T objective, T increment)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline T Approach(T value, T objective, T increment)
 	{
 		if (value < objective)
 			return std::min(value + increment, objective);
@@ -141,7 +142,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr T CountBits(T value)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline T CountBits(T value)
 	{
 		// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
 		unsigned int count = 0;
@@ -209,7 +211,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr T GetNearestPowerOfTwo(T number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline T GetNearestPowerOfTwo(T number)
 	{
 		T x = 1;
 		while (x < number)
@@ -225,7 +228,8 @@ namespace Nz
 	* \param number Number to get number of digits
 	*/
 
-	constexpr unsigned int GetNumberLength(signed char number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int GetNumberLength(signed char number)
 	{
 		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
@@ -251,7 +255,8 @@ namespace Nz
 	* \param number Number to get number of digits
 	*/
 
-	constexpr unsigned int GetNumberLength(unsigned char number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int GetNumberLength(unsigned char number)
 	{
 		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
@@ -286,7 +291,8 @@ namespace Nz
 	* \param number Number to get number of digits
 	*/
 
-	constexpr unsigned int GetNumberLength(unsigned int number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int GetNumberLength(unsigned int number)
 	{
 		if (number == 0)
 			return 1;
@@ -316,7 +322,8 @@ namespace Nz
 	* \param number Number to get number of digits
 	*/
 
-	constexpr unsigned int GetNumberLength(unsigned long long number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int GetNumberLength(unsigned long long number)
 	{
 		if (number == 0)
 			return 1;
@@ -376,7 +383,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr unsigned int IntegralLog2(T number)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int IntegralLog2(T number)
 	{
 		// Proxy needed to avoid an overload problem
 		return Detail::IntegralLog2<T>(number);
@@ -393,7 +401,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr unsigned int IntegralLog2Pot(T pot)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int IntegralLog2Pot(T pot)
 	{
 		return Detail::IntegralLog2Pot<T>(pot);
 	}
@@ -406,7 +415,8 @@ namespace Nz
 	* \parma exponent Power for the base
 	*/
 
-	constexpr unsigned int IntegralPow(unsigned int base, unsigned int exponent)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline unsigned int IntegralPow(unsigned int base, unsigned int exponent)
 	{
 		unsigned int r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
@@ -432,11 +442,6 @@ namespace Nz
 	template<typename T, typename T2>
 	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T2(0.0) || interpolation > T2(1.0))
-			NazaraWarning("Interpolation should be in range [0..1] (Got " + String::Number(interpolation) + ')');
-		#endif
-
 		return from + interpolation * (to - from);
 	}
 
@@ -448,7 +453,7 @@ namespace Nz
 	* \param y is Y
 	* \param z is Z
 	*
-	* \remark This function is meant to use a special instruction in CPU
+	* \remark This function is meant to use a special faster instruction in CPU if possible
 	*/
 
 	template<typename T>
@@ -489,7 +494,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr T NormalizeAngle(T angle)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline T NormalizeAngle(T angle)
 	{
 		#if NAZARA_MATH_ANGLE_RADIAN
 		const T limit = T(M_PI);
@@ -514,7 +520,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr bool NumberEquals(T a, T b)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline bool NumberEquals(T a, T b)
 	{
 		return NumberEquals(a, b, std::numeric_limits<T>::epsilon());
 	}
@@ -529,7 +536,8 @@ namespace Nz
 	*/
 
 	template<typename T>
-	constexpr bool NumberEquals(T a, T b, T maxDifference)
+	//TODO: Mark as constexpr when supported by all major compilers
+	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
 	{
 		if (b > a)
 			std::swap(a, b);
