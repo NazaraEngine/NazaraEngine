@@ -65,18 +65,23 @@ namespace Nz
 		}
 
 		// Remove unused atlas slots
-		auto it = m_atlases.begin();
-		while (it != m_atlases.end())
+		auto atlasIt = m_atlases.begin();
+		while (atlasIt != m_atlases.end())
 		{
-			if (!it->second.used)
-				m_atlases.erase(it++);
+			if (!atlasIt->second.used)
+				m_atlases.erase(atlasIt++);
 			else
-				++it;
+				++atlasIt;
 		}
 
 		unsigned int glyphCount = drawer.GetGlyphCount();
 		m_localVertices.resize(glyphCount * 4);
 
+		// Reset glyph count for every texture to zero
+		for (auto& pair : m_renderInfos)
+			pair.second.count = 0;
+
+		// Count glyph count for each texture
 		Texture* lastTexture = nullptr;
 		unsigned int* count = nullptr;
 		for (unsigned int i = 0; i < glyphCount; ++i)
@@ -86,25 +91,36 @@ namespace Nz
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
 			{
-				auto pair = m_renderInfos.insert(std::make_pair(texture, RenderIndices{0U, 0U}));
+				auto it = m_renderInfos.find(texture);
+				if (it == m_renderInfos.end())
+					it = m_renderInfos.insert(std::make_pair(texture, RenderIndices{0U, 0U})).first;
 
-				count = &pair.first->second.count;
+				count = &it->second.count;
 				lastTexture = texture;
 			}
 
 			(*count)++;
 		}
 
-		// Attribution des indices
+		// Attributes indices and reinitialize glyph count to zero to use it as a counter in the next loop
+		// This is because the 1st glyph can use texture A, the 2nd glyph can use texture B and the 3th glyph C can use texture A again
+		// so we need a counter to know where to write informations
+		// also remove unused render infos
 		unsigned int index = 0;
-		for (auto& pair : m_renderInfos)
+		auto infoIt = m_renderInfos.begin();
+		while (infoIt != m_renderInfos.end())
 		{
-			RenderIndices& indices = pair.second;
+			RenderIndices& indices = infoIt->second;
+			if (indices.count == 0)
+				m_renderInfos.erase(infoIt++); //< No glyph uses this texture, remove from indices
+			else
+			{
+				indices.first = index;
 
-			indices.first = index;
-
-			index += indices.count;
-			indices.count = 0; // On réinitialise count à zéro (on va s'en servir comme compteur dans la boucle suivante)
+				index += indices.count;
+				indices.count = 0;
+				++infoIt;
+			}
 		}
 
 		lastTexture = nullptr;
@@ -116,11 +132,11 @@ namespace Nz
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
 			{
-				indices = &m_renderInfos[texture]; // On a changé de texture, on ajuste le pointeur
+				indices = &m_renderInfos[texture]; //< We changed texture, adjust the pointer
 				lastTexture = texture;
 			}
 
-			// On commence par transformer les coordonnées entières en flottantes:
+			// First, compute the uv coordinates from our atlas rect
 			Vector2ui size(texture->GetSize());
 			float invWidth = 1.f/size.x;
 			float invHeight = 1.f/size.y;
@@ -131,10 +147,11 @@ namespace Nz
 			uvRect.width *= invWidth;
 			uvRect.height *= invHeight;
 
-			static RectCorner normalCorners[4] = {RectCorner_LeftTop, RectCorner_RightTop, RectCorner_LeftBottom, RectCorner_RightBottom};
-			static RectCorner flippedCorners[4] = {RectCorner_LeftBottom, RectCorner_LeftTop, RectCorner_RightBottom, RectCorner_RightTop};
+			// Our glyph may be flipped in the atlas, to render it correctly we need to change the uv coordinates accordingly
+			const RectCorner normalCorners[4] = {RectCorner_LeftTop, RectCorner_RightTop, RectCorner_LeftBottom, RectCorner_RightBottom};
+			const RectCorner flippedCorners[4] = {RectCorner_LeftBottom, RectCorner_LeftTop, RectCorner_RightBottom, RectCorner_RightTop};
 
-			// Affectation des positions, couleurs, coordonnées de textures
+			// Set the position, color and UV of our vertices
 			for (unsigned int j = 0; j < 4; ++j)
 			{
 				// Remember that indices->count is a counter here, not a count value
@@ -143,7 +160,7 @@ namespace Nz
 				m_localVertices[indices->count*4 + j].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
 			}
 
-			// Et on passe au prochain sommet
+			// Increment the counter, go to next glyph
 			indices->count++;
 		}
 
