@@ -177,7 +177,6 @@ namespace Nz
 		{
 			EnsureOwnership(true);
 			m_sharedString->size = 0;
-			m_sharedString->string.reset();
 		}
 		else
 			ReleaseString();
