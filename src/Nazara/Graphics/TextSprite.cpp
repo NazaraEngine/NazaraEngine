@@ -33,13 +33,16 @@ namespace Nz
 
 	void TextSprite::Update(const AbstractTextDrawer& drawer)
 	{
-		m_atlases.clear();
-
 		CallOnExit clearOnFail([this]()
 		{
 			Clear();
 		});
 
+		// Mark every atlas as unused...
+		for (auto& pair : m_atlases)
+			pair.second.used = false;
+
+		// ... until they are marked as used by the drawer
 		unsigned int fontCount = drawer.GetFontCount();
 		for (unsigned int i = 0; i < fontCount; ++i)
 		{
@@ -47,14 +50,28 @@ namespace Nz
 			const AbstractAtlas* atlas = font->GetAtlas().get();
 			NazaraAssert(atlas->GetStorage() & DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
-			if (m_atlases.find(atlas) == m_atlases.end())
+			auto it = m_atlases.find(atlas);
+			if (it == m_atlases.end())
 			{
-				AtlasSlots& atlasSlots = m_atlases[atlas];
+				it = m_atlases.insert(std::make_pair(atlas, AtlasSlots())).first;
+				AtlasSlots& atlasSlots = it->second;
 
 				atlasSlots.clearSlot.Connect(atlas->OnAtlasCleared, this, &TextSprite::OnAtlasInvalidated);
 				atlasSlots.layerChangeSlot.Connect(atlas->OnAtlasLayerChange, this, &TextSprite::OnAtlasLayerChange);
 				atlasSlots.releaseSlot.Connect(atlas->OnAtlasRelease, this, &TextSprite::OnAtlasInvalidated);
 			}
+
+			it->second.used = true;
+		}
+
+		// Remove unused atlas slots
+		auto it = m_atlases.begin();
+		while (it != m_atlases.end())
+		{
+			if (!it->second.used)
+				m_atlases.erase(it++);
+			else
+				++it;
 		}
 
 		unsigned int glyphCount = drawer.GetGlyphCount();
