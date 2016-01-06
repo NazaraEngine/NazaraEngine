@@ -26,6 +26,8 @@ namespace Nz
 
 			void AppendText(const String& str);
 
+			void Clear();
+
 			const Rectui& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
@@ -50,6 +52,7 @@ namespace Nz
 			static SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
 
 		private:
+			void ClearGlyphs() const;
 			void ConnectFontSlots();
 			void DisconnectFontSlots();
 			void GenerateGlyphs(const String& text) const;

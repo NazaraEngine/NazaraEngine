@@ -11,7 +11,8 @@ namespace Nz
 	SimpleTextDrawer::SimpleTextDrawer() :
 	m_color(Color::White),
 	m_style(TextStyle_Regular),
-	m_glyphUpdated(false)
+	m_glyphUpdated(false),
+	m_characterSize(24)
 	{
 		SetFont(Font::GetDefault());
 	}
@@ -38,6 +39,12 @@ namespace Nz
 		m_text.Append(str);
 		if (m_glyphUpdated)
 			GenerateGlyphs(str);
+	}
+
+	void SimpleTextDrawer::Clear()
+	{
+		m_text.Clear(true);
+		ClearGlyphs();
 	}
 
 	const Rectui& SimpleTextDrawer::GetBounds() const
@@ -197,6 +204,16 @@ namespace Nz
 		drawer.SetText(str);
 
 		return drawer;
+	}
+
+	void SimpleTextDrawer::ClearGlyphs() const
+	{
+		m_bounds.MakeZero();
+		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_glyphs.clear();
+		m_glyphUpdated = true;
+		m_previousCharacter = 0;
+		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 	}
 
 	void SimpleTextDrawer::ConnectFontSlots()
@@ -374,13 +391,7 @@ namespace Nz
 	{
 		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
 
-		m_bounds.MakeZero();
-		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
-		m_glyphs.clear();
-		m_glyphUpdated = true;
-		m_previousCharacter = 0;
-		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
-
+		ClearGlyphs();
 		GenerateGlyphs(m_text);
 	}
 }
