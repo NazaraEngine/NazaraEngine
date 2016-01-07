@@ -32,10 +32,11 @@ namespace Ndk
 
 			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
 
-			inline const EntityHandle& GetBackground() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const EntityHandle& GetHistory() const;
+			inline const EntityHandle& GetHistoryBackground() const;
 			inline const EntityHandle& GetInput() const;
+			inline const EntityHandle& GetInputBackground() const;
 			inline const Nz::Vector2f& GetSize() const;
 			inline const Nz::FontRef& GetTextFont() const;
 
@@ -65,13 +66,13 @@ namespace Ndk
 			};
 
 			std::vector<Line> m_historyLines;
-			EntityOwner m_background;
+			EntityOwner m_historyBackground;
 			EntityOwner m_history;
 			EntityOwner m_input;
 			EntityOwner m_inputBackground;
 			Nz::FontRef m_defaultFont;
 			Nz::LuaInstance& m_instance;
-			Nz::SpriteRef m_backgroundSprite;
+			Nz::SpriteRef m_historyBackgroundSprite;
 			Nz::SpriteRef m_inputBackgroundSprite;
 			Nz::SimpleTextDrawer m_historyDrawer;
 			Nz::SimpleTextDrawer m_inputDrawer;

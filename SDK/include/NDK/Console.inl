@@ -7,11 +7,6 @@
 
 namespace Ndk
 {
-	inline const EntityHandle& Console::GetBackground() const
-	{
-		return m_background;
-	}
-
 	inline unsigned int Console::GetCharacterSize() const
 	{
 		return m_characterSize;
@@ -22,9 +17,19 @@ namespace Ndk
 		return m_history;
 	}
 
+	inline const EntityHandle& Console::GetHistoryBackground() const
+	{
+		return m_historyBackground;
+	}
+
 	inline const EntityHandle& Console::GetInput() const
 	{
 		return m_input;
+	}
+
+	inline const EntityHandle& Console::GetInputBackground() const
+	{
+		return m_inputBackground;
 	}
 
 	inline const Nz::Vector2f& Console::GetSize() const
