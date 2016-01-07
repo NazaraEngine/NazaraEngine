@@ -62,6 +62,18 @@ namespace Nz
 		return hash->End();
 	}
 
+	template<typename T, std::size_t N> 
+	constexpr std::size_t CountOf(T(&name)[N]) noexcept
+	{
+		return N;
+	}
+
+	template<typename T> 
+	std::size_t CountOf(const T& c)
+	{
+		return c.size();
+	}
+
 	// Algorithme venant de CityHash par Google
 	// http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
 	template<typename T>
