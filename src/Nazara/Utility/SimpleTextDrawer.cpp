@@ -11,7 +11,8 @@ namespace Nz
 	SimpleTextDrawer::SimpleTextDrawer() :
 	m_color(Color::White),
 	m_style(TextStyle_Regular),
-	m_glyphUpdated(false),
+	m_colorUpdated(true),
+	m_glyphUpdated(true),
 	m_characterSize(24)
 	{
 		SetFont(Font::GetDefault());
@@ -21,6 +22,7 @@ namespace Nz
 	m_color(drawer.m_color),
 	m_text(drawer.m_text),
 	m_style(drawer.m_style),
+	m_colorUpdated(false),
 	m_glyphUpdated(false),
 	m_characterSize(drawer.m_characterSize)
 	{
@@ -86,6 +88,8 @@ namespace Nz
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
+		else if (!m_colorUpdated)
+			UpdateGlyphColor();
 
 		return m_glyphs[index];
 	}
@@ -119,7 +123,7 @@ namespace Nz
 	{
 		m_color = color;
 
-		m_glyphUpdated = false;
+		m_colorUpdated = false;
 	}
 
 	void SimpleTextDrawer::SetFont(Font* font)
@@ -158,6 +162,7 @@ namespace Nz
 		m_style = drawer.m_style;
 		m_text = drawer.m_text;
 
+		m_colorUpdated = false;
 		m_glyphUpdated = false;
 		SetFont(drawer.m_font);
 
@@ -169,6 +174,7 @@ namespace Nz
 		DisconnectFontSlots();
 
 		m_bounds = std::move(drawer.m_bounds);
+		m_colorUpdated = std::move(drawer.m_colorUpdated);
 		m_characterSize = std::move(drawer.m_characterSize);
 		m_color = std::move(drawer.m_color);
 		m_glyphs = std::move(drawer.m_glyphs);
@@ -209,6 +215,7 @@ namespace Nz
 	void SimpleTextDrawer::ClearGlyphs() const
 	{
 		m_bounds.MakeZero();
+		m_colorUpdated = true;
 		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
 		m_glyphs.clear();
 		m_glyphUpdated = true;
@@ -385,6 +392,14 @@ namespace Nz
 		#endif
 
 		SetFont(nullptr);
+	}
+
+	void SimpleTextDrawer::UpdateGlyphColor() const
+	{
+		for (Glyph& glyph : m_glyphs)
+			glyph.color = m_color;
+
+		m_colorUpdated = true;
 	}
 
 	void SimpleTextDrawer::UpdateGlyphs() const
