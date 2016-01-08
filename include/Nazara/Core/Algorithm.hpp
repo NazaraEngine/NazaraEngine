@@ -23,6 +23,8 @@ namespace Nz
 	template<typename O, typename F, typename Tuple> auto Apply(O& object, F&& fn, Tuple&& t);
 	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
 	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
+	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
+	template<typename T> std::size_t CountOf(const T& c);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 
     template<typename T>
