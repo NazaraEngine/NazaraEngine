@@ -16,6 +16,7 @@ namespace Ndk
 	m_systemBits(std::move(entity.m_systemBits)),
 	m_id(entity.m_id),
 	m_world(entity.m_world),
+	m_enabled(entity.m_enabled),
 	m_valid(entity.m_valid)
 	{
 		for (EntityHandle* handle : m_handles)
