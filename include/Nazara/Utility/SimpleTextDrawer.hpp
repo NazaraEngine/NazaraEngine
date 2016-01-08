@@ -59,6 +59,7 @@ namespace Nz
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
+			void UpdateGlyphColor() const;
 			void UpdateGlyphs() const;
 
 			NazaraSlot(Font, OnFontAtlasChanged, m_atlasChangedSlot);
@@ -75,6 +76,7 @@ namespace Nz
 			mutable UInt32 m_previousCharacter;
 			UInt32 m_style;
 			mutable Vector2ui m_drawPos;
+			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
 			unsigned int m_characterSize;
 	};
