@@ -521,15 +521,6 @@ namespace Nz
 		return bit / bitsPerBlock;
 	}
 
-	template<typename Block, class Allocator>
-	Block Bitset<Block, Allocator>::fullBitMask = std::numeric_limits<Block>::max();
-
-	template<typename Block, class Allocator>
-	unsigned int Bitset<Block, Allocator>::bitsPerBlock = std::numeric_limits<Block>::digits;
-
-	template<typename Block, class Allocator>
-	unsigned int Bitset<Block, Allocator>::npos = std::numeric_limits<unsigned int>::max();
-
 
 	template<typename Block, class Allocator>
 	typename Bitset<Block, Allocator>::Bit& Bitset<Block, Allocator>::Bit::Flip()
