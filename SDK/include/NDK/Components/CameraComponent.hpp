@@ -41,6 +41,7 @@ namespace Ndk
 			inline unsigned int GetLayer() const;
 			inline const Nz::Matrix4f& GetProjectionMatrix() const override;
 			inline Nz::ProjectionType GetProjectionType() const;
+			inline const Nz::Vector2f& GetSize() const;
 			inline const Nz::RenderTarget* GetTarget() const override;
 			inline const Nz::Rectf& GetTargetRegion() const;
 			inline const Nz::Matrix4f& GetViewMatrix() const override;
@@ -51,6 +52,8 @@ namespace Ndk
 			inline void SetFOV(float fov);
 			inline void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
+			inline void SetSize(const Nz::Vector2f& size);
+			inline void SetSize(float width, float height);
 			inline void SetTarget(const Nz::RenderTarget* renderTarget);
 			inline void SetTargetRegion(const Nz::Rectf& region);
 			inline void SetViewport(const Nz::Recti& viewport);
@@ -89,6 +92,7 @@ namespace Ndk
 			Nz::Rectf m_targetRegion;
 			mutable Nz::Recti m_viewport;
 			const Nz::RenderTarget* m_target;
+			Nz::Vector2f m_size;
 			mutable bool m_frustumUpdated;
 			mutable bool m_projectionMatrixUpdated;
 			mutable bool m_viewMatrixUpdated;
