@@ -326,7 +326,7 @@ namespace Nz
 		#endif
 
 		T det = GetDeterminant();
-		if (!NumberEquals(det, F(0.0)))
+		if (det != T(0.0))
 		{
 			// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
 			T inv[16];
@@ -484,7 +484,7 @@ namespace Nz
 		#endif
 
 		T det = GetDeterminantAffine();
-		if (!NumberEquals(det, F(0.0)))
+		if (det != F(0.0))
 		{
 			// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
 			T inv[16];
@@ -790,10 +790,7 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::IsAffine() const
 	{
-		return NumberEquals(m14, F(0.0)) &&
-		       NumberEquals(m24, F(0.0)) &&
-		       NumberEquals(m34, F(0.0)) &&
-		       NumberEquals(m44, F(1.0));
+		return m14 == F(0.0) && m24 == F(0.0) && m34 == F(0.0) && m44 == F(1.0);
 	}
 
 	/*!
