@@ -35,6 +35,9 @@ namespace Nz
 
 			unsigned int QueryAvailableBytes() const;
 
+			AbstractSocket& operator=(const AbstractSocket&) = delete;
+			AbstractSocket& operator=(AbstractSocket&& abstractSocket);
+
 			// Signals:
 			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*newState*/);
 

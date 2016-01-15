@@ -107,4 +107,20 @@ namespace Nz
 		m_handle = handle;
 		OnOpened();
 	}
+
+	AbstractSocket& AbstractSocket::operator=(AbstractSocket&& abstractSocket)
+	{
+		Close();
+
+		m_handle = abstractSocket.m_handle;
+		m_protocol = abstractSocket.m_protocol;
+		m_isBlockingEnabled = abstractSocket.m_isBlockingEnabled;
+		m_lastError = abstractSocket.m_lastError;
+		m_state = abstractSocket.m_state;
+		m_type = abstractSocket.m_type;
+		
+		abstractSocket.m_handle = SocketImpl::InvalidHandle;
+
+		return *this;
+	}
 }

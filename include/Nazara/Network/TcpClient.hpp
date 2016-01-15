@@ -21,7 +21,7 @@ namespace Nz
 
 		public:
 			inline TcpClient();
-			inline TcpClient(TcpClient&& tcpClient);
+			TcpClient(TcpClient&& tcpClient) = default;
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);
@@ -49,6 +49,8 @@ namespace Nz
 			bool SetCursorPos(UInt64 offset) override;
 
 			bool WaitForConnected(UInt64 msTimeout = 3000);
+
+			inline TcpClient& operator=(TcpClient&& tcpClient) = default;
 
 		private:
 			void FlushStream() override;
