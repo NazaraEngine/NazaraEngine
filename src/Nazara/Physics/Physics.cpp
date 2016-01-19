@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Physics/Config.hpp>
+#include <Nazara/Physics/Geom.hpp>
 #include <Newton/Newton.h>
 #include <Nazara/Physics/Debug.hpp>
 
@@ -35,6 +36,11 @@ namespace Nz
 		s_moduleReferenceCounter++;
 
 		// Initialisation du module
+		if (!PhysGeom::Initialize())
+		{
+			NazaraError("Failed to initialize geoms");
+			return false;
+		}
 
 		NazaraNotice("Initialized: Physics module");
 		return true;
@@ -57,6 +63,8 @@ namespace Nz
 		}
 
 		// Libération du module
+		PhysGeom::Uninitialize();
+
 		s_moduleReferenceCounter = 0;
 
 		NazaraNotice("Uninitialized: Physics module");
