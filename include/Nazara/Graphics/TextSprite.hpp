@@ -28,6 +28,7 @@ namespace Nz
 	{
 		public:
 			inline TextSprite();
+			inline TextSprite(const AbstractTextDrawer& drawer);
 			inline TextSprite(const TextSprite& sprite);
 			~TextSprite() = default;
 
