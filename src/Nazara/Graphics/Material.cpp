@@ -677,7 +677,7 @@ namespace Nz
 											 flags & ShaderFlags_TextureOverlay);
 		list.SetParameter("TRANSFORM", m_transformEnabled);
 
-		list.SetParameter("FLAG_BILLBOARD", static_cast<bool>(flags & ShaderFlags_Billboard));
+		list.SetParameter("FLAG_BILLBOARD", static_cast<bool>((flags & ShaderFlags_Billboard) != 0));
 		list.SetParameter("FLAG_DEFERRED", static_cast<bool>((flags & ShaderFlags_Deferred) != 0));
 		list.SetParameter("FLAG_INSTANCING", static_cast<bool>((flags & ShaderFlags_Instancing) != 0));
 		list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & ShaderFlags_TextureOverlay) != 0));
