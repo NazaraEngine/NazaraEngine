@@ -1,1 +1,1 @@
-premake4 --united --with-extlibs --with-examples codeblocks
+premake5 --united --with-extlibs --with-examples codeblocks

@@ -1,2 +1,2 @@
-premake4 generateheaders
+premake5 generateheaders
 pause

@@ -1,2 +1,2 @@
-premake4 encoderesources
+premake5 encoderesources
 pause
