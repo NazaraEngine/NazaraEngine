@@ -148,6 +148,22 @@ namespace Nz
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 	}
 
+	bool PhysGeom::Initialize()
+	{
+		if (!PhysGeomLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
+
+		return true;
+	}
+
+	void PhysGeom::Uninitialize()
+	{
+		PhysGeomLibrary::Uninitialize();
+	}
+
 	PhysGeomLibrary::LibraryMap PhysGeom::s_library;
 
 	/********************************** BoxGeom **********************************/
