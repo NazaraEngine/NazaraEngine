@@ -152,4 +152,17 @@ namespace Nz
 	}
 }
 
+namespace std
+{
+	template<typename T>
+	struct hash<Nz::ObjectRef<T>>
+	{
+		size_t operator()(const Nz::ObjectRef<T>& object) const
+		{
+			hash<T*> h;
+			return h(object.Get());
+		}
+	};
+}
+
 #include <Nazara/Core/DebugOff.hpp>
