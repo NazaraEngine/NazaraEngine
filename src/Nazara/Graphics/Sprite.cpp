@@ -51,5 +51,21 @@ namespace Nz
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 
+	bool Sprite::Initialize()
+	{
+		if (!SpriteLibrary::Initialize())
+		{
+			NazaraError("Failed to initialise library");
+			return false;
+		}
+
+		return true;
+	}
+
+	void Sprite::Uninitialize()
+	{
+		SpriteLibrary::Uninitialize();
+	}
+
 	SpriteLibrary::LibraryMap Sprite::s_library;
 }

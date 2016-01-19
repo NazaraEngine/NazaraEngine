@@ -18,6 +18,7 @@
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
+#include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
 #include <Nazara/Graphics/Formats/OBJLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
@@ -86,6 +87,12 @@ namespace Nz
 		if (!SkyboxBackground::Initialize())
 		{
 			NazaraError("Failed to initialize skybox backgrounds");
+			return false;
+		}
+
+		if (!Sprite::Initialize())
+		{
+			NazaraError("Failed to initialize sprites");
 			return false;
 		}
 
@@ -181,6 +188,7 @@ namespace Nz
 		ParticleController::Uninitialize();
 		Material::Uninitialize();
 		SkyboxBackground::Uninitialize();
+		Sprite::Uninitialize();
 
 		NazaraNotice("Uninitialized: Graphics module");
 
