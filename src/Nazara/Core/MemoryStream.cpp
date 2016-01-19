@@ -70,7 +70,7 @@ namespace Nz
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_buffer.size() - m_pos));
 
 		if (buffer)
-			std::memcpy(buffer, m_buffer.GetBuffer() + m_pos, readSize);
+			std::memcpy(buffer, &m_buffer[m_pos], readSize);
 
 		m_pos += readSize;
 		return readSize;
@@ -82,7 +82,7 @@ namespace Nz
 		if (endPos > m_buffer.size())
 			m_buffer.Resize(endPos);
 
-		std::memcpy(m_buffer.GetBuffer(), buffer, size);
+		std::memcpy(&m_buffer[m_pos], buffer, size);
 		
 		m_pos = endPos;
 		return size;
