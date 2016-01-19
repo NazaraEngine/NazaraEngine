@@ -39,6 +39,9 @@ namespace Nz
 
 	class NAZARA_PHYSICS_API PhysGeom : public RefCounted
 	{
+		friend PhysGeomLibrary;
+		friend class Physics;
+
 		public:
 			PhysGeom() = default;
 			PhysGeom(const PhysGeom&) = delete;
@@ -63,6 +66,9 @@ namespace Nz
 
 		protected:
 			virtual NewtonCollision* CreateHandle(PhysWorld* world) const = 0;
+
+			static bool Initialize();
+			static void Uninitialize();
 
 			mutable std::unordered_map<PhysWorld*, NewtonCollision*> m_handles;
 
