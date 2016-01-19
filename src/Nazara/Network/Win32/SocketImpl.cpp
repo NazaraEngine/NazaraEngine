@@ -666,6 +666,12 @@ namespace Nz
 			case WSAECONNREFUSED:
 				return SocketError_ConnectionRefused;
 
+			case WSAECONNABORTED:
+			case WSAECONNRESET:
+			case WSAENOTCONN:
+			case WSAESHUTDOWN:
+				return SocketError_ConnectionClosed;
+
 			case WSAEMSGSIZE:
 				return SocketError_DatagramSize;
 
@@ -673,10 +679,6 @@ namespace Nz
 			case WSAENOBUFS:
 			case WSA_NOT_ENOUGH_MEMORY:
 				return SocketError_ResourceError;
-
-			case WSAENOTCONN:
-			case WSAESHUTDOWN:
-				return SocketError_ConnectionClosed;
 
 			case WSAEHOSTUNREACH:
 				return SocketError_UnreachableHost;
