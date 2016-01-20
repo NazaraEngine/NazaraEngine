@@ -41,13 +41,14 @@ namespace Ndk
 		abstractHashClass.SetMethod("End",
 			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
 			{
-				Nz::ByteArray data(hash.End()); // Exceptions? What's the expected behavior of that method?
+				Nz::ByteArray data(hash.End());
 
 				lua.PushString(data.ToString());
 				return 1;
 			});
 
 		abstractHashClass.SetMethod("GetDigestLength", &Nz::AbstractHash::GetDigestLength);
+
 		abstractHashClass.SetMethod("GetHashName", 
 			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
 			{
