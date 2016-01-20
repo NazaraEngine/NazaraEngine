@@ -23,12 +23,14 @@ TOOL.Files = {
 -- Exlude client-only files
 TOOL.FilesExclusion = {
 	"../SDK/**/CameraComponent.*",
+	"../SDK/**/Console.*",
 	"../SDK/**/GraphicsComponent.*",
 	"../SDK/**/LightComponent.*",
 	"../SDK/**/ListenerComponent.*",
 	"../SDK/**/ListenerSystem.*",
 	"../SDK/**/RenderSystem.*",
-	"../SDK/**/LuaInterface_Audio.*"
+	"../SDK/**/LuaAPI_Audio.*",
+	"../SDK/**/LuaAPI_Graphics.*",
 }
 
 TOOL.Libraries = {
