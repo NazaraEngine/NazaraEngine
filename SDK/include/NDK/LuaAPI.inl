@@ -48,6 +48,16 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaInstance& lua, int index, Vector3ui* vec, TypeTag<Vector3ui>)
+	{
+		Vector3d vecDouble;
+		unsigned int ret = LuaImplQueryArg(lua, index, &vecDouble, TypeTag<Vector3d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
@@ -61,6 +71,12 @@ namespace Nz
 	}
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3f val, TypeTag<Vector3f>)
+	{
+		instance.PushInstance<Vector3d>("Vector3", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3ui val, TypeTag<Vector3ui>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
 		return 1;
