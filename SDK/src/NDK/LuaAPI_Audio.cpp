@@ -35,7 +35,7 @@ namespace Ndk
 
 			std::size_t bufferSize = 0;
 			const char* buffer = lua.CheckString(index, &bufferSize);
-			NazaraAssert(buffer && bufferSize < sampleCount * sizeof(Nz::Int16), "Invalid buffer");
+			lua.ArgCheck(buffer && bufferSize < sampleCount * sizeof(Nz::Int16), index, "Invalid buffer");
 
 			lua.PushBoolean(instance->Create(format, sampleCount, sampleRate, reinterpret_cast<const Nz::Int16*>(buffer)));
 			return 1;
