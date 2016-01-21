@@ -45,18 +45,14 @@ namespace Nz
 	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
-		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>()));
-
-		return 1;
+		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
 	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
-		*arg = static_cast<T>(LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>()));
-
-		return 1;
+		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
@@ -98,7 +94,6 @@ namespace Nz
 	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using SignedT = std::make_signed_t<T>;
-
 		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), static_cast<SignedT>(defValue), TypeTag<SignedT>());
 	}
 
@@ -149,7 +144,6 @@ namespace Nz
 	std::enable_if_t<std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		using EnumT = typename std::underlying_type<T>::type;
-
 		return LuaImplReplyVal(instance, static_cast<EnumT>(val), TypeTag<EnumT>());
 	}
 
