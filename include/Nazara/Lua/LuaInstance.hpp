@@ -15,6 +15,7 @@
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
 #include <functional>
+#include <limits>
 
 struct lua_Debug;
 struct lua_State;
@@ -189,6 +190,14 @@ namespace Nz
 			lua_State* m_state;
 			unsigned int m_level;
 	};
+
+	// Performs a 'ranged cast' to type T, i.e. a cast guaranteed to end up within the numerical limits of the type (or the limits provided in argument),
+	// without over- or under-flowing.
+	// Values beyond that range will be truncated to the type minimum (resp. maximum) if they are greater (resp. lesser) than the initial value.
+	template <class T> T ranged_cast(long long a, T high = std::numeric_limits<T>::max(), T low = std::numeric_limits<T>::min())
+	{
+		return static_cast<T>(std::min(static_cast<long long>(high), std::max(a, static_cast<long long>(low))));
+	}
 }
 
 #include <Nazara/Lua/LuaInstance.inl>

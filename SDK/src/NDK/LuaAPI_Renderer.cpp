@@ -7,14 +7,6 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Lua/LuaClass.hpp>
 
-#include <limits>
-
-// WIP: I don't know where to put it...
-template <class T> T ranged_cast(long long a, T high = std::numeric_limits<T>::max(), T low = std::numeric_limits<T>::min())
-{
-	return static_cast<T>(std::min(static_cast<long long>(high), std::max(a, static_cast<long long>(low))));
-}
-
 namespace Ndk
 {
 	void LuaAPI::Register_Renderer(Nz::LuaInstance& instance)
@@ -41,7 +33,7 @@ namespace Ndk
 
 				unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 				if (argCount == 1 && lua.IsOfType(1, Nz::LuaType_Number))
-					memory = abstractImage->GetMemoryUsage(ranged_cast<Nz::UInt8>(lua.CheckInteger(1)));
+					memory = abstractImage->GetMemoryUsage(Nz::ranged_cast<Nz::UInt8>(lua.CheckInteger(1)));
 				else
 					memory = abstractImage->GetMemoryUsage();
 
@@ -81,15 +73,15 @@ namespace Ndk
 						virtual bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
 						*/
 
-						unsigned int	srcWidth	= ranged_cast<unsigned int>(lua.CheckInteger(2));
+						unsigned int	srcWidth	= Nz::ranged_cast<unsigned int>(lua.CheckInteger(2));
 						unsigned int	srcHeight	= 0;
 						Nz::UInt8		level		= 0;
 
 						if (argCount >= 3)
 						{
-							srcHeight = ranged_cast<unsigned int>(lua.CheckInteger(3));
+							srcHeight = Nz::ranged_cast<unsigned int>(lua.CheckInteger(3));
 							if (argCount >= 4)
-								level = ranged_cast<Nz::UInt8>(lua.CheckInteger(3));
+								level = Nz::ranged_cast<Nz::UInt8>(lua.CheckInteger(3));
 						}
 
 						rValue = abstractImage->Update(pixels, srcWidth, srcHeight, level);
@@ -107,12 +99,12 @@ namespace Ndk
 
 						if (argCount >= 3)
 						{
-							srcWidth = ranged_cast<unsigned int>(lua.CheckInteger(3));
+							srcWidth = Nz::ranged_cast<unsigned int>(lua.CheckInteger(3));
 							if (argCount >= 4)
 							{
-								srcHeight = ranged_cast<unsigned int>(lua.CheckInteger(4));
+								srcHeight = Nz::ranged_cast<unsigned int>(lua.CheckInteger(4));
 								if (argCount >= 5)
-									level = ranged_cast<Nz::UInt8>(lua.CheckInteger(5));
+									level = Nz::ranged_cast<Nz::UInt8>(lua.CheckInteger(5));
 							}
 						}
 						rValue = abstractImage->Update(pixels, box, srcWidth, srcHeight, level);
@@ -131,15 +123,15 @@ namespace Ndk
 
 						if (argCount >= 3)
 						{
-							z = ranged_cast<unsigned int>(lua.CheckInteger(3));
+							z = Nz::ranged_cast<unsigned int>(lua.CheckInteger(3));
 							if (argCount >= 4)
 							{
-								srcWidth = ranged_cast<unsigned int>(lua.CheckInteger(4));
+								srcWidth = Nz::ranged_cast<unsigned int>(lua.CheckInteger(4));
 								if (argCount >= 5)
 								{
-									srcHeight = ranged_cast<unsigned int>(lua.CheckInteger(5));
+									srcHeight = Nz::ranged_cast<unsigned int>(lua.CheckInteger(5));
 									if (argCount >= 6)
-										level = ranged_cast<Nz::UInt8>(lua.CheckInteger(6));
+										level = Nz::ranged_cast<Nz::UInt8>(lua.CheckInteger(6));
 								}
 							}
 						}
