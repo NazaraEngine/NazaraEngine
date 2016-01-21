@@ -29,7 +29,7 @@ namespace Ndk
 		clockClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock) -> int {
 			Nz::StringStream stream("Clock(Elapsed: ");
 			stream << clock.GetSeconds();
-			stream << ", Paused: ";
+			stream << "s, Paused: ";
 			stream << clock.IsPaused();
 			stream << ')';
 
@@ -97,8 +97,53 @@ namespace Ndk
 
 		directoryClass.Register(instance);
 
+		/*********************************** Nz::Stream ***********************************/
+		Nz::LuaClass<Nz::Stream> streamClass("Stream");
+
+		streamClass.SetMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
+		streamClass.SetMethod("Flush", &Nz::Stream::Flush);
+		streamClass.SetMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
+		streamClass.SetMethod("GetDirectory", &Nz::Stream::GetDirectory);
+		streamClass.SetMethod("GetPath", &Nz::Stream::GetPath);
+		streamClass.SetMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
+		streamClass.SetMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
+		streamClass.SetMethod("GetSize", &Nz::Stream::GetSize);
+		streamClass.SetMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
+		streamClass.SetMethod("IsReadable", &Nz::Stream::IsReadable);
+		streamClass.SetMethod("IsSequential", &Nz::Stream::IsSequential);
+		streamClass.SetMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
+		streamClass.SetMethod("IsWritable", &Nz::Stream::IsWritable);
+		streamClass.SetMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
+
+		streamClass.SetMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
+			int length = lua.CheckInteger(1);
+			lua.ArgCheck(length > 0, 1, "length must be positive");
+
+			std::unique_ptr<char[]> buffer(new char[length]);
+			std::size_t readLength = stream.Read(buffer.get(), length);
+
+			lua.PushString(Nz::String(buffer.get(), readLength));
+			return 1;
+		});
+
+		streamClass.SetMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
+			int index = 1;
+
+			std::size_t bufferSize = 0;
+			const char* buffer = lua.CheckString(index, &bufferSize);
+
+			if (stream.IsTextModeEnabled())
+				lua.Push(stream.Write(Nz::String(buffer, bufferSize)));
+			else
+				lua.Push(stream.Write(buffer, bufferSize));
+			return 1;
+		});
+
+		streamClass.Register(instance);
+
 		/*********************************** Nz::File ***********************************/
 		Nz::LuaClass<Nz::File> fileClass("File");
+		fileClass.Inherit(streamClass);
 
 		// Constructeur
 		fileClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::File* {
@@ -223,26 +268,6 @@ namespace Ndk
 			return 0;
 		});
 
-		// Nz::File::Read (Manual)
-		fileClass.SetMethod("Read", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
-			int length = lua.CheckInteger(1);
-			lua.ArgCheck(length > 0, 1, "length must be positive");
-
-			std::unique_ptr<char[]> buffer(new char[length]);
-			std::size_t readLength = file.Read(buffer.get(), length);
-
-			lua.PushString(Nz::String(buffer.get(), readLength));
-			return 1;
-		});
-
-		// Nz::File::ReadLine (Manual)
-		fileClass.SetMethod("ReadLine", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
-			int length = lua.CheckInteger(1, 0);
-			lua.PushString(file.ReadLine(length));
-			return 1;
-		});
-
-		// Nz::File::__tostring (Manual)
 		fileClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
 			Nz::StringStream stream("File(");
 			if (file.IsOpen())
@@ -253,7 +278,6 @@ namespace Ndk
 			lua.PushString(stream);
 			return 1;
 		});
-
 
 		fileClass.Register(instance);
 
