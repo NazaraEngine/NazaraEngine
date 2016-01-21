@@ -405,6 +405,7 @@ namespace Nz
 				if (it != info->instanceGetters.end())
 					instance = it->second(lua);
 			}
+			lua.Pop(2);
 		}
 
 		lua.Remove(1); //< Remove the instance from the Lua stack
