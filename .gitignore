@@ -1,5 +1,6 @@
 # Nazara build
 examples/bin/*.exe
+tests/*.exe
 lib/*
 
 # Feature page
@@ -28,6 +29,7 @@ build/**/*.sln
 build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
+build/**/*.VC.opendb
 lib/*.exp
 
 # Compiled Object files

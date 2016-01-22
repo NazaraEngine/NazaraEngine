@@ -1,1 +1,0 @@
-premake4 --with-extlibs --with-examples vs2013
