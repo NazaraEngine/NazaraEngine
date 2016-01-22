@@ -108,7 +108,7 @@ namespace Ndk
 		soundClass.SetMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
 		soundClass.SetMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
-		// Nz::Clock::__tostring (Manual)
+		// Nz::Sound::__tostring (Manual)
 		soundClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound) -> int {
 			Nz::StringStream stream("Sound(");
 			if (const Nz::SoundBuffer* buffer = sound.GetBuffer())
