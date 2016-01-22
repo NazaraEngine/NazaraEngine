@@ -4,10 +4,75 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Lua/LuaClass.hpp>
 
+#include <Nazara/Core/Hash/MD5.hpp>
+
 namespace Ndk
 {
 	void LuaAPI::Register_Core(Nz::LuaInstance& instance)
 	{
+		/******************************** Nz::AbstractHash *******************************/
+		Nz::LuaClass<Nz::AbstractHash> abstractHashClass("AbstractHash");
+
+		abstractHashClass.SetMethod("__tostring",
+			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
+			{
+				Nz::StringStream strStrm("Nz::AbstractHash(");
+
+				strStrm << "Hash type: " << hash.GetHashName() << ", ";
+				strStrm << "Digest size: " << hash.GetDigestLength() << ")";
+
+				lua.PushString(strStrm);
+				return 1;
+			});
+
+		abstractHashClass.SetMethod("Append", 
+			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
+			{
+				size_t dataLength = 0;
+				const Nz::UInt8* data = reinterpret_cast<const Nz::UInt8*>(lua.CheckString(1, &dataLength));
+
+				hash.Append(data, dataLength);
+
+				return 0;
+			});
+
+		abstractHashClass.SetMethod("Begin", &Nz::AbstractHash::Begin);
+
+		abstractHashClass.SetMethod("End",
+			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
+			{
+				Nz::ByteArray data(hash.End());
+
+				lua.PushString(data.ToString());
+				return 1;
+			});
+
+		abstractHashClass.SetMethod("GetDigestLength", &Nz::AbstractHash::GetDigestLength);
+
+		abstractHashClass.SetMethod("GetHashName", 
+			[](Nz::LuaInstance& lua, Nz::AbstractHash& hash) -> int
+			{
+				Nz::String hashName(hash.GetHashName());
+				lua.PushString(hashName);
+				return 1;
+			});
+
+		abstractHashClass.Register(instance);
+
+		/********************************** Nz::HashMD5 **********************************/
+		Nz::LuaClass<Nz::HashMD5> hashMD5Class("HashMD5");
+		hashMD5Class.Inherit(abstractHashClass);
+
+		hashMD5Class.SetConstructor(
+			[](Nz::LuaInstance& lua) -> Nz::HashMD5*
+		{
+			if(std::min(lua.GetStackTop(), 1U) == 0)
+				return new Nz::HashMD5();
+			return nullptr;
+		});
+
+		hashMD5Class.Register(instance);
+
 		/*********************************** Nz::Clock **********************************/
 		Nz::LuaClass<Nz::Clock> clockClass("Clock");
 
