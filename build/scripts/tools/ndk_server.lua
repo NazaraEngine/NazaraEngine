@@ -31,6 +31,7 @@ TOOL.FilesExclusion = {
 	"../SDK/**/RenderSystem.*",
 	"../SDK/**/LuaAPI_Audio.*",
 	"../SDK/**/LuaAPI_Graphics.*",
+	"../SDK/**/LuaAPI_Renderer.*",
 }
 
 TOOL.Libraries = {
