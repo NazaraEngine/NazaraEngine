@@ -11,7 +11,8 @@ namespace Ndk
 		/*********************************** Nz::SoundBuffer **********************************/
 		Nz::LuaClass<Nz::SoundBufferRef> soundBuffer("SoundBuffer");
 
-		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::SoundBufferRef* {
+		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::SoundBufferRef*
+		{
 			return new Nz::SoundBufferRef(new Nz::SoundBuffer);
 		});
 
@@ -35,7 +36,7 @@ namespace Ndk
 
 			std::size_t bufferSize = 0;
 			const char* buffer = lua.CheckString(index, &bufferSize);
-			lua.ArgCheck(buffer && bufferSize < sampleCount * sizeof(Nz::Int16), index, "Invalid buffer");
+			lua.ArgCheck(buffer && bufferSize >= sampleCount * sizeof(Nz::Int16), index, "Invalid buffer");
 
 			lua.PushBoolean(instance->Create(format, sampleCount, sampleRate, reinterpret_cast<const Nz::Int16*>(buffer)));
 			return 1;
@@ -47,7 +48,8 @@ namespace Ndk
 			return 1;
 		});
 
-		soundBuffer.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& soundBuffer) -> int {
+		soundBuffer.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& soundBuffer) -> int
+		{
 			Nz::StringStream stream("SoundBuffer(");
 			if (soundBuffer->IsValid())
 			{
@@ -97,8 +99,8 @@ namespace Ndk
 		Nz::LuaClass<Nz::Sound> soundClass("Sound");
 		soundClass.Inherit(soundEmitter);
 
-		// Constructeur
-		soundClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Sound* {
+		soundClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Sound*
+		{
 			return new Nz::Sound;
 		});
 
@@ -108,8 +110,9 @@ namespace Ndk
 		soundClass.SetMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
 		soundClass.SetMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
-		// Nz::Sound::__tostring (Manual)
-		soundClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound) -> int {
+		// Manual
+		soundClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound) -> int
+		{
 			Nz::StringStream stream("Sound(");
 			if (const Nz::SoundBuffer* buffer = sound.GetBuffer())
 				stream << buffer;

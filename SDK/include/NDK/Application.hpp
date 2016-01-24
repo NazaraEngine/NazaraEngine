@@ -14,8 +14,8 @@ namespace Ndk
 	class NDK_API Application
 	{
 		public:
-			Application();
-			~Application();
+			inline Application();
+			inline ~Application();
 	};
 }
 

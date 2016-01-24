@@ -10,6 +10,5 @@ namespace Ndk
 {
 	void LuaAPI::Register_Graphics(Nz::LuaInstance& instance)
 	{
-		
 	}
 }
