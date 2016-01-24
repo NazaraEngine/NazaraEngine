@@ -1168,11 +1168,11 @@ namespace Nz
 		EnsureOwnership();
 
 		Copy(m_sharedImage->levels[level].get(), pixels, PixelFormat::GetBytesPerPixel(m_sharedImage->format),
-			 GetLevelSize(m_sharedImage->width, level),
-			 GetLevelSize(m_sharedImage->height, level),
-			 GetLevelSize(m_sharedImage->depth, level),
-			 0, 0,
-			 srcWidth, srcHeight);
+		     GetLevelSize(m_sharedImage->width, level),
+		     GetLevelSize(m_sharedImage->height, level),
+		     GetLevelSize(m_sharedImage->depth, level),
+		     0, 0,
+		     srcWidth, srcHeight);
 
 		return true;
 	}
