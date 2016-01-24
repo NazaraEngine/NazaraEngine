@@ -86,7 +86,7 @@ namespace Nz
 
 		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Ouvre en lecture/écriture
 
-		OpenMode_Max = OpenMode_WriteOnly
+		OpenMode_Max = OpenMode_WriteOnly*2 - 1
 	};
 
 	enum ParameterType
@@ -177,7 +177,7 @@ namespace Nz
 		StreamOption_Sequential = 0x1,
 		StreamOption_Text       = 0x2,
 
-		StreamOption_Max = StreamOption_Text*2-1
+		StreamOption_Max = StreamOption_Text*2 - 1
 	};
 
 	enum Ternary
