@@ -3,8 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <limits>
 #include <string>
 #include <type_traits>
+#include "LuaInstance.hpp"
 
 namespace Nz
 {
@@ -70,31 +72,17 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
 	{
-		*arg = static_cast<T>(instance.CheckInteger(index));
+		*arg = instance.CheckBoundInteger<T>(index);
 		return 1;
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
-		*arg = static_cast<T>(instance.CheckInteger(index, defValue));
+		*arg = instance.CheckBoundInteger<T>(index, defValue);
 		return 1;
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
-	{
-		using SignedT = std::make_signed_t<T>;
-		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), TypeTag<SignedT>());
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
-	{
-		using SignedT = std::make_signed_t<T>;
-		return LuaImplQueryArg(instance, index, reinterpret_cast<SignedT*>(arg), static_cast<SignedT>(defValue), TypeTag<SignedT>());
 	}
 
 	template<typename T>
@@ -148,23 +136,21 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_integral<T>::value && !std::is_unsigned<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_integral<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		instance.PushInteger(val);
 		return 1;
 	}
 
-	template<typename T>
-	std::enable_if_t<std::is_unsigned<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
-	{
-		using SignedT = typename std::make_signed<T>::type;
-
-		return LuaImplReplyVal(instance, static_cast<SignedT>(val), TypeTag<SignedT>());
-	}
-
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, ByteArray val, TypeTag<ByteArray>)
+	{
+		instance.PushString(reinterpret_cast<const char*>(val.GetConstBuffer()), val.GetSize());
 		return 1;
 	}
 
@@ -421,6 +407,18 @@ namespace Nz
 	}
 
 	template<typename T>
+	inline T LuaInstance::CheckBoundInteger(int index) const
+	{
+		return CheckBounds<T>(index, CheckInteger(index));
+	}
+
+	template<typename T>
+	inline T LuaInstance::CheckBoundInteger(int index, T defValue) const
+	{
+		return CheckBounds<T>(index, CheckInteger(index, defValue));
+	}
+
+	template<typename T>
 	T LuaInstance::CheckField(const char* fieldName, int tableIndex) const
 	{
 		T object;
@@ -549,5 +547,20 @@ namespace Nz
 	void LuaInstance::SetGlobal(const String& name, T&& arg)
 	{
 		SetGlobal(name.GetConstBuffer(), std::forward<T>(arg));
+	}
+
+	template<typename T>
+	T LuaInstance::CheckBounds(int index, long long value) const
+	{
+		long long minBounds = std::numeric_limits<T>::min();
+		long long maxBounds = std::numeric_limits<T>::max();
+		if (value < minBounds || value > maxBounds)
+		{
+			Nz::StringStream stream;
+			stream << "Argument #" << index << " is outside value range [" << minBounds << ", " << maxBounds << "] (" << value << ')';
+			Error(stream);
+		}
+
+		return static_cast<T>(value);
 	}
 }

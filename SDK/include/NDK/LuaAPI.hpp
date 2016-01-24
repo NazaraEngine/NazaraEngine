@@ -24,10 +24,10 @@ namespace Ndk
 
 			static void Register_Audio(Nz::LuaInstance& instance);
 			static void Register_Core(Nz::LuaInstance& instance);
-			static void Register_Math(Nz::LuaInstance& instance);
-			static void Register_Utility(Nz::LuaInstance& instance);
 			static void Register_Graphics(Nz::LuaInstance& instance);
+			static void Register_Math(Nz::LuaInstance& instance);
 			static void Register_Renderer(Nz::LuaInstance& instance);
+			static void Register_Utility(Nz::LuaInstance& instance);
 	};
 }
 
