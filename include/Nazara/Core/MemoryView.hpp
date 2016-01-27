@@ -31,7 +31,7 @@ namespace Nz
 			MemoryView& operator=(MemoryView&&) = delete; ///TODO
 
 		private:
-		void FlushStream() override;
+			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
