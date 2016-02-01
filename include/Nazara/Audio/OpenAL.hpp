@@ -73,8 +73,8 @@ namespace Nz
 
 			static bool IsInitialized();
 
-			static unsigned int QueryInputDevices(std::vector<String>& devices);
-			static unsigned int QueryOutputDevices(std::vector<String>& devices);
+			static std::size_t QueryInputDevices(std::vector<String>& devices);
+			static std::size_t QueryOutputDevices(std::vector<String>& devices);
 
 			static bool SetDevice(const String& deviceName);
 
