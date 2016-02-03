@@ -1,0 +1,71 @@
+﻿// Copyright (C) 2015 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Core module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_NETPACKET_HPP
+#define NAZARA_NETPACKET_HPP
+
+#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ByteStream.hpp>
+#include <Nazara/Core/MemoryStream.hpp>
+#include <Nazara/Core/Mutex.hpp>
+#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Network/Config.hpp>
+#include <iostream>
+
+namespace Nz
+{
+	class NAZARA_NETWORK_API NetPacket : public ByteStream
+	{
+		friend class Network;
+
+		public:
+			NetPacket();
+			NetPacket(UInt16 netCode, std::size_t sizeHint = 0);
+			NetPacket(UInt16 netCode, const void* ptr, std::size_t size);
+			NetPacket(const NetPacket&) = delete;
+			NetPacket(NetPacket&&) = default;
+			~NetPacket();
+
+			inline UInt16 GetNetCode() const;
+
+			virtual void OnReceive(UInt16 netCode, const void* data, std::size_t size);
+			virtual const void* OnSend(std::size_t* newSize) const;
+
+			void Reset();
+			void Reset(UInt16 netCode, std::size_t sizeHint = 0);
+			void Reset(UInt16 netCode, const void* ptr, std::size_t size);
+
+			inline void SetNetCode(UInt16 netCode);
+
+			NetPacket& operator=(const NetPacket&) = delete;
+			NetPacket& operator=(NetPacket&&) = default;
+
+			static bool DecodeHeader(const void* data, UInt16* packetSize, UInt16* netCode);
+			static bool EncodeHeader(void* data, UInt16 packetSize, UInt16 netCode);
+
+			static constexpr std::size_t HeaderSize = sizeof(UInt16) + sizeof(UInt16); //< PacketSize + NetCode
+
+		private:
+			void OnEmptyStream() override;
+
+			void FreeStream();
+			void InitStream(std::size_t sizeHint, UInt64 cursorPos, UInt32 openMode);
+
+			static bool Initialize();
+			static void Uninitialize();
+
+			std::unique_ptr<ByteArray> m_buffer;
+			MemoryStream m_memoryStream;
+			UInt16 m_netCode;
+
+			static std::unique_ptr<Mutex> s_availableBuffersMutex;
+			static std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> s_availableBuffers;
+	};
+}
+
+#include <Nazara/Network/NetPacket.inl>
+
+#endif // NAZARA_NETPACKET_HPP
