@@ -9,9 +9,17 @@
 
 namespace Nz
 {
+	MemoryView::MemoryView(void* ptr, UInt64 size) :
+	Stream(StreamOption_None, OpenMode_ReadWrite),
+	m_ptr(reinterpret_cast<UInt8*>(ptr)), 
+	m_pos(0),
+	m_size(size)
+	{
+	}
+
 	MemoryView::MemoryView(const void* ptr, UInt64 size) :
 	Stream(StreamOption_None, OpenMode_ReadOnly),
-	m_ptr(reinterpret_cast<const UInt8*>(ptr)),
+	m_ptr(reinterpret_cast<UInt8*>(const_cast<void*>(ptr))), //< Okay, right, const_cast is bad, but this pointer is still read-only
 	m_pos(0),
 	m_size(size)
 	{
@@ -41,7 +49,7 @@ namespace Nz
 
 	void MemoryView::FlushStream()
 	{
-		NazaraInternalError("FlushStream has been called on a MemoryView");
+		// Nothing to do
 	}
 
 	std::size_t MemoryView::ReadBlock(void* buffer, std::size_t size)
@@ -57,7 +65,13 @@ namespace Nz
 
 	std::size_t MemoryView::WriteBlock(const void* buffer, std::size_t size)
 	{
-		NazaraInternalError("WriteBlock has been called on a MemoryView");
-		return 0;
+		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
+		if (endPos > m_size)
+			size = m_size - m_pos;
+
+		std::memcpy(&m_ptr[m_pos], buffer, size);
+
+		m_pos += size;
+		return size;
 	}
 }

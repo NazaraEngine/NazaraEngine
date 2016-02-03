@@ -326,7 +326,7 @@ namespace Nz
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
 	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
+	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string);
 }
 
 namespace std
