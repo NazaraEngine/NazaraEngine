@@ -20,17 +20,9 @@ namespace Nz
 	struct SerializationContext
 	{
 		Stream* stream;
-		Endianness endianness;
-		UInt8 currentBitPos;
-		UInt8 currentByte;
-	};
-
-	struct UnserializationContext
-	{
-		Stream* stream;
-		Endianness endianness;
-		UInt8 currentBitPos;
-		UInt8 currentByte;
+		Endianness endianness = Endianness_BigEndian; //< Default to Big Endian encoding
+		UInt8 currentBitPos = 8; //< 8 means no bit is currently wrote
+		UInt8 currentByte; //< Undefined value, will be initialized at the first bit write
 	};
 }
 

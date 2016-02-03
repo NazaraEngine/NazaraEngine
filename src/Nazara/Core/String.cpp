@@ -4226,7 +4226,7 @@ namespace Nz
 		return context.stream->Write(string.GetConstBuffer(), string.GetSize()) == string.GetSize();
 	}
 
-	bool Unserialize(UnserializationContext& context, String* string)
+	bool Unserialize(SerializationContext& context, String* string)
 	{
 		UInt32 size;
 		if (!Unserialize(context, &size))

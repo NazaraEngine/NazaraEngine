@@ -2,13 +2,35 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	inline bool HashAppend(AbstractHash* hash, const MemoryStream& stream)
+	inline MemoryStream::MemoryStream() :
+	Stream(StreamOption_None, OpenMode_ReadWrite),
+	m_pos(0)
 	{
-		return HashAppend(hash, stream.GetBuffer());
+	}
+
+	inline MemoryStream::MemoryStream(ByteArray* byteArray, UInt32 openMode) :
+	MemoryStream()
+	{
+		SetBuffer(byteArray, openMode);
+	}
+
+	inline ByteArray& MemoryStream::GetBuffer()
+	{
+		NazaraAssert(m_buffer, "Invalid buffer");
+
+		return *m_buffer;
+	}
+
+	inline const ByteArray& MemoryStream::GetBuffer() const
+	{
+		NazaraAssert(m_buffer, "Invalid buffer");
+
+		return *m_buffer;
 	}
 }
 

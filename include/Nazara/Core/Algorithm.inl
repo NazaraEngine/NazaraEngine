@@ -131,10 +131,8 @@ namespace Nz
 		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
 	}
 
-	inline bool Unserialize(UnserializationContext& context, bool* value)
+	inline bool Unserialize(SerializationContext& context, bool* value)
 	{
-		NazaraAssert(value, "Invalid data pointer");
-
 		if (context.currentBitPos == 8)
 		{
 			if (!Unserialize(context, &context.currentByte))
@@ -152,7 +150,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value)
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
