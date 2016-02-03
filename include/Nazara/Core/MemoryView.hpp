@@ -15,6 +15,7 @@ namespace Nz
 	class NAZARA_CORE_API MemoryView : public Stream
 	{
 		public:
+			MemoryView(void* ptr, UInt64 size);
 			MemoryView(const void* ptr, UInt64 size);
 			MemoryView(const MemoryView&) = delete;
 			MemoryView(MemoryView&&) = delete; ///TODO
@@ -35,7 +36,7 @@ namespace Nz
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
-			const UInt8* m_ptr;
+			UInt8* m_ptr;
 			UInt64 m_pos;
 			UInt64 m_size;
 	};

@@ -8,16 +8,17 @@
 #define NAZARA_MEMORYSTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
+	class ByteArray;
+
 	class NAZARA_CORE_API MemoryStream : public Stream
 	{
 		public:
-			MemoryStream();
-			MemoryStream(const void* ptr, unsigned int size);
+			inline MemoryStream();
+			inline MemoryStream(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
 			MemoryStream(const MemoryStream&) = default;
 			MemoryStream(MemoryStream&&) = default;
 			~MemoryStream() = default;
@@ -26,11 +27,12 @@ namespace Nz
 
 			bool EndOfStream() const override;
 
-			const ByteArray& GetBuffer() const;
-			const UInt8* GetData() const;
+			inline ByteArray& GetBuffer();
+			inline const ByteArray& GetBuffer() const;
 			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
+			void SetBuffer(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
 			bool SetCursorPos(UInt64 offset) override;
 
 			MemoryStream& operator=(const MemoryStream&) = default;
@@ -41,15 +43,9 @@ namespace Nz
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
-			ByteArray m_buffer;
+			ByteArray* m_buffer;
 			UInt64 m_pos;
 	};
-
-	class AbstractHash;
-
-	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
 }
 
 #include <Nazara/Core/MemoryStream.inl>
