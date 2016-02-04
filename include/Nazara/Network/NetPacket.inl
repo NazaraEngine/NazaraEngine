@@ -40,7 +40,7 @@ namespace Nz
 
 	inline void NetPacket::Reset(UInt16 netCode, std::size_t sizeHint)
 	{
-		InitStream(HeaderSize + sizeHint, HeaderSize, OpenMode_WriteOnly);
+		InitStream(HeaderSize + sizeHint, HeaderSize, OpenMode_ReadWrite);
 		m_netCode = netCode;
 	}
 
