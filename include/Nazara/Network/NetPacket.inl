@@ -14,9 +14,9 @@ namespace Nz
 	{
 	}
 
-	inline NetPacket::NetPacket(UInt16 netCode, std::size_t sizeHint)
+	inline NetPacket::NetPacket(UInt16 netCode, std::size_t minSize)
 	{
-		Reset(netCode, sizeHint);
+		Reset(netCode, minSize);
 	}
 
 	inline NetPacket::NetPacket(UInt16 netCode, const void* ptr, std::size_t size)
@@ -26,6 +26,7 @@ namespace Nz
 
 	inline NetPacket::~NetPacket()
 	{
+		FlushBits(); //< Needs to be done here as the stream will be freed before ByteStream calls it
 		FreeStream();
 	}
 
@@ -53,9 +54,9 @@ namespace Nz
 		FreeStream();
 	}
 
-	inline void NetPacket::Reset(UInt16 netCode, std::size_t sizeHint)
+	inline void NetPacket::Reset(UInt16 netCode, std::size_t minSize)
 	{
-		InitStream(HeaderSize + sizeHint, HeaderSize, OpenMode_ReadWrite);
+		InitStream(HeaderSize + minSize, HeaderSize, OpenMode_ReadWrite);
 		m_netCode = netCode;
 	}
 
@@ -66,6 +67,13 @@ namespace Nz
 		std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
 
 		m_netCode = netCode;
+	}
+
+	inline void NetPacket::Resize(std::size_t newSize)
+	{
+		NazaraAssert(m_buffer, "Invalid buffer");
+
+		m_buffer->Resize(newSize);
 	}
 
 	inline void NetPacket::SetNetCode(UInt16 netCode)
