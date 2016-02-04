@@ -22,7 +22,7 @@ namespace Nz
 
 		public:
 			inline NetPacket();
-			inline NetPacket(UInt16 netCode, std::size_t sizeHint = 0);
+			inline NetPacket(UInt16 netCode, std::size_t minSize = 0);
 			inline NetPacket(UInt16 netCode, const void* ptr, std::size_t size);
 			NetPacket(const NetPacket&) = delete;
 			NetPacket(NetPacket&&) = default;
@@ -36,8 +36,10 @@ namespace Nz
 			virtual const void* OnSend(std::size_t* newSize) const;
 
 			inline void Reset();
-			inline void Reset(UInt16 netCode, std::size_t sizeHint = 0);
+			inline void Reset(UInt16 netCode, std::size_t minSize = 0);
 			inline void Reset(UInt16 netCode, const void* ptr, std::size_t size);
+
+			inline void Resize(std::size_t newSize);
 
 			inline void SetNetCode(UInt16 netCode);
 
@@ -53,7 +55,7 @@ namespace Nz
 			void OnEmptyStream() override;
 
 			void FreeStream();
-			void InitStream(std::size_t sizeHint, UInt64 cursorPos, UInt32 openMode);
+			void InitStream(std::size_t minSize, UInt64 cursorPos, UInt32 openMode);
 
 			static bool Initialize();
 			static void Uninitialize();
