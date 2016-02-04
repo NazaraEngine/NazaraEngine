@@ -5,31 +5,10 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/MemoryView.hpp>
-#include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
-	NetPacket::NetPacket() :
-	m_netCode(NetCode_Invalid)
-	{
-	}
-
-	NetPacket::NetPacket(UInt16 netCode, std::size_t sizeHint)
-	{
-		Reset(netCode, sizeHint);
-	}
-
-	NetPacket::NetPacket(UInt16 netCode, const void* ptr, std::size_t size)
-	{
-		Reset(netCode, ptr, size);
-	}
-
-	NetPacket::~NetPacket()
-	{
-		FreeStream();
-	}
-
 	void NetPacket::OnReceive(UInt16 netCode, const void* data, std::size_t size)
 	{
 		Reset(netCode, data, size);
@@ -49,26 +28,6 @@ namespace Nz
 
 		*newSize = size;
 		return m_buffer->GetBuffer();
-	}
-
-	void NetPacket::Reset()
-	{
-		FreeStream();
-	}
-
-	void NetPacket::Reset(UInt16 netCode, std::size_t sizeHint)
-	{
-		InitStream(HeaderSize + sizeHint, HeaderSize, OpenMode_WriteOnly);
-		m_netCode = netCode;
-	}
-
-	void NetPacket::Reset(UInt16 netCode, const void* ptr, std::size_t size)
-	{
-		InitStream(HeaderSize + size, HeaderSize, OpenMode_ReadOnly);
-		m_buffer->Resize(HeaderSize + size);
-		std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
-
-		m_netCode = netCode;
 	}
 
 	bool NetPacket::DecodeHeader(const void* data, UInt16* packetSize, UInt16* netCode)
