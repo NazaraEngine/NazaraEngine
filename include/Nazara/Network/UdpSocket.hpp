@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	class NetPacket;
+
 	class NAZARA_NETWORK_API UdpSocket : public AbstractSocket
 	{
 		public:
@@ -37,8 +39,10 @@ namespace Nz
 			std::size_t QueryMaxDatagramSize();
 
 			bool Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received);
+			bool ReceivePacket(NetPacket* packet, IpAddress* from);
 
 			bool Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendPacket(const IpAddress& to, const NetPacket& packet);
 
 		private:
 			void OnClose() override;
