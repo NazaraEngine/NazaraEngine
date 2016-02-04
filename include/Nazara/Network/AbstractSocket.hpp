@@ -33,7 +33,7 @@ namespace Nz
 
 			inline bool IsBlockingEnabled() const;
 
-			unsigned int QueryAvailableBytes() const;
+			std::size_t QueryAvailableBytes() const;
 
 			AbstractSocket& operator=(const AbstractSocket&) = delete;
 			AbstractSocket& operator=(AbstractSocket&& abstractSocket);

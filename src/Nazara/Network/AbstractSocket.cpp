@@ -63,7 +63,7 @@ namespace Nz
 		}
 	}
 
-	unsigned int AbstractSocket::QueryAvailableBytes() const
+	std::size_t AbstractSocket::QueryAvailableBytes() const
 	{
 		if (m_handle == SocketImpl::InvalidHandle)
 			return 0;
