@@ -13,7 +13,6 @@
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/Config.hpp>
-#include <iostream>
 
 namespace Nz
 {
@@ -22,21 +21,21 @@ namespace Nz
 		friend class Network;
 
 		public:
-			NetPacket();
-			NetPacket(UInt16 netCode, std::size_t sizeHint = 0);
-			NetPacket(UInt16 netCode, const void* ptr, std::size_t size);
+			inline NetPacket();
+			inline NetPacket(UInt16 netCode, std::size_t sizeHint = 0);
+			inline NetPacket(UInt16 netCode, const void* ptr, std::size_t size);
 			NetPacket(const NetPacket&) = delete;
 			NetPacket(NetPacket&&) = default;
-			~NetPacket();
+			inline ~NetPacket();
 
 			inline UInt16 GetNetCode() const;
 
 			virtual void OnReceive(UInt16 netCode, const void* data, std::size_t size);
 			virtual const void* OnSend(std::size_t* newSize) const;
 
-			void Reset();
-			void Reset(UInt16 netCode, std::size_t sizeHint = 0);
-			void Reset(UInt16 netCode, const void* ptr, std::size_t size);
+			inline void Reset();
+			inline void Reset(UInt16 netCode, std::size_t sizeHint = 0);
+			inline void Reset(UInt16 netCode, const void* ptr, std::size_t size);
 
 			inline void SetNetCode(UInt16 netCode);
 
