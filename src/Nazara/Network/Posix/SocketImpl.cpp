@@ -224,7 +224,7 @@ namespace Nz
 		return code;
 	}
 
-	SocketState SocketImpl::Listen(SocketHandle handle, const IpAddress& address, unsigned queueSize, SocketError* error)
+	SocketState SocketImpl::Listen(SocketHandle handle, const IpAddress& address, unsigned int queueSize, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(address.IsValid(), "Invalid address");
@@ -254,7 +254,7 @@ namespace Nz
 		return SocketState_Bound;
 	}
 
-	unsigned int SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
@@ -311,7 +311,7 @@ namespace Nz
 		return code;
 	}
 
-	unsigned int SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
 		unsigned int code;
 		unsigned int codeLength = sizeof(code);

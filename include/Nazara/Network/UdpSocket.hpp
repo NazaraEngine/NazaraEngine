@@ -34,7 +34,7 @@ namespace Nz
 
 			inline bool IsBroadcastingEnabled() const;
 
-			unsigned int QueryMaxDatagramSize();
+			std::size_t QueryMaxDatagramSize();
 
 			bool Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received);
 
