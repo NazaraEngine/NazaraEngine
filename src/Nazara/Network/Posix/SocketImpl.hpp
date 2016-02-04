@@ -32,12 +32,12 @@ namespace Nz
 			static int GetLastErrorCode();
 			static int GetLastErrorCode(SocketHandle handle, SocketError* error = nullptr);
 
-			static SocketState Listen(SocketHandle handle, const IpAddress& address, unsigned queueSize, SocketError* error);
+			static SocketState Listen(SocketHandle handle, const IpAddress& address, unsigned int queueSize, SocketError* error);
 
-			static unsigned int QueryAvailableBytes(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QueryAvailableBytes(SocketHandle handle, SocketError* error = nullptr);
 			static bool QueryBroadcasting(SocketHandle handle, SocketError* error = nullptr);
 			static bool QueryKeepAlive(SocketHandle handle, SocketError* error = nullptr);
-			static unsigned int QueryMaxDatagramSize(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QueryMaxDatagramSize(SocketHandle handle, SocketError* error = nullptr);
 			static bool QueryNoDelay(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QueryPeerAddress(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
