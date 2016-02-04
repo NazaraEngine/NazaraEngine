@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/UdpSocket.hpp>
-#include <Nazara/Network/Debug.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -12,6 +11,8 @@
 #else
 #error Missing implementation: Socket
 #endif
+
+#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
@@ -39,7 +40,7 @@ namespace Nz
 		}
 	}
 
-	unsigned int UdpSocket::QueryMaxDatagramSize()
+	std::size_t UdpSocket::QueryMaxDatagramSize()
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
 

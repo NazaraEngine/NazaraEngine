@@ -256,7 +256,7 @@ namespace Nz
 		return SocketState_Bound;
 	}
 
-	unsigned int SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
