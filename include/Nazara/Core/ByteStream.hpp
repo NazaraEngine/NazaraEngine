@@ -26,7 +26,6 @@ namespace Nz
 			inline ByteStream(ByteStream&& stream);
 			~ByteStream();
 
-
 			inline Endianness GetDataEndianness() const;
 			inline Nz::UInt64 GetSize() const;
 			inline Stream* GetStream() const;
