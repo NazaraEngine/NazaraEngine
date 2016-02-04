@@ -2,9 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Debug.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <cstring>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -26,6 +27,20 @@ namespace Nz
 	inline NetPacket::~NetPacket()
 	{
 		FreeStream();
+	}
+
+	inline const UInt8* NetPacket::GetConstData() const
+	{
+		NazaraAssert(m_buffer, "Invalid buffer");
+
+		return m_buffer->GetConstBuffer();
+	}
+
+	inline UInt8* NetPacket::GetData() const
+	{
+		NazaraAssert(m_buffer, "Invalid buffer");
+
+		return m_buffer->GetBuffer();
 	}
 
 	inline UInt16 NetPacket::GetNetCode() const

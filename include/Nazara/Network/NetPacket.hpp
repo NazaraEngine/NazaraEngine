@@ -28,6 +28,8 @@ namespace Nz
 			NetPacket(NetPacket&&) = default;
 			inline ~NetPacket();
 
+			inline const UInt8* GetConstData() const;
+			inline UInt8* GetData() const;
 			inline UInt16 GetNetCode() const;
 
 			virtual void OnReceive(UInt16 netCode, const void* data, std::size_t size);
