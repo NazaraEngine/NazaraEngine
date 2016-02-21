@@ -9,7 +9,7 @@
 
 #include <Nazara/Core/Algorithm.hpp>
 
-// Inspiré du code de la SFML par Laurent Gomila
+// Inspired from the of code of the SFML by Laurent Gomila
 
 namespace Nz
 {
