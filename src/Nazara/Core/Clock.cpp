@@ -46,7 +46,7 @@ namespace Nz
 	* \brief Utility class that measure the elapsed time
 	*/
 
-	/*! 
+	/*!
 	* \brief Constructs a Clock object
 	*
 	* \param startingValue The starting time value, in microseconds
