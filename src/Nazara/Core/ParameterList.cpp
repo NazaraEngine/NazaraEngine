@@ -12,15 +12,32 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::ParameterList
+	* \brief Core class that represents a list of parameters
+	*/
+
+	/*!
+	* \brief Constructs a ParameterList object by copy
+	*/
+
 	ParameterList::ParameterList(const ParameterList& list)
 	{
 		operator=(list);
 	}
 
+	/*!
+	* \brief Destructs the object and clears
+	*/
+
 	ParameterList::~ParameterList()
 	{
 		Clear();
 	}
+
+	/*!
+	* \brief Clears the list of parameters
+	*/
 
 	void ParameterList::Clear()
 	{
@@ -30,8 +47,22 @@ namespace Nz
 		m_parameters.clear();
 	}
 
+	/*!
+	* \brief Gets the boolean parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetBooleanParameter(const String& name, bool* value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -50,16 +81,16 @@ namespace Nz
 				return true;
 
 			case ParameterType_String:
-			{
-				bool converted;
-				if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
 				{
-					*value = converted;
-					return true;
-				}
+					bool converted;
+					if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
+					{
+						*value = converted;
+						return true;
+					}
 
-				break;
-			}
+					break;
+				}
 
 			case ParameterType_Float:
 			case ParameterType_None:
@@ -72,8 +103,22 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Gets the float parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetFloatParameter(const String& name, float* value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -92,16 +137,16 @@ namespace Nz
 				return true;
 
 			case ParameterType_String:
-			{
-				double converted;
-				if (it->second.value.stringVal.ToDouble(&converted))
 				{
-					*value = static_cast<float>(converted);
-					return true;
-				}
+					double converted;
+					if (it->second.value.stringVal.ToDouble(&converted))
+					{
+						*value = static_cast<float>(converted);
+						return true;
+					}
 
-				break;
-			}
+					break;
+				}
 
 			case ParameterType_Boolean:
 			case ParameterType_None:
@@ -114,8 +159,22 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Gets the integer parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetIntegerParameter(const String& name, int* value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -138,18 +197,18 @@ namespace Nz
 				return false;
 
 			case ParameterType_String:
-			{
-				long long converted;
-				if (it->second.value.stringVal.ToInteger(&converted))
 				{
-					if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
+					long long converted;
+					if (it->second.value.stringVal.ToInteger(&converted))
 					{
-						*value = static_cast<int>(converted);
-						return true;
+						if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
+						{
+							*value = static_cast<int>(converted);
+							return true;
+						}
 					}
+					break;
 				}
-				break;
-			}
 
 			case ParameterType_None:
 			case ParameterType_Pointer:
@@ -161,8 +220,22 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Gets the parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param type Type to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetParameterType(const String& name, ParameterType* type) const
 	{
+		NazaraAssert(type, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return false;
@@ -172,8 +245,22 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Gets the pointer parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetPointerParameter(const String& name, void** value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -203,8 +290,22 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Gets the string parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetStringParameter(const String& name, String* value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -247,8 +348,22 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Gets the user parameter by name
+	* \return true if success
+	*
+	* \param name Name of the variable
+	* \param value Value to set
+	*
+	* \remark Produces a NazaraAssert if pointer is invalid
+	* \remark Produces a NazaraError if name is not a variable
+	* \remark Produces a NazaraError if value could not be convertible
+	*/
+
 	bool ParameterList::GetUserdataParameter(const String& name, void** value) const
 	{
+		NazaraAssert(value, "Invalid pointer");
+
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 		{
@@ -268,10 +383,25 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Checks whether the parameter list has a parameter with that name
+	* \return true if found
+	*
+	* \param name Name of the parameter
+	*/
+
 	bool ParameterList::HasParameter(const String& name) const
 	{
 		return m_parameters.find(name) != m_parameters.end();
 	}
+
+	/*!
+	* \brief Removes the parameter with that name
+	*
+	* Removes the parameter with that name, if not found, nothing is done
+	*
+	* \param name Name of the parameter
+	*/
 
 	void ParameterList::RemoveParameter(const String& name)
 	{
@@ -283,6 +413,12 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Sets the parameter with the name to ParameterType_None
+	*
+	* \param name Name of the parameter
+	*/
+
 	void ParameterList::SetParameter(const String& name)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
@@ -293,6 +429,13 @@ namespace Nz
 
 		parameter.type = ParameterType_None;
 	}
+
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
 
 	void ParameterList::SetParameter(const String& name, const String& value)
 	{
@@ -307,6 +450,13 @@ namespace Nz
 		PlacementNew<String>(&parameter.value.stringVal, value);
 	}
 
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
+
 	void ParameterList::SetParameter(const String& name, const char* value)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
@@ -320,6 +470,13 @@ namespace Nz
 		PlacementNew<String>(&parameter.value.stringVal, value);
 	}
 
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
+
 	void ParameterList::SetParameter(const String& name, void* value)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
@@ -331,6 +488,14 @@ namespace Nz
 		parameter.type = ParameterType_Pointer;
 		parameter.value.ptrVal = value;
 	}
+
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	* \param destructor Destructor for dynamic variable
+	*/
 
 	void ParameterList::SetParameter(const String& name, void* value, Destructor destructor)
 	{
@@ -344,6 +509,13 @@ namespace Nz
 		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
 	}
 
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
+
 	void ParameterList::SetParameter(const String& name, bool value)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
@@ -355,6 +527,13 @@ namespace Nz
 		parameter.type = ParameterType_Boolean;
 		parameter.value.boolVal = value;
 	}
+
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
 
 	void ParameterList::SetParameter(const String& name, float value)
 	{
@@ -368,6 +547,13 @@ namespace Nz
 		parameter.value.floatVal = value;
 	}
 
+	/*!
+	* \brief Sets the parameter with the name to the value
+	*
+	* \param name Name of the parameter
+	* \param value Value of the parameter
+	*/
+
 	void ParameterList::SetParameter(const String& name, int value)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
@@ -379,6 +565,13 @@ namespace Nz
 		parameter.type = ParameterType_Integer;
 		parameter.value.intVal = value;
 	}
+
+	/*!
+	* \brief Assigns the content of the other parameter list to this
+	* \return A reference to this
+	*
+	* \param list List to assign
+	*/
 
 	ParameterList& ParameterList::operator=(const ParameterList& list)
 	{
@@ -418,6 +611,12 @@ namespace Nz
 		return *this;
 	}
 
+	/*!
+	* \brief Destroys the value for the parameter
+	*
+	* \param parameter Parameter to destroy
+	*/
+
 	void ParameterList::DestroyValue(Parameter& parameter)
 	{
 		switch (parameter.type)
@@ -427,15 +626,15 @@ namespace Nz
 				break;
 
 			case ParameterType_Userdata:
-			{
-				Parameter::UserdataValue* userdata = parameter.value.userdataVal;
-				if (--userdata->counter == 0)
 				{
-					userdata->destructor(userdata->ptr);
-					delete userdata;
+					Parameter::UserdataValue* userdata = parameter.value.userdataVal;
+					if (--userdata->counter == 0)
+					{
+						userdata->destructor(userdata->ptr);
+						delete userdata;
+					}
+					break;
 				}
-				break;
-			}
 
 			case ParameterType_Boolean:
 			case ParameterType_Float:
