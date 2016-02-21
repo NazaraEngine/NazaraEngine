@@ -13,12 +13,24 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::CoreCore
+	* \brief Core class that represents the module initializer of Core
+	*/
+
+	/*!
+	* \brief Initializes the Core module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
 	bool Core::Initialize()
 	{
 		if (s_moduleReferenceCounter > 0)
 		{
 			s_moduleReferenceCounter++;
-			return true; // Déjà initialisé
+			return true; // Already initialized
 		}
 
 		s_moduleReferenceCounter++;
@@ -29,23 +41,34 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the module is initialized
+	* \return true if module is initialized
+	*/
+
 	bool Core::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
 	}
 
+	/*!
+	* \brief Uninitializes the Core module
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
 	void Core::Uninitialize()
 	{
 		if (s_moduleReferenceCounter != 1)
 		{
-			// Le module est soit encore utilisé, soit pas initialisé
+			// The module is still in use, or can not be uninitialized
 			if (s_moduleReferenceCounter > 1)
 				s_moduleReferenceCounter--;
 
 			return;
 		}
 
-		// Libération du module
+		// Free of module
 		s_moduleReferenceCounter = 0;
 
 		HardwareInfo::Uninitialize();
