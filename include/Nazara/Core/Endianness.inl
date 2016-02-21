@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Gets the platform endianness
+	* \return Type of the endianness
+	*/
+
 	inline constexpr Endianness GetPlatformEndianness()
 	{
 		#if defined(NAZARA_BIG_ENDIAN)
@@ -16,11 +21,20 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Swaps the byte for endianness operations
+	*
+	* \param buffer Raw memory
+	* \param size Size to change endianness
+	*
+	* \remark If size is greather than the preallocated buffer, the behaviour is undefined
+	*/
+
 	inline void SwapBytes(void* buffer, unsigned int size)
 	{
 		UInt8* bytes = reinterpret_cast<UInt8*>(buffer);
 		unsigned int i = 0;
-		unsigned int j = size-1;
+		unsigned int j = size - 1;
 
 		while (i < j)
 			std::swap(bytes[i++], bytes[j--]);
