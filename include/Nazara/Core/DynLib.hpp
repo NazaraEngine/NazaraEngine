@@ -28,7 +28,7 @@
 
 namespace Nz
 {
-	using DynLibFunc = int (*)(); // Type "générique" de pointeur sur fonction
+	using DynLibFunc = int (*)(); // "Generic" type of poiter to function
 
 	class DynLibImpl;
 
@@ -56,7 +56,7 @@ namespace Nz
 
 			mutable String m_lastError;
 			DynLibImpl* m_impl;
-};
+	};
 }
 
 #endif // NAZARA_DYNLIB_HPP

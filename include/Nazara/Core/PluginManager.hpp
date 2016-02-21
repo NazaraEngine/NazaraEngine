@@ -13,7 +13,7 @@
 #include <set>
 #include <unordered_map>
 
-///TODO: Révision
+///TODO: Revision
 namespace Nz
 {
 	class DynLib;
