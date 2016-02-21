@@ -18,8 +18,8 @@ namespace Nz
 
 	void FileImpl::Close()
 	{
-        	if (m_fileDescriptor != -1)
-        		close(m_fileDescriptor);
+		if (m_fileDescriptor != -1)
+			close(m_fileDescriptor);
 	}
 
 	bool FileImpl::EndOfFile() const
@@ -62,16 +62,16 @@ namespace Nz
 			flags = O_CREAT | O_WRONLY;
 		else
 			return false;
-		
+
 		if (mode & OpenMode_Append)
 			flags |= O_APPEND;
 
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
-	///TODO: lock
-	//	if ((mode & OpenMode_Lock) == 0)
-	//		shareMode |= FILE_SHARE_WRITE;
+		///TODO: lock
+		//if ((mode & OpenMode_Lock) == 0)
+		//	shareMode |= FILE_SHARE_WRITE;
 
 		m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
 		return m_fileDescriptor != -1;
