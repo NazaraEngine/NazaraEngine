@@ -37,7 +37,7 @@ namespace Nz
 		private:
 			MemoryPool(MemoryPool* pool);
 
-			std::unique_ptr<void*[]> m_freeList;
+			std::unique_ptr<void* []> m_freeList;
 			std::unique_ptr<UInt8[]> m_pool;
 			std::unique_ptr<MemoryPool> m_next;
 			std::atomic_uint m_freeCount;
