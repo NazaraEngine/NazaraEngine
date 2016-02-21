@@ -17,7 +17,23 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::AbstractHash<T>
+	* \brief Core class that represents the behaviour of the hash classes
+	*
+	* \remark This class is abstract
+	*/
+
 	AbstractHash::~AbstractHash() = default;
+
+	/*!
+	* \brief Factory of Hash classes in function of HashType
+	* \return A new instance of the Hash class according to the HashType
+	*
+	* \param type Enumeration of type HashType
+	*
+	* \remark If enumeration is not defined in HashType, a NazaraInternalError is thrown and nullptr is returned
+	*/
 
 	std::unique_ptr<AbstractHash> AbstractHash::Get(HashType type)
 	{
@@ -26,34 +42,34 @@ namespace Nz
 		switch (type)
 		{
 			case HashType_Fletcher16:
-				return std::unique_ptr<AbstractHash>(new HashFletcher16);
+				return std::make_unique<HashFletcher16>();
 
 			case HashType_CRC32:
-				return std::unique_ptr<AbstractHash>(new HashCRC32);
+				return std::make_unique<HashCRC32>();
 
 			case HashType_MD5:
-				return std::unique_ptr<AbstractHash>(new HashMD5);
+				return std::make_unique<HashMD5>();
 
 			case HashType_SHA1:
-				return std::unique_ptr<AbstractHash>(new HashSHA1);
+				return std::make_unique<HashSHA1>();
 
 			case HashType_SHA224:
-				return std::unique_ptr<AbstractHash>(new HashSHA224);
+				return std::make_unique<HashSHA224>();
 
 			case HashType_SHA256:
-				return std::unique_ptr<AbstractHash>(new HashSHA256);
+				return std::make_unique<HashSHA256>();
 
 			case HashType_SHA384:
-				return std::unique_ptr<AbstractHash>(new HashSHA384);
+				return std::make_unique<HashSHA384>();
 
 			case HashType_SHA512:
-				return std::unique_ptr<AbstractHash>(new HashSHA512);
+				return std::make_unique<HashSHA512>();
 
 			case HashType_Whirlpool:
-				return std::unique_ptr<AbstractHash>(new HashWhirlpool);
+				return std::make_unique<HashWhirlpool>();
 		}
 
 		NazaraInternalError("Hash type not handled (0x" + String::Number(type, 16) + ')');
-		return std::unique_ptr<AbstractHash>();
+		return nullptr;
 	}
 }
