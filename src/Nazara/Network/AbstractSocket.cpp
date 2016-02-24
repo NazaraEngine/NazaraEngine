@@ -18,6 +18,7 @@
 namespace Nz
 {
 	AbstractSocket::AbstractSocket(SocketType type) :
+	m_lastError(SocketError_NoError),
 	m_handle(SocketImpl::InvalidHandle),
 	m_state(SocketState_NotConnected),
 	m_type(type),
