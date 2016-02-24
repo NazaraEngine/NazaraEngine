@@ -44,13 +44,13 @@ namespace Nz
 		protected:
 			AbstractSocket(SocketType type);
 
-			inline void UpdateState(SocketState newState);
-
 			virtual void OnClose();
 			virtual void OnOpened();
 
 			bool Open(NetProtocol protocol);
 			void Open(SocketHandle existingHandle);
+
+			inline void UpdateState(SocketState newState);
 
 			NetProtocol m_protocol;
 			SocketError m_lastError;
