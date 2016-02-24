@@ -45,4 +45,4 @@ Liens
 - **RafBill** et **Raakz:** Recherche de bugs et/ou tests  
 - **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur  
 - **Alexandre "Danman" Janniaux**: Aide sur l'implémentation POSIX
-- **Gawaboumga**: Amélioration du code via le merging sur GitHub
+- **Youri "Gawaboumga" Hubaut**: Amélioration du code via le merging sur GitHub

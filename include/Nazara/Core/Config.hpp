@@ -27,36 +27,36 @@
 #ifndef NAZARA_CONFIG_CORE_HPP
 #define NAZARA_CONFIG_CORE_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/// Each modification of a parameter needs a recompilation of the module
 
-// Précision des réels lors de la transformation en chaîne de caractère (Max. chiffres après la virgule)
+// Precision of reals when transformed into string (Max. numbers after the coma)
 #define NAZARA_CORE_DECIMAL_DIGITS 6
 
-// Duplique la sortie du log sur le flux de sortie standard (cout)
+// Duplicate the log output on the standard output flux (cout)
 #define NAZARA_CORE_DUPLICATE_LOG_TO_COUT 0
 
-// Teste les assertions
+// Checks the assertions
 #define NAZARA_CORE_ENABLE_ASSERTS 0
 
-// Appelle exit dès qu'une assertion est invalide
+// Call exit when an assertion is invalid
 #define NAZARA_CORE_EXIT_ON_ASSERT_FAILURE 1
 
-// Taille du buffer lors d'une lecture complète d'un fichier (ex: Hash)
+// Size of buffer when reading entirely a file (ex: Hash)
 #define NAZARA_CORE_FILE_BUFFERSIZE 4096
 
-// Incorpore la table Unicode Character Data (Nécessaires pour faire fonctionner le flag String::HandleUTF8)
+// Incorporate the Unicode Character Data table (Necessary to make it work with the flag String::HandleUTF8)
 #define NAZARA_CORE_INCLUDE_UNICODEDATA 0
 
-// Utilise le MemoryManager pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
 #define NAZARA_CORE_MANAGE_MEMORY 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Activate the security tests based on the code (Advised for development)
 #define NAZARA_CORE_SAFE 1
 
-// Protège les classes des accès concurrentiels
+// Protect the classes against data race
 #define NAZARA_CORE_THREADSAFE 1
 
-// Les classes à protéger des accès concurrentiels
+// Classes to protect against data race
 #define NAZARA_THREADSAFETY_CLOCK 0        // Clock
 #define NAZARA_THREADSAFETY_DIRECTORY 1    // Directory
 #define NAZARA_THREADSAFETY_DYNLIB 1       // DynLib
@@ -64,18 +64,19 @@
 #define NAZARA_THREADSAFETY_LOG 1          // Log
 #define NAZARA_THREADSAFETY_REFCOUNTED 1   // RefCounted
 
-// Le nombre de spinlocks à utiliser avec les sections critiques de Windows (0 pour désactiver)
+// Number of spinlocks to use with the Windows critical sections (0 to disable)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 
-// Optimise l'implémentation Windows avec certaines avancées de Windows vista (Casse la compatibilité XP)
+// Optimize the Windows implementation with technologies of Windows vista (and greather) (Break the compatibility with XP)
 #define NAZARA_CORE_WINDOWS_VISTA 0
 
+
 /*
-// Règle le temps entre le réveil du thread des timers et l'activation d'un timer (En millisecondes)
+// Sets the time between waking thread timers and activating a timer (in milliseconds)
 #define NAZARA_CORE_TIMER_WAKEUPTIME 10
 */
 
-/// Vérification des valeurs et types de certaines constantes
+/// Checking the values and types of certain constants
 #include <Nazara/Core/ConfigCheck.hpp>
 
 #if defined(NAZARA_STATIC)

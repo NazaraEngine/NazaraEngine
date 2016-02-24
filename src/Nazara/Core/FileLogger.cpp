@@ -12,6 +12,17 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::FileLogger
+	* \brief Core class that represents a file logger
+	*/
+
+	/*!
+	* \brief Constructs a FileLogger object with a file name
+	*
+	* \param logPath Path to log
+	*/
+
 	FileLogger::FileLogger(const String& logPath) :
 	m_outputFile(logPath),
 	m_forceStdOutput(false),
@@ -20,27 +31,63 @@ namespace Nz
 	{
 	}
 
+	/*!
+	* \brief Destructs the object
+	*/
+
 	FileLogger::~FileLogger() = default;
+
+	/*!
+	* \brief Enables the log of the time
+	*
+	* \param enable If true, enables the time log
+	*/
 
 	void FileLogger::EnableTimeLogging(bool enable)
 	{
 		m_timeLoggingEnabled = enable;
 	}
 
+	/*!
+	* \brief Enables the replication to the stdout
+	*
+	* \param enable If true, enables the replication
+	*/
+
 	void FileLogger::EnableStdReplication(bool enable)
 	{
 		m_stdReplicationEnabled = enable;
 	}
+
+	/*!
+	* \brief Checks whether or not the replication to the stdout is enabled
+	* \return true If replication is enabled
+	*/
 
 	bool FileLogger::IsStdReplicationEnabled()
 	{
 		return m_stdReplicationEnabled;
 	}
 
+	/*!
+	* \brief Checks whether or not the logging of the time is enabled
+	* \return true If logging of the time is enabled
+	*/
+
 	bool FileLogger::IsTimeLoggingEnabled()
 	{
 		return m_timeLoggingEnabled;
 	}
+
+	/*!
+	* \brief Writes a string in the log
+	*
+	* \param string String to log
+	*
+	* \remark Produces a NazaraError if file could not be opened
+	*
+	* \see WriteError
+	*/
 
 	void FileLogger::Write(const String& string)
 	{
@@ -54,8 +101,8 @@ namespace Nz
 
 		// To prevent infinite loops
 		m_forceStdOutput = true;
-		CallOnExit resetOnExit([this] () 
-		{ 
+		CallOnExit resetOnExit([this] ()
+		{
 			m_forceStdOutput = false;
 		});
 
@@ -84,6 +131,18 @@ namespace Nz
 
 		m_outputFile.Write(stream);
 	}
+
+	/*!
+	* \brief Writes an error in the log
+	*
+	* \param type The error type
+	* \param error The error text
+	* \param line The line the error occurred
+	* \param file The file the error occurred
+	* \param function The function the error occurred
+	*
+	* \see Write
+	*/
 
 	void FileLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{

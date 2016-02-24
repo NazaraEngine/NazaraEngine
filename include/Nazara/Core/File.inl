@@ -8,10 +8,26 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Computes the hash for the file
+	* \return ByteArray represing the result of the hash of the file
+	*
+	* \param hash Hash to execute
+	* \param filePath Path for the file
+	*/
+
 	inline ByteArray File::ComputeHash(HashType hash, const String& filePath)
 	{
 		return ComputeHash(AbstractHash::Get(hash).get(), filePath);
 	}
+
+	/*!
+	* \brief Computes the hash for the file
+	* \return ByteArray represing the result of the hash of the file
+	*
+	* \param hash Hash to execute
+	* \param filePath Path for the file
+	*/
 
 	inline ByteArray File::ComputeHash(AbstractHash* hash, const String& filePath)
 	{

@@ -9,6 +9,19 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::ByteArray
+	* \brief Core class that represents an array of bytes
+	*/
+
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param byteArray The ByteArray to output
+	*/
+
 	std::ostream& operator<<(std::ostream& out, const Nz::ByteArray& byteArray)
 	{
 		out << byteArray.ToHex();
