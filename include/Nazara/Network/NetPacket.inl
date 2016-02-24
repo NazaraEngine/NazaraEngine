@@ -24,6 +24,17 @@ namespace Nz
 		Reset(netCode, ptr, size);
 	}
 
+	inline NetPacket::NetPacket(NetPacket&& packet) :
+	ByteStream(std::move(packet)),
+	m_buffer(std::move(packet.m_buffer)),
+	m_memoryStream(std::move(packet.m_memoryStream)),
+	m_netCode(packet.m_netCode)
+	{
+		///< Redirect memory stream to the moved buffer
+		m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
+		SetStream(&m_memoryStream);
+	}
+
 	inline NetPacket::~NetPacket()
 	{
 		FlushBits(); //< Needs to be done here as the stream will be freed before ByteStream calls it
@@ -87,6 +98,23 @@ namespace Nz
 	inline void NetPacket::SetNetCode(UInt16 netCode)
 	{
 		m_netCode = netCode;
+	}
+
+	inline NetPacket& Nz::NetPacket::operator=(NetPacket&& packet)
+	{
+		FreeStream();
+
+		ByteStream::operator=(std::move(packet));
+
+		m_buffer = std::move(packet.m_buffer);
+		m_memoryStream = std::move(packet.m_memoryStream);
+		m_netCode = packet.m_netCode;
+		
+		///< Redirect memory stream to the moved buffer
+		m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
+		SetStream(&m_memoryStream);
+
+		return *this;
 	}
 }
 
