@@ -25,6 +25,7 @@ namespace Nz
 		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
 		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
 
+		Disconnect();
 		Open(remoteAddress.GetProtocol());
 
 		CallOnExit restoreBlocking;
@@ -46,8 +47,6 @@ namespace Nz
 
 	SocketState TcpClient::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
 	{
-		Disconnect();
-
 		UpdateState(SocketState_Resolving);
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())
