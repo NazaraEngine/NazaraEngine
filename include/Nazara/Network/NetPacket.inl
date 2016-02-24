@@ -14,9 +14,9 @@ namespace Nz
 	{
 	}
 
-	inline NetPacket::NetPacket(UInt16 netCode, std::size_t minSize)
+	inline NetPacket::NetPacket(UInt16 netCode, std::size_t minCapacity)
 	{
-		Reset(netCode, minSize);
+		Reset(netCode, minCapacity);
 	}
 
 	inline NetPacket::NetPacket(UInt16 netCode, const void* ptr, std::size_t size)
@@ -44,6 +44,14 @@ namespace Nz
 		return m_buffer->GetBuffer();
 	}
 
+	inline size_t NetPacket::GetDataSize() const
+	{
+		if (m_buffer)
+			return m_buffer->GetSize() - HeaderSize;
+		else
+			return 0;
+	}
+
 	inline UInt16 NetPacket::GetNetCode() const
 	{
 		return m_netCode;
@@ -54,9 +62,9 @@ namespace Nz
 		FreeStream();
 	}
 
-	inline void NetPacket::Reset(UInt16 netCode, std::size_t minSize)
+	inline void NetPacket::Reset(UInt16 netCode, std::size_t minCapacity)
 	{
-		InitStream(HeaderSize + minSize, HeaderSize, OpenMode_ReadWrite);
+		InitStream(HeaderSize + minCapacity, HeaderSize, OpenMode_ReadWrite);
 		m_netCode = netCode;
 	}
 
