@@ -25,7 +25,7 @@ namespace Nz
 			inline NetPacket(UInt16 netCode, std::size_t minCapacity = 0);
 			inline NetPacket(UInt16 netCode, const void* ptr, std::size_t size);
 			NetPacket(const NetPacket&) = delete;
-			NetPacket(NetPacket&&) = default;
+			NetPacket(NetPacket&& packet);
 			inline ~NetPacket();
 
 			inline const UInt8* GetConstData() const;
@@ -45,7 +45,7 @@ namespace Nz
 			inline void SetNetCode(UInt16 netCode);
 
 			NetPacket& operator=(const NetPacket&) = delete;
-			NetPacket& operator=(NetPacket&&) = default;
+			NetPacket& operator=(NetPacket&& packet);
 
 			static bool DecodeHeader(const void* data, UInt16* packetSize, UInt16* netCode);
 			static bool EncodeHeader(void* data, UInt16 packetSize, UInt16 netCode);
