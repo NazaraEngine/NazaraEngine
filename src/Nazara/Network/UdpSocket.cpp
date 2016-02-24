@@ -67,13 +67,11 @@ namespace Nz
 		// I'm not sure what's the best between having a 65k bytes buffer ready for any datagram size
 		// or querying the next datagram size every time, for now I'll leave it as is
 		packet->Reset(NetCode_Invalid, std::numeric_limits<UInt16>::max());
+		packet->Resize(std::numeric_limits<UInt16>::max());
 
 		std::size_t received;
 		if (!Receive(packet->GetData(), static_cast<std::size_t>(packet->GetSize()), from, &received))
-		{
-			NazaraError("Failed to receive packet");
 			return false;
-		}
 
 		if (received == 0)
 			return false; //< No datagram received
