@@ -30,15 +30,30 @@ namespace Nz
 {
 	namespace
 	{
-	    //FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
+		//FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
 		thread_local std::string currentPath(DirectoryImpl::GetCurrent());
 	}
+
+	/*!
+	* \class Nz::Directory
+	* \brief Core class that represents a directory
+	*/
+
+	/*!
+	* \brief Constructs a Directory object by default
+	*/
 
 	Directory::Directory() :
 	m_pattern('*'),
 	m_impl(nullptr)
 	{
 	}
+
+	/*!
+	* \brief Constructs a Directory object with a path
+	*
+	* \param dirPath Path to the directory
+	*/
 
 	Directory::Directory(const String& dirPath) :
 	m_dirPath(dirPath),
@@ -47,10 +62,20 @@ namespace Nz
 	{
 	}
 
+	/*!
+	* \brief Destructs the object and calls Close
+	*
+	* \see Close
+	*/
+
 	Directory::~Directory()
 	{
 		Close();
 	}
+
+	/*!
+	* \brief Closes the directory
+	*/
 
 	void Directory::Close()
 	{
@@ -64,15 +89,25 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Checks whether the directory exists
+	* \return true if directory exists
+	*/
+
 	bool Directory::Exists() const
 	{
 		NazaraLock(m_mutex);
 
 		if (IsOpen())
-			return true; // Le fichier est ouvert, donc il existe
+			return true; // If directory is open, then it exists
 		else
 			return Exists(m_dirPath);
 	}
+
+	/*!
+	* \brief Gets the path of the directory
+	* \return Path of the directory
+	*/
 
 	String Directory::GetPath() const
 	{
@@ -81,6 +116,11 @@ namespace Nz
 		return m_dirPath;
 	}
 
+	/*!
+	* \brief Gets the pattern for the path of the directory
+	* \return Pattern for the path of the directory
+	*/
+
 	String Directory::GetPattern() const
 	{
 		NazaraLock(m_mutex);
@@ -88,12 +128,19 @@ namespace Nz
 		return m_pattern;
 	}
 
+	/*!
+	* \brief Gets the result name of the directory
+	* \return Resulting name
+	*
+	* \remark Produces a NazaraError if directory is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	String Directory::GetResultName() const
 	{
 		NazaraLock(m_mutex);
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsOpen())
 		{
 			NazaraError("Directory not opened");
 			return String();
@@ -103,12 +150,19 @@ namespace Nz
 		return m_impl->GetResultName();
 	}
 
+	/*!
+	* \brief Gets the result path of the directory
+	* \return Resulting path
+	*
+	* \remark Produces a NazaraError if directory is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	String Directory::GetResultPath() const
 	{
 		NazaraLock(m_mutex);
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsOpen())
 		{
 			NazaraError("Directory not opened");
 			return String();
@@ -118,12 +172,19 @@ namespace Nz
 		return m_dirPath + NAZARA_DIRECTORY_SEPARATOR + m_impl->GetResultName();
 	}
 
+	/*!
+	* \brief Gets the resulting size of the directory
+	* \return Size of the directory
+	*
+	* \remark Produces a NazaraError if directory is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	UInt64 Directory::GetResultSize() const
 	{
 		NazaraLock(m_mutex);
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsOpen())
 		{
 			NazaraError("Directory not opened");
 			return 0;
@@ -133,6 +194,11 @@ namespace Nz
 		return m_impl->GetResultSize();
 	}
 
+	/*!
+	* \brief Checks whether the directory is open
+	* \return true if open
+	*/
+
 	bool Directory::IsOpen() const
 	{
 		NazaraLock(m_mutex);
@@ -140,12 +206,19 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
+	/*!
+	* \brief Checks whether the directory is result
+	* \return true if result
+	*
+	* \remark Produces a NazaraError if directory is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	bool Directory::IsResultDirectory() const
 	{
 		NazaraLock(m_mutex);
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsOpen())
 		{
 			NazaraError("Directory not opened");
 			return false;
@@ -155,12 +228,21 @@ namespace Nz
 		return m_impl->IsResultDirectory();
 	}
 
+	/*!
+	* \brief Sets the next result in the directory
+	* \return true if directory has a next result
+	*
+	* \param skipDots Skips the dots in the path
+	*
+	* \remark Produces a NazaraError if directory is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	bool Directory::NextResult(bool skipDots)
 	{
 		NazaraLock(m_mutex);
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsOpen())
 		{
 			NazaraError("Directory not opened");
 			return false;
@@ -185,6 +267,11 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Opens the directory
+	* \return true if opening is successful
+	*/
+
 	bool Directory::Open()
 	{
 		NazaraLock(m_mutex);
@@ -206,6 +293,12 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sets the path of the directory
+	*
+	* \param dirPath Path of the directory
+	*/
+
 	void Directory::SetPath(const String& dirPath)
 	{
 		NazaraLock(m_mutex);
@@ -215,12 +308,30 @@ namespace Nz
 		m_dirPath = File::AbsolutePath(dirPath);
 	}
 
+	/*!
+	* \brief Sets the pattern of the directory
+	*
+	* \param dirPath Pattern of the directory
+	*/
+
 	void Directory::SetPattern(const String& pattern)
 	{
 		NazaraLock(m_mutex);
 
 		m_pattern = pattern;
 	}
+
+	/*!
+	* \brief Copies the first directory to a new directory path
+	* \return true if copy is successful
+	*
+	* \param sourcePath Path of the original directory
+	* \param targetPath Path of the copied directory
+	*
+	* \remark Produces a NazaraError if could not create destination directory
+	* \remark Produces a NazaraError if could not open origin directory
+	* \remark Produces a NazaraError if could not copy a file
+	*/
 
 	bool Directory::Copy(const String& sourcePath, const String& destPath)
 	{
@@ -262,6 +373,14 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Creates a directory from a path
+	* \return true if creation is successful
+	*
+	* \param dirPath Path of the directory
+	* \param recursive Creates subdirectories
+	*/
+
 	bool Directory::Create(const String& dirPath, bool recursive)
 	{
 		if (dirPath.IsEmpty())
@@ -275,7 +394,7 @@ namespace Nz
 				return false;
 
 			#ifdef NAZARA_PLATFORM_WINDOWS
-			// Contrairement au disque (Ex: "C:"), le chemin réseau n'est pas considéré comme un dossier (Ex: "\\Laptop")
+			// Unlike to disk (Ex: "C:"), the netwrok path is not considered as a directory (Ex: "\\Laptop")
 			if (path.Match("\\\\*"))
 			{
 				foundPos = path.Find('\\', 2);
@@ -309,6 +428,13 @@ namespace Nz
 			return DirectoryImpl::Create(File::NormalizePath(dirPath));
 	}
 
+	/*!
+	* \brief Checks whether the directory exists
+	* \return true if directory exists
+	*
+	* \param dirPath Path of the directory
+	*/
+
 	bool Directory::Exists(const String& dirPath)
 	{
 		if (dirPath.IsEmpty())
@@ -317,14 +443,24 @@ namespace Nz
 		return DirectoryImpl::Exists(File::NormalizePath(dirPath));
 	}
 
+	/*!
+	* \brief Gets the current path of this directory
+	* \return Current path
+	*/
+
 	String Directory::GetCurrent()
 	{
 		return currentPath;
 	}
 
+	/*!
+	* \brief Gets this current file relative to the engine
+	* \return Path to this file
+	*/
+
 	const char* Directory::GetCurrentFileRelativeToEngine(const char* currentFile)
 	{
-		///FIXME: Est-ce que cette méthode est au bon endroit ?
+		///FIXME: Is this method in the right place ?
 		const char* ptr = std::strstr(currentFile, "NazaraEngine/");
 		if (!ptr)
 			ptr = std::strstr(currentFile, "NazaraEngine\\");
@@ -335,6 +471,14 @@ namespace Nz
 		return ptr;
 	}
 
+	/*!
+	* \brief Removes the directory
+	* \return true if remove is successful
+	*
+	* \param dirPath Path of the directory
+	* \param emptyDirectory Remove recursively
+	*/
+
 	bool Directory::Remove(const String& dirPath, bool emptyDirectory)
 	{
 		if (dirPath.IsEmpty())
@@ -344,7 +488,7 @@ namespace Nz
 		{
 			Directory dir(dirPath);
 			if (!dir.Open())
-				return DirectoryImpl::Remove(dirPath); // Si on n'arrive pas à ouvrir le dossier, on tente de le supprimer
+				return DirectoryImpl::Remove(dirPath); // If we can't open the directory, we try to delete it
 
 			while (dir.NextResult(true))
 			{
@@ -366,6 +510,13 @@ namespace Nz
 		return DirectoryImpl::Remove(File::NormalizePath(dirPath));
 	}
 
+	/*!
+	* \brief Sets the current directory
+	* \return true if directory path exists
+	*
+	* \param dirPath Path of the directory
+	*/
+
 	bool Directory::SetCurrent(const String& dirPath)
 	{
 		String path = File::AbsolutePath(dirPath);
@@ -376,5 +527,5 @@ namespace Nz
 		}
 		else
 			return false;
-		}
+	}
 }

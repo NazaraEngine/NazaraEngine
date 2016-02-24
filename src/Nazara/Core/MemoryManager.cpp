@@ -15,7 +15,7 @@
 	#include <pthread.h>
 #endif
 
-// Le seul fichier n'ayant pas à inclure Debug.hpp
+// The only file that does not need to include Debug.hpp
 
 namespace Nz
 {
@@ -61,17 +61,42 @@ namespace Nz
 		CRITICAL_SECTION s_mutex;
 		#elif defined(NAZARA_PLATFORM_POSIX)
 		pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
+		#else
+		#error Lack of implementation: Mutex
 		#endif
 	}
+	
+	/*!
+	* \class Nz::MemoryManager
+	* \brief Core class that represents a manager for the memory
+	*/
+
+	/*!
+	* \brief Constructs a MemoryManager object by default
+	*/
 
 	MemoryManager::MemoryManager()
 	{
 	}
 
+	/*!
+	* \brief Destructs a MemoryManager object and calls Unitialize
+	*/
+
 	MemoryManager::~MemoryManager()
 	{
 		Uninitialize();
 	}
+
+	/*!
+	* \brief Allocates memory
+	* \return Raw memory allocated
+	*
+	* \param size Size to allocate
+	* \parma multi Array or not
+	* \param file File of the allocation
+	* \param line Line of the allocation in the file
+	*/
 
 	void* MemoryManager::Allocate(std::size_t size, bool multi, const char* file, unsigned int line)
 	{
@@ -147,15 +172,36 @@ namespace Nz
 		return reinterpret_cast<UInt8*>(ptr) + sizeof(Block);
 	}
 
+	/*!
+	* \brief Enables the filling of the allocation
+	*
+	* \param allocationFilling If true, sets the rest of the allocation block to '0xFF'
+	*/
+
 	void MemoryManager::EnableAllocationFilling(bool allocationFilling)
 	{
 		s_allocationFilling = allocationFilling;
 	}
 
+	/*!
+	* \brief Enables the logging of the allocation
+	*
+	* \param logAllocations If true, registers every allocation
+	*/
+
 	void MemoryManager::EnableAllocationLogging(bool logAllocations)
 	{
 		s_allocationLogging = logAllocations;
 	}
+
+	/*!
+	* \brief Frees the pointer
+	*
+	* \param pointer Pointer to free
+	* \param multi Array or not
+	*
+	* \remark If pointer is nullptr, nothing is done
+	*/
 
 	void MemoryManager::Free(void* pointer, bool multi)
 	{
@@ -227,36 +273,72 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Gets the number of allocated blocks
+	* \return Number of allocated blocks
+	*/
+
 	unsigned int MemoryManager::GetAllocatedBlockCount()
 	{
 		return s_allocatedBlock;
 	}
+
+	/*!
+	* \brief Gets the allocated size
+	* \return Size of total allocation
+	*/
 
 	std::size_t MemoryManager::GetAllocatedSize()
 	{
 		return s_allocatedSize;
 	}
 
+	/*!
+	* \brief Gets the number of allocations
+	* \return Number of allocations
+	*/
+
 	unsigned int MemoryManager::GetAllocationCount()
 	{
 		return s_allocationCount;
 	}
+
+	/*!
+	* \brief Checks whether the filling of allocation is enabled
+	* \return true if it is filling
+	*/
 
 	bool MemoryManager::IsAllocationFillingEnabled()
 	{
 		return s_allocationFilling;
 	}
 
+	/*!
+	* \brief Checks whether the logging of allocation is enabled
+	* \return true if it is logging
+	*/
+
 	bool MemoryManager::IsAllocationLoggingEnabled()
 	{
 		return s_allocationLogging;
 	}
+
+	/*!
+	* \brief Sets the next free
+	*
+	* \param file Name of the file
+	* \param line Line in the file
+	*/
 
 	void MemoryManager::NextFree(const char* file, unsigned int line)
 	{
 		s_nextFreeFile = file;
 		s_nextFreeLine = line;
 	}
+
+	/*!
+	* \brief Initializes the MemoryManager
+	*/
 
 	void MemoryManager::Initialize()
 	{
@@ -282,11 +364,21 @@ namespace Nz
 		s_initialized = true;
 	}
 
+	/*!
+	* \brief Gets the time
+	*
+	* \param buffer Buffer to set the time in
+	*/
+
 	void MemoryManager::TimeInfo(char buffer[23])
 	{
 		time_t currentTime = std::time(nullptr);
 		std::strftime(buffer, 23, "%d/%m/%Y - %H:%M:%S:", std::localtime(&currentTime));
 	}
+
+	/*!
+	* \brief Uninitializes the MemoryManager
+	*/
 
 	void MemoryManager::Uninitialize()
 	{
@@ -334,5 +426,5 @@ namespace Nz
 		}
 
 		std::fclose(log);
-}
+	}
 }

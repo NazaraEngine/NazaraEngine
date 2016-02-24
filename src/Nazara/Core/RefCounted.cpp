@@ -16,11 +16,28 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::RefCounted
+	* \brief Core class that represents a reference with a counter
+	*/
+
+	/*!
+	* \brief Constructs a RefCounted object with a persistance aspect
+	*
+	* \param persistent if false, object is destroyed when no more referenced
+	*/
+
 	RefCounted::RefCounted(bool persistent) :
 	m_persistent(persistent),
 	m_referenceCount(0)
 	{
 	}
+
+	/*!
+	* \brief Destructs the object
+	*
+	* \remark Produces a NazaraWarning if still referenced with NAZARA_CORE_SAFE defined
+	*/
 
 	RefCounted::~RefCounted()
 	{
@@ -30,20 +47,41 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Adds a reference to the object
+	*/
+
 	void RefCounted::AddReference() const
 	{
 		m_referenceCount++;
 	}
+
+	/*!
+	* \brief Gets the number of references to the object
+	* \return Number of references
+	*/
 
 	unsigned int RefCounted::GetReferenceCount() const
 	{
 		return m_referenceCount;
 	}
 
+	/*!
+	* \brief Checks whether the object is persistent
+	* \return true if object is not destroyed when no more referenced
+	*/
+
 	bool RefCounted::IsPersistent() const
 	{
 		return m_persistent;
 	}
+
+	/*!
+	* \brief Removes a reference to the object
+	* \return true if object is deleted because no more referenced
+	*
+	* \remark Produces a NazaraError if counter is already 0 with NAZARA_CORE_SAFE defined
+	*/
 
 	bool RefCounted::RemoveReference() const
 	{
@@ -64,6 +102,14 @@ namespace Nz
 		else
 			return false;
 	}
+
+	/*!
+	* \brief Sets the persistence of the object
+	* \return true if object is deleted because no more referenced
+	*
+	* \param persistent Sets the persistence of the object
+	* \param checkReferenceCount Checks if the object should be destroyed if true
+	*/
 
 	bool RefCounted::SetPersistent(bool persistent, bool checkReferenceCount)
 	{
