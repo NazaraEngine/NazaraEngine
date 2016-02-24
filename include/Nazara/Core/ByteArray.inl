@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <cstdio>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -356,3 +358,5 @@ namespace std
 		lhs.Swap(rhs);
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

@@ -13,6 +13,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Utility/Formats/OBJParser.hpp>
+#include <cstdio>
 #include <limits>
 #include <memory>
 #include <unordered_map>
