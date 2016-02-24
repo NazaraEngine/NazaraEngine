@@ -11,9 +11,27 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::Color
+	* \brief Core class that represents a color
+	*/
+
+	/*!
+	* \brief Constructs a Color object by default
+	*/
+
 	inline Color::Color()
 	{
 	}
+
+	/*!
+	* \brief Constructs a Color object with values
+	*
+	* \param red Red value
+	* \param green Green value
+	* \param blue Blue value
+	* \param alpha Alpha value
+	*/
 
 	inline Color::Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha) :
 	r(red),
@@ -23,6 +41,12 @@ namespace Nz
 	{
 	}
 
+	/*!
+	* \brief Constructs a Color object with a light level
+	*
+	* \param lightness Value for r, g and b
+	*/
+
 	inline Color::Color(UInt8 lightness) :
 	r(lightness),
 	g(lightness),
@@ -31,6 +55,13 @@ namespace Nz
 	{
 	}
 
+	/*!
+	* \brief Constructs a Color object with values
+	*
+	* \param vec[3] vec[0] = red value, vec[1] = green value, vec[2] = blue value
+	* \param alpha Alpha value
+	*/
+
 	inline Color::Color(UInt8 vec[3], UInt8 alpha) :
 	r(vec[0]),
 	g(vec[1]),
@@ -38,6 +69,11 @@ namespace Nz
 	a(alpha)
 	{
 	}
+
+	/*!
+	* \brief Converts this to string
+	* \return String representation of the object "Color(r, g, b[, a])"
+	*/
 
 	inline String Color::ToString() const
 	{
@@ -52,6 +88,13 @@ namespace Nz
 		return ss;
 	}
 
+	/*!
+	* \brief Adds two colors together
+	* \return Color which is the sum
+	*
+	* \param color Other color
+	*/
+
 	inline Color Color::operator+(const Color& color) const
 	{
 		///TODO: Improve this shit
@@ -63,6 +106,13 @@ namespace Nz
 
 		return c;
 	}
+
+	/*!
+	* \brief Multiplies two colors together
+	* \return Color which is the product
+	*
+	* \param color Other color
+	*/
 
 	inline Color Color::operator*(const Color& color) const
 	{
@@ -76,39 +126,95 @@ namespace Nz
 		return c;
 	}
 
+	/*!
+	* \brief Adds the color to this
+	* \return Color which is the sum
+	*
+	* \param color Other color
+	*/
+
 	inline Color Color::operator+=(const Color& color)
 	{
 		return operator=(operator+(color));
 	}
+
+	/*!
+	* \brief Multiplies the color to this
+	* \return Color which is the product
+	*
+	* \param color Other color
+	*/
 
 	inline Color Color::operator*=(const Color& color)
 	{
 		return operator=(operator*(color));
 	}
 
+	/*!
+	* \brief Checks whether the two colors are equal
+	* \return true if it is the case
+	*
+	* \param color Color to compare
+	*/
+
 	inline bool Color::operator==(const Color& color) const
 	{
 		return r == color.r && g == color.g && b == color.b && a == color.a;
 	}
+
+	/*!
+	* \brief Checks whether the two colors are equal
+	* \return false if it is the case
+	*
+	* \param color Color to compare
+	*/
 
 	inline bool Color::operator!=(const Color& color) const
 	{
 		return !operator==(color);
 	}
 
-	// Algorithmes venant de http://www.easyrgb.com/index.php?X=MATH
+	// Algorithm coming from http://www.easyrgb.com/index.php?X=MATH
+
+	/*!
+	* \brief Converts CMY representation to RGB
+	* \return Color resulting
+	*
+	* \param cyan Cyan component
+	* \param magenta Magenta component
+	* \param yellow Yellow component
+	*/
 
 	inline Color Color::FromCMY(float cyan, float magenta, float yellow)
 	{
 		return Color(static_cast<UInt8>((1.f-cyan)*255.f), static_cast<UInt8>((1.f-magenta)*255.f), static_cast<UInt8>((1.f-yellow)*255.f));
 	}
 
+	/*!
+	* \brief Converts CMYK representation to RGB
+	* \return Color resulting
+	*
+	* \param cyan Cyan component
+	* \param magenta Magenta component
+	* \param yellow Yellow component
+	* \param black Black component
+	*/
+
 	inline Color Color::FromCMYK(float cyan, float magenta, float yellow, float black)
 	{
 		return FromCMY(cyan * (1.f - black) + black,
-					   magenta * (1.f - black) + black,
-					   yellow * (1.f - black) + black);
+		               magenta * (1.f - black) + black,
+		               yellow * (1.f - black) + black);
 	}
+
+	/*!
+	* \brief Converts HSL representation to RGB
+	* \return Color resulting
+	*
+	* \param hue Hue component
+	* \param saturation Saturation component
+	* \param lightness Lightness component
+	*/
 
 	inline Color Color::FromHSL(UInt8 hue, UInt8 saturation, UInt8 lightness)
 	{
@@ -116,8 +222,8 @@ namespace Nz
 		{
 			// RGB results from 0 to 255
 			return Color(lightness * 255,
-						   lightness * 255,
-						   lightness * 255);
+			             lightness * 255,
+			             lightness * 255);
 		}
 		else
 		{
@@ -135,10 +241,19 @@ namespace Nz
 			float v1 = 2.f * l - v2;
 
 			return Color(static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h + (1.f/3.f))),
-						   static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h)),
-						   static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
+			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h)),
+			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
 		}
 	}
+
+	/*!
+	* \brief Converts HSV representation to RGB
+	* \return Color resulting
+	*
+	* \param hue Hue component
+	* \param saturation Saturation component
+	* \param value Value component
+	*/
 
 	inline Color Color::FromHSV(float hue, float saturation, float value)
 	{
@@ -201,10 +316,27 @@ namespace Nz
 			return Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
 		}
 	}
+
+	/*!
+	* \brief Converts XYZ representation to RGB
+	* \return Color resulting
+	*
+	* \param vec Vector3 representing the space color
+	*/
+
 	inline Color Color::FromXYZ(const Vector3f& vec)
 	{
 		return FromXYZ(vec.x, vec.y, vec.z);
 	}
+
+	/*!
+	* \brief Converts XYZ representation to RGB
+	* \return Color resulting
+	*
+	* \param x X component
+	* \param y Y component
+	* \param z Z component
+	*/
 
 	inline Color Color::FromXYZ(float x, float y, float z)
 	{
@@ -234,12 +366,30 @@ namespace Nz
 		return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
 	}
 
+	/*!
+	* \brief Converts RGB representation to CMYK
+	*
+	* \param color Color to transform
+	* \param cyan Cyan component
+	* \param magenta Magenta component
+	* \param yellow Yellow component
+	*/
+
 	inline void Color::ToCMY(const Color& color, float* cyan, float* magenta, float* yellow)
 	{
 		*cyan = 1.f - color.r/255.f;
 		*magenta = 1.f - color.g/255.f;
 		*yellow = 1.f - color.b/255.f;
 	}
+
+	/*!
+	* \brief Converts RGB representation to CMYK
+	*
+	* \param color Color to transform
+	* \param cyan Cyan component
+	* \param magenta Magenta component
+	* \param yellow Yellow component
+	*/
 
 	inline void Color::ToCMYK(const Color& color, float* cyan, float* magenta, float* yellow, float* black)
 	{
@@ -264,6 +414,15 @@ namespace Nz
 
 		*black = k;
 	}
+
+	/*!
+	* \brief Converts RGB representation to HSL
+	*
+	* \param color Color to transform
+	* \param hue Hue component
+	* \param saturation Saturation component
+	* \param lightness Lightness component
+	*/
 
 	inline void Color::ToHSL(const Color& color, UInt8* hue, UInt8* saturation, UInt8* lightness)
 	{
@@ -315,6 +474,15 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Converts RGB representation to HSV
+	*
+	* \param color Color to transform
+	* \param hue Hue component
+	* \param saturation Saturation component
+	* \param value Value component
+	*/
+
 	inline void Color::ToHSV(const Color& color, float* hue, float* saturation, float* value)
 	{
 		float r = color.r / 255.f;
@@ -361,10 +529,26 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Converts RGB representation to XYZ
+	*
+	* \param color Color to transform
+	* \param vec Vector3 representing the space color
+	*/
+
 	inline void Color::ToXYZ(const Color& color, Vector3f* vec)
 	{
 		return ToXYZ(color, &vec->x, &vec->y, &vec->z);
 	}
+
+	/*!
+	* \brief Converts RGB representation to XYZ
+	*
+	* \param color Color to transform
+	* \param x X component
+	* \param y Y component
+	* \param z Z component
+	*/
 
 	inline void Color::ToXYZ(const Color& color, float* x, float* y, float* z)
 	{
@@ -397,6 +581,15 @@ namespace Nz
 		*z = r*0.0193f + g*0.1192f + b*0.9505f;
 	}
 
+	/*!
+	* \brief Converts HUE representation to RGV
+	* \return RGB corresponding
+	*
+	* \param v1 V1 component
+	* \param v2 V2 component
+	* \param vH VH component
+	*/
+
 	inline float Color::Hue2RGB(float v1, float v2, float vH)
 	{
 		if (vH < 0.f)
@@ -415,8 +608,16 @@ namespace Nz
 			return v1 + (v2 - v1)*(2.f/3.f - vH)*6;
 
 		return v1;
+	}
 }
-}
+
+/*!
+* \brief Output operator
+* \return The stream
+*
+* \param out The stream
+* \param color The color to output
+*/
 
 inline std::ostream& operator<<(std::ostream& out, const Nz::Color& color)
 {

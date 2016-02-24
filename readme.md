@@ -45,4 +45,4 @@ Links
 - **RafBill** and **Raakz:** Finding bugs and/or testing  
 - **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design  
 - **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation
-- **Gawaboumga**: Improving the engine code by merging on GitHub
+- **Youri "Gawaboumga" Hubaut**: Improving the engine code by merging on GitHub
