@@ -7,7 +7,7 @@
 #ifndef NAZARA_SPARSEPTR_HPP
 #define NAZARA_SPARSEPTR_HPP
 
-///FIXME: Est-ce que SparsePtr est vraiment le meilleur nom pour cette classe ?
+///FIXME: Is SparsePtr a really good name for this class ?
 
 #include <Nazara/Prerequesites.hpp>
 #include <cstddef>

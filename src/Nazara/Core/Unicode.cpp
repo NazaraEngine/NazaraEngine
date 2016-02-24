@@ -11,20 +11,32 @@ namespace Nz
 {
 	struct Character
 	{
-		UInt16 category;	// Le type du caractère
-		UInt8	 direction;	// Le sens de lecure du caractère
-		UInt32 lowerCase;	// Le caractère correspondant en minuscule
-		UInt32 titleCase;	// Le caractère correspondant en titre
-		UInt32 upperCase;	// Le caractère correspondant en majuscule
+		UInt16 category;	// The type of the character
+		UInt8	 direction;	// The reading way of the character
+		UInt32 lowerCase;	// The corresponding lower character
+		UInt32 titleCase;	// The corresponding title character
+		UInt32 upperCase;	// The corresponding upper character
 	};
 }
 
 #include <Nazara/Core/UnicodeData.hpp>
 
-#else // Implémentation supportant la table ASCII
+#else // Implementation handling ASCII table
 
 namespace Nz
 {
+	/*!
+	* \class Nz::Unicode
+	* \brief Core class that represents a Unicode character
+	*/
+
+	/*!
+	* \brief Gets the category of the character
+	* \return Unicode category
+	*
+	* \param character Character to get assignated category
+	*/
+
 	Unicode::Category Unicode::GetCategory(char32_t character)
 	{
 		switch (character)
@@ -188,6 +200,13 @@ namespace Nz
 		return Category_NoCategory;
 	}
 
+	/*!
+	* \brief Gets the direction of reading of the character
+	* \return Unicode direction
+	*
+	* \param character Character to get assignated direction
+	*/
+
 	Unicode::Direction Unicode::GetDirection(char32_t character)
 	{
 		switch (character)
@@ -347,6 +366,15 @@ namespace Nz
 		return Direction_Boundary_Neutral;
 	}
 
+	/*!
+	* \brief Gets the lower case of the character
+	* \return Unicode lower
+	*
+	* \param character Character to get assignated lower case
+	*
+	* \remark Only handling ASCII
+	*/
+
 	char32_t Unicode::GetLowercase(char32_t character)
 	{
 		if (character >= 'A' && character <= 'Z')
@@ -355,10 +383,28 @@ namespace Nz
 			return character;
 	}
 
+	/*!
+	* \brief Gets the title case of the character
+	* \return Unicode title
+	*
+	* \param character Character to get assignated title case
+	*
+	* \remark Only handling ASCII
+	*/
+
 	char32_t Unicode::GetTitlecase(char32_t character)
 	{
 		return GetUppercase(character);
 	}
+
+	/*!
+	* \brief Gets the upper case of the character
+	* \return Unicode upper
+	*
+	* \param character Character to get assignated upper case
+	*
+	* \remark Only handling ASCII
+	*/
 
 	char32_t Unicode::GetUppercase(char32_t character)
 	{

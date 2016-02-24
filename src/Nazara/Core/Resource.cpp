@@ -7,12 +7,28 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::Resource
+	* \brief Core class that represents a resource
+	*/
+
 	Resource::~Resource() = default;
+
+	/*!
+	* \brief Gets the file path associated with the resource
+	* \return A reference to the path
+	*/
 
 	const String& Resource::GetFilePath() const
 	{
 		return m_filePath;
 	}
+
+	/*!
+	* \brief Sets the file path associated with the resource
+	*
+	* \param filePath Path to the resource
+	*/
 
 	void Resource::SetFilePath(const String& filePath)
 	{
