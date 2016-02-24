@@ -8,6 +8,19 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::MemoryPool
+	* \brief Core class that represents a memory pool
+	*/
+
+	/*!
+	* \brief Constructs a MemoryPool object
+	*
+	* \param blockSize Size of blocks that will be allocated
+	* \param size Size of the pool
+	* \param canGrow Determine if the pool can allocate more memory
+	*/
+
 	inline MemoryPool::MemoryPool(unsigned int blockSize, unsigned int size, bool canGrow) :
 	m_freeCount(size),
 	m_previous(nullptr),
@@ -16,17 +29,29 @@ namespace Nz
 	m_size(size)
 	{
 		m_pool.reset(new UInt8[blockSize * size]);
-		m_freeList.reset(new void*[size]);
+		m_freeList.reset(new void* [size]);
 
 		// Remplissage de la free list
 		for (unsigned int i = 0; i < size; ++i)
 			m_freeList[i] = &m_pool[m_blockSize * (size-i-1)];
 	}
 
+	/*!
+	* \brief Constructs a MemoryPool object by move semantic
+	*
+	* \param pool MemoryPool to move into this
+	*/
+
 	inline MemoryPool::MemoryPool(MemoryPool&& pool) noexcept
 	{
 		operator=(std::move(pool));
 	}
+
+	/*!
+	* \brief Constructs a MemoryPool object by chaining memory pool
+	*
+	* \param pool Previous MemoryPool
+	*/
 
 	inline MemoryPool::MemoryPool(MemoryPool* pool) :
 	MemoryPool(pool->m_blockSize, pool->m_size, pool->m_canGrow)
@@ -34,9 +59,17 @@ namespace Nz
 		m_previous = pool;
 	}
 
+	/*!
+	* \brief Allocates enough memory for the size and returns a pointer to it
+	* \return A pointer to memory allocated
+	*
+	* \param size Size to allocate
+	*
+	* \remark If the size is greather than the blockSize of pool, new operator is called
+	*/
+
 	inline void* MemoryPool::Allocate(unsigned int size)
 	{
-		///DOC: Si la taille est supérieure à celle d'un bloc du pool, l'opérateur new est utilisé
 		if (size <= m_blockSize)
 		{
 			if (m_freeCount > 0)
@@ -53,10 +86,17 @@ namespace Nz
 		return OperatorNew(size);
 	}
 
+	/*!
+	* \brief Deletes the memory represented by the poiner
+	*
+	* Calls the destructor of the object before releasing it
+	*
+	* \remark If ptr is null, nothing is done
+	*/
+
 	template<typename T>
 	inline void MemoryPool::Delete(T* ptr)
 	{
-		///DOC: Va appeler le destructeur de l'objet avant de le libérer
 		if (ptr)
 		{
 			ptr->~T();
@@ -64,12 +104,20 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Frees the memory represented by the poiner
+	*
+	* If the pool gets empty after the call and we are the child of another pool, we commit suicide. If the pointer does not own to a block of the pool, operator delete is called
+	*
+	* \remark Throws a std::runtime_error if pointer does not point to an element of the pool with NAZARA_CORE_SAFE defined
+	* \remark If ptr is null, nothing is done
+	*/
+
 	inline void MemoryPool::Free(void* ptr)
 	{
-		///DOC: Si appelé avec un pointeur ne faisant pas partie du pool, l'opérateur delete est utilisé
 		if (ptr)
 		{
-			// Le pointeur nous appartient-il ?
+			// Does the pointer belong to us ?
 			UInt8* freePtr = static_cast<UInt8*>(ptr);
 			UInt8* poolPtr = m_pool.get();
 			if (freePtr >= poolPtr && freePtr < poolPtr + m_blockSize*m_size)
@@ -81,7 +129,7 @@ namespace Nz
 
 				m_freeList[m_freeCount++] = ptr;
 
-				// Si nous sommes vide et l'extension d'un autre pool, nous nous suicidons
+				// If we are empty and the extension of another pool, we commit suicide
 				if (m_freeCount == m_size && m_previous && !m_next)
 				{
 					m_previous->m_next.release();
@@ -98,30 +146,60 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Gets the block size
+	* \return Size of the blocks
+	*/
+
 	inline unsigned int MemoryPool::GetBlockSize() const
 	{
 		return m_blockSize;
 	}
+
+	/*!
+	* \brief Gets the number of free blocks
+	* \return Number of free blocks in the pool
+	*/
 
 	inline unsigned int MemoryPool::GetFreeBlocks() const
 	{
 		return m_freeCount;
 	}
 
+	/*!
+	* \brief Gets the pool size
+	* \return Size of the pool
+	*/
+
 	inline unsigned int MemoryPool::GetSize() const
 	{
 		return m_size;
 	}
 
+	/*!
+	* \brief Creates a new value of type T with arguments
+	* \return Pointer to the allocated object
+	*
+	* \param args Arguments for the new object
+	*
+	* \remark Constructs inplace in the pool
+	*/
+
 	template<typename T, typename... Args>
 	inline T* MemoryPool::New(Args&&... args)
 	{
-		///DOC: Permet de construire un objet directement dans le pook
 		T* object = static_cast<T*>(Allocate(sizeof(T)));
 		PlacementNew<T>(object, std::forward<Args>(args)...);
 
 		return object;
 	}
+
+	/*!
+	* \brief Assigns the content of another pool by move semantic
+	* \return A reference to this
+	*
+	* \param pool Other pool to move into this
+	*/
 
 	inline MemoryPool& MemoryPool::operator=(MemoryPool&& pool) noexcept
 	{
@@ -134,7 +212,7 @@ namespace Nz
 		m_next = std::move(pool.m_next);
 		m_size = pool.m_size;
 
-		// Si nous avons été créés par un autre pool, nous devons le faire pointer vers nous de nouveau
+		// If we have been created by another pool, we must make it point to us again
 		if (m_previous)
 		{
 			m_previous->m_next.release();
