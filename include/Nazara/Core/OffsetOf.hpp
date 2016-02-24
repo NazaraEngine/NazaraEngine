@@ -7,7 +7,7 @@
 #ifndef NAZARA_OFFSETOF_HPP
 #define NAZARA_OFFSETOF_HPP
 
-// Par "Jesse Good" de SO:
+// By "Jesse Good" from SO:
 // http://stackoverflow.com/questions/12811330/c-compile-time-offsetof-inside-a-template?answertab=votes#tab-top
 
 namespace Nz

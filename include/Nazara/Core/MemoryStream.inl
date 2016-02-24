@@ -7,11 +7,22 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Constructs a MemoryStream object by default
+	*/
+
 	inline MemoryStream::MemoryStream() :
 	Stream(StreamOption_None, OpenMode_ReadWrite),
 	m_pos(0)
 	{
 	}
+
+	/*!
+	* \brief Constructs a MemoryStream object with a byte array
+	*
+	* \param byteArray Bytes to stream
+	* \param openMode Reading/writing mode for the stream
+	*/
 
 	inline MemoryStream::MemoryStream(ByteArray* byteArray, UInt32 openMode) :
 	MemoryStream()
@@ -19,12 +30,26 @@ namespace Nz
 		SetBuffer(byteArray, openMode);
 	}
 
+	/*!
+	* \brief Gets the internal buffer
+	* \return Buffer of bytes
+	*
+	* \remark Produces a NazaraAssert if buffer is invalid
+	*/
+
 	inline ByteArray& MemoryStream::GetBuffer()
 	{
 		NazaraAssert(m_buffer, "Invalid buffer");
 
 		return *m_buffer;
 	}
+
+	/*!
+	* \brief Gets the internal buffer
+	* \return Buffer of bytes
+	*
+	* \remark Produces a NazaraAssert if buffer is invalid
+	*/
 
 	inline const ByteArray& MemoryStream::GetBuffer() const
 	{
