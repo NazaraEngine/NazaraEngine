@@ -191,7 +191,6 @@ namespace Nz
 			Detail::FreeAddressInfo(servinfo);
 		});
 
-		// loop through all the results and connect to the first we can
 		for (Detail::addrinfoImpl* p = servinfo; p != nullptr; p = p->ai_next)
 		{
 			HostnameInfo result;
