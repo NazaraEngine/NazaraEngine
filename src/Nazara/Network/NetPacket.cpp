@@ -66,9 +66,9 @@ namespace Nz
 		s_availableBuffers.emplace_back(std::make_pair(size, std::move(m_buffer)));
 	}
 
-	void NetPacket::InitStream(std::size_t minSize, UInt64 cursorPos, UInt32 openMode)
+	void NetPacket::InitStream(std::size_t minCapacity, UInt64 cursorPos, UInt32 openMode)
 	{
-		NazaraAssert(minSize >= cursorPos, "Cannot init stream with a smaller size than wanted cursor pos");
+		NazaraAssert(minCapacity >= cursorPos, "Cannot init stream with a smaller capacity than wanted cursor pos");
 
 		{
 			Nz::LockGuard lock(*s_availableBuffersMutex);
@@ -85,8 +85,7 @@ namespace Nz
 		if (!m_buffer)
 			m_buffer = std::make_unique<ByteArray>();
 
-		if (m_buffer->GetSize() < minSize)
-			m_buffer->Resize(minSize);
+		m_buffer->Resize(static_cast<std::size_t>(cursorPos));
 
 		m_memoryStream.SetBuffer(m_buffer.get(), openMode);
 		m_memoryStream.SetCursorPos(cursorPos);
