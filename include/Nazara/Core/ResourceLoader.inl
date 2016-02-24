@@ -11,6 +11,18 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::ResourceLoader<Type, Parameters>
+	* \brief Core class that represents a loader of resources
+	*/
+
+	/*!
+	* \brief Checks whether the extension of the file is supported
+	* \return true if supported
+	*
+	* \param extension Extension of the file
+	*/
+
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const String& extension)
 	{
@@ -25,10 +37,32 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Loads a resource from a filepath and parameters
+	* \return true if successfully loaded
+	*
+	* \param resource Resource to load
+	* \param filePath Path to the resource
+	* \param parameters Parameters for the load
+	*
+	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if filePath has no extension
+	* \remark Produces a NazaraError if file count not be opened
+	* \remark Produces a NazaraWarning if loader failed
+	* \remark Produces a NazaraError if all loaders failed or no loader was found
+	*/
+
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters)
 	{
 		#if NAZARA_CORE_SAFE
+		if (!resource)
+		{
+			NazaraError("Pointer invalid");
+			return false;
+		}
+
 		if (!parameters.IsValid())
 		{
 			NazaraError("Invalid parameters");
@@ -122,19 +156,41 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Loads a resource from a raw memory, a size and parameters
+	* \return true if successfully loaded
+	*
+	* \param resource Resource to load
+	* \param data Raw memory of the resource
+	* \param size Size available for the read
+	* \param parameters Parameters for the load
+	*
+	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if size is 0 with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraWarning if loader failed
+	* \remark Produces a NazaraError if all loaders failed or no loader was found
+	*/
+
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
 	{
 		#if NAZARA_CORE_SAFE
-		if (!parameters.IsValid())
+		if (!resource)
 		{
-			NazaraError("Invalid parameters");
+			NazaraError("Pointer invalid");
 			return false;
 		}
 
 		if (size == 0)
 		{
 			NazaraError("No data to load");
+			return false;
+		}
+
+		if (!parameters.IsValid())
+		{
+			NazaraError("Invalid parameters");
 			return false;
 		}
 		#endif
@@ -198,19 +254,40 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Loads a resource from a stream and parameters
+	* \return true if successfully loaded
+	*
+	* \param resource Resource to load
+	* \param stream Stream of the resource
+	* \param parameters Parameters for the load
+	*
+	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if stream has no data with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
+	* \remark Produces a NazaraWarning if loader failed
+	* \remark Produces a NazaraError if all loaders failed or no loader was found
+	*/
+
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
 		#if NAZARA_CORE_SAFE
-		if (!parameters.IsValid())
+		if (!resource)
 		{
-			NazaraError("Invalid parameters");
+			NazaraError("Pointer invalid");
 			return false;
 		}
 
 		if (stream.GetSize() == 0 || stream.GetCursorPos() >= stream.GetSize())
 		{
 			NazaraError("No data to load");
+			return false;
+		}
+
+		if (!parameters.IsValid())
+		{
+			NazaraError("Invalid parameters");
 			return false;
 		}
 		#endif
@@ -224,17 +301,17 @@ namespace Nz
 
 			stream.SetCursorPos(streamPos);
 
-			// Le loader supporte-t-il les données ?
+			// Does the loader support these data ?
 			Ternary recognized = checkFunc(stream, parameters);
 			if (recognized == Ternary_False)
 				continue;
 			else if (recognized == Ternary_True)
 				found = true;
 
-			// On repositionne le stream à son ancienne position
+			// We move the stream to its old position
 			stream.SetCursorPos(streamPos);
 
-			// Chargement de la ressource
+			// Load of the resource
 			if (streamLoader(resource, stream, parameters))
 				return true;
 
@@ -249,6 +326,16 @@ namespace Nz
 
 		return false;
 	}
+
+	/*!
+	* \brief Registers the loader
+	*
+	* \param extensionGetter A function to test whether the extension (as a string) is supported by this loader
+	* \param checkFunc A function to check the stream with the parser
+	* \param streamLoader A function to load the data from a stream in the resource
+	* \param fileLoader Optional function to load the data from a file in the resource
+	* \param memoryLoader Optional function to load the data from a raw memory in the resource
+	*/
 
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
@@ -271,6 +358,16 @@ namespace Nz
 
 		Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
 	}
+
+	/*!
+	* \brief Unregisters the loader
+	*
+	* \param extensionGetter A function to test whether the extension (as a string) is supported by this loader
+	* \param checkFunc A function to check the stream with the parser
+	* \param streamLoader A function to load the data from a stream in the resource
+	* \param fileLoader Optional function to load the data from a file in the resource
+	* \param memoryLoader Optional function to load the data from a raw memory in the resource
+	*/
 
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)

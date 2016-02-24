@@ -13,8 +13,8 @@ namespace Nz
 		const char* errorType[] = {
 			"Assert failed",	// ErrorType_AssertFailed
 			"Internal error",	// ErrorType_Internal
-			"Error",			// ErrorType_Normal
-			"Warning"			// ErrorType_Warning
+			"Error",		// ErrorType_Normal
+			"Warning"		// ErrorType_Warning
 		};
 
 		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorType_Max + 1, "Error type array is incomplete");
@@ -22,15 +22,17 @@ namespace Nz
 
 	/*!
 	* \class Nz::StdLogger
-	* \brief Logger writing to standard output (stdout, stderr)
+	* \brief Core class that represents a logger writing to standard output (stdout, stderr)
 	*/
 
 	StdLogger::~StdLogger() = default;
 
 	/*!
-	* \brief Enable replication to standard output
+	* \brief Enables replication to standard output
 	*
 	* Does nothing, as the std logger always write to standard output
+	*
+	* \param enable Unused argument
 	*/
 
 	void StdLogger::EnableStdReplication(bool enable)
@@ -40,9 +42,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Get the standard output replication status
-	*
-	* Always returns true
+	* \brief Gets the standard output replication status
+	* \return Always returns true
 	*/
 
 	bool StdLogger::IsStdReplicationEnabled()
@@ -51,7 +52,8 @@ namespace Nz
 	}
 
 	/*!
-	* Write to the console
+	* \brief Writes to the console
+	*
 	* \param string The log to write to the console
 	*
 	* \see WriteError
@@ -64,7 +66,8 @@ namespace Nz
 	}
 
 	/*!
-	* Write an error to the console
+	* \brief Writes an error to the console
+	*
 	* \param type The error type
 	* \param error The error text
 	* \param line The line the error occurred
