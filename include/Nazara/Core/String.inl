@@ -7,21 +7,41 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Constructs a String object with a shared string by move semantic
+	*
+	* \param sharedString Shared string to move into this
+	*/
+
 	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
 	m_sharedString(std::move(sharedString))
 	{
 	}
+
+	/*!
+	* \brief Releases the content to the string
+	*/
 
 	inline void String::ReleaseString()
 	{
 		m_sharedString = std::move(GetEmptyString());
 	}
 
+	/*!
+	* \brief Constructs a SharedString object by default
+	*/
+
 	inline String::SharedString::SharedString() : // Special case: empty string
 	capacity(0),
 	size(0)
 	{
 	}
+
+	/*!
+	* \brief Constructs a SharedString object with a size
+	*
+	* \param strSize Number of characters in the string
+	*/
 
 	inline String::SharedString::SharedString(std::size_t strSize) :
 	capacity(strSize), 
@@ -31,6 +51,13 @@ namespace Nz
 		string[strSize] = '\0';
 	}
 
+	/*!
+	* \brief Constructs a SharedString object with a size and a capacity
+	*
+	* \param strSize Number of characters in the string
+	* \param strCapacity Capacity in characters in the string
+	*/
+
 	inline String::SharedString::SharedString(std::size_t strSize, std::size_t strCapacity) :
 	capacity(strCapacity),
 	size(strSize),
@@ -38,6 +65,14 @@ namespace Nz
 	{
 		string[strSize] = '\0';
 	}
+
+	/*!
+	* \brief Appends the string to the hash
+	* \return true if hash is successful
+	*
+	* \param hash Hash to append data of the file
+	* \param string String to hash
+	*/
 
 	inline bool HashAppend(AbstractHash* hash, const String& string)
 	{
@@ -48,6 +83,13 @@ namespace Nz
 
 namespace std
 {
+	/*!
+	* \brief Specialisation of std to hash
+	* \return Result of the hash
+	*
+	* \param str String to hash
+	*/
+
 	template<>
 	struct hash<Nz::String>
 	{

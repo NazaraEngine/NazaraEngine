@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Pas de header guard
+// No header guard
 
-// Ces macros peuvent changer pour n'importe quel fichier qui l'utilise dans une même unité de compilation
+// These macroes can change for any file which uses it in the same unit of compilation
 #undef NazaraLock
 #undef NazaraMutex
 #undef NazaraMutexAttrib

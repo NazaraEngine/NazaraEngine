@@ -19,9 +19,9 @@ namespace Nz
 
 	enum CursorPosition
 	{
-		CursorPosition_AtBegin,   // Début du fichier
-		CursorPosition_AtCurrent, // Position du pointeur
-		CursorPosition_AtEnd,     // Fin du fichier
+		CursorPosition_AtBegin,   // beginning of the file
+		CursorPosition_AtCurrent, // Position of the cursor
+		CursorPosition_AtEnd,     // End of the file
 
 		CursorPosition_Max = CursorPosition_AtEnd
 	};
@@ -45,7 +45,7 @@ namespace Nz
 		ErrorFlag_ThrowException         = 0x4,
 		ErrorFlag_ThrowExceptionDisabled = 0x8,
 
-		ErrorFlag_Max = ErrorFlag_ThrowExceptionDisabled*2-1
+		ErrorFlag_Max = ErrorFlag_ThrowExceptionDisabled * 2 - 1
 	};
 
 	enum ErrorType
@@ -75,18 +75,18 @@ namespace Nz
 
 	enum OpenModeFlags
 	{
-		OpenMode_NotOpen   = 0x00, // Utilise le mode d'ouverture actuel
+		OpenMode_NotOpen   = 0x00, // Use the current mod of opening
 
-		OpenMode_Append    = 0x01, // Empêche l'écriture sur la partie déjà existante et met le curseur à la fin
-		OpenMode_Lock      = 0x02, // Empêche le fichier d'être modifié tant qu'il est ouvert
-		OpenMode_ReadOnly  = 0x04, // Ouvre uniquement en lecture
-		OpenMode_Text      = 0x10, // Ouvre en mode texte
-		OpenMode_Truncate  = 0x20, // Créé le fichier s'il n'existe pas et le vide s'il existe
-		OpenMode_WriteOnly = 0x40, // Ouvre uniquement en écriture, créé le fichier s'il n'existe pas
+		OpenMode_Append    = 0x01, // Disable writing on existing parts and put the cursor at the end
+		OpenMode_Lock      = 0x02, // Disable modifying the file before it is open
+		OpenMode_ReadOnly  = 0x04, // Open in read only
+		OpenMode_Text      = 0x10, // Open in text mod
+		OpenMode_Truncate  = 0x20, // Create the file if it doesn't exist and empty it if it exists
+		OpenMode_WriteOnly = 0x40, // Open in write only, create the file if it doesn't exist
 
-		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Ouvre en lecture/écriture
+		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Open in read and write
 
-		OpenMode_Max = OpenMode_WriteOnly*2 - 1
+		OpenMode_Max = OpenMode_WriteOnly * 2 - 1
 	};
 
 	enum ParameterType
@@ -177,7 +177,7 @@ namespace Nz
 		StreamOption_Sequential = 0x1,
 		StreamOption_Text       = 0x2,
 
-		StreamOption_Max = StreamOption_Text*2 - 1
+		StreamOption_Max = StreamOption_Text * 2 - 1
 	};
 
 	enum Ternary

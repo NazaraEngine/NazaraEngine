@@ -18,16 +18,16 @@ namespace Nz
 			Unicode() = delete;
 			~Unicode() = delete;
 			/*
-				Catégorie Unicode:
-				-Les valeurs de 0x01 à 0x80 indiquent la catégorie.
-				-Les valeurs de 0x100 à 0x10000 indiquent la sous-catégorie.
+				Unicode category:
+				-Values between 0x01 and 0x80 specify the category
+				-Values between 0x100 and 0x10000 specify the subcategory
 			*/
 			enum Category : UInt16
 			{
-				// Catégorie non-reconnue par Nazara
+				// Category not handled by Nazara
 				Category_NoCategory				  = 0,
 
-				// Lettres
+				// Letters
 				Category_Letter					  = 0x01,						   // L
 				Category_Letter_Lowercase		  = Category_Letter | 0x0100,	   // Ll
 				Category_Letter_Modifier		  = Category_Letter | 0x0200,	   // Lm
@@ -35,19 +35,19 @@ namespace Nz
 				Category_Letter_Titlecase		  = Category_Letter | 0x0800,	   // Lt
 				Category_Letter_Uppercase		  = Category_Letter | 0x1000,	   // Lu
 
-				// Marques
+				// Marks
 				Category_Mark					  = 0x02,						   // M
 				Category_Mark_Enclosing			  = Category_Mark | 0x100,		   // Me
 				Category_Mark_NonSpacing		  = Category_Mark | 0x200,		   // Mn
 				Category_Mark_SpacingCombining	  = Category_Mark | 0x400,		   // Mc
 
-				// Nombres
+				// Numbers
 				Category_Number					  = 0x04,						   // N
 				Category_Number_DecimalDigit	  = Category_Number | 0x100,	   // Nd
 				Category_Number_Letter			  = Category_Number | 0x200,	   // Nl
 				Category_Number_Other			  = Category_Number | 0x400,	   // No
 
-				// Autres
+				// Others
 				Category_Other					  = 0x08,						   // C
 				Category_Other_Control			  = Category_Other | 0x0100,	   // Cc
 				Category_Other_Format			  = Category_Other | 0x0200,	   // Cf
@@ -65,13 +65,13 @@ namespace Nz
 				Category_Punctuation_Open		  =	Category_Punctuation | 0x2000, // Ps
 				Category_Punctuation_Other		  =	Category_Punctuation | 0x4000, // Po
 
-				// Espacements
+				// Spaces
 				Category_Separator				  = 0x20,						   // Z
 				Category_Separator_Line			  = Category_Separator | 0x0100,   // Zl
 				Category_Separator_Paragraph	  = Category_Separator | 0x0200,   // Zp
 				Category_Separator_Space		  = Category_Separator | 0x0400,   // Zs
 
-				// Symboles
+				// Symbols
 				Category_Symbol					  = 0x40,						   // S
 				Category_Symbol_Currency		  = Category_Symbol | 0x0100,	   // Sc
 				Category_Symbol_Math			  = Category_Symbol | 0x0200,	   // Sm

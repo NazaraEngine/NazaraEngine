@@ -8,11 +8,26 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::LockGuard
+	* \brief Core class that represents a mutex wrapper that provides a convenient RAII-style mechanism
+	*/
+
+	/*!
+	* \brief Constructs a LockGuard object with a mutex
+	*
+	* \param mutex Mutex to lock
+	*/
+
 	LockGuard::LockGuard(Mutex& mutex) :
 	m_mutex(mutex)
 	{
 		m_mutex.Lock();
 	}
+
+	/*!
+	* \brief Destructs a LockGuard object and unlocks the mutex
+	*/
 
 	LockGuard::~LockGuard()
 	{
