@@ -16,6 +16,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::Log
 	* \brief Core class that represents a logger
 	*/

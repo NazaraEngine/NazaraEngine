@@ -21,7 +21,8 @@ namespace Nz
 	}
 
 	/*!
-	* \class Nz::AbstractLogger<T>
+	* \ingroup core
+	* \class Nz::AbstractLogger
 	* \brief Core class that represents the behaviour of the log classes
 	*
 	* \remark This class is abstract

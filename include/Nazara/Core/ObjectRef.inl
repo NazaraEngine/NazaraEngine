@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ObjectRef
 	* \brief Core class that represents a reference to an object
 	*/
@@ -15,7 +16,6 @@ namespace Nz
 	/*!
 	* \brief Constructs a ObjectRef object by default
 	*/
-
 	template<typename T>
 	ObjectRef<T>::ObjectRef() :
 	m_object(nullptr)
@@ -27,7 +27,6 @@ namespace Nz
 	*
 	* \param object Pointer to handle like a reference (can be nullptr)
 	*/
-
 	template<typename T>
 	ObjectRef<T>::ObjectRef(T* object) :
 	m_object(object)
@@ -41,7 +40,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef to assign into this
 	*/
-
 	template<typename T>
 	ObjectRef<T>::ObjectRef(const ObjectRef& ref) :
 	m_object(ref.m_object)
@@ -55,7 +53,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
 	ObjectRef<T>::ObjectRef(const ObjectRef<U>& ref) :
@@ -68,7 +65,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef to move into this
 	*/
-
 	template<typename T>
 	ObjectRef<T>::ObjectRef(ObjectRef&& ref) noexcept :
 	m_object(ref.m_object)
@@ -79,7 +75,6 @@ namespace Nz
 	/*!
 	* \brief Destructs the object (remove a reference to the object when shared)
 	*/
-
 	template<typename T>
 	ObjectRef<T>::~ObjectRef()
 	{
@@ -91,7 +86,6 @@ namespace Nz
 	* \brief Gets the underlying pointer
 	* \return Underlying pointer
 	*/
-
 	template<typename T>
 	T* ObjectRef<T>::Get() const
 	{
@@ -102,7 +96,6 @@ namespace Nz
 	* \brief Checks whether the reference is valid
 	* \return true if reference is not nullptr
 	*/
-
 	template<typename T>
 	bool ObjectRef<T>::IsValid() const
 	{
@@ -113,7 +106,6 @@ namespace Nz
 	* \brief Releases the handle of the pointer
 	* \return Underlying pointer
 	*/
-
 	template<typename T>
 	T* ObjectRef<T>::Release()
 	{
@@ -130,7 +122,6 @@ namespace Nz
 	* \brief Resets the content of the ObjectRef with another pointer
 	* \return true if old handle is destroyed
 	*/
-
 	template<typename T>
 	bool ObjectRef<T>::Reset(T* object)
 	{
@@ -154,7 +145,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef to swap
 	*/
-
 	template<typename T>
 	ObjectRef<T>& ObjectRef<T>::Swap(ObjectRef& ref)
 	{
@@ -169,7 +159,6 @@ namespace Nz
 	*
 	* \see IsValid
 	*/
-
 	template<typename T>
 	ObjectRef<T>::operator bool() const
 	{
@@ -180,7 +169,6 @@ namespace Nz
 	* \brief Dereferences the ObjectRef
 	* \return Underlying pointer
 	*/
-
 	template<typename T>
 	ObjectRef<T>::operator T*() const
 	{
@@ -191,20 +179,18 @@ namespace Nz
 	* \brief Dereferences the ObjectRef
 	* \return Underlying pointer
 	*/
-
 	template<typename T>
 	T* ObjectRef<T>::operator->() const
 	{
 		return m_object;
 	}
-
+	
 	/*!
 	* \brief Assigns the object into this
 	* \return A reference to this
 	*
 	* \param object Pointer to handle like a reference (can be nullptr)
 	*/
-
 	template<typename T>
 	ObjectRef<T>& ObjectRef<T>::operator=(T* object)
 	{
@@ -219,7 +205,6 @@ namespace Nz
 	*
 	* \param ref The other ObjectRef
 	*/
-
 	template<typename T>
 	ObjectRef<T>& ObjectRef<T>::operator=(const ObjectRef& ref)
 	{
@@ -234,7 +219,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef of type U to convert
 	*/
-
 	template<typename T>
 	template<typename U>
 	ObjectRef<T>& ObjectRef<T>::operator=(const ObjectRef<U>& ref)
@@ -252,7 +236,6 @@ namespace Nz
 	*
 	* \param ref ObjectRef to move in this
 	*/
-
 	template<typename T>
 	ObjectRef<T>& ObjectRef<T>::operator=(ObjectRef&& ref) noexcept
 	{
@@ -267,12 +250,12 @@ namespace Nz
 namespace std
 {
 	/*!
+	* \ingroup core
 	* \brief Gives a hash representation of the object, specialisation of std
 	* \return Hash of the ObjectRef
 	*
 	* \param object Object to hash
 	*/
-
 	template<typename T>
 	struct hash<Nz::ObjectRef<T>>
 	{

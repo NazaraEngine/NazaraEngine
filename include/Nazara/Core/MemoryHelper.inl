@@ -17,6 +17,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \fn Nz::MemoryHelper
 	* \brief Core functions that helps the handle of memory in the engine
 	*/
@@ -26,7 +27,6 @@ namespace Nz
 	*
 	* \remark Uses MemoryManager with NAZARA_CORE_MANAGE_MEMORY defined else operator delete
 	*/
-
 	inline void OperatorDelete(void* ptr)
 	{
 		#if NAZARA_CORE_MANAGE_MEMORY
@@ -41,7 +41,6 @@ namespace Nz
 	*
 	* \remark Uses MemoryManager with NAZARA_CORE_MANAGE_MEMORY defined else operator new
 	*/
-
 	inline void* OperatorNew(std::size_t size)
 	{
 		#if NAZARA_CORE_MANAGE_MEMORY
@@ -58,7 +57,6 @@ namespace Nz
 	* \param ptr Pointer to raw memory allocated
 	* \param args Arguments for the constructor
 	*/
-
 	template<typename T, typename... Args>
 	T* PlacementNew(void* ptr, Args&&... args)
 	{

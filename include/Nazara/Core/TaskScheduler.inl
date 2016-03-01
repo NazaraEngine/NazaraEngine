@@ -7,6 +7,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::TaskScheduler
 	* \brief Core class that represents a thread pool
 	*/

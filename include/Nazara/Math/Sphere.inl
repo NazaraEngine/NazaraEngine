@@ -14,12 +14,13 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Sphere<T>
+	* \ingroup math
+	* \class Nz::Sphere
 	* \brief Math class that represents a sphere "S2" in a three dimensional euclidean space
 	*/
 
 	/*!
-	* \brief Constructs a Sphere<T> object from its center position and radius
+	* \brief Constructs a Sphere object from its center position and radius
 	*
 	* \param X X position
 	* \param Y Y position
@@ -41,7 +42,7 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a Sphere<T> object from its position and radius
+	* \brief Constructs a Sphere object from its position and radius
 	*
 	* \param center Center of the sphere
 	* \param Radius Half of the diameter
@@ -54,7 +55,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Sphere<T> object from an array of four elements
+	* \brief Constructs a Sphere object from an array of four elements
 	*
 	* \param sphere[4] sphere[0] is X component, sphere[1] is Y component, sphere[2] is Z component and sphere[3] is radius
 	*/
@@ -66,7 +67,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Sphere<T> object from another type of Sphere
+	* \brief Constructs a Sphere object from another type of Sphere
 	*
 	* \param sphere Sphere of type U to convert to type T
 	*/

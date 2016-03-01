@@ -14,14 +14,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::OrientedBox<T>
+    * \ingroup math
+	* \class Nz::OrientedBox
 	* \brief Math class that represents an oriented three dimensional box
 	*
 	* \remark You need to call Update not to have undefined behaviour
 	*/
 
 	/*!
-	* \brief Constructs a OrientedBox<T> object from its position and sizes
+	* \brief Constructs a OrientedBox object from its position and sizes
 	*
 	* \param X X component of position
 	* \param Y Y component of position
@@ -38,7 +39,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a OrientedBox<T> object from a box
+	* \brief Constructs a OrientedBox object from a box
 	*
 	* \param box Box<T> object
 	*/
@@ -50,7 +51,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a OrientedBox<T> object from two vectors representing point of the space
+	* \brief Constructs a OrientedBox object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*
 	* \param vec1 First point
@@ -64,7 +65,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a OrientedBox<T> object from another type of OrientedBox
+	* \brief Constructs a OrientedBox object from another type of OrientedBox
 	*
 	* \param orientedBox OrientedBox of type U to convert to type T
 	*/
@@ -178,7 +179,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets a OrientedBox<T> object from two vectors representing point of the space
+	* \brief Sets a OrientedBox object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*
 	* \param vec1 First point

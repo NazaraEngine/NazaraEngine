@@ -21,6 +21,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::StdLogger
 	* \brief Core class that represents a logger writing to standard output (stdout, stderr)
 	*/

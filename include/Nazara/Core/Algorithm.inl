@@ -31,7 +31,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Applies the tuple to the function
+	* \ingroup core
+	* \brief Applies the tuple to the function (e.g. calls the function using the tuple content as arguments)
 	* \return The result of the function
 	*
 	* \param fn Function
@@ -39,7 +40,6 @@ namespace Nz
 	*
 	* \see Apply
 	*/
-
 	template<typename F, typename Tuple>
 	auto Apply(F&& fn, Tuple&& t)
 	{
@@ -49,7 +49,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Applies the tuple to the member function on an object
+	* \ingroup core
+	* \brief Applies the tuple to the member function on an object (e.g. calls the member function using the tuple content as arguments)
 	* \return The result of the member function called
 	*
 	* \param object Object of a class
@@ -58,7 +59,6 @@ namespace Nz
 	*
 	* \see Apply
 	*/
-
 	template<typename O, typename F, typename Tuple>
 	auto Apply(O& object, F&& fn, Tuple&& t)
 	{
@@ -68,15 +68,17 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Computes the hash of a hashable object
 	* \return A bytearray which represents the hash
 	*
 	* \param hash Enumeration of type HashType
-	* \param v Object to hash, must be convertible to "Nz::String"
+	* \param v Object to hash
 	*
+	* \remark a HashAppend specialization for type T is required
+	* 
 	* \see ComputeHash
 	*/
-
 	template<typename T>
 	ByteArray ComputeHash(HashType hash, const T& v)
 	{
@@ -84,17 +86,18 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Computes the hash of a hashable object
 	* \return A bytearray which represents the hash
 	*
 	* \param hash Pointer to abstract hash
-	* \param v Object to hash, must be convertible to "Nz::String"
+	* \param v Object to hash
 	*
 	* \remark Produce a NazaraAssert if pointer to Abstracthash is invalid
+	* \remark a HashAppend specialization for type T is required
 	*
 	* \see ComputeHash
 	*/
-
 	template<typename T>
 	ByteArray ComputeHash(AbstractHash* hash, const T& v)
 	{
@@ -108,6 +111,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Returns the number of elements in a C-array
 	* \return The number of elements
 	*
@@ -115,7 +119,6 @@ namespace Nz
 	*
 	* \see CountOf
 	*/
-
 	template<typename T, std::size_t N>
 	constexpr std::size_t CountOf(T(&name)[N]) noexcept
 	{
@@ -123,6 +126,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Returns the number of elements in a container
 	* \return The number of elements
 	*
@@ -130,7 +134,6 @@ namespace Nz
 	*
 	* \see CountOf
 	*/
-
 	template<typename T>
 	std::size_t CountOf(const T& c)
 	{
@@ -138,12 +141,12 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Combines two hash in one
 	*
 	* \param seed First value that will be modified (expected to be 64bits)
 	* \param v Second value to hash
 	*/
-
 	// Algorithm from CityHash by Google
 	// http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
 	template<typename T>
@@ -167,6 +170,7 @@ namespace Nz
 	template<typename T> struct PointedType<T* const volatile> {typedef T type;};
 
 	/*!
+	* \ingroup core
 	* \brief Serializes a boolean
 	* \return true if serialization succedeed
 	*
@@ -175,7 +179,6 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-
 	inline bool Serialize(SerializationContext& context, bool value)
 	{
 		if (context.currentBitPos == 8)
@@ -194,6 +197,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Serializes an arithmetic type
 	* \return true if serialization succedeed
 	*
@@ -202,7 +206,6 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
@@ -222,6 +225,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Unserializes a boolean
 	* \return true if unserialization succedeed
 	*
@@ -230,7 +234,6 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-
 	inline bool Unserialize(SerializationContext& context, bool* value)
 	{
 		if (context.currentBitPos == 8)
@@ -250,6 +253,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Unserializes an arithmetic type
 	* \return true if unserialization succedeed
 	*
@@ -260,7 +264,6 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value)
 	{

@@ -22,14 +22,15 @@ namespace Nz
 {
 
 	/*!
-	* \class Nz::Matrix4<T>
+    * \ingroup math
+	* \class Nz::Matrix4
 	* \brief Math class that represents a transformation of the four dimensional vector space with the notion of projectivity
 	*
 	* \remark Matrix4 is said to be "row-major" and affine if last column is made of (0, 0, 0, 1)
 	*/
 
 	/*!
-	* \brief Constructs a Matrix4<T> object from its components
+	* \brief Constructs a Matrix4 object from its components
 	*
 	* \param rIJ Matrix components at index(I, J)
 	*/
@@ -47,7 +48,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Matrix4<T> object from an array of sixteen elements
+	* \brief Constructs a Matrix4 object from an array of sixteen elements
 	*
 	* \param matrix[16] Matrix components
 	*/
@@ -59,7 +60,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Matrix4<T> object from another type of Matrix4
+	* \brief Constructs a Matrix4 object from another type of Matrix4
 	*
 	* \param matrix Matrix4 of type U to convert to type T
 	*/
@@ -1785,7 +1786,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix)
 */
 
 template<typename T>
-Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
+Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4& matrix)
 {
 	return matrix * scale;
 }

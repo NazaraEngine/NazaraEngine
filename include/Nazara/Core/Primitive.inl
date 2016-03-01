@@ -7,6 +7,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::PrimitiveList
 	* \brief Core class that represents a geometric primitive
 	*/
@@ -19,7 +20,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -38,7 +38,6 @@ namespace Nz
 	* \param rotation Rotation of the box
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakeBox(lengths, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
@@ -53,7 +52,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeCone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -74,7 +72,6 @@ namespace Nz
 	* \param rotation Rotation of the cone
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakeCone(length, radius, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
@@ -88,7 +85,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeCubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -108,7 +104,6 @@ namespace Nz
 	* \param rotation Rotation of the cubic sphere
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakeCubicSphere(size, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
@@ -122,7 +117,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -142,7 +136,6 @@ namespace Nz
 	* \param rotation Rotation of the icosphere
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakeIcoSphere(size, recursionLevel, Matrix4f::Transform(position, rotation), uvCoords);
@@ -156,7 +149,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -174,7 +166,6 @@ namespace Nz
 	* \param planeInfo Information for the plane
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo, const Rectf& uvCoords)
 	{
 		MakePlane(size, subdivision, Matrix4f::Transform(planeInfo.distance * planeInfo.normal, Quaternionf::RotationBetween(Vector3f::Up(), planeInfo.normal)), uvCoords);
@@ -189,7 +180,6 @@ namespace Nz
 	* \param rotation Rotation of the plane
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakePlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakePlane(size, subdivision, Matrix4f::Transform(position, rotation), uvCoords);
@@ -204,7 +194,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		matrix = transformMatrix;
@@ -226,7 +215,6 @@ namespace Nz
 	* \param rotation Rotation of the box
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline void Primitive::MakeUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		MakeUVSphere(size, sliceCount, stackCount, Matrix4f::Transform(position, rotation), uvCoords);
@@ -241,7 +229,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Box(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -260,7 +247,6 @@ namespace Nz
 	* \param rotation Rotation of the box
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Box(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -279,7 +265,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Cone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -299,7 +284,6 @@ namespace Nz
 	* \param rotation Rotation of the cone
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Cone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -317,7 +301,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::CubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -336,7 +319,6 @@ namespace Nz
 	* \param rotation Rotation of the cubic sphere
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::CubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -354,7 +336,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::IcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -373,7 +354,6 @@ namespace Nz
 	* \param rotation Rotation of the icosphere
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::IcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -391,7 +371,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -409,7 +388,6 @@ namespace Nz
 	* \param planeInfo Information for the plane
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Planef& plane, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -428,7 +406,6 @@ namespace Nz
 	* \param rotation Rotation of the plane
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -447,7 +424,6 @@ namespace Nz
 	* \param transformMatrix Matrix to apply
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix, const Rectf& uvCoords)
 	{
 		Primitive primitive;
@@ -467,7 +443,6 @@ namespace Nz
 	* \param rotation Rotation of the box
 	* \param uvCoords Coordinates for texture
 	*/
-
 	inline Primitive Primitive::UVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation, const Rectf& uvCoords)
 	{
 		Primitive primitive;

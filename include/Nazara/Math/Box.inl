@@ -13,12 +13,13 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Box<T>
+    * \ingroup math
+	* \class Nz::Box
 	* \brief Math class that represents a three dimensional box
 	*/
 
 	/*!
-	* \brief Constructs a Box<T> object from its width, height and depth
+	* \brief Constructs a Box object from its width, height and depth
 	*
 	* \param Width Width of the box (following X)
 	* \param Height Height of the box (following Y)
@@ -51,7 +52,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from an array of six elements
+	* \brief Constructs a Box object from an array of six elements
 	*
 	* \param vec[6] vec[0] is X position, vec[1] is Y position, vec[2] is Z position, vec[3] is width, vec[4] is height and vec[5] is depth
 	*/
@@ -63,7 +64,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from a Rect
+	* \brief Constructs a Box object from a Rect
 	*
 	* \param rect Rectangle which describes (X, Y) position and (width, height) lenghts
 	*
@@ -77,7 +78,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from a vector representing width, height and depth
+	* \brief Constructs a Box object from a vector representing width, height and depth
 	*
 	* \param lengths (Width, Height, Depth) of the box
 	*
@@ -91,7 +92,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from two vectors representing point of the space
+	* \brief Constructs a Box object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*
 	* \param vec1 First point
@@ -105,7 +106,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from another type of Box
+	* \brief Constructs a Box object from another type of Box
 	*
 	* \param box Box of type U to convert to type T
 	*/
@@ -540,7 +541,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Box<T> object from its position and sizes
+	* \brief Constructs a Box object from its position and sizes
 	*
 	* \param X X component of position
 	* \param Y Y component of position

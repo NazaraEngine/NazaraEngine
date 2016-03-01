@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \brief Constructs a Stream object with options
 	*
 	* \param streamOptions Options for the stream

@@ -10,14 +10,14 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::ResourceManager<Type, Parameters>
+	* \ingroup core
+	* \class Nz::ResourceManager
 	* \brief Core class that represents a resource manager
 	*/
 
 	/*!
 	* \brief Clears the content of the manager
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Clear()
 	{
@@ -30,7 +30,6 @@ namespace Nz
 	*
 	* \param filePath Path to the asset that will be loaded
 	*/
-
 	template<typename Type, typename Parameters>
 	ObjectRef<Type> ResourceManager<Type, Parameters>::Get(const String& filePath)
 	{
@@ -63,7 +62,6 @@ namespace Nz
 	* \brief Gets the defaults parameters for the load
 	* \return Default parameters for loading from file
 	*/
-
 	template<typename Type, typename Parameters>
 	const Parameters& ResourceManager<Type, Parameters>::GetDefaultParameters()
 	{
@@ -73,7 +71,6 @@ namespace Nz
 	/*!
 	* \brief Purges the resource manager from every asset whose it is the only owner
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Purge()
 	{
@@ -97,7 +94,6 @@ namespace Nz
 	* \param filePath Path for the resource
 	* \param resource Object to associate with
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Register(const String& filePath, ObjectRef<Type> resource)
 	{
@@ -111,7 +107,6 @@ namespace Nz
 	*
 	* \param params Default parameters for loading from file
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::SetDefaultParameters(const Parameters& params)
 	{
@@ -123,7 +118,6 @@ namespace Nz
 	*
 	* \param filePath Path for the resource
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Unregister(const String& filePath)
 	{
@@ -136,7 +130,6 @@ namespace Nz
 	* \brief Initializes the resource manager
 	* \return true
 	*/
-
 	template<typename Type, typename Parameters>
 	bool ResourceManager<Type, Parameters>::Initialize()
 	{
@@ -146,7 +139,6 @@ namespace Nz
 	/*!
 	* \brief Uninitialize the resource manager
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Uninitialize()
 	{

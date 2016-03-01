@@ -16,12 +16,13 @@ namespace Nz
 {
 
 	/*!
-	* \class Nz::Vector4<T>
+    * \ingroup math
+	* \class Nz::Vector4
 	* \brief Math class that represents an element of the three dimensional vector space with the notion of projectivity. When the fourth component is 1, it describes an 'usual' point and when it is 0, it represents the point at infinity
 	*/
 
 	/*!
-	* \brief Constructs a Vector4<T> object from its coordinates
+	* \brief Constructs a Vector4 object from its coordinates
 	*
 	* \param X X component
 	* \param Y Y component
@@ -36,7 +37,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from two components and a Vector2<T>
+	* \brief Constructs a Vector4 object from two components and a Vector2<T>
 	*
 	* \param X X component
 	* \param Y Y component
@@ -50,7 +51,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from one component, a Vector2<T> and one component
+	* \brief Constructs a Vector4 object from one component, a Vector2<T> and one component
 	*
 	* \param X X component
 	* \param vec vec.X = Y component and vec.y = Z component
@@ -64,7 +65,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from one component and a Vector3<T>
+	* \brief Constructs a Vector4 object from one component and a Vector3<T>
 	*
 	* \param X X component
 	* \param vec vec.X = Y component, vec.y = Z component and vec.z = W component
@@ -77,7 +78,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs explicitely a Vector4<T> object from its "scale"
+	* \brief Constructs explicitely a Vector4 object from its "scale"
 	*
 	* \param scale X component = Y component = Z component = W component
 	*/
@@ -89,7 +90,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from an array of four elements
+	* \brief Constructs a Vector4 object from an array of four elements
 	*
 	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
 	*/
@@ -101,7 +102,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from a Vector2<T> and two components
+	* \brief Constructs a Vector4 object from a Vector2<T> and two components
 	*
 	* \param vec vec.X = X component and vec.y = Y component
 	* \param Z Z component
@@ -115,7 +116,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from one component and a Vector3<T>
+	* \brief Constructs a Vector4 object from one component and a Vector3<T>
 	*
 	* \param vec vec.X = X component, vec.y = Y component and vec.z = Z component
 	* \param W W component
@@ -128,7 +129,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector4<T> object from another type of Vector4
+	* \brief Constructs a Vector4 object from another type of Vector4
 	*
 	* \param vec Vector of type U to convert to type T
 	*/
@@ -1037,7 +1038,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec)
 
 
 template<typename T>
-Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
+Nz::Vector4<T> operator*(T scale, const Nz::Vector4& vec)
 {
 	return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
 }
