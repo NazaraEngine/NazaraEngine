@@ -26,6 +26,7 @@ namespace Nz
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Unicode
 	* \brief Core class that represents a Unicode character
 	*/

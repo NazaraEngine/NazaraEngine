@@ -83,6 +83,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::HardwareInfo
 	* \brief Core class that represents the info we can get from hardware
 	*/

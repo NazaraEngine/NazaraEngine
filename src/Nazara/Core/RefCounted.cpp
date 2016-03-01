@@ -17,6 +17,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::RefCounted
 	* \brief Core class that represents a reference with a counter
 	*/

@@ -25,6 +25,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::PluginManager
 	* \brief Core class that represents a manager for plugin
 	*/

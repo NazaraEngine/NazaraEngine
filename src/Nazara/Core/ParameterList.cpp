@@ -13,6 +13,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ParameterList
 	* \brief Core class that represents a list of parameters
 	*/

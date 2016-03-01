@@ -8,9 +8,10 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
+	* \class Nz::MemoryStream
 	* \brief Constructs a MemoryStream object by default
 	*/
-
 	inline MemoryStream::MemoryStream() :
 	Stream(StreamOption_None, OpenMode_ReadWrite),
 	m_pos(0)
@@ -23,7 +24,6 @@ namespace Nz
 	* \param byteArray Bytes to stream
 	* \param openMode Reading/writing mode for the stream
 	*/
-
 	inline MemoryStream::MemoryStream(ByteArray* byteArray, UInt32 openMode) :
 	MemoryStream()
 	{
@@ -36,7 +36,6 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if buffer is invalid
 	*/
-
 	inline ByteArray& MemoryStream::GetBuffer()
 	{
 		NazaraAssert(m_buffer, "Invalid buffer");
@@ -50,7 +49,6 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if buffer is invalid
 	*/
-
 	inline const ByteArray& MemoryStream::GetBuffer() const
 	{
 		NazaraAssert(m_buffer, "Invalid buffer");

@@ -14,14 +14,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Vector2<T>
+	* \ingroup math
+	* \class Nz::Vector3
 	* \brief Math class that represents an element of the three dimensional vector space
 	*
 	* \remark The basis is said to be "right-hand". It means that with your right hand, the thumb is X positive, the index finger Y positive and the middle finger (pointing to you) Z positive
 	*/
 
 	/*!
-	* \brief Constructs a Vector3<T> object from its coordinates
+	* \brief Constructs a Vector3 object from its coordinates
 	*
 	* \param X X component
 	* \param Y Y component
@@ -35,7 +36,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3<T> object from a component and a Vector2<T>
+	* \brief Constructs a Vector3 object from a component and a Vector2<T>
 	*
 	* \param X X component
 	* \param vec vec.X = Y component and vec.y = Z component
@@ -48,7 +49,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs explicitely a Vector3<T> object from its "scale"
+	* \brief Constructs explicitely a Vector3 object from its "scale"
 	*
 	* \param scale X component = Y component = Z component
 	*/
@@ -60,7 +61,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3<T> object from an array of three elements
+	* \brief Constructs a Vector3 object from an array of three elements
 	*
 	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
 	*/
@@ -72,7 +73,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3<T> object from a Vector2<T> and a component
+	* \brief Constructs a Vector3 object from a Vector2<T> and a component
 	*
 	* \param vec vec.X = X component and vec.y = Y component
 	* \param Z Z component
@@ -85,7 +86,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3<T> object from another type of Vector3
+	* \brief Constructs a Vector3 object from another type of Vector3
 	*
 	* \param vec Vector of type U to convert to type T
 	*/
@@ -98,7 +99,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3<T> object from a Vector4
+	* \brief Constructs a Vector3 object from a Vector4
 	*
 	* \param vec Vector4 where only the first three components are taken
 	*/
@@ -1299,7 +1300,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec)
 */
 
 template<typename T>
-Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec)
+Nz::Vector3<T> operator*(T scale, const Nz::Vector3& vec)
 {
 	return Nz::Vector3<T>(scale * vec.x, scale * vec.y, scale * vec.z);
 }

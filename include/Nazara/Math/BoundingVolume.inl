@@ -15,14 +15,15 @@ namespace Nz
 {
 
 	/*!
-	* \class Nz::BoundingVolume<T>
+    * \ingroup math
+	* \class Nz::BoundingVolume
 	* \brief Math class that represents a bounding volume, a combination of a box and an oriented box
 	*
 	* \remark You need to call Update not to have undefined behaviour
 	*/
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object by default
+	* \brief Constructs a BoundingVolume object by default
 	*
 	* \remark extend is set to Extend_Null, aabb and obb are uninitialized
 	*/
@@ -34,7 +35,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from Extend
+	* \brief Constructs a BoundingVolume object from Extend
 	* \param Extend Extend of the volume part of enumeration Extend
 	*
 	* \remark Aabb and obb are uninitialized
@@ -47,7 +48,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from its position and sizes
+	* \brief Constructs a BoundingVolume object from its position and sizes
 	*
 	* \param X X component of position
 	* \param Y Y component of position
@@ -66,7 +67,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from a box
+	* \brief Constructs a BoundingVolume object from a box
 	*
 	* \param box Box<T> object
 	*
@@ -80,7 +81,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from an oriented box
+	* \brief Constructs a BoundingVolume object from an oriented box
 	*
 	* \param orientedBox OrientedBox<T> object
 	*
@@ -94,7 +95,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from two vectors representing point of the space
+	* \brief Constructs a BoundingVolume object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*
 	* \param vec1 First point
@@ -110,7 +111,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a BoundingVolume<T> object from another type of BoundingVolume
+	* \brief Constructs a BoundingVolume object from another type of BoundingVolume
 	*
 	* \param volume BoundingVolume of type U to convert to type T
 	*/
@@ -272,7 +273,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets a BoundingVolume<T> object from two vectors representing point of the space
+	* \brief Sets a BoundingVolume object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*
 	* \param vec1 First point

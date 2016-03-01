@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::StringStream
 	* \brief Core class that represents a stream of strings
 	*/

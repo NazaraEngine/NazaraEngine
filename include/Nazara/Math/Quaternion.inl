@@ -16,14 +16,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Quaternion<T>
+	* \ingroup math
+	* \class Nz::Quaternion
 	* \brief Math class that represents an element of the quaternions
 	*
 	* \remark The quaternion is meant to be 'unit' to represent rotations in a three dimensional space
 	*/
 
 	/*!
-	* \brief Constructs a Quaternion<T> object from its components
+	* \brief Constructs a Quaternion object from its components
 	*
 	* \param W W component
 	* \param X X component
@@ -38,7 +39,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Quaternion<T> object from a EulerAngles
+	* \brief Constructs a Quaternion object from a EulerAngles
 	*
 	* \param angles Easier representation of rotation of space
 	*
@@ -52,7 +53,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Quaternion<T> object from an angle and a direction
+	* \brief Constructs a Quaternion object from an angle and a direction
 	*
 	* \param angle Unit depends of NAZARA_MATH_ANGLE_RADIAN
 	* \param axis Vector3 which represents a direction, no need to be normalized
@@ -65,7 +66,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Quaternion<T> object from an array of four elements
+	* \brief Constructs a Quaternion object from an array of four elements
 	*
 	* \param quat[4] quat[0] is W component, quat[1] is X component, quat[2] is Y component and quat[3] is Z component
 	*/
@@ -85,7 +86,7 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a Quaternion<T> object from another type of Quaternion
+	* \brief Constructs a Quaternion object from another type of Quaternion
 	*
 	* \param quat Quaternion of type U to convert to type T
 	*/

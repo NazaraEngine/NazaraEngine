@@ -17,6 +17,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Semaphore
 	* \brief Core class that represents a counting semaphore
 	*/

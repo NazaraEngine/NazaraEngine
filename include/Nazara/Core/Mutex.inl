@@ -9,6 +9,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Mutex
 	*/
 

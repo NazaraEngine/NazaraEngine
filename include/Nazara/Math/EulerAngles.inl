@@ -16,14 +16,15 @@ namespace Nz
 {
 
 	/*!
-	* \class Nz::Vector4<T>
+    * \ingroup math
+	* \class Nz::EulerAngles
 	* \brief Math class that represents an Euler angle. Those describe a rotation transformation by rotating an object on its various axes in specified amounts per axis, and a specified axis order
 	*
 	* \remark Rotation are "left-handed", it means that you take your left hand, put your thumb finger in the direction you want and you other fingers represent the way of rotating
 	*/
 
 	/*!
-	* \brief Constructs a EulerAngles<T> object from its components
+	* \brief Constructs a EulerAngles object from its components
 	*
 	* \param P Pitch component = X axis
 	* \param Y Yaw component = Y axis
@@ -37,7 +38,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a EulerAngles<T> object from an array of three elements
+	* \brief Constructs a EulerAngles object from an array of three elements
 	*
 	* \param angles[3] angles[0] is pitch component, angles[1] is yaw component and angles[2] is roll component
 	*/
@@ -49,7 +50,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a EulerAngles<T> object from a quaternion
+	* \brief Constructs a EulerAngles object from a quaternion
 	*
 	* \param quat Quaternion representing a rotation of space
 	*/
@@ -61,7 +62,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a EulerAngles<T> object from another type of EulerAngles
+	* \brief Constructs a EulerAngles object from another type of EulerAngles
 	*
 	* \param angles EulerAngles of type U to convert to type T
 	*/

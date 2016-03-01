@@ -18,6 +18,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Mutex
 	* \brief Core class that represents a binary semaphore, a mutex
 	*

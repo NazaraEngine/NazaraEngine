@@ -26,6 +26,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::DynLib
 	* \brief Core class that represents a dynamic library loader
 	*/

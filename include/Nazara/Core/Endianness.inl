@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \brief Gets the platform endianness
 	* \return Type of the endianness
 	*/
@@ -22,6 +23,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \brief Swaps the byte for endianness operations
 	*
 	* \param buffer Raw memory

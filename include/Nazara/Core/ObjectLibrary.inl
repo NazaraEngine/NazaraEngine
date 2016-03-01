@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ObjectRef
 	* \brief Core class that represents a reference to an object
 	*/
@@ -20,7 +21,6 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if object not found
 	*/
-
 	template<typename Type>
 	ObjectRef<Type> ObjectLibrary<Type>::Get(const String& name)
 	{
@@ -35,7 +35,6 @@ namespace Nz
 	* \brief Checks whether the library has the object with that name
 	* \return true if it the case
 	*/
-
 	template<typename Type>
 	bool ObjectLibrary<Type>::Has(const String& name)
 	{
@@ -48,7 +47,6 @@ namespace Nz
 	* \param name Name of the object
 	* \param object Object to stock
 	*/
-
 	template<typename Type>
 	void ObjectLibrary<Type>::Register(const String& name, ObjectRef<Type> object)
 	{
@@ -61,7 +59,6 @@ namespace Nz
 	*
 	* \param name Name of the object
 	*/
-
 	template<typename Type>
 	ObjectRef<Type> ObjectLibrary<Type>::Query(const String& name)
 	{
@@ -77,7 +74,6 @@ namespace Nz
 	*
 	* \param name Name of the object
 	*/
-
 	template<typename Type>
 	void ObjectLibrary<Type>::Unregister(const String& name)
 	{
@@ -87,7 +83,7 @@ namespace Nz
 	template<typename Type>
 	bool ObjectLibrary<Type>::Initialize()
 	{
-		return true; // Que faire
+		return true; // Nothing to do
 	}
 
 	template<typename Type>

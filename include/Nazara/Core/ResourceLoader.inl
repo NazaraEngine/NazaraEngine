@@ -12,7 +12,8 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::ResourceLoader<Type, Parameters>
+	* \ingroup core
+	* \class Nz::ResourceLoader
 	* \brief Core class that represents a loader of resources
 	*/
 
@@ -22,7 +23,6 @@ namespace Nz
 	*
 	* \param extension Extension of the file
 	*/
-
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const String& extension)
 	{
@@ -52,7 +52,6 @@ namespace Nz
 	* \remark Produces a NazaraWarning if loader failed
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
-
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters)
 	{
@@ -171,7 +170,6 @@ namespace Nz
 	* \remark Produces a NazaraWarning if loader failed
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
-
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
 	{
@@ -268,7 +266,6 @@ namespace Nz
 	* \remark Produces a NazaraWarning if loader failed
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
-
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
@@ -336,7 +333,6 @@ namespace Nz
 	* \param fileLoader Optional function to load the data from a file in the resource
 	* \param memoryLoader Optional function to load the data from a raw memory in the resource
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
 	{
@@ -368,7 +364,6 @@ namespace Nz
 	* \param fileLoader Optional function to load the data from a file in the resource
 	* \param memoryLoader Optional function to load the data from a raw memory in the resource
 	*/
-
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
 	{
