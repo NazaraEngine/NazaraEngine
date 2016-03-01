@@ -1,4 +1,4 @@
-// This file was automatically generated on 09 Nov 2015 at 13:52:47
+// This file was automatically generated on 03 Feb 2016 at 00:06:56
 
 /*
 	Nazara Engine - Network module
@@ -34,6 +34,7 @@
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Network.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/TcpClient.hpp>
