@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Mutex.hpp>
+#include <Nazara/Core/Error.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/MutexImpl.hpp>
@@ -49,6 +50,7 @@ namespace Nz
 
 	void Mutex::Lock()
 	{
+		NazaraAssert(m_impl, "Cannot lock a moved mutex");
 		m_impl->Lock();
 	}
 
@@ -59,6 +61,7 @@ namespace Nz
 
 	bool Mutex::TryLock()
 	{
+		NazaraAssert(m_impl, "Cannot lock a moved mutex");
 		return m_impl->TryLock();
 	}
 
@@ -70,6 +73,21 @@ namespace Nz
 
 	void Mutex::Unlock()
 	{
+		NazaraAssert(m_impl, "Cannot unlock a moved mutex");
 		m_impl->Unlock();
+	}
+
+	/*!
+	* \brief Moves a mutex to another mutex object
+	* \return A reference to the object
+	*/
+	Mutex& Mutex::operator=(Mutex&& mutex) noexcept
+	{
+		delete m_impl;
+
+		m_impl = mutex.m_impl;
+		mutex.m_impl = nullptr;
+
+		return *this;
 	}
 }
