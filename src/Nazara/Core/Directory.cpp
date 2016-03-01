@@ -35,6 +35,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::Directory
 	* \brief Core class that represents a directory
 	*/

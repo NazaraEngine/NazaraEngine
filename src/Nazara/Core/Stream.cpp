@@ -12,6 +12,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Stream
 	* \brief Core class that represents a stream
 	*/

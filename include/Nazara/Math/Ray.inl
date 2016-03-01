@@ -11,14 +11,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Ray<T>
+	* \ingroup math
+	* \class Nz::Ray
 	* \brief Math class that represents a ray or a straight line in 3D space
 	*
 	* This ray is meant to be understood like origin + lambda * direction, where lambda is a real positive parameter
 	*/
 
 	/*!
-	* \brief Constructs a Ray<T> object from its position and direction
+	* \brief Constructs a Ray object from its position and direction
 	*
 	* \param X X position
 	* \param Y Y position
@@ -35,7 +36,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Ray<T> object from two Vector3
+	* \brief Constructs a Ray object from two Vector3
 	*
 	* \param Origin Vector which represents the origin of the ray
 	* \param Direction Vector which represents the direction of the ray
@@ -48,7 +49,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Ray<T> object from two arrays of three elements
+	* \brief Constructs a Ray object from two arrays of three elements
 	*
 	* \param Origin[3] Origin[0] is X position, Origin[1] is Y position and Origin[2] is Z position
 	* \param Direction[3] Direction[0] is X direction, Direction[1] is Y direction and Direction[2] is Z direction
@@ -61,7 +62,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Ray<T> object from the intersection of two planes
+	* \brief Constructs a Ray object from the intersection of two planes
 	*
 	* \param planeOne First plane
 	* \param planeTwo Second secant plane
@@ -77,7 +78,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Ray<T> object from another type of Ray
+	* \brief Constructs a Ray object from another type of Ray
 	*
 	* \param ray Ray of type U to convert to type T
 	*/
@@ -90,7 +91,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Ray<T> object from two Vector3 from another type of Ray
+	* \brief Constructs a Ray object from two Vector3 from another type of Ray
 	*
 	* \param Origin Origin of type U to convert to type T
 	* \param Direction Direction of type U to convert to type T

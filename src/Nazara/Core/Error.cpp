@@ -19,6 +19,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Error
 	* \brief Core class that represents an error
 	*/

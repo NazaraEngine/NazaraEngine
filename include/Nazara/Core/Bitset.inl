@@ -17,14 +17,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Bitset<Block, Allocator>
+	* \ingroup core
+	* \class Nz::Bitset
 	* \brief Core class that represents a set of bits
 	*
 	* This class meets the requirements of Container, AllocatorAwareContainer, SequenceContainer
 	*/
 
 	/*!
-	* \brief Constructs a Bitset<Block, Allocator> object by default
+	* \brief Constructs a Bitset object by default
 	*/
 
 	template<typename Block, class Allocator>
@@ -34,7 +35,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Bitset<Block, Allocator> object of bitCount bits to value val
+	* \brief Constructs a Bitset object of bitCount bits to value val
 	*
 	* \param bitCount Number of bits
 	* \param val Value of those bits, by default false
@@ -48,7 +49,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Bitset<Block, Allocator> object from the contents initialized with a copy of the null-terminated character string pointed to by bits
+	* \brief Constructs a Bitset object from the contents initialized with a copy of the null-terminated character string pointed to by bits
 	*
 	* \param bits Null-terminated character string containing only '0' and '1'
 	*
@@ -62,7 +63,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Bitset<Block, Allocator> object from the contents initialized with a copy of the character string pointed to by bits takings the bitCount first characters
+	* \brief Constructs a Bitset object from the contents initialized with a copy of the character string pointed to by bits takings the bitCount first characters
 	*
 	* \param bits Character string containing only '0' and '1'
 	* \param bitCount Number of characters to take into consideration
@@ -96,7 +97,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Bitset<Block, Allocator> object from a Nz::String
+	* \brief Constructs a Bitset object from a Nz::String
 	*
 	* \param bits String containing only '0' and '1'
 	*/
@@ -912,7 +913,7 @@ namespace Nz
 
 	template<typename Block, class Allocator>
 	template<bool BadCall>
-	void* Bitset<Block, Allocator>::Bit::operator&() const
+	void* Bitset::Bit::operator&() const
 	{
 		// The template is necessary to make it fail only when used
 		static_assert(!BadCall, "It is impossible to take the address of a bit in a bitset");

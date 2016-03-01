@@ -9,12 +9,13 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Signal<Args...>
+	* \ingroup core
+	* \class Nz::Signal
 	* \brief Core class that represents a signal, a list of objects waiting for its message
 	*/
 
 	/*!
-	* \brief Constructs a Signal<Args...> object by default
+	* \brief Constructs a Signal object by default
 	*/
 
 	template<typename... Args>
@@ -24,7 +25,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Signal<Args...> object by move semantic
+	* \brief Constructs a Signal object by move semantic
 	*
 	* \param signal Signal to move in this
 	*/
@@ -240,12 +241,12 @@ namespace Nz
 	}
 
 	/*!
-	* \class Nz::Signal<Args...>::Connection
+	* \class Nz::Signal::Connection
 	* \brief Core class that represents a connection attached to a signal
 	*/
 
 	/*!
-	* \brief Constructs a Signal<Args...>::Connection object with a slot
+	* \brief Constructs a Signal::Connection object with a slot
 	*
 	* \param slot Slot of the listener
 	*/
@@ -293,12 +294,12 @@ namespace Nz
 	}
 
 	/*!
-	* \class Nz::Signal<Args...>::ConnectionGuard
+	* \class Nz::Signal::ConnectionGuard
 	* \brief Core class that represents a RAII for a connection attached to a signal
 	*/
 
 	/*!
-	* \brief Constructs a Signal<Args...>::ConnectionGuard object with a connection
+	* \brief Constructs a Signal::ConnectionGuard object with a connection
 	*
 	* \param connection Connection for the scope
 	*/
@@ -310,7 +311,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Signal<Args...>::ConnectionGuard object with a connection by move semantic
+	* \brief Constructs a Signal::ConnectionGuard object with a connection by move semantic
 	*
 	* \param connection Connection for the scope
 	*/

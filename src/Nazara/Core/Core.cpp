@@ -14,7 +14,8 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::CoreCore
+	* \ingroup core
+	* \class Nz::Core
 	* \brief Core class that represents the module initializer of Core
 	*/
 

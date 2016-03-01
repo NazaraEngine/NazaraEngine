@@ -14,12 +14,13 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Vector2<T>
+	* \ingroup math
+	* \class Nz::Vector2
 	* \brief Math class that represents an element of the two dimensional vector space
 	*/
 
 	/*!
-	* \brief Constructs a Vector2<T> object from its coordinates
+	* \brief Constructs a Vector2 object from its coordinates
 	*
 	* \param X X component
 	* \param Y Y component
@@ -32,7 +33,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs explicitely a Vector2<T> object from its "scale"
+	* \brief Constructs explicitely a Vector2 object from its "scale"
 	*
 	* \param scale X component = Y component
 	*/
@@ -44,7 +45,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2<T> object from an array of two elements
+	* \brief Constructs a Vector2 object from an array of two elements
 	*
 	* \param vec[2] vec[0] is X component and vec[1] is Y component
 	*/
@@ -56,7 +57,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2<T> object from another type of Vector2
+	* \brief Constructs a Vector2 object from another type of Vector2
 	*
 	* \param vec Vector of type U to convert to type T
 	*/
@@ -69,7 +70,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2<T> object from a Vector3
+	* \brief Constructs a Vector2 object from a Vector3
 	*
 	* \param vec Vector3 where only the first two components are taken
 	*/
@@ -81,7 +82,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2<T> object from a Vector4
+	* \brief Constructs a Vector2 object from a Vector4
 	*
 	* \param vec Vector4 where only the first two components are taken
 	*/
@@ -988,7 +989,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec)
 */
 
 template<typename T>
-Nz::Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec)
+Nz::Vector2<T> operator*(T scale, const Nz::Vector2& vec)
 {
 	return Nz::Vector2<T>(scale * vec.x, scale * vec.y);
 }

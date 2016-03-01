@@ -9,6 +9,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ErrorFlags
 	* \brief Core class that represents flags for error
 	*/

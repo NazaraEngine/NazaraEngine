@@ -67,6 +67,7 @@ namespace Nz
 	}
 	
 	/*!
+	* \ingroup core
 	* \class Nz::MemoryManager
 	* \brief Core class that represents a manager for the memory
 	*/

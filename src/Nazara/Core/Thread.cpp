@@ -22,7 +22,8 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Thread<T>
+	* \ingroup core
+	* \class Nz::Thread
 	* \brief Core class that represents a thread
 	*/
 

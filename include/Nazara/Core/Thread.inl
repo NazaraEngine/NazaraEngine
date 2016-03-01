@@ -8,12 +8,13 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Thread
 	* \brief Core class that represents a thread
 	*/
 
 	/*!
-	* \brief Constructs a Thread<T> object with a function
+	* \brief Constructs a Thread object with a function
 	*
 	* \param function Task the thread will execute in parallel
 	*/
@@ -25,7 +26,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Thread<T> object with a function and its parameters
+	* \brief Constructs a Thread object with a function and its parameters
 	*
 	* \param function Task the thread will execute in parallel
 	* \param args Arguments of the function
@@ -38,7 +39,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Thread<T> object with a member function and its object
+	* \brief Constructs a Thread object with a member function and its object
 	*
 	* \param function Task the thread will execute in parallel
 	* \param object Object on which the method will be called

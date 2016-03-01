@@ -18,7 +18,8 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::AbstractHash<T>
+	* \ingroup core
+	* \class Nz::AbstractHash
 	* \brief Core class that represents the behaviour of the hash classes
 	*
 	* \remark This class is abstract

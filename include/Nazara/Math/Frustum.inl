@@ -17,14 +17,15 @@ namespace Nz
 {
 
 	/*!
-	* \class Nz::Frustum<T>
+    * \ingroup math
+	* \class Nz::Frustum
 	* \brief Math class that represents a frustum in the three dimensional vector space
 	*
 	* Frustums are used to determine what is inside the camera's field of view. They help speed up the rendering process
 	*/
 
 	/*!
-	* \brief Constructs a Frustum<T> object from another type of Frustum
+	* \brief Constructs a Frustum object from another type of Frustum
 	*
 	* \param frustum Frustum of type U to convert to type T
 	*/

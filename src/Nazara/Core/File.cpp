@@ -31,6 +31,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::File
 	* \brief Core class that represents a file
 	*/

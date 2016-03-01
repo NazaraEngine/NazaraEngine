@@ -7,8 +7,9 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::StdLogger
-	* \brief Core class that represents a functor
+	* \ingroup core
+	* \class Nz::FunctorWithoutArgs
+	* \brief Core class that represents a functor using a function without argument
 	*/
 
 	/*!
@@ -16,7 +17,6 @@ namespace Nz
 	*
 	* \param func Function to execute
 	*/
-
 	template<typename F>
 	FunctorWithoutArgs<F>::FunctorWithoutArgs(F func) :
 	m_func(func)
@@ -26,7 +26,6 @@ namespace Nz
 	/*!
 	* \brief Runs the function
 	*/
-
 	template<typename F>
 	void FunctorWithoutArgs<F>::Run()
 	{
@@ -34,12 +33,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a FunctorWithoutArgs object with a function and its arguments
+	* \ingroup core
+	* \class Nz::FunctorWithArgs
+	* \brief Core class that represents a functor using a function with arguments
+	*/
+
+	/*!
+	* \brief Constructs a FunctorWithArgs object with a function and its arguments
 	*
 	* \param func Function to execute
 	* \param args Arguments for the function
 	*/
-
 	template<typename F, typename... Args>
 	FunctorWithArgs<F, Args...>::FunctorWithArgs(F func, Args&&... args) :
 	m_func(func),
@@ -50,7 +54,6 @@ namespace Nz
 	/*!
 	* \brief Runs the function
 	*/
-
 	template<typename F, typename... Args>
 	void FunctorWithArgs<F, Args...>::Run()
 	{
@@ -58,12 +61,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a FunctorWithoutArgs object with a member function and an object
+	* \ingroup core
+	* \class Nz::MemberWithoutArgs
+	* \brief Core class that represents a functor using a member function
+	*/
+
+	/*!
+	* \brief Constructs a MemberWithoutArgs object with a member function and an object
 	*
 	* \param func Member function to execute
 	* \param object Object to execute on
 	*/
-
 	template<typename C>
 	MemberWithoutArgs<C>::MemberWithoutArgs(void (C::*func)(), C* object) :
 	m_func(func),
@@ -74,7 +82,6 @@ namespace Nz
 	/*!
 	* \brief Runs the function
 	*/
-
 	template<typename C>
 	void MemberWithoutArgs<C>::Run()
 	{

@@ -12,6 +12,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ByteStream
 	* \brief Core class that represents a stream of bytes
 	*/

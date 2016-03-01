@@ -8,12 +8,13 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::SparsePtr<T>
+	* \ingroup core
+	* \class Nz::SparsePtr
 	* \brief Core class that represents a pointer and the step between two elements
 	*/
 
 	/*!
-	* \brief Constructs a SparsePtr<T> object by default
+	* \brief Constructs a SparsePtr object by default
 	*/
 
 	template<typename T>
@@ -23,7 +24,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a SparsePtr<T> object with a pointer
+	* \brief Constructs a SparsePtr object with a pointer
 	*
 	* \param ptr Pointer to data
 	*/
@@ -35,7 +36,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a SparsePtr<T> object with a pointer and a step
+	* \brief Constructs a SparsePtr object with a pointer and a step
 	*
 	* \param ptr Pointer to data
 	* \param stride Step between two elements
@@ -48,7 +49,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a SparsePtr<T> object from another type of SparsePtr
+	* \brief Constructs a SparsePtr object from another type of SparsePtr
 	*
 	* \param ptr Pointer to data of type U to convert to type T
 	*/
@@ -214,7 +215,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T* SparsePtr<T>::operator->() const
+	T* SparsePtr::operator->() const
 	{
 		return reinterpret_cast<T*>(m_ptr);
 	}

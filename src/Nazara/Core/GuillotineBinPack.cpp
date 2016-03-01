@@ -17,6 +17,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::GuillotineBinPack
 	* \brief Core class that represents the "Guillotine problem", combination of the "Bin packing problem" and the "cutting stock"
 	*/

@@ -77,6 +77,7 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::String
 	* \brief Core class that represents a string
 	*/
