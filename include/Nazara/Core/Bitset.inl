@@ -114,7 +114,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	void Bitset<Block, Allocator>::Clear()
+	void Bitset<Block, Allocator>::Clear() noexcept
 	{
 		m_bitCount = 0;
 		m_blocks.clear();

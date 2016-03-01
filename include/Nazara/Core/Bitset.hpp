@@ -32,9 +32,9 @@ namespace Nz
 			Bitset(const Bitset& bitset) = default;
 			explicit Bitset(const String& bits);
 			Bitset(Bitset&& bitset) noexcept = default;
-			~Bitset() = default;
+			~Bitset() noexcept = default;
 
-			void Clear();
+			void Clear() noexcept;
 			unsigned int Count() const;
 			void Flip();
 
