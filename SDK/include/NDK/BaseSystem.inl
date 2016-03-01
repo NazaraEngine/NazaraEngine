@@ -172,9 +172,9 @@ namespace Ndk
 		OnEntityValidation(entity, justAdded);
 	}
 
-	inline void BaseSystem::SetWorld(World& world)
+	inline void BaseSystem::SetWorld(World* world) noexcept
 	{
-		m_world = &world;
+		m_world = world;
 	}
 
 	inline bool BaseSystem::Initialize()
@@ -186,6 +186,6 @@ namespace Ndk
 
 	inline void BaseSystem::Uninitialize()
 	{
-		// Rien à faire
+		// Nothing to do
 	}
 }

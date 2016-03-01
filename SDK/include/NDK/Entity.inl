@@ -113,6 +113,13 @@ namespace Ndk
 		m_systemBits.UnboundedSet(index);
 	}
 
+	inline void Entity::SetWorld(World* world) noexcept
+	{
+		NazaraAssert(world, "An entity must be attached to a world at any time");
+
+		m_world = world;
+	}
+
 	inline void Entity::UnregisterHandle(EntityHandle* handle)
 	{
 		///DOC: Un handle ne doit être libéré qu'une fois, et doit faire partie de la liste, sous peine de crash
