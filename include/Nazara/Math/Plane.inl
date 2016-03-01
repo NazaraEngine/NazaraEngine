@@ -12,14 +12,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Vector4<T>
+	* \ingroup math
+	* \class Nz::Plane
 	* \brief Math class that represents a plane in 3D
 	*
 	* \remark The convention used in this class is: If you ask for plane with normal (0, 1, 0) and distance 1, you will get 0 * X + 1 * Y + 0 * Z - 1 = 0 or Y = 1. Notice the sign minus before the distance on the left side of the equation
 	*/
 
 	/*!
-	* \brief Constructs a Plane<T> object from its components
+	* \brief Constructs a Plane object from its components
 	*
 	* \param normalX X component of the normal
 	* \param normalY Y component of the normal
@@ -34,7 +35,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Plane<T> object from an array of four elements
+	* \brief Constructs a Plane object from an array of four elements
 	*
 	* \param plane[4] plane[0] is X component, plane[1] is Y component, plane[2] is Z component and plane[3] is D
 	*/
@@ -46,7 +47,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Plane<T> object from a normal and a distance
+	* \brief Constructs a Plane object from a normal and a distance
 	*
 	* \param Normal normal of the vector
 	* \param D Distance to origin
@@ -59,7 +60,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Plane<T> object from a normal and a point
+	* \brief Constructs a Plane object from a normal and a point
 	*
 	* \param Normal Normal of the plane
 	* \param point Point which verifies the equation of the plane
@@ -72,7 +73,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Plane<T> object from three points
+	* \brief Constructs a Plane object from three points
 	*
 	* \param point1 First point
 	* \param point2 Second point
@@ -88,7 +89,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Plane<T> object from another type of Plane
+	* \brief Constructs a Plane object from another type of Plane
 	*
 	* \param plane Plane of type U to convert to type T
 	*/

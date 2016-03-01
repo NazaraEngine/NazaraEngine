@@ -28,6 +28,11 @@
 #ifndef NAZARA_CONFIG_MATH_HPP
 #define NAZARA_CONFIG_MATH_HPP
 
+/*!
+* \defgroup math (NazaraMath) Mathematics module
+*  2D/3D mathematics module including matrix, vector, box, sphere, quaternion, ...
+*/
+
 /// Each modification of a paramater of the module needs a recompilation of the unit
 
 // Define the radian as unit for angles

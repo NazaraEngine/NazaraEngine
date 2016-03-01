@@ -25,7 +25,8 @@ namespace Nz
 	}
 
 	/*!
-	* \class Nz::TaskScheduler<T>
+	* \ingroup core
+	* \class Nz::TaskScheduler
 	* \brief Core class that represents a pool of threads
 	*
 	* \remark Initialized should be called first

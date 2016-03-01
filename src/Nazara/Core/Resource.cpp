@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::Resource
 	* \brief Core class that represents a resource
 	*/

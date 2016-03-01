@@ -13,6 +13,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::FileLogger
 	* \brief Core class that represents a file logger
 	*/

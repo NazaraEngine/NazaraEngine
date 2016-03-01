@@ -10,6 +10,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ByteArray
 	* \brief Core class that represents an array of bytes
 	*/

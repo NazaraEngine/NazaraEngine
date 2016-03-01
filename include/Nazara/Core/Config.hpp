@@ -27,6 +27,11 @@
 #ifndef NAZARA_CONFIG_CORE_HPP
 #define NAZARA_CONFIG_CORE_HPP
 
+/*!
+* \defgroup core (NazaraCore) Core module
+*  Core/System module including classes to handle threading, time, hardware info, memory management, etc...
+*/
+
 /// Each modification of a parameter needs a recompilation of the module
 
 // Precision of reals when transformed into string (Max. numbers after the coma)

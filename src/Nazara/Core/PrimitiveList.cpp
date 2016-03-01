@@ -9,6 +9,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::PrimitiveList
 	* \brief Core class that represents a list of geometric primitives
 	*/

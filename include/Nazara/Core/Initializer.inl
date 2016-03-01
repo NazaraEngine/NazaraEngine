@@ -48,7 +48,8 @@ namespace Nz
 	}
 
 	/*!
-	* \class Nz::Initializer<Args...>
+	* \ingroup core
+	* \class Nz::Initializer
 	* \brief Core class that represents a module initializer
 	*/
 
@@ -57,7 +58,6 @@ namespace Nz
 	*
 	* \param initialize Initialize the module
 	*/
-
 	template<typename... Args>
 	Initializer<Args...>::Initializer(bool initialize) :
 	m_initialized(false)
@@ -71,7 +71,6 @@ namespace Nz
 	*
 	* \see Uninitialize
 	*/
-
 	template<typename... Args>
 	Initializer<Args...>::~Initializer()
 	{
@@ -83,7 +82,6 @@ namespace Nz
 	*
 	* \see Uninitialize
 	*/
-
 	template<typename... Args>
 	bool Initializer<Args...>::Initialize()
 	{
@@ -97,7 +95,6 @@ namespace Nz
 	* \brief Checks whether the module is initialized
 	* \return true if initialized
 	*/
-
 	template<typename... Args>
 	bool Initializer<Args...>::IsInitialized() const
 	{
@@ -109,7 +106,6 @@ namespace Nz
 	*
 	* \see Initialize
 	*/
-
 	template<typename... Args>
 	void Initializer<Args...>::Uninitialize()
 	{
@@ -121,7 +117,6 @@ namespace Nz
 	* \brief Converts the initializer to boolean
 	* \return true if initialized
 	*/
-
 	template<typename... Args>
 	Initializer<Args...>::operator bool() const
 	{

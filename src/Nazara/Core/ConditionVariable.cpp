@@ -19,6 +19,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::ConditionVariable
 	* \brief Core class that represents a condition variable
 	*

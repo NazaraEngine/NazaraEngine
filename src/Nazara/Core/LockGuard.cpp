@@ -9,6 +9,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::LockGuard
 	* \brief Core class that represents a mutex wrapper that provides a convenient RAII-style mechanism
 	*/

@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \brief Constructs a String object with a shared string by move semantic
 	*
 	* \param sharedString Shared string to move into this

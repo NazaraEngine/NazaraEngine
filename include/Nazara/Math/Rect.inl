@@ -13,14 +13,15 @@
 namespace Nz
 {
 	/*!
-	* \class Nz::Rect<T>
+	* \ingroup math
+	* \class Nz::Rect
 	* \brief Math class that represents an axis-aligned rectangle in two dimensions
 	*
 	* \remark The basis is said to be "left-hand". It means that with your left hand, the thumb is X positive, the index finger Y positive pointing to the bottom
 	*/
 
 	/*!
-	* \brief Constructs a Rect<T> object from its width and height
+	* \brief Constructs a Rect object from its width and height
 	*
 	* \param Width Width of the rectangle (following X)
 	* \param Height Height of the rectangle (following Y)
@@ -35,7 +36,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Rect<T> object from its position, width and height
+	* \brief Constructs a Rect object from its position, width and height
 	*
 	* \param X X position
 	* \param Y Y position
@@ -50,7 +51,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Rect<T> object from an array of four elements
+	* \brief Constructs a Rect object from an array of four elements
 	*
 	* \param vec[4] vec[0] is X position, vec[1] is Y position, vec[2] is width and vec[3] is height
 	*/
@@ -62,7 +63,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Rect<T> object from a vector representing width and height
+	* \brief Constructs a Rect object from a vector representing width and height
 	*
 	* \param lengths (Width, Height) of the rectangle
 	*
@@ -76,7 +77,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Rect<T> object from two vectors representing point of the space
+	* \brief Constructs a Rect object from two vectors representing point of the space
 	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
 	*
 	* \param vec1 First point
@@ -90,7 +91,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Rect<T> object from another type of Rect
+	* \brief Constructs a Rect object from another type of Rect
 	*
 	* \param rect Rect of type U to convert to type T
 	*/
@@ -504,7 +505,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets a Rect<T> object from two vectors representing point of the space
+	* \brief Sets a Rect object from two vectors representing point of the space
 	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
 	* \return A reference to this rectangle
 	*

@@ -10,6 +10,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::MemoryView
 	* \brief Core class that represents a view of the memory behaving like a stream
 	*/
@@ -134,7 +135,7 @@ namespace Nz
 	{
 		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
 		if (endPos > m_size)
-			size = m_size - m_pos;
+			size = static_cast<std::size_t>(m_size - m_pos);
 
 		NazaraAssert(buffer, "Invalid buffer");
 

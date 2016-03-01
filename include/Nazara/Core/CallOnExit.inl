@@ -8,6 +8,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::CallOnExit
 	* \brief Core class that represents a function to call at the end of the scope
 	*/

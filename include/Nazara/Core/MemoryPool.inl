@@ -10,6 +10,7 @@
 namespace Nz
 {
 	/*!
+	* \ingroup core
 	* \class Nz::MemoryPool
 	* \brief Core class that represents a memory pool
 	*/
