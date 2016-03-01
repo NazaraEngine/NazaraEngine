@@ -23,9 +23,9 @@ namespace Ndk
 			handle->OnEntityMoved(this);
 	}
 
-	Entity::Entity(World& world, EntityId id) :
+	Entity::Entity(World* world, EntityId id) :
 	m_id(id),
-	m_world(&world)
+	m_world(world)
 	{
 	}
 

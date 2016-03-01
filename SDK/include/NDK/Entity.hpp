@@ -60,13 +60,16 @@ namespace Ndk
 			Entity& operator=(Entity&&) = delete;
 
 		private:
-			Entity(World& world, EntityId id);
+			Entity(World* world, EntityId id);
 
 			void Create();
 			void Destroy();
 
 			inline void RegisterHandle(EntityHandle* handle);
 			inline void RegisterSystem(SystemIndex index);
+
+			inline void SetWorld(World* world) noexcept;
+
 			inline void UnregisterHandle(EntityHandle* handle);
 			inline void UnregisterSystem(SystemIndex index);
 
