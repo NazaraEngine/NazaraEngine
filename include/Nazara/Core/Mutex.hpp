@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			Mutex();
 			Mutex(const Mutex&) = delete;
-			Mutex(Mutex&&) = delete; ///TODO
+			inline Mutex(Mutex&& mutex) noexcept;
 			~Mutex();
 
 			void Lock();
@@ -28,11 +28,13 @@ namespace Nz
 			void Unlock();
 
 			Mutex& operator=(const Mutex&) = delete;
-			Mutex& operator=(Mutex&&) = delete; ///TODO
+			Mutex& operator=(Mutex&& mutex) noexcept;
 
 		private:
 			MutexImpl* m_impl;
 	};
 }
+
+#include <Nazara/Core/Mutex.inl>
 
 #endif // NAZARA_MUTEX_HPP

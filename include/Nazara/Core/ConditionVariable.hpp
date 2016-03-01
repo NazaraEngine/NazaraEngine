@@ -19,7 +19,7 @@ namespace Nz
 		public:
 			ConditionVariable();
 			ConditionVariable(const ConditionVariable&) = delete;
-			ConditionVariable(ConditionVariable&&) = delete; ///TODO
+			inline ConditionVariable(ConditionVariable&& condition) noexcept;
 			~ConditionVariable();
 
 			void Signal();
@@ -29,11 +29,13 @@ namespace Nz
 			bool Wait(Mutex* mutex, UInt32 timeout);
 
 			ConditionVariable& operator=(const ConditionVariable&) = delete;
-			ConditionVariable& operator=(ConditionVariable&&) = delete; ///TODO
+			inline ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
 
 		private:
 			ConditionVariableImpl* m_impl;
 	};
 }
+
+#include <Nazara/Core/ConditionVariable.inl>
 
 #endif // NAZARA_CONDITIONVARIABLE_HPP
