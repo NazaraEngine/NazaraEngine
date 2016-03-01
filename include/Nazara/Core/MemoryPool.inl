@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <utility>
+#include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
