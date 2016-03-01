@@ -71,7 +71,7 @@ namespace Ndk
 
 			inline void RemoveEntity(Entity* entity);
 
-			inline void SetWorld(World& world);
+			inline void SetWorld(World* world) noexcept;
 
 			inline void ValidateEntity(Entity* entity, bool justAdded);
 

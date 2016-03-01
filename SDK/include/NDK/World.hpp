@@ -27,8 +27,8 @@ namespace Ndk
 
 			inline World(bool addDefaultSystems = true);
 			World(const World&) = delete;
-			World(World&&) = delete; ///TODO
-			~World();
+			inline World(World&& world) noexcept;
+			~World() noexcept;
 
 			void AddDefaultSystems();
 
@@ -38,7 +38,7 @@ namespace Ndk
 			const EntityHandle& CreateEntity();
 			inline EntityList CreateEntities(unsigned int count);
 
-			void Clear();
+			void Clear() noexcept;
 
 			const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities();
@@ -62,7 +62,7 @@ namespace Ndk
 			inline void Update(float elapsedTime);
 
 			World& operator=(const World&) = delete;
-			World& operator=(World&&) = delete; ///TODO
+			inline World& operator=(World&& world) noexcept;
 
 		private:
 			inline void Invalidate();

@@ -46,7 +46,7 @@ namespace Ndk
 			id = m_entities.size();
 
 			// Impossible d'utiliser emplace_back à cause de la portée
-			m_entities.push_back(Entity(*this, id));
+			m_entities.push_back(Entity(this, id));
 		}
 
 		// On initialise l'entité et on l'ajoute à la liste des entités vivantes
@@ -59,7 +59,7 @@ namespace Ndk
 		return m_aliveEntities.back();
 	}
 
-	void World::Clear()
+	void World::Clear() noexcept
 	{
 		///DOC: Tous les handles sont correctement invalidés
 
