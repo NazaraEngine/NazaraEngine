@@ -28,53 +28,6 @@ namespace Nz
 		Window* fullscreenWindow = nullptr;
 	}
 
-	Window::Window() :
-	#if NAZARA_UTILITY_THREADED_WINDOW
-	m_impl(nullptr),
-	m_eventListener(true),
-	m_waitForEvent(false)
-	#else
-	m_impl(nullptr)
-	#endif
-	{
-	}
-
-	Window::Window(VideoMode mode, const String& title, UInt32 style) :
-	#if NAZARA_UTILITY_THREADED_WINDOW
-	m_impl(nullptr),
-	m_eventListener(true),
-	m_waitForEvent(false)
-	#else
-	m_impl(nullptr)
-	#endif
-	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
-		Create(mode, title, style);
-	}
-
-	Window::Window(WindowHandle handle) :
-	#if NAZARA_UTILITY_THREADED_WINDOW
-	m_impl(nullptr),
-	m_eventListener(true),
-	m_waitForEvent(false)
-	#else
-	m_impl(nullptr)
-	#endif
-	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
-		Create(handle);
-	}
-
-	Window::~Window()
-	{
-		Destroy();
-	}
-
-	void Window::Close()
-	{
-		m_closed = true; // On retarde la fermeture jusqu'au prochain IsOpen
-	}
-
 	bool Window::Create(VideoMode mode, const String& title, UInt32 style)
 	{
 		// Si la fenêtre est déjà ouverte, nous conservons sa position
@@ -317,27 +270,6 @@ namespace Nz
 		return m_impl->HasFocus();
 	}
 
-	bool Window::IsOpen(bool checkClosed)
-	{
-		if (m_impl)
-		{
-			if (m_closed && checkClosed)
-			{
-				Destroy();
-				return false;
-			}
-			else
-				return true;
-		}
-		else
-			return false;
-	}
-
-	bool Window::IsOpen() const
-	{
-		return m_impl != nullptr;
-	}
-
 	bool Window::IsMinimized() const
 	{
 		#if NAZARA_UTILITY_SAFE
@@ -349,11 +281,6 @@ namespace Nz
 		#endif
 
 		return m_impl->IsMinimized();
-	}
-
-	bool Window::IsValid() const
-	{
-		return m_impl != nullptr;
 	}
 
 	bool Window::IsVisible() const
@@ -708,28 +635,6 @@ namespace Nz
 		#endif
 
 		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
-	}
-
-	void Window::PushEvent(const WindowEvent& event)
-	{
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		m_eventMutex.Lock();
-		#endif
-
-		m_events.push(event);
-		if (event.type == WindowEventType_Resized)
-			OnWindowResized();
-
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		m_eventMutex.Unlock();
-
-		if (m_waitForEvent)
-		{
-			m_eventConditionMutex.Lock();
-			m_eventCondition.Signal();
-			m_eventConditionMutex.Unlock();
-		}
-		#endif
 	}
 
 	bool Window::Initialize()

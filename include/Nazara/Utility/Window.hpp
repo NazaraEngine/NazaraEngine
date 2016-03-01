@@ -38,14 +38,14 @@ namespace Nz
 		friend class Utility;
 
 		public:
-			Window();
-			Window(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
-			Window(WindowHandle handle);
+			inline Window();
+			inline Window(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			inline Window(WindowHandle handle);
 			Window(const Window&) = delete;
-			Window(Window&&) = delete; ///TODO
+			inline Window(Window&& window) noexcept;
 			virtual ~Window();
 
-			void Close();
+			inline void Close();
 
 			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
 			bool Create(WindowHandle handle);
@@ -66,9 +66,9 @@ namespace Nz
 			bool HasFocus() const;
 
 			bool IsMinimized() const;
-			bool IsOpen(bool checkClosed = true);
-			bool IsOpen() const;
-			bool IsValid() const;
+			inline bool IsOpen(bool checkClosed = true);
+			inline bool IsOpen() const;
+			inline bool IsValid() const;
 			bool IsVisible() const;
 
 			bool PollEvent(WindowEvent* event);
@@ -93,7 +93,7 @@ namespace Nz
 			bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
-			Window& operator=(Window&&) = delete; ///TODO
+			inline Window& operator=(Window&& window);
 
 		protected:
 			virtual bool OnWindowCreated();
@@ -104,7 +104,7 @@ namespace Nz
 
 		private:
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
-			void PushEvent(const WindowEvent& event);
+			inline void PushEvent(const WindowEvent& event);
 
 			static bool Initialize();
 			static void Uninitialize();
@@ -121,5 +121,7 @@ namespace Nz
 			bool m_ownsWindow;
 	};
 }
+
+#include <Nazara/Utility/Window.inl>
 
 #endif // NAZARA_WINDOW_HPP
