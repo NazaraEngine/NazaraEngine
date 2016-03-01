@@ -15,16 +15,29 @@ SCENARIO("PrimitiveList", "[CORE][PRIMITIVELIST]")
 			Nz::Matrix4f identity = Nz::Matrix4f::Identity();
 
 			primitiveList.AddCubicSphere(size, subdivision, identity);
+			primitiveList.AddBox(Nz::Vector3f(size), Nz::Vector3ui(subdivision), identity);
 			primitiveList.AddIcoSphere(size, subdivision, identity);
 
 			THEN("There must be two items")
 			{
-				REQUIRE(primitiveList.GetSize() == 2);
+				REQUIRE(primitiveList.GetSize() == 3);
 			}
 
 			THEN("The first one is the cubic sphere")
 			{
+				REQUIRE(primitiveList(0).type == Nz::PrimitiveType_Sphere);
 				REQUIRE(primitiveList(0).sphere.type == Nz::SphereType_Cubic);
+			}
+
+			THEN("The second one is the box")
+			{
+				REQUIRE(primitiveList(1).type == Nz::PrimitiveType_Box);
+			}
+
+			THEN("The third one is the ico sphere")
+			{
+				REQUIRE(primitiveList(2).type == Nz::PrimitiveType_Sphere);
+				REQUIRE(primitiveList(2).sphere.type == Nz::SphereType_Ico);
 			}
 		}
 	}

@@ -8,7 +8,7 @@ SCENARIO("SparsePtr", "[CORE][SPARSEPTR]")
 	GIVEN("A sparse pointer pointing to an array with a stride of 2")
 	{
 		std::array<int, 5> arrays{0, 1, 2, 3, 4};
-		Nz::SparsePtr<int> sparsePtr(arrays.begin(), 2 * sizeof(int));
+		Nz::SparsePtr<int> sparsePtr(arrays.data(), 2 * sizeof(int));
 
 		WHEN("We use operators")
 		{
