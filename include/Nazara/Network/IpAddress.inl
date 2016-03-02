@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <limits>
 #include <ostream>
 #include <Nazara/Network/Debug.hpp>
 
@@ -211,4 +212,42 @@ namespace Nz
 	}
 }
 
+namespace std
+{
+	template<>
+	struct hash<Nz::IpAddress>
+	{
+		size_t operator()(const Nz::IpAddress& ip) const
+		{
+			if (!ip)
+				return std::numeric_limits<size_t>::max(); //< Returns a fixed value for invalid addresses
+
+			// This is SDBM adapted for IP addresses, tested to generate the least collisions possible
+			// (It doesn't mean it cannot be improved though)
+			std::size_t hash = 0;
+			switch (ip.GetProtocol())
+			{
+				case Nz::NetProtocol_Any:
+				case Nz::NetProtocol_Unknown:
+					return std::numeric_limits<size_t>::max();
+
+				case Nz::NetProtocol_IPv4:
+				{
+					hash = ip.ToUInt32() + (hash << 6) + (hash << 16) - hash;
+					break;
+				}
+				case Nz::NetProtocol_IPv6:
+				{
+					Nz::IpAddress::IPv6 v6 = ip.ToIPv6();
+					for (std::size_t i = 0; i < v6.size(); i++)
+						hash = v6[i] + (hash << 6) + (hash << 16) - hash;
+
+					break;
+				}
+			}
+
+			return ip.GetPort() + (hash << 6) + (hash << 16) - hash;
+		}
+	};
+}
 #include <Nazara/Network/DebugOff.hpp>
