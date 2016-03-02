@@ -1786,7 +1786,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix)
 */
 
 template<typename T>
-Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4& matrix)
+Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
 {
 	return matrix * scale;
 }

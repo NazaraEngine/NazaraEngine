@@ -215,7 +215,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T* SparsePtr::operator->() const
+	T* SparsePtr<T>::operator->() const
 	{
 		return reinterpret_cast<T*>(m_ptr);
 	}
