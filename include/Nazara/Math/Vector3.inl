@@ -1300,7 +1300,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec)
 */
 
 template<typename T>
-Nz::Vector3<T> operator*(T scale, const Nz::Vector3& vec)
+Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec)
 {
 	return Nz::Vector3<T>(scale * vec.x, scale * vec.y, scale * vec.z);
 }
