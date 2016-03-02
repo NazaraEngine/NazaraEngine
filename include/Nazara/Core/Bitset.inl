@@ -913,7 +913,7 @@ namespace Nz
 
 	template<typename Block, class Allocator>
 	template<bool BadCall>
-	void* Bitset::Bit::operator&() const
+	void* Bitset<Block, Allocator>::Bit::operator&() const
 	{
 		// The template is necessary to make it fail only when used
 		static_assert(!BadCall, "It is impossible to take the address of a bit in a bitset");
