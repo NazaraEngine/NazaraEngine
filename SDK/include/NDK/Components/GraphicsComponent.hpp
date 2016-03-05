@@ -28,6 +28,8 @@ namespace Ndk
 
 			inline void EnsureTransformMatrixUpdate() const;
 
+            inline std::vector<Nz::InstancedRenderableConstRef> GetAttachedRenderables() const;
+
 			static ComponentIndex componentIndex;
 
 		private:
