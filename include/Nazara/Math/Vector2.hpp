@@ -7,11 +7,12 @@
 #ifndef NAZARA_VECTOR2_HPP
 #define NAZARA_VECTOR2_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class Vector3;
 	template<typename T> class Vector4;
 
