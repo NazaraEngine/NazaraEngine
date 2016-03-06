@@ -7,6 +7,7 @@
 #ifndef NAZARA_RAY_HPP
 #define NAZARA_RAY_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -73,6 +74,9 @@ namespace Nz
 
 	typedef Ray<double> Rayd;
 	typedef Ray<float> Rayf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray);
+	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);

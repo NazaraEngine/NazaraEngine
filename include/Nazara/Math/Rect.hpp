@@ -7,6 +7,7 @@
 #ifndef NAZARA_RECT_HPP
 #define NAZARA_RECT_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -90,6 +91,9 @@ namespace Nz
 	typedef Rect<unsigned int> Rectui;
 	typedef Rect<Int32> Recti32;
 	typedef Rect<UInt32> Rectui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect);
+	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect);
 }
 
 template<typename T>

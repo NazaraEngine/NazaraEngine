@@ -7,6 +7,7 @@
 #ifndef NAZARA_QUATERNION_HPP
 #define NAZARA_QUATERNION_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz
@@ -88,6 +89,9 @@ namespace Nz
 
 	typedef Quaternion<double> Quaterniond;
 	typedef Quaternion<float> Quaternionf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat);
+	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat);

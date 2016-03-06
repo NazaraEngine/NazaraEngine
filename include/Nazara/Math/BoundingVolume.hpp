@@ -5,6 +5,7 @@
 #ifndef NAZARA_BOUNDINGVOLUME_HPP
 #define NAZARA_BOUNDINGVOLUME_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -66,6 +67,9 @@ namespace Nz
 
 	typedef BoundingVolume<double> BoundingVolumed;
 	typedef BoundingVolume<float> BoundingVolumef;
+
+	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume);
+	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume);
 }
 
 template<typename T>

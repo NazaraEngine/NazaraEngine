@@ -330,6 +330,50 @@ namespace Nz
 
 		return angles;
 	}
+
+	/*!
+	* \brief Serializes a EulerAngles
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param angles Input euler angles
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles)
+	{
+		if (!Serialize(context, angles.pitch))
+			return false;
+
+		if (!Serialize(context, angles.yaw))
+			return false;
+
+		if (!Serialize(context, angles.roll))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a EulerAngles
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param angles Output euler angles
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles)
+	{
+		if (!Unserialize(context, &angles->pitch))
+			return false;
+
+		if (!Unserialize(context, &angles->yaw))
+			return false;
+
+		if (!Unserialize(context, &angles->roll))
+			return false;
+
+		return true;
+	}
 }
 
 /*!
