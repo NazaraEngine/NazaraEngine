@@ -7,13 +7,14 @@
 #ifndef NAZARA_EULERANGLES_HPP
 #define NAZARA_EULERANGLES_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class EulerAngles
 	{
