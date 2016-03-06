@@ -831,6 +831,57 @@ namespace Nz
 
 		return quaternion;
 	}
+
+
+	/*!
+	* \brief Serializes a Quaternion
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param quat Input Quaternion
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Quaternion<T>& quat)
+	{
+		if (!Serialize(context, quat.x))
+			return false;
+
+		if (!Serialize(context, quat.y))
+			return false;
+
+		if (!Serialize(context, quat.z))
+			return false;
+
+		if (!Serialize(context, quat.w))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Quaternion
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param quat Output Quaternion
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Quaternion<T>* quat)
+	{
+		if (!Unserialize(context, &quat->x))
+			return false;
+
+		if (!Unserialize(context, &quat->y))
+			return false;
+
+		if (!Unserialize(context, &quat->z))
+			return false;
+
+		if (!Unserialize(context, &quat->w))
+			return false;
+
+		return true;
+	}
 }
 
 /*!

@@ -430,6 +430,42 @@ namespace Nz
 
 		return orientedBox;
 	}
+
+	/*!
+	* \brief Serializes a OrientedBox
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param obb Input oriented box
+	*
+	* \remark Does not save OBB corners
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const OrientedBox<T>& obb)
+	{
+		if (!Serialize(context, obb.localBox))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Matrix4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param obb Output oriented box
+	*
+	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb)
+	{
+		if (!Unserialize(context, &obb->localBox))
+			return false;
+
+		return true;
+	}
 }
 
 /*!
