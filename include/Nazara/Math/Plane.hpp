@@ -7,12 +7,13 @@
 #ifndef NAZARA_PLANE_HPP
 #define NAZARA_PLANE_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Plane
 	{

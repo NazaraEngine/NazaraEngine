@@ -7,7 +7,6 @@
 #ifndef NAZARA_ORIENTEDBOX_HPP
 #define NAZARA_ORIENTEDBOX_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -15,6 +14,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class OrientedBox
 	{
