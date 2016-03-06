@@ -762,6 +762,44 @@ namespace Nz
 	{
 		return Ray<T>(Nz::Vector3<T>::Lerp(from.origin, to.origin, interpolation), Nz::Vector3<T>::Lerp(from.direction, to.direction, interpolation));
 	}
+
+	/*!
+	* \brief Serializes a Ray
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param ray Input Ray
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Ray<T>& ray)
+	{
+		if (!Serialize(context, ray.origin))
+			return false;
+
+		if (!Serialize(context, ray.direction))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Ray
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param ray Output Ray
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Ray<T>* ray)
+	{
+		if (!Unserialize(context, &ray->origin))
+			return false;
+
+		if (!Unserialize(context, &ray->direction))
+			return false;
+
+		return true;
+	}
 }
 
 /*!

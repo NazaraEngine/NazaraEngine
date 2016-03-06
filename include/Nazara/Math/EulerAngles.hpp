@@ -7,6 +7,7 @@
 #ifndef NAZARA_EULERANGLES_HPP
 #define NAZARA_EULERANGLES_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -61,6 +62,9 @@ namespace Nz
 
 	typedef EulerAngles<double> EulerAnglesd;
 	typedef EulerAngles<float> EulerAnglesf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles);
+	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);

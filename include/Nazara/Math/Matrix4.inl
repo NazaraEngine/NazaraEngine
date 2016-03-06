@@ -1761,6 +1761,44 @@ namespace Nz
 
 		return matrix;
 	}
+
+	/*!
+	* \brief Serializes a Matrix4
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param matrix Input matrix
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Matrix4<T>& matrix)
+	{
+		for (unsigned int i = 0; i < 16; ++i)
+		{
+			if (!Serialize(context, matrix[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Matrix4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param matrix Output matrix
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix)
+	{
+		for (unsigned int i = 0; i < 16; ++i)
+		{
+			if (!Unserialize(context, &matrix[i]))
+				return false;
+		}
+
+		return true;
+	}
 }
 
 /*!
@@ -1786,7 +1824,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix)
 */
 
 template<typename T>
-Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4& matrix)
+Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
 {
 	return matrix * scale;
 }

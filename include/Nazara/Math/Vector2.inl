@@ -940,7 +940,6 @@ namespace Nz
 	*
 	* \see MakeUnitY
 	*/
-
 	template<typename T>
 	Vector2<T> Vector2<T>::UnitY()
 	{
@@ -956,7 +955,6 @@ namespace Nz
 	*
 	* \see MakeZero
 	*/
-
 	template<typename T>
 	Vector2<T> Vector2<T>::Zero()
 	{
@@ -964,6 +962,44 @@ namespace Nz
 		vector.MakeZero();
 
 		return vector;
+	}
+
+	/*!
+	* \brief Serializes a Vector2
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param vector Input Vector2
+	*/
+	template<typename T> 
+	bool Serialize(SerializationContext& context, const Vector2<T>& vector)
+	{
+		if (!Serialize(context, vector.x))
+			return false;
+
+		if (!Serialize(context, vector.y))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Vector2
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param vector Output Vector2
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Vector2<T>* vector)
+	{
+		if (!Unserialize(context, &vector->x))
+			return false;
+
+		if (!Unserialize(context, &vector->y))
+			return false;
+
+		return true;
 	}
 }
 
@@ -989,7 +1025,7 @@ std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec)
 */
 
 template<typename T>
-Nz::Vector2<T> operator*(T scale, const Nz::Vector2& vec)
+Nz::Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec)
 {
 	return Nz::Vector2<T>(scale * vec.x, scale * vec.y);
 }

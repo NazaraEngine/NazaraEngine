@@ -7,6 +7,7 @@
 #ifndef NAZARA_SPHERE_HPP
 #define NAZARA_SPHERE_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
@@ -80,6 +81,9 @@ namespace Nz
 
 	typedef Sphere<double> Sphered;
 	typedef Sphere<float> Spheref;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere);
+	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere);
 }
 
 template<typename T>
