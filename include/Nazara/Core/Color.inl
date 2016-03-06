@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
 #include <cmath>
@@ -609,6 +610,54 @@ namespace Nz
 			return v1 + (v2 - v1)*(2.f/3.f - vH)*6;
 
 		return v1;
+	}
+
+	/*!
+	* \brief Serializes a Color
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param color Input color
+	*/
+	inline bool Serialize(SerializationContext& context, const Color& color)
+	{
+		if (!Serialize(context, color.r))
+			return false;
+
+		if (!Serialize(context, color.g))
+			return false;
+
+		if (!Serialize(context, color.b))
+			return false;
+
+		if (!Serialize(context, color.a))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Color
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param color Output color
+	*/
+	inline bool Unserialize(SerializationContext& context, Color* color)
+	{
+		if (!Unserialize(context, &color->r))
+			return false;
+
+		if (!Unserialize(context, &color->g))
+			return false;
+
+		if (!Unserialize(context, &color->b))
+			return false;
+
+		if (!Unserialize(context, &color->a))
+			return false;
+
+		return true;
 	}
 }
 
