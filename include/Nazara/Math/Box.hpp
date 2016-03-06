@@ -7,6 +7,7 @@
 #ifndef NAZARA_BOX_HPP
 #define NAZARA_BOX_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -96,6 +97,9 @@ namespace Nz
 	typedef Box<unsigned int> Boxui;
 	typedef Box<Int32> Boxi32;
 	typedef Box<UInt32> Boxui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Box<T>& box);
+	template<typename T> bool Unserialize(SerializationContext& context, Box<T>* box);
 }
 
 template<typename T>

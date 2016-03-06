@@ -9,6 +9,7 @@
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 
@@ -138,6 +139,9 @@ namespace Nz
 
 	typedef Matrix4<double> Matrix4d;
 	typedef Matrix4<float> Matrix4f;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Matrix4<T>& matrix);
+	template<typename T> bool Unserialize(SerializationContext& context, Matrix4<T>* matrix);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix);

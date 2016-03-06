@@ -424,6 +424,44 @@ namespace Nz
 
 		return plane;
 	}
+
+	/*!
+	* \brief Serializes a Vector2
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param plane Input Vector2
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Plane<T>& plane)
+	{
+		if (!Serialize(context, plane.normal))
+			return false;
+
+		if (!Serialize(context, plane.distance))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Plane
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param plane Output Plane
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Plane<T>* plane)
+	{
+		if (!Unserialize(context, &plane->normal))
+			return false;
+
+		if (!Unserialize(context, &plane->distance))
+			return false;
+
+		return true;
+	}
 }
 
 /*!
