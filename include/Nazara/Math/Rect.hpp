@@ -7,13 +7,14 @@
 #ifndef NAZARA_RECT_HPP
 #define NAZARA_RECT_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Rect
 	{
