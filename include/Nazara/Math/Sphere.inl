@@ -674,6 +674,56 @@ namespace Nz
 
 		return sphere;
 	}
+
+	/*!
+	* \brief Serializes a Sphere
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param sphere Input Sphere
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Sphere<T>& sphere)
+	{
+		if (!Serialize(context, sphere.x))
+			return false;
+
+		if (!Serialize(context, sphere.y))
+			return false;
+
+		if (!Serialize(context, sphere.z))
+			return false;
+
+		if (!Serialize(context, sphere.radius))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Sphere
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param sphere Output Sphere
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Sphere<T>* sphere)
+	{
+		if (!Unserialize(context, &sphere->x))
+			return false;
+
+		if (!Unserialize(context, &sphere->y))
+			return false;
+
+		if (!Unserialize(context, &sphere->z))
+			return false;
+
+		if (!Unserialize(context, &sphere->radius))
+			return false;
+
+		return true;
+	}
 }
 
 /*!

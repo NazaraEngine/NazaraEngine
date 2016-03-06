@@ -7,6 +7,7 @@
 #ifndef NAZARA_FRUSTUM_HPP
 #define NAZARA_FRUSTUM_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -60,6 +61,9 @@ namespace Nz
 
 	typedef Frustum<double> Frustumd;
 	typedef Frustum<float> Frustumf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Frustum<T>& frustum);
+	template<typename T> bool Unserialize(SerializationContext& context, Frustum<T>* frustum);
 }
 
 template<typename T>
