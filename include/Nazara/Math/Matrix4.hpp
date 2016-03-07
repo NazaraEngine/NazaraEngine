@@ -14,6 +14,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class EulerAngles;
 	template<typename T> class Quaternion;
 	template<typename T> class Vector2;
@@ -138,6 +140,9 @@ namespace Nz
 
 	typedef Matrix4<double> Matrix4d;
 	typedef Matrix4<float> Matrix4f;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Matrix4<T>& matrix);
+	template<typename T> bool Unserialize(SerializationContext& context, Matrix4<T>* matrix);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix);

@@ -14,6 +14,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class OrientedBox
 	{
@@ -67,6 +69,9 @@ namespace Nz
 
 	typedef OrientedBox<double> OrientedBoxd;
 	typedef OrientedBox<float> OrientedBoxf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb);
+	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb);
 }
 
 template<typename T>

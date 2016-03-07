@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
@@ -830,6 +831,57 @@ namespace Nz
 		quaternion.MakeZero();
 
 		return quaternion;
+	}
+
+
+	/*!
+	* \brief Serializes a Quaternion
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param quat Input Quaternion
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Quaternion<T>& quat)
+	{
+		if (!Serialize(context, quat.x))
+			return false;
+
+		if (!Serialize(context, quat.y))
+			return false;
+
+		if (!Serialize(context, quat.z))
+			return false;
+
+		if (!Serialize(context, quat.w))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Quaternion
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param quat Output Quaternion
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Quaternion<T>* quat)
+	{
+		if (!Unserialize(context, &quat->x))
+			return false;
+
+		if (!Unserialize(context, &quat->y))
+			return false;
+
+		if (!Unserialize(context, &quat->z))
+			return false;
+
+		if (!Unserialize(context, &quat->w))
+			return false;
+
+		return true;
 	}
 }
 
