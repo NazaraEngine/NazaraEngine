@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
@@ -761,6 +762,44 @@ namespace Nz
 	Ray<T> Ray<T>::Lerp(const Ray& from, const Ray& to, T interpolation)
 	{
 		return Ray<T>(Nz::Vector3<T>::Lerp(from.origin, to.origin, interpolation), Nz::Vector3<T>::Lerp(from.direction, to.direction, interpolation));
+	}
+
+	/*!
+	* \brief Serializes a Ray
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param ray Input Ray
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Ray<T>& ray)
+	{
+		if (!Serialize(context, ray.origin))
+			return false;
+
+		if (!Serialize(context, ray.direction))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Ray
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param ray Output Ray
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Ray<T>* ray)
+	{
+		if (!Unserialize(context, &ray->origin))
+			return false;
+
+		if (!Unserialize(context, &ray->direction))
+			return false;
+
+		return true;
 	}
 }
 

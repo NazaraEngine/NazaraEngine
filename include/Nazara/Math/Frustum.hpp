@@ -18,6 +18,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Frustum
 	{
@@ -60,6 +62,9 @@ namespace Nz
 
 	typedef Frustum<double> Frustumd;
 	typedef Frustum<float> Frustumf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Frustum<T>& frustum);
+	template<typename T> bool Unserialize(SerializationContext& context, Frustum<T>* frustum);
 }
 
 template<typename T>

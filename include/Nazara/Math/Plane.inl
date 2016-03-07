@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -423,6 +424,44 @@ namespace Nz
 		plane.MakeYZ();
 
 		return plane;
+	}
+
+	/*!
+	* \brief Serializes a Vector2
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param plane Input Vector2
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Plane<T>& plane)
+	{
+		if (!Serialize(context, plane.normal))
+			return false;
+
+		if (!Serialize(context, plane.distance))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Plane
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param plane Output Plane
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Plane<T>* plane)
+	{
+		if (!Unserialize(context, &plane->normal))
+			return false;
+
+		if (!Unserialize(context, &plane->distance))
+			return false;
+
+		return true;
 	}
 }
 

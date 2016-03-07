@@ -12,6 +12,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class Box;
 
 	template<typename T>
@@ -80,6 +82,9 @@ namespace Nz
 
 	typedef Sphere<double> Sphered;
 	typedef Sphere<float> Spheref;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere);
+	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere);
 }
 
 template<typename T>

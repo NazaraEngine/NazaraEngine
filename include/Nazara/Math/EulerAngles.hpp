@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class EulerAngles
 	{
@@ -61,6 +63,9 @@ namespace Nz
 
 	typedef EulerAngles<double> EulerAnglesd;
 	typedef EulerAngles<float> EulerAnglesf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles);
+	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);

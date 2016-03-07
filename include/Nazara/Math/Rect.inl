@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
@@ -815,6 +816,56 @@ namespace Nz
 		rect.MakeZero();
 
 		return rect;
+	}
+
+	/*!
+	* \brief Serializes a Rect
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param rect Input Rect
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Rect<T>& rect)
+	{
+		if (!Serialize(context, rect.x))
+			return false;
+
+		if (!Serialize(context, rect.y))
+			return false;
+
+		if (!Serialize(context, rect.width))
+			return false;
+
+		if (!Serialize(context, rect.height))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Rect
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param rect Output Rect
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Rect<T>* rect)
+	{
+		if (!Unserialize(context, &rect->x))
+			return false;
+
+		if (!Unserialize(context, &rect->y))
+			return false;
+
+		if (!Unserialize(context, &rect->width))
+			return false;
+
+		if (!Unserialize(context, &rect->height))
+			return false;
+
+		return true;
 	}
 }
 

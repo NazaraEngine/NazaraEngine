@@ -6,6 +6,7 @@
 // http://www.crownandcutlass.com/features/technicaldetails/frustum.html
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -673,6 +674,56 @@ namespace Nz
 		       << "        Near: " << m_planes[FrustumPlane_Near].ToString() << "\n"
 		       << "        Right: " << m_planes[FrustumPlane_Right].ToString() << "\n"
 		       << "        Top: " << m_planes[FrustumPlane_Top].ToString() << ")\n";
+	}
+
+	/*!
+	* \brief Serializes a Frustum
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param matrix Input frustum
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Frustum<T>& frustum)
+	{
+		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		{
+			if (!Serialize(context, m_corners[i]))
+				return false;
+		}
+
+		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		{
+			if (!Serialize(context, m_planes[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Matrix4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param matrix Output matrix
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Frustum<T>* frustum)
+	{
+		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		{
+			if (!Unserialize(context, &m_corners[i]))
+				return false;
+		}
+
+		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		{
+			if (!Unserialize(context, &m_planes[i]))
+				return false;
+		}
+
+		return true;
 	}
 }
 
