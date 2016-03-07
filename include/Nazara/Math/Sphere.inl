@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -673,6 +674,56 @@ namespace Nz
 		sphere.MakeZero();
 
 		return sphere;
+	}
+
+	/*!
+	* \brief Serializes a Sphere
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param sphere Input Sphere
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Sphere<T>& sphere)
+	{
+		if (!Serialize(context, sphere.x))
+			return false;
+
+		if (!Serialize(context, sphere.y))
+			return false;
+
+		if (!Serialize(context, sphere.z))
+			return false;
+
+		if (!Serialize(context, sphere.radius))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Sphere
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param sphere Output Sphere
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Sphere<T>* sphere)
+	{
+		if (!Unserialize(context, &sphere->x))
+			return false;
+
+		if (!Unserialize(context, &sphere->y))
+			return false;
+
+		if (!Unserialize(context, &sphere->z))
+			return false;
+
+		if (!Unserialize(context, &sphere->radius))
+			return false;
+
+		return true;
 	}
 }
 

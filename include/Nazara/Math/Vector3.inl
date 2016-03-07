@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -28,7 +29,6 @@ namespace Nz
 	* \param Y Y component
 	* \param Z Z component
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(T X, T Y, T Z)
 	{
@@ -41,7 +41,6 @@ namespace Nz
 	* \param X X component
 	* \param vec vec.X = Y component and vec.y = Z component
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(T X, const Vector2<T>& vec)
 	{
@@ -53,7 +52,6 @@ namespace Nz
 	*
 	* \param scale X component = Y component = Z component
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(T scale)
 	{
@@ -65,7 +63,6 @@ namespace Nz
 	*
 	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(const T vec[3])
 	{
@@ -78,7 +75,6 @@ namespace Nz
 	* \param vec vec.X = X component and vec.y = Y component
 	* \param Z Z component
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(const Vector2<T>& vec, T Z)
 	{
@@ -90,7 +86,6 @@ namespace Nz
 	*
 	* \param vec Vector of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
 	Vector3<T>::Vector3(const Vector3<U>& vec)
@@ -103,7 +98,6 @@ namespace Nz
 	*
 	* \param vec Vector4 where only the first three components are taken
 	*/
-
 	template<typename T>
 	Vector3<T>::Vector3(const Vector4<T>& vec)
 	{
@@ -118,7 +112,6 @@ namespace Nz
 	*
 	* \see DotProduct
 	*/
-
 	template<typename T>
 	T Vector3<T>::AbsDotProduct(const Vector3& vec) const
 	{
@@ -137,7 +130,6 @@ namespace Nz
 	*
 	* \see NormalizeAngle
 	*/
-
 	template<typename T>
 	T Vector3<T>::AngleBetween(const Vector3& vec) const
 	{
@@ -166,7 +158,6 @@ namespace Nz
 	*
 	* \see CrossProduct
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec) const
 	{
@@ -181,7 +172,6 @@ namespace Nz
 	*
 	* \see SquaredDistance
 	*/
-
 	template<typename T>
 	T Vector3<T>::Distance(const Vector3& vec) const
 	{
@@ -194,7 +184,6 @@ namespace Nz
 	*
 	* \param vec The other vector to measure the distance with
 	*/
-
 	template<typename T>
 	float Vector3<T>::Distancef(const Vector3& vec) const
 	{
@@ -209,7 +198,6 @@ namespace Nz
 	*
 	* \see AbsDotProduct, DotProduct
 	*/
-
 	template<typename T>
 	T Vector3<T>::DotProduct(const Vector3& vec) const
 	{
@@ -222,7 +210,6 @@ namespace Nz
 	*
 	* \see GetSquaredLength
 	*/
-
 	template<typename T>
 	T Vector3<T>::GetLength() const
 	{
@@ -233,7 +220,6 @@ namespace Nz
 	* \brief Calculates the length (magnitude) of the vector
 	* \return The length in float of the vector
 	*/
-
 	template<typename T>
 	float Vector3<T>::GetLengthf() const
 	{
@@ -250,7 +236,6 @@ namespace Nz
 	*
 	* \see Normalize
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::GetNormal(T* length) const
 	{
@@ -266,7 +251,6 @@ namespace Nz
 	*
 	* \see GetLength
 	*/
-
 	template<typename T>
 	T Vector3<T>::GetSquaredLength() const
 	{
@@ -279,7 +263,6 @@ namespace Nz
 	*
 	* \see Backward
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeBackward()
 	{
@@ -292,7 +275,6 @@ namespace Nz
 	*
 	* \see Down
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeDown()
 	{
@@ -305,7 +287,6 @@ namespace Nz
 	*
 	* \see Forward
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeForward()
 	{
@@ -318,7 +299,6 @@ namespace Nz
 	*
 	* \see Left
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeLeft()
 	{
@@ -331,7 +311,6 @@ namespace Nz
 	*
 	* \see Right
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeRight()
 	{
@@ -344,7 +323,6 @@ namespace Nz
 	*
 	* \see Unit
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnit()
 	{
@@ -357,7 +335,6 @@ namespace Nz
 	*
 	* \see UnitX
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitX()
 	{
@@ -370,7 +347,6 @@ namespace Nz
 	*
 	* \see UnitY
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitY()
 	{
@@ -383,7 +359,6 @@ namespace Nz
 	*
 	* \see UnitZ
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitZ()
 	{
@@ -396,7 +371,6 @@ namespace Nz
 	*
 	* \see Up
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUp()
 	{
@@ -409,7 +383,6 @@ namespace Nz
 	*
 	* \see Zero
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeZero()
 	{
@@ -424,7 +397,6 @@ namespace Nz
 	*
 	* \see Minimize
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Maximize(const Vector3& vec)
 	{
@@ -448,7 +420,6 @@ namespace Nz
 	*
 	* \see Maximize
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Minimize(const Vector3& vec)
 	{
@@ -474,7 +445,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Normalize(T* length)
 	{
@@ -501,7 +471,6 @@ namespace Nz
 	* \param Y Y component
 	* \param Z Z component
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(T X, T Y, T Z)
 	{
@@ -518,7 +487,6 @@ namespace Nz
 	* \param X X component
 	* \param vec vec.X = Y component and vec.y = Z component
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(T X, const Vector2<T>& vec)
 	{
@@ -535,7 +503,6 @@ namespace Nz
 	*
 	* \param scale X component = Y component = Z component
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(T scale)
 	{
@@ -552,7 +519,6 @@ namespace Nz
 	*
 	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const T vec[3])
 	{
@@ -567,7 +533,6 @@ namespace Nz
 	* \param vec vec.X = X component and vec.y = Y component
 	* \param Z Z component
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const Vector2<T>& vec, T Z)
 	{
@@ -584,7 +549,6 @@ namespace Nz
 	*
 	* \param vec The other vector
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const Vector3& vec)
 	{
@@ -599,7 +563,6 @@ namespace Nz
 	*
 	* \param vec Vector of type U to convert its components
 	*/
-
 	template<typename T>
 	template<typename U>
 	Vector3<T>& Vector3<T>::Set(const Vector3<U>& vec)
@@ -617,7 +580,6 @@ namespace Nz
 	*
 	* \param vec Vector4 where only the first three components are taken
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const Vector4<T>& vec)
 	{
@@ -636,7 +598,6 @@ namespace Nz
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
 	T Vector3<T>::SquaredDistance(const Vector3& vec) const
 	{
@@ -647,7 +608,6 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Vector3(x, y, z)"
 	*/
-
 	template<typename T>
 	String Vector3<T>::ToString() const
 	{
@@ -662,7 +622,6 @@ namespace Nz
 	*
 	* \remark Access to index greather than 2 is undefined behavior
 	*/
-
 	template<typename T>
 	Vector3<T>::operator T* ()
 	{
@@ -675,7 +634,6 @@ namespace Nz
 	*
 	* \remark Access to index greather than 2 is undefined behavior
 	*/
-
 	template<typename T>
 	Vector3<T>::operator const T* () const
 	{
@@ -686,7 +644,6 @@ namespace Nz
 	* \brief Helps to represent the sign of the vector
 	* \return A constant reference to this vector
 	*/
-
 	template<typename T>
 	const Vector3<T>& Vector3<T>::operator+() const
 	{
@@ -697,7 +654,6 @@ namespace Nz
 	* \brief Negates the components of the vector
 	* \return A constant reference to this vector with negate components
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator-() const
 	{
@@ -710,7 +666,6 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator+(const Vector3& vec) const
 	{
@@ -723,7 +678,6 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator-(const Vector3& vec) const
 	{
@@ -736,7 +690,6 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator*(const Vector3& vec) const
 	{
@@ -749,7 +702,6 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator*(T scale) const
 	{
@@ -765,7 +717,6 @@ namespace Nz
 	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator/(const Vector3& vec) const
 	{
@@ -791,7 +742,6 @@ namespace Nz
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::operator/(T scale) const
 	{
@@ -814,7 +764,6 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator+=(const Vector3& vec)
 	{
@@ -831,7 +780,6 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator-=(const Vector3& vec)
 	{
@@ -848,7 +796,6 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator*=(const Vector3& vec)
 	{
@@ -865,7 +812,6 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator*=(T scale)
 	{
@@ -885,7 +831,6 @@ namespace Nz
 	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator/=(const Vector3& vec)
 	{
@@ -913,7 +858,6 @@ namespace Nz
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
-
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator/=(T scale)
 	{
@@ -938,7 +882,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator==(const Vector3& vec) const
 	{
@@ -953,7 +896,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator!=(const Vector3& vec) const
 	{
@@ -966,7 +908,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator<(const Vector3& vec) const
 	{
@@ -987,7 +928,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator<=(const Vector3& vec) const
 	{
@@ -1008,7 +948,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator>(const Vector3& vec) const
 	{
@@ -1021,7 +960,6 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
 	bool Vector3<T>::operator>=(const Vector3& vec) const
 	{
@@ -1037,7 +975,6 @@ namespace Nz
 	*
 	* \see CrossProduct
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec1, const Vector3& vec2)
 	{
@@ -1053,7 +990,6 @@ namespace Nz
 	*
 	* \see AbsDotProduct, DotProduct
 	*/
-
 	template<typename T>
 	T Vector3<T>::DotProduct(const Vector3& vec1, const Vector3& vec2)
 	{
@@ -1066,7 +1002,6 @@ namespace Nz
 	*
 	* \see MakeBackward
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Backward()
 	{
@@ -1082,7 +1017,6 @@ namespace Nz
 	*
 	* \see MakeDown
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Down()
 	{
@@ -1098,7 +1032,6 @@ namespace Nz
 	*
 	* \see Forward
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Forward()
 	{
@@ -1114,7 +1047,6 @@ namespace Nz
 	*
 	* \see MakeLeft
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Left()
 	{
@@ -1136,7 +1068,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Lerp(const Vector3& from, const Vector3& to, T interpolation)
 	{
@@ -1158,7 +1089,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Normalize(const Vector3& vec)
 	{
@@ -1171,7 +1101,6 @@ namespace Nz
 	*
 	* \see MakeRight
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Right()
 	{
@@ -1187,7 +1116,6 @@ namespace Nz
 	*
 	* \see MakeUnit
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Unit()
 	{
@@ -1203,7 +1131,6 @@ namespace Nz
 	*
 	* \see MakeUnitX
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::UnitX()
 	{
@@ -1219,7 +1146,6 @@ namespace Nz
 	*
 	* \see MakeUnitY
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::UnitY()
 	{
@@ -1235,7 +1161,6 @@ namespace Nz
 	*
 	* \see MakeUnitZ
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::UnitZ()
 	{
@@ -1251,7 +1176,6 @@ namespace Nz
 	*
 	* \see MakeUp
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Up()
 	{
@@ -1267,7 +1191,6 @@ namespace Nz
 	*
 	* \see MakeZero
 	*/
-
 	template<typename T>
 	Vector3<T> Vector3<T>::Zero()
 	{
@@ -1275,6 +1198,50 @@ namespace Nz
 		vector.MakeZero();
 
 		return vector;
+	}
+
+	/*!
+	* \brief Serializes a Vector3
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param vector Input Vector3
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Vector3<T>& vector)
+	{
+		if (!Serialize(context, vector.x))
+			return false;
+
+		if (!Serialize(context, vector.y))
+			return false;
+
+		if (!Serialize(context, vector.z))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Vector3
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param vector Output Vector3
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Vector3<T>* vector)
+	{
+		if (!Unserialize(context, &vector->x))
+			return false;
+
+		if (!Unserialize(context, &vector->y))
+			return false;
+
+		if (!Unserialize(context, &vector->z))
+			return false;
+
+		return true;
 	}
 }
 

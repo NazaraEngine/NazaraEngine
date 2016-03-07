@@ -18,6 +18,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Ray
 	{
@@ -73,6 +75,9 @@ namespace Nz
 
 	typedef Ray<double> Rayd;
 	typedef Ray<float> Rayf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray);
+	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);

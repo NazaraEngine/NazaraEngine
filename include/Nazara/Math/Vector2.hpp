@@ -11,6 +11,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class Vector3;
 	template<typename T> class Vector4;
 
@@ -106,6 +108,9 @@ namespace Nz
 	typedef Vector2<unsigned int> Vector2ui;
 	typedef Vector2<Int32> Vector2i32;
 	typedef Vector2<UInt32> Vector2ui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec);

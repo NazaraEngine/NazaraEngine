@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
@@ -919,6 +920,68 @@ namespace Nz
 		box.MakeZero();
 
 		return box;
+	}
+
+	/*!
+	* \brief Serializes a Box
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param box Input Box
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Box<T>& box)
+	{
+		if (!Serialize(context, box.x))
+			return false;
+
+		if (!Serialize(context, box.y))
+			return false;
+
+		if (!Serialize(context, box.z))
+			return false;
+
+		if (!Serialize(context, box.width))
+			return false;
+
+		if (!Serialize(context, box.height))
+			return false;
+
+		if (!Serialize(context, box.depth))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Box
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param box Output Box
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Box<T>* box)
+	{
+		if (!Unserialize(context, &box->x))
+			return false;
+
+		if (!Unserialize(context, &box->y))
+			return false;
+
+		if (!Unserialize(context, &box->z))
+			return false;
+
+		if (!Unserialize(context, &box->width))
+			return false;
+
+		if (!Unserialize(context, &box->height))
+			return false;
+
+		if (!Unserialize(context, &box->depth))
+			return false;
+
+		return true;
 	}
 }
 
