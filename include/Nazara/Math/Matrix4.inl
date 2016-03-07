@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -1760,6 +1761,44 @@ namespace Nz
 		matrix.MakeZero();
 
 		return matrix;
+	}
+
+	/*!
+	* \brief Serializes a Matrix4
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param matrix Input matrix
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Matrix4<T>& matrix)
+	{
+		for (unsigned int i = 0; i < 16; ++i)
+		{
+			if (!Serialize(context, matrix[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Matrix4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param matrix Output matrix
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix)
+	{
+		for (unsigned int i = 0; i < 16; ++i)
+		{
+			if (!Unserialize(context, &matrix[i]))
+				return false;
+		}
+
+		return true;
 	}
 }
 

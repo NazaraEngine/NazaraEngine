@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -1012,6 +1013,56 @@ namespace Nz
 		vector.MakeZero();
 
 		return vector;
+	}
+
+	/*!
+	* \brief Serializes a Vector4
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param vector Input Vector3
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Vector4<T>& vector)
+	{
+		if (!Serialize(context, vector.x))
+			return false;
+
+		if (!Serialize(context, vector.y))
+			return false;
+
+		if (!Serialize(context, vector.z))
+			return false;
+
+		if (!Serialize(context, vector.w))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Vector4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param vector Output Vector3
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Vector4<T>* vector)
+	{
+		if (!Unserialize(context, &vector->x))
+			return false;
+
+		if (!Unserialize(context, &vector->y))
+			return false;
+
+		if (!Unserialize(context, &vector->z))
+			return false;
+
+		if (!Unserialize(context, &vector->w))
+			return false;
+
+		return true;
 	}
 }
 

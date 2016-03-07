@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -429,6 +430,42 @@ namespace Nz
 		orientedBox.MakeZero();
 
 		return orientedBox;
+	}
+
+	/*!
+	* \brief Serializes a OrientedBox
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param obb Input oriented box
+	*
+	* \remark Does not save OBB corners
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const OrientedBox<T>& obb)
+	{
+		if (!Serialize(context, obb.localBox))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Matrix4
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param obb Output oriented box
+	*
+	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb)
+	{
+		if (!Unserialize(context, &obb->localBox))
+			return false;
+
+		return true;
 	}
 }
 

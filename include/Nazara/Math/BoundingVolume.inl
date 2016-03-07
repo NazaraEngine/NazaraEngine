@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -544,6 +545,60 @@ namespace Nz
 		volume.MakeNull();
 
 		return volume;
+	}
+
+	/*!
+	* \brief Serializes a BoundingVolume
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param boundingVolume Input bounding volume
+	*
+	* \remark Does not save OBB corners
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume)
+	{
+		if (!Serialize(context, static_cast<UInt8>(boundingVolume.extend)))
+			return false;
+
+		if (!Serialize(context, boundingVolume.aabb))
+			return false;
+
+		if (!Serialize(context, boundingVolume.obb))
+			return false;
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a BoundingVolume
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param boundingVolume Output bounding volume
+	*
+	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume)
+	{
+		UInt8 extend;
+		if (!Unserialize(context, &extend))
+			return false;
+
+		if (extend > Extend_Max)
+			return false;
+
+		boundingVolume->extend = extend;
+
+		if (!Unserialize(context, &boundingVolume->aabb))
+			return false;
+
+		if (!Unserialize(context, &boundingVolume->obb))
+			return false;
+
+		return true;
 	}
 }
 
