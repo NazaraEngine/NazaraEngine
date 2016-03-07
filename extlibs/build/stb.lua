@@ -11,6 +11,6 @@ LIBRARY.Flags = {
 LIBRARY.Language = "C++" -- On compile en C++ car le C99 n'est pas supporté partout
 
 LIBRARY.Files = {
-	"../extlibs/include/stb_image/stb_image.h",
-	"../extlibs/src/stb_image/stb_image.c"
+	"../extlibs/include/stb/*.h",
+	"../extlibs/src/stb/*.c"
 }
