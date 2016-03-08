@@ -9,6 +9,7 @@
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/String.hpp>
 #include <list>
 #include <tuple>
