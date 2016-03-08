@@ -17,7 +17,10 @@ namespace Nz
 		Ternary CheckStatic(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
-			NazaraUnused(parameters);
+
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeStaticMeshLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			return Ternary_Unknown;
 		}
@@ -66,7 +69,10 @@ namespace Nz
 		Ternary CheckAnimated(Stream& stream, const SkeletalModelParameters& parameters)
 		{
 			NazaraUnused(stream);
-			NazaraUnused(parameters);
+
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeAnimatedMeshLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			return Ternary_Unknown;
 		}

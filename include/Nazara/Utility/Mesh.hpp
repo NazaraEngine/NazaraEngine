@@ -15,6 +15,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -24,7 +25,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API MeshParams
+	struct NAZARA_UTILITY_API MeshParams : ResourceParameters
 	{
 		MeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 

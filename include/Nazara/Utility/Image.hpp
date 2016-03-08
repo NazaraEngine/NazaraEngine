@@ -15,6 +15,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
@@ -26,7 +27,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API ImageParams
+	struct NAZARA_UTILITY_API ImageParams : ResourceParameters
 	{
 		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
 		PixelFormatType loadFormat = PixelFormatType_Undefined;
