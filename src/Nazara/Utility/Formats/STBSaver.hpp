@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_STBLOADER_HPP
-#define NAZARA_FORMATS_STBLOADER_HPP
+#ifndef NAZARA_FORMATS_STBSAVER_HPP
+#define NAZARA_FORMATS_STBSAVER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 
@@ -13,9 +13,9 @@ namespace Nz
 {
 	namespace Loaders
 	{
-		void RegisterSTBLoader();
-		void UnregisterSTBLoader();
+		void RegisterSTBSaver();
+		void UnregisterSTBSaver();
 	}
 }
 
-#endif // NAZARA_FORMATS_STBLOADER_HPP
+#endif // NAZARA_FORMATS_STBSAVER_HPP
