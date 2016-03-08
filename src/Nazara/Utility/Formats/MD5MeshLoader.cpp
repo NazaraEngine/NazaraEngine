@@ -22,7 +22,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const MeshParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeMD5MeshLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			MD5MeshParser parser(stream);
 			return parser.Check();

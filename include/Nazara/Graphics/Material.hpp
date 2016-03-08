@@ -15,6 +15,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -26,7 +27,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API MaterialParams
+	struct NAZARA_GRAPHICS_API MaterialParams : ResourceParameters
 	{
 		bool loadAlphaMap = true;
 		bool loadDiffuseMap = true;

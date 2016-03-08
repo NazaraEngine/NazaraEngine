@@ -33,7 +33,10 @@ namespace Nz
 		Ternary Check(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
-			NazaraUnused(parameters);
+
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeOBJLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			return Ternary_Unknown;
 		}

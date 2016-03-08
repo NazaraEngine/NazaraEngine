@@ -45,7 +45,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeSTBLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			int width, height, bpp;
 			if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))

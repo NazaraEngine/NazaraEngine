@@ -21,6 +21,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	class ResourceSaver
 	{
+		static_assert(std::is_base_of<ResourceParameters, Parameters>::value, "ResourceParameters must be a base of Parameters");
+
 		friend Type;
 
 		public:

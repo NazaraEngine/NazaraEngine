@@ -12,10 +12,11 @@
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 
 namespace Nz
 {
-	struct MusicParams
+	struct MusicParams : ResourceParameters
 	{
 		bool forceMono = false;
 
