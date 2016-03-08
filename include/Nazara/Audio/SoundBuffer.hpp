@@ -16,12 +16,13 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
-	struct SoundBufferParams
+	struct SoundBufferParams : ResourceParameters
 	{
 		bool forceMono = false;
 

@@ -18,7 +18,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API SkeletalModelParameters : public ModelParameters
+	struct NAZARA_GRAPHICS_API SkeletalModelParameters : ModelParameters
 	{
 		bool loadAnimation = true;
 		AnimationParams animation;

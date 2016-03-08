@@ -22,7 +22,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("NativeDDSLoader_Skip", &skip) && skip)
+				return Ternary_False;
 
 			UInt32 magic;
 			if (stream.Read(&magic, sizeof(UInt32)) == sizeof(UInt32))
