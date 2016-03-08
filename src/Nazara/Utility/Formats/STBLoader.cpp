@@ -87,12 +87,12 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterSTB()
+		void RegisterSTBLoader()
 		{
 			ImageLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		void UnregisterSTB()
+		void UnregisterSTBLoader()
 		{
 			ImageLoader::UnregisterLoader(IsSupported, Check, Load);
 		}

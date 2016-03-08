@@ -22,7 +22,6 @@
 
 namespace Nz
 {
-
 	class Texture;
 
 	using TextureConstRef = ObjectRef<const Texture>;
@@ -93,6 +92,10 @@ namespace Nz
 			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
 			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
+
+			// Save
+			bool SaveToFile(const String& filePath, const ImageParams& params = ImageParams());
+			bool SaveToStream(Stream& stream, const String& format, const ImageParams& params = ImageParams());
 
 			bool SetMipmapRange(UInt8 minLevel, UInt8 maxLevel);
 
