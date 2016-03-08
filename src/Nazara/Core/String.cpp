@@ -5855,13 +5855,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Serializes the string
+	* \brief Serializes a string
 	* \return true if successful
 	*
 	* \param context Context of serialization
 	* \param string String to serialize
 	*/
-
 	bool Serialize(SerializationContext& context, const String& string)
 	{
 		if (!Serialize<UInt32>(context, string.GetSize()))
@@ -5871,13 +5870,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes the string
+	* \brief Unserializes a string
 	* \return true if successful
 	*
 	* \param context Context of unserialization
 	* \param string String to unserialize
 	*/
-
 	bool Unserialize(SerializationContext& context, String* string)
 	{
 		UInt32 size;
