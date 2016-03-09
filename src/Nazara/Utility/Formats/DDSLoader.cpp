@@ -23,7 +23,7 @@ namespace Nz
 		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("NativeDDSLoader_Skip", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipNativeDDSLoader", &skip) && skip)
 				return Ternary_False;
 
 			UInt32 magic;
