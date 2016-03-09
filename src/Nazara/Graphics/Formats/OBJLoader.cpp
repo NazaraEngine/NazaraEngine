@@ -35,7 +35,7 @@ namespace Nz
 			NazaraUnused(stream);
 
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("NativeOBJLoader_Skip", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipNativeOBJLoader", &skip) && skip)
 				return Ternary_False;
 
 			return Ternary_Unknown;
