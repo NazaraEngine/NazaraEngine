@@ -9,14 +9,10 @@ namespace Nz
 {
 	/*!
 	* \brief Constructs a ByteStream object with a stream
-	*
-	* \remark Produces a NazaraAssert if stream is invalid
 	*/
 
 	inline ByteStream::ByteStream(Stream* stream)
 	{
-		NazaraAssert(stream, "Invalid stream");
-
 		m_context.stream = stream;
 	}
 

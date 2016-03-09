@@ -82,7 +82,7 @@ namespace Nz
 		return m_texCoords.size();
 	}
 
-	bool OBJParser::Parse()
+	bool OBJParser::Parse(std::size_t reservedVertexCount)
 	{
 		String matName, meshName;
 		matName = meshName = "default";
@@ -95,10 +95,10 @@ namespace Nz
 		m_positions.clear();
 		m_texCoords.clear();
 
-		// Beaucoup de meshs font plus de 100 sommets, préparons le terrain
-		m_normals.reserve(100);
-		m_positions.reserve(100);
-		m_texCoords.reserve(100);
+		// Reserve some space for incoming vertices
+		m_normals.reserve(reservedVertexCount);
+		m_positions.reserve(reservedVertexCount);
+		m_texCoords.reserve(reservedVertexCount);
 
 		// On va regrouper les meshs par nom et par matériau
 		using FaceVec = std::vector<Face>;

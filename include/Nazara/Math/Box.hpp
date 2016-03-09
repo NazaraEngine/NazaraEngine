@@ -7,7 +7,6 @@
 #ifndef NAZARA_BOX_HPP
 #define NAZARA_BOX_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -17,6 +16,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Box
 	{

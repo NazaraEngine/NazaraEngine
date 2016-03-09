@@ -33,7 +33,10 @@ namespace Nz
 		Ternary Check(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
-			NazaraUnused(parameters);
+
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeOBJLoader", &skip) && skip)
+				return Ternary_False;
 
 			return Ternary_Unknown;
 		}
@@ -130,8 +133,12 @@ namespace Nz
 
 		bool Load(Model* model, Stream& stream, const ModelParameters& parameters)
 		{
+			int reservedVertexCount;
+			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
+				reservedVertexCount = 100;
+
 			OBJParser parser(stream);
-			if (!parser.Parse())
+			if (!parser.Parse(reservedVertexCount))
 			{
 				NazaraError("OBJ parser failed");
 				return false;

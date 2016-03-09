@@ -7,7 +7,6 @@
 #ifndef NAZARA_FRUSTUM_HPP
 #define NAZARA_FRUSTUM_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -19,6 +18,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Frustum
 	{

@@ -38,7 +38,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Loads a resource from a filepath and parameters
+	* \brief Loads a resource from a file
 	* \return true if successfully loaded
 	*
 	* \param resource Resource to load
@@ -55,19 +55,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters)
 	{
-		#if NAZARA_CORE_SAFE
-		if (!resource)
-		{
-			NazaraError("Pointer invalid");
-			return false;
-		}
-
-		if (!parameters.IsValid())
-		{
-			NazaraError("Invalid parameters");
-			return false;
-		}
-		#endif
+		NazaraAssert(resource, "Invalid resource");
+		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		String path = File::NormalizePath(filePath);
 		String ext = path.SubStringFrom('.', -1, true).ToLower();
@@ -173,25 +162,10 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
 	{
-		#if NAZARA_CORE_SAFE
-		if (!resource)
-		{
-			NazaraError("Pointer invalid");
-			return false;
-		}
-
-		if (size == 0)
-		{
-			NazaraError("No data to load");
-			return false;
-		}
-
-		if (!parameters.IsValid())
-		{
-			NazaraError("Invalid parameters");
-			return false;
-		}
-		#endif
+		NazaraAssert(resource, "Invalid resource");
+		NazaraAssert(data, "Invalid data pointer");
+		NazaraAssert(size, "No data to load");
+		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		MemoryView stream(data, size);
 
@@ -269,25 +243,9 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
-		#if NAZARA_CORE_SAFE
-		if (!resource)
-		{
-			NazaraError("Pointer invalid");
-			return false;
-		}
-
-		if (stream.GetSize() == 0 || stream.GetCursorPos() >= stream.GetSize())
-		{
-			NazaraError("No data to load");
-			return false;
-		}
-
-		if (!parameters.IsValid())
-		{
-			NazaraError("Invalid parameters");
-			return false;
-		}
-		#endif
+		NazaraAssert(resource, "Invalid resource");
+		NazaraAssert(stream.GetCursorPos() >= stream.GetSize(), "No data to load");
+		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
@@ -336,21 +294,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
 	{
-		#if NAZARA_CORE_SAFE
-		if (streamLoader)
-		{
-			if (!checkFunc)
-			{
-				NazaraError("StreamLoader present without StreamChecker");
-				return;
-			}
-		}
-		else if (!fileLoader && !memoryLoader)
-		{
-			NazaraError("Neither FileLoader nor MemoryLoader nor StreamLoader were present");
-			return;
-		}
-		#endif
+		NazaraAssert(checkFunc || !streamLoader, "StreamLoader present without StreamChecker");
+		NazaraAssert(fileLoader || memoryLoader || streamLoader, "A loader function is mandatory");
 
 		Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
 	}

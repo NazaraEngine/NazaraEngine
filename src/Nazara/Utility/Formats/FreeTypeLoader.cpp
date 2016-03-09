@@ -348,7 +348,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const FontParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeFreeTypeLoader", &skip) && skip)
+				return Ternary_False;
 
 			FreeTypeStream face;
 			face.SetStream(stream);

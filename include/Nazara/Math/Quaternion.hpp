@@ -7,11 +7,12 @@
 #ifndef NAZARA_QUATERNION_HPP
 #define NAZARA_QUATERNION_HPP
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class EulerAngles;
 	template<typename T> class Vector3;
 

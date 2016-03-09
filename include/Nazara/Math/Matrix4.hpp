@@ -9,12 +9,13 @@
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
-#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class EulerAngles;
 	template<typename T> class Quaternion;
 	template<typename T> class Vector2;

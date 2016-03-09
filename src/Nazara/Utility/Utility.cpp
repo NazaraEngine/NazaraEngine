@@ -26,6 +26,7 @@
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
+#include <Nazara/Utility/Formats/STBSaver.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -112,7 +113,8 @@ namespace Nz
 		Loaders::RegisterFreeType();
 
 		// Image
-		Loaders::RegisterSTB(); // Loader générique (STB)
+		Loaders::RegisterSTBLoader(); // Generic loader (STB)
+		Loaders::RegisterSTBSaver();  // Generic saver (STB)
 
 		/// Loaders spécialisés
 		// Animation
@@ -155,7 +157,8 @@ namespace Nz
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
 		Loaders::UnregisterPCX();
-		Loaders::UnregisterSTB();
+		Loaders::UnregisterSTBLoader();
+		Loaders::UnregisterSTBSaver();
 
 		Window::Uninitialize();
 		VertexDeclaration::Uninitialize();

@@ -15,6 +15,8 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
@@ -25,7 +27,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API ImageParams
+	struct NAZARA_UTILITY_API ImageParams : ResourceParameters
 	{
 		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
 		PixelFormatType loadFormat = PixelFormatType_Undefined;
@@ -43,12 +45,14 @@ namespace Nz
 	using ImageLoader = ResourceLoader<Image, ImageParams>;
 	using ImageManager = ResourceManager<Image, ImageParams>;
 	using ImageRef = ObjectRef<Image>;
+	using ImageSaver = ResourceSaver<Image, ImageParams>;
 
 	class NAZARA_UTILITY_API Image : public AbstractImage, public RefCounted, public Resource
 	{
 		friend ImageLibrary;
 		friend ImageLoader;
 		friend ImageManager;
+		friend ImageSaver;
 		friend class Utility;
 
 		public:
@@ -106,6 +110,17 @@ namespace Nz
 			bool LoadCubemapFromImage(const Image& image, const CubemapParams& params = CubemapParams());
 			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+
+			// LoadFace
+			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
+			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
+			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
+
+			// Save
+			bool SaveToFile(const String& filePath, const ImageParams& params = ImageParams());
+			bool SaveToStream(Stream& stream, const String& format, const ImageParams& params = ImageParams());
+
+			//TODO: SaveArray, SaveCubemap, SaveFace
 
 			void SetLevelCount(UInt8 levelCount);
 			bool SetPixelColor(const Color& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
@@ -165,6 +180,7 @@ namespace Nz
 			static ImageLoader::LoaderList s_loaders;
 			static ImageManager::ManagerMap s_managerMap;
 			static ImageManager::ManagerParams s_managerParameters;
+			static ImageSaver::SaverList s_savers;
 		};
 }
 
