@@ -17,7 +17,7 @@ namespace Nz
 			NazaraUnused(stream);
 
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("NativeTextureLoader_Skip", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipNativeTextureLoader", &skip) && skip)
 				return Ternary_False;
 
 			return Ternary_Unknown;

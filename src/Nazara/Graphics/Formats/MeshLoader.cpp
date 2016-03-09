@@ -19,7 +19,7 @@ namespace Nz
 			NazaraUnused(stream);
 
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("NativeStaticMeshLoader_Skip", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipNativeMeshLoader", &skip) && skip)
 				return Ternary_False;
 
 			return Ternary_Unknown;
@@ -71,7 +71,7 @@ namespace Nz
 			NazaraUnused(stream);
 
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("NativeAnimatedMeshLoader_Skip", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipNativeAnimatedMeshLoader", &skip) && skip)
 				return Ternary_False;
 
 			return Ternary_Unknown;
