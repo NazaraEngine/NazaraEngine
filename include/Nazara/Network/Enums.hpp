@@ -11,6 +11,12 @@ namespace Nz
 {
 	enum NetCode : UInt16
 	{
+		NetCode_Acknowledge           = 0x9A4E,
+		NetCode_AcknowledgeConnection = 0xC108,
+		NetCode_Ping                  = 0x96AC,
+		NetCode_Pong                  = 0x974C,
+		NetCode_RequestConnection     = 0xF27D,
+
 		NetCode_Invalid = 0x0000
 	};
 
@@ -22,6 +28,27 @@ namespace Nz
 		NetProtocol_Unknown,
 
 		NetProtocol_Max = NetProtocol_Unknown
+	};
+
+	enum PacketPriority
+	{
+		PacketPriority_High      = 1, //< High-priority packet, will be sent quickly
+		PacketPriority_Immediate = 0, //< Immediate priority, will be sent immediately
+		PacketPriority_Medium    = 2, //< Medium-priority packet, will be sent as regular
+		PacketPriority_Low       = 3, //< Low-priority packet, may take some time to be sent
+
+		PacketPriority_Lowest  = PacketPriority_Low,
+		PacketPriority_Highest = PacketPriority_Immediate,
+		PacketPriority_Max     = PacketPriority_Low
+	};
+
+	enum PacketReliability
+	{
+		PacketReliability_Reliable,        //< Packet will be resent if lost
+		PacketReliability_ReliableOrdered, //< Packet will be resent if lost and will only arrive in order
+		PacketReliability_Unreliable,      //< Packet won't be resent if lost
+
+		PacketReliability_Max = PacketReliability_Unreliable
 	};
 
 	enum ResolveError
