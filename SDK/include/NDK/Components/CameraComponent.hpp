@@ -49,6 +49,8 @@ namespace Ndk
 			inline float GetZFar() const override;
 			inline float GetZNear() const override;
 
+			bool Serialize(Nz::SerializationContext& context) const override;
+
 			inline void SetFOV(float fov);
 			inline void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
@@ -59,6 +61,8 @@ namespace Ndk
 			inline void SetViewport(const Nz::Recti& viewport);
 			inline void SetZFar(float zFar);
 			inline void SetZNear(float zNear);
+
+			bool Unserialize(Nz::SerializationContext& context) override;
 
 			static ComponentIndex componentIndex;
 

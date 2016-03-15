@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Components/CameraComponent.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -37,11 +38,70 @@ namespace Ndk
 		return m_entity->GetComponent<NodeComponent>().GetForward();
 	}
 
+	bool CameraComponent::Serialize(Nz::SerializationContext& context) const
+	{
+		if (!Nz::Serialize(context, static_cast<Nz::UInt32>(m_projectionType)))
+			return false;
+
+		if (!Nz::Serialize(context, m_fov))
+			return false;
+
+		if (!Nz::Serialize(context, m_layer))
+			return false;
+
+		if (!Nz::Serialize(context, m_size))
+			return false;
+
+		if (!Nz::Serialize(context, m_targetRegion))
+			return false;
+
+		if (!Nz::Serialize(context, m_zFar))
+			return false;
+
+		if (!Nz::Serialize(context, m_zNear))
+			return false;
+
+		return true;
+	}
+
 	void CameraComponent::SetLayer(unsigned int layer)
 	{
 		m_layer = layer;
 
 		m_entity->Invalidate(); // Invalidate the entity to make it passes through RenderSystem validation
+	}
+
+	bool CameraComponent::Unserialize(Nz::SerializationContext& context)
+	{
+		Nz::UInt32 projectionType;
+		if (!Nz::Unserialize(context, &projectionType))
+			return false;
+		m_projectionType = static_cast<Nz::ProjectionType>(projectionType);
+
+		if (!Nz::Unserialize(context, &m_fov))
+			return false;
+
+		if (!Nz::Unserialize(context, &m_layer))
+			return false;
+
+		if (!Nz::Unserialize(context, &m_size))
+			return false;
+
+		if (!Nz::Unserialize(context, &m_targetRegion))
+			return false;
+
+		if (!Nz::Unserialize(context, &m_zFar))
+			return false;
+
+		if (!Nz::Unserialize(context, &m_zNear))
+			return false;
+
+		InvalidateFrustum();
+		InvalidateProjectionMatrix();
+		InvalidateViewMatrix();
+		InvalidateViewport();
+
+		return true;
 	}
 
 	void CameraComponent::OnAttached()

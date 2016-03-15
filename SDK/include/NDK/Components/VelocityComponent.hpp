@@ -20,6 +20,9 @@ namespace Ndk
 			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());
 			~VelocityComponent() = default;
 
+			bool Serialize(Nz::SerializationContext& context) const override;
+			bool Unserialize(Nz::SerializationContext& context) override;
+
 			Nz::Vector3f linearVelocity;
 
 			VelocityComponent& operator=(const Nz::Vector3f& vel);

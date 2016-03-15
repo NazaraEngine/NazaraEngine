@@ -17,7 +17,7 @@ namespace Ndk
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
 	m_viewportUpdated(false),
-	m_aspectRatio(0.f),
+	m_aspectRatio(-1.f),
 	m_fov(70.f),
 	m_zFar(100.f),
 	m_zNear(1.f),

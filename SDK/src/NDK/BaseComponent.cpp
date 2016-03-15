@@ -8,6 +8,18 @@ namespace Ndk
 {
 	BaseComponent::~BaseComponent() = default;
 
+	bool BaseComponent::Serialize(Nz::SerializationContext& context) const
+	{
+		// Placeholder
+		return false;
+	}
+
+	bool BaseComponent::Unserialize(Nz::SerializationContext& context)
+	{
+		// Placeholder
+		return false;
+	}
+
 	void BaseComponent::OnAttached()
 	{
 	}

@@ -31,6 +31,9 @@ namespace Ndk
 
 			ComponentIndex GetIndex() const;
 
+			virtual bool Serialize(Nz::SerializationContext& context) const;
+			virtual bool Unserialize(Nz::SerializationContext& context);
+
 			BaseComponent& operator=(const BaseComponent&) = default;
 			BaseComponent& operator=(BaseComponent&&) = default;
 

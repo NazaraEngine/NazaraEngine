@@ -6,5 +6,21 @@
 
 namespace Ndk
 {
+	bool VelocityComponent::Serialize(Nz::SerializationContext& context) const
+	{
+		if (!Nz::Serialize(context, linearVelocity))
+			return false;
+
+		return true;
+	}
+
+	bool VelocityComponent::Unserialize(Nz::SerializationContext& context)
+	{
+		if (!Nz::Unserialize(context, &linearVelocity))
+			return false;
+
+		return true;
+	}
+
 	ComponentIndex VelocityComponent::componentIndex;
 }

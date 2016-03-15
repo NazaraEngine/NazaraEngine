@@ -7,6 +7,7 @@
 #ifndef NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <NDK/Component.hpp>
 
@@ -18,6 +19,9 @@ namespace Ndk
 			inline LightComponent(Nz::LightType lightType = Nz::LightType_Point);
 			LightComponent(const LightComponent& light) = default;
 			~LightComponent() = default;
+
+			bool Serialize(Nz::SerializationContext& context) const override;
+			bool Unserialize(Nz::SerializationContext& context) override;
 
 			LightComponent& operator=(const LightComponent& light) = default;
 

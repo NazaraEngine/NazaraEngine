@@ -18,7 +18,12 @@ namespace Ndk
 			~ListenerComponent() = default;
 
 			bool IsActive() const;
+
+			bool Serialize(Nz::SerializationContext& context) const override;
+
 			void SetActive(bool active = true);
+
+			bool Unserialize(Nz::SerializationContext& context) override;
 
 			static ComponentIndex componentIndex;
 
