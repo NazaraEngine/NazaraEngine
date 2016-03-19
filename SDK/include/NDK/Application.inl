@@ -26,6 +26,11 @@ namespace Ndk
 
 	inline Application::~Application()
 	{
+		m_worlds.clear();
+		#ifndef NDK_SERVER
+		m_windows.clear();
+		#endif
+
 		// Libération du SDK
 		Sdk::Uninitialize();
 
