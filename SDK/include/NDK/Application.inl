@@ -46,7 +46,7 @@ namespace Ndk
 	World& Application::AddWorld(Args&&... args)
 	{
 		m_worlds.emplace_back(std::forward<Args>(args)...);
-		return *m_worlds.back();
+		return m_worlds.back();
 	}
 
 	inline void Application::Quit()
