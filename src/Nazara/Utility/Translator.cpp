@@ -7,6 +7,8 @@ namespace Nz
 {
     Translator::Translator(Lang targetLang, const String& translationsDir)
     {
+        NazaraAssert(!s_translatorInstance, "There can have only one translator instance");
+
         m_targetLang = targetLang;
 
         Directory dir{ translationsDir };
@@ -55,8 +57,7 @@ namespace Nz
 
 	Translator::~Translator()
 	{
-        if (s_translatorInstance)
-            s_translatorInstance.release();
+        s_translatorInstance.release();
 	}
 
 	std::unique_ptr<Translator> Translator::s_translatorInstance;
