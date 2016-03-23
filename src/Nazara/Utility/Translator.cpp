@@ -60,5 +60,10 @@ namespace Nz
         s_translatorInstance.release();
 	}
 
+    void Translator::SetTargetLang(Lang targetLang)
+    {
+        m_targetLang = targetLang;
+    }
+
 	std::unique_ptr<Translator> Translator::s_translatorInstance;
 }
