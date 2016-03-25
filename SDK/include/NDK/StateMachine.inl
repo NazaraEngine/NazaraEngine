@@ -16,11 +16,17 @@ namespace Ndk
 	{
 		if (m_nextState)
 		{
-			m_currentState->Leave(*this);
-			m_currentState = std::move(m_nextState);
-			m_currentState->Enter(*this);
+            if (m_currentState)
+                m_currentState->Leave(*this);
+
+            m_currentState = std::move(m_nextState);
+            m_currentState->Enter(*this);
 		}
+
+        if (!m_currentState)
+            return false;
 
 		return m_currentState->Update(*this, elapsedTime);
 	}
+
 }
