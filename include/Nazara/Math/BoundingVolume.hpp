@@ -30,6 +30,8 @@ namespace Nz
 			BoundingVolume(const BoundingVolume& volume) = default;
 			~BoundingVolume() = default;
 
+			BoundingVolume& ExtendTo(const BoundingVolume& volume);
+
 			bool IsFinite() const;
 			bool IsInfinite() const;
 			bool IsNull() const;
