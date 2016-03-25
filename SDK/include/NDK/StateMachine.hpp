@@ -16,10 +16,10 @@ namespace Ndk
 	class StateMachine
 	{
 		public:
-			inline StateMachine();
+			inline StateMachine() = default;
 			StateMachine(const StateMachine&) = delete;
 			inline StateMachine(StateMachine&& fsm) = default;
-			inline ~StateMachine();
+			inline ~StateMachine() = default;
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
