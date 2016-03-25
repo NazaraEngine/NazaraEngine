@@ -8,9 +8,9 @@
 #define NAZARA_ERROR_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Directory.hpp>
-#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
