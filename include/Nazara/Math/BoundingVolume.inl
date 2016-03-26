@@ -134,7 +134,7 @@ namespace Nz
 	* \remark Extending to a null bounding volume has no effect while extending to a infinite bounding volume will set it as infinite
 	*/
 	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::BoundingVolume<T>::ExtendTo(const BoundingVolume& volume)
+	BoundingVolume<T>& BoundingVolume<T>::ExtendTo(const BoundingVolume& volume)
 	{
 		switch (extend)
 		{
@@ -145,7 +145,7 @@ namespace Nz
 					case Extend_Finite:
 					{
 						// Extend the OBB local box
-						obb.localBox.ExtendTo(volume.localBox);
+						obb.localBox.ExtendTo(volume.obb.localBox);
 						break;
 					}
 
