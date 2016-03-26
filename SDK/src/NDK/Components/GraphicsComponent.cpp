@@ -63,6 +63,18 @@ namespace Ndk
 		InvalidateTransformMatrix();
 	}
 
+	void GraphicsComponent::UpdateBoundingVolume() const
+	{
+		EnsureTransformMatrixUpdate();
+
+		m_boundingVolume.MakeNull();
+		for (const Renderable& r : m_renderables)
+			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
+
+		m_boundingVolume.Update(m_transformMatrix);
+		m_boundingVolumeUpdated = true;
+	}
+
 	void GraphicsComponent::UpdateTransformMatrix() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "GraphicsComponent requires NodeComponent");
