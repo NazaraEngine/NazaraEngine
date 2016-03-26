@@ -26,13 +26,17 @@ namespace Ndk
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 
+			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
             inline std::vector<Nz::InstancedRenderableConstRef> GetAttachedRenderables() const;
 
+			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
+
 			static ComponentIndex componentIndex;
 
 		private:
+			inline void InvalidateBoundingVolume();
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
@@ -43,6 +47,7 @@ namespace Ndk
 			void OnDetached() override;
 			void OnNodeInvalidated(const Nz::Node* node);
 
+			void UpdateBoundingVolume() const;
 			void UpdateTransformMatrix() const;
 
 			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
@@ -63,7 +68,9 @@ namespace Ndk
 			};
 
 			std::vector<Renderable> m_renderables;
+			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;
+			mutable bool m_boundingVolumeUpdated;
 			mutable bool m_transformMatrixUpdated;
 	};
 }
