@@ -12,6 +12,7 @@ namespace Ndk
 	m_currentState(std::move(originalState))
 	{
 		NazaraAssert(m_currentState, "StateMachine must have a state to begin with");
+		m_currentState->Enter(*this);
 	}
 
 	inline StateMachine::~StateMachine()
