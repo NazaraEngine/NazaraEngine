@@ -86,6 +86,7 @@ namespace Nz
 			static int StaticGetterProxy(lua_State* state);
 			static int StaticMethodProxy(lua_State* state);
 			static int StaticSetterProxy(lua_State* state);
+			static int ToStringProxy(lua_State* state);
 
 			std::map<String, ClassFunc> m_methods;
 			std::map<String, StaticFunc> m_staticMethods;
