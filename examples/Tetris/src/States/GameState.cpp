@@ -23,8 +23,6 @@ namespace Tet {
         Ndk::EntityHandle ent{ m_world.CreateEntity() };
         ent->AddComponent<Ndk::NodeComponent>();
         ent->AddComponent<Ndk::GraphicsComponent>().Attach(spr);
-        for (const auto& i : m_world.GetEntities())
-            NazaraNotice(i.ToString());
     }
 
     void GameState::Leave(Ndk::StateMachine& fsm) {
