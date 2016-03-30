@@ -97,7 +97,7 @@ namespace Nz
 		SocketState_NotConnected, //< The socket is not connected (or has been disconnected)
 		SocketState_Resolving,    //< The socket is currently resolving a host name
 
-		SocketState_Max = SocketState_NotConnected
+		SocketState_Max = SocketState_Resolving
 	};
 
 	enum SocketType
