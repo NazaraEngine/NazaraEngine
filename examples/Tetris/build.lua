@@ -11,6 +11,8 @@ EXAMPLE.Files = {
     "include/Constants.hpp",
     "include/States/MenuState.hpp",
     "include/States/GameState.hpp",
+    "include/Utils/InitializeGame.hpp",
+    "include/Utils/InitializeGame.inl",
     "src/Components/BlockComponent.cpp",
     "src/Components/PartComponent.cpp",
     "src/States/MenuState.cpp",
