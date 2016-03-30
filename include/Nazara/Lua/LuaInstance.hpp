@@ -158,7 +158,7 @@ namespace Nz
 			void SetMetatable(const String& tname) const;
 			void SetMetatable(int index) const;
 			void SetMemoryLimit(UInt32 memoryLimit);
-			void SetTable(int index = -3);
+			void SetTable(int index = -3) const;
 			void SetTimeLimit(UInt32 timeLimit);
 
 			bool ToBoolean(int index) const;
