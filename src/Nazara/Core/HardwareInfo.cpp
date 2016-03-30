@@ -212,9 +212,9 @@ namespace Nz
 
 		s_initialized = true;
 
-		UInt32 registers[4]; // Get the four registers (EAX, EBX, ECX et EDX)
+		UInt32 registers[4]; // To store our registers values (EAX, EBX, ECX and EDX)
 
-		// To make it more clear
+		// Let's make it clearer
 		UInt32& eax = registers[0];
 		UInt32& ebx = registers[1];
 		UInt32& ecx = registers[2];
@@ -223,7 +223,7 @@ namespace Nz
 		// To begin, we get the id of the constructor and the id of maximal functions supported by the CPUID
 		HardwareInfoImpl::Cpuid(0, 0, registers);
 
-		// Watchout to the order : EBX, EDX, ECX
+		// Note the order: EBX, EDX, ECX
 		UInt32 manufacturerId[3] = {ebx, edx, ecx};
 
 		// Identification of conceptor
@@ -239,7 +239,7 @@ namespace Nz
 
 		if (eax >= 1)
 		{
-			// Recuperation of certain capacities of the processor (ECX et EDX, function 1)
+			// Retrieval of certain capacities of the processor (ECX et EDX, function 1)
 			HardwareInfoImpl::Cpuid(1, 0, registers);
 
 			s_capabilities[ProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
@@ -253,23 +253,23 @@ namespace Nz
 			s_capabilities[ProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
 		}
 
-		// Recuperation of biggest extended function handled (EAX, fonction 0x80000000)
+		// Retrieval of biggest extended function handled (EAX, function 0x80000000)
 		HardwareInfoImpl::Cpuid(0x80000000, 0, registers);
 
 		UInt32 maxSupportedExtendedFunction = eax;
 		if (maxSupportedExtendedFunction >= 0x80000001)
 		{
-			// Recuperation of extended capabilities of the processor (ECX et EDX, fonction 0x80000001)
+			// Retrieval of extended capabilities of the processor (ECX and EDX, function 0x80000001)
 			HardwareInfoImpl::Cpuid(0x80000001, 0, registers);
 
-			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, independant of the OS
+			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, independent of the OS
 			s_capabilities[ProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
 			s_capabilities[ProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
 			s_capabilities[ProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
 
 			if (maxSupportedExtendedFunction >= 0x80000004)
 			{
-				// Recuperation of the string describing the processor (EAX, EBX, ECX et EDX,
+				// Retrieval of the string describing the processor (EAX, EBX, ECX and EDX,
 				// functions from 0x80000002 to 0x80000004 inclusive)
 				char* ptr = &s_brandString[0];
 				for (UInt32 code = 0x80000002; code <= 0x80000004; ++code)
@@ -280,7 +280,7 @@ namespace Nz
 					ptr += 4*sizeof(UInt32);
 				}
 
-				// The character '\0' is already returned
+				// The character '\0' is already part of the string
 			}
 		}
 
