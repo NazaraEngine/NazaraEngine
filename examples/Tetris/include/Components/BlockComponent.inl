@@ -19,18 +19,17 @@ namespace Tet {
 		blockTexture->Create(Nz::ImageType_2D, Nz::PixelFormatType_RGB8, blockSize, blockSize);
 		const Nz::UInt8& r{ blockColor.r }, g{ blockColor.g }, b{ blockColor.b };
 		Nz::UInt8 pixels[blockSize*blockSize*3];
-		for (std::size_t y{ 0 }; y < blockSize; y += 3) {
-			for (std::size_t x{ 0 }; x < blockSize; x += 3) {
-				if (x < blockSize * .1f || y < blockSize * .1f) {
-					pixels[y*x]   = std::max(r - 10, 0);
-					pixels[y*x+1] = std::max(g - 10, 0);
-					pixels[y*x+2] = std::max(b - 10, 0);
-				}
-				else {
-					pixels[y*x]   = r;
-					pixels[y*x+1] = g;
-					pixels[y*x+2] = b;
-				}
+		//bool xShadowSetted{ false };
+		for (std::size_t i{ 0 }; i < blockSize*blockSize*3; i += 3) {
+			if (i % (blockSize*3) < blockSize * .5f || i / blockSize <= blockSize * .6f) {
+				pixels[i]   = std::max(r - 100, 0);
+				pixels[i+1] = std::max(g - 100, 0);
+				pixels[i+2] = std::max(b - 100, 0);
+			}
+			else {
+				pixels[i]   = r;
+				pixels[i+1] = g;
+				pixels[i+2] = b;
 			}
 		}
         
