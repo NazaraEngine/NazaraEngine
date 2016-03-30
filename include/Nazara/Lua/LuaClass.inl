@@ -64,6 +64,15 @@ namespace Nz
 			lua.PushString(m_info->name);
 			lua.SetField("__type");
 
+			// In case a __tostring method is missing, add a default implementation returning the type
+			if (m_methods.find("__tostring") == m_methods.end())
+			{
+				// Define the Finalizer
+				lua.PushValue(1); // shared_ptr on UserData
+				lua.PushCFunction(ToStringProxy, 1);
+				lua.SetField("__tostring");
+			}
+
 			// Define the Finalizer
 			lua.PushValue(1);
 			lua.PushCFunction(FinalizerProxy, 1);
@@ -484,6 +493,17 @@ namespace Nz
 			lua.Error("Class \"" + info->name + "\" has no static field \"" + String(str, length) + ')');
 		}
 
+		return 1;
+	}
+
+	template<class T>
+	int LuaClass<T>::ToStringProxy(lua_State* state)
+	{
+		LuaInstance& lua = *LuaInstance::GetInstance(state);
+
+		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
+
+		lua.PushString(info->name);
 		return 1;
 	}
 }
