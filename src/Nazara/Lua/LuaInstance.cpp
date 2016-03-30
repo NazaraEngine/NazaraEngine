@@ -754,7 +754,7 @@ namespace Nz
 		m_memoryLimit = memoryLimit;
 	}
 
-	void LuaInstance::SetTable(int index)
+	void LuaInstance::SetTable(int index) const
 	{
 		lua_settable(m_state, index);
 	}
