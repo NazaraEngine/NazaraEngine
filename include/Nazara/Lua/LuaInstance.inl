@@ -329,6 +329,12 @@ namespace Nz
 					{
 						NazaraUnused(instance);
 
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						Apply(*object, func, m_args);
 						return 0;
 					}
@@ -336,6 +342,12 @@ namespace Nz
 					template<typename T, typename P, typename Ret>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
 					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
 
@@ -344,6 +356,12 @@ namespace Nz
 					{
 						NazaraUnused(instance);
 
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						Apply(*object, func, m_args);
 						return 0;
 					}
@@ -351,6 +369,12 @@ namespace Nz
 					template<typename T, typename P, typename Ret>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
 					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
 
