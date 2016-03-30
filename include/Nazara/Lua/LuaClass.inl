@@ -20,18 +20,28 @@ namespace Nz
 	template<class P>
 	inline void LuaClass<T>::Inherit(LuaClass<P>& parent)
 	{
+		Inherit<P>(parent, [] (T* instance) -> P*
+		{
+			return static_cast<P*>(instance);
+		});
+	}
+
+	template<class T>
+	template<class P>
+	inline void LuaClass<T>::Inherit(LuaClass<P>& parent, ConvertToParent<P> convertFunc)
+	{
 		static_assert(!std::is_same<P, T>::value || std::is_base_of<P, T>::value, "P must be a base of T");
 
 		std::shared_ptr<typename LuaClass<P>::ClassInfo>& parentInfo = parent.m_info;
-		
-		parentInfo->instanceGetters[m_info->name] = [info = m_info](LuaInstance& lua) -> P*
+
+		parentInfo->instanceGetters[m_info->name] = [info = m_info, convertFunc] (LuaInstance& lua) -> P*
 		{
-			return *static_cast<T**>(lua.CheckUserdata(1, info->name));
+			return convertFunc(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
 		};
 
-		m_info->parentGetters.emplace_back([parentInfo] (LuaInstance& lua, T& instance)
+		m_info->parentGetters.emplace_back([parentInfo, convertFunc] (LuaInstance& lua, T* instance)
 		{
-			LuaClass<P>::Get(parentInfo, lua, instance);
+			LuaClass<P>::Get(parentInfo, lua, convertFunc(instance));
 		});
 	}
 
@@ -112,7 +122,7 @@ namespace Nz
 				lua.SetField(pair.first); // Method name
 			}
 
-			m_info->instanceGetters[m_info->name] = [info = m_info](LuaInstance& lua)
+			m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& lua)
 			{
 				return *static_cast<T**>(lua.CheckUserdata(1, info->name));
 			};
@@ -242,7 +252,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		SetMethod(name, [func, handler](LuaInstance& lua, T& object) -> int
+		SetMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -256,7 +266,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		SetMethod(name, [func, handler](LuaInstance& lua, T& object) -> int
+		SetMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -355,11 +365,11 @@ namespace Nz
 	}
 
 	template<class T>
-	void LuaClass<T>::Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T& instance)
+	void LuaClass<T>::Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T* instance)
 	{
 		const ClassIndexFunc& getter = info->getter;
 
-		if (!getter || !getter(lua, instance))
+		if (!getter || !getter(lua, *instance))
 		{
 			// Query from the metatable
 			lua.GetMetatable(info->name); //< Metatable
@@ -389,7 +399,7 @@ namespace Nz
 
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
-		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		Get(info, lua, instance);
@@ -415,9 +425,15 @@ namespace Nz
 					instance = it->second(lua);
 			}
 			lua.Pop(2);
+
+			lua.Remove(1); //< Remove the instance from the Lua stack
 		}
 
-		lua.Remove(1); //< Remove the instance from the Lua stack
+		if (!instance)
+		{
+			lua.Error("Method cannot be called without an object");
+			return 0;
+		}
 
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 		const ClassFunc& method = info->methods[index];
