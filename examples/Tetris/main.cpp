@@ -3,6 +3,7 @@
 #include <NDK/StateMachine.hpp>
 #include <NDK/World.hpp>
 #include "States/MenuState.hpp"
+#include "Utils/InitializeGame.hpp"
 #include <iostream>
 
 int main() {
@@ -14,10 +15,9 @@ int main() {
 	}
 
 	auto& world = app.AddWorld();
-	//Tet::InitializeGame();
+	Tet::Utils::InitializeGame(window, world);
 
-	Ndk::StateMachine fsm;
-	fsm.ChangeState(std::make_shared<Tet::MenuState>(window, world));
+    Ndk::StateMachine fsm{ std::make_shared<Tet::MenuState>(window, world) };
 
 	Nz::Clock elapsedTimeClock;
     while (app.Run()) {
