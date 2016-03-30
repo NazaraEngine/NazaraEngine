@@ -244,7 +244,7 @@ namespace Nz
 	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
-		NazaraAssert(stream.GetCursorPos() >= stream.GetSize(), "No data to load");
+		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();
