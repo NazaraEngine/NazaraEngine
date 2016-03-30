@@ -9,6 +9,7 @@
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/EntityOwner.hpp>
@@ -43,6 +44,7 @@ namespace Ndk
 			inline bool IsVisible() const;
 
 			void SendCharacter(char32_t character);
+			void SendEvent(Nz::WindowEvent event);
 
 			void SetCharacterSize(unsigned int size);
 			void SetSize(const Nz::Vector2f& size);
@@ -65,6 +67,8 @@ namespace Ndk
 				Nz::String text;
 			};
 
+			std::size_t m_historyPosition;
+			std::vector<Nz::String> m_commandHistory;
 			std::vector<Line> m_historyLines;
 			EntityOwner m_historyBackground;
 			EntityOwner m_history;
