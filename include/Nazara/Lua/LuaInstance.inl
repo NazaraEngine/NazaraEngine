@@ -7,6 +7,7 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
 #include <string>
+#include <vector>
 #include <type_traits>
 
 namespace Nz
@@ -146,6 +147,25 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
+		return 1;
+	}
+
+	template<typename T>
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T> valContainer, TypeTag<std::vector<T>>)
+	{
+		std::size_t index = 1;
+		instance.PushTable(valContainer.size());
+		for (const T& val : valContainer)
+		{
+			instance.PushInteger(index++);
+			if (LuaImplReplyVal(instance, val, TypeTag<T>()) != 1)
+			{
+				instance.Error("Couldn't create table: type need more than one place to store");
+				return 0;
+			}
+			instance.SetTable();
+		}
+
 		return 1;
 	}
 
