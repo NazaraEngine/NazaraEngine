@@ -8,6 +8,10 @@
 #define NDK_APPLICATION_HPP
 
 #include <NDK/Prerequesites.hpp>
+#include <NDK/World.hpp>
+#include <Nazara/Core/Clock.hpp>
+#include <Nazara/Utility/Window.hpp>
+#include <vector>
 
 namespace Ndk
 {
@@ -15,7 +19,35 @@ namespace Ndk
 	{
 		public:
 			inline Application();
+			Application(const Application&) = delete;
 			inline ~Application();
+
+			#ifndef NDK_SERVER
+			template<typename T, typename... Args> T& AddWindow(Args&&... args);
+			#endif
+			template<typename... Args> World& AddWorld(Args&&... args);
+
+			bool Run();
+
+			inline void Quit();
+
+			Application& operator=(const Application&) = delete;
+
+			inline static Application* Instance();
+
+		private:
+			#ifndef NDK_SERVER
+			std::vector<std::unique_ptr<Nz::Window>> m_windows;
+			#endif
+			std::vector<World> m_worlds;
+			Nz::Clock m_updateClock;
+			#ifndef NDK_SERVER
+			bool m_exitOnClosedWindows;
+			#endif
+			bool m_shouldQuit;
+			float m_updateTime;
+
+			static Application* s_application;
 	};
 }
 
