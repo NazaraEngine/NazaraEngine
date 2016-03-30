@@ -87,7 +87,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<!std::is_integral<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
+	std::enable_if_t<!std::is_integral<T>::value && !std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
 	{
 		if (instance.IsValid(index))
 			return LuaImplQueryArg(instance, index, arg, tag);
