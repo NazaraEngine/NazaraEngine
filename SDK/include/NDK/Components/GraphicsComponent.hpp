@@ -13,7 +13,11 @@
 
 namespace Ndk
 {
-	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
+	class GraphicsComponent;
+
+	using GraphicsComponentHandle = Nz::ObjectHandle<GraphicsComponent>;
+
+	class NDK_API GraphicsComponent : public Component<GraphicsComponent>, public Nz::HandledObject<GraphicsComponent>
 	{
 		friend class RenderSystem;
 
