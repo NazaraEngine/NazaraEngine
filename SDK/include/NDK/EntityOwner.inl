@@ -26,16 +26,16 @@ namespace Ndk
 
 	inline void EntityOwner::Reset(Entity* entity)
 	{
-		if (m_entity)
-			m_entity->Kill();
+		if (m_object)
+			m_object->Kill();
 
 		EntityHandle::Reset(entity);
 	}
 
 	inline void EntityOwner::Reset(EntityOwner&& handle)
 	{
-		Reset(handle.GetEntity());
-		handle.m_entity = nullptr;
+		Reset(handle.GetObject());
+		handle.m_object = nullptr;
 	}
 
 	inline EntityOwner& EntityOwner::operator=(Entity* entity)
