@@ -1,16 +1,14 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Math.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
+#include <cstring>
 
 namespace Ndk
 {
-	void LuaAPI::Register_Math(Nz::LuaInstance& instance)
+	void LuaBinding::BindMath()
 	{
 		/*********************************** Nz::EulerAngles **********************************/
-		Nz::LuaClass<Nz::EulerAnglesd> eulerAnglesClass("EulerAngles");
-
 		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::EulerAnglesd*
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
@@ -147,11 +145,7 @@ namespace Ndk
 			return false;
 		});
 
-		eulerAnglesClass.Register(instance);
-
 		/*********************************** Nz::Quaternion **********************************/
-		Nz::LuaClass<Nz::Quaterniond> quaternionClass("Quaternion");
-
 		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Quaterniond*
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
@@ -243,11 +237,7 @@ namespace Ndk
 			return false;
 		});
 
-		quaternionClass.Register(instance);
-
 		/*********************************** Nz::Vector2 **********************************/
-		Nz::LuaClass<Nz::Vector2d> vector2dClass("Vector2");
-
 		vector2dClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Vector2d* 
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
@@ -354,11 +344,7 @@ namespace Ndk
 			return false;
 		});
 
-		vector2dClass.Register(instance);
-
 		/*********************************** Nz::Vector3 **********************************/
-		Nz::LuaClass<Nz::Vector3d> vector3dClass("Vector3");
-
 		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Vector3d*
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
@@ -484,7 +470,13 @@ namespace Ndk
 
 			return false;
 		});
+	}
 
+	void LuaBinding::RegisterMath(Nz::LuaInstance& instance)
+	{
+		eulerAnglesClass.Register(instance);
+		quaternionClass.Register(instance);
+		vector2dClass.Register(instance);
 		vector3dClass.Register(instance);
 	}
 }
