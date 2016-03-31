@@ -28,6 +28,7 @@ namespace Ndk
 			static void Register_Math(Nz::LuaInstance& instance);
 			static void Register_Network(Nz::LuaInstance& instance);
 			static void Register_Renderer(Nz::LuaInstance& instance);
+			static void Register_SDK(Nz::LuaInstance& instance);
 			static void Register_Utility(Nz::LuaInstance& instance);
 	};
 }
