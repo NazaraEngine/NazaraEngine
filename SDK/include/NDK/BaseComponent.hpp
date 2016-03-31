@@ -31,6 +31,8 @@ namespace Ndk
 
 			ComponentIndex GetIndex() const;
 
+			inline static ComponentIndex GetMaxComponentIndex();
+
 			BaseComponent& operator=(const BaseComponent&) = default;
 			BaseComponent& operator=(BaseComponent&&) = default;
 
