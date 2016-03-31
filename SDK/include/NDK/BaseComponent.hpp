@@ -7,7 +7,7 @@
 #ifndef NDK_BASECOMPONENT_HPP
 #define NDK_BASECOMPONENT_HPP
 
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 #include <functional>
 #include <unordered_map>
 #include <vector>

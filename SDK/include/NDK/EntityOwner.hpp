@@ -7,7 +7,7 @@
 #ifndef NDK_ENTITYOWNER_HPP
 #define NDK_ENTITYOWNER_HPP
 
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 
 namespace Ndk
 {
