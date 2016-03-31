@@ -9,7 +9,7 @@
 
 #include <Nazara/Core/Bitset.hpp>
 #include <NDK/Prerequesites.hpp>
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 
 namespace Ndk
 {
