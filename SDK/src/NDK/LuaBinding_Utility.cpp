@@ -1,94 +1,94 @@
-// Copyright (C) 2016 Jérôme Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/World.hpp>
 
 namespace Ndk
 {
-	namespace
+	void LuaBinding::BindUtility()
 	{
-		int AddNilComponent(Nz::LuaInstance& lua, EntityHandle&)
+		/*********************************** Nz::AbstractImage **********************************/
+		abstractImage.SetMethod("GetBytesPerPixel", &Nz::AbstractImage::GetBytesPerPixel);
+		abstractImage.SetMethod("GetDepth", &Nz::AbstractImage::GetDepth, static_cast<Nz::UInt8>(0));
+		abstractImage.SetMethod("GetFormat", &Nz::AbstractImage::GetFormat);
+		abstractImage.SetMethod("GetHeight", &Nz::AbstractImage::GetHeight, static_cast<Nz::UInt8>(0));
+		abstractImage.SetMethod("GetLevelCount", &Nz::AbstractImage::GetLevelCount);
+		abstractImage.SetMethod("GetMaxLevel", &Nz::AbstractImage::GetMaxLevel);
+		abstractImage.SetMethod("GetSize", &Nz::AbstractImage::GetSize, static_cast<Nz::UInt8>(0));
+		abstractImage.SetMethod("GetType", &Nz::AbstractImage::GetType);
+		abstractImage.SetMethod("GetWidth", &Nz::AbstractImage::GetWidth, static_cast<Nz::UInt8>(0));
+		abstractImage.SetMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
+		abstractImage.SetMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
+
+		abstractImage.SetMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage) -> int
 		{
-			lua.PushNil();
-			return 1;
-		}
-
-		template<typename T>
-		int AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle)
-		{
-			static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
-
-			T& component = handle->AddComponent<T>();
-			lua.Push(component.CreateHandle());
-			return 1;
-		}
-
-		int AddComponent(Nz::LuaInstance& lua, EntityHandle& handle, ComponentIndex index)
-		{
-			std::vector<int(*)(Nz::LuaInstance&, EntityHandle&)> componentAdder(BaseComponent::GetMaxComponentIndex(), AddNilComponent);
-			componentAdder[GraphicsComponent::componentIndex] = &AddComponentOfType<GraphicsComponent>;
-			componentAdder[NodeComponent::componentIndex] = &AddComponentOfType<NodeComponent>;
-
-			if (index > componentAdder.size())
+			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
+			switch (argCount)
 			{
-				lua.Error("Invalid component index");
-				return 0;
+				case 0:
+					return lua.Push(abstractImage->GetMemoryUsage());
+
+				case 1:
+				{
+					int index = 1;
+					Nz::UInt8 level(lua.Check<Nz::UInt8>(&index));
+
+					return lua.Push(abstractImage->GetMemoryUsage(level));
+				}
 			}
 
-			return componentAdder[index](lua, handle);
-		}
+			lua.Error("No matching overload for method GetMemoryUsage");
+			return 0;
+		});
 
-		int PushNilComponent(Nz::LuaInstance& lua, BaseComponent&)
+		abstractImage.SetMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage) -> int
 		{
-			lua.PushNil();
-			return 1;
-		}
+			unsigned int argCount = std::min(lua.GetStackTop(), 6U);
+			int argIndex = 1;
 
-		template<typename T>
-		int PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component)
-		{
-			static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
+			std::size_t bufferSize = 0;
+			const Nz::UInt8* pixels = reinterpret_cast<const Nz::UInt8*>(lua.CheckString(argIndex++, &bufferSize));
 
-			T& rightComponent = static_cast<T&>(component);
-			lua.Push(rightComponent.CreateHandle());
-			return 1;
-		}
-
-		int PushComponent(Nz::LuaInstance& lua, BaseComponent& component)
-		{
-			std::vector<int(*)(Nz::LuaInstance&, BaseComponent&)> componentConverter(BaseComponent::GetMaxComponentIndex(), PushNilComponent);
-			componentConverter[GraphicsComponent::componentIndex] = &PushComponentOfType<GraphicsComponent>;
-			componentConverter[NodeComponent::componentIndex] = &PushComponentOfType<NodeComponent>;
-
-			ComponentIndex index = component.GetIndex();
-
-			if (index > componentConverter.size())
+			if (argCount < 2 || lua.IsOfType(2, Nz::LuaType_Number))
 			{
-				lua.Error("Invalid component index");
-				return 0;
+				// bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
+
+				///TODO: Buffer checks (Nz::ByteBufferView ?)
+				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
 			}
+			/* Disabled until Box and Rect have been ported
+			else if (lua.IsOfType(2, "Box"))
+			{
+				// bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+				Nz::Boxui box = lua.Check<Nz::Boxui>(&argIndex);
+				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
 
-			return componentConverter[index](lua, component);
-		}
-	}
+				///TODO: Buffer checks (Nz::ByteBufferView ?)
+				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
+			}
+			else if (lua.IsOfType(2, "Rect"))
+			{
+				// bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+				Nz::Rectui box = lua.Check<Nz::Rectui>(&argIndex);
+				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
 
-	void LuaAPI::Register_SDK(Nz::LuaInstance& instance)
-	{
-		Nz::LuaClass<GraphicsComponentHandle> graphicsComponent("GraphicsComponent");
+				///TODO: Buffer checks (Nz::ByteBufferView ?)
+				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
+			}*/
 
-		graphicsComponent.SetMethod("Attach", &GraphicsComponent::Attach, 0);
+			lua.Error("No matching overload for method Update");
+			return 0;
+		});
 
-		graphicsComponent.Register(instance);
-
-		Nz::LuaClass<Nz::Node> nodeClass("Node"); //< TODO: Move to Utility
-
+		/*********************************** Nz::Node **********************************/
 		nodeClass.SetMethod("GetBackward", &Nz::Node::GetBackward);
 		//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
 		nodeClass.SetMethod("GetDown", &Nz::Node::GetDown);
@@ -245,69 +245,11 @@ namespace Ndk
 			lua.Error("No matching overload for method SetInitialScale");
 			return 0;
 		});
+	}
 
+	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
+	{
+		abstractImage.Register(instance);
 		nodeClass.Register(instance);
-
-		Nz::LuaClass<NodeComponentHandle> nodeComponent("NodeComponent");
-		nodeComponent.Inherit<Nz::Node>(nodeClass, [] (NodeComponentHandle* handle) -> Nz::Node*
-		{
-			return handle->GetObject();
-		});
-
-		nodeComponent.Register(instance);
-
-		Nz::LuaClass<EntityHandle> entityClass("Entity");
-
-		entityClass.SetMethod("Enable", &Entity::Enable);
-		entityClass.SetMethod("GetId", &Entity::GetId);
-		entityClass.SetMethod("GetWorld", &Entity::GetWorld);
-		entityClass.SetMethod("Kill", &Entity::Kill);
-		entityClass.SetMethod("IsEnabled", &Entity::IsEnabled);
-		entityClass.SetMethod("IsValid", &Entity::IsValid);
-		entityClass.SetMethod("RemoveComponent", (void(Entity::*)(ComponentIndex)) &Entity::RemoveComponent);
-		entityClass.SetMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
-		entityClass.SetMethod("__tostring", &EntityHandle::ToString);
-
-		entityClass.SetMethod("AddComponent", [] (Nz::LuaInstance& lua, EntityHandle& handle) -> int
-		{
-			int index = 1;
-			ComponentIndex componentIndex = lua.Check<ComponentIndex>(&index);
-
-			return AddComponent(lua, handle, componentIndex);
-		});
-
-		entityClass.SetMethod("GetComponent", [] (Nz::LuaInstance& lua, EntityHandle& handle) -> int
-		{
-			int index = 1;
-			ComponentIndex componentIndex = lua.Check<ComponentIndex>(&index);
-
-			if (!handle->HasComponent(componentIndex))
-			{
-				lua.PushNil();
-				return 1;
-			}
-
-			return PushComponent(lua, handle->GetComponent(componentIndex));
-		});
-
-		entityClass.Register(instance);
-
-		Nz::LuaClass<WorldHandle> worldClass("World");
-
-		worldClass.SetMethod("CreateEntity", &World::CreateEntity);
-		worldClass.SetMethod("CreateEntities", &World::CreateEntities);
-		worldClass.SetMethod("Clear", &World::Clear);
-
-		worldClass.Register(instance);
-
-		instance.PushTable(0, 2);
-		{
-			instance.PushInteger(GraphicsComponent::componentIndex);
-			instance.SetField("Graphics");
-
-			instance.PushInteger(NodeComponent::componentIndex);
-			instance.SetField("Node");
-		}
-		instance.SetGlobal("ComponentType");
 	}
 }

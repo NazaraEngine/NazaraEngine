@@ -1,28 +1,22 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Network.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
 
 namespace Ndk
 {
-	void LuaAPI::Register_Network(Nz::LuaInstance& instance)
+	void LuaBinding::BindNetwork()
 	{
 		/*********************************** Nz::AbstractSocket **********************************/
-		Nz::LuaClass<Nz::AbstractSocket> abstractSocketClass("AbstractSocket");
-
-		abstractSocketClass.SetMethod("Close",               &Nz::AbstractSocket::Close);
-		abstractSocketClass.SetMethod("EnableBlocking",      &Nz::AbstractSocket::EnableBlocking);
-		abstractSocketClass.SetMethod("GetLastError",        &Nz::AbstractSocket::GetLastError);
-		abstractSocketClass.SetMethod("GetState",            &Nz::AbstractSocket::GetState);
-		abstractSocketClass.SetMethod("GetType",             &Nz::AbstractSocket::GetType);
-		abstractSocketClass.SetMethod("IsBlockingEnabled",   &Nz::AbstractSocket::IsBlockingEnabled);
+		abstractSocketClass.SetMethod("Close", &Nz::AbstractSocket::Close);
+		abstractSocketClass.SetMethod("EnableBlocking", &Nz::AbstractSocket::EnableBlocking);
+		abstractSocketClass.SetMethod("GetLastError", &Nz::AbstractSocket::GetLastError);
+		abstractSocketClass.SetMethod("GetState", &Nz::AbstractSocket::GetState);
+		abstractSocketClass.SetMethod("GetType", &Nz::AbstractSocket::GetType);
+		abstractSocketClass.SetMethod("IsBlockingEnabled", &Nz::AbstractSocket::IsBlockingEnabled);
 		abstractSocketClass.SetMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
 
-		abstractSocketClass.Register(instance);
-
-		Nz::LuaClass<Nz::IpAddress> ipAddressClass("IpAddress");
-
+		/*********************************** Nz::IpAddress **********************************/
 		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::IpAddress*
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 9U);
@@ -43,18 +37,18 @@ namespace Ndk
 				case 8:
 				case 9:
 					return new Nz::IpAddress(lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex),
-					                         lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex, 0));
+											 lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex, 0));
 			}
 
 			return nullptr;
 		});
 
-		ipAddressClass.SetMethod("GetPort",     &Nz::IpAddress::GetPort);
+		ipAddressClass.SetMethod("GetPort", &Nz::IpAddress::GetPort);
 		ipAddressClass.SetMethod("GetProtocol", &Nz::IpAddress::GetProtocol);
-		ipAddressClass.SetMethod("IsLoopback",  &Nz::IpAddress::IsLoopback);
-		ipAddressClass.SetMethod("IsValid",     &Nz::IpAddress::IsValid);
-		ipAddressClass.SetMethod("ToUInt32",    &Nz::IpAddress::ToUInt32);
-		ipAddressClass.SetMethod("__tostring",  &Nz::IpAddress::ToString);
+		ipAddressClass.SetMethod("IsLoopback", &Nz::IpAddress::IsLoopback);
+		ipAddressClass.SetMethod("IsValid", &Nz::IpAddress::IsValid);
+		ipAddressClass.SetMethod("ToUInt32", &Nz::IpAddress::ToUInt32);
+		ipAddressClass.SetMethod("__tostring", &Nz::IpAddress::ToString);
 
 		ipAddressClass.SetStaticMethod("ResolveAddress", [] (Nz::LuaInstance& instance) -> int
 		{
@@ -96,10 +90,10 @@ namespace Ndk
 				{
 					instance.PushInteger(index++);
 					instance.PushTable(0, 4);
-					instance.SetField("Address",       std::move(info.address));
+					instance.SetField("Address", std::move(info.address));
 					instance.SetField("CanonicalName", std::move(info.canonicalName));
-					instance.SetField("Protocol",      std::move(info.protocol));
-					instance.SetField("SocketType",    std::move(info.socketType));
+					instance.SetField("Protocol", std::move(info.protocol));
+					instance.SetField("SocketType", std::move(info.socketType));
 					instance.SetTable();
 				}
 
@@ -112,7 +106,12 @@ namespace Ndk
 				return 2;
 			}
 		});
+	}
 
+	void LuaBinding::RegisterNetwork(Nz::LuaInstance& instance)
+	{
+		// Classes
+		abstractSocketClass.Register(instance);
 		ipAddressClass.Register(instance);
 
 		// Enums
