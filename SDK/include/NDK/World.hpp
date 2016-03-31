@@ -8,8 +8,8 @@
 #define NDK_WORLD_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <NDK/Entity.hpp>
-#include <NDK/EntityHandle.hpp>
 #include <NDK/System.hpp>
 #include <algorithm>
 #include <memory>
@@ -18,7 +18,11 @@
 
 namespace Ndk
 {
-	class NDK_API World
+	class World;
+
+	using WorldHandle = Nz::ObjectHandle<World>;
+
+	class NDK_API World : public Nz::HandledObject<World>
 	{
 		friend Entity;
 
