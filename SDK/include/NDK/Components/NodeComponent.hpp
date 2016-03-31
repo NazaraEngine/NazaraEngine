@@ -13,8 +13,11 @@
 namespace Ndk
 {
 	class Entity;
+	class NodeComponent;
 
-	class NDK_API NodeComponent : public Component<NodeComponent>, public Nz::Node
+	using NodeComponentHandle = Nz::ObjectHandle<NodeComponent>;
+
+	class NDK_API NodeComponent : public Component<NodeComponent>, public Nz::Node, public Nz::HandledObject<NodeComponent>
 	{
 		public:
 			NodeComponent() = default;
