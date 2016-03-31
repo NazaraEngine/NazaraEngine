@@ -64,6 +64,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress val, TypeTag<IpAddress>)
+	{
+		instance.PushInstance<IpAddress>("IpAddress", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3d val, TypeTag<Vector3d>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
