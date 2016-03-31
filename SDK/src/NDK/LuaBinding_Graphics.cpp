@@ -1,18 +1,16 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Graphics.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
 
 namespace Ndk
 {
-	void LuaAPI::Register_Graphics(Nz::LuaInstance& instance)
+	void LuaBinding::BindGraphics()
 	{
-		Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable("InstancedRenderable");
+		/*********************************** Nz::InstancedRenderable ***********************************/
 
-		Nz::LuaClass<Nz::ModelRef> modelClass("Model");
+		/*********************************** Nz::Model ***********************************/
 		modelClass.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::ModelRef* model) -> Nz::InstancedRenderableRef*
 		{
 			return reinterpret_cast<Nz::InstancedRenderableRef*>(model); //TODO: Make a ObjectRefCast
@@ -39,7 +37,10 @@ namespace Ndk
 		//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
 		modelClass.SetMethod("SetSkin", &Nz::Model::SetSkin);
 		modelClass.SetMethod("SetSkinCount", &Nz::Model::SetSkinCount);
+	}
 
+	void LuaBinding::RegisterGraphics(Nz::LuaInstance& instance)
+	{
 		instancedRenderable.Register(instance);
 		modelClass.Register(instance);
 	}

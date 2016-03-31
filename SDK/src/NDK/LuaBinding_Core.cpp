@@ -1,18 +1,13 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Core.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
-
-#include <Nazara/Core/Hash/MD5.hpp>
 
 namespace Ndk
 {
-	void LuaAPI::Register_Core(Nz::LuaInstance& instance)
+	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		Nz::LuaClass<Nz::Clock> clockClass("Clock");
-
 		clockClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Clock*
 		{
 			int argIndex = 1;
@@ -39,12 +34,7 @@ namespace Ndk
 			return 1;
 		});
 
-
-		clockClass.Register(instance);
-
 		/********************************* Nz::Directory ********************************/
-		Nz::LuaClass<Nz::Directory> directoryClass("Directory");
-
 		directoryClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Directory*
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
@@ -93,12 +83,7 @@ namespace Ndk
 			return 1;
 		});
 
-
-		directoryClass.Register(instance);
-
 		/*********************************** Nz::Stream ***********************************/
-		Nz::LuaClass<Nz::Stream> streamClass("Stream");
-
 		streamClass.SetMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
 		streamClass.SetMethod("Flush", &Nz::Stream::Flush);
 		streamClass.SetMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
@@ -139,10 +124,7 @@ namespace Ndk
 			return 1;
 		});
 
-		streamClass.Register(instance);
-
 		/*********************************** Nz::File ***********************************/
-		Nz::LuaClass<Nz::File> fileClass("File");
 		fileClass.Inherit(streamClass);
 
 		fileClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::File*
@@ -242,8 +224,15 @@ namespace Ndk
 			lua.PushString(stream);
 			return 1;
 		});
+	}
 
+	void LuaBinding::RegisterCore(Nz::LuaInstance& instance)
+	{
+		// Classes
+		clockClass.Register(instance);
+		directoryClass.Register(instance);
 		fileClass.Register(instance);
+		streamClass.Register(instance);
 
 		// Enums
 
@@ -251,9 +240,9 @@ namespace Ndk
 		static_assert(Nz::CursorPosition_Max + 1 == 3, "Nz::CursorPosition has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 3);
 		{
-			instance.SetField("AtBegin",   Nz::CursorPosition_AtBegin);
+			instance.SetField("AtBegin", Nz::CursorPosition_AtBegin);
 			instance.SetField("AtCurrent", Nz::CursorPosition_AtCurrent);
-			instance.SetField("AtEnd",     Nz::CursorPosition_AtEnd);
+			instance.SetField("AtEnd", Nz::CursorPosition_AtEnd);
 		}
 		instance.SetGlobal("CursorPosition");
 
@@ -277,13 +266,13 @@ namespace Ndk
 		static_assert(Nz::OpenMode_Max + 1 == 2 * (64), "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 8);
 		{
-			instance.SetField("Append",    Nz::OpenMode_Append);
-			instance.SetField("NotOpen",   Nz::OpenMode_NotOpen);
-			instance.SetField("Lock",      Nz::OpenMode_Lock);
-			instance.SetField("ReadOnly",  Nz::OpenMode_ReadOnly);
+			instance.SetField("Append", Nz::OpenMode_Append);
+			instance.SetField("NotOpen", Nz::OpenMode_NotOpen);
+			instance.SetField("Lock", Nz::OpenMode_Lock);
+			instance.SetField("ReadOnly", Nz::OpenMode_ReadOnly);
 			instance.SetField("ReadWrite", Nz::OpenMode_ReadWrite);
-			instance.SetField("Text",      Nz::OpenMode_Text);
-			instance.SetField("Truncate",  Nz::OpenMode_Truncate);
+			instance.SetField("Text", Nz::OpenMode_Text);
+			instance.SetField("Truncate", Nz::OpenMode_Truncate);
 			instance.SetField("WriteOnly", Nz::OpenMode_WriteOnly);
 		}
 		instance.SetGlobal("OpenMode");

@@ -9,7 +9,8 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../SDK/include"
+	"../SDK/include",
+	"../SDK/src"
 }
 
 TOOL.Files = {
@@ -29,9 +30,9 @@ TOOL.FilesExclusion = {
 	"../SDK/**/ListenerComponent.*",
 	"../SDK/**/ListenerSystem.*",
 	"../SDK/**/RenderSystem.*",
-	"../SDK/**/LuaAPI_Audio.*",
-	"../SDK/**/LuaAPI_Graphics.*",
-	"../SDK/**/LuaAPI_Renderer.*",
+	"../SDK/**/LuaBinding_Audio.*",
+	"../SDK/**/LuaBinding_Graphics.*",
+	"../SDK/**/LuaBinding_Renderer.*"
 }
 
 TOOL.Libraries = {
