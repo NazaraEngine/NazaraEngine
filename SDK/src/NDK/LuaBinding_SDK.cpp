@@ -137,6 +137,36 @@ namespace Ndk
 			return handle->GetObject();
 		});
 
+		/*********************************** Ndk::VelocityComponent **********************************/
+		velocityComponent.SetGetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+		{
+			std::size_t length;
+			const char* member = lua.CheckString(1, &length);
+
+			if (std::strcmp(member, "Linear") == 0)
+			{
+				lua.Push(instance->linearVelocity);
+				return true;
+			}
+
+			return false;
+		});
+
+		velocityComponent.SetSetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+		{
+			std::size_t length;
+			const char* member = lua.CheckString(1, &length);
+
+			int argIndex = 2;
+			if (std::strcmp(member, "Linear") == 0)
+			{
+				instance->linearVelocity = lua.Check<Nz::Vector3f>(&argIndex);
+				return true;
+			}
+
+			return false;
+		});
+
 		/*********************************** Ndk::World **********************************/
 		worldClass.SetMethod("CreateEntity", &World::CreateEntity);
 		worldClass.SetMethod("CreateEntities", &World::CreateEntities);
@@ -153,6 +183,7 @@ namespace Ndk
 		m_componentBinding.resize(BaseComponent::GetMaxComponentIndex() + 1);
 
 		EnableComponentBinding<NodeComponent>();
+		EnableComponentBinding<VelocityComponent>();
 
 		#ifndef NDK_SERVER
 		EnableComponentBinding<GraphicsComponent>();
@@ -177,6 +208,7 @@ namespace Ndk
 		// Classes
 		entityClass.Register(instance);
 		nodeComponent.Register(instance);
+		velocityComponent.Register(instance);
 		worldClass.Register(instance);
 
 		#ifndef NDK_SERVER
@@ -196,6 +228,9 @@ namespace Ndk
 
 			instance.PushInteger(NodeComponent::componentIndex);
 			instance.SetField("Node");
+
+			instance.PushInteger(VelocityComponent::componentIndex);
+			instance.SetField("Velocity");
 		}
 		instance.SetGlobal("ComponentType");
 	}

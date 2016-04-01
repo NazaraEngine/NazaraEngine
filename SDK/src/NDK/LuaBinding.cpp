@@ -28,6 +28,7 @@ namespace Ndk
 	// SDK
 	nodeComponent("NodeComponent"),
 	entityClass("Entity"),
+	velocityComponent("VelocityComponent"),
 	worldClass("World")
 
 	#ifndef NDK_SERVER
