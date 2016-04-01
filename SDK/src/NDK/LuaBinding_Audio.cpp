@@ -63,8 +63,6 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::SoundEmitter **********************************/
-		Nz::LuaClass<Nz::SoundEmitter> soundEmitter("SoundEmitter");
-
 		soundEmitter.SetMethod("EnableLooping", &Nz::SoundEmitter::EnableLooping);
 		soundEmitter.SetMethod("EnableSpatialization", &Nz::SoundEmitter::EnableSpatialization);
 		soundEmitter.SetMethod("GetAttenuation", &Nz::SoundEmitter::GetAttenuation);
@@ -89,7 +87,6 @@ namespace Ndk
 		soundEmitter.SetMethod("Stop", &Nz::SoundEmitter::Stop);
 
 		/*********************************** Nz::Sound **********************************/
-		Nz::LuaClass<Nz::Sound> soundClass("Sound");
 		soundClass.Inherit(soundEmitter);
 
 		soundClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Sound*
