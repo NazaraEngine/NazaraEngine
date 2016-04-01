@@ -8,6 +8,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/World.hpp>
@@ -16,6 +17,7 @@
 #ifndef NDK_SERVER
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <NDK/Console.hpp>
 #endif
 
 namespace Nz
@@ -315,6 +317,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::Application* ptr, TypeTag<Ndk::Application*>)
+	{
+		instance.PushInstance<Ndk::Application*>("Application", ptr);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::EntityHandle handle, TypeTag<Ndk::EntityHandle>)
 	{
 		instance.PushInstance<Ndk::EntityHandle>("Entity", handle);
@@ -324,6 +332,12 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::NodeComponentHandle handle, TypeTag<Ndk::NodeComponentHandle>)
 	{
 		instance.PushInstance<Ndk::NodeComponentHandle>("NodeComponent", handle);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::VelocityComponentHandle handle, TypeTag<Ndk::VelocityComponentHandle>)
+	{
+		instance.PushInstance<Ndk::VelocityComponentHandle>("VelocityComponent", handle);
 		return 1;
 	}
 
@@ -340,6 +354,12 @@ namespace Nz
 	}
 
 #ifndef NDK_SERVER
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::ConsoleHandle handle, TypeTag<Ndk::ConsoleHandle>)
+	{
+		instance.PushInstance<Ndk::ConsoleHandle>("Console", handle);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::GraphicsComponentHandle handle, TypeTag<Ndk::GraphicsComponentHandle>)
 	{
 		instance.PushInstance<Ndk::GraphicsComponentHandle>("GraphicsComponent", handle);

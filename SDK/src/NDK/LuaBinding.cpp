@@ -43,6 +43,7 @@ namespace Ndk
 	modelClass("Model"),
 
 	// SDK
+	consoleClass("Console"),
 	graphicsComponent("GraphicsComponent")
 	#endif
 	{
