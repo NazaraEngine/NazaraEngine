@@ -12,6 +12,7 @@
 #include <Nazara/Math.hpp>
 #include <Nazara/Network.hpp>
 #include <Nazara/Utility.hpp>
+#include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/Systems.hpp>
@@ -80,6 +81,7 @@ namespace Ndk
 			Nz::LuaClass<Nz::Node> nodeClass;
 
 			// SDK
+			Nz::LuaClass<Application*> application;
 			Nz::LuaClass<EntityHandle> entityClass;
 			Nz::LuaClass<NodeComponentHandle> nodeComponent;
 			Nz::LuaClass<VelocityComponentHandle> velocityComponent;

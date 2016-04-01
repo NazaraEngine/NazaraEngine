@@ -26,6 +26,7 @@ namespace Ndk
 	nodeClass("Node"),
 
 	// SDK
+	application("Application"),
 	nodeComponent("NodeComponent"),
 	entityClass("Entity"),
 	velocityComponent("VelocityComponent"),
