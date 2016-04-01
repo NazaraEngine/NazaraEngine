@@ -92,6 +92,12 @@ namespace Ndk
 		RefreshHistory();
 	}
 
+	void Console::Clear()
+	{
+		m_historyLines.clear();
+		RefreshHistory();
+	}
+
 	void Console::SendCharacter(char32_t character)
 	{
 		switch (character)
