@@ -44,6 +44,19 @@ namespace Ndk
 
 	void LuaBinding::BindSDK()
 	{
+		/*********************************** Ndk::Application **********************************/
+
+		#ifndef NDK_SERVER
+		//application.SetMethod("AddWindow", &Application::AddWindow);
+		#endif
+		application.SetMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application) -> int
+		{
+			instance.Push(application->AddWorld().CreateHandle());
+			return 1;
+		});
+
+		application.SetMethod("GetUpdateTime", &Application::GetUpdateTime);
+		application.SetMethod("Quit", &Application::Quit);
 
 		/*********************************** Ndk::Console **********************************/
 		consoleClass.Inherit<Nz::Node>(nodeClass, [] (ConsoleHandle* handle) -> Nz::Node*
@@ -206,6 +219,7 @@ namespace Ndk
 	void LuaBinding::RegisterSDK(Nz::LuaInstance& instance)
 	{
 		// Classes
+		application.Register(instance);
 		entityClass.Register(instance);
 		nodeComponent.Register(instance);
 		velocityComponent.Register(instance);
