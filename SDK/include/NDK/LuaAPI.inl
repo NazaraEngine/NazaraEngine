@@ -151,11 +151,11 @@ namespace Nz
 				if (index < 0 && index > -3)
 					instance.Error("Vector3 expected, three numbers are required to convert it");
 
-				vec->Set(instance.CheckNumber(index), instance.CheckNumber(index + 1), instance.CheckNumber(index + 2));
+				vec->Set(instance.CheckNumber(index), instance.CheckNumber(index + 1), instance.CheckNumber(index + 2, 0.0));
 				return 3;
 
 			case Nz::LuaType_Table:
-				vec->Set(instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", index));
+				vec->Set(instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", 0.0, index));
 				return 1;
 
 			default:
@@ -270,6 +270,24 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress val, TypeTag<IpAddress>)
 	{
 		instance.PushInstance<IpAddress>("IpAddress", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2d val, TypeTag<Vector2d>)
+	{
+		instance.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2f val, TypeTag<Vector2f>)
+	{
+		instance.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2ui val, TypeTag<Vector2ui>)
+	{
+		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
 
