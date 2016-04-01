@@ -173,7 +173,7 @@ namespace Nz
 
 			if (!stbi_write_hdr_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, reinterpret_cast<const float*>(tempImage.GetConstPixels())))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write HDR to stream");
 				return false;
 			}
 
@@ -193,7 +193,7 @@ namespace Nz
 
 			if (!stbi_write_png_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels(), 0))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write PNG to stream");
 				return false;
 			}
 
@@ -213,7 +213,7 @@ namespace Nz
 
 			if (!stbi_write_tga_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels()))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write TGA to stream");
 				return false;
 			}
 
