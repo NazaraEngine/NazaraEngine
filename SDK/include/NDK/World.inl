@@ -13,7 +13,8 @@ namespace Ndk
 			AddDefaultSystems();
 	}
 
-	inline World::World(World&& world) noexcept
+	inline World::World(World&& world) noexcept :
+	HandledObject(std::move(world))
 	{
 		operator=(std::move(world));
 	}
