@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -19,6 +20,18 @@
 
 namespace Nz
 {
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Color* color, TypeTag<Color>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		color->r = instance.CheckField<UInt8>("r", index);
+		color->g = instance.CheckField<UInt8>("g", index);
+		color->b = instance.CheckField<UInt8>("b", index);
+		color->a = instance.CheckField<UInt8>("a", 255, index);
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, EulerAnglesd* angles, TypeTag<EulerAnglesd>)
 	{
 		switch (instance.GetType(index))
