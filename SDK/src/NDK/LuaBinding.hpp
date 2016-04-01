@@ -21,6 +21,7 @@
 #include <Nazara/Audio.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
+#include <NDK/Console.hpp>
 #endif
 
 namespace Ndk
@@ -81,6 +82,7 @@ namespace Ndk
 			// SDK
 			Nz::LuaClass<EntityHandle> entityClass;
 			Nz::LuaClass<NodeComponentHandle> nodeComponent;
+			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
 			Nz::LuaClass<WorldHandle> worldClass;
 
 			using AddComponentFunc = int(*)(Nz::LuaInstance&, EntityHandle&);
