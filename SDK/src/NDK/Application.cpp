@@ -28,11 +28,11 @@ namespace Ndk
 		}
 		#endif
 
-		float elapsedTime = m_updateClock.GetSeconds();
+		m_updateTime = m_updateClock.GetSeconds();
 		m_updateClock.Restart();
 
 		for (World& world : m_worlds)
-			world.Update(elapsedTime);
+			world.Update(m_updateTime);
 
 		if (m_shouldQuit)
 			return false;

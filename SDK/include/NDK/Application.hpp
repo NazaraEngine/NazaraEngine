@@ -20,6 +20,7 @@ namespace Ndk
 		public:
 			inline Application();
 			Application(const Application&) = delete;
+			Application(Application&&) = delete;
 			inline ~Application();
 
 			#ifndef NDK_SERVER
@@ -27,11 +28,14 @@ namespace Ndk
 			#endif
 			template<typename... Args> World& AddWorld(Args&&... args);
 
+			inline float GetUpdateTime() const;
+
 			bool Run();
 
 			inline void Quit();
 
 			Application& operator=(const Application&) = delete;
+			Application& operator=(Application&&) = delete;
 
 			inline static Application* Instance();
 
