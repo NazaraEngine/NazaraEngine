@@ -168,6 +168,12 @@ namespace Ndk
 	void Console::SetCharacterSize(unsigned int size)
 	{
 		m_characterSize = size;
+
+		m_historyDrawer.SetCharacterSize(m_characterSize);
+		m_historyTextSprite->Update(m_historyDrawer);
+		m_inputDrawer.SetCharacterSize(m_characterSize);
+		m_inputTextSprite->Update(m_inputDrawer);
+
 		Layout();
 	}
 
