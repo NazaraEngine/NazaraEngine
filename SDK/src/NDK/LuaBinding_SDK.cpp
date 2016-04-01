@@ -44,11 +44,33 @@ namespace Ndk
 
 	void LuaBinding::BindSDK()
 	{
-		/*********************************** Ndk::NodeComponent **********************************/
-		nodeComponent.Inherit<Nz::Node>(nodeClass, [] (NodeComponentHandle* handle) -> Nz::Node*
+
+		/*********************************** Ndk::Console **********************************/
+		consoleClass.Inherit<Nz::Node>(nodeClass, [] (ConsoleHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
 		});
+
+		consoleClass.SetMethod("AddLine", &Console::AddLine, Nz::Color::White);
+		consoleClass.SetMethod("Clear", &Console::Clear);
+		consoleClass.SetMethod("GetCharacterSize", &Console::GetCharacterSize);
+		consoleClass.SetMethod("GetHistory", &Console::GetHistory);
+		consoleClass.SetMethod("GetHistoryBackground", &Console::GetHistoryBackground);
+		consoleClass.SetMethod("GetInput", &Console::GetInput);
+		consoleClass.SetMethod("GetInputBackground", &Console::GetInputBackground);
+		consoleClass.SetMethod("GetSize", &Console::GetSize);
+		//consoleClass.SetMethod("GetTextFont", &Console::GetTextFont);
+
+		consoleClass.SetMethod("IsVisible", &Console::IsVisible);
+
+		consoleClass.SetMethod("SendCharacter", &Console::SendCharacter);
+		//consoleClass.SetMethod("SendEvent", &Console::SendEvent);
+
+		consoleClass.SetMethod("SetCharacterSize", &Console::SetCharacterSize);
+		consoleClass.SetMethod("SetSize", &Console::SetSize);
+		//consoleClass.SetMethod("SetTextFont", &Console::SetTextFont);
+		
+		consoleClass.SetMethod("Show", &Console::Show, true);
 
 		/*********************************** Ndk::Entity **********************************/
 		entityClass.SetMethod("Enable", &Entity::Enable);
@@ -109,6 +131,12 @@ namespace Ndk
 			return binding.getter(lua, handle->GetComponent(componentIndex));
 		});
 
+		/*********************************** Ndk::NodeComponent **********************************/
+		nodeComponent.Inherit<Nz::Node>(nodeClass, [] (NodeComponentHandle* handle) -> Nz::Node*
+		{
+			return handle->GetObject();
+		});
+
 		/*********************************** Ndk::World **********************************/
 		worldClass.SetMethod("CreateEntity", &World::CreateEntity);
 		worldClass.SetMethod("CreateEntities", &World::CreateEntities);
@@ -152,6 +180,7 @@ namespace Ndk
 		worldClass.Register(instance);
 
 		#ifndef NDK_SERVER
+		consoleClass.Register(instance);
 		graphicsComponent.Register(instance);
 		#endif
 

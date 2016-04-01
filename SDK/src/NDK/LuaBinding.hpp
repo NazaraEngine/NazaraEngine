@@ -106,6 +106,7 @@ namespace Ndk
 			Nz::LuaClass<Nz::ModelRef> modelClass;
 
 			// SDK
+			Nz::LuaClass<ConsoleHandle> consoleClass;
 			Nz::LuaClass<GraphicsComponentHandle> graphicsComponent;
 			#endif
 	};
