@@ -54,6 +54,11 @@ namespace Ndk
 		return m_worlds.back();
 	}
 
+	inline float Application::GetUpdateTime() const
+	{
+		return m_updateTime;
+	}
+
 	inline void Application::Quit()
 	{
 		m_shouldQuit = true;
