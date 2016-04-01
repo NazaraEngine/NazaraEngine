@@ -7,6 +7,8 @@
 #ifndef NDK_CONSOLE_HPP
 #define NDK_CONSOLE_HPP
 
+#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Utility/Event.hpp>
@@ -21,9 +23,12 @@ namespace Nz
 
 namespace Ndk
 {
+	class Console;
 	class Entity;
 
-	class NDK_API Console : public Nz::Node
+	using ConsoleHandle = Nz::ObjectHandle<Console>;
+
+	class NDK_API Console : public Nz::Node, public Nz::HandledObject<Console>
 	{
 		public:
 			Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance);
@@ -32,6 +37,8 @@ namespace Ndk
 			~Console() = default;
 
 			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
+
+			void Clear();
 
 			inline unsigned int GetCharacterSize() const;
 			inline const EntityHandle& GetHistory() const;
