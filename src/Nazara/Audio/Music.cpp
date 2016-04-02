@@ -262,17 +262,22 @@ namespace Nz
 		unsigned int sampleCount = m_impl->chunkSamples.size();
 		unsigned int sampleRead = 0;
 
-		// Lecture depuis le stream pour remplir le buffer
+		// Fill the buffer by reading from the stream
 		for (;;)
 		{
 			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
-			if (sampleRead < sampleCount && !m_impl->loop)
-				break; // Fin du stream (On ne boucle pas)
+			if (sampleRead < sampleCount && m_impl->loop)
+			{
+				// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
+				m_impl->stream->Seek(0);
+				continue;
+			}
 
-			m_impl->stream->Seek(0); // On boucle au début du stream et on remplit à nouveau
+			// Either we read the size we wanted, either we're not looping
+			break;
 		}
 
-		// Mise à jour du buffer (envoi à OpenAL) et placement dans la file d'attente
+		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
 		{
 			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], sampleRead*sizeof(Int16), m_impl->sampleRate);
