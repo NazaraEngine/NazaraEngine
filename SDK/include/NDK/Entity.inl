@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
 #include <type_traits>
 #include <utility>
@@ -102,10 +103,10 @@ namespace Ndk
 		RemoveComponent(index);
 	}
 
-	inline void Entity::RegisterHandle(EntityHandle* handle)
+	inline Nz::String Entity::ToString() const
 	{
-		///DOC: Un handle ne doit être enregistré qu'une fois, des erreurs se produisent s'il l'est plus d'une fois
-		m_handles.push_back(handle);
+		Nz::StringStream ss;
+		return ss << "Entity(" << GetId() << ')';
 	}
 
 	inline void Entity::RegisterSystem(SystemIndex index)
@@ -120,18 +121,24 @@ namespace Ndk
 		m_world = world;
 	}
 
-	inline void Entity::UnregisterHandle(EntityHandle* handle)
-	{
-		///DOC: Un handle ne doit être libéré qu'une fois, et doit faire partie de la liste, sous peine de crash
-		auto it = std::find(m_handles.begin(), m_handles.end(), handle);
-
-		// On échange cet élément avec le dernier, et on diminue la taille du vector de 1
-		std::swap(*it, m_handles.back());
-		m_handles.pop_back();
-	}
-
 	inline void Entity::UnregisterSystem(SystemIndex index)
 	{
 		m_systemBits.UnboundedReset(index);
 	}
+}
+
+namespace std
+{
+	template<>
+	struct hash<Ndk::EntityHandle>
+	{
+		size_t operator()(const Ndk::EntityHandle& handle) const
+		{
+			// Hasher le pointeur fonctionnerait jusqu'à ce que l'entité soit mise à jour et déplacée
+			// pour cette raison, nous devons hasher l'ID de l'entité (qui reste constante)
+			Ndk::EntityId id = (handle.IsValid()) ? handle->GetId() : std::numeric_limits<Ndk::EntityId>::max();
+
+			return hash<Ndk::EntityId>()(id);
+		}
+	};
 }

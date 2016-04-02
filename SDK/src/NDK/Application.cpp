@@ -28,19 +28,19 @@ namespace Ndk
 		}
 		#endif
 
-		float elapsedTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
-
-		for (World& world : m_worlds)
-			world.Update(elapsedTime);
-
-		if (m_shouldQuit)
-			return false;
-
 		#ifndef NDK_SERVER
 		if (m_exitOnClosedWindows && !hasAtLeastOneActiveWindow)
 			return false;
 		#endif
+
+		if (m_shouldQuit)
+			return false;
+
+		m_updateTime = m_updateClock.GetSeconds();
+		m_updateClock.Restart();
+
+		for (World& world : m_worlds)
+			world.Update(m_updateTime);
 
 		return true;
 	}

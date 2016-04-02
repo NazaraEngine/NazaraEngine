@@ -7,6 +7,7 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
 #include <string>
+#include <vector>
 #include <type_traits>
 
 namespace Nz
@@ -87,7 +88,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<!std::is_integral<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
+	std::enable_if_t<!std::is_integral<T>::value && !std::is_enum<T>::value && !std::is_floating_point<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, const T& defValue, TypeTag<T> tag)
 	{
 		if (instance.IsValid(index))
 			return LuaImplQueryArg(instance, index, arg, tag);
@@ -146,6 +147,25 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
+		return 1;
+	}
+
+	template<typename T>
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T> valContainer, TypeTag<std::vector<T>>)
+	{
+		std::size_t index = 1;
+		instance.PushTable(valContainer.size());
+		for (const T& val : valContainer)
+		{
+			instance.PushInteger(index++);
+			if (LuaImplReplyVal(instance, val, TypeTag<T>()) != 1)
+			{
+				instance.Error("Couldn't create table: type need more than one place to store");
+				return 0;
+			}
+			instance.SetTable();
+		}
+
 		return 1;
 	}
 
@@ -329,6 +349,12 @@ namespace Nz
 					{
 						NazaraUnused(instance);
 
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						Apply(*object, func, m_args);
 						return 0;
 					}
@@ -336,6 +362,12 @@ namespace Nz
 					template<typename T, typename P, typename Ret>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, Ret(P::*func)(Args...)) const
 					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
 
@@ -344,6 +376,12 @@ namespace Nz
 					{
 						NazaraUnused(instance);
 
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						Apply(*object, func, m_args);
 						return 0;
 					}
@@ -351,6 +389,12 @@ namespace Nz
 					template<typename T, typename P, typename Ret>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, Ret(P::*func)(Args...) const) const
 					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
 					}
 

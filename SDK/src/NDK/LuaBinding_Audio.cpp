@@ -1,16 +1,13 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
+#include <NDK/LuaBinding.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <Nazara/Audio.hpp>
-#include <Nazara/Lua/LuaClass.hpp>
 
 namespace Ndk
 {
-	void LuaAPI::Register_Audio(Nz::LuaInstance& instance)
+	void LuaBinding::BindAudio()
 	{
 		/*********************************** Nz::SoundBuffer **********************************/
-		Nz::LuaClass<Nz::SoundBufferRef> soundBuffer("SoundBuffer");
-
 		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::SoundBufferRef*
 		{
 			return new Nz::SoundBufferRef(new Nz::SoundBuffer);
@@ -65,11 +62,7 @@ namespace Ndk
 			return 1;
 		});
 
-		soundBuffer.Register(instance);
-
 		/*********************************** Nz::SoundEmitter **********************************/
-		Nz::LuaClass<Nz::SoundEmitter> soundEmitter("SoundEmitter");
-
 		soundEmitter.SetMethod("EnableLooping", &Nz::SoundEmitter::EnableLooping);
 		soundEmitter.SetMethod("EnableSpatialization", &Nz::SoundEmitter::EnableSpatialization);
 		soundEmitter.SetMethod("GetAttenuation", &Nz::SoundEmitter::GetAttenuation);
@@ -93,10 +86,7 @@ namespace Ndk
 		soundEmitter.SetMethod("SetVolume", &Nz::SoundEmitter::SetVolume);
 		soundEmitter.SetMethod("Stop", &Nz::SoundEmitter::Stop);
 
-		soundEmitter.Register(instance);
-
 		/*********************************** Nz::Sound **********************************/
-		Nz::LuaClass<Nz::Sound> soundClass("Sound");
 		soundClass.Inherit(soundEmitter);
 
 		soundClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Sound*
@@ -122,7 +112,12 @@ namespace Ndk
 			lua.PushString(stream);
 			return 1;
 		});
+	}
 
+	void LuaBinding::RegisterAudio(Nz::LuaInstance& instance)
+	{
 		soundClass.Register(instance);
+		soundBuffer.Register(instance);
+		soundEmitter.Register(instance);
 	}
 }

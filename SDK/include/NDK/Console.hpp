@@ -7,8 +7,11 @@
 #ifndef NDK_CONSOLE_HPP
 #define NDK_CONSOLE_HPP
 
+#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/EntityOwner.hpp>
@@ -20,9 +23,12 @@ namespace Nz
 
 namespace Ndk
 {
+	class Console;
 	class Entity;
 
-	class NDK_API Console : public Nz::Node
+	using ConsoleHandle = Nz::ObjectHandle<Console>;
+
+	class NDK_API Console : public Nz::Node, public Nz::HandledObject<Console>
 	{
 		public:
 			Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance);
@@ -31,6 +37,8 @@ namespace Ndk
 			~Console() = default;
 
 			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
+
+			void Clear();
 
 			inline unsigned int GetCharacterSize() const;
 			inline const EntityHandle& GetHistory() const;
@@ -43,6 +51,7 @@ namespace Ndk
 			inline bool IsVisible() const;
 
 			void SendCharacter(char32_t character);
+			void SendEvent(Nz::WindowEvent event);
 
 			void SetCharacterSize(unsigned int size);
 			void SetSize(const Nz::Vector2f& size);
@@ -65,6 +74,8 @@ namespace Ndk
 				Nz::String text;
 			};
 
+			std::size_t m_historyPosition;
+			std::vector<Nz::String> m_commandHistory;
 			std::vector<Line> m_historyLines;
 			EntityOwner m_historyBackground;
 			EntityOwner m_history;
