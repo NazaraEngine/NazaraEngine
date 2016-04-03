@@ -15,6 +15,7 @@
 #include <algorithm>
 
 #ifndef NDK_SERVER
+#include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <NDK/Console.hpp>
@@ -229,6 +230,15 @@ namespace Nz
 
 		LuaImplQueryArg(instance, -1, &params->material, TypeTag<MaterialParams>());
 		LuaImplQueryArg(instance, -1, &params->mesh, TypeTag<MeshParams>());
+
+		return 1;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MusicParams* params, TypeTag<MusicParams>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		params->forceMono = instance.CheckField<bool>("ForceMono", params->forceMono);
 
 		return 1;
 	}
