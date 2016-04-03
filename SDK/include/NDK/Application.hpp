@@ -43,7 +43,7 @@ namespace Ndk
 			#ifndef NDK_SERVER
 			std::vector<std::unique_ptr<Nz::Window>> m_windows;
 			#endif
-			std::vector<World> m_worlds;
+			std::list<World> m_worlds;
 			Nz::Clock m_updateClock;
 			#ifndef NDK_SERVER
 			bool m_exitOnClosedWindows;
