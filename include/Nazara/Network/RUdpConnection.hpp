@@ -119,6 +119,10 @@ namespace Nz
 
 			struct PeerData //TODO: Move this to RUdpClient
 			{
+				PeerData() = default;
+				PeerData(PeerData&& other) = default;
+				PeerData& operator=(PeerData&& other) = default;
+
 				std::array<std::vector<PendingPacket>, PacketPriority_Max + 1> pendingPackets;
 				std::deque<PendingAckPacket> pendingAckQueue;
 				std::set<UInt16> receivedQueue;
@@ -153,6 +157,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Network/RudpConnection.inl>
+#include <Nazara/Network/RUdpConnection.inl>
 
 #endif // NAZARA_RUDPSERVER_HPP

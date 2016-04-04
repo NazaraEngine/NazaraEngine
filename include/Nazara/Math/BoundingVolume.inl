@@ -636,7 +636,7 @@ namespace Nz
 		if (extend > Extend_Max)
 			return false;
 
-		boundingVolume->extend = extend;
+		boundingVolume->extend = static_cast<Extend>(extend);
 
 		if (!Unserialize(context, &boundingVolume->aabb))
 			return false;
