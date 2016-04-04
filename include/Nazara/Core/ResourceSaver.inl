@@ -28,7 +28,7 @@ namespace Nz
 	{
 		for (Saver& saver : Type::s_savers)
 		{
-			ExtensionGetter isExtensionSupported = std::get<0>(loader);
+			ExtensionGetter isExtensionSupported = std::get<0>(saver);
 
 			if (isExtensionSupported && isExtensionSupported(extension))
 				return true;
