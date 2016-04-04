@@ -55,6 +55,11 @@ namespace Nz
 
 			String ToString() const;
 
+			template<typename U>
+			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum);
+			template<typename U>
+			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum);
+
 		private:
 			Vector3<T> m_corners[BoxCorner_Max+1];
 			Plane<T> m_planes[FrustumPlane_Max+1];
@@ -62,9 +67,6 @@ namespace Nz
 
 	typedef Frustum<double> Frustumd;
 	typedef Frustum<float> Frustumf;
-
-	template<typename T> bool Serialize(SerializationContext& context, const Frustum<T>& frustum);
-	template<typename T> bool Unserialize(SerializationContext& context, Frustum<T>* frustum);
 }
 
 template<typename T>

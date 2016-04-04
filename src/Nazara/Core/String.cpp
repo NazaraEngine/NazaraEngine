@@ -3204,14 +3204,12 @@ namespace Nz
 				EnsureOwnership(true);
 
 				m_sharedString->size = 1;
-				m_sharedString->string[0] = character;
 				m_sharedString->string[1] = '\0';
 			}
 			else
-			{
-				auto newString = std::make_shared<SharedString>(1);
-				newString->string[0] = character;
-			}
+				m_sharedString = std::make_shared<SharedString>(1);
+
+			m_sharedString->string[0] = character;
 		}
 		else
 			ReleaseString();
