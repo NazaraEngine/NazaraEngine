@@ -87,7 +87,6 @@ namespace Nz
 			static bool OpenDevice();
 			static OpenALFunc LoadEntry(const char* name, bool throwException = false);
 	};
-}
 
 // al
 NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFER3F             alBuffer3f;
@@ -185,6 +184,8 @@ NAZARA_AUDIO_API extern OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurr
 NAZARA_AUDIO_API extern OpenALDetail::LPALCOPENDEVICE         alcOpenDevice;
 NAZARA_AUDIO_API extern OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext;
 NAZARA_AUDIO_API extern OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext;
+
+}
 
 #endif // NAZARA_AUDIO_OPENAL
 

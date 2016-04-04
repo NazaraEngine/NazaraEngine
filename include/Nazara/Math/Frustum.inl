@@ -688,13 +688,13 @@ namespace Nz
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{
-			if (!Serialize(context, m_corners[i]))
+			if (!Serialize(context, frustum.m_corners[i]))
 				return false;
 		}
 
 		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
-			if (!Serialize(context, m_planes[i]))
+			if (!Serialize(context, frustum.m_planes[i]))
 				return false;
 		}
 
@@ -702,24 +702,24 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Matrix4
+	* \brief Unserializes a Frustum
 	* \return true if successfully unserialized
 	*
 	* \param context Serialization context
-	* \param matrix Output matrix
+	* \param matrix Output frustum
 	*/
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Frustum<T>* frustum)
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{
-			if (!Unserialize(context, &m_corners[i]))
+			if (!Unserialize(context, &frustum->m_corners[i]))
 				return false;
 		}
 
 		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
-			if (!Unserialize(context, &m_planes[i]))
+			if (!Unserialize(context, &frustum->m_planes[i]))
 				return false;
 		}
 
