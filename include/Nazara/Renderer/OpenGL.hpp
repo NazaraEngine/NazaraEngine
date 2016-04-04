@@ -153,7 +153,6 @@ namespace Nz
 			static void OnContextChanged(const Context* newContext);
 			static void OnContextDestruction(const Context* context);
 	};
-}
 
 NAZARA_RENDERER_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_RENDERER_API extern PFNGLATTACHSHADERPROC             glAttachShader;
@@ -335,6 +334,8 @@ NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALEXTPROC         glXSwapInterva
 NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALMESAPROC        NzglXSwapIntervalMESA;
 NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALSGIPROC         glXSwapIntervalSGI;
 #endif
+
+}
 
 #endif // NAZARA_RENDERER_OPENGL
 

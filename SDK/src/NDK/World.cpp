@@ -14,7 +14,7 @@
 
 namespace Ndk
 {
-	World::~World()
+	World::~World() noexcept
 	{
 		// La destruction doit se faire dans un ordre précis
 		Clear();
