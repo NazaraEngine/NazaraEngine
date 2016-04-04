@@ -11,6 +11,7 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Utility/Window.hpp>
+#include <list>
 #include <vector>
 
 namespace Ndk

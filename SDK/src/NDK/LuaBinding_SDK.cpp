@@ -59,6 +59,7 @@ namespace Ndk
 		application.SetMethod("Quit", &Application::Quit);
 
 		/*********************************** Ndk::Console **********************************/
+		#ifndef NDK_SERVER
 		consoleClass.Inherit<Nz::Node>(nodeClass, [] (ConsoleHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
@@ -84,6 +85,7 @@ namespace Ndk
 		//consoleClass.SetMethod("SetTextFont", &Console::SetTextFont);
 		
 		consoleClass.SetMethod("Show", &Console::Show, true);
+		#endif
 
 		/*********************************** Ndk::Entity **********************************/
 		entityClass.SetMethod("Enable", &Entity::Enable);

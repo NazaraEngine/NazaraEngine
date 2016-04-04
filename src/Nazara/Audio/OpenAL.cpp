@@ -372,7 +372,6 @@ namespace Nz
 
 		return entry;
 	}
-}
 
 // al
 OpenALDetail::LPALBUFFER3F             alBuffer3f             = nullptr;
@@ -470,3 +469,5 @@ OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurrent = nullptr;
 OpenALDetail::LPALCOPENDEVICE         alcOpenDevice         = nullptr;
 OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext     = nullptr;
 OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext     = nullptr;
+
+}

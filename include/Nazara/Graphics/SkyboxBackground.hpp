@@ -30,7 +30,7 @@ namespace Nz
 			SkyboxBackground(TextureRef cubemapTexture = TextureRef());
 			~SkyboxBackground() = default;
 
-			void Draw(const AbstractViewer* viewer) const;
+			void Draw(const AbstractViewer* viewer) const override;
 
 			BackgroundType GetBackgroundType() const override;
 			inline const Vector3f& GetMovementOffset() const;
