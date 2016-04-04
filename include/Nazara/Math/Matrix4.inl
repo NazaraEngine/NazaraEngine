@@ -1792,9 +1792,10 @@ namespace Nz
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix)
 	{
+		T* head = matrix->operator T*();
 		for (unsigned int i = 0; i < 16; ++i)
 		{
-			if (!Unserialize(context, &matrix[i]))
+			if (!Unserialize(context, head + i))
 				return false;
 		}
 
