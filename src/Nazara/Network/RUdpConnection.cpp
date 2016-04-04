@@ -474,7 +474,7 @@ namespace Nz
 		return true;
 	}
 
-	inline void RUdpConnection::Uninitialize()
+	void RUdpConnection::Uninitialize()
 	{
 	}
 
