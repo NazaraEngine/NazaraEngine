@@ -38,6 +38,7 @@ namespace Ndk
 		s_application = nullptr;
 	}
 
+	#ifndef NDK_SERVER
 	template<typename T, typename... Args> 
 	T& Application::AddWindow(Args&&... args)
 	{
@@ -46,6 +47,7 @@ namespace Ndk
 		m_windows.emplace_back(new T(std::forward<Args>(args)...));
 		return static_cast<T&>(*m_windows.back().get());
 	}
+	#endif
 
 	template<typename... Args> 
 	World& Application::AddWorld(Args&&... args)
