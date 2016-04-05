@@ -104,8 +104,11 @@ namespace Nz
 					// Et maintenant on affine la sphère
 					for (unsigned int i = 0; i < recursionLevel; ++i)
 					{
-						for (Vector3ui& triangle : triangles)
+						std::size_t triangleCount = triangles.size();
+						for (std::size_t i = 0; i < triangleCount; ++i)
 						{
+							Vector3ui& triangle = triangles[i];
+
 							unsigned int a = GetMiddleVertex(triangle.x, triangle.y);
 							unsigned int b = GetMiddleVertex(triangle.y, triangle.z);
 							unsigned int c = GetMiddleVertex(triangle.z, triangle.x);
