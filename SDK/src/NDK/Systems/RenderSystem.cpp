@@ -99,6 +99,7 @@ namespace Ndk
 			sceneData.background = m_background;
 			sceneData.viewer = &camComponent;
 
+			m_renderTechnique.Clear(sceneData);
 			m_renderTechnique.Draw(sceneData);
 		}
 	}
