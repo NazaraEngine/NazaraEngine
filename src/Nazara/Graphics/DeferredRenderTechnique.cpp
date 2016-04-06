@@ -204,6 +204,11 @@ namespace Nz
 
 	DeferredRenderTechnique::~DeferredRenderTechnique() = default;
 
+	void DeferredRenderTechnique::Clear(const SceneData& sceneData) const
+	{
+		NazaraUnused(sceneData);
+	}
+
 	bool DeferredRenderTechnique::Draw(const SceneData& sceneData) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
