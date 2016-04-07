@@ -237,6 +237,143 @@ namespace Ndk
 			return false;
 		});
 
+        /*********************************** Nz::Rect **********************************/
+        rectClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Rectd*
+        {
+            unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+            switch (argCount) {
+                case 0:
+                case 4:
+                    return new Nz::Rectd(lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0), lua.CheckNumber(4, 0.0));
+
+                case 1:
+                {
+                    if (lua.IsOfType(1, "Rect"))
+                        return new Nz::Rectd(*(*static_cast<Nz::Rectd**>(lua.ToUserdata(1))));
+                    else if (lua.IsOfType(1, Nz::LuaType_Table))
+                    {
+                        // TODO => Faire sans avoir à mettre de nom dans la table et prendre les éléments un à un pour créer le Rectd
+                        return new Nz::Rectd(lua.CheckField<double>("x", 1),
+                                             lua.CheckField<double>("y", 1),
+                                             lua.CheckField<double>("width", 1),
+                                             lua.CheckField<double>("height", 1));
+                    }
+                    else if (lua.IsOfType(1, "Vector"))
+                        return new Nz::Rectd(*(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))));
+
+                    break;
+                }
+
+                case 2:
+                {
+                    if (lua.IsOfType(1, Nz::LuaType_Number) && lua.IsOfType(2, Nz::LuaType_Number))
+                        return new Nz::Rectd(lua.CheckNumber(1), lua.CheckNumber(2));
+                    else if (lua.IsOfType(1, "Vector2") && lua.IsOfType(2, "Vector2"))
+                        return new Nz::Rectd(*(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))), *(*static_cast<Nz::Vector2d**>(lua.ToUserdata(2))));
+
+                    break;
+                }
+            }
+
+            lua.Error("No matching overload for Rect constructor");
+            return nullptr;
+        });
+
+        rectClass.SetMethod("__tostring", &Nz::Rectd::ToString);
+
+        rectClass.SetGetter([](Nz::LuaInstance& lua, Nz::Rectd& instance)
+        {
+            switch (lua.GetType(1))
+            {
+                case Nz::LuaType_Number:
+                    lua.Push(instance[lua.CheckInteger(1)]);
+                    return true;
+
+                case Nz::LuaType_String:
+                {
+                    std::size_t lenght;
+                    const char* xywh = lua.CheckString(1, &lenght);
+                    if (lenght != 1 && lenght != 5 && lenght != 6)
+                        break;
+
+                    if (xywh == "x")
+                    {
+                        lua.Push(instance.x);
+                        return true;
+                    }
+                    else if(xywh == "y")
+                    {
+                        lua.Push(instance.y);
+                        return true;
+                    }
+                    else if (xywh == "width")
+                    {
+                        lua.Push(instance.width);
+                        return true;
+                    }
+                    else if (xywh == "height")
+                    {
+                        lua.Push(instance.height);
+                        return true;
+                    }
+                    break;
+                }
+            }
+
+            return false;
+        });
+
+        rectClass.SetSetter([](Nz::LuaInstance& lua, Nz::Rectd& instance)
+        {
+            switch (lua.GetType(1))
+            {
+                case Nz::LuaType_Number:
+                {
+                    long long index = lua.CheckInteger(1);
+                    if (index < 1 || index > 4)
+                        return false;
+
+                    instance[index] = lua.CheckNumber(2);
+                    return true;
+                }
+
+                case Nz::LuaType_String:
+                {
+                    std::size_t lenght;
+                    const char* xywh = lua.CheckString(1, &lenght);
+
+                    if (lenght != 1 && lenght != 5 && lenght != 6)
+                        break;
+
+                    double value = lua.CheckNumber(2);
+
+                    if (xywh == "x")
+                    {
+                        instance.x = value;
+                        return true;
+                    }
+                    else if(xywh == "y")
+                    {
+                        instance.y = value;
+                        return true;
+                    }
+                    else if (xywh == "width")
+                    {
+                        instance.width = value;
+                        return true;
+                    }
+                    else if (xywh == "height")
+                    {
+                        instance.height = value;
+                        return true;
+                    }
+                    break;
+                }
+            }
+
+            return false;
+        });
+
 		/*********************************** Nz::Vector2 **********************************/
 		vector2dClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Vector2d* 
 		{
@@ -476,6 +613,7 @@ namespace Ndk
 	{
 		eulerAnglesClass.Register(instance);
 		quaternionClass.Register(instance);
+        rectClass.Register(instance);
 		vector2dClass.Register(instance);
 		vector3dClass.Register(instance);
 	}
