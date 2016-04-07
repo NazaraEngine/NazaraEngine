@@ -57,6 +57,15 @@ namespace Ndk
 			UpdateTransformMatrix();
 	}
 
+    inline std::vector<Nz::InstancedRenderableConstRef> GraphicsComponent::GetAttachedRenderables() const
+    {
+        std::vector<Nz::InstancedRenderableConstRef> renderables;
+        for (const Renderable& r : m_renderables)
+            renderables.push_back(r.renderable);
+
+        return renderables;
+    }
+
 	inline const Nz::BoundingVolumef& GraphicsComponent::GetBoundingVolume() const
 	{
 		EnsureBoundingVolumeUpdate();

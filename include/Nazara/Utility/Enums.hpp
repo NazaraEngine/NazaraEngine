@@ -330,6 +330,16 @@ namespace Nz
 		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
 		WindowStyle_Max = WindowStyle_Titlebar*2-1
 	};
+
+    enum Lang
+    {
+        Lang_FR,
+        Lang_EN_US,
+        Lang_EN_UK,
+        Lang_ES,
+        Lang_DE,
+        Lang_IT
+    };
 }
 
 #endif // NAZARA_ENUMS_UTILITY_HPP

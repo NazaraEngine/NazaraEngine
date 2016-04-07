@@ -33,6 +33,8 @@ namespace Ndk
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
+            inline std::vector<Nz::InstancedRenderableConstRef> GetAttachedRenderables() const;
+
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
 			static ComponentIndex componentIndex;

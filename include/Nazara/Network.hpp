@@ -36,6 +36,8 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Network.hpp>
+#include <Nazara/Network/RUdpConnection.hpp>
+#include <Nazara/Network/RUdpMessage.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>

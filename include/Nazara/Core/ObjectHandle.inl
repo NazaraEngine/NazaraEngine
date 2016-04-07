@@ -155,7 +155,8 @@ namespace Nz
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, const ObjectHandle<T>& handle)
 	{
-		return handle.ToString();
+	    out << handle.ToString();
+        return out;
 	}
 
 	template<typename T>
