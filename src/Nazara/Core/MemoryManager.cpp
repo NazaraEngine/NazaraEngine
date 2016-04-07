@@ -110,7 +110,7 @@ namespace Nz
 		pthread_mutex_lock(&s_mutex);
 		#endif
 
-		Block* ptr = reinterpret_cast<Block*>(std::malloc(size+sizeof(Block)));
+		Block* ptr = static_cast<Block*>(std::malloc(size+sizeof(Block)));
 		if (!ptr)
 		{
 			char timeStr[23];
@@ -209,7 +209,7 @@ namespace Nz
 		if (!pointer)
 			return;
 
-		Block* ptr = reinterpret_cast<Block*>(reinterpret_cast<UInt8*>(pointer) - sizeof(Block));
+		Block* ptr = reinterpret_cast<Block*>(static_cast<UInt8*>(pointer) - sizeof(Block));
 		if (ptr->magic != s_allocatedId)
 		{
 			char timeStr[23];
