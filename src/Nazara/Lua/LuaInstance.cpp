@@ -633,7 +633,7 @@ namespace Nz
 
 	void LuaInstance::PushFunction(LuaFunction func) const
 	{
-		LuaFunction* luaFunc = reinterpret_cast<LuaFunction*>(lua_newuserdata(m_state, sizeof(LuaFunction)));
+		LuaFunction* luaFunc = static_cast<LuaFunction*>(lua_newuserdata(m_state, sizeof(LuaFunction)));
 		PlacementNew<LuaFunction>(luaFunc, std::move(func));
 
 		lua_pushcclosure(m_state, ProxyFunc, 1);
