@@ -405,7 +405,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
-		int byteRead = recv(handle, reinterpret_cast<char*>(buffer), length, 0);
+		int byteRead = recv(handle, static_cast<char*>(buffer), length, 0);
 		if (byteRead == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
