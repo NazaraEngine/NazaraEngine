@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <cstdlib>
 #include <stdexcept>
@@ -87,12 +88,12 @@ namespace Nz
 		wchar_t* buffer = nullptr;
 
 		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-					   nullptr,
-					   code,
-					   0,
-					   reinterpret_cast<LPWSTR>(&buffer),
-					   0,
-					   nullptr);
+					  nullptr,
+					  code,
+					  0,
+					  reinterpret_cast<LPWSTR>(&buffer),
+					  0,
+					  nullptr);
 
 		String error(String::Unicode(buffer));
 		LocalFree(buffer);
@@ -165,6 +166,8 @@ namespace Nz
 
 	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
+		file = Nz::Directory::GetCurrentFileRelativeToEngine(file);
+
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
 			Log::WriteError(type, error, line, file, function);
 
