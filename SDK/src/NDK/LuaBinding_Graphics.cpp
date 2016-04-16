@@ -22,21 +22,21 @@ namespace Ndk
 		});
 
 		//modelClass.SetMethod("GetMaterial", &Nz::Model::GetMaterial);
-		modelClass.SetMethod("GetMaterialCount", &Nz::Model::GetMaterialCount);
+		modelClass.BindMethod("GetMaterialCount", &Nz::Model::GetMaterialCount);
 		//modelClass.SetMethod("GetMesh", &Nz::Model::GetMesh);
-		modelClass.SetMethod("GetSkin", &Nz::Model::GetSkin);
-		modelClass.SetMethod("GetSkinCount", &Nz::Model::GetSkinCount);
+		modelClass.BindMethod("GetSkin", &Nz::Model::GetSkin);
+		modelClass.BindMethod("GetSkinCount", &Nz::Model::GetSkinCount);
 
-		modelClass.SetMethod("IsAnimated", &Nz::Model::IsAnimated);
-		modelClass.SetMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
+		modelClass.BindMethod("IsAnimated", &Nz::Model::IsAnimated);
+		modelClass.BindMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
 
-		modelClass.SetMethod("Reset", &Nz::Model::Reset);
+		modelClass.BindMethod("Reset", &Nz::Model::Reset);
 
 		//modelClass.SetMethod("SetMaterial", &Nz::Model::SetMaterial);
 		//modelClass.SetMethod("SetMesh", &Nz::Model::SetMesh);
 		//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
-		modelClass.SetMethod("SetSkin", &Nz::Model::SetSkin);
-		modelClass.SetMethod("SetSkinCount", &Nz::Model::SetSkinCount);
+		modelClass.BindMethod("SetSkin", &Nz::Model::SetSkin);
+		modelClass.BindMethod("SetSkinCount", &Nz::Model::SetSkinCount);
 	}
 
 	void LuaBinding::RegisterGraphics(Nz::LuaInstance& instance)
