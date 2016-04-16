@@ -49,18 +49,21 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 	}
 
-	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
+	void ForwardRenderTechnique::Clear(const SceneData& sceneData) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
-		m_renderQueue.Sort(sceneData.viewer);
-
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
 		Renderer::Clear(RendererBuffer_Depth);
 
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
+	}
+
+	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+
+		m_renderQueue.Sort(sceneData.viewer);
 
 		for (auto& pair : m_renderQueue.layers)
 		{
