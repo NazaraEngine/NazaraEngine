@@ -120,7 +120,7 @@ namespace Nz
 
 		for (unsigned int i = 0; i < 3; ++i)
 			m_GBuffer[i] = Texture::New();
-
+			
 		try
 		{
 			ErrorFlags errFlags(ErrorFlag_ThrowException);
@@ -203,6 +203,11 @@ namespace Nz
 	}
 
 	DeferredRenderTechnique::~DeferredRenderTechnique() = default;
+
+	void DeferredRenderTechnique::Clear(const SceneData& sceneData) const
+	{
+		NazaraUnused(sceneData);
+	}
 
 	bool DeferredRenderTechnique::Draw(const SceneData& sceneData) const
 	{
