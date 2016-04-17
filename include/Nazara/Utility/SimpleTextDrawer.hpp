@@ -24,7 +24,11 @@ namespace Nz
 			SimpleTextDrawer(SimpleTextDrawer&& drawer);
 			virtual ~SimpleTextDrawer();
 
-			const Rectui& GetBounds() const;
+			void AppendText(const String& str);
+
+			void Clear();
+
+			const Rectui& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;
@@ -48,11 +52,14 @@ namespace Nz
 			static SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
 
 		private:
+			void ClearGlyphs() const;
 			void ConnectFontSlots();
 			void DisconnectFontSlots();
+			void GenerateGlyphs(const String& text) const;
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
+			void UpdateGlyphColor() const;
 			void UpdateGlyphs() const;
 
 			NazaraSlot(Font, OnFontAtlasChanged, m_atlasChangedSlot);
@@ -63,9 +70,13 @@ namespace Nz
 			mutable std::vector<Glyph> m_glyphs;
 			Color m_color;
 			FontRef m_font;
+			mutable Rectf m_workingBounds;
 			mutable Rectui m_bounds;
 			String m_text;
+			mutable UInt32 m_previousCharacter;
 			UInt32 m_style;
+			mutable Vector2ui m_drawPos;
+			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
 			unsigned int m_characterSize;
 	};

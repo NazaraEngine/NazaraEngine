@@ -105,7 +105,7 @@ namespace Nz
 
 		m_impl = new SoundBufferImpl;
 		m_impl->buffer = buffer;
-		m_impl->duration = (1000*sampleCount / (format * sampleRate));
+		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (format * sampleRate)));
 		m_impl->format = format;
 		m_impl->sampleCount = sampleCount;
 		m_impl->sampleRate = sampleRate;

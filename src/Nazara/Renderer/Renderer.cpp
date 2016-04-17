@@ -623,14 +623,14 @@ namespace Nz
 		s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 		s_vertexBuffer = nullptr;
 
-		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, BufferUsage_Static);
+		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, BufferUsage_Static);
 
-		float vertices[4 * 2] =
+		float vertices[4 * 2 * 2] =
 		{
-			-1.f, -1.f,
-			1.f, -1.f,
-			-1.f, 1.f,
-			1.f, 1.f,
+			-1.f, -1.f, 0.f, 1.f,
+			 1.f, -1.f, 1.f, 1.f,
+			-1.f,  1.f, 0.f, 0.f,
+			 1.f,  1.f, 1.f, 0.f
 		};
 
 		if (!s_fullscreenQuadBuffer.Fill(vertices, 0, 4))

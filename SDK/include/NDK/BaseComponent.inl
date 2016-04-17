@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/BaseComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 
 namespace Ndk
@@ -15,6 +16,11 @@ namespace Ndk
 	inline ComponentIndex BaseComponent::GetIndex() const
 	{
 		return m_componentIndex;
+	}
+
+	inline ComponentIndex BaseComponent::GetMaxComponentIndex()
+	{
+		return static_cast<ComponentIndex>(s_entries.size());
 	}
 
 	inline ComponentIndex BaseComponent::RegisterComponent(ComponentId id, Factory factoryFunc)

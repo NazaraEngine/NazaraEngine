@@ -33,7 +33,10 @@ namespace Nz
 
 			inline bool IsBlockingEnabled() const;
 
-			unsigned int QueryAvailableBytes() const;
+			std::size_t QueryAvailableBytes() const;
+
+			AbstractSocket& operator=(const AbstractSocket&) = delete;
+			AbstractSocket& operator=(AbstractSocket&& abstractSocket);
 
 			// Signals:
 			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*newState*/);
@@ -41,13 +44,13 @@ namespace Nz
 		protected:
 			AbstractSocket(SocketType type);
 
-			inline void UpdateState(SocketState newState);
-
 			virtual void OnClose();
 			virtual void OnOpened();
 
 			bool Open(NetProtocol protocol);
 			void Open(SocketHandle existingHandle);
+
+			inline void UpdateState(SocketState newState);
 
 			NetProtocol m_protocol;
 			SocketError m_lastError;

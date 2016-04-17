@@ -18,7 +18,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API SkeletalModelParameters : public ModelParameters
+	struct NAZARA_GRAPHICS_API SkeletalModelParameters : ModelParameters
 	{
 		bool loadAnimation = true;
 		AnimationParams animation;
@@ -54,7 +54,7 @@ namespace Nz
 
 			bool HasAnimation() const;
 
-			bool IsAnimated() const;
+			bool IsAnimated() const override;
 			bool IsAnimationEnabled() const;
 
 			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());

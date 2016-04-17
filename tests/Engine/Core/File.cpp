@@ -9,7 +9,7 @@ SCENARIO("File", "[CORE][FILE]")
 		{
 			Nz::File file("Test File.txt", Nz::OpenMode_ReadWrite);
 			REQUIRE(file.GetDirectory() == Nz::Directory::GetCurrent() + NAZARA_DIRECTORY_SEPARATOR);
-			CHECK(file.IsOpen());
+			REQUIRE(file.IsOpen());
 
 			THEN("We are allowed to write 3 times 'Test String'")
 			{
@@ -47,6 +47,40 @@ SCENARIO("File", "[CORE][FILE]")
 			THEN("It doesn't exist anymore")
 			{
 				CHECK(!Nz::File::Exists("Test File.txt"));
+			}
+		}
+	}
+
+	GIVEN("The test file")
+	{
+		REQUIRE(Nz::File::Exists("resources/Engine/Core/FileTest.txt"));
+
+		Nz::File fileTest("resources/Engine/Core/FileTest.txt", Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
+
+		WHEN("We read the first line of the file")
+		{
+			REQUIRE(fileTest.IsOpen());
+			Nz::String content = fileTest.ReadLine();
+
+			THEN("The content must be 'Test'")
+			{
+				REQUIRE(content == "Test");
+			}
+		}
+	}
+
+	GIVEN("Nothing")
+	{
+		WHEN("We get the absolute path of something containing relative path")
+		{
+			Nz::String containingDot = "/resources/Spaceship/./spaceship.mtl";
+			Nz::String containingDoubleDot = "/resources/Spaceship/../Spaceship/spaceship.mtl";
+
+			THEN("The relative positioning should disappear")
+			{
+				Nz::String containingNoMoreDot = "/resources/Spaceship/spaceship.mtl";
+				REQUIRE(Nz::File::AbsolutePath(containingDot) == containingNoMoreDot);
+				REQUIRE(Nz::File::AbsolutePath(containingDoubleDot) == containingNoMoreDot);
 			}
 		}
 	}

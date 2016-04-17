@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Rect
 	{
@@ -28,12 +30,12 @@ namespace Nz
 			~Rect() = default;
 
 			bool Contains(T X, T Y) const;
-			bool Contains(const Vector2<T>& point) const;
 			bool Contains(const Rect& rect) const;
+			bool Contains(const Vector2<T>& point) const;
 
 			Rect& ExtendTo(T X, T Y);
-			Rect& ExtendTo(const Vector2<T>& point);
 			Rect& ExtendTo(const Rect& rect);
+			Rect& ExtendTo(const Vector2<T>& point);
 
 			Vector2<T> GetCenter() const;
 			Vector2<T> GetCorner(RectCorner corner) const;
@@ -90,6 +92,9 @@ namespace Nz
 	typedef Rect<unsigned int> Rectui;
 	typedef Rect<Int32> Recti32;
 	typedef Rect<UInt32> Rectui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect);
+	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect);
 }
 
 template<typename T>

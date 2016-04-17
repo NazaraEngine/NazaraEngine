@@ -15,7 +15,10 @@ namespace Nz
 		Ternary Check(Stream& stream, const MaterialParams& parameters)
 		{
 			NazaraUnused(stream);
-			NazaraUnused(parameters);
+
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeTextureLoader", &skip) && skip)
+				return Ternary_False;
 
 			return Ternary_Unknown;
 		}

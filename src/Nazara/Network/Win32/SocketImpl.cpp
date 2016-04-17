@@ -256,7 +256,7 @@ namespace Nz
 		return SocketState_Bound;
 	}
 
-	unsigned int SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
@@ -405,7 +405,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
-		int byteRead = recv(handle, reinterpret_cast<char*>(buffer), length, 0);
+		int byteRead = recv(handle, static_cast<char*>(buffer), length, 0);
 		if (byteRead == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
@@ -666,6 +666,12 @@ namespace Nz
 			case WSAECONNREFUSED:
 				return SocketError_ConnectionRefused;
 
+			case WSAECONNABORTED:
+			case WSAECONNRESET:
+			case WSAENOTCONN:
+			case WSAESHUTDOWN:
+				return SocketError_ConnectionClosed;
+
 			case WSAEMSGSIZE:
 				return SocketError_DatagramSize;
 
@@ -673,10 +679,6 @@ namespace Nz
 			case WSAENOBUFS:
 			case WSA_NOT_ENOUGH_MEMORY:
 				return SocketError_ResourceError;
-
-			case WSAENOTCONN:
-			case WSAESHUTDOWN:
-				return SocketError_ConnectionClosed;
 
 			case WSAEHOSTUNREACH:
 				return SocketError_UnreachableHost;

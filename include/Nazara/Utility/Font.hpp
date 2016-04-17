@@ -14,13 +14,14 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <memory>
 #include <unordered_map>
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API FontParams
+	struct NAZARA_UTILITY_API FontParams : ResourceParameters
 	{
 		bool IsValid() const;
 	};

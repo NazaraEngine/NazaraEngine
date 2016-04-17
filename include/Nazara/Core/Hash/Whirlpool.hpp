@@ -23,8 +23,8 @@ namespace Nz
 			void Begin() override;
 			ByteArray End() override;
 
-			std::size_t GetDigestLength() const;
-			const char* GetHashName() const;
+			std::size_t GetDigestLength() const override;
+			const char* GetHashName() const override;
 
 		private:
 			HashWhirlpool_state* m_state;

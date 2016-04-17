@@ -1,7 +1,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Catch/catch.hpp>
 
-TEST_CASE("Approach", "[MATH][ALGORITHM]" )
+TEST_CASE("Approach", "[MATH][ALGORITHM]")
 {
 	SECTION("Approach 8 with 5 by 2")
 	{
@@ -19,7 +19,7 @@ TEST_CASE("Approach", "[MATH][ALGORITHM]" )
 	}
 }
 
-TEST_CASE("Clamp", "[ALGORITHM]" )
+TEST_CASE("Clamp", "[MATH][ALGORITHM]")
 {
 	SECTION("Clamp 8 between 5 and 10")
 	{
@@ -37,7 +37,20 @@ TEST_CASE("Clamp", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("DegreeToRadian", "[ALGORITHM]" )
+TEST_CASE("CountBits", "[MATH][ALGORITHM]")
+{
+	SECTION("Number 10 has 2 bits set to 1")
+	{
+		REQUIRE(Nz::CountBits(10) == 2);
+	}
+
+	SECTION("Number 0 has 0 bit set to 1")
+	{
+		REQUIRE(Nz::CountBits(0) == 0);
+	}
+}
+
+TEST_CASE("DegreeToRadian", "[MATH][ALGORITHM]")
 {
 	SECTION("Convert 45.f degree to radian")
 	{
@@ -45,8 +58,13 @@ TEST_CASE("DegreeToRadian", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("GetNearestPowerOfTwo", "[ALGORITHM]" )
+TEST_CASE("GetNearestPowerOfTwo", "[MATH][ALGORITHM]")
 {
+	SECTION("Nearest power of two of 0 = 1")
+	{
+		REQUIRE(Nz::GetNearestPowerOfTwo(0) == 1);
+	}
+
 	SECTION("Nearest power of two of 16 = 16")
 	{
 		REQUIRE(Nz::GetNearestPowerOfTwo(16) == 16);
@@ -58,7 +76,7 @@ TEST_CASE("GetNearestPowerOfTwo", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("GetNumberLength", "[ALGORITHM]" )
+TEST_CASE("GetNumberLength", "[MATH][ALGORITHM]")
 {
 	SECTION("GetNumberLength of -127 signed char")
 	{
@@ -115,7 +133,48 @@ TEST_CASE("GetNumberLength", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("IntegralPow", "[ALGORITHM]" )
+TEST_CASE("IntegralLog2", "[MATH][ALGORITHM]")
+{
+	SECTION("According to implementation, log in base 2 of 0 = 0")
+	{
+		REQUIRE(Nz::IntegralLog2(0) == 0);
+	}
+
+	SECTION("Log in base 2 of 1 = 0")
+	{
+		REQUIRE(Nz::IntegralLog2(1) == 0);
+	}
+
+	SECTION("Log in base 2 of 4 = 2")
+	{
+		REQUIRE(Nz::IntegralLog2(4) == 2);
+	}
+
+	SECTION("Log in base 2 of 5 = 2")
+	{
+		REQUIRE(Nz::IntegralLog2(5) == 2);
+	}
+}
+
+TEST_CASE("IntegralLog2Pot", "[MATH][ALGORITHM]")
+{
+	SECTION("According to implementation, log in base 2 of 0 = 0")
+	{
+		REQUIRE(Nz::IntegralLog2Pot(0) == 0);
+	}
+
+	SECTION("Log in base 2 of 1 = 0")
+	{
+		REQUIRE(Nz::IntegralLog2Pot(1) == 0);
+	}
+
+	SECTION("Log in base 2 of 4 = 2")
+	{
+		REQUIRE(Nz::IntegralLog2Pot(4) == 2);
+	}
+}
+
+TEST_CASE("IntegralPow", "[MATH][ALGORITHM]")
 {
 	SECTION("2 to power 4")
 	{
@@ -123,7 +182,7 @@ TEST_CASE("IntegralPow", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("Lerp", "[ALGORITHM]" )
+TEST_CASE("Lerp", "[MATH][ALGORITHM]")
 {
 	SECTION("Lerp 2 to 6 with 0.5")
 	{
@@ -131,7 +190,7 @@ TEST_CASE("Lerp", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("MultiplyAdd", "[ALGORITHM]" )
+TEST_CASE("MultiplyAdd", "[MATH][ALGORITHM]")
 {
 	SECTION("2 * 3 + 1")
 	{
@@ -139,7 +198,7 @@ TEST_CASE("MultiplyAdd", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("NumberEquals", "[ALGORITHM]" )
+TEST_CASE("NumberEquals", "[MATH][ALGORITHM]")
 {
 	SECTION("2.35 and 2.351 should be the same at 0.01")
 	{
@@ -152,7 +211,7 @@ TEST_CASE("NumberEquals", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("NumberToString", "[ALGORITHM]" )
+TEST_CASE("NumberToString", "[MATH][ALGORITHM]")
 {
 	SECTION("235 to string")
 	{
@@ -170,7 +229,7 @@ TEST_CASE("NumberToString", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("RadianToDegree", "[ALGORITHM]" )
+TEST_CASE("RadianToDegree", "[MATH][ALGORITHM]")
 {
 	SECTION("PI / 4 to degree")
 	{
@@ -178,7 +237,7 @@ TEST_CASE("RadianToDegree", "[ALGORITHM]" )
 	}
 }
 
-TEST_CASE("StringToNumber", "[ALGORITHM]" )
+TEST_CASE("StringToNumber", "[MATH][ALGORITHM]")
 {
 	SECTION("235 in string")
 	{

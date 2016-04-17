@@ -82,10 +82,31 @@ namespace Nz
 		char s_brandString[48] = "Not initialized";
 	}
 
+	/*!
+	* \ingroup core
+	* \class Nz::HardwareInfo
+	* \brief Core class that represents the info we can get from hardware
+	*/
+
+	/*!
+	* \brief Generates the cpuid instruction (available on x86 & x64)
+	*
+	* \param functionId Information to retrieve
+	* \param subFunctionId Additional code for information retrieval
+	* \param result Supported features of the CPU
+	*/
+
 	void HardwareInfo::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4])
 	{
 		return HardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
 	}
+
+	/*!
+	* \brief Gets the brand of the processor
+	* \return String of the brand
+	*
+	* \remark Produces a NazaraError if not Initialize
+	*/
 
 	String HardwareInfo::GetProcessorBrandString()
 	{
@@ -95,12 +116,25 @@ namespace Nz
 		return s_brandString;
 	}
 
+	/*!
+	* \brief Gets the number of threads
+	* \return Number of threads available on the CPU
+	*
+	* \remark Doesn't need the initialization of HardwareInfo
+	*/
+
 	unsigned int HardwareInfo::GetProcessorCount()
 	{
-		///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
 		static unsigned int processorCount = std::max(HardwareInfoImpl::GetProcessorCount(), 1U);
 		return processorCount;
 	}
+
+	/*!
+	* \brief Gets the processor vendor
+	* \return ProcessorVendor containing information the vendor
+	*
+	* \remark Produces a NazaraError if not Initialize
+	*/
 
 	ProcessorVendor HardwareInfo::GetProcessorVendor()
 	{
@@ -110,6 +144,13 @@ namespace Nz
 		return s_vendorEnum;
 	}
 
+	/*!
+	* \brief Gets the vendor of the processor
+	* \return String of the vendor
+	*
+	* \remark Produces a NazaraError if not Initialize
+	*/
+
 	String HardwareInfo::GetProcessorVendorName()
 	{
 		if (!Initialize())
@@ -118,12 +159,25 @@ namespace Nz
 		return vendorNames[s_vendorEnum+1];
 	}
 
+	/*!
+	* \brief Gets the amount of total memory
+	* \return Number of total memory available
+	*
+	* \remark Doesn't need the initialization of HardwareInfo
+	*/
+
 	UInt64 HardwareInfo::GetTotalMemory()
 	{
-		///DOC: Ne nécessite pas l'initialisation de HardwareInfo pour fonctionner
 		static UInt64 totalMemory = HardwareInfoImpl::GetTotalMemory();
 		return totalMemory;
 	}
+
+	/*!
+	* \brief Checks whether the processor owns the capacity to handle certain instructions
+	* \return true If instructions supported
+	*
+	* \remark Produces a NazaraError if capability is a wrong enum with NAZARA_DEBUG defined
+	*/
 
 	bool HardwareInfo::HasCapability(ProcessorCap capability)
 	{
@@ -138,9 +192,16 @@ namespace Nz
 		return s_capabilities[capability];
 	}
 
+	/*!
+	* \brief Initializes the HardwareInfo class
+	* \return true if successful
+	*
+	* \remark Produces a NazaraError if cpuid is not supported
+	*/
+
 	bool HardwareInfo::Initialize()
 	{
-		if (s_initialized)
+		if (IsInitialized())
 			return true;
 
 		if (!HardwareInfoImpl::IsCpuidSupported())
@@ -151,21 +212,21 @@ namespace Nz
 
 		s_initialized = true;
 
-		UInt32 registers[4]; // Récupère les quatre registres (EAX, EBX, ECX et EDX)
+		UInt32 registers[4]; // To store our registers values (EAX, EBX, ECX and EDX)
 
-		// Pour plus de clarté
+		// Let's make it clearer
 		UInt32& eax = registers[0];
 		UInt32& ebx = registers[1];
 		UInt32& ecx = registers[2];
 		UInt32& edx = registers[3];
 
-		// Pour commencer, on va récupérer l'identifiant du constructeur ainsi que l'id de fonction maximal supporté par le CPUID
+		// To begin, we get the id of the constructor and the id of maximal functions supported by the CPUID
 		HardwareInfoImpl::Cpuid(0, 0, registers);
 
-		// Attention à l'ordre : EBX, EDX, ECX
+		// Note the order: EBX, EDX, ECX
 		UInt32 manufacturerId[3] = {ebx, edx, ecx};
 
-		// Identification du concepteur
+		// Identification of conceptor
 		s_vendorEnum = ProcessorVendor_Unknown;
 		for (const VendorString& vendorString : vendorStrings)
 		{
@@ -178,7 +239,7 @@ namespace Nz
 
 		if (eax >= 1)
 		{
-			// Récupération de certaines capacités du processeur (ECX et EDX, fonction 1)
+			// Retrieval of certain capacities of the processor (ECX et EDX, function 1)
 			HardwareInfoImpl::Cpuid(1, 0, registers);
 
 			s_capabilities[ProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
@@ -192,53 +253,67 @@ namespace Nz
 			s_capabilities[ProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
 		}
 
-		// Récupération de la plus grande fonction étendue supportée (EAX, fonction 0x80000000)
+		// Retrieval of biggest extended function handled (EAX, function 0x80000000)
 		HardwareInfoImpl::Cpuid(0x80000000, 0, registers);
 
 		UInt32 maxSupportedExtendedFunction = eax;
 		if (maxSupportedExtendedFunction >= 0x80000001)
 		{
-			// Récupération des capacités étendues du processeur (ECX et EDX, fonction 0x80000001)
+			// Retrieval of extended capabilities of the processor (ECX and EDX, function 0x80000001)
 			HardwareInfoImpl::Cpuid(0x80000001, 0, registers);
 
-			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support du 64bits, indépendant de l'OS
+			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, independent of the OS
 			s_capabilities[ProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
 			s_capabilities[ProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
 			s_capabilities[ProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
 
 			if (maxSupportedExtendedFunction >= 0x80000004)
 			{
-				// Récupération d'une chaîne de caractère décrivant le processeur (EAX, EBX, ECX et EDX,
-				// fonctions de 0x80000002 à 0x80000004 compris)
+				// Retrieval of the string describing the processor (EAX, EBX, ECX and EDX,
+				// functions from 0x80000002 to 0x80000004 inclusive)
 				char* ptr = &s_brandString[0];
 				for (UInt32 code = 0x80000002; code <= 0x80000004; ++code)
 				{
 					HardwareInfoImpl::Cpuid(code, 0, registers);
-					std::memcpy(ptr, &registers[0], 4*sizeof(UInt32)); // On rajoute les 16 octets à la chaîne
+					std::memcpy(ptr, &registers[0], 4*sizeof(UInt32)); // We add the 16 bytes to the string
 
 					ptr += 4*sizeof(UInt32);
 				}
 
-				// Le caractère nul faisant partie de la chaîne retournée par le CPUID, pas besoin de le rajouter
+				// The character '\0' is already part of the string
 			}
 		}
 
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the instruction of cpuid is supported
+	* \return true if it the case
+	*/
+
 	bool HardwareInfo::IsCpuidSupported()
 	{
 		return HardwareInfoImpl::IsCpuidSupported();
 	}
+
+	/*!
+	* \brief Checks whether the class HardwareInfo is initialized
+	* \return true if it is initialized
+	*/
 
 	bool HardwareInfo::IsInitialized()
 	{
 		return s_initialized;
 	}
 
+	/*!
+	* \brief Unitializes the class HardwareInfo
+	*/
+
 	void HardwareInfo::Uninitialize()
 	{
-		// Rien à faire
+		// Nothing to do
 		s_initialized = false;
 	}
 }

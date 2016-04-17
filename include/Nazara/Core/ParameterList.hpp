@@ -86,10 +86,10 @@ namespace Nz
 				Value value;
 			};
 
-			using ParameterMap = std::unordered_map<String, Parameter>;
-
+			Parameter& CreateValue(const String& name);
 			void DestroyValue(Parameter& parameter);
 
+			using ParameterMap = std::unordered_map<String, Parameter>;
 			ParameterMap m_parameters;
 	};
 }

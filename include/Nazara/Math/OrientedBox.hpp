@@ -14,6 +14,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class OrientedBox
 	{
@@ -43,8 +45,8 @@ namespace Nz
 			void Update(const Matrix4<T>& transformMatrix);
 			void Update(const Vector3<T>& transformMatrix);
 
-			operator Vector3<T>*();
-			operator const Vector3<T>*() const;
+			operator Vector3<T>* ();
+			operator const Vector3<T>* () const;
 
 			Vector3<T>& operator()(unsigned int i);
 			Vector3<T> operator()(unsigned int i) const;
@@ -67,6 +69,9 @@ namespace Nz
 
 	typedef OrientedBox<double> OrientedBoxd;
 	typedef OrientedBox<float> OrientedBoxf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb);
+	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb);
 }
 
 template<typename T>

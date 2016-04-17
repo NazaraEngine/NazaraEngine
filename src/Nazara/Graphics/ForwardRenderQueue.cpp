@@ -502,16 +502,17 @@ namespace Nz
 			layers.clear();
 		else
 		{
-			for (auto it = layers.begin(); it != layers.end(); ++it)
+			for (auto it = layers.begin(); it != layers.end();)
 			{
 				Layer& layer = it->second;
 				if (layer.clearCount++ >= 100)
-					it = layers.erase(it);
+					layers.erase(it++);
 				else
 				{
 					layer.otherDrawables.clear();
 					layer.transparentModels.clear();
 					layer.transparentModelData.clear();
+					++it;
 				}
 			}
 		}

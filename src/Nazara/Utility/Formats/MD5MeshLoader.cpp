@@ -22,7 +22,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const MeshParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeMD5MeshLoader", &skip) && skip)
+				return Ternary_False;
 
 			MD5MeshParser parser(stream);
 			return parser.Check();
@@ -247,7 +249,7 @@ namespace Nz
 					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
 					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
-					MeshVertex* vertex = reinterpret_cast<MeshVertex*>(vertexMapper.GetPointer());
+					MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());
 					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 					{
 						// Skinning MD5 (Formule d'Id Tech)

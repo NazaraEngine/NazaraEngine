@@ -16,12 +16,36 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup core
+	* \class Nz::GuillotineBinPack
+	* \brief Core class that represents the "Guillotine problem", combination of the "Bin packing problem" and the "cutting stock"
+	*/
+
 	namespace
 	{
+		/*!
+		* \brief Gets the score for fitting the area
+		* \return Score of the fitting
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
+
 		int ScoreBestAreaFit(int width, int height, const Rectui& freeRectSize)
 		{
 			return freeRectSize.width * freeRectSize.height - width * height;
 		}
+
+		/*!
+		* \brief Gets the score for fitting the area following long side
+		* \return Score of the fitting following long side
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
 
 		int ScoreBestLongSideFit(int width, int height, const Rectui& freeRectSize)
 		{
@@ -32,6 +56,15 @@ namespace Nz
 			return leftover;
 		}
 
+		/*!
+		* \brief Gets the score for fitting the area following short side
+		* \return Score of the fitting following short side
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
+
 		int ScoreBestShortSideFit(int width, int height, const Rectui& freeRectSize)
 		{
 			int leftoverHoriz = std::abs(static_cast<int>(freeRectSize.width - width));
@@ -41,15 +74,42 @@ namespace Nz
 			return leftover;
 		}
 
+		/*!
+		* \brief Gets the worst score for fitting the area
+		* \return Worst score of the fitting
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
+
 		int ScoreWorstAreaFit(int width, int height, const Rectui& freeRectSize)
 		{
 			return -ScoreBestAreaFit(width, height, freeRectSize);
 		}
 
+		/*!
+		* \brief Gets the worst score for fitting the area following long side
+		* \return Worst score of the fitting following long side
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
+
 		int ScoreWorstLongSideFit(int width, int height, const Rectui& freeRectSize)
 		{
 			return -ScoreBestLongSideFit(width, height, freeRectSize);
 		}
+
+		/*!
+		* \brief Gets the worst score for fitting the area following short side
+		* \return Worst score of the fitting following short side
+		*
+		* \param width Width
+		* \param height Height
+		* \param freeRectSize Free area
+		*/
 
 		int ScoreWorstShortSideFit(int width, int height, const Rectui& freeRectSize)
 		{
@@ -57,20 +117,41 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Constructs a GuillotineBinPack object by default
+	*/
+
 	GuillotineBinPack::GuillotineBinPack()
 	{
 		Reset();
 	}
+
+	/*!
+	* \brief Constructs a GuillotineBinPack object with width and height
+	*
+	* \param width Width
+	* \param height Height
+	*/
 
 	GuillotineBinPack::GuillotineBinPack(unsigned int width, unsigned int height)
 	{
 		Reset(width, height);
 	}
 
+	/*!
+	* \brief Constructs a GuillotineBinPack object with area
+	*
+	* \param size Vector2 representing the area (width, height)
+	*/
+
 	GuillotineBinPack::GuillotineBinPack(const Vector2ui& size)
 	{
 		Reset(size);
 	}
+
+	/*!
+	* \brief Clears the content
+	*/
 
 	void GuillotineBinPack::Clear()
 	{
@@ -79,6 +160,15 @@ namespace Nz
 
 		m_usedArea = 0;
 	}
+
+	/*!
+	* \brief Expands the content
+	*
+	* \param newWidth New width for the expansion
+	* \param newHeight New height for the expansion
+	*
+	* \see Expand
+	*/
 
 	void GuillotineBinPack::Expand(unsigned int newWidth, unsigned newHeight)
 	{
@@ -98,52 +188,123 @@ namespace Nz
 		while (MergeFreeRectangles());
 	}
 
+	/*!
+	* \brief Expands the content
+	*
+	* \param newSize New area for the expansion
+	*
+	* \see Expand
+	*/
+
 	void GuillotineBinPack::Expand(const Vector2ui& newSize)
 	{
 		Expand(newSize.x, newSize.y);
 	}
 
+	/*!
+	* \brief Frees the rectangle
+	*
+	* \param rect Area to free
+	*
+	* \remark This method should only be called with computed rectangles by the method Insert and can produce fragmentation
+	*/
+
 	void GuillotineBinPack::FreeRectangle(const Rectui& rect)
 	{
-		///DOC: Cette méthode ne devrait recevoir que des rectangles calculés par la méthode Insert et peut provoquer de la fragmentation
 		m_freeRectangles.push_back(rect);
 
 		m_usedArea -= rect.width * rect.height;
 	}
+
+	/*!
+	* \brief Gets the height
+	* \return Height of the area
+	*/
 
 	unsigned int GuillotineBinPack::GetHeight() const
 	{
 		return m_height;
 	}
 
+	/*!
+	* \brief Gets percentage of occupation
+	* \return Percentage of the already occupied area
+	*/
+
 	float GuillotineBinPack::GetOccupancy() const
 	{
 		return static_cast<float>(m_usedArea)/(m_width*m_height);
 	}
+
+	/*!
+	* \brief Gets the size of the area
+	* \return Size of the area
+	*/
 
 	Vector2ui GuillotineBinPack::GetSize() const
 	{
 		return Vector2ui(m_width, m_height);
 	}
 
+	/*!
+	* \brief Gets the width
+	* \return Width of the area
+	*/
+
 	unsigned int GuillotineBinPack::GetWidth() const
 	{
 		return m_width;
 	}
+
+	/*!
+	* \brief Inserts rectangles in the area
+	* \return true if each rectangle could be inserted
+	*
+	* \param rects List of rectangles
+	* \param count Count of rectangles
+	* \param merge Merge possible
+	* \param rectChoice Heuristic to use to free
+	* \param splitMethod Heuristic to use to split
+	*/
 
 	bool GuillotineBinPack::Insert(Rectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 	{
 		return Insert(rects, nullptr, nullptr, count, merge, rectChoice, splitMethod);
 	}
 
+	/*!
+	* \brief Inserts rectangles in the area
+	* \return true if each rectangle could be inserted
+	*
+	* \param rects List of rectangles
+	* \param flipped List of flipped rectangles
+	* \param count Count of rectangles
+	* \param merge Merge possible
+	* \param rectChoice Heuristic to use to free
+	* \param splitMethod Heuristic to use to split
+	*/
+
 	bool GuillotineBinPack::Insert(Rectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 	{
 		return Insert(rects, flipped, nullptr, count, merge, rectChoice, splitMethod);
 	}
 
+	/*!
+	* \brief Inserts rectangles in the area
+	* \return true if each rectangle could be inserted
+	*
+	* \param rects List of rectangles
+	* \param flipped List of flipped rectangles
+	* \param flipped List of inserted rectangles
+	* \param count Count of rectangles
+	* \param merge Merge possible
+	* \param rectChoice Heuristic to use to free
+	* \param splitMethod Heuristic to use to split
+	*/
+
 	bool GuillotineBinPack::Insert(Rectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 	{
-		std::vector<Rectui*> remainingRects(count); // La position du rectangle
+		std::vector<Rectui*> remainingRects(count); // Position of the rectangle
 		for (unsigned int i = 0; i < count; ++i)
 			remainingRects[i] = &rects[i];
 
@@ -214,7 +375,7 @@ namespace Nz
 			// If we didn't manage to find any rectangle to pack, abort.
 			if (bestScore == std::numeric_limits<int>::max())
 			{
-				// Si nous le pouvons, on marque les rectangles n'ayant pas pu être insérés
+				// If we can do it, we mark the rectangle could be inserted
 				if (inserted)
 				{
 					for (Rectui* rect : remainingRects)
@@ -259,9 +420,13 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Merges free rectangles together
+	* \return true if there was a merge (and thus if a merge is still possible)
+	*/
+
 	bool GuillotineBinPack::MergeFreeRectangles()
 	{
-		///DOC: Renvoie true s'il y a eu fusion (et donc si une fusion est encore possible)
 		std::size_t oriSize = m_freeRectangles.size();
 
 		// Do a Theta(n^2) loop to see if any pair of free rectangles could me merged into one.
@@ -312,6 +477,10 @@ namespace Nz
 		return m_freeRectangles.size() < oriSize;
 	}
 
+	/*!
+	* \brief Resets the area
+	*/
+
 	void GuillotineBinPack::Reset()
 	{
 		m_height = 0;
@@ -319,6 +488,13 @@ namespace Nz
 
 		Clear();
 	}
+
+	/*!
+	* \brief Resets the area
+	*
+	* \param width Width
+	* \param height Height
+	*/
 
 	void GuillotineBinPack::Reset(unsigned int width, unsigned int height)
 	{
@@ -328,10 +504,24 @@ namespace Nz
 		Clear();
 	}
 
+	/*!
+	* \brief Resets the area
+	*
+	* \param size Size of the area
+	*/
+
 	void GuillotineBinPack::Reset(const Vector2ui& size)
 	{
 		Reset(size.x, size.y);
 	}
+
+	/*!
+	* \brief Splits the free rectangle along axis
+	*
+	* \param freeRect Free rectangle to split
+	* \param placedRect Already placed rectangle
+	* \param splitHorizontal Split horizontally (or vertically)
+	*/
 
 	void GuillotineBinPack::SplitFreeRectAlongAxis(const Rectui& freeRect, const Rectui& placedRect, bool splitHorizontal)
 	{
@@ -365,50 +555,60 @@ namespace Nz
 			m_freeRectangles.push_back(right);
 	}
 
+	/*!
+	* \brief Splits the free rectangle using the heuristic
+	*
+	* \param freeRect Free rectangle to split
+	* \param placedRect Already placed rectangle
+	* \param method Method used to split
+	*
+	* \remark Produces a NazaraError if enumeration GuillotineSplitHeuristic is invalid
+	*/
+
 	void GuillotineBinPack::SplitFreeRectByHeuristic(const Rectui& freeRect, const Rectui& placedRect, GuillotineSplitHeuristic method)
 	{
-		// Compute the lengths of the leftover area.
+		// Compute the lengths of the leftover area
 		const int w = freeRect.width - placedRect.width;
 		const int h = freeRect.height - placedRect.height;
 
 		// Placing placedRect into freeRect results in an L-shaped free area, which must be split into
-		// two disjoint rectangles. This can be achieved with by splitting the L-shape using a single line.
-		// We have two choices: horizontal or vertical.
+		// two disjoint rectangles. This can be achieved with by splitting the L-shape using a single line
+		// We have two choices: horizontal or vertical
 
-		// Use the given heuristic to decide which choice to make.
+		// Use the given heuristic to decide which choice to make
 
 		bool splitHorizontal;
 		switch (method)
 		{
 			case SplitLongerAxis:
-				// Split along the longer total axis.
+				// Split along the longer total axis
 				splitHorizontal = (freeRect.width > freeRect.height);
 				break;
 
 			case SplitLongerLeftoverAxis:
-				// Split along the longer leftover axis.
+				// Split along the longer leftover axis
 				splitHorizontal = (w > h);
 				break;
 
 			case SplitMaximizeArea:
-				// Maximize the smaller area == minimize the larger area.
-				// Tries to make the rectangles more even-sized.
+				// Maximize the smaller area == minimize the larger area
+				// Tries to make the rectangles more even-sized
 				splitHorizontal = (placedRect.width * h <= w * placedRect.height);
 				break;
 
 			case SplitMinimizeArea:
-				// Maximize the larger area == minimize the smaller area.
-				// Tries to make the single bigger rectangle.
+				// Maximize the larger area == minimize the smaller area
+				// Tries to make the single bigger rectangle
 				splitHorizontal = (placedRect.width * h > w * placedRect.height);
 				break;
 
 			case SplitShorterAxis:
-				// Split along the shorter total axis.
+				// Split along the shorter total axis
 				splitHorizontal = (freeRect.width <= freeRect.height);
 				break;
 
 			case SplitShorterLeftoverAxis:
-				// Split along the shorter leftover axis.
+				// Split along the shorter leftover axis
 				splitHorizontal = (w <= h);
 				break;
 
@@ -417,9 +617,21 @@ namespace Nz
 				splitHorizontal = true;
 		}
 
-		// Perform the actual split.
+		// Perform the actual split
 		SplitFreeRectAlongAxis(freeRect, placedRect, splitHorizontal);
 	}
+
+	/*!
+	* \brief Gets the score using heuristic
+	* \return Score of the heuristic
+	*
+	* \param width Width
+	* \param height Height
+	* \param freeRect Free area
+	* \param rectChoice Heuristic to get score
+	*
+	* \remark Produces a NazaraError if enumeration FreeRectChoiceHeuristic is invalid
+	*/
 
 	int GuillotineBinPack::ScoreByHeuristic(int width, int height, const Rectui& freeRect, FreeRectChoiceHeuristic rectChoice)
 	{

@@ -19,7 +19,7 @@ namespace Nz
 			GuillotineTextureAtlas() = default;
 			~GuillotineTextureAtlas() = default;
 
-			UInt32 GetStorage() const;
+			UInt32 GetStorage() const override;
 
 		private:
 			AbstractImage* ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const override;

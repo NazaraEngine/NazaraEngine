@@ -99,5 +99,20 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 				REQUIRE(firstCenterAndUnit.aabb != secondCenterAndUnit.aabb);
 			}
 		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::BoundingVolumef nullBoundingVolume = Nz::BoundingVolumef(Nz::Vector3f::Zero(), Nz::Vector3f::Zero());
+				Nz::BoundingVolumef centerAndUnit = firstCenterAndUnit;
+				nullBoundingVolume.Update(Nz::Matrix4f::Identity());
+				centerAndUnit.Update(Nz::Matrix4f::Identity());
+				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				result.Update(Nz::Matrix4f::Identity());
+
+				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, centerAndUnit, 0.5f) == result);
+			}
+		}
 	}
 }

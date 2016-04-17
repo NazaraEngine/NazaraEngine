@@ -17,17 +17,6 @@ namespace Nz
 	{
 	}
 
-	inline TcpClient::TcpClient(TcpClient&& tcpClient) :
-	AbstractSocket(std::move(tcpClient)),
-	Stream(std::move(tcpClient)),
-	m_peerAddress(std::move(tcpClient.m_peerAddress)),
-	m_keepAliveInterval(tcpClient.m_keepAliveInterval),
-	m_keepAliveTime(tcpClient.m_keepAliveTime),
-	m_isLowDelayEnabled(tcpClient.m_isLowDelayEnabled),
-	m_isKeepAliveEnabled(tcpClient.m_isKeepAliveEnabled)
-	{
-	}
-
 	inline void TcpClient::Disconnect()
 	{
 		Close();

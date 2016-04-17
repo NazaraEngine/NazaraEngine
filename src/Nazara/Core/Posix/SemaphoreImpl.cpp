@@ -13,7 +13,7 @@ namespace Nz
 {
 	SemaphoreImpl::SemaphoreImpl(unsigned int count)
 	{
-		if(sem_init(&m_semaphore, 0, count) != 0)
+		if (sem_init(&m_semaphore, 0, count) != 0)
 			NazaraError("Failed to create semaphore: " + Error::GetLastSystemError());
 	}
 
@@ -68,7 +68,7 @@ namespace Nz
 
 		return true;
 		#else
-			return sem_timedwait(&m_semaphore, &ti) != 0;
+		return sem_timedwait(&m_semaphore, &ti) != 0;
 		#endif
 	}
 }

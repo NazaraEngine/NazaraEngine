@@ -1,0 +1,57 @@
+// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel-01---Hello-World
+
+#include <Nazara/Graphics.hpp>
+#include <Nazara/Renderer.hpp>
+#include <Nazara/Utility.hpp>
+#include <NDK/Application.hpp>
+#include <NDK/Components.hpp>
+#include <NDK/Systems.hpp>
+#include <NDK/World.hpp>
+#include <iostream>
+
+int main()
+{
+	Ndk::Application application;
+
+	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
+	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");
+
+	Ndk::World& world = application.AddWorld();
+	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(192, 100, 100)));
+
+
+	Ndk::EntityHandle viewEntity = world.CreateEntity();
+	viewEntity->AddComponent<Ndk::NodeComponent>();
+
+	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
+	viewer.SetTarget(&mainWindow);
+	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+
+
+	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
+	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
+
+	Ndk::EntityHandle text = world.CreateEntity();
+	Ndk::NodeComponent& nodeComponent = text->AddComponent<Ndk::NodeComponent>();
+
+	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
+	graphicsComponent.Attach(textSprite);
+
+	Nz::Boxf textBox = graphicsComponent.GetBoundingVolume().aabb;
+	nodeComponent.SetPosition(mainWindow.GetWidth() / 2 - textBox.width / 2, mainWindow.GetHeight() / 2 - textBox.height / 2);
+
+	while (application.Run())
+	{
+		Nz::WindowEvent event;
+		while (mainWindow.PollEvent(&event))
+		{
+			if (event.type == Nz::WindowEventType_Quit)
+				application.Quit();
+		}
+
+		mainWindow.Display();
+	}
+
+	return EXIT_SUCCESS;
+}

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/STBLoader.hpp>
-#include <stb_image/stb_image.h>
+#include <stb/stb_image.h>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -17,6 +17,12 @@ namespace Nz
 {
 	namespace
 	{
+		int Eof(void* userdata)
+		{
+			Stream* stream = static_cast<Stream*>(userdata);
+			return stream->GetCursorPos() >= stream->GetSize();
+		}
+
 		int Read(void* userdata, char* data, int size)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
@@ -29,12 +35,6 @@ namespace Nz
 			stream->SetCursorPos(static_cast<Int64>(stream->GetCursorPos()) + static_cast<Int64>(size));
 		}
 
-		int Eof(void* userdata)
-		{
-			Stream* stream = static_cast<Stream*>(userdata);
-			return stream->GetCursorPos() >= stream->GetSize();
-		}
-
 		static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
 		bool IsSupported(const String& extension)
@@ -45,7 +45,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeSTBLoader", &skip) && skip)
+				return Ternary_False;
 
 			int width, height, bpp;
 			if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
@@ -87,12 +89,12 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterSTB()
+		void RegisterSTBLoader()
 		{
 			ImageLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		void UnregisterSTB()
+		void UnregisterSTBLoader()
 		{
 			ImageLoader::UnregisterLoader(IsSupported, Check, Load);
 		}
