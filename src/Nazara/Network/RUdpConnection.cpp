@@ -63,7 +63,7 @@ namespace Nz
 		return Connect(hostnameAddress);
 	}
 
-	bool RUdpConnection::Listen(const IpAddress& address, unsigned int queueSize)
+	bool RUdpConnection::Listen(const IpAddress& address)
 	{
 		if (!InitSocket(address.GetProtocol()))
 			return false;
@@ -110,7 +110,7 @@ namespace Nz
 		{
 			PeerData& peer = m_peers[m_peerIterator];
 
-			UInt32 timeSinceLastPacket = m_currentTime - peer.lastPacketTime;
+			UInt32 timeSinceLastPacket = static_cast<UInt32>(m_currentTime - peer.lastPacketTime);
 			if (timeSinceLastPacket > m_timeBeforeTimeOut)
 			{
 				DisconnectPeer(peer.index);
