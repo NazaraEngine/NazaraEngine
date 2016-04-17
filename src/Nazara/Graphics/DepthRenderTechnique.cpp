@@ -48,7 +48,7 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 	}
 
-	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
+	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
@@ -57,7 +57,10 @@ namespace Nz
 		// Just in case the background does render depth
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
+	}
 
+	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
+	{
 		for (auto& pair : m_renderQueue.layers)
 		{
 			ForwardRenderQueue::Layer& layer = pair.second;

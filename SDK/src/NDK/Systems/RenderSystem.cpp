@@ -4,6 +4,7 @@
 
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
@@ -169,6 +170,7 @@ namespace Ndk
 			Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f));
 			Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetRotation() * Nz::Vector3f::Forward() * 100.f, lightNode.GetRotation()));
 
+			m_shadowTechnique.Clear(dummySceneData);
 			m_shadowTechnique.Draw(dummySceneData);
 		}
 	}
@@ -233,6 +235,7 @@ namespace Ndk
 							graphicsComponent.AddToRenderQueue(renderQueue);
 						}
 
+						m_shadowTechnique.Clear(dummySceneData);
 						m_shadowTechnique.Draw(dummySceneData);
 					}
 					break;
@@ -260,6 +263,7 @@ namespace Ndk
 						graphicsComponent.AddToRenderQueue(renderQueue);
 					}
 
+					m_shadowTechnique.Clear(dummySceneData);
 					m_shadowTechnique.Draw(dummySceneData);
 					break;
 				}
