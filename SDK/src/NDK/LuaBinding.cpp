@@ -14,6 +14,7 @@ namespace Ndk
 	// Math
 	eulerAnglesClass("EulerAngles"),
 	quaternionClass("Quaternion"),
+    rectClass("Rect"),
 	vector2dClass("Vector2"),
 	vector3dClass("Vector3"),
 

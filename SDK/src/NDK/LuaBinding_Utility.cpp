@@ -249,7 +249,238 @@ namespace Ndk
 
 	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
 	{
+        // Classes
 		abstractImage.Register(instance);
 		nodeClass.Register(instance);
+
+        // Enums
+
+        // Key
+        instance.PushTable();
+        {
+            for (unsigned int i = 0; i < Nz::Keyboard::Count; ++i)
+            {
+                if (i <= Nz::Keyboard::Z)
+                {
+                    instance.PushInteger(i);
+                    instance.SetField(Nz::String(i + 65));
+                }
+                else if (i >= Nz::Keyboard::F1 && i <= Nz::Keyboard::F15)
+                {
+                    instance.PushInteger(i);
+                    instance.SetField('F' + Nz::String::Number(i - 25));
+                }
+                else if (i == Nz::Keyboard::Down)
+                {
+                    instance.PushInteger(Nz::Keyboard::Down);
+                    instance.SetField("Down");
+
+                    instance.PushInteger(Nz::Keyboard::Left);
+                    instance.SetField("Left");
+
+                    instance.PushInteger(Nz::Keyboard::Right);
+                    instance.SetField("Right");
+
+                    instance.PushInteger(Nz::Keyboard::Up);
+                    instance.SetField("Up");
+
+                    i += 3;
+                }
+                else if (i == Nz::Keyboard::Add)
+                {
+                    instance.PushInteger(Nz::Keyboard::Add);
+                    instance.SetField("Add");
+
+                    instance.PushInteger(Nz::Keyboard::Decimal);
+                    instance.SetField("Decimal");
+
+                    instance.PushInteger(Nz::Keyboard::Divide);
+                    instance.SetField("Divide");
+
+                    instance.PushInteger(Nz::Keyboard::Multiply);
+                    instance.SetField("Multiply");
+
+                    i += 3;
+                }
+                else if (i >= Nz::Keyboard::Numpad0 && i <= Nz::Keyboard::Numpad9)
+                {
+                    instance.PushInteger(i);
+                    instance.SetField("Numpad" + Nz::String::Number(i - 48));
+                }
+                else if (i == Nz::Keyboard::Subtract)
+                {
+                    instance.PushInteger(Nz::Keyboard::Subtract);
+                    instance.SetField("Substract");
+
+                    instance.PushInteger(Nz::Keyboard::Backslash);
+                    instance.SetField("Backslash");
+
+                    instance.PushInteger(Nz::Keyboard::Backspace);
+                    instance.SetField("Backspace");
+
+                    instance.PushInteger(Nz::Keyboard::Clear);
+                    instance.SetField("Clear");
+
+                    instance.PushInteger(Nz::Keyboard::Comma);
+                    instance.SetField("Comma");
+
+                    instance.PushInteger(Nz::Keyboard::Dash);
+                    instance.SetField("Dash");
+
+                    instance.PushInteger(Nz::Keyboard::Delete);
+                    instance.SetField("Delete");
+
+                    instance.PushInteger(Nz::Keyboard::End);
+                    instance.SetField("End");
+
+                    instance.PushInteger(Nz::Keyboard::Equal);
+                    instance.SetField("Equal");
+
+                    instance.PushInteger(Nz::Keyboard::Escape);
+                    instance.SetField("Escape");
+
+                    instance.PushInteger(Nz::Keyboard::Home);
+                    instance.SetField("Home");
+
+                    instance.PushInteger(Nz::Keyboard::Insert);
+                    instance.SetField("Insert");
+
+                    instance.PushInteger(Nz::Keyboard::LAlt);
+                    instance.SetField("LAlt");
+
+                    instance.PushInteger(Nz::Keyboard::LBracket);
+                    instance.SetField("Home");
+
+                    instance.PushInteger(Nz::Keyboard::LControl);
+                    instance.SetField("LControls");
+
+                    instance.PushInteger(Nz::Keyboard::LShift);
+                    instance.SetField("LShift");
+
+                    instance.PushInteger(Nz::Keyboard::LSystem);
+                    instance.SetField("LSystem");
+
+                    i += 16;
+                }
+                else if (i >= Nz::Keyboard::Num0 && i <= Nz::Keyboard::Num9)
+                {
+                    instance.PushInteger(i);
+                    instance.SetField("Num" + Nz::String::Number(i - 75));
+                }
+                else if (i == Nz::Keyboard::PageDown)
+                {
+                    instance.PushInteger(Nz::Keyboard::PageDown);
+                    instance.SetField("PageDown");
+
+                    instance.PushInteger(Nz::Keyboard::PageUp);
+                    instance.SetField("PageUp");
+
+                    instance.PushInteger(Nz::Keyboard::Pause);
+                    instance.SetField("Pause");
+
+                    instance.PushInteger(Nz::Keyboard::Period);
+                    instance.SetField("Period");
+
+                    instance.PushInteger(Nz::Keyboard::Print);
+                    instance.SetField("Print");
+
+                    instance.PushInteger(Nz::Keyboard::PrintScreen);
+                    instance.SetField("PrintScreen");
+
+                    instance.PushInteger(Nz::Keyboard::Quote);
+                    instance.SetField("Quote");
+
+                    instance.PushInteger(Nz::Keyboard::RAlt);
+                    instance.SetField("RAlt");
+
+                    instance.PushInteger(Nz::Keyboard::RBracket);
+                    instance.SetField("RBracket");
+
+                    instance.PushInteger(Nz::Keyboard::RControl);
+                    instance.SetField("RControl");
+
+                    instance.PushInteger(Nz::Keyboard::Return);
+                    instance.SetField("Return");
+
+                    instance.PushInteger(Nz::Keyboard::RShift);
+                    instance.SetField("RShift");
+
+                    instance.PushInteger(Nz::Keyboard::RSystem);
+                    instance.SetField("RSystem");
+
+                    instance.PushInteger(Nz::Keyboard::Semicolon);
+                    instance.SetField("Semicolon");
+
+                    instance.PushInteger(Nz::Keyboard::Slash);
+                    instance.SetField("Slash");
+
+                    instance.PushInteger(Nz::Keyboard::Space);
+                    instance.SetField("Space");
+
+                    instance.PushInteger(Nz::Keyboard::Tab);
+                    instance.SetField("Tab");
+
+                    instance.PushInteger(Nz::Keyboard::Tilde);
+                    instance.SetField("Tilde");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Back);
+                    instance.SetField("Browser_Back");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Favorites);
+                    instance.SetField("Browser_Favorites");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Forward);
+                    instance.SetField("Browser_Forward");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Home);
+                    instance.SetField("Browser_Home");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Refresh);
+                    instance.SetField("Browser_Refresh");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Search);
+                    instance.SetField("Browser_Search");
+
+                    instance.PushInteger(Nz::Keyboard::Browser_Stop);
+                    instance.SetField("Browser_Stop");
+
+                    instance.PushInteger(Nz::Keyboard::Media_Next);
+                    instance.SetField("Media_Next");
+
+                    instance.PushInteger(Nz::Keyboard::Media_Play);
+                    instance.SetField("Media_Play");
+
+                    instance.PushInteger(Nz::Keyboard::Media_Previous);
+                    instance.SetField("Media_Previous");
+
+                    instance.PushInteger(Nz::Keyboard::Media_Stop);
+                    instance.SetField("Media_Stop");
+
+                    instance.PushInteger(Nz::Keyboard::Volume_Down);
+                    instance.SetField("Volume_Down");
+
+                    instance.PushInteger(Nz::Keyboard::Volume_Mute);
+                    instance.SetField("Volume_Mute");
+
+                    instance.PushInteger(Nz::Keyboard::Volume_Up);
+                    instance.SetField("Volume_Up");
+
+                    instance.PushInteger(Nz::Keyboard::CapsLock);
+                    instance.SetField("CapsLock");
+
+                    instance.PushInteger(Nz::Keyboard::NumLock);
+                    instance.SetField("NumLock");
+
+                    instance.PushInteger(Nz::Keyboard::ScrollLock);
+                    instance.SetField("ScrollLock");
+
+                    instance.PushInteger(Nz::Keyboard::Count);
+                    instance.SetField("Count");
+
+                    i += 34;
+                }
+            }
+        }
+        instance.SetGlobal("Key");
 	}
 }

@@ -93,6 +93,36 @@ namespace Nz
 		return ret;
 	}
 
+    inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectd* rect, TypeTag<Rectd>)
+    {
+        instance.CheckType(index, LuaType_Table);
+
+        rect->x = instance.CheckField<double>("x", index);
+        rect->y = instance.CheckField<double>("y", index);
+        rect->width = instance.CheckField<double>("width", index);
+        rect->height = instance.CheckField<double>("height", index);
+
+        return 1;
+    }
+
+    inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectf* rect, TypeTag<Rectf>)
+    {
+        Rectd rectDouble;
+        unsigned int ret = LuaImplQueryArg(instance, index, &rectDouble, TypeTag<Rectd>());
+
+        rect->Set(rectDouble);
+        return ret;
+    }
+
+    inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectui* rect, TypeTag<Rectui>)
+    {
+        Rectd rectDouble;
+        unsigned int ret = LuaImplQueryArg(instance, index, &rectDouble, TypeTag<Rectd>());
+
+        rect->Set(rectDouble);
+        return ret;
+    }
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
 	{
 		switch (instance.GetType(index))
@@ -127,7 +157,7 @@ namespace Nz
 				return 1;
 		}
 	}
-
+    
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector2f* vec, TypeTag<Vector2f>)
 	{
 		Vector2d vecDouble;
@@ -278,6 +308,12 @@ namespace Nz
 		instance.PushInstance<Quaterniond>("Quaternion", val);
 		return 1;
 	}
+
+    inline int LuaImplReplyVal(const LuaInstance& instance, Rectd val, TypeTag<Rectd>)
+    {
+        instance.PushInstance<Rectd>("Rect", val);
+        return 1;
+    }
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress val, TypeTag<IpAddress>)
 	{
